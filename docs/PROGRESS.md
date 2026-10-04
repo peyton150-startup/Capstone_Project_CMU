@@ -11,8 +11,8 @@ A component is complete only when both columns are checked.
 | # | Component                     | Taught | Understood (pre) | Implemented | Understood (post) | Notes |
 |---|-------------------------------|--------|------------------|-------------|-------------------|-------|
 | 1 | SimulationClock               | yes    | yes              | yes         | yes               | `capstone/simulator/clock.py` — COMPLETE |
-| 2 | Deterministic random source   | yes    | yes              | yes         |                   | `capstone/simulator/rng.py`; awaiting post-implementation re-explain |
-| 3 | Machine identity / MachineState |      |                  |             |                   | |
+| 2 | Deterministic random source   | yes    | yes              | yes         | yes               | `capstone/simulator/rng.py` — COMPLETE |
+| 3 | Machine identity / MachineState | yes  |                  |             |                   | gate question asked, awaiting answer |
 | 4 | Sensor abstraction + 1 reading |       |                  |             |                   | |
 | 5 | FactoryState + step()         |        |                  |             |                   | |
 | 6 | Event log                     |        |                  |             |                   | |
