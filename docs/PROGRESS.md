@@ -12,7 +12,7 @@ A component is complete only when both columns are checked.
 |---|-------------------------------|--------|------------------|-------------|-------------------|-------|
 | 1 | SimulationClock               | yes    | yes              | yes         | yes               | `capstone/simulator/clock.py` — COMPLETE |
 | 2 | Deterministic random source   | yes    | yes              | yes         | yes               | `capstone/simulator/rng.py` — COMPLETE |
-| 3 | Machine identity / MachineState | yes  |                  |             |                   | gate question asked, awaiting answer |
+| 3 | Machine identity / MachineState | yes  | yes              | yes         |                   | `capstone/simulator/state.py`; awaiting post-implementation re-explain |
 | 4 | Sensor abstraction + 1 reading |       |                  |             |                   | |
 | 5 | FactoryState + step()         |        |                  |             |                   | |
 | 6 | Event log                     |        |                  |             |                   | |
@@ -37,3 +37,8 @@ A component is complete only when both columns are checked.
   stream changes its history). Implemented `RandomSource` + 9 tests, 17
   total passing. Stream names are frozen contracts once histories are
   recorded.
+- **Session 1 (cont.)** — MachineState gate passed after teaching the
+  cause-vs-evidence distinction (developer: "bearing_health is the
+  beginning of the chain, vibration is the end — what the sensor says").
+  Implemented `MachineStatus`, `MachineCondition` (hidden), `MachineState`
+  with pydantic bounds validation; 11 tests, 28 total passing.
