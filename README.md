@@ -6,6 +6,8 @@ later, an AI research agent that investigates it through tools.
 
 - `CLAUDE.md` — development rules, architecture principles, and the
   gated teaching workflow used to build this project.
+- `docs/MVP_SCOPE.md` — what the MVP includes, what it excludes, and the
+  post-MVP roadmap.
 - `docs/PROGRESS.md` — which components are implemented and which are
   understood (tracked separately).
 - `capstone/simulator/` — the simulator (runs with no LLM).

@@ -254,12 +254,17 @@ interventions, and evaluation — not infrastructure.
 
 ## 5. Scope
 
+**`docs/MVP_SCOPE.md` is the authoritative MVP boundary** (one line,
+3–5 machines, 4 scenarios, one agent, 6–8 tools, HITL approval,
+mandatory post-intervention verification, basic memory, evaluation in
+the MVP). What follows is the simulator's first vertical slice within it.
+
 ### 5.1 Initial scope — one strong vertical slice
 
 Do not implement the whole simulator at once. The first environment
 should eventually contain approximately:
 
-- 4–6 machines
+- 3–5 machines
 - several sensor types
 - factory state
 - simulation clock
@@ -275,12 +280,14 @@ should eventually contain approximately:
 - hidden ground truth
 - deterministic/reproducible scenario seeds
 
-### 5.2 Later scenarios (after the first one works and is abstracted)
+### 5.2 Remaining MVP scenarios, then later ones
 
-tool wear, coolant failure, material defect, sensor drift, motor
-degradation, misalignment, pressure leak, quality process drift,
-production bottleneck. Eventually scenarios must be **composable** so
-several unrelated or interacting faults can coexist.
+After bearing degradation works and is abstracted, the other three MVP
+scenarios: material/batch problem, machine configuration problem, and a
+false alarm / transient anomaly. Post-MVP candidates: tool wear, coolant
+failure, sensor drift, motor degradation, misalignment, pressure leak,
+quality process drift, production bottleneck. Eventually scenarios must
+be **composable** so several unrelated or interacting faults can coexist.
 
 ---
 
