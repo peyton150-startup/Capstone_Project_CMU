@@ -11,7 +11,7 @@ A component is complete only when both columns are checked.
 | # | Component                     | Taught | Understood (pre) | Implemented | Understood (post) | Notes |
 |---|-------------------------------|--------|------------------|-------------|-------------------|-------|
 | 1 | SimulationClock               | yes    | yes              | yes         | yes               | `capstone/simulator/clock.py` — COMPLETE |
-| 2 | Deterministic random source   | yes    |                  |             |                   | gate question asked, awaiting answer |
+| 2 | Deterministic random source   | yes    | yes              | yes         |                   | `capstone/simulator/rng.py`; awaiting post-implementation re-explain |
 | 3 | Machine identity / MachineState |      |                  |             |                   | |
 | 4 | Sensor abstraction + 1 reading |       |                  |             |                   | |
 | 5 | FactoryState + step()         |        |                  |             |                   | |
@@ -31,3 +31,9 @@ A component is complete only when both columns are checked.
   Implemented `SimulationClock` + 8 tests, all passing. Deliberate
   simplification: `clock.py` is a module, not the `clock/` package in
   CLAUDE.md §6; promote it if it grows.
+- **Session 1 (cont.)** — Random source gate passed after two corrections
+  (clock does not advance streams; sequence depends on `(seed, name)`,
+  not seed alone — developer then correctly derived that renaming a
+  stream changes its history). Implemented `RandomSource` + 9 tests, 17
+  total passing. Stream names are frozen contracts once histories are
+  recorded.
