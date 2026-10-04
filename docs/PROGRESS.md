@@ -10,7 +10,7 @@ A component is complete only when both columns are checked.
 
 | # | Component                     | Taught | Understood (pre) | Implemented | Understood (post) | Notes |
 |---|-------------------------------|--------|------------------|-------------|-------------------|-------|
-| 1 | SimulationClock               | yes    |                  |             |                   | first gate question asked, awaiting answer |
+| 1 | SimulationClock               | yes    | yes              | yes         |                   | `capstone/simulator/clock.py`; awaiting post-implementation re-explain |
 | 2 | Deterministic random source   |        |                  |             |                   | |
 | 3 | Machine identity / MachineState |      |                  |             |                   | |
 | 4 | Sensor abstraction + 1 reading |       |                  |             |                   | |
@@ -25,3 +25,9 @@ A component is complete only when both columns are checked.
 - **Session 1** — Repo was empty. Created CLAUDE.md, package skeleton,
   this log. Recommended SimulationClock as the first component; asked
   the first comprehension question. No simulator logic implemented.
+- **Session 1 (cont.)** — Clock gate passed (developer explained single
+  ownership of time, intermittent same-seed failures with multiple
+  counters, and corrupted-ordering consequences for the agent).
+  Implemented `SimulationClock` + 8 tests, all passing. Deliberate
+  simplification: `clock.py` is a module, not the `clock/` package in
+  CLAUDE.md §6; promote it if it grows.
