@@ -14,8 +14,8 @@ A component is complete only when both columns are checked.
 | 2 | Deterministic random source   | yes    | yes              | yes         | yes               | `capstone/simulator/rng.py` — COMPLETE |
 | 3 | Machine identity / MachineState | yes  | yes              | yes         | yes               | `capstone/simulator/state.py` — COMPLETE |
 | 4 | Sensor abstraction + 1 reading | yes   | yes              | yes         | yes               | `capstone/simulator/sensors.py` — COMPLETE |
-| 5 | FactoryState + step()         | yes    | yes              | yes         |                   | `state.py` (`FactoryState`), `simulator.py` (`Simulator.step`); awaiting post-implementation re-explain |
-| 6 | Event log                     |        |                  |             |                   | |
+| 5 | FactoryState + step()         | yes    | yes              | yes         | yes               | `state.py` (`FactoryState`), `simulator.py` (`Simulator.step`) — COMPLETE |
+| 6 | Event log                     | yes    | yes              | yes         |                   | `capstone/simulator/events.py`; awaiting post-implementation re-explain |
 | 7 | Scenario abstraction          |        |                  |             |                   | |
 | 8 | BearingDegradation scenario   |        |                  |             |                   | |
 | 9 | Ground truth + observation boundary (tools) | |          |             |                   | |
@@ -68,3 +68,15 @@ A component is complete only when both columns are checked.
   wrong. Implemented `FactoryState`, `Simulator` with `step()`; 9 tests,
   48 total. Debt: `_update_reality` is an empty hook, and the ordering
   test overrides it in a subclass until scenarios exist (row 7).
+- **Session 3 (cont.)** — `step()` post-implementation gate passed
+  (developer: tick first, damage before the reading, both sensors read
+  and write to the reading log). Claude filled in where each result
+  lands (clock / FactoryState / log). Taught the event log, with a
+  vibration threshold alarm as the first event; gate question asked.
+- **Session 3 (cont.)** — Event log gate passed (developer: an alarm on
+  `bearing_health` would hint the hidden truth to the agent; an alarm
+  can fire on a healthy machine and that ambiguity is wanted). Developer
+  proposed heavy load as the cause; load is not modelled yet — candidate
+  for the unrelated-anomaly source in CLAUDE.md §5.1. Implemented
+  `Event` (frozen), `EventLog` (append-only, tick-ordered),
+  `ThresholdAlarm`, and an alarm stage in `step()`; 9 tests, 57 total.
