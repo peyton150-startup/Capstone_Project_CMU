@@ -15,8 +15,8 @@ A component is complete only when both columns are checked.
 | 3 | Machine identity / MachineState | yes  | yes              | yes         | yes               | `capstone/simulator/state.py` — COMPLETE |
 | 4 | Sensor abstraction + 1 reading | yes   | yes              | yes         | yes               | `capstone/simulator/sensors.py` — COMPLETE |
 | 5 | FactoryState + step()         | yes    | yes              | yes         | yes               | `state.py` (`FactoryState`), `simulator.py` (`Simulator.step`) — COMPLETE |
-| 6 | Event log                     | yes    | yes              | yes         |                   | `capstone/simulator/events.py`; awaiting post-implementation re-explain |
-| 7 | Scenario abstraction          |        |                  |             |                   | |
+| 6 | Event log                     | yes    | yes              | yes         | yes               | `capstone/simulator/events.py` — COMPLETE |
+| 7 | Scenario abstraction          | yes    |                  |             |                   | gate question asked, awaiting answer |
 | 8 | BearingDegradation scenario   |        |                  |             |                   | |
 | 9 | Ground truth + observation boundary (tools) | |          |             |                   | |
 
@@ -80,3 +80,10 @@ A component is complete only when both columns are checked.
   for the unrelated-anomaly source in CLAUDE.md §5.1. Implemented
   `Event` (frozen), `EventLog` (append-only, tick-ordered),
   `ThresholdAlarm`, and an alarm stage in `step()`; 9 tests, 57 total.
+- **Session 3 (cont.)** — Event log post-implementation gate passed.
+  Developer first attributed "readings show it first" to the alarm being
+  appended after the reading within a step; corrected (same tick — the
+  threshold is the reason). Developer then read off a worked table that
+  the event log says nothing about CNC-04 at tick 450 and that about
+  0.40 health remains at the first alarm. Taught the Scenario
+  abstraction; gate question asked.
