@@ -13,7 +13,7 @@ A component is complete only when both columns are checked.
 | 1 | SimulationClock               | yes    | yes              | yes         | yes               | `capstone/simulator/clock.py` — COMPLETE |
 | 2 | Deterministic random source   | yes    | yes              | yes         | yes               | `capstone/simulator/rng.py` — COMPLETE |
 | 3 | Machine identity / MachineState | yes  | yes              | yes         | yes               | `capstone/simulator/state.py` — COMPLETE |
-| 4 | Sensor abstraction + 1 reading | yes   |                  |             |                   | gate question asked, awaiting answer |
+| 4 | Sensor abstraction + 1 reading | yes   | yes              | yes         |                   | `capstone/simulator/sensors.py`; awaiting post-implementation re-explain |
 | 5 | FactoryState + step()         |        |                  |             |                   | |
 | 6 | Event log                     |        |                  |             |                   | |
 | 7 | Scenario abstraction          |        |                  |             |                   | |
@@ -42,3 +42,8 @@ A component is complete only when both columns are checked.
   beginning of the chain, vibration is the end — what the sensor says").
   Implemented `MachineStatus`, `MachineCondition` (hidden), `MachineState`
   with pydantic bounds validation; 11 tests, 28 total passing.
+- **Session 2** — Sensor gate passed (developer explained read-only role,
+  shared-reality correlation, status dependence, many-causes-one-symptom;
+  Claude filled in noise → trend-over-readings). Implemented
+  `SensorReading` (frozen), `Sensor` base, `VibrationSensor` with
+  monotonic squared wear curve and status dependence; 11 tests, 39 total.
