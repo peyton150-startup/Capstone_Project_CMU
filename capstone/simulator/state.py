@@ -29,3 +29,18 @@ class MachineState(BaseModel):
     id: str = Field(min_length=1)
     status: MachineStatus = MachineStatus.RUNNING
     condition: MachineCondition = Field(default_factory=MachineCondition)
+
+
+class FactoryState(BaseModel):
+    """Reality for the whole factory, as of now.
+
+    Plain data: holds what is true, not how it changes and not what was
+    observed. Sensors and the reading log live outside it.
+    """
+
+    machines: dict[str, MachineState] = Field(default_factory=dict)
+
+    def add(self, machine: MachineState) -> None:
+        if machine.id in self.machines:
+            raise ValueError(f"machine {machine.id} already exists")
+        self.machines[machine.id] = machine
