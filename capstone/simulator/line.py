@@ -1,0 +1,65 @@
+"""The standard factory: one call that sets up a complete, realistic line.
+
+Everything a normal day needs is wired in here, in the right order, so a
+run cannot be built with a piece missing. Faults are added afterwards by
+the caller, which keeps them running after the line's own scenarios.
+"""
+
+from datetime import datetime, timedelta
+
+from capstone.simulator.events import ThresholdAlarm
+from capstone.simulator.scenarios import AmbientTemperature, LoadingDoor, ProductionLine
+from capstone.simulator.sensors import FactoryThermometer, LoadSensor, TemperatureSensor, VibrationSensor
+from capstone.simulator.simulator import Simulator
+from capstone.simulator.state import MachineState
+
+MIN_MACHINES, MAX_MACHINES = 3, 8
+
+# Working time per job at each position on the line. Mildly uneven on
+# purpose: the second machine is the slowest step, so some waiting is normal.
+STANDARD_TICKS_PER_JOB = (60, 70, 55, 65, 60, 68, 58, 62)
+
+WARMEST_HOUR = 16  # 4 pm
+
+
+def machine_names(machines: int) -> list[str]:
+    return [f"CNC-{position:02d}" for position in range(1, machines + 1)]
+
+
+def build_line(
+    seed: int,
+    *,
+    machines: int = 3,
+    start: datetime = datetime(2026, 1, 5, 6, 0),
+    tick_duration: timedelta = timedelta(minutes=1),
+    ticks_per_job: tuple[int, ...] | None = None,
+    thermal_lag_ticks: float = 20.0,
+    vibration_alarm: float = 4.5,
+) -> Simulator:
+    if not MIN_MACHINES <= machines <= MAX_MACHINES:
+        raise ValueError(f"a line has {MIN_MACHINES} to {MAX_MACHINES} machines, not {machines}")
+    times = ticks_per_job or STANDARD_TICKS_PER_JOB[:machines]
+    if len(times) != machines:
+        raise ValueError("ticks_per_job needs one entry per machine")
+    names = machine_names(machines)
+
+    sim = Simulator(seed, start, tick_duration, thermal_lag_ticks=thermal_lag_ticks)
+
+    ticks_per_day = round(timedelta(days=1) / tick_duration)
+    first_peak = start.replace(hour=WARMEST_HOUR, minute=0, second=0, microsecond=0)
+    warmest_tick = round((first_peak - start) / tick_duration) % ticks_per_day
+    sim.add_scenario(
+        AmbientTemperature("ambient", sim.rng, ticks_per_day=ticks_per_day, warmest_tick=warmest_tick)
+    )
+    sim.add_scenario(LoadingDoor("door", sim.rng))
+
+    for name, per_job in zip(names, times):
+        sim.add_machine(MachineState(id=name, ticks_per_job=per_job))
+        for sensor in (VibrationSensor, TemperatureSensor, LoadSensor):
+            sim.add_sensor(sensor(name, sim.rng))
+    sim.add_factory_sensor(FactoryThermometer(sim.rng))
+    sim.add_alarm(ThresholdAlarm("vibration", vibration_alarm))
+
+    # After the machines exist, and before any fault the caller adds.
+    sim.add_scenario(ProductionLine("line", sim.rng, machine_ids=names))
+    return sim
