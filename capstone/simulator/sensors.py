@@ -3,7 +3,13 @@ from abc import ABC, abstractmethod
 from pydantic import BaseModel, ConfigDict
 
 from capstone.simulator.rng import RandomSource
-from capstone.simulator.state import NORMAL_LOAD, REFERENCE_AMBIENT_F, MachineState, MachineStatus
+from capstone.simulator.state import (
+    NORMAL_LOAD,
+    REFERENCE_AMBIENT_F,
+    FactoryState,
+    MachineState,
+    MachineStatus,
+)
 
 
 class SensorReading(BaseModel):
@@ -12,7 +18,7 @@ class SensorReading(BaseModel):
     model_config = ConfigDict(frozen=True)
 
     sensor: str
-    machine_id: str
+    machine_id: str | None  # None for a sensor that belongs to the factory
     tick: int
     value: float
     unit: str
@@ -134,3 +140,23 @@ class LoadSensor(Sensor):
             return max(0.0, noise)
         wear = 1.0 - machine.condition.bearing_health
         return max(0.0, 100.0 * machine.load + self.friction_gain * wear**2 + noise)
+
+
+class FactoryThermometer:
+    """Measures the air in the factory. Belongs to no machine.
+
+    Reads `air_temperature`, so it shows the daily cycle and the loading
+    door alike. Its stream is `sensor.factory.air_temperature`.
+    """
+
+    name = "air_temperature"
+    unit = "°F"
+
+    def __init__(self, rng: RandomSource, *, noise_sd: float = 0.3):
+        self.noise_sd = noise_sd
+        self.stream_name = f"sensor.factory.{self.name}"
+        self._stream = rng.stream(self.stream_name)
+
+    def read(self, state: FactoryState, tick: int) -> SensorReading:
+        value = state.air_temperature + self._stream.gauss(0.0, self.noise_sd)
+        return SensorReading(sensor=self.name, machine_id=None, tick=tick, value=value, unit=self.unit)

@@ -25,7 +25,7 @@ from capstone.simulator.events import Event, EventLog, ThresholdAlarm
 from capstone.simulator.ground_truth import GroundTruth
 from capstone.simulator.rng import RandomSource
 from capstone.simulator.scenarios import Scenario
-from capstone.simulator.sensors import Sensor, SensorReading
+from capstone.simulator.sensors import FactoryThermometer, Sensor, SensorReading
 from capstone.simulator.state import FactoryState, MachineState, MachineStatus
 
 
@@ -45,6 +45,7 @@ class Simulator:
         self.rng = RandomSource(seed)
         self.state = FactoryState()
         self._sensors: list[Sensor] = []
+        self._factory_sensors: list[FactoryThermometer] = []
         self._readings: list[SensorReading] = []
         self.event_log = EventLog()
         self._alarms: list[ThresholdAlarm] = []
@@ -62,6 +63,11 @@ class Simulator:
         if any(s.stream_name == sensor.stream_name for s in self._sensors):
             raise ValueError(f"{sensor.stream_name} already exists")
         self._sensors.append(sensor)
+
+    def add_factory_sensor(self, sensor: FactoryThermometer) -> None:
+        if any(s.stream_name == sensor.stream_name for s in self._factory_sensors):
+            raise ValueError(f"{sensor.stream_name} already exists")
+        self._factory_sensors.append(sensor)
 
     def add_alarm(self, alarm: ThresholdAlarm) -> None:
         self._alarms.append(alarm)
@@ -96,6 +102,7 @@ class Simulator:
         readings = [
             s.read(self.state.machines[s.machine_id], tick, ambient_temperature=ambient) for s in self._sensors
         ]
+        readings += [s.read(self.state, tick) for s in self._factory_sensors]
         self._readings.extend(readings)
         for reading in readings:
             for alarm in self._alarms:

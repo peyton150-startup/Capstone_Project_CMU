@@ -23,11 +23,22 @@ class ObservationTools:
         ]
 
     def get_readings(self, machine_id: str, sensor: str, from_tick: int, to_tick: int) -> list[dict]:
+        if machine_id is None:
+            raise ValueError("a machine is required; use get_factory_readings for the factory's own sensors")
         self._check(machine_id, from_tick, to_tick)
         return [
             {"tick": r.tick, "machine_id": r.machine_id, "sensor": r.sensor, "value": r.value, "unit": r.unit}
             for r in self._sim.readings
             if r.machine_id == machine_id and r.sensor == sensor and from_tick <= r.tick <= to_tick
+        ]
+
+    def get_factory_readings(self, sensor: str, from_tick: int, to_tick: int) -> list[dict]:
+        """Readings from sensors that belong to the factory, not to a machine."""
+        self._check(None, from_tick, to_tick)
+        return [
+            {"tick": r.tick, "sensor": r.sensor, "value": r.value, "unit": r.unit}
+            for r in self._sim.readings
+            if r.machine_id is None and r.sensor == sensor and from_tick <= r.tick <= to_tick
         ]
 
     def get_events(self, from_tick: int, to_tick: int, machine_id: str | None = None) -> list[dict]:
