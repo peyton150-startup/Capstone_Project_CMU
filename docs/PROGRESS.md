@@ -22,7 +22,7 @@ A component is complete only when both columns are checked.
 | 9a | Ground truth record           | yes    | yes              | yes         | yes               | `capstone/simulator/ground_truth.py` — COMPLETE |
 | 9b | Observation boundary (read-only tools) | yes | yes         | yes         | yes               | `capstone/tools/observation.py` — COMPLETE |
 | 10 | TemperatureSensor (second evidence source) | yes | n/a (§2.2) | yes         | yes               | `capstone/simulator/sensors.py`, in °F at developer's request — COMPLETE |
-| 10a | Operating load: `load` in MachineState, sensors respond, LoadSensor | yes |      |             |                   | gate question asked, awaiting answer |
+| 10a | Operating load: `load` in MachineState, sensors respond, LoadSensor | yes | yes  | yes         |                   | `state.py`, `sensors.py`; awaiting post-implementation re-explain |
 | 10b | Workload variation over time (what changes `load`) |    |           |             |                   | agreed with developer; stands in for jobs until row 12 |
 | 10c | Room temperature drift (shared by all machines) |       |           |             |                   | agreed with developer |
 | 10d | Temperature warm-up / cool-down lag |            |                  |             |                   | agreed with developer |
@@ -206,3 +206,16 @@ A component is complete only when both columns are checked.
   in the list, not a new component). The cross-checking question was
   not answered separately; it is superseded by the load gate's first
   question, which tests the same idea with load in the picture.
+- **Session 3 (cont.)** — Load gate passed (developer: worry about the
+  machine at normal load, because temperature should not be that high
+  for a routine job; separate per-sensor ideas of load would duplicate
+  it, and if they drifted apart there would be no way to tell which was
+  right or reconcile them). Implemented `MachineState.load` (0-1,
+  default 0.5), load terms in `VibrationSensor` (+1.5 mm/s per unit) and
+  `TemperatureSensor` (+30 °F per unit), and `LoadSensor` (%); 10 tests,
+  119 total. One older test in `test_state.py` copied the machine minus
+  `condition` and so picked up `load` automatically — the copy-and-
+  remove behaviour from the tools gate, seen for real; expectation
+  updated. `ObservationTools` needed no change and does not expose
+  `load`. Debt: nothing changes load yet (row 10b); bearing wear does
+  not raise load; load does not speed up wear.
