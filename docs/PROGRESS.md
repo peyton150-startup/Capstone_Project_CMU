@@ -24,7 +24,8 @@ A component is complete only when both columns are checked.
 | 10 | TemperatureSensor (second evidence source) | yes | n/a (§2.2) | yes         | yes               | `capstone/simulator/sensors.py`, in °F at developer's request — COMPLETE |
 | 10a | Operating load: `load` in MachineState, sensors respond, LoadSensor | yes | yes  | yes         | yes               | `state.py`, `sensors.py` — COMPLETE |
 | 10a2 | Load–wear coupling: heavy load wears the bearing faster; worn bearing nudges the load reading up | yes | yes | yes   | yes               | `scenarios.py`, `sensors.py` — COMPLETE |
-| 10b | Workload variation over time (what changes `load`) | yes | yes       | yes         |                   | `scenarios.py` (`Workload`); awaiting post-implementation re-explain; stands in for jobs until row 12 |
+| 10b | Workload variation over time (what changes `load`) | yes | yes       | yes         | yes               | `scenarios.py` (`Workload`) — COMPLETE; stands in for jobs until row 12 |
+| 10b2 | "Job started" event when a machine's work changes | yes |          |             |                   | developer's idea; gate question asked, awaiting answer |
 | 10c | Room temperature drift (shared by all machines) |       |           |             |                   | agreed with developer |
 | 10d | Temperature warm-up / cool-down lag |            |                  |             |                   | agreed with developer |
 | 10e | Standard line builder: one function that sets up machines, all sensors, alarms and workload, so every run has varying load | | | |             | proposed after developer asked that load vary in every scenario |
@@ -267,3 +268,12 @@ A component is complete only when both columns are checked.
   to be enforced by the line builder (10e); load changes instantly; the
   agent sees load only via the load sensor, with no job record to
   explain a change (row 12).
+- **Session 3 (cont.)** — Workload re-explain passed with gaps filled by
+  Claude. Developer: the agent looks at the load, and also the vibration;
+  confirmed by asking that two scenarios can run at once. Claude
+  corrected that vibration rises with load too, so the second check is
+  the shape of the change (step vs. creep), and explained why a changing
+  workload hides a slow fault (job steps are larger than the drift, so
+  the agent must compare periods of similar load). Developer proposed
+  recording load changes in the event log; agreed as row 10b2, taught,
+  gate question asked.
