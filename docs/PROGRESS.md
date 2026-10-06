@@ -26,7 +26,7 @@ A component is complete only when both columns are checked.
 | 10a2 | Load–wear coupling: heavy load wears the bearing faster; worn bearing nudges the load reading up | yes | yes | yes   | yes               | `scenarios.py`, `sensors.py` — COMPLETE |
 | 10b | Workload variation over time (what changes `load`) | yes | yes       | yes         | yes               | `scenarios.py` (`Workload`) — COMPLETE; stands in for jobs until row 12 |
 | 10b2 | "Job started" event when a machine's work changes | yes | yes      | yes         | yes               | `state.py` (`job_number`), `scenarios.py`, `simulator.py` — COMPLETE |
-| 10c | Ambient temperature drift (shared by all machines) | yes | yes    | yes         |                   | `state.py` (`ambient_temperature`), `scenarios.py` (`AmbientTemperature`), `sensors.py` — COMPLETE |
+| 10c | Ambient temperature drift (shared by all machines) | yes | yes    | yes         | yes               | `state.py` (`ambient_temperature`), `scenarios.py` (`AmbientTemperature`), `sensors.py` — COMPLETE |
 | 10c2 | Loading door opening: a short ambient disturbance plus an event | yes | yes | yes       | yes               | `state.py` (`door_open`, `door_cooling`, `air_temperature`), `scenarios.py` (`LoadingDoor`), `simulator.py`, `events.py` — COMPLETE |
 | 10c3 | Factory thermometer: a sensor for air temperature, not attached to a machine, readable by the agent | yes | yes | yes     |                   | `sensors.py` (`FactoryThermometer`), `simulator.py`, `tools/observation.py` (`get_factory_readings`); awaiting post-implementation re-explain; then 12a |
 | 10d | Temperature warm-up / cool-down lag |            |                  |             |                   | agreed with developer |
