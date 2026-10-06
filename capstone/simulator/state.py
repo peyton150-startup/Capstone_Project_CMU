@@ -101,6 +101,8 @@ class MachineState(BaseModel):
         return self.job is not None and self.job_progress >= needed - 1e-9
     # While a repair is under way: the tick at which it will be finished.
     maintenance_until: int | None = None
+    # Which piece of work that is: "bearing replacement" or "setting reset".
+    maintenance_kind: str | None = None
     # The tick this machine's bearing was last replaced, if it ever was.
     bearing_replaced_tick: int | None = None
     condition: MachineCondition = Field(default_factory=MachineCondition)

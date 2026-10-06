@@ -40,7 +40,7 @@ A component is complete only when both columns are checked.
 | 12c | Quality inspection, small pass/fail version | yes | yes | yes | yes | `scenarios.py`, `state.py` (`Inspection`), `simulator.py`, `tools/observation.py` (`get_inspections`) |
 | 13a | Material batches and one bad batch (fault scenario 2) | yes | yes | yes | yes | `state.py` (`MaterialBatch`), `scenarios.py` (`BadMaterialBatch`), `simulator.py`, `line.py`, `tools/observation.py` |
 | 13b | Machine setting and a wrong setting (fault scenario 3) | yes | yes | yes | no | `state.py` (`speed_setting`), `scenarios.py` (`WrongSetting`, `defect_mark`), `sensors.py`, `thermal.py`, `line.py`, `tools/observation.py` (`get_settings`); re-explain waived for time on 2026-10-06, developer to review |
-| 13c | Action: put a machine's setting right (via the approval desk) | n/a | n/a | no | no | Built ungated; developer to review |
+| 13c | Action: put a machine's setting right (via the approval desk) | n/a | n/a | yes | no — built ungated, developer to review | `simulator.py` (`start_setting_reset`, `_start_maintenance`), `state.py` (`maintenance_kind`), `tools/actions.py` (`reset_setting`) |
 | 13d | False alarm / transient anomaly (fault scenario 4) | n/a | n/a | no | no | Built ungated; developer to review |
 | 14 | Seeded scenario generator (fault, machine or batch, start tick) | n/a | n/a | no | no | Built ungated; developer to review |
 | 15 | Evaluation | n/a | n/a | no | no | Built ungated; developer to review |
@@ -756,3 +756,13 @@ alarm), then evaluation, then the agent itself.
   6. **17 memory.** One JSON record per investigation (anomaly,
      evidence, hypotheses, conclusion, action, outcome) and a simple
      look-up of similar past cases.
+- **Session 5 — row 13c built ungated.** Second action type
+  `reset_setting` on the approval desk. `Simulator.start_setting_reset`
+  stops the machine for 10 ticks (`setting_reset_ticks`); when done
+  `speed_setting` goes back to None and the event reads "setting reset
+  finished: setting was off standard" or "... already standard". The
+  start/finish code is now shared with the bearing replacement through
+  `_machine_for_maintenance`, `_start_maintenance` and
+  `MachineState.maintenance_kind`; bearing messages unchanged. A
+  broken-down machine cannot be reset (it needs a repair). 7 tests, 338
+  total.

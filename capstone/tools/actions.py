@@ -2,7 +2,7 @@ from pydantic import BaseModel
 
 from capstone.simulator.simulator import Simulator
 
-ACTIONS = ("replace_bearing",)
+ACTIONS = ("replace_bearing", "reset_setting")
 
 
 class Proposal(BaseModel):
@@ -51,6 +51,8 @@ class ApprovalDesk:
         proposal = self._pending(proposal_id)
         if proposal.action == "replace_bearing":
             self._sim.start_bearing_replacement(proposal.machine_id)
+        elif proposal.action == "reset_setting":
+            self._sim.start_setting_reset(proposal.machine_id)
         return self._decide(proposal, "approved", note)
 
     def reject(self, proposal_id: int, note: str = "") -> dict:
