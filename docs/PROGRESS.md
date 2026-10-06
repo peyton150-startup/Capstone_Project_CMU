@@ -23,6 +23,7 @@ A component is complete only when both columns are checked.
 | 9b | Observation boundary (read-only tools) | yes | yes         | yes         | yes               | `capstone/tools/observation.py` — COMPLETE |
 | 10 | TemperatureSensor (second evidence source) | yes | n/a (§2.2) | yes         | yes               | `capstone/simulator/sensors.py`, in °F at developer's request — COMPLETE |
 | 10a | Operating load: `load` in MachineState, sensors respond, LoadSensor | yes | yes  | yes         |                   | `state.py`, `sensors.py`; awaiting post-implementation re-explain |
+| 10a2 | Load–wear coupling: heavy load wears the bearing faster; worn bearing nudges the load reading up | yes |  |      |                   | raised by developer from outside feedback; gate question asked, awaiting answer |
 | 10b | Workload variation over time (what changes `load`) |    |           |             |                   | agreed with developer; stands in for jobs until row 12 |
 | 10c | Room temperature drift (shared by all machines) |       |           |             |                   | agreed with developer |
 | 10d | Temperature warm-up / cool-down lag |            |                  |             |                   | agreed with developer |
@@ -219,3 +220,9 @@ A component is complete only when both columns are checked.
   updated. `ObservationTools` needed no change and does not expose
   `load`. Debt: nothing changes load yet (row 10b); bearing wear does
   not raise load; load does not speed up wear.
+- **Session 3 (cont.)** — Developer brought outside feedback that the
+  two load simplifications are unrealistic (a worn bearing does raise
+  motor load a little; heavy load does shorten bearing life, steeply).
+  Agreed to model both as row 10a2. Taught it (wear rate scales with
+  load cubed; friction term lives in `LoadSensor`, not in `load`); gate
+  question asked. Row 10a's re-explain question is still owed.
