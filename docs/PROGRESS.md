@@ -27,7 +27,8 @@ A component is complete only when both columns are checked.
 | 10b | Workload variation over time (what changes `load`) | yes | yes       | yes         | yes               | `scenarios.py` (`Workload`) — COMPLETE; stands in for jobs until row 12 |
 | 10b2 | "Job started" event when a machine's work changes | yes | yes      | yes         | yes               | `state.py` (`job_number`), `scenarios.py`, `simulator.py` — COMPLETE |
 | 10c | Ambient temperature drift (shared by all machines) | yes | yes    | yes         |                   | `state.py` (`ambient_temperature`), `scenarios.py` (`AmbientTemperature`), `sensors.py` — COMPLETE |
-| 10c2 | Loading door opening: a short ambient disturbance plus an event | yes |   |             |                   | developer's idea; gate question asked, awaiting answer; then 12a |
+| 10c2 | Loading door opening: a short ambient disturbance plus an event | yes |   |             |                   | developer's idea; gate question asked, awaiting answer |
+| 10c3 | Factory thermometer: a sensor for ambient temperature, not attached to a machine, readable by the agent | |  |             |                   | developer decided to add it; after 10c2, then 12a |
 | 10d | Temperature warm-up / cool-down lag |            |                  |             |                   | agreed with developer |
 | 10e | Standard line builder: one function that sets up machines, all sensors, alarms and workload, so every run has varying load | | | |             | proposed after developer asked that load vary in every scenario |
 | 11 | Maintenance action + advancing time through the tools | |      |             |                   | proposed next: closes action → change → verification |
@@ -333,3 +334,8 @@ A component is complete only when both columns are checked.
   the story of the wear). Claude filled in that the agent has no
   thermometer, so "the building temperature" has to be read off the
   other machines. Taught the loading door (10c2); gate question asked.
+- **Session 3 (cont.)** — Developer asked whether ambient temperature is
+  a hidden field; explained the three kinds of state (secrets, plain
+  facts, measured conditions) and that ambient is unmeasured by choice.
+  Developer decided to add a factory thermometer (row 10c3, after the
+  door). 10c2 gate still awaiting answer.
