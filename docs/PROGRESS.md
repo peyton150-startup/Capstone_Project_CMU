@@ -27,8 +27,8 @@ A component is complete only when both columns are checked.
 | 10b | Workload variation over time (what changes `load`) | yes | yes       | yes         | yes               | `scenarios.py` (`Workload`) — COMPLETE; stands in for jobs until row 12 |
 | 10b2 | "Job started" event when a machine's work changes | yes | yes      | yes         | yes               | `state.py` (`job_number`), `scenarios.py`, `simulator.py` — COMPLETE |
 | 10c | Ambient temperature drift (shared by all machines) | yes | yes    | yes         |                   | `state.py` (`ambient_temperature`), `scenarios.py` (`AmbientTemperature`), `sensors.py` — COMPLETE |
-| 10c2 | Loading door opening: a short ambient disturbance plus an event | yes | yes |           |                   | `state.py` (`door_open`, `door_cooling`, `air_temperature`), `scenarios.py` (`LoadingDoor`), `simulator.py`, `events.py`; implemented; awaiting post-implementation re-explain |
-| 10c3 | Factory thermometer: a sensor for ambient temperature, not attached to a machine, readable by the agent | |  |             |                   | developer decided to add it; after 10c2, then 12a |
+| 10c2 | Loading door opening: a short ambient disturbance plus an event | yes | yes | yes       | yes               | `state.py` (`door_open`, `door_cooling`, `air_temperature`), `scenarios.py` (`LoadingDoor`), `simulator.py`, `events.py` — COMPLETE |
+| 10c3 | Factory thermometer: a sensor for air temperature, not attached to a machine, readable by the agent | yes |  |           |                   | gate question asked, awaiting answer; then 12a |
 | 10d | Temperature warm-up / cool-down lag |            |                  |             |                   | agreed with developer |
 | 10e | Standard line builder: one function that sets up machines, all sensors, alarms and workload, so every run has varying load | | | |             | proposed after developer asked that load vary in every scenario |
 | 11 | Maintenance action + advancing time through the tools | |      |             |                   | proposed next: closes action → change → verification |
@@ -352,3 +352,8 @@ A component is complete only when both columns are checked.
   and their order does not matter. Implemented `LoadingDoor`, door
   events with `machine_id=None`; 13 tests, 171 total. Debt: one door,
   one fixed cooling; a machine-filtered `get_events` hides door events.
+- **Session 3 (cont.)** — Loading door re-explain passed (developer:
+  check the load, and check the event log to see whether the door had
+  been opened). Claude added a third check: the other machines dipping
+  at the same time. Taught the factory thermometer (10c3); gate question
+  asked.
