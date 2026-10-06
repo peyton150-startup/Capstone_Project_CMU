@@ -19,8 +19,8 @@ A component is complete only when both columns are checked.
 | 7 | Scenario abstraction          | yes    | yes              | yes         | yes               | `capstone/simulator/scenarios.py` — COMPLETE |
 | 8 | BearingDegradation scenario   | yes    | yes              | yes         | yes               | `capstone/simulator/scenarios.py` — COMPLETE |
 | 8b | Machine failure transition (goes DOWN) | yes | yes           | yes         | yes               | `simulator.py` (`_apply_consequences`) — COMPLETE |
-| 9a | Ground truth record           | yes    | yes              | yes         |                   | `capstone/simulator/ground_truth.py`; awaiting post-implementation re-explain |
-| 9b | Observation boundary (tools)  |        |                  |             |                   | split from the original row 9 to keep increments small |
+| 9a | Ground truth record           | yes    | yes              | yes         | yes               | `capstone/simulator/ground_truth.py` — COMPLETE |
+| 9b | Observation boundary (read-only tools) | yes |             |             |                   | gate question asked, awaiting answer. Actions are a later row |
 
 ## Session notes
 
@@ -152,3 +152,9 @@ A component is complete only when both columns are checked.
   8 tests, 93 total. Debt: `Simulator.ground_truth()` is a public method
   on the same object the tools will wrap — 9b must make it unreachable;
   `fault` is free text; no end tick or cause field yet.
+- **Session 3 (cont.)** — Ground truth post-implementation gate passed
+  (developer: it comes from the scenarios, it is what will go wrong, and
+  only evaluation may read it — no agent tools). Claude filled in why it
+  does not change: it is built from settings fixed when the scenario is
+  created. Taught the read-only observation tools (allow-list vs
+  block-list); gate question asked.
