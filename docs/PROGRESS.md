@@ -8,36 +8,41 @@ Two separate completion criteria per component (see CLAUDE.md §1):
 
 A component is complete only when both columns are checked.
 
-| # | Component                     | Taught | Understood (pre) | Implemented | Understood (post) | Notes |
-|---|-------------------------------|--------|------------------|-------------|-------------------|-------|
-| 1 | SimulationClock               | yes    | yes              | yes         | yes               | `capstone/simulator/clock.py` — COMPLETE |
-| 2 | Deterministic random source   | yes    | yes              | yes         | yes               | `capstone/simulator/rng.py` — COMPLETE |
-| 3 | Machine identity / MachineState | yes  | yes              | yes         | yes               | `capstone/simulator/state.py` — COMPLETE |
-| 4 | Sensor abstraction + 1 reading | yes   | yes              | yes         | yes               | `capstone/simulator/sensors.py` — COMPLETE |
-| 5 | FactoryState + step()         | yes    | yes              | yes         | yes               | `state.py` (`FactoryState`), `simulator.py` (`Simulator.step`) — COMPLETE |
-| 6 | Event log                     | yes    | yes              | yes         | yes               | `capstone/simulator/events.py` — COMPLETE |
-| 7 | Scenario abstraction          | yes    | yes              | yes         | yes               | `capstone/simulator/scenarios.py` — COMPLETE |
-| 8 | BearingDegradation scenario   | yes    | yes              | yes         | yes               | `capstone/simulator/scenarios.py` — COMPLETE |
-| 8b | Machine failure transition (goes DOWN) | yes | yes           | yes         | yes               | `simulator.py` (`_apply_consequences`) — COMPLETE |
-| 9a | Ground truth record           | yes    | yes              | yes         | yes               | `capstone/simulator/ground_truth.py` — COMPLETE |
-| 9b | Observation boundary (read-only tools) | yes | yes         | yes         | yes               | `capstone/tools/observation.py` — COMPLETE |
-| 10 | TemperatureSensor (second evidence source) | yes | n/a (§2.2) | yes         | yes               | `capstone/simulator/sensors.py`, in °F at developer's request — COMPLETE |
-| 10a | Operating load: `load` in MachineState, sensors respond, LoadSensor | yes | yes  | yes         | yes               | `state.py`, `sensors.py` — COMPLETE |
-| 10a2 | Load–wear coupling: heavy load wears the bearing faster; worn bearing nudges the load reading up | yes | yes | yes   | yes               | `scenarios.py`, `sensors.py` — COMPLETE |
-| 10b | Workload variation over time (what changes `load`) | yes | yes       | yes         | yes               | `scenarios.py` (`Workload`) — COMPLETE; stands in for jobs until row 12 |
-| 10b2 | "Job started" event when a machine's work changes | yes | yes      | yes         | yes               | `state.py` (`job_number`), `scenarios.py`, `simulator.py` — COMPLETE |
-| 10c | Ambient temperature drift (shared by all machines) | yes | yes    | yes         | yes               | `state.py` (`ambient_temperature`), `scenarios.py` (`AmbientTemperature`), `sensors.py` — COMPLETE |
-| 10c2 | Loading door opening: a short ambient disturbance plus an event | yes | yes | yes       | yes               | `state.py` (`door_open`, `door_cooling`, `air_temperature`), `scenarios.py` (`LoadingDoor`), `simulator.py`, `events.py` — COMPLETE |
-| 10c3 | Factory thermometer: a sensor for air temperature, not attached to a machine, readable by the agent | yes | yes | yes     | yes               | `sensors.py` (`FactoryThermometer`), `simulator.py`, `tools/observation.py` (`get_factory_readings`) — COMPLETE |
-| 10d | Temperature warm-up / cool-down lag | yes        | yes              | yes         | yes               | `thermal.py` (new), `state.py` (`temperature`), `sensors.py`, `simulator.py` — COMPLETE |
-| 10e | Standard line builder: `build_line(seed, machines=3..8)` sets up named machines, all sensors, thermometer, alarm, ambient, door, production line, thermal lag | n/a (§2.2 wiring) | n/a | yes | | `capstone/simulator/line.py`; built early at developer's request; wiring only, no gate required — COMPLETE |
-| 11a | Letting time pass: a `wait(ticks)` tool, separate from the read-only tools | yes | yes | yes     |                   | `capstone/tools/actions.py` (`ActionTools.wait`) — COMPLETE (understood post: yes) |
-| 11b | Maintenance action: replace a bearing (downtime, health restored, the fault ends, technician's finding) | yes | yes | yes   |                   | `simulator.py` (`start_bearing_replacement`, `_finish_maintenance`), `state.py`, `scenarios.py`; COMPLETE (understood post: yes). Not yet callable by the agent (11c) |
-| 11c | Approval: the agent proposes an action, a human approves, then it is applied | yes | yes | yes         |                   | `capstone/tools/actions.py` (`propose_action`, `get_proposals`, `ApprovalDesk`) — COMPLETE (understood post: yes) |
-| 12a | Assembly line: jobs with one identity move machine to machine in order; a machine's load comes from its job | yes | yes | yes      | yes               | COMPLETE. `state.py` (`Job`), `scenarios.py` (`ProductionLine`), `simulator.py`; awaiting post-implementation re-explain (re-asked in a new form). Idle-time issue resolved: working time is now each machine's own `ticks_per_job`. Replaces the `Workload` stand-in and the per-machine `job_number` |
-| 12b | Job events and a job-history tool for the agent | yes  | yes              | yes         |                   | `simulator.py` (`_record_job_events`), `events.py` (`job_id`), `state.py` (`line`), `tools/observation.py` (`get_job_history`, `job_id` in `list_machines`) — COMPLETE (understood post: yes) |
-| 12b2 | A worn machine works more slowly, so its jobs take extra ticks; natural variation of ±2 ticks on the standard line | yes | yes       | yes         |                   | `scenarios.py` (`working_speed`, `time_variation`), `state.py` (`job_work`, `job_done`), `line.py` — COMPLETE (understood post: yes) |
-| 12c | Quality inspection, small version: each finished job passes or fails; worn machines raise the chance of failure | yes |  |         |                   | gate question asked, awaiting answer; needed for the material-batch scenario |
+| # | Component | Taught | Understood (pre) | Implemented | Understood (post) | Notes |
+|---|---|---|---|---|---|---|
+| 1 | SimulationClock | yes | yes | yes | yes | `capstone/simulator/clock.py` |
+| 2 | Deterministic random source | yes | yes | yes | yes | `capstone/simulator/rng.py` |
+| 3 | Machine identity / MachineState | yes | yes | yes | yes | `capstone/simulator/state.py` |
+| 4 | Sensor abstraction + vibration sensor | yes | yes | yes | yes | `capstone/simulator/sensors.py` |
+| 5 | FactoryState + step() | yes | yes | yes | yes | `state.py`, `simulator.py` |
+| 6 | Event log + threshold alarm | yes | yes | yes | yes | `capstone/simulator/events.py` |
+| 7 | Scenario abstraction | yes | yes | yes | yes | `capstone/simulator/scenarios.py` |
+| 8 | BearingDegradation scenario | yes | yes | yes | yes | `scenarios.py` |
+| 8b | Machine failure (a worn-out machine goes down) | yes | yes | yes | yes | `simulator.py` |
+| 9a | Ground truth record | yes | yes | yes | yes | `capstone/simulator/ground_truth.py` |
+| 9b | Read-only observation tools | yes | yes | yes | yes | `capstone/tools/observation.py` |
+| 10 | Temperature sensor (°F) | yes | n/a | yes | yes | `sensors.py`; pattern repeat, no pre-gate needed (CLAUDE.md §2.2) |
+| 10a | Operating load and the load sensor | yes | yes | yes | yes | `state.py`, `sensors.py` |
+| 10a2 | Load and wear tied together | yes | yes | yes | yes | `scenarios.py`, `sensors.py` |
+| 10b | Workload in random blocks | yes | yes | yes | yes | REPLACED by row 12a; the `Workload` scenario no longer exists |
+| 10b2 | Job-started event from a per-machine counter | yes | yes | yes | yes | REPLACED by rows 12a/12b; `job_number` no longer exists |
+| 10c | Ambient temperature (daily cycle with drift) | yes | yes | yes | yes | `state.py`, `scenarios.py` |
+| 10c2 | Loading door | yes | yes | yes | yes | `state.py`, `scenarios.py`, `simulator.py` |
+| 10c3 | Factory thermometer + `get_factory_readings` | yes | yes | yes | yes | `sensors.py`, `tools/observation.py` |
+| 10d | Temperature lag (warm-up / cool-down) | yes | yes | yes | yes | `capstone/simulator/thermal.py` |
+| 10e | Standard line builder, 3-8 machines, seed-chosen size | n/a | n/a | yes | n/a | `capstone/simulator/line.py`; wiring only, no gate needed (CLAUDE.md §2.2) |
+| 11a | Letting time pass: `wait` | yes | yes | yes | yes | `capstone/tools/actions.py` |
+| 11b | Bearing replacement (downtime, fault ends, technician's finding) | yes | yes | yes | yes | `simulator.py`, `state.py`, `scenarios.py` |
+| 11c | Proposals and human approval | yes | yes | yes | yes | `capstone/tools/actions.py` |
+| 12a | Assembly line: jobs move machine to machine | yes | yes | yes | yes | `state.py` (`Job`), `scenarios.py` (`ProductionLine`) |
+| 12b | Job events and `get_job_history` | yes | yes | yes | yes | `simulator.py`, `tools/observation.py` |
+| 12b2 | Worn machines work more slowly; ±2 ticks natural variation | yes | yes | yes | yes | `scenarios.py`, `line.py` |
+| 12c | Quality inspection, small pass/fail version | yes | yes |  |  | pre-gate passed; being implemented |
+
+Every row above with four "yes" marks (or "n/a") is complete: no question is
+outstanding on it. Still to build after 12c, from `docs/MVP_SCOPE.md`: the
+other three fault scenarios (material batch, machine configuration, false
+alarm), then evaluation, then the agent itself.
 
 ## Session notes
 
