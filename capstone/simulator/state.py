@@ -55,6 +55,8 @@ class MachineCondition(BaseModel):
     model_config = ConfigDict(validate_assignment=True)
 
     bearing_health: float = Field(default=1.0, ge=0.0, le=1.0)
+    # mm/s the vibration sensor adds on its own, e.g. a loose mount. 0 for a sound sensor.
+    vibration_sensor_offset: float = 0.0
 
 
 class MachineState(BaseModel):

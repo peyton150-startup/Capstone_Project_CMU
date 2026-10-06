@@ -41,7 +41,7 @@ A component is complete only when both columns are checked.
 | 13a | Material batches and one bad batch (fault scenario 2) | yes | yes | yes | yes | `state.py` (`MaterialBatch`), `scenarios.py` (`BadMaterialBatch`), `simulator.py`, `line.py`, `tools/observation.py` |
 | 13b | Machine setting and a wrong setting (fault scenario 3) | yes | yes | yes | no | `state.py` (`speed_setting`), `scenarios.py` (`WrongSetting`, `defect_mark`), `sensors.py`, `thermal.py`, `line.py`, `tools/observation.py` (`get_settings`); re-explain waived for time on 2026-10-06, developer to review |
 | 13c | Action: put a machine's setting right (via the approval desk) | n/a | n/a | yes | no — built ungated, developer to review | `simulator.py` (`start_setting_reset`, `_start_maintenance`), `state.py` (`maintenance_kind`), `tools/actions.py` (`reset_setting`) |
-| 13d | False alarm / transient anomaly (fault scenario 4) | n/a | n/a | no | no | Built ungated; developer to review |
+| 13d | False alarm / transient anomaly (fault scenario 4) | n/a | n/a | yes | no — built ungated, developer to review | `state.py` (`MachineCondition.vibration_sensor_offset`), `sensors.py`, `scenarios.py` (`FalseAlarm`) |
 | 14 | Seeded scenario generator (fault, machine or batch, start tick) | n/a | n/a | no | no | Built ungated; developer to review |
 | 15 | Evaluation | n/a | n/a | no | no | Built ungated; developer to review |
 | 16 | The research agent | n/a | n/a | no | no | Built ungated; developer to review |
@@ -766,3 +766,12 @@ alarm), then evaluation, then the agent itself.
   `MachineState.maintenance_kind`; bearing messages unchanged. A
   broken-down machine cannot be reset (it needs a repair). 7 tests, 338
   total.
+- **Session 5 — row 13d built ungated.** `FalseAlarm` writes a hidden
+  `MachineCondition.vibration_sensor_offset` (default +5.0 mm/s) on one
+  machine for `duration` ticks (default 5), then sets it back to 0. The
+  `VibrationSensor` adds the offset to its reading (running or idle), so
+  the ordinary threshold alarm trips. Nothing else in the machine
+  changes: a test compares against the same day without the fault and
+  finds only those few vibration readings differ. Ground truth: fault
+  "false_alarm", machine, start tick; the correct action is none. 6
+  tests, 344 total.
