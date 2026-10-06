@@ -42,7 +42,7 @@ A component is complete only when both columns are checked.
 | 13b | Machine setting and a wrong setting (fault scenario 3) | yes | yes | yes | no | `state.py` (`speed_setting`), `scenarios.py` (`WrongSetting`, `defect_mark`), `sensors.py`, `thermal.py`, `line.py`, `tools/observation.py` (`get_settings`); re-explain waived for time on 2026-10-06, developer to review |
 | 13c | Action: put a machine's setting right (via the approval desk) | n/a | n/a | yes | no — built ungated, developer to review | `simulator.py` (`start_setting_reset`, `_start_maintenance`), `state.py` (`maintenance_kind`), `tools/actions.py` (`reset_setting`) |
 | 13d | False alarm / transient anomaly (fault scenario 4) | n/a | n/a | yes | no — built ungated, developer to review | `state.py` (`MachineCondition.vibration_sensor_offset`), `sensors.py`, `scenarios.py` (`FalseAlarm`) |
-| 14 | Seeded scenario generator (fault, machine or batch, start tick) | n/a | n/a | no | no | Built ungated; developer to review |
+| 14 | Seeded scenario generator (fault, machine or batch, start tick) | n/a | n/a | yes | no — built ungated, developer to review | `capstone/simulator/generator.py` (`build_scenario`, `FAULTS`) |
 | 15 | Evaluation | n/a | n/a | no | no | Built ungated; developer to review |
 | 16 | The research agent | n/a | n/a | no | no | Built ungated; developer to review |
 | 17 | Memory | n/a | n/a | no | no | Built ungated; developer to review |
@@ -775,3 +775,12 @@ alarm), then evaluation, then the agent itself.
   finds only those few vibration readings differ. Ground truth: fault
   "false_alarm", machine, start tick; the correct action is none. 6
   tests, 344 total.
+- **Session 5 — row 14 built ungated.** `build_scenario(seed, machines=None,
+  fault=None)` calls `build_line` and then, from its own stream
+  `generator`, picks one of the four faults, a machine, a start tick in
+  200-600 and the fault's strength (bearing rate 0.0004-0.0008; speed
+  factor 0.85/0.88/1.12/1.15; bad batch 2 or 3 with added risk
+  0.35-0.50; false alarm lasting 3-8 ticks). `fault=` forces the kind
+  for balanced experiments. DECISION taken without asking: generated
+  lines use 10 jobs per batch (the standard line keeps 25) because at 25
+  a second batch only opens after about 1,750 ticks. 9 tests, 353 total.
