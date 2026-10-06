@@ -22,7 +22,7 @@ A component is complete only when both columns are checked.
 | 9a | Ground truth record           | yes    | yes              | yes         | yes               | `capstone/simulator/ground_truth.py` — COMPLETE |
 | 9b | Observation boundary (read-only tools) | yes | yes         | yes         | yes               | `capstone/tools/observation.py` — COMPLETE |
 | 10 | TemperatureSensor (second evidence source) | yes | n/a (§2.2) | yes         | yes               | `capstone/simulator/sensors.py`, in °F at developer's request — COMPLETE |
-| 10a | Operating load: `load` in MachineState, sensors respond, LoadSensor | yes | yes  | yes         |                   | `state.py`, `sensors.py`; awaiting post-implementation re-explain |
+| 10a | Operating load: `load` in MachineState, sensors respond, LoadSensor | yes | yes  | yes         | yes               | `state.py`, `sensors.py` — COMPLETE |
 | 10a2 | Load–wear coupling: heavy load wears the bearing faster; worn bearing nudges the load reading up | yes |  |      |                   | raised by developer from outside feedback; gate question asked, awaiting answer |
 | 10b | Workload variation over time (what changes `load`) |    |           |             |                   | agreed with developer; stands in for jobs until row 12 |
 | 10c | Room temperature drift (shared by all machines) |       |           |             |                   | agreed with developer |
@@ -226,3 +226,8 @@ A component is complete only when both columns are checked.
   Agreed to model both as row 10a2. Taught it (wear rate scales with
   load cubed; friction term lives in `LoadSensor`, not in `load`); gate
   question asked. Row 10a's re-explain question is still owed.
+- **Session 3 (cont.)** — Load re-explain passed (developer: the two
+  explanations are higher load or a degraded bearing). The deciding
+  reading was not named this time; the developer had used the load
+  sensor to decide the two-machine case in the pre-implementation gate,
+  so Claude filled it in. Row 10a2 gate question still awaiting answer.
