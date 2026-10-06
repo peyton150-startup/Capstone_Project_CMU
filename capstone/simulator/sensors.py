@@ -5,7 +5,6 @@ from pydantic import BaseModel, ConfigDict
 from capstone.simulator.rng import RandomSource
 from capstone.simulator.state import (
     NORMAL_LOAD,
-    REFERENCE_AMBIENT_F,
     FactoryState,
     MachineState,
     MachineStatus,
@@ -39,21 +38,19 @@ class Sensor(ABC):
         self.stream_name = f"sensor.{machine_id}.{self.name}"
         self._stream = rng.stream(self.stream_name)
 
-    def read(
-        self, machine: MachineState, tick: int, *, ambient_temperature: float = REFERENCE_AMBIENT_F
-    ) -> SensorReading:
+    def read(self, machine: MachineState, tick: int) -> SensorReading:
         if machine.id != self.machine_id:
             raise ValueError(f"{self.stream_name} cannot read machine {machine.id}")
         return SensorReading(
             sensor=self.name,
             machine_id=machine.id,
             tick=tick,
-            value=self._measure(machine, ambient_temperature),
+            value=self._measure(machine),
             unit=self.unit,
         )
 
     @abstractmethod
-    def _measure(self, machine: MachineState, ambient_temperature: float) -> float: ...
+    def _measure(self, machine: MachineState) -> float: ...
 
 
 class VibrationSensor(Sensor):
@@ -78,7 +75,7 @@ class VibrationSensor(Sensor):
         self.noise_sd = noise_sd
         self.idle_floor = idle_floor
 
-    def _measure(self, machine: MachineState, ambient_temperature: float) -> float:
+    def _measure(self, machine: MachineState) -> float:
         noise = self._stream.gauss(0.0, self.noise_sd)
         if machine.status is not MachineStatus.RUNNING:
             return max(0.0, self.idle_floor + noise)
@@ -88,35 +85,17 @@ class VibrationSensor(Sensor):
 
 
 class TemperatureSensor(Sensor):
-    """`baseline` is the healthy, normal-load reading when the air is 72 °F."""
+    """Reads the machine's real temperature. What makes a machine warm is in thermal.py."""
 
     name = "temperature"
     unit = "°F"
 
-    def __init__(
-        self,
-        machine_id: str,
-        rng: RandomSource,
-        *,
-        baseline: float = 115.0,
-        wear_gain: float = 45.0,
-        load_gain: float = 30.0,
-        noise_sd: float = 1.0,
-    ):
+    def __init__(self, machine_id: str, rng: RandomSource, *, noise_sd: float = 1.0):
         super().__init__(machine_id, rng)
-        self.baseline = baseline
-        self.wear_gain = wear_gain
-        self.load_gain = load_gain
         self.noise_sd = noise_sd
 
-    def _measure(self, machine: MachineState, ambient_temperature: float) -> float:
-        noise = self._stream.gauss(0.0, self.noise_sd)
-        if machine.status is not MachineStatus.RUNNING:
-            return ambient_temperature + noise
-        wear = 1.0 - machine.condition.bearing_health
-        work = self.load_gain * (machine.load - NORMAL_LOAD)
-        surroundings = ambient_temperature - REFERENCE_AMBIENT_F
-        return self.baseline + surroundings + work + self.wear_gain * wear + noise
+    def _measure(self, machine: MachineState) -> float:
+        return machine.temperature + self._stream.gauss(0.0, self.noise_sd)
 
 
 class LoadSensor(Sensor):
@@ -134,7 +113,7 @@ class LoadSensor(Sensor):
         self.friction_gain = friction_gain
         self.noise_sd = noise_sd
 
-    def _measure(self, machine: MachineState, ambient_temperature: float) -> float:
+    def _measure(self, machine: MachineState) -> float:
         noise = self._stream.gauss(0.0, self.noise_sd)
         if machine.status is not MachineStatus.RUNNING:
             return max(0.0, noise)

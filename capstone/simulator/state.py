@@ -44,6 +44,8 @@ class MachineState(BaseModel):
     status: MachineStatus = MachineStatus.RUNNING
     # How hard the machine is working, 0 to 1. An operating fact, not a fault.
     load: float = Field(default=NORMAL_LOAD, ge=0.0, le=1.0)
+    # How warm the machine really is, in °F. Changes gradually; see thermal.py.
+    temperature: float = REFERENCE_AMBIENT_F + 43.0
     # How long this machine's operation takes on any job: its normal cycle time.
     ticks_per_job: int = Field(default=60, ge=1)
     # The job on this machine now, and how many ticks of it are done here.

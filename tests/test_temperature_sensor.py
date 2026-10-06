@@ -8,13 +8,15 @@ from capstone.simulator.scenarios import BearingDegradation
 from capstone.simulator.sensors import TemperatureSensor, VibrationSensor
 from capstone.simulator.simulator import Simulator
 from capstone.simulator.state import MachineCondition, MachineState, MachineStatus
+from capstone.simulator.thermal import settle
 from capstone.tools.observation import ObservationTools
 
 START = datetime(2026, 1, 5, 6, 0)
 
 
 def machine(health: float = 1.0, status: MachineStatus = MachineStatus.RUNNING) -> MachineState:
-    return MachineState(id="CNC-04", status=status, condition=MachineCondition(bearing_health=health))
+    m = MachineState(id="CNC-04", status=status, condition=MachineCondition(bearing_health=health))
+    return settle(m, 72.0)
 
 
 def exact_sensor() -> TemperatureSensor:

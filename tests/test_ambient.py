@@ -7,6 +7,7 @@ from capstone.simulator.scenarios import AmbientTemperature, BearingDegradation
 from capstone.simulator.sensors import LoadSensor, TemperatureSensor, VibrationSensor
 from capstone.simulator.simulator import Simulator
 from capstone.simulator.state import FactoryState, MachineState, MachineStatus
+from capstone.simulator.thermal import settle
 
 START = datetime(2026, 1, 5, 6, 0)
 DAY = 1440
@@ -82,9 +83,9 @@ def test_a_healthy_machine_reads_43_degrees_above_the_air():
 
 
 def test_a_stopped_machine_reads_the_air_temperature():
-    m = MachineState(id="CNC-04", status=MachineStatus.DOWN)
+    m = settle(MachineState(id="CNC-04", status=MachineStatus.DOWN), 65.0)
     sensor = TemperatureSensor("CNC-04", RandomSource(42), noise_sd=0.0)
-    assert sensor.read(m, 0, ambient_temperature=65.0).value == pytest.approx(65.0)
+    assert sensor.read(m, 0).value == pytest.approx(65.0)
 
 
 def test_the_air_does_not_touch_vibration_or_load():

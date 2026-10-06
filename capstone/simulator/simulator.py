@@ -27,6 +27,7 @@ from capstone.simulator.rng import RandomSource
 from capstone.simulator.scenarios import Scenario
 from capstone.simulator.sensors import FactoryThermometer, Sensor, SensorReading
 from capstone.simulator.state import FactoryState, MachineState, MachineStatus
+from capstone.simulator.thermal import settle, warm_or_cool
 
 
 class Simulator:
@@ -39,8 +40,12 @@ class Simulator:
         tick_duration: timedelta = timedelta(minutes=1),
         *,
         bearing_failure_health: float = 0.1,
+        thermal_lag_ticks: float = 1.0,
     ):
+        if thermal_lag_ticks < 1.0:
+            raise ValueError("thermal_lag_ticks must be at least 1 (1 means no lag)")
         self.bearing_failure_health = bearing_failure_health
+        self.thermal_lag_ticks = thermal_lag_ticks
         self.clock = SimulationClock(start, tick_duration)
         self.rng = RandomSource(seed)
         self.state = FactoryState()
@@ -55,6 +60,7 @@ class Simulator:
 
     def add_machine(self, machine: MachineState) -> None:
         self.state.add(machine)
+        settle(machine, self.state.air_temperature)  # machines start already warmed up
         self._last_job_id[machine.id] = machine.job.id if machine.job else None
 
     def add_sensor(self, sensor: Sensor) -> None:
@@ -88,7 +94,7 @@ class Simulator:
         return tuple(self._readings)
 
     def step(self) -> list[SensorReading]:
-        """Advance one tick: clock, reality, consequences, observation, alarms.
+        """Advance one tick: clock, reality, consequences and warming, observation, alarms.
 
         The order is a contract: a reading stamped tick T is evidence of
         reality as of tick T, never of T-1. Alarms see only the readings.
@@ -98,10 +104,8 @@ class Simulator:
         self._record_new_jobs(tick)
         self._record_door(tick)
         self._apply_consequences(tick)
-        ambient = self.state.air_temperature
-        readings = [
-            s.read(self.state.machines[s.machine_id], tick, ambient_temperature=ambient) for s in self._sensors
-        ]
+        self._warm_or_cool_machines()
+        readings = [s.read(self.state.machines[s.machine_id], tick) for s in self._sensors]
         readings += [s.read(self.state, tick) for s in self._factory_sensors]
         self._readings.extend(readings)
         for reading in readings:
@@ -132,6 +136,11 @@ class Simulator:
             self._last_door_open = self.state.door_open
             message = "loading door opened" if self.state.door_open else "loading door closed"
             self.event_log.record(Event(tick=tick, machine_id=None, kind="door", message=message))
+
+    def _warm_or_cool_machines(self) -> None:
+        """Every machine drifts toward the temperature its work, wear and the air call for."""
+        for machine in self.state.machines.values():
+            warm_or_cool(machine, self.state.air_temperature, self.thermal_lag_ticks)
 
     def _apply_consequences(self, tick: int) -> None:
         """What the factory's own physics does with the state scenarios left.

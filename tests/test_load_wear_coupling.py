@@ -7,6 +7,7 @@ from capstone.simulator.scenarios import BearingDegradation
 from capstone.simulator.sensors import LoadSensor, TemperatureSensor, VibrationSensor
 from capstone.simulator.simulator import Simulator
 from capstone.simulator.state import FactoryState, MachineCondition, MachineState
+from capstone.simulator.thermal import settle
 
 START = datetime(2026, 1, 5, 6, 0)
 RATE = 0.001
@@ -77,7 +78,7 @@ def test_friction_is_small_early_and_noticeable_late():
 
 
 def test_wear_is_not_counted_twice_in_vibration_or_temperature():
-    m = MachineState(id="CNC-04", condition=MachineCondition(bearing_health=0.7))
+    m = settle(MachineState(id="CNC-04", condition=MachineCondition(bearing_health=0.7)), 72.0)
     rng = RandomSource(42)
     assert VibrationSensor("CNC-04", rng, noise_sd=0.0).read(m, 0).value == pytest.approx(2.54)
     assert TemperatureSensor("CNC-04", rng, noise_sd=0.0).read(m, 0).value == pytest.approx(128.5)

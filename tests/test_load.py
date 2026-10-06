@@ -7,6 +7,7 @@ from capstone.simulator.rng import RandomSource
 from capstone.simulator.sensors import LoadSensor, TemperatureSensor, VibrationSensor
 from capstone.simulator.simulator import Simulator
 from capstone.simulator.state import MachineCondition, MachineState, MachineStatus
+from capstone.simulator.thermal import settle
 from capstone.tools.observation import ObservationTools
 
 START = datetime(2026, 1, 5, 6, 0)
@@ -19,6 +20,7 @@ def machine(load: float = 0.5, health: float = 1.0, status: MachineStatus = Mach
 def exact(m: MachineState) -> dict[str, float]:
     """Noise-free vibration, temperature and load readings for one machine."""
     rng = RandomSource(42)
+    settle(m, 72.0)
     sensors = (VibrationSensor, TemperatureSensor, LoadSensor)
     return {s.name: s("CNC-04", rng, noise_sd=0.0).read(m, 0).value for s in sensors}
 
