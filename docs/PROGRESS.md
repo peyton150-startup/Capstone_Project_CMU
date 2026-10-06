@@ -16,7 +16,7 @@ A component is complete only when both columns are checked.
 | 4 | Sensor abstraction + 1 reading | yes   | yes              | yes         | yes               | `capstone/simulator/sensors.py` — COMPLETE |
 | 5 | FactoryState + step()         | yes    | yes              | yes         | yes               | `state.py` (`FactoryState`), `simulator.py` (`Simulator.step`) — COMPLETE |
 | 6 | Event log                     | yes    | yes              | yes         | yes               | `capstone/simulator/events.py` — COMPLETE |
-| 7 | Scenario abstraction          | yes    |                  |             |                   | gate question asked, awaiting answer |
+| 7 | Scenario abstraction          | yes    | yes              | yes         |                   | `capstone/simulator/scenarios.py`; awaiting post-implementation re-explain |
 | 8 | BearingDegradation scenario   |        |                  |             |                   | |
 | 9 | Ground truth + observation boundary (tools) | |          |             |                   | |
 
@@ -87,3 +87,12 @@ A component is complete only when both columns are checked.
   the event log says nothing about CNC-04 at tick 450 and that about
   0.40 health remains at the first alarm. Taught the Scenario
   abstraction; gate question asked.
+- **Session 3 (cont.)** — Scenario gate passed after re-teaching
+  (developer was unsure why a scenario may not write a fake reading;
+  then correctly stated that a heavy-load scenario changes only the load
+  for a few ticks and restores it, and that the sensor produces the
+  5.0 mm/s reading). Implemented `Scenario` base, `add_scenario`, and
+  the scenario loop in `_update_reality`; 7 tests, 63 total. The
+  test-only `Simulator` subclass is gone (debt from row 5 cleared).
+  `load` is NOT in `MachineState` yet — it belongs with the false-alarm
+  scenario.
