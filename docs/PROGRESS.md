@@ -18,8 +18,9 @@ A component is complete only when both columns are checked.
 | 6 | Event log                     | yes    | yes              | yes         | yes               | `capstone/simulator/events.py` — COMPLETE |
 | 7 | Scenario abstraction          | yes    | yes              | yes         | yes               | `capstone/simulator/scenarios.py` — COMPLETE |
 | 8 | BearingDegradation scenario   | yes    | yes              | yes         | yes               | `capstone/simulator/scenarios.py` — COMPLETE |
-| 8b | Machine failure transition (goes DOWN) | yes | yes           | yes         |                   | `simulator.py` (`_apply_consequences`); awaiting post-implementation re-explain |
-| 9 | Ground truth + observation boundary (tools) | |          |             |                   | |
+| 8b | Machine failure transition (goes DOWN) | yes | yes           | yes         | yes               | `simulator.py` (`_apply_consequences`) — COMPLETE |
+| 9a | Ground truth record           | yes    |                  |             |                   | gate question asked, awaiting answer |
+| 9b | Observation boundary (tools)  |        |                  |             |                   | split from the original row 9 to keep increments small |
 
 ## Session notes
 
@@ -133,3 +134,11 @@ A component is complete only when both columns are checked.
   sample run: fault starts tick 100, first alarm 714, machine stops 995.
   Debt: failure level is one number for all machines; only RUNNING
   machines fail; nothing can bring a DOWN machine back yet.
+- **Session 3 (cont.)** — Failure transition post-implementation gate
+  passed (developer raised unprompted that status is observable; then:
+  event log first mentions CNC-04 at tick 714, and the reading log is
+  what the agent needs to date the fault). Claude corrected: status
+  would read "down", not "idle"; and the fault is not visible in the
+  readings at tick 100 itself — it emerges from the noise around tick
+  250-300 and the agent must extrapolate back. Split row 9 into 9a
+  (ground truth) and 9b (tools). Taught 9a; gate question asked.
