@@ -33,11 +33,11 @@ A component is complete only when both columns are checked.
 | 10e | Standard line builder: `build_line(seed, machines=3..8)` sets up named machines, all sensors, thermometer, alarm, ambient, door, production line, thermal lag | n/a (§2.2 wiring) | n/a | yes | | `capstone/simulator/line.py`; built early at developer's request; wiring only, no gate required — COMPLETE |
 | 11a | Letting time pass: a `wait(ticks)` tool, separate from the read-only tools | yes | yes | yes     |                   | `capstone/tools/actions.py` (`ActionTools.wait`) — COMPLETE (understood post: yes) |
 | 11b | Maintenance action: replace a bearing (downtime, health restored, the fault ends, technician's finding) | yes | yes | yes   |                   | `simulator.py` (`start_bearing_replacement`, `_finish_maintenance`), `state.py`, `scenarios.py`; COMPLETE (understood post: yes). Not yet callable by the agent (11c) |
-| 11c | Approval: the agent proposes an action, a human approves, then it is applied | yes | yes | yes         |                   | `capstone/tools/actions.py` (`propose_action`, `get_proposals`, `ApprovalDesk`); awaiting post-implementation re-explain |
+| 11c | Approval: the agent proposes an action, a human approves, then it is applied | yes | yes | yes         |                   | `capstone/tools/actions.py` (`propose_action`, `get_proposals`, `ApprovalDesk`) — COMPLETE (understood post: yes) |
 | 12a | Assembly line: jobs with one identity move machine to machine in order; a machine's load comes from its job | yes | yes | yes      | yes               | COMPLETE. `state.py` (`Job`), `scenarios.py` (`ProductionLine`), `simulator.py`; awaiting post-implementation re-explain (re-asked in a new form). Idle-time issue resolved: working time is now each machine's own `ticks_per_job`. Replaces the `Workload` stand-in and the per-machine `job_number` |
 | 12b | Job events and a job-history tool for the agent | yes  | yes              | yes         |                   | `simulator.py` (`_record_job_events`), `events.py` (`job_id`), `state.py` (`line`), `tools/observation.py` (`get_job_history`, `job_id` in `list_machines`) — COMPLETE (understood post: yes) |
 | 12b2 | A worn machine works more slowly, so its jobs take extra ticks; natural variation of ±2 ticks on the standard line | yes | yes       | yes         |                   | `scenarios.py` (`working_speed`, `time_variation`), `state.py` (`job_work`, `job_done`), `line.py` — COMPLETE (understood post: yes) |
-| 12c | Quality inspections / defect rate         |      |                  |             |                   | follows 12b; needed for the material-batch scenario |
+| 12c | Quality inspection, small version: each finished job passes or fails; worn machines raise the chance of failure | yes |  |         |                   | gate question asked, awaiting answer; needed for the material-batch scenario |
 
 ## Session notes
 
@@ -595,3 +595,8 @@ A component is complete only when both columns are checked.
   full loop is exercised on a machine still in service. Debt: a proposal
   carries no stated prediction separate from its reason; approval is
   instant; one action type.
+- **Session 3 (cont.)** — Approval re-explain passed (developer: nothing
+  happens after a proposal because the human has to approve it, so the
+  readings are the same). Taught 12c (pass/fail inspection at the end of
+  the line; a hidden defect risk on each job built up from the wear of
+  the machines that worked on it; 1% baseline); gate question asked.
