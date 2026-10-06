@@ -23,8 +23,8 @@ A component is complete only when both columns are checked.
 | 9b | Observation boundary (read-only tools) | yes | yes         | yes         | yes               | `capstone/tools/observation.py` — COMPLETE |
 | 10 | TemperatureSensor (second evidence source) | yes | n/a (§2.2) | yes         | yes               | `capstone/simulator/sensors.py`, in °F at developer's request — COMPLETE |
 | 10a | Operating load: `load` in MachineState, sensors respond, LoadSensor | yes | yes  | yes         | yes               | `state.py`, `sensors.py` — COMPLETE |
-| 10a2 | Load–wear coupling: heavy load wears the bearing faster; worn bearing nudges the load reading up | yes | yes | yes   |                   | `scenarios.py`, `sensors.py`; awaiting post-implementation re-explain |
-| 10b | Workload variation over time (what changes `load`) |    |           |             |                   | agreed with developer; stands in for jobs until row 12 |
+| 10a2 | Load–wear coupling: heavy load wears the bearing faster; worn bearing nudges the load reading up | yes | yes | yes   | yes               | `scenarios.py`, `sensors.py` — COMPLETE |
+| 10b | Workload variation over time (what changes `load`) | yes |           |             |                   | gate question asked, awaiting answer; stands in for jobs until row 12 |
 | 10c | Room temperature drift (shared by all machines) |       |           |             |                   | agreed with developer |
 | 10d | Temperature warm-up / cool-down lag |            |                  |             |                   | agreed with developer |
 | 11 | Maintenance action + advancing time through the tools | |      |             |                   | proposed next: closes action → change → verification |
@@ -242,3 +242,10 @@ A component is complete only when both columns are checked.
   128 total. Sample: same fault from tick 100, machine at 80% load stops
   at tick 319, machine at 30% load is still at health 0.81 at tick 1000.
   Debt: the cube is steep and uncapped; friction does not depend on load.
+- **Session 3 (cont.)** — Load–wear coupling re-explain passed on the
+  second attempt. Developer first said the load gets heavier as the
+  machine wears; corrected (the reading rises, `load` does not).
+  Developer then stated that the actual load is 80 and the difference is
+  the wear, and confirmed unprompted that friction is not tracked as its
+  own value and need not be. Taught workload variation (10b); gate
+  question asked.
