@@ -37,7 +37,7 @@ A component is complete only when both columns are checked.
 | 12a | Assembly line: jobs move machine to machine | yes | yes | yes | yes | `state.py` (`Job`), `scenarios.py` (`ProductionLine`) |
 | 12b | Job events and `get_job_history` | yes | yes | yes | yes | `simulator.py`, `tools/observation.py` |
 | 12b2 | Worn machines work more slowly; ±2 ticks natural variation | yes | yes | yes | yes | `scenarios.py`, `line.py` |
-| 12c | Quality inspection, small pass/fail version | yes | yes |  |  | pre-gate passed; being implemented |
+| 12c | Quality inspection, small pass/fail version | yes | yes | yes |  | `scenarios.py`, `state.py` (`Inspection`), `simulator.py`, `tools/observation.py` (`get_inspections`); post-implementation question asked, awaiting answer |
 
 Every row above with four "yes" marks (or "n/a") is complete: no question is
 outstanding on it. Still to build after 12c, from `docs/MVP_SCOPE.md`: the
@@ -605,3 +605,18 @@ alarm), then evaluation, then the agent itself.
   readings are the same). Taught 12c (pass/fail inspection at the end of
   the line; a hidden defect risk on each job built up from the wear of
   the machines that worked on it; 1% baseline); gate question asked.
+- **Session 3 (cont.)** — Quality gate passed (developer: inspection
+  results cannot say which machine, but they show for a fact that
+  something on the line is wrong and the machines need checking — "it
+  tells you the health of the line"; one failure is weak evidence
+  because there is always a small chance of one, and one in four is when
+  to worry). At the developer's request the progress table was rewritten
+  with consistent columns: several rows had been marked complete only in
+  their notes with the last column left blank; no question had been
+  missed. Implemented `Job.defect_risk` (hidden), `Inspection`,
+  `FactoryState.inspections`, inspection events, `get_inspections`
+  (seventh look-up tool); inspections draw from their own stream; 13
+  tests, 298 total. Measured failure rates over 6,000 ticks with one
+  machine at a fixed health: 2% at 1.0, 3% at 0.7, 8% at 0.5, 27% at
+  0.3, 39% at 0.2. Debt: no defect type; every job is inspected; on a
+  single line quality cannot point at a machine.
