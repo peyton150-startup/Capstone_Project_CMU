@@ -23,7 +23,7 @@ A component is complete only when both columns are checked.
 | 9b | Observation boundary (read-only tools) | yes | yes         | yes         | yes               | `capstone/tools/observation.py` — COMPLETE |
 | 10 | TemperatureSensor (second evidence source) | yes | n/a (§2.2) | yes         | yes               | `capstone/simulator/sensors.py`, in °F at developer's request — COMPLETE |
 | 10a | Operating load: `load` in MachineState, sensors respond, LoadSensor | yes | yes  | yes         | yes               | `state.py`, `sensors.py` — COMPLETE |
-| 10a2 | Load–wear coupling: heavy load wears the bearing faster; worn bearing nudges the load reading up | yes |  |      |                   | raised by developer from outside feedback; gate question asked, awaiting answer |
+| 10a2 | Load–wear coupling: heavy load wears the bearing faster; worn bearing nudges the load reading up | yes | yes | yes   |                   | `scenarios.py`, `sensors.py`; awaiting post-implementation re-explain |
 | 10b | Workload variation over time (what changes `load`) |    |           |             |                   | agreed with developer; stands in for jobs until row 12 |
 | 10c | Room temperature drift (shared by all machines) |       |           |             |                   | agreed with developer |
 | 10d | Temperature warm-up / cool-down lag |            |                  |             |                   | agreed with developer |
@@ -231,3 +231,14 @@ A component is complete only when both columns are checked.
   reading was not named this time; the developer had used the load
   sensor to decide the two-machine case in the pre-implementation gate,
   so Claude filled it in. Row 10a2 gate question still awaiting answer.
+- **Session 3 (cont.)** — Load–wear coupling gate passed (developer
+  chose the sensor-side friction term because it does not change load
+  for everyone, only the reading; asked how load then speeds up wear —
+  explained it lives in `BearingDegradation`, which reads `load` and
+  still writes only health; developer then said the heavier-loaded
+  machine fails first). Claude filled in the two failure modes of the
+  other option (double counting, runaway loop). Implemented wear scaled
+  by (load / 0.5) ** 3 and `LoadSensor` friction of 8 × wear²; 9 tests,
+  128 total. Sample: same fault from tick 100, machine at 80% load stops
+  at tick 319, machine at 30% load is still at health 0.81 at tick 1000.
+  Debt: the cube is steep and uncapped; friction does not depend on load.
