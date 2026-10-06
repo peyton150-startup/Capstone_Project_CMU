@@ -49,9 +49,11 @@ class Simulator:
         self.event_log = EventLog()
         self._alarms: list[ThresholdAlarm] = []
         self._scenarios: list[Scenario] = []
+        self._last_job_number: dict[str, int] = {}
 
     def add_machine(self, machine: MachineState) -> None:
         self.state.add(machine)
+        self._last_job_number[machine.id] = machine.job_number
 
     def add_sensor(self, sensor: Sensor) -> None:
         if sensor.machine_id not in self.state.machines:
@@ -86,6 +88,7 @@ class Simulator:
         """
         tick = self.clock.advance()
         self._update_reality(tick)
+        self._record_new_jobs(tick)
         self._apply_consequences(tick)
         readings = [s.read(self.state.machines[s.machine_id], tick) for s in self._sensors]
         self._readings.extend(readings)
@@ -99,6 +102,15 @@ class Simulator:
         """Scenarios run in the order they were added; later ones see earlier changes."""
         for scenario in self._scenarios:
             scenario.apply(self.state, tick)
+
+    def _record_new_jobs(self, tick: int) -> None:
+        """Report work that changed this tick. Says that it changed, not how heavy it is."""
+        for machine in self.state.machines.values():
+            if machine.job_number != self._last_job_number[machine.id]:
+                self._last_job_number[machine.id] = machine.job_number
+                self.event_log.record(
+                    Event(tick=tick, machine_id=machine.id, kind="job", message="new job started")
+                )
 
     def _apply_consequences(self, tick: int) -> None:
         """What the factory's own physics does with the state scenarios left.

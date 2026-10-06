@@ -89,8 +89,9 @@ class BearingDegradation(Scenario):
 class Workload(Scenario):
     """Normal factory life: one machine's load changes in blocks of work.
 
-    Stands in for jobs until they exist. Not a fault, so it declares no
-    ground truth. Add it before any scenario that reads `load`, so that
+    Stands in for jobs until they exist. Each new block raises the
+    machine's job number; the simulator reports that as an event. Not a
+    fault, so it declares no ground truth. Add it before any scenario that reads `load`, so that
     scenario sees this tick's load rather than the last one's.
     """
 
@@ -118,7 +119,9 @@ class Workload(Scenario):
     def apply(self, state: FactoryState, tick: int) -> None:
         if tick < self._next_change:
             return
-        state.machines[self.machine_id].load = self._stream.uniform(self.min_load, self.max_load)
+        machine = state.machines[self.machine_id]
+        machine.load = self._stream.uniform(self.min_load, self.max_load)
+        machine.job_number += 1
         self._next_change = tick + self._stream.randint(self.min_block, self.max_block)
 
     def ground_truth(self) -> None:

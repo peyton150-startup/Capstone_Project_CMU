@@ -33,6 +33,8 @@ class MachineState(BaseModel):
     status: MachineStatus = MachineStatus.RUNNING
     # How hard the machine is working, 0 to 1. An operating fact, not a fault.
     load: float = Field(default=NORMAL_LOAD, ge=0.0, le=1.0)
+    # Counts the pieces of work this machine has started.
+    job_number: int = Field(default=0, ge=0)
     condition: MachineCondition = Field(default_factory=MachineCondition)
 
 

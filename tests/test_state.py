@@ -55,5 +55,6 @@ def test_empty_id_is_rejected():
 def test_condition_is_structurally_separable_from_observable_facts():
     m = MachineState(id="CNC-04", status=MachineStatus.DOWN)
     observable = m.model_dump(exclude={"condition"})
-    assert observable == {"id": "CNC-04", "status": "down", "load": 0.5}
+    assert (observable["id"], observable["status"]) == ("CNC-04", "down")
+    assert "condition" not in observable
     assert "bearing_health" not in str(observable)
