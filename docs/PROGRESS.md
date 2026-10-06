@@ -34,6 +34,7 @@ A component is complete only when both columns are checked.
 | 11 | Maintenance action + advancing time through the tools | |      |             |                   | proposed next: closes action → change → verification |
 | 12a | Assembly line: jobs with one identity move machine to machine in order; a machine's load comes from its job | yes | yes | yes      | yes               | COMPLETE. `state.py` (`Job`), `scenarios.py` (`ProductionLine`), `simulator.py`; awaiting post-implementation re-explain (re-asked in a new form). Idle-time issue resolved: working time is now each machine's own `ticks_per_job`. Replaces the `Workload` stand-in and the per-machine `job_number` |
 | 12b | Job events and a job-history tool for the agent | yes  |                  |             |                   | gate question asked, awaiting answer |
+| 12b2 | A worn machine works more slowly, so its jobs take extra ticks | |                |             |                   | developer's idea; agreed, small, straight after 12b |
 | 12c | Quality inspections / defect rate         |      |                  |             |                   | follows 12b; needed for the material-batch scenario |
 
 ## Session notes
@@ -447,3 +448,12 @@ A component is complete only when both columns are checked.
   (12b): "finished" events, a job id on job events, the current job in
   `list_machines`, and a `get_job_history` tool built from the event
   log; gate question asked.
+- **Session 3 (cont.)** — 12b gate, first attempt: developer said a
+  longer wait between "finished on CNC-01" and "started on CNC-02"
+  points at the first machine; corrected (CNC-01 had already finished —
+  the job waits because CNC-02 is still occupied). Second question not
+  yet answered. Developer proposed that a worn machine take extra ticks
+  per job; agreed as row 12b2. Claude noted its own example was not yet
+  possible in the simulator: with fixed working times a wait is either
+  the normal length or, after a breakdown, endless — 12b2 is what makes
+  a lengthening wait real.
