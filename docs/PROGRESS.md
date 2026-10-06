@@ -30,11 +30,11 @@ A component is complete only when both columns are checked.
 | 10c2 | Loading door opening: a short ambient disturbance plus an event | yes | yes | yes       | yes               | `state.py` (`door_open`, `door_cooling`, `air_temperature`), `scenarios.py` (`LoadingDoor`), `simulator.py`, `events.py` — COMPLETE |
 | 10c3 | Factory thermometer: a sensor for air temperature, not attached to a machine, readable by the agent | yes | yes | yes     | yes               | `sensors.py` (`FactoryThermometer`), `simulator.py`, `tools/observation.py` (`get_factory_readings`) — COMPLETE |
 | 10d | Temperature warm-up / cool-down lag | yes        | yes              | yes         | yes               | `thermal.py` (new), `state.py` (`temperature`), `sensors.py`, `simulator.py` — COMPLETE |
-| 10e | Standard line builder: `build_line(seed, machines=3..8)` sets up named machines, all sensors, thermometer, alarm, ambient, door, production line, thermal lag | n/a (§2.2 wiring) | n/a | yes | | `capstone/simulator/line.py`; built early at developer's request; a short explain-back is still due |
+| 10e | Standard line builder: `build_line(seed, machines=3..8)` sets up named machines, all sensors, thermometer, alarm, ambient, door, production line, thermal lag | n/a (§2.2 wiring) | n/a | yes | | `capstone/simulator/line.py`; built early at developer's request; wiring only, no gate required — COMPLETE |
 | 11 | Maintenance action + advancing time through the tools | |      |             |                   | proposed next: closes action → change → verification |
 | 12a | Assembly line: jobs with one identity move machine to machine in order; a machine's load comes from its job | yes | yes | yes      | yes               | COMPLETE. `state.py` (`Job`), `scenarios.py` (`ProductionLine`), `simulator.py`; awaiting post-implementation re-explain (re-asked in a new form). Idle-time issue resolved: working time is now each machine's own `ticks_per_job`. Replaces the `Workload` stand-in and the per-machine `job_number` |
-| 12b | Job events and a job-history tool for the agent | yes  | yes              | yes         |                   | `simulator.py` (`_record_job_events`), `events.py` (`job_id`), `state.py` (`line`), `tools/observation.py` (`get_job_history`, `job_id` in `list_machines`); awaiting post-implementation re-explain |
-| 12b2 | A worn machine works more slowly, so its jobs take extra ticks | |                |             |                   | developer's idea; agreed, small, straight after 12b |
+| 12b | Job events and a job-history tool for the agent | yes  | yes              | yes         |                   | `simulator.py` (`_record_job_events`), `events.py` (`job_id`), `state.py` (`line`), `tools/observation.py` (`get_job_history`, `job_id` in `list_machines`) — COMPLETE (understood post: yes) |
+| 12b2 | A worn machine works more slowly, so its jobs take extra ticks | yes |             |             |                   | developer's idea; gate question asked, awaiting answer |
 | 12c | Quality inspections / defect rate         |      |                  |             |                   | follows 12b; needed for the material-batch scenario |
 
 ## Session notes
@@ -483,3 +483,9 @@ A component is complete only when both columns are checked.
   `CLAUDE.md` now say 3-8 machines (was 3-5). Older tests keep their own
   small hand-built factories and the old names (CNC-04 etc.). Row 12b's
   re-explain is still owed.
+- **Session 3 (cont.)** — Job history re-explain passed (developer:
+  CNC-02 worked on job 5 from tick 341 to 410; the job spent 10 ticks
+  waiting; a slower CNC-02 would enlarge "the first number", its own
+  working time). Claude added that the wait on CNC-01 grows as well,
+  because CNC-02 frees up later. Taught 12b2 (a worn machine makes less
+  than one tick of progress per tick); gate question asked.
