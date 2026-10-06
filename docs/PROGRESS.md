@@ -32,7 +32,7 @@ A component is complete only when both columns are checked.
 | 10d | Temperature warm-up / cool-down lag |            |                  |             |                   | agreed with developer |
 | 10e | Standard line builder: one function that sets up machines, all sensors, alarms and workload, so every run has varying load | | | |             | proposed after developer asked that load vary in every scenario |
 | 11 | Maintenance action + advancing time through the tools | |      |             |                   | proposed next: closes action → change → verification |
-| 12a | Assembly line: jobs with one identity move machine to machine in order; a machine's load comes from its job | yes | yes | yes      |                   | `state.py` (`Job`), `scenarios.py` (`ProductionLine`), `simulator.py`; awaiting post-implementation re-explain. OPEN ISSUE: healthy machines idle 17-34% of the time. Replaces the `Workload` stand-in and the per-machine `job_number` |
+| 12a | Assembly line: jobs with one identity move machine to machine in order; a machine's load comes from its job | yes | yes | yes      |                   | `state.py` (`Job`), `scenarios.py` (`ProductionLine`), `simulator.py`; awaiting post-implementation re-explain (re-asked in a new form). Idle-time issue resolved: working time is now each machine's own `ticks_per_job`. Replaces the `Workload` stand-in and the per-machine `job_number` |
 | 12b | Job events and a job-history tool for the agent |      |                  |             |                   | follows 12a |
 | 12c | Quality inspections / defect rate         |      |                  |             |                   | follows 12b; needed for the material-batch scenario |
 
@@ -391,3 +391,16 @@ A component is complete only when both columns are checked.
   time, healthy machines are idle 17% / 24% / 34% of the time along the
   line. Debt: no buffers between machines; no job-finished events or
   job-history tool (12b); a DOWN machine keeps its last `load` value.
+- **Session 3 (cont.)** — Developer pasted an outside review of 12a.
+  Adopted: working time is a property of the machine
+  (`MachineState.ticks_per_job`, default 60), not of the job; a job now
+  carries only its id and load; no random variation in time for now.
+  Kept: one job brings the same load to every machine. Measured result:
+  a balanced line (60/60/60) is never idle once full; an uneven line
+  (60/70/55) idles in a fixed pattern each 70-tick cycle — the machine
+  before the slow one waits 10 ticks holding a finished job, the one
+  after waits 15 ticks empty. 18 line tests, 179 total. Which times the
+  standard line uses is left for the line builder (10e). The paste also
+  answered the re-explain question; per CLAUDE.md §1.1 it was re-asked
+  with a different example. Later options noted from the review: a few
+  ticks of natural variation, several job types, per-machine load.
