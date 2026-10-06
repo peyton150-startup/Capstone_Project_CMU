@@ -17,7 +17,8 @@ A component is complete only when both columns are checked.
 | 5 | FactoryState + step()         | yes    | yes              | yes         | yes               | `state.py` (`FactoryState`), `simulator.py` (`Simulator.step`) — COMPLETE |
 | 6 | Event log                     | yes    | yes              | yes         | yes               | `capstone/simulator/events.py` — COMPLETE |
 | 7 | Scenario abstraction          | yes    | yes              | yes         | yes               | `capstone/simulator/scenarios.py` — COMPLETE |
-| 8 | BearingDegradation scenario   | yes    | yes              | yes         |                   | `capstone/simulator/scenarios.py`; awaiting post-implementation re-explain. Failure transition (machine goes DOWN) not built yet |
+| 8 | BearingDegradation scenario   | yes    | yes              | yes         | yes               | `capstone/simulator/scenarios.py` — COMPLETE |
+| 8b | Machine failure transition (goes DOWN) | yes |               |             |                   | gate question asked, awaiting answer |
 | 9 | Ground truth + observation boundary (tools) | |          |             |                   | |
 
 ## Session notes
@@ -114,3 +115,12 @@ A component is complete only when both columns are checked.
   total. Seed 42 sample run: start tick 100, rate 0.001, first alarm at
   tick 714. Debt: no failure transition; a wrong `machine_id` surfaces
   as a KeyError on the first active tick, not at construction.
+- **Session 3 (cont.)** — BearingDegradation post-implementation gate
+  passed (developer: health holds while idle because the machine is not
+  running; vibration is high before, drops during idle, resumes after;
+  the agent should read the machine's idle status). Claude corrected two
+  points: after restart vibration returns to the same elevated level as
+  before the pause, not to normal; and the dangerous wrong conclusion is
+  "the problem went away", not "the machine is broken". Also confirmed
+  on request that health never drops without a scenario (no normal wear;
+  deliberate). Taught the failure transition; gate question asked.
