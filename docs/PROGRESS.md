@@ -20,7 +20,7 @@ A component is complete only when both columns are checked.
 | 8 | BearingDegradation scenario   | yes    | yes              | yes         | yes               | `capstone/simulator/scenarios.py` — COMPLETE |
 | 8b | Machine failure transition (goes DOWN) | yes | yes           | yes         | yes               | `simulator.py` (`_apply_consequences`) — COMPLETE |
 | 9a | Ground truth record           | yes    | yes              | yes         | yes               | `capstone/simulator/ground_truth.py` — COMPLETE |
-| 9b | Observation boundary (read-only tools) | yes |             |             |                   | gate question asked, awaiting answer. Actions are a later row |
+| 9b | Observation boundary (read-only tools) | yes | yes         | yes         |                   | `capstone/tools/observation.py`; awaiting post-implementation re-explain. Actions are a later row |
 
 ## Session notes
 
@@ -158,3 +158,14 @@ A component is complete only when both columns are checked.
   does not change: it is built from settings fixed when the scenario is
   created. Taught the read-only observation tools (allow-list vs
   block-list); gate question asked.
+- **Session 3 (cont.)** — Observation tools gate passed (developer chose
+  the build-from-scratch version on a hunch; after the worked example,
+  explained that a newly added machine field leaves that list untouched,
+  whereas copy-everything would pass it through because it had not been
+  accounted for). Implemented `ObservationTools` with `get_time`,
+  `list_machines`, `get_readings`, `get_events`; 10 tests, 103 total,
+  including a full-run leak test. Debt: `_sim` is private by convention
+  only — real enforcement comes when the agent is given just these four
+  functions; an unknown sensor name returns an empty list rather than an
+  error; each call scans the whole log; nothing lets the agent advance
+  time yet.
