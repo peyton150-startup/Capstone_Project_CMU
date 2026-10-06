@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 
 from capstone.simulator.rng import RandomSource
-from capstone.simulator.state import FactoryState
+from capstone.simulator.state import FactoryState, MachineStatus
 
 
 class Scenario(ABC):
@@ -22,3 +22,43 @@ class Scenario(ABC):
 
     @abstractmethod
     def apply(self, state: FactoryState, tick: int) -> None: ...
+
+
+class BearingDegradation(Scenario):
+    """Wears one machine's bearing from `start_tick` on, while it runs.
+
+    Changes `bearing_health` and nothing else. It knows nothing about
+    vibration or any other sensor: the symptoms come from sensors reading
+    the health it lowers.
+    """
+
+    def __init__(
+        self,
+        name: str,
+        rng: RandomSource,
+        *,
+        machine_id: str,
+        start_tick: int,
+        rate: float,
+        variation: float = 0.5,
+    ):
+        if rate <= 0:
+            raise ValueError("rate must be positive")
+        if not 0.0 <= variation < 1.0:
+            raise ValueError("variation must be in [0, 1)")
+        super().__init__(name, rng)
+        self.machine_id = machine_id
+        self.start_tick = start_tick
+        self.rate = rate
+        self.variation = variation
+
+    def apply(self, state: FactoryState, tick: int) -> None:
+        if tick < self.start_tick:
+            return
+        # Drawn before the status check so the stream's position depends
+        # only on ticks since start, not on the machine's status history.
+        loss = self.rate * self._stream.uniform(1.0 - self.variation, 1.0 + self.variation)
+        machine = state.machines[self.machine_id]
+        if machine.status is not MachineStatus.RUNNING:
+            return
+        machine.condition.bearing_health = max(0.0, machine.condition.bearing_health - loss)
