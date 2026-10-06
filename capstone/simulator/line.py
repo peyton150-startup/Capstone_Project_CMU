@@ -1,7 +1,8 @@
 """The standard factory: one call that sets up a complete, realistic line.
 
 Everything a normal day needs is wired in here, in the right order, so a
-run cannot be built with a piece missing. Faults are added afterwards by
+run cannot be built with a piece missing. Unless a size is given, the
+seed decides how many machines the line has. Faults are added afterwards by
 the caller, which keeps them running after the line's own scenarios.
 """
 
@@ -29,21 +30,24 @@ def machine_names(machines: int) -> list[str]:
 def build_line(
     seed: int,
     *,
-    machines: int = 3,
+    machines: int | None = None,
     start: datetime = datetime(2026, 1, 5, 6, 0),
     tick_duration: timedelta = timedelta(minutes=1),
     ticks_per_job: tuple[int, ...] | None = None,
     thermal_lag_ticks: float = 20.0,
     vibration_alarm: float = 4.5,
 ) -> Simulator:
+    sim = Simulator(seed, start, tick_duration, thermal_lag_ticks=thermal_lag_ticks)
+
+    if machines is None:
+        # The seed picks the size. Its own stream, so nothing else shifts.
+        machines = sim.rng.stream("line.size").randint(MIN_MACHINES, MAX_MACHINES)
     if not MIN_MACHINES <= machines <= MAX_MACHINES:
         raise ValueError(f"a line has {MIN_MACHINES} to {MAX_MACHINES} machines, not {machines}")
     times = ticks_per_job or STANDARD_TICKS_PER_JOB[:machines]
     if len(times) != machines:
         raise ValueError("ticks_per_job needs one entry per machine")
     names = machine_names(machines)
-
-    sim = Simulator(seed, start, tick_duration, thermal_lag_ticks=thermal_lag_ticks)
 
     ticks_per_day = round(timedelta(days=1) / tick_duration)
     first_peak = start.replace(hour=WARMEST_HOUR, minute=0, second=0, microsecond=0)

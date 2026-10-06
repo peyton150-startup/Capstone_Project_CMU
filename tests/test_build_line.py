@@ -22,9 +22,18 @@ def test_machines_are_named_in_order():
     assert machine_names(8)[-1] == "CNC-08"
 
 
-def test_a_line_has_three_machines_unless_told_otherwise():
-    sim = build_line(42)
-    assert list(sim.state.machines) == ["CNC-01", "CNC-02", "CNC-03"]
+def test_the_seed_decides_the_size_when_none_is_given():
+    sizes = [len(build_line(seed).state.machines) for seed in range(60)]
+    assert set(sizes) == {3, 4, 5, 6, 7, 8}
+    assert sizes == [len(build_line(seed).state.machines) for seed in range(60)]
+
+
+def test_a_given_size_overrides_the_seed_and_changes_nothing_else():
+    chosen = len(build_line(42).state.machines)
+    by_seed = run(build_line(42), 300)
+    by_hand = run(build_line(42, machines=chosen), 300)
+    assert by_seed.readings == by_hand.readings
+    assert len(build_line(42, machines=3).state.machines) == 3
 
 
 @pytest.mark.parametrize("machines", range(3, 9))
@@ -50,7 +59,7 @@ def test_working_times_can_be_set_and_must_match_the_number_of_machines():
 
 
 def test_a_healthy_day_has_work_door_openings_and_no_trouble():
-    sim = run(build_line(42))
+    sim = run(build_line(42, machines=3))
     kinds = {e.kind for e in sim.event_log.events}
     assert kinds == {"job", "door"}  # no alarms, no stops
     assert sim.ground_truth() == ()
@@ -67,7 +76,7 @@ def test_jobs_reach_the_end_of_the_longest_line():
 
 
 def test_the_second_machine_is_the_slowest_step_so_the_first_is_held_up():
-    sim = run(build_line(42))
+    sim = run(build_line(42, machines=3))
     blocked = {(e.machine_id, e.message.split("blocked by ")[1]) for e in sim.event_log.events if "blocked" in e.message}
     assert blocked == {("CNC-01", "CNC-02")}
 
