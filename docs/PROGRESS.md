@@ -19,7 +19,7 @@ A component is complete only when both columns are checked.
 | 7 | Scenario abstraction          | yes    | yes              | yes         | yes               | `capstone/simulator/scenarios.py` — COMPLETE |
 | 8 | BearingDegradation scenario   | yes    | yes              | yes         | yes               | `capstone/simulator/scenarios.py` — COMPLETE |
 | 8b | Machine failure transition (goes DOWN) | yes | yes           | yes         | yes               | `simulator.py` (`_apply_consequences`) — COMPLETE |
-| 9a | Ground truth record           | yes    |                  |             |                   | gate question asked, awaiting answer |
+| 9a | Ground truth record           | yes    | yes              | yes         |                   | `capstone/simulator/ground_truth.py`; awaiting post-implementation re-explain |
 | 9b | Observation boundary (tools)  |        |                  |             |                   | split from the original row 9 to keep increments small |
 
 ## Session notes
@@ -142,3 +142,13 @@ A component is complete only when both columns are checked.
   readings at tick 100 itself — it emerges from the noise around tick
   250-300 and the agent must extrapolate back. Split row 9 into 9a
   (ground truth) and 9b (tools). Taught 9a; gate question asked.
+- **Session 3 (cont.)** — Ground truth gate passed after re-teaching
+  part 1 (developer knew at once that tools reading the ground truth
+  would hand the agent the answers; was unsure why `bearing_health` is
+  not enough, then answered on the false-alarm case that the fact has to
+  come from the ground truth). Claude corrected again that sensor
+  readings are not in FactoryState. Implemented `GroundTruth` (frozen),
+  abstract `Scenario.ground_truth()`, `Simulator.ground_truth()`;
+  8 tests, 93 total. Debt: `Simulator.ground_truth()` is a public method
+  on the same object the tools will wrap — 9b must make it unreachable;
+  `fault` is free text; no end tick or cause field yet.
