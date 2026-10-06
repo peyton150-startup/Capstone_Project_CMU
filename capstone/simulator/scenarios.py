@@ -90,6 +90,9 @@ class BearingDegradation(Scenario):
 class ProductionLine(Scenario):
     """Normal factory life: jobs enter at the first machine and move down the line.
 
+    How long a job takes is a property of each machine (`ticks_per_job`),
+    not of the job; a job brings only its load.
+
     Each tick, in two passes. Movement, from the last machine back to the
     first: a finished job moves on if the next machine is free and not
     down, or leaves the line at the end; a new job enters whenever the
@@ -108,20 +111,15 @@ class ProductionLine(Scenario):
         rng: RandomSource,
         *,
         machine_ids: list[str],
-        min_ticks: int = 30,
-        max_ticks: int = 90,
         min_load: float = 0.3,
         max_load: float = 0.8,
     ):
         if not machine_ids or len(set(machine_ids)) != len(machine_ids):
             raise ValueError("the line needs at least one machine, each listed once")
-        if not 1 <= min_ticks <= max_ticks:
-            raise ValueError("need 1 <= min_ticks <= max_ticks")
         if not 0.0 <= min_load <= max_load <= 1.0:
             raise ValueError("need 0 <= min_load <= max_load <= 1")
         super().__init__(name, rng)
         self.machine_ids = list(machine_ids)
-        self.min_ticks, self.max_ticks = min_ticks, max_ticks
         self.min_load, self.max_load = min_load, max_load
         self._next_job_id = 1
 
@@ -131,7 +129,7 @@ class ProductionLine(Scenario):
         for machine in line:
             if machine.status is MachineStatus.DOWN:
                 continue
-            if machine.job is not None and machine.job_progress < machine.job.ticks_per_machine:
+            if machine.job is not None and machine.job_progress < machine.ticks_per_job:
                 machine.status = MachineStatus.RUNNING
                 machine.load = machine.job.load
                 machine.job_progress += 1
@@ -144,7 +142,7 @@ class ProductionLine(Scenario):
             machine = line[position]
             if machine.status is MachineStatus.DOWN or machine.job is None:
                 continue
-            if machine.job_progress < machine.job.ticks_per_machine:
+            if machine.job_progress < machine.ticks_per_job:
                 continue
             if position == len(line) - 1:
                 state.completed_jobs.append(machine.job.id)
@@ -156,11 +154,7 @@ class ProductionLine(Scenario):
             machine.job, machine.job_progress = None, 0
         first = line[0]
         if first.job is None and first.status is not MachineStatus.DOWN:
-            first.job = Job(
-                id=self._next_job_id,
-                load=self._stream.uniform(self.min_load, self.max_load),
-                ticks_per_machine=self._stream.randint(self.min_ticks, self.max_ticks),
-            )
+            first.job = Job(id=self._next_job_id, load=self._stream.uniform(self.min_load, self.max_load))
             first.job_progress = 0
             self._next_job_id += 1
 

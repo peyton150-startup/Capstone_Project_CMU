@@ -21,7 +21,6 @@ class Job(BaseModel):
     id: int = Field(ge=1)
     # How demanding the work is, 0 to 1; becomes the load of whichever machine holds it.
     load: float = Field(ge=0.0, le=1.0)
-    ticks_per_machine: int = Field(ge=1)
 
 
 class MachineCondition(BaseModel):
@@ -45,6 +44,8 @@ class MachineState(BaseModel):
     status: MachineStatus = MachineStatus.RUNNING
     # How hard the machine is working, 0 to 1. An operating fact, not a fault.
     load: float = Field(default=NORMAL_LOAD, ge=0.0, le=1.0)
+    # How long this machine's operation takes on any job: its normal cycle time.
+    ticks_per_job: int = Field(default=60, ge=1)
     # The job on this machine now, and how many ticks of it are done here.
     job: Job | None = None
     job_progress: int = Field(default=0, ge=0)
