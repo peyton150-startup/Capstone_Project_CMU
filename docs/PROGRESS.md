@@ -21,7 +21,7 @@ A component is complete only when both columns are checked.
 | 8b | Machine failure transition (goes DOWN) | yes | yes           | yes         | yes               | `simulator.py` (`_apply_consequences`) — COMPLETE |
 | 9a | Ground truth record           | yes    | yes              | yes         | yes               | `capstone/simulator/ground_truth.py` — COMPLETE |
 | 9b | Observation boundary (read-only tools) | yes | yes         | yes         | yes               | `capstone/tools/observation.py` — COMPLETE |
-| 10 | TemperatureSensor (second evidence source) | yes |          |             |                   | pattern repeat (CLAUDE.md §2.2); light check question asked |
+| 10 | TemperatureSensor (second evidence source) | yes | n/a (§2.2) | yes         |                   | `capstone/simulator/sensors.py`, in °F at developer's request; awaiting post-implementation re-explain |
 | 11 | Maintenance action + advancing time through the tools | |      |             |                   | proposed next: closes action → change → verification |
 | 12 | Production jobs + quality / defect rate |     |                  |             |                   | proposed: last link of the degradation chain in MVP_SCOPE §1 |
 
@@ -182,3 +182,11 @@ A component is complete only when both columns are checked.
   the reading log: yes, that is the intended investigation path. Rows
   1-9 complete. Proposed rows 10-12 from MVP_SCOPE.md; developer has not
   yet agreed the order.
+- **Session 3 (cont.)** — TemperatureSensor built as a pattern repeat
+  (CLAUDE.md §2.2), in Fahrenheit at the developer's request: 115 °F
+  healthy, +45 °F per unit of wear (straight line), 72 °F when not
+  running, noise 1 °F. Developer correctly said BearingDegradation needs
+  no change, but expected `Simulator.step()` and `ObservationTools` to
+  need changes — they do not (only `sensors.py` changed); explained, to
+  be re-checked in the post-implementation question. 6 tests, 109 total.
+  Debt: no warm-up or cool-down lag.
