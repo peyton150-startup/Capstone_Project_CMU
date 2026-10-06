@@ -38,6 +38,7 @@ A component is complete only when both columns are checked.
 | 12b | Job events and `get_job_history` | yes | yes | yes | yes | `simulator.py`, `tools/observation.py` |
 | 12b2 | Worn machines work more slowly; ±2 ticks natural variation | yes | yes | yes | yes | `scenarios.py`, `line.py` |
 | 12c | Quality inspection, small pass/fail version | yes | yes | yes | yes | `scenarios.py`, `state.py` (`Inspection`), `simulator.py`, `tools/observation.py` (`get_inspections`) |
+| 13a | Material batches and one bad batch (fault scenario 2) | yes | no | no | no | Gate question asked in session 4; nothing built |
 
 Every row above with four "yes" marks (or "n/a") is complete: no question is
 outstanding on it. Still to build after 12c, from `docs/MVP_SCOPE.md`: the
@@ -630,3 +631,11 @@ alarm), then evaluation, then the agent itself.
   scenario generator (fault, machine, start tick); (3) evaluation;
   (4) the agent; (5) memory. Start by teaching the first of the three
   scenarios; nothing is half-built.
+- **Session 4** — Resumed from the session 3 plan. Taught row 13a, the
+  material batch scenario: raw material arrives in numbered batches, each
+  job is cut from the batch in use and carries its batch number (open
+  information); a batch has a hidden quality that becomes the job's
+  starting defect risk; the fault scenario writes only that hidden
+  quality for one batch, and failures then come out of the existing
+  inspection. No machine is at fault and the fault ends by itself when
+  the batch runs out. Gate question asked; nothing implemented.
