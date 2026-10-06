@@ -47,8 +47,16 @@ class FactoryState(BaseModel):
     """
 
     machines: dict[str, MachineState] = Field(default_factory=dict)
-    # Air temperature around the machines, in °F. One value, read by all.
+    # The building's own temperature for the time of day, in °F.
     ambient_temperature: float = REFERENCE_AMBIENT_F
+    door_open: bool = False
+    # How many °F the loading door is currently taking off the air.
+    door_cooling: float = Field(default=0.0, ge=0.0)
+
+    @property
+    def air_temperature(self) -> float:
+        """What the machines actually sit in: one value, read by all."""
+        return self.ambient_temperature - self.door_cooling
 
     def add(self, machine: MachineState) -> None:
         if machine.id in self.machines:

@@ -50,6 +50,7 @@ class Simulator:
         self._alarms: list[ThresholdAlarm] = []
         self._scenarios: list[Scenario] = []
         self._last_job_number: dict[str, int] = {}
+        self._last_door_open = self.state.door_open
 
     def add_machine(self, machine: MachineState) -> None:
         self.state.add(machine)
@@ -89,8 +90,9 @@ class Simulator:
         tick = self.clock.advance()
         self._update_reality(tick)
         self._record_new_jobs(tick)
+        self._record_door(tick)
         self._apply_consequences(tick)
-        ambient = self.state.ambient_temperature
+        ambient = self.state.air_temperature
         readings = [
             s.read(self.state.machines[s.machine_id], tick, ambient_temperature=ambient) for s in self._sensors
         ]
@@ -114,6 +116,13 @@ class Simulator:
                 self.event_log.record(
                     Event(tick=tick, machine_id=machine.id, kind="job", message="new job started")
                 )
+
+    def _record_door(self, tick: int) -> None:
+        """Report the loading door changing. A factory event: it belongs to no machine."""
+        if self.state.door_open != self._last_door_open:
+            self._last_door_open = self.state.door_open
+            message = "loading door opened" if self.state.door_open else "loading door closed"
+            self.event_log.record(Event(tick=tick, machine_id=None, kind="door", message=message))
 
     def _apply_consequences(self, tick: int) -> None:
         """What the factory's own physics does with the state scenarios left.

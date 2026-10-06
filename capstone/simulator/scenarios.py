@@ -165,3 +165,53 @@ class AmbientTemperature(Scenario):
 
     def ground_truth(self) -> None:
         return None
+
+
+class LoadingDoor(Scenario):
+    """Normal factory life: the loading door opens now and then and lets cool air in.
+
+    Always a cooling, whatever the season. It writes the door and the
+    door's own cooling, never the building temperature, so it does not
+    matter whether it runs before or after AmbientTemperature. Not a
+    fault, so no ground truth.
+    """
+
+    def __init__(
+        self,
+        name: str,
+        rng: RandomSource,
+        *,
+        cooling: float = 5.0,
+        chance_per_tick: float = 1 / 300,
+        min_open: int = 5,
+        max_open: int = 20,
+        cool_per_tick: float = 0.5,
+        recover_per_tick: float = 0.2,
+    ):
+        if not 1 <= min_open <= max_open:
+            raise ValueError("need 1 <= min_open <= max_open")
+        if cooling < 0 or not 0.0 <= chance_per_tick <= 1.0:
+            raise ValueError("cooling must be >= 0 and chance_per_tick within 0..1")
+        super().__init__(name, rng)
+        self.cooling = cooling
+        self.chance_per_tick = chance_per_tick
+        self.min_open, self.max_open = min_open, max_open
+        self.cool_per_tick, self.recover_per_tick = cool_per_tick, recover_per_tick
+        self._closes_at = 0
+
+    def apply(self, state: FactoryState, tick: int) -> None:
+        # One draw every tick, so the stream's position depends only on the tick.
+        opens = self._stream.random() < self.chance_per_tick
+        if state.door_open:
+            if tick >= self._closes_at:
+                state.door_open = False
+        elif opens:
+            state.door_open = True
+            self._closes_at = tick + self._stream.randint(self.min_open, self.max_open)
+        if state.door_open:
+            state.door_cooling = min(self.cooling, state.door_cooling + self.cool_per_tick)
+        else:
+            state.door_cooling = max(0.0, state.door_cooling - self.recover_per_tick)
+
+    def ground_truth(self) -> None:
+        return None

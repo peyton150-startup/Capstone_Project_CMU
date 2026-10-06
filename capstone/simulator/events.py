@@ -13,7 +13,7 @@ class Event(BaseModel):
     model_config = ConfigDict(frozen=True)
 
     tick: int
-    machine_id: str
+    machine_id: str | None  # None for something about the factory as a whole
     kind: str
     message: str
 
