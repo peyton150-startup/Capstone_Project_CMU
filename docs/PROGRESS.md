@@ -20,7 +20,10 @@ A component is complete only when both columns are checked.
 | 8 | BearingDegradation scenario   | yes    | yes              | yes         | yes               | `capstone/simulator/scenarios.py` — COMPLETE |
 | 8b | Machine failure transition (goes DOWN) | yes | yes           | yes         | yes               | `simulator.py` (`_apply_consequences`) — COMPLETE |
 | 9a | Ground truth record           | yes    | yes              | yes         | yes               | `capstone/simulator/ground_truth.py` — COMPLETE |
-| 9b | Observation boundary (read-only tools) | yes | yes         | yes         |                   | `capstone/tools/observation.py`; awaiting post-implementation re-explain. Actions are a later row |
+| 9b | Observation boundary (read-only tools) | yes | yes         | yes         | yes               | `capstone/tools/observation.py` — COMPLETE |
+| 10 | TemperatureSensor (second evidence source) | yes |          |             |                   | pattern repeat (CLAUDE.md §2.2); light check question asked |
+| 11 | Maintenance action + advancing time through the tools | |      |             |                   | proposed next: closes action → change → verification |
+| 12 | Production jobs + quality / defect rate |     |                  |             |                   | proposed: last link of the degradation chain in MVP_SCOPE §1 |
 
 ## Session notes
 
@@ -169,3 +172,13 @@ A component is complete only when both columns are checked.
   functions; an unknown sensor name returns an empty list rather than an
   error; each call scans the whole log; nothing lets the agent advance
   time yet.
+- **Session 3 (cont.)** — Observation tools post-implementation gate
+  passed (developer: the agent can list machines and get CNC-04's
+  readings; it cannot get bearing health or the degradation rate; the
+  observation is built, not copied). Claude corrected: the tools object
+  does hold the simulator — the protection is that only named fields are
+  passed out and the agent is handed only the tools. Developer asked,
+  unprompted, whether the agent can find the stop and backtrack through
+  the reading log: yes, that is the intended investigation path. Rows
+  1-9 complete. Proposed rows 10-12 from MVP_SCOPE.md; developer has not
+  yet agreed the order.
