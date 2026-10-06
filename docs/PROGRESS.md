@@ -33,7 +33,7 @@ A component is complete only when both columns are checked.
 | 10e | Standard line builder: one function that sets up machines, all sensors, alarms and workload, so every run has varying load | | | |             | proposed after developer asked that load vary in every scenario |
 | 11 | Maintenance action + advancing time through the tools | |      |             |                   | proposed next: closes action → change → verification |
 | 12a | Assembly line: jobs with one identity move machine to machine in order; a machine's load comes from its job | yes | yes | yes      | yes               | COMPLETE. `state.py` (`Job`), `scenarios.py` (`ProductionLine`), `simulator.py`; awaiting post-implementation re-explain (re-asked in a new form). Idle-time issue resolved: working time is now each machine's own `ticks_per_job`. Replaces the `Workload` stand-in and the per-machine `job_number` |
-| 12b | Job events and a job-history tool for the agent | yes  |                  |             |                   | gate question asked, awaiting answer |
+| 12b | Job events and a job-history tool for the agent | yes  | yes              | yes         |                   | `simulator.py` (`_record_job_events`), `events.py` (`job_id`), `state.py` (`line`), `tools/observation.py` (`get_job_history`, `job_id` in `list_machines`); awaiting post-implementation re-explain |
 | 12b2 | A worn machine works more slowly, so its jobs take extra ticks | |                |             |                   | developer's idea; agreed, small, straight after 12b |
 | 12c | Quality inspections / defect rate         |      |                  |             |                   | follows 12b; needed for the material-batch scenario |
 
@@ -457,3 +457,16 @@ A component is complete only when both columns are checked.
   possible in the simulator: with fixed working times a wait is either
   the normal length or, after a breakdown, endless — 12b2 is what makes
   a lengthening wait real.
+- **Session 3 (cont.)** — 12b gate passed. Developer DECIDED, against
+  Claude's expected answer, that job history should say "blocked by
+  CNC-02", because it happens in real life; accepted — the factory's own
+  systems could see it, and it does not say why the next machine is
+  slow. On the timing question the developer first thought the line had
+  skipped a CNC-03 (the line is CNC-01, CNC-02, CNC-04 — naming gap to
+  fix in the line builder: use CNC-01/02/03), then read off that CNC-02
+  took 88 ticks on the job; Claude added that 88 against a normal 70
+  points at CNC-02. Implemented started / finished / "blocked by <next>"
+  job events with a `job_id`, `FactoryState.line`, the current job in
+  `list_machines`, and `get_job_history` (sixth tool); 11 tests, 202
+  total. Debt: no "starved" note for an empty waiting machine;
+  `get_job_history` scans the whole log.
