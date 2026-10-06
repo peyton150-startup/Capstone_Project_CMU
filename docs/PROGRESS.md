@@ -32,7 +32,7 @@ A component is complete only when both columns are checked.
 | 10d | Temperature warm-up / cool-down lag |            |                  |             |                   | agreed with developer |
 | 10e | Standard line builder: one function that sets up machines, all sensors, alarms and workload, so every run has varying load | | | |             | proposed after developer asked that load vary in every scenario |
 | 11 | Maintenance action + advancing time through the tools | |      |             |                   | proposed next: closes action → change → verification |
-| 12a | Assembly line: jobs with one identity move machine to machine in order; a machine's load comes from its job | yes |  |          |                   | gate question asked, awaiting answer. Replaces the `Workload` stand-in and the per-machine `job_number` |
+| 12a | Assembly line: jobs with one identity move machine to machine in order; a machine's load comes from its job | yes | yes | yes      |                   | `state.py` (`Job`), `scenarios.py` (`ProductionLine`), `simulator.py`; awaiting post-implementation re-explain. OPEN ISSUE: healthy machines idle 17-34% of the time. Replaces the `Workload` stand-in and the per-machine `job_number` |
 | 12b | Job events and a job-history tool for the agent |      |                  |             |                   | follows 12a |
 | 12c | Quality inspections / defect rate         |      |                  |             |                   | follows 12b; needed for the material-batch scenario |
 
@@ -376,3 +376,18 @@ A component is complete only when both columns are checked.
   line (12a): one job identity moving station to station, hand-off only
   when the next station is free, load taken from the job, a machine with
   no work or nowhere to send it is idle; gate question asked.
+- **Session 3 (cont.)** — Assembly line gate passed (developer: idle
+  neighbours of a broken machine are just not busy; load now comes from
+  a job number that follows the line from machine 1 to the last one).
+  Claude filled in what stops the agent blaming idle machines (status,
+  the stop event, their flat history) and why a shared job helps (the
+  same load appears on each machine in turn). Implemented `Job`,
+  `MachineState.job` / `job_progress`, `FactoryState.completed_jobs`,
+  `ProductionLine`; job events now read "job N started". REMOVED the
+  stand-ins: `Workload`, `MachineState.job_number`, and their two test
+  files (20 tests); 14 new tests, 175 total. Sample (seed 42): a wear
+  fault on CNC-02 stops it at tick 721 and the line makes nothing more.
+  OPEN ISSUE found in the sample run: with every job taking a different
+  time, healthy machines are idle 17% / 24% / 34% of the time along the
+  line. Debt: no buffers between machines; no job-finished events or
+  job-history tool (12b); a DOWN machine keeps its last `load` value.
