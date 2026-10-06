@@ -19,13 +19,17 @@ CORRECT_ACTION = {
 }
 
 
+# Stands in for a missing answer; never counts as right.
+_NO_ANSWER = Diagnosis(fault="false_alarm", summary="no diagnosis submitted")
+
+
 class Score(BaseModel):
     """One row of the results table."""
 
     true_fault: str
     true_machine_id: str | None
     true_batch_id: int | None
-    diagnosed_fault: str
+    diagnosed_fault: str | None  # None: the agent never gave an answer
     diagnosed_machine_id: str | None
     diagnosed_batch_id: int | None
     fault_correct: bool
@@ -38,27 +42,29 @@ class Score(BaseModel):
     ticks_elapsed: int
 
 
-def evaluate(sim: Simulator, diagnosis: Diagnosis, proposals: list[dict], *, tool_calls: int, start_tick: int) -> Score:
+def evaluate(sim: Simulator, diagnosis: Diagnosis | None, proposals: list[dict], *, tool_calls: int, start_tick: int) -> Score:
     """Judge the agent's answer and actions, given the simulator as it stands at the end."""
     (truth,) = sim.ground_truth()
+    if diagnosis is None:
+        diagnosis = _NO_ANSWER
     expected = CORRECT_ACTION[truth.fault]
     approved = [p for p in proposals if p["status"] == "approved"]
     taken = [f"{p['action']} {p['machine_id']}" for p in approved]
     wanted = [] if expected is None else [f"{expected} {truth.machine_id}"]
 
     if truth.fault == "bad_material_batch":
-        target_correct = diagnosis.batch_id == truth.batch_id
+        target_correct = diagnosis is not _NO_ANSWER and diagnosis.batch_id == truth.batch_id
     else:
-        target_correct = diagnosis.machine_id == truth.machine_id
+        target_correct = diagnosis is not _NO_ANSWER and diagnosis.machine_id == truth.machine_id
 
     return Score(
         true_fault=truth.fault,
         true_machine_id=truth.machine_id,
         true_batch_id=truth.batch_id,
-        diagnosed_fault=diagnosis.fault,
+        diagnosed_fault=None if diagnosis is _NO_ANSWER else diagnosis.fault,
         diagnosed_machine_id=diagnosis.machine_id,
         diagnosed_batch_id=diagnosis.batch_id,
-        fault_correct=diagnosis.fault == truth.fault,
+        fault_correct=diagnosis is not _NO_ANSWER and diagnosis.fault == truth.fault,
         target_correct=target_correct,
         expected_action=expected,
         actions_taken=taken,

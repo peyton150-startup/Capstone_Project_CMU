@@ -40,7 +40,7 @@ def build_scenario(seed: int, *, machines: int | None = None, fault: str | None 
         rate = pick.uniform(0.0004, 0.0008)
         sim.add_scenario(BearingDegradation("fault", sim.rng, machine_id=machine_id, start_tick=start_tick, rate=rate))
     elif fault == "wrong_setting":
-        factor = pick.choice((0.85, 0.88, 1.12, 1.15))
+        factor = pick.choice((0.80, 0.82, 1.18, 1.20))
         sim.add_scenario(WrongSetting("fault", sim.rng, machine_id=machine_id, start_tick=start_tick, factor=factor))
     elif fault == "bad_material_batch":
         batch = pick.randint(2, 3)

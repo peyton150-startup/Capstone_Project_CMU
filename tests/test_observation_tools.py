@@ -11,7 +11,7 @@ from capstone.simulator.state import MachineState
 from capstone.tools.observation import ObservationTools
 
 START = datetime(2026, 1, 5, 6, 0)
-TOOLS = {"get_time", "list_machines", "get_readings", "get_factory_readings", "get_events", "get_job_history", "get_inspections", "get_settings"}
+TOOLS = {"get_time", "list_machines", "get_readings", "get_factory_readings", "get_events", "get_job_history", "get_inspections", "get_settings", "get_sensor_trend"}
 HIDDEN_WORDS = ("bearing", "health", "condition", "degradation", "fault", "scenario", "start_tick", "ground")
 
 

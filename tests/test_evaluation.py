@@ -101,3 +101,9 @@ def test_summary_counts_and_averages():
                        "mean_tool_calls": 6.0, "mean_ticks": 150.0}
     assert format_summary(summary).startswith("1/2 root causes correctly identified")
     assert summarize([]) == {"runs": 0}
+
+
+def test_no_answer_scores_nothing_right_even_on_a_false_alarm():
+    sim, desk, _ = episode("false_alarm")
+    score = evaluate(sim, None, desk.proposals(), tool_calls=30, start_tick=700)
+    assert score.diagnosed_fault is None and not score.fault_correct and not score.target_correct

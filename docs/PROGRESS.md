@@ -44,7 +44,7 @@ A component is complete only when both columns are checked.
 | 13d | False alarm / transient anomaly (fault scenario 4) | n/a | n/a | yes | no — built ungated, developer to review | `state.py` (`MachineCondition.vibration_sensor_offset`), `sensors.py`, `scenarios.py` (`FalseAlarm`) |
 | 14 | Seeded scenario generator (fault, machine or batch, start tick) | n/a | n/a | yes | no — built ungated, developer to review | `capstone/simulator/generator.py` (`build_scenario`, `FAULTS`) |
 | 15 | Evaluation | n/a | n/a | yes | no — built ungated, developer to review | `capstone/evaluation/scoring.py` (`evaluate`, `Score`, `summarize`), `capstone/tools/diagnosis.py` (`Diagnosis`) |
-| 16 | The research agent | n/a | n/a | no | no | Built ungated; developer to review |
+| 16 | The research agent | n/a | n/a | yes | no — built ungated, developer to review | `capstone/agent/` (`models.py`, `toolbox.py`, `agent.py`, `monitor.py`, `episode.py`, `__main__.py`); `tools/observation.py` (`get_sensor_trend`) |
 | 17 | Memory | n/a | n/a | no | no | Built ungated; developer to review |
 
 Every row above with four "yes" marks (or "n/a") is complete: no question is
@@ -797,3 +797,25 @@ alarm), then evaluation, then the agent itself.
   replaced after the fault began; setting back to None; bad batch used
   up; sensor offset gone), tool calls, ticks elapsed. `summarize` and
   `format_summary` give the "18/20 root causes" line. 9 tests, 362 total.
+- **Session 5 — row 16 built ungated.** The agent package:
+  `models.py` hides the language model behind `start` / `continue_with`;
+  `ClaudeModel` calls `claude-opus-5-5` through the Anthropic SDK
+  (manual tool loop, adaptive thinking, effort "high", server-side
+  refusal fallback), `ScriptedModel` replays fixed turns so tests need no
+  key. `toolbox.py` describes 14 tools to the model (the 9 look-ups incl.
+  a new `get_sensor_trend`, wait, propose_action, get_proposals, plus
+  `update_hypotheses` for the hypothesis table and `submit_diagnosis` to
+  finish), counts every call, returns errors as error results, and
+  refuses answers over 300 rows. `agent.py` holds the system prompt (the
+  staged loop from MVP_SCOPE section 3) and the turn loop.
+  `monitor.py` runs the line through the agent's own tools until an
+  alarm, a stopped machine, or 3 failed inspections in the last 10.
+  `episode.py` wires it all: seeded scenario, monitor, agent, the human
+  (an `approver` function; `approve_all` for experiments,
+  `ask_on_console` for live use) deciding proposals between turns, and
+  evaluation. `python -m capstone.agent --seed 0 --runs 20` runs the real
+  agent. Not run against the real model in this session (no key);
+  everything is tested with the scripted stand-in. DECISION taken without
+  asking: generated wrong settings made stronger (0.80/0.82/1.18/1.20)
+  because 12-15% off often went undetected for 4,000 ticks. 13 tests,
+  376 total.
