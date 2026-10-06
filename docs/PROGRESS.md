@@ -25,7 +25,7 @@ A component is complete only when both columns are checked.
 | 10a | Operating load: `load` in MachineState, sensors respond, LoadSensor | yes | yes  | yes         | yes               | `state.py`, `sensors.py` — COMPLETE |
 | 10a2 | Load–wear coupling: heavy load wears the bearing faster; worn bearing nudges the load reading up | yes | yes | yes   | yes               | `scenarios.py`, `sensors.py` — COMPLETE |
 | 10b | Workload variation over time (what changes `load`) | yes | yes       | yes         | yes               | `scenarios.py` (`Workload`) — COMPLETE; stands in for jobs until row 12 |
-| 10b2 | "Job started" event when a machine's work changes | yes |          |             |                   | developer's idea; gate question asked, awaiting answer |
+| 10b2 | "Job started" event when a machine's work changes | yes | yes      | yes         |                   | `state.py` (`job_number`), `scenarios.py`, `simulator.py`; awaiting post-implementation re-explain |
 | 10c | Room temperature drift (shared by all machines) |       |           |             |                   | agreed with developer |
 | 10d | Temperature warm-up / cool-down lag |            |                  |             |                   | agreed with developer |
 | 10e | Standard line builder: one function that sets up machines, all sensors, alarms and workload, so every run has varying load | | | |             | proposed after developer asked that load vary in every scenario |
@@ -277,3 +277,14 @@ A component is complete only when both columns are checked.
   the agent must compare periods of similar load). Developer proposed
   recording load changes in the event log; agreed as row 10b2, taught,
   gate question asked.
+- **Session 3 (cont.)** — Job-event gate passed on the second attempt.
+  Developer first thought "machine stopped" was written by a reading
+  threshold and rightly objected that a threshold cannot work for load;
+  re-taught the two event routes (alarm on a reading vs. the simulator
+  noticing a state change). Developer then stated that the simulator
+  reads the job number, finds it different, and adds the entry to the
+  event log. Implemented `MachineState.job_number`, `Workload` raising
+  it, and `Simulator._record_new_jobs`; 9 tests, 146 total. The
+  copy-minus-condition test in `test_state.py` broke a second time on
+  the new field and was rewritten to check only what it means to check.
+  Debt: the event carries no job identity or description (row 12).
