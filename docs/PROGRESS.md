@@ -24,7 +24,7 @@ A component is complete only when both columns are checked.
 | 10 | TemperatureSensor (second evidence source) | yes | n/a (§2.2) | yes         | yes               | `capstone/simulator/sensors.py`, in °F at developer's request — COMPLETE |
 | 10a | Operating load: `load` in MachineState, sensors respond, LoadSensor | yes | yes  | yes         | yes               | `state.py`, `sensors.py` — COMPLETE |
 | 10a2 | Load–wear coupling: heavy load wears the bearing faster; worn bearing nudges the load reading up | yes | yes | yes   | yes               | `scenarios.py`, `sensors.py` — COMPLETE |
-| 10b | Workload variation over time (what changes `load`) | yes |           |             |                   | gate question asked, awaiting answer; stands in for jobs until row 12 |
+| 10b | Workload variation over time (what changes `load`) | yes | yes       | yes         |                   | `scenarios.py` (`Workload`); awaiting post-implementation re-explain; stands in for jobs until row 12 |
 | 10c | Room temperature drift (shared by all machines) |       |           |             |                   | agreed with developer |
 | 10d | Temperature warm-up / cool-down lag |            |                  |             |                   | agreed with developer |
 | 10e | Standard line builder: one function that sets up machines, all sensors, alarms and workload, so every run has varying load | | | |             | proposed after developer asked that load vary in every scenario |
@@ -257,3 +257,13 @@ A component is complete only when both columns are checked.
   product type; whether to vary by product or by job size is undecided.
   Added proposed row 10e (standard line builder). 10b gate questions
   still awaiting answers.
+- **Session 3 (cont.)** — Workload gate passed (developer: a jump means
+  another product is on the machine — too big and sudden to be wear,
+  which is gradual; workload should run first, otherwise degradation
+  runs and then the product is switched for that tick). Implemented
+  `Workload` (blocks of 30-90 ticks, load 0.3-0.8, own stream per
+  machine); scenarios may now declare no ground truth; 9 tests, 137
+  total. Debt: run order (workload before degradation) is a convention
+  to be enforced by the line builder (10e); load changes instantly; the
+  agent sees load only via the load sensor, with no job record to
+  explain a change (row 12).
