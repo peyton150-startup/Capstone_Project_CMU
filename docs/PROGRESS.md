@@ -39,7 +39,7 @@ A component is complete only when both columns are checked.
 | 12b2 | Worn machines work more slowly; ±2 ticks natural variation | yes | yes | yes | yes | `scenarios.py`, `line.py` |
 | 12c | Quality inspection, small pass/fail version | yes | yes | yes | yes | `scenarios.py`, `state.py` (`Inspection`), `simulator.py`, `tools/observation.py` (`get_inspections`) |
 | 13a | Material batches and one bad batch (fault scenario 2) | yes | yes | yes | yes | `state.py` (`MaterialBatch`), `scenarios.py` (`BadMaterialBatch`), `simulator.py`, `line.py`, `tools/observation.py` |
-| 13b | Machine setting and a wrong setting (fault scenario 3) | yes | no | no | no | Gate question asked in session 4; nothing built |
+| 13b | Machine setting and a wrong setting (fault scenario 3) | yes | yes | yes | no | `state.py` (`speed_setting`), `scenarios.py` (`WrongSetting`, `defect_mark`), `sensors.py`, `thermal.py`, `line.py`, `tools/observation.py` (`get_settings`); re-explain owed |
 
 Every row above with four "yes" marks (or "n/a") is complete: no question is
 outstanding on it. Still to build after 12c, from `docs/MVP_SCOPE.md`: the
@@ -680,3 +680,33 @@ alarm), then evaluation, then the agent itself.
   scenario writes only that setting, once, as a step. Gate question
   asked, including whether the agent should be able to read the setting
   directly; nothing implemented.
+- **Session 4 (cont.)** — Wrong-setting gate passed after several
+  exchanges. Developer asked whether a faster machine is not simply a
+  good thing (answer: more parts but fewer good ones, about 13.1 against
+  14.1 good parts per 1,000 ticks) and proposed that a wrong setting
+  wear the bearing faster. DECIDED: limited version only — the speed
+  setting multiplies wear that a `BearingDegradation` is already
+  causing, and causes none by itself; the full version waits until
+  everyday wear exists. DECIDED by the developer: the agent may read the
+  setting freely, as in a real factory. To keep the earlier rule that no
+  single field gives a fault away, it is shown in the machine's own
+  units (rpm, a different standard on every machine) and the standard
+  value is not shown. The first gate answer named where each fault shows
+  up, not what rules each out; re-taught. Developer then classified
+  three fresh cases correctly and, for the slowed machine, gave the
+  single lasting step and flat vibration as ruling out wear; Claude
+  filled in what rules out a bad batch (failures across two batches, and
+  a machine's job time changed). Implemented
+  `MachineState.standard_speed` / `speed_setting` / `speed_ratio`,
+  `WrongSetting` (writes the setting once), the setting's effect on
+  `working_speed`, vibration (+2.0 mm/s per unit of speed), settling
+  temperature (+40 °F per unit), `defect_mark` (8 x distance from
+  standard squared), wear scaled by speed ratio cubed, `get_settings`
+  (eighth look-up tool), per-machine standard speeds on the standard
+  line. 18 tests, 331 total. Debt: no history of the setting and no
+  "setting changed" event, so the agent sees only the current value; no
+  action to put a setting right yet (next step); one setting per
+  machine; the load sensor ignores speed. The developer then asked for
+  everything remaining to be built without gates because time is short;
+  per CLAUDE.md 1.1 this was not done, and the choice of changing the
+  rule itself was put to the developer.

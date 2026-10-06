@@ -49,6 +49,8 @@ class BearingDegradation(Scenario):
 
     Wear scales with (load / normal load) ** load_exponent; bearing life
     falls roughly with the cube of load. It reads `load`, never writes it.
+    A machine set to run faster than standard wears faster in the same
+    way, by speed ratio ** speed_exponent.
     """
 
     def __init__(
@@ -61,6 +63,7 @@ class BearingDegradation(Scenario):
         rate: float,
         variation: float = 0.5,
         load_exponent: float = 3.0,
+        speed_exponent: float = 3.0,
     ):
         if rate <= 0:
             raise ValueError("rate must be positive")
@@ -72,6 +75,7 @@ class BearingDegradation(Scenario):
         self.rate = rate
         self.variation = variation
         self.load_exponent = load_exponent
+        self.speed_exponent = speed_exponent
 
     def apply(self, state: FactoryState, tick: int) -> None:
         if tick < self.start_tick:
@@ -86,6 +90,7 @@ class BearingDegradation(Scenario):
         if machine.status is not MachineStatus.RUNNING:
             return
         loss *= (machine.load / NORMAL_LOAD) ** self.load_exponent
+        loss *= machine.speed_ratio**self.speed_exponent
         machine.condition.bearing_health = max(0.0, machine.condition.bearing_health - loss)
 
     def ground_truth(self) -> GroundTruth:
@@ -94,6 +99,38 @@ class BearingDegradation(Scenario):
             fault="bearing_degradation",
             machine_id=self.machine_id,
             start_tick=self.start_tick,
+        )
+
+
+class WrongSetting(Scenario):
+    """Someone sets one machine to the wrong speed at `start_tick`.
+
+    Changes that machine's `speed_setting`, once, and nothing else. The
+    machine's hardware is sound. What follows (quicker or slower jobs,
+    a little more or less vibration and heat, more rejects) comes from
+    the machine's own physics reading the setting. It writes once so that
+    a later correction stays corrected.
+    """
+
+    def __init__(self, name: str, rng: RandomSource, *, machine_id: str, start_tick: int, factor: float):
+        if factor <= 0 or factor == 1.0:
+            raise ValueError("factor must be positive and not 1 (1 is the standard setting)")
+        super().__init__(name, rng)
+        self.machine_id = machine_id
+        self.start_tick = start_tick
+        self.factor = factor
+        self._done = False
+
+    def apply(self, state: FactoryState, tick: int) -> None:
+        if self._done or tick < self.start_tick:
+            return
+        machine = state.machines[self.machine_id]
+        machine.speed_setting = machine.standard_speed * self.factor
+        self._done = True
+
+    def ground_truth(self) -> GroundTruth:
+        return GroundTruth(
+            scenario=self.name, fault="wrong_setting", machine_id=self.machine_id, start_tick=self.start_tick
         )
 
 
@@ -129,17 +166,25 @@ class BadMaterialBatch(Scenario):
 
 DEFECT_BASELINE = 0.01  # one job in a hundred fails inspection on a perfect line
 DEFECT_FROM_WEAR = 0.45  # extra chance a completely worn machine would add
+DEFECT_FROM_SETTING = 8.0  # times the squared distance from standard speed: 15% off adds 0.18
 WORN_SLOWDOWN = 0.4  # a completely worn bearing would cost 40% of working speed
 
 
 def working_speed(machine) -> float:
-    """Ticks of work a running machine gets done per tick. 1.0 when healthy.
+    """Ticks of work a running machine gets done per tick. 1.0 when healthy and set right.
 
-    Part of the machine's own physics, whatever damaged the bearing.
-    Slow-then-fast, like vibration: early wear barely shows.
+    Part of the machine's own physics, whatever damaged the bearing or
+    changed the setting. Wear is slow-then-fast, like vibration: early
+    wear barely shows. The speed setting scales it directly.
     """
     wear = 1.0 - machine.condition.bearing_health
-    return 1.0 - WORN_SLOWDOWN * wear**2
+    return (1.0 - WORN_SLOWDOWN * wear**2) * machine.speed_ratio
+
+
+def defect_mark(machine) -> float:
+    """What this machine adds to a job's defect risk as it finishes its part."""
+    wear = 1.0 - machine.condition.bearing_health
+    return DEFECT_FROM_WEAR * wear**2 + DEFECT_FROM_SETTING * (machine.speed_ratio - 1.0) ** 2
 
 
 class ProductionLine(Scenario):
@@ -212,9 +257,8 @@ class ProductionLine(Scenario):
                 machine.status = MachineStatus.RUNNING
                 machine.load = machine.job.load
                 machine.job_progress += working_speed(machine)
-                if machine.job_done:  # this machine's part is finished: its wear leaves a mark
-                    wear = 1.0 - machine.condition.bearing_health
-                    machine.job.defect_risk += DEFECT_FROM_WEAR * wear**2
+                if machine.job_done:  # this machine's part is finished: wear or a wrong setting leaves a mark
+                    machine.job.defect_risk += defect_mark(machine)
             else:
                 machine.status = MachineStatus.IDLE
                 machine.load = 0.0

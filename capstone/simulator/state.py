@@ -74,11 +74,25 @@ class MachineState(BaseModel):
     temperature: float = REFERENCE_AMBIENT_F + 43.0
     # How long this machine's operation takes on any job: its normal cycle time.
     ticks_per_job: int = Field(default=60, ge=1)
+    # The spindle speed this machine's operation is meant to run at, in rpm.
+    standard_speed: float = Field(default=1000.0, gt=0.0)
+    # The speed it is actually set to. An operating fact; None means the standard speed.
+    speed_setting: float | None = Field(default=None, gt=0.0)
     # The job on this machine now, and how many ticks of it are done here.
     job: Job | None = None
     job_progress: float = Field(default=0.0, ge=0.0)
     # Ticks of work this particular job needs here; None means the normal cycle time.
     job_work: int | None = Field(default=None, ge=1)
+
+    @property
+    def speed(self) -> float:
+        """The speed the machine is set to run at, in rpm."""
+        return self.standard_speed if self.speed_setting is None else self.speed_setting
+
+    @property
+    def speed_ratio(self) -> float:
+        """Set speed over standard speed: 1.0 when the setting is right."""
+        return self.speed / self.standard_speed
 
     @property
     def job_done(self) -> bool:

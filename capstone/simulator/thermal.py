@@ -9,6 +9,7 @@ from capstone.simulator.state import NORMAL_LOAD, MachineState, MachineStatus
 OWN_HEAT_F = 43.0  # a healthy machine at normal load, above the air around it
 LOAD_HEAT_F = 30.0  # per unit of load above normal
 WEAR_HEAT_F = 45.0  # for a completely worn bearing
+SPEED_HEAT_F = 40.0  # per unit of speed above standard: 15% fast is 6 °F
 
 
 def settling_temperature(machine: MachineState, air_temperature: float) -> float:
@@ -17,7 +18,8 @@ def settling_temperature(machine: MachineState, air_temperature: float) -> float
         return air_temperature
     wear = 1.0 - machine.condition.bearing_health
     work = LOAD_HEAT_F * (machine.load - NORMAL_LOAD)
-    return air_temperature + OWN_HEAT_F + work + WEAR_HEAT_F * wear
+    speed = SPEED_HEAT_F * (machine.speed_ratio - 1.0)
+    return air_temperature + OWN_HEAT_F + work + speed + WEAR_HEAT_F * wear
 
 
 def settle(machine: MachineState, air_temperature: float) -> MachineState:

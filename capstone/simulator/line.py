@@ -20,6 +20,10 @@ MIN_MACHINES, MAX_MACHINES = 3, 8
 # purpose: the second machine is the slowest step, so some waiting is normal.
 STANDARD_TICKS_PER_JOB = (60, 70, 55, 65, 60, 68, 58, 62)
 
+# Spindle speed each position is meant to run at, in rpm. Different on every
+# machine, so a speed means nothing without knowing that machine's own normal.
+STANDARD_SPEEDS = (1000.0, 850.0, 1200.0, 900.0, 1100.0, 950.0, 1050.0, 800.0)
+
 WARMEST_HOUR = 16  # 4 pm
 
 
@@ -59,8 +63,8 @@ def build_line(
     )
     sim.add_scenario(LoadingDoor("door", sim.rng))
 
-    for name, per_job in zip(names, times):
-        sim.add_machine(MachineState(id=name, ticks_per_job=per_job))
+    for name, per_job, speed in zip(names, times, STANDARD_SPEEDS):
+        sim.add_machine(MachineState(id=name, ticks_per_job=per_job, standard_speed=speed))
         for sensor in (VibrationSensor, TemperatureSensor, LoadSensor):
             sim.add_sensor(sensor(name, sim.rng))
     sim.add_factory_sensor(FactoryThermometer(sim.rng))

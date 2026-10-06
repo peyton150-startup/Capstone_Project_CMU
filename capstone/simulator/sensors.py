@@ -65,6 +65,7 @@ class VibrationSensor(Sensor):
         baseline: float = 2.0,
         wear_gain: float = 6.0,
         load_gain: float = 1.5,
+        speed_gain: float = 2.0,
         noise_sd: float = 0.15,
         idle_floor: float = 0.1,
     ):
@@ -72,6 +73,7 @@ class VibrationSensor(Sensor):
         self.baseline = baseline
         self.wear_gain = wear_gain
         self.load_gain = load_gain
+        self.speed_gain = speed_gain
         self.noise_sd = noise_sd
         self.idle_floor = idle_floor
 
@@ -81,7 +83,8 @@ class VibrationSensor(Sensor):
             return max(0.0, self.idle_floor + noise)
         wear = 1.0 - machine.condition.bearing_health
         work = self.load_gain * (machine.load - NORMAL_LOAD)
-        return max(0.0, self.baseline + work + self.wear_gain * wear**2 + noise)
+        speed = self.speed_gain * (machine.speed_ratio - 1.0)
+        return max(0.0, self.baseline + work + speed + self.wear_gain * wear**2 + noise)
 
 
 class TemperatureSensor(Sensor):

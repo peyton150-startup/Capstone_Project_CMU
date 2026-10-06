@@ -11,7 +11,7 @@ from capstone.simulator.state import MachineState
 from capstone.tools.observation import ObservationTools
 
 START = datetime(2026, 1, 5, 6, 0)
-TOOLS = {"get_time", "list_machines", "get_readings", "get_factory_readings", "get_events", "get_job_history", "get_inspections"}
+TOOLS = {"get_time", "list_machines", "get_readings", "get_factory_readings", "get_events", "get_job_history", "get_inspections", "get_settings"}
 HIDDEN_WORDS = ("bearing", "health", "condition", "degradation", "fault", "scenario", "start_tick", "ground")
 
 
@@ -36,7 +36,7 @@ def everything(tools: ObservationTools, last_tick: int) -> list:
     ]
 
 
-def test_the_tools_are_exactly_the_seven_we_decided_on():
+def test_the_tools_are_exactly_the_eight_we_decided_on():
     assert {name for name in dir(ObservationTools) if not name.startswith("_")} == TOOLS
 
 

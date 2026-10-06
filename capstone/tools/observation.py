@@ -26,6 +26,13 @@ class ObservationTools:
             for machine in self._sim.state.machines.values()
         ]
 
+    def get_settings(self) -> list[dict]:
+        """The speed each machine is set to now. Not what it is meant to be set to."""
+        return [
+            {"machine_id": machine.id, "speed_rpm": machine.speed}
+            for machine in self._sim.state.machines.values()
+        ]
+
     def get_readings(self, machine_id: str, sensor: str, from_tick: int, to_tick: int) -> list[dict]:
         if machine_id is None:
             raise ValueError("a machine is required; use get_factory_readings for the factory's own sensors")
