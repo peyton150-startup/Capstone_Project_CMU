@@ -26,7 +26,8 @@ A component is complete only when both columns are checked.
 | 10a2 | Load–wear coupling: heavy load wears the bearing faster; worn bearing nudges the load reading up | yes | yes | yes   | yes               | `scenarios.py`, `sensors.py` — COMPLETE |
 | 10b | Workload variation over time (what changes `load`) | yes | yes       | yes         | yes               | `scenarios.py` (`Workload`) — COMPLETE; stands in for jobs until row 12 |
 | 10b2 | "Job started" event when a machine's work changes | yes | yes      | yes         | yes               | `state.py` (`job_number`), `scenarios.py`, `simulator.py` — COMPLETE |
-| 10c | Ambient temperature drift (shared by all machines) | yes |        |             |                   | gate question re-asked in a new form, awaiting the developer's own answer. Design: `AmbientTemperature`, daily cycle + slow seeded drift |
+| 10c | Ambient temperature drift (shared by all machines) | yes | yes    | yes         |                   | `state.py` (`ambient_temperature`), `scenarios.py` (`AmbientTemperature`), `sensors.py`; awaiting post-implementation re-explain |
+| 10c2 | Loading door opening: a short ambient disturbance plus an event | |      |             |                   | developer's idea; to be taught next, before 12a |
 | 10d | Temperature warm-up / cool-down lag |            |                  |             |                   | agreed with developer |
 | 10e | Standard line builder: one function that sets up machines, all sensors, alarms and workload, so every run has varying load | | | |             | proposed after developer asked that load vary in every scenario |
 | 11 | Maintenance action + advancing time through the tools | |      |             |                   | proposed next: closes action → change → verification |
@@ -316,3 +317,14 @@ A component is complete only when both columns are checked.
   The paste also contained answers to both gate questions; per CLAUDE.md
   §1.1 these do not count as the developer's own explanation, so the
   gate was re-asked with a different example.
+- **Session 3 (cont.)** — Ambient gate passed in the developer's own
+  words (it stays in the factory state and others read it from there
+  without storing it; CNC-02 cooling less than its neighbours may have a
+  wear issue, because heat from wear offsets the cooling of the
+  factory). Implemented `FactoryState.ambient_temperature`,
+  `AmbientTemperature` (daily cycle, warmest ~4 pm, plus slow seeded
+  drift), and `TemperatureSensor` measuring from the air; 10 tests, 158
+  total. Developer asked for a loading-door scenario with an event; added
+  as row 10c2. Debt: `warmest_tick` assumes a 6 am start with one-minute
+  ticks; `Sensor.read` takes ambient as a keyword — a second shared fact
+  would want a small environment object; no thermometer for the agent.
