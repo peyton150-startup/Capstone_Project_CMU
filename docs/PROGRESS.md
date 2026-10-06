@@ -33,7 +33,7 @@ A component is complete only when both columns are checked.
 | 10e | Standard line builder: `build_line(seed, machines=3..8)` sets up named machines, all sensors, thermometer, alarm, ambient, door, production line, thermal lag | n/a (§2.2 wiring) | n/a | yes | | `capstone/simulator/line.py`; built early at developer's request; wiring only, no gate required — COMPLETE |
 | 11a | Letting time pass: a `wait(ticks)` tool, separate from the read-only tools | yes | yes | yes     |                   | `capstone/tools/actions.py` (`ActionTools.wait`) — COMPLETE (understood post: yes) |
 | 11b | Maintenance action: replace a bearing (downtime, health restored, the fault ends, technician's finding) | yes | yes | yes   |                   | `simulator.py` (`start_bearing_replacement`, `_finish_maintenance`), `state.py`, `scenarios.py`; COMPLETE (understood post: yes). Not yet callable by the agent (11c) |
-| 11c | Approval: the agent proposes an action, a human approves, then it is applied | yes |     |             |                   | gate question asked, awaiting answer |
+| 11c | Approval: the agent proposes an action, a human approves, then it is applied | yes | yes | yes         |                   | `capstone/tools/actions.py` (`propose_action`, `get_proposals`, `ApprovalDesk`); awaiting post-implementation re-explain |
 | 12a | Assembly line: jobs with one identity move machine to machine in order; a machine's load comes from its job | yes | yes | yes      | yes               | COMPLETE. `state.py` (`Job`), `scenarios.py` (`ProductionLine`), `simulator.py`; awaiting post-implementation re-explain (re-asked in a new form). Idle-time issue resolved: working time is now each machine's own `ticks_per_job`. Replaces the `Workload` stand-in and the per-machine `job_number` |
 | 12b | Job events and a job-history tool for the agent | yes  | yes              | yes         |                   | `simulator.py` (`_record_job_events`), `events.py` (`job_id`), `state.py` (`line`), `tools/observation.py` (`get_job_history`, `job_id` in `list_machines`) — COMPLETE (understood post: yes) |
 | 12b2 | A worn machine works more slowly, so its jobs take extra ticks; natural variation of ±2 ticks on the standard line | yes | yes       | yes         |                   | `scenarios.py` (`working_speed`, `time_variation`), `state.py` (`job_work`, `job_done`), `line.py` — COMPLETE (understood post: yes) |
@@ -580,3 +580,18 @@ A component is complete only when both columns are checked.
   the agent must look for another cause — load, recent heavy work, the
   air. Taught 11c (propose → human approves → applied; the agent has no
   approve tool); gate question asked.
+- **Session 3 (cont.)** — Approval gate passed (developer: without the
+  separation accountability is lost — the agent could do whatever it
+  wants and the authority would be the agent, not the human; after an
+  approved repair it would read the event log for the bearing's
+  condition and compare load and vibration with the old bearing). Claude
+  added the step the developer left out: it must first wait out the 45
+  ticks of the repair. Implemented `Proposal`, `ApprovalDesk` (submit,
+  pending, approve, reject) and the agent tools `propose_action` and
+  `get_proposals`; 13 tests, 285 total. The agent now has six look-up
+  tools and three others (wait, propose, check proposals). A test fault
+  I first wrote was too fast and the machine had already broken down
+  before the agent acted, which a failing test caught; slowed it so the
+  full loop is exercised on a machine still in service. Debt: a proposal
+  carries no stated prediction separate from its reason; approval is
+  instant; one action type.
