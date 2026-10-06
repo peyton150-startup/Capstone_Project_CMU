@@ -18,7 +18,7 @@ A component is complete only when both columns are checked.
 | 6 | Event log                     | yes    | yes              | yes         | yes               | `capstone/simulator/events.py` — COMPLETE |
 | 7 | Scenario abstraction          | yes    | yes              | yes         | yes               | `capstone/simulator/scenarios.py` — COMPLETE |
 | 8 | BearingDegradation scenario   | yes    | yes              | yes         | yes               | `capstone/simulator/scenarios.py` — COMPLETE |
-| 8b | Machine failure transition (goes DOWN) | yes |               |             |                   | gate question asked, awaiting answer |
+| 8b | Machine failure transition (goes DOWN) | yes | yes           | yes         |                   | `simulator.py` (`_apply_consequences`); awaiting post-implementation re-explain |
 | 9 | Ground truth + observation boundary (tools) | |          |             |                   | |
 
 ## Session notes
@@ -124,3 +124,12 @@ A component is complete only when both columns are checked.
   "the problem went away", not "the machine is broken". Also confirmed
   on request that health never drops without a scenario (no normal wear;
   deliberate). Taught the failure transition; gate question asked.
+- **Session 3 (cont.)** — Failure transition gate passed first time
+  (developer: it does not belong in BearingDegradation, which should
+  only change bearing health, and other causes of failure should not
+  depend on it; the event says only that the machine stopped, because
+  working out why is the agent's job). Implemented a consequences stage
+  in `step()` between scenarios and sensors; 8 tests, 85 total. Seed 42
+  sample run: fault starts tick 100, first alarm 714, machine stops 995.
+  Debt: failure level is one number for all machines; only RUNNING
+  machines fail; nothing can bring a DOWN machine back yet.
