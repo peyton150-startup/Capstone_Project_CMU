@@ -38,7 +38,8 @@ A component is complete only when both columns are checked.
 | 12b | Job events and `get_job_history` | yes | yes | yes | yes | `simulator.py`, `tools/observation.py` |
 | 12b2 | Worn machines work more slowly; ±2 ticks natural variation | yes | yes | yes | yes | `scenarios.py`, `line.py` |
 | 12c | Quality inspection, small pass/fail version | yes | yes | yes | yes | `scenarios.py`, `state.py` (`Inspection`), `simulator.py`, `tools/observation.py` (`get_inspections`) |
-| 13a | Material batches and one bad batch (fault scenario 2) | yes | yes | yes | no | `state.py` (`MaterialBatch`), `scenarios.py` (`BadMaterialBatch`), `simulator.py`, `line.py`, `tools/observation.py`; re-explain owed |
+| 13a | Material batches and one bad batch (fault scenario 2) | yes | yes | yes | yes | `state.py` (`MaterialBatch`), `scenarios.py` (`BadMaterialBatch`), `simulator.py`, `line.py`, `tools/observation.py` |
+| 13b | Machine setting and a wrong setting (fault scenario 3) | yes | no | no | no | Gate question asked in session 4; nothing built |
 
 Every row above with four "yes" marks (or "n/a") is complete: no question is
 outstanding on it. Still to build after 12c, from `docs/MVP_SCOPE.md`: the
@@ -665,3 +666,17 @@ alarm), then evaluation, then the agent itself.
   from its inspection, not while the job is on the line; no action yet
   to set a batch aside; the ground truth has no start tick for this
   fault; one material supply shared by all lines.
+- **Session 4 (cont.)** — Material batch re-explain passed with gaps
+  filled by Claude (developer: look at the inspection failures, at each
+  machine for anything out of range, and at the event log for alarms; a
+  bad batch says nothing about the next one, which has to be judged
+  afresh, whereas a worn machine can be found and fixed). Claude added
+  the two points left unsaid: the batch number on each failure is the
+  first thing to read, and the deciding contrast is that bad-batch
+  failures fall back to normal at the next batch while a worn machine's
+  carry on across the boundary and grow. Row 13a complete. Taught row
+  13b, the wrong machine setting: a speed setting on each machine
+  (1.0 = standard) that the machine's own physics reads; the fault
+  scenario writes only that setting, once, as a step. Gate question
+  asked, including whether the agent should be able to read the setting
+  directly; nothing implemented.
