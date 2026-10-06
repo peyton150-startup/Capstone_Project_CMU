@@ -34,7 +34,7 @@ A component is complete only when both columns are checked.
 | 11 | Maintenance action + advancing time through the tools | |      |             |                   | proposed next: closes action → change → verification |
 | 12a | Assembly line: jobs with one identity move machine to machine in order; a machine's load comes from its job | yes | yes | yes      | yes               | COMPLETE. `state.py` (`Job`), `scenarios.py` (`ProductionLine`), `simulator.py`; awaiting post-implementation re-explain (re-asked in a new form). Idle-time issue resolved: working time is now each machine's own `ticks_per_job`. Replaces the `Workload` stand-in and the per-machine `job_number` |
 | 12b | Job events and a job-history tool for the agent | yes  | yes              | yes         |                   | `simulator.py` (`_record_job_events`), `events.py` (`job_id`), `state.py` (`line`), `tools/observation.py` (`get_job_history`, `job_id` in `list_machines`) — COMPLETE (understood post: yes) |
-| 12b2 | A worn machine works more slowly, so its jobs take extra ticks | yes |             |             |                   | developer's idea; gate question asked, awaiting answer |
+| 12b2 | A worn machine works more slowly, so its jobs take extra ticks; natural variation of ±2 ticks on the standard line | yes | yes       | yes         |                   | `scenarios.py` (`working_speed`, `time_variation`), `state.py` (`job_work`, `job_done`), `line.py`; awaiting post-implementation re-explain |
 | 12c | Quality inspections / defect rate         |      |                  |             |                   | follows 12b; needed for the material-batch scenario |
 
 ## Session notes
@@ -496,3 +496,20 @@ A component is complete only when both columns are checked.
   each); seed 42 gives 8 machines. 222 tests. Idea noted for evaluation
   time, not built: let the seed also choose the fault, the machine and
   the start tick. Row 12b2 gate still awaiting answer.
+- **Session 3 (cont.)** — 12b2 gate passed (developer: CNC-02 is the
+  worn one, and both neighbours wait the extra 10 ticks — CNC-01 because
+  it cannot send its job on yet, CNC-03 because it cannot receive one
+  yet; a rising working time is open information, not a leak). Developer
+  added a requirement: no single field should make the fault easy to
+  find at once. Acted on it: with working times exact, even one extra
+  tick was a perfect giveaway, so the standard line now varies each
+  job's time at each machine by ±2 ticks (`time_variation`, seeded, off
+  by default elsewhere). This reverses the earlier "postpone natural
+  variation" decision, for that reason. Implemented `working_speed`
+  (1 − 0.4 × wear²) applied to job progress; 13 tests, 235 total.
+  Sample: a wearing CNC-02 takes 71, 71, 72, 73, 74, 76, 78, 80, 84, 93
+  ticks per job as health falls to 0.1, with no vibration alarm before
+  the slowdown is visible; a machine at health 0.3 completes 15 jobs
+  where a healthy line completes 19. Debt: only bearing wear slows a
+  machine, so slowness still has one cause until the configuration
+  scenario exists.
