@@ -26,7 +26,7 @@ A component is complete only when both columns are checked.
 | 10a2 | Load–wear coupling: heavy load wears the bearing faster; worn bearing nudges the load reading up | yes | yes | yes   | yes               | `scenarios.py`, `sensors.py` — COMPLETE |
 | 10b | Workload variation over time (what changes `load`) | yes | yes       | yes         | yes               | `scenarios.py` (`Workload`) — COMPLETE; stands in for jobs until row 12 |
 | 10b2 | "Job started" event when a machine's work changes | yes | yes      | yes         | yes               | `state.py` (`job_number`), `scenarios.py`, `simulator.py` — COMPLETE |
-| 10c | Room temperature drift (shared by all machines) | yes |           |             |                   | gate question asked, awaiting answer |
+| 10c | Ambient temperature drift (shared by all machines) | yes |        |             |                   | gate question re-asked in a new form, awaiting the developer's own answer. Design: `AmbientTemperature`, daily cycle + slow seeded drift |
 | 10d | Temperature warm-up / cool-down lag |            |                  |             |                   | agreed with developer |
 | 10e | Standard line builder: one function that sets up machines, all sensors, alarms and workload, so every run has varying load | | | |             | proposed after developer asked that load vary in every scenario |
 | 11 | Maintenance action + advancing time through the tools | |      |             |                   | proposed next: closes action → change → verification |
@@ -308,3 +308,11 @@ A component is complete only when both columns are checked.
   12a next after 10c. Rows 10d (thermal lag), 10e (line builder) and 11
   (maintenance action) follow the line work; 10e will likely fold into
   12a. Row 10c gate question still awaiting answer.
+- **Session 3 (cont.)** — Developer pasted an outside review of row 10c.
+  Adopted from it: name the scenario `AmbientTemperature` (not
+  `RoomTemperature`); make the daily cycle vary a little from day to day
+  with a slow seeded drift rather than a perfect repeating curve. Noted
+  for later, not now: HVAC cycling, door openings, temperature zones.
+  The paste also contained answers to both gate questions; per CLAUDE.md
+  §1.1 these do not count as the developer's own explanation, so the
+  gate was re-asked with a different example.
