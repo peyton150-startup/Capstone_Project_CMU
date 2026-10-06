@@ -37,6 +37,7 @@ def build_line(
     thermal_lag_ticks: float = 20.0,
     vibration_alarm: float = 4.5,
     time_variation: int = 2,
+    jobs_per_batch: int = 25,
 ) -> Simulator:
     sim = Simulator(seed, start, tick_duration, thermal_lag_ticks=thermal_lag_ticks)
 
@@ -66,5 +67,9 @@ def build_line(
     sim.add_alarm(ThresholdAlarm("vibration", vibration_alarm))
 
     # After the machines exist, and before any fault the caller adds.
-    sim.add_scenario(ProductionLine("line", sim.rng, machine_ids=names, time_variation=time_variation))
+    sim.add_scenario(
+        ProductionLine(
+            "line", sim.rng, machine_ids=names, time_variation=time_variation, jobs_per_batch=jobs_per_batch
+        )
+    )
     return sim

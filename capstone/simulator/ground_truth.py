@@ -12,5 +12,8 @@ class GroundTruth(BaseModel):
 
     scenario: str
     fault: str
-    machine_id: str
-    start_tick: int
+    # A fault names what it is about: a machine or a material batch.
+    machine_id: str | None = None
+    batch_id: int | None = None
+    # None when the fault is not tied to a tick chosen in advance.
+    start_tick: int | None = None

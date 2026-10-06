@@ -63,6 +63,7 @@ class Simulator:
         self._job_seen: dict[str, tuple[int | None, str | None]] = {}
         self._last_door_open = self.state.door_open
         self._inspections_reported = 0
+        self._batch_reported: int | None = None
 
     def add_machine(self, machine: MachineState) -> None:
         self.state.add(machine)
@@ -131,6 +132,7 @@ class Simulator:
         self._update_reality(tick)
         self._record_job_events(tick)
         self._record_inspections(tick)
+        self._record_batch(tick)
         self._record_door(tick)
         self._finish_maintenance(tick)
         self._apply_consequences(tick)
@@ -193,6 +195,15 @@ class Simulator:
                 )
             )
         self._inspections_reported = len(self.state.inspections)
+
+    def _record_batch(self, tick: int) -> None:
+        """Report a new material batch being opened. Its number only: never its quality."""
+        batch = self.state.batch
+        if batch is not None and batch.id != self._batch_reported:
+            self._batch_reported = batch.id
+            self.event_log.record(
+                Event(tick=tick, machine_id=None, kind="batch", message=f"material batch {batch.id} opened")
+            )
 
     def _record_door(self, tick: int) -> None:
         """Report the loading door changing. A factory event: it belongs to no machine."""

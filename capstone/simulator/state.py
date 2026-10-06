@@ -23,6 +23,19 @@ class Job(BaseModel):
     load: float = Field(ge=0.0, le=1.0)
     # Hidden. Extra chance of failing inspection, picked up from worn machines on the way.
     defect_risk: float = Field(default=0.0, ge=0.0)
+    # The material batch this job was cut from, if the line uses batches.
+    batch_id: int | None = None
+
+
+class MaterialBatch(BaseModel):
+    """The raw material in use now. Supplies a run of jobs, then the next batch opens."""
+
+    model_config = ConfigDict(validate_assignment=True)
+
+    id: int = Field(ge=1)
+    jobs_left: int = Field(ge=0)
+    # Hidden. The chance of failing inspection that every job cut from this batch starts with.
+    defect_risk: float = Field(default=0.0, ge=0.0)
 
 
 class Inspection(BaseModel):
@@ -33,6 +46,7 @@ class Inspection(BaseModel):
     job_id: int
     tick: int
     passed: bool
+    batch_id: int | None = None
 
 
 class MachineCondition(BaseModel):
@@ -89,6 +103,8 @@ class FactoryState(BaseModel):
     # Each production line by name: its machines in the order a job visits them.
     # One line today; nothing here assumes there is only one.
     lines: dict[str, list[str]] = Field(default_factory=dict)
+    # The material batch jobs are being cut from; None on a line that does not use batches.
+    batch: MaterialBatch | None = None
     # Every inspection so far, oldest first.
     inspections: list[Inspection] = Field(default_factory=list)
     # The number the next new job will get. Shared, so ids are unique across lines.

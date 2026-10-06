@@ -95,7 +95,7 @@ def test_get_inspections_returns_results_in_a_tick_range_as_plain_data():
     assert [(r["job_id"], r["result"] == "passed") for r in everything] == [
         (r.job_id, r.passed) for r in sim.state.inspections
     ]
-    assert set(everything[0]) == {"tick", "job_id", "result"}
+    assert set(everything[0]) == {"tick", "job_id", "batch_id", "result"}
     assert tools.get_inspections(0, everything[0]["tick"] - 1) == []
     assert json.loads(json.dumps(everything)) == everything
 

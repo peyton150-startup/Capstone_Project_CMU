@@ -60,8 +60,9 @@ class ObservationTools:
     def get_inspections(self, from_tick: int, to_tick: int) -> list[dict]:
         """Inspection results for jobs that left the line in this tick range."""
         self._check(None, from_tick, to_tick)
+        batch_of = {i.job_id: i.batch_id for i in self._sim.state.inspections}
         return [
-            {"tick": e.tick, "job_id": e.job_id, "result": e.message.split()[2]}
+            {"tick": e.tick, "job_id": e.job_id, "batch_id": batch_of[e.job_id], "result": e.message.split()[2]}
             for e in self._sim.event_log.events
             if e.kind == "inspection" and from_tick <= e.tick <= to_tick
         ]

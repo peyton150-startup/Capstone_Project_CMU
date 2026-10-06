@@ -38,7 +38,7 @@ A component is complete only when both columns are checked.
 | 12b | Job events and `get_job_history` | yes | yes | yes | yes | `simulator.py`, `tools/observation.py` |
 | 12b2 | Worn machines work more slowly; ±2 ticks natural variation | yes | yes | yes | yes | `scenarios.py`, `line.py` |
 | 12c | Quality inspection, small pass/fail version | yes | yes | yes | yes | `scenarios.py`, `state.py` (`Inspection`), `simulator.py`, `tools/observation.py` (`get_inspections`) |
-| 13a | Material batches and one bad batch (fault scenario 2) | yes | no | no | no | Gate question asked in session 4; nothing built |
+| 13a | Material batches and one bad batch (fault scenario 2) | yes | yes | yes | no | `state.py` (`MaterialBatch`), `scenarios.py` (`BadMaterialBatch`), `simulator.py`, `line.py`, `tools/observation.py`; re-explain owed |
 
 Every row above with four "yes" marks (or "n/a") is complete: no question is
 outstanding on it. Still to build after 12c, from `docs/MVP_SCOPE.md`: the
@@ -639,3 +639,29 @@ alarm), then evaluation, then the agent itself.
   quality for one batch, and failures then come out of the existing
   inspection. No machine is at fault and the fault ends by itself when
   the batch runs out. Gate question asked; nothing implemented.
+- **Session 4 (cont.)** — Material batch gate passed on the fourth
+  exchange. Question 1 first time (developer: failures carry on after the
+  needless repair, then fall when the batch changes; check the batch
+  number); Claude added the machines' own readings, the technician's
+  "good condition" finding, and the trap of crediting a repair made just
+  before the batch ran out. The second question needed re-teaching
+  twice: the developer first took the design to be about what the agent
+  can see, then expected the inspection code to change for each new
+  fault. Landed on: the inspection looks at one number, the job's total,
+  and cannot say which cause produced a failure. Claude filled in that
+  the agent must therefore get the cause from batch numbers and machine
+  readings. Implemented `MaterialBatch`, `FactoryState.batch`,
+  `Job.batch_id`, `Inspection.batch_id`, `ProductionLine(jobs_per_batch)`
+  (off by default; 25 on the standard line), `BadMaterialBatch`,
+  "material batch N opened" events, `batch_id` in `get_inspections`;
+  `GroundTruth` now has optional `machine_id` / `start_tick` and a
+  `batch_id`. 15 tests, 313 total. DESIGN POINT settled during
+  implementation: the next batch is opened the moment the last job is
+  cut from the current one, so a fault that runs after the line can mark
+  it before its first job; for the same reason batch 1 cannot be the bad
+  one. Sample (seed 42, 3 machines, batch 3 bad at 0.30): failures per
+  batch 0, 1, 10, 0, 1 of 25, and every sensor reading identical to the
+  same day without the fault. Debt: the agent learns a job's batch only
+  from its inspection, not while the job is on the line; no action yet
+  to set a batch aside; the ground truth has no start tick for this
+  fault; one material supply shared by all lines.

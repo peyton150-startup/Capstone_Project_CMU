@@ -3,7 +3,14 @@ from abc import ABC, abstractmethod
 
 from capstone.simulator.ground_truth import GroundTruth
 from capstone.simulator.rng import RandomSource
-from capstone.simulator.state import NORMAL_LOAD, FactoryState, Inspection, Job, MachineStatus
+from capstone.simulator.state import (
+    NORMAL_LOAD,
+    FactoryState,
+    Inspection,
+    Job,
+    MachineStatus,
+    MaterialBatch,
+)
 
 
 class Scenario(ABC):
@@ -90,6 +97,36 @@ class BearingDegradation(Scenario):
         )
 
 
+class BadMaterialBatch(Scenario):
+    """One batch of raw material is poor: jobs cut from it fail inspection more often.
+
+    Changes that batch's hidden `defect_risk` and nothing else. No machine
+    is at fault and no sensor moves. The failures come from the ordinary
+    inspection reading the risk each job started with, and stop by
+    themselves once the batch is used up.
+
+    The first batch cannot be the bad one: its first job is cut on the
+    same tick it is opened, before a fault added after the line has run.
+    """
+
+    def __init__(self, name: str, rng: RandomSource, *, batch_number: int, added_risk: float = 0.30):
+        if batch_number < 2:
+            raise ValueError("batch_number must be 2 or more")
+        if not 0.0 < added_risk <= 1.0:
+            raise ValueError("added_risk must be above 0 and at most 1")
+        super().__init__(name, rng)
+        self.batch_number = batch_number
+        self.added_risk = added_risk
+
+    def apply(self, state: FactoryState, tick: int) -> None:
+        batch = state.batch
+        if batch is not None and batch.id == self.batch_number:
+            batch.defect_risk = self.added_risk
+
+    def ground_truth(self) -> GroundTruth:
+        return GroundTruth(scenario=self.name, fault="bad_material_batch", batch_id=self.batch_number)
+
+
 DEFECT_BASELINE = 0.01  # one job in a hundred fails inspection on a perfect line
 DEFECT_FROM_WEAR = 0.45  # extra chance a completely worn machine would add
 WORN_SLOWDOWN = 0.4  # a completely worn bearing would cost 40% of working speed
@@ -116,6 +153,12 @@ class ProductionLine(Scenario):
     higher chance of failing the inspection at the end of the line.
     Inspections draw from their own stream, `scenario.<name>.inspection`.
 
+    With `jobs_per_batch` set, jobs are cut from numbered material
+    batches. A job carries its batch number and starts with whatever
+    defect risk the batch has. The next batch is opened the moment the
+    last job is cut from the current one, so it is in place, and can be
+    changed by a later scenario, before any job is cut from it.
+
     Each tick, in two passes. Movement, from the last machine back to the
     first: a finished job moves on if the next machine is free and not
     down, or leaves the line at the end; a new job enters whenever the
@@ -137,7 +180,10 @@ class ProductionLine(Scenario):
         min_load: float = 0.3,
         max_load: float = 0.8,
         time_variation: int = 0,
+        jobs_per_batch: int = 0,
     ):
+        if jobs_per_batch < 0:
+            raise ValueError("jobs_per_batch cannot be negative")
         if not machine_ids or len(set(machine_ids)) != len(machine_ids):
             raise ValueError("the line needs at least one machine, each listed once")
         if not 0.0 <= min_load <= max_load <= 1.0:
@@ -147,6 +193,7 @@ class ProductionLine(Scenario):
         super().__init__(name, rng)
         self.machine_ids = list(machine_ids)
         self.time_variation = time_variation
+        self.jobs_per_batch = jobs_per_batch
         self._inspection_stream = rng.stream(f"{self.stream_name}.inspection")
         self.min_load, self.max_load = min_load, max_load
 
@@ -183,7 +230,9 @@ class ProductionLine(Scenario):
                 state.completed_jobs.append(machine.job.id)
                 chance_of_failing = min(0.95, DEFECT_BASELINE + machine.job.defect_risk)
                 passed = self._inspection_stream.random() >= chance_of_failing
-                state.inspections.append(Inspection(job_id=machine.job.id, tick=tick, passed=passed))
+                state.inspections.append(
+                    Inspection(job_id=machine.job.id, tick=tick, passed=passed, batch_id=machine.job.batch_id)
+                )
             else:
                 following = line[position + 1]
                 if following.job is not None or following.status is MachineStatus.DOWN:
@@ -193,8 +242,20 @@ class ProductionLine(Scenario):
         first = line[0]
         if first.job is None and first.status is not MachineStatus.DOWN:
             job = Job(id=state.next_job_id, load=self._stream.uniform(self.min_load, self.max_load))
+            if self.jobs_per_batch:
+                self._cut_from_batch(state, job)
             self._place(job, first)
             state.next_job_id += 1
+
+    def _cut_from_batch(self, state: FactoryState, job: Job) -> None:
+        if state.batch is None:
+            state.batch = MaterialBatch(id=1, jobs_left=self.jobs_per_batch)
+        batch = state.batch
+        job.batch_id = batch.id
+        job.defect_risk = batch.defect_risk  # the material's share; machines add theirs later
+        batch.jobs_left -= 1
+        if batch.jobs_left == 0:
+            state.batch = MaterialBatch(id=batch.id + 1, jobs_left=self.jobs_per_batch)
 
     def _place(self, job: Job, machine) -> None:
         machine.job, machine.job_progress, machine.job_work = job, 0.0, None
