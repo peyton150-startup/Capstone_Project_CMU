@@ -43,7 +43,7 @@ A component is complete only when both columns are checked.
 | 13c | Action: put a machine's setting right (via the approval desk) | n/a | n/a | yes | no — built ungated, developer to review | `simulator.py` (`start_setting_reset`, `_start_maintenance`), `state.py` (`maintenance_kind`), `tools/actions.py` (`reset_setting`) |
 | 13d | False alarm / transient anomaly (fault scenario 4) | n/a | n/a | yes | no — built ungated, developer to review | `state.py` (`MachineCondition.vibration_sensor_offset`), `sensors.py`, `scenarios.py` (`FalseAlarm`) |
 | 14 | Seeded scenario generator (fault, machine or batch, start tick) | n/a | n/a | yes | no — built ungated, developer to review | `capstone/simulator/generator.py` (`build_scenario`, `FAULTS`) |
-| 15 | Evaluation | n/a | n/a | no | no | Built ungated; developer to review |
+| 15 | Evaluation | n/a | n/a | yes | no — built ungated, developer to review | `capstone/evaluation/scoring.py` (`evaluate`, `Score`, `summarize`), `capstone/tools/diagnosis.py` (`Diagnosis`) |
 | 16 | The research agent | n/a | n/a | no | no | Built ungated; developer to review |
 | 17 | Memory | n/a | n/a | no | no | Built ungated; developer to review |
 
@@ -784,3 +784,16 @@ alarm), then evaluation, then the agent itself.
   for balanced experiments. DECISION taken without asking: generated
   lines use 10 jobs per batch (the standard line keeps 25) because at 25
   a second batch only opens after about 1,750 ticks. 9 tests, 353 total.
+- **Session 5 — row 15 built ungated.** The agent's final answer is a
+  `Diagnosis` (fault kind, machine or batch, summary) in
+  `tools/diagnosis.py`: it crosses the tool boundary from agent to
+  evaluation, so it lives with the tools, not in evaluation. `evaluate()`
+  takes the simulator at the end of the run, the diagnosis, the desk's
+  proposals, the tool-call count and the start tick, and returns a
+  `Score` row: fault right, machine/batch right, action right (the
+  APPROVED actions must be exactly the one expected: replace_bearing,
+  reset_setting, or nothing for a bad batch or false alarm; rejected
+  proposals do not count), resolved (read from hidden state: bearing
+  replaced after the fault began; setting back to None; bad batch used
+  up; sensor offset gone), tool calls, ticks elapsed. `summarize` and
+  `format_summary` give the "18/20 root causes" line. 9 tests, 362 total.
