@@ -27,6 +27,7 @@ A component is complete only when both columns are checked.
 | 10b | Workload variation over time (what changes `load`) | yes |           |             |                   | gate question asked, awaiting answer; stands in for jobs until row 12 |
 | 10c | Room temperature drift (shared by all machines) |       |           |             |                   | agreed with developer |
 | 10d | Temperature warm-up / cool-down lag |            |                  |             |                   | agreed with developer |
+| 10e | Standard line builder: one function that sets up machines, all sensors, alarms and workload, so every run has varying load | | | |             | proposed after developer asked that load vary in every scenario |
 | 11 | Maintenance action + advancing time through the tools | |      |             |                   | proposed next: closes action → change → verification |
 | 12 | Production jobs + quality / defect rate |     |                  |             |                   | proposed: last link of the degradation chain in MVP_SCOPE §1 |
 
@@ -249,3 +250,10 @@ A component is complete only when both columns are checked.
   the wear, and confirmed unprompted that friction is not tracked as its
   own value and need not be. Taught workload variation (10b); gate
   question asked.
+- **Session 3 (cont.)** — Developer's direction on 10b: load must vary
+  on every machine in every run, not only in one scenario; block-based
+  load is acceptable as a starter, with load driven by what the machine
+  is actually making to follow (row 12). Note: MVP_SCOPE.md says one
+  product type; whether to vary by product or by job size is undecided.
+  Added proposed row 10e (standard line builder). 10b gate questions
+  still awaiting answers.
