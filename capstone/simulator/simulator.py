@@ -11,7 +11,7 @@ Planned composition (see CLAUDE.md §6); parts marked * exist today:
       ├── maintenance  records + bounded actions
       ├── quality      inspections / rejects
       ├── events *     event + alarm log
-      ├── scenarios    Scenario[]              — inject causal effects over time
+      ├── scenarios *  Scenario[]              — inject causal effects over time
       └── ground_truth hidden truth            — never crosses the tool boundary
 
 The agent never imports this module. It reaches the simulator only through
@@ -23,6 +23,7 @@ from datetime import datetime, timedelta
 from capstone.simulator.clock import SimulationClock
 from capstone.simulator.events import EventLog, ThresholdAlarm
 from capstone.simulator.rng import RandomSource
+from capstone.simulator.scenarios import Scenario
 from capstone.simulator.sensors import Sensor, SensorReading
 from capstone.simulator.state import FactoryState, MachineState
 
@@ -38,6 +39,7 @@ class Simulator:
         self._readings: list[SensorReading] = []
         self.event_log = EventLog()
         self._alarms: list[ThresholdAlarm] = []
+        self._scenarios: list[Scenario] = []
 
     def add_machine(self, machine: MachineState) -> None:
         self.state.add(machine)
@@ -51,6 +53,11 @@ class Simulator:
 
     def add_alarm(self, alarm: ThresholdAlarm) -> None:
         self._alarms.append(alarm)
+
+    def add_scenario(self, scenario: Scenario) -> None:
+        if any(s.stream_name == scenario.stream_name for s in self._scenarios):
+            raise ValueError(f"{scenario.stream_name} already exists")
+        self._scenarios.append(scenario)
 
     @property
     def readings(self) -> tuple[SensorReading, ...]:
@@ -74,4 +81,6 @@ class Simulator:
         return readings
 
     def _update_reality(self, tick: int) -> None:
-        """Scenarios and state transitions will run here. Nothing changes yet."""
+        """Scenarios run in the order they were added; later ones see earlier changes."""
+        for scenario in self._scenarios:
+            scenario.apply(self.state, tick)

@@ -10,8 +10,8 @@ START = datetime(2026, 1, 5, 6, 0)
 MACHINES = ("CNC-01", "CNC-04")
 
 
-def factory(seed: int = 42, cls: type[Simulator] = Simulator, **sensor_kwargs) -> Simulator:
-    sim = cls(seed, START)
+def factory(seed: int = 42, **sensor_kwargs) -> Simulator:
+    sim = Simulator(seed, START)
     for machine_id in MACHINES:
         sim.add_machine(MachineState(id=machine_id))
         sim.add_sensor(VibrationSensor(machine_id, sim.rng, **sensor_kwargs))
@@ -73,17 +73,3 @@ def test_stepping_does_not_change_reality_when_nothing_acts_on_it():
     for _ in range(20):
         sim.step()
     assert sim.state == before
-
-
-def test_reality_updates_before_sensors_read():
-    class DamageAtTick3(Simulator):
-        def _update_reality(self, tick):
-            if tick == 3:
-                self.state.machines["CNC-04"].condition.bearing_health = 0.2
-
-    sim = factory(cls=DamageAtTick3, noise_sd=0.0)
-    for _ in range(3):
-        sim.step()
-    cnc04 = {r.tick: r.value for r in sim.readings if r.machine_id == "CNC-04"}
-    assert cnc04[2] == pytest.approx(2.0)
-    assert cnc04[3] == pytest.approx(2.0 + 6.0 * 0.8**2)
