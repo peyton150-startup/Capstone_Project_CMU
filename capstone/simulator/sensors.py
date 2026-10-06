@@ -3,7 +3,7 @@ from abc import ABC, abstractmethod
 from pydantic import BaseModel, ConfigDict
 
 from capstone.simulator.rng import RandomSource
-from capstone.simulator.state import MachineState, MachineStatus
+from capstone.simulator.state import NORMAL_LOAD, MachineState, MachineStatus
 
 
 class SensorReading(BaseModel):
@@ -59,12 +59,14 @@ class VibrationSensor(Sensor):
         *,
         baseline: float = 2.0,
         wear_gain: float = 6.0,
+        load_gain: float = 1.5,
         noise_sd: float = 0.15,
         idle_floor: float = 0.1,
     ):
         super().__init__(machine_id, rng)
         self.baseline = baseline
         self.wear_gain = wear_gain
+        self.load_gain = load_gain
         self.noise_sd = noise_sd
         self.idle_floor = idle_floor
 
@@ -73,7 +75,8 @@ class VibrationSensor(Sensor):
         if machine.status is not MachineStatus.RUNNING:
             return max(0.0, self.idle_floor + noise)
         wear = 1.0 - machine.condition.bearing_health
-        return max(0.0, self.baseline + self.wear_gain * wear**2 + noise)
+        work = self.load_gain * (machine.load - NORMAL_LOAD)
+        return max(0.0, self.baseline + work + self.wear_gain * wear**2 + noise)
 
 
 class TemperatureSensor(Sensor):
@@ -87,12 +90,14 @@ class TemperatureSensor(Sensor):
         *,
         baseline: float = 115.0,
         wear_gain: float = 45.0,
+        load_gain: float = 30.0,
         noise_sd: float = 1.0,
         ambient: float = 72.0,
     ):
         super().__init__(machine_id, rng)
         self.baseline = baseline
         self.wear_gain = wear_gain
+        self.load_gain = load_gain
         self.noise_sd = noise_sd
         self.ambient = ambient
 
@@ -101,4 +106,22 @@ class TemperatureSensor(Sensor):
         if machine.status is not MachineStatus.RUNNING:
             return self.ambient + noise
         wear = 1.0 - machine.condition.bearing_health
-        return self.baseline + self.wear_gain * wear + noise
+        work = self.load_gain * (machine.load - NORMAL_LOAD)
+        return self.baseline + work + self.wear_gain * wear + noise
+
+
+class LoadSensor(Sensor):
+    """Reports how hard the machine is working, as a percentage."""
+
+    name = "load"
+    unit = "%"
+
+    def __init__(self, machine_id: str, rng: RandomSource, *, noise_sd: float = 2.0):
+        super().__init__(machine_id, rng)
+        self.noise_sd = noise_sd
+
+    def _measure(self, machine: MachineState) -> float:
+        noise = self._stream.gauss(0.0, self.noise_sd)
+        if machine.status is not MachineStatus.RUNNING:
+            return max(0.0, noise)
+        return max(0.0, 100.0 * machine.load + noise)

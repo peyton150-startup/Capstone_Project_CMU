@@ -3,6 +3,9 @@ from enum import StrEnum
 from pydantic import BaseModel, ConfigDict, Field
 
 
+NORMAL_LOAD = 0.5
+
+
 class MachineStatus(StrEnum):
     RUNNING = "running"
     IDLE = "idle"
@@ -28,6 +31,8 @@ class MachineState(BaseModel):
 
     id: str = Field(min_length=1)
     status: MachineStatus = MachineStatus.RUNNING
+    # How hard the machine is working, 0 to 1. An operating fact, not a fault.
+    load: float = Field(default=NORMAL_LOAD, ge=0.0, le=1.0)
     condition: MachineCondition = Field(default_factory=MachineCondition)
 
 
