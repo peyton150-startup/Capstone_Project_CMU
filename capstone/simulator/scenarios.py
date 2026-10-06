@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
 
+from capstone.simulator.ground_truth import GroundTruth
 from capstone.simulator.rng import RandomSource
 from capstone.simulator.state import FactoryState, MachineStatus
 
@@ -22,6 +23,10 @@ class Scenario(ABC):
 
     @abstractmethod
     def apply(self, state: FactoryState, tick: int) -> None: ...
+
+    @abstractmethod
+    def ground_truth(self) -> GroundTruth:
+        """The real story, from this scenario's own settings, not from state."""
 
 
 class BearingDegradation(Scenario):
@@ -62,3 +67,11 @@ class BearingDegradation(Scenario):
         if machine.status is not MachineStatus.RUNNING:
             return
         machine.condition.bearing_health = max(0.0, machine.condition.bearing_health - loss)
+
+    def ground_truth(self) -> GroundTruth:
+        return GroundTruth(
+            scenario=self.name,
+            fault="bearing_degradation",
+            machine_id=self.machine_id,
+            start_tick=self.start_tick,
+        )

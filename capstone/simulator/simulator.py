@@ -12,7 +12,7 @@ Planned composition (see CLAUDE.md §6); parts marked * exist today:
       ├── quality      inspections / rejects
       ├── events *     event + alarm log
       ├── scenarios *  Scenario[]              — inject causal effects over time
-      └── ground_truth hidden truth            — never crosses the tool boundary
+      └── ground_truth * hidden truth            — never crosses the tool boundary
 
 The agent never imports this module. It reaches the simulator only through
 `capstone/tools/`, which exposes observations and accepts actions.
@@ -22,6 +22,7 @@ from datetime import datetime, timedelta
 
 from capstone.simulator.clock import SimulationClock
 from capstone.simulator.events import Event, EventLog, ThresholdAlarm
+from capstone.simulator.ground_truth import GroundTruth
 from capstone.simulator.rng import RandomSource
 from capstone.simulator.scenarios import Scenario
 from capstone.simulator.sensors import Sensor, SensorReading
@@ -66,6 +67,10 @@ class Simulator:
         if any(s.stream_name == scenario.stream_name for s in self._scenarios):
             raise ValueError(f"{scenario.stream_name} already exists")
         self._scenarios.append(scenario)
+
+    def ground_truth(self) -> tuple[GroundTruth, ...]:
+        """The answer key, one record per scenario. For evaluation only, never tools."""
+        return tuple(s.ground_truth() for s in self._scenarios)
 
     @property
     def readings(self) -> tuple[SensorReading, ...]:

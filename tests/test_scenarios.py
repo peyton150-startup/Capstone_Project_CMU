@@ -2,6 +2,7 @@ from datetime import datetime
 
 import pytest
 
+from capstone.simulator.ground_truth import GroundTruth
 from capstone.simulator.scenarios import Scenario
 from capstone.simulator.sensors import VibrationSensor
 from capstone.simulator.simulator import Simulator
@@ -21,12 +22,18 @@ class SetHealthAt(Scenario):
         if tick == self.at_tick:
             state.machines[self.machine_id].condition.bearing_health = self.health
 
+    def ground_truth(self):
+        return GroundTruth(scenario=self.name, fault="test", machine_id=self.machine_id, start_tick=self.at_tick)
+
 
 class RandomWear(Scenario):
     """Test stand-in: wear by a random amount each tick, from its own stream."""
 
     def apply(self, state, tick):
         state.machines["CNC-04"].condition.bearing_health -= self._stream.uniform(0.0, 0.01)
+
+    def ground_truth(self):
+        return GroundTruth(scenario=self.name, fault="test", machine_id="CNC-04", start_tick=1)
 
 
 def factory(seed: int = 42) -> Simulator:
