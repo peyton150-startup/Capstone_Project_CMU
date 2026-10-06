@@ -30,7 +30,7 @@ A component is complete only when both columns are checked.
 | 10d | Temperature warm-up / cool-down lag |            |                  |             |                   | agreed with developer |
 | 10e | Standard line builder: one function that sets up machines, all sensors, alarms and workload, so every run has varying load | | | |             | proposed after developer asked that load vary in every scenario |
 | 11 | Maintenance action + advancing time through the tools | |      |             |                   | proposed next: closes action → change → verification |
-| 12 | Production jobs + quality / defect rate |     |                  |             |                   | proposed: last link of the degradation chain in MVP_SCOPE §1 |
+| 12 | Production jobs + quality / defect rate |     |                  |             |                   | proposed. Developer wants a job to keep one identity as it moves from machine to machine along the line; this replaces the per-machine `job_number` counter and is what the material/batch scenario needs |
 
 ## Session notes
 
@@ -288,3 +288,9 @@ A component is complete only when both columns are checked.
   copy-minus-condition test in `test_state.py` broke a second time on
   the new field and was rewritten to check only what it means to check.
   Debt: the event carries no job identity or description (row 12).
+- **Session 3 (cont.)** — Developer proposed tracking one job number
+  through the machines (a job travelling down the line). Agreed as the
+  design for row 12, not built now. Open items: (1) developer's go-ahead
+  on the fix so a machine that is not running starts no new jobs — found
+  in the 10b2 sample run, where a DOWN machine logged nine more jobs;
+  (2) row 10b2 re-explain.
