@@ -87,11 +87,27 @@ class BearingDegradation(Scenario):
         )
 
 
+WORN_SLOWDOWN = 0.4  # a completely worn bearing would cost 40% of working speed
+
+
+def working_speed(machine) -> float:
+    """Ticks of work a running machine gets done per tick. 1.0 when healthy.
+
+    Part of the machine's own physics, whatever damaged the bearing.
+    Slow-then-fast, like vibration: early wear barely shows.
+    """
+    wear = 1.0 - machine.condition.bearing_health
+    return 1.0 - WORN_SLOWDOWN * wear**2
+
+
 class ProductionLine(Scenario):
     """Normal factory life: jobs enter at the first machine and move down the line.
 
     How long a job takes is a property of each machine (`ticks_per_job`),
-    not of the job; a job brings only its load.
+    not of the job; a job brings only its load. `time_variation` adds a
+    few ticks either way to each job at each machine, so no two jobs take
+    quite the same time. A worn machine gets less than a tick of work
+    done per tick, so its jobs take longer.
 
     Each tick, in two passes. Movement, from the last machine back to the
     first: a finished job moves on if the next machine is free and not
@@ -113,13 +129,17 @@ class ProductionLine(Scenario):
         machine_ids: list[str],
         min_load: float = 0.3,
         max_load: float = 0.8,
+        time_variation: int = 0,
     ):
         if not machine_ids or len(set(machine_ids)) != len(machine_ids):
             raise ValueError("the line needs at least one machine, each listed once")
         if not 0.0 <= min_load <= max_load <= 1.0:
             raise ValueError("need 0 <= min_load <= max_load <= 1")
+        if time_variation < 0:
+            raise ValueError("time_variation cannot be negative")
         super().__init__(name, rng)
         self.machine_ids = list(machine_ids)
+        self.time_variation = time_variation
         self.min_load, self.max_load = min_load, max_load
         self._next_job_id = 1
 
@@ -131,10 +151,10 @@ class ProductionLine(Scenario):
         for machine in line:
             if machine.status is MachineStatus.DOWN:
                 continue
-            if machine.job is not None and machine.job_progress < machine.ticks_per_job:
+            if machine.job is not None and not machine.job_done:
                 machine.status = MachineStatus.RUNNING
                 machine.load = machine.job.load
-                machine.job_progress += 1
+                machine.job_progress += working_speed(machine)
             else:
                 machine.status = MachineStatus.IDLE
                 machine.load = 0.0
@@ -144,7 +164,7 @@ class ProductionLine(Scenario):
             machine = line[position]
             if machine.status is MachineStatus.DOWN or machine.job is None:
                 continue
-            if machine.job_progress < machine.ticks_per_job:
+            if not machine.job_done:
                 continue
             if position == len(line) - 1:
                 state.completed_jobs.append(machine.job.id)
@@ -152,13 +172,19 @@ class ProductionLine(Scenario):
                 following = line[position + 1]
                 if following.job is not None or following.status is MachineStatus.DOWN:
                     continue  # nowhere to go: the finished job waits here
-                following.job, following.job_progress = machine.job, 0
-            machine.job, machine.job_progress = None, 0
+                self._place(machine.job, following)
+            machine.job, machine.job_progress, machine.job_work = None, 0.0, None
         first = line[0]
         if first.job is None and first.status is not MachineStatus.DOWN:
-            first.job = Job(id=self._next_job_id, load=self._stream.uniform(self.min_load, self.max_load))
-            first.job_progress = 0
+            job = Job(id=self._next_job_id, load=self._stream.uniform(self.min_load, self.max_load))
+            self._place(job, first)
             self._next_job_id += 1
+
+    def _place(self, job: Job, machine) -> None:
+        machine.job, machine.job_progress, machine.job_work = job, 0.0, None
+        if self.time_variation:
+            extra = self._stream.randint(-self.time_variation, self.time_variation)
+            machine.job_work = max(1, machine.ticks_per_job + extra)
 
     def ground_truth(self) -> None:
         return None

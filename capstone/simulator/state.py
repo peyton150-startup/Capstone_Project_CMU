@@ -50,7 +50,15 @@ class MachineState(BaseModel):
     ticks_per_job: int = Field(default=60, ge=1)
     # The job on this machine now, and how many ticks of it are done here.
     job: Job | None = None
-    job_progress: int = Field(default=0, ge=0)
+    job_progress: float = Field(default=0.0, ge=0.0)
+    # Ticks of work this particular job needs here; None means the normal cycle time.
+    job_work: int | None = Field(default=None, ge=1)
+
+    @property
+    def job_done(self) -> bool:
+        """True once this machine has finished its work on the job it holds."""
+        needed = self.job_work if self.job_work is not None else self.ticks_per_job
+        return self.job is not None and self.job_progress >= needed - 1e-9
     condition: MachineCondition = Field(default_factory=MachineCondition)
 
 

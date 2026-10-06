@@ -136,7 +136,7 @@ class Simulator:
                 if job_id is not None:
                     self._record_job(tick, machine.id, job_id, "started")
                     stage = "working"
-            if job_id is not None and machine.job_progress >= machine.ticks_per_job:
+            if machine.job_done:
                 if stage == "working":
                     self._record_job(tick, machine.id, job_id, "finished")
                     stage = "finished"
