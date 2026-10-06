@@ -55,13 +55,14 @@ class Simulator:
         self.event_log = EventLog()
         self._alarms: list[ThresholdAlarm] = []
         self._scenarios: list[Scenario] = []
-        self._last_job_id: dict[str, int | None] = {}
+        # Per machine: the job last seen there and how far its story has been reported.
+        self._job_seen: dict[str, tuple[int | None, str | None]] = {}
         self._last_door_open = self.state.door_open
 
     def add_machine(self, machine: MachineState) -> None:
         self.state.add(machine)
         settle(machine, self.state.air_temperature)  # machines start already warmed up
-        self._last_job_id[machine.id] = machine.job.id if machine.job else None
+        self._job_seen[machine.id] = (machine.job.id, "working") if machine.job else (None, None)
 
     def add_sensor(self, sensor: Sensor) -> None:
         if sensor.machine_id not in self.state.machines:
@@ -101,7 +102,7 @@ class Simulator:
         """
         tick = self.clock.advance()
         self._update_reality(tick)
-        self._record_new_jobs(tick)
+        self._record_job_events(tick)
         self._record_door(tick)
         self._apply_consequences(tick)
         self._warm_or_cool_machines()
@@ -119,16 +120,37 @@ class Simulator:
         for scenario in self._scenarios:
             scenario.apply(self.state, tick)
 
-    def _record_new_jobs(self, tick: int) -> None:
-        """Report a job arriving on a machine. Names the job, not how heavy it is."""
+    def _record_job_events(self, tick: int) -> None:
+        """Report a job starting, finishing, and being held up on each machine.
+
+        Says what a person on the floor could see: which job, on which
+        machine, and which machine it is waiting for. Never how heavy the
+        job is, and never why the machine ahead is not ready.
+        """
+        line = self.state.line
         for machine in self.state.machines.values():
             job_id = machine.job.id if machine.job else None
-            if job_id != self._last_job_id[machine.id]:
-                self._last_job_id[machine.id] = job_id
+            seen_id, stage = self._job_seen[machine.id]
+            if job_id != seen_id:
+                stage = None
                 if job_id is not None:
-                    self.event_log.record(
-                        Event(tick=tick, machine_id=machine.id, kind="job", message=f"job {job_id} started")
-                    )
+                    self._record_job(tick, machine.id, job_id, "started")
+                    stage = "working"
+            if job_id is not None and machine.job_progress >= machine.ticks_per_job:
+                if stage == "working":
+                    self._record_job(tick, machine.id, job_id, "finished")
+                    stage = "finished"
+                elif stage == "finished" and machine.id in line[:-1]:
+                    # Still here a tick after finishing: the next machine has not taken it.
+                    following = line[line.index(machine.id) + 1]
+                    self._record_job(tick, machine.id, job_id, f"blocked by {following}")
+                    stage = "blocked"
+            self._job_seen[machine.id] = (job_id, stage)
+
+    def _record_job(self, tick: int, machine_id: str, job_id: int, what: str) -> None:
+        self.event_log.record(
+            Event(tick=tick, machine_id=machine_id, kind="job", message=f"job {job_id} {what}", job_id=job_id)
+        )
 
     def _record_door(self, tick: int) -> None:
         """Report the loading door changing. A factory event: it belongs to no machine."""

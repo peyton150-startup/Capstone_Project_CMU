@@ -11,7 +11,7 @@ from capstone.simulator.state import MachineState
 from capstone.tools.observation import ObservationTools
 
 START = datetime(2026, 1, 5, 6, 0)
-TOOLS = {"get_time", "list_machines", "get_readings", "get_factory_readings", "get_events"}
+TOOLS = {"get_time", "list_machines", "get_readings", "get_factory_readings", "get_events", "get_job_history"}
 HIDDEN_WORDS = ("bearing", "health", "condition", "degradation", "fault", "scenario", "start_tick", "ground")
 
 
@@ -36,7 +36,7 @@ def everything(tools: ObservationTools, last_tick: int) -> list:
     ]
 
 
-def test_the_tools_are_exactly_the_five_we_decided_on():
+def test_the_tools_are_exactly_the_six_we_decided_on():
     assert {name for name in dir(ObservationTools) if not name.startswith("_")} == TOOLS
 
 
@@ -45,11 +45,11 @@ def test_get_time_reports_tick_and_clock_time():
     assert tools.get_time() == {"tick": 90, "time": "2026-01-05T07:30:00"}
 
 
-def test_list_machines_shows_id_and_status_only():
+def test_list_machines_shows_id_status_and_current_job_only():
     _, tools = factory(1200)
     assert tools.list_machines() == [
-        {"machine_id": "CNC-01", "status": "running"},
-        {"machine_id": "CNC-04", "status": "down"},
+        {"machine_id": "CNC-01", "status": "running", "job_id": None},
+        {"machine_id": "CNC-04", "status": "down", "job_id": None},
     ]
 
 
@@ -101,5 +101,5 @@ def test_nothing_hidden_leaks_through_any_tool_over_a_full_run():
     text = json.dumps(everything(tools, 1200)).lower()
     assert not [word for word in HIDDEN_WORDS if word in text]
     keys = {key for answer in everything(tools, 1200) for row in (answer if isinstance(answer, list) else [answer]) for key in row}
-    assert keys == {"tick", "time", "machine_id", "status", "sensor", "value", "unit", "kind", "message"}
+    assert keys == {"tick", "time", "machine_id", "status", "job_id", "sensor", "value", "unit", "kind", "message"}
     assert sim.ground_truth()  # the truth exists; it just is not reachable from here

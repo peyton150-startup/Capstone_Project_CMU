@@ -124,6 +124,8 @@ class ProductionLine(Scenario):
         self._next_job_id = 1
 
     def apply(self, state: FactoryState, tick: int) -> None:
+        if state.line != self.machine_ids:
+            state.line = list(self.machine_ids)
         line = [state.machines[machine_id] for machine_id in self.machine_ids]
         self._move_jobs(state, line)
         for machine in line:

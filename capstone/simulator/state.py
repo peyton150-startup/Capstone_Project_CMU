@@ -62,6 +62,8 @@ class FactoryState(BaseModel):
     """
 
     machines: dict[str, MachineState] = Field(default_factory=dict)
+    # The machines in the order a job visits them. Empty until a line is set up.
+    line: list[str] = Field(default_factory=list)
     # Ids of jobs that have left the end of the line, oldest first.
     completed_jobs: list[int] = Field(default_factory=list)
     # The building's own temperature for the time of day, in °F.

@@ -16,6 +16,7 @@ class Event(BaseModel):
     machine_id: str | None  # None for something about the factory as a whole
     kind: str
     message: str
+    job_id: int | None = None  # set on events about a job
 
 
 class EventLog:

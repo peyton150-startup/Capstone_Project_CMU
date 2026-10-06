@@ -178,7 +178,7 @@ def test_same_seed_gives_the_same_production_day():
 def test_each_arrival_is_logged_once_and_names_the_job():
     sim = factory(times=UNEVEN)
     history = run(sim)
-    events = [e for e in sim.event_log.events if e.kind == "job"]
+    events = [e for e in sim.event_log.events if e.kind == "job" and e.message.endswith("started")]
     assert (events[0].tick, events[0].machine_id, events[0].message) == (1, "CNC-01", "job 1 started")
     for event in events:
         job_id = int(event.message.split()[1])
@@ -202,7 +202,7 @@ def test_wear_follows_the_work_actually_done():
     assert ran > 0 and waited > 0
 
 
-def test_the_agent_still_sees_only_id_and_status_for_each_machine():
+def test_the_agent_sees_id_status_and_current_job_for_each_machine_and_no_more():
     sim = factory()
     run(sim, 50)
-    assert all(set(row) == {"machine_id", "status"} for row in ObservationTools(sim).list_machines())
+    assert all(set(row) == {"machine_id", "status", "job_id"} for row in ObservationTools(sim).list_machines())

@@ -77,5 +77,5 @@ def test_the_agent_sees_load_only_through_the_load_sensor():
     sim.add_sensor(LoadSensor("CNC-04", sim.rng))
     sim.step()
     tools = ObservationTools(sim)
-    assert tools.list_machines() == [{"machine_id": "CNC-04", "status": "running"}]
+    assert tools.list_machines() == [{"machine_id": "CNC-04", "status": "running", "job_id": None}]
     assert tools.get_readings("CNC-04", "load", 1, 1)[0]["value"] == pytest.approx(90.0, abs=8.0)
