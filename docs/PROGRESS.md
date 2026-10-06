@@ -29,7 +29,7 @@ A component is complete only when both columns are checked.
 | 10c | Ambient temperature drift (shared by all machines) | yes | yes    | yes         | yes               | `state.py` (`ambient_temperature`), `scenarios.py` (`AmbientTemperature`), `sensors.py` — COMPLETE |
 | 10c2 | Loading door opening: a short ambient disturbance plus an event | yes | yes | yes       | yes               | `state.py` (`door_open`, `door_cooling`, `air_temperature`), `scenarios.py` (`LoadingDoor`), `simulator.py`, `events.py` — COMPLETE |
 | 10c3 | Factory thermometer: a sensor for air temperature, not attached to a machine, readable by the agent | yes | yes | yes     | yes               | `sensors.py` (`FactoryThermometer`), `simulator.py`, `tools/observation.py` (`get_factory_readings`) — COMPLETE |
-| 10d | Temperature warm-up / cool-down lag | yes        |                  |             |                   | gate question asked, awaiting answer |
+| 10d | Temperature warm-up / cool-down lag | yes        | yes              | yes         |                   | `thermal.py` (new), `state.py` (`temperature`), `sensors.py`, `simulator.py`; awaiting post-implementation re-explain |
 | 10e | Standard line builder: one function that sets up machines, all sensors, alarms and workload, so every run has varying load | | | |             | proposed after developer asked that load vary in every scenario |
 | 11 | Maintenance action + advancing time through the tools | |      |             |                   | proposed next: closes action → change → verification |
 | 12a | Assembly line: jobs with one identity move machine to machine in order; a machine's load comes from its job | yes | yes | yes      | yes               | COMPLETE. `state.py` (`Job`), `scenarios.py` (`ProductionLine`), `simulator.py`; awaiting post-implementation re-explain (re-asked in a new form). Idle-time issue resolved: working time is now each machine's own `ticks_per_job`. Replaces the `Workload` stand-in and the per-machine `job_number` |
@@ -424,3 +424,19 @@ A component is complete only when both columns are checked.
   been a guess. Taught temperature lag (10d): the machine's real
   temperature becomes state, moved toward its settling point each tick
   by the simulator; the sensor only reads it. Gate question asked.
+- **Session 3 (cont.)** — Temperature lag gate passed with one gap.
+  Developer: the lag belongs in the machine state, because two sensors
+  on one machine would otherwise give two different readings; a careless
+  agent would conclude the machine is worn, and should check the
+  thermometer and the loading door. GAP, filled by Claude and to be
+  re-checked after implementation: the first thing to check is the
+  machine's recent work (the heavy job just before). Implemented
+  `thermal.py` (`settling_temperature`, `settle`, `warm_or_cool`),
+  `MachineState.temperature`, `Simulator(thermal_lag_ticks=...)` with a
+  default of 1 (no lag) so earlier exact results still hold;
+  `TemperatureSensor` now only reads the stored temperature, and the
+  ambient keyword added to `Sensor.read` in 10c is gone again. 12 tests,
+  191 total. Sample on the 60/70/55 line with lag 20: CNC-04 swings
+  between about 90 and 118 °F every cycle as it waits and works. Debt:
+  one lag for all machines; lag defaults to off until the line builder
+  sets it; heat constants are module constants, not per machine.
