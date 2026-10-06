@@ -28,11 +28,11 @@ A component is complete only when both columns are checked.
 | 10b2 | "Job started" event when a machine's work changes | yes | yes      | yes         | yes               | `state.py` (`job_number`), `scenarios.py`, `simulator.py` — COMPLETE |
 | 10c | Ambient temperature drift (shared by all machines) | yes | yes    | yes         | yes               | `state.py` (`ambient_temperature`), `scenarios.py` (`AmbientTemperature`), `sensors.py` — COMPLETE |
 | 10c2 | Loading door opening: a short ambient disturbance plus an event | yes | yes | yes       | yes               | `state.py` (`door_open`, `door_cooling`, `air_temperature`), `scenarios.py` (`LoadingDoor`), `simulator.py`, `events.py` — COMPLETE |
-| 10c3 | Factory thermometer: a sensor for air temperature, not attached to a machine, readable by the agent | yes | yes | yes     |                   | `sensors.py` (`FactoryThermometer`), `simulator.py`, `tools/observation.py` (`get_factory_readings`); awaiting post-implementation re-explain; then 12a |
+| 10c3 | Factory thermometer: a sensor for air temperature, not attached to a machine, readable by the agent | yes | yes | yes     | yes               | `sensors.py` (`FactoryThermometer`), `simulator.py`, `tools/observation.py` (`get_factory_readings`) — COMPLETE |
 | 10d | Temperature warm-up / cool-down lag |            |                  |             |                   | agreed with developer |
 | 10e | Standard line builder: one function that sets up machines, all sensors, alarms and workload, so every run has varying load | | | |             | proposed after developer asked that load vary in every scenario |
 | 11 | Maintenance action + advancing time through the tools | |      |             |                   | proposed next: closes action → change → verification |
-| 12a | Assembly line: jobs with one identity move machine to machine in order; a machine's load comes from its job | |  |             |                   | NEXT after 10c, at developer's request. Replaces the `Workload` stand-in and the per-machine `job_number` |
+| 12a | Assembly line: jobs with one identity move machine to machine in order; a machine's load comes from its job | yes |  |          |                   | gate question asked, awaiting answer. Replaces the `Workload` stand-in and the per-machine `job_number` |
 | 12b | Job events and a job-history tool for the agent |      |                  |             |                   | follows 12a |
 | 12c | Quality inspections / defect rate         |      |                  |             |                   | follows 12b; needed for the material-batch scenario |
 
@@ -369,3 +369,10 @@ A component is complete only when both columns are checked.
   10 tests, 181 total. Debt: `FactoryThermometer` is not a `Sensor`
   subclass (different inputs) — a shared base is due if a second
   factory-level sensor appears.
+- **Session 3 (cont.)** — Thermometer re-explain passed (developer: the
+  machine could just be under a heavy load, and the agent would use the
+  load sensor). Fixed a table slip: row 10c's post-implementation column
+  was blank although the notes recorded the pass. Taught the assembly
+  line (12a): one job identity moving station to station, hand-off only
+  when the next station is free, load taken from the job, a machine with
+  no work or nowhere to send it is idle; gate question asked.
