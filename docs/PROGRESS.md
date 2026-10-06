@@ -37,7 +37,7 @@ A component is complete only when both columns are checked.
 | 12a | Assembly line: jobs move machine to machine | yes | yes | yes | yes | `state.py` (`Job`), `scenarios.py` (`ProductionLine`) |
 | 12b | Job events and `get_job_history` | yes | yes | yes | yes | `simulator.py`, `tools/observation.py` |
 | 12b2 | Worn machines work more slowly; ±2 ticks natural variation | yes | yes | yes | yes | `scenarios.py`, `line.py` |
-| 12c | Quality inspection, small pass/fail version | yes | yes | yes |  | `scenarios.py`, `state.py` (`Inspection`), `simulator.py`, `tools/observation.py` (`get_inspections`); post-implementation question asked, awaiting answer |
+| 12c | Quality inspection, small pass/fail version | yes | yes | yes | yes | `scenarios.py`, `state.py` (`Inspection`), `simulator.py`, `tools/observation.py` (`get_inspections`) |
 
 Every row above with four "yes" marks (or "n/a") is complete: no question is
 outstanding on it. Still to build after 12c, from `docs/MVP_SCOPE.md`: the
@@ -620,3 +620,13 @@ alarm), then evaluation, then the agent itself.
   machine at a fixed health: 2% at 1.0, 3% at 0.7, 8% at 0.5, 27% at
   0.3, 39% at 0.2. Debt: no defect type; every job is inspected; on a
   single line quality cannot point at a machine.
+- **Session 3 (end)** — Quality re-explain passed (developer: a failed
+  job speaks about the line, so the agent then looks at the machines'
+  vibration or temperature to see which one stands out). ALL ROWS IN THE
+  TABLE ARE COMPLETE; 298 tests pass under `py -3.13 -m pytest`.
+  NEXT SESSION, in this order unless the developer says otherwise:
+  (1) the three remaining MVP fault scenarios — material batch, machine
+  configuration, false alarm — each taught and gated; (2) a seeded
+  scenario generator (fault, machine, start tick); (3) evaluation;
+  (4) the agent; (5) memory. Start by teaching the first of the three
+  scenarios; nothing is half-built.
