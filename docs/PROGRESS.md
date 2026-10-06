@@ -489,3 +489,10 @@ A component is complete only when both columns are checked.
   working time). Claude added that the wait on CNC-01 grows as well,
   because CNC-02 frees up later. Taught 12b2 (a worn machine makes less
   than one tick of progress per tick); gate question asked.
+- **Session 3 (cont.)** — Developer asked that the seed decide the
+  number of machines. Done in `build_line`: with no size given, a
+  dedicated stream (`line.size`) draws 3-8; passing `machines=` still
+  fixes it. Over seeds 0-599 the sizes come out roughly evenly (85-108
+  each); seed 42 gives 8 machines. 222 tests. Idea noted for evaluation
+  time, not built: let the seed also choose the fault, the machine and
+  the start tick. Row 12b2 gate still awaiting answer.
