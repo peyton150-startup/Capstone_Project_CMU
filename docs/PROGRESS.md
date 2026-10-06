@@ -28,7 +28,7 @@ A component is complete only when both columns are checked.
 | 10b2 | "Job started" event when a machine's work changes | yes | yes      | yes         | yes               | `state.py` (`job_number`), `scenarios.py`, `simulator.py` — COMPLETE |
 | 10c | Ambient temperature drift (shared by all machines) | yes | yes    | yes         |                   | `state.py` (`ambient_temperature`), `scenarios.py` (`AmbientTemperature`), `sensors.py` — COMPLETE |
 | 10c2 | Loading door opening: a short ambient disturbance plus an event | yes | yes | yes       | yes               | `state.py` (`door_open`, `door_cooling`, `air_temperature`), `scenarios.py` (`LoadingDoor`), `simulator.py`, `events.py` — COMPLETE |
-| 10c3 | Factory thermometer: a sensor for air temperature, not attached to a machine, readable by the agent | yes |  |           |                   | gate question asked, awaiting answer; then 12a |
+| 10c3 | Factory thermometer: a sensor for air temperature, not attached to a machine, readable by the agent | yes | yes | yes     |                   | `sensors.py` (`FactoryThermometer`), `simulator.py`, `tools/observation.py` (`get_factory_readings`); awaiting post-implementation re-explain; then 12a |
 | 10d | Temperature warm-up / cool-down lag |            |                  |             |                   | agreed with developer |
 | 10e | Standard line builder: one function that sets up machines, all sensors, alarms and workload, so every run has varying load | | | |             | proposed after developer asked that load vary in every scenario |
 | 11 | Maintenance action + advancing time through the tools | |      |             |                   | proposed next: closes action → change → verification |
@@ -357,3 +357,15 @@ A component is complete only when both columns are checked.
   been opened). Claude added a third check: the other machines dipping
   at the same time. Taught the factory thermometer (10c3); gate question
   asked.
+- **Session 3 (cont.)** — Thermometer gate passed after re-teaching.
+  Developer first expected the agent to see the thermometer as soon as
+  it wrote to the reading log; re-taught that the agent sees only what a
+  tool returns, and the developer concluded a new tool is needed. On the
+  worked case (118 °F, air 75 °F, normal load) the developer judged
+  nothing wrong and said the agent must take the factory temperature and
+  work out the heat the machine gives off; Claude supplied the figure
+  (118 − 75 = 43). Implemented `FactoryThermometer`,
+  `Simulator.add_factory_sensor`, `get_factory_readings` (fifth tool);
+  10 tests, 181 total. Debt: `FactoryThermometer` is not a `Sensor`
+  subclass (different inputs) — a shared base is due if a second
+  factory-level sensor appears.
