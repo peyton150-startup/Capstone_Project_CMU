@@ -25,8 +25,11 @@ class Scenario(ABC):
     def apply(self, state: FactoryState, tick: int) -> None: ...
 
     @abstractmethod
-    def ground_truth(self) -> GroundTruth:
-        """The real story, from this scenario's own settings, not from state."""
+    def ground_truth(self) -> GroundTruth | None:
+        """The real story, from this scenario's own settings, not from state.
+
+        None for normal factory life that is not a fault.
+        """
 
 
 class BearingDegradation(Scenario):
@@ -81,3 +84,42 @@ class BearingDegradation(Scenario):
             machine_id=self.machine_id,
             start_tick=self.start_tick,
         )
+
+
+class Workload(Scenario):
+    """Normal factory life: one machine's load changes in blocks of work.
+
+    Stands in for jobs until they exist. Not a fault, so it declares no
+    ground truth. Add it before any scenario that reads `load`, so that
+    scenario sees this tick's load rather than the last one's.
+    """
+
+    def __init__(
+        self,
+        name: str,
+        rng: RandomSource,
+        *,
+        machine_id: str,
+        min_block: int = 30,
+        max_block: int = 90,
+        min_load: float = 0.3,
+        max_load: float = 0.8,
+    ):
+        if not 1 <= min_block <= max_block:
+            raise ValueError("need 1 <= min_block <= max_block")
+        if not 0.0 <= min_load <= max_load <= 1.0:
+            raise ValueError("need 0 <= min_load <= max_load <= 1")
+        super().__init__(name, rng)
+        self.machine_id = machine_id
+        self.min_block, self.max_block = min_block, max_block
+        self.min_load, self.max_load = min_load, max_load
+        self._next_change = 1
+
+    def apply(self, state: FactoryState, tick: int) -> None:
+        if tick < self._next_change:
+            return
+        state.machines[self.machine_id].load = self._stream.uniform(self.min_load, self.max_load)
+        self._next_change = tick + self._stream.randint(self.min_block, self.max_block)
+
+    def ground_truth(self) -> None:
+        return None

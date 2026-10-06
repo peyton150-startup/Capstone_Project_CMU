@@ -69,8 +69,9 @@ class Simulator:
         self._scenarios.append(scenario)
 
     def ground_truth(self) -> tuple[GroundTruth, ...]:
-        """The answer key, one record per scenario. For evaluation only, never tools."""
-        return tuple(s.ground_truth() for s in self._scenarios)
+        """The answer key, one record per fault. For evaluation only, never tools."""
+        records = (s.ground_truth() for s in self._scenarios)
+        return tuple(r for r in records if r is not None)
 
     @property
     def readings(self) -> tuple[SensorReading, ...]:
