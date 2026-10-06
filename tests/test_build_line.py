@@ -39,7 +39,7 @@ def test_a_given_size_overrides_the_seed_and_changes_nothing_else():
 @pytest.mark.parametrize("machines", range(3, 9))
 def test_any_size_from_three_to_eight_builds_and_runs(machines):
     sim = run(build_line(42, machines=machines), 200)
-    assert list(sim.state.machines) == machine_names(machines) == sim.state.line
+    assert list(sim.state.machines) == machine_names(machines) == sim.state.lines["line"]
     assert [m.ticks_per_job for m in sim.state.machines.values()] == list(STANDARD_TICKS_PER_JOB[:machines])
     # vibration, temperature and load on every machine, plus the thermometer
     assert len(sim.readings) == 200 * (3 * machines + 1)

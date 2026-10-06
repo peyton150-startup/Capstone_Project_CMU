@@ -29,7 +29,7 @@ def trail(tools: ObservationTools, job_id: int) -> list[tuple[int, str, str]]:
 
 def test_the_line_order_is_part_of_the_factory_state():
     sim, _ = factory(ticks=1)
-    assert sim.state.line == LINE
+    assert sim.state.lines == {"line": LINE}
 
 
 def test_job_1_on_an_empty_line_is_never_held_up():

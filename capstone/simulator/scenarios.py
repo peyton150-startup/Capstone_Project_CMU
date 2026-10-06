@@ -141,11 +141,13 @@ class ProductionLine(Scenario):
         self.machine_ids = list(machine_ids)
         self.time_variation = time_variation
         self.min_load, self.max_load = min_load, max_load
-        self._next_job_id = 1
 
     def apply(self, state: FactoryState, tick: int) -> None:
-        if state.line != self.machine_ids:
-            state.line = list(self.machine_ids)
+        if state.lines.get(self.name) != self.machine_ids:
+            taken = {m for name, order in state.lines.items() if name != self.name for m in order}
+            if taken & set(self.machine_ids):
+                raise ValueError(f"{self.name}: a machine cannot be on two lines")
+            state.lines[self.name] = list(self.machine_ids)
         line = [state.machines[machine_id] for machine_id in self.machine_ids]
         self._move_jobs(state, line)
         for machine in line:
@@ -176,9 +178,9 @@ class ProductionLine(Scenario):
             machine.job, machine.job_progress, machine.job_work = None, 0.0, None
         first = line[0]
         if first.job is None and first.status is not MachineStatus.DOWN:
-            job = Job(id=self._next_job_id, load=self._stream.uniform(self.min_load, self.max_load))
+            job = Job(id=state.next_job_id, load=self._stream.uniform(self.min_load, self.max_load))
             self._place(job, first)
-            self._next_job_id += 1
+            state.next_job_id += 1
 
     def _place(self, job: Job, machine) -> None:
         machine.job, machine.job_progress, machine.job_work = job, 0.0, None

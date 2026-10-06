@@ -127,7 +127,6 @@ class Simulator:
         machine, and which machine it is waiting for. Never how heavy the
         job is, and never why the machine ahead is not ready.
         """
-        line = self.state.line
         for machine in self.state.machines.values():
             job_id = machine.job.id if machine.job else None
             seen_id, stage = self._job_seen[machine.id]
@@ -140,9 +139,8 @@ class Simulator:
                 if stage == "working":
                     self._record_job(tick, machine.id, job_id, "finished")
                     stage = "finished"
-                elif stage == "finished" and machine.id in line[:-1]:
+                elif stage == "finished" and (following := self.state.next_on_line(machine.id)):
                     # Still here a tick after finishing: the next machine has not taken it.
-                    following = line[line.index(machine.id) + 1]
                     self._record_job(tick, machine.id, job_id, f"blocked by {following}")
                     stage = "blocked"
             self._job_seen[machine.id] = (job_id, stage)
