@@ -21,7 +21,7 @@ A component is complete only when both columns are checked.
 | 8b | Machine failure transition (goes DOWN) | yes | yes           | yes         | yes               | `simulator.py` (`_apply_consequences`) — COMPLETE |
 | 9a | Ground truth record           | yes    | yes              | yes         | yes               | `capstone/simulator/ground_truth.py` — COMPLETE |
 | 9b | Observation boundary (read-only tools) | yes | yes         | yes         | yes               | `capstone/tools/observation.py` — COMPLETE |
-| 10 | TemperatureSensor (second evidence source) | yes | n/a (§2.2) | yes         |                   | `capstone/simulator/sensors.py`, in °F at developer's request; post-implementation re-explain STILL OWED (two questions asked twice, not yet answered) |
+| 10 | TemperatureSensor (second evidence source) | yes | n/a (§2.2) | yes         | yes               | `capstone/simulator/sensors.py`, in °F at developer's request — COMPLETE |
 | 10a | Operating load: `load` in MachineState, sensors respond, LoadSensor | yes |      |             |                   | gate question asked, awaiting answer |
 | 10b | Workload variation over time (what changes `load`) |    |           |             |                   | agreed with developer; stands in for jobs until row 12 |
 | 10c | Room temperature drift (shared by all machines) |       |           |             |                   | agreed with developer |
@@ -200,3 +200,9 @@ A component is complete only when both columns are checked.
   maintenance action: operating load, room temperature drift, and
   warm-up/cool-down lag (rows 10a-10d). Taught 10a; gate question asked.
   Row 10's re-explain questions were not answered and are still owed.
+- **Session 3 (cont.)** — TemperatureSensor re-explain passed on the
+  architecture question (developer: sensors are one kind of object the
+  other modules already account for, so a new one is just another entry
+  in the list, not a new component). The cross-checking question was
+  not answered separately; it is superseded by the load gate's first
+  question, which tests the same idea with load in the picture.
