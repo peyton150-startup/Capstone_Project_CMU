@@ -30,7 +30,9 @@ A component is complete only when both columns are checked.
 | 10d | Temperature warm-up / cool-down lag |            |                  |             |                   | agreed with developer |
 | 10e | Standard line builder: one function that sets up machines, all sensors, alarms and workload, so every run has varying load | | | |             | proposed after developer asked that load vary in every scenario |
 | 11 | Maintenance action + advancing time through the tools | |      |             |                   | proposed next: closes action → change → verification |
-| 12 | Production jobs + quality / defect rate |     |                  |             |                   | proposed. Developer wants a job to keep one identity as it moves from machine to machine along the line; this replaces the per-machine `job_number` counter and is what the material/batch scenario needs |
+| 12a | Assembly line: jobs with one identity move machine to machine in order; a machine's load comes from its job | |  |             |                   | NEXT after 10c, at developer's request. Replaces the `Workload` stand-in and the per-machine `job_number` |
+| 12b | Job events and a job-history tool for the agent |      |                  |             |                   | follows 12a |
+| 12c | Quality inspections / defect rate         |      |                  |             |                   | follows 12b; needed for the material-batch scenario |
 
 ## Session notes
 
@@ -300,3 +302,9 @@ A component is complete only when both columns are checked.
   new job on a machine that is not running and resumes when it runs
   again; 2 tests, 148 total. Taught room temperature drift (10c); gate
   question asked.
+- **Session 3 (cont.)** — Developer asked for the machines to form an
+  assembly line with a job moving through them (e.g. job 117: CNC-01 →
+  CNC-02 → CNC-04). Agreed and moved up: row 12 split into 12a-12c, with
+  12a next after 10c. Rows 10d (thermal lag), 10e (line builder) and 11
+  (maintenance action) follow the line work; 10e will likely fold into
+  12a. Row 10c gate question still awaiting answer.
