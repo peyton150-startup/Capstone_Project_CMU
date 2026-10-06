@@ -4,10 +4,11 @@ from statistics import mean
 import pytest
 
 from capstone.simulator.events import ThresholdAlarm
+from capstone.simulator.rng import RandomSource
 from capstone.simulator.scenarios import BearingDegradation
 from capstone.simulator.sensors import VibrationSensor
 from capstone.simulator.simulator import Simulator
-from capstone.simulator.state import MachineState, MachineStatus
+from capstone.simulator.state import FactoryState, MachineState, MachineStatus
 
 START = datetime(2026, 1, 5, 6, 0)
 
@@ -85,7 +86,12 @@ def test_only_the_target_machine_is_affected():
 
 
 def test_health_never_goes_below_zero():
-    assert health(run(factory(rate=0.01), 400)) == 0.0
+    state = FactoryState()
+    state.add(MachineState(id="CNC-04"))
+    wear = BearingDegradation("bearing", RandomSource(42), machine_id="CNC-04", start_tick=1, rate=0.3)
+    for tick in range(1, 11):
+        wear.apply(state, tick)
+    assert state.machines["CNC-04"].condition.bearing_health == 0.0
 
 
 def test_vibration_rises_slowly_then_quickly():
