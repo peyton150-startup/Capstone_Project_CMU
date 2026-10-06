@@ -538,3 +538,19 @@ A component is complete only when both columns are checked.
   production). Claude added the cost: more tool calls, which scoring
   counts. Taught 11b (bearing replacement: downtime, health restored,
   the fault ends, events); gate question asked.
+- **Session 3 (cont.)** — Developer asked whether maintenance should be
+  possible without halting the line (a second line, with jobs re-routed
+  to it). DECIDED: one line for now, repairs stop it — the stoppage is
+  the cost that makes the agent's choice real — but leave an opening for
+  more lines. Opening made, as wiring: `FactoryState.lines` (name →
+  machine order) replaces the single `line`; job numbers come from
+  `FactoryState.next_job_id` so they are unique across lines;
+  `next_on_line()` finds a machine's successor on its own line; a
+  machine on two lines is refused. `tests/test_two_lines.py` runs two
+  lines side by side (unique job ids, a breakdown on one leaves the
+  other producing); 6 tests, 255 total. NOT built: re-routing jobs
+  between lines, and `build_line` still makes one line. Also DECIDED for
+  11b: repairing a machine that has already broken down takes three
+  times as long as a planned replacement (135 vs 45 ticks), so catching
+  the fault before the break is penalised less. 11b gate questions still
+  awaiting answers.
