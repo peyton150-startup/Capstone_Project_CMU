@@ -21,7 +21,11 @@ A component is complete only when both columns are checked.
 | 8b | Machine failure transition (goes DOWN) | yes | yes           | yes         | yes               | `simulator.py` (`_apply_consequences`) — COMPLETE |
 | 9a | Ground truth record           | yes    | yes              | yes         | yes               | `capstone/simulator/ground_truth.py` — COMPLETE |
 | 9b | Observation boundary (read-only tools) | yes | yes         | yes         | yes               | `capstone/tools/observation.py` — COMPLETE |
-| 10 | TemperatureSensor (second evidence source) | yes | n/a (§2.2) | yes         |                   | `capstone/simulator/sensors.py`, in °F at developer's request; awaiting post-implementation re-explain |
+| 10 | TemperatureSensor (second evidence source) | yes | n/a (§2.2) | yes         |                   | `capstone/simulator/sensors.py`, in °F at developer's request; post-implementation re-explain STILL OWED (two questions asked twice, not yet answered) |
+| 10a | Operating load: `load` in MachineState, sensors respond, LoadSensor | yes |      |             |                   | gate question asked, awaiting answer |
+| 10b | Workload variation over time (what changes `load`) |    |           |             |                   | agreed with developer; stands in for jobs until row 12 |
+| 10c | Room temperature drift (shared by all machines) |       |           |             |                   | agreed with developer |
+| 10d | Temperature warm-up / cool-down lag |            |                  |             |                   | agreed with developer |
 | 11 | Maintenance action + advancing time through the tools | |      |             |                   | proposed next: closes action → change → verification |
 | 12 | Production jobs + quality / defect rate |     |                  |             |                   | proposed: last link of the degradation chain in MVP_SCOPE §1 |
 
@@ -190,3 +194,9 @@ A component is complete only when both columns are checked.
   need changes — they do not (only `sensors.py` changed); explained, to
   be re-checked in the post-implementation question. 6 tests, 109 total.
   Debt: no warm-up or cool-down lag.
+- **Session 3 (cont.)** — Developer noticed that temperature is too
+  clean a signal (only bearing wear moves it) and asked how to make the
+  agent's job harder while staying realistic. Agreed to add, before the
+  maintenance action: operating load, room temperature drift, and
+  warm-up/cool-down lag (rows 10a-10d). Taught 10a; gate question asked.
+  Row 10's re-explain questions were not answered and are still owed.
