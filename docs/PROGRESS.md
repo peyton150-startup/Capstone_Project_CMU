@@ -31,10 +31,12 @@ A component is complete only when both columns are checked.
 | 10c3 | Factory thermometer: a sensor for air temperature, not attached to a machine, readable by the agent | yes | yes | yes     | yes               | `sensors.py` (`FactoryThermometer`), `simulator.py`, `tools/observation.py` (`get_factory_readings`) — COMPLETE |
 | 10d | Temperature warm-up / cool-down lag | yes        | yes              | yes         | yes               | `thermal.py` (new), `state.py` (`temperature`), `sensors.py`, `simulator.py` — COMPLETE |
 | 10e | Standard line builder: `build_line(seed, machines=3..8)` sets up named machines, all sensors, thermometer, alarm, ambient, door, production line, thermal lag | n/a (§2.2 wiring) | n/a | yes | | `capstone/simulator/line.py`; built early at developer's request; wiring only, no gate required — COMPLETE |
-| 11 | Maintenance action + advancing time through the tools | |      |             |                   | proposed next: closes action → change → verification |
+| 11a | Letting time pass: a `wait(ticks)` tool, separate from the read-only tools | yes |  |           |                   | gate question asked, awaiting answer |
+| 11b | Maintenance action: replace a bearing (downtime, health restored, the fault ends) | |    |             |                   | after 11a |
+| 11c | Approval: the agent proposes an action, a human approves, then it is applied | |        |             |                   | after 11b |
 | 12a | Assembly line: jobs with one identity move machine to machine in order; a machine's load comes from its job | yes | yes | yes      | yes               | COMPLETE. `state.py` (`Job`), `scenarios.py` (`ProductionLine`), `simulator.py`; awaiting post-implementation re-explain (re-asked in a new form). Idle-time issue resolved: working time is now each machine's own `ticks_per_job`. Replaces the `Workload` stand-in and the per-machine `job_number` |
 | 12b | Job events and a job-history tool for the agent | yes  | yes              | yes         |                   | `simulator.py` (`_record_job_events`), `events.py` (`job_id`), `state.py` (`line`), `tools/observation.py` (`get_job_history`, `job_id` in `list_machines`) — COMPLETE (understood post: yes) |
-| 12b2 | A worn machine works more slowly, so its jobs take extra ticks; natural variation of ±2 ticks on the standard line | yes | yes       | yes         |                   | `scenarios.py` (`working_speed`, `time_variation`), `state.py` (`job_work`, `job_done`), `line.py`; awaiting post-implementation re-explain |
+| 12b2 | A worn machine works more slowly, so its jobs take extra ticks; natural variation of ±2 ticks on the standard line | yes | yes       | yes         |                   | `scenarios.py` (`working_speed`, `time_variation`), `state.py` (`job_work`, `job_done`), `line.py` — COMPLETE (understood post: yes) |
 | 12c | Quality inspections / defect rate         |      |                  |             |                   | follows 12b; needed for the material-batch scenario |
 
 ## Session notes
@@ -513,3 +515,9 @@ A component is complete only when both columns are checked.
   where a healthy line completes 19. Debt: only bearing wear slows a
   machine, so slowness still has one cause until the configuration
   scenario exists.
+- **Session 3 (cont.)** — 12b2 re-explain passed (developer: one slow
+  job proves nothing because jobs vary — the agent needs to be more
+  patient and look at other readings such as vibration and load). Claude
+  added: and at the trend over many jobs. Split row 11 into 11a (wait),
+  11b (replace bearing), 11c (approval). Taught 11a; gate question
+  asked.
