@@ -23,8 +23,8 @@ def look_around(look: ObservationTools) -> None:
     look.get_factory_readings("air_temperature", 0, 10_000)
 
 
-def test_wait_is_the_only_action_so_far():
-    assert {name for name in dir(ActionTools) if not name.startswith("_")} == {"wait"}
+def test_wait_is_one_of_the_agents_action_tools():
+    assert "wait" in {name for name in dir(ActionTools) if not name.startswith("_")}
 
 
 def test_wait_moves_the_clock_by_exactly_that_many_ticks_and_reports_the_time():
