@@ -31,8 +31,8 @@ A component is complete only when both columns are checked.
 | 10c3 | Factory thermometer: a sensor for air temperature, not attached to a machine, readable by the agent | yes | yes | yes     | yes               | `sensors.py` (`FactoryThermometer`), `simulator.py`, `tools/observation.py` (`get_factory_readings`) — COMPLETE |
 | 10d | Temperature warm-up / cool-down lag | yes        | yes              | yes         | yes               | `thermal.py` (new), `state.py` (`temperature`), `sensors.py`, `simulator.py` — COMPLETE |
 | 10e | Standard line builder: `build_line(seed, machines=3..8)` sets up named machines, all sensors, thermometer, alarm, ambient, door, production line, thermal lag | n/a (§2.2 wiring) | n/a | yes | | `capstone/simulator/line.py`; built early at developer's request; wiring only, no gate required — COMPLETE |
-| 11a | Letting time pass: a `wait(ticks)` tool, separate from the read-only tools | yes | yes | yes     |                   | `capstone/tools/actions.py` (`ActionTools.wait`); awaiting post-implementation re-explain |
-| 11b | Maintenance action: replace a bearing (downtime, health restored, the fault ends) | |    |             |                   | after 11a |
+| 11a | Letting time pass: a `wait(ticks)` tool, separate from the read-only tools | yes | yes | yes     |                   | `capstone/tools/actions.py` (`ActionTools.wait`) — COMPLETE (understood post: yes) |
+| 11b | Maintenance action: replace a bearing (downtime, health restored, the fault ends) | yes |  |           |                   | gate question asked, awaiting answer |
 | 11c | Approval: the agent proposes an action, a human approves, then it is applied | |        |             |                   | after 11b |
 | 12a | Assembly line: jobs with one identity move machine to machine in order; a machine's load comes from its job | yes | yes | yes      | yes               | COMPLETE. `state.py` (`Job`), `scenarios.py` (`ProductionLine`), `simulator.py`; awaiting post-implementation re-explain (re-asked in a new form). Idle-time issue resolved: working time is now each machine's own `ticks_per_job`. Replaces the `Workload` stand-in and the per-machine `job_number` |
 | 12b | Job events and a job-history tool for the agent | yes  | yes              | yes         |                   | `simulator.py` (`_record_job_events`), `events.py` (`job_id`), `state.py` (`line`), `tools/observation.py` (`get_job_history`, `job_id` in `list_machines`) — COMPLETE (understood post: yes) |
@@ -532,3 +532,9 @@ A component is complete only when both columns are checked.
   480 per call, in a new `tools/actions.py`; 14 tests, 249 total. Debt:
   look-ups cost no simulated time at all; a wait runs its full length
   even if a machine breaks down partway.
+- **Session 3 (cont.)** — Wait re-explain passed (developer: several
+  short waits let the agent see broken machines earlier and fix them,
+  where one bulk wait might let two or more machines break and halt
+  production). Claude added the cost: more tool calls, which scoring
+  counts. Taught 11b (bearing replacement: downtime, health restored,
+  the fault ends, events); gate question asked.
