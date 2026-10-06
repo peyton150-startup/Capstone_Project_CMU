@@ -3,7 +3,7 @@ from abc import ABC, abstractmethod
 
 from capstone.simulator.ground_truth import GroundTruth
 from capstone.simulator.rng import RandomSource
-from capstone.simulator.state import NORMAL_LOAD, FactoryState, MachineStatus
+from capstone.simulator.state import NORMAL_LOAD, FactoryState, Job, MachineStatus
 
 
 class Scenario(ABC):
@@ -87,13 +87,19 @@ class BearingDegradation(Scenario):
         )
 
 
-class Workload(Scenario):
-    """Normal factory life: one machine's load changes in blocks of work.
+class ProductionLine(Scenario):
+    """Normal factory life: jobs enter at the first machine and move down the line.
 
-    Stands in for jobs until they exist. Each new block raises the
-    machine's job number; the simulator reports that as an event. Not a
-    fault, so it declares no ground truth. Add it before any scenario that reads `load`, so that
-    scenario sees this tick's load rather than the last one's.
+    Each tick, in two passes. Movement, from the last machine back to the
+    first: a finished job moves on if the next machine is free and not
+    down, or leaves the line at the end; a new job enters whenever the
+    first machine is free. Then work: a machine with unfinished work runs
+    at its job's load, and any other machine is idle. A machine that is
+    down is left alone and keeps its job, which blocks everything behind
+    it. Not a fault, so no ground truth.
+
+    Add it before any scenario that reads `load` or status, so that
+    scenario sees this tick's work.
     """
 
     def __init__(
@@ -101,31 +107,62 @@ class Workload(Scenario):
         name: str,
         rng: RandomSource,
         *,
-        machine_id: str,
-        min_block: int = 30,
-        max_block: int = 90,
+        machine_ids: list[str],
+        min_ticks: int = 30,
+        max_ticks: int = 90,
         min_load: float = 0.3,
         max_load: float = 0.8,
     ):
-        if not 1 <= min_block <= max_block:
-            raise ValueError("need 1 <= min_block <= max_block")
+        if not machine_ids or len(set(machine_ids)) != len(machine_ids):
+            raise ValueError("the line needs at least one machine, each listed once")
+        if not 1 <= min_ticks <= max_ticks:
+            raise ValueError("need 1 <= min_ticks <= max_ticks")
         if not 0.0 <= min_load <= max_load <= 1.0:
             raise ValueError("need 0 <= min_load <= max_load <= 1")
         super().__init__(name, rng)
-        self.machine_id = machine_id
-        self.min_block, self.max_block = min_block, max_block
+        self.machine_ids = list(machine_ids)
+        self.min_ticks, self.max_ticks = min_ticks, max_ticks
         self.min_load, self.max_load = min_load, max_load
-        self._next_change = 1
+        self._next_job_id = 1
 
     def apply(self, state: FactoryState, tick: int) -> None:
-        if tick < self._next_change:
-            return
-        machine = state.machines[self.machine_id]
-        if machine.status is not MachineStatus.RUNNING:
-            return  # no new work on a machine that is not running; resumes when it is
-        machine.load = self._stream.uniform(self.min_load, self.max_load)
-        machine.job_number += 1
-        self._next_change = tick + self._stream.randint(self.min_block, self.max_block)
+        line = [state.machines[machine_id] for machine_id in self.machine_ids]
+        self._move_jobs(state, line)
+        for machine in line:
+            if machine.status is MachineStatus.DOWN:
+                continue
+            if machine.job is not None and machine.job_progress < machine.job.ticks_per_machine:
+                machine.status = MachineStatus.RUNNING
+                machine.load = machine.job.load
+                machine.job_progress += 1
+            else:
+                machine.status = MachineStatus.IDLE
+                machine.load = 0.0
+
+    def _move_jobs(self, state: FactoryState, line: list) -> None:
+        for position in reversed(range(len(line))):
+            machine = line[position]
+            if machine.status is MachineStatus.DOWN or machine.job is None:
+                continue
+            if machine.job_progress < machine.job.ticks_per_machine:
+                continue
+            if position == len(line) - 1:
+                state.completed_jobs.append(machine.job.id)
+            else:
+                following = line[position + 1]
+                if following.job is not None or following.status is MachineStatus.DOWN:
+                    continue  # nowhere to go: the finished job waits here
+                following.job, following.job_progress = machine.job, 0
+            machine.job, machine.job_progress = None, 0
+        first = line[0]
+        if first.job is None and first.status is not MachineStatus.DOWN:
+            first.job = Job(
+                id=self._next_job_id,
+                load=self._stream.uniform(self.min_load, self.max_load),
+                ticks_per_machine=self._stream.randint(self.min_ticks, self.max_ticks),
+            )
+            first.job_progress = 0
+            self._next_job_id += 1
 
     def ground_truth(self) -> None:
         return None

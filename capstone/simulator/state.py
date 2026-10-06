@@ -13,6 +13,17 @@ class MachineStatus(StrEnum):
     DOWN = "down"
 
 
+class Job(BaseModel):
+    """One piece of work. Keeps the same id on every machine it visits."""
+
+    model_config = ConfigDict(frozen=True)
+
+    id: int = Field(ge=1)
+    # How demanding the work is, 0 to 1; becomes the load of whichever machine holds it.
+    load: float = Field(ge=0.0, le=1.0)
+    ticks_per_machine: int = Field(ge=1)
+
+
 class MachineCondition(BaseModel):
     """Hidden physical truth. Never crosses the tool boundary."""
 
@@ -34,8 +45,9 @@ class MachineState(BaseModel):
     status: MachineStatus = MachineStatus.RUNNING
     # How hard the machine is working, 0 to 1. An operating fact, not a fault.
     load: float = Field(default=NORMAL_LOAD, ge=0.0, le=1.0)
-    # Counts the pieces of work this machine has started.
-    job_number: int = Field(default=0, ge=0)
+    # The job on this machine now, and how many ticks of it are done here.
+    job: Job | None = None
+    job_progress: int = Field(default=0, ge=0)
     condition: MachineCondition = Field(default_factory=MachineCondition)
 
 
@@ -47,6 +59,8 @@ class FactoryState(BaseModel):
     """
 
     machines: dict[str, MachineState] = Field(default_factory=dict)
+    # Ids of jobs that have left the end of the line, oldest first.
+    completed_jobs: list[int] = Field(default_factory=list)
     # The building's own temperature for the time of day, in °F.
     ambient_temperature: float = REFERENCE_AMBIENT_F
     door_open: bool = False

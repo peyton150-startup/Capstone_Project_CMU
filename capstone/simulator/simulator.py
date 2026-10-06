@@ -50,12 +50,12 @@ class Simulator:
         self.event_log = EventLog()
         self._alarms: list[ThresholdAlarm] = []
         self._scenarios: list[Scenario] = []
-        self._last_job_number: dict[str, int] = {}
+        self._last_job_id: dict[str, int | None] = {}
         self._last_door_open = self.state.door_open
 
     def add_machine(self, machine: MachineState) -> None:
         self.state.add(machine)
-        self._last_job_number[machine.id] = machine.job_number
+        self._last_job_id[machine.id] = machine.job.id if machine.job else None
 
     def add_sensor(self, sensor: Sensor) -> None:
         if sensor.machine_id not in self.state.machines:
@@ -116,13 +116,15 @@ class Simulator:
             scenario.apply(self.state, tick)
 
     def _record_new_jobs(self, tick: int) -> None:
-        """Report work that changed this tick. Says that it changed, not how heavy it is."""
+        """Report a job arriving on a machine. Names the job, not how heavy it is."""
         for machine in self.state.machines.values():
-            if machine.job_number != self._last_job_number[machine.id]:
-                self._last_job_number[machine.id] = machine.job_number
-                self.event_log.record(
-                    Event(tick=tick, machine_id=machine.id, kind="job", message="new job started")
-                )
+            job_id = machine.job.id if machine.job else None
+            if job_id != self._last_job_id[machine.id]:
+                self._last_job_id[machine.id] = job_id
+                if job_id is not None:
+                    self.event_log.record(
+                        Event(tick=tick, machine_id=machine.id, kind="job", message=f"job {job_id} started")
+                    )
 
     def _record_door(self, tick: int) -> None:
         """Report the loading door changing. A factory event: it belongs to no machine."""
