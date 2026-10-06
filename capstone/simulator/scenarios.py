@@ -73,6 +73,9 @@ class BearingDegradation(Scenario):
         # only on ticks since start, not on the machine's status history.
         loss = self.rate * self._stream.uniform(1.0 - self.variation, 1.0 + self.variation)
         machine = state.machines[self.machine_id]
+        replaced = machine.bearing_replaced_tick
+        if replaced is not None and replaced >= self.start_tick:
+            return  # the bearing this fault was wearing has been replaced: the fault is over
         if machine.status is not MachineStatus.RUNNING:
             return
         loss *= (machine.load / NORMAL_LOAD) ** self.load_exponent

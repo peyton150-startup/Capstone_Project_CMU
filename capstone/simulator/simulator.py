@@ -41,11 +41,15 @@ class Simulator:
         *,
         bearing_failure_health: float = 0.1,
         thermal_lag_ticks: float = 1.0,
+        planned_repair_ticks: int = 45,
+        breakdown_repair_ticks: int = 135,
     ):
         if thermal_lag_ticks < 1.0:
             raise ValueError("thermal_lag_ticks must be at least 1 (1 means no lag)")
         self.bearing_failure_health = bearing_failure_health
         self.thermal_lag_ticks = thermal_lag_ticks
+        self.planned_repair_ticks = planned_repair_ticks
+        self.breakdown_repair_ticks = breakdown_repair_ticks
         self.clock = SimulationClock(start, tick_duration)
         self.rng = RandomSource(seed)
         self.state = FactoryState()
@@ -89,6 +93,28 @@ class Simulator:
         records = (s.ground_truth() for s in self._scenarios)
         return tuple(r for r in records if r is not None)
 
+    def start_bearing_replacement(self, machine_id: str) -> int:
+        """Take a machine out of service to replace its bearing. Returns the tick it will be done.
+
+        A machine that has already broken down takes longer to put right
+        than one caught while still running. Either way the machine is
+        down for the whole repair and keeps the job it was holding.
+        """
+        machine = self.state.machines.get(machine_id)
+        if machine is None:
+            raise ValueError(f"unknown machine {machine_id}")
+        if machine.maintenance_until is not None:
+            raise ValueError(f"{machine_id} is already under maintenance")
+        broken_down = machine.status is MachineStatus.DOWN
+        duration = self.breakdown_repair_ticks if broken_down else self.planned_repair_ticks
+        now = self.clock.tick
+        machine.status = MachineStatus.DOWN
+        machine.maintenance_until = now + duration
+        self.event_log.record(
+            Event(tick=now, machine_id=machine_id, kind="maintenance", message="bearing replacement started")
+        )
+        return machine.maintenance_until
+
     @property
     def readings(self) -> tuple[SensorReading, ...]:
         """Every reading so far, oldest first."""
@@ -104,6 +130,7 @@ class Simulator:
         self._update_reality(tick)
         self._record_job_events(tick)
         self._record_door(tick)
+        self._finish_maintenance(tick)
         self._apply_consequences(tick)
         self._warm_or_cool_machines()
         readings = [s.read(self.state.machines[s.machine_id], tick) for s in self._sensors]
@@ -161,6 +188,38 @@ class Simulator:
         """Every machine drifts toward the temperature its work, wear and the air call for."""
         for machine in self.state.machines.values():
             warm_or_cool(machine, self.state.air_temperature, self.thermal_lag_ticks)
+
+    def _finish_maintenance(self, tick: int) -> None:
+        """Return repaired machines to service with a new bearing."""
+        for machine in self.state.machines.values():
+            if machine.maintenance_until is not None and tick >= machine.maintenance_until:
+                machine.maintenance_until = None
+                finding = self._describe_old_bearing(machine.condition.bearing_health)
+                machine.condition.bearing_health = 1.0
+                machine.bearing_replaced_tick = tick
+                machine.status = MachineStatus.IDLE  # the line gives it work again next tick
+                self.event_log.record(
+                    Event(
+                        tick=tick,
+                        machine_id=machine.id,
+                        kind="maintenance",
+                        message=f"bearing replacement finished: old bearing {finding}",
+                    )
+                )
+
+    def _describe_old_bearing(self, health: float) -> str:
+        """What the technician can see once the old bearing is out of the machine.
+
+        In words, not as a number: an inspection by eye, and only available
+        after paying for the repair.
+        """
+        if health <= self.bearing_failure_health:
+            return "had failed"
+        if health < 0.5:
+            return "badly worn"
+        if health < 0.9:
+            return "worn"
+        return "in good condition"
 
     def _apply_consequences(self, tick: int) -> None:
         """What the factory's own physics does with the state scenarios left.
