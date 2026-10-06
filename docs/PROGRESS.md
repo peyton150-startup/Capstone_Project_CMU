@@ -25,8 +25,8 @@ A component is complete only when both columns are checked.
 | 10a | Operating load: `load` in MachineState, sensors respond, LoadSensor | yes | yes  | yes         | yes               | `state.py`, `sensors.py` — COMPLETE |
 | 10a2 | Load–wear coupling: heavy load wears the bearing faster; worn bearing nudges the load reading up | yes | yes | yes   | yes               | `scenarios.py`, `sensors.py` — COMPLETE |
 | 10b | Workload variation over time (what changes `load`) | yes | yes       | yes         | yes               | `scenarios.py` (`Workload`) — COMPLETE; stands in for jobs until row 12 |
-| 10b2 | "Job started" event when a machine's work changes | yes | yes      | yes         |                   | `state.py` (`job_number`), `scenarios.py`, `simulator.py`; awaiting post-implementation re-explain |
-| 10c | Room temperature drift (shared by all machines) |       |           |             |                   | agreed with developer |
+| 10b2 | "Job started" event when a machine's work changes | yes | yes      | yes         | yes               | `state.py` (`job_number`), `scenarios.py`, `simulator.py` — COMPLETE |
+| 10c | Room temperature drift (shared by all machines) | yes |           |             |                   | gate question asked, awaiting answer |
 | 10d | Temperature warm-up / cool-down lag |            |                  |             |                   | agreed with developer |
 | 10e | Standard line builder: one function that sets up machines, all sensors, alarms and workload, so every run has varying load | | | |             | proposed after developer asked that load vary in every scenario |
 | 11 | Maintenance action + advancing time through the tools | |      |             |                   | proposed next: closes action → change → verification |
@@ -294,3 +294,9 @@ A component is complete only when both columns are checked.
   on the fix so a machine that is not running starts no new jobs — found
   in the 10b2 sample run, where a DOWN machine logged nine more jobs;
   (2) row 10b2 re-explain.
+- **Session 3 (cont.)** — Job-event re-explain passed (developer: with a
+  job event it is just a new job; with none it could be wear and should
+  be investigated). Developer approved the fix: `Workload` now starts no
+  new job on a machine that is not running and resumes when it runs
+  again; 2 tests, 148 total. Taught room temperature drift (10c); gate
+  question asked.
