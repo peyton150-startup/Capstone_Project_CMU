@@ -27,7 +27,7 @@ A component is complete only when both columns are checked.
 | 10b | Workload variation over time (what changes `load`) | yes | yes       | yes         | yes               | `scenarios.py` (`Workload`) — COMPLETE; stands in for jobs until row 12 |
 | 10b2 | "Job started" event when a machine's work changes | yes | yes      | yes         | yes               | `state.py` (`job_number`), `scenarios.py`, `simulator.py` — COMPLETE |
 | 10c | Ambient temperature drift (shared by all machines) | yes | yes    | yes         |                   | `state.py` (`ambient_temperature`), `scenarios.py` (`AmbientTemperature`), `sensors.py` — COMPLETE |
-| 10c2 | Loading door opening: a short ambient disturbance plus an event | yes |   |             |                   | developer's idea; gate question asked, awaiting answer |
+| 10c2 | Loading door opening: a short ambient disturbance plus an event | yes | yes |           |                   | `state.py` (`door_open`, `door_cooling`, `air_temperature`), `scenarios.py` (`LoadingDoor`), `simulator.py`, `events.py`; implemented; awaiting post-implementation re-explain |
 | 10c3 | Factory thermometer: a sensor for ambient temperature, not attached to a machine, readable by the agent | |  |             |                   | developer decided to add it; after 10c2, then 12a |
 | 10d | Temperature warm-up / cool-down lag |            |                  |             |                   | agreed with developer |
 | 10e | Standard line builder: one function that sets up machines, all sensors, alarms and workload, so every run has varying load | | | |             | proposed after developer asked that load vary in every scenario |
@@ -339,3 +339,16 @@ A component is complete only when both columns are checked.
   facts, measured conditions) and that ambient is unmeasured by choice.
   Developer decided to add a factory thermometer (row 10c3, after the
   door). 10c2 gate still awaiting answer.
+- **Session 3 (cont.)** — Loading door gate passed (developer: ambient
+  first and the door second; leave the season out and make the door a
+  set cooling; "the factory state would notice the door opened" —
+  corrected: the state only holds the door, the simulator's `step()`
+  notices). DESIGN CHANGE DURING IMPLEMENTATION, explained to the
+  developer: the door does not subtract from `ambient_temperature`. It
+  writes its own `door_cooling`, and `FactoryState.air_temperature` is
+  ambient minus door cooling. Reason: subtracting each tick only works
+  if the daily cycle resets the value first every tick; without it the
+  air would fall forever. The two scenarios now write different values
+  and their order does not matter. Implemented `LoadingDoor`, door
+  events with `machine_id=None`; 13 tests, 171 total. Debt: one door,
+  one fixed cooling; a machine-filtered `get_events` hides door events.
