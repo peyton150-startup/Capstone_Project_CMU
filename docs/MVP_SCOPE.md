@@ -44,7 +44,7 @@ system running.
 ## 1. Simulator: one small production environment
 
 - 1 production line
-- 3–5 machines
+- 3–8 machines, chosen per run (default 3), named CNC-01 upward in line order
 - 1 product type
 - 5–8 important sensor values: temperature, vibration, pressure,
   throughput, defect rate, machine state

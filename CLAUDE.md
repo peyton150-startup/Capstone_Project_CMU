@@ -255,7 +255,7 @@ interventions, and evaluation — not infrastructure.
 ## 5. Scope
 
 **`docs/MVP_SCOPE.md` is the authoritative MVP boundary** (one line,
-3–5 machines, 4 scenarios, one agent, 6–8 tools, HITL approval,
+3–8 machines, 4 scenarios, one agent, 6–8 tools, HITL approval,
 mandatory post-intervention verification, basic memory, evaluation in
 the MVP). What follows is the simulator's first vertical slice within it.
 
@@ -264,7 +264,7 @@ the MVP). What follows is the simulator's first vertical slice within it.
 Do not implement the whole simulator at once. The first environment
 should eventually contain approximately:
 
-- 3–5 machines
+- 3–8 machines
 - several sensor types
 - factory state
 - simulation clock

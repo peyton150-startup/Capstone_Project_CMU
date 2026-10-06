@@ -30,7 +30,7 @@ A component is complete only when both columns are checked.
 | 10c2 | Loading door opening: a short ambient disturbance plus an event | yes | yes | yes       | yes               | `state.py` (`door_open`, `door_cooling`, `air_temperature`), `scenarios.py` (`LoadingDoor`), `simulator.py`, `events.py` — COMPLETE |
 | 10c3 | Factory thermometer: a sensor for air temperature, not attached to a machine, readable by the agent | yes | yes | yes     | yes               | `sensors.py` (`FactoryThermometer`), `simulator.py`, `tools/observation.py` (`get_factory_readings`) — COMPLETE |
 | 10d | Temperature warm-up / cool-down lag | yes        | yes              | yes         | yes               | `thermal.py` (new), `state.py` (`temperature`), `sensors.py`, `simulator.py` — COMPLETE |
-| 10e | Standard line builder: one function that sets up machines, all sensors, alarms and workload, so every run has varying load | | | |             | proposed after developer asked that load vary in every scenario |
+| 10e | Standard line builder: `build_line(seed, machines=3..8)` sets up named machines, all sensors, thermometer, alarm, ambient, door, production line, thermal lag | n/a (§2.2 wiring) | n/a | yes | | `capstone/simulator/line.py`; built early at developer's request; a short explain-back is still due |
 | 11 | Maintenance action + advancing time through the tools | |      |             |                   | proposed next: closes action → change → verification |
 | 12a | Assembly line: jobs with one identity move machine to machine in order; a machine's load comes from its job | yes | yes | yes      | yes               | COMPLETE. `state.py` (`Job`), `scenarios.py` (`ProductionLine`), `simulator.py`; awaiting post-implementation re-explain (re-asked in a new form). Idle-time issue resolved: working time is now each machine's own `ticks_per_job`. Replaces the `Workload` stand-in and the per-machine `job_number` |
 | 12b | Job events and a job-history tool for the agent | yes  | yes              | yes         |                   | `simulator.py` (`_record_job_events`), `events.py` (`job_id`), `state.py` (`line`), `tools/observation.py` (`get_job_history`, `job_id` in `list_machines`); awaiting post-implementation re-explain |
@@ -470,3 +470,16 @@ A component is complete only when both columns are checked.
   `list_machines`, and `get_job_history` (sixth tool); 11 tests, 202
   total. Debt: no "starved" note for an empty waiting machine;
   `get_job_history` scans the whole log.
+- **Session 3 (cont.)** — Developer asked for machines renamed in order,
+  more machines, and a line of 3 to 8 machines chosen per run. Built the
+  line builder (row 10e) now, as wiring under CLAUDE.md §2.2:
+  `build_line(seed, machines=3)` gives CNC-01 upward, working times
+  60/70/55/65/60/68/58/62 by position (second machine slowest), three
+  sensors per machine, thermometer, vibration alarm at 4.5, ambient
+  cycle timed from the clock (peak 4 pm whatever the start time),
+  loading door, production line, thermal lag 20. Faults are added by the
+  caller afterwards so they run after the line. 19 tests, 221 total.
+  SCOPE CHANGE at developer's direction: `docs/MVP_SCOPE.md` and
+  `CLAUDE.md` now say 3-8 machines (was 3-5). Older tests keep their own
+  small hand-built factories and the old names (CNC-04 etc.). Row 12b's
+  re-explain is still owed.
