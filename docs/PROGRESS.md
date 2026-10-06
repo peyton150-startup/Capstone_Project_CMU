@@ -404,3 +404,13 @@ A component is complete only when both columns are checked.
   answered the re-explain question; per CLAUDE.md §1.1 it was re-asked
   with a different example. Later options noted from the review: a few
   ticks of natural variation, several job types, per-machine load.
+- **Session 3 (cont.)** — Developer pasted an outside priority list.
+  ORDER ADOPTED for the remaining rows: 12a (done, re-explain owed) →
+  10d temperature lag → 12b job history and events → 11 maintenance
+  action + advancing time → 12c quality, small pass/fail version →
+  10e line builder → then stop adding simulator features. Standard line
+  times taken as 60 / 70 / 55 ticks (CNC-02 the slowest step), to be set
+  in 10e. Two items on the list already exist: sensor noise (vibration
+  ±0.15 mm/s, temperature ±1 °F, load ±2 points, thermometer ±0.3 °F)
+  and not exposing causes (status is only running / idle / down; tools
+  return id and status). Gates are not skipped to meet a one-day target.
