@@ -26,8 +26,8 @@ A component is complete only when both columns are checked.
 | 10a2 | Load–wear coupling: heavy load wears the bearing faster; worn bearing nudges the load reading up | yes | yes | yes   | yes               | `scenarios.py`, `sensors.py` — COMPLETE |
 | 10b | Workload variation over time (what changes `load`) | yes | yes       | yes         | yes               | `scenarios.py` (`Workload`) — COMPLETE; stands in for jobs until row 12 |
 | 10b2 | "Job started" event when a machine's work changes | yes | yes      | yes         | yes               | `state.py` (`job_number`), `scenarios.py`, `simulator.py` — COMPLETE |
-| 10c | Ambient temperature drift (shared by all machines) | yes | yes    | yes         |                   | `state.py` (`ambient_temperature`), `scenarios.py` (`AmbientTemperature`), `sensors.py`; awaiting post-implementation re-explain |
-| 10c2 | Loading door opening: a short ambient disturbance plus an event | |      |             |                   | developer's idea; to be taught next, before 12a |
+| 10c | Ambient temperature drift (shared by all machines) | yes | yes    | yes         |                   | `state.py` (`ambient_temperature`), `scenarios.py` (`AmbientTemperature`), `sensors.py` — COMPLETE |
+| 10c2 | Loading door opening: a short ambient disturbance plus an event | yes |   |             |                   | developer's idea; gate question asked, awaiting answer; then 12a |
 | 10d | Temperature warm-up / cool-down lag |            |                  |             |                   | agreed with developer |
 | 10e | Standard line builder: one function that sets up machines, all sensors, alarms and workload, so every run has varying load | | | |             | proposed after developer asked that load vary in every scenario |
 | 11 | Maintenance action + advancing time through the tools | |      |             |                   | proposed next: closes action → change → verification |
@@ -328,3 +328,8 @@ A component is complete only when both columns are checked.
   as row 10c2. Debt: `warmest_tick` assumes a 6 am start with one-minute
   ticks; `Sensor.read` takes ambient as a keyword — a second shared fact
   would want a small environment object; no thermometer for the agent.
+- **Session 3 (cont.)** — Ambient re-explain passed (developer: look at
+  load, see what the building temperature is, then vibration should tell
+  the story of the wear). Claude filled in that the agent has no
+  thermometer, so "the building temperature" has to be read off the
+  other machines. Taught the loading door (10c2); gate question asked.
