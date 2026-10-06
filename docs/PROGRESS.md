@@ -17,7 +17,7 @@ A component is complete only when both columns are checked.
 | 5 | FactoryState + step()         | yes    | yes              | yes         | yes               | `state.py` (`FactoryState`), `simulator.py` (`Simulator.step`) — COMPLETE |
 | 6 | Event log                     | yes    | yes              | yes         | yes               | `capstone/simulator/events.py` — COMPLETE |
 | 7 | Scenario abstraction          | yes    | yes              | yes         | yes               | `capstone/simulator/scenarios.py` — COMPLETE |
-| 8 | BearingDegradation scenario   | yes    |                  |             |                   | gate question asked, awaiting answer |
+| 8 | BearingDegradation scenario   | yes    | yes              | yes         |                   | `capstone/simulator/scenarios.py`; awaiting post-implementation re-explain. Failure transition (machine goes DOWN) not built yet |
 | 9 | Ground truth + observation boundary (tools) | |          |             |                   | |
 
 ## Session notes
@@ -103,3 +103,14 @@ A component is complete only when both columns are checked.
   or event log at all. Taught BearingDegradation (wear only while
   RUNNING, linear health loss with seeded variation, failure transition
   deferred to its own increment); gate question asked.
+- **Session 3 (cont.)** — BearingDegradation gate passed on the second
+  attempt. First answer put the curve in the noise and a temperature
+  function inside the scenario; re-taught with the worked wear-squared
+  table and the one-job-per-component split. Developer then stated that
+  the curve comes from the equation that squares wear, and that the
+  scenario changes only bearing health, with vibration and temperature
+  readings following from it. Implemented `BearingDegradation` (wear
+  only while RUNNING, seeded variation, clamped at 0); 14 tests, 77
+  total. Seed 42 sample run: start tick 100, rate 0.001, first alarm at
+  tick 714. Debt: no failure transition; a wrong `machine_id` surfaces
+  as a KeyError on the first active tick, not at construction.
