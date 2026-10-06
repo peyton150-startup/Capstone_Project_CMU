@@ -16,8 +16,8 @@ A component is complete only when both columns are checked.
 | 4 | Sensor abstraction + 1 reading | yes   | yes              | yes         | yes               | `capstone/simulator/sensors.py` — COMPLETE |
 | 5 | FactoryState + step()         | yes    | yes              | yes         | yes               | `state.py` (`FactoryState`), `simulator.py` (`Simulator.step`) — COMPLETE |
 | 6 | Event log                     | yes    | yes              | yes         | yes               | `capstone/simulator/events.py` — COMPLETE |
-| 7 | Scenario abstraction          | yes    | yes              | yes         |                   | `capstone/simulator/scenarios.py`; awaiting post-implementation re-explain |
-| 8 | BearingDegradation scenario   |        |                  |             |                   | |
+| 7 | Scenario abstraction          | yes    | yes              | yes         | yes               | `capstone/simulator/scenarios.py` — COMPLETE |
+| 8 | BearingDegradation scenario   | yes    |                  |             |                   | gate question asked, awaiting answer |
 | 9 | Ground truth + observation boundary (tools) | |          |             |                   | |
 
 ## Session notes
@@ -96,3 +96,10 @@ A component is complete only when both columns are checked.
   test-only `Simulator` subclass is gone (debt from row 5 cleared).
   `load` is NOT in `MachineState` yet — it belongs with the false-alarm
   scenario.
+- **Session 3 (cont.)** — Scenario post-implementation gate passed
+  (developer: scenarios run before the sensors, can change anything in
+  FactoryState, cannot change an event's tick). Claude filled in: they
+  run after the clock advances, and cannot touch the clock, reading log
+  or event log at all. Taught BearingDegradation (wear only while
+  RUNNING, linear health loss with seeded variation, failure transition
+  deferred to its own increment); gate question asked.
