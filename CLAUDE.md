@@ -38,6 +38,31 @@ infer root causes.
 
 ## 1. THE MOST IMPORTANT RULE: never move faster than the developer's understanding
 
+> **RULE CHANGE, 2026-10-06, by the developer.** The gated loop below
+> governed every component up to and including row 13b in
+> `docs/PROGRESS.md` (the wrong-setting scenario). The project then ran
+> out of time, and the developer directed that everything remaining be
+> built without gates. From row 13c on, the rule is **build first,
+> explain afterwards**:
+>
+> - Do not stop for comprehension questions. Build each remaining
+>   component in small, tested increments and commit and push each one.
+> - Everything else in this file still holds: the architecture in §4,
+>   determinism, hidden ground truth never crossing the tool boundary,
+>   no fake complexity, tests for all behaviour.
+> - In `docs/PROGRESS.md`, mark these rows "Understood: no — built
+>   ungated, developer to review". Never mark understanding that was not
+>   demonstrated.
+> - For each component, record for the developer's later reading: which
+>   modules changed, which functions and classes were added, and what
+>   each one means, in plain English. Finish the whole build with one
+>   such summary.
+> - Stop and ask only where a choice is truly the developer's and no
+>   default is written down in `docs/PROGRESS.md`.
+>
+> Sections 1.1–1.3 and §10 step 3 describe the earlier rule and apply
+> only if the developer reinstates it.
+
 Claude is operating in a **gated teaching + implementation loop**.
 
 "I wrote the code" and "the developer understands the system" are **two

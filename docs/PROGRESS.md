@@ -39,7 +39,13 @@ A component is complete only when both columns are checked.
 | 12b2 | Worn machines work more slowly; ±2 ticks natural variation | yes | yes | yes | yes | `scenarios.py`, `line.py` |
 | 12c | Quality inspection, small pass/fail version | yes | yes | yes | yes | `scenarios.py`, `state.py` (`Inspection`), `simulator.py`, `tools/observation.py` (`get_inspections`) |
 | 13a | Material batches and one bad batch (fault scenario 2) | yes | yes | yes | yes | `state.py` (`MaterialBatch`), `scenarios.py` (`BadMaterialBatch`), `simulator.py`, `line.py`, `tools/observation.py` |
-| 13b | Machine setting and a wrong setting (fault scenario 3) | yes | yes | yes | no | `state.py` (`speed_setting`), `scenarios.py` (`WrongSetting`, `defect_mark`), `sensors.py`, `thermal.py`, `line.py`, `tools/observation.py` (`get_settings`); re-explain owed |
+| 13b | Machine setting and a wrong setting (fault scenario 3) | yes | yes | yes | no | `state.py` (`speed_setting`), `scenarios.py` (`WrongSetting`, `defect_mark`), `sensors.py`, `thermal.py`, `line.py`, `tools/observation.py` (`get_settings`); re-explain waived for time on 2026-10-06, developer to review |
+| 13c | Action: put a machine's setting right (via the approval desk) | n/a | n/a | no | no | Built ungated; developer to review |
+| 13d | False alarm / transient anomaly (fault scenario 4) | n/a | n/a | no | no | Built ungated; developer to review |
+| 14 | Seeded scenario generator (fault, machine or batch, start tick) | n/a | n/a | no | no | Built ungated; developer to review |
+| 15 | Evaluation | n/a | n/a | no | no | Built ungated; developer to review |
+| 16 | The research agent | n/a | n/a | no | no | Built ungated; developer to review |
+| 17 | Memory | n/a | n/a | no | no | Built ungated; developer to review |
 
 Every row above with four "yes" marks (or "n/a") is complete: no question is
 outstanding on it. Still to build after 12c, from `docs/MVP_SCOPE.md`: the
@@ -710,3 +716,43 @@ alarm), then evaluation, then the agent itself.
   everything remaining to be built without gates because time is short;
   per CLAUDE.md 1.1 this was not done, and the choice of changing the
   rule itself was put to the developer.
+- **Session 4 (end)** — RULE CHANGE by the developer, recorded at the
+  top of CLAUDE.md section 1: out of time, so rows 13c-17 are built
+  without gates, build first and explain afterwards. Row 13b's
+  re-explain is waived, not passed. The developer will read the changed
+  modules afterwards and wants, at the end, a list of modules changed,
+  functions added and what each means. 331 tests pass under
+  `py -3.13 -m pytest` (plain `python -m pytest` elsewhere). NOTHING IS
+  HALF-BUILT. BUILD ORDER AND DEFAULTS for the next session, to be used
+  unless the developer says otherwise:
+  1. **13c reset action.** A second action type on the approval desk,
+     "reset_setting": machine down for 10 ticks, then `speed_setting`
+     back to None; the finished event says in words "setting was off
+     standard" or "setting was already standard". Mirror
+     `start_bearing_replacement` / `_finish_maintenance`.
+  2. **13d false alarm.** A short spike that needs no action: for a few
+     ticks one machine's vibration sensor reads high enough to trip the
+     alarm while nothing in the machine's condition changes, then it
+     returns to normal by itself. Model it as hidden state the sensor
+     reads (for example a temporary sensor offset on the machine), never
+     as a scenario writing a reading. Ground truth: fault
+     "false_alarm", the machine, the start tick; correct action: none.
+  3. **14 generator.** `build_scenario(seed)` on top of `build_line`:
+     its own stream picks one of the four faults, the machine or batch,
+     and the start tick; returns the simulator ready to run.
+  4. **15 evaluation.** Per run, from the ground truth and a record of
+     what the agent did: fault type named correctly, machine or batch
+     named correctly, action appropriate (bearing replacement / none for
+     a bad batch or false alarm / reset setting), problem resolved
+     afterwards, tool calls used, ticks elapsed. Reads the ground truth;
+     the agent never does. Table in docs/MVP_SCOPE.md section 9.
+  5. **16 agent.** One agent, tools only (`ObservationTools`,
+     `ActionTools`), staged loop from docs/MVP_SCOPE.md section 3,
+     keeping a hypothesis table. Default model: Claude through the
+     Anthropic SDK, model id `claude-opus-5-5`, key from
+     `ANTHROPIC_API_KEY`. Tests must not need a key: drive the loop with
+     a scripted stand-in model. Human approval stays a separate step the
+     agent cannot perform.
+  6. **17 memory.** One JSON record per investigation (anomaly,
+     evidence, hypotheses, conclusion, action, outcome) and a simple
+     look-up of similar past cases.
