@@ -90,7 +90,10 @@ class Simulator:
         self._update_reality(tick)
         self._record_new_jobs(tick)
         self._apply_consequences(tick)
-        readings = [s.read(self.state.machines[s.machine_id], tick) for s in self._sensors]
+        ambient = self.state.ambient_temperature
+        readings = [
+            s.read(self.state.machines[s.machine_id], tick, ambient_temperature=ambient) for s in self._sensors
+        ]
         self._readings.extend(readings)
         for reading in readings:
             for alarm in self._alarms:

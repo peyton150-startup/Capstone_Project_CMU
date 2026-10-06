@@ -4,6 +4,7 @@ from pydantic import BaseModel, ConfigDict, Field
 
 
 NORMAL_LOAD = 0.5
+REFERENCE_AMBIENT_F = 72.0
 
 
 class MachineStatus(StrEnum):
@@ -46,6 +47,8 @@ class FactoryState(BaseModel):
     """
 
     machines: dict[str, MachineState] = Field(default_factory=dict)
+    # Air temperature around the machines, in °F. One value, read by all.
+    ambient_temperature: float = REFERENCE_AMBIENT_F
 
     def add(self, machine: MachineState) -> None:
         if machine.id in self.machines:

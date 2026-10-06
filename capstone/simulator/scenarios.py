@@ -1,3 +1,4 @@
+import math
 from abc import ABC, abstractmethod
 
 from capstone.simulator.ground_truth import GroundTruth
@@ -125,6 +126,42 @@ class Workload(Scenario):
         machine.load = self._stream.uniform(self.min_load, self.max_load)
         machine.job_number += 1
         self._next_change = tick + self._stream.randint(self.min_block, self.max_block)
+
+    def ground_truth(self) -> None:
+        return None
+
+
+class AmbientTemperature(Scenario):
+    """Normal factory life: the air warms through the day and cools overnight.
+
+    A daily cycle plus a slow drift, so no two days are quite alike. One
+    value for the whole factory. Not a fault, so no ground truth.
+    `warmest_tick` is the tick of the first afternoon peak; the default
+    suits a run that starts at 6 am with one-minute ticks (peak at 4 pm).
+    """
+
+    def __init__(
+        self,
+        name: str,
+        rng: RandomSource,
+        *,
+        mean: float = 73.0,
+        swing: float = 4.5,
+        ticks_per_day: int = 1440,
+        warmest_tick: int = 600,
+        drift_step: float = 0.03,
+        drift_pull: float = 0.001,
+    ):
+        super().__init__(name, rng)
+        self.mean, self.swing = mean, swing
+        self.ticks_per_day, self.warmest_tick = ticks_per_day, warmest_tick
+        self.drift_step, self.drift_pull = drift_step, drift_pull
+        self._drift = 0.0
+
+    def apply(self, state: FactoryState, tick: int) -> None:
+        self._drift = (1.0 - self.drift_pull) * self._drift + self._stream.gauss(0.0, self.drift_step)
+        time_of_day = 2.0 * math.pi * (tick - self.warmest_tick) / self.ticks_per_day
+        state.ambient_temperature = self.mean + self.swing * math.cos(time_of_day) + self._drift
 
     def ground_truth(self) -> None:
         return None
