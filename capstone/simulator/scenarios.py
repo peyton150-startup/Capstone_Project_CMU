@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 
 from capstone.simulator.ground_truth import GroundTruth
 from capstone.simulator.rng import RandomSource
-from capstone.simulator.state import FactoryState, MachineStatus
+from capstone.simulator.state import NORMAL_LOAD, FactoryState, MachineStatus
 
 
 class Scenario(ABC):
@@ -35,6 +35,9 @@ class BearingDegradation(Scenario):
     Changes `bearing_health` and nothing else. It knows nothing about
     vibration or any other sensor: the symptoms come from sensors reading
     the health it lowers.
+
+    Wear scales with (load / normal load) ** load_exponent; bearing life
+    falls roughly with the cube of load. It reads `load`, never writes it.
     """
 
     def __init__(
@@ -46,6 +49,7 @@ class BearingDegradation(Scenario):
         start_tick: int,
         rate: float,
         variation: float = 0.5,
+        load_exponent: float = 3.0,
     ):
         if rate <= 0:
             raise ValueError("rate must be positive")
@@ -56,6 +60,7 @@ class BearingDegradation(Scenario):
         self.start_tick = start_tick
         self.rate = rate
         self.variation = variation
+        self.load_exponent = load_exponent
 
     def apply(self, state: FactoryState, tick: int) -> None:
         if tick < self.start_tick:
@@ -66,6 +71,7 @@ class BearingDegradation(Scenario):
         machine = state.machines[self.machine_id]
         if machine.status is not MachineStatus.RUNNING:
             return
+        loss *= (machine.load / NORMAL_LOAD) ** self.load_exponent
         machine.condition.bearing_health = max(0.0, machine.condition.bearing_health - loss)
 
     def ground_truth(self) -> GroundTruth:

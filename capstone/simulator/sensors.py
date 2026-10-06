@@ -111,17 +111,23 @@ class TemperatureSensor(Sensor):
 
 
 class LoadSensor(Sensor):
-    """Reports how hard the machine is working, as a percentage."""
+    """Reports how hard the motor is working, as a percentage.
+
+    Mostly the workload, plus a little friction from a worn bearing. The
+    friction shows up here, in the reading, and never in `load` itself.
+    """
 
     name = "load"
     unit = "%"
 
-    def __init__(self, machine_id: str, rng: RandomSource, *, noise_sd: float = 2.0):
+    def __init__(self, machine_id: str, rng: RandomSource, *, friction_gain: float = 8.0, noise_sd: float = 2.0):
         super().__init__(machine_id, rng)
+        self.friction_gain = friction_gain
         self.noise_sd = noise_sd
 
     def _measure(self, machine: MachineState) -> float:
         noise = self._stream.gauss(0.0, self.noise_sd)
         if machine.status is not MachineStatus.RUNNING:
             return max(0.0, noise)
-        return max(0.0, 100.0 * machine.load + noise)
+        wear = 1.0 - machine.condition.bearing_health
+        return max(0.0, 100.0 * machine.load + self.friction_gain * wear**2 + noise)
