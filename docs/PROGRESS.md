@@ -29,10 +29,10 @@ A component is complete only when both columns are checked.
 | 10c | Ambient temperature drift (shared by all machines) | yes | yes    | yes         | yes               | `state.py` (`ambient_temperature`), `scenarios.py` (`AmbientTemperature`), `sensors.py` — COMPLETE |
 | 10c2 | Loading door opening: a short ambient disturbance plus an event | yes | yes | yes       | yes               | `state.py` (`door_open`, `door_cooling`, `air_temperature`), `scenarios.py` (`LoadingDoor`), `simulator.py`, `events.py` — COMPLETE |
 | 10c3 | Factory thermometer: a sensor for air temperature, not attached to a machine, readable by the agent | yes | yes | yes     | yes               | `sensors.py` (`FactoryThermometer`), `simulator.py`, `tools/observation.py` (`get_factory_readings`) — COMPLETE |
-| 10d | Temperature warm-up / cool-down lag |            |                  |             |                   | agreed with developer |
+| 10d | Temperature warm-up / cool-down lag | yes        |                  |             |                   | gate question asked, awaiting answer |
 | 10e | Standard line builder: one function that sets up machines, all sensors, alarms and workload, so every run has varying load | | | |             | proposed after developer asked that load vary in every scenario |
 | 11 | Maintenance action + advancing time through the tools | |      |             |                   | proposed next: closes action → change → verification |
-| 12a | Assembly line: jobs with one identity move machine to machine in order; a machine's load comes from its job | yes | yes | yes      |                   | `state.py` (`Job`), `scenarios.py` (`ProductionLine`), `simulator.py`; awaiting post-implementation re-explain (re-asked in a new form). Idle-time issue resolved: working time is now each machine's own `ticks_per_job`. Replaces the `Workload` stand-in and the per-machine `job_number` |
+| 12a | Assembly line: jobs with one identity move machine to machine in order; a machine's load comes from its job | yes | yes | yes      | yes               | COMPLETE. `state.py` (`Job`), `scenarios.py` (`ProductionLine`), `simulator.py`; awaiting post-implementation re-explain (re-asked in a new form). Idle-time issue resolved: working time is now each machine's own `ticks_per_job`. Replaces the `Workload` stand-in and the per-machine `job_number` |
 | 12b | Job events and a job-history tool for the agent |      |                  |             |                   | follows 12a |
 | 12c | Quality inspections / defect rate         |      |                  |             |                   | follows 12b; needed for the material-batch scenario |
 
@@ -414,3 +414,13 @@ A component is complete only when both columns are checked.
   ±0.15 mm/s, temperature ±1 °F, load ±2 points, thermometer ±0.3 °F)
   and not exposing causes (status is only running / idle / down; tools
   return id and status). Gates are not skipped to meet a one-day target.
+- **Session 3 (cont.)** — Assembly line re-explain passed on the second
+  attempt. Developer first had the two kinds of waiting reversed (said
+  CNC-01 waits empty and CNC-04 waits holding a job for a "CNC-05");
+  re-taught with a tick-by-tick cycle and the two end-of-line facts. On
+  a fresh line (80/50/50) the developer answered that CNC-02 is empty
+  and waiting for CNC-01, and that CNC-01 is always going unless the
+  line has no job for it — and said plainly that the first attempt had
+  been a guess. Taught temperature lag (10d): the machine's real
+  temperature becomes state, moved toward its settling point each tick
+  by the simulator; the sensor only reads it. Gate question asked.
