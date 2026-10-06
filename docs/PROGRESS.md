@@ -32,7 +32,7 @@ A component is complete only when both columns are checked.
 | 10d | Temperature warm-up / cool-down lag | yes        | yes              | yes         | yes               | `thermal.py` (new), `state.py` (`temperature`), `sensors.py`, `simulator.py` — COMPLETE |
 | 10e | Standard line builder: `build_line(seed, machines=3..8)` sets up named machines, all sensors, thermometer, alarm, ambient, door, production line, thermal lag | n/a (§2.2 wiring) | n/a | yes | | `capstone/simulator/line.py`; built early at developer's request; wiring only, no gate required — COMPLETE |
 | 11a | Letting time pass: a `wait(ticks)` tool, separate from the read-only tools | yes | yes | yes     |                   | `capstone/tools/actions.py` (`ActionTools.wait`) — COMPLETE (understood post: yes) |
-| 11b | Maintenance action: replace a bearing (downtime, health restored, the fault ends) | yes |  |           |                   | gate question asked, awaiting answer |
+| 11b | Maintenance action: replace a bearing (downtime, health restored, the fault ends, technician's finding) | yes | yes | yes   |                   | `simulator.py` (`start_bearing_replacement`, `_finish_maintenance`), `state.py`, `scenarios.py`; awaiting post-implementation re-explain. Not yet callable by the agent (11c) |
 | 11c | Approval: the agent proposes an action, a human approves, then it is applied | |        |             |                   | after 11b |
 | 12a | Assembly line: jobs with one identity move machine to machine in order; a machine's load comes from its job | yes | yes | yes      | yes               | COMPLETE. `state.py` (`Job`), `scenarios.py` (`ProductionLine`), `simulator.py`; awaiting post-implementation re-explain (re-asked in a new form). Idle-time issue resolved: working time is now each machine's own `ticks_per_job`. Replaces the `Workload` stand-in and the per-machine `job_number` |
 | 12b | Job events and a job-history tool for the agent | yes  | yes              | yes         |                   | `simulator.py` (`_record_job_events`), `events.py` (`job_id`), `state.py` (`line`), `tools/observation.py` (`get_job_history`, `job_id` in `list_machines`) — COMPLETE (understood post: yes) |
@@ -554,3 +554,22 @@ A component is complete only when both columns are checked.
   times as long as a planned replacement (135 vs 45 ticks), so catching
   the fault before the break is penalised less. 11b gate questions still
   awaiting answers.
+- **Session 3 (cont.)** — 11b gate passed with one gap. Developer: left
+  alone, the scenario would keep degrading the new bearing at the old
+  pace, so the state needs the bearing's health "or the status of
+  fixed"; a needless repair costs evaluation points and a factory
+  unhappy at pausing production for nothing. Claude sharpened the first
+  (health alone cannot tell a new bearing from a not-yet-worn one, so
+  the state records the tick of replacement and the scenario compares it
+  with its own start). GAP to re-check: what the agent sees afterwards
+  that shows a repair was not the answer. Developer then proposed that
+  the event log report the removed bearing's condition, since it can be
+  seen once it is out of the machine — adopted: the "finished" event
+  ends "old bearing in good condition / worn / badly worn / had failed",
+  in words and never as a number. Implemented
+  `Simulator.start_bearing_replacement` (45 ticks planned, 135 after a
+  breakdown), `_finish_maintenance`, `MachineState.maintenance_until`
+  and `bearing_replaced_tick`, and the stop rule in
+  `BearingDegradation`; 17 tests, 272 total. Debt: only one kind of
+  repair; the cut-offs for the technician's wording are fixed numbers;
+  the agent cannot call it yet.
