@@ -74,5 +74,6 @@ def run_episode(
     score = evaluate(sim, notebook.diagnosis, desk.proposals(), tool_calls=toolbox.tool_calls, start_tick=start_tick)
     result = EpisodeResult(seed, anomaly, score, notebook.history, notebook.calls, investigation.text)
     if memory is not None:
-        memory.record(result, notebook.diagnosis, desk.proposals())
+        outcome = [e["message"] for e in look.get_events(start_tick, sim.clock.tick) if e["kind"] == "maintenance"]
+        memory.record(anomaly=anomaly, notebook=notebook, proposals=desk.proposals(), outcome=outcome)
     return result

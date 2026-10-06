@@ -51,6 +51,9 @@ before and after. If what you predicted did not happen, revise.
 6. Finish with submit_diagnosis, naming the cause and the machine (or batch), with a short \
 summary of the evidence, the action and the verification.
 
+If search_incident_history is available, past cases can suggest where to look first; \
+they are hints, not proof, and may have been wrong.
+
 Be economical: tool calls and elapsed ticks are both scored."""
 
 

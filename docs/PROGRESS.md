@@ -45,7 +45,7 @@ A component is complete only when both columns are checked.
 | 14 | Seeded scenario generator (fault, machine or batch, start tick) | n/a | n/a | yes | no — built ungated, developer to review | `capstone/simulator/generator.py` (`build_scenario`, `FAULTS`) |
 | 15 | Evaluation | n/a | n/a | yes | no — built ungated, developer to review | `capstone/evaluation/scoring.py` (`evaluate`, `Score`, `summarize`), `capstone/tools/diagnosis.py` (`Diagnosis`) |
 | 16 | The research agent | n/a | n/a | yes | no — built ungated, developer to review | `capstone/agent/` (`models.py`, `toolbox.py`, `agent.py`, `monitor.py`, `episode.py`, `__main__.py`); `tools/observation.py` (`get_sensor_trend`) |
-| 17 | Memory | n/a | n/a | no | no | Built ungated; developer to review |
+| 17 | Memory | n/a | n/a | yes | no — built ungated, developer to review | `capstone/agent/memory.py` (`InvestigationMemory`, `search_incident_history`), `episode.py` |
 
 Every row above with four "yes" marks (or "n/a") is complete: no question is
 outstanding on it. Still to build after 12c, from `docs/MVP_SCOPE.md`: the
@@ -819,3 +819,13 @@ alarm), then evaluation, then the agent itself.
   asking: generated wrong settings made stronger (0.80/0.82/1.18/1.20)
   because 12-15% off often went undetected for 4,000 ticks. 13 tests,
   376 total.
+- **Session 5 — row 17 built ungated; THE BUILD IS COMPLETE.**
+  `InvestigationMemory` appends one JSON line per investigation (anomaly,
+  evidence calls, last hypothesis table, conclusion, approved actions,
+  outcome = maintenance findings the event log reported) and offers the
+  agent `search_incident_history` (word-overlap ranking). It deliberately
+  never stores the score or ground truth. 4 tests, 380 total, all
+  passing under `python -m pytest`. Every row 13c-17 still needs the
+  developer's review; the plain-English summary of what changed is in
+  `docs/UNGATED_BUILD_SUMMARY.md`. Not yet done: a run of the real
+  agent with an API key, and the experiment table it would produce.
