@@ -74,3 +74,31 @@ class VibrationSensor(Sensor):
             return max(0.0, self.idle_floor + noise)
         wear = 1.0 - machine.condition.bearing_health
         return max(0.0, self.baseline + self.wear_gain * wear**2 + noise)
+
+
+class TemperatureSensor(Sensor):
+    name = "temperature"
+    unit = "°F"
+
+    def __init__(
+        self,
+        machine_id: str,
+        rng: RandomSource,
+        *,
+        baseline: float = 115.0,
+        wear_gain: float = 45.0,
+        noise_sd: float = 1.0,
+        ambient: float = 72.0,
+    ):
+        super().__init__(machine_id, rng)
+        self.baseline = baseline
+        self.wear_gain = wear_gain
+        self.noise_sd = noise_sd
+        self.ambient = ambient
+
+    def _measure(self, machine: MachineState) -> float:
+        noise = self._stream.gauss(0.0, self.noise_sd)
+        if machine.status is not MachineStatus.RUNNING:
+            return self.ambient + noise
+        wear = 1.0 - machine.condition.bearing_health
+        return self.baseline + self.wear_gain * wear + noise
