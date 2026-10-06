@@ -97,3 +97,24 @@ def test_the_agent_can_read_job_events_through_the_tools():
     run(sim)
     seen = [e for e in ObservationTools(sim).get_events(0, 400) if e["kind"] == "job"]
     assert seen[0] == {"tick": 1, "machine_id": "CNC-04", "kind": "job", "message": "new job started"}
+
+
+def test_a_stopped_machine_starts_no_more_jobs():
+    sim = factory()
+    sim.add_scenario(BearingDegradation("bearing", sim.rng, machine_id="CNC-04", start_tick=50, rate=0.002))
+    run(sim, 900)
+    (stop,) = [e for e in sim.event_log.events if e.kind == "status"]
+    assert job_events(sim) and all(e.tick < stop.tick for e in job_events(sim))
+
+
+def test_an_idle_machine_keeps_its_job_and_takes_a_new_one_when_it_runs_again():
+    sim = factory()
+    run(sim, 10)
+    machine = sim.state.machines["CNC-04"]
+    machine.status = "idle"
+    job, load = machine.job_number, machine.load
+    run(sim, 200)
+    assert (machine.job_number, machine.load) == (job, load)
+    machine.status = "running"
+    run(sim, 1)
+    assert machine.job_number == job + 1

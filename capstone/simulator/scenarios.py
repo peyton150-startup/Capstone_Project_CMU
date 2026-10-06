@@ -120,6 +120,8 @@ class Workload(Scenario):
         if tick < self._next_change:
             return
         machine = state.machines[self.machine_id]
+        if machine.status is not MachineStatus.RUNNING:
+            return  # no new work on a machine that is not running; resumes when it is
         machine.load = self._stream.uniform(self.min_load, self.max_load)
         machine.job_number += 1
         self._next_change = tick + self._stream.randint(self.min_block, self.max_block)
