@@ -61,7 +61,7 @@ def test_working_times_can_be_set_and_must_match_the_number_of_machines():
 def test_a_healthy_day_has_work_door_openings_and_no_trouble():
     sim = run(build_line(42, machines=3))
     kinds = {e.kind for e in sim.event_log.events}
-    assert kinds == {"job", "door"}  # no alarms, no stops
+    assert kinds == {"job", "door", "inspection"}  # no alarms, no stops
     assert sim.ground_truth() == ()
     assert len(sim.state.completed_jobs) >= 15
     assert all(m.condition.bearing_health == 1.0 for m in sim.state.machines.values())

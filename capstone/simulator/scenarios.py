@@ -3,7 +3,7 @@ from abc import ABC, abstractmethod
 
 from capstone.simulator.ground_truth import GroundTruth
 from capstone.simulator.rng import RandomSource
-from capstone.simulator.state import NORMAL_LOAD, FactoryState, Job, MachineStatus
+from capstone.simulator.state import NORMAL_LOAD, FactoryState, Inspection, Job, MachineStatus
 
 
 class Scenario(ABC):
@@ -90,6 +90,8 @@ class BearingDegradation(Scenario):
         )
 
 
+DEFECT_BASELINE = 0.01  # one job in a hundred fails inspection on a perfect line
+DEFECT_FROM_WEAR = 0.45  # extra chance a completely worn machine would add
 WORN_SLOWDOWN = 0.4  # a completely worn bearing would cost 40% of working speed
 
 
@@ -110,7 +112,9 @@ class ProductionLine(Scenario):
     not of the job; a job brings only its load. `time_variation` adds a
     few ticks either way to each job at each machine, so no two jobs take
     quite the same time. A worn machine gets less than a tick of work
-    done per tick, so its jobs take longer.
+    done per tick, so its jobs take longer, and leaves each job with a
+    higher chance of failing the inspection at the end of the line.
+    Inspections draw from their own stream, `scenario.<name>.inspection`.
 
     Each tick, in two passes. Movement, from the last machine back to the
     first: a finished job moves on if the next machine is free and not
@@ -143,6 +147,7 @@ class ProductionLine(Scenario):
         super().__init__(name, rng)
         self.machine_ids = list(machine_ids)
         self.time_variation = time_variation
+        self._inspection_stream = rng.stream(f"{self.stream_name}.inspection")
         self.min_load, self.max_load = min_load, max_load
 
     def apply(self, state: FactoryState, tick: int) -> None:
@@ -152,7 +157,7 @@ class ProductionLine(Scenario):
                 raise ValueError(f"{self.name}: a machine cannot be on two lines")
             state.lines[self.name] = list(self.machine_ids)
         line = [state.machines[machine_id] for machine_id in self.machine_ids]
-        self._move_jobs(state, line)
+        self._move_jobs(state, line, tick)
         for machine in line:
             if machine.status is MachineStatus.DOWN:
                 continue
@@ -160,11 +165,14 @@ class ProductionLine(Scenario):
                 machine.status = MachineStatus.RUNNING
                 machine.load = machine.job.load
                 machine.job_progress += working_speed(machine)
+                if machine.job_done:  # this machine's part is finished: its wear leaves a mark
+                    wear = 1.0 - machine.condition.bearing_health
+                    machine.job.defect_risk += DEFECT_FROM_WEAR * wear**2
             else:
                 machine.status = MachineStatus.IDLE
                 machine.load = 0.0
 
-    def _move_jobs(self, state: FactoryState, line: list) -> None:
+    def _move_jobs(self, state: FactoryState, line: list, tick: int) -> None:
         for position in reversed(range(len(line))):
             machine = line[position]
             if machine.status is MachineStatus.DOWN or machine.job is None:
@@ -173,6 +181,9 @@ class ProductionLine(Scenario):
                 continue
             if position == len(line) - 1:
                 state.completed_jobs.append(machine.job.id)
+                chance_of_failing = min(0.95, DEFECT_BASELINE + machine.job.defect_risk)
+                passed = self._inspection_stream.random() >= chance_of_failing
+                state.inspections.append(Inspection(job_id=machine.job.id, tick=tick, passed=passed))
             else:
                 following = line[position + 1]
                 if following.job is not None or following.status is MachineStatus.DOWN:

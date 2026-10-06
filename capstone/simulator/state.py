@@ -16,11 +16,23 @@ class MachineStatus(StrEnum):
 class Job(BaseModel):
     """One piece of work. Keeps the same id on every machine it visits."""
 
-    model_config = ConfigDict(frozen=True)
+    model_config = ConfigDict(validate_assignment=True)
 
     id: int = Field(ge=1)
     # How demanding the work is, 0 to 1; becomes the load of whichever machine holds it.
     load: float = Field(ge=0.0, le=1.0)
+    # Hidden. Extra chance of failing inspection, picked up from worn machines on the way.
+    defect_risk: float = Field(default=0.0, ge=0.0)
+
+
+class Inspection(BaseModel):
+    """The check a job gets as it leaves the line: it passes or it fails."""
+
+    model_config = ConfigDict(frozen=True)
+
+    job_id: int
+    tick: int
+    passed: bool
 
 
 class MachineCondition(BaseModel):
@@ -77,6 +89,8 @@ class FactoryState(BaseModel):
     # Each production line by name: its machines in the order a job visits them.
     # One line today; nothing here assumes there is only one.
     lines: dict[str, list[str]] = Field(default_factory=dict)
+    # Every inspection so far, oldest first.
+    inspections: list[Inspection] = Field(default_factory=list)
     # The number the next new job will get. Shared, so ids are unique across lines.
     next_job_id: int = Field(default=1, ge=1)
 

@@ -62,6 +62,7 @@ class Simulator:
         # Per machine: the job last seen there and how far its story has been reported.
         self._job_seen: dict[str, tuple[int | None, str | None]] = {}
         self._last_door_open = self.state.door_open
+        self._inspections_reported = 0
 
     def add_machine(self, machine: MachineState) -> None:
         self.state.add(machine)
@@ -129,6 +130,7 @@ class Simulator:
         tick = self.clock.advance()
         self._update_reality(tick)
         self._record_job_events(tick)
+        self._record_inspections(tick)
         self._record_door(tick)
         self._finish_maintenance(tick)
         self._apply_consequences(tick)
@@ -176,6 +178,21 @@ class Simulator:
         self.event_log.record(
             Event(tick=tick, machine_id=machine_id, kind="job", message=f"job {job_id} {what}", job_id=job_id)
         )
+
+    def _record_inspections(self, tick: int) -> None:
+        """Report each new inspection result. Pass or fail only: never the risk behind it."""
+        for inspection in self.state.inspections[self._inspections_reported :]:
+            result = "passed" if inspection.passed else "failed"
+            self.event_log.record(
+                Event(
+                    tick=tick,
+                    machine_id=None,
+                    kind="inspection",
+                    message=f"job {inspection.job_id} {result} inspection",
+                    job_id=inspection.job_id,
+                )
+            )
+        self._inspections_reported = len(self.state.inspections)
 
     def _record_door(self, tick: int) -> None:
         """Report the loading door changing. A factory event: it belongs to no machine."""

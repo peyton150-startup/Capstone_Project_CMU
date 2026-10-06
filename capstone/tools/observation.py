@@ -57,6 +57,15 @@ class ObservationTools:
         """Everything the event log says about one job, oldest first, across all machines."""
         return [self._event_row(e) for e in self._sim.event_log.events if e.job_id == job_id]
 
+    def get_inspections(self, from_tick: int, to_tick: int) -> list[dict]:
+        """Inspection results for jobs that left the line in this tick range."""
+        self._check(None, from_tick, to_tick)
+        return [
+            {"tick": e.tick, "job_id": e.job_id, "result": e.message.split()[2]}
+            for e in self._sim.event_log.events
+            if e.kind == "inspection" and from_tick <= e.tick <= to_tick
+        ]
+
     @staticmethod
     def _event_row(e) -> dict:
         return {"tick": e.tick, "machine_id": e.machine_id, "kind": e.kind, "message": e.message, "job_id": e.job_id}
