@@ -631,6 +631,217 @@ The core post-MVP extension provider set is therefore:
 
 **NVIDIA, Groq, Mistral, Cohere, Google Gemini, and Cloudflare.**
 
+#### Provider Abstraction and Fallback Requirement
+
+The multi-agent system must not hard-code any agent directly to a specific API provider.
+
+Each agent role must request a model through a centralized provider/model router so that the provider assigned to that role can be changed through configuration without changing the agent implementation.
+
+For example, the Evidence Agent must depend on an abstract model/provider interface rather than directly importing or constructing a Cohere client.
+
+The provider assignments should be configurable through environment variables similar to:
+
+```text
+ORCHESTRATOR_PROVIDER=nvidia
+
+RESEARCHER_PROVIDER=groq
+RESEARCHER_FALLBACK=nvidia
+
+EVIDENCE_PROVIDER=cohere
+EVIDENCE_FALLBACK=nvidia
+
+ANALYST_PROVIDER=gemini
+ANALYST_FALLBACK=nvidia
+
+CRITIC_PROVIDER=mistral
+CRITIC_FALLBACK=nvidia
+
+VISION_PROVIDER=cloudflare
+VISION_FALLBACK=gemini
+```
+
+Model names should also be configurable independently from providers, for example:
+
+```text
+RESEARCHER_MODEL=openai/gpt-oss-120b
+EVIDENCE_MODEL=command-a
+CRITIC_MODEL=mistral-small
+```
+
+Do not scatter provider selection logic throughout the codebase. There should be one centralized model/provider registry or router responsible for resolving:
+
+```text
+agent role
+→ configured provider
+→ configured model
+→ provider adapter
+→ model client
+```
+
+The intended outcome is that changing a provider should require approximately one configuration change.
+
+For example:
+
+```text
+EVIDENCE_PROVIDER=cohere
+```
+
+should be replaceable with:
+
+```text
+EVIDENCE_PROVIDER=nvidia
+```
+
+without modifying the Evidence Agent, CrewAI workflow, Pydantic schemas, downstream agents, or handoff logic.
+
+#### Common Agent Contracts
+
+Provider-specific output formats must never leak into the multi-agent workflow.
+
+Every provider adapter must convert model output into the same Pydantic contract required by the corresponding agent role.
+
+For example:
+
+```text
+Cohere
+   ↓
+provider adapter
+   ↓
+VerifiedEvidence
+   ↓
+next agent
+```
+
+must be interchangeable with:
+
+```text
+NVIDIA
+   ↓
+provider adapter
+   ↓
+VerifiedEvidence
+   ↓
+next agent
+```
+
+Downstream agents should know only about the typed Pydantic object, not which provider generated it.
+
+This same principle should apply to:
+
+- ResearchTask
+- ResearchFinding
+- VerifiedEvidence
+- AnalysisResult
+- CritiqueResult
+- SynthesisResult
+- any other inter-agent contract created for the post-MVP extension
+
+#### Automatic Provider Fallbacks
+
+Specialized agents should also support a configured fallback provider.
+
+If the primary provider fails because of:
+
+- HTTP 429 / rate limiting
+- quota exhaustion
+- provider outage
+- temporary server error
+- timeout
+- unavailable model
+- other explicitly classified transient provider failures
+
+the provider router may retry according to a bounded retry policy and then route the same typed task to the configured fallback provider.
+
+Example:
+
+```text
+Evidence Agent
+      ↓
+Cohere
+      ↓
+429 / quota exceeded
+      ↓
+NVIDIA Nemotron
+      ↓
+VerifiedEvidence
+      ↓
+normal workflow continues
+```
+
+NVIDIA/Nemotron should act as the default general-purpose fallback for the Researcher, Evidence, Analyst, and Critic roles unless another fallback has been explicitly configured.
+
+The Vision role may use Gemini as its initial fallback because multimodal capability must be preserved.
+
+Do not silently fallback for malformed application data, schema bugs, programming errors, authentication/configuration mistakes, or other failures that should stop execution and be investigated.
+
+Every fallback must be recorded in the investigation/audit state with at least:
+
+```text
+agent_role
+primary_provider
+primary_model
+failure_type
+fallback_provider
+fallback_model
+timestamp
+```
+
+#### Default Provider Responsibilities
+
+Preserve the current intended specialization:
+
+```text
+NVIDIA / Nemotron
+→ orchestration
+→ planning
+→ synthesis
+→ general-purpose fallback
+
+Groq / GPT-OSS 120B
+→ primary research
+
+Cohere / Command + Rerank
+→ evidence retrieval, reranking, and grounding
+
+Google Gemini
+→ independent evidence analysis
+
+Mistral
+→ critic / challenger
+
+Cloudflare
+→ specialist vision/document processing
+```
+
+These are defaults, not hard dependencies.
+
+The architecture should make it possible to substitute providers later without redesigning the agents.
+
+#### Scope Constraint
+
+Do not turn this into a large generic model-routing platform.
+
+For the post-MVP extension, implement only what is necessary to:
+
+1. Configure one primary provider/model per agent role.
+2. Configure one optional fallback per role.
+3. Resolve the configured provider through a centralized registry/router.
+4. Normalize provider output into the existing Pydantic contracts.
+5. Handle bounded retries and explicit fallback conditions.
+6. Record which provider/model actually performed each agent step.
+7. Test that swapping a provider does not require changes to the agent workflow.
+
+Add focused tests proving at minimum:
+
+- Evidence Agent works with Cohere as primary.
+- The same Evidence Agent can be configured to use NVIDIA without changing its implementation.
+- A simulated Cohere rate-limit failure routes to NVIDIA.
+- Both providers return the same `VerifiedEvidence` contract.
+- Downstream agents operate identically regardless of which provider produced that contract.
+- Provider/fallback usage is visible in the audit trail.
+
+Keep this modular and simple enough that changing a provider is primarily a configuration change rather than a code change.
+
 **Future Work 4 — planning and experimentation.** Controlled experiments:
 *"Reduce Machine 2 feed rate by 5% for the next ten units and compare
 defect rates."*
