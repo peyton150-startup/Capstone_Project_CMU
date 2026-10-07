@@ -254,18 +254,382 @@ agent researches both the factory and a knowledge base.
 Telemetry, Maintenance, Quality, Production, Documentation. The agent
 operates across heterogeneous external systems.
 
-**Future Work 3 — multi-agent research.**
+### Future Work 3 — multi-agent research
 
-```
-        Supervisor Agent
-              │
-     ┌────────┼────────────┐
-     ↓        ↓            ↓
-   Data   Maintenance   Quality
-   Agent  Researcher    Researcher
+This planned extension follows the single-agent MVP. The provider assignments
+below are initial targets; exact models and API availability will be confirmed
+when this extension is implemented.
+
+#### Multi-Agent Handoff Protocol
+
+The post-MVP extension will support multiple specialized research agents using different LLM providers when appropriate. Agents will not communicate through unrestricted conversation. Instead, all inter-agent communication will use typed Pydantic contracts so that outputs from one model can be reliably consumed by another model.
+
+##### API Provider Requirements
+
+The post-MVP extension will use the following external AI providers. API credentials for each provider will be stored securely as environment variables and will never be committed to the repository.
+
+The providers we will be using are:
+
+- **NVIDIA**
+- **Groq**
+- **Mistral**
+- **Cohere**
+- **Google Gemini**
+- **Cloudflare**
+
+The corresponding environment variables should be structured approximately as:
+
+```text
+NVIDIA_API_KEY=
+GROQ_API_KEY=
+MISTRAL_API_KEY=
+COHERE_API_KEY=
+GOOGLE_API_KEY=
+CLOUDFLARE_API_TOKEN=
 ```
 
-A critic/evaluator agent can challenge conclusions.
+Each provider will have a defined purpose within the multi-agent system rather than being treated as an interchangeable collection of models.
+
+**NVIDIA**
+- Primary model provider
+- Nemotron 3.5 Lightning 30B A3B
+- Lead planning
+- Agent orchestration reasoning
+- Final synthesis
+- Determining whether additional research is required
+
+**Groq**
+- High-speed inference provider
+- GPT-OSS 120B
+- Primary research agent
+- Broad investigation
+- Tool-assisted research
+- Evidence and source collection
+
+**Mistral**
+- Independent reasoning provider
+- Mistral Small 4
+- Critic/challenger agent
+- Search for unsupported assumptions
+- Identify contradictions
+- Generate alternative explanations
+- Challenge proposed conclusions
+
+**Cohere**
+- Evidence and retrieval specialist
+- Command family
+- Cohere Rerank
+- Retrieval-augmented generation
+- Evidence validation
+- Reranking retrieved ChromaDB results
+- Grounding research conclusions in retrieved information
+
+**Google Gemini**
+- Independent analysis provider
+- Gemini model selected for the project
+- Deep analysis of verified evidence
+- Independent conclusions
+- Long-context analysis
+- Multimodal analysis when appropriate
+
+**Cloudflare**
+- Specialist/fallback inference provider
+- Workers AI
+- Access to additional open models
+- Vision or multimodal specialists when appropriate
+- Provider redundancy if another API becomes unavailable or rate-limited
+
+The exact model assigned to a role may be updated as models and free API availability change, but these six providers form the post-MVP extension provider pool.
+
+---
+
+#### Handoff Types
+
+The system will support three explicit handoff modes.
+
+##### 1. Full Handoff
+
+Transfers the evidence, sources, conclusions, confidence, assumptions, unresolved questions, and recommended next steps from one agent to another.
+
+This is used when the next agent needs the previous agent's complete research state to continue the investigation.
+
+A full handoff may include:
+
+```text
+task
+claim
+evidence
+sources
+conclusion
+confidence
+assumptions
+contradictions
+unresolved questions
+recommended next steps
+```
+
+##### 2. Evidence-Only Handoff
+
+Transfers the underlying evidence and sources without transferring the previous agent's conclusion.
+
+This is used when another agent should independently analyze the same evidence without being anchored by the first model's interpretation.
+
+For example:
+
+```text
+GPT-OSS Researcher
+        ↓
+collects evidence
+        ↓
+Cohere validates evidence
+        ↓
+EVIDENCE ONLY
+        ↓
+Gemini Analyst
+        ↓
+forms independent conclusion
+```
+
+Gemini should not automatically receive GPT-OSS's interpretation if the goal is independent reasoning.
+
+##### 3. Challenge Handoff
+
+Transfers both the verified evidence and a proposed conclusion to another agent with the explicit goal of challenging that conclusion.
+
+The critic will look for:
+
+```text
+contradictions
+unsupported claims
+weak evidence
+missing evidence
+alternative explanations
+incorrect assumptions
+overconfidence
+```
+
+Mistral will primarily perform this role.
+
+---
+
+#### Structured Inter-Agent Communication
+
+CrewAI will coordinate when each handoff occurs, while Pydantic schemas will define the information transferred between agents.
+
+Agents will not depend on another model's hidden reasoning or chain of thought.
+
+Only explicit research artifacts will be transferred, including:
+
+```text
+claims
+evidence
+sources
+observations
+assumptions
+confidence
+contradictions
+uncertainties
+unresolved questions
+recommended actions
+```
+
+A research result may follow a schema similar to:
+
+```python
+class ResearchFinding(BaseModel):
+    task_id: str
+    claim: str
+
+    evidence: list[Evidence]
+    sources: list[Source]
+
+    reasoning_summary: str
+
+    confidence: float
+
+    assumptions: list[str]
+    contradictions: list[str]
+    unresolved_questions: list[str]
+
+    recommended_next_steps: list[str]
+```
+
+This common schema allows output generated by NVIDIA, Groq, Mistral, Cohere, Google Gemini, or Cloudflare models to be consumed by another agent regardless of the model provider.
+
+---
+
+#### Planned Multi-Agent Workflow
+
+The bounded post-MVP extension research workflow will be:
+
+```text
+                    RESEARCH QUESTION
+                           │
+                           ▼
+                  NEMOTRON PLANNER
+                     NVIDIA
+                           │
+                    FULL HANDOFF
+                           ▼
+                GPT-OSS RESEARCHER
+                      GROQ
+                           │
+                    FULL HANDOFF
+                           ▼
+               COHERE EVIDENCE AGENT
+                     COHERE
+                           │
+                  VERIFIED EVIDENCE
+                           │
+               ┌───────────┴───────────┐
+               │                       │
+      EVIDENCE-ONLY HANDOFF       RESEARCH STATE
+               │                       │
+               ▼                       │
+           GEMINI ANALYST              │
+          GOOGLE GEMINI                │
+               │                       │
+        independent analysis           │
+               │                       │
+               └───────────┬───────────┘
+                           │
+                   CHALLENGE HANDOFF
+                           ▼
+                   MISTRAL CRITIC
+                       MISTRAL
+                           │
+               critique / contradictions
+                           │
+                    FULL HANDOFF
+                           ▼
+                NEMOTRON SYNTHESIZER
+                       NVIDIA
+                           │
+                  enough evidence?
+                    /          \
+                  NO            YES
+                  │              │
+                  ▼              ▼
+           more research    recommendation
+                                  │
+                                  ▼
+                            action / HITL
+                                  │
+                                  ▼
+                             VERIFICATION
+```
+
+Cloudflare will operate as a specialist provider and does not need to appear in every investigation.
+
+When appropriate:
+
+```text
+Document / image / specialist task
+                │
+                ▼
+        CLOUDFLARE WORKERS AI
+                │
+        specialist model
+                │
+                ▼
+      structured observation
+                │
+                ▼
+       normal research state
+```
+
+Cloudflare may also provide fallback inference if another provider is unavailable or reaches its rate limit.
+
+---
+
+#### Provider Responsibilities
+
+The initial responsibility map will therefore be:
+
+```text
+NVIDIA
+Nemotron 3.5 Lightning 30B A3B
+→ Planner
+→ Lead reasoning
+→ Final synthesis
+→ Research-loop decisions
+
+
+Groq
+GPT-OSS 120B
+→ Primary researcher
+→ Broad investigation
+→ Tool-assisted research
+→ Source collection
+
+
+Cohere
+Command + Rerank
+→ Evidence agent
+→ Retrieval
+→ ChromaDB reranking
+→ Evidence grounding
+→ Evidence validation
+
+
+Google Gemini
+Gemini
+→ Independent analyst
+→ Evidence-only analysis
+→ Long-context reasoning
+→ Multimodal analysis when appropriate
+
+
+Mistral
+Mistral Small 4
+→ Critic
+→ Challenger
+→ Contradiction detection
+→ Alternative explanations
+
+
+Cloudflare
+Workers AI
+→ Specialist models
+→ Vision/multimodal tasks when appropriate
+→ Additional open-model access
+→ Provider fallback
+```
+
+---
+
+#### Multi-Agent Communication Boundary
+
+The post-MVP extension will **not** support unrestricted agent-to-agent conversations.
+
+It will avoid architectures where every agent may continuously communicate with every other agent:
+
+```text
+Agent A ↔ Agent B ↔ Agent C ↔ Agent D
+     ↖────────↕────────↗
+```
+
+Instead, communication will remain controlled:
+
+```text
+Orchestrator
+     ↓
+defined agent role
+     ↓
+typed Pydantic output
+     ↓
+selected handoff type
+     ↓
+next defined role
+```
+
+The orchestrator determines whether a **Full Handoff**, **Evidence-Only Handoff**, or **Challenge Handoff** is appropriate for each research step.
+
+This allows different models and providers to work together while preserving traceability, preventing unnecessary context transfer, reducing model anchoring, and making the multi-agent research process testable and explainable.
+
+The core post-MVP extension provider set is therefore:
+
+**NVIDIA, Groq, Mistral, Cohere, Google Gemini, and Cloudflare.**
 
 **Future Work 4 — planning and experimentation.** Controlled experiments:
 *"Reduce Machine 2 feed rate by 5% for the next ten units and compare
