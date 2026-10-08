@@ -53,8 +53,9 @@ CI checks are still future work.
 
 ## Optional Neon connection check
 
-Install the database extra and put the Neon connection string in a local
-`.env` file (ignored by Git):
+Install the database extra, copy `.env.example` to `.env` if you do not
+already have one, and put the Neon connection string in that local file
+(ignored by Git):
 
 ```sh
 uv sync --locked --extra database
@@ -67,6 +68,15 @@ DATABASE_URL="your Neon connection string"
 Keep the SSL options supplied by Neon in the connection string. An existing
 `DATABASE_URL` environment variable takes precedence over `.env`.
 
+`capstone/settings.py` is the typed configuration entry point. `get_settings()`
+reads current environment variables and the repository's `.env` on demand,
+without mutating environment variables or loading configuration on import.
+The database URL uses Pydantic's `SecretStr`, which masks it in representations
+and JSON serialization. Blank values mean unconfigured; only the database
+check requires a URL. The simulator keeps its explicit seed inputs and does
+not load these settings. Add configuration fields when their integrations
+are implemented, rather than requiring credentials for future components.
+
 ```sh
 uv run --locked --extra database python test_db_connection.py
 uv run --locked --extra database pytest
@@ -77,3 +87,76 @@ failure without printing connection details. It executes only `SELECT 1`,
 creates no tables, and closes its connections. The simulator does not load
 database configuration or require a database. Database tests run offline;
 without the database extra, they are skipped.
+
+## Shared contracts and provider boundaries
+
+`capstone/contracts/` defines observable records, sourced evidence, hypotheses,
+investigation records, and the common `ToolRequest` / `ToolResult` envelope.
+Unknown fields are rejected. These models keep observations and agent beliefs
+separate from the simulator's internal ground truth.
+
+`capstone/providers/factory.py` defines the `FactoryProvider` interface and
+`SimulatorFactoryProvider`, a working adapter over the existing tools. Its
+explicit tool list includes observations, bounded waits, and action proposals;
+it never exposes approval or ground-truth calls. Existing direct tool methods
+remain available. Results include source, simulation tick/time, optional
+correlation IDs, and a structured error instead of raw exception details.
+`capstone/providers/llm.py` defines a provider-neutral interface for explicit
+investigation artifacts; it does not install or invoke an LLM.
+
+```python
+from capstone.contracts.investigations import investigation_id_for, run_id_for
+from capstone.contracts.tools import ToolRequest
+from capstone.providers.factory import SimulatorFactoryProvider
+from capstone.simulator.line import build_line
+from capstone.tools.actions import ActionTools, ApprovalDesk
+from capstone.tools.observation import ObservationTools
+
+sim = build_line(seed=42)
+desk = ApprovalDesk(sim)  # keep this on the human side
+factory = SimulatorFactoryProvider(ObservationTools(sim), ActionTools(sim, desk))
+run = run_id_for("experiment-42-repeat-1")
+investigation = investigation_id_for(run, 1)
+result = factory.call(
+    ToolRequest(name="list_machines"),
+    run_id=run,
+    investigation_id=investigation,
+)
+```
+
+Run keys must uniquely identify an execution, including repeated experiments
+with the same seed. Reusing a key intentionally reproduces its UUID; investigation
+IDs are derived from that run and a positive sequence number. ID generation
+consumes no simulator random stream and uses no wall clock. There is no durable
+storage or automatic agent loop yet.
+
+## Structured logging
+
+`create_event_logger(stream)` in `capstone/observability.py` creates an opt-in
+JSON logger. Pass it as `logger=` to `SimulatorFactoryProvider` to record tool
+name, success, simulation tick, and correlation IDs. It accepts identifier
+metadata only, masks secret wrappers, and rejects arbitrary payloads, reasons,
+and exception text. It adds no wall-clock time, changes no root logger, and
+does not enable an external tracing service.
+
+## Database migration scaffold
+
+Alembic is included in the optional database extra. `alembic.ini` points to
+`migrations/`; `migrations/env.py` reads the typed settings without storing the
+URL in configuration files. You can inspect the empty revision history with:
+
+```sh
+uv run --locked --extra database alembic heads
+uv run --locked --extra database alembic history
+```
+
+Metadata and revision history are empty. No persistence tables have been
+designed and no migrations have been applied to Neon. Autogeneration is refused
+while metadata is empty; add reviewed SQLAlchemy table models before using it.
+Future schema work will define, review, and test revisions before applying them.
+Offline migration tests render SQL without contacting a database.
+
+The existing `capstone/` layout is retained: `settings.py` for configuration,
+`contracts/` for shared data, `providers/` for adapters, `tools/` for observable
+operations, `simulator/` for reality, and `database/` for connectivity. Agent,
+evaluation, and ingestion modules will be added when they have working behavior.

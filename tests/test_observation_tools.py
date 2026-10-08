@@ -4,6 +4,7 @@ from datetime import datetime
 import pytest
 
 from capstone.simulator.events import ThresholdAlarm
+from capstone.simulator.line import build_line
 from capstone.simulator.scenarios import BearingDegradation
 from capstone.simulator.sensors import VibrationSensor
 from capstone.simulator.simulator import Simulator
@@ -49,16 +50,26 @@ def factory(ticks: int) -> tuple[Simulator, ObservationTools]:
     return sim, ObservationTools(sim)
 
 
-def everything(tools: ObservationTools, last_tick: int) -> list:
-    return [
-        tools.get_time(),
-        tools.list_machines(),
-        tools.get_events(0, last_tick),
-        *[
-            tools.get_readings(m["machine_id"], "vibration", 0, last_tick)
-            for m in tools.list_machines()
+def everything(tools: ObservationTools, last_tick: int) -> dict:
+    return {
+        "get_time": tools.get_time(),
+        "list_machines": tools.list_machines(),
+        "get_events": tools.get_events(0, last_tick),
+        "get_readings": [
+            reading
+            for machine in tools.list_machines()
+            for sensor in ("vibration", "temperature", "load")
+            for reading in tools.get_readings(
+                machine["machine_id"], sensor, 0, last_tick
+            )
         ],
-    ]
+        "get_factory_readings": tools.get_factory_readings(
+            "air_temperature", 0, last_tick
+        ),
+        "get_job_history": tools.get_job_history(1),
+        "get_inspections": tools.get_inspections(0, last_tick),
+        "get_settings": tools.get_settings(),
+    }
 
 
 def test_the_tools_are_exactly_the_eight_we_decided_on():
@@ -129,12 +140,22 @@ def test_answers_are_plain_data():
 
 
 def test_nothing_hidden_leaks_through_any_tool_over_a_full_run():
-    sim, tools = factory(1200)
-    text = json.dumps(everything(tools, 1200)).lower()
+    sim = build_line(42, machines=3)
+    sim.add_scenario(
+        BearingDegradation(
+            "bearing", sim.rng, machine_id="CNC-02", start_tick=100, rate=0.0006
+        )
+    )
+    for _ in range(1200):
+        sim.step()
+    answers = everything(ObservationTools(sim), 1200)
+    assert set(answers) == TOOLS
+    assert all(answers.values())  # every boundary is exercised with actual evidence
+    text = json.dumps(answers).lower()
     assert not [word for word in HIDDEN_WORDS if word in text]
     keys = {
         key
-        for answer in everything(tools, 1200)
+        for answer in answers.values()
         for row in (answer if isinstance(answer, list) else [answer])
         for key in row
     }
@@ -149,5 +170,8 @@ def test_nothing_hidden_leaks_through_any_tool_over_a_full_run():
         "unit",
         "kind",
         "message",
+        "speed_rpm",
+        "batch_id",
+        "result",
     }
     assert sim.ground_truth()  # the truth exists; it just is not reachable from here

@@ -4,6 +4,7 @@ from datetime import datetime
 import pytest
 
 from capstone.simulator.line import STANDARD_SPEEDS, build_line
+from capstone.simulator.events import ThresholdAlarm
 from capstone.simulator.rng import RandomSource
 from capstone.simulator.scenarios import (
     BearingDegradation,
@@ -25,10 +26,15 @@ FAULT_TICK = 2000
 
 
 def factory(
-    factor: float | None = 1.15, ticks: int = 6000, seed: int = 42
+    factor: float | None = 1.15,
+    ticks: int = 6000,
+    seed: int = 42,
+    *,
+    alarm_threshold: float = 4.5,
 ) -> tuple[Simulator, ObservationTools]:
     """The 60/70/55 line with exact job times; CNC-02 is set wrong at tick 2000 unless factor is None."""
     sim = Simulator(seed, START)
+    sim.add_alarm(ThresholdAlarm("vibration", alarm_threshold))
     for machine_id, per_job in zip(LINE, TIMES):
         sim.add_machine(MachineState(id=machine_id, ticks_per_job=per_job))
         sim.add_sensor(VibrationSensor(machine_id, sim.rng))
@@ -159,6 +165,11 @@ def test_the_vibration_alarm_never_fires_and_the_machine_never_breaks_down():
     sim, _ = factory()
     assert {e.kind for e in sim.event_log.events} <= {"job", "inspection", "batch"}
     assert sim.state.machines["CNC-02"].condition.bearing_health == 1.0
+
+
+def test_wrong_setting_fixture_really_exercises_the_alarm():
+    sim, _ = factory(ticks=10, alarm_threshold=0.0)
+    assert any(event.kind == "alarm" for event in sim.event_log.events)
 
 
 def test_each_job_the_machine_finishes_picks_up_the_same_extra_risk():

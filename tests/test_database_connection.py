@@ -3,7 +3,6 @@
 import pytest
 
 pytest.importorskip("sqlalchemy")
-pytest.importorskip("dotenv")
 
 from capstone.database.connection import check_database_connection
 

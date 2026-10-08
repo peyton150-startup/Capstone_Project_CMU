@@ -49,7 +49,22 @@ def test_every_job_that_leaves_the_line_is_inspected_once_in_order_on_the_tick_i
 def test_a_healthy_line_fails_about_one_job_in_a_hundred():
     sim = factory()
     assert len(sim.state.inspections) >= 95
-    assert failure_rate(sim) <= 0.05
+    assert 0 < failure_rate(sim) <= 0.05
+
+
+@pytest.mark.parametrize("draw, passed", [(0.009, False), (0.010, True), (0.011, True)])
+def test_healthy_inspection_uses_the_one_percent_failure_boundary(
+    monkeypatch, draw, passed
+):
+    sim = Simulator(42, START)
+    sim.add_machine(MachineState(id="CNC-01", ticks_per_job=1))
+    line = ProductionLine("line", sim.rng, machine_ids=["CNC-01"])
+    # Control only the inspection draw; exercise the real production/inspection path.
+    monkeypatch.setattr(line._inspection_stream, "random", lambda: draw)
+    sim.add_scenario(line)
+    sim.step()
+    sim.step()
+    assert [inspection.passed for inspection in sim.state.inspections] == [passed]
 
 
 def test_a_healthy_machine_leaves_no_mark_on_a_job():

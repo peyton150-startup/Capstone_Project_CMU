@@ -31,12 +31,12 @@ class SimulationClock:
         return self.time_at(self._tick)
 
     def time_at(self, tick: int) -> datetime:
-        if tick < 0:
-            raise ValueError("tick must be non-negative")
+        if not isinstance(tick, int) or isinstance(tick, bool) or tick < 0:
+            raise ValueError("tick must be a non-negative integer")
         return self._start + self._tick_duration * tick
 
     def advance(self, ticks: int = 1) -> int:
-        if ticks < 1:
-            raise ValueError("time only moves forward: ticks must be >= 1")
+        if not isinstance(ticks, int) or isinstance(ticks, bool) or ticks < 1:
+            raise ValueError("time only moves forward: ticks must be an integer >= 1")
         self._tick += ticks
         return self._tick

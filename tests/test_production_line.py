@@ -230,6 +230,14 @@ def test_each_arrival_is_logged_once_and_names_the_job():
         assert event.message == f"job {job_id} started"
         assert ticks_holding(history, event.machine_id, job_id)[0] == event.tick
     assert len(events) == len({(e.machine_id, e.message) for e in events})
+    actual_arrivals = {
+        (machine_id, job_id, tick)
+        for machine_id in LINE
+        for tick, snap in enumerate(history, start=1)
+        if (job_id := snap[machine_id][0]) is not None
+        and (tick == 1 or history[tick - 2][machine_id][0] != job_id)
+    }
+    assert {(e.machine_id, e.job_id, e.tick) for e in events} == actual_arrivals
 
 
 def test_wear_follows_the_work_actually_done():

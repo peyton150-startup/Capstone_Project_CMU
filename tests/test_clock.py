@@ -49,6 +49,26 @@ def test_negative_tick_has_no_time():
         clock.time_at(-1)
 
 
+@pytest.mark.parametrize("ticks", [1.5, True, False, "2"])
+def test_advance_rejects_noninteger_ticks_without_changing_the_clock(ticks):
+    clock = SimulationClock(start=START)
+    clock.advance(3)
+    with pytest.raises(ValueError):
+        clock.advance(ticks)
+    assert clock.tick == 3
+    assert clock.now == START + timedelta(minutes=3)
+
+
+@pytest.mark.parametrize("tick", [1.5, True, False, "2"])
+def test_time_at_rejects_noninteger_ticks_without_changing_the_clock(tick):
+    clock = SimulationClock(start=START)
+    clock.advance(3)
+    with pytest.raises(ValueError):
+        clock.time_at(tick)
+    assert clock.tick == 3
+    assert clock.now == START + timedelta(minutes=3)
+
+
 def test_tick_duration_must_be_positive():
     with pytest.raises(ValueError):
         SimulationClock(start=START, tick_duration=timedelta(0))

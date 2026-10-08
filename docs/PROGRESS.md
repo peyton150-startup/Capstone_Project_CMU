@@ -54,6 +54,89 @@ alarm), then evaluation, then the agent itself.
 
 ## Session notes
 
+- **2026-10-08 — contracts, trace identity, tool/provider boundaries,
+  logging, and migration scaffold.** Understood: no — built ungated,
+  developer to review. Implemented the five foundations and smaller
+  supporting items requested by the developer, within the existing package.
+  `contracts/__init__.py` adds `Contract` (immutable fields, unknown fields
+  rejected); `observations.py` models only the eight observation tools' public
+  data and action results. `evidence.py` adds `Evidence` (source and observed
+  content); `hypotheses.py` adds `Hypothesis` (claim, bounded confidence,
+  evidence references); `investigations.py` adds `Investigation` (portable
+  research record), `run_id_for()` (UUID from an explicit execution key), and
+  `investigation_id_for()` (UUID from that run and a positive sequence).
+  IDs consume no simulator randomness and do not create persistence records.
+  `tools.py` adds `ToolRequest`, `ToolError`, `TraceContext`, and generic
+  `ToolResult`; validators prevent conflicting success/error states and
+  investigation context without a run. `providers/factory.py` adds the
+  `FactoryProvider` protocol, strict argument models/range validation, and
+  `SimulatorFactoryProvider.call()`: validate context before actions, dispatch
+  only listed existing tools, validate observable results, return structured
+  errors and optionally log metadata. Approval and ground truth are never
+  dispatchable; direct legacy tools are unchanged. `providers/llm.py` adds
+  `LLMProvider`, a protocol for explicit `Investigation` artifacts, with no
+  live model implementation or orchestration.
+  `observability.py` adds `EventLogger`, `log_event()`, `_safe_identifier()`,
+  and `create_event_logger()` for opt-in JSON metadata, secret masking,
+  no raw payloads/exception text, no root-logger changes, and no inferred
+  wall-clock time. `alembic.ini` and `migrations/` add settings-driven
+  `database_url()`, offline SQL rendering, short-lived online connections,
+  a revision template, and empty metadata/history. Autogeneration with empty
+  metadata is rejected before connecting; no tables or revisions were created
+  or applied to Neon. Alembic is an optional database dependency.
+  `.env.example`, `README.md`, and `MVP_SCOPE.md` document the implemented
+  configuration and foundations. New focused tests cover the contracts,
+  deterministic IDs, tool parity, error/approval/hidden-truth boundaries,
+  metadata-only logging, and offline migration behavior. Deliberate limits:
+  no schema, durable memory, external model/factory adapter, or agent loop;
+  future contract migrations remain explicit changes to these boundaries.
+
+- **2026-10-08 — test-intent audit.** Reviewed the existing test suite
+  following the developer's request. Strengthened weak baseline-quality
+  assertions using controlled draws on both sides of the 1% inspection
+  threshold, and registered a real vibration alarm in the wrong-setting
+  fixture with a positive-control test. The new quality test was checked
+  against a temporary zero-baseline mutation and correctly failed.
+  `SimulationClock.advance()` and `time_at()` incorrectly accepted fractional
+  and boolean ticks; they now reject noninteger ticks before changing state,
+  with eight regression cases. A new provider test also exposed invalid
+  context being validated after waiting; validation now precedes all actions.
+  Expanded the all-tools leak check to all eight observation tools, using
+  nonempty evidence; arrival events are compared with independent per-tick
+  machine state so missing events are caught. Slowdown tests now install
+  actual vibration sensors and alarms: this exposed the former false claim
+  of no alarms throughout the run, replaced by measured slowdown before
+  the first alarm. Job-time variation tests now require actual overlap
+  between healthy and slightly worn durations. This fixes real gaps rather
+  than changing the existing causal model. Final verification: 402 tests
+  passed with the database extra; 388 passed and two optional modules skipped
+  in the default environment without SQLAlchemy/Alembic/Psycopg. A separate
+  simulator/provider smoke check required neither database packages nor
+  credentials and did not import settings. Ruff lint and formatting,
+  lockfile consistency, and whitespace checks passed. The read-only Neon
+  probe returned `True`; Alembic heads/history were empty. Tests demonstrate
+  the covered behavior, not completeness of future unimplemented integrations.
+
+- **2026-10-08 — typed settings.** Understood: no — built ungated,
+  developer to review. Added Pydantic Settings to `pyproject.toml` and
+  `uv.lock`, keeping the simulator's pinned dependency versions.
+  New `capstone/settings.py` defines `Settings`, a typed configuration
+  model with an optional `SecretStr` database URL;
+  `normalize_database_url()` strips whitespace and treats blanks as absent;
+  `get_settings()` reads fresh configuration on demand, without a global
+  cache or import-time loading. Environment variables override the
+  repository's `.env`, unrelated dotenv keys are ignored, and configuration
+  reads do not mutate `os.environ`. `check_database_connection()` now reads
+  this model and unwraps the secret only when constructing the connection.
+  The simulator does not import settings or require a database URL.
+  `.env.example` provides a secret-free template for the implemented
+  integration; `README.md` documents the source precedence and model;
+  `MVP_SCOPE.md` marks settings implemented. `tests/test_settings.py`
+  checks precedence, dotenv loading without environment mutation, missing
+  and blank values, secret masking, and fresh reads after configuration
+  changes. Deliberate simplification: no configuration fields or credentials
+  for unimplemented agent/provider/ingestion components.
+
 - **2026-10-08 — Ruff.** Understood: no — built ungated, developer to
   review. Added Ruff to the development group and pip-compatible extra in
   `pyproject.toml`, configured Python 3.11 as the minimum target, 88-character

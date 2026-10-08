@@ -871,14 +871,15 @@ will follow when those components exist.
 
 These planned improvements support development and infrastructure. They are
 not MVP requirements or part of the research agent's reasoning architecture.
-`uv` and Ruff are implemented; other items remain planned as noted below. Add them
+`uv`, Ruff, and Pydantic Settings are implemented; other items remain planned
+as noted below. Add them
 in focused changes when their benefit justifies the work, rather than as one
 large tooling migration.
 
 | Improvement | Benefit for this capstone | Suggested timing / adoption condition |
 |---|---|---|
 | [Ruff](https://docs.astral.sh/ruff/) | Consistent formatting, linting, and import cleanup as the developer and coding agents share the codebase. | Implemented 2026-10-08: basic correctness rules and formatter, documented in `README.md`. Initial formatting is kept in a separate commit from configuration behavior changes. |
-| [Pydantic Settings](https://docs.pydantic.dev/latest/concepts/pydantic_settings/) | Typed, validated configuration for Neon, API credentials, model choices, and later ingestion/storage settings. | Next, before configuration spreads across modules. Require credentials only for the component using them, protect secrets in logs, and preserve explicit simulator seeds and database-free execution. |
+| [Pydantic Settings](https://docs.pydantic.dev/latest/concepts/pydantic_settings/) | Typed, validated configuration for Neon, API credentials, model choices, and later ingestion/storage settings. | Implemented 2026-10-08 for the existing Neon check: lazy settings, environment precedence, and masked optional database credentials. Future integrations will add fields when needed; simulator seeds remain explicit. |
 | [pre-commit](https://pre-commit.com/) | Run agreed formatting and lint checks before changes are committed. | After Ruff rules are established. Pin hook versions and document hook installation for each developer. |
 | [GitHub Actions with uv caching](https://docs.astral.sh/uv/guides/integration/github/) | Repeatable automated tests and faster dependency setup from the committed lockfile. | When CI is introduced. Use locked installs, test the simulator without credentials, and keep live Neon checks separate from the default offline suite. |
 | [uv audit](https://docs.astral.sh/uv/reference/cli/#uv-audit) | Check locked dependencies for known vulnerabilities and surface findings for review. | Add alongside CI. Use `uv audit --locked`, define how findings are handled, and review dependency changes rather than automatically upgrading packages. |
@@ -889,5 +890,25 @@ large tooling migration.
 Priority: Ruff → Pydantic Settings → pre-commit → CI with uv caching and
 dependency auditing. Add type checking and dependency-update automation as
 interfaces and CI mature; parallelize tests only after isolation is proven.
-None of these roadmap entries authorizes installing tools, changing package
-versions, configuring hooks or CI, or refactoring working code now.
+Items still marked planned remain roadmap entries; adopting them requires a
+separate implementation task.
+
+### Implemented foundations for later research and persistence
+
+The developer requested these foundations on 2026-10-08. They prepare existing
+boundaries for extension without implementing the larger research frameworks.
+
+| Foundation | Implemented scope | Remaining integration |
+|---|---|---|
+| Central contracts | `capstone/contracts/`: observable records, evidence, hypotheses, investigations, and tool requests/results with explicit validated fields. Hidden simulator state is excluded. | Connect these artifacts to the future agent, retrieval, evaluation, and persistence code as those components are built. |
+| Alembic | Optional database dependency, settings-driven migration environment, revision template, and offline tests. Empty metadata blocks autogeneration; no tables or revisions have been created or applied. | Design the actual persistence schema, register table metadata, review revisions, and test them before applying migrations. |
+| Run and investigation IDs | Deterministic UUID helpers using caller-supplied execution keys and per-run investigation sequences. No simulator RNG or wall clock is used. | Callers must assign a unique key per execution, including repeated runs with identical seeds, and pass IDs to stored records and evaluations. |
+| Stable tool interface | `ToolRequest`, `ToolResult`, and strict argument/output validation around all existing agent-facing tools. Results include source, simulation time, context IDs, and structured errors. | Future MCP/database/document adapters can implement the same contract; human approval remains outside the agent tool list. |
+| Provider/adaptor boundary | `FactoryProvider`, concrete `SimulatorFactoryProvider`, and a provider-neutral `LLMProvider` protocol for explicit investigation artifacts. | Real factory or LLM integrations will provide concrete adapters; no external model or factory connection is implemented by these interfaces. |
+
+Smaller foundations are also implemented: a secret-free `.env.example`, typed
+settings, and opt-in JSON metadata logging with run/investigation IDs. The
+existing `capstone/` structure is retained and no empty framework scaffolding
+is added. Ruff commands and these boundaries are documented in `README.md`.
+pytest-cov, pre-commit, type checking, CI, and larger research/infrastructure
+frameworks remain deferred; this foundation work does not install them.

@@ -1,21 +1,18 @@
 """Read-only database connectivity probe. No schema or persistence logic."""
 
-import os
-from pathlib import Path
-
-from dotenv import load_dotenv
 from sqlalchemy import create_engine, text
 from sqlalchemy.engine import make_url
+
+from capstone.settings import get_settings
 
 
 def check_database_connection() -> bool:
     """Load local configuration and check SELECT 1, closing all connections."""
-    load_dotenv(Path(__file__).resolve().parents[2] / ".env", override=False)
-    database_url = os.environ.get("DATABASE_URL", "").strip()
-    if not database_url:
+    settings = get_settings()
+    if settings.database_url is None:
         raise ValueError("Set DATABASE_URL in the local .env or environment.")
 
-    url = make_url(database_url)
+    url = make_url(settings.database_url.get_secret_value())
     if url.drivername in {"postgres", "postgresql", "postgresql+psycopg"}:
         url = url.set(drivername="postgresql+psycopg")
         connect_args = {"connect_timeout": 10}

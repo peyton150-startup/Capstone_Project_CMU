@@ -2,6 +2,7 @@ from datetime import datetime
 
 import pytest
 
+from capstone.simulator.events import ThresholdAlarm
 from capstone.simulator.line import build_line
 from capstone.simulator.scenarios import (
     BearingDegradation,
@@ -9,6 +10,7 @@ from capstone.simulator.scenarios import (
     working_speed,
 )
 from capstone.simulator.simulator import Simulator
+from capstone.simulator.sensors import VibrationSensor
 from capstone.simulator.state import MachineCondition, MachineState
 from capstone.tools.observation import ObservationTools
 
@@ -35,6 +37,8 @@ def factory(
                 condition=MachineCondition(bearing_health=health),
             )
         )
+        sim.add_sensor(VibrationSensor(machine_id, sim.rng))
+    sim.add_alarm(ThresholdAlarm("vibration", 4.5))
     sim.add_scenario(
         ProductionLine("line", sim.rng, machine_ids=LINE, time_variation=variation)
     )
@@ -124,9 +128,14 @@ def test_as_the_bearing_wears_each_job_takes_at_least_as_long_as_the_last():
     assert taken[0] <= 71  # barely worn yet when the first job reaches it
     assert all(later >= earlier for earlier, later in zip(taken, taken[1:]))
     assert taken[-1] >= 78
-    assert not [
-        e for e in sim.event_log.events if e.kind == "alarm"
-    ]  # slower before any alarm
+    alarms = [e.tick for e in sim.event_log.events if e.kind == "alarm"]
+    assert alarms  # prove the installed alarm actually detects the later symptoms
+    slowed_finishes = [
+        times(tools, job)[("CNC-02", "finished")]
+        for job, duration in zip(done, taken)
+        if duration > 72  # beyond the standard line's ordinary 68-72 tick variation
+    ]
+    assert slowed_finishes and min(slowed_finishes) < min(alarms)
 
 
 def test_natural_variation_keeps_each_job_within_two_ticks_of_normal():
@@ -143,6 +152,7 @@ def test_with_variation_a_slightly_worn_machine_hides_among_normal_jobs():
     healthy_times = [working_time(healthy, job, "CNC-02") for job in range(1, 15)]
     worn_times = [working_time(worn, job, "CNC-02") for job in range(1, 15)]
     assert max(worn_times) <= max(healthy_times) + 2
+    assert set(healthy_times) & set(worn_times)
     assert sum(worn_times) > sum(healthy_times)  # only the average gives it away
 
 
