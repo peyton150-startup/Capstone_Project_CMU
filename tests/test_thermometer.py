@@ -3,7 +3,11 @@ from datetime import datetime
 import pytest
 
 from capstone.simulator.rng import RandomSource
-from capstone.simulator.scenarios import AmbientTemperature, BearingDegradation, LoadingDoor
+from capstone.simulator.scenarios import (
+    AmbientTemperature,
+    BearingDegradation,
+    LoadingDoor,
+)
 from capstone.simulator.sensors import FactoryThermometer, TemperatureSensor
 from capstone.simulator.simulator import Simulator
 from capstone.simulator.state import FactoryState, MachineState
@@ -13,7 +17,9 @@ START = datetime(2026, 1, 5, 6, 0)
 DAY = 1440
 
 
-def factory(thermometer: bool = True, fault: bool = False, noise_sd: float = 0.0) -> Simulator:
+def factory(
+    thermometer: bool = True, fault: bool = False, noise_sd: float = 0.0
+) -> Simulator:
     sim = Simulator(42, START)
     sim.add_scenario(AmbientTemperature("ambient", sim.rng))
     sim.add_scenario(LoadingDoor("door", sim.rng))
@@ -23,7 +29,11 @@ def factory(thermometer: bool = True, fault: bool = False, noise_sd: float = 0.0
     if thermometer:
         sim.add_factory_sensor(FactoryThermometer(sim.rng, noise_sd=noise_sd))
     if fault:
-        sim.add_scenario(BearingDegradation("bearing", sim.rng, machine_id="CNC-04", start_tick=100, rate=0.0005))
+        sim.add_scenario(
+            BearingDegradation(
+                "bearing", sim.rng, machine_id="CNC-04", start_tick=100, rate=0.0005
+            )
+        )
     return sim
 
 
@@ -35,20 +45,33 @@ def run(sim: Simulator, ticks: int = DAY) -> Simulator:
 
 def own_heat(tools: ObservationTools, machine_id: str) -> list[float]:
     """Machine temperature minus the thermometer, tick by tick, as the agent would work it out."""
-    air = {r["tick"]: r["value"] for r in tools.get_factory_readings("air_temperature", 0, DAY)}
-    return [r["value"] - air[r["tick"]] for r in tools.get_readings(machine_id, "temperature", 0, DAY)]
+    air = {
+        r["tick"]: r["value"]
+        for r in tools.get_factory_readings("air_temperature", 0, DAY)
+    }
+    return [
+        r["value"] - air[r["tick"]]
+        for r in tools.get_readings(machine_id, "temperature", 0, DAY)
+    ]
 
 
 def test_the_thermometer_belongs_to_the_factory_and_has_its_own_stream():
     thermometer = FactoryThermometer(RandomSource(42), noise_sd=0.0)
     reading = thermometer.read(FactoryState(ambient_temperature=75.0), tick=9)
-    assert (reading.sensor, reading.machine_id, reading.tick, reading.unit) == ("air_temperature", None, 9, "°F")
+    assert (reading.sensor, reading.machine_id, reading.tick, reading.unit) == (
+        "air_temperature",
+        None,
+        9,
+        "°F",
+    )
     assert thermometer.stream_name == "sensor.factory.air_temperature"
 
 
 def test_it_reads_the_air_including_the_door_cooling():
     state = FactoryState(ambient_temperature=75.0, door_open=True, door_cooling=4.0)
-    assert FactoryThermometer(RandomSource(42), noise_sd=0.0).read(state, 0).value == pytest.approx(71.0)
+    assert FactoryThermometer(RandomSource(42), noise_sd=0.0).read(
+        state, 0
+    ).value == pytest.approx(71.0)
 
 
 def test_its_noise_is_small_and_repeatable():
@@ -70,9 +93,9 @@ def test_adding_the_thermometer_leaves_every_machine_reading_untouched():
     def machine_readings(sim):
         return [r for r in run(sim).readings if r.machine_id is not None]
 
-    assert machine_readings(factory(thermometer=True, noise_sd=1.0)) == machine_readings(
-        factory(thermometer=False, noise_sd=1.0)
-    )
+    assert machine_readings(
+        factory(thermometer=True, noise_sd=1.0)
+    ) == machine_readings(factory(thermometer=False, noise_sd=1.0))
 
 
 def test_one_reading_per_tick_follows_the_air_through_the_day():

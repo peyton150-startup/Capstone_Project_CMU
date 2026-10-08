@@ -10,11 +10,14 @@ requires-python = ">=3.11"
 dependencies = ["pydantic>=2"]
 
 [project.optional-dependencies]
-dev = ["pytest>=8"]
+dev = ["pytest>=8", "ruff>=0.16.10"]
 database = ["SQLAlchemy>=2,<3", "psycopg[binary]>=3,<4", "python-dotenv>=1,<2"]
 
 [dependency-groups]
-dev = ["pytest>=8"]
+dev = [
+    "pytest>=8",
+    "ruff>=0.16.10",
+]
 
 [tool.uv]
 # Preserve the simulator's installed dependency versions during migration.
@@ -31,3 +34,14 @@ include = ["capstone*"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+
+[tool.ruff]
+target-version = "py311"
+line-length = 88
+
+[tool.ruff.lint]
+select = ["E4", "E7", "E9", "F"]
+
+[tool.ruff.lint.per-file-ignores]
+# Optional imports must follow pytest.importorskip in this module.
+"tests/test_database_connection.py" = ["E402"]

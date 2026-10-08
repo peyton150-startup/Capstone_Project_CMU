@@ -3,7 +3,11 @@ from datetime import datetime
 import pytest
 
 from capstone.simulator.line import build_line
-from capstone.simulator.scenarios import BearingDegradation, ProductionLine, working_speed
+from capstone.simulator.scenarios import (
+    BearingDegradation,
+    ProductionLine,
+    working_speed,
+)
 from capstone.simulator.simulator import Simulator
 from capstone.simulator.state import MachineCondition, MachineState
 from capstone.tools.observation import ObservationTools
@@ -14,18 +18,32 @@ TIMES = (60, 70, 55)
 
 
 def factory(
-    worn_health: float = 1.0, variation: int = 0, degrade: bool = False, ticks: int = 1500, seed: int = 42
+    worn_health: float = 1.0,
+    variation: int = 0,
+    degrade: bool = False,
+    ticks: int = 1500,
+    seed: int = 42,
 ) -> tuple[Simulator, ObservationTools]:
     """The standard three-machine line, with CNC-02's bearing at `worn_health`."""
     sim = Simulator(seed, START)
     for machine_id, per_job in zip(LINE, TIMES):
         health = worn_health if machine_id == "CNC-02" else 1.0
         sim.add_machine(
-            MachineState(id=machine_id, ticks_per_job=per_job, condition=MachineCondition(bearing_health=health))
+            MachineState(
+                id=machine_id,
+                ticks_per_job=per_job,
+                condition=MachineCondition(bearing_health=health),
+            )
         )
-    sim.add_scenario(ProductionLine("line", sim.rng, machine_ids=LINE, time_variation=variation))
+    sim.add_scenario(
+        ProductionLine("line", sim.rng, machine_ids=LINE, time_variation=variation)
+    )
     if degrade:
-        sim.add_scenario(BearingDegradation("bearing", sim.rng, machine_id="CNC-02", start_tick=1, rate=0.0006))
+        sim.add_scenario(
+            BearingDegradation(
+                "bearing", sim.rng, machine_id="CNC-02", start_tick=1, rate=0.0006
+            )
+        )
     for _ in range(ticks):
         sim.step()
     return sim, ObservationTools(sim)
@@ -33,7 +51,10 @@ def factory(
 
 def times(tools: ObservationTools, job_id: int) -> dict[tuple[str, str], int]:
     """(machine, 'started' | 'finished' | 'blocked') -> tick, for one job."""
-    return {(row["machine_id"], row["message"].split()[2]): row["tick"] for row in tools.get_job_history(job_id)}
+    return {
+        (row["machine_id"], row["message"].split()[2]): row["tick"]
+        for row in tools.get_job_history(job_id)
+    }
 
 
 def working_time(tools: ObservationTools, job_id: int, machine_id: str) -> int:
@@ -48,7 +69,9 @@ def wait_on_first_machine(tools: ObservationTools, job_id: int) -> int:
 
 def test_a_healthy_machine_works_at_full_speed_and_wear_slows_it_gently_then_sharply():
     def speed(health):
-        return working_speed(MachineState(id="X", condition=MachineCondition(bearing_health=health)))
+        return working_speed(
+            MachineState(id="X", condition=MachineCondition(bearing_health=health))
+        )
 
     assert speed(1.0) == 1.0
     assert speed(0.7) == pytest.approx(0.964)
@@ -101,7 +124,9 @@ def test_as_the_bearing_wears_each_job_takes_at_least_as_long_as_the_last():
     assert taken[0] <= 71  # barely worn yet when the first job reaches it
     assert all(later >= earlier for earlier, later in zip(taken, taken[1:]))
     assert taken[-1] >= 78
-    assert not [e for e in sim.event_log.events if e.kind == "alarm"]  # slower before any alarm
+    assert not [
+        e for e in sim.event_log.events if e.kind == "alarm"
+    ]  # slower before any alarm
 
 
 def test_natural_variation_keeps_each_job_within_two_ticks_of_normal():
@@ -132,7 +157,9 @@ def test_same_seed_gives_the_same_times_and_another_seed_different_ones():
 
 def test_nothing_about_speed_or_progress_reaches_the_agent_directly():
     _, tools = factory(worn_health=0.3)
-    assert all(set(row) == {"machine_id", "status", "job_id"} for row in tools.list_machines())
+    assert all(
+        set(row) == {"machine_id", "status", "job_id"} for row in tools.list_machines()
+    )
     text = " ".join(row["message"] for row in tools.get_events(0, 1500))
     assert "slow" not in text and "worn" not in text and "speed" not in text
 

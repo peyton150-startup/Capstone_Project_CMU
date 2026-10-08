@@ -111,7 +111,14 @@ class LoadSensor(Sensor):
     name = "load"
     unit = "%"
 
-    def __init__(self, machine_id: str, rng: RandomSource, *, friction_gain: float = 8.0, noise_sd: float = 2.0):
+    def __init__(
+        self,
+        machine_id: str,
+        rng: RandomSource,
+        *,
+        friction_gain: float = 8.0,
+        noise_sd: float = 2.0,
+    ):
         super().__init__(machine_id, rng)
         self.friction_gain = friction_gain
         self.noise_sd = noise_sd
@@ -141,4 +148,6 @@ class FactoryThermometer:
 
     def read(self, state: FactoryState, tick: int) -> SensorReading:
         value = state.air_temperature + self._stream.gauss(0.0, self.noise_sd)
-        return SensorReading(sensor=self.name, machine_id=None, tick=tick, value=value, unit=self.unit)
+        return SensorReading(
+            sensor=self.name, machine_id=None, tick=tick, value=value, unit=self.unit
+        )

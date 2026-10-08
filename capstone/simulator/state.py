@@ -99,6 +99,7 @@ class MachineState(BaseModel):
         """True once this machine has finished its work on the job it holds."""
         needed = self.job_work if self.job_work is not None else self.ticks_per_job
         return self.job is not None and self.job_progress >= needed - 1e-9
+
     # While a repair is under way: the tick at which it will be finished.
     maintenance_until: int | None = None
     # The tick this machine's bearing was last replaced, if it ever was.
@@ -130,6 +131,7 @@ class FactoryState(BaseModel):
             if machine_id in order[:-1]:
                 return order[order.index(machine_id) + 1]
         return None
+
     # Ids of jobs that have left the end of the line, oldest first.
     completed_jobs: list[int] = Field(default_factory=list)
     # The building's own temperature for the time of day, in °F.

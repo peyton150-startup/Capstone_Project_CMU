@@ -13,7 +13,13 @@ from capstone.simulator.state import FactoryState, MachineState, MachineStatus
 START = datetime(2026, 1, 5, 6, 0)
 
 
-def factory(seed: int = 42, *, start_tick: int = 100, rate: float = 0.001, variation: float = 0.5) -> Simulator:
+def factory(
+    seed: int = 42,
+    *,
+    start_tick: int = 100,
+    rate: float = 0.001,
+    variation: float = 0.5,
+) -> Simulator:
     sim = Simulator(seed, START)
     for machine_id in ("CNC-01", "CNC-04"):
         sim.add_machine(MachineState(id=machine_id))
@@ -21,7 +27,12 @@ def factory(seed: int = 42, *, start_tick: int = 100, rate: float = 0.001, varia
     sim.add_alarm(ThresholdAlarm("vibration", 4.5))
     sim.add_scenario(
         BearingDegradation(
-            "bearing", sim.rng, machine_id="CNC-04", start_tick=start_tick, rate=rate, variation=variation
+            "bearing",
+            sim.rng,
+            machine_id="CNC-04",
+            start_tick=start_tick,
+            rate=rate,
+            variation=variation,
         )
     )
     return sim
@@ -37,8 +48,14 @@ def health(sim: Simulator, machine_id: str = "CNC-04") -> float:
     return sim.state.machines[machine_id].condition.bearing_health
 
 
-def vibration(sim: Simulator, first: int, last: int, machine_id: str = "CNC-04") -> float:
-    return mean(r.value for r in sim.readings if r.machine_id == machine_id and first <= r.tick <= last)
+def vibration(
+    sim: Simulator, first: int, last: int, machine_id: str = "CNC-04"
+) -> float:
+    return mean(
+        r.value
+        for r in sim.readings
+        if r.machine_id == machine_id and first <= r.tick <= last
+    )
 
 
 def test_rejects_nonsense_settings():
@@ -46,7 +63,9 @@ def test_rejects_nonsense_settings():
     with pytest.raises(ValueError):
         BearingDegradation("a", sim.rng, machine_id="CNC-04", start_tick=1, rate=0.0)
     with pytest.raises(ValueError):
-        BearingDegradation("b", sim.rng, machine_id="CNC-04", start_tick=1, rate=0.001, variation=1.0)
+        BearingDegradation(
+            "b", sim.rng, machine_id="CNC-04", start_tick=1, rate=0.001, variation=1.0
+        )
 
 
 def test_nothing_happens_before_the_start_tick():
@@ -88,7 +107,9 @@ def test_only_the_target_machine_is_affected():
 def test_health_never_goes_below_zero():
     state = FactoryState()
     state.add(MachineState(id="CNC-04"))
-    wear = BearingDegradation("bearing", RandomSource(42), machine_id="CNC-04", start_tick=1, rate=0.3)
+    wear = BearingDegradation(
+        "bearing", RandomSource(42), machine_id="CNC-04", start_tick=1, rate=0.3
+    )
     for tick in range(1, 11):
         wear.apply(state, tick)
     assert state.machines["CNC-04"].condition.bearing_health == 0.0
@@ -96,7 +117,11 @@ def test_health_never_goes_below_zero():
 
 def test_vibration_rises_slowly_then_quickly():
     sim = run(factory(), 800)
-    healthy, middle, late = vibration(sim, 50, 99), vibration(sim, 400, 449), vibration(sim, 750, 799)
+    healthy, middle, late = (
+        vibration(sim, 50, 99),
+        vibration(sim, 400, 449),
+        vibration(sim, 750, 799),
+    )
     assert healthy < middle < late
     assert (late - middle) > (middle - healthy)
 

@@ -15,7 +15,9 @@ UNEVEN = (60, 70, 55)  # CNC-02 is the slowest step
 RATE = 0.001
 
 
-def factory(seed: int = 42, times: tuple[int, ...] = BALANCED, wear_on: str | None = None) -> Simulator:
+def factory(
+    seed: int = 42, times: tuple[int, ...] = BALANCED, wear_on: str | None = None
+) -> Simulator:
     sim = Simulator(seed, START)
     for machine_id, ticks in zip(LINE, times):
         sim.add_machine(MachineState(id=machine_id, ticks_per_job=ticks))
@@ -23,14 +25,24 @@ def factory(seed: int = 42, times: tuple[int, ...] = BALANCED, wear_on: str | No
     sim.add_scenario(ProductionLine("line", sim.rng, machine_ids=LINE))
     if wear_on:
         sim.add_scenario(
-            BearingDegradation("bearing", sim.rng, machine_id=wear_on, start_tick=1, rate=RATE, variation=0.0)
+            BearingDegradation(
+                "bearing",
+                sim.rng,
+                machine_id=wear_on,
+                start_tick=1,
+                rate=RATE,
+                variation=0.0,
+            )
         )
     return sim
 
 
 def snapshot(sim: Simulator) -> dict[str, tuple]:
     """For each machine: (job id or None, status, load) as things stand now."""
-    return {m.id: (m.job.id if m.job else None, m.status, m.load) for m in sim.state.machines.values()}
+    return {
+        m.id: (m.job.id if m.job else None, m.status, m.load)
+        for m in sim.state.machines.values()
+    }
 
 
 def run(sim: Simulator, ticks: int = 700) -> list[dict[str, tuple]]:
@@ -42,11 +54,19 @@ def run(sim: Simulator, ticks: int = 700) -> list[dict[str, tuple]]:
 
 
 def ticks_holding(history: list[dict], machine_id: str, job_id: int) -> list[int]:
-    return [tick for tick, snap in enumerate(history, start=1) if snap[machine_id][0] == job_id]
+    return [
+        tick
+        for tick, snap in enumerate(history, start=1)
+        if snap[machine_id][0] == job_id
+    ]
 
 
 def idle_ticks(history: list[dict], machine_id: str, first: int, last: int) -> int:
-    return sum(1 for snap in history[first - 1 : last] if snap[machine_id][1] is MachineStatus.IDLE)
+    return sum(
+        1
+        for snap in history[first - 1 : last]
+        if snap[machine_id][1] is MachineStatus.IDLE
+    )
 
 
 def test_rejects_nonsense_settings():
@@ -118,13 +138,23 @@ def test_the_same_job_brings_the_same_load_to_every_machine():
     load = {(r.machine_id, r.tick): r.value for r in sim.readings}
     assert load[("CNC-01", 30)] == pytest.approx(load[("CNC-02", 90)])
     assert load[("CNC-02", 90)] == pytest.approx(load[("CNC-04", 150)])
-    assert load[("CNC-01", 30)] != pytest.approx(load[("CNC-01", 90)])  # job 2 is different work
+    assert load[("CNC-01", 30)] != pytest.approx(
+        load[("CNC-01", 90)]
+    )  # job 2 is different work
 
 
 def test_a_balanced_line_is_never_idle_once_it_has_filled_up():
     history = run(factory(times=BALANCED))
-    assert [idle_ticks(history, machine_id, 1, 700) for machine_id in LINE] == [0, 60, 120]
-    assert [idle_ticks(history, machine_id, 121, 700) for machine_id in LINE] == [0, 0, 0]
+    assert [idle_ticks(history, machine_id, 1, 700) for machine_id in LINE] == [
+        0,
+        60,
+        120,
+    ]
+    assert [idle_ticks(history, machine_id, 121, 700) for machine_id in LINE] == [
+        0,
+        0,
+        0,
+    ]
 
 
 def test_an_uneven_line_waits_in_a_steady_pattern_around_its_slowest_machine():
@@ -132,7 +162,9 @@ def test_an_uneven_line_waits_in_a_steady_pattern_around_its_slowest_machine():
     # One full cycle of the slowest machine (70 ticks), well after start-up.
     per_cycle = [idle_ticks(history, machine_id, 481, 550) for machine_id in LINE]
     assert per_cycle == [10, 0, 15]
-    assert per_cycle == [idle_ticks(history, machine_id, 551, 620) for machine_id in LINE]
+    assert per_cycle == [
+        idle_ticks(history, machine_id, 551, 620) for machine_id in LINE
+    ]
 
 
 def test_the_machine_before_the_slow_one_waits_holding_a_finished_job():
@@ -142,7 +174,10 @@ def test_the_machine_before_the_slow_one_waits_holding_a_finished_job():
         if snap["CNC-01"][1] is MachineStatus.IDLE
     ]
     assert waiting
-    assert all(snap["CNC-01"][0] is not None and snap["CNC-02"][0] is not None for snap in waiting)
+    assert all(
+        snap["CNC-01"][0] is not None and snap["CNC-02"][0] is not None
+        for snap in waiting
+    )
 
 
 def test_the_machine_after_the_slow_one_waits_empty():
@@ -165,7 +200,9 @@ def test_a_breakdown_in_the_middle_stops_the_whole_line():
     after = run(sim, 200)[-1]
     assert sim.state.machines["CNC-02"].job == stuck_job
     assert after["CNC-02"][1] is MachineStatus.DOWN
-    assert after["CNC-01"][1] is MachineStatus.IDLE and after["CNC-01"][0] is not None  # blocked
+    assert (
+        after["CNC-01"][1] is MachineStatus.IDLE and after["CNC-01"][0] is not None
+    )  # blocked
     assert after["CNC-04"] == (None, MachineStatus.IDLE, 0.0)  # starved
     assert len(sim.state.completed_jobs) == done_before
 
@@ -178,8 +215,16 @@ def test_same_seed_gives_the_same_production_day():
 def test_each_arrival_is_logged_once_and_names_the_job():
     sim = factory(times=UNEVEN)
     history = run(sim)
-    events = [e for e in sim.event_log.events if e.kind == "job" and e.message.endswith("started")]
-    assert (events[0].tick, events[0].machine_id, events[0].message) == (1, "CNC-01", "job 1 started")
+    events = [
+        e
+        for e in sim.event_log.events
+        if e.kind == "job" and e.message.endswith("started")
+    ]
+    assert (events[0].tick, events[0].machine_id, events[0].message) == (
+        1,
+        "CNC-01",
+        "job 1 started",
+    )
     for event in events:
         job_id = int(event.message.split()[1])
         assert event.message == f"job {job_id} started"
@@ -198,11 +243,16 @@ def test_wear_follows_the_work_actually_done():
             ran += 1
         else:
             waited += 1
-    assert sim.state.machines["CNC-04"].condition.bearing_health == pytest.approx(expected)
+    assert sim.state.machines["CNC-04"].condition.bearing_health == pytest.approx(
+        expected
+    )
     assert ran > 0 and waited > 0
 
 
 def test_the_agent_sees_id_status_and_current_job_for_each_machine_and_no_more():
     sim = factory()
     run(sim, 50)
-    assert all(set(row) == {"machine_id", "status", "job_id"} for row in ObservationTools(sim).list_machines())
+    assert all(
+        set(row) == {"machine_id", "status", "job_id"}
+        for row in ObservationTools(sim).list_machines()
+    )

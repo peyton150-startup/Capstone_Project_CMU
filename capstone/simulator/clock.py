@@ -9,7 +9,9 @@ class SimulationClock:
     Time only moves forward, and only through `advance()`.
     """
 
-    def __init__(self, start: datetime, tick_duration: timedelta = timedelta(minutes=1)):
+    def __init__(
+        self, start: datetime, tick_duration: timedelta = timedelta(minutes=1)
+    ):
         if tick_duration <= timedelta(0):
             raise ValueError("tick_duration must be positive")
         self._start = start

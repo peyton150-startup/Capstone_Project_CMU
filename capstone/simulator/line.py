@@ -10,7 +10,12 @@ from datetime import datetime, timedelta
 
 from capstone.simulator.events import ThresholdAlarm
 from capstone.simulator.scenarios import AmbientTemperature, LoadingDoor, ProductionLine
-from capstone.simulator.sensors import FactoryThermometer, LoadSensor, TemperatureSensor, VibrationSensor
+from capstone.simulator.sensors import (
+    FactoryThermometer,
+    LoadSensor,
+    TemperatureSensor,
+    VibrationSensor,
+)
 from capstone.simulator.simulator import Simulator
 from capstone.simulator.state import MachineState
 
@@ -49,7 +54,9 @@ def build_line(
         # The seed picks the size. Its own stream, so nothing else shifts.
         machines = sim.rng.stream("line.size").randint(MIN_MACHINES, MAX_MACHINES)
     if not MIN_MACHINES <= machines <= MAX_MACHINES:
-        raise ValueError(f"a line has {MIN_MACHINES} to {MAX_MACHINES} machines, not {machines}")
+        raise ValueError(
+            f"a line has {MIN_MACHINES} to {MAX_MACHINES} machines, not {machines}"
+        )
     times = ticks_per_job or STANDARD_TICKS_PER_JOB[:machines]
     if len(times) != machines:
         raise ValueError("ticks_per_job needs one entry per machine")
@@ -59,12 +66,16 @@ def build_line(
     first_peak = start.replace(hour=WARMEST_HOUR, minute=0, second=0, microsecond=0)
     warmest_tick = round((first_peak - start) / tick_duration) % ticks_per_day
     sim.add_scenario(
-        AmbientTemperature("ambient", sim.rng, ticks_per_day=ticks_per_day, warmest_tick=warmest_tick)
+        AmbientTemperature(
+            "ambient", sim.rng, ticks_per_day=ticks_per_day, warmest_tick=warmest_tick
+        )
     )
     sim.add_scenario(LoadingDoor("door", sim.rng))
 
     for name, per_job, speed in zip(names, times, STANDARD_SPEEDS):
-        sim.add_machine(MachineState(id=name, ticks_per_job=per_job, standard_speed=speed))
+        sim.add_machine(
+            MachineState(id=name, ticks_per_job=per_job, standard_speed=speed)
+        )
         for sensor in (VibrationSensor, TemperatureSensor, LoadSensor):
             sim.add_sensor(sensor(name, sim.rng))
     sim.add_factory_sensor(FactoryThermometer(sim.rng))
@@ -73,7 +84,11 @@ def build_line(
     # After the machines exist, and before any fault the caller adds.
     sim.add_scenario(
         ProductionLine(
-            "line", sim.rng, machine_ids=names, time_variation=time_variation, jobs_per_batch=jobs_per_batch
+            "line",
+            sim.rng,
+            machine_ids=names,
+            time_variation=time_variation,
+            jobs_per_batch=jobs_per_batch,
         )
     )
     return sim

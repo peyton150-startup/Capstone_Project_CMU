@@ -43,13 +43,21 @@ def test_both_lines_finish_jobs_and_no_two_jobs_share_a_number():
 def test_a_job_stays_on_the_line_it_entered():
     sim = factory(900)
     for job_id in sim.state.completed_jobs:
-        visited = [e.machine_id for e in sim.event_log.events if e.job_id == job_id and e.message.endswith("started")]
+        visited = [
+            e.machine_id
+            for e in sim.event_log.events
+            if e.job_id == job_id and e.message.endswith("started")
+        ]
         assert visited in (LINE_A, LINE_B)
 
 
 def test_a_held_up_job_names_the_next_machine_on_its_own_line():
     sim = factory(900)
-    blocked = {(e.machine_id, e.message.split("blocked by ")[1]) for e in sim.event_log.events if "blocked" in e.message}
+    blocked = {
+        (e.machine_id, e.message.split("blocked by ")[1])
+        for e in sim.event_log.events
+        if "blocked" in e.message
+    }
     assert blocked == {("A-01", "A-02"), ("B-01", "B-02")}
 
 
@@ -62,7 +70,11 @@ def test_a_breakdown_on_one_line_leaves_the_other_running():
     for _ in range(300):
         sim.step()
     finished_since = [job for job in sim.state.completed_jobs if job not in before]
-    last_machine = {e.job_id: e.machine_id for e in sim.event_log.events if e.message.endswith("finished")}
+    last_machine = {
+        e.job_id: e.machine_id
+        for e in sim.event_log.events
+        if e.message.endswith("finished")
+    }
     assert finished_since and {last_machine[job] for job in finished_since} == {"B-03"}
 
 

@@ -12,7 +12,9 @@ START = datetime(2026, 1, 5, 6, 0)
 
 
 def reading(value: float, sensor: str = "vibration", tick: int = 7) -> SensorReading:
-    return SensorReading(sensor=sensor, machine_id="CNC-04", tick=tick, value=value, unit="mm/s")
+    return SensorReading(
+        sensor=sensor, machine_id="CNC-04", tick=tick, value=value, unit="mm/s"
+    )
 
 
 def event(tick: int) -> Event:
@@ -21,7 +23,9 @@ def event(tick: int) -> Event:
 
 def one_machine(health: float = 1.0, seed: int = 42, **sensor_kwargs) -> Simulator:
     sim = Simulator(seed, START)
-    sim.add_machine(MachineState(id="CNC-04", condition=MachineCondition(bearing_health=health)))
+    sim.add_machine(
+        MachineState(id="CNC-04", condition=MachineCondition(bearing_health=health))
+    )
     sim.add_sensor(VibrationSensor("CNC-04", sim.rng, **sensor_kwargs))
     sim.add_alarm(ThresholdAlarm("vibration", 4.5))
     return sim
@@ -55,7 +59,10 @@ def test_alarm_fires_only_above_the_threshold():
 
 
 def test_alarm_ignores_other_sensor_types():
-    assert ThresholdAlarm("vibration", 4.5).check(reading(90.0, sensor="temperature")) is None
+    assert (
+        ThresholdAlarm("vibration", 4.5).check(reading(90.0, sensor="temperature"))
+        is None
+    )
 
 
 def test_step_records_the_alarm_at_the_tick_of_the_reading():

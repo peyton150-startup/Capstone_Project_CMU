@@ -32,14 +32,22 @@ def factory(fault: bool = False) -> Simulator:
         sim.add_sensor(VibrationSensor(machine_id, sim.rng, noise_sd=0.0))
         sim.add_sensor(LoadSensor(machine_id, sim.rng, noise_sd=0.0))
     if fault:
-        sim.add_scenario(BearingDegradation("bearing", sim.rng, machine_id="CNC-04", start_tick=100, rate=0.0005))
+        sim.add_scenario(
+            BearingDegradation(
+                "bearing", sim.rng, machine_id="CNC-04", start_tick=100, rate=0.0005
+            )
+        )
     for _ in range(DAY):
         sim.step()
     return sim
 
 
 def series(sim: Simulator, machine_id: str, sensor: str) -> list[float]:
-    return [r.value for r in sim.readings if r.machine_id == machine_id and r.sensor == sensor]
+    return [
+        r.value
+        for r in sim.readings
+        if r.machine_id == machine_id and r.sensor == sensor
+    ]
 
 
 def test_the_air_starts_at_72_until_something_changes_it():
@@ -79,7 +87,9 @@ def test_every_machine_moves_with_the_air_together():
 
 def test_a_healthy_machine_reads_43_degrees_above_the_air():
     sim = factory()
-    assert series(sim, "CNC-01", "temperature")[-1] == pytest.approx(sim.state.ambient_temperature + 43.0)
+    assert series(sim, "CNC-01", "temperature")[-1] == pytest.approx(
+        sim.state.ambient_temperature + 43.0
+    )
 
 
 def test_a_stopped_machine_reads_the_air_temperature():
@@ -96,7 +106,12 @@ def test_the_air_does_not_touch_vibration_or_load():
 
 def test_wear_shows_as_a_growing_gap_over_a_healthy_neighbour():
     sim = factory(fault=True)
-    gap = [w - h for w, h in zip(series(sim, "CNC-04", "temperature"), series(sim, "CNC-01", "temperature"))]
+    gap = [
+        w - h
+        for w, h in zip(
+            series(sim, "CNC-04", "temperature"), series(sim, "CNC-01", "temperature")
+        )
+    ]
     assert gap[50] == pytest.approx(0.0)
     assert gap[400] < gap[800] < gap[1200]
     wear = 1.0 - sim.state.machines["CNC-04"].condition.bearing_health

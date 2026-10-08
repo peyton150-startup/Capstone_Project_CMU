@@ -11,9 +11,17 @@ from capstone.simulator.state import MachineCondition, MachineState, MachineStat
 START = datetime(2026, 1, 5, 6, 0)
 
 
-def one_machine(health: float, status: MachineStatus = MachineStatus.RUNNING) -> Simulator:
+def one_machine(
+    health: float, status: MachineStatus = MachineStatus.RUNNING
+) -> Simulator:
     sim = Simulator(42, START)
-    sim.add_machine(MachineState(id="CNC-04", status=status, condition=MachineCondition(bearing_health=health)))
+    sim.add_machine(
+        MachineState(
+            id="CNC-04",
+            status=status,
+            condition=MachineCondition(bearing_health=health),
+        )
+    )
     sim.add_sensor(VibrationSensor("CNC-04", sim.rng, noise_sd=0.0))
     return sim
 
@@ -24,7 +32,11 @@ def degrading(seed: int = 42) -> Simulator:
         sim.add_machine(MachineState(id=machine_id))
         sim.add_sensor(VibrationSensor(machine_id, sim.rng))
     sim.add_alarm(ThresholdAlarm("vibration", 4.5))
-    sim.add_scenario(BearingDegradation("bearing", sim.rng, machine_id="CNC-04", start_tick=100, rate=0.001))
+    sim.add_scenario(
+        BearingDegradation(
+            "bearing", sim.rng, machine_id="CNC-04", start_tick=100, rate=0.001
+        )
+    )
     for _ in range(1200):
         sim.step()
     return sim
@@ -58,7 +70,11 @@ def test_the_stop_is_recorded_once_and_does_not_say_why():
     for _ in range(5):
         sim.step()
     (stop,) = stops(sim)
-    assert (stop.tick, stop.machine_id, stop.message) == (1, "CNC-04", "machine stopped")
+    assert (stop.tick, stop.machine_id, stop.message) == (
+        1,
+        "CNC-04",
+        "machine stopped",
+    )
     assert "bearing" not in stop.message and "health" not in stop.message
 
 
@@ -79,9 +95,15 @@ def test_degradation_ends_in_failure_after_the_alarms():
 def test_after_failure_wear_and_alarms_stop():
     sim = degrading()
     (stop,) = stops(sim)
-    assert not [e for e in sim.event_log.events if e.kind == "alarm" and e.tick >= stop.tick]
-    assert sim.state.machines["CNC-04"].condition.bearing_health == pytest.approx(0.1, abs=0.002)
-    late = [r.value for r in sim.readings if r.machine_id == "CNC-04" and r.tick > stop.tick]
+    assert not [
+        e for e in sim.event_log.events if e.kind == "alarm" and e.tick >= stop.tick
+    ]
+    assert sim.state.machines["CNC-04"].condition.bearing_health == pytest.approx(
+        0.1, abs=0.002
+    )
+    late = [
+        r.value for r in sim.readings if r.machine_id == "CNC-04" and r.tick > stop.tick
+    ]
     assert max(late) < 1.0
 
 

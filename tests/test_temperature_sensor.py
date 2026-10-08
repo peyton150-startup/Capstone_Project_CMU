@@ -14,8 +14,12 @@ from capstone.tools.observation import ObservationTools
 START = datetime(2026, 1, 5, 6, 0)
 
 
-def machine(health: float = 1.0, status: MachineStatus = MachineStatus.RUNNING) -> MachineState:
-    m = MachineState(id="CNC-04", status=status, condition=MachineCondition(bearing_health=health))
+def machine(
+    health: float = 1.0, status: MachineStatus = MachineStatus.RUNNING
+) -> MachineState:
+    m = MachineState(
+        id="CNC-04", status=status, condition=MachineCondition(bearing_health=health)
+    )
     return settle(m, 72.0)
 
 
@@ -30,13 +34,19 @@ def factory(with_temperature: bool = True) -> Simulator:
         sim.add_sensor(VibrationSensor(machine_id, sim.rng))
         if with_temperature:
             sim.add_sensor(TemperatureSensor(machine_id, sim.rng))
-    sim.add_scenario(BearingDegradation("bearing", sim.rng, machine_id="CNC-04", start_tick=100, rate=0.001))
+    sim.add_scenario(
+        BearingDegradation(
+            "bearing", sim.rng, machine_id="CNC-04", start_tick=100, rate=0.001
+        )
+    )
     for _ in range(800):
         sim.step()
     return sim
 
 
-def average(tools: ObservationTools, machine_id: str, sensor: str, first: int, last: int) -> float:
+def average(
+    tools: ObservationTools, machine_id: str, sensor: str, first: int, last: int
+) -> float:
     return mean(r["value"] for r in tools.get_readings(machine_id, sensor, first, last))
 
 
@@ -68,12 +78,20 @@ def test_adding_temperature_sensors_leaves_vibration_history_untouched():
     def vibration(sim):
         return [r for r in sim.readings if r.sensor == "vibration"]
 
-    assert vibration(factory(with_temperature=True)) == vibration(factory(with_temperature=False))
+    assert vibration(factory(with_temperature=True)) == vibration(
+        factory(with_temperature=False)
+    )
 
 
 def test_both_symptoms_rise_together_on_the_faulty_machine_only():
     tools = ObservationTools(factory())
     for sensor in ("vibration", "temperature"):
-        assert average(tools, "CNC-04", sensor, 750, 799) > average(tools, "CNC-04", sensor, 50, 99)
-    assert average(tools, "CNC-04", "temperature", 750, 799) == pytest.approx(115 + 45 * 0.675, abs=3)
-    assert average(tools, "CNC-01", "temperature", 750, 799) == pytest.approx(115, abs=1)
+        assert average(tools, "CNC-04", sensor, 750, 799) > average(
+            tools, "CNC-04", sensor, 50, 99
+        )
+    assert average(tools, "CNC-04", "temperature", 750, 799) == pytest.approx(
+        115 + 45 * 0.675, abs=3
+    )
+    assert average(tools, "CNC-01", "temperature", 750, 799) == pytest.approx(
+        115, abs=1
+    )

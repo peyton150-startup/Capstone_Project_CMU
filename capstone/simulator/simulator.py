@@ -68,7 +68,9 @@ class Simulator:
     def add_machine(self, machine: MachineState) -> None:
         self.state.add(machine)
         settle(machine, self.state.air_temperature)  # machines start already warmed up
-        self._job_seen[machine.id] = (machine.job.id, "working") if machine.job else (None, None)
+        self._job_seen[machine.id] = (
+            (machine.job.id, "working") if machine.job else (None, None)
+        )
 
     def add_sensor(self, sensor: Sensor) -> None:
         if sensor.machine_id not in self.state.machines:
@@ -108,12 +110,19 @@ class Simulator:
         if machine.maintenance_until is not None:
             raise ValueError(f"{machine_id} is already under maintenance")
         broken_down = machine.status is MachineStatus.DOWN
-        duration = self.breakdown_repair_ticks if broken_down else self.planned_repair_ticks
+        duration = (
+            self.breakdown_repair_ticks if broken_down else self.planned_repair_ticks
+        )
         now = self.clock.tick
         machine.status = MachineStatus.DOWN
         machine.maintenance_until = now + duration
         self.event_log.record(
-            Event(tick=now, machine_id=machine_id, kind="maintenance", message="bearing replacement started")
+            Event(
+                tick=now,
+                machine_id=machine_id,
+                kind="maintenance",
+                message="bearing replacement started",
+            )
         )
         return machine.maintenance_until
 
@@ -137,7 +146,9 @@ class Simulator:
         self._finish_maintenance(tick)
         self._apply_consequences(tick)
         self._warm_or_cool_machines()
-        readings = [s.read(self.state.machines[s.machine_id], tick) for s in self._sensors]
+        readings = [
+            s.read(self.state.machines[s.machine_id], tick) for s in self._sensors
+        ]
         readings += [s.read(self.state, tick) for s in self._factory_sensors]
         self._readings.extend(readings)
         for reading in readings:
@@ -170,15 +181,25 @@ class Simulator:
                 if stage == "working":
                     self._record_job(tick, machine.id, job_id, "finished")
                     stage = "finished"
-                elif stage == "finished" and (following := self.state.next_on_line(machine.id)):
+                elif stage == "finished" and (
+                    following := self.state.next_on_line(machine.id)
+                ):
                     # Still here a tick after finishing: the next machine has not taken it.
-                    self._record_job(tick, machine.id, job_id, f"blocked by {following}")
+                    self._record_job(
+                        tick, machine.id, job_id, f"blocked by {following}"
+                    )
                     stage = "blocked"
             self._job_seen[machine.id] = (job_id, stage)
 
     def _record_job(self, tick: int, machine_id: str, job_id: int, what: str) -> None:
         self.event_log.record(
-            Event(tick=tick, machine_id=machine_id, kind="job", message=f"job {job_id} {what}", job_id=job_id)
+            Event(
+                tick=tick,
+                machine_id=machine_id,
+                kind="job",
+                message=f"job {job_id} {what}",
+                job_id=job_id,
+            )
         )
 
     def _record_inspections(self, tick: int) -> None:
@@ -202,15 +223,24 @@ class Simulator:
         if batch is not None and batch.id != self._batch_reported:
             self._batch_reported = batch.id
             self.event_log.record(
-                Event(tick=tick, machine_id=None, kind="batch", message=f"material batch {batch.id} opened")
+                Event(
+                    tick=tick,
+                    machine_id=None,
+                    kind="batch",
+                    message=f"material batch {batch.id} opened",
+                )
             )
 
     def _record_door(self, tick: int) -> None:
         """Report the loading door changing. A factory event: it belongs to no machine."""
         if self.state.door_open != self._last_door_open:
             self._last_door_open = self.state.door_open
-            message = "loading door opened" if self.state.door_open else "loading door closed"
-            self.event_log.record(Event(tick=tick, machine_id=None, kind="door", message=message))
+            message = (
+                "loading door opened" if self.state.door_open else "loading door closed"
+            )
+            self.event_log.record(
+                Event(tick=tick, machine_id=None, kind="door", message=message)
+            )
 
     def _warm_or_cool_machines(self) -> None:
         """Every machine drifts toward the temperature its work, wear and the air call for."""
@@ -220,12 +250,17 @@ class Simulator:
     def _finish_maintenance(self, tick: int) -> None:
         """Return repaired machines to service with a new bearing."""
         for machine in self.state.machines.values():
-            if machine.maintenance_until is not None and tick >= machine.maintenance_until:
+            if (
+                machine.maintenance_until is not None
+                and tick >= machine.maintenance_until
+            ):
                 machine.maintenance_until = None
                 finding = self._describe_old_bearing(machine.condition.bearing_health)
                 machine.condition.bearing_health = 1.0
                 machine.bearing_replaced_tick = tick
-                machine.status = MachineStatus.IDLE  # the line gives it work again next tick
+                machine.status = (
+                    MachineStatus.IDLE
+                )  # the line gives it work again next tick
                 self.event_log.record(
                     Event(
                         tick=tick,
@@ -262,5 +297,10 @@ class Simulator:
             ):
                 machine.status = MachineStatus.DOWN
                 self.event_log.record(
-                    Event(tick=tick, machine_id=machine.id, kind="status", message="machine stopped")
+                    Event(
+                        tick=tick,
+                        machine_id=machine.id,
+                        kind="status",
+                        message="machine stopped",
+                    )
                 )

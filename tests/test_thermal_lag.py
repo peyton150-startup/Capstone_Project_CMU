@@ -11,8 +11,17 @@ START = datetime(2026, 1, 5, 6, 0)
 LAG = 20.0
 
 
-def machine(load: float = 0.5, health: float = 1.0, status: MachineStatus = MachineStatus.RUNNING) -> MachineState:
-    return MachineState(id="CNC-04", status=status, load=load, condition=MachineCondition(bearing_health=health))
+def machine(
+    load: float = 0.5,
+    health: float = 1.0,
+    status: MachineStatus = MachineStatus.RUNNING,
+) -> MachineState:
+    return MachineState(
+        id="CNC-04",
+        status=status,
+        load=load,
+        condition=MachineCondition(bearing_health=health),
+    )
 
 
 def factory(load: float = 0.4, lag: float = LAG) -> Simulator:
@@ -40,7 +49,10 @@ def test_where_a_machine_settles_depends_on_air_work_and_wear():
 
 def test_a_machine_that_is_not_running_settles_at_the_air_temperature():
     for status in (MachineStatus.IDLE, MachineStatus.DOWN):
-        assert settling_temperature(machine(load=0.9, health=0.2, status=status), 68.0) == 68.0
+        assert (
+            settling_temperature(machine(load=0.9, health=0.2, status=status), 68.0)
+            == 68.0
+        )
 
 
 def test_a_machine_added_to_the_factory_starts_already_warmed_up():
@@ -72,7 +84,9 @@ def test_a_heavier_job_warms_the_machine_gradually_and_never_overshoots():
     sim.state.machines["CNC-04"].load = 0.8
     after = temperatures(sim, 120)
     assert after[0] == pytest.approx(112.6)
-    assert after[19] == pytest.approx(112.0 + 12.0 * (1 - 0.95**20))  # about two thirds of the way
+    assert after[19] == pytest.approx(
+        112.0 + 12.0 * (1 - 0.95**20)
+    )  # about two thirds of the way
     assert 123.0 < after[59] < 124.0
     assert all(b > a for a, b in zip(after, after[1:]))
     assert max(after) < 124.0

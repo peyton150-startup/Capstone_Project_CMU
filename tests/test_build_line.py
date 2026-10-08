@@ -39,8 +39,12 @@ def test_a_given_size_overrides_the_seed_and_changes_nothing_else():
 @pytest.mark.parametrize("machines", range(3, 9))
 def test_any_size_from_three_to_eight_builds_and_runs(machines):
     sim = run(build_line(42, machines=machines), 200)
-    assert list(sim.state.machines) == machine_names(machines) == sim.state.lines["line"]
-    assert [m.ticks_per_job for m in sim.state.machines.values()] == list(STANDARD_TICKS_PER_JOB[:machines])
+    assert (
+        list(sim.state.machines) == machine_names(machines) == sim.state.lines["line"]
+    )
+    assert [m.ticks_per_job for m in sim.state.machines.values()] == list(
+        STANDARD_TICKS_PER_JOB[:machines]
+    )
     # vibration, temperature and load on every machine, plus the thermometer
     assert len(sim.readings) == 200 * (3 * machines + 1)
 
@@ -71,13 +75,19 @@ def test_a_healthy_day_has_work_door_openings_and_no_trouble():
 def test_jobs_reach_the_end_of_the_longest_line():
     sim = run(build_line(42, machines=8))
     history = ObservationTools(sim).get_job_history(1)
-    assert [row["machine_id"] for row in history if row["message"].endswith("started")] == machine_names(8)
+    assert [
+        row["machine_id"] for row in history if row["message"].endswith("started")
+    ] == machine_names(8)
     assert sim.state.completed_jobs[:3] == [1, 2, 3]
 
 
 def test_the_second_machine_is_the_slowest_step_so_the_first_is_held_up():
     sim = run(build_line(42, machines=3))
-    blocked = {(e.machine_id, e.message.split("blocked by ")[1]) for e in sim.event_log.events if "blocked" in e.message}
+    blocked = {
+        (e.machine_id, e.message.split("blocked by ")[1])
+        for e in sim.event_log.events
+        if "blocked" in e.message
+    }
     assert blocked == {("CNC-01", "CNC-02")}
 
 
@@ -103,14 +113,22 @@ def test_same_seed_gives_the_same_day_and_a_different_seed_a_different_one():
 
 def test_a_fault_added_afterwards_sees_the_lines_work_and_stops_the_line():
     sim = build_line(42, machines=5)
-    sim.add_scenario(BearingDegradation("bearing", sim.rng, machine_id="CNC-03", start_tick=100, rate=0.002))
+    sim.add_scenario(
+        BearingDegradation(
+            "bearing", sim.rng, machine_id="CNC-03", start_tick=100, rate=0.002
+        )
+    )
     run(sim, 2000)
     assert [g.machine_id for g in sim.ground_truth()] == ["CNC-03"]
     stops = [e for e in sim.event_log.events if e.kind == "status"]
     assert [e.machine_id for e in stops] == ["CNC-03"]
     statuses = {m.id: m.status for m in sim.state.machines.values()}
     assert statuses["CNC-03"] is MachineStatus.DOWN
-    assert all(status is MachineStatus.IDLE for name, status in statuses.items() if name != "CNC-03")
+    assert all(
+        status is MachineStatus.IDLE
+        for name, status in statuses.items()
+        if name != "CNC-03"
+    )
     assert sim.state.machines["CNC-01"].condition.bearing_health == 1.0
 
 

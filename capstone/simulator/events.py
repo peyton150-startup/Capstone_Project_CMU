@@ -32,7 +32,9 @@ class EventLog:
 
     def record(self, event: Event) -> None:
         if self._events and event.tick < self._events[-1].tick:
-            raise ValueError(f"event at tick {event.tick} is older than the log's latest entry")
+            raise ValueError(
+                f"event at tick {event.tick} is older than the log's latest entry"
+            )
         self._events.append(event)
 
 

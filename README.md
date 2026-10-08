@@ -37,6 +37,20 @@ The existing pip setup remains available: `pip install -e ".[dev]"`, then
 install that file with pip, then install the local package using
 `pip install --no-deps -e .`.
 
+## Formatting and linting
+
+Ruff is included in the development dependencies. Run:
+
+```sh
+uv run --locked ruff check .
+uv run --locked ruff format --check .
+```
+
+Use `uv run --locked ruff format .` to apply formatting. The initial rules
+check basic Python correctness and unused imports, with Python 3.11 as the
+minimum target. Formatting uses 88-character lines. Automatic Git hooks and
+CI checks are still future work.
+
 ## Optional Neon connection check
 
 Install the database extra and put the Neon connection string in a local

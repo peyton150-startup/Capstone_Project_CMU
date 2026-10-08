@@ -12,10 +12,16 @@ from capstone.tools.observation import ObservationTools
 REASON = "vibration and job times rising for 300 ticks"
 
 
-def factory(ticks: int = 600, fault: bool = True) -> tuple[Simulator, ObservationTools, ActionTools, ApprovalDesk]:
+def factory(
+    ticks: int = 600, fault: bool = True
+) -> tuple[Simulator, ObservationTools, ActionTools, ApprovalDesk]:
     sim = build_line(42, machines=3)
     if fault:
-        sim.add_scenario(BearingDegradation("bearing", sim.rng, machine_id="CNC-02", start_tick=50, rate=0.0006))
+        sim.add_scenario(
+            BearingDegradation(
+                "bearing", sim.rng, machine_id="CNC-02", start_tick=50, rate=0.0006
+            )
+        )
     for _ in range(ticks):
         sim.step()
     desk = ApprovalDesk(sim)
@@ -34,7 +40,12 @@ def test_the_agent_can_wait_propose_and_check_but_not_decide():
 
 def test_proposing_changes_nothing_in_the_factory():
     sim, _, act, _ = factory()
-    before = (sim.clock.tick, sim.state.model_copy(deep=True), sim.readings, sim.event_log.events)
+    before = (
+        sim.clock.tick,
+        sim.state.model_copy(deep=True),
+        sim.readings,
+        sim.event_log.events,
+    )
     act.propose_action("CNC-02", "replace_bearing", REASON)
     assert (sim.clock.tick, sim.state, sim.readings, sim.event_log.events) == before
 
@@ -58,7 +69,11 @@ def test_a_proposal_is_recorded_as_pending_with_its_reason_and_tick():
 
 @pytest.mark.parametrize(
     "machine_id, action, reason",
-    [("CNC-99", "replace_bearing", REASON), ("CNC-02", "set_on_fire", REASON), ("CNC-02", "replace_bearing", "   ")],
+    [
+        ("CNC-99", "replace_bearing", REASON),
+        ("CNC-02", "set_on_fire", REASON),
+        ("CNC-02", "replace_bearing", "   "),
+    ],
 )
 def test_bad_proposals_are_refused_and_not_recorded(machine_id, action, reason):
     _, _, act, desk = factory()
@@ -70,11 +85,20 @@ def test_bad_proposals_are_refused_and_not_recorded(machine_id, action, reason):
 def test_approving_starts_the_repair_and_marks_the_proposal():
     sim, look, act, desk = factory()
     proposal = act.propose_action("CNC-02", "replace_bearing", REASON)
-    assert sim.state.machines["CNC-02"].status is not MachineStatus.DOWN  # still in service
+    assert (
+        sim.state.machines["CNC-02"].status is not MachineStatus.DOWN
+    )  # still in service
     decided = desk.approve(proposal["id"], note="go ahead at shift change")
-    assert (decided["status"], decided["decided_tick"], decided["note"]) == ("approved", 600, "go ahead at shift change")
+    assert (decided["status"], decided["decided_tick"], decided["note"]) == (
+        "approved",
+        600,
+        "go ahead at shift change",
+    )
     assert sim.state.machines["CNC-02"].status is MachineStatus.DOWN
-    assert look.get_events(600, 600, "CNC-02")[-1]["message"] == "bearing replacement started"
+    assert (
+        look.get_events(600, 600, "CNC-02")[-1]["message"]
+        == "bearing replacement started"
+    )
     assert act.get_proposals()[0]["status"] == "approved"
     assert desk.pending() == []
 
@@ -83,7 +107,10 @@ def test_rejecting_leaves_the_factory_alone():
     sim, _, act, desk = factory()
     proposal = act.propose_action("CNC-02", "replace_bearing", REASON)
     decided = desk.reject(proposal["id"], note="not enough evidence yet")
-    assert (decided["status"], decided["note"]) == ("rejected", "not enough evidence yet")
+    assert (decided["status"], decided["note"]) == (
+        "rejected",
+        "not enough evidence yet",
+    )
     assert sim.state.machines["CNC-02"].maintenance_until is None
     assert not [e for e in sim.event_log.events if e.kind == "maintenance"]
 
@@ -119,17 +146,27 @@ def test_the_agent_gets_copies_it_cannot_use_to_approve_itself():
 
 def test_the_whole_loop_propose_approve_wait_verify():
     sim, look, act, desk = factory()
-    before = [r["value"] for r in look.get_readings("CNC-02", "vibration", 500, 600) if r["value"] > 1.0]
+    before = [
+        r["value"]
+        for r in look.get_readings("CNC-02", "vibration", 500, 600)
+        if r["value"] > 1.0
+    ]
     proposal = act.propose_action("CNC-02", "replace_bearing", REASON)
     desk.approve(proposal["id"])
     act.wait(45)
-    finished = [e for e in look.get_events(600, 645, "CNC-02") if e["kind"] == "maintenance"][-1]
+    finished = [
+        e for e in look.get_events(600, 645, "CNC-02") if e["kind"] == "maintenance"
+    ][-1]
     assert finished["message"] in (
         "bearing replacement finished: old bearing worn",
         "bearing replacement finished: old bearing badly worn",
     )
     act.wait(300)
-    after = [r["value"] for r in look.get_readings("CNC-02", "vibration", 700, 945) if r["value"] > 1.0]
+    after = [
+        r["value"]
+        for r in look.get_readings("CNC-02", "vibration", 700, 945)
+        if r["value"] > 1.0
+    ]
     assert sum(after) / len(after) < sum(before) / len(before) - 0.3
     assert sim.state.machines["CNC-02"].condition.bearing_health == 1.0
 

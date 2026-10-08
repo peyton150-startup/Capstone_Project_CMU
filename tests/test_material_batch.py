@@ -25,10 +25,20 @@ def factory(
     """A balanced three-machine line cutting jobs from batches, with one bad batch unless told otherwise."""
     sim = Simulator(seed, START)
     for machine_id, health in zip(LINE, healths):
-        sim.add_machine(MachineState(id=machine_id, condition=MachineCondition(bearing_health=health)))
-    sim.add_scenario(ProductionLine("line", sim.rng, machine_ids=LINE, jobs_per_batch=jobs_per_batch))
+        sim.add_machine(
+            MachineState(
+                id=machine_id, condition=MachineCondition(bearing_health=health)
+            )
+        )
+    sim.add_scenario(
+        ProductionLine("line", sim.rng, machine_ids=LINE, jobs_per_batch=jobs_per_batch)
+    )
     if bad_batch is not None:
-        sim.add_scenario(BadMaterialBatch("bad-batch", sim.rng, batch_number=bad_batch, added_risk=RISK))
+        sim.add_scenario(
+            BadMaterialBatch(
+                "bad-batch", sim.rng, batch_number=bad_batch, added_risk=RISK
+            )
+        )
     return sim
 
 
@@ -45,13 +55,19 @@ def run_until_first_machine_holds_batch(sim: Simulator, batch_id: int) -> Simula
 
 
 def failures(sim: Simulator, in_bad_batch: bool) -> list[bool]:
-    return [not r.passed for r in sim.state.inspections if (r.batch_id == BAD) == in_bad_batch]
+    return [
+        not r.passed
+        for r in sim.state.inspections
+        if (r.batch_id == BAD) == in_bad_batch
+    ]
 
 
 def test_each_job_carries_the_number_of_the_batch_it_was_cut_from():
     sim = run(factory(bad_batch=None))
     assert len(sim.state.inspections) > 3 * PER_BATCH
-    assert all(r.batch_id == (r.job_id - 1) // PER_BATCH + 1 for r in sim.state.inspections)
+    assert all(
+        r.batch_id == (r.job_id - 1) // PER_BATCH + 1 for r in sim.state.inspections
+    )
 
 
 def test_a_line_that_does_not_use_batches_has_none():
@@ -71,7 +87,9 @@ def test_the_scenario_changes_only_the_bad_batchs_hidden_quality():
     seen: dict[int, float] = {}
     for _ in range(9000):
         sim.step()
-        seen[sim.state.batch.id] = max(seen.get(sim.state.batch.id, 0.0), sim.state.batch.defect_risk)
+        seen[sim.state.batch.id] = max(
+            seen.get(sim.state.batch.id, 0.0), sim.state.batch.defect_risk
+        )
     assert seen[BAD] == RISK
     assert all(risk == 0.0 for batch_id, risk in seen.items() if batch_id != BAD)
     assert all(m.condition.bearing_health == 1.0 for m in sim.state.machines.values())
@@ -118,29 +136,41 @@ def test_no_sensor_reading_and_no_job_load_changes_because_of_a_bad_batch():
 
     clean, faulty = day(False), day(True)
     assert faulty.readings == clean.readings
-    assert [r.passed for r in faulty.state.inspections] != [r.passed for r in clean.state.inspections]
+    assert [r.passed for r in faulty.state.inspections] != [
+        r.passed for r in clean.state.inspections
+    ]
 
 
 def test_each_batch_is_announced_once_as_a_factory_event_before_its_first_job():
     sim = run(factory())
     opened = [e for e in sim.event_log.events if e.kind == "batch"]
-    assert [e.message for e in opened[:3]] == [f"material batch {n} opened" for n in (1, 2, 3)]
+    assert [e.message for e in opened[:3]] == [
+        f"material batch {n} opened" for n in (1, 2, 3)
+    ]
     assert all(e.machine_id is None and e.job_id is None for e in opened)
     first_job_of_batch_3 = (BAD - 1) * PER_BATCH + 1
-    started = next(e.tick for e in sim.event_log.events if e.job_id == first_job_of_batch_3)
+    started = next(
+        e.tick for e in sim.event_log.events if e.job_id == first_job_of_batch_3
+    )
     assert opened[2].tick < started
 
 
 def test_the_ground_truth_names_the_batch_and_no_machine():
     (truth,) = factory().ground_truth()
-    assert (truth.fault, truth.batch_id, truth.machine_id) == ("bad_material_batch", BAD, None)
+    assert (truth.fault, truth.batch_id, truth.machine_id) == (
+        "bad_material_batch",
+        BAD,
+        None,
+    )
 
 
 def test_the_agent_sees_batch_numbers_and_never_the_quality():
     sim = run(factory())
     tools = ObservationTools(sim)
     results = tools.get_inspections(0, 9000)
-    assert [r["batch_id"] for r in results] == [r.batch_id for r in sim.state.inspections]
+    assert [r["batch_id"] for r in results] == [
+        r.batch_id for r in sim.state.inspections
+    ]
     seen = json.dumps([tools.list_machines(), tools.get_events(0, 9000), results])
     assert "risk" not in seen and "0.4" not in seen and "bad" not in seen
 

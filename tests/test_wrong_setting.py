@@ -24,22 +24,36 @@ TIMES = (60, 70, 55)
 FAULT_TICK = 2000
 
 
-def factory(factor: float | None = 1.15, ticks: int = 6000, seed: int = 42) -> tuple[Simulator, ObservationTools]:
+def factory(
+    factor: float | None = 1.15, ticks: int = 6000, seed: int = 42
+) -> tuple[Simulator, ObservationTools]:
     """The 60/70/55 line with exact job times; CNC-02 is set wrong at tick 2000 unless factor is None."""
     sim = Simulator(seed, START)
     for machine_id, per_job in zip(LINE, TIMES):
         sim.add_machine(MachineState(id=machine_id, ticks_per_job=per_job))
         sim.add_sensor(VibrationSensor(machine_id, sim.rng))
         sim.add_sensor(TemperatureSensor(machine_id, sim.rng))
-    sim.add_scenario(ProductionLine("line", sim.rng, machine_ids=LINE, jobs_per_batch=25))
+    sim.add_scenario(
+        ProductionLine("line", sim.rng, machine_ids=LINE, jobs_per_batch=25)
+    )
     if factor is not None:
-        sim.add_scenario(WrongSetting("setting", sim.rng, machine_id="CNC-02", start_tick=FAULT_TICK, factor=factor))
+        sim.add_scenario(
+            WrongSetting(
+                "setting",
+                sim.rng,
+                machine_id="CNC-02",
+                start_tick=FAULT_TICK,
+                factor=factor,
+            )
+        )
     for _ in range(ticks):
         sim.step()
     return sim, ObservationTools(sim)
 
 
-def working_times(tools: ObservationTools, machine_id: str, from_tick: int, to_tick: int) -> list[int]:
+def working_times(
+    tools: ObservationTools, machine_id: str, from_tick: int, to_tick: int
+) -> list[int]:
     """How long each job took on a machine, for jobs both started and finished in the range."""
     started: dict[int, int] = {}
     taken = []
@@ -51,8 +65,14 @@ def working_times(tools: ObservationTools, machine_id: str, from_tick: int, to_t
     return taken
 
 
-def average(tools: ObservationTools, sensor: str, from_tick: int, to_tick: int) -> float:
-    running = [r["value"] for r in tools.get_readings("CNC-02", sensor, from_tick, to_tick) if r["value"] > 1.0]
+def average(
+    tools: ObservationTools, sensor: str, from_tick: int, to_tick: int
+) -> float:
+    running = [
+        r["value"]
+        for r in tools.get_readings("CNC-02", sensor, from_tick, to_tick)
+        if r["value"] > 1.0
+    ]
     return sum(running) / len(running)
 
 
@@ -73,7 +93,9 @@ def test_the_scenario_writes_the_setting_once_at_its_start_tick_and_nothing_else
     state = FactoryState()
     state.add(MachineState(id="CNC-02", standard_speed=850.0))
     untouched = state.machines["CNC-02"].model_dump(exclude={"speed_setting"})
-    fault = WrongSetting("setting", RandomSource(42), machine_id="CNC-02", start_tick=10, factor=1.15)
+    fault = WrongSetting(
+        "setting", RandomSource(42), machine_id="CNC-02", start_tick=10, factor=1.15
+    )
     fault.apply(state, 9)
     assert state.machines["CNC-02"].speed_setting is None
     fault.apply(state, 10)
@@ -84,7 +106,9 @@ def test_the_scenario_writes_the_setting_once_at_its_start_tick_and_nothing_else
 def test_a_setting_put_right_afterwards_stays_right():
     state = FactoryState()
     state.add(MachineState(id="CNC-02"))
-    fault = WrongSetting("setting", RandomSource(42), machine_id="CNC-02", start_tick=10, factor=1.15)
+    fault = WrongSetting(
+        "setting", RandomSource(42), machine_id="CNC-02", start_tick=10, factor=1.15
+    )
     fault.apply(state, 10)
     state.machines["CNC-02"].speed_setting = None
     fault.apply(state, 11)
@@ -119,12 +143,16 @@ def test_vibration_steps_up_a_little_and_then_stays_level():
 
 def test_a_machine_set_fifteen_percent_fast_settles_six_degrees_warmer():
     right, fast = MachineState(id="X"), MachineState(id="X", speed_setting=1150.0)
-    assert settling_temperature(fast, 72.0) - settling_temperature(right, 72.0) == pytest.approx(6.0)
+    assert settling_temperature(fast, 72.0) - settling_temperature(
+        right, 72.0
+    ) == pytest.approx(6.0)
 
 
 def test_set_too_slow_vibration_goes_down_not_up():
     _, tools = factory(factor=0.88)
-    assert average(tools, "vibration", FAULT_TICK + 100, 6000) < average(tools, "vibration", 500, FAULT_TICK - 1)
+    assert average(tools, "vibration", FAULT_TICK + 100, 6000) < average(
+        tools, "vibration", 500, FAULT_TICK - 1
+    )
 
 
 def test_the_vibration_alarm_never_fires_and_the_machine_never_breaks_down():
@@ -134,8 +162,12 @@ def test_the_vibration_alarm_never_fires_and_the_machine_never_breaks_down():
 
 
 def test_each_job_the_machine_finishes_picks_up_the_same_extra_risk():
-    assert defect_mark(MachineState(id="X", speed_setting=1150.0)) == pytest.approx(0.18)
-    assert defect_mark(MachineState(id="X", speed_setting=880.0)) == pytest.approx(8.0 * 0.12**2)
+    assert defect_mark(MachineState(id="X", speed_setting=1150.0)) == pytest.approx(
+        0.18
+    )
+    assert defect_mark(MachineState(id="X", speed_setting=880.0)) == pytest.approx(
+        8.0 * 0.12**2
+    )
     sim, _ = factory(ticks=2600)
     assert sim.state.machines["CNC-03"].job.defect_risk == pytest.approx(0.18)
 
@@ -144,7 +176,11 @@ def test_rejects_rise_after_the_change_and_carry_on_across_batches():
     sim, _ = factory(ticks=9000)
     assert failure_rate(sim, 0, FAULT_TICK) <= 0.06
     assert failure_rate(sim, FAULT_TICK + 200, 9000) >= 0.10
-    failed_batches = {r.batch_id for r in sim.state.inspections if not r.passed and r.tick > FAULT_TICK + 200}
+    failed_batches = {
+        r.batch_id
+        for r in sim.state.inspections
+        if not r.passed and r.tick > FAULT_TICK + 200
+    }
     assert len(failed_batches) >= 3
 
 
@@ -152,14 +188,23 @@ def test_more_parts_but_fewer_good_ones():
     wrong, _ = factory(ticks=9000)
     right, _ = factory(factor=None, ticks=9000)
     assert len(wrong.state.completed_jobs) > len(right.state.completed_jobs)
-    assert sum(r.passed for r in wrong.state.inspections) < sum(r.passed for r in right.state.inspections)
+    assert sum(r.passed for r in wrong.state.inspections) < sum(
+        r.passed for r in right.state.inspections
+    )
 
 
 def test_a_wrong_setting_alone_wears_nothing_but_speeds_up_wear_that_is_under_way():
     def health_after(speed_setting):
         state = FactoryState()
         state.add(MachineState(id="CNC-02", speed_setting=speed_setting))
-        wear = BearingDegradation("bearing", RandomSource(42), machine_id="CNC-02", start_tick=1, rate=0.001, variation=0.0)
+        wear = BearingDegradation(
+            "bearing",
+            RandomSource(42),
+            machine_id="CNC-02",
+            start_tick=1,
+            rate=0.001,
+            variation=0.0,
+        )
         for tick in range(1, 101):
             wear.apply(state, tick)
         return state.machines["CNC-02"].condition.bearing_health
@@ -170,10 +215,13 @@ def test_a_wrong_setting_alone_wears_nothing_but_speeds_up_wear_that_is_under_wa
 
 def test_the_agent_can_read_each_machines_speed_but_not_what_it_should_be():
     sim = build_line(42, machines=3)
-    sim.add_scenario(WrongSetting("setting", sim.rng, machine_id="CNC-02", start_tick=5, factor=1.15))
+    sim.add_scenario(
+        WrongSetting("setting", sim.rng, machine_id="CNC-02", start_tick=5, factor=1.15)
+    )
     tools = ObservationTools(sim)
     assert tools.get_settings() == [
-        {"machine_id": name, "speed_rpm": speed} for name, speed in zip(LINE, STANDARD_SPEEDS)
+        {"machine_id": name, "speed_rpm": speed}
+        for name, speed in zip(LINE, STANDARD_SPEEDS)
     ]
     for _ in range(10):
         sim.step()
@@ -181,19 +229,29 @@ def test_the_agent_can_read_each_machines_speed_but_not_what_it_should_be():
     assert settings[1] == {"machine_id": "CNC-02", "speed_rpm": pytest.approx(977.5)}
     seen = json.dumps([settings, tools.list_machines(), tools.get_events(0, 10)])
     assert "standard" not in seen and "ratio" not in seen and "850" not in seen
-    assert not [e for e in sim.event_log.events if "setting" in e.message or "speed" in e.message]
+    assert not [
+        e
+        for e in sim.event_log.events
+        if "setting" in e.message or "speed" in e.message
+    ]
 
 
 def test_the_ground_truth_names_the_machine_and_the_tick():
     sim, _ = factory(ticks=1)
     (truth,) = sim.ground_truth()
-    assert (truth.fault, truth.machine_id, truth.start_tick) == ("wrong_setting", "CNC-02", FAULT_TICK)
+    assert (truth.fault, truth.machine_id, truth.start_tick) == (
+        "wrong_setting",
+        "CNC-02",
+        FAULT_TICK,
+    )
 
 
 def test_a_factor_of_one_or_less_than_nothing_is_refused():
     for bad in (1.0, 0.0, -0.5):
         with pytest.raises(ValueError):
-            WrongSetting("s", RandomSource(1), machine_id="CNC-02", start_tick=1, factor=bad)
+            WrongSetting(
+                "s", RandomSource(1), machine_id="CNC-02", start_tick=1, factor=bad
+            )
 
 
 def test_same_seed_gives_the_same_results_and_another_seed_different_ones():

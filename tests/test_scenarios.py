@@ -23,17 +23,26 @@ class SetHealthAt(Scenario):
             state.machines[self.machine_id].condition.bearing_health = self.health
 
     def ground_truth(self):
-        return GroundTruth(scenario=self.name, fault="test", machine_id=self.machine_id, start_tick=self.at_tick)
+        return GroundTruth(
+            scenario=self.name,
+            fault="test",
+            machine_id=self.machine_id,
+            start_tick=self.at_tick,
+        )
 
 
 class RandomWear(Scenario):
     """Test stand-in: wear by a random amount each tick, from its own stream."""
 
     def apply(self, state, tick):
-        state.machines["CNC-04"].condition.bearing_health -= self._stream.uniform(0.0, 0.01)
+        state.machines["CNC-04"].condition.bearing_health -= self._stream.uniform(
+            0.0, 0.01
+        )
 
     def ground_truth(self):
-        return GroundTruth(scenario=self.name, fault="test", machine_id="CNC-04", start_tick=1)
+        return GroundTruth(
+            scenario=self.name, fault="test", machine_id="CNC-04", start_tick=1
+        )
 
 
 def factory(seed: int = 42) -> Simulator:
@@ -66,7 +75,9 @@ def test_duplicate_scenario_name_is_rejected():
 
 def test_scenario_changes_reality_and_the_sensor_reports_it_the_same_tick():
     sim = factory()
-    sim.add_scenario(SetHealthAt("drop", sim.rng, machine_id="CNC-04", at_tick=3, health=0.2))
+    sim.add_scenario(
+        SetHealthAt("drop", sim.rng, machine_id="CNC-04", at_tick=3, health=0.2)
+    )
     for _ in range(3):
         sim.step()
     assert values(sim)[2] == pytest.approx(2.0)
@@ -76,7 +87,9 @@ def test_scenario_changes_reality_and_the_sensor_reports_it_the_same_tick():
 
 def test_scenario_adds_no_readings_of_its_own():
     sim = factory()
-    sim.add_scenario(SetHealthAt("drop", sim.rng, machine_id="CNC-04", at_tick=1, health=0.2))
+    sim.add_scenario(
+        SetHealthAt("drop", sim.rng, machine_id="CNC-04", at_tick=1, health=0.2)
+    )
     for _ in range(5):
         sim.step()
     assert [r.tick for r in sim.readings] == [1, 2, 3, 4, 5]
@@ -84,8 +97,12 @@ def test_scenario_adds_no_readings_of_its_own():
 
 def test_scenarios_apply_in_the_order_they_were_added():
     sim = factory()
-    sim.add_scenario(SetHealthAt("first", sim.rng, machine_id="CNC-04", at_tick=1, health=0.2))
-    sim.add_scenario(SetHealthAt("second", sim.rng, machine_id="CNC-04", at_tick=1, health=0.9))
+    sim.add_scenario(
+        SetHealthAt("first", sim.rng, machine_id="CNC-04", at_tick=1, health=0.2)
+    )
+    sim.add_scenario(
+        SetHealthAt("second", sim.rng, machine_id="CNC-04", at_tick=1, health=0.9)
+    )
     sim.step()
     assert sim.state.machines["CNC-04"].condition.bearing_health == 0.9
 

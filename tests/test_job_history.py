@@ -13,7 +13,9 @@ BALANCED = (60, 60, 60)
 UNEVEN = (60, 70, 55)  # CNC-02 is the slowest step
 
 
-def factory(times: tuple[int, ...] = UNEVEN, ticks: int = 900, seed: int = 42) -> tuple[Simulator, ObservationTools]:
+def factory(
+    times: tuple[int, ...] = UNEVEN, ticks: int = 900, seed: int = 42
+) -> tuple[Simulator, ObservationTools]:
     sim = Simulator(seed, START)
     for machine_id, per_job in zip(LINE, times):
         sim.add_machine(MachineState(id=machine_id, ticks_per_job=per_job))
@@ -24,7 +26,10 @@ def factory(times: tuple[int, ...] = UNEVEN, ticks: int = 900, seed: int = 42) -
 
 
 def trail(tools: ObservationTools, job_id: int) -> list[tuple[int, str, str]]:
-    return [(row["tick"], row["machine_id"], row["message"]) for row in tools.get_job_history(job_id)]
+    return [
+        (row["tick"], row["machine_id"], row["message"])
+        for row in tools.get_job_history(job_id)
+    ]
 
 
 def test_the_line_order_is_part_of_the_factory_state():
@@ -47,9 +52,16 @@ def test_job_1_on_an_empty_line_is_never_held_up():
 def test_started_to_finished_is_always_the_machines_own_working_time():
     _, tools = factory()
     for job_id in range(1, 9):
-        ticks = {(m, msg.split()[-1]): t for t, m, msg in trail(tools, job_id) if "blocked" not in msg}
+        ticks = {
+            (m, msg.split()[-1]): t
+            for t, m, msg in trail(tools, job_id)
+            if "blocked" not in msg
+        }
         for machine_id, per_job in zip(LINE, UNEVEN):
-            assert ticks[(machine_id, "finished")] - ticks[(machine_id, "started")] + 1 == per_job
+            assert (
+                ticks[(machine_id, "finished")] - ticks[(machine_id, "started")] + 1
+                == per_job
+            )
 
 
 def test_on_a_balanced_line_no_job_is_ever_held_up():
@@ -64,7 +76,11 @@ def test_the_machine_before_the_slow_one_is_held_up_on_every_job_once_the_line_i
         assert len(held) == 1
         tick, machine_id, message = held[0]
         assert (machine_id, message) == ("CNC-01", f"job {job_id} blocked by CNC-02")
-        ticks = {(m, msg.split()[-1]): t for t, m, msg in trail(tools, job_id) if "blocked" not in msg}
+        ticks = {
+            (m, msg.split()[-1]): t
+            for t, m, msg in trail(tools, job_id)
+            if "blocked" not in msg
+        }
         assert tick == ticks[("CNC-01", "finished")] + 1
         assert ticks[("CNC-02", "started")] - tick == 10  # the normal wait on this line
 
@@ -76,7 +92,10 @@ def test_a_breakdown_ahead_holds_the_job_with_no_end():
         sim.step()
     tools = ObservationTools(sim)
     waiting = sim.state.machines["CNC-01"].job.id
-    assert trail(tools, waiting)[-1][1:] == ("CNC-01", f"job {waiting} blocked by CNC-02")
+    assert trail(tools, waiting)[-1][1:] == (
+        "CNC-01",
+        f"job {waiting} blocked by CNC-02",
+    )
     assert tools.get_events(650, 700) == []
 
 
@@ -113,7 +132,13 @@ def test_history_of_an_unknown_job_is_empty_and_answers_are_plain_data():
     _, tools = factory()
     assert tools.get_job_history(9999) == []
     assert json.loads(json.dumps(tools.get_job_history(3))) == tools.get_job_history(3)
-    assert set(tools.get_job_history(3)[0]) == {"tick", "machine_id", "kind", "message", "job_id"}
+    assert set(tools.get_job_history(3)[0]) == {
+        "tick",
+        "machine_id",
+        "kind",
+        "message",
+        "job_id",
+    }
 
 
 def test_same_seed_gives_the_same_history():

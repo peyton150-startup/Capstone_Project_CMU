@@ -54,6 +54,19 @@ alarm), then evaluation, then the agent itself.
 
 ## Session notes
 
+- **2026-10-08 — Ruff.** Understood: no — built ungated, developer to
+  review. Added Ruff to the development group and pip-compatible extra in
+  `pyproject.toml`, configured Python 3.11 as the minimum target, 88-character
+  formatting, and basic correctness rules (`E4`, `E7`, `E9`, `F`). The
+  optional database test's import guard is the only `E402` exception.
+  `.gitignore` excludes `.ruff_cache`; `README.md` documents lint and
+  format commands; `MVP_SCOPE.md` marks Ruff implemented. The formatter
+  changed 36 existing Python files; all tracked Python syntax trees were
+  identical before and after formatting, so no functions, classes, or
+  simulation behavior changed. Formatting is committed separately from
+  typed settings. Ruff checks passed and all 333 existing tests passed
+  after formatting. No hooks or CI were added.
+
 - **2026-10-08 — development tooling and Neon connectivity.** Implemented
   ungated at the developer's request. Understood: no — built ungated,
   developer to review. The existing `uv` installation now manages `.venv`

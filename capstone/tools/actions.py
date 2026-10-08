@@ -60,12 +60,18 @@ class ApprovalDesk:
         for proposal in self._proposals:
             if proposal.id == proposal_id:
                 if proposal.status != "pending":
-                    raise ValueError(f"proposal {proposal_id} was already {proposal.status}")
+                    raise ValueError(
+                        f"proposal {proposal_id} was already {proposal.status}"
+                    )
                 return proposal
         raise ValueError(f"no proposal {proposal_id}")
 
     def _decide(self, proposal: Proposal, status: str, note: str) -> dict:
-        proposal.status, proposal.note, proposal.decided_tick = status, note, self._sim.clock.tick
+        proposal.status, proposal.note, proposal.decided_tick = (
+            status,
+            note,
+            self._sim.clock.tick,
+        )
         return proposal.model_dump()
 
 
@@ -78,14 +84,24 @@ class ActionTools:
     approving is done at the ApprovalDesk, which it is never given.
     """
 
-    def __init__(self, simulator: Simulator, desk: ApprovalDesk | None = None, *, max_wait: int = 480):
+    def __init__(
+        self,
+        simulator: Simulator,
+        desk: ApprovalDesk | None = None,
+        *,
+        max_wait: int = 480,
+    ):
         self._sim = simulator
         self._desk = desk or ApprovalDesk(simulator)
         self.max_wait = max_wait
 
     def wait(self, ticks: int) -> dict:
         """Let the factory run for `ticks` ticks, then report the new time."""
-        if not isinstance(ticks, int) or isinstance(ticks, bool) or not 1 <= ticks <= self.max_wait:
+        if (
+            not isinstance(ticks, int)
+            or isinstance(ticks, bool)
+            or not 1 <= ticks <= self.max_wait
+        ):
             raise ValueError(f"ticks must be a whole number from 1 to {self.max_wait}")
         for _ in range(ticks):
             self._sim.step()
@@ -97,7 +113,9 @@ class ActionTools:
         if machine_id not in self._sim.state.machines:
             raise ValueError(f"unknown machine {machine_id}")
         if action not in ACTIONS:
-            raise ValueError(f"unknown action {action}; choose from {', '.join(ACTIONS)}")
+            raise ValueError(
+                f"unknown action {action}; choose from {', '.join(ACTIONS)}"
+            )
         if not isinstance(reason, str) or not reason.strip():
             raise ValueError("a reason is required")
         return self._desk.submit(machine_id, action, reason.strip()).model_dump()

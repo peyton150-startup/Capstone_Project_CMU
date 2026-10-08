@@ -13,8 +13,17 @@ from capstone.tools.observation import ObservationTools
 START = datetime(2026, 1, 5, 6, 0)
 
 
-def machine(load: float = 0.5, health: float = 1.0, status: MachineStatus = MachineStatus.RUNNING) -> MachineState:
-    return MachineState(id="CNC-04", status=status, load=load, condition=MachineCondition(bearing_health=health))
+def machine(
+    load: float = 0.5,
+    health: float = 1.0,
+    status: MachineStatus = MachineStatus.RUNNING,
+) -> MachineState:
+    return MachineState(
+        id="CNC-04",
+        status=status,
+        load=load,
+        condition=MachineCondition(bearing_health=health),
+    )
 
 
 def exact(m: MachineState) -> dict[str, float]:
@@ -37,11 +46,15 @@ def test_load_must_be_between_zero_and_one():
 
 
 def test_at_normal_load_the_readings_are_what_they_were_before():
-    assert exact(machine()) == pytest.approx({"vibration": 2.0, "temperature": 115.0, "load": 50.0})
+    assert exact(machine()) == pytest.approx(
+        {"vibration": 2.0, "temperature": 115.0, "load": 50.0}
+    )
 
 
 def test_heavier_load_raises_vibration_and_temperature_on_a_healthy_machine():
-    assert exact(machine(load=0.9)) == pytest.approx({"vibration": 2.6, "temperature": 127.0, "load": 90.0})
+    assert exact(machine(load=0.9)) == pytest.approx(
+        {"vibration": 2.6, "temperature": 127.0, "load": 90.0}
+    )
 
 
 def test_lighter_load_lowers_them():
@@ -51,7 +64,13 @@ def test_lighter_load_lowers_them():
 
 def test_load_and_wear_add_up():
     both = exact(machine(load=0.9, health=0.7))
-    assert both == pytest.approx({"vibration": 2.0 + 0.6 + 0.54, "temperature": 115.0 + 12.0 + 13.5, "load": 90.72})
+    assert both == pytest.approx(
+        {
+            "vibration": 2.0 + 0.6 + 0.54,
+            "temperature": 115.0 + 12.0 + 13.5,
+            "load": 90.72,
+        }
+    )
 
 
 def test_hard_work_and_a_worn_bearing_look_alike_except_on_the_load_sensor():
@@ -77,5 +96,9 @@ def test_the_agent_sees_load_only_through_the_load_sensor():
     sim.add_sensor(LoadSensor("CNC-04", sim.rng))
     sim.step()
     tools = ObservationTools(sim)
-    assert tools.list_machines() == [{"machine_id": "CNC-04", "status": "running", "job_id": None}]
-    assert tools.get_readings("CNC-04", "load", 1, 1)[0]["value"] == pytest.approx(90.0, abs=8.0)
+    assert tools.list_machines() == [
+        {"machine_id": "CNC-04", "status": "running", "job_id": None}
+    ]
+    assert tools.get_readings("CNC-04", "load", 1, 1)[0]["value"] == pytest.approx(
+        90.0, abs=8.0
+    )

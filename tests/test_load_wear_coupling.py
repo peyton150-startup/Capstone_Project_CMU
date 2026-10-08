@@ -16,7 +16,14 @@ RATE = 0.001
 def health_after(load: float, ticks: int = 100) -> float:
     state = FactoryState()
     state.add(MachineState(id="CNC-04", load=load))
-    wear = BearingDegradation("bearing", RandomSource(42), machine_id="CNC-04", start_tick=1, rate=RATE, variation=0.0)
+    wear = BearingDegradation(
+        "bearing",
+        RandomSource(42),
+        machine_id="CNC-04",
+        start_tick=1,
+        rate=RATE,
+        variation=0.0,
+    )
     for tick in range(1, ticks + 1):
         wear.apply(state, tick)
     assert state.machines["CNC-04"].load == load
@@ -24,7 +31,9 @@ def health_after(load: float, ticks: int = 100) -> float:
 
 
 def load_reading(health: float, load: float = 0.5) -> float:
-    m = MachineState(id="CNC-04", load=load, condition=MachineCondition(bearing_health=health))
+    m = MachineState(
+        id="CNC-04", load=load, condition=MachineCondition(bearing_health=health)
+    )
     return LoadSensor("CNC-04", RandomSource(42), noise_sd=0.0).read(m, 0).value
 
 
@@ -34,7 +43,15 @@ def two_machines() -> Simulator:
     for machine_id, load in (("A", 0.3), ("B", 0.8)):
         sim.add_machine(MachineState(id=machine_id, load=load))
         sim.add_sensor(LoadSensor(machine_id, sim.rng))
-        sim.add_scenario(BearingDegradation(f"bearing-{machine_id}", sim.rng, machine_id=machine_id, start_tick=100, rate=RATE))
+        sim.add_scenario(
+            BearingDegradation(
+                f"bearing-{machine_id}",
+                sim.rng,
+                machine_id=machine_id,
+                start_tick=100,
+                rate=RATE,
+            )
+        )
     for _ in range(1000):
         sim.step()
     return sim
@@ -78,7 +95,13 @@ def test_friction_is_small_early_and_noticeable_late():
 
 
 def test_wear_is_not_counted_twice_in_vibration_or_temperature():
-    m = settle(MachineState(id="CNC-04", condition=MachineCondition(bearing_health=0.7)), 72.0)
+    m = settle(
+        MachineState(id="CNC-04", condition=MachineCondition(bearing_health=0.7)), 72.0
+    )
     rng = RandomSource(42)
-    assert VibrationSensor("CNC-04", rng, noise_sd=0.0).read(m, 0).value == pytest.approx(2.54)
-    assert TemperatureSensor("CNC-04", rng, noise_sd=0.0).read(m, 0).value == pytest.approx(128.5)
+    assert VibrationSensor("CNC-04", rng, noise_sd=0.0).read(
+        m, 0
+    ).value == pytest.approx(2.54)
+    assert TemperatureSensor("CNC-04", rng, noise_sd=0.0).read(
+        m, 0
+    ).value == pytest.approx(128.5)

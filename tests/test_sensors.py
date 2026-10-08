@@ -6,8 +6,12 @@ from capstone.simulator.sensors import SensorReading, VibrationSensor
 from capstone.simulator.state import MachineCondition, MachineState, MachineStatus
 
 
-def machine(health: float = 1.0, status: MachineStatus = MachineStatus.RUNNING) -> MachineState:
-    return MachineState(id="CNC-04", status=status, condition=MachineCondition(bearing_health=health))
+def machine(
+    health: float = 1.0, status: MachineStatus = MachineStatus.RUNNING
+) -> MachineState:
+    return MachineState(
+        id="CNC-04", status=status, condition=MachineCondition(bearing_health=health)
+    )
 
 
 def exact_sensor(seed: int = 42) -> VibrationSensor:
@@ -16,11 +20,19 @@ def exact_sensor(seed: int = 42) -> VibrationSensor:
 
 def test_reading_carries_identity_tick_and_unit():
     r = VibrationSensor("CNC-04", RandomSource(42)).read(machine(), tick=17)
-    assert (r.sensor, r.machine_id, r.tick, r.unit) == ("vibration", "CNC-04", 17, "mm/s")
+    assert (r.sensor, r.machine_id, r.tick, r.unit) == (
+        "vibration",
+        "CNC-04",
+        17,
+        "mm/s",
+    )
 
 
 def test_stream_name_follows_the_frozen_convention():
-    assert VibrationSensor("CNC-04", RandomSource(42)).stream_name == "sensor.CNC-04.vibration"
+    assert (
+        VibrationSensor("CNC-04", RandomSource(42)).stream_name
+        == "sensor.CNC-04.vibration"
+    )
 
 
 def test_same_seed_gives_identical_reading_history():
@@ -59,7 +71,10 @@ def test_stopped_machine_barely_vibrates_regardless_of_wear():
 
 
 def test_reading_never_goes_negative():
-    s, m = VibrationSensor("CNC-04", RandomSource(42), noise_sd=1.0), machine(1.0, MachineStatus.IDLE)
+    s, m = (
+        VibrationSensor("CNC-04", RandomSource(42), noise_sd=1.0),
+        machine(1.0, MachineStatus.IDLE),
+    )
     assert all(s.read(m, t).value >= 0.0 for t in range(500))
 
 

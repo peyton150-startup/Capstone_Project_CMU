@@ -22,7 +22,14 @@ def factory(rate: float | None = 0.0008, fault_start: int = 1) -> Simulator:
     sim.add_scenario(ProductionLine("line", sim.rng, machine_ids=LINE))
     if rate is not None:
         sim.add_scenario(
-            BearingDegradation("bearing", sim.rng, machine_id="CNC-02", start_tick=fault_start, rate=rate, variation=0.0)
+            BearingDegradation(
+                "bearing",
+                sim.rng,
+                machine_id="CNC-02",
+                start_tick=fault_start,
+                rate=rate,
+                variation=0.0,
+            )
         )
     return sim
 
@@ -38,7 +45,11 @@ def cnc02(sim: Simulator) -> MachineState:
 
 
 def maintenance(sim: Simulator) -> list[tuple[int, str, str]]:
-    return [(e.tick, e.machine_id, e.message) for e in sim.event_log.events if e.kind == "maintenance"]
+    return [
+        (e.tick, e.machine_id, e.message)
+        for e in sim.event_log.events
+        if e.kind == "maintenance"
+    ]
 
 
 def test_an_unknown_machine_is_refused():
@@ -63,7 +74,9 @@ def test_a_planned_replacement_takes_the_machine_down_for_exactly_45_ticks():
     assert cnc02(sim).status is not MachineStatus.DOWN
     started, finished = maintenance(sim)
     assert started == (400, "CNC-02", "bearing replacement started")
-    assert finished[:2] == (445, "CNC-02") and finished[2].startswith("bearing replacement finished: old bearing ")
+    assert finished[:2] == (445, "CNC-02") and finished[2].startswith(
+        "bearing replacement finished: old bearing "
+    )
 
 
 @pytest.mark.parametrize(
@@ -75,19 +88,30 @@ def test_a_planned_replacement_takes_the_machine_down_for_exactly_45_ticks():
         (0.004, 600, "had failed"),
     ],
 )
-def test_the_technician_reports_the_state_of_the_bearing_that_came_out(rate, repair_at, finding):
+def test_the_technician_reports_the_state_of_the_bearing_that_came_out(
+    rate, repair_at, finding
+):
     sim = run(factory(rate=rate), repair_at)
     health = cnc02(sim).condition.bearing_health
     done = sim.start_bearing_replacement("CNC-02")
-    assert not [m for m in maintenance(sim) if "old bearing" in m[2]]  # nothing is known until it is out
+    assert not [
+        m for m in maintenance(sim) if "old bearing" in m[2]
+    ]  # nothing is known until it is out
     run(sim, done - repair_at)
-    assert maintenance(sim)[-1][2] == f"bearing replacement finished: old bearing {finding}"
-    assert f"{health:.2f}" not in maintenance(sim)[-1][2]  # a description, never the number
+    assert (
+        maintenance(sim)[-1][2]
+        == f"bearing replacement finished: old bearing {finding}"
+    )
+    assert (
+        f"{health:.2f}" not in maintenance(sim)[-1][2]
+    )  # a description, never the number
 
 
 def test_a_machine_that_already_broke_down_takes_three_times_as_long():
     sim = run(factory(rate=0.004), 600)
-    assert cnc02(sim).status is MachineStatus.DOWN and cnc02(sim).maintenance_until is None  # it failed
+    assert (
+        cnc02(sim).status is MachineStatus.DOWN and cnc02(sim).maintenance_until is None
+    )  # it failed
     assert sim.start_bearing_replacement("CNC-02") == 600 + 135
     run(sim, 134)
     assert cnc02(sim).status is MachineStatus.DOWN
@@ -106,7 +130,9 @@ def test_the_new_bearing_is_perfect_and_the_symptoms_go_away():
     assert cnc02(sim).bearing_replaced_tick == 745
     after = max(r.value for r in sim.readings if 800 <= r.tick <= 1100)
     assert after < worn_vibration - 0.4
-    assert after <= 2.0 + 1.5 * 0.3  # no more than a healthy machine on the heaviest job
+    assert (
+        after <= 2.0 + 1.5 * 0.3
+    )  # no more than a healthy machine on the heaviest job
 
 
 def test_the_fault_does_not_come_back_after_the_repair():
@@ -119,7 +145,9 @@ def test_the_fault_does_not_come_back_after_the_repair():
 
 def test_a_fault_that_begins_after_the_repair_still_happens():
     sim = run(factory(fault_start=600), 100)
-    sim.start_bearing_replacement("CNC-02")  # replaced at tick 145, before the fault starts
+    sim.start_bearing_replacement(
+        "CNC-02"
+    )  # replaced at tick 145, before the fault starts
     run(sim, 1200)
     assert cnc02(sim).bearing_replaced_tick == 145
     assert cnc02(sim).condition.bearing_health < 1.0
@@ -132,7 +160,10 @@ def test_the_machine_keeps_its_job_through_the_repair_and_carries_on():
     run(sim, 45)
     assert (cnc02(sim).job, cnc02(sim).job_progress) == (held, progress)
     run(sim, 1)
-    assert cnc02(sim).status is MachineStatus.RUNNING and cnc02(sim).job_progress > progress
+    assert (
+        cnc02(sim).status is MachineStatus.RUNNING
+        and cnc02(sim).job_progress > progress
+    )
 
 
 def test_the_line_backs_up_during_the_repair_and_flows_again_after():
@@ -151,7 +182,11 @@ def test_replacing_a_healthy_bearing_costs_production_and_changes_nothing_else()
     repaired = run(factory(rate=None), 300)
     repaired.start_bearing_replacement("CNC-02")
     run(repaired, 900)
-    assert cnc02(repaired).condition.bearing_health == cnc02(untouched).condition.bearing_health == 1.0
+    assert (
+        cnc02(repaired).condition.bearing_health
+        == cnc02(untouched).condition.bearing_health
+        == 1.0
+    )
     assert len(repaired.state.completed_jobs) < len(untouched.state.completed_jobs)
     vibration = [r.value for r in repaired.readings if r.value > 1.0]  # while running
     assert max(v for v in vibration) <= 2.0 + 1.5 * 0.3
@@ -171,7 +206,9 @@ def test_on_the_standard_line_the_machine_cools_during_the_repair():
     sim.start_bearing_replacement("CNC-02")
     run(sim, 45)
     assert sim.state.machines["CNC-02"].temperature < warm - 20.0
-    assert abs(sim.state.machines["CNC-02"].temperature - sim.state.air_temperature) < 6.0
+    assert (
+        abs(sim.state.machines["CNC-02"].temperature - sim.state.air_temperature) < 6.0
+    )
 
 
 def test_same_seed_and_same_repair_give_the_same_history():

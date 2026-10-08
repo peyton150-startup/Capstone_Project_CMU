@@ -82,7 +82,9 @@ class BearingDegradation(Scenario):
             return
         # Drawn before the status check so the stream's position depends
         # only on ticks since start, not on the machine's status history.
-        loss = self.rate * self._stream.uniform(1.0 - self.variation, 1.0 + self.variation)
+        loss = self.rate * self._stream.uniform(
+            1.0 - self.variation, 1.0 + self.variation
+        )
         machine = state.machines[self.machine_id]
         replaced = machine.bearing_replaced_tick
         if replaced is not None and replaced >= self.start_tick:
@@ -91,7 +93,9 @@ class BearingDegradation(Scenario):
             return
         loss *= (machine.load / NORMAL_LOAD) ** self.load_exponent
         loss *= machine.speed_ratio**self.speed_exponent
-        machine.condition.bearing_health = max(0.0, machine.condition.bearing_health - loss)
+        machine.condition.bearing_health = max(
+            0.0, machine.condition.bearing_health - loss
+        )
 
     def ground_truth(self) -> GroundTruth:
         return GroundTruth(
@@ -112,9 +116,19 @@ class WrongSetting(Scenario):
     a later correction stays corrected.
     """
 
-    def __init__(self, name: str, rng: RandomSource, *, machine_id: str, start_tick: int, factor: float):
+    def __init__(
+        self,
+        name: str,
+        rng: RandomSource,
+        *,
+        machine_id: str,
+        start_tick: int,
+        factor: float,
+    ):
         if factor <= 0 or factor == 1.0:
-            raise ValueError("factor must be positive and not 1 (1 is the standard setting)")
+            raise ValueError(
+                "factor must be positive and not 1 (1 is the standard setting)"
+            )
         super().__init__(name, rng)
         self.machine_id = machine_id
         self.start_tick = start_tick
@@ -130,7 +144,10 @@ class WrongSetting(Scenario):
 
     def ground_truth(self) -> GroundTruth:
         return GroundTruth(
-            scenario=self.name, fault="wrong_setting", machine_id=self.machine_id, start_tick=self.start_tick
+            scenario=self.name,
+            fault="wrong_setting",
+            machine_id=self.machine_id,
+            start_tick=self.start_tick,
         )
 
 
@@ -146,7 +163,14 @@ class BadMaterialBatch(Scenario):
     same tick it is opened, before a fault added after the line has run.
     """
 
-    def __init__(self, name: str, rng: RandomSource, *, batch_number: int, added_risk: float = 0.30):
+    def __init__(
+        self,
+        name: str,
+        rng: RandomSource,
+        *,
+        batch_number: int,
+        added_risk: float = 0.30,
+    ):
         if batch_number < 2:
             raise ValueError("batch_number must be 2 or more")
         if not 0.0 < added_risk <= 1.0:
@@ -161,12 +185,16 @@ class BadMaterialBatch(Scenario):
             batch.defect_risk = self.added_risk
 
     def ground_truth(self) -> GroundTruth:
-        return GroundTruth(scenario=self.name, fault="bad_material_batch", batch_id=self.batch_number)
+        return GroundTruth(
+            scenario=self.name, fault="bad_material_batch", batch_id=self.batch_number
+        )
 
 
 DEFECT_BASELINE = 0.01  # one job in a hundred fails inspection on a perfect line
 DEFECT_FROM_WEAR = 0.45  # extra chance a completely worn machine would add
-DEFECT_FROM_SETTING = 8.0  # times the squared distance from standard speed: 15% off adds 0.18
+DEFECT_FROM_SETTING = (
+    8.0  # times the squared distance from standard speed: 15% off adds 0.18
+)
 WORN_SLOWDOWN = 0.4  # a completely worn bearing would cost 40% of working speed
 
 
@@ -184,7 +212,10 @@ def working_speed(machine) -> float:
 def defect_mark(machine) -> float:
     """What this machine adds to a job's defect risk as it finishes its part."""
     wear = 1.0 - machine.condition.bearing_health
-    return DEFECT_FROM_WEAR * wear**2 + DEFECT_FROM_SETTING * (machine.speed_ratio - 1.0) ** 2
+    return (
+        DEFECT_FROM_WEAR * wear**2
+        + DEFECT_FROM_SETTING * (machine.speed_ratio - 1.0) ** 2
+    )
 
 
 class ProductionLine(Scenario):
@@ -244,7 +275,12 @@ class ProductionLine(Scenario):
 
     def apply(self, state: FactoryState, tick: int) -> None:
         if state.lines.get(self.name) != self.machine_ids:
-            taken = {m for name, order in state.lines.items() if name != self.name for m in order}
+            taken = {
+                m
+                for name, order in state.lines.items()
+                if name != self.name
+                for m in order
+            }
             if taken & set(self.machine_ids):
                 raise ValueError(f"{self.name}: a machine cannot be on two lines")
             state.lines[self.name] = list(self.machine_ids)
@@ -275,7 +311,12 @@ class ProductionLine(Scenario):
                 chance_of_failing = min(0.95, DEFECT_BASELINE + machine.job.defect_risk)
                 passed = self._inspection_stream.random() >= chance_of_failing
                 state.inspections.append(
-                    Inspection(job_id=machine.job.id, tick=tick, passed=passed, batch_id=machine.job.batch_id)
+                    Inspection(
+                        job_id=machine.job.id,
+                        tick=tick,
+                        passed=passed,
+                        batch_id=machine.job.batch_id,
+                    )
                 )
             else:
                 following = line[position + 1]
@@ -285,7 +326,10 @@ class ProductionLine(Scenario):
             machine.job, machine.job_progress, machine.job_work = None, 0.0, None
         first = line[0]
         if first.job is None and first.status is not MachineStatus.DOWN:
-            job = Job(id=state.next_job_id, load=self._stream.uniform(self.min_load, self.max_load))
+            job = Job(
+                id=state.next_job_id,
+                load=self._stream.uniform(self.min_load, self.max_load),
+            )
             if self.jobs_per_batch:
                 self._cut_from_batch(state, job)
             self._place(job, first)
@@ -296,7 +340,9 @@ class ProductionLine(Scenario):
             state.batch = MaterialBatch(id=1, jobs_left=self.jobs_per_batch)
         batch = state.batch
         job.batch_id = batch.id
-        job.defect_risk = batch.defect_risk  # the material's share; machines add theirs later
+        job.defect_risk = (
+            batch.defect_risk
+        )  # the material's share; machines add theirs later
         batch.jobs_left -= 1
         if batch.jobs_left == 0:
             state.batch = MaterialBatch(id=batch.id + 1, jobs_left=self.jobs_per_batch)
@@ -339,9 +385,13 @@ class AmbientTemperature(Scenario):
         self._drift = 0.0
 
     def apply(self, state: FactoryState, tick: int) -> None:
-        self._drift = (1.0 - self.drift_pull) * self._drift + self._stream.gauss(0.0, self.drift_step)
+        self._drift = (1.0 - self.drift_pull) * self._drift + self._stream.gauss(
+            0.0, self.drift_step
+        )
         time_of_day = 2.0 * math.pi * (tick - self.warmest_tick) / self.ticks_per_day
-        state.ambient_temperature = self.mean + self.swing * math.cos(time_of_day) + self._drift
+        state.ambient_temperature = (
+            self.mean + self.swing * math.cos(time_of_day) + self._drift
+        )
 
     def ground_truth(self) -> None:
         return None
@@ -389,7 +439,9 @@ class LoadingDoor(Scenario):
             state.door_open = True
             self._closes_at = tick + self._stream.randint(self.min_open, self.max_open)
         if state.door_open:
-            state.door_cooling = min(self.cooling, state.door_cooling + self.cool_per_tick)
+            state.door_cooling = min(
+                self.cooling, state.door_cooling + self.cool_per_tick
+            )
         else:
             state.door_cooling = max(0.0, state.door_cooling - self.recover_per_tick)
 

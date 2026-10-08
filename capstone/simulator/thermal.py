@@ -28,7 +28,9 @@ def settle(machine: MachineState, air_temperature: float) -> MachineState:
     return machine
 
 
-def warm_or_cool(machine: MachineState, air_temperature: float, lag_ticks: float) -> None:
+def warm_or_cool(
+    machine: MachineState, air_temperature: float, lag_ticks: float
+) -> None:
     """Move one tick closer to the settling temperature. `lag_ticks` of 1 means at once."""
     gap = settling_temperature(machine, air_temperature) - machine.temperature
     machine.temperature += gap / lag_ticks

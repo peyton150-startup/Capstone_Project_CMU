@@ -12,7 +12,9 @@ START = datetime(2026, 1, 5, 6, 0)
 DAY = 1440
 
 
-def factory(seed: int = 42, door_first: bool = False, ambient: bool = True) -> Simulator:
+def factory(
+    seed: int = 42, door_first: bool = False, ambient: bool = True
+) -> Simulator:
     sim = Simulator(seed, START)
     scenarios = []
     if ambient:
@@ -32,7 +34,9 @@ def day(sim: Simulator) -> list[tuple[bool, float, float]]:
     seen = []
     for _ in range(DAY):
         sim.step()
-        seen.append((sim.state.door_open, sim.state.door_cooling, sim.state.air_temperature))
+        seen.append(
+            (sim.state.door_open, sim.state.door_cooling, sim.state.air_temperature)
+        )
     return seen
 
 
@@ -72,7 +76,10 @@ def test_door_events_alternate_and_belong_to_no_machine():
     sim = factory()
     day(sim)
     events = door_events(sim)
-    assert [e.message for e in events[:2]] == ["loading door opened", "loading door closed"]
+    assert [e.message for e in events[:2]] == [
+        "loading door opened",
+        "loading door closed",
+    ]
     assert all(a.message != b.message for a, b in zip(events, events[1:]))
     assert {e.machine_id for e in events} == {None}
 
@@ -80,7 +87,11 @@ def test_door_events_alternate_and_belong_to_no_machine():
 def test_events_fall_on_the_tick_the_door_actually_changed():
     sim = factory()
     seen = day(sim)
-    changed = [tick for tick, (a, b) in enumerate(zip([(False,)] + seen, seen), start=1) if a[0] != b[0]]
+    changed = [
+        tick
+        for tick, (a, b) in enumerate(zip([(False,)] + seen, seen), start=1)
+        if a[0] != b[0]
+    ]
     assert [e.tick for e in door_events(sim)] == changed
 
 
@@ -89,8 +100,12 @@ def test_cooling_builds_gradually_never_exceeds_five_degrees_and_fades_after():
     cooling = [c for _, c, _ in seen]
     assert 0.0 < max(cooling) <= 5.0
     assert all(abs(b - a) <= 0.5 + 1e-9 for a, b in zip(cooling, cooling[1:]))
-    assert all(b >= a for (door, _, _), a, b in zip(seen[1:], cooling, cooling[1:]) if door)
-    assert all(b <= a for (door, _, _), a, b in zip(seen[1:], cooling, cooling[1:]) if not door)
+    assert all(
+        b >= a for (door, _, _), a, b in zip(seen[1:], cooling, cooling[1:]) if door
+    )
+    assert all(
+        b <= a for (door, _, _), a, b in zip(seen[1:], cooling, cooling[1:]) if not door
+    )
     assert cooling.count(0.0) > DAY // 2
 
 
@@ -98,7 +113,10 @@ def test_the_air_is_the_building_temperature_less_the_door_cooling():
     sim = factory()
     for _ in range(DAY):
         sim.step()
-        assert sim.state.air_temperature == sim.state.ambient_temperature - sim.state.door_cooling
+        assert (
+            sim.state.air_temperature
+            == sim.state.ambient_temperature - sim.state.door_cooling
+        )
 
 
 def test_it_does_not_matter_which_of_the_two_scenarios_runs_first():
@@ -114,7 +132,14 @@ def test_without_a_daily_cycle_the_air_still_returns_to_72():
 def test_every_machine_dips_together_and_vibration_is_untouched():
     sim = factory()
     day(sim)
-    temperature = {m: [r.value for r in sim.readings if r.machine_id == m and r.sensor == "temperature"] for m in ("CNC-01", "CNC-04")}
+    temperature = {
+        m: [
+            r.value
+            for r in sim.readings
+            if r.machine_id == m and r.sensor == "temperature"
+        ]
+        for m in ("CNC-01", "CNC-04")
+    }
     assert temperature["CNC-01"] == pytest.approx(temperature["CNC-04"])
     assert {r.value for r in sim.readings if r.sensor == "vibration"} == {2.0}
 

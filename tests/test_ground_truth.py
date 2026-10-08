@@ -11,7 +11,9 @@ from capstone.simulator.simulator import Simulator
 from capstone.simulator.state import MachineCondition, MachineState
 
 START = datetime(2026, 1, 5, 6, 0)
-BEARING = GroundTruth(scenario="bearing", fault="bearing_degradation", machine_id="CNC-04", start_tick=100)
+BEARING = GroundTruth(
+    scenario="bearing", fault="bearing_degradation", machine_id="CNC-04", start_tick=100
+)
 
 
 def factory() -> Simulator:
@@ -20,7 +22,11 @@ def factory() -> Simulator:
         sim.add_machine(MachineState(id=machine_id))
         sim.add_sensor(VibrationSensor(machine_id, sim.rng))
     sim.add_alarm(ThresholdAlarm("vibration", 4.5))
-    sim.add_scenario(BearingDegradation("bearing", sim.rng, machine_id="CNC-04", start_tick=100, rate=0.001))
+    sim.add_scenario(
+        BearingDegradation(
+            "bearing", sim.rng, machine_id="CNC-04", start_tick=100, rate=0.001
+        )
+    )
     return sim
 
 
@@ -39,7 +45,11 @@ def test_bearing_degradation_declares_its_own_story():
 
 def test_records_come_in_the_order_scenarios_were_added():
     sim = factory()
-    sim.add_scenario(BearingDegradation("second", sim.rng, machine_id="CNC-01", start_tick=300, rate=0.001))
+    sim.add_scenario(
+        BearingDegradation(
+            "second", sim.rng, machine_id="CNC-01", start_tick=300, rate=0.001
+        )
+    )
     assert [g.scenario for g in sim.ground_truth()] == ["bearing", "second"]
 
 
@@ -61,7 +71,9 @@ def test_reading_ground_truth_changes_nothing():
 
 
 def test_evidence_records_have_no_field_that_could_carry_hidden_truth():
-    hidden = set(MachineCondition.model_fields) | set(GroundTruth.model_fields) - {"machine_id"}
+    hidden = set(MachineCondition.model_fields) | set(GroundTruth.model_fields) - {
+        "machine_id"
+    }
     assert not hidden & set(SensorReading.model_fields)
     assert not hidden & set(Event.model_fields)
 

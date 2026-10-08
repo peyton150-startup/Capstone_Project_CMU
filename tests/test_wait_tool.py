@@ -12,7 +12,11 @@ from capstone.tools.observation import ObservationTools
 def factory(fault: bool = False) -> tuple[Simulator, ObservationTools, ActionTools]:
     sim = build_line(42, machines=3)
     if fault:
-        sim.add_scenario(BearingDegradation("bearing", sim.rng, machine_id="CNC-02", start_tick=1, rate=0.004))
+        sim.add_scenario(
+            BearingDegradation(
+                "bearing", sim.rng, machine_id="CNC-02", start_tick=1, rate=0.004
+            )
+        )
     return sim, ObservationTools(sim), ActionTools(sim)
 
 
@@ -46,7 +50,9 @@ def test_waiting_is_the_same_as_the_factory_running_by_itself():
 def test_every_waited_tick_leaves_its_readings_behind():
     _, look, act = factory()
     act.wait(60)
-    assert [r["tick"] for r in look.get_readings("CNC-01", "vibration", 0, 60)] == list(range(1, 61))
+    assert [r["tick"] for r in look.get_readings("CNC-01", "vibration", 0, 60)] == list(
+        range(1, 61)
+    )
 
 
 @pytest.mark.parametrize("ticks", (0, -5, 481, 2.5, "10", True))
@@ -76,9 +82,15 @@ def test_looking_is_free_however_often_the_agent_looks():
         look_around(stare)
     act_b.wait(60)
 
-    assert glance.get_time() == stare.get_time() == {"tick": 60, "time": "2026-01-05T07:00:00"}
+    assert (
+        glance.get_time()
+        == stare.get_time()
+        == {"tick": 60, "time": "2026-01-05T07:00:00"}
+    )
     assert glance.get_events(0, 60) == stare.get_events(0, 60)
-    assert glance.get_readings("CNC-02", "temperature", 0, 60) == stare.get_readings("CNC-02", "temperature", 0, 60)
+    assert glance.get_readings("CNC-02", "temperature", 0, 60) == stare.get_readings(
+        "CNC-02", "temperature", 0, 60
+    )
 
 
 def test_the_factory_does_not_wait_for_the_agent_a_fault_keeps_developing():
@@ -88,7 +100,9 @@ def test_the_factory_does_not_wait_for_the_agent_a_fault_keeps_developing():
     act.wait(400)
     stops = [e for e in look.get_events(0, 500) if e["kind"] == "status"]
     assert [e["machine_id"] for e in stops] == ["CNC-02"]
-    assert look.get_time()["tick"] == 500  # the wait runs its full length, breakdown or not
+    assert (
+        look.get_time()["tick"] == 500
+    )  # the wait runs its full length, breakdown or not
 
 
 def test_the_answer_is_plain_data():

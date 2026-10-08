@@ -871,13 +871,13 @@ will follow when those components exist.
 
 These planned improvements support development and infrastructure. They are
 not MVP requirements or part of the research agent's reasoning architecture.
-`uv` is already implemented; the tools below are not yet adopted. Add them
+`uv` and Ruff are implemented; other items remain planned as noted below. Add them
 in focused changes when their benefit justifies the work, rather than as one
 large tooling migration.
 
 | Improvement | Benefit for this capstone | Suggested timing / adoption condition |
 |---|---|---|
-| [Ruff](https://docs.astral.sh/ruff/) | Consistent formatting, linting, and import cleanup as the developer and coding agents share the codebase. | First tooling follow-up. Start with a small rule set; review automatic fixes and keep formatting changes separate from behavior changes. |
+| [Ruff](https://docs.astral.sh/ruff/) | Consistent formatting, linting, and import cleanup as the developer and coding agents share the codebase. | Implemented 2026-10-08: basic correctness rules and formatter, documented in `README.md`. Initial formatting is kept in a separate commit from configuration behavior changes. |
 | [Pydantic Settings](https://docs.pydantic.dev/latest/concepts/pydantic_settings/) | Typed, validated configuration for Neon, API credentials, model choices, and later ingestion/storage settings. | Next, before configuration spreads across modules. Require credentials only for the component using them, protect secrets in logs, and preserve explicit simulator seeds and database-free execution. |
 | [pre-commit](https://pre-commit.com/) | Run agreed formatting and lint checks before changes are committed. | After Ruff rules are established. Pin hook versions and document hook installation for each developer. |
 | [GitHub Actions with uv caching](https://docs.astral.sh/uv/guides/integration/github/) | Repeatable automated tests and faster dependency setup from the committed lockfile. | When CI is introduced. Use locked installs, test the simulator without credentials, and keep live Neon checks separate from the default offline suite. |
