@@ -855,30 +855,14 @@ Factory state → continuous monitoring → anomaly discovered
   → approval → intervention → verification
 ```
 
-### Future Work 6 — Python dependency and environment management
+### Development tooling — Python dependency and environment management
 
-Consider adopting `uv` after the MVP. This is development/infrastructure
-tooling, not part of the research agent's reasoning architecture or an MVP
-requirement. The current `pip`/setuptools setup remains in use; this item
-documents a future plan only.
-
-Adopting `uv` could provide faster and more consistent dependency installation,
-reproducible environments through dependency locking, simpler setup for
-developers or instructors cloning the repository, and centralized Python
-dependency management as the project grows. `uv run` could also simplify
-running tests, scripts, the simulator, and future API services.
-
-Possible migration path:
-
-1. Audit the existing Python dependency setup and preserve a reproducible
-   record of the working environment throughout the migration.
-2. Clean up the existing `pyproject.toml` as needed, preserving package versions.
-3. Introduce `uv` as the package/environment manager.
-4. Generate and commit `uv.lock`.
-5. Verify equivalent behavior for the simulator, agents, API services,
-   ingestion pipeline, and tests, where implemented at migration time.
-6. Update CI and developer setup documentation only after local behavior is
-   confirmed equivalent.
-
-Installing `uv`, changing environments or dependencies, and updating CI or
-Docker configuration are deferred to that future migration.
+Adopted `uv` on 2026-10-08 at the developer's request; this is no longer
+future work. It is development/infrastructure tooling, not part of the
+research agent's reasoning architecture or an MVP requirement. The existing
+`pyproject.toml` and setuptools build remain, with a committed `uv.lock`,
+an isolated `.venv`, and `uv run` commands. Installed simulator dependency
+versions were preserved and all 331 existing tests passed under the new
+environment. See `README.md` for setup, the optional Neon connectivity
+check, and the retained pip workflow. Agent, API, and ingestion validation
+will follow when those components exist.

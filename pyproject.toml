@@ -11,6 +11,20 @@ dependencies = ["pydantic>=2"]
 
 [project.optional-dependencies]
 dev = ["pytest>=8"]
+database = ["SQLAlchemy>=2,<3", "psycopg[binary]>=3,<4", "python-dotenv>=1,<2"]
+
+[dependency-groups]
+dev = ["pytest>=8"]
+
+[tool.uv]
+# Preserve the simulator's installed dependency versions during migration.
+constraint-dependencies = [
+    "pydantic==2.13.4",
+    "pydantic-core==2.46.4",
+    "annotated-types==0.8.0",
+    "typing-extensions==4.16.0",
+    "typing-inspection==0.4.3",
+]
 
 [tool.setuptools.packages.find]
 include = ["capstone*"]

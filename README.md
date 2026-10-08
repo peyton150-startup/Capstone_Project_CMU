@@ -13,4 +13,53 @@ later, an AI research agent that investigates it through tools.
 - `capstone/simulator/` — the simulator (runs with no LLM).
 - `tests/` — pytest suite.
 
-Setup: `pip install -e ".[dev]"` then `pytest`.
+## Developer setup
+
+Install [uv](https://docs.astral.sh/uv/getting-started/installation/), then run:
+
+```sh
+uv sync --locked
+uv run --locked pytest
+```
+
+`pyproject.toml` declares dependencies, `uv.lock` records their resolved
+versions, and `.python-version` selects Python 3.14.7, the interpreter used
+for this migration. The package still supports Python 3.11 and later.
+`uv` manages the local `.venv`; commit the lockfile when dependencies change.
+The existing simulator dependency versions are preserved by migration
+constraints in `pyproject.toml`; review those constraints before deliberately
+upgrading them. Use `uv add PACKAGE` for runtime dependencies or
+`uv add --group dev PACKAGE` for development tools.
+
+The existing pip setup remains available: `pip install -e ".[dev]"`, then
+`pytest`. To reproduce the locked versions with pip, export them with
+`uv export --locked --no-emit-project --output-file requirements-export.txt`,
+install that file with pip, then install the local package using
+`pip install --no-deps -e .`.
+
+## Optional Neon connection check
+
+Install the database extra and put the Neon connection string in a local
+`.env` file (ignored by Git):
+
+```sh
+uv sync --locked --extra database
+```
+
+```dotenv
+DATABASE_URL="your Neon connection string"
+```
+
+Keep the SSL options supplied by Neon in the connection string. An existing
+`DATABASE_URL` environment variable takes precedence over `.env`.
+
+```sh
+uv run --locked --extra database python test_db_connection.py
+uv run --locked --extra database pytest
+```
+
+The first command prints `True` on success and exits unsuccessfully on
+failure without printing connection details. It executes only `SELECT 1`,
+creates no tables, and closes its connections. The simulator does not load
+database configuration or require a database. Database tests run offline;
+without the database extra, they are skipped.

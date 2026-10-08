@@ -54,6 +54,34 @@ alarm), then evaluation, then the agent itself.
 
 ## Session notes
 
+- **2026-10-08 — development tooling and Neon connectivity.** Implemented
+  ungated at the developer's request. Understood: no — built ungated,
+  developer to review. The existing `uv` installation now manages `.venv`
+  and the new `uv.lock`; `.python-version` records Python 3.14.7.
+  `pyproject.toml` retains setuptools and the pip-compatible development
+  extra, adds a default development group and optional database extra,
+  and constrains the installed simulator dependency versions: Pydantic
+  2.13.4, pydantic-core 2.46.4, annotated-types 0.8.0,
+  typing-extensions 4.16.0, typing-inspection 0.4.3. All 331 existing
+  simulator tests passed with those versions. `README.md` documents uv
+  setup, locked commands, and pip compatibility; `MVP_SCOPE.md` records
+  that uv adoption is now implemented rather than future work.
+  `.gitignore` excludes local `.env` files, retaining `.env.example` as
+  an optional shareable template. The local `.env` remains untracked.
+  New module `capstone/database/connection.py` adds
+  `check_database_connection()`: loads the repository's `.env` without
+  overriding environment variables, selects Psycopg for PostgreSQL URLs
+  while preserving URL options, runs only `SELECT 1`, and closes the
+  connection and engine. Nothing connects on import. The standalone
+  `test_db_connection.py` prints the result and suppresses driver error
+  details to keep credentials out of output. `tests/test_database_connection.py`
+  checks a real query using in-memory SQLite and rejects empty configuration;
+  it runs offline and skips when the database extra is absent. The live
+  Neon probe returned `True`; the full suite passed (333 tests). A separate
+  smoke check ran the simulator with SQLAlchemy uninstalled, then restored
+  the database extra. No schema, agent memory, API, or ingestion
+  behavior was added; the simulator remains independent of the database.
+
 - **Session 1** — Repo was empty. Created CLAUDE.md, package skeleton,
   this log. Recommended SimulationClock as the first component; asked
   the first comprehension question. No simulator logic implemented.
