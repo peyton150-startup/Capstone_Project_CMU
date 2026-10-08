@@ -866,3 +866,28 @@ versions were preserved and all 331 existing tests passed under the new
 environment. See `README.md` for setup, the optional Neon connectivity
 check, and the retained pip workflow. Agent, API, and ingestion validation
 will follow when those components exist.
+
+### Future Work 6 — Developer Efficiency / Project Tooling
+
+These planned improvements support development and infrastructure. They are
+not MVP requirements or part of the research agent's reasoning architecture.
+`uv` is already implemented; the tools below are not yet adopted. Add them
+in focused changes when their benefit justifies the work, rather than as one
+large tooling migration.
+
+| Improvement | Benefit for this capstone | Suggested timing / adoption condition |
+|---|---|---|
+| [Ruff](https://docs.astral.sh/ruff/) | Consistent formatting, linting, and import cleanup as the developer and coding agents share the codebase. | First tooling follow-up. Start with a small rule set; review automatic fixes and keep formatting changes separate from behavior changes. |
+| [Pydantic Settings](https://docs.pydantic.dev/latest/concepts/pydantic_settings/) | Typed, validated configuration for Neon, API credentials, model choices, and later ingestion/storage settings. | Next, before configuration spreads across modules. Require credentials only for the component using them, protect secrets in logs, and preserve explicit simulator seeds and database-free execution. |
+| [pre-commit](https://pre-commit.com/) | Run agreed formatting and lint checks before changes are committed. | After Ruff rules are established. Pin hook versions and document hook installation for each developer. |
+| [GitHub Actions with uv caching](https://docs.astral.sh/uv/guides/integration/github/) | Repeatable automated tests and faster dependency setup from the committed lockfile. | When CI is introduced. Use locked installs, test the simulator without credentials, and keep live Neon checks separate from the default offline suite. |
+| [uv audit](https://docs.astral.sh/uv/reference/cli/#uv-audit) | Check locked dependencies for known vulnerabilities and surface findings for review. | Add alongside CI. Use `uv audit --locked`, define how findings are handled, and review dependency changes rather than automatically upgrading packages. |
+| [ty](https://docs.astral.sh/ty/) | Catch type mismatches as simulator observations, tool contracts, agent state, and persistence interfaces grow. | After basic linting is stable and interfaces expand. Introduce checking incrementally before making it a required CI gate. |
+| [Dependabot for uv](https://docs.github.com/en/code-security/reference/supply-chain-security/supported-ecosystems-and-repositories) | Propose dependency updates for review, including changes to `uv.lock`. | After CI can validate update PRs. Review existing migration constraints when intentionally upgrading simulator dependencies; require passing tests before merging. |
+| [pytest-xdist](https://pytest-xdist.readthedocs.io/en/stable/) | Shorter test runs by distributing independent tests across workers. | When measured test duration warrants it. First isolate random generators, temporary files, and any database fixtures per worker; confirm seeded results remain reproducible before using `pytest -n auto`. |
+
+Priority: Ruff → Pydantic Settings → pre-commit → CI with uv caching and
+dependency auditing. Add type checking and dependency-update automation as
+interfaces and CI mature; parallelize tests only after isolation is proven.
+None of these roadmap entries authorizes installing tools, changing package
+versions, configuring hooks or CI, or refactoring working code now.
