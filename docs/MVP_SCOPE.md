@@ -113,6 +113,11 @@ Observe new state
 Determine whether intervention worked
 ```
 
+The planned single-agent implementation must enforce configurable output-token,
+timeout, retry, tool-call, and investigation-iteration limits. Provider-specific
+reasoning controls are optional; global execution limits remain enforced by
+the agent loop. See Future Work 7 for the later per-role extension.
+
 ## 4. A small set of tools (6–8)
 
 ```
@@ -129,6 +134,11 @@ observe_after_action()
 MCP may expose these later; MCP itself is not an MVP objective. What
 matters is that the agent must decide **"what information do I need
 next?"** rather than having everything dumped into the prompt.
+
+When wiring these tools into the agent, add a small read-only deterministic
+sensor-summary capability so Python computes exact statistics and the LLM
+interprets them. Reuse the existing tool/provider boundary; MCP transport
+remains deferred. See Future Work 7 for calculation requirements.
 
 ## 5. Hypothesis-driven research (keep in MVP)
 
@@ -214,6 +224,11 @@ This supports reporting such as: *18/20 root causes correctly identified;
 6.2 tool calls.* That turns the project from a demo into an experiment.
 
 ---
+
+Build a small known-answer regression suite alongside MVP evaluation, using
+fixed seeds and implemented simulator scenarios. Ground truth stays available
+only to the evaluator. Repeatable simulator inputs do not imply identical live
+LLM outputs. See Future Work 7 for the records and later expansion.
 
 ## Explicitly excluded from the MVP (→ Future Work)
 
@@ -892,6 +907,100 @@ dependency auditing. Add type checking and dependency-update automation as
 interfaces and CI mature; parallelize tests only after isolation is proven.
 Items still marked planned remain roadmap entries; adopting them requires a
 separate implementation task.
+
+### Future Work 7 — model evaluation, execution budgets, and computed evidence
+
+**Added 2026-10-09; planned, not implemented.** These additions preserve the
+existing reasoning loop, working state, durable-memory plans, provider
+abstraction, typed multi-agent handoffs, termination rules, human approval,
+post-intervention verification, and simulator architecture. Do not add a
+failure-diagnostic benchmark mode.
+
+#### Timing
+
+| Addition | MVP integration | Later extension |
+|---|---|---|
+| Role-specific model benchmarking | No cross-provider harness needed to finish the single-agent slice. | Add a lightweight harness with Future Work 3, before treating specialist role assignments as final. |
+| Reasoning and token budgets | Add limits for the single agent when building the reasoning loop (progress row 16). | Give every planner, researcher, analyst, critic, and synthesizer its own configuration when those roles exist. |
+| Deterministic sensor computations | Add a small summary capability when connecting observation tools to the agent. | Add window comparisons or moving averages only when investigations require them; expose through MCP with Future Work 2. |
+| Known-answer regression scenarios | Add the basic suite with scenario generation and evaluation (progress rows 14–15), then exercise the agent when row 16 exists. | Expand coverage after changes to prompts, models, tools, memory, providers, and handoffs. |
+
+These are staged additions to the existing build order, not a separate framework
+to implement before the remaining simulator actions and scenarios.
+
+#### Role-specific model benchmarking
+
+Test candidate models against representative capstone tasks: infer likely
+causes from sensor evidence, compare trends, identify missing evidence, plan
+research, analyze verified evidence, challenge conclusions, and synthesize
+competing conclusions. Assess explicit results and evidence-supported
+explanations; do not request or score private chain-of-thought.
+
+Record task correctness, explicit reasoning quality, unsupported-claim rate,
+Pydantic/schema success, tool-use success where applicable, latency, input and
+output tokens, total tokens, and failure rate. Record cost when provider usage
+and pricing data are available; mark missing usage or cost as unavailable.
+Use the results to justify quality/cost/latency tradeoffs and revise role
+assignments through the provider abstraction.
+
+Candidates may include NVIDIA/Nemotron, Groq/GPT-OSS, Google Gemini, Mistral,
+Cohere, and Cloudflare-hosted specialist models. Verify actual model names,
+availability, and supported controls at implementation time. Keep the task
+set and scoring rubric small; the harness must not become a project of its
+own or require every provider to be connected at once.
+
+#### Per-agent reasoning and token budgets
+
+Each role should support `max_output_tokens`, `reasoning_effort`,
+`timeout_seconds`, `max_retries`, `max_tool_calls`, and `max_iterations`.
+The single-agent MVP uses the same concepts without introducing extra roles.
+Retain deterministic global investigation/tool-call limits across all roles,
+retries, and handoffs so local budgets cannot bypass termination rules.
+
+Adapters translate supported provider controls. Unsupported optional reasoning
+settings may be omitted with their effective configuration recorded; enforce
+execution limits in orchestration or reject configurations that cannot be
+bounded safely. Reasoning effort is a resource setting, not proof of correctness.
+
+#### Deterministic sensor computation tools
+
+Compute exact arithmetic and statistics in Python from permitted observation
+records. The LLM interprets those facts, forms hypotheses, and selects the next
+evidence request. Raw readings remain available when useful.
+
+Start with a generic `get_sensor_summary()` capability rather than separate
+tools for every sensor. A summary can report machine/sensor identity, units,
+window boundaries, sample count, first/last values, minimum, maximum, mean,
+delta, and rate of change. Specify ordering, window inclusion, missing/empty
+data behavior, and rate units (for example sensor units per simulation tick);
+do not use sample count as a substitute for elapsed time. Test calculations
+against known input readings and verify summaries expose no hidden state.
+
+Add `compare_sensor_windows()` or moving averages only for a demonstrated
+investigation need. All calculations stay read-only, use the existing typed
+tool boundary, and reveal neither programmed root causes nor internal health
+or degradation values. MCP is a later transport for the same observations.
+
+#### Known-answer regression scenarios
+
+Use implemented simulator behavior and fixed seeds: bearing degradation, bad
+material batches, wrong settings, and false alarms once implemented, plus
+normal-operation controls where supported. Workload changes, ambient changes,
+sensor anomalies, and idle behavior can become additional cases only when the
+existing simulator can reproduce the intended condition; do not invent new
+fault models just to fill the test list.
+
+Preserve scenario ID, seed/initial configuration, evaluator-only hidden ground
+truth, observable sensor data, expected relevant evidence, agent conclusion,
+confidence, tools used, iterations used, and final correctness. Keep evaluator
+records containing truth separate from agent prompts, tool outputs, and
+retrievable memory. Score diagnoses and interventions using the existing MVP
+evaluation, including post-intervention verification.
+
+Use scripted model stand-ins for deterministic offline workflow tests; live
+model runs measure performance on repeatable cases without promising identical
+answers. These regression cases support the normal investigation workflow;
+they do not introduce the excluded failure-diagnostic benchmark mode.
 
 ### Implemented foundations for later research and persistence
 

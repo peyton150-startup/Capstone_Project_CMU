@@ -54,6 +54,17 @@ alarm), then evaluation, then the agent itself.
 
 ## Session notes
 
+- **2026-10-09 — roadmap additions from the developer's pasted proposal.**
+  Updated `docs/MVP_SCOPE.md` with Future Work 7: role-specific model
+  benchmarking, per-agent reasoning/token budgets, deterministic sensor
+  calculations, and known-answer regression scenarios. Cross-model
+  benchmarking and specialist role budgets follow the multi-agent extension;
+  single-agent limits, a small sensor-summary capability, and basic regression
+  cases are planned alongside the existing MVP agent/evaluation work. MCP
+  remains deferred, and a failure-diagnostic benchmark mode is explicitly
+  excluded. Documentation only: no modules, functions, or classes changed,
+  no new behavior implemented, and no understanding status advanced.
+
 - **2026-10-08 — contracts, trace identity, tool/provider boundaries,
   logging, and migration scaffold.** Understood: no — built ungated,
   developer to review. Implemented the five foundations and smaller
