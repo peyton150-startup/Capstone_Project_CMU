@@ -13,6 +13,7 @@ from capstone.contracts.observations import (
     MachineObservation,
     ProposalObservation,
     SensorObservation,
+    SensorSummaryObservation,
     SettingObservation,
 )
 from capstone.contracts.tools import TraceContext, ToolError, ToolRequest, ToolResult
@@ -56,6 +57,11 @@ class ReadingsArguments(TickRange):
 
 
 class FactoryReadingsArguments(TickRange):
+    sensor: str
+
+
+class SensorSummaryArguments(TickRange):
+    machine_id: str | None
     sensor: str
 
 
@@ -115,6 +121,12 @@ class SimulatorFactoryProvider:
                 SensorObservation,
                 observations.get_factory_readings,
                 True,
+            ),
+            "get_sensor_summary": (
+                SensorSummaryArguments,
+                SensorSummaryObservation,
+                observations.get_sensor_summary,
+                False,
             ),
             "get_events": (
                 EventsArguments,

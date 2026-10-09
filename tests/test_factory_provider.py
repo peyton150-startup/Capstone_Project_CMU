@@ -138,6 +138,12 @@ def test_all_read_tools_preserve_existing_observable_shapes():
             "from_tick": 0,
             "to_tick": 240,
         },
+        "get_sensor_summary": {
+            "machine_id": "CNC-01",
+            "sensor": "vibration",
+            "from_tick": 0,
+            "to_tick": 240,
+        },
         "get_events": {"from_tick": 0, "to_tick": 240},
         "get_job_history": {"job_id": 1},
         "get_inspections": {"from_tick": 0, "to_tick": 240},

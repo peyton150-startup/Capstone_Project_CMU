@@ -21,6 +21,7 @@ TOOLS = {
     "get_job_history",
     "get_inspections",
     "get_settings",
+    "get_sensor_summary",
 }
 HIDDEN_WORDS = (
     "bearing",
@@ -69,10 +70,15 @@ def everything(tools: ObservationTools, last_tick: int) -> dict:
         "get_job_history": tools.get_job_history(1),
         "get_inspections": tools.get_inspections(0, last_tick),
         "get_settings": tools.get_settings(),
+        "get_sensor_summary": [
+            tools.get_sensor_summary(machine["machine_id"], sensor, 0, last_tick)
+            for machine in tools.list_machines()
+            for sensor in ("vibration", "temperature", "load")
+        ],
     }
 
 
-def test_the_tools_are_exactly_the_eight_we_decided_on():
+def test_only_allowlisted_observation_tools_are_public():
     assert {name for name in dir(ObservationTools) if not name.startswith("_")} == TOOLS
 
 
@@ -173,5 +179,17 @@ def test_nothing_hidden_leaks_through_any_tool_over_a_full_run():
         "speed_rpm",
         "batch_id",
         "result",
+        "from_tick",
+        "to_tick",
+        "sample_count",
+        "first_tick",
+        "last_tick",
+        "start_value",
+        "end_value",
+        "minimum",
+        "maximum",
+        "mean",
+        "delta",
+        "rate_of_change",
     }
     assert sim.ground_truth()  # the truth exists; it just is not reachable from here

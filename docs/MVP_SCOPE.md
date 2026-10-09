@@ -135,10 +135,10 @@ MCP may expose these later; MCP itself is not an MVP objective. What
 matters is that the agent must decide **"what information do I need
 next?"** rather than having everything dumped into the prompt.
 
-When wiring these tools into the agent, add a small read-only deterministic
-sensor-summary capability so Python computes exact statistics and the LLM
-interprets them. Reuse the existing tool/provider boundary; MCP transport
-remains deferred. See Future Work 7 for calculation requirements.
+The read-only `get_sensor_summary()` capability is implemented: Python computes
+exact statistics for the agent to interpret. It uses the existing tool/provider
+boundary; agent integration and MCP transport remain deferred. See Future
+Work 7 for calculation details.
 
 ## 5. Hypothesis-driven research (keep in MVP)
 
@@ -910,7 +910,9 @@ separate implementation task.
 
 ### Future Work 7 — model evaluation, execution budgets, and computed evidence
 
-**Added 2026-10-09; planned, not implemented.** These additions preserve the
+**Added 2026-10-09.** Sensor summaries are implemented in the direct observation
+tools and simulator provider; other additions remain planned. These additions
+preserve the
 existing reasoning loop, working state, durable-memory plans, provider
 abstraction, typed multi-agent handoffs, termination rules, human approval,
 post-intervention verification, and simulator architecture. Do not add a
@@ -922,7 +924,7 @@ failure-diagnostic benchmark mode.
 |---|---|---|
 | Role-specific model benchmarking | No cross-provider harness needed to finish the single-agent slice. | Add a lightweight harness with Future Work 3, before treating specialist role assignments as final. |
 | Reasoning and token budgets | Add limits for the single agent when building the reasoning loop (progress row 16). | Give every planner, researcher, analyst, critic, and synthesizer its own configuration when those roles exist. |
-| Deterministic sensor computations | Add a small summary capability when connecting observation tools to the agent. | Add window comparisons or moving averages only when investigations require them; expose through MCP with Future Work 2. |
+| Deterministic sensor computations | Implemented 2026-10-09: `get_sensor_summary()` and its typed provider result, for machine and factory sensors. Agent integration remains planned. | Add window comparisons or moving averages only when investigations require them; expose through MCP with Future Work 2. |
 | Known-answer regression scenarios | Add the basic suite with scenario generation and evaluation (progress rows 14–15), then exercise the agent when row 16 exists. | Expand coverage after changes to prompts, models, tools, memory, providers, and handoffs. |
 
 These are staged additions to the existing build order, not a separate framework
@@ -968,13 +970,14 @@ Compute exact arithmetic and statistics in Python from permitted observation
 records. The LLM interprets those facts, forms hypotheses, and selects the next
 evidence request. Raw readings remain available when useful.
 
-Start with a generic `get_sensor_summary()` capability rather than separate
-tools for every sensor. A summary can report machine/sensor identity, units,
-window boundaries, sample count, first/last values, minimum, maximum, mean,
-delta, and rate of change. Specify ordering, window inclusion, missing/empty
-data behavior, and rate units (for example sensor units per simulation tick);
-do not use sample count as a substitute for elapsed time. Test calculations
-against known input readings and verify summaries expose no hidden state.
+Implemented a generic `get_sensor_summary()` capability for machine sensors
+and factory sensors (`machine_id=None`). It reports machine/sensor identity,
+units, inclusive window boundaries, sample count, actual first/last ticks,
+first/last values, minimum, maximum, sample-weighted mean, delta, and endpoint
+rate of change in sensor units per elapsed tick. It orders samples by tick,
+does not fill missing readings, and returns null statistics for empty windows
+and a null rate for zero elapsed time. Mixed units and nonfinite values are
+rejected. Tests cover known inputs and the read-only, hidden-state boundary.
 
 Add `compare_sensor_windows()` or moving averages only for a demonstrated
 investigation need. All calculations stay read-only, use the existing typed

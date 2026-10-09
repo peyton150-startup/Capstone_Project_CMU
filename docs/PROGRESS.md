@@ -54,6 +54,30 @@ alarm), then evaluation, then the agent itself.
 
 ## Session notes
 
+- **2026-10-09 — deterministic sensor summary tool.** Understood: no — built
+  ungated, developer to review. `tools/observation.py` adds
+  `ObservationTools.get_sensor_summary()`: read existing public readings,
+  sort by tick, and compute count, endpoints, min/max, sample-weighted mean,
+  delta, and endpoint change per elapsed simulation tick. A null machine ID
+  selects factory sensors. Windows include both bounds; missing ticks are
+  not filled in, empty statistics are null, and zero elapsed time has no
+  rate. Invalid tick windows, unknown machines, mixed units, and nonfinite
+  readings are rejected. `contracts/observations.py` adds
+  `SensorSummaryObservation`, the immutable observable result schema;
+  `providers/factory.py` adds strict `SensorSummaryArguments` and an allowlist
+  entry connecting the tool to the existing provider envelope. No simulator
+  dynamics, hidden-state access, MCP transport, or LLM integration added.
+  `tests/test_sensor_summary.py` covers arithmetic on known samples, filtering,
+  irregular spacing, empty/single-sample windows, factory sensors, validation,
+  provider access, state immutability, hidden-state independence, and seeded
+  reproducibility. Existing provider and all-observation leak tests include
+  the new tool. `README.md` and `MVP_SCOPE.md` describe the implemented scope.
+  Verification: all 420 tests passed, including 18 focused summary cases;
+  Ruff lint/format and whitespace checks passed. The suite used a fresh
+  workspace temp directory because the sandbox's default pytest temp path
+  was not writable. Deliberate limits: endpoint rate rather than trend fitting,
+  no interpolation, and no window comparisons or moving averages yet.
+
 - **2026-10-09 — roadmap additions from the developer's pasted proposal.**
   Updated `docs/MVP_SCOPE.md` with Future Work 7: role-specific model
   benchmarking, per-agent reasoning/token budgets, deterministic sensor

@@ -130,6 +130,39 @@ IDs are derived from that run and a positive sequence number. ID generation
 consumes no simulator random stream and uses no wall clock. There is no durable
 storage or automatic agent loop yet.
 
+### Deterministic sensor summaries
+
+`ObservationTools.get_sensor_summary(machine_id, sensor, from_tick, to_tick)`
+and the provider tool of the same name calculate statistics from observable
+readings in an inclusive tick window. Pass `machine_id=None` for factory
+sensors. No time advances, random draws, or hidden state are involved.
+
+```python
+for _ in range(10):
+    sim.step()
+summary = factory.call(
+    ToolRequest(
+        name="get_sensor_summary",
+        arguments={
+            "machine_id": "CNC-01",
+            "sensor": "temperature",
+            "from_tick": 1,
+            "to_tick": 10,
+        },
+    )
+)
+```
+
+Results include requested window, actual first/last sample ticks, sample count,
+sensor unit, start/end values, minimum, maximum, sample-weighted mean, delta,
+and `rate_of_change`. Rate is `(end_value - start_value) / (last_tick -
+first_tick)` in sensor units per simulation tick, not a regression slope.
+Missing ticks are not interpolated. Empty windows (including unknown sensor
+names) return zero samples and null units/statistics; a single sample has
+zero delta and a null rate. Mixed units and nonfinite readings are rejected.
+Tick bounds must be ordered, nonnegative integers; unknown machines are
+rejected. The result uses `SensorSummaryObservation`; MCP remains deferred.
+
 ## Structured logging
 
 `create_event_logger(stream)` in `capstone/observability.py` creates an opt-in

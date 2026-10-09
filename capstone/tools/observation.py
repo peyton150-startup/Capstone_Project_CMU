@@ -1,3 +1,6 @@
+from math import isfinite
+from statistics import fmean
+
 from capstone.simulator.simulator import Simulator
 
 
@@ -67,6 +70,63 @@ class ObservationTools:
             and r.sensor == sensor
             and from_tick <= r.tick <= to_tick
         ]
+
+    def get_sensor_summary(
+        self, machine_id: str | None, sensor: str, from_tick: int, to_tick: int
+    ) -> dict:
+        """Summarize public readings in an inclusive window, without advancing time.
+
+        None selects a factory sensor. Mean is sample-weighted; rate is endpoint
+        change per elapsed simulation tick, not a fitted trend. Missing samples
+        are not filled in. Empty windows have null statistics; zero elapsed
+        time has no rate. First/last refer to chronological observations.
+        """
+        if any(type(tick) is not int or tick < 0 for tick in (from_tick, to_tick)):
+            raise ValueError("ticks must be nonnegative integers")
+        if machine_id is None:
+            readings = self.get_factory_readings(sensor, from_tick, to_tick)
+        else:
+            readings = self.get_readings(machine_id, sensor, from_tick, to_tick)
+        readings.sort(key=lambda row: row["tick"])
+        summary = {
+            "machine_id": machine_id,
+            "sensor": sensor,
+            "from_tick": from_tick,
+            "to_tick": to_tick,
+            "sample_count": len(readings),
+            "unit": None,
+            "first_tick": None,
+            "last_tick": None,
+            "start_value": None,
+            "end_value": None,
+            "minimum": None,
+            "maximum": None,
+            "mean": None,
+            "delta": None,
+            "rate_of_change": None,
+        }
+        if not readings:
+            return summary
+        if len({row["unit"] for row in readings}) != 1:
+            raise ValueError("cannot summarize readings with mixed units")
+        values = [row["value"] for row in readings]
+        if not all(isfinite(value) for value in values):
+            raise ValueError("sensor values must be finite")
+        elapsed = readings[-1]["tick"] - readings[0]["tick"]
+        delta = values[-1] - values[0]
+        summary.update(
+            unit=readings[0]["unit"],
+            first_tick=readings[0]["tick"],
+            last_tick=readings[-1]["tick"],
+            start_value=values[0],
+            end_value=values[-1],
+            minimum=min(values),
+            maximum=max(values),
+            mean=fmean(values),
+            delta=delta,
+            rate_of_change=delta / elapsed if elapsed else None,
+        )
+        return summary
 
     def get_events(
         self, from_tick: int, to_tick: int, machine_id: str | None = None
