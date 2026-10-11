@@ -847,216 +847,198 @@ The core post-MVP extension provider set is therefore:
 
 **NVIDIA, Groq, Mistral, Cohere, Google Gemini, and Cloudflare.**
 
-#### Provider Abstraction and Fallback Requirement
+#### Provider integration — CrewAI/LiteLLM behind one project boundary
 
-The multi-agent system must not hard-code any agent directly to a specific API provider.
+**Revised 2026-10-11. Planned; no framework dependencies or live adapters added.**
+Use CrewAI's `LLM` abstraction and LiteLLM as the default integration layer
+for the six-provider extension. Do not preemptively build six HTTP clients,
+authentication implementations, response parsers, or exception hierarchies.
+A provider/model-specific adapter is justified only by a demonstrated missing
+capability that configuration or the supported framework cannot address.
 
-Each agent role must request a model through a centralized provider/model router so that the provider assigned to that role can be changed through configuration without changing the agent implementation.
+CrewAI documents native Google Gemini integration and LiteLLM support for
+NVIDIA NIM, Groq, Mistral, Cohere, and Cloudflare Workers AI. Treat this as
+integration availability, not proof that every model supports every role.
+Install only the extras needed when implementing the extension. See
+[CrewAI connections](https://docs.crewai.com/en/learn/llm-connections).
 
-For example, the Evidence Agent must depend on an abstract model/provider interface rather than directly importing or constructing a Cohere client.
+| Provider | Planned integration | Initial role |
+|---|---|---|
+| NVIDIA NIM / Nemotron | CrewAI LLM → LiteLLM → NVIDIA NIM | Planning, orchestration, synthesis; candidate general fallback |
+| Groq / GPT-OSS | CrewAI LLM → LiteLLM → Groq | Primary research |
+| Mistral | CrewAI LLM → LiteLLM → Mistral | Critic / challenger |
+| Cohere Command | CrewAI LLM → LiteLLM → Cohere | Evidence reasoning and grounding |
+| Google Gemini | CrewAI LLM → native Google integration | Independent analysis; candidate multimodal fallback |
+| Cloudflare Workers AI | CrewAI LLM → LiteLLM → Cloudflare | Specialist vision/document tasks where the model supports them |
 
-The provider assignments should be configurable through environment variables similar to:
-
-```text
-ORCHESTRATOR_PROVIDER=nvidia
-
-RESEARCHER_PROVIDER=groq
-RESEARCHER_FALLBACK=nvidia
-
-EVIDENCE_PROVIDER=cohere
-EVIDENCE_FALLBACK=nvidia
-
-ANALYST_PROVIDER=gemini
-ANALYST_FALLBACK=nvidia
-
-CRITIC_PROVIDER=mistral
-CRITIC_FALLBACK=nvidia
-
-VISION_PROVIDER=cloudflare
-VISION_FALLBACK=gemini
-```
-
-Model names should also be configurable independently from providers, for example:
-
-```text
-RESEARCHER_MODEL=openai/gpt-oss-120b
-EVIDENCE_MODEL=command-a
-CRITIC_MODEL=mistral-small
-```
-
-Do not scatter provider selection logic throughout the codebase. There should be one centralized model/provider registry or router responsible for resolving:
+Preserve `capstone/providers/llm.py`'s existing `LLMProvider` protocol:
+`investigate(Investigation) → Investigation`. The capstone domain should
+consume explicit research artifacts without importing CrewAI or provider SDKs.
+One planned `CrewAIProvider` implements this project boundary; a small
+`ModelRegistry` resolves role configuration inside that integration.
 
 ```text
-agent role
-→ configured provider
-→ configured model
-→ provider adapter
-→ model client
+Capstone domain → LLMProvider → CrewAIProvider
+  → agent role → ModelRegistry → CrewAI LLM configuration
+  → CrewAI native integration / LiteLLM → provider
 ```
 
-The intended outcome is that changing a provider should require approximately one configuration change.
+This replaces the earlier per-provider adapter/router design. The boundary
+still translates framework task results into project contracts and enforces
+project policy; the framework handles provider transport. It does not replace
+`FactoryProvider`, simulator tools, or the human approval boundary.
 
-For example:
+#### Role configuration and execution limits
+
+Use Pydantic Settings for role configuration, with one primary model and one
+optional fallback model per role. Keep a small validated `RoleModelConfig`
+with `model`, `fallback_model`, `timeout_seconds`, `max_output_tokens`, and
+the retry/tool/iteration budgets described in Future Work 7. Optional
+reasoning controls apply only where supported.
+
+Use full framework model identifiers, with conceptual configuration such as:
 
 ```text
-EVIDENCE_PROVIDER=cohere
+PLANNER_MODEL=nvidia_nim/nvidia/<selected-nemotron-model>
+RESEARCHER_MODEL=groq/<selected-gpt-oss-model>
+EVIDENCE_MODEL=cohere/<selected-command-model>
+EVIDENCE_FALLBACK_MODEL=nvidia_nim/nvidia/<compatible-fallback-model>
+ANALYST_MODEL=gemini/<selected-gemini-model>
+CRITIC_MODEL=mistral/<selected-mistral-model>
+VISION_MODEL=cloudflare/<selected-multimodal-model>
 ```
 
-should be replaceable with:
+These placeholders are not runnable model IDs. Confirm model catalogs,
+endpoint prefixes, credentials, access, context limits, and modalities when
+implementing. Keep the intended model families above configurable rather
+than pinning the roadmap to currently advertised endpoint names. Map the
+project's credential settings to the integration's required names without
+exposing secrets in configuration dumps or traces.
+
+A model change should affect role configuration and compatibility records,
+not agent implementations or handoff schemas. The registry creates configured
+CrewAI LLM objects without scattering provider switch statements across agents.
+Translate token/reasoning settings to supported parameter names. Enforce
+investigation deadlines and total retry/tool/iteration budgets outside the
+provider call as well; a per-request timeout is not a whole-run deadline.
+
+#### Common contracts and structured handoffs
+
+Use CrewAI tasks with `output_pydantic=RoleContract` for typed handoffs.
+Extract the validated task artifact rather than passing raw model text to the
+next agent. CrewAI also documents Pydantic `response_format` for LLM calls;
+its suitability depends on the selected model and integration. See
+[CrewAI tasks](https://docs.crewai.com/en/concepts/tasks) and
+[CrewAI LLMs](https://docs.crewai.com/en/concepts/llms).
+
+The planned contracts remain `ResearchTask`, `ResearchFinding`,
+`VerifiedEvidence`, `AnalysisResult`, `CritiqueResult`, and `SynthesisResult`,
+created only as the workflow needs them. Keep the existing full,
+evidence-only, and challenge handoffs, with explicit artifacts rather than
+private chain-of-thought. Framework conversion must not weaken project
+validation or silently admit unvalidated raw output after conversion fails.
+
+A valid Pydantic object proves structure, not factual correctness.
+`VerifiedEvidence` must record the evidence checks actually performed; an
+Evidence Agent's interpretation does not replace Future Work 2's deterministic
+MCP-response verification, source provenance, or evaluator-only ground truth.
+Bound any structured-output repair attempts within the shared execution budget.
+
+#### Cohere Rerank is a separate retrieval operation
+
+Cohere Command is an LLM integration; Cohere Rerank is a different operation.
+Keep reranking in a generic retrieval tool. LiteLLM documents `rerank()` with
+Cohere support, so a separate Cohere chat adapter is unnecessary for this
+purpose. See [LiteLLM rerank](https://docs.litellm.ai/docs/rerank).
 
 ```text
-EVIDENCE_PROVIDER=nvidia
+ChromaDB retrieval → candidate documents → LiteLLM rerank()
+  → Cohere Rerank → ranked documents with original source identifiers
 ```
 
-without modifying the Evidence Agent, CrewAI workflow, Pydantic schemas, downstream agents, or handoff logic.
+Candidate and returned counts are configurable; 20 candidates and 5 results
+are illustrative, not fixed requirements. Preserve document IDs and source
+references through ranking. Relevance scores do not establish truth. Test
+reranking separately from Command completion and role-model substitution:
+changing the Evidence Agent's LLM must not implicitly change its reranker.
 
-#### Common Agent Contracts
+#### Generic cross-provider fallback, when needed
 
-Provider-specific output formats must never leak into the multi-agent workflow.
+Add fallback in the multi-agent phase when real workflows need it. Do not
+assume an ordinary CrewAI `LLM` object provides the required cross-provider
+policy. Prefer one small generic layer that invokes a configured primary
+CrewAI LLM and, on an explicitly eligible failure, its compatible fallback.
+Consider a single LiteLLM Router integration only if the pool warrants it;
+its documentation covers retries and fallback routing. See
+[LiteLLM Router](https://docs.litellm.ai/docs/routing).
 
-Every provider adapter must convert model output into the same Pydantic contract required by the corresponding agent role.
+Start with bounded retries for classified transient rate limits, timeouts,
+connection failures, temporary server errors, or provider outages. Quota
+exhaustion may permit configured fallback without repeatedly retrying an
+exhausted primary. Unavailable models require classification: temporary
+service unavailability can qualify; a wrong model ID or missing account
+access is a configuration error. Authentication failures, malformed task
+inputs, programming errors, and schema failures must not silently trigger
+cross-provider fallback. Use the explicit bounded validation/repair path for
+model-generated invalid output, then surface failure.
 
-For example:
+Nemotron remains a candidate general fallback for Researcher, Evidence,
+Analyst, and Critic; Gemini remains a candidate Vision fallback. Enable each
+only after testing the role's required contracts, tools, context, and modalities.
+Do not substitute a text-only model for a required vision capability.
 
-```text
-Cohere
-   ↓
-provider adapter
-   ↓
-VerifiedEvidence
-   ↓
-next agent
-```
+Coordinate framework, SDK, and project retries so nested layers cannot
+multiply attempts beyond the investigation budget. Fallback must preserve
+the typed task and permitted evidence, record which model actually answered,
+and must not replay state-changing tools or bypass approval. Log role,
+primary/fallback provider and model, classified failure, attempt, timestamp,
+and run/investigation correlation IDs in the audit trail. Align tracing with
+Future Work 2 without logging secrets or hidden truth.
 
-must be interchangeable with:
+#### Compatibility gate and focused tests
 
-```text
-NVIDIA
-   ↓
-provider adapter
-   ↓
-VerifiedEvidence
-   ↓
-next agent
-```
+Before assigning any selected model to a role, run a small opt-in compatibility
+probe. Record the exact model/endpoint, package versions, test date, required
+features, and observed results. Test basic completion, project Pydantic
+output, tool calling when required, timeout and output limits, usage/token
+reporting, and the required context size. Test any required reasoning or
+multimodal controls too. Model capabilities and parameter support vary;
+verify rather than treating a documented provider integration as sufficient.
 
-Downstream agents should know only about the typed Pydantic object, not which provider generated it.
+| Provider | Completion | Pydantic output | Role-required tools | Usage | Limits/context | Role-ready |
+|---|---|---|---|---|---|---|
+| NVIDIA | TBD | TBD | TBD | TBD | TBD | TBD |
+| Groq | TBD | TBD | TBD | TBD | TBD | TBD |
+| Cohere | TBD | TBD | TBD | TBD | TBD | TBD |
+| Gemini | TBD | TBD | TBD | TBD | TBD | TBD |
+| Mistral | TBD | TBD | TBD | TBD | TBD | TBD |
+| Cloudflare | TBD | TBD | TBD | TBD | TBD | TBD |
 
-This same principle should apply to:
+Mark unneeded features not applicable and unavailable usage unavailable;
+never invent token counts. Decide whether a missing feature disqualifies the
+model for that role. Prefer a compatible model or supported configuration
+before writing a narrow special-case adapter with tests for the concrete gap.
+This compatibility probe complements Future Work 7's task-quality benchmarks;
+it does not replace them or require all six providers for the core MVP.
 
-- ResearchTask
-- ResearchFinding
-- VerifiedEvidence
-- AnalysisResult
-- CritiqueResult
-- SynthesisResult
-- any other inter-agent contract created for the post-MVP extension
+Keep default tests offline with scripted framework/model stand-ins. Prove:
 
-#### Automatic Provider Fallbacks
+- The Evidence Agent can switch between configured Cohere and NVIDIA models
+  without agent, handoff, or downstream-contract changes.
+- Both paths produce the same required validated `VerifiedEvidence` contract;
+  invalid/raw outputs are rejected rather than forwarded.
+- A simulated eligible Cohere rate limit uses the configured compatible
+  fallback, while authentication/configuration errors stop execution.
+- Retries and fallback stay inside shared budgets, preserve tool permissions,
+  and never duplicate a consequential action.
+- Provider/model/fallback usage is visible in the audit trail.
+- Retrieval reranking preserves source IDs and remains independent of the
+  Evidence Agent's configured completion model.
 
-Specialized agents should also support a configured fallback provider.
-
-If the primary provider fails because of:
-
-- HTTP 429 / rate limiting
-- quota exhaustion
-- provider outage
-- temporary server error
-- timeout
-- unavailable model
-- other explicitly classified transient provider failures
-
-the provider router may retry according to a bounded retry policy and then route the same typed task to the configured fallback provider.
-
-Example:
-
-```text
-Evidence Agent
-      ↓
-Cohere
-      ↓
-429 / quota exceeded
-      ↓
-NVIDIA Nemotron
-      ↓
-VerifiedEvidence
-      ↓
-normal workflow continues
-```
-
-NVIDIA/Nemotron should act as the default general-purpose fallback for the Researcher, Evidence, Analyst, and Critic roles unless another fallback has been explicitly configured.
-
-The Vision role may use Gemini as its initial fallback because multimodal capability must be preserved.
-
-Do not silently fallback for malformed application data, schema bugs, programming errors, authentication/configuration mistakes, or other failures that should stop execution and be investigated.
-
-Every fallback must be recorded in the investigation/audit state with at least:
-
-```text
-agent_role
-primary_provider
-primary_model
-failure_type
-fallback_provider
-fallback_model
-timestamp
-```
-
-#### Default Provider Responsibilities
-
-Preserve the current intended specialization:
-
-```text
-NVIDIA / Nemotron
-→ orchestration
-→ planning
-→ synthesis
-→ general-purpose fallback
-
-Groq / GPT-OSS 120B
-→ primary research
-
-Cohere / Command + Rerank
-→ evidence retrieval, reranking, and grounding
-
-Google Gemini
-→ independent evidence analysis
-
-Mistral
-→ critic / challenger
-
-Cloudflare
-→ specialist vision/document processing
-```
-
-These are defaults, not hard dependencies.
-
-The architecture should make it possible to substitute providers later without redesigning the agents.
-
-#### Scope Constraint
-
-Do not turn this into a large generic model-routing platform.
-
-For the post-MVP extension, implement only what is necessary to:
-
-1. Configure one primary provider/model per agent role.
-2. Configure one optional fallback per role.
-3. Resolve the configured provider through a centralized registry/router.
-4. Normalize provider output into the existing Pydantic contracts.
-5. Handle bounded retries and explicit fallback conditions.
-6. Record which provider/model actually performed each agent step.
-7. Test that swapping a provider does not require changes to the agent workflow.
-
-Add focused tests proving at minimum:
-
-- Evidence Agent works with Cohere as primary.
-- The same Evidence Agent can be configured to use NVIDIA without changing its implementation.
-- A simulated Cohere rate-limit failure routes to NVIDIA.
-- Both providers return the same `VerifiedEvidence` contract.
-- Downstream agents operate identically regardless of which provider produced that contract.
-- Provider/fallback usage is visible in the audit trail.
-
-Keep this modular and simple enough that changing a provider is primarily a configuration change rather than a code change.
+Implement one framework boundary, one small model registry, and only the
+reliability policy that the extension needs. No generic routing platform,
+proxy deployment, six custom clients, or new dependencies in this documentation
+change. The core single-agent MVP plan and simulator behavior remain unchanged.
 
 **Future Work 4 — planning and experimentation.** Controlled experiments:
 *"Reduce Machine 2 feed rate by 5% for the next ten units and compare
@@ -1160,7 +1142,9 @@ The single-agent MVP uses the same concepts without introducing extra roles.
 Retain deterministic global investigation/tool-call limits across all roles,
 retries, and handoffs so local budgets cannot bypass termination rules.
 
-Adapters translate supported provider controls. Unsupported optional reasoning
+The project/framework integration translates supported provider controls;
+Future Work 3 uses CrewAI/LiteLLM rather than a custom adapter per provider.
+Unsupported optional reasoning
 settings may be omitted with their effective configuration recorded; enforce
 execution limits in orchestration or reject configurations that cannot be
 bounded safely. Reasoning effort is a resource setting, not proof of correctness.

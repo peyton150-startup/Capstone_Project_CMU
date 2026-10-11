@@ -54,6 +54,17 @@ alarm), then evaluation, then the agent itself.
 
 ## Session notes
 
+- **2026-10-11 — simplified multi-agent provider roadmap.** Revised Future
+  Work 3 in `docs/MVP_SCOPE.md` to prefer CrewAI's LLM interface and LiteLLM
+  over six custom provider clients. Preserve the existing `LLMProvider`
+  protocol, with one planned framework adapter and a small role-model
+  registry. Added typed task-output validation, separate retrieval reranking,
+  compatible generic fallback, shared execution budgets, and an opt-in
+  per-model compatibility gate. Checked the linked official CrewAI/LiteLLM
+  documentation; model IDs and advanced capability support remain subject
+  to testing at implementation time. Documentation only: no modules,
+  functions, classes, dependencies, or understanding status changed.
+
 - **2026-10-11 — MCP roadmap and readiness checklist.** Updated Future Work 2
   in `docs/MVP_SCOPE.md` from a prescribed server split to capability/trust
   boundaries whose server count will be revisited after the minimal MCP
