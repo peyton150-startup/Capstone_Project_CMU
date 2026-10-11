@@ -54,6 +54,64 @@ alarm), then evaluation, then the agent itself.
 
 ## Session notes
 
+- **2026-10-11 — focused developer tooling and future integration audit.**
+  Implemented uv-based GitHub Actions CI, Ruff pre-commit hooks, import sorting
+  (`I` added to `E4`, `E7`, `E9`, `F`), and informational pytest-cov. Added
+  `.github/workflows/ci.yml` and `.pre-commit-config.yaml`; updated
+  `pyproject.toml`, `uv.lock`, `.gitignore`, and `README.md`. Both pip-compatible
+  dev extras and the uv dev group include pre-commit 4.6.2 and pytest-cov 7.1.0;
+  Ruff stays 0.16.10 and existing package versions are preserved. CI uses
+  pinned actions, uv 0.12.0 with caching, `.python-version` (3.14.7), read-only
+  permissions, locked default installs, Ruff checks, and one offline coverage
+  test run with terminal/Markdown reports. No coverage threshold. Local hook
+  installation remains a developer choice; both configured hooks were run.
+  Hosted execution is not implied by local verification.
+
+  Eight mechanical Python changes: `capstone/observability.py`,
+  `capstone/providers/factory.py`, `capstone/simulator/state.py`,
+  `test_db_connection.py`, `tests/test_contracts.py`,
+  `tests/test_factory_provider.py`, `tests/test_slow_when_worn.py`, and
+  `tests/test_wrong_setting.py`. Ruff fixed eight import-rule violations and
+  its formatter found 73 files already formatted. An AST comparison against
+  Git HEAD, normalizing import grouping/order, checked all 67 tracked Python
+  files: imported names/scopes and non-import syntax are unchanged. No
+  functions/classes or simulator behavior were added or changed.
+
+  Commands: `uv add --dev 'pre-commit>=4' 'pytest-cov>=7'`, update the matching
+  dev extra, `uv lock`, `uv sync --locked`, Ruff import autofix/format,
+  `uv run --locked ruff check .`, `uv run --locked ruff format --check .`, and
+  `uv run --locked pre-commit run --all-files`. Lint, formatting, and both
+  hooks passed. Baseline with database extra: 420 passed (70.35s). Post-change
+  default `uv run --locked pytest`: 406 passed, two optional modules skipped
+  (39.93s). Coverage run: 406 passed, two skipped (51.84s), 97% informational
+  line coverage of `capstone` (944 statements, 29 missed); Markdown append
+  also worked. `uv run --locked --extra database pytest`: 420 passed (74.23s),
+  using mocks/in-memory SQLite, with no live Neon calls. Test runs used separate
+  workspace `.pytest-tmp-*` directories because the default sandbox temp path
+  is restricted. A 10-step simulator smoke run in the default environment
+  required no database/agent/MCP/RAG packages and imported no settings module.
+  YAML validation confirmed workflow triggers/permissions, one coverage test
+  command, equal dev dependency declarations, and matching Ruff hook pin.
+
+  Optional informational `uvx ty check --python-version 3.11 --output-format
+  concise` used isolated ty 0.0.86, without changing dependencies: 67 errors,
+  no warnings (exit 1), three core optional-value narrowing findings and 64
+  test findings, including deliberate invalid-input tests and typing gaps.
+  No broad type fixes, blanket ignores, or blocking type-check gate added.
+
+  `docs/MVP_SCOPE.md` now documents Docling/HybridChunker (Future Work 1),
+  first Pydantic AI MCP (2), later CrewAI `mcps` and existing `output_pydantic`
+  handoffs (3), conditional Hypothesis/xdist/ty adoption (6), and Pydantic Evals
+  (7), with integration points, reuse, adoption conditions, and tests. The
+  audit found Pydantic Graph was not previously named in the roadmap; recorded
+  the developer's planned macro-loop role without introducing an implementation
+  or substituting CrewAI Flow. The CrewAI/LiteLLM provider design is retained.
+  A scoped implementation/checklist plan is in
+  `docs/superpowers/plans/2026-10-11-developer-tooling.md`. No future-phase
+  agent/MCP/RAG/multi-agent runtime dependencies were installed. Unrelated
+  component implementation/understanding status is unchanged; tooling is built
+  ungated, developer to review.
+
 - **2026-10-11 — simplified multi-agent provider roadmap.** Revised Future
   Work 3 in `docs/MVP_SCOPE.md` to prefer CrewAI's LLM interface and LiteLLM
   over six custom provider clients. Preserve the existing `LLMProvider`

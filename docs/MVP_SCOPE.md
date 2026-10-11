@@ -85,6 +85,10 @@ does:
 Observe → Investigate → Hypothesize → Test → Decide → Act/Recommend → Verify → Remember
 ```
 
+The planned macro investigation loop uses Pydantic Graph. CrewAI remains the
+later specialist-agent orchestration layer in Future Work 3; CrewAI Flow must
+not replace this macro loop. Neither framework is implemented or installed.
+
 Internally its reasoning is staged:
 
 ```
@@ -263,9 +267,39 @@ Deferred, not abandoned — these are extensions of a proven architecture:
 **MVP** — single research agent + small factory simulator + anomaly
 investigation + hypothesis testing + HITL intervention + verification.
 
-**Future Work 1 — richer research.** Technical manuals, maintenance
+### Future Work 1 — richer research and document ingestion
+
+Technical manuals, maintenance
 documentation, historical incidents, RAG, external knowledge sources. The
 agent researches both the factory and a knowledge base.
+
+#### Docling + HybridChunker — candidate, not implemented
+
+Reevaluate when actual manuals, SOPs, maintenance reports, and PDFs enter the
+RAG phase. Docling conversion followed by `HybridChunker` could replace custom
+PDF parsing and naive fixed-character splitting. The chunker refines document
+hierarchy using token limits. See [Docling chunking](https://docling-project.github.io/docling/concepts/chunking/).
+
+```text
+PDF/manual → Docling structured document → HybridChunker
+  → embeddings → planned ChromaDB → retrieval/reranking → research agent
+```
+
+Reuse project `Evidence` and document source identifiers, preserving document
+ID, source/path, available page/position provenance, headings, sections, and
+table context. Select the embedding model before choosing a tokenizer. Use a
+matching supported Hugging Face tokenizer, or the OpenAI/tiktoken integration
+where appropriate; do not assume every embedding API has a local tokenizer.
+Use one coherent token/chunk-size policy. See the
+[hybrid chunking example](https://docling-project.github.io/docling/_generated/examples/hybrid_chunking/).
+
+Before adoption, test representative real documents for conversion quality,
+tables, provenance round trips, token limits including contextual text, and
+retrieval relevance. Adopt only if this removes custom parsing/chunking work.
+Keep ingestion in a future optional `rag` or `ingestion` extra; it must not
+replace ChromaDB, project contracts, or simulator behavior, and needs no
+LangChain/LlamaIndex wrapper merely to be used. No ingestion runtime or
+dependency is added now.
 
 ### Future Work 2 — MCP architecture, observability, and response verification
 
@@ -311,6 +345,35 @@ slice must expose an explicit read-only subset. Waiting changes simulation
 time and is not a read operation. Human approval stays outside agent access.
 "Authoritative machine state" means public observations, never hidden health,
 programmed fault causes, scenario configuration, or evaluator ground truth.
+
+#### First MCP client: Pydantic AI — planned, not implemented
+
+After the core single-agent MVP works, use Pydantic AI's MCP client support
+for the first read-only integration. This avoids a custom MCP client wrapper
+and reuses the observable provider boundary:
+
+```text
+Single research agent / Pydantic AI → MCP client capability
+  → factory MCP server → FactoryProvider / ToolRequest / ToolResult
+  → authoritative simulator/data source
+```
+
+The current documentation recommends the `MCP` capability for normal usage.
+Use `MCPToolset` directly when shared clients, explicit lifecycle management,
+or advanced transport settings require it. Prefer Streamable HTTP for remote
+servers; consider stdio or in-process transport for local tests. SSE is a
+compatibility option for existing systems, not a new-deployment default.
+See [Pydantic AI MCP client](https://pydantic.dev/docs/ai/mcp/client/).
+
+Reuse `SimulatorFactoryProvider` and existing observable Pydantic contracts;
+do not invent a parallel factory schema. Before adoption, test discovery,
+lifecycle cleanup, strict schemas, read-only allowlisting, denied waits/writes,
+authorization, provenance, freshness, state consistency, and hidden-truth
+isolation. Do not expose approval, scenario causes, or internal health fields.
+Preserve the macro Pydantic Graph loop and the verification/observability
+distinction below. CrewAI is not required for this first client. No MCP
+package, client wrapper, transport, or server is implemented now; consider a
+custom wrapper only for a demonstrated unsupported requirement.
 
 #### Candidate future capability boundaries
 
@@ -475,6 +538,28 @@ remain separate responsibilities.
 This planned extension follows the single-agent MVP. The provider assignments
 below are initial targets; exact models and API availability will be confirmed
 when this extension is implemented.
+
+#### Later CrewAI MCP client — planned, not implemented
+
+When CrewAI specialist orchestration begins, use its documented `mcps` support
+for discovery, structured server configuration, and tool filtering. Reuse the
+same server/capability and `FactoryProvider` contracts as the earlier
+Pydantic AI client; changing clients does not justify rebuilding the server.
+See [CrewAI MCP](https://docs.crewai.com/en/mcp/overview).
+
+```text
+CrewAI specialist agent → mcps integration → existing MCP capability/server
+  → same authoritative data boundary
+```
+
+Client filters reduce exposed tools; server-side authorization remains
+authoritative. Assign each role the necessary scopes. Test filtered discovery,
+denied direct calls, per-agent credentials/scopes, cross-client result parity,
+trace correlation, hidden-truth isolation, and human approval before adoption.
+Keep deterministic verification in Future Work 2, Pydantic Graph's macro loop,
+and the existing CrewAI/LiteLLM plan below. Split servers only when real trust,
+permission, or deployment needs justify it. No CrewAI/MCP code or dependencies
+are added now.
 
 #### Multi-Agent Handoff Protocol
 
@@ -924,7 +1009,9 @@ provider call as well; a per-request timeout is not a whole-run deadline.
 
 #### Common contracts and structured handoffs
 
-Use CrewAI tasks with `output_pydantic=RoleContract` for typed handoffs.
+**Planned, not implemented; reevaluate when CrewAI specialist tasks begin.**
+Use `Task(..., output_pydantic=RoleContract)` for typed handoffs, with ordinary
+Pydantic/project `Contract` models created only as needed.
 Extract the validated task artifact rather than passing raw model text to the
 next agent. CrewAI also documents Pydantic `response_format` for LLM calls;
 its suitability depends on the selected model and integration. See
@@ -1069,27 +1156,84 @@ will follow when those components exist.
 
 These planned improvements support development and infrastructure. They are
 not MVP requirements or part of the research agent's reasoning architecture.
-`uv`, Ruff, and Pydantic Settings are implemented; other items remain planned
+`uv`, Ruff (including import sorting), Pydantic Settings, pre-commit, CI,
+and informational pytest-cov are implemented; other items remain planned
 as noted below. Add them
 in focused changes when their benefit justifies the work, rather than as one
 large tooling migration.
 
 | Improvement | Benefit for this capstone | Suggested timing / adoption condition |
 |---|---|---|
-| [Ruff](https://docs.astral.sh/ruff/) | Consistent formatting, linting, and import cleanup as the developer and coding agents share the codebase. | Implemented 2026-10-08: basic correctness rules and formatter, documented in `README.md`. Initial formatting is kept in a separate commit from configuration behavior changes. |
+| [Ruff](https://docs.astral.sh/ruff/) | Consistent formatting, linting, and import cleanup as the developer and coding agents share the codebase. | Implemented 2026-10-08; import sorting added 2026-10-11. Rules remain `E4`, `E7`, `E9`, `F`, `I`; mechanical fixes are separate from tooling configuration. |
 | [Pydantic Settings](https://docs.pydantic.dev/latest/concepts/pydantic_settings/) | Typed, validated configuration for Neon, API credentials, model choices, and later ingestion/storage settings. | Implemented 2026-10-08 for the existing Neon check: lazy settings, environment precedence, and masked optional database credentials. Future integrations will add fields when needed; simulator seeds remain explicit. |
-| [pre-commit](https://pre-commit.com/) | Run agreed formatting and lint checks before changes are committed. | After Ruff rules are established. Pin hook versions and document hook installation for each developer. |
-| [GitHub Actions with uv caching](https://docs.astral.sh/uv/guides/integration/github/) | Repeatable automated tests and faster dependency setup from the committed lockfile. | When CI is introduced. Use locked installs, test the simulator without credentials, and keep live Neon checks separate from the default offline suite. |
+| [pre-commit](https://docs.astral.sh/ruff/integrations/) | Run agreed formatting and lint checks before changes are committed. | Implemented 2026-10-11: Ruff check/fix then format, pinned to the resolved Ruff version. Local installation/use documented in README; no additional formatter or import sorter. |
+| [GitHub Actions with uv caching](https://docs.astral.sh/uv/guides/integration/github/) | Repeatable automated tests and faster dependency setup from the committed lockfile. | Workflow implemented 2026-10-11: PRs and main pushes, pinned development Python, locked default install, Ruff, and one offline test run with informational coverage. No service credentials or live Neon/provider/MCP calls. Hosted execution is verified separately from local checks. |
+| [pytest-cov](https://pytest-cov.readthedocs.io/en/stable/reporting.html) | Identify unexercised paths alongside semantic tests. | Implemented 2026-10-11 in both development dependency paths. Optional local terminal report and CI Markdown summary; no coverage threshold or 100% target. |
 | [uv audit](https://docs.astral.sh/uv/reference/cli/#uv-audit) | Check locked dependencies for known vulnerabilities and surface findings for review. | Add alongside CI. Use `uv audit --locked`, define how findings are handled, and review dependency changes rather than automatically upgrading packages. |
-| [ty](https://docs.astral.sh/ty/) | Catch type mismatches as simulator observations, tool contracts, agent state, and persistence interfaces grow. | After basic linting is stable and interfaces expand. Introduce checking incrementally before making it a required CI gate. |
+| [ty](https://docs.astral.sh/ty/) | Check Pydantic contracts, Protocols, provider interfaces, and future graph/handoff/persistence types. | Candidate, not implemented. Reevaluate once interfaces and a reviewed diagnostic baseline are stable; see adoption conditions below. No required CI gate. |
 | [Dependabot for uv](https://docs.github.com/en/code-security/reference/supply-chain-security/supported-ecosystems-and-repositories) | Propose dependency updates for review, including changes to `uv.lock`. | After CI can validate update PRs. Review existing migration constraints when intentionally upgrading simulator dependencies; require passing tests before merging. |
-| [pytest-xdist](https://pytest-xdist.readthedocs.io/en/stable/) | Shorter test runs by distributing independent tests across workers. | When measured test duration warrants it. First isolate random generators, temporary files, and any database fixtures per worker; confirm seeded results remain reproducible before using `pytest -n auto`. |
+| [pytest-xdist](https://pytest-xdist.readthedocs.io/en/latest/distribution.html) | Shorter test runs by distributing independent tests across workers. | Candidate, not implemented. Reevaluate when measured suite duration is materially slow; require isolation and repeatable speedup before enabling `pytest -n auto`. |
+| [Hypothesis](https://hypothesis.readthedocs.io/en/latest/stateful.html) | Find combinations at deterministic state/contract boundaries that examples miss. | Candidate, not implemented. Reevaluate when a specific invariant or sequence would otherwise need many hand-written cases. |
 
-Priority: Ruff → Pydantic Settings → pre-commit → CI with uv caching and
-dependency auditing. Add type checking and dependency-update automation as
+Ruff, Pydantic Settings, pre-commit, and CI with uv caching are now in place.
+Dependency auditing remains planned. Add type checking and dependency-update automation as
 interfaces and CI mature; parallelize tests only after isolation is proven.
 Items still marked planned remain roadmap entries; adopting them requires a
 separate implementation task.
+
+#### Conditional test hardening — planned, not implemented
+
+Hypothesis would reuse pytest and seeded simulator/provider fixtures. Start
+with a concrete property: same seed and operations reproduce observations;
+ticks never go backward; invalid requests/ranges do not mutate state; public
+schemas and results exclude hidden truth; approval cannot be bypassed;
+sensor summaries honor inclusive windows; reads consume no RNG draws and do
+not alter later results. Generated valid reads should not crash the boundary.
+Only introduce `RuleBasedStateMachine` after invariants for observe/wait/propose/
+human-approve sequences are clear. Test replay of minimized failing examples
+and keep human approval outside agent inputs. This supplements fixed-seed
+regressions and ordinary examples; it must not generate new fault models,
+leak evaluator truth, or create a separate state-machine project.
+
+pytest-xdist would reuse the suite and coverage setup. Before adopting, measure
+serial runtime, inspect global mutable state, isolate RNG instances, temporary
+paths and database fixtures, and remove fixed-port assumptions. Run repeated
+`pytest -n auto` trials, verify seeded results and coverage remain consistent,
+and compare elapsed time with serial pytest. Keep it only for a meaningful
+measured gain; do not make parallelism default merely because test count grows.
+No Hypothesis or xdist dependency is added in this task.
+
+#### ty adoption — candidate, not implemented
+
+Reevaluate when contracts, `FactoryProvider`/`LLMProvider` Protocols, graph state,
+handoffs, and persistence interfaces are stable enough for a reviewed baseline.
+An isolated `uvx ty check` assessment can inform this decision without changing
+project dependencies. See [ty installation](https://docs.astral.sh/ty/installation/)
+and [type checking](https://docs.astral.sh/ty/type-checking/).
+
+ty defaults to the lower bound of `requires-python`; confirm Python 3.11
+analysis explicitly with `--python-version 3.11` during the assessment. See
+[ty Python version](https://docs.astral.sh/ty/python-version/).
+Before adoption, check optional-package environments,
+Pydantic patterns, and Protocol conformance; distinguish real errors from
+intentional invalid-input tests or unsupported analysis patterns. Add ty as a
+development dependency only after agreeing a baseline and narrow exceptions,
+then use `uv run ty check`; consider a CI gate only after it is stable. Do not
+add blanket ignores, experimental annotations, broad unrelated typing fixes,
+or competing type checkers. ty must not replace pytest or runtime validation.
+The current task does not add ty to project dependencies or CI.
+
+**Informational baseline, 2026-10-11:** `uvx ty check --python-version 3.11
+--output-format concise` with ty 0.0.86 and database-extra dependencies found
+67 diagnostics (exit 1): three core optional-value narrowing findings in job
+event recording/inspection lookup, and 64 test findings including intentional
+invalid arguments/read-only assignments, optional values, and generic result
+typing. These warrant a scoped baseline review, not an immediate blocking
+gate. No unsupported Pydantic pattern was established by this assessment;
+no fixes or ignores were added. The baseline has seven diagnostic types:
+19 invalid-argument-type, 27 unresolved-attribute, 15 not-subscriptable,
+three invalid-assignment, and one each call-non-callable, invalid-return-type,
+and unknown-argument.
 
 ### Future Work 7 — model evaluation, execution budgets, and computed evidence
 
@@ -1190,6 +1334,38 @@ model runs measure performance on repeatable cases without promising identical
 answers. These regression cases support the normal investigation workflow;
 they do not introduce the excluded failure-diagnostic benchmark mode.
 
+#### Pydantic Evals — candidate, not implemented
+
+Reevaluate when scenario generation, evaluation, and the normal agent workflow
+exist, and a small experiment harness would remove custom reporting plumbing.
+Pydantic Evals provides `Dataset`, `Case`, and custom evaluators; the candidate
+integration reuses seeded cases, project investigation contracts, and MVP
+scoring rather than creating another diagnostic workflow. See
+[Pydantic Evals](https://pydantic.dev/docs/ai/evals/evals/).
+
+```text
+Dataset → Case per scenario/seed → normal research-agent workflow
+  → deterministic evaluators → experiment/report
+```
+
+Keep public observations/setup references in task inputs. Keep expected root
+cause and acceptable interventions evaluator-side, with scenario ID, seed,
+and family/difficulty metadata. Do not forward the full case or expected output
+to the model, or store evaluator truth in memory/RAG. Custom code evaluators
+can score root cause, intervention, resolution, deterministically scoreable
+evidence retrieval, tool/iteration counts, schema success, and hidden-truth
+leakage with zero tolerance. Qualitative LLM judges are only a later option
+where authoritative truth cannot provide a deterministic score.
+
+Before adopting, test case/input separation, leak detection, fixed-seed setup,
+score parity with existing evaluation, schema failures, and report counts using
+scripted models offline. Live outputs remain probabilistic even for repeatable
+simulator inputs. Reuse this harness for Future Work 7's later role benchmarks
+only if useful; it must not require six providers or replace pytest, simulator
+unit/integration tests, post-intervention verification, or MVP scoring.
+Do not add the rejected failure-diagnostic benchmark mode. No Evals dependency,
+dataset, evaluator, or runtime integration is implemented now.
+
 ### Implemented foundations for later research and persistence
 
 The developer requested these foundations on 2026-10-08. They prepare existing
@@ -1207,5 +1383,6 @@ Smaller foundations are also implemented: a secret-free `.env.example`, typed
 settings, and opt-in JSON metadata logging with run/investigation IDs. The
 existing `capstone/` structure is retained and no empty framework scaffolding
 is added. Ruff commands and these boundaries are documented in `README.md`.
-pytest-cov, pre-commit, type checking, CI, and larger research/infrastructure
-frameworks remain deferred; this foundation work does not install them.
+pytest-cov, pre-commit, and CI were subsequently added on 2026-10-11 as
+developer tooling (Future Work 6). Type checking and larger research frameworks
+remain deferred; the original foundation work did not install them.
