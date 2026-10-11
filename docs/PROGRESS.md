@@ -115,8 +115,13 @@ alarm), then evaluation, then the agent itself.
   Hosted follow-up: the first run with local uv 0.12.0 failed before project
   installation because its catalog lacked the pinned CPython 3.14.7 Linux
   download. Updated only CI's uv pin to the current documented 0.13.0 release
-  so the interpreter pin and lockfile remain intact. Hosted verification is
-  recorded separately from the successful local checks above.
+  so the interpreter pin and lockfile remain intact. The isolated 0.13.0
+  catalog query confirmed that Linux download is available. Hosted run
+  [38161614543](https://github.com/peyton150-startup/Capstone_Project_CMU/actions/runs/38161614543)
+  passed: Python installation, locked sync, Ruff lint/format, and 406 tests
+  with two optional modules skipped (18.66s); coverage was 97% and its
+  Markdown summary was published. This verifies the hosted workflow as well
+  as the local checks above.
 
 - **2026-10-11 — simplified multi-agent provider roadmap.** Revised Future
   Work 3 in `docs/MVP_SCOPE.md` to prefer CrewAI's LLM interface and LiteLLM
