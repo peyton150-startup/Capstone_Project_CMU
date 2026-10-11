@@ -9,8 +9,8 @@ from capstone.simulator.scenarios import (
     ProductionLine,
     working_speed,
 )
-from capstone.simulator.simulator import Simulator
 from capstone.simulator.sensors import VibrationSensor
+from capstone.simulator.simulator import Simulator
 from capstone.simulator.state import MachineCondition, MachineState
 from capstone.tools.observation import ObservationTools
 

@@ -3,10 +3,13 @@ from uuid import UUID
 import pytest
 from pydantic import ValidationError
 
-from capstone.contracts.investigations import investigation_id_for, run_id_for
-from capstone.contracts.investigations import Investigation
 from capstone.contracts.evidence import Evidence
 from capstone.contracts.hypotheses import Hypothesis
+from capstone.contracts.investigations import (
+    Investigation,
+    investigation_id_for,
+    run_id_for,
+)
 from capstone.contracts.observations import SensorObservation
 from capstone.contracts.tools import ToolError, ToolResult
 

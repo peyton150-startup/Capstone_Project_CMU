@@ -16,7 +16,7 @@ from capstone.contracts.observations import (
     SensorSummaryObservation,
     SettingObservation,
 )
-from capstone.contracts.tools import TraceContext, ToolError, ToolRequest, ToolResult
+from capstone.contracts.tools import ToolError, ToolRequest, ToolResult, TraceContext
 from capstone.tools.actions import ActionTools
 from capstone.tools.observation import ObservationTools
 

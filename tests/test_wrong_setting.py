@@ -3,8 +3,8 @@ from datetime import datetime
 
 import pytest
 
-from capstone.simulator.line import STANDARD_SPEEDS, build_line
 from capstone.simulator.events import ThresholdAlarm
+from capstone.simulator.line import STANDARD_SPEEDS, build_line
 from capstone.simulator.rng import RandomSource
 from capstone.simulator.scenarios import (
     BearingDegradation,

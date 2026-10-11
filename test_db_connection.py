@@ -2,7 +2,6 @@
 
 import sys
 
-
 if __name__ == "__main__":
     try:
         from capstone.database.connection import check_database_connection

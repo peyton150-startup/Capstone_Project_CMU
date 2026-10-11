@@ -7,8 +7,8 @@ from pydantic import ValidationError
 
 from capstone.contracts.investigations import investigation_id_for, run_id_for
 from capstone.contracts.tools import ToolRequest
-from capstone.providers.factory import SimulatorFactoryProvider
 from capstone.observability import create_event_logger
+from capstone.providers.factory import SimulatorFactoryProvider
 from capstone.simulator.line import build_line
 from capstone.tools.actions import ActionTools, ApprovalDesk
 from capstone.tools.observation import ObservationTools

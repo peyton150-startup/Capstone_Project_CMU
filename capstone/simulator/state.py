@@ -2,7 +2,6 @@ from enum import StrEnum
 
 from pydantic import BaseModel, ConfigDict, Field
 
-
 NORMAL_LOAD = 0.5
 REFERENCE_AMBIENT_F = 72.0
 
