@@ -54,6 +54,20 @@ alarm), then evaluation, then the agent itself.
 
 ## Session notes
 
+- **2026-10-11 — MCP roadmap and readiness checklist.** Updated Future Work 2
+  in `docs/MVP_SCOPE.md` from a prescribed server split to capability/trust
+  boundaries whose server count will be revisited after the minimal MCP
+  slice works. Added least-privilege scopes, read-only-first transport over
+  existing contracts/providers, OpenTelemetry/LangSmith observability,
+  deterministic response verification, a minimal verification record,
+  optional operator panel, implementation phases, and split criteria.
+  Clarified that the first MCP slice follows the core simulator/agent MVP;
+  public observations remain distinct from hidden evaluator truth. Added a
+  practical readiness checklist identifying existing foundations and missing
+  checks, plus a README link. Documentation only: no modules, functions,
+  classes, dependencies, or runtime integrations changed, and no understanding
+  status advanced.
+
 - **2026-10-09 — deterministic sensor summary tool.** Understood: no — built
   ungated, developer to review. `tools/observation.py` adds
   `ObservationTools.get_sensor_summary()`: read existing public readings,

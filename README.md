@@ -8,6 +8,9 @@ later, an AI research agent that investigates it through tools.
   gated teaching workflow used to build this project.
 - `docs/MVP_SCOPE.md` — what the MVP includes, what it excludes, and the
   post-MVP roadmap.
+  [Future Work 2](docs/MVP_SCOPE.md#future-work-2--mcp-architecture-observability-and-response-verification)
+  covers the minimal MCP slice, deferred server-count decision,
+  OpenTelemetry/LangSmith, and response verification, with a readiness checklist.
 - `docs/PROGRESS.md` — which components are implemented and which are
   understood (tracked separately).
 - `capstone/simulator/` — the simulator (runs with no LLM).

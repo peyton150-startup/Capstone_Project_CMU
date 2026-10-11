@@ -131,7 +131,9 @@ propose_action()
 observe_after_action()
 ```
 
-MCP may expose these later; MCP itself is not an MVP objective. What
+MCP may expose these later; MCP itself is not a core simulator/agent MVP
+objective. Future Work 2 defines a minimal first MCP slice and its planned
+observability, after the core investigation loop works. What
 matters is that the agent must decide **"what information do I need
 next?"** rather than having everything dumped into the prompt.
 
@@ -265,9 +267,208 @@ investigation + hypothesis testing + HITL intervention + verification.
 documentation, historical incidents, RAG, external knowledge sources. The
 agent researches both the factory and a knowledge base.
 
-**Future Work 2 — MCP.** Expose factory systems as separate MCP servers:
-Telemetry, Maintenance, Quality, Production, Documentation. The agent
-operates across heterogeneous external systems.
+### Future Work 2 — MCP architecture, observability, and response verification
+
+**Updated 2026-10-11. Planned; no MCP or tracing integration implemented.**
+Start with the smallest useful MCP boundary after the core single-agent MVP
+works. The "MVP MCP" plan below means the first minimal MCP integration,
+not a prerequisite for finishing the simulator/agent MVP. Multiple agents
+remain the later extension in Future Work 3.
+
+#### Server count is an explicit, deferred decision
+
+Do not commit to one server for the whole system, one server per agent, or
+any fixed number of servers. Prefer capability boundaries. Multiple agents
+may share a server with different authorization scopes; access to that
+server does not grant every operation it offers.
+
+Revisit the number and boundaries after the first MCP implementation and
+actual workflows provide evidence. Consider permissions, trust, read versus
+write access, data ownership, operational risk, deployment needs, independent
+failure or scaling, and whether separation improves security or maintenance.
+Do not split servers solely for presentation value.
+
+#### Minimal MCP slice and existing architecture
+
+Begin with read-only access to public machine state, sensor readings, alarms,
+simulation time, observable state transitions, historical observations, and
+authoritative source/event identifiers where available. Prove this path:
+
+```text
+Agent → MCP → authoritative simulator/data source → verified response
+  → agent conclusion
+```
+
+Build on `FactoryProvider`, `SimulatorFactoryProvider`, `ToolRequest`, and
+`ToolResult`. The existing adapter validates arguments and observable result
+schemas, and includes source, simulation tick/time, and optional run and
+investigation IDs. MCP should transport these permitted observations rather
+than introduce another model of factory reality. The simulator still runs
+locally without an LLM, MCP, database, or telemetry service.
+
+The current provider also offers `wait` and `propose_action`; the first MCP
+slice must expose an explicit read-only subset. Waiting changes simulation
+time and is not a read operation. Human approval stays outside agent access.
+"Authoritative machine state" means public observations, never hidden health,
+programmed fault causes, scenario configuration, or evaluator ground truth.
+
+#### Candidate future capability boundaries
+
+These are possible boundaries, not an agreed server list or count:
+
+| Candidate boundary | Possible responsibilities | Permission posture |
+|---|---|---|
+| Factory / Telemetry | Public machine state, readings, alarms, observable transitions, simulator observations | Primarily read-oriented |
+| Knowledge | Manuals, SOPs, PDFs, RAG retrieval, maintenance history, historical incidents | Primarily read/search-oriented |
+| Operations | Create work orders, propose maintenance, acknowledge alarms, request changes, execute approved actions | Stricter state-changing permissions; separate propose, approve, and execute |
+| External Integration | Snowflake, email, manufacturer systems, external APIs/databases | Add only when useful; scope to each source and operation |
+| Administrative / Control | Simulator configuration, agent permissions, privileged controls, system configuration | Potentially isolated; unnecessary for the initial slice |
+
+Some capabilities may share a server. Administrative access must not become
+a path for investigation agents to retrieve hidden truth. Adding an external
+integration does not authorize sending messages or changing external systems.
+
+#### Least-privilege authorization
+
+Map authorization as `Agent → MCP capability → allowed operation → required
+scope`. Example future scopes are `factory:read`, `telemetry:read`,
+`documents:read`, `knowledge:search`, `maintenance:propose`,
+`operations:request`, and `operations:execute`.
+
+Enforce authorization before executing each operation. Agents are not
+inherently trusted. Shared-server agents can have different scopes; successful
+connection is not blanket authorization. Approval must come from the human
+approval boundary and cannot be granted by an agent to itself.
+
+#### OpenTelemetry and LangSmith
+
+The planned first MCP slice includes OpenTelemetry as the common
+instrumentation layer and LangSmith as the developer-facing observability
+and debugging interface. Propagate trace IDs and nested spans so a request
+can be followed through:
+
+```text
+user request → orchestrator → agent → MCP request → MCP server
+  → simulator/database/source → MCP response → verification
+  → agent result → final response
+```
+
+The single-agent slice needs no multi-agent orchestrator framework. Correlate
+traces with existing run/investigation IDs without treating those UUIDs as
+OpenTelemetry trace IDs. Confirm supported SDK/exporter integration when
+implementing this plan.
+
+LangSmith supports inspecting agent execution, model/tool/MCP calls, latency,
+failures, metadata, run comparisons, and development-time evaluation. It is
+not the source of factory truth. Do not build a duplicate observability
+platform. Keep secrets and evaluator-only truth out of agent-visible traces
+and operator views; instrumentation must not alter simulator randomness or
+simulation time. Preserve offline tests and optional telemetry integration.
+
+#### Small deterministic MCP-response verification layer
+
+LangSmith answers **"What did the agents and tools do?"** A complementary
+custom verification trace answers **"Should the system trust this MCP
+result?"** A successful MCP call alone does not establish trustworthy data.
+
+| Check | Question |
+|---|---|
+| Authorization | Was this agent permitted to perform this operation? |
+| Schema | Does the response match the expected structured contract? |
+| Source / provenance | Can important values be linked to authoritative simulator, database, or document records? |
+| Freshness | Is the time-sensitive evidence recent enough for this decision? |
+| State consistency | Where practical, does the response agree with the permitted authoritative source state? |
+
+Use deterministic checks where possible. Another LLM must not be the sole
+verifier of authoritative state. Verification reads only permitted source
+observations; it must not reveal hidden truth or infer correctness merely
+from the response's own source label. Historical readings can be valid
+historical evidence even when unsuitable for a current-state decision.
+Use simulation ticks/source time for simulator freshness, and define the
+allowed age for each decision; do not compare simulation time with wall time.
+
+Report `VERIFIED`, `FAILED`, or `PARTIAL / INSUFFICIENT EVIDENCE`. Record
+individual check results, including checks that could not be performed.
+Missing provenance, unavailable independent state checks, or undefined
+freshness requirements must not silently pass. `VERIFIED` describes the
+defined checks on this response, not proof of the agent's diagnosis.
+
+Keep the custom record small: `trace_id`, `agent_id`, MCP server/capability,
+operation, timestamp, source identifier, authorization result, schema result,
+freshness result, source/state verification result, and overall status.
+Reuse run/investigation correlation IDs when useful. Do not add advanced
+analytics, search, replay, or a custom observability backend without a
+demonstrated need.
+
+#### Optional operator-facing live trace
+
+If inexpensive, show a small panel such as:
+
+```text
+Diagnostic Agent → requested public machine state
+Factory MCP → returned public machine state
+Verification → authorization: pass; schema: pass; freshness: pass;
+               source: pass; state consistency: pass
+Result: VERIFIED
+```
+
+Show failures and insufficient evidence just as clearly. Keep this view
+understandable to an instructor, operator, or evaluator; LangSmith remains
+the detailed engineering interface.
+
+#### Implementation sequence
+
+1. Expose the minimum useful read-only factory/simulator MCP boundary.
+2. Add OpenTelemetry propagation across agent → MCP → source.
+3. Connect instrumentation to LangSmith for developer observability.
+4. Add deterministic response verification with explicit limits.
+5. Record the minimal custom verification trace.
+6. If inexpensive, show those events in the small live trace panel.
+7. After the MCP slice is stable, revisit server boundaries using real
+   workflows. Split only where concrete benefits outweigh complexity.
+
+#### Readiness checklist usable now
+
+Before starting implementation, review these existing foundations:
+
+- Reuse `capstone/contracts/tools.py` for requests, result envelopes, source
+  clocks, and run/investigation context. These contracts provide schema
+  validation; they do not yet implement per-agent authorization, independent
+  provenance verification, or freshness policies.
+- Review `capstone/providers/factory.py` and select the read-only operations
+  explicitly. Preserve the exclusion of approval and hidden-ground-truth
+  calls, and test that writes and waits are denied before dispatch.
+- Reuse existing public observation contracts and sensor summaries; add
+  source/event identifiers only where their semantics can be backed by real
+  records. The current source label alone is not record-level provenance.
+- Keep `capstone/observability.py` metadata logging distinct from distributed
+  tracing and response verification. It is a starting point for correlation,
+  not an implemented OpenTelemetry/LangSmith integration.
+- Plan offline tests for denied calls, malformed responses, stale evidence,
+  missing provenance, source mismatches, partial checks, trace correlation,
+  and hidden-truth isolation before claiming the MCP slice is verified.
+
+#### Decision criteria for a later server split
+
+Evaluate each proposed separation explicitly:
+
+1. Does the capability require different permissions?
+2. Does it have a different security risk or trust boundary?
+3. Is it read-only or state-changing?
+4. Does it rely on a different authoritative data source or owner?
+5. Should it be deployed independently?
+6. Should failures be isolated?
+7. Would separate scaling be useful?
+8. Would combining capabilities create overly broad agent access?
+9. Would another server materially simplify auditing?
+10. Does the split add more value than complexity?
+
+The previous roadmap's prescribed Telemetry, Maintenance, Quality,
+Production, and Documentation servers is superseded by this decision process.
+Future Work 3's model-assisted evidence review remains useful for claims and
+retrieval, but does not replace deterministic MCP-response checks or human
+approval. Post-intervention verification and evaluator-only ground truth
+remain separate responsibilities.
 
 ### Future Work 3 — multi-agent research
 
