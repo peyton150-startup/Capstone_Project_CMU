@@ -13,7 +13,7 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-dev = ["pytest>=8", "ruff>=0.16.10"]
+dev = ["pre-commit>=4", "pytest>=8", "pytest-cov>=7", "ruff>=0.16.10"]
 database = [
     "SQLAlchemy>=2,<3",
     "alembic>=1.20.0",
@@ -23,7 +23,9 @@ database = [
 
 [dependency-groups]
 dev = [
+    "pre-commit>=4",
     "pytest>=8",
+    "pytest-cov>=7",
     "ruff>=0.16.10",
 ]
 
@@ -48,7 +50,7 @@ target-version = "py311"
 line-length = 88
 
 [tool.ruff.lint]
-select = ["E4", "E7", "E9", "F"]
+select = ["E4", "E7", "E9", "F", "I"]
 
 [tool.ruff.lint.per-file-ignores]
 # Optional imports must follow pytest.importorskip in this module.

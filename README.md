@@ -49,10 +49,45 @@ uv run --locked ruff check .
 uv run --locked ruff format --check .
 ```
 
-Use `uv run --locked ruff format .` to apply formatting. The initial rules
-check basic Python correctness and unused imports, with Python 3.11 as the
-minimum target. Formatting uses 88-character lines. Automatic Git hooks and
-CI checks are still future work.
+The rules check basic Python correctness, unused imports, and import sorting
+(`E4`, `E7`, `E9`, `F`, `I`), with Python 3.11 as the minimum target.
+Formatting uses 88-character lines. To sort imports and then format:
+
+```sh
+uv run --locked ruff check --select I --fix .
+uv run --locked ruff format .
+```
+
+Install the optional local Git hooks after syncing development dependencies:
+
+```sh
+uv run --locked pre-commit install
+uv run --locked pre-commit run --all-files
+```
+
+The hooks run Ruff fixes before formatting. Their pinned Ruff version matches
+`uv.lock`; update both together when upgrading Ruff. Hook environments need
+network access on first setup. Hook installation is a per-checkout developer
+choice; committing the configuration does not install hooks automatically.
+
+## CI and informational coverage
+
+`.github/workflows/ci.yml` runs on pull requests and pushes to `main` with
+read-only repository permissions. It installs uv with caching, selects Python
+from `.python-version`, syncs locked default dependencies, checks Ruff lint and
+formatting, and runs the offline test suite once with terminal coverage and a
+GitHub Actions Markdown summary. It uses no service credentials or live Neon,
+LLM, or MCP calls. Dependency setup downloads packages; the tests run offline.
+Optional database-extra tests remain available through the commands below.
+
+For local coverage, run this single-line command in PowerShell or a POSIX shell:
+
+```sh
+uv run --locked pytest --cov=capstone --cov-report=term-missing
+```
+
+Coverage is informational, with no failure threshold or 100% target. Use it
+to find unexercised paths; the semantic and invariant tests establish behavior.
 
 ## Optional Neon connection check
 
