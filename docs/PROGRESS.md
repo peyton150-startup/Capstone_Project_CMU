@@ -61,7 +61,7 @@ alarm), then evaluation, then the agent itself.
   `pyproject.toml`, `uv.lock`, `.gitignore`, and `README.md`. Both pip-compatible
   dev extras and the uv dev group include pre-commit 4.6.2 and pytest-cov 7.1.0;
   Ruff stays 0.16.10 and existing package versions are preserved. CI uses
-  pinned actions, uv 0.12.0 with caching, `.python-version` (3.14.7), read-only
+  pinned actions, uv 0.13.0 with caching, `.python-version` (3.14.7), read-only
   permissions, locked default installs, Ruff checks, and one offline coverage
   test run with terminal/Markdown reports. No coverage threshold. Local hook
   installation remains a developer choice; both configured hooks were run.
@@ -111,6 +111,12 @@ alarm), then evaluation, then the agent itself.
   agent/MCP/RAG/multi-agent runtime dependencies were installed. Unrelated
   component implementation/understanding status is unchanged; tooling is built
   ungated, developer to review.
+
+  Hosted follow-up: the first run with local uv 0.12.0 failed before project
+  installation because its catalog lacked the pinned CPython 3.14.7 Linux
+  download. Updated only CI's uv pin to the current documented 0.13.0 release
+  so the interpreter pin and lockfile remain intact. Hosted verification is
+  recorded separately from the successful local checks above.
 
 - **2026-10-11 — simplified multi-agent provider roadmap.** Revised Future
   Work 3 in `docs/MVP_SCOPE.md` to prefer CrewAI's LLM interface and LiteLLM
