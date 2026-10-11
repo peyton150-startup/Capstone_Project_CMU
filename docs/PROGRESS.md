@@ -54,6 +54,27 @@ alarm), then evaluation, then the agent itself.
 
 ## Session notes
 
+- **2026-10-11 — implementation-condition prompt review (documentation only).**
+  Evaluated the supplied 43-part Datum/Ratchet prompt against current contracts,
+  provider/tool boundaries, approval behavior, tests, dependencies and roadmap.
+  Added `docs/FUTURE_WORK_REEVALUATION.md` with corrected gates, current baseline,
+  a complete candidate register and an addendum for later prompt execution.
+  Linked the register from `README.md` and each relevant Future Work section in
+  `docs/MVP_SCOPE.md`, retaining existing framework detail without duplicating it.
+  Tightened completeness versus absence, validation versus truth, mutation
+  idempotency/unknown outcomes, action transitions/preflight, verification exits,
+  early manifests, replay limits, source conflict semantics, concurrency,
+  outbox dispatch, redrive safety and first-client authorization. Checked primary
+  AWS guidance for idempotency/outbox semantics. Datum/Ratchet inspiration was
+  supplied by the prompt; those repositories were not independently audited in
+  this condition review. A later three-repository audit must record inspected
+  commits/files before claiming otherwise. All future entries may be rejected,
+  replaced or deleted at their gates; required safety behavior remains binding.
+  No runtime modules, functions/classes, dependencies or architecture changed.
+  No component implementation or developer-understanding status advanced.
+  Verification: 50 existing contract/provider/approval/sensor-summary tests
+  passed; documentation link/register checks and `git diff --check` passed.
+
 - **2026-10-11 — focused developer tooling and future integration audit.**
   Implemented uv-based GitHub Actions CI, Ruff pre-commit hooks, import sorting
   (`I` added to `E4`, `E7`, `E9`, `F`), and informational pytest-cov. Added

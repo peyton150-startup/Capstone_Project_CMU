@@ -13,6 +13,9 @@ later, an AI research agent that investigates it through tools.
   OpenTelemetry/LangSmith, and response verification, with a readiness checklist.
 - `docs/PROGRESS.md` — which components are implemented and which are
   understood (tracked separately).
+- [Future Work reevaluation register](docs/FUTURE_WORK_REEVALUATION.md) —
+  reviewed implementation conditions, adoption checks and reasons to defer or
+  reject candidates, including the Datum/Ratchet prompt evaluation.
 - `capstone/simulator/` — the simulator (runs with no LLM).
 - `tests/` — pytest suite.
 

@@ -267,11 +267,25 @@ Deferred, not abandoned — these are extensions of a proven architecture:
 **MVP** — single research agent + small factory simulator + anomaly
 investigation + hypothesis testing + HITL intervention + verification.
 
+Future Work is not a commitment to implement every candidate. The
+[reevaluation register and prompt review](FUTURE_WORK_REEVALUATION.md)
+records current status, prerequisites, adoption checks, rejection conditions,
+dependency impact and course/production scope. A trigger opens a review;
+it does not authorize implementation. Candidates may be rejected, replaced
+or deleted when the actual architecture or ecosystem changes.
+
 ### Future Work 1 — richer research and document ingestion
 
 Technical manuals, maintenance
 documentation, historical incidents, RAG, external knowledge sources. The
 agent researches both the factory and a knowledge base.
+
+[FW1 gates](FUTURE_WORK_REEVALUATION.md#future-technology--architecture-reevaluation-register):
+classify each ingestion source as an atomic snapshot or independent records
+before allowing partial acceptance. Preserve accepted/rejected scope and
+immutable document/revision lineage. Reevaluate fact-specific source authority
+when comparable claims conflict, including conflicting revisions of one source.
+Do not silently resolve a missing or conflicting claim through model opinion.
 
 #### Docling + HybridChunker — candidate, not implemented
 
@@ -304,6 +318,18 @@ dependency is added now.
 ### Future Work 2 — MCP architecture, observability, and response verification
 
 **Updated 2026-10-11. Planned; no MCP or tracing integration implemented.**
+
+[FW2 gates](FUTURE_WORK_REEVALUATION.md#corrections-to-the-supplied-conditions):
+extend the existing contract/provider barricade at each external boundary;
+validated structure is not factual truth. Source completeness is scoped to
+the requested data/window. PARTIAL cannot establish absence in missing scope,
+and COMPLETE establishes absence only with an exhaustive source guarantee.
+Source status, response verification and investigation confidence remain
+distinct. Authenticate and authorize the first MCP client. Bound remote calls
+under one investigation budget; a circuit breaker requires measured need.
+Add aggregate metrics only for defined health questions, with bounded labels
+and network latency measured separately from simulation time.
+
 Start with the smallest useful MCP boundary after the core single-agent MVP
 works. The "MVP MCP" plan below means the first minimal MCP integration,
 not a prerequisite for finishing the simulator/agent MVP. Multiple agents
@@ -534,6 +560,12 @@ approval. Post-intervention verification and evaluator-only ground truth
 remain separate responsibilities.
 
 ### Future Work 3 — multi-agent research
+
+[FW3 gates](FUTURE_WORK_REEVALUATION.md#future-technology--architecture-reevaluation-register):
+specialist role scopes extend server-side authorization already required at
+the first MCP boundary. Reuse the same permitted capabilities and contracts.
+An execution service may execute only an exact human-approved request;
+an agent cannot grant itself approval or arbitrary execution authority.
 
 This planned extension follows the single-agent MVP. The provider assignments
 below are initial targets; exact models and API availability will be confirmed
@@ -1131,6 +1163,17 @@ change. The core single-agent MVP plan and simulator behavior remain unchanged.
 *"Reduce Machine 2 feed rate by 5% for the next ten units and compare
 defect rates."*
 
+[FW4 gates](FUTURE_WORK_REEVALUATION.md#corrections-to-the-supplied-conditions):
+reuse basic proposal checks and define the smallest legal action transitions
+with the next action/graph integration. Recheck mutable safety conditions at
+execution; preflight is not approval or a hidden-cause prediction. Before any
+retryable/concurrent/restartable mutation boundary, including state-changing
+simulator MCP tools, require scoped action identity and payload/approval binding.
+Test duplicate delivery, conflicts, concurrency and uncertain outcomes.
+Database deduplication alone does not guarantee a single remote physical effect.
+Separate execution success from observable verification of effectiveness;
+the graph cannot report resolved success without post-intervention verification.
+
 **Future Work 5 — proactive autonomy.** The system no longer waits for a
 human question:
 
@@ -1139,6 +1182,15 @@ Factory state → continuous monitoring → anomaly discovered
   → investigation created automatically → research → recommendation
   → approval → intervention → verification
 ```
+
+[FW5 gates](FUTURE_WORK_REEVALUATION.md#future-technology--architecture-reevaluation-register):
+concurrency control requires an actual overlapping-work race, even within one
+process. Durable scheduling requires a workload that must survive restart.
+Use an outbox only for a demonstrated durable-state/dispatch dual-write gap:
+persist intent atomically, dispatch afterward, and handle duplicate delivery.
+An async dead-letter queue requires an actual retry pipeline. Compare a simple
+DB worker or existing framework before selecting a broker/job framework.
+Redriving consequential work must recheck approval, safety and idempotency.
 
 ### Development tooling — Python dependency and environment management
 
@@ -1153,6 +1205,16 @@ check, and the retained pip workflow. Agent, API, and ingestion validation
 will follow when those components exist.
 
 ### Future Work 6 — Developer Efficiency / Project Tooling
+
+[FW6 gates](FUTURE_WORK_REEVALUATION.md#future-technology--architecture-reevaluation-register):
+existing uv/Ruff/hooks/CI/coverage are IMPLEMENTED. Extend architectural invariant
+tests with each actual boundary; do not write tests for imaginary capabilities.
+Assemble a scripted vertical acceptance test as the agent loop grows. Compare
+ty with targeted mypy on real diagnostics when static checking prevents concrete
+mistakes; choose one primary checker. Current code can justify a pilot without
+waiting for a large agent. Hypothesis and xdist retain their existing conditional
+gates below. Coverage remains diagnostic; critical branch checks require useful
+behavioral blind spots rather than a whole-project percentage target.
 
 These planned improvements support development and infrastructure. They are
 not MVP requirements or part of the research agent's reasoning architecture.
@@ -1236,6 +1298,16 @@ three invalid-assignment, and one each call-non-callable, invalid-return-type,
 and unknown-argument.
 
 ### Future Work 7 — model evaluation, execution budgets, and computed evidence
+
+[FW7 gates](FUTURE_WORK_REEVALUATION.md#future-technology--architecture-reevaluation-register):
+record a minimal versioned execution manifest with the first repeatable scripted
+or live evaluation. Add only fields for components that exist. Persist explicit
+decision artifacts and evidence lineage, with evaluator-only setup/truth kept
+out of model prompts and agent memory. Durable investigation status should derive
+from the authoritative Pydantic Graph flow rather than duplicate orchestration.
+Reevaluate recorded replay only after the complete loop/evaluator demonstrates
+a gap beyond seeded reruns. Tape misses must be explicit, and static replay
+cannot score counterfactual intervention effects.
 
 **Added 2026-10-09.** Sensor summaries are implemented in the direct observation
 tools and simulator provider; other additions remain planned. These additions
@@ -1367,6 +1439,14 @@ Do not add the rejected failure-diagnostic benchmark mode. No Evals dependency,
 dataset, evaluator, or runtime integration is implemented now.
 
 ### Implemented foundations for later research and persistence
+
+Far-future portability candidates have separate
+[register gates](FUTURE_WORK_REEVALUATION.md#future-technology--architecture-reevaluation-register):
+schema-defined equipment requires a second genuinely different environment and
+repetitive capability code; YAML requires an actual profile-authoring need.
+Multi-tenant isolation/RLS requires mutually untrusted owners sharing persistent
+infrastructure. None is a course MVP requirement. ADRs may document settled,
+costly-to-reverse decisions without turning candidates into accepted designs.
 
 The developer requested these foundations on 2026-10-08. They prepare existing
 boundaries for extension without implementing the larger research frameworks.
