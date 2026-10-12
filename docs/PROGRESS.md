@@ -54,6 +54,28 @@ alarm), then evaluation, then the agent itself.
 
 ## Session notes
 
+- **2026-10-12 — developer decisions after consolidation (no code change).**
+  (1) The checkpointed loop (`agent/loop.py`, `state.py`, `policy.py`,
+  `artifacts.py`) and the `capstone/memory/` package are the real path.
+  (2) The ungated model wrapper, episode runner, monitor and scoring are to be
+  reused by fitting them to the loop's policy interface; the ungated loop
+  (`agent/agent.py`) and JSON memory (`agent/memory.py`) are then retired.
+  Nothing is retired yet. (3) The model's prompt must NOT list the possible
+  causes or their signatures; the current `SYSTEM_PROMPT` in `agent/agent.py`
+  does and must not be carried over. Consequence to settle at the evaluation
+  checkpoint: scoring reads a fault kind chosen from a fixed list, which a
+  free-text diagnosis does not supply. (4) Wire in NVIDIA Nemotron through
+  the NVIDIA API as a model behind the policy interface (already named in
+  MVP_SCOPE with `NVIDIA_API_KEY`); model ID to come from settings and be
+  checked against NVIDIA's catalogue when built; tests must not need a key.
+  Proposed for memory, awaiting the developer's agreement: one long-term
+  memory (the gated package); keep every completed investigation in a
+  separate durable audit record the agent cannot search; add word-overlap
+  search and an agent-callable look-up to the gated memory; a reflection step
+  where the model writes only the lesson and category while code fills
+  provenance and outcome from the verification. Checkpoint 1's closing
+  question is still outstanding.
+
 - **2026-10-12 — all branches consolidated onto `main`.** At the developer's
   request, `feature/episodic-memory-reflection`,
   `feature/reasoning-working-memory` and `claude/gifted-hamilton-eqyqf4`
