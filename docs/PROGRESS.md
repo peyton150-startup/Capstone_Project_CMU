@@ -59,7 +59,11 @@ alarm), then evaluation, then the agent itself.
   state the origin could write it in the wrong format or hallucinate the
   wrong source, and the records would then be tainted. Added: the worst case
   is hidden-side material labelled observable, which the memory gate would
-  then let through. Post-implementation understanding remains outstanding.
+  then let through. Post-implementation checkpoint PASSED: the developer
+  explained that at arrival everything is fresh and there is no need to go
+  back into working memory later to work the provenance out. Added: it is
+  also a second record of the same moment, so a later mistake in the
+  evidence is not copied into the label.
   Changes: new `contracts/provenance.py` now holds the one definition of
   `ProvenanceReference` (evidence ID, source, source type, origin, tick);
   `memory/contracts.py` imports it from there, so the memory gate and the
