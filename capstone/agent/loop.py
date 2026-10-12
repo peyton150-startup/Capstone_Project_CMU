@@ -109,8 +109,9 @@ def call_tool(
     """Make one counted tool call. Returns None when the answer cannot be trusted.
 
     A provider that raises, returns the wrong kind of object, or answers
-    for a different tool is treated as having given no answer. The agent
-    carries on; it does not crash and it does not guess.
+    for a different tool or a different investigation is treated as having
+    given no answer. The agent carries on; it does not crash and it does
+    not guess.
     """
     state.tool_call_count += 1
     if followup:
@@ -123,6 +124,12 @@ def call_tool(
         # Provider errors may carry secrets or driver detail; never keep them.
         return None
     if not isinstance(result, ToolResult) or result.tool != request.name:
+        return None
+    if (result.run_id, result.investigation_id) != (
+        state.run_id,
+        state.investigation_id,
+    ):
+        # An answer addressed to someone else is not this investigation's evidence.
         return None
     state.last_tick = result.tick
     return result
@@ -205,7 +212,7 @@ def gather(
 ) -> Evidence | None:
     """Call one tool and keep its answer as evidence. Always leaves a record.
 
-    Returns the new evidence, or None if the step produced nothing usable.
+    Returns the new evidence, or None if the factory gave nothing usable.
     """
     signature = "|".join(
         (
@@ -252,7 +259,6 @@ def gather(
         observed_tick=result.tick,
         observed_at=result.timestamp,
     )
-    answered = [q for q in state.unanswered_questions if q.id == step.question_id]
     state.evidence.append(evidence)
     if step.question_id is not None:
         state.answers.setdefault(step.question_id, []).append(evidence.id)
@@ -265,24 +271,20 @@ def gather(
             deps.policy.interpret(state.model_copy(deep=True), step, evidence),
         )
     except POLICY_ERRORS:
-        # The answer had the right envelope but the wrong contents. Undo it:
-        # something the agent could not read is not evidence.
-        state.evidence.pop()
-        if step.question_id is not None:
-            state.answers[step.question_id].pop()
-            if not state.answers[step.question_id]:
-                del state.answers[step.question_id]
-            state.unanswered_questions.extend(answered)
-        state.malformed_results += 1
+        # The factory did answer, so the evidence stays. What failed is the
+        # policy's reading of it: no belief changes, and the turn counts as
+        # unproductive so a policy that never interprets cannot run forever.
+        state.interpretation_failures += 1
         state.unproductive_steps += 1
         record(
             state,
             phase,
-            "malformed_result",
+            "uninterpreted",
             information_needed=step.information_needed,
             step=step,
+            evidence_ids=(evidence.id,),
         )
-        return None
+        return evidence
     state.unproductive_steps = 0
     record(
         state,
@@ -304,6 +306,10 @@ def run_inner_loop(
     iterations are limited. The reason is returned and also written as
     the last DecisionRecord of the loop.
     """
+    if state.started_at is None:
+        # The deadline covers the whole investigation, so only the first loop
+        # starts the timer. Without this the timeout could never fire.
+        state.started_at = deps.clock()
     state.unproductive_steps = 0
     phase_iterations = 0
     while True:

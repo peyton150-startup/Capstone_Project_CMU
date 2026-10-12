@@ -54,6 +54,47 @@ alarm), then evaluation, then the agent itself.
 
 ## Session notes
 
+- **2026-10-12 — checkpoint 2: the inner loop, tested and three gaps fixed.**
+  Pre-checkpoint passed: the developer said a failed call is reported and
+  counts against the budget, and that repeated failure needs a limit and a
+  recorded stop reason. Clarified: that limit already exists (three
+  unproductive turns in a row stop the loop with "no useful action") and a
+  failed call never becomes evidence. Post-implementation understanding
+  remains outstanding. Added `tests/test_agent_loop.py` (36 tests, 1 expected
+  failure) using a scripted policy and a fake provider, plus one test through
+  the real `SimulatorFactoryProvider`. Run against the unchanged loop first:
+  four tests failed, one per gap. Fixes, all in `agent/loop.py` and
+  `agent/state.py`:
+  (1) `run_inner_loop` now starts the timer on the first loop of an
+  investigation; before this `started_at` was never set and the timeout could
+  not fire. Later loops do not restart it.
+  (2) `call_tool` now refuses an answer whose run or investigation ID is not
+  this investigation's; it is counted as an unusable result, not evidence.
+  (3) `gather` no longer throws away a good answer when the policy fails to
+  interpret it (or returns a hypothesis citing evidence that was never
+  gathered). The evidence and the answered question stay, no belief changes,
+  the step is recorded with the new outcome `uninterpreted`, counted in the
+  new `interpretation_failures` field of `InvestigationState` and
+  `ReasoningMetrics`, and still counts as unproductive so such a policy
+  cannot run forever.
+  What the tests prove: a usable answer becomes numbered evidence with source
+  and tick; an observation changes the next decision; the policy gets a copy
+  and cannot alter counts or evidence; failed, raised, wrong-tool,
+  wrong-investigation and empty answers are not evidence and do not crash;
+  provider error text is not kept; same question at the same tick is skipped
+  without a call, and allowed again after time passes; unusable decisions use
+  a turn; the policy cannot claim the loop's stop reasons; tool-call,
+  iteration, timeout and unproductive limits each stop the loop; a supported
+  diagnosis needs confidence AND two supporting items, applies only in the
+  test phase, and beats budget exhaustion on the last call; verification
+  spends its own allowance; no hidden-truth words reach working memory
+  through the real provider. Known, deliberately left: the repeat check
+  needs a known tick before the first call (expected-failure test; the outer
+  sequence's observe step supplies it at checkpoint 3); the inner loop
+  returns its stop reason but the final reason for the whole investigation
+  is the outer sequence's to set. Verification: 568 passed, 1 expected
+  failure; Ruff lint/format passed.
+
 - **2026-10-12 — checkpoint 1 complete; memory design confirmed.**
   Post-implementation checkpoint passed after one re-teach: the developer
   first had no answer, then explained that a direct save from the loop would

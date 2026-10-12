@@ -32,6 +32,7 @@ StepOutcome = Literal[
     "observed",  # the tool answered and the answer became evidence
     "tool_error",  # the tool refused or failed
     "malformed_result",  # the answer could not be used
+    "uninterpreted",  # a good answer the policy failed to make sense of
     "repeated_call",  # skipped: the same question at the same tick
     "invalid_decision",  # the policy did not return a usable decision
     "stopped",  # no tool was called; the loop ended here
@@ -83,6 +84,7 @@ class ReasoningMetrics(Contract):
     repeated_calls: int = Field(ge=0)
     failed_tool_calls: int = Field(ge=0)
     malformed_results: int = Field(ge=0)
+    interpretation_failures: int = Field(ge=0)
     hypothesis_revisions: int = Field(ge=0)
     termination_reason: TerminationReason | None
 
@@ -110,8 +112,10 @@ class InvestigationState(BaseModel):
     repeated_calls: int = Field(default=0, ge=0)
     failed_tool_calls: int = Field(default=0, ge=0)
     malformed_results: int = Field(default=0, ge=0)
+    interpretation_failures: int = Field(default=0, ge=0)
     hypothesis_revisions: int = Field(default=0, ge=0)
-    # Steps in a row that produced no evidence: errors, bad results, repeats.
+    # Steps in a row that moved nothing forward: errors, bad results, repeats,
+    # and answers the policy could not interpret.
     unproductive_steps: int = Field(default=0, ge=0)
 
     # The latest simulation tick any tool result reported.
@@ -180,6 +184,7 @@ class InvestigationState(BaseModel):
             repeated_calls=self.repeated_calls,
             failed_tool_calls=self.failed_tool_calls,
             malformed_results=self.malformed_results,
+            interpretation_failures=self.interpretation_failures,
             hypothesis_revisions=self.hypothesis_revisions,
             termination_reason=self.termination_reason,
         )
