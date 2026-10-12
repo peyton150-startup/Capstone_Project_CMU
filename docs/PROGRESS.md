@@ -54,6 +54,14 @@ alarm), then evaluation, then the agent itself.
 
 ## Session notes
 
+- **2026-10-12 — memory evaluation pre-checkpoint passed.** The developer
+  proposed reporting an unknown effect when memory usefulness is not known,
+  and asking the agent for its assessment. Clarified that an agent report
+  is attributed self-report, not proof of causation. Next increment records
+  promotion/storage decisions and later retrieval/use/effect, with assessment
+  source and supporting evidence. Evaluation never feeds hidden correctness
+  back into promotion. Post-implementation understanding remains outstanding.
+
 - **2026-10-12 — episodic-memory migration built.** Migration pre-checkpoint
   passed; post-implementation checkpoint subsequently passed. The developer
   explained that downgrade deletes the table's memories and upgrade cannot
