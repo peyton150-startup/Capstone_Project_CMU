@@ -54,6 +54,13 @@ alarm), then evaluation, then the agent itself.
 
 ## Session notes
 
+- **2026-10-12 — migration pre-implementation checkpoint passed.** The
+  developer explained that the service checks the candidate with the policy
+  and rejects it before storage if it does not qualify. Table creation does
+  not promote or store lessons. Next increment: explicit Alembic revision
+  creating the memory table, with offline PostgreSQL SQL and local SQLite
+  upgrade/downgrade tests. Live Neon application remains a separate step.
+
 - **2026-10-12 — Agent 2 storage increment.** Built after the persistence
   pre-implementation checkpoint passed; post-implementation understanding
   checkpoint subsequently passed: the developer explained that a qualifying
