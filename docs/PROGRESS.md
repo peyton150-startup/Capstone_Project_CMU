@@ -59,8 +59,7 @@ alarm), then evaluation, then the agent itself.
   counts against the budget, and that repeated failure needs a limit and a
   recorded stop reason. Clarified: that limit already exists (three
   unproductive turns in a row stop the loop with "no useful action") and a
-  failed call never becomes evidence. Post-implementation understanding
-  remains outstanding. Added `tests/test_agent_loop.py` (36 tests, 1 expected
+  failed call never becomes evidence. Added `tests/test_agent_loop.py` (36 tests, 1 expected
   failure) using a scripted policy and a fake provider, plus one test through
   the real `SimulatorFactoryProvider`. Run against the unchanged loop first:
   four tests failed, one per gap. Fixes, all in `agent/loop.py` and
@@ -88,7 +87,11 @@ alarm), then evaluation, then the agent itself.
   diagnosis needs confidence AND two supporting items, applies only in the
   test phase, and beats budget exhaustion on the last call; verification
   spends its own allowance; no hidden-truth words reach working memory
-  through the real provider. Known, deliberately left: the repeat check
+  through the real provider. Post-implementation checkpoint PASSED: the
+  developer explained that a kept answer leaves a record to find a code bug
+  from, and that the turn is still unproductive because the agent could not
+  use the information. Added: the answer is also a true observation the
+  policy can still read on a later turn. Known, deliberately left: the repeat check
   needs a known tick before the first call (expected-failure test; the outer
   sequence's observe step supplies it at checkpoint 3); the inner loop
   returns its stop reason but the final reason for the whole investigation
