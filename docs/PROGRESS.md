@@ -73,6 +73,12 @@ alarm), then evaluation, then the agent itself.
   reconciliation before runtime integration. Next checkpoint: deterministic
   identity, duplicate handling, and the persistence boundary.
 
+  Duplicate-handling checkpoint passed: the developer explained that two
+  callers can both observe absence before either inserts, but the database
+  must enforce uniqueness at insertion. The later insert must preserve the
+  original and report a duplicate. Persistence pre-implementation checkpoint
+  passed; post-implementation walkthrough remains outstanding.
+
 - **2026-10-12 — module responsibility comments.** Added a short two-line
   comment at the top of every Python module in `capstone`, including package
   initializers, describing its purpose and responsibility. Existing docstrings
