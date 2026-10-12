@@ -98,6 +98,8 @@ alarm), then evaluation, then the agent itself.
   The developer's main folder `Capstone_Project_CMU` is still on the old
   `feature/episodic-memory-reflection` branch; work is in
   `Capstone_Project_CMU-agent1` and on `main`.
+  Verification: 704 passed locally; Ruff passed; CI green on `d59549c`
+  (all ten checks).
 
 - **2026-10-12 — checkpoint 5a: where each piece of evidence came from.**
   Pre-checkpoint passed first time: the developer said a model allowed to
