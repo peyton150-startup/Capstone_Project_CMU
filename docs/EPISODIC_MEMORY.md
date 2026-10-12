@@ -46,9 +46,10 @@ test. No migration has been applied to Neon by this increment.
 
 ## Remaining integration
 
-Agent 1 currently uses a different completion contract in `contracts/completed.py`.
-Reconcile that contract with `contracts/completed_investigations.py` before
-connecting the runtime. Trusted provenance must be preserved across the handoff;
+The reasoning runtime in `capstone/agent/` no longer has its own completion
+contract: `contracts/completed_investigations.py` is the only definition, and the
+loop's richer records live in `agent/artifacts.py`. The runtime does not yet
+produce a completed investigation. Trusted provenance must be preserved across the handoff;
 free-text scans cannot establish the true origin of mislabeled evidence.
 Memory evaluation records are implemented; runtime wiring remains. Retrieval is
 bounded lookup by investigation/category; embeddings and RAG are not implemented.

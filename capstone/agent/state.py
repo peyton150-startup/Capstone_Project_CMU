@@ -1,0 +1,185 @@
+# The working memory of one live investigation.
+# Responsibility: hold explicit state, budgets, decision records, and loop metrics.
+"""What the agent knows and has done so far in a single investigation.
+
+This is working memory: it lives for one investigation and is then turned
+into a `CompletedInvestigation`. Nothing here is stored between runs.
+
+It holds decisions, not thoughts. Every step leaves a `DecisionRecord`
+saying what was needed, which tool was chosen and what came back.
+"""
+
+import json
+from typing import Literal
+from uuid import UUID
+
+from pydantic import BaseModel, ConfigDict, Field, JsonValue
+
+from capstone.agent.artifacts import (
+    AgentConclusion,
+    DetectedAnomaly,
+    ProposalRecord,
+    TerminationReason,
+    VerificationCheck,
+)
+from capstone.contracts import Contract
+from capstone.contracts.evidence import Evidence
+from capstone.contracts.hypotheses import Hypothesis
+
+Phase = Literal["observe", "investigate", "test", "decide", "verify"]
+
+StepOutcome = Literal[
+    "observed",  # the tool answered and the answer became evidence
+    "tool_error",  # the tool refused or failed
+    "malformed_result",  # the answer could not be used
+    "repeated_call",  # skipped: the same question at the same tick
+    "invalid_decision",  # the policy did not return a usable decision
+    "stopped",  # no tool was called; the loop ended here
+]
+
+
+class Budgets(Contract):
+    """Hard limits on one investigation. The loop enforces them, not the policy."""
+
+    max_iterations: int = Field(default=24, ge=1)
+    max_tool_calls: int = Field(default=20, ge=1)
+    timeout_seconds: float = Field(default=60.0, gt=0)
+    # A separate allowance for proposing an action and checking that it worked,
+    # so that research can never spend the calls verification needs.
+    followup_tool_calls: int = Field(default=14, ge=0)
+    max_unproductive_steps: int = Field(default=3, ge=1)
+
+
+class Question(Contract):
+    """One piece of information the agent still needs."""
+
+    id: str = Field(min_length=1)
+    text: str = Field(min_length=1)
+    hypothesis_id: str | None = None
+
+
+class DecisionRecord(Contract):
+    """What the agent chose at one step and what happened. Not chain-of-thought."""
+
+    sequence: int = Field(ge=1)
+    phase: Phase
+    tick: int | None = Field(default=None, ge=0)
+    information_needed: str
+    question_id: str | None = None
+    hypothesis_id: str | None = None  # the hypothesis this step was testing
+    tool: str | None = None
+    arguments: dict[str, JsonValue] = Field(default_factory=dict)
+    outcome: StepOutcome
+    evidence_ids: tuple[str, ...] = ()
+    confidence: float = Field(ge=0, le=1)
+    termination_reason: TerminationReason | None = None
+
+
+class ReasoningMetrics(Contract):
+    """Counts that describe how the loop behaved in one investigation."""
+
+    iterations: int = Field(ge=0)
+    tool_calls: int = Field(ge=0)
+    repeated_calls: int = Field(ge=0)
+    failed_tool_calls: int = Field(ge=0)
+    malformed_results: int = Field(ge=0)
+    hypothesis_revisions: int = Field(ge=0)
+    termination_reason: TerminationReason | None
+
+
+class InvestigationState(BaseModel):
+    """Everything the live loop reads and updates. Mutable; one per investigation."""
+
+    model_config = ConfigDict(validate_assignment=True, extra="forbid")
+
+    run_id: UUID
+    investigation_id: UUID
+    anomaly: DetectedAnomaly
+    budgets: Budgets = Field(default_factory=Budgets)
+
+    evidence: list[Evidence] = Field(default_factory=list)
+    hypotheses: list[Hypothesis] = Field(default_factory=list)
+    unanswered_questions: list[Question] = Field(default_factory=list)
+    # Question id to the evidence that answered it, newest last.
+    answers: dict[str, list[str]] = Field(default_factory=dict)
+    decisions: list[DecisionRecord] = Field(default_factory=list)
+
+    iteration_count: int = Field(default=0, ge=0)
+    tool_call_count: int = Field(default=0, ge=0)
+    followup_tool_calls_used: int = Field(default=0, ge=0)
+    repeated_calls: int = Field(default=0, ge=0)
+    failed_tool_calls: int = Field(default=0, ge=0)
+    malformed_results: int = Field(default=0, ge=0)
+    hypothesis_revisions: int = Field(default=0, ge=0)
+    # Steps in a row that produced no evidence: errors, bad results, repeats.
+    unproductive_steps: int = Field(default=0, ge=0)
+
+    # The latest simulation tick any tool result reported.
+    last_tick: int | None = Field(default=None, ge=0)
+    started_at: float | None = None  # seconds on the injected monotonic clock
+    # Calls already made, as "tool|arguments|tick", to spot repeats.
+    seen_calls: list[str] = Field(default_factory=list)
+
+    termination_reason: TerminationReason | None = None
+    conclusion: AgentConclusion | None = None
+    proposed_action: ProposalRecord | None = None
+    # What should change in the factory if the diagnosis is right.
+    predicted_effect: str | None = None
+    verification: VerificationCheck | None = None
+
+    @property
+    def confidence(self) -> float:
+        """How sure the agent is of its best explanation so far."""
+        return max((h.confidence for h in self.hypotheses), default=0.0)
+
+    @property
+    def leading_hypothesis(self) -> Hypothesis | None:
+        """The most confident hypothesis; the first one wins a tie."""
+        if not self.hypotheses:
+            return None
+        return max(self.hypotheses, key=lambda h: h.confidence)
+
+    @property
+    def research_tool_calls(self) -> int:
+        return self.tool_call_count - self.followup_tool_calls_used
+
+    @property
+    def remaining_iterations(self) -> int:
+        return max(0, self.budgets.max_iterations - self.iteration_count)
+
+    @property
+    def remaining_tool_calls(self) -> int:
+        return max(0, self.budgets.max_tool_calls - self.research_tool_calls)
+
+    @property
+    def remaining_followup_tool_calls(self) -> int:
+        return max(0, self.budgets.followup_tool_calls - self.followup_tool_calls_used)
+
+    def remaining_seconds(self, now: float) -> float:
+        """Time left on the whole-investigation deadline, never below zero."""
+        if self.started_at is None:
+            return self.budgets.timeout_seconds
+        return max(0.0, self.budgets.timeout_seconds - (now - self.started_at))
+
+    def evidence_for(self, question_id: str) -> Evidence | None:
+        """The newest evidence that answered a question, if any."""
+        ids = self.answers.get(question_id)
+        if not ids:
+            return None
+        return next(e for e in reversed(self.evidence) if e.id == ids[-1])
+
+    def data_for(self, question_id: str) -> JsonValue | None:
+        """The tool data behind the newest answer to a question."""
+        evidence = self.evidence_for(question_id)
+        return None if evidence is None else json.loads(evidence.content)
+
+    def metrics(self) -> ReasoningMetrics:
+        return ReasoningMetrics(
+            iterations=self.iteration_count,
+            tool_calls=self.tool_call_count,
+            repeated_calls=self.repeated_calls,
+            failed_tool_calls=self.failed_tool_calls,
+            malformed_results=self.malformed_results,
+            hypothesis_revisions=self.hypothesis_revisions,
+            termination_reason=self.termination_reason,
+        )

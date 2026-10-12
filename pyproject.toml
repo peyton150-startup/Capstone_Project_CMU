@@ -20,6 +20,9 @@ database = [
     "psycopg[binary]>=3,<4",
     "python-dotenv>=1,<2",
 ]
+agent = [
+    "pydantic-graph>=2.55.0",
+]
 
 [dependency-groups]
 dev = [

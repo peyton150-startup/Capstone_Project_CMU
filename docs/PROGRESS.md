@@ -54,6 +54,43 @@ alarm), then evaluation, then the agent itself.
 
 ## Session notes
 
+- **2026-10-12 — reasoning/memory consolidation, checkpoint 1 (one shared
+  record).** The two parallel workstreams are being consolidated on
+  `feature/reasoning-working-memory`. Pre-checkpoint passed: the developer
+  explained that two definitions of one record end up different, and, after a
+  re-teach of the propose / human decision / `get_proposals` sequence, that
+  the desk's own answer saved as evidence would contradict a wrong belief in
+  the agent's code. Clarified: the approval status reaches the completed
+  investigation as an evidence item, not as a new field on the shared
+  proposal. Post-implementation understanding remains outstanding.
+  Changes: fast-forwarded this branch to the memory work (no merge commit);
+  deleted the reasoning side's `contracts/completed.py`; added
+  `agent/artifacts.py` holding the loop's own records, renamed so they cannot
+  be confused with the shared ones: `DetectedAnomaly` (tick, machine, kind,
+  description), `AgentConclusion` (adds recommendation and hypothesis),
+  `ProposalRecord` (adds proposal ID and pending/approved/rejected status),
+  `VerificationCheck` (outcome, prediction, checked tick) and the
+  `TerminationReason` enum. `agent/state.py`, `policy.py` and `loop.py`
+  changed imports and type names only; behaviour is unchanged.
+  `agent/__init__.py`, `state.py` (working memory, budgets, decision records),
+  `policy.py` (the decision-maker's interface) and `loop.py` (the inner
+  decide / call one tool / record loop) are committed here for the first time
+  and are NOT yet tested or understood; that is checkpoint 2. Added the
+  `agent` optional dependency `pydantic-graph` (not imported yet).
+  `tests/test_agent_artifacts.py` (8 tests): one definition of
+  `CompletedInvestigation`, the old file is gone, runtime records are imported
+  only inside `capstone/agent`, the agent package does not import
+  `capstone.memory`, and runtime validation still rejects bad values.
+  Verification: 483 passed with all optional dependencies installed; Ruff
+  lint/format passed. Remaining checkpoints: 2 inner loop tests (timeout
+  start, result identity, first-call repeat check, interpretation failure,
+  final stop reason); 3 outer sequence with Pydantic Graph and proposal
+  read-back; 4 verification rules; 5a one shared `ProvenanceReference` in
+  `capstone/contracts/`, captured when a tool result arrives; 5b completion
+  producer for every exit, and durable keeping of the completed investigation
+  (memory rows keep evidence IDs, not evidence text); 6 who builds the
+  `ReflectionCandidate`, and an integration test through the promotion gate.
+
 - **2026-10-12 — SubQ whole-repository audit follow-up (documentation only).**
   Appended the developer's requested audit task to the end of MVP_SCOPE:
   architecture consistency and authorization/hidden-truth prompts, reproducible
