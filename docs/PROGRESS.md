@@ -58,7 +58,15 @@ alarm), then evaluation, then the agent itself.
   first time: asked what the loop does with a "resolved" judgement citing
   only evidence from before the repair, the developer said there is no
   observation, so it is unconcluded because we do not know if the problem
-  went away. Post-implementation understanding remains outstanding.
+  went away. Post-implementation checkpoint PASSED: the developer explained
+  that a judge allowed to write the prediction could overwrite the one made
+  beforehand, and that its only job is to judge, not to predict. Added: a
+  prediction written after seeing the result can always be made to match
+  it. The developer also asked whether different models could answer
+  different questions; yes — the policy interface is six separate questions,
+  so a wrapper can give each to a different provider (for example a second
+  model as verification judge), and the loop's checks apply to all of them.
+  To build when the first real model is wired in, one model first.
   New in `agent/investigation.py`: `verify` — runs the inner loop in its
   verify phase (the policy chooses what to look at and may wait, from the
   follow-up allowance), asks the policy to judge, then decides whether the
