@@ -54,6 +54,28 @@ alarm), then evaluation, then the agent itself.
 
 ## Session notes
 
+- **2026-10-12 — Agent 2 storage increment.** Built after the persistence
+  pre-implementation checkpoint passed; post-implementation understanding
+  remains unverified. `memory/schema.py` defines `episodic_memories`: unique
+  investigation IDs and fingerprints, category/source-tick columns, and a
+  validated-memory JSON payload (JSONB on PostgreSQL). `memory/repository.py`
+  adds `InsertResult` and `SQLMemoryRepository`: `insert_statement()` builds
+  dialect-specific conflict-safe SQL; `insert()` writes transactionally or
+  identifies the original; `retrieve()` filters, bounds, orders, and validates
+  stored rows. `memory/service.py` adds database-independent `MemoryStore`
+  and `StorageResult` protocols and `MemoryService`: `promote()` runs policy
+  before insertion; `retrieve()` delegates lookup. Duplicate decisions name
+  the original memory without overwriting its provenance. Existing handoff,
+  policy, contracts, and tests are included in this increment's commit.
+  Strengthened tests with a fresh-engine reopen and competing connections.
+  Added a narrow Ruff E402 exception for the optional-dependency test guard.
+  Verification: expected missing-module collection failure before storage;
+  32 memory tests passed afterwards; full offline suite 452 passed; Ruff
+  lint/format and whitespace checks passed. PostgreSQL INSERT SQL compiled;
+  no live PostgreSQL/Neon writes or migration occurred. Migration and memory
+  evaluation records remain to implement. Neon is the intended durable store
+  for real runs; SQLite is the offline test store.
+
 - **2026-10-12 — Agent 2 review with understanding checkpoints.** The
   developer reinstated the teaching loop for episodic-memory work. Existing
   additions remain untracked on `feature/episodic-memory-reflection`.

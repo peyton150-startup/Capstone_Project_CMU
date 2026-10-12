@@ -1,0 +1,144 @@
+# Applies deterministic checks before an investigation lesson becomes memory.
+# Responsibility: reject unsupported, transient, or hidden-truth candidates.
+import hashlib
+import json
+import math
+import re
+import unicodedata
+from uuid import uuid5
+
+from capstone.memory.contracts import (
+    EpisodicMemory,
+    PromotionDecision,
+    ReflectionCandidate,
+)
+
+_HIDDEN = re.compile(
+    r"ground[ _-]?truth|bearing_health|defect_risk|evaluator_hidden|simulator_hidden",
+    re.IGNORECASE,
+)
+_SAMPLE = re.compile(
+    r"\b\d+(?:\.\d+)?\s*(?:mm/s|rpm|°[FC]|degrees?\b)|\btick\s+\d+\b",
+    re.IGNORECASE,
+)
+
+
+def normalize(value: str) -> str:
+    """Normalize superficial wording differences; no semantic inference."""
+    return " ".join(re.findall(r"\w+", unicodedata.normalize("NFKC", value).casefold()))
+
+
+def lesson_fingerprint(category: str, lesson: str) -> str:
+    payload = json.dumps([normalize(category), normalize(lesson)], ensure_ascii=False)
+    return hashlib.sha256(payload.encode("utf-8")).hexdigest()
+
+
+class MemoryPromotionPolicy:
+    version = "episodic-v1"
+
+    def __init__(self, *, min_confidence: float = 0.8):
+        if not math.isfinite(min_confidence) or not 0 <= min_confidence <= 1:
+            raise ValueError("min_confidence must be between zero and one")
+        self.min_confidence = min_confidence
+
+    def evaluate(self, candidate: ReflectionCandidate) -> PromotionDecision:
+        """Check a candidate without I/O, seeded randomness, or evaluator access."""
+        incident = candidate.investigation
+        verification = incident.verification
+        reasons = []
+        if (
+            not verification
+            or verification.status != "verified"
+            or verification.outcome != "resolved"
+        ):
+            reasons.append("outcome_not_verified")
+        if candidate.diagnosis_assessment != "supported":
+            reasons.append("diagnosis_not_supported")
+        if incident.proposed_action and candidate.intervention_worked is not True:
+            reasons.append("intervention_not_successful")
+        if (
+            min(candidate.confidence, incident.conclusion.confidence)
+            < self.min_confidence
+        ):
+            reasons.append("low_confidence")
+        if not candidate.lesson.reusable or not normalize(candidate.lesson.text):
+            reasons.append("not_reusable")
+        if candidate.lesson.contains_transient_details or _SAMPLE.search(
+            candidate.lesson.text
+        ):
+            reasons.append("transient_details")
+        if (
+            not incident.conclusion.evidence_ids
+            or not candidate.lesson.evidence_ids
+            or (verification and not verification.evidence_ids)
+        ):
+            reasons.append("insufficient_evidence")
+
+        references = (
+            set(candidate.useful_evidence_ids)
+            | set(candidate.lesson.evidence_ids)
+            | set(incident.conclusion.evidence_ids)
+        )
+        if verification:
+            references.update(verification.evidence_ids)
+        if incident.proposed_action:
+            references.update(incident.proposed_action.evidence_ids)
+        evidence = {e.id: e for e in incident.evidence}
+        all_references = references | set(candidate.misleading_evidence_ids)
+        if not all_references <= evidence.keys():
+            reasons.append("missing_evidence")
+        provenance = {p.evidence_id: p for p in candidate.provenance}
+        if not references <= provenance.keys():
+            reasons.append("missing_provenance")
+        if len(provenance) != len(candidate.provenance):
+            reasons.append("provenance_mismatch")
+        for ref in references & provenance.keys() & evidence.keys():
+            source, observed = provenance[ref], evidence[ref]
+            if (source.source_id, source.source_type, source.observed_tick) != (
+                observed.source_id,
+                observed.source_type,
+                observed.observed_tick,
+            ):
+                reasons.append("provenance_mismatch")
+                break
+        # Scan the whole input, including unused evidence, so tainted artifacts
+        # do not become trusted merely by omitting a reference from the lesson.
+        if any(
+            p.origin in {"evaluator_hidden", "simulator_hidden"}
+            for p in candidate.provenance
+        ) or _HIDDEN.search(candidate.model_dump_json()):
+            reasons.append("hidden_truth")
+        if reasons:
+            return PromotionDecision(
+                investigation_id=incident.investigation_id,
+                accepted=False,
+                reasons=tuple(dict.fromkeys(reasons)),
+                policy_version=self.version,
+            )
+
+        fingerprint = lesson_fingerprint(candidate.category, candidate.lesson.text)
+        memory = EpisodicMemory(
+            memory_id=uuid5(incident.investigation_id, f"memory/{self.version}"),
+            run_id=incident.run_id,
+            investigation_id=incident.investigation_id,
+            category=normalize(candidate.category),
+            symptoms=incident.anomaly.symptoms or (incident.anomaly.summary,),
+            evidence_ids=tuple(sorted(references)),
+            diagnosis=incident.conclusion.diagnosis,
+            intervention=incident.proposed_action,
+            outcome="resolved",
+            verification=verification,
+            lesson=candidate.lesson.text.strip(),
+            confidence=min(candidate.confidence, incident.conclusion.confidence),
+            provenance=tuple(provenance[ref] for ref in sorted(references)),
+            source_tick=verification.observed_tick,
+            fingerprint=fingerprint,
+            policy_version=self.version,
+        )
+        return PromotionDecision(
+            investigation_id=incident.investigation_id,
+            accepted=True,
+            reasons=("verified_reusable_lesson",),
+            policy_version=self.version,
+            memory=memory,
+        )

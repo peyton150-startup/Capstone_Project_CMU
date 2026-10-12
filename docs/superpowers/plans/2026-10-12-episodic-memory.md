@@ -22,20 +22,22 @@ Add purpose/responsibility comments to all new capstone modules.
   missing references/provenance, hidden sources, transient lessons, and no action.
 - [ ] Run `.venv/Scripts/python.exe -m pytest tests/test_memory_policy.py` and
   confirm missing memory interfaces prevent the specified behavior.
-- [ ] Add `capstone/contracts/completed_investigations.py`,
+- [x] Add `capstone/contracts/completed_investigations.py`,
   `capstone/memory/contracts.py`, `policy.py`, and package initializer.
   `MemoryPromotionPolicy.evaluate(candidate) -> PromotionDecision` returns
   a validated memory or stable rejection reasons, without I/O.
-- [ ] Run focused tests and Ruff, then commit the increment.
+- [x] Run focused tests and Ruff, then commit the increment.
 
 ## Task 2 — persistence and retrieval
 
-- [ ] Write failing persistence tests using real local SQLite connections for
+- [x] Write failing persistence tests using real local SQLite connections for
   stored memories, read-after-reopen, category filters, duplicates, and constraints.
-- [ ] Add `capstone/memory/schema.py`, `repository.py`, and `service.py`.
+- [x] Add `capstone/memory/schema.py`, `repository.py`, and `service.py`.
   `MemoryService.promote(candidate) -> PromotionDecision` applies policy then
   writes through a protocol; `retrieve(MemoryQuery) -> tuple[EpisodicMemory, ...]`
   delegates bounded retrieval. SQL repository enforces atomic deduplication.
+  Verified fresh-engine reopen and competing inserts. Storage's
+  post-implementation understanding checkpoint remains outstanding.
 - [ ] Add migration 0001, wire metadata in `migrations/env.py`, and update old
   scaffold expectations to reflect the newly implemented schema. Test upgrade,
   downgrade, and PostgreSQL offline SQL without a network connection.

@@ -10,7 +10,7 @@ depending on persistence. Existing shared contracts are unchanged.
 ## Data flow
 
 `CompletedInvestigation -> ReflectionCandidate -> MemoryPromotionPolicy ->
-MemoryService -> MemoryRepository`. Reflection is a caller-supplied explicit
+MemoryService -> MemoryStore -> SQLMemoryRepository`. Reflection is a caller-supplied explicit
 artifact, not generated chain-of-thought or an LLM call. Diagnosis correctness
 in reflection means observational support/refutation; evaluator correctness is
 recorded separately and never copied into memory.
@@ -44,8 +44,9 @@ evaluator. Evaluation records are structurally separate from promotion input.
 ## Persistence and deduplication
 
 Use existing optional SQLAlchemy/Alembic dependencies. Accepted memories are
-relational rows with typed searchable columns and JSONB for bounded reference
-and provenance lists (JSON on SQLite for offline tests). Database unique
+relational rows with typed identity/category/source-tick/fingerprint columns
+and a validated memory payload in JSONB (JSON on SQLite for offline tests).
+That payload preserves evidence references and provenance. Database unique
 constraints enforce one memory per investigation and one normalized
 category/lesson fingerprint across investigations. Normalization uses Unicode
 NFKC, case folding, whitespace/punctuation collapse; paraphrases are not semantic
