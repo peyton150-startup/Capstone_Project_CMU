@@ -1,4 +1,4 @@
-"""Migration scaffold checks: no network access or database mutations."""
+"""Memory migration checks: local SQLite and offline SQL, with no network."""
 
 from io import StringIO
 from pathlib import Path
@@ -17,6 +17,9 @@ util = pytest.importorskip("alembic.util")
 sqlalchemy = pytest.importorskip("sqlalchemy")
 sqlalchemy_exc = pytest.importorskip("sqlalchemy.exc")
 mako_template = pytest.importorskip("mako.template")
+memory_schema = pytest.importorskip("capstone.memory.schema")
+autogenerate = pytest.importorskip("alembic.autogenerate")
+migration = pytest.importorskip("alembic.migration")
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -30,11 +33,11 @@ def use_database_url(monkeypatch, value):
     monkeypatch.setattr(settings_module, "get_settings", lambda: settings)
 
 
-def test_scaffold_has_no_revisions_and_works_outside_repository(monkeypatch, tmp_path):
+def test_memory_revision_works_outside_repository(monkeypatch, tmp_path):
     monkeypatch.chdir(tmp_path)
     directory = script.ScriptDirectory.from_config(configuration())
-    assert directory.get_heads() == []
-    assert list(directory.walk_revisions()) == []
+    assert directory.get_heads() == ["0001_episodic_memory"]
+    assert len(list(directory.walk_revisions())) == 1
     assert Path(directory.env_py_location).is_file()
 
 
@@ -69,7 +72,11 @@ def test_offline_upgrade_uses_settings_and_never_creates_an_engine(monkeypatch):
     monkeypatch.setattr(sqlalchemy, "create_engine", unexpected_engine)
     config = configuration()
     command.upgrade(config, "head", sql=True)
-    assert "CREATE TABLE" not in config.output_buffer.getvalue()
+    sql = config.output_buffer.getvalue()
+    assert "CREATE TABLE episodic_memories" in sql
+    assert "UNIQUE (investigation_id)" in sql
+    assert "UNIQUE (fingerprint)" in sql
+    assert "CREATE INDEX ix_episodic_memories_category" in sql
     assert config.get_main_option("sqlalchemy.url") is None
 
 
@@ -93,8 +100,11 @@ def test_postgresql_offline_url_uses_psycopg_and_preserves_ssl(monkeypatch, sche
     assert captured["url"].drivername == "postgresql+psycopg"
     assert captured["url"].query["sslmode"] == "require"
     assert captured["url"].password == "synthetic%password"
-    assert len(captured["target_metadata"].tables) == 0
-    assert secret not in config.output_buffer.getvalue()
+    assert set(captured["target_metadata"].tables) == {"episodic_memories"}
+    sql = config.output_buffer.getvalue()
+    assert "payload JSONB NOT NULL" in sql
+    assert "memory_id UUID NOT NULL" in sql
+    assert secret not in sql
 
 
 @pytest.mark.parametrize(
@@ -143,6 +153,7 @@ def test_autogeneration_without_schema_is_refused_before_engine_creation(
     monkeypatch, cli_options
 ):
     use_database_url(monkeypatch, "sqlite:///:memory:")
+    monkeypatch.setattr(memory_schema, "metadata", sqlalchemy.MetaData())
 
     def unexpected_engine(*args, **kwargs):
         pytest.fail("Empty schema must not be compared with a live database")
@@ -152,4 +163,54 @@ def test_autogeneration_without_schema_is_refused_before_engine_creation(
     config.cmd_opts = cli_options
     with pytest.raises(util.CommandError, match="schema"):
         command.revision(config, message="unsafe comparison", autogenerate=True)
-    assert script.ScriptDirectory.from_config(config).get_heads() == []
+    assert script.ScriptDirectory.from_config(config).get_heads() == [
+        "0001_episodic_memory"
+    ]
+
+
+def test_upgrade_matches_schema_and_downgrade_preserves_unrelated_table(
+    monkeypatch, tmp_path
+):
+    url = f"sqlite:///{tmp_path / 'migration.sqlite'}"
+    use_database_url(monkeypatch, url)
+    engine = sqlalchemy.create_engine(url)
+    try:
+        with engine.begin() as connection:
+            connection.exec_driver_sql(
+                "CREATE TABLE unrelated (id INTEGER PRIMARY KEY)"
+            )
+            connection.exec_driver_sql("INSERT INTO unrelated (id) VALUES (1)")
+        config = configuration()
+        command.upgrade(config, "head")
+        with engine.connect() as connection:
+            assert (
+                connection.exec_driver_sql(
+                    "SELECT version_num FROM alembic_version"
+                ).scalar_one()
+                == "0001_episodic_memory"
+            )
+            assert (
+                connection.exec_driver_sql(
+                    "SELECT count(*) FROM episodic_memories"
+                ).scalar_one()
+                == 0
+            )
+            comparison = migration.MigrationContext.configure(
+                connection,
+                opts={"include_object": lambda obj, name, *args: name != "unrelated"},
+            )
+            assert (
+                autogenerate.compare_metadata(comparison, memory_schema.metadata) == []
+            )
+        # A second upgrade is a no-op; revision tracking prevents recreating it.
+        command.upgrade(config, "head")
+        command.downgrade(config, "base")
+        assert "episodic_memories" not in sqlalchemy.inspect(engine).get_table_names()
+        with engine.connect() as connection:
+            assert (
+                connection.exec_driver_sql("SELECT id FROM unrelated").scalar_one() == 1
+            )
+        command.upgrade(config, "head")
+        assert "episodic_memories" in sqlalchemy.inspect(engine).get_table_names()
+    finally:
+        engine.dispose()

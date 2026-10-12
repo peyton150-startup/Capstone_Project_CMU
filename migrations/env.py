@@ -2,14 +2,15 @@
 
 from alembic import context
 from alembic.util import CommandError
-from sqlalchemy import MetaData, create_engine, pool
+from sqlalchemy import create_engine, pool
 from sqlalchemy.engine import URL, make_url
 from sqlalchemy.exc import SQLAlchemyError
 
+from capstone.memory.schema import metadata
 from capstone.settings import get_settings
 
-# Persistence tables have not been designed. The simulator is not an ORM model.
-target_metadata = MetaData()
+# Only durable memory is an ORM schema; simulator state remains independent.
+target_metadata = metadata
 
 
 def database_url() -> URL:

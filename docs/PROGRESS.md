@@ -54,6 +54,24 @@ alarm), then evaluation, then the agent itself.
 
 ## Session notes
 
+- **2026-10-12 — episodic-memory migration built.** Migration pre-checkpoint
+  passed; post-implementation understanding remains outstanding. Added
+  `migrations/versions/0001_episodic_memory.py`: `upgrade()` explicitly creates
+  the memory table, primary/unique constraints, and category index;
+  `downgrade()` removes that table and its contents. The revision freezes its
+  schema rather than importing evolving application metadata. `migrations/env.py`
+  now registers memory metadata; its existing configuration/error handling and
+  empty-metadata autogeneration guard remain. Updated scaffold tests for one
+  real revision and added a local SQLite upgrade/downgrade/re-upgrade test,
+  schema comparison, repeat upgrade, empty memory table, revision tracking,
+  and preservation of unrelated data. Updated README and MVP_SCOPE status.
+  Added `docs/EPISODIC_MEMORY.md` with lifecycle/command/limits and
+  `docs/EPISODIC_MEMORY_MIGRATION.sql` with reviewed offline PostgreSQL upgrade
+  SQL generated from a synthetic URL. No live Neon migration or memory insert
+  occurred. Verification: missing revision/metadata tests failed before the
+  implementation; 13 migration tests and the full 453-test offline suite
+  passed afterwards; Ruff lint/format and whitespace checks passed.
+
 - **2026-10-12 — migration pre-implementation checkpoint passed.** The
   developer explained that the service checks the candidate with the policy
   and rejects it before storage if it does not qualify. Table creation does

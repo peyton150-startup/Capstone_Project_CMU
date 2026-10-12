@@ -213,24 +213,28 @@ metadata only, masks secret wrappers, and rejects arbitrary payloads, reasons,
 and exception text. It adds no wall-clock time, changes no root logger, and
 does not enable an external tracing service.
 
-## Database migration scaffold
+## Database migrations and episodic memory
 
 Alembic is included in the optional database extra. `alembic.ini` points to
 `migrations/`; `migrations/env.py` reads the typed settings without storing the
-URL in configuration files. You can inspect the empty revision history with:
+URL in configuration files. You can inspect the revision history with:
 
 ```sh
 uv run --locked --extra database alembic heads
 uv run --locked --extra database alembic history
 ```
 
-Metadata and revision history are empty. No persistence tables have been
-designed and no migrations have been applied to Neon. Autogeneration is refused
-while metadata is empty; add reviewed SQLAlchemy table models before using it.
-Future schema work will define, review, and test revisions before applying them.
-Offline migration tests render SQL without contacting a database.
+Revision `0001_episodic_memory` creates the accepted-memory table, unique
+investigation/lesson constraints, and category index. The promotion policy,
+service, SQL repository, and schema are implemented. Migration tests exercise
+temporary SQLite databases and render PostgreSQL SQL offline; this increment
+has not applied a migration to Neon. See [episodic memory](docs/EPISODIC_MEMORY.md)
+for the lifecycle, explicit migration command, generated SQL, and remaining
+runtime/evaluation integration. Autogeneration is still refused if metadata is
+empty; reviewed revisions remain the mechanism for schema changes.
 
 The existing `capstone/` layout is retained: `settings.py` for configuration,
 `contracts/` for shared data, `providers/` for adapters, `tools/` for observable
-operations, `simulator/` for reality, and `database/` for connectivity. Agent,
+operations, `simulator/` for reality, `memory/` for durable lessons, and
+`database/` for connectivity. Agent,
 evaluation, and ingestion modules will be added when they have working behavior.

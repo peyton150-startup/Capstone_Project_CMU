@@ -38,10 +38,12 @@ Add purpose/responsibility comments to all new capstone modules.
   delegates bounded retrieval. SQL repository enforces atomic deduplication.
   Verified fresh-engine reopen and competing inserts. Storage's
   post-implementation duplicate-handling checkpoint passed on 2026-10-12.
-- [ ] Add migration 0001, wire metadata in `migrations/env.py`, and update old
+- [x] Add migration 0001, wire metadata in `migrations/env.py`, and update old
   scaffold expectations to reflect the newly implemented schema. Test upgrade,
   downgrade, and PostgreSQL offline SQL without a network connection.
-- [ ] Run focused tests and Ruff, then commit the increment.
+- [x] Run focused tests and Ruff, then commit the increment.
+  Migration post-implementation understanding and live Neon application
+  remain separate steps. The full offline suite passed: 453 tests.
 
 ## Task 3 — evaluation and handoff
 
