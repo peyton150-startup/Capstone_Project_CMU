@@ -42,8 +42,8 @@ Add purpose/responsibility comments to all new capstone modules.
   scaffold expectations to reflect the newly implemented schema. Test upgrade,
   downgrade, and PostgreSQL offline SQL without a network connection.
 - [x] Run focused tests and Ruff, then commit the increment.
-  Migration post-implementation understanding and live Neon application
-  remain separate steps. The full offline suite passed: 453 tests.
+  Migration post-implementation checkpoint passed on 2026-10-12; live Neon
+  application remains a separate step. The full offline suite passed: 453 tests.
 
 ## Task 3 — evaluation and handoff
 

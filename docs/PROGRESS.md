@@ -55,7 +55,10 @@ alarm), then evaluation, then the agent itself.
 ## Session notes
 
 - **2026-10-12 — episodic-memory migration built.** Migration pre-checkpoint
-  passed; post-implementation understanding remains outstanding. Added
+  passed; post-implementation checkpoint subsequently passed. The developer
+  explained that downgrade deletes the table's memories and upgrade cannot
+  recover deleted data. Clarified that upgrade recreates an empty table,
+  rather than restoring its original rows. Added
   `migrations/versions/0001_episodic_memory.py`: `upgrade()` explicitly creates
   the memory table, primary/unique constraints, and category index;
   `downgrade()` removes that table and its contents. The revision freezes its
