@@ -54,6 +54,51 @@ alarm), then evaluation, then the agent itself.
 
 ## Session notes
 
+- **2026-10-12 — checkpoint 5b: the finished record and the audit log.
+  SESSION ENDED HERE.** Pre-checkpoint passed: for an approval never carried
+  out, the developer said the check is "not performed", the record shows the
+  approval, and the audit log (the JSON memory) records everything so a later
+  reader can see. Clarified: in the shared record "not performed" becomes no
+  verification at all, and the reader sees an approval in the evidence with
+  no evidence of work starting. POST-IMPLEMENTATION UNDERSTANDING IS
+  OUTSTANDING: ask the closing question at the start of the next session
+  (why does the producer leave a check out instead of filling in a tick or
+  an outcome so the record looks complete?). New `agent/completion.py`:
+  `complete(state)` builds the shared `CompletedInvestigation` from working
+  memory without changing it, and refuses an unfinished investigation;
+  `shared_verification` translates the check by fixed rule (resolved →
+  verified/resolved, not resolved → failed/unresolved, inconclusive →
+  unverified/unknown, not performed or untimed → left out);
+  `action_evidence_ids` makes the shared action cite the evidence in which
+  the factory reported the proposal, the human's decision and the start of
+  work, which is how approval and rejection reach the shared record;
+  `AuditRecord` / `audit_record(state)` hold the shared record plus
+  provenance, the runtime anomaly, conclusion and proposal status, the action
+  ticks, the runtime check, every decision record and the loop's counts;
+  `AuditLog` appends audit records to a JSON-lines file and reads them back.
+  The agent has no tool that reads the log. Tests: new
+  `tests/test_agent_completion.py` (37), over ten endings run through the
+  real simulator (verified fix, failed fix, inconclusive check, check not
+  performed, rejected, no human answer, approved and not carried out,
+  escalated, no action and checked, failed at every stage): each gives a
+  valid record citing only evidence that exists and is labelled, leaves
+  working memory unchanged, and contains no hidden-truth words; the same run
+  twice gives the same record. THIS COMPLETES THE ORIGINAL REQUEST: completed
+  investigations with verification evidence and trusted provenance, with the
+  loop still not importing `capstone.memory`. Not done: nothing calls
+  `complete` or `AuditLog` automatically at the end of `run_investigation`;
+  the older `agent/memory.py` JSON memory still exists beside the new log.
+  NEXT (in order): 6a reflection candidate (code fills the facts, the model
+  writes only the advice sentence); 6b widen the memory gate to "what did
+  not work" lessons; 6c connect loop to gate with an end-to-end test;
+  7 memory recall tool and word search; 8 Nemotron-backed policy with no
+  list of causes in the prompt; 9 seeded-scenario runs and an evaluator
+  model for the free-text diagnosis; 10 retire the older agent. Also still
+  pending from before: apply the memory migration to Neon; the SubQ audit.
+  The developer's main folder `Capstone_Project_CMU` is still on the old
+  `feature/episodic-memory-reflection` branch; work is in
+  `Capstone_Project_CMU-agent1` and on `main`.
+
 - **2026-10-12 — checkpoint 5a: where each piece of evidence came from.**
   Pre-checkpoint passed first time: the developer said a model allowed to
   state the origin could write it in the wrong format or hallucinate the
