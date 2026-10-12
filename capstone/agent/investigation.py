@@ -1,4 +1,4 @@
-# The outer sequence of one investigation: observe, plan, investigate, test, conclude.
+# The outer sequence of one investigation, from the first look to the finished work.
 # Responsibility: order the stages and check what the policy hands back at each one.
 """The stages of an investigation, and which stage may follow which.
 
@@ -11,6 +11,8 @@ what the turns are for:
     hypothesize  the policy proposes explanations for that evidence
     test         the inner loop gathers evidence until one is supported
     conclude     the policy states a diagnosis; this module checks it
+    propose      ask a human for the change, then read their decision back
+    execute      start the approved work and wait for it to finish
 
 The stages are steps in a graph. A stage can only be followed by a stage
 the graph connects it to, so the sequence cannot be entered half-way or
@@ -18,10 +20,16 @@ left by a path that was never drawn.
 
 Every investigation ends with a conclusion. If the policy cannot give a
 usable one, this module writes an honest "undetermined" itself.
+
+From `propose` on, the policy makes no calls. Asking, reading the
+decision and starting the work are a fixed procedure, so a policy can
+neither skip a step nor claim a permission it was not given.
 """
 
+import json
 from typing import Literal
 
+from pydantic import JsonValue
 from pydantic_graph import GraphBuilder, StepContext
 
 from capstone.agent.artifacts import AgentConclusion, ProposalRecord, TerminationReason
@@ -40,6 +48,8 @@ from capstone.contracts.tools import ToolRequest
 
 # Where a stage sends the investigation next.
 Route = Literal["continue", "conclude"]
+# Where the proposal stage sends it: on to the work, or to the end.
+ActionRoute = Literal["execute", "finish"]
 
 UNDETERMINED = AgentConclusion(
     diagnosis="undetermined", confidence=0.0, recommendation="escalate"
@@ -168,7 +178,7 @@ def conclude(state: InvestigationState, deps: InvestigationDeps) -> None:
         conclusion, request, outcome = UNDETERMINED, None, "invalid_decision"
     state.conclusion = conclusion
     if request is not None:
-        # Wanted, not yet asked for. Submitting it is a later stage.
+        # Wanted, not yet asked for. The propose stage submits it.
         state.proposed_action = ProposalRecord(
             machine_id=request.machine_id,
             action=request.action,
@@ -184,6 +194,135 @@ def conclude(state: InvestigationState, deps: InvestigationDeps) -> None:
         evidence_ids=conclusion.evidence_ids,
         termination_reason=state.termination_reason,
     )
+
+
+def followup_call(
+    state: InvestigationState,
+    deps: InvestigationDeps,
+    phase: Phase,
+    tool: str,
+    information_needed: str,
+    **arguments,
+) -> JsonValue | None:
+    """Make one call the loop itself decided on, from the follow-up allowance.
+
+    Returns the tool's answer, or None if the call could not be made or
+    gave nothing usable. Either way a record is left.
+    """
+    out_of_time = state.remaining_seconds(deps.clock()) <= 0
+    if out_of_time or state.remaining_followup_tool_calls == 0:
+        reason = (
+            TerminationReason.TIMEOUT
+            if out_of_time
+            else TerminationReason.MAX_TOOL_CALLS
+        )
+        record(
+            state,
+            phase,
+            "stopped",
+            information_needed=information_needed,
+            termination_reason=reason,
+        )
+        return None
+    step = CallTool(
+        information_needed=information_needed,
+        request=ToolRequest(name=tool, arguments=arguments),
+    )
+    evidence = gather(state, deps, phase, step, followup=True)
+    return None if evidence is None else json.loads(evidence.content)
+
+
+def factory_changed(state: InvestigationState) -> None:
+    """Forget which questions were asked: the answers may no longer be the same.
+
+    The repeat check assumes nothing changes unless time passes. A
+    proposal, a human's decision and the start of a repair all change
+    what the factory would answer without the clock moving.
+    """
+    state.seen_calls.clear()
+
+
+def propose(state: InvestigationState, deps: InvestigationDeps) -> ActionRoute:
+    """Ask a human for the change, let them decide, and read their decision back.
+
+    The policy takes no part: it said what it wanted in its conclusion.
+    The decision is whatever the factory reports for this proposal, never
+    what the agent assumes.
+    """
+    wanted = state.proposed_action
+    if wanted is None:
+        return "finish"
+    answer = followup_call(
+        state,
+        deps,
+        "propose",
+        "propose_action",
+        "a human's permission for the action",
+        machine_id=wanted.machine_id,
+        action=wanted.action,
+        reason=wanted.reason,
+    )
+    factory_changed(state)
+    try:
+        submitted = wanted.model_copy(update={"status": "pending"})
+        submitted = ProposalRecord.model_validate(
+            {**submitted.model_dump(), "proposal_id": answer["id"]}, strict=True
+        )
+    except POLICY_ERRORS:
+        return "finish"  # the factory did not take the proposal
+    state.proposed_action = submitted
+    if deps.human_review is not None:
+        deps.human_review(submitted)
+        factory_changed(state)
+    proposals = followup_call(
+        state, deps, "propose", "get_proposals", "the human's decision on the proposal"
+    )
+    rows = proposals if isinstance(proposals, list) else []
+    mine = next(
+        (
+            row
+            for row in rows
+            if isinstance(row, dict) and row.get("id") == submitted.proposal_id
+        ),
+        {},
+    )
+    if mine.get("status") in ("approved", "rejected"):
+        state.proposed_action = submitted.model_copy(update={"status": mine["status"]})
+    return "execute" if state.proposed_action.status == "approved" else "finish"
+
+
+def execute(state: InvestigationState, deps: InvestigationDeps) -> None:
+    """Start the approved work, then wait until the factory says it is done.
+
+    The action counts as carried out only if the factory confirms it
+    started. If that call fails, nothing is waited for.
+    """
+    started = followup_call(
+        state,
+        deps,
+        "execute",
+        "execute_action",
+        "start the approved work",
+        proposal_id=state.proposed_action.proposal_id,
+    )
+    factory_changed(state)
+    ticks = started if isinstance(started, dict) else {}
+    start, finish = ticks.get("started_tick"), ticks.get("finish_tick")
+    if type(start) is not int or type(finish) is not int:
+        return
+    state.action_started_tick, state.action_finish_tick = start, finish
+    while state.last_tick is not None and state.last_tick < finish:
+        before = state.last_tick
+        waited = followup_call(
+            state,
+            deps,
+            "execute",
+            "wait",
+            "the work to finish",
+            ticks=min(finish - before, deps.max_wait_ticks),
+        )
+        if waited is None or state.last_tick <= before:
+            return  # could not wait, or time did not move
 
 
 def build_graph():
@@ -220,15 +359,28 @@ def build_graph():
     async def conclude_step(ctx: Context) -> None:
         conclude(ctx.state, ctx.deps)
 
+    @builder.step(node_id="propose")
+    async def propose_step(ctx: Context) -> ActionRoute:
+        return propose(ctx.state, ctx.deps)
+
+    @builder.step(node_id="execute")
+    async def execute_step(ctx: Context) -> None:
+        execute(ctx.state, ctx.deps)
+
+    def choose(node_id: str, destinations: dict):
+        """A fork: each value a stage can return, and the stage it leads to."""
+        decision = builder.decision(node_id=node_id)
+        for value, destination in destinations.items():
+            decision = decision.branch(
+                builder.match(str, matches=lambda r, value=value: r == value).to(
+                    destination
+                )
+            )
+        return decision
+
     def route(node_id: str, onward):
         """Send "continue" onward and "conclude" to the conclusion."""
-        return (
-            builder.decision(node_id=node_id)
-            .branch(builder.match(str, matches=lambda r: r == "continue").to(onward))
-            .branch(
-                builder.match(str, matches=lambda r: r == "conclude").to(conclude_step)
-            )
-        )
+        return choose(node_id, {"continue": onward, "conclude": conclude_step})
 
     builder.add(
         builder.edge_from(builder.start_node).to(observe_step),
@@ -239,7 +391,14 @@ def build_graph():
         ),
         builder.edge_from(hypothesize_step).to(route("anything_to_test", test_step)),
         builder.edge_from(test_step).to(conclude_step),
-        builder.edge_from(conclude_step).to(builder.end_node),
+        builder.edge_from(conclude_step).to(propose_step),
+        builder.edge_from(propose_step).to(
+            choose(
+                "approved",
+                {"execute": execute_step, "finish": builder.end_node},
+            )
+        ),
+        builder.edge_from(execute_step).to(builder.end_node),
     )
     return builder.build()
 
@@ -250,6 +409,6 @@ INVESTIGATION_GRAPH = build_graph()
 def run_investigation(
     state: InvestigationState, deps: InvestigationDeps
 ) -> InvestigationState:
-    """Run one investigation from its anomaly to its conclusion."""
+    """Run one investigation from its anomaly to the end of any approved work."""
     INVESTIGATION_GRAPH.run_sync(state=state, deps=deps)
     return state

@@ -54,6 +54,46 @@ alarm), then evaluation, then the agent itself.
 
 ## Session notes
 
+- **2026-10-12 — checkpoint 3c: asking for the fix and carrying it out.**
+  Pre-checkpoint passed after two re-teaches. On a rejected proposal the
+  developer correctly named the stages that run, but said the note is deleted
+  and the loop restarts; corrected: the read-back is saved as evidence so the
+  note is kept, the machine is untouched, and the investigation ends. On an
+  approved proposal whose execution fails, the developer expected a wait and
+  hoped it counted as a fix; corrected: nothing of the agent's own started,
+  so nothing is waited for and it is recorded as approved, not carried out.
+  The developer then stated that the execute stage is the one that must
+  succeed and that the evidence it leaves is the proof. The developer also
+  pointed out, correctly, that a working agent would see an existing repair
+  in the event log before proposing; the failed execution is the safety net.
+  Post-implementation understanding remains outstanding.
+  LATER OPTIONS the developer raised (not built): investigate again after a
+  rejection, using the human's note; retry after a failed execution; have
+  the loop refuse to propose for a machine already down for maintenance.
+  Changes in `agent/investigation.py`: `followup_call` (one call the loop
+  itself decided on, taken from the follow-up allowance, refused when that
+  allowance or the time is used up); `factory_changed` (clears the repeat
+  check's memory, because a proposal, a decision and the start of work change
+  the factory's answers without the clock moving); `propose` (submits the
+  wanted action, keeps the ID, hands the pending proposal to the human hook,
+  reads that proposal back and takes its status from the factory); `execute`
+  (starts approved work, records the start and finish ticks only if the
+  factory confirms, then waits in accepted steps until the finish tick).
+  Graph: `conclude → propose → approved? → execute → end`; `execute` can be
+  reached only through the proposal. `agent/state.py`: stages `propose` and
+  `execute`; `action_started_tick`, `action_finish_tick`,
+  `action_carried_out`. `agent/loop.py`: `max_wait_ticks` setting. The
+  policy makes none of these calls and the stop reason is not touched.
+  Tests: new `tests/test_agent_action.py` (17), all through the real provider
+  and approval desk: approved path end to end (machine repaired, note kept
+  as evidence); rejection and no-answer stop after the read-back with the
+  machine untouched; no change wanted asks nothing; a refused proposal never
+  reaches the human; approval with no calls left, and work that cannot start,
+  are approved and not carried out; the decision is read even when the same
+  question was asked that tick; a hook that decides nothing is not approval.
+  `tests/test_agent_investigation.py` updated for the longer path (32).
+  Not built yet: checking whether the fix worked (checkpoint 4).
+
 - **2026-10-12 — Anthropic/Claude removed from the code (developer's
   instruction).** The only model providers in scope are Mistral, Google
   Gemini, Groq, NVIDIA, Cohere and Cloudflare; nothing else is to be added.

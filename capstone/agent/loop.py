@@ -51,6 +51,8 @@ class InvestigationDeps:
     min_diagnosis_confidence: float = 0.9
     min_supporting_evidence: int = 2
     min_action_confidence: float = 0.9
+    # The longest single wait the factory accepts, in ticks.
+    max_wait_ticks: int = 480
     # The human's side. Called once with each submitted proposal; the agent
     # is never given the means to approve its own request.
     human_review: Callable[[ProposalRecord], None] | None = field(default=None)

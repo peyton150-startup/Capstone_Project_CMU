@@ -109,25 +109,27 @@ def test_an_investigation_goes_through_the_stages_in_order():
         "hypothesize",
         "test",
         "decide",
+        "propose",
     ]
     assert [r.name for r in provider.calls] == [
         "get_time",
         "get_sensor_summary",
         "list_machines",
         "get_readings",
+        "propose_action",
     ]
-    assert [e.id for e in state.evidence] == ["E1", "E2", "E3", "E4"]
+    assert [e.id for e in state.evidence] == ["E1", "E2", "E3", "E4", "E5"]
     assert state.termination_reason is TerminationReason.DIAGNOSIS_SUPPORTED
     assert state.conclusion == conclusion()
     assert state.answers == {"Q1": ["E2"], "Q2": ["E3"]}
 
 
-def test_the_last_record_carries_the_conclusion_and_the_final_stop_reason():
+def test_the_conclusion_s_record_carries_its_evidence_and_the_final_stop_reason():
     state, _ = investigate(wear_policy())
-    last = state.decisions[-1]
-    assert (last.phase, last.outcome, last.tool) == ("decide", "decided", None)
-    assert last.evidence_ids == ("E2", "E4")
-    assert last.termination_reason is TerminationReason.DIAGNOSIS_SUPPORTED
+    [decided] = [d for d in state.decisions if d.phase == "decide"]
+    assert (decided.outcome, decided.tool) == ("decided", None)
+    assert decided.evidence_ids == ("E2", "E4")
+    assert decided.termination_reason is TerminationReason.DIAGNOSIS_SUPPORTED
     assert [d.sequence for d in state.decisions] == list(
         range(1, len(state.decisions) + 1)
     )
@@ -147,7 +149,7 @@ def test_the_first_thing_asked_is_the_time_and_the_timer_starts():
     )
     assert state.started_at == 50.0
     assert state.evidence[0].observed_tick == 10
-    assert state.tool_call_count == 4  # asking the time is a counted call
+    assert state.research_tool_calls == 4  # asking the time is a counted call
 
 
 def test_a_repeat_is_caught_from_the_policy_s_very_first_question():
@@ -274,13 +276,11 @@ def test_a_conclusion_citing_evidence_that_was_never_gathered_is_refused():
 
 
 def test_a_conclusion_resting_on_misleading_but_real_evidence_is_accepted():
-    policy = wear_policy()
-    state, _ = investigate(policy)
-    assert state.conclusion.evidence_ids == (
-        "E2",
-        "E4",
-    )  # both exist; weighing is the policy's job
-    assert state.decisions[-1].outcome == "decided"
+    state, _ = investigate(wear_policy())
+    # Both items exist. Whether E4 misleads is the policy's to weigh.
+    assert state.conclusion.evidence_ids == ("E2", "E4")
+    [decided] = [d for d in state.decisions if d.phase == "decide"]
+    assert decided.outcome == "decided"
 
 
 def test_a_conclusion_naming_a_hypothesis_that_was_never_formed_is_refused():
@@ -321,8 +321,8 @@ def test_every_investigation_ends_with_a_conclusion_and_a_stop_reason():
 # --- asking for a change ---------------------------------------------------
 
 
-def test_a_justified_action_is_wanted_but_not_yet_asked_for():
-    state, provider = investigate(wear_policy())
+def test_a_justified_action_is_recorded_with_what_the_agent_expects_to_change():
+    state, _ = investigate(wear_policy(), state=fresh_state(followup_tool_calls=0))
     assert state.conclusion.recommendation == "intervene"
     assert state.proposed_action.model_dump() == {
         "proposal_id": None,
@@ -332,8 +332,6 @@ def test_a_justified_action_is_wanted_but_not_yet_asked_for():
         "status": "not_submitted",
     }
     assert state.predicted_effect == "vibration on CNC-02 returns to its earlier level"
-    asked = {r.name for r in provider.calls}
-    assert not asked & {"propose_action", "execute_action"}  # nothing was changed
 
 
 @pytest.mark.parametrize(
@@ -412,14 +410,27 @@ def test_the_graph_draws_only_the_allowed_order():
         "anything_to_test --> test",
         "anything_to_test --> conclude",
         "test --> conclude",
-        "conclude --> [*]",
+        "conclude --> propose",
+        "propose --> approved",
+        "approved --> execute",
+        "approved --> [*]",
+        "execute --> [*]",
     }
+
+
+def test_the_work_can_only_be_reached_through_the_proposal():
+    arrows = [
+        line.strip()
+        for line in INVESTIGATION_GRAPH.render().splitlines()
+        if line.strip().endswith("--> execute")
+    ]
+    assert arrows == ["approved --> execute"]
 
 
 # --- against the real factory boundary -------------------------------------
 
 
-def test_a_whole_investigation_through_the_real_provider_changes_nothing():
+def test_research_through_the_real_provider_changes_nothing_in_the_factory():
     sim = build_line(42, machines=3)
     sim.add_scenario(
         BearingDegradation(
@@ -464,10 +475,14 @@ def test_a_whole_investigation_through_the_real_provider_changes_nothing():
         "simulator:get_sensor_summary",
         "simulator:list_machines",
         "simulator:get_events",
+        "simulator:propose_action",
+        "simulator:get_proposals",
     ]
     assert state.conclusion == conclusion()
-    assert state.proposed_action.status == "not_submitted"
-    assert desk.proposals() == []
+    # Nobody answered, so the request is still waiting and nothing was started.
+    assert state.proposed_action.status == "pending"
+    assert [p["status"] for p in desk.proposals()] == ["pending"]
+    assert not state.action_carried_out
     assert (sim.clock.tick, sim.state, sim.event_log.events) == before
     text = state.model_dump_json().lower()
     assert not [word for word in HIDDEN_WORDS if word in text]

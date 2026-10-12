@@ -27,7 +27,15 @@ from capstone.contracts.evidence import Evidence
 from capstone.contracts.hypotheses import Hypothesis
 
 Phase = Literal[
-    "observe", "plan", "investigate", "hypothesize", "test", "decide", "verify"
+    "observe",
+    "plan",
+    "investigate",
+    "hypothesize",
+    "test",
+    "decide",
+    "propose",
+    "execute",
+    "verify",
 ]
 
 StepOutcome = Literal[
@@ -132,6 +140,9 @@ class InvestigationState(BaseModel):
     proposed_action: ProposalRecord | None = None
     # What should change in the factory if the diagnosis is right.
     predicted_effect: str | None = None
+    # Set only when the factory confirmed that the approved work started.
+    action_started_tick: int | None = Field(default=None, ge=0)
+    action_finish_tick: int | None = Field(default=None, ge=0)
     verification: VerificationCheck | None = None
 
     @property
@@ -145,6 +156,11 @@ class InvestigationState(BaseModel):
         if not self.hypotheses:
             return None
         return max(self.hypotheses, key=lambda h: h.confidence)
+
+    @property
+    def action_carried_out(self) -> bool:
+        """True only if the factory said the work started. Approval is not enough."""
+        return self.action_started_tick is not None
 
     @property
     def research_tool_calls(self) -> int:
