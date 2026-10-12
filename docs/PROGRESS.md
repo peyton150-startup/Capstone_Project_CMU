@@ -54,6 +54,19 @@ alarm), then evaluation, then the agent itself.
 
 ## Session notes
 
+- **2026-10-12 — checkpoint 1 complete; memory design confirmed.**
+  Post-implementation checkpoint passed after one re-teach: the developer
+  first had no answer, then explained that a direct save from the loop would
+  put anything recorded into the lessons table instead of lessons only, and
+  that the no-import test stays until the protections are in place.
+  Clarified: the gate already exists inside `capstone/memory/`; what is
+  missing is the agent's side (finished record, look-again step, provenance),
+  so a direct save would go around the gate. The developer also confirmed
+  the two open memory points in their own words: the model only says what
+  should be done while code holds the factual information; the JSON memory
+  becomes the audit log. Next: checkpoint 2, the inner loop, taught before
+  its tests are written.
+
 - **2026-10-12 — decision for checkpoint 3: carrying out a fix is its own
   tool call (no code change; session paused here).** The developer asked that
   a fix require a tool call so the record shows it was carried out. Today
