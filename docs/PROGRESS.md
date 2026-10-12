@@ -64,7 +64,15 @@ alarm), then evaluation, then the agent itself.
   loop be able to run longer than a simple look-up loop; the limits are
   settings and will be raised once a real model shows what an investigation
   needs (the 60-second default will certainly have to go up). They stay as
-  they are for now. Post-implementation understanding remains outstanding.
+  they are for now. Post-implementation checkpoint PASSED after two
+  clarifications: there is no queue (approved work starts at the tick
+  `execute_action` is called; a second request for a machine under repair is
+  refused, not held), and the desk checks its own list, not the agent's
+  copy. The developer then explained that a desk trusting the agent would
+  mean the required human approval is not there. The developer also saw
+  that the split lets an agent get approval early and act later; noted as a
+  post-MVP option that needs approvals to expire first. In 3c the loop
+  executes straight after reading an approval.
   Changes: `tools/actions.py` — `Proposal` gains `executed_tick` and
   `finish_tick`; `ApprovalDesk.approve` now only records the decision;
   new `ApprovalDesk.carry_out(proposal_id)` starts the work of an approved
