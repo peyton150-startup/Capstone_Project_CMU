@@ -21,7 +21,6 @@ database = [
     "python-dotenv>=1,<2",
 ]
 agent = [
-    "anthropic>=1.0",
     "pydantic-graph>=2.55.0",
 ]
 

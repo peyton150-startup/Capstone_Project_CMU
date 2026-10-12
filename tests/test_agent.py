@@ -1,10 +1,9 @@
 import json
 import re
-from types import SimpleNamespace
 
 from capstone.agent.agent import SYSTEM_PROMPT, ResearchAgent
 from capstone.agent.episode import run_episode
-from capstone.agent.models import ClaudeModel, ScriptedModel, ToolCall, Turn
+from capstone.agent.models import ScriptedModel, ToolCall, Turn
 from capstone.agent.toolbox import MAX_ROWS, Toolbox
 from capstone.simulator.generator import build_scenario
 from capstone.tools.actions import ActionTools, ApprovalDesk
@@ -277,77 +276,8 @@ def test_the_system_prompt_names_the_four_causes_and_both_actions():
         assert word in SYSTEM_PROMPT
 
 
-class FakeClient:
-    """Stands in for anthropic.Anthropic(): records requests, returns prepared responses."""
-
-    def __init__(self, responses):
-        self.requests = []
-        self._responses = list(responses)
-        self.beta = SimpleNamespace(messages=SimpleNamespace(create=self._create))
-
-    def _create(self, **kwargs):
-        self.requests.append({**kwargs, "messages": list(kwargs["messages"])})
-        return self._responses.pop(0)
-
-
-def block(**kwargs):
-    return SimpleNamespace(**kwargs)
-
-
-def test_the_claude_model_sends_tools_and_returns_tool_results_as_tool_result_blocks():
-    first = SimpleNamespace(
-        stop_reason="tool_use",
-        content=[
-            block(type="thinking", thinking=""),
-            block(type="text", text="Looking at the time."),
-            block(type="tool_use", id="tu_1", name="get_time", input={}),
-        ],
-    )
-    second = SimpleNamespace(
-        stop_reason="end_turn", content=[block(type="text", text="Done.")]
-    )
-    client = FakeClient([first, second])
-    model = ClaudeModel(client=client)
-    turn = model.start("system", [{"name": "get_time"}], "anomaly")
-    assert (
-        turn.tool_calls == [ToolCall("tu_1", "get_time", {})]
-        and turn.text == "Looking at the time."
-    )
-    request = client.requests[0]
-    assert request["model"] == "claude-opus-5-5" and request["thinking"] == {
-        "type": "adaptive"
-    }
-    assert request["fallbacks"] == "default" and request["tools"] == [
-        {"name": "get_time"}
-    ]
-
-    from capstone.agent.models import ToolResult
-
-    model.continue_with([ToolResult("tu_1", '{"tick": 5}')])
-    sent = client.requests[1]["messages"]
-    assert sent[1] == {
-        "role": "assistant",
-        "content": first.content,
-    }  # thinking passed back unchanged
-    assert sent[2]["content"][0] == {
-        "type": "tool_result",
-        "tool_use_id": "tu_1",
-        "content": '{"tick": 5}',
-        "is_error": False,
-    }
-
-
 def test_the_agent_stops_on_a_refusal():
     model = ScriptedModel([Turn(stop_reason="refusal")])
     box, _ = toolbox(10)
     result = ResearchAgent(model, box, max_turns=5).investigate("x")
     assert not result.finished and model.results == []
-
-
-def test_the_command_line_refuses_politely_without_a_key(monkeypatch, capsys):
-    from capstone.agent.__main__ import main
-
-    monkeypatch.delenv("ANTHROPIC_API_KEY", raising=False)
-    monkeypatch.delenv("ANTHROPIC_AUTH_TOKEN", raising=False)
-    assert main(["--seed", "1", "--no-memory"]) == 2
-    assert "ANTHROPIC_API_KEY" in capsys.readouterr().err

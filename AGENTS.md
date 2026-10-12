@@ -392,6 +392,11 @@ Tooling: `pytest`. Run tests after every implementation step.
 - `pytest` is not yet installed: `pip install pytest` (or
   `pip install -e ".[dev]"` once `pyproject.toml` declares it).
 - No external services. Everything runs locally and offline.
+- Model providers in scope, and no others: Mistral, Google Gemini, Groq,
+  NVIDIA, Cohere and Cloudflare. Never add an Anthropic/Claude or OpenAI
+  model, SDK, API key name or default to the code, tests or dependencies.
+  (This file's name and the word "Claude" in it refer to the coding
+  assistant, not to a model the project calls.) Tests never need a key.
 
 ---
 

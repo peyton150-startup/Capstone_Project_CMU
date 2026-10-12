@@ -42,12 +42,12 @@ Built in session 5 without comprehension gates, at the developer's direction
 
 | Where | Added | Meaning |
 |---|---|---|
-| `agent/models.py` | `Model` interface, `ClaudeModel`, `ScriptedModel`, `Turn`, `ToolCall`, `ToolResult` | The LLM behind one small interface. `ClaudeModel` calls `claude-opus-5-5`; `ScriptedModel` replays fixed turns so tests need no key. |
+| `agent/models.py` | `Model` interface, `ScriptedModel`, `Turn`, `ToolCall`, `ToolResult` | The LLM behind one small interface. `ScriptedModel` replays fixed turns so tests need no key. The original Claude model class was removed on 2026-10-12: Anthropic is not a provider in this project. |
 | `agent/toolbox.py` | `Toolbox`, `TOOL_SPECS`, `Notebook` | The 14 tools as the model sees them, dispatch to the real tools, call counting, error handling, the agent's hypothesis table and answer. |
 | `agent/agent.py` | `ResearchAgent`, `SYSTEM_PROMPT` | The investigation loop and the instructions for the staged method. |
 | `agent/monitor.py` | `wait_for_anomaly` | Runs the line until an alarm, a stop, or 3 rejects in 10 — using only agent tools. |
 | `agent/episode.py` | `run_episode`, `approve_all`, `ask_on_console` | One full run: scenario → anomaly → agent → human decisions → score. |
-| `agent/__main__.py` | CLI | `python -m capstone.agent --seed 0 --runs 20` (needs `ANTHROPIC_API_KEY`). |
+| `agent/__main__.py` | removed 2026-10-12 | The command line only ran the Claude model, which is out of scope. |
 | `tools/observation.py` | `get_sensor_trend` | Readings summarised per block of ticks, so long histories fit in the model's context. |
 
 ## 17 — Memory

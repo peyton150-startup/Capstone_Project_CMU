@@ -54,6 +54,21 @@ alarm), then evaluation, then the agent itself.
 
 ## Session notes
 
+- **2026-10-12 — Anthropic/Claude removed from the code (developer's
+  instruction).** The only model providers in scope are Mistral, Google
+  Gemini, Groq, NVIDIA, Cohere and Cloudflare; nothing else is to be added.
+  Removed: `ClaudeModel` and `DEFAULT_MODEL` from `agent/models.py`;
+  `agent/__main__.py` (the command line could only run that model); the
+  `anthropic` dependency from the `agent` extra and `uv.lock`; the two tests
+  of them in `tests/test_agent.py`. Kept: the `Model` interface,
+  `ScriptedModel`, `Turn`, `ToolCall`, `ToolResult`, which the older agent's
+  tests use. The rule is written into `CLAUDE.md` and `AGENTS.md` section 9.
+  Older entries below that mention Claude as a model are history, not plan.
+  No model is wired to anything yet; the model-backed policy for the
+  checkpointed loop will use NVIDIA Nemotron
+  (`nvidia/nemotron-3.5-lightning-30b-a3b`, key `NVIDIA_API_KEY`).
+  Checkpoint 3b's closing question is still outstanding.
+
 - **2026-10-12 — checkpoint 3b: the outer sequence up to a conclusion.**
   Pre-checkpoint passed after one re-teach: the developer first treated a
   cited `E9` as faulty evidence for the model to weigh; after the explanation
@@ -1416,7 +1431,8 @@ alarm), then evaluation, then the agent itself.
      `ActionTools`), staged loop from docs/MVP_SCOPE.md section 3,
      keeping a hypothesis table. Default model: Claude through the
      Anthropic SDK, model id `claude-opus-5-5`, key from
-     `ANTHROPIC_API_KEY`. Tests must not need a key: drive the loop with
+     `ANTHROPIC_API_KEY` (SUPERSEDED 2026-10-12: removed; Anthropic is
+     not a provider in this project). Tests must not need a key: drive the loop with
      a scripted stand-in model. Human approval stays a separate step the
      agent cannot perform.
   6. **17 memory.** One JSON record per investigation (anomaly,
