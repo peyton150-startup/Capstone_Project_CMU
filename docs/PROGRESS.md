@@ -75,6 +75,10 @@ alarm), then evaluation, then the agent itself.
   verdict never reaches the agent, reflection or memory. Consequence for the
   memory gate (a later checkpoint): `EpisodicMemory.outcome` and
   `MemoryPromotionPolicy` currently accept only verified `resolved`.
+  Also decided by the developer: nothing tells the agent that a fix
+  failed; it must find out by looking again after the action. To be built
+  at checkpoint 4 as a step the loop requires after every approved action,
+  not as model training.
   Model: `NVIDIA_API_KEY` is in the worktree's git-ignored `.env`; NVIDIA's
   catalogue lists `nvidia/nemotron-3.5-lightning-30b-a3b`; structured output
   from it is unverified. NEXT SESSION: confirm the two unconfirmed points,
