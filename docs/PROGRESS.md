@@ -54,6 +54,26 @@ alarm), then evaluation, then the agent itself.
 
 ## Session notes
 
+- **2026-10-12 — decision for checkpoint 3: carrying out a fix is its own
+  tool call (no code change; session paused here).** The developer asked that
+  a fix require a tool call so the record shows it was carried out. Today
+  `ApprovalDesk.approve` starts the repair itself. To build at checkpoint 3:
+  a new agent-facing tool (working name `execute_action(proposal_id)`) that
+  refuses unless that exact proposal is approved, so the agent can start an
+  approved repair but can never approve one. Chain: `propose_action` → human
+  decides at the desk → `get_proposals` → `execute_action` → wait → look
+  again. The loop, not the model, makes the execute call right after reading
+  an approval. Its answer (what started, on which machine, when it finishes)
+  is saved as evidence and tells verification when to look. Costs to handle:
+  `approve` no longer starts the repair, so `tools/actions.py`, the provider
+  allowlist and the approval tests change; "approved but never executed" is a
+  new state that must be reported honestly and never counted as a fix; an
+  approval may go stale if execution is delayed (known limit, not solved).
+  Clarified for the developer: the agent has no tool that fixes a machine by
+  itself, and a finished repair is a separate fact from a solved problem.
+  RESUME AT: confirm the two unconfirmed memory points in the entry below,
+  ask checkpoint 1's closing question, then teach checkpoint 2 (inner loop).
+
 - **2026-10-12 — memory and evaluation design discussion (no code change).**
   WHERE WE STOPPED: the developer had to leave mid-discussion. Decided by the
   developer: (a) the agent must learn from failed fixes as well as successes;
