@@ -30,6 +30,7 @@ from capstone.agent.policy import (
 )
 from capstone.agent.state import DecisionRecord, InvestigationState, Phase, StepOutcome
 from capstone.contracts.evidence import Evidence
+from capstone.contracts.provenance import ProvenanceReference
 from capstone.contracts.tools import ToolRequest, ToolResult
 from capstone.providers.factory import FactoryProvider
 
@@ -263,6 +264,18 @@ def gather(
         observed_at=result.timestamp,
     )
     state.evidence.append(evidence)
+    # Written here, from the same tool answer, and never by the policy.
+    # Everything the factory provider offers is something an operator
+    # could see, so its answers are observable.
+    state.provenance.append(
+        ProvenanceReference(
+            evidence_id=evidence.id,
+            source_id=evidence.source_id,
+            source_type=evidence.source_type,
+            origin="observable",
+            observed_tick=evidence.observed_tick,
+        )
+    )
     if step.question_id is not None:
         state.answers.setdefault(step.question_id, []).append(evidence.id)
         state.unanswered_questions = [

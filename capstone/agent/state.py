@@ -25,6 +25,7 @@ from capstone.agent.artifacts import (
 from capstone.contracts import Contract
 from capstone.contracts.evidence import Evidence
 from capstone.contracts.hypotheses import Hypothesis
+from capstone.contracts.provenance import ProvenanceReference
 
 Phase = Literal[
     "observe",
@@ -111,6 +112,8 @@ class InvestigationState(BaseModel):
     budgets: Budgets = Field(default_factory=Budgets)
 
     evidence: list[Evidence] = Field(default_factory=list)
+    # One label per evidence item, written by the loop when it arrived.
+    provenance: list[ProvenanceReference] = Field(default_factory=list)
     hypotheses: list[Hypothesis] = Field(default_factory=list)
     unanswered_questions: list[Question] = Field(default_factory=list)
     # Question id to the evidence that answered it, newest last.

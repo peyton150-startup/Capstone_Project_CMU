@@ -54,6 +54,32 @@ alarm), then evaluation, then the agent itself.
 
 ## Session notes
 
+- **2026-10-12 — checkpoint 5a: where each piece of evidence came from.**
+  Pre-checkpoint passed first time: the developer said a model allowed to
+  state the origin could write it in the wrong format or hallucinate the
+  wrong source, and the records would then be tainted. Added: the worst case
+  is hidden-side material labelled observable, which the memory gate would
+  then let through. Post-implementation understanding remains outstanding.
+  Changes: new `contracts/provenance.py` now holds the one definition of
+  `ProvenanceReference` (evidence ID, source, source type, origin, tick);
+  `memory/contracts.py` imports it from there, so the memory gate and the
+  loop use the very same class and existing imports still work.
+  `agent/state.py`: `InvestigationState.provenance`. `agent/loop.py`:
+  `gather` writes one label beside each evidence item at the moment the tool
+  answer arrives, from that same answer, with origin `observable` (the
+  factory provider only offers what an operator could see). The policy is
+  never asked for an origin and no type it returns has a field for one.
+  Tests: new `tests/test_agent_provenance.py` (13): one definition; same
+  class object in both packages; a label per evidence item, present before
+  the policy first sees the evidence; none for failed or unusable answers;
+  kept for an answer the policy could not interpret; the policy's copy
+  cannot change them; one-to-one match with the evidence through a whole
+  real investigation (research, approved repair, check); everything the
+  conclusion and the check cite is labelled. New CI check "Tests: Completed
+  record". Simplification: every factory answer is `observable`; a human's
+  note inside a tool answer does not make the item `human`. Evidence
+  recalled from memory will need its own origin when recall is built.
+
 - **2026-10-12 — checkpoint 4: did the fix work?** Pre-checkpoint passed
   first time: asked what the loop does with a "resolved" judgement citing
   only evidence from before the repair, the developer said there is no

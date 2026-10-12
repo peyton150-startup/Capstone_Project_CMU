@@ -67,6 +67,8 @@ GROUPS: dict[str, list[str]] = {
     ],
     # Checkpoint 4: looking again and judging whether the fix worked.
     "Verification": ["agent_verification"],
+    # Checkpoint 5: where evidence came from, and the finished record.
+    "Completed record": ["agent_provenance"],
     "Memory": [
         "database_connection",
         "memory_policy",

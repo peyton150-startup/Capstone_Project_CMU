@@ -12,15 +12,8 @@ from capstone.contracts.completed_investigations import (
     VerificationResult,
 )
 
-
-class ProvenanceReference(Contract):
-    """The trusted artifact producer labels source origin, not the model."""
-
-    evidence_id: str = Field(min_length=1)
-    source_id: str = Field(min_length=1)
-    source_type: Literal["telemetry", "event", "inspection", "document", "tool_result"]
-    origin: Literal["observable", "human", "evaluator_hidden", "simulator_hidden"]
-    observed_tick: int | None = Field(default=None, ge=0)
+# Defined once in the shared contracts; importable from here as before.
+from capstone.contracts.provenance import ProvenanceReference  # noqa: F401
 
 
 class ReusableLesson(Contract):
