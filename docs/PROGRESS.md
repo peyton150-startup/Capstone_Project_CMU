@@ -81,7 +81,11 @@ alarm), then evaluation, then the agent itself.
   what is believed to be wrong, recommendation is what to do about it).
   Added: an under-confident but honest conclusion keeps its diagnosis so
   the human gets something to act on; one citing evidence that does not
-  exist is discarded whole. New `agent/investigation.py`:
+  exist is discarded whole. Recorded as passed one step early: on a
+  concrete case (60% confidence, recommends intervening) the developer
+  first answered "intervene"; after the before/after distinction was
+  made explicit, answered correctly that 60% becomes escalate and 95%
+  stays intervene. New `agent/investigation.py`:
   `observe` (asks the factory the time and starts the timer, so the tick is
   known before the policy's first question); `plan` (stores the policy's
   first questions); `investigate` and `test` (run the inner loop and set the
