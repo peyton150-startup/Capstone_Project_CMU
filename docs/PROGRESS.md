@@ -40,12 +40,12 @@ A component is complete only when both columns are checked.
 | 12c | Quality inspection, small pass/fail version | yes | yes | yes | yes | `scenarios.py`, `state.py` (`Inspection`), `simulator.py`, `tools/observation.py` (`get_inspections`) |
 | 13a | Material batches and one bad batch (fault scenario 2) | yes | yes | yes | yes | `state.py` (`MaterialBatch`), `scenarios.py` (`BadMaterialBatch`), `simulator.py`, `line.py`, `tools/observation.py` |
 | 13b | Machine setting and a wrong setting (fault scenario 3) | yes | yes | yes | no | `state.py` (`speed_setting`), `scenarios.py` (`WrongSetting`, `defect_mark`), `sensors.py`, `thermal.py`, `line.py`, `tools/observation.py` (`get_settings`); re-explain waived for time on 2026-10-06, developer to review |
-| 13c | Action: put a machine's setting right (via the approval desk) | n/a | n/a | no | no | Built ungated; developer to review |
-| 13d | False alarm / transient anomaly (fault scenario 4) | n/a | n/a | no | no | Built ungated; developer to review |
-| 14 | Seeded scenario generator (fault, machine or batch, start tick) | n/a | n/a | no | no | Built ungated; developer to review |
-| 15 | Evaluation | n/a | n/a | no | no | Built ungated; developer to review |
-| 16 | The research agent | n/a | n/a | no | no | Built ungated; developer to review |
-| 17 | Memory | n/a | n/a | no | no | Built ungated; developer to review |
+| 13c | Action: put a machine's setting right (via the approval desk) | n/a | n/a | yes | no — built ungated, developer to review | `simulator.py` (`start_setting_reset`, `_start_maintenance`), `state.py` (`maintenance_kind`), `tools/actions.py` (`reset_setting`) |
+| 13d | False alarm / transient anomaly (fault scenario 4) | n/a | n/a | yes | no — built ungated, developer to review | `state.py` (`MachineCondition.vibration_sensor_offset`), `sensors.py`, `scenarios.py` (`FalseAlarm`) |
+| 14 | Seeded scenario generator (fault, machine or batch, start tick) | n/a | n/a | yes | no — built ungated, developer to review | `capstone/simulator/generator.py` (`build_scenario`, `FAULTS`) |
+| 15 | Evaluation | n/a | n/a | yes | no — built ungated, developer to review | `capstone/evaluation/scoring.py` (`evaluate`, `Score`, `summarize`), `capstone/tools/diagnosis.py` (`Diagnosis`) |
+| 16 | The research agent | n/a | n/a | yes | no — built ungated, developer to review | `capstone/agent/` (`models.py`, `toolbox.py`, `agent.py`, `monitor.py`, `episode.py`, `__main__.py`); `tools/observation.py` (`get_sensor_trend`) |
+| 17 | Memory | n/a | n/a | yes | no — built ungated, developer to review | `capstone/agent/memory.py` (`InvestigationMemory`, `search_incident_history`), `episode.py` |
 
 Every row above with four "yes" marks (or "n/a") is complete: no question is
 outstanding on it. Still to build after 12c, from `docs/MVP_SCOPE.md`: the
@@ -53,6 +53,29 @@ other three fault scenarios (material batch, machine configuration, false
 alarm), then evaluation, then the agent itself.
 
 ## Session notes
+
+- **2026-10-12 — all branches consolidated onto `main`.** At the developer's
+  request, `feature/episodic-memory-reflection`,
+  `feature/reasoning-working-memory` and `claude/gifted-hamilton-eqyqf4`
+  (rows 13c-17, built ungated) are merged into one history. Four conflicts,
+  resolved without changing behaviour: `simulator.py` (kept the ungated
+  branch's `_start_maintenance` / setting-reset code; `main`'s side was
+  formatting only), `tools/observation.py` (kept both `get_sensor_summary`
+  and `get_sensor_trend`), `pyproject.toml` (the `agent` extra now lists
+  `anthropic` and `pydantic-graph`), `tests/test_observation_tools.py`
+  (tool allowlist holds both; the hidden-truth leak test now also exercises
+  `get_sensor_trend` and allows its `min` / `max` / `count` fields). The
+  ungated branch's files were Ruff-formatted; `uv.lock` regenerated.
+  Verification: 532 passed with all optional dependencies; Ruff lint/format
+  passed. NOT YET RECONCILED, and no code was deleted to hide it:
+  `capstone/agent/` now holds two agents side by side — the ungated
+  model-driven one (`agent.py`, `toolbox.py`, `models.py`, `monitor.py`,
+  `episode.py`, `__main__.py`) and the checkpointed loop (`loop.py`,
+  `state.py`, `policy.py`, `artifacts.py`); and there are two memories —
+  the ungated JSON `agent/memory.py` and the gated `capstone/memory/`
+  package. The provider allowlist (`providers/factory.py`) does not yet
+  offer `get_sensor_trend`, the setting-reset action or the diagnosis tool.
+  Which agent and which memory survive is the developer's decision.
 
 - **2026-10-12 — reasoning/memory consolidation, checkpoint 1 (one shared
   record).** The two parallel workstreams are being consolidated on
@@ -1190,3 +1213,76 @@ alarm), then evaluation, then the agent itself.
   6. **17 memory.** One JSON record per investigation (anomaly,
      evidence, hypotheses, conclusion, action, outcome) and a simple
      look-up of similar past cases.
+- **Session 5 — row 13c built ungated.** Second action type
+  `reset_setting` on the approval desk. `Simulator.start_setting_reset`
+  stops the machine for 10 ticks (`setting_reset_ticks`); when done
+  `speed_setting` goes back to None and the event reads "setting reset
+  finished: setting was off standard" or "... already standard". The
+  start/finish code is now shared with the bearing replacement through
+  `_machine_for_maintenance`, `_start_maintenance` and
+  `MachineState.maintenance_kind`; bearing messages unchanged. A
+  broken-down machine cannot be reset (it needs a repair). 7 tests, 338
+  total.
+- **Session 5 — row 13d built ungated.** `FalseAlarm` writes a hidden
+  `MachineCondition.vibration_sensor_offset` (default +5.0 mm/s) on one
+  machine for `duration` ticks (default 5), then sets it back to 0. The
+  `VibrationSensor` adds the offset to its reading (running or idle), so
+  the ordinary threshold alarm trips. Nothing else in the machine
+  changes: a test compares against the same day without the fault and
+  finds only those few vibration readings differ. Ground truth: fault
+  "false_alarm", machine, start tick; the correct action is none. 6
+  tests, 344 total.
+- **Session 5 — row 14 built ungated.** `build_scenario(seed, machines=None,
+  fault=None)` calls `build_line` and then, from its own stream
+  `generator`, picks one of the four faults, a machine, a start tick in
+  200-600 and the fault's strength (bearing rate 0.0004-0.0008; speed
+  factor 0.85/0.88/1.12/1.15; bad batch 2 or 3 with added risk
+  0.35-0.50; false alarm lasting 3-8 ticks). `fault=` forces the kind
+  for balanced experiments. DECISION taken without asking: generated
+  lines use 10 jobs per batch (the standard line keeps 25) because at 25
+  a second batch only opens after about 1,750 ticks. 9 tests, 353 total.
+- **Session 5 — row 15 built ungated.** The agent's final answer is a
+  `Diagnosis` (fault kind, machine or batch, summary) in
+  `tools/diagnosis.py`: it crosses the tool boundary from agent to
+  evaluation, so it lives with the tools, not in evaluation. `evaluate()`
+  takes the simulator at the end of the run, the diagnosis, the desk's
+  proposals, the tool-call count and the start tick, and returns a
+  `Score` row: fault right, machine/batch right, action right (the
+  APPROVED actions must be exactly the one expected: replace_bearing,
+  reset_setting, or nothing for a bad batch or false alarm; rejected
+  proposals do not count), resolved (read from hidden state: bearing
+  replaced after the fault began; setting back to None; bad batch used
+  up; sensor offset gone), tool calls, ticks elapsed. `summarize` and
+  `format_summary` give the "18/20 root causes" line. 9 tests, 362 total.
+- **Session 5 — row 16 built ungated.** The agent package:
+  `models.py` hides the language model behind `start` / `continue_with`;
+  `ClaudeModel` calls `claude-opus-5-5` through the Anthropic SDK
+  (manual tool loop, adaptive thinking, effort "high", server-side
+  refusal fallback), `ScriptedModel` replays fixed turns so tests need no
+  key. `toolbox.py` describes 14 tools to the model (the 9 look-ups incl.
+  a new `get_sensor_trend`, wait, propose_action, get_proposals, plus
+  `update_hypotheses` for the hypothesis table and `submit_diagnosis` to
+  finish), counts every call, returns errors as error results, and
+  refuses answers over 300 rows. `agent.py` holds the system prompt (the
+  staged loop from MVP_SCOPE section 3) and the turn loop.
+  `monitor.py` runs the line through the agent's own tools until an
+  alarm, a stopped machine, or 3 failed inspections in the last 10.
+  `episode.py` wires it all: seeded scenario, monitor, agent, the human
+  (an `approver` function; `approve_all` for experiments,
+  `ask_on_console` for live use) deciding proposals between turns, and
+  evaluation. `python -m capstone.agent --seed 0 --runs 20` runs the real
+  agent. Not run against the real model in this session (no key);
+  everything is tested with the scripted stand-in. DECISION taken without
+  asking: generated wrong settings made stronger (0.80/0.82/1.18/1.20)
+  because 12-15% off often went undetected for 4,000 ticks. 13 tests,
+  376 total.
+- **Session 5 — row 17 built ungated; THE BUILD IS COMPLETE.**
+  `InvestigationMemory` appends one JSON line per investigation (anomaly,
+  evidence calls, last hypothesis table, conclusion, approved actions,
+  outcome = maintenance findings the event log reported) and offers the
+  agent `search_incident_history` (word-overlap ranking). It deliberately
+  never stores the score or ground truth. 4 tests, 380 total, all
+  passing under `python -m pytest`. Every row 13c-17 still needs the
+  developer's review; the plain-English summary of what changed is in
+  `docs/UNGATED_BUILD_SUMMARY.md`. Not yet done: a run of the real
+  agent with an API key, and the experiment table it would produce.

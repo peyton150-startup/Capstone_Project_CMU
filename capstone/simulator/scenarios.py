@@ -192,6 +192,53 @@ class BadMaterialBatch(Scenario):
         )
 
 
+class FalseAlarm(Scenario):
+    """One machine's vibration sensor misreads for a few ticks, then recovers by itself.
+
+    Writes only the sensor's hidden offset: on at `start_tick`, off again
+    `duration` ticks later. The machine itself is untouched, so nothing
+    but that one sensor moves, and the right response is to do nothing.
+    The offset reaches the reading through the sensor, never as a written
+    reading, so the alarm that trips is an ordinary alarm.
+    """
+
+    def __init__(
+        self,
+        name: str,
+        rng: RandomSource,
+        *,
+        machine_id: str,
+        start_tick: int,
+        duration: int = 5,
+        offset: float = 5.0,
+    ):
+        if duration < 1:
+            raise ValueError("duration must be at least 1 tick")
+        if offset <= 0:
+            raise ValueError("offset must be positive")
+        super().__init__(name, rng)
+        self.machine_id = machine_id
+        self.start_tick = start_tick
+        self.duration = duration
+        self.offset = offset
+
+    def apply(self, state: FactoryState, tick: int) -> None:
+        if tick < self.start_tick:
+            return
+        glitching = tick < self.start_tick + self.duration
+        state.machines[self.machine_id].condition.vibration_sensor_offset = (
+            self.offset if glitching else 0.0
+        )
+
+    def ground_truth(self) -> GroundTruth:
+        return GroundTruth(
+            scenario=self.name,
+            fault="false_alarm",
+            machine_id=self.machine_id,
+            start_tick=self.start_tick,
+        )
+
+
 DEFECT_BASELINE = 0.01  # one job in a hundred fails inspection on a perfect line
 DEFECT_FROM_WEAR = 0.45  # extra chance a completely worn machine would add
 DEFECT_FROM_SETTING = (

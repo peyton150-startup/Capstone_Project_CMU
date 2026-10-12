@@ -56,6 +56,8 @@ class MachineCondition(BaseModel):
     model_config = ConfigDict(validate_assignment=True)
 
     bearing_health: float = Field(default=1.0, ge=0.0, le=1.0)
+    # mm/s the vibration sensor adds on its own, e.g. a loose mount. 0 for a sound sensor.
+    vibration_sensor_offset: float = 0.0
 
 
 class MachineState(BaseModel):
@@ -103,6 +105,8 @@ class MachineState(BaseModel):
 
     # While a repair is under way: the tick at which it will be finished.
     maintenance_until: int | None = None
+    # Which piece of work that is: "bearing replacement" or "setting reset".
+    maintenance_kind: str | None = None
     # The tick this machine's bearing was last replaced, if it ever was.
     bearing_replaced_tick: int | None = None
     condition: MachineCondition = Field(default_factory=MachineCondition)

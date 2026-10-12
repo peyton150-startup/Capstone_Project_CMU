@@ -22,6 +22,7 @@ TOOLS = {
     "get_inspections",
     "get_settings",
     "get_sensor_summary",
+    "get_sensor_trend",
 }
 HIDDEN_WORDS = (
     "bearing",
@@ -74,6 +75,14 @@ def everything(tools: ObservationTools, last_tick: int) -> dict:
             tools.get_sensor_summary(machine["machine_id"], sensor, 0, last_tick)
             for machine in tools.list_machines()
             for sensor in ("vibration", "temperature", "load")
+        ],
+        "get_sensor_trend": [
+            bucket
+            for machine in tools.list_machines()
+            for sensor in ("vibration", "temperature", "load")
+            for bucket in tools.get_sensor_trend(
+                machine["machine_id"], sensor, 0, last_tick
+            )
         ],
     }
 
@@ -191,5 +200,8 @@ def test_nothing_hidden_leaks_through_any_tool_over_a_full_run():
         "mean",
         "delta",
         "rate_of_change",
+        "min",
+        "max",
+        "count",
     }
     assert sim.ground_truth()  # the truth exists; it just is not reachable from here

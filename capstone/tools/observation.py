@@ -60,6 +60,38 @@ class ObservationTools:
             and from_tick <= r.tick <= to_tick
         ]
 
+    def get_sensor_trend(
+        self,
+        machine_id: str,
+        sensor: str,
+        from_tick: int,
+        to_tick: int,
+        bucket_ticks: int = 60,
+    ) -> list[dict]:
+        """The same readings as get_readings, summarised per block of ticks: mean, min, max, count.
+
+        Only arithmetic on readings the agent could fetch anyway; idle
+        readings are included as they are.
+        """
+        if not isinstance(bucket_ticks, int) or bucket_ticks < 1:
+            raise ValueError("bucket_ticks must be a whole number of at least 1")
+        buckets: dict[int, list[float]] = {}
+        for row in self.get_readings(machine_id, sensor, from_tick, to_tick):
+            buckets.setdefault((row["tick"] - from_tick) // bucket_ticks, []).append(
+                row["value"]
+            )
+        return [
+            {
+                "from_tick": from_tick + index * bucket_ticks,
+                "to_tick": min(to_tick, from_tick + (index + 1) * bucket_ticks - 1),
+                "mean": round(sum(values) / len(values), 3),
+                "min": round(min(values), 3),
+                "max": round(max(values), 3),
+                "count": len(values),
+            }
+            for index, values in sorted(buckets.items())
+        ]
+
     def get_factory_readings(
         self, sensor: str, from_tick: int, to_tick: int
     ) -> list[dict]:

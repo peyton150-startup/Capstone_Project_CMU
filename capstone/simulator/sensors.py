@@ -80,7 +80,10 @@ class VibrationSensor(Sensor):
         self.idle_floor = idle_floor
 
     def _measure(self, machine: MachineState) -> float:
-        noise = self._stream.gauss(0.0, self.noise_sd)
+        noise = (
+            self._stream.gauss(0.0, self.noise_sd)
+            + machine.condition.vibration_sensor_offset
+        )
         if machine.status is not MachineStatus.RUNNING:
             return max(0.0, self.idle_floor + noise)
         wear = 1.0 - machine.condition.bearing_health
