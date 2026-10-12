@@ -50,5 +50,46 @@ Agent 1 currently uses a different completion contract in `contracts/completed.p
 Reconcile that contract with `contracts/completed_investigations.py` before
 connecting the runtime. Trusted provenance must be preserved across the handoff;
 free-text scans cannot establish the true origin of mislabeled evidence.
-Memory evaluation records and runtime wiring remain to implement. Retrieval is
+Memory evaluation records are implemented; runtime wiring remains. Retrieval is
 bounded lookup by investigation/category; embeddings and RAG are not implemented.
+
+## Evaluation and API use
+
+For a caller-supplied, validated `candidate` and SQLAlchemy `engine`, use:
+
+```python
+from capstone.evaluation.memory import build_promotion_record, build_use_record
+from capstone.memory.contracts import MemoryQuery
+from capstone.memory.repository import SQLMemoryRepository
+from capstone.memory.service import MemoryService
+
+service = MemoryService(SQLMemoryRepository(engine))
+decision = service.promote(candidate)
+promotion_record = build_promotion_record(candidate.investigation, decision)
+promotion_json = promotion_record.model_dump_json()
+
+memories = service.retrieve(MemoryQuery(category="bearing", limit=5))
+if memories:
+    # later_investigation is a caller-supplied completed consumer report.
+    use_record = build_use_record(later_investigation, memories[0])
+    assert use_record.effect == "unknown"
+```
+
+`MemoryPromotionRecord` keeps acceptance, actual storage, reasons, policy version,
+and new/existing memory IDs. Policy acceptance alone does not set `stored=True`.
+The builder rejects inconsistent investigation/run identities and policy versions.
+Its optional `diagnosis_correct` field is evaluator-only; it never changes the
+promotion decision or becomes part of an agent-visible memory.
+
+`MemoryUseRecord` distinguishes retrieval, actual use (`None` means unknown),
+and attributed effect. To record `helped`, `hurt`, or `neutral`, the caller must
+report use and supply an assessment source (`agent_report`, `human_review`, or
+`evaluator`), an explanation, and unique evidence references from the consumer
+investigation. Those requirements make an assessment traceable, not causal proof.
+The builder does not ask an agent, inspect hidden truth, or infer usefulness from
+success. Assessment and retrieval observations are supplied by the caller.
+
+These evaluation records are immutable, JSON-serializable artifacts for reporting.
+They have no database table or automatic report writer. Their builders perform no
+I/O and add no wall-clock timestamps or random IDs. The dependency runs from
+evaluation to memory contracts; memory does not import evaluation.

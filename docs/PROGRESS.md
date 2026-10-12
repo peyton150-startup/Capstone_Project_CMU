@@ -54,6 +54,26 @@ alarm), then evaluation, then the agent itself.
 
 ## Session notes
 
+- **2026-10-12 — memory evaluation records built.** Pre-checkpoint passed;
+  post-implementation understanding remains outstanding. Added
+  `evaluation/__init__.py` and `evaluation/memory.py`. `MemoryPromotionRecord`
+  records acceptance/storage/reasons and memory IDs, with optional evaluator-only
+  diagnosis correctness. `build_promotion_record()` checks investigation/run
+  identity and policy consistency, then copies the decision without altering
+  promotion. `MemoryUseRecord` distinguishes retrieval, known/unknown use,
+  effect, assessor source, explanation, and evidence. `build_use_record()`
+  validates references against the consumer investigation; known effects require
+  actual use, attribution, explanation, and evidence. An agent report remains
+  a self-report; no causal benefit is inferred from success. Builders do no I/O;
+  records are JSON-serializable artifacts, not additional database tables.
+  `docs/EPISODIC_MEMORY.md` includes API examples and these limits.
+  Verification: expected missing-module test collection failure first, then
+  22 evaluation tests passed; full offline suite 475 passed; Ruff lint/format
+  and whitespace checks passed. Agent 1 still uses `contracts/completed.py`,
+  with different fields and no final completion producer in its inspected
+  runtime modules. Runtime integration, trusted reflection/provenance production,
+  final branch review, and live Neon application remain separate steps.
+
 - **2026-10-12 — memory evaluation pre-checkpoint passed.** The developer
   proposed reporting an unknown effect when memory usefulness is not known,
   and asking the agent for its assessment. Clarified that an agent report

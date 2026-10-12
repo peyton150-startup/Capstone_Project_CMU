@@ -47,13 +47,15 @@ Add purpose/responsibility comments to all new capstone modules.
 
 ## Task 3 — evaluation and handoff
 
-- [ ] Write failing tests for accepted/rejected storage records and later memory
+- [x] Write failing tests for accepted/rejected storage records and later memory
   use assessments, including identity consistency and unknown effects.
-- [ ] Add `capstone/evaluation/memory.py` and package initializer with separate
+- [x] Add `capstone/evaluation/memory.py` and package initializer with separate
   evaluator-only fields. No dependency from memory to evaluation.
-- [ ] Document API examples, limits, migration command, modules/classes/functions,
+- [x] Document API examples, limits, migration command, modules/classes/functions,
   and the Agent 1 contract in `docs/EPISODIC_MEMORY.md`. Update progress with
   implementation status separate from developer understanding.
+  Evaluation post-implementation checkpoint remains outstanding. Full offline
+  verification: 475 tests passed; Ruff lint/format and whitespace checks passed.
 - [ ] Run the full offline test suite, Ruff lint/format, and diff checks. Review
   the final diff against the scope; commit and push the Agent 2 branch.
 
