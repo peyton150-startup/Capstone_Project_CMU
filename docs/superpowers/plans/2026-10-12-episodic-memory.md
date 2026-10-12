@@ -37,7 +37,7 @@ Add purpose/responsibility comments to all new capstone modules.
   writes through a protocol; `retrieve(MemoryQuery) -> tuple[EpisodicMemory, ...]`
   delegates bounded retrieval. SQL repository enforces atomic deduplication.
   Verified fresh-engine reopen and competing inserts. Storage's
-  post-implementation understanding checkpoint remains outstanding.
+  post-implementation duplicate-handling checkpoint passed on 2026-10-12.
 - [ ] Add migration 0001, wire metadata in `migrations/env.py`, and update old
   scaffold expectations to reflect the newly implemented schema. Test upgrade,
   downgrade, and PostgreSQL offline SQL without a network connection.

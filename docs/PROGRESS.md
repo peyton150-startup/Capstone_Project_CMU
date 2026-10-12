@@ -56,7 +56,10 @@ alarm), then evaluation, then the agent itself.
 
 - **2026-10-12 — Agent 2 storage increment.** Built after the persistence
   pre-implementation checkpoint passed; post-implementation understanding
-  remains unverified. `memory/schema.py` defines `episodic_memories`: unique
+  checkpoint subsequently passed: the developer explained that a qualifying
+  duplicate must be reported without adding another memory. The walkthrough
+  clarified that the original memory and its provenance remain unchanged.
+  `memory/schema.py` defines `episodic_memories`: unique
   investigation IDs and fingerprints, category/source-tick columns, and a
   validated-memory JSON payload (JSONB on PostgreSQL). `memory/repository.py`
   adds `InsertResult` and `SQLMemoryRepository`: `insert_statement()` builds
