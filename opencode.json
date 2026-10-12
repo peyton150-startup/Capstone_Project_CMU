@@ -1,0 +1,24 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+
+  "model": "subq/subq-preview",
+
+  "provider": {
+    "subq": {
+      "npm": "@ai-sdk/openai-compatible",
+
+      "name": "Subquadratic",
+
+      "options": {
+        "baseURL": "https://api.subq.ai/v1",
+        "apiKey": "{env:SUBQ_API_KEY}"
+      },
+
+      "models": {
+        "subq-preview": {
+          "name": "SubQ Preview"
+        }
+      }
+    }
+  }
+}
