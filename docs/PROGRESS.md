@@ -54,6 +54,33 @@ alarm), then evaluation, then the agent itself.
 
 ## Session notes
 
+- **2026-10-12 — memory and evaluation design discussion (no code change).**
+  WHERE WE STOPPED: the developer had to leave mid-discussion. Decided by the
+  developer: (a) the agent must learn from failed fixes as well as successes;
+  the developer reasoned correctly that the agent can observe a failure itself
+  (the machine is still down after the fix), so it needs no answer key;
+  (b) the agent may look up memory whenever it chooses, as an ordinary counted
+  tool call whose answer is saved as evidence marked as from memory; (c) an
+  evaluator model may judge the free-text diagnosis against the true fault,
+  now that the prompt must not list the possible causes. Explained but NOT
+  yet confirmed by the developer: who writes the stored lesson (proposal:
+  code fills in symptoms, action, result and provenance; the model writes
+  only the advice sentence; the gate checks it); demoting the JSON memory
+  (`agent/memory.py`) to an append-only audit log of every investigation that
+  the agent cannot search, instead of deleting it. Cautions recorded: a
+  failure lesson may say only "this action did not resolve these symptoms",
+  never "that diagnosis is wrong"; unchecked or inconclusive outcomes are
+  still refused; the evaluator judges wording only, uses a different model
+  from the investigator, is tested against hand-labelled diagnoses, and its
+  verdict never reaches the agent, reflection or memory. Consequence for the
+  memory gate (a later checkpoint): `EpisodicMemory.outcome` and
+  `MemoryPromotionPolicy` currently accept only verified `resolved`.
+  Model: `NVIDIA_API_KEY` is in the worktree's git-ignored `.env`; NVIDIA's
+  catalogue lists `nvidia/nemotron-3.5-lightning-30b-a3b`; structured output
+  from it is unverified. NEXT SESSION: confirm the two unconfirmed points,
+  ask checkpoint 1's closing question (why test that `capstone/agent/` does
+  not import `capstone/memory/`), then start checkpoint 2 (inner loop).
+
 - **2026-10-12 — developer decisions after consolidation (no code change).**
   (1) The checkpointed loop (`agent/loop.py`, `state.py`, `policy.py`,
   `artifacts.py`) and the `capstone/memory/` package are the real path.
