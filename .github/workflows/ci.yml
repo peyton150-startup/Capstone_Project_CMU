@@ -22,13 +22,15 @@ jobs:
           enable-cache: true
       - name: Install pinned Python
         run: uv python install
+      # The agent and database packages are optional extras; their tests are
+      # skipped or fail to import without them, so CI installs every extra.
       - name: Install locked dependencies
-        run: uv sync --locked
+        run: uv sync --locked --all-extras
       - name: Ruff lint
-        run: uv run --locked ruff check .
+        run: uv run --locked --all-extras ruff check .
       - name: Ruff formatting
-        run: uv run --locked ruff format --check .
+        run: uv run --locked --all-extras ruff format --check .
       - name: Offline tests and informational coverage
         run: >-
-          uv run --locked pytest --cov=capstone --cov-report=term-missing
+          uv run --locked --all-extras pytest --cov=capstone --cov-report=term-missing
           --cov-report=markdown-append:"$GITHUB_STEP_SUMMARY"
