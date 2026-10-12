@@ -84,6 +84,8 @@ alarm), then evaluation, then the agent itself.
   so the wait that reaches the finish tick is not itself evidence; how long
   to wait before looking is the policy's choice, not a rule; a failed fix is
   recorded but the agent does not go on to try something else.
+  Verification: 654 passed locally; Ruff passed; CI green on `8bd0e1e`
+  (all nine checks, including the new "Tests: Verification").
 
 - **2026-10-12 — a CI check for every part, and CI as part of every
   checkpoint (developer's request).** RULE FROM NOW ON: a checkpoint is not
