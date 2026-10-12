@@ -67,15 +67,21 @@ alarm), then evaluation, then the agent itself.
   No model is wired to anything yet; the model-backed policy for the
   checkpointed loop will use NVIDIA Nemotron
   (`nvidia/nemotron-3.5-lightning-30b-a3b`, key `NVIDIA_API_KEY`).
-  Checkpoint 3b's closing question is still outstanding.
 
 - **2026-10-12 — checkpoint 3b: the outer sequence up to a conclusion.**
   Pre-checkpoint passed after one re-teach: the developer first treated a
   cited `E9` as faulty evidence for the model to weigh; after the explanation
   that only the loop creates evidence IDs, correctly said the loop refuses
   the conclusion citing evidence that does not exist, while misleading but
-  real evidence is the model's to weigh. Post-implementation understanding
-  remains outstanding. New `agent/investigation.py`:
+  real evidence is the model's to weigh. Post-implementation checkpoint
+  PASSED after one clarification: the developer explained that the
+  confidence threshold decides whether the agent may act and that below it
+  the result is an escalation, but used "diagnosis" for the recommendation;
+  after the distinction was explained, stated it correctly (diagnosis is
+  what is believed to be wrong, recommendation is what to do about it).
+  Added: an under-confident but honest conclusion keeps its diagnosis so
+  the human gets something to act on; one citing evidence that does not
+  exist is discarded whole. New `agent/investigation.py`:
   `observe` (asks the factory the time and starts the timer, so the tick is
   known before the policy's first question); `plan` (stores the policy's
   first questions); `investigate` and `test` (run the inner loop and set the
