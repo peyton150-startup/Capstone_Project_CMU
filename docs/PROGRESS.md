@@ -54,6 +54,16 @@ alarm), then evaluation, then the agent itself.
 
 ## Session notes
 
+- **2026-10-12 — CI repaired (reported by the developer).** CI on `main`
+  had failed on every push since checkpoint 3b: it installed no optional
+  extras, so `pydantic_graph` (the `agent` extra) was missing and the two
+  test files that import the outer sequence failed to import. The local
+  runs passed only because the worktree has every extra installed. Fix:
+  `.github/workflows/ci.yml` now installs and runs with `--all-extras`. Side
+  effect: CI now also runs the database and migration tests it had been
+  silently skipping (3 files). Verified on GitHub: 628 passed, none skipped.
+  Lesson recorded: check the CI run after each push, not only the local suite.
+
 - **2026-10-12 — checkpoint 3c: asking for the fix and carrying it out.**
   Pre-checkpoint passed after two re-teaches. On a rejected proposal the
   developer correctly named the stages that run, but said the note is deleted
