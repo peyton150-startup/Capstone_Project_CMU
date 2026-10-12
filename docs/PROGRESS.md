@@ -79,6 +79,8 @@ alarm), then evaluation, then the agent itself.
   record". Simplification: every factory answer is `observable`; a human's
   note inside a tool answer does not make the item `human`. Evidence
   recalled from memory will need its own origin when recall is built.
+  Verification: 667 passed locally; Ruff passed; CI green on `1376de0`
+  (all ten checks).
 
 - **2026-10-12 — checkpoint 4: did the fix work?** Pre-checkpoint passed
   first time: asked what the loop does with a "resolved" judgement citing
