@@ -54,6 +54,17 @@ alarm), then evaluation, then the agent itself.
 
 ## Session notes
 
+- **2026-10-12 — SubQ whole-repository audit follow-up (documentation only).**
+  Appended the developer's requested audit task to the end of MVP_SCOPE:
+  architecture consistency and authorization/hidden-truth prompts, reproducible
+  snapshot and coverage, file/line evidence before fixes, and comparison with
+  Codex/Claude on the same snapshot. Checked official Subquadratic research,
+  introduction, and model documentation; attributed the vendor benchmark and
+  distinguished the long-context preview from Snap's structured decisions.
+  No runtime change, external upload, or model invocation. Understanding
+  checkpoint and live Neon application for the evaluation increment remain
+  outstanding; Agent 1 handoff reconciliation is a separate session dependency.
+
 - **2026-10-12 — memory evaluation records built.** Pre-checkpoint passed;
   post-implementation understanding remains outstanding. Added
   `evaluation/__init__.py` and `evaluation/memory.py`. `MemoryPromotionRecord`

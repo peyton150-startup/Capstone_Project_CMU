@@ -1466,3 +1466,66 @@ is added. Ruff commands and these boundaries are documented in `README.md`.
 pytest-cov, pre-commit, and CI were subsequently added on 2026-10-11 as
 developer tooling (Future Work 6). Type checking and larger research frameworks
 remain deferred; the original foundation work did not install them.
+
+### Developer follow-up: Subquadratic whole-repository audit
+
+After integrating the Agent 1 reasoning workstream and Agent 2 memory workstream,
+have Subquadratic (SubQ) audit the entire project before making broad refactors.
+This is a developer audit task, not a new runtime dependency or research-agent
+role. Its purpose is to find issues whose evidence is scattered across code,
+tests, schemas, persistence, agent state, and architecture documents.
+
+Give the reviewer a reproducible repository snapshot: branch, commit, working
+directory changes, project instructions, MVP scope, progress log, source, tests,
+schemas, migrations, and relevant sanitized logs. Exclude credentials, local
+environment files, dependency directories, Git internals, and generated caches.
+Record any files omitted or unread; do not claim whole-repository coverage when
+parts were not inspected. Distinguish implemented paths from planned or absent
+API, orchestration, evaluation, and persistence components.
+
+**Architecture consistency prompt:**
+
+> Read the entire repository, including the API layer where implemented, agent
+> orchestration, tests, schemas, migrations, persistence code, and architecture
+> documents. Trace a task from user input through the agent loop, tool boundary,
+> human approval, post-intervention verification, reflection, memory promotion,
+> and database storage/retrieval. Identify inconsistencies, dead code, duplicated
+> logic, incompatible contracts, and differences between implementation and
+> architecture. State explicitly where a path does not exist yet. Give file and
+> line evidence, impact, and suggested validation before changing anything.
+
+**Authorization and hidden-truth prompt:**
+
+> Read the repository and all tests. Find every place authorization is enforced.
+> Trace all action entry points and determine whether an agent can mutate the
+> environment or persistent state without the intended authorization boundary.
+> Check human approval, proposal versus execution, verification, tool/provider
+> allowlists, evaluator-only ground truth, and promotion/retrieval provenance.
+> Distinguish intended permissions from bypasses. Give evidence by file and line,
+> reachable call paths, and tests that prove or fail to cover each finding before
+> changing anything. Do not expose credentials or private evaluator answers in
+> agent-visible artifacts.
+
+Require an audit report with inspected snapshot and coverage, severity-ranked
+findings, concrete cross-file evidence, reproduction or regression-test proposals,
+and unresolved questions. Review findings before authorizing fixes. Evaluate
+whether SubQ finds additional supported issues compared with a Codex/Claude review
+of the same snapshot, rather than assuming a larger context guarantees accuracy.
+
+The intended division is Codex/Claude for routine implementation, debugging,
+tests, and focused refactors; trial SubQ for whole-repository analysis, cross-system
+debugging, architectural consistency, and proposals for larger refactors using
+code, specs, and sanitized logs together. Subquadratic describes long-context
+software engineering and reasoning across distributed evidence in its
+[SSA article](https://subq.ai/how-ssa-makes-long-context-practical).
+Its [introduction](https://subq.ai/introducing-subq) reports an 81.8% SWE-Bench
+Verified result; that is a published benchmark claim, not a guarantee about this
+repository or an audit performed here.
+
+At audit time, check model availability and account access. The official
+[model documentation](https://docs.subq.ai/using-the-api/models/) currently lists
+`subq-preview` for long-context chat with files and function calling, in early
+access. It separately lists `subq-snap-preview` for fast structured decisions;
+Snap is not the model selected for this repository audit. Recheck capabilities
+before running the audit. No SubQ dependency, credentials, integration, external
+repository upload, or model invocation is added by this roadmap entry.
