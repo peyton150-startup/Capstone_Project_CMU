@@ -202,6 +202,13 @@ def record(
     )
 
 
+def call_signature(request: ToolRequest, tick: int | None) -> str:
+    """One question at one moment, as text, so a repeat can be recognised."""
+    return "|".join(
+        (request.name, json.dumps(request.arguments, sort_keys=True), str(tick))
+    )
+
+
 def gather(
     state: InvestigationState,
     deps: InvestigationDeps,
@@ -214,13 +221,7 @@ def gather(
 
     Returns the new evidence, or None if the factory gave nothing usable.
     """
-    signature = "|".join(
-        (
-            step.request.name,
-            json.dumps(step.request.arguments, sort_keys=True),
-            str(state.last_tick),
-        )
-    )
+    signature = call_signature(step.request, state.last_tick)
     if signature in state.seen_calls:
         # Looking is free in the simulator, so the same question at the same
         # tick can only return what is already known. Do not spend a call.

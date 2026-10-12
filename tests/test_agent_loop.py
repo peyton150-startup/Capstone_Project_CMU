@@ -1,99 +1,31 @@
-from datetime import datetime, timedelta
+from datetime import timedelta
 from uuid import UUID
 
 import pytest
 from pydantic import ValidationError
 
-from capstone.agent.artifacts import DetectedAnomaly, TerminationReason
+from capstone.agent.artifacts import TerminationReason
 from capstone.agent.loop import InvestigationDeps, run_inner_loop
-from capstone.agent.policy import CallTool, Interpretation, Stop
-from capstone.agent.state import Budgets, InvestigationState, Question
+from capstone.agent.policy import Interpretation, Stop
+from capstone.agent.state import Question
 from capstone.contracts.hypotheses import Hypothesis
-from capstone.contracts.tools import ToolError, ToolRequest, ToolResult
+from capstone.contracts.tools import ToolResult
 from capstone.providers.factory import SimulatorFactoryProvider
 from capstone.simulator.line import build_line
 from capstone.simulator.scenarios import BearingDegradation
 from capstone.tools.actions import ActionTools, ApprovalDesk
 from capstone.tools.observation import ObservationTools
+from tests.helpers import (
+    INVESTIGATION,
+    RUN,
+    START,
+    FakeProvider,
+    ScriptedPolicy,
+    ask,
+    new_state,
+)
 
-START = datetime(2026, 1, 5, 6, 0)
-RUN, INVESTIGATION = UUID(int=1), UUID(int=2)
 HIDDEN_WORDS = ("bearing_health", "defect_risk", "standard_speed", "ground_truth")
-
-
-class FakeProvider:
-    """Answers from a function, so a test decides exactly what the factory says."""
-
-    def __init__(self, respond=None, tick: int = 10):
-        self.tick = tick
-        self.calls: list[ToolRequest] = []
-        self._respond = respond or (lambda request: {"ok": True})
-
-    def call(self, request, *, run_id=None, investigation_id=None):
-        self.calls.append(request)
-        if request.name == "wait":
-            self.tick += request.arguments["ticks"]
-        answer = self._respond(request)
-        if isinstance(answer, Exception):
-            raise answer
-        if isinstance(answer, ToolResult) or answer == "not a result":
-            return answer
-        failed = answer == "error"
-        return ToolResult(
-            success=not failed,
-            tool=request.name,
-            source="fake",
-            tick=self.tick,
-            timestamp=START + timedelta(minutes=self.tick),
-            run_id=run_id,
-            investigation_id=investigation_id,
-            data=None if failed else answer,
-            error=ToolError(code="provider_error", message="Tool execution failed.")
-            if failed
-            else None,
-        )
-
-
-class ScriptedPolicy:
-    """Plays back prepared decisions. An entry may be a function of the state."""
-
-    def __init__(self, decisions, interpret=None):
-        self.decisions = list(decisions)
-        self._interpret = interpret
-        self.seen_states: list[InvestigationState] = []
-
-    def decide(self, state, phase):
-        self.seen_states.append(state)
-        if not self.decisions:
-            return Stop(reason=TerminationReason.NO_USEFUL_ACTION)
-        item = self.decisions.pop(0)
-        return item(state) if callable(item) else item
-
-    def interpret(self, state, step, evidence):
-        if self._interpret is None:
-            return Interpretation()
-        return self._interpret(state, step, evidence)
-
-
-def ask(tool="get_events", question_id=None, hypothesis_id=None, **arguments):
-    return CallTool(
-        information_needed=f"what {tool} shows",
-        request=ToolRequest(name=tool, arguments=arguments),
-        question_id=question_id,
-        hypothesis_id=hypothesis_id,
-    )
-
-
-def new_state(**budgets) -> InvestigationState:
-    return InvestigationState(
-        run_id=RUN,
-        investigation_id=INVESTIGATION,
-        anomaly=DetectedAnomaly(
-            tick=10, machine_id="CNC-02", kind="alarm", description="High vibration"
-        ),
-        budgets=Budgets(**budgets),
-        last_tick=10,
-    )
 
 
 def run(decisions, *, respond=None, interpret=None, phase="investigate", state=None):
@@ -323,19 +255,6 @@ def test_argument_order_does_not_hide_a_repeat():
     )
     assert len(provider.calls) == 1
     assert state.repeated_calls == 1
-
-
-@pytest.mark.xfail(
-    strict=True,
-    reason="needs a known tick before the first call; the outer sequence's "
-    "observe step supplies it at checkpoint 3",
-)
-def test_a_repeat_is_caught_even_before_any_tick_is_known():
-    state = new_state()
-    state.last_tick = None
-    same = ask("get_events", from_tick=0, to_tick=10)
-    _, provider, _, _ = run([same, same], state=state)
-    assert len(provider.calls) == 1
 
 
 # --- decisions the loop will not accept ------------------------------------

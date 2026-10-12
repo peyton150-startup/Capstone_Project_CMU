@@ -54,6 +54,43 @@ alarm), then evaluation, then the agent itself.
 
 ## Session notes
 
+- **2026-10-12 — checkpoint 3b: the outer sequence up to a conclusion.**
+  Pre-checkpoint passed after one re-teach: the developer first treated a
+  cited `E9` as faulty evidence for the model to weigh; after the explanation
+  that only the loop creates evidence IDs, correctly said the loop refuses
+  the conclusion citing evidence that does not exist, while misleading but
+  real evidence is the model's to weigh. Post-implementation understanding
+  remains outstanding. New `agent/investigation.py`:
+  `observe` (asks the factory the time and starts the timer, so the tick is
+  known before the policy's first question); `plan` (stores the policy's
+  first questions); `investigate` and `test` (run the inner loop and set the
+  investigation's stop reason to that loop's); `hypothesize` (takes the
+  policy's explanations through the existing evidence check);
+  `check_conclusion` (refuses a conclusion citing evidence never gathered or
+  a hypothesis never formed; lowers "intervene" to "escalate" when it is not
+  confident enough, cites nothing, or names no action); `conclude` (always
+  leaves a conclusion; an unusable one becomes `UNDETERMINED`: confidence
+  zero, escalate); `build_graph` / `INVESTIGATION_GRAPH` (the stages as
+  Pydantic Graph steps with the only allowed order as edges);
+  `run_investigation` (runs one investigation and returns its working
+  memory). Shortcuts: nothing gathered or a timeout goes straight to the
+  conclusion; no explanation means nothing to test. A justified action is
+  stored as a `ProposalRecord` with status `not_submitted` plus the predicted
+  effect; nothing is submitted or changed in the factory yet (that is 3c).
+  `agent/state.py`: stage names `plan` and `hypothesize`, outcome `decided`.
+  `agent/loop.py`: `call_signature` extracted so `observe` can register its
+  time call under the tick it reported. This closes both gaps left at
+  checkpoint 2: the repeat check now has a known tick from the first policy
+  question (the expected-failure test is replaced by a passing test at this
+  level), and the final stop reason is set (the last research loop's).
+  Tests: new `tests/test_agent_investigation.py` (31), including one whole
+  investigation through the real provider that leaves the simulator's state,
+  clock and event log identical and the approval desk empty; the scripted
+  policy and fake provider moved to `tests/helpers.py`. Simplifications:
+  the stop reason is simply the last research loop's; asking the time is a
+  counted call; `run_investigation` is synchronous. Verification: 612
+  passed, no expected failures; Ruff lint/format passed.
+
 - **2026-10-12 — checkpoint 3a: carrying out a fix is its own tool call.**
   Pre-checkpoint passed after one re-teach: the developer was first unsure
   what an approved-but-not-executed proposal means, then explained that

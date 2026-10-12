@@ -26,7 +26,9 @@ from capstone.contracts import Contract
 from capstone.contracts.evidence import Evidence
 from capstone.contracts.hypotheses import Hypothesis
 
-Phase = Literal["observe", "investigate", "test", "decide", "verify"]
+Phase = Literal[
+    "observe", "plan", "investigate", "hypothesize", "test", "decide", "verify"
+]
 
 StepOutcome = Literal[
     "observed",  # the tool answered and the answer became evidence
@@ -35,6 +37,7 @@ StepOutcome = Literal[
     "uninterpreted",  # a good answer the policy failed to make sense of
     "repeated_call",  # skipped: the same question at the same tick
     "invalid_decision",  # the policy did not return a usable decision
+    "decided",  # the policy answered a stage without a tool call
     "stopped",  # no tool was called; the loop ended here
 ]
 
