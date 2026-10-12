@@ -6,6 +6,7 @@ from capstone.simulator.simulator import Simulator
 from capstone.simulator.state import MachineStatus
 from capstone.tools.actions import ActionTools, ApprovalDesk
 from capstone.tools.observation import ObservationTools
+from tests.helpers import approve_and_run
 
 REASON = "CNC-02's jobs got quicker in one step at tick 200 and rejects rose"
 
@@ -38,7 +39,9 @@ def test_an_approved_reset_stops_the_machine_for_ten_ticks_then_restores_the_sta
     sim, look, act, desk = factory()
     machine = sim.state.machines["CNC-02"]
     assert machine.speed_ratio == pytest.approx(1.15)
-    desk.approve(act.propose_action("CNC-02", "reset_setting", REASON)["id"])
+    approve_and_run(
+        desk, act, act.propose_action("CNC-02", "reset_setting", REASON)["id"]
+    )
     assert machine.status is MachineStatus.DOWN and machine.maintenance_until == 610
     act.wait(9)
     assert (
@@ -57,8 +60,10 @@ def test_an_approved_reset_stops_the_machine_for_ten_ticks_then_restores_the_sta
 
 def test_a_needless_reset_says_the_setting_was_already_standard():
     _, look, act, desk = factory(fault=False)
-    desk.approve(
-        act.propose_action("CNC-02", "reset_setting", "checking a hunch")["id"]
+    approve_and_run(
+        desk,
+        act,
+        act.propose_action("CNC-02", "reset_setting", "checking a hunch")["id"],
     )
     act.wait(10)
     assert (
@@ -69,7 +74,9 @@ def test_a_needless_reset_says_the_setting_was_already_standard():
 
 def test_the_reset_stays_reset_because_the_fault_wrote_only_once():
     sim, look, act, desk = factory()
-    desk.approve(act.propose_action("CNC-02", "reset_setting", REASON)["id"])
+    approve_and_run(
+        desk, act, act.propose_action("CNC-02", "reset_setting", REASON)["id"]
+    )
     act.wait(400)
     assert sim.state.machines["CNC-02"].speed_setting is None
     assert {
@@ -80,19 +87,25 @@ def test_the_reset_stays_reset_because_the_fault_wrote_only_once():
 def test_a_reset_does_not_touch_the_bearing_and_a_bearing_replacement_does_not_touch_the_setting():
     sim, _, act, desk = factory()
     sim.state.machines["CNC-02"].condition.bearing_health = 0.6
-    desk.approve(act.propose_action("CNC-02", "reset_setting", REASON)["id"])
+    approve_and_run(
+        desk, act, act.propose_action("CNC-02", "reset_setting", REASON)["id"]
+    )
     act.wait(10)
     assert sim.state.machines["CNC-02"].condition.bearing_health == 0.6
 
     sim, _, act, desk = factory()
-    desk.approve(act.propose_action("CNC-02", "replace_bearing", REASON)["id"])
+    approve_and_run(
+        desk, act, act.propose_action("CNC-02", "replace_bearing", REASON)["id"]
+    )
     act.wait(45)
     assert sim.state.machines["CNC-02"].speed_ratio == pytest.approx(1.15)
 
 
 def test_rejects_return_to_normal_after_the_reset():
     sim, _, act, desk = factory(ticks=2600)
-    desk.approve(act.propose_action("CNC-02", "reset_setting", REASON)["id"])
+    approve_and_run(
+        desk, act, act.propose_action("CNC-02", "reset_setting", REASON)["id"]
+    )
     act.wait(10)
     for _ in range(5):
         act.wait(480)
@@ -118,7 +131,9 @@ def test_a_broken_down_machine_cannot_be_reset_and_a_busy_one_cannot_start_twice
         sim.start_setting_reset("CNC-02")
 
     sim, _, act, desk = factory()
-    desk.approve(act.propose_action("CNC-02", "reset_setting", REASON)["id"])
+    approve_and_run(
+        desk, act, act.propose_action("CNC-02", "reset_setting", REASON)["id"]
+    )
     with pytest.raises(ValueError, match="already under maintenance"):
         sim.start_setting_reset("CNC-02")
 

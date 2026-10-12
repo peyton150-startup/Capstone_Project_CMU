@@ -54,6 +54,40 @@ alarm), then evaluation, then the agent itself.
 
 ## Session notes
 
+- **2026-10-12 — checkpoint 3a: carrying out a fix is its own tool call.**
+  Pre-checkpoint passed after one re-teach: the developer was first unsure
+  what an approved-but-not-executed proposal means, then explained that
+  approved means the action is able to be executed while budget remains, and
+  executed means the tool runs and an action is taken. Clarified: the machine
+  is untouched until execution, and such a record must say "approved, not
+  carried out" and never count as a fix. The developer also asked that the
+  loop be able to run longer than a simple look-up loop; the limits are
+  settings and will be raised once a real model shows what an investigation
+  needs (the 60-second default will certainly have to go up). They stay as
+  they are for now. Post-implementation understanding remains outstanding.
+  Changes: `tools/actions.py` — `Proposal` gains `executed_tick` and
+  `finish_tick`; `ApprovalDesk.approve` now only records the decision;
+  new `ApprovalDesk.carry_out(proposal_id)` starts the work of an approved
+  proposal once and returns what started and when it finishes; new
+  agent-facing `ActionTools.execute_action(proposal_id)`.
+  `contracts/observations.py` — `ProposalObservation` gains the two ticks;
+  new `ExecutionObservation`. `providers/factory.py` — `execute_action` is
+  offered, with `ExecuteArguments`; approve and reject are still not.
+  `evaluation/scoring.py` — an action counts as taken only if it was carried
+  out, not merely approved. `agent/episode.py` — the older runner starts
+  approved work itself, because the older agent has no execute step, until
+  it is retired. Tests: `test_approval.py` rewritten for the split and
+  extended (approval changes nothing in the factory; execution starts the
+  repair and reports the finish tick; pending, rejected, unknown, malformed
+  and already-used proposals are refused; an edited copy of a proposal does
+  not unlock execution; work that cannot start leaves the proposal approved
+  and not carried out); `test_factory_provider.py` adds the same through the
+  provider and proves no approve/reject tool exists; `tests/helpers.py`
+  (`approve_and_run`) keeps the reset and scoring tests describing the same
+  behaviour. Known limit, not solved: an approval does not expire, so work
+  may start long after it was approved. Verification: 581 passed, 1 expected
+  failure; Ruff lint/format passed.
+
 - **2026-10-12 — checkpoint 2: the inner loop, tested and three gaps fixed.**
   Pre-checkpoint passed: the developer said a failed call is reported and
   counts against the budget, and that repeated failure needs a limit and a

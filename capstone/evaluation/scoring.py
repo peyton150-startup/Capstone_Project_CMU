@@ -35,7 +35,7 @@ class Score(BaseModel):
     fault_correct: bool
     target_correct: bool
     expected_action: str | None
-    actions_taken: list[str]  # approved actions, as "action machine"
+    actions_taken: list[str]  # actions carried out, as "action machine"
     action_correct: bool
     resolved: bool
     tool_calls: int
@@ -55,8 +55,9 @@ def evaluate(
     if diagnosis is None:
         diagnosis = _NO_ANSWER
     expected = CORRECT_ACTION[truth.fault]
-    approved = [p for p in proposals if p["status"] == "approved"]
-    taken = [f"{p['action']} {p['machine_id']}" for p in approved]
+    # Approval alone changes nothing; only work that was started counts.
+    done = [p for p in proposals if p.get("executed_tick") is not None]
+    taken = [f"{p['action']} {p['machine_id']}" for p in done]
     wanted = [] if expected is None else [f"{expected} {truth.machine_id}"]
 
     if truth.fault == "bad_material_batch":

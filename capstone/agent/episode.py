@@ -69,6 +69,10 @@ def run_episode(
         for proposal in desk.pending():
             approved, note = approver(proposal)
             (desk.approve if approved else desk.reject)(proposal["id"], note)
+            if approved:
+                # This older agent has no execute step of its own, so the
+                # runner starts approved work for it until it is retired.
+                act.execute_action(proposal["id"])
 
     toolbox = Toolbox(look, act, extra=memory.tools() if memory else None)
     agent = ResearchAgent(

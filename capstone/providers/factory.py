@@ -11,6 +11,7 @@ from capstone.contracts import Contract
 from capstone.contracts.observations import (
     ClockObservation,
     EventObservation,
+    ExecutionObservation,
     InspectionObservation,
     MachineObservation,
     ProposalObservation,
@@ -83,6 +84,10 @@ class ProposalArguments(NoArguments):
     machine_id: str
     action: str
     reason: str
+
+
+class ExecuteArguments(NoArguments):
+    proposal_id: int = Field(ge=1)
 
 
 class SimulatorFactoryProvider:
@@ -160,6 +165,12 @@ class SimulatorFactoryProvider:
                 ProposalObservation,
                 actions.get_proposals,
                 True,
+            ),
+            "execute_action": (
+                ExecuteArguments,
+                ExecutionObservation,
+                actions.execute_action,
+                False,
             ),
         }
 

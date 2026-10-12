@@ -1,4 +1,4 @@
-# The action tools: waiting, proposing a repair, and the approval desk.
+# The action tools: waiting, proposing a repair, carrying it out, and the approval desk.
 # Responsibility: move time forward and require human approval before any repair.
 from pydantic import BaseModel
 
@@ -18,13 +18,17 @@ class Proposal(BaseModel):
     status: str = "pending"  # pending, approved or rejected
     decided_tick: int | None = None
     note: str = ""
+    # Approval is permission only. These stay empty until the work is started.
+    executed_tick: int | None = None
+    finish_tick: int | None = None
 
 
 class ApprovalDesk:
     """The human's side. Never handed to the agent.
 
     Nothing the agent proposes touches the factory until someone approves
-    it here.
+    it here. Approving is permission, not the work: the factory changes
+    only when an approved proposal is carried out.
     """
 
     def __init__(self, simulator: Simulator):
@@ -49,13 +53,37 @@ class ApprovalDesk:
         return [p.model_dump() for p in self._proposals if p.status == "pending"]
 
     def approve(self, proposal_id: int, note: str = "") -> dict:
-        """Carry out the proposed action. If it cannot start, the proposal stays pending."""
-        proposal = self._pending(proposal_id)
+        """Give permission for the proposed action. The factory does not change yet."""
+        return self._decide(self._pending(proposal_id), "approved", note)
+
+    def carry_out(self, proposal_id: int) -> dict:
+        """Start the work of an approved proposal, once.
+
+        Refuses anything not approved, so reaching this is not a way round
+        the human. If the work cannot start, the proposal stays approved
+        and not carried out.
+        """
+        proposal = next((p for p in self._proposals if p.id == proposal_id), None)
+        if proposal is None:
+            raise ValueError(f"no proposal {proposal_id}")
+        if proposal.status != "approved":
+            raise ValueError(
+                f"proposal {proposal_id} is {proposal.status}, not approved"
+            )
+        if proposal.executed_tick is not None:
+            raise ValueError(f"proposal {proposal_id} was already carried out")
         if proposal.action == "replace_bearing":
-            self._sim.start_bearing_replacement(proposal.machine_id)
-        elif proposal.action == "reset_setting":
-            self._sim.start_setting_reset(proposal.machine_id)
-        return self._decide(proposal, "approved", note)
+            finish = self._sim.start_bearing_replacement(proposal.machine_id)
+        else:
+            finish = self._sim.start_setting_reset(proposal.machine_id)
+        proposal.executed_tick, proposal.finish_tick = self._sim.clock.tick, finish
+        return {
+            "proposal_id": proposal.id,
+            "machine_id": proposal.machine_id,
+            "action": proposal.action,
+            "started_tick": proposal.executed_tick,
+            "finish_tick": finish,
+        }
 
     def reject(self, proposal_id: int, note: str = "") -> dict:
         return self._decide(self._pending(proposal_id), "rejected", note)
@@ -84,8 +112,9 @@ class ActionTools:
 
     Looking is free: only `wait` moves the clock. So what an agent finds
     at a given tick never depends on how many times it looked first.
-    The agent can ask for a change to the factory but cannot make one:
-    approving is done at the ApprovalDesk, which it is never given.
+    The agent can ask for a change to the factory and can start one a
+    human has approved. It cannot approve: that is done at the
+    ApprovalDesk, which it is never given.
     """
 
     def __init__(
@@ -125,5 +154,11 @@ class ActionTools:
         return self._desk.submit(machine_id, action, reason.strip()).model_dump()
 
     def get_proposals(self) -> list[dict]:
-        """Every proposal made so far and whether it was approved or rejected."""
+        """Every proposal so far, the human's decision, and whether it was carried out."""
         return self._desk.proposals()
+
+    def execute_action(self, proposal_id: int) -> dict:
+        """Start the work of a proposal a human has approved. Says when it will finish."""
+        if not isinstance(proposal_id, int) or isinstance(proposal_id, bool):
+            raise ValueError("proposal_id must be a whole number")
+        return self._desk.carry_out(proposal_id)

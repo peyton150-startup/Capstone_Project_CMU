@@ -91,6 +91,55 @@ def test_proposal_remains_pending_until_human_approval():
     assert len(desk.pending()) == 1
 
 
+def test_execute_action_is_refused_until_a_human_approves_then_reports_the_work():
+    sim, desk, factory = provider()
+    machine = sim.state.machines["CNC-01"]
+    proposed = factory.call(
+        ToolRequest(
+            name="propose_action",
+            arguments={
+                "machine_id": "CNC-01",
+                "action": "replace_bearing",
+                "reason": "Inspect bearing",
+            },
+        )
+    )
+    execute = ToolRequest(
+        name="execute_action", arguments={"proposal_id": proposed.data["id"]}
+    )
+
+    refused = factory.call(execute)
+    assert not refused.success
+    assert refused.error.code == "invalid_arguments"
+    assert machine.maintenance_until is None
+
+    desk.approve(proposed.data["id"], note="go ahead")
+    started = factory.call(execute)
+    assert started.success
+    assert started.data == {
+        "proposal_id": 1,
+        "machine_id": "CNC-01",
+        "action": "replace_bearing",
+        "started_tick": 0,
+        "finish_tick": machine.maintenance_until,
+    }
+    [seen] = factory.call(ToolRequest(name="get_proposals")).data
+    assert (seen["status"], seen["note"], seen["executed_tick"]) == (
+        "approved",
+        "go ahead",
+        0,
+    )
+    assert not factory.call(execute).success  # an approval is used once
+
+
+def test_the_provider_offers_no_way_to_approve_or_reject():
+    _, _, factory = provider()
+    for name in ("approve", "reject", "approve_proposal", "carry_out"):
+        result = factory.call(ToolRequest(name=name, arguments={"proposal_id": 1}))
+        assert not result.success
+        assert result.error.code == "unknown_tool"
+
+
 def test_same_seed_and_tool_sequence_produce_same_observations():
     _, _, first = provider()
     _, _, second = provider()

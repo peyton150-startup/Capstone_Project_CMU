@@ -5,6 +5,7 @@ from capstone.evaluation.scoring import evaluate, format_summary, summarize
 from capstone.simulator.generator import FAULTS, build_scenario
 from capstone.tools.actions import ActionTools, ApprovalDesk
 from capstone.tools.diagnosis import FAULT_KINDS, Diagnosis
+from tests.helpers import approve_and_run
 
 
 def episode(fault: str, seed: int = 4, ticks: int = 700):
@@ -29,10 +30,12 @@ def test_the_agent_and_the_generator_agree_on_the_four_kinds_of_fault():
 def test_a_perfect_bearing_investigation_scores_full_marks():
     sim, desk, act = episode("bearing_degradation")
     t = truth(sim)
-    desk.approve(
+    approve_and_run(
+        desk,
+        act,
         act.propose_action(t.machine_id, "replace_bearing", "vibration creeping up")[
             "id"
-        ]
+        ],
     )
     act.wait(60)
     score = evaluate(
@@ -56,7 +59,9 @@ def test_the_wrong_machine_and_the_wrong_repair_are_each_caught():
     sim, desk, act = episode("wrong_setting")
     t = truth(sim)
     other = next(m for m in sim.state.machines if m != t.machine_id)
-    desk.approve(act.propose_action(other, "replace_bearing", "guess")["id"])
+    approve_and_run(
+        desk, act, act.propose_action(other, "replace_bearing", "guess")["id"]
+    )
     act.wait(50)
     score = evaluate(
         sim,
@@ -76,10 +81,12 @@ def test_the_wrong_machine_and_the_wrong_repair_are_each_caught():
 def test_a_reset_resolves_a_wrong_setting():
     sim, desk, act = episode("wrong_setting")
     t = truth(sim)
-    desk.approve(
+    approve_and_run(
+        desk,
+        act,
         act.propose_action(t.machine_id, "reset_setting", "jobs faster in one step")[
             "id"
-        ]
+        ],
     )
     act.wait(20)
     score = evaluate(
@@ -106,8 +113,10 @@ def test_doing_nothing_is_the_right_action_for_a_false_alarm_or_a_bad_batch(faul
     )
 
     any_machine = next(iter(sim.state.machines))
-    desk.approve(
-        act.propose_action(any_machine, "replace_bearing", "just in case")["id"]
+    approve_and_run(
+        desk,
+        act,
+        act.propose_action(any_machine, "replace_bearing", "just in case")["id"],
     )
     act.wait(50)
     score = evaluate(sim, right, desk.proposals(), tool_calls=5, start_tick=2400)

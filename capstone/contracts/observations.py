@@ -78,3 +78,15 @@ class ProposalObservation(Contract):
     status: Literal["pending", "approved", "rejected"]
     decided_tick: int | None
     note: str
+    executed_tick: int | None
+    finish_tick: int | None
+
+
+class ExecutionObservation(Contract):
+    """What was started when an approved proposal was carried out."""
+
+    proposal_id: int = Field(ge=1)
+    machine_id: str
+    action: str
+    started_tick: int = Field(ge=0)
+    finish_tick: int = Field(ge=0)
