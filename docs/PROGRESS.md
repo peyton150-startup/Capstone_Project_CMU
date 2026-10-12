@@ -54,6 +54,12 @@ alarm), then evaluation, then the agent itself.
 
 ## Session notes
 
+- **2026-10-12 — module responsibility comments.** Added a short two-line
+  comment at the top of every Python module in `capstone`, including package
+  initializers, describing its purpose and responsibility. Existing docstrings
+  remain intact. No functions, classes, behavior, or component-understanding
+  status changed.
+
 - **2026-10-11 — implementation-condition prompt review (documentation only).**
   Evaluated the supplied 43-part Datum/Ratchet prompt against current contracts,
   provider/tool boundaries, approval behavior, tests, dependencies and roadmap.

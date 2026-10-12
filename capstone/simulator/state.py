@@ -1,3 +1,5 @@
+# The data models for the factory's true state.
+# Responsibility: hold the true factory state, including hidden conditions.
 from enum import StrEnum
 
 from pydantic import BaseModel, ConfigDict, Field

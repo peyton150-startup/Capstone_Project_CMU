@@ -1,3 +1,5 @@
+# The action tools: waiting, proposing a repair, and the approval desk.
+# Responsibility: move time forward and require human approval before any repair.
 from pydantic import BaseModel
 
 from capstone.simulator.simulator import Simulator

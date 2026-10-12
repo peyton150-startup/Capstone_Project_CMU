@@ -1,3 +1,5 @@
+# The Investigation model and the helpers that make its IDs.
+# Responsibility: group evidence and hypotheses. It does not run or store an agent.
 from uuid import NAMESPACE_URL, UUID, uuid5
 
 from pydantic import Field

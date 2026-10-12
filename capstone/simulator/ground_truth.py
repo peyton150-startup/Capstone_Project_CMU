@@ -1,3 +1,5 @@
+# The hidden answer key that describes a scenario's real fault.
+# Responsibility: keep the truth for scoring, outside any agent-facing output.
 from pydantic import BaseModel, ConfigDict
 
 

@@ -1,3 +1,5 @@
+# The temperature model for machines.
+# Responsibility: move each machine's temperature toward a target set by its load.
 """How warm a machine is, and how fast that changes.
 
 Part of the factory's own physics: applied to every machine on every

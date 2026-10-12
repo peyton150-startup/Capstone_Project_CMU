@@ -1,3 +1,5 @@
+# The seeded random source that gives each part its own stream.
+# Responsibility: make randomness repeatable without using global state.
 import hashlib
 import random
 

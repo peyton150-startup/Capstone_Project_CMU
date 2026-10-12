@@ -1,3 +1,5 @@
+# The read-only tools that show the agent what the factory reports.
+# Responsibility: return evidence without advancing time or revealing hidden truth.
 from math import isfinite
 from statistics import fmean
 

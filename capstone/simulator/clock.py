@@ -1,3 +1,5 @@
+# The simulation clock: a tick counter that maps to timestamps.
+# Responsibility: own simulated time and let it move only forward.
 from datetime import datetime, timedelta
 
 

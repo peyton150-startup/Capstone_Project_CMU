@@ -1,3 +1,5 @@
+# The top-level Simulator that runs the factory one tick at a time.
+# Responsibility: own the clock, state, scenarios, and sensors; keep truth hidden.
 """Top-level simulator facade.
 
 Planned composition (see CLAUDE.md §6); parts marked * exist today:

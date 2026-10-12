@@ -1,3 +1,5 @@
+# The Evidence model: one piece of information with its source.
+# Responsibility: record what was observed, where it came from, and when.
 from datetime import datetime
 from typing import Literal
 

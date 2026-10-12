@@ -1,3 +1,5 @@
+# The models for tool requests, tool results, and tool errors.
+# Responsibility: give every tool call one checked format, with its source and time.
 from datetime import datetime
 from typing import Generic, Literal, TypeVar
 from uuid import UUID

@@ -1,3 +1,5 @@
+# The sensor models that turn true state into noisy readings.
+# Responsibility: produce repeatable evidence without changing the state they read.
 from abc import ABC, abstractmethod
 
 from pydantic import BaseModel, ConfigDict

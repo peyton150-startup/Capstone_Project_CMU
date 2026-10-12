@@ -1,3 +1,5 @@
+# The standard production line, built from a seed in one call.
+# Responsibility: wire machines, sensors, and alarms together before any fault is added.
 """The standard factory: one call that sets up a complete, realistic line.
 
 Everything a normal day needs is wired in here, in the right order, so a

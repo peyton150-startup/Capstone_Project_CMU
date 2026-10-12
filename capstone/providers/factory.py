@@ -1,3 +1,5 @@
+# An adapter that exposes the allowed factory tools through one call.
+# Responsibility: check each request and result, and never expose approval or truth.
 """A concrete adapter over the existing allowlisted observation/action tools."""
 
 from typing import TYPE_CHECKING, Protocol

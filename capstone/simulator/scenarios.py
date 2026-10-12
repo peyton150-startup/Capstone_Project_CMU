@@ -1,3 +1,5 @@
+# The scenarios that change the factory: production, ambient, and faults.
+# Responsibility: change the true state over time, never the sensor readings.
 import math
 from abc import ABC, abstractmethod
 

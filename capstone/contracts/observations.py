@@ -1,3 +1,5 @@
+# The models for what the observation and action tools return.
+# Responsibility: allow only observable fields in tool output, never hidden truth.
 """Models for the existing tools' observable fields only."""
 
 from datetime import datetime

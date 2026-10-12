@@ -1,3 +1,5 @@
+# The typed application settings, read from the environment and .env.
+# Responsibility: load and check configuration when asked, and hide secret values.
 """Typed configuration, loaded on demand without changing process state."""
 
 from pathlib import Path

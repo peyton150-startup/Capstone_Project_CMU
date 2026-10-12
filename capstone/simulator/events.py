@@ -1,3 +1,5 @@
+# The factory event record, the event log, and threshold alarms.
+# Responsibility: store what the factory noticed and raise alarms from sensor readings.
 from pydantic import BaseModel, ConfigDict
 
 from capstone.simulator.sensors import SensorReading

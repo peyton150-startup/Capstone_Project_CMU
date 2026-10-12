@@ -1,3 +1,5 @@
+# Optional JSON event logging for safe operational details.
+# Responsibility: log checked identifiers and ticks, never evidence or secrets.
 """Opt-in JSON event logging for safe operational metadata.
 
 Callers supply correlation IDs and simulation ticks. Observations, conclusions,

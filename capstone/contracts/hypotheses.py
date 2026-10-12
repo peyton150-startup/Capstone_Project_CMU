@@ -1,3 +1,5 @@
+# The Hypothesis model: one explanation the agent is considering.
+# Responsibility: hold the agent's belief, kept apart from the simulator's truth.
 from pydantic import Field
 
 from capstone.contracts import Contract

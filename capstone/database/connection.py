@@ -1,3 +1,5 @@
+# A check that the configured database answers a simple query.
+# Responsibility: test connectivity with SELECT 1 and close what it opens.
 """Read-only database connectivity probe. No schema or persistence logic."""
 
 from sqlalchemy import create_engine, text
