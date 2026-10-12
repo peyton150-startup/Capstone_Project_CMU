@@ -54,6 +54,25 @@ alarm), then evaluation, then the agent itself.
 
 ## Session notes
 
+- **2026-10-12 — Agent 2 review with understanding checkpoints.** The
+  developer reinstated the teaching loop for episodic-memory work. Existing
+  additions remain untracked on `feature/episodic-memory-reflection`.
+  Reviewed completed investigation, reflection candidate, promotion policy,
+  and provenance. The developer correctly explained that a completed loop
+  does not establish correctness; human approval permits an action but does
+  not prove resolution; unresolved outcomes must not be promoted by the
+  current successful-lesson policy. The developer also correctly explained
+  why evaluator-only truth must never enter agent memory. These specific
+  checkpoints passed; the whole memory component is not yet understood or
+  implemented. The developer requested a commit and push after every passed
+  checkpoint; checkpoint documentation is saved separately from unfinished
+  runtime additions. Existing policy tests: 22 passed. Repository test collection
+  fails because `capstone.memory.repository` is not yet implemented.
+  Agent 1 uses `contracts/completed.py`, while Agent 2 uses
+  `contracts/completed_investigations.py`; their schemas differ and require
+  reconciliation before runtime integration. Next checkpoint: deterministic
+  identity, duplicate handling, and the persistence boundary.
+
 - **2026-10-12 — module responsibility comments.** Added a short two-line
   comment at the top of every Python module in `capstone`, including package
   initializers, describing its purpose and responsibility. Existing docstrings
