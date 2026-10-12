@@ -54,6 +54,20 @@ alarm), then evaluation, then the agent itself.
 
 ## Session notes
 
+- **2026-10-12 — a CI check for every part, and CI as part of every
+  checkpoint (developer's request).** RULE FROM NOW ON: a checkpoint is not
+  finished until its push is green on GitHub; each checkpoint entry records
+  the CI result as well as the local one. CI (`.github/workflows/ci.yml`) is
+  now several named checks instead of one: "Lint and format"; one "Tests: …"
+  check per part of the project (Simulator, Tools and provider, Reasoning
+  loop, Memory, Evaluation, Older agent); and "Full suite and coverage",
+  which stays the source of truth. `.github/test_groups.py` holds the one
+  list of which test file belongs to which check; its `check` mode fails CI
+  if any test file is in no group or in two, so a new test file cannot be
+  silently left out. A NEW TEST FILE MUST BE ADDED TO A GROUP THERE. Local
+  check of the groups: 317 + 124 + 93 + 47 + 32 + 15 = 628, the same as the
+  full suite.
+
 - **2026-10-12 — CI repaired (reported by the developer).** CI on `main`
   had failed on every push since checkpoint 3b: it installed no optional
   extras, so `pydantic_graph` (the `agent` extra) was missing and the two
@@ -76,7 +90,6 @@ alarm), then evaluation, then the agent itself.
   succeed and that the evidence it leaves is the proof. The developer also
   pointed out, correctly, that a working agent would see an existing repair
   in the event log before proposing; the failed execution is the safety net.
-  Post-implementation understanding remains outstanding.
   LATER OPTIONS the developer raised (not built): investigate again after a
   rejection, using the human's note; retry after a failed execution; have
   the loop refuse to propose for a machine already down for maintenance.
@@ -102,7 +115,9 @@ alarm), then evaluation, then the agent itself.
   are approved and not carried out; the decision is read even when the same
   question was asked that tick; a hook that decides nothing is not approval.
   `tests/test_agent_investigation.py` updated for the longer path (32).
-  Not built yet: checking whether the fix worked (checkpoint 4).
+  Post-implementation checkpoint PASSED: the developer explained that the
+  loop follows the authoritative state, whereas the hook having run is only
+  a claim. Not built yet: checking whether the fix worked (checkpoint 4).
 
 - **2026-10-12 — Anthropic/Claude removed from the code (developer's
   instruction).** The only model providers in scope are Mistral, Google
