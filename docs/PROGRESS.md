@@ -54,6 +54,37 @@ alarm), then evaluation, then the agent itself.
 
 ## Session notes
 
+- **2026-10-12 — checkpoint 4: did the fix work?** Pre-checkpoint passed
+  first time: asked what the loop does with a "resolved" judgement citing
+  only evidence from before the repair, the developer said there is no
+  observation, so it is unconcluded because we do not know if the problem
+  went away. Post-implementation understanding remains outstanding.
+  New in `agent/investigation.py`: `verify` — runs the inner loop in its
+  verify phase (the policy chooses what to look at and may wait, from the
+  follow-up allowance), asks the policy to judge, then decides whether the
+  judgement can stand. Rules: cited evidence must exist; "resolved" and
+  "not resolved" need at least one cited item observed after the work
+  finished (after the conclusion, when nothing was done), otherwise the
+  result is "inconclusive"; with nothing looked at after that tick the
+  result is "not performed" and the policy is not asked; the prediction is
+  the one recorded before the action and the tick of the check is taken from
+  the evidence, so the policy can adjust neither. Nothing tells the agent
+  the result: one test repairs the right machine and one the wrong machine,
+  and the same scripted judgement (compare the vibration afterwards with
+  what was seen before) reaches "resolved" and "not resolved". A "no action"
+  conclusion is checked the same way, with the fixed prediction
+  `NO_ACTION_PREDICTION`. Not verified, and left with no verification at
+  all: escalated, rejected, unanswered, approved but not carried out, and
+  work started but not seen to finish. Routing: `propose` now also returns
+  "verify" for a no-action conclusion; `execute` returns "verify" only once
+  the finish tick is reached. `agent/state.py`: `concluded_tick`.
+  Tests: new `tests/test_agent_verification.py` (26), all through the real
+  simulator, provider and desk; new CI check "Tests: Verification".
+  Simplifications: "after the work" is strictly later than the finish tick,
+  so the wait that reaches the finish tick is not itself evidence; how long
+  to wait before looking is the policy's choice, not a rule; a failed fix is
+  recorded but the agent does not go on to try something else.
+
 - **2026-10-12 — a CI check for every part, and CI as part of every
   checkpoint (developer's request).** RULE FROM NOW ON: a checkpoint is not
   finished until its push is green on GitHub; each checkpoint entry records

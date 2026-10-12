@@ -413,8 +413,12 @@ def test_the_graph_draws_only_the_allowed_order():
         "conclude --> propose",
         "propose --> approved",
         "approved --> execute",
+        "approved --> verify",
         "approved --> [*]",
-        "execute --> [*]",
+        "execute --> work_finished",
+        "work_finished --> verify",
+        "work_finished --> [*]",
+        "verify --> [*]",
     }
 
 

@@ -189,9 +189,10 @@ def test_the_loop_makes_the_calls_not_the_policy():
         "execute_action",
         "wait",
     ]
+    # After concluding, the policy was asked nothing until the check.
     assert agent.asked == ["plan", "hypothesize", "conclude"]
-    decided_while = {s.proposed_action for s in agent.seen_states}
-    assert decided_while == {None}  # the policy chose nothing after concluding
+    asked_after = [s for s in agent.seen_states if s.proposed_action]
+    assert all(s.action_carried_out for s in asked_after)
 
 
 def test_follow_up_calls_use_their_own_allowance_and_leave_the_stop_reason_alone():

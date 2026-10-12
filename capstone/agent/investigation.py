@@ -13,6 +13,7 @@ what the turns are for:
     conclude     the policy states a diagnosis; this module checks it
     propose      ask a human for the change, then read their decision back
     execute      start the approved work and wait for it to finish
+    verify       look again and judge whether the problem went away
 
 The stages are steps in a graph. A stage can only be followed by a stage
 the graph connects it to, so the sequence cannot be entered half-way or
@@ -32,7 +33,12 @@ from typing import Literal
 from pydantic import JsonValue
 from pydantic_graph import GraphBuilder, StepContext
 
-from capstone.agent.artifacts import AgentConclusion, ProposalRecord, TerminationReason
+from capstone.agent.artifacts import (
+    AgentConclusion,
+    ProposalRecord,
+    TerminationReason,
+    VerificationCheck,
+)
 from capstone.agent.loop import (
     POLICY_ERRORS,
     InvestigationDeps,
@@ -48,8 +54,12 @@ from capstone.contracts.tools import ToolRequest
 
 # Where a stage sends the investigation next.
 Route = Literal["continue", "conclude"]
-# Where the proposal stage sends it: on to the work, or to the end.
-ActionRoute = Literal["execute", "finish"]
+# Where the later stages send it: on to the work, to the check, or to the end.
+ActionRoute = Literal["execute", "verify", "finish"]
+
+# What is expected when the conclusion is that nothing needs doing.
+NO_ACTION_PREDICTION = "the symptoms clear without any change to the factory"
+NO_PREDICTION = "no prediction was recorded"
 
 UNDETERMINED = AgentConclusion(
     diagnosis="undetermined", confidence=0.0, recommendation="escalate"
@@ -177,6 +187,9 @@ def conclude(state: InvestigationState, deps: InvestigationDeps) -> None:
     except POLICY_ERRORS:
         conclusion, request, outcome = UNDETERMINED, None, "invalid_decision"
     state.conclusion = conclusion
+    state.concluded_tick = state.last_tick
+    if conclusion.recommendation == "no_action":
+        state.predicted_effect = NO_ACTION_PREDICTION
     if request is not None:
         # Wanted, not yet asked for. The propose stage submits it.
         state.proposed_action = ProposalRecord(
@@ -251,7 +264,9 @@ def propose(state: InvestigationState, deps: InvestigationDeps) -> ActionRoute:
     """
     wanted = state.proposed_action
     if wanted is None:
-        return "finish"
+        # Doing nothing is also a claim that can be checked later.
+        nothing_needed = state.conclusion.recommendation == "no_action"
+        return "verify" if nothing_needed else "finish"
     answer = followup_call(
         state,
         deps,
@@ -291,11 +306,12 @@ def propose(state: InvestigationState, deps: InvestigationDeps) -> ActionRoute:
     return "execute" if state.proposed_action.status == "approved" else "finish"
 
 
-def execute(state: InvestigationState, deps: InvestigationDeps) -> None:
+def execute(state: InvestigationState, deps: InvestigationDeps) -> ActionRoute:
     """Start the approved work, then wait until the factory says it is done.
 
     The action counts as carried out only if the factory confirms it
-    started. If that call fails, nothing is waited for.
+    started. If that call fails, nothing is waited for. The work is
+    checked only once it has finished.
     """
     started = followup_call(
         state,
@@ -309,7 +325,7 @@ def execute(state: InvestigationState, deps: InvestigationDeps) -> None:
     ticks = started if isinstance(started, dict) else {}
     start, finish = ticks.get("started_tick"), ticks.get("finish_tick")
     if type(start) is not int or type(finish) is not int:
-        return
+        return "finish"
     state.action_started_tick, state.action_finish_tick = start, finish
     while state.last_tick is not None and state.last_tick < finish:
         before = state.last_tick
@@ -322,7 +338,74 @@ def execute(state: InvestigationState, deps: InvestigationDeps) -> None:
             ticks=min(finish - before, deps.max_wait_ticks),
         )
         if waited is None or state.last_tick <= before:
-            return  # could not wait, or time did not move
+            return "finish"  # could not wait, or time did not move
+    return "verify"
+
+
+def verify(state: InvestigationState, deps: InvestigationDeps) -> None:
+    """Look again after the work, or after doing nothing, and record what was found.
+
+    Nothing tells the agent whether a fix worked. The policy chooses what
+    to look at and judges it; this function decides whether that judgement
+    can stand. "Resolved" and "not resolved" need evidence observed after
+    the work finished (or, with no action, after the conclusion). Without
+    it the result is "inconclusive"; with nothing looked at, "not performed".
+
+    The prediction is the one recorded before the action and the tick is
+    taken from the evidence, so neither can be adjusted afterwards.
+    """
+    since = (
+        state.action_finish_tick if state.action_carried_out else state.concluded_tick
+    )
+    prediction = state.predicted_effect or NO_PREDICTION
+    run_inner_loop(state, deps, "verify")
+
+    def later(evidence_id: str) -> bool:
+        tick = known[evidence_id].observed_tick
+        return since is not None and tick is not None and tick > since
+
+    known = {e.id: e for e in state.evidence}
+    looked = [evidence_id for evidence_id in known if later(evidence_id)]
+    if not looked:
+        state.verification = VerificationCheck(
+            outcome="not_performed", prediction=prediction
+        )
+        record(
+            state,
+            "verify",
+            "stopped",
+            information_needed="whether the factory changed as predicted",
+        )
+        return
+
+    step_outcome, cited, outcome = "decided", (), "inconclusive"
+    try:
+        judged = deps.policy.judge_verification(state.model_copy(deep=True))
+        if not isinstance(judged, VerificationCheck):
+            raise ValueError("a policy must return a verification check")
+        if not known.keys() >= set(judged.evidence_ids):
+            raise ValueError("the check cites evidence that was not gathered")
+    except POLICY_ERRORS:
+        step_outcome = "invalid_decision"
+    else:
+        cited = judged.evidence_ids
+        supported = any(later(evidence_id) for evidence_id in cited)
+        decisive = judged.outcome in ("resolved", "not_resolved")
+        outcome = judged.outcome if decisive and supported else "inconclusive"
+    after = [evidence_id for evidence_id in cited if later(evidence_id)] or looked
+    state.verification = VerificationCheck(
+        outcome=outcome,
+        prediction=prediction,
+        evidence_ids=cited,
+        checked_tick=max(known[evidence_id].observed_tick for evidence_id in after),
+    )
+    record(
+        state,
+        "verify",
+        step_outcome,
+        information_needed="whether the factory changed as predicted",
+        evidence_ids=cited,
+    )
 
 
 def build_graph():
@@ -364,8 +447,12 @@ def build_graph():
         return propose(ctx.state, ctx.deps)
 
     @builder.step(node_id="execute")
-    async def execute_step(ctx: Context) -> None:
-        execute(ctx.state, ctx.deps)
+    async def execute_step(ctx: Context) -> ActionRoute:
+        return execute(ctx.state, ctx.deps)
+
+    @builder.step(node_id="verify")
+    async def verify_step(ctx: Context) -> None:
+        verify(ctx.state, ctx.deps)
 
     def choose(node_id: str, destinations: dict):
         """A fork: each value a stage can return, and the stage it leads to."""
@@ -395,10 +482,20 @@ def build_graph():
         builder.edge_from(propose_step).to(
             choose(
                 "approved",
-                {"execute": execute_step, "finish": builder.end_node},
+                {
+                    "execute": execute_step,
+                    "verify": verify_step,
+                    "finish": builder.end_node,
+                },
             )
         ),
-        builder.edge_from(execute_step).to(builder.end_node),
+        builder.edge_from(execute_step).to(
+            choose(
+                "work_finished",
+                {"verify": verify_step, "finish": builder.end_node},
+            )
+        ),
+        builder.edge_from(verify_step).to(builder.end_node),
     )
     return builder.build()
 
@@ -409,6 +506,6 @@ INVESTIGATION_GRAPH = build_graph()
 def run_investigation(
     state: InvestigationState, deps: InvestigationDeps
 ) -> InvestigationState:
-    """Run one investigation from its anomaly to the end of any approved work."""
+    """Run one investigation from its anomaly to the check of what was done."""
     INVESTIGATION_GRAPH.run_sync(state=state, deps=deps)
     return state

@@ -65,6 +65,8 @@ GROUPS: dict[str, list[str]] = {
         "agent_investigation",
         "agent_action",
     ],
+    # Checkpoint 4: looking again and judging whether the fix worked.
+    "Verification": ["agent_verification"],
     "Memory": [
         "database_connection",
         "memory_policy",

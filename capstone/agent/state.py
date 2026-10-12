@@ -138,6 +138,8 @@ class InvestigationState(BaseModel):
     termination_reason: TerminationReason | None = None
     conclusion: AgentConclusion | None = None
     proposed_action: ProposalRecord | None = None
+    # The tick at which the conclusion was reached.
+    concluded_tick: int | None = Field(default=None, ge=0)
     # What should change in the factory if the diagnosis is right.
     predicted_effect: str | None = None
     # Set only when the factory confirmed that the approved work started.

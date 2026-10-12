@@ -62,6 +62,7 @@ class ScriptedPolicy:
         questions=(),
         hypothesize=None,
         conclude=None,
+        judge=None,
     ):
         # One list for every phase, or a dict of lists keyed by phase.
         self.decisions = (
@@ -73,6 +74,7 @@ class ScriptedPolicy:
         self._questions = questions
         self._hypothesize = hypothesize
         self._conclude = conclude
+        self._judge = judge
         self.seen_states: list[InvestigationState] = []
         self.asked: list[str] = []
 
@@ -103,6 +105,12 @@ class ScriptedPolicy:
         if self._conclude is None:
             raise ValueError("no conclusion was scripted")
         return self._conclude(state)
+
+    def judge_verification(self, state):
+        self.asked.append("judge")
+        if self._judge is None:
+            raise ValueError("no judgement was scripted")
+        return self._judge(state)
 
     def interpret(self, state, step, evidence):
         if self._interpret is None:
