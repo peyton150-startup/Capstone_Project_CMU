@@ -84,7 +84,7 @@ alarm), then evaluation, then the agent itself.
   lesson's `reusable` / `contains_transient_details` flags are set by code
   (they were the writer's own claims); the gate's own scans of the text for
   numbers, ticks and hidden-truth words are the real guard. Verification:
-  725 passed locally; Ruff passed.
+  725 passed locally; Ruff passed; CI green on `cf05576` (all eleven checks).
 
 - **2026-10-14 — checkpoint 5b closing question PASSED.** Asked why the
   producer leaves a check out instead of filling in a tick or an outcome so
