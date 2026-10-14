@@ -54,6 +54,20 @@ alarm), then evaluation, then the agent itself.
 
 ## Session notes
 
+- **2026-10-14 — checkpoint 7a closing question PASSED (after two
+  re-teaches).** Asked what searches would return if filler words were
+  counted, the developer first thought the search matches whole sentences
+  (it matches single words), then that a higher score ranks lower (it ranks
+  first). After a worked example (an irrelevant conveyor failure scoring 5
+  on "was tried for the" against a relevant vibration success scoring 1),
+  the developer said failures would rise to the top, successes would sink
+  and might never be picked, and relevance would be almost gone. Known
+  weakness kept: "tried" and "check" survive filler removal, so failures
+  still get a small boost. Checkpoint 7a is complete. NEXT: 7b, the
+  `recall_memories` tool, a `memory` origin label, and the guards that a
+  recalled memory never counts as proof a fix worked and never supports a
+  new lesson.
+
 - **2026-10-14 — checkpoint 7a: word search and the safe view of a
   memory.** The developer asked whether this is semantic search: no, word
   overlap; paraphrases ("shaking" for "vibration") do not match. Accepted
