@@ -88,7 +88,7 @@ alarm), then evaluation, then the agent itself.
   actually repaired, CNC-01). Simplifications: duplicates are by category
   plus sentence, so identical failures are kept once; "no action, but the
   symptom stayed" is still refused. Verification: 739 passed locally; Ruff
-  passed.
+  passed; CI green on `31ed1f1` (all eleven checks).
 
 - **2026-10-14 — checkpoint 6a closing question PASSED (after one
   re-teach).** Asked why the builder hands the gate every provenance label,
