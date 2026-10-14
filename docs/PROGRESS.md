@@ -78,7 +78,7 @@ alarm), then evaluation, then the agent itself.
   the store returns. Nothing the agent can call yet (7b). Tests: new
   `tests/test_memory_recall.py` (10). Simplification: only the 100 most
   recent memories are searched. Verification: 760 passed locally; Ruff
-  passed.
+  passed; CI green on `ee59092` (all eleven checks).
 
 - **2026-10-14 — checkpoint 6c closing question PASSED (in part, the rest
   taught).** Asked why `learn_from` asks the model for a lesson only after a
