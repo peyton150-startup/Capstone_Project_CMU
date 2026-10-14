@@ -2,9 +2,10 @@
 # Responsibility: define what a policy may return. The loop decides what is allowed.
 """The policy is the agent's judgement; the loop is its discipline.
 
-A policy answers five questions and nothing else: what do I need to know,
+A policy answers seven questions and nothing else: what do I need to know,
 what should I do next, what does this observation mean, what explains the
-anomaly, and what should be done about it. It never calls a tool itself
+anomaly, what should be done about it, did it work, and what advice is
+worth keeping for next time. It never calls a tool itself
 and never counts its own budget. A rule-based policy and a model-backed
 policy both fit this one interface.
 
@@ -71,6 +72,16 @@ class ActionRequest(Contract):
     prediction: str = Field(min_length=1)
 
 
+class Lesson(Contract):
+    """One sentence of advice for a later investigation. Nothing else.
+
+    It has no field for a category, an outcome or evidence: code fills
+    those from the finished record, so the sentence cannot change them.
+    """
+
+    text: str = Field(min_length=1)
+
+
 class ReasoningPolicy(Protocol):
     """What the loop asks of any decision-maker. Policies must not change `state`."""
 
@@ -100,4 +111,8 @@ class ReasoningPolicy(Protocol):
 
     def judge_verification(self, state: InvestigationState) -> VerificationCheck:
         """Whether the factory changed as predicted after the action."""
+        ...
+
+    def write_lesson(self, state: InvestigationState) -> Lesson | None:
+        """Advice for a later investigation, or None if nothing is worth keeping."""
         ...

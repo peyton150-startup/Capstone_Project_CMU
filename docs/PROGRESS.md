@@ -54,6 +54,38 @@ alarm), then evaluation, then the agent itself.
 
 ## Session notes
 
+- **2026-10-14 — checkpoint 6a: the reflection candidate.** Pre-checkpoint
+  passed: asked what the candidate records when the check says not resolved
+  but the model's sentence says the fix worked, the developer said the
+  builder takes the outcome from the code and ignores the model's claim.
+  Corrected: the sentence is advice for a later investigation, not for the
+  user in this one. On why the category is the symptom, the developer said
+  the diagnosis is the answer itself, while the symptom is what each
+  investigation starts from. POST-IMPLEMENTATION UNDERSTANDING IS
+  OUTSTANDING. Changes: `agent/policy.py` gains `Lesson` (a single `text`
+  field) and a seventh policy question, `write_lesson(state) -> Lesson |
+  None`; nothing calls it yet (6c). New `memory/reflection.py`:
+  `build_candidate(investigation, provenance, lesson)` makes the
+  `ReflectionCandidate` from the shared record alone. Code fills category
+  (first symptom), `intervention_worked` (verified -> True, failed -> False,
+  None when nothing was proposed), `diagnosis_assessment` (verified ->
+  supported, otherwise unknown, never refuted), evidence IDs (conclusion's
+  plus the check's), confidence (the conclusion's) and provenance (every
+  label). The model supplies only the sentence. No candidate when the check
+  is missing or unverified, or the sentence is empty. The builder decides
+  nothing; the gate still does. `tests/helpers.py`: `ScriptedPolicy(lesson=)`.
+  Tests: new `tests/test_memory_reflection.py` (21), over the ten endings
+  from 5b: fields filled from the record; two different sentences give
+  identical candidates apart from the text; a failed fix stays failed when
+  the sentence claims it worked, and the gate refuses it; a verified fix is
+  accepted by the gate; a candidate exists exactly where an outcome was
+  observed; `Lesson` has only `text`; `capstone/memory` does not import
+  `capstone/agent`. New CI check "Tests: Reflection". Simplification: the
+  lesson's `reusable` / `contains_transient_details` flags are set by code
+  (they were the writer's own claims); the gate's own scans of the text for
+  numbers, ticks and hidden-truth words are the real guard. Verification:
+  725 passed locally; Ruff passed.
+
 - **2026-10-14 — checkpoint 5b closing question PASSED.** Asked why the
   producer leaves a check out instead of filling in a tick or an outcome so
   the record looks complete, the developer said a record that looks

@@ -69,6 +69,8 @@ GROUPS: dict[str, list[str]] = {
     "Verification": ["agent_verification"],
     # Checkpoint 5: where evidence came from, and the finished record.
     "Completed record": ["agent_provenance", "agent_completion"],
+    # Checkpoint 6: the reflection candidate and the memory gate.
+    "Reflection": ["memory_reflection"],
     "Memory": [
         "database_connection",
         "memory_policy",
