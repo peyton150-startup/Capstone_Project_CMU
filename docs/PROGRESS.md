@@ -54,6 +54,16 @@ alarm), then evaluation, then the agent itself.
 
 ## Session notes
 
+- **2026-10-14 — checkpoint 6a closing question PASSED (after one
+  re-teach).** Asked why the builder hands the gate every provenance label,
+  not only the cited ones, the developer was first unsure. After a worked
+  example (an uncited hidden-truth item E4 that gave the agent the answer),
+  the developer said every label is passed so the gate can catch a bug that
+  let the agent see more than it should have. Added: what the agent saw
+  shapes its conclusion whether or not it is cited, so leaving an item out
+  of the citations must not hide it from the gate. Checkpoint 6a is
+  complete. NEXT: 6b, widen the memory gate to "what did not work" lessons.
+
 - **2026-10-14 — checkpoint 6a: the reflection candidate.** Pre-checkpoint
   passed: asked what the candidate records when the check says not resolved
   but the model's sentence says the fix worked, the developer said the
