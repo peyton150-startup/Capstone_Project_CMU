@@ -44,6 +44,8 @@ include = ["capstone*"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+# One fixed scratch folder (git-ignored), cleared by pytest at the start of each run.
+addopts = "--basetemp=.pytest-tmp"
 
 [tool.ruff]
 target-version = "py311"
