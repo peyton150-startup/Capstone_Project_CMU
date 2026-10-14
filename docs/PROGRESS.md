@@ -54,6 +54,21 @@ alarm), then evaluation, then the agent itself.
 
 ## Session notes
 
+- **2026-10-14 — checkpoint 6b closing question PASSED (after one
+  re-teach).** Asked why the gate recomputes the failure sentence instead of
+  trusting the builder, the developer was unsure but named the main case:
+  the model's sentence could get through. Re-taught: the gate is the last
+  check before something becomes permanent, so it trusts no producer;
+  builders change and multiply, and anything can construct a candidate.
+  Same pattern as checkpoint 4 (the loop checks the judge) and 6a (every
+  provenance label). On the follow-up (a builder edited to pass the model's
+  "wrong diagnosis" sentence), the developer said the gate rejects it as
+  not written by code and that without the recheck an incorrect sentence
+  would be stored. Corrected: the whole candidate is refused
+  (`lesson_not_factual`), nothing is stored, and the gate judges the text,
+  not who wrote it. Checkpoint 6b is complete. NEXT: 6c, connect the loop
+  to the gate with an end-to-end test.
+
 - **2026-10-14 — checkpoint 6b: remembering what did not work.**
   Pre-checkpoint passed: the developer first asked whether code was now
   deciding if the fix worked; clarified that the agent still finds that out
