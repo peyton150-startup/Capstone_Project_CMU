@@ -54,6 +54,24 @@ alarm), then evaluation, then the agent itself.
 
 ## Session notes
 
+- **2026-10-14 — checkpoint 7b taught; SESSION PAUSED HERE.** Nothing of 7b
+  is built. Pre-checkpoint question asked and NOT YET ANSWERED: in the
+  example (repair finishes at tick 900, the agent recalls at tick 950 a
+  memory that a bearing replacement worked, judges "resolved" citing it),
+  why refuse to let the memory confirm this repair? Optional second part:
+  the difference between a memory guiding where to look and supporting a
+  conclusion. Proposed design, awaiting that answer: new
+  `providers/recall.py` `RecallingProvider(factory_provider, memory_service)`
+  answers `recall_memories(text, limit 1-10)` from `MemoryService.search`
+  with source `memory`, stamped with the factory's current tick, and passes
+  every other tool to the factory; `ProvenanceReference.origin` gains
+  `memory`; `gather` labels answers whose source is `memory` as origin
+  `memory`; guard 1 in `verify`: only `observable` evidence counts as
+  looking again (memory-only citations give inconclusive, memory-only
+  looking gives not performed); guard 2 at the gate: a candidate whose
+  cited evidence includes memory-origin items is refused
+  (`rests_on_memory`). NEXT SESSION: ask the 7b question again, then build.
+
 - **2026-10-14 — checkpoint 7a closing question PASSED (after two
   re-teaches).** Asked what searches would return if filler words were
   counted, the developer first thought the search matches whole sentences
