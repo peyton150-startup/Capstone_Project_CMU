@@ -74,6 +74,7 @@ GROUPS: dict[str, list[str]] = {
     "Memory": [
         "database_connection",
         "memory_policy",
+        "memory_recall",
         "memory_repository",
         "migrations",
     ],

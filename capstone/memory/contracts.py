@@ -59,6 +59,25 @@ class EpisodicMemory(Contract):
     policy_version: str = Field(min_length=1)
 
 
+class RecalledMemory(Contract):
+    """What a later investigation may see of a memory.
+
+    Only what means the same in any investigation. Evidence IDs are left
+    out: each investigation numbers its own evidence, so a recalled "E2"
+    would name an unrelated item in the investigation that reads it.
+    """
+
+    memory_id: UUID
+    category: str
+    symptoms: tuple[str, ...]
+    diagnosis: str  # a past agent's belief, not a known cause
+    action: str | None
+    machine_id: str | None
+    outcome: Literal["resolved", "unresolved"]
+    lesson: str
+    source_tick: int = Field(ge=0)
+
+
 class PromotionDecision(Contract):
     investigation_id: UUID
     accepted: bool

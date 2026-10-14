@@ -54,6 +54,32 @@ alarm), then evaluation, then the agent itself.
 
 ## Session notes
 
+- **2026-10-14 — checkpoint 7a: word search and the safe view of a
+  memory.** The developer asked whether this is semantic search: no, word
+  overlap; paraphrases ("shaking" for "vibration") do not match. Accepted
+  for now because memory words are code-written and the factory's tools use
+  the same words; semantic search would replace only the scoring step if real
+  model queries miss. MCP confirmed as Future Work 2, after the core MVP;
+  the provider's one `call` boundary is where it would sit. Pre-checkpoint
+  passed after one re-teach: asked what goes wrong if a recalled memory
+  carries its evidence IDs, the developer first said the agent would conclude
+  before reasoning (anchoring, a 7b concern), then, after the example, that
+  evidence numbers mean different things in different investigations, so a
+  cited old "E2" would pass the existence check while naming unrelated new
+  evidence. POST-IMPLEMENTATION UNDERSTANDING IS OUTSTANDING. Changes:
+  `memory/contracts.py` `RecalledMemory` (memory ID, category, symptoms,
+  past diagnosis, action, machine, outcome, lesson, source tick; no evidence
+  IDs, provenance, confidence, fingerprint or run/investigation IDs). New
+  `memory/recall.py`: `words` (normalised, filler words dropped, tool names
+  split at underscores), `recalled(memory)` (the view), `search_memories`
+  (score = shared words with category, symptoms, action, machine and lesson;
+  zero scores dropped; ties by most recent then memory ID).
+  `MemoryService.search(text, limit=5)` searches the 100 most recent memories
+  the store returns. Nothing the agent can call yet (7b). Tests: new
+  `tests/test_memory_recall.py` (10). Simplification: only the 100 most
+  recent memories are searched. Verification: 760 passed locally; Ruff
+  passed.
+
 - **2026-10-14 — checkpoint 6c closing question PASSED (in part, the rest
   taught).** Asked why `learn_from` asks the model for a lesson only after a
   verified fix, the developer said code provides that information and is

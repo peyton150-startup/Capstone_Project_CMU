@@ -7,9 +7,11 @@ from capstone.memory.contracts import (
     EpisodicMemory,
     MemoryQuery,
     PromotionDecision,
+    RecalledMemory,
     ReflectionCandidate,
 )
 from capstone.memory.policy import MemoryPromotionPolicy
+from capstone.memory.recall import search_memories
 
 
 class StorageResult(Protocol):
@@ -55,3 +57,8 @@ class MemoryService:
 
     def retrieve(self, query: MemoryQuery) -> tuple[EpisodicMemory, ...]:
         return self.repository.retrieve(query)
+
+    def search(self, text: str, *, limit: int = 5) -> tuple[RecalledMemory, ...]:
+        """Word search over the most recent memories the store returns (at most 100)."""
+        candidates = self.repository.retrieve(MemoryQuery(limit=100))
+        return search_memories(candidates, text, limit=limit)
