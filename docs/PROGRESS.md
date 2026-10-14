@@ -84,7 +84,7 @@ alarm), then evaluation, then the agent itself.
   check; `pyproject.toml` allows the importorskip import order in the new
   test, as for the repository tests. Simplification: the gate's decision is
   returned but not yet written into the audit log. Verification: 750 passed
-  locally; Ruff passed.
+  locally; Ruff passed; CI green on `9b006a3` (all eleven checks).
 
 - **2026-10-14 — checkpoint 6b closing question PASSED (after one
   re-teach).** Asked why the gate recomputes the failure sentence instead of
