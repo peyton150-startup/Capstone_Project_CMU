@@ -54,6 +54,16 @@ alarm), then evaluation, then the agent itself.
 
 ## Session notes
 
+- **2026-10-14 — checkpoint 5b closing question PASSED.** Asked why the
+  producer leaves a check out instead of filling in a tick or an outcome so
+  the record looks complete, the developer said a record that looks
+  incomplete is a true statement that the work is incomplete, and that the
+  one absence covers two cases (not performed, no check time). Added: an
+  `unverified` / `unknown` result means a check was made and could not
+  decide; writing it for a check that never happened would tell the reader,
+  the evaluator and a future agent that someone looked. Checkpoint 5b is
+  complete. NEXT: checkpoint 6a, pre-implementation question.
+
 - **2026-10-12 — checkpoint 5b: the finished record and the audit log.
   SESSION ENDED HERE.** Pre-checkpoint passed: for an approval never carried
   out, the developer said the check is "not performed", the record shows the
