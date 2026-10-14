@@ -54,6 +54,38 @@ alarm), then evaluation, then the agent itself.
 
 ## Session notes
 
+- **2026-10-14 — checkpoint 6c: the loop joined to the gate.**
+  Pre-checkpoint passed after one clarification: the developer said the step
+  sits outside the loop so the agent cannot bypass the guards and write to
+  the audit log or memory directly, and that the audit line goes first so a
+  database failure still leaves the investigation on record (only that
+  run's lesson is lost). Clarified: the loop never holds a handle to either;
+  the audit log holds unfiltered investigations, not hidden truth.
+  POST-IMPLEMENTATION UNDERSTANDING IS OUTSTANDING. Changes: new
+  `capstone/learning.py` (above both packages): `learn_from(state, policy,
+  memory, log) -> LearningOutcome` refuses an unfinished investigation,
+  appends the audit record first, asks `policy.write_lesson` only for a
+  verified fix (a model that declines or raises gives no lesson), builds the
+  candidate and sends it through `MemoryService.promote`. A store failure is
+  raised to the caller after the audit line is written. `LearningOutcome`:
+  investigation ID, whether the lesson was requested, the lesson, the gate's
+  decision (None when nothing went to the gate). Nothing calls `learn_from`
+  automatically yet; the episode runner (step 9) will call it after
+  `run_investigation`. Tests: new `tests/test_learning.py` (11), end to end
+  through the real simulator and a temporary SQLite store: a verified fix is
+  audited and its advice stored as resolved; a wrong-machine repair is
+  stored as unresolved in code's words with the model never asked; both
+  coexist; a rejected proposal is audited only; a repeated investigation is
+  not stored twice (`duplicate_investigation`) though the log keeps both
+  lines; a model that declines or fails leaves no memory; a database failure
+  still leaves the audit line; an unfinished investigation writes nothing;
+  working memory unchanged; `capstone/agent` imports neither
+  `capstone.learning` nor `capstone.memory`. Added to the "Reflection" CI
+  check; `pyproject.toml` allows the importorskip import order in the new
+  test, as for the repository tests. Simplification: the gate's decision is
+  returned but not yet written into the audit log. Verification: 750 passed
+  locally; Ruff passed.
+
 - **2026-10-14 — checkpoint 6b closing question PASSED (after one
   re-teach).** Asked why the gate recomputes the failure sentence instead of
   trusting the builder, the developer was unsure but named the main case:
