@@ -49,7 +49,7 @@ class EpisodicMemory(Contract):
     evidence_ids: tuple[str, ...]
     diagnosis: str = Field(min_length=1)
     intervention: ActionProposal | None
-    outcome: Literal["resolved"]
+    outcome: Literal["resolved", "unresolved"]
     verification: VerificationResult
     lesson: str = Field(min_length=1)
     confidence: float = Field(ge=0, le=1)

@@ -7,7 +7,7 @@ from pydantic import ValidationError
 from capstone.agent.completion import complete
 from capstone.agent.policy import Lesson
 from capstone.memory.contracts import ReflectionCandidate
-from capstone.memory.policy import MemoryPromotionPolicy
+from capstone.memory.policy import MemoryPromotionPolicy, failure_lesson
 from capstone.memory.reflection import build_candidate
 from tests.helpers import ScriptedPolicy
 from tests.test_agent_completion import ENDINGS
@@ -66,16 +66,25 @@ def test_the_gate_accepts_the_candidate_of_a_verified_fix():
 # --- the sentence cannot overrule the check ----------------------------------
 
 
-def test_a_failed_fix_is_recorded_as_failed_whatever_the_sentence_claims():
-    candidate, _ = candidate_for("failed fix", lesson=CLAIMS_FIXED)
-    assert candidate.investigation.verification.status == "failed"
+@pytest.mark.parametrize("lesson", [CLAIMS_FIXED, "The diagnosis was wrong.", None])
+def test_a_failed_fix_is_recorded_as_failed_whatever_the_sentence_claims(lesson):
+    candidate, _ = candidate_for("failed fix", lesson=lesson)
+    record = candidate.investigation
+    assert record.verification.status == "failed"
     assert candidate.intervention_worked is False
     # A fix that did not work does not prove the diagnosis wrong.
     assert candidate.diagnosis_assessment == "unknown"
+    # For a failure the model's sentence is not used; code states the fact.
+    assert candidate.lesson.text == failure_lesson(record)
+    assert "CNC-01" in candidate.lesson.text  # the machine actually repaired
+
+
+def test_the_gate_keeps_a_failed_fix_as_what_did_not_work():
+    candidate, _ = candidate_for("failed fix", lesson=CLAIMS_FIXED)
     decision = MemoryPromotionPolicy().evaluate(candidate)
-    assert not decision.accepted
-    assert "outcome_not_verified" in decision.reasons
-    assert "intervention_not_successful" in decision.reasons
+    assert decision.accepted, decision.reasons
+    assert decision.memory.outcome == "unresolved"
+    assert decision.memory.lesson == failure_lesson(candidate.investigation)
 
 
 def test_no_action_that_was_checked_says_nothing_about_an_intervention():
@@ -83,6 +92,8 @@ def test_no_action_that_was_checked_says_nothing_about_an_intervention():
     assert candidate.investigation.proposed_action is None
     assert candidate.intervention_worked is None
     assert candidate.diagnosis_assessment == "unknown"
+    decision = MemoryPromotionPolicy().evaluate(candidate)
+    assert "nothing_was_tried" in decision.reasons
 
 
 # --- no observed outcome, or nothing to say: no candidate --------------------

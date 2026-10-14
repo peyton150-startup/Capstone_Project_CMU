@@ -5,7 +5,7 @@ from pydantic import ValidationError
 
 from capstone.contracts.completed_investigations import CompletedInvestigation
 from capstone.memory.contracts import ReflectionCandidate
-from capstone.memory.policy import MemoryPromotionPolicy
+from capstone.memory.policy import MemoryPromotionPolicy, failure_lesson
 
 
 def candidate_data():
@@ -117,18 +117,137 @@ def test_verified_incident_promoted_without_raw_samples():
     assert decision.memory.source_tick == 200
 
 
-@pytest.mark.parametrize(
-    "status,outcome", [("failed", "unresolved"), ("unverified", "unknown")]
-)
-def test_unsuccessful_verification_rejected(status, outcome):
+def test_unverified_check_rejected():
     data = candidate_data()
-    data["investigation"]["verification"].update(status=status, outcome=outcome)
+    data["investigation"]["verification"].update(status="unverified", outcome="unknown")
     decision = MemoryPromotionPolicy().evaluate(
         ReflectionCandidate.model_validate(data)
     )
     assert not decision.accepted
     assert "outcome_not_verified" in decision.reasons
     assert decision.memory is None
+
+
+# --- what did not work ------------------------------------------------------
+
+FAILED_SENTENCE = (
+    "replace_bearing on CNC-02 was tried for rising vibration, increasing "
+    "temperature and the check afterwards found it unresolved."
+)
+
+
+def failure_data():
+    """The same incident, except the check found the repair did not work."""
+    data = candidate_data()
+    data["investigation"]["verification"].update(
+        status="failed", outcome="unresolved", summary="Vibration still high"
+    )
+    data["diagnosis_assessment"] = "unknown"
+    data["intervention_worked"] = False
+    data["lesson"]["text"] = FAILED_SENTENCE
+    return data
+
+
+def test_the_failure_sentence_states_only_what_was_observed():
+    investigation = CompletedInvestigation.model_validate(
+        failure_data()["investigation"]
+    )
+    assert failure_lesson(investigation) == FAILED_SENTENCE
+
+
+def test_an_observed_failed_action_is_promoted():
+    decision = MemoryPromotionPolicy().evaluate(
+        ReflectionCandidate.model_validate(failure_data())
+    )
+    assert decision.accepted, decision.reasons
+    assert decision.reasons == ("observed_failed_action",)
+    memory = decision.memory
+    assert memory.outcome == "unresolved"
+    assert memory.lesson == FAILED_SENTENCE
+    assert memory.verification.status == "failed"
+    assert memory.intervention.machine_id == "CNC-02"
+    assert memory.source_tick == 200
+    assert memory.policy_version == "episodic-v2"
+
+
+def test_a_failure_does_not_rest_on_the_agents_confidence():
+    data = failure_data()
+    data["confidence"] = 0.3
+    data["investigation"]["conclusion"]["confidence"] = 0.3
+    assert (
+        MemoryPromotionPolicy()
+        .evaluate(ReflectionCandidate.model_validate(data))
+        .accepted
+    )
+
+
+@pytest.mark.parametrize(
+    "change,reason",
+    [
+        # A failed fix proves neither that the diagnosis was right nor wrong.
+        ({"diagnosis_assessment": "refuted"}, "diagnosis_cannot_be_judged"),
+        ({"diagnosis_assessment": "supported"}, "diagnosis_cannot_be_judged"),
+        ({"intervention_worked": True}, "intervention_outcome_mismatch"),
+        ({"intervention_worked": None}, "intervention_outcome_mismatch"),
+    ],
+)
+def test_a_failure_cannot_claim_more_than_the_check(change, reason):
+    data = failure_data()
+    data.update(change)
+    decision = MemoryPromotionPolicy().evaluate(
+        ReflectionCandidate.model_validate(data)
+    )
+    assert not decision.accepted
+    assert reason in decision.reasons
+
+
+@pytest.mark.parametrize(
+    "text",
+    [
+        "Bearing wear was the wrong diagnosis for rising vibration.",
+        "Replacing the bearing does not fix high vibration.",
+    ],
+)
+def test_a_failure_keeps_no_explanation_or_generalisation(text):
+    data = failure_data()
+    data["lesson"]["text"] = text
+    decision = MemoryPromotionPolicy().evaluate(
+        ReflectionCandidate.model_validate(data)
+    )
+    assert not decision.accepted
+    assert "lesson_not_factual" in decision.reasons
+
+
+def test_a_failure_with_nothing_tried_is_rejected():
+    data = failure_data()
+    data["investigation"]["proposed_action"] = None
+    data["intervention_worked"] = None
+    decision = MemoryPromotionPolicy().evaluate(
+        ReflectionCandidate.model_validate(data)
+    )
+    assert not decision.accepted
+    assert "nothing_was_tried" in decision.reasons
+
+
+def test_a_failure_still_passes_the_evidence_and_hidden_truth_checks():
+    data = failure_data()
+    data["provenance"][0]["origin"] = "simulator_hidden"
+    data["investigation"]["verification"]["evidence_ids"] = []
+    reasons = (
+        MemoryPromotionPolicy()
+        .evaluate(ReflectionCandidate.model_validate(data))
+        .reasons
+    )
+    assert "hidden_truth" in reasons
+    assert "insufficient_evidence" in reasons
+
+
+def test_a_success_and_its_failure_are_different_memories():
+    policy = MemoryPromotionPolicy()
+    success = policy.evaluate(ReflectionCandidate.model_validate(candidate_data()))
+    failure = policy.evaluate(ReflectionCandidate.model_validate(failure_data()))
+    assert success.memory.outcome == "resolved"
+    assert failure.memory.fingerprint != success.memory.fingerprint
 
 
 def test_missing_verification_rejected():

@@ -3,6 +3,13 @@
 Completed investigations are observations and beliefs, not evaluator truth.
 Callers supply a `ReflectionCandidate` with a reusable lesson and evidence
 lineage. `MemoryPromotionPolicy.evaluate()` checks it without I/O.
+Two kinds of memory pass (policy `episodic-v2`): advice from a verified fix
+(`outcome="resolved"`), and an action the check found did not work
+(`outcome="unresolved"`). A failure memory's lesson must be exactly
+`failure_lesson(investigation)`: what was tried, on which machine, for which
+symptoms. It never says why, and never judges the diagnosis.
+`memory/reflection.py` `build_candidate` fills every fact from the finished
+record; the model writes only a success's advice sentence.
 `MemoryService.promote()` applies that policy and sends qualifying memories to
 its store. The SQL store preserves originals on duplicate investigation IDs or
 normalized category/lesson fingerprints. Paraphrases are not semantic duplicates.

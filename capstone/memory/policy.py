@@ -7,6 +7,7 @@ import re
 import unicodedata
 from uuid import uuid5
 
+from capstone.contracts.completed_investigations import CompletedInvestigation
 from capstone.memory.contracts import (
     EpisodicMemory,
     PromotionDecision,
@@ -33,8 +34,23 @@ def lesson_fingerprint(category: str, lesson: str) -> str:
     return hashlib.sha256(payload.encode("utf-8")).hexdigest()
 
 
+def failure_lesson(investigation: CompletedInvestigation) -> str:
+    """The one sentence kept for an action that did not work: only what was seen.
+
+    It names what was done, where, and for which symptoms. It never says why
+    the action failed: the check cannot tell a wrong diagnosis from a repair
+    on the wrong machine, so neither may be remembered.
+    """
+    action = investigation.proposed_action
+    symptoms = investigation.anomaly.symptoms or (investigation.anomaly.summary,)
+    return (
+        f"{action.action} on {action.machine_id} was tried for "
+        f"{', '.join(symptoms)} and the check afterwards found it unresolved."
+    )
+
+
 class MemoryPromotionPolicy:
-    version = "episodic-v1"
+    version = "episodic-v2"
 
     def __init__(self, *, min_confidence: float = 0.8):
         if not math.isfinite(min_confidence) or not 0 <= min_confidence <= 1:
@@ -42,25 +58,45 @@ class MemoryPromotionPolicy:
         self.min_confidence = min_confidence
 
     def evaluate(self, candidate: ReflectionCandidate) -> PromotionDecision:
-        """Check a candidate without I/O, seeded randomness, or evaluator access."""
+        """Check a candidate without I/O, seeded randomness, or evaluator access.
+
+        Two kinds of lesson may pass: advice from a verified fix, and the
+        fixed statement that an action was tried and the check found it did
+        not work. Every other check below applies to both.
+        """
         incident = candidate.investigation
         verification = incident.verification
+        resolved = bool(
+            verification
+            and (verification.status, verification.outcome) == ("verified", "resolved")
+        )
+        failed = bool(
+            verification
+            and (verification.status, verification.outcome) == ("failed", "unresolved")
+        )
         reasons = []
-        if (
-            not verification
-            or verification.status != "verified"
-            or verification.outcome != "resolved"
-        ):
+        if not (resolved or failed):
             reasons.append("outcome_not_verified")
-        if candidate.diagnosis_assessment != "supported":
-            reasons.append("diagnosis_not_supported")
-        if incident.proposed_action and candidate.intervention_worked is not True:
-            reasons.append("intervention_not_successful")
-        if (
-            min(candidate.confidence, incident.conclusion.confidence)
-            < self.min_confidence
-        ):
-            reasons.append("low_confidence")
+        if resolved:
+            if candidate.diagnosis_assessment != "supported":
+                reasons.append("diagnosis_not_supported")
+            if incident.proposed_action and candidate.intervention_worked is not True:
+                reasons.append("intervention_not_successful")
+            if (
+                min(candidate.confidence, incident.conclusion.confidence)
+                < self.min_confidence
+            ):
+                reasons.append("low_confidence")
+        if failed:
+            # The stored claim rests on the check, not on the agent's confidence.
+            if incident.proposed_action is None:
+                reasons.append("nothing_was_tried")
+            elif candidate.lesson.text.strip() != failure_lesson(incident):
+                reasons.append("lesson_not_factual")
+            if candidate.diagnosis_assessment != "unknown":
+                reasons.append("diagnosis_cannot_be_judged")
+            if candidate.intervention_worked is not False:
+                reasons.append("intervention_outcome_mismatch")
         if not candidate.lesson.reusable or not normalize(candidate.lesson.text):
             reasons.append("not_reusable")
         if candidate.lesson.contains_transient_details or _SAMPLE.search(
@@ -126,7 +162,7 @@ class MemoryPromotionPolicy:
             evidence_ids=tuple(sorted(references)),
             diagnosis=incident.conclusion.diagnosis,
             intervention=incident.proposed_action,
-            outcome="resolved",
+            outcome="resolved" if resolved else "unresolved",
             verification=verification,
             lesson=candidate.lesson.text.strip(),
             confidence=min(candidate.confidence, incident.conclusion.confidence),
@@ -138,7 +174,9 @@ class MemoryPromotionPolicy:
         return PromotionDecision(
             investigation_id=incident.investigation_id,
             accepted=True,
-            reasons=("verified_reusable_lesson",),
+            reasons=(
+                "verified_reusable_lesson" if resolved else "observed_failed_action",
+            ),
             policy_version=self.version,
             memory=memory,
         )

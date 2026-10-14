@@ -54,6 +54,42 @@ alarm), then evaluation, then the agent itself.
 
 ## Session notes
 
+- **2026-10-14 — checkpoint 6b: remembering what did not work.**
+  Pre-checkpoint passed: the developer first asked whether code was now
+  deciding if the fix worked; clarified that the agent still finds that out
+  by looking again (checkpoint 4) and code only copies its verdict into
+  memory, refusing any explanation of why. The developer then said a
+  general sentence ("replacing the bearing does not fix high vibration")
+  would make a future agent think the repair will not fix its problem, when
+  only this repair on this machine failed. Corrected: the sentence holds no
+  tick; the time is in `source_tick`. POST-IMPLEMENTATION UNDERSTANDING IS
+  OUTSTANDING (closing question asked: why does the gate recompute the
+  failure sentence instead of trusting the builder?). Changes:
+  `memory/policy.py`: new `failure_lesson(investigation)` ("<action> on
+  <machine> was tried for <symptoms> and the check afterwards found it
+  unresolved."); `MemoryPromotionPolicy` is now `episodic-v2` and accepts
+  two kinds: a verified fix (rules unchanged) and an observed failure, which
+  needs an action that was tried (`nothing_was_tried`), the exact
+  `failure_lesson` text (`lesson_not_factual`), `diagnosis_assessment`
+  unknown (`diagnosis_cannot_be_judged`) and `intervention_worked` False
+  (`intervention_outcome_mismatch`); no confidence check for failures, since
+  the claim rests on the check. Evidence, provenance, transient-detail and
+  hidden-truth checks apply to both. Accepted failures get reason
+  `observed_failed_action`. `memory/contracts.py`: `EpisodicMemory.outcome`
+  is `resolved` or `unresolved` (inside the JSON payload; no migration).
+  `memory/reflection.py`: for a failed check with an action, the sentence is
+  `failure_lesson`, and the model's sentence is ignored.
+  `docs/EPISODIC_MEMORY.md` updated. Tests: `test_memory_policy.py` +11
+  (failure accepted; low confidence still accepted; refuted / supported /
+  wrong `intervention_worked` refused; an explanation or generalisation
+  refused; nothing tried refused; hidden truth and missing evidence still
+  refused; success and failure differ), `test_memory_reflection.py` updated
+  (a failed fix is stored whatever the model wrote, naming the machine
+  actually repaired, CNC-01). Simplifications: duplicates are by category
+  plus sentence, so identical failures are kept once; "no action, but the
+  symptom stayed" is still refused. Verification: 739 passed locally; Ruff
+  passed.
+
 - **2026-10-14 — checkpoint 6a closing question PASSED (after one
   re-teach).** Asked why the builder hands the gate every provenance label,
   not only the cited ones, the developer was first unsure. After a worked

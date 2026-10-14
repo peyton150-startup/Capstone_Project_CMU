@@ -13,8 +13,10 @@ provenance labels written when the evidence arrived:
     evidence              what the conclusion and the check cite
     confidence            the conclusion's
 
-The model writes only the advice sentence. Nothing it says can change the
-facts beside it. This builder decides nothing: the gate still accepts or
+The model writes only the advice sentence for a fix that worked. For an
+action that did not work, code writes the sentence too (`failure_lesson`):
+what was tried, where, and for which symptoms, never why it failed.
+Nothing the model says can change the facts beside it. This builder decides nothing: the gate still accepts or
 refuses the candidate. Where no outcome was observed (no check, or one that
 could not decide) there is nothing to learn from, and no candidate is made.
 """
@@ -22,6 +24,7 @@ could not decide) there is nothing to learn from, and no candidate is made.
 from capstone.contracts.completed_investigations import CompletedInvestigation
 from capstone.contracts.provenance import ProvenanceReference
 from capstone.memory.contracts import ReflectionCandidate, ReusableLesson
+from capstone.memory.policy import failure_lesson
 
 # Check status in the shared record -> did the action work.
 WORKED = {"verified": True, "failed": False}
@@ -34,8 +37,14 @@ def build_candidate(
 ) -> ReflectionCandidate | None:
     """The candidate for the gate, or None if there is no outcome or no sentence."""
     check = investigation.verification
-    text = (lesson or "").strip()
-    if check is None or check.status not in WORKED or not text:
+    if check is None or check.status not in WORKED:
+        return None
+    if check.status == "failed" and investigation.proposed_action:
+        # What did not work is stated by code; the model may not explain it.
+        text = failure_lesson(investigation)
+    else:
+        text = (lesson or "").strip()
+    if not text:
         return None
     cited = tuple(
         dict.fromkeys((*investigation.conclusion.evidence_ids, *check.evidence_ids))
