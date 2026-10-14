@@ -54,6 +54,16 @@ alarm), then evaluation, then the agent itself.
 
 ## Session notes
 
+- **2026-10-14 — checkpoint 6c closing question PASSED (in part, the rest
+  taught).** Asked why `learn_from` asks the model for a lesson only after a
+  verified fix, the developer said code provides that information and is
+  the source of truth, which is the reason for a failed fix (code writes
+  that sentence). Taught the other reason: a rejected proposal or an
+  inconclusive check can never become a memory, so a sentence asked for
+  there is certain to be discarded and only costs a model call. The rule:
+  ask only when the sentence can reach memory. Checkpoint 6c is complete,
+  and with it checkpoint 6. NEXT: 7, a memory recall tool with word search.
+
 - **2026-10-14 — checkpoint 6c: the loop joined to the gate.**
   Pre-checkpoint passed after one clarification: the developer said the step
   sits outside the loop so the agent cannot bypass the guards and write to
