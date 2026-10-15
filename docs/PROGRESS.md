@@ -54,6 +54,20 @@ alarm), then evaluation, then the agent itself.
 
 ## Session notes
 
+- **2026-10-15 — Neon agent skills added; migration still blocked.** At the
+  developer's request ran `npx neon@latest skills -s neon -s neon-postgres -y`
+  (npm package `neon` 8.7.1, Neon's official CLI, repository
+  `neondatabase/neon-pkgs`), then the same with `-a claude-code`. Added
+  `.agents/skills/` (OpenCode), `.claude/skills/` (Claude Code), identical
+  copies of `neon` and `neon-postgres` from `neondatabase/agent-skills`, and
+  `skills-lock.json` recording their source and hashes. Documentation only;
+  nothing in `capstone/` uses them. `neon skills update` refreshes them. The
+  developer asked that these survive when this worktree's work is merged into
+  the main project folder. The Neon migration has NOT been applied: this
+  worktree's `.env` has no `DATABASE_URL`; the developer is to add it.
+  Checkpoint 8a's pre-implementation question (why the prompt may list tools
+  but not possible causes) is asked and not yet answered.
+
 - **2026-10-15 — checkpoint 7b closing question PASSED.** Asked what the
   model could do to get around guard 1 if it chose the label itself, the
   developer said it could write `observable` on a recalled memory and so turn
