@@ -54,6 +54,14 @@ alarm), then evaluation, then the agent itself.
 
 ## Session notes
 
+- **2026-10-15 — checkpoint 7b closing question PASSED.** Asked what the
+  model could do to get around guard 1 if it chose the label itself, the
+  developer said it could write `observable` on a recalled memory and so turn
+  the memory into evidence. Added: the same principle as 5a; a guard is only
+  as good as the label it trusts, so labels come from the answer's source,
+  written by code. Checkpoint 7b is complete, and with it checkpoint 7.
+  NEXT: 8, a Nemotron-backed policy with no list of causes in the prompt.
+
 - **2026-10-15 — checkpoint 7b: the recall tool and its two guards.**
   Pre-checkpoint passed: the developer said a recalled memory describes the
   factory in the past, not now (the machine could have a new problem), so it
