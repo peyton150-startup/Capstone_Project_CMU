@@ -13,6 +13,9 @@ from pydantic import Field
 
 from capstone.contracts import Contract
 
+# The source name of answers recalled from memory. The loop labels them by it.
+MEMORY_SOURCE = "memory"
+
 
 class ProvenanceReference(Contract):
     """The trusted artifact producer labels source origin, not the model."""
@@ -20,5 +23,8 @@ class ProvenanceReference(Contract):
     evidence_id: str = Field(min_length=1)
     source_id: str = Field(min_length=1)
     source_type: Literal["telemetry", "event", "inspection", "document", "tool_result"]
-    origin: Literal["observable", "human", "evaluator_hidden", "simulator_hidden"]
+    # "memory": recalled from an earlier investigation; a past belief, not a look now.
+    origin: Literal[
+        "observable", "human", "memory", "evaluator_hidden", "simulator_hidden"
+    ]
     observed_tick: int | None = Field(default=None, ge=0)

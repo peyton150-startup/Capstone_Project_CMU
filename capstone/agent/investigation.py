@@ -348,7 +348,8 @@ def verify(state: InvestigationState, deps: InvestigationDeps) -> None:
     Nothing tells the agent whether a fix worked. The policy chooses what
     to look at and judges it; this function decides whether that judgement
     can stand. "Resolved" and "not resolved" need evidence observed after
-    the work finished (or, with no action, after the conclusion). Without
+    the work finished (or, with no action, after the conclusion), and only
+    evidence labelled observable counts as observed: never a memory. Without
     it the result is "inconclusive"; with nothing looked at, "not performed".
 
     The prediction is the one recorded before the action and the tick is
@@ -361,10 +362,14 @@ def verify(state: InvestigationState, deps: InvestigationDeps) -> None:
     run_inner_loop(state, deps, "verify")
 
     def later(evidence_id: str) -> bool:
+        """A look at the factory after `since`. A recalled memory never is one:
+        it is stamped with the tick it was recalled, but it describes the past."""
         tick = known[evidence_id].observed_tick
-        return since is not None and tick is not None and tick > since
+        observed = origins.get(evidence_id) == "observable"
+        return observed and since is not None and tick is not None and tick > since
 
     known = {e.id: e for e in state.evidence}
+    origins = {p.evidence_id: p.origin for p in state.provenance}
     looked = [evidence_id for evidence_id in known if later(evidence_id)]
     if not looked:
         state.verification = VerificationCheck(

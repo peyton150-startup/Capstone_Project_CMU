@@ -71,6 +71,8 @@ GROUPS: dict[str, list[str]] = {
     "Completed record": ["agent_provenance", "agent_completion"],
     # Checkpoint 6: the reflection candidate and the memory gate.
     "Reflection": ["memory_reflection", "learning"],
+    # Checkpoint 7: recalling memories, and the guards on what a memory may prove.
+    "Recall": ["recall_tool"],
     "Memory": [
         "database_connection",
         "memory_policy",

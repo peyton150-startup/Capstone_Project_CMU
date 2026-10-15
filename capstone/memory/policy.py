@@ -137,6 +137,13 @@ class MemoryPromotionPolicy:
             ):
                 reasons.append("provenance_mismatch")
                 break
+        # A recalled memory may have guided where to look, but a new lesson must
+        # stand on this investigation's own observations, or lessons could
+        # confirm each other with nothing new seen.
+        if any(
+            provenance[ref].origin == "memory" for ref in references & provenance.keys()
+        ):
+            reasons.append("rests_on_memory")
         # Scan the whole input, including unused evidence, so tainted artifacts
         # do not become trusted merely by omitting a reference from the lesson.
         if any(

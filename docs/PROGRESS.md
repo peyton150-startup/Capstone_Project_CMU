@@ -54,6 +54,38 @@ alarm), then evaluation, then the agent itself.
 
 ## Session notes
 
+- **2026-10-15 — checkpoint 7b: the recall tool and its two guards.**
+  Pre-checkpoint passed: the developer said a recalled memory describes the
+  factory in the past, not now (the machine could have a new problem), so it
+  can guide where to look but cannot count as evidence for a claim. Added:
+  the memory's own tick is old, but the recall answer is stamped with the
+  current tick, which is what would have fooled `verify`.
+  POST-IMPLEMENTATION UNDERSTANDING IS OUTSTANDING. Changes:
+  `contracts/provenance.py`: origin gains `memory`; `MEMORY_SOURCE =
+  "memory"` defined once so the loop need not import the provider. New
+  `providers/recall.py` `RecallingProvider(factory, memory)`:
+  `recall_memories(text, limit 1-10, default 5)` answered from
+  `MemoryService.search` with source `memory`, stamped from the factory's
+  `get_time`; every other tool passed to the factory unchanged; bad
+  arguments give `invalid_arguments`, a failing store `provider_error`
+  without its message. `agent/loop.py` `gather`: origin `memory` when the
+  answer's source is `memory`, else `observable`. Guard 1,
+  `agent/investigation.py` `verify`: only `observable` evidence counts as
+  observed after the work. Guard 2, `memory/policy.py`: `rests_on_memory`
+  when any cited reference (conclusion, check, action, lesson) has origin
+  `memory`; an uncited memory that only guided the search is allowed.
+  Tests: new `tests/test_recall_tool.py` (15): answered from memory at the
+  factory's tick with no evidence IDs; other tools unchanged; bad arguments
+  refused; store errors not leaked; empty result is not an error; recalled
+  items labelled `memory` and all others `observable` in a real run; a fix
+  cannot be verified by citing a memory dated after the work (shown to fail
+  with the guard switched off); a real look still verifies when a memory is
+  also cited; the gate refuses a cited memory and allows an uncited one; end
+  to end, a verified run whose conclusion cites a memory is not remembered.
+  New CI check "Tests: Recall". Not done: no runner hands the agent a
+  `RecallingProvider` yet (step 9), and nothing tells a model the tool
+  exists (step 8). Verification: 775 passed locally; Ruff passed.
+
 - **2026-10-14 — checkpoint 7b taught; SESSION PAUSED HERE.** Nothing of 7b
   is built. Pre-checkpoint question asked and NOT YET ANSWERED: in the
   example (repair finishes at tick 900, the agent recalls at tick 950 a
