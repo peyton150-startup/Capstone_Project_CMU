@@ -7,6 +7,9 @@ from pathlib import Path
 from pydantic import Field, SecretStr, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
+# The model NVIDIA's catalogue listed when this was written (see docs/PROGRESS.md).
+NVIDIA_DEFAULT_MODEL = "nvidia/nemotron-3.5-lightning-30b-a3b"
+
 
 class Settings(BaseSettings):
     """Only implemented integrations have settings; credentials are optional."""
@@ -21,10 +24,16 @@ class Settings(BaseSettings):
     database_url: SecretStr | None = Field(
         default=None, validation_alias="DATABASE_URL"
     )
+    nvidia_api_key: SecretStr | None = Field(
+        default=None, validation_alias="NVIDIA_API_KEY"
+    )
+    nvidia_model: str = Field(
+        default=NVIDIA_DEFAULT_MODEL, validation_alias="NVIDIA_MODEL"
+    )
 
-    @field_validator("database_url", mode="before")
+    @field_validator("database_url", "nvidia_api_key", mode="before")
     @classmethod
-    def normalize_database_url(cls, value: object) -> object:
+    def normalize_secret(cls, value: object) -> object:
         """Treat blank strings as unconfigured; keep other secrets masked."""
         if isinstance(value, str):
             return value.strip() or None

@@ -54,6 +54,33 @@ alarm), then evaluation, then the agent itself.
 
 ## Session notes
 
+- **2026-10-15 — checkpoint 8a: the NVIDIA model client.** Pre-checkpoint
+  passed: the developer said the tools are what the model uses to find the
+  cause, while a list of causes would let it use elimination instead of
+  investigating; no hints. Added: a list turns an open investigation into
+  multiple choice, so the project would measure the list, not the agent.
+  POST-IMPLEMENTATION UNDERSTANDING IS OUTSTANDING. Changes: `settings.py`:
+  `NVIDIA_API_KEY` (masked, blank = missing) and `NVIDIA_MODEL` (default
+  `NVIDIA_DEFAULT_MODEL` = `nvidia/nemotron-3.5-lightning-30b-a3b`); the blank
+  check is now `normalize_secret`. New `providers/nvidia.py`: `NvidiaClient`
+  (`from_settings`, `ask(system, prompt, answer_type)`) sends one chat request
+  to `https://integrate.api.nvidia.com/v1/chat/completions` with the standard
+  library (no new dependency; no OpenAI SDK), temperature 0, the answer
+  type's JSON schema appended to the system prompt; the reply text has any
+  `<think>` block and one code fence removed and is validated against the
+  type; anything else raises `ValueError`, never repaired. Service failures
+  raise `ModelError` (HTTP status or "could not be reached" only; never the
+  key or body); the client's repr hides the key. Sending goes through a
+  `Transport` function. Tests: new `tests/test_nvidia_client.py` (22), all
+  with a fake transport: request shape; model choice; four reply wrappings
+  accepted; non-JSON, rule-breaking, extra-field and non-object replies
+  refused; malformed service replies refused; HTTP, unreachable and timeout
+  errors give `ModelError` without the key; settings. Open for 8b:
+  `ModelError` is not among the loop's `POLICY_ERRORS`, so an unreachable
+  service would end an investigation with an exception; and NVIDIA's
+  structured-output support for this model is still unverified (8c).
+  Verification: 797 passed locally; Ruff passed.
+
 - **2026-10-15 — memory migration applied to Neon.** The developer named
   the file holding the Neon connection string; a script copied the single
   postgres URL found there into this worktree's git-ignored `.env` as
