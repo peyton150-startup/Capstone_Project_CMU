@@ -79,7 +79,8 @@ alarm), then evaluation, then the agent itself.
   `ModelError` is not among the loop's `POLICY_ERRORS`, so an unreachable
   service would end an investigation with an exception; and NVIDIA's
   structured-output support for this model is still unverified (8c).
-  Verification: 797 passed locally; Ruff passed.
+  Verification: 797 passed locally; Ruff passed; CI green on `b474484` (all
+  twelve checks).
 
 - **2026-10-15 — memory migration applied to Neon.** The developer named
   the file holding the Neon connection string; a script copied the single
