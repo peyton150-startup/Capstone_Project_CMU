@@ -54,6 +54,21 @@ alarm), then evaluation, then the agent itself.
 
 ## Session notes
 
+- **2026-10-15 — checkpoint 8a closing question PASSED (after one
+  re-teach).** Asked why `ask` refuses a reply that does not match the type
+  instead of repairing it, the developer first said repairing is a lot of
+  work and asking the model again is better (no retry exists yet; that is
+  an 8b design point). Re-taught: a repaired answer fills fields the model
+  never chose, so code would make the decision and the record would say the
+  model made it; refusals are also counted, which measures each model's
+  reliability for the job table. The developer then said an unclear reply
+  is not a definite answer that can go into the data, only something that
+  could lean either way. Completed: a repair would pick the side, so the
+  repair code would be the one deciding. Checkpoint 8a is complete. NEXT:
+  8b, the model policy: prompts for the seven questions from working memory,
+  what happens when a model service is unreachable (`ModelError`), and
+  whether to retry a refused reply.
+
 - **2026-10-15 — checkpoint 8a reworked: one generic client, a job table.**
   The developer pointed out that MVP_SCOPE (Provider integration, revised
   2026-10-11) rules out per-provider clients, and asked that any model can
