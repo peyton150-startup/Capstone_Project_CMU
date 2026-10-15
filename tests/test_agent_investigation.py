@@ -8,6 +8,7 @@ from capstone.agent.loop import InvestigationDeps
 from capstone.agent.policy import ActionRequest, Interpretation, Stop
 from capstone.agent.state import Question
 from capstone.contracts.hypotheses import Hypothesis
+from capstone.providers.chat import ModelError
 from capstone.providers.factory import SimulatorFactoryProvider
 from capstone.simulator.line import build_line
 from capstone.simulator.scenarios import BearingDegradation
@@ -490,3 +491,30 @@ def test_research_through_the_real_provider_changes_nothing_in_the_factory():
     assert (sim.clock.tick, sim.state, sim.event_log.events) == before
     text = state.model_dump_json().lower()
     assert not [word for word in HIDDEN_WORDS if word in text]
+
+
+# --- no model service answers ------------------------------------------------
+
+
+def unavailable(*args):
+    raise ModelError("no model service answered")
+
+
+def test_an_outage_ends_the_investigation_with_its_own_reason():
+    state, provider = investigate(wear_policy(hypothesize=unavailable))
+    assert state.termination_reason is TerminationReason.MODEL_UNAVAILABLE
+    assert state.conclusion.diagnosis == "undetermined"
+    last = state.decisions[-1]
+    assert last.outcome == "stopped"
+    assert last.phase == "hypothesize"  # the stage it cut short
+    assert last.termination_reason is TerminationReason.MODEL_UNAVAILABLE
+    # Nothing was proposed: the run stopped before it reached a conclusion.
+    assert "propose_action" not in [r.name for r in provider.calls]
+
+
+def test_an_outage_inside_the_research_loop_is_not_an_unproductive_turn():
+    policy = wear_policy()
+    policy.decide = unavailable
+    state, _ = investigate(policy)
+    assert state.termination_reason is TerminationReason.MODEL_UNAVAILABLE
+    assert [d.outcome for d in state.decisions].count("invalid_decision") == 0

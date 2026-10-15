@@ -30,6 +30,9 @@ class TerminationReason(StrEnum):
     EVIDENCE_SUFFICIENT = "evidence_sufficient"
     DIAGNOSIS_SUPPORTED = "diagnosis_supported"
     NO_USEFUL_ACTION = "no_useful_action"
+    # No model service answered, even after the retry and the fallback. Not
+    # a reasoning failure: the agent never got the chance to reason.
+    MODEL_UNAVAILABLE = "model_unavailable"
 
 
 class DetectedAnomaly(Contract):

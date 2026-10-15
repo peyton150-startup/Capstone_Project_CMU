@@ -54,6 +54,38 @@ alarm), then evaluation, then the agent itself.
 
 ## Session notes
 
+- **2026-10-15 — checkpoint 8b-1: an outage is retried, then handed on.**
+  8b split in two: 8b-1 (what happens when no model answers) and 8b-2 (the
+  prompts for the seven questions, built from working memory). Pre-checkpoint
+  passed: asked why an unreachable provider and a reply that breaks the type
+  should be handled differently, the developer said the bad reply is the
+  model's mistake (it described an action instead of choosing one), and for
+  the outage proposed: retry first, then reroute to another provider to be
+  named later. DEVELOPER DECISION: retry, then fallback; the fallback is a
+  setting, empty by default. Added: an outage that survives both is not the
+  agent's fault, so it gets its own stop reason. POST-IMPLEMENTATION
+  UNDERSTANDING IS OUTSTANDING. Changes: `providers/chat.py`: `ModelError`
+  gains `transient` (unreachable, timeout, HTTP 429 and 5xx: yes; 401, 400:
+  no); new `FallbackClient(clients, retries=1, retry_delay=2.0, sleep)` asks
+  each model in turn, retries a transient failure once (after a pause),
+  moves straight on after a permanent one, never retries or hands on a reply
+  that breaks the type (`ValueError` goes to the loop as before), records
+  `answered_by`, and when nothing answers raises one `ModelError` naming
+  each failure without keys; `clients_for_jobs` now gives each job a
+  `FallbackClient` (its own model, then `FALLBACK_MODEL` if set and
+  different). `settings.py`: `FALLBACK_MODEL`. `agent/artifacts.py`:
+  `TerminationReason.MODEL_UNAVAILABLE`. `agent/state.py`: `stage`, the stage
+  now running. `agent/investigation.py`: the stages that ask the policy set
+  `stage`; `run_investigation` catches `ModelError` and calls
+  `stop_without_a_model`, which sets the stop reason, keeps a conclusion
+  already reached or writes "undetermined", and records a "stopped" decision
+  at the interrupted stage. Not an invalid decision, not an unproductive
+  turn. Tests: 12 new in `tests/test_chat_client.py`, 2 in
+  `tests/test_agent_investigation.py`. Still open: the evaluation does not
+  yet treat `model_unavailable` runs differently (it should leave them out of
+  the agent's reasoning scores); `answered_by` is not yet copied into the
+  decision record (8b-2). Verification: 826 passed locally; Ruff passed.
+
 - **2026-10-15 — checkpoint 8a closing question PASSED (after one
   re-teach).** Asked why `ask` refuses a reply that does not match the type
   instead of repairing it, the developer first said repairing is a lot of

@@ -13,6 +13,7 @@ from capstone.providers.chat import (
     JOBS,
     PROVIDERS,
     ChatClient,
+    FallbackClient,
     ModelError,
     client_for,
     clients_for_jobs,
@@ -37,6 +38,7 @@ JOB_SETTINGS = (
     "CONCLUDE_MODEL",
     "JUDGE_MODEL",
     "LESSON_MODEL",
+    "FALLBACK_MODEL",
     "CLOUDFLARE_ACCOUNT_ID",
 )
 
@@ -313,3 +315,104 @@ def test_keys_are_masked_in_settings(monkeypatch):
 def test_a_blank_key_is_treated_as_missing(monkeypatch, value):
     monkeypatch.setenv("GROQ_API_KEY", value)
     assert settings().groq_api_key is None
+
+
+# --- an outage is retried, then handed to the fallback model ---------------------
+
+UNREACHABLE = urllib.error.URLError("connection refused")
+
+
+def http_error(code):
+    return urllib.error.HTTPError("https://example.test", code, "error", {}, None)
+
+
+def fallback(*clients, retries=1):
+    waits = []
+    return FallbackClient(clients, retries=retries, sleep=waits.append), waits
+
+
+@pytest.mark.parametrize(
+    ("error", "transient"),
+    [
+        (UNREACHABLE, True),
+        (TimeoutError("timed out"), True),
+        (http_error(429), True),
+        (http_error(503), True),
+        (http_error(401), False),
+        (http_error(400), False),
+    ],
+)
+def test_only_an_outage_is_marked_worth_retrying(error, transient):
+    ask, _ = client(error)
+    with pytest.raises(ModelError) as raised:
+        ask.ask("s", "p", Lesson)
+    assert raised.value.transient is transient
+
+
+def test_an_outage_is_retried_once_on_the_same_model():
+    primary, transport = client(UNREACHABLE, chat('{"text": "advice"}'), model="a")
+    ask, waits = fallback(primary)
+    assert ask.ask("s", "p", Lesson) == Lesson(text="advice")
+    assert len(transport.requests) == 2
+    assert len(waits) == 1  # it paused once before trying again
+    assert ask.answered_by == "a"
+
+
+def test_a_refused_reply_is_not_retried_or_handed_on():
+    primary, first = client(chat("not json"), model="a")
+    backup, second = client(chat('{"text": "advice"}'), model="b")
+    ask, _ = fallback(primary, backup)
+    with pytest.raises(ValueError):
+        ask.ask("s", "p", Lesson)
+    assert len(first.requests) == 1
+    assert second.requests == []
+    assert ask.answered_by is None
+
+
+def test_after_the_retry_fails_the_fallback_model_answers():
+    primary, first = client(UNREACHABLE, http_error(503), model="a")
+    backup, second = client(chat('{"text": "advice"}'), model="b")
+    ask, _ = fallback(primary, backup)
+    assert ask.ask("s", "p", Lesson) == Lesson(text="advice")
+    assert len(first.requests) == 2
+    assert len(second.requests) == 1
+    assert ask.answered_by == "b"
+
+
+def test_a_rejected_key_skips_the_retry_and_goes_to_the_fallback():
+    primary, first = client(http_error(401), model="a")
+    backup, _ = client(chat('{"text": "advice"}'), model="b")
+    ask, waits = fallback(primary, backup)
+    assert ask.ask("s", "p", Lesson) == Lesson(text="advice")
+    assert len(first.requests) == 1
+    assert waits == []
+
+
+def test_when_no_model_answers_the_error_names_each_failure_but_no_key():
+    primary, _ = client(UNREACHABLE, UNREACHABLE, model="a")
+    backup, _ = client(http_error(401), model="b")
+    ask, _ = fallback(primary, backup)
+    with pytest.raises(ModelError) as raised:
+        ask.ask("s", "p", Lesson)
+    message = str(raised.value)
+    assert "a: the model service could not be reached" in message
+    assert "b: the model service answered HTTP 401" in message
+    assert KEY not in message
+    assert raised.value.transient is False
+
+
+def test_a_job_falls_back_to_the_fallback_model_when_one_is_set(monkeypatch):
+    monkeypatch.setenv("NVIDIA_API_KEY", KEY)
+    monkeypatch.setenv("GROQ_API_KEY", KEY)
+    assert [c.model for c in clients_for_jobs(settings())["decide"].clients] == [
+        DEFAULT_MODEL.split("/", 1)[1]
+    ]
+    monkeypatch.setenv("FALLBACK_MODEL", "groq/backup-model")
+    monkeypatch.setenv("PLAN_MODEL", "groq/backup-model")
+    clients = clients_for_jobs(settings())
+    assert [c.model for c in clients["decide"].clients] == [
+        DEFAULT_MODEL.split("/", 1)[1],
+        "backup-model",
+    ]
+    # A job whose own model is the fallback is not asked twice.
+    assert [c.model for c in clients["plan"].clients] == ["backup-model"]

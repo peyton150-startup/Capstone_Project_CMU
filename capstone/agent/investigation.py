@@ -51,6 +51,7 @@ from capstone.agent.loop import (
 from capstone.agent.policy import ActionRequest, CallTool, Interpretation
 from capstone.agent.state import InvestigationState, Phase, Question
 from capstone.contracts.tools import ToolRequest
+from capstone.providers.chat import ModelError
 
 # Where a stage sends the investigation next.
 Route = Literal["continue", "conclude"]
@@ -91,6 +92,7 @@ def observe(state: InvestigationState, deps: InvestigationDeps) -> None:
 
 def plan(state: InvestigationState, deps: InvestigationDeps) -> None:
     """Ask the policy what is worth finding out first, and keep its questions open."""
+    state.stage = "plan"
     try:
         questions = tuple(deps.policy.plan(state.model_copy(deep=True)))
         if not all(isinstance(q, Question) for q in questions):
@@ -110,6 +112,7 @@ def plan(state: InvestigationState, deps: InvestigationDeps) -> None:
 
 def investigate(state: InvestigationState, deps: InvestigationDeps) -> Route:
     """Gather evidence. Go straight to the conclusion if there is nothing to explain."""
+    state.stage = "investigate"
     reason = run_inner_loop(state, deps, "investigate")
     state.termination_reason = reason
     if reason is TerminationReason.TIMEOUT or not gathered_in(state, "investigate"):
@@ -119,6 +122,7 @@ def investigate(state: InvestigationState, deps: InvestigationDeps) -> Route:
 
 def hypothesize(state: InvestigationState, deps: InvestigationDeps) -> Route:
     """Ask the policy for explanations. With none to test, go to the conclusion."""
+    state.stage = "hypothesize"
     outcome = "decided"
     try:
         apply_interpretation(
@@ -137,6 +141,7 @@ def hypothesize(state: InvestigationState, deps: InvestigationDeps) -> Route:
 
 def test(state: InvestigationState, deps: InvestigationDeps) -> None:
     """Gather evidence that tells the explanations apart."""
+    state.stage = "test"
     state.termination_reason = run_inner_loop(state, deps, "test")
 
 
@@ -180,6 +185,7 @@ def check_conclusion(
 
 def conclude(state: InvestigationState, deps: InvestigationDeps) -> None:
     """Record the final belief. Always leaves a conclusion, even a failed one."""
+    state.stage = "decide"
     outcome = "decided"
     try:
         conclusion, request = deps.policy.conclude(state.model_copy(deep=True))
@@ -355,6 +361,7 @@ def verify(state: InvestigationState, deps: InvestigationDeps) -> None:
     The prediction is the one recorded before the action and the tick is
     taken from the evidence, so neither can be adjusted afterwards.
     """
+    state.stage = "verify"
     since = (
         state.action_finish_tick if state.action_carried_out else state.concluded_tick
     )
@@ -512,5 +519,28 @@ def run_investigation(
     state: InvestigationState, deps: InvestigationDeps
 ) -> InvestigationState:
     """Run one investigation from its anomaly to the check of what was done."""
-    INVESTIGATION_GRAPH.run_sync(state=state, deps=deps)
+    try:
+        INVESTIGATION_GRAPH.run_sync(state=state, deps=deps)
+    except ModelError:
+        stop_without_a_model(state)
     return state
+
+
+def stop_without_a_model(state: InvestigationState) -> None:
+    """End the run where no model service answered, after retries and fallback.
+
+    This is not the agent reasoning badly, so it is neither an invalid
+    decision nor an unproductive turn: it gets its own stop reason, and the
+    stage it cut short. A conclusion already reached is kept; otherwise
+    the honest one is "undetermined".
+    """
+    state.termination_reason = TerminationReason.MODEL_UNAVAILABLE
+    if state.conclusion is None:
+        state.conclusion = UNDETERMINED
+    record(
+        state,
+        state.stage or "observe",
+        "stopped",
+        information_needed="a model service that answers",
+        termination_reason=TerminationReason.MODEL_UNAVAILABLE,
+    )

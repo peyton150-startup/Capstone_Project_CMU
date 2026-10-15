@@ -52,6 +52,8 @@ class Settings(BaseSettings):
     conclude_model: str | None = _optional("CONCLUDE_MODEL")
     judge_model: str | None = _optional("JUDGE_MODEL")
     lesson_model: str | None = _optional("LESSON_MODEL")
+    # Asked when a job's own model cannot be reached. None: no fallback.
+    fallback_model: str | None = _optional("FALLBACK_MODEL")
 
     @field_validator(
         "database_url",
@@ -69,6 +71,7 @@ class Settings(BaseSettings):
         "conclude_model",
         "judge_model",
         "lesson_model",
+        "fallback_model",
         mode="before",
     )
     @classmethod

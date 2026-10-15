@@ -138,6 +138,8 @@ class InvestigationState(BaseModel):
     # Calls already made, as "tool|arguments|tick", to spot repeats.
     seen_calls: list[str] = Field(default_factory=list)
 
+    # The stage now running, so a stop that cuts it short is recorded there.
+    stage: Phase | None = None
     termination_reason: TerminationReason | None = None
     conclusion: AgentConclusion | None = None
     proposed_action: ProposalRecord | None = None

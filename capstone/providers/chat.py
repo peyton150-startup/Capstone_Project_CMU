@@ -17,13 +17,19 @@ from a policy as an invalid decision.
 A failure to reach a service raises `ModelError`, which carries only a
 short reason, never the key or the response body. Sending goes through a
 `Transport` function, so tests pass a fake and never touch the network.
+
+`FallbackClient` is what each job is given. It handles an outage, never a
+bad reply: an unreachable or overloaded service is asked once more, then
+the next model in its list (FALLBACK_MODEL) is asked. A reply that breaks
+the answer type is the model's own mistake and goes straight to the loop.
 """
 
 import json
 import re
+import time
 import urllib.error
 import urllib.request
-from collections.abc import Callable
+from collections.abc import Callable, Sequence
 from dataclasses import dataclass
 from typing import TypeVar
 
@@ -40,7 +46,16 @@ _FENCE = re.compile(r"^```(?:json)?\s*(.*?)\s*```$", re.DOTALL)
 
 
 class ModelError(RuntimeError):
-    """A model service could not be reached, refused, or is not configured."""
+    """A model service could not be reached, refused, or is not configured.
+
+    `transient` is True when asking again later might work: the service was
+    unreachable, timed out, was overloaded (HTTP 429) or failed (HTTP 5xx).
+    A rejected key or a bad request fails the same way every time.
+    """
+
+    def __init__(self, message: str, *, transient: bool = False):
+        super().__init__(message)
+        self.transient = transient
 
 
 @dataclass(frozen=True)
@@ -159,10 +174,74 @@ class ChatClient:
                 self.url, headers, json.dumps(body).encode(), self.timeout
             )
         except urllib.error.HTTPError as error:
-            raise ModelError(f"the model service answered HTTP {error.code}") from None
+            raise ModelError(
+                f"the model service answered HTTP {error.code}",
+                transient=error.code == 429 or error.code >= 500,
+            ) from None
         except (urllib.error.URLError, TimeoutError, OSError):
-            raise ModelError("the model service could not be reached") from None
+            raise ModelError(
+                "the model service could not be reached", transient=True
+            ) from None
         return answer_type.model_validate_json(answer_json(reply_text(raw)))
+
+
+class FallbackClient:
+    """One job's models in order. An outage moves on; a bad reply does not.
+
+    Each model is asked, and asked `retries` more times after a transient
+    failure. A failure that will not change (a rejected key) moves straight
+    to the next model. A reply that breaks the answer type raises
+    `ValueError` at once: retrying or switching models would hide which
+    model got it wrong. When no model answers, one `ModelError` names each
+    failure.
+    """
+
+    def __init__(
+        self,
+        clients: Sequence[ChatClient],
+        *,
+        retries: int = 1,
+        retry_delay: float = 2.0,
+        sleep: Callable[[float], None] = time.sleep,
+    ):
+        if not clients:
+            raise ValueError("a job needs at least one model")
+        self.clients = tuple(clients)
+        self.retries = retries
+        self.retry_delay = retry_delay
+        self._sleep = sleep
+        # The model that gave the latest answer, so a record can name it.
+        self.answered_by: str | None = None
+
+    @property
+    def model(self) -> str:
+        """The model asked first."""
+        return self.clients[0].model
+
+    @property
+    def url(self) -> str:
+        return self.clients[0].url
+
+    def __repr__(self) -> str:
+        return f"FallbackClient({[c.model for c in self.clients]!r})"
+
+    def ask(self, system: str, prompt: str, answer_type: type[Answer]) -> Answer:
+        self.answered_by = None
+        failures = []
+        for client in self.clients:
+            for attempt in range(1 + self.retries):
+                if attempt:
+                    self._sleep(self.retry_delay)
+                try:
+                    answer = client.ask(system, prompt, answer_type)
+                except ModelError as error:
+                    failures.append(f"{client.model}: {error}")
+                    if not error.transient:
+                        break
+                    continue
+                self.answered_by = client.model
+                return answer
+        raise ModelError("no model service answered (" + "; ".join(failures) + ")")
 
 
 def client_for(
@@ -195,14 +274,18 @@ def client_for(
 
 def clients_for_jobs(
     settings: Settings | None = None, *, transport: Transport = urllib_transport
-) -> dict[str, ChatClient]:
-    """One client per policy question, from the job table in settings."""
+) -> dict[str, FallbackClient]:
+    """One client per policy question, from the job table in settings.
+
+    Each job asks its own model, then FALLBACK_MODEL if one is set.
+    """
     settings = settings or get_settings()
-    return {
-        job: client_for(
-            getattr(settings, _JOB_SETTING[job]) or settings.default_model,
-            settings,
-            transport=transport,
+    clients = {}
+    for job in JOBS:
+        references = [getattr(settings, _JOB_SETTING[job]) or settings.default_model]
+        if settings.fallback_model and settings.fallback_model not in references:
+            references.append(settings.fallback_model)
+        clients[job] = FallbackClient(
+            [client_for(r, settings, transport=transport) for r in references]
         )
-        for job in JOBS
-    }
+    return clients
