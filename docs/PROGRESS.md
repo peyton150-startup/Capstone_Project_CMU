@@ -84,7 +84,8 @@ alarm), then evaluation, then the agent itself.
   to end, a verified run whose conclusion cites a memory is not remembered.
   New CI check "Tests: Recall". Not done: no runner hands the agent a
   `RecallingProvider` yet (step 9), and nothing tells a model the tool
-  exists (step 8). Verification: 775 passed locally; Ruff passed.
+  exists (step 8). Verification: 775 passed locally; Ruff passed; CI green
+  on `adac0d6` (all twelve checks).
 
 - **2026-10-14 — checkpoint 7b taught; SESSION PAUSED HERE.** Nothing of 7b
   is built. Pre-checkpoint question asked and NOT YET ANSWERED: in the
