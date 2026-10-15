@@ -84,7 +84,8 @@ alarm), then evaluation, then the agent itself.
   `tests/test_agent_investigation.py`. Still open: the evaluation does not
   yet treat `model_unavailable` runs differently (it should leave them out of
   the agent's reasoning scores); `answered_by` is not yet copied into the
-  decision record (8b-2). Verification: 826 passed locally; Ruff passed.
+  decision record (8b-2). Verification: 826 passed locally; Ruff passed;
+  CI green on `d103eda` (all twelve checks).
 
 - **2026-10-15 — checkpoint 8a closing question PASSED (after one
   re-teach).** Asked why `ask` refuses a reply that does not match the type
