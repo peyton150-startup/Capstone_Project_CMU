@@ -1,6 +1,9 @@
 # The base class for data models that cross the agent boundary.
 # Responsibility: make every contract immutable and reject unknown fields.
-"""Shared observable data and research artifacts; never simulator truth."""
+"""The shared data shapes that cross the agent boundary: tool requests and results,
+evidence, hypotheses, and investigation records. They hold only observable data and
+the agent's beliefs, never simulator truth.
+"""
 
 from pydantic import BaseModel, ConfigDict
 
