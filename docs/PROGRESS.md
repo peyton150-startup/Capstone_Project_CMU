@@ -83,7 +83,7 @@ alarm), then evaluation, then the agent itself.
   full suite re-run before committing. Still open for 8b: `ModelError` is not
   among the loop's `POLICY_ERRORS`; whether each model follows the JSON
   instruction is untested until the live check (8c). Verification: 812
-  passed locally; Ruff passed.
+  passed locally; Ruff passed; CI green on `ea66f30` (all twelve checks).
 
 - **2026-10-15 — checkpoint 8a: the NVIDIA model client.** Pre-checkpoint
   passed: the developer said the tools are what the model uses to find the
