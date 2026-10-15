@@ -54,6 +54,15 @@ alarm), then evaluation, then the agent itself.
 
 ## Session notes
 
+- **2026-10-15 — package docstrings; SESSION PAUSED HERE.** At the
+  developer's request each `__init__.py` (capstone and its eight packages,
+  and tests) now says in a sentence or two what the folder holds and how its
+  modules fit together. Documentation only; CI green on `7039e25`. NEXT: the
+  8b-1 closing question is asked and NOT YET ANSWERED (Groq times out twice
+  on `decide`, the Mistral fallback answers with an invalid reply: what does
+  `FallbackClient` do, what does the loop record, which model is counted as
+  wrong?). Then 8b-2, the prompts for the seven questions.
+
 - **2026-10-15 — checkpoint 8b-1: an outage is retried, then handed on.**
   8b split in two: 8b-1 (what happens when no model answers) and 8b-2 (the
   prompts for the seven questions, built from working memory). Pre-checkpoint
