@@ -49,7 +49,8 @@ Inspect the applied revision separately:
 Do not use downgrade as a routine cleanup step on a database containing lessons;
 it deletes them. Tests use temporary SQLite databases for creation, removal,
 restart, and duplicate checks. PostgreSQL SQL compilation is not a live-server
-test. No migration has been applied to Neon by this increment.
+test. Revision `0001_episodic_memory` was applied to Neon on 2026-10-15
+(PostgreSQL 18; the database was empty before; the table starts with no rows).
 
 ## Remaining integration
 

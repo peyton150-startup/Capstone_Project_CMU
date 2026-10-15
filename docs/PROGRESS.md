@@ -54,6 +54,20 @@ alarm), then evaluation, then the agent itself.
 
 ## Session notes
 
+- **2026-10-15 — memory migration applied to Neon.** The developer named
+  the file holding the Neon connection string; a script copied the single
+  postgres URL found there into this worktree's git-ignored `.env` as
+  `DATABASE_URL` without printing it (host on `aws.neon.tech`, SSL
+  required). Before: `alembic current` showed no revision and the public
+  schema had no tables (PostgreSQL 18.6). Ran `alembic upgrade head`. After:
+  `alembic current` is `0001_episodic_memory (head)`; tables
+  `alembic_version` and `episodic_memories` (memory_id UUID,
+  investigation_id UUID, category VARCHAR(128), source_tick INTEGER,
+  fingerprint VARCHAR(64), payload JSONB), unique keys on fingerprint and
+  investigation_id, index on category; 0 rows. The 6b outcome change needed
+  no migration (it is inside the JSON payload). Still pending: the SubQ
+  audit; checkpoint 8a's question.
+
 - **2026-10-15 — Neon agent skills added; migration still blocked.** At the
   developer's request ran `npx neon@latest skills -s neon -s neon-postgres -y`
   (npm package `neon` 8.7.1, Neon's official CLI, repository
