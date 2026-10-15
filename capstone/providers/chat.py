@@ -1,0 +1,208 @@
+# One request to any provider's chat endpoint, one validated answer back.
+# Responsibility: send a prompt, refuse any reply that is not the expected type.
+"""The client behind the model policy, for every provider in scope.
+
+    clients = clients_for_jobs()                    # one client per question
+    answer = clients["decide"].ask(system, prompt, Decision)
+
+All six providers offer a chat endpoint in the same OpenAI-style shape, so
+one client reaches them all: only the address, the key and the model name
+differ (`PROVIDERS`). The client uses just the common part of that shape:
+a system and a user message, temperature 0, a Bearer key, and the reply's
+text. It asks for one JSON object matching the answer type's schema and
+validates the reply against that type. Anything else raises `ValueError`
+and is never repaired or guessed: the loop already treats a `ValueError`
+from a policy as an invalid decision.
+
+A failure to reach a service raises `ModelError`, which carries only a
+short reason, never the key or the response body. Sending goes through a
+`Transport` function, so tests pass a fake and never touch the network.
+"""
+
+import json
+import re
+import urllib.error
+import urllib.request
+from collections.abc import Callable
+from dataclasses import dataclass
+from typing import TypeVar
+
+from pydantic import BaseModel
+
+from capstone.settings import Settings, get_settings
+
+# (url, headers, body, timeout in seconds) -> response body
+Transport = Callable[[str, dict[str, str], bytes, float], bytes]
+Answer = TypeVar("Answer", bound=BaseModel)
+
+_THINKING = re.compile(r"<think>.*?</think>", re.DOTALL)
+_FENCE = re.compile(r"^```(?:json)?\s*(.*?)\s*```$", re.DOTALL)
+
+
+class ModelError(RuntimeError):
+    """A model service could not be reached, refused, or is not configured."""
+
+
+@dataclass(frozen=True)
+class Provider:
+    url: str  # may contain {account}
+    key_setting: str  # the environment name of its key
+
+
+PROVIDERS = {
+    "nvidia": Provider(
+        "https://integrate.api.nvidia.com/v1/chat/completions", "NVIDIA_API_KEY"
+    ),
+    "groq": Provider("https://api.groq.com/openai/v1/chat/completions", "GROQ_API_KEY"),
+    "mistral": Provider(
+        "https://api.mistral.ai/v1/chat/completions", "MISTRAL_API_KEY"
+    ),
+    "gemini": Provider(
+        "https://generativelanguage.googleapis.com/v1beta/openai/chat/completions",
+        "GEMINI_API_KEY",
+    ),
+    "cohere": Provider(
+        "https://api.cohere.ai/compatibility/v1/chat/completions", "COHERE_API_KEY"
+    ),
+    "cloudflare": Provider(
+        "https://api.cloudflare.com/client/v4/accounts/{account}/ai/v1/chat/completions",
+        "CLOUDFLARE_API_TOKEN",
+    ),
+}
+
+# The seven policy questions, each of which can be given to its own model.
+JOBS = (
+    "plan",
+    "decide",
+    "interpret",
+    "hypothesize",
+    "conclude",
+    "judge_verification",
+    "write_lesson",
+)
+_JOB_SETTING = {
+    "plan": "plan_model",
+    "decide": "decide_model",
+    "interpret": "interpret_model",
+    "hypothesize": "hypothesize_model",
+    "conclude": "conclude_model",
+    "judge_verification": "judge_model",
+    "write_lesson": "lesson_model",
+}
+
+
+def urllib_transport(url: str, headers: dict[str, str], body: bytes, timeout: float):
+    request = urllib.request.Request(url, data=body, headers=headers, method="POST")
+    with urllib.request.urlopen(request, timeout=timeout) as response:
+        return response.read()
+
+
+def reply_text(body: bytes) -> str:
+    """The assistant's text in a chat-completions reply. ValueError if absent."""
+    try:
+        content = json.loads(body)["choices"][0]["message"]["content"]
+    except (ValueError, LookupError, TypeError) as error:
+        raise ValueError("the model service sent a malformed reply") from error
+    if not isinstance(content, str):
+        raise ValueError("the model reply has no text")
+    return content
+
+
+def answer_json(text: str) -> str:
+    """The JSON object in a reply: thinking and a code fence removed, nothing else."""
+    text = _THINKING.sub("", text).strip()
+    fenced = _FENCE.match(text)
+    return fenced.group(1) if fenced else text
+
+
+class ChatClient:
+    def __init__(
+        self,
+        url: str,
+        api_key: str,
+        model: str,
+        *,
+        transport: Transport = urllib_transport,
+        timeout: float = 60.0,
+    ):
+        self.url = url
+        self._api_key = api_key
+        self.model = model
+        self._transport = transport
+        self.timeout = timeout
+
+    def __repr__(self) -> str:
+        return f"ChatClient(url={self.url!r}, model={self.model!r})"
+
+    def ask(self, system: str, prompt: str, answer_type: type[Answer]) -> Answer:
+        """One question, one answer of `answer_type`. ValueError if the reply is not one."""
+        schema = json.dumps(answer_type.model_json_schema())
+        body = {
+            "model": self.model,
+            "temperature": 0,
+            "messages": [
+                {
+                    "role": "system",
+                    "content": f"{system}\n\nReply with exactly one JSON object "
+                    f"and nothing else. It must match this JSON schema:\n{schema}",
+                },
+                {"role": "user", "content": prompt},
+            ],
+        }
+        headers = {
+            "Authorization": f"Bearer {self._api_key}",
+            "Content-Type": "application/json",
+            "Accept": "application/json",
+        }
+        try:
+            raw = self._transport(
+                self.url, headers, json.dumps(body).encode(), self.timeout
+            )
+        except urllib.error.HTTPError as error:
+            raise ModelError(f"the model service answered HTTP {error.code}") from None
+        except (urllib.error.URLError, TimeoutError, OSError):
+            raise ModelError("the model service could not be reached") from None
+        return answer_type.model_validate_json(answer_json(reply_text(raw)))
+
+
+def client_for(
+    reference: str,
+    settings: Settings | None = None,
+    *,
+    transport: Transport = urllib_transport,
+) -> ChatClient:
+    """A client for "provider/model". ModelError names any missing setting."""
+    settings = settings or get_settings()
+    name, _, model = reference.partition("/")
+    if name not in PROVIDERS or not model:
+        raise ModelError(
+            f"unknown model {reference!r}: use provider/model with a provider "
+            f"from {sorted(PROVIDERS)}"
+        )
+    provider = PROVIDERS[name]
+    key = getattr(settings, provider.key_setting.lower())
+    if key is None:
+        raise ModelError(f"set {provider.key_setting} in the local .env or environment")
+    url = provider.url
+    if "{account}" in url:
+        if settings.cloudflare_account_id is None:
+            raise ModelError(
+                "set CLOUDFLARE_ACCOUNT_ID in the local .env or environment"
+            )
+        url = url.format(account=settings.cloudflare_account_id)
+    return ChatClient(url, key.get_secret_value(), model, transport=transport)
+
+
+def clients_for_jobs(
+    settings: Settings | None = None, *, transport: Transport = urllib_transport
+) -> dict[str, ChatClient]:
+    """One client per policy question, from the job table in settings."""
+    settings = settings or get_settings()
+    return {
+        job: client_for(
+            getattr(settings, _JOB_SETTING[job]) or settings.default_model,
+            settings,
+            transport=transport,
+        )
+        for job in JOBS
+    }

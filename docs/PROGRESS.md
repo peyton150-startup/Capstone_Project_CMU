@@ -54,6 +54,37 @@ alarm), then evaluation, then the agent itself.
 
 ## Session notes
 
+- **2026-10-15 — checkpoint 8a reworked: one generic client, a job table.**
+  The developer pointed out that MVP_SCOPE (Provider integration, revised
+  2026-10-11) rules out per-provider clients, and asked that any model can
+  do any job when settings say which does which. The developer's key file
+  holds keys for the six providers in scope (NVIDIA, Groq, Mistral, Gemini,
+  Cohere, Cloudflare Workers AI) plus Cloudflare R2 storage keys, and no
+  model names. Weighed: LiteLLM (MVP_SCOPE's plan) supports all six but
+  installs OpenAI's Python SDK, which CLAUDE.md section 9 forbids; one
+  standard-library client reaches all six through their OpenAI-style chat
+  endpoints using only the common subset (system and user messages,
+  temperature, Bearer key, reply text). DEVELOPER DECISION: the generic
+  client; revisit LiteLLM/CrewAI at the multi-agent phase. The design was the
+  developer's own, so it served as the pre-check; post-implementation
+  understanding is outstanding. Changes: `providers/nvidia.py` renamed to
+  `providers/chat.py`: `ChatClient(url, api_key, model)` with the same
+  `ask`; `PROVIDERS` (address and key setting for each of the six;
+  Cloudflare's address needs `CLOUDFLARE_ACCOUNT_ID`); `JOBS` (the seven
+  policy questions); `client_for("provider/model")` (unknown providers,
+  including openai and anthropic, refused; a missing key or account ID named
+  without its value); `clients_for_jobs(settings)` (one client per job;
+  only providers in use need a key). `settings.py`: a key per provider,
+  `CLOUDFLARE_ACCOUNT_ID`, `DEFAULT_MODEL` (`nvidia/nvidia/nemotron-3.5-
+  lightning-30b-a3b`) and `PLAN_MODEL` ... `LESSON_MODEL` overrides;
+  `NVIDIA_MODEL` removed. Tests: `tests/test_chat_client.py` (37, replacing
+  the NVIDIA client's 22). Mistake recorded: while tidying, a `git checkout`
+  of `settings.py` discarded the new settings; the file was rewritten and the
+  full suite re-run before committing. Still open for 8b: `ModelError` is not
+  among the loop's `POLICY_ERRORS`; whether each model follows the JSON
+  instruction is untested until the live check (8c). Verification: 812
+  passed locally; Ruff passed.
+
 - **2026-10-15 — checkpoint 8a: the NVIDIA model client.** Pre-checkpoint
   passed: the developer said the tools are what the model uses to find the
   cause, while a list of causes would let it use elimination instead of
