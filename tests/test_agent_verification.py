@@ -385,6 +385,40 @@ def test_with_the_allowance_used_up_before_looking_the_check_was_not_performed()
     assert state.verification.outcome == "not_performed"
 
 
+# --- what the policy is asked to read --------------------------------------
+
+
+class Noting:
+    """The scripted policy, noting each answer it is asked to interpret."""
+
+    def __init__(self, inner):
+        self.inner = inner
+        self.interpreted = []
+
+    def __getattr__(self, name):
+        return getattr(self.inner, name)
+
+    def interpret(self, state, step, evidence):
+        self.interpreted.append(step.request.name)
+        return self.inner.interpret(state, step, evidence)
+
+
+def test_the_policy_interprets_only_the_calls_it_chose():
+    agent = Noting(policy())
+    state, _ = investigate(agent)
+    # Its own: the summary, the events, and in the check its wait and its look.
+    assert agent.interpreted == [
+        "get_sensor_summary",
+        "get_events",
+        "wait",
+        "get_sensor_summary",
+    ]
+    # The loop's own calls are still made, recorded and kept as evidence.
+    made = {e.source_id.split(":")[1] for e in state.evidence}
+    assert {"get_time", "propose_action", "get_proposals", "execute_action"} <= made
+    assert state.verification.outcome == "resolved"
+
+
 # --- the shape of the graph ------------------------------------------------
 
 

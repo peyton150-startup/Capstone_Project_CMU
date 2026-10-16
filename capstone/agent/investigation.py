@@ -24,7 +24,10 @@ usable one, this module writes an honest "undetermined" itself.
 
 From `propose` on, the policy makes no calls. Asking, reading the
 decision and starting the work are a fixed procedure, so a policy can
-neither skip a step nor claim a permission it was not given.
+neither skip a step nor claim a permission it was not given. Nor is it
+asked to interpret the answers to calls the loop makes itself (the time,
+the proposal, the work): with a model behind the policy, that would be a
+model request spent on nothing it chose.
 """
 
 import json
@@ -84,7 +87,7 @@ def observe(state: InvestigationState, deps: InvestigationDeps) -> None:
         information_needed="the current factory time",
         request=ToolRequest(name="get_time"),
     )
-    gather(state, deps, "observe", step)
+    gather(state, deps, "observe", step, interpret=False)
     # That call was made before the tick was known. Note it under the tick
     # it reported too, so asking the time again straight away is a repeat.
     state.seen_calls.append(call_signature(step.request, state.last_tick))
@@ -226,7 +229,8 @@ def followup_call(
     """Make one call the loop itself decided on, from the follow-up allowance.
 
     Returns the tool's answer, or None if the call could not be made or
-    gave nothing usable. Either way a record is left.
+    gave nothing usable. Either way a record is left. The loop reads the
+    answer itself; the policy is not asked to interpret it.
     """
     out_of_time = state.remaining_seconds(deps.clock()) <= 0
     if out_of_time or state.remaining_followup_tool_calls == 0:
@@ -247,7 +251,7 @@ def followup_call(
         information_needed=information_needed,
         request=ToolRequest(name=tool, arguments=arguments),
     )
-    evidence = gather(state, deps, phase, step, followup=True)
+    evidence = gather(state, deps, phase, step, followup=True, interpret=False)
     return None if evidence is None else json.loads(evidence.content)
 
 

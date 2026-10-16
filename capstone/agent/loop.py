@@ -224,10 +224,13 @@ def gather(
     step: CallTool,
     *,
     followup: bool = False,
+    interpret: bool = True,
 ) -> Evidence | None:
     """Call one tool and keep its answer as evidence. Always leaves a record.
 
     Returns the new evidence, or None if the factory gave nothing usable.
+    With `interpret=False`, for calls the loop makes itself, the policy is
+    not asked what the answer means.
     """
     signature = call_signature(step.request, state.last_tick)
     if signature in state.seen_calls:
@@ -287,26 +290,27 @@ def gather(
         state.unanswered_questions = [
             q for q in state.unanswered_questions if q.id != step.question_id
         ]
-    try:
-        apply_interpretation(
-            state,
-            deps.policy.interpret(state.model_copy(deep=True), step, evidence),
-        )
-    except POLICY_ERRORS:
-        # The factory did answer, so the evidence stays. What failed is the
-        # policy's reading of it: no belief changes, and the turn counts as
-        # unproductive so a policy that never interprets cannot run forever.
-        state.interpretation_failures += 1
-        state.unproductive_steps += 1
-        record(
-            state,
-            phase,
-            "uninterpreted",
-            information_needed=step.information_needed,
-            step=step,
-            evidence_ids=(evidence.id,),
-        )
-        return evidence
+    if interpret:
+        try:
+            apply_interpretation(
+                state,
+                deps.policy.interpret(state.model_copy(deep=True), step, evidence),
+            )
+        except POLICY_ERRORS:
+            # The factory did answer, so the evidence stays. What failed is the
+            # policy's reading of it: no belief changes, and the turn counts as
+            # unproductive so a policy that never interprets cannot run forever.
+            state.interpretation_failures += 1
+            state.unproductive_steps += 1
+            record(
+                state,
+                phase,
+                "uninterpreted",
+                information_needed=step.information_needed,
+                step=step,
+                evidence_ids=(evidence.id,),
+            )
+            return evidence
     state.unproductive_steps = 0
     record(
         state,
