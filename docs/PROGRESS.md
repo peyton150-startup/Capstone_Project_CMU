@@ -54,6 +54,24 @@ alarm), then evaluation, then the agent itself.
 
 ## Session notes
 
+- **2026-10-16 — checkpoint 8b-2 taught, pre-check PASSED; SESSION PAUSED
+  HERE (developer moving locations). Nothing of 8b-2 is built.** Asked why
+  the prompt shows evidence with IDs, the developer first did not know;
+  after a hint (a model citing E9 when only E1-E5 exist) said the IDs let
+  the loop verify evidence was not made up, and added that code, not the
+  model, assigns the IDs. Correct. PLANNED DESIGN for next session: new
+  `capstone/agent/model_policy.py` with `ModelPolicy(clients, tools)`; one
+  shared `render(state)` view (anomaly, budget left, open questions,
+  evidence with IDs/source/tick, hypotheses with confidence and cited IDs;
+  no bookkeeping, no fault list); a system prompt per job; `decide` also
+  gets the phase and the research tool list (names, descriptions, argument
+  schemas from `providers/factory.py`; not `propose_action`,
+  `execute_action` or `get_proposals`; `recall_memories` only when given);
+  `interpret` also gets the step and newest evidence. Answer types needing
+  wrappers: plan (questions), decide (`CallTool | Stop`), conclude
+  (conclusion + optional action), lesson (`Lesson | None`). Then the small
+  follow-on: record which models were tried per turn and why each failed.
+
 - **2026-10-16 — checkpoint 8b-1 closing question PASSED (after one
   re-teach).** Asked what happens when Groq times out twice and the Mistral
   fallback sends an invalid reply, the developer first said it would be
