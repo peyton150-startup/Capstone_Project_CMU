@@ -54,6 +54,19 @@ alarm), then evaluation, then the agent itself.
 
 ## Session notes
 
+- **2026-10-16 — checkpoint 8b-1 closing question PASSED (after one
+  re-teach).** Asked what happens when Groq times out twice and the Mistral
+  fallback sends an invalid reply, the developer first said it would be
+  retried and handed on again. Re-taught: a bad reply is never retried or
+  handed on; `ValueError` reaches the loop, which records `invalid_decision`
+  and asks again on its next turn; episodic memory holds factory lessons,
+  not provider failures. The developer then said Mistral's invalid reply
+  should count against reasoning quality while Groq's timeouts are only
+  uptime. Correct. Checkpoint 8b-1 is complete. Gap found and carried into
+  8b-2: `FallbackClient` discards the failures when a later model answers,
+  so Groq's timeouts are recorded nowhere; each turn should record which
+  models were tried and why each failed. NEXT: 8b-2, the prompts.
+
 - **2026-10-15 — package docstrings; SESSION PAUSED HERE.** At the
   developer's request each `__init__.py` (capstone and its eight packages,
   and tests) now says in a sentence or two what the folder holds and how its
