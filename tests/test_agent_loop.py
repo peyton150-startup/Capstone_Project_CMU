@@ -5,7 +5,11 @@ import pytest
 from pydantic import ValidationError
 
 from capstone.agent.artifacts import TerminationReason
-from capstone.agent.loop import InvestigationDeps, run_inner_loop
+from capstone.agent.loop import (
+    InvestigationDeps,
+    diagnosis_supported,
+    run_inner_loop,
+)
 from capstone.agent.policy import Interpretation, Stop
 from capstone.agent.state import Budgets, Question
 from capstone.contracts.hypotheses import Hypothesis
@@ -446,6 +450,57 @@ def test_the_investigate_phase_does_not_stop_on_a_supported_diagnosis():
     state, provider, _, reason = run(decisions, interpret=supporting)
     assert len(provider.calls) == 3
     assert reason is TerminationReason.NO_USEFUL_ACTION  # the script ran out
+
+
+def test_an_open_contradiction_blocks_the_automatic_stop():
+    deps = InvestigationDeps(provider=FakeProvider(), policy=ScriptedPolicy([]))
+    state = new_state()
+    state.hypotheses = [worn(0.95, "E1", "E2", "E3")]
+    assert diagnosis_supported(state, deps)
+    # One alarm, its raw readings and their summary can all "support" a claim
+    # while a single independent reading contradicts it: that is not settled.
+    state.hypotheses = [
+        worn(0.95, "E1", "E2", "E3").model_copy(
+            update={"contradicting_evidence_ids": ("E4",)}
+        )
+    ]
+    assert not diagnosis_supported(state, deps)
+
+
+# --- testing that no longer changes the agent's mind ------------------------
+
+
+def nudging(*confidences):
+    """An interpretation that sets the confidence, one value per answer."""
+    values = iter(confidences)
+
+    def interpret(state, step, evidence):
+        return Interpretation(hypotheses=(worn(next(values), evidence.id),))
+
+    return interpret
+
+
+def test_testing_stops_when_three_results_barely_move_confidence():
+    decisions = [ask(name) for name in "abcdef"]
+    _, provider, _, reason = run(
+        decisions, interpret=nudging(0.70, 0.72, 0.73, 0.9, 0.9, 0.9), phase="test"
+    )
+    assert reason is TerminationReason.NO_USEFUL_ACTION
+    assert len(provider.calls) == 3
+
+
+def test_testing_continues_while_confidence_moves():
+    decisions = [ask(name) for name in "abcd"]
+    _, provider, _, _ = run(
+        decisions, interpret=nudging(0.5, 0.6, 0.7, 0.8), phase="test"
+    )
+    assert len(provider.calls) == 4  # then the script ran out
+
+
+def test_investigating_is_not_cut_short_by_flat_confidence():
+    decisions = [ask(name) for name in "abcd"]
+    _, provider, _, _ = run(decisions, interpret=nudging(0.7, 0.7, 0.7, 0.7))
+    assert len(provider.calls) == 4
 
 
 # --- checking afterwards has its own allowance -----------------------------

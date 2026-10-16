@@ -52,6 +52,10 @@ class InvestigationDeps:
     min_diagnosis_confidence: float = 0.9
     min_supporting_evidence: int = 2
     min_action_confidence: float = 0.9
+    # Testing stops when this many results have moved confidence by less than
+    # this much: more of the same is not changing the agent's mind.
+    stalled_test_results: int = 3
+    min_confidence_change: float = 0.05
     # The longest single wait the factory accepts, in ticks.
     max_wait_ticks: int = 480
     # The human's side. Called once with each submitted proposal; the agent
@@ -60,12 +64,37 @@ class InvestigationDeps:
 
 
 def diagnosis_supported(state: InvestigationState, deps: InvestigationDeps) -> bool:
-    """True when the best explanation is confident enough and backed by evidence."""
+    """True when the best explanation is confident, backed, and not contradicted.
+
+    Any contradicting evidence keeps the loop testing. Counting supporters
+    against contradictions would not do: several pieces of evidence can be
+    views of one reading (an alarm, the raw readings, their summary). The
+    policy can still stop on its own and conclude.
+    """
     leading = state.leading_hypothesis
     return (
         leading is not None
         and leading.confidence >= deps.min_diagnosis_confidence
         and len(leading.supporting_evidence_ids) >= deps.min_supporting_evidence
+        and not leading.contradicting_evidence_ids
+    )
+
+
+def confidence_stalled(state: InvestigationState, deps: InvestigationDeps) -> bool:
+    """True when the latest test results have barely moved the agent's confidence.
+
+    Looks at the last `stalled_test_results` results the policy interpreted
+    while testing. Rewording a claim or nudging a number by a hundredth is
+    not progress; moving confidence by `min_confidence_change` is.
+    """
+    recent = [
+        d.confidence
+        for d in state.decisions
+        if d.phase == "test" and d.outcome == "observed"
+    ][-deps.stalled_test_results :]
+    return (
+        len(recent) == deps.stalled_test_results
+        and max(recent) - min(recent) < deps.min_confidence_change
     )
 
 
@@ -92,6 +121,8 @@ def check_termination(
     if phase != "verify" and remaining <= budgets.followup_seconds:
         return TerminationReason.TIMEOUT
     if state.unproductive_steps >= budgets.max_unproductive_steps:
+        return TerminationReason.NO_USEFUL_ACTION
+    if phase == "test" and confidence_stalled(state, deps):
         return TerminationReason.NO_USEFUL_ACTION
     if phase == "verify":
         # Verification spends its own allowance, never the research budget.
