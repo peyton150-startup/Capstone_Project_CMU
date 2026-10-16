@@ -7,7 +7,7 @@ from pydantic import ValidationError
 from capstone.agent.artifacts import TerminationReason
 from capstone.agent.loop import InvestigationDeps, run_inner_loop
 from capstone.agent.policy import Interpretation, Stop
-from capstone.agent.state import Question
+from capstone.agent.state import Budgets, Question
 from capstone.contracts.hypotheses import Hypothesis
 from capstone.contracts.tools import ToolResult
 from capstone.providers.factory import SimulatorFactoryProvider
@@ -356,6 +356,45 @@ def test_a_second_loop_does_not_restart_the_timer():
     now[0] = 170.0
     assert run_inner_loop(state, deps, "test") is TerminationReason.TIMEOUT
     assert state.started_at == 100.0
+
+
+def test_research_stops_early_to_leave_time_for_what_follows():
+    now = [100.0]
+
+    def respond(request):
+        now[0] += 10.0  # each call takes ten seconds
+        return {"ok": True}
+
+    state = new_state(timeout_seconds=60.0, followup_seconds=20.0)
+    deps = InvestigationDeps(
+        provider=FakeProvider(respond),
+        policy=ScriptedPolicy([ask(name) for name in "abcdef"]),
+        clock=lambda: now[0],
+    )
+    assert run_inner_loop(state, deps, "investigate") is TerminationReason.TIMEOUT
+    assert state.tool_call_count == 4  # forty seconds used, twenty kept back
+    assert state.remaining_seconds(now[0]) == 20.0
+
+
+def test_checking_may_use_the_time_research_left():
+    now = [100.0]
+    state = new_state(timeout_seconds=60.0, followup_seconds=20.0)
+    state.started_at = 55.0  # fifteen seconds left: too few to research
+    deps = InvestigationDeps(
+        provider=FakeProvider(),
+        policy=ScriptedPolicy([ask("get_events")]),
+        clock=lambda: now[0],
+    )
+    assert run_inner_loop(state, deps, "test") is TerminationReason.TIMEOUT
+    assert state.tool_call_count == 0
+    assert run_inner_loop(state, deps, "verify") is not TerminationReason.TIMEOUT
+    assert state.tool_call_count == 1
+
+
+def test_the_time_kept_back_must_leave_research_some_time():
+    assert Budgets(timeout_seconds=20.0, followup_seconds=19.0).followup_seconds == 19
+    with pytest.raises(ValidationError, match="followup_seconds"):
+        Budgets(timeout_seconds=20.0, followup_seconds=20.0)
 
 
 # --- a supported diagnosis -------------------------------------------------

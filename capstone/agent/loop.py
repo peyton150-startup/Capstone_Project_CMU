@@ -79,13 +79,18 @@ def check_termination(
 
     The order is a contract. Running out of time beats everything; a
     supported diagnosis beats a budget, so a loop that reaches its answer
-    on its last allowed call reports success, not exhaustion.
+    on its last allowed call reports success, not exhaustion. Research
+    also stops while `followup_seconds` remain, so that the conclusion,
+    the proposal, the work and the check keep the time they need.
     """
     budgets = state.budgets
-    if state.remaining_seconds(deps.clock()) <= 0:
+    remaining = state.remaining_seconds(deps.clock())
+    if remaining <= 0:
         return TerminationReason.TIMEOUT
     if phase == "test" and diagnosis_supported(state, deps):
         return TerminationReason.DIAGNOSIS_SUPPORTED
+    if phase != "verify" and remaining <= budgets.followup_seconds:
+        return TerminationReason.TIMEOUT
     if state.unproductive_steps >= budgets.max_unproductive_steps:
         return TerminationReason.NO_USEFUL_ACTION
     if phase == "verify":

@@ -13,7 +13,7 @@ import json
 from typing import Literal
 from uuid import UUID
 
-from pydantic import BaseModel, ConfigDict, Field, JsonValue
+from pydantic import BaseModel, ConfigDict, Field, JsonValue, model_validator
 
 from capstone.agent.artifacts import (
     AgentConclusion,
@@ -60,7 +60,16 @@ class Budgets(Contract):
     # A separate allowance for proposing an action and checking that it worked,
     # so that research can never spend the calls verification needs.
     followup_tool_calls: int = Field(default=14, ge=0)
+    # The same for time: research stops this many seconds before the deadline,
+    # leaving them for the conclusion, the proposal, the work and the check.
+    followup_seconds: float = Field(default=20.0, ge=0)
     max_unproductive_steps: int = Field(default=3, ge=1)
+
+    @model_validator(mode="after")
+    def research_gets_some_time(self):
+        if self.followup_seconds >= self.timeout_seconds:
+            raise ValueError("followup_seconds must leave some time for research")
+        return self
 
 
 class Question(Contract):
