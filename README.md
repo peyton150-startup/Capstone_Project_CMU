@@ -142,6 +142,12 @@ explicit tool list includes observations, bounded waits, and action proposals;
 it never exposes approval or ground-truth calls. Existing direct tool methods
 remain available. Results include source, simulation tick/time, optional
 correlation IDs, and a structured error instead of raw exception details.
+A refused request says what to correct: which arguments were wrong and why,
+or the tool's own explanation (a `ToolInputError`, such as an unknown machine
+or action). Any other failure, and an answer that breaks its contract
+(`invalid_result`), is reported without detail. Sensor names are checked:
+`vibration`, `temperature` and `load` on a machine, `air_temperature` for
+the factory.
 `capstone/providers/llm.py` defines a provider-neutral interface for explicit
 investigation artifacts; it does not install or invoke an LLM.
 
@@ -198,9 +204,10 @@ Results include requested window, actual first/last sample ticks, sample count,
 sensor unit, start/end values, minimum, maximum, sample-weighted mean, delta,
 and `rate_of_change`. Rate is `(end_value - start_value) / (last_tick -
 first_tick)` in sensor units per simulation tick, not a regression slope.
-Missing ticks are not interpolated. Empty windows (including unknown sensor
-names) return zero samples and null units/statistics; a single sample has
-zero delta and a null rate. Mixed units and nonfinite readings are rejected.
+Missing ticks are not interpolated. Empty windows return zero samples and
+null units/statistics, as does an unknown sensor name in a direct call (the
+provider refuses one); a single sample has zero delta and a null rate. Mixed
+units and nonfinite readings are rejected.
 Tick bounds must be ordered, nonnegative integers; unknown machines are
 rejected. The result uses `SensorSummaryObservation`; MCP remains deferred.
 

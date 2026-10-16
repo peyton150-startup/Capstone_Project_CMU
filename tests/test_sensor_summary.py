@@ -185,15 +185,19 @@ def test_provider_preserves_empty_and_populated_summary_results(
     machine_id, has_samples
 ):
     sim = build_line(42, machines=3)
+    # The factory's own thermometer is air_temperature; machines have temperature.
+    sensor = "temperature" if machine_id else "air_temperature"
     if has_samples:
-        sim._readings.extend([sample(2, 80, machine_id), sample(6, 72, machine_id)])
+        sim._readings.extend(
+            [sample(2, 80, machine_id, sensor), sample(6, 72, machine_id, sensor)]
+        )
     factory = SimulatorFactoryProvider(ObservationTools(sim), ActionTools(sim))
     result = factory.call(
         ToolRequest(
             name="get_sensor_summary",
             arguments={
                 "machine_id": machine_id,
-                "sensor": "temperature",
+                "sensor": sensor,
                 "from_tick": 0,
                 "to_tick": 10,
             },

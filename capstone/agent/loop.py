@@ -31,7 +31,7 @@ from capstone.agent.policy import (
 from capstone.agent.state import DecisionRecord, InvestigationState, Phase, StepOutcome
 from capstone.contracts.evidence import Evidence
 from capstone.contracts.provenance import MEMORY_SOURCE, ProvenanceReference
-from capstone.contracts.tools import ToolRequest, ToolResult
+from capstone.contracts.tools import ToolError, ToolRequest, ToolResult
 from capstone.providers.factory import FactoryProvider
 
 # What a policy may get wrong without it being a bug in this module:
@@ -190,6 +190,7 @@ def record(
     step: CallTool | None = None,
     evidence_ids: tuple[str, ...] = (),
     termination_reason: TerminationReason | None = None,
+    error: ToolError | None = None,
 ) -> None:
     """Append one decision artifact: what was chosen and what came of it."""
     state.decisions.append(
@@ -206,6 +207,7 @@ def record(
             evidence_ids=evidence_ids,
             confidence=state.confidence,
             termination_reason=termination_reason,
+            error=error,
         )
     )
 
@@ -259,7 +261,13 @@ def gather(
     if outcome != "observed":
         state.unproductive_steps += 1
         record(
-            state, phase, outcome, information_needed=step.information_needed, step=step
+            state,
+            phase,
+            outcome,
+            information_needed=step.information_needed,
+            step=step,
+            # What the tool said was wrong, so the next decision can correct it.
+            error=result.error if result is not None else None,
         )
         return None
 

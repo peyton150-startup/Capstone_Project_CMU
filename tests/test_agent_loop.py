@@ -128,6 +128,13 @@ def test_a_failed_call_is_counted_but_is_not_evidence():
     assert state.decisions[0].evidence_ids == ()
 
 
+def test_a_failed_call_records_what_the_tool_said_was_wrong():
+    state, _, _, _ = run([ask("get_events")], respond=lambda request: "error")
+    failed = state.decisions[0]
+    assert failed.outcome == "tool_error"
+    assert failed.error.code == "provider_error"
+
+
 def test_three_unproductive_turns_in_a_row_stop_the_loop():
     decisions = [ask("a"), ask("b"), ask("c"), ask("d")]
     state, provider, _, reason = run(decisions, respond=lambda request: "error")

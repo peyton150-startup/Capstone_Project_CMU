@@ -2,10 +2,10 @@
 # Responsibility: check each request and result, and never expose approval or truth.
 """A concrete adapter over the existing allowlisted observation/action tools."""
 
-from typing import TYPE_CHECKING, Protocol
+from typing import TYPE_CHECKING, Literal, Protocol
 from uuid import UUID
 
-from pydantic import ConfigDict, Field, JsonValue, model_validator
+from pydantic import ConfigDict, Field, JsonValue, ValidationError, model_validator
 
 from capstone.contracts import Contract
 from capstone.contracts.observations import (
@@ -21,10 +21,54 @@ from capstone.contracts.observations import (
 )
 from capstone.contracts.tools import ToolError, ToolRequest, ToolResult, TraceContext
 from capstone.tools.actions import ActionTools
+from capstone.tools.errors import ToolInputError
 from capstone.tools.observation import ObservationTools
 
 if TYPE_CHECKING:
     from capstone.observability import EventLogger
+
+
+def argument_problems(invalid: ValidationError) -> str:
+    """Which arguments were wrong and why, without repeating what was sent."""
+    return "; ".join(
+        f"{'.'.join(str(part) for part in problem['loc']) or 'arguments'}: "
+        f"{problem['msg']}"
+        for problem in invalid.errors(include_url=False, include_input=False)
+    )
+
+
+def run_tool(entry, raw_arguments: dict[str, JsonValue]):
+    """Check the request, run the tool, check its answer: (data, error).
+
+    Each failure says only what is safe to say: which arguments were wrong
+    and why; a tool's own refusal (`ToolInputError`) as the tool wrote it;
+    any other failure, or an answer outside its contract, without detail.
+    """
+    argument_model, output_model, execute, many = entry
+    try:
+        arguments = argument_model.model_validate(raw_arguments)
+    except ValidationError as invalid:
+        return None, ToolError(
+            code="invalid_arguments", message=argument_problems(invalid)
+        )
+    try:
+        raw = execute(**arguments.model_dump())
+    except ToolInputError as refused:
+        return None, ToolError(code="invalid_arguments", message=str(refused))
+    except Exception:
+        # Raw driver/provider errors may contain secrets; never return them.
+        return None, ToolError(code="provider_error", message="Tool execution failed.")
+    try:
+        checked = [
+            output_model.model_validate(row).model_dump(mode="json", exclude_unset=True)
+            for row in (raw if many else [raw])
+        ]
+    except (ValueError, TypeError):
+        # Never pass this error on: it names what the contract refused to let out.
+        return None, ToolError(
+            code="invalid_result", message="The tool's answer was invalid."
+        )
+    return (checked if many else checked[0]), None
 
 
 class FactoryProvider(Protocol):
@@ -54,18 +98,33 @@ class TickRange(NoArguments):
         return self
 
 
+# The sensors a request may name. Any other name is refused with this list,
+# instead of quietly returning no readings.
+MachineSensor = Literal["vibration", "temperature", "load"]
+FactorySensor = Literal["air_temperature"]
+
+
 class ReadingsArguments(TickRange):
     machine_id: str
-    sensor: str
+    sensor: MachineSensor
 
 
 class FactoryReadingsArguments(TickRange):
-    sensor: str
+    sensor: FactorySensor
 
 
 class SensorSummaryArguments(TickRange):
     machine_id: str | None
-    sensor: str
+    sensor: Literal[MachineSensor, FactorySensor]
+
+    @model_validator(mode="after")
+    def sensor_belongs_to_target(self):
+        if (self.sensor == "air_temperature") != (self.machine_id is None):
+            raise ValueError(
+                "air_temperature belongs to the factory (machine_id null); "
+                "vibration, temperature and load need a machine_id"
+            )
+        return self
 
 
 class EventsArguments(TickRange):
@@ -187,31 +246,7 @@ class SimulatorFactoryProvider:
         if entry is None:
             error = ToolError(code="unknown_tool", message="Tool is not available.")
         else:
-            argument_model, output_model, execute, many = entry
-            try:
-                arguments = argument_model.model_validate(request.arguments)
-                raw = execute(**arguments.model_dump())
-                if many:
-                    data = [
-                        output_model.model_validate(row).model_dump(
-                            mode="json", exclude_unset=True
-                        )
-                        for row in raw
-                    ]
-                else:
-                    data = output_model.model_validate(raw).model_dump(
-                        mode="json", exclude_unset=True
-                    )
-            except ValueError:
-                error = ToolError(
-                    code="invalid_arguments",
-                    message="Tool arguments or result are invalid.",
-                )
-            except Exception:
-                # Raw driver/provider errors may contain secrets; never return them.
-                error = ToolError(
-                    code="provider_error", message="Tool execution failed."
-                )
+            data, error = run_tool(entry, request.arguments)
         clock = ClockObservation.model_validate(self._observations.get_time())
         result = ToolResult[JsonValue](
             success=error is None,

@@ -3,6 +3,7 @@
 from pydantic import BaseModel
 
 from capstone.simulator.simulator import Simulator
+from capstone.tools.errors import ToolInputError
 
 ACTIONS = ("replace_bearing", "reset_setting")
 
@@ -65,13 +66,13 @@ class ApprovalDesk:
         """
         proposal = next((p for p in self._proposals if p.id == proposal_id), None)
         if proposal is None:
-            raise ValueError(f"no proposal {proposal_id}")
+            raise ToolInputError(f"no proposal {proposal_id}")
         if proposal.status != "approved":
-            raise ValueError(
+            raise ToolInputError(
                 f"proposal {proposal_id} is {proposal.status}, not approved"
             )
         if proposal.executed_tick is not None:
-            raise ValueError(f"proposal {proposal_id} was already carried out")
+            raise ToolInputError(f"proposal {proposal_id} was already carried out")
         if proposal.action == "replace_bearing":
             finish = self._sim.start_bearing_replacement(proposal.machine_id)
         else:
@@ -135,7 +136,9 @@ class ActionTools:
             or isinstance(ticks, bool)
             or not 1 <= ticks <= self.max_wait
         ):
-            raise ValueError(f"ticks must be a whole number from 1 to {self.max_wait}")
+            raise ToolInputError(
+                f"ticks must be a whole number from 1 to {self.max_wait}"
+            )
         for _ in range(ticks):
             self._sim.step()
         clock = self._sim.clock
@@ -144,13 +147,13 @@ class ActionTools:
     def propose_action(self, machine_id: str, action: str, reason: str) -> dict:
         """Ask for a change to the factory, saying why. Nothing happens until a human approves."""
         if machine_id not in self._sim.state.machines:
-            raise ValueError(f"unknown machine {machine_id}")
+            raise ToolInputError(f"unknown machine {machine_id}")
         if action not in ACTIONS:
-            raise ValueError(
+            raise ToolInputError(
                 f"unknown action {action}; choose from {', '.join(ACTIONS)}"
             )
         if not isinstance(reason, str) or not reason.strip():
-            raise ValueError("a reason is required")
+            raise ToolInputError("a reason is required")
         return self._desk.submit(machine_id, action, reason.strip()).model_dump()
 
     def get_proposals(self) -> list[dict]:
@@ -160,5 +163,5 @@ class ActionTools:
     def execute_action(self, proposal_id: int) -> dict:
         """Start the work of a proposal a human has approved. Says when it will finish."""
         if not isinstance(proposal_id, int) or isinstance(proposal_id, bool):
-            raise ValueError("proposal_id must be a whole number")
+            raise ToolInputError("proposal_id must be a whole number")
         return self._desk.carry_out(proposal_id)

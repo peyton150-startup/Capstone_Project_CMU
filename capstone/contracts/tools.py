@@ -17,7 +17,16 @@ class ToolRequest(Contract):
 
 
 class ToolError(Contract):
-    code: Literal["unknown_tool", "invalid_arguments", "provider_error"]
+    """What went wrong with one call, in words that are safe to show the agent.
+
+    invalid_arguments: the request was wrong, and the message says how.
+    invalid_result: the tool's answer broke its own contract. That is a bug,
+    never the agent's fault, and the message never says what the answer held.
+    """
+
+    code: Literal[
+        "unknown_tool", "invalid_arguments", "invalid_result", "provider_error"
+    ]
     message: str
 
 

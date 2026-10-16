@@ -26,6 +26,7 @@ from capstone.contracts import Contract
 from capstone.contracts.evidence import Evidence
 from capstone.contracts.hypotheses import Hypothesis
 from capstone.contracts.provenance import ProvenanceReference
+from capstone.contracts.tools import ToolError
 
 Phase = Literal[
     "observe",
@@ -95,6 +96,8 @@ class DecisionRecord(Contract):
     evidence_ids: tuple[str, ...] = ()
     confidence: float = Field(ge=0, le=1)
     termination_reason: TerminationReason | None = None
+    # For a failed call: the tool's own account of what was wrong.
+    error: ToolError | None = None
 
 
 class ReasoningMetrics(Contract):

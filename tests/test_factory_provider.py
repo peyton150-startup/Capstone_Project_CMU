@@ -1,5 +1,6 @@
 import json
 from io import StringIO
+from typing import get_args
 from uuid import uuid4
 
 import pytest
@@ -8,7 +9,11 @@ from pydantic import ValidationError
 from capstone.contracts.investigations import investigation_id_for, run_id_for
 from capstone.contracts.tools import ToolRequest
 from capstone.observability import create_event_logger
-from capstone.providers.factory import SimulatorFactoryProvider
+from capstone.providers.factory import (
+    FactorySensor,
+    MachineSensor,
+    SimulatorFactoryProvider,
+)
 from capstone.simulator.line import build_line
 from capstone.tools.actions import ActionTools, ApprovalDesk
 from capstone.tools.observation import ObservationTools
@@ -183,7 +188,7 @@ def test_all_read_tools_preserve_existing_observable_shapes():
             "to_tick": 240,
         },
         "get_factory_readings": {
-            "sensor": "temperature",
+            "sensor": "air_temperature",
             "from_tick": 0,
             "to_tick": 240,
         },
@@ -202,6 +207,104 @@ def test_all_read_tools_preserve_existing_observable_shapes():
         assert result.success, (name, result.error)
         assert result.data == getattr(observations, name)(**arguments)
     assert sim.clock.tick == 240
+
+
+# --- what a failed call tells the agent ---------------------------------------
+
+
+@pytest.mark.parametrize(
+    "name,arguments,expected",
+    [
+        (
+            "get_events",
+            {"from_tick": "0", "to_tick": 5},
+            "from_tick: Input should be a valid integer",
+        ),
+        (
+            "get_events",
+            {"from_tick": 5, "to_tick": 0},
+            "from_tick must not be after to_tick",
+        ),
+        (
+            "get_readings",
+            {
+                "machine_id": "CNC-01",
+                "sensor": "Vibration",
+                "from_tick": 0,
+                "to_tick": 5,
+            },
+            "sensor: Input should be 'vibration', 'temperature' or 'load'",
+        ),
+        (
+            "get_sensor_summary",
+            {"machine_id": None, "sensor": "temperature", "from_tick": 0, "to_tick": 5},
+            "air_temperature belongs to the factory",
+        ),
+        (
+            "get_readings",
+            {
+                "machine_id": "CNC-99",
+                "sensor": "vibration",
+                "from_tick": 0,
+                "to_tick": 5,
+            },
+            "unknown machine CNC-99",
+        ),
+        ("wait", {"ticks": 1000}, "ticks must be a whole number from 1 to 480"),
+        (
+            "propose_action",
+            {"machine_id": "CNC-01", "action": "replace bearing", "reason": "worn"},
+            "choose from replace_bearing, reset_setting",
+        ),
+    ],
+)
+def test_a_refused_request_says_what_to_correct(name, arguments, expected):
+    sim, desk, factory = provider()
+    result = factory.call(ToolRequest(name=name, arguments=arguments))
+    assert not result.success
+    assert result.error.code == "invalid_arguments"
+    assert expected in result.error.message
+    assert sim.clock.tick == 0
+    assert desk.proposals() == []
+
+
+def test_an_answer_that_breaks_its_contract_is_reported_without_its_content():
+    sim = build_line(42, machines=3)
+    observations = ObservationTools(sim)
+    honest = observations.list_machines
+    observations.list_machines = lambda: [
+        {**row, "bearing_health": 0.71} for row in honest()
+    ]
+    factory = SimulatorFactoryProvider(observations, ActionTools(sim))
+    result = factory.call(ToolRequest(name="list_machines"))
+    assert not result.success
+    assert result.error.code == "invalid_result"
+    exposed = result.model_dump_json()
+    assert "bearing_health" not in exposed
+    assert "0.71" not in exposed
+
+
+def test_any_other_tool_failure_is_reported_without_its_message():
+    sim = build_line(42, machines=3)
+    observations = ObservationTools(sim)
+
+    def broken():
+        raise ValueError("driver said password=hunter2")
+
+    observations.get_settings = broken
+    factory = SimulatorFactoryProvider(observations, ActionTools(sim))
+    result = factory.call(ToolRequest(name="get_settings"))
+    assert result.error.code == "provider_error"
+    assert "hunter2" not in result.model_dump_json()
+
+
+def test_the_sensor_names_a_request_may_use_are_the_simulators():
+    sim = build_line(42, machines=3)
+    sim.step()
+    machine = {r.sensor for r in sim.readings if r.machine_id is not None}
+    factory = {r.sensor for r in sim.readings if r.machine_id is None}
+    assert machine == set(get_args(MachineSensor))
+    assert factory == set(get_args(FactorySensor))
 
 
 def test_adapter_logs_metadata_without_tool_payloads():
