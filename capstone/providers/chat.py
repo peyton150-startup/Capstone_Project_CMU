@@ -22,6 +22,12 @@ short reason, never the key or the response body. Sending goes through a
 bad reply: an unreachable or overloaded service is asked once more, then
 the next model in its list (FALLBACK_MODEL) is asked. A reply that breaks
 the answer type is the model's own mistake and goes straight to the loop.
+
+One question has a time limit. A request waits at most `timeout` seconds
+(15 by default), and `FallbackClient` gives the whole question, retries
+and fallback included, `max_seconds` (20 by default), handing each request
+only the time left. A service that was reached but did not answer in time
+is reported as timed out, not as unreachable.
 """
 
 import json
@@ -138,7 +144,7 @@ class ChatClient:
         model: str,
         *,
         transport: Transport = urllib_transport,
-        timeout: float = 60.0,
+        timeout: float = 15.0,
     ):
         self.url = url
         self._api_key = api_key
@@ -149,8 +155,20 @@ class ChatClient:
     def __repr__(self) -> str:
         return f"ChatClient(url={self.url!r}, model={self.model!r})"
 
-    def ask(self, system: str, prompt: str, answer_type: type[Answer]) -> Answer:
-        """One question, one answer of `answer_type`. ValueError if the reply is not one."""
+    def ask(
+        self,
+        system: str,
+        prompt: str,
+        answer_type: type[Answer],
+        *,
+        timeout: float | None = None,
+    ) -> Answer:
+        """One question, one answer of `answer_type`. ValueError if the reply is not one.
+
+        `timeout` can shorten this request's wait below the client's own,
+        never lengthen it.
+        """
+        limit = self.timeout if timeout is None else min(timeout, self.timeout)
         schema = json.dumps(answer_type.model_json_schema())
         body = {
             "model": self.model,
@@ -170,15 +188,16 @@ class ChatClient:
             "Accept": "application/json",
         }
         try:
-            raw = self._transport(
-                self.url, headers, json.dumps(body).encode(), self.timeout
-            )
+            raw = self._transport(self.url, headers, json.dumps(body).encode(), limit)
         except urllib.error.HTTPError as error:
             raise ModelError(
                 f"the model service answered HTTP {error.code}",
                 transient=error.code == 429 or error.code >= 500,
             ) from None
-        except (urllib.error.URLError, TimeoutError, OSError):
+        except TimeoutError:
+            # Reached, but no answer in time: a slow model, not a missing one.
+            raise ModelError("the model service timed out", transient=True) from None
+        except (urllib.error.URLError, OSError):
             raise ModelError(
                 "the model service could not be reached", transient=True
             ) from None
@@ -194,6 +213,9 @@ class FallbackClient:
     `ValueError` at once: retrying or switching models would hide which
     model got it wrong. When no model answers, one `ModelError` names each
     failure.
+
+    The whole question gets `max_seconds`: each request is given only the
+    time left, and once none is left no further model is asked.
     """
 
     def __init__(
@@ -203,6 +225,8 @@ class FallbackClient:
         retries: int = 1,
         retry_delay: float = 2.0,
         sleep: Callable[[float], None] = time.sleep,
+        max_seconds: float = 20.0,
+        clock: Callable[[], float] = time.monotonic,
     ):
         if not clients:
             raise ValueError("a job needs at least one model")
@@ -210,6 +234,8 @@ class FallbackClient:
         self.retries = retries
         self.retry_delay = retry_delay
         self._sleep = sleep
+        self.max_seconds = max_seconds
+        self._clock = clock
         # The model that gave the latest answer, so a record can name it.
         self.answered_by: str | None = None
 
@@ -228,12 +254,18 @@ class FallbackClient:
     def ask(self, system: str, prompt: str, answer_type: type[Answer]) -> Answer:
         self.answered_by = None
         failures = []
+        deadline = self._clock() + self.max_seconds
         for client in self.clients:
             for attempt in range(1 + self.retries):
-                if attempt:
-                    self._sleep(self.retry_delay)
+                pause = self.retry_delay if attempt else 0.0
+                left = deadline - self._clock() - pause
+                if left <= 0:
+                    failures.append(f"{client.model}: not asked, no time left")
+                    raise no_answer(failures)
+                if pause:
+                    self._sleep(pause)
                 try:
-                    answer = client.ask(system, prompt, answer_type)
+                    answer = client.ask(system, prompt, answer_type, timeout=left)
                 except ModelError as error:
                     failures.append(f"{client.model}: {error}")
                     if not error.transient:
@@ -241,7 +273,12 @@ class FallbackClient:
                     continue
                 self.answered_by = client.model
                 return answer
-        raise ModelError("no model service answered (" + "; ".join(failures) + ")")
+        raise no_answer(failures)
+
+
+def no_answer(failures: list[str]) -> ModelError:
+    """The error for a question no model answered, naming each failure."""
+    return ModelError("no model service answered (" + "; ".join(failures) + ")")
 
 
 def client_for(

@@ -401,6 +401,61 @@ def test_when_no_model_answers_the_error_names_each_failure_but_no_key():
     assert raised.value.transient is False
 
 
+# --- one question has a time limit -------------------------------------------------
+
+
+class Clock:
+    """Virtual seconds: a pause takes its length, a request the time it is given."""
+
+    def __init__(self):
+        self.now = 0.0
+
+    def __call__(self):
+        return self.now
+
+    def sleep(self, seconds):
+        self.now += seconds
+
+
+def silent(clock, model):
+    """A client whose service never answers: every request runs out of time."""
+    given = []
+
+    def transport(url, headers, body, timeout):
+        given.append(timeout)
+        clock.now += timeout
+        raise TimeoutError("timed out")
+
+    return ChatClient("https://example.test", KEY, model, transport=transport), given
+
+
+def test_a_service_that_answers_too_late_is_reported_as_timed_out():
+    ask, _ = client(TimeoutError("timed out"))
+    with pytest.raises(ModelError, match="the model service timed out") as raised:
+        ask.ask("s", "p", Lesson)
+    assert raised.value.transient is True
+
+
+def test_one_question_gets_twenty_seconds_retries_and_fallback_included():
+    clock = Clock()
+    primary, first = silent(clock, "a")
+    backup, second = silent(clock, "b")
+    ask = FallbackClient([primary, backup], sleep=clock.sleep, clock=clock)
+    with pytest.raises(ModelError) as raised:
+        ask.ask("s", "p", Lesson)
+    assert clock.now == 20.0  # it used to take 244: 60 s per request, four requests
+    assert first == [15.0, 3.0]  # each request is given only the time left
+    assert second == []
+    assert "b: not asked, no time left" in str(raised.value)
+
+
+def test_a_request_never_waits_longer_than_its_client_allows():
+    ask, transport = client(chat('{"text": "advice"}'))
+    ask.ask("s", "p", Lesson, timeout=600)
+    [(_, _, _, timeout)] = transport.requests
+    assert timeout == ask.timeout == 15.0
+
+
 def test_a_job_falls_back_to_the_fallback_model_when_one_is_set(monkeypatch):
     monkeypatch.setenv("NVIDIA_API_KEY", KEY)
     monkeypatch.setenv("GROQ_API_KEY", KEY)
