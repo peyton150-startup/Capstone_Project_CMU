@@ -54,6 +54,38 @@ alarm), then evaluation, then the agent itself.
 
 ## Session notes
 
+- **2026-10-17 — five loop and tool-boundary fixes, applied from a review;
+  built ungated, developer to review (understood: no).** A review of the loop
+  against an agent-workflows book was checked against the code on seeded
+  factories with a stand-in model at 3 s per request; these five came out of
+  it and were applied as five commits on main. Nothing of 8b-2 is built; the
+  one-reply-per-turn cache and the prompt context wait for 8b-2.
+  1. `agent/state.py` `Budgets.followup_seconds` (20 s): `check_termination`
+     in `agent/loop.py` ends investigate and test with `timeout` once that
+     much time is left, so the conclusion, proposal, work and check keep it.
+     Before, research could spend all 60 s; the human approved a fix that was
+     never carried out, and the run still said `diagnosis_supported`.
+  2. `gather(..., interpret=False)` for calls the loop makes itself
+     (`get_time` in `observe`, every `followup_call`): still evidence, but
+     the policy is not asked to read them. 5 of 19 policy calls in the
+     verification fixture were of this kind.
+  3. `providers/chat.py`: a request waits 15 s (was 60); `FallbackClient`
+     gives one question `max_seconds` = 20 in all, retries and fallback
+     included (was up to 244 s); a read timeout says "timed out", not
+     "could not be reached".
+  4. Tool errors say what to correct. `providers/factory.py` `run_tool`
+     splits a bad argument (field and pydantic's message), a tool's own
+     refusal (new `tools/errors.py` `ToolInputError`, message passed on) and
+     anything else (no detail; new code `invalid_result` for an answer that
+     breaks its contract). Sensor names are `Literal`s, so a misspelled one
+     is refused instead of returning 0 rows; `DecisionRecord.error` keeps the
+     tool's account of a failed call.
+  5. `diagnosis_supported` also needs no contradicting evidence;
+     `confidence_stalled` ends testing with `no_useful_action` when the last
+     3 test results moved confidence by less than 0.05.
+  Verification: 848 passed locally (826 + 22 new); Ruff check and format
+  passed.
+
 - **2026-10-16 — checkpoint 8b-2 taught, pre-check PASSED; SESSION PAUSED
   HERE (developer moving locations). Nothing of 8b-2 is built.** Asked why
   the prompt shows evidence with IDs, the developer first did not know;
