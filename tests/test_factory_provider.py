@@ -188,6 +188,13 @@ def test_all_read_tools_preserve_existing_observable_shapes():
             "from_tick": 0,
             "to_tick": 240,
         },
+        "get_sensor_trend": {
+            "machine_id": "CNC-01",
+            "sensor": "vibration",
+            "from_tick": 0,
+            "to_tick": 240,
+            "bucket_ticks": 60,
+        },
         "get_factory_readings": {
             "sensor": "air_temperature",
             "from_tick": 0,
@@ -331,3 +338,20 @@ def test_every_tool_is_described_and_no_description_names_a_missing_tool():
     _, _, factory = provider()
     assert set(TOOL_DESCRIPTIONS) == set(factory._tools)
     assert all(text.strip() for text in TOOL_DESCRIPTIONS.values())
+
+
+def test_a_trend_is_far_smaller_than_the_readings_it_summarises():
+    sim, _, factory = provider()
+    for _ in range(600):
+        sim.step()
+    window = {"machine_id": "CNC-01", "sensor": "vibration", "from_tick": 0}
+    trend = factory.call(
+        ToolRequest(name="get_sensor_trend", arguments=window | {"to_tick": 599})
+    )
+    raw = factory.call(
+        ToolRequest(name="get_readings", arguments=window | {"to_tick": 599})
+    )
+    assert trend.success and raw.success
+    assert [block["from_tick"] for block in trend.data] == list(range(0, 600, 60))
+    assert sum(block["count"] for block in trend.data) == len(raw.data)
+    assert len(json.dumps(trend.data)) * 20 < len(json.dumps(raw.data))

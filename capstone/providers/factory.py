@@ -17,6 +17,7 @@ from capstone.contracts.observations import (
     ProposalObservation,
     SensorObservation,
     SensorSummaryObservation,
+    SensorTrendObservation,
     SettingObservation,
 )
 from capstone.contracts.tools import ToolError, ToolRequest, ToolResult, TraceContext
@@ -109,6 +110,10 @@ class ReadingsArguments(TickRange):
     sensor: MachineSensor
 
 
+class TrendArguments(ReadingsArguments):
+    bucket_ticks: int = Field(default=60, ge=1)
+
+
 class FactoryReadingsArguments(TickRange):
     sensor: FactorySensor
 
@@ -166,6 +171,13 @@ TOOL_DESCRIPTIONS: dict[str, str] = {
     "get_readings": (
         "Raw readings from one machine sensor (vibration, temperature or load) "
         "in a tick range. One tick is one minute."
+    ),
+    "get_sensor_trend": (
+        "One machine sensor (vibration, temperature or load) summarised per block "
+        "of ticks: mean, min, max and count for each block (bucket_ticks, default "
+        "60). Shows whether a change is gradual or a single jump, at a fraction of "
+        "the size of get_readings. Idle readings are included, which pulls a "
+        "block's mean down while a machine waits."
     ),
     "get_factory_readings": (
         "The factory air thermometer (sensor 'air_temperature', °F) in a tick range."
@@ -231,6 +243,12 @@ class SimulatorFactoryProvider:
                 ReadingsArguments,
                 SensorObservation,
                 observations.get_readings,
+                True,
+            ),
+            "get_sensor_trend": (
+                TrendArguments,
+                SensorTrendObservation,
+                observations.get_sensor_trend,
                 True,
             ),
             "get_factory_readings": (
