@@ -15,4 +15,3 @@ def investigation_id_for(run_id: UUID, sequence: int) -> UUID:
     if type(sequence) is not int or sequence < 1:
         raise ValueError("investigation sequence must be a positive integer")
     return uuid5(run_id, f"investigation/{sequence}")
-
