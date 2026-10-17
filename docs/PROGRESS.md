@@ -46,6 +46,23 @@ A component is complete only when both columns are checked.
 | 15 | Evaluation | n/a | n/a | yes | no — built ungated, developer to review | `capstone/evaluation/scoring.py` (`evaluate`, `Score`, `summarize`), `capstone/tools/diagnosis.py` (`Diagnosis`) |
 | 16 | The research agent | n/a | n/a | yes | no — built ungated, developer to review | `capstone/agent/` (`models.py`, `toolbox.py`, `agent.py`, `monitor.py`, `episode.py`, `__main__.py`); `tools/observation.py` (`get_sensor_trend`) |
 | 17 | Memory | n/a | n/a | yes | no — built ungated, developer to review | `capstone/agent/memory.py` (`InvestigationMemory`, `search_incident_history`), `episode.py` |
+| A1 | Agent checkpoint 1: one shared finished-investigation record | yes | yes | yes | yes | `contracts/completed_investigations.py`; session notes 2026-10-12 |
+| A2 | Agent checkpoint 2: the inner loop (decide, act, observe, stop) | yes | yes | yes | yes | `agent/loop.py`, `agent/state.py`, `agent/policy.py` |
+| A3a | Carrying out a fix is its own tool call | yes | yes | yes | yes | `tools/actions.py` (`execute_action`) |
+| A3b | The outer sequence up to a conclusion | yes | yes | yes | yes | `agent/investigation.py` |
+| A3c | Asking for the fix and carrying it out | yes | yes | yes | yes | `agent/investigation.py` (`propose`, `execute`) |
+| A4 | Did the fix work? (look again after the work) | yes | yes | yes | yes | `agent/investigation.py` (`verify`); see row R1 for a later fix |
+| A5a | Where each piece of evidence came from (provenance) | yes | yes | yes | yes | `contracts/provenance.py`, `agent/loop.py` |
+| A5b | The finished record and the audit log | yes | yes | yes | yes | `agent/completion.py` |
+| A6a | The reflection candidate | yes | yes | yes | yes | `memory/reflection.py` |
+| A6b | Remembering what did not work | yes | yes | yes | yes | `memory/policy.py` |
+| A6c | The loop joined to the memory gate | yes | yes | yes | in part | `learning.py` (`learn_from`); closing question passed in part, the rest taught |
+| A7a | Word search and the safe view of a memory | yes | yes | yes | yes | `capstone/memory/` |
+| A7b | The recall tool and its two guards | yes | yes | yes | yes | `providers/recall.py` |
+| A8a | The model client and the job table | yes | yes | yes | yes | `providers/chat.py` |
+| A8b-1 | An outage is retried, then handed on | yes | yes | yes | yes | `providers/chat.py` (`FallbackClient`) |
+| A8b-2 | The prompts for the seven questions | yes | yes | no | n/a | planned design in the 2026-10-16 session note |
+| R1 | Review fixes of 2026-10-16/17 (loop budgets, tool errors, repair check, trend tool) | n/a | n/a | yes | no — built ungated, developer to review | session notes 2026-10-17 |
 
 Every row above with four "yes" marks (or "n/a") is complete: no question is
 outstanding on it. Still to build after 12c, from `docs/MVP_SCOPE.md`: the
@@ -53,6 +70,48 @@ other three fault scenarios (material batch, machine configuration, false
 alarm), then evaluation, then the agent itself.
 
 ## Session notes
+
+- **2026-10-17 — second set of review changes; built ungated, developer to
+  review (understood: no).** Checked against `main` after the five fixes
+  above. Changed:
+  1. Repair check (`agent/investigation.py` `verify`, inner `later`): a look
+     counts as "after the work" only if the data it asked for also starts
+     after the work finished. `starts` maps each evidence ID to the
+     `from_tick` of the request that produced it, read from the loop's own
+     `DecisionRecord`s; a tool with no range (e.g. `list_machines`) reports
+     the factory as it is and still counts. Before: after the wrong machine
+     was repaired, a look at tick 945 at ticks 0-99 of the worn machine was
+     judged "resolved", and memory would have kept that lesson. Now it is
+     "inconclusive". Test:
+     `test_a_look_now_at_data_from_before_the_work_does_not_count` (a window
+     wholly before, and one that starts before and runs past the work).
+     Known edge: `get_job_history` has no range but can describe an old job.
+  2. `get_sensor_trend` offered through `providers/factory.py` (new
+     `TrendArguments`, new `contracts/observations.py`
+     `SensorTrendObservation`): per-block mean/min/max/count. A summary's
+     change comes from its two end readings, so it cannot tell slow wear
+     from a single jump; a trend can, at under 1/20 of the size of raw
+     readings (tested).
+  3. `providers/factory.py` `TOOL_DESCRIPTIONS`: a model-readable sentence
+     per tool, copied from the old `agent/toolbox.py` so it survives that
+     file's retirement. Nothing reads it yet; 8b-2 will. A test keeps it in
+     step with the tool table. It lists no causes or fault signatures.
+  4. Removed `providers/llm.py` (`LLMProvider`) and the `Investigation`
+     record in `contracts/investigations.py`: nothing used them. The ID
+     helpers `run_id_for` / `investigation_id_for` stay.
+  5. `CLAUDE.md` is now the single line `@AGENTS.md`; `AGENTS.md` names no
+     single agent, notes that the gated loop has been in use again since
+     2026-10-12, and gives the `uv sync --all-extras` setup.
+  6. Table rows A1-A8b-2 and R1 added above from these notes.
+  NOT DONE, on purpose: the old agent (`agent/agent.py`, `toolbox.py`,
+  `models.py`, `agent/memory.py`, their tests) is not retired yet, because
+  `agent/episode.py` imports it and the 2026-10-12 decisions retire it only
+  after the runner reuses `episode.py`; `.agents/skills` is kept (Codex
+  reads skills only there). Still open from the review: cap or summarise
+  evidence before 8b-2 prompts include it; a runner chaining scenario,
+  `run_investigation`, `learn_from` and `evaluate`; scoring of the free-text
+  diagnosis (hand labels first, per the 2026-10-12 decision); a scripted
+  end-to-end test before 8b-2; archiving old session notes.
 
 - **2026-10-17 — five loop and tool-boundary fixes, applied from a review;
   built ungated, developer to review (understood: no).** A review of the loop
