@@ -358,7 +358,8 @@ def verify(state: InvestigationState, deps: InvestigationDeps) -> None:
     Nothing tells the agent whether a fix worked. The policy chooses what
     to look at and judges it; this function decides whether that judgement
     can stand. "Resolved" and "not resolved" need evidence observed after
-    the work finished (or, with no action, after the conclusion), and only
+    the work finished (or, with no action, after the conclusion), whose data
+    also starts after it, and only
     evidence labelled observable counts as observed: never a memory. Without
     it the result is "inconclusive"; with nothing looked at, "not performed".
 
@@ -373,14 +374,30 @@ def verify(state: InvestigationState, deps: InvestigationDeps) -> None:
     run_inner_loop(state, deps, "verify")
 
     def later(evidence_id: str) -> bool:
-        """A look at the factory after `since`. A recalled memory never is one:
-        it is stamped with the tick it was recalled, but it describes the past."""
+        """A look at the factory after `since`, at data from after `since`.
+
+        A recalled memory never is one: it is stamped with the tick it was
+        recalled, but it describes the past. Nor is a look made late at a
+        tick range that starts at or before `since`: its data is from before
+        the work, so it says nothing about the work. A tool with no range
+        reports the factory as it is when asked.
+        """
         tick = known[evidence_id].observed_tick
         observed = origins.get(evidence_id) == "observable"
-        return observed and since is not None and tick is not None and tick > since
+        if not observed or since is None or tick is None:
+            return False
+        return tick > since and starts.get(evidence_id, tick) > since
 
     known = {e.id: e for e in state.evidence}
     origins = {p.evidence_id: p.origin for p in state.provenance}
+    # Where each answer's data begins: the from_tick its request asked for,
+    # taken from the loop's own decision records, never from the policy.
+    starts = {
+        evidence_id: decision.arguments["from_tick"]
+        for decision in state.decisions
+        if isinstance(decision.arguments.get("from_tick"), int)
+        for evidence_id in decision.evidence_ids
+    }
     looked = [evidence_id for evidence_id in known if later(evidence_id)]
     if not looked:
         state.verification = VerificationCheck(

@@ -250,6 +250,30 @@ def test_looking_without_letting_time_pass_after_the_work_does_not_count():
     assert state.verification.outcome == "not_performed"
 
 
+@pytest.mark.parametrize(
+    "window",
+    [(0, 99), (400, None)],
+    ids=["all from before the fault", "starts before the work finished"],
+)
+def test_a_look_now_at_data_from_before_the_work_does_not_count(window):
+    """Looking late is not enough: the data itself must come from after the work.
+
+    The wrong machine is repaired, so CNC-02 still wears. Reading its vibration
+    from before the fault started makes it look calm, and would pass for a fix.
+    """
+    start, end = window
+    old_data = (
+        ask("wait", ticks=300),
+        lambda state: vibration(start, end or state.last_tick),
+    )
+    state, factory = investigate(policy(machine_id="CNC-01", verify=old_data))
+    assert state.evidence[-1].observed_tick == 945 > state.action_finish_tick
+    # Before: "resolved" for the first window, which memory would have kept.
+    # The judgement cites only data from before the work, so it cannot stand.
+    assert state.verification.outcome == "inconclusive"
+    assert factory.sim.state.machines["CNC-02"].condition.bearing_health < 1.0
+
+
 def test_with_nothing_looked_at_the_check_was_not_performed():
     agent = policy(verify=())
     state, _ = investigate(agent)
