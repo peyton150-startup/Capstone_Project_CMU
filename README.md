@@ -4,8 +4,9 @@ Agentic AI capstone: a simulated manufacturing environment (machines,
 sensors, jobs, batches, quality, maintenance, events, hidden faults) and,
 later, an AI research agent that investigates it through tools.
 
-- `CLAUDE.md` — development rules, architecture principles, and the
-  gated teaching workflow used to build this project.
+- `AGENTS.md` — development rules, architecture principles, and the
+  gated teaching workflow used to build this project, for any coding
+  agent (`CLAUDE.md` imports it for Claude Code).
 - `docs/MVP_SCOPE.md` — what the MVP includes, what it excludes, and the
   post-MVP roadmap.
   [Future Work 2](docs/MVP_SCOPE.md#future-work-2--mcp-architecture-observability-and-response-verification)

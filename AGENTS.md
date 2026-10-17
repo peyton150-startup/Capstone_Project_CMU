@@ -1,6 +1,7 @@
 # AGENTS.md — Capstone Project (Agentic AI Research Agent + Factory Simulator)
 
-This file governs how Codex works in this repository. It persists across
+This file governs how any coding agent (Claude Code, Codex, OpenCode)
+works in this repository. It persists across
 sessions. Read it fully at the start of every session, then read
 `docs/PROGRESS.md` to find out where we are.
 
@@ -62,8 +63,15 @@ infer root causes.
 >
 > Sections 1.1–1.3 and §10 step 3 describe the earlier rule and apply
 > only if the developer reinstates it.
+>
+> **IN PRACTICE SINCE 2026-10-12:** the developer has worked through the
+> gated loop again for each new agent checkpoint (checkpoints 1–8b in
+> `docs/PROGRESS.md`, each with a pre-check and a closing question), so
+> follow §1.1–1.3 for new components. Fixes applied without a gate since
+> then are recorded as "built ungated, developer to review (understood:
+> no)". If unsure which applies, ask the developer.
 
-Codex is operating in a **gated teaching + implementation loop**.
+The coding agent is operating in a **gated teaching + implementation loop**.
 
 "I wrote the code" and "the developer understands the system" are **two
 separate completion criteria**. A component is not done until both are
@@ -72,7 +80,7 @@ true, and they are tracked separately in `docs/PROGRESS.md`.
 ### 1.1 Core rule
 
 Before implementing any meaningful new function, class, module, state
-transition, algorithm, or architectural component, Codex must **first
+transition, algorithm, or architectural component, the coding agent must **first
 teach** what it is going to do, then **verify understanding**, and only
 then implement.
 
@@ -83,7 +91,7 @@ then implement.
 - Do **not** proceed merely because the developer wants to move quickly.
   If asked to skip a gate, politely restate the rule and ask the question
   anyway.
-- The developer's answer does not need to use Codex's exact
+- The developer's answer does not need to use the agent's exact
   terminology. Evaluate whether the **underlying concept** is understood.
 - If there is a misunderstanding, explain the gap and ask another
   question. Re-teach until it lands.
@@ -113,7 +121,7 @@ then implement.
 Do not start the next major component until this loop is complete for the
 current one.
 
-### 1.3 After implementing a component, Codex must
+### 1.3 After implementing a component, the coding agent must
 
 1. State exactly which files changed.
 2. Summarize the implementation in plain English.
@@ -130,9 +138,9 @@ current one.
 
 ---
 
-## 2. What must be taught vs. what Codex may just do
+## 2. What must be taught vs. what the coding agent may just do
 
-### 2.1 Codex MUST slow down and teach anything involving
+### 2.1 The coding agent MUST slow down and teach anything involving
 
 - architecture
 - factory state
@@ -156,7 +164,7 @@ current one.
 - anything that could materially affect what the future agent observes
   or concludes
 
-### 2.2 Codex MAY handle without a gate (mention it, don't lecture)
+### 2.2 The coding agent MAY handle without a gate (mention it, don't lecture)
 
 - serialization boilerplate
 - repetitive validation
@@ -389,18 +397,18 @@ Tooling: `pytest`. Run tests after every implementation step.
 ## 9. Dev environment
 
 - Python 3.11, Pydantic v2 available.
-- `pytest` is not yet installed: `pip install pytest` (or
-  `pip install -e ".[dev]"` once `pyproject.toml` declares it).
+- Set up with `uv sync --all-extras` (as CI does), then `uv run pytest`
+  and `uv run ruff check` / `uv run ruff format --check`.
 - No external services. Everything runs locally and offline.
 - Model providers in scope, and no others: Mistral, Google Gemini, Groq,
   NVIDIA, Cohere and Cloudflare. Never add an Anthropic/Claude or OpenAI
   model, SDK, API key name or default to the code, tests or dependencies.
-  (This file's name and the word "Claude" in it refer to the coding
-  assistant, not to a model the project calls.) Tests never need a key.
+  (`CLAUDE.md` only imports this file for Claude Code; the coding
+  assistant is not a model the project calls.) Tests never need a key.
 
 ---
 
-## 10. Session start checklist for Codex
+## 10. Session start checklist for the coding agent
 
 1. Read this file.
 2. Read `docs/PROGRESS.md`. Identify the current component and whether it
