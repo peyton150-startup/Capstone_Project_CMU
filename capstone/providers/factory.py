@@ -149,6 +149,57 @@ class ExecuteArguments(NoArguments):
     proposal_id: int = Field(ge=1)
 
 
+# What each tool does, in words a model can read. Moved here from the older
+# agent's toolbox so it survives that agent's retirement; nothing reads it yet
+# (8b-2 will, to build the research tool list). It names no possible causes
+# and no fault signatures.
+TOOL_DESCRIPTIONS: dict[str, str] = {
+    "get_time": "The current tick and clock time.",
+    "list_machines": (
+        "Every machine on the line in order, its status (running / idle / down) "
+        "and current job."
+    ),
+    "get_settings": (
+        "Each machine's current spindle speed in rpm. Standard speeds differ by "
+        "machine and are not shown."
+    ),
+    "get_readings": (
+        "Raw readings from one machine sensor (vibration, temperature or load) "
+        "in a tick range. One tick is one minute."
+    ),
+    "get_factory_readings": (
+        "The factory air thermometer (sensor 'air_temperature', °F) in a tick range."
+    ),
+    "get_sensor_summary": (
+        "Count, mean, minimum, maximum, first and last reading of one sensor in a "
+        "tick range. Use machine_id null for air_temperature. The rate is the "
+        "change from the first to the last reading, not a fitted trend."
+    ),
+    "get_events": (
+        "Event log in a tick range: alarms, machine stops, job "
+        "started/finished/blocked, inspections, material batches, loading door, "
+        "maintenance. Optionally one machine only."
+    ),
+    "get_job_history": "Everything the event log says about one job, across machines.",
+    "get_inspections": (
+        "Pass/fail inspection results (with material batch) for jobs that left "
+        "the line in a tick range."
+    ),
+    "wait": "Let the factory run for some ticks. The only way time passes; looking is free.",
+    "propose_action": (
+        "Ask a human to approve a change to the factory. replace_bearing stops the "
+        "machine about 45 ticks (135 if it has broken down); reset_setting stops it "
+        "10 ticks and puts its speed back to standard. Nothing happens until a "
+        "human decides; check with get_proposals. The reason says why, and what "
+        "you expect to see afterwards."
+    ),
+    "get_proposals": "Every proposal so far and whether it was approved or rejected.",
+    "execute_action": (
+        "Start the work of a proposal a human has approved. Says when it will finish."
+    ),
+}
+
+
 class SimulatorFactoryProvider:
     """No approval or ground-truth tools; old tool APIs remain unchanged."""
 

@@ -12,6 +12,7 @@ from capstone.observability import create_event_logger
 from capstone.providers.factory import (
     FactorySensor,
     MachineSensor,
+    TOOL_DESCRIPTIONS,
     SimulatorFactoryProvider,
 )
 from capstone.simulator.line import build_line
@@ -324,3 +325,9 @@ def test_adapter_logs_metadata_without_tool_payloads():
         "success": result.success,
     }
     assert "CNC-01" not in stream.getvalue()
+
+
+def test_every_tool_is_described_and_no_description_names_a_missing_tool():
+    _, _, factory = provider()
+    assert set(TOOL_DESCRIPTIONS) == set(factory._tools)
+    assert all(text.strip() for text in TOOL_DESCRIPTIONS.values())
