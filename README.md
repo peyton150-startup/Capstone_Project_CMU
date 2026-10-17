@@ -148,8 +148,6 @@ or action). Any other failure, and an answer that breaks its contract
 (`invalid_result`), is reported without detail. Sensor names are checked:
 `vibration`, `temperature` and `load` on a machine, `air_temperature` for
 the factory.
-`capstone/providers/llm.py` defines a provider-neutral interface for explicit
-investigation artifacts; it does not install or invoke an LLM.
 
 ```python
 from capstone.contracts.investigations import investigation_id_for, run_id_for

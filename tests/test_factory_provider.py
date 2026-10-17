@@ -10,9 +10,9 @@ from capstone.contracts.investigations import investigation_id_for, run_id_for
 from capstone.contracts.tools import ToolRequest
 from capstone.observability import create_event_logger
 from capstone.providers.factory import (
+    TOOL_DESCRIPTIONS,
     FactorySensor,
     MachineSensor,
-    TOOL_DESCRIPTIONS,
     SimulatorFactoryProvider,
 )
 from capstone.simulator.line import build_line
