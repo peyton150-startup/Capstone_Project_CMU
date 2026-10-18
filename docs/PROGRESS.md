@@ -54,6 +54,14 @@ alarm), then evaluation, then the agent itself.
 
 ## Session notes
 
+- **2026-10-18 — RAG retry requirement explicitly deferred to Future Work.**
+  Moved the agent-directed RAG/repeat-retrieval section into Future Work 1 in
+  `docs/MVP_SCOPE.md` and marked it outside the current MVP, not implemented.
+  Updated the reference in `docs/EPISODIC_MEMORY.md`. Documentation only;
+  no functions/classes added, runtime changes, or understanding claimed.
+  The developer explicitly authorized committing and pushing these changes
+  to the existing GitHub repository.
+
 - **2026-10-18 — agent-directed RAG repeat-search requirement (documentation only).**
   Updated `docs/MVP_SCOPE.md` and `docs/EPISODIC_MEMORY.md`: the same Nemotron
   investigation agent assesses retrieved evidence and can revise/repeat searches

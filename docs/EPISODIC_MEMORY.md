@@ -53,7 +53,7 @@ free-text scans cannot establish the true origin of mislabeled evidence.
 Memory evaluation records are implemented; runtime wiring remains. Retrieval is
 bounded lookup by investigation/category; embeddings and RAG are not implemented.
 
-The planned [agent-directed RAG loop](MVP_SCOPE.md#agent-directed-rag-and-repeat-retrieval-2026-10-18)
+The planned [Future Work 1 agent-directed RAG loop](MVP_SCOPE.md#agent-directed-rag-and-repeat-retrieval-2026-10-18)
 uses the same Nemotron investigation agent to judge retrieved evidence and search
 again with a revised query when it is insufficient, including when drafting an
 answer reveals a gap. The default is three retrieval calls per knowledge gap,

@@ -287,6 +287,73 @@ immutable document/revision lineage. Reevaluate fact-specific source authority
 when comparable claims conflict, including conflicting revisions of one source.
 Do not silently resolve a missing or conflicting claim through model opinion.
 
+#### Agent-directed RAG and repeat retrieval (2026-10-18)
+
+For capstone memory retrieval, the existing investigation agent owns both
+reasoning and retrieval decisions using the selected Nemotron 3.5 Lightning
+30B model. Do not introduce another reasoning LLM or a dedicated RAG agent.
+This direction supersedes earlier suggestions in this document to assign memory
+retrieval reasoning to a separate Evidence agent. Other proposed specialist
+roles remain separate roadmap discussions.
+
+The intended flow is:
+
+```text
+Investigation agent (Nemotron)
+  -> identifies a knowledge gap and chooses a search
+  -> memory retrieval tool (potentially exposed through the planned MCP server)
+  -> PostgreSQL memory store
+  -> evidence returned to the same agent
+  -> agent assesses usefulness and coverage
+     -> sufficient: continue the investigation using cited evidence
+     -> insufficient: revise the search and retrieve again within budget
+     -> exhausted: report the gap and continue with available observations
+```
+
+Python/SQL performs database retrieval. PostgreSQL with pgvector and a small
+embedding model is the proposed semantic-search extension; a separate reasoning
+model is unnecessary. Reranking is optional. Neither embeddings nor pgvector
+is implemented by this requirement.
+
+**Repeat-search behavior:** after each retrieval, the agent checks whether the
+results address the question, provide relevant supporting evidence, and leave
+important contradictions or gaps. The agent must also be able to reopen a
+search if a draft answer reveals unsupported claims. A high similarity score
+or the agent's confidence alone does not establish that an answer is supported.
+Empty, irrelevant, incomplete, or contradictory results may trigger another
+search using revised wording, different symptoms, broader/narrower filters, or
+an alternative hypothesis. Search should seek evidence that could refute the
+current hypothesis as well as evidence that supports it. Record the reason for
+searching again and what changed; repeating an identical query against an
+unchanged store is not progress.
+
+Implementation default: at most three retrieval calls per knowledge gap,
+including the initial search, also subject to the investigation's overall tool
+and iteration limits. This is a bounded default, not a developer-validated
+optimal setting. If the budget is exhausted or searches stop adding relevant
+evidence, state what remains unknown, qualify the answer, and use other allowed
+observation tools when useful. Do not keep searching until a preferred answer
+appears. Historical lessons inform hypotheses; current observations and mandatory
+post-intervention verification still determine whether an intervention worked.
+Human approval and the hidden-ground-truth boundary remain in force.
+
+Acceptance checks for runtime integration: an empty or irrelevant first result
+can lead to a revised second search whose evidence reaches the answer; a useful
+first result can end retrieval immediately; contradictory evidence can cause
+hypothesis revision; insufficient evidence at the call limit produces an explicit
+uncertain result without another retrieval; no second reasoning model or hidden
+truth is used. Use a scripted model and local store for deterministic offline
+tests. Record query attempts, returned source/memory IDs, the agent's usefulness
+assessment, and the stopping reason for evaluation.
+
+Status: future work, outside the current MVP; not implemented. This checkout currently implements filtered lookup through
+`MemoryService.retrieve()` and `SQLMemoryRepository.retrieve()` using
+`MemoryQuery` (investigation ID, category, limit). It has no connected agent
+retrieval loop, free-text/semantic search, embedding adapter, or MCP memory tool.
+Runtime integration must reconcile the completion contracts described in
+`EPISODIC_MEMORY.md` and respect the reinstated memory teaching checkpoints
+recorded in `PROGRESS.md`.
+
 #### Docling + HybridChunker — candidate, not implemented
 
 Reevaluate when actual manuals, SOPs, maintenance reports, and PDFs enter the
@@ -1466,73 +1533,6 @@ is added. Ruff commands and these boundaries are documented in `README.md`.
 pytest-cov, pre-commit, and CI were subsequently added on 2026-10-11 as
 developer tooling (Future Work 6). Type checking and larger research frameworks
 remain deferred; the original foundation work did not install them.
-
-### Agent-directed RAG and repeat retrieval (2026-10-18)
-
-For capstone memory retrieval, the existing investigation agent owns both
-reasoning and retrieval decisions using the selected Nemotron 3.5 Lightning
-30B model. Do not introduce another reasoning LLM or a dedicated RAG agent.
-This direction supersedes earlier suggestions in this document to assign memory
-retrieval reasoning to a separate Evidence agent. Other proposed specialist
-roles remain separate roadmap discussions.
-
-The intended flow is:
-
-```text
-Investigation agent (Nemotron)
-  -> identifies a knowledge gap and chooses a search
-  -> memory retrieval tool (potentially exposed through the planned MCP server)
-  -> PostgreSQL memory store
-  -> evidence returned to the same agent
-  -> agent assesses usefulness and coverage
-     -> sufficient: continue the investigation using cited evidence
-     -> insufficient: revise the search and retrieve again within budget
-     -> exhausted: report the gap and continue with available observations
-```
-
-Python/SQL performs database retrieval. PostgreSQL with pgvector and a small
-embedding model is the proposed semantic-search extension; a separate reasoning
-model is unnecessary. Reranking is optional. Neither embeddings nor pgvector
-is implemented by this requirement.
-
-**Repeat-search behavior:** after each retrieval, the agent checks whether the
-results address the question, provide relevant supporting evidence, and leave
-important contradictions or gaps. The agent must also be able to reopen a
-search if a draft answer reveals unsupported claims. A high similarity score
-or the agent's confidence alone does not establish that an answer is supported.
-Empty, irrelevant, incomplete, or contradictory results may trigger another
-search using revised wording, different symptoms, broader/narrower filters, or
-an alternative hypothesis. Search should seek evidence that could refute the
-current hypothesis as well as evidence that supports it. Record the reason for
-searching again and what changed; repeating an identical query against an
-unchanged store is not progress.
-
-Implementation default: at most three retrieval calls per knowledge gap,
-including the initial search, also subject to the investigation's overall tool
-and iteration limits. This is a bounded default, not a developer-validated
-optimal setting. If the budget is exhausted or searches stop adding relevant
-evidence, state what remains unknown, qualify the answer, and use other allowed
-observation tools when useful. Do not keep searching until a preferred answer
-appears. Historical lessons inform hypotheses; current observations and mandatory
-post-intervention verification still determine whether an intervention worked.
-Human approval and the hidden-ground-truth boundary remain in force.
-
-Acceptance checks for runtime integration: an empty or irrelevant first result
-can lead to a revised second search whose evidence reaches the answer; a useful
-first result can end retrieval immediately; contradictory evidence can cause
-hypothesis revision; insufficient evidence at the call limit produces an explicit
-uncertain result without another retrieval; no second reasoning model or hidden
-truth is used. Use a scripted model and local store for deterministic offline
-tests. Record query attempts, returned source/memory IDs, the agent's usefulness
-assessment, and the stopping reason for evaluation.
-
-Status: planned. This checkout currently implements filtered lookup through
-`MemoryService.retrieve()` and `SQLMemoryRepository.retrieve()` using
-`MemoryQuery` (investigation ID, category, limit). It has no connected agent
-retrieval loop, free-text/semantic search, embedding adapter, or MCP memory tool.
-Runtime integration must reconcile the completion contracts described in
-`EPISODIC_MEMORY.md` and respect the reinstated memory teaching checkpoints
-recorded in `PROGRESS.md`.
 
 ### Developer follow-up: Subquadratic whole-repository audit
 
