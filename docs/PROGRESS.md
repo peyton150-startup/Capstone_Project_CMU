@@ -54,6 +54,18 @@ alarm), then evaluation, then the agent itself.
 
 ## Session notes
 
+- **2026-10-18 — agent-directed RAG repeat-search requirement (documentation only).**
+  Updated `docs/MVP_SCOPE.md` and `docs/EPISODIC_MEMORY.md`: the same Nemotron
+  investigation agent assesses retrieved evidence and can revise/repeat searches
+  when results or a draft answer are insufficient. No separate RAG reasoning
+  model. Proposed PostgreSQL/pgvector embeddings remain unimplemented. Recorded
+  a three-call default per knowledge gap, overall investigation limits, explicit
+  uncertainty on exhaustion, source/attempt tracing, and offline acceptance
+  checks. No functions/classes added or runtime behavior changed. This checkout
+  has filtered SQL retrieval but no connected agent/RAG loop. Runtime work and
+  memory understanding checkpoints remain outstanding; no new understanding
+  is claimed.
+
 - **2026-10-12 — SubQ whole-repository audit follow-up (documentation only).**
   Appended the developer's requested audit task to the end of MVP_SCOPE:
   architecture consistency and authorization/hidden-truth prompts, reproducible

@@ -53,6 +53,14 @@ free-text scans cannot establish the true origin of mislabeled evidence.
 Memory evaluation records are implemented; runtime wiring remains. Retrieval is
 bounded lookup by investigation/category; embeddings and RAG are not implemented.
 
+The planned [agent-directed RAG loop](MVP_SCOPE.md#agent-directed-rag-and-repeat-retrieval-2026-10-18)
+uses the same Nemotron investigation agent to judge retrieved evidence and search
+again with a revised query when it is insufficient, including when drafting an
+answer reveals a gap. The default is three retrieval calls per knowledge gap,
+bounded by the overall investigation budget. Exhaustion leaves an explicit
+uncertainty; it must not force a confident answer. This is a runtime integration
+requirement, not behavior currently provided by `MemoryService.retrieve()`.
+
 ## Evaluation and API use
 
 For a caller-supplied, validated `candidate` and SQLAlchemy `engine`, use:
