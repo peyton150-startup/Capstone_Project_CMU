@@ -47,8 +47,21 @@ class Sensor(ABC):
             sensor=self.name,
             machine_id=machine.id,
             tick=tick,
-            value=self._measure(machine),
+            value=self._measure(machine)
+            + sum(
+                effect.offset
+                for effect in machine.sensor_effects.values()
+                if effect.sensor == self.name
+            ),
             unit=self.unit,
+        )
+
+    def available(self, machine: MachineState) -> bool:
+        """Whether the instrument transmits this tick; no RNG is consumed here."""
+        return not any(
+            effect.missing
+            for effect in machine.sensor_effects.values()
+            if effect.sensor == self.name
         )
 
     @abstractmethod

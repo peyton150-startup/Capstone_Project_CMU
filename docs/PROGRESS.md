@@ -54,6 +54,20 @@ alarm), then evaluation, then the agent itself.
 
 ## Session notes
 
+- **2026-10-18 — instrument disturbances implemented, delayed records excluded.**
+  Developer authorized the harder simulator features except delayed maintenance
+  records. `simulator/disturbances.py` adds `SensorDrift` (growing calibration
+  bias), `TransientAnomaly` (temporary harmless bias), and `SensorDropout`
+  (temporary signal loss), sharing `_SensorDisturbance` window/ground-truth
+  handling. Each writes its own `SensorEffect` in hidden machine state;
+  overlapping windows do not erase each other. `Sensor.read()` applies offsets;
+  `Sensor.available()` controls transmission. `Simulator.step()` draws normal
+  noise during dropout but stores/alarms only transmitted samples. State, tools,
+  observations and beliefs remain separate. Tests cover timing, causal isolation,
+  overlapping effects, actual provider results/alarms, sparse summaries and
+  invalid parameters. No investigation tools/contracts changed. Understood: no —
+  built ungated, developer to review. Challenge builder is the next increment.
+
 - **2026-10-18 — simulator difficulty interface verification.**
   Added five compatibility cases in `tests/test_difficulty_tool_compatibility.py`
   and findings in `docs/SIMULATOR_DIFFICULTY_COMPATIBILITY.md`. Existing compound
