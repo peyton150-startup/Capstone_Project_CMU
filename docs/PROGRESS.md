@@ -54,6 +54,17 @@ alarm), then evaluation, then the agent itself.
 
 ## Session notes
 
+- **2026-10-18 — simulator difficulty interface verification.**
+  Added five compatibility cases in `tests/test_difficulty_tool_compatibility.py`
+  and findings in `docs/SIMULATOR_DIFFICULTY_COMPATIBILITY.md`. Existing compound
+  faults and partial repairs work through unchanged tools; synthetic drift,
+  transient and sparse observations fit existing responses. Delayed historical
+  event insertion is rejected; publication/occurrence semantics remain unsettled.
+  The completed report has one proposed action and no runtime solver is present.
+  No production code or new difficulty behavior added, respecting the developer's
+  zero-investigation-change condition. No functions/classes added to production
+  and no new understanding claimed.
+
 - **2026-10-18 — RAG retry requirement explicitly deferred to Future Work.**
   Moved the agent-directed RAG/repeat-retrieval section into Future Work 1 in
   `docs/MVP_SCOPE.md` and marked it outside the current MVP, not implemented.
