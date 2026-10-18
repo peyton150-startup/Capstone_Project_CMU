@@ -76,6 +76,16 @@ The agent sees the symptoms but does not initially know the cause.
 Scenario 4 matters: the agent should not always conclude that something
 is broken.
 
+**Simulator difficulty extension authorized 2026-10-18:** instrument drift,
+missing samples, and temporary sensor anomalies are implemented as composable
+hidden instrument conditions. The opt-in `build_challenge()` combines these
+with bearing and speed faults without changing investigation tool formats or
+the ordinary line builder. This supplies harder environments, not a completed
+multi-fault evaluator or solver integration. Delayed information/maintenance
+records are explicitly excluded by the developer. See the
+[difficulty guide](SIMULATOR_DIFFICULTY_COMPATIBILITY.md) for implemented behavior,
+tests, limits, and the assessment of Kanika's feedback.
+
 ## 3. One investigation agent
 
 No multi-agent system in the MVP. One orchestrating research agent that

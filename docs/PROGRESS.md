@@ -54,6 +54,21 @@ alarm), then evaluation, then the agent itself.
 
 ## Session notes
 
+- **2026-10-18 — compound challenge builder and feedback assessment.**
+  Added `simulator/challenge.py`: `build_challenge()` selects three machines
+  and onset using a separate seeded stream, then combines bearing wear/speed
+  faults, harmless vibration spike, temperature drift and missing samples.
+  Ordinary `build_line()` is unchanged. Tests replay tool calls/observations,
+  compare seeds, check sparse histories, hidden fields and supported line sizes.
+  README and `docs/SIMULATOR_DIFFICULTY_COMPATIBILITY.md` describe usage, each
+  changed module/class/function and limits. Assessed Kanika's feedback there:
+  existing configurations are feasible now; cooling failure needs new physics;
+  complete agent/evaluator integration is still absent, not just prompt work.
+  Delayed information is explicitly excluded by the developer. No investigation
+  modules/contracts changed. Understood: no — built ungated, developer to review.
+  Verification: 503 tests passed; repository-wide Ruff lint/format and whitespace
+  checks passed. First disturbance increment independently passed 498 tests.
+
 - **2026-10-18 — instrument disturbances implemented, delayed records excluded.**
   Developer authorized the harder simulator features except delayed maintenance
   records. `simulator/disturbances.py` adds `SensorDrift` (growing calibration
