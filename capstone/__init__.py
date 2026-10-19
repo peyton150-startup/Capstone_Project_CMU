@@ -3,5 +3,6 @@
 """The capstone project: a simulated factory and a research agent that investigates it.
 `simulator` is the factory and its hidden truth; `tools` and `providers` are the
 only way in; `agent` investigates; `memory` keeps lessons; `evaluation` scores each
-run against the truth.
+run against the truth. `learning` (audit, then the memory gate) and `episode` (one
+run from seeded fault to score) join them, outside the agent.
 """
