@@ -19,6 +19,7 @@ import json
 from collections.abc import Callable
 from dataclasses import dataclass, field
 from time import monotonic
+from typing import TypeVar
 
 from capstone.agent.artifacts import ProposalRecord, TerminationReason
 from capstone.agent.policy import (
@@ -32,11 +33,23 @@ from capstone.agent.state import DecisionRecord, InvestigationState, Phase, Step
 from capstone.contracts.evidence import Evidence
 from capstone.contracts.provenance import MEMORY_SOURCE, ProvenanceReference
 from capstone.contracts.tools import ToolError, ToolRequest, ToolResult
+from capstone.providers.chat import ModelError
 from capstone.providers.factory import FactoryProvider
 
 # What a policy may get wrong without it being a bug in this module:
 # an invalid model, a missing key, a value of the wrong type.
 POLICY_ERRORS = (ValueError, TypeError, LookupError)
+
+Reply = TypeVar("Reply")
+
+
+class OutOfTime(Exception):
+    """A policy question got no answer before its stage's time ran out.
+
+    Neither the policy's mistake nor an outage: the clock ran out. Research
+    then stops with TIMEOUT and the investigation goes on to its conclusion
+    in the time kept for it.
+    """
 
 
 @dataclass
@@ -113,12 +126,12 @@ def check_termination(
     the proposal, the work and the check keep the time they need.
     """
     budgets = state.budgets
-    remaining = state.remaining_seconds(deps.clock())
-    if remaining <= 0:
+    now = deps.clock()
+    if state.remaining_seconds(now) <= 0:
         return TerminationReason.TIMEOUT
     if phase == "test" and diagnosis_supported(state, deps):
         return TerminationReason.DIAGNOSIS_SUPPORTED
-    if phase != "verify" and remaining <= budgets.followup_seconds:
+    if phase != "verify" and state.research_seconds(now) <= 0:
         return TerminationReason.TIMEOUT
     if state.unproductive_steps >= budgets.max_unproductive_steps:
         return TerminationReason.NO_USEFUL_ACTION
@@ -136,6 +149,42 @@ def check_termination(
     if state.remaining_tool_calls == 0:
         return TerminationReason.MAX_TOOL_CALLS
     return None
+
+
+def seconds_left(
+    state: InvestigationState, deps: InvestigationDeps, *, research: bool
+) -> float:
+    """The time a stage has left: research ends where the follow-up time begins."""
+    now = deps.clock()
+    return state.research_seconds(now) if research else state.remaining_seconds(now)
+
+
+def ask_policy(
+    state: InvestigationState,
+    deps: InvestigationDeps,
+    question: Callable[[InvestigationState], Reply],
+    *,
+    research: bool,
+) -> Reply:
+    """Put one question to the policy, on a copy of state, within its stage's time.
+
+    The copy says how long the answer may take (`seconds_for_question`), so a
+    model-backed policy can stop waiting when the stage's time is up. If no
+    model answered and that time has run out, raises OutOfTime: the clock,
+    not the model services, is why there is no answer. A ModelError with
+    time still left is an outage and goes on up unchanged.
+    """
+    view = state.model_copy(deep=True)
+    if state.started_at is not None:
+        view.seconds_for_question = seconds_left(state, deps, research=research)
+    try:
+        return question(view)
+    except ModelError:
+        if state.started_at is not None and (
+            seconds_left(state, deps, research=research) <= 0
+        ):
+            raise OutOfTime() from None
+        raise
 
 
 def call_tool(
@@ -333,8 +382,26 @@ def gather(
         try:
             apply_interpretation(
                 state,
-                deps.policy.interpret(state.model_copy(deep=True), step, evidence),
+                ask_policy(
+                    state,
+                    deps,
+                    lambda view: deps.policy.interpret(view, step, evidence),
+                    research=phase != "verify",
+                ),
             )
+        except OutOfTime:
+            # The evidence stays and no belief changes. Not the policy's
+            # failure, so nothing is counted against it; the next turn's
+            # check stops the loop on time.
+            record(
+                state,
+                phase,
+                "uninterpreted",
+                information_needed=step.information_needed,
+                step=step,
+                evidence_ids=(evidence.id,),
+            )
+            return evidence
         except POLICY_ERRORS:
             # The factory did answer, so the evidence stays. What failed is the
             # policy's reading of it: no belief changes, and the turn counts as
@@ -391,9 +458,23 @@ def run_inner_loop(
         state.iteration_count += 1
         phase_iterations += 1
         try:
-            decision = deps.policy.decide(state.model_copy(deep=True), phase)
+            decision = ask_policy(
+                state,
+                deps,
+                lambda view: deps.policy.decide(view, phase),
+                research=phase != "verify",
+            )
             if not isinstance(decision, CallTool | Stop):
                 raise ValueError("a policy must return CallTool or Stop")
+        except OutOfTime:
+            record(
+                state,
+                phase,
+                "stopped",
+                information_needed="an answer before the time ran out",
+                termination_reason=TerminationReason.TIMEOUT,
+            )
+            return TerminationReason.TIMEOUT
         except POLICY_ERRORS:
             state.unproductive_steps += 1
             record(

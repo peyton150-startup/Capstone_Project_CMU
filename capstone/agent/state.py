@@ -166,6 +166,10 @@ class InvestigationState(BaseModel):
     action_started_tick: int | None = Field(default=None, ge=0)
     action_finish_tick: int | None = Field(default=None, ge=0)
     verification: VerificationCheck | None = None
+    # Set by the loop only on the copy a policy is given: how long the policy
+    # may take to answer, the time its stage has left. None on the loop's own
+    # state, and outside a running investigation.
+    seconds_for_question: float | None = Field(default=None, ge=0)
 
     @property
     def confidence(self) -> float:
@@ -205,6 +209,10 @@ class InvestigationState(BaseModel):
         if self.started_at is None:
             return self.budgets.timeout_seconds
         return max(0.0, self.budgets.timeout_seconds - (now - self.started_at))
+
+    def research_seconds(self, now: float) -> float:
+        """Time left for research: the deadline less what is kept for afterwards."""
+        return max(0.0, self.remaining_seconds(now) - self.budgets.followup_seconds)
 
     def evidence_for(self, question_id: str) -> Evidence | None:
         """The newest evidence that answered a question, if any."""

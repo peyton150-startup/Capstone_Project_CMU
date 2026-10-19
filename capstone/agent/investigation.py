@@ -45,7 +45,9 @@ from capstone.agent.artifacts import (
 from capstone.agent.loop import (
     POLICY_ERRORS,
     InvestigationDeps,
+    OutOfTime,
     apply_interpretation,
+    ask_policy,
     call_signature,
     gather,
     record,
@@ -97,10 +99,20 @@ def plan(state: InvestigationState, deps: InvestigationDeps) -> None:
     """Ask the policy what is worth finding out first, and keep its questions open."""
     state.stage = "plan"
     try:
-        questions = tuple(deps.policy.plan(state.model_copy(deep=True)))
+        questions = tuple(ask_policy(state, deps, deps.policy.plan, research=True))
         if not all(isinstance(q, Question) for q in questions):
             raise ValueError("a plan is a list of questions")
         apply_interpretation(state, Interpretation(new_questions=questions))
+    except OutOfTime:
+        # Research time is up before it began; the next stage stops on time.
+        record(
+            state,
+            "plan",
+            "stopped",
+            information_needed="what to find out first",
+            termination_reason=TerminationReason.TIMEOUT,
+        )
+        return
     except POLICY_ERRORS:
         # No plan is not fatal: the policy can still choose its next step.
         record(
@@ -126,11 +138,14 @@ def investigate(state: InvestigationState, deps: InvestigationDeps) -> Route:
 def hypothesize(state: InvestigationState, deps: InvestigationDeps) -> Route:
     """Ask the policy for explanations. With none to test, go to the conclusion."""
     state.stage = "hypothesize"
-    outcome = "decided"
+    outcome, reason = "decided", None
     try:
         apply_interpretation(
-            state, deps.policy.hypothesize(state.model_copy(deep=True))
+            state, ask_policy(state, deps, deps.policy.hypothesize, research=True)
         )
+    except OutOfTime:
+        outcome, reason = "stopped", TerminationReason.TIMEOUT
+        state.termination_reason = reason
     except POLICY_ERRORS:
         outcome = "invalid_decision"
     record(
@@ -138,6 +153,7 @@ def hypothesize(state: InvestigationState, deps: InvestigationDeps) -> Route:
         "hypothesize",
         outcome,
         information_needed="what could explain the evidence",
+        termination_reason=reason,
     )
     return "continue" if state.hypotheses else "conclude"
 
@@ -191,8 +207,13 @@ def conclude(state: InvestigationState, deps: InvestigationDeps) -> None:
     state.stage = "decide"
     outcome = "decided"
     try:
-        conclusion, request = deps.policy.conclude(state.model_copy(deep=True))
+        conclusion, request = ask_policy(
+            state, deps, deps.policy.conclude, research=False
+        )
         conclusion, request = check_conclusion(state, deps, conclusion, request)
+    except OutOfTime:
+        conclusion, request, outcome = UNDETERMINED, None, "stopped"
+        state.termination_reason = TerminationReason.TIMEOUT
     except POLICY_ERRORS:
         conclusion, request, outcome = UNDETERMINED, None, "invalid_decision"
     state.conclusion = conclusion
@@ -413,11 +434,14 @@ def verify(state: InvestigationState, deps: InvestigationDeps) -> None:
 
     step_outcome, cited, outcome = "decided", (), "inconclusive"
     try:
-        judged = deps.policy.judge_verification(state.model_copy(deep=True))
+        judged = ask_policy(state, deps, deps.policy.judge_verification, research=False)
         if not isinstance(judged, VerificationCheck):
             raise ValueError("a policy must return a verification check")
         if not known.keys() >= set(judged.evidence_ids):
             raise ValueError("the check cites evidence that was not gathered")
+    except OutOfTime:
+        # No judgement in time: the evidence was looked at but not weighed.
+        step_outcome = "stopped"
     except POLICY_ERRORS:
         step_outcome = "invalid_decision"
     else:
