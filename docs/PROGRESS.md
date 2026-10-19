@@ -64,6 +64,7 @@ A component is complete only when both columns are checked.
 | A8b-2 | The prompts for the seven questions | yes | yes | yes | no — closing question not yet asked | `agent/model_policy.py` (`ModelPolicy`, `render`); session note 2026-10-19 (8b-2) |
 | R1 | Review fixes of 2026-10-16/17 (loop budgets, tool errors, repair check, trend tool) | n/a | n/a | yes | no — built ungated, developer to review | session notes 2026-10-17 |
 | R2 | Row cap, unjudged diagnosis, old agent retired, episode runner | n/a | n/a | yes | no — built ungated, developer to review | session notes 2026-10-19; `capstone/episode.py`, `agent/monitor.py`, `evaluation/scoring.py`, `providers/factory.py` |
+| A8c | Provider benchmark: each model measured alone, from real episodes | yes | yes | yes | no — closing question not yet asked | `capstone/benchmark.py`; `providers/chat.py` (`Attempt.seconds`); no real model run yet |
 
 Every row above with four "yes" marks (or "n/a") is complete: no question is
 outstanding on it. Still to build after 12c, from `docs/MVP_SCOPE.md`: the
@@ -71,6 +72,41 @@ other three fault scenarios (material batch, machine configuration, false
 alarm), then evaluation, then the agent itself.
 
 ## Session notes
+
+- **2026-10-19 — checkpoint 8c: the provider benchmark. Pre-check PASSED;
+  built; closing question NOT YET ASKED/ANSWERED. No real model has been run.**
+  Pre-check: asked why the benchmark turns the fallback model off, the
+  developer said a row must describe one model's behaviour, and testing the
+  model and its fallback together would not. Correct. Added: the unit is a
+  model (`provider/model`), not a provider; and a fallback would hide the
+  first model's outages (fewer "model unavailable" endings) and blend two
+  models' times and scores into one row.
+  Built:
+  1. `providers/chat.py` `Attempt.seconds`: each request's duration on the
+     client's injected clock; the pause before a retry is not counted.
+  2. New `capstone/benchmark.py`: `single_model_clients(reference)` (every
+     job that model alone, no fallback); `run_model(model, policy_for,
+     faults, seeds)` runs each fault on each seed through `run_episode` with a
+     fresh `ModelPolicy` and keeps an `EpisodeRecord` (stop reason,
+     diagnosis text, action correct, resolved, every `ModelCall`);
+     `summarize` gives a `ModelReport` (valid answers, invalid replies by
+     job, outages, median and slowest-5% answer seconds, questions per
+     episode, "model unavailable" and timeout endings, right action,
+     resolved); `format_table`; `save_records` (JSON lines); and
+     `python -m capstone.benchmark MODEL... --seeds 0 2 6 --faults ...
+     --out docs/benchmarks` writing `results.md` and `calls.jsonl`.
+  3. `tests/test_benchmark.py` (9), CI group "Benchmark": the row's counts,
+     the nearest-rank percentile, the table row, one model with nothing
+     behind it, a scripted episode recorded, a model that never answers
+     ending every episode "model unavailable", the command writing both
+     files, an unknown model refused.
+  NEXT: the developer names the models to run (only NVIDIA Nemotron is
+  named in settings); keys are copied into this checkout's `.env` without
+  printing them; Cloudflare also needs CLOUDFLARE_ACCOUNT_ID. Default run is
+  4 faults x 3 seeds = 12 episodes per model, up to 3 minutes each.
+  Closing question to ask: a model has a median of 2 s but its slowest 5%
+  is 18 s, and 1 of 12 episodes ended "model unavailable". What per-question
+  limit would you set, and why not set it from the median?
 
 - **2026-10-19 — investigation time budget raised; developer's request,
   understood: n/a (one number changed).** `agent/state.py` `Budgets`:

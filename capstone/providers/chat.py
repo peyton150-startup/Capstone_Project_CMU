@@ -76,6 +76,9 @@ class Attempt(Contract):
 
     model: str
     outcome: str
+    # How long the request took, on the client's clock. The pause before a
+    # retry is not included: it is the client waiting, not the model.
+    seconds: float | None = None
 
 
 @dataclass(frozen=True)
@@ -282,20 +285,27 @@ class FallbackClient:
                         raise no_answer(failures)
                     if pause:
                         self._sleep(pause)
+                    started = self._clock()
+
+                    def tried(outcome: str) -> Attempt:
+                        return Attempt(
+                            model=client.model,
+                            outcome=outcome,
+                            seconds=round(self._clock() - started, 3),
+                        )
+
                     try:
                         answer = client.ask(system, prompt, answer_type, timeout=left)
                     except ModelError as error:
                         failures.append(f"{client.model}: {error}")
-                        attempts.append(Attempt(model=client.model, outcome=str(error)))
+                        attempts.append(tried(str(error)))
                         if not error.transient:
                             break
                         continue
                     except ValueError:
-                        attempts.append(
-                            Attempt(model=client.model, outcome="invalid reply")
-                        )
+                        attempts.append(tried("invalid reply"))
                         raise
-                    attempts.append(Attempt(model=client.model, outcome="answered"))
+                    attempts.append(tried("answered"))
                     self.answered_by = client.model
                     return answer
             raise no_answer(failures)

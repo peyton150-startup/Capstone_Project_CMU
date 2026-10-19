@@ -488,6 +488,27 @@ def test_one_question_gets_twenty_seconds_retries_and_fallback_included():
     assert "b: not asked, no time left" in str(raised.value)
 
 
+def test_each_attempt_records_how_long_the_model_took_but_not_the_pause():
+    clock = Clock()
+    primary, _ = silent(clock, "a")
+
+    def answers_in_three_seconds(url, headers, body, timeout):
+        clock.now += 3.0
+        return chat('{"text": "advice"}')
+
+    backup = ChatClient(
+        "https://example.test", KEY, "b", transport=answers_in_three_seconds
+    )
+    ask = FallbackClient(
+        [primary, backup], retries=0, sleep=clock.sleep, clock=clock, max_seconds=60
+    )
+    ask.ask("s", "p", Lesson)
+    assert [(a.model, a.outcome, a.seconds) for a in ask.attempts] == [
+        ("a", "the model service timed out", 15.0),
+        ("b", "answered", 3.0),
+    ]
+
+
 def test_a_request_never_waits_longer_than_its_client_allows():
     ask, transport = client(chat('{"text": "advice"}'))
     ask.ask("s", "p", Lesson, timeout=600)
