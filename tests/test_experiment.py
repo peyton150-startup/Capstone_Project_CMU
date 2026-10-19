@@ -3,9 +3,12 @@
 import pytest
 
 import capstone.experiment as experiment
+from capstone.agent.model_policy import ModelCall
 from capstone.evaluation.labels import Label, LabelBook, apply_label
 from capstone.experiment import (
+    CallSummary,
     Case,
+    ExperimentRecord,
     ask_label,
     grid,
     labelled,
@@ -14,9 +17,12 @@ from capstone.experiment import (
     report,
     run_experiment,
     seeds_from,
+    summarize_calls,
 )
+from capstone.providers.chat import Attempt
 from capstone.tools.diagnosis import Diagnosis
 from tests.test_known_answers import stand_in
+from tests.test_model_policy import scripted_models
 
 BEARING = Case("bearing-6", 6, "bearing_degradation")  # bearing wear on CNC-02
 BATCH = Case("batch-7", 7, "bad_material_batch")  # batch 2
@@ -140,3 +146,79 @@ def test_the_command_line_runs_labels_and_reports(tmp_path, monkeypatch, capsys)
     capsys.readouterr()
     assert main(["report", "--results", str(results), "--labels", str(labels)]) == 0
     assert capsys.readouterr().out.startswith("1/1 root causes correctly identified")
+
+
+# --- what the model questions came to, and how long each run took --------------
+
+
+def made(job, outcome, answered_by=None, *attempts):
+    return ModelCall(
+        job=job,
+        outcome=outcome,
+        answered_by=answered_by,
+        attempts=tuple(Attempt(model="m", outcome=o) for o in attempts),
+    )
+
+
+def test_invalid_replies_and_outages_are_counted_apart():
+    down = "the model service could not be reached"
+    summary = summarize_calls(
+        [
+            made("plan", "answered", "groq/a", "answered"),
+            # Two outages on the first model, then the fallback answered.
+            made("decide", "answered", "nvidia/b", down, down, "answered"),
+            made("decide", "invalid_reply", None, "answered"),
+            made("judge", "no_answer", None, down, down),
+        ]
+    )
+    assert summary == CallSummary(
+        questions=4,
+        answered=2,
+        invalid_replies=1,
+        invalid_by_job={"decide": 1},
+        unanswered=1,
+        outage_attempts=4,
+        answered_by={"groq/a": 1, "nvidia/b": 1},
+    )
+
+
+def test_a_model_policy_run_keeps_its_call_summary_and_its_time():
+    ticks = iter([100.0, 142.5])
+    (record,) = run_experiment(
+        [BEARING], scripted_models, name="calls", clock=lambda: next(ticks)
+    )
+    calls = record.model_calls
+    assert calls is not None and calls.questions == 14
+    assert (calls.answered, calls.invalid_replies, calls.unanswered) == (14, 0, 0)
+    assert calls.answered_by == {"fake/model": 14}
+    assert record.wall_seconds == 42.5
+
+
+def test_a_policy_that_keeps_no_calls_records_none(records):
+    assert records[0].model_calls is None
+    assert records[0].wall_seconds is not None and records[0].wall_seconds >= 0
+
+
+def test_a_results_line_from_before_still_reads(records):
+    old = records[0].model_dump(exclude={"model_calls", "wall_seconds"})
+    again = ExperimentRecord.model_validate(old)
+    assert (again.model_calls, again.wall_seconds) == (None, None)
+
+
+def test_the_report_shows_the_model_questions():
+    ticks = iter([0.0, 30.0])
+    records = run_experiment(
+        [BEARING], scripted_models, name="r", clock=lambda: next(ticks)
+    )
+    lines = report(records, {}).splitlines()
+    assert lines[1] == (
+        "model questions: 14 (14 answered, 0 invalid replies, 0 unanswered, "
+        "0 failed attempts); 30 s per episode on average"
+    )
+    assert "questions=14 invalid=0 unanswered=0 s=30" in lines[-1]
+
+
+def test_the_report_says_when_no_model_was_recorded(records):
+    lines = report(records, {}).splitlines()
+    assert lines[1].startswith("model questions: not recorded")
+    assert "questions=-" in lines[-1]

@@ -116,7 +116,11 @@ def test_scores_match_the_pinned_expectations(records):
 
 def test_the_suite_is_repeatable(records):
     again = run_experiment(known_cases(), stand_in, name="known-answer-suite")
-    assert [r.model_dump() for r in again] == [r.model_dump() for r in records]
+    # Everything seeded repeats; the wall clock is real time, so it cannot.
+    real_time = {"wall_seconds"}
+    assert [r.model_dump(exclude=real_time) for r in again] == [
+        r.model_dump(exclude=real_time) for r in records
+    ]
 
 
 def test_no_record_shows_the_truth_to_the_policy(records):
