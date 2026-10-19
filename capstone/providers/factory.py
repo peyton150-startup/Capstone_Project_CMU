@@ -38,12 +38,19 @@ def argument_problems(invalid: ValidationError) -> str:
     )
 
 
+# The most rows one answer may hold. Raw readings over a few hundred ticks
+# run to tens of kilobytes, which no prompt built from the evidence can
+# carry; a longer answer is refused with a way to ask for less.
+MAX_ROWS = 300
+
+
 def run_tool(entry, raw_arguments: dict[str, JsonValue]):
     """Check the request, run the tool, check its answer: (data, error).
 
     Each failure says only what is safe to say: which arguments were wrong
     and why; a tool's own refusal (`ToolInputError`) as the tool wrote it;
-    any other failure, or an answer outside its contract, without detail.
+    an answer longer than `MAX_ROWS`, with how to ask for less; any other
+    failure, or an answer outside its contract, without detail.
     """
     argument_model, output_model, execute, many = entry
     try:
@@ -59,6 +66,14 @@ def run_tool(entry, raw_arguments: dict[str, JsonValue]):
     except Exception:
         # Raw driver/provider errors may contain secrets; never return them.
         return None, ToolError(code="provider_error", message="Tool execution failed.")
+    if many and isinstance(raw, list) and len(raw) > MAX_ROWS:
+        return None, ToolError(
+            code="invalid_arguments",
+            message=(
+                f"{len(raw)} rows is more than {MAX_ROWS}; narrow the tick range, "
+                "or use get_sensor_trend or get_sensor_summary"
+            ),
+        )
     try:
         checked = [
             output_model.model_validate(row).model_dump(mode="json", exclude_unset=True)
@@ -170,7 +185,8 @@ TOOL_DESCRIPTIONS: dict[str, str] = {
     ),
     "get_readings": (
         "Raw readings from one machine sensor (vibration, temperature or load) "
-        "in a tick range. One tick is one minute."
+        "in a tick range. One tick is one minute. At most 300 rows; for longer "
+        "ranges use get_sensor_trend."
     ),
     "get_sensor_trend": (
         "One machine sensor (vibration, temperature or load) summarised per block "

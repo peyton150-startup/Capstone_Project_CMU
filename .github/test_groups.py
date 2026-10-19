@@ -82,8 +82,8 @@ GROUPS: dict[str, list[str]] = {
         "migrations",
     ],
     "Evaluation": ["evaluation", "memory_evaluation"],
-    # The ungated agent and its JSON memory, kept until they are retired.
-    "Older agent": ["agent", "memory"],
+    # The runner: one seeded episode from fault to score, end to end.
+    "Episode": ["episode"],
 }
 
 

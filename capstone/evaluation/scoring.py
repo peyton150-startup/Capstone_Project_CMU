@@ -32,8 +32,10 @@ class Score(BaseModel):
     diagnosed_fault: str | None  # None: the agent never gave an answer
     diagnosed_machine_id: str | None
     diagnosed_batch_id: int | None
-    fault_correct: bool
-    target_correct: bool
+    # None: nobody has judged the agent's free-text diagnosis yet. Only a
+    # label (by hand, or later an evaluator model) turns it into a Diagnosis.
+    fault_correct: bool | None
+    target_correct: bool | None
     expected_action: str | None
     actions_taken: list[str]  # actions carried out, as "action machine"
     action_correct: bool
@@ -49,8 +51,14 @@ def evaluate(
     *,
     tool_calls: int,
     start_tick: int,
+    judged: bool = True,
 ) -> Score:
-    """Judge the agent's answer and actions, given the simulator as it stands at the end."""
+    """Judge the agent's answer and actions, given the simulator as it stands at the end.
+
+    With `judged=False` the diagnosis is left unscored (None), not counted as
+    wrong: the agent answered in words that nobody has labelled yet. The
+    action and whether the cause is gone are scored either way.
+    """
     (truth,) = sim.ground_truth()
     if diagnosis is None:
         diagnosis = _NO_ANSWER
@@ -69,6 +77,10 @@ def evaluate(
             diagnosis is not _NO_ANSWER and diagnosis.machine_id == truth.machine_id
         )
 
+    if not judged:
+        diagnosis, fault_correct, target_correct = _NO_ANSWER, None, None
+    else:
+        fault_correct = diagnosis is not _NO_ANSWER and diagnosis.fault == truth.fault
     return Score(
         true_fault=truth.fault,
         true_machine_id=truth.machine_id,
@@ -76,7 +88,7 @@ def evaluate(
         diagnosed_fault=None if diagnosis is _NO_ANSWER else diagnosis.fault,
         diagnosed_machine_id=diagnosis.machine_id,
         diagnosed_batch_id=diagnosis.batch_id,
-        fault_correct=diagnosis is not _NO_ANSWER and diagnosis.fault == truth.fault,
+        fault_correct=fault_correct,
         target_correct=target_correct,
         expected_action=expected,
         actions_taken=taken,
@@ -108,9 +120,10 @@ def summarize(scores: list[Score]) -> dict:
     n = len(scores)
     if n == 0:
         return {"runs": 0}
-    count = lambda field: sum(getattr(s, field) for s in scores)  # noqa: E731
+    count = lambda field: sum(bool(getattr(s, field)) for s in scores)  # noqa: E731
     return {
         "runs": n,
+        "judged": sum(s.fault_correct is not None for s in scores),
         "fault_correct": count("fault_correct"),
         "target_correct": count("target_correct"),
         "action_correct": count("action_correct"),
@@ -124,9 +137,11 @@ def format_summary(summary: dict) -> str:
     n = summary["runs"]
     if n == 0:
         return "no runs"
+    judged = summary["judged"]
+    unjudged = f" ({n - judged} not judged)" if judged < n else ""
     return (
-        f"{summary['fault_correct']}/{n} root causes correctly identified; "
-        f"{summary['target_correct']}/{n} right machine or batch; "
+        f"{summary['fault_correct']}/{judged} root causes correctly identified{unjudged}; "
+        f"{summary['target_correct']}/{judged} right machine or batch; "
         f"{summary['action_correct']}/{n} appropriate interventions; "
         f"{summary['resolved']}/{n} resolved; "
         f"average {summary['mean_tool_calls']:.1f} tool calls and {summary['mean_ticks']:.0f} ticks"
