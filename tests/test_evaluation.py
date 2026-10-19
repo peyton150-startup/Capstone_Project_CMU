@@ -173,6 +173,7 @@ def test_summary_counts_and_averages():
     summary = summarize([good, bad])
     assert summary == {
         "runs": 2,
+        "judged": 2,
         "fault_correct": 1,
         "target_correct": 2,
         "action_correct": 2,
@@ -191,4 +192,22 @@ def test_no_answer_scores_nothing_right_even_on_a_false_alarm():
         score.diagnosed_fault is None
         and not score.fault_correct
         and not score.target_correct
+    )
+
+
+def test_an_unlabelled_diagnosis_is_left_unscored_not_counted_wrong():
+    sim, desk, _ = episode("false_alarm")
+    score = evaluate(
+        sim, None, desk.proposals(), tool_calls=4, start_tick=700, judged=False
+    )
+    assert (score.fault_correct, score.target_correct) == (None, None)
+    assert score.diagnosed_fault is None
+    assert score.action_correct and score.resolved  # still scored from reality
+    right = evaluate(
+        sim, Diagnosis(fault="false_alarm"), [], tool_calls=4, start_tick=700
+    )
+    summary = summarize([score, right])
+    assert (summary["runs"], summary["judged"], summary["fault_correct"]) == (2, 1, 1)
+    assert format_summary(summary).startswith(
+        "1/1 root causes correctly identified (1 not judged)"
     )
