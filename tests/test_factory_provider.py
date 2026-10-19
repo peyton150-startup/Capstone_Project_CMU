@@ -11,10 +11,13 @@ from capstone.contracts.tools import ToolRequest
 from capstone.observability import create_event_logger
 from capstone.providers.factory import (
     MAX_ROWS,
+    PROCEDURE_TOOLS,
+    TOOL_ARGUMENTS,
     TOOL_DESCRIPTIONS,
     FactorySensor,
     MachineSensor,
     SimulatorFactoryProvider,
+    research_tools,
 )
 from capstone.simulator.line import build_line
 from capstone.tools.actions import ActionTools, ApprovalDesk
@@ -373,3 +376,21 @@ def test_an_answer_too_long_for_a_prompt_is_refused_with_a_way_to_ask_for_less()
     )
     assert short.success and len(short.data) == MAX_ROWS
     assert sim.clock.tick == 600  # refusing a long answer does not move time
+
+
+def test_the_argument_table_is_the_one_the_provider_checks_requests_with():
+    _, _, factory = provider()
+    assert {name: entry[0] for name, entry in factory._tools.items()} == TOOL_ARGUMENTS
+
+
+def test_a_policy_is_offered_research_tools_but_never_the_fixed_procedure():
+    offered = {spec.name: spec for spec in research_tools()}
+    assert set(offered) == set(TOOL_DESCRIPTIONS) - set(PROCEDURE_TOOLS)
+    assert "approve" not in " ".join(offered)
+    readings = offered["get_readings"].arguments
+    assert set(readings["required"]) == {"machine_id", "sensor", "from_tick", "to_tick"}
+    assert readings["properties"]["sensor"]["enum"] == [
+        "vibration",
+        "temperature",
+        "load",
+    ]

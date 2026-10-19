@@ -61,7 +61,7 @@ A component is complete only when both columns are checked.
 | A7b | The recall tool and its two guards | yes | yes | yes | yes | `providers/recall.py` |
 | A8a | The model client and the job table | yes | yes | yes | yes | `providers/chat.py` |
 | A8b-1 | An outage is retried, then handed on | yes | yes | yes | yes | `providers/chat.py` (`FallbackClient`) |
-| A8b-2 | The prompts for the seven questions | yes | yes | no | n/a | planned design in the 2026-10-16 session note |
+| A8b-2 | The prompts for the seven questions | yes | yes | yes | no — closing question not yet asked | `agent/model_policy.py` (`ModelPolicy`, `render`); session note 2026-10-19 (8b-2) |
 | R1 | Review fixes of 2026-10-16/17 (loop budgets, tool errors, repair check, trend tool) | n/a | n/a | yes | no — built ungated, developer to review | session notes 2026-10-17 |
 | R2 | Row cap, unjudged diagnosis, old agent retired, episode runner | n/a | n/a | yes | no — built ungated, developer to review | session notes 2026-10-19; `capstone/episode.py`, `agent/monitor.py`, `evaluation/scoring.py`, `providers/factory.py` |
 
@@ -71,6 +71,60 @@ other three fault scenarios (material batch, machine configuration, false
 alarm), then evaluation, then the agent itself.
 
 ## Session notes
+
+- **2026-10-19 — checkpoint 8b-2 built: the model-backed policy.**
+  Pre-check passed on 2026-10-16; built to the design recorded then.
+  POST-IMPLEMENTATION UNDERSTANDING IS OUTSTANDING: ask the closing question
+  at the start of the next session. Changed:
+  1. `contracts/tools.py` `ToolSpec` (name, description, argument schema).
+     `providers/factory.py`: `TOOL_ARGUMENTS` (a test keeps it equal to the
+     provider's own table), `PROCEDURE_TOOLS` (`propose_action`,
+     `get_proposals`, `execute_action`: the loop's fixed procedure, never
+     offered to a policy), `tool_spec(name)`, `research_tools()`.
+     `providers/recall.py` `RECALL_SPEC`, offered only when memory is given.
+  2. `providers/chat.py`: `Attempt(model, outcome)` and
+     `FallbackClient.attempts`, every model asked in the latest question
+     and what came of it ("answered", "invalid reply", or the outage), kept
+     even when a later model answers. This closes the 8b-1 gap: Groq's
+     timeouts (uptime) and Mistral's invalid reply (reasoning) are recorded
+     apart.
+  3. New `agent/model_policy.py`:
+     - `render(state)`: the one view every question gets: anomaly, now,
+       budget left, open questions, evidence with its ID, the call that
+       produced it (from the loop's decision records) and its tick,
+       memories marked "FROM MEMORY: a past investigation's belief",
+       hypotheses with confidence and cited IDs, conclusion, action, work
+       ticks, prediction, and the last 3 failed calls with what to correct.
+       No decision records or counters, no list of causes. One evidence item
+       shows at most `MAX_EVIDENCE_CHARS` (2,000) characters, with a note.
+     - `SYSTEM`: one system prompt per job on a shared `COMMON` preamble (cite
+       only IDs shown; one tick is one minute; say what is not known).
+       `PHASE`: what `decide` is for in investigate, test and verify (verify
+       says only data from after the work counts). The conclude prompt
+       lists the approvable actions, never the causes.
+     - Answer types: `PlanAnswer`, `NextStep` (`CallTool | Stop`),
+       `Interpretation`, `ConcludeAnswer` (conclusion + optional action),
+       `Judgement` (outcome and cited IDs only; the prediction is the one
+       recorded before the action), `LessonAnswer`.
+     - `ModelPolicy(clients, tools)`: one client per job; refuses with
+       `ValueError` a call to a tool it did not offer; keeps `calls`, one
+       `ModelCall` (job, answered / invalid_reply / no_answer, answered_by,
+       attempts) per question; never changes `state`.
+  4. `tests/test_model_policy.py` (25): the view; memory labels; failed
+     calls shown; no bookkeeping; truncation; no fault kind in any prompt,
+     schema or tool description; the client puts the schema in the system
+     prompt; each question's answer; tools not offered refused and counted
+     against the model; the attempt record through a real `FallbackClient`;
+     the policy never changes state; and a whole seed-6 episode run on
+     model replies written from the prompt text alone (found, approved,
+     fixed, checked "resolved", 14 model questions). CI group "Model policy".
+  Measured: the largest prompt in that episode is about 8,400 characters
+  (a decide turn with nine evidence items and the tool list).
+  Not done: no run against a real model yet; the 60 s budget will likely be
+  too short for real models at two questions per tool call.
+  Closing question to ask: why does `Judgement` have no prediction field,
+  and why does `ModelPolicy` refuse `propose_action` in a decision even
+  though the provider would accept it?
 
 - **2026-10-19 — the rest of the review, built ungated; developer to review
   (understood: no).** Changed, in order of the commits:

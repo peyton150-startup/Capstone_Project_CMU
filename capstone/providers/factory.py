@@ -20,7 +20,13 @@ from capstone.contracts.observations import (
     SensorTrendObservation,
     SettingObservation,
 )
-from capstone.contracts.tools import ToolError, ToolRequest, ToolResult, TraceContext
+from capstone.contracts.tools import (
+    ToolError,
+    ToolRequest,
+    ToolResult,
+    ToolSpec,
+    TraceContext,
+)
 from capstone.tools.actions import ActionTools
 from capstone.tools.errors import ToolInputError
 from capstone.tools.observation import ObservationTools
@@ -169,10 +175,9 @@ class ExecuteArguments(NoArguments):
     proposal_id: int = Field(ge=1)
 
 
-# What each tool does, in words a model can read. Moved here from the older
-# agent's toolbox so it survives that agent's retirement; nothing reads it yet
-# (8b-2 will, to build the research tool list). It names no possible causes
-# and no fault signatures.
+# What each tool does, in words a model can read. The model policy shows
+# these with each tool's argument schema. They name no possible causes and
+# no fault signatures.
 TOOL_DESCRIPTIONS: dict[str, str] = {
     "get_time": "The current tick and clock time.",
     "list_machines": (
@@ -226,6 +231,45 @@ TOOL_DESCRIPTIONS: dict[str, str] = {
         "Start the work of a proposal a human has approved. Says when it will finish."
     ),
 }
+
+# Each tool's arguments, the same models the provider checks requests with.
+# A test keeps this in step with the provider's own table.
+TOOL_ARGUMENTS: dict[str, type[Contract]] = {
+    "get_time": NoArguments,
+    "list_machines": NoArguments,
+    "get_settings": NoArguments,
+    "get_readings": ReadingsArguments,
+    "get_sensor_trend": TrendArguments,
+    "get_factory_readings": FactoryReadingsArguments,
+    "get_sensor_summary": SensorSummaryArguments,
+    "get_events": EventsArguments,
+    "get_job_history": JobArguments,
+    "get_inspections": TickRange,
+    "wait": WaitArguments,
+    "propose_action": ProposalArguments,
+    "get_proposals": NoArguments,
+    "execute_action": ExecuteArguments,
+}
+
+# Asking for a change, reading the human's decision and starting the work are
+# a fixed procedure the loop runs itself, so a policy is never offered them.
+PROCEDURE_TOOLS = ("propose_action", "get_proposals", "execute_action")
+
+
+def tool_spec(name: str) -> ToolSpec:
+    """One provider tool as a model sees it: name, description, argument schema."""
+    return ToolSpec(
+        name=name,
+        description=TOOL_DESCRIPTIONS[name],
+        arguments=TOOL_ARGUMENTS[name].model_json_schema(),
+    )
+
+
+def research_tools() -> tuple[ToolSpec, ...]:
+    """Every factory tool a policy may choose: all but the fixed procedure."""
+    return tuple(
+        tool_spec(name) for name in TOOL_DESCRIPTIONS if name not in PROCEDURE_TOOLS
+    )
 
 
 class SimulatorFactoryProvider:

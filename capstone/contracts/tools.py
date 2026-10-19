@@ -16,6 +16,15 @@ class ToolRequest(Contract):
     arguments: dict[str, JsonValue] = Field(default_factory=dict)
 
 
+class ToolSpec(Contract):
+    """One tool as a model is shown it: what it is called, what it does, and
+    the JSON schema its arguments must match."""
+
+    name: str = Field(min_length=1)
+    description: str = Field(min_length=1)
+    arguments: dict[str, JsonValue]
+
+
 class ToolError(Contract):
     """What went wrong with one call, in words that are safe to show the agent.
 

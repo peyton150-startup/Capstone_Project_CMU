@@ -39,6 +39,8 @@ GROUPS: dict[str, list[str]] = {
         "sensors",
         "setting_reset",
         "simulator",
+        "simulator_challenge",
+        "simulator_disturbances",
         "slow_when_worn",
         "state",
         "temperature_sensor",
@@ -52,6 +54,7 @@ GROUPS: dict[str, list[str]] = {
         "contracts",
         "factory_provider",
         "chat_client",
+        "difficulty_tool_compatibility",
         "job_history",
         "observability",
         "observation_tools",
@@ -74,11 +77,14 @@ GROUPS: dict[str, list[str]] = {
     "Reflection": ["memory_reflection", "learning"],
     # Checkpoint 7: recalling memories, and the guards on what a memory may prove.
     "Recall": ["recall_tool"],
+    # Checkpoint 8b-2: the model-backed policy, its prompts and answer types.
+    "Model policy": ["model_policy"],
     "Memory": [
         "database_connection",
         "memory_policy",
         "memory_recall",
         "memory_repository",
+        "memory_semantic",
         "migrations",
     ],
     "Evaluation": ["evaluation", "memory_evaluation"],

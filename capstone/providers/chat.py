@@ -41,6 +41,7 @@ from typing import TypeVar
 
 from pydantic import BaseModel
 
+from capstone.contracts import Contract
 from capstone.settings import Settings, get_settings
 
 # (url, headers, body, timeout in seconds) -> response body
@@ -62,6 +63,19 @@ class ModelError(RuntimeError):
     def __init__(self, message: str, *, transient: bool = False):
         super().__init__(message)
         self.transient = transient
+
+
+class Attempt(Contract):
+    """One model asked during one question, and what came of it.
+
+    "answered" and "invalid reply" are the model's own doing: an invalid
+    reply counts against its reasoning. Anything else is the reason it gave
+    no answer (an outage, a timeout, a rejected key), which counts only
+    against the service's uptime.
+    """
+
+    model: str
+    outcome: str
 
 
 @dataclass(frozen=True)
@@ -238,6 +252,8 @@ class FallbackClient:
         self._clock = clock
         # The model that gave the latest answer, so a record can name it.
         self.answered_by: str | None = None
+        # Every model asked in the latest question, in order, and its outcome.
+        self.attempts: tuple[Attempt, ...] = ()
 
     @property
     def model(self) -> str:
@@ -253,27 +269,38 @@ class FallbackClient:
 
     def ask(self, system: str, prompt: str, answer_type: type[Answer]) -> Answer:
         self.answered_by = None
+        attempts: list[Attempt] = []
         failures = []
         deadline = self._clock() + self.max_seconds
-        for client in self.clients:
-            for attempt in range(1 + self.retries):
-                pause = self.retry_delay if attempt else 0.0
-                left = deadline - self._clock() - pause
-                if left <= 0:
-                    failures.append(f"{client.model}: not asked, no time left")
-                    raise no_answer(failures)
-                if pause:
-                    self._sleep(pause)
-                try:
-                    answer = client.ask(system, prompt, answer_type, timeout=left)
-                except ModelError as error:
-                    failures.append(f"{client.model}: {error}")
-                    if not error.transient:
-                        break
-                    continue
-                self.answered_by = client.model
-                return answer
-        raise no_answer(failures)
+        try:
+            for client in self.clients:
+                for attempt in range(1 + self.retries):
+                    pause = self.retry_delay if attempt else 0.0
+                    left = deadline - self._clock() - pause
+                    if left <= 0:
+                        failures.append(f"{client.model}: not asked, no time left")
+                        raise no_answer(failures)
+                    if pause:
+                        self._sleep(pause)
+                    try:
+                        answer = client.ask(system, prompt, answer_type, timeout=left)
+                    except ModelError as error:
+                        failures.append(f"{client.model}: {error}")
+                        attempts.append(Attempt(model=client.model, outcome=str(error)))
+                        if not error.transient:
+                            break
+                        continue
+                    except ValueError:
+                        attempts.append(
+                            Attempt(model=client.model, outcome="invalid reply")
+                        )
+                        raise
+                    attempts.append(Attempt(model=client.model, outcome="answered"))
+                    self.answered_by = client.model
+                    return answer
+            raise no_answer(failures)
+        finally:
+            self.attempts = tuple(attempts)
 
 
 def no_answer(failures: list[str]) -> ModelError:
