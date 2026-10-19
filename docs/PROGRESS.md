@@ -66,6 +66,7 @@ A component is complete only when both columns are checked.
 | R3 | MVP gap fixes of 2026-10-19 (semantic recall for the agent, section 9 score fields, harness, hand labels, known-answer suite, model limits, maintenance history, tool list) | n/a | n/a | yes | no — built ungated, developer to review | session note 2026-10-19 (MVP gap fixes) |
 | R2 | Row cap, unjudged diagnosis, old agent retired, episode runner | n/a | n/a | yes | no — built ungated, developer to review | session notes 2026-10-19; `capstone/episode.py`, `agent/monitor.py`, `evaluation/scoring.py`, `providers/factory.py` |
 | A8c | Provider benchmark: each model measured alone, from real episodes | yes | yes | yes | yes | `capstone/benchmark.py`; `providers/chat.py` (`Attempt.seconds`); no real model run yet |
+| A8d | Runtime limits: a model question gets only its stage's time left; a total size for the evidence in a prompt | yes | yes (second try, after one re-teach) | yes | closing question outstanding | `agent/loop.py` (`ask_policy`, `OutOfTime`), `agent/state.py` (`research_seconds`, `seconds_for_question`), `agent/model_policy.py` (`evidence_section`, `MAX_EVIDENCE_SECTION_CHARS`), `providers/chat.py` (`max_seconds`); session note 2026-10-19 (A8d) |
 | E1 | Experiment records keep each run's model questions and wall-clock time | yes | yes | yes | not yet asked | `capstone/experiment.py` (`CallSummary`, `summarize_calls`, `format_model_calls`); session note 2026-10-19 (E1) |
 
 Every row above with four "yes" marks (or "n/a") is complete: no question is
@@ -74,6 +75,49 @@ other three fault scenarios (material batch, machine configuration, false
 alarm), then evaluation, then the agent itself.
 
 ## Session notes
+
+- **2026-10-19 — A8d: runtime limits. Pre-check PASSED on the second try
+  (after one re-teach); built; closing question OUTSTANDING.**
+  Pre-check: asked why a test-stage `decide` cut off at the research cutoff
+  must not end the run as `model_unavailable`, and what the agent does next.
+  First answer: report it as a timeout (right) and then retry or ask a human
+  for more time (wrong: a retry spends the follow-up time the cutoff keeps,
+  and the budgets are hard limits the loop enforces, not something the agent
+  negotiates). Re-taught that the run does not end, only research does: the
+  60 s kept go to the conclusion, the proposal, the work and the check.
+  Second answer: research runs to its limit, then the agent concludes from
+  the evidence it has and reports the timeout so the human knows evidence
+  may be missing. Correct. (Not answered: `conclude` then gets min(20, 60) =
+  20 s.)
+  1. A model question is bounded by its stage's time. `ask_policy` in
+     `agent/loop.py` puts every policy question (plan, decide, interpret,
+     hypothesize, conclude, judge) on a copy of state carrying
+     `seconds_for_question`: research time left
+     (`InvestigationState.research_seconds`, also used by
+     `check_termination` now) in plan, investigate, hypothesize and test;
+     the whole deadline's time left in conclude and verify. `ModelPolicy`
+     passes it to `FallbackClient.ask(max_seconds=)` (and
+     `ChatClient.ask(max_seconds=)`), which can only shorten its own 20 s.
+     A `ModelError` after that time has run out becomes `OutOfTime`: research
+     stops with `timeout` and the run goes on to the conclusion; a cut-off
+     interpretation keeps its evidence, changes no belief and counts nothing
+     against the model; a cut-off conclusion is `undetermined` and a cut-off
+     judgement `inconclusive`, both recorded as `timeout` stops. A
+     `ModelError` with time left is still an outage (`model_unavailable`).
+     The lesson, written after the investigation, keeps only its own limit.
+  2. A total size for the evidence in a prompt. `evidence_section` in
+     `agent/model_policy.py` keeps the evidence section within
+     `MAX_EVIDENCE_SECTION_CHARS` (12,000, an estimate): the newest piece
+     whole always, then pieces cited by a hypothesis, the conclusion or the
+     check, then the rest, newest first, while they fit; the others are
+     listed by ID, call and tick with a note naming them and telling the
+     model to ask a narrower question (a repeat at the same tick is refused).
+     Hypotheses, questions, conclusion, action, prediction and failed calls
+     are never shortened; IDs are only copied from state.
+  Known limits: a question cut off before any model was asked is recorded in
+  `ModelPolicy.calls` as `no_answer`, like an outage; the 12,000 is not yet
+  measured against real models' context windows; budget numbers unchanged.
+  No real model was run.
 
 - **2026-10-19 — E1: model questions and wall-clock time in experiment
   records. Pre-check PASSED; built; closing question NOT YET ASKED.**
