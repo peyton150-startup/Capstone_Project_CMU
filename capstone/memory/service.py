@@ -1,5 +1,7 @@
 # Connects promotion checks to durable storage and bounded retrieval.
 # Responsibility: write only qualifying lessons and return explicit outcomes.
+import logging
+from collections.abc import Iterable
 from typing import Protocol
 from uuid import UUID
 
@@ -12,6 +14,8 @@ from capstone.memory.contracts import (
 )
 from capstone.memory.policy import MemoryPromotionPolicy
 from capstone.memory.recall import search_memories
+
+_log = logging.getLogger(__name__)
 
 
 class StorageResult(Protocol):
@@ -33,18 +37,34 @@ class MemoryStore(Protocol):
     def retrieve(self, query: MemoryQuery) -> tuple[EpisodicMemory, ...]: ...
 
 
+class MemoryIndex(Protocol):
+    def upsert(self, memories: Iterable[EpisodicMemory]) -> int: ...
+
+
 class MemoryService:
     def __init__(
-        self, repository: MemoryStore, *, policy: MemoryPromotionPolicy | None = None
+        self,
+        repository: MemoryStore,
+        *,
+        policy: MemoryPromotionPolicy | None = None,
+        index: MemoryIndex | None = None,
     ):
         self.repository = repository
         self.policy = policy if policy is not None else MemoryPromotionPolicy()
+        self.index = index
 
     def promote(self, candidate: ReflectionCandidate) -> PromotionDecision:
         decision = self.policy.evaluate(candidate)
         if not decision.accepted:
             return decision
         result = self.repository.insert(decision.memory)
+        if result.stored and self.index is not None:
+            # The SQL row is already committed and authoritative. A failed index
+            # write only delays semantic recall until the backfill is rerun.
+            try:
+                self.index.upsert((decision.memory,))
+            except Exception:
+                _log.warning("semantic index upsert failed; run the memory backfill")
         return PromotionDecision(
             investigation_id=decision.investigation_id,
             accepted=result.stored,

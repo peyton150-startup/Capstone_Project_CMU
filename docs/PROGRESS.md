@@ -117,6 +117,66 @@ alarm), then evaluation, then the agent itself.
   model for the diagnosis, tested against hand labels; a script that runs
   20 seeded episodes and prints the summary once a real policy exists.
 
+- **2026-10-18 — compound challenge builder and feedback assessment.**
+  Added `simulator/challenge.py`: `build_challenge()` selects three machines
+  and onset using a separate seeded stream, then combines bearing wear/speed
+  faults, harmless vibration spike, temperature drift and missing samples.
+  Ordinary `build_line()` is unchanged. Tests replay tool calls/observations,
+  compare seeds, check sparse histories, hidden fields and supported line sizes.
+  README and `docs/SIMULATOR_DIFFICULTY_COMPATIBILITY.md` describe usage, each
+  changed module/class/function and limits. Assessed Kanika's feedback there:
+  existing configurations are feasible now; cooling failure needs new physics;
+  complete agent/evaluator integration is still absent, not just prompt work.
+  Delayed information is explicitly excluded by the developer. No investigation
+  modules/contracts changed. Understood: no — built ungated, developer to review.
+  Verification: 503 tests passed; repository-wide Ruff lint/format and whitespace
+  checks passed. First disturbance increment independently passed 498 tests.
+
+- **2026-10-18 — instrument disturbances implemented, delayed records excluded.**
+  Developer authorized the harder simulator features except delayed maintenance
+  records. `simulator/disturbances.py` adds `SensorDrift` (growing calibration
+  bias), `TransientAnomaly` (temporary harmless bias), and `SensorDropout`
+  (temporary signal loss), sharing `_SensorDisturbance` window/ground-truth
+  handling. Each writes its own `SensorEffect` in hidden machine state;
+  overlapping windows do not erase each other. `Sensor.read()` applies offsets;
+  `Sensor.available()` controls transmission. `Simulator.step()` draws normal
+  noise during dropout but stores/alarms only transmitted samples. State, tools,
+  observations and beliefs remain separate. Tests cover timing, causal isolation,
+  overlapping effects, actual provider results/alarms, sparse summaries and
+  invalid parameters. No investigation tools/contracts changed. Understood: no —
+  built ungated, developer to review. Challenge builder is the next increment.
+
+- **2026-10-18 — simulator difficulty interface verification.**
+  Added five compatibility cases in `tests/test_difficulty_tool_compatibility.py`
+  and findings in `docs/SIMULATOR_DIFFICULTY_COMPATIBILITY.md`. Existing compound
+  faults and partial repairs work through unchanged tools; synthetic drift,
+  transient and sparse observations fit existing responses. Delayed historical
+  event insertion is rejected; publication/occurrence semantics remain unsettled.
+  The completed report has one proposed action and no runtime solver is present.
+  No production code or new difficulty behavior added, respecting the developer's
+  zero-investigation-change condition. No functions/classes added to production
+  and no new understanding claimed.
+
+- **2026-10-18 — RAG retry requirement explicitly deferred to Future Work.**
+  Moved the agent-directed RAG/repeat-retrieval section into Future Work 1 in
+  `docs/MVP_SCOPE.md` and marked it outside the current MVP, not implemented.
+  Updated the reference in `docs/EPISODIC_MEMORY.md`. Documentation only;
+  no functions/classes added, runtime changes, or understanding claimed.
+  The developer explicitly authorized committing and pushing these changes
+  to the existing GitHub repository.
+
+- **2026-10-18 — agent-directed RAG repeat-search requirement (documentation only).**
+  Updated `docs/MVP_SCOPE.md` and `docs/EPISODIC_MEMORY.md`: the same Nemotron
+  investigation agent assesses retrieved evidence and can revise/repeat searches
+  when results or a draft answer are insufficient. No separate RAG reasoning
+  model. Proposed PostgreSQL/pgvector embeddings remain unimplemented. Recorded
+  a three-call default per knowledge gap, overall investigation limits, explicit
+  uncertainty on exhaustion, source/attempt tracing, and offline acceptance
+  checks. No functions/classes added or runtime behavior changed. This checkout
+  has filtered SQL retrieval but no connected agent/RAG loop. Runtime work and
+  memory understanding checkpoints remain outstanding; no new understanding
+  is claimed.
+
 - **2026-10-17 — second set of review changes; built ungated, developer to
   review (understood: no).** Checked against `main` after the five fixes
   above. Changed:

@@ -1,5 +1,6 @@
 # Stores and retrieves accepted memories through an explicit database boundary.
 # Responsibility: preserve original records and report atomic insert conflicts.
+from collections.abc import Sequence
 from dataclasses import dataclass
 from typing import Literal
 from uuid import UUID
@@ -11,6 +12,7 @@ from sqlalchemy.engine import Engine
 
 from capstone.memory.contracts import EpisodicMemory, MemoryQuery
 from capstone.memory.policy import normalize
+from capstone.memory.recall import rank_memories
 from capstone.memory.schema import episodic_memories
 
 
@@ -94,3 +96,38 @@ class SQLMemoryRepository:
                 EpisodicMemory.model_validate(payload)
                 for payload in connection.execute(statement).scalars()
             )
+
+    def all_memories(self) -> tuple[EpisodicMemory, ...]:
+        statement = select(episodic_memories.c.payload).order_by(
+            episodic_memories.c.source_tick.desc(), episodic_memories.c.memory_id
+        )
+        with self.engine.connect() as connection:
+            return tuple(
+                EpisodicMemory.model_validate(payload)
+                for payload in connection.execute(statement).scalars()
+            )
+
+    def get_many(self, memory_ids: Sequence[UUID]) -> tuple[EpisodicMemory, ...]:
+        """Records for the given IDs in the given order; unknown IDs are skipped."""
+        if not memory_ids:
+            return ()
+        statement = select(episodic_memories.c.payload).where(
+            episodic_memories.c.memory_id.in_(memory_ids)
+        )
+        with self.engine.connect() as connection:
+            found = {
+                memory.memory_id: memory
+                for memory in (
+                    EpisodicMemory.model_validate(payload)
+                    for payload in connection.execute(statement).scalars()
+                )
+            }
+        return tuple(found[i] for i in memory_ids if i in found)
+
+    def keyword_search(self, text: str, limit: int) -> tuple[EpisodicMemory, ...]:
+        """Rank stored memories by shared words, using the keyword recall rules.
+
+        Scans every stored memory in Python, which is adequate for the MVP's
+        small store and identical on SQLite and PostgreSQL.
+        """
+        return rank_memories(self.all_memories(), text, limit=limit)

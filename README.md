@@ -20,6 +20,27 @@ later, an AI research agent that investigates it through tools.
 - `capstone/simulator/` — the simulator (runs with no LLM).
 - `tests/` — pytest suite.
 
+## Opt-in investigation challenge
+
+```python
+from capstone.simulator.challenge import build_challenge
+from capstone.tools.observation import ObservationTools
+
+sim = build_challenge(seed=42, machines=3)
+for _ in range(300):
+    sim.step()
+observations = ObservationTools(sim)
+readings = observations.get_readings("CNC-01", "temperature", 0, 300)
+```
+
+`build_challenge()` combines bearing wear and excessive speed on one machine,
+a harmless vibration spike on another, and temperature drift with a temporary
+signal loss on a third. Target machines and onset are seed-selected. The same
+seed and actions replay the same observations. Existing `build_line()` behavior
+and investigation tool formats are unchanged. No LLM or delayed maintenance
+records are involved. See the [difficulty guide](docs/SIMULATOR_DIFFICULTY_COMPATIBILITY.md)
+for timing, limitations, and the component walkthrough.
+
 ## Developer setup
 
 Install [uv](https://docs.astral.sh/uv/getting-started/installation/), then run:
