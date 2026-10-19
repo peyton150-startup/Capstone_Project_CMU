@@ -411,7 +411,8 @@ Tooling: `pytest`. Run tests after every implementation step.
 ## 10. Session start checklist for the coding agent
 
 1. Read this file.
-2. Read `docs/PROGRESS.md`. Identify the current component and whether it
+2. Read `docs/PROGRESS.md` (older notes are in `docs/PROGRESS_ARCHIVE.md`;
+   read them only when needed). Identify the current component and whether it
    is (a) not started, (b) taught but not yet understood, (c) understood
    but not implemented, (d) implemented but not yet re-explained by the
    developer, or (e) complete.

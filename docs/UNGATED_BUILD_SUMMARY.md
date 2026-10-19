@@ -1,5 +1,9 @@
 # Ungated build summary (rows 13c–17)
 
+> **2026-10-19:** the older agent described in rows 16-17 below (`agent.py`,
+> `toolbox.py`, `models.py`, `memory.py`, `episode.py`) has been retired. The
+> runner is now `capstone/episode.py`; see `docs/PROGRESS.md` row R2.
+
 Built in session 5 without comprehension gates, at the developer's direction
 (CLAUDE.md §1, rule change of 2026-10-06). Every item here is marked
 "Understood: no — developer to review" in `PROGRESS.md`. 380 tests pass.
