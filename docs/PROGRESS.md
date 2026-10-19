@@ -73,6 +73,17 @@ alarm), then evaluation, then the agent itself.
 
 ## Session notes
 
+- **2026-10-19 — rule: every change through a pull request (developer).**
+  New `AGENTS.md` §11: every change, whatever its size, goes on its own
+  branch and reaches `main` only through a PR with a detailed description
+  (what and why, changes file by file, tests, verification, gate status, not
+  done, and any commit that reached `main` without a PR); CI must be green;
+  then merge with a merge commit and delete the branch (standing permission
+  from the developer). The 2026-10-06 note in §1 and the §10 checklist point
+  to it. Two commits reached `main` without a PR before the rule: `eea1fe3`
+  (180 s budget) and `fe257d2` (8c benchmark); the PR adding this rule
+  documents both.
+
 - **2026-10-19 — checkpoint 8c: the provider benchmark. Pre-check PASSED;
   built; closing question NOT YET ASKED/ANSWERED. No real model has been run.**
   Pre-check: asked why the benchmark turns the fallback model off, the
