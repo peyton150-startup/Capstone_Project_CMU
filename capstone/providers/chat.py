@@ -26,8 +26,9 @@ the answer type is the model's own mistake and goes straight to the loop.
 One question has a time limit. A request waits at most `timeout` seconds
 (15 by default), and `FallbackClient` gives the whole question, retries
 and fallback included, `max_seconds` (20 by default), handing each request
-only the time left. A service that was reached but did not answer in time
-is reported as timed out, not as unreachable.
+only the time left; a caller can shorten that for one question, never
+lengthen it. A service that was reached but did not answer in time is
+reported as timed out, not as unreachable.
 """
 
 import json
@@ -192,13 +193,15 @@ class ChatClient:
         answer_type: type[Answer],
         *,
         timeout: float | None = None,
+        max_seconds: float | None = None,
     ) -> Answer:
         """One question, one answer of `answer_type`. ValueError if the reply is not one.
 
         `timeout` can shorten this request's wait below the client's own,
-        never lengthen it.
+        never lengthen it. `max_seconds`, the policy's limit on a whole
+        question, does the same: here the question is this one request.
         """
-        limit = self.timeout if timeout is None else min(timeout, self.timeout)
+        limit = min(x for x in (self.timeout, timeout, max_seconds) if x is not None)
         schema = json.dumps(answer_type.model_json_schema())
         body = {
             "model": self.model,
@@ -285,11 +288,24 @@ class FallbackClient:
     def __repr__(self) -> str:
         return f"FallbackClient({[c.model for c in self.clients]!r})"
 
-    def ask(self, system: str, prompt: str, answer_type: type[Answer]) -> Answer:
+    def ask(
+        self,
+        system: str,
+        prompt: str,
+        answer_type: type[Answer],
+        *,
+        max_seconds: float | None = None,
+    ) -> Answer:
+        """One question within its time. `max_seconds` can only shorten it."""
         self.answered_by = None
         attempts: list[Attempt] = []
         failures = []
-        deadline = self._clock() + self.max_seconds
+        limit = (
+            self.max_seconds
+            if max_seconds is None
+            else min(max_seconds, self.max_seconds)
+        )
+        deadline = self._clock() + limit
         try:
             for client in self.clients:
                 for attempt in range(1 + self.retries):

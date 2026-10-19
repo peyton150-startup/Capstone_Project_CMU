@@ -488,6 +488,36 @@ def test_one_question_gets_twenty_seconds_retries_and_fallback_included():
     assert "b: not asked, no time left" in str(raised.value)
 
 
+def test_a_caller_can_shorten_a_question_but_never_lengthen_it():
+    clock = Clock()
+    primary, given = silent(clock, "a")
+    ask = FallbackClient([primary], sleep=clock.sleep, clock=clock)
+    with pytest.raises(ModelError):
+        ask.ask("s", "p", Lesson, max_seconds=7.0)
+    assert clock.now == 7.0 and given == [7.0]  # the investigation's 7 s, not 20
+
+    clock.now, given[:] = 0.0, []
+    with pytest.raises(ModelError):
+        ask.ask("s", "p", Lesson, max_seconds=600.0)
+    assert clock.now == 20.0  # its own 20 s still hold
+
+
+def test_a_question_with_no_time_left_asks_no_model():
+    clock = Clock()
+    primary, given = silent(clock, "a")
+    ask = FallbackClient([primary], sleep=clock.sleep, clock=clock)
+    with pytest.raises(ModelError, match="not asked, no time left"):
+        ask.ask("s", "p", Lesson, max_seconds=0.0)
+    assert given == [] and ask.attempts == ()
+
+
+def test_one_request_is_held_to_the_question_limit_too():
+    ask, transport = client(chat('{"text": "advice"}'))
+    ask.ask("s", "p", Lesson, max_seconds=4.0)
+    [(_, _, _, timeout)] = transport.requests
+    assert timeout == 4.0
+
+
 def test_each_attempt_records_how_long_the_model_took_but_not_the_pause():
     clock = Clock()
     primary, _ = silent(clock, "a")

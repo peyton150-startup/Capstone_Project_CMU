@@ -29,7 +29,7 @@ from capstone.contracts.hypotheses import Hypothesis
 from capstone.contracts.provenance import ProvenanceReference
 from capstone.contracts.tools import ToolError, ToolRequest
 from capstone.episode import run_episode
-from capstone.providers.chat import JOBS, ChatClient, FallbackClient
+from capstone.providers.chat import JOBS, ChatClient, FallbackClient, ModelError
 from capstone.providers.factory import research_tools
 from capstone.providers.recall import RECALL_SPEC
 from capstone.tools.diagnosis import FAULT_KINDS
@@ -48,9 +48,11 @@ class FakeModel:
     def __init__(self, *replies):
         self.replies = list(replies)
         self.asked = []
+        self.limits = []  # the max_seconds each question was given
 
-    def ask(self, system, prompt, answer_type):
+    def ask(self, system, prompt, answer_type, *, max_seconds=None):
         self.asked.append((system, prompt, answer_type))
+        self.limits.append(max_seconds)
         reply = self.replies.pop(0)
         if callable(reply):
             reply = reply(prompt)
@@ -501,9 +503,9 @@ class Slow:
         self.answered_by, self.attempts = client.answered_by, client.attempts
         self.asked = client.asked
 
-    def ask(self, system, prompt, answer_type):
+    def ask(self, system, prompt, answer_type, *, max_seconds=None):
         self.clock[0] += self.seconds
-        return self.client.ask(system, prompt, answer_type)
+        return self.client.ask(system, prompt, answer_type, max_seconds=max_seconds)
 
 
 def slow_episode(seconds_per_answer, **budgets):
@@ -538,3 +540,87 @@ def test_the_old_sixty_second_budget_did_not():
     assert state.termination_reason == "timeout"
     assert state.conclusion.diagnosis == "undetermined"
     assert state.proposed_action is None and not result.score.resolved
+
+
+class StallsOnce(Slow):
+    """Like Slow, but its `nth` question gets no answer: it waits the whole
+    limit it was given (or, with `waits=False`, fails at once)."""
+
+    def __init__(self, client, clock, seconds, nth, *, waits=True):
+        super().__init__(client, clock, seconds)
+        self.nth, self.waits, self.count = nth, waits, 0
+
+    def ask(self, system, prompt, answer_type, *, max_seconds=None):
+        self.count += 1
+        if self.count != self.nth:
+            return super().ask(system, prompt, answer_type, max_seconds=max_seconds)
+        self.client.limits.append(max_seconds)
+        self.client.replies.pop(0)  # the reply this question would have had
+        if self.waits:
+            self.clock[0] += max_seconds
+        raise ModelError("no model service answered (a: the model service timed out)")
+
+
+def stalled_episode(job, nth, *, waits=True, **budgets):
+    """Seed 6 at 8 s an answer, with the `nth` question of `job` stalling."""
+    from capstone.agent.state import Budgets
+
+    clock = [0.0]
+    agent = scripted_models()
+    agent.clients = {
+        name: StallsOnce(client, clock, 8.0, nth if name == job else 0, waits=waits)
+        for name, client in agent.clients.items()
+    }
+    result = run_episode(
+        6,
+        agent,
+        fault="bearing_degradation",
+        clock=lambda: clock[0],
+        budgets=Budgets(**budgets),
+    )
+    return result, agent, clock[0]
+
+
+def test_a_question_may_use_only_the_research_time_left():
+    # Research ends 110 - 60 = 50 s in. Five answers take 40 s, so the
+    # test stage's decide may wait 10 s, not its own 20.
+    result, agent, _ = stalled_episode(
+        "decide", 3, timeout_seconds=110, followup_seconds=60
+    )
+    state = result.state
+    assert agent.clients["decide"].client.limits[2] == 10.0
+    stop = next(d for d in state.decisions if d.phase == "test")
+    assert (stop.outcome, stop.termination_reason) == ("stopped", "timeout")
+    # Research ended on time, with the follow-up time whole: the conclusion
+    # was asked with the 60 s kept for it, and the run reports the timeout.
+    assert agent.clients["conclude"].client.limits == [60.0]
+    assert state.termination_reason == "timeout"
+    assert state.conclusion is not None
+
+
+def test_a_cut_off_interpretation_keeps_the_evidence_and_the_run_goes_on():
+    # Research ends 115 - 60 = 55 s in; the test stage's interpret starts at
+    # 48 s and may wait 7. The fix and the check still fit in the 60 s kept.
+    result, agent, _ = stalled_episode(
+        "interpret", 2, timeout_seconds=115, followup_seconds=60
+    )
+    state = result.state
+    assert agent.clients["interpret"].client.limits[1] == 7.0
+    assert "E3" in {e.id for e in state.evidence}
+    assert state.interpretation_failures == 0  # the clock's doing, not the model's
+    assert state.termination_reason == "timeout"
+    assert state.proposed_action.status == "approved"
+    assert state.verification.outcome == "resolved"
+
+
+def test_a_failure_with_time_left_is_still_an_outage():
+    result, _, _ = stalled_episode("decide", 3, waits=False)
+    assert result.state.termination_reason == "model_unavailable"
+
+
+def test_a_question_outside_a_running_investigation_has_only_its_own_limit():
+    # The lesson is written from the finished state, after the deadline:
+    # the loop sets no limit there, so the client's own limit applies.
+    agent = policy(write_lesson=[{"lesson": "check vibration first"}])
+    agent.write_lesson(new_state())
+    assert agent.clients["write_lesson"].limits == [None]

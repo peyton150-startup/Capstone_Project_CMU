@@ -21,6 +21,12 @@ a `ValueError`: a decision may call only a tool it was shown.
 The policy never changes `state`. What it keeps is its own record of each
 model question (`calls`): the job, whether it was answered, and every
 model tried with the reason each gave no answer.
+
+A question may take no longer than the time its stage has left, which the
+loop writes on the copy of state it hands over (`seconds_for_question`):
+the client is asked to stop waiting then. A question with no answer in
+that time raises `ModelError`, and the loop, which owns the clock, decides
+whether that was the clock or an outage.
 """
 
 import json
@@ -58,7 +64,14 @@ RECENT_FAILURES = 3
 class Client(Protocol):
     """Anything that asks one question and returns one typed answer."""
 
-    def ask(self, system: str, prompt: str, answer_type: type[Answer]) -> Answer: ...
+    def ask(
+        self,
+        system: str,
+        prompt: str,
+        answer_type: type[Answer],
+        *,
+        max_seconds: float | None = None,
+    ) -> Answer: ...
 
 
 # --- the answer types a model fills in -----------------------------------------
@@ -315,12 +328,23 @@ class ModelPolicy:
         self.tools = tuple(tools)
         self.calls: list[ModelCall] = []
 
-    def _ask(self, job: str, prompt: str, answer_type: type[Answer]) -> Answer:
-        """Ask one question and record it, whatever happens."""
+    def _ask(
+        self,
+        job: str,
+        state: InvestigationState,
+        prompt: str,
+        answer_type: type[Answer],
+    ) -> Answer:
+        """Ask one question within the time state allows, and record it."""
         client = self.clients[job]
         outcome = "no_answer"
         try:
-            answer = client.ask(SYSTEM[job], prompt, answer_type)
+            answer = client.ask(
+                SYSTEM[job],
+                prompt,
+                answer_type,
+                max_seconds=state.seconds_for_question,
+            )
             outcome = "answered"
             return answer
         except ValueError:
@@ -344,14 +368,14 @@ class ModelPolicy:
         raise ValueError(reason)
 
     def plan(self, state: InvestigationState) -> tuple[Question, ...]:
-        return self._ask("plan", render(state), PlanAnswer).questions
+        return self._ask("plan", state, render(state), PlanAnswer).questions
 
     def decide(self, state: InvestigationState, phase: LoopPhase) -> Decision:
         prompt = (
             f"{render(state)}\n\n{PHASE[phase]}\n\n"
             f"TOOLS YOU MAY CALL:\n{tool_list(self.tools)}"
         )
-        decision = self._ask("decide", prompt, NextStep).decision
+        decision = self._ask("decide", state, prompt, NextStep).decision
         offered = {t.name for t in self.tools}
         if isinstance(decision, CallTool) and decision.request.name not in offered:
             self._refuse(f"{decision.request.name} is not a tool offered here")
@@ -366,19 +390,19 @@ class ModelPolicy:
             f"{compact(step.request.arguments)}, to learn: "
             f"{step.information_needed}{testing}. Its answer is {evidence.id} above."
         )
-        return self._ask("interpret", prompt, Interpretation)
+        return self._ask("interpret", state, prompt, Interpretation)
 
     def hypothesize(self, state: InvestigationState) -> Interpretation:
-        return self._ask("hypothesize", render(state), Interpretation)
+        return self._ask("hypothesize", state, render(state), Interpretation)
 
     def conclude(
         self, state: InvestigationState
     ) -> tuple[AgentConclusion, ActionRequest | None]:
-        answer = self._ask("conclude", render(state), ConcludeAnswer)
+        answer = self._ask("conclude", state, render(state), ConcludeAnswer)
         return answer.conclusion, answer.action
 
     def judge_verification(self, state: InvestigationState) -> VerificationCheck:
-        verdict = self._ask("judge_verification", render(state), Judgement)
+        verdict = self._ask("judge_verification", state, render(state), Judgement)
         return VerificationCheck(
             outcome=verdict.outcome,
             prediction=state.predicted_effect or "no prediction was recorded",
@@ -386,5 +410,5 @@ class ModelPolicy:
         )
 
     def write_lesson(self, state: InvestigationState) -> Lesson | None:
-        text = self._ask("write_lesson", render(state), LessonAnswer).lesson
+        text = self._ask("write_lesson", state, render(state), LessonAnswer).lesson
         return Lesson(text=text.strip()) if text and text.strip() else None
