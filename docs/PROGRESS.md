@@ -61,7 +61,7 @@ A component is complete only when both columns are checked.
 | A7b | The recall tool and its two guards | yes | yes | yes | yes | `providers/recall.py` |
 | A8a | The model client and the job table | yes | yes | yes | yes | `providers/chat.py` |
 | A8b-1 | An outage is retried, then handed on | yes | yes | yes | yes | `providers/chat.py` (`FallbackClient`) |
-| A8b-2 | The prompts for the seven questions | yes | yes | yes | in part — the `Judgement` half outstanding | `agent/model_policy.py` (`ModelPolicy`, `render`); session note 2026-10-19 (8b-2) |
+| A8b-2 | The prompts for the seven questions | yes | yes | yes | yes | `agent/model_policy.py` (`ModelPolicy`, `render`); session note 2026-10-19 (8b-2) |
 | R1 | Review fixes of 2026-10-16/17 (loop budgets, tool errors, repair check, trend tool) | n/a | n/a | yes | no — built ungated, developer to review | session notes 2026-10-17 |
 | R2 | Row cap, unjudged diagnosis, old agent retired, episode runner | n/a | n/a | yes | no — built ungated, developer to review | session notes 2026-10-19; `capstone/episode.py`, `agent/monitor.py`, `evaluation/scoring.py`, `providers/factory.py` |
 | A8c | Provider benchmark: each model measured alone, from real episodes | yes | yes | yes | yes | `capstone/benchmark.py`; `providers/chat.py` (`Attempt.seconds`); no real model run yet |
@@ -72,6 +72,21 @@ other three fault scenarios (material batch, machine configuration, false
 alarm), then evaluation, then the agent itself.
 
 ## Session notes
+
+- **2026-10-19 — checkpoint 8b-2 closing question PASSED (after one
+  re-teach).** Asked what a judge could do if `Judgement` had a prediction
+  field (vibration stays high after the fix, temperature drops a little),
+  the developer first answered about confounding: high load could keep
+  vibration high, so the check could wrongly say the fix failed. A real
+  point (it is why "inconclusive" exists and why a check should compare like
+  with like) but not the one asked. Re-taught: a judge that writes the
+  prediction after seeing the evidence can move the target to whatever
+  happened ("temperature drops slightly"), so the check says "resolved" and
+  memory keeps a false verified lesson. Asked again why the prediction must
+  be fixed before the work, the developer said a prediction written with
+  the evidence in hand would not differ from what was found. Correct (it
+  matches the observed result by construction, so the check could never
+  fail). Checkpoint 8b-2 is complete; no real model has been run yet.
 
 - **2026-10-19 — closing questions for 8c (PASSED) and 8b-2 (PASSED IN
   PART).** 8c: asked what per-question limit to set for a model with a 2 s
