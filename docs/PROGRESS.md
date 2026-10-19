@@ -61,11 +61,11 @@ A component is complete only when both columns are checked.
 | A7b | The recall tool and its two guards | yes | yes | yes | yes | `providers/recall.py` |
 | A8a | The model client and the job table | yes | yes | yes | yes | `providers/chat.py` |
 | A8b-1 | An outage is retried, then handed on | yes | yes | yes | yes | `providers/chat.py` (`FallbackClient`) |
-| A8b-2 | The prompts for the seven questions | yes | yes | yes | no — closing question not yet asked | `agent/model_policy.py` (`ModelPolicy`, `render`); session note 2026-10-19 (8b-2) |
+| A8b-2 | The prompts for the seven questions | yes | yes | yes | in part — the `Judgement` half outstanding | `agent/model_policy.py` (`ModelPolicy`, `render`); session note 2026-10-19 (8b-2) |
 | R1 | Review fixes of 2026-10-16/17 (loop budgets, tool errors, repair check, trend tool) | n/a | n/a | yes | no — built ungated, developer to review | session notes 2026-10-17 |
 | R3 | MVP gap fixes of 2026-10-19 (semantic recall for the agent, section 9 score fields, harness, hand labels, known-answer suite, model limits, maintenance history, tool list) | n/a | n/a | yes | no — built ungated, developer to review | session note 2026-10-19 (MVP gap fixes) |
 | R2 | Row cap, unjudged diagnosis, old agent retired, episode runner | n/a | n/a | yes | no — built ungated, developer to review | session notes 2026-10-19; `capstone/episode.py`, `agent/monitor.py`, `evaluation/scoring.py`, `providers/factory.py` |
-| A8c | Provider benchmark: each model measured alone, from real episodes | yes | yes | yes | no — closing question not yet asked | `capstone/benchmark.py`; `providers/chat.py` (`Attempt.seconds`); no real model run yet |
+| A8c | Provider benchmark: each model measured alone, from real episodes | yes | yes | yes | yes | `capstone/benchmark.py`; `providers/chat.py` (`Attempt.seconds`); no real model run yet |
 
 Every row above with four "yes" marks (or "n/a") is complete: no question is
 outstanding on it. Still to build after 12c, from `docs/MVP_SCOPE.md`: the
@@ -108,6 +108,26 @@ alarm), then evaluation, then the agent itself.
      mapping from the original eight.
   Not done: no live model run yet (needs keys); `.env.example` does not yet
   list the new settings.
+- **2026-10-19 — closing questions for 8c (PASSED) and 8b-2 (PASSED IN
+  PART).** 8c: asked what per-question limit to set for a model with a 2 s
+  median, an 18 s slowest 5%, and 1 of 12 episodes "model unavailable", the
+  developer said 18 s: the model will not take that long every time, but it
+  can take that long without failing, so the limit must allow it. Correct:
+  a limit from the median would cut off about half the answers, and each
+  cut-off ends the episode. Added: the slowest 5% still leaves 1 answer in
+  20 over 18 s, so add a margin (about x1.5, 27 s); check whether the
+  "model unavailable" episode was a timeout (a higher limit helps) or an
+  outage (it does not); and the limit times about 14 questions must fit the
+  investigation budget. Checkpoint 8c is complete except a live run.
+  8b-2: asked why `Judgement` has no prediction field and why `ModelPolicy`
+  refuses `propose_action` in a decision though the provider would accept
+  it, the developer answered the second half: the code accepts the proposed
+  action, the model does not have that authority. Correct; added that the
+  loop's fixed procedure first checks the conclusion (confidence at least
+  0.9, evidence cited), then submits it, then a human decides, and a model
+  calling `propose_action` mid-research would skip both. The `Judgement`
+  half is asked again and NOT YET ANSWERED.
+
 - **2026-10-19 — rule: every change through a pull request (developer).**
   New `AGENTS.md` §11: every change, whatever its size, goes on its own
   branch and reaches `main` only through a PR with a detailed description
