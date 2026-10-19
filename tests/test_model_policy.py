@@ -491,3 +491,50 @@ def test_a_whole_episode_runs_on_model_replies_alone():
     # The check looked at data from after the work, which the view had shown.
     check_prompt = agent.clients["judge_verification"].asked[0][1]
     assert f"finished at tick {state.action_finish_tick}" in check_prompt
+
+
+class Slow:
+    """Wraps a model client so that every answer takes `seconds` on `clock`."""
+
+    def __init__(self, client, clock, seconds):
+        self.client, self.clock, self.seconds = client, clock, seconds
+        self.answered_by, self.attempts = client.answered_by, client.attempts
+        self.asked = client.asked
+
+    def ask(self, system, prompt, answer_type):
+        self.clock[0] += self.seconds
+        return self.client.ask(system, prompt, answer_type)
+
+
+def slow_episode(seconds_per_answer, **budgets):
+    from capstone.agent.state import Budgets
+
+    clock = [0.0]
+    agent = scripted_models()
+    agent.clients = {
+        job: Slow(client, clock, seconds_per_answer)
+        for job, client in agent.clients.items()
+    }
+    return run_episode(
+        6,
+        agent,
+        fault="bearing_degradation",
+        clock=lambda: clock[0],
+        budgets=Budgets(**budgets),
+    )
+
+
+def test_the_default_budget_fits_a_whole_episode_at_eight_seconds_an_answer():
+    result = slow_episode(8.0)
+    assert result.state.termination_reason != "timeout"
+    assert result.state.verification.outcome == "resolved"
+    assert result.score.resolved
+
+
+def test_the_old_sixty_second_budget_did_not():
+    """At 8 s an answer, 60 s ran out after two tool calls, with nothing found."""
+    result = slow_episode(8.0, timeout_seconds=60.0, followup_seconds=20.0)
+    state = result.state
+    assert state.termination_reason == "timeout"
+    assert state.conclusion.diagnosis == "undetermined"
+    assert state.proposed_action is None and not result.score.resolved

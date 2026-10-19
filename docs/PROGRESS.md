@@ -72,6 +72,18 @@ alarm), then evaluation, then the agent itself.
 
 ## Session notes
 
+- **2026-10-19 — investigation time budget raised; developer's request,
+  understood: n/a (one number changed).** `agent/state.py` `Budgets`:
+  `timeout_seconds` 60 -> 180, `followup_seconds` 20 -> 60. Why: a whole
+  episode asks about 14 model questions (about 10 in research, about 7 from
+  the conclusion on). In `tests/test_model_policy.py`, the seed-6 episode
+  replayed at 8 s per answer now finishes (supported diagnosis, fix
+  approved, check "resolved"); under 60/20 it timed out after 2 tool calls
+  and concluded "undetermined". Both are tests. The numbers are an
+  estimate, not a measurement: 8c (a per-provider benchmark) should replace
+  them. Still open: a single model question is capped at 20 s on its own,
+  not by the time the investigation has left.
+
 - **2026-10-19 — checkpoint 8b-2 built: the model-backed policy.**
   Pre-check passed on 2026-10-16; built to the design recorded then.
   POST-IMPLEMENTATION UNDERSTANDING IS OUTSTANDING: ask the closing question
