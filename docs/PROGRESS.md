@@ -66,6 +66,7 @@ A component is complete only when both columns are checked.
 | R3 | MVP gap fixes of 2026-10-19 (semantic recall for the agent, section 9 score fields, harness, hand labels, known-answer suite, model limits, maintenance history, tool list) | n/a | n/a | yes | no — built ungated, developer to review | session note 2026-10-19 (MVP gap fixes) |
 | R2 | Row cap, unjudged diagnosis, old agent retired, episode runner | n/a | n/a | yes | no — built ungated, developer to review | session notes 2026-10-19; `capstone/episode.py`, `agent/monitor.py`, `evaluation/scoring.py`, `providers/factory.py` |
 | A8c | Provider benchmark: each model measured alone, from real episodes | yes | yes | yes | yes | `capstone/benchmark.py`; `providers/chat.py` (`Attempt.seconds`); no real model run yet |
+| E1 | Experiment records keep each run's model questions and wall-clock time | yes | yes | yes | not yet asked | `capstone/experiment.py` (`CallSummary`, `summarize_calls`, `format_model_calls`); session note 2026-10-19 (E1) |
 
 Every row above with four "yes" marks (or "n/a") is complete: no question is
 outstanding on it. Still to build after 12c, from `docs/MVP_SCOPE.md`: the
@@ -73,6 +74,24 @@ other three fault scenarios (material batch, machine configuration, false
 alarm), then evaluation, then the agent itself.
 
 ## Session notes
+
+- **2026-10-19 — E1: model questions and wall-clock time in experiment
+  records. Pre-check PASSED; built; closing question NOT YET ASKED.**
+  Pre-check: asked why invalid replies and outages are counted apart rather
+  than as one "went wrong" count, the developer said they are two separate
+  issues: after an outage a retry could still have given a valid reply,
+  while an invalid reply means going back to see what went wrong, so the
+  results are more honest. Correct. Added: an invalid reply counts against
+  the model's reasoning (or the prompt), an outage only against the
+  service's uptime, and a run that ended "model unavailable" is already
+  left out of the reasoning totals. Built: `CallSummary` per run (questions,
+  answered, invalid replies by job, unanswered, failed attempts, which model
+  answered how many, so the fallback shows), `ExperimentRecord.model_calls`
+  and `wall_seconds` (both optional, so older results files still read),
+  `run_experiment(clock=)`, and a model-questions line plus per-run counts
+  in `report`. `test_the_suite_is_repeatable` now leaves the wall clock out
+  (real time cannot repeat; everything seeded still must). No real model
+  has been run.
 
 - **2026-10-19 — checkpoint 8b-2 closing question PASSED (after one
   re-teach).** Asked what a judge could do if `Judgement` had a prediction
