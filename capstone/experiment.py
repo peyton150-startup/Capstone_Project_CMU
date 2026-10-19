@@ -8,7 +8,10 @@
 
 `run` puts each case through `run_episode` with the model-backed policy
 from settings (DEFAULT_MODEL and the per-question models) and appends one
-`ExperimentRecord` per episode. `label` shows each unlabelled conclusion and
+`ExperimentRecord` per episode. Each record also says what the run's model
+questions came to (`CallSummary`: invalid replies, which are the model's own
+doing, apart from outages, which are the service's) and how long the
+episode took on the wall clock. `label` shows each unlabelled conclusion and
 asks a person which cause it names. `report` applies the labels and prints
 the totals and one line per run.
 
@@ -18,15 +21,19 @@ is for the experimenter: never give it to an agent, a prompt or memory.
 
 import argparse
 import sys
+from collections import Counter
 from collections.abc import Callable, Iterable, Sequence
 from dataclasses import dataclass
 from pathlib import Path
+from time import monotonic
 
 from pydantic import BaseModel, ConfigDict
 
 from capstone.agent.completion import AuditLog
+from capstone.agent.model_policy import ModelCall
 from capstone.agent.policy import ReasoningPolicy
 from capstone.agent.state import Budgets
+from capstone.benchmark import MODEL_OUTCOMES
 from capstone.episode import (
     Approver,
     EpisodeResult,
@@ -65,6 +72,46 @@ def grid(seeds: Iterable[int], faults: Sequence[str | None]) -> list[Case]:
     ]
 
 
+class CallSummary(BaseModel):
+    """What one run's model questions came to. Facts about the model service,
+    not about the factory: no hidden truth in it."""
+
+    model_config = ConfigDict(frozen=True, extra="forbid")
+
+    questions: int
+    answered: int
+    # Replies that came back but could not be used: the model's own doing.
+    invalid_replies: int
+    invalid_by_job: dict[str, int]
+    # Questions left with no answer for a service reason (outage, timeout, key).
+    unanswered: int
+    # Requests that failed for a service reason, retries included, even where
+    # a retry or the fallback model then answered.
+    outage_attempts: int
+    # Which model answered how many questions: shows the fallback stepping in.
+    answered_by: dict[str, int]
+
+
+def summarize_calls(calls: Sequence[ModelCall]) -> CallSummary:
+    answered = [call for call in calls if call.outcome == "answered"]
+    invalid = Counter(call.job for call in calls if call.outcome == "invalid_reply")
+    by_model = Counter(call.answered_by or "unknown" for call in answered)
+    return CallSummary(
+        questions=len(calls),
+        answered=len(answered),
+        invalid_replies=sum(invalid.values()),
+        invalid_by_job=dict(sorted(invalid.items())),
+        # Any other outcome, including ones added later, is a missing answer.
+        unanswered=len(calls) - len(answered) - sum(invalid.values()),
+        outage_attempts=sum(
+            attempt.outcome not in MODEL_OUTCOMES
+            for call in calls
+            for attempt in call.attempts
+        ),
+        answered_by=dict(sorted(by_model.items())),
+    )
+
+
 class ExperimentRecord(BaseModel):
     """One episode for the experimenter. Holds the truth: evaluator-side only."""
 
@@ -80,9 +127,21 @@ class ExperimentRecord(BaseModel):
     verification: str | None
     tools_used: list[str]
     score: Score
+    # None: the policy keeps no record of model questions (a scripted one).
+    model_calls: CallSummary | None = None
+    # The whole episode on the wall clock, learning included (and, with a
+    # console approver, the human's time). None in results from before it was kept.
+    wall_seconds: float | None = None
 
 
-def record_of(case: Case, run_key: str, result: EpisodeResult) -> ExperimentRecord:
+def record_of(
+    case: Case,
+    run_key: str,
+    result: EpisodeResult,
+    *,
+    model_calls: CallSummary | None = None,
+    wall_seconds: float | None = None,
+) -> ExperimentRecord:
     state = result.state
     concluded = state.conclusion
     return ExperimentRecord(
@@ -96,6 +155,8 @@ def record_of(case: Case, run_key: str, result: EpisodeResult) -> ExperimentReco
         verification=None if state.verification is None else state.verification.outcome,
         tools_used=[d.tool for d in state.decisions if d.tool is not None],
         score=result.score,
+        model_calls=model_calls,
+        wall_seconds=wall_seconds,
     )
 
 
@@ -109,14 +170,21 @@ def run_experiment(
     log: AuditLog | None = None,
     budgets: Budgets | None = None,
     on_record: Callable[[ExperimentRecord], None] | None = None,
+    clock: Callable[[], float] = monotonic,
 ) -> list[ExperimentRecord]:
-    """Run each case once with a fresh policy. `name` makes every run key unique."""
+    """Run each case once with a fresh policy. `name` makes every run key unique.
+
+    `clock` times each episode for the record only; the agent's own budgets
+    run on `run_episode`'s clock.
+    """
     records = []
     for number, case in enumerate(cases, start=1):
         run_key = f"{name}/{number}/{case.scenario_id}"
+        policy = make_policy()
+        started = clock()
         result = run_episode(
             case.seed,
-            make_policy(),
+            policy,
             fault=case.fault,
             approver=approver,
             memory=memory,
@@ -124,7 +192,15 @@ def run_experiment(
             budgets=budgets,
             run_key=run_key,
         )
-        record = record_of(case, run_key, result)
+        wall_seconds = clock() - started
+        calls = getattr(policy, "calls", None)  # kept by ModelPolicy only
+        record = record_of(
+            case,
+            run_key,
+            result,
+            model_calls=None if calls is None else summarize_calls(calls),
+            wall_seconds=wall_seconds,
+        )
         records.append(record)
         if on_record is not None:
             on_record(record)
@@ -157,19 +233,49 @@ def labelled(
     ]
 
 
+def format_model_calls(records: Sequence[ExperimentRecord]) -> str:
+    """One line on the model questions of every run, invalid apart from outage."""
+    kept = [r.model_calls for r in records if r.model_calls is not None]
+    timed = [r.wall_seconds for r in records if r.wall_seconds is not None]
+    if not kept:
+        line = "model questions: not recorded"
+    else:
+        line = (
+            f"model questions: {sum(c.questions for c in kept)} "
+            f"({sum(c.answered for c in kept)} answered, "
+            f"{sum(c.invalid_replies for c in kept)} invalid replies, "
+            f"{sum(c.unanswered for c in kept)} unanswered, "
+            f"{sum(c.outage_attempts for c in kept)} failed attempts)"
+        )
+    if timed:
+        line += f"; {sum(timed) / len(timed):.0f} s per episode on average"
+    return line
+
+
+def _run_line(record: ExperimentRecord, score: Score) -> str:
+    judged = "-" if score.fault_correct is None else score.fault_correct
+    calls = record.model_calls
+    asked = (
+        "questions=-"
+        if calls is None
+        else f"questions={calls.questions} invalid={calls.invalid_replies} "
+        f"unanswered={calls.unanswered}"
+    )
+    seconds = "-" if record.wall_seconds is None else f"{record.wall_seconds:.0f}"
+    return (
+        f"{record.scenario_id:24} cause={judged!s:5} "
+        f"asked={score.recommendation_correct!s:5} "
+        f"acted={score.action_correct!s:5} resolved={score.resolved!s:5} "
+        f"evidence={len(score.relevant_evidence_collected)}/"
+        f"{len(score.relevant_evidence)} calls={score.tool_calls} "
+        f"stop={score.termination_reason} {asked} s={seconds}"
+    )
+
+
 def report(records: Sequence[ExperimentRecord], labels: dict[str, Label]) -> str:
     scores = labelled(records, labels)
-    lines = [format_summary(summarize(scores)), ""]
-    for record, score in zip(records, scores, strict=True):
-        judged = "-" if score.fault_correct is None else score.fault_correct
-        lines.append(
-            f"{record.scenario_id:24} cause={judged!s:5} "
-            f"asked={score.recommendation_correct!s:5} "
-            f"acted={score.action_correct!s:5} resolved={score.resolved!s:5} "
-            f"evidence={len(score.relevant_evidence_collected)}/"
-            f"{len(score.relevant_evidence)} calls={score.tool_calls} "
-            f"stop={score.termination_reason}"
-        )
+    lines = [format_summary(summarize(scores)), format_model_calls(records), ""]
+    lines += [_run_line(r, s) for r, s in zip(records, scores, strict=True)]
     return "\n".join(lines)
 
 
