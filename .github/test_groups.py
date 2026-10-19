@@ -88,6 +88,8 @@ GROUPS: dict[str, list[str]] = {
         "migrations",
     ],
     "Evaluation": ["evaluation", "memory_evaluation"],
+    # Many episodes: the harness, hand labels and the known-answer cases.
+    "Experiments": ["experiment", "known_answers"],
     # The runner: one seeded episode from fault to score, end to end.
     "Episode": ["episode"],
 }
