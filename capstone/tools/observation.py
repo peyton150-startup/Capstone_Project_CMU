@@ -173,6 +173,38 @@ class ObservationTools:
             if from_tick <= e.tick <= to_tick and machine_id in (None, e.machine_id)
         ]
 
+    def get_maintenance_history(self, machine_id: str | None = None) -> list[dict]:
+        """Service records, oldest first: from before the run, then this run's.
+
+        Past records have a date and no tick (they happened before tick 0);
+        this run's maintenance events have both.
+        """
+        self._check(machine_id, 0, 0)
+        rows = [
+            {
+                "machine_id": r.machine_id,
+                "performed_at": r.performed_at.isoformat(),
+                "tick": None,
+                "kind": r.kind,
+                "note": r.note,
+            }
+            for r in self._sim.state.maintenance_history
+            if machine_id in (None, r.machine_id)
+        ]
+        clock = self._sim.clock
+        rows += [
+            {
+                "machine_id": e.machine_id,
+                "performed_at": clock.time_at(e.tick).isoformat(),
+                "tick": e.tick,
+                "kind": "maintenance",
+                "note": e.message,
+            }
+            for e in self._sim.event_log.events
+            if e.kind == "maintenance" and machine_id in (None, e.machine_id)
+        ]
+        return rows
+
     def get_job_history(self, job_id: int) -> list[dict]:
         """Everything the event log says about one job, oldest first, across all machines."""
         return [

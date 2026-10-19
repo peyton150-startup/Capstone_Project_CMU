@@ -132,18 +132,47 @@ timeout, retry, tool-call, and investigation-iteration limits. Provider-specific
 reasoning controls are optional; global execution limits remain enforced by
 the agent loop. See Future Work 7 for the later per-role extension.
 
-## 4. A small set of tools (6–8)
+## 4. The agent's tools (as implemented)
+
+Revised 2026-10-19 to match the code. The original plan listed eight tools
+(`get_machine_state`, `get_sensor_history`, `get_production_batch`,
+`get_quality_results`, `get_maintenance_history`, `search_incident_history`,
+`propose_action`, `observe_after_action`); the implementation covers the same
+ground with smaller, more specific tools, all behind the one
+`FactoryProvider` boundary (`capstone/providers/factory.py`) with typed
+arguments and results.
+
+Research tools a policy may choose (`research_tools()`):
 
 ```
-get_machine_state()
-get_sensor_history()
-get_production_batch()
-get_quality_results()
-get_maintenance_history()
-search_incident_history()
-propose_action()
-observe_after_action()
+get_time()                 current tick and clock time
+list_machines()            machine state: status (running / idle / down), current job
+get_settings()             each machine's spindle speed
+get_readings()             raw machine sensor readings in a tick range (max 300 rows)
+get_sensor_trend()         per-block mean/min/max/count of one machine sensor
+get_sensor_summary()       count, mean, min, max, first/last, rate in a window
+get_factory_readings()     the factory air thermometer
+get_events()               event log: alarms, stops, jobs, material batches, maintenance
+get_job_history()          everything the log says about one job
+get_inspections()          pass/fail quality results, with material batch
+get_maintenance_history()  service records from before the run, then this run's
+wait()                     let time pass (the only way it does)
+recall_memories()          past lessons, offered only when memory is given
 ```
+
+The fixed procedure after a conclusion, never chosen by a policy
+(`PROCEDURE_TOOLS`): `propose_action()` (asks a human), `get_proposals()`
+(reads the decision), `execute_action()` (starts approved work). Looking
+again after the work is the `verify` stage of the investigation, using the
+research tools above, not a separate tool.
+
+Mapping from the original list: machine state → `list_machines`,
+`get_settings`; sensor history → `get_readings`, `get_sensor_trend`,
+`get_sensor_summary`, `get_factory_readings`; production batch →
+`get_events` and `get_inspections` (both carry batch numbers) and
+`get_job_history`; quality results → `get_inspections`; maintenance history →
+`get_maintenance_history`; incident history → `recall_memories`;
+observe after action → the `verify` stage.
 
 MCP may expose these later; MCP itself is not a core simulator/agent MVP
 objective. Future Work 2 defines a minimal first MCP slice and its planned
@@ -151,10 +180,8 @@ observability, after the core investigation loop works. What
 matters is that the agent must decide **"what information do I need
 next?"** rather than having everything dumped into the prompt.
 
-The read-only `get_sensor_summary()` capability is implemented: Python computes
-exact statistics for the agent to interpret. It uses the existing tool/provider
-boundary; agent integration and MCP transport remain deferred. See Future
-Work 7 for calculation details.
+`get_sensor_summary()` and `get_sensor_trend()` compute exact statistics in
+Python for the agent to interpret. See Future Work 7 for calculation details.
 
 ## 5. Hypothesis-driven research (keep in MVP)
 

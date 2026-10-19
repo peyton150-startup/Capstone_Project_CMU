@@ -13,7 +13,12 @@ from capstone.memory.contracts import (
     ReflectionCandidate,
 )
 from capstone.memory.policy import MemoryPromotionPolicy
-from capstone.memory.recall import search_memories
+from capstone.memory.recall import (
+    MemoryRecall,
+    build_memory_recall,
+    recalled,
+    search_memories,
+)
 
 _log = logging.getLogger(__name__)
 
@@ -48,10 +53,14 @@ class MemoryService:
         *,
         policy: MemoryPromotionPolicy | None = None,
         index: MemoryIndex | None = None,
+        recall: MemoryRecall | None = None,
     ):
         self.repository = repository
         self.policy = policy if policy is not None else MemoryPromotionPolicy()
         self.index = index
+        # Free-text recall by the configured mode (semantic / keyword / none).
+        # None: the shared-word search below, as before.
+        self.recall = recall
 
     def promote(self, candidate: ReflectionCandidate) -> PromotionDecision:
         decision = self.policy.evaluate(candidate)
@@ -79,6 +88,26 @@ class MemoryService:
         return self.repository.retrieve(query)
 
     def search(self, text: str, *, limit: int = 5) -> tuple[RecalledMemory, ...]:
-        """Word search over the most recent memories the store returns (at most 100)."""
+        """The best matches for `text`, always as the safe view.
+
+        With `recall`, its mode decides: semantic (Chroma's nearest memories,
+        read back from SQL, falling back to keyword search), keyword, or none.
+        Without it, word search over the most recent memories the store
+        returns (at most 100).
+        """
+        if self.recall is not None:
+            found = self.recall.recall_memories(text, k=limit).memories
+            return tuple(recalled(memory) for memory in found)
         candidates = self.repository.retrieve(MemoryQuery(limit=100))
         return search_memories(candidates, text, limit=limit)
+
+
+def build_memory_service(repository, settings=None, **options) -> MemoryService:
+    """A service set up from MEMORY_RETRIEVAL_MODE and the Chroma settings.
+
+    One index serves both sides: new memories are written to it on promotion
+    and recall searches it. Chroma that cannot be opened leaves no index, so
+    promotion writes SQL only and recall falls back to keyword search.
+    """
+    recall = build_memory_recall(repository, settings)
+    return MemoryService(repository, index=recall.index, recall=recall, **options)

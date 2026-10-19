@@ -242,3 +242,14 @@ def test_monitoring_names_a_symptom_and_no_machine_for_a_run_of_rejects():
     assert "failed inspection" in found.description
     assert "setting" not in found.description  # a symptom, never the cause
     assert found.tick == sim.clock.tick
+
+
+def test_a_whole_episode_records_the_section_nine_fields():
+    score = run(judge=hand_label).score
+    assert score.recommended_actions == [f"replace_bearing {MACHINE}"]
+    assert score.recommendation_status == ["approved"]
+    assert score.recommendation_correct
+    assert f"vibration of {MACHINE}" in score.relevant_evidence_collected
+    assert set(score.relevant_evidence_collected) <= set(score.relevant_evidence)
+    assert score.iterations > 0 and score.termination_reason is not None
+    assert not score.model_unavailable

@@ -531,3 +531,53 @@ def test_a_job_falls_back_to_the_fallback_model_when_one_is_set(monkeypatch):
     ]
     # A job whose own model is the fallback is not asked twice.
     assert [c.model for c in clients["plan"].clients] == ["backup-model"]
+
+
+# --- limits on every model question (MVP_SCOPE.md section 3) -------------------
+
+
+def test_the_output_token_limit_is_sent_with_each_request():
+    transport = FakeTransport(chat('{"text": "Look first."}'))
+    limited = ChatClient(
+        "https://x.test", KEY, "m", transport=transport, max_output_tokens=300
+    )
+    limited.ask("s", "p", Lesson)
+    assert transport.requests[0][2]["max_tokens"] == 300
+    ask, transport = client(chat('{"text": "Look first."}'))
+    ask.ask("s", "p", Lesson)
+    assert "max_tokens" not in transport.requests[0][2]
+
+
+def test_a_reply_cut_off_at_the_limit_is_refused_and_says_so():
+    body = json.dumps(
+        {
+            "choices": [
+                {
+                    "finish_reason": "length",
+                    "message": {"role": "assistant", "content": '{"text": "Lo'},
+                }
+            ]
+        }
+    ).encode()
+    ask, _ = client(body)
+    with pytest.raises(ValueError, match="output-token limit"):
+        ask.ask("s", "p", Lesson)
+
+
+def test_the_limits_come_from_settings(monkeypatch):
+    monkeypatch.setenv("NVIDIA_API_KEY", KEY)
+    configured = settings(
+        MODEL_MAX_OUTPUT_TOKENS="512",
+        MODEL_REQUEST_SECONDS="9",
+        MODEL_QUESTION_SECONDS="30",
+        MODEL_RETRIES="3",
+    )
+    client_ = client_for(DEFAULT_MODEL, configured)
+    assert (client_.max_output_tokens, client_.timeout) == (512, 9.0)
+    job = clients_for_jobs(configured)["decide"]
+    assert (job.retries, job.max_seconds) == (3, 30.0)
+    defaults = settings()
+    assert defaults.model_max_output_tokens == 2048
+    assert (defaults.model_retries, defaults.model_question_seconds) == (1, 20.0)
+    with pytest.raises(ValueError):
+        settings(MODEL_MAX_OUTPUT_TOKENS="0")
