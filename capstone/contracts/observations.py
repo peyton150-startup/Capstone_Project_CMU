@@ -49,6 +49,17 @@ class SensorSummaryObservation(Contract):
     rate_of_change: float | None = Field(allow_inf_nan=False)
 
 
+class SensorTrendObservation(Contract):
+    """One block of a sensor's readings: arithmetic on observable samples only."""
+
+    from_tick: int = Field(ge=0)
+    to_tick: int = Field(ge=0)
+    mean: float = Field(allow_inf_nan=False)
+    min: float = Field(allow_inf_nan=False)
+    max: float = Field(allow_inf_nan=False)
+    count: int = Field(ge=1)
+
+
 class SettingObservation(Contract):
     machine_id: str
     speed_rpm: float
@@ -78,3 +89,15 @@ class ProposalObservation(Contract):
     status: Literal["pending", "approved", "rejected"]
     decided_tick: int | None
     note: str
+    executed_tick: int | None
+    finish_tick: int | None
+
+
+class ExecutionObservation(Contract):
+    """What was started when an approved proposal was carried out."""
+
+    proposal_id: int = Field(ge=1)
+    machine_id: str
+    action: str
+    started_tick: int = Field(ge=0)
+    finish_tick: int = Field(ge=0)

@@ -20,6 +20,9 @@ database = [
     "psycopg[binary]>=3,<4",
     "python-dotenv>=1,<2",
 ]
+agent = [
+    "pydantic-graph>=2.55.0",
+]
 semantic = [
     "chromadb>=1,<2",
 ]
@@ -62,3 +65,4 @@ select = ["E4", "E7", "E9", "F", "I"]
 "tests/test_database_connection.py" = ["E402"]
 "tests/test_memory_repository.py" = ["E402"]
 "tests/test_memory_semantic.py" = ["E402"]
+"tests/test_learning.py" = ["E402"]

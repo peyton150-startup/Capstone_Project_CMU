@@ -3,6 +3,13 @@
 Completed investigations are observations and beliefs, not evaluator truth.
 Callers supply a `ReflectionCandidate` with a reusable lesson and evidence
 lineage. `MemoryPromotionPolicy.evaluate()` checks it without I/O.
+Two kinds of memory pass (policy `episodic-v2`): advice from a verified fix
+(`outcome="resolved"`), and an action the check found did not work
+(`outcome="unresolved"`). A failure memory's lesson must be exactly
+`failure_lesson(investigation)`: what was tried, on which machine, for which
+symptoms. It never says why, and never judges the diagnosis.
+`memory/reflection.py` `build_candidate` fills every fact from the finished
+record; the model writes only a success's advice sentence.
 `MemoryService.promote()` applies that policy and sends qualifying memories to
 its store. The SQL store preserves originals on duplicate investigation IDs or
 normalized category/lesson fingerprints. Paraphrases are not semantic duplicates.
@@ -42,13 +49,15 @@ Inspect the applied revision separately:
 Do not use downgrade as a routine cleanup step on a database containing lessons;
 it deletes them. Tests use temporary SQLite databases for creation, removal,
 restart, and duplicate checks. PostgreSQL SQL compilation is not a live-server
-test. No migration has been applied to Neon by this increment.
+test. Revision `0001_episodic_memory` was applied to Neon on 2026-10-15
+(PostgreSQL 18; the database was empty before; the table starts with no rows).
 
 ## Remaining integration
 
-Agent 1 currently uses a different completion contract in `contracts/completed.py`.
-Reconcile that contract with `contracts/completed_investigations.py` before
-connecting the runtime. Trusted provenance must be preserved across the handoff;
+The reasoning runtime in `capstone/agent/` no longer has its own completion
+contract: `contracts/completed_investigations.py` is the only definition, and the
+loop's richer records live in `agent/artifacts.py`. The runtime does not yet
+produce a completed investigation. Trusted provenance must be preserved across the handoff;
 free-text scans cannot establish the true origin of mislabeled evidence.
 Memory evaluation records are implemented; runtime wiring remains. Retrieval is
 bounded lookup by investigation/category, plus free-text recall below.

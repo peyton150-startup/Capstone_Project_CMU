@@ -5,11 +5,7 @@ from pydantic import ValidationError
 
 from capstone.contracts.evidence import Evidence
 from capstone.contracts.hypotheses import Hypothesis
-from capstone.contracts.investigations import (
-    Investigation,
-    investigation_id_for,
-    run_id_for,
-)
+from capstone.contracts.investigations import investigation_id_for, run_id_for
 from capstone.contracts.observations import SensorObservation
 from capstone.contracts.tools import ToolError, ToolResult
 
@@ -69,18 +65,9 @@ def test_research_artifacts_round_trip_with_evidence_references_and_ids():
         confidence=0.6,
         supporting_evidence_ids=("e1",),
     )
-    investigation = Investigation(
-        run_id=run,
-        investigation_id=investigation_id_for(run, 1),
-        anomaly="Elevated vibration",
-        evidence=(evidence,),
-        hypotheses=(hypothesis,),
-    )
-    assert (
-        Investigation.model_validate_json(investigation.model_dump_json())
-        == investigation
-    )
-    assert investigation.hypotheses[0].supporting_evidence_ids == ("e1",)
+    assert Evidence.model_validate_json(evidence.model_dump_json()) == evidence
+    assert Hypothesis.model_validate_json(hypothesis.model_dump_json()) == hypothesis
+    assert investigation_id_for(run, 1) != investigation_id_for(run, 2)
 
 
 @pytest.mark.parametrize("confidence", [-0.1, 1.1, float("nan")])

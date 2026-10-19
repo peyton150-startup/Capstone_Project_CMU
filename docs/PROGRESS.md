@@ -40,12 +40,29 @@ A component is complete only when both columns are checked.
 | 12c | Quality inspection, small pass/fail version | yes | yes | yes | yes | `scenarios.py`, `state.py` (`Inspection`), `simulator.py`, `tools/observation.py` (`get_inspections`) |
 | 13a | Material batches and one bad batch (fault scenario 2) | yes | yes | yes | yes | `state.py` (`MaterialBatch`), `scenarios.py` (`BadMaterialBatch`), `simulator.py`, `line.py`, `tools/observation.py` |
 | 13b | Machine setting and a wrong setting (fault scenario 3) | yes | yes | yes | no | `state.py` (`speed_setting`), `scenarios.py` (`WrongSetting`, `defect_mark`), `sensors.py`, `thermal.py`, `line.py`, `tools/observation.py` (`get_settings`); re-explain waived for time on 2026-10-06, developer to review |
-| 13c | Action: put a machine's setting right (via the approval desk) | n/a | n/a | no | no | Built ungated; developer to review |
-| 13d | False alarm / transient anomaly (fault scenario 4) | n/a | n/a | no | no | Built ungated; developer to review |
-| 14 | Seeded scenario generator (fault, machine or batch, start tick) | n/a | n/a | no | no | Built ungated; developer to review |
-| 15 | Evaluation | n/a | n/a | no | no | Built ungated; developer to review |
-| 16 | The research agent | n/a | n/a | no | no | Built ungated; developer to review |
-| 17 | Memory | n/a | n/a | no | no | Built ungated; developer to review |
+| 13c | Action: put a machine's setting right (via the approval desk) | n/a | n/a | yes | no — built ungated, developer to review | `simulator.py` (`start_setting_reset`, `_start_maintenance`), `state.py` (`maintenance_kind`), `tools/actions.py` (`reset_setting`) |
+| 13d | False alarm / transient anomaly (fault scenario 4) | n/a | n/a | yes | no — built ungated, developer to review | `state.py` (`MachineCondition.vibration_sensor_offset`), `sensors.py`, `scenarios.py` (`FalseAlarm`) |
+| 14 | Seeded scenario generator (fault, machine or batch, start tick) | n/a | n/a | yes | no — built ungated, developer to review | `capstone/simulator/generator.py` (`build_scenario`, `FAULTS`) |
+| 15 | Evaluation | n/a | n/a | yes | no — built ungated, developer to review | `capstone/evaluation/scoring.py` (`evaluate`, `Score`, `summarize`), `capstone/tools/diagnosis.py` (`Diagnosis`) |
+| 16 | The research agent | n/a | n/a | yes | no — built ungated, developer to review | `capstone/agent/` (`models.py`, `toolbox.py`, `agent.py`, `monitor.py`, `episode.py`, `__main__.py`); `tools/observation.py` (`get_sensor_trend`) |
+| 17 | Memory | n/a | n/a | yes | no — built ungated, developer to review | `capstone/agent/memory.py` (`InvestigationMemory`, `search_incident_history`), `episode.py` |
+| A1 | Agent checkpoint 1: one shared finished-investigation record | yes | yes | yes | yes | `contracts/completed_investigations.py`; session notes 2026-10-12 |
+| A2 | Agent checkpoint 2: the inner loop (decide, act, observe, stop) | yes | yes | yes | yes | `agent/loop.py`, `agent/state.py`, `agent/policy.py` |
+| A3a | Carrying out a fix is its own tool call | yes | yes | yes | yes | `tools/actions.py` (`execute_action`) |
+| A3b | The outer sequence up to a conclusion | yes | yes | yes | yes | `agent/investigation.py` |
+| A3c | Asking for the fix and carrying it out | yes | yes | yes | yes | `agent/investigation.py` (`propose`, `execute`) |
+| A4 | Did the fix work? (look again after the work) | yes | yes | yes | yes | `agent/investigation.py` (`verify`); see row R1 for a later fix |
+| A5a | Where each piece of evidence came from (provenance) | yes | yes | yes | yes | `contracts/provenance.py`, `agent/loop.py` |
+| A5b | The finished record and the audit log | yes | yes | yes | yes | `agent/completion.py` |
+| A6a | The reflection candidate | yes | yes | yes | yes | `memory/reflection.py` |
+| A6b | Remembering what did not work | yes | yes | yes | yes | `memory/policy.py` |
+| A6c | The loop joined to the memory gate | yes | yes | yes | in part | `learning.py` (`learn_from`); closing question passed in part, the rest taught |
+| A7a | Word search and the safe view of a memory | yes | yes | yes | yes | `capstone/memory/` |
+| A7b | The recall tool and its two guards | yes | yes | yes | yes | `providers/recall.py` |
+| A8a | The model client and the job table | yes | yes | yes | yes | `providers/chat.py` |
+| A8b-1 | An outage is retried, then handed on | yes | yes | yes | yes | `providers/chat.py` (`FallbackClient`) |
+| A8b-2 | The prompts for the seven questions | yes | yes | no | n/a | planned design in the 2026-10-16 session note |
+| R1 | Review fixes of 2026-10-16/17 (loop budgets, tool errors, repair check, trend tool) | n/a | n/a | yes | no — built ungated, developer to review | session notes 2026-10-17 |
 
 Every row above with four "yes" marks (or "n/a") is complete: no question is
 outstanding on it. Still to build after 12c, from `docs/MVP_SCOPE.md`: the
@@ -113,6 +130,978 @@ alarm), then evaluation, then the agent itself.
   has filtered SQL retrieval but no connected agent/RAG loop. Runtime work and
   memory understanding checkpoints remain outstanding; no new understanding
   is claimed.
+
+- **2026-10-17 — second set of review changes; built ungated, developer to
+  review (understood: no).** Checked against `main` after the five fixes
+  above. Changed:
+  1. Repair check (`agent/investigation.py` `verify`, inner `later`): a look
+     counts as "after the work" only if the data it asked for also starts
+     after the work finished. `starts` maps each evidence ID to the
+     `from_tick` of the request that produced it, read from the loop's own
+     `DecisionRecord`s; a tool with no range (e.g. `list_machines`) reports
+     the factory as it is and still counts. Before: after the wrong machine
+     was repaired, a look at tick 945 at ticks 0-99 of the worn machine was
+     judged "resolved", and memory would have kept that lesson. Now it is
+     "inconclusive". Test:
+     `test_a_look_now_at_data_from_before_the_work_does_not_count` (a window
+     wholly before, and one that starts before and runs past the work).
+     Known edge: `get_job_history` has no range but can describe an old job.
+  2. `get_sensor_trend` offered through `providers/factory.py` (new
+     `TrendArguments`, new `contracts/observations.py`
+     `SensorTrendObservation`): per-block mean/min/max/count. A summary's
+     change comes from its two end readings, so it cannot tell slow wear
+     from a single jump; a trend can, at under 1/20 of the size of raw
+     readings (tested).
+  3. `providers/factory.py` `TOOL_DESCRIPTIONS`: a model-readable sentence
+     per tool, copied from the old `agent/toolbox.py` so it survives that
+     file's retirement. Nothing reads it yet; 8b-2 will. A test keeps it in
+     step with the tool table. It lists no causes or fault signatures.
+  4. Removed `providers/llm.py` (`LLMProvider`) and the `Investigation`
+     record in `contracts/investigations.py`: nothing used them. The ID
+     helpers `run_id_for` / `investigation_id_for` stay.
+  5. `CLAUDE.md` is now the single line `@AGENTS.md`; `AGENTS.md` names no
+     single agent, notes that the gated loop has been in use again since
+     2026-10-12, and gives the `uv sync --all-extras` setup.
+  6. Table rows A1-A8b-2 and R1 added above from these notes.
+  NOT DONE, on purpose: the old agent (`agent/agent.py`, `toolbox.py`,
+  `models.py`, `agent/memory.py`, their tests) is not retired yet, because
+  `agent/episode.py` imports it and the 2026-10-12 decisions retire it only
+  after the runner reuses `episode.py`; `.agents/skills` is kept (Codex
+  reads skills only there). Still open from the review: cap or summarise
+  evidence before 8b-2 prompts include it; a runner chaining scenario,
+  `run_investigation`, `learn_from` and `evaluate`; scoring of the free-text
+  diagnosis (hand labels first, per the 2026-10-12 decision); a scripted
+  end-to-end test before 8b-2; archiving old session notes.
+
+- **2026-10-17 — five loop and tool-boundary fixes, applied from a review;
+  built ungated, developer to review (understood: no).** A review of the loop
+  against an agent-workflows book was checked against the code on seeded
+  factories with a stand-in model at 3 s per request; these five came out of
+  it and were applied as five commits on main. Nothing of 8b-2 is built; the
+  one-reply-per-turn cache and the prompt context wait for 8b-2.
+  1. `agent/state.py` `Budgets.followup_seconds` (20 s): `check_termination`
+     in `agent/loop.py` ends investigate and test with `timeout` once that
+     much time is left, so the conclusion, proposal, work and check keep it.
+     Before, research could spend all 60 s; the human approved a fix that was
+     never carried out, and the run still said `diagnosis_supported`.
+  2. `gather(..., interpret=False)` for calls the loop makes itself
+     (`get_time` in `observe`, every `followup_call`): still evidence, but
+     the policy is not asked to read them. 5 of 19 policy calls in the
+     verification fixture were of this kind.
+  3. `providers/chat.py`: a request waits 15 s (was 60); `FallbackClient`
+     gives one question `max_seconds` = 20 in all, retries and fallback
+     included (was up to 244 s); a read timeout says "timed out", not
+     "could not be reached".
+  4. Tool errors say what to correct. `providers/factory.py` `run_tool`
+     splits a bad argument (field and pydantic's message), a tool's own
+     refusal (new `tools/errors.py` `ToolInputError`, message passed on) and
+     anything else (no detail; new code `invalid_result` for an answer that
+     breaks its contract). Sensor names are `Literal`s, so a misspelled one
+     is refused instead of returning 0 rows; `DecisionRecord.error` keeps the
+     tool's account of a failed call.
+  5. `diagnosis_supported` also needs no contradicting evidence;
+     `confidence_stalled` ends testing with `no_useful_action` when the last
+     3 test results moved confidence by less than 0.05.
+  Verification: 848 passed locally (826 + 22 new); Ruff check and format
+  passed.
+
+- **2026-10-16 — checkpoint 8b-2 taught, pre-check PASSED; SESSION PAUSED
+  HERE (developer moving locations). Nothing of 8b-2 is built.** Asked why
+  the prompt shows evidence with IDs, the developer first did not know;
+  after a hint (a model citing E9 when only E1-E5 exist) said the IDs let
+  the loop verify evidence was not made up, and added that code, not the
+  model, assigns the IDs. Correct. PLANNED DESIGN for next session: new
+  `capstone/agent/model_policy.py` with `ModelPolicy(clients, tools)`; one
+  shared `render(state)` view (anomaly, budget left, open questions,
+  evidence with IDs/source/tick, hypotheses with confidence and cited IDs;
+  no bookkeeping, no fault list); a system prompt per job; `decide` also
+  gets the phase and the research tool list (names, descriptions, argument
+  schemas from `providers/factory.py`; not `propose_action`,
+  `execute_action` or `get_proposals`; `recall_memories` only when given);
+  `interpret` also gets the step and newest evidence. Answer types needing
+  wrappers: plan (questions), decide (`CallTool | Stop`), conclude
+  (conclusion + optional action), lesson (`Lesson | None`). Then the small
+  follow-on: record which models were tried per turn and why each failed.
+
+- **2026-10-16 — checkpoint 8b-1 closing question PASSED (after one
+  re-teach).** Asked what happens when Groq times out twice and the Mistral
+  fallback sends an invalid reply, the developer first said it would be
+  retried and handed on again. Re-taught: a bad reply is never retried or
+  handed on; `ValueError` reaches the loop, which records `invalid_decision`
+  and asks again on its next turn; episodic memory holds factory lessons,
+  not provider failures. The developer then said Mistral's invalid reply
+  should count against reasoning quality while Groq's timeouts are only
+  uptime. Correct. Checkpoint 8b-1 is complete. Gap found and carried into
+  8b-2: `FallbackClient` discards the failures when a later model answers,
+  so Groq's timeouts are recorded nowhere; each turn should record which
+  models were tried and why each failed. NEXT: 8b-2, the prompts.
+
+- **2026-10-15 — package docstrings; SESSION PAUSED HERE.** At the
+  developer's request each `__init__.py` (capstone and its eight packages,
+  and tests) now says in a sentence or two what the folder holds and how its
+  modules fit together. Documentation only; CI green on `7039e25`. NEXT: the
+  8b-1 closing question is asked and NOT YET ANSWERED (Groq times out twice
+  on `decide`, the Mistral fallback answers with an invalid reply: what does
+  `FallbackClient` do, what does the loop record, which model is counted as
+  wrong?). Then 8b-2, the prompts for the seven questions.
+
+- **2026-10-15 — checkpoint 8b-1: an outage is retried, then handed on.**
+  8b split in two: 8b-1 (what happens when no model answers) and 8b-2 (the
+  prompts for the seven questions, built from working memory). Pre-checkpoint
+  passed: asked why an unreachable provider and a reply that breaks the type
+  should be handled differently, the developer said the bad reply is the
+  model's mistake (it described an action instead of choosing one), and for
+  the outage proposed: retry first, then reroute to another provider to be
+  named later. DEVELOPER DECISION: retry, then fallback; the fallback is a
+  setting, empty by default. Added: an outage that survives both is not the
+  agent's fault, so it gets its own stop reason. POST-IMPLEMENTATION
+  UNDERSTANDING IS OUTSTANDING. Changes: `providers/chat.py`: `ModelError`
+  gains `transient` (unreachable, timeout, HTTP 429 and 5xx: yes; 401, 400:
+  no); new `FallbackClient(clients, retries=1, retry_delay=2.0, sleep)` asks
+  each model in turn, retries a transient failure once (after a pause),
+  moves straight on after a permanent one, never retries or hands on a reply
+  that breaks the type (`ValueError` goes to the loop as before), records
+  `answered_by`, and when nothing answers raises one `ModelError` naming
+  each failure without keys; `clients_for_jobs` now gives each job a
+  `FallbackClient` (its own model, then `FALLBACK_MODEL` if set and
+  different). `settings.py`: `FALLBACK_MODEL`. `agent/artifacts.py`:
+  `TerminationReason.MODEL_UNAVAILABLE`. `agent/state.py`: `stage`, the stage
+  now running. `agent/investigation.py`: the stages that ask the policy set
+  `stage`; `run_investigation` catches `ModelError` and calls
+  `stop_without_a_model`, which sets the stop reason, keeps a conclusion
+  already reached or writes "undetermined", and records a "stopped" decision
+  at the interrupted stage. Not an invalid decision, not an unproductive
+  turn. Tests: 12 new in `tests/test_chat_client.py`, 2 in
+  `tests/test_agent_investigation.py`. Still open: the evaluation does not
+  yet treat `model_unavailable` runs differently (it should leave them out of
+  the agent's reasoning scores); `answered_by` is not yet copied into the
+  decision record (8b-2). Verification: 826 passed locally; Ruff passed;
+  CI green on `d103eda` (all twelve checks).
+
+- **2026-10-15 — checkpoint 8a closing question PASSED (after one
+  re-teach).** Asked why `ask` refuses a reply that does not match the type
+  instead of repairing it, the developer first said repairing is a lot of
+  work and asking the model again is better (no retry exists yet; that is
+  an 8b design point). Re-taught: a repaired answer fills fields the model
+  never chose, so code would make the decision and the record would say the
+  model made it; refusals are also counted, which measures each model's
+  reliability for the job table. The developer then said an unclear reply
+  is not a definite answer that can go into the data, only something that
+  could lean either way. Completed: a repair would pick the side, so the
+  repair code would be the one deciding. Checkpoint 8a is complete. NEXT:
+  8b, the model policy: prompts for the seven questions from working memory,
+  what happens when a model service is unreachable (`ModelError`), and
+  whether to retry a refused reply.
+
+- **2026-10-15 — checkpoint 8a reworked: one generic client, a job table.**
+  The developer pointed out that MVP_SCOPE (Provider integration, revised
+  2026-10-11) rules out per-provider clients, and asked that any model can
+  do any job when settings say which does which. The developer's key file
+  holds keys for the six providers in scope (NVIDIA, Groq, Mistral, Gemini,
+  Cohere, Cloudflare Workers AI) plus Cloudflare R2 storage keys, and no
+  model names. Weighed: LiteLLM (MVP_SCOPE's plan) supports all six but
+  installs OpenAI's Python SDK, which CLAUDE.md section 9 forbids; one
+  standard-library client reaches all six through their OpenAI-style chat
+  endpoints using only the common subset (system and user messages,
+  temperature, Bearer key, reply text). DEVELOPER DECISION: the generic
+  client; revisit LiteLLM/CrewAI at the multi-agent phase. The design was the
+  developer's own, so it served as the pre-check; post-implementation
+  understanding is outstanding. Changes: `providers/nvidia.py` renamed to
+  `providers/chat.py`: `ChatClient(url, api_key, model)` with the same
+  `ask`; `PROVIDERS` (address and key setting for each of the six;
+  Cloudflare's address needs `CLOUDFLARE_ACCOUNT_ID`); `JOBS` (the seven
+  policy questions); `client_for("provider/model")` (unknown providers,
+  including openai and anthropic, refused; a missing key or account ID named
+  without its value); `clients_for_jobs(settings)` (one client per job;
+  only providers in use need a key). `settings.py`: a key per provider,
+  `CLOUDFLARE_ACCOUNT_ID`, `DEFAULT_MODEL` (`nvidia/nvidia/nemotron-3.5-
+  lightning-30b-a3b`) and `PLAN_MODEL` ... `LESSON_MODEL` overrides;
+  `NVIDIA_MODEL` removed. Tests: `tests/test_chat_client.py` (37, replacing
+  the NVIDIA client's 22). Mistake recorded: while tidying, a `git checkout`
+  of `settings.py` discarded the new settings; the file was rewritten and the
+  full suite re-run before committing. Still open for 8b: `ModelError` is not
+  among the loop's `POLICY_ERRORS`; whether each model follows the JSON
+  instruction is untested until the live check (8c). Verification: 812
+  passed locally; Ruff passed; CI green on `ea66f30` (all twelve checks).
+
+- **2026-10-15 — checkpoint 8a: the NVIDIA model client.** Pre-checkpoint
+  passed: the developer said the tools are what the model uses to find the
+  cause, while a list of causes would let it use elimination instead of
+  investigating; no hints. Added: a list turns an open investigation into
+  multiple choice, so the project would measure the list, not the agent.
+  POST-IMPLEMENTATION UNDERSTANDING IS OUTSTANDING. Changes: `settings.py`:
+  `NVIDIA_API_KEY` (masked, blank = missing) and `NVIDIA_MODEL` (default
+  `NVIDIA_DEFAULT_MODEL` = `nvidia/nemotron-3.5-lightning-30b-a3b`); the blank
+  check is now `normalize_secret`. New `providers/nvidia.py`: `NvidiaClient`
+  (`from_settings`, `ask(system, prompt, answer_type)`) sends one chat request
+  to `https://integrate.api.nvidia.com/v1/chat/completions` with the standard
+  library (no new dependency; no OpenAI SDK), temperature 0, the answer
+  type's JSON schema appended to the system prompt; the reply text has any
+  `<think>` block and one code fence removed and is validated against the
+  type; anything else raises `ValueError`, never repaired. Service failures
+  raise `ModelError` (HTTP status or "could not be reached" only; never the
+  key or body); the client's repr hides the key. Sending goes through a
+  `Transport` function. Tests: new `tests/test_nvidia_client.py` (22), all
+  with a fake transport: request shape; model choice; four reply wrappings
+  accepted; non-JSON, rule-breaking, extra-field and non-object replies
+  refused; malformed service replies refused; HTTP, unreachable and timeout
+  errors give `ModelError` without the key; settings. Open for 8b:
+  `ModelError` is not among the loop's `POLICY_ERRORS`, so an unreachable
+  service would end an investigation with an exception; and NVIDIA's
+  structured-output support for this model is still unverified (8c).
+  Verification: 797 passed locally; Ruff passed; CI green on `b474484` (all
+  twelve checks).
+
+- **2026-10-15 — memory migration applied to Neon.** The developer named
+  the file holding the Neon connection string; a script copied the single
+  postgres URL found there into this worktree's git-ignored `.env` as
+  `DATABASE_URL` without printing it (host on `aws.neon.tech`, SSL
+  required). Before: `alembic current` showed no revision and the public
+  schema had no tables (PostgreSQL 18.6). Ran `alembic upgrade head`. After:
+  `alembic current` is `0001_episodic_memory (head)`; tables
+  `alembic_version` and `episodic_memories` (memory_id UUID,
+  investigation_id UUID, category VARCHAR(128), source_tick INTEGER,
+  fingerprint VARCHAR(64), payload JSONB), unique keys on fingerprint and
+  investigation_id, index on category; 0 rows. The 6b outcome change needed
+  no migration (it is inside the JSON payload). Still pending: the SubQ
+  audit; checkpoint 8a's question.
+
+- **2026-10-15 — Neon agent skills added; migration still blocked.** At the
+  developer's request ran `npx neon@latest skills -s neon -s neon-postgres -y`
+  (npm package `neon` 8.7.1, Neon's official CLI, repository
+  `neondatabase/neon-pkgs`), then the same with `-a claude-code`. Added
+  `.agents/skills/` (OpenCode), `.claude/skills/` (Claude Code), identical
+  copies of `neon` and `neon-postgres` from `neondatabase/agent-skills`, and
+  `skills-lock.json` recording their source and hashes. Documentation only;
+  nothing in `capstone/` uses them. `neon skills update` refreshes them. The
+  developer asked that these survive when this worktree's work is merged into
+  the main project folder. The Neon migration has NOT been applied: this
+  worktree's `.env` has no `DATABASE_URL`; the developer is to add it.
+  Checkpoint 8a's pre-implementation question (why the prompt may list tools
+  but not possible causes) is asked and not yet answered.
+
+- **2026-10-15 — checkpoint 7b closing question PASSED.** Asked what the
+  model could do to get around guard 1 if it chose the label itself, the
+  developer said it could write `observable` on a recalled memory and so turn
+  the memory into evidence. Added: the same principle as 5a; a guard is only
+  as good as the label it trusts, so labels come from the answer's source,
+  written by code. Checkpoint 7b is complete, and with it checkpoint 7.
+  NEXT: 8, a Nemotron-backed policy with no list of causes in the prompt.
+
+- **2026-10-15 — checkpoint 7b: the recall tool and its two guards.**
+  Pre-checkpoint passed: the developer said a recalled memory describes the
+  factory in the past, not now (the machine could have a new problem), so it
+  can guide where to look but cannot count as evidence for a claim. Added:
+  the memory's own tick is old, but the recall answer is stamped with the
+  current tick, which is what would have fooled `verify`.
+  POST-IMPLEMENTATION UNDERSTANDING IS OUTSTANDING. Changes:
+  `contracts/provenance.py`: origin gains `memory`; `MEMORY_SOURCE =
+  "memory"` defined once so the loop need not import the provider. New
+  `providers/recall.py` `RecallingProvider(factory, memory)`:
+  `recall_memories(text, limit 1-10, default 5)` answered from
+  `MemoryService.search` with source `memory`, stamped from the factory's
+  `get_time`; every other tool passed to the factory unchanged; bad
+  arguments give `invalid_arguments`, a failing store `provider_error`
+  without its message. `agent/loop.py` `gather`: origin `memory` when the
+  answer's source is `memory`, else `observable`. Guard 1,
+  `agent/investigation.py` `verify`: only `observable` evidence counts as
+  observed after the work. Guard 2, `memory/policy.py`: `rests_on_memory`
+  when any cited reference (conclusion, check, action, lesson) has origin
+  `memory`; an uncited memory that only guided the search is allowed.
+  Tests: new `tests/test_recall_tool.py` (15): answered from memory at the
+  factory's tick with no evidence IDs; other tools unchanged; bad arguments
+  refused; store errors not leaked; empty result is not an error; recalled
+  items labelled `memory` and all others `observable` in a real run; a fix
+  cannot be verified by citing a memory dated after the work (shown to fail
+  with the guard switched off); a real look still verifies when a memory is
+  also cited; the gate refuses a cited memory and allows an uncited one; end
+  to end, a verified run whose conclusion cites a memory is not remembered.
+  New CI check "Tests: Recall". Not done: no runner hands the agent a
+  `RecallingProvider` yet (step 9), and nothing tells a model the tool
+  exists (step 8). Verification: 775 passed locally; Ruff passed; CI green
+  on `adac0d6` (all twelve checks).
+
+- **2026-10-14 — checkpoint 7b taught; SESSION PAUSED HERE.** Nothing of 7b
+  is built. Pre-checkpoint question asked and NOT YET ANSWERED: in the
+  example (repair finishes at tick 900, the agent recalls at tick 950 a
+  memory that a bearing replacement worked, judges "resolved" citing it),
+  why refuse to let the memory confirm this repair? Optional second part:
+  the difference between a memory guiding where to look and supporting a
+  conclusion. Proposed design, awaiting that answer: new
+  `providers/recall.py` `RecallingProvider(factory_provider, memory_service)`
+  answers `recall_memories(text, limit 1-10)` from `MemoryService.search`
+  with source `memory`, stamped with the factory's current tick, and passes
+  every other tool to the factory; `ProvenanceReference.origin` gains
+  `memory`; `gather` labels answers whose source is `memory` as origin
+  `memory`; guard 1 in `verify`: only `observable` evidence counts as
+  looking again (memory-only citations give inconclusive, memory-only
+  looking gives not performed); guard 2 at the gate: a candidate whose
+  cited evidence includes memory-origin items is refused
+  (`rests_on_memory`). NEXT SESSION: ask the 7b question again, then build.
+
+- **2026-10-14 — checkpoint 7a closing question PASSED (after two
+  re-teaches).** Asked what searches would return if filler words were
+  counted, the developer first thought the search matches whole sentences
+  (it matches single words), then that a higher score ranks lower (it ranks
+  first). After a worked example (an irrelevant conveyor failure scoring 5
+  on "was tried for the" against a relevant vibration success scoring 1),
+  the developer said failures would rise to the top, successes would sink
+  and might never be picked, and relevance would be almost gone. Known
+  weakness kept: "tried" and "check" survive filler removal, so failures
+  still get a small boost. Checkpoint 7a is complete. NEXT: 7b, the
+  `recall_memories` tool, a `memory` origin label, and the guards that a
+  recalled memory never counts as proof a fix worked and never supports a
+  new lesson.
+
+- **2026-10-14 — checkpoint 7a: word search and the safe view of a
+  memory.** The developer asked whether this is semantic search: no, word
+  overlap; paraphrases ("shaking" for "vibration") do not match. Accepted
+  for now because memory words are code-written and the factory's tools use
+  the same words; semantic search would replace only the scoring step if real
+  model queries miss. MCP confirmed as Future Work 2, after the core MVP;
+  the provider's one `call` boundary is where it would sit. Pre-checkpoint
+  passed after one re-teach: asked what goes wrong if a recalled memory
+  carries its evidence IDs, the developer first said the agent would conclude
+  before reasoning (anchoring, a 7b concern), then, after the example, that
+  evidence numbers mean different things in different investigations, so a
+  cited old "E2" would pass the existence check while naming unrelated new
+  evidence. POST-IMPLEMENTATION UNDERSTANDING IS OUTSTANDING. Changes:
+  `memory/contracts.py` `RecalledMemory` (memory ID, category, symptoms,
+  past diagnosis, action, machine, outcome, lesson, source tick; no evidence
+  IDs, provenance, confidence, fingerprint or run/investigation IDs). New
+  `memory/recall.py`: `words` (normalised, filler words dropped, tool names
+  split at underscores), `recalled(memory)` (the view), `search_memories`
+  (score = shared words with category, symptoms, action, machine and lesson;
+  zero scores dropped; ties by most recent then memory ID).
+  `MemoryService.search(text, limit=5)` searches the 100 most recent memories
+  the store returns. Nothing the agent can call yet (7b). Tests: new
+  `tests/test_memory_recall.py` (10). Simplification: only the 100 most
+  recent memories are searched. Verification: 760 passed locally; Ruff
+  passed; CI green on `ee59092` (all eleven checks).
+
+- **2026-10-14 — checkpoint 6c closing question PASSED (in part, the rest
+  taught).** Asked why `learn_from` asks the model for a lesson only after a
+  verified fix, the developer said code provides that information and is
+  the source of truth, which is the reason for a failed fix (code writes
+  that sentence). Taught the other reason: a rejected proposal or an
+  inconclusive check can never become a memory, so a sentence asked for
+  there is certain to be discarded and only costs a model call. The rule:
+  ask only when the sentence can reach memory. Checkpoint 6c is complete,
+  and with it checkpoint 6. NEXT: 7, a memory recall tool with word search.
+
+- **2026-10-14 — checkpoint 6c: the loop joined to the gate.**
+  Pre-checkpoint passed after one clarification: the developer said the step
+  sits outside the loop so the agent cannot bypass the guards and write to
+  the audit log or memory directly, and that the audit line goes first so a
+  database failure still leaves the investigation on record (only that
+  run's lesson is lost). Clarified: the loop never holds a handle to either;
+  the audit log holds unfiltered investigations, not hidden truth.
+  POST-IMPLEMENTATION UNDERSTANDING IS OUTSTANDING. Changes: new
+  `capstone/learning.py` (above both packages): `learn_from(state, policy,
+  memory, log) -> LearningOutcome` refuses an unfinished investigation,
+  appends the audit record first, asks `policy.write_lesson` only for a
+  verified fix (a model that declines or raises gives no lesson), builds the
+  candidate and sends it through `MemoryService.promote`. A store failure is
+  raised to the caller after the audit line is written. `LearningOutcome`:
+  investigation ID, whether the lesson was requested, the lesson, the gate's
+  decision (None when nothing went to the gate). Nothing calls `learn_from`
+  automatically yet; the episode runner (step 9) will call it after
+  `run_investigation`. Tests: new `tests/test_learning.py` (11), end to end
+  through the real simulator and a temporary SQLite store: a verified fix is
+  audited and its advice stored as resolved; a wrong-machine repair is
+  stored as unresolved in code's words with the model never asked; both
+  coexist; a rejected proposal is audited only; a repeated investigation is
+  not stored twice (`duplicate_investigation`) though the log keeps both
+  lines; a model that declines or fails leaves no memory; a database failure
+  still leaves the audit line; an unfinished investigation writes nothing;
+  working memory unchanged; `capstone/agent` imports neither
+  `capstone.learning` nor `capstone.memory`. Added to the "Reflection" CI
+  check; `pyproject.toml` allows the importorskip import order in the new
+  test, as for the repository tests. Simplification: the gate's decision is
+  returned but not yet written into the audit log. Verification: 750 passed
+  locally; Ruff passed; CI green on `9b006a3` (all eleven checks).
+
+- **2026-10-14 — checkpoint 6b closing question PASSED (after one
+  re-teach).** Asked why the gate recomputes the failure sentence instead of
+  trusting the builder, the developer was unsure but named the main case:
+  the model's sentence could get through. Re-taught: the gate is the last
+  check before something becomes permanent, so it trusts no producer;
+  builders change and multiply, and anything can construct a candidate.
+  Same pattern as checkpoint 4 (the loop checks the judge) and 6a (every
+  provenance label). On the follow-up (a builder edited to pass the model's
+  "wrong diagnosis" sentence), the developer said the gate rejects it as
+  not written by code and that without the recheck an incorrect sentence
+  would be stored. Corrected: the whole candidate is refused
+  (`lesson_not_factual`), nothing is stored, and the gate judges the text,
+  not who wrote it. Checkpoint 6b is complete. NEXT: 6c, connect the loop
+  to the gate with an end-to-end test.
+
+- **2026-10-14 — checkpoint 6b: remembering what did not work.**
+  Pre-checkpoint passed: the developer first asked whether code was now
+  deciding if the fix worked; clarified that the agent still finds that out
+  by looking again (checkpoint 4) and code only copies its verdict into
+  memory, refusing any explanation of why. The developer then said a
+  general sentence ("replacing the bearing does not fix high vibration")
+  would make a future agent think the repair will not fix its problem, when
+  only this repair on this machine failed. Corrected: the sentence holds no
+  tick; the time is in `source_tick`. POST-IMPLEMENTATION UNDERSTANDING IS
+  OUTSTANDING (closing question asked: why does the gate recompute the
+  failure sentence instead of trusting the builder?). Changes:
+  `memory/policy.py`: new `failure_lesson(investigation)` ("<action> on
+  <machine> was tried for <symptoms> and the check afterwards found it
+  unresolved."); `MemoryPromotionPolicy` is now `episodic-v2` and accepts
+  two kinds: a verified fix (rules unchanged) and an observed failure, which
+  needs an action that was tried (`nothing_was_tried`), the exact
+  `failure_lesson` text (`lesson_not_factual`), `diagnosis_assessment`
+  unknown (`diagnosis_cannot_be_judged`) and `intervention_worked` False
+  (`intervention_outcome_mismatch`); no confidence check for failures, since
+  the claim rests on the check. Evidence, provenance, transient-detail and
+  hidden-truth checks apply to both. Accepted failures get reason
+  `observed_failed_action`. `memory/contracts.py`: `EpisodicMemory.outcome`
+  is `resolved` or `unresolved` (inside the JSON payload; no migration).
+  `memory/reflection.py`: for a failed check with an action, the sentence is
+  `failure_lesson`, and the model's sentence is ignored.
+  `docs/EPISODIC_MEMORY.md` updated. Tests: `test_memory_policy.py` +11
+  (failure accepted; low confidence still accepted; refuted / supported /
+  wrong `intervention_worked` refused; an explanation or generalisation
+  refused; nothing tried refused; hidden truth and missing evidence still
+  refused; success and failure differ), `test_memory_reflection.py` updated
+  (a failed fix is stored whatever the model wrote, naming the machine
+  actually repaired, CNC-01). Simplifications: duplicates are by category
+  plus sentence, so identical failures are kept once; "no action, but the
+  symptom stayed" is still refused. Verification: 739 passed locally; Ruff
+  passed; CI green on `31ed1f1` (all eleven checks).
+
+- **2026-10-14 — checkpoint 6a closing question PASSED (after one
+  re-teach).** Asked why the builder hands the gate every provenance label,
+  not only the cited ones, the developer was first unsure. After a worked
+  example (an uncited hidden-truth item E4 that gave the agent the answer),
+  the developer said every label is passed so the gate can catch a bug that
+  let the agent see more than it should have. Added: what the agent saw
+  shapes its conclusion whether or not it is cited, so leaving an item out
+  of the citations must not hide it from the gate. Checkpoint 6a is
+  complete. NEXT: 6b, widen the memory gate to "what did not work" lessons.
+
+- **2026-10-14 — checkpoint 6a: the reflection candidate.** Pre-checkpoint
+  passed: asked what the candidate records when the check says not resolved
+  but the model's sentence says the fix worked, the developer said the
+  builder takes the outcome from the code and ignores the model's claim.
+  Corrected: the sentence is advice for a later investigation, not for the
+  user in this one. On why the category is the symptom, the developer said
+  the diagnosis is the answer itself, while the symptom is what each
+  investigation starts from. POST-IMPLEMENTATION UNDERSTANDING IS
+  OUTSTANDING. Changes: `agent/policy.py` gains `Lesson` (a single `text`
+  field) and a seventh policy question, `write_lesson(state) -> Lesson |
+  None`; nothing calls it yet (6c). New `memory/reflection.py`:
+  `build_candidate(investigation, provenance, lesson)` makes the
+  `ReflectionCandidate` from the shared record alone. Code fills category
+  (first symptom), `intervention_worked` (verified -> True, failed -> False,
+  None when nothing was proposed), `diagnosis_assessment` (verified ->
+  supported, otherwise unknown, never refuted), evidence IDs (conclusion's
+  plus the check's), confidence (the conclusion's) and provenance (every
+  label). The model supplies only the sentence. No candidate when the check
+  is missing or unverified, or the sentence is empty. The builder decides
+  nothing; the gate still does. `tests/helpers.py`: `ScriptedPolicy(lesson=)`.
+  Tests: new `tests/test_memory_reflection.py` (21), over the ten endings
+  from 5b: fields filled from the record; two different sentences give
+  identical candidates apart from the text; a failed fix stays failed when
+  the sentence claims it worked, and the gate refuses it; a verified fix is
+  accepted by the gate; a candidate exists exactly where an outcome was
+  observed; `Lesson` has only `text`; `capstone/memory` does not import
+  `capstone/agent`. New CI check "Tests: Reflection". Simplification: the
+  lesson's `reusable` / `contains_transient_details` flags are set by code
+  (they were the writer's own claims); the gate's own scans of the text for
+  numbers, ticks and hidden-truth words are the real guard. Verification:
+  725 passed locally; Ruff passed; CI green on `cf05576` (all eleven checks).
+
+- **2026-10-14 — checkpoint 5b closing question PASSED.** Asked why the
+  producer leaves a check out instead of filling in a tick or an outcome so
+  the record looks complete, the developer said a record that looks
+  incomplete is a true statement that the work is incomplete, and that the
+  one absence covers two cases (not performed, no check time). Added: an
+  `unverified` / `unknown` result means a check was made and could not
+  decide; writing it for a check that never happened would tell the reader,
+  the evaluator and a future agent that someone looked. Checkpoint 5b is
+  complete. NEXT: checkpoint 6a, pre-implementation question.
+
+- **2026-10-12 — checkpoint 5b: the finished record and the audit log.
+  SESSION ENDED HERE.** Pre-checkpoint passed: for an approval never carried
+  out, the developer said the check is "not performed", the record shows the
+  approval, and the audit log (the JSON memory) records everything so a later
+  reader can see. Clarified: in the shared record "not performed" becomes no
+  verification at all, and the reader sees an approval in the evidence with
+  no evidence of work starting. POST-IMPLEMENTATION UNDERSTANDING IS
+  OUTSTANDING: ask the closing question at the start of the next session
+  (why does the producer leave a check out instead of filling in a tick or
+  an outcome so the record looks complete?). New `agent/completion.py`:
+  `complete(state)` builds the shared `CompletedInvestigation` from working
+  memory without changing it, and refuses an unfinished investigation;
+  `shared_verification` translates the check by fixed rule (resolved →
+  verified/resolved, not resolved → failed/unresolved, inconclusive →
+  unverified/unknown, not performed or untimed → left out);
+  `action_evidence_ids` makes the shared action cite the evidence in which
+  the factory reported the proposal, the human's decision and the start of
+  work, which is how approval and rejection reach the shared record;
+  `AuditRecord` / `audit_record(state)` hold the shared record plus
+  provenance, the runtime anomaly, conclusion and proposal status, the action
+  ticks, the runtime check, every decision record and the loop's counts;
+  `AuditLog` appends audit records to a JSON-lines file and reads them back.
+  The agent has no tool that reads the log. Tests: new
+  `tests/test_agent_completion.py` (37), over ten endings run through the
+  real simulator (verified fix, failed fix, inconclusive check, check not
+  performed, rejected, no human answer, approved and not carried out,
+  escalated, no action and checked, failed at every stage): each gives a
+  valid record citing only evidence that exists and is labelled, leaves
+  working memory unchanged, and contains no hidden-truth words; the same run
+  twice gives the same record. THIS COMPLETES THE ORIGINAL REQUEST: completed
+  investigations with verification evidence and trusted provenance, with the
+  loop still not importing `capstone.memory`. Not done: nothing calls
+  `complete` or `AuditLog` automatically at the end of `run_investigation`;
+  the older `agent/memory.py` JSON memory still exists beside the new log.
+  NEXT (in order): 6a reflection candidate (code fills the facts, the model
+  writes only the advice sentence); 6b widen the memory gate to "what did
+  not work" lessons; 6c connect loop to gate with an end-to-end test;
+  7 memory recall tool and word search; 8 Nemotron-backed policy with no
+  list of causes in the prompt; 9 seeded-scenario runs and an evaluator
+  model for the free-text diagnosis; 10 retire the older agent. Also still
+  pending from before: apply the memory migration to Neon; the SubQ audit.
+  The developer's main folder `Capstone_Project_CMU` is still on the old
+  `feature/episodic-memory-reflection` branch; work is in
+  `Capstone_Project_CMU-agent1` and on `main`.
+  Verification: 704 passed locally; Ruff passed; CI green on `d59549c`
+  (all ten checks).
+
+- **2026-10-12 — checkpoint 5a: where each piece of evidence came from.**
+  Pre-checkpoint passed first time: the developer said a model allowed to
+  state the origin could write it in the wrong format or hallucinate the
+  wrong source, and the records would then be tainted. Added: the worst case
+  is hidden-side material labelled observable, which the memory gate would
+  then let through. Post-implementation checkpoint PASSED: the developer
+  explained that at arrival everything is fresh and there is no need to go
+  back into working memory later to work the provenance out. Added: it is
+  also a second record of the same moment, so a later mistake in the
+  evidence is not copied into the label.
+  Changes: new `contracts/provenance.py` now holds the one definition of
+  `ProvenanceReference` (evidence ID, source, source type, origin, tick);
+  `memory/contracts.py` imports it from there, so the memory gate and the
+  loop use the very same class and existing imports still work.
+  `agent/state.py`: `InvestigationState.provenance`. `agent/loop.py`:
+  `gather` writes one label beside each evidence item at the moment the tool
+  answer arrives, from that same answer, with origin `observable` (the
+  factory provider only offers what an operator could see). The policy is
+  never asked for an origin and no type it returns has a field for one.
+  Tests: new `tests/test_agent_provenance.py` (13): one definition; same
+  class object in both packages; a label per evidence item, present before
+  the policy first sees the evidence; none for failed or unusable answers;
+  kept for an answer the policy could not interpret; the policy's copy
+  cannot change them; one-to-one match with the evidence through a whole
+  real investigation (research, approved repair, check); everything the
+  conclusion and the check cite is labelled. New CI check "Tests: Completed
+  record". Simplification: every factory answer is `observable`; a human's
+  note inside a tool answer does not make the item `human`. Evidence
+  recalled from memory will need its own origin when recall is built.
+  Verification: 667 passed locally; Ruff passed; CI green on `1376de0`
+  (all ten checks).
+
+- **2026-10-12 — checkpoint 4: did the fix work?** Pre-checkpoint passed
+  first time: asked what the loop does with a "resolved" judgement citing
+  only evidence from before the repair, the developer said there is no
+  observation, so it is unconcluded because we do not know if the problem
+  went away. Post-implementation checkpoint PASSED: the developer explained
+  that a judge allowed to write the prediction could overwrite the one made
+  beforehand, and that its only job is to judge, not to predict. Added: a
+  prediction written after seeing the result can always be made to match
+  it. The developer also asked whether different models could answer
+  different questions; yes — the policy interface is six separate questions,
+  so a wrapper can give each to a different provider (for example a second
+  model as verification judge), and the loop's checks apply to all of them.
+  To build when the first real model is wired in, one model first.
+  New in `agent/investigation.py`: `verify` — runs the inner loop in its
+  verify phase (the policy chooses what to look at and may wait, from the
+  follow-up allowance), asks the policy to judge, then decides whether the
+  judgement can stand. Rules: cited evidence must exist; "resolved" and
+  "not resolved" need at least one cited item observed after the work
+  finished (after the conclusion, when nothing was done), otherwise the
+  result is "inconclusive"; with nothing looked at after that tick the
+  result is "not performed" and the policy is not asked; the prediction is
+  the one recorded before the action and the tick of the check is taken from
+  the evidence, so the policy can adjust neither. Nothing tells the agent
+  the result: one test repairs the right machine and one the wrong machine,
+  and the same scripted judgement (compare the vibration afterwards with
+  what was seen before) reaches "resolved" and "not resolved". A "no action"
+  conclusion is checked the same way, with the fixed prediction
+  `NO_ACTION_PREDICTION`. Not verified, and left with no verification at
+  all: escalated, rejected, unanswered, approved but not carried out, and
+  work started but not seen to finish. Routing: `propose` now also returns
+  "verify" for a no-action conclusion; `execute` returns "verify" only once
+  the finish tick is reached. `agent/state.py`: `concluded_tick`.
+  Tests: new `tests/test_agent_verification.py` (26), all through the real
+  simulator, provider and desk; new CI check "Tests: Verification".
+  Simplifications: "after the work" is strictly later than the finish tick,
+  so the wait that reaches the finish tick is not itself evidence; how long
+  to wait before looking is the policy's choice, not a rule; a failed fix is
+  recorded but the agent does not go on to try something else.
+  Verification: 654 passed locally; Ruff passed; CI green on `8bd0e1e`
+  (all nine checks, including the new "Tests: Verification").
+
+- **2026-10-12 — a CI check for every part, and CI as part of every
+  checkpoint (developer's request).** RULE FROM NOW ON: a checkpoint is not
+  finished until its push is green on GitHub; each checkpoint entry records
+  the CI result as well as the local one. CI (`.github/workflows/ci.yml`) is
+  now several named checks instead of one: "Lint and format"; one "Tests: …"
+  check per part of the project (Simulator, Tools and provider, Reasoning
+  loop, Memory, Evaluation, Older agent); and "Full suite and coverage",
+  which stays the source of truth. `.github/test_groups.py` holds the one
+  list of which test file belongs to which check; its `check` mode fails CI
+  if any test file is in no group or in two, so a new test file cannot be
+  silently left out. A NEW TEST FILE MUST BE ADDED TO A GROUP THERE. Local
+  check of the groups: 317 + 124 + 93 + 47 + 32 + 15 = 628, the same as the
+  full suite.
+
+- **2026-10-12 — CI repaired (reported by the developer).** CI on `main`
+  had failed on every push since checkpoint 3b: it installed no optional
+  extras, so `pydantic_graph` (the `agent` extra) was missing and the two
+  test files that import the outer sequence failed to import. The local
+  runs passed only because the worktree has every extra installed. Fix:
+  `.github/workflows/ci.yml` now installs and runs with `--all-extras`. Side
+  effect: CI now also runs the database and migration tests it had been
+  silently skipping (3 files). Verified on GitHub: 628 passed, none skipped.
+  Lesson recorded: check the CI run after each push, not only the local suite.
+
+- **2026-10-12 — checkpoint 3c: asking for the fix and carrying it out.**
+  Pre-checkpoint passed after two re-teaches. On a rejected proposal the
+  developer correctly named the stages that run, but said the note is deleted
+  and the loop restarts; corrected: the read-back is saved as evidence so the
+  note is kept, the machine is untouched, and the investigation ends. On an
+  approved proposal whose execution fails, the developer expected a wait and
+  hoped it counted as a fix; corrected: nothing of the agent's own started,
+  so nothing is waited for and it is recorded as approved, not carried out.
+  The developer then stated that the execute stage is the one that must
+  succeed and that the evidence it leaves is the proof. The developer also
+  pointed out, correctly, that a working agent would see an existing repair
+  in the event log before proposing; the failed execution is the safety net.
+  LATER OPTIONS the developer raised (not built): investigate again after a
+  rejection, using the human's note; retry after a failed execution; have
+  the loop refuse to propose for a machine already down for maintenance.
+  Changes in `agent/investigation.py`: `followup_call` (one call the loop
+  itself decided on, taken from the follow-up allowance, refused when that
+  allowance or the time is used up); `factory_changed` (clears the repeat
+  check's memory, because a proposal, a decision and the start of work change
+  the factory's answers without the clock moving); `propose` (submits the
+  wanted action, keeps the ID, hands the pending proposal to the human hook,
+  reads that proposal back and takes its status from the factory); `execute`
+  (starts approved work, records the start and finish ticks only if the
+  factory confirms, then waits in accepted steps until the finish tick).
+  Graph: `conclude → propose → approved? → execute → end`; `execute` can be
+  reached only through the proposal. `agent/state.py`: stages `propose` and
+  `execute`; `action_started_tick`, `action_finish_tick`,
+  `action_carried_out`. `agent/loop.py`: `max_wait_ticks` setting. The
+  policy makes none of these calls and the stop reason is not touched.
+  Tests: new `tests/test_agent_action.py` (17), all through the real provider
+  and approval desk: approved path end to end (machine repaired, note kept
+  as evidence); rejection and no-answer stop after the read-back with the
+  machine untouched; no change wanted asks nothing; a refused proposal never
+  reaches the human; approval with no calls left, and work that cannot start,
+  are approved and not carried out; the decision is read even when the same
+  question was asked that tick; a hook that decides nothing is not approval.
+  `tests/test_agent_investigation.py` updated for the longer path (32).
+  Post-implementation checkpoint PASSED: the developer explained that the
+  loop follows the authoritative state, whereas the hook having run is only
+  a claim. Not built yet: checking whether the fix worked (checkpoint 4).
+
+- **2026-10-12 — Anthropic/Claude removed from the code (developer's
+  instruction).** The only model providers in scope are Mistral, Google
+  Gemini, Groq, NVIDIA, Cohere and Cloudflare; nothing else is to be added.
+  Removed: `ClaudeModel` and `DEFAULT_MODEL` from `agent/models.py`;
+  `agent/__main__.py` (the command line could only run that model); the
+  `anthropic` dependency from the `agent` extra and `uv.lock`; the two tests
+  of them in `tests/test_agent.py`. Kept: the `Model` interface,
+  `ScriptedModel`, `Turn`, `ToolCall`, `ToolResult`, which the older agent's
+  tests use. The rule is written into `CLAUDE.md` and `AGENTS.md` section 9.
+  Older entries below that mention Claude as a model are history, not plan.
+  No model is wired to anything yet; the model-backed policy for the
+  checkpointed loop will use NVIDIA Nemotron
+  (`nvidia/nemotron-3.5-lightning-30b-a3b`, key `NVIDIA_API_KEY`).
+
+- **2026-10-12 — checkpoint 3b: the outer sequence up to a conclusion.**
+  Pre-checkpoint passed after one re-teach: the developer first treated a
+  cited `E9` as faulty evidence for the model to weigh; after the explanation
+  that only the loop creates evidence IDs, correctly said the loop refuses
+  the conclusion citing evidence that does not exist, while misleading but
+  real evidence is the model's to weigh. Post-implementation checkpoint
+  PASSED after one clarification: the developer explained that the
+  confidence threshold decides whether the agent may act and that below it
+  the result is an escalation, but used "diagnosis" for the recommendation;
+  after the distinction was explained, stated it correctly (diagnosis is
+  what is believed to be wrong, recommendation is what to do about it).
+  Added: an under-confident but honest conclusion keeps its diagnosis so
+  the human gets something to act on; one citing evidence that does not
+  exist is discarded whole. Recorded as passed one step early: on a
+  concrete case (60% confidence, recommends intervening) the developer
+  first answered "intervene"; after the before/after distinction was
+  made explicit, answered correctly that 60% becomes escalate and 95%
+  stays intervene. New `agent/investigation.py`:
+  `observe` (asks the factory the time and starts the timer, so the tick is
+  known before the policy's first question); `plan` (stores the policy's
+  first questions); `investigate` and `test` (run the inner loop and set the
+  investigation's stop reason to that loop's); `hypothesize` (takes the
+  policy's explanations through the existing evidence check);
+  `check_conclusion` (refuses a conclusion citing evidence never gathered or
+  a hypothesis never formed; lowers "intervene" to "escalate" when it is not
+  confident enough, cites nothing, or names no action); `conclude` (always
+  leaves a conclusion; an unusable one becomes `UNDETERMINED`: confidence
+  zero, escalate); `build_graph` / `INVESTIGATION_GRAPH` (the stages as
+  Pydantic Graph steps with the only allowed order as edges);
+  `run_investigation` (runs one investigation and returns its working
+  memory). Shortcuts: nothing gathered or a timeout goes straight to the
+  conclusion; no explanation means nothing to test. A justified action is
+  stored as a `ProposalRecord` with status `not_submitted` plus the predicted
+  effect; nothing is submitted or changed in the factory yet (that is 3c).
+  `agent/state.py`: stage names `plan` and `hypothesize`, outcome `decided`.
+  `agent/loop.py`: `call_signature` extracted so `observe` can register its
+  time call under the tick it reported. This closes both gaps left at
+  checkpoint 2: the repeat check now has a known tick from the first policy
+  question (the expected-failure test is replaced by a passing test at this
+  level), and the final stop reason is set (the last research loop's).
+  Tests: new `tests/test_agent_investigation.py` (31), including one whole
+  investigation through the real provider that leaves the simulator's state,
+  clock and event log identical and the approval desk empty; the scripted
+  policy and fake provider moved to `tests/helpers.py`. Simplifications:
+  the stop reason is simply the last research loop's; asking the time is a
+  counted call; `run_investigation` is synchronous. Verification: 612
+  passed, no expected failures; Ruff lint/format passed.
+
+- **2026-10-12 — checkpoint 3a: carrying out a fix is its own tool call.**
+  Pre-checkpoint passed after one re-teach: the developer was first unsure
+  what an approved-but-not-executed proposal means, then explained that
+  approved means the action is able to be executed while budget remains, and
+  executed means the tool runs and an action is taken. Clarified: the machine
+  is untouched until execution, and such a record must say "approved, not
+  carried out" and never count as a fix. The developer also asked that the
+  loop be able to run longer than a simple look-up loop; the limits are
+  settings and will be raised once a real model shows what an investigation
+  needs (the 60-second default will certainly have to go up). They stay as
+  they are for now. Post-implementation checkpoint PASSED after two
+  clarifications: there is no queue (approved work starts at the tick
+  `execute_action` is called; a second request for a machine under repair is
+  refused, not held), and the desk checks its own list, not the agent's
+  copy. The developer then explained that a desk trusting the agent would
+  mean the required human approval is not there. The developer also saw
+  that the split lets an agent get approval early and act later; noted as a
+  post-MVP option that needs approvals to expire first. In 3c the loop
+  executes straight after reading an approval.
+  Changes: `tools/actions.py` — `Proposal` gains `executed_tick` and
+  `finish_tick`; `ApprovalDesk.approve` now only records the decision;
+  new `ApprovalDesk.carry_out(proposal_id)` starts the work of an approved
+  proposal once and returns what started and when it finishes; new
+  agent-facing `ActionTools.execute_action(proposal_id)`.
+  `contracts/observations.py` — `ProposalObservation` gains the two ticks;
+  new `ExecutionObservation`. `providers/factory.py` — `execute_action` is
+  offered, with `ExecuteArguments`; approve and reject are still not.
+  `evaluation/scoring.py` — an action counts as taken only if it was carried
+  out, not merely approved. `agent/episode.py` — the older runner starts
+  approved work itself, because the older agent has no execute step, until
+  it is retired. Tests: `test_approval.py` rewritten for the split and
+  extended (approval changes nothing in the factory; execution starts the
+  repair and reports the finish tick; pending, rejected, unknown, malformed
+  and already-used proposals are refused; an edited copy of a proposal does
+  not unlock execution; work that cannot start leaves the proposal approved
+  and not carried out); `test_factory_provider.py` adds the same through the
+  provider and proves no approve/reject tool exists; `tests/helpers.py`
+  (`approve_and_run`) keeps the reset and scoring tests describing the same
+  behaviour. Known limit, not solved: an approval does not expire, so work
+  may start long after it was approved. Verification: 581 passed, 1 expected
+  failure; Ruff lint/format passed.
+
+- **2026-10-12 — checkpoint 2: the inner loop, tested and three gaps fixed.**
+  Pre-checkpoint passed: the developer said a failed call is reported and
+  counts against the budget, and that repeated failure needs a limit and a
+  recorded stop reason. Clarified: that limit already exists (three
+  unproductive turns in a row stop the loop with "no useful action") and a
+  failed call never becomes evidence. Added `tests/test_agent_loop.py` (36 tests, 1 expected
+  failure) using a scripted policy and a fake provider, plus one test through
+  the real `SimulatorFactoryProvider`. Run against the unchanged loop first:
+  four tests failed, one per gap. Fixes, all in `agent/loop.py` and
+  `agent/state.py`:
+  (1) `run_inner_loop` now starts the timer on the first loop of an
+  investigation; before this `started_at` was never set and the timeout could
+  not fire. Later loops do not restart it.
+  (2) `call_tool` now refuses an answer whose run or investigation ID is not
+  this investigation's; it is counted as an unusable result, not evidence.
+  (3) `gather` no longer throws away a good answer when the policy fails to
+  interpret it (or returns a hypothesis citing evidence that was never
+  gathered). The evidence and the answered question stay, no belief changes,
+  the step is recorded with the new outcome `uninterpreted`, counted in the
+  new `interpretation_failures` field of `InvestigationState` and
+  `ReasoningMetrics`, and still counts as unproductive so such a policy
+  cannot run forever.
+  What the tests prove: a usable answer becomes numbered evidence with source
+  and tick; an observation changes the next decision; the policy gets a copy
+  and cannot alter counts or evidence; failed, raised, wrong-tool,
+  wrong-investigation and empty answers are not evidence and do not crash;
+  provider error text is not kept; same question at the same tick is skipped
+  without a call, and allowed again after time passes; unusable decisions use
+  a turn; the policy cannot claim the loop's stop reasons; tool-call,
+  iteration, timeout and unproductive limits each stop the loop; a supported
+  diagnosis needs confidence AND two supporting items, applies only in the
+  test phase, and beats budget exhaustion on the last call; verification
+  spends its own allowance; no hidden-truth words reach working memory
+  through the real provider. Post-implementation checkpoint PASSED: the
+  developer explained that a kept answer leaves a record to find a code bug
+  from, and that the turn is still unproductive because the agent could not
+  use the information. Added: the answer is also a true observation the
+  policy can still read on a later turn. Known, deliberately left: the repeat check
+  needs a known tick before the first call (expected-failure test; the outer
+  sequence's observe step supplies it at checkpoint 3); the inner loop
+  returns its stop reason but the final reason for the whole investigation
+  is the outer sequence's to set. Verification: 568 passed, 1 expected
+  failure; Ruff lint/format passed.
+
+- **2026-10-12 — checkpoint 1 complete; memory design confirmed.**
+  Post-implementation checkpoint passed after one re-teach: the developer
+  first had no answer, then explained that a direct save from the loop would
+  put anything recorded into the lessons table instead of lessons only, and
+  that the no-import test stays until the protections are in place.
+  Clarified: the gate already exists inside `capstone/memory/`; what is
+  missing is the agent's side (finished record, look-again step, provenance),
+  so a direct save would go around the gate. The developer also confirmed
+  the two open memory points in their own words: the model only says what
+  should be done while code holds the factual information; the JSON memory
+  becomes the audit log. Next: checkpoint 2, the inner loop, taught before
+  its tests are written.
+
+- **2026-10-12 — decision for checkpoint 3: carrying out a fix is its own
+  tool call (no code change; session paused here).** The developer asked that
+  a fix require a tool call so the record shows it was carried out. Today
+  `ApprovalDesk.approve` starts the repair itself. To build at checkpoint 3:
+  a new agent-facing tool (working name `execute_action(proposal_id)`) that
+  refuses unless that exact proposal is approved, so the agent can start an
+  approved repair but can never approve one. Chain: `propose_action` → human
+  decides at the desk → `get_proposals` → `execute_action` → wait → look
+  again. The loop, not the model, makes the execute call right after reading
+  an approval. Its answer (what started, on which machine, when it finishes)
+  is saved as evidence and tells verification when to look. Costs to handle:
+  `approve` no longer starts the repair, so `tools/actions.py`, the provider
+  allowlist and the approval tests change; "approved but never executed" is a
+  new state that must be reported honestly and never counted as a fix; an
+  approval may go stale if execution is delayed (known limit, not solved).
+  Clarified for the developer: the agent has no tool that fixes a machine by
+  itself, and a finished repair is a separate fact from a solved problem.
+  RESUME AT: confirm the two unconfirmed memory points in the entry below,
+  ask checkpoint 1's closing question, then teach checkpoint 2 (inner loop).
+
+- **2026-10-12 — memory and evaluation design discussion (no code change).**
+  WHERE WE STOPPED: the developer had to leave mid-discussion. Decided by the
+  developer: (a) the agent must learn from failed fixes as well as successes;
+  the developer reasoned correctly that the agent can observe a failure itself
+  (the machine is still down after the fix), so it needs no answer key;
+  (b) the agent may look up memory whenever it chooses, as an ordinary counted
+  tool call whose answer is saved as evidence marked as from memory; (c) an
+  evaluator model may judge the free-text diagnosis against the true fault,
+  now that the prompt must not list the possible causes. Explained but NOT
+  yet confirmed by the developer: who writes the stored lesson (proposal:
+  code fills in symptoms, action, result and provenance; the model writes
+  only the advice sentence; the gate checks it); demoting the JSON memory
+  (`agent/memory.py`) to an append-only audit log of every investigation that
+  the agent cannot search, instead of deleting it. Cautions recorded: a
+  failure lesson may say only "this action did not resolve these symptoms",
+  never "that diagnosis is wrong"; unchecked or inconclusive outcomes are
+  still refused; the evaluator judges wording only, uses a different model
+  from the investigator, is tested against hand-labelled diagnoses, and its
+  verdict never reaches the agent, reflection or memory. Consequence for the
+  memory gate (a later checkpoint): `EpisodicMemory.outcome` and
+  `MemoryPromotionPolicy` currently accept only verified `resolved`.
+  Also decided by the developer: nothing tells the agent that a fix
+  failed; it must find out by looking again after the action. To be built
+  at checkpoint 4 as a step the loop requires after every approved action,
+  not as model training.
+  Model: `NVIDIA_API_KEY` is in the worktree's git-ignored `.env`; NVIDIA's
+  catalogue lists `nvidia/nemotron-3.5-lightning-30b-a3b`; structured output
+  from it is unverified. NEXT SESSION: confirm the two unconfirmed points,
+  ask checkpoint 1's closing question (why test that `capstone/agent/` does
+  not import `capstone/memory/`), then start checkpoint 2 (inner loop).
+
+- **2026-10-12 — developer decisions after consolidation (no code change).**
+  (1) The checkpointed loop (`agent/loop.py`, `state.py`, `policy.py`,
+  `artifacts.py`) and the `capstone/memory/` package are the real path.
+  (2) The ungated model wrapper, episode runner, monitor and scoring are to be
+  reused by fitting them to the loop's policy interface; the ungated loop
+  (`agent/agent.py`) and JSON memory (`agent/memory.py`) are then retired.
+  Nothing is retired yet. (3) The model's prompt must NOT list the possible
+  causes or their signatures; the current `SYSTEM_PROMPT` in `agent/agent.py`
+  does and must not be carried over. Consequence to settle at the evaluation
+  checkpoint: scoring reads a fault kind chosen from a fixed list, which a
+  free-text diagnosis does not supply. (4) Wire in NVIDIA Nemotron through
+  the NVIDIA API as a model behind the policy interface (already named in
+  MVP_SCOPE with `NVIDIA_API_KEY`); model ID to come from settings and be
+  checked against NVIDIA's catalogue when built; tests must not need a key.
+  Proposed for memory, awaiting the developer's agreement: one long-term
+  memory (the gated package); keep every completed investigation in a
+  separate durable audit record the agent cannot search; add word-overlap
+  search and an agent-callable look-up to the gated memory; a reflection step
+  where the model writes only the lesson and category while code fills
+  provenance and outcome from the verification. Checkpoint 1's closing
+  question is still outstanding.
+
+- **2026-10-12 — all branches consolidated onto `main`.** At the developer's
+  request, `feature/episodic-memory-reflection`,
+  `feature/reasoning-working-memory` and `claude/gifted-hamilton-eqyqf4`
+  (rows 13c-17, built ungated) are merged into one history. Four conflicts,
+  resolved without changing behaviour: `simulator.py` (kept the ungated
+  branch's `_start_maintenance` / setting-reset code; `main`'s side was
+  formatting only), `tools/observation.py` (kept both `get_sensor_summary`
+  and `get_sensor_trend`), `pyproject.toml` (the `agent` extra now lists
+  `anthropic` and `pydantic-graph`), `tests/test_observation_tools.py`
+  (tool allowlist holds both; the hidden-truth leak test now also exercises
+  `get_sensor_trend` and allows its `min` / `max` / `count` fields). The
+  ungated branch's files were Ruff-formatted; `uv.lock` regenerated.
+  Verification: 532 passed with all optional dependencies; Ruff lint/format
+  passed. NOT YET RECONCILED, and no code was deleted to hide it:
+  `capstone/agent/` now holds two agents side by side — the ungated
+  model-driven one (`agent.py`, `toolbox.py`, `models.py`, `monitor.py`,
+  `episode.py`, `__main__.py`) and the checkpointed loop (`loop.py`,
+  `state.py`, `policy.py`, `artifacts.py`); and there are two memories —
+  the ungated JSON `agent/memory.py` and the gated `capstone/memory/`
+  package. The provider allowlist (`providers/factory.py`) does not yet
+  offer `get_sensor_trend`, the setting-reset action or the diagnosis tool.
+  Which agent and which memory survive is the developer's decision.
+
+- **2026-10-12 — reasoning/memory consolidation, checkpoint 1 (one shared
+  record).** The two parallel workstreams are being consolidated on
+  `feature/reasoning-working-memory`. Pre-checkpoint passed: the developer
+  explained that two definitions of one record end up different, and, after a
+  re-teach of the propose / human decision / `get_proposals` sequence, that
+  the desk's own answer saved as evidence would contradict a wrong belief in
+  the agent's code. Clarified: the approval status reaches the completed
+  investigation as an evidence item, not as a new field on the shared
+  proposal. Post-implementation understanding remains outstanding.
+  Changes: fast-forwarded this branch to the memory work (no merge commit);
+  deleted the reasoning side's `contracts/completed.py`; added
+  `agent/artifacts.py` holding the loop's own records, renamed so they cannot
+  be confused with the shared ones: `DetectedAnomaly` (tick, machine, kind,
+  description), `AgentConclusion` (adds recommendation and hypothesis),
+  `ProposalRecord` (adds proposal ID and pending/approved/rejected status),
+  `VerificationCheck` (outcome, prediction, checked tick) and the
+  `TerminationReason` enum. `agent/state.py`, `policy.py` and `loop.py`
+  changed imports and type names only; behaviour is unchanged.
+  `agent/__init__.py`, `state.py` (working memory, budgets, decision records),
+  `policy.py` (the decision-maker's interface) and `loop.py` (the inner
+  decide / call one tool / record loop) are committed here for the first time
+  and are NOT yet tested or understood; that is checkpoint 2. Added the
+  `agent` optional dependency `pydantic-graph` (not imported yet).
+  `tests/test_agent_artifacts.py` (8 tests): one definition of
+  `CompletedInvestigation`, the old file is gone, runtime records are imported
+  only inside `capstone/agent`, the agent package does not import
+  `capstone.memory`, and runtime validation still rejects bad values.
+  Verification: 483 passed with all optional dependencies installed; Ruff
+  lint/format passed. Remaining checkpoints: 2 inner loop tests (timeout
+  start, result identity, first-call repeat check, interpretation failure,
+  final stop reason); 3 outer sequence with Pydantic Graph and proposal
+  read-back; 4 verification rules; 5a one shared `ProvenanceReference` in
+  `capstone/contracts/`, captured when a tool result arrives; 5b completion
+  producer for every exit, and durable keeping of the completed investigation
+  (memory rows keep evidence IDs, not evidence text); 6 who builds the
+  `ReflectionCandidate`, and an integration test through the promotion gate.
 
 - **2026-10-12 — SubQ whole-repository audit follow-up (documentation only).**
   Appended the developer's requested audit task to the end of MVP_SCOPE:
@@ -1207,9 +2196,83 @@ alarm), then evaluation, then the agent itself.
      `ActionTools`), staged loop from docs/MVP_SCOPE.md section 3,
      keeping a hypothesis table. Default model: Claude through the
      Anthropic SDK, model id `claude-opus-5-5`, key from
-     `ANTHROPIC_API_KEY`. Tests must not need a key: drive the loop with
+     `ANTHROPIC_API_KEY` (SUPERSEDED 2026-10-12: removed; Anthropic is
+     not a provider in this project). Tests must not need a key: drive the loop with
      a scripted stand-in model. Human approval stays a separate step the
      agent cannot perform.
   6. **17 memory.** One JSON record per investigation (anomaly,
      evidence, hypotheses, conclusion, action, outcome) and a simple
      look-up of similar past cases.
+- **Session 5 — row 13c built ungated.** Second action type
+  `reset_setting` on the approval desk. `Simulator.start_setting_reset`
+  stops the machine for 10 ticks (`setting_reset_ticks`); when done
+  `speed_setting` goes back to None and the event reads "setting reset
+  finished: setting was off standard" or "... already standard". The
+  start/finish code is now shared with the bearing replacement through
+  `_machine_for_maintenance`, `_start_maintenance` and
+  `MachineState.maintenance_kind`; bearing messages unchanged. A
+  broken-down machine cannot be reset (it needs a repair). 7 tests, 338
+  total.
+- **Session 5 — row 13d built ungated.** `FalseAlarm` writes a hidden
+  `MachineCondition.vibration_sensor_offset` (default +5.0 mm/s) on one
+  machine for `duration` ticks (default 5), then sets it back to 0. The
+  `VibrationSensor` adds the offset to its reading (running or idle), so
+  the ordinary threshold alarm trips. Nothing else in the machine
+  changes: a test compares against the same day without the fault and
+  finds only those few vibration readings differ. Ground truth: fault
+  "false_alarm", machine, start tick; the correct action is none. 6
+  tests, 344 total.
+- **Session 5 — row 14 built ungated.** `build_scenario(seed, machines=None,
+  fault=None)` calls `build_line` and then, from its own stream
+  `generator`, picks one of the four faults, a machine, a start tick in
+  200-600 and the fault's strength (bearing rate 0.0004-0.0008; speed
+  factor 0.85/0.88/1.12/1.15; bad batch 2 or 3 with added risk
+  0.35-0.50; false alarm lasting 3-8 ticks). `fault=` forces the kind
+  for balanced experiments. DECISION taken without asking: generated
+  lines use 10 jobs per batch (the standard line keeps 25) because at 25
+  a second batch only opens after about 1,750 ticks. 9 tests, 353 total.
+- **Session 5 — row 15 built ungated.** The agent's final answer is a
+  `Diagnosis` (fault kind, machine or batch, summary) in
+  `tools/diagnosis.py`: it crosses the tool boundary from agent to
+  evaluation, so it lives with the tools, not in evaluation. `evaluate()`
+  takes the simulator at the end of the run, the diagnosis, the desk's
+  proposals, the tool-call count and the start tick, and returns a
+  `Score` row: fault right, machine/batch right, action right (the
+  APPROVED actions must be exactly the one expected: replace_bearing,
+  reset_setting, or nothing for a bad batch or false alarm; rejected
+  proposals do not count), resolved (read from hidden state: bearing
+  replaced after the fault began; setting back to None; bad batch used
+  up; sensor offset gone), tool calls, ticks elapsed. `summarize` and
+  `format_summary` give the "18/20 root causes" line. 9 tests, 362 total.
+- **Session 5 — row 16 built ungated.** The agent package:
+  `models.py` hides the language model behind `start` / `continue_with`;
+  `ClaudeModel` calls `claude-opus-5-5` through the Anthropic SDK
+  (manual tool loop, adaptive thinking, effort "high", server-side
+  refusal fallback), `ScriptedModel` replays fixed turns so tests need no
+  key. `toolbox.py` describes 14 tools to the model (the 9 look-ups incl.
+  a new `get_sensor_trend`, wait, propose_action, get_proposals, plus
+  `update_hypotheses` for the hypothesis table and `submit_diagnosis` to
+  finish), counts every call, returns errors as error results, and
+  refuses answers over 300 rows. `agent.py` holds the system prompt (the
+  staged loop from MVP_SCOPE section 3) and the turn loop.
+  `monitor.py` runs the line through the agent's own tools until an
+  alarm, a stopped machine, or 3 failed inspections in the last 10.
+  `episode.py` wires it all: seeded scenario, monitor, agent, the human
+  (an `approver` function; `approve_all` for experiments,
+  `ask_on_console` for live use) deciding proposals between turns, and
+  evaluation. `python -m capstone.agent --seed 0 --runs 20` runs the real
+  agent. Not run against the real model in this session (no key);
+  everything is tested with the scripted stand-in. DECISION taken without
+  asking: generated wrong settings made stronger (0.80/0.82/1.18/1.20)
+  because 12-15% off often went undetected for 4,000 ticks. 13 tests,
+  376 total.
+- **Session 5 — row 17 built ungated; THE BUILD IS COMPLETE.**
+  `InvestigationMemory` appends one JSON line per investigation (anomaly,
+  evidence calls, last hypothesis table, conclusion, approved actions,
+  outcome = maintenance findings the event log reported) and offers the
+  agent `search_incident_history` (word-overlap ranking). It deliberately
+  never stores the score or ground truth. 4 tests, 380 total, all
+  passing under `python -m pytest`. Every row 13c-17 still needs the
+  developer's review; the plain-English summary of what changed is in
+  `docs/UNGATED_BUILD_SUMMARY.md`. Not yet done: a run of the real
+  agent with an API key, and the experiment table it would produce.

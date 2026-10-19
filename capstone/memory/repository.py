@@ -1,6 +1,5 @@
 # Stores and retrieves accepted memories through an explicit database boundary.
 # Responsibility: preserve original records and report atomic insert conflicts.
-import re
 from collections.abc import Sequence
 from dataclasses import dataclass
 from typing import Literal
@@ -13,10 +12,8 @@ from sqlalchemy.engine import Engine
 
 from capstone.memory.contracts import EpisodicMemory, MemoryQuery
 from capstone.memory.policy import normalize
+from capstone.memory.recall import rank_memories
 from capstone.memory.schema import episodic_memories
-from capstone.memory.semantic import memory_document
-
-_WORD = re.compile(r"\w{3,}")
 
 
 @dataclass(frozen=True)
@@ -128,20 +125,9 @@ class SQLMemoryRepository:
         return tuple(found[i] for i in memory_ids if i in found)
 
     def keyword_search(self, text: str, limit: int) -> tuple[EpisodicMemory, ...]:
-        """Rank by distinct query words found in each memory's document.
+        """Rank stored memories by shared words, using the keyword recall rules.
 
         Scans every stored memory in Python, which is adequate for the MVP's
         small store and identical on SQLite and PostgreSQL.
         """
-        words = set(_WORD.findall(normalize(text)))
-        if not words:
-            return ()
-        scored = []
-        for memory in self.all_memories():
-            document = set(_WORD.findall(normalize(memory_document(memory))))
-            score = len(words & document)
-            if score:
-                scored.append((score, memory))
-        # Stable sort keeps the newest-first order among equal scores.
-        scored.sort(key=lambda pair: pair[0], reverse=True)
-        return tuple(memory for _, memory in scored[:limit])
+        return rank_memories(self.all_memories(), text, limit=limit)

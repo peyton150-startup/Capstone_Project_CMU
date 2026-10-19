@@ -45,6 +45,7 @@ class Simulator:
         thermal_lag_ticks: float = 1.0,
         planned_repair_ticks: int = 45,
         breakdown_repair_ticks: int = 135,
+        setting_reset_ticks: int = 10,
     ):
         if thermal_lag_ticks < 1.0:
             raise ValueError("thermal_lag_ticks must be at least 1 (1 means no lag)")
@@ -52,6 +53,7 @@ class Simulator:
         self.thermal_lag_ticks = thermal_lag_ticks
         self.planned_repair_ticks = planned_repair_ticks
         self.breakdown_repair_ticks = breakdown_repair_ticks
+        self.setting_reset_ticks = setting_reset_ticks
         self.clock = SimulationClock(start, tick_duration)
         self.rng = RandomSource(seed)
         self.state = FactoryState()
@@ -106,24 +108,50 @@ class Simulator:
         than one caught while still running. Either way the machine is
         down for the whole repair and keeps the job it was holding.
         """
+        machine = self._machine_for_maintenance(machine_id)
+        broken_down = machine.status is MachineStatus.DOWN
+        duration = (
+            self.breakdown_repair_ticks if broken_down else self.planned_repair_ticks
+        )
+        return self._start_maintenance(machine, "bearing replacement", duration)
+
+    def start_setting_reset(self, machine_id: str) -> int:
+        """Stop a machine briefly to put its speed back to standard. Returns the tick it will be done.
+
+        Only a setting is changed, so a machine that has broken down cannot
+        be brought back this way: it needs a repair.
+        """
+        machine = self._machine_for_maintenance(machine_id)
+        if machine.status is MachineStatus.DOWN:
+            raise ValueError(
+                f"{machine_id} has broken down; a setting reset cannot restart it"
+            )
+        return self._start_maintenance(
+            machine, "setting reset", self.setting_reset_ticks
+        )
+
+    def _machine_for_maintenance(self, machine_id: str) -> MachineState:
         machine = self.state.machines.get(machine_id)
         if machine is None:
             raise ValueError(f"unknown machine {machine_id}")
         if machine.maintenance_until is not None:
             raise ValueError(f"{machine_id} is already under maintenance")
-        broken_down = machine.status is MachineStatus.DOWN
-        duration = (
-            self.breakdown_repair_ticks if broken_down else self.planned_repair_ticks
-        )
+        return machine
+
+    def _start_maintenance(
+        self, machine: MachineState, kind: str, duration: int
+    ) -> int:
+        """Down for the whole job, keeping whatever work it was holding."""
         now = self.clock.tick
         machine.status = MachineStatus.DOWN
         machine.maintenance_until = now + duration
+        machine.maintenance_kind = kind
         self.event_log.record(
             Event(
                 tick=now,
-                machine_id=machine_id,
+                machine_id=machine.id,
                 kind="maintenance",
-                message="bearing replacement started",
+                message=f"{kind} started",
             )
         )
         return machine.maintenance_until
@@ -254,27 +282,38 @@ class Simulator:
             warm_or_cool(machine, self.state.air_temperature, self.thermal_lag_ticks)
 
     def _finish_maintenance(self, tick: int) -> None:
-        """Return repaired machines to service with a new bearing."""
+        """Return machines to service once their maintenance is done, and say what was found."""
         for machine in self.state.machines.values():
-            if (
-                machine.maintenance_until is not None
-                and tick >= machine.maintenance_until
-            ):
-                machine.maintenance_until = None
-                finding = self._describe_old_bearing(machine.condition.bearing_health)
+            if machine.maintenance_until is None or tick < machine.maintenance_until:
+                continue
+            kind = machine.maintenance_kind
+            if kind == "setting reset":
+                finding = self._describe_old_setting(machine)
+                machine.speed_setting = None
+            else:
+                finding = f"old bearing {self._describe_old_bearing(machine.condition.bearing_health)}"
                 machine.condition.bearing_health = 1.0
                 machine.bearing_replaced_tick = tick
-                machine.status = (
-                    MachineStatus.IDLE
-                )  # the line gives it work again next tick
-                self.event_log.record(
-                    Event(
-                        tick=tick,
-                        machine_id=machine.id,
-                        kind="maintenance",
-                        message=f"bearing replacement finished: old bearing {finding}",
-                    )
+            machine.maintenance_until = None
+            machine.maintenance_kind = None
+            machine.status = (
+                MachineStatus.IDLE
+            )  # the line gives it work again next tick
+            self.event_log.record(
+                Event(
+                    tick=tick,
+                    machine_id=machine.id,
+                    kind="maintenance",
+                    message=f"{kind} finished: {finding}",
                 )
+            )
+
+    @staticmethod
+    def _describe_old_setting(machine: MachineState) -> str:
+        """What the technician saw on the control panel. In words: never the standard figure."""
+        if machine.speed_setting is None or abs(machine.speed_ratio - 1.0) < 1e-9:
+            return "setting was already standard"
+        return "setting was off standard"
 
     def _describe_old_bearing(self, health: float) -> str:
         """What the technician can see once the old bearing is out of the machine.

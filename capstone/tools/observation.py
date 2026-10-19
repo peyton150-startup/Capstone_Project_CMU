@@ -4,6 +4,7 @@ from math import isfinite
 from statistics import fmean
 
 from capstone.simulator.simulator import Simulator
+from capstone.tools.errors import ToolInputError
 
 
 class ObservationTools:
@@ -42,7 +43,7 @@ class ObservationTools:
         self, machine_id: str, sensor: str, from_tick: int, to_tick: int
     ) -> list[dict]:
         if machine_id is None:
-            raise ValueError(
+            raise ToolInputError(
                 "a machine is required; use get_factory_readings for the factory's own sensors"
             )
         self._check(machine_id, from_tick, to_tick)
@@ -58,6 +59,38 @@ class ObservationTools:
             if r.machine_id == machine_id
             and r.sensor == sensor
             and from_tick <= r.tick <= to_tick
+        ]
+
+    def get_sensor_trend(
+        self,
+        machine_id: str,
+        sensor: str,
+        from_tick: int,
+        to_tick: int,
+        bucket_ticks: int = 60,
+    ) -> list[dict]:
+        """The same readings as get_readings, summarised per block of ticks: mean, min, max, count.
+
+        Only arithmetic on readings the agent could fetch anyway; idle
+        readings are included as they are.
+        """
+        if not isinstance(bucket_ticks, int) or bucket_ticks < 1:
+            raise ToolInputError("bucket_ticks must be a whole number of at least 1")
+        buckets: dict[int, list[float]] = {}
+        for row in self.get_readings(machine_id, sensor, from_tick, to_tick):
+            buckets.setdefault((row["tick"] - from_tick) // bucket_ticks, []).append(
+                row["value"]
+            )
+        return [
+            {
+                "from_tick": from_tick + index * bucket_ticks,
+                "to_tick": min(to_tick, from_tick + (index + 1) * bucket_ticks - 1),
+                "mean": round(sum(values) / len(values), 3),
+                "min": round(min(values), 3),
+                "max": round(max(values), 3),
+                "count": len(values),
+            }
+            for index, values in sorted(buckets.items())
         ]
 
     def get_factory_readings(
@@ -84,7 +117,7 @@ class ObservationTools:
         time has no rate. First/last refer to chronological observations.
         """
         if any(type(tick) is not int or tick < 0 for tick in (from_tick, to_tick)):
-            raise ValueError("ticks must be nonnegative integers")
+            raise ToolInputError("ticks must be nonnegative integers")
         if machine_id is None:
             readings = self.get_factory_readings(sensor, from_tick, to_tick)
         else:
@@ -173,6 +206,6 @@ class ObservationTools:
 
     def _check(self, machine_id: str | None, from_tick: int, to_tick: int) -> None:
         if machine_id is not None and machine_id not in self._sim.state.machines:
-            raise ValueError(f"unknown machine {machine_id}")
+            raise ToolInputError(f"unknown machine {machine_id}")
         if from_tick > to_tick:
-            raise ValueError("from_tick must not be after to_tick")
+            raise ToolInputError("from_tick must not be after to_tick")

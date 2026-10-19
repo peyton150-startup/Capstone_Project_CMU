@@ -4,8 +4,9 @@ Agentic AI capstone: a simulated manufacturing environment (machines,
 sensors, jobs, batches, quality, maintenance, events, hidden faults) and,
 later, an AI research agent that investigates it through tools.
 
-- `CLAUDE.md` — development rules, architecture principles, and the
-  gated teaching workflow used to build this project.
+- `AGENTS.md` — development rules, architecture principles, and the
+  gated teaching workflow used to build this project, for any coding
+  agent (`CLAUDE.md` imports it for Claude Code).
 - `docs/MVP_SCOPE.md` — what the MVP includes, what it excludes, and the
   post-MVP roadmap.
   [Future Work 2](docs/MVP_SCOPE.md#future-work-2--mcp-architecture-observability-and-response-verification)
@@ -163,8 +164,12 @@ explicit tool list includes observations, bounded waits, and action proposals;
 it never exposes approval or ground-truth calls. Existing direct tool methods
 remain available. Results include source, simulation tick/time, optional
 correlation IDs, and a structured error instead of raw exception details.
-`capstone/providers/llm.py` defines a provider-neutral interface for explicit
-investigation artifacts; it does not install or invoke an LLM.
+A refused request says what to correct: which arguments were wrong and why,
+or the tool's own explanation (a `ToolInputError`, such as an unknown machine
+or action). Any other failure, and an answer that breaks its contract
+(`invalid_result`), is reported without detail. Sensor names are checked:
+`vibration`, `temperature` and `load` on a machine, `air_temperature` for
+the factory.
 
 ```python
 from capstone.contracts.investigations import investigation_id_for, run_id_for
@@ -219,9 +224,10 @@ Results include requested window, actual first/last sample ticks, sample count,
 sensor unit, start/end values, minimum, maximum, sample-weighted mean, delta,
 and `rate_of_change`. Rate is `(end_value - start_value) / (last_tick -
 first_tick)` in sensor units per simulation tick, not a regression slope.
-Missing ticks are not interpolated. Empty windows (including unknown sensor
-names) return zero samples and null units/statistics; a single sample has
-zero delta and a null rate. Mixed units and nonfinite readings are rejected.
+Missing ticks are not interpolated. Empty windows return zero samples and
+null units/statistics, as does an unknown sensor name in a direct call (the
+provider refuses one); a single sample has zero delta and a null rate. Mixed
+units and nonfinite readings are rejected.
 Tick bounds must be ordered, nonnegative integers; unknown machines are
 rejected. The result uses `SensorSummaryObservation`; MCP remains deferred.
 

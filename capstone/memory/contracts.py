@@ -12,15 +12,8 @@ from capstone.contracts.completed_investigations import (
     VerificationResult,
 )
 
-
-class ProvenanceReference(Contract):
-    """The trusted artifact producer labels source origin, not the model."""
-
-    evidence_id: str = Field(min_length=1)
-    source_id: str = Field(min_length=1)
-    source_type: Literal["telemetry", "event", "inspection", "document", "tool_result"]
-    origin: Literal["observable", "human", "evaluator_hidden", "simulator_hidden"]
-    observed_tick: int | None = Field(default=None, ge=0)
+# Defined once in the shared contracts; importable from here as before.
+from capstone.contracts.provenance import ProvenanceReference  # noqa: F401
 
 
 class ReusableLesson(Contract):
@@ -56,7 +49,7 @@ class EpisodicMemory(Contract):
     evidence_ids: tuple[str, ...]
     diagnosis: str = Field(min_length=1)
     intervention: ActionProposal | None
-    outcome: Literal["resolved"]
+    outcome: Literal["resolved", "unresolved"]
     verification: VerificationResult
     lesson: str = Field(min_length=1)
     confidence: float = Field(ge=0, le=1)
@@ -64,6 +57,25 @@ class EpisodicMemory(Contract):
     source_tick: int = Field(ge=0)
     fingerprint: str = Field(pattern=r"^[0-9a-f]{64}$")
     policy_version: str = Field(min_length=1)
+
+
+class RecalledMemory(Contract):
+    """What a later investigation may see of a memory.
+
+    Only what means the same in any investigation. Evidence IDs are left
+    out: each investigation numbers its own evidence, so a recalled "E2"
+    would name an unrelated item in the investigation that reads it.
+    """
+
+    memory_id: UUID
+    category: str
+    symptoms: tuple[str, ...]
+    diagnosis: str  # a past agent's belief, not a known cause
+    action: str | None
+    machine_id: str | None
+    outcome: Literal["resolved", "unresolved"]
+    lesson: str
+    source_tick: int = Field(ge=0)
 
 
 class PromotionDecision(Contract):

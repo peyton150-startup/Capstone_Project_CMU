@@ -101,6 +101,7 @@ def test_compound_fault_repair_can_leave_a_symptom_through_unchanged_tools():
     assert proposal["status"] == "pending"
     assert sim.state.machines["M1"].maintenance_until is None
     desk.approve(proposal["id"])
+    call(provider, "execute_action", proposal_id=proposal["id"])
     call(provider, "wait", ticks=46)
     after = call(
         provider,
