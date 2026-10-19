@@ -63,6 +63,7 @@ A component is complete only when both columns are checked.
 | A8b-1 | An outage is retried, then handed on | yes | yes | yes | yes | `providers/chat.py` (`FallbackClient`) |
 | A8b-2 | The prompts for the seven questions | yes | yes | yes | yes | `agent/model_policy.py` (`ModelPolicy`, `render`); session note 2026-10-19 (8b-2) |
 | R1 | Review fixes of 2026-10-16/17 (loop budgets, tool errors, repair check, trend tool) | n/a | n/a | yes | no — built ungated, developer to review | session notes 2026-10-17 |
+| R3 | MVP gap fixes of 2026-10-19 (semantic recall for the agent, section 9 score fields, harness, hand labels, known-answer suite, model limits, maintenance history, tool list) | n/a | n/a | yes | no — built ungated, developer to review | session note 2026-10-19 (MVP gap fixes) |
 | R2 | Row cap, unjudged diagnosis, old agent retired, episode runner | n/a | n/a | yes | no — built ungated, developer to review | session notes 2026-10-19; `capstone/episode.py`, `agent/monitor.py`, `evaluation/scoring.py`, `providers/factory.py` |
 | A8c | Provider benchmark: each model measured alone, from real episodes | yes | yes | yes | yes | `capstone/benchmark.py`; `providers/chat.py` (`Attempt.seconds`); no real model run yet |
 
@@ -88,6 +89,40 @@ alarm), then evaluation, then the agent itself.
   matches the observed result by construction, so the check could never
   fail). Checkpoint 8b-2 is complete; no real model has been run yet.
 
+- **2026-10-19 — MVP gap fixes; built ungated at the developer's direction,
+  developer to review (understood: no).** From an audit of `main` against
+  `MVP_SCOPE.md`; the developer asked for these to be built directly. One
+  commit each:
+  1. Semantic recall reaches the agent. PR #1 wrote memories into Chroma
+     but nothing read them back: `MemoryService.search` stayed word-only
+     and `MemoryRecall` had no caller. `MemoryService(..., recall=)` now
+     asks `MemoryRecall` in the configured mode and returns the safe
+     `RecalledMemory` view; `build_memory_service(repository, settings)`
+     opens one index for promotion and recall.
+  2. Section 9 score fields (`evaluation/scoring.py`): what the agent
+     recommended even if rejected, and whether that was the right request
+     (`recommendation_correct`, apart from `action_correct`); the relevant
+     evidence for the true fault (`RELEVANT_EVIDENCE`, evaluator-side) and
+     which of it was collected; iterations; the termination reason. Runs
+     that ended `model_unavailable` are left out of every reasoning total
+     (open since 2026-10-15).
+  3. Experiments (`capstone/experiment.py`, `evaluation/labels.py`,
+     `evaluation/known_answers.py`): `run_experiment` and
+     `python -m capstone.experiment run | label | report`; an append-only
+     `LabelBook` of hand labels and `apply_label`, which judges a row's root
+     cause from the truth already in it, so a run is scored after it ended;
+     eight known-answer cases (two per fault), pinned and run offline with a
+     scripted stand-in by `tests/test_known_answers.py`.
+  4. Model limits (MVP section 3): `MODEL_MAX_OUTPUT_TOKENS` (2048) sent as
+     `max_tokens`, a reply cut off at the limit refused as such;
+     `MODEL_REQUEST_SECONDS`, `MODEL_QUESTION_SECONDS`, `MODEL_RETRIES`.
+  5. Maintenance history (MVP section 1): `simulator/maintenance.py`, one
+     to four past service visits per machine from their own stream, the same
+     whatever the fault; tool `get_maintenance_history`.
+  6. `MVP_SCOPE.md` section 4 now lists the tools the code has, with a
+     mapping from the original eight.
+  Not done: no live model run yet (needs keys); `.env.example` does not yet
+  list the new settings.
 - **2026-10-19 — closing questions for 8c (PASSED) and 8b-2 (PASSED IN
   PART).** 8c: asked what per-question limit to set for a model with a 2 s
   median, an 18 s slowest 5%, and 1 of 12 episodes "model unavailable", the

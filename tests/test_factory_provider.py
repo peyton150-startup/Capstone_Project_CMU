@@ -212,6 +212,7 @@ def test_all_read_tools_preserve_existing_observable_shapes():
         },
         "get_events": {"from_tick": 0, "to_tick": 240},
         "get_job_history": {"job_id": 1},
+        "get_maintenance_history": {"machine_id": "CNC-01"},
         "get_inspections": {"from_tick": 0, "to_tick": 240},
     }
     for name, arguments in cases.items():

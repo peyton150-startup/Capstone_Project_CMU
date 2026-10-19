@@ -224,3 +224,96 @@ def test_build_recall_falls_back_when_chroma_cannot_open(monkeypatch, repository
     recall = build_memory_recall(repository, Settings(_env_file=None))
     assert recall.mode == "semantic" and recall.index is None
     assert recall.recall_memories("anything").fell_back
+
+
+# --- the agent's recall_memories tool goes through MemoryService.search ---
+
+
+def test_service_search_uses_semantic_recall_and_returns_safe_views(repository, index):
+    from capstone.memory.contracts import RecalledMemory
+    from capstone.memory.recall import recalled
+    from capstone.memory.service import MemoryService
+
+    service = MemoryService(
+        repository,
+        index=index,
+        recall=MemoryRecall(repository, mode="semantic", index=index),
+    )
+    memories = promote_all(service)
+    found = service.search("machine shaking and running hot", limit=1)
+    assert found == (recalled(memories[0]),)
+    assert all(type(view) is RecalledMemory for view in found)
+    # Without recall the service keeps its word search, which finds nothing here.
+    assert MemoryService(repository).search("machine shaking and running hot") == ()
+
+
+def test_service_search_falls_back_when_chroma_fails(repository):
+    from capstone.memory.recall import recalled
+    from capstone.memory.service import MemoryService
+
+    class FailingIndex:
+        def upsert(self, memories):
+            return 0
+
+        def search(self, text, k):
+            raise ConnectionError("chroma unreachable")
+
+    failing = FailingIndex()
+    service = MemoryService(
+        repository,
+        index=failing,
+        recall=MemoryRecall(repository, mode="semantic", index=failing),
+    )
+    memories = promote_all(service)
+    assert service.search("supplier") == (recalled(memories[1]),)
+
+
+def test_none_mode_turns_the_recall_tool_off(repository):
+    from capstone.memory.service import MemoryService
+
+    service = MemoryService(repository, recall=MemoryRecall(repository, mode="none"))
+    promote_all(service)
+    assert service.search("bearing") == ()
+
+
+def test_build_memory_service_shares_one_index_for_writing_and_recall(
+    monkeypatch, repository, tmp_path
+):
+    import capstone.memory.semantic as semantic
+    from capstone.memory.recall import recalled
+    from capstone.memory.service import build_memory_service
+
+    real = semantic.open_chroma_index
+    monkeypatch.setattr(
+        semantic,
+        "open_chroma_index",
+        lambda path, name: real(path, name, embed=fake_embed),
+    )
+    settings = Settings(_env_file=None, CHROMA_PATH=str(tmp_path / "shared"))
+    service = build_memory_service(repository, settings)
+    assert service.index is service.recall.index is not None
+    memories = promote_all(service)
+    assert service.search("machine shaking and running hot", limit=1) == (
+        recalled(memories[0]),
+    )
+
+
+def test_recall_tool_answers_from_semantic_recall(repository, index):
+    from capstone.contracts.tools import ToolRequest
+    from capstone.memory.service import MemoryService
+    from capstone.providers.recall import RecallingProvider
+    from tests.helpers import FakeProvider
+
+    service = MemoryService(
+        repository,
+        index=index,
+        recall=MemoryRecall(repository, mode="semantic", index=index),
+    )
+    memories = promote_all(service)
+    provider = RecallingProvider(FakeProvider(lambda r: {"tick": 10}), service)
+    result = provider.call(
+        ToolRequest(name="recall_memories", arguments={"text": "shaking", "limit": 1})
+    )
+    assert result.success and result.source == "memory"
+    assert [row["memory_id"] for row in result.data] == [str(memories[0].memory_id)]
+    assert "fingerprint" not in str(result.data)

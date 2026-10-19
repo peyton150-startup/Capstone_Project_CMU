@@ -5,7 +5,10 @@ the hidden condition of the machines. It runs after the investigation is
 over, so nothing it reads can reach the agent.
 """
 
-from pydantic import BaseModel
+from collections.abc import Mapping, Sequence
+from dataclasses import dataclass
+
+from pydantic import BaseModel, Field
 
 from capstone.simulator.simulator import Simulator
 from capstone.tools.diagnosis import Diagnosis
@@ -17,6 +20,64 @@ CORRECT_ACTION = {
     "bad_material_batch": None,
     "false_alarm": None,
 }
+
+
+# The tools that read one machine sensor, by any route.
+_SENSOR_TOOLS = ("get_readings", "get_sensor_trend", "get_sensor_summary")
+
+
+@dataclass(frozen=True)
+class Relevant:
+    """One kind of evidence that bears on a fault. Evaluator-side only."""
+
+    label: str
+    tools: tuple[str, ...]
+    sensor: str | None = None  # the sensor the call must name, if any
+    on_machine: bool = False  # the call must be about the faulty machine
+
+    def describe(self, machine_id: str | None) -> str:
+        return self.label.format(machine=machine_id)
+
+    def met_by(self, tool: str, arguments: Mapping, machine_id: str | None) -> bool:
+        if tool not in self.tools:
+            return False
+        if self.sensor is not None and arguments.get("sensor") != self.sensor:
+            return False
+        if self.on_machine:
+            # An event query for the whole factory also covers the machine.
+            named = arguments.get("machine_id")
+            whole_factory = tool == "get_events" and named is None
+            return named == machine_id or whole_factory
+        return True
+
+
+# What an investigator could look at that bears on each fault: the "relevant
+# evidence available" of MVP section 9. Read only by the evaluator, after the
+# run; never shown to the agent, which must find these by itself.
+RELEVANT_EVIDENCE: dict[str, tuple[Relevant, ...]] = {
+    "bearing_degradation": (
+        Relevant("vibration of {machine}", _SENSOR_TOOLS, "vibration", True),
+        Relevant("temperature of {machine}", _SENSOR_TOOLS, "temperature", True),
+        Relevant("events of {machine}", ("get_events",), on_machine=True),
+    ),
+    "wrong_setting": (
+        Relevant("machine settings", ("get_settings",)),
+        Relevant("inspection results", ("get_inspections",)),
+        Relevant("vibration of {machine}", _SENSOR_TOOLS, "vibration", True),
+    ),
+    "bad_material_batch": (
+        Relevant("inspection results", ("get_inspections",)),
+        Relevant("events (material batches)", ("get_events",)),
+        Relevant("a job's history", ("get_job_history",)),
+    ),
+    "false_alarm": (
+        Relevant("vibration of {machine}", _SENSOR_TOOLS, "vibration", True),
+        Relevant("events of {machine}", ("get_events",), on_machine=True),
+    ),
+}
+
+# Ended because no model service answered: not a reasoning result.
+MODEL_UNAVAILABLE = "model_unavailable"
 
 
 # Stands in for a missing answer; never counts as right.
@@ -39,9 +100,27 @@ class Score(BaseModel):
     expected_action: str | None
     actions_taken: list[str]  # actions carried out, as "action machine"
     action_correct: bool
+    # What the agent asked for, whatever the human decided, as "action machine".
+    recommended_actions: list[str] = Field(default_factory=list)
+    # Did the agent ask for the right thing? Apart from whether it was allowed.
+    recommendation_correct: bool = False
+    # How each recommendation was decided: approved, rejected or pending.
+    recommendation_status: list[str] = Field(default_factory=list)
     resolved: bool
     tool_calls: int
     ticks_elapsed: int
+    iterations: int = 0
+    # Why the investigation stopped. "model_unavailable" runs are left out of
+    # the reasoning totals in `summarize`: the agent never got to reason.
+    termination_reason: str | None = None
+    # MVP section 9: the evidence that bore on the true fault, and which of it
+    # the agent actually looked at.
+    relevant_evidence: list[str] = Field(default_factory=list)
+    relevant_evidence_collected: list[str] = Field(default_factory=list)
+
+    @property
+    def model_unavailable(self) -> bool:
+        return self.termination_reason == MODEL_UNAVAILABLE
 
 
 def evaluate(
@@ -52,12 +131,18 @@ def evaluate(
     tool_calls: int,
     start_tick: int,
     judged: bool = True,
+    calls: Sequence[tuple[str, Mapping]] = (),
+    iterations: int = 0,
+    termination_reason: str | None = None,
 ) -> Score:
     """Judge the agent's answer and actions, given the simulator as it stands at the end.
 
     With `judged=False` the diagnosis is left unscored (None), not counted as
     wrong: the agent answered in words that nobody has labelled yet. The
     action and whether the cause is gone are scored either way.
+
+    `calls` are the investigation's answered tool calls as (tool, arguments),
+    used only to see which relevant evidence the agent collected.
     """
     (truth,) = sim.ground_truth()
     if diagnosis is None:
@@ -67,6 +152,13 @@ def evaluate(
     done = [p for p in proposals if p.get("executed_tick") is not None]
     taken = [f"{p['action']} {p['machine_id']}" for p in done]
     wanted = [] if expected is None else [f"{expected} {truth.machine_id}"]
+    asked = [f"{p['action']} {p['machine_id']}" for p in proposals]
+    relevant = RELEVANT_EVIDENCE[truth.fault]
+    collected = [
+        r
+        for r in relevant
+        if any(r.met_by(tool, args, truth.machine_id) for tool, args in calls)
+    ]
 
     if truth.fault == "bad_material_batch":
         target_correct = (
@@ -93,9 +185,16 @@ def evaluate(
         expected_action=expected,
         actions_taken=taken,
         action_correct=taken == wanted,
+        recommended_actions=asked,
+        recommendation_correct=asked == wanted,
+        recommendation_status=[p["status"] for p in proposals],
         resolved=_resolved(sim, truth),
         tool_calls=tool_calls,
         ticks_elapsed=sim.clock.tick - start_tick,
+        iterations=iterations,
+        termination_reason=termination_reason,
+        relevant_evidence=[r.describe(truth.machine_id) for r in relevant],
+        relevant_evidence_collected=[r.describe(truth.machine_id) for r in collected],
     )
 
 
@@ -116,33 +215,60 @@ def _resolved(sim: Simulator, truth) -> bool:
 
 
 def summarize(scores: list[Score]) -> dict:
-    """Totals over many runs, e.g. "18/20 root causes correctly identified"."""
-    n = len(scores)
-    if n == 0:
+    """Totals over many runs, e.g. "18/20 root causes correctly identified".
+
+    Runs that ended because no model answered are counted in `runs` and
+    `model_unavailable` but left out of every other total: they measure the
+    model services' uptime, not the agent's reasoning.
+    """
+    if not scores:
         return {"runs": 0}
-    count = lambda field: sum(bool(getattr(s, field)) for s in scores)  # noqa: E731
+    reasoned = [s for s in scores if not s.model_unavailable]
+    n = len(reasoned)
+
+    def count(field: str) -> int:
+        return sum(bool(getattr(s, field)) for s in reasoned)
+
+    def mean(values: list[float]) -> float:
+        return sum(values) / n if n else 0.0
+
+    available = sum(len(s.relevant_evidence) for s in reasoned)
+    collected = sum(len(s.relevant_evidence_collected) for s in reasoned)
     return {
-        "runs": n,
-        "judged": sum(s.fault_correct is not None for s in scores),
+        "runs": len(scores),
+        "model_unavailable": len(scores) - n,
+        "scored": n,
+        "judged": sum(s.fault_correct is not None for s in reasoned),
         "fault_correct": count("fault_correct"),
         "target_correct": count("target_correct"),
+        "recommendation_correct": count("recommendation_correct"),
         "action_correct": count("action_correct"),
         "resolved": count("resolved"),
-        "mean_tool_calls": sum(s.tool_calls for s in scores) / n,
-        "mean_ticks": sum(s.ticks_elapsed for s in scores) / n,
+        "mean_tool_calls": mean([s.tool_calls for s in reasoned]),
+        "mean_iterations": mean([s.iterations for s in reasoned]),
+        "mean_ticks": mean([s.ticks_elapsed for s in reasoned]),
+        # Share of the relevant evidence the agent looked at, over all runs.
+        "relevant_evidence_share": collected / available if available else 0.0,
     }
 
 
 def format_summary(summary: dict) -> str:
-    n = summary["runs"]
-    if n == 0:
+    if summary["runs"] == 0:
         return "no runs"
+    n = summary["scored"]
     judged = summary["judged"]
     unjudged = f" ({n - judged} not judged)" if judged < n else ""
+    down = summary["model_unavailable"]
+    outage = f"; {down} run(s) left out: no model answered" if down else ""
     return (
-        f"{summary['fault_correct']}/{judged} root causes correctly identified{unjudged}; "
+        f"{summary['fault_correct']}/{judged} root causes correctly identified"
+        f"{unjudged}; "
         f"{summary['target_correct']}/{judged} right machine or batch; "
+        f"{summary['recommendation_correct']}/{n} right recommendations; "
         f"{summary['action_correct']}/{n} appropriate interventions; "
         f"{summary['resolved']}/{n} resolved; "
-        f"average {summary['mean_tool_calls']:.1f} tool calls and {summary['mean_ticks']:.0f} ticks"
+        f"{summary['relevant_evidence_share']:.0%} of relevant evidence collected; "
+        f"average {summary['mean_tool_calls']:.1f} tool calls, "
+        f"{summary['mean_iterations']:.1f} iterations and "
+        f"{summary['mean_ticks']:.0f} ticks{outage}"
     )

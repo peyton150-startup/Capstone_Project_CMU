@@ -73,6 +73,14 @@ class EventObservation(Contract):
     job_id: int | None
 
 
+class MaintenanceObservation(Contract):
+    machine_id: str
+    performed_at: str  # ISO date and time
+    tick: int | None = Field(ge=0)  # None: before the run began
+    kind: str
+    note: str
+
+
 class InspectionObservation(Contract):
     tick: int = Field(ge=0)
     job_id: int

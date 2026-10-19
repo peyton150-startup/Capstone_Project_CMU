@@ -52,15 +52,16 @@ restart, and duplicate checks. PostgreSQL SQL compilation is not a live-server
 test. Revision `0001_episodic_memory` was applied to Neon on 2026-10-15
 (PostgreSQL 18; the database was empty before; the table starts with no rows).
 
-## Remaining integration
+## Runtime integration
 
-The reasoning runtime in `capstone/agent/` no longer has its own completion
-contract: `contracts/completed_investigations.py` is the only definition, and the
-loop's richer records live in `agent/artifacts.py`. The runtime does not yet
-produce a completed investigation. Trusted provenance must be preserved across the handoff;
+`contracts/completed_investigations.py` is the only completion contract; the
+loop's richer records live in `agent/artifacts.py`. `agent/completion.py`
+produces the completed investigation, `learning.learn_from` audits it and
+offers its lesson to the gate, and `capstone/episode.py` chains both after
+`run_investigation`. Trusted provenance must be preserved across the handoff;
 free-text scans cannot establish the true origin of mislabeled evidence.
-Memory evaluation records are implemented; runtime wiring remains. Retrieval is
-bounded lookup by investigation/category, plus free-text recall below.
+Retrieval is bounded lookup by investigation/category, plus free-text recall
+through the agent's `recall_memories` tool, below.
 
 ## Semantic recall (ChromaDB)
 
@@ -76,7 +77,14 @@ then hydrates records from SQL by ID, skipping IDs SQL does not hold.
 falls back to keyword search and reports `fell_back=True`. Embeddings use
 Chroma's bundled local all-MiniLM-L6-v2 model (downloaded on first use).
 Rebuild the index from SQL with `uv run python -m capstone.memory.backfill`.
-Not connected to the investigator loop; reranking is not implemented.
+
+The agent reaches this through its one memory tool. `build_memory_service(
+repository, settings)` opens one index for both sides: promotion writes to
+it and `MemoryService.search` (behind `recall_memories`) asks
+`MemoryRecall` in the configured mode, then turns each record into the safe
+`RecalledMemory` view, so semantic recall shows the agent exactly the fields
+keyword recall does. A `MemoryService` built without `recall` keeps the
+plain word search. Reranking is not implemented.
 
 The planned [Future Work 1 agent-directed RAG loop](MVP_SCOPE.md#agent-directed-rag-and-repeat-retrieval-2026-10-18)
 uses the same Nemotron investigation agent to judge retrieved evidence and search

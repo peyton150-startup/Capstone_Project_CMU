@@ -105,7 +105,21 @@ def score_episode(
         tool_calls=state.tool_call_count,
         start_tick=start_tick,
         judged=judged,
+        calls=answered_calls(state),
+        iterations=state.iteration_count,
+        termination_reason=(
+            None if state.termination_reason is None else state.termination_reason.value
+        ),
     )
+
+
+def answered_calls(state: InvestigationState) -> list[tuple[str, dict]]:
+    """Each tool call that produced evidence, as (tool, arguments)."""
+    return [
+        (d.tool, d.arguments)
+        for d in state.decisions
+        if d.tool is not None and d.evidence_ids
+    ]
 
 
 def rescore(result: EpisodeResult, diagnosis: Diagnosis | None) -> Score:

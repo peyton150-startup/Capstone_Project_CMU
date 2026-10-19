@@ -4,6 +4,8 @@ from enum import StrEnum
 
 from pydantic import BaseModel, ConfigDict, Field
 
+from capstone.simulator.maintenance import MaintenanceRecord
+
 NORMAL_LOAD = 0.5
 REFERENCE_AMBIENT_F = 72.0
 
@@ -139,6 +141,10 @@ class FactoryState(BaseModel):
     batch: MaterialBatch | None = None
     # Every inspection so far, oldest first.
     inspections: list[Inspection] = Field(default_factory=list)
+    # Service records from before the run, oldest first. Background only:
+    # drawn before any fault and never from it. Work done during the run is
+    # in the event log.
+    maintenance_history: list[MaintenanceRecord] = Field(default_factory=list)
     # The number the next new job will get. Shared, so ids are unique across lines.
     next_job_id: int = Field(default=1, ge=1)
 
