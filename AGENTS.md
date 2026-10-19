@@ -47,7 +47,8 @@ infer root causes.
 > explain afterwards**:
 >
 > - Do not stop for comprehension questions. Build each remaining
->   component in small, tested increments and commit and push each one.
+>   component in small, tested increments, each through its own pull
+>   request (§11).
 > - Everything else in this file still holds: the architecture in §4,
 >   determinism, hidden ground truth never crossing the tool boundary,
 >   no fake complexity, tests for all behaviour.
@@ -421,6 +422,8 @@ Tooling: `pytest`. Run tests after every implementation step.
    say understanding was verified, verify it.
 4. If this is the very first session (nothing implemented), follow the
    "Current objective" below.
+5. Every change goes through a branch and a pull request (§11), never
+   straight to `main`.
 
 ### Current objective (first session)
 
@@ -433,3 +436,43 @@ Do **not** implement anything yet. First:
 5. Ask the first comprehension question.
 
 Then stop and wait for the developer's answer.
+
+---
+
+## 11. Every change goes through a pull request
+
+**Rule set by the developer, 2026-10-19:** every change, whatever its size
+(a feature, a one-line fix, a docs or CI edit), goes on its own branch and
+reaches `main` only through a pull request with a detailed description.
+Never commit or push straight to `main`. The point is that every change is
+documented on GitHub where the developer can read it.
+
+1. Before starting, `git fetch` and branch from the latest `origin/main`
+   (other sessions and people merge to it).
+2. Name the branch for the change (`feature/...`, `fix/...`, `docs/...`,
+   `ci/...`). One change per branch.
+3. Before pushing, run all of these and fix any failure:
+   - `uv sync --all-extras`, then `uv run pytest`
+   - `uv run ruff check` and `uv run ruff format --check`
+   - `uv run python .github/test_groups.py check` (every new test file must
+     be added to a CI group in `.github/test_groups.py`)
+4. Open the PR with a description that a reader who was not in the session
+   can follow. It must have:
+   - **What and why:** the problem, and what the change does about it.
+   - **Changes, file by file:** each function, class or setting added or
+     changed, and what it means in plain English.
+   - **Tests:** which were added or changed and what each one proves.
+   - **Verification:** the commands run and their results (test count,
+     lint, CI groups), and whether anything ran against a real model.
+     Never present a scripted or mocked run as a live one.
+   - **Gate status:** taught and understood, built ungated, or a closing
+     question still outstanding, matching `docs/PROGRESS.md`.
+   - **Not done / known limits.**
+   - Any commit that reached `main` without a PR, listed so it is recorded.
+5. Wait for the PR's CI to finish (`gh pr checks <number> --watch`). Never
+   merge on a failing or unfinished check.
+6. When CI is green, merge with a merge commit (keeps each commit) and
+   delete the branch, locally and on GitHub. The developer gave standing
+   permission for this on 2026-10-19; it does not cover force-pushes or
+   rewriting history, which still need asking.
+7. Record the change in `docs/PROGRESS.md` within the same PR.
