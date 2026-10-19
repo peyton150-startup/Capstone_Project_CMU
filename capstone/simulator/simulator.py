@@ -176,9 +176,13 @@ class Simulator:
         self._finish_maintenance(tick)
         self._apply_consequences(tick)
         self._warm_or_cool_machines()
-        readings = [
-            s.read(self.state.machines[s.machine_id], tick) for s in self._sensors
-        ]
+        readings = []
+        for sensor in self._sensors:
+            machine = self.state.machines[sensor.machine_id]
+            # Keep the instrument's noise stream aligned even during signal loss.
+            reading = sensor.read(machine, tick)
+            if sensor.available(machine):
+                readings.append(reading)
         readings += [s.read(self.state, tick) for s in self._factory_sensors]
         self._readings.extend(readings)
         for reading in readings:

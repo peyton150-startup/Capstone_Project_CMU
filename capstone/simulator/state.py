@@ -60,6 +60,16 @@ class MachineCondition(BaseModel):
     vibration_sensor_offset: float = 0.0
 
 
+class SensorEffect(BaseModel):
+    """Hidden instrument condition, separate from the machine's physical health."""
+
+    model_config = ConfigDict(frozen=True)
+
+    sensor: str
+    offset: float = Field(default=0.0, allow_inf_nan=False)
+    missing: bool = False
+
+
 class MachineState(BaseModel):
     """Reality for one machine: observable facts plus hidden condition.
 
@@ -110,6 +120,8 @@ class MachineState(BaseModel):
     # The tick this machine's bearing was last replaced, if it ever was.
     bearing_replaced_tick: int | None = None
     condition: MachineCondition = Field(default_factory=MachineCondition)
+    # One contribution per scenario, so overlapping disturbances do not erase others.
+    sensor_effects: dict[str, SensorEffect] = Field(default_factory=dict)
 
 
 class FactoryState(BaseModel):
