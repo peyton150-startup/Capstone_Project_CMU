@@ -3,6 +3,7 @@
 """Typed configuration, loaded on demand without changing process state."""
 
 from pathlib import Path
+from typing import Literal
 
 from pydantic import Field, SecretStr, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
@@ -20,6 +21,19 @@ class Settings(BaseSettings):
 
     database_url: SecretStr | None = Field(
         default=None, validation_alias="DATABASE_URL"
+    )
+
+    # Free-text memory recall: "semantic" (ChromaDB, falls back to keyword when
+    # Chroma is unavailable), "keyword" (SQL store only), or "none" (disabled).
+    memory_retrieval_mode: Literal["semantic", "keyword", "none"] = Field(
+        default="semantic", validation_alias="MEMORY_RETRIEVAL_MODE"
+    )
+    chroma_path: Path = Field(
+        default=Path(__file__).resolve().parents[1] / ".chroma",
+        validation_alias="CHROMA_PATH",
+    )
+    chroma_collection: str = Field(
+        default="episodic_memories", min_length=3, validation_alias="CHROMA_COLLECTION"
     )
 
     @field_validator("database_url", mode="before")

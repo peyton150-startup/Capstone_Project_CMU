@@ -51,7 +51,23 @@ Reconcile that contract with `contracts/completed_investigations.py` before
 connecting the runtime. Trusted provenance must be preserved across the handoff;
 free-text scans cannot establish the true origin of mislabeled evidence.
 Memory evaluation records are implemented; runtime wiring remains. Retrieval is
-bounded lookup by investigation/category; embeddings and RAG are not implemented.
+bounded lookup by investigation/category, plus free-text recall below.
+
+## Semantic recall (ChromaDB)
+
+Install with `uv sync --extra semantic`. A ChromaDB collection is a derived
+index beside the SQL store, which stays authoritative. `MemoryService(...,
+index=...)` upserts each newly stored memory (metadata: `memory_id`, `outcome`,
+`timestamp` = source simulation tick); an index failure never undoes the stored
+row. `MemoryRecall.recall_memories(query, k=5)` searches the whole collection,
+then hydrates records from SQL by ID, skipping IDs SQL does not hold.
+`build_memory_recall()` reads `MEMORY_RETRIEVAL_MODE` (`semantic` default,
+`keyword`, `none`), `CHROMA_PATH` (default `.chroma/`) and `CHROMA_COLLECTION`
+(default `episodic_memories`). If Chroma cannot open or a search fails, recall
+falls back to keyword search and reports `fell_back=True`. Embeddings use
+Chroma's bundled local all-MiniLM-L6-v2 model (downloaded on first use).
+Rebuild the index from SQL with `uv run python -m capstone.memory.backfill`.
+Not connected to the investigator loop; reranking is not implemented.
 
 The planned [Future Work 1 agent-directed RAG loop](MVP_SCOPE.md#agent-directed-rag-and-repeat-retrieval-2026-10-18)
 uses the same Nemotron investigation agent to judge retrieved evidence and search
