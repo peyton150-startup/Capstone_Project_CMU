@@ -10,6 +10,7 @@ from capstone.contracts.investigations import investigation_id_for, run_id_for
 from capstone.contracts.tools import ToolRequest
 from capstone.observability import create_event_logger
 from capstone.providers.factory import (
+    MAX_ROWS,
     TOOL_DESCRIPTIONS,
     FactorySensor,
     MachineSensor,
@@ -348,10 +349,27 @@ def test_a_trend_is_far_smaller_than_the_readings_it_summarises():
     trend = factory.call(
         ToolRequest(name="get_sensor_trend", arguments=window | {"to_tick": 599})
     )
-    raw = factory.call(
+    raw = ObservationTools(sim).get_readings("CNC-01", "vibration", 0, 599)
+    assert trend.success
+    assert [block["from_tick"] for block in trend.data] == list(range(0, 600, 60))
+    assert sum(block["count"] for block in trend.data) == len(raw)
+    assert len(json.dumps(trend.data)) * 20 < len(json.dumps(raw))
+
+
+def test_an_answer_too_long_for_a_prompt_is_refused_with_a_way_to_ask_for_less():
+    sim, _, factory = provider()
+    for _ in range(600):
+        sim.step()
+    window = {"machine_id": "CNC-01", "sensor": "vibration", "from_tick": 0}
+    long = factory.call(
         ToolRequest(name="get_readings", arguments=window | {"to_tick": 599})
     )
-    assert trend.success and raw.success
-    assert [block["from_tick"] for block in trend.data] == list(range(0, 600, 60))
-    assert sum(block["count"] for block in trend.data) == len(raw.data)
-    assert len(json.dumps(trend.data)) * 20 < len(json.dumps(raw.data))
+    assert not long.success and long.data is None
+    assert long.error.code == "invalid_arguments"
+    assert f"more than {MAX_ROWS}" in long.error.message
+    assert "get_sensor_trend" in long.error.message
+    short = factory.call(
+        ToolRequest(name="get_readings", arguments=window | {"to_tick": MAX_ROWS})
+    )
+    assert short.success and len(short.data) == MAX_ROWS
+    assert sim.clock.tick == 600  # refusing a long answer does not move time
