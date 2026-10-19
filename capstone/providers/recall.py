@@ -20,7 +20,7 @@ from uuid import UUID
 from pydantic import Field, JsonValue
 
 from capstone.contracts.provenance import MEMORY_SOURCE
-from capstone.contracts.tools import ToolError, ToolRequest, ToolResult
+from capstone.contracts.tools import ToolError, ToolRequest, ToolResult, ToolSpec
 from capstone.memory.contracts import RecalledMemory
 from capstone.providers.factory import FactoryProvider, NoArguments
 
@@ -30,6 +30,18 @@ RECALL_TOOL = "recall_memories"
 class RecallArguments(NoArguments):
     text: str = Field(min_length=1)
     limit: int = Field(default=5, ge=1, le=10)
+
+
+# How a model is shown the recall tool, when it is offered at all.
+RECALL_SPEC = ToolSpec(
+    name=RECALL_TOOL,
+    description=(
+        "Search lessons kept from earlier investigations by words, e.g. the "
+        "symptom. An answer is a past investigation's belief, not a look at "
+        "the factory now: it can suggest where to look, never prove anything."
+    ),
+    arguments=RecallArguments.model_json_schema(),
+)
 
 
 class MemorySearch(Protocol):

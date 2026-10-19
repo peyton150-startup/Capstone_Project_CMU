@@ -401,6 +401,45 @@ def test_when_no_model_answers_the_error_names_each_failure_but_no_key():
     assert raised.value.transient is False
 
 
+# --- which models were tried, and why each gave no answer ----------------------------
+
+
+def test_every_model_tried_is_recorded_even_when_a_later_one_answers():
+    primary, _ = client(TimeoutError("slow"), TimeoutError("slow"), model="groq")
+    backup, _ = client(chat('{"text": "advice"}'), model="mistral")
+    ask, _ = fallback(primary, backup)
+    ask.ask("s", "p", Lesson)
+    assert [(a.model, a.outcome) for a in ask.attempts] == [
+        ("groq", "the model service timed out"),
+        ("groq", "the model service timed out"),
+        ("mistral", "answered"),
+    ]
+
+
+def test_an_invalid_reply_is_recorded_against_the_model_that_sent_it():
+    """Groq times out twice, then Mistral answers with an invalid reply: the
+    timeouts are uptime, the invalid reply is Mistral's reasoning."""
+    primary, _ = client(TimeoutError("slow"), TimeoutError("slow"), model="groq")
+    backup, _ = client(chat("not json"), model="mistral")
+    ask, _ = fallback(primary, backup)
+    with pytest.raises(ValueError):
+        ask.ask("s", "p", Lesson)
+    assert [(a.model, a.outcome) for a in ask.attempts] == [
+        ("groq", "the model service timed out"),
+        ("groq", "the model service timed out"),
+        ("mistral", "invalid reply"),
+    ]
+    assert ask.answered_by is None
+
+
+def test_each_question_starts_a_fresh_record():
+    primary, _ = client(UNREACHABLE, chat('{"text": "a"}'), chat('{"text": "b"}'))
+    ask, _ = fallback(primary)
+    ask.ask("s", "p", Lesson)
+    ask.ask("s", "p", Lesson)
+    assert [a.outcome for a in ask.attempts] == ["answered"]
+
+
 # --- one question has a time limit -------------------------------------------------
 
 
