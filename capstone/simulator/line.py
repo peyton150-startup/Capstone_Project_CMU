@@ -11,6 +11,7 @@ the caller, which keeps them running after the line's own scenarios.
 from datetime import datetime, timedelta
 
 from capstone.simulator.events import ThresholdAlarm
+from capstone.simulator.maintenance import past_maintenance
 from capstone.simulator.scenarios import AmbientTemperature, LoadingDoor, ProductionLine
 from capstone.simulator.sensors import (
     FactoryThermometer,
@@ -81,6 +82,10 @@ def build_line(
         for sensor in (VibrationSensor, TemperatureSensor, LoadSensor):
             sim.add_sensor(sensor(name, sim.rng))
     sim.add_factory_sensor(FactoryThermometer(sim.rng))
+    # Past service records. Their own stream, drawn before any fault exists.
+    sim.state.maintenance_history = past_maintenance(
+        list(names), start, sim.rng.stream("maintenance.history")
+    )
     sim.add_alarm(ThresholdAlarm("vibration", vibration_alarm))
 
     # After the machines exist, and before any fault the caller adds.

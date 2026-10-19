@@ -14,6 +14,7 @@ from capstone.contracts.observations import (
     ExecutionObservation,
     InspectionObservation,
     MachineObservation,
+    MaintenanceObservation,
     ProposalObservation,
     SensorObservation,
     SensorSummaryObservation,
@@ -157,6 +158,10 @@ class EventsArguments(TickRange):
     machine_id: str | None = None
 
 
+class MaintenanceArguments(NoArguments):
+    machine_id: str | None = None
+
+
 class JobArguments(NoArguments):
     job_id: int = Field(ge=1)
 
@@ -214,6 +219,11 @@ TOOL_DESCRIPTIONS: dict[str, str] = {
         "maintenance. Optionally one machine only."
     ),
     "get_job_history": "Everything the event log says about one job, across machines.",
+    "get_maintenance_history": (
+        "Service records for one machine or all (machine_id null), oldest first: "
+        "visits from the months before the run (a date, tick null) and maintenance "
+        "during it (with its tick). What a technician did and wrote, not a cause."
+    ),
     "get_inspections": (
         "Pass/fail inspection results (with material batch) for jobs that left "
         "the line in a tick range."
@@ -244,6 +254,7 @@ TOOL_ARGUMENTS: dict[str, type[Contract]] = {
     "get_sensor_summary": SensorSummaryArguments,
     "get_events": EventsArguments,
     "get_job_history": JobArguments,
+    "get_maintenance_history": MaintenanceArguments,
     "get_inspections": TickRange,
     "wait": WaitArguments,
     "propose_action": ProposalArguments,
@@ -327,6 +338,12 @@ class SimulatorFactoryProvider:
                 EventsArguments,
                 EventObservation,
                 observations.get_events,
+                True,
+            ),
+            "get_maintenance_history": (
+                MaintenanceArguments,
+                MaintenanceObservation,
+                observations.get_maintenance_history,
                 True,
             ),
             "get_job_history": (

@@ -31,6 +31,7 @@ GROUPS: dict[str, list[str]] = {
         "load",
         "load_wear_coupling",
         "loading_door",
+        "maintenance_history",
         "material_batch",
         "production_line",
         "quality",

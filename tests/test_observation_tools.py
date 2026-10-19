@@ -23,6 +23,7 @@ TOOLS = {
     "get_settings",
     "get_sensor_summary",
     "get_sensor_trend",
+    "get_maintenance_history",
 }
 HIDDEN_WORDS = (
     "bearing",
@@ -69,6 +70,7 @@ def everything(tools: ObservationTools, last_tick: int) -> dict:
             "air_temperature", 0, last_tick
         ),
         "get_job_history": tools.get_job_history(1),
+        "get_maintenance_history": tools.get_maintenance_history(),
         "get_inspections": tools.get_inspections(0, last_tick),
         "get_settings": tools.get_settings(),
         "get_sensor_summary": [
@@ -177,6 +179,8 @@ def test_nothing_hidden_leaks_through_any_tool_over_a_full_run():
     assert keys == {
         "tick",
         "time",
+        "performed_at",
+        "note",
         "machine_id",
         "status",
         "job_id",
