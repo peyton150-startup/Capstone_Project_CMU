@@ -74,6 +74,8 @@ GROUPS: dict[str, list[str]] = {
     "Reflection": ["memory_reflection", "learning"],
     # Checkpoint 7: recalling memories, and the guards on what a memory may prove.
     "Recall": ["recall_tool"],
+    # Checkpoint 8b-2: the model-backed policy, its prompts and answer types.
+    "Model policy": ["model_policy"],
     "Memory": [
         "database_connection",
         "memory_policy",
