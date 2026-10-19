@@ -13,6 +13,7 @@ import pytest
 from capstone.agent.artifacts import AgentConclusion, ProposalRecord
 from capstone.agent.model_policy import (
     MAX_EVIDENCE_CHARS,
+    MAX_EVIDENCE_SECTION_CHARS,
     SYSTEM,
     ConcludeAnswer,
     Judgement,
@@ -191,6 +192,91 @@ def test_long_evidence_is_cut_with_a_note_saying_how_to_ask_for_less():
     text = render(state)
     assert "x" * (MAX_EVIDENCE_CHARS + 1) not in text
     assert "500 more characters not shown" in text
+
+
+def many_large_pieces(count=20, cited=("E3", "E7")):
+    """A state with `count` pieces of evidence of 2,000 characters each."""
+    state = state_with_evidence()
+    state.evidence = [
+        Evidence(
+            id=f"E{n}",
+            source_id="simulator:get_readings",
+            source_type="tool_result",
+            content=str(n % 10) * MAX_EVIDENCE_CHARS,
+            observed_tick=900 + n,
+        )
+        for n in range(1, count + 1)
+    ]
+    state.provenance = []
+    state.hypotheses = [
+        Hypothesis(
+            id="H1",
+            claim="CNC-02 is wearing",
+            confidence=0.6,
+            supporting_evidence_ids=cited,
+        )
+    ]
+    return state
+
+
+def evidence_part(text):
+    """The evidence section of a prompt, header to the line before HYPOTHESES."""
+    return text[text.index("EVIDENCE (") : text.index("\n\nHYPOTHESES:")]
+
+
+def evidence_line(text, evidence_id):
+    [line] = [x for x in text.splitlines() if x.startswith(f"- {evidence_id} ")]
+    return line
+
+
+def test_many_large_pieces_of_evidence_stay_within_the_section_limit():
+    text = render(many_large_pieces())
+    assert len(evidence_part(text)) <= MAX_EVIDENCE_SECTION_CHARS
+    assert 20 * MAX_EVIDENCE_CHARS > 3 * MAX_EVIDENCE_SECTION_CHARS  # it had to cut
+
+
+def test_the_newest_and_the_cited_evidence_are_shown_whole():
+    text = render(many_large_pieces())
+    for evidence_id, digit in (("E20", "0"), ("E3", "3"), ("E7", "7")):
+        assert evidence_line(text, evidence_id).endswith(digit * MAX_EVIDENCE_CHARS)
+    # The oldest uncited piece is listed by its call alone.
+    assert evidence_line(text, "E1").endswith("[2000 characters, not shown here]")
+
+
+def test_every_id_is_listed_once_in_order_and_none_is_invented():
+    text = render(many_large_pieces())
+    listed = re.findall(r"^- (E\d+) ", evidence_part(text), flags=re.MULTILINE)
+    assert listed == [f"E{n}" for n in range(1, 21)]
+    assert set(re.findall(r"\bE\d+\b", text)) <= set(listed)
+
+
+def test_the_note_names_what_was_shortened_and_how_to_see_more():
+    text = render(many_large_pieces())
+    [note] = [x for x in text.splitlines() if x.startswith("(Listed by ID")]
+    assert "E1, E2," in note and "E20" not in note and "E3," not in note
+    assert "refused as a repeat" in note and "narrower question" in note
+
+
+def test_beliefs_questions_and_failed_calls_are_never_shortened():
+    text = render(many_large_pieces())
+    assert "- H1 (confidence 0.60): CNC-02 is wearing Supported by: E3, E7." in text
+    assert "- Q2: Is the rise gradual? [tests H1]" in text
+    assert "invalid_arguments: 914 rows is more than 300" in text
+
+
+def test_the_limit_holds_even_when_everything_is_cited():
+    state = many_large_pieces(cited=tuple(f"E{n}" for n in range(1, 21)))
+    text = render(state)
+    assert len(evidence_part(text)) <= MAX_EVIDENCE_SECTION_CHARS
+    assert evidence_line(text, "E20").endswith("0" * MAX_EVIDENCE_CHARS)
+    # Cited pieces that did not fit go newest first: E19 is whole, E1 is not.
+    assert evidence_line(text, "E19").endswith("9" * MAX_EVIDENCE_CHARS)
+    assert "not shown here" in evidence_line(text, "E1")
+
+
+def test_a_small_prompt_is_shown_whole_with_no_note():
+    text = render(state_with_evidence())
+    assert "Listed by ID" not in text
 
 
 def test_no_prompt_or_answer_schema_lists_the_possible_causes():

@@ -12,6 +12,11 @@ IDs they cite, and, once they exist, the conclusion and the action. It
 shows no bookkeeping (decision records, counters) and no list of possible
 causes: the model has to find the cause in the evidence.
 
+The evidence section has a total size (`MAX_EVIDENCE_SECTION_CHARS`).
+The newest evidence and evidence a belief cites are shown whole first, then
+the rest newest first while they fit; what does not fit is listed by its
+ID and call alone, with a note saying so. Everything else is always shown.
+
 Each question has its own system prompt and its own answer type. The
 client puts that type's schema in the prompt and refuses a reply that does
 not match it with a `ValueError`, which the loop records as an invalid
@@ -57,8 +62,13 @@ Answer = TypeVar("Answer", bound=BaseModel)
 # The most of one piece of evidence a prompt shows. The factory already
 # refuses answers over 300 rows; this keeps a prompt of many answers small.
 MAX_EVIDENCE_CHARS = 2000
+# The most the whole evidence section may take. About 3,000 tokens, so a
+# prompt still fits a small model's context; an estimate, not yet measured.
+MAX_EVIDENCE_SECTION_CHARS = 12_000
 # How many of the latest failed calls a prompt shows, so they can be corrected.
 RECENT_FAILURES = 3
+
+EVIDENCE_HEADER = "EVIDENCE (IDs are given by the system; cite only these):"
 
 
 class Client(Protocol):
@@ -128,6 +138,85 @@ def shown(content: str) -> str:
     )
 
 
+def cited_ids(state: InvestigationState) -> set[str]:
+    """Evidence a belief rests on: cited by a hypothesis, the conclusion or the check."""
+    cited = set()
+    for h in state.hypotheses:
+        cited.update(h.supporting_evidence_ids, h.contradicting_evidence_ids)
+    if state.conclusion is not None:
+        cited.update(state.conclusion.evidence_ids)
+    if state.verification is not None:
+        cited.update(state.verification.evidence_ids)
+    return cited
+
+
+def shortened_note(ids: Sequence[str]) -> str:
+    return (
+        f"(Listed by ID and call only, to keep this prompt short: {', '.join(ids)}. "
+        "The same call at the same tick is refused as a repeat; to see more, ask "
+        "a narrower question: a shorter tick range, a trend or a summary.)"
+    )
+
+
+def evidence_section(state: InvestigationState) -> list[str]:
+    """The evidence lines, within MAX_EVIDENCE_SECTION_CHARS where that can be.
+
+    Each piece starts as one short line (ID, call, tick) and is shown whole,
+    in this order, while the section stays under the limit: the newest
+    piece (always), the pieces a belief cites, then the rest, newest first.
+    Lines keep the order the evidence arrived in. Only IDs that exist are
+    written, so a model cannot be shown an ID to cite that was never given.
+    """
+    if not state.evidence:
+        return [EVIDENCE_HEADER, "(none)"]
+    # Which call produced each piece of evidence, from the loop's own records.
+    asked: dict[str, tuple[str, dict]] = {}
+    for decision in state.decisions:
+        if decision.tool is not None:
+            for evidence_id in decision.evidence_ids:
+                asked.setdefault(evidence_id, (decision.tool, decision.arguments))
+    origins = {p.evidence_id: p.origin for p in state.provenance}
+    full: dict[str, str] = {}
+    short: dict[str, str] = {}
+    for evidence in state.evidence:
+        tool, arguments = asked.get(
+            evidence.id, (evidence.source_id.split(":")[-1], {})
+        )
+        call = f"{tool} {compact(arguments)}" if arguments else tool
+        memory = (
+            " [FROM MEMORY: a past investigation's belief, not a look at the "
+            "factory now]"
+            if origins.get(evidence.id) == "memory"
+            else ""
+        )
+        head = f"- {evidence.id} {call} at tick {evidence.observed_tick}{memory}: "
+        full[evidence.id] = head + shown(evidence.content)
+        short[evidence.id] = (
+            head + f"[{len(evidence.content)} characters, not shown here]"
+        )
+
+    ids = [e.id for e in state.evidence]
+    newest, cited = ids[-1], cited_ids(state)
+    older = list(reversed(ids[:-1]))
+    priority = [newest] + [i for i in older if i in cited]
+    priority += [i for i in older if i not in cited]
+    # Room for the header, the line breaks and the longest note there could be.
+    size = len(EVIDENCE_HEADER) + len(shortened_note(ids)) + len(ids) + 2
+    size += sum(len(line) for line in short.values())
+    whole = set()
+    for evidence_id in priority:
+        extra = len(full[evidence_id]) - len(short[evidence_id])
+        if evidence_id == newest or size + extra <= MAX_EVIDENCE_SECTION_CHARS:
+            whole.add(evidence_id)
+            size += extra
+    lines = [EVIDENCE_HEADER]
+    lines += [full[i] if i in whole else short[i] for i in ids]
+    left_out = [i for i in ids if i not in whole]
+    if left_out:
+        lines.append(shortened_note(left_out))
+    return lines
+
+
 def render(state: InvestigationState) -> str:
     """Working memory as a model reads it. The same view for every question."""
     anomaly = state.anomaly
@@ -148,31 +237,7 @@ def render(state: InvestigationState) -> str:
     if not state.unanswered_questions:
         lines.append("(none)")
 
-    # Which call produced each piece of evidence, from the loop's own records.
-    asked: dict[str, tuple[str, dict]] = {}
-    for decision in state.decisions:
-        if decision.tool is not None:
-            for evidence_id in decision.evidence_ids:
-                asked.setdefault(evidence_id, (decision.tool, decision.arguments))
-    origins = {p.evidence_id: p.origin for p in state.provenance}
-    lines += ["", "EVIDENCE (IDs are given by the system; cite only these):"]
-    for evidence in state.evidence:
-        tool, arguments = asked.get(
-            evidence.id, (evidence.source_id.split(":")[-1], {})
-        )
-        call = f"{tool} {compact(arguments)}" if arguments else tool
-        memory = (
-            " [FROM MEMORY: a past investigation's belief, not a look at the "
-            "factory now]"
-            if origins.get(evidence.id) == "memory"
-            else ""
-        )
-        lines.append(
-            f"- {evidence.id} {call} at tick {evidence.observed_tick}{memory}: "
-            f"{shown(evidence.content)}"
-        )
-    if not state.evidence:
-        lines.append("(none)")
+    lines += ["", *evidence_section(state)]
 
     lines += ["", "HYPOTHESES:"]
     for h in state.hypotheses:
