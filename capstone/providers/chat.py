@@ -133,11 +133,18 @@ def urllib_transport(url: str, headers: dict[str, str], body: bytes, timeout: fl
 
 
 def reply_text(body: bytes) -> str:
-    """The assistant's text in a chat-completions reply. ValueError if absent."""
+    """The assistant's text in a chat-completions reply. ValueError if absent.
+
+    A reply cut off at the output-token limit is refused as such: half a
+    JSON object is not an answer, and saying why helps set the limit.
+    """
     try:
-        content = json.loads(body)["choices"][0]["message"]["content"]
+        choice = json.loads(body)["choices"][0]
+        content = choice["message"]["content"]
     except (ValueError, LookupError, TypeError) as error:
         raise ValueError("the model service sent a malformed reply") from error
+    if isinstance(choice, dict) and choice.get("finish_reason") == "length":
+        raise ValueError("the model reply was cut off at the output-token limit")
     if not isinstance(content, str):
         raise ValueError("the model reply has no text")
     return content
@@ -159,12 +166,18 @@ class ChatClient:
         *,
         transport: Transport = urllib_transport,
         timeout: float = 15.0,
+        max_output_tokens: int | None = None,
     ):
+        if max_output_tokens is not None and max_output_tokens < 1:
+            raise ValueError("max_output_tokens must be at least 1")
         self.url = url
         self._api_key = api_key
         self.model = model
         self._transport = transport
         self.timeout = timeout
+        # The most tokens one reply may use, thinking included. None: the
+        # provider's own limit.
+        self.max_output_tokens = max_output_tokens
 
     def __repr__(self) -> str:
         return f"ChatClient(url={self.url!r}, model={self.model!r})"
@@ -196,6 +209,8 @@ class ChatClient:
                 {"role": "user", "content": prompt},
             ],
         }
+        if self.max_output_tokens is not None:
+            body["max_tokens"] = self.max_output_tokens
         headers = {
             "Authorization": f"Bearer {self._api_key}",
             "Content-Type": "application/json",
@@ -333,7 +348,14 @@ def client_for(
                 "set CLOUDFLARE_ACCOUNT_ID in the local .env or environment"
             )
         url = url.format(account=settings.cloudflare_account_id)
-    return ChatClient(url, key.get_secret_value(), model, transport=transport)
+    return ChatClient(
+        url,
+        key.get_secret_value(),
+        model,
+        transport=transport,
+        timeout=settings.model_request_seconds,
+        max_output_tokens=settings.model_max_output_tokens,
+    )
 
 
 def clients_for_jobs(
@@ -350,6 +372,8 @@ def clients_for_jobs(
         if settings.fallback_model and settings.fallback_model not in references:
             references.append(settings.fallback_model)
         clients[job] = FallbackClient(
-            [client_for(r, settings, transport=transport) for r in references]
+            [client_for(r, settings, transport=transport) for r in references],
+            retries=settings.model_retries,
+            max_seconds=settings.model_question_seconds,
         )
     return clients

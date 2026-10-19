@@ -69,6 +69,23 @@ class Settings(BaseSettings):
     # Asked when a job's own model cannot be reached. None: no fallback.
     fallback_model: str | None = _optional("FALLBACK_MODEL")
 
+    # Limits on every model question (MVP_SCOPE.md section 3). The loop's own
+    # limits (iterations, tool calls, time per investigation) are in Budgets.
+    # The most tokens one reply may use, thinking included.
+    model_max_output_tokens: int = Field(
+        default=2048, ge=1, validation_alias="MODEL_MAX_OUTPUT_TOKENS"
+    )
+    # How long one request may wait, and one question in all (retries and the
+    # fallback model included).
+    model_request_seconds: float = Field(
+        default=15.0, gt=0, validation_alias="MODEL_REQUEST_SECONDS"
+    )
+    model_question_seconds: float = Field(
+        default=20.0, gt=0, validation_alias="MODEL_QUESTION_SECONDS"
+    )
+    # How many more times an unreachable model is asked before moving on.
+    model_retries: int = Field(default=1, ge=0, validation_alias="MODEL_RETRIES")
+
     @field_validator(
         "database_url",
         "nvidia_api_key",
