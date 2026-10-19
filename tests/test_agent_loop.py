@@ -345,7 +345,7 @@ def test_the_timer_starts_with_the_loop_and_a_timeout_stops_it():
         now[0] += 30.0  # each call takes thirty seconds
         return {"ok": True}
 
-    state = new_state(timeout_seconds=60.0)
+    state = new_state(timeout_seconds=60.0, followup_seconds=20.0)
     deps = InvestigationDeps(
         provider=FakeProvider(respond),
         policy=ScriptedPolicy([ask(name) for name in "abcdef"]),
@@ -359,7 +359,7 @@ def test_the_timer_starts_with_the_loop_and_a_timeout_stops_it():
 
 def test_a_second_loop_does_not_restart_the_timer():
     now = [100.0]
-    state = new_state(timeout_seconds=60.0)
+    state = new_state(timeout_seconds=60.0, followup_seconds=20.0)
     deps = InvestigationDeps(
         provider=FakeProvider(), policy=ScriptedPolicy([]), clock=lambda: now[0]
     )

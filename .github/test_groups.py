@@ -80,6 +80,8 @@ GROUPS: dict[str, list[str]] = {
     "Recall": ["recall_tool"],
     # Checkpoint 8b-2: the model-backed policy, its prompts and answer types.
     "Model policy": ["model_policy"],
+    # Checkpoint 8c: each model measured alone, from real episodes.
+    "Benchmark": ["benchmark"],
     "Memory": [
         "database_connection",
         "memory_policy",

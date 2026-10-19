@@ -290,7 +290,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         if args.timeout_seconds is not None:
             budgets = Budgets(
                 timeout_seconds=args.timeout_seconds,
-                followup_seconds=min(20.0, args.timeout_seconds / 3),
+                followup_seconds=args.timeout_seconds / 3,
             )
         memory = open_memory() if args.memory else None
         log = AuditLog(args.audit) if args.audit else None
