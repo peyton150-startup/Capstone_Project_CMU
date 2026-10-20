@@ -4,6 +4,7 @@
 
     uv run python -m capstone.experiment run --name trial-1 --known --out results.jsonl
     uv run python -m capstone.experiment run --name trial-2 --known --hazards --out faults.jsonl
+    uv run python -m capstone.experiment run --name report-1 --held-out --out held-out.jsonl
     uv run python -m capstone.experiment label --results results.jsonl --labels labels.jsonl --by me
     uv run python -m capstone.experiment report --results results.jsonl --labels labels.jsonl
 
@@ -25,6 +26,10 @@ With `--memory` each record also keeps what the memory gate did with the
 run (`MemoryPromotionRecord`) and each memory the run recalled
 (`MemoryUseRecord`), so `report` can say how many lessons were stored, how
 many were recalled and cited, and how many came from a wrong diagnosis.
+
+Numbers to report come from `--held-out` (`HELD_OUT_SEEDS`), seeds nothing
+was tuned on; `report` says how many runs used them. See the rule beside
+`HELD_OUT_SEEDS`.
 
 A results file holds the hidden truth of every run (inside its `Score`). It
 is for the experimenter: never give it to an agent, a prompt or memory.
@@ -78,6 +83,23 @@ class Case:
 
 def known_cases() -> list[Case]:
     return [Case(c.scenario_id, c.seed, c.fault) for c in KNOWN_CASES]
+
+
+# The seeds reported numbers come from. Never tune anything on them: not a
+# prompt, a budget, a threshold, or which cases to keep (dropping a hard seed
+# is tuning too). Tune on seeds 0-999; the tests, the known cases, the
+# benchmark and the rule baseline all use 0-60. A held-out failure is
+# reproduced and fixed on a tuning seed, never checked here again. Once
+# anything has been changed because of these seeds they are spent: they
+# become tuning seeds and the next report needs a fresh range (record the
+# switch in docs/PROGRESS.md). Memory used in a held-out run must have been
+# learned on tuning seeds, or a lesson can name a held-out case's answer.
+HELD_OUT_SEEDS: tuple[int, ...] = tuple(range(1000, 1010))
+
+
+def held_out_cases() -> list[Case]:
+    """Every fault on every held-out seed: the cases a reported number uses."""
+    return grid(HELD_OUT_SEEDS, FAULTS)
 
 
 def grid(seeds: Iterable[int], faults: Sequence[str | None]) -> list[Case]:
@@ -391,7 +413,12 @@ def _run_line(record: ExperimentRecord, score: Score) -> str:
 
 def report(records: Sequence[ExperimentRecord], labels: dict[str, Label]) -> str:
     scores = labelled(records, labels)
-    lines = [format_summary(summarize(scores)), format_model_calls(records)]
+    held = sum(r.seed in HELD_OUT_SEEDS for r in records)
+    lines = [
+        format_summary(summarize(scores)),
+        format_model_calls(records),
+        f"held-out seeds: {held}/{len(records)} runs",
+    ]
     memory = format_memory(records, scores)
     lines += ([] if memory is None else [memory]) + [""]
     lines += [_run_line(r, s) for r, s in zip(records, scores, strict=True)]
@@ -480,6 +507,11 @@ def main(argv: Sequence[str] | None = None) -> int:
     which = run.add_mutually_exclusive_group(required=True)
     which.add_argument("--known", action="store_true", help="the known-answer cases")
     which.add_argument("--seeds", help='seeds, "1-5" or "1,4,9"')
+    which.add_argument(
+        "--held-out",
+        action="store_true",
+        help="every fault on the held-out seeds: for reported numbers only",
+    )
     run.add_argument(
         "--faults", default="all", help='comma list, "all", or "any" (the seed\'s own)'
     )
@@ -508,6 +540,8 @@ def main(argv: Sequence[str] | None = None) -> int:
     if args.command == "run":
         if args.known:
             cases = known_cases()
+        elif args.held_out:
+            cases = held_out_cases()
         else:
             if args.faults == "all":
                 faults: list[str | None] = list(FAULTS)
