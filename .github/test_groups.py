@@ -63,6 +63,7 @@ GROUPS: dict[str, list[str]] = {
         "observation_tools",
         "sensor_summary",
         "settings",
+        "env_example",
         "wait_tool",
     ],
     # Checkpoints 1-3: runtime records, inner loop, outer sequence, action path.

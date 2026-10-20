@@ -88,6 +88,23 @@ alarm), then evaluation, then the agent itself.
 
 ## Session notes
 
+- **2026-10-20 — cleanups (next build candidate 7; configuration, no gate
+  needed per AGENTS.md section 2.2).** `.env.example` now lists every
+  setting `capstone/settings.py` reads (memory store, embedding model, the
+  six provider keys under the exact names the code reads, the job table,
+  FALLBACK_MODEL, the four model limits), each with a one-line meaning, and
+  says that other names (such as `GROQ` or `GOOGLE_GEMINI_API_KEY`) are not
+  read. CHROMA_PATH is commented out because a blank value would mean "this
+  folder". New `tests/test_env_example.py` (CI group "Tools and provider"):
+  every setting is listed, nothing is listed the code does not read, and a
+  copy of the file loads to exactly the defaults. Stale worktrees: the
+  eval-records and runtime-limits worktrees (sessions done, branches fully
+  merged into main, nothing uncommitted) were unregistered and their local
+  branches deleted; two empty folders could not be deleted while in use.
+  Remote branches `claude/gifted-hamilton-eqyqf4`, `feature/episodic-memory-
+  reflection` and `feature/reasoning-working-memory` are fully merged too and
+  were left for the developer to delete.
+
 - **2026-10-20 — L1: make live runs finish (next build candidate 1). Built
   ungated, developer to review (understood: no).** Why live runs ended
   "model unavailable", found from the records, the code and small live
