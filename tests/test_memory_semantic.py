@@ -283,11 +283,12 @@ def test_build_memory_service_shares_one_index_for_writing_and_recall(
     from capstone.memory.recall import recalled
     from capstone.memory.service import build_memory_service
 
-    real = semantic.open_chroma_index
     monkeypatch.setattr(
         semantic,
-        "open_chroma_index",
-        lambda path, name: real(path, name, embed=fake_embed),
+        "open_configured_index",
+        lambda settings: semantic.open_chroma_index(
+            settings.chroma_path, settings.chroma_collection, embed=fake_embed
+        ),
     )
     settings = Settings(_env_file=None, CHROMA_PATH=str(tmp_path / "shared"))
     service = build_memory_service(repository, settings)
@@ -317,3 +318,75 @@ def test_recall_tool_answers_from_semantic_recall(repository, index):
     assert result.success and result.source == "memory"
     assert [row["memory_id"] for row in result.data] == [str(memories[0].memory_id)]
     assert "fingerprint" not in str(result.data)
+
+
+# --- the index remembers which embedding model built it -----------------------
+
+
+def test_a_new_index_records_its_model_and_refuses_another(tmp_path):
+    from capstone.memory.semantic import IndexModelMismatch
+
+    path = tmp_path / "chroma"
+    open_chroma_index(path, "mixed", embed=fake_embed, model="nvidia/a")
+    assert open_chroma_index(path, "mixed", embed=fake_embed, model="nvidia/a")
+    with pytest.raises(IndexModelMismatch, match="built by nvidia/a, not nvidia/b"):
+        open_chroma_index(path, "mixed", embed=fake_embed, model="nvidia/b")
+
+
+def test_an_index_from_before_the_record_counts_as_the_local_model(tmp_path):
+    from capstone.memory.semantic import IndexModelMismatch
+
+    path = tmp_path / "chroma"
+    client = chromadb.PersistentClient(path=str(path))
+    client.create_collection("old", embedding_function=None)  # no model recorded
+    assert open_chroma_index(path, "old", embed=fake_embed)  # "local"
+    with pytest.raises(IndexModelMismatch, match="--rebuild"):
+        open_chroma_index(path, "old", embed=fake_embed, model="nvidia/a")
+
+
+def test_rebuild_empties_the_index_and_takes_the_new_model(tmp_path, repository):
+    path = tmp_path / "chroma"
+    old = open_chroma_index(path, "swap", embed=fake_embed)
+    memories = promote_all(MemoryService(repository, index=old))
+    assert old.collection.count() == len(memories)
+    new = open_chroma_index(
+        path, "swap", embed=fake_embed, model="nvidia/a", rebuild=True
+    )
+    assert new.collection.count() == 0
+    backfill(tuple(memories), new)
+    assert new.search("supplier batch", 1) == (memories[1].memory_id,)
+
+
+def test_memories_and_searches_are_embedded_in_their_own_roles(tmp_path, repository):
+    seen = []
+
+    def role(name):
+        def embed(texts):
+            seen.append((name, len(texts)))
+            return fake_embed(texts)
+
+        return embed
+
+    index = open_chroma_index(
+        tmp_path / "chroma", "roles", embed=role("passage"), embed_query=role("query")
+    )
+    promote_all(MemoryService(repository, index=index))  # one upsert per memory
+    index.search("vibration", 1)
+    assert seen == [("passage", 1)] * len(CANDIDATES) + [("query", 1)]
+
+
+def test_recall_uses_keyword_search_when_the_index_has_another_model(
+    tmp_path, repository, caplog
+):
+    path = tmp_path / "chroma"
+    open_chroma_index(path, "episodic_memories", embed=fake_embed)  # local
+    settings = Settings(
+        _env_file=None,
+        CHROMA_PATH=str(path),
+        EMBEDDING_MODEL="nvidia/nvidia/nemotron-3-embed-1b",
+        NVIDIA_API_KEY="test-key",
+    )
+    recall = build_memory_recall(repository, settings)
+    assert recall.mode == "semantic" and recall.index is None
+    assert recall.recall_memories("anything").fell_back
+    assert "--rebuild" in caplog.text and "test-key" not in caplog.text

@@ -74,9 +74,15 @@ then hydrates records from SQL by ID, skipping IDs SQL does not hold.
 `build_memory_recall()` reads `MEMORY_RETRIEVAL_MODE` (`semantic` default,
 `keyword`, `none`), `CHROMA_PATH` (default `.chroma/`) and `CHROMA_COLLECTION`
 (default `episodic_memories`). If Chroma cannot open or a search fails, recall
-falls back to keyword search and reports `fell_back=True`. Embeddings use
-Chroma's bundled local all-MiniLM-L6-v2 model (downloaded on first use).
-Rebuild the index from SQL with `uv run python -m capstone.memory.backfill`.
+falls back to keyword search and reports `fell_back=True`. Embeddings come
+from `EMBEDDING_MODEL`: by default NVIDIA's hosted `nvidia/nemotron-3-embed-1b`
+(2,048 numbers per text; needs `NVIDIA_API_KEY`), which embeds a stored memory
+as a `passage` and a search as a `query`; `local` keeps Chroma's bundled
+all-MiniLM-L6-v2. A collection records the model that built it and refuses to
+open with another, since vectors from different models cannot be compared;
+recall then falls back to keyword search. Rebuild the index from SQL with
+`uv run python -m capstone.memory.backfill`, adding `--rebuild` after the
+embedding model changes.
 
 The agent reaches this through its one memory tool. `build_memory_service(
 repository, settings)` opens one index for both sides: promotion writes to

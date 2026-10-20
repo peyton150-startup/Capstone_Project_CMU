@@ -136,6 +136,34 @@ def urllib_transport(url: str, headers: dict[str, str], body: bytes, timeout: fl
         return response.read()
 
 
+def post_json(
+    transport: Transport, url: str, api_key: str, body: dict, timeout: float
+) -> bytes:
+    """Send one JSON request with a Bearer key. ModelError on any failure to answer.
+
+    The error carries only a short reason, never the key or the response body.
+    """
+    headers = {
+        "Authorization": f"Bearer {api_key}",
+        "Content-Type": "application/json",
+        "Accept": "application/json",
+    }
+    try:
+        return transport(url, headers, json.dumps(body).encode(), timeout)
+    except urllib.error.HTTPError as error:
+        raise ModelError(
+            f"the model service answered HTTP {error.code}",
+            transient=error.code == 429 or error.code >= 500,
+        ) from None
+    except TimeoutError:
+        # Reached, but no answer in time: a slow model, not a missing one.
+        raise ModelError("the model service timed out", transient=True) from None
+    except (urllib.error.URLError, OSError):
+        raise ModelError(
+            "the model service could not be reached", transient=True
+        ) from None
+
+
 def reply_text(body: bytes) -> str:
     """The assistant's text in a chat-completions reply. ValueError if absent.
 
@@ -217,25 +245,7 @@ class ChatClient:
         }
         if self.max_output_tokens is not None:
             body["max_tokens"] = self.max_output_tokens
-        headers = {
-            "Authorization": f"Bearer {self._api_key}",
-            "Content-Type": "application/json",
-            "Accept": "application/json",
-        }
-        try:
-            raw = self._transport(self.url, headers, json.dumps(body).encode(), limit)
-        except urllib.error.HTTPError as error:
-            raise ModelError(
-                f"the model service answered HTTP {error.code}",
-                transient=error.code == 429 or error.code >= 500,
-            ) from None
-        except TimeoutError:
-            # Reached, but no answer in time: a slow model, not a missing one.
-            raise ModelError("the model service timed out", transient=True) from None
-        except (urllib.error.URLError, OSError):
-            raise ModelError(
-                "the model service could not be reached", transient=True
-            ) from None
+        raw = post_json(self._transport, self.url, self._api_key, body, limit)
         return answer_type.model_validate_json(answer_json(reply_text(raw)))
 
 

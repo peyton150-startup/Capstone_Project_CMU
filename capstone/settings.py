@@ -18,6 +18,9 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 # API that day. The earlier default was nemotron-3.5-lightning-30b-a3b.
 DEFAULT_MODEL = "nvidia/nvidia/nemotron-3.5-super-vl-120b-a12b"
 
+# The developer's choice for memory search (2026-10-20): 2,048 numbers per text.
+DEFAULT_EMBEDDING_MODEL = "nvidia/nvidia/nemotron-3-embed-1b"
+
 
 def _optional(alias: str):
     """An optional setting read from the environment name `alias`."""
@@ -47,6 +50,13 @@ class Settings(BaseSettings):
     )
     chroma_collection: str = Field(
         default="episodic_memories", min_length=3, validation_alias="CHROMA_COLLECTION"
+    )
+    # The model that turns memories and searches into vectors: "provider/model"
+    # (NVIDIA only for now) or "local" for Chroma's bundled all-MiniLM-L6-v2.
+    # Changing it means rebuilding the index: `python -m capstone.memory.backfill
+    # --rebuild`.
+    embedding_model: str = Field(
+        default=DEFAULT_EMBEDDING_MODEL, validation_alias="EMBEDDING_MODEL"
     )
 
     # One key per model provider in scope.

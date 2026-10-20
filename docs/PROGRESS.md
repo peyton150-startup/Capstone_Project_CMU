@@ -67,6 +67,7 @@ A component is complete only when both columns are checked.
 | R2 | Row cap, unjudged diagnosis, old agent retired, episode runner | yes (after the build) | n/a | yes | yes (after one re-teach) | session notes 2026-10-19; `capstone/episode.py`, `agent/monitor.py`, `evaluation/scoring.py`, `providers/factory.py` |
 | A8c | Provider benchmark: each model measured alone, from real episodes | yes | yes | yes | yes | `capstone/benchmark.py`; `providers/chat.py` (`Attempt.seconds`); no real model run yet |
 | A8d | Runtime limits: a model question gets only its stage's time left; a total size for the evidence in a prompt | yes | yes (second try, after one re-teach) | yes | yes (after one re-teach) | `agent/loop.py` (`ask_policy`, `OutOfTime`), `agent/state.py` (`research_seconds`, `seconds_for_question`), `agent/model_policy.py` (`evidence_section`, `MAX_EVIDENCE_SECTION_CHARS`), `providers/chat.py` (`max_seconds`); session note 2026-10-19 (A8d) |
+| A9a | NVIDIA embeddings for memory search (nemotron-3-embed-1b) | yes | yes (after one re-teach) | yes | yes (after two re-teaches) | `providers/embeddings.py` (`NvidiaEmbedder`, `embedders_for`), `memory/semantic.py` (`IndexModelMismatch`, `open_configured_index`, two-role `ChromaMemoryIndex`), `settings.py` (`EMBEDDING_MODEL`), `memory/backfill.py` (`--rebuild`); session note 2026-10-20 (A9a) |
 | E1 | Experiment records keep each run's model questions and wall-clock time | yes | yes | yes | yes | `capstone/experiment.py` (`CallSummary`, `summarize_calls`, `format_model_calls`); session notes 2026-10-19 and 2026-10-20 (E1) |
 | E2 | Experiment records keep what memory stored and what each run recalled | yes | yes | yes | yes | `capstone/evaluation/memory.py` (`recalled_in`, `cited_in`, `build_use_records`), `capstone/experiment.py` (`memory_records`, `format_memory`); session note 2026-10-20 (E2) |
 | E3 | An unnecessary intervention counted apart from a missed fix | yes | yes | yes | yes | `capstone/evaluation/scoring.py` (`Score.unnecessary_actions`, `summarize`), `capstone/experiment.py` (`extra=`); session note 2026-10-20 (E3) |
@@ -83,6 +84,50 @@ other three fault scenarios (material batch, machine configuration, false
 alarm), then evaluation, then the agent itself.
 
 ## Session notes
+
+- **2026-10-20 — A9a: NVIDIA embeddings for memory search. Pre-check
+  PASSED after one re-teach; built; closing question PASSED after two
+  re-teaches.**
+  The developer chose `nvidia/nemotron-3-embed-1b` for memory search.
+  Pre-check: why an index built with the local model (384 numbers) cannot be
+  searched with NVIDIA's (2,048), and why mixing models is wrong even at one
+  length. First answer described how semantic search works, not the
+  question; re-taught that each model draws its own map (lengths differ, so
+  Chroma refuses; at equal length the same position means different things,
+  so "nearest" is wrong without any error). Second answer: the whole index
+  must be re-embedded with NVIDIA's model, since only vectors from that
+  model can be compared. Correct.
+  Built: `providers/embeddings.py` `NvidiaEmbedder` (POST `/v1/embeddings`,
+  `input_type` passage or query, vectors back in order, refused if not one
+  per text) and `embedders_for(settings)` ((passage, query), None for
+  "local", ModelError for a missing key or another provider);
+  `providers/chat.py` `post_json`, the chat client's error mapping now
+  shared (no behaviour change); `settings.py` `EMBEDDING_MODEL` (default
+  `nvidia/nvidia/nemotron-3-embed-1b`, or `local`); `memory/semantic.py`:
+  `ChromaMemoryIndex(collection, embed, embed_query)` (memories embedded as
+  passages, searches as queries), `open_chroma_index(..., model=,
+  rebuild=)` records the model in the collection metadata and raises
+  `IndexModelMismatch` for another (a collection with no record counts as
+  `local`), `open_configured_index(settings)`; `memory/recall.py` opens the
+  index from settings and, on a mismatch, logs the rebuild command and uses
+  keyword search; `memory/backfill.py` `--rebuild`. One live check (not a
+  test): 2,048 numbers per text, and "machine shaking more and more" scored
+  0.385 against a bearing memory and 0.099 against a batch one.
+  Limits: every promotion and recall is now a network call (time inside the
+  investigation budget); recall repeats exactly only while NVIDIA serves the
+  same model; an existing `.chroma` index needs `backfill --rebuild`, and
+  until then recall falls back to keyword search; `.env.example` not
+  updated (this session cannot read it).
+  Closing question: someone sets `EMBEDDING_MODEL=local` without
+  rebuilding an index NVIDIA built; what does `recall_memories` do, which
+  code makes it, and why is that safer. First answer: recall is misinformed
+  until `backfill --rebuild`, safer as it needs no network; re-taught that
+  `open_chroma_index` raises `IndexModelMismatch`, recall falls back to
+  word search (`fell_back=True`), and the point is avoiding a silent wrong
+  answer, not the network. Second answer: no memories, with the models
+  reversed; re-taught that word search still returns memories, and which
+  model is which. Third answer: word search, because the mismatched
+  embeddings cannot be compared. Correct. A9a is complete.
 
 - **2026-10-20 — E4: held-out seeds. Pre-check PASSED after three
   re-teaches; built; closing question NOT YET ASKED.** Pre-check: asked
