@@ -404,7 +404,7 @@ def _resolved(sim: Simulator, truth) -> bool:
 def summarize(scores: list[Score]) -> dict:
     """Totals over many runs, e.g. "18/20 root causes correctly identified".
 
-    Runs that ended because no model answered are counted in `runs` and
+    Runs interrupted by an unanswered required model question are counted in `runs` and
     `model_unavailable` but left out of every other total: they measure the
     model services' uptime, not the agent's reasoning.
     """
@@ -459,7 +459,11 @@ def format_summary(summary: dict) -> str:
     judged = summary["judged"]
     unjudged = f" ({n - judged} not judged)" if judged < n else ""
     down = summary["model_unavailable"]
-    tail = f"; {down} run(s) left out: no model answered" if down else ""
+    tail = (
+        f"; {down} run(s) left out: a required model question was unanswered"
+        if down
+        else ""
+    )
     several = summary.get("compound_runs", 0)
     if several:
         causes = summary["compound_causes"]
