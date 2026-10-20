@@ -1671,3 +1671,24 @@ recipe, so runs stay reproducible; the frontend only chooses the recipe and
 never shows the agent the hidden causes. There is no frontend yet; the live
 progress view discussed on 2026-10-19 would be its first screen.
 
+### Next build candidates (ranked, 2026-10-20)
+
+A short list for the developer to choose from, most impact first. None is
+started. Each would go through its own pull request (AGENTS.md §11); whether
+each is taught first or built ungated is the developer's call.
+
+| # | Candidate | Why it matters | Depends on | Size |
+|---|---|---|---|---|
+| 1 | **Make live runs finish.** Find why live episodes end "model unavailable" (reply length limit, provider errors, no fallback model set), fix it, rerun the eight known-answer cases. | In the developer's local live results of 2026-10-20, 15 of 17 runs ended "model unavailable" and concluded "undetermined". Until runs complete, no live result means anything. | Keys in `.env`; live API calls | Small to medium |
+| 2 | **Benchmark the in-scope models** (`python -m capstone.benchmark`), then set the per-question limit, the investigation budget and the job table (which model does which job) from the numbers. | The time limits are still estimates; some jobs may suit a different model. | Item 1; the developer names the models | Small code, long runs |
+| 3 | **The compound challenge in experiments** (Future Work 8, first part). | Scoring several true faults is ready (E5) but experiments cannot build the challenge. | Nothing | Medium |
+| 4 | **An evaluator model for diagnosis labels**, checked against the developer's hand labels before it is trusted; a different model from the investigator; its verdict never reaches the agent or memory. | Experiments could then score root cause without labelling every run by hand (decided 2026-10-12). | Some hand labels to check it against | Medium |
+| 5 | **A memory comparison command:** the same cases with no memory, keyword recall and semantic recall, reported side by side on diagnosis accuracy and tool calls. | Shows whether memory improves investigations, not just whether search works. | Item 1 (live runs) for meaningful numbers | Small to medium |
+| 6 | **A live progress view:** a hook in the loop that announces each step as it happens, and a terminal viewer with approval at the prompt; only what the agent sees, the score only after the run. | A run can take minutes; a viewer also makes the demo. First screen of the later frontend (Future Work 8, modes). | Nothing | Medium |
+| 7 | **Small cleanups:** `.env.example` lists the newer settings; stale worktrees removed. | Setting up a fresh checkout works first time. | Nothing | Small |
+
+Can run in parallel: 1 (needs the keys, so in the developer's session), 3 + 4
+(evaluation), 5 + 6 (different files). Item 2 waits for item 1. Difficulty
+modes (Future Work 8, second part) wait for item 1's live results compared
+with the rule baseline.
+
