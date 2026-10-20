@@ -87,17 +87,24 @@ class Settings(BaseSettings):
 
     # Limits on every model question (MVP_SCOPE.md section 3). The loop's own
     # limits (iterations, tool calls, time per investigation) are in Budgets.
-    # The most tokens one reply may use, thinking included.
+    # The most tokens one reply may use, thinking included. Measured live on
+    # 2026-10-20: the thinking models used 450-1,050 reasoning tokens on the
+    # 120b model and up to 6,950 on nemotron lightning before the answer, so
+    # the earlier 2,048 could cut a reply off before its JSON began.
     model_max_output_tokens: int = Field(
-        default=2048, ge=1, validation_alias="MODEL_MAX_OUTPUT_TOKENS"
+        default=8192, ge=1, validation_alias="MODEL_MAX_OUTPUT_TOKENS"
     )
     # How long one request may wait, and one question in all (retries and the
-    # fallback model included).
+    # fallback model included). Measured live on 2026-10-20: the default model
+    # answered one small question in 6, 10, 6 and 40 s and once not in 120 s,
+    # and a planning question took 37 s, so the earlier 15 s / 20 s ended most
+    # runs as "model unavailable". A request past 45 s is usually stuck in the
+    # provider's queue: asking again or the fallback is quicker than waiting.
     model_request_seconds: float = Field(
-        default=15.0, gt=0, validation_alias="MODEL_REQUEST_SECONDS"
+        default=45.0, gt=0, validation_alias="MODEL_REQUEST_SECONDS"
     )
     model_question_seconds: float = Field(
-        default=20.0, gt=0, validation_alias="MODEL_QUESTION_SECONDS"
+        default=90.0, gt=0, validation_alias="MODEL_QUESTION_SECONDS"
     )
     # How many more times an unreachable model is asked before moving on.
     model_retries: int = Field(default=1, ge=0, validation_alias="MODEL_RETRIES")

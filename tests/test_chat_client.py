@@ -12,6 +12,7 @@ from capstone.agent.policy import Lesson
 from capstone.providers.chat import (
     JOBS,
     PROVIDERS,
+    USER_AGENT,
     ChatClient,
     FallbackClient,
     ModelError,
@@ -90,6 +91,9 @@ def test_one_request_carries_the_model_the_prompt_and_the_answer_shape():
     assert url == "https://example.test/v1/chat/completions"
     assert headers["Authorization"] == f"Bearer {KEY}"
     assert headers["Content-Type"] == "application/json"
+    # Not urllib's own "Python-urllib/3.x", which Groq refuses with HTTP 403.
+    assert headers["User-Agent"] == USER_AGENT
+    assert not headers["User-Agent"].startswith("Python-urllib")
     assert body["model"] == "m"
     assert body["temperature"] == 0
     system, user = body["messages"]
@@ -483,9 +487,27 @@ def test_one_question_gets_twenty_seconds_retries_and_fallback_included():
     with pytest.raises(ModelError) as raised:
         ask.ask("s", "p", Lesson)
     assert clock.now == 20.0  # it used to take 244: 60 s per request, four requests
-    assert first == [15.0, 3.0]  # each request is given only the time left
-    assert second == []
-    assert "b: not asked, no time left" in str(raised.value)
+    # Each model gets half: a's retry would eat b's time, so b is asked instead.
+    assert first == [10.0]
+    assert second == [10.0]
+    assert "b: not asked again, no time left" in str(raised.value)
+
+
+def test_a_slow_first_model_leaves_the_fallback_its_share_of_the_question():
+    clock = Clock()
+    primary, first = silent(clock, "a")
+    primary.timeout = 60.0  # a request may wait 60 s, the question 90 s
+    backup, _ = client(chat('{"text": "ok"}'), model="b")
+    ask = FallbackClient(
+        [primary, backup], sleep=clock.sleep, clock=clock, max_seconds=90.0
+    )
+    assert ask.ask("s", "p", Lesson).text == "ok"
+    assert first == [45.0]  # not 60 + a retry, which left the fallback nothing
+    assert ask.answered_by == "b"
+    assert [a.outcome for a in ask.attempts] == [
+        "the model service timed out",
+        "answered",
+    ]
 
 
 def test_a_caller_can_shorten_a_question_but_never_lengthen_it():
@@ -607,7 +629,11 @@ def test_the_limits_come_from_settings(monkeypatch):
     job = clients_for_jobs(configured)["decide"]
     assert (job.retries, job.max_seconds) == (3, 30.0)
     defaults = settings()
-    assert defaults.model_max_output_tokens == 2048
-    assert (defaults.model_retries, defaults.model_question_seconds) == (1, 20.0)
+    assert defaults.model_max_output_tokens == 8192
+    assert (defaults.model_request_seconds, defaults.model_question_seconds) == (
+        45.0,
+        90.0,
+    )
+    assert defaults.model_retries == 1
     with pytest.raises(ValueError):
         settings(MODEL_MAX_OUTPUT_TOKENS="0")
