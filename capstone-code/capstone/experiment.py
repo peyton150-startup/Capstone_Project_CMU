@@ -129,6 +129,9 @@ class CallSummary(BaseModel):
     outage_attempts: int
     # Which model answered how many questions: shows the fallback stepping in.
     answered_by: dict[str, int]
+    # Ordered questions and their safe attempt outcomes. None in older files;
+    # no prompts, response bodies or credentials are stored here.
+    details: tuple[ModelCall, ...] | None = None
 
 
 def summarize_calls(calls: Sequence[ModelCall]) -> CallSummary:
@@ -148,6 +151,7 @@ def summarize_calls(calls: Sequence[ModelCall]) -> CallSummary:
             for attempt in call.attempts
         ),
         answered_by=dict(sorted(by_model.items())),
+        details=tuple(calls),
     )
 
 
@@ -418,6 +422,32 @@ def _run_line(record: ExperimentRecord, score: Score) -> str:
     )
 
 
+def format_call_failures(record: ExperimentRecord) -> list[str]:
+    """Show unanswered questions and service failures, including recovered ones."""
+    summary = record.model_calls
+    if summary is None:
+        return []
+    if summary.details is None:
+        return (
+            ["  model failure details: not recorded in this results file"]
+            if summary.unanswered or summary.outage_attempts
+            else []
+        )
+    lines = []
+    for number, call in enumerate(summary.details, start=1):
+        if call.outcome != "no_answer" and not any(
+            a.outcome not in MODEL_OUTCOMES for a in call.attempts
+        ):
+            continue
+        lines.append(f"  question {number} {call.job}: {call.outcome}")
+        for attempt in call.attempts:
+            elapsed = "" if attempt.seconds is None else f" ({attempt.seconds:.3f} s)"
+            lines.append(f"    {attempt.model}: {attempt.outcome}{elapsed}")
+        if not call.attempts:
+            lines.append("    no request attempt was recorded")
+    return lines
+
+
 def report(records: Sequence[ExperimentRecord], labels: dict[str, Label]) -> str:
     scores = labelled(records, labels)
     held = sum(r.seed in HELD_OUT_SEEDS for r in records)
@@ -428,7 +458,9 @@ def report(records: Sequence[ExperimentRecord], labels: dict[str, Label]) -> str
     ]
     memory = format_memory(records, scores)
     lines += ([] if memory is None else [memory]) + [""]
-    lines += [_run_line(r, s) for r, s in zip(records, scores, strict=True)]
+    for record, score in zip(records, scores, strict=True):
+        lines.append(_run_line(record, score))
+        lines.extend(format_call_failures(record))
     return "\n".join(lines)
 
 
@@ -565,6 +597,13 @@ def main(argv: Sequence[str] | None = None) -> int:
             )
         memory = open_memory() if args.memory else None
         log = AuditLog(args.audit) if args.audit else None
+
+        def save_record(record: ExperimentRecord) -> None:
+            append_records(args.out, [record])
+            print(f"{record.scenario_id}: {record.conclusion!r}", flush=True)
+            for line in format_call_failures(record):
+                print(line, flush=True)
+
         records = run_experiment(
             cases,
             model_policy_factory(with_recall=memory is not None),
@@ -574,10 +613,7 @@ def main(argv: Sequence[str] | None = None) -> int:
             log=log,
             budgets=budgets,
             hazards=args.hazards,
-            on_record=lambda r: (
-                append_records(args.out, [r]),
-                print(f"{r.scenario_id}: {r.conclusion!r}"),
-            ),
+            on_record=save_record,
         )
         print(report(records, {}))
         return 0
