@@ -81,6 +81,7 @@ A component is complete only when both columns are checked.
 | R4e | Evidence-completeness stop: an open question on a current explanation blocks the automatic "supported" stop | yes (after the build) | n/a | yes | yes | `agent/loop.py` (`diagnosis_supported`); session note 2026-10-20 (R4e) |
 | L1 | Live runs finish: User-Agent for Groq, the fallback keeps its share of a question's time, a stage deadline is a timeout, measured limits, failure reasons in records | no (built ungated) | n/a | yes | no: built ungated, developer to review | `providers/chat.py` (`USER_AGENT`, `FallbackClient.ask`, `ModelError.out_of_time`), `agent/loop.py` (`ask_policy`), `settings.py`, `agent/state.py` (`Budgets`), `experiment.py` (`CallSummary.outage_reasons`); session note 2026-10-20 (L1) |
 | E6 | The compound challenge in experiments (a case names the scenario kind; KA-09) | no (built ungated) | n/a | yes | no: built ungated, developer to review | `episode.py` (`build_world`, `STANDARD`, `CHALLENGE`, `SCENARIO_KINDS`, `run_episode(kind=)`), `evaluation/known_answers.py` (`KnownCase.kind`, KA-09), `experiment.py` (`Case.kind`, `challenge_cases`, `run --challenge`, `several_faults`, `report`); session note 2026-10-20 (E6) |
+| L2 | Benchmark under the real limits; limits set from it; retries back off | no (built ungated) | n/a | yes | no: built ungated, developer to review | `benchmark.py` (`single_model_clients`, `run_model`, `EpisodeRecord.wall_seconds`, `ModelReport.concluded`/`median_episode_seconds`/`outage_reasons`, `Limits`, `suggested_limits`, `format_limits`, `--timeout-seconds`), `providers/chat.py` (`FallbackClient.ask` pauses), `settings.py` (`MODEL_RETRIES` 3), `agent/state.py` (`Budgets` 1200/400), `docs/benchmarks/2026-10-20.md`; session note 2026-10-20 (L2) |
 
 Every row above with four "yes" marks (or "n/a") is complete: no question is
 outstanding on it. Still to build after 12c, from `docs/MVP_SCOPE.md`: the
@@ -88,6 +89,39 @@ other three fault scenarios (material batch, machine configuration, false
 alarm), then evaluation, then the agent itself.
 
 ## Session notes
+
+- **2026-10-20 — L2: the in-scope models benchmarked, and the limits set from
+  the numbers (next build candidate 2). Built ungated, developer to review
+  (understood: no).** Results and what was set: `docs/benchmarks/2026-10-20.md`
+  (raw calls beside it). Models chosen by the developer: nemotron 120b,
+  Cohere command-a-03-2025, nemotron lightning 30b, and (added later) Cohere
+  command-a-reasoning-08-2025; Groq and Mistral left out for their rate limits.
+  One seed per fault (four episodes per model), for time. Only nemotron 120b
+  carried out a needed fix (the bearing); command-a was fast and reliable but
+  never asked for a fix; lightning gave mostly invalid replies;
+  command-a-reasoning got HTTP 422 on every decide question (cause not found).
+  What changed, module by module:
+  - `benchmark.py`: `single_model_clients` takes the retries and the question
+    limit from settings, as a real run does (it used the client's own 20 s);
+    `run_model` times each episode (`EpisodeRecord.wall_seconds`) and hands
+    each record to `on_record`, so `main` saves each episode as it ends;
+    `ModelReport` gains `concluded`, `median_episode_seconds` and
+    `outage_reasons`; `Limits` and `suggested_limits` (request = slowest 5%,
+    question = twice that, investigation = 2 x questions per episode x median)
+    and `format_limits`; `--timeout-seconds`.
+  - `providers/chat.py` `FallbackClient.ask`: retry pauses double (2, 4, 8 s),
+    falling back to the shortest when a long one no longer fits;
+    `settings.py` MODEL_RETRIES default 1 -> 3 (the 120b model's HTTP 500s).
+  - `agent/state.py` `Budgets`: 900/300 -> 1,200/400 s (the 120b model needed
+    about 948 s and timed out twice at 900 s).
+  - `.env.example`: MODEL_RETRIES=3.
+  The job table is unchanged (nemotron 120b for every job); the recommended
+  local FALLBACK_MODEL is cohere/command-a-03-2025.
+  Tests: `test_benchmark.py` (settings reach each job, each episode timed and
+  handed on, conclusions / episode time / failure reasons in the row, the
+  suggested limits, nothing measured suggests nothing, the command writes the
+  limits), `test_chat_client.py` (pauses 2, 4, 8 s; a pause that no longer
+  fits becomes 2 s; the new retry default).
 
 - **2026-10-20 — cleanups (next build candidate 7; configuration, no gate
   needed per AGENTS.md section 2.2).** `.env.example` now lists every
