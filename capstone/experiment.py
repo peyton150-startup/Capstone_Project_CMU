@@ -399,8 +399,15 @@ def _run_line(record: ExperimentRecord, score: Score) -> str:
         else f" lesson={_lesson(record)} recalled={len(uses)} "
         f"cited={sum(use.used is True for use in uses)}"
     )
+    several = len(score.causes) > 1
+    causes = (
+        f"causes={'-' if score.causes_found is None else score.causes_found}/"
+        f"{len(score.causes)} fixed={score.causes_resolved}/{len(score.causes)} "
+        if several
+        else ""
+    )
     return (
-        f"{record.scenario_id:24} cause={judged!s:5} "
+        f"{record.scenario_id:24} cause={judged!s:5} {causes}"
         f"asked={score.recommendation_correct!s:5} "
         f"extra={len(score.unnecessary_actions)} "
         f"acted={score.action_correct!s:5} resolved={score.resolved!s:5} "

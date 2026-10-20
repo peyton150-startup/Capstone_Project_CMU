@@ -373,3 +373,16 @@ def test_the_report_says_how_many_runs_were_held_out(records):
     assert "held-out seeds: 0/2 runs" in report(records, {}).splitlines()[2]
     held = [r.model_copy(update={"seed": 1003}) for r in records]
     assert "held-out seeds: 2/2 runs" in report(held, {}).splitlines()[2]
+
+
+def test_a_run_with_several_faults_shows_its_causes_found_and_fixed(records):
+    from capstone.evaluation.scoring import evaluate
+    from capstone.simulator.challenge import build_challenge
+
+    sim = build_challenge(42, machines=4)
+    for _ in range(200):  # past the faults' start
+        sim.step()
+    compound = evaluate(sim, None, [], tool_calls=0, start_tick=0)
+    record = records[0].model_copy(update={"score": compound})
+    assert "causes=0/2 fixed=0/2" in report([record], {}).splitlines()[-1]
+    assert "causes=" not in report(records, {}).splitlines()[-1]

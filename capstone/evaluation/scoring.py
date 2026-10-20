@@ -8,7 +8,7 @@ over, so nothing it reads can reach the agent.
 from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 
 from capstone.simulator.simulator import Simulator
 from capstone.tools.diagnosis import Diagnosis
@@ -89,8 +89,59 @@ EVIDENCE_MISS = "evidence_miss"
 REASONING_MISS = "reasoning_miss"
 
 
-# Stands in for a missing answer; never counts as right.
-_NO_ANSWER = Diagnosis(fault="false_alarm", summary="no diagnosis submitted")
+# A run with more than one true fault (e.g. `capstone.simulator.challenge`).
+COMPOUND = "compound"
+
+# The faults that need fixing or naming as a cause. In a run with several
+# true faults the others (a passing spike, a drifting or silent sensor) are
+# distractors: nothing to fix, and blaming one is a wrong cause. A run with
+# one true fault has that one as its cause, whatever it is.
+CAUSE_KINDS = ("bearing_degradation", "wrong_setting", "bad_material_batch")
+
+
+class Cause(BaseModel):
+    """One true fault in a run's record. Evaluator-side only."""
+
+    model_config = ConfigDict(frozen=True)
+
+    fault: str
+    machine_id: str | None = None
+    batch_id: int | None = None
+
+    @classmethod
+    def of(cls, truth) -> "Cause":
+        return cls(
+            fault=truth.fault, machine_id=truth.machine_id, batch_id=truth.batch_id
+        )
+
+    def describe(self) -> str:
+        where = self.machine_id if self.batch_id is None else f"batch {self.batch_id}"
+        return f"{self.fault} {where}"
+
+    def named_by(self, diagnosis: Diagnosis) -> bool:
+        """Does this named cause name this fault, on the right machine or batch?"""
+        if diagnosis.fault != self.fault:
+            return False
+        if self.batch_id is not None:
+            return diagnosis.batch_id == self.batch_id
+        return diagnosis.machine_id == self.machine_id
+
+
+def judge_causes(
+    causes: Sequence[Cause], named: Sequence[Diagnosis]
+) -> tuple[int, int]:
+    """How many true causes are named, and how many wrong causes are named.
+
+    Naming a false alarm says nothing needs fixing there, so it is never a
+    wrong cause; any other named fault that matches no true cause is one
+    (including blaming a distractor's machine).
+    """
+    found = sum(any(cause.named_by(d) for d in named) for cause in causes)
+    wrong = sum(
+        d.fault != "false_alarm" and not any(cause.named_by(d) for cause in causes)
+        for d in named
+    )
+    return found, wrong
 
 
 class Score(BaseModel):
@@ -126,6 +177,24 @@ class Score(BaseModel):
     # the agent actually looked at.
     relevant_evidence: list[str] = Field(default_factory=list)
     relevant_evidence_collected: list[str] = Field(default_factory=list)
+    # Every true cause, and with several true faults the distractors. Empty in
+    # results from before these were kept.
+    causes: list[Cause] = Field(default_factory=list)
+    distractors: list[Cause] = Field(default_factory=list)
+    # Partial credit: causes named, wrong causes named (None: not judged), and
+    # causes gone from reality at the end.
+    causes_found: int | None = None
+    wrong_causes: int | None = None
+    causes_resolved: int = 0
+    # The fixes the true causes needed, as "action machine".
+    wanted_actions: list[str] = Field(default_factory=list)
+
+    @property
+    def fully_right(self) -> bool | None:
+        """Every cause named and no wrong cause; None until judged."""
+        if self.causes_found is None:  # not judged, or results from before
+            return None
+        return self.causes_found == len(self.causes) and self.wrong_causes == 0
 
     @property
     def model_unavailable(self) -> bool:
@@ -157,6 +226,9 @@ class Score(BaseModel):
         human's catch, not the agent's judgement. Read from stored fields,
         so older results files have it too.
         """
+        if self.causes:
+            needed = set(self.wanted_actions)
+            return [asked for asked in self.recommended_actions if asked not in needed]
         wanted = (
             None
             if self.expected_action is None
@@ -167,7 +239,7 @@ class Score(BaseModel):
 
 def evaluate(
     sim: Simulator,
-    diagnosis: Diagnosis | None,
+    diagnosis: Diagnosis | Sequence[Diagnosis] | None,
     proposals: list[dict],
     *,
     tool_calls: int,
@@ -183,61 +255,134 @@ def evaluate(
     wrong: the agent answered in words that nobody has labelled yet. The
     action and whether the cause is gone are scored either way.
 
+    With several true faults (`COMPOUND`), the causes (`CAUSE_KINDS`) are what
+    must be named, fixed and gone; the rest are distractors. The fixes are
+    compared as a set, `resolved` means every cause is gone, and relevant
+    evidence is that of every cause. With one true fault, the same numbers
+    come out as they always have.
+
     `calls` are the investigation's answered tool calls as (tool, arguments),
     used only to see which relevant evidence the agent collected.
     """
-    (truth,) = sim.ground_truth()
-    if diagnosis is None:
-        diagnosis = _NO_ANSWER
-    expected = CORRECT_ACTION[truth.fault]
+    truths = sim.ground_truth()
+    compound = len(truths) > 1
+    if compound:
+        causes = [t for t in truths if t.fault in CAUSE_KINDS]
+        distractors = [t for t in truths if t.fault not in CAUSE_KINDS]
+    else:
+        causes, distractors = list(truths), []
     # Approval alone changes nothing; only work that was started counts.
     done = [p for p in proposals if p.get("executed_tick") is not None]
     taken = [f"{p['action']} {p['machine_id']}" for p in done]
-    wanted = [] if expected is None else [f"{expected} {truth.machine_id}"]
-    asked = [f"{p['action']} {p['machine_id']}" for p in proposals]
-    relevant = RELEVANT_EVIDENCE[truth.fault]
-    collected = [
-        r
-        for r in relevant
-        if any(r.met_by(tool, args, truth.machine_id) for tool, args in calls)
+    wanted = [
+        f"{CORRECT_ACTION[t.fault]} {t.machine_id}"
+        for t in causes
+        if CORRECT_ACTION[t.fault] is not None
     ]
+    asked = [f"{p['action']} {p['machine_id']}" for p in proposals]
+    relevant = [(r, t.machine_id) for t in causes for r in RELEVANT_EVIDENCE[t.fault]]
+    seen = {
+        r.describe(machine)
+        for r, machine in relevant
+        if any(r.met_by(tool, args, machine) for tool, args in calls)
+    }
+    described = list(dict.fromkeys(r.describe(machine) for r, machine in relevant))
+    gone = [_resolved(sim, t) for t in causes]
+    single = None if compound else truths[0]
 
-    if truth.fault == "bad_material_batch":
-        target_correct = (
-            diagnosis is not _NO_ANSWER and diagnosis.batch_id == truth.batch_id
-        )
-    else:
-        target_correct = (
-            diagnosis is not _NO_ANSWER and diagnosis.machine_id == truth.machine_id
-        )
-
-    if not judged:
-        diagnosis, fault_correct, target_correct = _NO_ANSWER, None, None
-    else:
-        fault_correct = diagnosis is not _NO_ANSWER and diagnosis.fault == truth.fault
-    return Score(
-        true_fault=truth.fault,
-        true_machine_id=truth.machine_id,
-        true_batch_id=truth.batch_id,
-        diagnosed_fault=None if diagnosis is _NO_ANSWER else diagnosis.fault,
-        diagnosed_machine_id=diagnosis.machine_id,
-        diagnosed_batch_id=diagnosis.batch_id,
-        fault_correct=fault_correct,
-        target_correct=target_correct,
-        expected_action=expected,
+    score = Score(
+        true_fault=COMPOUND if single is None else single.fault,
+        true_machine_id=None if single is None else single.machine_id,
+        true_batch_id=None if single is None else single.batch_id,
+        diagnosed_fault=None,
+        diagnosed_machine_id=None,
+        diagnosed_batch_id=None,
+        fault_correct=None,
+        target_correct=None,
+        expected_action=None if single is None else CORRECT_ACTION[single.fault],
         actions_taken=taken,
-        action_correct=taken == wanted,
+        action_correct=sorted(taken) == sorted(wanted),
         recommended_actions=asked,
-        recommendation_correct=asked == wanted,
+        recommendation_correct=sorted(asked) == sorted(wanted),
         recommendation_status=[p["status"] for p in proposals],
-        resolved=_resolved(sim, truth),
+        resolved=all(gone),
         tool_calls=tool_calls,
         ticks_elapsed=sim.clock.tick - start_tick,
         iterations=iterations,
         termination_reason=termination_reason,
-        relevant_evidence=[r.describe(truth.machine_id) for r in relevant],
-        relevant_evidence_collected=[r.describe(truth.machine_id) for r in collected],
+        relevant_evidence=described,
+        relevant_evidence_collected=[d for d in described if d in seen],
+        causes=[Cause.of(t) for t in causes],
+        distractors=[Cause.of(t) for t in distractors],
+        causes_resolved=sum(gone),
+        wanted_actions=wanted,
     )
+    return judge(score, diagnosis) if judged else score
+
+
+def _named(diagnosis: Diagnosis | Sequence[Diagnosis] | None) -> list[Diagnosis]:
+    if diagnosis is None:
+        return []
+    if isinstance(diagnosis, Diagnosis):
+        return [diagnosis]
+    return list(diagnosis)
+
+
+def judge(score: Score, diagnosis: Diagnosis | Sequence[Diagnosis] | None) -> Score:
+    """The same row with its root cause judged from what the conclusion names.
+
+    `diagnosis` is one cause or a list of them (a conclusion may name
+    several); None or an empty list means it names no recognisable cause,
+    which counts as wrong. Uses only the truth already in the row, so a run
+    can be judged long after it ended.
+
+    One true fault: right cause and right machine or batch, as always. Several
+    (`COMPOUND`): the run is right only when every cause is named and no wrong
+    cause is, and `causes_found` / `wrong_causes` give the partial credit.
+    """
+    named = _named(diagnosis)
+    update: dict = {}
+    found, wrong = judge_causes(score.causes, named)
+    if score.causes or score.true_fault == COMPOUND:  # not in older results
+        update.update(causes_found=found, wrong_causes=wrong)
+    if score.true_fault == COMPOUND:
+        shown = named[0] if named else None
+        right = found == len(score.causes) and wrong == 0
+        fault_correct = target_correct = right
+    else:
+        truth = Cause(
+            fault=score.true_fault,
+            machine_id=score.true_machine_id,
+            batch_id=score.true_batch_id,
+        )
+        shown = _closest(truth, named)
+        if shown is None:
+            fault_correct = target_correct = False
+        else:
+            fault_correct = shown.fault == truth.fault
+            target_correct = (
+                shown.batch_id == truth.batch_id
+                if truth.fault == "bad_material_batch"
+                else shown.machine_id == truth.machine_id
+            )
+    update.update(
+        diagnosed_fault=None if shown is None else shown.fault,
+        diagnosed_machine_id=None if shown is None else shown.machine_id,
+        diagnosed_batch_id=None if shown is None else shown.batch_id,
+        fault_correct=fault_correct,
+        target_correct=target_correct,
+    )
+    return score.model_copy(update=update)
+
+
+def _closest(truth: Cause, named: list[Diagnosis]) -> Diagnosis | None:
+    """The named cause to judge a one-fault run by: the one that names the
+    truth, else one of the right kind, else the first."""
+    for fits in (truth.named_by, lambda d: d.fault == truth.fault, lambda d: True):
+        for diagnosis in named:
+            if fits(diagnosis):
+                return diagnosis
+    return None
 
 
 def _resolved(sim: Simulator, truth) -> bool:
@@ -274,6 +419,7 @@ def summarize(scores: list[Score]) -> dict:
     def mean(values: list[float]) -> float:
         return sum(values) / n if n else 0.0
 
+    compound = [s for s in reasoned if s.true_fault == COMPOUND]
     available = sum(len(s.relevant_evidence) for s in reasoned)
     collected = sum(len(s.relevant_evidence_collected) for s in reasoned)
     return {
@@ -296,6 +442,13 @@ def summarize(scores: list[Score]) -> dict:
         "reasoning_misses": sum(s.miss_kind == REASONING_MISS for s in reasoned),
         # Runs where the agent asked for a fix the fault did not need.
         "unnecessary_interventions": sum(bool(s.unnecessary_actions) for s in reasoned),
+        # Runs with several true faults: partial credit per cause, and how
+        # many were fully right (`fault_correct` above counts those too).
+        "compound_runs": len(compound),
+        "compound_fully_right": sum(s.fully_right is True for s in compound),
+        "compound_causes": sum(len(s.causes) for s in compound),
+        "compound_causes_found": sum(s.causes_found or 0 for s in compound),
+        "compound_causes_resolved": sum(s.causes_resolved for s in compound),
     }
 
 
@@ -306,7 +459,16 @@ def format_summary(summary: dict) -> str:
     judged = summary["judged"]
     unjudged = f" ({n - judged} not judged)" if judged < n else ""
     down = summary["model_unavailable"]
-    outage = f"; {down} run(s) left out: no model answered" if down else ""
+    tail = f"; {down} run(s) left out: no model answered" if down else ""
+    several = summary.get("compound_runs", 0)
+    if several:
+        causes = summary["compound_causes"]
+        tail = (
+            f"; runs with several faults: {summary['compound_fully_right']}/"
+            f"{several} fully right, {summary['compound_causes_found']}/{causes} "
+            f"causes found, {summary['compound_causes_resolved']}/{causes} "
+            f"causes resolved{tail}"
+        )
     return (
         f"{summary['fault_correct']}/{judged} root causes correctly identified"
         f"{unjudged}; "
@@ -321,5 +483,5 @@ def format_summary(summary: dict) -> str:
         f"{summary['reasoning_misses']} misread it; "
         f"average {summary['mean_tool_calls']:.1f} tool calls, "
         f"{summary['mean_iterations']:.1f} iterations and "
-        f"{summary['mean_ticks']:.0f} ticks{outage}"
+        f"{summary['mean_ticks']:.0f} ticks{tail}"
     )

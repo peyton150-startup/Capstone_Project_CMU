@@ -71,7 +71,8 @@ A component is complete only when both columns are checked.
 | E1 | Experiment records keep each run's model questions and wall-clock time | yes | yes | yes | yes | `capstone/experiment.py` (`CallSummary`, `summarize_calls`, `format_model_calls`); session notes 2026-10-19 and 2026-10-20 (E1) |
 | E2 | Experiment records keep what memory stored and what each run recalled | yes | yes | yes | yes | `capstone/evaluation/memory.py` (`recalled_in`, `cited_in`, `build_use_records`), `capstone/experiment.py` (`memory_records`, `format_memory`); session note 2026-10-20 (E2) |
 | E3 | An unnecessary intervention counted apart from a missed fix | yes | yes | yes | yes | `capstone/evaluation/scoring.py` (`Score.unnecessary_actions`, `summarize`), `capstone/experiment.py` (`extra=`); session note 2026-10-20 (E3) |
-| E4 | A fixed set of held-out seeds for reported numbers | yes | yes | yes | not yet asked | `capstone/experiment.py` (`HELD_OUT_SEEDS`, `held_out_cases`, `run --held-out`); session note 2026-10-20 (E4) |
+| E4 | A fixed set of held-out seeds for reported numbers | yes | yes | yes | in part | `capstone/experiment.py` (`HELD_OUT_SEEDS`, `held_out_cases`, `run --held-out`); session note 2026-10-20 (E4) |
+| E5 | Scoring a run with several true faults (causes, distractors, partial credit) | yes | yes | yes | not yet asked | `capstone/evaluation/scoring.py` (`Cause`, `CAUSE_KINDS`, `judge_causes`, `judge`, `Score.causes`/`fully_right`), `capstone/evaluation/labels.py`; session note 2026-10-20 (E5) |
 | R4a | Scoring-integrity tests: scoring changes nothing, repeats exactly, stays right later | yes (after the build) | n/a | yes | yes (after one re-teach) | `tests/test_scoring_integrity.py`; session note 2026-10-20 (R4a) |
 | R4b | Evidence-vs-reasoning miss label on each wrong diagnosis | yes (after the build) | n/a | yes | yes | `evaluation/scoring.py` (`Score.miss_kind`, `EVIDENCE_MISS`, `REASONING_MISS`), `experiment.py`; session note 2026-10-20 (R4b) |
 | R4c | Rule-based diagnostic baseline (the yardstick for the agent) | yes (after the build) | n/a | yes | yes (after one re-teach) | `capstone/baseline.py` (`diagnose`, `run_baseline`, `Verdict`); session note 2026-10-20 (R4c) |
@@ -84,6 +85,45 @@ other three fault scenarios (material batch, machine configuration, false
 alarm), then evaluation, then the agent itself.
 
 ## Session notes
+
+- **2026-10-20 — E5: scoring several true faults. Contract agreed with the
+  developer; pre-check PASSED; built; closing question NOT YET ASKED.**
+  Decisions (the developer's, from three proposed): D1 bearing wear, a wrong
+  setting and a bad batch are causes; a false alarm, sensor drift and sensor
+  dropout are distractors (blaming one is a wrong cause, a fix on one is
+  unnecessary). D2 plain counts: causes found and causes resolved out of the
+  total, and "fully right" only when every cause is named and no wrong cause
+  is; no severity weights (the developer raised that a wrong setting ruins
+  parts rather than breaking the machine; weights were offered and declined
+  for now, as they would be invented without data). D3 one score shape:
+  a one-fault run is one cause and no distractors, and scores as before.
+  Pre-check: the agent names and fixes the bearing but misses the speed
+  setting on the same machine; the developer said the run is not fully
+  right. Correct (1/2 found, 1/2 resolved, filled in). Built:
+  `evaluate` takes every truth; `Cause`, `CAUSE_KINDS`, `COMPOUND`;
+  `judge_causes` (naming a false alarm is never a wrong cause); `judge`,
+  which `evaluate` and `apply_label` now share, so a row is judged the same
+  way at the end of a run and later from a label; `Score.causes`,
+  `distractors`, `causes_found`, `wrong_causes`, `causes_resolved`,
+  `wanted_actions`, `fully_right`; fixes compared as sets; relevant evidence
+  of every cause; summary and report show several-fault runs apart. A
+  `Label` may name a list of causes (the console labeller still asks for
+  one). Not done: experiments cannot run the challenge yet (`run_episode`
+  builds only the four ordinary scenarios); that wiring is a follow-up.
+  Also recorded: the developer wants easy / intermediate / hard modes with
+  1 / 4 / 8 problems and a frontend button to pick one, after the first live
+  agent run is compared with the rule baseline (scenario difficulty stays
+  deferred until then, as decided earlier on 2026-10-20).
+- **2026-10-20 — E4 closing question PASSED IN PART.** Asked whether
+  seeds 1002 and 1007 (where all six wrong bad-batch runs fell) or the
+  bad-batch cases may be dropped from a 28/40 held-out report, and what to
+  do instead, the developer said to look at those batches to improve the
+  process, then that one tunes on those seeds and moves to another set.
+  The second half is correct (once reported, the set is spent and becomes
+  tuning seeds; the next report uses a fresh range). The first half was
+  taught, not answered: the report must say 28/40; dropping seeds after
+  seeing results is choosing the cases; a note may say where the misses
+  fell.
 
 - **2026-10-20 — A9a: NVIDIA embeddings for memory search. Pre-check
   PASSED after one re-teach; built; closing question PASSED after two
