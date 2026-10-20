@@ -38,9 +38,13 @@ import json
 from collections.abc import Mapping, Sequence
 from typing import Literal, Protocol, TypeVar
 
-from pydantic import BaseModel, JsonValue
+from pydantic import BaseModel, Field, JsonValue, model_validator
 
-from capstone.agent.artifacts import AgentConclusion, VerificationCheck
+from capstone.agent.artifacts import (
+    AgentConclusion,
+    TerminationReason,
+    VerificationCheck,
+)
 from capstone.agent.policy import (
     ActionRequest,
     CallTool,
@@ -53,7 +57,7 @@ from capstone.agent.policy import (
 from capstone.agent.state import InvestigationState, Question
 from capstone.contracts import Contract
 from capstone.contracts.evidence import Evidence
-from capstone.contracts.tools import ToolSpec
+from capstone.contracts.tools import ToolRequest, ToolSpec
 from capstone.providers.chat import JOBS, Attempt
 from capstone.providers.factory import TOOL_DESCRIPTIONS
 
@@ -91,8 +95,55 @@ class PlanAnswer(Contract):
     questions: tuple[Question, ...] = ()
 
 
+# Flat on purpose. Asked for `CallTool | Stop`, a model answered with the
+# definition's name as a key ({"CallTool": {...}}), which is refused, not
+# repaired; plain named fields leave nothing to nest. This is a comment, not
+# the docstring, because the docstring goes into the schema the model reads.
 class NextStep(Contract):
-    decision: CallTool | Stop
+    """The next step: a tool call (choice call_tool) or a stop (choice stop)."""
+
+    choice: Literal["call_tool", "stop"]
+    information_needed: str = Field(min_length=1)
+    tool: str | None = None
+    arguments: dict[str, JsonValue] = Field(default_factory=dict)
+    question_id: str | None = None
+    hypothesis_id: str | None = None
+    stop_reason: (
+        Literal[
+            TerminationReason.EVIDENCE_SUFFICIENT, TerminationReason.NO_USEFUL_ACTION
+        ]
+        | None
+    ) = None
+
+    @model_validator(mode="after")
+    def one_kind_of_step(self):
+        """What a schema cannot say: each choice has its own fields."""
+        if self.choice == "call_tool":
+            if not self.tool:
+                raise ValueError("a call_tool step must name a tool")
+            if self.stop_reason is not None:
+                raise ValueError("a call_tool step gives no stop_reason")
+        else:
+            if self.stop_reason is None:
+                raise ValueError("a stop step must give a stop_reason")
+            used = (self.tool, self.question_id, self.hypothesis_id)
+            if any(value is not None for value in used) or self.arguments:
+                raise ValueError(
+                    "a stop step names no tool, arguments, question_id or hypothesis_id"
+                )
+        return self
+
+    def decision(self) -> Decision:
+        if self.choice == "stop":
+            return Stop(
+                reason=self.stop_reason, information_needed=self.information_needed
+            )
+        return CallTool(
+            information_needed=self.information_needed,
+            request=ToolRequest(name=self.tool, arguments=self.arguments),
+            question_id=self.question_id,
+            hypothesis_id=self.hypothesis_id,
+        )
 
 
 class ConcludeAnswer(Contract):
@@ -318,12 +369,14 @@ SYSTEM = {
         "anomaly, as up to five questions with ids Q1, Q2, ... Do not name a cause yet."
     ),
     "decide": (
-        f"{COMMON}\n\nYour job: choose the next single tool call, or stop. Use only "
-        "the tools listed, with arguments matching each one's schema. Do not repeat "
-        "a call whose answer is already in the evidence. Set question_id when the "
-        "call answers an open question, and hypothesis_id when it tests a "
-        "hypothesis. Stop with evidence_sufficient when the evidence answers what "
-        "this stage needs, or no_useful_action when no listed tool would help."
+        f"{COMMON}\n\nYour job: choose the next single tool call, or stop. For a "
+        "call, set choice to call_tool, tool to one of the tools listed and "
+        "arguments to match that tool's schema. Do not repeat a call whose answer "
+        "is already in the evidence. Set question_id when the call answers an open "
+        "question, and hypothesis_id when it tests a hypothesis. To stop, set "
+        "choice to stop and stop_reason to evidence_sufficient when the evidence "
+        "answers what this stage needs, or no_useful_action when no listed tool "
+        "would help."
     ),
     "interpret": (
         f"{COMMON}\n\nYour job: say what the newest evidence means. Give the full "
@@ -440,7 +493,7 @@ class ModelPolicy:
             f"{render(state)}\n\n{PHASE[phase]}\n\n"
             f"TOOLS YOU MAY CALL:\n{tool_list(self.tools)}"
         )
-        decision = self._ask("decide", state, prompt, NextStep).decision
+        decision = self._ask("decide", state, prompt, NextStep).decision()
         offered = {t.name for t in self.tools}
         if isinstance(decision, CallTool) and decision.request.name not in offered:
             self._refuse(f"{decision.request.name} is not a tool offered here")
