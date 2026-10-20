@@ -23,6 +23,7 @@ unjudged. `rescore` applies a label afterwards, without running again.
 
 from collections.abc import Callable
 from dataclasses import dataclass
+from datetime import timedelta
 from time import monotonic
 
 from capstone.agent.completion import AuditLog
@@ -36,6 +37,11 @@ from capstone.evaluation.scoring import Score, evaluate
 from capstone.learning import LearningOutcome, learn_from
 from capstone.memory.service import MemoryService
 from capstone.providers.factory import SimulatorFactoryProvider
+from capstone.providers.hazards import (
+    HazardReport,
+    UnreliableProvider,
+    standard_hazards,
+)
 from capstone.providers.recall import RecallingProvider
 from capstone.simulator.generator import build_scenario
 from capstone.simulator.simulator import Simulator
@@ -81,6 +87,8 @@ class EpisodeResult:
     sim: Simulator
     desk: ApprovalDesk
     start_tick: int
+    # What the scheduled tool faults did; None when the tools were reliable.
+    hazards: HazardReport | None = None
 
     @property
     def conclusion(self) -> str | None:
@@ -148,11 +156,14 @@ def run_episode(
     budgets: Budgets | None = None,
     clock: Callable[[], float] = monotonic,
     run_key: str | None = None,
+    hazards: bool = False,
 ) -> EpisodeResult:
     """Run one seeded episode from the fault's start to its score.
 
     With `memory`, the agent may recall past lessons and, with `log` as well,
     the finished investigation is audited and offered to the memory gate.
+    With `hazards`, the agent's tools fail on the standard schedule
+    (`capstone.providers.hazards`), built from what monitoring noticed.
     """
     sim = build_scenario(seed, machines=machines, fault=fault)
     desk = ApprovalDesk(sim)
@@ -165,6 +176,14 @@ def run_episode(
         (desk.approve if approved else desk.reject)(proposal.proposal_id, note)
 
     provider = SimulatorFactoryProvider(look, act)
+    unreliable = None
+    if hazards:
+        # A day before the run began: older than anything the run itself did.
+        before_run = (sim.clock.time_at(0) - timedelta(days=1)).isoformat()
+        unreliable = UnreliableProvider(
+            provider, standard_hazards(anomaly.machine_id, before_run)
+        )
+        provider = unreliable
     run_id = run_id_for(run_key or f"episode/seed-{seed}/fault-{fault or 'any'}")
     state = InvestigationState(
         run_id=run_id,
@@ -188,4 +207,13 @@ def run_episode(
     if judge is not None and state.conclusion is not None:
         diagnosis = judge(state.conclusion.diagnosis)
     score = score_episode(sim, desk, state, start_tick, diagnosis, judged=judged)
-    return EpisodeResult(seed, state, score, learning, sim, desk, start_tick)
+    return EpisodeResult(
+        seed,
+        state,
+        score,
+        learning,
+        sim,
+        desk,
+        start_tick,
+        None if unreliable is None else unreliable.report,
+    )
