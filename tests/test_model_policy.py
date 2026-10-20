@@ -69,13 +69,19 @@ def policy(tools=None, **replies):
 
 
 def call(tool, question_id=None, **arguments):
-    decision = {
+    step = {
+        "choice": "call_tool",
         "information_needed": f"what {tool} shows",
-        "request": {"name": tool, "arguments": arguments},
+        "tool": tool,
+        "arguments": arguments,
     }
     if question_id is not None:
-        decision["question_id"] = question_id
-    return {"decision": decision}
+        step["question_id"] = question_id
+    return step
+
+
+def stop(reason="evidence_sufficient"):
+    return {"choice": "stop", "stop_reason": reason, "information_needed": "nothing"}
 
 
 def state_with_evidence():
@@ -319,7 +325,7 @@ def test_a_decision_is_a_tool_call_or_a_stop():
     agent = policy(
         decide=[
             call("get_sensor_trend", machine_id="CNC-02", sensor="vibration"),
-            {"decision": {"reason": "evidence_sufficient"}},
+            stop(),
         ]
     )
     first = agent.decide(new_state(), "investigate")
@@ -328,7 +334,7 @@ def test_a_decision_is_a_tool_call_or_a_stop():
 
 
 def test_the_decision_prompt_names_the_stage_and_the_tools_with_their_schemas():
-    agent = policy(decide=[{"decision": {"reason": "no_useful_action"}}])
+    agent = policy(decide=[stop("no_useful_action")])
     agent.decide(new_state(), "test")
     _, prompt, _ = agent.clients["decide"].asked[0]
     assert "STAGE: test." in prompt
@@ -359,7 +365,11 @@ def test_a_call_to_a_tool_not_offered_is_refused_and_counted_against_the_model(
 
 
 def test_a_reply_that_breaks_the_answer_type_is_refused():
-    agent = policy(decide=['{"decision": {"reason": "i am done"}}'])
+    agent = policy(
+        decide=[
+            '{"choice": "stop", "stop_reason": "i am done", "information_needed": "x"}'
+        ]
+    )
     with pytest.raises(ValueError):
         agent.decide(new_state(), "investigate")
     assert agent.calls[-1].outcome == "invalid_reply"
@@ -505,7 +515,7 @@ def scripted_models():
                 from_tick=number(r"tick (\d+)\):", p) - 300,
                 to_tick=number(r"tick (\d+)\):", p),
             ),
-            {"decision": {"reason": "evidence_sufficient"}},
+            stop(),
             lambda p: call(
                 "get_sensor_trend",
                 machine_id="CNC-02",
@@ -516,7 +526,7 @@ def scripted_models():
             ),
             call("wait", ticks=300),
             verify_look,
-            {"decision": {"reason": "evidence_sufficient"}},
+            stop(),
         ],
         interpret=[
             {"hypotheses": None},
@@ -710,3 +720,64 @@ def test_a_question_outside_a_running_investigation_has_only_its_own_limit():
     agent = policy(write_lesson=[{"lesson": "check vibration first"}])
     agent.write_lesson(new_state())
     assert agent.clients["write_lesson"].limits == [None]
+
+
+# --- the decide answer is one flat object, never a union to nest -------------
+
+
+def test_the_reply_seen_live_that_nested_the_call_under_its_name_is_refused():
+    nested = {
+        "decision": {
+            "CallTool": {
+                "information_needed": "vibration on CNC-02",
+                "request": {"name": "get_sensor_trend", "arguments": {}},
+            }
+        }
+    }
+    agent = policy(decide=[nested])
+    with pytest.raises(ValueError):
+        agent.decide(new_state(), "investigate")
+    assert agent.calls[-1].outcome == "invalid_reply"
+
+
+def test_a_flat_call_becomes_the_loops_own_call_with_its_ids():
+    reply = call("get_sensor_trend", question_id="Q1", machine_id="CNC-02")
+    reply["hypothesis_id"] = "H2"
+    decision = policy(decide=[reply]).decide(new_state(), "test")
+    assert decision == CallTool(
+        information_needed="what get_sensor_trend shows",
+        request=ToolRequest(
+            name="get_sensor_trend", arguments={"machine_id": "CNC-02"}
+        ),
+        question_id="Q1",
+        hypothesis_id="H2",
+    )
+
+
+@pytest.mark.parametrize(
+    "reply, problem",
+    [
+        ({"choice": "call_tool", "information_needed": "x"}, "must name a tool"),
+        (
+            {**call("get_events"), "stop_reason": "evidence_sufficient"},
+            "gives no stop_reason",
+        ),
+        ({"choice": "stop", "information_needed": "x"}, "must give a stop_reason"),
+        ({**stop(), "tool": "get_events"}, "names no tool"),
+        ({**stop(), "question_id": "Q1"}, "names no tool"),
+    ],
+)
+def test_each_choice_keeps_to_its_own_fields(reply, problem):
+    agent = policy(decide=[reply])
+    with pytest.raises(ValueError, match=problem):
+        agent.decide(new_state(), "investigate")
+    assert agent.calls[-1].outcome == "invalid_reply"
+
+
+def test_the_schema_the_model_sees_has_no_named_alternatives_to_nest():
+    schema = NextStep.model_json_schema()
+    assert "CallTool" not in json.dumps(schema) and "Stop" not in schema.get(
+        "$defs", {}
+    )
+    assert schema["properties"]["choice"]["enum"] == ["call_tool", "stop"]
+    assert "anyOf" not in json.dumps(schema["properties"]["choice"])
