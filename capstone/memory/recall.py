@@ -147,10 +147,13 @@ def build_memory_recall(repository: RecallStore, settings=None) -> MemoryRecall:
         settings = get_settings()
     index = None
     if settings.memory_retrieval_mode == "semantic":
-        try:
-            from capstone.memory.semantic import open_chroma_index
+        from capstone.memory import semantic
 
-            index = open_chroma_index(settings.chroma_path, settings.chroma_collection)
+        try:
+            index = semantic.open_configured_index(settings)
+        except semantic.IndexModelMismatch as error:
+            # Says which model built the index and how to rebuild; no memory text.
+            _log.warning("%s; recall will use keyword search", error)
         except Exception:
             _log.warning("ChromaDB unavailable; recall will use keyword search")
     return MemoryRecall(repository, mode=settings.memory_retrieval_mode, index=index)

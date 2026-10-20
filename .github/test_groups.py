@@ -57,6 +57,7 @@ GROUPS: dict[str, list[str]] = {
         "hazards",
         "chat_client",
         "difficulty_tool_compatibility",
+        "embeddings",
         "job_history",
         "observability",
         "observation_tools",

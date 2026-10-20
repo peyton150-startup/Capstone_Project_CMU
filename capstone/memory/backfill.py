@@ -2,9 +2,14 @@
 # Responsibility: rebuild the derived index; never write to the SQL store.
 """Backfill the semantic index: `python -m capstone.memory.backfill`.
 
-Reads DATABASE_URL, CHROMA_PATH and CHROMA_COLLECTION from the environment or
-`.env`. Upserts are keyed by memory ID, so rerunning is safe.
+Reads DATABASE_URL, CHROMA_PATH, CHROMA_COLLECTION and EMBEDDING_MODEL from
+the environment or `.env`. Upserts are keyed by memory ID, so rerunning is
+safe. After changing EMBEDDING_MODEL, run with `--rebuild`: the old vectors
+come from another model and cannot be searched with the new one, so the
+collection is emptied and every memory is embedded again.
 """
+
+import argparse
 
 from capstone.memory.contracts import EpisodicMemory
 from capstone.memory.service import MemoryIndex
@@ -18,12 +23,20 @@ def backfill(memories: tuple[EpisodicMemory, ...], index: MemoryIndex) -> int:
     return len(memories)
 
 
-def main() -> None:
+def main(argv=None) -> None:
+    parser = argparse.ArgumentParser(prog="python -m capstone.memory.backfill")
+    parser.add_argument(
+        "--rebuild",
+        action="store_true",
+        help="empty the index first (needed after EMBEDDING_MODEL changes)",
+    )
+    args = parser.parse_args(argv)
+
     from sqlalchemy import create_engine
     from sqlalchemy.engine import make_url
 
     from capstone.memory.repository import SQLMemoryRepository
-    from capstone.memory.semantic import open_chroma_index
+    from capstone.memory.semantic import open_configured_index
     from capstone.settings import get_settings
 
     settings = get_settings()
@@ -37,9 +50,12 @@ def main() -> None:
         memories = SQLMemoryRepository(engine).all_memories()
     finally:
         engine.dispose()
-    index = open_chroma_index(settings.chroma_path, settings.chroma_collection)
+    index = open_configured_index(settings, rebuild=args.rebuild)
     count = backfill(memories, index)
-    print(f"Indexed {count} memories into '{settings.chroma_collection}'.")
+    print(
+        f"Indexed {count} memories into '{settings.chroma_collection}' "
+        f"with {settings.embedding_model}."
+    )
 
 
 if __name__ == "__main__":
