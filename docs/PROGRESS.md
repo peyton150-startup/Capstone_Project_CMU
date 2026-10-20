@@ -68,6 +68,7 @@ A component is complete only when both columns are checked.
 | A8c | Provider benchmark: each model measured alone, from real episodes | yes | yes | yes | yes | `capstone/benchmark.py`; `providers/chat.py` (`Attempt.seconds`); no real model run yet |
 | A8d | Runtime limits: a model question gets only its stage's time left; a total size for the evidence in a prompt | yes | yes (second try, after one re-teach) | yes | yes (after one re-teach) | `agent/loop.py` (`ask_policy`, `OutOfTime`), `agent/state.py` (`research_seconds`, `seconds_for_question`), `agent/model_policy.py` (`evidence_section`, `MAX_EVIDENCE_SECTION_CHARS`), `providers/chat.py` (`max_seconds`); session note 2026-10-19 (A8d) |
 | E1 | Experiment records keep each run's model questions and wall-clock time | yes | yes | yes | not yet asked | `capstone/experiment.py` (`CallSummary`, `summarize_calls`, `format_model_calls`); session note 2026-10-19 (E1) |
+| R4a | Scoring-integrity tests: scoring changes nothing, repeats exactly, stays right later | n/a | n/a | yes | no — built ungated, developer to review | `tests/test_scoring_integrity.py`; session note 2026-10-20 (R4a) |
 
 Every row above with four "yes" marks (or "n/a") is complete: no question is
 outstanding on it. Still to build after 12c, from `docs/MVP_SCOPE.md`: the
@@ -75,6 +76,25 @@ other three fault scenarios (material batch, machine configuration, false
 alarm), then evaluation, then the agent itself.
 
 ## Session notes
+
+- **2026-10-20 — R4a: scoring-integrity tests. Built ungated at the
+  developer's direction (understood: no — developer to review).**
+  First of four changes chosen from a review of recent papers, built in
+  order of least work first. Based on Chen, "When Agent Evaluation Becomes
+  Unreliable" (arXiv 2610.16067), where a scorer that changed the
+  environment before reading it inflated success from 65.5% to 94.3%.
+  `evaluate()` reads hidden state, so `tests/test_scoring_integrity.py`
+  pins, for all eight known-answer cases after the right repair (or none)
+  and 200 ticks of waiting: (1) scoring a right and a wrong answer leaves
+  the clock, the factory state, the event log and the next 30 ticks of
+  readings identical to an unscored twin, so no hidden step or random
+  draw happens; (2) the same finished episode, or its twin, gets an equal
+  `Score`; (3) a right answer is still right on all four marks after 300
+  more ticks. A scorer patched to take one step was caught by test (1).
+  No production code changed. Also new: the "Research basis" section in
+  `README.md` and rule 8 in `AGENTS.md` §11 (credit papers there).
+  Local tests ran on Python 3.13 because this session's uv could not
+  download the pinned 3.14.7; CI uses the pin.
 
 - **2026-10-19 — A8d: runtime limits. Pre-check PASSED on the second try
   (after one re-teach); built; closing question PASSED (after one

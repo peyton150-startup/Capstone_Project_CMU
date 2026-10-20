@@ -265,3 +265,13 @@ The existing `capstone/` layout is retained: `settings.py` for configuration,
 operations, `simulator/` for reality, `memory/` for durable lessons, and
 `database/` for connectivity. Agent,
 evaluation, and ingestion modules will be added when they have working behavior.
+
+## Research basis
+
+Parts of this work were based on these papers. Each line names the change
+and the paper it came from.
+
+- Scoring-integrity tests (`tests/test_scoring_integrity.py`): scoring
+  never changes the simulator, gives the same score twice, and stays right
+  as time moves on. Based on [When Agent Evaluation Becomes Unreliable](https://arxiv.org/abs/2610.16067)
+  (Chen, 2026).

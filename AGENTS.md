@@ -476,3 +476,7 @@ documented on GitHub where the developer can read it.
    permission for this on 2026-10-19; it does not cover force-pushes or
    rewriting history, which still need asking.
 7. Record the change in `docs/PROGRESS.md` within the same PR.
+8. **Rule set by the developer, 2026-10-20:** when a change is based on a
+   research paper, credit it in the same PR: add a line to the "Research
+   basis" section of `README.md` naming the change and linking the paper.
+   List only papers that actually shaped a change that was made.
