@@ -72,8 +72,8 @@ A component is complete only when both columns are checked.
 | E1 | Experiment records keep each run's model questions and wall-clock time | yes | yes | yes | yes | `capstone/experiment.py` (`CallSummary`, `summarize_calls`, `format_model_calls`); session notes 2026-10-19 and 2026-10-20 (E1) |
 | E2 | Experiment records keep what memory stored and what each run recalled | yes | yes | yes | yes | `capstone/evaluation/memory.py` (`recalled_in`, `cited_in`, `build_use_records`), `capstone/experiment.py` (`memory_records`, `format_memory`); session note 2026-10-20 (E2) |
 | E3 | An unnecessary intervention counted apart from a missed fix | yes | yes | yes | yes | `capstone/evaluation/scoring.py` (`Score.unnecessary_actions`, `summarize`), `capstone/experiment.py` (`extra=`); session note 2026-10-20 (E3) |
-| E4 | A fixed set of held-out seeds for reported numbers | yes | yes | yes | in part | `capstone/experiment.py` (`HELD_OUT_SEEDS`, `held_out_cases`, `run --held-out`); session note 2026-10-20 (E4) |
-| E5 | Scoring a run with several true faults (causes, distractors, partial credit) | yes | yes | yes | not yet asked | `capstone/evaluation/scoring.py` (`Cause`, `CAUSE_KINDS`, `judge_causes`, `judge`, `Score.causes`/`fully_right`), `capstone/evaluation/labels.py`; session note 2026-10-20 (E5) |
+| E4 | A fixed set of held-out seeds for reported numbers | yes | yes | yes | yes | `capstone/experiment.py` (`HELD_OUT_SEEDS`, `held_out_cases`, `run --held-out`); session note 2026-10-20 (E4) |
+| E5 | Scoring a run with several true faults (causes, distractors, partial credit) | yes | yes | yes | yes | `capstone/evaluation/scoring.py` (`Cause`, `CAUSE_KINDS`, `judge_causes`, `judge`, `Score.causes`/`fully_right`), `capstone/evaluation/labels.py`; session note 2026-10-20 (E5) |
 | R4a | Scoring-integrity tests: scoring changes nothing, repeats exactly, stays right later | yes (after the build) | n/a | yes | yes (after one re-teach) | `tests/test_scoring_integrity.py`; session note 2026-10-20 (R4a) |
 | R4b | Evidence-vs-reasoning miss label on each wrong diagnosis | yes (after the build) | n/a | yes | yes | `evaluation/scoring.py` (`Score.miss_kind`, `EVIDENCE_MISS`, `REASONING_MISS`), `experiment.py`; session note 2026-10-20 (R4b) |
 | R4c | Rule-based diagnostic baseline (the yardstick for the agent) | yes (after the build) | n/a | yes | yes (after one re-teach) | `capstone/baseline.py` (`diagnose`, `run_baseline`, `Verdict`); session note 2026-10-20 (R4c) |
@@ -87,6 +87,20 @@ alarm), then evaluation, then the agent itself.
 
 ## Session notes
 
+- **2026-10-20 — E4 and E5 closing questions PASSED. All five
+  evaluation-record items (E1-E5) are complete.** E5: asked about a
+  challenge run naming both CNC-03 causes plus "bearing wear on CNC-01"
+  (where only a temperature sensor drifts), the developer gave 2 causes
+  found and 1 wrong cause, and said the run is not fully right but gave a
+  different reason (the agent might have blamed an open door for the
+  temperature). Corrected: it is not fully right because a wrong cause was
+  named; the door is about how an agent could be misled, not the rule.
+  Asked whether naming only the two CNC-03 causes would be fully right,
+  the developer said yes. Correct. E4 (the half taught earlier, on a new
+  case): asked whether a 30/40 held-out run may be reported as 30/36 by
+  leaving out seed 1005 with a noisy sensor, the developer said nothing can
+  be left out; look into why it went wrong or report the noisy sensor.
+  Correct.
 - **2026-10-20 — A9b: the decide answer as one flat object. Pre-check
   PASSED after one re-teach; built; closing question PASSED after one
   re-teach.**
