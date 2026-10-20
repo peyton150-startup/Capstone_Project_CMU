@@ -115,6 +115,23 @@ alarm), then evaluation, then the agent itself.
   `uv run python .github/test_groups.py check` all passed. Read-only code
   review found no actionable issues.
 
+- **2026-10-20 — course Module 3 (RAG and vector databases), piece 1: the
+  memory comparison command. Built ungated, developer to review
+  (understood: no).** Gap note for Module 3 added to
+  `docs/COURSE_MODULES.md`. New module `capstone/memory_comparison.py`
+  (next build candidate 5): `MODES` (none, keyword, semantic);
+  `memory_for(mode, repository, index)` gives the memory one mode reads
+  (None for "none", so the agent is not offered recall; semantic without an
+  index is an error, never a silent keyword fallback); `compare_memory`
+  runs the same cases once per mode through `run_experiment` with no audit
+  log, so nothing is learned and no mode feeds the next; `mode_of` reads
+  the mode back from the run key (`<name>/<mode>/<number>/<case>`);
+  `compare_report` prints one line per mode and one line per case, and
+  warns when the modes ran different cases; `main` gives `run` and
+  `report` commands. Tests: `tests/test_memory_comparison.py` (10, scripted
+  policies, SQLite, a fixed fake index). Not run live: that needs the keys,
+  DATABASE_URL and a filled store.
+
 - **2026-10-20 — course Module 2 (agent architecture: memory, tools,
   reasoning loops): gap note. Built ungated, developer to review
   (understood: no).** Documentation only. New `docs/COURSE_MODULES.md`
