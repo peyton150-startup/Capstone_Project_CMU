@@ -87,6 +87,25 @@ alarm), then evaluation, then the agent itself.
 
 ## Session notes
 
+- **2026-10-20 — course Module 3, piece 2: bounded, recorded memory
+  search. Built ungated, developer to review (understood: no).** Closes the
+  two gaps found in Module 2. `providers/recall.py`: `RecallingProvider`
+  refuses the same search twice in one investigation (same words after
+  `normalize`, same limit), whatever the tick, with `REPEATED_SEARCH`, and
+  answers at most `max_searches` searches (`MAX_SEARCHES` = 3, the Future
+  Work 1 default), refusing later ones with `SEARCHES_SPENT`; both are
+  `invalid_arguments` errors whose message the next prompt shows; a store
+  failure spends nothing; `RECALL_SPEC` states the limits.
+  `evaluation/memory.py`: `RecallSearchRecord` and `build_search_records
+  (state)`, one record per search from the loop's decision records (words,
+  limit, answered / repeated / budget_spent / failed, memory IDs).
+  `experiment.py`: `ExperimentRecord.recall_searches`, and the run line
+  shows `searches=` and `refused=`. `memory_comparison.py`: the mode line
+  shows refused searches. Tests: 8 more in `tests/test_recall_tool.py`; two
+  expected report lines updated in `tests/test_experiment.py` and
+  `tests/test_memory_comparison.py`. Limits: per investigation, not per
+  knowledge gap; the agent's own usefulness judgement is not recorded.
+
 - **2026-10-20 — course Module 3 (RAG and vector databases), piece 1: the
   memory comparison command. Built ungated, developer to review
   (understood: no).** Gap note for Module 3 added to

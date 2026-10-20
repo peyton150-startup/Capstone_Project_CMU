@@ -143,3 +143,20 @@ another reasoning LLM or a dedicated RAG agent"), no document ingestion.
   one line per case with the modes side by side. Semantic mode with no
   index is refused rather than quietly run as keyword search. Tested with
   scripted policies only; not yet run live.
+- **Bounded, recorded memory search** (`providers/recall.py`,
+  `evaluation/memory.py`, `experiment.py`): a minimal slice of Future Work
+  1's agent-directed retrieval, on the existing SQL + Chroma design. The
+  agent still chooses when and what to search. Within one investigation
+  the store does not change (lessons are promoted only after a run), so
+  the same search again, at any tick, is refused with a message telling
+  the agent to revise its wording, try other symptoms or another
+  hypothesis, or use the factory's tools; and at most three searches are
+  answered (`MAX_SEARCHES`, Future Work 1's default), after which the
+  agent is told to carry on without memory and say what it left unknown.
+  A refusal reaches the next prompt through the usual failed-call list.
+  Each search is recorded for the experimenter (`RecallSearchRecord`:
+  words, limit, answered / repeated / budget_spent / failed, memory IDs
+  returned), in `ExperimentRecord.recall_searches`, and counted in the
+  experiment and comparison reports. Not done from Future Work 1: the
+  agent's own judgement of each result's usefulness is not asked for or
+  recorded, and the limit is per investigation, not per knowledge gap.

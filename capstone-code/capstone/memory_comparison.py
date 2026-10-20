@@ -132,6 +132,12 @@ def searches(record: ExperimentRecord) -> int:
     return record.tools_used.count(RECALL_TOOL)
 
 
+def refused(record: ExperimentRecord) -> int:
+    """Searches refused as repeats or over the budget (0 where not recorded)."""
+    found = record.recall_searches or ()
+    return sum(s.outcome in ("repeated", "budget_spent") for s in found)
+
+
 def mode_line(mode: str, records: Sequence[ExperimentRecord], scores) -> str:
     judged = [s for s in scores if _right(s) is not None]
     uses = [use for r in records for use in r.memory_uses or ()]
@@ -142,6 +148,7 @@ def mode_line(mode: str, records: Sequence[ExperimentRecord], scores) -> str:
         f"resolved={sum(s.resolved is True for s in scores)}/{len(scores)} "
         f"tool_calls={calls:.1f} on average "
         f"searches={sum(searches(r) for r in records)} "
+        f"refused={sum(refused(r) for r in records)} "
         f"recalled={len(uses)} cited={sum(use.used is True for use in uses)}"
     )
 

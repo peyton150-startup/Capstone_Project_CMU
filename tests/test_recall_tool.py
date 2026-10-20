@@ -6,11 +6,19 @@ from capstone.agent.artifacts import VerificationCheck
 from capstone.agent.investigation import run_investigation
 from capstone.agent.loop import InvestigationDeps
 from capstone.contracts.tools import ToolRequest
+from capstone.evaluation.memory import build_search_records
 from capstone.learning import learn_from
 from capstone.memory.contracts import ReflectionCandidate
 from capstone.memory.policy import MemoryPromotionPolicy
 from capstone.memory.service import MemoryService
-from capstone.providers.recall import RECALL_TOOL, RecallingProvider
+from capstone.providers.recall import (
+    MAX_SEARCHES,
+    RECALL_SPEC,
+    RECALL_TOOL,
+    REPEATED_SEARCH,
+    SEARCHES_SPENT,
+    RecallingProvider,
+)
 from tests.helpers import ask, new_state
 from tests.test_agent_verification import (
     Factory,
@@ -208,3 +216,145 @@ def test_end_to_end_a_conclusion_citing_a_memory_is_not_remembered(memory, log):
     assert state.verification.outcome == "resolved"
     assert not outcome.decision.accepted
     assert "rests_on_memory" in outcome.decision.reasons
+
+
+# --- bounded searches (Future Work 1: repeat retrieval) ----------------------------
+
+
+class Counting:
+    """A store that counts the searches that reach it."""
+
+    def __init__(self, service):
+        self.service, self.searches = service, []
+
+    def search(self, text, *, limit):
+        self.searches.append(text)
+        return self.service.search(text, limit=limit)
+
+
+def counting_recaller(**options):
+    factory = Factory()
+    store = Counting(MemoryService(ListStore(SUCCESS)))
+    return RecallingProvider(factory.provider, store, **options), store
+
+
+def search(provider, text, **arguments):
+    request = ToolRequest(name=RECALL_TOOL, arguments={"text": text, **arguments})
+    return provider.call(request)
+
+
+def test_the_same_search_twice_is_refused_and_never_reaches_the_store():
+    provider, store = counting_recaller()
+    assert search(provider, "Vibration alarm, CNC-02").success
+    again = search(provider, "vibration   ALARM cnc 02")  # same words after normalize
+    assert not again.success and again.error.code == "invalid_arguments"
+    assert again.error.message == REPEATED_SEARCH
+    assert store.searches == ["Vibration alarm, CNC-02"]
+
+
+def test_the_same_words_with_a_different_limit_is_a_new_search():
+    provider, store = counting_recaller()
+    assert search(provider, "bearing").success
+    assert search(provider, "bearing", limit=2).success
+    assert len(store.searches) == 2
+
+
+def test_only_max_searches_are_answered():
+    provider, store = counting_recaller()
+    assert MAX_SEARCHES == 3
+    for text in ("bearing", "vibration", "spindle"):
+        assert search(provider, text).success
+    late = search(provider, "temperature")
+    assert not late.success and late.error.message == SEARCHES_SPENT
+    assert len(store.searches) == 3
+    one, _ = counting_recaller(max_searches=1)
+    assert search(one, "bearing").success and not search(one, "vibration").success
+    with pytest.raises(ValueError):
+        counting_recaller(max_searches=0)
+
+
+def test_a_failed_search_does_not_spend_the_budget():
+    class Flaky:
+        def __init__(self):
+            self.calls = 0
+
+        def search(self, text, *, limit):
+            self.calls += 1
+            if self.calls == 1:
+                raise RuntimeError("down")
+            return ()
+
+    provider = RecallingProvider(Factory().provider, Flaky(), max_searches=1)
+    assert search(provider, "bearing").error.code == "provider_error"
+    assert search(provider, "bearing").success  # the same words, now answered
+
+
+def test_the_tool_description_states_the_limits():
+    assert f"At most {MAX_SEARCHES} searches" in RECALL_SPEC.description
+    assert "refused" in RECALL_SPEC.description
+
+
+def test_an_investigation_sees_the_refusal_and_its_searches_are_recorded():
+    """A repeat at a later tick (after a wait) is still a repeat; the refusal
+    reaches the next prompt; the search records say what each search got."""
+    provider, factory = recaller()
+    agent = policy()
+    queue = agent.decisions["investigate"]
+    queue[:0] = [
+        RECALL,
+        ask("wait", ticks=5),
+        RECALL,  # same words at a later tick
+        ask(RECALL_TOOL, text="spindle"),
+        ask(RECALL_TOOL, text="temperature"),
+        ask(RECALL_TOOL, text="load"),  # a fourth answered search: over budget
+    ]
+    state = new_state()
+    state.last_tick = None
+    deps = InvestigationDeps(
+        provider=provider,
+        policy=agent,
+        clock=lambda: 0.0,
+        human_review=factory.approve,
+    )
+    state = run_investigation(state, deps)
+    records = build_search_records(state)
+    assert [r.outcome for r in records] == [
+        "answered",
+        "repeated",
+        "answered",
+        "answered",
+        "budget_spent",
+    ]
+    assert records[0].memory_ids == (SUCCESS.memory_id,)
+    assert records[0].evidence_id is not None and records[1].evidence_id is None
+    assert records[1].text == RECALL.request.arguments["text"]
+    refused = [d for d in state.decisions if d.tool == RECALL_TOOL and d.error]
+    assert [d.error.message for d in refused] == [REPEATED_SEARCH, SEARCHES_SPENT]
+    assert REPEATED_SEARCH in render_with_failures(refused[:1])
+
+
+def render_with_failures(decisions):
+    from capstone.agent.model_policy import render
+
+    state = new_state()
+    state.decisions = list(decisions)
+    return render(state)
+
+
+def test_a_loop_level_repeat_is_recorded_as_repeated():
+    provider, factory = recaller()
+    agent = policy()
+    agent.decisions["investigate"][:0] = [RECALL, RECALL]  # same tick: loop skips
+    state = new_state()
+    state.last_tick = None
+    deps = InvestigationDeps(
+        provider=provider,
+        policy=agent,
+        clock=lambda: 0.0,
+        human_review=factory.approve,
+    )
+    state = run_investigation(state, deps)
+    assert [r.outcome for r in build_search_records(state)][:2] == [
+        "answered",
+        "repeated",
+    ]
