@@ -63,7 +63,9 @@ from capstone.evaluation.labels import Label, LabelBook, apply_label
 from capstone.evaluation.memory import (
     MemoryPromotionRecord,
     MemoryUseRecord,
+    RecallSearchRecord,
     build_promotion_record,
+    build_search_records,
     build_use_records,
 )
 from capstone.evaluation.scoring import Score, format_summary, summarize
@@ -186,6 +188,9 @@ class ExperimentRecord(BaseModel):
     memory_promotion: MemoryPromotionRecord | None = None
     # One per memory this run recalled. None: the run had no memory.
     memory_uses: list[MemoryUseRecord] | None = None
+    # One per memory search the run made: asked, answered or refused, and
+    # what came back. None: the run had no memory (or predates this record).
+    recall_searches: list[RecallSearchRecord] | None = None
 
 
 def memory_records(
@@ -240,6 +245,7 @@ def record_of(
         hazards_retried=None if result.hazards is None else result.hazards.retried,
         memory_promotion=promotion,
         memory_uses=uses,
+        recall_searches=list(build_search_records(state)) if with_memory else None,
     )
 
 
@@ -381,6 +387,15 @@ def _lesson(record: ExperimentRecord) -> str:
     return "known" if kept.existing_memory_id is not None else "refused"
 
 
+def _searches(record: ExperimentRecord) -> str:
+    """Memory searches made and refused, where they were recorded."""
+    found = record.recall_searches
+    if found is None:
+        return ""
+    refused = sum(s.outcome in ("repeated", "budget_spent") for s in found)
+    return f" searches={len(found)} refused={refused}"
+
+
 def _run_line(record: ExperimentRecord, score: Score) -> str:
     judged = "-" if score.fault_correct is None else score.fault_correct
     calls = record.model_calls
@@ -401,7 +416,7 @@ def _run_line(record: ExperimentRecord, score: Score) -> str:
         ""
         if uses is None
         else f" lesson={_lesson(record)} recalled={len(uses)} "
-        f"cited={sum(use.used is True for use in uses)}"
+        f"cited={sum(use.used is True for use in uses)}{_searches(record)}"
     )
     several = len(score.causes) > 1
     causes = (
