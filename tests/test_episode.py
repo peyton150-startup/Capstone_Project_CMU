@@ -253,3 +253,45 @@ def test_a_whole_episode_records_the_section_nine_fields():
     assert set(score.relevant_evidence_collected) <= set(score.relevant_evidence)
     assert score.iterations > 0 and score.termination_reason is not None
     assert not score.model_unavailable
+
+
+# --- which factory an episode is run on -----------------------------------------
+
+
+def test_the_standard_world_is_the_one_fault_scenario():
+    from capstone.episode import build_world
+    from capstone.simulator.generator import build_scenario
+
+    world = build_world(SEED, fault="bearing_degradation")
+    assert (
+        world.ground_truth()
+        == build_scenario(SEED, fault="bearing_degradation").ground_truth()
+    )
+
+
+def test_the_challenge_world_is_the_compound_challenge():
+    from capstone.episode import CHALLENGE, build_world
+    from capstone.simulator.challenge import build_challenge
+
+    world = build_world(3, kind=CHALLENGE, machines=4)
+    assert world.ground_truth() == build_challenge(3, machines=4).ground_truth()
+    assert len(world.ground_truth()) == 5
+
+
+def test_the_challenge_takes_no_fault_and_an_unknown_kind_is_refused():
+    from capstone.episode import CHALLENGE, build_world
+
+    with pytest.raises(ValueError, match="chooses its own faults"):
+        build_world(3, kind=CHALLENGE, fault="wrong_setting")
+    with pytest.raises(ValueError, match="unknown scenario kind"):
+        build_world(3, kind="nightmare")
+
+
+def test_an_episode_on_the_challenge_is_scored_with_several_causes():
+    from capstone.episode import CHALLENGE
+
+    result = run_episode(3, wear_policy(), kind=CHALLENGE, clock=lambda: 0.0)
+    assert result.score.true_fault == "compound"
+    assert len(result.score.causes) == 2
+    # Monitoring is unchanged: it notices the harmless spike on another machine.
+    assert result.state.anomaly.machine_id == "CNC-03"
