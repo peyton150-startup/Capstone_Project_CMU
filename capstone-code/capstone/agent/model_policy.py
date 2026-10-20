@@ -452,13 +452,19 @@ class ModelPolicy:
         state: InvestigationState,
         prompt: str,
         answer_type: type[Answer],
+        *,
+        system: str | None = None,
     ) -> Answer:
-        """Ask one question within the time state allows, and record it."""
+        """Ask one question within the time state allows, and record it.
+
+        `system` replaces the job's own system prompt, for a policy that asks
+        one job more than one kind of question (`tree_of_thought.py`).
+        """
         client = self.clients[job]
         outcome = "no_answer"
         try:
             answer = client.ask(
-                SYSTEM[job],
+                SYSTEM[job] if system is None else system,
                 prompt,
                 answer_type,
                 max_seconds=state.seconds_for_question,

@@ -160,3 +160,57 @@ another reasoning LLM or a dedicated RAG agent"), no document ingestion.
   experiment and comparison reports. Not done from Future Work 1: the
   agent's own judgement of each result's usefulness is not asked for or
   recorded, and the limit is per investigation, not per knowledge gap.
+
+---
+
+## Module 4 — Tree-of-thought reasoning and multi-agent concepts (part 1)
+
+### What the capstone already does
+
+**Competing hypotheses, tested with evidence.** MVP section 5 is built: the
+`hypothesize` question proposes two to four explanations with confidences
+and the evidence each cites, including ones that need no change to the
+factory, plus questions that would tell them apart; the `test` stage
+gathers evidence against them; `interpret` revises them; the loop stops
+only when the leading one is confident, backed, uncontradicted and no open
+question still tests a current explanation (`diagnosis_supported`). That is
+a single chain of thought kept honest by evidence, not a search over
+thoughts.
+
+**Separate roles inside one agent.** Each of the seven questions can go to
+a different model (the job table in settings), and evaluation is a
+separate component that the agent never sees. There is no second agent.
+
+### What is missing
+
+1. **No search over candidate explanations.** One model question writes
+   the hypotheses in one go; nothing generates more candidates than are
+   kept, values them separately, or prunes the weak ones. Tree of Thoughts
+   (Yao et al., 2023) is exactly that: generate several thoughts, value
+   each, keep the best, expand.
+2. **No way to compare that against the current step.** Any such step must
+   be opt-in and measured with the same harness as the default.
+
+Multi-agent concepts (part 1) are noted only: the Module 5 framework work
+is not a focus now (developer's decision, 2026-10-20).
+
+### Built for Module 4
+
+- **Tree-of-thought hypothesize step** (`capstone/agent/tree_of_thought.py`,
+  `TreeOfThoughtPolicy`), off by default, turned on with
+  `--tree-of-thought` on `python -m capstone.experiment run`. It changes
+  only `hypothesize`, at depth one with breadth-first search: one question
+  generates up to five distinct candidates (`Candidates`), a second rates
+  each sure / likely / impossible with a confidence and a question that
+  would tell it apart (`Ratings`), and code (`prune`) keeps at most three:
+  dropped are candidates rated impossible, citing evidence never gathered,
+  never rated, or ranked below the best three. The survivors become H1, H2,
+  ... with their rated confidence and their questions become open
+  questions (T1, ...) that test them, so the test stage expands the kept
+  branches with real evidence rather than more model thinking. Both
+  questions go to the `hypothesize` job's client (the job table is
+  unchanged); `thoughts` keeps each tree for the experimenter. Compared
+  with the ordinary step on the scripted seed-6 episode through
+  `run_experiment`: the same conclusion and a resolved fix, at the cost of
+  one more model question. Not yet run live, so whether it helps a real
+  model is unknown.
