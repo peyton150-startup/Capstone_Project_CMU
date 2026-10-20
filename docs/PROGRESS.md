@@ -69,6 +69,7 @@ A component is complete only when both columns are checked.
 | A8d | Runtime limits: a model question gets only its stage's time left; a total size for the evidence in a prompt | yes | yes (second try, after one re-teach) | yes | yes (after one re-teach) | `agent/loop.py` (`ask_policy`, `OutOfTime`), `agent/state.py` (`research_seconds`, `seconds_for_question`), `agent/model_policy.py` (`evidence_section`, `MAX_EVIDENCE_SECTION_CHARS`), `providers/chat.py` (`max_seconds`); session note 2026-10-19 (A8d) |
 | E1 | Experiment records keep each run's model questions and wall-clock time | yes | yes | yes | not yet asked | `capstone/experiment.py` (`CallSummary`, `summarize_calls`, `format_model_calls`); session note 2026-10-19 (E1) |
 | R4a | Scoring-integrity tests: scoring changes nothing, repeats exactly, stays right later | n/a | n/a | yes | no — built ungated, developer to review | `tests/test_scoring_integrity.py`; session note 2026-10-20 (R4a) |
+| R4b | Evidence-vs-reasoning miss label on each wrong diagnosis | n/a | n/a | yes | no — built ungated, developer to review | `evaluation/scoring.py` (`Score.miss_kind`, `EVIDENCE_MISS`, `REASONING_MISS`), `experiment.py`; session note 2026-10-20 (R4b) |
 
 Every row above with four "yes" marks (or "n/a") is complete: no question is
 outstanding on it. Still to build after 12c, from `docs/MVP_SCOPE.md`: the
@@ -76,6 +77,23 @@ other three fault scenarios (material batch, machine configuration, false
 alarm), then evaluation, then the agent itself.
 
 ## Session notes
+
+- **2026-10-20 — R4b: evidence-vs-reasoning miss label. Built ungated at
+  the developer's direction (understood: no — developer to review).**
+  Based on Gopal & Krishnan, "How Far Can Root Cause Analysis Go on
+  Real-World Telemetry Data?" (arXiv 2607.13548), which separates a run
+  that never gathered the evidence from one that gathered it and reasoned
+  wrongly; they need different fixes. `Score.miss_kind` (a property, so
+  stored records need no change) is `evidence_miss` when the cause or the
+  machine/batch is wrong and some of `relevant_evidence` was not
+  collected, `reasoning_miss` when all of it was collected, and None when
+  the diagnosis is right, unjudged, or no model answered. A missing answer
+  counts as wrong. `summarize` adds `evidence_misses` and
+  `reasoning_misses`; `format_summary` prints "wrong diagnoses: X missed
+  evidence, Y misread it"; each experiment report line gets `miss=`.
+  Simplification: "all the evidence" means every item in
+  `RELEVANT_EVIDENCE` for the fault was looked at, not that the agent
+  read it closely.
 
 - **2026-10-20 — R4a: scoring-integrity tests. Built ungated at the
   developer's direction (understood: no — developer to review).**

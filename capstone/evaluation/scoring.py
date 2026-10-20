@@ -80,6 +80,15 @@ RELEVANT_EVIDENCE: dict[str, tuple[Relevant, ...]] = {
 MODEL_UNAVAILABLE = "model_unavailable"
 
 
+# Why a diagnosis was wrong (Gopal & Krishnan 2026, arXiv 2607.13548): the
+# agent never looked at some of the evidence that bore on the true fault, or
+# it looked at all of it and still concluded wrongly. They need different
+# fixes: better tools or investigation policy for the first, a better model
+# or prompt for the second.
+EVIDENCE_MISS = "evidence_miss"
+REASONING_MISS = "reasoning_miss"
+
+
 # Stands in for a missing answer; never counts as right.
 _NO_ANSWER = Diagnosis(fault="false_alarm", summary="no diagnosis submitted")
 
@@ -121,6 +130,22 @@ class Score(BaseModel):
     @property
     def model_unavailable(self) -> bool:
         return self.termination_reason == MODEL_UNAVAILABLE
+
+    @property
+    def miss_kind(self) -> str | None:
+        """Why the diagnosis was wrong: missed evidence, or misread it.
+
+        None when the cause and the machine or batch were both right, when
+        the diagnosis is not judged yet, and when no model answered. A
+        missing answer counts as wrong like any other.
+        """
+        if self.model_unavailable or self.fault_correct is None:
+            return None
+        if self.fault_correct and self.target_correct:
+            return None
+        if len(self.relevant_evidence_collected) < len(self.relevant_evidence):
+            return EVIDENCE_MISS
+        return REASONING_MISS
 
 
 def evaluate(
@@ -249,6 +274,9 @@ def summarize(scores: list[Score]) -> dict:
         "mean_ticks": mean([s.ticks_elapsed for s in reasoned]),
         # Share of the relevant evidence the agent looked at, over all runs.
         "relevant_evidence_share": collected / available if available else 0.0,
+        # Wrong diagnoses, split by why: see `Score.miss_kind`.
+        "evidence_misses": sum(s.miss_kind == EVIDENCE_MISS for s in reasoned),
+        "reasoning_misses": sum(s.miss_kind == REASONING_MISS for s in reasoned),
     }
 
 
@@ -268,6 +296,8 @@ def format_summary(summary: dict) -> str:
         f"{summary['action_correct']}/{n} appropriate interventions; "
         f"{summary['resolved']}/{n} resolved; "
         f"{summary['relevant_evidence_share']:.0%} of relevant evidence collected; "
+        f"wrong diagnoses: {summary['evidence_misses']} missed evidence, "
+        f"{summary['reasoning_misses']} misread it; "
         f"average {summary['mean_tool_calls']:.1f} tool calls, "
         f"{summary['mean_iterations']:.1f} iterations and "
         f"{summary['mean_ticks']:.0f} ticks{outage}"

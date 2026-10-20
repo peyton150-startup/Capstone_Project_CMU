@@ -267,7 +267,8 @@ def _run_line(record: ExperimentRecord, score: Score) -> str:
         f"asked={score.recommendation_correct!s:5} "
         f"acted={score.action_correct!s:5} resolved={score.resolved!s:5} "
         f"evidence={len(score.relevant_evidence_collected)}/"
-        f"{len(score.relevant_evidence)} calls={score.tool_calls} "
+        f"{len(score.relevant_evidence)} miss={score.miss_kind or '-'} "
+        f"calls={score.tool_calls} "
         f"stop={score.termination_reason} {asked} s={seconds}"
     )
 
