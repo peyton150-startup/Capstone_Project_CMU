@@ -79,6 +79,7 @@ A component is complete only when both columns are checked.
 | R4c | Rule-based diagnostic baseline (the yardstick for the agent) | yes (after the build) | n/a | yes | yes (after one re-teach) | `capstone/baseline.py` (`diagnose`, `run_baseline`, `Verdict`); session note 2026-10-20 (R4c) |
 | R4d | Unreliable tools on a fixed schedule (timeouts, gaps, a stale record) | yes (after the build) | n/a | yes | yes (after one re-teach) | `providers/hazards.py` (`UnreliableProvider`, `Timeout`, `Gap`, `StaleRecord`, `standard_hazards`, `HazardReport`), `episode.py`, `experiment.py`; session note 2026-10-20 (R4d) |
 | R4e | Evidence-completeness stop: an open question on a current explanation blocks the automatic "supported" stop | yes (after the build) | n/a | yes | yes | `agent/loop.py` (`diagnosis_supported`); session note 2026-10-20 (R4e) |
+| L1 | Live runs finish: User-Agent for Groq, the fallback keeps its share of a question's time, a stage deadline is a timeout, measured limits, failure reasons in records | no (built ungated) | n/a | yes | no: built ungated, developer to review | `providers/chat.py` (`USER_AGENT`, `FallbackClient.ask`, `ModelError.out_of_time`), `agent/loop.py` (`ask_policy`), `settings.py`, `agent/state.py` (`Budgets`), `experiment.py` (`CallSummary.outage_reasons`); session note 2026-10-20 (L1) |
 
 Every row above with four "yes" marks (or "n/a") is complete: no question is
 outstanding on it. Still to build after 12c, from `docs/MVP_SCOPE.md`: the
@@ -86,6 +87,67 @@ other three fault scenarios (material batch, machine configuration, false
 alarm), then evaluation, then the agent itself.
 
 ## Session notes
+
+- **2026-10-20 — L1: make live runs finish (next build candidate 1). Built
+  ungated, developer to review (understood: no).** Why live runs ended
+  "model unavailable", found from the records, the code and small live
+  checks (request-level timing, no keys or content logged):
+  1. *Time limits shorter than the model takes.* The default model
+     (nemotron 120b on NVIDIA's hosted API) answered one small question in
+     6, 10, 6 and 40 s and once not in 120 s; in a real episode 6-39 s, with
+     up to 3,782 reasoning tokens. The defaults were 15 s per request, 20 s
+     per question and 180 s per investigation, so results-2 (15 of 17 runs
+     "model unavailable") ran out after the first retry.
+  2. *A slow model's retry ate the fallback's time* (code). With 60 s per
+     request and 90 s per question, a timed-out question was retried on the
+     same model and the fallback was never asked.
+  3. *Groq refused every request with HTTP 403* (code): its front end
+     blocks urllib's default "Python-urllib" User-Agent (Cloudflare error
+     1010).
+  4. *A question cut off by the stage's deadline counted as an outage*
+     (code): the client stops with under a retry pause (2 s) left, and the
+     loop then saw time left and ended the run "model unavailable" instead of
+     "timeout".
+  5. *Settings in the developer's local `.env`* (not code, not changed):
+     FALLBACK_MODEL is a Mistral model, and the Mistral key answers HTTP 429
+     "Rate limit exceeded" to every model; the Groq and Gemini keys are
+     stored as `GROQ` and `GOOGLE_GEMINI_API_KEY`, names the code does not
+     read (it reads `GROQ_API_KEY`, `GEMINI_API_KEY`). Groq's
+     qwen3.8-27b, once reachable, hit its free tier's input-tokens-per-
+     minute limit on our ~5,000-token prompts, so it cannot be this agent's
+     fallback; Cohere command-a-03-2025 answered 5/5 large prompts in
+     6-23 s and was used as the fallback for the live rerun.
+  What changed, module by module:
+  - `providers/chat.py`: `USER_AGENT`, sent by `post_json` on every
+    request. `FallbackClient.ask` gives each model, retries included, an
+    equal share of the time left with the models still to ask, so the
+    fallback is asked while there is time ("not asked again, no time left"
+    when a retry is skipped). `ModelError.out_of_time` (and
+    `no_answer(..., out_of_time=)`): set when the client gave up because
+    the caller's time limit, not the question's own, ran out.
+  - `agent/loop.py` `ask_policy`: such an error is `OutOfTime` (a timeout),
+    not an outage.
+  - `settings.py` defaults, each with the measurement beside it:
+    MODEL_MAX_OUTPUT_TOKENS 2048 -> 8192, MODEL_REQUEST_SECONDS 15 -> 45,
+    MODEL_QUESTION_SECONDS 20 -> 90. `agent/state.py` `Budgets`:
+    timeout_seconds 180 -> 900, followup_seconds 60 -> 300. FALLBACK_MODEL
+    stays unset by default: a default naming a provider would stop anyone
+    without that provider's key.
+  - `experiment.py` `CallSummary.outage_reasons` (why requests failed, by
+    reason) and a "failed because:" part of the model-questions line.
+  Tests: `test_chat_client.py` (User-Agent sent; each model's share; the
+  fallback asked after a slow first model; out_of_time set only for the
+  caller's limit), `test_model_policy.py` (giving up 1.5 s before the
+  deadline ends the stage as a timeout; checked to fail on the old loop),
+  `test_experiment.py` (reasons counted and reported),
+  `test_agent_investigation.py` (one test pinned to the old 180/60 budget).
+  Live rerun of the known-answer cases (`run --name live-fix-2 --known`,
+  NVIDIA 120b with Cohere as fallback, started before fix 4): KA-01
+  answered 20/20 questions, stopped "diagnosis supported", described CNC-02's
+  vibration correctly but recommended escalate instead of a bearing
+  replacement; KA-02 and KA-03 answered 29/33 and 28/31 but reached the
+  research deadline mid-question and were recorded "model unavailable", the
+  bug fix 4 removes. The remaining cases' results are in the final report.
 
 - **2026-10-20 — course Module 4 (tree-of-thought reasoning): an opt-in
   tree-of-thought hypothesize step. Built ungated, developer to review
