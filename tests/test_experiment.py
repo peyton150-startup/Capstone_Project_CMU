@@ -495,6 +495,70 @@ def test_a_run_with_several_faults_shows_its_causes_found_and_fixed(records):
     assert "causes=" not in report(records, {}).splitlines()[-1]
 
 
+# --- the compound challenge in experiments ---------------------------------------
+
+
+def test_a_case_can_name_the_challenge():
+    cases = experiment.challenge_cases([3, 5])
+    assert [(c.scenario_id, c.seed, c.fault, c.kind) for c in cases] == [
+        ("seed-3/challenge", 3, None, "challenge"),
+        ("seed-5/challenge", 5, None, "challenge"),
+    ]
+
+
+def test_the_command_runs_the_challenge_on_the_given_seeds(tmp_path, monkeypatch):
+    ran = {}
+
+    def fake_run(cases, make_policy, **options):
+        ran["cases"] = cases
+        return []
+
+    monkeypatch.setattr(experiment, "run_experiment", fake_run)
+    monkeypatch.setattr(
+        experiment, "model_policy_factory", lambda with_recall, **_: None
+    )
+    out = str(tmp_path / "r.jsonl")
+    assert main(["run", "--name", "c", "--challenge", "1-2", "--out", out]) == 0
+    assert ran["cases"] == experiment.challenge_cases([1, 2])
+
+
+@pytest.fixture(scope="module")
+def mixed(records):
+    challenge = run_experiment(
+        experiment.challenge_cases([3]), stand_in, name="challenge"
+    )
+    return [*records, *challenge]
+
+
+def test_a_challenge_run_is_built_and_scored_with_several_faults(mixed):
+    score = mixed[-1].score
+    assert score.true_fault == "compound"
+    assert {c.fault for c in score.causes} == {"bearing_degradation", "wrong_setting"}
+    assert len(score.distractors) == 3
+    assert score.resolved is False and score.causes_resolved == 0
+
+
+def test_the_report_totals_and_lists_one_and_several_fault_runs_apart(mixed):
+    lines = report(mixed, {}).splitlines()
+    assert lines[1].startswith("one fault: ")
+    assert "runs with several faults" not in lines[1]
+    assert lines[2].startswith("several faults: ")
+    assert "runs with several faults: 0/1 fully right" in lines[2]
+    one = lines.index("runs with one fault:")
+    several = lines.index("runs with several faults:")
+    assert [line.split()[0] for line in lines[one + 1 : several - 1]] == [
+        "bearing-6",
+        "batch-7",
+    ]
+    assert lines[several + 1].startswith("seed-3/challenge")
+    assert "causes=-/2 fixed=0/2" in lines[several + 1]
+
+
+def test_a_report_of_one_kind_only_is_not_split(records):
+    lines = report(records, {}).splitlines()
+    assert not any(line.startswith(("one fault:", "runs with")) for line in lines)
+
+
 def test_the_report_says_why_attempts_failed():
     late, busy = "the model service timed out", "the model service answered HTTP 429"
     calls = [

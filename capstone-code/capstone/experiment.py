@@ -6,6 +6,7 @@
     uv run python -m capstone.experiment run --name trial-2 --known --hazards --out faults.jsonl
     uv run python -m capstone.experiment run --name tot-1 --known --tree-of-thought --out tot.jsonl
     uv run python -m capstone.experiment run --name report-1 --held-out --out held-out.jsonl
+    uv run python -m capstone.experiment run --name hard-1 --challenge 1-5 --out hard.jsonl
     uv run python -m capstone.experiment label --results results.jsonl --labels labels.jsonl --by me
     uv run python -m capstone.experiment report --results results.jsonl --labels labels.jsonl
 
@@ -32,6 +33,12 @@ Numbers to report come from `--held-out` (`HELD_OUT_SEEDS`), seeds nothing
 was tuned on; `report` says how many runs used them. See the rule beside
 `HELD_OUT_SEEDS`.
 
+With `--challenge` each seed builds the compound challenge
+(`simulator/challenge.py`: a worn bearing and a wrong speed setting on one
+machine, three distractors elsewhere) instead of a one-fault line; the
+known-answer cases include one such case. `report` totals and lists runs
+with one fault and runs with several faults apart.
+
 A results file holds the hidden truth of every run (inside its `Score`). It
 is for the experimenter: never give it to an agent, a prompt or memory.
 """
@@ -52,6 +59,8 @@ from capstone.agent.policy import ReasoningPolicy
 from capstone.agent.state import Budgets
 from capstone.benchmark import MODEL_OUTCOMES
 from capstone.episode import (
+    CHALLENGE,
+    STANDARD,
     Approver,
     EpisodeResult,
     approve_all,
@@ -69,7 +78,7 @@ from capstone.evaluation.memory import (
     build_search_records,
     build_use_records,
 )
-from capstone.evaluation.scoring import Score, format_summary, summarize
+from capstone.evaluation.scoring import COMPOUND, Score, format_summary, summarize
 from capstone.memory.service import MemoryService
 from capstone.simulator.generator import FAULTS
 from capstone.tools.diagnosis import FAULT_KINDS, Diagnosis
@@ -77,15 +86,22 @@ from capstone.tools.diagnosis import FAULT_KINDS, Diagnosis
 
 @dataclass(frozen=True)
 class Case:
-    """One episode to run: a seed, the fault to force (None: the seed's own)."""
+    """One episode to run: a seed, the fault to force (None: the seed's own),
+    and the kind of factory (`capstone.episode.SCENARIO_KINDS`)."""
 
     scenario_id: str
     seed: int
     fault: str | None = None
+    kind: str = STANDARD
 
 
 def known_cases() -> list[Case]:
-    return [Case(c.scenario_id, c.seed, c.fault) for c in KNOWN_CASES]
+    return [Case(c.scenario_id, c.seed, c.fault, c.kind) for c in KNOWN_CASES]
+
+
+def challenge_cases(seeds: Iterable[int]) -> list[Case]:
+    """The compound challenge on each seed."""
+    return [Case(f"seed-{seed}/challenge", seed, None, CHALLENGE) for seed in seeds]
 
 
 # The seeds reported numbers come from. Never tune anything on them: not a
@@ -286,6 +302,7 @@ def run_experiment(
         result = run_episode(
             case.seed,
             policy,
+            kind=case.kind,
             fault=case.fault,
             approver=approver,
             memory=memory,
@@ -456,6 +473,11 @@ def _run_line(record: ExperimentRecord, score: Score) -> str:
     )
 
 
+def several_faults(score: Score) -> bool:
+    """A run with several true faults (the compound challenge)."""
+    return score.true_fault == COMPOUND
+
+
 def format_call_failures(record: ExperimentRecord) -> list[str]:
     """Show unanswered questions and service failures, including recovered ones."""
     summary = record.model_calls
@@ -483,18 +505,40 @@ def format_call_failures(record: ExperimentRecord) -> list[str]:
 
 
 def report(records: Sequence[ExperimentRecord], labels: dict[str, Label]) -> str:
+    """Totals, then one line per run. When runs with one fault and runs with
+    several are mixed, each group is also totalled and listed on its own, so
+    a hard case does not hide inside the one-fault numbers."""
     scores = labelled(records, labels)
     held = sum(r.seed in HELD_OUT_SEEDS for r in records)
-    lines = [
-        format_summary(summarize(scores)),
+    pairs = list(zip(records, scores, strict=True))
+    one = [(r, s) for r, s in pairs if not several_faults(s)]
+    many = [(r, s) for r, s in pairs if several_faults(s)]
+    mixed = bool(one and many)
+    lines = [format_summary(summarize(scores))]
+    if mixed:
+        lines += [
+            "one fault: " + format_summary(summarize([s for _, s in one])),
+            "several faults: " + format_summary(summarize([s for _, s in many])),
+        ]
+    lines += [
         format_model_calls(records),
         f"held-out seeds: {held}/{len(records)} runs",
     ]
     memory = format_memory(records, scores)
     lines += ([] if memory is None else [memory]) + [""]
-    for record, score in zip(records, scores, strict=True):
-        lines.append(_run_line(record, score))
-        lines.extend(format_call_failures(record))
+
+    def lines_for(group):
+        out = []
+        for record, score in group:
+            out.append(_run_line(record, score))
+            out.extend(format_call_failures(record))
+        return out
+
+    if mixed:
+        lines += ["runs with one fault:", *lines_for(one)]
+        lines += ["", "runs with several faults:", *lines_for(many)]
+    else:
+        lines += lines_for(pairs)
     return "\n".join(lines)
 
 
@@ -589,6 +633,11 @@ def main(argv: Sequence[str] | None = None) -> int:
     which.add_argument("--known", action="store_true", help="the known-answer cases")
     which.add_argument("--seeds", help='seeds, "1-5" or "1,4,9"')
     which.add_argument(
+        "--challenge",
+        metavar="SEEDS",
+        help='the compound challenge (several faults) on seeds "1-5" or "1,4,9"',
+    )
+    which.add_argument(
         "--held-out",
         action="store_true",
         help="every fault on the held-out seeds: for reported numbers only",
@@ -628,6 +677,8 @@ def main(argv: Sequence[str] | None = None) -> int:
             cases = known_cases()
         elif args.held_out:
             cases = held_out_cases()
+        elif args.challenge:
+            cases = challenge_cases(seeds_from(args.challenge))
         else:
             if args.faults == "all":
                 faults: list[str | None] = list(FAULTS)
