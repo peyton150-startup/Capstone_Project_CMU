@@ -71,6 +71,7 @@ A component is complete only when both columns are checked.
 | R4a | Scoring-integrity tests: scoring changes nothing, repeats exactly, stays right later | n/a | n/a | yes | no — built ungated, developer to review | `tests/test_scoring_integrity.py`; session note 2026-10-20 (R4a) |
 | R4b | Evidence-vs-reasoning miss label on each wrong diagnosis | n/a | n/a | yes | no — built ungated, developer to review | `evaluation/scoring.py` (`Score.miss_kind`, `EVIDENCE_MISS`, `REASONING_MISS`), `experiment.py`; session note 2026-10-20 (R4b) |
 | R4c | Rule-based diagnostic baseline (the yardstick for the agent) | n/a | n/a | yes | no — built ungated, developer to review | `capstone/baseline.py` (`diagnose`, `run_baseline`, `Verdict`); session note 2026-10-20 (R4c) |
+| R4d | Unreliable tools on a fixed schedule (timeouts, gaps, a stale record) | n/a | n/a | yes | no — built ungated, developer to review | `providers/hazards.py` (`UnreliableProvider`, `Timeout`, `Gap`, `StaleRecord`, `standard_hazards`, `HazardReport`), `episode.py`, `experiment.py`; session note 2026-10-20 (R4d) |
 
 Every row above with four "yes" marks (or "n/a") is complete: no question is
 outstanding on it. Still to build after 12c, from `docs/MVP_SCOPE.md`: the
@@ -79,6 +80,53 @@ alarm), then evaluation, then the agent itself.
 
 ## Session notes
 
+- **2026-10-20 — Summary of R4a-R4d (built ungated; developer to review).**
+  Four changes chosen from a review of recent papers, built least work
+  first, each its own PR (#9-#12), papers credited in `README.md`
+  "Research basis". In plain English:
+  - R4a (`tests/test_scoring_integrity.py`): proves the scorer only reads
+    the finished factory. It changes nothing, gives the same score twice,
+    and a right answer stays right as time passes.
+  - R4b (`Score.miss_kind`): every wrong diagnosis is labelled "missed
+    evidence" (never looked at all of it) or "misread evidence" (looked at
+    all of it). Tells you whether to fix the tools/investigation or the
+    model/prompt. Overstates evidence misses (see R4c, finding 3).
+  - R4c (`capstone/baseline.py`): a no-model diagnostician over the same
+    tools. On held-out seeds it gets 96% of causes right, the bar the LLM
+    agent must clear. It also shows the four scenarios may be too easy,
+    and that early wrong settings can't be pinned on a machine.
+  - R4d (`capstone/providers/hazards.py`): scheduled tool faults
+    (timeouts, missing rows, a stale record) so an experiment can compare
+    the agent on clean and faulty tools, and count its retries.
+  Next, needing model keys: run `python -m capstone.experiment run
+  --known` with and without `--memory` and with and without `--hazards`,
+  and compare each against `python -m capstone.baseline --known`.
+
+- **2026-10-20 — R4d: unreliable tools. Built ungated at the developer's
+  direction (understood: no — developer to review).**
+  Based on Tian et al., "Beyond Function Calling" (arXiv 2606.25819,
+  ToolBench-X): agents that do well on clean tools often fail when tools
+  misbehave, even with a way to recover open, and more inference does
+  not fix it. `capstone/providers/hazards.py` adds `UnreliableProvider`,
+  a wrapper in front of the factory provider (like `RecallingProvider`)
+  that puts in three of ToolBench-X's hazards on a fixed schedule, never
+  at random: `Timeout(tool, nth)` fails that call with a provider error
+  that says asking again may work; `Gap(tool, nth)` silently drops rows
+  in the middle third of the requested range from that one answer;
+  `StaleRecord(machine, performed_at)` adds one wrong maintenance record
+  ("spindle bearing replaced; test run vibration normal") dated a day
+  before the run. Nothing touches the simulator. `standard_hazards`
+  builds the experiment set from what monitoring noticed (the machine it
+  named), never from the truth. `HazardReport` lists what fired and how
+  many timeouts or gaps the agent followed with a successful call to the
+  same tool. `run_episode(hazards=True)`, `run_experiment(hazards=True)`
+  and `experiment run --hazards` switch it on; `ExperimentRecord` gains
+  `hazards_fired` and `hazards_retried`, and report lines show them.
+  Limits: "retried" means the same tool answered later, not that the
+  missing range was asked for; the timeout message itself hints at the
+  retry (ToolBench-X found such hints help), so this is the easier form;
+  the rule-based baseline (R4c) calls the tools directly and is not run
+  under hazards. Not yet run with a real model.
 - **2026-10-20 — R4c: rule-based diagnostic baseline. Built ungated at the
   developer's direction (understood: no — developer to review).**
   Based on Kim, "When LLMs Sit Above Diagnostic Tools" (arXiv 2610.05031),

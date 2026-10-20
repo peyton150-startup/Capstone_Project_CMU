@@ -286,3 +286,8 @@ and the paper it came from.
   LLM agent must beat. Based on [When LLMs Sit Above Diagnostic Tools: Unrealized Complementarity in Industrial Fault Diagnosis](https://arxiv.org/abs/2610.05031)
   (Kim, 2026) and [Exploring LLM-based Frameworks for Fault Diagnosis](https://arxiv.org/abs/2509.23113),
   both of which found simple or specialist methods matching or beating the LLM.
+- Unreliable tools (`capstone/providers/hazards.py`, `--hazards` on
+  `python -m capstone.experiment run`): on a fixed schedule the agent's
+  tools time out, drop rows from part of a range, and show one stale
+  maintenance record, each with a way to recover. Based on [Beyond Function Calling: Benchmarking Tool-Using Agents under Tool-Environment Unreliability](https://arxiv.org/abs/2606.25819)
+  (Tian et al., 2026, ToolBench-X).

@@ -3,6 +3,7 @@
 """The experiment harness: the "18/20 root causes" report of MVP section 9.
 
     uv run python -m capstone.experiment run --name trial-1 --known --out results.jsonl
+    uv run python -m capstone.experiment run --name trial-2 --known --hazards --out faults.jsonl
     uv run python -m capstone.experiment label --results results.jsonl --labels labels.jsonl --by me
     uv run python -m capstone.experiment report --results results.jsonl --labels labels.jsonl
 
@@ -14,6 +15,11 @@ doing, apart from outages, which are the service's) and how long the
 episode took on the wall clock. `label` shows each unlabelled conclusion and
 asks a person which cause it names. `report` applies the labels and prints
 the totals and one line per run.
+
+With `--hazards` the agent's tools fail on a fixed schedule (timeouts,
+rows missing from part of a range, one stale maintenance record; see
+`capstone.providers.hazards`), and each record lists the faults that fired
+and how many the agent followed with a successful call to the same tool.
 
 A results file holds the hidden truth of every run (inside its `Score`). It
 is for the experimenter: never give it to an agent, a prompt or memory.
@@ -132,6 +138,11 @@ class ExperimentRecord(BaseModel):
     # The whole episode on the wall clock, learning included (and, with a
     # console approver, the human's time). None in results from before it was kept.
     wall_seconds: float | None = None
+    # With unreliable tools: the faults that fired, and how many timeouts or
+    # gaps the agent followed with a successful call to the same tool.
+    # None: the tools were reliable (and in results from before this was kept).
+    hazards_fired: list[str] | None = None
+    hazards_retried: int | None = None
 
 
 def record_of(
@@ -157,6 +168,8 @@ def record_of(
         score=result.score,
         model_calls=model_calls,
         wall_seconds=wall_seconds,
+        hazards_fired=None if result.hazards is None else result.hazards.fired,
+        hazards_retried=None if result.hazards is None else result.hazards.retried,
     )
 
 
@@ -171,6 +184,7 @@ def run_experiment(
     budgets: Budgets | None = None,
     on_record: Callable[[ExperimentRecord], None] | None = None,
     clock: Callable[[], float] = monotonic,
+    hazards: bool = False,
 ) -> list[ExperimentRecord]:
     """Run each case once with a fresh policy. `name` makes every run key unique.
 
@@ -191,6 +205,7 @@ def run_experiment(
             log=log,
             budgets=budgets,
             run_key=run_key,
+            hazards=hazards,
         )
         wall_seconds = clock() - started
         calls = getattr(policy, "calls", None)  # kept by ModelPolicy only
@@ -262,6 +277,11 @@ def _run_line(record: ExperimentRecord, score: Score) -> str:
         f"unanswered={calls.unanswered}"
     )
     seconds = "-" if record.wall_seconds is None else f"{record.wall_seconds:.0f}"
+    faults = (
+        ""
+        if record.hazards_fired is None
+        else f" faults={len(record.hazards_fired)} retried={record.hazards_retried}"
+    )
     return (
         f"{record.scenario_id:24} cause={judged!s:5} "
         f"asked={score.recommendation_correct!s:5} "
@@ -269,7 +289,7 @@ def _run_line(record: ExperimentRecord, score: Score) -> str:
         f"evidence={len(score.relevant_evidence_collected)}/"
         f"{len(score.relevant_evidence)} miss={score.miss_kind or '-'} "
         f"calls={score.tool_calls} "
-        f"stop={score.termination_reason} {asked} s={seconds}"
+        f"stop={score.termination_reason} {asked} s={seconds}{faults}"
     )
 
 
@@ -370,6 +390,11 @@ def main(argv: Sequence[str] | None = None) -> int:
     run.add_argument("--memory", action="store_true", help="recall and learn")
     run.add_argument("--audit", type=Path, help="audit log (needed to learn)")
     run.add_argument("--timeout-seconds", type=float, help="per investigation")
+    run.add_argument(
+        "--hazards",
+        action="store_true",
+        help="tools time out, drop rows and show a stale record on a fixed schedule",
+    )
 
     label = commands.add_parser("label", help="label conclusions by hand")
     label.add_argument("--results", type=Path, required=True)
@@ -409,6 +434,7 @@ def main(argv: Sequence[str] | None = None) -> int:
             memory=memory,
             log=log,
             budgets=budgets,
+            hazards=args.hazards,
             on_record=lambda r: (
                 append_records(args.out, [r]),
                 print(f"{r.scenario_id}: {r.conclusion!r}"),
