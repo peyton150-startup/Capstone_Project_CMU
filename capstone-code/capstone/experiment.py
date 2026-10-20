@@ -130,6 +130,9 @@ class CallSummary(BaseModel):
     # Requests that failed for a service reason, retries included, even where
     # a retry or the fallback model then answered.
     outage_attempts: int
+    # Why those requests failed, by reason ("the model service timed out",
+    # "the model service answered HTTP 429", ...). Empty in older results.
+    outage_reasons: dict[str, int] = {}
     # Which model answered how many questions: shows the fallback stepping in.
     answered_by: dict[str, int]
     # Ordered questions and their safe attempt outcomes. None in older files;
@@ -141,6 +144,12 @@ def summarize_calls(calls: Sequence[ModelCall]) -> CallSummary:
     answered = [call for call in calls if call.outcome == "answered"]
     invalid = Counter(call.job for call in calls if call.outcome == "invalid_reply")
     by_model = Counter(call.answered_by or "unknown" for call in answered)
+    reasons = Counter(
+        attempt.outcome
+        for call in calls
+        for attempt in call.attempts
+        if attempt.outcome not in MODEL_OUTCOMES
+    )
     return CallSummary(
         questions=len(calls),
         answered=len(answered),
@@ -153,6 +162,7 @@ def summarize_calls(calls: Sequence[ModelCall]) -> CallSummary:
             for call in calls
             for attempt in call.attempts
         ),
+        outage_reasons=dict(sorted(reasons.items())),
         answered_by=dict(sorted(by_model.items())),
         details=tuple(calls),
     )
@@ -340,6 +350,14 @@ def format_model_calls(records: Sequence[ExperimentRecord]) -> str:
             f"{sum(c.unanswered for c in kept)} unanswered, "
             f"{sum(c.outage_attempts for c in kept)} failed attempts)"
         )
+        reasons = Counter()
+        for c in kept:
+            reasons.update(c.outage_reasons)
+        if reasons:
+            line += "; failed because: " + ", ".join(
+                f"{reason.removeprefix('the model service ')} {n}"
+                for reason, n in reasons.most_common()
+            )
     if timed:
         line += f"; {sum(timed) / len(timed):.0f} s per episode on average"
     return line

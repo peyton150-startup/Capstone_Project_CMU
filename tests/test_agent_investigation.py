@@ -224,7 +224,10 @@ def test_a_timeout_while_investigating_goes_straight_to_the_conclusion():
 
     policy = wear_policy()
     state, _ = investigate(
-        policy, respond=respond, clock=lambda: now[0], state=fresh_state()
+        policy,
+        respond=respond,
+        clock=lambda: now[0],
+        state=fresh_state(timeout_seconds=180.0, followup_seconds=60.0),
     )
     assert state.termination_reason is TerminationReason.TIMEOUT
     assert "hypothesize" not in stages(state)

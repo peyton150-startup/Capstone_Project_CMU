@@ -178,17 +178,20 @@ def ask_policy(
     The copy says how long the answer may take (`seconds_for_question`), so a
     model-backed policy can stop waiting when the stage's time is up. If no
     model answered and that time has run out, raises OutOfTime: the clock,
-    not the model services, is why there is no answer. A ModelError with
-    time still left is an outage and goes on up unchanged.
+    not the model services, is why there is no answer. So is a ModelError
+    marked `out_of_time`: the client gave up because the time it was given
+    ran out, with less left than a retry would need. A ModelError with time
+    still left is an outage and goes on up unchanged.
     """
     view = state.model_copy(deep=True)
     if state.started_at is not None:
         view.seconds_for_question = seconds_left(state, deps, research=research)
     try:
         return question(view)
-    except ModelError:
+    except ModelError as error:
         if state.started_at is not None and (
-            seconds_left(state, deps, research=research) <= 0
+            getattr(error, "out_of_time", False)
+            or seconds_left(state, deps, research=research) <= 0
         ):
             raise OutOfTime() from None
         raise
