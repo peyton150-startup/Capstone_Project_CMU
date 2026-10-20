@@ -5,6 +5,7 @@ from uuid import UUID
 import pytest
 from pydantic import ValidationError
 
+import capstone
 from capstone.agent.artifacts import (
     AgentConclusion,
     DetectedAnomaly,
@@ -14,7 +15,7 @@ from capstone.agent.artifacts import (
 )
 from capstone.agent.state import InvestigationState
 
-CAPSTONE = Path(__file__).parent.parent / "capstone"
+CAPSTONE = Path(capstone.__file__).parent  # wherever the package lives
 
 
 def anomaly():

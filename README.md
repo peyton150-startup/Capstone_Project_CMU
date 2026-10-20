@@ -17,7 +17,9 @@ later, an AI research agent that investigates it through tools.
 - [Future Work reevaluation register](docs/FUTURE_WORK_REEVALUATION.md) —
   reviewed implementation conditions, adoption checks and reasons to defer or
   reject candidates, including the Datum/Ratchet prompt evaluation.
-- `capstone/simulator/` — the simulator (runs with no LLM).
+- `capstone-code/capstone/` — the code, imported as `capstone`. Paths such as
+  `capstone/simulator/` in these docs are inside `capstone-code/`.
+- `capstone-code/capstone/simulator/` — the simulator (runs with no LLM).
 - `tests/` — pytest suite.
 
 ## Opt-in investigation challenge
@@ -260,7 +262,7 @@ for the lifecycle, explicit migration command, generated SQL, and remaining
 runtime/evaluation integration. Autogeneration is still refused if metadata is
 empty; reviewed revisions remain the mechanism for schema changes.
 
-The existing `capstone/` layout is retained: `settings.py` for configuration,
+The existing `capstone/` layout (in `capstone-code/`) is retained: `settings.py` for configuration,
 `contracts/` for shared data, `providers/` for adapters, `tools/` for observable
 operations, `simulator/` for reality, `memory/` for durable lessons, and
 `database/` for connectivity. Agent,
