@@ -21,6 +21,11 @@ rows missing from part of a range, one stale maintenance record; see
 `capstone.providers.hazards`), and each record lists the faults that fired
 and how many the agent followed with a successful call to the same tool.
 
+With `--memory` each record also keeps what the memory gate did with the
+run (`MemoryPromotionRecord`) and each memory the run recalled
+(`MemoryUseRecord`), so `report` can say how many lessons were stored, how
+many were recalled and cited, and how many came from a wrong diagnosis.
+
 A results file holds the hidden truth of every run (inside its `Score`). It
 is for the experimenter: never give it to an agent, a prompt or memory.
 """
@@ -35,7 +40,7 @@ from time import monotonic
 
 from pydantic import BaseModel, ConfigDict
 
-from capstone.agent.completion import AuditLog
+from capstone.agent.completion import AuditLog, complete
 from capstone.agent.model_policy import ModelCall
 from capstone.agent.policy import ReasoningPolicy
 from capstone.agent.state import Budgets
@@ -50,6 +55,12 @@ from capstone.episode import (
 )
 from capstone.evaluation.known_answers import KNOWN_CASES
 from capstone.evaluation.labels import Label, LabelBook, apply_label
+from capstone.evaluation.memory import (
+    MemoryPromotionRecord,
+    MemoryUseRecord,
+    build_promotion_record,
+    build_use_records,
+)
 from capstone.evaluation.scoring import Score, format_summary, summarize
 from capstone.memory.service import MemoryService
 from capstone.simulator.generator import FAULTS
@@ -143,6 +154,35 @@ class ExperimentRecord(BaseModel):
     # None: the tools were reliable (and in results from before this was kept).
     hazards_fired: list[str] | None = None
     hazards_retried: int | None = None
+    # What the memory gate did with this run's investigation, with whether the
+    # diagnosis was right (from the truth, filled in after the gate decided).
+    # None: nothing reached the gate (no memory, no audit log, or no lesson).
+    memory_promotion: MemoryPromotionRecord | None = None
+    # One per memory this run recalled. None: the run had no memory.
+    memory_uses: list[MemoryUseRecord] | None = None
+
+
+def memory_records(
+    result: EpisodeResult,
+) -> tuple[MemoryPromotionRecord | None, list[MemoryUseRecord]]:
+    """The memory gate's decision and the memories recalled, for the experimenter.
+
+    Built after the gate has decided and the run is scored, and kept only on
+    the record: nothing here goes back to the agent, a prompt or memory.
+    """
+    state = result.state
+    if state.conclusion is None or state.termination_reason is None:
+        return None, []  # an unfinished investigation has no shared record
+    investigation = complete(state)
+    learning = result.learning
+    promotion = None
+    if learning is not None and learning.decision is not None:
+        promotion = build_promotion_record(
+            investigation,
+            learning.decision,
+            diagnosis_correct=result.score.fault_correct,
+        )
+    return promotion, list(build_use_records(investigation))
 
 
 def record_of(
@@ -152,9 +192,11 @@ def record_of(
     *,
     model_calls: CallSummary | None = None,
     wall_seconds: float | None = None,
+    with_memory: bool = False,
 ) -> ExperimentRecord:
     state = result.state
     concluded = state.conclusion
+    promotion, uses = memory_records(result) if with_memory else (None, None)
     return ExperimentRecord(
         run_key=run_key,
         scenario_id=case.scenario_id,
@@ -170,6 +212,8 @@ def record_of(
         wall_seconds=wall_seconds,
         hazards_fired=None if result.hazards is None else result.hazards.fired,
         hazards_retried=None if result.hazards is None else result.hazards.retried,
+        memory_promotion=promotion,
+        memory_uses=uses,
     )
 
 
@@ -215,6 +259,7 @@ def run_experiment(
             result,
             model_calls=None if calls is None else summarize_calls(calls),
             wall_seconds=wall_seconds,
+            with_memory=memory is not None,
         )
         records.append(record)
         if on_record is not None:
@@ -267,6 +312,49 @@ def format_model_calls(records: Sequence[ExperimentRecord]) -> str:
     return line
 
 
+def _right(score: Score) -> bool | None:
+    """Right cause and right machine or batch; None until judged."""
+    if score.fault_correct is None:
+        return None
+    return bool(score.fault_correct and score.target_correct)
+
+
+def format_memory(
+    records: Sequence[ExperimentRecord], scores: Sequence[Score]
+) -> str | None:
+    """One line on what memory kept and what was recalled; None without memory.
+
+    A lesson is traced to the run that made it only within these records, so
+    a lesson stored by an earlier experiment counts as recalled but not judged.
+    """
+    if all(r.memory_uses is None for r in records):
+        return None
+    made_by: dict = {}  # stored memory id -> whether its run was right
+    for record, score in zip(records, scores, strict=True):
+        kept = record.memory_promotion
+        if kept is not None and kept.stored and kept.memory_id is not None:
+            made_by[kept.memory_id] = _right(score)
+    stored = list(made_by.values())
+    uses = [use for r in records for use in r.memory_uses or ()]
+    return (
+        f"memory: {len(stored)} lesson(s) stored ({stored.count(True)} from right "
+        f"diagnoses, {stored.count(False)} from wrong, {stored.count(None)} not "
+        f"judged); {len(uses)} recalled in {sum(bool(r.memory_uses) for r in records)}"
+        f" run(s), {sum(use.used is True for use in uses)} cited by the agent; "
+        f"{sum(made_by.get(use.memory_id) is False for use in uses)} recalled "
+        "lesson(s) came from a wrong diagnosis"
+    )
+
+
+def _lesson(record: ExperimentRecord) -> str:
+    kept = record.memory_promotion
+    if kept is None:
+        return "-"
+    if kept.stored:
+        return "stored"
+    return "known" if kept.existing_memory_id is not None else "refused"
+
+
 def _run_line(record: ExperimentRecord, score: Score) -> str:
     judged = "-" if score.fault_correct is None else score.fault_correct
     calls = record.model_calls
@@ -282,6 +370,13 @@ def _run_line(record: ExperimentRecord, score: Score) -> str:
         if record.hazards_fired is None
         else f" faults={len(record.hazards_fired)} retried={record.hazards_retried}"
     )
+    uses = record.memory_uses
+    memory = (
+        ""
+        if uses is None
+        else f" lesson={_lesson(record)} recalled={len(uses)} "
+        f"cited={sum(use.used is True for use in uses)}"
+    )
     return (
         f"{record.scenario_id:24} cause={judged!s:5} "
         f"asked={score.recommendation_correct!s:5} "
@@ -289,13 +384,15 @@ def _run_line(record: ExperimentRecord, score: Score) -> str:
         f"evidence={len(score.relevant_evidence_collected)}/"
         f"{len(score.relevant_evidence)} miss={score.miss_kind or '-'} "
         f"calls={score.tool_calls} "
-        f"stop={score.termination_reason} {asked} s={seconds}{faults}"
+        f"stop={score.termination_reason} {asked} s={seconds}{faults}{memory}"
     )
 
 
 def report(records: Sequence[ExperimentRecord], labels: dict[str, Label]) -> str:
     scores = labelled(records, labels)
-    lines = [format_summary(summarize(scores)), format_model_calls(records), ""]
+    lines = [format_summary(summarize(scores)), format_model_calls(records)]
+    memory = format_memory(records, scores)
+    lines += ([] if memory is None else [memory]) + [""]
     lines += [_run_line(r, s) for r, s in zip(records, scores, strict=True)]
     return "\n".join(lines)
 

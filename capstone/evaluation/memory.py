@@ -1,5 +1,6 @@
 # Records memory promotion and attributed assessments of later memory use.
 # Responsibility: report explicit outcomes without feeding evaluator truth to memory.
+import json
 from typing import Literal
 from uuid import UUID
 
@@ -7,7 +8,8 @@ from pydantic import Field, model_validator
 
 from capstone.contracts import Contract
 from capstone.contracts.completed_investigations import CompletedInvestigation
-from capstone.memory.contracts import EpisodicMemory, PromotionDecision
+from capstone.contracts.provenance import MEMORY_SOURCE
+from capstone.memory.contracts import EpisodicMemory, PromotionDecision, RecalledMemory
 
 Effect = Literal["helped", "hurt", "neutral", "unknown"]
 AssessmentSource = Literal["agent_report", "human_review", "evaluator"]
@@ -124,3 +126,56 @@ def build_use_record(
         evidence_ids=evidence_ids,
         explanation=explanation,
     )
+
+
+def recalled_in(investigation: CompletedInvestigation) -> dict[UUID, tuple[str, ...]]:
+    """Each memory an investigation recalled, with the evidence items that held it."""
+    found: dict[UUID, list[str]] = {}
+    for evidence in investigation.evidence:
+        if not evidence.source_id.startswith(f"{MEMORY_SOURCE}:"):
+            continue
+        for item in json.loads(evidence.content) or ():
+            memory_id = RecalledMemory.model_validate(item).memory_id
+            found.setdefault(memory_id, []).append(evidence.id)
+    return {memory_id: tuple(ids) for memory_id, ids in found.items()}
+
+
+def cited_in(investigation: CompletedInvestigation) -> set[str]:
+    """The evidence the agent's beliefs, conclusion and proposal rest on."""
+    cited = set(investigation.conclusion.evidence_ids)
+    for hypothesis in investigation.hypotheses:
+        cited.update(hypothesis.supporting_evidence_ids)
+        cited.update(hypothesis.contradicting_evidence_ids)
+    if investigation.proposed_action is not None:
+        cited.update(investigation.proposed_action.evidence_ids)
+    return cited
+
+
+def build_use_records(
+    investigation: CompletedInvestigation,
+) -> tuple[MemoryUseRecord, ...]:
+    """One record per memory the investigation recalled, read from its evidence.
+
+    "Used" only when a hypothesis, the conclusion or the proposal cites the
+    recalled item; otherwise unknown, never "not used": an uncited memory may
+    still have steered the next look. The effect stays unknown: only a named
+    assessment may say a memory helped or hurt, never the run's success.
+    """
+    cited = cited_in(investigation)
+    records = []
+    for memory_id, evidence_ids in recalled_in(investigation).items():
+        used = bool(cited.intersection(evidence_ids))
+        records.append(
+            MemoryUseRecord(
+                consumer_run_id=investigation.run_id,
+                consumer_investigation_id=investigation.investigation_id,
+                memory_id=memory_id,
+                used=True if used else None,
+                assessment_source="evaluator" if used else None,
+                evidence_ids=evidence_ids,
+                explanation="the recalled item is cited by the agent's reasoning"
+                if used
+                else None,
+            )
+        )
+    return tuple(records)
