@@ -87,6 +87,19 @@ alarm), then evaluation, then the agent itself.
 
 ## Session notes
 
+- **2026-10-20 — course Module 2 (agent architecture: memory, tools,
+  reasoning loops): gap note. Built ungated, developer to review
+  (understood: no).** Documentation only. New `docs/COURSE_MODULES.md`
+  records, per course module, what the capstone already does and what is
+  missing. Module 2: working memory (`InvestigationState`), episodic memory
+  (`capstone/memory/`), typed tools (`contracts/tools.py`,
+  `providers/factory.py`) and the two-level loop (`agent/loop.py`,
+  `agent/investigation.py`) all exist. Two small gaps found, both where
+  memory meets the loop, to be built under Module 3: a repeated memory
+  search is not recognised as a repeat once the tick has moved, and recall
+  has no budget or search record of its own. Scope set by the developer the
+  same day: Modules 2-4 only; Modules 5-7 are not a focus now.
+
 - **2026-10-20 — two future-work items recorded (documentation only).**
   At the developer's request, `docs/MVP_SCOPE.md` gains "Future Work 8 —
   harder scenarios": (1) running the compound challenge in experiments:
