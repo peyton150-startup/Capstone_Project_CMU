@@ -90,7 +90,7 @@ GROUPS: dict[str, list[str]] = {
         "memory_semantic",
         "migrations",
     ],
-    "Evaluation": ["evaluation", "memory_evaluation"],
+    "Evaluation": ["evaluation", "memory_evaluation", "scoring_integrity"],
     # Many episodes: the harness, hand labels and the known-answer cases.
     "Experiments": ["experiment", "known_answers"],
     # The runner: one seeded episode from fault to score, end to end.
