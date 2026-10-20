@@ -80,6 +80,7 @@ A component is complete only when both columns are checked.
 | R4d | Unreliable tools on a fixed schedule (timeouts, gaps, a stale record) | yes (after the build) | n/a | yes | yes (after one re-teach) | `providers/hazards.py` (`UnreliableProvider`, `Timeout`, `Gap`, `StaleRecord`, `standard_hazards`, `HazardReport`), `episode.py`, `experiment.py`; session note 2026-10-20 (R4d) |
 | R4e | Evidence-completeness stop: an open question on a current explanation blocks the automatic "supported" stop | yes (after the build) | n/a | yes | yes | `agent/loop.py` (`diagnosis_supported`); session note 2026-10-20 (R4e) |
 | L1 | Live runs finish: User-Agent for Groq, the fallback keeps its share of a question's time, a stage deadline is a timeout, measured limits, failure reasons in records | no (built ungated) | n/a | yes | no: built ungated, developer to review | `providers/chat.py` (`USER_AGENT`, `FallbackClient.ask`, `ModelError.out_of_time`), `agent/loop.py` (`ask_policy`), `settings.py`, `agent/state.py` (`Budgets`), `experiment.py` (`CallSummary.outage_reasons`); session note 2026-10-20 (L1) |
+| E6 | The compound challenge in experiments (a case names the scenario kind; KA-09) | no (built ungated) | n/a | yes | no: built ungated, developer to review | `episode.py` (`build_world`, `STANDARD`, `CHALLENGE`, `SCENARIO_KINDS`, `run_episode(kind=)`), `evaluation/known_answers.py` (`KnownCase.kind`, KA-09), `experiment.py` (`Case.kind`, `challenge_cases`, `run --challenge`, `several_faults`, `report`); session note 2026-10-20 (E6) |
 
 Every row above with four "yes" marks (or "n/a") is complete: no question is
 outstanding on it. Still to build after 12c, from `docs/MVP_SCOPE.md`: the
@@ -87,6 +88,36 @@ other three fault scenarios (material batch, machine configuration, false
 alarm), then evaluation, then the agent itself.
 
 ## Session notes
+
+- **2026-10-20 — E6: the compound challenge in experiments (Future Work 8,
+  first part; next build candidate 3). Built ungated, developer to review
+  (understood: no).** An experiment case can now name the kind of factory it
+  runs on, and `run_episode` builds the compound challenge through
+  `simulator/challenge.py` `build_challenge`. Monitoring, prompts and scoring
+  are unchanged for every kind. Module by module:
+  - `episode.py`: `STANDARD` / `CHALLENGE` / `SCENARIO_KINDS`, the kinds of
+    factory. `build_world(seed, kind=, fault=, machines=)` builds either one
+    (the challenge takes no `fault`: it chooses its own; an unknown kind is
+    refused). `run_episode(..., kind=)` uses it; a challenge run's default
+    key says "challenge".
+  - `evaluation/known_answers.py`: `KnownCase.kind` (default "standard",
+    `fault` may be None for the challenge) and the ninth case
+    `KA-09-challenge` (seed 3: a worn bearing and a 1.25x speed setting on
+    CNC-07, a harmless vibration spike on CNC-03, a drifting and briefly
+    silent temperature sensor on CNC-02). Monitoring first notices the
+    harmless spike on CNC-03, not the machine with the real faults: that is
+    the challenge's trap, and it holds on every seed 0-11 checked.
+  - `experiment.py`: `Case.kind`; `challenge_cases(seeds)`;
+    `run --challenge SEEDS`; `several_faults(score)`; `report` totals and
+    lists one-fault runs and several-fault runs apart when both are present
+    (each run line keeps PR #30's failure details).
+  Tests: `test_known_answers.py` (KA-09's five truths and what monitoring
+  sees; the look-once stand-in collects nothing about the real causes),
+  `test_episode.py` (the two kinds, refusals, a challenge episode scored with
+  two causes), `test_experiment.py` (challenge cases, the command, a scored
+  challenge run, the split report, no split for one kind). Not run live.
+  Difficulty modes (the second part) are not started, as the developer
+  decided.
 
 - **2026-10-20 — L1: make live runs finish (next build candidate 1). Built
   ungated, developer to review (understood: no).** Why live runs ended

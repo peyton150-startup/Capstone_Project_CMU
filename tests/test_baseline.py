@@ -9,7 +9,7 @@ from capstone.baseline import (
     diagnose,
     run_baseline,
 )
-from capstone.evaluation.known_answers import KNOWN_CASES
+from capstone.evaluation.known_answers import STANDARD_CASES
 from capstone.simulator.generator import build_scenario
 from capstone.tools.actions import ActionTools, ApprovalDesk
 from capstone.tools.observation import ObservationTools
@@ -41,7 +41,7 @@ def setup(case):
     return sim, desk, PublicOnly(look), PublicOnly(act), anomaly
 
 
-@pytest.mark.parametrize("case", KNOWN_CASES, ids=lambda c: c.scenario_id)
+@pytest.mark.parametrize("case", STANDARD_CASES, ids=lambda c: c.scenario_id)
 def test_the_rules_use_only_the_agents_tools_and_ask_for_nothing_themselves(case):
     sim, desk, look, act, anomaly = setup(case)
     verdict = diagnose(look, act, anomaly)
@@ -64,7 +64,7 @@ EXPECTED = {
 }
 
 
-@pytest.mark.parametrize("case", KNOWN_CASES, ids=lambda c: c.scenario_id)
+@pytest.mark.parametrize("case", STANDARD_CASES, ids=lambda c: c.scenario_id)
 def test_known_cases_score_as_pinned_and_repeat_exactly(case):
     score = run_baseline(case.seed, case.fault)
     assert (score.diagnosed_fault, score.target_correct) == EXPECTED[case.scenario_id]

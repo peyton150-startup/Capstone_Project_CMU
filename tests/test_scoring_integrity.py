@@ -11,7 +11,7 @@ answer twice, and stays right as time moves on after the work.
 
 import pytest
 
-from capstone.evaluation.known_answers import KNOWN_CASES
+from capstone.evaluation.known_answers import STANDARD_CASES
 from capstone.evaluation.scoring import CORRECT_ACTION, evaluate
 from capstone.simulator.generator import build_scenario
 from capstone.tools.actions import ActionTools, ApprovalDesk
@@ -52,7 +52,7 @@ def future(sim, ticks: int = 30) -> list:
     return [[r.model_dump() for r in sim.step()] for _ in range(ticks)]
 
 
-@pytest.mark.parametrize("case", KNOWN_CASES, ids=lambda c: c.scenario_id)
+@pytest.mark.parametrize("case", STANDARD_CASES, ids=lambda c: c.scenario_id)
 def test_scoring_does_not_change_the_simulator(case):
     scored, desk, _, right = finished_episode(case.seed, case.fault)
     twin, _, _, _ = finished_episode(case.seed, case.fault)
@@ -65,7 +65,7 @@ def test_scoring_does_not_change_the_simulator(case):
     assert future(scored) == future(twin)
 
 
-@pytest.mark.parametrize("case", KNOWN_CASES, ids=lambda c: c.scenario_id)
+@pytest.mark.parametrize("case", STANDARD_CASES, ids=lambda c: c.scenario_id)
 def test_the_same_finished_episode_gets_the_same_score(case):
     sim, desk, _, right = finished_episode(case.seed, case.fault)
     twin, twin_desk, _, _ = finished_episode(case.seed, case.fault)
@@ -75,7 +75,7 @@ def test_the_same_finished_episode_gets_the_same_score(case):
     assert score(twin, twin_desk, right) == first
 
 
-@pytest.mark.parametrize("case", KNOWN_CASES, ids=lambda c: c.scenario_id)
+@pytest.mark.parametrize("case", STANDARD_CASES, ids=lambda c: c.scenario_id)
 def test_a_right_answer_stays_right_as_time_moves_on(case):
     sim, desk, act, right = finished_episode(case.seed, case.fault)
     marks = ("fault_correct", "target_correct", "action_correct", "resolved")

@@ -2,7 +2,7 @@
 # Responsibility: hold both sides of the boundary, and keep them apart.
 """The runner that chains every stage of one episode.
 
-    sim      = build_scenario(seed, fault=...)        # reality, with a hidden fault
+    sim      = build_world(seed, kind=..., fault=...) # reality, with hidden faults
     anomaly  = detect_anomaly(look, act)              # what monitoring noticed
     state    = run_investigation(state, deps)         # the agent, through tools only
     learning = learn_from(state, policy, memory, log) # audit, then the memory gate
@@ -43,11 +43,20 @@ from capstone.providers.hazards import (
     standard_hazards,
 )
 from capstone.providers.recall import RecallingProvider
+from capstone.simulator.challenge import build_challenge
 from capstone.simulator.generator import build_scenario
 from capstone.simulator.simulator import Simulator
 from capstone.tools.actions import ActionTools, ApprovalDesk
 from capstone.tools.diagnosis import Diagnosis
 from capstone.tools.observation import ObservationTools
+
+# What kind of factory an episode is run on. "standard": the line with one
+# seeded fault (simulator/generator.py). "challenge": the compound challenge
+# (simulator/challenge.py): a worn bearing and a wrong speed setting on one
+# machine, a harmless vibration spike on a second, a drifting and briefly
+# silent temperature sensor on a third.
+STANDARD, CHALLENGE = "standard", "challenge"
+SCENARIO_KINDS = (STANDARD, CHALLENGE)
 
 # The human: shown one submitted proposal, answers (approve?, note).
 Approver = Callable[[object], tuple[bool, str]]
@@ -143,10 +152,31 @@ def rescore(result: EpisodeResult, diagnosis: Diagnosis | None) -> Score:
     )
 
 
+def build_world(
+    seed: int,
+    *,
+    kind: str = STANDARD,
+    fault: str | None = None,
+    machines: int | None = None,
+) -> Simulator:
+    """The seeded factory an episode runs on, not yet run (clock at 0).
+
+    The challenge composes its own faults, so it takes no `fault`.
+    """
+    if kind == STANDARD:
+        return build_scenario(seed, machines=machines, fault=fault)
+    if kind == CHALLENGE:
+        if fault is not None:
+            raise ValueError("the challenge chooses its own faults; give no fault")
+        return build_challenge(seed, machines=machines)
+    raise ValueError(f"unknown scenario kind {kind}; choose from {SCENARIO_KINDS}")
+
+
 def run_episode(
     seed: int,
     policy: ReasoningPolicy,
     *,
+    kind: str = STANDARD,
     fault: str | None = None,
     machines: int | None = None,
     approver: Approver = approve_all,
@@ -164,8 +194,10 @@ def run_episode(
     the finished investigation is audited and offered to the memory gate.
     With `hazards`, the agent's tools fail on the standard schedule
     (`capstone.providers.hazards`), built from what monitoring noticed.
+    `kind` picks the factory (`build_world`); monitoring, the agent's view
+    and scoring are the same for every kind.
     """
-    sim = build_scenario(seed, machines=machines, fault=fault)
+    sim = build_world(seed, kind=kind, fault=fault, machines=machines)
     desk = ApprovalDesk(sim)
     look, act = ObservationTools(sim), ActionTools(sim, desk)
     anomaly = detect_anomaly(look, act)
@@ -184,7 +216,8 @@ def run_episode(
             provider, standard_hazards(anomaly.machine_id, before_run)
         )
         provider = unreliable
-    run_id = run_id_for(run_key or f"episode/seed-{seed}/fault-{fault or 'any'}")
+    world = "challenge" if kind == CHALLENGE else f"fault-{fault or 'any'}"
+    run_id = run_id_for(run_key or f"episode/seed-{seed}/{world}")
     state = InvestigationState(
         run_id=run_id,
         investigation_id=investigation_id_for(run_id, 1),

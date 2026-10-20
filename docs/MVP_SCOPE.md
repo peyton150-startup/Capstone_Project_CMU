@@ -1643,6 +1643,9 @@ judges a run with several true faults.
 
 #### Running the compound challenge in experiments
 
+**Built 2026-10-20 (E6, docs/PROGRESS.md):** `run --challenge SEEDS` and the
+known-answer case KA-09; the rest of this section is the original note.
+
 Scoring is ready, but experiments cannot build the challenge yet.
 `simulator/challenge.py` `build_challenge(seed)` already composes a worn bearing
 and a wrong speed setting on one machine, a harmless vibration spike on a second
