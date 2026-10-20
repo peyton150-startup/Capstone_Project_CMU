@@ -4,6 +4,8 @@ from uuid import UUID
 
 import pytest
 
+import capstone
+
 sqlalchemy = pytest.importorskip("sqlalchemy")
 
 from sqlalchemy import create_engine
@@ -20,7 +22,7 @@ from tests.helpers import ScriptedPolicy, new_state
 from tests.test_agent_verification import investigate, policy
 
 ADVICE = "When vibration climbs steadily on one machine, replace its bearing."
-AGENT = Path(__file__).resolve().parent.parent / "capstone" / "agent"
+AGENT = Path(capstone.__file__).parent / "agent"
 
 
 @pytest.fixture

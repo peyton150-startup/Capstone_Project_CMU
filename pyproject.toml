@@ -46,16 +46,22 @@ constraint-dependencies = [
 ]
 
 [tool.setuptools.packages.find]
+# The code lives in capstone-code/; its Python name is still `capstone`.
+where = ["capstone-code"]
 include = ["capstone*"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+# Find `capstone` in capstone-code/ even without an installed copy.
+pythonpath = ["capstone-code"]
 # One fixed scratch folder (git-ignored), cleared by pytest at the start of each run.
 addopts = "--basetemp=.pytest-tmp"
 
 [tool.ruff]
 target-version = "py311"
 line-length = 88
+# Where the project's own code is, so `capstone` imports sort as first-party.
+src = [".", "capstone-code"]
 
 [tool.ruff.lint]
 select = ["E4", "E7", "E9", "F", "I"]

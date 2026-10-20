@@ -126,6 +126,17 @@ alarm), then evaluation, then the agent itself.
   moves on. Correct (it ends the stage: investigate goes to hypothesize,
   test to the conclusion). A9b is complete.
 
+- **2026-10-20 — the code folder moved into `capstone-code/` (developer's
+  request; packaging only, no gate needed per AGENTS.md section 2.2).**
+  `capstone/` is now `capstone-code/capstone/`; its Python name is still
+  `capstone`, so every import and `python -m capstone.<module>` command is
+  unchanged. `tests/` and `docs/` stay at the top. `pyproject.toml`:
+  setuptools finds the package in `capstone-code`, pytest adds it to the
+  path, ruff counts it as first-party. Four tests that read source files
+  by path now take the folder from `capstone.__file__`. README and AGENTS
+  section 6 show the new layout; paths written as `capstone/...` in older
+  notes and docs mean `capstone-code/capstone/...`.
+
 - **2026-10-20 — E5: scoring several true faults. Contract agreed with the
   developer; pre-check PASSED; built; closing question NOT YET ASKED.**
   Decisions (the developer's, from three proposed): D1 bearing wear, a wrong

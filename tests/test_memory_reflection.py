@@ -4,6 +4,7 @@ from pathlib import Path
 import pytest
 from pydantic import ValidationError
 
+import capstone
 from capstone.agent.completion import complete
 from capstone.agent.policy import Lesson
 from capstone.memory.contracts import ReflectionCandidate
@@ -14,7 +15,7 @@ from tests.test_agent_completion import ENDINGS
 
 ADVICE = "When vibration climbs steadily on one machine, replace its bearing."
 CLAIMS_FIXED = "Replacing the bearing fixed the vibration."
-MEMORY = Path(__file__).resolve().parent.parent / "capstone" / "memory"
+MEMORY = Path(capstone.__file__).parent / "memory"
 
 
 def candidate_for(ending, lesson=ADVICE):
