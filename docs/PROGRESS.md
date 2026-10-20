@@ -39,11 +39,11 @@ A component is complete only when both columns are checked.
 | 12b2 | Worn machines work more slowly; ±2 ticks natural variation | yes | yes | yes | yes | `scenarios.py`, `line.py` |
 | 12c | Quality inspection, small pass/fail version | yes | yes | yes | yes | `scenarios.py`, `state.py` (`Inspection`), `simulator.py`, `tools/observation.py` (`get_inspections`) |
 | 13a | Material batches and one bad batch (fault scenario 2) | yes | yes | yes | yes | `state.py` (`MaterialBatch`), `scenarios.py` (`BadMaterialBatch`), `simulator.py`, `line.py`, `tools/observation.py` |
-| 13b | Machine setting and a wrong setting (fault scenario 3) | yes | yes | yes | no | `state.py` (`speed_setting`), `scenarios.py` (`WrongSetting`, `defect_mark`), `sensors.py`, `thermal.py`, `line.py`, `tools/observation.py` (`get_settings`); re-explain waived for time on 2026-10-06, developer to review |
-| 13c | Action: put a machine's setting right (via the approval desk) | n/a | n/a | yes | no — built ungated, developer to review | `simulator.py` (`start_setting_reset`, `_start_maintenance`), `state.py` (`maintenance_kind`), `tools/actions.py` (`reset_setting`) |
-| 13d | False alarm / transient anomaly (fault scenario 4) | n/a | n/a | yes | no — built ungated, developer to review | `state.py` (`MachineCondition.vibration_sensor_offset`), `sensors.py`, `scenarios.py` (`FalseAlarm`) |
-| 14 | Seeded scenario generator (fault, machine or batch, start tick) | n/a | n/a | yes | no — built ungated, developer to review | `capstone/simulator/generator.py` (`build_scenario`, `FAULTS`) |
-| 15 | Evaluation | n/a | n/a | yes | no — built ungated, developer to review | `capstone/evaluation/scoring.py` (`evaluate`, `Score`, `summarize`), `capstone/tools/diagnosis.py` (`Diagnosis`) |
+| 13b | Machine setting and a wrong setting (fault scenario 3) | yes | yes | yes | yes (after one re-teach, 2026-10-20) | `state.py` (`speed_setting`), `scenarios.py` (`WrongSetting`, `defect_mark`), `sensors.py`, `thermal.py`, `line.py`, `tools/observation.py` (`get_settings`); re-explain waived for time on 2026-10-06, done on 2026-10-20 (session note) |
+| 13c | Action: put a machine's setting right (via the approval desk) | yes (after the build) | n/a | yes | yes (after one re-teach) | `simulator.py` (`start_setting_reset`, `_start_maintenance`), `state.py` (`maintenance_kind`), `tools/actions.py` (`reset_setting`) |
+| 13d | False alarm / transient anomaly (fault scenario 4) | yes (after the build) | n/a | yes | yes (after one hint) | `state.py` (`MachineCondition.vibration_sensor_offset`), `sensors.py`, `scenarios.py` (`FalseAlarm`) |
+| 14 | Seeded scenario generator (fault, machine or batch, start tick) | yes (after the build) | n/a | yes | yes | `capstone/simulator/generator.py` (`build_scenario`, `FAULTS`) |
+| 15 | Evaluation | yes (after the build) | n/a | yes | yes | `capstone/evaluation/scoring.py` (`evaluate`, `Score`, `summarize`), `capstone/tools/diagnosis.py` (`Diagnosis`) |
 | 16 | The research agent | n/a | n/a | yes | RETIRED 2026-10-19 (only `monitor.py` and `get_sensor_trend` remain; see R2) | `capstone/agent/` (`models.py`, `toolbox.py`, `agent.py`, `monitor.py`, `episode.py`, `__main__.py`); `tools/observation.py` (`get_sensor_trend`) |
 | 17 | Memory | n/a | n/a | yes | RETIRED 2026-10-19 (replaced by `capstone/memory/`, rows A6a-A7b) | `capstone/agent/memory.py` (`InvestigationMemory`, `search_incident_history`), `episode.py` |
 | A1 | Agent checkpoint 1: one shared finished-investigation record | yes | yes | yes | yes | `contracts/completed_investigations.py`; notes for A1-A5b are in `docs/PROGRESS_ARCHIVE.md` |
@@ -62,9 +62,9 @@ A component is complete only when both columns are checked.
 | A8a | The model client and the job table | yes | yes | yes | yes | `providers/chat.py` |
 | A8b-1 | An outage is retried, then handed on | yes | yes | yes | yes | `providers/chat.py` (`FallbackClient`) |
 | A8b-2 | The prompts for the seven questions | yes | yes | yes | yes | `agent/model_policy.py` (`ModelPolicy`, `render`); session note 2026-10-19 (8b-2) |
-| R1 | Review fixes of 2026-10-16/17 (loop budgets, tool errors, repair check, trend tool) | n/a | n/a | yes | no — built ungated, developer to review | session notes 2026-10-17 |
-| R3 | MVP gap fixes of 2026-10-19 (semantic recall for the agent, section 9 score fields, harness, hand labels, known-answer suite, model limits, maintenance history, tool list) | n/a | n/a | yes | no — built ungated, developer to review | session note 2026-10-19 (MVP gap fixes) |
-| R2 | Row cap, unjudged diagnosis, old agent retired, episode runner | n/a | n/a | yes | no — built ungated, developer to review | session notes 2026-10-19; `capstone/episode.py`, `agent/monitor.py`, `evaluation/scoring.py`, `providers/factory.py` |
+| R1 | Review fixes of 2026-10-16/17 (loop budgets, tool errors, repair check, trend tool) | yes (after the build) | n/a | yes | yes | session notes 2026-10-17 |
+| R3 | MVP gap fixes of 2026-10-19 (semantic recall for the agent, section 9 score fields, harness, hand labels, known-answer suite, model limits, maintenance history, tool list) | yes (after the build) | n/a | yes | yes | session note 2026-10-19 (MVP gap fixes) |
+| R2 | Row cap, unjudged diagnosis, old agent retired, episode runner | yes (after the build) | n/a | yes | yes (after one re-teach) | session notes 2026-10-19; `capstone/episode.py`, `agent/monitor.py`, `evaluation/scoring.py`, `providers/factory.py` |
 | A8c | Provider benchmark: each model measured alone, from real episodes | yes | yes | yes | yes | `capstone/benchmark.py`; `providers/chat.py` (`Attempt.seconds`); no real model run yet |
 | A8d | Runtime limits: a model question gets only its stage's time left; a total size for the evidence in a prompt | yes | yes (second try, after one re-teach) | yes | yes (after one re-teach) | `agent/loop.py` (`ask_policy`, `OutOfTime`), `agent/state.py` (`research_seconds`, `seconds_for_question`), `agent/model_policy.py` (`evidence_section`, `MAX_EVIDENCE_SECTION_CHARS`), `providers/chat.py` (`max_seconds`); session note 2026-10-19 (A8d) |
 | E1 | Experiment records keep each run's model questions and wall-clock time | yes | yes | yes | yes | `capstone/experiment.py` (`CallSummary`, `summarize_calls`, `format_model_calls`); session notes 2026-10-19 and 2026-10-20 (E1) |
@@ -82,6 +82,56 @@ other three fault scenarios (material batch, machine configuration, false
 alarm), then evaluation, then the agent itself.
 
 ## Session notes
+
+- **2026-10-20 — older ungated rows reviewed with the developer: 13b, 13c,
+  13d, 14, 15, R1, R2, R3. All eight now understood.** Taught each after
+  the fact, one question each; no code changed.
+  - 13b (re-explain waived on 2026-10-06): where a wrong setting's rejects
+    come from, and why `WrongSetting` writes once. First answer: from the
+    vibration and heat readings, and no idea; re-taught that readings are
+    evidence, `defect_mark` reads `speed_ratio` alongside them, and that
+    writing every tick would undo the 13c reset. Second answer: `defect_mark`;
+    a later write would undo the fix. Correct.
+  - 13c: a reset approved on a machine whose real fault is bearing wear.
+    First answer had the 10 ticks down right, but described the state change
+    instead of the event, and said the check verifies the action was taken;
+    re-taught that the event says "setting was already standard" and the
+    check judges whether the symptoms cleared. Second answer: the symptoms
+    did not clear. Correct (noted: the event reports a finding, the agent
+    infers the diagnosis was wrong).
+  - 13d: two pieces of evidence that tell a false alarm from wear. Gave a
+    sudden jump, not a slow climb; after a hint, that it goes back to normal
+    and temperature does not move. Correct. The developer then asked whether
+    this makes false alarms too easy (always check vibration and
+    temperature). Yes: R4c's rules get about 96% this way. Partial
+    counterweights exist (temperature lag, load and door noise, R4d gaps);
+    making it hard needs new scenarios (a glitch on a real load change,
+    lasting sensor drift, recurring glitches, composed faults). Left as an
+    open design question for the developer. Note: `simulator/challenge.py`
+    (`build_challenge`, 2026-10-18) already composes wear or speed faults
+    with a harmless spike, temperature drift and missing samples, but is not
+    in the experiments' `FAULTS`.
+  - 14: what would change if the generator shared the sensors' stream.
+    Readings would differ between the two faults' runs, so they could not be
+    compared. Correct (the fault would no longer be the only difference).
+  - 15: a correct false-alarm diagnosis plus an approved, carried-out
+    bearing replacement: fault yes, target yes, action no (expected none;
+    the downtime is wasted), resolved yes (the glitch ends by itself).
+    Correct.
+  - R1: why a look at tick 945 at ticks 0-99 does not show a repair at tick
+    900 worked, and what memory would do with it: the data is from before
+    the fix; memory would keep a "verified" lesson whatever the repair did.
+    Correct.
+  - R2: why the 300-row cap refuses rather than silently returning the
+    first 300 rows. First answer: a cut answer would look broken; re-taught
+    that it looks complete, hiding the rows that show the fault. Second
+    answer: it could conceal a real problem outside the rows returned.
+    Correct.
+  - R3: how a free-text conclusion becomes `fault_correct`, and why judging
+    is after the run: `apply_label` fills it in (from a human label against
+    the stored truth), so the agent cannot know or change it during the run.
+    Correct; added that asking the agent to pick a fault would hand it the
+    list of causes, which no prompt shows.
 
 - **2026-10-20 — E3: unnecessary intervention as its own measure. Pre-check
   PASSED; built; closing question NOT YET ASKED.** Pre-check: asked whether
