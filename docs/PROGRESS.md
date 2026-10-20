@@ -69,11 +69,11 @@ A component is complete only when both columns are checked.
 | A8d | Runtime limits: a model question gets only its stage's time left; a total size for the evidence in a prompt | yes | yes (second try, after one re-teach) | yes | yes (after one re-teach) | `agent/loop.py` (`ask_policy`, `OutOfTime`), `agent/state.py` (`research_seconds`, `seconds_for_question`), `agent/model_policy.py` (`evidence_section`, `MAX_EVIDENCE_SECTION_CHARS`), `providers/chat.py` (`max_seconds`); session note 2026-10-19 (A8d) |
 | E1 | Experiment records keep each run's model questions and wall-clock time | yes | yes | yes | yes | `capstone/experiment.py` (`CallSummary`, `summarize_calls`, `format_model_calls`); session notes 2026-10-19 and 2026-10-20 (E1) |
 | E2 | Experiment records keep what memory stored and what each run recalled | yes | yes | yes | not yet asked | `capstone/evaluation/memory.py` (`recalled_in`, `cited_in`, `build_use_records`), `capstone/experiment.py` (`memory_records`, `format_memory`); session note 2026-10-20 (E2) |
-| R4a | Scoring-integrity tests: scoring changes nothing, repeats exactly, stays right later | n/a | n/a | yes | no — built ungated, developer to review | `tests/test_scoring_integrity.py`; session note 2026-10-20 (R4a) |
-| R4b | Evidence-vs-reasoning miss label on each wrong diagnosis | n/a | n/a | yes | no — built ungated, developer to review | `evaluation/scoring.py` (`Score.miss_kind`, `EVIDENCE_MISS`, `REASONING_MISS`), `experiment.py`; session note 2026-10-20 (R4b) |
-| R4c | Rule-based diagnostic baseline (the yardstick for the agent) | n/a | n/a | yes | no — built ungated, developer to review | `capstone/baseline.py` (`diagnose`, `run_baseline`, `Verdict`); session note 2026-10-20 (R4c) |
-| R4d | Unreliable tools on a fixed schedule (timeouts, gaps, a stale record) | n/a | n/a | yes | no — built ungated, developer to review | `providers/hazards.py` (`UnreliableProvider`, `Timeout`, `Gap`, `StaleRecord`, `standard_hazards`, `HazardReport`), `episode.py`, `experiment.py`; session note 2026-10-20 (R4d) |
-| R4e | Evidence-completeness stop: an open question on a current explanation blocks the automatic "supported" stop | n/a | n/a | yes | no — built ungated, developer to review | `agent/loop.py` (`diagnosis_supported`); session note 2026-10-20 (R4e) |
+| R4a | Scoring-integrity tests: scoring changes nothing, repeats exactly, stays right later | yes (after the build) | n/a | yes | yes (after one re-teach) | `tests/test_scoring_integrity.py`; session note 2026-10-20 (R4a) |
+| R4b | Evidence-vs-reasoning miss label on each wrong diagnosis | yes (after the build) | n/a | yes | yes | `evaluation/scoring.py` (`Score.miss_kind`, `EVIDENCE_MISS`, `REASONING_MISS`), `experiment.py`; session note 2026-10-20 (R4b) |
+| R4c | Rule-based diagnostic baseline (the yardstick for the agent) | yes (after the build) | n/a | yes | yes (after one re-teach) | `capstone/baseline.py` (`diagnose`, `run_baseline`, `Verdict`); session note 2026-10-20 (R4c) |
+| R4d | Unreliable tools on a fixed schedule (timeouts, gaps, a stale record) | yes (after the build) | n/a | yes | yes (after one re-teach) | `providers/hazards.py` (`UnreliableProvider`, `Timeout`, `Gap`, `StaleRecord`, `standard_hazards`, `HazardReport`), `episode.py`, `experiment.py`; session note 2026-10-20 (R4d) |
+| R4e | Evidence-completeness stop: an open question on a current explanation blocks the automatic "supported" stop | yes (after the build) | n/a | yes | yes | `agent/loop.py` (`diagnosis_supported`); session note 2026-10-20 (R4e) |
 
 Every row above with four "yes" marks (or "n/a") is complete: no question is
 outstanding on it. Still to build after 12c, from `docs/MVP_SCOPE.md`: the
@@ -81,6 +81,37 @@ other three fault scenarios (material batch, machine configuration, false
 alarm), then evaluation, then the agent itself.
 
 ## Session notes
+
+- **2026-10-20 — R4a-R4e reviewed with the developer after they were built
+  ungated. All five now understood (three after one re-teach each).**
+  Taught each one after the fact and asked one question; no code changed.
+  - R4a: why the scoring-integrity test compares the next 30 ticks of
+    readings as well as the state. First answer was about the third test
+    (a fix lasting); re-taught that `model_dump()` does not hold the random
+    generator's position, so a hidden draw leaves state equal but shifts
+    every later noise value. Second answer: a hidden draw shifts the noise,
+    so the twins' readings stop matching, which the 30 ticks catch. Correct.
+  - R4b: a false alarm called bearing wear after both relevant items (the
+    machine's vibration and events) were collected. Asked for more context
+    first, then: `reasoning_miss`, fix the model or prompt. Correct.
+  - R4c: why thresholds are tuned on seeds 1-20 and measured on 21-60.
+    First answer gave the procedure, not the reason; re-taught overfitting
+    (tuning on the measured seeds fits their quirks and overstates accuracy).
+    Asked what 100% on 21-60 after tuning on them says about seed 61: it
+    overstates, since seed 61 has nuances the rules were not fitted to.
+    Correct.
+  - R4d: what an agent could learn if the stale record were placed from the
+    ground truth (on the faulty machine, none in false alarms). First answer
+    missed it; re-taught that the record's presence would itself reveal the
+    fault, a leak across the tool boundary. Second answer: placement from
+    the truth would hand the truth to the agent. Correct.
+  - R4e: H1 leading at 0.93 with two supporters, Q3 open on rival H2, Q4
+    open with no hypothesis: no `diagnosis_supported` stop, because Q3 is
+    open; Q4 does not matter. Correct.
+  Found while teaching, not fixed: the R4a note below says the paper's bad
+  scorer inflated success "from 65.5% to 94.3%"; the docstring of
+  `tests/test_scoring_integrity.py` says it "moved ... from 94.3% to
+  65.5%". One is backwards; to be checked against the paper.
 
 - **2026-10-20 — E2: memory records in experiment results. Pre-check
   PASSED after one follow-up; built; closing question NOT YET ASKED.**
