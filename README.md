@@ -280,3 +280,9 @@ and the paper it came from.
   run that never looked at all the relevant evidence, or one that looked
   and misread it. Based on [How Far Can Root Cause Analysis Go on Real-World Telemetry Data?](https://arxiv.org/abs/2607.13548)
   (Gopal & Krishnan, 2026).
+- Rule-based diagnostic baseline (`capstone/baseline.py`, run with
+  `uv run python -m capstone.baseline --known`): fixed rules over the
+  agent's own tools, scored the same way as the agent, as the yardstick the
+  LLM agent must beat. Based on [When LLMs Sit Above Diagnostic Tools: Unrealized Complementarity in Industrial Fault Diagnosis](https://arxiv.org/abs/2610.05031)
+  (Kim, 2026) and [Exploring LLM-based Frameworks for Fault Diagnosis](https://arxiv.org/abs/2509.23113),
+  both of which found simple or specialist methods matching or beating the LLM.

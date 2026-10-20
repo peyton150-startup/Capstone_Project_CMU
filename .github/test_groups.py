@@ -92,7 +92,7 @@ GROUPS: dict[str, list[str]] = {
     ],
     "Evaluation": ["evaluation", "memory_evaluation", "scoring_integrity"],
     # Many episodes: the harness, hand labels and the known-answer cases.
-    "Experiments": ["experiment", "known_answers"],
+    "Experiments": ["experiment", "known_answers", "baseline"],
     # The runner: one seeded episode from fault to score, end to end.
     "Episode": ["episode"],
 }

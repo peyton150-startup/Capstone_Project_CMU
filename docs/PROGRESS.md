@@ -70,6 +70,7 @@ A component is complete only when both columns are checked.
 | E1 | Experiment records keep each run's model questions and wall-clock time | yes | yes | yes | not yet asked | `capstone/experiment.py` (`CallSummary`, `summarize_calls`, `format_model_calls`); session note 2026-10-19 (E1) |
 | R4a | Scoring-integrity tests: scoring changes nothing, repeats exactly, stays right later | n/a | n/a | yes | no — built ungated, developer to review | `tests/test_scoring_integrity.py`; session note 2026-10-20 (R4a) |
 | R4b | Evidence-vs-reasoning miss label on each wrong diagnosis | n/a | n/a | yes | no — built ungated, developer to review | `evaluation/scoring.py` (`Score.miss_kind`, `EVIDENCE_MISS`, `REASONING_MISS`), `experiment.py`; session note 2026-10-20 (R4b) |
+| R4c | Rule-based diagnostic baseline (the yardstick for the agent) | n/a | n/a | yes | no — built ungated, developer to review | `capstone/baseline.py` (`diagnose`, `run_baseline`, `Verdict`); session note 2026-10-20 (R4c) |
 
 Every row above with four "yes" marks (or "n/a") is complete: no question is
 outstanding on it. Still to build after 12c, from `docs/MVP_SCOPE.md`: the
@@ -77,6 +78,41 @@ other three fault scenarios (material batch, machine configuration, false
 alarm), then evaluation, then the agent itself.
 
 ## Session notes
+
+- **2026-10-20 — R4c: rule-based diagnostic baseline. Built ungated at the
+  developer's direction (understood: no — developer to review).**
+  Based on Kim, "When LLMs Sit Above Diagnostic Tools" (arXiv 2610.05031),
+  where an LLM given a specialist's answer ended below the specialist
+  alone, and arXiv 2509.23113, where rule-based fault classification beat
+  LLMs on accuracy. The agent's numbers mean little without a no-model
+  yardstick next to them. `capstone/baseline.py`:
+  `diagnose(look, act, anomaly)` gets only the observation tools and
+  `wait` (a test hands it proxies that refuse `_sim`) and applies five
+  rules: a stopped machine is bearing wear; an alarm that is a sudden
+  spike (at least 2x the earlier peak) and has fallen away 30 ticks later
+  is a false alarm, otherwise bearing wear; a machine whose last 4 job
+  times moved 10%+ from its first 4 has a wrong setting; after waiting 480
+  ticks, a batch with 2+ rejects at 3x+ the rest's rate is a bad batch;
+  rejects no batch explains are a wrong setting with no machine named;
+  else a false alarm. Every call feeds a rule, so its evidence share is
+  not padded. `run_baseline(seed, fault)` builds the case, runs the
+  monitor and the rules, approves and carries out the fix asked for (as
+  `approve_all` does for the agent), waits 200 ticks and scores with
+  `evaluate`. `python -m capstone.baseline --known | --seeds 21-60`
+  prints one line per run and the usual summary.
+  Results. Thresholds were set looking at seeds 1-20 only (80/80 causes,
+  75/80 targets) and not changed after the held-out run: seeds 21-60 x 4
+  faults, 153/160 causes right (96%), 147/160 right machine or batch,
+  148/160 right action, 38% of relevant evidence collected; known cases
+  8/8 causes, 7/8 targets. Findings for the developer: (1) a page of
+  fixed rules nearly solves the four scenarios, so the LLM agent has to
+  beat about 96% to add anything, and the scenarios may need harder
+  cases; (2) a wrong setting made before a machine has run a few jobs
+  (KA-05 among them) cannot be pinned on a machine from these tools,
+  since speeds differ per machine and only job-time change shows it;
+  (3) R4b's label overstates evidence misses: the rules are right 96% of
+  the time with 38% of `RELEVANT_EVIDENCE`, so that list is evidence that
+  is enough, not evidence that is needed.
 
 - **2026-10-20 — R4b: evidence-vs-reasoning miss label. Built ungated at
   the developer's direction (understood: no — developer to review).**
