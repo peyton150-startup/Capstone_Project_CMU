@@ -187,6 +187,7 @@ def test_summary_counts_and_averages():
         "relevant_evidence_share": 0.0,
         "evidence_misses": 1,
         "reasoning_misses": 0,
+        "unnecessary_interventions": 0,
     }
     assert format_summary(summary).startswith("1/2 root causes correctly identified")
     assert summarize([]) == {"runs": 0}
@@ -359,3 +360,59 @@ def test_the_summary_counts_each_kind_of_miss():
     summary = summarize(runs)
     assert (summary["evidence_misses"], summary["reasoning_misses"]) == (1, 2)
     assert "wrong diagnoses: 1 missed evidence, 2 misread it" in format_summary(summary)
+
+
+# --- an unnecessary intervention, apart from a missed fix ------------------------
+
+
+def asked_for(fault, *requests):
+    """Score a run where the agent asked for `requests` as (action, machine)."""
+    sim, desk, act = episode(fault)
+    t = truth(sim)
+    for action, machine in requests:
+        act.propose_action(t.machine_id if machine is None else machine, action, "x")
+    return evaluate(sim, None, desk.proposals(), tool_calls=1, start_tick=700), t
+
+
+def test_a_fix_asked_for_on_a_false_alarm_is_unnecessary_even_if_rejected():
+    sim, desk, act = episode("false_alarm")
+    t = truth(sim)
+    proposal = act.propose_action(t.machine_id, "replace_bearing", "spike")
+    desk.reject(proposal["id"], "leave it")
+    score = evaluate(sim, None, desk.proposals(), tool_calls=1, start_tick=700)
+    assert score.unnecessary_actions == [f"replace_bearing {t.machine_id}"]
+    assert score.actions_taken == [] and score.action_correct  # nothing was done
+
+
+def test_any_fix_is_unnecessary_on_a_bad_batch():
+    score, _ = asked_for("bad_material_batch", ("reset_setting", "CNC-01"))
+    assert score.unnecessary_actions == ["reset_setting CNC-01"]
+
+
+def test_the_needed_fix_is_not_unnecessary():
+    score, _ = asked_for("bearing_degradation", ("replace_bearing", None))
+    assert score.unnecessary_actions == [] and score.recommendation_correct
+
+
+def test_a_fix_on_the_wrong_machine_is_unnecessary_and_misses_the_needed_one():
+    _, t = asked_for("bearing_degradation")
+    other = next(m for m in ("CNC-01", "CNC-02") if m != t.machine_id)
+    score, _ = asked_for("bearing_degradation", ("replace_bearing", other))
+    assert score.unnecessary_actions == [f"replace_bearing {other}"]
+    assert not score.recommendation_correct
+
+
+def test_asking_for_nothing_is_never_unnecessary():
+    score, _ = asked_for("bearing_degradation")
+    assert score.unnecessary_actions == [] and not score.recommendation_correct
+
+
+def test_the_summary_counts_runs_with_an_unnecessary_intervention():
+    runs = [
+        asked_for("false_alarm", ("replace_bearing", None))[0],
+        asked_for("false_alarm")[0],
+        asked_for("bearing_degradation", ("replace_bearing", None))[0],
+    ]
+    summary = summarize(runs)
+    assert summary["unnecessary_interventions"] == 1
+    assert "1/3 unnecessary interventions asked for" in format_summary(summary)

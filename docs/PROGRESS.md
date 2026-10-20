@@ -68,7 +68,8 @@ A component is complete only when both columns are checked.
 | A8c | Provider benchmark: each model measured alone, from real episodes | yes | yes | yes | yes | `capstone/benchmark.py`; `providers/chat.py` (`Attempt.seconds`); no real model run yet |
 | A8d | Runtime limits: a model question gets only its stage's time left; a total size for the evidence in a prompt | yes | yes (second try, after one re-teach) | yes | yes (after one re-teach) | `agent/loop.py` (`ask_policy`, `OutOfTime`), `agent/state.py` (`research_seconds`, `seconds_for_question`), `agent/model_policy.py` (`evidence_section`, `MAX_EVIDENCE_SECTION_CHARS`), `providers/chat.py` (`max_seconds`); session note 2026-10-19 (A8d) |
 | E1 | Experiment records keep each run's model questions and wall-clock time | yes | yes | yes | yes | `capstone/experiment.py` (`CallSummary`, `summarize_calls`, `format_model_calls`); session notes 2026-10-19 and 2026-10-20 (E1) |
-| E2 | Experiment records keep what memory stored and what each run recalled | yes | yes | yes | not yet asked | `capstone/evaluation/memory.py` (`recalled_in`, `cited_in`, `build_use_records`), `capstone/experiment.py` (`memory_records`, `format_memory`); session note 2026-10-20 (E2) |
+| E2 | Experiment records keep what memory stored and what each run recalled | yes | yes | yes | yes | `capstone/evaluation/memory.py` (`recalled_in`, `cited_in`, `build_use_records`), `capstone/experiment.py` (`memory_records`, `format_memory`); session note 2026-10-20 (E2) |
+| E3 | An unnecessary intervention counted apart from a missed fix | yes | yes | yes | not yet asked | `capstone/evaluation/scoring.py` (`Score.unnecessary_actions`, `summarize`), `capstone/experiment.py` (`extra=`); session note 2026-10-20 (E3) |
 | R4a | Scoring-integrity tests: scoring changes nothing, repeats exactly, stays right later | yes (after the build) | n/a | yes | yes (after one re-teach) | `tests/test_scoring_integrity.py`; session note 2026-10-20 (R4a) |
 | R4b | Evidence-vs-reasoning miss label on each wrong diagnosis | yes (after the build) | n/a | yes | yes | `evaluation/scoring.py` (`Score.miss_kind`, `EVIDENCE_MISS`, `REASONING_MISS`), `experiment.py`; session note 2026-10-20 (R4b) |
 | R4c | Rule-based diagnostic baseline (the yardstick for the agent) | yes (after the build) | n/a | yes | yes (after one re-teach) | `capstone/baseline.py` (`diagnose`, `run_baseline`, `Verdict`); session note 2026-10-20 (R4c) |
@@ -81,6 +82,39 @@ other three fault scenarios (material batch, machine configuration, false
 alarm), then evaluation, then the agent itself.
 
 ## Session notes
+
+- **2026-10-20 — E3: unnecessary intervention as its own measure. Pre-check
+  PASSED; built; closing question NOT YET ASKED.** Pre-check: asked whether
+  a fix asked for on a false alarm and rejected by the human should count
+  as unnecessary, and why count what was asked rather than what was done,
+  the developer said it should count, because counting only what was
+  carried out would show "none" although a human had to step in to get the
+  right result. Correct; the wording was tidied: it is the agent's
+  unnecessary intervention, and the rejection is the human's catch.
+  Built: `Score.unnecessary_actions` (a property read from stored fields,
+  so older results have it too): each request the true fault did not need,
+  so any request on a false alarm or bad batch and a fix on the wrong
+  machine; `summarize` counts runs with one (`unnecessary_interventions`),
+  `format_summary` prints "N/n unnecessary interventions asked for", and
+  each report line shows `extra=`. `recommendation_correct` and
+  `action_correct` are unchanged. No real model has been run.
+- **2026-10-20 — E2 closing question PASSED (after one re-teach).** Asked
+  whether a recalled, uncited lesson from a wrong diagnosis proves it caused
+  a later run's wrong answer, and why `effect` stays unknown, the developer
+  first raised a different worry (memory would make later runs nearly
+  perfect); answered: a memory is a past belief, can be wrong, and recall is
+  a hint, but the same seed and fault repeated would let a lesson name the
+  answer, so memory must be tested on cases it did not learn from (taken
+  into item 4, held-out seeds). Then said `used=None` meant it could not be
+  the reason, and did not know the second part. Re-taught: `None` means
+  unknown; two wrong runs side by side do not show cause (the case may be
+  hard, the model may misread); "hurt" is a claim about cause and code that
+  sees only citations cannot make it. Asked what one could do to find out,
+  the developer said look at the evidence and the tool calls after the
+  recall and conclude from that. Correct: that is a human assessment, the
+  route the contract leaves open (`assessment_source="human_review"`).
+  Added: the stronger test is the counterfactual, running the case again
+  without the memory and comparing. E2 is complete.
 
 - **2026-10-20 — R4a-R4e reviewed with the developer after they were built
   ungated. All five now understood (three after one re-teach each).**
