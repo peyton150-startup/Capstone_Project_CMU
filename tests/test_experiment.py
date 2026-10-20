@@ -3,6 +3,7 @@
 import pytest
 
 import capstone.experiment as experiment
+from capstone.agent.completion import AuditLog
 from capstone.agent.model_policy import ModelCall
 from capstone.evaluation.labels import Label, LabelBook, apply_label
 from capstone.experiment import (
@@ -19,8 +20,11 @@ from capstone.experiment import (
     seeds_from,
     summarize_calls,
 )
+from capstone.memory.contracts import MemoryQuery
 from capstone.providers.chat import Attempt
 from capstone.tools.diagnosis import Diagnosis
+from tests.helpers import ask
+from tests.test_episode import wear_policy
 from tests.test_known_answers import stand_in
 from tests.test_model_policy import scripted_models
 
@@ -222,3 +226,107 @@ def test_the_report_says_when_no_model_was_recorded(records):
     lines = report(records, {}).splitlines()
     assert lines[1].startswith("model questions: not recorded")
     assert "questions=-" in lines[-1]
+
+
+# --- what memory kept and what was recalled (evaluator-side) ---------------------
+
+
+@pytest.fixture
+def memory(tmp_path):
+    sqlalchemy = pytest.importorskip("sqlalchemy")
+    from capstone.memory.repository import SQLMemoryRepository
+    from capstone.memory.schema import metadata
+    from capstone.memory.service import MemoryService
+
+    engine = sqlalchemy.create_engine(f"sqlite:///{tmp_path / 'memories.sqlite'}")
+    metadata.create_all(engine)
+    yield MemoryService(SQLMemoryRepository(engine))
+    engine.dispose()
+
+
+def recalling(cite=True):
+    """The bearing policy, first asking memory; its conclusion cites E2 and E3,
+    so E3 (the recall) is cited unless `cite` is off."""
+    policy = wear_policy()
+    policy.decisions["test"].insert(
+        0, ask("recall_memories", text="vibration bearing", limit=5)
+    )
+    if not cite:
+        concluded = policy._conclude
+
+        def conclude(state):
+            conclusion, action = concluded(state)
+            update = {"evidence_ids": ("E2", "E4")}
+            return conclusion.model_copy(update=update), action
+
+        policy._conclude = conclude
+    return policy
+
+
+def learn_then_recall(memory, tmp_path, second, **options):
+    policies = iter([wear_policy(), second])
+    return run_experiment(
+        [BEARING, BEARING],
+        lambda: next(policies),
+        name="memory",
+        memory=memory,
+        log=AuditLog(tmp_path / "audit.jsonl"),
+        **options,
+    )
+
+
+def test_the_gate_decision_is_recorded_beside_the_run(memory, tmp_path):
+    first, _ = learn_then_recall(memory, tmp_path, recalling())
+    kept = first.memory_promotion
+    assert kept.accepted and kept.stored
+    [stored] = memory.search("vibration bearing", limit=5)
+    assert kept.memory_id == stored.memory_id
+    assert kept.diagnosis_correct is None  # free text, not yet labelled
+    assert first.memory_uses == []  # the first run recalled nothing
+
+
+def test_a_recalled_memory_the_agent_cites_is_marked_used(memory, tmp_path):
+    first, second = learn_then_recall(memory, tmp_path, recalling(cite=True))
+    [use] = second.memory_uses
+    assert use.memory_id == first.memory_promotion.memory_id
+    assert (use.retrieved, use.used, use.effect) == (True, True, "unknown")
+    assert use.assessment_source == "evaluator" and use.evidence_ids == ("E3",)
+
+
+def test_an_uncited_memory_is_unknown_not_unused(memory, tmp_path):
+    _, second = learn_then_recall(memory, tmp_path, recalling(cite=False))
+    [use] = second.memory_uses
+    assert (use.used, use.effect, use.assessment_source) == (None, "unknown", None)
+
+
+def test_without_memory_there_are_no_memory_records(records):
+    assert (records[0].memory_promotion, records[0].memory_uses) == (None, None)
+
+
+def test_nothing_the_evaluator_knows_reaches_the_memory_store(memory, tmp_path):
+    learn_then_recall(memory, tmp_path, recalling())
+    kept = memory.repository.retrieve(MemoryQuery(limit=100))
+    text = " ".join(m.model_dump_json() for m in kept).lower()
+    for word in ("diagnosis_correct", "true_fault", "fault_correct", "ground_truth"):
+        assert word not in text
+
+
+def test_the_report_traces_a_recalled_lesson_to_a_wrong_diagnosis(memory, tmp_path):
+    records = learn_then_recall(memory, tmp_path, recalling())
+    wrong = Diagnosis(fault="wrong_setting", machine_id="CNC-02")
+    key = records[0].run_key
+    labels = {key: Label(run_key=key, diagnosis=wrong, labelled_by="me")}
+    lines = report(records, labels).splitlines()
+    assert lines[2] == (
+        "memory: 1 lesson(s) stored (0 from right diagnoses, 1 from wrong, 0 not "
+        "judged); 1 recalled in 1 run(s), 1 cited by the agent; 1 recalled "
+        "lesson(s) came from a wrong diagnosis"
+    )
+    assert lines[-2].endswith("lesson=stored recalled=0 cited=0")
+    assert " recalled=1 cited=1" in lines[-1]
+
+
+def test_the_report_has_no_memory_line_without_memory(records):
+    assert not any(
+        line.startswith("memory:") for line in report(records, {}).splitlines()
+    )

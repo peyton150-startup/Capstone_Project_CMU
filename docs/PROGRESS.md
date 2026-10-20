@@ -67,7 +67,8 @@ A component is complete only when both columns are checked.
 | R2 | Row cap, unjudged diagnosis, old agent retired, episode runner | n/a | n/a | yes | no — built ungated, developer to review | session notes 2026-10-19; `capstone/episode.py`, `agent/monitor.py`, `evaluation/scoring.py`, `providers/factory.py` |
 | A8c | Provider benchmark: each model measured alone, from real episodes | yes | yes | yes | yes | `capstone/benchmark.py`; `providers/chat.py` (`Attempt.seconds`); no real model run yet |
 | A8d | Runtime limits: a model question gets only its stage's time left; a total size for the evidence in a prompt | yes | yes (second try, after one re-teach) | yes | yes (after one re-teach) | `agent/loop.py` (`ask_policy`, `OutOfTime`), `agent/state.py` (`research_seconds`, `seconds_for_question`), `agent/model_policy.py` (`evidence_section`, `MAX_EVIDENCE_SECTION_CHARS`), `providers/chat.py` (`max_seconds`); session note 2026-10-19 (A8d) |
-| E1 | Experiment records keep each run's model questions and wall-clock time | yes | yes | yes | not yet asked | `capstone/experiment.py` (`CallSummary`, `summarize_calls`, `format_model_calls`); session note 2026-10-19 (E1) |
+| E1 | Experiment records keep each run's model questions and wall-clock time | yes | yes | yes | yes | `capstone/experiment.py` (`CallSummary`, `summarize_calls`, `format_model_calls`); session notes 2026-10-19 and 2026-10-20 (E1) |
+| E2 | Experiment records keep what memory stored and what each run recalled | yes | yes | yes | not yet asked | `capstone/evaluation/memory.py` (`recalled_in`, `cited_in`, `build_use_records`), `capstone/experiment.py` (`memory_records`, `format_memory`); session note 2026-10-20 (E2) |
 | R4a | Scoring-integrity tests: scoring changes nothing, repeats exactly, stays right later | n/a | n/a | yes | no — built ungated, developer to review | `tests/test_scoring_integrity.py`; session note 2026-10-20 (R4a) |
 | R4b | Evidence-vs-reasoning miss label on each wrong diagnosis | n/a | n/a | yes | no — built ungated, developer to review | `evaluation/scoring.py` (`Score.miss_kind`, `EVIDENCE_MISS`, `REASONING_MISS`), `experiment.py`; session note 2026-10-20 (R4b) |
 | R4c | Rule-based diagnostic baseline (the yardstick for the agent) | n/a | n/a | yes | no — built ungated, developer to review | `capstone/baseline.py` (`diagnose`, `run_baseline`, `Verdict`); session note 2026-10-20 (R4c) |
@@ -80,6 +81,39 @@ other three fault scenarios (material batch, machine configuration, false
 alarm), then evaluation, then the agent itself.
 
 ## Session notes
+
+- **2026-10-20 — E2: memory records in experiment results. Pre-check
+  PASSED after one follow-up; built; closing question NOT YET ASKED.**
+  Pre-check: asked what would go wrong if the memory gate could see
+  `diagnosis_correct` (read from the hidden truth), the developer first said
+  only the most correct memories would be kept and the agent would base its
+  work on those, "which is wrong", but not why. Asked what a real gate would
+  judge by and what "12/20 to 17/20 with memory" would then measure, the
+  developer said it would be measuring the truth instead of what is
+  observed. Correct. Added: a real gate has only observations (the fix
+  verified by looking again), which can let a wrong lesson in, and that is
+  what these records are there to show. Built: `ExperimentRecord` keeps
+  `memory_promotion` (the gate's decision, from `build_promotion_record`,
+  with `diagnosis_correct` from the score, written after the gate decided)
+  and `memory_uses` (one `MemoryUseRecord` per memory recalled, found in the
+  run's `recall_memories` evidence; `used=True` only when a hypothesis, the
+  conclusion or the proposal cites it, otherwise unknown, never "not used";
+  `effect` always "unknown"). `report` adds a memory line: lessons stored
+  (from right, wrong, not-judged diagnoses), recalls, citations, and
+  recalled lessons that came from a wrong diagnosis (within the same
+  results). Nothing here reaches the agent, a prompt or memory; a test
+  checks the store holds no evaluator words. No real model has been run.
+- **2026-10-20 — E1 closing question PASSED.** Asked what most likely
+  happened in a run with `stop=timeout`, 14 questions all answered, 6
+  failed attempts and `answered_by` groq 8 / nvidia 6, and whether it counts
+  in the reasoning totals, the developer said Groq answered, then had an
+  outage and the NVIDIA model picked up the slack; it counts in the
+  reasoning totals, though in a benchmark it would not count the same way.
+  Correct (the benchmark gives each model alone, so Groq's outage would end
+  that episode as "model unavailable"). Added: the counts do not say the
+  order (the 8 and 6 may interleave), and the failed attempts and retries
+  spent time, which likely caused the timeout, so a timeout here is partly
+  the service's doing although it counts against reasoning. E1 is complete.
 
 - **2026-10-20 — R4e: evidence-completeness stop, kept as small as
   possible at the developer's request. Built ungated (understood: no —
