@@ -132,7 +132,7 @@ def test_the_report_puts_the_modes_side_by_side_with_labels(store):
     keyword_line = next(line for line in lines if line.startswith("keyword "))
     assert "cause_right=1/1 judged" in none_line and "searches=0" in none_line
     assert "cause_right=0/0 judged" in keyword_line
-    assert "searches=1 recalled=1 cited=1" in keyword_line
+    assert "searches=1 refused=0 recalled=1 cited=1" in keyword_line
     [case] = [line for line in lines if line.startswith(BEARING.scenario_id)]
     assert "none: cause=True" in case and "keyword: cause=-" in case
     assert "semantic: cause=True" in case

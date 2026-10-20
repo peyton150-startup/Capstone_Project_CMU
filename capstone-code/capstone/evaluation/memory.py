@@ -10,6 +10,7 @@ from capstone.contracts import Contract
 from capstone.contracts.completed_investigations import CompletedInvestigation
 from capstone.contracts.provenance import MEMORY_SOURCE
 from capstone.memory.contracts import EpisodicMemory, PromotionDecision, RecalledMemory
+from capstone.providers.recall import RECALL_TOOL, REPEATED_SEARCH, SEARCHES_SPENT
 
 Effect = Literal["helped", "hurt", "neutral", "unknown"]
 AssessmentSource = Literal["agent_report", "human_review", "evaluator"]
@@ -176,6 +177,67 @@ def build_use_records(
                 explanation="the recalled item is cited by the agent's reasoning"
                 if used
                 else None,
+            )
+        )
+    return tuple(records)
+
+
+SearchOutcome = Literal["answered", "repeated", "budget_spent", "failed"]
+
+
+class RecallSearchRecord(Contract):
+    """One memory search an investigation made, for the experimenter.
+
+    Facts from the loop's own decision records: what was asked, whether it
+    was answered, refused or failed, and which memories came back. Nothing
+    from the hidden truth.
+    """
+
+    sequence: int = Field(ge=1)  # the decision record's number
+    text: str | None = None  # None when the arguments were not usable
+    limit: int | None = None
+    outcome: SearchOutcome
+    evidence_id: str | None = None
+    memory_ids: tuple[UUID, ...] = ()
+
+
+def build_search_records(state) -> tuple[RecallSearchRecord, ...]:
+    """One record per recall_memories call the investigation made, in order.
+
+    `state` is the finished `InvestigationState`. A call the loop skipped as
+    a repeat, or the provider refused as one, is "repeated"; one refused
+    because no searches were left is "budget_spent"; any other failure is
+    "failed".
+    """
+    contents = {e.id: e.content for e in state.evidence}
+    records = []
+    for decision in state.decisions:
+        if decision.tool != RECALL_TOOL:
+            continue
+        text, limit = decision.arguments.get("text"), decision.arguments.get("limit")
+        message = decision.error.message if decision.error is not None else None
+        evidence_id, memory_ids = None, ()
+        if decision.outcome == "repeated_call" or message == REPEATED_SEARCH:
+            outcome = "repeated"
+        elif message == SEARCHES_SPENT:
+            outcome = "budget_spent"
+        elif decision.evidence_ids:
+            outcome = "answered"
+            [evidence_id] = decision.evidence_ids
+            memory_ids = tuple(
+                RecalledMemory.model_validate(item).memory_id
+                for item in json.loads(contents[evidence_id]) or ()
+            )
+        else:
+            outcome = "failed"
+        records.append(
+            RecallSearchRecord(
+                sequence=decision.sequence,
+                text=text if isinstance(text, str) else None,
+                limit=limit if type(limit) is int else None,
+                outcome=outcome,
+                evidence_id=evidence_id,
+                memory_ids=memory_ids,
             )
         )
     return tuple(records)

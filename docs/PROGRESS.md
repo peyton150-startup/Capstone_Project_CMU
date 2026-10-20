@@ -87,6 +87,72 @@ alarm), then evaluation, then the agent itself.
 
 ## Session notes
 
+- **2026-10-20 — course Module 4 (tree-of-thought reasoning): an opt-in
+  tree-of-thought hypothesize step. Built ungated, developer to review
+  (understood: no).** Gap note for Module 4 in `docs/COURSE_MODULES.md`.
+  New `capstone/agent/tree_of_thought.py`: `TreeOfThoughtPolicy`, a
+  `ModelPolicy` whose `hypothesize` asks one question for up to five
+  `Candidate`s (`Candidates`, system prompt `GENERATE`), a second for a
+  `Rating` of each (sure / likely / impossible, a confidence, a telling-
+  apart question; `Ratings`, system prompt `VALUE`), then `prune` in code
+  keeps the best three (drops impossible, uncited-evidence, unrated, and
+  lower-ranked candidates, deterministic) and turns them into H1... with
+  questions T1...; `Thought` records each tree in `thoughts`.
+  `agent/model_policy.py`: `ModelPolicy._ask` takes an optional `system`
+  prompt (default unchanged). `experiment.py`: `model_policy_factory(...,
+  tree_of_thought=False)` and `run --tree-of-thought`. Off by default; the
+  default policy is unchanged. Tests: `tests/test_tree_of_thought.py` (11,
+  fake models), including the scripted seed-6 episode run both ways
+  through `run_experiment` (same conclusion, resolved, one more question).
+  README "Research basis" credits Yao et al. 2023. Not run live.
+
+- **2026-10-20 — course Module 3, piece 2: bounded, recorded memory
+  search. Built ungated, developer to review (understood: no).** Closes the
+  two gaps found in Module 2. `providers/recall.py`: `RecallingProvider`
+  refuses the same search twice in one investigation (same words after
+  `normalize`, same limit), whatever the tick, with `REPEATED_SEARCH`, and
+  answers at most `max_searches` searches (`MAX_SEARCHES` = 3, the Future
+  Work 1 default), refusing later ones with `SEARCHES_SPENT`; both are
+  `invalid_arguments` errors whose message the next prompt shows; a store
+  failure spends nothing; `RECALL_SPEC` states the limits.
+  `evaluation/memory.py`: `RecallSearchRecord` and `build_search_records
+  (state)`, one record per search from the loop's decision records (words,
+  limit, answered / repeated / budget_spent / failed, memory IDs).
+  `experiment.py`: `ExperimentRecord.recall_searches`, and the run line
+  shows `searches=` and `refused=`. `memory_comparison.py`: the mode line
+  shows refused searches. Tests: 8 more in `tests/test_recall_tool.py`; two
+  expected report lines updated in `tests/test_experiment.py` and
+  `tests/test_memory_comparison.py`. Limits: per investigation, not per
+  knowledge gap; the agent's own usefulness judgement is not recorded.
+
+- **2026-10-20 — experiment model failure diagnostics (built ungated,
+  developer to review; understood: no).** Trial-4 answered 33 questions
+  but all four cases stopped on a later unanswered question. Previously
+  `summarize_calls` discarded the individual attempts, making a timeout
+  indistinguishable from HTTP errors in the saved results. In
+  `capstone-code/capstone/experiment.py`, `CallSummary.details` now keeps
+  the existing ordered `ModelCall` records (job, outcome, answering model,
+  attempts with model, safe error and duration). `summarize_calls` copies
+  them; `format_call_failures` shows unanswered questions and recovered
+  service failures; `report` uses it under each case; the CLI's
+  `save_record` appends the record and immediately prints its diagnostics.
+  No prompts, response bodies or keys are added. Older files still load
+  (`details=None`), with a note when missing diagnostics cannot be shown.
+  In `evaluation/scoring.py`, the summary now says a required model
+  question was unanswered, instead of saying no model answered at all.
+  Scoring exclusions and agent behavior are unchanged. Offline tests in
+  `tests/test_experiment.py` exercise timeout plus unreachable/HTTP
+  401/429/500 fallback through the real client, policy, episode, CLI file
+  and report; private error text stays out; a successful fallback retains
+  the failed attempt; old files load; absent attempts do not invent a
+  cause. `tests/test_evaluation.py` checks the clarified summary wording.
+  No live model run was made. Old trial results cannot recover discarded
+  errors; a new run is required to diagnose the service failure.
+  Verification: `uv sync --all-extras`; `uv run pytest` (1,107 passed);
+  `uv run ruff check`, `uv run ruff format --check` and
+  `uv run python .github/test_groups.py check` all passed. Read-only code
+  review found no actionable issues.
+
 - **2026-10-20 — course Module 3 (RAG and vector databases), piece 1: the
   memory comparison command. Built ungated, developer to review
   (understood: no).** Gap note for Module 3 added to

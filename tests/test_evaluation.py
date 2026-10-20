@@ -308,7 +308,7 @@ def test_runs_without_a_model_are_left_out_of_the_reasoning_totals():
     assert summary["fault_correct"] == 1 and summary["mean_tool_calls"] == 4.0
     text = format_summary(summary)
     assert text.startswith("1/1 root causes correctly identified")
-    assert "1 run(s) left out: no model answered" in text
+    assert "1 run(s) left out: a required model question was unanswered" in text
 
 
 def test_only_outages_report_nothing_scored():
