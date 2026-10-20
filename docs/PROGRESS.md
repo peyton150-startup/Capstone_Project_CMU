@@ -68,7 +68,7 @@ A component is complete only when both columns are checked.
 | A8c | Provider benchmark: each model measured alone, from real episodes | yes | yes | yes | yes | `capstone/benchmark.py`; `providers/chat.py` (`Attempt.seconds`); no real model run yet |
 | A8d | Runtime limits: a model question gets only its stage's time left; a total size for the evidence in a prompt | yes | yes (second try, after one re-teach) | yes | yes (after one re-teach) | `agent/loop.py` (`ask_policy`, `OutOfTime`), `agent/state.py` (`research_seconds`, `seconds_for_question`), `agent/model_policy.py` (`evidence_section`, `MAX_EVIDENCE_SECTION_CHARS`), `providers/chat.py` (`max_seconds`); session note 2026-10-19 (A8d) |
 | A9a | NVIDIA embeddings for memory search (nemotron-3-embed-1b) | yes | yes (after one re-teach) | yes | yes (after two re-teaches) | `providers/embeddings.py` (`NvidiaEmbedder`, `embedders_for`), `memory/semantic.py` (`IndexModelMismatch`, `open_configured_index`, two-role `ChromaMemoryIndex`), `settings.py` (`EMBEDDING_MODEL`), `memory/backfill.py` (`--rebuild`); session note 2026-10-20 (A9a) |
-| A9b | The decide answer as one flat object (no union to nest) | yes | yes (after one re-teach) | yes | closing question outstanding | `agent/model_policy.py` (`NextStep`, `NextStep.decision`, the decide prompt); session note 2026-10-20 (A9b) |
+| A9b | The decide answer as one flat object (no union to nest) | yes | yes (after one re-teach) | yes | yes (after one re-teach) | `agent/model_policy.py` (`NextStep`, `NextStep.decision`, the decide prompt); session note 2026-10-20 (A9b) |
 | E1 | Experiment records keep each run's model questions and wall-clock time | yes | yes | yes | yes | `capstone/experiment.py` (`CallSummary`, `summarize_calls`, `format_model_calls`); session notes 2026-10-19 and 2026-10-20 (E1) |
 | E2 | Experiment records keep what memory stored and what each run recalled | yes | yes | yes | yes | `capstone/evaluation/memory.py` (`recalled_in`, `cited_in`, `build_use_records`), `capstone/experiment.py` (`memory_records`, `format_memory`); session note 2026-10-20 (E2) |
 | E3 | An unnecessary intervention counted apart from a missed fix | yes | yes | yes | yes | `capstone/evaluation/scoring.py` (`Score.unnecessary_actions`, `summarize`), `capstone/experiment.py` (`extra=`); session note 2026-10-20 (E3) |
@@ -88,7 +88,8 @@ alarm), then evaluation, then the agent itself.
 ## Session notes
 
 - **2026-10-20 — A9b: the decide answer as one flat object. Pre-check
-  PASSED after one re-teach; built; closing question OUTSTANDING.**
+  PASSED after one re-teach; built; closing question PASSED after one
+  re-teach.**
   Found live: on the developer's trial-2 run most `decide` replies were
   invalid; one case run by hand showed the model answering
   `{"decision": {"CallTool": {...}}}`, the union's definition name used as a
@@ -115,6 +116,15 @@ alarm), then evaluation, then the agent itself.
   output-token limit (33-38 s each), then NVIDIA answered HTTP 500 twice
   with no fallback model set. Both are settings (`MODEL_MAX_OUTPUT_TOKENS`,
   `FALLBACK_MODEL`), not code. Questions took 11-38 s each.
+  Closing question: what happens to `{"choice": "stop", "stop_reason":
+  "evidence_sufficient", "tool": "get_events", ...}`, which code decides,
+  how it shows in the report. The developer did not know; re-taught the
+  path (the client validates `NextStep`, `one_kind_of_step` refuses a stop
+  that names a tool, `ModelPolicy` records `invalid_reply`, the loop an
+  `invalid_decision`, the report one more invalid reply under `decide`).
+  Asked about the same reply with `"tool": null`: accepted, and the loop
+  moves on. Correct (it ends the stage: investigate goes to hypothesize,
+  test to the conclusion). A9b is complete.
 
 - **2026-10-20 — E5: scoring several true faults. Contract agreed with the
   developer; pre-check PASSED; built; closing question NOT YET ASKED.**
