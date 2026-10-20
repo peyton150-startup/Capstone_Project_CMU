@@ -1,7 +1,9 @@
 import pytest
 from pydantic import ValidationError
 
+from capstone.evaluation.labels import Label, apply_label
 from capstone.evaluation.scoring import evaluate, format_summary, summarize
+from capstone.simulator.challenge import build_challenge
 from capstone.simulator.generator import FAULTS, build_scenario
 from capstone.tools.actions import ActionTools, ApprovalDesk
 from capstone.tools.diagnosis import FAULT_KINDS, Diagnosis
@@ -188,6 +190,11 @@ def test_summary_counts_and_averages():
         "evidence_misses": 1,
         "reasoning_misses": 0,
         "unnecessary_interventions": 0,
+        "compound_runs": 0,
+        "compound_fully_right": 0,
+        "compound_causes": 0,
+        "compound_causes_found": 0,
+        "compound_causes_resolved": 0,
     }
     assert format_summary(summary).startswith("1/2 root causes correctly identified")
     assert summarize([]) == {"runs": 0}
@@ -416,3 +423,142 @@ def test_the_summary_counts_runs_with_an_unnecessary_intervention():
     summary = summarize(runs)
     assert summary["unnecessary_interventions"] == 1
     assert "1/3 unnecessary interventions asked for" in format_summary(summary)
+
+
+# --- several true faults at once (the compound challenge) ------------------------
+
+
+def challenge(ticks: int = 400):
+    sim = build_challenge(42, machines=4)
+    for _ in range(ticks):
+        sim.step()
+    desk = ApprovalDesk(sim)
+    truths = {t.fault: t for t in sim.ground_truth()}
+    return sim, desk, ActionTools(sim, desk), truths
+
+
+def fix(desk, act, machine, action):
+    approve_and_run(desk, act, act.propose_action(machine, action, "x")["id"])
+    act.wait(80)  # long enough for the work to finish
+
+
+def test_a_run_with_several_faults_scores_its_causes_and_lists_distractors():
+    sim, desk, _, truths = challenge()
+    score = evaluate(sim, None, desk.proposals(), tool_calls=0, start_tick=400)
+    target = truths["bearing_degradation"].machine_id
+    assert score.true_fault == "compound"
+    assert [c.describe() for c in score.causes] == [
+        f"bearing_degradation {target}",
+        f"wrong_setting {target}",
+    ]
+    assert {c.fault for c in score.distractors} == {
+        "false_alarm",
+        "sensor_drift",
+        "sensor_dropout",
+    }
+    assert score.wanted_actions == [
+        f"replace_bearing {target}",
+        f"reset_setting {target}",
+    ]
+    assert (score.causes_found, score.wrong_causes, score.fully_right) == (0, 0, False)
+
+
+def test_one_cause_named_and_fixed_is_half_credit_not_fully_right():
+    sim, desk, act, truths = challenge()
+    target = truths["bearing_degradation"].machine_id
+    fix(desk, act, target, "replace_bearing")
+    named = Diagnosis(fault="bearing_degradation", machine_id=target)
+    score = evaluate(sim, named, desk.proposals(), tool_calls=0, start_tick=400)
+    assert (score.causes_found, len(score.causes), score.wrong_causes) == (1, 2, 0)
+    assert score.causes_resolved == 1 and not score.resolved  # still too fast
+    assert score.fully_right is False and score.fault_correct is False
+    assert not score.recommendation_correct and score.unnecessary_actions == []
+
+
+def test_both_causes_named_and_fixed_is_fully_right():
+    sim, desk, act, truths = challenge()
+    target = truths["bearing_degradation"].machine_id
+    fix(desk, act, target, "replace_bearing")
+    fix(desk, act, target, "reset_setting")
+    named = [
+        Diagnosis(fault="bearing_degradation", machine_id=target),
+        Diagnosis(fault="wrong_setting", machine_id=target),
+    ]
+    score = evaluate(sim, named, desk.proposals(), tool_calls=0, start_tick=400)
+    assert (score.causes_found, score.causes_resolved, score.resolved) == (2, 2, True)
+    assert score.fully_right and score.fault_correct and score.action_correct
+
+
+def test_blaming_a_distractor_is_a_wrong_cause_but_naming_the_spike_is_not():
+    sim, desk, _, truths = challenge()
+    target = truths["bearing_degradation"].machine_id
+    both = [
+        Diagnosis(fault="bearing_degradation", machine_id=target),
+        Diagnosis(fault="wrong_setting", machine_id=target),
+    ]
+    drifting = truths["sensor_drift"].machine_id
+    spiked = truths["false_alarm"].machine_id
+    blamed = both + [Diagnosis(fault="bearing_degradation", machine_id=drifting)]
+    dismissed = both + [Diagnosis(fault="false_alarm", machine_id=spiked)]
+    wrong = evaluate(sim, blamed, [], tool_calls=0, start_tick=400)
+    right = evaluate(sim, dismissed, [], tool_calls=0, start_tick=400)
+    assert (wrong.causes_found, wrong.wrong_causes, wrong.fully_right) == (2, 1, False)
+    assert (right.causes_found, right.wrong_causes, right.fully_right) == (2, 0, True)
+
+
+def test_a_fix_on_a_distractors_machine_is_unnecessary():
+    sim, desk, act, truths = challenge()
+    drifting = truths["sensor_drift"].machine_id
+    act.propose_action(drifting, "replace_bearing", "temperature climbing")
+    score = evaluate(sim, None, desk.proposals(), tool_calls=0, start_tick=400)
+    assert score.unnecessary_actions == [f"replace_bearing {drifting}"]
+
+
+def test_a_label_with_several_causes_judges_a_compound_row_from_the_row_alone():
+    sim, desk, _, truths = challenge()
+    target = truths["bearing_degradation"].machine_id
+    named = [
+        Diagnosis(fault="wrong_setting", machine_id=target),
+        Diagnosis(fault="bearing_degradation", machine_id=target),
+    ]
+    unjudged = evaluate(
+        sim, None, desk.proposals(), tool_calls=0, start_tick=400, judged=False
+    )
+    assert unjudged.fully_right is None and unjudged.causes_found is None
+    judged = evaluate(sim, named, desk.proposals(), tool_calls=0, start_tick=400)
+    assert apply_label(unjudged, named) == judged
+    assert Label(run_key="r", diagnosis=named, labelled_by="me").diagnosis == named
+
+
+def test_one_fault_runs_also_carry_their_cause_and_partial_credit():
+    sim, desk, act = episode("bearing_degradation")
+    t = truth(sim)
+    right = evaluate(
+        sim,
+        Diagnosis(fault="bearing_degradation", machine_id=t.machine_id),
+        [],
+        tool_calls=0,
+        start_tick=700,
+    )
+    assert [c.describe() for c in right.causes] == [
+        f"bearing_degradation {t.machine_id}"
+    ]
+    assert (right.causes_found, right.wrong_causes, right.fully_right) == (1, 0, True)
+    assert right.distractors == [] and right.true_fault == "bearing_degradation"
+
+
+def test_the_summary_reports_several_fault_runs_apart():
+    sim, desk, act, truths = challenge()
+    target = truths["bearing_degradation"].machine_id
+    fix(desk, act, target, "replace_bearing")
+    named = Diagnosis(fault="bearing_degradation", machine_id=target)
+    half = evaluate(sim, named, desk.proposals(), tool_calls=0, start_tick=400)
+    single = scored(True, True, seen=2)
+    summary = summarize([half, single])
+    assert (summary["compound_runs"], summary["compound_fully_right"]) == (1, 0)
+    assert (summary["compound_causes_found"], summary["compound_causes"]) == (1, 2)
+    assert (
+        "runs with several faults: 0/1 fully right, 1/2 causes found, "
+        "1/2 causes resolved" in format_summary(summary)
+    )
+    assert "several faults" not in format_summary(summarize([single]))

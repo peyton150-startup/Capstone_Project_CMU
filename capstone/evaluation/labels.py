@@ -9,14 +9,16 @@ the agent. `apply_label` turns a label into the root-cause columns of a
 long after it ended, without its simulator.
 
 A label of `diagnosis=None` means the conclusion names no recognisable
-cause; that counts as wrong, not as unjudged.
+cause; that counts as wrong, not as unjudged. A conclusion that names
+several causes is labelled with a list of them.
 """
 
+from collections.abc import Sequence
 from pathlib import Path
 
 from pydantic import BaseModel, ConfigDict, Field
 
-from capstone.evaluation.scoring import Score
+from capstone.evaluation.scoring import Score, judge
 from capstone.tools.diagnosis import Diagnosis
 
 
@@ -24,7 +26,8 @@ class Label(BaseModel):
     model_config = ConfigDict(frozen=True, extra="forbid")
 
     run_key: str = Field(min_length=1)
-    diagnosis: Diagnosis | None
+    # One named cause, several, or None for none recognisable.
+    diagnosis: Diagnosis | list[Diagnosis] | None
     labelled_by: str = Field(min_length=1)
     note: str = ""
 
@@ -50,27 +53,8 @@ class LabelBook:
         return labels
 
 
-def apply_label(score: Score, diagnosis: Diagnosis | None) -> Score:
-    """The same row with its root cause judged from `diagnosis`."""
-    if diagnosis is None:
-        update = {
-            "diagnosed_fault": None,
-            "diagnosed_machine_id": None,
-            "diagnosed_batch_id": None,
-            "fault_correct": False,
-            "target_correct": False,
-        }
-        return score.model_copy(update=update)
-    if score.true_fault == "bad_material_batch":
-        target_correct = diagnosis.batch_id == score.true_batch_id
-    else:
-        target_correct = diagnosis.machine_id == score.true_machine_id
-    return score.model_copy(
-        update={
-            "diagnosed_fault": diagnosis.fault,
-            "diagnosed_machine_id": diagnosis.machine_id,
-            "diagnosed_batch_id": diagnosis.batch_id,
-            "fault_correct": diagnosis.fault == score.true_fault,
-            "target_correct": target_correct,
-        }
-    )
+def apply_label(
+    score: Score, diagnosis: Diagnosis | Sequence[Diagnosis] | None
+) -> Score:
+    """The same row with its root cause judged from `diagnosis` (see `judge`)."""
+    return judge(score, diagnosis)
