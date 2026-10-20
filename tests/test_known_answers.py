@@ -14,9 +14,10 @@ import pytest
 
 from capstone.agent.artifacts import AgentConclusion
 from capstone.agent.monitor import detect_anomaly
+from capstone.episode import build_world
 from capstone.evaluation.known_answers import KNOWN_CASES
+from capstone.evaluation.scoring import COMPOUND
 from capstone.experiment import known_cases, run_experiment
-from capstone.simulator.generator import build_scenario
 from capstone.tools.actions import ActionTools, ApprovalDesk
 from capstone.tools.observation import ObservationTools
 from tests.helpers import ScriptedPolicy, ask
@@ -31,6 +32,18 @@ PINNED = {
     "KA-06-setting": ("CNC-03", None, "inspection_failures", None),
     "KA-07-false-alarm": ("CNC-01", None, "alarm", "CNC-01"),
     "KA-08-false-alarm": ("CNC-03", None, "alarm", "CNC-03"),
+    # Several faults: no single machine. Monitoring first sees the harmless
+    # spike on CNC-03, not the machine with the two real faults.
+    "KA-09-challenge": (None, None, "alarm", "CNC-03"),
+}
+
+# The compound challenge: each true fault and where it is.
+CHALLENGE_TRUTH = {
+    ("bearing_degradation", "CNC-07"),
+    ("wrong_setting", "CNC-07"),
+    ("false_alarm", "CNC-03"),
+    ("sensor_drift", "CNC-02"),
+    ("sensor_dropout", "CNC-02"),
 }
 
 # What the look-once stand-in collects, and whether the cause is gone at the
@@ -45,18 +58,24 @@ EXPECTED = {
     "KA-06-setting": (["inspection results"], False),
     "KA-07-false-alarm": (["vibration of CNC-01"], True),
     "KA-08-false-alarm": (["vibration of CNC-03"], True),
+    # Looking once at the decoy collects nothing about the two real causes.
+    "KA-09-challenge": ([], False),
 }
 
 
 @pytest.mark.parametrize("case", KNOWN_CASES, ids=lambda c: c.scenario_id)
 def test_each_case_builds_its_pinned_fault_and_symptom(case):
-    sim = build_scenario(case.seed, fault=case.fault)
-    (truth,) = sim.ground_truth()
+    sim = build_world(case.seed, kind=case.kind, fault=case.fault)
     anomaly = detect_anomaly(ObservationTools(sim), ActionTools(sim, ApprovalDesk(sim)))
     machine, batch, kind, where = PINNED[case.scenario_id]
+    assert (anomaly.kind, anomaly.machine_id) == (kind, where)
+    if case.kind == "challenge":
+        truths = {(t.fault, t.machine_id) for t in sim.ground_truth()}
+        assert truths == CHALLENGE_TRUTH
+        return
+    (truth,) = sim.ground_truth()
     assert truth.fault == case.fault
     assert (truth.machine_id, truth.batch_id) == (machine, batch)
-    assert (anomaly.kind, anomaly.machine_id) == (kind, where)
 
 
 def look_once(state):
@@ -93,10 +112,12 @@ def test_every_case_gives_one_complete_record(records):
         score = record.score
         machine, batch, _, _ = PINNED[case.scenario_id]
         assert (score.true_fault, score.true_machine_id, score.true_batch_id) == (
-            case.fault,
+            case.fault or COMPOUND,
             machine,
             batch,
         )
+        if case.kind == "challenge":  # the two real causes, the rest distractors
+            assert len(score.causes) == 2 and len(score.distractors) == 3
         assert record.conclusion == "undetermined"
         assert score.fault_correct is None  # free text, not yet labelled
         assert score.relevant_evidence  # every fault has evidence to find
@@ -110,7 +131,7 @@ def test_scores_match_the_pinned_expectations(records):
         assert score.relevant_evidence_collected == collected, record.scenario_id
         assert score.resolved is resolved, record.scenario_id
         # Asking for nothing is right exactly when nothing should be done.
-        assert score.recommendation_correct is (score.expected_action is None)
+        assert score.recommendation_correct is (not score.wanted_actions)
         assert score.actions_taken == []
 
 
