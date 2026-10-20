@@ -275,3 +275,8 @@ and the paper it came from.
   never changes the simulator, gives the same score twice, and stays right
   as time moves on. Based on [When Agent Evaluation Becomes Unreliable](https://arxiv.org/abs/2610.16067)
   (Chen, 2026).
+- Evidence-vs-reasoning miss label (`Score.miss_kind` in
+  `capstone/evaluation/scoring.py`): each wrong diagnosis is marked as a
+  run that never looked at all the relevant evidence, or one that looked
+  and misread it. Based on [How Far Can Root Cause Analysis Go on Real-World Telemetry Data?](https://arxiv.org/abs/2607.13548)
+  (Gopal & Krishnan, 2026).

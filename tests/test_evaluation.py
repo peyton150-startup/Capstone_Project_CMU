@@ -185,6 +185,8 @@ def test_summary_counts_and_averages():
         "mean_iterations": 0.0,
         "mean_ticks": 150.0,
         "relevant_evidence_share": 0.0,
+        "evidence_misses": 1,
+        "reasoning_misses": 0,
     }
     assert format_summary(summary).startswith("1/2 root causes correctly identified")
     assert summarize([]) == {"runs": 0}
@@ -309,3 +311,51 @@ def test_only_outages_report_nothing_scored():
     )  # fmt: skip
     summary = summarize([outage])
     assert summary["scored"] == 0 and summary["mean_tool_calls"] == 0.0
+
+
+def scored(fault_right: bool, target_right: bool, seen: int, *, judged=True, stop=None):
+    """A score with two relevant pieces of evidence, `seen` of them looked at."""
+    sim, desk, _ = episode("false_alarm")
+    t = truth(sim)
+    fault = "false_alarm" if fault_right else "wrong_setting"
+    machine = t.machine_id if target_right else "nowhere"
+    calls = [("get_readings", {"machine_id": t.machine_id, "sensor": "vibration"})]
+    calls += [("get_events", {"machine_id": t.machine_id})]
+    return evaluate(
+        sim,
+        Diagnosis(fault=fault, machine_id=machine),
+        [],
+        tool_calls=seen,
+        start_tick=700,
+        calls=calls[:seen],
+        judged=judged,
+        termination_reason=stop,
+    )
+
+
+def test_a_wrong_diagnosis_without_all_the_evidence_is_an_evidence_miss():
+    assert scored(False, True, seen=1).miss_kind == "evidence_miss"
+    assert scored(True, False, seen=0).miss_kind == "evidence_miss"
+
+
+def test_a_wrong_diagnosis_with_all_the_evidence_is_a_reasoning_miss():
+    assert scored(False, True, seen=2).miss_kind == "reasoning_miss"
+    assert scored(True, False, seen=2).miss_kind == "reasoning_miss"
+
+
+def test_a_right_unjudged_or_unanswered_run_has_no_miss_kind():
+    assert scored(True, True, seen=0).miss_kind is None
+    assert scored(False, False, seen=0, judged=False).miss_kind is None
+    assert scored(False, False, seen=0, stop="model_unavailable").miss_kind is None
+
+
+def test_the_summary_counts_each_kind_of_miss():
+    runs = [
+        scored(False, True, seen=1),
+        scored(False, True, seen=2),
+        scored(True, False, seen=2),
+        scored(True, True, seen=2),
+    ]
+    summary = summarize(runs)
+    assert (summary["evidence_misses"], summary["reasoning_misses"]) == (1, 2)
+    assert "wrong diagnoses: 1 missed evidence, 2 misread it" in format_summary(summary)
