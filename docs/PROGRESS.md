@@ -87,6 +87,36 @@ alarm), then evaluation, then the agent itself.
 
 ## Session notes
 
+- **2026-10-20 — course Module 3 (RAG and vector databases), piece 1: the
+  memory comparison command. Built ungated, developer to review
+  (understood: no).** Gap note for Module 3 added to
+  `docs/COURSE_MODULES.md`. New module `capstone/memory_comparison.py`
+  (next build candidate 5): `MODES` (none, keyword, semantic);
+  `memory_for(mode, repository, index)` gives the memory one mode reads
+  (None for "none", so the agent is not offered recall; semantic without an
+  index is an error, never a silent keyword fallback); `compare_memory`
+  runs the same cases once per mode through `run_experiment` with no audit
+  log, so nothing is learned and no mode feeds the next; `mode_of` reads
+  the mode back from the run key (`<name>/<mode>/<number>/<case>`);
+  `compare_report` prints one line per mode and one line per case, and
+  warns when the modes ran different cases; `main` gives `run` and
+  `report` commands. Tests: `tests/test_memory_comparison.py` (10, scripted
+  policies, SQLite, a fixed fake index). Not run live: that needs the keys,
+  DATABASE_URL and a filled store.
+
+- **2026-10-20 — course Module 2 (agent architecture: memory, tools,
+  reasoning loops): gap note. Built ungated, developer to review
+  (understood: no).** Documentation only. New `docs/COURSE_MODULES.md`
+  records, per course module, what the capstone already does and what is
+  missing. Module 2: working memory (`InvestigationState`), episodic memory
+  (`capstone/memory/`), typed tools (`contracts/tools.py`,
+  `providers/factory.py`) and the two-level loop (`agent/loop.py`,
+  `agent/investigation.py`) all exist. Two small gaps found, both where
+  memory meets the loop, to be built under Module 3: a repeated memory
+  search is not recognised as a repeat once the tick has moved, and recall
+  has no budget or search record of its own. Scope set by the developer the
+  same day: Modules 2-4 only; Modules 5-7 are not a focus now.
+
 - **2026-10-20 — two future-work items recorded (documentation only).**
   At the developer's request, `docs/MVP_SCOPE.md` gains "Future Work 8 —
   harder scenarios": (1) running the compound challenge in experiments:
