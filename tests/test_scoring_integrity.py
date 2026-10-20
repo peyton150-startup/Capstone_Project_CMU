@@ -1,9 +1,10 @@
 """Scoring must be a pure read of the finished episode.
 
-Why this file exists: an agent benchmark was found whose scorer changed the
-environment before reading it, which moved its reported success rate from
-94.3% to 65.5% (Chen, "When Agent Evaluation Becomes Unreliable", 2026,
-https://arxiv.org/abs/2610.16067). `evaluate()` reads hidden state from the
+Why this file exists: in a post-run rescoring workflow, a flawed evaluator
+that changed the environment before reading it reported a 94.3% success
+rate; after the defect was corrected the rate dropped to 65.5%, an inflation
+of 28.8 percentage points (Chen, "When Agent Evaluation Becomes Unreliable",
+2026, https://arxiv.org/abs/2610.16067). `evaluate()` reads hidden state from the
 simulator, so these tests pin that reading it changes nothing, gives the same
 answer twice, and stays right as time moves on after the work.
 """
