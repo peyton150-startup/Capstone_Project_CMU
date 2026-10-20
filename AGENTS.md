@@ -330,8 +330,13 @@ be **composable** so several unrelated or interacting faults can coexist.
 Inspect the repo before creating or modifying architecture. Do not
 overwrite existing patterns without discussing the change first.
 
+The code sits in `capstone-code/` (moved there 2026-10-20 at the developer's
+request); its Python name is still `capstone`, so imports and
+`python -m capstone.<module>` are unchanged. `tests/` and `docs/` stay at the
+top level.
+
 ```
-capstone/
+capstone-code/capstone/
   simulator/
     simulator.py      # top-level facade: owns clock, state, scenarios, step()
     models/           # shared data models (ids, enums, records)

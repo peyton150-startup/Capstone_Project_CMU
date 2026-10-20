@@ -3,6 +3,7 @@ from pathlib import Path
 import pytest
 from pydantic import ValidationError
 
+import capstone
 import capstone.memory.contracts as memory_contracts
 from capstone.agent.artifacts import AgentConclusion, VerificationCheck
 from capstone.agent.investigation import run_investigation
@@ -22,7 +23,7 @@ from capstone.tools.actions import ActionTools, ApprovalDesk
 from capstone.tools.observation import ObservationTools
 from tests.helpers import FakeProvider, ScriptedPolicy, ask, new_state
 
-CAPSTONE = Path(__file__).parent.parent / "capstone"
+CAPSTONE = Path(capstone.__file__).parent  # wherever the package lives
 
 
 def gather(decisions, *, respond=None, interpret=None):
