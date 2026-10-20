@@ -72,6 +72,7 @@ A component is complete only when both columns are checked.
 | R4b | Evidence-vs-reasoning miss label on each wrong diagnosis | n/a | n/a | yes | no — built ungated, developer to review | `evaluation/scoring.py` (`Score.miss_kind`, `EVIDENCE_MISS`, `REASONING_MISS`), `experiment.py`; session note 2026-10-20 (R4b) |
 | R4c | Rule-based diagnostic baseline (the yardstick for the agent) | n/a | n/a | yes | no — built ungated, developer to review | `capstone/baseline.py` (`diagnose`, `run_baseline`, `Verdict`); session note 2026-10-20 (R4c) |
 | R4d | Unreliable tools on a fixed schedule (timeouts, gaps, a stale record) | n/a | n/a | yes | no — built ungated, developer to review | `providers/hazards.py` (`UnreliableProvider`, `Timeout`, `Gap`, `StaleRecord`, `standard_hazards`, `HazardReport`), `episode.py`, `experiment.py`; session note 2026-10-20 (R4d) |
+| R4e | Evidence-completeness stop: an open question on a current explanation blocks the automatic "supported" stop | n/a | n/a | yes | no — built ungated, developer to review | `agent/loop.py` (`diagnosis_supported`); session note 2026-10-20 (R4e) |
 
 Every row above with four "yes" marks (or "n/a") is complete: no question is
 outstanding on it. Still to build after 12c, from `docs/MVP_SCOPE.md`: the
@@ -79,6 +80,22 @@ other three fault scenarios (material batch, machine configuration, false
 alarm), then evaluation, then the agent itself.
 
 ## Session notes
+
+- **2026-10-20 — R4e: evidence-completeness stop, kept as small as
+  possible at the developer's request. Built ungated (understood: no —
+  developer to review).**
+  Based on Zheng et al., "AgentLoop" (arXiv 2609.33315): stop when the
+  information the task needs is in, not on confidence alone. The loop
+  already had the parts: `hypothesize` asks the model for open questions
+  tagged with the hypothesis they test, and a call with that
+  `question_id` closes one. The only change: `diagnosis_supported` also
+  needs that no open question tests a current hypothesis (the leading one
+  or a rival). Questions with no hypothesis, or on a hypothesis since
+  dropped, do not block. Nothing else stops differently: the policy can
+  still conclude by itself, and the time, call and stall limits still end
+  research. Not done (the paper's fuller version): no per-fault
+  checklist, and unanswered questions are not yet listed in the
+  conclusion record (they are already in the prompt `conclude` sees).
 
 - **2026-10-20 — Summary of R4a-R4d (built ungated; developer to review).**
   Four changes chosen from a review of recent papers, built least work

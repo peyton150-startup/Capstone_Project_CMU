@@ -291,3 +291,8 @@ and the paper it came from.
   tools time out, drop rows from part of a range, and show one stale
   maintenance record, each with a way to recover. Based on [Beyond Function Calling: Benchmarking Tool-Using Agents under Tool-Environment Unreliability](https://arxiv.org/abs/2606.25819)
   (Tian et al., 2026, ToolBench-X).
+- Evidence-completeness stop (`diagnosis_supported` in
+  `capstone/agent/loop.py`): research does not stop on confidence alone
+  while a question the agent opened to test one of its explanations is
+  still unanswered. Based on [AgentLoop: Runtime Control of Slot-closed Execution Loops for Tool-augmented LLM Agents](https://arxiv.org/abs/2609.33315)
+  (Zheng et al., 2026).
