@@ -380,6 +380,7 @@ def _run_line(record: ExperimentRecord, score: Score) -> str:
     return (
         f"{record.scenario_id:24} cause={judged!s:5} "
         f"asked={score.recommendation_correct!s:5} "
+        f"extra={len(score.unnecessary_actions)} "
         f"acted={score.action_correct!s:5} resolved={score.resolved!s:5} "
         f"evidence={len(score.relevant_evidence_collected)}/"
         f"{len(score.relevant_evidence)} miss={score.miss_kind or '-'} "

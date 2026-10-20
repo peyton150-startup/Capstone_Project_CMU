@@ -147,6 +147,23 @@ class Score(BaseModel):
             return EVIDENCE_MISS
         return REASONING_MISS
 
+    @property
+    def unnecessary_actions(self) -> list[str]:
+        """What the agent asked for that the true fault did not need.
+
+        Apart from a missed fix: on a false alarm or a bad batch any request
+        is unnecessary, and a fix on the wrong machine is too. Counted from
+        what was asked, whatever the human decided: a rejection is the
+        human's catch, not the agent's judgement. Read from stored fields,
+        so older results files have it too.
+        """
+        wanted = (
+            None
+            if self.expected_action is None
+            else f"{self.expected_action} {self.true_machine_id}"
+        )
+        return [asked for asked in self.recommended_actions if asked != wanted]
+
 
 def evaluate(
     sim: Simulator,
@@ -277,6 +294,8 @@ def summarize(scores: list[Score]) -> dict:
         # Wrong diagnoses, split by why: see `Score.miss_kind`.
         "evidence_misses": sum(s.miss_kind == EVIDENCE_MISS for s in reasoned),
         "reasoning_misses": sum(s.miss_kind == REASONING_MISS for s in reasoned),
+        # Runs where the agent asked for a fix the fault did not need.
+        "unnecessary_interventions": sum(bool(s.unnecessary_actions) for s in reasoned),
     }
 
 
@@ -293,6 +312,8 @@ def format_summary(summary: dict) -> str:
         f"{unjudged}; "
         f"{summary['target_correct']}/{judged} right machine or batch; "
         f"{summary['recommendation_correct']}/{n} right recommendations; "
+        f"{summary['unnecessary_interventions']}/{n} unnecessary interventions "
+        "asked for; "
         f"{summary['action_correct']}/{n} appropriate interventions; "
         f"{summary['resolved']}/{n} resolved; "
         f"{summary['relevant_evidence_share']:.0%} of relevant evidence collected; "
