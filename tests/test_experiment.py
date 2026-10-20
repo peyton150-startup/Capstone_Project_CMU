@@ -189,6 +189,7 @@ def test_invalid_replies_and_outages_are_counted_apart():
         invalid_by_job={"decide": 1},
         unanswered=1,
         outage_attempts=4,
+        outage_reasons={down: 4},  # why each of them failed
         answered_by={"groq/a": 1, "nvidia/b": 1},
     ).model_dump(exclude={"details"})
 
@@ -513,7 +514,9 @@ def test_the_command_runs_the_challenge_on_the_given_seeds(tmp_path, monkeypatch
         return []
 
     monkeypatch.setattr(experiment, "run_experiment", fake_run)
-    monkeypatch.setattr(experiment, "model_policy_factory", lambda with_recall: None)
+    monkeypatch.setattr(
+        experiment, "model_policy_factory", lambda with_recall, **_: None
+    )
     out = str(tmp_path / "r.jsonl")
     assert main(["run", "--name", "c", "--challenge", "1-2", "--out", out]) == 0
     assert ran["cases"] == experiment.challenge_cases([1, 2])
@@ -554,3 +557,28 @@ def test_the_report_totals_and_lists_one_and_several_fault_runs_apart(mixed):
 def test_a_report_of_one_kind_only_is_not_split(records):
     lines = report(records, {}).splitlines()
     assert not any(line.startswith(("one fault:", "runs with")) for line in lines)
+
+
+def test_the_report_says_why_attempts_failed():
+    late, busy = "the model service timed out", "the model service answered HTTP 429"
+    calls = [
+        made("interpret", "no_answer", None, late, busy, busy),
+        made("decide", "answered", "cohere/c", late, "answered"),
+    ]
+    summary = summarize_calls(calls)
+    assert summary.outage_reasons == {busy: 2, late: 2}
+    record = ExperimentRecord(
+        run_key="r/1/x",
+        scenario_id="x",
+        seed=1,
+        anomaly="a",
+        conclusion=None,
+        confidence=None,
+        recommendation=None,
+        verification=None,
+        tools_used=[],
+        score=run_experiment([BEARING], stand_in, name="why")[0].score,
+        model_calls=summary,
+    )
+    line = experiment.format_model_calls([record])
+    assert line.endswith("failed because: answered HTTP 429 2, timed out 2")

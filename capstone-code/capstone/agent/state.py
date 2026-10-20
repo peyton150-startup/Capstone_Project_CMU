@@ -57,16 +57,17 @@ class Budgets(Contract):
 
     max_iterations: int = Field(default=24, ge=1)
     max_tool_calls: int = Field(default=20, ge=1)
-    # Sized for model-backed policies: one episode asks about 14 model questions
-    # (about 10 in research, about 7 from the conclusion on); at a cautious 8 s
-    # each that is about 80 s and 56 s. Not yet measured against real providers.
-    timeout_seconds: float = Field(default=180.0, gt=0)
+    # Sized for model-backed policies. Measured live on 2026-10-20 with the
+    # default model: 15-23 model questions per episode at 6-40 s each, and a
+    # run cut off by the earlier 180 s before it could conclude. 900 s allows
+    # about 25 questions at the slow end; the benchmark refines it.
+    timeout_seconds: float = Field(default=900.0, gt=0)
     # A separate allowance for proposing an action and checking that it worked,
     # so that research can never spend the calls verification needs.
     followup_tool_calls: int = Field(default=14, ge=0)
     # The same for time: research stops this many seconds before the deadline,
     # leaving them for the conclusion, the proposal, the work and the check.
-    followup_seconds: float = Field(default=60.0, ge=0)
+    followup_seconds: float = Field(default=300.0, ge=0)
     max_unproductive_steps: int = Field(default=3, ge=1)
 
     @model_validator(mode="after")

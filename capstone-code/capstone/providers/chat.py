@@ -26,8 +26,8 @@ the answer type is the model's own mistake and goes straight to the loop.
 One question has a time limit. A request waits at most `timeout` seconds
 (15 by default), and `FallbackClient` gives the whole question, retries
 and fallback included, `max_seconds` (20 by default), handing each request
-only the time left; a caller can shorten that for one question, never
-lengthen it. A service that was reached but did not answer in time is
+only the time left, and each model an equal share of it so the fallback is
+still asked; a caller can shorten that for one question, never lengthen it. A service that was reached but did not answer in time is
 reported as timed out, not as unreachable.
 """
 
@@ -49,6 +49,8 @@ from capstone.settings import Settings, get_settings
 Transport = Callable[[str, dict[str, str], bytes, float], bytes]
 Answer = TypeVar("Answer", bound=BaseModel)
 
+USER_AGENT = "capstone-agent/0.1"
+
 _THINKING = re.compile(r"<think>.*?</think>", re.DOTALL)
 _FENCE = re.compile(r"^```(?:json)?\s*(.*?)\s*```$", re.DOTALL)
 
@@ -59,11 +61,18 @@ class ModelError(RuntimeError):
     `transient` is True when asking again later might work: the service was
     unreachable, timed out, was overloaded (HTTP 429) or failed (HTTP 5xx).
     A rejected key or a bad request fails the same way every time.
+
+    `out_of_time` is True when no answer came because the time the caller
+    allowed ran out (less than a retry pause was left), not the question's
+    own limit: the caller's clock, not the service, is why.
     """
 
-    def __init__(self, message: str, *, transient: bool = False):
+    def __init__(
+        self, message: str, *, transient: bool = False, out_of_time: bool = False
+    ):
         super().__init__(message)
         self.transient = transient
+        self.out_of_time = out_of_time
 
 
 class Attempt(Contract):
@@ -147,6 +156,9 @@ def post_json(
         "Authorization": f"Bearer {api_key}",
         "Content-Type": "application/json",
         "Accept": "application/json",
+        # Without it urllib sends "Python-urllib/3.x", which Groq's front end
+        # refuses with HTTP 403 (Cloudflare error 1010) on every request.
+        "User-Agent": USER_AGENT,
     }
     try:
         return transport(url, headers, json.dumps(body).encode(), timeout)
@@ -260,7 +272,10 @@ class FallbackClient:
     failure.
 
     The whole question gets `max_seconds`: each request is given only the
-    time left, and once none is left no further model is asked.
+    time left, and once none is left no further model is asked. Each model,
+    retries included, gets an equal share of the time left with the models
+    still to ask: a model that keeps timing out moves on to the fallback
+    while there is time to ask it.
     """
 
     def __init__(
@@ -316,14 +331,31 @@ class FallbackClient:
             else min(max_seconds, self.max_seconds)
         )
         deadline = self._clock() + limit
+        # The caller's time is what runs out, not this question's own limit.
+        caller_bound = max_seconds is not None and max_seconds <= self.max_seconds
+
+        def given_up() -> ModelError:
+            spent = deadline - self._clock() <= self.retry_delay
+            return no_answer(failures, out_of_time=caller_bound and spent)
+
         try:
-            for client in self.clients:
+            for index, client in enumerate(self.clients):
+                # This model and its retries get an equal share of the time
+                # left with the models still to ask, so a slow model cannot
+                # use up the fallback's time. The last model gets all of it.
+                share = (deadline - self._clock()) / (len(self.clients) - index)
+                own_deadline = self._clock() + share
                 for attempt in range(1 + self.retries):
                     pause = self.retry_delay if attempt else 0.0
-                    left = deadline - self._clock() - pause
+                    left = own_deadline - self._clock() - pause
                     if left <= 0:
-                        failures.append(f"{client.model}: not asked, no time left")
-                        raise no_answer(failures)
+                        if deadline - self._clock() - pause > 0:
+                            break  # its share is spent; the next model is asked
+                        again = " again" if attempt else ""
+                        failures.append(
+                            f"{client.model}: not asked{again}, no time left"
+                        )
+                        raise given_up()
                     if pause:
                         self._sleep(pause)
                     started = self._clock()
@@ -349,14 +381,17 @@ class FallbackClient:
                     attempts.append(tried("answered"))
                     self.answered_by = client.model
                     return answer
-            raise no_answer(failures)
+            raise given_up()
         finally:
             self.attempts = tuple(attempts)
 
 
-def no_answer(failures: list[str]) -> ModelError:
+def no_answer(failures: list[str], *, out_of_time: bool = False) -> ModelError:
     """The error for a question no model answered, naming each failure."""
-    return ModelError("no model service answered (" + "; ".join(failures) + ")")
+    return ModelError(
+        "no model service answered (" + "; ".join(failures) + ")",
+        out_of_time=out_of_time,
+    )
 
 
 def client_for(

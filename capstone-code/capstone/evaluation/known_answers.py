@@ -44,3 +44,8 @@ KNOWN_CASES: tuple[KnownCase, ...] = (
 assert {case.fault for case in KNOWN_CASES if case.kind == "standard"} == set(FAULTS)
 assert all(case.fault is None for case in KNOWN_CASES if case.kind != "standard")
 assert len({case.scenario_id for case in KNOWN_CASES}) == len(KNOWN_CASES)
+
+# The one-fault cases: what the rule baseline and the single-fault checks use.
+STANDARD_CASES: tuple[KnownCase, ...] = tuple(
+    case for case in KNOWN_CASES if case.kind == "standard"
+)
