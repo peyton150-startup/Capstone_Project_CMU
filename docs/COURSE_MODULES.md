@@ -87,3 +87,59 @@ memory meets the loop, so they are built under Module 3 (retrieval):
    back.
 
 Built for Module 2: this note only.
+
+---
+
+## Module 3 — RAG agents and vector databases
+
+### What the capstone already does
+
+**A vector database beside an authoritative store.** Accepted lessons are
+written to SQL first (`memory/repository.py`); a Chroma collection
+(`memory/semantic.py`) keeps one embedding per lesson, made by NVIDIA's
+`nemotron-3-embed-1b` (`providers/embeddings.py`) with separate passage and
+query roles. A search returns memory IDs only; the records are read back
+from SQL, so a stale index can never invent a memory. The collection
+records which model built it and refuses to open under another
+(`IndexModelMismatch`); `python -m capstone.memory.backfill --rebuild`
+rebuilds it from SQL.
+
+**Three retrieval modes.** `MEMORY_RETRIEVAL_MODE` = semantic / keyword /
+none (`memory/recall.py`, `MemoryRecall`). Semantic falls back to keyword
+search when the index is missing or fails.
+
+**Agent-directed retrieval.** The agent decides when to search: memory is
+one tool, `recall_memories(text, limit)` (`providers/recall.py`), chosen by
+the same `decide` question as any factory tool. Its answers are labelled
+memory, so they can suggest where to look but never count as a look at the
+factory, nor as proof that a fix worked.
+
+**Records of memory use.** Experiments record what each run recalled and
+whether the agent cited it (`evaluation/memory.py`, E2).
+
+### What is missing
+
+1. **No measure of whether memory helps.** Nothing runs the same cases with
+   and without memory, or with keyword against semantic recall, so there is
+   no evidence that retrieval improves diagnoses rather than only working
+   as a search. (Next build candidate 5 in `docs/MVP_SCOPE.md`.)
+2. **Retrieval has no bounds or record of its own** (the two gaps from
+   Module 2): the same search repeated a few ticks later is not caught as a
+   repeat, there is no limit on searches (Future Work 1 sets a default of
+   three), and nothing records what each search asked and got back.
+
+Out of scope, by the rules: no new vector database, no RAG framework, no
+second reasoning model for retrieval (Future Work 1: "Do not introduce
+another reasoning LLM or a dedicated RAG agent"), no document ingestion.
+
+### Built for Module 3
+
+- **Memory comparison command** (`capstone/memory_comparison.py`):
+  `python -m capstone.memory_comparison run --name cmp-1 --known --out
+  cmp.jsonl` runs the same cases once per mode (none: no recall tool at
+  all; keyword; semantic), all reading the same store and none writing to
+  it; `report` prints one line per mode (causes right among labelled runs,
+  resolved, average tool calls, searches, memories recalled and cited) and
+  one line per case with the modes side by side. Semantic mode with no
+  index is refused rather than quietly run as keyword search. Tested with
+  scripted policies only; not yet run live.
