@@ -107,7 +107,10 @@ class Settings(BaseSettings):
         default=90.0, gt=0, validation_alias="MODEL_QUESTION_SECONDS"
     )
     # How many more times an unreachable model is asked before moving on.
-    model_retries: int = Field(default=1, ge=0, validation_alias="MODEL_RETRIES")
+    # Measured live on 2026-10-20: NVIDIA's hosted API answered HTTP 500 in
+    # 0.3 s several times an episode, and one retry 2 s later often failed
+    # too; three retries with doubling pauses (2, 4, 8 s) cost 14 s at most.
+    model_retries: int = Field(default=3, ge=0, validation_alias="MODEL_RETRIES")
 
     @field_validator(
         "database_url",
