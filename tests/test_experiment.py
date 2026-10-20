@@ -327,8 +327,10 @@ def test_the_report_traces_a_recalled_lesson_to_a_wrong_diagnosis(memory, tmp_pa
         "judged); 1 recalled in 1 run(s), 1 cited by the agent; 1 recalled "
         "lesson(s) came from a wrong diagnosis"
     )
-    assert lines[-2].endswith("lesson=stored recalled=0 cited=0")
-    assert " recalled=1 cited=1" in lines[-1]
+    assert lines[-2].endswith(
+        "lesson=stored recalled=0 cited=0 searches=0 refused=0"
+    )
+    assert " recalled=1 cited=1 searches=1 refused=0" in lines[-1]
 
 
 def test_the_report_has_no_memory_line_without_memory(records):
