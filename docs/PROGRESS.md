@@ -87,6 +87,15 @@ alarm), then evaluation, then the agent itself.
 
 ## Session notes
 
+- **2026-10-20 — fix: settings found no `.env` after the folder move
+  (packaging, no gate needed per AGENTS.md section 2.2).** After PR #23
+  moved the package into `capstone-code/`, `settings.py` still looked for
+  `.env` and `.chroma` one folder above itself, which became
+  `capstone-code/`: no keys were read ("set NVIDIA_API_KEY") although the
+  developer's `.env` at the top was correct. `REPO_ROOT` (two folders above
+  `settings.py`, the one holding `pyproject.toml`) now anchors both; a test
+  pins them there.
+
 - **2026-10-20 — E4 and E5 closing questions PASSED. All five
   evaluation-record items (E1-E5) are complete.** E5: asked about a
   challenge run naming both CNC-03 causes plus "bearing wear on CNC-01"
