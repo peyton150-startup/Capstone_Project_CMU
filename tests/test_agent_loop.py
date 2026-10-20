@@ -467,6 +467,27 @@ def test_an_open_contradiction_blocks_the_automatic_stop():
     assert not diagnosis_supported(state, deps)
 
 
+def test_an_open_question_on_a_current_explanation_blocks_the_automatic_stop():
+    deps = InvestigationDeps(provider=FakeProvider(), policy=ScriptedPolicy([]))
+    state = new_state()
+    state.hypotheses = [worn(0.95, "E1", "E2", "E3")]
+    leading = state.hypotheses[0].id
+    rival = Hypothesis(id="H9", claim="the sensor is misreading", confidence=0.2)
+
+    state.unanswered_questions = [Question(id="Q1", text="is it only one sensor?")]
+    assert diagnosis_supported(state, deps)  # tests no explanation: no block
+
+    state.unanswered_questions = [Question(id="Q2", text="t?", hypothesis_id=leading)]
+    assert not diagnosis_supported(state, deps)
+
+    state.hypotheses.append(rival)
+    state.unanswered_questions = [Question(id="Q3", text="t?", hypothesis_id="H9")]
+    assert not diagnosis_supported(state, deps)  # a rival not yet ruled out
+
+    state.unanswered_questions = [Question(id="Q4", text="t?", hypothesis_id="H7")]
+    assert diagnosis_supported(state, deps)  # that explanation was dropped
+
+
 # --- testing that no longer changes the agent's mind ------------------------
 
 

@@ -77,19 +77,26 @@ class InvestigationDeps:
 
 
 def diagnosis_supported(state: InvestigationState, deps: InvestigationDeps) -> bool:
-    """True when the best explanation is confident, backed, and not contradicted.
+    """True when the best explanation is confident, backed, not contradicted,
+    and no open question still tests any current explanation.
 
     Any contradicting evidence keeps the loop testing. Counting supporters
     against contradictions would not do: several pieces of evidence can be
-    views of one reading (an alarm, the raw readings, their summary). The
-    policy can still stop on its own and conclude.
+    views of one reading (an alarm, the raw readings, their summary). An
+    open question that tests an explanation, the leading one or a rival,
+    means the evidence the agent itself said it needs is not in yet, so
+    confidence alone does not settle it (AgentLoop, arXiv 2609.33315). The
+    policy can still stop on its own and conclude, and the usual budgets
+    still end research.
     """
     leading = state.leading_hypothesis
+    current = {h.id for h in state.hypotheses}
     return (
         leading is not None
         and leading.confidence >= deps.min_diagnosis_confidence
         and len(leading.supporting_evidence_ids) >= deps.min_supporting_evidence
         and not leading.contradicting_evidence_ids
+        and not any(q.hypothesis_id in current for q in state.unanswered_questions)
     )
 
 
