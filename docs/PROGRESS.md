@@ -70,7 +70,8 @@ A component is complete only when both columns are checked.
 | A9a | NVIDIA embeddings for memory search (nemotron-3-embed-1b) | yes | yes (after one re-teach) | yes | closing question outstanding | `providers/embeddings.py` (`NvidiaEmbedder`, `embedders_for`), `memory/semantic.py` (`IndexModelMismatch`, `open_configured_index`, two-role `ChromaMemoryIndex`), `settings.py` (`EMBEDDING_MODEL`), `memory/backfill.py` (`--rebuild`); session note 2026-10-20 (A9a) |
 | E1 | Experiment records keep each run's model questions and wall-clock time | yes | yes | yes | yes | `capstone/experiment.py` (`CallSummary`, `summarize_calls`, `format_model_calls`); session notes 2026-10-19 and 2026-10-20 (E1) |
 | E2 | Experiment records keep what memory stored and what each run recalled | yes | yes | yes | yes | `capstone/evaluation/memory.py` (`recalled_in`, `cited_in`, `build_use_records`), `capstone/experiment.py` (`memory_records`, `format_memory`); session note 2026-10-20 (E2) |
-| E3 | An unnecessary intervention counted apart from a missed fix | yes | yes | yes | not yet asked | `capstone/evaluation/scoring.py` (`Score.unnecessary_actions`, `summarize`), `capstone/experiment.py` (`extra=`); session note 2026-10-20 (E3) |
+| E3 | An unnecessary intervention counted apart from a missed fix | yes | yes | yes | yes | `capstone/evaluation/scoring.py` (`Score.unnecessary_actions`, `summarize`), `capstone/experiment.py` (`extra=`); session note 2026-10-20 (E3) |
+| E4 | A fixed set of held-out seeds for reported numbers | yes | yes | yes | not yet asked | `capstone/experiment.py` (`HELD_OUT_SEEDS`, `held_out_cases`, `run --held-out`); session note 2026-10-20 (E4) |
 | R4a | Scoring-integrity tests: scoring changes nothing, repeats exactly, stays right later | yes (after the build) | n/a | yes | yes (after one re-teach) | `tests/test_scoring_integrity.py`; session note 2026-10-20 (R4a) |
 | R4b | Evidence-vs-reasoning miss label on each wrong diagnosis | yes (after the build) | n/a | yes | yes | `evaluation/scoring.py` (`Score.miss_kind`, `EVIDENCE_MISS`, `REASONING_MISS`), `experiment.py`; session note 2026-10-20 (R4b) |
 | R4c | Rule-based diagnostic baseline (the yardstick for the agent) | yes (after the build) | n/a | yes | yes (after one re-teach) | `capstone/baseline.py` (`diagnose`, `run_baseline`, `Verdict`); session note 2026-10-20 (R4c) |
@@ -84,6 +85,7 @@ alarm), then evaluation, then the agent itself.
 
 ## Session notes
 
+<<<<<<< HEAD
 - **2026-10-20 — A9a: NVIDIA embeddings for memory search. Pre-check
   PASSED after one re-teach; built; closing question OUTSTANDING.**
   The developer chose `nvidia/nemotron-3-embed-1b` for memory search.
@@ -116,6 +118,61 @@ alarm), then evaluation, then the agent itself.
   same model; an existing `.chroma` index needs `backfill --rebuild`, and
   until then recall falls back to keyword search; `.env.example` not
   updated (this session cannot read it).
+=======
+- **2026-10-20 — E4: held-out seeds. Pre-check PASSED after three
+  re-teaches; built; closing question NOT YET ASKED.** Pre-check: asked
+  what is wrong with reporting the held-out number after changing the
+  prompt because seed 1003 failed, the developer said the prompt was
+  changed instead of the failure being reported (half of it). Asked what
+  the higher number says about an unseen seed, said the prompt would need
+  changing again. Re-taught (the number now mixes real improvement with
+  fitting to those seeds; a new exam is needed, not more lessons on the
+  old one); asked where to check a fix and what to report on, the
+  developer first said check on the held-out seeds, then the fresh set.
+  Re-taught the rule "any seed you look at while deciding what to change
+  becomes a tuning seed"; asked whether seeds 1000-1009 are still held out
+  after a fix was checked, failed, tweaked and passed on them, the
+  developer said no, they are tuning seeds now and another set is needed.
+  Correct. Built: `HELD_OUT_SEEDS = 1000-1009` (10 seeds x 4 faults = 40
+  runs; the developer's default to change), `held_out_cases()`,
+  `experiment run --held-out`, and a report line `held-out seeds: n/m
+  runs`. The rule is written beside `HELD_OUT_SEEDS`: tune on 0-999 (the
+  tests, known cases, benchmark and rule baseline use 0-60); never tune on
+  the held-out seeds, including dropping hard ones; reproduce a held-out
+  failure on a tuning seed and fix it there; once anything was changed
+  because of them they are spent and the next report needs a fresh range,
+  recorded here; memory for a held-out run is learned on tuning seeds. A
+  test fails if the held-out seeds ever overlap the known cases, the
+  benchmark defaults or 0-60. No held-out run has been made; the set is
+  unspent. No real model has been run.
+- **2026-10-20 — E3 closing question PASSED (after one re-teach).** Asked
+  about a bearing fault on CNC-02 where the agent asks for
+  `replace_bearing CNC-02` and `reset_setting CNC-04`, both approved, the
+  developer gave the field definitions, then answered True / none / no
+  (both fixes needed). Re-taught: CNC-04 has no fault, so `asked != wanted`
+  (False), `unnecessary_actions == ["reset_setting CNC-04"]`, and the run
+  counts. Asked a fresh case (bad batch, `replace_bearing CNC-01` asked and
+  rejected), the developer answered False, the CNC-01 replacement, yes.
+  Correct. E3 is complete.
+- **2026-10-20 — agent default model changed (configuration, the
+  developer's choice).** `capstone/settings.py` `DEFAULT_MODEL` is now
+  `nvidia/nvidia/nemotron-3.5-super-vl-120b-a12b` (was
+  `nemotron-3.5-lightning-30b-a3b`); every policy question uses it unless
+  its own setting or `.env` names another. Both it and
+  `nvidia/nemotron-3-embed-1b` were checked present in NVIDIA's hosted
+  `/v1/models` list that day (a read-only listing, no chat request). Not
+  measured: a 120B model may answer more slowly than the 30B one, and the
+  budgets (20 s per question, 180 s per investigation) were not re-set.
+  The embedding model is a separate change (memory search still uses
+  Chroma's local default embedder).
+  Why it matters: the developer's first live run (`experiment run --name
+  trial-1 --known`, on the old default) ended all 8 runs
+  `model_unavailable` after one question each, 2 failed attempts, about 20 s.
+  One plan question asked by hand through `client_for` with 90 s allowed:
+  lightning took 19.5 s and was cut off at the 2,048-token output limit
+  (past the 15 s request limit, so in the run it timed out); super-vl
+  answered with 5 questions in 5.2 s. One sample each, not a measurement.
+>>>>>>> origin/main
 
 - **2026-10-20 — older ungated rows reviewed with the developer: 13b, 13c,
   13d, 14, 15, R1, R2, R3. All eight now understood.** Taught each after

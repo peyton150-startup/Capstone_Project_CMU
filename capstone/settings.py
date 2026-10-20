@@ -3,7 +3,7 @@
 """Typed configuration, loaded on demand without changing process state.
 
 Models are named "provider/model", for example
-"nvidia/nvidia/nemotron-3.5-lightning-30b-a3b" or "groq/<model>". Every
+"nvidia/nvidia/nemotron-3.5-super-vl-120b-a12b" or "groq/<model>". Every
 policy question uses DEFAULT_MODEL unless its own setting names another,
 so any model can do any job.
 """
@@ -14,8 +14,9 @@ from typing import Literal
 from pydantic import Field, SecretStr, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
-# The model NVIDIA's catalogue listed when this was written (see docs/PROGRESS.md).
-DEFAULT_MODEL = "nvidia/nvidia/nemotron-3.5-lightning-30b-a3b"
+# The developer's choice for the agent (2026-10-20); listed by NVIDIA's hosted
+# API that day. The earlier default was nemotron-3.5-lightning-30b-a3b.
+DEFAULT_MODEL = "nvidia/nvidia/nemotron-3.5-super-vl-120b-a12b"
 
 # The developer's choice for memory search (2026-10-20): 2,048 numbers per text.
 DEFAULT_EMBEDDING_MODEL = "nvidia/nvidia/nemotron-3-embed-1b"

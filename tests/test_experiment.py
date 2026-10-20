@@ -5,13 +5,17 @@ import pytest
 import capstone.experiment as experiment
 from capstone.agent.completion import AuditLog
 from capstone.agent.model_policy import ModelCall
+from capstone.benchmark import DEFAULT_SEEDS
+from capstone.evaluation.known_answers import KNOWN_CASES
 from capstone.evaluation.labels import Label, LabelBook, apply_label
 from capstone.experiment import (
+    HELD_OUT_SEEDS,
     CallSummary,
     Case,
     ExperimentRecord,
     ask_label,
     grid,
+    held_out_cases,
     labelled,
     main,
     read_records,
@@ -22,6 +26,7 @@ from capstone.experiment import (
 )
 from capstone.memory.contracts import MemoryQuery
 from capstone.providers.chat import Attempt
+from capstone.simulator.generator import FAULTS
 from capstone.tools.diagnosis import Diagnosis
 from tests.helpers import ask
 from tests.test_episode import wear_policy
@@ -317,7 +322,7 @@ def test_the_report_traces_a_recalled_lesson_to_a_wrong_diagnosis(memory, tmp_pa
     key = records[0].run_key
     labels = {key: Label(run_key=key, diagnosis=wrong, labelled_by="me")}
     lines = report(records, labels).splitlines()
-    assert lines[2] == (
+    assert lines[3] == (
         "memory: 1 lesson(s) stored (0 from right diagnoses, 1 from wrong, 0 not "
         "judged); 1 recalled in 1 run(s), 1 cited by the agent; 1 recalled "
         "lesson(s) came from a wrong diagnosis"
@@ -330,3 +335,41 @@ def test_the_report_has_no_memory_line_without_memory(records):
     assert not any(
         line.startswith("memory:") for line in report(records, {}).splitlines()
     )
+
+
+# --- the held-out seeds, for reported numbers only -------------------------------
+
+
+def test_the_held_out_set_is_every_fault_on_ten_fixed_seeds():
+    cases = held_out_cases()
+    assert HELD_OUT_SEEDS == tuple(range(1000, 1010))
+    assert len(cases) == 40
+    assert {(c.seed, c.fault) for c in cases} == {
+        (seed, fault) for seed in HELD_OUT_SEEDS for fault in FAULTS
+    }
+
+
+def test_no_seed_anyone_tuned_on_is_held_out():
+    tuned = {case.seed for case in KNOWN_CASES} | set(DEFAULT_SEEDS)
+    tuned |= set(range(61))  # the tests and the rule baseline (R4c) use 0-60
+    assert not tuned & set(HELD_OUT_SEEDS)
+
+
+def test_the_command_runs_the_held_out_set(tmp_path, monkeypatch):
+    ran = {}
+
+    def fake_run(cases, make_policy, **options):
+        ran["cases"] = cases
+        return []
+
+    monkeypatch.setattr(experiment, "run_experiment", fake_run)
+    monkeypatch.setattr(experiment, "model_policy_factory", lambda with_recall: None)
+    out = str(tmp_path / "r.jsonl")
+    assert main(["run", "--name", "h", "--held-out", "--out", out]) == 0
+    assert ran["cases"] == held_out_cases()
+
+
+def test_the_report_says_how_many_runs_were_held_out(records):
+    assert "held-out seeds: 0/2 runs" in report(records, {}).splitlines()[2]
+    held = [r.model_copy(update={"seed": 1003}) for r in records]
+    assert "held-out seeds: 2/2 runs" in report(held, {}).splitlines()[2]
