@@ -79,6 +79,7 @@ A component is complete only when both columns are checked.
 | R4c | Rule-based diagnostic baseline (the yardstick for the agent) | yes (after the build) | n/a | yes | yes (after one re-teach) | `capstone/baseline.py` (`diagnose`, `run_baseline`, `Verdict`); session note 2026-10-20 (R4c) |
 | R4d | Unreliable tools on a fixed schedule (timeouts, gaps, a stale record) | yes (after the build) | n/a | yes | yes (after one re-teach) | `providers/hazards.py` (`UnreliableProvider`, `Timeout`, `Gap`, `StaleRecord`, `standard_hazards`, `HazardReport`), `episode.py`, `experiment.py`; session note 2026-10-20 (R4d) |
 | R4e | Evidence-completeness stop: an open question on a current explanation blocks the automatic "supported" stop | yes (after the build) | n/a | yes | yes | `agent/loop.py` (`diagnosis_supported`); session note 2026-10-20 (R4e) |
+| L1 | Live runs finish: User-Agent for Groq, the fallback keeps its share of a question's time, a stage deadline is a timeout, measured limits, failure reasons in records | no (built ungated) | n/a | yes | no: built ungated, developer to review | `providers/chat.py` (`USER_AGENT`, `FallbackClient.ask`, `ModelError.out_of_time`), `agent/loop.py` (`ask_policy`), `settings.py`, `agent/state.py` (`Budgets`), `experiment.py` (`CallSummary.outage_reasons`); session note 2026-10-20 (L1) |
 
 Every row above with four "yes" marks (or "n/a") is complete: no question is
 outstanding on it. Still to build after 12c, from `docs/MVP_SCOPE.md`: the
@@ -86,6 +87,133 @@ other three fault scenarios (material batch, machine configuration, false
 alarm), then evaluation, then the agent itself.
 
 ## Session notes
+
+- **2026-10-20 — L1: make live runs finish (next build candidate 1). Built
+  ungated, developer to review (understood: no).** Why live runs ended
+  "model unavailable", found from the records, the code and small live
+  checks (request-level timing, no keys or content logged):
+  1. *Time limits shorter than the model takes.* The default model
+     (nemotron 120b on NVIDIA's hosted API) answered one small question in
+     6, 10, 6 and 40 s and once not in 120 s; in a real episode 6-39 s, with
+     up to 3,782 reasoning tokens. The defaults were 15 s per request, 20 s
+     per question and 180 s per investigation, so results-2 (15 of 17 runs
+     "model unavailable") ran out after the first retry.
+  2. *A slow model's retry ate the fallback's time* (code). With 60 s per
+     request and 90 s per question, a timed-out question was retried on the
+     same model and the fallback was never asked.
+  3. *Groq refused every request with HTTP 403* (code): its front end
+     blocks urllib's default "Python-urllib" User-Agent (Cloudflare error
+     1010).
+  4. *A question cut off by the stage's deadline counted as an outage*
+     (code): the client stops with under a retry pause (2 s) left, and the
+     loop then saw time left and ended the run "model unavailable" instead of
+     "timeout".
+  5. *Settings in the developer's local `.env`* (not code, not changed):
+     FALLBACK_MODEL is a Mistral model, and the Mistral key answers HTTP 429
+     "Rate limit exceeded" to every model; the Groq and Gemini keys are
+     stored as `GROQ` and `GOOGLE_GEMINI_API_KEY`, names the code does not
+     read (it reads `GROQ_API_KEY`, `GEMINI_API_KEY`). Groq's
+     qwen3.8-27b, once reachable, hit its free tier's input-tokens-per-
+     minute limit on our ~5,000-token prompts, so it cannot be this agent's
+     fallback; Cohere command-a-03-2025 answered 5/5 large prompts in
+     6-23 s and was used as the fallback for the live rerun.
+  What changed, module by module:
+  - `providers/chat.py`: `USER_AGENT`, sent by `post_json` on every
+    request. `FallbackClient.ask` gives each model, retries included, an
+    equal share of the time left with the models still to ask, so the
+    fallback is asked while there is time ("not asked again, no time left"
+    when a retry is skipped). `ModelError.out_of_time` (and
+    `no_answer(..., out_of_time=)`): set when the client gave up because
+    the caller's time limit, not the question's own, ran out.
+  - `agent/loop.py` `ask_policy`: such an error is `OutOfTime` (a timeout),
+    not an outage.
+  - `settings.py` defaults, each with the measurement beside it:
+    MODEL_MAX_OUTPUT_TOKENS 2048 -> 8192, MODEL_REQUEST_SECONDS 15 -> 45,
+    MODEL_QUESTION_SECONDS 20 -> 90. `agent/state.py` `Budgets`:
+    timeout_seconds 180 -> 900, followup_seconds 60 -> 300. FALLBACK_MODEL
+    stays unset by default: a default naming a provider would stop anyone
+    without that provider's key.
+  - `experiment.py` `CallSummary.outage_reasons` (why requests failed, by
+    reason) and a "failed because:" part of the model-questions line.
+  Tests: `test_chat_client.py` (User-Agent sent; each model's share; the
+  fallback asked after a slow first model; out_of_time set only for the
+  caller's limit), `test_model_policy.py` (giving up 1.5 s before the
+  deadline ends the stage as a timeout; checked to fail on the old loop),
+  `test_experiment.py` (reasons counted and reported),
+  `test_agent_investigation.py` (one test pinned to the old 180/60 budget).
+  Live rerun of the known-answer cases (`run --name live-fix-2 --known`,
+  NVIDIA 120b with Cohere as fallback, started before fix 4): KA-01
+  answered 20/20 questions, stopped "diagnosis supported", described CNC-02's
+  vibration correctly but recommended escalate instead of a bearing
+  replacement; KA-02 and KA-03 answered 29/33 and 28/31 but reached the
+  research deadline mid-question and were recorded "model unavailable", the
+  bug fix 4 removes. The remaining cases' results are in the final report.
+
+- **2026-10-20 — course Module 4 (tree-of-thought reasoning): an opt-in
+  tree-of-thought hypothesize step. Built ungated, developer to review
+  (understood: no).** Gap note for Module 4 in `docs/COURSE_MODULES.md`.
+  New `capstone/agent/tree_of_thought.py`: `TreeOfThoughtPolicy`, a
+  `ModelPolicy` whose `hypothesize` asks one question for up to five
+  `Candidate`s (`Candidates`, system prompt `GENERATE`), a second for a
+  `Rating` of each (sure / likely / impossible, a confidence, a telling-
+  apart question; `Ratings`, system prompt `VALUE`), then `prune` in code
+  keeps the best three (drops impossible, uncited-evidence, unrated, and
+  lower-ranked candidates, deterministic) and turns them into H1... with
+  questions T1...; `Thought` records each tree in `thoughts`.
+  `agent/model_policy.py`: `ModelPolicy._ask` takes an optional `system`
+  prompt (default unchanged). `experiment.py`: `model_policy_factory(...,
+  tree_of_thought=False)` and `run --tree-of-thought`. Off by default; the
+  default policy is unchanged. Tests: `tests/test_tree_of_thought.py` (11,
+  fake models), including the scripted seed-6 episode run both ways
+  through `run_experiment` (same conclusion, resolved, one more question).
+  README "Research basis" credits Yao et al. 2023. Not run live.
+
+- **2026-10-20 — course Module 3, piece 2: bounded, recorded memory
+  search. Built ungated, developer to review (understood: no).** Closes the
+  two gaps found in Module 2. `providers/recall.py`: `RecallingProvider`
+  refuses the same search twice in one investigation (same words after
+  `normalize`, same limit), whatever the tick, with `REPEATED_SEARCH`, and
+  answers at most `max_searches` searches (`MAX_SEARCHES` = 3, the Future
+  Work 1 default), refusing later ones with `SEARCHES_SPENT`; both are
+  `invalid_arguments` errors whose message the next prompt shows; a store
+  failure spends nothing; `RECALL_SPEC` states the limits.
+  `evaluation/memory.py`: `RecallSearchRecord` and `build_search_records
+  (state)`, one record per search from the loop's decision records (words,
+  limit, answered / repeated / budget_spent / failed, memory IDs).
+  `experiment.py`: `ExperimentRecord.recall_searches`, and the run line
+  shows `searches=` and `refused=`. `memory_comparison.py`: the mode line
+  shows refused searches. Tests: 8 more in `tests/test_recall_tool.py`; two
+  expected report lines updated in `tests/test_experiment.py` and
+  `tests/test_memory_comparison.py`. Limits: per investigation, not per
+  knowledge gap; the agent's own usefulness judgement is not recorded.
+
+- **2026-10-20 — experiment model failure diagnostics (built ungated,
+  developer to review; understood: no).** Trial-4 answered 33 questions
+  but all four cases stopped on a later unanswered question. Previously
+  `summarize_calls` discarded the individual attempts, making a timeout
+  indistinguishable from HTTP errors in the saved results. In
+  `capstone-code/capstone/experiment.py`, `CallSummary.details` now keeps
+  the existing ordered `ModelCall` records (job, outcome, answering model,
+  attempts with model, safe error and duration). `summarize_calls` copies
+  them; `format_call_failures` shows unanswered questions and recovered
+  service failures; `report` uses it under each case; the CLI's
+  `save_record` appends the record and immediately prints its diagnostics.
+  No prompts, response bodies or keys are added. Older files still load
+  (`details=None`), with a note when missing diagnostics cannot be shown.
+  In `evaluation/scoring.py`, the summary now says a required model
+  question was unanswered, instead of saying no model answered at all.
+  Scoring exclusions and agent behavior are unchanged. Offline tests in
+  `tests/test_experiment.py` exercise timeout plus unreachable/HTTP
+  401/429/500 fallback through the real client, policy, episode, CLI file
+  and report; private error text stays out; a successful fallback retains
+  the failed attempt; old files load; absent attempts do not invent a
+  cause. `tests/test_evaluation.py` checks the clarified summary wording.
+  No live model run was made. Old trial results cannot recover discarded
+  errors; a new run is required to diagnose the service failure.
+  Verification: `uv sync --all-extras`; `uv run pytest` (1,107 passed);
+  `uv run ruff check`, `uv run ruff format --check` and
+  `uv run python .github/test_groups.py check` all passed. Read-only code
+  review found no actionable issues.
 
 - **2026-10-20 — course Module 3 (RAG and vector databases), piece 1: the
   memory comparison command. Built ungated, developer to review

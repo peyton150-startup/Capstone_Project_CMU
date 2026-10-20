@@ -4,6 +4,7 @@
 
     uv run python -m capstone.experiment run --name trial-1 --known --out results.jsonl
     uv run python -m capstone.experiment run --name trial-2 --known --hazards --out faults.jsonl
+    uv run python -m capstone.experiment run --name tot-1 --known --tree-of-thought --out tot.jsonl
     uv run python -m capstone.experiment run --name report-1 --held-out --out held-out.jsonl
     uv run python -m capstone.experiment label --results results.jsonl --labels labels.jsonl --by me
     uv run python -m capstone.experiment report --results results.jsonl --labels labels.jsonl
@@ -63,7 +64,9 @@ from capstone.evaluation.labels import Label, LabelBook, apply_label
 from capstone.evaluation.memory import (
     MemoryPromotionRecord,
     MemoryUseRecord,
+    RecallSearchRecord,
     build_promotion_record,
+    build_search_records,
     build_use_records,
 )
 from capstone.evaluation.scoring import Score, format_summary, summarize
@@ -132,6 +135,9 @@ class CallSummary(BaseModel):
     outage_reasons: dict[str, int] = {}
     # Which model answered how many questions: shows the fallback stepping in.
     answered_by: dict[str, int]
+    # Ordered questions and their safe attempt outcomes. None in older files;
+    # no prompts, response bodies or credentials are stored here.
+    details: tuple[ModelCall, ...] | None = None
 
 
 def summarize_calls(calls: Sequence[ModelCall]) -> CallSummary:
@@ -158,6 +164,7 @@ def summarize_calls(calls: Sequence[ModelCall]) -> CallSummary:
         ),
         outage_reasons=dict(sorted(reasons.items())),
         answered_by=dict(sorted(by_model.items())),
+        details=tuple(calls),
     )
 
 
@@ -192,6 +199,9 @@ class ExperimentRecord(BaseModel):
     memory_promotion: MemoryPromotionRecord | None = None
     # One per memory this run recalled. None: the run had no memory.
     memory_uses: list[MemoryUseRecord] | None = None
+    # One per memory search the run made: asked, answered or refused, and
+    # what came back. None: the run had no memory (or predates this record).
+    recall_searches: list[RecallSearchRecord] | None = None
 
 
 def memory_records(
@@ -246,6 +256,7 @@ def record_of(
         hazards_retried=None if result.hazards is None else result.hazards.retried,
         memory_promotion=promotion,
         memory_uses=uses,
+        recall_searches=list(build_search_records(state)) if with_memory else None,
     )
 
 
@@ -395,6 +406,15 @@ def _lesson(record: ExperimentRecord) -> str:
     return "known" if kept.existing_memory_id is not None else "refused"
 
 
+def _searches(record: ExperimentRecord) -> str:
+    """Memory searches made and refused, where they were recorded."""
+    found = record.recall_searches
+    if found is None:
+        return ""
+    refused = sum(s.outcome in ("repeated", "budget_spent") for s in found)
+    return f" searches={len(found)} refused={refused}"
+
+
 def _run_line(record: ExperimentRecord, score: Score) -> str:
     judged = "-" if score.fault_correct is None else score.fault_correct
     calls = record.model_calls
@@ -415,7 +435,7 @@ def _run_line(record: ExperimentRecord, score: Score) -> str:
         ""
         if uses is None
         else f" lesson={_lesson(record)} recalled={len(uses)} "
-        f"cited={sum(use.used is True for use in uses)}"
+        f"cited={sum(use.used is True for use in uses)}{_searches(record)}"
     )
     several = len(score.causes) > 1
     causes = (
@@ -436,6 +456,32 @@ def _run_line(record: ExperimentRecord, score: Score) -> str:
     )
 
 
+def format_call_failures(record: ExperimentRecord) -> list[str]:
+    """Show unanswered questions and service failures, including recovered ones."""
+    summary = record.model_calls
+    if summary is None:
+        return []
+    if summary.details is None:
+        return (
+            ["  model failure details: not recorded in this results file"]
+            if summary.unanswered or summary.outage_attempts
+            else []
+        )
+    lines = []
+    for number, call in enumerate(summary.details, start=1):
+        if call.outcome != "no_answer" and not any(
+            a.outcome not in MODEL_OUTCOMES for a in call.attempts
+        ):
+            continue
+        lines.append(f"  question {number} {call.job}: {call.outcome}")
+        for attempt in call.attempts:
+            elapsed = "" if attempt.seconds is None else f" ({attempt.seconds:.3f} s)"
+            lines.append(f"    {attempt.model}: {attempt.outcome}{elapsed}")
+        if not call.attempts:
+            lines.append("    no request attempt was recorded")
+    return lines
+
+
 def report(records: Sequence[ExperimentRecord], labels: dict[str, Label]) -> str:
     scores = labelled(records, labels)
     held = sum(r.seed in HELD_OUT_SEEDS for r in records)
@@ -446,7 +492,9 @@ def report(records: Sequence[ExperimentRecord], labels: dict[str, Label]) -> str
     ]
     memory = format_memory(records, scores)
     lines += ([] if memory is None else [memory]) + [""]
-    lines += [_run_line(r, s) for r, s in zip(records, scores, strict=True)]
+    for record, score in zip(records, scores, strict=True):
+        lines.append(_run_line(record, score))
+        lines.extend(format_call_failures(record))
     return "\n".join(lines)
 
 
@@ -488,9 +536,16 @@ def seeds_from(text: str) -> list[int]:
     return [int(part) for part in text.split(",")]
 
 
-def model_policy_factory(with_recall: bool) -> Callable[[], ReasoningPolicy]:
-    """A fresh model-backed policy per run, from settings. Needs the API keys."""
+def model_policy_factory(
+    with_recall: bool, *, tree_of_thought: bool = False
+) -> Callable[[], ReasoningPolicy]:
+    """A fresh model-backed policy per run, from settings. Needs the API keys.
+
+    With `tree_of_thought`, the hypothesize step branches, values and prunes
+    (`capstone.agent.tree_of_thought`); everything else is the same policy.
+    """
     from capstone.agent.model_policy import ModelPolicy
+    from capstone.agent.tree_of_thought import TreeOfThoughtPolicy
     from capstone.providers.chat import clients_for_jobs
     from capstone.providers.factory import research_tools
 
@@ -499,7 +554,8 @@ def model_policy_factory(with_recall: bool) -> Callable[[], ReasoningPolicy]:
         from capstone.providers.recall import RECALL_SPEC
 
         tools = (*tools, RECALL_SPEC)
-    return lambda: ModelPolicy(clients_for_jobs(), tools)
+    kind = TreeOfThoughtPolicy if tree_of_thought else ModelPolicy
+    return lambda: kind(clients_for_jobs(), tools)
 
 
 def open_memory() -> MemoryService:
@@ -550,6 +606,11 @@ def main(argv: Sequence[str] | None = None) -> int:
         action="store_true",
         help="tools time out, drop rows and show a stale record on a fixed schedule",
     )
+    run.add_argument(
+        "--tree-of-thought",
+        action="store_true",
+        help="hypothesize by generating, valuing and pruning candidates (opt-in)",
+    )
 
     label = commands.add_parser("label", help="label conclusions by hand")
     label.add_argument("--results", type=Path, required=True)
@@ -583,19 +644,26 @@ def main(argv: Sequence[str] | None = None) -> int:
             )
         memory = open_memory() if args.memory else None
         log = AuditLog(args.audit) if args.audit else None
+
+        def save_record(record: ExperimentRecord) -> None:
+            append_records(args.out, [record])
+            print(f"{record.scenario_id}: {record.conclusion!r}", flush=True)
+            for line in format_call_failures(record):
+                print(line, flush=True)
+
         records = run_experiment(
             cases,
-            model_policy_factory(with_recall=memory is not None),
+            model_policy_factory(
+                with_recall=memory is not None,
+                tree_of_thought=args.tree_of_thought,
+            ),
             name=args.name,
             approver=APPROVERS[args.approve],
             memory=memory,
             log=log,
             budgets=budgets,
             hazards=args.hazards,
-            on_record=lambda r: (
-                append_records(args.out, [r]),
-                print(f"{r.scenario_id}: {r.conclusion!r}"),
-            ),
+            on_record=save_record,
         )
         print(report(records, {}))
         return 0

@@ -1,5 +1,7 @@
 """The experiment harness, hand labels and the report, offline."""
 
+import urllib.error
+
 import pytest
 
 import capstone.experiment as experiment
@@ -25,7 +27,7 @@ from capstone.experiment import (
     summarize_calls,
 )
 from capstone.memory.contracts import MemoryQuery
-from capstone.providers.chat import Attempt
+from capstone.providers.chat import Attempt, FallbackClient
 from capstone.simulator.generator import FAULTS
 from capstone.tools.diagnosis import Diagnosis
 from tests.helpers import ask
@@ -128,7 +130,7 @@ def test_asking_for_a_label_at_the_console(records):
 
 def test_the_command_line_runs_labels_and_reports(tmp_path, monkeypatch, capsys):
     monkeypatch.setattr(
-        experiment, "model_policy_factory", lambda with_recall: stand_in
+        experiment, "model_policy_factory", lambda with_recall, **_: stand_in
     )
     results = tmp_path / "results.jsonl"
     assert (
@@ -180,7 +182,7 @@ def test_invalid_replies_and_outages_are_counted_apart():
             made("judge", "no_answer", None, down, down),
         ]
     )
-    assert summary == CallSummary(
+    assert summary.model_dump(exclude={"details"}) == CallSummary(
         questions=4,
         answered=2,
         invalid_replies=1,
@@ -189,7 +191,109 @@ def test_invalid_replies_and_outages_are_counted_apart():
         outage_attempts=4,
         outage_reasons={down: 4},  # why each of them failed
         answered_by={"groq/a": 1, "nvidia/b": 1},
+    ).model_dump(exclude={"details"})
+
+
+@pytest.mark.parametrize("fallback_status", [None, 401, 429, 500])
+def test_model_failures_survive_the_cli_file_and_report(
+    tmp_path, monkeypatch, capsys, fallback_status
+):
+    from tests.test_chat_client import UNREACHABLE, client
+
+    def interrupted_policy():
+        policy = scripted_models()
+        primary, _ = client(TimeoutError(), model="primary")
+        failure = (
+            UNREACHABLE
+            if fallback_status is None
+            else urllib.error.HTTPError(
+                "https://example.invalid",
+                fallback_status,
+                "private-response-text",
+                None,
+                None,
+            )
+        )
+        fallback, _ = client(failure, model="fallback")
+        policy.clients["interpret"] = FallbackClient([primary, fallback], retries=0)
+        return policy
+
+    monkeypatch.setattr(
+        experiment, "model_policy_factory", lambda with_recall, **_: interrupted_policy
     )
+    path = tmp_path / "failures.jsonl"
+    assert main([
+        "run", "--name", "diagnostic", "--seeds", "6", "--faults",
+        "bearing_degradation", "--out", str(path),
+    ]) == 0  # fmt: skip
+    (saved,) = read_records(path)
+    assert saved.score.termination_reason == "model_unavailable"
+    details = saved.model_calls.details
+    assert [call.job for call in details] == ["plan", "decide", "interpret"]
+    assert details[-1].outcome == "no_answer"
+    fallback_error = (
+        "the model service could not be reached"
+        if fallback_status is None
+        else f"the model service answered HTTP {fallback_status}"
+    )
+    assert [(a.model, a.outcome) for a in details[-1].attempts] == [
+        ("primary", "the model service timed out"),
+        ("fallback", fallback_error),
+    ]
+    assert all(a.seconds >= 0 for a in details[-1].attempts)
+    live_output = capsys.readouterr().out
+    assert "question 3 interpret: no_answer" in live_output
+    assert main(["report", "--results", str(path)]) == 0
+    output = capsys.readouterr().out
+    assert "a required model question was unanswered" in output
+    assert "question 3 interpret: no_answer" in output
+    assert "primary: the model service timed out" in output
+    assert f"fallback: {fallback_error}" in output
+    assert " s)" in output
+    assert "private-response-text" not in path.read_text(encoding="utf-8") + output
+
+
+def test_recovered_service_failures_keep_the_answering_fallback(records):
+    calls = [ModelCall(
+        job="decide", outcome="answered", answered_by="fallback",
+        attempts=(
+            Attempt(model="primary", outcome="the model service answered HTTP 429",
+                    seconds=1.25),
+            Attempt(model="fallback", outcome="answered", seconds=0.5),
+        ),
+    )]  # fmt: skip
+    summary = summarize_calls(calls)
+    assert summary.unanswered == 0 and summary.outage_attempts == 1
+    saved = records[0].model_copy(update={"model_calls": summary})
+    text = report([saved], {})
+    assert "question 1 decide: answered" in text
+    assert "primary: the model service answered HTTP 429 (1.250 s)" in text
+    assert "fallback: answered (0.500 s)" in text
+
+
+def test_old_results_cannot_supply_missing_failure_details(records):
+    old = records[0].model_dump()
+    old["model_calls"] = {
+        "questions": 1,
+        "answered": 0,
+        "invalid_replies": 0,
+        "invalid_by_job": {},
+        "unanswered": 1,
+        "outage_attempts": 1,
+        "answered_by": {},
+    }
+    saved = ExperimentRecord.model_validate(old)
+    assert saved.model_calls.details is None
+    assert "model failure details: not recorded" in report([saved], {})
+
+
+def test_an_unanswered_question_with_no_attempt_does_not_invent_a_cause(records):
+    summary = summarize_calls([made("judge", "no_answer")])
+    saved = records[0].model_copy(update={"model_calls": summary})
+    text = report([saved], {})
+    assert "question 1 judge: no_answer" in text
+    assert "no request attempt was recorded" in text
+    assert "timed out" not in text
 
 
 def test_a_model_policy_run_keeps_its_call_summary_and_its_time():
@@ -328,8 +432,8 @@ def test_the_report_traces_a_recalled_lesson_to_a_wrong_diagnosis(memory, tmp_pa
         "judged); 1 recalled in 1 run(s), 1 cited by the agent; 1 recalled "
         "lesson(s) came from a wrong diagnosis"
     )
-    assert lines[-2].endswith("lesson=stored recalled=0 cited=0")
-    assert " recalled=1 cited=1" in lines[-1]
+    assert lines[-2].endswith("lesson=stored recalled=0 cited=0 searches=0 refused=0")
+    assert " recalled=1 cited=1 searches=1 refused=0" in lines[-1]
 
 
 def test_the_report_has_no_memory_line_without_memory(records):
@@ -364,7 +468,9 @@ def test_the_command_runs_the_held_out_set(tmp_path, monkeypatch):
         return []
 
     monkeypatch.setattr(experiment, "run_experiment", fake_run)
-    monkeypatch.setattr(experiment, "model_policy_factory", lambda with_recall: None)
+    monkeypatch.setattr(
+        experiment, "model_policy_factory", lambda with_recall, **_: None
+    )
     out = str(tmp_path / "r.jsonl")
     assert main(["run", "--name", "h", "--held-out", "--out", out]) == 0
     assert ran["cases"] == held_out_cases()

@@ -143,3 +143,74 @@ another reasoning LLM or a dedicated RAG agent"), no document ingestion.
   one line per case with the modes side by side. Semantic mode with no
   index is refused rather than quietly run as keyword search. Tested with
   scripted policies only; not yet run live.
+- **Bounded, recorded memory search** (`providers/recall.py`,
+  `evaluation/memory.py`, `experiment.py`): a minimal slice of Future Work
+  1's agent-directed retrieval, on the existing SQL + Chroma design. The
+  agent still chooses when and what to search. Within one investigation
+  the store does not change (lessons are promoted only after a run), so
+  the same search again, at any tick, is refused with a message telling
+  the agent to revise its wording, try other symptoms or another
+  hypothesis, or use the factory's tools; and at most three searches are
+  answered (`MAX_SEARCHES`, Future Work 1's default), after which the
+  agent is told to carry on without memory and say what it left unknown.
+  A refusal reaches the next prompt through the usual failed-call list.
+  Each search is recorded for the experimenter (`RecallSearchRecord`:
+  words, limit, answered / repeated / budget_spent / failed, memory IDs
+  returned), in `ExperimentRecord.recall_searches`, and counted in the
+  experiment and comparison reports. Not done from Future Work 1: the
+  agent's own judgement of each result's usefulness is not asked for or
+  recorded, and the limit is per investigation, not per knowledge gap.
+
+---
+
+## Module 4 — Tree-of-thought reasoning and multi-agent concepts (part 1)
+
+### What the capstone already does
+
+**Competing hypotheses, tested with evidence.** MVP section 5 is built: the
+`hypothesize` question proposes two to four explanations with confidences
+and the evidence each cites, including ones that need no change to the
+factory, plus questions that would tell them apart; the `test` stage
+gathers evidence against them; `interpret` revises them; the loop stops
+only when the leading one is confident, backed, uncontradicted and no open
+question still tests a current explanation (`diagnosis_supported`). That is
+a single chain of thought kept honest by evidence, not a search over
+thoughts.
+
+**Separate roles inside one agent.** Each of the seven questions can go to
+a different model (the job table in settings), and evaluation is a
+separate component that the agent never sees. There is no second agent.
+
+### What is missing
+
+1. **No search over candidate explanations.** One model question writes
+   the hypotheses in one go; nothing generates more candidates than are
+   kept, values them separately, or prunes the weak ones. Tree of Thoughts
+   (Yao et al., 2023) is exactly that: generate several thoughts, value
+   each, keep the best, expand.
+2. **No way to compare that against the current step.** Any such step must
+   be opt-in and measured with the same harness as the default.
+
+Multi-agent concepts (part 1) are noted only: the Module 5 framework work
+is not a focus now (developer's decision, 2026-10-20).
+
+### Built for Module 4
+
+- **Tree-of-thought hypothesize step** (`capstone/agent/tree_of_thought.py`,
+  `TreeOfThoughtPolicy`), off by default, turned on with
+  `--tree-of-thought` on `python -m capstone.experiment run`. It changes
+  only `hypothesize`, at depth one with breadth-first search: one question
+  generates up to five distinct candidates (`Candidates`), a second rates
+  each sure / likely / impossible with a confidence and a question that
+  would tell it apart (`Ratings`), and code (`prune`) keeps at most three:
+  dropped are candidates rated impossible, citing evidence never gathered,
+  never rated, or ranked below the best three. The survivors become H1, H2,
+  ... with their rated confidence and their questions become open
+  questions (T1, ...) that test them, so the test stage expands the kept
+  branches with real evidence rather than more model thinking. Both
+  questions go to the `hypothesize` job's client (the job table is
+  unchanged); `thoughts` keeps each tree for the experimenter. Compared
+  with the ordinary step on the scripted seed-6 episode through
+  `run_experiment`: the same conclusion and a resolved fix, at the cost of
+  one more model question. Not yet run live, so whether it helps a real
+  model is unknown.
