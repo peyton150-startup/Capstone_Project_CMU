@@ -108,10 +108,11 @@ alarm), then evaluation, then the agent itself.
   - R4e: H1 leading at 0.93 with two supporters, Q3 open on rival H2, Q4
     open with no hypothesis: no `diagnosis_supported` stop, because Q3 is
     open; Q4 does not matter. Correct.
-  Found while teaching, not fixed: the R4a note below says the paper's bad
-  scorer inflated success "from 65.5% to 94.3%"; the docstring of
-  `tests/test_scoring_integrity.py` says it "moved ... from 94.3% to
-  65.5%". One is backwards; to be checked against the paper.
+  Found while teaching: the R4a note below and the docstring of
+  `tests/test_scoring_integrity.py` gave the paper's figures in opposite
+  directions. Both were right (flawed evaluator 94.3%, corrected 65.5%),
+  checked by the developer against the paper; both now use that one
+  wording (PR "docs: one wording for the scorer-inflation figures").
 
 - **2026-10-20 — E2: memory records in experiment results. Pre-check
   PASSED after one follow-up; built; closing question NOT YET ASKED.**
@@ -265,8 +266,10 @@ alarm), then evaluation, then the agent itself.
   developer's direction (understood: no — developer to review).**
   First of four changes chosen from a review of recent papers, built in
   order of least work first. Based on Chen, "When Agent Evaluation Becomes
-  Unreliable" (arXiv 2610.16067), where a scorer that changed the
-  environment before reading it inflated success from 65.5% to 94.3%.
+  Unreliable" (arXiv 2610.16067): in a post-run rescoring workflow, a
+  flawed evaluator that changed the environment before reading it reported
+  a 94.3% success rate; corrected, it dropped to 65.5%, an inflation of 28.8
+  percentage points.
   `evaluate()` reads hidden state, so `tests/test_scoring_integrity.py`
   pins, for all eight known-answer cases after the right repair (or none)
   and 200 ticks of waiting: (1) scoring a right and a wrong answer leaves
