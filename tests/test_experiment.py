@@ -187,6 +187,7 @@ def test_invalid_replies_and_outages_are_counted_apart():
         invalid_by_job={"decide": 1},
         unanswered=1,
         outage_attempts=4,
+        outage_reasons={down: 4},  # why each of them failed
         answered_by={"groq/a": 1, "nvidia/b": 1},
     )
 
@@ -386,3 +387,28 @@ def test_a_run_with_several_faults_shows_its_causes_found_and_fixed(records):
     record = records[0].model_copy(update={"score": compound})
     assert "causes=0/2 fixed=0/2" in report([record], {}).splitlines()[-1]
     assert "causes=" not in report(records, {}).splitlines()[-1]
+
+
+def test_the_report_says_why_attempts_failed():
+    late, busy = "the model service timed out", "the model service answered HTTP 429"
+    calls = [
+        made("interpret", "no_answer", None, late, busy, busy),
+        made("decide", "answered", "cohere/c", late, "answered"),
+    ]
+    summary = summarize_calls(calls)
+    assert summary.outage_reasons == {busy: 2, late: 2}
+    record = ExperimentRecord(
+        run_key="r/1/x",
+        scenario_id="x",
+        seed=1,
+        anomaly="a",
+        conclusion=None,
+        confidence=None,
+        recommendation=None,
+        verification=None,
+        tools_used=[],
+        score=run_experiment([BEARING], stand_in, name="why")[0].score,
+        model_calls=summary,
+    )
+    line = experiment.format_model_calls([record])
+    assert line.endswith("failed because: answered HTTP 429 2, timed out 2")

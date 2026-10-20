@@ -709,6 +709,42 @@ def test_a_cut_off_interpretation_keeps_the_evidence_and_the_run_goes_on():
     assert state.verification.outcome == "resolved"
 
 
+class GivesUpNearTheDeadline(StallsOnce):
+    """Its `nth` question waits until 1.5 s before the deadline it was given,
+    then gives up as the real client does: less left than a retry pause."""
+
+    def ask(self, system, prompt, answer_type, *, max_seconds=None):
+        self.count += 1
+        if self.count != self.nth:
+            return Slow.ask(self, system, prompt, answer_type, max_seconds=max_seconds)
+        self.client.replies.pop(0)
+        self.clock[0] += max_seconds - 1.5
+        raise ModelError(
+            "no model service answered (a: no time left)", out_of_time=True
+        )
+
+
+def test_giving_up_just_before_the_deadline_is_a_timeout_not_an_outage():
+    """Seen live on 2026-10-20: research ran out mid-question with 1-2 s left."""
+    from capstone.agent.state import Budgets
+
+    clock = [0.0]
+    agent = scripted_models()
+    agent.clients = {
+        name: GivesUpNearTheDeadline(client, clock, 8.0, 3 if name == "decide" else 0)
+        for name, client in agent.clients.items()
+    }
+    result = run_episode(
+        6,
+        agent,
+        fault="bearing_degradation",
+        clock=lambda: clock[0],
+        budgets=Budgets(timeout_seconds=110, followup_seconds=60),
+    )
+    assert result.state.termination_reason == "timeout"
+    assert result.state.conclusion is not None
+
+
 def test_a_failure_with_time_left_is_still_an_outage():
     result, _, _ = stalled_episode("decide", 3, waits=False)
     assert result.state.termination_reason == "model_unavailable"

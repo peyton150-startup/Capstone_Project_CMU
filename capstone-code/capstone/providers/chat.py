@@ -61,11 +61,18 @@ class ModelError(RuntimeError):
     `transient` is True when asking again later might work: the service was
     unreachable, timed out, was overloaded (HTTP 429) or failed (HTTP 5xx).
     A rejected key or a bad request fails the same way every time.
+
+    `out_of_time` is True when no answer came because the time the caller
+    allowed ran out (less than a retry pause was left), not the question's
+    own limit: the caller's clock, not the service, is why.
     """
 
-    def __init__(self, message: str, *, transient: bool = False):
+    def __init__(
+        self, message: str, *, transient: bool = False, out_of_time: bool = False
+    ):
         super().__init__(message)
         self.transient = transient
+        self.out_of_time = out_of_time
 
 
 class Attempt(Contract):
@@ -324,6 +331,13 @@ class FallbackClient:
             else min(max_seconds, self.max_seconds)
         )
         deadline = self._clock() + limit
+        # The caller's time is what runs out, not this question's own limit.
+        caller_bound = max_seconds is not None and max_seconds <= self.max_seconds
+
+        def given_up() -> ModelError:
+            spent = deadline - self._clock() <= self.retry_delay
+            return no_answer(failures, out_of_time=caller_bound and spent)
+
         try:
             for index, client in enumerate(self.clients):
                 # This model and its retries get an equal share of the time
@@ -341,7 +355,7 @@ class FallbackClient:
                         failures.append(
                             f"{client.model}: not asked{again}, no time left"
                         )
-                        raise no_answer(failures)
+                        raise given_up()
                     if pause:
                         self._sleep(pause)
                     started = self._clock()
@@ -367,14 +381,17 @@ class FallbackClient:
                     attempts.append(tried("answered"))
                     self.answered_by = client.model
                     return answer
-            raise no_answer(failures)
+            raise given_up()
         finally:
             self.attempts = tuple(attempts)
 
 
-def no_answer(failures: list[str]) -> ModelError:
+def no_answer(failures: list[str], *, out_of_time: bool = False) -> ModelError:
     """The error for a question no model answered, naming each failure."""
-    return ModelError("no model service answered (" + "; ".join(failures) + ")")
+    return ModelError(
+        "no model service answered (" + "; ".join(failures) + ")",
+        out_of_time=out_of_time,
+    )
 
 
 def client_for(

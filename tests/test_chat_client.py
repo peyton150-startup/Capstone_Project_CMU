@@ -637,3 +637,32 @@ def test_the_limits_come_from_settings(monkeypatch):
     assert defaults.model_retries == 1
     with pytest.raises(ValueError):
         settings(MODEL_MAX_OUTPUT_TOKENS="0")
+
+
+def test_giving_up_because_the_callers_time_ran_out_says_so():
+    clock = Clock()
+    primary, _ = silent(clock, "a")
+    ask = FallbackClient([primary], sleep=clock.sleep, clock=clock)
+    with pytest.raises(ModelError) as raised:
+        ask.ask("s", "p", Lesson, max_seconds=7.0)  # the investigation's 7 s
+    assert raised.value.out_of_time is True
+
+
+def test_running_out_of_the_questions_own_limit_is_an_outage():
+    clock = Clock()
+    primary, _ = silent(clock, "a")
+    ask = FallbackClient([primary], sleep=clock.sleep, clock=clock)
+    with pytest.raises(ModelError) as raised:
+        ask.ask("s", "p", Lesson)  # its own 20 s, the investigation has more
+    assert raised.value.out_of_time is False
+    with pytest.raises(ModelError) as raised:
+        ask.ask("s", "p", Lesson, max_seconds=600.0)  # cut to its own 20 s
+    assert raised.value.out_of_time is False
+
+
+def test_a_refusal_with_time_left_is_not_out_of_time():
+    ask, _ = client(urllib.error.HTTPError("u", 401, "no", {}, None))
+    job = FallbackClient([ask])
+    with pytest.raises(ModelError) as raised:
+        job.ask("s", "p", Lesson, max_seconds=7.0)
+    assert raised.value.out_of_time is False
