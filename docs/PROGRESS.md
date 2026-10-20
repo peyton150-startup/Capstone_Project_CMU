@@ -119,6 +119,24 @@ alarm), then evaluation, then the agent itself.
   counts. Asked a fresh case (bad batch, `replace_bearing CNC-01` asked and
   rejected), the developer answered False, the CNC-01 replacement, yes.
   Correct. E3 is complete.
+- **2026-10-20 — agent default model changed (configuration, the
+  developer's choice).** `capstone/settings.py` `DEFAULT_MODEL` is now
+  `nvidia/nvidia/nemotron-3.5-super-vl-120b-a12b` (was
+  `nemotron-3.5-lightning-30b-a3b`); every policy question uses it unless
+  its own setting or `.env` names another. Both it and
+  `nvidia/nemotron-3-embed-1b` were checked present in NVIDIA's hosted
+  `/v1/models` list that day (a read-only listing, no chat request). Not
+  measured: a 120B model may answer more slowly than the 30B one, and the
+  budgets (20 s per question, 180 s per investigation) were not re-set.
+  The embedding model is a separate change (memory search still uses
+  Chroma's local default embedder).
+  Why it matters: the developer's first live run (`experiment run --name
+  trial-1 --known`, on the old default) ended all 8 runs
+  `model_unavailable` after one question each, 2 failed attempts, about 20 s.
+  One plan question asked by hand through `client_for` with 90 s allowed:
+  lightning took 19.5 s and was cut off at the 2,048-token output limit
+  (past the 15 s request limit, so in the run it timed out); super-vl
+  answered with 5 questions in 5.2 s. One sample each, not a measurement.
 
 - **2026-10-20 — older ungated rows reviewed with the developer: 13b, 13c,
   13d, 14, 15, R1, R2, R3. All eight now understood.** Taught each after
