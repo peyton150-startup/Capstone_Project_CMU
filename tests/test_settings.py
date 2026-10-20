@@ -65,3 +65,12 @@ def test_get_settings_reads_current_environment_without_stale_cache(monkeypatch)
         second.database_url.get_secret_value()
         == "postgresql://second:password@localhost/db"
     )
+
+
+def test_env_and_index_live_at_the_repository_root():
+    # The package moved into capstone-code/ (PR #23); .env stayed at the top.
+    from capstone.settings import REPO_ROOT
+
+    assert (REPO_ROOT / "pyproject.toml").is_file()
+    assert Settings.model_config["env_file"] == REPO_ROOT / ".env"
+    assert Settings.model_fields["chroma_path"].default == REPO_ROOT / ".chroma"

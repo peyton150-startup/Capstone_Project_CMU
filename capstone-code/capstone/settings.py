@@ -22,6 +22,11 @@ DEFAULT_MODEL = "nvidia/nvidia/nemotron-3.5-super-vl-120b-a12b"
 DEFAULT_EMBEDDING_MODEL = "nvidia/nvidia/nemotron-3-embed-1b"
 
 
+# The repository's top folder (the one holding pyproject.toml and .env):
+# this file is capstone-code/capstone/settings.py, two folders below it.
+REPO_ROOT = Path(__file__).resolve().parents[2]
+
+
 def _optional(alias: str):
     """An optional setting read from the environment name `alias`."""
     return Field(default=None, validation_alias=alias)
@@ -31,7 +36,7 @@ class Settings(BaseSettings):
     """Only implemented integrations have settings; credentials are optional."""
 
     model_config = SettingsConfigDict(
-        env_file=Path(__file__).resolve().parents[1] / ".env",
+        env_file=REPO_ROOT / ".env",
         env_file_encoding="utf-8",
         extra="ignore",
         hide_input_in_errors=True,
@@ -45,7 +50,7 @@ class Settings(BaseSettings):
         default="semantic", validation_alias="MEMORY_RETRIEVAL_MODE"
     )
     chroma_path: Path = Field(
-        default=Path(__file__).resolve().parents[1] / ".chroma",
+        default=REPO_ROOT / ".chroma",
         validation_alias="CHROMA_PATH",
     )
     chroma_collection: str = Field(
