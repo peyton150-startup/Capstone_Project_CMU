@@ -4,7 +4,9 @@
 
 Each case is a fixed seed with its fault forced, so the same case always
 builds the same factory with the same hidden fault. Two cases per fault, on
-different machines or batches. What each case's truth is, and what monitoring
+different machines or batches, and one compound challenge (kind
+"challenge", `simulator/challenge.py`): two true faults on one machine and
+three distractors, so it has no single `fault`. What each case's truth is, and what monitoring
 notices first, is pinned by `tests/test_known_answers.py`, so a change to the
 simulator that moves a case shows up as a failing test, not as a silent
 change in results.
@@ -22,7 +24,9 @@ from capstone.simulator.generator import FAULTS
 class KnownCase:
     scenario_id: str
     seed: int
-    fault: str
+    fault: str | None
+    # "standard" (one forced fault) or "challenge"; see capstone.episode.
+    kind: str = "standard"
 
 
 KNOWN_CASES: tuple[KnownCase, ...] = (
@@ -34,7 +38,9 @@ KNOWN_CASES: tuple[KnownCase, ...] = (
     KnownCase("KA-06-setting", 10, "wrong_setting"),
     KnownCase("KA-07-false-alarm", 8, "false_alarm"),
     KnownCase("KA-08-false-alarm", 11, "false_alarm"),
+    KnownCase("KA-09-challenge", 3, None, kind="challenge"),
 )
 
-assert {case.fault for case in KNOWN_CASES} == set(FAULTS)
+assert {case.fault for case in KNOWN_CASES if case.kind == "standard"} == set(FAULTS)
+assert all(case.fault is None for case in KNOWN_CASES if case.kind != "standard")
 assert len({case.scenario_id for case in KNOWN_CASES}) == len(KNOWN_CASES)
