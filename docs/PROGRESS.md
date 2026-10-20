@@ -87,6 +87,16 @@ alarm), then evaluation, then the agent itself.
 
 ## Session notes
 
+- **2026-10-20 — two future-work items recorded (documentation only).**
+  At the developer's request, `docs/MVP_SCOPE.md` gains "Future Work 8 —
+  harder scenarios": (1) running the compound challenge in experiments:
+  scoring of several true faults is ready (E5) but `run_episode` and
+  experiments build only the four ordinary scenarios, so `build_challenge`
+  cannot be run, recorded or reported yet; (2) easy / intermediate / hard
+  modes (1 / 4 / 8 problems) with a frontend button, deferred until the first
+  live agent run is compared with the rule baseline, as the developer
+  decided. Nothing built.
+
 - **2026-10-20 — fix: settings found no `.env` after the folder move
   (packaging, no gate needed per AGENTS.md section 2.2).** After PR #23
   moved the package into `capstone-code/`, `settings.py` still looked for

@@ -1633,3 +1633,41 @@ access. It separately lists `subq-snap-preview` for fast structured decisions;
 Snap is not the model selected for this repository audit. Recheck capabilities
 before running the audit. No SubQ dependency, credentials, integration, external
 repository upload, or model invocation is added by this roadmap entry.
+
+### Future Work 8 — harder scenarios: the compound challenge and difficulty modes
+
+Status: future work; not implemented. Recorded 2026-10-20 at the developer's
+request. Both items build on the multi-fault scoring added in E5 (`Score.causes`,
+`causes_found`, `wrong_causes`, `causes_resolved`, `fully_right`), which already
+judges a run with several true faults.
+
+#### Running the compound challenge in experiments
+
+Scoring is ready, but experiments cannot build the challenge yet.
+`simulator/challenge.py` `build_challenge(seed)` already composes a worn bearing
+and a wrong speed setting on one machine, a harmless vibration spike on a second
+and a drifting, briefly silent temperature sensor on a third. `run_episode` and
+`capstone/experiment.py` build only the four ordinary scenarios
+(`simulator/generator.py` `FAULTS`), so a challenge run cannot be started,
+recorded or reported. What is needed: a way for an experiment case to name the
+challenge (for example a scenario kind beside the fault), `run_episode`
+building it through `build_challenge`, the report showing several-fault runs
+apart (as E5's summary already does), and a known-answer case for it. Its
+monitoring, prompts and scoring must stay as they are for single-fault runs.
+This changes what the agent observes and how it is scored, so it goes through
+the teaching gate (AGENTS.md §2.1).
+
+#### Easy / intermediate / hard modes, with a frontend button
+
+The developer wants three difficulty modes with 1 / 4 / 8 problems to fix,
+and a button on a frontend to pick one. **Deferred by the developer's
+decision of 2026-10-20:** no scenario-difficulty work starts until the first
+live model-backed agent run has been compared with the rule-based baseline
+(R4c, about 96% of causes right). The live result decides whether harder cases
+are needed at all, and how hard. Candidate ingredients recorded then: a glitch
+during a real load change, lasting sensor drift, recurring glitches, and
+composed faults (the compound challenge above). A mode is a seeded scenario
+recipe, so runs stay reproducible; the frontend only chooses the recipe and
+never shows the agent the hidden causes. There is no frontend yet; the live
+progress view discussed on 2026-10-19 would be its first screen.
+
