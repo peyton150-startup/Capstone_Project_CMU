@@ -4,6 +4,7 @@
 
     uv run python -m capstone.experiment run --name trial-1 --known --out results.jsonl
     uv run python -m capstone.experiment run --name trial-2 --known --hazards --out faults.jsonl
+    uv run python -m capstone.experiment run --name tot-1 --known --tree-of-thought --out tot.jsonl
     uv run python -m capstone.experiment run --name report-1 --held-out --out held-out.jsonl
     uv run python -m capstone.experiment label --results results.jsonl --labels labels.jsonl --by me
     uv run python -m capstone.experiment report --results results.jsonl --labels labels.jsonl
@@ -517,9 +518,16 @@ def seeds_from(text: str) -> list[int]:
     return [int(part) for part in text.split(",")]
 
 
-def model_policy_factory(with_recall: bool) -> Callable[[], ReasoningPolicy]:
-    """A fresh model-backed policy per run, from settings. Needs the API keys."""
+def model_policy_factory(
+    with_recall: bool, *, tree_of_thought: bool = False
+) -> Callable[[], ReasoningPolicy]:
+    """A fresh model-backed policy per run, from settings. Needs the API keys.
+
+    With `tree_of_thought`, the hypothesize step branches, values and prunes
+    (`capstone.agent.tree_of_thought`); everything else is the same policy.
+    """
     from capstone.agent.model_policy import ModelPolicy
+    from capstone.agent.tree_of_thought import TreeOfThoughtPolicy
     from capstone.providers.chat import clients_for_jobs
     from capstone.providers.factory import research_tools
 
@@ -528,7 +536,8 @@ def model_policy_factory(with_recall: bool) -> Callable[[], ReasoningPolicy]:
         from capstone.providers.recall import RECALL_SPEC
 
         tools = (*tools, RECALL_SPEC)
-    return lambda: ModelPolicy(clients_for_jobs(), tools)
+    kind = TreeOfThoughtPolicy if tree_of_thought else ModelPolicy
+    return lambda: kind(clients_for_jobs(), tools)
 
 
 def open_memory() -> MemoryService:
@@ -579,6 +588,11 @@ def main(argv: Sequence[str] | None = None) -> int:
         action="store_true",
         help="tools time out, drop rows and show a stale record on a fixed schedule",
     )
+    run.add_argument(
+        "--tree-of-thought",
+        action="store_true",
+        help="hypothesize by generating, valuing and pruning candidates (opt-in)",
+    )
 
     label = commands.add_parser("label", help="label conclusions by hand")
     label.add_argument("--results", type=Path, required=True)
@@ -621,7 +635,10 @@ def main(argv: Sequence[str] | None = None) -> int:
 
         records = run_experiment(
             cases,
-            model_policy_factory(with_recall=memory is not None),
+            model_policy_factory(
+                with_recall=memory is not None,
+                tree_of_thought=args.tree_of_thought,
+            ),
             name=args.name,
             approver=APPROVERS[args.approve],
             memory=memory,

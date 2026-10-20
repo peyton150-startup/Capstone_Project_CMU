@@ -130,7 +130,7 @@ def test_asking_for_a_label_at_the_console(records):
 
 def test_the_command_line_runs_labels_and_reports(tmp_path, monkeypatch, capsys):
     monkeypatch.setattr(
-        experiment, "model_policy_factory", lambda with_recall: stand_in
+        experiment, "model_policy_factory", lambda with_recall, **_: stand_in
     )
     results = tmp_path / "results.jsonl"
     assert (
@@ -218,7 +218,7 @@ def test_model_failures_survive_the_cli_file_and_report(
         return policy
 
     monkeypatch.setattr(
-        experiment, "model_policy_factory", lambda with_recall: interrupted_policy
+        experiment, "model_policy_factory", lambda with_recall, **_: interrupted_policy
     )
     path = tmp_path / "failures.jsonl"
     assert main([
@@ -467,7 +467,9 @@ def test_the_command_runs_the_held_out_set(tmp_path, monkeypatch):
         return []
 
     monkeypatch.setattr(experiment, "run_experiment", fake_run)
-    monkeypatch.setattr(experiment, "model_policy_factory", lambda with_recall: None)
+    monkeypatch.setattr(
+        experiment, "model_policy_factory", lambda with_recall, **_: None
+    )
     out = str(tmp_path / "r.jsonl")
     assert main(["run", "--name", "h", "--held-out", "--out", out]) == 0
     assert ran["cases"] == held_out_cases()

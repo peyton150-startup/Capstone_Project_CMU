@@ -298,3 +298,9 @@ and the paper it came from.
   while a question the agent opened to test one of its explanations is
   still unanswered. Based on [AgentLoop: Runtime Control of Slot-closed Execution Loops for Tool-augmented LLM Agents](https://arxiv.org/abs/2609.33315)
   (Zheng et al., 2026).
+- Tree-of-thought hypotheses (`capstone/agent/tree_of_thought.py`,
+  `--tree-of-thought` on `python -m capstone.experiment run`, off by
+  default): the hypothesize step generates several candidate explanations,
+  has each rated sure / likely / impossible against the evidence, and keeps
+  the best few, pruned in code. Based on [Tree of Thoughts: Deliberate Problem Solving with Large Language Models](https://arxiv.org/abs/2305.10601)
+  (Yao et al., 2023).

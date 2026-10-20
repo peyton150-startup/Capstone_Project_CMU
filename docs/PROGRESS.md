@@ -87,6 +87,25 @@ alarm), then evaluation, then the agent itself.
 
 ## Session notes
 
+- **2026-10-20 — course Module 4 (tree-of-thought reasoning): an opt-in
+  tree-of-thought hypothesize step. Built ungated, developer to review
+  (understood: no).** Gap note for Module 4 in `docs/COURSE_MODULES.md`.
+  New `capstone/agent/tree_of_thought.py`: `TreeOfThoughtPolicy`, a
+  `ModelPolicy` whose `hypothesize` asks one question for up to five
+  `Candidate`s (`Candidates`, system prompt `GENERATE`), a second for a
+  `Rating` of each (sure / likely / impossible, a confidence, a telling-
+  apart question; `Ratings`, system prompt `VALUE`), then `prune` in code
+  keeps the best three (drops impossible, uncited-evidence, unrated, and
+  lower-ranked candidates, deterministic) and turns them into H1... with
+  questions T1...; `Thought` records each tree in `thoughts`.
+  `agent/model_policy.py`: `ModelPolicy._ask` takes an optional `system`
+  prompt (default unchanged). `experiment.py`: `model_policy_factory(...,
+  tree_of_thought=False)` and `run --tree-of-thought`. Off by default; the
+  default policy is unchanged. Tests: `tests/test_tree_of_thought.py` (11,
+  fake models), including the scripted seed-6 episode run both ways
+  through `run_experiment` (same conclusion, resolved, one more question).
+  README "Research basis" credits Yao et al. 2023. Not run live.
+
 - **2026-10-20 — course Module 3, piece 2: bounded, recorded memory
   search. Built ungated, developer to review (understood: no).** Closes the
   two gaps found in Module 2. `providers/recall.py`: `RecallingProvider`
