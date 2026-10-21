@@ -128,6 +128,19 @@ def test_asking_for_a_label_at_the_console(records):
     assert ask_label(records[0], ask=lambda p: "s") == "skip"
 
 
+def test_an_answer_that_is_not_a_choice_is_asked_again(records):
+    """Seen on 2026-10-21: pressing Enter with no answer stopped the command."""
+    answers = iter(["", "x", "9", " 1 ", "CNC-02"])
+    label = ask_label(records[0], ask=lambda prompt: next(answers))
+    assert label == Diagnosis(fault="bearing_degradation", machine_id="CNC-02")
+    answers = iter(["S"])
+    assert ask_label(records[0], ask=lambda prompt: next(answers)) == "skip"
+    answers = iter(["2", "batch two", "2"])
+    assert ask_label(records[1], ask=lambda prompt: next(answers)) == Diagnosis(
+        fault="bad_material_batch", batch_id=2
+    )
+
+
 def test_the_command_line_runs_labels_and_reports(tmp_path, monkeypatch, capsys):
     monkeypatch.setattr(
         experiment, "model_policy_factory", lambda with_recall, **_: stand_in
