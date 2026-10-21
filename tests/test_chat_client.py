@@ -640,7 +640,7 @@ def test_the_limits_come_from_settings(monkeypatch):
     job = clients_for_jobs(configured)["decide"]
     assert (job.retries, job.max_seconds) == (3, 30.0)
     defaults = settings()
-    assert defaults.model_max_output_tokens == 8192
+    assert defaults.model_max_output_tokens == 16384
     assert (defaults.model_request_seconds, defaults.model_question_seconds) == (
         45.0,
         90.0,

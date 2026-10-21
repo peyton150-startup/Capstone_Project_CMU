@@ -57,6 +57,7 @@ from capstone.agent.completion import AuditLog, complete
 from capstone.agent.model_policy import ModelCall
 from capstone.agent.policy import ReasoningPolicy
 from capstone.agent.state import Budgets
+from capstone.console import safe_console
 from capstone.episode import (
     CHALLENGE,
     STANDARD,
@@ -649,6 +650,7 @@ APPROVERS = {"all": approve_all, "none": reject_all, "console": ask_on_console}
 
 
 def main(argv: Sequence[str] | None = None) -> int:
+    safe_console()  # a conclusion with "→" must not stop the run
     parser = argparse.ArgumentParser(prog="python -m capstone.experiment")
     commands = parser.add_subparsers(dest="command", required=True)
 
