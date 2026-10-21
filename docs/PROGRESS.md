@@ -91,6 +91,20 @@ alarm), then evaluation, then the agent itself.
 
 ## Session notes
 
+- **2026-10-21 — fallback candidates and 120 s waits (results only;
+  nothing built).** `docs/benchmarks/2026-10-21-ministral-cloudflare.md`.
+  Ministral 14B (Mistral) and Llama 3.3 70B (Cloudflare Workers AI) were
+  benchmarked against Cohere command-a, the fallback. Llama 3.3 70B matched
+  Cohere on actions (2/4) and beat it on every reliability measure (100/100
+  valid, no failed requests, 5.7 s slowest-5%), so by the developer's rule it
+  is the recommended FALLBACK_MODEL; the developer set it in their `.env`.
+  Ministral 14B was reliable but asked for unneeded changes (0/4 right
+  actions): a small-agent candidate, not the fallback. A test of nemotron 120b
+  with 120 s / 240 s waits on three cases: no timeouts and the fallback never
+  used, but two of three `conclude` replies were invalid, so whether it
+  commits to a fix is still open. The record does not keep why a reply was
+  refused; that is the next thing to build.
+
 - **2026-10-21 — docs-only: optional technician voice input deferred to
   the absolute last roadmap item.** Added Future Work 10 in
   `docs/MVP_SCOPE.md` after sensor-triggered machine vision (Future Work 9),
