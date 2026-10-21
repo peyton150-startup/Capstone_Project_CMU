@@ -1695,11 +1695,12 @@ Can run in parallel: 1 (needs the keys, so in the developer's session), 3 + 4
 modes (Future Work 8, second part) wait for item 1's live results compared
 with the rule baseline.
 
-### Future Work 9 — sensor-triggered, on-demand machine vision (last priority)
+### Future Work 9 — sensor-triggered, on-demand machine vision (near-last priority)
 
 **Status: far-future only; not implemented. Recorded 2026-10-21 at the
-developer's request. This is the final roadmap item, to be considered only
-after all other Future Work and the live factory integration prerequisites.
+developer's request. This is a near-last roadmap item, to be considered only
+after the other planned Future Work and live factory integration prerequisites;
+Future Work 10 is even lower priority.
 Do not move it into MVP scope or the ranked next-build candidates.** The
 feature is optional and requires an actual factory's approval and a measured
 need; recording it is not approval to build or install anything.
@@ -1758,3 +1759,38 @@ imagery, clock mismatch, duplicate triggers, and no-visible-defect cases.
 Ensure sensor-only investigation still works without the camera and no
 vision result can bypass approval or the evaluator-only ground-truth
 boundary.
+
+### Future Work 10 — optional technician voice input (absolute last priority)
+
+**Status: far-future only; not implemented. Recorded 2026-10-21 at the
+developer's request. This is the absolute last roadmap item, after all
+other Future Work, including the optional machine-vision feature.** Do not
+start it during the MVP or add it to the ranked next-build candidates.
+It is a speculative convenience feature, not a current requirement.
+
+**Concept:** If a future real-factory investigation needs information that
+sensors and records cannot provide, an authorized technician could optionally
+speak a short report or answer focused follow-up questions. Examples include
+unusual sounds, visible wear, recent maintenance, operating conditions, or
+error codes. A voice interface would transcribe the technician's words and
+let them review or correct the transcript before submitting it to the
+existing investigation agent.
+
+**Boundary:** Treat technician statements as human-reported evidence with a
+source and time, not as verified machine facts. The investigation agent must
+correlate them with telemetry, manuals, and maintenance records, retain
+uncertainty, and preserve existing human approval and post-action
+verification. There is no always-on microphone, autonomous machine control,
+or reason to create a separate diagnostic authority for the voice agent.
+Text entry remains a supported alternative.
+
+**Prerequisites and adoption gate:** Consider this only if work with actual
+technicians demonstrates a meaningful advantage over a simple typed form.
+Obtain factory and participant consent and approval before capturing audio;
+define retention, access, transcription review, redaction, and external-model
+data handling. Evaluate transcription accuracy with shop-floor noise and
+equipment terminology, time saved, completeness of useful observations,
+and whether the voice input improves supported diagnoses. If it does not
+show measurable value, leave it unbuilt. No audio integration, Voxtral
+dependency, voice-agent service, microphone access, or new training data is
+approved by this roadmap entry.

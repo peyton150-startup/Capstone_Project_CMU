@@ -91,6 +91,15 @@ alarm), then evaluation, then the agent itself.
 
 ## Session notes
 
+- **2026-10-21 — docs-only: optional technician voice input deferred to
+  the absolute last roadmap item.** Added Future Work 10 in
+  `docs/MVP_SCOPE.md` after sensor-triggered machine vision (Future Work 9),
+  and clarified that vision is near-last rather than final. The possible
+  voice interface would gather opt-in technician reports for the existing
+  investigation agent; it is not an MVP task, implementation commitment,
+  new model, or dependency. No runtime files or tests changed, and no
+  understanding/implementation gate was advanced.
+
 - **2026-10-21 — L3: Requesty and xKiro added as providers, their free
   models benchmarked. Built ungated, developer to review (understood: no).**
   The developer added both routers' keys and asked for them to be
