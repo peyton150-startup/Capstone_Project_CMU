@@ -77,6 +77,8 @@ class Settings(BaseSettings):
     xkiro_api_key: SecretStr | None = _optional("XKIRO_API_KEY")
     # A third router (2026-10-21): 100,000 free tokens a day, support agent only.
     llm7_api_key: SecretStr | None = _optional("LLM7_API_KEY")
+    # Kilo Code's gateway (2026-10-21): a support agent or a fallback.
+    kilo_code_api_key: SecretStr | None = _optional("KILO_CODE_API_KEY")
 
     # Which model answers which policy question. None: use default_model.
     default_model: str = Field(default=DEFAULT_MODEL, validation_alias="DEFAULT_MODEL")
@@ -131,6 +133,7 @@ class Settings(BaseSettings):
         "requesty_api_key",
         "xkiro_api_key",
         "llm7_api_key",
+        "kilo_code_api_key",
         "plan_model",
         "decide_model",
         "interpret_model",
