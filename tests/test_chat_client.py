@@ -34,6 +34,7 @@ ALL_KEYS = (
     "XKIRO_API_KEY",
     "LLM7_API_KEY",
     "KILO_CODE_API_KEY",
+    "ZAI_API_KEY",
 )
 JOB_SETTINGS = (
     "DEFAULT_MODEL",
@@ -193,6 +194,7 @@ def test_the_providers_in_scope_and_no_others():
         "xkiro",
         "llm7",
         "kilo",
+        "zai",
     }
     for provider in PROVIDERS.values():
         assert provider.url.startswith("https://")
@@ -231,6 +233,7 @@ def test_the_providers_in_scope_and_no_others():
             "KILO_CODE_API_KEY",
             "https://api.kilo.ai/api/gateway/chat/completions",
         ),
+        ("zai", "ZAI_API_KEY", "https://api.z.ai/api/paas/v4/chat/completions"),
     ],
 )
 def test_each_provider_gets_its_own_address_and_key(
