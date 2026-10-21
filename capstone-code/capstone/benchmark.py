@@ -38,15 +38,23 @@ from capstone.agent.model_policy import ModelCall, ModelPolicy
 from capstone.agent.state import Budgets
 from capstone.contracts import Contract
 from capstone.episode import approve_all, run_episode
-from capstone.providers.chat import JOBS, FallbackClient, client_for
+from capstone.providers.chat import (
+    INVALID_REPLY,
+    JOBS,
+    FallbackClient,
+    client_for,
+    is_model_outcome,
+)
 from capstone.providers.factory import research_tools
 from capstone.settings import Settings, get_settings
 from capstone.simulator.generator import FAULTS
 
 DEFAULT_SEEDS = (0, 2, 6)
 
-# The attempt outcomes that are the model's own doing; anything else is an outage.
-MODEL_OUTCOMES = ("answered", "invalid reply")
+# The attempt outcomes that are the model's own doing; anything else is an
+# outage. An invalid reply also carries its reason ("invalid reply: ..."), so
+# test with `is_model_outcome`, not membership here.
+MODEL_OUTCOMES = ("answered", INVALID_REPLY)
 
 
 class EpisodeRecord(Contract):
@@ -86,6 +94,8 @@ class ModelReport(Contract):
     median_episode_seconds: float | None = None
     # Why requests failed, by reason, most common first.
     outage_reasons: dict[str, int] = {}
+    # Why replies were refused (cut off, not JSON, wrong shape), most common first.
+    invalid_reasons: dict[str, int] = {}
 
 
 def single_model_clients(
@@ -164,11 +174,16 @@ def summarize(model: str, records: Sequence[EpisodeRecord]) -> ModelReport:
     answer_times = [
         a.seconds
         for a in attempts
-        if a.outcome in MODEL_OUTCOMES and a.seconds is not None
+        if is_model_outcome(a.outcome) and a.seconds is not None
     ]
     invalid = Counter(call.job for call in calls if call.outcome == "invalid_reply")
     reasons = Counter(record.termination_reason for record in records)
-    failed = Counter(a.outcome for a in attempts if a.outcome not in MODEL_OUTCOMES)
+    failed = Counter(a.outcome for a in attempts if not is_model_outcome(a.outcome))
+    refused = Counter(
+        a.outcome.partition(": ")[2] or "reason not recorded"
+        for a in attempts
+        if a.outcome.split(":", 1)[0] == INVALID_REPLY
+    )
     walls = [r.wall_seconds for r in records if r.wall_seconds is not None]
     episodes = len(records)
     median = statistics.median(answer_times) if answer_times else None
@@ -179,7 +194,7 @@ def summarize(model: str, records: Sequence[EpisodeRecord]) -> ModelReport:
         answered=sum(call.outcome == "answered" for call in calls),
         invalid_replies=sum(invalid.values()),
         invalid_by_job=dict(sorted(invalid.items())),
-        outages=sum(a.outcome not in MODEL_OUTCOMES for a in attempts),
+        outages=sum(not is_model_outcome(a.outcome) for a in attempts),
         median_seconds=median,
         p95_seconds=percentile(answer_times, 0.95),
         questions_per_episode=len(calls) / episodes if episodes else 0.0,
@@ -190,6 +205,7 @@ def summarize(model: str, records: Sequence[EpisodeRecord]) -> ModelReport:
         concluded=sum(r.diagnosis not in (None, "undetermined") for r in records),
         median_episode_seconds=statistics.median(walls) if walls else None,
         outage_reasons=dict(failed.most_common()),
+        invalid_reasons=dict(refused.most_common()),
     )
 
 
@@ -255,11 +271,12 @@ def format_limits(reports: Sequence[ModelReport]) -> str:
             f"{reason.removeprefix('the model service ')} {n}"
             for reason, n in r.outage_reasons.items()
         )
+        refused = ", ".join(f"{reason} {n}" for reason, n in r.invalid_reasons.items())
         lines.append(
             f"- {r.model}: request {seconds(limits.request_seconds)} s, question "
             f"{seconds(limits.question_seconds)} s, investigation "
             f"{seconds(limits.investigation_seconds)} s; failed requests: "
-            f"{why or 'none'}"
+            f"{why or 'none'}; invalid replies: {refused or 'none'}"
         )
     return "\n".join(lines)
 

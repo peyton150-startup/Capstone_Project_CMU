@@ -57,7 +57,6 @@ from capstone.agent.completion import AuditLog, complete
 from capstone.agent.model_policy import ModelCall
 from capstone.agent.policy import ReasoningPolicy
 from capstone.agent.state import Budgets
-from capstone.benchmark import MODEL_OUTCOMES
 from capstone.episode import (
     CHALLENGE,
     STANDARD,
@@ -80,6 +79,7 @@ from capstone.evaluation.memory import (
 )
 from capstone.evaluation.scoring import COMPOUND, Score, format_summary, summarize
 from capstone.memory.service import MemoryService
+from capstone.providers.chat import INVALID_REPLY, is_model_outcome
 from capstone.simulator.generator import FAULTS
 from capstone.tools.diagnosis import FAULT_KINDS, Diagnosis
 
@@ -149,6 +149,9 @@ class CallSummary(BaseModel):
     # Why those requests failed, by reason ("the model service timed out",
     # "the model service answered HTTP 429", ...). Empty in older results.
     outage_reasons: dict[str, int] = {}
+    # Why replies were refused, by reason ("cut off at the output-token limit",
+    # "not valid JSON", "wrong shape: <field>: ..."). Empty in older results.
+    invalid_reasons: dict[str, int] = {}
     # Which model answered how many questions: shows the fallback stepping in.
     answered_by: dict[str, int]
     # Ordered questions and their safe attempt outcomes. None in older files;
@@ -164,7 +167,13 @@ def summarize_calls(calls: Sequence[ModelCall]) -> CallSummary:
         attempt.outcome
         for call in calls
         for attempt in call.attempts
-        if attempt.outcome not in MODEL_OUTCOMES
+        if not is_model_outcome(attempt.outcome)
+    )
+    refused = Counter(
+        attempt.outcome.partition(": ")[2] or "reason not recorded"
+        for call in calls
+        for attempt in call.attempts
+        if attempt.outcome.split(":", 1)[0] == INVALID_REPLY
     )
     return CallSummary(
         questions=len(calls),
@@ -174,11 +183,12 @@ def summarize_calls(calls: Sequence[ModelCall]) -> CallSummary:
         # Any other outcome, including ones added later, is a missing answer.
         unanswered=len(calls) - len(answered) - sum(invalid.values()),
         outage_attempts=sum(
-            attempt.outcome not in MODEL_OUTCOMES
+            not is_model_outcome(attempt.outcome)
             for call in calls
             for attempt in call.attempts
         ),
         outage_reasons=dict(sorted(reasons.items())),
+        invalid_reasons=dict(sorted(refused.items())),
         answered_by=dict(sorted(by_model.items())),
         details=tuple(calls),
     )
@@ -375,6 +385,13 @@ def format_model_calls(records: Sequence[ExperimentRecord]) -> str:
                 f"{reason.removeprefix('the model service ')} {n}"
                 for reason, n in reasons.most_common()
             )
+        refused = Counter()
+        for c in kept:
+            refused.update(c.invalid_reasons)
+        if refused:
+            line += "; invalid because: " + ", ".join(
+                f"{reason} {n}" for reason, n in refused.most_common()
+            )
     if timed:
         line += f"; {sum(timed) / len(timed):.0f} s per episode on average"
     return line
@@ -492,7 +509,7 @@ def format_call_failures(record: ExperimentRecord) -> list[str]:
     lines = []
     for number, call in enumerate(summary.details, start=1):
         if call.outcome != "no_answer" and not any(
-            a.outcome not in MODEL_OUTCOMES for a in call.attempts
+            not is_model_outcome(a.outcome) for a in call.attempts
         ):
             continue
         lines.append(f"  question {number} {call.job}: {call.outcome}")

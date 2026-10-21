@@ -267,10 +267,31 @@ def test_suggested_limits_come_from_the_slow_answers_and_the_median():
     line = benchmark.format_limits([report])
     assert line == (
         "- m: request 19.0 s, question 38.0 s, investigation 210.0 s; "
-        "failed requests: none"
+        "failed requests: none; invalid replies: none"
     )
 
 
 def test_nothing_measured_suggests_nothing():
     report = summarize("m", [timed_record(None, None)])
     assert benchmark.suggested_limits(report).request_seconds is None
+
+
+def test_a_row_counts_why_replies_were_invalid_and_old_records_still_count():
+    report = summarize(
+        "m",
+        [
+            timed_record(
+                "x",
+                1.0,
+                made(
+                    "conclude", "invalid_reply", ("invalid reply: not valid JSON", 3.0)
+                ),
+                made("decide", "invalid_reply", ("invalid reply", 2.0)),  # older
+                made("plan", "answered", ("answered", 4.0)),
+            )
+        ],
+    )
+    assert report.invalid_reasons == {"not valid JSON": 1, "reason not recorded": 1}
+    assert report.outages == 0  # invalid replies are the model's doing
+    assert report.median_seconds == 3.0  # all three replies were timed answers
+    assert "invalid replies: not valid JSON 1" in benchmark.format_limits([report])

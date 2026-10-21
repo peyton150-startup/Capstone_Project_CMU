@@ -851,3 +851,14 @@ def test_every_job_is_told_to_spend_the_budget_well_not_to_hurry():
         assert "BUDGET LEFT" in system, job
         assert "Being thorough matters more than being fast" in system, job
     assert "remaining budget is better saved" in SYSTEM["decide"]
+
+
+def test_a_tool_not_offered_is_recorded_with_its_reason_on_the_attempt():
+    from capstone.providers.chat import Attempt
+
+    agent = policy(decide=[call("drop_table")])
+    agent.clients["decide"].attempts = (Attempt(model="m", outcome="answered"),)
+    with pytest.raises(ValueError):
+        agent.decide(new_state(), "investigate")
+    [attempt] = agent.calls[-1].attempts
+    assert attempt.outcome == "invalid reply: drop_table is not a tool offered here"
