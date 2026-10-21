@@ -556,15 +556,23 @@ def ask_label(
     ask = ask or input
     print(f"\n{record.run_key}\n  conclusion: {record.conclusion!r}")
     choices = ", ".join(f"{n}={kind}" for n, kind in enumerate(FAULT_KINDS, start=1))
-    answer = ask(f"  cause named? {choices}, 0=none recognisable, s=skip: ").strip()
-    if answer.lower() == "s":
+    allowed = {str(n) for n in range(len(FAULT_KINDS) + 1)} | {"s"}
+    # An answer that is not one of the choices (an empty Enter, a typo) is
+    # asked again, never read as a label or allowed to stop the command.
+    answer = ""
+    while answer not in allowed:
+        answer = ask(f"  cause named? {choices}, 0=none recognisable, s=skip: ")
+        answer = answer.strip().lower()
+    if answer == "s":
         return "skip"
     if answer == "0":
         return None
     fault = FAULT_KINDS[int(answer) - 1]
     if fault == "bad_material_batch":
-        batch = ask("  batch number named (blank: none): ").strip()
-        return Diagnosis(fault=fault, batch_id=int(batch) if batch else None)
+        while True:
+            batch = ask("  batch number named (blank: none): ").strip()
+            if not batch or batch.isdigit():
+                return Diagnosis(fault=fault, batch_id=int(batch) if batch else None)
     machine = ask("  machine named, e.g. CNC-02 (blank: none): ").strip()
     return Diagnosis(fault=fault, machine_id=machine or None)
 

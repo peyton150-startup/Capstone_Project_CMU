@@ -90,6 +90,14 @@ alarm), then evaluation, then the agent itself.
 
 ## Session notes
 
+- **2026-10-21 — fix: `experiment label` asked again on an answer it cannot
+  use (repetitive validation, no gate needed per AGENTS.md section 2.2).**
+  Pressing Enter with no answer stopped the command with a ValueError while
+  the developer labelled `results-5.jsonl`. `ask_label` now asks the cause
+  again until the answer is 0-4 or s (any case, spaces ignored), and the batch
+  number again until it is a number or blank. Labels already given stay saved,
+  and a rerun skips them. Test: `test_an_answer_that_is_not_a_choice_is_asked_again`.
+
 - **2026-10-20 — L2: the in-scope models benchmarked, and the limits set from
   the numbers (next build candidate 2). Built ungated, developer to review
   (understood: no).** Results and what was set: `docs/benchmarks/2026-10-20.md`
