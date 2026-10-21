@@ -166,6 +166,9 @@ PROVIDERS = {
         "https://router.requesty.ai/v1/chat/completions", "REQUESTY_API_KEY"
     ),
     "xkiro": Provider("https://api.xkiro.com/v1/chat/completions", "XKIRO_API_KEY"),
+    # A third router (added 2026-10-21). Its free allowance is 100,000 tokens
+    # a day, less than one investigation, so it is for a support agent only.
+    "llm7": Provider("https://api.llm7.io/v1/chat/completions", "LLM7_API_KEY"),
 }
 
 # The seven policy questions, each of which can be given to its own model.

@@ -32,6 +32,7 @@ ALL_KEYS = (
     "CLOUDFLARE_API_TOKEN",
     "REQUESTY_API_KEY",
     "XKIRO_API_KEY",
+    "LLM7_API_KEY",
 )
 JOB_SETTINGS = (
     "DEFAULT_MODEL",
@@ -189,6 +190,7 @@ def test_the_providers_in_scope_and_no_others():
         "cloudflare",
         "requesty",
         "xkiro",
+        "llm7",
     }
     for provider in PROVIDERS.values():
         assert provider.url.startswith("https://")
@@ -221,6 +223,7 @@ def test_the_providers_in_scope_and_no_others():
             "https://router.requesty.ai/v1/chat/completions",
         ),
         ("xkiro", "XKIRO_API_KEY", "https://api.xkiro.com/v1/chat/completions"),
+        ("llm7", "LLM7_API_KEY", "https://api.llm7.io/v1/chat/completions"),
     ],
 )
 def test_each_provider_gets_its_own_address_and_key(

@@ -75,6 +75,8 @@ class Settings(BaseSettings):
     # Two model routers (added 2026-10-21): they pass a model name on.
     requesty_api_key: SecretStr | None = _optional("REQUESTY_API_KEY")
     xkiro_api_key: SecretStr | None = _optional("XKIRO_API_KEY")
+    # A third router (2026-10-21): 100,000 free tokens a day, support agent only.
+    llm7_api_key: SecretStr | None = _optional("LLM7_API_KEY")
 
     # Which model answers which policy question. None: use default_model.
     default_model: str = Field(default=DEFAULT_MODEL, validation_alias="DEFAULT_MODEL")
@@ -128,6 +130,7 @@ class Settings(BaseSettings):
         "cloudflare_account_id",
         "requesty_api_key",
         "xkiro_api_key",
+        "llm7_api_key",
         "plan_model",
         "decide_model",
         "interpret_model",
