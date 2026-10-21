@@ -761,3 +761,40 @@ def test_old_and_new_invalid_outcomes_are_the_models_own_doing():
     assert is_model_outcome("invalid reply: not valid JSON")
     assert not is_model_outcome("the model service timed out")
     assert not is_model_outcome("the model service answered HTTP 500")
+
+
+# --- structured output ----------------------------------------------------------
+
+
+def test_nvidia_is_asked_to_keep_to_the_answer_types_schema(monkeypatch):
+    monkeypatch.setenv("NVIDIA_API_KEY", KEY)
+    transport = FakeTransport(chat('{"text": "x"}'))
+    ask = client_for("nvidia/some-model", settings(), transport=transport)
+    ask.ask("s", "p", Lesson)
+    body = transport.requests[0][2]
+    assert body["response_format"] == {
+        "type": "json_schema",
+        "json_schema": {
+            "name": "Lesson",
+            "schema": Lesson.model_json_schema(),
+            "strict": True,
+        },
+    }
+
+
+def test_providers_not_checked_send_no_response_format(monkeypatch):
+    monkeypatch.setenv("COHERE_API_KEY", KEY)
+    transport = FakeTransport(chat('{"text": "x"}'))
+    client_for("cohere/some-model", settings(), transport=transport).ask(
+        "s", "p", Lesson
+    )
+    assert "response_format" not in transport.requests[0][2]
+
+
+def test_a_structured_reply_is_still_checked_against_the_type(monkeypatch):
+    """The service promising the shape is not trusted: the reply is validated."""
+    monkeypatch.setenv("NVIDIA_API_KEY", KEY)
+    transport = FakeTransport(chat('{"wrong": 1}'))
+    ask = client_for("nvidia/some-model", settings(), transport=transport)
+    with pytest.raises(ValueError):
+        ask.ask("s", "p", Lesson)
