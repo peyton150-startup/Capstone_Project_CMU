@@ -38,6 +38,7 @@ from pathlib import Path
 from statistics import mean
 
 from capstone.agent.policy import ReasoningPolicy
+from capstone.console import safe_console
 from capstone.evaluation.labels import Label, LabelBook
 from capstone.evaluation.scoring import Score
 from capstone.experiment import (
@@ -223,6 +224,7 @@ def open_store_and_index(modes: Sequence[str]):
 
 
 def main(argv: Sequence[str] | None = None) -> int:
+    safe_console()  # a conclusion with "→" must not stop the run
     parser = argparse.ArgumentParser(prog="python -m capstone.memory_comparison")
     commands = parser.add_subparsers(dest="command", required=True)
 

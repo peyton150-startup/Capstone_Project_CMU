@@ -93,9 +93,11 @@ class Settings(BaseSettings):
     # The most tokens one reply may use, thinking included. Measured live on
     # 2026-10-20: the thinking models used 450-1,050 reasoning tokens on the
     # 120b model and up to 6,950 on nemotron lightning before the answer, so
-    # the earlier 2,048 could cut a reply off before its JSON began.
+    # the earlier 2,048 could cut a reply off before its JSON began. On
+    # 2026-10-21, with 120 s waits, 3 of the 120b model's replies were cut off
+    # at 8,192 (recorded since PR #43), so the limit is now 16,384.
     model_max_output_tokens: int = Field(
-        default=8192, ge=1, validation_alias="MODEL_MAX_OUTPUT_TOKENS"
+        default=16384, ge=1, validation_alias="MODEL_MAX_OUTPUT_TOKENS"
     )
     # How long one request may wait, and one question in all (retries and the
     # fallback model included). Measured live on 2026-10-20: the default model

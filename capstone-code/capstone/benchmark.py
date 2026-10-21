@@ -36,6 +36,7 @@ from pathlib import Path
 
 from capstone.agent.model_policy import ModelCall, ModelPolicy
 from capstone.agent.state import Budgets
+from capstone.console import safe_console
 from capstone.contracts import Contract
 from capstone.episode import approve_all, run_episode
 from capstone.providers.chat import (
@@ -288,6 +289,7 @@ def save_records(path: Path, records: Sequence[EpisodeRecord]) -> None:
 
 
 def main(argv: Sequence[str] | None = None) -> int:
+    safe_console()  # a conclusion with "→" must not stop the run
     parser = argparse.ArgumentParser(prog="python -m capstone.benchmark")
     parser.add_argument("models", nargs="+", help="provider/model, one or more")
     parser.add_argument("--seeds", nargs="+", type=int, default=list(DEFAULT_SEEDS))

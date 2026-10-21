@@ -92,6 +92,18 @@ alarm), then evaluation, then the agent itself.
 
 ## Session notes
 
+- **2026-10-21 — fix: console output never stops a run; output tokens
+  16,384 (no gate needed: output handling and a measured setting).** On
+  Windows, output sent to a file uses cp1252, and printing a conclusion with
+  "→" raised UnicodeEncodeError in `experiment run` after the case was saved,
+  which would have stopped every case after it. New `capstone/console.py`
+  `safe_console()` keeps each stream's encoding but writes an unencodable
+  character as an escape ("\u2192"); `experiment`, `benchmark` and
+  `memory_comparison` call it first. `MODEL_MAX_OUTPUT_TOKENS` default 8,192 ->
+  16,384: with 120 s waits, 3 of the 120b model's replies were cut off at
+  8,192 (the reasons recorded since PR #43). Tests: `tests/test_console.py`
+  (CI group "Tools and provider"), the pinned default in `test_chat_client.py`.
+
 - **2026-10-21 — L4: why a model reply was invalid is recorded. Built
   ungated, developer to review (understood: no).** In the 120 s wait test two
   of three `conclude` replies from nemotron 120b were refused, and the record
