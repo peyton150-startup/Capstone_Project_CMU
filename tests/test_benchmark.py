@@ -86,7 +86,7 @@ def test_the_table_has_one_row_per_model():
     report = summarize("groq/x", [record(made("plan", "answered", ("answered", 1.5)))])
     table = format_table([report])
     assert table.splitlines()[-1] == (
-        "| groq/x | 1 | 1/1 | 0 | 0 | 1.5 | 1.5 | 1.0 | 0 | 0 | 1/1 | 1/1 |"
+        "| groq/x | 1 | 1/1 | 0 | 0 | 1.5 | 1.5 | 1.0 | 0 | 0 | 1/1 | 1/1 | 1/1 | - |"
     )
 
 
@@ -164,6 +164,7 @@ def test_the_command_writes_the_table_and_the_raw_calls(monkeypatch, tmp_path):
     )
     table = (tmp_path / "results.md").read_text(encoding="utf-8")
     assert "| down/model | 1 | 0/1 |" in table
+    assert "Suggested limits:\n- down/model: request - s" in table
     [line] = (tmp_path / "calls.jsonl").read_text(encoding="utf-8").splitlines()
     saved = json.loads(line)
     assert saved["termination_reason"] == "model_unavailable"
@@ -176,3 +177,100 @@ def test_an_unknown_model_is_refused_before_anything_runs(bad):
 
     with pytest.raises(ModelError):
         single_model_clients(bad)
+
+
+# --- the same limits as a real run, and the limits the numbers suggest -----------
+
+
+def test_each_job_gets_the_retries_and_question_limit_from_settings(monkeypatch):
+    from capstone.settings import Settings
+
+    monkeypatch.setenv("COHERE_API_KEY", "test-key-not-real")
+    configured = Settings(
+        _env_file=None,
+        MODEL_RETRIES="2",
+        MODEL_QUESTION_SECONDS="75",
+        MODEL_REQUEST_SECONDS="40",
+    )
+    clients = single_model_clients("cohere/some-model", configured)
+    for job in clients.values():
+        assert (job.retries, job.max_seconds) == (2, 75.0)
+        assert job.clients[0].timeout == 40.0
+
+
+def test_each_episode_is_timed_and_handed_on_as_it_ends():
+    ticks = iter([0.0, 42.0])
+    seen = []
+    [only] = run_model(
+        "scripted",
+        scripted_models,
+        faults=["bearing_degradation"],
+        seeds=[6],
+        clock=lambda: 0.0,
+        wall_clock=lambda: next(ticks),
+        on_record=seen.append,
+    )
+    assert only.wall_seconds == 42.0
+    assert seen == [only]
+
+
+def timed_record(diagnosis, seconds, *calls, reason="evidence_sufficient"):
+    return EpisodeRecord(
+        model="m",
+        fault="false_alarm",
+        seed=0,
+        termination_reason=reason,
+        diagnosis=diagnosis,
+        action_correct=False,
+        resolved=False,
+        calls=calls,
+        wall_seconds=seconds,
+    )
+
+
+def test_the_report_counts_conclusions_episode_time_and_why_requests_failed():
+    late = "the model service timed out"
+    report = summarize(
+        "m",
+        [
+            timed_record(
+                "CNC-02 bearing wear",
+                100.0,
+                made("plan", "answered", ("answered", 5.0)),
+            ),
+            timed_record(
+                "undetermined",
+                300.0,
+                made("plan", "no_answer", (late, 45.0), (late, 43.0)),
+            ),
+            timed_record(None, 200.0, made("plan", "answered", ("answered", 9.0))),
+        ],
+    )
+    assert report.concluded == 1
+    assert report.median_episode_seconds == 200.0
+    assert report.outage_reasons == {late: 2}
+    table = format_table([report])
+    assert table.splitlines()[0].endswith("| Median episode s |")
+    assert table.splitlines()[-1].endswith("| 1/3 | 0/3 | 0/3 | 200.0 |")
+
+
+def test_suggested_limits_come_from_the_slow_answers_and_the_median():
+    answers = [made("plan", "answered", ("answered", float(s))) for s in range(1, 21)]
+    report = summarize(
+        "m",
+        [timed_record("x", 1.0, *answers[:10]), timed_record("y", 1.0, *answers[10:])],
+    )
+    limits = benchmark.suggested_limits(report)
+    # Slowest 5% of 1..20 s is 19 s; 10 questions an episode at a median of 10.5 s.
+    assert (limits.request_seconds, limits.question_seconds) == (19, 38)
+    assert limits.investigation_seconds == 210
+    line = benchmark.format_limits([report])
+    assert line == (
+        "- m: request 19.0 s, question 38.0 s, investigation 210.0 s; "
+        "failed requests: none"
+    )
+
+
+def test_nothing_measured_suggests_nothing():
+    report = summarize("m", [timed_record(None, None)])
+    assert benchmark.suggested_limits(report).request_seconds is None

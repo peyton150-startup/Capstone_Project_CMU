@@ -346,7 +346,12 @@ class FallbackClient:
                 share = (deadline - self._clock()) / (len(self.clients) - index)
                 own_deadline = self._clock() + share
                 for attempt in range(1 + self.retries):
-                    pause = self.retry_delay if attempt else 0.0
+                    # The pause doubles each retry (2, 4, 8 s by default):
+                    # the HTTP 500s seen live cleared within seconds. When
+                    # the longer pause no longer fits, the shortest is used.
+                    pause = self.retry_delay * 2 ** (attempt - 1) if attempt else 0.0
+                    if attempt and own_deadline - self._clock() - pause <= 0:
+                        pause = self.retry_delay
                     left = own_deadline - self._clock() - pause
                     if left <= 0:
                         if deadline - self._clock() - pause > 0:

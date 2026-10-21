@@ -634,7 +634,7 @@ def test_the_limits_come_from_settings(monkeypatch):
         45.0,
         90.0,
     )
-    assert defaults.model_retries == 1
+    assert defaults.model_retries == 3
     with pytest.raises(ValueError):
         settings(MODEL_MAX_OUTPUT_TOKENS="0")
 
@@ -666,3 +666,33 @@ def test_a_refusal_with_time_left_is_not_out_of_time():
     with pytest.raises(ModelError) as raised:
         job.ask("s", "p", Lesson, max_seconds=7.0)
     assert raised.value.out_of_time is False
+
+
+def test_retries_wait_longer_each_time_while_the_time_lasts():
+    clock = Clock()
+    pauses = []
+
+    def sleep(seconds):
+        pauses.append(seconds)
+        clock.sleep(seconds)
+
+    error = urllib.error.HTTPError("u", 500, "busy", {}, None)
+    busy, _ = client(error, error, error, chat('{"text": "ok"}'))
+    job = FallbackClient([busy], retries=3, sleep=sleep, clock=clock, max_seconds=90)
+    assert job.ask("s", "p", Lesson).text == "ok"
+    assert pauses == [2.0, 4.0, 8.0]  # three fast HTTP 500s, then an answer
+
+
+def test_a_long_pause_that_no_longer_fits_becomes_the_shortest():
+    clock = Clock()
+    pauses = []
+
+    def sleep(seconds):
+        pauses.append(seconds)
+        clock.sleep(seconds)
+
+    error = urllib.error.HTTPError("u", 500, "busy", {}, None)
+    busy, _ = client(error, error, chat('{"text": "ok"}'))
+    job = FallbackClient([busy], retries=3, sleep=sleep, clock=clock, max_seconds=5)
+    assert job.ask("s", "p", Lesson).text == "ok"
+    assert pauses == [2.0, 2.0]  # 4 s would not fit in the 3 s left
