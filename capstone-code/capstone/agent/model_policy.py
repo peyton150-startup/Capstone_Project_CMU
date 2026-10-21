@@ -58,7 +58,7 @@ from capstone.agent.state import InvestigationState, Question
 from capstone.contracts import Contract
 from capstone.contracts.evidence import Evidence
 from capstone.contracts.tools import ToolRequest, ToolSpec
-from capstone.providers.chat import JOBS, Attempt
+from capstone.providers.chat import JOBS, Attempt, invalid_outcome
 from capstone.providers.factory import TOOL_DESCRIPTIONS
 
 Answer = TypeVar("Answer", bound=BaseModel)
@@ -506,8 +506,20 @@ class ModelPolicy:
             )
 
     def _refuse(self, reason: str) -> None:
-        """A reply that matched its schema but cannot be used: the model's mistake."""
-        self.calls[-1] = self.calls[-1].model_copy(update={"outcome": "invalid_reply"})
+        """A reply that matched its schema but cannot be used: the model's mistake.
+
+        The question is marked invalid, and so is the attempt that answered
+        it, with the reason, so the record says why as for any other refusal.
+        """
+        call = self.calls[-1]
+        attempts = list(call.attempts)
+        if attempts and attempts[-1].outcome == "answered":
+            attempts[-1] = attempts[-1].model_copy(
+                update={"outcome": invalid_outcome(ValueError(reason))}
+            )
+        self.calls[-1] = call.model_copy(
+            update={"outcome": "invalid_reply", "attempts": tuple(attempts)}
+        )
         raise ValueError(reason)
 
     def plan(self, state: InvestigationState) -> tuple[Question, ...]:

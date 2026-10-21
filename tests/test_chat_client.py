@@ -18,6 +18,7 @@ from capstone.providers.chat import (
     ModelError,
     client_for,
     clients_for_jobs,
+    is_model_outcome,
 )
 from capstone.settings import DEFAULT_MODEL, Settings
 
@@ -441,7 +442,7 @@ def test_an_invalid_reply_is_recorded_against_the_model_that_sent_it():
     assert [(a.model, a.outcome) for a in ask.attempts] == [
         ("groq", "the model service timed out"),
         ("groq", "the model service timed out"),
-        ("mistral", "invalid reply"),
+        ("mistral", "invalid reply: not valid JSON"),
     ]
     assert ask.answered_by is None
 
@@ -714,3 +715,49 @@ def test_a_router_passes_the_whole_model_name_on(monkeypatch):
     ask = client_for("xkiro/qwen/qwen3.8-max:free", settings(), transport=transport)
     ask.ask("s", "p", Lesson)
     assert transport.requests[0][2]["model"] == "qwen/qwen3.8-max:free"
+
+
+# --- why a reply was refused ------------------------------------------------------
+
+
+def cut_off(content):
+    """A reply that stopped at the output-token limit."""
+    return json.dumps(
+        {"choices": [{"message": {"content": content}, "finish_reason": "length"}]}
+    ).encode()
+
+
+@pytest.mark.parametrize(
+    "reply,why",
+    [
+        (cut_off('{"text": "the bearing'), "cut off at the output-token limit"),
+        (chat("I think the bearing is worn."), "not valid JSON"),
+        (chat('{"wrong": 1}'), "wrong shape: "),
+    ],
+)
+def test_an_invalid_reply_records_why_it_was_refused(reply, why):
+    ask, _ = fallback(client(reply)[0])
+    with pytest.raises(ValueError):
+        ask.ask("s", "p", Lesson)
+    [attempt] = ask.attempts
+    assert attempt.outcome.startswith(f"invalid reply: {why}")
+    assert is_model_outcome(attempt.outcome)  # the model's doing, not an outage
+
+
+def test_the_reason_names_the_field_and_never_the_reply():
+    secret = "CNC-07 bearing reading 9.9 mm/s"
+    ask, _ = fallback(client(chat(json.dumps({"txt": secret})))[0])
+    with pytest.raises(ValueError):
+        ask.ask("s", "p", Lesson)
+    outcome = ask.attempts[0].outcome
+    assert outcome.startswith("invalid reply: wrong shape: ")
+    assert "text" in outcome or "txt" in outcome  # the field at fault
+    assert secret not in outcome and "9.9" not in outcome
+
+
+def test_old_and_new_invalid_outcomes_are_the_models_own_doing():
+    assert is_model_outcome("answered")
+    assert is_model_outcome("invalid reply")  # records from before 2026-10-21
+    assert is_model_outcome("invalid reply: not valid JSON")
+    assert not is_model_outcome("the model service timed out")
+    assert not is_model_outcome("the model service answered HTTP 500")

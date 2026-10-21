@@ -595,3 +595,42 @@ def test_the_report_says_why_attempts_failed():
     )
     line = experiment.format_model_calls([record])
     assert line.endswith("failed because: answered HTTP 429 2, timed out 2")
+
+
+def test_the_report_says_why_replies_were_invalid():
+    late = "the model service timed out"
+    calls = [
+        made(
+            "conclude",
+            "invalid_reply",
+            None,
+            "invalid reply: cut off at the output-token limit",
+        ),
+        made("decide", "invalid_reply", None, late, "invalid reply: not valid JSON"),
+        made("interpret", "invalid_reply", None, "invalid reply"),  # an older record
+        made("plan", "answered", "nvidia/x", "answered"),
+    ]
+    summary = summarize_calls(calls)
+    assert summary.invalid_reasons == {
+        "cut off at the output-token limit": 1,
+        "not valid JSON": 1,
+        "reason not recorded": 1,
+    }
+    assert summary.outage_attempts == 1  # the timeout only, not the invalid replies
+    assert summary.outage_reasons == {late: 1}
+    record = ExperimentRecord(
+        run_key="r/1/x",
+        scenario_id="x",
+        seed=1,
+        anomaly="a",
+        conclusion=None,
+        confidence=None,
+        recommendation=None,
+        verification=None,
+        tools_used=[],
+        score=run_experiment([BEARING], stand_in, name="why-invalid")[0].score,
+        model_calls=summary,
+    )
+    line = experiment.format_model_calls([record])
+    assert "; invalid because: " in line
+    assert "cut off at the output-token limit 1" in line

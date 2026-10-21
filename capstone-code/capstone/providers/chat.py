@@ -40,7 +40,7 @@ from collections.abc import Callable, Sequence
 from dataclasses import dataclass
 from typing import TypeVar
 
-from pydantic import BaseModel
+from pydantic import BaseModel, ValidationError
 
 from capstone.contracts import Contract
 from capstone.settings import Settings, get_settings
@@ -75,13 +75,47 @@ class ModelError(RuntimeError):
         self.out_of_time = out_of_time
 
 
+# The start of every invalid reply's outcome; the reason follows after ": ".
+INVALID_REPLY = "invalid reply"
+
+
+def invalid_outcome(error: ValueError) -> str:
+    """ "invalid reply: <why>", short and without the reply's content.
+
+    Why is one of: the reply was cut off at the output-token limit, it was not
+    JSON, or it was JSON of the wrong shape (the first field at fault and what
+    was wrong with it). The reply itself never goes into the record.
+    """
+    if isinstance(error, ValidationError):
+        problems = error.errors(include_input=False, include_url=False)
+        if any(p["type"] == "json_invalid" for p in problems):
+            why = "not valid JSON"
+        else:
+            first = problems[0]
+            where = ".".join(str(part) for part in first["loc"]) or "the answer"
+            more = f" (and {len(problems) - 1} more)" if len(problems) > 1 else ""
+            why = f"wrong shape: {where}: {first['msg']}{more}"
+    else:
+        why = str(error)
+        for prefix in ("the model reply was ", "the model reply ", "the model "):
+            why = why.removeprefix(prefix)
+    return f"{INVALID_REPLY}: {why[:160]}"
+
+
+def is_model_outcome(outcome: str) -> bool:
+    """The model's own doing (an answer, or an invalid reply with or without
+    its reason), as opposed to a service failure."""
+    return outcome == "answered" or outcome.split(":", 1)[0] == INVALID_REPLY
+
+
 class Attempt(Contract):
     """One model asked during one question, and what came of it.
 
-    "answered" and "invalid reply" are the model's own doing: an invalid
-    reply counts against its reasoning. Anything else is the reason it gave
-    no answer (an outage, a timeout, a rejected key), which counts only
-    against the service's uptime.
+    "answered" and "invalid reply: <why>" are the model's own doing: an
+    invalid reply counts against its reasoning (`is_model_outcome`). Records
+    from before 2026-10-21 say just "invalid reply". Anything else is the
+    reason it gave no answer (an outage, a timeout, a rejected key), which
+    counts only against the service's uptime.
     """
 
     model: str
@@ -389,8 +423,8 @@ class FallbackClient:
                         if not error.transient:
                             break
                         continue
-                    except ValueError:
-                        attempts.append(tried("invalid reply"))
+                    except ValueError as error:
+                        attempts.append(tried(invalid_outcome(error)))
                         raise
                     attempts.append(tried("answered"))
                     self.answered_by = client.model

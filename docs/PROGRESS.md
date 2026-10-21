@@ -83,6 +83,7 @@ A component is complete only when both columns are checked.
 | E6 | The compound challenge in experiments (a case names the scenario kind; KA-09) | no (built ungated) | n/a | yes | no: built ungated, developer to review | `episode.py` (`build_world`, `STANDARD`, `CHALLENGE`, `SCENARIO_KINDS`, `run_episode(kind=)`), `evaluation/known_answers.py` (`KnownCase.kind`, KA-09), `experiment.py` (`Case.kind`, `challenge_cases`, `run --challenge`, `several_faults`, `report`); session note 2026-10-20 (E6) |
 | L2 | Benchmark under the real limits; limits set from it; retries back off | no (built ungated) | n/a | yes | no: built ungated, developer to review | `benchmark.py` (`single_model_clients`, `run_model`, `EpisodeRecord.wall_seconds`, `ModelReport.concluded`/`median_episode_seconds`/`outage_reasons`, `Limits`, `suggested_limits`, `format_limits`, `--timeout-seconds`), `providers/chat.py` (`FallbackClient.ask` pauses), `settings.py` (`MODEL_RETRIES` 3), `agent/state.py` (`Budgets` 1200/400), `docs/benchmarks/2026-10-20.md`; session note 2026-10-20 (L2) |
 | L3 | Requesty and xKiro as providers (model routers); their free models benchmarked | no (built ungated) | n/a | yes | no: built ungated, developer to review | `providers/chat.py` (`PROVIDERS` requesty, xkiro), `settings.py` (`REQUESTY_API_KEY`, `XKIRO_API_KEY`), `.env.example`, AGENTS.md section 9, `docs/benchmarks/2026-10-21-routers.md`; session note 2026-10-21 (L3) |
+| L4 | Why a reply was invalid is recorded (cut off, not JSON, wrong shape, tool not offered) | no (built ungated) | n/a | yes | no: built ungated, developer to review | `providers/chat.py` (`INVALID_REPLY`, `invalid_outcome`, `is_model_outcome`), `agent/model_policy.py` (`_refuse`), `experiment.py` (`CallSummary.invalid_reasons`, report line), `benchmark.py` (`ModelReport.invalid_reasons`); session note 2026-10-21 (L4) |
 
 Every row above with four "yes" marks (or "n/a") is complete: no question is
 outstanding on it. Still to build after 12c, from `docs/MVP_SCOPE.md`: the
@@ -90,6 +91,28 @@ other three fault scenarios (material batch, machine configuration, false
 alarm), then evaluation, then the agent itself.
 
 ## Session notes
+
+- **2026-10-21 — L4: why a model reply was invalid is recorded. Built
+  ungated, developer to review (understood: no).** In the 120 s wait test two
+  of three `conclude` replies from nemotron 120b were refused, and the record
+  said only "invalid reply": cut off at the token limit and the wrong shape
+  need different fixes. Now an attempt's outcome is "invalid reply: <why>":
+  "cut off at the output-token limit", "not valid JSON", "wrong shape:
+  <field>: <what was wrong>" (the first field at fault, from Pydantic's error
+  list without the input, so the reply's content never enters the record),
+  or the policy's own refusal such as "<tool> is not a tool offered here".
+  Module by module: `providers/chat.py` `INVALID_REPLY`, `invalid_outcome`
+  (builds the outcome from the ValueError), `is_model_outcome` (an answer or
+  an invalid reply, old or new form, against a service failure);
+  `agent/model_policy.py` `_refuse` marks the attempt as well as the
+  question; `experiment.py` `CallSummary.invalid_reasons` and "invalid
+  because: ..." in the model-questions line; `benchmark.py`
+  `ModelReport.invalid_reasons` and "invalid replies: ..." in the suggested
+  limits. `MODEL_OUTCOMES` stays for older code; membership tests became
+  `is_model_outcome`. Older records ("invalid reply" alone) count as "reason
+  not recorded". Tests: `test_chat_client.py` (each reason, the field named and
+  the content never, old and new outcomes), `test_model_policy.py` (a tool not
+  offered), `test_experiment.py`, `test_benchmark.py`.
 
 - **2026-10-21 — fallback candidates and 120 s waits (results only;
   nothing built).** `docs/benchmarks/2026-10-21-ministral-cloudflare.md`.
