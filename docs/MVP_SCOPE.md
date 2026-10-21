@@ -1695,3 +1695,66 @@ Can run in parallel: 1 (needs the keys, so in the developer's session), 3 + 4
 modes (Future Work 8, second part) wait for item 1's live results compared
 with the rule baseline.
 
+### Future Work 9 — sensor-triggered, on-demand machine vision (last priority)
+
+**Status: far-future only; not implemented. Recorded 2026-10-21 at the
+developer's request. This is the final roadmap item, to be considered only
+after all other Future Work and the live factory integration prerequisites.
+Do not move it into MVP scope or the ranked next-build candidates.** The
+feature is optional and requires an actual factory's approval and a measured
+need; recording it is not approval to build or install anything.
+
+**Concept:** Keep the vision model OFF during routine monitoring. A low-cost,
+deterministic monitor checks approved live machine telemetry (for example,
+vibration and temperature) against machine-specific thresholds, sustained
+changes, or operating-mode-aware trends. A meaningful trigger starts the
+existing Manufacturing Research Assistant investigation. The agent decides
+whether visual evidence could help distinguish its hypotheses and, if so,
+calls a bounded read-only `inspect_machine_vision` tool. It does not wake
+vision for every sensor sample or run continuous VLM inference.
+
+**Proposed eventual path:**
+
+1. Receive sensor observations through a read-only real-factory provider
+   (e.g., OPC UA / MQTT); preserve timestamps, units, machine identity,
+   operating mode, provenance, gaps, and uncertainty.
+2. Filter noise with documented thresholds, duration/hysteresis and
+   deduplication; trigger a bounded investigation, not an equipment action.
+3. If visual inspection is warranted, obtain authorized frames or a short
+   before/after-event clip from an existing camera/NVR (e.g., RTSP/ONVIF).
+   Existing recording may be continuous, but the *vision model* remains off
+   until requested.
+4. Run a general-purpose vision-language model on demand first; return
+   structured *observations* with frame references, model version, time,
+   visibility limits, and an explicit "nothing visible"/"uncertain" outcome.
+   Do not treat speculation or model confidence as proof of a machine fault.
+5. Correlate visual observations with current sensor evidence, equipment
+   specifications, approved manuals, and maintenance history through the
+   existing investigation loop. Maintain competing hypotheses; keep
+   recommendations and actions subject to the established human approval
+   and verification boundaries.
+6. Evaluate on held-out, authorized labeled cases before considering
+   machine-specific visual anomaly detection or a fine-tuned detector.
+   Machine specifications inform operating limits and diagnoses; manuals
+   alone do not train visual recognition.
+
+**Prerequisites and non-goals:** This is a read-only diagnostic aid, not
+safety monitoring, an emergency-stop mechanism, or autonomous industrial
+control. Factory operations/IT must approve camera and telemetry access,
+network isolation, security, retention, and handling of workers' images
+and proprietary data. Prefer local processing with minimal data leaving
+the site. Course artifacts must use public, synthetic, or appropriately
+authorized/anonymized evidence; access permission alone is not permission
+to publish or send material to an external model provider. No camera
+integration, training dataset, vision dependency, new agent, or GPU
+infrastructure is part of the current implementation.
+
+**Adoption/acceptance gate:** Compare the sensor-only baseline with
+sensor-plus-on-demand-vision on labeled cases. Measure diagnosis quality,
+false alarms, missed relevant events, investigation latency, per-event
+compute/cost, and whether visual evidence actually changes a supported
+conclusion. Test camera offline/unavailable, obscured view, misleading
+imagery, clock mismatch, duplicate triggers, and no-visible-defect cases.
+Ensure sensor-only investigation still works without the camera and no
+vision result can bypass approval or the evaluator-only ground-truth
+boundary.
