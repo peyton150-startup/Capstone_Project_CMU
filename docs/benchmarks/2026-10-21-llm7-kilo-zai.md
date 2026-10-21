@@ -1,0 +1,52 @@
+# LLM7, Kilo Code and Z.ai checked, 2026-10-21
+
+Live, real models, the developer's free accounts; only models each service lets a
+free account use (nothing can be charged). These three were added for support agents
+or a fallback, not the main loop (nemotron 120b on NVIDIA runs every main-loop job).
+
+## LLM7 (`llm7/...`): support agent only
+
+- Free allowance: **100,000 tokens a day** (the developer's account), less than one
+  investigation (20-40 questions of about 5,000 tokens), so no benchmark and **support
+  agent only** (the developer's decision).
+- 63 of its 68 models are marked usage-based (paid). Not marked so: `minimax-m2.7`,
+  `mistral-Nemo-Instruct-2407`, `nemotron-3-nano:30b`, `codestral-latest` ("turbo"),
+  `kimi-k2.6`, `kimi-k2.7-code` ("pro").
+- Checked `llm7/nemotron-3-nano:30b` (the developer's choice): 3 of 3 large prompts
+  valid (22, 6 and 1 s); then HTTP 429 after a quick burst (a per-minute limit as
+  well); of the seven answer types on a small prompt, 1 valid, 3 refused by the
+  per-minute limit and 3 the wrong shape (it echoed the schema's `$defs` or added
+  `title` / `machine_id`). LLM7 refuses the structured-output request (HTTP 400).
+  Fit: short support jobs whose answer format is forgiving.
+
+## Kilo Code gateway (`kilo/...`): support agent
+
+- 401 models, about 18 free (ids ending `:free`); all free ones are flagged "may train
+  on your prompts" (ours are simulator data only).
+- `kilo/nvidia/nemotron-3.5-super-vl:free` is the main model, but Kilo passes it to
+  NVIDIA's own service, so as a fallback it would fail when NVIDIA does.
+- Checked `kilo/minimax/minimax-m3.1-flash:free` (served by MiniMax): **all seven answer
+  types valid** on a small prompt (3-29 s), but both large prompts ran to the 16,384
+  output-token limit (about 76 s) without answering. With structured output it got one
+  "malformed reply" and was slower, so it is left off for Kilo. Fit: a support agent
+  with short prompts, not the main loop's fallback.
+
+## Z.ai (`zai/...`): not usable on a free account
+
+- Without a balance only `glm-4.7-flash` and `glm-4.5-flash` answer; the eleven listed
+  models (including `glm-5.3-flash`) say "Insufficient balance or no resource package".
+- Benchmarked `zai/glm-4.7-flash`, seed 0, every job alone: first at 45 s per request
+  (one episode: 2 of 3 answered, then a timeout and "Rate limit reached for requests"),
+  then at 85 s per request so no request was abandoned: still model unavailable in all
+  four episodes (6 of 10 questions answered in all; answers over 85 s, then HTTP 429).
+  Free GLM Flash is too slow and too tightly limited for this agent. Raw calls:
+  `2026-10-21-zai-calls.jsonl`.
+
+## Where each fits (the developer's plan, 2026-10-21)
+
+| Role | Provider and model |
+|---|---|
+| Main loop, every job | NVIDIA nemotron 3.5 super 120b |
+| Fallback | Gemini 3.6 Flash (5 requests a minute, 20 a day); Cloudflare Llama 3.3 70B as the alternative |
+| Support agents, one each | Requesty (a quick model, one request at a time), xKiro Qwen3.6 35B-A3B, Mistral Ministral 14B, Kilo MiniMax M3.1 Flash, LLM7 Nemotron Nano (short prompts) |
+| Not usable on a free account | Z.ai GLM, Groq for long prompts, Mistral Large |

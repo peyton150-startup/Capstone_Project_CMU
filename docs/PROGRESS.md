@@ -85,6 +85,7 @@ A component is complete only when both columns are checked.
 | L3 | Requesty and xKiro as providers (model routers); their free models benchmarked | no (built ungated) | n/a | yes | no: built ungated, developer to review | `providers/chat.py` (`PROVIDERS` requesty, xkiro), `settings.py` (`REQUESTY_API_KEY`, `XKIRO_API_KEY`), `.env.example`, AGENTS.md section 9, `docs/benchmarks/2026-10-21-routers.md`; session note 2026-10-21 (L3) |
 | L4 | Why a reply was invalid is recorded (cut off, not JSON, wrong shape, tool not offered) | no (built ungated) | n/a | yes | no: built ungated, developer to review | `providers/chat.py` (`INVALID_REPLY`, `invalid_outcome`, `is_model_outcome`), `agent/model_policy.py` (`_refuse`), `experiment.py` (`CallSummary.invalid_reasons`, report line), `benchmark.py` (`ModelReport.invalid_reasons`); session note 2026-10-21 (L4) |
 | L5 | NVIDIA is asked to keep replies to the answer type's JSON schema (structured output) | no (built ungated) | n/a | yes | no: built ungated, developer to review | `providers/chat.py` (`Provider.structured_output`, `ChatClient(structured_output=)`, `response_format`); session note 2026-10-21 (L5) |
+| L6 | LLM7, Kilo Code and Z.ai as providers; their free models checked | no (built ungated) | n/a | yes | no: built ungated, developer to review | `providers/chat.py` (`PROVIDERS` llm7, kilo, zai), `settings.py` (`LLM7_API_KEY`, `KILO_CODE_API_KEY`, `ZAI_API_KEY`), `.env.example`, AGENTS.md section 9, `docs/benchmarks/2026-10-21-llm7-kilo-zai.md`; session note 2026-10-21 (L6) |
 
 Every row above with four "yes" marks (or "n/a") is complete: no question is
 outstanding on it. Still to build after 12c, from `docs/MVP_SCOPE.md`: the
@@ -92,6 +93,24 @@ other three fault scenarios (material batch, machine configuration, false
 alarm), then evaluation, then the agent itself.
 
 ## Session notes
+
+- **2026-10-21 — L6: LLM7, Kilo Code and Z.ai added as providers. Built
+  ungated, developer to review (understood: no).** The developer added the
+  three keys for support agents or a fallback. `providers/chat.py` gains
+  `llm7` (`https://api.llm7.io/v1`), `kilo` (`https://api.kilo.ai/api/gateway`)
+  and `zai` (`https://api.z.ai/api/paas/v4`); `settings.py` gains
+  `LLM7_API_KEY`, `KILO_CODE_API_KEY`, `ZAI_API_KEY`; `.env.example` lists them;
+  AGENTS.md section 9 lists them (never Anthropic or OpenAI models through any
+  router). Results, `docs/benchmarks/2026-10-21-llm7-kilo-zai.md`: LLM7 is for a
+  support agent only (100,000 tokens a day, the developer's decision); Nemotron
+  Nano there answered large prompts but often in the wrong shape, and LLM7
+  refuses structured output. Kilo's MiniMax M3.1 Flash answered all seven
+  question types on short prompts but ran out of tokens on large ones: a
+  support agent, not the fallback. Z.ai without a balance offers only GLM Flash
+  4.7/4.5, which was too slow and too rate-limited to finish an episode. The
+  developer's `.env` writes the LLM7 key as `LLM7_API_key`; Settings ignores
+  case, so it is read, but `LLM7_API_KEY` matches the project's names. Tests:
+  the provider table, each provider's address and key.
 
 - **2026-10-21 — L5: structured output for NVIDIA. Built ungated, developer
   to review (understood: no).** With the reasons recorded (PR #43), most of
