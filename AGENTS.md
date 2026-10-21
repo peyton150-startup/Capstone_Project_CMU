@@ -408,7 +408,8 @@ Tooling: `pytest`. Run tests after every implementation step.
 - No external services. Everything runs locally and offline.
 - Model providers in scope, and no others: Mistral, Google Gemini, Groq,
   NVIDIA, Cohere and Cloudflare, and (added by the developer on 2026-10-21,
-  for comparing larger models) the routers Requesty and xKiro. The routers
+  for comparing larger models) the routers Requesty, xKiro, LLM7 (for a
+  support agent only: 100,000 free tokens a day) and Kilo Code's gateway. The routers
   also list Anthropic and OpenAI models; never use those through them either.
   Never add an Anthropic/Claude or OpenAI
   model, SDK, API key name or default to the code, tests or dependencies.
