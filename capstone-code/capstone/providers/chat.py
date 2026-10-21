@@ -175,10 +175,6 @@ PROVIDERS = {
     "kilo": Provider(
         "https://api.kilo.ai/api/gateway/chat/completions", "KILO_CODE_API_KEY"
     ),
-    # Z.ai's GLM models (added 2026-10-21). Without a balance only the older
-    # Flash models answer (glm-4.7-flash, glm-4.5-flash); the rest say
-    # "Insufficient balance", so nothing can be charged.
-    "zai": Provider("https://api.z.ai/api/paas/v4/chat/completions", "ZAI_API_KEY"),
 }
 
 # The seven policy questions, each of which can be given to its own model.
