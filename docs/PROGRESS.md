@@ -90,6 +90,52 @@ alarm), then evaluation, then the agent itself.
 
 ## Session notes
 
+- **2026-10-21 — first complete live run of the known-answer cases
+  (results only; nothing built).** Command, from the developer's main
+  checkout at `33b03c0` (all of PRs #33-#37):
+  `uv run python -m capstone.experiment run --name live-known-4 --known
+  --out results-5.jsonl`, with the developer's `.env`: nemotron 120b for
+  every job, `FALLBACK_MODEL=cohere/command-a-03-2025`,
+  MODEL_REQUEST_SECONDS 60 (the `.env` value; the default is 45),
+  MODEL_QUESTION_SECONDS 90, 8,192 output tokens, 3 retries, the
+  1,200 s / 400 s budget. Real models, real calls; the results file is the
+  developer's local `results-5.jsonl` (holds the truth: experimenter only).
+  - **Availability is fixed:** no run ended "model unavailable" (15 of 17
+    did on 2026-10-20 before L1). 195 of 215 questions answered; NVIDIA
+    still sent 3-11 HTTP 500s and 5-15 timeouts per case, covered by the
+    retries and the Cohere fallback.
+  - **Reasoning is now the weak point.** Read from the conclusions by the
+    coding agent, *not hand-labelled* (run `experiment label` for the
+    scored numbers): about 3 of the 8 one-fault cases fully right, against
+    the rule baseline's ~96% (R4c).
+
+    | Case | Stop | Seconds | What the agent concluded and did | Read |
+    |---|---|---|---|---|
+    | KA-01 bearing | diagnosis supported | 410 | Right machine (CNC-02), no cause named; escalated | partly right, no fix |
+    | KA-02 bearing | diagnosis supported | 726 | Bearing wear on CNC-05; replacement carried out, fault gone | **fully right** |
+    | KA-03 batch | timeout | 850 | A shared machine or process step; escalated | wrong cause |
+    | KA-04 batch | timeout | 847 | "A batch-specific issue", no batch named; escalated | close, not named |
+    | KA-05 setting | timeout | 847 | The inspection process or criteria; escalated | wrong cause, no fix |
+    | KA-06 setting | diagnosis supported | 839 | A machine named, no fix; escalated | partly right, no fix |
+    | KA-07 false alarm | diagnosis supported | 619 | Temporary spike on CNC-01; no action | **fully right** |
+    | KA-08 false alarm | evidence sufficient | 459 | Short-lived spike on CNC-03; no action | **fully right** |
+    | KA-09 challenge | diagnosis supported | 755 | Only the decoy spike on CNC-03, "over"; no action | missed both real causes on CNC-07 |
+
+  - What it shows: evidence gathering is mostly fine (all of the relevant
+    evidence on the batch cases, 2-3 of 3 elsewhere; only 1 of 5 on the
+    challenge). The weakness is committing to a cause and a fix: 6
+    escalations, 1 fix asked for. Three cases reached the research deadline
+    (~850 s of the 1,200 s; 400 s are kept for the follow-up). A wrong
+    setting was never found. On the challenge the agent stayed on the
+    machine monitoring named first, which is the trap the challenge sets.
+  - For the deferred difficulty modes (Future Work 8, second part), which
+    wait on exactly this comparison: the live agent is well below the rule
+    baseline on the ordinary cases, so the next work is the agent's
+    diagnosis and its readiness to recommend a fix, not harder cases.
+  - Not done: hand labels for these nine conclusions (needed for the scored
+    "root causes correctly identified" line), held-out seeds, more than one
+    run per case.
+
 - **2026-10-20 — L2: the in-scope models benchmarked, and the limits set from
   the numbers (next build candidate 2). Built ungated, developer to review
   (understood: no).** Results and what was set: `docs/benchmarks/2026-10-20.md`
