@@ -94,6 +94,23 @@ alarm), then evaluation, then the agent itself.
 
 ## Session notes
 
+- **2026-10-21 — the three escalated cases with structured output (results
+  only; nothing built).** After PRs #43-#45 (refusal reasons, 16,384 tokens,
+  NVIDIA structured output), the developer's main checkout reran seed 6
+  bearing, seed 7 batch and seed 9 setting (`results-8.jsonl`, 120 s / 240 s
+  waits, Gemini 3.6 Flash as fallback, `--timeout-seconds 2400`). Invalid
+  replies fell from 12 (three cases, `results-7`) to 1 in 108 questions, and
+  that one is `NextStep`'s stop-step rule, which a schema cannot express.
+  NVIDIA wrote every conclusion. Outcomes: bearing, 28/28 answered, "sudden
+  spikes", no action (wrong; the previous run fixed it); batch, 39/39,
+  blamed "job parity", escalated (wrong); setting, 39/41, right machine
+  (CNC-05) but "a failing bearing", escalated, research time ran out (1,634
+  s). Availability and format are solved; what is left is the reasoning
+  itself, which also varies between runs of the same case. Next, the
+  developer's call: domain knowledge for the agent (a short note on fault
+  patterns in the prompt, or memory), and several runs per case before
+  drawing conclusions.
+
 - **2026-10-21 — L6: LLM7 and Kilo Code added as providers; Z.ai checked
   and dropped. Built ungated, developer to review (understood: no).** The
   developer added the keys for support agents or a fallback. `providers/chat.py`
