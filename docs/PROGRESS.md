@@ -84,6 +84,7 @@ A component is complete only when both columns are checked.
 | L2 | Benchmark under the real limits; limits set from it; retries back off | no (built ungated) | n/a | yes | no: built ungated, developer to review | `benchmark.py` (`single_model_clients`, `run_model`, `EpisodeRecord.wall_seconds`, `ModelReport.concluded`/`median_episode_seconds`/`outage_reasons`, `Limits`, `suggested_limits`, `format_limits`, `--timeout-seconds`), `providers/chat.py` (`FallbackClient.ask` pauses), `settings.py` (`MODEL_RETRIES` 3), `agent/state.py` (`Budgets` 1200/400), `docs/benchmarks/2026-10-20.md`; session note 2026-10-20 (L2) |
 | L3 | Requesty and xKiro as providers (model routers); their free models benchmarked | no (built ungated) | n/a | yes | no: built ungated, developer to review | `providers/chat.py` (`PROVIDERS` requesty, xkiro), `settings.py` (`REQUESTY_API_KEY`, `XKIRO_API_KEY`), `.env.example`, AGENTS.md section 9, `docs/benchmarks/2026-10-21-routers.md`; session note 2026-10-21 (L3) |
 | L4 | Why a reply was invalid is recorded (cut off, not JSON, wrong shape, tool not offered) | no (built ungated) | n/a | yes | no: built ungated, developer to review | `providers/chat.py` (`INVALID_REPLY`, `invalid_outcome`, `is_model_outcome`), `agent/model_policy.py` (`_refuse`), `experiment.py` (`CallSummary.invalid_reasons`, report line), `benchmark.py` (`ModelReport.invalid_reasons`); session note 2026-10-21 (L4) |
+| L5 | NVIDIA is asked to keep replies to the answer type's JSON schema (structured output) | no (built ungated) | n/a | yes | no: built ungated, developer to review | `providers/chat.py` (`Provider.structured_output`, `ChatClient(structured_output=)`, `response_format`); session note 2026-10-21 (L5) |
 
 Every row above with four "yes" marks (or "n/a") is complete: no question is
 outstanding on it. Still to build after 12c, from `docs/MVP_SCOPE.md`: the
@@ -91,6 +92,22 @@ other three fault scenarios (material batch, machine configuration, false
 alarm), then evaluation, then the agent itself.
 
 ## Session notes
+
+- **2026-10-21 — L5: structured output for NVIDIA. Built ungated, developer
+  to review (understood: no).** With the reasons recorded (PR #43), most of
+  nemotron 120b's refused replies in `results-7` were the wrong shape (4 not
+  valid JSON, 2 extra fields on a stop step, 1 arguments not an object), not
+  length. `providers/chat.py`: `Provider.structured_output` (True for NVIDIA
+  only, the one checked live) makes `ChatClient` send the standard
+  `response_format` of type `json_schema` with the answer type's schema, so
+  the service itself keeps to the shape; the reply is still validated
+  against the type. Checked live on 2026-10-21: NVIDIA's hosted API accepts
+  it (its own `nvext.guided_json` form is refused) and returned valid replies
+  for all seven answer types, `conclude` in 4 s. Tests in
+  `test_chat_client.py`: NVIDIA sends the schema, other providers do not, a
+  reply is still checked. Not changed: the policy's own checks after the
+  schema (a stop step that also names a question still fails `NextStep`'s
+  validator, which a schema cannot express).
 
 - **2026-10-21 — fix: console output never stops a run; output tokens
   16,384 (no gate needed: output handling and a measured setting).** On

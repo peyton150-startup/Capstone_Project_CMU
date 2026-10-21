@@ -129,11 +129,18 @@ class Attempt(Contract):
 class Provider:
     url: str  # may contain {account}
     key_setting: str  # the environment name of its key
+    # Ask the service itself to keep the reply to the answer type's JSON
+    # schema (the standard `response_format` of type "json_schema"). Only
+    # where it was checked live: NVIDIA's hosted API on 2026-10-21. The reply
+    # is still validated against the type, as for every provider.
+    structured_output: bool = False
 
 
 PROVIDERS = {
     "nvidia": Provider(
-        "https://integrate.api.nvidia.com/v1/chat/completions", "NVIDIA_API_KEY"
+        "https://integrate.api.nvidia.com/v1/chat/completions",
+        "NVIDIA_API_KEY",
+        structured_output=True,
     ),
     "groq": Provider("https://api.groq.com/openai/v1/chat/completions", "GROQ_API_KEY"),
     "mistral": Provider(
@@ -254,6 +261,7 @@ class ChatClient:
         transport: Transport = urllib_transport,
         timeout: float = 15.0,
         max_output_tokens: int | None = None,
+        structured_output: bool = False,
     ):
         if max_output_tokens is not None and max_output_tokens < 1:
             raise ValueError("max_output_tokens must be at least 1")
@@ -265,6 +273,9 @@ class ChatClient:
         # The most tokens one reply may use, thinking included. None: the
         # provider's own limit.
         self.max_output_tokens = max_output_tokens
+        # Send the answer type's schema as `response_format` too, so the
+        # service cannot reply in another shape (see Provider).
+        self.structured_output = structured_output
 
     def __repr__(self) -> str:
         return f"ChatClient(url={self.url!r}, model={self.model!r})"
@@ -300,6 +311,15 @@ class ChatClient:
         }
         if self.max_output_tokens is not None:
             body["max_tokens"] = self.max_output_tokens
+        if self.structured_output:
+            body["response_format"] = {
+                "type": "json_schema",
+                "json_schema": {
+                    "name": answer_type.__name__,
+                    "schema": answer_type.model_json_schema(),
+                    "strict": True,
+                },
+            }
         raw = post_json(self._transport, self.url, self._api_key, body, limit)
         return answer_type.model_validate_json(answer_json(reply_text(raw)))
 
@@ -474,6 +494,7 @@ def client_for(
         transport=transport,
         timeout=settings.model_request_seconds,
         max_output_tokens=settings.model_max_output_tokens,
+        structured_output=provider.structured_output,
     )
 
 
