@@ -407,7 +407,10 @@ Tooling: `pytest`. Run tests after every implementation step.
   and `uv run ruff check` / `uv run ruff format --check`.
 - No external services. Everything runs locally and offline.
 - Model providers in scope, and no others: Mistral, Google Gemini, Groq,
-  NVIDIA, Cohere and Cloudflare. Never add an Anthropic/Claude or OpenAI
+  NVIDIA, Cohere and Cloudflare, and (added by the developer on 2026-10-21,
+  for comparing larger models) the routers Requesty and xKiro. The routers
+  also list Anthropic and OpenAI models; never use those through them either.
+  Never add an Anthropic/Claude or OpenAI
   model, SDK, API key name or default to the code, tests or dependencies.
   (`CLAUDE.md` only imports this file for Claude Code; the coding
   assistant is not a model the project calls.) Tests never need a key.
