@@ -82,6 +82,7 @@ A component is complete only when both columns are checked.
 | L1 | Live runs finish: User-Agent for Groq, the fallback keeps its share of a question's time, a stage deadline is a timeout, measured limits, failure reasons in records | no (built ungated) | n/a | yes | no: built ungated, developer to review | `providers/chat.py` (`USER_AGENT`, `FallbackClient.ask`, `ModelError.out_of_time`), `agent/loop.py` (`ask_policy`), `settings.py`, `agent/state.py` (`Budgets`), `experiment.py` (`CallSummary.outage_reasons`); session note 2026-10-20 (L1) |
 | E6 | The compound challenge in experiments (a case names the scenario kind; KA-09) | no (built ungated) | n/a | yes | no: built ungated, developer to review | `episode.py` (`build_world`, `STANDARD`, `CHALLENGE`, `SCENARIO_KINDS`, `run_episode(kind=)`), `evaluation/known_answers.py` (`KnownCase.kind`, KA-09), `experiment.py` (`Case.kind`, `challenge_cases`, `run --challenge`, `several_faults`, `report`); session note 2026-10-20 (E6) |
 | L2 | Benchmark under the real limits; limits set from it; retries back off | no (built ungated) | n/a | yes | no: built ungated, developer to review | `benchmark.py` (`single_model_clients`, `run_model`, `EpisodeRecord.wall_seconds`, `ModelReport.concluded`/`median_episode_seconds`/`outage_reasons`, `Limits`, `suggested_limits`, `format_limits`, `--timeout-seconds`), `providers/chat.py` (`FallbackClient.ask` pauses), `settings.py` (`MODEL_RETRIES` 3), `agent/state.py` (`Budgets` 1200/400), `docs/benchmarks/2026-10-20.md`; session note 2026-10-20 (L2) |
+| L3 | Requesty and xKiro as providers (model routers); their free models benchmarked | no (built ungated) | n/a | yes | no: built ungated, developer to review | `providers/chat.py` (`PROVIDERS` requesty, xkiro), `settings.py` (`REQUESTY_API_KEY`, `XKIRO_API_KEY`), `.env.example`, AGENTS.md section 9, `docs/benchmarks/2026-10-21-routers.md`; session note 2026-10-21 (L3) |
 
 Every row above with four "yes" marks (or "n/a") is complete: no question is
 outstanding on it. Still to build after 12c, from `docs/MVP_SCOPE.md`: the
@@ -89,6 +90,29 @@ other three fault scenarios (material batch, machine configuration, false
 alarm), then evaluation, then the agent itself.
 
 ## Session notes
+
+- **2026-10-21 — L3: Requesty and xKiro added as providers, their free
+  models benchmarked. Built ungated, developer to review (understood: no).**
+  The developer added both routers' keys and asked for them to be
+  benchmarked; AGENTS.md section 9 now lists them (still never Anthropic or
+  OpenAI models through them). Code: `providers/chat.py` `PROVIDERS` gains
+  `requesty` (`https://router.requesty.ai/v1`) and `xkiro`
+  (`https://api.xkiro.com/v1`); a reference is router/model as the router
+  lists it, e.g. `xkiro/qwen/qwen3.8-max:free` (the client passes everything
+  after the first "/" on). `settings.py` gains `REQUESTY_API_KEY` and
+  `XKIRO_API_KEY`; `.env.example` lists both. Tests: `test_chat_client.py`
+  (the provider set, each router's address and key, a router passes the whole
+  model name on). Results, `docs/benchmarks/2026-10-21-routers.md`: only
+  price-0 models were run, and neither free account carried a whole
+  investigation. Requesty allows one request in flight at a zero balance, so a
+  request our client stops waiting for blocks the retries (HTTP 429); xKiro's
+  daily free-model token quota ran out after about three episodes; Requesty
+  lists NVIDIA's nemotron nano but NVIDIA answers "Gone". The developer's plan:
+  nemotron 120b stays the main investigator; the routers' small models are for
+  narrower jobs in a later multi-agent design, measured per job.
+  Follow-ups found: a per-provider request limit (wait the whole question on
+  Requesty) and a whole-request deadline in the client (an xKiro request ran
+  146 s against the 45 s limit, because the limit applies per read).
 
 - **2026-10-21 — fix: `experiment label` asked again on an answer it cannot
   use (repetitive validation, no gate needed per AGENTS.md section 2.2).**
