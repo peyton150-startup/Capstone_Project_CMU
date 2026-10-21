@@ -71,6 +71,11 @@ MAX_EVIDENCE_CHARS = 2000
 MAX_EVIDENCE_SECTION_CHARS = 12_000
 # How many of the latest failed calls a prompt shows, so they can be corrected.
 RECENT_FAILURES = 3
+# At or below this many research calls left, the prompt adds LOW_BUDGET_NOTE.
+LOW_CALLS = 2
+LOW_BUDGET_NOTE = (
+    "NOTE: few calls remain; choose the one that best separates the hypotheses."
+)
 
 EVIDENCE_HEADER = "EVIDENCE (IDs are given by the system; cite only these):"
 
@@ -273,15 +278,23 @@ def render(state: InvestigationState) -> str:
     anomaly = state.anomaly
     where = f" on {anomaly.machine_id}" if anomaly.machine_id else ""
     now = "unknown" if state.last_tick is None else str(state.last_tick)
+    budget = (
+        f"BUDGET LEFT: {state.remaining_tool_calls} research tool calls, "
+        f"{state.remaining_iterations} turns, {state.remaining_followup_tool_calls} "
+        "calls for checking after an action"
+    )
+    # A model cannot sense time passing, so the stage's time left is a number.
+    if state.seconds_for_question is not None:
+        budget += f", about {int(state.seconds_for_question)} seconds for this stage"
     lines = [
         f"ANOMALY ({anomaly.kind}{where}, tick {anomaly.tick}): {anomaly.description}",
         f"NOW: tick {now}",
-        f"BUDGET LEFT: {state.remaining_tool_calls} research tool calls, "
-        f"{state.remaining_iterations} turns, {state.remaining_followup_tool_calls} "
-        "calls for checking after an action",
-        "",
-        "OPEN QUESTIONS:",
+        budget,
     ]
+    # Only when research calls are nearly spent, so no turn is primed to hurry.
+    if state.conclusion is None and state.remaining_tool_calls <= LOW_CALLS:
+        lines.append(LOW_BUDGET_NOTE)
+    lines += ["", "OPEN QUESTIONS:"]
     for question in state.unanswered_questions:
         tests = f" [tests {question.hypothesis_id}]" if question.hypothesis_id else ""
         lines.append(f"- {question.id}: {question.text}{tests}")
@@ -360,7 +373,12 @@ COMMON = (
     "as evidence with IDs (E1, E2, ...). The system assigns those IDs: cite only "
     "IDs that appear in the evidence list and never invent one. One tick is one "
     "simulated minute. Every belief must rest on the evidence; when the evidence "
-    "does not settle something, say so rather than guess."
+    "does not settle something, say so rather than guess. "
+    "The investigation has a fixed budget of tool calls, turns and time, shown "
+    "under BUDGET LEFT. Spend it where it can change the answer: prefer the call "
+    "most likely to confirm or rule out a hypothesis over one that only adds "
+    "detail. Being thorough matters more than being fast, but once more evidence "
+    "would not change the diagnosis, the work is done."
 )
 
 SYSTEM = {
@@ -375,8 +393,9 @@ SYSTEM = {
         "is already in the evidence. Set question_id when the call answers an open "
         "question, and hypothesis_id when it tests a hypothesis. To stop, set "
         "choice to stop and stop_reason to evidence_sufficient when the evidence "
-        "answers what this stage needs, or no_useful_action when no listed tool "
-        "would help."
+        "answers what this stage needs, or when the remaining budget is better "
+        "saved than spent on a call unlikely to change your view, or "
+        "no_useful_action when no listed tool would help."
     ),
     "interpret": (
         f"{COMMON}\n\nYour job: say what the newest evidence means. Give the full "

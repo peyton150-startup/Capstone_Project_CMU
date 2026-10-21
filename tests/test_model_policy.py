@@ -817,3 +817,37 @@ def test_the_schema_the_model_sees_has_no_named_alternatives_to_nest():
     )
     assert schema["properties"]["choice"]["enum"] == ["call_tool", "stop"]
     assert "anyOf" not in json.dumps(schema["properties"]["choice"])
+
+
+# --- the budget, as the model is shown it -------------------------------------------
+
+
+def budget_line(state):
+    return next(line for line in render(state).splitlines() if "BUDGET LEFT" in line)
+
+
+def test_the_budget_line_shows_the_stages_seconds_only_when_known():
+    state = new_state()
+    assert "seconds" not in budget_line(state)
+    state.seconds_for_question = 47.9
+    assert budget_line(state).endswith(", about 47 seconds for this stage")
+
+
+def test_a_low_budget_note_appears_only_when_research_calls_are_nearly_spent():
+    from capstone.agent.model_policy import LOW_BUDGET_NOTE, LOW_CALLS
+
+    state = new_state(max_tool_calls=5)
+    assert LOW_BUDGET_NOTE not in render(state)
+    state.tool_call_count = 5 - LOW_CALLS
+    assert LOW_BUDGET_NOTE in render(state)
+    state.conclusion = AgentConclusion(
+        diagnosis="undetermined", confidence=0.0, recommendation="escalate"
+    )
+    assert LOW_BUDGET_NOTE not in render(state)  # research is over
+
+
+def test_every_job_is_told_to_spend_the_budget_well_not_to_hurry():
+    for job, system in SYSTEM.items():
+        assert "BUDGET LEFT" in system, job
+        assert "Being thorough matters more than being fast" in system, job
+    assert "remaining budget is better saved" in SYSTEM["decide"]
