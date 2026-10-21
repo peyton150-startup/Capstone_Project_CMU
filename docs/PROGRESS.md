@@ -89,6 +89,24 @@ alarm), then evaluation, then the agent itself.
 
 ## Session notes
 
+- **2026-10-21 — the prompts show the time left and say how to spend the
+  budget (developer's request). Built ungated, developer to review
+  (understood: no).** A model cannot sense time passing, so `render`
+  (`agent/model_policy.py`) now ends the BUDGET LEFT line with "about N
+  seconds for this stage" whenever the loop has set `seconds_for_question`
+  (the time the current stage has left). `COMMON`, shown to every job,
+  gains a pacing rule: spend the budget where it can change the answer,
+  prefer the call most likely to confirm or rule out a hypothesis, being
+  thorough matters more than being fast, and once more evidence would not
+  change the diagnosis the work is done. The `decide` prompt adds a stop
+  case: when the remaining budget is better saved than spent on a call
+  unlikely to change the model's view. New `LOW_CALLS` (2) and
+  `LOW_BUDGET_NOTE`: only while researching (no conclusion yet) with at
+  most two research calls left, the prompt adds "few calls remain; choose
+  the one that best separates the hypotheses", so ordinary turns are not
+  primed to hurry. Tests: three in `tests/test_model_policy.py`. Not run
+  live: whether it changes a real model's behaviour is not yet measured.
+
 - **2026-10-20 — cleanups (next build candidate 7; configuration, no gate
   needed per AGENTS.md section 2.2).** `.env.example` now lists every
   setting `capstone/settings.py` reads (memory store, embedding model, the
