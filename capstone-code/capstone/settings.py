@@ -72,6 +72,9 @@ class Settings(BaseSettings):
     cohere_api_key: SecretStr | None = _optional("COHERE_API_KEY")
     cloudflare_api_token: SecretStr | None = _optional("CLOUDFLARE_API_TOKEN")
     cloudflare_account_id: str | None = _optional("CLOUDFLARE_ACCOUNT_ID")
+    # Two model routers (added 2026-10-21): they pass a model name on.
+    requesty_api_key: SecretStr | None = _optional("REQUESTY_API_KEY")
+    xkiro_api_key: SecretStr | None = _optional("XKIRO_API_KEY")
 
     # Which model answers which policy question. None: use default_model.
     default_model: str = Field(default=DEFAULT_MODEL, validation_alias="DEFAULT_MODEL")
@@ -121,6 +124,8 @@ class Settings(BaseSettings):
         "cohere_api_key",
         "cloudflare_api_token",
         "cloudflare_account_id",
+        "requesty_api_key",
+        "xkiro_api_key",
         "plan_model",
         "decide_model",
         "interpret_model",

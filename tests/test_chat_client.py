@@ -29,6 +29,8 @@ ALL_KEYS = (
     "GEMINI_API_KEY",
     "COHERE_API_KEY",
     "CLOUDFLARE_API_TOKEN",
+    "REQUESTY_API_KEY",
+    "XKIRO_API_KEY",
 )
 JOB_SETTINGS = (
     "DEFAULT_MODEL",
@@ -176,7 +178,7 @@ def test_the_key_never_appears_in_the_client_representation():
 # --- the provider table ---------------------------------------------------------
 
 
-def test_the_six_providers_in_scope_and_no_others():
+def test_the_providers_in_scope_and_no_others():
     assert set(PROVIDERS) == {
         "nvidia",
         "groq",
@@ -184,6 +186,8 @@ def test_the_six_providers_in_scope_and_no_others():
         "gemini",
         "cohere",
         "cloudflare",
+        "requesty",
+        "xkiro",
     }
     for provider in PROVIDERS.values():
         assert provider.url.startswith("https://")
@@ -210,6 +214,12 @@ def test_the_six_providers_in_scope_and_no_others():
             "COHERE_API_KEY",
             "https://api.cohere.ai/compatibility/v1/chat/completions",
         ),
+        (
+            "requesty",
+            "REQUESTY_API_KEY",
+            "https://router.requesty.ai/v1/chat/completions",
+        ),
+        ("xkiro", "XKIRO_API_KEY", "https://api.xkiro.com/v1/chat/completions"),
     ],
 )
 def test_each_provider_gets_its_own_address_and_key(
@@ -696,3 +706,11 @@ def test_a_long_pause_that_no_longer_fits_becomes_the_shortest():
     job = FallbackClient([busy], retries=3, sleep=sleep, clock=clock, max_seconds=5)
     assert job.ask("s", "p", Lesson).text == "ok"
     assert pauses == [2.0, 2.0]  # 4 s would not fit in the 3 s left
+
+
+def test_a_router_passes_the_whole_model_name_on(monkeypatch):
+    monkeypatch.setenv("XKIRO_API_KEY", KEY)
+    transport = FakeTransport(chat('{"text": "x"}'))
+    ask = client_for("xkiro/qwen/qwen3.8-max:free", settings(), transport=transport)
+    ask.ask("s", "p", Lesson)
+    assert transport.requests[0][2]["model"] == "qwen/qwen3.8-max:free"

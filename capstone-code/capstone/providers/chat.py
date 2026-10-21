@@ -5,7 +5,7 @@
     clients = clients_for_jobs()                    # one client per question
     answer = clients["decide"].ask(system, prompt, Decision)
 
-All six providers offer a chat endpoint in the same OpenAI-style shape, so
+Every provider offers a chat endpoint in the same OpenAI-style shape, so
 one client reaches them all: only the address, the key and the model name
 differ (`PROVIDERS`). The client uses just the common part of that shape:
 a system and a user message, temperature 0, a Bearer key, and the reply's
@@ -116,6 +116,15 @@ PROVIDERS = {
         "https://api.cloudflare.com/client/v4/accounts/{account}/ai/v1/chat/completions",
         "CLOUDFLARE_API_TOKEN",
     ),
+    # Two routers, added by the developer on 2026-10-21 for comparing larger
+    # models. Each passes the model name on, so a reference names the model
+    # the router lists: "requesty/nvidia/nemotron-3-ultra-550b-a55b",
+    # "xkiro/qwen/qwen3.8-max:free". Both also list Anthropic and OpenAI
+    # models, which stay out of this project (AGENTS.md section 9).
+    "requesty": Provider(
+        "https://router.requesty.ai/v1/chat/completions", "REQUESTY_API_KEY"
+    ),
+    "xkiro": Provider("https://api.xkiro.com/v1/chat/completions", "XKIRO_API_KEY"),
 }
 
 # The seven policy questions, each of which can be given to its own model.
