@@ -664,13 +664,17 @@ def test_a_run_with_the_manual_records_what_it_looked_up():
     assert search.outcome == "answered" and search.sections[0].startswith("§")
     assert "search_manual" in record.tools_used
     lines = report([record], {}).splitlines()
-    assert any(line.startswith("manual: 1 search(es) in 1 of 1 run(s)") for line in lines)
+    assert any(
+        line.startswith("manual: 1 search(es) in 1 of 1 run(s)") for line in lines
+    )
     assert f" manual={search.sections[0]}" in lines[-1]
 
 
 def test_a_run_without_the_manual_has_no_manual_records(records):
     assert all(r.manual_searches is None for r in records)
-    assert not any(line.startswith("manual:") for line in report(records, {}).splitlines())
+    assert not any(
+        line.startswith("manual:") for line in report(records, {}).splitlines()
+    )
 
 
 def test_the_manual_tool_is_offered_only_when_asked_for(monkeypatch):
@@ -678,10 +682,14 @@ def test_the_manual_tool_is_offered_only_when_asked_for(monkeypatch):
     from capstone.providers.manual import MANUAL_TOOL
     from tests.test_model_policy import FakeModel
 
-    monkeypatch.setattr(chat, "clients_for_jobs", lambda: {j: FakeModel() for j in chat.JOBS})
+    monkeypatch.setattr(
+        chat, "clients_for_jobs", lambda: {j: FakeModel() for j in chat.JOBS}
+    )
 
     def offered(**options):
-        return {t.name for t in experiment.model_policy_factory(False, **options)().tools}
+        return {
+            t.name for t in experiment.model_policy_factory(False, **options)().tools
+        }
 
     assert MANUAL_TOOL in offered(with_manual=True)
     assert MANUAL_TOOL not in offered()
@@ -700,7 +708,10 @@ def test_the_command_passes_the_manual_on(tmp_path, monkeypatch):
     monkeypatch.setattr(experiment, "run_experiment", fake_run)
     monkeypatch.setattr(experiment, "model_policy_factory", fake_factory)
     out = str(tmp_path / "r.jsonl")
-    assert main(["run", "--name", "m", "--known", "--manual", "keyword", "--out", out]) == 0
+    assert (
+        main(["run", "--name", "m", "--known", "--manual", "keyword", "--out", out])
+        == 0
+    )
     from capstone.manual.index import KeywordManualSearch
 
     assert isinstance(ran["manual"], KeywordManualSearch)
