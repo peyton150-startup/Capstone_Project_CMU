@@ -42,6 +42,7 @@ from capstone.providers.hazards import (
     UnreliableProvider,
     standard_hazards,
 )
+from capstone.providers.manual import ManualProvider, ManualSearch
 from capstone.providers.recall import RecallingProvider
 from capstone.simulator.challenge import build_challenge
 from capstone.simulator.generator import build_scenario
@@ -187,6 +188,7 @@ def run_episode(
     clock: Callable[[], float] = monotonic,
     run_key: str | None = None,
     hazards: bool = False,
+    manual: ManualSearch | None = None,
 ) -> EpisodeResult:
     """Run one seeded episode from the fault's start to its score.
 
@@ -194,6 +196,9 @@ def run_episode(
     the finished investigation is audited and offered to the memory gate.
     With `hazards`, the agent's tools fail on the standard schedule
     (`capstone.providers.hazards`), built from what monitoring noticed.
+    With `manual`, the agent may search the machine manual
+    (`capstone.providers.manual`); its answers are general guidance,
+    labelled as such, never a look at the factory.
     `kind` picks the factory (`build_world`); monitoring, the agent's view
     and scoring are the same for every kind.
     """
@@ -224,8 +229,12 @@ def run_episode(
         anomaly=anomaly,
         budgets=budgets or Budgets(),
     )
+    if memory is not None:
+        provider = RecallingProvider(provider, memory)
+    if manual is not None:
+        provider = ManualProvider(provider, manual)
     deps = InvestigationDeps(
-        provider=provider if memory is None else RecallingProvider(provider, memory),
+        provider=provider,
         policy=policy,
         clock=clock,
         human_review=human_review,

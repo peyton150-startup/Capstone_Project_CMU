@@ -100,20 +100,20 @@ def default_embedder() -> Embedder:
     return DefaultEmbeddingFunction()
 
 
-def open_chroma_index(
+def open_collection(
     path: Path | str,
     collection_name: str,
     *,
-    embed: Embedder | None = None,
-    embed_query: Embedder | None = None,
     model: str = LOCAL_MODEL,
     rebuild: bool = False,
-) -> ChromaMemoryIndex:
-    """Open (or create) a persistent collection built by `model`.
+    rebuild_hint: str = "python -m capstone.memory.backfill --rebuild",
+):
+    """Open (or create) a persistent Chroma collection built by `model`.
 
     Raises IndexModelMismatch if the collection was built by another model,
     and anything Chroma raises if it is unavailable. `rebuild` deletes the
-    collection first, so it starts empty under `model`.
+    collection first, so it starts empty under `model`. Shared by the memory
+    index and the machine manual's index (`capstone.manual.index`).
     """
     import chromadb
     from chromadb.errors import NotFoundError
@@ -136,9 +136,24 @@ def open_chroma_index(
     built_by = (collection.metadata or {}).get("embedding_model", LOCAL_MODEL)
     if built_by != model:
         raise IndexModelMismatch(
-            f"the memory index '{collection_name}' was built by {built_by}, not "
-            f"{model}; rebuild it: python -m capstone.memory.backfill --rebuild"
+            f"the index '{collection_name}' was built by {built_by}, not "
+            f"{model}; rebuild it: {rebuild_hint}"
         )
+    return collection
+
+
+def open_chroma_index(
+    path: Path | str,
+    collection_name: str,
+    *,
+    embed: Embedder | None = None,
+    embed_query: Embedder | None = None,
+    model: str = LOCAL_MODEL,
+    rebuild: bool = False,
+) -> ChromaMemoryIndex:
+    """Open (or create) the memory index's collection built by `model`
+    (see `open_collection`)."""
+    collection = open_collection(path, collection_name, model=model, rebuild=rebuild)
     return ChromaMemoryIndex(collection, embed or default_embedder(), embed_query)
 
 

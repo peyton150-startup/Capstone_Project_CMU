@@ -78,6 +78,13 @@ LOW_BUDGET_NOTE = (
 )
 
 EVIDENCE_HEADER = "EVIDENCE (IDs are given by the system; cite only these):"
+# How evidence that is not a look at the factory is marked in every prompt.
+ORIGIN_LABELS = {
+    "memory": " [FROM MEMORY: a past investigation's belief, not a look at the "
+    "factory now]",
+    "manual": " [FROM THE MANUAL: general guidance for this machine model, not a "
+    "look at the factory now; confirm it with the factory's own data]",
+}
 
 
 class Client(Protocol):
@@ -239,12 +246,7 @@ def evidence_section(state: InvestigationState) -> list[str]:
             evidence.id, (evidence.source_id.split(":")[-1], {})
         )
         call = f"{tool} {compact(arguments)}" if arguments else tool
-        memory = (
-            " [FROM MEMORY: a past investigation's belief, not a look at the "
-            "factory now]"
-            if origins.get(evidence.id) == "memory"
-            else ""
-        )
+        memory = ORIGIN_LABELS.get(origins.get(evidence.id), "")
         head = f"- {evidence.id} {call} at tick {evidence.observed_tick}{memory}: "
         full[evidence.id] = head + shown(evidence.content)
         short[evidence.id] = (

@@ -70,6 +70,7 @@ from capstone.episode import (
 )
 from capstone.evaluation.known_answers import KNOWN_CASES
 from capstone.evaluation.labels import Label, LabelBook, apply_label
+from capstone.evaluation.manual import ManualSearchRecord, build_manual_records
 from capstone.evaluation.memory import (
     MemoryPromotionRecord,
     MemoryUseRecord,
@@ -81,6 +82,7 @@ from capstone.evaluation.memory import (
 from capstone.evaluation.scoring import COMPOUND, Score, format_summary, summarize
 from capstone.memory.service import MemoryService
 from capstone.providers.chat import INVALID_REPLY, is_model_outcome
+from capstone.providers.manual import ManualSearch
 from capstone.simulator.generator import FAULTS
 from capstone.tools.diagnosis import FAULT_KINDS, Diagnosis
 
@@ -229,6 +231,9 @@ class ExperimentRecord(BaseModel):
     # One per memory search the run made: asked, answered or refused, and
     # what came back. None: the run had no memory (or predates this record).
     recall_searches: list[RecallSearchRecord] | None = None
+    # One per machine-manual search: asked, answered or refused, and which
+    # sections came back. None: the run had no manual (or predates this record).
+    manual_searches: list[ManualSearchRecord] | None = None
 
 
 def memory_records(
@@ -262,6 +267,7 @@ def record_of(
     model_calls: CallSummary | None = None,
     wall_seconds: float | None = None,
     with_memory: bool = False,
+    with_manual: bool = False,
 ) -> ExperimentRecord:
     state = result.state
     concluded = state.conclusion
@@ -284,6 +290,7 @@ def record_of(
         memory_promotion=promotion,
         memory_uses=uses,
         recall_searches=list(build_search_records(state)) if with_memory else None,
+        manual_searches=list(build_manual_records(state)) if with_manual else None,
     )
 
 
@@ -299,6 +306,7 @@ def run_experiment(
     on_record: Callable[[ExperimentRecord], None] | None = None,
     clock: Callable[[], float] = monotonic,
     hazards: bool = False,
+    manual: ManualSearch | None = None,
 ) -> list[ExperimentRecord]:
     """Run each case once with a fresh policy. `name` makes every run key unique.
 
@@ -321,6 +329,7 @@ def run_experiment(
             budgets=budgets,
             run_key=run_key,
             hazards=hazards,
+            manual=manual,
         )
         wall_seconds = clock() - started
         calls = getattr(policy, "calls", None)  # kept by ModelPolicy only
@@ -331,6 +340,7 @@ def run_experiment(
             model_calls=None if calls is None else summarize_calls(calls),
             wall_seconds=wall_seconds,
             with_memory=memory is not None,
+            with_manual=manual is not None,
         )
         records.append(record)
         if on_record is not None:
@@ -441,6 +451,21 @@ def _lesson(record: ExperimentRecord) -> str:
     return "known" if kept.existing_memory_id is not None else "refused"
 
 
+def format_manual(records: Sequence[ExperimentRecord]) -> str | None:
+    """One line on what the runs looked up in the manual; None without it."""
+    kept = [r.manual_searches for r in records if r.manual_searches is not None]
+    if not kept:
+        return None
+    searches = [s for found in kept for s in found]
+    given = Counter(section for s in searches for section in s.sections)
+    refused = sum(s.outcome in ("repeated", "budget_spent") for s in searches)
+    most = ", ".join(f"{section} {n}" for section, n in given.most_common(5))
+    return (
+        f"manual: {len(searches)} search(es) in {sum(bool(f) for f in kept)} of "
+        f"{len(kept)} run(s), {refused} refused; sections given: {most or 'none'}"
+    )
+
+
 def _searches(record: ExperimentRecord) -> str:
     """Memory searches made and refused, where they were recorded."""
     found = record.recall_searches
@@ -472,6 +497,13 @@ def _run_line(record: ExperimentRecord, score: Score) -> str:
         else f" lesson={_lesson(record)} recalled={len(uses)} "
         f"cited={sum(use.used is True for use in uses)}{_searches(record)}"
     )
+    looked = record.manual_searches
+    manual = (
+        ""
+        if looked is None
+        else " manual="
+        + (",".join(sec for s in looked for sec in s.sections[:1]) or "none")
+    )
     several = len(score.causes) > 1
     causes = (
         f"causes={'-' if score.causes_found is None else score.causes_found}/"
@@ -488,6 +520,7 @@ def _run_line(record: ExperimentRecord, score: Score) -> str:
         f"{len(score.relevant_evidence)} miss={score.miss_kind or '-'} "
         f"calls={score.tool_calls} "
         f"stop={score.termination_reason} {asked} s={seconds}{faults}{memory}"
+        f"{manual}"
     )
 
 
@@ -543,7 +576,9 @@ def report(records: Sequence[ExperimentRecord], labels: dict[str, Label]) -> str
         f"held-out seeds: {held}/{len(records)} runs",
     ]
     memory = format_memory(records, scores)
-    lines += ([] if memory is None else [memory]) + [""]
+    lines += [] if memory is None else [memory]
+    manual = format_manual(records)
+    lines += ([] if manual is None else [manual]) + [""]
 
     def lines_for(group):
         out = []
@@ -607,7 +642,7 @@ def seeds_from(text: str) -> list[int]:
 
 
 def model_policy_factory(
-    with_recall: bool, *, tree_of_thought: bool = False
+    with_recall: bool, *, tree_of_thought: bool = False, with_manual: bool = False
 ) -> Callable[[], ReasoningPolicy]:
     """A fresh model-backed policy per run, from settings. Needs the API keys.
 
@@ -624,8 +659,32 @@ def model_policy_factory(
         from capstone.providers.recall import RECALL_SPEC
 
         tools = (*tools, RECALL_SPEC)
+    if with_manual:
+        from capstone.providers.manual import MANUAL_SPEC
+
+        tools = (*tools, MANUAL_SPEC)
     kind = TreeOfThoughtPolicy if tree_of_thought else ModelPolicy
     return lambda: kind(clients_for_jobs(), tools)
+
+
+def open_manual(mode: str) -> ManualSearch:
+    """The machine manual, searched by meaning ("semantic": the Chroma index built
+    by `python -m capstone.manual.index`) or by shared words ("keyword")."""
+    from capstone.manual.index import (
+        REBUILD_HINT,
+        KeywordManualSearch,
+        open_manual_index,
+    )
+    from capstone.manual.sections import load_manual
+    from capstone.settings import get_settings
+
+    sections = load_manual()
+    if mode == "keyword":
+        return KeywordManualSearch(sections)
+    index = open_manual_index(get_settings(), sections=sections)
+    if index.collection.count() == 0:
+        raise SystemExit(f"the manual index is empty; build it first: {REBUILD_HINT}")
+    return index
 
 
 def open_memory() -> MemoryService:
@@ -675,6 +734,13 @@ def main(argv: Sequence[str] | None = None) -> int:
     run.add_argument("--out", type=Path, required=True)
     run.add_argument("--approve", choices=sorted(APPROVERS), default="all")
     run.add_argument("--memory", action="store_true", help="recall and learn")
+    run.add_argument(
+        "--manual",
+        nargs="?",
+        const="semantic",
+        choices=("semantic", "keyword"),
+        help="let the agent search the machine manual (default: by meaning)",
+    )
     run.add_argument("--audit", type=Path, help="audit log (needed to learn)")
     run.add_argument("--timeout-seconds", type=float, help="per investigation")
     run.add_argument(
@@ -721,6 +787,7 @@ def main(argv: Sequence[str] | None = None) -> int:
                 followup_seconds=args.timeout_seconds / 3,
             )
         memory = open_memory() if args.memory else None
+        manual = open_manual(args.manual) if args.manual else None
         log = AuditLog(args.audit) if args.audit else None
 
         def save_record(record: ExperimentRecord) -> None:
@@ -734,6 +801,7 @@ def main(argv: Sequence[str] | None = None) -> int:
             model_policy_factory(
                 with_recall=memory is not None,
                 tree_of_thought=args.tree_of_thought,
+                with_manual=manual is not None,
             ),
             name=args.name,
             approver=APPROVERS[args.approve],
@@ -741,6 +809,7 @@ def main(argv: Sequence[str] | None = None) -> int:
             log=log,
             budgets=budgets,
             hazards=args.hazards,
+            manual=manual,
             on_record=save_record,
         )
         print(report(records, {}))

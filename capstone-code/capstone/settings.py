@@ -56,6 +56,14 @@ class Settings(BaseSettings):
     chroma_collection: str = Field(
         default="episodic_memories", min_length=3, validation_alias="CHROMA_COLLECTION"
     )
+    # The machine manual's own collection, beside memory but never inside it
+    # (`capstone.manual.index`): a manual section is fixed reference, a memory
+    # is a past run's belief.
+    manual_collection: str = Field(
+        default="cnc_machine_manual_v1",
+        min_length=3,
+        validation_alias="MANUAL_COLLECTION",
+    )
     # The model that turns memories and searches into vectors: "provider/model"
     # (NVIDIA only for now) or "local" for Chroma's bundled all-MiniLM-L6-v2.
     # Changing it means rebuilding the index: `python -m capstone.memory.backfill

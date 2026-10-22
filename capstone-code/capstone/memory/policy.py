@@ -144,6 +144,11 @@ class MemoryPromotionPolicy:
             provenance[ref].origin == "memory" for ref in references & provenance.keys()
         ):
             reasons.append("rests_on_memory")
+        # The manual may explain what was seen, but a lesson that cites only
+        # the manual has seen nothing in this factory.
+        cited = [provenance[ref].origin for ref in references & provenance.keys()]
+        if cited and all(origin == "manual" for origin in cited):
+            reasons.append("rests_on_manual")
         # Scan the whole input, including unused evidence, so tainted artifacts
         # do not become trusted merely by omitting a reference from the lesson.
         if any(

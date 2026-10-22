@@ -31,7 +31,11 @@ from capstone.agent.policy import (
 )
 from capstone.agent.state import DecisionRecord, InvestigationState, Phase, StepOutcome
 from capstone.contracts.evidence import Evidence
-from capstone.contracts.provenance import MEMORY_SOURCE, ProvenanceReference
+from capstone.contracts.provenance import (
+    MANUAL_SOURCE,
+    MEMORY_SOURCE,
+    ProvenanceReference,
+)
 from capstone.contracts.tools import ToolError, ToolRequest, ToolResult
 from capstone.providers.chat import ModelError
 from capstone.providers.factory import FactoryProvider
@@ -41,6 +45,10 @@ from capstone.providers.factory import FactoryProvider
 POLICY_ERRORS = (ValueError, TypeError, LookupError)
 
 Reply = TypeVar("Reply")
+
+
+# Answers that are not a look at the factory, by their source.
+ORIGINS = {MEMORY_SOURCE: "memory", MANUAL_SOURCE: "manual"}
 
 
 class OutOfTime(Exception):
@@ -373,13 +381,14 @@ def gather(
     # Written here, from the same tool answer, and never by the policy.
     # Everything the factory provider offers is something an operator
     # could see, so its answers are observable. An answer from memory is a
-    # past investigation's belief, so it is labelled memory instead.
+    # past investigation's belief, so it is labelled memory instead; one from
+    # the machine manual is general guidance, labelled manual.
     state.provenance.append(
         ProvenanceReference(
             evidence_id=evidence.id,
             source_id=evidence.source_id,
             source_type=evidence.source_type,
-            origin="memory" if result.source == MEMORY_SOURCE else "observable",
+            origin=ORIGINS.get(result.source, "observable"),
             observed_tick=evidence.observed_tick,
         )
     )
