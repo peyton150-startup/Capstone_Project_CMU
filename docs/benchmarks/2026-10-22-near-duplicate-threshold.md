@@ -15,8 +15,9 @@ memory check", step "Measuring the threshold".
   `CNC-01` to `CNC-05`, and the code-written sentence for a failed repair.
   Real model-written lessons may vary differently.
 - **Draft labels.** The developer asked Claude to go ahead, so the labels are
-  Claude's (23 same, 28 different, 9 unsure), marked `labelled_by` in the data
-  for the developer to review. Changing a label changes the threshold.
+  Claude's (23 same, 28 different, 9 unsure), marked `labelled_by` in the data.
+  The developer reviewed and approved them on 2026-10-22, so 0.909 stands for
+  this data; it is provisional only because the lessons are drafted.
 
 ## How it was measured
 
@@ -61,10 +62,13 @@ never used.
 
 ## Re-measuring on real lessons
 
-Run episodes with `--memory --audit` into a separate local SQLite store, build
-pairs from the stored lessons (same category, outcome and machine), have the
-developer label them, and rerun the command above. Include more held-out
-"same" pairs than this draft has. Record the model and threshold again.
+Planned for 2026-10-23 (NVIDIA was down on 2026-10-22). The steps are in
+`docs/PROGRESS.md`, "NEXT SESSION: re-measure the near-duplicate threshold".
+In short: run episodes with `--memory --audit` into a separate local SQLite
+store, build pairs from the stored lessons (same category, outcome and
+machine), have the developer label them, and rerun the command above with
+more held-out "same" pairs than this draft has. Record the model and
+threshold again.
 
 Data: [`near-duplicate-pairs.jsonl`](near-duplicate-pairs.jsonl) (readable
 copy: [`near-duplicate-pairs.md`](near-duplicate-pairs.md)); every score:

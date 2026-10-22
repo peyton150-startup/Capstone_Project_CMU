@@ -95,6 +95,33 @@ alarm), then evaluation, then the agent itself.
 
 ## Session notes
 
+- **NEXT SESSION (planned 2026-10-23): re-measure the near-duplicate
+  threshold on real lessons.** Postponed from 2026-10-22 because NVIDIA was
+  down. The developer approved Claude's draft labels on 2026-10-22, so the
+  provisional 0.909 stands for the drafted pairs. Steps, all in one
+  PowerShell terminal:
+  1. Check NVIDIA is back: rerun `uv run python -m
+     capstone.memory.duplicate_threshold --pairs
+     docs/benchmarks/near-duplicate-pairs.jsonl`; it should report 0.909
+     again.
+  2. Point this terminal only at a throwaway store (both paths are under the
+     ignored `.chroma/`, and the `.env` and Neon stay untouched):
+     `$env:DATABASE_URL = "sqlite:///.chroma/near-duplicate/lessons.sqlite"`
+     and `$env:CHROMA_PATH = ".chroma/near-duplicate/index"`. Create the
+     folder, then the table: `uv run python -m alembic upgrade head`.
+  3. Collect lessons, in the background (episodes took 4 to 30 minutes
+     each): `uv run python -m capstone.experiment run --name lessons-1
+     --seeds 1-10 --faults bearing_degradation,wrong_setting --memory
+     --audit .chroma/near-duplicate/audit.jsonl --out
+     .chroma/near-duplicate/results.jsonl`. Only these two faults have a
+     repair, so only they can produce lessons.
+  4. Build pairs from the stored lessons that share category, outcome and
+     machine, with more held-out "same" pairs than the draft had; the
+     developer labels them.
+  5. Rerun step 1's command on the new pairs file; update
+     `docs/benchmarks/`, the plan in `docs/MVP_SCOPE.md` and this file, in a
+     PR. Close the terminal afterwards so later runs use the normal store.
+
 - **2026-10-22 — M1: the machine manual and `search_manual`.** The
   developer drafted a simulated maintenance manual and asked for it to be
   retrieved through RAG, like a real plant's machine guide. Design and
