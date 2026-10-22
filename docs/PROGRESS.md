@@ -256,7 +256,15 @@ alarm), then evaluation, then the agent itself.
     described in a schema, and gave the cross-field rule in `NextStep` and a
     service failing to enforce as further reasons. Understood.
 
-- **NEXT SESSION (planned 2026-10-23): re-measure the near-duplicate
+- **NEXT SESSION (planned 2026-10-23), first: finish PR #59's pre-merge
+  walkthrough (L7, whole-request deadline).** CI was green on 2026-10-22; the
+  walkthrough was given and question 1 of 3 asked but not answered: "the
+  thread in `run_with_deadline` catches every exception and puts it on the
+  queue; what would happen to an HTTP 503 if it did not, what would the
+  caller see, and how long would it take?" Ask questions 2 and 3, record the
+  result on the PR branch (`fix/whole-request-deadline`), then merge.
+
+- **NEXT SESSION (planned 2026-10-23), then: re-measure the near-duplicate
   threshold on real lessons.** Postponed from 2026-10-22 because NVIDIA was
   down. The developer approved Claude's draft labels on 2026-10-22, so the
   provisional 0.909 stands for the drafted pairs. Steps, all in one
