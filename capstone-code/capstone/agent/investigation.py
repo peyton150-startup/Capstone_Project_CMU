@@ -381,7 +381,8 @@ def verify(state: InvestigationState, deps: InvestigationDeps) -> None:
     can stand. "Resolved" and "not resolved" need evidence observed after
     the work finished (or, with no action, after the conclusion), whose data
     also starts after it, and only
-    evidence labelled observable counts as observed: never a memory. Without
+    evidence labelled observable counts as observed: never a memory or the
+    machine manual. Without
     it the result is "inconclusive"; with nothing looked at, "not performed".
 
     The prediction is the one recorded before the action and the tick is
@@ -398,7 +399,9 @@ def verify(state: InvestigationState, deps: InvestigationDeps) -> None:
         """A look at the factory after `since`, at data from after `since`.
 
         A recalled memory never is one: it is stamped with the tick it was
-        recalled, but it describes the past. Nor is a look made late at a
+        recalled, but it describes the past. Nor is a manual section: it is
+        stamped with the tick it was read, but it describes the machine type,
+        not this factory now. Nor is a look made late at a
         tick range that starts at or before `since`: its data is from before
         the work, so it says nothing about the work. A tool with no range
         reports the factory as it is when asked.
