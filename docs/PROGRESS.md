@@ -56,7 +56,7 @@ A component is complete only when both columns are checked.
 | A5b | The finished record and the audit log | yes | yes | yes | yes | `agent/completion.py` |
 | A6a | The reflection candidate | yes | yes | yes | yes | `memory/reflection.py` |
 | A6b | Remembering what did not work | yes | yes | yes | yes | `memory/policy.py` |
-| A6c | The loop joined to the memory gate | yes | yes | yes | in part | `learning.py` (`learn_from`); closing question passed in part, the rest taught |
+| A6c | The loop joined to the memory gate | yes | yes | yes | yes (gap filled 2026-10-22) | `learning.py` (`learn_from`); closing question passed in part on 2026-10-14; the rest answered back on 2026-10-22 |
 | A7a | Word search and the safe view of a memory | yes | yes | yes | yes | `capstone/memory/` |
 | A7b | The recall tool and its two guards | yes | yes | yes | yes | `providers/recall.py` |
 | A8a | The model client and the job table | yes | yes | yes | yes | `providers/chat.py` |
@@ -88,6 +88,9 @@ A component is complete only when both columns are checked.
 | L5 | NVIDIA is asked to keep replies to the answer type's JSON schema (structured output) | yes (after the build, 2026-10-22) | n/a | yes | yes | `providers/chat.py` (`Provider.structured_output`, `ChatClient(structured_output=)`, `response_format`); session note 2026-10-21 (L5) |
 | L6 | LLM7 and Kilo Code as providers; their free models checked (Z.ai checked and dropped) | no (built ungated) | n/a | yes | no: built ungated, developer to review | `providers/chat.py` (`PROVIDERS` llm7, kilo), `settings.py` (`LLM7_API_KEY`, `KILO_CODE_API_KEY`), `.env.example`, AGENTS.md section 9, `docs/benchmarks/2026-10-21-llm7-kilo.md`; session note 2026-10-21 (L6) |
 | M1 | The machine manual (SIM-CNC-001) and the `search_manual` tool (RAG over a fixed reference) | yes (design discussed 2026-10-22) | n/a | yes | in part: pre-merge walkthrough done 2026-10-22 (Q1 right; Q2 partly, corrected; Q3 corrected after reading the code) | `manual/sections.py` (`ManualSection`, `parse_manual`, `check_no_leaks`, `load_manual`), `manual/index.py` (`KeywordManualSearch`, `ChromaManualIndex`, `open_manual_index`), `providers/manual.py` (`ManualProvider`, `MANUAL_SPEC`), `evaluation/manual.py`, `episode.py`, `experiment.py` (`--manual`), `contracts/provenance.py`, `agent/loop.py`, `agent/model_policy.py`, `memory/policy.py`; session note 2026-10-22 (M1) |
+| C3a | Memory comparison command: the same cases with no memory, keyword and semantic recall | yes (after the build, 2026-10-22) | n/a | yes | in part (corrected) | `capstone/memory_comparison.py` (`MODES`, `memory_for`, `compare_memory`, `mode_of`, `compare_report`); session note 2026-10-20 (Module 3, piece 1) |
+| C3b | Bounded memory search: no repeated search, at most three per investigation, each recorded | yes (after the build, 2026-10-22) | n/a | yes | yes | `providers/recall.py` (`RecallingProvider`, `MAX_SEARCHES`, `REPEATED_SEARCH`, `SEARCHES_SPENT`), `evaluation/memory.py` (`build_search_records`); session note 2026-10-20 (Module 3, piece 2) |
+| D1 | Near-duplicate threshold measurement tool (provisional 0.909) | yes (walkthrough, 2026-10-22) | n/a | yes | yes (after corrections) | `capstone/memory/duplicate_threshold.py`; session notes 2026-10-22 |
 
 Every row above with four "yes" marks (or "n/a") is complete: no question is
 outstanding on it. Still to build after 12c, from `docs/MVP_SCOPE.md`: the
@@ -95,6 +98,36 @@ other three fault scenarios (material batch, machine configuration, false
 alarm), then evaluation, then the agent itself.
 
 ## Session notes
+
+- **2026-10-22: memory group taught after the build (A6c gap, C3b, C3a,
+  D1).** No code changed. One explanation and one question each.
+  - A6c (gap from 2026-10-14): asked to trace `learn_from` for an approved
+    repair whose check was inconclusive. Traced it correctly (refuse an
+    unfinished run, audit first, no model asked, no candidate). Corrected:
+    `LearningOutcome` is still returned, with `lesson_requested=False` and
+    `decision=None`, and `build_candidate` makes a candidate, not a memory.
+    Understood.
+  - C3b (bounded memory search): asked why a repeated memory search is
+    refused whatever the tick while a factory call is not. Said memory is
+    frozen, so the same search returns the same evidence, while the factory
+    moves on. Correct; added that it is frozen because lessons are added only
+    after the run (`learn_from`) and that SQL is the authoritative store.
+    Understood. Also answered the developer's question on fault timing: the
+    seed draws the start tick between 200 and 600 (`build_scenario`); the
+    bad batch is tied to batch 2 or 3; the start is kept in hidden ground
+    truth.
+  - C3a (memory comparison): asked what goes wrong if the comparison learned
+    while running none, keyword, semantic in order. Said `none` would store
+    empty memories; corrected: `none` stores ordinary lessons, and later
+    searching modes recall answers to the very cases they are tested on, so
+    the result measures order and store growth, not the mode. Restated "the
+    answers would be handed to it". Follow-up on the reversed order: said the
+    first mode gains; corrected: the first is disadvantaged and only
+    `keyword` gains. Then restated it correctly. Understood in part,
+    corrected.
+  - D1 (threshold tool, gaps from the walkthrough): asked what a new
+    "different" pair at 0.93 does. Said the threshold rises and catches fewer
+    repeats. Correct (0.931; 13 of 23 on current data). Understood.
 
 - **2026-10-22: live-run group taught after the build (L1, L2, L2b, L4,
   L5).** No code changed. One explanation and one question each.
