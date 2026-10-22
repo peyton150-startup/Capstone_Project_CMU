@@ -79,12 +79,13 @@ A component is complete only when both columns are checked.
 | R4c | Rule-based diagnostic baseline (the yardstick for the agent) | yes (after the build) | n/a | yes | yes (after one re-teach) | `capstone/baseline.py` (`diagnose`, `run_baseline`, `Verdict`); session note 2026-10-20 (R4c) |
 | R4d | Unreliable tools on a fixed schedule (timeouts, gaps, a stale record) | yes (after the build) | n/a | yes | yes (after one re-teach) | `providers/hazards.py` (`UnreliableProvider`, `Timeout`, `Gap`, `StaleRecord`, `standard_hazards`, `HazardReport`), `episode.py`, `experiment.py`; session note 2026-10-20 (R4d) |
 | R4e | Evidence-completeness stop: an open question on a current explanation blocks the automatic "supported" stop | yes (after the build) | n/a | yes | yes | `agent/loop.py` (`diagnosis_supported`); session note 2026-10-20 (R4e) |
-| L1 | Live runs finish: User-Agent for Groq, the fallback keeps its share of a question's time, a stage deadline is a timeout, measured limits, failure reasons in records | no (built ungated) | n/a | yes | no: built ungated, developer to review | `providers/chat.py` (`USER_AGENT`, `FallbackClient.ask`, `ModelError.out_of_time`), `agent/loop.py` (`ask_policy`), `settings.py`, `agent/state.py` (`Budgets`), `experiment.py` (`CallSummary.outage_reasons`); session note 2026-10-20 (L1) |
+| L1 | Live runs finish: User-Agent for Groq, the fallback keeps its share of a question's time, a stage deadline is a timeout, measured limits, failure reasons in records | yes (after the build, 2026-10-22) | n/a | yes | yes | `providers/chat.py` (`USER_AGENT`, `FallbackClient.ask`, `ModelError.out_of_time`), `agent/loop.py` (`ask_policy`), `settings.py`, `agent/state.py` (`Budgets`), `experiment.py` (`CallSummary.outage_reasons`); session note 2026-10-20 (L1) |
 | E6 | The compound challenge in experiments (a case names the scenario kind; KA-09) | no (built ungated) | n/a | yes | no: built ungated, developer to review | `episode.py` (`build_world`, `STANDARD`, `CHALLENGE`, `SCENARIO_KINDS`, `run_episode(kind=)`), `evaluation/known_answers.py` (`KnownCase.kind`, KA-09), `experiment.py` (`Case.kind`, `challenge_cases`, `run --challenge`, `several_faults`, `report`); session note 2026-10-20 (E6) |
-| L2 | Benchmark under the real limits; limits set from it; retries back off | no (built ungated) | n/a | yes | no: built ungated, developer to review | `benchmark.py` (`single_model_clients`, `run_model`, `EpisodeRecord.wall_seconds`, `ModelReport.concluded`/`median_episode_seconds`/`outage_reasons`, `Limits`, `suggested_limits`, `format_limits`, `--timeout-seconds`), `providers/chat.py` (`FallbackClient.ask` pauses), `settings.py` (`MODEL_RETRIES` 3), `agent/state.py` (`Budgets` 1200/400), `docs/benchmarks/2026-10-20.md`; session note 2026-10-20 (L2) |
+| L2 | Benchmark under the real limits; limits set from it; retries back off | yes (after the build, 2026-10-22) | n/a | yes | in part (corrected) | `benchmark.py` (`single_model_clients`, `run_model`, `EpisodeRecord.wall_seconds`, `ModelReport.concluded`/`median_episode_seconds`/`outage_reasons`, `Limits`, `suggested_limits`, `format_limits`, `--timeout-seconds`), `providers/chat.py` (`FallbackClient.ask` pauses), `settings.py` (`MODEL_RETRIES` 3), `agent/state.py` (`Budgets` 1200/400), `docs/benchmarks/2026-10-20.md`; session notes 2026-10-20 (L2) |
+| L2b | The prompts show the time left and how to spend the budget | yes (after the build, 2026-10-22) | n/a | yes | yes | `agent/model_policy.py` (`render` BUDGET LEFT seconds, `COMMON` pacing rule, `decide` stop case, `LOW_CALLS`, `LOW_BUDGET_NOTE`); session note 2026-10-21 (time left) |
 | L3 | Requesty and xKiro as providers (model routers); their free models benchmarked | no (built ungated) | n/a | yes | no: built ungated, developer to review | `providers/chat.py` (`PROVIDERS` requesty, xkiro), `settings.py` (`REQUESTY_API_KEY`, `XKIRO_API_KEY`), `.env.example`, AGENTS.md section 9, `docs/benchmarks/2026-10-21-routers.md`; session note 2026-10-21 (L3) |
-| L4 | Why a reply was invalid is recorded (cut off, not JSON, wrong shape, tool not offered) | no (built ungated) | n/a | yes | no: built ungated, developer to review | `providers/chat.py` (`INVALID_REPLY`, `invalid_outcome`, `is_model_outcome`), `agent/model_policy.py` (`_refuse`), `experiment.py` (`CallSummary.invalid_reasons`, report line), `benchmark.py` (`ModelReport.invalid_reasons`); session note 2026-10-21 (L4) |
-| L5 | NVIDIA is asked to keep replies to the answer type's JSON schema (structured output) | no (built ungated) | n/a | yes | no: built ungated, developer to review | `providers/chat.py` (`Provider.structured_output`, `ChatClient(structured_output=)`, `response_format`); session note 2026-10-21 (L5) |
+| L4 | Why a reply was invalid is recorded (cut off, not JSON, wrong shape, tool not offered) | yes (after the build, 2026-10-22) | n/a | yes | in part (corrected) | `providers/chat.py` (`INVALID_REPLY`, `invalid_outcome`, `is_model_outcome`), `agent/model_policy.py` (`_refuse`), `experiment.py` (`CallSummary.invalid_reasons`, report line), `benchmark.py` (`ModelReport.invalid_reasons`); session note 2026-10-21 (L4) |
+| L5 | NVIDIA is asked to keep replies to the answer type's JSON schema (structured output) | yes (after the build, 2026-10-22) | n/a | yes | yes | `providers/chat.py` (`Provider.structured_output`, `ChatClient(structured_output=)`, `response_format`); session note 2026-10-21 (L5) |
 | L6 | LLM7 and Kilo Code as providers; their free models checked (Z.ai checked and dropped) | no (built ungated) | n/a | yes | no: built ungated, developer to review | `providers/chat.py` (`PROVIDERS` llm7, kilo), `settings.py` (`LLM7_API_KEY`, `KILO_CODE_API_KEY`), `.env.example`, AGENTS.md section 9, `docs/benchmarks/2026-10-21-llm7-kilo.md`; session note 2026-10-21 (L6) |
 | M1 | The machine manual (SIM-CNC-001) and the `search_manual` tool (RAG over a fixed reference) | yes (design discussed 2026-10-22) | n/a | yes | in part: pre-merge walkthrough done 2026-10-22 (Q1 right; Q2 partly, corrected; Q3 corrected after reading the code) | `manual/sections.py` (`ManualSection`, `parse_manual`, `check_no_leaks`, `load_manual`), `manual/index.py` (`KeywordManualSearch`, `ChromaManualIndex`, `open_manual_index`), `providers/manual.py` (`ManualProvider`, `MANUAL_SPEC`), `evaluation/manual.py`, `episode.py`, `experiment.py` (`--manual`), `contracts/provenance.py`, `agent/loop.py`, `agent/model_policy.py`, `memory/policy.py`; session note 2026-10-22 (M1) |
 
@@ -94,6 +95,38 @@ other three fault scenarios (material batch, machine configuration, false
 alarm), then evaluation, then the agent itself.
 
 ## Session notes
+
+- **2026-10-22: live-run group taught after the build (L1, L2, L2b, L4,
+  L5).** No code changed. One explanation and one question each.
+  - L1 (live runs finish): asked why a run cut off by the stage deadline
+    should be "timeout", not "model unavailable". Said the label decides the
+    fix: check the provider for an outage, add time for timeouts. Correct;
+    added that the old label also made reliability numbers blame NVIDIA.
+    Understood.
+  - L2 (benchmark and limits): asked why lightning 30b's suggested 43 s
+    budget is wrong. Said it should come from the longest episode;
+    corrected: the formula is 2 x questions x median, and 5.8 questions is
+    low because the runs failed early, so it measures time to fail. Follow-up
+    on command-a's 142 s: said use more runs and the longest time;
+    corrected: the median is doubled on purpose, the per-question limits cap
+    slow answers, and command-a never asked for a fix, so its runs skipped
+    the proposal, the work and the check (and 142 s is below the 400 s
+    follow-up reserve). Afterwards restated "budget from runs that did the
+    complete job". Understood in part, corrected.
+  - L2b (time-left prompts): asked why "few calls remain" is shown only near
+    the end. Said a constant warning would push a rushed decision on a
+    warning not yet true. Correct. Understood.
+  - L4 (invalid-reply reasons): asked why an outage moves to the fallback
+    but an invalid reply does not. Said an outage is a connection issue
+    (correct) and that switching would lose the reply; corrected: the reply
+    content is never kept, and the loss is knowing which model got it wrong
+    (results credited to the wrong model, benchmark counts hiding failures).
+    Understood in part, corrected.
+  - L5 (NVIDIA structured output): asked why replies are still validated.
+    Said other providers have no schema and the schema cannot stop a wrong
+    tool or a blank field. Mostly correct; corrected that blank fields can be
+    described in a schema, and gave the cross-field rule in `NextStep` and a
+    service failing to enforce as further reasons. Understood.
 
 - **NEXT SESSION (planned 2026-10-23): re-measure the near-duplicate
   threshold on real lessons.** Postponed from 2026-10-22 because NVIDIA was
