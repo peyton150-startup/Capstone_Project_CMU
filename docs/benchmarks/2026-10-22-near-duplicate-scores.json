@@ -1,0 +1,499 @@
+{
+  "model": "nvidia/nvidia/nemotron-3-embed-1b",
+  "threshold": 0.909,
+  "train": {
+    "same_pairs": 21,
+    "same_caught": 18,
+    "different_pairs": 19,
+    "different_refused": 0
+  },
+  "held_out": {
+    "same_pairs": 2,
+    "same_caught": 1,
+    "different_pairs": 9,
+    "different_refused": 0
+  },
+  "pairs": [
+    {
+      "id": "P01",
+      "label": "different",
+      "held_out": false,
+      "outcome": "resolved",
+      "score": 0.6627,
+      "lesson_only_score": 0.5575
+    },
+    {
+      "id": "P02",
+      "label": "unsure",
+      "held_out": false,
+      "outcome": "resolved",
+      "score": 0.9395,
+      "lesson_only_score": 0.9013
+    },
+    {
+      "id": "P03",
+      "label": "same",
+      "held_out": false,
+      "outcome": "resolved",
+      "score": 0.9447,
+      "lesson_only_score": 0.7558
+    },
+    {
+      "id": "P04",
+      "label": "unsure",
+      "held_out": false,
+      "outcome": "resolved",
+      "score": 0.8914,
+      "lesson_only_score": 0.7615
+    },
+    {
+      "id": "P05",
+      "label": "different",
+      "held_out": true,
+      "outcome": "resolved",
+      "score": 0.8678,
+      "lesson_only_score": 0.7534
+    },
+    {
+      "id": "P06",
+      "label": "different",
+      "held_out": false,
+      "outcome": "resolved",
+      "score": 0.8615,
+      "lesson_only_score": 0.6838
+    },
+    {
+      "id": "P07",
+      "label": "same",
+      "held_out": false,
+      "outcome": "resolved",
+      "score": 0.9046,
+      "lesson_only_score": 0.734
+    },
+    {
+      "id": "P08",
+      "label": "different",
+      "held_out": false,
+      "outcome": "resolved",
+      "score": 0.8918,
+      "lesson_only_score": 0.6095
+    },
+    {
+      "id": "P09",
+      "label": "same",
+      "held_out": false,
+      "outcome": "resolved",
+      "score": 0.877,
+      "lesson_only_score": 0.7702
+    },
+    {
+      "id": "P10",
+      "label": "different",
+      "held_out": true,
+      "outcome": "resolved",
+      "score": 0.8492,
+      "lesson_only_score": 0.5532
+    },
+    {
+      "id": "P11",
+      "label": "same",
+      "held_out": false,
+      "outcome": "resolved",
+      "score": 0.9621,
+      "lesson_only_score": 0.9396
+    },
+    {
+      "id": "P12",
+      "label": "different",
+      "held_out": false,
+      "outcome": "resolved",
+      "score": 0.6605,
+      "lesson_only_score": 0.5223
+    },
+    {
+      "id": "P13",
+      "label": "different",
+      "held_out": false,
+      "outcome": "unresolved",
+      "score": 0.8356,
+      "lesson_only_score": 0.8671
+    },
+    {
+      "id": "P14",
+      "label": "different",
+      "held_out": false,
+      "outcome": "resolved",
+      "score": 0.8366,
+      "lesson_only_score": 0.6591
+    },
+    {
+      "id": "P15",
+      "label": "same",
+      "held_out": true,
+      "outcome": "resolved",
+      "score": 0.8921,
+      "lesson_only_score": 0.8749
+    },
+    {
+      "id": "P16",
+      "label": "different",
+      "held_out": false,
+      "outcome": "resolved",
+      "score": 0.7966,
+      "lesson_only_score": 0.5075
+    },
+    {
+      "id": "P17",
+      "label": "different",
+      "held_out": false,
+      "outcome": "resolved",
+      "score": 0.8818,
+      "lesson_only_score": 0.5474
+    },
+    {
+      "id": "P18",
+      "label": "same",
+      "held_out": false,
+      "outcome": "unresolved",
+      "score": 0.9101,
+      "lesson_only_score": 1.0
+    },
+    {
+      "id": "P19",
+      "label": "same",
+      "held_out": false,
+      "outcome": "resolved",
+      "score": 0.8844,
+      "lesson_only_score": 0.8017
+    },
+    {
+      "id": "P20",
+      "label": "different",
+      "held_out": true,
+      "outcome": "resolved",
+      "score": 0.7655,
+      "lesson_only_score": 0.819
+    },
+    {
+      "id": "P21",
+      "label": "different",
+      "held_out": false,
+      "outcome": "resolved",
+      "score": 0.8973,
+      "lesson_only_score": 0.8393
+    },
+    {
+      "id": "P22",
+      "label": "same",
+      "held_out": false,
+      "outcome": "unresolved",
+      "score": 0.9317,
+      "lesson_only_score": 1.0
+    },
+    {
+      "id": "P23",
+      "label": "different",
+      "held_out": false,
+      "outcome": "resolved",
+      "score": 0.8733,
+      "lesson_only_score": 0.7561
+    },
+    {
+      "id": "P24",
+      "label": "same",
+      "held_out": false,
+      "outcome": "resolved",
+      "score": 0.9141,
+      "lesson_only_score": 0.8715
+    },
+    {
+      "id": "P25",
+      "label": "different",
+      "held_out": true,
+      "outcome": "resolved",
+      "score": 0.7958,
+      "lesson_only_score": 0.7596
+    },
+    {
+      "id": "P26",
+      "label": "same",
+      "held_out": false,
+      "outcome": "resolved",
+      "score": 0.9462,
+      "lesson_only_score": 0.8012
+    },
+    {
+      "id": "P27",
+      "label": "same",
+      "held_out": false,
+      "outcome": "resolved",
+      "score": 0.9296,
+      "lesson_only_score": 0.8127
+    },
+    {
+      "id": "P28",
+      "label": "different",
+      "held_out": false,
+      "outcome": "resolved",
+      "score": 0.8667,
+      "lesson_only_score": 0.7775
+    },
+    {
+      "id": "P29",
+      "label": "unsure",
+      "held_out": false,
+      "outcome": "resolved",
+      "score": 0.9338,
+      "lesson_only_score": 0.8636
+    },
+    {
+      "id": "P30",
+      "label": "same",
+      "held_out": true,
+      "outcome": "resolved",
+      "score": 0.9361,
+      "lesson_only_score": 0.8305
+    },
+    {
+      "id": "P31",
+      "label": "same",
+      "held_out": false,
+      "outcome": "resolved",
+      "score": 0.9366,
+      "lesson_only_score": 0.783
+    },
+    {
+      "id": "P32",
+      "label": "same",
+      "held_out": false,
+      "outcome": "resolved",
+      "score": 0.9373,
+      "lesson_only_score": 0.7973
+    },
+    {
+      "id": "P33",
+      "label": "different",
+      "held_out": false,
+      "outcome": "unresolved",
+      "score": 0.7391,
+      "lesson_only_score": 0.8408
+    },
+    {
+      "id": "P34",
+      "label": "unsure",
+      "held_out": false,
+      "outcome": "resolved",
+      "score": 0.8712,
+      "lesson_only_score": 0.7783
+    },
+    {
+      "id": "P35",
+      "label": "different",
+      "held_out": true,
+      "outcome": "resolved",
+      "score": 0.732,
+      "lesson_only_score": 0.7299
+    },
+    {
+      "id": "P36",
+      "label": "different",
+      "held_out": false,
+      "outcome": "resolved",
+      "score": 0.7591,
+      "lesson_only_score": 0.657
+    },
+    {
+      "id": "P37",
+      "label": "unsure",
+      "held_out": false,
+      "outcome": "resolved",
+      "score": 0.8724,
+      "lesson_only_score": 0.713
+    },
+    {
+      "id": "P38",
+      "label": "different",
+      "held_out": false,
+      "outcome": "resolved",
+      "score": 0.8553,
+      "lesson_only_score": 0.6745
+    },
+    {
+      "id": "P39",
+      "label": "different",
+      "held_out": false,
+      "outcome": "resolved",
+      "score": 0.7217,
+      "lesson_only_score": 0.7445
+    },
+    {
+      "id": "P40",
+      "label": "different",
+      "held_out": true,
+      "outcome": "resolved",
+      "score": 0.6574,
+      "lesson_only_score": 0.608
+    },
+    {
+      "id": "P41",
+      "label": "same",
+      "held_out": false,
+      "outcome": "resolved",
+      "score": 0.9259,
+      "lesson_only_score": 0.8255
+    },
+    {
+      "id": "P42",
+      "label": "unsure",
+      "held_out": false,
+      "outcome": "resolved",
+      "score": 0.9293,
+      "lesson_only_score": 0.632
+    },
+    {
+      "id": "P43",
+      "label": "same",
+      "held_out": false,
+      "outcome": "resolved",
+      "score": 0.9091,
+      "lesson_only_score": 0.7644
+    },
+    {
+      "id": "P44",
+      "label": "different",
+      "held_out": false,
+      "outcome": "resolved",
+      "score": 0.8504,
+      "lesson_only_score": 0.7536
+    },
+    {
+      "id": "P45",
+      "label": "unsure",
+      "held_out": true,
+      "outcome": "resolved",
+      "score": 0.8306,
+      "lesson_only_score": 0.6858
+    },
+    {
+      "id": "P46",
+      "label": "same",
+      "held_out": false,
+      "outcome": "resolved",
+      "score": 0.9606,
+      "lesson_only_score": 0.8952
+    },
+    {
+      "id": "P47",
+      "label": "different",
+      "held_out": false,
+      "outcome": "resolved",
+      "score": 0.7529,
+      "lesson_only_score": 0.6228
+    },
+    {
+      "id": "P48",
+      "label": "same",
+      "held_out": false,
+      "outcome": "resolved",
+      "score": 0.9168,
+      "lesson_only_score": 0.6747
+    },
+    {
+      "id": "P49",
+      "label": "same",
+      "held_out": false,
+      "outcome": "resolved",
+      "score": 0.9349,
+      "lesson_only_score": 0.8793
+    },
+    {
+      "id": "P50",
+      "label": "different",
+      "held_out": true,
+      "outcome": "resolved",
+      "score": 0.8002,
+      "lesson_only_score": 0.8154
+    },
+    {
+      "id": "P51",
+      "label": "unsure",
+      "held_out": false,
+      "outcome": "resolved",
+      "score": 0.8553,
+      "lesson_only_score": 0.7815
+    },
+    {
+      "id": "P52",
+      "label": "same",
+      "held_out": false,
+      "outcome": "resolved",
+      "score": 0.9358,
+      "lesson_only_score": 0.8565
+    },
+    {
+      "id": "P53",
+      "label": "same",
+      "held_out": false,
+      "outcome": "resolved",
+      "score": 0.9377,
+      "lesson_only_score": 0.8963
+    },
+    {
+      "id": "P54",
+      "label": "unsure",
+      "held_out": false,
+      "outcome": "resolved",
+      "score": 0.8963,
+      "lesson_only_score": 0.8051
+    },
+    {
+      "id": "P55",
+      "label": "different",
+      "held_out": true,
+      "outcome": "resolved",
+      "score": 0.8607,
+      "lesson_only_score": 0.7072
+    },
+    {
+      "id": "P56",
+      "label": "same",
+      "held_out": false,
+      "outcome": "resolved",
+      "score": 0.9806,
+      "lesson_only_score": 0.8807
+    },
+    {
+      "id": "P57",
+      "label": "different",
+      "held_out": false,
+      "outcome": "resolved",
+      "score": 0.9089,
+      "lesson_only_score": 0.6136
+    },
+    {
+      "id": "P58",
+      "label": "different",
+      "held_out": false,
+      "outcome": "resolved",
+      "score": 0.6701,
+      "lesson_only_score": 0.6522
+    },
+    {
+      "id": "P59",
+      "label": "same",
+      "held_out": false,
+      "outcome": "resolved",
+      "score": 0.954,
+      "lesson_only_score": 0.9443
+    },
+    {
+      "id": "P60",
+      "label": "different",
+      "held_out": true,
+      "outcome": "resolved",
+      "score": 0.684,
+      "lesson_only_score": 0.7459
+    }
+  ],
+  "note": "Draft lessons and draft labels by Claude, 2026-10-22; developer to review. lesson_only_score embeds the lesson sentence alone, for comparison."
+}

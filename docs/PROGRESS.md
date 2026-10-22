@@ -147,6 +147,25 @@ alarm), then evaluation, then the agent itself.
   hazards' per-tool call count. Fixed at the developer's request during the
   walkthrough: `verify`'s comments now name the manual.
 
+- **2026-10-22: near-duplicate threshold measured (provisional). Built
+  ungated, developer to review (understood: no).** The memory store held no
+  lessons, so at the developer's request Claude drafted 60 lesson pairs in the
+  real formats (`docs/benchmarks/near-duplicate-pairs.jsonl`, readable `.md`).
+  The developer said to go ahead without labelling, so the labels are
+  Claude's (23 same, 28 different, 9 unsure; `labelled_by` marks them). New
+  `capstone/memory/duplicate_threshold.py`: `pair_text` (the text a memory is
+  embedded as), `cosine`, `choose_threshold` (smallest three-decimal value
+  above every "different" training pair), `evaluate` (repeats caught,
+  different lessons refused), `measure` (embed as passages, hold out every
+  5th pair) and a CLI. Measurement only; nothing in the memory service calls
+  it. Result with live Nemotron embeddings: threshold 0.909; training 18/21
+  repeats caught, 0/19 different refused; held out 1/2 and 0/9. Margin almost
+  zero (0.9089 vs 0.9091). The whole memory text beat the lesson alone (19 vs
+  10 of 23 caught). Write-up:
+  `docs/benchmarks/2026-10-22-near-duplicate-threshold.md`. Tests: new
+  `tests/test_duplicate_threshold.py` (8), in CI group "Memory". NEXT: the
+  developer reviews the labels; re-measure on real lessons.
+
 - **2026-10-22: plan recorded: near-duplicate memory check (docs only).**
   `docs/MVP_SCOPE.md` Future Work 1 gains "Near-duplicate memory check": in
   `MemoryService.promote`, after the policy accepts and before the SQL
