@@ -165,6 +165,20 @@ alarm), then evaluation, then the agent itself.
   `docs/benchmarks/2026-10-22-near-duplicate-threshold.md`. Tests: new
   `tests/test_duplicate_threshold.py` (8), in CI group "Memory". NEXT: the
   developer reviews the labels; re-measure on real lessons.
+  Pre-merge walkthrough (PR #53), three questions. Q1 (relabel P57 "same"):
+  said the threshold goes up and catches more; corrected: it falls to 0.898
+  (next-highest "different", P21) and catches 21 of 24; afterwards restated
+  "above 0.898 is thrown out" correctly. Q2 (why P18 scores 0.910 whole but
+  1.000 lesson-only): said the outcome or the ending differs; corrected: the
+  outcome is the same by the filter, only the diagnosis differs, and whole
+  memories were chosen because they caught 19 vs 10 of 23. Follow-up: said
+  only one P18 memory is stored without knowing why; taught: the exact
+  fingerprint (category + lesson, unique in SQL) refuses it first. Q3 (model
+  changed to local): said re-embed and a new threshold, expecting similar
+  results; corrected: scores from different models are not comparable, so
+  re-measure; meanwhile the index refuses to open (`IndexModelMismatch`),
+  recall falls back to keyword and the planned check would skip to the exact
+  check. Understanding: partial, corrected in each case.
 
 - **2026-10-22: plan recorded: near-duplicate memory check (docs only).**
   `docs/MVP_SCOPE.md` Future Work 1 gains "Near-duplicate memory check": in
