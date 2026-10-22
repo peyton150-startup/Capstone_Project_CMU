@@ -80,14 +80,17 @@ A component is complete only when both columns are checked.
 | R4d | Unreliable tools on a fixed schedule (timeouts, gaps, a stale record) | yes (after the build) | n/a | yes | yes (after one re-teach) | `providers/hazards.py` (`UnreliableProvider`, `Timeout`, `Gap`, `StaleRecord`, `standard_hazards`, `HazardReport`), `episode.py`, `experiment.py`; session note 2026-10-20 (R4d) |
 | R4e | Evidence-completeness stop: an open question on a current explanation blocks the automatic "supported" stop | yes (after the build) | n/a | yes | yes | `agent/loop.py` (`diagnosis_supported`); session note 2026-10-20 (R4e) |
 | L1 | Live runs finish: User-Agent for Groq, the fallback keeps its share of a question's time, a stage deadline is a timeout, measured limits, failure reasons in records | yes (after the build, 2026-10-22) | n/a | yes | yes | `providers/chat.py` (`USER_AGENT`, `FallbackClient.ask`, `ModelError.out_of_time`), `agent/loop.py` (`ask_policy`), `settings.py`, `agent/state.py` (`Budgets`), `experiment.py` (`CallSummary.outage_reasons`); session note 2026-10-20 (L1) |
-| E6 | The compound challenge in experiments (a case names the scenario kind; KA-09) | no (built ungated) | n/a | yes | no: built ungated, developer to review | `episode.py` (`build_world`, `STANDARD`, `CHALLENGE`, `SCENARIO_KINDS`, `run_episode(kind=)`), `evaluation/known_answers.py` (`KnownCase.kind`, KA-09), `experiment.py` (`Case.kind`, `challenge_cases`, `run --challenge`, `several_faults`, `report`); session note 2026-10-20 (E6) |
+| E6 | The compound challenge in experiments (a case names the scenario kind; KA-09) | yes (after the build, 2026-10-22) | n/a | yes | yes | `episode.py` (`build_world`, `STANDARD`, `CHALLENGE`, `SCENARIO_KINDS`, `run_episode(kind=)`), `evaluation/known_answers.py` (`KnownCase.kind`, KA-09), `experiment.py` (`Case.kind`, `challenge_cases`, `run --challenge`, `several_faults`, `report`); session note 2026-10-20 (E6) |
 | L2 | Benchmark under the real limits; limits set from it; retries back off | yes (after the build, 2026-10-22) | n/a | yes | in part (corrected) | `benchmark.py` (`single_model_clients`, `run_model`, `EpisodeRecord.wall_seconds`, `ModelReport.concluded`/`median_episode_seconds`/`outage_reasons`, `Limits`, `suggested_limits`, `format_limits`, `--timeout-seconds`), `providers/chat.py` (`FallbackClient.ask` pauses), `settings.py` (`MODEL_RETRIES` 3), `agent/state.py` (`Budgets` 1200/400), `docs/benchmarks/2026-10-20.md`; session notes 2026-10-20 (L2) |
 | L2b | The prompts show the time left and how to spend the budget | yes (after the build, 2026-10-22) | n/a | yes | yes | `agent/model_policy.py` (`render` BUDGET LEFT seconds, `COMMON` pacing rule, `decide` stop case, `LOW_CALLS`, `LOW_BUDGET_NOTE`); session note 2026-10-21 (time left) |
-| L3 | Requesty and xKiro as providers (model routers); their free models benchmarked | no (built ungated) | n/a | yes | no: built ungated, developer to review | `providers/chat.py` (`PROVIDERS` requesty, xkiro), `settings.py` (`REQUESTY_API_KEY`, `XKIRO_API_KEY`), `.env.example`, AGENTS.md section 9, `docs/benchmarks/2026-10-21-routers.md`; session note 2026-10-21 (L3) |
+| L3 | Requesty and xKiro as providers (model routers); their free models benchmarked | yes (after the build, 2026-10-22) | n/a | yes | yes | `providers/chat.py` (`PROVIDERS` requesty, xkiro), `settings.py` (`REQUESTY_API_KEY`, `XKIRO_API_KEY`), `.env.example`, AGENTS.md section 9, `docs/benchmarks/2026-10-21-routers.md`; session note 2026-10-21 (L3) |
 | L4 | Why a reply was invalid is recorded (cut off, not JSON, wrong shape, tool not offered) | yes (after the build, 2026-10-22) | n/a | yes | in part (corrected) | `providers/chat.py` (`INVALID_REPLY`, `invalid_outcome`, `is_model_outcome`), `agent/model_policy.py` (`_refuse`), `experiment.py` (`CallSummary.invalid_reasons`, report line), `benchmark.py` (`ModelReport.invalid_reasons`); session note 2026-10-21 (L4) |
 | L5 | NVIDIA is asked to keep replies to the answer type's JSON schema (structured output) | yes (after the build, 2026-10-22) | n/a | yes | yes | `providers/chat.py` (`Provider.structured_output`, `ChatClient(structured_output=)`, `response_format`); session note 2026-10-21 (L5) |
-| L6 | LLM7 and Kilo Code as providers; their free models checked (Z.ai checked and dropped) | no (built ungated) | n/a | yes | no: built ungated, developer to review | `providers/chat.py` (`PROVIDERS` llm7, kilo), `settings.py` (`LLM7_API_KEY`, `KILO_CODE_API_KEY`), `.env.example`, AGENTS.md section 9, `docs/benchmarks/2026-10-21-llm7-kilo.md`; session note 2026-10-21 (L6) |
-| M1 | The machine manual (SIM-CNC-001) and the `search_manual` tool (RAG over a fixed reference) | yes (design discussed 2026-10-22) | n/a | yes | in part: pre-merge walkthrough done 2026-10-22 (Q1 right; Q2 partly, corrected; Q3 corrected after reading the code) | `manual/sections.py` (`ManualSection`, `parse_manual`, `check_no_leaks`, `load_manual`), `manual/index.py` (`KeywordManualSearch`, `ChromaManualIndex`, `open_manual_index`), `providers/manual.py` (`ManualProvider`, `MANUAL_SPEC`), `evaluation/manual.py`, `episode.py`, `experiment.py` (`--manual`), `contracts/provenance.py`, `agent/loop.py`, `agent/model_policy.py`, `memory/policy.py`; session note 2026-10-22 (M1) |
+| L6 | LLM7 and Kilo Code as providers; their free models checked (Z.ai checked and dropped) | yes (after the build, 2026-10-22) | n/a | yes | yes | `providers/chat.py` (`PROVIDERS` llm7, kilo), `settings.py` (`LLM7_API_KEY`, `KILO_CODE_API_KEY`), `.env.example`, AGENTS.md section 9, `docs/benchmarks/2026-10-21-llm7-kilo.md`; session note 2026-10-21 (L6) |
+| M1 | The machine manual (SIM-CNC-001) and the `search_manual` tool (RAG over a fixed reference) | yes (design discussed 2026-10-22) | n/a | yes | yes (Q3 gap filled 2026-10-22; walkthrough Q1 right, Q2 corrected) | `manual/sections.py` (`ManualSection`, `parse_manual`, `check_no_leaks`, `load_manual`), `manual/index.py` (`KeywordManualSearch`, `ChromaManualIndex`, `open_manual_index`), `providers/manual.py` (`ManualProvider`, `MANUAL_SPEC`), `evaluation/manual.py`, `episode.py`, `experiment.py` (`--manual`), `contracts/provenance.py`, `agent/loop.py`, `agent/model_policy.py`, `memory/policy.py`; session note 2026-10-22 (M1) |
+| C2 | Course Module 2 gap note (working memory, episodic memory, tools, loops) | yes (after the build, 2026-10-22) | n/a | yes (docs) | yes | `docs/COURSE_MODULES.md`; session note 2026-10-20 (Module 2) |
+| C4 | Course Module 4: opt-in tree-of-thought hypothesize step | yes (after the build, 2026-10-22) | n/a | yes | yes | `agent/tree_of_thought.py` (`TreeOfThoughtPolicy`, `GENERATE`, `VALUE`, `prune`, `Thought`), `experiment.py` (`run --tree-of-thought`); session note 2026-10-20 (Module 4) |
+| FD | Experiment failure diagnostics: every model attempt kept, recovered failures shown | yes (after the build, 2026-10-22) | n/a | yes | in part (corrected) | `experiment.py` (`CallSummary.details`, `format_call_failures`, `save_record`), `evaluation/scoring.py`; session note 2026-10-20 (failure diagnostics) |
 | C3a | Memory comparison command: the same cases with no memory, keyword and semantic recall | yes (after the build, 2026-10-22) | n/a | yes | in part (corrected) | `capstone/memory_comparison.py` (`MODES`, `memory_for`, `compare_memory`, `mode_of`, `compare_report`); session note 2026-10-20 (Module 3, piece 1) |
 | C3b | Bounded memory search: no repeated search, at most three per investigation, each recorded | yes (after the build, 2026-10-22) | n/a | yes | yes | `providers/recall.py` (`RecallingProvider`, `MAX_SEARCHES`, `REPEATED_SEARCH`, `SEARCHES_SPENT`), `evaluation/memory.py` (`build_search_records`); session note 2026-10-20 (Module 3, piece 2) |
 | D1 | Near-duplicate threshold measurement tool (provisional 0.909) | yes (walkthrough, 2026-10-22) | n/a | yes | yes (after corrections) | `capstone/memory/duplicate_threshold.py`; session notes 2026-10-22 |
@@ -98,6 +101,46 @@ other three fault scenarios (material batch, machine configuration, false
 alarm), then evaluation, then the agent itself.
 
 ## Session notes
+
+- **2026-10-22: the rest of the ungated work taught after the build (E6, FD,
+  C4, M1 gap, L3 and L6, C2).** No code changed. One explanation and one
+  question each. With this, no row in the table is still "built ungated,
+  developer to review".
+  - E6 (compound challenge): asked to score KA-09 when only the bearing on
+    CNC-07 is named and replaced. Said the replacement is a wrong cause and
+    was unsure the bearing was worn; corrected: the bearing is a real cause,
+    so causes_found 1 of 2, wrong_causes 0, causes_resolved 1, not
+    fully_right because the speed was never named (`fully_right` scores
+    naming, not fixing). Follow-up: what makes `fully_right` true with only
+    one cause resolved: "name both, fix one". Correct. Understood.
+  - FD (failure diagnostics): asked why recovered failures are kept. Said the
+    run can continue and that the main model's answers would be lost;
+    corrected: the fallback continues either way, and the point is hidden
+    unreliability (whose reasoning is measured, time burned, a warning before
+    outages). Follow-up: said make NVIDIA the fallback if Cohere does half the
+    work; corrected: L2 showed Cohere never asks for fixes, so first find why
+    NVIDIA times out, tune the per-request wait, or re-benchmark. Understood
+    in part, corrected.
+  - C4 (tree-of-thought): asked why pruning is code, not the model. Said code
+    is deterministic and the model could hallucinate. Correct; added the
+    evidence-citation check and the recorded reason for each drop.
+    Understood.
+  - M1 gap (walkthrough Q3): taught how `run_episode` wraps providers
+    (factory, hazards, recall, manual) and that each layer answers its own
+    tool or passes the call inward. Asked whether a hazard on `search_manual`
+    could fire: said never, because the manual is outermost. Correct;
+    corrected the side remark about repeats and gave the change (wrap the
+    hazards layer last). The developer noted the agent can search again
+    after a failure; confirmed in `providers/manual.py`: a failed search is
+    not counted or treated as a repeat. Understood.
+  - L3 and L6 (router providers): asked why Requesty's retry gets HTTP 429
+    after our client gave up. Said Requesty is still working on the first
+    request. Correct (giving up closes only our side). Understood.
+  - C2 (Module 2 gap note): asked what in working memory never reaches
+    episodic memory. Said evidence IDs, because each investigation numbers
+    its own; correct reason; refined: they are stored for lineage but left
+    out of `RecalledMemory`, while decision records, hypotheses and raw
+    evidence go only to the audit trail. Understood.
 
 - **2026-10-22: memory group taught after the build (A6c gap, C3b, C3a,
   D1).** No code changed. One explanation and one question each.
