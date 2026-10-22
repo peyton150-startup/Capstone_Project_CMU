@@ -94,6 +94,16 @@ alarm), then evaluation, then the agent itself.
 
 ## Session notes
 
+- **2026-10-22 — plan recorded: fault packs (documentation only).** At the
+  developer's request, `docs/MVP_SCOPE.md` Future Work 8 gains "Fault packs:
+  one registry entry per sensor and its fault": describe each sensor and its
+  paired fault once, with agent-visible and evaluator-only data kept apart,
+  and build the scattered name lists from it; packs fixed in code and chosen
+  per experiment, never added or removed at runtime, with keyed seed draws so
+  existing seeds do not shift; done just before the fifth fault, first as a
+  no-behaviour-change move of the four faults, then the new sensor and fault
+  as the first new pack. Nothing built.
+
 - **2026-10-22: docs-only: pre-merge technical walkthrough added to the
   PR rule.** `AGENTS.md` §11 gains a new step 6 (developer's rule): for a
   PR that implements a feature, after CI is green and before merging, the
