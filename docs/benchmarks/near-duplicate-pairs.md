@@ -1,7 +1,7 @@
 # Near-duplicate pairs (draft lessons)
 
 Drafted 2026-10-22 because the memory store held no real lessons yet. Labels are
-Claude's draft labels for the developer to review; every 5th pair is held out.
+Claude's draft labels, approved by the developer on 2026-10-22; every 5th pair is held out.
 Data: `near-duplicate-pairs.jsonl`. Results: `2026-10-22-near-duplicate-threshold.md`.
 
 ## 1. `routine_check` / `resolved` / `CNC-01`
