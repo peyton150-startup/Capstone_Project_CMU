@@ -81,17 +81,17 @@ A component is complete only when both columns are checked.
 | R4e | Evidence-completeness stop: an open question on a current explanation blocks the automatic "supported" stop | yes (after the build) | n/a | yes | yes | `agent/loop.py` (`diagnosis_supported`); session note 2026-10-20 (R4e) |
 | L1 | Live runs finish: User-Agent for Groq, the fallback keeps its share of a question's time, a stage deadline is a timeout, measured limits, failure reasons in records | yes (after the build, 2026-10-22) | n/a | yes | yes | `providers/chat.py` (`USER_AGENT`, `FallbackClient.ask`, `ModelError.out_of_time`), `agent/loop.py` (`ask_policy`), `settings.py`, `agent/state.py` (`Budgets`), `experiment.py` (`CallSummary.outage_reasons`); session note 2026-10-20 (L1) |
 | E6 | The compound challenge in experiments (a case names the scenario kind; KA-09) | yes (after the build, 2026-10-22) | n/a | yes | yes | `episode.py` (`build_world`, `STANDARD`, `CHALLENGE`, `SCENARIO_KINDS`, `run_episode(kind=)`), `evaluation/known_answers.py` (`KnownCase.kind`, KA-09), `experiment.py` (`Case.kind`, `challenge_cases`, `run --challenge`, `several_faults`, `report`); session note 2026-10-20 (E6) |
-| L2 | Benchmark under the real limits; limits set from it; retries back off | yes (after the build, 2026-10-22) | n/a | yes | in part (corrected) | `benchmark.py` (`single_model_clients`, `run_model`, `EpisodeRecord.wall_seconds`, `ModelReport.concluded`/`median_episode_seconds`/`outage_reasons`, `Limits`, `suggested_limits`, `format_limits`, `--timeout-seconds`), `providers/chat.py` (`FallbackClient.ask` pauses), `settings.py` (`MODEL_RETRIES` 3), `agent/state.py` (`Budgets` 1200/400), `docs/benchmarks/2026-10-20.md`; session notes 2026-10-20 (L2) |
+| L2 | Benchmark under the real limits; limits set from it; retries back off | yes (after the build, 2026-10-22) | n/a | yes | yes (re-checked 2026-10-22) | `benchmark.py` (`single_model_clients`, `run_model`, `EpisodeRecord.wall_seconds`, `ModelReport.concluded`/`median_episode_seconds`/`outage_reasons`, `Limits`, `suggested_limits`, `format_limits`, `--timeout-seconds`), `providers/chat.py` (`FallbackClient.ask` pauses), `settings.py` (`MODEL_RETRIES` 3), `agent/state.py` (`Budgets` 1200/400), `docs/benchmarks/2026-10-20.md`; session notes 2026-10-20 (L2) |
 | L2b | The prompts show the time left and how to spend the budget | yes (after the build, 2026-10-22) | n/a | yes | yes | `agent/model_policy.py` (`render` BUDGET LEFT seconds, `COMMON` pacing rule, `decide` stop case, `LOW_CALLS`, `LOW_BUDGET_NOTE`); session note 2026-10-21 (time left) |
 | L3 | Requesty and xKiro as providers (model routers); their free models benchmarked | yes (after the build, 2026-10-22) | n/a | yes | yes | `providers/chat.py` (`PROVIDERS` requesty, xkiro), `settings.py` (`REQUESTY_API_KEY`, `XKIRO_API_KEY`), `.env.example`, AGENTS.md section 9, `docs/benchmarks/2026-10-21-routers.md`; session note 2026-10-21 (L3) |
-| L4 | Why a reply was invalid is recorded (cut off, not JSON, wrong shape, tool not offered) | yes (after the build, 2026-10-22) | n/a | yes | in part (corrected) | `providers/chat.py` (`INVALID_REPLY`, `invalid_outcome`, `is_model_outcome`), `agent/model_policy.py` (`_refuse`), `experiment.py` (`CallSummary.invalid_reasons`, report line), `benchmark.py` (`ModelReport.invalid_reasons`); session note 2026-10-21 (L4) |
+| L4 | Why a reply was invalid is recorded (cut off, not JSON, wrong shape, tool not offered) | yes (after the build, 2026-10-22) | n/a | yes | yes (re-checked 2026-10-22) | `providers/chat.py` (`INVALID_REPLY`, `invalid_outcome`, `is_model_outcome`), `agent/model_policy.py` (`_refuse`), `experiment.py` (`CallSummary.invalid_reasons`, report line), `benchmark.py` (`ModelReport.invalid_reasons`); session note 2026-10-21 (L4) |
 | L5 | NVIDIA is asked to keep replies to the answer type's JSON schema (structured output) | yes (after the build, 2026-10-22) | n/a | yes | yes | `providers/chat.py` (`Provider.structured_output`, `ChatClient(structured_output=)`, `response_format`); session note 2026-10-21 (L5) |
 | L6 | LLM7 and Kilo Code as providers; their free models checked (Z.ai checked and dropped) | yes (after the build, 2026-10-22) | n/a | yes | yes | `providers/chat.py` (`PROVIDERS` llm7, kilo), `settings.py` (`LLM7_API_KEY`, `KILO_CODE_API_KEY`), `.env.example`, AGENTS.md section 9, `docs/benchmarks/2026-10-21-llm7-kilo.md`; session note 2026-10-21 (L6) |
 | M1 | The machine manual (SIM-CNC-001) and the `search_manual` tool (RAG over a fixed reference) | yes (design discussed 2026-10-22) | n/a | yes | yes (Q3 gap filled 2026-10-22; walkthrough Q1 right, Q2 corrected) | `manual/sections.py` (`ManualSection`, `parse_manual`, `check_no_leaks`, `load_manual`), `manual/index.py` (`KeywordManualSearch`, `ChromaManualIndex`, `open_manual_index`), `providers/manual.py` (`ManualProvider`, `MANUAL_SPEC`), `evaluation/manual.py`, `episode.py`, `experiment.py` (`--manual`), `contracts/provenance.py`, `agent/loop.py`, `agent/model_policy.py`, `memory/policy.py`; session note 2026-10-22 (M1) |
 | C2 | Course Module 2 gap note (working memory, episodic memory, tools, loops) | yes (after the build, 2026-10-22) | n/a | yes (docs) | yes | `docs/COURSE_MODULES.md`; session note 2026-10-20 (Module 2) |
 | C4 | Course Module 4: opt-in tree-of-thought hypothesize step | yes (after the build, 2026-10-22) | n/a | yes | yes | `agent/tree_of_thought.py` (`TreeOfThoughtPolicy`, `GENERATE`, `VALUE`, `prune`, `Thought`), `experiment.py` (`run --tree-of-thought`); session note 2026-10-20 (Module 4) |
-| FD | Experiment failure diagnostics: every model attempt kept, recovered failures shown | yes (after the build, 2026-10-22) | n/a | yes | in part (corrected) | `experiment.py` (`CallSummary.details`, `format_call_failures`, `save_record`), `evaluation/scoring.py`; session note 2026-10-20 (failure diagnostics) |
-| C3a | Memory comparison command: the same cases with no memory, keyword and semantic recall | yes (after the build, 2026-10-22) | n/a | yes | in part (corrected) | `capstone/memory_comparison.py` (`MODES`, `memory_for`, `compare_memory`, `mode_of`, `compare_report`); session note 2026-10-20 (Module 3, piece 1) |
+| FD | Experiment failure diagnostics: every model attempt kept, recovered failures shown | yes (after the build, 2026-10-22) | n/a | yes | yes (re-checked 2026-10-22) | `experiment.py` (`CallSummary.details`, `format_call_failures`, `save_record`), `evaluation/scoring.py`; session note 2026-10-20 (failure diagnostics) |
+| C3a | Memory comparison command: the same cases with no memory, keyword and semantic recall | yes (after the build, 2026-10-22) | n/a | yes | yes (re-checked 2026-10-22) | `capstone/memory_comparison.py` (`MODES`, `memory_for`, `compare_memory`, `mode_of`, `compare_report`); session note 2026-10-20 (Module 3, piece 1) |
 | C3b | Bounded memory search: no repeated search, at most three per investigation, each recorded | yes (after the build, 2026-10-22) | n/a | yes | yes | `providers/recall.py` (`RecallingProvider`, `MAX_SEARCHES`, `REPEATED_SEARCH`, `SEARCHES_SPENT`), `evaluation/memory.py` (`build_search_records`); session note 2026-10-20 (Module 3, piece 2) |
 | D1 | Near-duplicate threshold measurement tool (provisional 0.909) | yes (walkthrough, 2026-10-22) | n/a | yes | yes (after corrections) | `capstone/memory/duplicate_threshold.py`; session notes 2026-10-22 |
 
@@ -101,6 +101,33 @@ other three fault scenarios (material batch, machine configuration, false
 alarm), then evaluation, then the agent itself.
 
 ## Session notes
+
+- **2026-10-22: re-checks of the four items understood in part (L2, L4,
+  FD, C3a).** No code changed. A new question each.
+  - L2: asked whether a model that concluded 4 runs in 300 s without ever
+    proposing a repair should lower the 1,200 s budget. First said run more
+    benchmarks and lower it if none ran longer; corrected: more such runs
+    stay short because they skip the proposal, the work and the check, so
+    first check the runs did the whole job. Asked again (one 700 s resolved
+    bearing run, three 250 s runs): said the 700 s run is the complete one
+    with the repair and the check. Correct; added that doing nothing is
+    right for the batch and the false alarm. Understood.
+  - L4: asked what happens when Nemotron's `decide` names a tool not offered.
+    Said no fallback, an invalid reply counted against Nemotron, and retry on
+    NVIDIA. Correct apart from the retry: the client stops at once; the loop
+    records `invalid_decision`, counts an unproductive step and asks
+    Nemotron again next turn, stopping after three in a row. Understood.
+  - FD: asked what 10 of 30 questions recovering from HTTP 500 shows when the
+    run says 30/30 answered. Said the provider failed for a moment and a
+    retry fixed it; added the provider-health trend and why MODEL_RETRIES is
+    3. Follow-up at 25 of 30: said runs get longer and NVIDIA is the only
+    long-context main model; added more fallback answers, possible
+    `model unavailable` endings, `outage_reasons` as the evidence that the
+    provider is at fault, and what can still be done. Understood.
+  - C3a: asked whether to trust a comparison run on the same seeds that
+    filled the store. Said no: those are tuning seeds, and the comparison
+    must move to other seeds. Correct (`HELD_OUT_SEEDS`, `--held-out`).
+    Understood.
 
 - **2026-10-22: the rest of the ungated work taught after the build (E6, FD,
   C4, M1 gap, L3 and L6, C2).** No code changed. One explanation and one
