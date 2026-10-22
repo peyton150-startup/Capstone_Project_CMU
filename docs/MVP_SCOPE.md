@@ -391,6 +391,86 @@ Runtime integration must reconcile the completion contracts described in
 `EPISODIC_MEMORY.md` and respect the reinstated memory teaching checkpoints
 recorded in `PROGRESS.md`.
 
+#### Near-duplicate memory check (planned 2026-10-22)
+
+Status: planned, not implemented. The concept was taught and the developer
+showed understanding on 2026-10-22 (see `PROGRESS.md`). Building it goes
+through its own PR and the pre-merge walkthrough.
+
+**The problem.** A lesson is refused as a duplicate today only if its
+normalized wording matches a stored one exactly (`lesson_fingerprint`, and
+the SQL store's unique `fingerprint`). Success lessons are written by the
+model, so paraphrases of one lesson are all stored, and recall's few slots
+fill with the same advice.
+
+**The plan.** After `MemoryPromotionPolicy` accepts a memory and before the
+SQL insert, `MemoryService.promote` asks the Chroma index for the most
+similar stored memory. If it is at or above a fixed similarity threshold,
+the new memory is refused and the original kept. The policy stays free of
+I/O; the SQL store's exact check stays as the last guard.
+
+- **Compared only within the same category, outcome and machine.** Without
+  the outcome filter, "the fix was tried and failed" scores close to "the
+  fix worked" and would be thrown out, leaving a one-sided record that
+  makes the agent repeat a failed action instead of looking for more
+  evidence. Without the machine filter, the fixed failure sentence for two
+  machines differs by one word and the second would be thrown out, losing
+  "this fix failed on two machines". A memory with no machine (no action
+  proposed) is compared only with others that have none.
+- **Embedded as a passage on both sides.** Stored memories are embedded as
+  passages (`memory_document`: category, symptoms, diagnosis, lesson); the
+  new one must be too, not as a query, or the scores are not comparable.
+- **Refusal:** `accepted=False`, `stored=False`, a new reason
+  `similar_lesson` (kept apart from the exact `duplicate_lesson`), and
+  `existing_memory_id` set to the match. Nothing is written. The audit log
+  already holds the investigation, since `learn_from` writes it first.
+- **Fallback:** if Chroma cannot open, was built by another embedding
+  model, or the lookup fails, skip this check and store as today. A broken
+  index must never refuse lessons.
+- **Repeatable:** the same lessons and model give the same decision. Each
+  refusal records the embedding model and threshold that made it.
+- **Index change:** category and machine are not in the Chroma metadata
+  yet (it holds `memory_id`, `outcome`, `timestamp`), so they are added and
+  the index rebuilt once (`python -m capstone.memory.backfill --rebuild`).
+
+**Trade-off of the machine filter.** It keeps "worked (or failed) on
+several machines" as separate memories, which tells the agent whether a
+lesson generalizes. The cost is weaker de-duplication: one lesson can be
+stored once per machine per outcome, so recall can still fill with the same
+advice for different machines. If that happens, group results at recall
+time (for example "worked on CNC-02, CNC-04") without changing the store.
+
+**Not part of this plan: a machine filter on the agent's recall tool.**
+`recall_memories(text, limit)` has no machine argument today (recalled
+memories show their machine). Adding one changes an agent-facing tool and
+needs its own gate. Its risk: the agent filters to the alarmed machine and
+misses the same pattern fixed on a sibling machine, or a material-batch
+fault that spans machines.
+
+**Measuring the threshold.** Measure it on real data before building;
+never guess it.
+
+1. Collect real lessons from the memory store and experiment runs. Repeat
+   runs of one scenario give natural paraphrases.
+2. Make labelled pairs, about 50 to 100, each sharing category, outcome and
+   machine as the real check would. The developer labels each pair "same
+   lesson" or "different", not a model. Include hard cases: same symptom
+   with a different action, same action with different symptoms.
+3. Embed both lessons of each pair as passages with the configured model
+   (Nemotron by default; a live embedding call needing `NVIDIA_API_KEY`) and
+   compute cosine similarity.
+4. Compare the score ranges of "same" and "different" pairs.
+5. Choose by cost. Refusing a different lesson loses it silently, which is
+   worse than letting a duplicate crowd recall. So set the threshold just
+   above the highest-scoring "different" pair, then report what share of
+   true duplicates it still catches.
+6. Hold out about a fifth of the pairs and confirm the threshold on them.
+7. Record the model and threshold. Measure again whenever the embedding
+   model changes, since scores from different models are not comparable.
+
+The labelled pairs live in a file in the repository so the measurement can
+be rerun. Unit tests use fixed fake vectors and need no key.
+
 #### Docling + HybridChunker — candidate, not implemented
 
 Reevaluate when actual manuals, SOPs, maintenance reports, and PDFs enter the

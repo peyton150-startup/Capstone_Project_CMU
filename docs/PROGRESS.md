@@ -147,6 +147,24 @@ alarm), then evaluation, then the agent itself.
   hazards' per-tool call count. Fixed at the developer's request during the
   walkthrough: `verify`'s comments now name the manual.
 
+- **2026-10-22: plan recorded: near-duplicate memory check (docs only).**
+  `docs/MVP_SCOPE.md` Future Work 1 gains "Near-duplicate memory check": in
+  `MemoryService.promote`, after the policy accepts and before the SQL
+  insert, refuse a memory whose embedding is at or above a measured
+  similarity threshold to a stored one with the same category, outcome and
+  machine (new reason `similar_lesson`; fall back to the exact check if
+  Chroma is unavailable). It also records the machine filter's trade-off,
+  that an agent-facing machine filter on `recall_memories` is a separate
+  gated change, and the plan for measuring the threshold on developer-labelled
+  pairs. Teaching: the developer answered the pre-implementation questions.
+  Asked what to do with an `unresolved` lesson whose nearest memory is
+  `resolved` at 0.97, they said it goes through because the outcome differs,
+  and added that the threshold still applies within the same outcome
+  (correct: the filter picks the nearest memory within that group). Asked what
+  an agent seeing both "worked" and "failed" does differently, they said it
+  looks for more evidence instead of repeating the repair. Concept
+  understood; not implemented. Nothing built.
+
 - **2026-10-22: docs-only: memory retention and promotion policy.** At the
   reviewer's request, `docs/EPISODIC_MEMORY.md` gains "Memory retention and
   promotion policy": the audit trail versus episodic memory, a table of what
