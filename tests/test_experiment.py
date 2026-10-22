@@ -634,3 +634,76 @@ def test_the_report_says_why_replies_were_invalid():
     line = experiment.format_model_calls([record])
     assert "; invalid because: " in line
     assert "cut off at the output-token limit 1" in line
+
+
+# --- the machine manual in experiments --------------------------------------------
+
+
+def manual_stand_in():
+    """Looks up the symptom in the manual, then looks once, as stand_in does."""
+    from capstone.providers.manual import MANUAL_TOOL
+
+    agent = stand_in()
+    agent.decisions["investigate"].insert(
+        0, ask(MANUAL_TOOL, text="vibration alarm rising")
+    )
+    return agent
+
+
+def test_a_run_with_the_manual_records_what_it_looked_up():
+    from capstone.manual.index import KeywordManualSearch
+    from capstone.manual.sections import load_manual
+
+    [record] = run_experiment(
+        [BEARING],
+        manual_stand_in,
+        name="manual",
+        manual=KeywordManualSearch(load_manual()),
+    )
+    [search] = record.manual_searches
+    assert search.outcome == "answered" and search.sections[0].startswith("§")
+    assert "search_manual" in record.tools_used
+    lines = report([record], {}).splitlines()
+    assert any(line.startswith("manual: 1 search(es) in 1 of 1 run(s)") for line in lines)
+    assert f" manual={search.sections[0]}" in lines[-1]
+
+
+def test_a_run_without_the_manual_has_no_manual_records(records):
+    assert all(r.manual_searches is None for r in records)
+    assert not any(line.startswith("manual:") for line in report(records, {}).splitlines())
+
+
+def test_the_manual_tool_is_offered_only_when_asked_for(monkeypatch):
+    import capstone.providers.chat as chat
+    from capstone.providers.manual import MANUAL_TOOL
+    from tests.test_model_policy import FakeModel
+
+    monkeypatch.setattr(chat, "clients_for_jobs", lambda: {j: FakeModel() for j in chat.JOBS})
+
+    def offered(**options):
+        return {t.name for t in experiment.model_policy_factory(False, **options)().tools}
+
+    assert MANUAL_TOOL in offered(with_manual=True)
+    assert MANUAL_TOOL not in offered()
+
+
+def test_the_command_passes_the_manual_on(tmp_path, monkeypatch):
+    ran, factory = {}, {}
+
+    def fake_run(cases, make_policy, **options):
+        ran.update(options)
+        return []
+
+    def fake_factory(with_recall, **options):
+        factory.update(options)
+
+    monkeypatch.setattr(experiment, "run_experiment", fake_run)
+    monkeypatch.setattr(experiment, "model_policy_factory", fake_factory)
+    out = str(tmp_path / "r.jsonl")
+    assert main(["run", "--name", "m", "--known", "--manual", "keyword", "--out", out]) == 0
+    from capstone.manual.index import KeywordManualSearch
+
+    assert isinstance(ran["manual"], KeywordManualSearch)
+    assert factory["with_manual"] is True
+    assert main(["run", "--name", "n", "--known", "--out", out]) == 0
+    assert ran["manual"] is None and factory["with_manual"] is False

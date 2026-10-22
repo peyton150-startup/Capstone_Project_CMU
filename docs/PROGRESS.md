@@ -86,6 +86,7 @@ A component is complete only when both columns are checked.
 | L4 | Why a reply was invalid is recorded (cut off, not JSON, wrong shape, tool not offered) | no (built ungated) | n/a | yes | no: built ungated, developer to review | `providers/chat.py` (`INVALID_REPLY`, `invalid_outcome`, `is_model_outcome`), `agent/model_policy.py` (`_refuse`), `experiment.py` (`CallSummary.invalid_reasons`, report line), `benchmark.py` (`ModelReport.invalid_reasons`); session note 2026-10-21 (L4) |
 | L5 | NVIDIA is asked to keep replies to the answer type's JSON schema (structured output) | no (built ungated) | n/a | yes | no: built ungated, developer to review | `providers/chat.py` (`Provider.structured_output`, `ChatClient(structured_output=)`, `response_format`); session note 2026-10-21 (L5) |
 | L6 | LLM7 and Kilo Code as providers; their free models checked (Z.ai checked and dropped) | no (built ungated) | n/a | yes | no: built ungated, developer to review | `providers/chat.py` (`PROVIDERS` llm7, kilo), `settings.py` (`LLM7_API_KEY`, `KILO_CODE_API_KEY`), `.env.example`, AGENTS.md section 9, `docs/benchmarks/2026-10-21-llm7-kilo.md`; session note 2026-10-21 (L6) |
+| M1 | The machine manual (SIM-CNC-001) and the `search_manual` tool (RAG over a fixed reference) | yes (design discussed 2026-10-22) | n/a | yes | pending: pre-merge walkthrough (AGENTS.md section 11 step 6) | `manual/sections.py` (`ManualSection`, `parse_manual`, `check_no_leaks`, `load_manual`), `manual/index.py` (`KeywordManualSearch`, `ChromaManualIndex`, `open_manual_index`), `providers/manual.py` (`ManualProvider`, `MANUAL_SPEC`), `evaluation/manual.py`, `episode.py`, `experiment.py` (`--manual`), `contracts/provenance.py`, `agent/loop.py`, `agent/model_policy.py`, `memory/policy.py`; session note 2026-10-22 (M1) |
 
 Every row above with four "yes" marks (or "n/a") is complete: no question is
 outstanding on it. Still to build after 12c, from `docs/MVP_SCOPE.md`: the
@@ -93,6 +94,43 @@ other three fault scenarios (material batch, machine configuration, false
 alarm), then evaluation, then the agent itself.
 
 ## Session notes
+
+- **2026-10-22 — M1: the machine manual and `search_manual`.** The
+  developer drafted a simulated maintenance manual and asked for it to be
+  retrieved through RAG, like a real plant's machine guide. Design and
+  decisions in `docs/MACHINE_MANUAL_RAG.md`; the developer chose option B (no
+  station speeds or job times in the manual, so a wrong setting is found from
+  its effects; §2.7 rewritten as that method) and approved storing it as
+  Markdown, no system-prompt line, a leak check, and measuring on tuning seeds
+  first. Every number left in the manual was checked against the code (alarm
+  4.5 mm/s; 45, 135 and 10-tick actions). Module by module:
+  - `manual/sim-cnc-001.md` (new): the manual, 15 numbered sections.
+  - `manual/sections.py` (new): `ManualSection` (number, title, text,
+    revision, `citation`), `parse_manual` (only "## §" headings),
+    `check_no_leaks` (refuses fault names, seeds, case IDs, "ground truth"),
+    `load_manual`.
+  - `manual/index.py` (new): `KeywordManualSearch` (shared words, title words
+    count double), `ChromaManualIndex` (its own collection; returns only
+    sections the manual still has), `open_manual_index`, and the build
+    command `python -m capstone.manual.index --rebuild`.
+  - `memory/semantic.py`: `open_collection`, the collection-opening part of
+    `open_chroma_index`, now shared by memory and the manual.
+  - `providers/manual.py` (new): `ManualProvider` and `MANUAL_SPEC`
+    (`search_manual(text, limit)`, at most 3 searches, repeats refused,
+    errors never shown), mirroring `providers/recall.py`.
+  - `contracts/provenance.py` `MANUAL_SOURCE` and origin "manual";
+    `agent/loop.py` `ORIGINS`; `agent/model_policy.py` `ORIGIN_LABELS` (the
+    "FROM THE MANUAL" mark); `memory/policy.py` `rests_on_manual`.
+  - `episode.py` `run_episode(manual=)`; `experiment.py` `run --manual
+    [semantic|keyword]`, `open_manual`, `ExperimentRecord.manual_searches`,
+    `format_manual` and a `manual=` run-line part; `evaluation/manual.py`
+    `ManualSearchRecord`, `build_manual_records`; `settings.py`
+    `MANUAL_COLLECTION`; `.env.example`.
+  Tests: `tests/test_manual.py` (27: the sections, option B holds, leaks
+  refused, retrieval finds each symptom's section in the top three, the
+  Chroma index, the tool's answers, refusals and budget, the evidence label,
+  no verifying a fix from the manual, the gate) and four in
+  `test_experiment.py`. Not run live yet.
 
 - **2026-10-22: docs-only: pre-merge technical walkthrough added to the
   PR rule.** `AGENTS.md` §11 gains a new step 6 (developer's rule): for a
