@@ -14,6 +14,96 @@ record; the model writes only a success's advice sentence.
 its store. The SQL store preserves originals on duplicate investigation IDs or
 normalized category/lesson fingerprints. Paraphrases are not semantic duplicates.
 
+## Memory retention and promotion policy
+
+An investigation leaves two tiers of record:
+
+- **Audit trail.** The full record of what happened: every step, the
+  evidence and its provenance, the final hypotheses, the proposal and the
+  check. It is for people. The agent has no tool that reads it.
+- **Episodic memory.** One short lesson per investigation, kept only if it
+  passes `MemoryPromotionPolicy` (version `episodic-v2`). Later runs can
+  retrieve it through the agent's `recall_memories` tool.
+
+`learning.learn_from` runs after the loop ends, outside the agent: it writes
+the audit record first, then offers a lesson to the gate. `episode.run_episode`
+calls it only when it is given both a memory service and an audit log
+(`experiment run --audit <file>`). Without a log, nothing is audited and
+nothing is learned.
+
+| Artifact | Where it is stored | What triggers storage | Agent can retrieve it? | Why |
+|---|---|---|---|---|
+| Lesson from a verified fix | `episodic_memories` SQL table (authoritative), copied to the Chroma index | Check found the symptom `verified`/`resolved`, the model wrote one advice sentence, and the gate accepted it | Yes, as a `RecalledMemory` (no evidence IDs, no verification detail) | Reusable advice backed by an observed outcome |
+| Failed intervention | Same table, `outcome="unresolved"` | Check found the action `failed`/`unresolved` and the gate accepted the fixed sentence from `failure_lesson` | Yes, same view | Stops a later run repeating an action that was seen not to work |
+| Rejected hypotheses | Audit record only, as the final `hypotheses` list in `CompletedInvestigation` | Every audited investigation | No | Beliefs, not outcomes; see below |
+| Step decisions (`DecisionRecord`) | Audit record only (`decisions`) | Every step of every audited investigation | No | Shows what was asked, which tool, and what came back. It is not chain-of-thought and holds no free-text rationale |
+| Verification outcome | Audit record (`VerificationResult` plus the runtime `VerificationCheck`); also inside a promoted memory | Every audited investigation in which a check was made | Only as `outcome` (resolved / unresolved) of a recalled memory | It is what decides whether anything may be learned |
+| Audit log | JSONL file, one `AuditRecord` per line, append-only (`completion.AuditLog`) | `learn_from`, for every investigation, right or wrong | No | Complete history, independent of the memory step |
+
+### Promotion criteria (`episodic-v2`)
+
+`MemoryPromotionPolicy.evaluate()` does no I/O and uses no randomness. It
+collects every failing reason and refuses the candidate if there is any.
+
+- **Verified success** (`verified`/`resolved`): the diagnosis must be
+  assessed `supported`, a proposed action must have worked, and the lower of
+  the candidate's and the conclusion's confidence must be at least 0.8.
+- **Observed failed intervention** (`failed`/`unresolved`): an action must
+  have been proposed, the lesson must equal `failure_lesson()` word for word
+  (what was tried, on which machine, for which symptoms, never why), and the
+  diagnosis must be left `unknown`. No confidence threshold applies, because
+  the claim rests on the check.
+- **Anything else** (no check, or one that could not decide) is refused as
+  `outcome_not_verified`. `build_candidate` does not even make a candidate.
+- **Missing evidence:** refused if the conclusion, lesson or check cites no
+  evidence, if a cited ID is not in the investigation, or if provenance is
+  missing or does not match the evidence. A lesson resting on a recalled
+  memory, or only on the machine manual, is refused.
+- **Unsupported diagnosis:** a success whose diagnosis is not `supported` is
+  refused. A lesson with numbers and units or a `tick N` is refused as
+  transient.
+- **Hidden information:** refused if any provenance is labelled
+  `evaluator_hidden` or `simulator_hidden`, or if the candidate's JSON,
+  including unused evidence, names ground truth or hidden state.
+- **Duplicates:** checked by the SQL store, not the policy. A second memory
+  for the same investigation, or with the same fingerprint (normalized
+  category plus lesson), is not stored and the original is kept
+  (`duplicate_investigation` / `duplicate_lesson`). Paraphrases are not caught.
+
+### Rejected hypotheses
+
+No hypothesis is ever promoted to memory. The two kinds of rejection are
+recorded differently in the audit trail, and neither has a status field:
+
+- **Contradicted by evidence:** the hypothesis stays in the final list with
+  its `contradicting_evidence_ids`, so a reader can see which observations
+  went against it.
+- **Abandoned:** each revision replaces the whole list, so a hypothesis the
+  model dropped is not kept. Only the `hypothesis_revisions` count and the
+  `hypothesis_id` on the `DecisionRecord`s of steps that tested it remain.
+
+Keeping dropped hypotheses, with a reason, is a current limitation.
+
+### What a success proves
+
+A verified check shows the symptom went away after the action. It does not
+show the diagnosis named the root cause: a repair can clear a symptom for
+another reason. `build_candidate` marks a verified fix's diagnosis
+`supported` by rule, and a recalled memory's `diagnosis` is labelled a past
+agent's belief, not a known cause. Simulator ground truth is excluded from
+memory on purpose: the agent must learn only from what it could observe, or
+it would recall answers it was never able to see. The evaluator's
+`diagnosis_correct` stays in evaluation records and never reaches a memory.
+
+### Conflicting and superseded lessons
+
+Not handled yet. Stored memories are never updated or deleted, and nothing
+marks one as superseded. A resolved and an unresolved memory for the same
+symptom can both exist; recall returns both, with `outcome` and
+`source_tick`, and the agent must weigh them. Each memory records its
+`policy_version`, but nothing re-checks older memories when the policy
+changes. Conflict resolution is future work.
+
 ## Database lifecycle
 
 `capstone/memory/schema.py` describes the table for application code.

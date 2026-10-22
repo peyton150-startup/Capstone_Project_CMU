@@ -147,6 +147,17 @@ alarm), then evaluation, then the agent itself.
   hazards' per-tool call count. Fixed at the developer's request during the
   walkthrough: `verify`'s comments now name the manual.
 
+- **2026-10-22: docs-only: memory retention and promotion policy.** At the
+  reviewer's request, `docs/EPISODIC_MEMORY.md` gains "Memory retention and
+  promotion policy": the audit trail versus episodic memory, a table of what
+  each artifact is stored as and whether the agent can retrieve it, the
+  `episodic-v2` promotion criteria, how contradicted and abandoned
+  hypotheses are (and are not) recorded, why a verified fix does not prove
+  the root cause, and that conflicting lessons are not yet handled. Written
+  from the code (`memory/policy.py`, `memory/contracts.py`,
+  `memory/repository.py`, `agent/completion.py`, `learning.py`,
+  `episode.py`). No runtime files or tests changed, and no gate was advanced.
+
 - **2026-10-22 — plan recorded: fault packs (documentation only).** At the
   developer's request, `docs/MVP_SCOPE.md` Future Work 8 gains "Fault packs:
   one registry entry per sensor and its fault": describe each sensor and its
