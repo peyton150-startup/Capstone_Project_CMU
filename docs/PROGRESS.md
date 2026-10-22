@@ -94,6 +94,19 @@ alarm), then evaluation, then the agent itself.
 
 ## Session notes
 
+- **2026-10-22: docs-only: pre-merge technical walkthrough added to the
+  PR rule.** `AGENTS.md` §11 gains a new step 6 (developer's rule): for a
+  PR that implements a feature, after CI is green and before merging, the
+  coding agent walks the developer through the actual changed files
+  (architecture, then implementation; one real execution path with file
+  paths and function names; new concepts; trade-offs, failure modes and
+  assumptions), then asks three technical questions one at a time without
+  revealing answers until attempted, corrects any misunderstanding with
+  pointers to the source, makes no code changes unless asked, and merges
+  only after that. Docs-only, CI-only and config-only PRs skip it. The old
+  steps 6-8 are now 7-9. No runtime files or tests changed, and no gate
+  was advanced.
+
 - **2026-10-21 — the three escalated cases with structured output (results
   only; nothing built).** After PRs #43-#45 (refusal reasons, 16,384 tokens,
   NVIDIA structured output), the developer's main checkout reran seed 6

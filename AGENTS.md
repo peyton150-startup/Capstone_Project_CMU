@@ -480,12 +480,36 @@ documented on GitHub where the developer can read it.
    - Any commit that reached `main` without a PR, listed so it is recorded.
 5. Wait for the PR's CI to finish (`gh pr checks <number> --watch`). Never
    merge on a failing or unfinished check.
-6. When CI is green, merge with a merge commit (keeps each commit) and
+6. **Pre-merge technical walkthrough (rule set by the developer,
+   2026-10-22).** When the PR implements a feature, then after CI is green
+   and before merging, give the developer a technical walkthrough based on
+   the PR's actual changed files (`git diff origin/main...HEAD`):
+   1. Explain what changed and why, starting with the architecture and
+      then the implementation.
+   2. Trace one real execution path through the modified code, with file
+      paths and function names.
+   3. Explain new frameworks, patterns and concepts the developer may not
+      know, without spending time on basic syntax.
+   4. Identify the important trade-offs, failure modes and assumptions.
+   5. Ask three technical questions, one at a time, to verify
+      understanding. End the turn after each question and do not reveal
+      the answer until the developer has attempted it.
+   6. Correct any misunderstanding and point to the relevant source code
+      (file and function).
+
+   Do not modify code during the walkthrough unless the developer asks.
+   Keep every explanation grounded in the current repository, not
+   assumptions. Merge only after the third question has been answered and
+   any misunderstanding corrected, and record the result in
+   `docs/PROGRESS.md` with one more commit on the PR branch. Docs-only,
+   CI-only and config-only PRs skip this step.
+7. When CI is green (and, for a feature, the walkthrough in step 6 is
+   done), merge with a merge commit (keeps each commit) and
    delete the branch, locally and on GitHub. The developer gave standing
    permission for this on 2026-10-19; it does not cover force-pushes or
    rewriting history, which still need asking.
-7. Record the change in `docs/PROGRESS.md` within the same PR.
-8. **Rule set by the developer, 2026-10-20:** when a change is based on a
+8. Record the change in `docs/PROGRESS.md` within the same PR.
+9. **Rule set by the developer, 2026-10-20:** when a change is based on a
    research paper, credit it in the same PR: add a line to the "Research
    basis" section of `README.md` naming the change and linking the paper.
    List only papers that actually shaped a change that was made.
