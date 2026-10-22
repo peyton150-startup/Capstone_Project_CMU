@@ -1674,6 +1674,70 @@ recipe, so runs stay reproducible; the frontend only chooses the recipe and
 never shows the agent the hidden causes. There is no frontend yet; the live
 progress view discussed on 2026-10-19 would be its first screen.
 
+#### Fault packs: one registry entry per sensor and its fault (planned 2026-10-22)
+
+Status: planned, not implemented. Recorded at the developer's request after
+a review of what adding a new sensor with a matching fault would take.
+
+**The problem.** Adding a fault today touches about 6 places in code (12 or
+so with a new sensor and a new repair), and most of them are lists of names
+that must agree: `FAULTS` (`simulator/generator.py`), `FAULT_KINDS`
+(`tools/diagnosis.py`), `CORRECT_ACTION`, `RELEVANT_EVIDENCE` and
+`CAUSE_KINDS` (`evaluation/scoring.py`), the baseline's `FIX`
+(`baseline.py`), `ACTIONS` (`tools/actions.py`), `MachineSensor` and the
+tool descriptions naming the sensors (`providers/factory.py`), the sensor
+list in `simulator/disturbances.py`, and the per-machine sensor list in
+`simulator/line.py`. Miss one and the fault is half wired.
+
+**The plan.** Describe each sensor and its paired fault once, as a "fault
+pack", in one fixed registry, and build those lists from it. A pack holds:
+
+- what the agent may see: the sensor's name and unit, the repair's name and
+  the sentence the `propose_action` description gives it, and any alarm;
+- what only the evaluator may see: the correct fix, the relevant evidence,
+  whether it is a cause or a distractor, its known-answer cases;
+- its code: the scenario that changes hidden state, the sensor's reading,
+  the repair's effect, and the baseline's rule.
+
+The two halves are kept apart in the registry, so evaluator-only data can
+never be read into a prompt or a tool description.
+
+**What it does not remove.** Each fault's real behaviour (the physics, the
+sensor reading, knock-on effects such as heat, the repair, the baseline
+rule) is still its own code. A new fault goes from about 12 files to 3 or 4
+(its pack, its physics hooks, its tests), not to one.
+
+**Fixed in code, chosen per experiment; not added or removed at runtime.**
+If the set of faults could change while the program runs, the same seed
+could build a different factory, and old results and the known-answer
+cases would stop matching. So packs are fixed in code, and an experiment
+chooses which packs it uses. Each seed's fault draw must be keyed so that
+leaving a pack out, or adding one, does not shift what the other faults
+draw (today `build_scenario` draws from `FAULTS` even when the fault is
+forced, so a longer list can change a seed's machine and start tick).
+Choosing packs per experiment is also most of what the easy / intermediate
+/ hard modes above would need.
+
+**When and in what order.** With four faults a registry is borderline
+complexity without a concrete reason (AGENTS.md section 4.5); it earns its
+place with the fifth. So, just before the next fault is added:
+
+1. move the existing four faults into the registry, changing no behaviour;
+2. prove nothing changed: the same seeds give the same factories and
+   scores, the known-answer cases still pass, and the rule baseline still
+   gets about 96% of causes right;
+3. add the new sensor and its fault (for example coolant pressure with a
+   coolant leak: pressure falls, the machine runs hotter, rejects rise, and
+   the fix is a coolant repair) as the first new pack.
+
+Step 1-2 is about a day. Before step 3, decide whether the new sensor
+raises its own alarm: monitoring reacts only to an alarm, a stopped
+machine or a run of rejects. New sensors, failure models and scenario
+injection are on the teaching list (AGENTS.md section 2.1), so whether this
+is taught or built ungated is the developer's call. The agent, its prompts,
+memory and the experiment harness need no change: the prompts carry no
+list of possible causes.
+
 ### Next build candidates (ranked, 2026-10-20)
 
 A short list for the developer to choose from, most impact first. None is
