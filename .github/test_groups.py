@@ -88,6 +88,7 @@ GROUPS: dict[str, list[str]] = {
     "Benchmark": ["benchmark"],
     "Memory": [
         "database_connection",
+        "duplicate_threshold",
         "memory_policy",
         "memory_recall",
         "memory_repository",

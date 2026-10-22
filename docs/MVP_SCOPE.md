@@ -471,6 +471,14 @@ never guess it.
 The labelled pairs live in a file in the repository so the measurement can
 be rerun. Unit tests use fixed fake vectors and need no key.
 
+**Provisional result (2026-10-22): 0.909**, on 60 drafted pairs with
+Claude's draft labels, because the store held no real lessons. It caught 19 of
+23 repeats and refused none of 28 different lessons, with almost no margin.
+Comparing the whole memory text beat the lesson sentence alone (19 vs 10
+repeats caught). Re-measure on real lessons before building the check. See
+[`benchmarks/2026-10-22-near-duplicate-threshold.md`](benchmarks/2026-10-22-near-duplicate-threshold.md).
+Tool: `python -m capstone.memory.duplicate_threshold`.
+
 #### Docling + HybridChunker — candidate, not implemented
 
 Reevaluate when actual manuals, SOPs, maintenance reports, and PDFs enter the
