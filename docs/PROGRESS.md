@@ -116,7 +116,9 @@ alarm), then evaluation, then the agent itself.
   the per-read timer also covers the first wait while a non-streamed answer
   is generated (up to 42.2 s for a successful one), so it cannot be shorter
   than the request limit. The developer chose to raise the limits to 50 s /
-  100 s (separate PR). Q3 (what a trickle did to the fallback before):
+  100 s (PR #64), then dropped the change on 2026-10-23 (PR closed, not
+  merged; `.env.example` could not be updated by the coding agent): the
+  limits stay 45 s / 90 s. Q3 (what a trickle did to the fallback before):
   answered "now" correctly, unsure about "before"; corrected: the call did
   not return until 146 s, the question's time was gone, Cohere was "not
   asked, no time left"; the trickle undid L1's equal-share fix, which this PR
