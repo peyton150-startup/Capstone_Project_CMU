@@ -32,7 +32,9 @@ reported as timed out, not as unreachable.
 """
 
 import json
+import queue
 import re
+import threading
 import time
 import urllib.error
 import urllib.request
@@ -48,6 +50,7 @@ from capstone.settings import Settings, get_settings
 # (url, headers, body, timeout in seconds) -> response body
 Transport = Callable[[str, dict[str, str], bytes, float], bytes]
 Answer = TypeVar("Answer", bound=BaseModel)
+Result = TypeVar("Result")
 
 USER_AGENT = "capstone-agent/0.1"
 
@@ -198,10 +201,48 @@ _JOB_SETTING = {
 }
 
 
+def run_with_deadline(work: Callable[[], Result], seconds: float) -> Result:
+    """`work()`'s result, or TimeoutError once `seconds` have passed.
+
+    `work` runs in a background (daemon) thread and the caller waits at most
+    `seconds`. On time it gets the result, or the exception `work` raised. Past
+    the deadline the caller gets TimeoutError and moves on; the thread is left
+    to end by itself, and whatever it later returns is never read.
+    """
+    outcome: queue.SimpleQueue = queue.SimpleQueue()
+
+    def run() -> None:
+        try:
+            outcome.put((True, work()))
+        except BaseException as error:  # handed to the caller below
+            outcome.put((False, error))
+
+    threading.Thread(target=run, daemon=True, name="deadline").start()
+    try:
+        finished, value = outcome.get(timeout=seconds)
+    except queue.Empty:
+        raise TimeoutError(f"no complete reply within {seconds:g} s") from None
+    if finished:
+        return value
+    raise value
+
+
 def urllib_transport(url: str, headers: dict[str, str], body: bytes, timeout: float):
+    """POST `body` and return the whole reply within `timeout` seconds in all.
+
+    urllib's own timeout limits each wait on the socket, and every piece of
+    data that arrives starts it again, so a reply that trickles in can take
+    far longer (one request ran 146 s against 45 s on 2026-10-21). The
+    deadline makes `timeout` cover the whole request: connecting, sending,
+    waiting and reading.
+    """
     request = urllib.request.Request(url, data=body, headers=headers, method="POST")
-    with urllib.request.urlopen(request, timeout=timeout) as response:
-        return response.read()
+
+    def send() -> bytes:
+        with urllib.request.urlopen(request, timeout=timeout) as response:
+            return response.read()
+
+    return run_with_deadline(send, timeout)
 
 
 def post_json(

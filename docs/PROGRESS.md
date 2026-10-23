@@ -87,6 +87,7 @@ A component is complete only when both columns are checked.
 | L4 | Why a reply was invalid is recorded (cut off, not JSON, wrong shape, tool not offered) | yes (after the build, 2026-10-22) | n/a | yes | yes (re-checked 2026-10-22) | `providers/chat.py` (`INVALID_REPLY`, `invalid_outcome`, `is_model_outcome`), `agent/model_policy.py` (`_refuse`), `experiment.py` (`CallSummary.invalid_reasons`, report line), `benchmark.py` (`ModelReport.invalid_reasons`); session note 2026-10-21 (L4) |
 | L5 | NVIDIA is asked to keep replies to the answer type's JSON schema (structured output) | yes (after the build, 2026-10-22) | n/a | yes | yes | `providers/chat.py` (`Provider.structured_output`, `ChatClient(structured_output=)`, `response_format`); session note 2026-10-21 (L5) |
 | L6 | LLM7 and Kilo Code as providers; their free models checked (Z.ai checked and dropped) | yes (after the build, 2026-10-22) | n/a | yes | yes | `providers/chat.py` (`PROVIDERS` llm7, kilo), `settings.py` (`LLM7_API_KEY`, `KILO_CODE_API_KEY`), `.env.example`, AGENTS.md section 9, `docs/benchmarks/2026-10-21-llm7-kilo.md`; session note 2026-10-21 (L6) |
+| L7 | The request limit covers the whole request (a watchdog thread), not each read | yes | yes (after one correction) | yes | yes (walkthrough 2026-10-23: Q1, Q2 after one re-teach, Q3 corrected) | `providers/chat.py` (`run_with_deadline`, `urllib_transport`); session note 2026-10-22 (L7) |
 | M1 | The machine manual (SIM-CNC-001) and the `search_manual` tool (RAG over a fixed reference) | yes (design discussed 2026-10-22) | n/a | yes | yes (Q3 gap filled 2026-10-22; walkthrough Q1 right, Q2 corrected) | `manual/sections.py` (`ManualSection`, `parse_manual`, `check_no_leaks`, `load_manual`), `manual/index.py` (`KeywordManualSearch`, `ChromaManualIndex`, `open_manual_index`), `providers/manual.py` (`ManualProvider`, `MANUAL_SPEC`), `evaluation/manual.py`, `episode.py`, `experiment.py` (`--manual`), `contracts/provenance.py`, `agent/loop.py`, `agent/model_policy.py`, `memory/policy.py`; session note 2026-10-22 (M1) |
 | C2 | Course Module 2 gap note (working memory, episodic memory, tools, loops) | yes (after the build, 2026-10-22) | n/a | yes (docs) | yes | `docs/COURSE_MODULES.md`; session note 2026-10-20 (Module 2) |
 | C4 | Course Module 4: opt-in tree-of-thought hypothesize step | yes (after the build, 2026-10-22) | n/a | yes | yes | `agent/tree_of_thought.py` (`TreeOfThoughtPolicy`, `GENERATE`, `VALUE`, `prune`, `Thought`), `experiment.py` (`run --tree-of-thought`); session note 2026-10-20 (Module 4) |
@@ -143,7 +144,53 @@ alarm), then evaluation, then the agent itself.
   - The developer noted the thresholds must be measured on hand-labelled
     runs, and asked that Jev stay optional given a $5-a-month budget (it
     already runs only through its own command; spending guards proposed).
-    Not merged: the developer asked to merge only after review.
+    Merged at the developer's request after the walkthrough, without the
+    spending guards (the developer's choice).
+
+- **2026-10-23: PR #59 pre-merge walkthrough (L7).** Three questions.
+  Q1 (why the thread hands every exception to the caller): said a lost 503
+  would surface as a timeout after the full limit; correct; filled in the
+  mechanism (an escaping exception ends the thread and is printed, nothing
+  reaches the queue) and the costs (the share burned, a 401 retried as a
+  transient timeout, wrong `outage_reasons`). Q2 (why keep urllib's
+  per-read timeout inside the thread): did not know; re-taught with the code
+  (the caller's deadline cannot end the thread; only the per-read timeout
+  can, else a silent server leaves it stuck until exit); restated correctly.
+  The developer then asked why the thread waits 45 s after the last byte:
+  the per-read timer also covers the first wait while a non-streamed answer
+  is generated (up to 42.2 s for a successful one), so it cannot be shorter
+  than the request limit. The developer chose to raise the limits to 50 s /
+  100 s (PR #64), then dropped the change on 2026-10-23 (PR closed, not
+  merged; `.env.example` could not be updated by the coding agent): the
+  limits stay 45 s / 90 s. Q3 (what a trickle did to the fallback before):
+  answered "now" correctly, unsure about "before"; corrected: the call did
+  not return until 146 s, the question's time was gone, Cohere was "not
+  asked, no time left"; the trickle undid L1's equal-share fix, which this PR
+  makes enforceable. Understood (Q3 in part, corrected).
+
+- **2026-10-22: L7: the request limit covers the whole request.** From the
+  L3 follow-up: urllib's `timeout` limits each wait on the socket and every
+  arriving piece of data restarts it, so one xKiro request ran 146 s against
+  the 45 s limit. Taught first (gate): the developer explained the chained
+  per-read waits correctly and the Requesty one-slot limit; did not know why
+  an abandoned request is acceptable; re-taught (the run moves on, the
+  daemon thread ends by itself, nothing reads its result, no client can
+  cancel the provider's work); restated it, with one correction (the
+  provider's late reply is discarded, not saved). The developer proposed a
+  240 s total; the saved benchmark calls show no successful request over 45 s
+  for any model in use (Nemotron 120b: 113 answered, longest 42.2 s; the
+  146 s xKiro request was itself a failure), so the measured 45 s stays.
+  Built: `providers/chat.py` `run_with_deadline(work, seconds)` (runs the
+  work in a daemon thread, waits at most `seconds`, then TimeoutError; the
+  work's own exception reaches the caller unchanged) and `urllib_transport`
+  now sends through it, so `MODEL_REQUEST_SECONDS` is a true limit. The
+  embedding client uses the same transport, so embedding calls get it too.
+  `post_json` still maps TimeoutError to "the model service timed out"
+  (transient), so retries and the fallback work as before. Tests: new
+  `tests/test_request_deadline.py` (6, a local 127.0.0.1 server that
+  trickles its reply), CI group "Tools and provider". Checked against the
+  old code with the same server: 0.5 s limit, old transport returned after
+  2.5 s, new one stopped at 0.5 s. Not run live.
 
 - **2026-10-22: re-checks of the four items understood in part (L2, L4,
   FD, C3a).** No code changed. A new question each.
