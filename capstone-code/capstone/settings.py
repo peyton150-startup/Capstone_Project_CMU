@@ -117,11 +117,16 @@ class Settings(BaseSettings):
     # and a planning question took 37 s, so the earlier 15 s / 20 s ended most
     # runs as "model unavailable". A request past 45 s is usually stuck in the
     # provider's queue: asking again or the fallback is quicker than waiting.
+    # Raised to 50 s / 100 s on 2026-10-23 (developer's choice) for more margin
+    # over the longest successful answer in the benchmark calls (nemotron 120b,
+    # 42.2 s; slowest 5% 36.3 s). The question limit moves with it: with two
+    # models each gets half the question, so 100 s gives each 50 s (the
+    # fallback's longest answer was 23.1 s).
     model_request_seconds: float = Field(
-        default=45.0, gt=0, validation_alias="MODEL_REQUEST_SECONDS"
+        default=50.0, gt=0, validation_alias="MODEL_REQUEST_SECONDS"
     )
     model_question_seconds: float = Field(
-        default=90.0, gt=0, validation_alias="MODEL_QUESTION_SECONDS"
+        default=100.0, gt=0, validation_alias="MODEL_QUESTION_SECONDS"
     )
     # How many more times an unreachable model is asked before moving on.
     # Measured live on 2026-10-20: NVIDIA's hosted API answered HTTP 500 in

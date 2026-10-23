@@ -652,8 +652,8 @@ def test_the_limits_come_from_settings(monkeypatch):
     defaults = settings()
     assert defaults.model_max_output_tokens == 16384
     assert (defaults.model_request_seconds, defaults.model_question_seconds) == (
-        45.0,
-        90.0,
+        50.0,
+        100.0,
     )
     assert defaults.model_retries == 3
     with pytest.raises(ValueError):

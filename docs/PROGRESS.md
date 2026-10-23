@@ -102,6 +102,19 @@ alarm), then evaluation, then the agent itself.
 
 ## Session notes
 
+- **2026-10-23: request and question limits raised to 50 s and 100 s
+  (developer's choice; a measured setting, no gate needed).** During PR #59's
+  walkthrough the developer asked for more margin over the longest
+  successful answer in the saved benchmark calls (nemotron 120b, 42.2 s;
+  slowest 5% 36.3 s). `settings.py`: MODEL_REQUEST_SECONDS 45 -> 50,
+  MODEL_QUESTION_SECONDS 90 -> 100. Both move together because a request
+  waits the smallest of its own limit, its model's share of the question and
+  the stage's time left; with two models the share is half the question, so
+  50 s alone would have changed nothing. The fallback (Cohere, longest answer
+  23.1 s) keeps a 50 s share. Cost: a question that fails on both models can
+  take 100 s instead of 90. `tests/test_chat_client.py`: the defaults
+  assertion. A local `.env` that sets either value still wins.
+
 - **2026-10-22: re-checks of the four items understood in part (L2, L4,
   FD, C3a).** No code changed. A new question each.
   - L2: asked whether a model that concluded 4 runs in 300 s without ever
