@@ -391,6 +391,41 @@ Runtime integration must reconcile the completion contracts described in
 `EPISODIC_MEMORY.md` and respect the reinstated memory teaching checkpoints
 recorded in `PROGRESS.md`.
 
+#### Maximal Marginal Relevance (MMR) for episodic recall — candidate (2026-10-23)
+
+**Status:** medium-priority future work, not implemented. Reevaluate after the
+baseline episodic-memory retrieval is measured and actual investigations show
+that several near-duplicate incident results crowd out other relevant causes.
+This is retrieval-time diversification, **not** the near-duplicate write-time
+memory check below; it does not require another reasoning LLM.
+
+MMR first retrieves a larger candidate pool, then selects a smaller set that
+balances similarity to the query against redundancy with already selected
+items. The goal is to let the agent consider multiple plausible manufacturing
+causes (for example bearing degradation, misalignment, and tool imbalance)
+without losing the strongest supporting incidents. It does not guarantee
+coverage of every cause or make an unsupported diagnosis true.
+
+**Strict scope: `recall_memories` (episodic memory) only.** Evaluate MMR
+exclusively when the agent recalls stored investigation lessons/incidents.
+**Do not apply MMR to the machine-manual RAG index, manual search tool, SOPs,
+or procedural-document retrieval.** Those remain relevance-first and are not
+part of this MMR proposal. Respect memory outcome, category, provenance,
+source IDs, and applicable recall filters. Do not introduce LangChain or a
+new database just for MMR; use the retrieval stack actually selected when
+this work is implemented.
+
+**Evaluation gate:** compare standard similarity retrieval with MMR on the
+same stored incidents and seeded investigation scenarios. Sweep the candidate
+pool size, returned result count, and relevance/diversity weight rather than
+assuming a universal default. Measure relevant-incident recall, duplicate
+results, coverage of genuinely distinct plausible causes, root-cause accuracy,
+time/token cost, and whether required evidence is missing. Include cases where
+several similar reports are all important and where alternate faults coexist.
+Keep the original retriever as the default unless MMR improves investigation
+quality without exceeding the existing investigation budget. Any implementation
+gets its own PR and deterministic offline tests.
+
 #### Near-duplicate memory check (planned 2026-10-22)
 
 Status: planned, not implemented. The concept was taught and the developer

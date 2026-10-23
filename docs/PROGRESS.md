@@ -2195,4 +2195,14 @@ alarm), then evaluation, then the agent itself.
   the evaluator and a future agent that someone looked. Checkpoint 5b is
   complete. NEXT: checkpoint 6a, pre-implementation question.
 
+- **2026-10-23 — MMR episodic-recall roadmap note (documentation only).**
+  Added a medium-priority, not-implemented Maximal Marginal Relevance (MMR)
+  evaluation candidate to Future Work 1 in `docs/MVP_SCOPE.md`. It applies
+  initially to episodic-memory retrieval, not to machine manuals or memory
+  promotion. Baseline similarity-search results must be measured before
+  implementation. Compare relevance, diversity, root-cause correctness, and
+  time/token costs under deterministic offline evaluation. No code or
+  dependencies changed; understanding/implementation status is unchanged.
+  No tests were added or run for this documentation-only update.
+
 Older notes (2026-10-12 and earlier) are in `docs/PROGRESS_ARCHIVE.md`.
