@@ -1861,7 +1861,81 @@ is taught or built ungated is the developer's call. The agent, its prompts,
 memory and the experiment harness need no change: the prompts carry no
 list of possible causes.
 
-### Next build candidates (ranked, 2026-10-20)
+
+#### High-priority simulator fidelity: faster bearing vibration ramp and machine power (planned 2026-10-23)
+
+**Status: HIGH priority, future work; neither change is implemented.**
+These two simulator improvements come from the developer's discussion with
+manufacturing engineer Brandon Reff. Prioritize them above optional vision,
+voice, and broad new simulator subsystems, while preserving the small working
+MVP and requiring a measured baseline before changing physics.
+
+**A. Recalibrate bearing vibration progression (HIGH priority).**
+
+- Today `BearingDegradation` reduces hidden `bearing_health` over time, and
+  `VibrationSensor` adds `wear_gain * (1 - bearing_health) ** 2` to its
+  normal reading. Keep the causal separation: the scenario changes hidden
+  condition; the sensor produces noisy observations from that condition.
+- Reflect the engineering feedback: early wear may produce little change in
+  *overall* vibration; after a configurable health/observable-onset point,
+  vibration should rise continuously but somewhat faster, over a *shorter*
+  period than the current scenario. This is a steeper ramp, not an instant
+  jump or a permanent flat line. Preserve plausible baseline noise, load
+  effects, speed effects, and variations between seeded machines.
+- **Initial duration to calibrate: roughly three simulated days** for the
+  noticeable damage/vibration progression. At the standard one-minute tick,
+  three calendar days are approximately **4,320 ticks**. Do not turn this
+  estimate into an unexplained universal bearing-life threshold. During
+  validation, define onset and end conditions and distinguish calendar days
+  from operating days; wear should depend on when/how hard the machine runs.
+- The current short agent experiments may not span 4,320 ticks. Support
+  explicitly labeled compressed-damage experiments or longer simulated
+  histories without silently changing global clock semantics, daily ambient
+  cycles, agent time budgets, or existing known-answer cases. Compare the old
+  and new curves before choosing parameters.
+- **Acceptance checks:** stable early measurements; a continuous, moderately
+  steeper later slope; expected abnormal reading/alarms reached in the
+  calibrated window; reproducibility across seeds; no hidden-health leakage;
+  normal operation and bearing replacement still behave correctly. Compare
+  investigation accuracy, false alarms, and time-to-detection with baseline.
+
+**B. Add machine electrical power consumption in kilowatts (HIGH priority).**
+
+- Add a machine-level observed **power_kW** sensor measuring *instantaneous*
+  electrical demand. Model separately the hidden physical causes of power:
+  an idle/base draw; spindle power affected by operation, speed, and load;
+  and, as appropriate for the machine configuration, axis drives, coolant
+  systems, or hydraulic equipment. A machine without hydraulics must not
+  silently acquire a hydraulic pump. The first increment can use a simple
+  whole-machine demand model rather than a full electrical digital twin.
+- Make readings operating-mode-aware (idle, cutting, stopped), seed-reproducible
+  and noisy, with variation across jobs and settings. Compare readings to the
+  same machine/task baseline: higher kW alone is **not** proof of bearing
+  failure; heavy cutting and process changes can increase power too.
+- Distinguish **kW (instantaneous power)** from **kWh (energy integrated over
+  simulated time)**. Existing percentage motor-load readings cannot simply
+  be relabeled as kW. Optional current draw in amps should be modeled only
+  with stated electrical assumptions, not presented as an independent fault
+  signal when derived from the same underlying load model.
+- Follow the existing hidden-state -> sensor observation -> provider/tool
+  boundary. If exposed to the agent, update typed sensor names, allowed
+  observations, descriptions, summaries, and any alarm/relevant-evidence
+  policy as needed, without exposing evaluator-only truth.
+- **Acceptance checks:** healthy idle/cutting/stopped baselines are sensible;
+  increased load changes kW; the same seed reproduces measurements; units
+  and integration to kWh are correct; sensor availability/noise is handled;
+  abnormal power can support but does not uniquely determine a diagnosis.
+
+**Dependencies and sequencing.** Establish a baseline from current simulator
+traces, get engineering confirmation on time/threshold and power bands, then
+implement these as separate, small PRs with tests and regression comparisons.
+No new fault type is required to add either sensor fidelity improvement; servo
+motor and hydraulic failure modes are separate future candidates. Neither
+improvement changes the MVP commitment merely by being documented.
+
+See the [simulator fidelity reevaluation gates](FUTURE_WORK_REEVALUATION.md#high-priority-simulator-fidelity-candidates-2026-10-23).
+
+### Next build candidates (ranked, updated 2026-10-23)
 
 A short list for the developer to choose from, most impact first. None is
 started. Each would go through its own pull request (AGENTS.md §11); whether
@@ -1871,14 +1945,18 @@ each is taught first or built ungated is the developer's call.
 |---|---|---|---|---|
 | 1 | **Make live runs finish.** Find why live episodes end "model unavailable" (reply length limit, provider errors, no fallback model set), fix it, rerun the eight known-answer cases. | In the developer's local live results of 2026-10-20, 15 of 17 runs ended "model unavailable" and concluded "undetermined". Until runs complete, no live result means anything. | Keys in `.env`; live API calls | Small to medium |
 | 2 | **Benchmark the in-scope models** (`python -m capstone.benchmark`), then set the per-question limit, the investigation budget and the job table (which model does which job) from the numbers. | The time limits are still estimates; some jobs may suit a different model. | Item 1; the developer names the models | Small code, long runs |
-| 3 | **The compound challenge in experiments** (Future Work 8, first part). | Scoring several true faults is ready (E5) but experiments cannot build the challenge. | Nothing | Medium |
-| 4 | **An evaluator model for diagnosis labels**, checked against the developer's hand labels before it is trusted; a different model from the investigator; its verdict never reaches the agent or memory. | Experiments could then score root cause without labelling every run by hand (decided 2026-10-12). | Some hand labels to check it against | Medium |
-| 5 | **A memory comparison command:** the same cases with no memory, keyword recall and semantic recall, reported side by side on diagnosis accuracy and tool calls. | Shows whether memory improves investigations, not just whether search works. | Item 1 (live runs) for meaningful numbers | Small to medium |
-| 6 | **A live progress view:** a hook in the loop that announces each step as it happens, and a terminal viewer with approval at the prompt; only what the agent sees, the score only after the run. | A run can take minutes; a viewer also makes the demo. First screen of the later frontend (Future Work 8, modes). | Nothing | Medium |
-| 7 | **Small cleanups:** `.env.example` lists the newer settings; stale worktrees removed. | Setting up a fresh checkout works first time. | Nothing | Small |
+| 3 | **HIGH: Recalibrate bearing vibration progression to ~3 simulated days.** | Brandon's feedback: after initially near-normal vibration, a faster but still gradual rise over a shorter window. Ensure 3-day estimate is mapped to simulation time without breaking short agent experiments. | Baseline traces and duration/threshold calibration; feedback from Brandon | Small to medium |
+| 4 | **HIGH: Add whole-machine electrical power in kW.** | A new operating-mode-aware power signal adds realistic evidence and operating-cost context; integrate kWh only over time and avoid treating current/load as independent when derived from the same model. | Power baseline assumptions by CNC operating mode; typed sensor/provider wiring | Medium |
+| 5 | **The compound challenge in experiments** (Future Work 8, first part). | Scoring several true faults is ready (E5) but experiments cannot build the challenge. | Nothing | Medium |
+| 6 | **An evaluator model for diagnosis labels**, checked against the developer's hand labels before it is trusted; a different model from the investigator; its verdict never reaches the agent or memory. | Experiments could then score root cause without labelling every run by hand (decided 2026-10-12). | Some hand labels to check it against | Medium |
+| 7 | **A memory comparison command:** the same cases with no memory, keyword recall and semantic recall, reported side by side on diagnosis accuracy and tool calls. | Shows whether memory improves investigations, not just whether search works. | Item 1 (live runs) for meaningful numbers | Small to medium |
+| 8 | **A live progress view:** a hook in the loop that announces each step as it happens, and a terminal viewer with approval at the prompt; only what the agent sees, the score only after the run. | A run can take minutes; a viewer also makes the demo. First screen of the later frontend (Future Work 8, modes). | Nothing | Medium |
+| 9 | **Small cleanups:** `.env.example` lists the newer settings; stale worktrees removed. | Setting up a fresh checkout works first time. | Nothing | Small |
 
-Can run in parallel: 1 (needs the keys, so in the developer's session), 3 + 4
-(evaluation), 5 + 6 (different files). Item 2 waits for item 1. Difficulty
+The two high-priority simulator updates (3 and 4) can be designed together,
+but should be implemented and evaluated in separate PRs.
+Can run in parallel: 1 (needs the keys, so in the developer's session), 5 + 6
+(evaluation), 7 + 8 (different files). Item 2 waits for item 1. Difficulty
 modes (Future Work 8, second part) wait for item 1's live results compared
 with the rule baseline.
 

@@ -37,6 +37,24 @@ proposal, but does not provide network idempotency or deduplicate submissions.
 `wait` changes simulation state; `propose_action` changes proposal state. Neither
 belongs in the first read-only MCP slice.
 
+
+## High-priority simulator fidelity candidates (2026-10-23)
+
+These two candidates came from Brandon Reff's manufacturing-engineering
+feedback. They are **HIGH priority; not implemented**. The authoritative
+details and ranked build candidates live in
+[MVP_SCOPE.md, Future Work 8](MVP_SCOPE.md#high-priority-simulator-fidelity-faster-bearing-vibration-ramp-and-machine-power-planned-2026-10-23).
+This register records adoption gates, not authorization to change behavior.
+
+| Candidate | Adoption gate | Validation and deferral rules |
+|---|---|---|
+| Bearing progression: modestly steeper, shorter visible vibration ramp, approximately three simulated days | Define the start/end of the noticeable degradation period, verify whether the three-day estimate is calendar or machine-operating time, and map that duration to the one-minute default tick (about 4,320 ticks if calendar time). Review old and revised curves with engineering feedback. | Preserve early normal variability and smooth, non-instantaneous rise; compare seeded traces, alarms, repairs, detection timing, and existing short-episode compatibility. Defer any fixed universal threshold until calibrated. |
+| Machine electrical power consumption in kW | Define machine and operating-mode baselines and component contributors, with no invented hydraulic subsystem. Add power as a causal, noisy observation, distinct from existing percentage motor load; kWh only by integrating power over elapsed simulated time. | Validate units, idle/cutting/stopped behavior, seed replay, normal job variation, and provider boundary; avoid diagnosing bearing failure from high power alone. Defer unvalidated current-draw/electrical assumptions. |
+
+Both candidates must keep hidden truth out of agent observations and preserve
+seed determinism. No simulator code, added dependencies, or test behavior has
+changed from documenting these gates.
+
 ## Corrections to the supplied conditions
 
 1. **Parts 1–3: separate structure, completeness, and truth.** The barricade
