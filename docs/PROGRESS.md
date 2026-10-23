@@ -2205,4 +2205,17 @@ alarm), then evaluation, then the agent itself.
   dependencies changed; understanding/implementation status is unchanged.
   No tests were added or run for this documentation-only update.
 
+- **2026-10-23 — HIGH-priority simulator fidelity roadmap (documentation only).**
+  Recorded manufacturing engineer Brandon Reff's feedback: bearing vibration
+  should stay near its normal range initially, then climb moderately faster
+  over a shorter period, initially targeted at about three simulated days
+  (4,320 one-minute ticks if calendar days). Also prioritized a machine
+  electrical power consumption sensor in kW, with kWh derived over elapsed
+  time, operating-mode baselines, and realistic causal links to load/settings.
+  Added adoption gates in `docs/MVP_SCOPE.md` (Future Work 8 and ranked
+  candidates) and `docs/FUTURE_WORK_REEVALUATION.md`. Both are planned,
+  not implemented. No simulator, agent, or dependencies changed; no local
+  tests run for this documentation-only change. Implementation and developer
+  understanding statuses remain unchanged.
+
 Older notes (2026-10-12 and earlier) are in `docs/PROGRESS_ARCHIVE.md`.
