@@ -104,6 +104,30 @@ alarm), then evaluation, then the agent itself.
 
 ## Session notes
 
+- **2026-10-23: near-duplicate lesson run started and stopped (results
+  only; nothing built).** Followed the NEXT SESSION steps below on `main`.
+  Step 1: re-measuring the drafted pairs gave 0.909 again, so NVIDIA's
+  embedding service was back. Step 2: a throwaway SQLite store and Chroma
+  index under `.chroma/near-duplicate/` (ignored by git; Neon and `.env`
+  untouched), created with `alembic upgrade head`. Step 3: `experiment run
+  --name lessons-1 --seeds 1-10 --faults bearing_degradation,wrong_setting
+  --memory --audit ...` in the background; stopped at the developer's request
+  (out of time) after **1 of 20 episodes, 0 lessons stored**, so the
+  threshold stays the provisional 0.909. The one episode (seed 1, bearing on
+  CNC-04, 923 s): NVIDIA's chat model (nemotron 120b) timed out on every
+  question, most at the full 120 s, though its embeddings answered; Cloudflare
+  Llama 3.3 70B, the fallback, answered nearly every question in 1-20 s (one
+  `interpret` went unanswered by both). It concluded high vibration on CNC-04
+  but recommended "escalate", not a bearing replacement, and ended on the
+  time limit with no check, so no lesson could be written. Findings: (1)
+  NVIDIA chat may still be degraded, so check it before rerunning, or the run
+  measures the fallback; (2) requests waited 120 s, above the code's 45 s
+  default, so the developer's local `.env` appears to set
+  MODEL_REQUEST_SECONDS (and the question limit) higher, and each question
+  spent about 2 minutes on NVIDIA before the fallback was asked. The store,
+  audit log (1 record), results and `run.log` remain in
+  `.chroma/near-duplicate/` for the rerun; the store can be reused as is.
+
 - **2026-10-23 — Draft diagnosis labels for the 16 live conclusions.** At
   the developer's request, the coding assistant drafted labels
   (`docs/benchmarks/2026-10-23-draft-diagnosis-labels.jsonl`,
@@ -333,7 +357,8 @@ alarm), then evaluation, then the agent itself.
     described in a schema, and gave the cross-field rule in `NextStep` and a
     service failing to enforce as further reasons. Understood.
 
-- **NEXT SESSION (planned 2026-10-23): re-measure the near-duplicate
+- **NEXT SESSION (was planned 2026-10-23; started and stopped, see the
+  2026-10-23 note above): re-measure the near-duplicate
   threshold on real lessons.** Postponed from 2026-10-22 because NVIDIA was
   down. The developer approved Claude's draft labels on 2026-10-22, so the
   provisional 0.909 stands for the drafted pairs. Steps, all in one
