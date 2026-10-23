@@ -406,12 +406,14 @@ causes (for example bearing degradation, misalignment, and tool imbalance)
 without losing the strongest supporting incidents. It does not guarantee
 coverage of every cause or make an unsupported diagnosis true.
 
-**Initial scope:** episodic-memory recall only. Keep precise machine-manual
-and procedure retrieval on relevance-first search until there is evidence that
-diversification benefits those sources. Respect outcome, category, provenance,
-source IDs, and any applicable retrieval filters. Do not introduce LangChain
-or a new database just for MMR; use the retrieval stack actually selected
-when this work is implemented.
+**Strict scope: `recall_memories` (episodic memory) only.** Evaluate MMR
+exclusively when the agent recalls stored investigation lessons/incidents.
+**Do not apply MMR to the machine-manual RAG index, manual search tool, SOPs,
+or procedural-document retrieval.** Those remain relevance-first and are not
+part of this MMR proposal. Respect memory outcome, category, provenance,
+source IDs, and applicable recall filters. Do not introduce LangChain or a
+new database just for MMR; use the retrieval stack actually selected when
+this work is implemented.
 
 **Evaluation gate:** compare standard similarity retrieval with MMR on the
 same stored incidents and seeded investigation scenarios. Sweep the candidate
