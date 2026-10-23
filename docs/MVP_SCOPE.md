@@ -426,6 +426,48 @@ Keep the original retriever as the default unless MMR improves investigation
 quality without exceeding the existing investigation budget. Any implementation
 gets its own PR and deterministic offline tests.
 
+#### Jev (TypeSafe AI) for episodic recall reranking and investigation routing — candidate (2026-10-23)
+
+**Status:** medium-priority future work, not implemented. Consider a small
+proof of concept only after the baseline memory-recall and agent-tool-routing
+paths work and measured errors or wasted calls justify another model request.
+Jev is a probabilistic decision model for typed choice, score, and boolean
+judgments, **not** a replacement for the Nemotron investigation/reasoning
+agent, deterministic numerical tools, or human approval.
+
+**First use case — episodic recall:** use Jev to score/rerank already retrieved
+investigation lessons for relevance to current observed symptoms and the
+agent's question, preserving memory IDs, outcome (resolved or unresolved),
+source provenance and contradictory evidence. Limit this evaluation to
+`recall_memories` and the episodic-memory Chroma/PostgreSQL retrieval path.
+**Do not route machine-manual RAG, `search_manual`, SOPs, or procedural
+documentation through Jev.** Keep a baseline retrieval fallback and avoid
+irreversibly discarding potentially useful or contradictory memories on a
+single model score.
+
+**Second use case — investigation routing:** optionally evaluate bounded
+choices such as the next read-only diagnostic tool or subsystem to inspect
+from the agent's *observable* evidence. The main agent still owns hypotheses,
+testing, intervention recommendations and verification; evaluator-only
+ground truth must never be supplied to Jev. Any control over state-changing
+tools remains behind existing approval and safety policies.
+
+**Evaluation gate:** compare the same seeded incidents and investigation
+budgets using (1) baseline similarity recall, (2) MMR, (3) Jev reranking,
+and (4) MMR plus Jev; test routing separately against the existing agent.
+Measure relevant-incident recall, contradictory evidence retained, incorrect
+filtering, root-cause accuracy, tool calls, wall-clock latency, API/token
+cost, timeouts and total completion within the 60-second investigation
+budget. Use deterministic offline stubs for tests and opt-in live API
+experiments. On API failure, uncertainty or exceeded time budget, fall
+back to current retrieval/routing rather than blocking an investigation.
+Review the current TypeSafe API, privacy and pricing before adoption; no
+dependency or live service is authorized by this roadmap entry.
+
+References:
+[TypeSafe Jev introduction](https://typesafe.ai/blog/introducing-system-one-models-and-jev);
+[Vercel's Jev typed-evaluation API](https://vercel.com/changelog/ai-gateway-now-supports-typesafe-clients-and-http-api-for-jev).
+
 #### Near-duplicate memory check (planned 2026-10-22)
 
 Status: planned, not implemented. The concept was taught and the developer
