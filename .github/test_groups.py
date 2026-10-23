@@ -65,6 +65,7 @@ GROUPS: dict[str, list[str]] = {
         "sensor_summary",
         "settings",
         "env_example",
+        "typesafe_client",
         "wait_tool",
     ],
     # Checkpoints 1-3: runtime records, inner loop, outer sequence, action path.
@@ -95,7 +96,12 @@ GROUPS: dict[str, list[str]] = {
         "memory_semantic",
         "migrations",
     ],
-    "Evaluation": ["evaluation", "memory_evaluation", "scoring_integrity"],
+    "Evaluation": [
+        "evaluation",
+        "memory_evaluation",
+        "scoring_integrity",
+        "auto_label",
+    ],
     # Many episodes: the harness, hand labels and the known-answer cases.
     "Experiments": ["experiment", "known_answers", "baseline", "memory_comparison"],
     # The runner: one seeded episode from fault to score, end to end.
