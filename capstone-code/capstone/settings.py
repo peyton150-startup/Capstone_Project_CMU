@@ -87,6 +87,13 @@ class Settings(BaseSettings):
     llm7_api_key: SecretStr | None = _optional("LLM7_API_KEY")
     # Kilo Code's gateway (2026-10-21): a support agent or a fallback.
     kilo_code_api_key: SecretStr | None = _optional("KILO_CODE_API_KEY")
+    # TypeSafe's System One API (2026-10-23): typed judgments (yes/no
+    # probabilities, choices), not text. Used only by the evaluator's
+    # auto-labeller, never by the agent.
+    typesafe_api_key: SecretStr | None = _optional("TYPESAFE_API_KEY")
+    typesafe_model: str = Field(
+        default="jev-latest", min_length=1, validation_alias="TYPESAFE_MODEL"
+    )
 
     # Which model answers which policy question. None: use default_model.
     default_model: str = Field(default=DEFAULT_MODEL, validation_alias="DEFAULT_MODEL")
@@ -142,6 +149,7 @@ class Settings(BaseSettings):
         "xkiro_api_key",
         "llm7_api_key",
         "kilo_code_api_key",
+        "typesafe_api_key",
         "plan_model",
         "decide_model",
         "interpret_model",
