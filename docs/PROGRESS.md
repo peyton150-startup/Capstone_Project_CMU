@@ -104,6 +104,18 @@ alarm), then evaluation, then the agent itself.
 
 ## Session notes
 
+- **2026-10-23 — Draft diagnosis labels for the 16 live conclusions.** At
+  the developer's request, the coding assistant drafted labels
+  (`docs/benchmarks/2026-10-23-draft-diagnosis-labels.jsonl`,
+  `labelled_by: "claude-draft"`). They label what each conclusion says, not
+  whether it is right. They are not hand labels: a model wrote them after
+  seeing Jev's proposals. Compared offline with the saved Jev proposals
+  (no new calls): 13 of 16 agree, 13 of 15 among unreviewed. The 3
+  disagreements are the 3 drafts marked debatable; two were confident Jev
+  answers (0.06, 0.11), so the gap is the false-alarm wording, not the
+  thresholds (`docs/benchmarks/2026-10-23-jev-auto-labels.md`). Not done:
+  the developer's review of the drafts. Docs and data only; no code changed.
+
 - **2026-10-23 — T1: TypeSafe's Jev proposes diagnosis labels.** At the
   developer's request (they added `TYPESAFE_API_KEY` to `.env`), built
   the "evaluator model for diagnosis labels" build candidate of `docs/MVP_SCOPE.md` with TypeSafe's

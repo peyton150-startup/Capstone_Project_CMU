@@ -1,0 +1,16 @@
+{"run_key":"trial-2/8/KA-08-false-alarm","diagnosis":null,"labelled_by":"claude-draft","note":"investigation in progress; no diagnosis yet"}
+{"run_key":"live-known-4/1/KA-01-bearing","diagnosis":null,"labelled_by":"claude-draft","note":"says the cause is unclear"}
+{"run_key":"live-known-4/2/KA-02-bearing","diagnosis":{"fault":"bearing_degradation","machine_id":"CNC-05","batch_id":null,"summary":""},"labelled_by":"claude-draft","note":"most consistent with bearing wear"}
+{"run_key":"live-known-4/3/KA-03-batch","diagnosis":null,"labelled_by":"claude-draft","note":"only 'potentially a shared machine or process step'; no fault kind"}
+{"run_key":"live-known-4/4/KA-04-batch","diagnosis":{"fault":"bad_material_batch","machine_id":null,"batch_id":null,"summary":""},"labelled_by":"claude-draft","note":"DEBATABLE: blames 'a batch-specific issue' (no batch named), then a process change"}
+{"run_key":"live-known-4/5/KA-05-setting","diagnosis":null,"labelled_by":"claude-draft","note":"suspects the inspection process; not conclusive"}
+{"run_key":"live-known-4/6/KA-06-setting","diagnosis":null,"labelled_by":"claude-draft","note":"CNC-01 'may be contributing'; no fault kind"}
+{"run_key":"live-known-4/7/KA-07-false-alarm","diagnosis":{"fault":"false_alarm","machine_id":"CNC-01","batch_id":null,"summary":""},"labelled_by":"claude-draft","note":"transient event, not an ongoing fault"}
+{"run_key":"live-known-4/8/KA-08-false-alarm","diagnosis":{"fault":"false_alarm","machine_id":"CNC-03","batch_id":null,"summary":""},"labelled_by":"claude-draft","note":"short-lived spike that self-resolved"}
+{"run_key":"live-known-4/9/KA-09-challenge","diagnosis":{"fault":"false_alarm","machine_id":"CNC-03","batch_id":null,"summary":""},"labelled_by":"claude-draft","note":"DEBATABLE: 'episode has ended, returned to normal' implies nothing to fix, but never says transient"}
+{"run_key":"wait-120/1/seed-6/bearing_degradation","diagnosis":{"fault":"false_alarm","machine_id":"CNC-02","batch_id":null,"summary":""},"labelled_by":"claude-draft","note":"nuisance alarms from ordinary variation; bearing ruled out"}
+{"run_key":"reasons-1/1/seed-6/bearing_degradation","diagnosis":{"fault":"bearing_degradation","machine_id":"CNC-02","batch_id":null,"summary":""},"labelled_by":"claude-draft","note":"most consistent with spindle bearing wear"}
+{"run_key":"reasons-1/1/seed-9/wrong_setting","diagnosis":null,"labelled_by":"claude-draft","note":"root cause not yet determined"}
+{"run_key":"structured-1/1/seed-6/bearing_degradation","diagnosis":{"fault":"false_alarm","machine_id":"CNC-02","batch_id":null,"summary":""},"labelled_by":"claude-draft","note":"DEBATABLE: no confirmed fault, neither replacement nor reset justified"}
+{"run_key":"structured-1/1/seed-7/bad_material_batch","diagnosis":null,"labelled_by":"claude-draft","note":"blames a pallet/fixture defect (not a fault kind); batch 2 ruled out"}
+{"run_key":"structured-1/1/seed-9/wrong_setting","diagnosis":{"fault":"bearing_degradation","machine_id":"CNC-05","batch_id":null,"summary":""},"labelled_by":"claude-draft","note":"most consistent with a failing bearing (the true fault was a setting: a faithful label of a wrong diagnosis)"}
