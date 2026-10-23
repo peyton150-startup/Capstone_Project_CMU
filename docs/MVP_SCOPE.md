@@ -1968,6 +1968,51 @@ MVP and requiring a measured baseline before changing physics.
   and integration to kWh are correct; sensor availability/noise is handled;
   abnormal power can support but does not uniquely determine a diagnosis.
 
+**Additional feedback to retain from Brandon (not yet implemented).**
+
+**C. Examine electrical current draw (amps) as a related observation.**
+
+- Brandon also suggested watching machine **current draw**, distinct from
+  reporting whole-machine electrical power in kW. Evaluate whether a useful
+  measured channel would be spindle-motor current, servo-axis current, or
+  hydraulic-pump motor current; label its machine/component and units clearly.
+- Compare amperage at equivalent operating loads, speeds, and modes. A rising
+  current can indicate increased mechanical resistance, but neither a high
+  current nor high kW uniquely identifies a bad bearing. If amperage and
+  power are both *computed from the same hidden load*, they are correlated,
+  not independent corroborating evidence. Physical electrical assumptions
+  (voltage, phases, power factor, efficiency) must be explicit before
+  converting one into the other.
+- This is a **related follow-up to HIGH-priority kW monitoring**, not a
+  claim that a current sensor exists today. Evaluate the additional
+  diagnostic value and cost before adding a separate telemetry channel.
+
+**D. Expand the number of failure-capable machine components.**
+
+- Brandon specifically called out **servo motors** and **hydraulics** as
+  parts worth investigating so that not all failures are spindle-bearing
+  problems. Model independent hidden component condition, failure progression,
+  observable effects, and realistic repair/verification outcomes.
+- **Servo/axis system candidate:** motor or drive overheating, encoder/
+  position-feedback fault, and increased drive current or following error.
+  Differentiate motor/drive failures from mechanical resistance imposed
+  by a loaded or binding axis; sensor readings should reflect the physical
+  state, not reveal the fault label.
+- **Hydraulic system candidate, only on machines equipped with hydraulics:**
+  pump deterioration, leakage/low pressure, fluid-level problems, or a
+  sticking valve. Potential observations include pressure, pump-motor
+  current, oil temperature, fluid level and clamp/actuator status. Do not
+  give every CNC station hydraulics by default.
+- Keep these as **separate future failure-scenario candidates, medium-high
+  priority after the two immediate fidelity improvements**. Adding new
+  diagnosis/action labels may need the planned fault-pack registry and
+  updates to agent-facing tools, known-answer tests and evaluation scoring.
+  Test normal operating variation, misleading overlap between causes,
+  concurrent faults, deterministic seeds, and hidden-truth isolation.
+- Ball screws and lubrication were discussed as *additional possibilities
+  in this chat*, but were not specifically attributed to Brandon. Do not
+  mistakenly present them as part of his reported feedback.
+
 **Dependencies and sequencing.** Establish a baseline from current simulator
 traces, get engineering confirmation on time/threshold and power bands, then
 implement these as separate, small PRs with tests and regression comparisons.
@@ -1989,16 +2034,19 @@ each is taught first or built ungated is the developer's call.
 | 2 | **Benchmark the in-scope models** (`python -m capstone.benchmark`), then set the per-question limit, the investigation budget and the job table (which model does which job) from the numbers. | The time limits are still estimates; some jobs may suit a different model. | Item 1; the developer names the models | Small code, long runs |
 | 3 | **HIGH: Recalibrate bearing vibration progression to ~3 simulated days.** | Brandon's feedback: after initially near-normal vibration, a faster but still gradual rise over a shorter window. Ensure 3-day estimate is mapped to simulation time without breaking short agent experiments. | Baseline traces and duration/threshold calibration; feedback from Brandon | Small to medium |
 | 4 | **HIGH: Add whole-machine electrical power in kW.** | A new operating-mode-aware power signal adds realistic evidence and operating-cost context; integrate kWh only over time and avoid treating current/load as independent when derived from the same model. | Power baseline assumptions by CNC operating mode; typed sensor/provider wiring | Medium |
-| 5 | **The compound challenge in experiments** (Future Work 8, first part). | Scoring several true faults is ready (E5) but experiments cannot build the challenge. | Nothing | Medium |
-| 6 | **An evaluator model for diagnosis labels**, checked against the developer's hand labels before it is trusted; a different model from the investigator; its verdict never reaches the agent or memory. | Experiments could then score root cause without labelling every run by hand (decided 2026-10-12). | Some hand labels to check it against | Medium |
-| 7 | **A memory comparison command:** the same cases with no memory, keyword recall and semantic recall, reported side by side on diagnosis accuracy and tool calls. | Shows whether memory improves investigations, not just whether search works. | Item 1 (live runs) for meaningful numbers | Small to medium |
-| 8 | **A live progress view:** a hook in the loop that announces each step as it happens, and a terminal viewer with approval at the prompt; only what the agent sees, the score only after the run. | A run can take minutes; a viewer also makes the demo. First screen of the later frontend (Future Work 8, modes). | Nothing | Medium |
-| 9 | **Small cleanups:** `.env.example` lists the newer settings; stale worktrees removed. | Setting up a fresh checkout works first time. | Nothing | Small |
+| 5 | **MEDIUM-HIGH: Expand failure-capable servo/axis and optional hydraulic subsystems.** | Brandon suggested adding more parts that can fail, including servo motors and hydraulics, to create independent and overlapping diagnosis candidates. | First calibrate bearing and kW changes; choose machine configurations, failure models, sensors, repairs, and evaluator updates | Medium to large |
+| 6 | **The compound challenge in experiments** (Future Work 8, first part). | Scoring several true faults is ready (E5) but experiments cannot build the challenge. | Nothing | Medium |
+| 7 | **An evaluator model for diagnosis labels**, checked against the developer's hand labels before it is trusted; a different model from the investigator; its verdict never reaches the agent or memory. | Experiments could then score root cause without labelling every run by hand (decided 2026-10-12). | Some hand labels to check it against | Medium |
+| 8 | **A memory comparison command:** the same cases with no memory, keyword recall and semantic recall, reported side by side on diagnosis accuracy and tool calls. | Shows whether memory improves investigations, not just whether search works. | Item 1 (live runs) for meaningful numbers | Small to medium |
+| 9 | **A live progress view:** a hook in the loop that announces each step as it happens, and a terminal viewer with approval at the prompt; only what the agent sees, the score only after the run. | A run can take minutes; a viewer also makes the demo. First screen of the later frontend (Future Work 8, modes). | Nothing | Medium |
+| 10 | **Small cleanups:** `.env.example` lists the newer settings; stale worktrees removed. | Setting up a fresh checkout works first time. | Nothing | Small |
 
 The two high-priority simulator updates (3 and 4) can be designed together,
-but should be implemented and evaluated in separate PRs.
-Can run in parallel: 1 (needs the keys, so in the developer's session), 5 + 6
-(evaluation), 7 + 8 (different files). Item 2 waits for item 1. Difficulty
+but should be implemented and evaluated in separate PRs. The broader
+servo/hydraulic component work (5) follows them; current draw can be
+assessed alongside the power-sensor design without assuming it is independent.
+Can run in parallel: 1 (needs the keys, so in the developer's session), 6 + 7
+(evaluation), 8 + 9 (different files). Item 2 waits for item 1. Difficulty
 modes (Future Work 8, second part) wait for item 1's live results compared
 with the rule baseline.
 

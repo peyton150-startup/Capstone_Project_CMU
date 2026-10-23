@@ -55,6 +55,17 @@ Both candidates must keep hidden truth out of agent observations and preserve
 seed determinism. No simulator code, added dependencies, or test behavior has
 changed from documenting these gates.
 
+**Additional feedback cross-check (2026-10-23):** Brandon also suggested
+examining **electrical current draw in amps** and adding distinct failure
+opportunities for **servo motors/axis drives** and **hydraulic systems**.
+Current draw is an optional follow-up to the high-priority power sensor,
+requiring explicit electrical assumptions and a check for redundant signals.
+The servo and hydraulic additions are medium-high priority, after the
+immediate bearing and kW updates. Hydraulics must be opt-in per machine
+configuration. Candidates require independent causal fault behavior, sensors,
+approved maintenance/verification paths, and seeded tests; neither is built.
+See [Future Work 8 details](MVP_SCOPE.md#high-priority-simulator-fidelity-faster-bearing-vibration-ramp-and-machine-power-planned-2026-10-23).
+
 ## Corrections to the supplied conditions
 
 1. **Parts 1–3: separate structure, completeness, and truth.** The barricade

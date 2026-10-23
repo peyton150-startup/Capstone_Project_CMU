@@ -2218,4 +2218,16 @@ alarm), then evaluation, then the agent itself.
   tests run for this documentation-only change. Implementation and developer
   understanding statuses remain unchanged.
 
+- **2026-10-23 — Brandon-feedback completeness cross-check (docs only).**
+  Follow-up to PR #61: recorded his remaining suggestions explicitly in
+  Future Work 8: investigate **motor current draw (amps)** alongside the
+  planned whole-machine power sensor, and add **servo-motor/axis-drive** and
+  **hydraulic subsystem** fault candidates so machines have more independent
+  failure-capable parts. Current is not automatically independent evidence
+  when inferred from the same load model; hydraulics are machine-specific.
+  Servo and hydraulic candidates are medium-high priority, after the two
+  HIGH-priority bearing and kW updates. No implementation, new sensor,
+  dependencies, or tests in this documentation change; understanding
+  and implementation statuses are unchanged.
+
 Older notes (2026-10-12 and earlier) are in `docs/PROGRESS_ARCHIVE.md`.
