@@ -94,7 +94,7 @@ A component is complete only when both columns are checked.
 | C3a | Memory comparison command: the same cases with no memory, keyword and semantic recall | yes (after the build, 2026-10-22) | n/a | yes | yes (re-checked 2026-10-22) | `capstone/memory_comparison.py` (`MODES`, `memory_for`, `compare_memory`, `mode_of`, `compare_report`); session note 2026-10-20 (Module 3, piece 1) |
 | C3b | Bounded memory search: no repeated search, at most three per investigation, each recorded | yes (after the build, 2026-10-22) | n/a | yes | yes | `providers/recall.py` (`RecallingProvider`, `MAX_SEARCHES`, `REPEATED_SEARCH`, `SEARCHES_SPENT`), `evaluation/memory.py` (`build_search_records`); session note 2026-10-20 (Module 3, piece 2) |
 | D1 | Near-duplicate threshold measurement tool (provisional 0.909) | yes (walkthrough, 2026-10-22) | n/a | yes | yes (after corrections) | `capstone/memory/duplicate_threshold.py`; session notes 2026-10-22 |
-| T1 | TypeSafe Jev client and the auto-labeller (proposed diagnosis labels, compared with hand labels) | not yet: built first at the developer's request, pre-merge walkthrough before merge | n/a | yes | no (built ungated, developer to review) | `providers/typesafe.py` (`Noul`, `Choice`, `JudgmentClient`, `read_judgments`, `judgment_client`), `evaluation/auto_label.py` (`propose`, `Proposal`, `agreement`, `conclusions`, `main`), `settings.py` (`TYPESAFE_API_KEY`, `TYPESAFE_MODEL`), `.env.example`, AGENTS.md section 9, `docs/benchmarks/2026-10-23-jev-auto-labels.md`; session note 2026-10-23 (T1) |
+| T1 | TypeSafe Jev client and the auto-labeller (proposed diagnosis labels, compared with hand labels) | yes (pre-merge walkthrough, 2026-10-23) | n/a | yes | yes (after corrections: Q1 cost of speculative questions, Q2 why truth would bias labels) | `providers/typesafe.py` (`Noul`, `Choice`, `JudgmentClient`, `read_judgments`, `judgment_client`), `evaluation/auto_label.py` (`propose`, `Proposal`, `agreement`, `conclusions`, `main`), `settings.py` (`TYPESAFE_API_KEY`, `TYPESAFE_MODEL`), `.env.example`, AGENTS.md section 9, `docs/benchmarks/2026-10-23-jev-auto-labels.md`; session note 2026-10-23 (T1) |
 
 Every row above with four "yes" marks (or "n/a") is complete: no question is
 outstanding on it. Still to build after 12c, from `docs/MVP_SCOPE.md`: the
@@ -125,6 +125,25 @@ alarm), then evaluation, then the agent itself.
     claimed (`docs/benchmarks/2026-10-23-jev-auto-labels.md`).
   - Not done: the developer's hand labels, needed before proposals can be
     trusted in experiments; `experiment.py` does not read proposals yet.
+  - Pre-merge walkthrough (AGENTS.md §11 step 6), three questions:
+    1. Why ask every "which machine?" question in one request? Right: one
+       round trip instead of two. Corrected: the gain comes from parallel
+       answering, not Jev's speed; our code (not Jev) would read the first
+       answers; missed the cost, now taught: billed input tokens for unused
+       questions, and code must ignore them (the `continue` in `propose`).
+    2. What goes wrong if Jev saw the true fault? Partly right ("it would
+       have the answer"). Corrected: the harm is bias, not confidence;
+       labels would drift toward the truth and credit the agent for
+       diagnoses it never made (structured-1/1/seed-9), collapsing belief
+       into reality (§4.1).
+    3. Why two thresholds and a review band, not one line at 0.5? Right:
+       middle values are too uncertain to accept unread. Added: at one line,
+       0.51 vs 0.49 silently decides the score; an unread wrong label costs
+       more than a review.
+  - The developer noted the thresholds must be measured on hand-labelled
+    runs, and asked that Jev stay optional given a $5-a-month budget (it
+    already runs only through its own command; spending guards proposed).
+    Not merged: the developer asked to merge only after review.
 
 - **2026-10-22: re-checks of the four items understood in part (L2, L4,
   FD, C3a).** No code changed. A new question each.
