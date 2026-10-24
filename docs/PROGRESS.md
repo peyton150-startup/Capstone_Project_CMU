@@ -105,6 +105,20 @@ alarm), then evaluation, then the agent itself.
 
 ## Session notes
 
+- **2026-10-24 (afternoon): a single lesson run stopped, 0 lessons (results
+  only; nothing built).** One run at a time, as decided in the morning: seeds
+  11-20, bearing and wrong setting, a fresh throwaway store
+  (`.chroma/near-duplicate/run-e`), the 45 s / 90 s limits for this run only,
+  started 13:55 on the PR #69 branch (so with the episodic-v3 gate). Stopped
+  at the developer's request at 14:11 after 5 episodes, every one ending
+  `model unavailable` (1 to 15 questions each, 61 to 385 s): NVIDIA's chat
+  model timed out or answered HTTP 500, and the Cloudflare fallback answered
+  HTTP 429 to each of its retries. NVIDIA had answered a probe in 1.5 s that
+  morning, so its chat service is unreliable from one hour to the next.
+  Lessons stored: 0; the near-duplicate threshold stays the provisional
+  0.909. Next attempt: probe the chat model first, and stop early if the
+  first episodes end `model unavailable`.
+
 - **2026-10-24: PR #69 pre-merge walkthrough (G1).** Q1 (why `proposed_action
   is not None` is a safe test for a carried-out action): said no proposal
   means nothing to ask; corrected: the no-action case does reach `verify`,
