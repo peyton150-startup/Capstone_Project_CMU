@@ -19,7 +19,7 @@ from capstone.memory.repository import SQLMemoryRepository
 from capstone.memory.schema import metadata
 from capstone.memory.service import MemoryService
 from tests.helpers import ScriptedPolicy, new_state
-from tests.test_agent_verification import investigate, policy
+from tests.test_agent_verification import cite, investigate, policy
 
 ADVICE = "When vibration climbs steadily on one machine, replace its bearing."
 AGENT = Path(capstone.__file__).parent / "agent"
@@ -95,6 +95,24 @@ def test_a_rejected_proposal_is_audited_but_not_remembered(memory, log):
     assert model.asked == []
     assert memory.retrieve(MemoryQuery(category="alarm")) == ()
     assert len(log.read()) == 1
+
+
+def test_a_resolved_no_action_watch_is_audited_but_never_asks_for_a_lesson(memory, log):
+    """The agent chose to do nothing and its check found the symptom gone.
+
+    The gate would refuse any sentence about it, so none is asked for.
+    """
+    state = run(9, policy(recommendation="no_action", judge=cite("E5")))
+    record = complete(state)
+    assert record.proposed_action is None
+    assert record.verification.status == "verified"
+    model = writer()
+    outcome = learn_from(state, model, memory, log)
+    assert not outcome.lesson_requested and model.asked == []
+    assert outcome.decision is None
+    assert memory.retrieve(MemoryQuery()) == ()
+    [line] = log.read()
+    assert line.completed == record
 
 
 def test_the_same_investigation_is_remembered_once(memory, log):

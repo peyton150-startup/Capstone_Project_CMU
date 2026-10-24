@@ -3,8 +3,8 @@
 Completed investigations are observations and beliefs, not evaluator truth.
 Callers supply a `ReflectionCandidate` with a reusable lesson and evidence
 lineage. `MemoryPromotionPolicy.evaluate()` checks it without I/O.
-Two kinds of memory pass (policy `episodic-v2`): advice from a verified fix
-(`outcome="resolved"`), and an action the check found did not work
+Two kinds of memory pass (policy `episodic-v3`): advice from a verified fix
+that was carried out (`outcome="resolved"`), and an action the check found did not work
 (`outcome="unresolved"`). A failure memory's lesson must be exactly
 `failure_lesson(investigation)`: what was tried, on which machine, for which
 symptoms. It never says why, and never judges the diagnosis.
@@ -22,7 +22,7 @@ An investigation leaves two tiers of record:
   evidence and its provenance, the final hypotheses, the proposal and the
   check. It is for people. The agent has no tool that reads it.
 - **Episodic memory.** One short lesson per investigation, kept only if it
-  passes `MemoryPromotionPolicy` (version `episodic-v2`). Later runs can
+  passes `MemoryPromotionPolicy` (version `episodic-v3`). Later runs can
   retrieve it through the agent's `recall_memories` tool.
 
 `learning.learn_from` runs after the loop ends, outside the agent: it writes
@@ -33,21 +33,27 @@ nothing is learned.
 
 | Artifact | Where it is stored | What triggers storage | Agent can retrieve it? | Why |
 |---|---|---|---|---|
-| Lesson from a verified fix | `episodic_memories` SQL table (authoritative), copied to the Chroma index | Check found the symptom `verified`/`resolved`, the model wrote one advice sentence, and the gate accepted it | Yes, as a `RecalledMemory` (no evidence IDs, no verification detail) | Reusable advice backed by an observed outcome |
+| Lesson from a verified fix | `episodic_memories` SQL table (authoritative), copied to the Chroma index | A fix was carried out, the check found the symptom `verified`/`resolved`, the model wrote one advice sentence, and the gate accepted it | Yes, as a `RecalledMemory` (no evidence IDs, no verification detail) | Reusable advice backed by an observed outcome |
 | Failed intervention | Same table, `outcome="unresolved"` | Check found the action `failed`/`unresolved` and the gate accepted the fixed sentence from `failure_lesson` | Yes, same view | Stops a later run repeating an action that was seen not to work |
 | Rejected hypotheses | Audit record only, as the final `hypotheses` list in `CompletedInvestigation` | Every audited investigation | No | Beliefs, not outcomes; see below |
 | Step decisions (`DecisionRecord`) | Audit record only (`decisions`) | Every step of every audited investigation | No | Shows what was asked, which tool, and what came back. It is not chain-of-thought and holds no free-text rationale |
 | Verification outcome | Audit record (`VerificationResult` plus the runtime `VerificationCheck`); also inside a promoted memory | Every audited investigation in which a check was made | Only as `outcome` (resolved / unresolved) of a recalled memory | It is what decides whether anything may be learned |
 | Audit log | JSONL file, one `AuditRecord` per line, append-only (`completion.AuditLog`) | `learn_from`, for every investigation, right or wrong | No | Complete history, independent of the memory step |
 
-### Promotion criteria (`episodic-v2`)
+### Promotion criteria (`episodic-v3`)
 
 `MemoryPromotionPolicy.evaluate()` does no I/O and uses no randomness. It
 collects every failing reason and refuses the candidate if there is any.
 
-- **Verified success** (`verified`/`resolved`): the diagnosis must be
-  assessed `supported`, a proposed action must have worked, and the lower of
-  the candidate's and the conclusion's confidence must be at least 0.8.
+- **Verified success** (`verified`/`resolved`): an action must have been
+  carried out and must have worked, the diagnosis must be assessed
+  `supported`, and the lower of the candidate's and the conclusion's
+  confidence must be at least 0.8. A check that found the symptom gone after
+  the agent chose to do nothing is refused as `no_action_taken` (new in v3,
+  2026-10-24): with nothing done, "resolved" links no cause to a result, and a
+  slow fault looks the same on a short watch. `learn_from` does not ask the
+  model for a lesson in that case. The cost: a real false alarm's "no repair
+  needed" lesson is not kept either.
 - **Observed failed intervention** (`failed`/`unresolved`): an action must
   have been proposed, the lesson must equal `failure_lesson()` word for word
   (what was tried, on which machine, for which symptoms, never why), and the

@@ -170,7 +170,9 @@ def test_falls_back_to_keyword_when_index_missing_or_failing(repository):
 def test_keyword_and_none_modes(repository, index):
     memories = promote_all(MemoryService(repository, index=index))
     keyword = MemoryRecall(repository, mode="keyword", index=index)
-    result = keyword.recall_memories("spindle speed setting")
+    # Two shared words ("configured", "speed") against at most one elsewhere,
+    # so the order does not rest on a tie between memory IDs.
+    result = keyword.recall_memories("configured spindle speed")
     assert result.mode_used == "keyword" and not result.fell_back
     assert result.memories[0] == memories[2]
     none = MemoryRecall(repository, mode="none", index=index)
