@@ -85,10 +85,11 @@ def test_the_view_carries_no_evidence_ids_or_provenance():
 
 
 def test_a_memory_with_no_action_has_none_to_show():
-    data = candidate_data()
-    data["investigation"]["proposed_action"] = None
-    data["intervention_worked"] = None
-    view = recalled(memory(data, number=4))
+    """A stored memory without an action (one admitted before episodic-v3,
+    which refuses them) still has a view. Built directly, since the gate no
+    longer makes one."""
+    stored = memory(number=4).model_copy(update={"intervention": None})
+    view = recalled(stored)
     assert (view.action, view.machine_id) == (None, None)
 
 

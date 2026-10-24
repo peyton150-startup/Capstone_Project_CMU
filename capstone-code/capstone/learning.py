@@ -13,9 +13,12 @@ In order:
 
 1. The audit record is written first, for every investigation, so the
    history never depends on the memory step that follows.
-2. The model is asked for its one advice sentence only for a verified fix.
-   A failed fix needs no model (code writes that sentence), and nothing
-   else can become a memory. A model that declines or fails gives no lesson.
+2. The model is asked for its one advice sentence only for a verified fix
+   that was carried out. A failed fix needs no model (code writes that
+   sentence), and nothing else can become a memory: not even a check that
+   found the symptom gone after the agent chose to do nothing, which the
+   gate refuses (`no_action_taken`). A model that declines or fails gives
+   no lesson.
 3. The candidate is built from the shared record and sent through the
    gate to the store. A store failure is raised to the caller; the audit
    record is already on disk.
@@ -51,7 +54,13 @@ def learn_from(
     record = complete(state)  # refuses an unfinished investigation
     log.append(audit_record(state))
     check = record.verification
-    requested = check is not None and check.status == "verified"
+    # Ask only when the sentence can reach memory: a fix that was carried out
+    # and verified. A verified no-action watch is refused by the gate.
+    requested = (
+        check is not None
+        and check.status == "verified"
+        and record.proposed_action is not None
+    )
     lesson = None
     if requested:
         try:

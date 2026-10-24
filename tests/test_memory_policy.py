@@ -167,7 +167,7 @@ def test_an_observed_failed_action_is_promoted():
     assert memory.verification.status == "failed"
     assert memory.intervention.machine_id == "CNC-02"
     assert memory.source_tick == 200
-    assert memory.policy_version == "episodic-v2"
+    assert memory.policy_version == "episodic-v3"
 
 
 def test_a_failure_does_not_rest_on_the_agents_confidence():
@@ -349,13 +349,28 @@ def test_support_flags_without_evidence_rejected(field):
     assert not result.accepted
 
 
-def test_verified_no_action_incident_can_be_promoted():
+def test_a_verified_no_action_watch_is_refused():
+    """Doing nothing and finding the symptom gone links no cause to a result.
+
+    On 2026-10-24 such a lesson ("a transient spike, no change needed") was
+    stored about what was really a worn bearing.
+    """
     data = candidate_data()
     data["investigation"]["proposed_action"] = None
     data["intervention_worked"] = None
     result = MemoryPromotionPolicy().evaluate(ReflectionCandidate.model_validate(data))
-    assert result.accepted
-    assert result.memory.intervention is None
+    assert not result.accepted
+    assert "no_action_taken" in result.reasons
+    assert result.memory is None
+
+
+def test_the_same_lesson_after_a_carried_out_fix_still_passes():
+    """The rule is about the missing action, nothing else in the candidate."""
+    result = MemoryPromotionPolicy().evaluate(
+        ReflectionCandidate.model_validate(candidate_data())
+    )
+    assert result.accepted, result.reasons
+    assert "no_action_taken" not in result.reasons
 
 
 def test_policy_is_deterministic_and_configurable():

@@ -88,6 +88,7 @@ A component is complete only when both columns are checked.
 | L5 | NVIDIA is asked to keep replies to the answer type's JSON schema (structured output) | yes (after the build, 2026-10-22) | n/a | yes | yes | `providers/chat.py` (`Provider.structured_output`, `ChatClient(structured_output=)`, `response_format`); session note 2026-10-21 (L5) |
 | L6 | LLM7 and Kilo Code as providers; their free models checked (Z.ai checked and dropped) | yes (after the build, 2026-10-22) | n/a | yes | yes | `providers/chat.py` (`PROVIDERS` llm7, kilo), `settings.py` (`LLM7_API_KEY`, `KILO_CODE_API_KEY`), `.env.example`, AGENTS.md section 9, `docs/benchmarks/2026-10-21-llm7-kilo.md`; session note 2026-10-21 (L6) |
 | L7 | The request limit covers the whole request (a watchdog thread), not each read | yes | yes (after one correction) | yes | yes (walkthrough 2026-10-23: Q1, Q2 after one re-teach, Q3 corrected) | `providers/chat.py` (`run_with_deadline`, `urllib_transport`); session note 2026-10-22 (L7) |
+| G1 | The memory gate refuses a "resolved" lesson when no action was taken (policy episodic-v3) | yes | yes (after one correction) | yes | pending: pre-merge walkthrough | `memory/policy.py` (`no_action_taken`, version), `learning.py` (`learn_from`); session note 2026-10-24 (G1) |
 | M1 | The machine manual (SIM-CNC-001) and the `search_manual` tool (RAG over a fixed reference) | yes (design discussed 2026-10-22) | n/a | yes | yes (Q3 gap filled 2026-10-22; walkthrough Q1 right, Q2 corrected) | `manual/sections.py` (`ManualSection`, `parse_manual`, `check_no_leaks`, `load_manual`), `manual/index.py` (`KeywordManualSearch`, `ChromaManualIndex`, `open_manual_index`), `providers/manual.py` (`ManualProvider`, `MANUAL_SPEC`), `evaluation/manual.py`, `episode.py`, `experiment.py` (`--manual`), `contracts/provenance.py`, `agent/loop.py`, `agent/model_policy.py`, `memory/policy.py`; session note 2026-10-22 (M1) |
 | C2 | Course Module 2 gap note (working memory, episodic memory, tools, loops) | yes (after the build, 2026-10-22) | n/a | yes (docs) | yes | `docs/COURSE_MODULES.md`; session note 2026-10-20 (Module 2) |
 | C4 | Course Module 4: opt-in tree-of-thought hypothesize step | yes (after the build, 2026-10-22) | n/a | yes | yes | `agent/tree_of_thought.py` (`TreeOfThoughtPolicy`, `GENERATE`, `VALUE`, `prune`, `Thought`), `experiment.py` (`run --tree-of-thought`); session note 2026-10-20 (Module 4) |
@@ -103,6 +104,30 @@ other three fault scenarios (material batch, machine configuration, false
 alarm), then evaluation, then the agent itself.
 
 ## Session notes
+
+- **2026-10-24: G1: no lesson from a "resolved" watch with no action.**
+  From finding 2 of the same day: the gate stored "a transient spike, no
+  change needed" about a real worn bearing, because a verified outcome with no
+  intervention passed (`test_verified_no_action_incident_can_be_promoted`).
+  Taught first (gate): the developer explained that a repair links a change
+  to a result and doing nothing does not (correct); first said the
+  `learn_from` change was a second protective layer, corrected (the gate is
+  the authority and runs last; `learn_from` only avoids a model call that can
+  never reach memory, A6c's rule); restated the cost role correctly. Built:
+  `memory/policy.py`: in the resolved branch, `proposed_action is None` adds
+  `no_action_taken`; `version` "episodic-v2" -> "episodic-v3". Checked: the
+  verify stage runs only after a carried-out action or a `no_action`
+  conclusion (a rejected proposal ends without a check), so "verified with no
+  proposed action" is exactly the do-nothing case. `learning.py`: a lesson is
+  asked for only when the check was verified and an action was proposed.
+  Cost: a real false alarm's "no repair needed" lesson is not kept either;
+  keeping it safely would need more evidence (a longer watch or its own
+  outcome), not started. Tests: `test_memory_policy.py` (the old "can be
+  promoted" test is now `test_a_verified_no_action_watch_is_refused`; a
+  carried-out fix still passes; version v3), `test_learning.py` (a real
+  no-action episode through the simulator, check verified: audited, model
+  never asked, nothing stored). Docs: `docs/EPISODIC_MEMORY.md` criteria and
+  table.
 
 - **2026-10-24: four lesson-collecting runs, 1 lesson; two memory-gate
   findings (results only; nothing built).** NVIDIA's chat model answered a

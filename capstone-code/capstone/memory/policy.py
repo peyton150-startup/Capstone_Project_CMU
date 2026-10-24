@@ -50,7 +50,7 @@ def failure_lesson(investigation: CompletedInvestigation) -> str:
 
 
 class MemoryPromotionPolicy:
-    version = "episodic-v2"
+    version = "episodic-v3"
 
     def __init__(self, *, min_confidence: float = 0.8):
         if not math.isfinite(min_confidence) or not 0 <= min_confidence <= 1:
@@ -60,9 +60,11 @@ class MemoryPromotionPolicy:
     def evaluate(self, candidate: ReflectionCandidate) -> PromotionDecision:
         """Check a candidate without I/O, seeded randomness, or evaluator access.
 
-        Two kinds of lesson may pass: advice from a verified fix, and the
-        fixed statement that an action was tried and the check found it did
-        not work. Every other check below applies to both.
+        Two kinds of lesson may pass: advice from a verified fix that was
+        carried out, and the fixed statement that an action was tried and the
+        check found it did not work. Doing nothing, even when the check found
+        the symptom gone, teaches nothing (`no_action_taken`). Every other
+        check below applies to both.
         """
         incident = candidate.investigation
         verification = incident.verification
@@ -78,6 +80,12 @@ class MemoryPromotionPolicy:
         if not (resolved or failed):
             reasons.append("outcome_not_verified")
         if resolved:
+            # With nothing done, "resolved" only says the symptom paused: no
+            # change links cause to result, and a slow fault can look the same
+            # on a short watch (a worn bearing was stored as "a transient spike,
+            # no change needed" on 2026-10-24). v3 keeps no such lesson.
+            if incident.proposed_action is None:
+                reasons.append("no_action_taken")
             if candidate.diagnosis_assessment != "supported":
                 reasons.append("diagnosis_not_supported")
             if incident.proposed_action and candidate.intervention_worked is not True:
