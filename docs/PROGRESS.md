@@ -105,6 +105,24 @@ alarm), then evaluation, then the agent itself.
 
 ## Session notes
 
+- **NEXT SESSION: test a 60 s request limit, then collect lessons.** The
+  developer rotated the NVIDIA key on 2026-10-24; with it, Nemotron answered
+  small probes in about 1 s, but the Cloudflare fallback answered HTTP 429.
+  A run with Nemotron alone (`FALLBACK_MODEL=""`, bearing fault, seeds 21-25,
+  45 s / 90 s, store `.chroma/near-duplicate/run-f`) finished 3 episodes, all
+  `model unavailable` after HTTP 500s and timeouts (log kept as
+  `run-45s.log`): with no fallback, one question that fails after its retries
+  ends the episode. Across the day's runs NVIDIA gave 162 HTTP 500s and 188
+  timeouts; the slowest successful answers were 41.5 and 42.5 s, close to
+  45 s, while a 120 s limit the day before still timed out at the full 120 s.
+  The developer asked for a 60 s request limit (120 s per question, so a
+  retry fits with one model); that run (seeds 24-26) was stopped after
+  2 minutes with nothing finished. Steps next time: probe both models first;
+  run one run at a time with `MODEL_REQUEST_SECONDS=60
+  MODEL_QUESTION_SECONDS=120` on store `run-f`, seeds 24 onward; compare its
+  HTTP 500 and timeout counts with `run-45s.log`; stop early if episodes keep
+  ending `model unavailable`. Lessons so far: 0; the threshold stays 0.909.
+
 - **2026-10-24 (afternoon): a single lesson run stopped, 0 lessons (results
   only; nothing built).** One run at a time, as decided in the morning: seeds
   11-20, bearing and wrong setting, a fresh throwaway store
