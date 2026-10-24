@@ -88,7 +88,7 @@ A component is complete only when both columns are checked.
 | L5 | NVIDIA is asked to keep replies to the answer type's JSON schema (structured output) | yes (after the build, 2026-10-22) | n/a | yes | yes | `providers/chat.py` (`Provider.structured_output`, `ChatClient(structured_output=)`, `response_format`); session note 2026-10-21 (L5) |
 | L6 | LLM7 and Kilo Code as providers; their free models checked (Z.ai checked and dropped) | yes (after the build, 2026-10-22) | n/a | yes | yes | `providers/chat.py` (`PROVIDERS` llm7, kilo), `settings.py` (`LLM7_API_KEY`, `KILO_CODE_API_KEY`), `.env.example`, AGENTS.md section 9, `docs/benchmarks/2026-10-21-llm7-kilo.md`; session note 2026-10-21 (L6) |
 | L7 | The request limit covers the whole request (a watchdog thread), not each read | yes | yes (after one correction) | yes | yes (walkthrough 2026-10-23: Q1, Q2 after one re-teach, Q3 corrected) | `providers/chat.py` (`run_with_deadline`, `urllib_transport`); session note 2026-10-22 (L7) |
-| G1 | The memory gate refuses a "resolved" lesson when no action was taken (policy episodic-v3) | yes | yes (after one correction) | yes | pending: pre-merge walkthrough | `memory/policy.py` (`no_action_taken`, version), `learning.py` (`learn_from`); session note 2026-10-24 (G1) |
+| G1 | The memory gate refuses a "resolved" lesson when no action was taken (policy episodic-v3) | yes | yes (after one correction) | yes | yes (walkthrough 2026-10-24: Q1 and Q3 corrected, Q2 after one re-teach) | `memory/policy.py` (`no_action_taken`, version), `learning.py` (`learn_from`); session note 2026-10-24 (G1) |
 | M1 | The machine manual (SIM-CNC-001) and the `search_manual` tool (RAG over a fixed reference) | yes (design discussed 2026-10-22) | n/a | yes | yes (Q3 gap filled 2026-10-22; walkthrough Q1 right, Q2 corrected) | `manual/sections.py` (`ManualSection`, `parse_manual`, `check_no_leaks`, `load_manual`), `manual/index.py` (`KeywordManualSearch`, `ChromaManualIndex`, `open_manual_index`), `providers/manual.py` (`ManualProvider`, `MANUAL_SPEC`), `evaluation/manual.py`, `episode.py`, `experiment.py` (`--manual`), `contracts/provenance.py`, `agent/loop.py`, `agent/model_policy.py`, `memory/policy.py`; session note 2026-10-22 (M1) |
 | C2 | Course Module 2 gap note (working memory, episodic memory, tools, loops) | yes (after the build, 2026-10-22) | n/a | yes (docs) | yes | `docs/COURSE_MODULES.md`; session note 2026-10-20 (Module 2) |
 | C4 | Course Module 4: opt-in tree-of-thought hypothesize step | yes (after the build, 2026-10-22) | n/a | yes | yes | `agent/tree_of_thought.py` (`TreeOfThoughtPolicy`, `GENERATE`, `VALUE`, `prune`, `Thought`), `experiment.py` (`run --tree-of-thought`); session note 2026-10-20 (Module 4) |
@@ -104,6 +104,23 @@ other three fault scenarios (material batch, machine configuration, false
 alarm), then evaluation, then the agent itself.
 
 ## Session notes
+
+- **2026-10-24: PR #69 pre-merge walkthrough (G1).** Q1 (why `proposed_action
+  is not None` is a safe test for a carried-out action): said no proposal
+  means nothing to ask; corrected: the no-action case does reach `verify`,
+  and the test is safe only together with "verified", because a rejected or
+  not-carried-out proposal routes to `finish` and is never checked. Q2 (why
+  bump the policy version): said it labels the check as no-action; re-taught:
+  `policy_version` on each stored memory records which rules admitted it, so
+  later pruning can target v2 memories; restated correctly (check the older
+  versions, the newer ones could not get in). Q3 (a true false alarm under
+  v3): said it is thrown out, that patience reveals a false alarm, and that
+  the "false alarm" label would be needed; corrected: that label is ground
+  truth and must never reach memory; safe evidence must be observable (a
+  longer watch, other sensors and inspections agreeing, or a separate weaker
+  outcome type). Understood in part, corrected. The developer asked whether
+  existing no-action lessons need pruning: the real store (Neon) holds 0
+  memories, so no.
 
 - **2026-10-24: G1: no lesson from a "resolved" watch with no action.**
   From finding 2 of the same day: the gate stored "a transient spike, no
