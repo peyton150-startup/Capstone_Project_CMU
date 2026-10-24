@@ -104,6 +104,41 @@ alarm), then evaluation, then the agent itself.
 
 ## Session notes
 
+- **2026-10-24: four lesson-collecting runs, 1 lesson; two memory-gate
+  findings (results only; nothing built).** NVIDIA's chat model answered a
+  probe in 1.5 s, so the NEXT SESSION step 3 ran on `main`, as four parallel
+  runs (bearing and wrong setting, seeds 1-5 and 6-10), each with its own
+  throwaway SQLite store under `.chroma/near-duplicate/run-a` to `run-d`, and
+  with MODEL_REQUEST_SECONDS=45 / MODEL_QUESTION_SECONDS=90 set for these runs
+  only (the developer's `.env` sets 120 / 240; not edited). All 20 episodes
+  finished in about 40 minutes: 14 ended `model unavailable`, 3 on the time
+  limit; failed requests were mostly timeouts, HTTP 500 and about 56 HTTP 429.
+  The 429s came from running four at once: the developer decided live runs go
+  **one at a time**. Only **1 lesson** was stored, too few for pairs, so the
+  near-duplicate threshold stays the provisional 0.909. Separately, on the
+  wrong-setting runs seeds 1 and 2 blamed a worn bearing on CNC-06.
+  - **Finding 1, a correct fix lost.** Run B seed 6 (bearing on CNC-02): the
+    agent asked for `replace_bearing CNC-02`, it was carried out and the fault
+    was resolved in reality (`resolved=True`), but the agent's own check came
+    back `inconclusive` (checked at tick 1025), so the shared record is
+    `unverified`, no lesson was asked for and nothing reached the gate. By
+    design; to look at later: whether the check runs too soon after the work,
+    or the judge is too cautious.
+  - **Finding 2, a wrong lesson stored.** Run A seed 2: the real fault was a
+    worn bearing on CNC-04, but the agent concluded a one-off vibration spike
+    that had cleared, proposed no action, and its check judged it `resolved`
+    because the alarm had dropped below its threshold. The gate accepted a
+    verified outcome with no intervention (`verified_reusable_lesson`) and
+    stored: "For a single-tick vibration alarm that immediately falls back
+    below threshold ... a transient event that cleared on its own, so no change
+    was needed." A future agent recalling it would learn to dismiss early
+    bearing alarms. Gap: with no action, "resolved" only means the symptom
+    paused; the lesson rests on the agent's belief alone. It exists only in
+    the throwaway store (`run-a`); Neon is untouched. A change to the gate
+    (for example refusing or marking no-action "resolved" lessons) changes
+    what the agent learns, so it goes through the teaching gate first; not
+    started.
+
 - **2026-10-23: near-duplicate lesson run started and stopped (results
   only; nothing built).** Followed the NEXT SESSION steps below on `main`.
   Step 1: re-measuring the drafted pairs gave 0.909 again, so NVIDIA's
@@ -357,8 +392,8 @@ alarm), then evaluation, then the agent itself.
     described in a schema, and gave the cross-field rule in `NextStep` and a
     service failing to enforce as further reasons. Understood.
 
-- **NEXT SESSION (was planned 2026-10-23; started and stopped, see the
-  2026-10-23 note above): re-measure the near-duplicate
+- **NEXT SESSION (run 2026-10-23 and 2026-10-24 without enough lessons;
+  see the notes above; rerun one run at a time): re-measure the near-duplicate
   threshold on real lessons.** Postponed from 2026-10-22 because NVIDIA was
   down. The developer approved Claude's draft labels on 2026-10-22, so the
   provisional 0.909 stands for the drafted pairs. Steps, all in one
