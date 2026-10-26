@@ -55,6 +55,36 @@ def test_seeds_and_grid():
     ]
 
 
+def test_watching_shows_each_case_live_but_never_the_truth():
+    lines: list[str] = []
+    (record,) = run_experiment([BEARING], stand_in, name="watched", watch=lines.append)
+    assert lines[0] == "=== case 1: bearing-6 ==="
+    assert len(lines) > 3  # the anomaly, tool calls and the conclusion, as they happen
+    text = "\n".join(lines)
+    assert "the truth" not in text and "true cause" not in text
+    assert record.conclusion is not None
+
+
+def test_the_run_command_watches_by_default_and_quiet_turns_it_off(
+    tmp_path, monkeypatch
+):
+    ran = {}
+
+    def fake_run(cases, make_policy, **options):
+        ran.update(options)
+        return []
+
+    monkeypatch.setattr(experiment, "run_experiment", fake_run)
+    monkeypatch.setattr(
+        experiment, "model_policy_factory", lambda with_recall, **_: None
+    )
+    out = str(tmp_path / "r.jsonl")
+    assert main(["run", "--name", "w", "--known", "--out", out]) == 0
+    assert callable(ran["watch"])
+    assert main(["run", "--name", "q", "--known", "--out", out, "--quiet"]) == 0
+    assert ran["watch"] is None
+
+
 def test_run_keys_are_unique_per_execution(records):
     assert [r.run_key for r in records] == ["unit/1/bearing-6", "unit/2/batch-7"]
     again = run_experiment([BEARING], stand_in, name="unit-2")

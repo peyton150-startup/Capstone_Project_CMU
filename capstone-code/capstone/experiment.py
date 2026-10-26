@@ -81,6 +81,7 @@ from capstone.evaluation.memory import (
 )
 from capstone.evaluation.scoring import COMPOUND, Score, format_summary, summarize
 from capstone.memory.service import MemoryService
+from capstone.progress import ProgressView
 from capstone.providers.chat import INVALID_REPLY, is_model_outcome
 from capstone.providers.manual import MANUAL_TOOL, ManualSearch
 from capstone.providers.recall import RECALL_TOOL
@@ -331,17 +332,25 @@ def run_experiment(
     hazards: bool = False,
     manual: ManualSearch | None = None,
     start: int = 1,
+    watch: Callable[[str], None] | None = None,
 ) -> list[ExperimentRecord]:
     """Run each case once with a fresh policy. `name` makes every run key unique.
 
     `clock` times each episode for the record only; the agent's own budgets
     run on `run_episode`'s clock. `start` is the first case's number in the
     run keys, for a caller that runs one long list a case at a time.
+
+    With `watch`, each case is followed live: a header, then the progress
+    view's lines (`capstone.progress.ProgressView`) as the agent works. The
+    truth is not printed: conclusions are labelled by hand afterwards, and
+    seeing the answer first would bias the labels. It stays in the record.
     """
     records = []
     for number, case in enumerate(cases, start=start):
         run_key = f"{name}/{number}/{case.scenario_id}"
         policy = make_policy()
+        if watch is not None:
+            watch(f"=== case {number}: {case.scenario_id} ===")
         started = clock()
         result = run_episode(
             case.seed,
@@ -355,6 +364,7 @@ def run_experiment(
             run_key=run_key,
             hazards=hazards,
             manual=manual,
+            watch=None if watch is None else ProgressView(watch),
         )
         wall_seconds = clock() - started
         calls = getattr(policy, "calls", None)  # kept by ModelPolicy only
@@ -778,6 +788,11 @@ def main(argv: Sequence[str] | None = None) -> int:
         action="store_true",
         help="hypothesize by generating, valuing and pruning candidates (opt-in)",
     )
+    run.add_argument(
+        "--quiet",
+        action="store_true",
+        help="no live progress view: one line per finished case (the view is on by default)",
+    )
 
     label = commands.add_parser("label", help="label conclusions by hand")
     label.add_argument("--results", type=Path, required=True)
@@ -815,6 +830,9 @@ def main(argv: Sequence[str] | None = None) -> int:
         manual = open_manual(args.manual) if args.manual else None
         log = AuditLog(args.audit) if args.audit else None
 
+        def live_line(line: str) -> None:
+            print(line, flush=True)
+
         def save_record(record: ExperimentRecord) -> None:
             append_records(args.out, [record])
             print(f"{record.scenario_id}: {record.conclusion!r}", flush=True)
@@ -836,6 +854,7 @@ def main(argv: Sequence[str] | None = None) -> int:
             hazards=args.hazards,
             manual=manual,
             on_record=save_record,
+            watch=None if args.quiet else live_line,
         )
         print(report(records, {}))
         return 0

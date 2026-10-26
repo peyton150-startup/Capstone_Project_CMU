@@ -105,6 +105,7 @@ A component is complete only when both columns are checked.
 | F4 | Servo-drive fault pack: worn axis drive, following-error sensor and alarm, drive replacement; only when forced | yes (after the build: pre-merge walkthrough 2026-10-26) | n/a | yes | yes (walkthrough 2026-10-26: Q1 in part, completed; Q2 right; Q3 right, with additions) | `simulator/state.py` (`axis_health`, `axis_replaced_tick`), `simulator/scenarios.py` (`AxisDriveWear`, `DEFECT_FROM_AXIS`), `simulator/sensors.py` (`FollowingErrorSensor`), `simulator/line.py`, `simulator/simulator.py` (`start_servo_drive_replacement`), `tools/actions.py`, `providers/factory.py`, `faults.py` (servo pack, `in_default_draw`, `DEFAULT_DRAW`), `simulator/generator.py`; session note 2026-10-26 (F4) |
 | F5 | Hydraulic-leak fault pack: hydraulics on some machines (observable), pressure sensor and low-pressure alarm, seal repair; only when forced | yes (after the build: pre-merge walkthrough 2026-10-26) | n/a | yes | yes (walkthrough 2026-10-26: Q1 in part, corrected; Q2 right, with an addition; Q3 after a re-teach) | `simulator/line.py` (`HYDRAULIC_POSITIONS`), `simulator/state.py` (`has_hydraulics`, `hydraulic_health`, `hydraulics_repaired_tick`), `simulator/scenarios.py` (`HydraulicLeak`, `DEFECT_FROM_HYDRAULICS`), `simulator/sensors.py` (`HydraulicPressureSensor`), `simulator/events.py` (`ThresholdAlarm(below=)`), `simulator/simulator.py` (`start_hydraulic_repair`), `tools/observation.py`, `tools/actions.py`, `contracts/observations.py`, `providers/factory.py`, `faults.py`; session note 2026-10-26 (F5) |
 | L8 | A chain of fallback models (FALLBACK_MODEL takes several, in order); Cohere's output cap | no (built first; merged without the pre-merge walkthrough at the developer's request, 2026-10-26; walkthrough owed) | n/a | yes | no | `settings.py` (`fallback_models`), `providers/chat.py` (`clients_for_jobs`, `Provider.max_output_tokens`, `_capped`); session note 2026-10-26 (L8) |
+| L9 | `experiment run` shows the live progress view by default (`--quiet` to turn it off), without the truth | no (built first at the developer's request, 2026-10-26; to be taught before merging) | n/a | yes | no | `experiment.py` (`run_experiment(watch=)`, `--quiet`); session note 2026-10-26 (L9) |
 
 Every row above with four "yes" marks (or "n/a") is complete: no question is
 outstanding on it. Still to build after 12c, from `docs/MVP_SCOPE.md`: the
@@ -230,6 +231,23 @@ alarm), then evaluation, then the agent itself.
   Verification: `uv sync --all-extras`; `uv run pytest` (1,258 passed);
   Ruff lint and formatting (211 files), CI test-group check, and
   `git diff --check` passed. No real model called.
+
+- **2026-10-26: L9: the live progress view in experiments, on by default.
+  Built first at the developer's request; understood: no, to be taught
+  before merging.** The developer asked to see what tonight's 9-case run was
+  doing; the progress view (PR #81) only started its own single episode, so
+  the running experiment (started without it) was left untouched and this
+  applies from the next run. `run_experiment` gains `watch` (a line
+  writer): each case prints a header ("=== case N: <scenario> ===") and then
+  the progress view's lines as the agent works (`ProgressView` passed as
+  `run_episode`'s `watch`). The truth is never printed by the experiment's
+  view, unlike `python -m capstone.progress`: conclusions are labelled by
+  hand afterwards and seeing the answer first would bias the labels; it stays
+  in the results record. `experiment run` watches by default; `--quiet` gives
+  the old one line per finished case. Other callers of `run_experiment`
+  (memory comparison, tests) are unchanged (watch defaults to None). Tests:
+  `test_experiment.py` (a watched case prints its header and live lines and
+  no truth; the command watches by default and `--quiet` turns it off).
 
 - **2026-10-26: L8: a chain of fallback models, and Cohere's output cap.
   Built first at the developer's request, before tonight's scored run;
