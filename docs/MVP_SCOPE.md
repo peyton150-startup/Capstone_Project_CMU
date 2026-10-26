@@ -2024,34 +2024,44 @@ See the [simulator fidelity reevaluation gates](FUTURE_WORK_REEVALUATION.md#high
 
 ### Next build candidates (ranked, updated 2026-10-26)
 
-A short list for the developer to choose from, most impact first. Status as
-of 2026-10-26: 1 (L1), 2 (L2), 6 (E6), 8 (C3a) and 10 are done; 3 is built
-as an opt-in profile; 7 is started (T1). Next in the developer's order: a
-scored single-agent run (`docs/PROGRESS.md`), then 4, then 5 as fault-pack
-entries. Each would go through its own pull request (AGENTS.md §11); whether
-each is taught first or built ungated is the developer's call.
+A short list for the developer to choose from, most impact first. The
+numbers are fixed IDs, not ranks: earlier notes in `docs/PROGRESS.md` cite
+them, so done items keep their number and new items take the next free one
+(older notes may cite numbers from earlier versions of this table). Each
+item goes through its own pull request (AGENTS.md section 11); whether it is
+taught first or built ungated is the developer's call.
 
-| # | Candidate | Why it matters | Depends on | Size |
-|---|---|---|---|---|
-| 1 | **Make live runs finish.** Find why live episodes end "model unavailable" (reply length limit, provider errors, no fallback model set), fix it, rerun the eight known-answer cases. | In the developer's local live results of 2026-10-20, 15 of 17 runs ended "model unavailable" and concluded "undetermined". Until runs complete, no live result means anything. | Keys in `.env`; live API calls | Small to medium |
-| 2 | **Benchmark the in-scope models** (`python -m capstone.benchmark`), then set the per-question limit, the investigation budget and the job table (which model does which job) from the numbers. | The time limits are still estimates; some jobs may suit a different model. | Item 1; the developer names the models | Small code, long runs |
-| 3 | **HIGH: Recalibrate bearing vibration progression to ~3 simulated days.** | Brandon's feedback: after initially near-normal vibration, a faster but still gradual rise over a shorter window. Ensure 3-day estimate is mapped to simulation time without breaking short agent experiments. | Baseline traces and duration/threshold calibration; feedback from Brandon | Small to medium |
-| 4 | **HIGH: Add whole-machine electrical power in kW.** | A new operating-mode-aware power signal adds realistic evidence and operating-cost context; integrate kWh only over time and avoid treating current/load as independent when derived from the same model. | Power baseline assumptions by CNC operating mode; typed sensor/provider wiring | Medium |
-| 5 | **MEDIUM-HIGH: Expand failure-capable servo/axis and optional hydraulic subsystems.** | Brandon suggested adding more parts that can fail, including servo motors and hydraulics, to create independent and overlapping diagnosis candidates. | First calibrate bearing and kW changes; choose machine configurations, failure models, sensors, repairs, and evaluator updates | Medium to large |
-| 6 | **The compound challenge in experiments** (Future Work 8, first part). | Scoring several true faults is ready (E5) but experiments cannot build the challenge. | Nothing | Medium |
-| 7 | **An evaluator model for diagnosis labels**, checked against the developer's hand labels before it is trusted; a different model from the investigator; its verdict never reaches the agent or memory. Started 2026-10-23: TypeSafe's Jev proposes labels (`python -m capstone.evaluation.auto_label`); still needs hand labels to compare with. | Experiments could then score root cause without labelling every run by hand (decided 2026-10-12). | Some hand labels to check it against | Medium |
-| 8 | **A memory comparison command:** the same cases with no memory, keyword recall and semantic recall, reported side by side on diagnosis accuracy and tool calls. | Shows whether memory improves investigations, not just whether search works. | Item 1 (live runs) for meaningful numbers | Small to medium |
-| 9 | **A live progress view:** a hook in the loop that announces each step as it happens, and a terminal viewer with approval at the prompt; only what the agent sees, the score only after the run. | A run can take minutes; a viewer also makes the demo. First screen of the later frontend (Future Work 8, modes). | Nothing | Medium |
-| 10 | **Small cleanups:** `.env.example` lists the newer settings; stale worktrees removed. | Setting up a fresh checkout works first time. | Nothing | Small |
+**First, before any item below: a scored single-agent run** (the "NEXT
+SESSION" note in `docs/PROGRESS.md`): probe the models, hand-label the
+existing and a fresh known-answer run, put the rule baseline beside it, and
+read the miss labels. It is not a build, but it gives the numbers every item
+below is judged against, and it produces the hand labels item 7 needs.
 
-The two high-priority simulator updates (3 and 4) can be designed together,
-but should be implemented and evaluated in separate PRs. The broader
-servo/hydraulic component work (5) follows them; current draw can be
-assessed alongside the power-sensor design without assuming it is independent.
-Can run in parallel: 1 (needs the keys, so in the developer's session), 6 + 7
-(evaluation), 8 + 9 (different files). Item 2 waits for item 1. Difficulty
-modes (Future Work 8, second part) wait for item 1's live results compared
-with the rule baseline.
+**Open, in ranked order** (4 then 5 is the developer's order; where items
+7, 9 and 11-14 sit is the coding agent's proposal, for the developer to
+confirm):
+
+| Rank | # | Candidate | Why it matters | Depends on | Size |
+|---|---|---|---|---|---|
+| 1 | 4 | **HIGH: Add whole-machine electrical power in kW.** | A new operating-mode-aware power signal adds realistic evidence and operating-cost context; integrate kWh only over time and avoid treating current/load as independent when derived from the same model. | Power baseline assumptions by CNC operating mode; typed sensor/provider wiring | Medium |
+| 2 | 5 | **MEDIUM-HIGH: Servo/axis and optional hydraulic failures, as fault-pack registry entries tagged by difficulty** (decided 2026-10-26). | Brandon suggested more parts that can fail, so not every fault is a spindle bearing; gives independent and overlapping diagnosis candidates. The easy/medium/hard switch waits for the scored single-agent run. | Item 4; machine configurations, failure models, sensors, repairs, evaluator updates | Medium to large |
+| 3 | 7 | **Evaluator model for diagnosis labels: finish the check.** Built 2026-10-23 (T1: TypeSafe's Jev proposes labels, `python -m capstone.evaluation.auto_label`); what is left is measuring its agreement with hand labels before any experiment trusts it. | Experiments could then score root cause without labelling every run by hand (decided 2026-10-12). | Hand labels from the scored single-agent run | Small |
+| 4 | 12 | **A live memory comparison run.** Fill the store on tuning seeds (`experiment run --memory --audit ...`), backfill the index (`python -m capstone.memory.backfill`), then `python -m capstone.memory_comparison run --known`, label and report. The command is built and was made fair on 2026-10-26 (C3a, C3c), but has never run against a real model. | The only way to learn whether memory improves investigations, which is the point of item 8. | The scored single-agent run (models answering); one live run at a time | No code; long runs |
+| 5 | 13 | **Memory comparison follow-ups** (C3c notes): a `--cases` option on `run` to rerun chosen cases in every mode (the developer's idea, for cases lost to outages); repeats with a per-case win/loss count between modes; and a header recording the store's size, embedding model and policy version. | With one run per case and outages removing cases, the totals are noisy and not always like for like; a results file should say what store it ran against. | Item 12's first results show how much it matters | Small to medium |
+| 6 | 11 | **Three-day bearing profile in experiments** (F1 follow-ups): let experiments and the comparison choose `bearing_profile`, and lengthen the monitor's 4,000-tick wait, which ends before a typical three-day alarm. | F1 (#77) built the profile as opt-in, but no experiment can use it yet. | Brandon's review of the curve | Small |
+| 7 | 14 | **Make keyword and semantic recall comparable** (C3c notes 6-7): both searches should read the same fields of a memory (keyword reads category, symptoms, action, machine and lesson; semantic embeds category, symptoms, diagnosis and lesson, and `semantic.memory_document`'s docstring says otherwise), and semantic search needs a relevance cutoff instead of always returning k memories. | Until then a keyword/semantic difference is not purely words vs meaning, and semantic mode puts unrelated memories in front of the agent. | Changes what the agent sees: teach first. Item 12 shows whether it matters | Medium |
+| 8 | 9 | **A live progress view:** a hook in the loop that announces each step as it happens, and a terminal viewer with approval at the prompt; only what the agent sees, the score only after the run. | A run can take minutes; a viewer also makes the demo. First screen of the later frontend (Future Work 8, modes). | Nothing | Medium |
+
+**Done:** 1 (live runs finish, L1); 2 (benchmark and limits, L2); 3
+(three-day bearing profile, opt-in, F1 / #77; follow-ups are item 11); 6
+(compound challenge in experiments, E6); 8 (memory comparison command, C3a,
+made fair in C3c / #74; its live run is item 12); 10 (small cleanups).
+
+Can run in parallel: 4 and 9 (different files); 7, 12 and 13 once the
+scored run has labels (but live runs one at a time). Item 5 follows 4, and
+the two simulator items stay separate PRs. Item 14 waits for item 12's
+numbers. Difficulty modes (Future Work 8, second part) wait for the scored
+single-agent run compared with the rule baseline.
 
 ### Future Work 9 — sensor-triggered, on-demand machine vision (near-last priority)
 
