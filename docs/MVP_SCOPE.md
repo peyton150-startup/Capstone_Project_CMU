@@ -870,6 +870,7 @@ What each multi-agent piece maps to:
 | What a role may see | A view built by code, like `render(state)`: an evidence-only handoff leaves the other agent's conclusion out | `agent/model_policy.py` |
 | Budgets | Each role's questions draw on the investigation's one time and call budget; the loop and the graph, not a role, enforce it | `agent/state.py` (`Budgets`, `seconds_for_question`), `agent/loop.py` |
 | Records | Each role's questions appear in experiment records like any other model question | `experiment.py` (`CallSummary`) |
+| Watching the run live (developer's note, 2026-10-26) | The live progress view (LV) only sees the run where `notify` is called. A role built as a graph stage is covered after it finishes (`staged`), and a role that researches through `run_inner_loop` is covered before every turn. A role that asks several model questions inside one stage without `run_inner_loop` (for example a critic reviewing in one long step) shows nothing until it ends: give it more checkpoints (`notify` calls between its questions) unless its loop already has them. The view also cannot yet say which role made a step, since `DecisionRecord` has no role field. | `agent/investigation.py` (`staged`), `agent/loop.py` (`notify`, `run_inner_loop`), `progress.py` |
 
 Rules that do not change: a role's output is a belief, never observable
 evidence, never proof that a fix worked, and never written to memory as fact;
