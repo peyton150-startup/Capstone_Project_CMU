@@ -7,16 +7,20 @@ own stream, `generator`, so it never shifts any other stream. The answer
 is kept where it always is, in the scenario's ground truth.
 """
 
-from capstone.simulator.line import build_line
-from capstone.simulator.scenarios import (
-    BadMaterialBatch,
-    BearingDegradation,
-    FalseAlarm,
-    WrongSetting,
+from capstone.faults import (
+    BEARING_PROFILES,
+    BY_KIND,
+    FAULT_KINDS,
+    THREE_DAY_ONSET_HEALTH,
+    THREE_DAY_QUIET_FACTOR,
+    THREE_DAY_RATE_SCALE,
+    FaultPlace,
 )
+from capstone.simulator.line import build_line
 from capstone.simulator.simulator import Simulator
 
-FAULTS = ("bearing_degradation", "bad_material_batch", "wrong_setting", "false_alarm")
+# The faults a seed can have, from the fault packs (`capstone/faults.py`).
+FAULTS = FAULT_KINDS
 
 # Faults start inside this window, so the agent has a normal stretch to compare against.
 EARLIEST_START, LATEST_START = 200, 600
@@ -25,18 +29,18 @@ EARLIEST_START, LATEST_START = 200, 600
 # within a working day rather than two.
 JOBS_PER_BATCH = 10
 
-# How fast a worn bearing progresses. "compressed" is the original curve (fault
-# start to failure in about 9-28 hours of running), kept as the default so every
-# existing case and result stays the same. "three_day" follows the engineering
-# feedback of 2026-10-23: a quiet stretch first, then a visible ramp from onset
-# to failure of about three operating days (4,320 one-minute ticks of running).
-BEARING_PROFILES = ("compressed", "three_day")
-# three_day: the same seeded rate draw, scaled so that the median onset-to-failure
-# time is about 4,320 running ticks (measured on seeds 1-40,
-# tests/test_generator.py).
-THREE_DAY_RATE_SCALE = 0.17
-THREE_DAY_ONSET_HEALTH = 0.8  # below this, vibration starts to stand out of the noise
-THREE_DAY_QUIET_FACTOR = 0.5  # before onset, wear runs at half the rate
+# Re-exported: the bearing profiles now live with the bearing pack.
+__all__ = [
+    "BEARING_PROFILES",
+    "EARLIEST_START",
+    "FAULTS",
+    "JOBS_PER_BATCH",
+    "LATEST_START",
+    "THREE_DAY_ONSET_HEALTH",
+    "THREE_DAY_QUIET_FACTOR",
+    "THREE_DAY_RATE_SCALE",
+    "build_scenario",
+]
 
 
 def build_scenario(
@@ -68,51 +72,6 @@ def build_scenario(
     machine_id = pick.choice(sorted(sim.state.machines))
     start_tick = pick.randint(EARLIEST_START, LATEST_START)
 
-    if fault == "bearing_degradation":
-        rate = pick.uniform(0.0004, 0.0008)
-        phases = {}
-        if bearing_profile == "three_day":
-            rate *= THREE_DAY_RATE_SCALE
-            phases = {
-                "onset_health": THREE_DAY_ONSET_HEALTH,
-                "quiet_factor": THREE_DAY_QUIET_FACTOR,
-            }
-        sim.add_scenario(
-            BearingDegradation(
-                "fault",
-                sim.rng,
-                machine_id=machine_id,
-                start_tick=start_tick,
-                rate=rate,
-                **phases,
-            )
-        )
-    elif fault == "wrong_setting":
-        factor = pick.choice((0.80, 0.82, 1.18, 1.20))
-        sim.add_scenario(
-            WrongSetting(
-                "fault",
-                sim.rng,
-                machine_id=machine_id,
-                start_tick=start_tick,
-                factor=factor,
-            )
-        )
-    elif fault == "bad_material_batch":
-        batch = pick.randint(2, 3)
-        risk = pick.uniform(0.35, 0.50)
-        sim.add_scenario(
-            BadMaterialBatch("fault", sim.rng, batch_number=batch, added_risk=risk)
-        )
-    else:
-        duration = pick.randint(3, 8)
-        sim.add_scenario(
-            FalseAlarm(
-                "fault",
-                sim.rng,
-                machine_id=machine_id,
-                start_tick=start_tick,
-                duration=duration,
-            )
-        )
+    place = FaultPlace(machine_id, start_tick, bearing_profile)
+    sim.add_scenario(BY_KIND[fault].build(sim, pick, place))
     return sim

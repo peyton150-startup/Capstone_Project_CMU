@@ -103,6 +103,7 @@ GROUPS: dict[str, list[str]] = {
         "memory_evaluation",
         "scoring_integrity",
         "auto_label",
+        "fault_packs",
     ],
     # Many episodes: the harness, hand labels and the known-answer cases.
     "Experiments": ["experiment", "known_answers", "baseline", "memory_comparison"],
