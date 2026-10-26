@@ -1548,8 +1548,9 @@ and unknown-argument.
 
 ### MAX-HIGH PRIORITY (set 2026-10-26): the agent never recommends a fix
 
-**Status: not started. The developer's decision: these three changes come
-first on 2026-10-27, before any multi-agent role.**
+**Status: change 1 built 2026-10-26 (A10); changes 2 and 3 not started. The
+developer's decision: these three changes come first, before any
+multi-agent role.**
 
 **What was seen.** In the scored single-agent run of 2026-10-26 (9
 known-answer cases, `results-single-1.jsonl`), every one of the first three

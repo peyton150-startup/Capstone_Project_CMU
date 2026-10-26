@@ -158,6 +158,12 @@ class InvestigationState(BaseModel):
     stage: Phase | None = None
     termination_reason: TerminationReason | None = None
     conclusion: AgentConclusion | None = None
+    # The recommendation the policy itself gave, before `check_conclusion`,
+    # and, if an intervention was lowered to escalate, why. The conclusion
+    # above holds the final one. For measurement: "chose escalate" and
+    # "overruled" look the same in the conclusion alone.
+    policy_recommendation: str | None = None
+    recommendation_lowered: str | None = None
     proposed_action: ProposalRecord | None = None
     # The tick at which the conclusion was reached.
     concluded_tick: int | None = Field(default=None, ge=0)

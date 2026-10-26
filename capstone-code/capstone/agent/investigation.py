@@ -165,6 +165,28 @@ def test(state: InvestigationState, deps: InvestigationDeps) -> None:
     state.termination_reason = run_inner_loop(state, deps, "test")
 
 
+def why_not_acted(
+    deps: InvestigationDeps,
+    conclusion: AgentConclusion,
+    request: ActionRequest | None,
+) -> str | None:
+    """Why a recommendation to intervene cannot stand, or None if it can.
+
+    The first unmet condition, in words, for the record: an action is
+    named, evidence is cited, and the confidence reaches the bar.
+    """
+    if request is None:
+        return "no action named"
+    if not conclusion.evidence_ids:
+        return "no evidence cited"
+    if conclusion.confidence < deps.min_action_confidence:
+        return (
+            f"confidence {conclusion.confidence:.2f} below "
+            f"{deps.min_action_confidence:.2f}"
+        )
+    return None
+
+
 def check_conclusion(
     state: InvestigationState,
     deps: InvestigationDeps,
@@ -193,12 +215,7 @@ def check_conclusion(
         raise ValueError("the conclusion names a hypothesis that was never formed")
     if conclusion.recommendation != "intervene":
         return conclusion, None
-    justified = (
-        request is not None
-        and conclusion.evidence_ids
-        and conclusion.confidence >= deps.min_action_confidence
-    )
-    if not justified:
+    if why_not_acted(deps, conclusion, request) is not None:
         return conclusion.model_copy(update={"recommendation": "escalate"}), None
     return conclusion, request
 
@@ -208,10 +225,13 @@ def conclude(state: InvestigationState, deps: InvestigationDeps) -> None:
     state.stage = "decide"
     outcome = "decided"
     try:
-        conclusion, request = ask_policy(
-            state, deps, deps.policy.conclude, research=False
-        )
-        conclusion, request = check_conclusion(state, deps, conclusion, request)
+        answer, wanted = ask_policy(state, deps, deps.policy.conclude, research=False)
+        conclusion, request = check_conclusion(state, deps, answer, wanted)
+        # For the record only: what the policy itself recommended, and why an
+        # intervention was lowered (from its own answer, before the check).
+        state.policy_recommendation = answer.recommendation
+        if answer.recommendation == "intervene" and request is None:
+            state.recommendation_lowered = why_not_acted(deps, answer, wanted)
     except OutOfTime:
         conclusion, request, outcome = UNDETERMINED, None, "stopped"
         state.termination_reason = TerminationReason.TIMEOUT

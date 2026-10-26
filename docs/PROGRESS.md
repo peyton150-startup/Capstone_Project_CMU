@@ -106,6 +106,7 @@ A component is complete only when both columns are checked.
 | F5 | Hydraulic-leak fault pack: hydraulics on some machines (observable), pressure sensor and low-pressure alarm, seal repair; only when forced | yes (after the build: pre-merge walkthrough 2026-10-26) | n/a | yes | yes (walkthrough 2026-10-26: Q1 in part, corrected; Q2 right, with an addition; Q3 after a re-teach) | `simulator/line.py` (`HYDRAULIC_POSITIONS`), `simulator/state.py` (`has_hydraulics`, `hydraulic_health`, `hydraulics_repaired_tick`), `simulator/scenarios.py` (`HydraulicLeak`, `DEFECT_FROM_HYDRAULICS`), `simulator/sensors.py` (`HydraulicPressureSensor`), `simulator/events.py` (`ThresholdAlarm(below=)`), `simulator/simulator.py` (`start_hydraulic_repair`), `tools/observation.py`, `tools/actions.py`, `contracts/observations.py`, `providers/factory.py`, `faults.py`; session note 2026-10-26 (F5) |
 | L8 | A chain of fallback models (FALLBACK_MODEL takes several, in order); Cohere's output cap | no (built first; merged without the pre-merge walkthrough at the developer's request, 2026-10-26; walkthrough owed) | n/a | yes | no | `settings.py` (`fallback_models`), `providers/chat.py` (`clients_for_jobs`, `Provider.max_output_tokens`, `_capped`); session note 2026-10-26 (L8) |
 | L9 | `experiment run` shows the live progress view by default (`--quiet` to turn it off), without the truth | no (built first; merged without the pre-merge walkthrough at the developer's request, 2026-10-26; walkthrough owed) | n/a | yes | no | `experiment.py` (`run_experiment(watch=)`, `--quiet`); session note 2026-10-26 (L9) |
+| A10 | The policy's own recommendation, and why an intervention was lowered, are recorded (MAX-HIGH change 1) | no (built first at the developer's request, 2026-10-26; to be taught before merging) | n/a | yes | no | `agent/investigation.py` (`why_not_acted`, `check_conclusion`, `conclude`), `agent/state.py` (`policy_recommendation`, `recommendation_lowered`), `experiment.py` (`ExperimentRecord` fields, `overruled_text`); session note 2026-10-26 (A10) |
 
 Every row above with four "yes" marks (or "n/a") is complete: no question is
 outstanding on it. Still to build after 12c, from `docs/MVP_SCOPE.md`: the
@@ -287,6 +288,27 @@ alarm), then evaluation, then the agent itself.
   without the pre-merge walkthrough at the developer's request (dinner before
   the scored run); the walkthrough is owed. Not done:
   `.env.example` could not be edited from the coding session.
+
+- **2026-10-26 (evening): A10: the policy's own recommendation is recorded
+  (MAX-HIGH change 1). Built first at the developer's request; understood:
+  no, to be taught before merging.** Measurement only; the agent's behaviour
+  is unchanged. `agent/investigation.py`: `why_not_acted(deps, conclusion,
+  request)` names the first unmet condition for an intervention ("no action
+  named", "no evidence cited", "confidence 0.80 below 0.90"), and
+  `check_conclusion` now uses it for its decision (same three conditions as
+  before). `conclude` keeps the policy's answer apart from the checked one:
+  `state.policy_recommendation` is what the policy recommended,
+  `state.recommendation_lowered` why an intervention was lowered (computed
+  from the policy's own answer, before the check). `experiment.py`:
+  `ExperimentRecord` gains both fields (None in older results, which still
+  read), and the report line adds `overruled=intervene->escalate (<why>)`
+  when it happened (`overruled_text`). Tests:
+  `test_agent_investigation.py` (an overruled intervention keeps the
+  policy's own recommendation and a reason; the exact reason for each of the
+  three conditions; an accepted intervention and a chosen escalate record no
+  lowering), `test_experiment.py` (the report shows the overrule and why;
+  results from before still read). Tonight's records cannot be filled in
+  after the fact; the next run will tell "chose escalate" from "overruled".
 
 - **2026-10-26 (evening): the scored single-agent run, done (results only;
   nothing built).** The "NEXT SESSION" run below, on `main` at `e65bd8f`: the

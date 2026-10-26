@@ -350,9 +350,35 @@ def test_a_justified_action_is_recorded_with_what_the_agent_expects_to_change():
 def test_an_unjustified_intervention_is_lowered_to_escalate(concluded):
     state, _ = investigate(wear_policy(conclude=lambda state: concluded))
     assert state.conclusion.recommendation == "escalate"
+    assert state.policy_recommendation == "intervene"  # what the policy said
+    assert state.recommendation_lowered is not None  # and why it was overruled
     assert state.conclusion.diagnosis == "wear on CNC-02"  # the belief is kept
     assert state.proposed_action is None
     assert state.predicted_effect is None
+
+
+@pytest.mark.parametrize(
+    ("concluded", "why"),
+    [
+        ((conclusion(confidence=0.8), REPLACE), "confidence 0.80 below 0.90"),
+        ((conclusion(evidence=()), REPLACE), "no evidence cited"),
+        ((conclusion(), None), "no action named"),
+    ],
+    ids=["not confident enough", "cites nothing", "names no action"],
+)
+def test_the_reason_an_intervention_was_lowered_is_recorded(concluded, why):
+    state, _ = investigate(wear_policy(conclude=lambda state: concluded))
+    assert state.recommendation_lowered == why
+
+
+def test_an_accepted_or_unchanged_recommendation_records_no_lowering():
+    state, _ = investigate(wear_policy(), state=fresh_state(followup_tool_calls=0))
+    assert state.policy_recommendation == "intervene"
+    assert state.recommendation_lowered is None
+    chose = (conclusion("escalate", 0.5, ("E2",)), None)
+    state, _ = investigate(wear_policy(conclude=lambda state: chose))
+    assert state.policy_recommendation == "escalate"  # its own choice
+    assert state.recommendation_lowered is None
 
 
 def test_the_confidence_needed_to_act_is_a_setting():

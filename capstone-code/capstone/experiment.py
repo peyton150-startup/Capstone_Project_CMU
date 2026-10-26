@@ -211,6 +211,10 @@ class ExperimentRecord(BaseModel):
     conclusion: str | None
     confidence: float | None
     recommendation: str | None
+    # The policy's own recommendation before the check, and why an
+    # intervention was lowered to escalate. None in older results.
+    policy_recommendation: str | None = None
+    recommendation_lowered: str | None = None
     verification: str | None
     tools_used: list[str]
     score: Score
@@ -282,6 +286,13 @@ def memory_records(
     return promotion, list(build_use_records(investigation))
 
 
+def overruled_text(record: ExperimentRecord) -> str:
+    """For the report: an intervention the check lowered, and why; else nothing."""
+    if record.recommendation_lowered is None:
+        return ""
+    return f" overruled=intervene->{record.recommendation} ({record.recommendation_lowered})"
+
+
 def record_of(
     case: Case,
     run_key: str,
@@ -303,6 +314,8 @@ def record_of(
         conclusion=None if concluded is None else concluded.diagnosis,
         confidence=None if concluded is None else concluded.confidence,
         recommendation=None if concluded is None else concluded.recommendation,
+        policy_recommendation=state.policy_recommendation,
+        recommendation_lowered=state.recommendation_lowered,
         verification=None if state.verification is None else state.verification.outcome,
         tools_used=[d.tool for d in state.decisions if d.tool is not None],
         score=result.score,
@@ -555,7 +568,7 @@ def _run_line(record: ExperimentRecord, score: Score) -> str:
         f"{len(score.relevant_evidence)} miss={score.miss_kind or '-'} "
         f"calls={score.tool_calls} "
         f"stop={score.termination_reason} {asked} s={seconds}{faults}{memory}"
-        f"{manual}"
+        f"{manual}{overruled_text(record)}"
     )
 
 
