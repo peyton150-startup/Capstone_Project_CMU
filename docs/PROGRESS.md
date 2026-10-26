@@ -111,6 +111,14 @@ alarm), then evaluation, then the agent itself.
 
 ## Session notes
 
+- **2026-10-26: Brandon Reff acknowledgment (documentation only).**
+  Added a README acknowledgment thanking Brandon Reff for helping improve
+  simulator realism through manufacturing feedback, at the developer's
+  request. No runtime behavior or tests changed; understanding statuses
+  unchanged. No teaching gate applies to this credit.
+  Verification: dependency sync, 1,332 offline tests, Ruff lint and
+  formatting (218 files), and the CI test-group check passed.
+
 - **2026-10-26 (LV): live progress view in the terminal (next build
   candidate 9). Built ungated at the developer's request; understood after
   the PR #81 walkthrough (below).** Terminal only; a later frontend (Future
