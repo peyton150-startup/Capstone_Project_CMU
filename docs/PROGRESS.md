@@ -288,6 +288,22 @@ alarm), then evaluation, then the agent itself.
   the scored run); the walkthrough is owed. Not done:
   `.env.example` could not be edited from the coding session.
 
+- **FIRST THING ON 2026-10-27 (MAX-HIGH PRIORITY, developer's decision): the
+  agent never recommends a fix.** In tonight's scored run (started 16:32 on
+  `e65bd8f`, 9 known-answer cases, `results-single-1.jsonl`) the first three
+  cases all ended `escalate` with no repair: KA-01 and KA-02 (bearing) found
+  the right machine and cause at confidence 0.80 and 0.85; KA-03 (batch) was
+  unsure (0.60). `check_conclusion` lowers "intervene" to "escalate" below
+  `min_action_confidence` 0.9, the conclude prompt never states that bar, and
+  the record keeps only the final recommendation. Before any multi-agent role:
+  (1) record the model's own recommendation beside the final one; (2) state
+  the 0.9 bar in the conclude prompt; (3) revisit the 0.9 value with the
+  numbers from (1) and (2). Details: `docs/MVP_SCOPE.md`, "MAX-HIGH PRIORITY"
+  (above Future Work 7) and ranked item 16. Also seen on KA-03: the new
+  following-error sensor and servo repair pulled the agent from a bad batch
+  toward a servo-drive replacement on CNC-06 (no repair was asked for before
+  the time ran out).
+
 - **NEXT SESSION: a scored single-agent run, before any multi-agent role.**
   The developer's point (2026-10-26): to know where a second agent could
   help, the current agent's misses must be scored first. The 2026-10-21 live

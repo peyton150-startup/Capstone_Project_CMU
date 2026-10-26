@@ -1546,6 +1546,52 @@ no fixes or ignores were added. The baseline has seven diagnostic types:
 three invalid-assignment, and one each call-non-callable, invalid-return-type,
 and unknown-argument.
 
+### MAX-HIGH PRIORITY (set 2026-10-26): the agent never recommends a fix
+
+**Status: not started. The developer's decision: these three changes come
+first on 2026-10-27, before any multi-agent role.**
+
+**What was seen.** In the scored single-agent run of 2026-10-26 (9
+known-answer cases, `results-single-1.jsonl`), every one of the first three
+cases ended `escalate` with no repair asked for, and 6 of 9 did on
+2026-10-21. KA-01 and KA-02 (bearings) named the right machine and bearing
+wear, at confidence **0.80** and **0.85**; KA-03 (bad batch) was unsure
+(0.60) and was drifting toward a servo-drive replacement.
+
+**Why.** `check_conclusion` (`agent/investigation.py`) lowers an "intervene"
+recommendation to "escalate" whenever the confidence is below
+`min_action_confidence`, which is **0.9** (`agent/loop.py`
+`InvestigationDeps`), or no evidence is cited, or no action is named. Two
+problems follow:
+
+- **The model is never told the bar.** The conclude prompt
+  (`agent/model_policy.py`) says to recommend intervene "if a change a human
+  can approve would fix it"; nothing says 0.9, so the model cannot aim for it.
+- **The record keeps only the final recommendation**, after any lowering, so
+  it cannot show whether the model chose escalate or was overruled. The
+  bearing confidences (0.80, 0.85, both under 0.9) point to the overrule.
+
+**The three changes, in order** (each its own PR, each taught):
+
+1. **Record the model's own recommendation** next to the final one in every
+   experiment record (and why it was lowered, if it was), so each run shows
+   "chose escalate" apart from "overruled". Measurement only; no behaviour
+   change.
+2. **Tell the model the bar** in the conclude prompt: an intervention is
+   accepted only at confidence 0.9 or above with cited evidence and a named
+   action; below that, say what evidence is missing. Changes what the agent
+   does: measure on the known-answer cases before and after.
+3. **Revisit the 0.9 value itself.** A human approves every action anyway, so
+   a lower bar (for example 0.75) is defensible; the developer decides, using
+   the numbers from changes 1 and 2 on the same cases, never from a single
+   run.
+
+Keep the safety rule in any version: no fix without cited evidence and a
+named action, and human approval for every change. The multi-agent work can
+build on this (a critic that asks "what would make this 0.9?" and sends the
+agent for that evidence), but these three come first so its effect can be
+measured against a fair single-agent baseline.
+
 ### Future Work 7 — model evaluation, execution budgets, and computed evidence
 
 [FW7 gates](FUTURE_WORK_REEVALUATION.md#future-technology--architecture-reevaluation-register):
@@ -2127,6 +2173,13 @@ SESSION" note in `docs/PROGRESS.md`): probe the models, hand-label the
 existing and a fresh known-answer run, put the rule baseline beside it, and
 read the miss labels. It is not a build, but it gives the numbers every item
 below is judged against, and it produces the hand labels item 7 needs.
+
+**MAX-HIGH PRIORITY, before everything below and before any multi-agent
+role (developer, 2026-10-26): item 16, the agent never recommends a fix**
+(see the MAX-HIGH PRIORITY section above Future Work 7): (1) record the
+model's own recommendation beside the final one, (2) tell the model the
+0.9 bar in the conclude prompt, (3) revisit the 0.9 value with those
+numbers.
 
 **Open, in ranked order** (5 first is the developer's order; where items
 7, 9 and 11-15 sit is the coding agent's proposal, for the developer to
