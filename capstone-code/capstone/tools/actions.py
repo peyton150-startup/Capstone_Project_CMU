@@ -2,10 +2,10 @@
 # Responsibility: move time forward and require human approval before any repair.
 from pydantic import BaseModel
 
+# The repairs the approval desk knows come from the fault packs (`capstone/faults.py`).
+from capstone.faults import ACTIONS
 from capstone.simulator.simulator import Simulator
 from capstone.tools.errors import ToolInputError
-
-ACTIONS = ("replace_bearing", "reset_setting")
 
 
 class Proposal(BaseModel):

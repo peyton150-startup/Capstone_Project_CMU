@@ -43,6 +43,7 @@ from statistics import median
 from capstone.agent.monitor import detect_anomaly
 from capstone.evaluation.known_answers import KNOWN_CASES
 from capstone.evaluation.scoring import Score, evaluate, format_summary, summarize
+from capstone.faults import agent_side
 from capstone.simulator.generator import FAULTS, build_scenario
 from capstone.tools.actions import ActionTools, ApprovalDesk
 from capstone.tools.diagnosis import Diagnosis
@@ -60,7 +61,8 @@ MORE_INSPECTIONS_TICKS, MIN_BATCH_FAILS, BATCH_STANDS_OUT = 480, 2, 3.0
 # After a repair: how long to let it run before scoring, like the agent's check.
 AFTER_WORK_TICKS = 200
 
-FIX = {"bearing_degradation": "replace_bearing", "wrong_setting": "reset_setting"}
+# The repair the rules ask for, per fault: the fault packs' repair actions.
+FIX = {side.kind: side.action for side in agent_side() if side.action is not None}
 
 
 @dataclass

@@ -6,74 +6,22 @@ over, so nothing it reads can reach the agent.
 """
 
 from collections.abc import Mapping, Sequence
-from dataclasses import dataclass
 
 from pydantic import BaseModel, ConfigDict, Field
 
+from capstone.faults import PACKS, Relevant
 from capstone.simulator.simulator import Simulator
 from capstone.tools.diagnosis import Diagnosis
 
+# From the fault packs' evaluator side (`capstone/faults.py`). Read only here,
+# after the run; never shown to the agent.
 # What a good investigator does about each fault. None: leave the factory alone.
-CORRECT_ACTION = {
-    "bearing_degradation": "replace_bearing",
-    "wrong_setting": "reset_setting",
-    "bad_material_batch": None,
-    "false_alarm": None,
-}
-
-
-# The tools that read one machine sensor, by any route.
-_SENSOR_TOOLS = ("get_readings", "get_sensor_trend", "get_sensor_summary")
-
-
-@dataclass(frozen=True)
-class Relevant:
-    """One kind of evidence that bears on a fault. Evaluator-side only."""
-
-    label: str
-    tools: tuple[str, ...]
-    sensor: str | None = None  # the sensor the call must name, if any
-    on_machine: bool = False  # the call must be about the faulty machine
-
-    def describe(self, machine_id: str | None) -> str:
-        return self.label.format(machine=machine_id)
-
-    def met_by(self, tool: str, arguments: Mapping, machine_id: str | None) -> bool:
-        if tool not in self.tools:
-            return False
-        if self.sensor is not None and arguments.get("sensor") != self.sensor:
-            return False
-        if self.on_machine:
-            # An event query for the whole factory also covers the machine.
-            named = arguments.get("machine_id")
-            whole_factory = tool == "get_events" and named is None
-            return named == machine_id or whole_factory
-        return True
-
+CORRECT_ACTION = {pack.kind: pack.evaluator.correct_action for pack in PACKS}
 
 # What an investigator could look at that bears on each fault: the "relevant
-# evidence available" of MVP section 9. Read only by the evaluator, after the
-# run; never shown to the agent, which must find these by itself.
+# evidence available" of MVP section 9. The agent must find these by itself.
 RELEVANT_EVIDENCE: dict[str, tuple[Relevant, ...]] = {
-    "bearing_degradation": (
-        Relevant("vibration of {machine}", _SENSOR_TOOLS, "vibration", True),
-        Relevant("temperature of {machine}", _SENSOR_TOOLS, "temperature", True),
-        Relevant("events of {machine}", ("get_events",), on_machine=True),
-    ),
-    "wrong_setting": (
-        Relevant("machine settings", ("get_settings",)),
-        Relevant("inspection results", ("get_inspections",)),
-        Relevant("vibration of {machine}", _SENSOR_TOOLS, "vibration", True),
-    ),
-    "bad_material_batch": (
-        Relevant("inspection results", ("get_inspections",)),
-        Relevant("events (material batches)", ("get_events",)),
-        Relevant("a job's history", ("get_job_history",)),
-    ),
-    "false_alarm": (
-        Relevant("vibration of {machine}", _SENSOR_TOOLS, "vibration", True),
-        Relevant("events of {machine}", ("get_events",), on_machine=True),
-    ),
+    pack.kind: pack.evaluator.relevant for pack in PACKS
 }
 
 # Ended because no model service answered: not a reasoning result.
@@ -96,7 +44,7 @@ COMPOUND = "compound"
 # true faults the others (a passing spike, a drifting or silent sensor) are
 # distractors: nothing to fix, and blaming one is a wrong cause. A run with
 # one true fault has that one as its cause, whatever it is.
-CAUSE_KINDS = ("bearing_degradation", "wrong_setting", "bad_material_batch")
+CAUSE_KINDS = tuple(pack.kind for pack in PACKS if pack.evaluator.is_cause)
 
 
 class Cause(BaseModel):

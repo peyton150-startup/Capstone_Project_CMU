@@ -2,10 +2,11 @@ from typing import Literal, get_args
 
 from pydantic import BaseModel, ConfigDict
 
-FaultKind = Literal[
-    "bearing_degradation", "bad_material_batch", "wrong_setting", "false_alarm"
-]
-# The kinds of cause an agent can name. "false_alarm" means: nothing is wrong, no action needed.
+from capstone.faults import FAULT_KINDS as _PACK_KINDS
+
+# The kinds of cause an agent can name, from the fault packs' agent side
+# (`capstone/faults.py`). "false_alarm" means: nothing is wrong, no action needed.
+FaultKind = Literal[_PACK_KINDS]
 FAULT_KINDS: tuple[str, ...] = get_args(FaultKind)
 
 
