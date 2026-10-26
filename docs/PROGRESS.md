@@ -107,6 +107,19 @@ alarm), then evaluation, then the agent itself.
 
 ## Session notes
 
+- **2026-10-26: docs: "Next build candidates" brought up to date
+  (developer's request).** `docs/MVP_SCOPE.md`: the table now lists open
+  items in ranked order with a Rank column, and done items (1, 2, 3, 6, 8,
+  10) on one line. Numbers stay as fixed IDs. The scored single-agent run
+  comes first, before any item. Open: 4 (kW), 5 (servo/hydraulic as
+  fault-pack entries), 7 (evaluator labels: only the agreement check is
+  left), and new items 11 (three-day profile usable in experiments, longer
+  monitor wait), 12 (a live memory comparison run), 13 (comparison
+  follow-ups: `--cases`, repeats, store header), 14 (keyword and semantic
+  recall made comparable), then 9 (live progress view, never built). The
+  placement of 7, 9 and 11-14 is the coding agent's proposal for the
+  developer to confirm. Documentation only; no understanding status changed.
+
 - **2026-10-26: docs: which tests to run before pushing (developer's
   rule).** AGENTS.md section 11 step 3 no longer asks for the full
   `uv run pytest` before every push: docs/CI/config changes skip local
