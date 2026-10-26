@@ -95,9 +95,10 @@ does:
 Observe → Investigate → Hypothesize → Test → Decide → Act/Recommend → Verify → Remember
 ```
 
-The planned macro investigation loop uses Pydantic Graph. CrewAI remains the
-later specialist-agent orchestration layer in Future Work 3; CrewAI Flow must
-not replace this macro loop. Neither framework is implemented or installed.
+The macro investigation loop runs on Pydantic Graph (`agent/investigation.py`).
+The later multi-agent extension (Future Work 3) adds its roles to this same
+graph and calls models through the existing chat client; no multi-agent
+framework (CrewAI or another) is used (developer's decision, 2026-10-26).
 
 Internally its reasoning is staged:
 
@@ -666,7 +667,7 @@ lifecycle cleanup, strict schemas, read-only allowlisting, denied waits/writes,
 authorization, provenance, freshness, state consistency, and hidden-truth
 isolation. Do not expose approval, scenario causes, or internal health fields.
 Preserve the macro Pydantic Graph loop and the verification/observability
-distinction below. CrewAI is not required for this first client. No MCP
+distinction below. No multi-agent framework is used (Future Work 3). No MCP
 package, client wrapper, transport, or server is implemented now; consider a
 custom wrapper only for a demonstrated unsupported requirement.
 
@@ -840,27 +841,58 @@ This planned extension follows the single-agent MVP. The provider assignments
 below are initial targets; exact models and API availability will be confirmed
 when this extension is implemented.
 
-#### Later CrewAI MCP client — planned, not implemented
+#### Decision: our own orchestration, no CrewAI (2026-10-26)
 
-When CrewAI specialist orchestration begins, use its documented `mcps` support
-for discovery, structured server configuration, and tool filtering. Reuse the
-same server/capability and `FactoryProvider` contracts as the earlier
-Pydantic AI client; changing clients does not justify rebuilding the server.
-See [CrewAI MCP](https://docs.crewai.com/en/mcp/overview).
+**Developer's decision, 2026-10-26.** The multi-agent extension is built on
+what the project already has, not on CrewAI or LiteLLM. This replaces the
+CrewAI/LiteLLM plan of 2026-10-11.
 
-```text
-CrewAI specialist agent → mcps integration → existing MCP capability/server
-  → same authoritative data boundary
-```
+Why (checked on PyPI on 2026-10-26):
 
-Client filters reduce exposed tools; server-side authorization remains
-authoritative. Assign each role the necessary scopes. Test filtered discovery,
-denied direct calls, per-agent credentials/scopes, cross-client result parity,
-trace correlation, hidden-truth isolation, and human approval before adoption.
-Keep deterministic verification in Future Work 2, Pydantic Graph's macro loop,
-and the existing CrewAI/LiteLLM plan below. Split servers only when real trust,
-permission, or deployment needs justify it. No CrewAI/MCP code or dependencies
-are added now.
+- **CrewAI 1.15.30 requires the `openai` SDK** as a core dependency, and
+  AGENTS.md section 9 forbids any OpenAI SDK in the project's dependencies.
+- **CrewAI requires `pydantic<2.13`.** The project pins Pydantic 2.13.4
+  (`[tool.uv] constraint-dependencies` in `pyproject.toml`), so CrewAI cannot
+  be installed without downgrading Pydantic.
+- **LiteLLM also requires `openai`**, which is why it was already turned down
+  on 2026-10-15 (checkpoint 8a) in favour of one standard-library client.
+- **Nothing is missing.** The two jobs a framework would do already exist and
+  are tested: orchestration (the Pydantic Graph stage graph) and transport to
+  every in-scope provider (`providers/chat.py`).
+
+What each multi-agent piece maps to:
+
+| Multi-agent need | Built on | Where |
+|---|---|---|
+| Orchestrator: which role runs when, and the allowed order | New stages and edges in the existing stage graph; the graph's edges stay the only allowed order | `agent/investigation.py` (`build_graph`) |
+| A role's model and its fallback | A new entry in the job table (for example `CRITIC_MODEL`), resolved by the same client factory, with `FallbackClient` for outages | `settings.py`, `providers/chat.py` (`JOBS`, `clients_for_jobs`, `FallbackClient`) |
+| Typed handoffs | Project `Contract` models (for example `CritiqueResult`); a reply that does not match is refused, with its reason recorded, as for the seven policy questions | `contracts/`, `agent/model_policy.py` (`_ask`), `providers/chat.py` (`INVALID_REPLY`) |
+| What a role may see | A view built by code, like `render(state)`: an evidence-only handoff leaves the other agent's conclusion out | `agent/model_policy.py` |
+| Budgets | Each role's questions draw on the investigation's one time and call budget; the loop and the graph, not a role, enforce it | `agent/state.py` (`Budgets`, `seconds_for_question`), `agent/loop.py` |
+| Records | Each role's questions appear in experiment records like any other model question | `experiment.py` (`CallSummary`) |
+
+Rules that do not change: a role's output is a belief, never observable
+evidence, never proof that a fix worked, and never written to memory as fact;
+no role sees ground truth; no role can approve or carry out an action
+(approval stays human, execution stays the fixed procedure after approval);
+verification after an intervention stays mandatory.
+
+Build one role at a time, each through the teaching gate and its own PR, and
+measure each against the single agent on held-out seeds with several runs per
+case before adding the next. The six-provider workflow below is the long-term
+target, not the first build. A second agent can lower accuracy (the paper
+behind R4c found an LLM given a specialist's answer did worse than the
+specialist alone), so a role stays only if the comparison shows it helps.
+
+#### Tools for specialist roles
+
+A role that needs factory evidence gets it through the same
+`FactoryProvider` boundary and tool allowlist as the investigator, in the same
+process. Whether tools later travel over MCP is Future Work 2's decision; a
+multi-agent role does not by itself justify an MCP server, and any MCP client
+adopted then must add no OpenAI SDK. Test, for each role: only its permitted
+tools are offered, a call to any other tool is refused, hidden truth never
+appears in its view, and human approval cannot be bypassed.
 
 #### Multi-Agent Handoff Protocol
 
@@ -1016,7 +1048,7 @@ Mistral will primarily perform this role.
 
 #### Structured Inter-Agent Communication
 
-CrewAI will coordinate when each handoff occurs, while Pydantic schemas will define the information transferred between agents.
+The stage graph (`agent/investigation.py`) will decide when each handoff occurs, while Pydantic schemas will define the information transferred between agents.
 
 Agents will not depend on another model's hidden reasoning or chain of thought.
 
@@ -1233,155 +1265,103 @@ The core post-MVP extension provider set is therefore:
 
 **NVIDIA, Groq, Mistral, Cohere, Google Gemini, and Cloudflare.**
 
-#### Provider integration — CrewAI/LiteLLM behind one project boundary
+#### Provider integration — the existing chat client
 
-**Revised 2026-10-11. Planned; no framework dependencies or live adapters added.**
-Use CrewAI's `LLM` abstraction and LiteLLM as the default integration layer
-for the six-provider extension. Do not preemptively build six HTTP clients,
-authentication implementations, response parsers, or exception hierarchies.
-A provider/model-specific adapter is justified only by a demonstrated missing
-capability that configuration or the supported framework cannot address.
+**Revised 2026-10-26 (developer's decision; replaces the CrewAI/LiteLLM plan of
+2026-10-11). Planned; no role is built yet.** Every role calls its model
+through `providers/chat.py`, the one standard-library client that already
+reaches every in-scope provider through its OpenAI-style chat endpoint. No
+framework, SDK or per-provider client is added. A provider-specific change is
+justified only by a demonstrated gap the client cannot cover, with a test for
+that gap.
 
-CrewAI documents native Google Gemini integration and LiteLLM support for
-NVIDIA NIM, Groq, Mistral, Cohere, and Cloudflare Workers AI. Treat this as
-integration availability, not proof that every model supports every role.
-Install only the extras needed when implementing the extension. See
-[CrewAI connections](https://docs.crewai.com/en/learn/llm-connections).
-
-| Provider | Planned integration | Initial role |
+| Provider | Integration | Initial role |
 |---|---|---|
-| NVIDIA NIM / Nemotron | CrewAI LLM → LiteLLM → NVIDIA NIM | Planning, orchestration, synthesis; candidate general fallback |
-| Groq / GPT-OSS | CrewAI LLM → LiteLLM → Groq | Primary research |
-| Mistral | CrewAI LLM → LiteLLM → Mistral | Critic / challenger |
-| Cohere Command | CrewAI LLM → LiteLLM → Cohere | Evidence reasoning and grounding |
-| Google Gemini | CrewAI LLM → native Google integration | Independent analysis; candidate multimodal fallback |
-| Cloudflare Workers AI | CrewAI LLM → LiteLLM → Cloudflare | Specialist vision/document tasks where the model supports them |
+| NVIDIA NIM / Nemotron | `ChatClient` (structured output on) | Lead investigator, synthesis; candidate general fallback |
+| Groq / GPT-OSS | `ChatClient` | Primary research |
+| Mistral | `ChatClient` | Critic / challenger |
+| Cohere Command | `ChatClient` | Evidence reasoning and grounding |
+| Google Gemini | `ChatClient` | Independent analysis |
+| Cloudflare Workers AI | `ChatClient` | Specialist or fallback models |
 
-Preserve `capstone/providers/llm.py`'s existing `LLMProvider` protocol:
-`investigate(Investigation) → Investigation`. The capstone domain should
-consume explicit research artifacts without importing CrewAI or provider SDKs.
-One planned `CrewAIProvider` implements this project boundary; a small
-`ModelRegistry` resolves role configuration inside that integration.
+The roles are initial targets; each is confirmed by measurement (Future Work 7)
+before it is relied on. The routers in AGENTS.md section 9 (Requesty, xKiro,
+LLM7, Kilo Code) can serve small roles too, measured per role
+(`docs/benchmarks/2026-10-21-routers.md`).
 
 ```text
-Capstone domain → LLMProvider → CrewAIProvider
-  → agent role → ModelRegistry → CrewAI LLM configuration
-  → CrewAI native integration / LiteLLM → provider
+stage graph (agent/investigation.py) → role's question → job table
+  → client_for("provider/model") → ChatClient / FallbackClient → provider
 ```
 
-This replaces the earlier per-provider adapter/router design. The boundary
-still translates framework task results into project contracts and enforces
-project policy; the framework handles provider transport. It does not replace
-`FactoryProvider`, simulator tools, or the human approval boundary.
+The boundary stays where it is: roles return project contracts, the graph
+enforces the order and the budgets, and nothing here replaces
+`FactoryProvider`, the simulator tools or human approval.
 
 #### Role configuration and execution limits
 
-Use Pydantic Settings for role configuration, with one primary model and one
-optional fallback model per role. Keep a small validated `RoleModelConfig`
-with `model`, `fallback_model`, `timeout_seconds`, `max_output_tokens`, and
-the retry/tool/iteration budgets described in Future Work 7. Optional
-reasoning controls apply only where supported.
-
-Use full framework model identifiers, with conceptual configuration such as:
-
-```text
-PLANNER_MODEL=nvidia_nim/nvidia/<selected-nemotron-model>
-RESEARCHER_MODEL=groq/<selected-gpt-oss-model>
-EVIDENCE_MODEL=cohere/<selected-command-model>
-EVIDENCE_FALLBACK_MODEL=nvidia_nim/nvidia/<compatible-fallback-model>
-ANALYST_MODEL=gemini/<selected-gemini-model>
-CRITIC_MODEL=mistral/<selected-mistral-model>
-VISION_MODEL=cloudflare/<selected-multimodal-model>
-```
-
-These placeholders are not runnable model IDs. Confirm model catalogs,
-endpoint prefixes, credentials, access, context limits, and modalities when
-implementing. Keep the intended model families above configurable rather
-than pinning the roadmap to currently advertised endpoint names. Map the
-project's credential settings to the integration's required names without
-exposing secrets in configuration dumps or traces.
-
-A model change should affect role configuration and compatibility records,
-not agent implementations or handoff schemas. The registry creates configured
-CrewAI LLM objects without scattering provider switch statements across agents.
-Translate token/reasoning settings to supported parameter names. Enforce
-investigation deadlines and total retry/tool/iteration budgets outside the
-provider call as well; a per-request timeout is not a whole-run deadline.
+A role is a new entry in the job table: a setting naming its model (for
+example `CRITIC_MODEL`, falling back to `DEFAULT_MODEL` when unset), resolved
+by `clients_for_jobs` in `providers/chat.py`. Today one `FALLBACK_MODEL`
+serves every job; a per-role fallback is added only when a role needs a
+different one. Per-request and per-question limits (`MODEL_REQUEST_SECONDS`,
+`MODEL_QUESTION_SECONDS`), output tokens and retries are the existing
+settings; give a role its own values only when measurements show it needs
+them. A role's questions spend the investigation's one budget
+(`agent/state.py` `Budgets`); each question is told the time left
+(`seconds_for_question`), so a role cannot overrun the investigation.
 
 #### Common contracts and structured handoffs
 
-**Planned, not implemented; reevaluate when CrewAI specialist tasks begin.**
-Use `Task(..., output_pydantic=RoleContract)` for typed handoffs, with ordinary
-Pydantic/project `Contract` models created only as needed.
-Extract the validated task artifact rather than passing raw model text to the
-next agent. CrewAI also documents Pydantic `response_format` for LLM calls;
-its suitability depends on the selected model and integration. See
-[CrewAI tasks](https://docs.crewai.com/en/concepts/tasks) and
-[CrewAI LLMs](https://docs.crewai.com/en/concepts/llms).
+**Planned, not implemented.** Each handoff is a project `Contract`, asked for
+the same way as the seven policy questions (`ModelPolicy._ask` in
+`agent/model_policy.py`): the reply must match the contract or it is refused
+and its reason recorded (`INVALID_REPLY`, L4); NVIDIA is asked to keep to the
+schema (`structured_output`, L5). Never pass raw model text to the next role.
 
 The planned contracts remain `ResearchTask`, `ResearchFinding`,
 `VerifiedEvidence`, `AnalysisResult`, `CritiqueResult`, and `SynthesisResult`,
-created only as the workflow needs them. Keep the existing full,
-evidence-only, and challenge handoffs, with explicit artifacts rather than
-private chain-of-thought. Framework conversion must not weaken project
-validation or silently admit unvalidated raw output after conversion fails.
+created only as the workflow needs them. Keep the full, evidence-only, and
+challenge handoffs, with explicit artifacts rather than private
+chain-of-thought.
 
 A valid Pydantic object proves structure, not factual correctness.
 `VerifiedEvidence` must record the evidence checks actually performed; an
 Evidence Agent's interpretation does not replace Future Work 2's deterministic
 MCP-response verification, source provenance, or evaluator-only ground truth.
-Bound any structured-output repair attempts within the shared execution budget.
 
 #### Cohere Rerank is a separate retrieval operation
 
-Cohere Command is an LLM integration; Cohere Rerank is a different operation.
-Keep reranking in a generic retrieval tool. LiteLLM documents `rerank()` with
-Cohere support, so a separate Cohere chat adapter is unnecessary for this
-purpose. See [LiteLLM rerank](https://docs.litellm.ai/docs/rerank).
+Cohere Command is a chat model; Cohere Rerank is a different operation and
+not a chat call. If reranking is needed, add it as one small retrieval step
+calling Cohere's rerank endpoint through the same standard-library transport
+(no SDK), not as a role.
 
 ```text
-ChromaDB retrieval → candidate documents → LiteLLM rerank()
-  → Cohere Rerank → ranked documents with original source identifiers
+ChromaDB retrieval → candidate documents → Cohere Rerank
+  → ranked documents with original source identifiers
 ```
 
-Candidate and returned counts are configurable; 20 candidates and 5 results
-are illustrative, not fixed requirements. Preserve document IDs and source
-references through ranking. Relevance scores do not establish truth. Test
-reranking separately from Command completion and role-model substitution:
-changing the Evidence Agent's LLM must not implicitly change its reranker.
+Candidate and returned counts are configurable. Preserve document IDs and
+source references through ranking. Relevance scores do not establish truth.
+Test reranking separately from chat models: changing the Evidence Agent's
+model must not change its reranker. Not planned for the first roles.
 
-#### Generic cross-provider fallback, when needed
+#### Cross-provider fallback
 
-Add fallback in the multi-agent phase when real workflows need it. Do not
-assume an ordinary CrewAI `LLM` object provides the required cross-provider
-policy. Prefer one small generic layer that invokes a configured primary
-CrewAI LLM and, on an explicitly eligible failure, its compatible fallback.
-Consider a single LiteLLM Router integration only if the pool warrants it;
-its documentation covers retries and fallback routing. See
-[LiteLLM Router](https://docs.litellm.ai/docs/routing).
+Already built for the single agent and reused by every role: `FallbackClient`
+(A8b-1) retries a transient failure (rate limit, timeout, server error,
+outage) with back-off, then asks the fallback model within the same question's
+time (L1, L2); a whole request has a hard deadline (L7). An invalid reply,
+an authentication or configuration error never moves to the fallback (L4).
+With no framework layer, there are no nested retries to multiply attempts.
 
-Start with bounded retries for classified transient rate limits, timeouts,
-connection failures, temporary server errors, or provider outages. Quota
-exhaustion may permit configured fallback without repeatedly retrying an
-exhausted primary. Unavailable models require classification: temporary
-service unavailability can qualify; a wrong model ID or missing account
-access is a configuration error. Authentication failures, malformed task
-inputs, programming errors, and schema failures must not silently trigger
-cross-provider fallback. Use the explicit bounded validation/repair path for
-model-generated invalid output, then surface failure.
-
-Nemotron remains a candidate general fallback for Researcher, Evidence,
-Analyst, and Critic; Gemini remains a candidate Vision fallback. Enable each
-only after testing the role's required contracts, tools, context, and modalities.
-Do not substitute a text-only model for a required vision capability.
-
-Coordinate framework, SDK, and project retries so nested layers cannot
-multiply attempts beyond the investigation budget. Fallback must preserve
-the typed task and permitted evidence, record which model actually answered,
-and must not replay state-changing tools or bypass approval. Log role,
-primary/fallback provider and model, classified failure, attempt, timestamp,
-and run/investigation correlation IDs in the audit trail. Align tracing with
-Future Work 2 without logging secrets or hidden truth.
+Fallback preserves the typed question and the permitted evidence, records
+which model actually answered (`answered_by` in experiment records), and never
+replays state-changing tools or bypasses approval. Decide per role, before
+building it, what happens when its model is unavailable: the investigation
+either stops (as the investigator does today) or carries on without that role,
+with the record saying so.
 
 #### Compatibility gate and focused tests
 
@@ -1409,7 +1389,7 @@ before writing a narrow special-case adapter with tests for the concrete gap.
 This compatibility probe complements Future Work 7's task-quality benchmarks;
 it does not replace them or require all six providers for the core MVP.
 
-Keep default tests offline with scripted framework/model stand-ins. Prove:
+Keep default tests offline with scripted model stand-ins. Prove:
 
 - The Evidence Agent can switch between configured Cohere and NVIDIA models
   without agent, handoff, or downstream-contract changes.
@@ -1423,10 +1403,9 @@ Keep default tests offline with scripted framework/model stand-ins. Prove:
 - Retrieval reranking preserves source IDs and remains independent of the
   Evidence Agent's configured completion model.
 
-Implement one framework boundary, one small model registry, and only the
-reliability policy that the extension needs. No generic routing platform,
-proxy deployment, six custom clients, or new dependencies in this documentation
-change. The core single-agent MVP plan and simulator behavior remain unchanged.
+Reuse the existing chat client, job table and fallback; add only the
+reliability policy a role is shown to need. No multi-agent framework, generic
+routing platform, proxy deployment, six custom clients, or new dependencies. The core single-agent MVP plan and simulator behavior remain unchanged.
 
 **Future Work 4 — planning and experimentation.** Controlled experiments:
 *"Reduce Machine 2 feed rate by 5% for the next ten units and compare
@@ -1627,8 +1606,8 @@ The single-agent MVP uses the same concepts without introducing extra roles.
 Retain deterministic global investigation/tool-call limits across all roles,
 retries, and handoffs so local budgets cannot bypass termination rules.
 
-The project/framework integration translates supported provider controls;
-Future Work 3 uses CrewAI/LiteLLM rather than a custom adapter per provider.
+The project's chat client (`providers/chat.py`) translates supported provider
+controls; Future Work 3 uses it rather than a framework or a client per provider.
 Unsupported optional reasoning
 settings may be omitted with their effective configuration recorded; enforce
 execution limits in orchestration or reject configurations that cannot be

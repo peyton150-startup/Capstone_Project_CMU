@@ -23,9 +23,11 @@ and any unavailable material before claiming those repositories were reviewed.
   authentication, source completeness, response verification, or durable lineage.
   `Contract` freezes model fields; it does not provide recursively immutable
   containers, authenticated provenance, or an immutable storage history.
-- **PLANNED:** Pydantic Graph macro investigation loop. It is not installed or
-  implemented. CrewAI is the later specialist layer. CrewAI Flow does not replace
-  the graph. `VerificationRecord` is also a roadmap concept, not a current model.
+- **IMPLEMENTED (since this review):** the Pydantic Graph macro investigation
+  loop (`agent/investigation.py`). Multi-agent roles (FW3) are added to this graph
+  with the existing chat client; CrewAI was rejected on 2026-10-26 (it requires the
+  `openai` SDK and `pydantic<2.13`). `VerificationRecord` is still a roadmap
+  concept, not a current model.
 - **NOT IMPLEMENTED:** a complete research agent, evaluator, recovery, action
   persistence, real factory connection, or the future frameworks in this register.
   Optional database connectivity and an Alembic scaffold are not durable action
@@ -104,7 +106,7 @@ See [Future Work 8 details](MVP_SCOPE.md#high-priority-simulator-fidelity-faster
    at execution; a dry run is not authorization and cannot predict hidden causes.
 4. **Parts 12–18: record reproducibility before experiments.** A minimal manifest
    belongs with the first repeatable evaluation, including scripted runs, rather
-   than after historical live comparisons already matter. Add corpus/policy/CrewAI
+   than after historical live comparisons already matter. Add corpus/policy/role
    fields only when those components exist. Keep evaluator-only scenario identity,
    seed and expected truth away from model prompts and agent memory when they can
    reveal answers. Frozen evidence needs versioned/snapshotted content or immutable
@@ -208,8 +210,8 @@ claim of implementation or a fresh compatibility test of every named framework.
 | 23 — Vertical acceptance | PLANNED; FW6 | Assemble with loop; full gate when evaluator exists | Scripted model, seeded observations, human approval, intervention, verification and score | CI requires live credentials/paid models or hides integration behind mocks | none; MVP |
 | 24 — ADRs | CANDIDATE; relevant FW section | Settled architecture choice is costly to reverse | Current decision, alternatives, consequences, status and review trigger | Repeats minor library setup or records proposals as accepted | none; MVP documentation |
 | 25a — Pydantic AI MCP | PLANNED; FW2 | Core agent MVP works and tool transport is needed | Current API, optional dependency, read-only allowlist, auth, schemas, cleanup, parity | Direct provider remains sufficient or changes macro loop | optional; extension |
-| 25b — CrewAI MCP | PLANNED with specialists; FW3 | CrewAI specialist needs existing MCP capability | Native support, shared server contract, scopes and cross-client parity | CrewAI introduced only for transport or server rebuilt per role | optional; extension |
-| 26 — CrewAI output_pydantic | PLANNED with specialists; FW3 | First actual specialist handoff | Exact model/provider schema/tool support, bounded repair and invalid output behavior | Redundant contracts or an extra parsing framework without a gap | optional CrewAI; extension |
+| 25b — CrewAI MCP | REJECTED 2026-10-26 (developer); FW3 roles use the in-process `FactoryProvider` | — | CrewAI requires the `openai` SDK (AGENTS.md section 9) and `pydantic<2.13` (project pins 2.13.4) | Reopen only if both blockers are gone and a role shows a need | none; extension |
+| 26 — CrewAI output_pydantic | REPLACED 2026-10-26 by project `Contract` handoffs asked through `ModelPolicy._ask`; FW3 | First actual specialist handoff | Invalid replies refused with a recorded reason (L4); NVIDIA structured output (L5) | Redundant contracts or an extra parsing framework without a gap | none; extension |
 | 27 — Docling + HybridChunker | CANDIDATE; FW1 | Actual representative manuals enter RAG | Conversion/table quality, provenance, embedding tokenizer, dependency cost and retrieval | Simpler ingestion wins on actual corpus | optional; extension |
 | 28 — Equipment profiles | CANDIDATE; portability | Second genuinely different environment exposes repetitive capability code | Describe observations/actions, validate profiles, preserve causal simulator code | Configuration cannot reduce real onboarding work | none initially; production portability |
 | 29 — YAML configuration | CANDIDATE; portability | Users must author multiple factory profiles | Need for YAML versus typed Python/JSON, safe loading, contract validation, versioning | Format aesthetics only; existing config suffices | optional if YAML chosen; production portability |

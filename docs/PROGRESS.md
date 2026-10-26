@@ -105,7 +105,48 @@ alarm), then evaluation, then the agent itself.
 
 ## Session notes
 
-- **NEXT SESSION: test a 60 s request limit, then collect lessons.** The
+- **NEXT SESSION: a scored single-agent run, before any multi-agent role.**
+  The developer's point (2026-10-26): to know where a second agent could
+  help, the current agent's misses must be scored first. The 2026-10-21 live
+  numbers (about 3 of 8 one-fault cases right) were the coding agent's
+  reading, not hand labels. Steps, one live run at a time:
+  1. Probe the chat model and the fallback; stop if they fail.
+  2. Score what already exists: label the nine conclusions in
+     `results-5.jsonl` (`uv run python -m capstone.experiment label
+     --results results-5.jsonl --labels labels-live-5.jsonl --by <name>`),
+     then `experiment report --results results-5.jsonl --labels
+     labels-live-5.jsonl`.
+  3. A fresh run of the known-answer cases on today's `main` (`experiment
+     run --name single-known-1 --known --out results-single-1.jsonl`),
+     labelled and reported the same way; a second run if time allows, since
+     answers vary between runs of the same case.
+  4. Put the rule baseline beside it (`python -m capstone.baseline --known`).
+  5. Read the report's miss labels per case (R4b): a reasoning miss (the
+     evidence was gathered, the conclusion was wrong or escalated) is what a
+     critic or independent analyst could fix; an evidence miss points at a
+     research role instead. That choice picks the first multi-agent role.
+
+- **2026-10-26: docs: multi-agent work on our own orchestration, no CrewAI
+  (developer's decision).** Documentation only; no code or dependencies
+  changed, no understanding status changed. Checked on PyPI the same day:
+  CrewAI 1.15.30 requires the `openai` SDK (forbidden by AGENTS.md section 9)
+  and `pydantic<2.13` (the project pins 2.13.4); LiteLLM also requires
+  `openai` (already turned down on 2026-10-15). `docs/MVP_SCOPE.md`: section
+  3 and Future Work 3 now say roles are new stages on the existing Pydantic
+  Graph stage graph, each role's model comes from the job table through
+  `providers/chat.py` (`clients_for_jobs`, `FallbackClient`), handoffs are
+  project contracts asked through `ModelPolicy._ask`, and every role spends
+  the investigation's one budget; a "Decision" section maps each
+  multi-agent need to existing code. The CrewAI MCP client, CrewAI/LiteLLM
+  provider integration, `CrewAIProvider`/`ModelRegistry`, LiteLLM rerank and
+  LiteLLM Router sections were rewritten for the existing client (the old
+  text also cited `providers/llm.py`, which no longer exists). Build one role
+  at a time, measured against the single agent. `docs/FUTURE_WORK_REEVALUATION.md`:
+  row 25b rejected, row 26 replaced, the baseline line now says the graph is
+  implemented.
+
+- **2026-10-24 plan, still open after the scored run: test a 60 s request
+  limit, then collect lessons.** The
   developer rotated the NVIDIA key on 2026-10-24; with it, Nemotron answered
   small probes in about 1 s, but the Cloudflare fallback answered HTTP 429.
   A run with Nemotron alone (`FALLBACK_MODEL=""`, bearing fault, seeds 21-25,
