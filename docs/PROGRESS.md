@@ -251,7 +251,11 @@ alarm), then evaluation, then the agent itself.
   replaced; ground truth `servo_drive_wear`. Evidence: `FollowingErrorSensor`
   (`following_error`, µm) on every machine, and a following-error alarm at
   20 µm on the line; `defect_mark` adds `DEFECT_FROM_AXIS` 0.35 x axis wear
-  squared. No vibration, temperature or working-speed effect. Repair:
+  squared; `PowerSensor` gains `drive_kw` 1.0 x axis wear squared while
+  cutting (asked for by the developer during the walkthrough: a worn drive
+  draws more current), so power rises for a worn drive as for a worn
+  bearing and stops separating the two. No vibration, temperature or
+  working-speed effect. Repair:
   `Simulator.start_servo_drive_replacement` (60 ticks; finding "old drive
   badly worn / worn / in good condition"), action `replace_servo_drive` on the
   desk and in `propose_action`'s description. Pack: agent side
@@ -268,8 +272,8 @@ alarm), then evaluation, then the agent itself.
   sensor's readings left out. Checked on forced seeds 1-20: alarm 730-1,680
   ticks after the start, no vibration alarm on the servo machine; no
   following-error alarm in 40 runs of the other faults. Tests: new
-  `tests/test_servo_drive.py` (16, CI group Simulator). Not done: hydraulics;
-  encoder faults, drive overheating, drive current in power, a breakdown, a
+  `tests/test_servo_drive.py` (17, CI group Simulator). Not done: hydraulics;
+  encoder faults, drive overheating, current in amps, a breakdown, a
   baseline rule, a known-answer case.
 
 - **2026-10-26: PR #80 pre-merge walkthrough (F3).** Three questions.

@@ -9,7 +9,11 @@ from capstone.simulator.generator import FAULTS, build_scenario
 from capstone.simulator.line import build_line
 from capstone.simulator.rng import RandomSource
 from capstone.simulator.scenarios import AxisDriveWear, defect_mark, working_speed
-from capstone.simulator.sensors import FollowingErrorSensor, VibrationSensor
+from capstone.simulator.sensors import (
+    FollowingErrorSensor,
+    PowerSensor,
+    VibrationSensor,
+)
 from capstone.simulator.simulator import Simulator
 from capstone.simulator.state import MachineCondition, MachineState, MachineStatus
 from capstone.tools.actions import ActionTools, ApprovalDesk
@@ -116,6 +120,17 @@ def test_a_worn_drive_adds_no_vibration_and_no_slowdown_unlike_a_bearing():
     vib = VibrationSensor("CNC-02", RandomSource(1), noise_sd=0.0)
     assert vib.read(worn, 0).value == vib.read(healthy, 0).value
     assert working_speed(worn) == working_speed(healthy)
+
+
+def test_a_worn_drive_draws_a_little_more_power_while_cutting():
+    """Like a worn bearing's friction: real, but small next to a heavier job."""
+    power = PowerSensor("CNC-02", RandomSource(1), noise_sd=0.0)
+    healthy, worn = machine(), machine(axis=0.5)
+    assert power.read(worn, 0).value - power.read(healthy, 0).value == pytest.approx(
+        1.0 * 0.25
+    )
+    idle = machine(axis=0.5, status=MachineStatus.IDLE, load=0.0)
+    assert power.read(idle, 0).value == pytest.approx(2.0)  # only while cutting
 
 
 def test_a_worn_drive_makes_parts_more_likely_to_fail_inspection():

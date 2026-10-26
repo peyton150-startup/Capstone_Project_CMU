@@ -2042,16 +2042,17 @@ the fault's start while the machine runs (`AxisDriveWear`, faster under
 load). Evidence: a `following_error` sensor on every machine (µm: about 4
 running, 1 holding, plus 40 x axis wear squared, a little more for a heavy
 cut or a faster setting) with the servo controller's alarm at 20 µm, and
-dimensional rejects (`DEFECT_FROM_AXIS` 0.35 x wear squared). No vibration,
-heat or slowdown, so it can be told apart from a bearing. Repair
+dimensional rejects (`DEFECT_FROM_AXIS` 0.35 x wear squared), and a little
+more power while cutting (`PowerSensor` `drive_kw` 1.0 x axis wear squared:
+a worn drive draws more current; added at the developer's request). No
+vibration, heat or slowdown, so it can be told apart from a bearing. Repair
 `replace_servo_drive` (60 ticks; the technician bench-tests the old drive).
 Only forced: seeds draw from the original four (`DEFAULT_DRAW`), so every
 existing factory is unchanged (602 fingerprints identical, the new sensor's
 readings aside). Measured on seeds 1-20 (forced): the alarm comes 730-1,680
 ticks after the start; no vibration alarm on the servo machine; no
 following-error alarm in 40 runs of the other faults. Not done: encoder or
-position-feedback faults, drive overheating, drive current in the power
-reading, a breakdown when the drive is worn out, a rule in the baseline, a
+position-feedback faults, drive overheating, current in amps, a breakdown when the drive is worn out, a rule in the baseline, a
 known-answer case. Numbers are assumptions for Brandon to review.
 
 - Brandon specifically called out **servo motors** and **hydraulics** as
