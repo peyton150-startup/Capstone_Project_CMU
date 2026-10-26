@@ -1826,7 +1826,27 @@ small filter over the registry when they are built.
 
 #### Fault packs: one registry entry per sensor and its fault (planned 2026-10-22)
 
-Status: planned, not implemented. Recorded at the developer's request after
+**Status (2026-10-26): steps 1-2 done (F3); step 3 (the first new pack:
+servo/axis, then optional hydraulics) is next.** The registry is
+`capstone/faults.py`: one `FaultPack` per fault with an `agent` side (the
+diagnosis name and the repair it adds to the desk), an `evaluator` side
+(correct action, cause or distractor, relevant evidence) and a `build`
+function (the scenario, drawn from the generator stream), plus a
+`difficulty` tag (proposed: bearing and false alarm easy, bad batch and
+wrong setting medium; nothing reads it until the mode switch). The old
+lists (`FAULTS`, `FAULT_KINDS`, `FaultKind`, `ACTIONS`, `CORRECT_ACTION`,
+`RELEVANT_EVIDENCE`, `CAUSE_KINDS`, the baseline's `FIX`) are now built from
+it under their old names. Proof that nothing changed: 602 seed fingerprints
+(seeds 0-59, every forced fault, both bearing profiles, and 700 ticks of
+readings on two seeds) identical before and after; the rule baseline's
+output identical line by line on seeds 21-60 (153/160 causes) and the
+known-answer cases (9/9). The order of `PACKS` is part of the seed contract
+and is pinned by a test. Not done: keying the fault draw so that adding a
+pack leaves other seeds alone (needed in step 3, see below); the sensor
+lists (`MachineSensor`, `line.py`, `disturbances.py`) stay where they are
+until a pack adds a sensor.
+
+Recorded at the developer's request after
 a review of what adding a new sensor with a matching fault would take.
 
 **The problem.** Adding a fault today touches about 6 places in code (12 or
@@ -2059,7 +2079,7 @@ confirm):
 
 | Rank | # | Candidate | Why it matters | Depends on | Size |
 |---|---|---|---|---|---|
-| 1 | 5 | **MEDIUM-HIGH: Servo/axis and optional hydraulic failures, as fault-pack registry entries tagged by difficulty** (decided 2026-10-26). | Brandon suggested more parts that can fail, so not every fault is a spindle bearing; gives independent and overlapping diagnosis candidates. The easy/medium/hard switch waits for the scored single-agent run. | Machine configurations, failure models, sensors, repairs, evaluator updates | Medium to large |
+| 1 | 5 | **MEDIUM-HIGH: Servo/axis and optional hydraulic failures, as fault-pack registry entries tagged by difficulty** (decided 2026-10-26). The registry itself is built (F3, 2026-10-26); the servo pack is next, then hydraulics. | Brandon suggested more parts that can fail, so not every fault is a spindle bearing; gives independent and overlapping diagnosis candidates. The easy/medium/hard switch waits for the scored single-agent run. | Machine configurations, failure models, sensors, repairs, evaluator updates | Medium to large |
 | 2 | 7 | **Evaluator model for diagnosis labels: finish the check.** Built 2026-10-23 (T1: TypeSafe's Jev proposes labels, `python -m capstone.evaluation.auto_label`); what is left is measuring its agreement with hand labels before any experiment trusts it. | Experiments could then score root cause without labelling every run by hand (decided 2026-10-12). | Hand labels from the scored single-agent run | Small |
 | 3 | 12 | **A live memory comparison run.** Fill the store on tuning seeds (`experiment run --memory --audit ...`), backfill the index (`python -m capstone.memory.backfill`), then `python -m capstone.memory_comparison run --known`, label and report. The command is built and was made fair on 2026-10-26 (C3a, C3c), but has never run against a real model. | The only way to learn whether memory improves investigations, which is the point of item 8. | The scored single-agent run (models answering); one live run at a time | No code; long runs |
 | 4 | 13 | **Memory comparison follow-ups** (C3c notes): a `--cases` option on `run` to rerun chosen cases in every mode (the developer's idea, for cases lost to outages); repeats with a per-case win/loss count between modes; and a header recording the store's size, embedding model and policy version. | With one run per case and outages removing cases, the totals are noisy and not always like for like; a results file should say what store it ran against. | Item 12's first results show how much it matters | Small to medium |
