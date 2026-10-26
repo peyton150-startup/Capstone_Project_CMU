@@ -2,7 +2,12 @@ from collections import Counter
 
 import pytest
 
-from capstone.simulator.generator import FAULTS, build_scenario
+from capstone.simulator.generator import (
+    BEARING_PROFILES,
+    FAULTS,
+    THREE_DAY_ONSET_HEALTH,
+    build_scenario,
+)
 
 
 def run(seed: int, ticks: int = 300, **kwargs):
@@ -58,3 +63,62 @@ def test_choosing_the_fault_shifts_no_other_stream():
 def test_an_unknown_fault_is_refused():
     with pytest.raises(ValueError, match="unknown fault"):
         build_scenario(1, fault="gremlins")
+
+
+def test_an_unknown_bearing_profile_is_refused():
+    with pytest.raises(ValueError, match="unknown bearing profile"):
+        build_scenario(1, bearing_profile="instant")
+
+
+def test_the_compressed_profile_is_the_default():
+    a = run(4, ticks=900, fault="bearing_degradation")
+    b = run(4, ticks=900, fault="bearing_degradation", bearing_profile="compressed")
+    assert a.readings == b.readings and a.ground_truth() == b.ground_truth()
+
+
+@pytest.mark.parametrize("profile", BEARING_PROFILES)
+def test_the_bearing_profile_moves_no_stream(profile):
+    """Same fault, machine and start; the factory's life is the same until the fault starts."""
+    plain = run(9, ticks=150, fault="bearing_degradation")
+    other = run(9, ticks=150, fault="bearing_degradation", bearing_profile=profile)
+    assert plain.ground_truth() == other.ground_truth()
+    assert plain.readings == other.readings
+
+
+@pytest.mark.parametrize("fault", [f for f in FAULTS if f != "bearing_degradation"])
+def test_the_bearing_profile_changes_nothing_for_other_faults(fault):
+    a = run(6, ticks=700, fault=fault)
+    b = run(6, ticks=700, fault=fault, bearing_profile="three_day")
+    assert a.readings == b.readings and a.event_log.events == b.event_log.events
+
+
+def onset_to_failure(seed: int, profile: str) -> tuple[int, int]:
+    """Running ticks from fault start to onset, and from onset to failure."""
+    sim = build_scenario(seed, fault="bearing_degradation", bearing_profile=profile)
+    (truth,) = sim.ground_truth()
+    machine = sim.state.machines[truth.machine_id]
+    running, onset = 0, None
+    for _ in range(20_000):
+        sim.step()
+        if sim.clock.tick > truth.start_tick and machine.status.name == "RUNNING":
+            running += 1
+        health = machine.condition.bearing_health
+        if onset is None and health <= THREE_DAY_ONSET_HEALTH:
+            onset = running
+        if health <= 0.1:
+            return onset, running - onset
+    raise AssertionError("the bearing never failed")
+
+
+def test_three_day_ramp_is_quiet_first_then_takes_days():
+    """One seed, checked against the spread measured on seeds 1-40.
+
+    The calibration itself (median 4,294 running ticks from onset to failure,
+    target 4,320) is in docs/benchmarks/2026-10-26-bearing-three-day.md; a
+    40-seed run is too slow for every test run.
+    """
+    quiet, ramp = onset_to_failure(1, "three_day")
+    _, fast_ramp = onset_to_failure(1, "compressed")
+    assert quiet > 1_000  # a quiet stretch before onset
+    assert 2_600 <= ramp <= 6_300  # inside the 40-seed range (2,683-6,241)
+    assert fast_ramp < ramp / 3

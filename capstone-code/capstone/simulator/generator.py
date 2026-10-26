@@ -25,17 +25,42 @@ EARLIEST_START, LATEST_START = 200, 600
 # within a working day rather than two.
 JOBS_PER_BATCH = 10
 
+# How fast a worn bearing progresses. "compressed" is the original curve (fault
+# start to failure in about 9-28 hours of running), kept as the default so every
+# existing case and result stays the same. "three_day" follows the engineering
+# feedback of 2026-10-23: a quiet stretch first, then a visible ramp from onset
+# to failure of about three operating days (4,320 one-minute ticks of running).
+BEARING_PROFILES = ("compressed", "three_day")
+# three_day: the same seeded rate draw, scaled so that the median onset-to-failure
+# time is about 4,320 running ticks (measured on seeds 1-40,
+# tests/test_generator.py).
+THREE_DAY_RATE_SCALE = 0.17
+THREE_DAY_ONSET_HEALTH = 0.8  # below this, vibration starts to stand out of the noise
+THREE_DAY_QUIET_FACTOR = 0.5  # before onset, wear runs at half the rate
+
 
 def build_scenario(
-    seed: int, *, machines: int | None = None, fault: str | None = None
+    seed: int,
+    *,
+    machines: int | None = None,
+    fault: str | None = None,
+    bearing_profile: str = "compressed",
 ) -> Simulator:
     """A standard line with one seeded fault added after it. Not yet run: the clock is at 0.
 
     `fault` forces which of the four faults appears (for tests and
     balanced experiments); everything else still comes from the seed.
+    `bearing_profile` picks how fast a bearing fault progresses
+    (`BEARING_PROFILES`); it changes nothing for the other faults and draws
+    nothing extra, so no stream moves.
     """
     if fault is not None and fault not in FAULTS:
         raise ValueError(f"unknown fault {fault}; choose from {', '.join(FAULTS)}")
+    if bearing_profile not in BEARING_PROFILES:
+        raise ValueError(
+            f"unknown bearing profile {bearing_profile}; "
+            f"choose from {', '.join(BEARING_PROFILES)}"
+        )
     sim = build_line(seed, machines=machines, jobs_per_batch=JOBS_PER_BATCH)
     pick = sim.rng.stream("generator")
     chosen = pick.choice(FAULTS)
@@ -45,6 +70,13 @@ def build_scenario(
 
     if fault == "bearing_degradation":
         rate = pick.uniform(0.0004, 0.0008)
+        phases = {}
+        if bearing_profile == "three_day":
+            rate *= THREE_DAY_RATE_SCALE
+            phases = {
+                "onset_health": THREE_DAY_ONSET_HEALTH,
+                "quiet_factor": THREE_DAY_QUIET_FACTOR,
+            }
         sim.add_scenario(
             BearingDegradation(
                 "fault",
@@ -52,6 +84,7 @@ def build_scenario(
                 machine_id=machine_id,
                 start_tick=start_tick,
                 rate=rate,
+                **phases,
             )
         )
     elif fault == "wrong_setting":

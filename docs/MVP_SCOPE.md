@@ -1818,6 +1818,12 @@ recipe, so runs stay reproducible; the frontend only chooses the recipe and
 never shows the agent the hidden causes. There is no frontend yet; the live
 progress view discussed on 2026-10-19 would be its first screen.
 
+**2026-10-26 (developer):** the mode switch still waits for the scored
+single-agent run against the rule baseline. Meanwhile, new faults (servo/axis,
+optional hydraulics; Future Work 8 D) are built as fault-pack registry entries
+(below), each tagged with the difficulty it belongs to, so the modes become a
+small filter over the registry when they are built.
+
 #### Fault packs: one registry entry per sensor and its fault (planned 2026-10-22)
 
 Status: planned, not implemented. Recorded at the developer's request after
@@ -1885,13 +1891,28 @@ list of possible causes.
 
 #### High-priority simulator fidelity: faster bearing vibration ramp and machine power (planned 2026-10-23)
 
-**Status: HIGH priority, future work; neither change is implemented.**
+**Status (2026-10-26): A is built as an opt-in profile (below); B is not
+implemented.**
 These two simulator improvements come from the developer's discussion with
 manufacturing engineer Brandon Reff. Prioritize them above optional vision,
 voice, and broad new simulator subsystems, while preserving the small working
 MVP and requiring a measured baseline before changing physics.
 
 **A. Recalibrate bearing vibration progression (HIGH priority).**
+
+**Built 2026-10-26 as an opt-in profile; the default curve is unchanged.**
+`build_scenario(..., bearing_profile="three_day")` (`simulator/generator.py`,
+`BEARING_PROFILES`) gives a quiet stretch at half the wear rate, then from an
+onset at health 0.8 a full-rate ramp to failure that takes a median of 4,294
+running ticks (target 4,320, about three operating days; seeds 1-40).
+`BearingDegradation` gained `onset_health` and `quiet_factor` (defaults 1.0
+and 1.0: the original one-phase curve, exactly). The old curve turned out to
+reach failure in 9-28 hours of running, so three days is longer than today's,
+not shorter; "faster" is read as the steeper climb after onset. Measurements,
+decisions to confirm and how to repeat: `docs/benchmarks/2026-10-26-bearing-three-day.md`.
+Not yet usable in experiments: the monitor stops waiting at tick 4,000, before
+a three-day fault's typical first alarm (about 5,000 ticks after it starts).
+The planning notes that follow are kept as written.
 
 - Today `BearingDegradation` reduces hidden `bearing_health` over time, and
   `VibrationSensor` adds `wear_gain * (1 - bearing_health) ** 2` to its
@@ -2001,10 +2022,13 @@ improvement changes the MVP commitment merely by being documented.
 
 See the [simulator fidelity reevaluation gates](FUTURE_WORK_REEVALUATION.md#high-priority-simulator-fidelity-candidates-2026-10-23).
 
-### Next build candidates (ranked, updated 2026-10-23)
+### Next build candidates (ranked, updated 2026-10-26)
 
-A short list for the developer to choose from, most impact first. None is
-started. Each would go through its own pull request (AGENTS.md §11); whether
+A short list for the developer to choose from, most impact first. Status as
+of 2026-10-26: 1 (L1), 2 (L2), 6 (E6), 8 (C3a) and 10 are done; 3 is built
+as an opt-in profile; 7 is started (T1). Next in the developer's order: a
+scored single-agent run (`docs/PROGRESS.md`), then 4, then 5 as fault-pack
+entries. Each would go through its own pull request (AGENTS.md §11); whether
 each is taught first or built ungated is the developer's call.
 
 | # | Candidate | Why it matters | Depends on | Size |
