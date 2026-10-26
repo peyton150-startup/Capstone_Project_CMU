@@ -186,7 +186,9 @@ def test_with_fallback_off_semantic_recall_raises_and_never_uses_keywords(
         recall = MemoryRecall(repository, index=index, fallback=False)
         with pytest.raises(SemanticRecallFailed) as raised:
             recall.recall_memories("supplier")
-        assert raised.value.__cause__ is None and raised.value.__suppress_context__
+        assert raised.value.__cause__ is None
+        if index is not None:  # the index's error is caught and hidden
+            assert raised.value.__suppress_context__
     keyword = MemoryRecall(repository, mode="keyword", fallback=False)
     assert keyword.recall_memories("supplier").memories  # keyword mode unaffected
 
