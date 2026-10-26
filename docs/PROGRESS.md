@@ -288,6 +288,26 @@ alarm), then evaluation, then the agent itself.
   the scored run); the walkthrough is owed. Not done:
   `.env.example` could not be edited from the coding session.
 
+- **2026-10-26 (evening): the scored single-agent run, done (results only;
+  nothing built).** The "NEXT SESSION" run below, on `main` at `e65bd8f`: the
+  nine known-answer cases, one at a time, 16:32-18:21, NVIDIA Super 120B with
+  the fallback chain Cloudflare, Cohere, Requesty Ultra 550B (for this run
+  only). Hand-labelled by the developer; three labels first followed the true
+  fault and were relabelled by the conclusions' words at the developer's
+  decision (KA-03 servo on CNC-06, KA-05 and KA-06 no cause). Scored (one-fault
+  cases): **5/8 root causes** (rule baseline 8/8), 5/8 targets, 4/8 right
+  recommendations, **0 fixes asked for** (baseline 3), 0 unnecessary, 77% of
+  relevant evidence (baseline 44%). Misses: KA-03 and KA-05 reasoning (all
+  evidence gathered), KA-06 evidence; KA-09 (not labelled) named only the
+  decoy. No case ended "model unavailable": 213 of 220 questions answered
+  despite 76 timeouts and 51 HTTP 500 from NVIDIA; Cohere answered when
+  Cloudflare's quota ran out. Details, tables and limits:
+  `docs/benchmarks/2026-10-26-scored-single-agent.md`; labels
+  `docs/benchmarks/2026-10-26-labels-single-1.jsonl`; baseline
+  `docs/benchmarks/2026-10-26-baseline-known.txt`. Conclusion for 2026-10-27:
+  the MAX-HIGH fix first, then a reasoning role (critic or analyst) as the
+  first multi-agent role.
+
 - **FIRST THING ON 2026-10-27 (MAX-HIGH PRIORITY, developer's decision): the
   agent never recommends a fix.** In tonight's scored run (started 16:32 on
   `e65bd8f`, 9 known-answer cases, `results-single-1.jsonl`) the first three
