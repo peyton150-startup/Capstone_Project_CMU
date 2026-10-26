@@ -103,7 +103,7 @@ A component is complete only when both columns are checked.
 | F2 | Machine power in kW (`PowerSensor`, standard on every machine, offered to the agent) | yes (after the build: pre-merge walkthrough 2026-10-26) | n/a | yes | yes (walkthrough 2026-10-26: Q1 in part, corrected; Q2 after one hint; Q3 right) | `simulator/sensors.py` (`PowerSensor`), `simulator/line.py`, `providers/factory.py` (`MachineSensor`, tool descriptions), `simulator/disturbances.py`; session note 2026-10-26 (F2) |
 | F3 | Fault-pack registry: the four faults described once (`capstone/faults.py`), no behaviour change | yes (after the build: pre-merge walkthrough 2026-10-26) | n/a | yes | yes (walkthrough 2026-10-26: Q1 in part, corrected; Q2 right after one correction; Q3 after a re-teach) | `faults.py` (`FaultPack`, `AgentSide`, `EvaluatorSide`, `FaultPlace`, `PACKS`, `BY_KIND`, `agent_side`, `Relevant` moved here), `simulator/generator.py`, `tools/diagnosis.py`, `tools/actions.py`, `evaluation/scoring.py`, `baseline.py`; session note 2026-10-26 (F3) |
 | F4 | Servo-drive fault pack: worn axis drive, following-error sensor and alarm, drive replacement; only when forced | yes (after the build: pre-merge walkthrough 2026-10-26) | n/a | yes | yes (walkthrough 2026-10-26: Q1 in part, completed; Q2 right; Q3 right, with additions) | `simulator/state.py` (`axis_health`, `axis_replaced_tick`), `simulator/scenarios.py` (`AxisDriveWear`, `DEFECT_FROM_AXIS`), `simulator/sensors.py` (`FollowingErrorSensor`), `simulator/line.py`, `simulator/simulator.py` (`start_servo_drive_replacement`), `tools/actions.py`, `providers/factory.py`, `faults.py` (servo pack, `in_default_draw`, `DEFAULT_DRAW`), `simulator/generator.py`; session note 2026-10-26 (F4) |
-| F5 | Hydraulic-leak fault pack: hydraulics on some machines (observable), pressure sensor and low-pressure alarm, seal repair; only when forced | no (built first at the developer's request, 2026-10-26; to be taught before merging) | n/a | yes | no | `simulator/line.py` (`HYDRAULIC_POSITIONS`), `simulator/state.py` (`has_hydraulics`, `hydraulic_health`, `hydraulics_repaired_tick`), `simulator/scenarios.py` (`HydraulicLeak`, `DEFECT_FROM_HYDRAULICS`), `simulator/sensors.py` (`HydraulicPressureSensor`), `simulator/events.py` (`ThresholdAlarm(below=)`), `simulator/simulator.py` (`start_hydraulic_repair`), `tools/observation.py`, `tools/actions.py`, `contracts/observations.py`, `providers/factory.py`, `faults.py`; session note 2026-10-26 (F5) |
+| F5 | Hydraulic-leak fault pack: hydraulics on some machines (observable), pressure sensor and low-pressure alarm, seal repair; only when forced | yes (after the build: pre-merge walkthrough 2026-10-26) | n/a | yes | yes (walkthrough 2026-10-26: Q1 in part, corrected; Q2 right, with an addition; Q3 after a re-teach) | `simulator/line.py` (`HYDRAULIC_POSITIONS`), `simulator/state.py` (`has_hydraulics`, `hydraulic_health`, `hydraulics_repaired_tick`), `simulator/scenarios.py` (`HydraulicLeak`, `DEFECT_FROM_HYDRAULICS`), `simulator/sensors.py` (`HydraulicPressureSensor`), `simulator/events.py` (`ThresholdAlarm(below=)`), `simulator/simulator.py` (`start_hydraulic_repair`), `tools/observation.py`, `tools/actions.py`, `contracts/observations.py`, `providers/factory.py`, `faults.py`; session note 2026-10-26 (F5) |
 
 Every row above with four "yes" marks (or "n/a") is complete: no question is
 outstanding on it. Still to build after 12c, from `docs/MVP_SCOPE.md`: the
@@ -242,6 +242,30 @@ alarm), then evaluation, then the agent itself.
      evidence was gathered, the conclusion was wrong or escalated) is what a
      critic or independent analyst could fix; an evidence miss points at a
      research role instead. That choice picks the first multi-agent role.
+
+- **2026-10-26: PR #83 pre-merge walkthrough (F5).** CI first failed on one
+  job ("Install uv" timed out downloading the tool, before any test ran);
+  re-run, all 15 green. The developer asked whether observable equipment
+  changes how machines were observed before: no existing value changed;
+  `list_machines` gained one field (a shape change: 7 pinning tests and
+  `MachineObservation` updated); the other sensor tools, events (no new alarm
+  on existing runs), settings, inspections and job histories are unchanged;
+  old saved results lack the field. Q1 (why fix the false alarms in the
+  sensor, not the alarm): said fix at the source, the sensor being the
+  agent's source of truth; corrected: the sensor is the source of evidence,
+  not truth; an alarm that read `machine.status` would read hidden reality
+  (the alarm "fires on a reading, never on machine state"), would change
+  every alarm (one shared class), while a powered-off transducer sending
+  nothing matches the physics. Q2 (why fixed hydraulic positions): right
+  that a random draw could give no or all machines hydraulics; added that
+  fixed positions cost no draw (so no seed moved); corrected the downside:
+  the agent learns which machines have hydraulics (not issues), and could
+  memorise the layout instead of checking. Q3 (why the builder's extra draw
+  is harmless): unsure (said nothing else changes); re-taught: the draw
+  comes after the shared draws (fault, machine, start), only inside the
+  hydraulic builder, which no existing run uses, and nothing is drawn from
+  the generator stream after it. Understood (Q1 in part, corrected; Q3 after
+  a re-teach).
 
 - **2026-10-26: F5: the hydraulic-leak fault pack (Future Work 8 D, second
   part). Built first at the developer's request; understood: no, to be taught
