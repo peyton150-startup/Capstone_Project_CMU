@@ -46,8 +46,9 @@ def test_any_size_from_three_to_eight_builds_and_runs(machines):
         STANDARD_TICKS_PER_JOB[:machines]
     )
     # vibration, temperature, load, power and following error on every machine,
-    # plus the thermometer
-    assert len(sim.readings) == 200 * (5 * machines + 1)
+    # hydraulic pressure on the machines with hydraulics, plus the thermometer
+    equipped = sum(m.has_hydraulics for m in sim.state.machines.values())
+    assert len(sim.readings) == 200 * (5 * machines + equipped + 1)
 
 
 @pytest.mark.parametrize("machines", (0, 2, 9))

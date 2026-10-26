@@ -261,6 +261,6 @@ def test_the_agent_sees_id_status_and_current_job_for_each_machine_and_no_more()
     sim = factory()
     run(sim, 50)
     assert all(
-        set(row) == {"machine_id", "status", "job_id"}
+        set(row) == {"machine_id", "status", "job_id", "hydraulics"}
         for row in ObservationTools(sim).list_machines()
     )

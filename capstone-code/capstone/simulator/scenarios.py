@@ -182,6 +182,63 @@ class AxisDriveWear(Scenario):
         )
 
 
+class HydraulicLeak(Scenario):
+    """A leak in one machine's hydraulic seals from `start_tick` on, while the pump runs.
+
+    Only a machine that has hydraulics can leak; any other is refused on the
+    first tick. Changes `hydraulic_health` and nothing else. The pressure
+    sensor and its low-pressure alarm read it, and a weak clamp lets parts
+    shift (`defect_mark`). The pump runs whenever the machine is powered
+    (running or idle), so the leak grows then too; never while it is down.
+    """
+
+    def __init__(
+        self,
+        name: str,
+        rng: RandomSource,
+        *,
+        machine_id: str,
+        start_tick: int,
+        rate: float,
+        variation: float = 0.5,
+    ):
+        if rate <= 0:
+            raise ValueError("rate must be positive")
+        if not 0.0 <= variation < 1.0:
+            raise ValueError("variation must be in [0, 1)")
+        super().__init__(name, rng)
+        self.machine_id = machine_id
+        self.start_tick = start_tick
+        self.rate = rate
+        self.variation = variation
+
+    def apply(self, state: FactoryState, tick: int) -> None:
+        machine = state.machines[self.machine_id]
+        if not machine.has_hydraulics:
+            raise ValueError(f"{self.machine_id} has no hydraulic system to leak")
+        if tick < self.start_tick:
+            return
+        loss = self.rate * self._stream.uniform(
+            1.0 - self.variation, 1.0 + self.variation
+        )
+        repaired = machine.hydraulics_repaired_tick
+        if repaired is not None and repaired >= self.start_tick:
+            return  # the seals this fault was wearing have been replaced
+        if machine.status is MachineStatus.DOWN:
+            return
+        machine.condition.hydraulic_health = max(
+            0.0, machine.condition.hydraulic_health - loss
+        )
+
+    def ground_truth(self) -> GroundTruth:
+        return GroundTruth(
+            scenario=self.name,
+            fault="hydraulic_leak",
+            machine_id=self.machine_id,
+            start_tick=self.start_tick,
+        )
+
+
 class WrongSetting(Scenario):
     """Someone sets one machine to the wrong speed at `start_tick`.
 
@@ -318,6 +375,9 @@ DEFECT_FROM_WEAR = 0.45  # extra chance a completely worn machine would add
 # Extra chance a worn-out axis drive would add: the axis lags its path, so
 # dimensions drift. Zero for a healthy drive.
 DEFECT_FROM_AXIS = 0.35
+# Extra chance fully leaking hydraulics would add: the clamp holds the part
+# too loosely and it shifts in the cut. Zero for sound seals.
+DEFECT_FROM_HYDRAULICS = 0.30
 DEFECT_FROM_SETTING = (
     8.0  # times the squared distance from standard speed: 15% off adds 0.18
 )
@@ -343,6 +403,7 @@ def defect_mark(machine) -> float:
         DEFECT_FROM_WEAR * wear**2
         + DEFECT_FROM_SETTING * (machine.speed_ratio - 1.0) ** 2
         + DEFECT_FROM_AXIS * axis_wear**2
+        + DEFECT_FROM_HYDRAULICS * (1.0 - machine.condition.hydraulic_health) ** 2
     )
 
 

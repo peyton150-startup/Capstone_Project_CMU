@@ -42,6 +42,7 @@ from capstone.simulator.scenarios import (
     BadMaterialBatch,
     BearingDegradation,
     FalseAlarm,
+    HydraulicLeak,
     Scenario,
     WrongSetting,
 )
@@ -195,6 +196,26 @@ def _servo_drive(sim: Simulator, pick: random.Random, place: FaultPlace) -> Scen
     )
 
 
+def _hydraulic_leak(sim: Simulator, pick: random.Random, place: FaultPlace) -> Scenario:
+    # Only a machine with hydraulics can leak. Keep the seed's machine when it
+    # has them; otherwise draw one that does. This pack is never drawn by
+    # default, so the extra draw moves nothing for any other fault.
+    equipped = sorted(m.id for m in sim.state.machines.values() if m.has_hydraulics)
+    if not equipped:
+        raise ValueError("no machine on this line has hydraulics")
+    machine_id = (
+        place.machine_id if place.machine_id in equipped else pick.choice(equipped)
+    )
+    rate = pick.uniform(0.0004, 0.0008)
+    return HydraulicLeak(
+        "fault",
+        sim.rng,
+        machine_id=machine_id,
+        start_tick=place.start_tick,
+        rate=rate,
+    )
+
+
 # Order is part of the seed contract (see the module docstring).
 PACKS: tuple[FaultPack, ...] = (
     FaultPack(
@@ -273,6 +294,30 @@ PACKS: tuple[FaultPack, ...] = (
         # rejects it causes look like a bad batch or a wrong setting.
         difficulty="medium",
         build=_servo_drive,
+        in_default_draw=False,
+    ),
+    # Brandon Reff's feedback (Future Work 8 D): hydraulics, only on machines
+    # that have them (`line.HYDRAULIC_POSITIONS`).
+    FaultPack(
+        agent=AgentSide(kind="hydraulic_leak", action="repair_hydraulics"),
+        evaluator=EvaluatorSide(
+            correct_action="repair_hydraulics",
+            is_cause=True,
+            relevant=(
+                Relevant(
+                    "hydraulic pressure of {machine}",
+                    SENSOR_TOOLS,
+                    "hydraulic_pressure",
+                    True,
+                ),
+                Relevant("events of {machine}", ("get_events",), on_machine=True),
+                Relevant("inspection results", ("get_inspections",)),
+            ),
+        ),
+        # Only some machines can have it, the alarm is for a low reading, and
+        # the rejects look like a bad batch, a wrong setting or a worn drive.
+        difficulty="hard",
+        build=_hydraulic_leak,
         in_default_draw=False,
     ),
 )

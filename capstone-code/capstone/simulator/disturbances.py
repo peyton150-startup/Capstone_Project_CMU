@@ -31,9 +31,11 @@ class _SensorDisturbance(Scenario):
             "load",
             "power",
             "following_error",
+            "hydraulic_pressure",
         ):
             raise ValueError(
-                "sensor must be vibration, temperature, load, power or following_error"
+                "sensor must be vibration, temperature, load, power, following_error "
+                "or hydraulic_pressure"
             )
         if type(start_tick) is not int or start_tick < 0:
             raise ValueError("start_tick must be a nonnegative integer")

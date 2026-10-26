@@ -28,6 +28,7 @@ class ObservationTools:
                 "machine_id": machine.id,
                 "status": machine.status.value,
                 "job_id": machine.job.id if machine.job else None,
+                "hydraulics": machine.has_hydraulics,
             }
             for machine in self._sim.state.machines.values()
         ]
@@ -47,6 +48,13 @@ class ObservationTools:
                 "a machine is required; use get_factory_readings for the factory's own sensors"
             )
         self._check(machine_id, from_tick, to_tick)
+        if (
+            sensor == "hydraulic_pressure"
+            and not self._sim.state.machines[machine_id].has_hydraulics
+        ):
+            raise ToolInputError(
+                f"{machine_id} has no hydraulic system, so no hydraulic_pressure sensor"
+            )
         return [
             {
                 "tick": r.tick,

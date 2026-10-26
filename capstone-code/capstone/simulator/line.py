@@ -16,6 +16,7 @@ from capstone.simulator.scenarios import AmbientTemperature, LoadingDoor, Produc
 from capstone.simulator.sensors import (
     FactoryThermometer,
     FollowingErrorSensor,
+    HydraulicPressureSensor,
     LoadSensor,
     PowerSensor,
     TemperatureSensor,
@@ -34,6 +35,11 @@ STANDARD_TICKS_PER_JOB = (60, 70, 55, 65, 60, 68, 58, 62)
 # machine, so a speed means nothing without knowing that machine's own normal.
 STANDARD_SPEEDS = (1000.0, 850.0, 1200.0, 900.0, 1100.0, 950.0, 1050.0, 800.0)
 
+# Which positions have a hydraulic system (workholding clamps). Fixed, like the
+# speeds, so it costs no random draw: CNC-02, CNC-05 and CNC-07. Every line
+# size has at least CNC-02. The rest have none, and so no pressure sensor.
+HYDRAULIC_POSITIONS = (False, True, False, False, True, False, True, False)
+
 WARMEST_HOUR = 16  # 4 pm
 
 
@@ -51,6 +57,7 @@ def build_line(
     thermal_lag_ticks: float = 20.0,
     vibration_alarm: float = 4.5,
     following_error_alarm: float = 20.0,
+    low_pressure_alarm: float = 55.0,
     time_variation: int = 2,
     jobs_per_batch: int = 25,
 ) -> Simulator:
@@ -78,9 +85,16 @@ def build_line(
     )
     sim.add_scenario(LoadingDoor("door", sim.rng))
 
-    for name, per_job, speed in zip(names, times, STANDARD_SPEEDS):
+    for name, per_job, speed, hydraulics in zip(
+        names, times, STANDARD_SPEEDS, HYDRAULIC_POSITIONS
+    ):
         sim.add_machine(
-            MachineState(id=name, ticks_per_job=per_job, standard_speed=speed)
+            MachineState(
+                id=name,
+                ticks_per_job=per_job,
+                standard_speed=speed,
+                has_hydraulics=hydraulics,
+            )
         )
         for sensor in (
             VibrationSensor,
@@ -90,6 +104,8 @@ def build_line(
             FollowingErrorSensor,
         ):
             sim.add_sensor(sensor(name, sim.rng))
+        if hydraulics:
+            sim.add_sensor(HydraulicPressureSensor(name, sim.rng))
     sim.add_factory_sensor(FactoryThermometer(sim.rng))
     # Past service records. Their own stream, drawn before any fault exists.
     sim.state.maintenance_history = past_maintenance(
@@ -98,6 +114,8 @@ def build_line(
     sim.add_alarm(ThresholdAlarm("vibration", vibration_alarm))
     # The servo controller's own "excess following error" alarm.
     sim.add_alarm(ThresholdAlarm("following_error", following_error_alarm))
+    # The hydraulic unit's low-pressure switch.
+    sim.add_alarm(ThresholdAlarm("hydraulic_pressure", low_pressure_alarm, below=True))
 
     # After the machines exist, and before any fault the caller adds.
     sim.add_scenario(

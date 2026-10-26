@@ -47,6 +47,7 @@ class Simulator:
         breakdown_repair_ticks: int = 135,
         setting_reset_ticks: int = 10,
         drive_replacement_ticks: int = 60,
+        hydraulic_repair_ticks: int = 40,
     ):
         if thermal_lag_ticks < 1.0:
             raise ValueError("thermal_lag_ticks must be at least 1 (1 means no lag)")
@@ -56,6 +57,7 @@ class Simulator:
         self.breakdown_repair_ticks = breakdown_repair_ticks
         self.setting_reset_ticks = setting_reset_ticks
         self.drive_replacement_ticks = drive_replacement_ticks
+        self.hydraulic_repair_ticks = hydraulic_repair_ticks
         self.clock = SimulationClock(start, tick_duration)
         self.rng = RandomSource(seed)
         self.state = FactoryState()
@@ -141,6 +143,18 @@ class Simulator:
         machine = self._machine_for_maintenance(machine_id)
         return self._start_maintenance(
             machine, "servo drive replacement", self.drive_replacement_ticks
+        )
+
+    def start_hydraulic_repair(self, machine_id: str) -> int:
+        """Take a machine out of service to replace its hydraulic seals. Returns the finish tick.
+
+        Only a machine that has hydraulics can have them repaired.
+        """
+        machine = self._machine_for_maintenance(machine_id)
+        if not machine.has_hydraulics:
+            raise ValueError(f"{machine_id} has no hydraulic system")
+        return self._start_maintenance(
+            machine, "hydraulic repair", self.hydraulic_repair_ticks
         )
 
     def _machine_for_maintenance(self, machine_id: str) -> MachineState:
@@ -303,6 +317,10 @@ class Simulator:
             if kind == "setting reset":
                 finding = self._describe_old_setting(machine)
                 machine.speed_setting = None
+            elif kind == "hydraulic repair":
+                finding = f"old seals {self._describe_old_seals(machine.condition.hydraulic_health)}"
+                machine.condition.hydraulic_health = 1.0
+                machine.hydraulics_repaired_tick = tick
             elif kind == "servo drive replacement":
                 finding = f"old drive {self._describe_old_drive(machine.condition.axis_health)}"
                 machine.condition.axis_health = 1.0
@@ -331,6 +349,15 @@ class Simulator:
         if machine.speed_setting is None or abs(machine.speed_ratio - 1.0) < 1e-9:
             return "setting was already standard"
         return "setting was off standard"
+
+    @staticmethod
+    def _describe_old_seals(health: float) -> str:
+        """What the technician sees on the old seals. In words only."""
+        if health < 0.4:
+            return "leaking badly"
+        if health < 0.9:
+            return "leaking"
+        return "sound"
 
     @staticmethod
     def _describe_old_drive(health: float) -> str:

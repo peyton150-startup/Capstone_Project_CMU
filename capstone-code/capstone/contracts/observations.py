@@ -19,6 +19,7 @@ class MachineObservation(Contract):
     machine_id: str
     status: Literal["running", "idle", "down"]
     job_id: int | None
+    hydraulics: bool  # equipment: whether the machine has a hydraulic system
 
 
 class SensorObservation(Contract):
