@@ -106,6 +106,37 @@ alarm), then evaluation, then the agent itself.
 
 ## Session notes
 
+- **2026-10-26: stale-branch cleanup and Gemma 4 E4B Cloud Run feasibility
+  (documentation only; deployment blocked on project access).** Deleted
+  12 remote branches only after verifying their tips were ancestors of
+  `origin/main`: `claude/gifted-hamilton-eqyqf4`,
+  `docs/brandon-feedback-servo-hydraulic-current`,
+  `docs/fault-pack-registry-plan`,
+  `docs/high-priority-bearing-power-simulator`,
+  `docs/mmr-episodic-retrieval-20261023`,
+  `docs/technician-voice-last-priority-20261021`,
+  `feature/bounded-recall`, `feature/compound-challenge-experiments`,
+  `feature/episodic-memory-reflection`, `feature/prompt-budget-pacing`,
+  `feature/reasoning-working-memory`, and `feature/tree-of-thought`.
+  Deleted four fully merged local branches: `claude/build-track-a97149`,
+  `claude/modules-track-460217`, `feature/episodic-memory-reflection`, and
+  `feature/reasoning-working-memory`. PR #72 merged elsewhere during the
+  operation; refreshed state after its remote branch disappeared. Kept
+  detached worktrees, new active branches, uncommitted edits and result
+  files. `docs/GEMMA_CLOUD_RUN.md` records official model IDs, GPU costs,
+  CPU free-allowance arithmetic, the project-access status, and the
+  staged probe/integration plan. The user supplied project ID
+  `capstone-project-512814`; portable gcloud 590.0.1 was downloaded and
+  checksum verified under ignored `.chroma/cloud-run-tools/`; version and
+  account-list commands succeeded, and browser login was started.
+  No service deployed or real model run;
+  zero-cost inference remains unverified. No functions, classes, runtime
+  settings or dependencies changed. Docs only: understanding statuses
+  unchanged; provider integration has not passed a teaching gate.
+  Verification: `uv sync --all-extras`; `uv run pytest` (1,258 passed);
+  Ruff lint and formatting (211 files), CI test-group check, and
+  `git diff --check` passed. No real model called.
+
 - **NEXT SESSION: a scored single-agent run, before any multi-agent role.**
   The developer's point (2026-10-26): to know where a second agent could
   help, the current agent's misses must be scored first. The 2026-10-21 live
