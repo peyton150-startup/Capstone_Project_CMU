@@ -104,6 +104,7 @@ A component is complete only when both columns are checked.
 | F3 | Fault-pack registry: the four faults described once (`capstone/faults.py`), no behaviour change | yes (after the build: pre-merge walkthrough 2026-10-26) | n/a | yes | yes (walkthrough 2026-10-26: Q1 in part, corrected; Q2 right after one correction; Q3 after a re-teach) | `faults.py` (`FaultPack`, `AgentSide`, `EvaluatorSide`, `FaultPlace`, `PACKS`, `BY_KIND`, `agent_side`, `Relevant` moved here), `simulator/generator.py`, `tools/diagnosis.py`, `tools/actions.py`, `evaluation/scoring.py`, `baseline.py`; session note 2026-10-26 (F3) |
 | F4 | Servo-drive fault pack: worn axis drive, following-error sensor and alarm, drive replacement; only when forced | yes (after the build: pre-merge walkthrough 2026-10-26) | n/a | yes | yes (walkthrough 2026-10-26: Q1 in part, completed; Q2 right; Q3 right, with additions) | `simulator/state.py` (`axis_health`, `axis_replaced_tick`), `simulator/scenarios.py` (`AxisDriveWear`, `DEFECT_FROM_AXIS`), `simulator/sensors.py` (`FollowingErrorSensor`), `simulator/line.py`, `simulator/simulator.py` (`start_servo_drive_replacement`), `tools/actions.py`, `providers/factory.py`, `faults.py` (servo pack, `in_default_draw`, `DEFAULT_DRAW`), `simulator/generator.py`; session note 2026-10-26 (F4) |
 | F5 | Hydraulic-leak fault pack: hydraulics on some machines (observable), pressure sensor and low-pressure alarm, seal repair; only when forced | yes (after the build: pre-merge walkthrough 2026-10-26) | n/a | yes | yes (walkthrough 2026-10-26: Q1 in part, corrected; Q2 right, with an addition; Q3 after a re-teach) | `simulator/line.py` (`HYDRAULIC_POSITIONS`), `simulator/state.py` (`has_hydraulics`, `hydraulic_health`, `hydraulics_repaired_tick`), `simulator/scenarios.py` (`HydraulicLeak`, `DEFECT_FROM_HYDRAULICS`), `simulator/sensors.py` (`HydraulicPressureSensor`), `simulator/events.py` (`ThresholdAlarm(below=)`), `simulator/simulator.py` (`start_hydraulic_repair`), `tools/observation.py`, `tools/actions.py`, `contracts/observations.py`, `providers/factory.py`, `faults.py`; session note 2026-10-26 (F5) |
+| L8 | A chain of fallback models (FALLBACK_MODEL takes several, in order); Cohere's output cap | no (built first; merged without the pre-merge walkthrough at the developer's request, 2026-10-26; walkthrough owed) | n/a | yes | no | `settings.py` (`fallback_models`), `providers/chat.py` (`clients_for_jobs`, `Provider.max_output_tokens`, `_capped`); session note 2026-10-26 (L8) |
 
 Every row above with four "yes" marks (or "n/a") is complete: no question is
 outstanding on it. Still to build after 12c, from `docs/MVP_SCOPE.md`: the
@@ -229,6 +230,43 @@ alarm), then evaluation, then the agent itself.
   Verification: `uv sync --all-extras`; `uv run pytest` (1,258 passed);
   Ruff lint and formatting (211 files), CI test-group check, and
   `git diff --check` passed. No real model called.
+
+- **2026-10-26: L8: a chain of fallback models, and Cohere's output cap.
+  Built first at the developer's request, before tonight's scored run;
+  understood: no, to be taught in the pre-merge walkthrough.** The developer
+  asked for several fallbacks, so a spent quota (Cloudflare's daily one) does
+  not end a run: Cloudflare, then Cohere, then Requesty (one request at a
+  time there, which suits a last resort when runs go one at a time).
+  `FallbackClient` already took any number of models with equal time shares;
+  only the setting was single. `settings.fallback_models` splits
+  FALLBACK_MODEL on commas, in order, without repeats; `clients_for_jobs`
+  appends each one a job does not already have. A single model works as
+  before. Probes the same evening (one call at a time): NVIDIA Nemotron 120B
+  one HTTP 500 then 5 of 5 answered in 1-5 s; Cloudflare Llama 3.3 70B
+  answered; Cohere `command-a-03-2025` refused with HTTP 400 because the
+  project asks for 16,384 output tokens and Command A allows 8,192, so
+  `Provider.max_output_tokens` (Cohere 8,192) caps the request (`_capped`),
+  after which it answered; Requesty `google/gemma-4-31b-it` answered in 3.9 s.
+  The developer's suggestion `requesty/nvidia/nemotron-3-super-120b-a12b` is
+  listed by Requesty at price 0 but answered 404, origin "provider" (NVIDIA
+  says not found), as Nemotron Nano did through Requesty on 2026-10-21; it is
+  also the main model on the same servers, so it would fail when NVIDIA does.
+  Tonight's chain, set for the run only through the run's environment (the
+  `.env` is not edited): cloudflare/@cf/meta/llama-3.3-70b-instruct-fp8-fast,
+  cohere/command-a-03-2025, requesty/nvidia/nemotron-3-ultra-550b-a55b (the
+  developer's choice, answered in 1.3 s through Requesty). The developer's
+  rule: on NVIDIA's own API only Super 120B is used, because every model on
+  that endpoint shares one rate limit on the key, so a second one would cause
+  429s for the main model; through Requesty (its own account) Ultra 550B is
+  fine. Requesty forwards it to NVIDIA, so a wide NVIDIA outage could
+  take it down with the main model; Cloudflare and Cohere sit between them.
+  Gemma 4 31B (Requesty, 3.9 s) stays a tested spare. Tests:
+  `test_chat_client.py` (several fallbacks in order, without repeats; Cohere
+  never asked for more than 8,192 while others get the setting; a first
+  fallback out of quota (HTTP 429 twice) passes to the second). Merged
+  without the pre-merge walkthrough at the developer's request (dinner before
+  the scored run); the walkthrough is owed. Not done:
+  `.env.example` could not be edited from the coding session.
 
 - **NEXT SESSION: a scored single-agent run, before any multi-agent role.**
   The developer's point (2026-10-26): to know where a second agent could

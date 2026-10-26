@@ -45,7 +45,7 @@ from typing import TypeVar
 from pydantic import BaseModel, ValidationError
 
 from capstone.contracts import Contract
-from capstone.settings import Settings, get_settings
+from capstone.settings import Settings, fallback_models, get_settings
 
 # (url, headers, body, timeout in seconds) -> response body
 Transport = Callable[[str, dict[str, str], bytes, float], bytes]
@@ -137,6 +137,10 @@ class Provider:
     # where it was checked live: NVIDIA's hosted API on 2026-10-21. The reply
     # is still validated against the type, as for every provider.
     structured_output: bool = False
+    # The most output tokens the service accepts in one request, if it has
+    # a limit below the project's MODEL_MAX_OUTPUT_TOKENS. A larger request
+    # is refused outright (HTTP 400), so it is lowered to this instead.
+    max_output_tokens: int | None = None
 
 
 PROVIDERS = {
@@ -154,7 +158,11 @@ PROVIDERS = {
         "GEMINI_API_KEY",
     ),
     "cohere": Provider(
-        "https://api.cohere.ai/compatibility/v1/chat/completions", "COHERE_API_KEY"
+        "https://api.cohere.ai/compatibility/v1/chat/completions",
+        "COHERE_API_KEY",
+        # Command A refused 16,384 on 2026-10-26: "max tokens must be less than
+        # or equal to 8192, the maximum output length for this model".
+        max_output_tokens=8192,
     ),
     "cloudflare": Provider(
         "https://api.cloudflare.com/client/v4/accounts/{account}/ai/v1/chat/completions",
@@ -543,9 +551,18 @@ def client_for(
         model,
         transport=transport,
         timeout=settings.model_request_seconds,
-        max_output_tokens=settings.model_max_output_tokens,
+        max_output_tokens=_capped(
+            settings.model_max_output_tokens, provider.max_output_tokens
+        ),
         structured_output=provider.structured_output,
     )
+
+
+def _capped(wanted: int | None, limit: int | None) -> int | None:
+    """The output tokens to ask for: the project's setting, never above the provider's limit."""
+    if wanted is None or limit is None:
+        return wanted
+    return min(wanted, limit)
 
 
 def clients_for_jobs(
@@ -553,14 +570,16 @@ def clients_for_jobs(
 ) -> dict[str, FallbackClient]:
     """One client per policy question, from the job table in settings.
 
-    Each job asks its own model, then FALLBACK_MODEL if one is set.
+    Each job asks its own model, then each model of FALLBACK_MODEL in order
+    (a comma-separated chain), skipping any it already has.
     """
     settings = settings or get_settings()
     clients = {}
     for job in JOBS:
         references = [getattr(settings, _JOB_SETTING[job]) or settings.default_model]
-        if settings.fallback_model and settings.fallback_model not in references:
-            references.append(settings.fallback_model)
+        for reference in fallback_models(settings):
+            if reference not in references:
+                references.append(reference)
         clients[job] = FallbackClient(
             [client_for(r, settings, transport=transport) for r in references],
             retries=settings.model_retries,
