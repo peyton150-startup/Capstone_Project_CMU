@@ -462,11 +462,25 @@ documented on GitHub where the developer can read it.
    (other sessions and people merge to it).
 2. Name the branch for the change (`feature/...`, `fix/...`, `docs/...`,
    `ci/...`). One change per branch.
-3. Before pushing, run all of these and fix any failure:
-   - `uv sync --all-extras`, then `uv run pytest`
-   - `uv run ruff check` and `uv run ruff format --check`
-   - `uv run python .github/test_groups.py check` (every new test file must
-     be added to a CI group in `.github/test_groups.py`)
+3. Before pushing, run what the change needs and fix any failure (rule set
+   by the developer, 2026-10-26; CI runs every test group and a full
+   coverage run on every PR, so the full local suite mostly repeats it):
+   - **Docs-only, CI-only or config-only changes:** skip local tests. Run
+     only `uv run python .github/test_groups.py check` if test files moved.
+   - **Code changes:** `uv sync --all-extras`, then `uv run pytest` on the
+     test files for the modules touched, plus `uv run ruff check`,
+     `uv run ruff format --check` and `uv run python .github/test_groups.py
+     check` (every new test file must be added to a CI group in
+     `.github/test_groups.py`). Then push and let CI run everything.
+   - **Still run the full `uv run pytest` locally when:**
+     - the change touches something many modules share (the loop, scoring,
+       contracts, the simulator core), or
+     - CI is down or slow, or
+     - a live model run is next, so a broken build is caught before
+       spending API calls.
+
+   Whatever ran locally, never merge on a failing or unfinished CI check
+   (step 5).
 4. Open the PR with a description that a reader who was not in the session
    can follow. It must have:
    - **What and why:** the problem, and what the change does about it.

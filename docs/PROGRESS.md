@@ -94,10 +94,11 @@ A component is complete only when both columns are checked.
 | C4 | Course Module 4: opt-in tree-of-thought hypothesize step | yes (after the build, 2026-10-22) | n/a | yes | yes | `agent/tree_of_thought.py` (`TreeOfThoughtPolicy`, `GENERATE`, `VALUE`, `prune`, `Thought`), `experiment.py` (`run --tree-of-thought`); session note 2026-10-20 (Module 4) |
 | FD | Experiment failure diagnostics: every model attempt kept, recovered failures shown | yes (after the build, 2026-10-22) | n/a | yes | yes (re-checked 2026-10-22) | `experiment.py` (`CallSummary.details`, `format_call_failures`, `save_record`), `evaluation/scoring.py`; session note 2026-10-20 (failure diagnostics) |
 | C3a | Memory comparison command: the same cases with no memory, keyword and semantic recall | yes (after the build, 2026-10-22) | n/a | yes | yes (re-checked 2026-10-22) | `capstone/memory_comparison.py` (`MODES`, `memory_for`, `compare_memory`, `mode_of`, `compare_report`); session note 2026-10-20 (Module 3, piece 1) |
-| C3c | Memory comparison made fair: strict semantic mode, outage runs left out, factory calls apart from searches, failed searches shown, runs interleaved by case | no (built ungated at the developer's request, 2026-10-26; developer to review) | no | yes | no | `memory/recall.py` (`SemanticRecallFailed`, `MemoryRecall(fallback=...)`), `experiment.py` (`ExperimentRecord.factory_calls`, `NOT_FACTORY`, `count_factory_calls`, `run_experiment(start=...)`), `memory_comparison.py` (`memory_for`, `compare_memory`, `failed`, `mode_line`, `case_line`); session note 2026-10-26 (C3c) |
+| C3c | Memory comparison made fair: strict semantic mode, outage runs left out, factory calls apart from searches, failed searches shown, runs interleaved by case | after the build (built ungated at the developer's request; PR #74 walkthrough 2026-10-26) | n/a | yes | yes (walkthrough 2026-10-26: Q1 after one correction, Q2 after two re-teaches, Q3 corrected) | `memory/recall.py` (`SemanticRecallFailed`, `MemoryRecall(fallback=...)`), `experiment.py` (`ExperimentRecord.factory_calls`, `NOT_FACTORY`, `count_factory_calls`, `run_experiment(start=...)`), `memory_comparison.py` (`memory_for`, `compare_memory`, `failed`, `mode_line`, `case_line`); session note 2026-10-26 (C3c) |
 | C3b | Bounded memory search: no repeated search, at most three per investigation, each recorded | yes (after the build, 2026-10-22) | n/a | yes | yes | `providers/recall.py` (`RecallingProvider`, `MAX_SEARCHES`, `REPEATED_SEARCH`, `SEARCHES_SPENT`), `evaluation/memory.py` (`build_search_records`); session note 2026-10-20 (Module 3, piece 2) |
 | D1 | Near-duplicate threshold measurement tool (provisional 0.909) | yes (walkthrough, 2026-10-22) | n/a | yes | yes (after corrections) | `capstone/memory/duplicate_threshold.py`; session notes 2026-10-22 |
 | T1 | TypeSafe Jev client and the auto-labeller (proposed diagnosis labels, compared with hand labels) | yes (pre-merge walkthrough, 2026-10-23) | n/a | yes | yes (after corrections: Q1 cost of speculative questions, Q2 why truth would bias labels) | `providers/typesafe.py` (`Noul`, `Choice`, `JudgmentClient`, `read_judgments`, `judgment_client`), `evaluation/auto_label.py` (`propose`, `Proposal`, `agreement`, `conclusions`, `main`), `settings.py` (`TYPESAFE_API_KEY`, `TYPESAFE_MODEL`), `.env.example`, AGENTS.md section 9, `docs/benchmarks/2026-10-23-jev-auto-labels.md`; session note 2026-10-23 (T1) |
+| F1 | Bearing progression: opt-in three-day profile (quiet stretch, onset, steeper ramp) | yes (after the build: pre-merge walkthrough 2026-10-26) | n/a | yes | yes (walkthrough 2026-10-26: Q1 in part, corrected; Q2 mostly, corrected; Q3 after one re-teach) | `simulator/scenarios.py` (`BearingDegradation` `onset_health`, `quiet_factor`), `simulator/generator.py` (`BEARING_PROFILES`, `THREE_DAY_*`, `build_scenario(bearing_profile=)`), `docs/benchmarks/2026-10-26-bearing-three-day.md`; session note 2026-10-26 (F1) |
 
 Every row above with four "yes" marks (or "n/a") is complete: no question is
 outstanding on it. Still to build after 12c, from `docs/MVP_SCOPE.md`: the
@@ -105,6 +106,17 @@ other three fault scenarios (material batch, machine configuration, false
 alarm), then evaluation, then the agent itself.
 
 ## Session notes
+
+- **2026-10-26: docs: which tests to run before pushing (developer's
+  rule).** AGENTS.md section 11 step 3 no longer asks for the full
+  `uv run pytest` before every push: docs/CI/config changes skip local
+  tests; code changes run the touched modules' tests, ruff and the CI group
+  check, then CI runs everything; the full suite still runs locally for
+  shared modules (loop, scoring, contracts, simulator core), when CI is down
+  or slow, or before a live model run. Merging still needs green CI. Reason:
+  CI already runs every group and a full coverage run on each PR; the local
+  full suite took 19 minutes on 2026-10-26. Documentation only; no
+  understanding status changed.
 
 - **2026-10-26: stale-branch cleanup and Gemma 4 E4B Cloud Run feasibility
   (documentation only; deployment blocked on project access).** Deleted
@@ -159,7 +171,7 @@ alarm), then evaluation, then the agent itself.
      research role instead. That choice picks the first multi-agent role.
 
 - **2026-10-26 (C3c): the memory comparison made fair. Built ungated at the
-  developer's request; understood: no, developer to review.** A read of all
+  developer's request; understood after the PR #74 walkthrough (below).** A read of all
   the memory code found five ways `memory_comparison` could report the wrong
   numbers; all five are fixed:
   1. *Semantic mode answered by keyword unseen.* Only the start was checked:
@@ -199,6 +211,85 @@ alarm), then evaluation, then the agent itself.
      results do not record the store's size, embedding model or policy
      version; nothing checks that memory used on `--held-out` was learned on
      tuning seeds (memories do not keep their seed).
+  **PR #74 pre-merge walkthrough (C3c), 2026-10-26.** Three questions.
+  Q1 (a semantic search fails mid-run): said the agent sees a failed
+  retrieval (right) and that chat and embeddings share NVIDIA so both fail
+  together (a good point, not raised before: true for a full outage, which
+  ends the run as `model_unavailable`); corrected that the embedding call is
+  not retried (only `FallbackClient` chat questions retry, then fall back to
+  another provider), so one request can fail while the run goes on. Follow-up
+  right: before the PR the search fell back to keyword unseen, so the
+  semantic line partly measured keyword. The developer suggested stopping
+  the investigation on a failed semantic search instead; discussed as a
+  valid alternative (needs those runs counted apart like outages), not
+  changed; the PR keeps the run going and shows `failed=`.
+  Q2 (`tool_calls` vs `factory_calls` with three repeat searches): budget
+  and records right (three asked, two refused, one counts toward the three
+  searches); `tool_calls` not reached, then reasoned as a penalty; re-taught
+  as mechanism (the loop's same-tick check skips before `call_tool` counts;
+  `RecallingProvider`'s any-tick check refuses after), then right for a
+  later-tick repeat. Q3 (semantic 5/6 with outage=4 vs none 7/10): right
+  that outages are not wrong answers; corrected that the two modes were then
+  scored on different cases, the gap is one or two cases, and outages may be
+  caused by semantic mode's extra NVIDIA calls, which is why `outage=` stays
+  visible. Follow-up: proposed rerunning the outage cases (valid); also
+  taught comparing only the cases both modes answered. **Follow-up idea from
+  the developer:** a `--cases` option on `run` to rerun chosen cases in
+  every mode.
+
+- **2026-10-26: PR #76 pre-merge walkthrough (F1).** Three questions.
+  Q1 (why the quiet phase belongs in the scenario, not the vibration
+  sensor): said every sensor would need wiring (correct: the temperature
+  sensor reads wear too, so a vibration-only mask would make the evidence
+  contradict itself) and that the sensor would be changing the truth;
+  corrected: the sensor version hides the truth rather than changing it,
+  health still falls at the old rate so the machine still fails in about a
+  day, and the technician's finding and the evaluator read the real health.
+  Q2 (the monitor's 4,000-tick wait with three-day faults): said the agent
+  would not see the fault and the run would be inconclusive; corrected: the
+  evidence is visible by tick 4,000 (health about 0.6) but nothing points to
+  it, and the result would be scored as a missed bearing fault caused by the
+  harness, not the agent. The developer asked about raising the wait: three
+  problems (more chance a distractor triggers first, histories past the
+  300-row cap, the wait must be per profile and recorded); asked whether
+  models or memory limit it: the wait runs before the investigation's clock
+  (`detect_anomaly` in `run_episode`), the prompt is capped, and memory was
+  measured at 316 MB for 8 machines over 12,000 ticks (300,000 readings), fine
+  one run at a time. Q3 (why the default-phases test demands exact
+  equality): did not know; re-taught (determinism promise, thresholds that
+  turn tiny differences into different episodes, a shifted random stream);
+  on a smaller case said the alarm would trip a few ticks early (correct);
+  added that the investigation then starts earlier on different evidence
+  and saved results and labels can no longer be reproduced. Understood (Q1
+  and Q2 corrected, Q3 after one re-teach).
+
+- **2026-10-26: F1: an opt-in three-day bearing profile (Brandon's feedback,
+  Future Work 8 A). Built first at the developer's request ("add then
+  teach"); understood: no, to be taught after the build.** Measured first:
+  on seeds 1-40 the existing curve goes from fault start to failure in 9-28
+  hours of running (median onset-to-failure 725 running ticks), so a
+  three-day ramp is longer than today's, not shorter. Built:
+  `BearingDegradation` gains `onset_health` and `quiet_factor` (while health
+  is above the onset, wear runs at that fraction of the rate; defaults 1.0
+  and 1.0 are the original curve exactly). `build_scenario` gains
+  `bearing_profile` (`BEARING_PROFILES`: "compressed", the default and
+  unchanged, and "three_day": the same seeded rate draw times 0.17, onset at
+  health 0.8, quiet phase at half rate). Result on seeds 1-40: quiet stretch
+  median 2,349 running ticks, onset to failure median 4,294 (target 4,320,
+  range 2,683-6,241), first alarm a median 5,007 ticks after the fault
+  starts. Decisions to confirm in the teaching session: operating rather than
+  calendar days (wear already accrues only while running), onset 0.8, quiet
+  factor 0.5. Tests: `test_bearing_degradation.py` (nonsense phase settings
+  refused; default phases change nothing; quiet rate before onset, full rate
+  after; vibration near normal until onset, then climbs),
+  `test_generator.py` (unknown profile refused; compressed is the default;
+  the profile moves no stream; other faults unchanged; one seed's quiet
+  stretch and ramp inside the 40-seed range, against the compressed curve).
+  Not done: experiments cannot choose the profile, and the monitor's 4,000-tick
+  wait ends before a typical three-day alarm; Brandon has not reviewed the
+  curve. Also decided (developer, 2026-10-26): servo/axis and hydraulic faults
+  will be built as fault-pack registry entries tagged by difficulty; the
+  easy/medium/hard switch waits for the scored single-agent run.
 
 - **2026-10-26: docs: multi-agent work on our own orchestration, no CrewAI
   (developer's decision).** Documentation only; no code or dependencies

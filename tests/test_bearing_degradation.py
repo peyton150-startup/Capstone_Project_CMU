@@ -19,6 +19,7 @@ def factory(
     start_tick: int = 100,
     rate: float = 0.001,
     variation: float = 0.5,
+    **phases: float,
 ) -> Simulator:
     sim = Simulator(seed, START)
     for machine_id in ("CNC-01", "CNC-04"):
@@ -33,6 +34,7 @@ def factory(
             start_tick=start_tick,
             rate=rate,
             variation=variation,
+            **phases,
         )
     )
     return sim
@@ -66,6 +68,58 @@ def test_rejects_nonsense_settings():
         BearingDegradation(
             "b", sim.rng, machine_id="CNC-04", start_tick=1, rate=0.001, variation=1.0
         )
+
+
+def test_rejects_nonsense_phase_settings():
+    sim = Simulator(42, START)
+    for phases in (
+        {"onset_health": 0.0},
+        {"onset_health": 1.1},
+        {"quiet_factor": 0.0},
+        {"quiet_factor": 1.5},
+    ):
+        with pytest.raises(ValueError):
+            BearingDegradation(
+                "c", sim.rng, machine_id="CNC-04", start_tick=1, rate=0.001, **phases
+            )
+
+
+def test_the_default_phases_change_nothing():
+    """onset_health=1.0 and quiet_factor=1.0 are the original one-phase curve, exactly."""
+    plain = run(factory(), 600)
+    explicit = run(factory(onset_health=1.0, quiet_factor=1.0), 600)
+    assert plain.readings == explicit.readings and health(plain) == health(explicit)
+
+
+def test_before_onset_the_bearing_wears_at_the_quiet_rate():
+    phased = run(factory(variation=0.0, onset_health=0.8, quiet_factor=0.5), 299)
+    assert health(phased) == pytest.approx(1.0 - 200 * 0.001 * 0.5)
+
+
+def test_after_onset_the_bearing_wears_at_the_full_rate():
+    sim = factory(variation=0.0, onset_health=0.8, quiet_factor=0.5)
+    seen = []
+    for _ in range(900):
+        sim.step()
+        seen.append(health(sim))
+    drops = [earlier - later for earlier, later in zip(seen, seen[1:]) if later > 0]
+    quiet = [d for d, h in zip(drops, seen) if h > 0.8 and d > 0]
+    loud = [d for d, h in zip(drops, seen) if h < 0.8 and d > 0]
+    assert quiet and loud
+    assert max(quiet) == pytest.approx(0.0005) and min(loud) == pytest.approx(0.001)
+
+
+def test_vibration_stays_near_normal_until_onset_then_climbs():
+    sim = factory(onset_health=0.8, quiet_factor=0.25)
+    onset = None
+    for _ in range(1500):
+        sim.step()
+        if onset is None and health(sim) <= 0.8:
+            onset = sim.clock.tick
+    assert onset is not None and onset > 100 + 400  # a long quiet stretch
+    healthy = vibration(sim, 50, 99)
+    assert vibration(sim, onset - 50, onset - 1) == pytest.approx(healthy, abs=0.35)
+    assert vibration(sim, 1450, 1499) > healthy + 1.0
 
 
 def test_nothing_happens_before_the_start_tick():
