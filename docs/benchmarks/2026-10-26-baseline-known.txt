@@ -1,0 +1,10 @@
+KA-01-bearing                said=bearing_degradation  right=True  target=True  resolved=True  miss=-
+KA-02-bearing                said=bearing_degradation  right=True  target=True  resolved=True  miss=-
+KA-03-batch                  said=bad_material_batch   right=True  target=True  resolved=True  miss=-
+KA-04-batch                  said=bad_material_batch   right=True  target=True  resolved=True  miss=-
+KA-05-setting                said=wrong_setting        right=True  target=False resolved=False miss=evidence_miss
+KA-06-setting                said=wrong_setting        right=True  target=True  resolved=True  miss=-
+KA-07-false-alarm            said=false_alarm          right=True  target=True  resolved=True  miss=-
+KA-08-false-alarm            said=false_alarm          right=True  target=True  resolved=True  miss=-
+KA-09-challenge              said=bad_material_batch   right=True  target=True  resolved=True  miss=-
+9/9 root causes correctly identified; 8/9 right machine or batch; 8/9 right recommendations; 0/9 unnecessary interventions asked for; 8/9 appropriate interventions; 8/9 resolved; 44% of relevant evidence collected; wrong diagnoses: 1 missed evidence, 0 misread it; average 3.2 tool calls, 0.0 iterations and 427 ticks
