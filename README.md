@@ -268,6 +268,11 @@ operations, `simulator/` for reality, `memory/` for durable lessons, and
 `database/` for connectivity. Agent,
 evaluation, and ingestion modules will be added when they have working behavior.
 
+## Acknowledgments
+
+Thank you to Brandon Reff for helping improve the simulator's realism
+through manufacturing feedback.
+
 ## Research basis
 
 Parts of this work were based on these papers. Each line names the change
