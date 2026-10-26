@@ -255,8 +255,10 @@ alarm), then evaluation, then the agent itself.
   `.env` is not edited): cloudflare/@cf/meta/llama-3.3-70b-instruct-fp8-fast,
   cohere/command-a-03-2025, requesty/nvidia/nemotron-3-ultra-550b-a55b (the
   developer's choice, answered in 1.3 s through Requesty). The developer's
-  rule: on NVIDIA's own API only Super 120B is used; through Requesty, Ultra
-  550B is fine. Requesty forwards it to NVIDIA, so a wide NVIDIA outage could
+  rule: on NVIDIA's own API only Super 120B is used, because every model on
+  that endpoint shares one rate limit on the key, so a second one would cause
+  429s for the main model; through Requesty (its own account) Ultra 550B is
+  fine. Requesty forwards it to NVIDIA, so a wide NVIDIA outage could
   take it down with the main model; Cloudflare and Cohere sit between them.
   Gemma 4 31B (Requesty, 3.9 s) stays a tested spare. Tests:
   `test_chat_client.py` (several fallbacks in order, without repeats; Cohere
