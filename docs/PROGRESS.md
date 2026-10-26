@@ -99,6 +99,7 @@ A component is complete only when both columns are checked.
 | D1 | Near-duplicate threshold measurement tool (provisional 0.909) | yes (walkthrough, 2026-10-22) | n/a | yes | yes (after corrections) | `capstone/memory/duplicate_threshold.py`; session notes 2026-10-22 |
 | T1 | TypeSafe Jev client and the auto-labeller (proposed diagnosis labels, compared with hand labels) | yes (pre-merge walkthrough, 2026-10-23) | n/a | yes | yes (after corrections: Q1 cost of speculative questions, Q2 why truth would bias labels) | `providers/typesafe.py` (`Noul`, `Choice`, `JudgmentClient`, `read_judgments`, `judgment_client`), `evaluation/auto_label.py` (`propose`, `Proposal`, `agreement`, `conclusions`, `main`), `settings.py` (`TYPESAFE_API_KEY`, `TYPESAFE_MODEL`), `.env.example`, AGENTS.md section 9, `docs/benchmarks/2026-10-23-jev-auto-labels.md`; session note 2026-10-23 (T1) |
 | F1 | Bearing progression: opt-in three-day profile (quiet stretch, onset, steeper ramp) | yes (after the build: pre-merge walkthrough 2026-10-26) | n/a | yes | yes (walkthrough 2026-10-26: Q1 in part, corrected; Q2 mostly, corrected; Q3 after one re-teach) | `simulator/scenarios.py` (`BearingDegradation` `onset_health`, `quiet_factor`), `simulator/generator.py` (`BEARING_PROFILES`, `THREE_DAY_*`, `build_scenario(bearing_profile=)`), `docs/benchmarks/2026-10-26-bearing-three-day.md`; session note 2026-10-26 (F1) |
+| LV | Live progress view in the terminal: a watcher hook in the loop and `python -m capstone.progress` | no (built ungated at the developer's request, 2026-10-26; walkthrough due before merge) | n/a | yes | no | `agent/loop.py` (`InvestigationDeps.watch`, `notify`), `agent/investigation.py` (`staged`, notify before the human's review and after a model stop), `episode.py` (`run_episode(watch=...)`), `progress.py` (`ProgressView`, `step_line`, `truth_lines`, `watch_episode`, `main`); session note 2026-10-26 (LV) |
 | F2 | Machine power in kW (`PowerSensor`, standard on every machine, offered to the agent) | yes (after the build: pre-merge walkthrough 2026-10-26) | n/a | yes | yes (walkthrough 2026-10-26: Q1 in part, corrected; Q2 after one hint; Q3 right) | `simulator/sensors.py` (`PowerSensor`), `simulator/line.py`, `providers/factory.py` (`MachineSensor`, tool descriptions), `simulator/disturbances.py`; session note 2026-10-26 (F2) |
 
 Every row above with four "yes" marks (or "n/a") is complete: no question is
@@ -107,6 +108,35 @@ other three fault scenarios (material batch, machine configuration, false
 alarm), then evaluation, then the agent itself.
 
 ## Session notes
+
+- **2026-10-26 (LV): live progress view in the terminal (next build
+  candidate 9). Built ungated at the developer's request; understood: no,
+  walkthrough due before merge.** Terminal only; a later frontend (Future
+  Work 8) would sit on the same hook. Changes:
+  - `agent/loop.py`: `InvestigationDeps.watch` (a callable, default None)
+    and `notify(state, deps)`, which hands the watcher a deep copy of the
+    state (so it can read, never change, the investigation) and logs and
+    ignores a watcher that raises (no exception text logged: it could quote
+    evidence). Called at the top of each inner-loop turn, just before the
+    policy is asked (the slow part), so the last result is on screen.
+  - `agent/investigation.py`: every graph stage runs through `staged`, which
+    calls `notify` after the stage; `notify` also runs just before
+    `human_review` (the proposal is on screen before the approval question)
+    and after a model-unavailable stop. The hook is not in `record()`: its
+    20 callers do not have the deps, and the watcher prints whatever is new
+    since it last looked, so a few call sites miss nothing.
+  - `episode.py`: `run_episode(watch=...)` passes it on.
+  - `progress.py` (new): `ProgressView` keeps its own place (decisions
+    shown; last beliefs, conclusion, proposal, check) and prints only what
+    changed: each step with its tool call and evidence (one line each,
+    memory and manual answers labelled), beliefs when they change, the
+    conclusion, each proposal status, the check. `truth_lines` (evaluator
+    side) is printed by `watch_episode` only after the run, under its own
+    heading. Command: `python -m capstone.progress --seed N [--fault F]
+    [--kind K] [--approve console|all|none] [--memory] [--manual MODE]
+    [--hazards]`; console approval is the default; `--memory` learns nothing.
+  Tests: `tests/test_progress_view.py` (10, Episode CI group). Scripted only;
+  nothing ran against a real model.
 
 - **2026-10-26: docs: "Next build candidates" brought up to date
   (developer's request).** `docs/MVP_SCOPE.md`: the table now lists open

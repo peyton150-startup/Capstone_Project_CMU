@@ -189,6 +189,7 @@ def run_episode(
     run_key: str | None = None,
     hazards: bool = False,
     manual: ManualSearch | None = None,
+    watch: Callable[[InvestigationState], None] | None = None,
 ) -> EpisodeResult:
     """Run one seeded episode from the fault's start to its score.
 
@@ -201,6 +202,8 @@ def run_episode(
     labelled as such, never a look at the factory.
     `kind` picks the factory (`build_world`); monitoring, the agent's view
     and scoring are the same for every kind.
+    With `watch`, someone follows the run as it happens (`capstone.progress`):
+    it is shown copies of the agent's working state, never the simulator.
     """
     sim = build_world(seed, kind=kind, fault=fault, machines=machines)
     desk = ApprovalDesk(sim)
@@ -238,6 +241,7 @@ def run_episode(
         policy=policy,
         clock=clock,
         human_review=human_review,
+        watch=watch,
     )
     run_investigation(state, deps)
 
