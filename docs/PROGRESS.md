@@ -97,6 +97,7 @@ A component is complete only when both columns are checked.
 | C3b | Bounded memory search: no repeated search, at most three per investigation, each recorded | yes (after the build, 2026-10-22) | n/a | yes | yes | `providers/recall.py` (`RecallingProvider`, `MAX_SEARCHES`, `REPEATED_SEARCH`, `SEARCHES_SPENT`), `evaluation/memory.py` (`build_search_records`); session note 2026-10-20 (Module 3, piece 2) |
 | D1 | Near-duplicate threshold measurement tool (provisional 0.909) | yes (walkthrough, 2026-10-22) | n/a | yes | yes (after corrections) | `capstone/memory/duplicate_threshold.py`; session notes 2026-10-22 |
 | T1 | TypeSafe Jev client and the auto-labeller (proposed diagnosis labels, compared with hand labels) | yes (pre-merge walkthrough, 2026-10-23) | n/a | yes | yes (after corrections: Q1 cost of speculative questions, Q2 why truth would bias labels) | `providers/typesafe.py` (`Noul`, `Choice`, `JudgmentClient`, `read_judgments`, `judgment_client`), `evaluation/auto_label.py` (`propose`, `Proposal`, `agreement`, `conclusions`, `main`), `settings.py` (`TYPESAFE_API_KEY`, `TYPESAFE_MODEL`), `.env.example`, AGENTS.md section 9, `docs/benchmarks/2026-10-23-jev-auto-labels.md`; session note 2026-10-23 (T1) |
+| F1 | Bearing progression: opt-in three-day profile (quiet stretch, onset, steeper ramp) | yes (after the build: pre-merge walkthrough 2026-10-26) | n/a | yes | yes (walkthrough 2026-10-26: Q1 in part, corrected; Q2 mostly, corrected; Q3 after one re-teach) | `simulator/scenarios.py` (`BearingDegradation` `onset_health`, `quiet_factor`), `simulator/generator.py` (`BEARING_PROFILES`, `THREE_DAY_*`, `build_scenario(bearing_profile=)`), `docs/benchmarks/2026-10-26-bearing-three-day.md`; session note 2026-10-26 (F1) |
 
 Every row above with four "yes" marks (or "n/a") is complete: no question is
 outstanding on it. Still to build after 12c, from `docs/MVP_SCOPE.md`: the
@@ -167,6 +168,60 @@ alarm), then evaluation, then the agent itself.
      evidence was gathered, the conclusion was wrong or escalated) is what a
      critic or independent analyst could fix; an evidence miss points at a
      research role instead. That choice picks the first multi-agent role.
+
+- **2026-10-26: PR #76 pre-merge walkthrough (F1).** Three questions.
+  Q1 (why the quiet phase belongs in the scenario, not the vibration
+  sensor): said every sensor would need wiring (correct: the temperature
+  sensor reads wear too, so a vibration-only mask would make the evidence
+  contradict itself) and that the sensor would be changing the truth;
+  corrected: the sensor version hides the truth rather than changing it,
+  health still falls at the old rate so the machine still fails in about a
+  day, and the technician's finding and the evaluator read the real health.
+  Q2 (the monitor's 4,000-tick wait with three-day faults): said the agent
+  would not see the fault and the run would be inconclusive; corrected: the
+  evidence is visible by tick 4,000 (health about 0.6) but nothing points to
+  it, and the result would be scored as a missed bearing fault caused by the
+  harness, not the agent. The developer asked about raising the wait: three
+  problems (more chance a distractor triggers first, histories past the
+  300-row cap, the wait must be per profile and recorded); asked whether
+  models or memory limit it: the wait runs before the investigation's clock
+  (`detect_anomaly` in `run_episode`), the prompt is capped, and memory was
+  measured at 316 MB for 8 machines over 12,000 ticks (300,000 readings), fine
+  one run at a time. Q3 (why the default-phases test demands exact
+  equality): did not know; re-taught (determinism promise, thresholds that
+  turn tiny differences into different episodes, a shifted random stream);
+  on a smaller case said the alarm would trip a few ticks early (correct);
+  added that the investigation then starts earlier on different evidence
+  and saved results and labels can no longer be reproduced. Understood (Q1
+  and Q2 corrected, Q3 after one re-teach).
+
+- **2026-10-26: F1: an opt-in three-day bearing profile (Brandon's feedback,
+  Future Work 8 A). Built first at the developer's request ("add then
+  teach"); understood: no, to be taught after the build.** Measured first:
+  on seeds 1-40 the existing curve goes from fault start to failure in 9-28
+  hours of running (median onset-to-failure 725 running ticks), so a
+  three-day ramp is longer than today's, not shorter. Built:
+  `BearingDegradation` gains `onset_health` and `quiet_factor` (while health
+  is above the onset, wear runs at that fraction of the rate; defaults 1.0
+  and 1.0 are the original curve exactly). `build_scenario` gains
+  `bearing_profile` (`BEARING_PROFILES`: "compressed", the default and
+  unchanged, and "three_day": the same seeded rate draw times 0.17, onset at
+  health 0.8, quiet phase at half rate). Result on seeds 1-40: quiet stretch
+  median 2,349 running ticks, onset to failure median 4,294 (target 4,320,
+  range 2,683-6,241), first alarm a median 5,007 ticks after the fault
+  starts. Decisions to confirm in the teaching session: operating rather than
+  calendar days (wear already accrues only while running), onset 0.8, quiet
+  factor 0.5. Tests: `test_bearing_degradation.py` (nonsense phase settings
+  refused; default phases change nothing; quiet rate before onset, full rate
+  after; vibration near normal until onset, then climbs),
+  `test_generator.py` (unknown profile refused; compressed is the default;
+  the profile moves no stream; other faults unchanged; one seed's quiet
+  stretch and ramp inside the 40-seed range, against the compressed curve).
+  Not done: experiments cannot choose the profile, and the monitor's 4,000-tick
+  wait ends before a typical three-day alarm; Brandon has not reviewed the
+  curve. Also decided (developer, 2026-10-26): servo/axis and hydraulic faults
+  will be built as fault-pack registry entries tagged by difficulty; the
+  easy/medium/hard switch waits for the scored single-agent run.
 
 - **2026-10-26: docs: multi-agent work on our own orchestration, no CrewAI
   (developer's decision).** Documentation only; no code or dependencies

@@ -53,6 +53,11 @@ class BearingDegradation(Scenario):
     falls roughly with the cube of load. It reads `load`, never writes it.
     A machine set to run faster than standard wears faster in the same
     way, by speed ratio ** speed_exponent.
+
+    Two phases (optional): while health is above `onset_health`, wear runs
+    at `quiet_factor` times the rate, so the bearing wears quietly before
+    the damage starts to show; below it, at the full rate. The defaults
+    (1.0 and 1.0) give one phase, the original behaviour.
     """
 
     def __init__(
@@ -66,11 +71,17 @@ class BearingDegradation(Scenario):
         variation: float = 0.5,
         load_exponent: float = 3.0,
         speed_exponent: float = 3.0,
+        onset_health: float = 1.0,
+        quiet_factor: float = 1.0,
     ):
         if rate <= 0:
             raise ValueError("rate must be positive")
         if not 0.0 <= variation < 1.0:
             raise ValueError("variation must be in [0, 1)")
+        if not 0.0 < onset_health <= 1.0:
+            raise ValueError("onset_health must be in (0, 1]")
+        if not 0.0 < quiet_factor <= 1.0:
+            raise ValueError("quiet_factor must be in (0, 1]")
         super().__init__(name, rng)
         self.machine_id = machine_id
         self.start_tick = start_tick
@@ -78,6 +89,8 @@ class BearingDegradation(Scenario):
         self.variation = variation
         self.load_exponent = load_exponent
         self.speed_exponent = speed_exponent
+        self.onset_health = onset_health
+        self.quiet_factor = quiet_factor
 
     def apply(self, state: FactoryState, tick: int) -> None:
         if tick < self.start_tick:
@@ -95,6 +108,8 @@ class BearingDegradation(Scenario):
             return
         loss *= (machine.load / NORMAL_LOAD) ** self.load_exponent
         loss *= machine.speed_ratio**self.speed_exponent
+        if machine.condition.bearing_health > self.onset_health:
+            loss *= self.quiet_factor  # before onset: wearing, not yet showing
         machine.condition.bearing_health = max(
             0.0, machine.condition.bearing_health - loss
         )
