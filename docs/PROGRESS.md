@@ -253,10 +253,12 @@ alarm), then evaluation, then the agent itself.
   also the main model on the same servers, so it would fail when NVIDIA does.
   Tonight's chain, set for the run only through the run's environment (the
   `.env` is not edited): cloudflare/@cf/meta/llama-3.3-70b-instruct-fp8-fast,
-  cohere/command-a-03-2025, requesty/google/gemma-4-31b-it. The developer
-  then tried Nemotron 3 Ultra 550B (answered in 1.3 s through Requesty and
-  directly on NVIDIA) and decided against it: Super 120B is the only NVIDIA
-  model the project uses. Tests:
+  cohere/command-a-03-2025, requesty/nvidia/nemotron-3-ultra-550b-a55b (the
+  developer's choice, answered in 1.3 s through Requesty). The developer's
+  rule: on NVIDIA's own API only Super 120B is used; through Requesty, Ultra
+  550B is fine. Requesty forwards it to NVIDIA, so a wide NVIDIA outage could
+  take it down with the main model; Cloudflare and Cohere sit between them.
+  Gemma 4 31B (Requesty, 3.9 s) stays a tested spare. Tests:
   `test_chat_client.py` (several fallbacks in order, without repeats; Cohere
   never asked for more than 8,192 while others get the setting; a first
   fallback out of quota (HTTP 429 twice) passes to the second). Not done:
