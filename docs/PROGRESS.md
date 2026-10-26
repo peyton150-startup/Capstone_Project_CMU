@@ -101,6 +101,7 @@ A component is complete only when both columns are checked.
 | F1 | Bearing progression: opt-in three-day profile (quiet stretch, onset, steeper ramp) | yes (after the build: pre-merge walkthrough 2026-10-26) | n/a | yes | yes (walkthrough 2026-10-26: Q1 in part, corrected; Q2 mostly, corrected; Q3 after one re-teach) | `simulator/scenarios.py` (`BearingDegradation` `onset_health`, `quiet_factor`), `simulator/generator.py` (`BEARING_PROFILES`, `THREE_DAY_*`, `build_scenario(bearing_profile=)`), `docs/benchmarks/2026-10-26-bearing-three-day.md`; session note 2026-10-26 (F1) |
 | F2 | Machine power in kW (`PowerSensor`, standard on every machine, offered to the agent) | yes (after the build: pre-merge walkthrough 2026-10-26) | n/a | yes | yes (walkthrough 2026-10-26: Q1 in part, corrected; Q2 after one hint; Q3 right) | `simulator/sensors.py` (`PowerSensor`), `simulator/line.py`, `providers/factory.py` (`MachineSensor`, tool descriptions), `simulator/disturbances.py`; session note 2026-10-26 (F2) |
 | F3 | Fault-pack registry: the four faults described once (`capstone/faults.py`), no behaviour change | yes (after the build: pre-merge walkthrough 2026-10-26) | n/a | yes | yes (walkthrough 2026-10-26: Q1 in part, corrected; Q2 right after one correction; Q3 after a re-teach) | `faults.py` (`FaultPack`, `AgentSide`, `EvaluatorSide`, `FaultPlace`, `PACKS`, `BY_KIND`, `agent_side`, `Relevant` moved here), `simulator/generator.py`, `tools/diagnosis.py`, `tools/actions.py`, `evaluation/scoring.py`, `baseline.py`; session note 2026-10-26 (F3) |
+| F4 | Servo-drive fault pack: worn axis drive, following-error sensor and alarm, drive replacement; only when forced | no (built first at the developer's request, 2026-10-26; to be taught before merging) | n/a | yes | no | `simulator/state.py` (`axis_health`, `axis_replaced_tick`), `simulator/scenarios.py` (`AxisDriveWear`, `DEFECT_FROM_AXIS`), `simulator/sensors.py` (`FollowingErrorSensor`), `simulator/line.py`, `simulator/simulator.py` (`start_servo_drive_replacement`), `tools/actions.py`, `providers/factory.py`, `faults.py` (servo pack, `in_default_draw`, `DEFAULT_DRAW`), `simulator/generator.py`; session note 2026-10-26 (F4) |
 
 Every row above with four "yes" marks (or "n/a") is complete: no question is
 outstanding on it. Still to build after 12c, from `docs/MVP_SCOPE.md`: the
@@ -184,6 +185,36 @@ alarm), then evaluation, then the agent itself.
      evidence was gathered, the conclusion was wrong or escalated) is what a
      critic or independent analyst could fix; an evidence miss points at a
      research role instead. That choice picks the first multi-agent role.
+
+- **2026-10-26: F4: the servo-drive fault pack (Future Work 8 D, first part).
+  Built first at the developer's request ("keep the default draw over the
+  original four faults, servo only when forced"); understood: no, to be
+  taught in the pre-merge walkthrough.** Hidden: `MachineCondition.axis_health`
+  and `MachineState.axis_replaced_tick`. `AxisDriveWear` lowers axis health
+  from its start while the machine runs, faster under load, until the drive is
+  replaced; ground truth `servo_drive_wear`. Evidence: `FollowingErrorSensor`
+  (`following_error`, µm) on every machine, and a following-error alarm at
+  20 µm on the line; `defect_mark` adds `DEFECT_FROM_AXIS` 0.35 x axis wear
+  squared. No vibration, temperature or working-speed effect. Repair:
+  `Simulator.start_servo_drive_replacement` (60 ticks; finding "old drive
+  badly worn / worn / in good condition"), action `replace_servo_drive` on the
+  desk and in `propose_action`'s description. Pack: agent side
+  (`servo_drive_wear`, `replace_servo_drive`), evaluator side (correct action,
+  a cause, evidence: following error and events of the machine, inspection
+  results), difficulty medium (proposed), `in_default_draw=False`.
+  `DEFAULT_DRAW` (the original four, in order) is what a seed draws from and
+  what `generator.FAULTS` and `--faults all` mean; `build_scenario` accepts
+  any pack's name when forced. Decision: the sensor, alarm and repair are on
+  every machine (every CNC has servo axes), so the agent's tool list and
+  repair menu gain them in every run; only the fault is opt-in. Proof of no
+  change: 602 fingerprints (seeds 0-59, every forced old fault, both bearing
+  profiles, readings and events over 700 ticks) identical, with the new
+  sensor's readings left out. Checked on forced seeds 1-20: alarm 730-1,680
+  ticks after the start, no vibration alarm on the servo machine; no
+  following-error alarm in 40 runs of the other faults. Tests: new
+  `tests/test_servo_drive.py` (16, CI group Simulator). Not done: hydraulics;
+  encoder faults, drive overheating, drive current in power, a breakdown, a
+  baseline rule, a known-answer case.
 
 - **2026-10-26: PR #80 pre-merge walkthrough (F3).** Three questions.
   Q1 (sorting `PACKS` alphabetically): said everything would change and a

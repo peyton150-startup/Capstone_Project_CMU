@@ -75,6 +75,8 @@ class ApprovalDesk:
             raise ToolInputError(f"proposal {proposal_id} was already carried out")
         if proposal.action == "replace_bearing":
             finish = self._sim.start_bearing_replacement(proposal.machine_id)
+        elif proposal.action == "replace_servo_drive":
+            finish = self._sim.start_servo_drive_replacement(proposal.machine_id)
         else:
             finish = self._sim.start_setting_reset(proposal.machine_id)
         proposal.executed_tick, proposal.finish_tick = self._sim.clock.tick, finish

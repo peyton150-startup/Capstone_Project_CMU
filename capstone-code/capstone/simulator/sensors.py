@@ -199,6 +199,48 @@ class PowerSensor(Sensor):
         return max(0.0, self.idle_kw + spindle + self.friction_kw * wear**2 + noise)
 
 
+class FollowingErrorSensor(Sensor):
+    """How far the feed axis lags behind its commanded position, in micrometres.
+
+    The servo controller measures this itself on every move. A healthy drive
+    keeps it small; it grows a little with a heavy cut or a faster setting,
+    and a lot with a worn drive (`wear_gain` x axis wear squared). While the
+    machine is idle or stopped the drive only holds the axis still.
+    """
+
+    name = "following_error"
+    unit = "µm"
+
+    def __init__(
+        self,
+        machine_id: str,
+        rng: RandomSource,
+        *,
+        baseline: float = 4.0,
+        load_gain: float = 4.0,
+        speed_gain: float = 6.0,
+        wear_gain: float = 40.0,
+        holding: float = 1.0,
+        noise_sd: float = 0.6,
+    ):
+        super().__init__(machine_id, rng)
+        self.baseline = baseline
+        self.load_gain = load_gain
+        self.speed_gain = speed_gain
+        self.wear_gain = wear_gain
+        self.holding = holding
+        self.noise_sd = noise_sd
+
+    def _measure(self, machine: MachineState) -> float:
+        noise = self._stream.gauss(0.0, self.noise_sd)
+        if machine.status is not MachineStatus.RUNNING:
+            return max(0.0, self.holding + noise)
+        wear = 1.0 - machine.condition.axis_health
+        work = self.load_gain * (machine.load - NORMAL_LOAD)
+        speed = self.speed_gain * (machine.speed_ratio - 1.0)
+        return max(0.0, self.baseline + work + speed + self.wear_gain * wear**2 + noise)
+
+
 class FactoryThermometer:
     """Measures the air in the factory. Belongs to no machine.
 

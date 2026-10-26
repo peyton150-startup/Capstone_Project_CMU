@@ -123,7 +123,7 @@ class TickRange(NoArguments):
 
 # The sensors a request may name. Any other name is refused with this list,
 # instead of quietly returning no readings.
-MachineSensor = Literal["vibration", "temperature", "load", "power"]
+MachineSensor = Literal["vibration", "temperature", "load", "power", "following_error"]
 FactorySensor = Literal["air_temperature"]
 
 
@@ -149,7 +149,7 @@ class SensorSummaryArguments(TickRange):
         if (self.sensor == "air_temperature") != (self.machine_id is None):
             raise ValueError(
                 "air_temperature belongs to the factory (machine_id null); "
-                "vibration, temperature, load and power need a machine_id"
+                "vibration, temperature, load, power and following_error need a machine_id"
             )
         return self
 
@@ -195,12 +195,14 @@ TOOL_DESCRIPTIONS: dict[str, str] = {
     ),
     "get_readings": (
         "Raw readings from one machine sensor (vibration mm/s, temperature °F, "
-        "load %, or power: electrical demand in kW) "
+        "load %, power: electrical demand in kW, or following_error: how far "
+        "the axis lags its commanded position, in µm) "
         "in a tick range. One tick is one minute. At most 300 rows; for longer "
         "ranges use get_sensor_trend."
     ),
     "get_sensor_trend": (
-        "One machine sensor (vibration, temperature, load or power) summarised per block "
+        "One machine sensor (vibration, temperature, load, power or following_error) "
+        "summarised per block "
         "of ticks: mean, min, max and count for each block (bucket_ticks, default "
         "60). Shows whether a change is gradual or a single jump, at a fraction of "
         "the size of get_readings. Idle readings are included, which pulls a "
@@ -233,7 +235,8 @@ TOOL_DESCRIPTIONS: dict[str, str] = {
     "propose_action": (
         "Ask a human to approve a change to the factory. replace_bearing stops the "
         "machine about 45 ticks (135 if it has broken down); reset_setting stops it "
-        "10 ticks and puts its speed back to standard. Nothing happens until a "
+        "10 ticks and puts its speed back to standard; replace_servo_drive stops it "
+        "60 ticks and fits a new axis servo drive. Nothing happens until a "
         "human decides; check with get_proposals. The reason says why, and what "
         "you expect to see afterwards."
     ),

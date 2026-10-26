@@ -11,6 +11,7 @@ from capstone.evaluation.scoring import CAUSE_KINDS, CORRECT_ACTION, RELEVANT_EV
 from capstone.faults import (
     ACTIONS,
     BY_KIND,
+    DEFAULT_DRAW,
     FAULT_KINDS,
     PACKS,
     AgentSide,
@@ -31,35 +32,43 @@ def test_every_fault_is_named_once():
 
 def test_every_list_of_faults_is_built_from_the_packs():
     kinds = tuple(pack.kind for pack in PACKS)
-    assert FAULTS == FAULT_KINDS == diagnosis.FAULT_KINDS == kinds
+    assert FAULT_KINDS == diagnosis.FAULT_KINDS == kinds
+    assert FAULTS == DEFAULT_DRAW == tuple(p.kind for p in PACKS if p.in_default_draw)
     assert get_args(diagnosis.FaultKind) == kinds
     assert set(CORRECT_ACTION) == set(RELEVANT_EVIDENCE) == set(kinds)
     assert actions.ACTIONS == ACTIONS
 
 
 def test_the_lists_keep_the_values_they_had_before_the_registry():
-    """The values the hand-written lists held on 2026-10-26, before the move."""
+    """The values the hand-written lists held on 2026-10-26, before the move.
+
+    The servo pack (F4) was added later: it extends each list at the end and
+    is never drawn by a seed, so the original four keep their place.
+    """
     assert FAULTS == (
         "bearing_degradation",
         "bad_material_batch",
         "wrong_setting",
         "false_alarm",
     )
-    assert ACTIONS == ("replace_bearing", "reset_setting")
+    assert ACTIONS == ("replace_bearing", "reset_setting", "replace_servo_drive")
     assert CORRECT_ACTION == {
         "bearing_degradation": "replace_bearing",
         "wrong_setting": "reset_setting",
         "bad_material_batch": None,
         "false_alarm": None,
+        "servo_drive_wear": "replace_servo_drive",
     }
     assert set(CAUSE_KINDS) == {
         "bearing_degradation",
         "wrong_setting",
         "bad_material_batch",
+        "servo_drive_wear",
     }
     assert FIX == {
         "bearing_degradation": "replace_bearing",
         "wrong_setting": "reset_setting",
+        "servo_drive_wear": "replace_servo_drive",
     }
 
 
