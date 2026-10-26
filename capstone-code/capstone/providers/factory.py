@@ -123,7 +123,7 @@ class TickRange(NoArguments):
 
 # The sensors a request may name. Any other name is refused with this list,
 # instead of quietly returning no readings.
-MachineSensor = Literal["vibration", "temperature", "load"]
+MachineSensor = Literal["vibration", "temperature", "load", "power"]
 FactorySensor = Literal["air_temperature"]
 
 
@@ -149,7 +149,7 @@ class SensorSummaryArguments(TickRange):
         if (self.sensor == "air_temperature") != (self.machine_id is None):
             raise ValueError(
                 "air_temperature belongs to the factory (machine_id null); "
-                "vibration, temperature and load need a machine_id"
+                "vibration, temperature, load and power need a machine_id"
             )
         return self
 
@@ -194,12 +194,13 @@ TOOL_DESCRIPTIONS: dict[str, str] = {
         "machine and are not shown."
     ),
     "get_readings": (
-        "Raw readings from one machine sensor (vibration, temperature or load) "
+        "Raw readings from one machine sensor (vibration mm/s, temperature °F, "
+        "load %, or power: electrical demand in kW) "
         "in a tick range. One tick is one minute. At most 300 rows; for longer "
         "ranges use get_sensor_trend."
     ),
     "get_sensor_trend": (
-        "One machine sensor (vibration, temperature or load) summarised per block "
+        "One machine sensor (vibration, temperature, load or power) summarised per block "
         "of ticks: mean, min, max and count for each block (bucket_ticks, default "
         "60). Shows whether a change is gradual or a single jump, at a fraction of "
         "the size of get_readings. Idle readings are included, which pulls a "

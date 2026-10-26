@@ -45,8 +45,8 @@ def test_any_size_from_three_to_eight_builds_and_runs(machines):
     assert [m.ticks_per_job for m in sim.state.machines.values()] == list(
         STANDARD_TICKS_PER_JOB[:machines]
     )
-    # vibration, temperature and load on every machine, plus the thermometer
-    assert len(sim.readings) == 200 * (3 * machines + 1)
+    # vibration, temperature, load and power on every machine, plus the thermometer
+    assert len(sim.readings) == 200 * (4 * machines + 1)
 
 
 @pytest.mark.parametrize("machines", (0, 2, 9))

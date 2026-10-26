@@ -1891,8 +1891,8 @@ list of possible causes.
 
 #### High-priority simulator fidelity: faster bearing vibration ramp and machine power (planned 2026-10-23)
 
-**Status (2026-10-26): A is built as an opt-in profile (below); B is not
-implemented.**
+**Status (2026-10-26): A is built as an opt-in profile; B is built as a
+standard sensor on every machine (both below).**
 These two simulator improvements come from the developer's discussion with
 manufacturing engineer Brandon Reff. Prioritize them above optional vision,
 voice, and broad new simulator subsystems, while preserving the small working
@@ -1942,6 +1942,22 @@ The planning notes that follow are kept as written.
   investigation accuracy, false alarms, and time-to-detection with baseline.
 
 **B. Add machine electrical power consumption in kilowatts (HIGH priority).**
+
+**Built 2026-10-26: `PowerSensor` (`simulator/sensors.py`), sensor `power`,
+unit kW, on every machine of the standard line and offered to the agent
+through `get_readings`, `get_sensor_trend` and `get_sensor_summary`.** A
+whole-machine meter with three hidden causes: down (stopped or locked out)
+about 0 kW; idle 2 kW (controls, coolant pump, idling drive); running 2 kW
+plus spindle power 15 kW x load x speed ratio, plus 1.5 kW x wear squared of
+bearing friction; noise 0.2 kW. These are working assumptions for a mid-size
+CNC mill, not measured values, and need Brandon's review. Power reads the same
+hidden load and wear as the load sensor, so the two are correlated evidence;
+what power adds is speed (a wrong setting changes power at the same load). It
+has its own random stream, so every other reading, alarm and seed is
+unchanged. Not done: kWh (energy is kW summed over simulated time; no tool
+reports it), current draw in amps (C), no hydraulic or servo contributors
+(no machine has them yet), and power is not in `RELEVANT_EVIDENCE` for
+scoring. The planning notes that follow are kept as written.
 
 - Add a machine-level observed **power_kW** sensor measuring *instantaneous*
   electrical demand. Model separately the hidden physical causes of power:
@@ -2025,10 +2041,9 @@ See the [simulator fidelity reevaluation gates](FUTURE_WORK_REEVALUATION.md#high
 ### Next build candidates (ranked, updated 2026-10-26)
 
 A short list for the developer to choose from, most impact first. Status as
-of 2026-10-26: 1 (L1), 2 (L2), 6 (E6), 8 (C3a) and 10 are done; 3 is built
-as an opt-in profile; 7 is started (T1). Next in the developer's order: a
-scored single-agent run (`docs/PROGRESS.md`), then 4, then 5 as fault-pack
-entries. Each would go through its own pull request (AGENTS.md §11); whether
+of 2026-10-26: 1 (L1), 2 (L2), 4, 6 (E6), 8 (C3a) and 10 are done; 3 is
+built as an opt-in profile; 7 is started (T1). Next in the developer's order: a
+scored single-agent run (`docs/PROGRESS.md`), then 5 as fault-pack entries. Each would go through its own pull request (AGENTS.md §11); whether
 each is taught first or built ungated is the developer's call.
 
 | # | Candidate | Why it matters | Depends on | Size |

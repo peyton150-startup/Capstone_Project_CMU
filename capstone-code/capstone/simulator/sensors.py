@@ -149,6 +149,56 @@ class LoadSensor(Sensor):
         return max(0.0, 100.0 * machine.load + self.friction_gain * wear**2 + noise)
 
 
+class PowerSensor(Sensor):
+    """The machine's electrical power demand right now, in kilowatts.
+
+    A whole-machine meter, not an electrical model. Three hidden causes add up:
+
+    - stopped (down, locked out for repair or broken): about nothing;
+    - idle: `idle_kw` for controls, coolant pump and an idling spindle drive;
+    - running: idle draw plus spindle power, `spindle_kw` x load x speed ratio
+      (cutting power is torque times speed, so the same work at a higher
+      speed draws more), plus `friction_kw` x wear squared from a worn bearing.
+
+    kW is instantaneous; energy (kWh) is kW summed over simulated time, and
+    is not a reading. Power reads the same hidden load and wear as
+    `LoadSensor`, so the two move together: they are correlated evidence,
+    not two independent witnesses. What power adds is the speed: a wrong
+    setting changes power at the same load, which the load reading does not show.
+    The defaults are working assumptions for a mid-size CNC mill, not
+    measured values (docs/MVP_SCOPE.md, Future Work 8 B).
+    """
+
+    name = "power"
+    unit = "kW"
+
+    def __init__(
+        self,
+        machine_id: str,
+        rng: RandomSource,
+        *,
+        idle_kw: float = 2.0,
+        spindle_kw: float = 15.0,
+        friction_kw: float = 1.5,
+        noise_sd: float = 0.2,
+    ):
+        super().__init__(machine_id, rng)
+        self.idle_kw = idle_kw
+        self.spindle_kw = spindle_kw
+        self.friction_kw = friction_kw
+        self.noise_sd = noise_sd
+
+    def _measure(self, machine: MachineState) -> float:
+        noise = self._stream.gauss(0.0, self.noise_sd)
+        if machine.status is MachineStatus.DOWN:
+            return max(0.0, noise)
+        if machine.status is MachineStatus.IDLE:
+            return max(0.0, self.idle_kw + noise)
+        wear = 1.0 - machine.condition.bearing_health
+        spindle = self.spindle_kw * machine.load * machine.speed_ratio
+        return max(0.0, self.idle_kw + spindle + self.friction_kw * wear**2 + noise)
+
+
 class FactoryThermometer:
     """Measures the air in the factory. Belongs to no machine.
 
