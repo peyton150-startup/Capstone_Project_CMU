@@ -77,6 +77,8 @@ class ApprovalDesk:
             finish = self._sim.start_bearing_replacement(proposal.machine_id)
         elif proposal.action == "replace_servo_drive":
             finish = self._sim.start_servo_drive_replacement(proposal.machine_id)
+        elif proposal.action == "repair_hydraulics":
+            finish = self._sim.start_hydraulic_repair(proposal.machine_id)
         else:
             finish = self._sim.start_setting_reset(proposal.machine_id)
         proposal.executed_tick, proposal.finish_tick = self._sim.clock.tick, finish
@@ -156,6 +158,11 @@ class ActionTools:
             )
         if not isinstance(reason, str) or not reason.strip():
             raise ToolInputError("a reason is required")
+        if (
+            action == "repair_hydraulics"
+            and not self._sim.state.machines[machine_id].has_hydraulics
+        ):
+            raise ToolInputError(f"{machine_id} has no hydraulic system")
         return self._desk.submit(machine_id, action, reason.strip()).model_dump()
 
     def get_proposals(self) -> list[dict]:

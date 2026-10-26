@@ -101,8 +101,13 @@ def test_get_time_reports_tick_and_clock_time():
 def test_list_machines_shows_id_status_and_current_job_only():
     _, tools = factory(1200)
     assert tools.list_machines() == [
-        {"machine_id": "CNC-01", "status": "running", "job_id": None},
-        {"machine_id": "CNC-04", "status": "down", "job_id": None},
+        {
+            "machine_id": "CNC-01",
+            "status": "running",
+            "job_id": None,
+            "hydraulics": False,
+        },
+        {"machine_id": "CNC-04", "status": "down", "job_id": None, "hydraulics": False},
     ]
 
 
@@ -184,6 +189,7 @@ def test_nothing_hidden_leaks_through_any_tool_over_a_full_run():
         "machine_id",
         "status",
         "job_id",
+        "hydraulics",
         "sensor",
         "value",
         "unit",

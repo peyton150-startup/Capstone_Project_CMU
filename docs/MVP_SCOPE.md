@@ -1837,8 +1837,8 @@ small filter over the registry when they are built.
 
 #### Fault packs: one registry entry per sensor and its fault (planned 2026-10-22)
 
-**Status (2026-10-26): steps 1-2 done (F3); step 3 started: the servo-drive
-pack is built (F4, below in D); optional hydraulics is next.** The registry is
+**Status (2026-10-26): steps 1-3 done: the registry (F3), and the servo-drive
+(F4) and hydraulic-leak (F5) packs, both below in D.** The registry is
 `capstone/faults.py`: one `FaultPack` per fault with an `agent` side (the
 diagnosis name and the repair it adds to the desk), an `evaluator` side
 (correct action, cause or distractor, relevant evidence) and a `build`
@@ -2037,7 +2037,7 @@ scoring. The planning notes that follow are kept as written.
 **D. Expand the number of failure-capable machine components.**
 
 **Servo/axis built 2026-10-26 (F4) as the fault pack `servo_drive_wear`;
-hydraulics not started.** Hidden `axis_health` on every machine wears from
+hydraulics built the same day (F5), see below.** Hidden `axis_health` on every machine wears from
 the fault's start while the machine runs (`AxisDriveWear`, faster under
 load). Evidence: a `following_error` sensor on every machine (µm: about 4
 running, 1 holding, plus 40 x axis wear squared, a little more for a heavy
@@ -2054,6 +2054,31 @@ ticks after the start; no vibration alarm on the servo machine; no
 following-error alarm in 40 runs of the other faults. Not done: encoder or
 position-feedback faults, drive overheating, current in amps, a breakdown when the drive is worn out, a rule in the baseline, a
 known-answer case. Numbers are assumptions for Brandon to review.
+
+**Hydraulics built 2026-10-26 (F5) as the fault pack `hydraulic_leak`.**
+Equipment is fixed by line position (`line.HYDRAULIC_POSITIONS`: CNC-02,
+CNC-05 and CNC-07; no random draw, and every line has CNC-02) and is an
+observable fact: `MachineState.has_hydraulics`, shown as `hydraulics` in
+`list_machines` (`MachineObservation`). Hidden `hydraulic_health` (the
+seals) falls in a forced `HydraulicLeak` while the pump runs (running or
+idle). Evidence: a `hydraulic_pressure` sensor (bar: about 70, minus 40 x
+leak squared, minus a little while cutting) on equipped machines only, and a
+low-pressure alarm below 55 bar (`ThresholdAlarm(below=True)`, new); a weak
+clamp adds defects (`DEFECT_FROM_HYDRAULICS` 0.30 x leak squared). The
+transducer sends nothing while the machine is down (`available`), because
+a first version raised 518 false low-pressure alarms in 40 runs whenever a
+machine stopped for a breakdown or repair. Asking for pressure on a machine
+without hydraulics is refused, as is proposing or carrying out
+`repair_hydraulics` there (40 ticks; the technician reports the old seals
+leaking badly / leaking / sound). Only forced; a forced leak keeps the
+seed's machine when it has hydraulics, otherwise draws an equipped one,
+and keeps the seed's start tick. Difficulty: hard (proposed). Proof of no
+change: 602 fingerprints and 40 full event logs over 2,500 ticks (including
+breakdowns) identical, the new sensors aside. Forced seeds 1-20: alarm
+717-1,358 ticks after the start, no other alarm on the leaking machine; 0
+low-pressure alarms in 40 runs of the other faults. Not done: pump wear,
+oil temperature, fluid level, a sticking valve, pump power in the power
+reading, a baseline rule, a known-answer case.
 
 - Brandon specifically called out **servo motors** and **hydraulics** as
   parts worth investigating so that not all failures are spindle-bearing
@@ -2109,7 +2134,7 @@ confirm):
 
 | Rank | # | Candidate | Why it matters | Depends on | Size |
 |---|---|---|---|---|---|
-| 1 | 5 | **MEDIUM-HIGH: Servo/axis and optional hydraulic failures, as fault-pack registry entries tagged by difficulty** (decided 2026-10-26). The registry is built (F3) and the servo pack (F4), both 2026-10-26; hydraulics is next. | Brandon suggested more parts that can fail, so not every fault is a spindle bearing; gives independent and overlapping diagnosis candidates. The easy/medium/hard switch waits for the scored single-agent run. | Machine configurations, failure models, sensors, repairs, evaluator updates | Medium to large |
+| 1 | 5 | **MEDIUM-HIGH: Servo/axis and optional hydraulic failures, as fault-pack registry entries tagged by difficulty** (decided 2026-10-26). Built 2026-10-26: the registry (F3), the servo pack (F4) and the hydraulics pack (F5). Follow-ups are the not-done items in D. | Brandon suggested more parts that can fail, so not every fault is a spindle bearing; gives independent and overlapping diagnosis candidates. The easy/medium/hard switch waits for the scored single-agent run. | Machine configurations, failure models, sensors, repairs, evaluator updates | Medium to large |
 | 2 | 7 | **Evaluator model for diagnosis labels: finish the check.** Built 2026-10-23 (T1: TypeSafe's Jev proposes labels, `python -m capstone.evaluation.auto_label`); what is left is measuring its agreement with hand labels before any experiment trusts it. | Experiments could then score root cause without labelling every run by hand (decided 2026-10-12). | Hand labels from the scored single-agent run | Small |
 | 3 | 12 | **A live memory comparison run.** Fill the store on tuning seeds (`experiment run --memory --audit ...`), backfill the index (`python -m capstone.memory.backfill`), then `python -m capstone.memory_comparison run --known`, label and report. The command is built and was made fair on 2026-10-26 (C3a, C3c), but has never run against a real model. | The only way to learn whether memory improves investigations, which is the point of item 8. | The scored single-agent run (models answering); one live run at a time | No code; long runs |
 | 4 | 13 | **Memory comparison follow-ups** (C3c notes): a `--cases` option on `run` to rerun chosen cases in every mode (the developer's idea, for cases lost to outages); repeats with a per-case win/loss count between modes; and a header recording the store's size, embedding model and policy version. | With one run per case and outages removing cases, the totals are noisy and not always like for like; a results file should say what store it ran against. | Item 12's first results show how much it matters | Small to medium |

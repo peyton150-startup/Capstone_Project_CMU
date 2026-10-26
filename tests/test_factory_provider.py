@@ -246,7 +246,7 @@ def test_all_read_tools_preserve_existing_observable_shapes():
                 "from_tick": 0,
                 "to_tick": 5,
             },
-            "sensor: Input should be 'vibration', 'temperature', 'load', 'power' or 'following_error'",
+            "sensor: Input should be 'vibration', 'temperature', 'load', 'power', 'following_error' or 'hydraulic_pressure'",
         ),
         (
             "get_sensor_summary",
@@ -396,4 +396,5 @@ def test_a_policy_is_offered_research_tools_but_never_the_fixed_procedure():
         "load",
         "power",
         "following_error",
+        "hydraulic_pressure",
     ]

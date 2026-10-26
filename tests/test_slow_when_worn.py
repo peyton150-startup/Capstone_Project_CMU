@@ -168,7 +168,8 @@ def test_same_seed_gives_the_same_times_and_another_seed_different_ones():
 def test_nothing_about_speed_or_progress_reaches_the_agent_directly():
     _, tools = factory(worn_health=0.3)
     assert all(
-        set(row) == {"machine_id", "status", "job_id"} for row in tools.list_machines()
+        set(row) == {"machine_id", "status", "job_id", "hydraulics"}
+        for row in tools.list_machines()
     )
     text = " ".join(row["message"] for row in tools.get_events(0, 1500))
     assert "slow" not in text and "worn" not in text and "speed" not in text

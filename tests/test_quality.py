@@ -147,7 +147,8 @@ def test_the_agent_sees_pass_or_fail_and_never_the_risk():
     )
     assert "risk" not in seen and "0.22" not in seen
     assert all(
-        set(row) == {"machine_id", "status", "job_id"} for row in tools.list_machines()
+        set(row) == {"machine_id", "status", "job_id", "hydraulics"}
+        for row in tools.list_machines()
     )
 
 

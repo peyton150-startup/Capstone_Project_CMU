@@ -47,16 +47,26 @@ class ThresholdAlarm:
     near the threshold, and trip on a healthy machine.
     """
 
-    def __init__(self, sensor: str, threshold: float):
+    def __init__(self, sensor: str, threshold: float, *, below: bool = False):
         self.sensor = sensor
         self.threshold = threshold
+        # True: fires when a reading falls below the threshold (a pressure that drops).
+        self.below = below
 
     def check(self, reading: SensorReading) -> Event | None:
-        if reading.sensor != self.sensor or reading.value <= self.threshold:
+        if reading.sensor != self.sensor:
             return None
+        if self.below:
+            if reading.value >= self.threshold:
+                return None
+            side = "below"
+        else:
+            if reading.value <= self.threshold:
+                return None
+            side = "above"
         return Event(
             tick=reading.tick,
             machine_id=reading.machine_id,
             kind="alarm",
-            message=f"{reading.sensor} {reading.value:.2f} {reading.unit} above {self.threshold:.2f}",
+            message=f"{reading.sensor} {reading.value:.2f} {reading.unit} {side} {self.threshold:.2f}",
         )

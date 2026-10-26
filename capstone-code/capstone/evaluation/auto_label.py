@@ -71,6 +71,10 @@ CAUSES: dict[str, str] = {
         "a worn servo drive on a machine's feed axis: the axis lags its "
         "commanded position, so parts come out off size"
     ),
+    "hydraulic_leak": (
+        "a leak in a machine's hydraulic system: pressure falls, the clamp "
+        "holds parts loosely and they come out off size"
+    ),
     "false_alarm": (
         "no real fault: the alarm or anomaly was transient, noise, a sensor "
         "glitch or ordinary variation, and nothing needs fixing"

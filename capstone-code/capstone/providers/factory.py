@@ -123,7 +123,9 @@ class TickRange(NoArguments):
 
 # The sensors a request may name. Any other name is refused with this list,
 # instead of quietly returning no readings.
-MachineSensor = Literal["vibration", "temperature", "load", "power", "following_error"]
+MachineSensor = Literal[
+    "vibration", "temperature", "load", "power", "following_error", "hydraulic_pressure"
+]
 FactorySensor = Literal["air_temperature"]
 
 
@@ -149,7 +151,8 @@ class SensorSummaryArguments(TickRange):
         if (self.sensor == "air_temperature") != (self.machine_id is None):
             raise ValueError(
                 "air_temperature belongs to the factory (machine_id null); "
-                "vibration, temperature, load, power and following_error need a machine_id"
+                "vibration, temperature, load, power, following_error and "
+                "hydraulic_pressure need a machine_id"
             )
         return self
 
@@ -186,8 +189,8 @@ class ExecuteArguments(NoArguments):
 TOOL_DESCRIPTIONS: dict[str, str] = {
     "get_time": "The current tick and clock time.",
     "list_machines": (
-        "Every machine on the line in order, its status (running / idle / down) "
-        "and current job."
+        "Every machine on the line in order, its status (running / idle / down), "
+        "current job, and whether it has a hydraulic system."
     ),
     "get_settings": (
         "Each machine's current spindle speed in rpm. Standard speeds differ by "
@@ -196,12 +199,14 @@ TOOL_DESCRIPTIONS: dict[str, str] = {
     "get_readings": (
         "Raw readings from one machine sensor (vibration mm/s, temperature °F, "
         "load %, power: electrical demand in kW, or following_error: how far "
-        "the axis lags its commanded position, in µm) "
+        "the axis lags its commanded position, in µm; or hydraulic_pressure in "
+        "bar, only on machines with hydraulics) "
         "in a tick range. One tick is one minute. At most 300 rows; for longer "
         "ranges use get_sensor_trend."
     ),
     "get_sensor_trend": (
-        "One machine sensor (vibration, temperature, load, power or following_error) "
+        "One machine sensor (vibration, temperature, load, power, following_error "
+        "or hydraulic_pressure) "
         "summarised per block "
         "of ticks: mean, min, max and count for each block (bucket_ticks, default "
         "60). Shows whether a change is gradual or a single jump, at a fraction of "
@@ -236,7 +241,9 @@ TOOL_DESCRIPTIONS: dict[str, str] = {
         "Ask a human to approve a change to the factory. replace_bearing stops the "
         "machine about 45 ticks (135 if it has broken down); reset_setting stops it "
         "10 ticks and puts its speed back to standard; replace_servo_drive stops it "
-        "60 ticks and fits a new axis servo drive. Nothing happens until a "
+        "60 ticks and fits a new axis servo drive; repair_hydraulics (machines "
+        "with hydraulics only) stops it 40 ticks and replaces its seals. "
+        "Nothing happens until a "
         "human decides; check with get_proposals. The reason says why, and what "
         "you expect to see afterwards."
     ),

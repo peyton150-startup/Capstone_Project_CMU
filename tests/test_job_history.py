@@ -110,9 +110,9 @@ def test_job_events_never_say_why_or_how_heavy():
 def test_list_machines_shows_who_is_holding_what():
     sim, tools = factory(ticks=1)
     assert tools.list_machines() == [
-        {"machine_id": "CNC-01", "status": "running", "job_id": 1},
-        {"machine_id": "CNC-02", "status": "idle", "job_id": None},
-        {"machine_id": "CNC-04", "status": "idle", "job_id": None},
+        {"machine_id": "CNC-01", "status": "running", "job_id": 1, "hydraulics": False},
+        {"machine_id": "CNC-02", "status": "idle", "job_id": None, "hydraulics": False},
+        {"machine_id": "CNC-04", "status": "idle", "job_id": None, "hydraulics": False},
     ]
 
 

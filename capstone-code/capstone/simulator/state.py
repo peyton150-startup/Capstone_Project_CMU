@@ -60,6 +60,9 @@ class MachineCondition(BaseModel):
     bearing_health: float = Field(default=1.0, ge=0.0, le=1.0)
     # The servo drive of the machine's feed axis: 1.0 new, 0.0 worn out.
     axis_health: float = Field(default=1.0, ge=0.0, le=1.0)
+    # The hydraulic seals, on a machine that has hydraulics: 1.0 sound,
+    # 0.0 leaking freely.
+    hydraulic_health: float = Field(default=1.0, ge=0.0, le=1.0)
     # mm/s the vibration sensor adds on its own, e.g. a loose mount. 0 for a sound sensor.
     vibration_sensor_offset: float = 0.0
 
@@ -91,6 +94,9 @@ class MachineState(BaseModel):
     temperature: float = REFERENCE_AMBIENT_F + 43.0
     # How long this machine's operation takes on any job: its normal cycle time.
     ticks_per_job: int = Field(default=60, ge=1)
+    # Whether the machine has a hydraulic system (clamping). Equipment, not a
+    # condition: an observable fact, fixed when the line is built.
+    has_hydraulics: bool = False
     # The spindle speed this machine's operation is meant to run at, in rpm.
     standard_speed: float = Field(default=1000.0, gt=0.0)
     # The speed it is actually set to. An operating fact; None means the standard speed.
@@ -119,13 +125,15 @@ class MachineState(BaseModel):
 
     # While a repair is under way: the tick at which it will be finished.
     maintenance_until: int | None = None
-    # Which piece of work that is: "bearing replacement", "setting reset" or
-    # "servo drive replacement".
+    # Which piece of work that is: "bearing replacement", "setting reset",
+    # "servo drive replacement" or "hydraulic repair".
     maintenance_kind: str | None = None
     # The tick this machine's bearing was last replaced, if it ever was.
     bearing_replaced_tick: int | None = None
     # When the axis servo drive was last replaced, if ever.
     axis_replaced_tick: int | None = None
+    # When the hydraulic seals were last replaced, if ever.
+    hydraulics_repaired_tick: int | None = None
     condition: MachineCondition = Field(default_factory=MachineCondition)
     # One contribution per scenario, so overlapping disturbances do not erase others.
     sensor_effects: dict[str, SensorEffect] = Field(default_factory=dict)

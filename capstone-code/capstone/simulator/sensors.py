@@ -253,6 +253,49 @@ class FollowingErrorSensor(Sensor):
         return max(0.0, self.baseline + work + speed + self.wear_gain * wear**2 + noise)
 
 
+class HydraulicPressureSensor(Sensor):
+    """The hydraulic system's pressure, in bar. Only on machines that have hydraulics.
+
+    The pump holds about `nominal` bar whenever the machine is powered; a leak
+    costs `leak_gain` x leak squared (early seepage barely shows). Cutting
+    draws a little on it. With the machine down the hydraulic unit and its
+    transducer are switched off, so nothing is sent (`available`): a stopped
+    machine is not a pressure loss, and must not trip the low-pressure alarm.
+    """
+
+    name = "hydraulic_pressure"
+    unit = "bar"
+
+    def __init__(
+        self,
+        machine_id: str,
+        rng: RandomSource,
+        *,
+        nominal: float = 70.0,
+        leak_gain: float = 40.0,
+        cutting_draw: float = 2.0,
+        noise_sd: float = 0.8,
+    ):
+        super().__init__(machine_id, rng)
+        self.nominal = nominal
+        self.leak_gain = leak_gain
+        self.cutting_draw = cutting_draw
+        self.noise_sd = noise_sd
+
+    def _measure(self, machine: MachineState) -> float:
+        noise = self._stream.gauss(0.0, self.noise_sd)
+        if machine.status is MachineStatus.DOWN:
+            return max(0.0, noise)
+        leak = 1.0 - machine.condition.hydraulic_health
+        running = machine.status is MachineStatus.RUNNING
+        cutting = self.cutting_draw * machine.load if running else 0.0
+        return max(0.0, self.nominal - self.leak_gain * leak**2 - cutting + noise)
+
+    def available(self, machine: MachineState) -> bool:
+        """Off while the machine is down; otherwise as any instrument (dropouts)."""
+        return machine.status is not MachineStatus.DOWN and super().available(machine)
+
+
 class FactoryThermometer:
     """Measures the air in the factory. Belongs to no machine.
 

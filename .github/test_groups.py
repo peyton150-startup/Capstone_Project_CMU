@@ -27,6 +27,7 @@ GROUPS: dict[str, list[str]] = {
         "failure",
         "false_alarm",
         "generator",
+        "hydraulics",
         "ground_truth",
         "load",
         "load_wear_coupling",

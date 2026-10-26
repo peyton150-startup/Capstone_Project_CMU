@@ -103,6 +103,7 @@ A component is complete only when both columns are checked.
 | F2 | Machine power in kW (`PowerSensor`, standard on every machine, offered to the agent) | yes (after the build: pre-merge walkthrough 2026-10-26) | n/a | yes | yes (walkthrough 2026-10-26: Q1 in part, corrected; Q2 after one hint; Q3 right) | `simulator/sensors.py` (`PowerSensor`), `simulator/line.py`, `providers/factory.py` (`MachineSensor`, tool descriptions), `simulator/disturbances.py`; session note 2026-10-26 (F2) |
 | F3 | Fault-pack registry: the four faults described once (`capstone/faults.py`), no behaviour change | yes (after the build: pre-merge walkthrough 2026-10-26) | n/a | yes | yes (walkthrough 2026-10-26: Q1 in part, corrected; Q2 right after one correction; Q3 after a re-teach) | `faults.py` (`FaultPack`, `AgentSide`, `EvaluatorSide`, `FaultPlace`, `PACKS`, `BY_KIND`, `agent_side`, `Relevant` moved here), `simulator/generator.py`, `tools/diagnosis.py`, `tools/actions.py`, `evaluation/scoring.py`, `baseline.py`; session note 2026-10-26 (F3) |
 | F4 | Servo-drive fault pack: worn axis drive, following-error sensor and alarm, drive replacement; only when forced | yes (after the build: pre-merge walkthrough 2026-10-26) | n/a | yes | yes (walkthrough 2026-10-26: Q1 in part, completed; Q2 right; Q3 right, with additions) | `simulator/state.py` (`axis_health`, `axis_replaced_tick`), `simulator/scenarios.py` (`AxisDriveWear`, `DEFECT_FROM_AXIS`), `simulator/sensors.py` (`FollowingErrorSensor`), `simulator/line.py`, `simulator/simulator.py` (`start_servo_drive_replacement`), `tools/actions.py`, `providers/factory.py`, `faults.py` (servo pack, `in_default_draw`, `DEFAULT_DRAW`), `simulator/generator.py`; session note 2026-10-26 (F4) |
+| F5 | Hydraulic-leak fault pack: hydraulics on some machines (observable), pressure sensor and low-pressure alarm, seal repair; only when forced | no (built first at the developer's request, 2026-10-26; to be taught before merging) | n/a | yes | no | `simulator/line.py` (`HYDRAULIC_POSITIONS`), `simulator/state.py` (`has_hydraulics`, `hydraulic_health`, `hydraulics_repaired_tick`), `simulator/scenarios.py` (`HydraulicLeak`, `DEFECT_FROM_HYDRAULICS`), `simulator/sensors.py` (`HydraulicPressureSensor`), `simulator/events.py` (`ThresholdAlarm(below=)`), `simulator/simulator.py` (`start_hydraulic_repair`), `tools/observation.py`, `tools/actions.py`, `contracts/observations.py`, `providers/factory.py`, `faults.py`; session note 2026-10-26 (F5) |
 
 Every row above with four "yes" marks (or "n/a") is complete: no question is
 outstanding on it. Still to build after 12c, from `docs/MVP_SCOPE.md`: the
@@ -241,6 +242,41 @@ alarm), then evaluation, then the agent itself.
      evidence was gathered, the conclusion was wrong or escalated) is what a
      critic or independent analyst could fix; an evidence miss points at a
      research role instead. That choice picks the first multi-agent role.
+
+- **2026-10-26: F5: the hydraulic-leak fault pack (Future Work 8 D, second
+  part). Built first at the developer's request; understood: no, to be taught
+  in the pre-merge walkthrough.** Which machines have hydraulics is fixed by
+  position (`line.HYDRAULIC_POSITIONS`: CNC-02, CNC-05, CNC-07; no random
+  draw) and observable (`has_hydraulics`; `hydraulics` in `list_machines` and
+  `MachineObservation`). `HydraulicLeak` lowers hidden `hydraulic_health`
+  while the pump runs (running or idle) and refuses a machine without
+  hydraulics; `HydraulicPressureSensor` (bar) only on equipped machines;
+  `ThresholdAlarm` gains `below=` for the low-pressure alarm at 55 bar;
+  `defect_mark` adds `DEFECT_FROM_HYDRAULICS` 0.30 x leak squared;
+  `start_hydraulic_repair` (40 ticks, refused without hydraulics, as is
+  proposing it); pressure on a machine without hydraulics is refused by
+  `get_readings`. Pack `hydraulic_leak` / `repair_hydraulics`, difficulty
+  hard (proposed), not in the default draw; a forced leak keeps the seed's
+  machine if equipped, else draws an equipped one, with the seed's start.
+  Found and fixed while checking: the first version raised 518 low-pressure
+  alarms in 40 runs without a leak, every time a machine went down (pump off,
+  pressure 0); the monitor would have opened investigations on them. Now the
+  transducer sends nothing while the machine is down (`available`). The
+  700-tick fingerprints had missed it (no downtime in that window), so a
+  second proof was added: full event logs over 2,500 ticks for every old
+  fault on seeds 1-10 (including breakdowns), identical before and after, as
+  are the 602 fingerprints (new sensors aside). The provider's typed check
+  refused `list_machines` until `MachineObservation` gained `hydraulics`.
+  Forced seeds 1-20: alarm 717-1,358 ticks after the start, no other alarm
+  on the leaking machine. Tests: new `tests/test_hydraulics.py` (16, CI group
+  Simulator); updated `test_build_line.py`, `test_factory_provider.py`,
+  `test_fault_packs.py`, and the seven tests that pin exactly what
+  `list_machines` shows (`test_job_history.py`, `test_load.py`,
+  `test_observation_tools.py` twice, `test_production_line.py`,
+  `test_quality.py`, `test_slow_when_worn.py`) for the new observable
+  `hydraulics` field; the hidden-word check (no "health", "fault",
+  "condition" text in any tool answer) passes unchanged. Not done: pump wear, oil temperature, fluid level, a
+  sticking valve, pump power, a baseline rule, a known-answer case.
 
 - **2026-10-26: PR #82 pre-merge walkthrough (F4).** Before Q1 the
   developer asked whether a worn drive would also raise power: yes in a real
