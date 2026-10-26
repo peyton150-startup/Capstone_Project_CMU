@@ -16,6 +16,7 @@ from capstone.simulator.scenarios import AmbientTemperature, LoadingDoor, Produc
 from capstone.simulator.sensors import (
     FactoryThermometer,
     LoadSensor,
+    PowerSensor,
     TemperatureSensor,
     VibrationSensor,
 )
@@ -79,7 +80,7 @@ def build_line(
         sim.add_machine(
             MachineState(id=name, ticks_per_job=per_job, standard_speed=speed)
         )
-        for sensor in (VibrationSensor, TemperatureSensor, LoadSensor):
+        for sensor in (VibrationSensor, TemperatureSensor, LoadSensor, PowerSensor):
             sim.add_sensor(sensor(name, sim.rng))
     sim.add_factory_sensor(FactoryThermometer(sim.rng))
     # Past service records. Their own stream, drawn before any fault exists.

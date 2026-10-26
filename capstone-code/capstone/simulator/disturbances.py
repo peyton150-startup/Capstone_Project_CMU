@@ -25,8 +25,8 @@ class _SensorDisturbance(Scenario):
     ):
         if not name.strip() or not machine_id.strip():
             raise ValueError("name and machine_id must be nonempty")
-        if sensor not in ("vibration", "temperature", "load"):
-            raise ValueError("sensor must be vibration, temperature or load")
+        if sensor not in ("vibration", "temperature", "load", "power"):
+            raise ValueError("sensor must be vibration, temperature, load or power")
         if type(start_tick) is not int or start_tick < 0:
             raise ValueError("start_tick must be a nonnegative integer")
         if type(duration) is not int or duration < 1:

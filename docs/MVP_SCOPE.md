@@ -1891,8 +1891,8 @@ list of possible causes.
 
 #### High-priority simulator fidelity: faster bearing vibration ramp and machine power (planned 2026-10-23)
 
-**Status (2026-10-26): A is built as an opt-in profile (below); B is not
-implemented.**
+**Status (2026-10-26): A is built as an opt-in profile; B is built as a
+standard sensor on every machine (both below).**
 These two simulator improvements come from the developer's discussion with
 manufacturing engineer Brandon Reff. Prioritize them above optional vision,
 voice, and broad new simulator subsystems, while preserving the small working
@@ -1942,6 +1942,22 @@ The planning notes that follow are kept as written.
   investigation accuracy, false alarms, and time-to-detection with baseline.
 
 **B. Add machine electrical power consumption in kilowatts (HIGH priority).**
+
+**Built 2026-10-26: `PowerSensor` (`simulator/sensors.py`), sensor `power`,
+unit kW, on every machine of the standard line and offered to the agent
+through `get_readings`, `get_sensor_trend` and `get_sensor_summary`.** A
+whole-machine meter with three hidden causes: down (stopped or locked out)
+about 0 kW; idle 2 kW (controls, coolant pump, idling drive); running 2 kW
+plus spindle power 15 kW x load x speed ratio, plus 1.5 kW x wear squared of
+bearing friction; noise 0.2 kW. These are working assumptions for a mid-size
+CNC mill, not measured values, and need Brandon's review. Power reads the same
+hidden load and wear as the load sensor, so the two are correlated evidence;
+what power adds is speed (a wrong setting changes power at the same load). It
+has its own random stream, so every other reading, alarm and seed is
+unchanged. Not done: kWh (energy is kW summed over simulated time; no tool
+reports it), current draw in amps (C), no hydraulic or servo contributors
+(no machine has them yet), and power is not in `RELEVANT_EVIDENCE` for
+scoring. The planning notes that follow are kept as written.
 
 - Add a machine-level observed **power_kW** sensor measuring *instantaneous*
   electrical demand. Model separately the hidden physical causes of power:
@@ -2037,29 +2053,30 @@ existing and a fresh known-answer run, put the rule baseline beside it, and
 read the miss labels. It is not a build, but it gives the numbers every item
 below is judged against, and it produces the hand labels item 7 needs.
 
-**Open, in ranked order** (4 then 5 is the developer's order; where items
-7, 9 and 11-14 sit is the coding agent's proposal, for the developer to
+**Open, in ranked order** (5 first is the developer's order; where items
+7, 9 and 11-15 sit is the coding agent's proposal, for the developer to
 confirm):
 
 | Rank | # | Candidate | Why it matters | Depends on | Size |
 |---|---|---|---|---|---|
-| 1 | 4 | **HIGH: Add whole-machine electrical power in kW.** | A new operating-mode-aware power signal adds realistic evidence and operating-cost context; integrate kWh only over time and avoid treating current/load as independent when derived from the same model. | Power baseline assumptions by CNC operating mode; typed sensor/provider wiring | Medium |
-| 2 | 5 | **MEDIUM-HIGH: Servo/axis and optional hydraulic failures, as fault-pack registry entries tagged by difficulty** (decided 2026-10-26). | Brandon suggested more parts that can fail, so not every fault is a spindle bearing; gives independent and overlapping diagnosis candidates. The easy/medium/hard switch waits for the scored single-agent run. | Item 4; machine configurations, failure models, sensors, repairs, evaluator updates | Medium to large |
-| 3 | 7 | **Evaluator model for diagnosis labels: finish the check.** Built 2026-10-23 (T1: TypeSafe's Jev proposes labels, `python -m capstone.evaluation.auto_label`); what is left is measuring its agreement with hand labels before any experiment trusts it. | Experiments could then score root cause without labelling every run by hand (decided 2026-10-12). | Hand labels from the scored single-agent run | Small |
-| 4 | 12 | **A live memory comparison run.** Fill the store on tuning seeds (`experiment run --memory --audit ...`), backfill the index (`python -m capstone.memory.backfill`), then `python -m capstone.memory_comparison run --known`, label and report. The command is built and was made fair on 2026-10-26 (C3a, C3c), but has never run against a real model. | The only way to learn whether memory improves investigations, which is the point of item 8. | The scored single-agent run (models answering); one live run at a time | No code; long runs |
-| 5 | 13 | **Memory comparison follow-ups** (C3c notes): a `--cases` option on `run` to rerun chosen cases in every mode (the developer's idea, for cases lost to outages); repeats with a per-case win/loss count between modes; and a header recording the store's size, embedding model and policy version. | With one run per case and outages removing cases, the totals are noisy and not always like for like; a results file should say what store it ran against. | Item 12's first results show how much it matters | Small to medium |
-| 6 | 11 | **Three-day bearing profile in experiments** (F1 follow-ups): let experiments and the comparison choose `bearing_profile`, and lengthen the monitor's 4,000-tick wait, which ends before a typical three-day alarm. | F1 (#77) built the profile as opt-in, but no experiment can use it yet. | Brandon's review of the curve | Small |
-| 7 | 14 | **Make keyword and semantic recall comparable** (C3c notes 6-7): both searches should read the same fields of a memory (keyword reads category, symptoms, action, machine and lesson; semantic embeds category, symptoms, diagnosis and lesson, and `semantic.memory_document`'s docstring says otherwise), and semantic search needs a relevance cutoff instead of always returning k memories. | Until then a keyword/semantic difference is not purely words vs meaning, and semantic mode puts unrelated memories in front of the agent. | Changes what the agent sees: teach first. Item 12 shows whether it matters | Medium |
-| 8 | 9 | **A live progress view:** a hook in the loop that announces each step as it happens, and a terminal viewer with approval at the prompt; only what the agent sees, the score only after the run. | A run can take minutes; a viewer also makes the demo. First screen of the later frontend (Future Work 8, modes). | Nothing | Medium |
+| 1 | 5 | **MEDIUM-HIGH: Servo/axis and optional hydraulic failures, as fault-pack registry entries tagged by difficulty** (decided 2026-10-26). | Brandon suggested more parts that can fail, so not every fault is a spindle bearing; gives independent and overlapping diagnosis candidates. The easy/medium/hard switch waits for the scored single-agent run. | Machine configurations, failure models, sensors, repairs, evaluator updates | Medium to large |
+| 2 | 7 | **Evaluator model for diagnosis labels: finish the check.** Built 2026-10-23 (T1: TypeSafe's Jev proposes labels, `python -m capstone.evaluation.auto_label`); what is left is measuring its agreement with hand labels before any experiment trusts it. | Experiments could then score root cause without labelling every run by hand (decided 2026-10-12). | Hand labels from the scored single-agent run | Small |
+| 3 | 12 | **A live memory comparison run.** Fill the store on tuning seeds (`experiment run --memory --audit ...`), backfill the index (`python -m capstone.memory.backfill`), then `python -m capstone.memory_comparison run --known`, label and report. The command is built and was made fair on 2026-10-26 (C3a, C3c), but has never run against a real model. | The only way to learn whether memory improves investigations, which is the point of item 8. | The scored single-agent run (models answering); one live run at a time | No code; long runs |
+| 4 | 13 | **Memory comparison follow-ups** (C3c notes): a `--cases` option on `run` to rerun chosen cases in every mode (the developer's idea, for cases lost to outages); repeats with a per-case win/loss count between modes; and a header recording the store's size, embedding model and policy version. | With one run per case and outages removing cases, the totals are noisy and not always like for like; a results file should say what store it ran against. | Item 12's first results show how much it matters | Small to medium |
+| 5 | 11 | **Three-day bearing profile in experiments** (F1 follow-ups): let experiments and the comparison choose `bearing_profile`, and lengthen the monitor's 4,000-tick wait, which ends before a typical three-day alarm. | F1 (#77) built the profile as opt-in, but no experiment can use it yet. | Brandon's review of the curve | Small |
+| 6 | 14 | **Make keyword and semantic recall comparable** (C3c notes 6-7): both searches should read the same fields of a memory (keyword reads category, symptoms, action, machine and lesson; semantic embeds category, symptoms, diagnosis and lesson, and `semantic.memory_document`'s docstring says otherwise), and semantic search needs a relevance cutoff instead of always returning k memories. | Until then a keyword/semantic difference is not purely words vs meaning, and semantic mode puts unrelated memories in front of the agent. | Changes what the agent sees: teach first. Item 12 shows whether it matters | Medium |
+| 7 | 9 | **A live progress view:** a hook in the loop that announces each step as it happens, and a terminal viewer with approval at the prompt; only what the agent sees, the score only after the run. | A run can take minutes; a viewer also makes the demo. First screen of the later frontend (Future Work 8, modes). | Nothing | Medium |
+| 8 | 15 | **Power follow-ups** (F2 notes): Brandon's review of the assumed numbers (idle 2 kW, spindle 15 kW x load x speed, friction 1.5 kW x wear squared); kWh as energy summed over simulated time if a question needs it; current draw in amps only with stated electrical assumptions; whether power belongs in `RELEVANT_EVIDENCE` for the wrong-setting fault. | Power is on every machine since F2 (#78) but its numbers are assumed, and scoring does not credit it as evidence. | Brandon; the scored run shows whether the agent uses power | Small |
 
 **Done:** 1 (live runs finish, L1); 2 (benchmark and limits, L2); 3
-(three-day bearing profile, opt-in, F1 / #77; follow-ups are item 11); 6
+(three-day bearing profile, opt-in, F1 / #77; follow-ups are item 11); 4
+(machine power in kW, standard on every machine, F2 / #78; follow-ups are
+item 15); 6
 (compound challenge in experiments, E6); 8 (memory comparison command, C3a,
 made fair in C3c / #74; its live run is item 12); 10 (small cleanups).
 
-Can run in parallel: 4 and 9 (different files); 7, 12 and 13 once the
-scored run has labels (but live runs one at a time). Item 5 follows 4, and
-the two simulator items stay separate PRs. Item 14 waits for item 12's
+Can run in parallel: 5 and 9 (different files); 7, 12 and 13 once the
+scored run has labels (but live runs one at a time). Item 14 waits for item 12's
 numbers. Difficulty modes (Future Work 8, second part) wait for the scored
 single-agent run compared with the rule baseline.
 

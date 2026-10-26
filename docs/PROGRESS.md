@@ -99,6 +99,7 @@ A component is complete only when both columns are checked.
 | D1 | Near-duplicate threshold measurement tool (provisional 0.909) | yes (walkthrough, 2026-10-22) | n/a | yes | yes (after corrections) | `capstone/memory/duplicate_threshold.py`; session notes 2026-10-22 |
 | T1 | TypeSafe Jev client and the auto-labeller (proposed diagnosis labels, compared with hand labels) | yes (pre-merge walkthrough, 2026-10-23) | n/a | yes | yes (after corrections: Q1 cost of speculative questions, Q2 why truth would bias labels) | `providers/typesafe.py` (`Noul`, `Choice`, `JudgmentClient`, `read_judgments`, `judgment_client`), `evaluation/auto_label.py` (`propose`, `Proposal`, `agreement`, `conclusions`, `main`), `settings.py` (`TYPESAFE_API_KEY`, `TYPESAFE_MODEL`), `.env.example`, AGENTS.md section 9, `docs/benchmarks/2026-10-23-jev-auto-labels.md`; session note 2026-10-23 (T1) |
 | F1 | Bearing progression: opt-in three-day profile (quiet stretch, onset, steeper ramp) | yes (after the build: pre-merge walkthrough 2026-10-26) | n/a | yes | yes (walkthrough 2026-10-26: Q1 in part, corrected; Q2 mostly, corrected; Q3 after one re-teach) | `simulator/scenarios.py` (`BearingDegradation` `onset_health`, `quiet_factor`), `simulator/generator.py` (`BEARING_PROFILES`, `THREE_DAY_*`, `build_scenario(bearing_profile=)`), `docs/benchmarks/2026-10-26-bearing-three-day.md`; session note 2026-10-26 (F1) |
+| F2 | Machine power in kW (`PowerSensor`, standard on every machine, offered to the agent) | yes (after the build: pre-merge walkthrough 2026-10-26) | n/a | yes | yes (walkthrough 2026-10-26: Q1 in part, corrected; Q2 after one hint; Q3 right) | `simulator/sensors.py` (`PowerSensor`), `simulator/line.py`, `providers/factory.py` (`MachineSensor`, tool descriptions), `simulator/disturbances.py`; session note 2026-10-26 (F2) |
 
 Every row above with four "yes" marks (or "n/a") is complete: no question is
 outstanding on it. Still to build after 12c, from `docs/MVP_SCOPE.md`: the
@@ -182,6 +183,58 @@ alarm), then evaluation, then the agent itself.
      evidence was gathered, the conclusion was wrong or escalated) is what a
      critic or independent analyst could fix; an evidence miss points at a
      research role instead. That choice picks the first multi-agent role.
+
+- **2026-10-26: PR #78 pre-merge walkthrough (F2).** Three questions.
+  Q1 (an agent says load and power are two independent confirmations of
+  bearing wear): first said power can be used to add noise (true only as a
+  side point: a heavier job raises power more than wear does); taught: both
+  meters read the same hidden load and the same friction term, so they are one
+  fact seen twice and share the job-size confounder; independent evidence comes
+  by another path (vibration, temperature, slower jobs, inspections, the
+  technician's finding). On a smaller case the developer proposed watching
+  power against load to spot wear; corrected with numbers: friction is in both
+  readings, so power per load reading stays at 0.190 with a 50%-worn bearing,
+  while a wrong setting does move it (speed is in power, not in the load
+  reading). Correction of the coding agent's own earlier figure: 18.1 to 19.5
+  kW per unit of load was against the hidden true load, which the agent cannot
+  see. The developer added that power makes a wrong setting easier to catch
+  (agreed; to watch in the scored runs). Q2 (a power meter reading 3 kW high
+  versus a machine really drawing more): after one hint, right: the faulty
+  meter reads about 3 kW when down and 5 kW when idle; a real extra draw exists
+  only while cutting. Q3 (why the power sensor must not heat the machine):
+  right: a sensor reads, never writes; added what would break (installing a
+  meter would change temperatures and every saved seed, a meter dropout would
+  cool the machine, sensor order would matter) and that heat belongs in
+  `thermal.py`. Understood (Q1 in part, corrected; Q2 after one hint).
+
+- **2026-10-26: F2: machine power in kW (Brandon's feedback, Future Work 8
+  B). Built first at the developer's request; understood: no, to be taught
+  in the pre-merge walkthrough.** `simulator/sensors.py` `PowerSensor`
+  (sensor `power`, unit kW): down about 0; idle `idle_kw` 2.0; running idle
+  plus `spindle_kw` 15.0 x load x speed ratio plus `friction_kw` 1.5 x wear
+  squared; noise 0.2 kW; never below 0. Working assumptions for a mid-size
+  CNC mill, not measured; Brandon to review. Decisions: standard on every
+  machine of the line (unlike the bearing profile, it adds an observation
+  without changing how any fault develops; its own stream
+  `sensor.<machine>.power` leaves every other reading, alarm and seed
+  unchanged) and offered to the agent (`MachineSensor` gains "power"; the
+  `get_readings` and `get_sensor_trend` descriptions name it with its unit).
+  Power and the load sensor read the same hidden load and wear, so they are
+  correlated, not independent; power's own information is the speed. Checked
+  on seed 3: idle 2.0 kW, running about 9.5-11 kW; kW per unit of load rose
+  from 18.1 to 19.5 with a worn bearing and fell from 18.1 to 16.1 with a slow
+  wrong setting. For the scored run: the agent's tool list now includes
+  power, so a fresh run is not the same environment as `results-5.jsonl`
+  (which also predates many other changes); compare single- and multi-agent
+  runs made on the same `main`. Tests: new `tests/test_power_sensor.py` (12:
+  down, idle, running, speed, friction; a heavier job outweighs a badly worn
+  bearing; reading changes nothing; kW and never negative; adding the meter
+  changes no other reading; every machine of the line has one; same seed same
+  readings; the agent can ask for it and an unknown sensor is still refused),
+  CI group Simulator. Updated for the fourth sensor: `test_build_line.py`
+  (readings per tick), `test_factory_provider.py` (the refusal message and the
+  offered sensor list). Not done: kWh, current draw in amps, servo and
+  hydraulic contributors, power in `RELEVANT_EVIDENCE`.
 
 - **2026-10-26 (C3c): the memory comparison made fair. Built ungated at the
   developer's request; understood after the PR #74 walkthrough (below).** A read of all
