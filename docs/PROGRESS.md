@@ -105,6 +105,17 @@ alarm), then evaluation, then the agent itself.
 
 ## Session notes
 
+- **2026-10-26: docs: which tests to run before pushing (developer's
+  rule).** AGENTS.md section 11 step 3 no longer asks for the full
+  `uv run pytest` before every push: docs/CI/config changes skip local
+  tests; code changes run the touched modules' tests, ruff and the CI group
+  check, then CI runs everything; the full suite still runs locally for
+  shared modules (loop, scoring, contracts, simulator core), when CI is down
+  or slow, or before a live model run. Merging still needs green CI. Reason:
+  CI already runs every group and a full coverage run on each PR; the local
+  full suite took 19 minutes on 2026-10-26. Documentation only; no
+  understanding status changed.
+
 - **2026-10-26: stale-branch cleanup and Gemma 4 E4B Cloud Run feasibility
   (documentation only; deployment blocked on project access).** Deleted
   12 remote branches only after verifying their tips were ancestors of
