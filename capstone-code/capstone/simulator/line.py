@@ -15,6 +15,7 @@ from capstone.simulator.maintenance import past_maintenance
 from capstone.simulator.scenarios import AmbientTemperature, LoadingDoor, ProductionLine
 from capstone.simulator.sensors import (
     FactoryThermometer,
+    FollowingErrorSensor,
     LoadSensor,
     PowerSensor,
     TemperatureSensor,
@@ -49,6 +50,7 @@ def build_line(
     ticks_per_job: tuple[int, ...] | None = None,
     thermal_lag_ticks: float = 20.0,
     vibration_alarm: float = 4.5,
+    following_error_alarm: float = 20.0,
     time_variation: int = 2,
     jobs_per_batch: int = 25,
 ) -> Simulator:
@@ -80,7 +82,13 @@ def build_line(
         sim.add_machine(
             MachineState(id=name, ticks_per_job=per_job, standard_speed=speed)
         )
-        for sensor in (VibrationSensor, TemperatureSensor, LoadSensor, PowerSensor):
+        for sensor in (
+            VibrationSensor,
+            TemperatureSensor,
+            LoadSensor,
+            PowerSensor,
+            FollowingErrorSensor,
+        ):
             sim.add_sensor(sensor(name, sim.rng))
     sim.add_factory_sensor(FactoryThermometer(sim.rng))
     # Past service records. Their own stream, drawn before any fault exists.
@@ -88,6 +96,8 @@ def build_line(
         list(names), start, sim.rng.stream("maintenance.history")
     )
     sim.add_alarm(ThresholdAlarm("vibration", vibration_alarm))
+    # The servo controller's own "excess following error" alarm.
+    sim.add_alarm(ThresholdAlarm("following_error", following_error_alarm))
 
     # After the machines exist, and before any fault the caller adds.
     sim.add_scenario(

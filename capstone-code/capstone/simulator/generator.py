@@ -10,6 +10,7 @@ is kept where it always is, in the scenario's ground truth.
 from capstone.faults import (
     BEARING_PROFILES,
     BY_KIND,
+    DEFAULT_DRAW,
     FAULT_KINDS,
     THREE_DAY_ONSET_HEALTH,
     THREE_DAY_QUIET_FACTOR,
@@ -19,8 +20,10 @@ from capstone.faults import (
 from capstone.simulator.line import build_line
 from capstone.simulator.simulator import Simulator
 
-# The faults a seed can have, from the fault packs (`capstone/faults.py`).
-FAULTS = FAULT_KINDS
+# The faults a seed draws from by itself, and the set "--faults all" means:
+# the original four, from the fault packs (`capstone/faults.py`). Any pack,
+# including later ones such as the servo drive, can be forced by name.
+FAULTS = DEFAULT_DRAW
 
 # Faults start inside this window, so the agent has a normal stretch to compare against.
 EARLIEST_START, LATEST_START = 200, 600
@@ -52,14 +55,15 @@ def build_scenario(
 ) -> Simulator:
     """A standard line with one seeded fault added after it. Not yet run: the clock is at 0.
 
-    `fault` forces which of the four faults appears (for tests and
+    `fault` forces which fault appears, any pack's, including ones never
+    drawn by default such as the servo drive (for tests and
     balanced experiments); everything else still comes from the seed.
     `bearing_profile` picks how fast a bearing fault progresses
     (`BEARING_PROFILES`); it changes nothing for the other faults and draws
     nothing extra, so no stream moves.
     """
-    if fault is not None and fault not in FAULTS:
-        raise ValueError(f"unknown fault {fault}; choose from {', '.join(FAULTS)}")
+    if fault is not None and fault not in FAULT_KINDS:
+        raise ValueError(f"unknown fault {fault}; choose from {', '.join(FAULT_KINDS)}")
     if bearing_profile not in BEARING_PROFILES:
         raise ValueError(
             f"unknown bearing profile {bearing_profile}; "

@@ -39,6 +39,7 @@ GROUPS: dict[str, list[str]] = {
         "rng",
         "scenarios",
         "sensors",
+        "servo_drive",
         "setting_reset",
         "simulator",
         "simulator_challenge",

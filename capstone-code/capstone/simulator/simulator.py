@@ -46,6 +46,7 @@ class Simulator:
         planned_repair_ticks: int = 45,
         breakdown_repair_ticks: int = 135,
         setting_reset_ticks: int = 10,
+        drive_replacement_ticks: int = 60,
     ):
         if thermal_lag_ticks < 1.0:
             raise ValueError("thermal_lag_ticks must be at least 1 (1 means no lag)")
@@ -54,6 +55,7 @@ class Simulator:
         self.planned_repair_ticks = planned_repair_ticks
         self.breakdown_repair_ticks = breakdown_repair_ticks
         self.setting_reset_ticks = setting_reset_ticks
+        self.drive_replacement_ticks = drive_replacement_ticks
         self.clock = SimulationClock(start, tick_duration)
         self.rng = RandomSource(seed)
         self.state = FactoryState()
@@ -128,6 +130,17 @@ class Simulator:
             )
         return self._start_maintenance(
             machine, "setting reset", self.setting_reset_ticks
+        )
+
+    def start_servo_drive_replacement(self, machine_id: str) -> int:
+        """Take a machine out of service to fit a new axis servo drive. Returns the finish tick.
+
+        Works on a running or a broken-down machine alike, and takes the same
+        time either way: the drive is swapped as a unit.
+        """
+        machine = self._machine_for_maintenance(machine_id)
+        return self._start_maintenance(
+            machine, "servo drive replacement", self.drive_replacement_ticks
         )
 
     def _machine_for_maintenance(self, machine_id: str) -> MachineState:
@@ -290,6 +303,10 @@ class Simulator:
             if kind == "setting reset":
                 finding = self._describe_old_setting(machine)
                 machine.speed_setting = None
+            elif kind == "servo drive replacement":
+                finding = f"old drive {self._describe_old_drive(machine.condition.axis_health)}"
+                machine.condition.axis_health = 1.0
+                machine.axis_replaced_tick = tick
             else:
                 finding = f"old bearing {self._describe_old_bearing(machine.condition.bearing_health)}"
                 machine.condition.bearing_health = 1.0
@@ -314,6 +331,15 @@ class Simulator:
         if machine.speed_setting is None or abs(machine.speed_ratio - 1.0) < 1e-9:
             return "setting was already standard"
         return "setting was off standard"
+
+    @staticmethod
+    def _describe_old_drive(health: float) -> str:
+        """What the technician finds on the bench test of the old drive. In words only."""
+        if health < 0.4:
+            return "badly worn"
+        if health < 0.9:
+            return "worn"
+        return "in good condition"
 
     def _describe_old_bearing(self, health: float) -> str:
         """What the technician can see once the old bearing is out of the machine.

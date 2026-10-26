@@ -123,6 +123,65 @@ class BearingDegradation(Scenario):
         )
 
 
+class AxisDriveWear(Scenario):
+    """Wears one machine's axis servo drive from `start_tick` on, while it runs.
+
+    Changes `axis_health` and nothing else; a harder job works the drive
+    harder (`load / normal load`, to `load_exponent`). The symptoms come from
+    elsewhere: the following-error sensor and the controller's alarm read
+    `axis_health`, and a lagging axis cuts parts off size (`defect_mark`).
+    Unlike a worn bearing it adds no vibration or heat and does not slow
+    the machine, so the two can be told apart.
+    """
+
+    def __init__(
+        self,
+        name: str,
+        rng: RandomSource,
+        *,
+        machine_id: str,
+        start_tick: int,
+        rate: float,
+        variation: float = 0.5,
+        load_exponent: float = 1.0,
+    ):
+        if rate <= 0:
+            raise ValueError("rate must be positive")
+        if not 0.0 <= variation < 1.0:
+            raise ValueError("variation must be in [0, 1)")
+        super().__init__(name, rng)
+        self.machine_id = machine_id
+        self.start_tick = start_tick
+        self.rate = rate
+        self.variation = variation
+        self.load_exponent = load_exponent
+
+    def apply(self, state: FactoryState, tick: int) -> None:
+        if tick < self.start_tick:
+            return
+        # Drawn before the status check, as for the bearing: the stream's
+        # position depends only on ticks since the start.
+        loss = self.rate * self._stream.uniform(
+            1.0 - self.variation, 1.0 + self.variation
+        )
+        machine = state.machines[self.machine_id]
+        replaced = machine.axis_replaced_tick
+        if replaced is not None and replaced >= self.start_tick:
+            return  # the drive this fault was wearing has been replaced
+        if machine.status is not MachineStatus.RUNNING:
+            return
+        loss *= (machine.load / NORMAL_LOAD) ** self.load_exponent
+        machine.condition.axis_health = max(0.0, machine.condition.axis_health - loss)
+
+    def ground_truth(self) -> GroundTruth:
+        return GroundTruth(
+            scenario=self.name,
+            fault="servo_drive_wear",
+            machine_id=self.machine_id,
+            start_tick=self.start_tick,
+        )
+
+
 class WrongSetting(Scenario):
     """Someone sets one machine to the wrong speed at `start_tick`.
 
@@ -256,6 +315,9 @@ class FalseAlarm(Scenario):
 
 DEFECT_BASELINE = 0.01  # one job in a hundred fails inspection on a perfect line
 DEFECT_FROM_WEAR = 0.45  # extra chance a completely worn machine would add
+# Extra chance a worn-out axis drive would add: the axis lags its path, so
+# dimensions drift. Zero for a healthy drive.
+DEFECT_FROM_AXIS = 0.35
 DEFECT_FROM_SETTING = (
     8.0  # times the squared distance from standard speed: 15% off adds 0.18
 )
@@ -276,9 +338,11 @@ def working_speed(machine) -> float:
 def defect_mark(machine) -> float:
     """What this machine adds to a job's defect risk as it finishes its part."""
     wear = 1.0 - machine.condition.bearing_health
+    axis_wear = 1.0 - machine.condition.axis_health
     return (
         DEFECT_FROM_WEAR * wear**2
         + DEFECT_FROM_SETTING * (machine.speed_ratio - 1.0) ** 2
+        + DEFECT_FROM_AXIS * axis_wear**2
     )
 
 

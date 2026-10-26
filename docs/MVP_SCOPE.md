@@ -1837,8 +1837,8 @@ small filter over the registry when they are built.
 
 #### Fault packs: one registry entry per sensor and its fault (planned 2026-10-22)
 
-**Status (2026-10-26): steps 1-2 done (F3); step 3 (the first new pack:
-servo/axis, then optional hydraulics) is next.** The registry is
+**Status (2026-10-26): steps 1-2 done (F3); step 3 started: the servo-drive
+pack is built (F4, below in D); optional hydraulics is next.** The registry is
 `capstone/faults.py`: one `FaultPack` per fault with an `agent` side (the
 diagnosis name and the repair it adds to the desk), an `evaluator` side
 (correct action, cause or distractor, relevant evidence) and a `build`
@@ -2036,6 +2036,25 @@ scoring. The planning notes that follow are kept as written.
 
 **D. Expand the number of failure-capable machine components.**
 
+**Servo/axis built 2026-10-26 (F4) as the fault pack `servo_drive_wear`;
+hydraulics not started.** Hidden `axis_health` on every machine wears from
+the fault's start while the machine runs (`AxisDriveWear`, faster under
+load). Evidence: a `following_error` sensor on every machine (µm: about 4
+running, 1 holding, plus 40 x axis wear squared, a little more for a heavy
+cut or a faster setting) with the servo controller's alarm at 20 µm, and
+dimensional rejects (`DEFECT_FROM_AXIS` 0.35 x wear squared), and a little
+more power while cutting (`PowerSensor` `drive_kw` 1.0 x axis wear squared:
+a worn drive draws more current; added at the developer's request). No
+vibration, heat or slowdown, so it can be told apart from a bearing. Repair
+`replace_servo_drive` (60 ticks; the technician bench-tests the old drive).
+Only forced: seeds draw from the original four (`DEFAULT_DRAW`), so every
+existing factory is unchanged (602 fingerprints identical, the new sensor's
+readings aside). Measured on seeds 1-20 (forced): the alarm comes 730-1,680
+ticks after the start; no vibration alarm on the servo machine; no
+following-error alarm in 40 runs of the other faults. Not done: encoder or
+position-feedback faults, drive overheating, current in amps, a breakdown when the drive is worn out, a rule in the baseline, a
+known-answer case. Numbers are assumptions for Brandon to review.
+
 - Brandon specifically called out **servo motors** and **hydraulics** as
   parts worth investigating so that not all failures are spindle-bearing
   problems. Model independent hidden component condition, failure progression,
@@ -2090,7 +2109,7 @@ confirm):
 
 | Rank | # | Candidate | Why it matters | Depends on | Size |
 |---|---|---|---|---|---|
-| 1 | 5 | **MEDIUM-HIGH: Servo/axis and optional hydraulic failures, as fault-pack registry entries tagged by difficulty** (decided 2026-10-26). The registry itself is built (F3, 2026-10-26); the servo pack is next, then hydraulics. | Brandon suggested more parts that can fail, so not every fault is a spindle bearing; gives independent and overlapping diagnosis candidates. The easy/medium/hard switch waits for the scored single-agent run. | Machine configurations, failure models, sensors, repairs, evaluator updates | Medium to large |
+| 1 | 5 | **MEDIUM-HIGH: Servo/axis and optional hydraulic failures, as fault-pack registry entries tagged by difficulty** (decided 2026-10-26). The registry is built (F3) and the servo pack (F4), both 2026-10-26; hydraulics is next. | Brandon suggested more parts that can fail, so not every fault is a spindle bearing; gives independent and overlapping diagnosis candidates. The easy/medium/hard switch waits for the scored single-agent run. | Machine configurations, failure models, sensors, repairs, evaluator updates | Medium to large |
 | 2 | 7 | **Evaluator model for diagnosis labels: finish the check.** Built 2026-10-23 (T1: TypeSafe's Jev proposes labels, `python -m capstone.evaluation.auto_label`); what is left is measuring its agreement with hand labels before any experiment trusts it. | Experiments could then score root cause without labelling every run by hand (decided 2026-10-12). | Hand labels from the scored single-agent run | Small |
 | 3 | 12 | **A live memory comparison run.** Fill the store on tuning seeds (`experiment run --memory --audit ...`), backfill the index (`python -m capstone.memory.backfill`), then `python -m capstone.memory_comparison run --known`, label and report. The command is built and was made fair on 2026-10-26 (C3a, C3c), but has never run against a real model. | The only way to learn whether memory improves investigations, which is the point of item 8. | The scored single-agent run (models answering); one live run at a time | No code; long runs |
 | 4 | 13 | **Memory comparison follow-ups** (C3c notes): a `--cases` option on `run` to rerun chosen cases in every mode (the developer's idea, for cases lost to outages); repeats with a per-case win/loss count between modes; and a header recording the store's size, embedding model and policy version. | With one run per case and outages removing cases, the totals are noisy and not always like for like; a results file should say what store it ran against. | Item 12's first results show how much it matters | Small to medium |

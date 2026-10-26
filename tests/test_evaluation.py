@@ -23,8 +23,12 @@ def truth(sim):
     return t
 
 
-def test_the_agent_and_the_generator_agree_on_the_four_kinds_of_fault():
-    assert set(FAULT_KINDS) == set(FAULTS)
+def test_the_agent_can_name_every_fault_the_generator_can_build():
+    """Seeds draw from the original four; any kind, servo included, can be forced and named."""
+    assert set(FAULTS) < set(FAULT_KINDS)
+    for kind in FAULT_KINDS:
+        (truth,) = build_scenario(1, fault=kind).ground_truth()
+        assert truth.fault == kind and Diagnosis(fault=kind).fault == kind
     with pytest.raises(ValidationError):
         Diagnosis(fault="gremlins")
 

@@ -24,9 +24,12 @@ decision, 2026-10-26). The tags are the coding agent's proposal, for the
 developer to confirm.
 
 Packs are fixed in code, never added or removed while the program runs, so
-the same seed always builds the same factory. The order of `PACKS` is part
-of the seed contract: `build_scenario` draws a fault from it, so reordering
-it would change which fault every seed gets.
+the same seed always builds the same factory. Only the packs with
+`in_default_draw` (the original four, in order) are drawn from when a seed
+picks its own fault (`DEFAULT_DRAW`); that order is part of the seed contract,
+so reordering them, or drawing from more, would change which fault seeds
+get. Later packs (the servo drive) appear only when forced, so adding one
+leaves every existing seed's factory exactly as it was.
 """
 
 import random
@@ -35,6 +38,7 @@ from dataclasses import dataclass
 from typing import Literal
 
 from capstone.simulator.scenarios import (
+    AxisDriveWear,
     BadMaterialBatch,
     BearingDegradation,
     FalseAlarm,
@@ -124,6 +128,9 @@ class FaultPack:
     evaluator: EvaluatorSide
     difficulty: Difficulty
     build: Builder
+    # Drawn when a seed picks its own fault. Only the original four: a new
+    # pack is forced, never drawn, so existing seeds stay as they were.
+    in_default_draw: bool = True
 
     @property
     def kind(self) -> str:
@@ -174,6 +181,17 @@ def _false_alarm(sim: Simulator, pick: random.Random, place: FaultPlace) -> Scen
         machine_id=place.machine_id,
         start_tick=place.start_tick,
         duration=duration,
+    )
+
+
+def _servo_drive(sim: Simulator, pick: random.Random, place: FaultPlace) -> Scenario:
+    rate = pick.uniform(0.0004, 0.0008)
+    return AxisDriveWear(
+        "fault",
+        sim.rng,
+        machine_id=place.machine_id,
+        start_tick=place.start_tick,
+        rate=rate,
     )
 
 
@@ -234,6 +252,29 @@ PACKS: tuple[FaultPack, ...] = (
         difficulty="easy",  # a short spike that falls away
         build=_false_alarm,
     ),
+    # Brandon Reff's feedback (Future Work 8 D): not every fault is a bearing.
+    FaultPack(
+        agent=AgentSide(kind="servo_drive_wear", action="replace_servo_drive"),
+        evaluator=EvaluatorSide(
+            correct_action="replace_servo_drive",
+            is_cause=True,
+            relevant=(
+                Relevant(
+                    "following error of {machine}",
+                    SENSOR_TOOLS,
+                    "following_error",
+                    True,
+                ),
+                Relevant("events of {machine}", ("get_events",), on_machine=True),
+                Relevant("inspection results", ("get_inspections",)),
+            ),
+        ),
+        # An alarm names the machine, but on a sensor of its own, and the
+        # rejects it causes look like a bad batch or a wrong setting.
+        difficulty="medium",
+        build=_servo_drive,
+        in_default_draw=False,
+    ),
 )
 
 BY_KIND: dict[str, FaultPack] = {pack.kind: pack for pack in PACKS}
@@ -252,6 +293,8 @@ def agent_side() -> tuple[AgentSide, ...]:
 
 # Built from the packs, under the names the rest of the code already uses.
 FAULT_KINDS: tuple[str, ...] = tuple(side.kind for side in agent_side())
+# What a seed draws from when it picks its own fault (order: seed contract).
+DEFAULT_DRAW: tuple[str, ...] = tuple(p.kind for p in PACKS if p.in_default_draw)
 ACTIONS: tuple[str, ...] = tuple(
     side.action for side in agent_side() if side.action is not None
 )
