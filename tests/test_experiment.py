@@ -85,6 +85,27 @@ def test_the_run_command_watches_by_default_and_quiet_turns_it_off(
     assert ran["watch"] is None
 
 
+def test_the_report_shows_an_overruled_intervention_and_why(records):
+    lowered = records[0].model_copy(
+        update={
+            "recommendation": "escalate",
+            "policy_recommendation": "intervene",
+            "recommendation_lowered": "confidence 0.80 below 0.90",
+        }
+    )
+    line = "overruled=intervene->escalate (confidence 0.80 below 0.90)"
+    assert line in report([lowered], {})
+    plain = [r for r in records if r.recommendation_lowered is None]
+    assert plain and "overruled=" not in report(plain, {})
+
+
+def test_results_from_before_the_policy_recommendation_was_kept_still_read(records):
+    old = records[0].model_dump(mode="json")
+    del old["policy_recommendation"], old["recommendation_lowered"]
+    again = ExperimentRecord.model_validate(old)
+    assert again.policy_recommendation is None and again.recommendation_lowered is None
+
+
 def test_run_keys_are_unique_per_execution(records):
     assert [r.run_key for r in records] == ["unit/1/bearing-6", "unit/2/batch-7"]
     again = run_experiment([BEARING], stand_in, name="unit-2")
