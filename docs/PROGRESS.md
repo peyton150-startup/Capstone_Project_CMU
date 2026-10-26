@@ -94,6 +94,7 @@ A component is complete only when both columns are checked.
 | C4 | Course Module 4: opt-in tree-of-thought hypothesize step | yes (after the build, 2026-10-22) | n/a | yes | yes | `agent/tree_of_thought.py` (`TreeOfThoughtPolicy`, `GENERATE`, `VALUE`, `prune`, `Thought`), `experiment.py` (`run --tree-of-thought`); session note 2026-10-20 (Module 4) |
 | FD | Experiment failure diagnostics: every model attempt kept, recovered failures shown | yes (after the build, 2026-10-22) | n/a | yes | yes (re-checked 2026-10-22) | `experiment.py` (`CallSummary.details`, `format_call_failures`, `save_record`), `evaluation/scoring.py`; session note 2026-10-20 (failure diagnostics) |
 | C3a | Memory comparison command: the same cases with no memory, keyword and semantic recall | yes (after the build, 2026-10-22) | n/a | yes | yes (re-checked 2026-10-22) | `capstone/memory_comparison.py` (`MODES`, `memory_for`, `compare_memory`, `mode_of`, `compare_report`); session note 2026-10-20 (Module 3, piece 1) |
+| C3c | Memory comparison made fair: strict semantic mode, outage runs left out, factory calls apart from searches, failed searches shown, runs interleaved by case | no (built ungated at the developer's request, 2026-10-26; developer to review) | no | yes | no | `memory/recall.py` (`SemanticRecallFailed`, `MemoryRecall(fallback=...)`), `experiment.py` (`ExperimentRecord.factory_calls`, `NOT_FACTORY`, `count_factory_calls`, `run_experiment(start=...)`), `memory_comparison.py` (`memory_for`, `compare_memory`, `failed`, `mode_line`, `case_line`); session note 2026-10-26 (C3c) |
 | C3b | Bounded memory search: no repeated search, at most three per investigation, each recorded | yes (after the build, 2026-10-22) | n/a | yes | yes | `providers/recall.py` (`RecallingProvider`, `MAX_SEARCHES`, `REPEATED_SEARCH`, `SEARCHES_SPENT`), `evaluation/memory.py` (`build_search_records`); session note 2026-10-20 (Module 3, piece 2) |
 | D1 | Near-duplicate threshold measurement tool (provisional 0.909) | yes (walkthrough, 2026-10-22) | n/a | yes | yes (after corrections) | `capstone/memory/duplicate_threshold.py`; session notes 2026-10-22 |
 | T1 | TypeSafe Jev client and the auto-labeller (proposed diagnosis labels, compared with hand labels) | yes (pre-merge walkthrough, 2026-10-23) | n/a | yes | yes (after corrections: Q1 cost of speculative questions, Q2 why truth would bias labels) | `providers/typesafe.py` (`Noul`, `Choice`, `JudgmentClient`, `read_judgments`, `judgment_client`), `evaluation/auto_label.py` (`propose`, `Proposal`, `agreement`, `conclusions`, `main`), `settings.py` (`TYPESAFE_API_KEY`, `TYPESAFE_MODEL`), `.env.example`, AGENTS.md section 9, `docs/benchmarks/2026-10-23-jev-auto-labels.md`; session note 2026-10-23 (T1) |
@@ -125,6 +126,48 @@ alarm), then evaluation, then the agent itself.
      evidence was gathered, the conclusion was wrong or escalated) is what a
      critic or independent analyst could fix; an evidence miss points at a
      research role instead. That choice picks the first multi-agent role.
+
+- **2026-10-26 (C3c): the memory comparison made fair. Built ungated at the
+  developer's request; understood: no, developer to review.** A read of all
+  the memory code found five ways `memory_comparison` could report the wrong
+  numbers; all five are fixed:
+  1. *Semantic mode answered by keyword unseen.* Only the start was checked:
+     a search that failed mid-run (an embedding 429) fell back to keyword
+     search in `MemoryRecall.recall_memories`, and `MemoryService.search`
+     drops the `fell_back` flag. Now `MemoryRecall(fallback=False)` raises
+     `SemanticRecallFailed` (no exception text chained) and `memory_for`
+     builds every mode that way; `RecallingProvider` turns it into "Recall
+     failed.", recorded as a `failed` search. Ordinary runs still fall back.
+  2. *Outage runs counted against a mode.* `mode_line` now counts
+     `model_unavailable` runs as `outage=` and leaves them out of every other
+     total, as `scoring.summarize` does; `case_line` shows them as `outage`.
+  3. *Memory modes charged for their searches.* `score.tool_calls` counts
+     every call the loop sent, recall included. Each record now keeps
+     `factory_calls` (`experiment.count_factory_calls`: decisions with a tool
+     other than `recall_memories` / `search_manual`, loop-skipped repeats left
+     out, as in `tool_calls`). The report shows both; older results show `n/a`.
+  4. *Failed searches invisible.* New `failed=` beside `refused=` (mode line)
+     and `failed=` per case.
+  5. *Modes run one after another.* `compare_memory` now runs case 1 in every
+     mode, then case 2, so a rate limit or provider change lands on all
+     modes; `run_experiment(start=...)` keeps run keys numbered over the whole
+     case list. A mode named twice is refused.
+  Tests: `tests/test_memory_comparison.py` (6 new, 1 changed),
+  `tests/test_memory_semantic.py` (1 new). Scripted only; nothing ran against
+  a real model.
+  **Left as notes, not fixed (developer's decision):**
+  6. Keyword and semantic search read different fields: keyword ranks
+     category, symptoms, action, machine and lesson (`recall.rank_memories`);
+     semantic embeds category, symptoms, diagnosis and lesson
+     (`semantic.memory_document`, whose docstring wrongly says keyword uses
+     the same text). A keyword/semantic gap is not purely words vs meaning.
+  7. Semantic search has no relevance cutoff: it always returns k memories,
+     however unrelated, while keyword returns none without a shared word, so
+     `recalled=` is not like for like.
+  8. One run per case per mode (no repeats, no paired win/loss count); the
+     results do not record the store's size, embedding model or policy
+     version; nothing checks that memory used on `--held-out` was learned on
+     tuning seeds (memories do not keep their seed).
 
 - **2026-10-26: docs: multi-agent work on our own orchestration, no CrewAI
   (developer's decision).** Documentation only; no code or dependencies

@@ -12,7 +12,8 @@ match: that is the known limit of this search.
 Semantic recall (`MemoryRecall`, mode "semantic") asks the Chroma index for
 the nearest memory IDs, then loads the full records from the SQL repository.
 When the index is missing or a search fails, it falls back to the keyword
-search above.
+search above, unless `fallback=False`: then it raises `SemanticRecallFailed`
+instead, so a measurement of semantic recall never measures keyword search.
 """
 
 import logging
@@ -107,6 +108,10 @@ class RecallResult:
     fell_back: bool = False
 
 
+class SemanticRecallFailed(RuntimeError):
+    """Semantic recall could not answer, and keyword fallback is switched off."""
+
+
 class MemoryRecall:
     def __init__(
         self,
@@ -114,10 +119,14 @@ class MemoryRecall:
         *,
         mode: RetrievalMode = "semantic",
         index: SemanticIndex | None = None,
+        fallback: bool = True,
     ):
         self.repository = repository
         self.mode = mode
         self.index = index
+        # False: a semantic search that cannot run raises SemanticRecallFailed
+        # rather than quietly answering by keyword (the memory comparison).
+        self.fallback = fallback
 
     def recall_memories(self, query: str, k: int = DEFAULT_TOP_K) -> RecallResult:
         if k < 1:
@@ -129,10 +138,14 @@ class MemoryRecall:
                 try:
                     ids = self.index.search(query, k)
                 except Exception:
-                    # Exception text could echo memory content; log the event only.
+                    # Exception text could echo memory content; never chain it.
+                    if not self.fallback:
+                        raise SemanticRecallFailed("semantic search failed") from None
                     _log.warning("semantic recall failed; using keyword search")
                 else:
                     return RecallResult(self.repository.get_many(ids), "semantic")
+            if not self.fallback:
+                raise SemanticRecallFailed("no semantic index")
             return RecallResult(
                 self.repository.keyword_search(query, k), "keyword", fell_back=True
             )

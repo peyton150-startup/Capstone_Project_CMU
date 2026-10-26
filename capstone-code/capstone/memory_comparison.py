@@ -13,19 +13,30 @@ mode (`MODES`):
     semantic  recall_memories answered by the Chroma index (NVIDIA
               embeddings), records read back from SQL
 
+The runs are interleaved: case 1 in every mode, then case 2 in every mode,
+and so on. A rate limit or a provider change part-way through then falls on
+every mode alike, not on whichever mode happened to run last.
+
 Every mode reads the same store, and none of them writes to it: the
 comparison runs without an audit log, so nothing reaches the memory gate
 and a run in one mode cannot hand a lesson to the next. Fill the store
 first (ordinary `experiment run --memory --audit ...` runs on tuning seeds).
 
-`report` prints one line per mode (causes right, resolved, tool calls,
-searches, memories recalled and cited) and one line per case with each
-mode beside the others. Root cause counts only where a label exists: label
-the runs with `python -m capstone.experiment label` first. Every record's
-run key holds its mode (`<name>/<mode>/<number>/<case>`).
+`report` prints one line per mode and one line per case with each mode
+beside the others. Root cause counts only where a label exists: label the
+runs with `python -m capstone.experiment label` first. Runs stopped because
+no model answered are counted as `outage=` and left out of every other
+total, as in the experiment report: they measure the services' uptime, not
+memory. Tool calls are shown twice: `tool_calls` (every counted call,
+memory searches included, as the budget sees them) and `factory_calls`
+(calls to the factory's own tools only), so a mode is not charged for its
+searches when the question is whether memory saved looking. Searches are
+split into answered, `refused` (a repeat, or over the budget) and `failed`.
+Every record's run key holds its mode (`<name>/<mode>/<number>/<case>`).
 
-Semantic mode with no index that opens is refused, not quietly run as
-keyword search: the comparison would then report keyword twice.
+Semantic mode never answers by keyword: with no index that opens the run is
+refused, and a search that fails during a run fails (it shows as `failed=`)
+rather than falling back, or the comparison would report keyword twice.
 
 Live runs need the model keys and DATABASE_URL; the tests run scripted
 policies on a local SQLite store and never touch the network.
@@ -66,8 +77,9 @@ def memory_for(
 ) -> MemoryService | None:
     """The memory one mode's runs read. None for "none": no recall at all.
 
-    Raises ValueError for semantic mode without an index, so it can never
-    fall back to keyword search unseen.
+    Raises ValueError for semantic mode without an index, and switches the
+    keyword fallback off, so semantic mode can never answer by keyword: a
+    search that fails is reported as failed.
     """
     if mode not in MODES:
         raise ValueError(f"unknown memory mode {mode!r}")
@@ -75,9 +87,8 @@ def memory_for(
         return None
     if mode == "semantic" and index is None:
         raise ValueError("semantic mode needs an index")
-    return MemoryService(
-        repository, recall=MemoryRecall(repository, mode=mode, index=index)
-    )
+    recall = MemoryRecall(repository, mode=mode, index=index, fallback=False)
+    return MemoryService(repository, recall=recall)
 
 
 def mode_of(record: ExperimentRecord) -> str:
@@ -96,27 +107,33 @@ def compare_memory(
     on_record: Callable[[ExperimentRecord], None] | None = None,
     **options,
 ) -> dict[str, list[ExperimentRecord]]:
-    """Run every case once per mode, in the order given. Nothing is learned.
+    """Run every case once per mode, interleaved. Nothing is learned.
 
+    Case 1 runs in every mode (in the order of `modes`), then case 2, and so
+    on, so anything that changes over the session falls on every mode alike.
     `make_policy(mode)` returns a fresh policy for one run; it decides
     whether that policy is offered recall. Other options go to
     `run_experiment` (approver, budgets, hazards, clock).
     """
     if "/" in name:
         raise ValueError("a comparison name may not contain '/'")
+    if len(set(modes)) != len(modes):
+        raise ValueError("each mode may be named only once")
     services = {mode: memory_for(mode, repository, index) for mode in modes}
-    return {
-        mode: run_experiment(
-            cases,
-            lambda mode=mode: make_policy(mode),
-            name=f"{name}/{mode}",
-            memory=services[mode],
-            log=None,  # no audit log: nothing reaches the memory gate
-            on_record=on_record,
-            **options,
-        )
-        for mode in modes
-    }
+    results: dict[str, list[ExperimentRecord]] = {mode: [] for mode in modes}
+    for number, case in enumerate(cases, start=1):
+        for mode in modes:
+            results[mode] += run_experiment(
+                [case],
+                lambda mode=mode: make_policy(mode),
+                name=f"{name}/{mode}",
+                start=number,  # run keys number the whole case list
+                memory=services[mode],
+                log=None,  # no audit log: nothing reaches the memory gate
+                on_record=on_record,
+                **options,
+            )
+    return results
 
 
 # --- the report -------------------------------------------------------------------
@@ -139,17 +156,38 @@ def refused(record: ExperimentRecord) -> int:
     return sum(s.outcome in ("repeated", "budget_spent") for s in found)
 
 
-def mode_line(mode: str, records: Sequence[ExperimentRecord], scores) -> str:
+def failed(record: ExperimentRecord) -> int:
+    """Searches that could not be answered, e.g. a semantic search whose
+    embedding request failed (0 where not recorded)."""
+    return sum(s.outcome == "failed" for s in record.recall_searches or ())
+
+
+def _average(values: Sequence[float]) -> str:
+    return f"{mean(values):.1f}" if values else "n/a"
+
+
+def mode_line(
+    mode: str, records: Sequence[ExperimentRecord], scores: Sequence[Score]
+) -> str:
+    """Totals for one mode. Outage runs are counted, then left out of the rest."""
+    runs = len(records)
+    kept = [
+        (r, s) for r, s in zip(records, scores, strict=True) if not s.model_unavailable
+    ]
+    records = [r for r, _ in kept]
+    scores = [s for _, s in kept]
     judged = [s for s in scores if _right(s) is not None]
     uses = [use for r in records for use in r.memory_uses or ()]
-    calls = mean(s.tool_calls for s in scores) if scores else 0.0
+    factory = [r.factory_calls for r in records if r.factory_calls is not None]
     return (
-        f"{mode:9} runs={len(records)} "
+        f"{mode:9} runs={runs} outage={runs - len(kept)} "
         f"cause_right={sum(_right(s) is True for s in judged)}/{len(judged)} judged "
         f"resolved={sum(s.resolved is True for s in scores)}/{len(scores)} "
-        f"tool_calls={calls:.1f} on average "
+        f"tool_calls={_average([s.tool_calls for s in scores])} "
+        f"factory_calls={_average(factory)} on average "
         f"searches={sum(searches(r) for r in records)} "
         f"refused={sum(refused(r) for r in records)} "
+        f"failed={sum(failed(r) for r in records)} "
         f"recalled={len(uses)} cited={sum(use.used is True for use in uses)}"
     )
 
@@ -157,10 +195,15 @@ def mode_line(mode: str, records: Sequence[ExperimentRecord], scores) -> str:
 def case_line(scenario_id: str, by_mode: Mapping[str, tuple]) -> str:
     cells = []
     for mode, (record, score) in by_mode.items():
+        if score.model_unavailable:
+            cells.append(f"{mode}: outage")
+            continue
         right = _right(score)
+        factory = "-" if record.factory_calls is None else record.factory_calls
         cells.append(
             f"{mode}: cause={'-' if right is None else right!s} "
-            f"calls={score.tool_calls} searches={searches(record)}"
+            f"calls={score.tool_calls} factory={factory} "
+            f"searches={searches(record)} failed={failed(record)}"
         )
     return f"{scenario_id:24} " + " | ".join(cells)
 
@@ -177,7 +220,10 @@ def compare_report(
     by_mode: dict[str, list[tuple[ExperimentRecord, Score]]] = {}
     for record, score in zip(records, scores, strict=True):
         by_mode.setdefault(mode_of(record), []).append((record, score))
-    lines = ["memory comparison (root cause counts only labelled runs):"]
+    lines = [
+        "memory comparison (root cause counts only labelled runs; "
+        "outage runs are left out of every total after outage=):"
+    ]
     for mode, pairs in by_mode.items():
         lines.append(mode_line(mode, [r for r, _ in pairs], [s for _, s in pairs]))
     case_lists = {
@@ -251,6 +297,8 @@ def main(argv: Sequence[str] | None = None) -> int:
     unknown = [mode for mode in modes if mode not in MODES]
     if unknown:
         parser.error(f"unknown mode(s): {', '.join(unknown)}")
+    if len(set(modes)) != len(modes):
+        parser.error("each mode may be named only once")
     if args.known:
         cases = known_cases()
     elif args.held_out:

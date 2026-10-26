@@ -82,7 +82,8 @@ from capstone.evaluation.memory import (
 from capstone.evaluation.scoring import COMPOUND, Score, format_summary, summarize
 from capstone.memory.service import MemoryService
 from capstone.providers.chat import INVALID_REPLY, is_model_outcome
-from capstone.providers.manual import ManualSearch
+from capstone.providers.manual import MANUAL_TOOL, ManualSearch
+from capstone.providers.recall import RECALL_TOOL
 from capstone.simulator.generator import FAULTS
 from capstone.tools.diagnosis import FAULT_KINDS, Diagnosis
 
@@ -234,6 +235,27 @@ class ExperimentRecord(BaseModel):
     # One per machine-manual search: asked, answered or refused, and which
     # sections came back. None: the run had no manual (or predates this record).
     manual_searches: list[ManualSearchRecord] | None = None
+    # The counted tool calls that went to the factory: `score.tool_calls`
+    # without memory and manual searches. None in results from before it was kept.
+    factory_calls: int | None = None
+
+
+# Tools answered by something other than the factory.
+NOT_FACTORY = frozenset({RECALL_TOOL, MANUAL_TOOL})
+
+
+def count_factory_calls(state) -> int:
+    """Counted calls to the factory's own tools.
+
+    A call the loop skipped as a repeat is not counted (it never reached a
+    provider, as in `tool_calls`); a call the factory refused or failed is.
+    """
+    return sum(
+        d.tool is not None
+        and d.tool not in NOT_FACTORY
+        and d.outcome != "repeated_call"
+        for d in state.decisions
+    )
 
 
 def memory_records(
@@ -291,6 +313,7 @@ def record_of(
         memory_uses=uses,
         recall_searches=list(build_search_records(state)) if with_memory else None,
         manual_searches=list(build_manual_records(state)) if with_manual else None,
+        factory_calls=count_factory_calls(state),
     )
 
 
@@ -307,14 +330,16 @@ def run_experiment(
     clock: Callable[[], float] = monotonic,
     hazards: bool = False,
     manual: ManualSearch | None = None,
+    start: int = 1,
 ) -> list[ExperimentRecord]:
     """Run each case once with a fresh policy. `name` makes every run key unique.
 
     `clock` times each episode for the record only; the agent's own budgets
-    run on `run_episode`'s clock.
+    run on `run_episode`'s clock. `start` is the first case's number in the
+    run keys, for a caller that runs one long list a case at a time.
     """
     records = []
-    for number, case in enumerate(cases, start=1):
+    for number, case in enumerate(cases, start=start):
         run_key = f"{name}/{number}/{case.scenario_id}"
         policy = make_policy()
         started = clock()

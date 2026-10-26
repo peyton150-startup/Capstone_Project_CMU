@@ -132,7 +132,8 @@ def test_the_report_puts_the_modes_side_by_side_with_labels(store):
     keyword_line = next(line for line in lines if line.startswith("keyword "))
     assert "cause_right=1/1 judged" in none_line and "searches=0" in none_line
     assert "cause_right=0/0 judged" in keyword_line
-    assert "searches=1 refused=0 recalled=1 cited=1" in keyword_line
+    assert "searches=1 refused=0 failed=0 recalled=1 cited=1" in keyword_line
+    assert "outage=0" in keyword_line
     [case] = [line for line in lines if line.startswith(BEARING.scenario_id)]
     assert "none: cause=True" in case and "keyword: cause=-" in case
     assert "semantic: cause=True" in case
@@ -173,6 +174,134 @@ def test_the_command_refuses_an_unknown_mode(tmp_path):
                 "--known",
                 "--modes",
                 "none,vector",
+                "--out",
+                str(tmp_path / "x.jsonl"),
+            ]
+        )
+
+
+class FailingIndex:
+    """A semantic index whose every search fails, like an embedding 429."""
+
+    def search(self, text, k):
+        raise ConnectionError("rate limited")
+
+
+def test_a_failed_semantic_search_is_reported_failed_not_answered_by_keyword(store):
+    """Gap 1: semantic mode never falls back to keyword search during a run."""
+    [record] = compare(store, FailingIndex(), modes=["semantic"])["semantic"]
+    [search] = record.recall_searches
+    assert search.outcome == "failed" and search.memory_ids == ()
+    assert record.memory_uses == []  # keyword search would have found the lesson
+    line = next(
+        line
+        for line in compare_report([record], {}).splitlines()
+        if line.startswith("semantic ")
+    )
+    assert "searches=1 refused=0 failed=1 recalled=0" in line
+
+
+def test_outage_runs_are_counted_then_left_out_of_every_total(store):
+    """Gap 2: a run no model answered says nothing about memory."""
+    from capstone.evaluation.scoring import MODEL_UNAVAILABLE
+
+    [good, other] = compare_memory(
+        [BEARING, BEARING], policy_for, name="cmp", repository=store, modes=["none"]
+    )["none"]
+    outage_score = other.score.model_copy(
+        update={"termination_reason": MODEL_UNAVAILABLE, "tool_calls": 99}
+    )
+    outage = other.model_copy(update={"score": outage_score, "factory_calls": 99})
+    right = Diagnosis(fault="bearing_degradation", machine_id="CNC-02")
+    labels = {
+        r.run_key: Label(run_key=r.run_key, diagnosis=right, labelled_by="test")
+        for r in (good, outage)
+    }
+    text = compare_report([good, outage], labels)
+    [line] = [line for line in text.splitlines() if line.startswith("none ")]
+    assert "runs=2 outage=1 cause_right=1/1 judged resolved=1/1" in line
+    assert f"tool_calls={good.score.tool_calls:.1f}" in line  # the 99 is left out
+    assert f"factory_calls={good.factory_calls:.1f}" in line
+    [case_two] = [
+        line for line in text.splitlines()[2:] if line.endswith("none: outage")
+    ]
+    assert case_two.startswith(BEARING.scenario_id)
+
+
+def test_factory_calls_leave_memory_searches_out(store):
+    """Gap 3: memory modes are not charged for their searches."""
+    results = compare(store, FixedIndex(stored_ids(store)))
+    [none], [keyword] = results["none"], results["keyword"]
+    assert none.factory_calls == none.score.tool_calls
+    assert keyword.factory_calls == keyword.score.tool_calls - 1
+    assert keyword.factory_calls == none.factory_calls  # same looking, plus a search
+    line = next(
+        line
+        for line in compare_report(results["keyword"], {}).splitlines()
+        if line.startswith("keyword ")
+    )
+    assert f"factory_calls={keyword.factory_calls:.1f}" in line
+
+
+def test_a_refused_repeat_counts_as_a_call_but_a_skipped_one_does_not(store):
+    """factory_calls follows the same counting rule as tool_calls."""
+    from capstone.agent.state import DecisionRecord
+    from capstone.experiment import count_factory_calls
+
+    def decision(sequence, tool, outcome):
+        return DecisionRecord.model_construct(
+            sequence=sequence, tool=tool, outcome=outcome
+        )
+
+    class State:
+        decisions = [
+            decision(1, "get_sensor_history", "observed"),
+            decision(2, "get_sensor_history", "repeated_call"),  # never sent
+            decision(3, "get_machine_status", "tool_error"),  # sent, refused
+            decision(4, "recall_memories", "observed"),
+            decision(5, "search_manual", "observed"),
+            decision(6, None, "observed"),  # a step with no tool
+        ]
+
+    assert count_factory_calls(State()) == 2
+
+
+def test_the_runs_are_interleaved_case_by_case(store):
+    """Gap 5: case 1 in every mode, then case 2, with run keys numbered by case."""
+    order = []
+    results = compare_memory(
+        [BEARING, BEARING],
+        policy_for,
+        name="cmp",
+        repository=store,
+        index=FixedIndex(stored_ids(store)),
+        on_record=lambda r: order.append(r.run_key),
+    )
+    expected = [
+        f"cmp/{mode}/{number}/{BEARING.scenario_id}"
+        for number in (1, 2)
+        for mode in MODES
+    ]
+    assert order == expected
+    assert [r.run_key for r in results["keyword"]] == [
+        f"cmp/keyword/{n}/{BEARING.scenario_id}" for n in (1, 2)
+    ]
+
+
+def test_a_mode_may_be_named_only_once(store, tmp_path):
+    with pytest.raises(ValueError, match="only once"):
+        compare_memory(
+            [BEARING], policy_for, name="cmp", repository=store, modes=["none", "none"]
+        )
+    with pytest.raises(SystemExit):
+        main(
+            [
+                "run",
+                "--name",
+                "x",
+                "--known",
+                "--modes",
+                "none,none",
                 "--out",
                 str(tmp_path / "x.jsonl"),
             ]

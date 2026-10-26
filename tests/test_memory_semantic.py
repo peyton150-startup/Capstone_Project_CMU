@@ -10,7 +10,11 @@ from sqlalchemy import create_engine
 
 from capstone.memory.backfill import backfill
 from capstone.memory.contracts import ReflectionCandidate
-from capstone.memory.recall import MemoryRecall, build_memory_recall
+from capstone.memory.recall import (
+    MemoryRecall,
+    SemanticRecallFailed,
+    build_memory_recall,
+)
 from capstone.memory.repository import SQLMemoryRepository
 from capstone.memory.schema import metadata
 from capstone.memory.semantic import ChromaMemoryIndex, open_chroma_index
@@ -165,6 +169,26 @@ def test_falls_back_to_keyword_when_index_missing_or_failing(repository):
         result = MemoryRecall(repository, index=index).recall_memories("supplier")
         assert result.mode_used == "keyword" and result.fell_back
         assert result.memories == (memories[1],)
+
+
+def test_with_fallback_off_semantic_recall_raises_and_never_uses_keywords(
+    repository,
+):
+    """For a measurement of semantic recall: a missing index or a failing search
+    raises, with no exception text chained (it could echo memory content)."""
+    promote_all(MemoryService(repository))
+
+    class FailingIndex:
+        def search(self, text, k):
+            raise ConnectionError("secret detail")
+
+    for index in (None, FailingIndex()):
+        recall = MemoryRecall(repository, index=index, fallback=False)
+        with pytest.raises(SemanticRecallFailed) as raised:
+            recall.recall_memories("supplier")
+        assert raised.value.__cause__ is None and raised.value.__suppress_context__
+    keyword = MemoryRecall(repository, mode="keyword", fallback=False)
+    assert keyword.recall_memories("supplier").memories  # keyword mode unaffected
 
 
 def test_keyword_and_none_modes(repository, index):
