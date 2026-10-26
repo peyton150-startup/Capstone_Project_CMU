@@ -105,6 +105,8 @@ class Settings(BaseSettings):
     judge_model: str | None = _optional("JUDGE_MODEL")
     lesson_model: str | None = _optional("LESSON_MODEL")
     # Asked when a job's own model cannot be reached. None: no fallback.
+    # Several models, separated by commas, are tried in order: the second
+    # when the first is out too (for example its daily quota is spent).
     fallback_model: str | None = _optional("FALLBACK_MODEL")
 
     # Limits on every model question (MVP_SCOPE.md section 3). The loop's own
@@ -166,6 +168,18 @@ class Settings(BaseSettings):
         if isinstance(value, str):
             return value.strip() or None
         return value
+
+
+def fallback_models(settings: Settings) -> tuple[str, ...]:
+    """The fallback chain from FALLBACK_MODEL, in order; empty when none is set."""
+    if not settings.fallback_model:
+        return ()
+    chain: list[str] = []
+    for reference in settings.fallback_model.split(","):
+        reference = reference.strip()
+        if reference and reference not in chain:
+            chain.append(reference)
+    return tuple(chain)
 
 
 def get_settings() -> Settings:

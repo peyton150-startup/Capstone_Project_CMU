@@ -606,6 +606,43 @@ def test_a_job_falls_back_to_the_fallback_model_when_one_is_set(monkeypatch):
     assert [c.model for c in clients["plan"].clients] == ["backup-model"]
 
 
+def test_several_fallback_models_are_tried_in_the_order_given(monkeypatch):
+    monkeypatch.setenv("NVIDIA_API_KEY", KEY)
+    monkeypatch.setenv("GROQ_API_KEY", KEY)
+    monkeypatch.setenv("COHERE_API_KEY", KEY)
+    monkeypatch.setenv(
+        "FALLBACK_MODEL", " groq/backup-model , cohere/second-backup,groq/backup-model"
+    )
+    clients = clients_for_jobs(settings())
+    assert [c.model for c in clients["decide"].clients] == [
+        DEFAULT_MODEL.split("/", 1)[1],
+        "backup-model",
+        "second-backup",
+    ]
+
+
+def test_cohere_is_never_asked_for_more_output_than_it_accepts(monkeypatch):
+    monkeypatch.setenv("COHERE_API_KEY", KEY)
+    monkeypatch.setenv("GROQ_API_KEY", KEY)
+    monkeypatch.setenv("MODEL_MAX_OUTPUT_TOKENS", "16384")
+    assert client_for("cohere/command-a-03-2025", settings()).max_output_tokens == 8192
+    assert client_for("groq/some-model", settings()).max_output_tokens == 16384
+    monkeypatch.setenv("MODEL_MAX_OUTPUT_TOKENS", "2000")
+    assert client_for("cohere/command-a-03-2025", settings()).max_output_tokens == 2000
+
+
+def test_when_the_first_fallback_is_out_of_quota_the_second_answers():
+    primary, _ = client(http_error(500), http_error(500), model="a")
+    quota_gone, second = client(http_error(429), http_error(429), model="b")
+    last, third = client(chat('{"text": "advice"}'), model="c")
+    ask, _ = fallback(primary, quota_gone, last)
+    assert ask.ask("s", "p", Lesson) == Lesson(text="advice")
+    assert len(second.requests) == 2  # asked, retried, then passed on
+    assert len(third.requests) == 1
+    assert ask.answered_by == "c"
+    assert [a.model for a in ask.attempts] == ["a", "a", "b", "b", "c"]
+
+
 # --- limits on every model question (MVP_SCOPE.md section 3) -------------------
 
 
