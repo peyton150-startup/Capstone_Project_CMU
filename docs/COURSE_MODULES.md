@@ -137,12 +137,14 @@ another reasoning LLM or a dedicated RAG agent"), no document ingestion.
 - **Memory comparison command** (`capstone/memory_comparison.py`):
   `python -m capstone.memory_comparison run --name cmp-1 --known --out
   cmp.jsonl` runs the same cases once per mode (none: no recall tool at
-  all; keyword; semantic), all reading the same store and none writing to
-  it; `report` prints one line per mode (causes right among labelled runs,
-  resolved, average tool calls, searches, memories recalled and cited) and
-  one line per case with the modes side by side. Semantic mode with no
-  index is refused rather than quietly run as keyword search. Tested with
-  scripted policies only; not yet run live.
+  all; keyword; semantic), interleaved case by case, all reading the same
+  store and none writing to it; `report` prints one line per mode (outage
+  runs, then over the rest: causes right among labelled runs, resolved,
+  average tool calls and factory calls, searches answered, refused and
+  failed, memories recalled and cited) and one line per case with the modes
+  side by side. Semantic mode never answers by keyword: with no index it is
+  refused, and a search that fails mid-run is recorded as failed (C3c,
+  2026-10-26). Tested with scripted policies only; not yet run live.
 - **Bounded, recorded memory search** (`providers/recall.py`,
   `evaluation/memory.py`, `experiment.py`): a minimal slice of Future Work
   1's agent-directed retrieval, on the existing SQL + Chroma design. The
