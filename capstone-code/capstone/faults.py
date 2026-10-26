@@ -240,7 +240,13 @@ BY_KIND: dict[str, FaultPack] = {pack.kind: pack for pack in PACKS}
 
 
 def agent_side() -> tuple[AgentSide, ...]:
-    """The only view of the packs that agent-facing code may use."""
+    """The only view of the packs that agent-facing code may use.
+
+    Each `AgentSide` pairs a fault's name with its repair, which together
+    would say which repair fits which fault. So never show these whole to a
+    model: prompts get the names (`FAULT_KINDS`) and the repair menu
+    (`ACTIONS`) as separate, unpaired lists.
+    """
     return tuple(pack.agent for pack in PACKS)
 
 

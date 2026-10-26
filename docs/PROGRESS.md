@@ -100,7 +100,7 @@ A component is complete only when both columns are checked.
 | T1 | TypeSafe Jev client and the auto-labeller (proposed diagnosis labels, compared with hand labels) | yes (pre-merge walkthrough, 2026-10-23) | n/a | yes | yes (after corrections: Q1 cost of speculative questions, Q2 why truth would bias labels) | `providers/typesafe.py` (`Noul`, `Choice`, `JudgmentClient`, `read_judgments`, `judgment_client`), `evaluation/auto_label.py` (`propose`, `Proposal`, `agreement`, `conclusions`, `main`), `settings.py` (`TYPESAFE_API_KEY`, `TYPESAFE_MODEL`), `.env.example`, AGENTS.md section 9, `docs/benchmarks/2026-10-23-jev-auto-labels.md`; session note 2026-10-23 (T1) |
 | F1 | Bearing progression: opt-in three-day profile (quiet stretch, onset, steeper ramp) | yes (after the build: pre-merge walkthrough 2026-10-26) | n/a | yes | yes (walkthrough 2026-10-26: Q1 in part, corrected; Q2 mostly, corrected; Q3 after one re-teach) | `simulator/scenarios.py` (`BearingDegradation` `onset_health`, `quiet_factor`), `simulator/generator.py` (`BEARING_PROFILES`, `THREE_DAY_*`, `build_scenario(bearing_profile=)`), `docs/benchmarks/2026-10-26-bearing-three-day.md`; session note 2026-10-26 (F1) |
 | F2 | Machine power in kW (`PowerSensor`, standard on every machine, offered to the agent) | yes (after the build: pre-merge walkthrough 2026-10-26) | n/a | yes | yes (walkthrough 2026-10-26: Q1 in part, corrected; Q2 after one hint; Q3 right) | `simulator/sensors.py` (`PowerSensor`), `simulator/line.py`, `providers/factory.py` (`MachineSensor`, tool descriptions), `simulator/disturbances.py`; session note 2026-10-26 (F2) |
-| F3 | Fault-pack registry: the four faults described once (`capstone/faults.py`), no behaviour change | no (built first at the developer's request, 2026-10-26; to be taught before merging) | n/a | yes | no | `faults.py` (`FaultPack`, `AgentSide`, `EvaluatorSide`, `FaultPlace`, `PACKS`, `BY_KIND`, `agent_side`, `Relevant` moved here), `simulator/generator.py`, `tools/diagnosis.py`, `tools/actions.py`, `evaluation/scoring.py`, `baseline.py`; session note 2026-10-26 (F3) |
+| F3 | Fault-pack registry: the four faults described once (`capstone/faults.py`), no behaviour change | yes (after the build: pre-merge walkthrough 2026-10-26) | n/a | yes | yes (walkthrough 2026-10-26: Q1 in part, corrected; Q2 right after one correction; Q3 after a re-teach) | `faults.py` (`FaultPack`, `AgentSide`, `EvaluatorSide`, `FaultPlace`, `PACKS`, `BY_KIND`, `agent_side`, `Relevant` moved here), `simulator/generator.py`, `tools/diagnosis.py`, `tools/actions.py`, `evaluation/scoring.py`, `baseline.py`; session note 2026-10-26 (F3) |
 
 Every row above with four "yes" marks (or "n/a") is complete: no question is
 outstanding on it. Still to build after 12c, from `docs/MVP_SCOPE.md`: the
@@ -184,6 +184,32 @@ alarm), then evaluation, then the agent itself.
      evidence was gathered, the conclusion was wrong or escalated) is what a
      critic or independent analyst could fix; an evidence miss points at a
      research role instead. That choice picks the first multi-agent role.
+
+- **2026-10-26: PR #80 pre-merge walkthrough (F3).** Three questions.
+  Q1 (sorting `PACKS` alphabetically): said everything would change and a
+  test would catch it; corrected: the same first draw (seed 6: index 2)
+  now names a different fault (false alarm instead of wrong setting), with
+  the same machine and start tick, so every seed the generator lets choose
+  changes kind, while runs that force the fault (`--faults`, the baseline's
+  every-fault runs, the known-answer cases) are unchanged; two tests catch
+  it. The developer asked for the timing point to be explained further
+  (taught as a fixed deck of draws: fault, machine, start, strength; the
+  sort relabels the first draw only) and whether the agent would then see a
+  false alarm (yes, as evidence: a passing spike instead of a speed change;
+  the agent never sees the label). Q2 (moving `correct_action` to the agent
+  side): right that it would hand the agent ground truth, and that two
+  copies drift; corrected: `action` is the repair the pack adds to the
+  desk's menu (a capability), not the action the agent took. Design caveat
+  found while answering: `AgentSide` pairs a kind with its action, so
+  printing `agent_side()` whole would leak the mapping; today only the
+  unpaired lists reach the agent. Q3 (appending a fifth pack): did not know;
+  re-taught with a spinner (the same random number lands in different slices
+  of four or five, and Python's choice may use a different number of draws,
+  moving machine and start too); fix: keep the default draw over the original
+  four and add new packs only on request, from their own stream. The
+  developer connected it to the difficulty modes (a mode chooses a pack set;
+  extra packs from a separate stream leave base seeds alone). Understood (Q1
+  in part, corrected; Q3 after a re-teach).
 
 - **2026-10-26: F3: the fault-pack registry (Future Work 8 "Fault packs",
   steps 1-2). Built first at the developer's request; understood: no, to be
