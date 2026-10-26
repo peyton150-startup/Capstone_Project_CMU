@@ -1818,6 +1818,16 @@ recipe, so runs stay reproducible; the frontend only chooses the recipe and
 never shows the agent the hidden causes. There is no frontend yet; the live
 progress view discussed on 2026-10-19 would be its first screen.
 
+**Frontend note: the watcher runs in the run's own thread (developer's
+note, 2026-10-26).** The live progress view (LV, `python -m
+capstone.progress`) reads the run through `InvestigationDeps.watch`, which
+`notify` in `agent/loop.py` calls in the same thread as the investigation.
+A watcher that raises is caught, but a watcher that hangs (say, a slow
+network write in a future frontend) holds up the run. Fine for a terminal;
+a frontend should hand the work off to another thread instead of doing it
+in the watcher: the watcher only puts the state copy on a queue and returns
+at once, and a separate thread or process sends it to the page.
+
 **2026-10-26 (developer):** the mode switch still waits for the scored
 single-agent run against the rule baseline. Meanwhile, new faults (servo/axis,
 optional hydraulics; Future Work 8 D) are built as fault-pack registry entries
