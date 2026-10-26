@@ -50,6 +50,7 @@ from capstone.agent.loop import (
     ask_policy,
     call_signature,
     gather,
+    notify,
     record,
     run_inner_loop,
 )
@@ -318,6 +319,7 @@ def propose(state: InvestigationState, deps: InvestigationDeps) -> ActionRoute:
         return "finish"  # the factory did not take the proposal
     state.proposed_action = submitted
     if deps.human_review is not None:
+        notify(state, deps)  # the watcher sees the proposal before the human decides
         deps.human_review(submitted)
         factory_changed(state)
     proposals = followup_call(
@@ -471,6 +473,13 @@ def verify(state: InvestigationState, deps: InvestigationDeps) -> None:
 def build_graph():
     """Wire the stages together. The edges are the only allowed order."""
     Context = StepContext[InvestigationState, InvestigationDeps, object]
+
+    def staged(stage, ctx: Context):
+        """Run one stage, then show the watcher (if any) where it left things."""
+        result = stage(ctx.state, ctx.deps)
+        notify(ctx.state, ctx.deps)
+        return result
+
     builder = GraphBuilder(
         name="investigation",
         state_type=InvestigationState,
@@ -480,39 +489,39 @@ def build_graph():
 
     @builder.step(node_id="observe")
     async def observe_step(ctx: Context) -> None:
-        observe(ctx.state, ctx.deps)
+        return staged(observe, ctx)
 
     @builder.step(node_id="plan")
     async def plan_step(ctx: Context) -> None:
-        plan(ctx.state, ctx.deps)
+        return staged(plan, ctx)
 
     @builder.step(node_id="investigate")
     async def investigate_step(ctx: Context) -> Route:
-        return investigate(ctx.state, ctx.deps)
+        return staged(investigate, ctx)
 
     @builder.step(node_id="hypothesize")
     async def hypothesize_step(ctx: Context) -> Route:
-        return hypothesize(ctx.state, ctx.deps)
+        return staged(hypothesize, ctx)
 
     @builder.step(node_id="test")
     async def test_step(ctx: Context) -> None:
-        test(ctx.state, ctx.deps)
+        return staged(test, ctx)
 
     @builder.step(node_id="conclude")
     async def conclude_step(ctx: Context) -> None:
-        conclude(ctx.state, ctx.deps)
+        return staged(conclude, ctx)
 
     @builder.step(node_id="propose")
     async def propose_step(ctx: Context) -> ActionRoute:
-        return propose(ctx.state, ctx.deps)
+        return staged(propose, ctx)
 
     @builder.step(node_id="execute")
     async def execute_step(ctx: Context) -> ActionRoute:
-        return execute(ctx.state, ctx.deps)
+        return staged(execute, ctx)
 
     @builder.step(node_id="verify")
     async def verify_step(ctx: Context) -> None:
-        verify(ctx.state, ctx.deps)
+        return staged(verify, ctx)
 
     def choose(node_id: str, destinations: dict):
         """A fork: each value a stage can return, and the stage it leads to."""
@@ -571,6 +580,7 @@ def run_investigation(
         INVESTIGATION_GRAPH.run_sync(state=state, deps=deps)
     except ModelError:
         stop_without_a_model(state)
+        notify(state, deps)  # the stop record, which no stage was left to show
     return state
 
 

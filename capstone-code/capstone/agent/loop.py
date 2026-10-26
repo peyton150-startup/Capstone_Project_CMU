@@ -16,6 +16,7 @@ call as evidence, because none of that is left to it.
 """
 
 import json
+import logging
 from collections.abc import Callable
 from dataclasses import dataclass, field
 from time import monotonic
@@ -50,6 +51,8 @@ Reply = TypeVar("Reply")
 # Answers that are not a look at the factory, by their source.
 ORIGINS = {MEMORY_SOURCE: "memory", MANUAL_SOURCE: "manual"}
 
+_log = logging.getLogger(__name__)
+
 
 class OutOfTime(Exception):
     """A policy question got no answer before its stage's time ran out.
@@ -82,6 +85,26 @@ class InvestigationDeps:
     # The human's side. Called once with each submitted proposal; the agent
     # is never given the means to approve its own request.
     human_review: Callable[[ProposalRecord], None] | None = field(default=None)
+    # Someone watching the run (`capstone.progress`). Called with a copy of the
+    # state before each turn, after each stage and before the human's review;
+    # it can read what the agent has, never change it. None: nobody watches.
+    watch: Callable[[InvestigationState], None] | None = field(default=None)
+
+
+def notify(state: InvestigationState, deps: InvestigationDeps) -> None:
+    """Show the watcher, if any, a copy of the state as it is now.
+
+    A copy, so a watcher cannot change the investigation. A watcher that
+    raises is logged and ignored: a display fault must never stop a run or
+    change what it does.
+    """
+    if deps.watch is None:
+        return
+    try:
+        deps.watch(state.model_copy(deep=True))
+    except Exception:
+        # The exception text could quote evidence; log the event only.
+        _log.warning("the run's watcher failed; the run goes on")
 
 
 def diagnosis_supported(state: InvestigationState, deps: InvestigationDeps) -> bool:
@@ -464,6 +487,8 @@ def run_inner_loop(
     state.unproductive_steps = 0
     phase_iterations = 0
     while True:
+        # Before the policy is asked (the slow part), show the last turn.
+        notify(state, deps)
         reason = check_termination(state, deps, phase, phase_iterations)
         if reason is not None:
             record(

@@ -870,6 +870,7 @@ What each multi-agent piece maps to:
 | What a role may see | A view built by code, like `render(state)`: an evidence-only handoff leaves the other agent's conclusion out | `agent/model_policy.py` |
 | Budgets | Each role's questions draw on the investigation's one time and call budget; the loop and the graph, not a role, enforce it | `agent/state.py` (`Budgets`, `seconds_for_question`), `agent/loop.py` |
 | Records | Each role's questions appear in experiment records like any other model question | `experiment.py` (`CallSummary`) |
+| Watching the run live (developer's note, 2026-10-26) | The live progress view (LV) only sees the run where `notify` is called. A role built as a graph stage is covered after it finishes (`staged`), and a role that researches through `run_inner_loop` is covered before every turn. A role that asks several model questions inside one stage without `run_inner_loop` (for example a critic reviewing in one long step) shows nothing until it ends: give it more checkpoints (`notify` calls between its questions) unless its loop already has them. The view also cannot yet say which role made a step, since `DecisionRecord` has no role field. | `agent/investigation.py` (`staged`), `agent/loop.py` (`notify`, `run_inner_loop`), `progress.py` |
 
 Rules that do not change: a role's output is a belief, never observable
 evidence, never proof that a fix worked, and never written to memory as fact;
@@ -1818,6 +1819,16 @@ recipe, so runs stay reproducible; the frontend only chooses the recipe and
 never shows the agent the hidden causes. There is no frontend yet; the live
 progress view discussed on 2026-10-19 would be its first screen.
 
+**Frontend note: the watcher runs in the run's own thread (developer's
+note, 2026-10-26).** The live progress view (LV, `python -m
+capstone.progress`) reads the run through `InvestigationDeps.watch`, which
+`notify` in `agent/loop.py` calls in the same thread as the investigation.
+A watcher that raises is caught, but a watcher that hangs (say, a slow
+network write in a future frontend) holds up the run. Fine for a terminal;
+a frontend should hand the work off to another thread instead of doing it
+in the watcher: the watcher only puts the state copy on a queue and returns
+at once, and a separate thread or process sends it to the page.
+
 **2026-10-26 (developer):** the mode switch still waits for the scored
 single-agent run against the rule baseline. Meanwhile, new faults (servo/axis,
 optional hydraulics; Future Work 8 D) are built as fault-pack registry entries
@@ -2085,17 +2096,17 @@ confirm):
 | 4 | 13 | **Memory comparison follow-ups** (C3c notes): a `--cases` option on `run` to rerun chosen cases in every mode (the developer's idea, for cases lost to outages); repeats with a per-case win/loss count between modes; and a header recording the store's size, embedding model and policy version. | With one run per case and outages removing cases, the totals are noisy and not always like for like; a results file should say what store it ran against. | Item 12's first results show how much it matters | Small to medium |
 | 5 | 11 | **Three-day bearing profile in experiments** (F1 follow-ups): let experiments and the comparison choose `bearing_profile`, and lengthen the monitor's 4,000-tick wait, which ends before a typical three-day alarm. | F1 (#77) built the profile as opt-in, but no experiment can use it yet. | Brandon's review of the curve | Small |
 | 6 | 14 | **Make keyword and semantic recall comparable** (C3c notes 6-7): both searches should read the same fields of a memory (keyword reads category, symptoms, action, machine and lesson; semantic embeds category, symptoms, diagnosis and lesson, and `semantic.memory_document`'s docstring says otherwise), and semantic search needs a relevance cutoff instead of always returning k memories. | Until then a keyword/semantic difference is not purely words vs meaning, and semantic mode puts unrelated memories in front of the agent. | Changes what the agent sees: teach first. Item 12 shows whether it matters | Medium |
-| 7 | 9 | **A live progress view:** a hook in the loop that announces each step as it happens, and a terminal viewer with approval at the prompt; only what the agent sees, the score only after the run. | A run can take minutes; a viewer also makes the demo. First screen of the later frontend (Future Work 8, modes). | Nothing | Medium |
-| 8 | 15 | **Power follow-ups** (F2 notes): Brandon's review of the assumed numbers (idle 2 kW, spindle 15 kW x load x speed, friction 1.5 kW x wear squared); kWh as energy summed over simulated time if a question needs it; current draw in amps only with stated electrical assumptions; whether power belongs in `RELEVANT_EVIDENCE` for the wrong-setting fault. | Power is on every machine since F2 (#78) but its numbers are assumed, and scoring does not credit it as evidence. | Brandon; the scored run shows whether the agent uses power | Small |
+| 7 | 15 | **Power follow-ups** (F2 notes): Brandon's review of the assumed numbers (idle 2 kW, spindle 15 kW x load x speed, friction 1.5 kW x wear squared); kWh as energy summed over simulated time if a question needs it; current draw in amps only with stated electrical assumptions; whether power belongs in `RELEVANT_EVIDENCE` for the wrong-setting fault. | Power is on every machine since F2 (#78) but its numbers are assumed, and scoring does not credit it as evidence. | Brandon; the scored run shows whether the agent uses power | Small |
 
 **Done:** 1 (live runs finish, L1); 2 (benchmark and limits, L2); 3
 (three-day bearing profile, opt-in, F1 / #77; follow-ups are item 11); 4
 (machine power in kW, standard on every machine, F2 / #78; follow-ups are
 item 15); 6
 (compound challenge in experiments, E6); 8 (memory comparison command, C3a,
-made fair in C3c / #74; its live run is item 12); 10 (small cleanups).
+made fair in C3c / #74; its live run is item 12); 9 (live progress
+view in the terminal, LV: `python -m capstone.progress`); 10 (small cleanups).
 
-Can run in parallel: 5 and 9 (different files); 7, 12 and 13 once the
+Can run in parallel: 7, 12 and 13 once the
 scored run has labels (but live runs one at a time). Item 14 waits for item 12's
 numbers. Difficulty modes (Future Work 8, second part) wait for the scored
 single-agent run compared with the rule baseline.
