@@ -107,7 +107,7 @@ A component is complete only when both columns are checked.
 | L8 | A chain of fallback models (FALLBACK_MODEL takes several, in order); Cohere's output cap | no (built first; merged without the pre-merge walkthrough at the developer's request, 2026-10-26; walkthrough owed) | n/a | yes | no | `settings.py` (`fallback_models`), `providers/chat.py` (`clients_for_jobs`, `Provider.max_output_tokens`, `_capped`); session note 2026-10-26 (L8) |
 | L9 | `experiment run` shows the live progress view by default (`--quiet` to turn it off), without the truth | no (built first; merged without the pre-merge walkthrough at the developer's request, 2026-10-26; walkthrough owed) | n/a | yes | no | `experiment.py` (`run_experiment(watch=)`, `--quiet`); session note 2026-10-26 (L9) |
 | A10 | The policy's own recommendation, and why an intervention was lowered, are recorded (MAX-HIGH change 1) | no (built first; walkthrough started 2026-10-26 (Q1 asked, unanswered), merged at the developer's request to save usage; walkthrough owed for 2026-10-27) | n/a | yes | no | `agent/investigation.py` (`why_not_acted`, `check_conclusion`, `conclude`), `agent/state.py` (`policy_recommendation`, `recommendation_lowered`), `experiment.py` (`ExperimentRecord` fields, `overruled_text`); session note 2026-10-26 (A10) |
-| A11 | The conclude prompt states the bar in force (change 2); the bar is a setting, MIN_ACTION_CONFIDENCE (change 3) | no (built first and merged before teaching at the developer's request, 2026-10-26, to test it that night; walkthrough owed for 2026-10-27) | n/a | yes | no | `agent/state.py` (`action_confidence_needed`), `agent/loop.py` (`ask_policy`), `agent/model_policy.py` (`action_bar_note`, `conclude`), `settings.py` (`min_action_confidence`), `episode.py`; session note 2026-10-26 (A11) |
+| A11 | The conclude prompt states the bar in force (change 2); the bar is a setting, MIN_ACTION_CONFIDENCE (change 3) | no (built first and merged before teaching at the developer's request, 2026-10-26; the test (KA-01 to KA-03 at a 0.80 bar) and the walkthrough moved to 2026-10-27) | n/a | yes | no | `agent/state.py` (`action_confidence_needed`), `agent/loop.py` (`ask_policy`), `agent/model_policy.py` (`action_bar_note`, `conclude`), `settings.py` (`min_action_confidence`), `episode.py`; session note 2026-10-26 (A11) |
 
 Every row above with four "yes" marks (or "n/a") is complete: no question is
 outstanding on it. Still to build after 12c, from `docs/MVP_SCOPE.md`: the
@@ -293,7 +293,9 @@ alarm), then evaluation, then the agent itself.
 - **2026-10-26 (late): A11: MAX-HIGH changes 2 and 3. Built first at the
   developer's request ("not much usage left: build fix 2 and 3, teach them
   tomorrow"); one PR for both, to save usage; merged before teaching at
-  the developer's request, to test it the same night; understood: no.** Change 2:
+  the developer's request; the test (KA-01 to KA-03, MIN_ACTION_CONFIDENCE
+  0.80 for that run only) and the walkthrough moved to 2026-10-27;
+  understood: no.** Change 2:
   the loop writes the bar in force on the policy's copy of the state
   (`action_confidence_needed`, set in `ask_policy` from
   `deps.min_action_confidence`, like `seconds_for_question`), and the model
