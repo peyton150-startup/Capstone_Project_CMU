@@ -275,6 +275,23 @@ def evidence_section(state: InvestigationState) -> list[str]:
     return lines
 
 
+def action_bar_note(state: InvestigationState) -> str:
+    """The rule an intervention must meet, with the bar in force; empty if unknown.
+
+    Without it the model is overruled by a rule it cannot see (2026-10-26:
+    right bearing diagnoses at 0.80 and 0.85 were lowered to escalate).
+    """
+    bar = state.action_confidence_needed
+    if bar is None:
+        return ""
+    return (
+        f"\n\nTO ASK FOR A FIX: intervene is accepted only with confidence of at "
+        f"least {bar:.2f}, at least one cited evidence ID and a named action. "
+        "Below that it is changed to escalate and nothing is fixed. If your "
+        "confidence is below it, say in the diagnosis which evidence would raise it."
+    )
+
+
 def render(state: InvestigationState) -> str:
     """Working memory as a model reads it. The same view for every question."""
     anomaly = state.anomaly
@@ -555,7 +572,8 @@ class ModelPolicy:
     def conclude(
         self, state: InvestigationState
     ) -> tuple[AgentConclusion, ActionRequest | None]:
-        answer = self._ask("conclude", state, render(state), ConcludeAnswer)
+        prompt = render(state) + action_bar_note(state)
+        answer = self._ask("conclude", state, prompt, ConcludeAnswer)
         return answer.conclusion, answer.action
 
     def judge_verification(self, state: InvestigationState) -> VerificationCheck:

@@ -106,7 +106,8 @@ A component is complete only when both columns are checked.
 | F5 | Hydraulic-leak fault pack: hydraulics on some machines (observable), pressure sensor and low-pressure alarm, seal repair; only when forced | yes (after the build: pre-merge walkthrough 2026-10-26) | n/a | yes | yes (walkthrough 2026-10-26: Q1 in part, corrected; Q2 right, with an addition; Q3 after a re-teach) | `simulator/line.py` (`HYDRAULIC_POSITIONS`), `simulator/state.py` (`has_hydraulics`, `hydraulic_health`, `hydraulics_repaired_tick`), `simulator/scenarios.py` (`HydraulicLeak`, `DEFECT_FROM_HYDRAULICS`), `simulator/sensors.py` (`HydraulicPressureSensor`), `simulator/events.py` (`ThresholdAlarm(below=)`), `simulator/simulator.py` (`start_hydraulic_repair`), `tools/observation.py`, `tools/actions.py`, `contracts/observations.py`, `providers/factory.py`, `faults.py`; session note 2026-10-26 (F5) |
 | L8 | A chain of fallback models (FALLBACK_MODEL takes several, in order); Cohere's output cap | no (built first; merged without the pre-merge walkthrough at the developer's request, 2026-10-26; walkthrough owed) | n/a | yes | no | `settings.py` (`fallback_models`), `providers/chat.py` (`clients_for_jobs`, `Provider.max_output_tokens`, `_capped`); session note 2026-10-26 (L8) |
 | L9 | `experiment run` shows the live progress view by default (`--quiet` to turn it off), without the truth | no (built first; merged without the pre-merge walkthrough at the developer's request, 2026-10-26; walkthrough owed) | n/a | yes | no | `experiment.py` (`run_experiment(watch=)`, `--quiet`); session note 2026-10-26 (L9) |
-| A10 | The policy's own recommendation, and why an intervention was lowered, are recorded (MAX-HIGH change 1) | no (built first at the developer's request, 2026-10-26; to be taught before merging) | n/a | yes | no | `agent/investigation.py` (`why_not_acted`, `check_conclusion`, `conclude`), `agent/state.py` (`policy_recommendation`, `recommendation_lowered`), `experiment.py` (`ExperimentRecord` fields, `overruled_text`); session note 2026-10-26 (A10) |
+| A10 | The policy's own recommendation, and why an intervention was lowered, are recorded (MAX-HIGH change 1) | no (built first; walkthrough started 2026-10-26 (Q1 asked, unanswered), merged at the developer's request to save usage; walkthrough owed for 2026-10-27) | n/a | yes | no | `agent/investigation.py` (`why_not_acted`, `check_conclusion`, `conclude`), `agent/state.py` (`policy_recommendation`, `recommendation_lowered`), `experiment.py` (`ExperimentRecord` fields, `overruled_text`); session note 2026-10-26 (A10) |
+| A11 | The conclude prompt states the bar in force (change 2); the bar is a setting, MIN_ACTION_CONFIDENCE (change 3) | no (built first and merged before teaching at the developer's request, 2026-10-26, to test it that night; walkthrough owed for 2026-10-27) | n/a | yes | no | `agent/state.py` (`action_confidence_needed`), `agent/loop.py` (`ask_policy`), `agent/model_policy.py` (`action_bar_note`, `conclude`), `settings.py` (`min_action_confidence`), `episode.py`; session note 2026-10-26 (A11) |
 
 Every row above with four "yes" marks (or "n/a") is complete: no question is
 outstanding on it. Still to build after 12c, from `docs/MVP_SCOPE.md`: the
@@ -288,6 +289,27 @@ alarm), then evaluation, then the agent itself.
   without the pre-merge walkthrough at the developer's request (dinner before
   the scored run); the walkthrough is owed. Not done:
   `.env.example` could not be edited from the coding session.
+
+- **2026-10-26 (late): A11: MAX-HIGH changes 2 and 3. Built first at the
+  developer's request ("not much usage left: build fix 2 and 3, teach them
+  tomorrow"); one PR for both, to save usage; merged before teaching at
+  the developer's request, to test it the same night; understood: no.** Change 2:
+  the loop writes the bar in force on the policy's copy of the state
+  (`action_confidence_needed`, set in `ask_policy` from
+  `deps.min_action_confidence`, like `seconds_for_question`), and the model
+  policy's conclude prompt appends `action_bar_note`: intervene is accepted
+  only at that confidence or above, with a cited evidence ID and a named
+  action, otherwise it becomes escalate; below the bar, say which evidence
+  would raise it. Because the number comes from the loop, the prompt can
+  never state a different bar from the one enforced. Change 3: the bar is a
+  setting, `MIN_ACTION_CONFIDENCE` (`settings.min_action_confidence`,
+  default 0.9, 0 to 1), passed into `InvestigationDeps` by `run_episode`; the
+  value is the developer's decision, to be set from runs with changes 1 and
+  2, never from one run. Tests: `test_agent_investigation.py` (the policy is
+  shown the bar the loop enforces), `test_model_policy.py` (the note states
+  the bar only when the loop set it). Owed for 2026-10-27: the walkthroughs
+  for #85, #86, #89 (A10, Q1 asked) and this PR (A11); then a run of the
+  known-answer cases to measure changes 1 and 2.
 
 - **2026-10-26 (evening): A10: the policy's own recommendation is recorded
   (MAX-HIGH change 1). Built first at the developer's request; understood:
