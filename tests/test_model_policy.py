@@ -21,6 +21,7 @@ from capstone.agent.model_policy import (
     ModelPolicy,
     NextStep,
     PlanAnswer,
+    action_bar_note,
     render,
 )
 from capstone.agent.policy import CallTool, Interpretation, Stop
@@ -862,3 +863,11 @@ def test_a_tool_not_offered_is_recorded_with_its_reason_on_the_attempt():
         agent.decide(new_state(), "investigate")
     [attempt] = agent.calls[-1].attempts
     assert attempt.outcome == "invalid reply: drop_table is not a tool offered here"
+
+
+def test_the_conclude_prompt_states_the_bar_in_force_only_when_known():
+    state = state_with_evidence()
+    assert action_bar_note(state) == ""  # the loop has not set it
+    shown = state.model_copy(update={"action_confidence_needed": 0.75})
+    note = action_bar_note(shown)
+    assert "at least 0.75" in note and "escalate" in note

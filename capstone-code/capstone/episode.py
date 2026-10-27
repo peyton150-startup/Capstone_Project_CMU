@@ -44,6 +44,7 @@ from capstone.providers.hazards import (
 )
 from capstone.providers.manual import ManualProvider, ManualSearch
 from capstone.providers.recall import RecallingProvider
+from capstone.settings import get_settings
 from capstone.simulator.challenge import build_challenge
 from capstone.simulator.generator import build_scenario
 from capstone.simulator.simulator import Simulator
@@ -242,6 +243,7 @@ def run_episode(
         clock=clock,
         human_review=human_review,
         watch=watch,
+        min_action_confidence=get_settings().min_action_confidence,
     )
     run_investigation(state, deps)
 

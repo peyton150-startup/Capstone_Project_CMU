@@ -381,6 +381,17 @@ def test_an_accepted_or_unchanged_recommendation_records_no_lowering():
     assert state.recommendation_lowered is None
 
 
+def test_the_policy_is_shown_the_bar_it_must_meet_to_act():
+    seen = []
+
+    def conclude(state):
+        seen.append(state.action_confidence_needed)
+        return conclusion(), REPLACE
+
+    investigate(wear_policy(conclude=conclude), min_action_confidence=0.75)
+    assert seen == [0.75]
+
+
 def test_the_confidence_needed_to_act_is_a_setting():
     concluded = (conclusion(confidence=0.7), REPLACE)
     state, _ = investigate(

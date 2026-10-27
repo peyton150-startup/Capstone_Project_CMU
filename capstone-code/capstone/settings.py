@@ -129,6 +129,13 @@ class Settings(BaseSettings):
     model_request_seconds: float = Field(
         default=45.0, gt=0, validation_alias="MODEL_REQUEST_SECONDS"
     )
+    # The confidence a recommendation to intervene needs before the loop
+    # accepts it (`InvestigationDeps.min_action_confidence`). 0.9 since the
+    # loop was built; the value is the developer's decision (MAX-HIGH
+    # change 3), to be set from measured runs, not a single one.
+    min_action_confidence: float = Field(
+        default=0.9, ge=0.0, le=1.0, validation_alias="MIN_ACTION_CONFIDENCE"
+    )
     model_question_seconds: float = Field(
         default=90.0, gt=0, validation_alias="MODEL_QUESTION_SECONDS"
     )

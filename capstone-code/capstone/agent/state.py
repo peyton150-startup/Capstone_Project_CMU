@@ -177,6 +177,10 @@ class InvestigationState(BaseModel):
     # may take to answer, the time its stage has left. None on the loop's own
     # state, and outside a running investigation.
     seconds_for_question: float | None = Field(default=None, ge=0)
+    # Also set only on the policy's copy: the confidence an intervention
+    # needs to be accepted (the loop's `min_action_confidence`), so the
+    # prompt states the bar actually in force.
+    action_confidence_needed: float | None = Field(default=None, ge=0, le=1)
 
     @property
     def confidence(self) -> float:

@@ -217,6 +217,7 @@ def ask_policy(
     view = state.model_copy(deep=True)
     if state.started_at is not None:
         view.seconds_for_question = seconds_left(state, deps, research=research)
+        view.action_confidence_needed = deps.min_action_confidence
     try:
         return question(view)
     except ModelError as error:

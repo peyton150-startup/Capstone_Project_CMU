@@ -1548,9 +1548,10 @@ and unknown-argument.
 
 ### MAX-HIGH PRIORITY (set 2026-10-26): the agent never recommends a fix
 
-**Status: change 1 built 2026-10-26 (A10); changes 2 and 3 not started. The
-developer's decision: these three changes come first, before any
-multi-agent role.**
+**Status: all three built 2026-10-26 (A10; A11 for 2 and 3); to be taught
+on 2026-10-27. Change 3 is built as a setting, `MIN_ACTION_CONFIDENCE`
+(default still 0.9): the value itself stays the developer's decision,
+to be set from runs with changes 1 and 2 in place.**
 
 **What was seen.** In the scored single-agent run of 2026-10-26 (9
 known-answer cases, `results-single-1.jsonl`), every one of the first three
