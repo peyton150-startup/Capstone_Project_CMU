@@ -108,6 +108,7 @@ A component is complete only when both columns are checked.
 | L9 | `experiment run` shows the live progress view by default (`--quiet` to turn it off), without the truth | no (built first; merged without the pre-merge walkthrough at the developer's request, 2026-10-26; walkthrough owed) | n/a | yes | no | `experiment.py` (`run_experiment(watch=)`, `--quiet`); session note 2026-10-26 (L9) |
 | A10 | The policy's own recommendation, and why an intervention was lowered, are recorded (MAX-HIGH change 1) | no (built first; walkthrough started 2026-10-26 (Q1 asked, unanswered), merged at the developer's request to save usage; walkthrough owed for 2026-10-27) | n/a | yes | no | `agent/investigation.py` (`why_not_acted`, `check_conclusion`, `conclude`), `agent/state.py` (`policy_recommendation`, `recommendation_lowered`), `experiment.py` (`ExperimentRecord` fields, `overruled_text`); session note 2026-10-26 (A10) |
 | A11 | The conclude prompt states the bar in force (change 2); the bar is a setting, MIN_ACTION_CONFIDENCE (change 3) | no (built first and merged before teaching at the developer's request, 2026-10-26; the test (KA-01 to KA-03 at a 0.80 bar) and the walkthrough moved to 2026-10-27) | n/a | yes | no | `agent/state.py` (`action_confidence_needed`), `agent/loop.py` (`ask_policy`), `agent/model_policy.py` (`action_bar_note`, `conclude`), `settings.py` (`min_action_confidence`), `episode.py`; session note 2026-10-26 (A11) |
+| A12 | Configurable questions per step: STEP_QUESTIONS=1 combines interpretation and next decision; 2 retains separate questions | yes | yes (2026-10-27: updated beliefs and requested tool; code decides what is allowed) | yes | no — developer requested build, merge, then quiz (2026-10-27) | `agent/policy.py`, `agent/model_policy.py`, `agent/loop.py`, `agent/state.py`, `settings.py`, `episode.py`, `experiment.py`; session note 2026-10-27 (A12) |
 
 Every row above with four "yes" marks (or "n/a") is complete: no question is
 outstanding on it. Still to build after 12c, from `docs/MVP_SCOPE.md`: the
@@ -115,6 +116,66 @@ other three fault scenarios (material batch, machine configuration, false
 alarm), then evaluation, then the agent itself.
 
 ## Session notes
+
+- **2026-10-27 (A12): one-question steps, selectable with STEP_QUESTIONS.**
+  Pre-implementation understanding passed: the developer identified updated
+  beliefs and the requested tool as the two outputs, then identified code
+  as the authority that decides whether the request is allowed. Implemented
+  on `feature/step-questions`. The developer then explicitly requested
+  "make the changes first then merge then quiz me after": build and merge
+  all four requested additions after green CI, with the closing questions
+  and technical walkthrough deferred until after merging. Understanding
+  remains no until demonstrated. Other requested changes (the
+  `STATE_ACTION_BAR` switch, check-before-stopping guidance and manual-search
+  guidance) remain separate components, not implemented in this change.
+  - `settings.py`: `Settings.step_questions` accepts 1 or 2, defaults to 2;
+    `.env.example` documents the switch. The real `.env` is untouched.
+  - `agent/policy.py`: `InterpretedStep` holds an interpretation and a next
+    decision. `ReasoningPolicy.interpret_and_decide` defines the combined
+    policy question; custom policies need it only when using mode 1.
+  - `agent/model_policy.py`: `StepAnswer` adds an interpretation to the
+    existing flat `NextStep` answer, keeping its call/stop validation.
+    `ModelPolicy.interpret_and_decide` asks `DECIDE_MODEL` (or the default)
+    one question for both parts and refuses tools not offered. Separate
+    `INTERPRET_MODEL` calls are unused inside the loop in mode 1.
+  - `agent/loop.py`: `InvestigationDeps.step_questions` selects the mode.
+    `run_inner_loop` still asks the first decision of each phase separately;
+    after a usable tool result, mode 1 asks the combined question, validates
+    the beliefs with `apply_interpretation`, and caches the next decision.
+    Every cached step still passes the next turn's budget/repeat checks.
+    Even the last permitted result is interpreted; a combined timeout keeps
+    its evidence and stops on timeout. Invalid combined answers keep the
+    evidence, apply neither part and count as unproductive. Mode 2 retains
+    the existing path. Applies to investigate, test and verify phases.
+  - `agent/state.py`: `InvestigationState.step_questions` records the mode;
+    `episode.py` initializes that mode before planning (so an early model
+    outage still records it) and passes it into the loop dependencies.
+    `experiment.py`: `ExperimentRecord.step_questions` and `record_of` save
+    the mode, while older records load with None (unknown).
+  Tests added to existing CI-grouped files `test_settings.py`,
+  `test_model_policy.py` and `test_agent_loop.py`: configuration and invalid
+  modes; one combined model question with the stage deadline; unoffered
+  tools and mixed call/stop replies refused; invented evidence refused;
+  last-result interpretation; research and verification call limits;
+  cached choices blocked after time runs out; invalid-reply stopping;
+  timeout evidence retention; both modes complete the same scripted repair
+  and save their mode even after an early planning outage, and older records
+  still load. That offline example
+  takes 11 questions in mode 1 versus 14 in mode 2, with the same successful
+  repair. This is scripted, not measured live speed or model accuracy.
+  Verification: `uv sync --all-extras`; full `uv run pytest`: 1,381 passed
+  (8m04s). After collection, the early-planning-outage regression was added
+  and the metadata initialization fixed; the final model-policy/episode
+  rerun passed 72 tests with a separate `--basetemp`. An earlier concurrent
+  focused rerun had 70 passes and two SQLite cleanup errors because both
+  runs used the fixed `.pytest-tmp`; the isolated rerun resolved those.
+  Ruff lint/format, CI-group validation and `git diff --check` passed.
+  Independent read-only review found no defects, including the metadata fix.
+  No live model
+  called. Compare identical known-answer cases in
+  modes 2 and 1, one run at a time, holding the other settings fixed; label
+  and compare causes right, repairs requested, tool calls, elapsed seconds
+  and invalid replies. Live accuracy/speed comparison remains outstanding.
 
 - **2026-10-27: future frontend settings controls (documentation only).**
   At the developer's request, added a note to `docs/MVP_SCOPE.md` Future

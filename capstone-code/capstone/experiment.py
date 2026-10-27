@@ -51,7 +51,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from time import monotonic
 
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field
 
 from capstone.agent.completion import AuditLog, complete
 from capstone.agent.model_policy import ModelCall
@@ -243,6 +243,8 @@ class ExperimentRecord(BaseModel):
     # The counted tool calls that went to the factory: `score.tool_calls`
     # without memory and manual searches. None in results from before it was kept.
     factory_calls: int | None = None
+    # None in records made before this setting was introduced.
+    step_questions: int | None = Field(default=None, ge=1, le=2)
 
 
 # Tools answered by something other than the factory.
@@ -328,6 +330,7 @@ def record_of(
         recall_searches=list(build_search_records(state)) if with_memory else None,
         manual_searches=list(build_manual_records(state)) if with_manual else None,
         factory_calls=count_factory_calls(state),
+        step_questions=state.step_questions,
     )
 
 

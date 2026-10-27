@@ -35,9 +35,62 @@ from capstone.providers.chat import JOBS, ChatClient, FallbackClient, ModelError
 from capstone.providers.factory import research_tools
 from capstone.providers.recall import RECALL_SPEC
 from capstone.tools.diagnosis import FAULT_KINDS
-from tests.helpers import new_state
+from tests.helpers import ask, new_state
 
 ANSWER_TYPES = (PlanAnswer, NextStep, Interpretation, ConcludeAnswer, Judgement)
+
+
+def test_combined_step_interprets_evidence_and_chooses_with_one_question():
+    state = state_with_evidence()
+    state.seconds_for_question = 17
+    reply = call("list_machines") | {
+        "interpretation": {
+            "hypotheses": [
+                {
+                    "id": "H1",
+                    "claim": "wear",
+                    "confidence": 0.7,
+                    "supporting_evidence_ids": ["E1"],
+                }
+            ]
+        }
+    }
+    p = policy(decide=[reply])
+    combined = p.interpret_and_decide(
+        state, "test", ask("get_sensor_summary"), state.evidence[0]
+    )
+    assert combined.interpretation.hypotheses[0].confidence == 0.7
+    assert combined.decision.request.name == "list_machines"
+    assert len(p.calls) == 1 and p.calls[0].job == "decide"
+    assert p.clients["decide"].limits == [17]
+    assert state.confidence == 0.6  # the policy cannot apply its own beliefs
+    assert "E1" in p.clients["decide"].asked[0][1]
+
+
+@pytest.mark.parametrize(
+    "reply",
+    [
+        {
+            "choice": "call_tool",
+            "tool": "read_ground_truth",
+            "information_needed": "x",
+            "interpretation": {},
+        },
+        {
+            "choice": "stop",
+            "stop_reason": "evidence_sufficient",
+            "information_needed": "x",
+            "tool": "list_machines",
+            "interpretation": {},
+        },
+    ],
+)
+def test_combined_step_refuses_unoffered_tools_and_mixed_stop_replies(reply):
+    p = policy(decide=[reply])
+    state = state_with_evidence()
+    with pytest.raises(ValueError):
+        p.interpret_and_decide(state, "test", ask(), state.evidence[0])
+    assert p.calls[0].outcome == "invalid_reply"
 
 
 class FakeModel:
@@ -590,6 +643,62 @@ def test_a_whole_episode_runs_on_model_replies_alone():
     # The check looked at data from after the work, which the view had shown.
     check_prompt = agent.clients["judge_verification"].asked[0][1]
     assert f"finished at tick {state.action_finish_tick}" in check_prompt
+
+
+@pytest.mark.parametrize("mode, expected_questions", [(1, 11), (2, 14)])
+def test_both_step_modes_finish_the_same_scripted_repair_and_record_the_mode(
+    monkeypatch,
+    mode,
+    expected_questions,
+):
+    from capstone.experiment import Case, record_of, summarize_calls
+
+    monkeypatch.setenv("STEP_QUESTIONS", str(mode))
+    agent = scripted_models()
+    if mode == 1:
+        # Same replies and tool sequence. Fuse the interpretation of each
+        # tool result with the next decision within that phase only. The
+        # last test result supports a diagnosis, so its proposed stop is
+        # superseded by the loop's own supported-diagnosis check.
+        decisions = agent.clients["decide"].replies
+        interpretations = agent.clients["interpret"].replies
+        agent.clients["decide"].replies = [
+            decisions[0],
+            decisions[1] | {"interpretation": interpretations[0]},
+            decisions[2],
+            stop() | {"interpretation": interpretations[1]},
+            decisions[3],
+            lambda p: decisions[4](p) | {"interpretation": interpretations[2]},
+            decisions[5] | {"interpretation": interpretations[3]},
+        ]
+    result = run_episode(6, agent, fault="bearing_degradation", clock=lambda: 0)
+    assert result.score.action_correct and result.score.resolved
+    assert result.state.verification.outcome == "resolved"
+    assert len(agent.calls) == expected_questions
+    record = record_of(
+        Case("bearing-6", 6, "bearing_degradation"),
+        "unit",
+        result,
+        model_calls=summarize_calls(agent.calls),
+    )
+    assert record.step_questions == mode
+    old = record.model_dump()
+    del old["step_questions"]
+    assert type(record).model_validate(old).step_questions is None
+
+
+def test_episode_records_the_configured_mode_even_when_the_planning_model_is_down(
+    monkeypatch,
+):
+    monkeypatch.setenv("STEP_QUESTIONS", "1")
+    result = run_episode(
+        6,
+        policy(plan=[ModelError("offline")]),
+        fault="bearing_degradation",
+        clock=lambda: 0,
+    )
+    assert result.state.step_questions == 1
+    assert not result.state.hypotheses
 
 
 class Slow:
