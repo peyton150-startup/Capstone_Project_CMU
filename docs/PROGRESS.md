@@ -145,12 +145,19 @@ alarm), then evaluation, then the agent itself.
   so the terminal shows each step immediately. A four-case preliminary run
   was stopped before any case completed when the developer requested the full
   nine-case master with visible progress. The master uses `python -u` and
-  `--watch`.
+  `--watch`. A second copy of that command started in the interactive terminal
+  while the tool-launched copy was running. Both wrote to the same raw path;
+  the tool-launched copy was stopped and only the interactive run continues.
+  `reserve_raw_output` now claims a raw file exclusively before model calls,
+  preventing later concurrent runs from mixing rows at the same path. The
+  mixed raw file from this first run will be separated using the final clean
+  report before it is added to the PR.
   `evals/scenarios.json` lists the nine fixed known-answer cases (two each for
   the four MVP faults and one compound challenge). `tests/test_evals.py` checks
   config validation, full episode scoring boundaries, uncertain labels,
   comparisons and the live progress hook. The complete local suite passed
-  1,410 tests; six focused tests passed after the progress option. Live
+  1,410 tests; seven focused tests passed after the progress and output
+  reservation options. Live
   baseline result and CI status to record after they finish. Understanding
   remains no until the walkthrough.
 

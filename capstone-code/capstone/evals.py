@@ -66,6 +66,12 @@ def load_scenarios(path: Path) -> ScenarioConfig:
     return ScenarioConfig.model_validate_json(path.read_text(encoding="utf-8"))
 
 
+def reserve_raw_output(path: Path) -> None:
+    """Claim a result path before model calls so parallel runs cannot mix rows."""
+    with path.open("x", encoding="utf-8"):
+        pass
+
+
 class EvalCase(BaseModel):
     model_config = ConfigDict(extra="forbid", frozen=True)
 
@@ -310,7 +316,9 @@ def main(argv: Sequence[str] | None = None) -> int:
         records = read_records(args.records)
     else:
         raw_path = args.raw_out or args.out.with_suffix(".records.jsonl")
-        if raw_path.exists():
+        try:
+            reserve_raw_output(raw_path)
+        except FileExistsError:
             parser.error(f"raw result path already exists: {raw_path}")
 
         def save_record(record: ExperimentRecord) -> None:

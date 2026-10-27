@@ -10,6 +10,7 @@ from capstone.evals import (
     compare_reports,
     load_scenarios,
     report_of,
+    reserve_raw_output,
     run_cases,
 )
 from capstone.evaluation.known_answers import KNOWN_CASES
@@ -38,6 +39,14 @@ def test_scenario_file_has_forced_faults_and_unique_ids(tmp_path):
                 ]
             }
         )
+
+
+def test_output_path_is_claimed_before_a_run_and_cannot_be_shared(tmp_path):
+    path = tmp_path / "episodes.jsonl"
+    reserve_raw_output(path)
+    with pytest.raises(FileExistsError):
+        reserve_raw_output(path)
+    assert path.read_text(encoding="utf-8") == ""
 
 
 def test_master_config_covers_all_known_answer_cases():
