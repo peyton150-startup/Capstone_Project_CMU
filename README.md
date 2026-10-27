@@ -249,7 +249,7 @@ single-agent and future multi-agent comparisons. Run the same file and settings
 before and after an architecture change:
 
 ```sh
-uv run python -m capstone.evals --config evals/scenarios.json --name single-baseline --out eval-report.json --auto-label
+uv run python -m capstone.evals --config evals/scenarios.json --name single-baseline --out eval-report.json --auto-label --watch
 ```
 
 The command writes a JSON report and a neighboring `eval-report.records.jsonl`
@@ -261,6 +261,8 @@ as agent input. The agent's conclusion is free text, so `--auto-label` uses the
 existing TypeSafe evaluator to propose a diagnosis; unclear proposals are
 marked for review and excluded from accuracy. `--labels labels.jsonl` uses
 reviewed labels instead. Without labels, accuracy stays unjudged. Use
+`--watch` to show the existing live progress view for each investigation; it
+shows the agent's observable steps, not hidden truth. Use
 `--records eval-report.records.jsonl` to rescore saved runs without making
 another model call or advancing a factory. On the later run,
 `--compare-before baseline-report.json` writes a neighboring comparison JSON

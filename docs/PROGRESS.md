@@ -141,12 +141,18 @@ alarm), then evaluation, then the agent itself.
   computing before/after changes. `DecisionRecord.agent` and `ModelCall.agent`
   default to `research_agent`; `record_of` transfers these to `AgentStep`, so
   future specialists can identify themselves. Older records remain readable.
+  `--watch` passes through the existing live progress hook and flushes output
+  so the terminal shows each step immediately. A four-case preliminary run
+  was stopped before any case completed when the developer requested the full
+  nine-case master with visible progress. The master uses `python -u` and
+  `--watch`.
   `evals/scenarios.json` lists the nine fixed known-answer cases (two each for
   the four MVP faults and one compound challenge). `tests/test_evals.py` checks
-  config validation, full episode scoring boundaries, uncertain labels and
-  comparisons. The complete local suite passed 1,410 tests; focused tests
-  passed after the final harness edits. Live baseline result and CI status to
-  record after they finish. Understanding remains no until the walkthrough.
+  config validation, full episode scoring boundaries, uncertain labels,
+  comparisons and the live progress hook. The complete local suite passed
+  1,410 tests; six focused tests passed after the progress option. Live
+  baseline result and CI status to record after they finish. Understanding
+  remains no until the walkthrough.
 
 - **2026-10-27 (A15): manual-search guidance when a manual is available.**
   Built ungated at the developer's request to build, merge with green CI,

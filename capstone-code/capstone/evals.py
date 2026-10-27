@@ -251,6 +251,7 @@ def run_cases(
     name: str,
     make_policy: Callable | None = None,
     on_record: Callable[[ExperimentRecord], None] | None = None,
+    watch: Callable[[str], None] | None = None,
 ) -> list[ExperimentRecord]:
     """Use the normal episode runner; the config is evaluator-side only."""
     return run_experiment(
@@ -258,6 +259,7 @@ def run_cases(
         make_policy or model_policy_factory(False),
         name=name,
         on_record=on_record,
+        watch=watch,
     )
 
 
@@ -297,6 +299,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         "--raw-out", type=Path, help="save raw episodes for later labelling"
     )
     parser.add_argument("--compare-before", type=Path, help="prior eval report")
+    parser.add_argument("--watch", action="store_true", help="show live agent progress")
     args = parser.parse_args(argv)
     if args.labels and args.auto_label:
         parser.error("choose hand labels or automatic labels")
@@ -314,10 +317,14 @@ def main(argv: Sequence[str] | None = None) -> int:
             append_records(raw_path, [record])
             print(f"completed {record.scenario_id}", flush=True)
 
+        def show_progress(message: str) -> None:
+            print(message, flush=True)
+
         records = run_cases(
             config,
             name=args.name,
             on_record=save_record,
+            watch=show_progress if args.watch else None,
         )
     wanted = [scenario.id for scenario in config.cases]
     if [record.scenario_id for record in records] != wanted:

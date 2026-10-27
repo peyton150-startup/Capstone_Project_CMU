@@ -75,6 +75,22 @@ def test_full_episode_report_keeps_truth_out_of_policy_and_scores_only_labels():
     assert judged.cases[0].agent_steps == record.agent_steps
 
 
+def test_master_run_can_show_existing_live_progress_hooks():
+    config = ScenarioConfig.model_validate(
+        {
+            "cases": [
+                {"id": BEARING.scenario_id, "seed": 6, "fault": "bearing_degradation"}
+            ]
+        }
+    )
+    lines = []
+    run_cases(config, name="watched-eval", make_policy=stand_in, watch=lines.append)
+    text = "\n".join(lines)
+    assert "=== case 1: bearing-6 ===" in text
+    assert "the truth" not in text
+    assert len(lines) > 3
+
+
 def test_review_flag_excludes_provisional_label_from_accuracy():
     config = ScenarioConfig.model_validate(
         {
