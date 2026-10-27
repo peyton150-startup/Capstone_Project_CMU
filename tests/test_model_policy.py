@@ -982,6 +982,25 @@ def test_the_conclude_prompt_states_the_bar_in_force_only_when_known():
     assert "at least 0.75" in note and "escalate" in note
 
 
+@pytest.mark.parametrize("combined", [False, True])
+def test_decision_prompts_request_one_bounded_check_before_an_uncertain_stop(combined):
+    reply = stop()
+    if combined:
+        reply |= {"interpretation": {}}
+    agent = policy(decide=[reply])
+    state = state_with_evidence()
+    if combined:
+        agent.interpret_and_decide(state, "test", ask(), state.evidence[0])
+    else:
+        agent.decide(state, "test")
+    system = agent.clients["decide"].asked[0][0]
+    assert "discriminating check" in system
+    assert "another machine" in system and "10 ticks" in system
+    assert "Do not wait repeatedly" in system
+    assert "budget" in system and "already" in system
+    assert "post-intervention verification" in system
+
+
 def test_hidden_bar_is_omitted_from_the_actual_conclusion_prompt():
     state = state_with_evidence()
     state.action_confidence_needed = 0.73

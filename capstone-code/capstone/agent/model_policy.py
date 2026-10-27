@@ -421,7 +421,16 @@ SYSTEM = {
         "choice to stop and stop_reason to evidence_sufficient when the evidence "
         "answers what this stage needs, or when the remaining budget is better "
         "saved than spent on a call unlikely to change your view, or "
-        "no_useful_action when no listed tool would help."
+        "no_useful_action when no listed tool would help. "
+        "During investigate and test, before stopping with a leading but still "
+        "uncertain explanation, make one discriminating check if it could change "
+        "the conclusion and the budget permits it: compare the same sensor on "
+        "another machine, or use at most one wait of about 10 ticks followed by "
+        "a re-read of that sensor. Say what the check showed. Do not repeat a "
+        "check already answered. Do not wait repeatedly to raise confidence: "
+        "waiting advances the factory and a real fault can worsen. If the check "
+        "is already done or the budget cannot cover it, stop honestly. This "
+        "guidance does not replace mandatory post-intervention verification."
     ),
     "interpret": (
         f"{COMMON}\n\nYour job: say what the newest evidence means. Give the full "
