@@ -1364,6 +1364,57 @@ building it, what happens when its model is unavailable: the investigation
 either stops (as the investigator does today) or carries on without that role,
 with the record saying so.
 
+#### Requesty gateway structured JSON output — candidate (2026-10-27)
+
+**Status: documentation-only future-work candidate; not enabled or live-tested
+for Requesty in this project.** Requesty announced that its OpenAI-compatible
+Chat Completions gateway can accept `response_format` with `type:
+"json_schema"` and `strict: true`, then translate the request to the
+provider-specific structured-output format for upstream Anthropic, Google,
+and other supported models. Requesty reports testing 244 models, **not**
+universal schema compliance; some models support only `json_object` or fail
+even when the parameter is accepted.
+
+**Existing seam:** `capstone/providers/chat.py` already sends
+`answer_type.model_json_schema()` as a strict `response_format` when
+`Provider.structured_output` is enabled. This is currently enabled for
+NVIDIA (L5), **not Requesty**. The smallest experiment is to exercise that
+same flag and existing `ChatClient.ask` path with Requesty, without a
+new SDK, regex parser, parallel response contract, or new agent layer.
+The exact schema must come from the project's existing Pydantic answer
+contract; the returned payload must still pass `model_validate_json`.
+
+**Evaluation before enabling:**
+- Run opt-in live probes on the *specific Requesty model IDs* we use for
+  investigation and fallback. Test required and extra fields, wrong types,
+  nested/optional fields, invalid/empty output, refusals, token truncation,
+  and unsupported-schema or `json_schema` HTTP 400 responses. Record the
+  model and upstream provider, endpoint, date, schema, response validity,
+  latency, and tokens. Verify that our Pydantic schemas are accepted by each
+  provider's supported JSON Schema subset, rather than assuming `strict`
+  guarantees correctness for every routed model.
+- Compare schema adherence and invalid-reply counts against current
+  prompt-only Requesty calls and the already structured NVIDIA baseline.
+  Keep existing typed validation and invalid-reply accounting (L4).
+- Preserve the project's fallback rules and shared question/episode time
+  budgets. Requesty's *gateway-level* failover is a distinct mechanism from
+  our `FallbackClient`; do not silently stack retries or assume the
+  configured model was the upstream model that answered. Confirm the
+  actual-model audit trail before relying on gateway failover.
+- If a given model supports only `json_object`, record it as weaker
+  **syntax-only JSON mode**, not schema enforcement. Keep schema validation
+  and rejection on our side; do not change global provider behavior until
+  opt-in compatibility tests justify it.
+
+**Adoption gate:** enable per validated model/provider path only if measured
+schema adherence improves without unacceptable 60-second episode latency,
+cost, compatibility failures, or lost provenance. This note does not
+implement Requesty structured output, modify fallback behavior, install
+dependencies, or mark the feature implemented or understood.
+
+Source: [Requesty — Structured Outputs Across LLM Providers: 244 Models
+Tested](https://www.requesty.ai/blog/structured-outputs-across-llm-providers-the-compatibility-mess).
+
 #### Compatibility gate and focused tests
 
 Before assigning any selected model to a role, run a small opt-in compatibility
