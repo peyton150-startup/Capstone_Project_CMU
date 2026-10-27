@@ -234,6 +234,7 @@ def run_episode(
         anomaly=anomaly,
         budgets=budgets or Budgets(),
         state_action_bar=settings.state_action_bar,
+        step_questions=settings.step_questions,
     )
     if memory is not None:
         provider = RecallingProvider(provider, memory)
@@ -247,6 +248,7 @@ def run_episode(
         watch=watch,
         min_action_confidence=settings.min_action_confidence,
         state_action_bar=settings.state_action_bar,
+        step_questions=settings.step_questions,
     )
     run_investigation(state, deps)
 

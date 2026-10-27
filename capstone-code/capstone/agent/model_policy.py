@@ -50,6 +50,7 @@ from capstone.agent.policy import (
     CallTool,
     Decision,
     Interpretation,
+    InterpretedStep,
     Lesson,
     LoopPhase,
     Stop,
@@ -161,6 +162,12 @@ class NextStep(Contract):
 class ConcludeAnswer(Contract):
     conclusion: AgentConclusion
     action: ActionRequest | None = None
+
+
+class StepAnswer(NextStep):
+    """Updated beliefs plus the next step based on those updated beliefs."""
+
+    interpretation: Interpretation
 
 
 class Judgement(Contract):
@@ -565,6 +572,40 @@ class ModelPolicy:
             f"{step.information_needed}{testing}. Its answer is {evidence.id} above."
         )
         return self._ask("interpret", state, prompt, Interpretation)
+
+    def interpret_and_decide(
+        self,
+        state: InvestigationState,
+        phase: LoopPhase,
+        step: CallTool,
+        evidence: Evidence,
+    ) -> InterpretedStep:
+        """Ask DECIDE_MODEL for both parts; the loop applies neither until valid."""
+        prompt = (
+            f"{render(state)}\n\n{PHASE[phase]}\n\n"
+            f"JUST ASKED: {step.request.name} {compact(step.request.arguments)}, "
+            f"to learn: {step.information_needed}. Its answer is {evidence.id} above.\n\n"
+            f"TOOLS YOU MAY CALL:\n{tool_list(self.tools)}"
+        )
+        answer = self._ask(
+            "decide",
+            state,
+            prompt,
+            StepAnswer,
+            system=(
+                f"{SYSTEM['decide']}\n\nAlso interpret the newest evidence in the "
+                "interpretation field: give the full revised hypotheses with "
+                "supporting and contradicting evidence IDs (or null to keep them), "
+                "and any new questions. Choose the next step based on these updated "
+                "beliefs. Never assume the result of a tool you have not called."
+            ),
+        )
+        decision = answer.decision()
+        if isinstance(decision, CallTool) and decision.request.name not in {
+            t.name for t in self.tools
+        }:
+            self._refuse(f"{decision.request.name} is not a tool offered here")
+        return InterpretedStep(interpretation=answer.interpretation, decision=decision)
 
     def hypothesize(self, state: InvestigationState) -> Interpretation:
         return self._ask("hypothesize", state, render(state), Interpretation)

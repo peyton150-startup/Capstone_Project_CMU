@@ -128,6 +128,8 @@ class InvestigationState(BaseModel):
     budgets: Budgets = Field(default_factory=Budgets)
     # Whether prompts state the action threshold; kept for experiment records.
     state_action_bar: bool = True
+    # The configured loop mode, kept for experiment records. The loop sets it.
+    step_questions: int = Field(default=2, ge=1, le=2)
 
     evidence: list[Evidence] = Field(default_factory=list)
     # One label per evidence item, written by the loop when it arrived.

@@ -29,6 +29,160 @@ from tests.helpers import (
     new_state,
 )
 
+
+def test_combined_steps_use_one_question_per_result_and_apply_last_belief():
+    from capstone.agent.policy import InterpretedStep
+
+    class CombinedPolicy(ScriptedPolicy):
+        def interpret_and_decide(self, state, phase, step, evidence):
+            self.asked.append("combined")
+            return InterpretedStep(
+                interpretation=Interpretation(hypotheses=(worn(0.7, evidence.id),)),
+                decision=self.decide(state, phase),
+            )
+
+        def interpret(self, *args):
+            pytest.fail("one-question mode must not ask a separate interpretation")
+
+    state = new_state(max_tool_calls=2)
+    p = CombinedPolicy([ask("a"), ask("b"), ask("c")])
+    provider = FakeProvider()
+    reason = run_inner_loop(
+        state,
+        InvestigationDeps(provider, p, clock=lambda: 0, step_questions=1),
+        "investigate",
+    )
+    assert reason is TerminationReason.MAX_TOOL_CALLS
+    assert [c.name for c in provider.calls] == ["a", "b"]
+    assert p.asked == ["combined", "combined"]
+    assert state.hypotheses[0].supporting_evidence_ids == ("E2",)
+    assert state.decisions[1].confidence == 0.7
+    assert state.step_questions == 1
+
+
+def test_bad_combined_beliefs_preserve_evidence_and_discard_the_next_request():
+    from capstone.agent.policy import InterpretedStep
+
+    class BadPolicy(ScriptedPolicy):
+        def interpret_and_decide(self, state, phase, step, evidence):
+            return InterpretedStep(
+                interpretation=Interpretation(hypotheses=(worn(0.9, "E999"),)),
+                decision=ask("must_not_run"),
+            )
+
+    state = new_state()
+    provider = FakeProvider()
+    run_inner_loop(
+        state,
+        InvestigationDeps(
+            provider, BadPolicy([ask("a")]), clock=lambda: 0, step_questions=1
+        ),
+        "investigate",
+    )
+    assert [c.name for c in provider.calls] == ["a"]
+    assert len(state.evidence) == 1 and not state.hypotheses
+    assert state.interpretation_failures == 1
+    assert state.decisions[0].outcome == "uninterpreted"
+
+
+@pytest.mark.parametrize("phase", ["investigate", "test", "verify"])
+def test_a_combined_next_step_cannot_exceed_its_phases_call_budget(phase):
+    from capstone.agent.policy import InterpretedStep
+
+    class CombinedPolicy(ScriptedPolicy):
+        def interpret_and_decide(self, state, phase, step, evidence):
+            return InterpretedStep(
+                interpretation=Interpretation(hypotheses=(worn(0.6, evidence.id),)),
+                decision=ask("must_not_run"),
+            )
+
+    state = new_state(max_tool_calls=1, followup_tool_calls=1)
+    provider = FakeProvider()
+    reason = run_inner_loop(
+        state,
+        InvestigationDeps(
+            provider, CombinedPolicy([ask("a")]), clock=lambda: 0, step_questions=1
+        ),
+        phase,
+    )
+    assert [c.name for c in provider.calls] == ["a"]
+    assert reason is TerminationReason.MAX_TOOL_CALLS
+    assert state.confidence == 0.6
+    assert state.followup_tool_calls_used == (1 if phase == "verify" else 0)
+
+
+def test_a_cached_decision_cannot_run_after_the_combined_question_spends_the_time():
+    from capstone.agent.policy import InterpretedStep
+
+    now = [0.0]
+
+    class SlowPolicy(ScriptedPolicy):
+        def interpret_and_decide(self, state, phase, step, evidence):
+            assert state.seconds_for_question == 800
+            now[0] = 801
+            return InterpretedStep(
+                interpretation=Interpretation(), decision=ask("must_not_run")
+            )
+
+    state = new_state()
+    provider = FakeProvider()
+    reason = run_inner_loop(
+        state,
+        InvestigationDeps(
+            provider, SlowPolicy([ask("a")]), clock=lambda: now[0], step_questions=1
+        ),
+        "investigate",
+    )
+    assert reason is TerminationReason.TIMEOUT
+    assert [c.name for c in provider.calls] == ["a"]
+
+
+def test_repeated_invalid_combined_replies_stop_as_unproductive():
+    class BadPolicy(ScriptedPolicy):
+        def interpret_and_decide(self, *args):
+            raise ValueError("invalid reply")
+
+    state = new_state()
+    provider = FakeProvider()
+    reason = run_inner_loop(
+        state,
+        InvestigationDeps(
+            provider,
+            BadPolicy([ask(n) for n in "abcd"]),
+            clock=lambda: 0,
+            step_questions=1,
+        ),
+        "investigate",
+    )
+    assert reason is TerminationReason.NO_USEFUL_ACTION
+    assert [c.name for c in provider.calls] == ["a", "b", "c"]
+    assert state.interpretation_failures == 3 and len(state.evidence) == 3
+
+
+def test_combined_timeout_keeps_the_result_without_counting_a_policy_error():
+    from capstone.providers.chat import ModelError
+
+    class TimedOutPolicy(ScriptedPolicy):
+        def interpret_and_decide(self, *args):
+            raise ModelError("stage time ran out", out_of_time=True)
+
+    state = new_state(max_tool_calls=1)
+    reason = run_inner_loop(
+        state,
+        InvestigationDeps(
+            FakeProvider(),
+            TimedOutPolicy([ask("a")]),
+            clock=lambda: 0,
+            step_questions=1,
+        ),
+        "investigate",
+    )
+    assert len(state.evidence) == 1
+    assert state.decisions[0].outcome == "uninterpreted"
+    assert state.interpretation_failures == 0
+    assert reason is TerminationReason.TIMEOUT
+
+
 HIDDEN_WORDS = ("bearing_health", "defect_risk", "standard_speed", "ground_truth")
 
 

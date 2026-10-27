@@ -51,7 +51,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from time import monotonic
 
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field
 
 from capstone.agent.completion import AuditLog, complete
 from capstone.agent.model_policy import ModelCall
@@ -245,6 +245,8 @@ class ExperimentRecord(BaseModel):
     factory_calls: int | None = None
     # Unknown in older results; this controls prompt visibility, not enforcement.
     state_action_bar: bool | None = None
+    # None in records made before this setting was introduced.
+    step_questions: int | None = Field(default=None, ge=1, le=2)
 
 
 # Tools answered by something other than the factory.
@@ -331,6 +333,7 @@ def record_of(
         manual_searches=list(build_manual_records(state)) if with_manual else None,
         factory_calls=count_factory_calls(state),
         state_action_bar=state.state_action_bar,
+        step_questions=state.step_questions,
     )
 
 
