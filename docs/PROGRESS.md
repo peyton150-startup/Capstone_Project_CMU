@@ -354,6 +354,40 @@ alarm), then evaluation, then the agent itself.
   the MAX-HIGH fix first, then a reasoning role (critic or analyst) as the
   first multi-agent role.
 
+- **2026-10-27: the two master runs, done (results only; nothing built).**
+  Seeds 6 and 9 (bearing) and 7 (bad batch) at the 0.80 bar stated in the
+  prompt, `main` at `25f0df0`, one at a time. A: manual off
+  (`results-bar80.jsonl`, 09:41-10:19). B: manual on, by meaning
+  (`results-bar80-manual.jsonl`, 10:20-10:59). Not hand-labelled; read from
+  the conclusions and the records.
+
+  | Seed | A: own recommendation, confidence | A: fix asked for | B: own recommendation, confidence | B: fix asked for |
+  |---|---|---|---|---|
+  | 6 bearing | escalate, 0.75 (timeout) | no | **no_action, 0.85** (wrong: "transient spike") | no |
+  | 9 bearing | escalate, 0.70 | no | **intervene, 0.90** | **`replace_bearing` CNC-05, right, fault resolved** |
+  | 7 bad batch | escalate, 0.90 | no | escalate, 0.65 (timeout; blamed CNC-03/04/06) | no |
+
+  - **The manual was never searched: 0 searches in 0 of 3 runs in B.** The
+    tool was on and offered. So A and B differ only by run-to-run variance (the
+    same seed gave opposite conclusions on seed 6), and B says nothing yet
+    about what the manual adds. Next step if the manual is to be tested: the
+    prompt does not say when to consult it (candidate item 20 in
+    `docs/MVP_SCOPE.md`).
+  - **Nothing was overruled in either run** (fix 1): every escalate was the
+    model's own choice. Confidence moves a lot between runs of the same case
+    (seed 9: 0.70 in A, 0.90 in B), so the bar is not what holds back fixes;
+    what the agent checked before concluding is (see the planned
+    check-before-stopping rule, item 19). Seed 9 in B, the first fix any run
+    has asked for: belief 0.41 to 0.90 after load and temperature, `wait(10)`
+    and re-reading, and a comparison with CNC-04, then `replace_bearing`,
+    approved, carried out; the simulator confirms the fault gone; the agent's
+    own check afterwards said `inconclusive` (the lesson-run finding 1 again).
+  - **Time:** A 11-15 min per case (6 timeouts in seed 6, Cloudflare answering
+    HTTP 429 on every ask), B 10-15 min; B: 79 questions, 13 failed attempts
+    (all timeouts), 2 refused replies, about 773 s per episode (A about 760 s).
+  - **Seed 7 again:** both runs read the batch-2 failures as an odd/even job
+    pattern or as machines (CNC-03/04/06), not as a batch, as on 2026-10-26.
+
 - **2026-10-27: planned setting, questions per step; Cloudflare left out of
   the chain for now (docs only; nothing built).** Measured on the first case
   of the 0.80-bar test (seed 6, bearing, `results-bar80.jsonl`): 881 s, of
