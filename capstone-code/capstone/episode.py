@@ -233,6 +233,7 @@ def run_episode(
         investigation_id=investigation_id_for(run_id, 1),
         anomaly=anomaly,
         budgets=budgets or Budgets(),
+        state_action_bar=settings.state_action_bar,
         step_questions=settings.step_questions,
     )
     if memory is not None:
@@ -246,6 +247,7 @@ def run_episode(
         human_review=human_review,
         watch=watch,
         min_action_confidence=settings.min_action_confidence,
+        state_action_bar=settings.state_action_bar,
         step_questions=settings.step_questions,
     )
     run_investigation(state, deps)

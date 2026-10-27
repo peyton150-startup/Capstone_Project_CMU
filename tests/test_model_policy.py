@@ -1010,3 +1010,41 @@ def test_manual_use_guidance_only_appears_for_available_manuals_during_research(
         assert "search_manual" in prompt and "procedure" in prompt
         assert "current factory evidence" in prompt
         assert "search limits" in prompt and "already retrieved" in prompt
+
+
+def test_hidden_bar_is_omitted_from_the_actual_conclusion_prompt():
+    state = state_with_evidence()
+    state.action_confidence_needed = 0.73
+    state.state_action_bar = False
+    p = policy(
+        conclude=[
+            {
+                "conclusion": {
+                    "diagnosis": "uncertain",
+                    "confidence": 0.6,
+                    "recommendation": "escalate",
+                }
+            }
+        ]
+    )
+    p.conclude(state)
+    system, prompt, _ = p.clients["conclude"].asked[0]
+    assert "0.73" not in system + prompt
+    assert "TO ASK FOR A FIX" not in prompt
+
+
+def test_episode_records_bar_visibility_even_if_planning_fails(monkeypatch):
+    from capstone.experiment import Case, record_of
+
+    monkeypatch.setenv("STATE_ACTION_BAR", "false")
+    result = run_episode(
+        6,
+        policy(plan=[ModelError("offline")]),
+        fault="bearing_degradation",
+        clock=lambda: 0,
+    )
+    record = record_of(Case("bearing-6", 6, "bearing_degradation"), "unit", result)
+    assert record.state_action_bar is False
+    old = record.model_dump()
+    del old["state_action_bar"]
+    assert type(record).model_validate(old).state_action_bar is None
