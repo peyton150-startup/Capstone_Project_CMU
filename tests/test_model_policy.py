@@ -980,3 +980,41 @@ def test_the_conclude_prompt_states_the_bar_in_force_only_when_known():
     shown = state.model_copy(update={"action_confidence_needed": 0.75})
     note = action_bar_note(shown)
     assert "at least 0.75" in note and "escalate" in note
+
+
+def test_hidden_bar_is_omitted_from_the_actual_conclusion_prompt():
+    state = state_with_evidence()
+    state.action_confidence_needed = 0.73
+    state.state_action_bar = False
+    p = policy(
+        conclude=[
+            {
+                "conclusion": {
+                    "diagnosis": "uncertain",
+                    "confidence": 0.6,
+                    "recommendation": "escalate",
+                }
+            }
+        ]
+    )
+    p.conclude(state)
+    system, prompt, _ = p.clients["conclude"].asked[0]
+    assert "0.73" not in system + prompt
+    assert "TO ASK FOR A FIX" not in prompt
+
+
+def test_episode_records_bar_visibility_even_if_planning_fails(monkeypatch):
+    from capstone.experiment import Case, record_of
+
+    monkeypatch.setenv("STATE_ACTION_BAR", "false")
+    result = run_episode(
+        6,
+        policy(plan=[ModelError("offline")]),
+        fault="bearing_degradation",
+        clock=lambda: 0,
+    )
+    record = record_of(Case("bearing-6", 6, "bearing_degradation"), "unit", result)
+    assert record.state_action_bar is False
+    old = record.model_dump()
+    del old["state_action_bar"]
+    assert type(record).model_validate(old).state_action_bar is None

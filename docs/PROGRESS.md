@@ -109,6 +109,7 @@ A component is complete only when both columns are checked.
 | A10 | The policy's own recommendation, and why an intervention was lowered, are recorded (MAX-HIGH change 1) | no (built first; walkthrough started 2026-10-26 (Q1 asked, unanswered), merged at the developer's request to save usage; walkthrough owed for 2026-10-27) | n/a | yes | no | `agent/investigation.py` (`why_not_acted`, `check_conclusion`, `conclude`), `agent/state.py` (`policy_recommendation`, `recommendation_lowered`), `experiment.py` (`ExperimentRecord` fields, `overruled_text`); session note 2026-10-26 (A10) |
 | A11 | The conclude prompt states the bar in force (change 2); the bar is a setting, MIN_ACTION_CONFIDENCE (change 3) | no (built first and merged before teaching at the developer's request, 2026-10-26; the test (KA-01 to KA-03 at a 0.80 bar) and the walkthrough moved to 2026-10-27) | n/a | yes | no | `agent/state.py` (`action_confidence_needed`), `agent/loop.py` (`ask_policy`), `agent/model_policy.py` (`action_bar_note`, `conclude`), `settings.py` (`min_action_confidence`), `episode.py`; session note 2026-10-26 (A11) |
 | A12 | Configurable questions per step: STEP_QUESTIONS=1 combines interpretation and next decision; 2 retains separate questions | yes | yes (2026-10-27: updated beliefs and requested tool; code decides what is allowed) | yes | no — developer requested build, merge, then quiz (2026-10-27) | `agent/policy.py`, `agent/model_policy.py`, `agent/loop.py`, `agent/state.py`, `settings.py`, `episode.py`, `experiment.py`; session note 2026-10-27 (A12) |
+| A13 | STATE_ACTION_BAR: show or hide the action threshold in prompts, with enforcement unchanged | no — developer requested build, merge, then quiz (2026-10-27) | no — built ungated, developer to review | yes | no — quiz after merge | `settings.py`, `agent/state.py`, `agent/loop.py`, `agent/model_policy.py`, `episode.py`, `experiment.py`; session note 2026-10-27 (A13) |
 
 Every row above with four "yes" marks (or "n/a") is complete: no question is
 outstanding on it. Still to build after 12c, from `docs/MVP_SCOPE.md`: the
@@ -116,6 +117,36 @@ other three fault scenarios (material batch, machine configuration, false
 alarm), then evaluation, then the agent itself.
 
 ## Session notes
+
+- **2026-10-27 (A13): optional action-bar visibility.** Built ungated at the
+  developer's explicit request to build all four additions, merge after
+  green CI, then quiz afterward. Understood: no — developer to review.
+  - `settings.py`: `Settings.state_action_bar` reads `STATE_ACTION_BAR`,
+    default true; `.env.example` documents true/false. Real `.env` untouched.
+  - `agent/state.py`: `InvestigationState.state_action_bar` records the
+    configured visibility. `episode.py` initializes it before planning and
+    passes it into `InvestigationDeps`, so early outages still record it.
+  - `agent/loop.py`: `InvestigationDeps.state_action_bar` controls
+    `ask_policy`'s copy: hidden means `action_confidence_needed` is None.
+    The enforcement value `min_action_confidence` stays on the dependencies;
+    `check_conclusion` and human approval are unchanged.
+  - `agent/model_policy.py`: `action_bar_note` also checks visibility, so a
+    direct model-policy caller cannot accidentally display a hidden bar.
+  - `experiment.py`: `ExperimentRecord.state_action_bar` and `record_of`
+    save visibility; old records load with None (unknown).
+  Nine new tests in existing CI-grouped files `test_settings.py`,
+  `test_agent_investigation.py` and `test_model_policy.py` cover the two
+  environment values and default; prompt omission; identical enforcement
+  with the bar shown/hidden above/below the threshold; recording an
+  overruled intervention; early outage metadata; old-record compatibility.
+  All nine passed. Dependency sync, Ruff lint/format and CI-group validation
+  passed; full `uv run pytest`: 1,370 passed (8m52s) on the visibility branch
+  before integrating the separately merged A12 change. After integration,
+  all 237 settings, model-policy, loop, investigation, episode and experiment
+  tests passed; static checks and CI-group validation passed again.
+  Independent read-only review
+  found no defects. No real model called; confidence effects and live
+  comparison against the master run remain unmeasured.
 
 - **2026-10-27 (A12): one-question steps, selectable with STEP_QUESTIONS.**
   Pre-implementation understanding passed: the developer identified updated

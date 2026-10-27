@@ -283,13 +283,13 @@ def evidence_section(state: InvestigationState) -> list[str]:
 
 
 def action_bar_note(state: InvestigationState) -> str:
-    """The rule an intervention must meet, with the bar in force; empty if unknown.
+    """The rule an intervention must meet; empty when the bar is unknown or hidden.
 
     Without it the model is overruled by a rule it cannot see (2026-10-26:
     right bearing diagnoses at 0.80 and 0.85 were lowered to escalate).
     """
     bar = state.action_confidence_needed
-    if bar is None:
+    if bar is None or not state.state_action_bar:
         return ""
     return (
         f"\n\nTO ASK FOR A FIX: intervene is accepted only with confidence of at "

@@ -392,6 +392,30 @@ def test_the_policy_is_shown_the_bar_it_must_meet_to_act():
     assert seen == [0.75]
 
 
+@pytest.mark.parametrize("visible", [True, False])
+@pytest.mark.parametrize(
+    "confidence, expected", [(0.7, "escalate"), (0.9, "intervene")]
+)
+def test_hiding_the_bar_changes_visibility_but_not_enforcement(
+    visible, confidence, expected
+):
+    seen = []
+
+    def conclude(state):
+        seen.append(state.action_confidence_needed)
+        return conclusion(confidence=confidence), REPLACE
+
+    state, _ = investigate(
+        wear_policy(conclude=conclude),
+        state_action_bar=visible,
+        min_action_confidence=0.8,
+    )
+    assert seen == [0.8 if visible else None]
+    assert state.conclusion.recommendation == expected
+    assert state.policy_recommendation == "intervene"
+    assert (state.recommendation_lowered is not None) == (confidence < 0.8)
+
+
 def test_the_confidence_needed_to_act_is_a_setting():
     concluded = (conclusion(confidence=0.7), REPLACE)
     state, _ = investigate(
