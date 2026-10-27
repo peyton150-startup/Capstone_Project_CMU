@@ -390,6 +390,35 @@ alarm), then evaluation, then the agent itself.
     probe answers. The run in progress was left running with it. A code
     answer to the same problem (skip a provider after repeated 429s) is the
     circuit-breaker candidate, row 5 of `docs/FUTURE_WORK_REEVALUATION.md`.
+  - **Planned setting `STATE_ACTION_BAR` (not built; item 18 in
+    `docs/MVP_SCOPE.md`).** On (default, today): the conclude prompt states
+    the confidence bar (`action_bar_note`, fix 2). Off: the prompt does not
+    mention it; the code still enforces `MIN_ACTION_CONFIDENCE`, and fix 1
+    still records the model's own recommendation and why it was lowered.
+    Why: confidence should be an honest estimate, not a number aimed at a
+    threshold the model can see. In the 0.80-bar test the model chose
+    escalate itself (not overruled) at confidence 0.75 (seed 6, was 0.80 the
+    evening before) and 0.70 (seed 9, was 0.85): lower with the bar stated,
+    but only two cases from different runs, and this model's answers vary from
+    run to run, so it is not shown that stating the bar caused it. A cleaner
+    variant: the model gives its diagnosis, an honest confidence and the
+    action it would take, and only the code decides act or escalate. Touches
+    `agent/model_policy.py` (`action_bar_note`, `conclude`), `settings.py`
+    and the experiment record (note the setting). Measure: the same three
+    cases with the bar hidden at 0.80 against master run A below; repeat a
+    case if the difference is small.
+  - **The two master runs, for now (developer, 2026-10-27): the same run
+    with the manual off and on, nothing else different.** Seeds 6 and 9
+    (bearing) and 7 (bad batch), one at a time, `main` at `25f0df0`, bar 0.80
+    stated in the prompt, two questions per step, live view on, the bar's
+    value and chain set in the run's environment only. **A, manual off**:
+    `results-bar80.jsonl`, chain NVIDIA, Cloudflare, Cohere, Requesty Ultra
+    550B. **B, manual on** (`--manual`, by meaning): `results-bar80-manual.jsonl`,
+    chain NVIDIA, Cohere, Requesty Ultra 550B (Cloudflare answered none of A's
+    asks, so A's answers came from the same models). Compare A with B only,
+    for what the manual adds. The main folder stays on `25f0df0` until B is
+    done, so the code is identical. The hidden bar, one question per step and
+    the 0.9 bar are planned, not scheduled: no usage left for more runs.
 
 - **FIRST THING ON 2026-10-27 (MAX-HIGH PRIORITY, developer's decision): the
   agent never recommends a fix.** In tonight's scored run (started 16:32 on
