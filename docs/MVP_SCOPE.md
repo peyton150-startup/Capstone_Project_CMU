@@ -1867,6 +1867,15 @@ recipe, so runs stay reproducible; the frontend only chooses the recipe and
 never shows the agent the hidden causes. There is no frontend yet; the live
 progress view discussed on 2026-10-19 would be its first screen.
 
+**Frontend settings note (developer, 2026-10-27).** If a frontend is built,
+expose the user-adjustable settings currently configured through `.env` as
+frontend controls, including `STEP_QUESTIONS` (one or two model questions
+per step) and `STATE_ACTION_BAR` (show or hide the action threshold in the
+prompt). Keep the same backend validation and enforcement; hiding the
+threshold does not disable it. API keys and other secrets stay in backend
+configuration and must not be sent to the frontend. This is a future
+requirement, conditional on building a frontend; no settings UI is built yet.
+
 **Frontend note: the watcher runs in the run's own thread (developer's
 note, 2026-10-26).** The live progress view (LV, `python -m
 capstone.progress`) reads the run through `InvestigationDeps.watch`, which
