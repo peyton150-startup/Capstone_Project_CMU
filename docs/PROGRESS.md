@@ -109,6 +109,7 @@ A component is complete only when both columns are checked.
 | A10 | The policy's own recommendation, and why an intervention was lowered, are recorded (MAX-HIGH change 1) | no (built first; walkthrough started 2026-10-26 (Q1 asked, unanswered), merged at the developer's request to save usage; walkthrough owed for 2026-10-27) | n/a | yes | no | `agent/investigation.py` (`why_not_acted`, `check_conclusion`, `conclude`), `agent/state.py` (`policy_recommendation`, `recommendation_lowered`), `experiment.py` (`ExperimentRecord` fields, `overruled_text`); session note 2026-10-26 (A10) |
 | A11 | The conclude prompt states the bar in force (change 2); the bar is a setting, MIN_ACTION_CONFIDENCE (change 3) | no (built first and merged before teaching at the developer's request, 2026-10-26; the test (KA-01 to KA-03 at a 0.80 bar) and the walkthrough moved to 2026-10-27) | n/a | yes | no | `agent/state.py` (`action_confidence_needed`), `agent/loop.py` (`ask_policy`), `agent/model_policy.py` (`action_bar_note`, `conclude`), `settings.py` (`min_action_confidence`), `episode.py`; session note 2026-10-26 (A11) |
 | A12 | Configurable questions per step: STEP_QUESTIONS=1 combines interpretation and next decision; 2 retains separate questions | yes | yes (2026-10-27: updated beliefs and requested tool; code decides what is allowed) | yes | no — developer requested build, merge, then quiz (2026-10-27) | `agent/policy.py`, `agent/model_policy.py`, `agent/loop.py`, `agent/state.py`, `settings.py`, `episode.py`, `experiment.py`; session note 2026-10-27 (A12) |
+| A14 | Prompt guidance: one discriminating check before stopping with an uncertain leading explanation | no — developer requested build, merge, then quiz (2026-10-27) | no — built ungated, developer to review | yes | no — quiz after merge | `agent/model_policy.py` (`SYSTEM["decide"]`); session note 2026-10-27 (A14) |
 
 Every row above with four "yes" marks (or "n/a") is complete: no question is
 outstanding on it. Still to build after 12c, from `docs/MVP_SCOPE.md`: the
@@ -116,6 +117,30 @@ other three fault scenarios (material batch, machine configuration, false
 alarm), then evaluation, then the agent itself.
 
 ## Session notes
+
+- **2026-10-27 (A14): check before stopping, prompt guidance.** Built ungated
+  at the developer's request to build, merge with green CI, then quiz.
+  Understood: no — developer to review. `agent/model_policy.py`'s
+  `SYSTEM["decide"]` now tells investigation/testing to make one
+  discriminating check before stopping with a leading but uncertain
+  explanation, if it could change the conclusion and budget permits:
+  compare the same sensor on another machine, or at most one wait of about
+  10 ticks followed by a re-read. Say what the check showed, reuse checks
+  already answered, and do not keep waiting to raise confidence. Waiting
+  advances the simulated fault. Stop honestly if the check is already done
+  or the budget cannot cover it. Verification after intervention remains
+  mandatory. `ModelPolicy.decide` and `interpret_and_decide` already use
+  this shared system prompt, so both step modes receive the guidance.
+  It names no numerical confidence bar, so hiding the bar remains possible.
+  This is guidance a model can ignore, not the alternative hard loop-level
+  stop refusal. No budgets, tool permissions or simulator behavior changed;
+  no additional setting. `tests/test_model_policy.py` adds two cases proving
+  the actual emitted system includes the bounded-check guidance in both
+  question modes; they failed before the change. Dependency sync, all 142
+  policy/loop/verification tests, Ruff lint/format, CI-group validation and
+  `git diff --check` passed. Independent read-only review found no defects.
+  CI must pass before merge. No real model called: whether diagnoses improve,
+  false alarms remain untouched or investigations take longer is unmeasured.
 
 - **2026-10-27 (A12): one-question steps, selectable with STEP_QUESTIONS.**
   Pre-implementation understanding passed: the developer identified updated
