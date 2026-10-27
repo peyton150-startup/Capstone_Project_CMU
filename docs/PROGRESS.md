@@ -112,6 +112,7 @@ A component is complete only when both columns are checked.
 | A13 | STATE_ACTION_BAR: show or hide the action threshold in prompts, with enforcement unchanged | no — developer requested build, merge, then quiz (2026-10-27) | no — built ungated, developer to review | yes | no — quiz after merge | `settings.py`, `agent/state.py`, `agent/loop.py`, `agent/model_policy.py`, `episode.py`, `experiment.py`; session note 2026-10-27 (A13) |
 | A14 | Prompt guidance: one discriminating check before stopping with an uncertain leading explanation | no — developer requested build, merge, then quiz (2026-10-27) | no — built ungated, developer to review | yes | no — quiz after merge | `agent/model_policy.py` (`SYSTEM["decide"]`); session note 2026-10-27 (A14) |
 | A15 | Prompt guidance: consult an available manual before recommending a repair | no — developer requested build, merge, then quiz (2026-10-27) | no — built ungated, developer to review | yes | no — quiz after merge | `agent/model_policy.py` (`manual_use_note`, `decide`, `interpret_and_decide`); session note 2026-10-27 (A15) |
+| EV1 | Configurable full-episode evaluation harness and single-agent master baseline | no — build first at developer's request (2026-10-27) | no — walkthrough owed | yes (tests passed; live baseline pending) | no — walkthrough owed | `capstone/evals.py`, `evals/scenarios.json`, `experiment.py` (`AgentStep`), `agent/state.py`, `agent/model_policy.py`, `tests/test_evals.py`; session note 2026-10-27 (EV1) |
 
 Every row above with four "yes" marks (or "n/a") is complete: no question is
 outstanding on it. Still to build after 12c, from `docs/MVP_SCOPE.md`: the
@@ -119,6 +120,33 @@ other three fault scenarios (material batch, machine configuration, false
 alarm), then evaluation, then the agent itself.
 
 ## Session notes
+
+- **2026-10-27 (EV1): evaluation harness before specialists.** The developer
+  approved the order: Phase 3 first, a current single-agent baseline, Phase 1
+  PydanticAI specialists inside the existing Pydantic Graph, then Phase 2
+  ground-truth-gated memory with observational memories retained. The developer
+  additionally asked for a full nine-case master run now and another after the
+  final phase, using the same case config and comparing accuracy, tool calls,
+  runtime, and per-agent work. Teaching walkthroughs follow each phase's code
+  and tests and do not block PR creation. No agent architecture, simulator,
+  memory or tool behavior changed in EV1.
+
+  `capstone/evals.py` reads evaluator-only scenario config, runs the existing
+  `run_experiment`, and writes one JSON report with per-case expected faults,
+  conclusion, diagnosis label, correctness, calls, runtime, and attributed
+  steps. The raw `ExperimentRecord` JSONL is retained for later relabelling
+  without rerunning the model. Hand labels use the existing `LabelBook`;
+  optional TypeSafe proposals remain unjudged when marked for review.
+  `compare_reports` checks matching scenario IDs and expected faults before
+  computing before/after changes. `DecisionRecord.agent` and `ModelCall.agent`
+  default to `research_agent`; `record_of` transfers these to `AgentStep`, so
+  future specialists can identify themselves. Older records remain readable.
+  `evals/scenarios.json` lists the nine fixed known-answer cases (two each for
+  the four MVP faults and one compound challenge). `tests/test_evals.py` checks
+  config validation, full episode scoring boundaries, uncertain labels and
+  comparisons. The complete local suite passed 1,410 tests; focused tests
+  passed after the final harness edits. Live baseline result and CI status to
+  record after they finish. Understanding remains no until the walkthrough.
 
 - **2026-10-27 (A15): manual-search guidance when a manual is available.**
   Built ungated at the developer's request to build, merge with green CI,

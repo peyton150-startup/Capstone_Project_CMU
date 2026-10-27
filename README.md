@@ -242,6 +242,30 @@ metadata only, masks secret wrappers, and rejects arbitrary payloads, reasons,
 and exception text. It adds no wall-clock time, changes no root logger, and
 does not enable an external tracing service.
 
+## Scenario evaluations
+
+`evals/scenarios.json` lists fixed seeds and injected faults for repeatable
+single-agent and future multi-agent comparisons. Run the same file and settings
+before and after an architecture change:
+
+```sh
+uv run python -m capstone.evals --config evals/scenarios.json --name single-baseline --out eval-report.json --auto-label
+```
+
+The command writes a JSON report and a neighboring `eval-report.records.jsonl`
+file containing the full evaluator-side episodes. Each case reports the injected
+fault, the agent's final words, diagnosis correctness, target correctness, tool
+calls, wall time, and steps attributed to each agent. The summary reports
+overall and per-fault accuracy. Hidden truth in these files must never be used
+as agent input. The agent's conclusion is free text, so `--auto-label` uses the
+existing TypeSafe evaluator to propose a diagnosis; unclear proposals are
+marked for review and excluded from accuracy. `--labels labels.jsonl` uses
+reviewed labels instead. Without labels, accuracy stays unjudged. Use
+`--records eval-report.records.jsonl` to rescore saved runs without making
+another model call or advancing a factory. On the later run,
+`--compare-before baseline-report.json` writes a neighboring comparison JSON
+with accuracy, calls and runtime differences for the same scenarios.
+
 ## Database migrations and episodic memory
 
 Alembic is included in the optional database extra. `alembic.ini` points to

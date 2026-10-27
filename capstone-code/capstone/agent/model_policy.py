@@ -186,6 +186,7 @@ class ModelCall(Contract):
     """One question put to a model, for the record. Not part of working memory."""
 
     job: str
+    agent: str = "research_agent"
     outcome: Literal["answered", "invalid_reply", "no_answer"]
     answered_by: str | None = None
     attempts: tuple[Attempt, ...] = ()

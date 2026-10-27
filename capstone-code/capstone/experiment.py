@@ -164,6 +164,17 @@ class CallSummary(BaseModel):
     details: tuple[ModelCall, ...] | None = None
 
 
+class AgentStep(BaseModel):
+    """A model question or loop decision attributed to its producing agent."""
+
+    model_config = ConfigDict(frozen=True, extra="forbid")
+    agent: str
+    kind: str
+    phase: str
+    outcome: str
+    tool: str | None = None
+
+
 def summarize_calls(calls: Sequence[ModelCall]) -> CallSummary:
     answered = [call for call in calls if call.outcome == "answered"]
     invalid = Counter(call.job for call in calls if call.outcome == "invalid_reply")
@@ -247,6 +258,8 @@ class ExperimentRecord(BaseModel):
     state_action_bar: bool | None = None
     # None in records made before this setting was introduced.
     step_questions: int | None = Field(default=None, ge=1, le=2)
+    # None in older records; specialists can identify themselves on each step.
+    agent_steps: list[AgentStep] | None = None
 
 
 # Tools answered by something other than the factory.
@@ -334,6 +347,29 @@ def record_of(
         factory_calls=count_factory_calls(state),
         state_action_bar=state.state_action_bar,
         step_questions=state.step_questions,
+        agent_steps=[
+            AgentStep(
+                agent=decision.agent,
+                kind="decision",
+                phase=decision.phase,
+                outcome=decision.outcome,
+                tool=decision.tool,
+            )
+            for decision in state.decisions
+        ]
+        + [
+            AgentStep(
+                agent=call.agent,
+                kind="model_question",
+                phase=call.job,
+                outcome=call.outcome,
+            )
+            for call in (
+                ()
+                if model_calls is None or model_calls.details is None
+                else model_calls.details
+            )
+        ],
     )
 
 
