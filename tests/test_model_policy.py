@@ -980,3 +980,33 @@ def test_the_conclude_prompt_states_the_bar_in_force_only_when_known():
     shown = state.model_copy(update={"action_confidence_needed": 0.75})
     note = action_bar_note(shown)
     assert "at least 0.75" in note and "escalate" in note
+
+
+@pytest.mark.parametrize("combined", [False, True])
+@pytest.mark.parametrize("with_manual", [False, True])
+@pytest.mark.parametrize("phase", ["investigate", "test", "verify"])
+def test_manual_use_guidance_only_appears_for_available_manuals_during_research(
+    combined,
+    with_manual,
+    phase,
+):
+    from capstone.providers.manual import MANUAL_SPEC
+
+    reply = stop()
+    if combined:
+        reply |= {"interpretation": {}}
+    tools = (*research_tools(), MANUAL_SPEC) if with_manual else research_tools()
+    agent = policy(tools=tools, decide=[reply])
+    state = state_with_evidence()
+    if combined:
+        agent.interpret_and_decide(state, phase, ask(), state.evidence[0])
+    else:
+        agent.decide(state, phase)
+    prompt = agent.clients["decide"].asked[0][1]
+    expected = with_manual and phase != "verify"
+    assert ("MANUAL USE:" in prompt) is expected
+    if expected:
+        assert "Before recommending a repair" in prompt
+        assert "search_manual" in prompt and "procedure" in prompt
+        assert "current factory evidence" in prompt
+        assert "search limits" in prompt and "already retrieved" in prompt

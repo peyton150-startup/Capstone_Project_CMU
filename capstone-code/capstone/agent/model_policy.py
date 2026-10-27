@@ -61,6 +61,7 @@ from capstone.contracts.evidence import Evidence
 from capstone.contracts.tools import ToolRequest, ToolSpec
 from capstone.providers.chat import JOBS, Attempt, invalid_outcome
 from capstone.providers.factory import TOOL_DESCRIPTIONS
+from capstone.providers.manual import MANUAL_TOOL
 
 Answer = TypeVar("Answer", bound=BaseModel)
 
@@ -391,6 +392,23 @@ def tool_list(tools: Sequence[ToolSpec]) -> str:
     )
 
 
+def manual_use_note(tools: Sequence[ToolSpec], phase: LoopPhase) -> str:
+    """Research guidance only when the manual tool is actually offered."""
+    if phase == "verify" or not any(tool.name == MANUAL_TOOL for tool in tools):
+        return ""
+    return (
+        "\n\nMANUAL USE: Before recommending a repair, use search_manual to look up "
+        "the observed symptom and the relevant procedure, unless those sections "
+        "were already retrieved. Use that guidance to choose checks against "
+        "current factory evidence: the manual describes this machine model, "
+        "not the cause of this incident. Respect the tool's search limits and "
+        "reuse sections already retrieved rather than repeating a search. If "
+        "search fails or its allowance is exhausted, state that limitation and "
+        "continue with factory evidence; do not retry endlessly. Manual guidance "
+        "does not replace human approval or verification after the work."
+    )
+
+
 # --- one system prompt per question --------------------------------------------
 
 COMMON = (
@@ -556,6 +574,7 @@ class ModelPolicy:
             f"{render(state)}\n\n{PHASE[phase]}\n\n"
             f"TOOLS YOU MAY CALL:\n{tool_list(self.tools)}"
         )
+        prompt += manual_use_note(self.tools, phase)
         decision = self._ask("decide", state, prompt, NextStep).decision()
         offered = {t.name for t in self.tools}
         if isinstance(decision, CallTool) and decision.request.name not in offered:
@@ -587,6 +606,7 @@ class ModelPolicy:
             f"to learn: {step.information_needed}. Its answer is {evidence.id} above.\n\n"
             f"TOOLS YOU MAY CALL:\n{tool_list(self.tools)}"
         )
+        prompt += manual_use_note(self.tools, phase)
         answer = self._ask(
             "decide",
             state,

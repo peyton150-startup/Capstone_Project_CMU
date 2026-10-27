@@ -109,6 +109,7 @@ A component is complete only when both columns are checked.
 | A10 | The policy's own recommendation, and why an intervention was lowered, are recorded (MAX-HIGH change 1) | no (built first; walkthrough started 2026-10-26 (Q1 asked, unanswered), merged at the developer's request to save usage; walkthrough owed for 2026-10-27) | n/a | yes | no | `agent/investigation.py` (`why_not_acted`, `check_conclusion`, `conclude`), `agent/state.py` (`policy_recommendation`, `recommendation_lowered`), `experiment.py` (`ExperimentRecord` fields, `overruled_text`); session note 2026-10-26 (A10) |
 | A11 | The conclude prompt states the bar in force (change 2); the bar is a setting, MIN_ACTION_CONFIDENCE (change 3) | no (built first and merged before teaching at the developer's request, 2026-10-26; the test (KA-01 to KA-03 at a 0.80 bar) and the walkthrough moved to 2026-10-27) | n/a | yes | no | `agent/state.py` (`action_confidence_needed`), `agent/loop.py` (`ask_policy`), `agent/model_policy.py` (`action_bar_note`, `conclude`), `settings.py` (`min_action_confidence`), `episode.py`; session note 2026-10-26 (A11) |
 | A12 | Configurable questions per step: STEP_QUESTIONS=1 combines interpretation and next decision; 2 retains separate questions | yes | yes (2026-10-27: updated beliefs and requested tool; code decides what is allowed) | yes | no — developer requested build, merge, then quiz (2026-10-27) | `agent/policy.py`, `agent/model_policy.py`, `agent/loop.py`, `agent/state.py`, `settings.py`, `episode.py`, `experiment.py`; session note 2026-10-27 (A12) |
+| A15 | Prompt guidance: consult an available manual before recommending a repair | no — developer requested build, merge, then quiz (2026-10-27) | no — built ungated, developer to review | yes | no — quiz after merge | `agent/model_policy.py` (`manual_use_note`, `decide`, `interpret_and_decide`); session note 2026-10-27 (A15) |
 
 Every row above with four "yes" marks (or "n/a") is complete: no question is
 outstanding on it. Still to build after 12c, from `docs/MVP_SCOPE.md`: the
@@ -116,6 +117,30 @@ other three fault scenarios (material batch, machine configuration, false
 alarm), then evaluation, then the agent itself.
 
 ## Session notes
+
+- **2026-10-27 (A15): manual-search guidance when a manual is available.**
+  Built ungated at the developer's request to build, merge with green CI,
+  then quiz. Understood: no — developer to review.
+  `agent/model_policy.py` adds `manual_use_note(tools, phase)`, which returns
+  guidance only when `search_manual` is offered and the phase is
+  investigate/test. `ModelPolicy.decide` and `interpret_and_decide` append
+  it to their prompts: before recommending a repair, search the observed
+  symptom and relevant procedure unless those sections were already
+  retrieved. Use the manual to choose checks against current factory
+  evidence; a manual describes the machine model, not the cause here.
+  Respect search limits, reuse retrieved sections, and state limitations
+  rather than retrying endlessly after failure/exhaustion. Approval and
+  post-action verification remain mandatory. Verification prompts do not
+  receive this research guidance. No manual is enabled automatically:
+  existing `--manual` configuration still controls tool availability.
+  `tests/test_model_policy.py` adds 12 prompt-contract cases: both question
+  modes, with/without the manual tool, across investigate/test/verify. The
+  four enabled research cases failed before implementation. Dependency sync,
+  all 110 policy/manual/provenance tests, Ruff lint/format, CI-group validation
+  and `git diff --check` passed. Independent read-only review found no
+  defects. CI must pass before merge. This is prompt guidance, not a
+  hard repair gate; no live model called and manual use/diagnostic benefit
+  remain unmeasured.
 
 - **2026-10-27 (A12): one-question steps, selectable with STEP_QUESTIONS.**
   Pre-implementation understanding passed: the developer identified updated
