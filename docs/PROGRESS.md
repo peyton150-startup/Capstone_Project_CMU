@@ -116,6 +116,15 @@ alarm), then evaluation, then the agent itself.
 
 ## Session notes
 
+- **2026-10-27: future frontend settings controls (documentation only).**
+  At the developer's request, added a note to `docs/MVP_SCOPE.md` Future
+  Work 8: if a frontend is built, expose user-adjustable `.env` settings as
+  controls, including `STEP_QUESTIONS` and `STATE_ACTION_BAR`. Backend
+  validation and action-threshold enforcement remain in force; API keys
+  and other secrets remain backend-only. No frontend or runtime behavior
+  changed; implementation and understanding statuses are unchanged. Local
+  tests skipped under AGENTS.md section 11's docs-only rule.
+
 - **2026-10-26: Brandon Reff acknowledgment (documentation only).**
   Added a README acknowledgment thanking Brandon Reff for helping improve
   simulator realism through manufacturing feedback, at the developer's
