@@ -646,14 +646,17 @@ def test_a_whole_episode_runs_on_model_replies_alone():
 
 
 @pytest.mark.parametrize("mode, expected_questions", [(1, 11), (2, 14)])
+@pytest.mark.parametrize("visible", [True, False])
 def test_both_step_modes_finish_the_same_scripted_repair_and_record_the_mode(
     monkeypatch,
     mode,
     expected_questions,
+    visible,
 ):
     from capstone.experiment import Case, record_of, summarize_calls
 
     monkeypatch.setenv("STEP_QUESTIONS", str(mode))
+    monkeypatch.setenv("STATE_ACTION_BAR", str(visible).lower())
     agent = scripted_models()
     if mode == 1:
         # Same replies and tool sequence. Fuse the interpretation of each
@@ -682,6 +685,9 @@ def test_both_step_modes_finish_the_same_scripted_repair_and_record_the_mode(
         model_calls=summarize_calls(agent.calls),
     )
     assert record.step_questions == mode
+    assert record.state_action_bar is visible
+    conclusion_prompt = agent.clients["conclude"].asked[0][1]
+    assert ("TO ASK FOR A FIX" in conclusion_prompt) is visible
     old = record.model_dump()
     del old["step_questions"]
     assert type(record).model_validate(old).step_questions is None
@@ -980,6 +986,36 @@ def test_the_conclude_prompt_states_the_bar_in_force_only_when_known():
     shown = state.model_copy(update={"action_confidence_needed": 0.75})
     note = action_bar_note(shown)
     assert "at least 0.75" in note and "escalate" in note
+
+
+@pytest.mark.parametrize("combined", [False, True])
+@pytest.mark.parametrize("with_manual", [False, True])
+@pytest.mark.parametrize("phase", ["investigate", "test", "verify"])
+def test_manual_use_guidance_only_appears_for_available_manuals_during_research(
+    combined,
+    with_manual,
+    phase,
+):
+    from capstone.providers.manual import MANUAL_SPEC
+
+    reply = stop()
+    if combined:
+        reply |= {"interpretation": {}}
+    tools = (*research_tools(), MANUAL_SPEC) if with_manual else research_tools()
+    agent = policy(tools=tools, decide=[reply])
+    state = state_with_evidence()
+    if combined:
+        agent.interpret_and_decide(state, phase, ask(), state.evidence[0])
+    else:
+        agent.decide(state, phase)
+    prompt = agent.clients["decide"].asked[0][1]
+    expected = with_manual and phase != "verify"
+    assert ("MANUAL USE:" in prompt) is expected
+    if expected:
+        assert "Before recommending a repair" in prompt
+        assert "search_manual" in prompt and "procedure" in prompt
+        assert "current factory evidence" in prompt
+        assert "search limits" in prompt and "already retrieved" in prompt
 
 
 @pytest.mark.parametrize("combined", [False, True])

@@ -111,6 +111,7 @@ A component is complete only when both columns are checked.
 | A12 | Configurable questions per step: STEP_QUESTIONS=1 combines interpretation and next decision; 2 retains separate questions | yes | yes (2026-10-27: updated beliefs and requested tool; code decides what is allowed) | yes | no — developer requested build, merge, then quiz (2026-10-27) | `agent/policy.py`, `agent/model_policy.py`, `agent/loop.py`, `agent/state.py`, `settings.py`, `episode.py`, `experiment.py`; session note 2026-10-27 (A12) |
 | A13 | STATE_ACTION_BAR: show or hide the action threshold in prompts, with enforcement unchanged | no — developer requested build, merge, then quiz (2026-10-27) | no — built ungated, developer to review | yes | no — quiz after merge | `settings.py`, `agent/state.py`, `agent/loop.py`, `agent/model_policy.py`, `episode.py`, `experiment.py`; session note 2026-10-27 (A13) |
 | A14 | Prompt guidance: one discriminating check before stopping with an uncertain leading explanation | no — developer requested build, merge, then quiz (2026-10-27) | no — built ungated, developer to review | yes | no — quiz after merge | `agent/model_policy.py` (`SYSTEM["decide"]`); session note 2026-10-27 (A14) |
+| A15 | Prompt guidance: consult an available manual before recommending a repair | no — developer requested build, merge, then quiz (2026-10-27) | no — built ungated, developer to review | yes | no — quiz after merge | `agent/model_policy.py` (`manual_use_note`, `decide`, `interpret_and_decide`); session note 2026-10-27 (A15) |
 
 Every row above with four "yes" marks (or "n/a") is complete: no question is
 outstanding on it. Still to build after 12c, from `docs/MVP_SCOPE.md`: the
@@ -118,6 +119,54 @@ other three fault scenarios (material batch, machine configuration, false
 alarm), then evaluation, then the agent itself.
 
 ## Session notes
+
+- **2026-10-27 (A15): manual-search guidance when a manual is available.**
+  Built ungated at the developer's request to build, merge with green CI,
+  then quiz. Understood: no — developer to review.
+  `agent/model_policy.py` adds `manual_use_note(tools, phase)`, which returns
+  guidance only when `search_manual` is offered and the phase is
+  investigate/test. `ModelPolicy.decide` and `interpret_and_decide` append
+  it to their prompts: before recommending a repair, search the observed
+  symptom and relevant procedure unless those sections were already
+  retrieved. Use the manual to choose checks against current factory
+  evidence; a manual describes the machine model, not the cause here.
+  Respect search limits, reuse retrieved sections, and state limitations
+  rather than retrying endlessly after failure/exhaustion. Approval and
+  post-action verification remain mandatory. Verification prompts do not
+  receive this research guidance. No manual is enabled automatically:
+  existing `--manual` configuration still controls tool availability.
+  `tests/test_model_policy.py` adds 12 prompt-contract cases: both question
+  modes, with/without the manual tool, across investigate/test/verify. The
+  four enabled research cases failed before implementation. Dependency sync,
+  all 110 policy/manual/provenance tests, Ruff lint/format, CI-group validation
+  and `git diff --check` passed. Independent read-only review found no
+  defects. CI must pass before merge. This is prompt guidance, not a
+  hard repair gate; no live model called and manual use/diagnostic benefit
+  remain unmeasured.
+  Final integration with A12-A14: all 322 affected settings, policy, loop,
+  investigation, episode, experiment, manual, provenance and verification
+  tests passed (1m34s). The scripted repair now covers all four combinations
+  of `STEP_QUESTIONS` (1/2) and `STATE_ACTION_BAR` (true/false), asserting the
+  recorded settings and actual threshold visibility as well as successful
+  repair/verification. Static checks and CI-group validation passed again.
+
+  **Whole-build summary for later review:** `.env.example` and `settings.py`
+  expose the two independent controls (defaults 2 and true; real `.env`
+  untouched). `agent/policy.py` defines the combined reply, and
+  `agent/loop.py` validates/applies beliefs, budgets and cached next steps.
+  `agent/state.py`, `episode.py` and `experiment.py` retain both settings
+  for comparison, including early failures and compatibility with older
+  records. `agent/model_policy.py` asks the combined question, conditionally
+  displays the threshold, advises one bounded discriminating check, and
+  advises available manual searches before repair. Existing simulator
+  reality, evidence provenance, human approval and post-intervention
+  verification stay under their existing owners. Tests changed in
+  `test_settings.py`, `test_model_policy.py`, `test_agent_loop.py` and
+  `test_agent_investigation.py`; `docs/MVP_SCOPE.md` and this log record
+  what was built. The frontend-settings note was recorded separately.
+  Understanding remains no until the developer's post-merge quiz; live
+  speed, accuracy and manual-use comparisons remain outstanding.
+
 
 - **2026-10-27 (A14): check before stopping, prompt guidance.** Built ungated
   at the developer's request to build, merge with green CI, then quiz.
