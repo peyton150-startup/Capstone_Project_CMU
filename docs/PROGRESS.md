@@ -419,6 +419,32 @@ alarm), then evaluation, then the agent itself.
     for what the manual adds. The main folder stays on `25f0df0` until B is
     done, so the code is identical. The hidden bar, one question per step and
     the 0.9 bar are planned, not scheduled: no usage left for more runs.
+  - **Planned prompt rule: check before stopping (not built; item 19 in
+    `docs/MVP_SCOPE.md`).** Candidate wording for the `decide` prompt
+    (`agent/model_policy.py`): once one explanation clearly leads but is
+    below the confidence needed to act, do not stop yet; make one check that
+    could separate it from the others, for example read the same sensor on
+    another machine, or `wait` a few ticks (about 10) and read it again, and
+    say what the check showed. Evidence so far, from run B (manual on, never
+    used), and a single case, so a hint only: on seed 9 the agent's belief in
+    a mechanical fault went 0.41 to 0.68 after reading load and temperature,
+    to 0.82 after `wait(10)` and re-reading vibration, and to 0.90 after
+    comparing CNC-04; it then asked for `replace_bearing` (approved,
+    carried out). In run A, same seed, it stopped at 0.70 on `no_useful_action`
+    after fewer checks and escalated. On seed 6 run B concluded a transient
+    spike (no_action, 0.85, wrong for a bearing case) and never waited and
+    re-read before concluding; that is the check that tells a spike from a
+    rising fault. Cautions: a `wait` moves the factory's clock, so a real fault
+    keeps developing during it (bound it: one wait, about 10 ticks, only when
+    the leading belief is between roughly 0.5 and the bar); each check spends
+    tool calls from a time budget that was already running out; a prompt rule
+    can be ignored. A loop-level alternative that cannot be ignored: refuse a
+    policy stop (`evidence_sufficient`, `no_useful_action`) while the leading
+    belief is below the action bar and budget remains, and ask for one more
+    test. Measure either way on the same known-answer cases against the master
+    runs, one run at a time (causes right, fixes asked for, confidence,
+    seconds per episode, false alarms still left alone). It changes what the
+    agent does, so teach it first.
 
 - **FIRST THING ON 2026-10-27 (MAX-HIGH PRIORITY, developer's decision): the
   agent never recommends a fix.** In tonight's scored run (started 16:32 on
