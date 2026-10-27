@@ -646,14 +646,17 @@ def test_a_whole_episode_runs_on_model_replies_alone():
 
 
 @pytest.mark.parametrize("mode, expected_questions", [(1, 11), (2, 14)])
+@pytest.mark.parametrize("visible", [True, False])
 def test_both_step_modes_finish_the_same_scripted_repair_and_record_the_mode(
     monkeypatch,
     mode,
     expected_questions,
+    visible,
 ):
     from capstone.experiment import Case, record_of, summarize_calls
 
     monkeypatch.setenv("STEP_QUESTIONS", str(mode))
+    monkeypatch.setenv("STATE_ACTION_BAR", str(visible).lower())
     agent = scripted_models()
     if mode == 1:
         # Same replies and tool sequence. Fuse the interpretation of each
@@ -682,6 +685,9 @@ def test_both_step_modes_finish_the_same_scripted_repair_and_record_the_mode(
         model_calls=summarize_calls(agent.calls),
     )
     assert record.step_questions == mode
+    assert record.state_action_bar is visible
+    conclusion_prompt = agent.clients["conclude"].asked[0][1]
+    assert ("TO ASK FOR A FIX" in conclusion_prompt) is visible
     old = record.model_dump()
     del old["step_questions"]
     assert type(record).model_validate(old).step_questions is None
@@ -1010,6 +1016,25 @@ def test_manual_use_guidance_only_appears_for_available_manuals_during_research(
         assert "search_manual" in prompt and "procedure" in prompt
         assert "current factory evidence" in prompt
         assert "search limits" in prompt and "already retrieved" in prompt
+
+
+@pytest.mark.parametrize("combined", [False, True])
+def test_decision_prompts_request_one_bounded_check_before_an_uncertain_stop(combined):
+    reply = stop()
+    if combined:
+        reply |= {"interpretation": {}}
+    agent = policy(decide=[reply])
+    state = state_with_evidence()
+    if combined:
+        agent.interpret_and_decide(state, "test", ask(), state.evidence[0])
+    else:
+        agent.decide(state, "test")
+    system = agent.clients["decide"].asked[0][0]
+    assert "discriminating check" in system
+    assert "another machine" in system and "10 ticks" in system
+    assert "Do not wait repeatedly" in system
+    assert "budget" in system and "already" in system
+    assert "post-intervention verification" in system
 
 
 def test_hidden_bar_is_omitted_from_the_actual_conclusion_prompt():

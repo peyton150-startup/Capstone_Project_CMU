@@ -110,6 +110,7 @@ A component is complete only when both columns are checked.
 | A11 | The conclude prompt states the bar in force (change 2); the bar is a setting, MIN_ACTION_CONFIDENCE (change 3) | no (built first and merged before teaching at the developer's request, 2026-10-26; the test (KA-01 to KA-03 at a 0.80 bar) and the walkthrough moved to 2026-10-27) | n/a | yes | no | `agent/state.py` (`action_confidence_needed`), `agent/loop.py` (`ask_policy`), `agent/model_policy.py` (`action_bar_note`, `conclude`), `settings.py` (`min_action_confidence`), `episode.py`; session note 2026-10-26 (A11) |
 | A12 | Configurable questions per step: STEP_QUESTIONS=1 combines interpretation and next decision; 2 retains separate questions | yes | yes (2026-10-27: updated beliefs and requested tool; code decides what is allowed) | yes | no — developer requested build, merge, then quiz (2026-10-27) | `agent/policy.py`, `agent/model_policy.py`, `agent/loop.py`, `agent/state.py`, `settings.py`, `episode.py`, `experiment.py`; session note 2026-10-27 (A12) |
 | A13 | STATE_ACTION_BAR: show or hide the action threshold in prompts, with enforcement unchanged | no — developer requested build, merge, then quiz (2026-10-27) | no — built ungated, developer to review | yes | no — quiz after merge | `settings.py`, `agent/state.py`, `agent/loop.py`, `agent/model_policy.py`, `episode.py`, `experiment.py`; session note 2026-10-27 (A13) |
+| A14 | Prompt guidance: one discriminating check before stopping with an uncertain leading explanation | no — developer requested build, merge, then quiz (2026-10-27) | no — built ungated, developer to review | yes | no — quiz after merge | `agent/model_policy.py` (`SYSTEM["decide"]`); session note 2026-10-27 (A14) |
 | A15 | Prompt guidance: consult an available manual before recommending a repair | no — developer requested build, merge, then quiz (2026-10-27) | no — built ungated, developer to review | yes | no — quiz after merge | `agent/model_policy.py` (`manual_use_note`, `decide`, `interpret_and_decide`); session note 2026-10-27 (A15) |
 
 Every row above with four "yes" marks (or "n/a") is complete: no question is
@@ -142,6 +143,56 @@ alarm), then evaluation, then the agent itself.
   defects. CI must pass before merge. This is prompt guidance, not a
   hard repair gate; no live model called and manual use/diagnostic benefit
   remain unmeasured.
+  Final integration with A12-A14: all 322 affected settings, policy, loop,
+  investigation, episode, experiment, manual, provenance and verification
+  tests passed (1m34s). The scripted repair now covers all four combinations
+  of `STEP_QUESTIONS` (1/2) and `STATE_ACTION_BAR` (true/false), asserting the
+  recorded settings and actual threshold visibility as well as successful
+  repair/verification. Static checks and CI-group validation passed again.
+
+  **Whole-build summary for later review:** `.env.example` and `settings.py`
+  expose the two independent controls (defaults 2 and true; real `.env`
+  untouched). `agent/policy.py` defines the combined reply, and
+  `agent/loop.py` validates/applies beliefs, budgets and cached next steps.
+  `agent/state.py`, `episode.py` and `experiment.py` retain both settings
+  for comparison, including early failures and compatibility with older
+  records. `agent/model_policy.py` asks the combined question, conditionally
+  displays the threshold, advises one bounded discriminating check, and
+  advises available manual searches before repair. Existing simulator
+  reality, evidence provenance, human approval and post-intervention
+  verification stay under their existing owners. Tests changed in
+  `test_settings.py`, `test_model_policy.py`, `test_agent_loop.py` and
+  `test_agent_investigation.py`; `docs/MVP_SCOPE.md` and this log record
+  what was built. The frontend-settings note was recorded separately.
+  Understanding remains no until the developer's post-merge quiz; live
+  speed, accuracy and manual-use comparisons remain outstanding.
+
+
+- **2026-10-27 (A14): check before stopping, prompt guidance.** Built ungated
+  at the developer's request to build, merge with green CI, then quiz.
+  Understood: no — developer to review. `agent/model_policy.py`'s
+  `SYSTEM["decide"]` now tells investigation/testing to make one
+  discriminating check before stopping with a leading but uncertain
+  explanation, if it could change the conclusion and budget permits:
+  compare the same sensor on another machine, or at most one wait of about
+  10 ticks followed by a re-read. Say what the check showed, reuse checks
+  already answered, and do not keep waiting to raise confidence. Waiting
+  advances the simulated fault. Stop honestly if the check is already done
+  or the budget cannot cover it. Verification after intervention remains
+  mandatory. `ModelPolicy.decide` and `interpret_and_decide` already use
+  this shared system prompt, so both step modes receive the guidance.
+  It names no numerical confidence bar, so hiding the bar remains possible.
+  This is guidance a model can ignore, not the alternative hard loop-level
+  stop refusal. No budgets, tool permissions or simulator behavior changed;
+  no additional setting. `tests/test_model_policy.py` adds two cases proving
+  the actual emitted system includes the bounded-check guidance in both
+  question modes; they failed before the change. Dependency sync, all 142
+  policy/loop/verification tests, Ruff lint/format, CI-group validation and
+  `git diff --check` passed. Independent read-only review found no defects.
+  After integrating the merged A13 setting, the same affected checks passed
+  again (144 tests, including the visibility regressions).
+  CI must pass before merge. No real model called: whether diagnoses improve,
+  false alarms remain untouched or investigations take longer is unmeasured.
 
 
 - **2026-10-27 (A13): optional action-bar visibility.** Built ungated at the
