@@ -74,3 +74,14 @@ def test_env_and_index_live_at_the_repository_root():
     assert (REPO_ROOT / "pyproject.toml").is_file()
     assert Settings.model_config["env_file"] == REPO_ROOT / ".env"
     assert Settings.model_fields["chroma_path"].default == REPO_ROOT / ".chroma"
+
+
+@pytest.mark.parametrize("value, expected", [("true", True), ("false", False)])
+def test_state_action_bar_is_an_environment_switch(monkeypatch, value, expected):
+    monkeypatch.setenv("STATE_ACTION_BAR", value)
+    assert Settings(_env_file=None).state_action_bar is expected
+
+
+def test_state_action_bar_defaults_to_visible(monkeypatch):
+    monkeypatch.delenv("STATE_ACTION_BAR", raising=False)
+    assert Settings(_env_file=None).state_action_bar is True

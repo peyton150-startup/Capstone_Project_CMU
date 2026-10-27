@@ -126,6 +126,8 @@ class InvestigationState(BaseModel):
     investigation_id: UUID
     anomaly: DetectedAnomaly
     budgets: Budgets = Field(default_factory=Budgets)
+    # Whether prompts state the action threshold; kept for experiment records.
+    state_action_bar: bool = True
 
     evidence: list[Evidence] = Field(default_factory=list)
     # One label per evidence item, written by the loop when it arrived.

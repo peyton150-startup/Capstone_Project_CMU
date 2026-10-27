@@ -243,6 +243,8 @@ class ExperimentRecord(BaseModel):
     # The counted tool calls that went to the factory: `score.tool_calls`
     # without memory and manual searches. None in results from before it was kept.
     factory_calls: int | None = None
+    # Unknown in older results; this controls prompt visibility, not enforcement.
+    state_action_bar: bool | None = None
 
 
 # Tools answered by something other than the factory.
@@ -328,6 +330,7 @@ def record_of(
         recall_searches=list(build_search_records(state)) if with_memory else None,
         manual_searches=list(build_manual_records(state)) if with_manual else None,
         factory_calls=count_factory_calls(state),
+        state_action_bar=state.state_action_bar,
     )
 
 
