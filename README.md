@@ -266,7 +266,9 @@ shows the agent's observable steps, not hidden truth. Use
 `--records eval-report.records.jsonl` to rescore saved runs without making
 another model call or advancing a factory. On the later run,
 `--compare-before baseline-report.json` writes a neighboring comparison JSON
-with accuracy, calls and runtime differences for the same scenarios.
+with accuracy, calls and runtime differences for the same scenarios. If a long
+run stops, rerun its command with `--resume` to continue the saved prefix in
+the raw JSONL file. The scenario order and run name must still match.
 
 ## Database migrations and episodic memory
 

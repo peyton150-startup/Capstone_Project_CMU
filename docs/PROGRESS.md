@@ -150,14 +150,18 @@ alarm), then evaluation, then the agent itself.
   the tool-launched copy was stopped and only the interactive run continues.
   `reserve_raw_output` now claims a raw file exclusively before model calls,
   preventing later concurrent runs from mixing rows at the same path. The
-  mixed raw file from this first run will be separated using the final clean
-  report before it is added to the PR.
+  interactive run ended after two completed cases without a final report.
+  Its two records were copied to a clean raw file, checked against the scenario
+  prefix, and the remaining seven cases resumed under the same run name.
+  `check_resume` refuses a different run name, order or duplicate; `--resume`
+  continues the saved prefix with the existing episode runner. The mixed raw
+  file is excluded from the PR.
   `evals/scenarios.json` lists the nine fixed known-answer cases (two each for
   the four MVP faults and one compound challenge). `tests/test_evals.py` checks
   config validation, full episode scoring boundaries, uncertain labels,
   comparisons and the live progress hook. The complete local suite passed
-  1,410 tests; seven focused tests passed after the progress and output
-  reservation options. Live
+  1,410 tests; eight focused tests passed after the progress, output
+  reservation and resume options. Live
   baseline result and CI status to record after they finish. Understanding
   remains no until the walkthrough.
 

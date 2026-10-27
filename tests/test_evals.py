@@ -7,6 +7,7 @@ import pytest
 
 from capstone.evals import (
     ScenarioConfig,
+    check_resume,
     compare_reports,
     load_scenarios,
     report_of,
@@ -47,6 +48,34 @@ def test_output_path_is_claimed_before_a_run_and_cannot_be_shared(tmp_path):
     with pytest.raises(FileExistsError):
         reserve_raw_output(path)
     assert path.read_text(encoding="utf-8") == ""
+
+
+def test_resume_accepts_only_the_saved_prefix_and_keeps_run_numbers():
+    config = ScenarioConfig.model_validate(
+        {
+            "cases": [
+                {"id": "bearing-6", "seed": 6, "fault": "bearing_degradation"},
+                {"id": "batch-7", "seed": 7, "fault": "bad_material_batch"},
+            ]
+        }
+    )
+    (first,) = run_cases(
+        ScenarioConfig(cases=config.cases[:1]), name="resume-test", make_policy=stand_in
+    )
+    check_resume(config, "resume-test", [first])
+    (second,) = run_cases(
+        ScenarioConfig(cases=config.cases[1:]),
+        name="resume-test",
+        make_policy=stand_in,
+        start=2,
+    )
+    assert second.run_key == "resume-test/2/batch-7"
+    with pytest.raises(ValueError, match="saved episode"):
+        check_resume(config, "different-name", [first])
+    with pytest.raises(ValueError, match="saved episode"):
+        check_resume(config, "resume-test", [first, first])
+    with pytest.raises(ValueError, match="saved episode"):
+        check_resume(config, "resume-test", [first.model_copy(update={"seed": 99})])
 
 
 def test_master_config_covers_all_known_answer_cases():

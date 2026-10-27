@@ -21,6 +21,7 @@ from capstone.experiment import (
     ExperimentRecord,
     append_records,
     model_policy_factory,
+    read_records,
     run_experiment,
 )
 from capstone.providers.typesafe import judgment_client
@@ -258,6 +259,7 @@ def run_cases(
     make_policy: Callable | None = None,
     on_record: Callable[[ExperimentRecord], None] | None = None,
     watch: Callable[[str], None] | None = None,
+    start: int = 1,
 ) -> list[ExperimentRecord]:
     """Use the normal episode runner; the config is evaluator-side only."""
     return run_experiment(
@@ -266,7 +268,27 @@ def run_cases(
         name=name,
         on_record=on_record,
         watch=watch,
+        start=start,
     )
+
+
+def check_resume(
+    config: ScenarioConfig, name: str, records: Sequence[ExperimentRecord]
+) -> None:
+    """Only resume a prefix of exactly this named scenario run."""
+    if len(records) > len(config.cases):
+        raise ValueError("more saved episodes than configured scenarios")
+    for number, (scenario, record) in enumerate(zip(config.cases, records), start=1):
+        expected = f"{name}/{number}/{scenario.id}"
+        if (
+            record.run_key != expected
+            or record.scenario_id != scenario.id
+            or record.seed != scenario.seed
+            or (
+                scenario.fault is not None and record.score.true_fault != scenario.fault
+            )
+        ):
+            raise ValueError(f"saved episode {number} is not {expected}")
 
 
 def automatic_labels(
@@ -304,22 +326,35 @@ def main(argv: Sequence[str] | None = None) -> int:
     parser.add_argument(
         "--raw-out", type=Path, help="save raw episodes for later labelling"
     )
+    parser.add_argument(
+        "--resume", action="store_true", help="continue saved raw episodes"
+    )
     parser.add_argument("--compare-before", type=Path, help="prior eval report")
     parser.add_argument("--watch", action="store_true", help="show live agent progress")
     args = parser.parse_args(argv)
     if args.labels and args.auto_label:
         parser.error("choose hand labels or automatic labels")
+    if args.resume and args.records:
+        parser.error("--resume continues a run; --records only rescores it")
     config = load_scenarios(args.config)
     if args.records:
-        from capstone.experiment import read_records
-
         records = read_records(args.records)
     else:
         raw_path = args.raw_out or args.out.with_suffix(".records.jsonl")
-        try:
-            reserve_raw_output(raw_path)
-        except FileExistsError:
-            parser.error(f"raw result path already exists: {raw_path}")
+        if args.resume:
+            if not raw_path.exists():
+                parser.error(f"no raw result to resume: {raw_path}")
+            records = read_records(raw_path)
+            try:
+                check_resume(config, args.name, records)
+            except ValueError as error:
+                parser.error(str(error))
+        else:
+            try:
+                reserve_raw_output(raw_path)
+            except FileExistsError:
+                parser.error(f"raw result path already exists: {raw_path}")
+            records = []
 
         def save_record(record: ExperimentRecord) -> None:
             append_records(raw_path, [record])
@@ -328,12 +363,15 @@ def main(argv: Sequence[str] | None = None) -> int:
         def show_progress(message: str) -> None:
             print(message, flush=True)
 
-        records = run_cases(
-            config,
-            name=args.name,
-            on_record=save_record,
-            watch=show_progress if args.watch else None,
-        )
+        if len(records) < len(config.cases):
+            remaining = ScenarioConfig(cases=config.cases[len(records) :])
+            records += run_cases(
+                remaining,
+                name=args.name,
+                on_record=save_record,
+                watch=show_progress if args.watch else None,
+                start=len(records) + 1,
+            )
     wanted = [scenario.id for scenario in config.cases]
     if [record.scenario_id for record in records] != wanted:
         parser.error("record scenarios must match config in order")
