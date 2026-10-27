@@ -13,6 +13,11 @@ Each turn of the loop does five things in a fixed order:
 The policy chooses; this module decides what is allowed. A policy cannot
 exceed a budget, repeat a question at the same tick, or count a failed
 call as evidence, because none of that is left to it.
+
+With STEP_QUESTIONS=1, the reading of a result also proposes the next
+decision. It is held until the next turn's checks pass. The first decision
+of each phase is still asked separately, and the last result is interpreted
+even when no more tool calls are allowed.
 """
 
 import json
@@ -26,6 +31,7 @@ from capstone.agent.artifacts import ProposalRecord, TerminationReason
 from capstone.agent.policy import (
     CallTool,
     Interpretation,
+    InterpretedStep,
     LoopPhase,
     ReasoningPolicy,
     Stop,
@@ -89,6 +95,17 @@ class InvestigationDeps:
     # state before each turn, after each stage and before the human's review;
     # it can read what the agent has, never change it. None: nobody watches.
     watch: Callable[[InvestigationState], None] | None = field(default=None)
+    step_questions: int = 2
+
+    def __post_init__(self) -> None:
+        if self.step_questions not in (1, 2):
+            raise ValueError("step_questions must be 1 or 2")
+        if self.step_questions == 1 and not callable(
+            getattr(self.policy, "interpret_and_decide", None)
+        ):
+            raise ValueError(
+                "one-question mode needs a policy with interpret_and_decide"
+            )
 
 
 def notify(state: InvestigationState, deps: InvestigationDeps) -> None:
@@ -486,6 +503,8 @@ def run_inner_loop(
         # starts the timer. Without this the timeout could never fire.
         state.started_at = deps.clock()
     state.unproductive_steps = 0
+    state.step_questions = deps.step_questions
+    pending_decision = None
     phase_iterations = 0
     while True:
         # Before the policy is asked (the slow part), show the last turn.
@@ -503,12 +522,15 @@ def run_inner_loop(
         state.iteration_count += 1
         phase_iterations += 1
         try:
-            decision = ask_policy(
-                state,
-                deps,
-                lambda view: deps.policy.decide(view, phase),
-                research=phase != "verify",
-            )
+            decision = pending_decision
+            pending_decision = None
+            if decision is None:
+                decision = ask_policy(
+                    state,
+                    deps,
+                    lambda view: deps.policy.decide(view, phase),
+                    research=phase != "verify",
+                )
             if not isinstance(decision, CallTool | Stop):
                 raise ValueError("a policy must return CallTool or Stop")
         except OutOfTime:
@@ -542,4 +564,52 @@ def run_inner_loop(
                 termination_reason=reason,
             )
             return reason
-        gather(state, deps, phase, decision, followup=phase == "verify")
+        before_unproductive = state.unproductive_steps
+        evidence = gather(
+            state,
+            deps,
+            phase,
+            decision,
+            followup=phase == "verify",
+            interpret=deps.step_questions == 2,
+        )
+        if deps.step_questions == 1 and evidence is not None:
+            # Interpret even the last permitted tool result. The next step is
+            # cached, never executed until the next turn's budget checks pass.
+            try:
+                if seconds_left(state, deps, research=phase != "verify") <= 0:
+                    raise OutOfTime()
+                reply = ask_policy(
+                    state,
+                    deps,
+                    lambda view: deps.policy.interpret_and_decide(
+                        view, phase, decision, evidence
+                    ),
+                    research=phase != "verify",
+                )
+                if not isinstance(reply, InterpretedStep):
+                    raise ValueError("a combined reply must be an InterpretedStep")
+                apply_interpretation(state, reply.interpretation)
+                pending_decision = reply.decision
+            except OutOfTime:
+                state.decisions[-1] = state.decisions[-1].model_copy(
+                    update={"outcome": "uninterpreted"}
+                )
+                record(
+                    state,
+                    phase,
+                    "stopped",
+                    information_needed="an answer before the time ran out",
+                    termination_reason=TerminationReason.TIMEOUT,
+                )
+                return TerminationReason.TIMEOUT
+            except POLICY_ERRORS:
+                state.interpretation_failures += 1
+                state.unproductive_steps = before_unproductive + 1
+                state.decisions[-1] = state.decisions[-1].model_copy(
+                    update={"outcome": "uninterpreted"}
+                )
+                continue
+            state.decisions[-1] = state.decisions[-1].model_copy(
+                update={"confidence": state.confidence}
+            )

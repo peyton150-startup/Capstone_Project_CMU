@@ -8,6 +8,8 @@ anomaly, what should be done about it, did it work, and what advice is
 worth keeping for next time. It never calls a tool itself
 and never counts its own budget. A rule-based policy and a model-backed
 policy both fit this one interface.
+In one-question mode, interpret_and_decide combines the observation's
+meaning and the next decision; two-question policies need not implement it.
 
 Every answer is an explicit, typed artifact. A policy returns decisions,
 not its private reasoning.
@@ -72,6 +74,13 @@ class ActionRequest(Contract):
     prediction: str = Field(min_length=1)
 
 
+class InterpretedStep(Contract):
+    """A reading of the latest result and the next proposed step, checked together."""
+
+    interpretation: Interpretation
+    decision: Decision
+
+
 class Lesson(Contract):
     """One sentence of advice for a later investigation. Nothing else.
 
@@ -97,6 +106,16 @@ class ReasoningPolicy(Protocol):
         self, state: InvestigationState, step: CallTool, evidence: Evidence
     ) -> Interpretation:
         """What the newest evidence means. `state` already contains it."""
+        ...
+
+    def interpret_and_decide(
+        self,
+        state: InvestigationState,
+        phase: LoopPhase,
+        step: CallTool,
+        evidence: Evidence,
+    ) -> InterpretedStep:
+        """One-question mode: read the latest result and propose the next step."""
         ...
 
     def hypothesize(self, state: InvestigationState) -> Interpretation:

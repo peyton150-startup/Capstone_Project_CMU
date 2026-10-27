@@ -104,6 +104,11 @@ class Settings(BaseSettings):
     conclude_model: str | None = _optional("CONCLUDE_MODEL")
     judge_model: str | None = _optional("JUDGE_MODEL")
     lesson_model: str | None = _optional("LESSON_MODEL")
+    # Two questions per tool result today; one combines its interpretation
+    # with the next decision, using DECIDE_MODEL (or DEFAULT_MODEL).
+    step_questions: int = Field(
+        default=2, ge=1, le=2, validation_alias="STEP_QUESTIONS"
+    )
     # Asked when a job's own model cannot be reached. None: no fallback.
     # Several models, separated by commas, are tried in order: the second
     # when the first is out too (for example its daily quota is spent).

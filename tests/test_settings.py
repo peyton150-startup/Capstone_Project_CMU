@@ -7,6 +7,24 @@ import pytest
 from capstone.settings import Settings, get_settings
 
 
+@pytest.mark.parametrize("value", ["1", "2"])
+def test_step_questions_can_be_selected_in_the_environment(monkeypatch, value):
+    monkeypatch.setenv("STEP_QUESTIONS", value)
+    assert Settings(_env_file=None).step_questions == int(value)
+
+
+@pytest.mark.parametrize("value", ["0", "3", "1.5", "true"])
+def test_step_questions_rejects_unsupported_modes(monkeypatch, value):
+    monkeypatch.setenv("STEP_QUESTIONS", value)
+    with pytest.raises(ValueError):
+        Settings(_env_file=None)
+
+
+def test_step_questions_defaults_to_two(monkeypatch):
+    monkeypatch.delenv("STEP_QUESTIONS", raising=False)
+    assert Settings(_env_file=None).step_questions == 2
+
+
 def test_environment_takes_precedence_over_dotenv(monkeypatch, tmp_path):
     env_file = tmp_path / ".env"
     env_file.write_text('DATABASE_URL="postgresql://file:password@localhost/db"\n')

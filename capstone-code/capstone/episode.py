@@ -206,6 +206,7 @@ def run_episode(
     With `watch`, someone follows the run as it happens (`capstone.progress`):
     it is shown copies of the agent's working state, never the simulator.
     """
+    settings = get_settings()
     sim = build_world(seed, kind=kind, fault=fault, machines=machines)
     desk = ApprovalDesk(sim)
     look, act = ObservationTools(sim), ActionTools(sim, desk)
@@ -232,6 +233,7 @@ def run_episode(
         investigation_id=investigation_id_for(run_id, 1),
         anomaly=anomaly,
         budgets=budgets or Budgets(),
+        step_questions=settings.step_questions,
     )
     if memory is not None:
         provider = RecallingProvider(provider, memory)
@@ -243,7 +245,8 @@ def run_episode(
         clock=clock,
         human_review=human_review,
         watch=watch,
-        min_action_confidence=get_settings().min_action_confidence,
+        min_action_confidence=settings.min_action_confidence,
+        step_questions=settings.step_questions,
     )
     run_investigation(state, deps)
 

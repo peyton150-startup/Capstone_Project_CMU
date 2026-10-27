@@ -126,6 +126,8 @@ class InvestigationState(BaseModel):
     investigation_id: UUID
     anomaly: DetectedAnomaly
     budgets: Budgets = Field(default_factory=Budgets)
+    # The configured loop mode, kept for experiment records. The loop sets it.
+    step_questions: int = Field(default=2, ge=1, le=2)
 
     evidence: list[Evidence] = Field(default_factory=list)
     # One label per evidence item, written by the loop when it arrived.
