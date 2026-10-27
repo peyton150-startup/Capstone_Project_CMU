@@ -354,6 +354,43 @@ alarm), then evaluation, then the agent itself.
   the MAX-HIGH fix first, then a reasoning role (critic or analyst) as the
   first multi-agent role.
 
+- **2026-10-27: planned setting, questions per step; Cloudflare left out of
+  the chain for now (docs only; nothing built).** Measured on the first case
+  of the 0.80-bar test (seed 6, bearing, `results-bar80.jsonl`): 881 s, of
+  which 837 s inside model calls (tools and simulation 43 s); 75% of the
+  model time went on 30 successful answers (about 21 s each, NVIDIA's median
+  19 s), 16% on 6 timeouts, 7% on 2 refused replies, 2% on Cloudflare's HTTP
+  429. 33 questions; the case ended on `stop=timeout`. Each tool call costs two
+  questions (`decide`, then `interpret` of its result), about 40 s together.
+  - **Planned setting `STEP_QUESTIONS` (not built; item 17 in
+    `docs/MVP_SCOPE.md`).** `2` (default, today's behaviour): `interpret`
+    and `decide` are separate questions. `1`: one question per step, "what
+    does the newest evidence mean, and what next?", answered as one object
+    holding the interpretation and the next decision (a new contract
+    combining `Interpretation` and `NextStep`), checked by the same rules
+    (the stop-step rule, tools offered, evidence IDs); the loop still
+    enforces every budget. It would roughly halve the model questions per
+    step. Risks: one refused reply loses both parts, and a combined answer
+    may reason less well, so measure: the same known-answer cases both ways
+    on the same code, one run at a time (causes right, fixes asked for, tool
+    calls, seconds per episode, refused replies). Touches
+    `agent/model_policy.py` (`interpret`, `decide`, their prompts),
+    `agent/loop.py` (`run_inner_loop`), `settings.py`, and the experiment
+    record (note the setting). A second, separate lever already exists:
+    `INTERPRET_MODEL` and `DECIDE_MODEL` can name faster models (Cloudflare's
+    median answer 5 s, Cohere's 2 s, against NVIDIA's 19 s); to be measured
+    for quality.
+  - **Cloudflare out of the chain until its quota resets.** In the 09:41 run
+    it answered HTTP 429 on all 15 asks (the quota was spent in the previous
+    evening's run), and each question paid four failed tries before the next
+    model. For the next runs the chain is `cohere/command-a-03-2025`, then
+    `requesty/nvidia/nemotron-3-ultra-550b-a55b` (set in the run's
+    environment, `.env` untouched, no code change). Re-add
+    `cloudflare/@cf/meta/llama-3.3-70b-instruct-fp8-fast` when a one-question
+    probe answers. The run in progress was left running with it. A code
+    answer to the same problem (skip a provider after repeated 429s) is the
+    circuit-breaker candidate, row 5 of `docs/FUTURE_WORK_REEVALUATION.md`.
+
 - **FIRST THING ON 2026-10-27 (MAX-HIGH PRIORITY, developer's decision): the
   agent never recommends a fix.** In tonight's scored run (started 16:32 on
   `e65bd8f`, 9 known-answer cases, `results-single-1.jsonl`) the first three
