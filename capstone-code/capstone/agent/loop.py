@@ -82,6 +82,7 @@ class InvestigationDeps:
     min_diagnosis_confidence: float = 0.9
     min_supporting_evidence: int = 2
     min_action_confidence: float = 0.9
+    state_action_bar: bool = True
     # Testing stops when this many results have moved confidence by less than
     # this much: more of the same is not changing the agent's mind.
     stalled_test_results: int = 3
@@ -232,9 +233,12 @@ def ask_policy(
     still left is an outage and goes on up unchanged.
     """
     view = state.model_copy(deep=True)
+    view.state_action_bar = deps.state_action_bar
+    view.action_confidence_needed = None
     if state.started_at is not None:
         view.seconds_for_question = seconds_left(state, deps, research=research)
-        view.action_confidence_needed = deps.min_action_confidence
+        if deps.state_action_bar:
+            view.action_confidence_needed = deps.min_action_confidence
     try:
         return question(view)
     except ModelError as error:

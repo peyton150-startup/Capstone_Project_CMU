@@ -104,6 +104,8 @@ class Settings(BaseSettings):
     conclude_model: str | None = _optional("CONCLUDE_MODEL")
     judge_model: str | None = _optional("JUDGE_MODEL")
     lesson_model: str | None = _optional("LESSON_MODEL")
+    # Prompt visibility only: the confidence threshold is always enforced.
+    state_action_bar: bool = Field(default=True, validation_alias="STATE_ACTION_BAR")
     # Two questions per tool result today; one combines its interpretation
     # with the next decision, using DECIDE_MODEL (or DEFAULT_MODEL).
     step_questions: int = Field(
