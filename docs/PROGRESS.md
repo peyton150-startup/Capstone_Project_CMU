@@ -123,8 +123,8 @@ alarm), then evaluation, then the agent itself.
 - **2026-10-28 (docs-only): variable comments across `capstone/`, and the
   A10 walkthrough begun.** No behaviour changed. At the developer's request,
   each function with variables that carry meaning now has a `# Variables:`
-  comment block at the top of its body, one sentence per variable, in 40
-  modules: `agent/`, `simulator/`, `tools/`, `memory/`, `providers/`,
+  comment block at the top of its body, one sentence per variable, in 51 of
+  the 81 modules: `agent/`, `simulator/`, `tools/`, `memory/`, `providers/`,
   `evaluation/`, `manual/`, and the top-level modules (`episode.py`,
   `baseline.py`, `experiment.py`, `benchmark.py`, `memory_comparison.py`,
   `faults.py`, `progress.py`, `learning.py`, `settings.py`,
