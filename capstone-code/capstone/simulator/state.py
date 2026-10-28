@@ -163,6 +163,9 @@ class FactoryState(BaseModel):
 
     def next_on_line(self, machine_id: str) -> str | None:
         """The machine a job goes to after this one, or None at the end of its line."""
+        # Variables:
+        #   machine_id: The machine whose successor is wanted.
+        #   order: One line's machines in the order a job visits them.
         for order in self.lines.values():
             if machine_id in order[:-1]:
                 return order[order.index(machine_id) + 1]

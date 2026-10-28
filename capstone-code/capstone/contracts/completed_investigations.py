@@ -58,6 +58,8 @@ class CompletedInvestigation(Contract):
 
     @model_validator(mode="after")
     def unique_evidence(self):
+        # Variables:
+        #   ids: The id of every piece of evidence, which must all be different.
         ids = [e.id for e in self.evidence]
         if len(ids) != len(set(ids)):
             raise ValueError("evidence IDs must be unique within an investigation")
