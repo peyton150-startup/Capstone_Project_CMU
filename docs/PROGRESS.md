@@ -122,6 +122,17 @@ alarm), then evaluation, then the agent itself.
 
 ## Session notes
 
+- **2026-10-28 (docs-only): future-work notes for the critic.** After the first
+  live critic run the developer asked whether the critic may use the manual
+  (it may not: no tools, by the spec) and chose Option B: code searches the
+  manual for the hypotheses' claims and puts the sections in the critic's
+  prompt, labelled as general guidance, with no tool loop. Recorded with the
+  rejected Option A, the open question of a critic that calls evidence bad,
+  and the missing "asking the critic" line in the live view, in a new
+  "Future work notes" section of
+  `docs/superpowers/specs/2026-10-28-critic-review-only-design.md`. Nothing
+  built.
+
 - **2026-10-28 (docs-only): walkthrough of PR #108 (tree-of-thought trees in
   the experiment record), given after the merge at the developer's request.**
   Three questions. (1) Why a record's `thoughts` is `null`: the developer
