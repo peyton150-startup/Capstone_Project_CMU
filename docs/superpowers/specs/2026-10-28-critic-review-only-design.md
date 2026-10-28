@@ -101,11 +101,14 @@ run by meeting a bar set in advance.
     fix itself.
   Evidence ids it cites must exist; an invalid reply is refused and its
   reason recorded, as for the seven policy questions (`_ask`, `_refuse`).
-- **Its own time window:** `CRITIC_SECONDS`, default **30**, on top of the
-  investigation's own time. The investigation's deadline is moved back by
+- **Its own time window:** `CRITIC_SECONDS`, default **40** (raised from 30 after the live
+  check below: good answers took 4-10 s and the timeouts never answered, so 40 s
+  gives each of the two models about 20 s, twice the slowest good answer), on
+  top of the investigation's own time. The investigation's deadline is moved back by
   the time the critic actually used, so research and the follow-up reserve
-  keep exactly what they have now. 30 is a starting point to benchmark, not a
-  decision.
+  keep exactly what they have now. 40 is a starting point; after the first
+  real runs it is set from the slowest 5% of critic answers, as
+  `suggested_limits` does.
 - **Its own models, in its own chain:** `CRITIC_MODEL` takes a
   comma-separated chain like `FALLBACK_MODEL`, tried in order through
   `FallbackClient`. The developer's chain (decided 2026-10-28, after the
