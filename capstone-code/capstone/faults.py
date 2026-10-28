@@ -81,6 +81,13 @@ class Relevant:
         return self.label.format(machine=machine_id)
 
     def met_by(self, tool: str, arguments: Mapping, machine_id: str | None) -> bool:
+        # Variables:
+        #   tool: The tool the agent called.
+        #   arguments: The arguments it was called with.
+        #   machine_id: The machine the fault is on.
+        #   named: The machine the call asked about, if any.
+        #   whole_factory: True for an event query with no machine, which also covers
+        #     this one.
         if tool not in self.tools:
             return False
         if self.sensor is not None and arguments.get("sensor") != self.sensor:
@@ -139,6 +146,12 @@ class FaultPack:
 
 
 def _bearing(sim: Simulator, pick: random.Random, place: FaultPlace) -> Scenario:
+    # Variables:
+    #   pick: The generator's random stream, so choosing never shifts another stream.
+    #   place: Which machine, which start tick and which bearing profile to use.
+    #   rate: How fast health is lost, drawn from the stream.
+    #   phases: Extra settings for the slower three-day profile; empty for the standard
+    #     one.
     rate = pick.uniform(0.0004, 0.0008)
     phases = {}
     if place.bearing_profile == "three_day":
@@ -158,12 +171,17 @@ def _bearing(sim: Simulator, pick: random.Random, place: FaultPlace) -> Scenario
 
 
 def _bad_batch(sim: Simulator, pick: random.Random, place: FaultPlace) -> Scenario:
+    # Variables:
+    #   batch: Which material batch is bad, the second or the third.
+    #   risk: The chance each of its jobs fails inspection.
     batch = pick.randint(2, 3)
     risk = pick.uniform(0.35, 0.50)
     return BadMaterialBatch("fault", sim.rng, batch_number=batch, added_risk=risk)
 
 
 def _wrong_setting(sim: Simulator, pick: random.Random, place: FaultPlace) -> Scenario:
+    # Variables:
+    #   factor: The wrong speed as a multiple of standard, 20% under or over.
     factor = pick.choice((0.80, 0.82, 1.18, 1.20))
     return WrongSetting(
         "fault",
@@ -175,6 +193,8 @@ def _wrong_setting(sim: Simulator, pick: random.Random, place: FaultPlace) -> Sc
 
 
 def _false_alarm(sim: Simulator, pick: random.Random, place: FaultPlace) -> Scenario:
+    # Variables:
+    #   duration: How many ticks the sensor misreads.
     duration = pick.randint(3, 8)
     return FalseAlarm(
         "fault",
@@ -186,6 +206,8 @@ def _false_alarm(sim: Simulator, pick: random.Random, place: FaultPlace) -> Scen
 
 
 def _servo_drive(sim: Simulator, pick: random.Random, place: FaultPlace) -> Scenario:
+    # Variables:
+    #   rate: How fast the axis drive's health is lost.
     rate = pick.uniform(0.0004, 0.0008)
     return AxisDriveWear(
         "fault",
@@ -200,6 +222,11 @@ def _hydraulic_leak(sim: Simulator, pick: random.Random, place: FaultPlace) -> S
     # Only a machine with hydraulics can leak. Keep the seed's machine when it
     # has them; otherwise draw one that does. This pack is never drawn by
     # default, so the extra draw moves nothing for any other fault.
+    # Variables:
+    #   equipped: Machines on this line that have hydraulics.
+    #   machine_id: The seed's machine if it has hydraulics, otherwise one drawn from
+    #     those that do.
+    #   rate: How fast hydraulic health is lost.
     equipped = sorted(m.id for m in sim.state.machines.values() if m.has_hydraulics)
     if not equipped:
         raise ValueError("no machine on this line has hydraulics")

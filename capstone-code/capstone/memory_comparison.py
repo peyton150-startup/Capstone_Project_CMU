@@ -81,6 +81,12 @@ def memory_for(
     keyword fallback off, so semantic mode can never answer by keyword: a
     search that fails is reported as failed.
     """
+    # Variables:
+    #   mode: none, keyword or semantic.
+    #   repository: Where memories are read from.
+    #   index: The similarity index; semantic mode needs one.
+    #   recall: Recall with the keyword fallback off, so semantic mode never quietly
+    #     answers by keyword.
     if mode not in MODES:
         raise ValueError(f"unknown memory mode {mode!r}")
     if mode == "none":
@@ -115,6 +121,17 @@ def compare_memory(
     whether that policy is offered recall. Other options go to
     `run_experiment` (approver, budgets, hazards, clock).
     """
+    # Variables:
+    #   cases: The cases to run once per mode.
+    #   make_policy: Builds a fresh policy for a mode; it decides whether recall is
+    #     offered.
+    #   name: Starts every run key; may not contain a slash.
+    #   repository: Where memories are read from.
+    #   index: The similarity index for semantic mode.
+    #   modes: Which memory modes to compare.
+    #   services: One memory service per mode.
+    #   results: The records for each mode.
+    #   number: The case's position in the whole list, used in the run keys.
     if "/" in name:
         raise ValueError("a comparison name may not contain '/'")
     if len(set(modes)) != len(modes):
@@ -170,6 +187,13 @@ def mode_line(
     mode: str, records: Sequence[ExperimentRecord], scores: Sequence[Score]
 ) -> str:
     """Totals for one mode. Outage runs are counted, then left out of the rest."""
+    # Variables:
+    #   mode: The memory mode being summarized.
+    #   runs: How many runs the mode had.
+    #   kept: Runs where a model answered; outage runs are counted then left out.
+    #   judged: Kept runs that have a label.
+    #   uses: Every memory the kept runs recalled.
+    #   factory: Counted calls to the factory's own tools in each kept run.
     runs = len(records)
     kept = [
         (r, s) for r, s in zip(records, scores, strict=True) if not s.model_unavailable
@@ -193,6 +217,12 @@ def mode_line(
 
 
 def case_line(scenario_id: str, by_mode: Mapping[str, tuple]) -> str:
+    # Variables:
+    #   scenario_id: The case being shown.
+    #   by_mode: Each mode's record and score for that case.
+    #   cells: One short summary per mode.
+    #   right: Whether cause and target were right; None if not judged.
+    #   factory: Calls to the factory's own tools, or a dash if not recorded.
     cells = []
     for mode, (record, score) in by_mode.items():
         if score.model_unavailable:
@@ -216,6 +246,15 @@ def compare_report(
     Says so when the modes did not run the same cases: then the totals are
     not a like-for-like comparison.
     """
+    # Variables:
+    #   records: Every run of the comparison.
+    #   labels: Hand labels that say which cause each conclusion names.
+    #   scores: Each run's score, with its cause judged where a label exists.
+    #   by_mode: The records and scores grouped by mode.
+    #   lines: The report, built line by line.
+    #   case_lists: The cases each mode ran, to check they match.
+    #   first: The first mode's cases, used as the row order.
+    #   row: The same case across modes.
     scores = labelled(records, dict(labels))
     by_mode: dict[str, list[tuple[ExperimentRecord, Score]]] = {}
     for record, score in zip(records, scores, strict=True):
@@ -251,6 +290,10 @@ def open_store_and_index(modes: Sequence[str]):
 
     Exits with a message, never falls back, when the index cannot be opened.
     """
+    # Variables:
+    #   modes: The modes asked for; the index is opened only for semantic.
+    #   repository: The SQL store of memories.
+    #   index: The Chroma index, or None if semantic mode is not asked for.
     from capstone.experiment import open_memory
     from capstone.settings import get_settings
 

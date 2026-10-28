@@ -104,6 +104,10 @@ def single_model_clients(
 ) -> dict[str, FallbackClient]:
     """Every job given `reference` alone: no fallback model behind it, with
     the retries and the question limit from settings, as in a real run."""
+    # Variables:
+    #   reference: One model written as provider/model.
+    #   client_options: Extra options passed to the client, such as a test transport.
+    #   client: The single client every job shares, with no fallback behind it.
     settings = settings or get_settings()
     client = client_for(reference, settings, **client_options)
     return {
@@ -130,6 +134,20 @@ def run_model(
 
     `on_record` sees each record as soon as its episode ends.
     """
+    # Variables:
+    #   model: The model under test, used in each run's name.
+    #   policy_for: Builds a fresh policy for each episode.
+    #   faults: Which faults to run.
+    #   seeds: Which seeds to run for each fault.
+    #   wall_clock: Real seconds that only move forward; replaced in tests.
+    #   on_record: Called with each record as soon as its episode ends.
+    #   episode_options: Extra options passed on to each episode.
+    #   records: One record per fault and seed.
+    #   policy: A fresh policy, which also keeps the log of model questions.
+    #   started: The wall-clock reading when the episode began.
+    #   result: The finished episode.
+    #   reason: Why the investigation stopped.
+    #   record: The measurements kept for this episode.
     records = []
     for fault in faults:
         for seed in seeds:
@@ -163,6 +181,9 @@ def run_model(
 
 def percentile(values: Sequence[float], share: float) -> float | None:
     """The nearest-rank percentile: the smallest value with `share` at or below it."""
+    # Variables:
+    #   share: The fraction at or below the answer, e.g. 0.95.
+    #   ordered: The values sorted smallest first.
     if not values:
         return None
     ordered = sorted(values)
@@ -170,6 +191,20 @@ def percentile(values: Sequence[float], share: float) -> float | None:
 
 
 def summarize(model: str, records: Sequence[EpisodeRecord]) -> ModelReport:
+    # Variables:
+    #   model: The model the records belong to.
+    #   records: Its episodes.
+    #   calls: Every model question across the episodes.
+    #   attempts: Every request made for those questions, retries included.
+    #   answer_times: Seconds taken by requests that reached a model, whether or not the
+    #     reply was usable.
+    #   invalid: Unusable replies, by question.
+    #   reasons: How many episodes ended for each stop reason.
+    #   failed: Why requests failed for a service reason, by reason.
+    #   refused: Why replies were refused, by reason.
+    #   walls: Wall-clock seconds per episode.
+    #   episodes: How many episodes were run.
+    #   median: The middle answer time.
     calls = [call for record in records for call in record.calls]
     attempts = [attempt for call in calls for attempt in call.attempts]
     answer_times = [
@@ -223,6 +258,9 @@ def suggested_limits(report: ModelReport) -> Limits:
     of its answers took; a question twice that (room for one retry or the
     fallback); an investigation its questions at the median time, twice
     over for the slow ones and the tool calls."""
+    # Variables:
+    #   report: One model's measured numbers.
+    #   request: Slowest-5% answer time, rounded up; one request may wait this long.
     if report.p95_seconds is None or report.median_seconds is None:
         return Limits(
             request_seconds=None, question_seconds=None, investigation_seconds=None
@@ -265,6 +303,11 @@ def format_table(reports: Sequence[ModelReport]) -> str:
 
 def format_limits(reports: Sequence[ModelReport]) -> str:
     """The limits each model's numbers suggest, and why its requests failed."""
+    # Variables:
+    #   reports: One report per model.
+    #   limits: The limits that model's numbers suggest.
+    #   why: Why its requests failed, in short words.
+    #   refused: Why its replies were refused.
     lines = []
     for r in reports:
         limits = suggested_limits(r)
