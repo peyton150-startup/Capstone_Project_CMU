@@ -2,11 +2,7 @@ from itertools import groupby
 
 import pytest
 
-from capstone.agent.artifacts import (
-    AgentConclusion,
-    CritiqueResult,
-    TerminationReason,
-)
+from capstone.agent.artifacts import AgentConclusion, TerminationReason
 from capstone.agent.investigation import (
     INVESTIGATION_GRAPH,
     critique,
@@ -22,7 +18,14 @@ from capstone.simulator.line import build_line
 from capstone.simulator.scenarios import BearingDegradation
 from capstone.tools.actions import ActionTools, ApprovalDesk
 from capstone.tools.observation import ObservationTools
-from tests.helpers import FakeProvider, ScriptedPolicy, ask, new_state
+from tests.helpers import (
+    FakeCritic,
+    FakeProvider,
+    ScriptedPolicy,
+    ask,
+    critique_result,
+    new_state,
+)
 
 HIDDEN_WORDS = ("bearing_health", "defect_risk", "standard_speed", "ground_truth")
 QUESTIONS = (
@@ -594,35 +597,6 @@ def test_an_outage_inside_the_research_loop_is_not_an_unproductive_turn():
 
 
 # --- the critic: review only -----------------------------------------------
-
-
-def critique_result(verdict="object", favoured="H1"):
-    return CritiqueResult(
-        favoured=favoured,
-        why="it fits",
-        discriminating_check="get_readings on CNC-02",
-        verdict=verdict,
-        favoured_confidence=0.6,
-        supports_action=False,
-    )
-
-
-class FakeCritic:
-    """Stands in for `Critic`: answers, or raises, and keeps what it was asked."""
-
-    def __init__(self, reply=None, *, on_review=None):
-        self.reply = reply or critique_result()
-        self.on_review = on_review
-        self.calls = []
-        self.reviewed = []
-
-    def review(self, state, *, max_seconds):
-        self.reviewed.append((state, max_seconds))
-        if self.on_review:
-            self.on_review()
-        if isinstance(self.reply, Exception):
-            raise self.reply
-        return self.reply
 
 
 def test_no_critic_changes_nothing():
