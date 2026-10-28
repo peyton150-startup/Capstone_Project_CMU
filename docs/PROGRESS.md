@@ -112,7 +112,7 @@ A component is complete only when both columns are checked.
 | A13 | STATE_ACTION_BAR: show or hide the action threshold in prompts, with enforcement unchanged | no — developer requested build, merge, then quiz (2026-10-27) | no — built ungated, developer to review | yes | no — quiz after merge | `settings.py`, `agent/state.py`, `agent/loop.py`, `agent/model_policy.py`, `episode.py`, `experiment.py`; session note 2026-10-27 (A13) |
 | A14 | Prompt guidance: one discriminating check before stopping with an uncertain leading explanation | no — developer requested build, merge, then quiz (2026-10-27) | no — built ungated, developer to review | yes | no — quiz after merge | `agent/model_policy.py` (`SYSTEM["decide"]`); session note 2026-10-27 (A14) |
 | A15 | Prompt guidance: consult an available manual before recommending a repair | no — developer requested build, merge, then quiz (2026-10-27) | no — built ungated, developer to review | yes | no — quiz after merge | `agent/model_policy.py` (`manual_use_note`, `decide`, `interpret_and_decide`); session note 2026-10-27 (A15) |
-| EV1 | Configurable full-episode evaluation harness and single-agent master baseline | no — build first at developer's request (2026-10-27) | no — walkthrough owed | yes (baseline run 2026-10-28: 3 of 9 right) | no — merged before the walkthrough at the developer's request (2026-10-28); walkthrough owed | `capstone/evals.py`, `evals/scenarios.json`, `experiment.py` (`AgentStep`), `agent/state.py`, `agent/model_policy.py`, `tests/test_evals.py`; session note 2026-10-27 (EV1) |
+| EV1 | Configurable full-episode evaluation harness and single-agent master baseline | no — build first at developer's request (2026-10-27) | no — walkthrough owed | yes (baseline run 2026-10-28: 3 of 9 right) | partly — walkthrough after the merge, at the developer's request (2026-10-28): Q1 wrong, corrected; Q2 mostly right, completed; Q3 not answered, re-taught, follow-up check corrected; re-check of Q3 owed | `capstone/evals.py`, `evals/scenarios.json`, `experiment.py` (`AgentStep`), `agent/state.py`, `agent/model_policy.py`, `tests/test_evals.py`; session note 2026-10-27 (EV1) |
 
 Every row above with four "yes" marks (or "n/a") is complete: no question is
 outstanding on it. Still to build after 12c, from `docs/MVP_SCOPE.md`: the
@@ -140,6 +140,21 @@ alarm), then evaluation, then the agent itself.
   choice). The mixed raw file from 2026-10-27 is left out. Merged before the
   walkthrough at the developer's request (2026-10-28); understanding stays
   "no" until the walkthrough is done.
+  **Walkthrough (2026-10-28, after the merge).** Q1 (if `STEP_QUESTIONS`
+  changes between a run and its resume, what does `check_resume` do?): answered
+  that it stops on the mismatch; wrong, corrected: it checks only run key,
+  scenario, seed and forced fault, so the resume goes on and the report mixes
+  two configurations (each record still stores `step_questions`). Q2 (why an
+  unlabelled case is `correct = None`, not `False`): right that it is unjudged,
+  not wrong; completed: as `False` it would make `compare_reports` show an
+  accuracy change that never happened, while `None` keeps `accuracy_change`
+  unknown. Q3 (why `--resume` skips `reserve_raw_output`, and what it loses):
+  not answered; re-taught: `"x"` mode needs the file absent and a resume needs
+  it present; a resume has no exclusive claim, so two copies would both run
+  and append. Follow-up check (what kept today's resume safe?): answered that
+  no `--resume` was used; corrected: it was used; one copy at a time, checked
+  before the start, kept it safe. Possible follow-ups, not built: compare
+  settings in `check_resume`; a lock file for a resumed run.
 
 - **2026-10-28 (docs-only): variable comments across `capstone/`, and the
   A10 walkthrough begun.** No behaviour changed. At the developer's request,
