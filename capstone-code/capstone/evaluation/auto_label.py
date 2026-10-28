@@ -120,6 +120,11 @@ def cause_question(fault: str) -> Noul:
 
 def target_question(fault: str, machines: Sequence[str], batches: Sequence[int]):
     """Which mentioned id the conclusion blames for `fault`; None if none mentioned."""
+    # Variables:
+    #   machines: Machine ids the conclusion mentions.
+    #   batches: Batch numbers the conclusion mentions.
+    #   options: The ids the model may pick from, plus 'none' for no id named.
+    #   subject: Whether the question is about a machine or a material batch.
     if fault == "bad_material_batch":
         if not batches:
             return None
@@ -162,6 +167,27 @@ def propose(run_key: str, conclusion: str, client: JudgmentClient) -> Proposal:
     An undetermined conclusion names no cause by definition: it is labelled
     None without asking.
     """
+    # Variables:
+    #   run_key: Which run the conclusion came from.
+    #   conclusion: The agent's free-text conclusion to be labelled.
+    #   client: The judgment service that answers the typed questions.
+    #   labelled_by: Who to credit with the label, for the label file.
+    #   machines: Machine ids mentioned in the conclusion.
+    #   batches: Batch numbers mentioned in the conclusion.
+    #   questions: Every question for the service: one per fault kind, plus a target
+    #     question where an id was mentioned.
+    #   judgments: The service's typed answers.
+    #   reasons: Why a person should read the proposal; empty if the answers were clear.
+    #   probabilities: For each fault kind, how likely it is that the conclusion names
+    #     it.
+    #   targets: The machine or batch chosen for each named fault.
+    #   confidence: How sure the service was of each chosen target.
+    #   named: The causes the conclusion is judged to name.
+    #   machine_id: The machine chosen for this fault, if any.
+    #   batch_id: The batch chosen for this fault, if any.
+    #   answer: The yes-or-no probability for one fault kind.
+    #   target: The service's choice of machine or batch for one fault.
+    #   diagnosis: None, one cause, or a list, as the label format needs.
     labelled_by = f"typesafe/{client.model}"
     if conclusion.strip().lower() == UNDETERMINED:
         return Proposal(
@@ -255,6 +281,16 @@ def agreement(proposals: Sequence[Proposal], hand: dict[str, Label]) -> Agreemen
     Two labels agree when they name the same causes with the same machine or
     batch; the summary text is ignored.
     """
+    # Variables:
+    #   proposals: The labels proposed by the model.
+    #   hand: The labels written by a person, by run key.
+    #   compared: How many runs have both a proposal and a hand label.
+    #   agreed: How many of those name the same causes.
+    #   unreviewed_compared: Compared runs whose proposal was not marked for review.
+    #   unreviewed_agreed: How many of those agreed.
+    #   disagreements: The runs where the two differ, as text.
+    #   key: The run being compared.
+    #   same: True if both name the same causes with the same machine or batch.
     compared = agreed = unreviewed_compared = unreviewed_agreed = 0
     disagreements: dict[str, tuple[str, str]] = {}
     for proposal in proposals:
@@ -287,6 +323,9 @@ def conclusions(paths: Sequence[Path]) -> dict[str, str]:
     Reads only these two fields, so the score (which holds the truth) is
     never looked at.
     """
+    # Variables:
+    #   paths: Experiment result files to read.
+    #   found: Each run's conclusion; a later row replaces an earlier one.
     found: dict[str, str] = {}
     for path in paths:
         for line in path.read_text(encoding="utf-8").splitlines():

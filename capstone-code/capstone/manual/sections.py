@@ -56,6 +56,12 @@ class ManualSection(Contract):
 
 def parse_manual(markdown: str) -> tuple[ManualSection, ...]:
     """The numbered sections, in order. Anything under another heading is left out."""
+    # Variables:
+    #   markdown: The manual's full text.
+    #   found: The revision line, if the manual has one.
+    #   revision: The manual's revision number, or 'unknown'.
+    #   following: The next heading, which ends the section.
+    #   body: The section's text, up to that heading.
     found = _REVISION.search(markdown)
     revision = found.group(1) if found else "unknown"
     sections = []
@@ -75,6 +81,9 @@ def parse_manual(markdown: str) -> tuple[ManualSection, ...]:
 
 def check_no_leaks(sections: tuple[ManualSection, ...]) -> None:
     """ValueError naming each section that carries something the agent may not know."""
+    # Variables:
+    #   leaking: Each section that contains a fault name, a seed or similar hidden
+    #     detail.
     leaking = [
         f"§{s.section_id} ({found.group(0)!r})"
         for s in sections

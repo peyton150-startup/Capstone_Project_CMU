@@ -77,6 +77,12 @@ def build_promotion_record(
     diagnosis_correct: bool | None = None,
 ) -> MemoryPromotionRecord:
     """Associate a decision with its completed report without changing either."""
+    # Variables:
+    #   investigation: The finished investigation the decision belongs to.
+    #   decision: What the memory gate decided about its lesson.
+    #   diagnosis_correct: Whether the diagnosis was right, from the evaluator; it never
+    #     grants promotion.
+    #   memory: The memory the decision would store, if it was accepted.
     if decision.investigation_id != investigation.investigation_id:
         raise ValueError("promotion and investigation identities must match")
     memory = decision.memory
@@ -112,6 +118,12 @@ def build_use_record(
     explanation: str | None = None,
 ) -> MemoryUseRecord:
     """Record supplied use observations; never infer benefit from run success."""
+    # Variables:
+    #   retrieved: Whether the memory was actually returned by a search.
+    #   used: Whether the agent's reasoning relied on it; None means not known.
+    #   effect: helped, hurt, neutral or unknown; never inferred from the run's success.
+    #   assessment_source: Who made the assessment: the agent, a person or the
+    #     evaluator.
     if not set(evidence_ids) <= {e.id for e in investigation.evidence}:
         raise ValueError(
             "assessment references evidence absent from the consumer report"
@@ -131,6 +143,8 @@ def build_use_record(
 
 def recalled_in(investigation: CompletedInvestigation) -> dict[UUID, tuple[str, ...]]:
     """Each memory an investigation recalled, with the evidence items that held it."""
+    # Variables:
+    #   found: For each recalled memory, the evidence items that carried it.
     found: dict[UUID, list[str]] = {}
     for evidence in investigation.evidence:
         if not evidence.source_id.startswith(f"{MEMORY_SOURCE}:"):
@@ -143,6 +157,8 @@ def recalled_in(investigation: CompletedInvestigation) -> dict[UUID, tuple[str, 
 
 def cited_in(investigation: CompletedInvestigation) -> set[str]:
     """The evidence the agent's beliefs, conclusion and proposal rest on."""
+    # Variables:
+    #   cited: Every evidence id the conclusion, hypotheses and proposal rest on.
     cited = set(investigation.conclusion.evidence_ids)
     for hypothesis in investigation.hypotheses:
         cited.update(hypothesis.supporting_evidence_ids)
@@ -162,6 +178,10 @@ def build_use_records(
     still have steered the next look. The effect stays unknown: only a named
     assessment may say a memory helped or hurt, never the run's success.
     """
+    # Variables:
+    #   cited: The evidence the agent's reasoning rests on.
+    #   records: One use record per recalled memory.
+    #   used: True if any evidence item holding that memory is cited.
     cited = cited_in(investigation)
     records = []
     for memory_id, evidence_ids in recalled_in(investigation).items():
@@ -209,6 +229,16 @@ def build_search_records(state) -> tuple[RecallSearchRecord, ...]:
     because no searches were left is "budget_spent"; any other failure is
     "failed".
     """
+    # Variables:
+    #   state: The finished investigation state, read for its decision records.
+    #   contents: The text of each piece of evidence, by id.
+    #   records: One record per memory search, in order.
+    #   text: What was searched for; None if the arguments were unusable.
+    #   limit: How many results were asked for.
+    #   message: The tool's error message, if the call failed or was refused.
+    #   evidence_id: The evidence that holds the answer, if there was one.
+    #   memory_ids: The memories that came back.
+    #   outcome: answered, repeated, budget_spent or failed.
     contents = {e.id: e.content for e in state.evidence}
     records = []
     for decision in state.decisions:
