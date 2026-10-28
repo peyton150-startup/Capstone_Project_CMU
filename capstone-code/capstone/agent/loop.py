@@ -28,6 +28,7 @@ from time import monotonic
 from typing import TypeVar
 
 from capstone.agent.artifacts import ProposalRecord, TerminationReason
+from capstone.agent.critic import Critic
 from capstone.agent.policy import (
     CallTool,
     Interpretation,
@@ -97,6 +98,11 @@ class InvestigationDeps:
     # it can read what the agent has, never change it. None: nobody watches.
     watch: Callable[[InvestigationState], None] | None = field(default=None)
     step_questions: int = 2
+    # A second model that reviews the two leading hypotheses before the
+    # conclusion (`investigation.critique`). None: no critique. Its window
+    # is its own, on top of the investigation's time.
+    critic: Critic | None = None
+    critic_seconds: float = 40.0
 
     def __post_init__(self) -> None:
         if self.step_questions not in (1, 2):
@@ -137,17 +143,28 @@ def diagnosis_supported(state: InvestigationState, deps: InvestigationDeps) -> b
     confidence alone does not settle it (AgentLoop, arXiv 2609.33315). The
     policy can still stop on its own and conclude, and the usual budgets
     still end research.
+
+    Only supporters the factory itself answered count towards
+    `min_supporting_evidence`: a memory is a past belief and the manual is
+    general guidance for the machine model, so neither shows that this
+    machine has the fault now (the same rule `verify` applies after a fix).
     """
     # Variables:
     #   leading: The explanation the agent currently believes most.
     #   current: Ids of the explanations still in play, used to see if any open question
     #     still tests one.
+    #   observed: Ids of evidence the factory answered, from the loop's provenance.
+    #   backed: How many of the leading explanation's supporters are observed.
     leading = state.leading_hypothesis
     current = {h.id for h in state.hypotheses}
+    observed = {p.evidence_id for p in state.provenance if p.origin == "observable"}
+    backed = (
+        0 if leading is None else len(set(leading.supporting_evidence_ids) & observed)
+    )
     return (
         leading is not None
         and leading.confidence >= deps.min_diagnosis_confidence
-        and len(leading.supporting_evidence_ids) >= deps.min_supporting_evidence
+        and backed >= deps.min_supporting_evidence
         and not leading.contradicting_evidence_ids
         and not any(q.hypothesis_id in current for q in state.unanswered_questions)
     )

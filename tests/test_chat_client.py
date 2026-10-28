@@ -18,6 +18,7 @@ from capstone.providers.chat import (
     ModelError,
     client_for,
     clients_for_jobs,
+    critic_client,
     is_model_outcome,
 )
 from capstone.settings import DEFAULT_MODEL, Settings
@@ -45,6 +46,9 @@ JOB_SETTINGS = (
     "JUDGE_MODEL",
     "LESSON_MODEL",
     "FALLBACK_MODEL",
+    "CRITIC",
+    "CRITIC_MODEL",
+    "CRITIC_SECONDS",
     "CLOUDFLARE_ACCOUNT_ID",
 )
 
@@ -845,3 +849,28 @@ def test_a_structured_reply_is_still_checked_against_the_type(monkeypatch):
     ask = client_for("nvidia/some-model", settings(), transport=transport)
     with pytest.raises(ValueError):
         ask.ask("s", "p", Lesson)
+
+
+# --- the critic's own chain ----------------------------------------------------
+
+
+def test_critic_client_uses_only_its_chain(monkeypatch):
+    monkeypatch.setenv("MISTRAL_API_KEY", KEY)
+    monkeypatch.setenv("COHERE_API_KEY", KEY)
+    monkeypatch.setenv("CLOUDFLARE_API_TOKEN", KEY)
+    monkeypatch.setenv("CLOUDFLARE_ACCOUNT_ID", "acct")
+    s = settings(
+        CRITIC_MODEL="mistral/ministral-14b-2512, cohere/command-a-03-2025",
+        FALLBACK_MODEL="cloudflare/x",
+    )
+    chain = critic_client(s, transport=FakeTransport())
+    assert [c.model for c in chain.clients] == [
+        "ministral-14b-2512",
+        "command-a-03-2025",
+    ]
+    assert chain.max_seconds == 40.0
+
+
+def test_critic_client_needs_a_model():
+    with pytest.raises(ModelError, match="CRITIC_MODEL"):
+        critic_client(settings(), transport=FakeTransport())

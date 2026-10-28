@@ -17,6 +17,7 @@ from pydantic import BaseModel, ConfigDict, Field, JsonValue, model_validator
 
 from capstone.agent.artifacts import (
     AgentConclusion,
+    CritiqueRecord,
     DetectedAnomaly,
     ProposalRecord,
     TerminationReason,
@@ -178,6 +179,9 @@ class InvestigationState(BaseModel):
     action_started_tick: int | None = Field(default=None, ge=0)
     action_finish_tick: int | None = Field(default=None, ge=0)
     verification: VerificationCheck | None = None
+    # What the critic said about the two leading hypotheses, or why it said
+    # nothing. Review only: nothing else in the run reads it.
+    critique: CritiqueRecord | None = None
     # Set by the loop only on the copy a policy is given: how long the policy
     # may take to answer, the time its stage has left. None on the loop's own
     # state, and outside a running investigation.

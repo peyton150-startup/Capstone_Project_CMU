@@ -16,8 +16,9 @@ from capstone.agent.policy import ActionRequest, Interpretation, Lesson
 from capstone.contracts.hypotheses import Hypothesis
 from capstone.episode import reject_all, rescore, run_episode
 from capstone.evaluation.scoring import format_summary, summarize
+from capstone.providers.chat import ModelError
 from capstone.tools.diagnosis import Diagnosis
-from tests.helpers import ScriptedPolicy, ask
+from tests.helpers import FakeCritic, ScriptedPolicy, ask
 
 SEED, MACHINE = 6, "CNC-02"  # seed 6 puts the fault on CNC-02
 ADVICE = "When vibration climbs steadily on one machine, replace its bearing."
@@ -295,3 +296,61 @@ def test_an_episode_on_the_challenge_is_scored_with_several_causes():
     assert len(result.score.causes) == 2
     # Monitoring is unchanged: it notices the harmless spike on another machine.
     assert result.state.anomaly.machine_id == "CNC-03"
+
+
+# --- the critic, review only -----------------------------------------------
+
+
+def test_critic_off_by_default_keeps_results(monkeypatch):
+    monkeypatch.setenv("CRITIC", "off")
+    result = run_episode(
+        SEED, wear_policy(), fault="bearing_degradation", clock=lambda: 0.0
+    )
+    assert result.critic_calls == ()
+    assert result.state.critique is None
+
+
+def test_critic_on_without_model_fails_before_running(monkeypatch):
+    monkeypatch.setenv("CRITIC", "on")
+    monkeypatch.setenv("CRITIC_MODEL", "")
+    reads = []
+
+    def clock():
+        reads.append(1)
+        return 0.0
+
+    with pytest.raises(ModelError, match="CRITIC_MODEL"):
+        run_episode(SEED, wear_policy(), fault="bearing_degradation", clock=clock)
+    assert reads == []
+
+
+def test_passed_critic_is_used(monkeypatch):
+    monkeypatch.setenv("CRITIC", "off")
+    critic = FakeCritic()
+    result = run_episode(
+        SEED,
+        wear_policy(),
+        fault="bearing_degradation",
+        clock=lambda: 0.0,
+        critic=critic,
+    )
+    assert result.state.critique.outcome == "answered"
+    assert result.critic_calls == tuple(critic.calls)
+    assert len(critic.reviewed) == 1
+
+
+def test_a_critic_does_not_change_the_episode(monkeypatch):
+    monkeypatch.setenv("CRITIC", "off")
+    plain = run_episode(
+        SEED, wear_policy(), fault="bearing_degradation", clock=lambda: 0.0
+    )
+    critiqued = run_episode(
+        SEED,
+        wear_policy(),
+        fault="bearing_degradation",
+        clock=lambda: 0.0,
+        critic=FakeCritic(),
+    )
+    assert critiqued.state.conclusion == plain.state.conclusion
+    assert critiqued.state.decisions == plain.state.decisions
+    assert critiqued.score == plain.score

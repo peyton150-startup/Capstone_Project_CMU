@@ -4,7 +4,7 @@ import os
 
 import pytest
 
-from capstone.settings import Settings, get_settings
+from capstone.settings import Settings, critic_models, get_settings
 
 
 @pytest.mark.parametrize("value", ["1", "2"])
@@ -103,3 +103,41 @@ def test_state_action_bar_is_an_environment_switch(monkeypatch, value, expected)
 def test_state_action_bar_defaults_to_visible(monkeypatch):
     monkeypatch.delenv("STATE_ACTION_BAR", raising=False)
     assert Settings(_env_file=None).state_action_bar is True
+
+
+CRITIC_CHAIN = (
+    "mistral/ministral-14b-2512, cohere/command-a-03-2025, mistral/ministral-14b-2512"
+)
+
+
+def test_critic_settings_default_off(monkeypatch):
+    for name in ("CRITIC", "CRITIC_MODEL", "CRITIC_SECONDS"):
+        monkeypatch.delenv(name, raising=False)
+    s = Settings(_env_file=None)
+    assert s.critic is False
+    assert s.critic_model is None
+    assert s.critic_seconds == 40.0
+
+
+def test_critic_on_and_chain(monkeypatch):
+    monkeypatch.setenv("CRITIC", "on")
+    monkeypatch.setenv("CRITIC_MODEL", CRITIC_CHAIN)
+    s = Settings(_env_file=None)
+    assert s.critic is True
+    assert critic_models(s) == (
+        "mistral/ministral-14b-2512",
+        "cohere/command-a-03-2025",
+    )
+
+
+def test_blank_critic_model_is_unset(monkeypatch):
+    monkeypatch.setenv("CRITIC_MODEL", "  ")
+    s = Settings(_env_file=None)
+    assert s.critic_model is None
+    assert critic_models(s) == ()
+
+
+def test_critic_seconds_must_be_positive(monkeypatch):
+    monkeypatch.setenv("CRITIC_SECONDS", "0")
+    with pytest.raises(ValueError):
+        Settings(_env_file=None)

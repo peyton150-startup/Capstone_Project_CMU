@@ -116,6 +116,18 @@ class Settings(BaseSettings):
     # when the first is out too (for example its daily quota is spent).
     fallback_model: str | None = _optional("FALLBACK_MODEL")
 
+    # The critic (review only): a second model that judges the two leading
+    # hypotheses before the conclusion and changes nothing in the run. Off by
+    # default so runs stay comparable with the baseline. Its models are its
+    # own comma-separated chain: the shared FALLBACK_MODEL chain is not added,
+    # because it leads back to the investigator's own models.
+    critic: bool = Field(default=False, validation_alias="CRITIC")
+    critic_model: str | None = _optional("CRITIC_MODEL")
+    # The critic's own time window, on top of the investigation's time.
+    # Live check 2026-10-28: good answers took 4-10 s and the 30 s timeouts
+    # never answered; 40 s gives each of two models about 20 s.
+    critic_seconds: float = Field(default=40.0, gt=0, validation_alias="CRITIC_SECONDS")
+
     # Limits on every model question (MVP_SCOPE.md section 3). The loop's own
     # limits (iterations, tool calls, time per investigation) are in Budgets.
     # The most tokens one reply may use, thinking included. Measured live on
@@ -174,6 +186,7 @@ class Settings(BaseSettings):
         "judge_model",
         "lesson_model",
         "fallback_model",
+        "critic_model",
         mode="before",
     )
     @classmethod
@@ -194,6 +207,22 @@ def fallback_models(settings: Settings) -> tuple[str, ...]:
         return ()
     chain: list[str] = []
     for reference in settings.fallback_model.split(","):
+        reference = reference.strip()
+        if reference and reference not in chain:
+            chain.append(reference)
+    return tuple(chain)
+
+
+def critic_models(settings: Settings) -> tuple[str, ...]:
+    """The critic's chain from CRITIC_MODEL, in order; empty when none is set."""
+    # Variables:
+    #   settings: The project settings.
+    #   chain: The models in the order they are tried, each once.
+    #   reference: One model written as provider/model.
+    if not settings.critic_model:
+        return ()
+    chain: list[str] = []
+    for reference in settings.critic_model.split(","):
         reference = reference.strip()
         if reference and reference not in chain:
             chain.append(reference)
