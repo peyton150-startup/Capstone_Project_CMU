@@ -255,6 +255,23 @@ alarm), then evaluation, then the agent itself.
     corrected: `reserve_raw_output` refuses an existing file, and `--resume`
     runs `check_resume` first.
 
+- **2026-10-28 (fix): tree-of-thought "impossible" needs a cited contradiction.**
+  From an outside audit: `prune` (`agent/tree_of_thought.py`) dropped any
+  candidate the rating model called impossible, with no evidence against it,
+  so a real cause could be ruled out by say-so. `Rating` now has
+  `contradicting_evidence_ids`, the `VALUE` prompt asks for them on an
+  impossible verdict, and `prune` drops for "rated impossible" only when
+  gathered evidence against the candidate is cited (by the rating or the
+  candidate itself). Otherwise the candidate is ranked by its confidence
+  like the rest; if ranked out, the reason reads "rated impossible with no
+  contradiction cited; ranked below the best N". Tests in
+  `tests/test_tree_of_thought.py`: cited, uncited, ungathered-only and
+  candidate-cited cases; the ranked-out reason; the prompt names the field;
+  existing scripted ratings now cite their contradiction. Limit: any
+  gathered evidence counts, including manual or memory answers (`prune` sees
+  ids, not origins). Not run live. Built ungated, developer to review
+  (understood: no).
+
 - **2026-10-28 (EV1): the single-agent master baseline, finished and labelled.**
   The run `master-single-2026-10-27` resumed at KA-04 (`--resume --watch`, in
   a terminal tab the developer watched) and finished all nine cases. Settings:
