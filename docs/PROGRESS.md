@@ -112,7 +112,7 @@ A component is complete only when both columns are checked.
 | A13 | STATE_ACTION_BAR: show or hide the action threshold in prompts, with enforcement unchanged | yes (after the build, 2026-10-28) | no — built ungated, developer to review | yes | no — walkthrough done 2026-10-28: Q1 right except what the record shows; Q2 right; Q3 conclusion not supported by the repo's notes, corrected; mark left for the developer | `settings.py`, `agent/state.py`, `agent/loop.py`, `agent/model_policy.py`, `episode.py`, `experiment.py`; session note 2026-10-27 (A13) |
 | A14 | Prompt guidance: one discriminating check before stopping with an uncertain leading explanation | yes (after the build, 2026-10-28) | no — built ungated, developer to review | yes | no — walkthrough done 2026-10-28: Q2 mostly right, missed that waiting is the one tool that changes the factory; mark left for the developer | `agent/model_policy.py` (`SYSTEM["decide"]`); session note 2026-10-27 (A14) |
 | A15 | Prompt guidance: consult an available manual before recommending a repair | yes (after the build, 2026-10-28) | no — built ungated, developer to review | yes | no — walkthrough done 2026-10-28: Q1 misread at first, then right; Q3 right first step (the trace), checks added; mark left for the developer | `agent/model_policy.py` (`manual_use_note`, `decide`, `interpret_and_decide`); session note 2026-10-27 (A15) |
-| EV1 | Configurable full-episode evaluation harness and single-agent master baseline | yes (after the build, 2026-10-28) | n/a (built first, taught after) | yes (baseline run 2026-10-28: 3 of 9 right) | no — walkthrough done 2026-10-28: Q1 in part, corrected; Q2 right, with an addition; Q3 wrong at first, corrected (session note 2026-10-28, walkthroughs); mark left for the developer | `capstone/evals.py`, `evals/scenarios.json`, `experiment.py` (`AgentStep`), `agent/state.py`, `agent/model_policy.py`, `tests/test_evals.py`; session note 2026-10-27 (EV1) |
+| EV1 | Configurable full-episode evaluation harness and single-agent master baseline | yes (after the build, 2026-10-28) | n/a (built first, taught after) | yes (baseline run 2026-10-28: 3 of 9 right) | partly — two walkthroughs on 2026-10-28. One (session note 2026-10-27, EV1): Q1 wrong, corrected; Q2 mostly right, completed; Q3 not answered, re-taught, follow-up check corrected; re-check of Q3 owed. The other (session note 2026-10-28, walkthroughs): Q1 in part, corrected; Q2 right, with an addition; Q3 wrong at first, corrected | `capstone/evals.py`, `evals/scenarios.json`, `experiment.py` (`AgentStep`), `agent/state.py`, `agent/model_policy.py`, `tests/test_evals.py`; session note 2026-10-27 (EV1) |
 
 Every row above with four "yes" marks (or "n/a") is complete: no question is
 outstanding on it. Still to build after 12c, from `docs/MVP_SCOPE.md`: the
@@ -164,7 +164,8 @@ alarm), then evaluation, then the agent itself.
     the cap is per provider so models that think at length keep their room.
   - L9: Q2 in part: the watcher gets a copy; a watcher that raises is caught
     and logged without its text, so a display fault cannot stop a run.
-  - EV1: Q1 in part: the truth is
+  - EV1 (a second walkthrough, with other questions, is recorded in the
+    EV1 note of 2026-10-27): Q1 in part: the truth is
     used to build the world and again to score, never passed to the agent;
     the boundary is the tool provider. Q2 right, with the second reason
     that the judged cases are probably the easy ones; unjudged is unknown,
@@ -191,6 +192,21 @@ alarm), then evaluation, then the agent itself.
   choice). The mixed raw file from 2026-10-27 is left out. Merged before the
   walkthrough at the developer's request (2026-10-28); understanding stays
   "no" until the walkthrough is done.
+  **Walkthrough (2026-10-28, after the merge).** Q1 (if `STEP_QUESTIONS`
+  changes between a run and its resume, what does `check_resume` do?): answered
+  that it stops on the mismatch; wrong, corrected: it checks only run key,
+  scenario, seed and forced fault, so the resume goes on and the report mixes
+  two configurations (each record still stores `step_questions`). Q2 (why an
+  unlabelled case is `correct = None`, not `False`): right that it is unjudged,
+  not wrong; completed: as `False` it would make `compare_reports` show an
+  accuracy change that never happened, while `None` keeps `accuracy_change`
+  unknown. Q3 (why `--resume` skips `reserve_raw_output`, and what it loses):
+  not answered; re-taught: `"x"` mode needs the file absent and a resume needs
+  it present; a resume has no exclusive claim, so two copies would both run
+  and append. Follow-up check (what kept today's resume safe?): answered that
+  no `--resume` was used; corrected: it was used; one copy at a time, checked
+  before the start, kept it safe. Possible follow-ups, not built: compare
+  settings in `check_resume`; a lock file for a resumed run.
 
 - **2026-10-28 (docs-only): variable comments across `capstone/`, and the
   A10 walkthrough begun.** No behaviour changed. At the developer's request,
