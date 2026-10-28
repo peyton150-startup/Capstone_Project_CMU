@@ -45,7 +45,7 @@ from typing import TypeVar
 from pydantic import BaseModel, ValidationError
 
 from capstone.contracts import Contract
-from capstone.settings import Settings, fallback_models, get_settings
+from capstone.settings import Settings, critic_models, fallback_models, get_settings
 
 # (url, headers, body, timeout in seconds) -> response body
 Transport = Callable[[str, dict[str, str], bytes, float], bytes]
@@ -675,3 +675,24 @@ def clients_for_jobs(
             max_seconds=settings.model_question_seconds,
         )
     return clients
+
+
+def critic_client(
+    settings: Settings | None = None, *, transport: Transport = urllib_transport
+) -> FallbackClient:
+    """The critic's client: only the models of CRITIC_MODEL, in its own window.
+
+    The shared FALLBACK_MODEL chain is not added: it leads back to the
+    investigator's models, and a critic answered by them is not a second look.
+    """
+    # Variables:
+    #   references: The critic's models, in the order they are tried.
+    settings = settings or get_settings()
+    references = critic_models(settings)
+    if not references:
+        raise ModelError("set CRITIC_MODEL in the local .env or environment")
+    return FallbackClient(
+        [client_for(r, settings, transport=transport) for r in references],
+        retries=settings.model_retries,
+        max_seconds=settings.critic_seconds,
+    )
