@@ -60,6 +60,46 @@ def test_the_agent_package_does_not_import_memory_yet():
         assert not any(m.startswith("capstone.memory") for m in modules), path
 
 
+# Code that holds the simulator, its hidden truth or the score. The agent sees
+# the factory only through its tools; one import of these would put the truth
+# a line away from a prompt.
+TRUTH_SIDE = (
+    "capstone.simulator",
+    "capstone.evaluation",
+    "capstone.episode",
+    "capstone.experiment",
+    "capstone.evals",
+)
+
+
+def is_truth_side(module: str) -> bool:
+    return any(module == side or module.startswith(side + ".") for side in TRUTH_SIDE)
+
+
+def test_the_agent_package_does_not_import_truth_side_code():
+    for path in (CAPSTONE / "agent").rglob("*.py"):
+        found = sorted(m for m in imported_modules(path) if is_truth_side(m))
+        assert not found, (path, found)
+
+
+def test_the_truth_side_check_catches_a_forbidden_import(tmp_path):
+    planted = tmp_path / "planted.py"
+    planted.write_text(
+        "import capstone.episode\n"
+        "from capstone.simulator.ground_truth import GroundTruth\n"
+        "from capstone.evaluation import scoring\n",
+        encoding="utf-8",
+    )
+    found = {m for m in imported_modules(planted) if is_truth_side(m)}
+    assert found == {
+        "capstone.episode",
+        "capstone.simulator.ground_truth",
+        "capstone.evaluation",
+    }
+    assert not is_truth_side("capstone.simulatorish")
+    assert not is_truth_side("capstone.tools.observation")
+
+
 def test_runtime_records_reject_values_outside_their_limits():
     with pytest.raises(ValidationError):
         DetectedAnomaly(tick=-1, kind="alarm", description="x")

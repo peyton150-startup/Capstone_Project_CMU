@@ -121,6 +121,24 @@ alarm), then evaluation, then the agent itself.
 
 ## Session notes
 
+- **2026-10-28 (test only): a guard that the agent package never imports
+  truth-side code.** Asked for by the developer while reviewing the critic
+  (PR #106): the protection that the agent cannot reach hidden truth was
+  structural (only `episode.py` holds both sides) and prompt-content tests,
+  with no import check. `tests/test_agent_artifacts.py` now has `TRUTH_SIDE`
+  (`capstone.simulator`, `capstone.evaluation`, `capstone.episode`,
+  `capstone.experiment`, `capstone.evals`), `is_truth_side` (a module or any
+  submodule, so `capstone.simulatorish` does not match), and two tests:
+  `test_the_agent_package_does_not_import_truth_side_code` (every file under
+  `agent/`, direct imports) and `test_the_truth_side_check_catches_a_forbidden_import`
+  (a planted file is caught). Checked by hand too: adding
+  `from capstone.evaluation import scoring` to `agent/state.py` made the
+  guard fail, naming the file. Limits: direct imports only (as the memory
+  test); `agent/monitor.py` imports `ObservationTools` and `ActionTools`, the
+  tool boundary itself, which stays allowed; `capstone.faults` is not on the
+  list because its agent side (`FAULT_KINDS`, `ACTIONS`) is meant for prompts.
+  Built ungated (test only), developer to review.
+
 - **2026-10-28 (docs-only): walkthroughs for A10-A15, L8, L9 and EV1.**
   Each was taught after the build, then quizzed three ways (EV1: three
   questions on the harness). The "Understood (post)" marks stay **no**: the
