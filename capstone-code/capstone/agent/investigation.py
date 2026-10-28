@@ -84,6 +84,8 @@ def observe(state: InvestigationState, deps: InvestigationDeps) -> None:
     The repeat check compares "same question, same tick", so the tick
     has to be known before the policy asks its first question.
     """
+    # Variables:
+    #   step: The get_time call the loop makes itself, not one the policy chose.
     if state.started_at is None:
         state.started_at = deps.clock()
     step = CallTool(
@@ -98,6 +100,9 @@ def observe(state: InvestigationState, deps: InvestigationDeps) -> None:
 
 def plan(state: InvestigationState, deps: InvestigationDeps) -> None:
     """Ask the policy what is worth finding out first, and keep its questions open."""
+    # Variables:
+    #   questions: What the policy says is worth finding out first, kept open until
+    #     answered.
     state.stage = "plan"
     try:
         questions = tuple(ask_policy(state, deps, deps.policy.plan, research=True))
@@ -128,6 +133,8 @@ def plan(state: InvestigationState, deps: InvestigationDeps) -> None:
 
 def investigate(state: InvestigationState, deps: InvestigationDeps) -> Route:
     """Gather evidence. Go straight to the conclusion if there is nothing to explain."""
+    # Variables:
+    #   reason: Why the inner loop stopped, also saved as the run's termination reason.
     state.stage = "investigate"
     reason = run_inner_loop(state, deps, "investigate")
     state.termination_reason = reason
@@ -138,6 +145,10 @@ def investigate(state: InvestigationState, deps: InvestigationDeps) -> Route:
 
 def hypothesize(state: InvestigationState, deps: InvestigationDeps) -> Route:
     """Ask the policy for explanations. With none to test, go to the conclusion."""
+    # Variables:
+    #   outcome: How the question ended: decided, stopped (out of time) or
+    #     invalid_decision.
+    #   reason: Set only when time ran out, so the record can say why it stopped.
     state.stage = "hypothesize"
     outcome, reason = "decided", None
     try:
@@ -175,6 +186,8 @@ def why_not_acted(
     The first unmet condition, in words, for the record: an action is
     named, evidence is cited, and the confidence reaches the bar.
     """
+    # Variables:
+    #   request: The action the model asked for, or None if it named no action.
     if request is None:
         return "no action named"
     if not conclusion.evidence_ids:
@@ -201,6 +214,10 @@ def check_conclusion(
     nothing, or names no action is lowered to "escalate": a human
     should look, but the agent may not ask for a change.
     """
+    # Variables:
+    #   conclusion: The policy's raw answer, before this check can lower it.
+    #   request: The action the policy asked for with that answer, if any.
+    #   known_hypotheses: Ids of the explanations the agent actually formed.
     if not isinstance(conclusion, AgentConclusion):
         raise ValueError("a policy must return a conclusion")
     if request is not None and not isinstance(request, ActionRequest):
@@ -222,13 +239,34 @@ def check_conclusion(
 
 def conclude(state: InvestigationState, deps: InvestigationDeps) -> None:
     """Record the final belief. Always leaves a conclusion, even a failed one."""
+    # Variables:
+    #   outcome: How the question ended: decided, stopped or invalid_decision.
+    #   answer: The model's raw conclusion, before the check.
+    #   wanted: The action the model asked for with that answer, before the check.
+    #   conclusion: What survived the check; this is what the agent now believes.
+    #   request: The action that survived the check, or None if it was lowered or never
+    #     named.
     state.stage = "decide"
     outcome = "decided"
     try:
         answer, wanted = ask_policy(state, deps, deps.policy.conclude, research=False)
         conclusion, request = check_conclusion(state, deps, answer, wanted)
-        # For the record only: what the policy itself recommended, and why an
-        # intervention was lowered (from its own answer, before the check).
+        # For the record only; nothing below changes what the agent does.
+        # `answer, wanted` is the model's raw reply; `conclusion, request` is
+        # what survived check_conclusion.
+        #
+        # "Lowered" means the model recommended "intervene" but the check
+        # turned it into "escalate" (no action named, no evidence cited, or
+        # confidence below MIN_ACTION_CONFIDENCE), so no fix is proposed.
+        #
+        # Reading a record whose final recommendation is "escalate":
+        #   policy_recommendation="escalate", lowered=None -> the model chose it
+        #   policy_recommendation="intervene", lowered=<why> -> the check lowered it
+        #   policy_recommendation=None -> these lines never ran: time ran out or
+        #     the reply was unusable, and UNDETERMINED (escalate) was used
+        #
+        # The reason uses the raw `answer, wanted`: after the check `request`
+        # is always None, so the checked pair would always say "no action named".
         state.policy_recommendation = answer.recommendation
         if answer.recommendation == "intervene" and request is None:
             state.recommendation_lowered = why_not_acted(deps, answer, wanted)
@@ -274,6 +312,11 @@ def followup_call(
     gave nothing usable. Either way a record is left. The loop reads the
     answer itself; the policy is not asked to interpret it.
     """
+    # Variables:
+    #   out_of_time: True when the whole investigation's time is spent.
+    #   reason: Why no call was made: out of time, or no follow-up calls left.
+    #   step: The call as the loop's own CallTool, with no policy involved.
+    #   evidence: The new evidence from the call, or None if it gave nothing usable.
     out_of_time = state.remaining_seconds(deps.clock()) <= 0
     if out_of_time or state.remaining_followup_tool_calls == 0:
         reason = (
@@ -314,6 +357,15 @@ def propose(state: InvestigationState, deps: InvestigationDeps) -> ActionRoute:
     The decision is whatever the factory reports for this proposal, never
     what the agent assumes.
     """
+    # Variables:
+    #   wanted: The action the conclusion asked for, saved earlier as not_submitted.
+    #   answer: The factory's reply to propose_action, which carries the proposal id.
+    #   submitted: The proposal as the factory now holds it, with its id and pending
+    #     status.
+    #   proposals: The factory's list of proposals, read back to see the human's
+    #     decision.
+    #   mine: This investigation's own proposal row, or {} if the factory did not list
+    #     it.
     wanted = state.proposed_action
     if wanted is None:
         # Doing nothing is also a claim that can be checked later.
@@ -366,6 +418,14 @@ def execute(state: InvestigationState, deps: InvestigationDeps) -> ActionRoute:
     started. If that call fails, nothing is waited for. The work is
     checked only once it has finished.
     """
+    # Variables:
+    #   started: The factory's reply to execute_action, holding the start and finish
+    #     ticks.
+    #   ticks: Same reply, or {} if it was not a dict.
+    #   start: The tick the work began at; must be a real int.
+    #   finish: The tick the work will end at; the wait loop runs until this tick.
+    #   before: The tick before this wait, to check that time actually moved.
+    #   waited: The factory's reply to wait, or None if the call failed.
     started = followup_call(
         state,
         deps,
@@ -410,6 +470,26 @@ def verify(state: InvestigationState, deps: InvestigationDeps) -> None:
     The prediction is the one recorded before the action and the tick is
     taken from the evidence, so neither can be adjusted afterwards.
     """
+    # Variables:
+    #   since: The tick after which a look counts: when the work finished, or the
+    #     conclusion if no work was done.
+    #   prediction: What the agent said would happen, recorded before the action so it
+    #     cannot be edited later.
+    #   known: Every piece of evidence by id.
+    #   origins: Where each piece of evidence came from (observable, memory or manual).
+    #   starts: The from_tick each look asked for, read from the loop's records, never
+    #     from the policy.
+    #   looked: Ids of looks that count as observed after the work.
+    #   step_outcome: How the judging question ended: decided, stopped or
+    #     invalid_decision.
+    #   cited: The evidence ids the policy's judgement relied on.
+    #   outcome: The verdict that stands; inconclusive unless supported by a later look.
+    #   judged: The policy's own verification verdict, before this function decides if
+    #     it can stand.
+    #   supported: True if at least one cited look is later than the work.
+    #   decisive: True if the policy said resolved or not_resolved rather than
+    #     inconclusive.
+    #   after: The cited looks that count, or all the counting looks if none were cited.
     state.stage = "verify"
     since = (
         state.action_finish_tick if state.action_carried_out else state.concluded_tick
@@ -428,6 +508,10 @@ def verify(state: InvestigationState, deps: InvestigationDeps) -> None:
         the work, so it says nothing about the work. A tool with no range
         reports the factory as it is when asked.
         """
+        # Variables:
+        #   tick: The tick the evidence was observed at.
+        #   observed: True only for answers that came from the factory, never memory or
+        #     the manual.
         tick = known[evidence_id].observed_tick
         observed = origins.get(evidence_id) == "observable"
         if not observed or since is None or tick is None:
@@ -492,10 +576,16 @@ def verify(state: InvestigationState, deps: InvestigationDeps) -> None:
 
 def build_graph():
     """Wire the stages together. The edges are the only allowed order."""
+    # Variables:
+    #   Context: The type every stage receives: the state, the deps, and no extra data.
+    #   builder: Collects the stages (nodes) and edges; the edges are the only allowed
+    #     order.
     Context = StepContext[InvestigationState, InvestigationDeps, object]
 
     def staged(stage, ctx: Context):
         """Run one stage, then show the watcher (if any) where it left things."""
+        # Variables:
+        #   result: What the stage returned, passed on as the route to the next stage.
         result = stage(ctx.state, ctx.deps)
         notify(ctx.state, ctx.deps)
         return result
@@ -545,6 +635,9 @@ def build_graph():
 
     def choose(node_id: str, destinations: dict):
         """A fork: each value a stage can return, and the stage it leads to."""
+        # Variables:
+        #   destinations: Maps each value a stage can return to the stage that follows
+        #     it.
         decision = builder.decision(node_id=node_id)
         for value, destination in destinations.items():
             decision = decision.branch(

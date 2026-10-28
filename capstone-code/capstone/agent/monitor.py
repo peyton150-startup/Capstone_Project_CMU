@@ -22,6 +22,15 @@ def detect_anomaly(
 ) -> DetectedAnomaly:
     """Advance the factory `step` ticks at a time until an alarm, a stopped
     machine, or a run of rejects. With none by `max_ticks`, a routine check."""
+    # Variables:
+    #   look: The read-only tools, the same ones the agent would have.
+    #   act: The tool that lets time pass; it is the only change this makes.
+    #   max_ticks: When to give up and report a routine check.
+    #   step: How many ticks to advance between looks.
+    #   checked: The last tick already searched, so nothing is looked at twice.
+    #   now: The factory's tick after the latest wait.
+    #   recent: The latest inspections, at most WINDOW.
+    #   failed: The inspections among them that failed.
     checked = 0
     while look.get_time()["tick"] < max_ticks:
         act.wait(step)

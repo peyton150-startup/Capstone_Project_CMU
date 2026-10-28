@@ -200,6 +200,8 @@ def compact(value: JsonValue) -> str:
 
 def shown(content: str) -> str:
     """Evidence content, cut to MAX_EVIDENCE_CHARS with a note saying so."""
+    # Variables:
+    #   left: How many characters were cut, so the note can tell the model.
     if len(content) <= MAX_EVIDENCE_CHARS:
         return content
     left = len(content) - MAX_EVIDENCE_CHARS
@@ -211,6 +213,9 @@ def shown(content: str) -> str:
 
 def cited_ids(state: InvestigationState) -> set[str]:
     """Evidence a belief rests on: cited by a hypothesis, the conclusion or the check."""
+    # Variables:
+    #   cited: Ids of evidence a belief rests on; these are shown whole before older
+    #     evidence.
     cited = set()
     for h in state.hypotheses:
         cited.update(h.supporting_evidence_ids, h.contradicting_evidence_ids)
@@ -238,6 +243,21 @@ def evidence_section(state: InvestigationState) -> list[str]:
     Lines keep the order the evidence arrived in. Only IDs that exist are
     written, so a model cannot be shown an ID to cite that was never given.
     """
+    # Variables:
+    #   asked: Which tool call and arguments produced each piece of evidence, from the
+    #     loop's own records.
+    #   origins: Where each piece came from (observable, memory or manual), so it can be
+    #     labelled.
+    #   full: Each piece's line with its whole content (cut at MAX_EVIDENCE_CHARS).
+    #   short: Each piece's line with only its id and call, used when the section is
+    #     full.
+    #   newest: The latest evidence id, always shown whole.
+    #   cited: Ids that a hypothesis, the conclusion or the check cites.
+    #   priority: The order in which pieces earn a whole line: newest, then cited, then
+    #     the rest newest first.
+    #   size: Characters used so far; starts at the short version of everything.
+    #   whole: Ids that fit within MAX_EVIDENCE_SECTION_CHARS and are shown in full.
+    #   left_out: Ids shown short, listed in a closing note.
     if not state.evidence:
         return [EVIDENCE_HEADER, "(none)"]
     # Which call produced each piece of evidence, from the loop's own records.
@@ -289,6 +309,9 @@ def action_bar_note(state: InvestigationState) -> str:
     Without it the model is overruled by a rule it cannot see (2026-10-26:
     right bearing diagnoses at 0.80 and 0.85 were lowered to escalate).
     """
+    # Variables:
+    #   bar: The confidence an intervention needs, set by the loop; None means hidden or
+    #     unknown.
     bar = state.action_confidence_needed
     if bar is None or not state.state_action_bar:
         return ""
@@ -302,6 +325,11 @@ def action_bar_note(state: InvestigationState) -> str:
 
 def render(state: InvestigationState) -> str:
     """Working memory as a model reads it. The same view for every question."""
+    # Variables:
+    #   budget: The BUDGET LEFT line: research calls, turns and follow-up calls
+    #     remaining.
+    #   lines: The prompt, built up section by section and joined at the end.
+    #   failed: The latest failed tool calls, shown so the model can correct them.
     anomaly = state.anomaly
     where = f" on {anomaly.machine_id}" if anomaly.machine_id else ""
     now = "unknown" if state.last_tick is None else str(state.last_tick)
@@ -532,6 +560,13 @@ class ModelPolicy:
         `system` replaces the job's own system prompt, for a policy that asks
         one job more than one kind of question (`tree_of_thought.py`).
         """
+        # Variables:
+        #   job: Which of the seven questions this is; it picks the client and system
+        #     prompt.
+        #   answer_type: The shape the reply must match; a mismatch is refused.
+        #   client: The model client assigned to this job.
+        #   outcome: answered, invalid_reply or no_answer, written to the call record
+        #     either way.
         client = self.clients[job]
         outcome = "no_answer"
         try:
@@ -564,6 +599,10 @@ class ModelPolicy:
         The question is marked invalid, and so is the attempt that answered
         it, with the reason, so the record says why as for any other refusal.
         """
+        # Variables:
+        #   call: The record of the question just asked, which this marks invalid.
+        #   attempts: Every model tried for it, with the one that answered also marked
+        #     invalid.
         call = self.calls[-1]
         attempts = list(call.attempts)
         if attempts and attempts[-1].outcome == "answered":
@@ -579,6 +618,9 @@ class ModelPolicy:
         return self._ask("plan", state, render(state), PlanAnswer).questions
 
     def decide(self, state: InvestigationState, phase: LoopPhase) -> Decision:
+        # Variables:
+        #   offered: Names of the tools this policy was shown; a call to any other is
+        #     refused.
         prompt = (
             f"{render(state)}\n\n{PHASE[phase]}\n\n"
             f"TOOLS YOU MAY CALL:\n{tool_list(self.tools)}"
@@ -593,6 +635,8 @@ class ModelPolicy:
     def interpret(
         self, state: InvestigationState, step: CallTool, evidence: Evidence
     ) -> Interpretation:
+        # Variables:
+        #   testing: Extra text naming the hypothesis this call was testing, if any.
         testing = f", testing {step.hypothesis_id}" if step.hypothesis_id else ""
         prompt = (
             f"{render(state)}\n\nJUST ASKED: {step.request.name} "

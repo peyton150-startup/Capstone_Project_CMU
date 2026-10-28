@@ -125,6 +125,15 @@ def prune(
     Deterministic: the same candidates and ratings always keep the same ones.
     The first rating of a candidate counts; a rating of an unknown id is ignored.
     """
+    # Variables:
+    #   breadth: How many candidates may survive.
+    #   evidence_ids: Ids of evidence that really exists; a candidate citing any other
+    #     is dropped.
+    #   rated: The first rating for each candidate id; later duplicates are ignored.
+    #   dropped: Why each removed candidate was dropped, by id.
+    #   alive: Candidates still in the running, with their original position to break
+    #     ties.
+    #   seen: Candidate ids already handled, to catch a repeated id.
     rated: dict[str, Rating] = {}
     for rating in ratings:
         rated.setdefault(rating.candidate_id, rating)
@@ -174,6 +183,16 @@ class TreeOfThoughtPolicy(ModelPolicy):
         self.thoughts: list[Thought] = []
 
     def hypothesize(self, state: InvestigationState) -> Interpretation:
+        # Variables:
+        #   view: The same working-memory text every question is shown.
+        #   generated: The candidate explanations the model proposed, capped at the
+        #     candidate count.
+        #   ratings: The model's verdict and confidence for each candidate.
+        #   kept: The best candidates after pruning, each with its rating, best first.
+        #   dropped: Why each other candidate was removed, kept for the record.
+        #   hypotheses: The kept candidates turned into hypotheses H1, H2 and so on.
+        #   questions: One question per kept candidate that would tell it apart from the
+        #     rest.
         view = render(state)
         generated = self._ask(
             "hypothesize",
