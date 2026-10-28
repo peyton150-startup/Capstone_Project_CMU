@@ -465,6 +465,11 @@ def labelled(
 
 def format_model_calls(records: Sequence[ExperimentRecord]) -> str:
     """One line on the model questions of every run, invalid apart from outage."""
+    # Variables:
+    #   kept: The model-question summaries of the runs that have one.
+    #   timed: Wall-clock seconds of the runs that were timed.
+    #   reasons: Why requests failed, added up across runs.
+    #   refused: Why replies were refused, added up across runs.
     kept = [r.model_calls for r in records if r.model_calls is not None]
     timed = [r.wall_seconds for r in records if r.wall_seconds is not None]
     if not kept:
@@ -512,6 +517,11 @@ def format_memory(
     A lesson is traced to the run that made it only within these records, so
     a lesson stored by an earlier experiment counts as recalled but not judged.
     """
+    # Variables:
+    #   made_by: For each lesson stored in these runs, whether its run's diagnosis was
+    #     right.
+    #   stored: Those results as a list, to count right, wrong and not judged.
+    #   uses: Every memory any run recalled.
     if all(r.memory_uses is None for r in records):
         return None
     made_by: dict = {}  # stored memory id -> whether its run was right
@@ -542,6 +552,12 @@ def _lesson(record: ExperimentRecord) -> str:
 
 def format_manual(records: Sequence[ExperimentRecord]) -> str | None:
     """One line on what the runs looked up in the manual; None without it."""
+    # Variables:
+    #   kept: The manual searches of each run that had the manual.
+    #   searches: All those searches together.
+    #   given: How often each manual section was returned.
+    #   refused: Searches turned down as repeats or over the allowance.
+    #   most: The five sections returned most often.
     kept = [r.manual_searches for r in records if r.manual_searches is not None]
     if not kept:
         return None
@@ -565,6 +581,10 @@ def _searches(record: ExperimentRecord) -> str:
 
 
 def _run_line(record: ExperimentRecord, score: Score) -> str:
+    # Variables:
+    #   judged: Whether the cause was right; a dash if not judged.
+    #   asked: The model-question counts for this run.
+    #   several: True if the run had more than one true cause.
     judged = "-" if score.fault_correct is None else score.fault_correct
     calls = record.model_calls
     asked = (

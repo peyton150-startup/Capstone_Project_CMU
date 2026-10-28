@@ -89,6 +89,13 @@ def invalid_outcome(error: ValueError) -> str:
     JSON, or it was JSON of the wrong shape (the first field at fault and what
     was wrong with it). The reply itself never goes into the record.
     """
+    # Variables:
+    #   error: The reason a reply was refused.
+    #   problems: Each field the reply got wrong, if it was JSON of the wrong shape.
+    #   first: The first problem, which is the one reported.
+    #   where: The field at fault.
+    #   more: A note of how many further problems there were.
+    #   why: The short reason, without the reply's content.
     if isinstance(error, ValidationError):
         problems = error.errors(include_input=False, include_url=False)
         if any(p["type"] == "json_invalid" for p in problems):
