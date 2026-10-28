@@ -427,6 +427,43 @@ Keep the original retriever as the default unless MMR improves investigation
 quality without exceeding the existing investigation budget. Any implementation
 gets its own PR and deterministic offline tests.
 
+#### Voyage AI Rerank for manual retrieval — candidate (2026-10-28)
+
+**Status:** MEDIUM-priority experiment; roadmap only, not implemented. Test
+Voyage's current reranking API (for example, `rerank-3-lite`, subject to
+provider/version verification) only when manual-retrieval evaluations reveal
+wrong or poorly ordered troubleshooting sections. This is a relevance
+reranker, not an embedding-index replacement, new reasoning role, or proof
+that a passage is correct.
+
+**First scope: manual/SOP retrieval, not MMR.** Preserve the existing
+`search_manual` tool, `KeywordManualSearch` / `ChromaManualIndex`,
+document/chunk IDs, versions, provenance, and manual-to-evidence boundary.
+Retrieve a bounded candidate pool and optionally rerank it before returning
+the same source-linked sections to the agent. Never send evaluator-only truth,
+simulator hidden state, or unapproved real maintenance records to the API.
+Fall back to the original retrieval ordering on outage, timeout, or invalid
+response, within the overall investigation deadline.
+
+**Keep experiments separate:** the existing MMR candidate above is strictly
+for `recall_memories` (episodic diversity), **never for the manual**. Only
+after the manual reranker is measured, consider a separate episodic-memory
+reranking experiment against standard similarity, MMR, Jev, and their relevant
+combinations; do not conflate retrieval diversification with scoring
+relevance. Compare Voyage with the existing optional Cohere Rerank candidate
+in Future Work 3 before adopting more than one external service.
+
+**Evaluation/adoption gate:** use identical seeded investigations, frozen
+manual/query sets, and labeled relevant passages to compare baseline manual
+retrieval versus reranking. Measure relevant evidence recall/precision at k,
+retained contradictory evidence, grounded root-cause accuracy, incorrect
+repairs, cost, failure/fallback rates, and p50/p95 end-to-end wall time under
+the 60-second investigation budget. Stub the reranker for offline tests and
+opt into external API tests. Record provider/model version and privacy terms;
+adopt only if the measured benefit exceeds extra latency, expense, and
+operational complexity. No new key, dependency, paid API call, or implementation
+is authorized by recording this item.
+
 #### Jev (TypeSafe AI) for episodic recall reranking and investigation routing — candidate (2026-10-23)
 
 **Status:** medium-priority future work, not implemented. Consider a small
@@ -1753,6 +1790,47 @@ Use scripted model stand-ins for deterministic offline workflow tests; live
 model runs measure performance on repeatable cases without promising identical
 answers. These regression cases support the normal investigation workflow;
 they do not introduce the excluded failure-diagnostic benchmark mode.
+
+#### Pydantic AI runtime reliability review — candidate (2026-10-28)
+
+**Status:** HIGH-priority audit / small benchmark; roadmap only, not a
+framework migration. **Newest update reviewed: Pydantic AI v2.63.0
+(2026-10-27; published 2026-10-28 UTC).** Its release adds `DetectLoops`
+for repeated-action loops and `Dataset.evaluate(task_timeout=...)` to
+bound each evaluation task attempt. Also review the recent v2.58.0
+(2026-10-19) whole-run `timeout=` / `RunContext.deadline`, per-request
+`request_timeout`, and SDK-level `max_retries`, and the v2.60.0
+(2026-10-22) model-selection context deadline/usage-limit changes.
+Official release references:
+[v2.63.0](https://github.com/pydantic/pydantic-ai/releases/tag/v2.63.0),
+[v2.60.0](https://github.com/pydantic/pydantic-ai/releases/tag/v2.60.0),
+[v2.58.0](https://github.com/pydantic/pydantic-ai/releases/tag/v2.58.0).
+Version/date are a review snapshot, not an automatic update policy. The project already uses **Pydantic Graph** for the
+macro investigation and has custom provider reliability controls in
+`capstone/providers/chat.py`, including `FallbackClient` and
+`run_with_deadline`. Review currently documented Pydantic AI runtime
+features for per-call and run deadlines, retries, fallback observability,
+loop detection, and evaluation timeouts; verify installed/package
+compatibility and actual API availability before relying on any of them.
+
+**Integration gate:** compare those facilities against existing code with
+the current `ChatClient`, Pydantic answer contracts, graph states, and
+`Budgets`. Do not introduce a second orchestration loop, replace Pydantic
+Graph, or create nested retries that overrun one 60-second investigation
+budget. A timeout must terminate or explicitly account for work; tool calls
+must not resume or replay consequential actions. Preserve hidden-truth
+isolation, human-only maintenance approval, and mandatory post-action
+verification.
+
+**Benchmark before adoption:** run the same seeded cases through current
+code and the smallest feasible native-feature prototype. Inject 429/5xx,
+latency, malformed JSON, repeated identical tool calls, failed fallback,
+and deadline exhaustion with offline stubs. Compare root-cause accuracy,
+completed investigations, p50/p95 wall time, tool/model call count, logged
+failure reasons, code removed, and reproducibility. Keep current controls
+where Pydantic AI does not materially improve reliability or would require
+disproportionate migration. No new SDK, version bump, provider, or runtime
+change is approved by this review.
 
 #### Pydantic Evals — candidate, not implemented
 
