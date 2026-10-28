@@ -75,9 +75,18 @@ run by meeting a bar set in advance.
   the time the critic actually used, so research and the follow-up reserve
   keep exactly what they have now. 30 is a starting point to benchmark, not a
   decision.
-- **Its own model:** `CRITIC_MODEL`, with the same fallback chain
-  (`FallbackClient`). Both settings live in `.env` for now and join the
-  frontend's settings list if a frontend is built
+- **Its own models, in its own chain:** `CRITIC_MODEL` takes a
+  comma-separated chain like `FALLBACK_MODEL`, tried in order through
+  `FallbackClient`. The developer's first test chain: **Mistral, then
+  Cohere**. The critic does **not** get the shared `FALLBACK_MODEL` chain
+  added after its own: that chain leads back to the investigator's models
+  (NVIDIA), and a critic answered by the investigator's own model is not an
+  independent second look. Each critique records which model answered
+  (`answered_by`), so results can be split by model; the developer expects
+  Mistral may be too small for the job, and the runs will show it. Note the
+  window is shared along the chain: with 30 s and two models, Mistral gets
+  about 15 s before Cohere is asked. All critic settings live in `.env` for
+  now and join the frontend's settings list if a frontend is built
   (`docs/MVP_SCOPE.md`, frontend settings note).
 - **Records:** the `CritiqueResult` (or why there is none: no answer in the
   window, invalid reply) is kept on the investigation state and in the
@@ -149,8 +158,8 @@ reviewed by hand.
   spent seconds to the deadline), as long as research and the follow-up
   reserve keep their time and tests prove it.
 - The prompt wording, within the rules above.
-- The `CRITIC_MODEL` default when unset: the main model is the safe choice;
-  the plan's long-term pick is Mistral.
+- The exact Mistral and Cohere model names for the first chain, from what
+  each provider's key can reach (Cohere's 8,192 output cap already applies).
 
 ## Later, not now (option 2)
 
