@@ -217,6 +217,11 @@ def run_with_deadline(work: Callable[[], Result], seconds: float) -> Result:
     the deadline the caller gets TimeoutError and moves on; the thread is left
     to end by itself, and whatever it later returns is never read.
     """
+    # Variables:
+    #   work: The slow call to run, such as one network request.
+    #   seconds: The most the caller will wait for it.
+    #   outcome: A queue that carries the result, or the error, back from the background
+    #     thread.
     outcome: queue.SimpleQueue = queue.SimpleQueue()
 
     def run() -> None:
@@ -244,6 +249,9 @@ def urllib_transport(url: str, headers: dict[str, str], body: bytes, timeout: fl
     deadline makes `timeout` cover the whole request: connecting, sending,
     waiting and reading.
     """
+    # Variables:
+    #   timeout: The limit for the whole request, from connecting to the last byte read.
+    #   request: The POST, built once and sent inside the deadline.
     request = urllib.request.Request(url, data=body, headers=headers, method="POST")
 
     def send() -> bytes:
@@ -260,6 +268,12 @@ def post_json(
 
     The error carries only a short reason, never the key or the response body.
     """
+    # Variables:
+    #   transport: The function that really sends the request; tests replace it so
+    #     nothing touches the network.
+    #   api_key: Sent as a Bearer token and never included in an error.
+    #   headers: The request headers, including a User-Agent that Groq's front end
+    #     accepts.
     headers = {
         "Authorization": f"Bearer {api_key}",
         "Content-Type": "application/json",
@@ -290,6 +304,8 @@ def reply_text(body: bytes) -> str:
     A reply cut off at the output-token limit is refused as such: half a
     JSON object is not an answer, and saying why helps set the limit.
     """
+    # Variables:
+    #   choice: The first answer option in the service's reply.
     try:
         choice = json.loads(body)["choices"][0]
         content = choice["message"]["content"]
@@ -304,6 +320,8 @@ def reply_text(body: bytes) -> str:
 
 def answer_json(text: str) -> str:
     """The JSON object in a reply: thinking and a code fence removed, nothing else."""
+    # Variables:
+    #   fenced: The match inside a code fence, if the model wrapped its JSON in one.
     text = _THINKING.sub("", text).strip()
     fenced = _FENCE.match(text)
     return fenced.group(1) if fenced else text
@@ -321,6 +339,16 @@ class ChatClient:
         max_output_tokens: int | None = None,
         structured_output: bool = False,
     ):
+        # Variables:
+        #   url: The chat-completions address of the provider.
+        #   api_key: The provider's key; kept private and left out of repr.
+        #   model: The model name sent in each request.
+        #   transport: How requests are sent; replaced in tests.
+        #   timeout: The longest one request may take.
+        #   max_output_tokens: The most tokens one reply may use, or None for the
+        #     provider's own limit.
+        #   structured_output: If True, also send the answer type's schema so the
+        #     service must follow it.
         if max_output_tokens is not None and max_output_tokens < 1:
             raise ValueError("max_output_tokens must be at least 1")
         self.url = url
@@ -353,6 +381,18 @@ class ChatClient:
         never lengthen it. `max_seconds`, the policy's limit on a whole
         question, does the same: here the question is this one request.
         """
+        # Variables:
+        #   timeout: A shorter wait for this request only; it can shorten the client's
+        #     limit, never lengthen it.
+        #   max_seconds: The policy's limit for the whole question, which here is this
+        #     one request.
+        #   limit: The shortest of the allowed waits, which is what is used.
+        #   schema: The answer type's JSON schema as text, shown to the model in the
+        #     system prompt.
+        #   body: The request sent to the service; temperature 0 keeps answers as
+        #     repeatable as the service allows.
+        #   raw: The service's reply bytes, before the text and JSON are pulled out and
+        #     checked.
         limit = min(x for x in (self.timeout, timeout, max_seconds) if x is not None)
         schema = json.dumps(answer_type.model_json_schema())
         body = {
@@ -409,6 +449,15 @@ class FallbackClient:
         max_seconds: float = 20.0,
         clock: Callable[[], float] = time.monotonic,
     ):
+        # Variables:
+        #   clients: The models for one job, in the order they are tried.
+        #   retries: How many more times to ask a model after a temporary failure.
+        #   retry_delay: Seconds paused before the first retry; each later pause
+        #     doubles.
+        #   sleep: How to pause; replaced in tests so they do not wait.
+        #   max_seconds: The time the whole question may take, retries and fallbacks
+        #     included.
+        #   clock: Seconds that only move forward; replaced in tests.
         if not clients:
             raise ValueError("a job needs at least one model")
         self.clients = tuple(clients)
@@ -443,6 +492,21 @@ class FallbackClient:
         max_seconds: float | None = None,
     ) -> Answer:
         """One question within its time. `max_seconds` can only shorten it."""
+        # Variables:
+        #   attempts: Every model asked for this question and what came of each, kept
+        #     for the record.
+        #   failures: A short reason for each model that gave no answer.
+        #   limit: The time this question has: the caller's, or the client's own if that
+        #     is shorter.
+        #   deadline: The clock reading when the question must be over.
+        #   caller_bound: True if it is the caller's time that is running out, not this
+        #     client's own limit.
+        #   share: An equal slice of the time left for this model and the ones still to
+        #     ask.
+        #   own_deadline: When this model's slice ends.
+        #   pause: How long to wait before this retry.
+        #   left: The time this attempt may take after the pause.
+        #   started: The clock reading when the attempt began, to time it.
         self.answered_by = None
         attempts: list[Attempt] = []
         failures = []
@@ -456,6 +520,8 @@ class FallbackClient:
         caller_bound = max_seconds is not None and max_seconds <= self.max_seconds
 
         def given_up() -> ModelError:
+            # Variables:
+            #   spent: True if no time is left for another try.
             spent = deadline - self._clock() <= self.retry_delay
             return no_answer(failures, out_of_time=caller_bound and spent)
 
@@ -514,6 +580,9 @@ class FallbackClient:
 
 def no_answer(failures: list[str], *, out_of_time: bool = False) -> ModelError:
     """The error for a question no model answered, naming each failure."""
+    # Variables:
+    #   failures: A reason from each model that did not answer.
+    #   out_of_time: True if the clock ran out, not the services.
     return ModelError(
         "no model service answered (" + "; ".join(failures) + ")",
         out_of_time=out_of_time,
@@ -527,6 +596,13 @@ def client_for(
     transport: Transport = urllib_transport,
 ) -> ChatClient:
     """A client for "provider/model". ModelError names any missing setting."""
+    # Variables:
+    #   reference: A model written as provider/model, e.g. nvidia/model-name.
+    #   name: The provider part of the reference.
+    #   model: The model part of the reference.
+    #   provider: The provider's address, key setting and limits.
+    #   key: The secret for that provider from settings; None means it is not set.
+    #   url: The provider's address, with the Cloudflare account filled in if needed.
     settings = settings or get_settings()
     name, _, model = reference.partition("/")
     if name not in PROVIDERS or not model:
@@ -560,6 +636,9 @@ def client_for(
 
 def _capped(wanted: int | None, limit: int | None) -> int | None:
     """The output tokens to ask for: the project's setting, never above the provider's limit."""
+    # Variables:
+    #   wanted: The project's setting for the most output tokens.
+    #   limit: The most the provider accepts, if it has a limit.
     if wanted is None or limit is None:
         return wanted
     return min(wanted, limit)
@@ -573,6 +652,9 @@ def clients_for_jobs(
     Each job asks its own model, then each model of FALLBACK_MODEL in order
     (a comma-separated chain), skipping any it already has.
     """
+    # Variables:
+    #   references: The models for one job: its own, then the shared fallbacks not
+    #     already listed.
     settings = settings or get_settings()
     clients = {}
     for job in JOBS:

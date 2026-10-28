@@ -85,6 +85,12 @@ class Judgments(BaseModel):
 
 def read_judgments(body: bytes, asked: dict[str, Question]) -> Judgments:
     """The typed answers in a reply. ValueError if any asked one is missing or wrong."""
+    # Variables:
+    #   asked: The questions that were put, by name; each must come back answered.
+    #   reply: The service's reply decoded.
+    #   judgments: The answers in typed form.
+    #   answer: The answer to one question, or None if missing.
+    #   wanted: The answer type that question requires.
     try:
         reply = json.loads(body)
         judgments = Judgments(
@@ -118,6 +124,12 @@ class JudgmentClient:
         timeout: float = 45.0,
         url: str = TYPESAFE_URL,
     ):
+        # Variables:
+        #   api_key: The key; kept private and left out of repr.
+        #   model: Which System One model to ask.
+        #   transport: How requests are sent; replaced in tests.
+        #   timeout: The longest one request may take.
+        #   url: The service address.
         self._api_key = api_key
         self.model = model
         self._transport = transport
@@ -133,6 +145,11 @@ class JudgmentClient:
         ModelError if the service cannot answer (as for chat models);
         ValueError if its reply is not the typed answers asked for.
         """
+        # Variables:
+        #   state: What the questions are about, as text or a dictionary.
+        #   questions: Named questions, all answered in one request.
+        #   body: The request sent to the service.
+        #   reply: The service's reply bytes.
         if not questions:
             raise ValueError("ask at least one question")
         body = {
