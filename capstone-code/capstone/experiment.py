@@ -277,6 +277,9 @@ class ExperimentRecord(BaseModel):
     # What the critic said about the two leading hypotheses, or why it said
     # nothing. None: no critic ran (and in records from before it was kept).
     critique: CritiqueRecord | None = None
+    # The claim of the hypothesis the critic favoured, so it can be labelled
+    # as a cause the way a conclusion is. None: no pick (or an older record).
+    critic_favoured_claim: str | None = None
 
 
 # Tools answered by something other than the factory.
@@ -334,6 +337,16 @@ def overruled_text(record: ExperimentRecord) -> str:
     return f" overruled=intervene->{record.recommendation} ({record.recommendation_lowered})"
 
 
+def favoured_claim(state) -> str | None:
+    """The claim of the hypothesis the critic favoured; None if it favoured none."""
+    # Variables:
+    #   result: The critic's reply, if it gave a usable one.
+    result = None if state.critique is None else state.critique.result
+    if result is None:
+        return None
+    return next((h.claim for h in state.hypotheses if h.id == result.favoured), None)
+
+
 def record_of(
     case: Case,
     run_key: str,
@@ -372,6 +385,7 @@ def record_of(
         state_action_bar=state.state_action_bar,
         step_questions=state.step_questions,
         critique=state.critique,
+        critic_favoured_claim=favoured_claim(state),
         agent_steps=[
             AgentStep(
                 agent=decision.agent,

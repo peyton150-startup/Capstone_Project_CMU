@@ -13,7 +13,8 @@ from pathlib import Path
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
-from capstone.evaluation.auto_label import propose
+from capstone.agent.critic import Critic
+from capstone.evaluation.auto_label import Proposal, propose
 from capstone.evaluation.labels import Label, LabelBook, apply_label
 from capstone.experiment import (
     AgentStep,
@@ -87,6 +88,13 @@ class EvalCase(BaseModel):
     tool_calls: int
     runtime_seconds: float | None
     agent_steps: list[AgentStep]
+    # The critic, review only. None: no critic ran (or no usable answer).
+    critic_outcome: str | None = None
+    critic_verdict: str | None = None
+    critic_favoured: str | None = None
+    # Whether the critic's pick names the true cause, from its own label.
+    # None: no label for the pick (none favoured, or the label needs review).
+    critic_pick_correct: bool | None = None
 
 
 class EvalReport(BaseModel):
@@ -192,9 +200,15 @@ def report_of(
     labels: dict[str, Label],
     *,
     needs_review: set[str] | None = None,
+    critic_labels: dict[str, Label] | None = None,
 ) -> EvalReport:
-    """Score labels against saved simulator truth without rerunning an agent."""
+    """Score labels against saved simulator truth without rerunning an agent.
+
+    `critic_labels` label the hypothesis the critic favoured, by run key; they
+    score the critic's pick only, never the agent's accuracy.
+    """
     needs_review = needs_review or set()
+    critic_labels = critic_labels or {}
     cases = []
     by_fault: dict[str, list[bool]] = defaultdict(list)
     agents: Counter[str] = Counter()
@@ -216,6 +230,9 @@ def report_of(
             for fault in set(truth):
                 by_fault[fault].append(correct)
         steps = record.agent_steps or []
+        critique = record.critique
+        result = None if critique is None else critique.result
+        critic_label = critic_labels.get(record.run_key)
         agents.update(step.agent for step in steps)
         cases.append(
             EvalCase(
@@ -234,6 +251,14 @@ def report_of(
                 tool_calls=record.score.tool_calls,
                 runtime_seconds=record.wall_seconds,
                 agent_steps=steps,
+                critic_outcome=None if critique is None else critique.outcome,
+                critic_verdict=None if result is None else result.verdict,
+                critic_favoured=None if result is None else result.favoured,
+                critic_pick_correct=(
+                    None
+                    if critic_label is None
+                    else apply_label(record.score, critic_label.diagnosis).fully_right
+                ),
             )
         )
     judged = sum(case.correct is not None for case in cases)
@@ -260,6 +285,7 @@ def run_cases(
     on_record: Callable[[ExperimentRecord], None] | None = None,
     watch: Callable[[str], None] | None = None,
     start: int = 1,
+    make_critic: Callable[[], Critic] | None = None,
 ) -> list[ExperimentRecord]:
     """Use the normal episode runner; the config is evaluator-side only."""
     return run_experiment(
@@ -269,6 +295,7 @@ def run_cases(
         on_record=on_record,
         watch=watch,
         start=start,
+        make_critic=make_critic,
     )
 
 
@@ -291,10 +318,34 @@ def check_resume(
             raise ValueError(f"saved episode {number} is not {expected}")
 
 
+def critic_labels(
+    records: Sequence[ExperimentRecord],
+    proposer: Callable[[str, str], Proposal],
+) -> dict[str, Label]:
+    """Labels for the hypothesis each critic favoured, read as a cause.
+
+    Only answered critiques that favoured a hypothesis are labelled. A
+    proposal that needs review is left out, so that pick stays unjudged.
+    """
+    # Variables:
+    #   proposer: Proposes a label for (run key, claim text).
+    labels = {}
+    for record in records:
+        if record.critic_favoured_claim is None:
+            continue
+        proposal = proposer(record.run_key, record.critic_favoured_claim)
+        if not proposal.needs_review:
+            labels[record.run_key] = proposal.label
+    return labels
+
+
 def automatic_labels(
     records: Sequence[ExperimentRecord],
-) -> tuple[dict[str, Label], set[str]]:
-    """Reuse the existing evaluator; uncertain proposals stay unjudged."""
+) -> tuple[dict[str, Label], set[str], dict[str, Label]]:
+    """Reuse the existing evaluator; uncertain proposals stay unjudged.
+
+    Also labels each critic's favoured hypothesis (`critic_labels`).
+    """
     client = judgment_client(get_settings())
     labels = {}
     review = set()
@@ -310,7 +361,10 @@ def automatic_labels(
         labels[record.run_key] = proposal.label
         if proposal.needs_review:
             review.add(record.run_key)
-    return labels, review
+    picks = critic_labels(
+        records, lambda run_key, claim: propose(run_key, claim, client)
+    )
+    return labels, review, picks
 
 
 def main(argv: Sequence[str] | None = None) -> int:
@@ -375,12 +429,14 @@ def main(argv: Sequence[str] | None = None) -> int:
     wanted = [scenario.id for scenario in config.cases]
     if [record.scenario_id for record in records] != wanted:
         parser.error("record scenarios must match config in order")
-    labels, review = {}, set()
+    labels, review, picks = {}, set(), {}
     if args.labels:
         labels = LabelBook(args.labels).read()
     elif args.auto_label:
-        labels, review = automatic_labels(records)
-    report = report_of(args.name, records, labels, needs_review=review)
+        labels, review, picks = automatic_labels(records)
+    report = report_of(
+        args.name, records, labels, needs_review=review, critic_labels=picks
+    )
     args.out.write_text(report.model_dump_json(indent=2) + "\n", encoding="utf-8")
     if args.compare_before:
         before = EvalReport.model_validate_json(

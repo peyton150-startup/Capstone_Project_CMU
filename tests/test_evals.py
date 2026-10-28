@@ -9,15 +9,19 @@ from capstone.evals import (
     ScenarioConfig,
     check_resume,
     compare_reports,
+    critic_labels,
     load_scenarios,
     report_of,
     reserve_raw_output,
     run_cases,
 )
+from capstone.evaluation.auto_label import Proposal
 from capstone.evaluation.known_answers import KNOWN_CASES
 from capstone.evaluation.labels import Label
 from capstone.experiment import Case
 from capstone.tools.diagnosis import Diagnosis
+from tests.helpers import FakeCritic, critique_result
+from tests.test_episode import wear_policy
 from tests.test_experiment import BEARING
 from tests.test_known_answers import stand_in
 
@@ -173,3 +177,125 @@ def test_comparison_requires_same_cases_and_preserves_unknown_accuracy():
     assert comparison.steps_by_agent_before == comparison.steps_by_agent_after
     with pytest.raises(ValueError, match="same scenarios"):
         compare_reports(before, after.model_copy(update={"cases": []}))
+
+
+# --- the critic's verdict and pick -------------------------------------------
+
+BEARING_CONFIG = {
+    "cases": [{"id": BEARING.scenario_id, "seed": 6, "fault": "bearing_degradation"}]
+}
+TRUE_CAUSE = Diagnosis(fault="bearing_degradation", machine_id="CNC-02")
+OTHER_CAUSE = Diagnosis(fault="wrong_setting", machine_id="CNC-02")
+
+
+@pytest.fixture(scope="module")
+def critiqued(monkeypatch_module):
+    config = ScenarioConfig.model_validate(BEARING_CONFIG)
+    (record,) = run_cases(
+        config, name="critic-test", make_policy=wear_policy, make_critic=FakeCritic
+    )
+    return record
+
+
+@pytest.fixture(scope="module")
+def monkeypatch_module():
+    with pytest.MonkeyPatch.context() as patch:
+        patch.setenv("CRITIC", "off")
+        yield patch
+
+
+def test_record_keeps_the_claim_the_critic_favoured(critiqued):
+    assert critiqued.critique.result.favoured == "H1"
+    assert critiqued.critic_favoured_claim == (
+        "the bearing on the alarmed machine is wearing"
+    )
+
+
+def test_report_shows_critic_fields(critiqued):
+    [case] = report_of("r", [critiqued], {}).cases
+    assert case.critic_outcome == "answered"
+    assert case.critic_verdict == "object"
+    assert case.critic_favoured == "H1"
+    assert case.critic_pick_correct is None
+
+
+def test_critic_pick_scored_from_its_label(critiqued):
+    def pick(diagnosis):
+        label = Label(
+            run_key=critiqued.run_key, diagnosis=diagnosis, labelled_by="test"
+        )
+        report = report_of(
+            "r", [critiqued], {}, critic_labels={critiqued.run_key: label}
+        )
+        return report.cases[0].critic_pick_correct
+
+    assert pick(TRUE_CAUSE) is True
+    assert pick(OTHER_CAUSE) is False
+
+
+def test_critic_pick_does_not_change_the_agent_s_accuracy(critiqued):
+    wrong = Label(run_key=critiqued.run_key, diagnosis=OTHER_CAUSE, labelled_by="t")
+    right = Label(run_key=critiqued.run_key, diagnosis=TRUE_CAUSE, labelled_by="t")
+    report = report_of(
+        "r",
+        [critiqued],
+        {critiqued.run_key: right},
+        critic_labels={critiqued.run_key: wrong},
+    )
+    assert report.overall_accuracy == 1.0
+    assert report.cases[0].critic_pick_correct is False
+
+
+def test_records_without_critic_report_none(monkeypatch_module):
+    config = ScenarioConfig.model_validate(BEARING_CONFIG)
+    (record,) = run_cases(config, name="no-critic", make_policy=stand_in)
+    label = Label(run_key=record.run_key, diagnosis=TRUE_CAUSE, labelled_by="test")
+    report = report_of("r", [record], {record.run_key: label})
+    case = report.cases[0]
+    assert (
+        case.critic_outcome,
+        case.critic_verdict,
+        case.critic_favoured,
+        case.critic_pick_correct,
+    ) == (None, None, None, None)
+    assert report.overall_accuracy == 1.0
+    assert record.critic_favoured_claim is None
+
+
+def test_critic_labels_are_proposed_from_the_favoured_claim(critiqued):
+    asked = []
+
+    def proposer(run_key, claim):
+        asked.append((run_key, claim))
+        return Proposal(
+            label=Label(run_key=run_key, diagnosis=TRUE_CAUSE, labelled_by="fake"),
+            needs_review=False,
+        )
+
+    labels = critic_labels([critiqued], proposer)
+    assert asked == [(critiqued.run_key, critiqued.critic_favoured_claim)]
+    assert labels[critiqued.run_key].diagnosis == TRUE_CAUSE
+
+
+def test_a_critic_label_needing_review_stays_unjudged(critiqued):
+    def proposer(run_key, claim):
+        return Proposal(
+            label=Label(run_key=run_key, diagnosis=TRUE_CAUSE, labelled_by="fake"),
+            needs_review=True,
+        )
+
+    assert critic_labels([critiqued], proposer) == {}
+
+
+def test_no_critic_label_when_the_critic_favoured_none(critiqued):
+    record = critiqued.model_copy(
+        update={
+            "critique": critiqued.critique.model_copy(
+                update={"result": critique_result(favoured="none")}
+            ),
+            "critic_favoured_claim": None,
+        }
+    )
+    asked = []
+    assert critic_labels([record], lambda *a: asked.append(a)) == {}
+    assert asked == []
