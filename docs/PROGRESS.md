@@ -136,6 +136,33 @@ alarm), then evaluation, then the agent itself.
   `docs/superpowers/specs/2026-10-28-critic-review-only-design.md`. Nothing
   built.
 
+- **2026-10-28 (C1 fix): the critic's pick is labelled from the claim it judged.**
+  Found in the first live critic run (`critic-known-1.jsonl`, KA-01 and KA-02):
+  `favoured_claim` in `experiment.py` read the favoured hypothesis from the
+  final state, after the conclusion and the check. The agent rewords its
+  hypotheses after the critique, so the saved claim was not the one the critic
+  judged; in KA-02 it even said the replacement worked and vibration was below
+  the threshold. That text is what the Jev labeller reads for measure 3, so the
+  critic could be credited with words written after the fix. Now
+  `CritiqueRecord.favoured_claim` (default `None`, older records still read)
+  keeps the claim as worded at the critique, set in `critique()` from the shown
+  hypotheses, and `favoured_claim` reads only that. The two saved records from
+  that run still carry the late wording in `critic_favoured_claim`: label their
+  picks by hand, or rerun. Built ungated, developer to review.
+
+- **2026-10-28 (C1 follow-up): the live view shows more of the critic's answer.**
+  Asked for by the developer while watching the first live critic run. The
+  `CRITIC (...)` line now has two lines under it: `why: ...` and `confidence
+  0.65, supports action: no, objections: missing_evidence, alternative;
+  <model> in 8.2 s`. A critic that gave no answer prints `tried for N s`.
+  `CritiqueRecord.answered_by` is new (default `None`, so older records still
+  read): `critique()` in `agent/investigation.py` reads it from the critic's
+  own latest call record, which also names the model whose reply was refused.
+  The spec already asked for it ("each critique records which model answered").
+  Not done: a line before the critic is asked (the view only runs after a
+  stage ends, so a long wait still looks silent; showing it needs a pending
+  marker on the state). Built ungated, developer to review.
+
 - **2026-10-28 (docs-only): walkthrough of PR #108 (tree-of-thought trees in
   the experiment record), given after the merge at the developer's request.**
   Three questions. (1) Why a record's `thoughts` is `null`: the developer

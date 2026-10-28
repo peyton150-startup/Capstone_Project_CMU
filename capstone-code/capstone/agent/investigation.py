@@ -190,16 +190,21 @@ def critique(state: InvestigationState, deps: InvestigationDeps) -> None:
     #   deps.critic: The second reviewer; None means the stage does nothing.
     #   deps.critic_seconds: The critic's own window, separate from the
     #     investigation's deadline.
+    #   shown_claims: Each shown hypothesis's claim as worded now, so the record
+    #     keeps what the critic judged even if the agent rewords it later.
     #   shown: The ids of the hypotheses the critic is shown, kept in the record.
     #   began: The clock when the question started, to measure the critic's time.
     #   outcome: answered, no_answer (no model replied in time) or invalid_reply
     #     (a reply was refused); none of the three stops the run.
     #   result: The critic's reply, or None unless it was answered.
+    #   answered_by: The model that gave the reply, read from the critic's own
+    #     latest call record; None when no model replied.
     #   used: Seconds the critic took, added to started_at so the investigation's
     #     time left is the same after this stage as before it.
     if deps.critic is None or not state.hypotheses:
         return
-    shown = tuple(h.id for h in top_two(state))
+    shown_claims = {h.id: h.claim for h in top_two(state)}
+    shown = tuple(shown_claims)
     began = deps.clock()
     outcome = "answered"
     result = None
@@ -214,8 +219,15 @@ def critique(state: InvestigationState, deps: InvestigationDeps) -> None:
     used = max(0.0, deps.clock() - began)
     if state.started_at is not None:
         state.started_at += used
+    calls = getattr(deps.critic, "calls", None)
+    answered_by = calls[-1].answered_by if calls else None
     state.critique = CritiqueRecord(
-        outcome=outcome, result=result, shown_hypotheses=shown, seconds=used
+        outcome=outcome,
+        result=result,
+        shown_hypotheses=shown,
+        seconds=used,
+        answered_by=answered_by,
+        favoured_claim=None if result is None else shown_claims.get(result.favoured),
     )
 
 

@@ -171,8 +171,10 @@ class ProgressView:
         """The critic's verdict, printed once when it first appears."""
         # Variables:
         #   record: What the critic stage produced; compared with the last one
-        #     printed so the line appears once.
+        #     printed so the lines appear once.
         #   r: The critic's reply; None when there was no usable one.
+        #   kinds: The kinds of objection the critic raised, in order, so the line
+        #     shows how it objected without printing every sentence.
         record = state.critique
         if record is None or record == self.critique:
             return
@@ -180,10 +182,18 @@ class ProgressView:
         r = record.result
         if r is None:
             self.write(f"CRITIC ({record.outcome}): no critique")
+            self.write(f"  tried for {record.seconds:.1f} s")
             return
+        kinds = ", ".join(o.kind for o in r.objections) or "none"
         self.write(
             f"CRITIC ({record.outcome}): favoured {r.favoured}, {r.verdict}, "
             f"check: {shorten(r.discriminating_check, 120)}"
+        )
+        self.write(f"  why: {shorten(r.why, 120)}")
+        self.write(
+            f"  confidence {r.favoured_confidence:.2f}, supports action: "
+            f"{'yes' if r.supports_action else 'no'}, objections: {kinds}; "
+            f"{record.answered_by or 'unknown model'} in {record.seconds:.1f} s"
         )
 
     def _beliefs(self, state: InvestigationState) -> None:

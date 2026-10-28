@@ -342,16 +342,14 @@ def overruled_text(record: ExperimentRecord) -> str:
 
 
 def favoured_claim(state) -> str | None:
-    """The claim of the hypothesis the critic favoured; None if it favoured none."""
+    """The claim the critic favoured, as worded when it judged it; None if none.
+
+    Read from the critique record, never from the final hypotheses: the agent
+    keeps rewording them after the critique, even with what the fix showed.
+    """
     # Variables:
-    #   state: The finished investigation, which holds the critique and the
-    #     hypotheses the critic chose among.
-    #   result: The critic's reply; None when it gave no usable one, so there is
-    #     no pick to label.
-    result = None if state.critique is None else state.critique.result
-    if result is None:
-        return None
-    return next((h.claim for h in state.hypotheses if h.id == result.favoured), None)
+    #   state: The finished investigation, which holds the critique record.
+    return None if state.critique is None else state.critique.favoured_claim
 
 
 def record_of(
