@@ -113,6 +113,7 @@ A component is complete only when both columns are checked.
 | A14 | Prompt guidance: one discriminating check before stopping with an uncertain leading explanation | yes (after the build, 2026-10-28) | no — built ungated, developer to review | yes | no — walkthrough done 2026-10-28: Q2 mostly right, missed that waiting is the one tool that changes the factory; mark left for the developer | `agent/model_policy.py` (`SYSTEM["decide"]`); session note 2026-10-27 (A14) |
 | A15 | Prompt guidance: consult an available manual before recommending a repair | yes (after the build, 2026-10-28) | no — built ungated, developer to review | yes | no — walkthrough done 2026-10-28: Q1 misread at first, then right; Q3 right first step (the trace), checks added; mark left for the developer | `agent/model_policy.py` (`manual_use_note`, `decide`, `interpret_and_decide`); session note 2026-10-27 (A15) |
 | EV1 | Configurable full-episode evaluation harness and single-agent master baseline | yes (after the build, 2026-10-28) | n/a (built first, taught after) | yes (baseline run 2026-10-28: 3 of 9 right) | partly — two walkthroughs on 2026-10-28. One (session note 2026-10-27, EV1): Q1 wrong, corrected; Q2 mostly right, completed; Q3 not answered, re-taught, follow-up check corrected; re-check of Q3 owed. The other (session note 2026-10-28, walkthroughs): Q1 in part, corrected; Q2 right, with an addition; Q3 wrong at first, corrected | `capstone/evals.py`, `evals/scenarios.json`, `experiment.py` (`AgentStep`), `agent/state.py`, `agent/model_policy.py`, `tests/test_evals.py`; session note 2026-10-27 (EV1) |
+| C1 | Critic, review only: a second model judges the two leading hypotheses between `test` and `conclude` and changes nothing in the run (first multi-agent role) | yes (design conversation 2026-10-28) | yes per the build plan (pre-check 2026-10-28); no session note records it here, developer to confirm | yes (tests only; no live run) | no (pre-merge walkthrough owed) | `settings.py` (`critic`, `critic_model`, `critic_seconds`, `critic_models`), `providers/chat.py` (`critic_client`), `agent/artifacts.py` (`Objection`, `CritiqueResult`, `CritiqueRecord`), `agent/critic.py` (`Critic`, `CRITIC_SYSTEM`, `critique_view`, `top_two`), `agent/investigation.py` (`critique`, graph edge), `agent/loop.py` (`InvestigationDeps.critic`, `critic_seconds`), `agent/state.py` (`critique`), `episode.py`, `experiment.py`, `progress.py`, `evals.py`; session note 2026-10-28 (C1) |
 
 Every row above with four "yes" marks (or "n/a") is complete: no question is
 outstanding on it. Still to build after 12c, from `docs/MVP_SCOPE.md`: the
@@ -120,6 +121,53 @@ other three fault scenarios (material batch, machine configuration, false
 alarm), then evaluation, then the agent itself.
 
 ## Session notes
+
+- **2026-10-28: C1, the critic (review only), built from the plan.**
+  Built task by task from `docs/superpowers/plans/2026-10-28-critic-review-only.md`
+  (spec `docs/superpowers/specs/2026-10-28-critic-review-only-design.md`), each task's
+  tests first, one commit per task. Off by default (`CRITIC=off`), so existing runs and
+  the EV1 baseline are unchanged.
+  - **Task 1, settings and the critic's own client.** `Settings.critic` (`CRITIC`, on/off),
+    `Settings.critic_model` (`CRITIC_MODEL`, a comma-separated chain, blank means unset),
+    `Settings.critic_seconds` (`CRITIC_SECONDS`, default 40, must be above 0).
+    `critic_models(settings)` reads the chain in order without repeats.
+    `critic_client(settings)` builds a `FallbackClient` from that chain only: the shared
+    `FALLBACK_MODEL` chain is not added, because it leads back to the investigator's
+    models. With no `CRITIC_MODEL` it raises `ModelError` naming the setting.
+  - **Task 2, the critic's question.** `Objection` and `CritiqueResult` (every field has
+    a description, which the client sends with the schema) and `CritiqueRecord`
+    (outcome, result, the ids shown, seconds used) in `agent/artifacts.py`.
+    `agent/critic.py`: `top_two(state)` (by confidence, ties in list order),
+    `critique_view(state, tools)` (the anomaly, the same evidence section as every
+    other question, the two hypotheses, and the tool list as text the critic cannot
+    call), `CRITIC_SYSTEM` (the six-step procedure and a neutral house-plant example
+    that names no fault), and `Critic.review`, which records a `ModelCall`
+    (`job="critique"`, `agent="critic"`) whatever happens and refuses a reply that
+    favours a hypothesis it was not shown or cites evidence never gathered.
+  - **Task 3, the stage.** `critique(state, deps)` in `agent/investigation.py`, wired
+    `test -> critique -> conclude`. It does nothing without a critic or hypotheses.
+    It shows the critic a copy of the state, records the outcome (`answered`,
+    `no_answer` on `ModelError`, `invalid_reply` on a refused reply), and never stops
+    the run. It moves `started_at` forward by the seconds the critic used, so the
+    investigation's time left is the same after the stage as before it.
+  - **Task 4, episode and records.** `run_episode(critic=...)`; with `CRITIC=on` it
+    builds the critic before the factory, so a missing `CRITIC_MODEL` fails before the
+    case runs. `EpisodeResult.critic_calls`, `ExperimentRecord.critique`,
+    `run_experiment(make_critic=...)`: the critic's questions are counted after the
+    policy's and appear in `agent_steps` as `agent="critic"`, phase `critique`.
+    The live view prints one `CRITIC (...)` line.
+  - **Task 5, the EV1 report.** `EvalCase.critic_outcome`, `critic_verdict`,
+    `critic_favoured`, `critic_pick_correct`; `ExperimentRecord.critic_favoured_claim`;
+    `report_of(critic_labels=...)` scores the pick from its own label, never the
+    agent's accuracy; `critic_labels(records, proposer)` labels each favoured claim
+    with Jev and leaves out a proposal that needs review. `automatic_labels` now
+    returns the critic labels as a third value.
+  - **Not done.** The live prompt check on three or four made-up states (plan Task 6
+    step 1) was not run: the developer asked for no live runs this session. No master
+    run. `.env.example` needs `CRITIC`, `CRITIC_MODEL` and `CRITIC_SECONDS` added by the
+    developer (the coding assistant cannot read or edit it), and
+    `tests/test_env_example.py` fails until then.
+  - Gate: pre-merge walkthrough owed (AGENTS.md section 11 step 6).
 
 - **2026-10-28 (docs-only): walkthroughs for A10-A15, L8, L9 and EV1.**
   Each was taught after the build, then quizzed three ways (EV1: three
