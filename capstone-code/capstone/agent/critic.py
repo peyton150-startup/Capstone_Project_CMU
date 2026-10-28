@@ -18,11 +18,14 @@ was never gathered. Every question is kept in `calls`, tagged
 `agent="critic"`, apart from the research agent's own `ModelCall` records.
 
 The critic never changes `state`.
+
+Code outside `capstone.agent` imports the critic's records from here, never
+from `agent.artifacts` (the rule `test_agent_artifacts` keeps).
 """
 
 from collections.abc import Sequence
 
-from capstone.agent.artifacts import CritiqueResult
+from capstone.agent.artifacts import CritiqueRecord, CritiqueResult
 from capstone.agent.model_policy import (
     Client,
     ModelCall,
@@ -33,6 +36,15 @@ from capstone.agent.state import InvestigationState
 from capstone.contracts.hypotheses import Hypothesis
 from capstone.contracts.tools import ToolSpec
 from capstone.providers.chat import invalid_outcome
+
+__all__ = [
+    "CRITIC_SYSTEM",
+    "Critic",
+    "CritiqueRecord",
+    "CritiqueResult",
+    "critique_view",
+    "top_two",
+]
 
 # How many hypotheses the critic is shown.
 SHOWN_HYPOTHESES = 2

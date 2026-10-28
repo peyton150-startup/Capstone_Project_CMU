@@ -53,9 +53,8 @@ from time import monotonic
 
 from pydantic import BaseModel, ConfigDict, Field
 
-from capstone.agent.artifacts import CritiqueRecord
 from capstone.agent.completion import AuditLog, complete
-from capstone.agent.critic import Critic
+from capstone.agent.critic import Critic, CritiqueRecord
 from capstone.agent.model_policy import ModelCall
 from capstone.agent.policy import ReasoningPolicy
 from capstone.agent.state import Budgets
