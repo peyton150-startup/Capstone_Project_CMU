@@ -1794,7 +1794,18 @@ they do not introduce the excluded failure-diagnostic benchmark mode.
 #### Pydantic AI runtime reliability review — candidate (2026-10-28)
 
 **Status:** HIGH-priority audit / small benchmark; roadmap only, not a
-framework migration. The project already uses **Pydantic Graph** for the
+framework migration. **Newest update reviewed: Pydantic AI v2.63.0
+(2026-10-27; published 2026-10-28 UTC).** Its release adds `DetectLoops`
+for repeated-action loops and `Dataset.evaluate(task_timeout=...)` to
+bound each evaluation task attempt. Also review the recent v2.58.0
+(2026-10-19) whole-run `timeout=` / `RunContext.deadline`, per-request
+`request_timeout`, and SDK-level `max_retries`, and the v2.60.0
+(2026-10-22) model-selection context deadline/usage-limit changes.
+Official release references:
+[v2.63.0](https://github.com/pydantic/pydantic-ai/releases/tag/v2.63.0),
+[v2.60.0](https://github.com/pydantic/pydantic-ai/releases/tag/v2.60.0),
+[v2.58.0](https://github.com/pydantic/pydantic-ai/releases/tag/v2.58.0).
+Version/date are a review snapshot, not an automatic update policy. The project already uses **Pydantic Graph** for the
 macro investigation and has custom provider reliability controls in
 `capstone/providers/chat.py`, including `FallbackClient` and
 `run_with_deadline`. Review currently documented Pydantic AI runtime
