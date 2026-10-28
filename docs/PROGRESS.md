@@ -122,6 +122,19 @@ alarm), then evaluation, then the agent itself.
 
 ## Session notes
 
+- **2026-10-28 (C1 follow-up): the live view shows more of the critic's answer.**
+  Asked for by the developer while watching the first live critic run. The
+  `CRITIC (...)` line now has two lines under it: `why: ...` and `confidence
+  0.65, supports action: no, objections: missing_evidence, alternative;
+  <model> in 8.2 s`. A critic that gave no answer prints `tried for N s`.
+  `CritiqueRecord.answered_by` is new (default `None`, so older records still
+  read): `critique()` in `agent/investigation.py` reads it from the critic's
+  own latest call record, which also names the model whose reply was refused.
+  The spec already asked for it ("each critique records which model answered").
+  Not done: a line before the critic is asked (the view only runs after a
+  stage ends, so a long wait still looks silent; showing it needs a pending
+  marker on the state). Built ungated, developer to review.
+
 - **2026-10-28: tree-of-thought trees saved with each experiment record.**
   From an outside audit of the tree-of-thought step: `TreeOfThoughtPolicy`
   kept each hypothesize step's tree (`Thought`: candidates, ratings, kept ids,

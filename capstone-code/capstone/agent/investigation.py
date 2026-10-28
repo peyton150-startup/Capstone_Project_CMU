@@ -195,6 +195,8 @@ def critique(state: InvestigationState, deps: InvestigationDeps) -> None:
     #   outcome: answered, no_answer (no model replied in time) or invalid_reply
     #     (a reply was refused); none of the three stops the run.
     #   result: The critic's reply, or None unless it was answered.
+    #   answered_by: The model that gave the reply, read from the critic's own
+    #     latest call record; None when no model replied.
     #   used: Seconds the critic took, added to started_at so the investigation's
     #     time left is the same after this stage as before it.
     if deps.critic is None or not state.hypotheses:
@@ -214,8 +216,14 @@ def critique(state: InvestigationState, deps: InvestigationDeps) -> None:
     used = max(0.0, deps.clock() - began)
     if state.started_at is not None:
         state.started_at += used
+    calls = getattr(deps.critic, "calls", None)
+    answered_by = calls[-1].answered_by if calls else None
     state.critique = CritiqueRecord(
-        outcome=outcome, result=result, shown_hypotheses=shown, seconds=used
+        outcome=outcome,
+        result=result,
+        shown_hypotheses=shown,
+        seconds=used,
+        answered_by=answered_by,
     )
 
 

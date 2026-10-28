@@ -3,7 +3,7 @@ view built on it. Scripted policies only; no network."""
 
 import pytest
 
-from capstone.agent.artifacts import CritiqueRecord
+from capstone.agent.artifacts import CritiqueRecord, CritiqueResult, Objection
 from capstone.agent.state import DecisionRecord, InvestigationState
 from capstone.contracts.tools import ToolError
 from capstone.episode import run_episode
@@ -169,3 +169,68 @@ def test_critic_line_without_an_answer():
     lines = []
     ProgressView(lines.append)(state)
     assert "CRITIC (no_answer): no critique" in lines
+
+
+def test_critic_detail_lines_say_why_how_sure_and_who_answered():
+    seen = []
+    run(watch=seen.append)
+    state = seen[-1].model_copy(deep=True)
+    state.critique = CritiqueRecord(
+        outcome="answered",
+        result=CritiqueResult(
+            favoured="H1",
+            why="the readings rise steadily",
+            discriminating_check="get_readings on CNC-02",
+            objections=(
+                Objection(
+                    kind="missing_evidence", text="one reading", evidence_ids=("E1",)
+                ),
+                Objection(kind="alternative", text="fits wear too"),
+            ),
+            verdict="object",
+            favoured_confidence=0.65,
+            supports_action=False,
+        ),
+        shown_hypotheses=("H1", "H2"),
+        seconds=8.24,
+        answered_by="mistral/ministral-14b-2512",
+    )
+    lines = []
+    ProgressView(lines.append)(state)
+    at = next(i for i, line in enumerate(lines) if line.startswith("CRITIC ("))
+    assert lines[at + 1 : at + 3] == [
+        "  why: the readings rise steadily",
+        "  confidence 0.65, supports action: no, objections: "
+        "missing_evidence, alternative; mistral/ministral-14b-2512 in 8.2 s",
+    ]
+
+
+def test_critic_detail_with_no_objections_and_no_model_name():
+    seen = []
+    run(watch=seen.append)
+    state = seen[-1].model_copy(deep=True)
+    state.critique = CritiqueRecord(
+        outcome="answered",
+        result=critique_result("no_objection", "H1"),
+        shown_hypotheses=("H1",),
+        seconds=3.0,
+    )
+    lines = []
+    ProgressView(lines.append)(state)
+    assert (
+        "  confidence 0.60, supports action: no, objections: none; "
+        "unknown model in 3.0 s"
+    ) in lines
+
+
+def test_critic_without_an_answer_still_says_how_long_it_tried():
+    seen = []
+    run(watch=seen.append)
+    state = seen[-1].model_copy(deep=True)
+    state.critique = CritiqueRecord(
+        outcome="no_answer", shown_hypotheses=("H1",), seconds=40.04
+    )
+    lines = []
+    ProgressView(lines.append)(state)
+    at = lines.index("CRITIC (no_answer): no critique")
+    assert lines[at + 1] == "  tried for 40.0 s"

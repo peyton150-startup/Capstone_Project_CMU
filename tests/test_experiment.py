@@ -800,3 +800,15 @@ def test_critic_questions_follow_the_policy_s_own(monkeypatch):
 def test_old_records_without_critique_still_read(records):
     old = records[0].model_dump(exclude={"critique"})
     assert ExperimentRecord.model_validate(old).critique is None
+
+
+def test_a_critique_from_before_answered_by_still_reads():
+    old = {
+        "outcome": "no_answer",
+        "result": None,
+        "shown_hypotheses": ["H1"],
+        "seconds": 1.0,
+    }
+    from capstone.agent.critic import CritiqueRecord
+
+    assert CritiqueRecord.model_validate(old).answered_by is None
