@@ -104,14 +104,14 @@ A component is complete only when both columns are checked.
 | F3 | Fault-pack registry: the four faults described once (`capstone/faults.py`), no behaviour change | yes (after the build: pre-merge walkthrough 2026-10-26) | n/a | yes | yes (walkthrough 2026-10-26: Q1 in part, corrected; Q2 right after one correction; Q3 after a re-teach) | `faults.py` (`FaultPack`, `AgentSide`, `EvaluatorSide`, `FaultPlace`, `PACKS`, `BY_KIND`, `agent_side`, `Relevant` moved here), `simulator/generator.py`, `tools/diagnosis.py`, `tools/actions.py`, `evaluation/scoring.py`, `baseline.py`; session note 2026-10-26 (F3) |
 | F4 | Servo-drive fault pack: worn axis drive, following-error sensor and alarm, drive replacement; only when forced | yes (after the build: pre-merge walkthrough 2026-10-26) | n/a | yes | yes (walkthrough 2026-10-26: Q1 in part, completed; Q2 right; Q3 right, with additions) | `simulator/state.py` (`axis_health`, `axis_replaced_tick`), `simulator/scenarios.py` (`AxisDriveWear`, `DEFECT_FROM_AXIS`), `simulator/sensors.py` (`FollowingErrorSensor`), `simulator/line.py`, `simulator/simulator.py` (`start_servo_drive_replacement`), `tools/actions.py`, `providers/factory.py`, `faults.py` (servo pack, `in_default_draw`, `DEFAULT_DRAW`), `simulator/generator.py`; session note 2026-10-26 (F4) |
 | F5 | Hydraulic-leak fault pack: hydraulics on some machines (observable), pressure sensor and low-pressure alarm, seal repair; only when forced | yes (after the build: pre-merge walkthrough 2026-10-26) | n/a | yes | yes (walkthrough 2026-10-26: Q1 in part, corrected; Q2 right, with an addition; Q3 after a re-teach) | `simulator/line.py` (`HYDRAULIC_POSITIONS`), `simulator/state.py` (`has_hydraulics`, `hydraulic_health`, `hydraulics_repaired_tick`), `simulator/scenarios.py` (`HydraulicLeak`, `DEFECT_FROM_HYDRAULICS`), `simulator/sensors.py` (`HydraulicPressureSensor`), `simulator/events.py` (`ThresholdAlarm(below=)`), `simulator/simulator.py` (`start_hydraulic_repair`), `tools/observation.py`, `tools/actions.py`, `contracts/observations.py`, `providers/factory.py`, `faults.py`; session note 2026-10-26 (F5) |
-| L8 | A chain of fallback models (FALLBACK_MODEL takes several, in order); Cohere's output cap | no (built first; merged without the pre-merge walkthrough at the developer's request, 2026-10-26; walkthrough owed) | n/a | yes | no | `settings.py` (`fallback_models`), `providers/chat.py` (`clients_for_jobs`, `Provider.max_output_tokens`, `_capped`); session note 2026-10-26 (L8) |
-| L9 | `experiment run` shows the live progress view by default (`--quiet` to turn it off), without the truth | no (built first; merged without the pre-merge walkthrough at the developer's request, 2026-10-26; walkthrough owed) | n/a | yes | no | `experiment.py` (`run_experiment(watch=)`, `--quiet`); session note 2026-10-26 (L9) |
-| A10 | The policy's own recommendation, and why an intervention was lowered, are recorded (MAX-HIGH change 1) | no (built first; walkthrough started 2026-10-26 (Q1 asked, unanswered), merged at the developer's request to save usage; walkthrough owed for 2026-10-27) | n/a | yes | no | `agent/investigation.py` (`why_not_acted`, `check_conclusion`, `conclude`), `agent/state.py` (`policy_recommendation`, `recommendation_lowered`), `experiment.py` (`ExperimentRecord` fields, `overruled_text`); session note 2026-10-26 (A10) |
-| A11 | The conclude prompt states the bar in force (change 2); the bar is a setting, MIN_ACTION_CONFIDENCE (change 3) | no (built first and merged before teaching at the developer's request, 2026-10-26; the test (KA-01 to KA-03 at a 0.80 bar) and the walkthrough moved to 2026-10-27) | n/a | yes | no | `agent/state.py` (`action_confidence_needed`), `agent/loop.py` (`ask_policy`), `agent/model_policy.py` (`action_bar_note`, `conclude`), `settings.py` (`min_action_confidence`), `episode.py`; session note 2026-10-26 (A11) |
-| A12 | Configurable questions per step: STEP_QUESTIONS=1 combines interpretation and next decision; 2 retains separate questions | yes | yes (2026-10-27: updated beliefs and requested tool; code decides what is allowed) | yes | no — developer requested build, merge, then quiz (2026-10-27) | `agent/policy.py`, `agent/model_policy.py`, `agent/loop.py`, `agent/state.py`, `settings.py`, `episode.py`, `experiment.py`; session note 2026-10-27 (A12) |
-| A13 | STATE_ACTION_BAR: show or hide the action threshold in prompts, with enforcement unchanged | no — developer requested build, merge, then quiz (2026-10-27) | no — built ungated, developer to review | yes | no — quiz after merge | `settings.py`, `agent/state.py`, `agent/loop.py`, `agent/model_policy.py`, `episode.py`, `experiment.py`; session note 2026-10-27 (A13) |
-| A14 | Prompt guidance: one discriminating check before stopping with an uncertain leading explanation | no — developer requested build, merge, then quiz (2026-10-27) | no — built ungated, developer to review | yes | no — quiz after merge | `agent/model_policy.py` (`SYSTEM["decide"]`); session note 2026-10-27 (A14) |
-| A15 | Prompt guidance: consult an available manual before recommending a repair | no — developer requested build, merge, then quiz (2026-10-27) | no — built ungated, developer to review | yes | no — quiz after merge | `agent/model_policy.py` (`manual_use_note`, `decide`, `interpret_and_decide`); session note 2026-10-27 (A15) |
+| L8 | A chain of fallback models (FALLBACK_MODEL takes several, in order); Cohere's output cap | yes (after the build, 2026-10-28) | n/a | yes | no — walkthrough done 2026-10-28: Q1 right; Q3 in part (Cohere refused the request; why the cap is per provider); mark left for the developer | `settings.py` (`fallback_models`), `providers/chat.py` (`clients_for_jobs`, `Provider.max_output_tokens`, `_capped`); session note 2026-10-26 (L8) |
+| L9 | `experiment run` shows the live progress view by default (`--quiet` to turn it off), without the truth | yes (after the build, 2026-10-28) | n/a | yes | no — walkthrough done 2026-10-28: Q2 half right (the copy), the crash guard added; mark left for the developer | `experiment.py` (`run_experiment(watch=)`, `--quiet`); session note 2026-10-26 (L9) |
+| A10 | The policy's own recommendation, and why an intervention was lowered, are recorded (MAX-HIGH change 1) | yes (after the build, 2026-10-28) | n/a | yes | no — walkthrough done 2026-10-28: Q1 in part, corrected; Q2 (b) right, (a) and (c) corrected; Q3 in part, corrected (session note 2026-10-28); mark left for the developer | `agent/investigation.py` (`why_not_acted`, `check_conclusion`, `conclude`), `agent/state.py` (`policy_recommendation`, `recommendation_lowered`), `experiment.py` (`ExperimentRecord` fields, `overruled_text`); session note 2026-10-26 (A10) |
+| A11 | The conclude prompt states the bar in force (change 2); the bar is a setting, MIN_ACTION_CONFIDENCE (change 3) | yes (after the build, 2026-10-28) | n/a | yes | no — taught together with A13 on 2026-10-28 (see A13); mark left for the developer | `agent/state.py` (`action_confidence_needed`), `agent/loop.py` (`ask_policy`), `agent/model_policy.py` (`action_bar_note`, `conclude`), `settings.py` (`min_action_confidence`), `episode.py`; session note 2026-10-26 (A11) |
+| A12 | Configurable questions per step: STEP_QUESTIONS=1 combines interpretation and next decision; 2 retains separate questions | yes | yes (2026-10-27: updated beliefs and requested tool; code decides what is allowed) | yes | no — walkthrough done 2026-10-28: closing question in part (named tracing, not the stop checks), follow-up unsure then corrected; mark left for the developer | `agent/policy.py`, `agent/model_policy.py`, `agent/loop.py`, `agent/state.py`, `settings.py`, `episode.py`, `experiment.py`; session note 2026-10-27 (A12) |
+| A13 | STATE_ACTION_BAR: show or hide the action threshold in prompts, with enforcement unchanged | yes (after the build, 2026-10-28) | no — built ungated, developer to review | yes | no — walkthrough done 2026-10-28: Q1 right except what the record shows; Q2 right; Q3 conclusion not supported by the repo's notes, corrected; mark left for the developer | `settings.py`, `agent/state.py`, `agent/loop.py`, `agent/model_policy.py`, `episode.py`, `experiment.py`; session note 2026-10-27 (A13) |
+| A14 | Prompt guidance: one discriminating check before stopping with an uncertain leading explanation | yes (after the build, 2026-10-28) | no — built ungated, developer to review | yes | no — walkthrough done 2026-10-28: Q2 mostly right, missed that waiting is the one tool that changes the factory; mark left for the developer | `agent/model_policy.py` (`SYSTEM["decide"]`); session note 2026-10-27 (A14) |
+| A15 | Prompt guidance: consult an available manual before recommending a repair | yes (after the build, 2026-10-28) | no — built ungated, developer to review | yes | no — walkthrough done 2026-10-28: Q1 misread at first, then right; Q3 right first step (the trace), checks added; mark left for the developer | `agent/model_policy.py` (`manual_use_note`, `decide`, `interpret_and_decide`); session note 2026-10-27 (A15) |
 
 Every row above with four "yes" marks (or "n/a") is complete: no question is
 outstanding on it. Still to build after 12c, from `docs/MVP_SCOPE.md`: the
@@ -119,6 +119,58 @@ other three fault scenarios (material batch, machine configuration, false
 alarm), then evaluation, then the agent itself.
 
 ## Session notes
+
+- **2026-10-28 (docs-only): walkthroughs for A10-A15, L8, L9 and EV1.**
+  Each was taught after the build, then quizzed three ways (EV1: three
+  questions on the harness). The "Understood (post)" marks stay **no**: the
+  answers were in part right and needed corrections, and the developer
+  decides when a row turns to yes. Results:
+  - A10: Q1 (why `recommendation_lowered` uses the raw reply) in part,
+    corrected (the checked `request` is always `None`). Q2 (reading the
+    records): (b) right; (a) the model chose escalate, but confidence is not
+    known from the record; (c) wrong at first, then corrected: `None` means
+    the recording lines never ran (time out or unusable reply). Q3 (what
+    zero fixes means): KA-01 right (the bar blocked it); KA-02 the bar plays
+    no part when the model itself says escalate, so a prompt or reasoning
+    change is needed, not a lower bar.
+  - A11 and A13, taught together: Q1 (bar hidden, 0.88 intervene) right
+    apart from the record, which shows `policy_recommendation`,
+    `recommendation_lowered` and `state_action_bar=False`. Q2 (why the code
+    still checks) right: the code is the authority, and the confidence is
+    the model's own claim. Q3 (2 fixes with the bar shown, 0 hidden): the
+    developer's reading was "the agent does not use the bar", which the
+    repo's notes do not support: `docs/MVP_SCOPE.md` item 9 records only two
+    cases from different runs where stating the bar seemed to lower
+    confidence, with the live comparison still outstanding. Corrected: repeat
+    each setting on the same seeds, one live run at a time, and compare right
+    recommendations and unnecessary fixes, not only the fix count.
+  - A12: closing question (why the combined mode holds its next call as
+    `pending_decision`) in part: the developer named tracing; the reason is
+    that every stop check in `check_termination` runs before every call.
+    Follow-up: the stored call is discarded when the next turn stops, and
+    never runs in a later phase.
+  - A14: Q2 (why one wait, not repeated) in part: the budget was named; the
+    main risk is that `wait` is the one tool that changes the factory, so a
+    real fault keeps worsening.
+  - A15: Q1 (why the manual note is empty when the tool is not offered)
+    misread at first, then right: the prompt must match the tool list, or the
+    model asks for a tool that is refused. Q3 (still 0 manual searches): the
+    trace first, in order: tool offered, note in the prompt, asked and
+    refused versus never asked, only then a model that ignores it.
+  - L8: Q1 (why a bad reply does not move on to the next model) right: it is
+    the model's own doing and a measurement. Q3: Cohere refused the request
+    over its 8,192 limit (not a cut-off answer); NVIDIA's carries 16,384;
+    the cap is per provider so models that think at length keep their room.
+  - L9: Q2 in part: the watcher gets a copy; a watcher that raises is caught
+    and logged without its text, so a display fault cannot stop a run.
+  - EV1 (the row is on `feature/eval-harness-baseline`, so it is recorded
+    here and the row is left for that branch): Q1 in part: the truth is
+    used to build the world and again to score, never passed to the agent;
+    the boundary is the tool provider. Q2 right, with the second reason
+    that the judged cases are probably the easy ones; unjudged is unknown,
+    not wrong. Q3: thought a repeat without `--resume` restarts the run;
+    corrected: `reserve_raw_output` refuses an existing file, and `--resume`
+    runs `check_resume` first. The live baseline for EV1 is still pending.
 
 - **2026-10-28 (docs-only): variable comments across `capstone/`, and the
   A10 walkthrough begun.** No behaviour changed. At the developer's request,
