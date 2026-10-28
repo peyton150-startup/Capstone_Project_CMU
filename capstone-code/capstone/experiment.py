@@ -54,6 +54,7 @@ from time import monotonic
 from pydantic import BaseModel, ConfigDict, Field
 
 from capstone.agent.completion import AuditLog, complete
+from capstone.agent.critic import Critic, CritiqueRecord
 from capstone.agent.model_policy import ModelCall
 from capstone.agent.policy import ReasoningPolicy
 from capstone.agent.state import Budgets
@@ -272,6 +273,12 @@ class ExperimentRecord(BaseModel):
     step_questions: int | None = Field(default=None, ge=1, le=2)
     # None in older records; specialists can identify themselves on each step.
     agent_steps: list[AgentStep] | None = None
+    # What the critic said about the two leading hypotheses, or why it said
+    # nothing. None: no critic ran (and in records from before it was kept).
+    critique: CritiqueRecord | None = None
+    # The claim of the hypothesis the critic favoured, so it can be labelled
+    # as a cause the way a conclusion is. None: no pick (or an older record).
+    critic_favoured_claim: str | None = None
 
 
 # Tools answered by something other than the factory.
@@ -329,6 +336,19 @@ def overruled_text(record: ExperimentRecord) -> str:
     return f" overruled=intervene->{record.recommendation} ({record.recommendation_lowered})"
 
 
+def favoured_claim(state) -> str | None:
+    """The claim of the hypothesis the critic favoured; None if it favoured none."""
+    # Variables:
+    #   state: The finished investigation, which holds the critique and the
+    #     hypotheses the critic chose among.
+    #   result: The critic's reply; None when it gave no usable one, so there is
+    #     no pick to label.
+    result = None if state.critique is None else state.critique.result
+    if result is None:
+        return None
+    return next((h.claim for h in state.hypotheses if h.id == result.favoured), None)
+
+
 def record_of(
     case: Case,
     run_key: str,
@@ -366,6 +386,8 @@ def record_of(
         factory_calls=count_factory_calls(state),
         state_action_bar=state.state_action_bar,
         step_questions=state.step_questions,
+        critique=state.critique,
+        critic_favoured_claim=favoured_claim(state),
         agent_steps=[
             AgentStep(
                 agent=decision.agent,
@@ -407,6 +429,7 @@ def run_experiment(
     manual: ManualSearch | None = None,
     start: int = 1,
     watch: Callable[[str], None] | None = None,
+    make_critic: Callable[[], Critic] | None = None,
 ) -> list[ExperimentRecord]:
     """Run each case once with a fresh policy. `name` makes every run key unique.
 
@@ -418,6 +441,10 @@ def run_experiment(
     view's lines (`capstone.progress.ProgressView`) as the agent works. The
     truth is not printed: conclusions are labelled by hand afterwards, and
     seeing the answer first would bias the labels. It stays in the record.
+
+    With `make_critic`, each case gets a fresh critic; without it, the
+    episode builds one from settings when CRITIC is on. The critic's
+    questions are counted after the policy's, tagged agent="critic".
     """
     # Variables:
     #   cases: The seeds and faults to run, one episode each.
@@ -427,13 +454,15 @@ def run_experiment(
     #     come.
     #   start: The number of the first case in the run keys.
     #   watch: Prints a live view of each case; the hidden truth is never printed.
+    #   make_critic: Builds a fresh critic for each case; None leaves it to settings.
     #   records: One record per case, in order.
     #   run_key: A unique name for this case's run.
     #   policy: A fresh decision-maker, so no case learns from another's state.
     #   started: The clock reading when the case began.
     #   result: The finished episode, including the simulator and its hidden truth.
     #   wall_seconds: How long the episode took on the wall clock.
-    #   calls: The model questions asked; only model-backed policies keep them.
+    #   calls: The model questions asked; only model-backed policies keep them,
+    #     followed by the critic's, if one ran.
     #   record: The case's result for the experimenter.
     records = []
     for number, case in enumerate(cases, start=start):
@@ -455,9 +484,12 @@ def run_experiment(
             hazards=hazards,
             manual=manual,
             watch=None if watch is None else ProgressView(watch),
+            critic=None if make_critic is None else make_critic(),
         )
         wall_seconds = clock() - started
         calls = getattr(policy, "calls", None)  # kept by ModelPolicy only
+        if result.critic_calls:
+            calls = [*(calls or ()), *result.critic_calls]
         record = record_of(
             case,
             run_key,

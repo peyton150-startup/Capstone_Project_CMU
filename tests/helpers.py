@@ -1,7 +1,8 @@
 from datetime import datetime, timedelta
 from uuid import UUID
 
-from capstone.agent.artifacts import DetectedAnomaly, TerminationReason
+from capstone.agent.artifacts import CritiqueResult, DetectedAnomaly, TerminationReason
+from capstone.agent.model_policy import ModelCall
 from capstone.agent.policy import CallTool, Interpretation, Stop
 from capstone.agent.state import Budgets, InvestigationState
 from capstone.contracts.tools import ToolError, ToolRequest, ToolResult
@@ -143,3 +144,41 @@ def new_state(**budgets) -> InvestigationState:
         budgets=Budgets(**budgets),
         last_tick=10,
     )
+
+
+def critique_result(verdict="object", favoured="H1"):
+    """A critic's reply, for tests that stand in for the critic."""
+    return CritiqueResult(
+        favoured=favoured,
+        why="it fits",
+        discriminating_check="get_readings on CNC-02",
+        verdict=verdict,
+        favoured_confidence=0.6,
+        supports_action=False,
+    )
+
+
+class FakeCritic:
+    """Stands in for `Critic`: answers, or raises, and keeps what it was asked."""
+
+    def __init__(self, reply=None, *, on_review=None):
+        self.reply = reply or critique_result()
+        self.on_review = on_review
+        self.calls: list[ModelCall] = []
+        self.reviewed = []
+
+    def review(self, state, *, max_seconds):
+        self.reviewed.append((state, max_seconds))
+        if self.on_review:
+            self.on_review()
+        if isinstance(self.reply, Exception):
+            self.calls.append(
+                ModelCall(job="critique", agent="critic", outcome="no_answer")
+            )
+            raise self.reply
+        self.calls.append(
+            ModelCall(
+                job="critique", agent="critic", outcome="answered", answered_by="fake"
+            )
+        )
+        return self.reply

@@ -3,7 +3,11 @@ from itertools import groupby
 import pytest
 
 from capstone.agent.artifacts import AgentConclusion, TerminationReason
-from capstone.agent.investigation import INVESTIGATION_GRAPH, run_investigation
+from capstone.agent.investigation import (
+    INVESTIGATION_GRAPH,
+    critique,
+    run_investigation,
+)
 from capstone.agent.loop import InvestigationDeps
 from capstone.agent.policy import ActionRequest, Interpretation, Stop
 from capstone.agent.state import Question
@@ -14,7 +18,14 @@ from capstone.simulator.line import build_line
 from capstone.simulator.scenarios import BearingDegradation
 from capstone.tools.actions import ActionTools, ApprovalDesk
 from capstone.tools.observation import ObservationTools
-from tests.helpers import FakeProvider, ScriptedPolicy, ask, new_state
+from tests.helpers import (
+    FakeCritic,
+    FakeProvider,
+    ScriptedPolicy,
+    ask,
+    critique_result,
+    new_state,
+)
 
 HIDDEN_WORDS = ("bearing_health", "defect_risk", "standard_speed", "ground_truth")
 QUESTIONS = (
@@ -474,7 +485,8 @@ def test_the_graph_draws_only_the_allowed_order():
         "hypothesize --> anything_to_test",
         "anything_to_test --> test",
         "anything_to_test --> conclude",
-        "test --> conclude",
+        "test --> critique",
+        "critique --> conclude",
         "conclude --> propose",
         "propose --> approved",
         "approved --> execute",
@@ -582,3 +594,107 @@ def test_an_outage_inside_the_research_loop_is_not_an_unproductive_turn():
     state, _ = investigate(policy)
     assert state.termination_reason is TerminationReason.MODEL_UNAVAILABLE
     assert [d.outcome for d in state.decisions].count("invalid_decision") == 0
+
+
+# --- the critic: review only -----------------------------------------------
+
+
+def test_no_critic_changes_nothing():
+    state, _ = investigate(wear_policy())
+    assert state.critique is None
+    assert state.conclusion == conclusion()
+    assert stages(state)[-3:] == ["test", "decide", "propose"]
+
+
+def test_critic_answer_is_recorded_and_changes_nothing():
+    plain, _ = investigate(wear_policy())
+    critic = FakeCritic(critique_result("object"))
+    state, _ = investigate(wear_policy(), critic=critic, critic_seconds=33.0)
+    assert state.critique.outcome == "answered"
+    assert state.critique.result.verdict == "object"
+    assert state.critique.shown_hypotheses == ("H1",)
+    assert critic.reviewed[0][1] == 33.0
+    assert state.conclusion == plain.conclusion
+    assert state.proposed_action == plain.proposed_action
+    assert state.termination_reason == plain.termination_reason
+    assert state.hypotheses == plain.hypotheses
+    assert [d.outcome for d in state.decisions] == [d.outcome for d in plain.decisions]
+
+
+def test_critic_is_shown_a_copy_of_the_state():
+    seen = []
+    critic = FakeCritic(on_review=lambda: seen.append(1))
+    state, _ = investigate(wear_policy(), critic=critic)
+    shown_state = critic.reviewed[0][0]
+    assert shown_state is not state
+    assert shown_state.conclusion is None  # reviewed before the conclusion
+
+
+def test_critic_outage_does_not_end_the_run():
+    critic = FakeCritic(ModelError("no model answered"))
+    state, _ = investigate(wear_policy(), critic=critic)
+    assert state.critique.outcome == "no_answer"
+    assert state.critique.result is None
+    assert state.conclusion == conclusion()
+    assert state.termination_reason is not TerminationReason.MODEL_UNAVAILABLE
+
+
+def test_invalid_critique_does_not_end_the_run():
+    critic = FakeCritic(ValueError("cited E99"))
+    state, _ = investigate(wear_policy(), critic=critic)
+    assert state.critique.outcome == "invalid_reply"
+    assert state.critique.result is None
+    assert state.conclusion == conclusion()
+
+
+def test_critic_time_does_not_shorten_the_investigation():
+    now = [0.0]
+    remaining = []
+
+    def watch(state):
+        remaining.append((state.critique, state.remaining_seconds(now[0])))
+
+    critic = FakeCritic(on_review=lambda: now.__setitem__(0, now[0] + 30.0))
+    state, _ = investigate(
+        wear_policy(), critic=critic, clock=lambda: now[0], watch=watch
+    )
+    before = [r for c, r in remaining if c is None][-1]  # after the test stage
+    after = [r for c, r in remaining if c is not None][0]  # after the critique
+    assert after == before
+    assert state.critique.seconds == 30.0
+    assert now[0] == 30.0
+
+
+def test_critic_after_deadline_still_runs():
+    state = fresh_state(timeout_seconds=100.0, followup_seconds=10.0)
+    state.started_at = 0.0
+    state.hypotheses = [wear(0.6, "E2")]
+    now = [500.0]
+    critic = FakeCritic(on_review=lambda: now.__setitem__(0, now[0] + 7.0))
+    deps = InvestigationDeps(
+        provider=FakeProvider(),
+        policy=wear_policy(),
+        clock=lambda: now[0],
+        critic=critic,
+    )
+    assert state.remaining_seconds(now[0]) == 0.0
+    critique(state, deps)
+    assert len(critic.reviewed) == 1
+    assert state.critique.seconds == 7.0
+    assert state.remaining_seconds(now[0]) == 0.0
+
+
+def test_critic_skipped_without_hypotheses():
+    critic = FakeCritic()
+    policy = wear_policy(hypothesize=lambda state: Interpretation())
+    state, _ = investigate(policy, critic=critic)
+    assert critic.reviewed == []
+    assert state.critique is None
+
+
+def test_critique_writes_nothing_without_a_critic():
+    state = fresh_state()
+    state.hypotheses = [wear(0.6)]
+    deps = InvestigationDeps(provider=FakeProvider(), policy=wear_policy())
+    critique(state, deps)
+    assert state.critique is None

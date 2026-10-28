@@ -30,7 +30,7 @@ from capstone.memory.contracts import MemoryQuery
 from capstone.providers.chat import Attempt, FallbackClient
 from capstone.simulator.generator import FAULTS
 from capstone.tools.diagnosis import Diagnosis
-from tests.helpers import ask
+from tests.helpers import FakeCritic, ask
 from tests.test_episode import wear_policy
 from tests.test_known_answers import stand_in
 from tests.test_model_policy import scripted_models
@@ -769,3 +769,34 @@ def test_the_command_passes_the_manual_on(tmp_path, monkeypatch):
     assert factory["with_manual"] is True
     assert main(["run", "--name", "n", "--known", "--out", out]) == 0
     assert ran["manual"] is None and factory["with_manual"] is False
+
+
+# --- the critic, review only -----------------------------------------------
+
+
+def test_critic_questions_counted_and_tagged(monkeypatch):
+    monkeypatch.setenv("CRITIC", "off")
+    [record] = run_experiment(
+        [BEARING], wear_policy, name="critic", make_critic=FakeCritic
+    )
+    steps = [s for s in record.agent_steps if s.agent == "critic"]
+    assert [(s.kind, s.phase, s.outcome) for s in steps] == [
+        ("model_question", "critique", "answered")
+    ]
+    assert record.model_calls.questions == 1
+    assert record.critique is not None and record.critique.outcome == "answered"
+
+
+def test_critic_questions_follow_the_policy_s_own(monkeypatch):
+    monkeypatch.setenv("CRITIC", "off")
+    [record] = run_experiment(
+        [BEARING], scripted_models, name="critic", make_critic=FakeCritic
+    )
+    agents = [c.agent for c in record.model_calls.details]
+    assert agents[-1] == "critic"
+    assert set(agents[:-1]) == {"research_agent"}
+
+
+def test_old_records_without_critique_still_read(records):
+    old = records[0].model_dump(exclude={"critique"})
+    assert ExperimentRecord.model_validate(old).critique is None

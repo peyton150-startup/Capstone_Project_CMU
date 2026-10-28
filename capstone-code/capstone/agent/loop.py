@@ -28,6 +28,7 @@ from time import monotonic
 from typing import TypeVar
 
 from capstone.agent.artifacts import ProposalRecord, TerminationReason
+from capstone.agent.critic import Critic
 from capstone.agent.policy import (
     CallTool,
     Interpretation,
@@ -97,6 +98,11 @@ class InvestigationDeps:
     # it can read what the agent has, never change it. None: nobody watches.
     watch: Callable[[InvestigationState], None] | None = field(default=None)
     step_questions: int = 2
+    # A second model that reviews the two leading hypotheses before the
+    # conclusion (`investigation.critique`). None: no critique. Its window
+    # is its own, on top of the investigation's time.
+    critic: Critic | None = None
+    critic_seconds: float = 40.0
 
     def __post_init__(self) -> None:
         if self.step_questions not in (1, 2):

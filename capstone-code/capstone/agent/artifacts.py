@@ -71,3 +71,81 @@ class VerificationCheck(Contract):
     prediction: str = Field(min_length=1)
     evidence_ids: tuple[str, ...] = ()
     checked_tick: int | None = Field(default=None, ge=0)
+
+
+class Objection(Contract):
+    """One thing a critic found wrong with a hypothesis the agent holds."""
+
+    kind: Literal[
+        "contradiction",
+        "unsupported_claim",
+        "missing_evidence",
+        "alternative",
+        "overconfidence",
+    ] = Field(
+        description=(
+            "contradiction: the evidence cited says the opposite of the claim. "
+            "unsupported_claim: the claim says something no evidence shown backs. "
+            "missing_evidence: a check the claim needs was never made. "
+            "alternative: the evidence fits another explanation as well or better. "
+            "overconfidence: the confidence is higher than the evidence allows."
+        )
+    )
+    text: str = Field(
+        min_length=1, description="One sentence saying what is wrong, in plain words."
+    )
+    evidence_ids: tuple[str, ...] = Field(
+        default=(),
+        description="The ids of the evidence shown that this objection rests on.",
+    )
+
+
+class CritiqueResult(Contract):
+    """A second model's judgement of the two leading hypotheses. A belief, not evidence."""
+
+    favoured: str = Field(
+        description=(
+            "The id of the shown hypothesis the evidence supports better than the "
+            "other, not one proven beyond doubt. Use none only if the evidence "
+            "supports neither."
+        )
+    )
+    why: str = Field(
+        description="One or two sentences: the evidence that makes it the better fit."
+    )
+    discriminating_check: str = Field(
+        description=(
+            "One call the agent could make with a tool from the list shown, with its "
+            "arguments, whose answer would tell the two hypotheses apart."
+        )
+    )
+    objections: tuple[Objection, ...] = Field(
+        default=(),
+        description="Problems found with the favoured hypothesis or the other one.",
+    )
+    verdict: Literal["object", "no_objection"] = Field(
+        description=(
+            "object if the agent should doubt its leading hypothesis; "
+            "no_objection if the evidence supports it and nothing above undermines it."
+        )
+    )
+    favoured_confidence: float = Field(
+        ge=0,
+        le=1,
+        description="How sure you are the favoured hypothesis is right, from 0 to 1.",
+    )
+    supports_action: bool = Field(
+        description=(
+            "True only if the evidence justifies acting on the favoured hypothesis "
+            "now, without more checking."
+        )
+    )
+
+
+class CritiqueRecord(Contract):
+    """What the critic stage produced for one investigation, or why it produced nothing."""
+
+    outcome: Literal["answered", "invalid_reply", "no_answer"]
+    result: CritiqueResult | None = None
+    shown_hypotheses: tuple[str, ...]
+    seconds: float = Field(ge=0)

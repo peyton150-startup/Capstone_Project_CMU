@@ -3,10 +3,12 @@ view built on it. Scripted policies only; no network."""
 
 import pytest
 
+from capstone.agent.artifacts import CritiqueRecord
 from capstone.agent.state import DecisionRecord, InvestigationState
 from capstone.contracts.tools import ToolError
 from capstone.episode import run_episode
 from capstone.progress import ProgressView, main, shorten, step_line, watch_episode
+from tests.helpers import critique_result
 from tests.test_episode import MACHINE, SEED, wear_policy
 
 
@@ -135,3 +137,35 @@ def test_shorten_keeps_one_line_and_cuts_long_text():
 def test_the_command_refuses_an_unknown_fault():
     with pytest.raises(SystemExit):
         main(["--seed", "1", "--fault", "no_such_fault"])
+
+
+def test_critic_line_printed_once():
+    seen = []
+    run(watch=seen.append)
+    state = seen[-1].model_copy(deep=True)
+    state.critique = CritiqueRecord(
+        outcome="answered",
+        result=critique_result("object", "H1"),
+        shown_hypotheses=("H1",),
+        seconds=3.0,
+    )
+    lines = []
+    view = ProgressView(lines.append)
+    view(state)
+    view(state)
+    critic_lines = [line for line in lines if line.startswith("CRITIC (")]
+    assert critic_lines == [
+        "CRITIC (answered): favoured H1, object, check: get_readings on CNC-02"
+    ]
+
+
+def test_critic_line_without_an_answer():
+    seen = []
+    run(watch=seen.append)
+    state = seen[-1].model_copy(deep=True)
+    state.critique = CritiqueRecord(
+        outcome="no_answer", shown_hypotheses=("H1",), seconds=40.0
+    )
+    lines = []
+    ProgressView(lines.append)(state)
+    assert "CRITIC (no_answer): no critique" in lines

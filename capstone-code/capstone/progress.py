@@ -119,6 +119,7 @@ class ProgressView:
         #   conclusion: The conclusion last printed.
         #   proposal: The proposal last printed.
         #   verification: The check last printed.
+        #   critique: The critic's record last printed.
         self.write = write
         self.started = False
         self.decisions_shown = 0
@@ -126,6 +127,7 @@ class ProgressView:
         self.conclusion = None
         self.proposal = None
         self.verification = None
+        self.critique = None
 
     def __call__(self, state: InvestigationState) -> None:
         # Variables:
@@ -145,6 +147,7 @@ class ProgressView:
                 self.write(line)
         self.decisions_shown = len(state.decisions)
         self._beliefs(state)
+        self._critique(state)
         if state.conclusion is not None and state.conclusion != self.conclusion:
             self.conclusion = state.conclusion
             c = state.conclusion
@@ -163,6 +166,25 @@ class ProgressView:
         if check is not None and check != self.verification:
             self.verification = check
             self.write(f"CHECK: {check.outcome} ({shorten(check.prediction, 120)})")
+
+    def _critique(self, state: InvestigationState) -> None:
+        """The critic's verdict, printed once when it first appears."""
+        # Variables:
+        #   record: What the critic stage produced; compared with the last one
+        #     printed so the line appears once.
+        #   r: The critic's reply; None when there was no usable one.
+        record = state.critique
+        if record is None or record == self.critique:
+            return
+        self.critique = record
+        r = record.result
+        if r is None:
+            self.write(f"CRITIC ({record.outcome}): no critique")
+            return
+        self.write(
+            f"CRITIC ({record.outcome}): favoured {r.favoured}, {r.verdict}, "
+            f"check: {shorten(r.discriminating_check, 120)}"
+        )
 
     def _beliefs(self, state: InvestigationState) -> None:
         """The leading hypotheses, printed only when they changed."""

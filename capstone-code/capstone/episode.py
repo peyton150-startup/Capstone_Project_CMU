@@ -27,8 +27,10 @@ from datetime import timedelta
 from time import monotonic
 
 from capstone.agent.completion import AuditLog
+from capstone.agent.critic import Critic
 from capstone.agent.investigation import run_investigation
 from capstone.agent.loop import InvestigationDeps
+from capstone.agent.model_policy import ModelCall
 from capstone.agent.monitor import detect_anomaly
 from capstone.agent.policy import ReasoningPolicy
 from capstone.agent.state import Budgets, InvestigationState
@@ -36,7 +38,8 @@ from capstone.contracts.investigations import investigation_id_for, run_id_for
 from capstone.evaluation.scoring import Score, evaluate
 from capstone.learning import LearningOutcome, learn_from
 from capstone.memory.service import MemoryService
-from capstone.providers.factory import SimulatorFactoryProvider
+from capstone.providers.chat import critic_client
+from capstone.providers.factory import SimulatorFactoryProvider, research_tools
 from capstone.providers.hazards import (
     HazardReport,
     UnreliableProvider,
@@ -100,6 +103,8 @@ class EpisodeResult:
     start_tick: int
     # What the scheduled tool faults did; None when the tools were reliable.
     hazards: HazardReport | None = None
+    # The critic's model questions, tagged agent="critic"; empty without one.
+    critic_calls: tuple[ModelCall, ...] = ()
 
     @property
     def conclusion(self) -> str | None:
@@ -200,6 +205,7 @@ def run_episode(
     hazards: bool = False,
     manual: ManualSearch | None = None,
     watch: Callable[[InvestigationState], None] | None = None,
+    critic: Critic | None = None,
 ) -> EpisodeResult:
     """Run one seeded episode from the fault's start to its score.
 
@@ -214,6 +220,10 @@ def run_episode(
     and scoring are the same for every kind.
     With `watch`, someone follows the run as it happens (`capstone.progress`):
     it is shown copies of the agent's working state, never the simulator.
+    With `critic`, or with CRITIC=on in settings, a second model reviews the
+    two leading hypotheses before the conclusion (review only: it changes
+    nothing in the run). It is built from settings before the factory, so a
+    missing CRITIC_MODEL fails before the case runs.
     """
     # Variables:
     #   seed: Decides the whole factory, so the same seed repeats the same run.
@@ -229,6 +239,8 @@ def run_episode(
     #   hazards: If True, tools fail on the standard schedule.
     #   manual: Lets the agent search the machine manual.
     #   watch: Called with a copy of the agent's state so someone can follow the run.
+    #   critic: Reviews the two leading hypotheses; None builds one from settings
+    #     when CRITIC is on, and otherwise runs without one.
     #   settings: The project settings, read for the action bar and step mode.
     #   sim: The factory with its hidden fault; never given to the agent.
     #   desk: The human's approval desk; never given to the agent.
@@ -249,6 +261,10 @@ def run_episode(
     #   diagnosis: The cause the judge read from the conclusion, if a judge was given.
     #   judged: Whether a judge was given.
     settings = get_settings()
+    if critic is None and settings.critic:
+        critic = Critic(
+            critic_client(settings), getattr(policy, "tools", research_tools())
+        )
     sim = build_world(seed, kind=kind, fault=fault, machines=machines)
     desk = ApprovalDesk(sim)
     look, act = ObservationTools(sim), ActionTools(sim, desk)
@@ -294,6 +310,8 @@ def run_episode(
         min_action_confidence=settings.min_action_confidence,
         state_action_bar=settings.state_action_bar,
         step_questions=settings.step_questions,
+        critic=critic,
+        critic_seconds=settings.critic_seconds,
     )
     run_investigation(state, deps)
 
@@ -314,4 +332,5 @@ def run_episode(
         desk,
         start_tick,
         None if unreliable is None else unreliable.report,
+        () if critic is None else tuple(critic.calls),
     )
