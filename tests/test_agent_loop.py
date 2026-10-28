@@ -13,6 +13,7 @@ from capstone.agent.loop import (
 from capstone.agent.policy import Interpretation, Stop
 from capstone.agent.state import Budgets, Question
 from capstone.contracts.hypotheses import Hypothesis
+from capstone.contracts.provenance import ProvenanceReference
 from capstone.contracts.tools import ToolResult
 from capstone.providers.factory import SimulatorFactoryProvider
 from capstone.simulator.line import build_line
@@ -201,6 +202,19 @@ def worn(confidence, *supporting):
         claim="the machine is wearing",
         confidence=confidence,
         supporting_evidence_ids=supporting,
+    )
+
+
+def answered(state, origin, *evidence_ids):
+    """Record evidence as answered by `origin`, as the loop's provenance does."""
+    state.provenance.extend(
+        ProvenanceReference(
+            evidence_id=evidence_id,
+            source_id=f"test:{evidence_id}",
+            source_type="tool_result",
+            origin=origin,
+        )
+        for evidence_id in evidence_ids
     )
 
 
@@ -609,6 +623,7 @@ def test_the_investigate_phase_does_not_stop_on_a_supported_diagnosis():
 def test_an_open_contradiction_blocks_the_automatic_stop():
     deps = InvestigationDeps(provider=FakeProvider(), policy=ScriptedPolicy([]))
     state = new_state()
+    answered(state, "observable", "E1", "E2", "E3")
     state.hypotheses = [worn(0.95, "E1", "E2", "E3")]
     assert diagnosis_supported(state, deps)
     # One alarm, its raw readings and their summary can all "support" a claim
@@ -624,6 +639,7 @@ def test_an_open_contradiction_blocks_the_automatic_stop():
 def test_an_open_question_on_a_current_explanation_blocks_the_automatic_stop():
     deps = InvestigationDeps(provider=FakeProvider(), policy=ScriptedPolicy([]))
     state = new_state()
+    answered(state, "observable", "E1", "E2", "E3")
     state.hypotheses = [worn(0.95, "E1", "E2", "E3")]
     leading = state.hypotheses[0].id
     rival = Hypothesis(id="H9", claim="the sensor is misreading", confidence=0.2)
@@ -640,6 +656,26 @@ def test_an_open_question_on_a_current_explanation_blocks_the_automatic_stop():
 
     state.unanswered_questions = [Question(id="Q4", text="t?", hypothesis_id="H7")]
     assert diagnosis_supported(state, deps)  # that explanation was dropped
+
+
+def test_only_factory_answers_count_as_support_for_the_automatic_stop():
+    """Manual guidance and a recalled memory say what a fault looks like,
+    not that this machine has it now, so they do not count as support."""
+    deps = InvestigationDeps(provider=FakeProvider(), policy=ScriptedPolicy([]))
+    state = new_state()
+    answered(state, "manual", "M1", "M2")
+    answered(state, "memory", "R1")
+    answered(state, "observable", "E1", "E2")
+    state.hypotheses = [worn(0.95, "M1", "M2", "R1")]
+    assert not diagnosis_supported(state, deps)  # three supporters, none observed
+    state.hypotheses = [worn(0.95, "M1", "M2", "E1")]
+    assert not diagnosis_supported(state, deps)  # one observed: below the two needed
+    state.hypotheses = [worn(0.95, "M1", "E1", "E2")]
+    assert diagnosis_supported(state, deps)  # two observed
+    state.hypotheses = [worn(0.95, "E1", "E1")]
+    assert not diagnosis_supported(state, deps)  # one reading cited twice is one
+    state.hypotheses = [worn(0.95, "X1", "X2")]
+    assert not diagnosis_supported(state, deps)  # ids the loop never recorded
 
 
 # --- testing that no longer changes the agent's mind ------------------------

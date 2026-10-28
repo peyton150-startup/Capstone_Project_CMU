@@ -189,6 +189,20 @@ alarm), then evaluation, then the agent itself.
   list because its agent side (`FAULT_KINDS`, `ACTIONS`) is meant for prompts.
   Built ungated (test only), developer to review.
 
+- **2026-10-28 (fix): the automatic stop counts only factory evidence.**
+  From an outside audit: `diagnosis_supported` (`agent/loop.py`) counted
+  every supporting evidence id towards `min_supporting_evidence` (2), so two
+  machine-manual answers, or a recalled memory, could make the diagnosis look
+  settled and stop research. Now only supporters whose provenance origin is
+  `observable` (answered by the factory) count, each id once; manual,
+  memory and unrecorded ids do not. The same rule `verify` already applied
+  after a fix. Tests in `tests/test_agent_loop.py`: a new
+  `test_only_factory_answers_count_as_support_for_the_automatic_stop`
+  (manual and memory alone, one observed, two observed, one id cited twice,
+  unknown ids); the two hand-built stop tests now record their evidence as
+  factory answers (`answered`). Built ungated, developer to review
+  (understood: no).
+
 - **2026-10-28 (docs-only): walkthroughs for A10-A15, L8, L9 and EV1.**
   Each was taught after the build, then quizzed three ways (EV1: three
   questions on the harness). The "Understood (post)" marks stay **no**: the
