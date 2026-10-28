@@ -186,6 +186,10 @@ class Settings(BaseSettings):
 
 def fallback_models(settings: Settings) -> tuple[str, ...]:
     """The fallback chain from FALLBACK_MODEL, in order; empty when none is set."""
+    # Variables:
+    #   settings: The project settings.
+    #   chain: The models in the order they are tried, each once.
+    #   reference: One model written as provider/model.
     if not settings.fallback_model:
         return ()
     chain: list[str] = []

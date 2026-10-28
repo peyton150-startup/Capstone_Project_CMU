@@ -14,6 +14,11 @@ class SimulationClock:
     def __init__(
         self, start: datetime, tick_duration: timedelta = timedelta(minutes=1)
     ):
+        # Variables:
+        #   start: The date and time of tick 0.
+        #   tick_duration: How much simulated time one tick is.
+        #   _tick: How many ticks have passed; the only stored time, everything else is
+        #     derived from it.
         if tick_duration <= timedelta(0):
             raise ValueError("tick_duration must be positive")
         self._start = start
@@ -33,11 +38,15 @@ class SimulationClock:
         return self.time_at(self._tick)
 
     def time_at(self, tick: int) -> datetime:
+        # Variables:
+        #   tick: The tick to convert; it must be a whole number, zero or more.
         if not isinstance(tick, int) or isinstance(tick, bool) or tick < 0:
             raise ValueError("tick must be a non-negative integer")
         return self._start + self._tick_duration * tick
 
     def advance(self, ticks: int = 1) -> int:
+        # Variables:
+        #   ticks: How many ticks to move forward; time never goes back.
         if not isinstance(ticks, int) or isinstance(ticks, bool) or ticks < 1:
             raise ValueError("time only moves forward: ticks must be an integer >= 1")
         self._tick += ticks

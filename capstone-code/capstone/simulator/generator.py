@@ -62,6 +62,16 @@ def build_scenario(
     (`BEARING_PROFILES`); it changes nothing for the other faults and draws
     nothing extra, so no stream moves.
     """
+    # Variables:
+    #   fault: Forces which fault appears; None lets the seed decide.
+    #   bearing_profile: How fast a bearing fault progresses; no effect on other faults.
+    #   pick: The generator's own random stream, so choosing never shifts another
+    #     stream.
+    #   chosen: The fault the seed picked; used only when none was forced.
+    #   machine_id: The machine the fault is placed on.
+    #   start_tick: When the fault begins, inside a window that leaves a normal stretch
+    #     first.
+    #   place: Where, when and how fast the fault goes, handed to the fault's builder.
     if fault is not None and fault not in FAULT_KINDS:
         raise ValueError(f"unknown fault {fault}; choose from {', '.join(FAULT_KINDS)}")
     if bearing_profile not in BEARING_PROFILES:

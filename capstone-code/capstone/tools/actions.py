@@ -33,6 +33,9 @@ class ApprovalDesk:
     """
 
     def __init__(self, simulator: Simulator):
+        # Variables:
+        #   simulator: The factory the approved work will be started on.
+        #   _proposals: Every request so far, oldest first; ids are positions plus one.
         self._sim = simulator
         self._proposals: list[Proposal] = []
 
@@ -64,6 +67,10 @@ class ApprovalDesk:
         the human. If the work cannot start, the proposal stays approved
         and not carried out.
         """
+        # Variables:
+        #   proposal: The request being carried out; it must be approved and not already
+        #     started.
+        #   finish: The tick the repair will be done, as reported by the simulator.
         proposal = next((p for p in self._proposals if p.id == proposal_id), None)
         if proposal is None:
             raise ToolInputError(f"no proposal {proposal_id}")
@@ -129,12 +136,19 @@ class ActionTools:
         *,
         max_wait: int = 480,
     ):
+        # Variables:
+        #   desk: The human's approval desk; one is made if none is given. The agent is
+        #     never given it.
+        #   max_wait: The most ticks a single wait may skip.
         self._sim = simulator
         self._desk = desk or ApprovalDesk(simulator)
         self.max_wait = max_wait
 
     def wait(self, ticks: int) -> dict:
         """Let the factory run for `ticks` ticks, then report the new time."""
+        # Variables:
+        #   ticks: How many ticks to let the factory run, from 1 to max_wait.
+        #   clock: The simulator's clock, read after the run for the new time.
         if (
             not isinstance(ticks, int)
             or isinstance(ticks, bool)

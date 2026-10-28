@@ -47,6 +47,9 @@ TOP_BELIEFS = 3
 
 def shorten(text: str, width: int = CONTENT_WIDTH) -> str:
     """One line, at most `width` characters, cut with "..." when longer."""
+    # Variables:
+    #   width: The longest the line may be.
+    #   line: The text with newlines and extra spaces collapsed.
     line = " ".join(str(text).split())
     return line if len(line) <= width else line[: width - 3] + "..."
 
@@ -58,6 +61,20 @@ def call_text(decision: DecisionRecord) -> str:
 
 def step_line(decision: DecisionRecord, state: InvestigationState) -> list[str]:
     """The lines for one decision: what was asked, and what came of it."""
+    # Variables:
+    #   decision: One step the agent took.
+    #   state: The agent's working state, read for the evidence the step produced.
+    #   where: The step's number and phase, as the line's prefix.
+    #   tick: The factory time of the step, if known.
+    #   reason: Why the loop stopped, for a stop step.
+    #   why: That reason in words.
+    #   head: The first line: the prefix and the tool call.
+    #   contents: The text of each piece of evidence, by id.
+    #   origins: Where each piece of evidence came from.
+    #   lines: Every line for this step.
+    #   origin: Where this piece came from; anything but a look at the factory is
+    #     marked.
+    #   label: The mark shown for non-factory evidence.
     where = f"#{decision.sequence:<3} {decision.phase:<11}"
     tick = "" if decision.tick is None else f" t={decision.tick}"
     if decision.outcome == "stopped":
@@ -94,6 +111,14 @@ class ProgressView:
     """
 
     def __init__(self, write: Write = print):
+        # Variables:
+        #   write: Where lines go; print by default, replaced in tests.
+        #   started: Whether the opening line has been printed.
+        #   decisions_shown: How many steps have been printed, so only new ones are.
+        #   beliefs: The leading beliefs last printed.
+        #   conclusion: The conclusion last printed.
+        #   proposal: The proposal last printed.
+        #   verification: The check last printed.
         self.write = write
         self.started = False
         self.decisions_shown = 0
@@ -103,6 +128,13 @@ class ProgressView:
         self.verification = None
 
     def __call__(self, state: InvestigationState) -> None:
+        # Variables:
+        #   state: A copy of the agent's working state; this view only reads it.
+        #   anomaly: What monitoring noticed first.
+        #   where: The machine named, or the factory as a whole.
+        #   c: The agent's conclusion.
+        #   proposal: The repair request, if one was made.
+        #   check: The after-the-fix check, if one was made.
         if not self.started:
             self.started = True
             anomaly = state.anomaly
@@ -134,6 +166,10 @@ class ProgressView:
 
     def _beliefs(self, state: InvestigationState) -> None:
         """The leading hypotheses, printed only when they changed."""
+        # Variables:
+        #   leading: The most confident hypotheses, at most TOP_BELIEFS.
+        #   beliefs: Their id, claim and confidence; printed only if they differ from
+        #     last time.
         leading = sorted(state.hypotheses, key=lambda h: -h.confidence)[:TOP_BELIEFS]
         beliefs = tuple((h.id, h.claim, round(h.confidence, 2)) for h in leading)
         if beliefs and beliefs != self.beliefs:
@@ -147,8 +183,15 @@ class ProgressView:
 
 def truth_lines(score: Score) -> list[str]:
     """The evaluator's side, for after the run: what was really wrong and how it went."""
+    # Variables:
+    #   score: The scored run, which holds the hidden truth.
+    #   causes: The true faults in words.
+    #   asked: Everything the agent asked for.
 
     def target(machine_id, batch_id) -> str:
+        # Variables:
+        #   machine_id: The machine a fault was on, if it was on one.
+        #   batch_id: The batch a fault was in, if it was a batch.
         return f"batch {batch_id}" if batch_id is not None else str(machine_id)
 
     if score.causes:
@@ -181,6 +224,12 @@ def watch_episode(
 
     Other options go to `run_episode` (fault, kind, approver, memory, ...).
     """
+    # Variables:
+    #   seed: Decides the whole factory.
+    #   policy: The decision-maker.
+    #   write: Where lines go.
+    #   options: Passed on to the episode, such as fault, kind or approver.
+    #   result: The finished episode; its truth is printed only now, after the run.
     result = run_episode(seed, policy, watch=ProgressView(write), **options)
     for line in truth_lines(result.score):
         write(line)

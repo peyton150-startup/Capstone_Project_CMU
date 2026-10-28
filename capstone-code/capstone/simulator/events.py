@@ -48,12 +48,19 @@ class ThresholdAlarm:
     """
 
     def __init__(self, sensor: str, threshold: float, *, below: bool = False):
+        # Variables:
+        #   sensor: The name of the sensor whose readings this alarm watches.
+        #   threshold: The value that trips the alarm.
+        #   below: True if the alarm fires on a reading under the threshold, False for
+        #     over.
         self.sensor = sensor
         self.threshold = threshold
         # True: fires when a reading falls below the threshold (a pressure that drops).
         self.below = below
 
     def check(self, reading: SensorReading) -> Event | None:
+        # Variables:
+        #   side: Whether the reading was above or below the threshold, for the message.
         if reading.sensor != self.sensor:
             return None
         if self.below:

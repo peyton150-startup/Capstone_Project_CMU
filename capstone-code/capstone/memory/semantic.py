@@ -64,11 +64,18 @@ class ChromaMemoryIndex:
     def __init__(
         self, collection, embed: Embedder, embed_query: Embedder | None = None
     ):
+        # Variables:
+        #   collection: The Chroma collection that holds the vectors.
+        #   embed: Turns stored memories into vectors.
+        #   embed_query: Turns a search into a vector; falls back to embed if no
+        #     separate one is given.
         self.collection = collection
         self.embed = embed
         self.embed_query = embed_query or embed
 
     def upsert(self, memories: Iterable[EpisodicMemory]) -> int:
+        # Variables:
+        #   documents: The searchable text of each memory, which is what gets embedded.
         memories = tuple(memories)
         if not memories:
             return 0
@@ -83,6 +90,8 @@ class ChromaMemoryIndex:
 
     def search(self, text: str, k: int) -> tuple[UUID, ...]:
         """Nearest memory IDs across the whole collection, closest first."""
+        # Variables:
+        #   result: Chroma's nearest matches; only their metadata is asked for.
         if self.collection.count() == 0:
             return ()
         result = self.collection.query(
@@ -115,6 +124,12 @@ def open_collection(
     collection first, so it starts empty under `model`. Shared by the memory
     index and the machine manual's index (`capstone.manual.index`).
     """
+    # Variables:
+    #   model: The embedding model the collection must have been built with.
+    #   rebuild: If True, delete the collection first so it starts empty.
+    #   client: The on-disk Chroma database.
+    #   built_by: The model recorded when the collection was made; a collection without
+    #     one was built locally.
     import chromadb
     from chromadb.errors import NotFoundError
 

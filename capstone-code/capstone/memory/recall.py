@@ -38,6 +38,8 @@ def words(text: str) -> set[str]:
 
 def recalled(memory: EpisodicMemory) -> RecalledMemory:
     """The view of one memory that is safe to hand to another investigation."""
+    # Variables:
+    #   action: The fix that was tried in that investigation, if any.
     action = memory.intervention
     return RecalledMemory(
         memory_id=memory.memory_id,
@@ -56,6 +58,13 @@ def rank_memories(
     memories: Iterable[EpisodicMemory], text: str, *, limit: int = 5
 ) -> tuple[EpisodicMemory, ...]:
     """The best matches for `text`, as full records. Nothing matches no shared word."""
+    # Variables:
+    #   wanted: The searchable words of the question.
+    #   scored: Matching memories as (negative score, negative tick, id, memory), so a
+    #     sort puts best first.
+    #   view: The safe view of one memory, which is all the search reads.
+    #   searchable: The text of that memory that the words are matched against.
+    #   score: How many words the question and the memory share.
     if limit < 1:
         raise ValueError("limit must be at least one")
     wanted = words(text)
@@ -121,6 +130,12 @@ class MemoryRecall:
         index: SemanticIndex | None = None,
         fallback: bool = True,
     ):
+        # Variables:
+        #   repository: Where full records are read back from, by id.
+        #   mode: semantic (nearest by meaning), keyword (shared words) or none.
+        #   index: The similarity index; None if it could not be opened.
+        #   fallback: If False, a failed semantic search raises instead of quietly using
+        #     keywords.
         self.repository = repository
         self.mode = mode
         self.index = index
@@ -129,6 +144,10 @@ class MemoryRecall:
         self.fallback = fallback
 
     def recall_memories(self, query: str, k: int = DEFAULT_TOP_K) -> RecallResult:
+        # Variables:
+        #   query: The text describing what is being looked for.
+        #   k: How many memories to return at most.
+        #   ids: The ids of the nearest memories, found in the index.
         if k < 1:
             raise ValueError("k must be at least 1")
         if self.mode == "none":
@@ -154,6 +173,8 @@ class MemoryRecall:
 
 def build_memory_recall(repository: RecallStore, settings=None) -> MemoryRecall:
     """Build recall from settings; an unopenable Chroma index means fallback."""
+    # Variables:
+    #   index: The semantic index, or None if it is not wanted or cannot be opened.
     if settings is None:
         from capstone.settings import get_settings
 

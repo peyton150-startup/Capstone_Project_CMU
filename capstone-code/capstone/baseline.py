@@ -95,6 +95,8 @@ class _Looker:
     ) -> float | None:
         """The highest vibration reading in the stretch. Peaks, not means: an
         idle machine reads near zero, which would drag a mean down."""
+        # Variables:
+        #   rows: The vibration readings in the stretch.
         rows = self(
             "get_readings",
             machine_id=machine_id,
@@ -114,10 +116,29 @@ def diagnose(look: ObservationTools, act: ActionTools, anomaly) -> Verdict:
     Every tool call it makes feeds a rule: none is made only to look
     thorough, so its "relevant evidence collected" score is not padded.
     """
+    # Variables:
+    #   look: The read-only tools; the rules see only what the agent sees.
+    #   act: The tools that act; only wait is used here.
+    #   anomaly: What monitoring noticed first: its kind, tick and machine.
+    #   ask: Wraps the tools and keeps a list of each call, for scoring evidence.
+    #   machine: The machine monitoring named, if any.
+    #   now: The current tick.
+    #   before: Highest vibration in the stretch before the alarm.
+    #   at_alarm: Vibration at the alarm tick.
+    #   after: Highest vibration in the stretch just before now.
+    #   spike: True if the alarm reading is at least twice the earlier peak.
+    #   gone: True if vibration has since fallen away.
+    #   changed: For each machine, how its recent job times compare with its first ones.
+    #   worst: The machine whose job times changed most.
+    #   ratio: Its recent job time over its first.
+    #   inspections: Pass-or-fail results so far.
+    #   batch: The batch whose reject rate stands out, if any.
     ask = _Looker(look, act)
     machine = anomaly.machine_id
 
     def verdict(fault: str, *, machine_id=None, batch_id=None, why: str) -> Verdict:
+        # Variables:
+        #   why: One sentence for the record of what the rule saw.
         return Verdict(
             Diagnosis(
                 fault=fault, machine_id=machine_id, batch_id=batch_id, summary=why
@@ -185,6 +206,10 @@ def diagnose(look: ObservationTools, act: ActionTools, anomaly) -> Verdict:
 
 def _job_time_changes(events: list[dict]) -> dict[str, float]:
     """Per machine: median of its last few job times over its first few."""
+    # Variables:
+    #   events: The event log over the run.
+    #   started: The tick each job began at each machine.
+    #   times: Each machine's job durations in ticks, in order.
     started: dict[tuple, int] = {}
     times: dict[str, list[int]] = {}
     for e in events:
@@ -204,6 +229,11 @@ def _job_time_changes(events: list[dict]) -> dict[str, float]:
 
 def _standout_batch(inspections: list[dict]) -> int | None:
     """The batch whose reject rate is far above the rest of the line's, if any."""
+    # Variables:
+    #   tally: For each batch, [rejects, inspections].
+    #   best: The batch with the highest standout reject rate so far.
+    #   best_rate: That batch's reject rate.
+    #   rest_rate: The reject rate of all other batches, never zero.
     tally: dict[int, list[int]] = {}
     for row in inspections:
         fails, total = tally.setdefault(row["batch_id"], [0, 0])
@@ -227,6 +257,12 @@ def run_baseline(seed: int, fault: str | None = None) -> Score:
     does; `diagnose` gets only the tools. The repair it asks for is approved
     and carried out, as `approve_all` does for the agent in experiments.
     """
+    # Variables:
+    #   sim: The factory with its hidden fault, used only to build and score the run.
+    #   desk: The approval desk; the rules' request is approved automatically.
+    #   found: What the rules concluded and the repair they ask for.
+    #   target: The machine the rules blame.
+    #   proposal: The repair request made to the desk.
     sim = build_scenario(seed, fault=fault)
     desk = ApprovalDesk(sim)
     look, act = ObservationTools(sim), ActionTools(sim, desk)

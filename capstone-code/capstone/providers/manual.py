@@ -93,6 +93,11 @@ class ManualProvider:
         *,
         max_searches: int = MAX_SEARCHES,
     ):
+        # Variables:
+        #   inner: The factory provider that answers every other tool.
+        #   manual: The search over the manual's sections.
+        #   max_searches: How many manual searches one investigation may make.
+        #   searched: Searches already answered, as (normalized words, limit).
         if max_searches < 1:
             raise ValueError("max_searches must be at least one")
         self._inner = inner
@@ -108,6 +113,13 @@ class ManualProvider:
         run_id: UUID | None = None,
         investigation_id: UUID | None = None,
     ) -> ToolResult[JsonValue]:
+        # Variables:
+        #   error: Why the search was refused or failed, or None.
+        #   data: The sections returned, or None.
+        #   arguments: The checked search text and limit.
+        #   key: The search as normalized words plus limit, used to spot a repeat.
+        #   found: The matching manual sections.
+        #   clock: The factory's time, so the answer is stamped like any other.
         if request.name != MANUAL_TOOL:
             return self._inner.call(
                 request, run_id=run_id, investigation_id=investigation_id

@@ -120,6 +120,30 @@ alarm), then evaluation, then the agent itself.
 
 ## Session notes
 
+- **2026-10-28 (docs-only): variable comments across `capstone/`, and the
+  A10 walkthrough begun.** No behaviour changed. At the developer's request,
+  each function with variables that carry meaning now has a `# Variables:`
+  comment block at the top of its body, one sentence per variable, in 58 of
+  the 81 modules, which is every module that has a function with variables
+  worth describing. Only variables where the name alone does not say enough
+  were described. The other 23 modules have no function to comment (package
+  `__init__` files, plain data definitions such as `contracts/*` and
+  `agent/artifacts.py`, `ground_truth.py`, `known_answers.py`, `schema.py`)
+  or only stubs and validators without variables (`agent/policy.py`,
+  `contracts/tools.py`, `memory/contracts.py`). Tests and command line
+  parsers were left alone. Checked by comparing the syntax tree of every
+  changed file with the one on `main` (identical in all 58 files), so only
+  comments changed. The block in
+  `agent/investigation.py` `conclude` also explains "lowered" and how to read
+  `policy_recommendation` and `recommendation_lowered` together.
+  A10 walkthrough (not finished; row A10 stays "Understood: no"): Q1 (why
+  `recommendation_lowered` uses the model's raw reply, not the checked one) —
+  partly right, corrected: the checked `request` is always `None`, so every
+  reason would read "no action named". Q2 (reading the records): (b) right;
+  (a) right that the model chose escalate, corrected that its confidence is
+  not known from the record; (c) wrong at first, corrected — `None` means the
+  recording lines never ran (time out or unusable reply). Q3 still to ask.
+
 - **2026-10-27 (A15): manual-search guidance when a manual is available.**
   Built ungated at the developer's request to build, merge with green CI,
   then quiz. Understood: no — developer to review.

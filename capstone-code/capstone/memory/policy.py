@@ -41,6 +41,9 @@ def failure_lesson(investigation: CompletedInvestigation) -> str:
     the action failed: the check cannot tell a wrong diagnosis from a repair
     on the wrong machine, so neither may be remembered.
     """
+    # Variables:
+    #   action: The fix that was tried.
+    #   symptoms: What was seen, used to say what the fix was tried for.
     action = investigation.proposed_action
     symptoms = investigation.anomaly.symptoms or (investigation.anomaly.summary,)
     return (
@@ -53,6 +56,8 @@ class MemoryPromotionPolicy:
     version = "episodic-v3"
 
     def __init__(self, *, min_confidence: float = 0.8):
+        # Variables:
+        #   min_confidence: The least confidence a resolved lesson may have to be kept.
         if not math.isfinite(min_confidence) or not 0 <= min_confidence <= 1:
             raise ValueError("min_confidence must be between zero and one")
         self.min_confidence = min_confidence
@@ -66,6 +71,21 @@ class MemoryPromotionPolicy:
         the symptom gone, teaches nothing (`no_action_taken`). Every other
         check below applies to both.
         """
+        # Variables:
+        #   incident: The finished investigation the lesson comes from.
+        #   verification: The after-the-fix check, or None if none was made.
+        #   resolved: True if the check found the problem gone.
+        #   failed: True if the check found a fix did not work.
+        #   reasons: Every rule the candidate broke; an empty list means it is kept.
+        #   references: Every evidence id the lesson, conclusion, check or action relies
+        #     on.
+        #   evidence: The investigation's evidence by id.
+        #   all_references: References plus evidence the candidate named as misleading.
+        #   provenance: Where each piece of evidence came from, by id.
+        #   cited: The origins of the evidence that is actually relied on.
+        #   fingerprint: A hash of category and lesson, used to catch the same lesson
+        #     stored twice.
+        #   memory: The record that will be stored if no rule was broken.
         incident = candidate.investigation
         verification = incident.verification
         resolved = bool(

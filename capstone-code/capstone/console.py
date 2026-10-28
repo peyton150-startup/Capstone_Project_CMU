@@ -21,6 +21,9 @@ def safe_console(*streams: TextIO) -> None:
     With no arguments, standard output and standard error. A stream that
     cannot be reconfigured (a test's capture, for example) is left as it is.
     """
+    # Variables:
+    #   streams: Output streams to change; standard output and error by default.
+    #   reconfigure: A stream's own method for changing its settings, if it has one.
     for stream in streams or (sys.stdout, sys.stderr):
         reconfigure = getattr(stream, "reconfigure", None)
         if reconfigure is not None:

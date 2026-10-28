@@ -36,6 +36,14 @@ def build_candidate(
     lesson: str | None,
 ) -> ReflectionCandidate | None:
     """The candidate for the gate, or None if there is no outcome or no sentence."""
+    # Variables:
+    #   provenance: The origin label written for each piece of evidence when it arrived.
+    #   lesson: The model's one-sentence advice; used only for a fix that worked.
+    #   check: The after-the-fix check, which decides whether there is anything to
+    #     learn.
+    #   text: The sentence kept: the model's for a success, code's fixed sentence for a
+    #     failure.
+    #   cited: Evidence ids the conclusion and the check relied on, each once.
     check = investigation.verification
     if check is None or check.status not in WORKED:
         return None

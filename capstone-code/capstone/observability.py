@@ -54,6 +54,10 @@ class EventLogger:
         Only the listed metadata fields can be logged. Store rich investigation
         records elsewhere, behind their own evidence and secret boundaries.
         """
+        # Variables:
+        #   event: A short identifier naming what happened, never free text.
+        #   metadata: The only fields that are logged, each checked as an identifier or
+        #     number.
         metadata: dict[str, str | int | bool] = {
             "event": _safe_identifier(event, "event")
         }

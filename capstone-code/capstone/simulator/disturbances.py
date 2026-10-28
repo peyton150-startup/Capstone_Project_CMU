@@ -23,6 +23,10 @@ class _SensorDisturbance(Scenario):
         start_tick: int,
         duration: int,
     ):
+        # Variables:
+        #   sensor: Which of the machine's sensors is affected.
+        #   start_tick: When the disturbance begins.
+        #   duration: How many ticks it lasts.
         if not name.strip() or not machine_id.strip():
             raise ValueError("name and machine_id must be nonempty")
         if sensor not in (
@@ -46,6 +50,9 @@ class _SensorDisturbance(Scenario):
         self.start_tick, self.duration = start_tick, duration
 
     def apply(self, state: FactoryState, tick: int) -> None:
+        # Variables:
+        #   effects: The machine's table of hidden sensor effects; this disturbance owns
+        #     one entry in it.
         effects = state.machines[self.machine_id].sensor_effects
         if self.start_tick <= tick < self.start_tick + self.duration:
             effects[self.stream_name] = self._effect(tick - self.start_tick + 1)
@@ -53,6 +60,8 @@ class _SensorDisturbance(Scenario):
             effects.pop(self.stream_name, None)
 
     def _effect(self, elapsed: int) -> SensorEffect:
+        # Variables:
+        #   elapsed: Ticks since the window opened, counting from 1.
         raise NotImplementedError
 
     def ground_truth(self) -> GroundTruth:
@@ -70,6 +79,8 @@ class SensorDrift(_SensorDisturbance):
     fault = "sensor_drift"
 
     def __init__(self, name: str, rng: RandomSource, *, per_tick: float, **window):
+        # Variables:
+        #   per_tick: How much the bias grows each tick; its sign sets the direction.
         if not isfinite(per_tick) or per_tick == 0:
             raise ValueError("per_tick must be finite and nonzero")
         super().__init__(name, rng, **window)
@@ -85,6 +96,8 @@ class TransientAnomaly(_SensorDisturbance):
     fault = "false_alarm"
 
     def __init__(self, name: str, rng: RandomSource, *, offset: float, **window):
+        # Variables:
+        #   offset: A constant bias added to the reading while the window is open.
         if not isfinite(offset) or offset == 0:
             raise ValueError("offset must be finite and nonzero")
         super().__init__(name, rng, **window)

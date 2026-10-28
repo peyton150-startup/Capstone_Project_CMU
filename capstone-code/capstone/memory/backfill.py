@@ -18,12 +18,23 @@ BATCH_SIZE = 100
 
 
 def backfill(memories: tuple[EpisodicMemory, ...], index: MemoryIndex) -> int:
+    # Variables:
+    #   memories: Every stored memory to copy into the index.
+    #   index: The similarity index being filled; the SQL store is never written.
     for start in range(0, len(memories), BATCH_SIZE):
         index.upsert(memories[start : start + BATCH_SIZE])
     return len(memories)
 
 
 def main(argv=None) -> None:
+    # Variables:
+    #   args: The command line; --rebuild empties the index first.
+    #   settings: The project settings, read for the database and index locations.
+    #   url: The database address, with the driver set to psycopg for PostgreSQL.
+    #   engine: The database engine, closed as soon as the memories are read.
+    #   memories: All memories read from the SQL store.
+    #   index: The configured similarity index.
+    #   count: How many memories were indexed.
     parser = argparse.ArgumentParser(prog="python -m capstone.memory.backfill")
     parser.add_argument(
         "--rebuild",
