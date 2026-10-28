@@ -66,6 +66,20 @@ run by meeting a bar set in advance.
   tools, so the option-2 lever can later use it. And "favoured" means the
   hypothesis the evidence supports **better**, not one proven beyond doubt;
   `none` only when the evidence supports neither.
+- **Its own, detailed prompt (developer, 2026-10-28).** The critic has its
+  own system prompt and view; the investigator's prompts do not change. The
+  chosen models are small, so the prompt is detailed in structure, not
+  long: a numbered procedure (read each hypothesis and what it cites; list
+  the evidence for and against each; pick the one the evidence supports
+  better; name one tool call that separates them; list objections; give the
+  verdict); exact definitions of every field and objection kind as field
+  descriptions in `CritiqueResult` (the client sends the schema with each
+  question); and one worked example. The example must be neutral: it names
+  none of the project's faults and no fault signature, the rule already
+  kept for the tool descriptions, so it shows the steps without hinting at
+  answers. The prompt is tried on three or four made-up cases of different
+  kinds before the build is finished, never tuned on known-answer or
+  held-out seeds.
 - **What it returns:** a typed contract, `CritiqueResult`, with:
   - `favoured`: the id of the hypothesis the evidence supports better (or
     `none` if it supports neither);
