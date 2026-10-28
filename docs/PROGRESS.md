@@ -122,6 +122,19 @@ alarm), then evaluation, then the agent itself.
 
 ## Session notes
 
+- **2026-10-28: tree-of-thought trees saved with each experiment record.**
+  From an outside audit of the tree-of-thought step: `TreeOfThoughtPolicy`
+  kept each hypothesize step's tree (`Thought`: candidates, ratings, kept ids,
+  and why each other candidate was dropped) on `policy.thoughts`, but
+  `ExperimentRecord` had no place for it, so a saved results file could not
+  show whether the right cause was pruned. `experiment.py` now has
+  `ExperimentRecord.thoughts` (a list of `Thought`, None for the ordinary
+  step and older files), `record_of(..., thoughts=...)`, and
+  `run_experiment` passes `getattr(policy, "thoughts", None)`. Evaluator-side
+  only: nothing goes back to the agent or a prompt. Tests in
+  `tests/test_tree_of_thought.py`: the scripted ToT run's record carries the
+  tree and the plain run's does not; the tree survives a write and read of
+  the results file. Built ungated, developer to review (understood: no).
 - **2026-10-28: C1, the critic (review only), built from the plan.**
   Built task by task from `docs/superpowers/plans/2026-10-28-critic-review-only.md`
   (spec `docs/superpowers/specs/2026-10-28-critic-review-only-design.md`), each task's
