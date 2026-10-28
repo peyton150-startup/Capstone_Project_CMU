@@ -67,7 +67,17 @@ run by meeting a bar set in advance.
   - `objections`: a list, each a kind (`contradiction`, `unsupported_claim`,
     `missing_evidence`, `alternative`, `overconfidence`) and a sentence,
     citing evidence ids where it can;
-  - `verdict`: `object` or `no_objection`.
+  - `verdict`: `object` or `no_objection`;
+  - `favoured_confidence`: how sure the critic is of the favoured
+    hypothesis, 0 to 1;
+  - `supports_action`: whether the critic thinks the evidence justifies a
+    fix. Recorded only, so a later "agreement rule" (for example, a fix
+    allowed at a lower bar only when the critic independently favours the
+    same explanation, objects to nothing and supports acting) can be
+    checked against the labels offline before it is ever built. The
+    critic's confidence is a model's claim like the agent's: code still
+    enforces the bar, human approval stays, and the critic never asks for a
+    fix itself.
   Evidence ids it cites must exist; an invalid reply is refused and its
   reason recorded, as for the seven policy questions (`_ask`, `_refuse`).
 - **Its own time window:** `CRITIC_SECONDS`, default **30**, on top of the
@@ -130,14 +140,17 @@ conclusions as usual, then compare:
    is then set from the measured times (the slowest 5%, rounded up, as
    `suggested_limits` does).
 
-The numbers in 1 and 2 are proposals the developer has not yet confirmed.
-They hold over several runs, not one.
+**The bar is the developer's, decided later (2026-10-28).** The developer
+will run more baseline tests first and set the numbers for 1 and 2 when the
+time is right. Until then the critic has no lever. (The coding assistant's
+first proposal, for reference only: about 2 in 3 or more, and about 1 in 4
+or fewer.) Whatever the bar, it holds over several runs, not one.
 
 Measure 3 needs one more label per case: hypotheses are free text, so the
 critic's favoured hypothesis must be read as a cause the same way a
-conclusion is. Open: whether that is done by hand, or by the Jev
-auto-labeller (`evaluation/auto_label.py`, `propose`) with flagged cases
-reviewed by hand.
+conclusion is. **Decided (developer, 2026-10-28): the Jev auto-labeller**
+(`evaluation/auto_label.py`, `propose`) labels it, and a proposal it marks
+for review stays unjudged until a person reads it, as for conclusions.
 
 ## Constraints
 
