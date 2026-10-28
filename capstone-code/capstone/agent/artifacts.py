@@ -149,3 +149,6 @@ class CritiqueRecord(Contract):
     result: CritiqueResult | None = None
     shown_hypotheses: tuple[str, ...]
     seconds: float = Field(ge=0)
+    # The model that gave the reply (also one that was refused), so results can
+    # be split by model. None: no model answered, or an older record.
+    answered_by: str | None = None

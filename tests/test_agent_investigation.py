@@ -698,3 +698,24 @@ def test_critique_writes_nothing_without_a_critic():
     deps = InvestigationDeps(provider=FakeProvider(), policy=wear_policy())
     critique(state, deps)
     assert state.critique is None
+
+
+def test_critique_records_which_model_answered():
+    state, _ = investigate(wear_policy(), critic=FakeCritic())
+    assert state.critique.answered_by == "fake"
+
+
+def test_critique_with_no_answer_names_no_model():
+    state, _ = investigate(wear_policy(), critic=FakeCritic(ModelError("none")))
+    assert state.critique.outcome == "no_answer"
+    assert state.critique.answered_by is None
+
+
+def test_a_critic_without_a_call_record_still_works():
+    class Bare:
+        def review(self, state, *, max_seconds):
+            return critique_result()
+
+    state, _ = investigate(wear_policy(), critic=Bare())
+    assert state.critique.outcome == "answered"
+    assert state.critique.answered_by is None
