@@ -112,6 +112,7 @@ A component is complete only when both columns are checked.
 | A13 | STATE_ACTION_BAR: show or hide the action threshold in prompts, with enforcement unchanged | no — developer requested build, merge, then quiz (2026-10-27) | no — built ungated, developer to review | yes | no — quiz after merge | `settings.py`, `agent/state.py`, `agent/loop.py`, `agent/model_policy.py`, `episode.py`, `experiment.py`; session note 2026-10-27 (A13) |
 | A14 | Prompt guidance: one discriminating check before stopping with an uncertain leading explanation | no — developer requested build, merge, then quiz (2026-10-27) | no — built ungated, developer to review | yes | no — quiz after merge | `agent/model_policy.py` (`SYSTEM["decide"]`); session note 2026-10-27 (A14) |
 | A15 | Prompt guidance: consult an available manual before recommending a repair | no — developer requested build, merge, then quiz (2026-10-27) | no — built ungated, developer to review | yes | no — quiz after merge | `agent/model_policy.py` (`manual_use_note`, `decide`, `interpret_and_decide`); session note 2026-10-27 (A15) |
+| EV1 | Configurable full-episode evaluation harness and single-agent master baseline | no — build first at developer's request (2026-10-27) | no — walkthrough owed | yes (baseline run 2026-10-28: 3 of 9 right) | no — merged before the walkthrough at the developer's request (2026-10-28); walkthrough owed | `capstone/evals.py`, `evals/scenarios.json`, `experiment.py` (`AgentStep`), `agent/state.py`, `agent/model_policy.py`, `tests/test_evals.py`; session note 2026-10-27 (EV1) |
 
 Every row above with four "yes" marks (or "n/a") is complete: no question is
 outstanding on it. Still to build after 12c, from `docs/MVP_SCOPE.md`: the
@@ -119,6 +120,26 @@ other three fault scenarios (material batch, machine configuration, false
 alarm), then evaluation, then the agent itself.
 
 ## Session notes
+
+- **2026-10-28 (EV1): the single-agent master baseline, finished and labelled.**
+  The run `master-single-2026-10-27` resumed at KA-04 (`--resume --watch`, in
+  a terminal tab the developer watched) and finished all nine cases. Settings:
+  defaults (`STEP_QUESTIONS=2`, `STATE_ACTION_BAR=true`, bar 0.9), NVIDIA
+  Nemotron Super 120B, no manual, memory or hazards: the harness has no manual
+  option yet, so this is master run A, not a test of A15 (to discuss with the
+  developer after all master runs). Labels
+  (`docs/benchmarks/2026-10-27-master-labels.jsonl`) follow the 2026-10-26 rule,
+  the conclusion's words and not the true fault: the developer decided KA-01,
+  KA-03 and KA-04 (all "none"); the coding assistant drafted the other six and
+  showed them to the developer. Result (`2026-10-27-master-resumed.json`):
+  **3 of 9 right (33%)**: false alarm 2/2, bearing 1/3 (KA-02; KA-09's compound
+  case named only the bearing on CNC-03), bad batch 0/2, wrong setting 0/2.
+  111 tool calls, 236 model questions, 6,251 s in all. Five cases ended on the
+  time limit (KA-03 to KA-06, KA-09), each after 3-5 outage retries; no
+  intervention was lowered by the bar (KA-01 escalated at 0.85 by its own
+  choice). The mixed raw file from 2026-10-27 is left out. Merged before the
+  walkthrough at the developer's request (2026-10-28); understanding stays
+  "no" until the walkthrough is done.
 
 - **2026-10-28 (docs-only): variable comments across `capstone/`, and the
   A10 walkthrough begun.** No behaviour changed. At the developer's request,
@@ -143,6 +164,50 @@ alarm), then evaluation, then the agent itself.
   (a) right that the model chose escalate, corrected that its confidence is
   not known from the record; (c) wrong at first, corrected — `None` means the
   recording lines never ran (time out or unusable reply). Q3 still to ask.
+
+- **2026-10-27 (EV1): evaluation harness before specialists.** The developer
+  approved the order: Phase 3 first, a current single-agent baseline, Phase 1
+  PydanticAI specialists inside the existing Pydantic Graph, then Phase 2
+  ground-truth-gated memory with observational memories retained. The developer
+  additionally asked for a full nine-case master run now and another after the
+  final phase, using the same case config and comparing accuracy, tool calls,
+  runtime, and per-agent work. Teaching walkthroughs follow each phase's code
+  and tests and do not block PR creation. No agent architecture, simulator,
+  memory or tool behavior changed in EV1.
+
+  `capstone/evals.py` reads evaluator-only scenario config, runs the existing
+  `run_experiment`, and writes one JSON report with per-case expected faults,
+  conclusion, diagnosis label, correctness, calls, runtime, and attributed
+  steps. The raw `ExperimentRecord` JSONL is retained for later relabelling
+  without rerunning the model. Hand labels use the existing `LabelBook`;
+  optional TypeSafe proposals remain unjudged when marked for review.
+  `compare_reports` checks matching scenario IDs and expected faults before
+  computing before/after changes. `DecisionRecord.agent` and `ModelCall.agent`
+  default to `research_agent`; `record_of` transfers these to `AgentStep`, so
+  future specialists can identify themselves. Older records remain readable.
+  `--watch` passes through the existing live progress hook and flushes output
+  so the terminal shows each step immediately. A four-case preliminary run
+  was stopped before any case completed when the developer requested the full
+  nine-case master with visible progress. The master uses `python -u` and
+  `--watch`. A second copy of that command started in the interactive terminal
+  while the tool-launched copy was running. Both wrote to the same raw path;
+  the tool-launched copy was stopped and only the interactive run continues.
+  `reserve_raw_output` now claims a raw file exclusively before model calls,
+  preventing later concurrent runs from mixing rows at the same path. The
+  interactive run ended after two completed cases without a final report.
+  Its two records were copied to a clean raw file, checked against the scenario
+  prefix, and the remaining seven cases resumed under the same run name.
+  `check_resume` refuses a different run name, order or duplicate; `--resume`
+  continues the saved prefix with the existing episode runner. The mixed raw
+  file is excluded from the PR.
+  `evals/scenarios.json` lists the nine fixed known-answer cases (two each for
+  the four MVP faults and one compound challenge). `tests/test_evals.py` checks
+  config validation, full episode scoring boundaries, uncertain labels,
+  comparisons and the live progress hook. The complete local suite passed
+  1,410 tests; eight focused tests passed after the progress, output
+  reservation and resume options. Live
+  baseline result and CI status to record after they finish. Understanding
+  remains no until the walkthrough.
 
 - **2026-10-27 (A15): manual-search guidance when a manual is available.**
   Built ungated at the developer's request to build, merge with green CI,

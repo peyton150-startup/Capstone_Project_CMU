@@ -89,6 +89,7 @@ class DecisionRecord(Contract):
     """What the agent chose at one step and what happened. Not chain-of-thought."""
 
     sequence: int = Field(ge=1)
+    agent: str = "research_agent"
     phase: Phase
     tick: int | None = Field(default=None, ge=0)
     information_needed: str

@@ -108,7 +108,13 @@ GROUPS: dict[str, list[str]] = {
         "fault_packs",
     ],
     # Many episodes: the harness, hand labels and the known-answer cases.
-    "Experiments": ["experiment", "known_answers", "baseline", "memory_comparison"],
+    "Experiments": [
+        "experiment",
+        "evals",
+        "known_answers",
+        "baseline",
+        "memory_comparison",
+    ],
     # The runner: one seeded episode from fault to score, end to end.
     "Episode": ["episode", "progress_view"],
 }
