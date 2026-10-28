@@ -137,17 +137,28 @@ def diagnosis_supported(state: InvestigationState, deps: InvestigationDeps) -> b
     confidence alone does not settle it (AgentLoop, arXiv 2609.33315). The
     policy can still stop on its own and conclude, and the usual budgets
     still end research.
+
+    Only supporters the factory itself answered count towards
+    `min_supporting_evidence`: a memory is a past belief and the manual is
+    general guidance for the machine model, so neither shows that this
+    machine has the fault now (the same rule `verify` applies after a fix).
     """
     # Variables:
     #   leading: The explanation the agent currently believes most.
     #   current: Ids of the explanations still in play, used to see if any open question
     #     still tests one.
+    #   observed: Ids of evidence the factory answered, from the loop's provenance.
+    #   backed: How many of the leading explanation's supporters are observed.
     leading = state.leading_hypothesis
     current = {h.id for h in state.hypotheses}
+    observed = {p.evidence_id for p in state.provenance if p.origin == "observable"}
+    backed = (
+        0 if leading is None else len(set(leading.supporting_evidence_ids) & observed)
+    )
     return (
         leading is not None
         and leading.confidence >= deps.min_diagnosis_confidence
-        and len(leading.supporting_evidence_ids) >= deps.min_supporting_evidence
+        and backed >= deps.min_supporting_evidence
         and not leading.contradicting_evidence_ids
         and not any(q.hypothesis_id in current for q in state.unanswered_questions)
     )
