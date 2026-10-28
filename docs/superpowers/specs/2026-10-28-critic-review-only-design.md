@@ -238,3 +238,85 @@ time. Ministral 8B is already known to fail the critic's reply type.
 Once the bar above is met: the same stage may add one open question from
 `discriminating_check` and allow one extra `test` round. That round needs its
 own time too, or it squeezes the follow-up reserve; decide it then.
+
+## Future work notes (developer, 2026-10-28, after the first live run)
+
+Not built. Each is its own change, taught first (AGENTS.md section 1) and
+its own PR.
+
+### 1. Let the critic use the machine manual (decided: Option B)
+
+Today the critic has no tools, by this spec ("No tools for the critic"), so
+it cannot search the manual even when the run offers it (`--manual`). If the
+agent searched the manual, those sections reach the critic as evidence
+labelled `[FROM THE MANUAL]`; the critic never searches itself. The developer
+wants the critic to be allowed to use the manual. This reverses the
+"no tools" decision above for the manual only.
+
+**Chosen design, Option B: code searches for the critic.** Before the
+critic's one typed question, code runs `ManualSearch.search` on the claims of
+the two hypotheses the critic is shown and puts the top sections into its
+prompt, labelled as general guidance for this machine model, not a look at the
+factory now (the same label `ORIGIN_LABELS["manual"]` gives the agent).
+
+- The critic stays one typed question in its own time window. No tool loop.
+- The search runs in code, before the clock for the critic's window starts to
+  matter, so its time is counted with the critic's seconds and still added to
+  `started_at` (research and the follow-up reserve keep their time).
+- Only when the run offers a manual (`--manual`); otherwise nothing changes.
+- The sections are the critic's own context. They are **not** added to the
+  agent's evidence and **not** counted as agent tool calls. The critic's reply
+  is still a belief, never evidence, and still cites only evidence ids the
+  agent gathered (a manual section has no evidence id to cite).
+- The critic's prompt must say a manual section describes the model of
+  machine in general and can never confirm what this factory is doing.
+- Record which sections it was shown (ids only) on the `CritiqueRecord`, so a
+  result can be split by "saw the manual" and "did not".
+- Tests with a fake `ManualSearch` and fake client: sections appear in the
+  view, labelled; absent without a manual; the view still contains no fault
+  names beyond what the manual's own text holds (check the manual's text
+  against the rule kept for `TOOL_DESCRIPTIONS`); the critic's time includes
+  the search; an empty search result changes nothing.
+
+**Note on Option B (developer, 2026-10-28): we need to find a way to get the
+agent to call the manual.** In the first live critic run the manual was not
+offered (no `--manual`), so neither the agent nor the critic used it. Even
+when it is offered, nothing makes the agent search it: the only push today is
+prompt guidance (A15, `manual_use_note`, "before recommending a repair"). If
+the agent does not call the manual, the manual sections reach the critic only
+through Option B's own search, and the agent and the critic then reason from
+different material. Find a way to get the agent to call the manual, measured
+before it is built (does it call it? does it change the conclusion?). Ideas to
+weigh, not decided: a stronger or earlier prompt rule; a stage that must
+search it once before `hypothesize`; code that searches on the anomaly's
+words and adds the sections as labelled evidence, as `RecallingProvider` does
+for memory. Each changes what the agent sees, so each is taught first.
+
+**Considered and not chosen, Option A: the critic calls `search_manual`
+itself** in a small ask, run-the-tool, ask-again loop inside its window. It
+lets the critic look up exactly what it needs, but it makes the stage slower
+and less predictable, needs a rule for how many calls it gets, and starts a
+tool-using second agent. Revisit it only if B's fixed query (the hypotheses'
+claims) is shown to miss what the critic needs.
+
+Measure before building further: run the same cases with and without
+`--manual` on the agent first, to see whether the manual changes the
+conclusions at all.
+
+### 2. A critic that says the evidence itself is bad
+
+Raised by the developer in the PR #106 walkthrough. `_problem` in
+`agent/critic.py` checks only that a cited evidence id exists; there is no
+objection kind for evidence that is stale, a misreading or unreliable (the
+nearest are `missing_evidence` and `unsupported_claim`), and review only
+records the objection as text. Decide, after labelled runs show the critic is
+right when it says so: whether to add a kind for it, and whether the agent
+should re-check, discount or ignore flagged evidence (option 2 above).
+
+### 3. A line in the live view before the critic is asked
+
+The progress view runs only after a stage ends, so the critic's wait (up to
+its window) looks silent. Showing "asking the critic about H1, H2" needs a
+pending marker on the state (a new `CritiqueRecord` outcome or stage value)
+and a `notify` call before the question. PR #112 added the fuller result
+lines but not this.

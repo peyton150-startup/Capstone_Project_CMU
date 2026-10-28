@@ -122,6 +122,20 @@ alarm), then evaluation, then the agent itself.
 
 ## Session notes
 
+- **2026-10-28 (docs-only): future-work notes for the critic.** After the first
+  live critic run the developer asked whether the critic may use the manual
+  (it may not: no tools, by the spec) and chose Option B: code searches the
+  manual for the hypotheses' claims and puts the sections in the critic's
+  prompt, labelled as general guidance, with no tool loop. Recorded with the
+  rejected Option A, the open question of a critic that calls evidence bad,
+  and the missing "asking the critic" line in the live view, and a note on
+  Option B that a way is needed to get the agent to call the manual at all
+  (it was not offered in the first run, and only prompt guidance pushes it),
+  in a new
+  "Future work notes" section of
+  `docs/superpowers/specs/2026-10-28-critic-review-only-design.md`. Nothing
+  built.
+
 - **2026-10-28 (C1 fix): the critic's pick is labelled from the claim it judged.**
   Found in the first live critic run (`critic-known-1.jsonl`, KA-01 and KA-02):
   `favoured_claim` in `experiment.py` read the favoured hypothesis from the
