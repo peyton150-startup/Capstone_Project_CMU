@@ -38,10 +38,12 @@ from pydantic_graph import GraphBuilder, StepContext
 
 from capstone.agent.artifacts import (
     AgentConclusion,
+    CritiqueRecord,
     ProposalRecord,
     TerminationReason,
     VerificationCheck,
 )
+from capstone.agent.critic import top_two
 from capstone.agent.loop import (
     POLICY_ERRORS,
     InvestigationDeps,
@@ -174,6 +176,42 @@ def test(state: InvestigationState, deps: InvestigationDeps) -> None:
     """Gather evidence that tells the explanations apart."""
     state.stage = "test"
     state.termination_reason = run_inner_loop(state, deps, "test")
+
+
+def critique(state: InvestigationState, deps: InvestigationDeps) -> None:
+    """Ask the critic to judge the two leading hypotheses. Review only.
+
+    Nothing in the run reads the answer. Whatever happens (no answer, an
+    unusable reply), the run goes on to the conclusion. The critic has its
+    own time window, so the investigation's deadline is moved back by the
+    seconds it used: research and the follow-up reserve keep what they had.
+    """
+    # Variables:
+    #   shown: The ids of the hypotheses the critic is shown.
+    #   began: The clock when the question started.
+    #   outcome: answered, no_answer or invalid_reply.
+    #   result: The critic's reply, if there was a usable one.
+    #   used: Seconds the critic took, never negative.
+    if deps.critic is None or not state.hypotheses:
+        return
+    shown = tuple(h.id for h in top_two(state))
+    began = deps.clock()
+    outcome = "answered"
+    result = None
+    try:
+        result = deps.critic.review(
+            state.model_copy(deep=True), max_seconds=deps.critic_seconds
+        )
+    except ModelError:
+        outcome = "no_answer"
+    except POLICY_ERRORS:
+        outcome = "invalid_reply"
+    used = max(0.0, deps.clock() - began)
+    if state.started_at is not None:
+        state.started_at += used
+    state.critique = CritiqueRecord(
+        outcome=outcome, result=result, shown_hypotheses=shown, seconds=used
+    )
 
 
 def why_not_acted(
@@ -617,6 +655,10 @@ def build_graph():
     async def test_step(ctx: Context) -> None:
         return staged(test, ctx)
 
+    @builder.step(node_id="critique")
+    async def critique_step(ctx: Context) -> None:
+        return staged(critique, ctx)
+
     @builder.step(node_id="conclude")
     async def conclude_step(ctx: Context) -> None:
         return staged(conclude, ctx)
@@ -659,7 +701,8 @@ def build_graph():
             route("anything_to_explain", hypothesize_step)
         ),
         builder.edge_from(hypothesize_step).to(route("anything_to_test", test_step)),
-        builder.edge_from(test_step).to(conclude_step),
+        builder.edge_from(test_step).to(critique_step),
+        builder.edge_from(critique_step).to(conclude_step),
         builder.edge_from(conclude_step).to(propose_step),
         builder.edge_from(propose_step).to(
             choose(
