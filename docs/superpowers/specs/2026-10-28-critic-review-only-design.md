@@ -59,6 +59,13 @@ run by meeting a bar set in advance.
 - **What it sees:** the evidence and the **two leading hypotheses** by
   confidence (the only one, if there is one), built by code in the style of
   `render(state)`. Not the scenario, not the truth.
+- **Two prompt rules (developer, 2026-10-28, after the live check below):**
+  the critic is shown the agent's research tool list (names and
+  descriptions, `tool_list(research_tools())`, no access), and its
+  `discriminating_check` must be one call the agent could make with those
+  tools, so the option-2 lever can later use it. And "favoured" means the
+  hypothesis the evidence supports **better**, not one proven beyond doubt;
+  `none` only when the evidence supports neither.
 - **What it returns:** a typed contract, `CritiqueResult`, with:
   - `favoured`: the id of the hypothesis the evidence supports better (or
     `none` if it supports neither);
@@ -173,6 +180,30 @@ for review stays unjudged until a person reads it, as for conclusions.
 - The prompt wording, within the rules above.
 - The exact Mistral and Cohere model names for the first chain, from what
   each provider's key can reach (Cohere's 8,192 output cap already applies).
+
+## Live check of candidate critic models (2026-10-28, a throwaway spike)
+
+One made-up case like KA-03 (bad batch 2 against a servo drive on CNC-06,
+with steady following error and vibration on CNC-06), three runs per row,
+a 30 s limit per request, the project's own chat client. A hint, not a
+result: one case, three runs.
+
+| Model | Prompt | Valid replies | Seconds | Favoured | Check it proposed |
+|---|---|---|---|---|---|
+| mistral/ministral-14b-2512 | first | 3/3 | 7.9, 9.4, 8.6 | none (all 3) | material specs, logs: no tool gives these |
+| cohere/command-a-03-2025 | first | 2/3 (1 timeout) | 7.3, 4.0 | H1 (both) | inspect a batch 1 part on CNC-06: no tool |
+| mistral/ministral-8b-2512 | first | 0/3 (wrong shape) | 14-16 | - | - |
+| cohere/command-a-03-2025 | with the two rules | 2/3 (1 timeout) | 5.7, 9.4 | H1 (both), 0.75 | `get_job_history` for job 41 |
+| mistral/ministral-14b-2512 | with the two rules | 2/3 (1 timeout) | 9.2, 10.0 | H1 (both), 0.75 | `get_inspections` for batch 1 jobs after batch 2 opened |
+| mistral/ministral-8b-2512 | with the two rules | 0/3 (wrong shape) | 4-5 | - | - |
+
+What it showed: the two rules turned Ministral 14B from "favours nothing"
+to the well-supported H1 with a check that really tells the two apart.
+Ministral 8B cannot fill the type and is dropped. Both remaining models
+timed out once in three at 30 s: with two models sharing the window, the
+first gets about 15 s, so the window is likely too short; the runs set it.
+Every reply still said `object`, so whether the critic objects too often is
+open until real runs are labelled.
 
 ## Later, not now (option 2)
 
