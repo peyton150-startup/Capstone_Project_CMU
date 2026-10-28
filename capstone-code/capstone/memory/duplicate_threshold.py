@@ -37,6 +37,9 @@ def pair_text(category: str, diagnosis: str, lesson: str) -> str:
 
 
 def cosine(u: Sequence[float], v: Sequence[float]) -> float:
+    # Variables:
+    #   dot: Sum of the products of matching entries.
+    #   norm: Product of the two vectors' lengths.
     dot = sum(a * b for a, b in zip(u, v, strict=True))
     norm = math.sqrt(sum(a * a for a in u) * sum(b * b for b in v))
     if norm == 0:
@@ -49,6 +52,9 @@ def choose_threshold(scored: Sequence[tuple[float, str]]) -> float | None:
 
     None when there is no "different" pair to stay above.
     """
+    # Variables:
+    #   scored: Each pair's similarity score with its human label.
+    #   different: Scores of pairs a person labelled as different lessons.
     different = [score for score, label in scored if label == "different"]
     if not different:
         return None
@@ -57,6 +63,9 @@ def choose_threshold(scored: Sequence[tuple[float, str]]) -> float | None:
 
 def evaluate(scored: Sequence[tuple[float, str]], threshold: float) -> dict:
     """What a threshold would do: refusals of different lessons, duplicates caught."""
+    # Variables:
+    #   same: Scores of pairs labelled as the same lesson.
+    #   different: Scores of pairs labelled as different lessons.
     same = [score for score, label in scored if label == "same"]
     different = [score for score, label in scored if label == "different"]
     return {
@@ -81,6 +90,13 @@ def read_pairs(path: Path) -> list[dict]:
 
 def measure(rows: Sequence[dict], embed) -> dict:
     """Score every pair with `embed` (passage side) and pick the threshold."""
+    # Variables:
+    #   embed: Turns texts into vectors, the way stored memories are embedded.
+    #   texts: Both sides of every pair, in order, so pair i is entries 2i and 2i+1.
+    #   vectors: One vector per text.
+    #   scores: Similarity of each pair, by pair id.
+    #   train: Scores and labels of pairs used to choose the threshold.
+    #   held: Scores and labels of pairs kept back to test it.
     texts = [
         pair_text(row["category"], row[side]["diagnosis"], row[side]["lesson"])
         for row in rows
