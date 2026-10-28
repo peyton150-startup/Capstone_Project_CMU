@@ -152,3 +152,7 @@ class CritiqueRecord(Contract):
     # The model that gave the reply (also one that was refused), so results can
     # be split by model. None: no model answered, or an older record.
     answered_by: str | None = None
+    # The favoured hypothesis's claim as worded when the critic judged it. The
+    # agent may reword it later (even after a fix worked), so this, not the
+    # final belief, is what the critic's pick is labelled from. None: no pick.
+    favoured_claim: str | None = None

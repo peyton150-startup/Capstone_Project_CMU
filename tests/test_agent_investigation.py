@@ -719,3 +719,36 @@ def test_a_critic_without_a_call_record_still_works():
     state, _ = investigate(wear_policy(), critic=Bare())
     assert state.critique.outcome == "answered"
     assert state.critique.answered_by is None
+
+
+def test_critique_keeps_the_claim_it_judged_as_worded_then():
+    state, _ = investigate(wear_policy(), critic=FakeCritic())
+    # The fake favours H1; at the critique H1 is wear(0.92) from the test stage.
+    assert state.critique.favoured_claim == "CNC-02 is wearing"
+
+
+def test_critique_claim_is_none_when_the_critic_favoured_none():
+    critic = FakeCritic(critique_result(favoured="none"))
+    state, _ = investigate(wear_policy(), critic=critic)
+    assert state.critique.favoured_claim is None
+
+
+def test_critique_claim_is_none_without_an_answer():
+    state, _ = investigate(wear_policy(), critic=FakeCritic(ModelError("none")))
+    assert state.critique.favoured_claim is None
+
+
+def test_later_rewording_does_not_change_the_recorded_claim():
+    state = fresh_state()
+    state.started_at = 0.0
+    state.hypotheses = [wear(0.8, "E2")]
+    deps = InvestigationDeps(
+        provider=FakeProvider(), policy=wear_policy(), critic=FakeCritic()
+    )
+    critique(state, deps)
+    state.hypotheses = [
+        Hypothesis(
+            id="H1", claim="the bearing was replaced and it worked", confidence=0.99
+        )
+    ]
+    assert state.critique.favoured_claim == "CNC-02 is wearing"
