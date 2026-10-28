@@ -27,6 +27,11 @@ class Scenario(ABC):
     """
 
     def __init__(self, name: str, rng: RandomSource):
+        # Variables:
+        #   name: What this scenario is called; it is also part of its random stream's
+        #     name.
+        #   rng: The factory's random source, which hands out this scenario's own
+        #     stream.
         self.name = name
         self.stream_name = f"scenario.{name}"
         self._stream = rng.stream(self.stream_name)
@@ -74,6 +79,17 @@ class BearingDegradation(Scenario):
         onset_health: float = 1.0,
         quiet_factor: float = 1.0,
     ):
+        # Variables:
+        #   machine_id: The machine whose bearing wears.
+        #   start_tick: When the wear begins.
+        #   rate: Health lost per running tick at normal load and speed.
+        #   variation: How much the loss varies from tick to tick, as a fraction of the
+        #     rate.
+        #   load_exponent: How steeply a heavier load wears faster; 3 means the cube.
+        #   speed_exponent: How steeply a faster-than-standard setting wears faster.
+        #   onset_health: Health at which damage starts to show; above it wear is quiet.
+        #   quiet_factor: Wear speed relative to normal while health is above
+        #     onset_health.
         if rate <= 0:
             raise ValueError("rate must be positive")
         if not 0.0 <= variation < 1.0:
@@ -93,6 +109,11 @@ class BearingDegradation(Scenario):
         self.quiet_factor = quiet_factor
 
     def apply(self, state: FactoryState, tick: int) -> None:
+        # Variables:
+        #   loss: Health lost this tick, drawn before any early return so the random
+        #     stream stays aligned.
+        #   machine: The machine being worn.
+        #   replaced: The tick its bearing was last replaced, which ends this fault.
         if tick < self.start_tick:
             return
         # Drawn before the status check so the stream's position depends
@@ -145,6 +166,11 @@ class AxisDriveWear(Scenario):
         variation: float = 0.5,
         load_exponent: float = 1.0,
     ):
+        # Variables:
+        #   rate: Axis health lost per running tick at normal load.
+        #   variation: How much the loss varies from tick to tick, as a fraction of the
+        #     rate.
+        #   load_exponent: How steeply a heavier load wears the drive faster.
         if rate <= 0:
             raise ValueError("rate must be positive")
         if not 0.0 <= variation < 1.0:
@@ -157,6 +183,9 @@ class AxisDriveWear(Scenario):
         self.load_exponent = load_exponent
 
     def apply(self, state: FactoryState, tick: int) -> None:
+        # Variables:
+        #   loss: Health lost this tick, drawn first so the random stream stays aligned.
+        #   replaced: The tick the drive was last replaced, which ends this fault.
         if tick < self.start_tick:
             return
         # Drawn before the status check, as for the bearing: the stream's
@@ -202,6 +231,10 @@ class HydraulicLeak(Scenario):
         rate: float,
         variation: float = 0.5,
     ):
+        # Variables:
+        #   rate: Hydraulic health lost per powered tick.
+        #   variation: How much the loss varies from tick to tick, as a fraction of the
+        #     rate.
         if rate <= 0:
             raise ValueError("rate must be positive")
         if not 0.0 <= variation < 1.0:
@@ -213,6 +246,9 @@ class HydraulicLeak(Scenario):
         self.variation = variation
 
     def apply(self, state: FactoryState, tick: int) -> None:
+        # Variables:
+        #   loss: Health lost this tick.
+        #   replaced: The tick the seals were last replaced, which ends this fault.
         machine = state.machines[self.machine_id]
         if not machine.has_hydraulics:
             raise ValueError(f"{self.machine_id} has no hydraulic system to leak")
@@ -258,6 +294,9 @@ class WrongSetting(Scenario):
         start_tick: int,
         factor: float,
     ):
+        # Variables:
+        #   factor: The wrong speed as a multiple of the machine's standard speed; 1 is
+        #     not allowed.
         if factor <= 0 or factor == 1.0:
             raise ValueError(
                 "factor must be positive and not 1 (1 is the standard setting)"
@@ -304,6 +343,10 @@ class BadMaterialBatch(Scenario):
         batch_number: int,
         added_risk: float = 0.30,
     ):
+        # Variables:
+        #   batch_number: Which batch is poor; the first cannot be, because its first
+        #     job is cut before this runs.
+        #   added_risk: The chance of failing inspection that this batch gives each job.
         if batch_number < 2:
             raise ValueError("batch_number must be 2 or more")
         if not 0.0 < added_risk <= 1.0:
@@ -343,6 +386,9 @@ class FalseAlarm(Scenario):
         duration: int = 5,
         offset: float = 5.0,
     ):
+        # Variables:
+        #   duration: How many ticks the vibration sensor misreads.
+        #   offset: How far the misreading is above the true value.
         if duration < 1:
             raise ValueError("duration must be at least 1 tick")
         if offset <= 0:
@@ -354,6 +400,8 @@ class FalseAlarm(Scenario):
         self.offset = offset
 
     def apply(self, state: FactoryState, tick: int) -> None:
+        # Variables:
+        #   glitching: True while the sensor is still within its misreading window.
         if tick < self.start_tick:
             return
         glitching = tick < self.start_tick + self.duration
@@ -391,12 +439,17 @@ def working_speed(machine) -> float:
     changed the setting. Wear is slow-then-fast, like vibration: early
     wear barely shows. The speed setting scales it directly.
     """
+    # Variables:
+    #   wear: How worn the bearing is, 0 for new and 1 for failed.
     wear = 1.0 - machine.condition.bearing_health
     return (1.0 - WORN_SLOWDOWN * wear**2) * machine.speed_ratio
 
 
 def defect_mark(machine) -> float:
     """What this machine adds to a job's defect risk as it finishes its part."""
+    # Variables:
+    #   wear: How worn the bearing is, 0 for new and 1 for failed.
+    #   axis_wear: How worn the axis drive is, 0 for new and 1 for failed.
     wear = 1.0 - machine.condition.bearing_health
     axis_wear = 1.0 - machine.condition.axis_health
     return (
@@ -447,6 +500,15 @@ class ProductionLine(Scenario):
         time_variation: int = 0,
         jobs_per_batch: int = 0,
     ):
+        # Variables:
+        #   machine_ids: The machines in order along the line, each listed once.
+        #   min_load: The lightest load a new job can have, from 0 to 1.
+        #   max_load: The heaviest load a new job can have, from 0 to 1.
+        #   time_variation: Ticks either way added to each job's time at each machine; 0
+        #     for none.
+        #   jobs_per_batch: Jobs cut from each material batch; 0 means no batches.
+        #   _inspection_stream: A separate random stream for pass-or-fail draws, so
+        #     inspections do not disturb job timing.
         if jobs_per_batch < 0:
             raise ValueError("jobs_per_batch cannot be negative")
         if not machine_ids or len(set(machine_ids)) != len(machine_ids):
@@ -463,6 +525,10 @@ class ProductionLine(Scenario):
         self.min_load, self.max_load = min_load, max_load
 
     def apply(self, state: FactoryState, tick: int) -> None:
+        # Variables:
+        #   taken: Machines that already belong to other lines; a machine cannot be on
+        #     two.
+        #   line: The machine objects in line order.
         if state.lines.get(self.name) != self.machine_ids:
             taken = {
                 m
@@ -489,6 +555,13 @@ class ProductionLine(Scenario):
                 machine.load = 0.0
 
     def _move_jobs(self, state: FactoryState, line: list, tick: int) -> None:
+        # Variables:
+        #   chance_of_failing: Baseline plus the job's accumulated defect risk, capped
+        #     at 95%.
+        #   passed: Whether the random draw cleared that chance.
+        #   following: The next machine, which a finished job moves into if it is free.
+        #   first: The first machine, where a new job enters if it is free.
+        #   job: The new job, with a random load between min_load and max_load.
         for position in reversed(range(len(line))):
             machine = line[position]
             if machine.status is MachineStatus.DOWN or machine.job is None:
@@ -525,6 +598,9 @@ class ProductionLine(Scenario):
             state.next_job_id += 1
 
     def _cut_from_batch(self, state: FactoryState, job: Job) -> None:
+        # Variables:
+        #   batch: The batch this job is cut from; a new one opens when its last job is
+        #     cut.
         if state.batch is None:
             state.batch = MaterialBatch(id=1, jobs_left=self.jobs_per_batch)
         batch = state.batch
@@ -537,6 +613,8 @@ class ProductionLine(Scenario):
             state.batch = MaterialBatch(id=batch.id + 1, jobs_left=self.jobs_per_batch)
 
     def _place(self, job: Job, machine) -> None:
+        # Variables:
+        #   extra: Random ticks added or removed for this job at this machine.
         machine.job, machine.job_progress, machine.job_work = job, 0.0, None
         if self.time_variation:
             extra = self._stream.randint(-self.time_variation, self.time_variation)
@@ -567,6 +645,14 @@ class AmbientTemperature(Scenario):
         drift_step: float = 0.03,
         drift_pull: float = 0.001,
     ):
+        # Variables:
+        #   mean: The average air temperature in degrees F.
+        #   swing: How far the daily cycle goes above and below the mean.
+        #   ticks_per_day: Ticks in one day; 1440 for one-minute ticks.
+        #   warmest_tick: The tick of the first afternoon peak.
+        #   drift_step: Size of the random nudge added each tick to the slow drift.
+        #   drift_pull: How strongly the drift is pulled back toward zero each tick.
+        #   _drift: The slow wander on top of the daily cycle.
         super().__init__(name, rng)
         self.mean, self.swing = mean, swing
         self.ticks_per_day, self.warmest_tick = ticks_per_day, warmest_tick
@@ -574,6 +660,9 @@ class AmbientTemperature(Scenario):
         self._drift = 0.0
 
     def apply(self, state: FactoryState, tick: int) -> None:
+        # Variables:
+        #   time_of_day: The point in the daily cycle as an angle, with the peak at
+        #     zero.
         self._drift = (1.0 - self.drift_pull) * self._drift + self._stream.gauss(
             0.0, self.drift_step
         )
@@ -607,6 +696,14 @@ class LoadingDoor(Scenario):
         cool_per_tick: float = 0.5,
         recover_per_tick: float = 0.2,
     ):
+        # Variables:
+        #   cooling: The most cooling the open door can cause.
+        #   chance_per_tick: Chance that a closed door opens in any one tick.
+        #   min_open: Fewest ticks it stays open.
+        #   max_open: Most ticks it stays open.
+        #   cool_per_tick: How fast cooling builds while the door is open.
+        #   recover_per_tick: How fast cooling fades once it is closed.
+        #   _closes_at: The tick the door will close.
         if not 1 <= min_open <= max_open:
             raise ValueError("need 1 <= min_open <= max_open")
         if cooling < 0 or not 0.0 <= chance_per_tick <= 1.0:
@@ -620,6 +717,9 @@ class LoadingDoor(Scenario):
 
     def apply(self, state: FactoryState, tick: int) -> None:
         # One draw every tick, so the stream's position depends only on the tick.
+        # Variables:
+        #   opens: Whether the door would open this tick; drawn every tick so the stream
+        #     stays aligned.
         opens = self._stream.random() < self.chance_per_tick
         if state.door_open:
             if tick >= self._closes_at:

@@ -61,6 +61,25 @@ def build_line(
     time_variation: int = 2,
     jobs_per_batch: int = 25,
 ) -> Simulator:
+    # Variables:
+    #   machines: How many machines the line has; None lets the seed choose 3 to 8.
+    #   ticks_per_job: Working time at each machine; None uses the standard, slightly
+    #     uneven, values.
+    #   thermal_lag_ticks: How slowly a machine's temperature follows its target.
+    #   vibration_alarm: Vibration in mm/s above which an alarm fires.
+    #   following_error_alarm: Following error in micrometres above which the servo
+    #     alarm fires.
+    #   low_pressure_alarm: Hydraulic pressure in bar below which the low-pressure alarm
+    #     fires.
+    #   time_variation: Ticks either way added to each job's time at each machine.
+    #   jobs_per_batch: Jobs cut from each material batch.
+    #   sim: The simulator being assembled; faults are added to it afterwards by the
+    #     caller.
+    #   times: The working time at each machine, in line order.
+    #   names: Machine ids in line order, CNC-01 upwards.
+    #   ticks_per_day: How many ticks make a day, from the tick length.
+    #   first_peak: The date and time of the first afternoon temperature peak.
+    #   warmest_tick: The tick of that peak, within a day.
     sim = Simulator(seed, start, tick_duration, thermal_lag_ticks=thermal_lag_ticks)
 
     if machines is None:

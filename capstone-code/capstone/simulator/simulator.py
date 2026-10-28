@@ -49,6 +49,28 @@ class Simulator:
         drive_replacement_ticks: int = 60,
         hydraulic_repair_ticks: int = 40,
     ):
+        # Variables:
+        #   seed: Starts the one random source every random draw comes from, so a run
+        #     can be repeated.
+        #   start: The date and time of tick 0.
+        #   tick_duration: How much simulated time one tick is; a minute by default.
+        #   bearing_failure_health: Bearing health at or below which a running machine
+        #     breaks down.
+        #   thermal_lag_ticks: How slowly a machine's temperature follows its target; 1
+        #     means instantly.
+        #   planned_repair_ticks: Bearing repair time for a machine still running.
+        #   breakdown_repair_ticks: Bearing repair time for a machine that has already
+        #     broken down.
+        #   setting_reset_ticks: How long putting a machine's speed back to standard
+        #     takes.
+        #   drive_replacement_ticks: How long fitting a new axis servo drive takes.
+        #   hydraulic_repair_ticks: How long replacing the hydraulic seals takes.
+        #   _job_seen: Per machine, the job last seen there and how far its story has
+        #     been reported.
+        #   _last_door_open: The door state last reported, so only a change makes an
+        #     event.
+        #   _inspections_reported: How many inspections are already in the event log.
+        #   _batch_reported: The newest material batch number already in the event log.
         if thermal_lag_ticks < 1.0:
             raise ValueError("thermal_lag_ticks must be at least 1 (1 means no lag)")
         self.bearing_failure_health = bearing_failure_health
@@ -112,6 +134,10 @@ class Simulator:
         than one caught while still running. Either way the machine is
         down for the whole repair and keeps the job it was holding.
         """
+        # Variables:
+        #   broken_down: True if the machine had already failed, which makes the repair
+        #     longer.
+        #   duration: How many ticks the machine will be down.
         machine = self._machine_for_maintenance(machine_id)
         broken_down = machine.status is MachineStatus.DOWN
         duration = (
@@ -169,6 +195,11 @@ class Simulator:
         self, machine: MachineState, kind: str, duration: int
     ) -> int:
         """Down for the whole job, keeping whatever work it was holding."""
+        # Variables:
+        #   kind: What is being done, in words; it is also how the finish step knows
+        #     what to restore.
+        #   duration: Ticks until the work is done.
+        #   now: The tick the work starts.
         now = self.clock.tick
         machine.status = MachineStatus.DOWN
         machine.maintenance_until = now + duration
@@ -194,6 +225,11 @@ class Simulator:
         The order is a contract: a reading stamped tick T is evidence of
         reality as of tick T, never of T-1. Alarms see only the readings.
         """
+        # Variables:
+        #   tick: The new tick number after the clock advanced.
+        #   readings: This tick's sensor readings, collected before alarms look at them.
+        #   reading: One sensor's value; a sensor that has lost signal still reads, to
+        #     keep its noise aligned, but is not recorded.
         tick = self.clock.advance()
         self._update_reality(tick)
         self._record_job_events(tick)
@@ -230,6 +266,12 @@ class Simulator:
         machine, and which machine it is waiting for. Never how heavy the
         job is, and never why the machine ahead is not ready.
         """
+        # Variables:
+        #   job_id: The job on this machine now, or None.
+        #   seen_id: The job we last reported on this machine.
+        #   stage: How far that job's story has been reported: working, finished or
+        #     blocked.
+        #   following: The next machine on the line, if the job is stuck waiting for it.
         for machine in self.state.machines.values():
             job_id = machine.job.id if machine.job else None
             seen_id, stage = self._job_seen[machine.id]
@@ -310,6 +352,10 @@ class Simulator:
 
     def _finish_maintenance(self, tick: int) -> None:
         """Return machines to service once their maintenance is done, and say what was found."""
+        # Variables:
+        #   kind: Which kind of work just finished.
+        #   finding: What the technician saw on the old part, in words, for the event
+        #     message.
         for machine in self.state.machines.values():
             if machine.maintenance_until is None or tick < machine.maintenance_until:
                 continue

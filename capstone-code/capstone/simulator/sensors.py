@@ -36,6 +36,11 @@ class Sensor(ABC):
     unit: str
 
     def __init__(self, machine_id: str, rng: RandomSource):
+        # Variables:
+        #   machine_id: The one machine this sensor is fitted to.
+        #   stream_name: This sensor's own random stream, named for the machine and the
+        #     sensor so noise is repeatable.
+        #   rng: The factory's random source, which hands out that stream.
         self.machine_id = machine_id
         self.stream_name = f"sensor.{machine_id}.{self.name}"
         self._stream = rng.stream(self.stream_name)
@@ -84,6 +89,13 @@ class VibrationSensor(Sensor):
         noise_sd: float = 0.15,
         idle_floor: float = 0.1,
     ):
+        # Variables:
+        #   baseline: Reading in mm/s of a healthy machine at normal load and speed.
+        #   wear_gain: How much a fully worn bearing adds, scaled by wear squared.
+        #   load_gain: How much each unit of load above normal adds.
+        #   speed_gain: How much each unit of speed above standard adds.
+        #   noise_sd: Standard deviation of the random noise on each reading.
+        #   idle_floor: The small reading a stopped or idle machine gives.
         super().__init__(machine_id, rng)
         self.baseline = baseline
         self.wear_gain = wear_gain
@@ -93,6 +105,11 @@ class VibrationSensor(Sensor):
         self.idle_floor = idle_floor
 
     def _measure(self, machine: MachineState) -> float:
+        # Variables:
+        #   noise: Random noise plus any hidden offset from a false-alarm fault.
+        #   wear: How worn the bearing is, 0 for new and 1 for failed.
+        #   work: The effect of load above normal.
+        #   speed: The effect of a speed setting away from standard.
         noise = (
             self._stream.gauss(0.0, self.noise_sd)
             + machine.condition.vibration_sensor_offset
@@ -112,6 +129,8 @@ class TemperatureSensor(Sensor):
     unit = "°F"
 
     def __init__(self, machine_id: str, rng: RandomSource, *, noise_sd: float = 1.0):
+        # Variables:
+        #   noise_sd: Standard deviation of the random noise on each reading.
         super().__init__(machine_id, rng)
         self.noise_sd = noise_sd
 
@@ -137,11 +156,18 @@ class LoadSensor(Sensor):
         friction_gain: float = 8.0,
         noise_sd: float = 2.0,
     ):
+        # Variables:
+        #   friction_gain: Percentage points a fully worn bearing adds, scaled by wear
+        #     squared.
+        #   noise_sd: Standard deviation of the random noise on each reading.
         super().__init__(machine_id, rng)
         self.friction_gain = friction_gain
         self.noise_sd = noise_sd
 
     def _measure(self, machine: MachineState) -> float:
+        # Variables:
+        #   noise: Random noise for this reading.
+        #   wear: How worn the bearing is, 0 for new and 1 for failed.
         noise = self._stream.gauss(0.0, self.noise_sd)
         if machine.status is not MachineStatus.RUNNING:
             return max(0.0, noise)
@@ -185,6 +211,12 @@ class PowerSensor(Sensor):
         drive_kw: float = 1.0,
         noise_sd: float = 0.2,
     ):
+        # Variables:
+        #   idle_kw: Draw of a powered but idle machine.
+        #   spindle_kw: Spindle draw at full load and standard speed.
+        #   friction_kw: Extra draw from a fully worn bearing, scaled by wear squared.
+        #   drive_kw: Extra draw from a fully worn axis drive, scaled by wear squared.
+        #   noise_sd: Standard deviation of the random noise on each reading.
         super().__init__(machine_id, rng)
         self.idle_kw = idle_kw
         self.spindle_kw = spindle_kw
@@ -193,6 +225,11 @@ class PowerSensor(Sensor):
         self.noise_sd = noise_sd
 
     def _measure(self, machine: MachineState) -> float:
+        # Variables:
+        #   noise: Random noise for this reading.
+        #   wear: How worn the bearing is, 0 for new and 1 for failed.
+        #   axis_wear: How worn the axis drive is, 0 for new and 1 for failed.
+        #   spindle: Cutting power, rising with both load and speed ratio.
         noise = self._stream.gauss(0.0, self.noise_sd)
         if machine.status is MachineStatus.DOWN:
             return max(0.0, noise)
@@ -235,6 +272,13 @@ class FollowingErrorSensor(Sensor):
         holding: float = 1.0,
         noise_sd: float = 0.6,
     ):
+        # Variables:
+        #   baseline: Lag in micrometres of a healthy drive at normal load and speed.
+        #   load_gain: How much each unit of load above normal adds.
+        #   speed_gain: How much each unit of speed above standard adds.
+        #   wear_gain: How much a fully worn drive adds, scaled by wear squared.
+        #   holding: The small lag while the machine is idle or stopped.
+        #   noise_sd: Standard deviation of the random noise on each reading.
         super().__init__(machine_id, rng)
         self.baseline = baseline
         self.load_gain = load_gain
@@ -244,6 +288,11 @@ class FollowingErrorSensor(Sensor):
         self.noise_sd = noise_sd
 
     def _measure(self, machine: MachineState) -> float:
+        # Variables:
+        #   noise: Random noise for this reading.
+        #   wear: How worn the axis drive is, 0 for new and 1 for failed.
+        #   work: The effect of load above normal.
+        #   speed: The effect of a speed setting away from standard.
         noise = self._stream.gauss(0.0, self.noise_sd)
         if machine.status is not MachineStatus.RUNNING:
             return max(0.0, self.holding + noise)
@@ -276,6 +325,11 @@ class HydraulicPressureSensor(Sensor):
         cutting_draw: float = 2.0,
         noise_sd: float = 0.8,
     ):
+        # Variables:
+        #   nominal: Pressure in bar of sound seals with the machine powered.
+        #   leak_gain: Pressure lost to a total leak, scaled by leak squared.
+        #   cutting_draw: Pressure the clamp draws while cutting at full load.
+        #   noise_sd: Standard deviation of the random noise on each reading.
         super().__init__(machine_id, rng)
         self.nominal = nominal
         self.leak_gain = leak_gain
@@ -283,6 +337,11 @@ class HydraulicPressureSensor(Sensor):
         self.noise_sd = noise_sd
 
     def _measure(self, machine: MachineState) -> float:
+        # Variables:
+        #   noise: Random noise for this reading.
+        #   leak: How leaky the seals are, 0 for sound and 1 for gone.
+        #   running: True while the machine is cutting.
+        #   cutting: Pressure drawn by the current cut; zero when not running.
         noise = self._stream.gauss(0.0, self.noise_sd)
         if machine.status is MachineStatus.DOWN:
             return max(0.0, noise)
@@ -307,6 +366,8 @@ class FactoryThermometer:
     unit = "°F"
 
     def __init__(self, rng: RandomSource, *, noise_sd: float = 0.3):
+        # Variables:
+        #   noise_sd: Standard deviation of the random noise on each reading.
         self.noise_sd = noise_sd
         self.stream_name = f"sensor.factory.{self.name}"
         self._stream = rng.stream(self.stream_name)

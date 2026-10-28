@@ -22,6 +22,14 @@ def build_challenge(
     existing tools expose only their consequences. The profile RNG has its own
     named stream so selecting targets does not shift normal factory variation.
     """
+    # Variables:
+    #   sim: A standard line to which the compound faults are added.
+    #   choices: A separate random stream for choosing targets, so normal variation does
+    #     not shift.
+    #   target: The machine with the worn bearing and the wrong speed together.
+    #   nuisance: The machine with a harmless vibration spike.
+    #   instrument: The machine whose temperature sensor drifts and drops out.
+    #   onset: The tick the physical faults begin.
     sim = build_line(seed, machines=machines, start=start)
     choices = sim.rng.stream("challenge.profile")
     target, nuisance, instrument = choices.sample(list(sim.state.machines), 3)

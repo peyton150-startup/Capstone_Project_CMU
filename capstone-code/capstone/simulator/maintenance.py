@@ -50,6 +50,11 @@ def past_maintenance(
     machine_ids: list[str], start: datetime, rng: random.Random
 ) -> list[MaintenanceRecord]:
     """One to four records per machine before `start`, oldest first overall."""
+    # Variables:
+    #   rng: The maintenance-history stream, drawn before any fault so the history says
+    #     nothing about the fault.
+    #   days_before: How long before the start the visit happened.
+    #   when: The date and hour of the visit.
     records = []
     for machine_id in machine_ids:
         for _ in range(rng.randint(1, 4)):
