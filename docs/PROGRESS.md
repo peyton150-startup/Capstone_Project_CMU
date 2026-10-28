@@ -135,6 +135,21 @@ alarm), then evaluation, then the agent itself.
   stage ends, so a long wait still looks silent; showing it needs a pending
   marker on the state). Built ungated, developer to review.
 
+- **2026-10-28 (docs-only): walkthrough of PR #108 (tree-of-thought trees in
+  the experiment record), given after the merge at the developer's request.**
+  Three questions. (1) Why a record's `thoughts` is `null`: the developer
+  gave two reasons that both give a different value (a confident single
+  answer and a timeout leave a list, possibly empty); re-taught that `null`
+  means no tree policy ran or an old file, `[]` a tree policy that recorded
+  nothing. (2) Why the file round trip is tested: "not sure", then "it needs to
+  decode it" after a hint; taught that decoding rebuilds `Thought` and
+  `Candidate` objects and tuples from the type annotations and rejects
+  mismatches. (3) What the trees let you check: the developer said how
+  candidates were dropped or kept can be inspected; the missing link
+  (matching a candidate's free-text claim to the hidden fault kind) was
+  taught, not found. Understanding of #108 is only partly shown: the
+  "Understood" mark stays **no** for the tree-record change.
+
 - **2026-10-28: tree-of-thought trees saved with each experiment record.**
   From an outside audit of the tree-of-thought step: `TreeOfThoughtPolicy`
   kept each hypothesize step's tree (`Thought`: candidates, ratings, kept ids,
