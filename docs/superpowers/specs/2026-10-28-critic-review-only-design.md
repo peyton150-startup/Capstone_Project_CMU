@@ -278,6 +278,20 @@ factory now (the same label `ORIGIN_LABELS["manual"]` gives the agent).
   against the rule kept for `TOOL_DESCRIPTIONS`); the critic's time includes
   the search; an empty search result changes nothing.
 
+**Note on Option B (developer, 2026-10-28): we need to find a way to get the
+agent to call the manual.** In the first live critic run the manual was not
+offered (no `--manual`), so neither the agent nor the critic used it. Even
+when it is offered, nothing makes the agent search it: the only push today is
+prompt guidance (A15, `manual_use_note`, "before recommending a repair"). If
+the agent does not call the manual, the manual sections reach the critic only
+through Option B's own search, and the agent and the critic then reason from
+different material. Find a way to get the agent to call the manual, measured
+before it is built (does it call it? does it change the conclusion?). Ideas to
+weigh, not decided: a stronger or earlier prompt rule; a stage that must
+search it once before `hypothesize`; code that searches on the anomaly's
+words and adds the sections as labelled evidence, as `RecallingProvider` does
+for memory. Each changes what the agent sees, so each is taught first.
+
 **Considered and not chosen, Option A: the critic calls `search_manual`
 itself** in a small ask, run-the-tool, ask-again loop inside its window. It
 lets the critic look up exactly what it needs, but it makes the stage slower
