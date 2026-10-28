@@ -119,8 +119,8 @@ run by meeting a bar set in advance.
   independent second look. Each critique records which model answered
   (`answered_by`), so results can be split by model; the developer expects
   Mistral may be too small for the job, and the runs will show it. Note the
-  window is shared along the chain: with 30 s and two models, Mistral gets
-  about 15 s before Cohere is asked. All critic settings live in `.env` for
+  window is shared along the chain: with 40 s and two models, Ministral gets
+  about 20 s before Cohere is asked. All critic settings live in `.env` for
   now and join the frontend's settings list if a frontend is built
   (`docs/MVP_SCOPE.md`, frontend settings note).
 - **Records:** the `CritiqueResult` (or why there is none: no answer in the
@@ -219,7 +219,8 @@ What it showed: the two rules turned Ministral 14B from "favours nothing"
 to the well-supported H1 with a check that really tells the two apart.
 Ministral 8B cannot fill the type and is dropped. Both remaining models
 timed out once in three at 30 s: with two models sharing the window, the
-first gets about 15 s, so the window is likely too short; the runs set it.
+first gets about 15 s, so the window was likely too short: the default is
+now 40 s, and the real runs set it.
 Every reply still said `object`, so whether the critic objects too often is
 open until real runs are labelled.
 
