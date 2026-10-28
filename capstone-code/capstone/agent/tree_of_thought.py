@@ -21,7 +21,10 @@ at depth one, with breadth-first search:
 3. prune     code, not the model, keeps at most `breadth` (default 3):
              candidates rated impossible, citing evidence that was never
              gathered, or never rated are dropped, and the rest are ranked
-             by confidence (ties by candidate order).
+             by confidence (ties by candidate order). "Impossible" drops a
+             candidate only when gathered evidence against it is cited (by
+             the rating or the candidate); without that it is ranked like
+             the rest, since a model's say-so is not a contradiction.
 
 The kept candidates become the hypotheses (H1, H2, ... in rank order) with
 the valued confidence, and their questions become open questions that
@@ -69,6 +72,8 @@ class Rating(Contract):
     verdict: Literal["sure", "likely", "impossible"]
     confidence: float = Field(ge=0, le=1)
     question: str | None = None  # what would tell this one apart
+    # For "impossible": the evidence that rules the candidate out.
+    contradicting_evidence_ids: tuple[str, ...] = ()
 
 
 class Ratings(Contract):
@@ -98,7 +103,9 @@ VALUE = (
     "CANDIDATES against the evidence. For each, give its candidate_id, a verdict "
     "(sure: the evidence settles it; likely: consistent but not settled; "
     "impossible: the evidence rules it out), a confidence between 0 and 1, and "
-    "one question whose answer would tell it apart from the others."
+    "one question whose answer would tell it apart from the others. For "
+    "impossible, list in contradicting_evidence_ids the evidence IDs that rule "
+    "it out; without them it is not ruled out."
 )
 
 
@@ -124,6 +131,8 @@ def prune(
 
     Deterministic: the same candidates and ratings always keep the same ones.
     The first rating of a candidate counts; a rating of an unknown id is ignored.
+    "Impossible" drops a candidate only with a cited contradiction that was
+    gathered; otherwise the candidate is ranked by its confidence like any other.
     """
     # Variables:
     #   breadth: How many candidates may survive.
@@ -134,12 +143,16 @@ def prune(
     #   alive: Candidates still in the running, with their original position to break
     #     ties.
     #   seen: Candidate ids already handled, to catch a repeated id.
+    #   against: Gathered evidence cited against a candidate, by its rating or itself.
+    #   unproven: Candidates rated impossible with no such evidence, so not dropped
+    #     for it.
     rated: dict[str, Rating] = {}
     for rating in ratings:
         rated.setdefault(rating.candidate_id, rating)
     dropped: dict[str, str] = {}
     alive: list[tuple[int, Candidate, Rating]] = []
     seen: set[str] = set()
+    unproven: set[str] = set()
     for order, candidate in enumerate(candidates):
         if candidate.id in seen:
             dropped.setdefault(candidate.id, "a repeated candidate id")
@@ -155,12 +168,25 @@ def prune(
         elif rating is None:
             dropped[candidate.id] = "not rated"
         elif rating.verdict == "impossible":
-            dropped[candidate.id] = "rated impossible"
+            against = {
+                *rating.contradicting_evidence_ids,
+                *candidate.contradicting_evidence_ids,
+            } & evidence_ids
+            if against:
+                dropped[candidate.id] = "rated impossible"
+            else:
+                unproven.add(candidate.id)
+                alive.append((order, candidate, rating))
         else:
             alive.append((order, candidate, rating))
     alive.sort(key=lambda entry: (-entry[2].confidence, entry[0]))
     for _, candidate, _ in alive[breadth:]:
-        dropped[candidate.id] = f"ranked below the best {breadth}"
+        ranked = f"ranked below the best {breadth}"
+        dropped[candidate.id] = (
+            f"rated impossible with no contradiction cited; {ranked}"
+            if candidate.id in unproven
+            else ranked
+        )
     return [(c, r) for _, c, r in alive[:breadth]], dropped
 
 

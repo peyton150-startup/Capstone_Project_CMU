@@ -27,8 +27,13 @@ def candidate(id, *supporting):
     )
 
 
-def rating(id, verdict="likely", confidence=0.5):
-    return Rating(candidate_id=id, verdict=verdict, confidence=confidence)
+def rating(id, verdict="likely", confidence=0.5, *against):
+    return Rating(
+        candidate_id=id,
+        verdict=verdict,
+        confidence=confidence,
+        contradicting_evidence_ids=against,
+    )
 
 
 # --- pruning, in code -----------------------------------------------------------
@@ -45,7 +50,7 @@ def test_pruning_keeps_the_best_rated_and_says_why_the_rest_went():
     ]
     ratings = [
         rating("C1", confidence=0.4),
-        rating("C2", "impossible", 0.9),
+        rating("C2", "impossible", 0.9, "E1"),
         rating("C3", "sure", 0.99),
         rating("C5", "sure", 0.8),
         rating("C6", confidence=0.4),  # ties C1; C1 came first
@@ -73,6 +78,38 @@ def test_pruning_is_deterministic_and_counts_a_candidates_first_rating():
     kept, dropped = first
     assert [(c.id, r.confidence) for c, r in kept] == [("C2", 0.5), ("C1", 0.2)]
     assert dropped == {"C1": "a repeated candidate id"}
+
+
+def test_impossible_drops_a_candidate_only_with_a_cited_contradiction():
+    """The model's verdict alone does not rule a cause out: it must point at
+    gathered evidence against it, in the rating or in the candidate itself."""
+    against_itself = Candidate(
+        id="C4", claim="explanation C4", contradicting_evidence_ids=("E1",)
+    )
+    candidates = [candidate("C1"), candidate("C2"), candidate("C3"), against_itself]
+    ratings = [
+        rating("C1", "impossible", 0.3, "E1"),  # cited and gathered: dropped
+        rating("C2", "impossible", 0.2),  # nothing cited: ranked like the rest
+        rating("C3", "impossible", 0.1, "E9"),  # cites only ungathered: same
+        rating("C4", "impossible", 0.4),  # the candidate cites E1 itself
+    ]
+    kept, dropped = prune(candidates, ratings, {"E1"}, breadth=3)
+    assert [c.id for c, _ in kept] == ["C2", "C3"]
+    assert dropped == {"C1": "rated impossible", "C4": "rated impossible"}
+
+
+def test_an_uncited_impossible_ranked_out_says_so():
+    candidates = [candidate("C1"), candidate("C2")]
+    ratings = [rating("C1", confidence=0.6), rating("C2", "impossible", 0.1)]
+    kept, dropped = prune(candidates, ratings, set(), breadth=1)
+    assert [c.id for c, _ in kept] == ["C1"]
+    assert dropped == {
+        "C2": "rated impossible with no contradiction cited; ranked below the best 1"
+    }
+
+
+def test_the_rating_prompt_asks_for_the_contradicting_evidence():
+    assert "contradicting_evidence_ids" in VALUE
 
 
 # --- the hypothesize step -----------------------------------------------------------
@@ -129,7 +166,12 @@ RATED = {
             "confidence": 0.2,
             "question": "Has vibration fallen back since?",
         },
-        {"candidate_id": "C3", "verdict": "impossible", "confidence": 0.1},
+        {
+            "candidate_id": "C3",
+            "verdict": "impossible",
+            "confidence": 0.1,
+            "contradicting_evidence_ids": ["E1"],
+        },
         {"candidate_id": "C4", "verdict": "sure", "confidence": 0.9},
     ]
 }
@@ -238,7 +280,12 @@ def as_tree(agent: ModelPolicy) -> TreeOfThoughtPolicy:
         {
             "ratings": [
                 {"candidate_id": "C1", "verdict": "likely", "confidence": 0.6},
-                {"candidate_id": "C2", "verdict": "impossible", "confidence": 0.05},
+                {
+                    "candidate_id": "C2",
+                    "verdict": "impossible",
+                    "confidence": 0.05,
+                    "contradicting_evidence_ids": ["E2"],
+                },
             ]
         },
     )
