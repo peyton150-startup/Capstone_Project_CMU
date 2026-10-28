@@ -122,6 +122,20 @@ alarm), then evaluation, then the agent itself.
 
 ## Session notes
 
+- **2026-10-28 (C1 fix): the critic's pick is labelled from the claim it judged.**
+  Found in the first live critic run (`critic-known-1.jsonl`, KA-01 and KA-02):
+  `favoured_claim` in `experiment.py` read the favoured hypothesis from the
+  final state, after the conclusion and the check. The agent rewords its
+  hypotheses after the critique, so the saved claim was not the one the critic
+  judged; in KA-02 it even said the replacement worked and vibration was below
+  the threshold. That text is what the Jev labeller reads for measure 3, so the
+  critic could be credited with words written after the fix. Now
+  `CritiqueRecord.favoured_claim` (default `None`, older records still read)
+  keeps the claim as worded at the critique, set in `critique()` from the shown
+  hypotheses, and `favoured_claim` reads only that. The two saved records from
+  that run still carry the late wording in `critic_favoured_claim`: label their
+  picks by hand, or rerun. Built ungated, developer to review.
+
 - **2026-10-28 (C1 follow-up): the live view shows more of the critic's answer.**
   Asked for by the developer while watching the first live critic run. The
   `CRITIC (...)` line now has two lines under it: `why: ...` and `confidence

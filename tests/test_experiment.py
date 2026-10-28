@@ -812,3 +812,35 @@ def test_a_critique_from_before_answered_by_still_reads():
     from capstone.agent.critic import CritiqueRecord
 
     assert CritiqueRecord.model_validate(old).answered_by is None
+
+
+def test_favoured_claim_comes_from_the_critique_not_the_final_beliefs():
+    from capstone.agent.critic import CritiqueRecord
+    from capstone.contracts.hypotheses import Hypothesis
+    from capstone.experiment import favoured_claim
+    from tests.helpers import critique_result, new_state
+
+    state = new_state()
+    state.hypotheses = [
+        Hypothesis(id="H1", claim="reworded after the fix worked", confidence=0.99)
+    ]
+    state.critique = CritiqueRecord(
+        outcome="answered",
+        result=critique_result(favoured="H1"),
+        shown_hypotheses=("H1",),
+        seconds=1.0,
+        favoured_claim="as worded when the critic judged it",
+    )
+    assert favoured_claim(state) == "as worded when the critic judged it"
+
+
+def test_a_critique_from_before_favoured_claim_still_reads():
+    from capstone.agent.critic import CritiqueRecord
+
+    old = {
+        "outcome": "answered",
+        "result": None,
+        "shown_hypotheses": ["H1"],
+        "seconds": 1.0,
+    }
+    assert CritiqueRecord.model_validate(old).favoured_claim is None

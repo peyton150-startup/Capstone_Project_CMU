@@ -190,6 +190,8 @@ def critique(state: InvestigationState, deps: InvestigationDeps) -> None:
     #   deps.critic: The second reviewer; None means the stage does nothing.
     #   deps.critic_seconds: The critic's own window, separate from the
     #     investigation's deadline.
+    #   shown_claims: Each shown hypothesis's claim as worded now, so the record
+    #     keeps what the critic judged even if the agent rewords it later.
     #   shown: The ids of the hypotheses the critic is shown, kept in the record.
     #   began: The clock when the question started, to measure the critic's time.
     #   outcome: answered, no_answer (no model replied in time) or invalid_reply
@@ -201,7 +203,8 @@ def critique(state: InvestigationState, deps: InvestigationDeps) -> None:
     #     time left is the same after this stage as before it.
     if deps.critic is None or not state.hypotheses:
         return
-    shown = tuple(h.id for h in top_two(state))
+    shown_claims = {h.id: h.claim for h in top_two(state)}
+    shown = tuple(shown_claims)
     began = deps.clock()
     outcome = "answered"
     result = None
@@ -224,6 +227,7 @@ def critique(state: InvestigationState, deps: InvestigationDeps) -> None:
         shown_hypotheses=shown,
         seconds=used,
         answered_by=answered_by,
+        favoured_claim=None if result is None else shown_claims.get(result.favoured),
     )
 
 
