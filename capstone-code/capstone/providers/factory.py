@@ -59,6 +59,14 @@ def run_tool(entry, raw_arguments: dict[str, JsonValue]):
     an answer longer than `MAX_ROWS`, with how to ask for less; any other
     failure, or an answer outside its contract, without detail.
     """
+    # Variables:
+    #   entry: How one tool is wired: its argument model, its output model, the
+    #     function, and whether it returns a list.
+    #   raw_arguments: The arguments the caller sent, before they are checked.
+    #   arguments: The arguments after checking against the tool's model.
+    #   raw: The tool's own answer, before it is rebuilt from the contract.
+    #   checked: The answer rebuilt field by field from the output model, so nothing
+    #     outside the contract gets out.
     argument_model, output_model, execute, many = entry
     try:
         arguments = argument_model.model_validate(raw_arguments)
@@ -304,6 +312,12 @@ class SimulatorFactoryProvider:
         *,
         logger: "EventLogger | None" = None,
     ):
+        # Variables:
+        #   observations: The read-only tools.
+        #   actions: The tools that act, such as wait and the approval requests.
+        #   logger: Optional place to record each call.
+        #   _tools: For each tool name: its arguments model, output model, function and
+        #     whether it returns a list.
         self._observations = observations
         self._logger = logger
         # Each entry names arguments, output fields, callable, and whether a list.
@@ -397,6 +411,12 @@ class SimulatorFactoryProvider:
         run_id: UUID | None = None,
         investigation_id: UUID | None = None,
     ) -> ToolResult[JsonValue]:
+        # Variables:
+        #   context: The run and investigation ids, copied onto the result.
+        #   error: What went wrong, or None.
+        #   data: The checked answer, or None.
+        #   entry: The tool's wiring, or None if the tool name is unknown.
+        #   clock: The factory's time, read after the call so every result is stamped.
         context = TraceContext(run_id=run_id, investigation_id=investigation_id)
         error, data = None, None
         entry = self._tools.get(request.name)

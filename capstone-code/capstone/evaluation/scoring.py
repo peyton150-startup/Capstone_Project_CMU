@@ -68,6 +68,9 @@ class Cause(BaseModel):
 
     def named_by(self, diagnosis: Diagnosis) -> bool:
         """Does this named cause name this fault, on the right machine or batch?"""
+        # Variables:
+        #   diagnosis: A cause the agent named, which must match both the fault kind and
+        #     the machine or batch.
         if diagnosis.fault != self.fault:
             return False
         if self.batch_id is not None:
@@ -84,6 +87,12 @@ def judge_causes(
     wrong cause; any other named fault that matches no true cause is one
     (including blaming a distractor's machine).
     """
+    # Variables:
+    #   causes: The true faults that need naming.
+    #   named: The causes the agent's conclusion named.
+    #   found: How many true causes were named.
+    #   wrong: How many named faults match no true cause; a named false alarm is never
+    #     wrong.
     found = sum(any(cause.named_by(d) for d in named) for cause in causes)
     wrong = sum(
         d.fault != "false_alarm" and not any(cause.named_by(d) for cause in causes)
@@ -174,6 +183,10 @@ class Score(BaseModel):
         human's catch, not the agent's judgement. Read from stored fields,
         so older results files have it too.
         """
+        # Variables:
+        #   needed: The fixes the true causes called for, as 'action machine'.
+        #   wanted: In a one-fault run, the single fix the fault needed, or None if it
+        #     needed none.
         if self.causes:
             needed = set(self.wanted_actions)
             return [asked for asked in self.recommended_actions if asked not in needed]
@@ -212,6 +225,31 @@ def evaluate(
     `calls` are the investigation's answered tool calls as (tool, arguments),
     used only to see which relevant evidence the agent collected.
     """
+    # Variables:
+    #   sim: The simulator as it stands at the end of the run; its hidden truth is read
+    #     here.
+    #   diagnosis: What the agent's conclusion was turned into, if anything.
+    #   proposals: Every request the agent made, with the human's decision.
+    #   tool_calls: How many tool calls the investigation made.
+    #   start_tick: The tick the investigation began, to measure how long it took.
+    #   judged: If False, the diagnosis is left unscored instead of counted as wrong.
+    #   calls: The answered tool calls as (tool, arguments), used to see which evidence
+    #     was collected.
+    #   iterations: How many loop turns were used.
+    #   truths: The real faults, read from the simulator.
+    #   compound: True when more than one real fault was present.
+    #   causes: The faults that must be named, fixed and gone.
+    #   distractors: Faults that need nothing done, such as a passing spike or a
+    #     drifting sensor.
+    #   done: Proposals whose work actually started; approval alone changes nothing.
+    #   taken: Fixes carried out, as 'action machine'.
+    #   wanted: Fixes the true causes needed.
+    #   asked: Everything the agent asked for, whatever the human decided.
+    #   relevant: Evidence that bears on a cause, paired with that cause's machine.
+    #   seen: Relevant evidence the agent actually looked at.
+    #   described: Each relevant item once, in words.
+    #   gone: For each cause, whether it is gone from reality now.
+    #   single: The one true fault in a one-fault run; None when there are several.
     truths = sim.ground_truth()
     compound = len(truths) > 1
     if compound:
@@ -288,6 +326,16 @@ def judge(score: Score, diagnosis: Diagnosis | Sequence[Diagnosis] | None) -> Sc
     (`COMPOUND`): the run is right only when every cause is named and no wrong
     cause is, and `causes_found` / `wrong_causes` give the partial credit.
     """
+    # Variables:
+    #   score: The row built from the simulator, with the diagnosis still unfilled.
+    #   diagnosis: One named cause or several; None or empty counts as wrong.
+    #   named: The named causes as a list.
+    #   update: The fields to change on the row.
+    #   found: How many true causes were named.
+    #   wrong: How many wrong causes were named.
+    #   shown: The one named cause the row is judged and reported by.
+    #   right: True when every cause is named and no wrong one is.
+    #   truth: The real fault of a one-fault run, rebuilt from the row.
     named = _named(diagnosis)
     update: dict = {}
     found, wrong = judge_causes(score.causes, named)
@@ -326,6 +374,9 @@ def judge(score: Score, diagnosis: Diagnosis | Sequence[Diagnosis] | None) -> Sc
 def _closest(truth: Cause, named: list[Diagnosis]) -> Diagnosis | None:
     """The named cause to judge a one-fault run by: the one that names the
     truth, else one of the right kind, else the first."""
+    # Variables:
+    #   fits: Tests tried in turn: names the truth exactly, then right kind of fault,
+    #     then anything.
     for fits in (truth.named_by, lambda d: d.fault == truth.fault, lambda d: True):
         for diagnosis in named:
             if fits(diagnosis):
@@ -335,6 +386,11 @@ def _closest(truth: Cause, named: list[Diagnosis]) -> Diagnosis | None:
 
 def _resolved(sim: Simulator, truth) -> bool:
     """Is the cause gone from reality now? Read from hidden state, never from evidence."""
+    # Variables:
+    #   truth: One real fault from the ground-truth record.
+    #   state: The factory's true state; this reads hidden state, never evidence.
+    #   machine: The machine the fault was on.
+    #   replaced: The tick the faulty bearing was replaced, if ever.
     state = sim.state
     if truth.fault == "bad_material_batch":
         return state.batch is not None and state.batch.id > truth.batch_id
@@ -356,6 +412,14 @@ def summarize(scores: list[Score]) -> dict:
     `model_unavailable` but left out of every other total: they measure the
     model services' uptime, not the agent's reasoning.
     """
+    # Variables:
+    #   scores: One row per run.
+    #   reasoned: Runs where a model answered; runs cut off by an outage measure uptime,
+    #     not reasoning, and are left out.
+    #   n: How many runs are counted in the totals.
+    #   compound: The counted runs that had several true faults.
+    #   available: Relevant evidence items that existed across the counted runs.
+    #   collected: How many of those the agent looked at.
     if not scores:
         return {"runs": 0}
     reasoned = [s for s in scores if not s.model_unavailable]

@@ -110,6 +110,13 @@ class UnreliableProvider:
     """The tools behind it, with the scheduled faults put in."""
 
     def __init__(self, inner: FactoryProvider, hazards: tuple[Hazard, ...]):
+        # Variables:
+        #   inner: The real provider whose answers are spoiled on schedule.
+        #   hazards: The scheduled faults.
+        #   _counts: How many times each tool has been called, so a fault can hit the
+        #     nth call.
+        #   _waiting: Tools with a fired fault that the agent has not yet retried
+        #     successfully.
         self._inner = inner
         self._hazards = hazards
         self._counts: Counter[str] = Counter()
@@ -124,6 +131,16 @@ class UnreliableProvider:
         run_id: UUID | None = None,
         investigation_id: UUID | None = None,
     ) -> ToolResult[JsonValue]:
+        # Variables:
+        #   nth: How many times this tool has now been called.
+        #   context: The run and investigation ids, passed through unchanged.
+        #   timeout: A scheduled timeout for this call, if any.
+        #   gap: A scheduled gap for this call, if any.
+        #   low: First tick of the middle third, which is removed.
+        #   high: First tick after the middle third.
+        #   kept: The rows left after the gap.
+        #   asked_for: The machine whose history was requested; None means all machines.
+        #   stale: A scheduled wrong record to add to the history.
         name = request.name
         self._counts[name] += 1
         nth = self._counts[name]
@@ -183,6 +200,8 @@ class UnreliableProvider:
 
     @staticmethod
     def _middle_third(arguments: dict) -> tuple[int, int]:
+        # Variables:
+        #   third: A third of the requested range, in ticks.
         low, high = int(arguments["from_tick"]), int(arguments["to_tick"])
         third = (high - low + 1) // 3
         return low + third, low + 2 * third
@@ -191,6 +210,10 @@ class UnreliableProvider:
     def _with_record(rows: list, stale: StaleRecord) -> list:
         """The rows with the stale record put last among the records from
         before the run, so the history still reads oldest first."""
+        # Variables:
+        #   record: The wrong maintenance record, in the same shape as a real one.
+        #   before: Records from before the run.
+        #   during: Records from this run.
         record = {
             "machine_id": stale.machine_id,
             "performed_at": stale.performed_at,

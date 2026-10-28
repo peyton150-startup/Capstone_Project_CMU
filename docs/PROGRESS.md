@@ -112,7 +112,7 @@ A component is complete only when both columns are checked.
 | A13 | STATE_ACTION_BAR: show or hide the action threshold in prompts, with enforcement unchanged | no — developer requested build, merge, then quiz (2026-10-27) | no — built ungated, developer to review | yes | no — quiz after merge | `settings.py`, `agent/state.py`, `agent/loop.py`, `agent/model_policy.py`, `episode.py`, `experiment.py`; session note 2026-10-27 (A13) |
 | A14 | Prompt guidance: one discriminating check before stopping with an uncertain leading explanation | no — developer requested build, merge, then quiz (2026-10-27) | no — built ungated, developer to review | yes | no — quiz after merge | `agent/model_policy.py` (`SYSTEM["decide"]`); session note 2026-10-27 (A14) |
 | A15 | Prompt guidance: consult an available manual before recommending a repair | no — developer requested build, merge, then quiz (2026-10-27) | no — built ungated, developer to review | yes | no — quiz after merge | `agent/model_policy.py` (`manual_use_note`, `decide`, `interpret_and_decide`); session note 2026-10-27 (A15) |
-| EV1 | Configurable full-episode evaluation harness and single-agent master baseline | no — build first at developer's request (2026-10-27) | no — walkthrough owed | yes (tests passed; live baseline pending) | no — walkthrough owed | `capstone/evals.py`, `evals/scenarios.json`, `experiment.py` (`AgentStep`), `agent/state.py`, `agent/model_policy.py`, `tests/test_evals.py`; session note 2026-10-27 (EV1) |
+| EV1 | Configurable full-episode evaluation harness and single-agent master baseline | no — build first at developer's request (2026-10-27) | no — walkthrough owed | yes (baseline run 2026-10-28: 3 of 9 right) | no — merged before the walkthrough at the developer's request (2026-10-28); walkthrough owed | `capstone/evals.py`, `evals/scenarios.json`, `experiment.py` (`AgentStep`), `agent/state.py`, `agent/model_policy.py`, `tests/test_evals.py`; session note 2026-10-27 (EV1) |
 
 Every row above with four "yes" marks (or "n/a") is complete: no question is
 outstanding on it. Still to build after 12c, from `docs/MVP_SCOPE.md`: the
@@ -120,6 +120,50 @@ other three fault scenarios (material batch, machine configuration, false
 alarm), then evaluation, then the agent itself.
 
 ## Session notes
+
+- **2026-10-28 (EV1): the single-agent master baseline, finished and labelled.**
+  The run `master-single-2026-10-27` resumed at KA-04 (`--resume --watch`, in
+  a terminal tab the developer watched) and finished all nine cases. Settings:
+  defaults (`STEP_QUESTIONS=2`, `STATE_ACTION_BAR=true`, bar 0.9), NVIDIA
+  Nemotron Super 120B, no manual, memory or hazards: the harness has no manual
+  option yet, so this is master run A, not a test of A15 (to discuss with the
+  developer after all master runs). Labels
+  (`docs/benchmarks/2026-10-27-master-labels.jsonl`) follow the 2026-10-26 rule,
+  the conclusion's words and not the true fault: the developer decided KA-01,
+  KA-03 and KA-04 (all "none"); the coding assistant drafted the other six and
+  showed them to the developer. Result (`2026-10-27-master-resumed.json`):
+  **3 of 9 right (33%)**: false alarm 2/2, bearing 1/3 (KA-02; KA-09's compound
+  case named only the bearing on CNC-03), bad batch 0/2, wrong setting 0/2.
+  111 tool calls, 236 model questions, 6,251 s in all. Five cases ended on the
+  time limit (KA-03 to KA-06, KA-09), each after 3-5 outage retries; no
+  intervention was lowered by the bar (KA-01 escalated at 0.85 by its own
+  choice). The mixed raw file from 2026-10-27 is left out. Merged before the
+  walkthrough at the developer's request (2026-10-28); understanding stays
+  "no" until the walkthrough is done.
+
+- **2026-10-28 (docs-only): variable comments across `capstone/`, and the
+  A10 walkthrough begun.** No behaviour changed. At the developer's request,
+  each function with variables that carry meaning now has a `# Variables:`
+  comment block at the top of its body, one sentence per variable, in 58 of
+  the 81 modules, which is every module that has a function with variables
+  worth describing. Only variables where the name alone does not say enough
+  were described. The other 23 modules have no function to comment (package
+  `__init__` files, plain data definitions such as `contracts/*` and
+  `agent/artifacts.py`, `ground_truth.py`, `known_answers.py`, `schema.py`)
+  or only stubs and validators without variables (`agent/policy.py`,
+  `contracts/tools.py`, `memory/contracts.py`). Tests and command line
+  parsers were left alone. Checked by comparing the syntax tree of every
+  changed file with the one on `main` (identical in all 58 files), so only
+  comments changed. The block in
+  `agent/investigation.py` `conclude` also explains "lowered" and how to read
+  `policy_recommendation` and `recommendation_lowered` together.
+  A10 walkthrough (not finished; row A10 stays "Understood: no"): Q1 (why
+  `recommendation_lowered` uses the model's raw reply, not the checked one) —
+  partly right, corrected: the checked `request` is always `None`, so every
+  reason would read "no action named". Q2 (reading the records): (b) right;
+  (a) right that the model chose escalate, corrected that its confidence is
+  not known from the record; (c) wrong at first, corrected — `None` means the
+  recording lines never ran (time out or unusable reply). Q3 still to ask.
 
 - **2026-10-27 (EV1): evaluation harness before specialists.** The developer
   approved the order: Phase 3 first, a current single-agent baseline, Phase 1

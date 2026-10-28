@@ -36,13 +36,19 @@ class LabelBook:
     """An append-only file of labels. The latest label for a run wins."""
 
     def __init__(self, path: str | Path):
+        # Variables:
+        #   path: The JSON-lines file the labels are appended to.
         self.path = Path(path)
 
     def add(self, label: Label) -> None:
+        # Variables:
+        #   label: One person's reading of which cause a conclusion names.
         with self.path.open("a", encoding="utf-8", newline="\n") as file:
             file.write(label.model_dump_json() + "\n")
 
     def read(self) -> dict[str, Label]:
+        # Variables:
+        #   labels: Each run's label by run key; a later line replaces an earlier one.
         if not self.path.exists():
             return {}
         labels = {}
@@ -57,4 +63,7 @@ def apply_label(
     score: Score, diagnosis: Diagnosis | Sequence[Diagnosis] | None
 ) -> Score:
     """The same row with its root cause judged from `diagnosis` (see `judge`)."""
+    # Variables:
+    #   score: The scored run, with its cause still unjudged.
+    #   diagnosis: The cause the label names, several, or None for none recognisable.
     return judge(score, diagnosis)

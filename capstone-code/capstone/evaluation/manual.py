@@ -33,6 +33,15 @@ class ManualSearchRecord(Contract):
 
 def build_manual_records(state) -> tuple[ManualSearchRecord, ...]:
     """One record per search_manual call, in order (see build_search_records)."""
+    # Variables:
+    #   state: The finished investigation state, read for its decision records.
+    #   contents: The text of each piece of evidence, by id.
+    #   records: One record per manual search, in order.
+    #   text: What was searched for; None if the arguments were unusable.
+    #   message: The tool's error message, if the call failed or was refused.
+    #   evidence_id: The evidence that holds the answer, if there was one.
+    #   sections: The manual sections returned, best match first.
+    #   outcome: answered, repeated, budget_spent or failed.
     contents = {e.id: e.content for e in state.evidence}
     records = []
     for decision in state.decisions:

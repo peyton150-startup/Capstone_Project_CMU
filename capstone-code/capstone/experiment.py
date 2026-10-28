@@ -128,6 +128,9 @@ def held_out_cases() -> list[Case]:
 
 def grid(seeds: Iterable[int], faults: Sequence[str | None]) -> list[Case]:
     """Every seed with every fault: a balanced experiment."""
+    # Variables:
+    #   seeds: The seeds to run.
+    #   faults: The faults to force; None for a case lets the seed choose.
     return [
         Case(f"seed-{seed}/{fault or 'any'}", seed, fault)
         for seed in seeds
@@ -176,6 +179,15 @@ class AgentStep(BaseModel):
 
 
 def summarize_calls(calls: Sequence[ModelCall]) -> CallSummary:
+    # Variables:
+    #   calls: Every model question the run asked, with how each ended.
+    #   answered: The questions a model answered.
+    #   invalid: Count of unusable replies, by which question.
+    #   by_model: Count of answers, by which model gave them; shows the fallback
+    #     stepping in.
+    #   reasons: Why requests failed for a service reason, such as a timeout or HTTP
+    #     429.
+    #   refused: Why replies were refused, such as cut off or not JSON.
     answered = [call for call in calls if call.outcome == "answered"]
     invalid = Counter(call.job for call in calls if call.outcome == "invalid_reply")
     by_model = Counter(call.answered_by or "unknown" for call in answered)
@@ -288,6 +300,13 @@ def memory_records(
     Built after the gate has decided and the run is scored, and kept only on
     the record: nothing here goes back to the agent, a prompt or memory.
     """
+    # Variables:
+    #   result: The finished episode.
+    #   state: The agent's final working memory.
+    #   investigation: The shared record of the finished investigation.
+    #   learning: What the memory gate decided, if memory was used.
+    #   promotion: The gate's decision with whether the diagnosis was right, for the
+    #     experimenter only.
     state = result.state
     if state.conclusion is None or state.termination_reason is None:
         return None, []  # an unfinished investigation has no shared record
@@ -400,6 +419,22 @@ def run_experiment(
     truth is not printed: conclusions are labelled by hand afterwards, and
     seeing the answer first would bias the labels. It stays in the record.
     """
+    # Variables:
+    #   cases: The seeds and faults to run, one episode each.
+    #   make_policy: Builds a fresh decision-maker for each case.
+    #   name: Starts every run key, so two experiments never share one.
+    #   on_record: Called with each finished record, so results can be saved as they
+    #     come.
+    #   start: The number of the first case in the run keys.
+    #   watch: Prints a live view of each case; the hidden truth is never printed.
+    #   records: One record per case, in order.
+    #   run_key: A unique name for this case's run.
+    #   policy: A fresh decision-maker, so no case learns from another's state.
+    #   started: The clock reading when the case began.
+    #   result: The finished episode, including the simulator and its hidden truth.
+    #   wall_seconds: How long the episode took on the wall clock.
+    #   calls: The model questions asked; only model-backed policies keep them.
+    #   record: The case's result for the experimenter.
     records = []
     for number, case in enumerate(cases, start=start):
         run_key = f"{name}/{number}/{case.scenario_id}"
@@ -466,6 +501,11 @@ def labelled(
 
 def format_model_calls(records: Sequence[ExperimentRecord]) -> str:
     """One line on the model questions of every run, invalid apart from outage."""
+    # Variables:
+    #   kept: The model-question summaries of the runs that have one.
+    #   timed: Wall-clock seconds of the runs that were timed.
+    #   reasons: Why requests failed, added up across runs.
+    #   refused: Why replies were refused, added up across runs.
     kept = [r.model_calls for r in records if r.model_calls is not None]
     timed = [r.wall_seconds for r in records if r.wall_seconds is not None]
     if not kept:
@@ -513,6 +553,11 @@ def format_memory(
     A lesson is traced to the run that made it only within these records, so
     a lesson stored by an earlier experiment counts as recalled but not judged.
     """
+    # Variables:
+    #   made_by: For each lesson stored in these runs, whether its run's diagnosis was
+    #     right.
+    #   stored: Those results as a list, to count right, wrong and not judged.
+    #   uses: Every memory any run recalled.
     if all(r.memory_uses is None for r in records):
         return None
     made_by: dict = {}  # stored memory id -> whether its run was right
@@ -543,6 +588,12 @@ def _lesson(record: ExperimentRecord) -> str:
 
 def format_manual(records: Sequence[ExperimentRecord]) -> str | None:
     """One line on what the runs looked up in the manual; None without it."""
+    # Variables:
+    #   kept: The manual searches of each run that had the manual.
+    #   searches: All those searches together.
+    #   given: How often each manual section was returned.
+    #   refused: Searches turned down as repeats or over the allowance.
+    #   most: The five sections returned most often.
     kept = [r.manual_searches for r in records if r.manual_searches is not None]
     if not kept:
         return None
@@ -566,6 +617,10 @@ def _searches(record: ExperimentRecord) -> str:
 
 
 def _run_line(record: ExperimentRecord, score: Score) -> str:
+    # Variables:
+    #   judged: Whether the cause was right; a dash if not judged.
+    #   asked: The model-question counts for this run.
+    #   several: True if the run had more than one true cause.
     judged = "-" if score.fault_correct is None else score.fault_correct
     calls = record.model_calls
     asked = (
@@ -621,6 +676,10 @@ def several_faults(score: Score) -> bool:
 
 def format_call_failures(record: ExperimentRecord) -> list[str]:
     """Show unanswered questions and service failures, including recovered ones."""
+    # Variables:
+    #   summary: The run's model-question summary.
+    #   lines: The report lines, one per failed or recovered question.
+    #   elapsed: How long an attempt took, if it was timed.
     summary = record.model_calls
     if summary is None:
         return []
@@ -649,6 +708,18 @@ def report(records: Sequence[ExperimentRecord], labels: dict[str, Label]) -> str
     """Totals, then one line per run. When runs with one fault and runs with
     several are mixed, each group is also totalled and listed on its own, so
     a hard case does not hide inside the one-fault numbers."""
+    # Variables:
+    #   records: Every run to report on.
+    #   labels: Hand labels that say which cause each conclusion names.
+    #   scores: Each run's score, with its cause judged where a label exists.
+    #   held: How many runs used the held-out seeds.
+    #   pairs: Each record with its score.
+    #   one: Runs with a single true fault.
+    #   many: Runs with several true faults.
+    #   mixed: True if both kinds are present, so each is also totalled on its own.
+    #   lines: The report, built line by line.
+    #   memory: The memory section, if any run used memory.
+    #   manual: The manual section, if any run used the manual.
     scores = labelled(records, labels)
     held = sum(r.seed in HELD_OUT_SEEDS for r in records)
     pairs = list(zip(records, scores, strict=True))
@@ -671,6 +742,8 @@ def report(records: Sequence[ExperimentRecord], labels: dict[str, Label]) -> str
     lines += ([] if manual is None else [manual]) + [""]
 
     def lines_for(group):
+        # Variables:
+        #   out: The lines for one group of runs.
         out = []
         for record, score in group:
             out.append(_run_line(record, score))
@@ -696,6 +769,15 @@ def ask_label(
     The person sees the conclusion only, not the truth, so the label is a
     reading of the words, not a correction of them.
     """
+    # Variables:
+    #   record: The run whose conclusion is being labelled.
+    #   ask: How to ask the person; input by default, replaced in tests.
+    #   choices: The numbered list of fault kinds shown to the person.
+    #   allowed: The answers that count: a choice number, 0 for none, or s to skip.
+    #   answer: The person's latest answer, asked again until it is allowed.
+    #   fault: The fault kind the person picked.
+    #   batch: The batch number the person named, if the fault is a bad batch.
+    #   machine: The machine the person named.
     ask = ask or input
     print(f"\n{record.run_key}\n  conclusion: {record.conclusion!r}")
     choices = ", ".join(f"{n}={kind}" for n, kind in enumerate(FAULT_KINDS, start=1))
@@ -739,6 +821,12 @@ def model_policy_factory(
     With `tree_of_thought`, the hypothesize step branches, values and prunes
     (`capstone.agent.tree_of_thought`); everything else is the same policy.
     """
+    # Variables:
+    #   with_recall: Offer the memory search tool.
+    #   tree_of_thought: Use the policy that generates, rates and prunes explanations.
+    #   with_manual: Offer the manual search tool.
+    #   tools: The tools the policy may choose from.
+    #   kind: Which policy class to build.
     from capstone.agent.model_policy import ModelPolicy
     from capstone.agent.tree_of_thought import TreeOfThoughtPolicy
     from capstone.providers.chat import clients_for_jobs
@@ -760,6 +848,11 @@ def model_policy_factory(
 def open_manual(mode: str) -> ManualSearch:
     """The machine manual, searched by meaning ("semantic": the Chroma index built
     by `python -m capstone.manual.index`) or by shared words ("keyword")."""
+    # Variables:
+    #   mode: semantic searches by meaning, keyword by shared words.
+    #   sections: The manual's checked sections.
+    #   index: The built semantic index; an empty one stops the run with a hint to build
+    #     it.
     from capstone.manual.index import (
         REBUILD_HINT,
         KeywordManualSearch,
@@ -779,6 +872,9 @@ def open_manual(mode: str) -> ManualSearch:
 
 def open_memory() -> MemoryService:
     """The configured memory store (DATABASE_URL) with the configured recall."""
+    # Variables:
+    #   settings: The project settings, read for DATABASE_URL.
+    #   url: The database address, with the driver set to psycopg for PostgreSQL.
     from sqlalchemy import create_engine
     from sqlalchemy.engine import make_url
 

@@ -16,6 +16,10 @@ SPEED_HEAT_F = 40.0  # per unit of speed above standard: 15% fast is 6 °F
 
 def settling_temperature(machine: MachineState, air_temperature: float) -> float:
     """Where the machine's temperature is heading if nothing changes."""
+    # Variables:
+    #   wear: How worn the bearing is, 0 for new and 1 for failed.
+    #   work: Heat from load above normal.
+    #   speed: Heat from a speed setting above standard.
     if machine.status is not MachineStatus.RUNNING:
         return air_temperature
     wear = 1.0 - machine.condition.bearing_health
@@ -34,5 +38,8 @@ def warm_or_cool(
     machine: MachineState, air_temperature: float, lag_ticks: float
 ) -> None:
     """Move one tick closer to the settling temperature. `lag_ticks` of 1 means at once."""
+    # Variables:
+    #   lag_ticks: How many ticks the machine takes to close the gap; 1 means at once.
+    #   gap: How far the machine is from the temperature it is heading toward.
     gap = settling_temperature(machine, air_temperature) - machine.temperature
     machine.temperature += gap / lag_ticks

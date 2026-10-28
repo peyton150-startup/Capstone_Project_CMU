@@ -82,6 +82,9 @@ class ObservationTools:
         Only arithmetic on readings the agent could fetch anyway; idle
         readings are included as they are.
         """
+        # Variables:
+        #   bucket_ticks: How many ticks each summary block covers.
+        #   buckets: Readings grouped by which block of ticks they fall in.
         if not isinstance(bucket_ticks, int) or bucket_ticks < 1:
             raise ToolInputError("bucket_ticks must be a whole number of at least 1")
         buckets: dict[int, list[float]] = {}
@@ -124,6 +127,12 @@ class ObservationTools:
         are not filled in. Empty windows have null statistics; zero elapsed
         time has no rate. First/last refer to chronological observations.
         """
+        # Variables:
+        #   readings: The raw readings in the window, in tick order.
+        #   summary: The result, filled with empty values until readings are found.
+        #   elapsed: Ticks between the first and last reading.
+        #   delta: Last value minus first; the rate is this over elapsed, not a fitted
+        #     trend.
         if any(type(tick) is not int or tick < 0 for tick in (from_tick, to_tick)):
             raise ToolInputError("ticks must be nonnegative integers")
         if machine_id is None:
@@ -187,6 +196,8 @@ class ObservationTools:
         Past records have a date and no tick (they happened before tick 0);
         this run's maintenance events have both.
         """
+        # Variables:
+        #   rows: Past records from before the run, then this run's maintenance events.
         self._check(machine_id, 0, 0)
         rows = [
             {
@@ -221,6 +232,8 @@ class ObservationTools:
 
     def get_inspections(self, from_tick: int, to_tick: int) -> list[dict]:
         """Inspection results for jobs that left the line in this tick range."""
+        # Variables:
+        #   batch_of: Which material batch each inspected job was cut from.
         self._check(None, from_tick, to_tick)
         batch_of = {i.job_id: i.batch_id for i in self._sim.state.inspections}
         return [

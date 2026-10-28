@@ -79,6 +79,10 @@ def shared_verification(check: VerificationCheck | None) -> VerificationResult |
 
 def complete(state: InvestigationState) -> CompletedInvestigation:
     """The shared record of one finished investigation. Does not change `state`."""
+    # Variables:
+    #   proposed: The action proposal for the shared record, or None if none was made.
+    #   cited: Evidence for the proposal: what the conclusion cited plus the approval
+    #     desk's replies.
     if state.conclusion is None or state.termination_reason is None:
         raise ValueError("the investigation has not finished")
     proposed = None

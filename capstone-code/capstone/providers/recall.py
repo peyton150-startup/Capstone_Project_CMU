@@ -92,6 +92,11 @@ class RecallingProvider:
         *,
         max_searches: int = MAX_SEARCHES,
     ):
+        # Variables:
+        #   factory: The factory provider that answers every other tool.
+        #   memory: The search over stored lessons.
+        #   max_searches: How many memory searches one investigation may make.
+        #   searched: Searches already answered, as (normalized words, limit).
         if max_searches < 1:
             raise ValueError("max_searches must be at least one")
         self._factory = factory
@@ -107,6 +112,13 @@ class RecallingProvider:
         run_id: UUID | None = None,
         investigation_id: UUID | None = None,
     ) -> ToolResult[JsonValue]:
+        # Variables:
+        #   error: Why the search was refused or failed, or None.
+        #   data: The safe views of the memories found, or None.
+        #   arguments: The checked search text and limit.
+        #   key: The search as normalized words plus limit, used to spot a repeat.
+        #   found: The memories that matched.
+        #   clock: The factory's time, so the answer is stamped like any other.
         if request.name != RECALL_TOOL:
             return self._factory.call(
                 request, run_id=run_id, investigation_id=investigation_id

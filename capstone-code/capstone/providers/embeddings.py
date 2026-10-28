@@ -46,6 +46,9 @@ class NvidiaEmbedder:
         transport: Transport = urllib_transport,
         timeout: float = 15.0,
     ):
+        # Variables:
+        #   input_type: passage for stored memories or query for a search; the model
+        #     treats them differently.
         self._api_key = api_key
         self.model = model
         self.input_type = input_type
@@ -57,6 +60,13 @@ class NvidiaEmbedder:
 
     def __call__(self, texts: Sequence[str]) -> list[list[float]]:
         """One vector per text, in order. ValueError if the reply is not that."""
+        # Variables:
+        #   texts: What to embed, in order.
+        #   body: The request, asking for float vectors and cutting overlong texts at
+        #     the end.
+        #   raw: The service's reply bytes.
+        #   items: The reply's entries put back into the order of the texts.
+        #   vectors: One list of numbers per text.
         if not texts:
             return []
         body = {
@@ -90,6 +100,11 @@ def embedders_for(
 
     ModelError names a missing key or an unsupported provider.
     """
+    # Variables:
+    #   reference: The configured model, written nvidia/model or local.
+    #   provider: The part before the slash.
+    #   model: The part after it.
+    #   key: The NVIDIA key from settings.
     settings = settings or get_settings()
     reference = settings.embedding_model
     if reference == LOCAL:

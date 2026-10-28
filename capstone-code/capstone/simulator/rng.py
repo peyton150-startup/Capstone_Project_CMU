@@ -14,6 +14,9 @@ class RandomSource:
     """
 
     def __init__(self, seed: int):
+        # Variables:
+        #   seed: The one master seed everything random is derived from.
+        #   _streams: The generators already made, one per name.
         self._seed = seed
         self._streams: dict[str, random.Random] = {}
 
@@ -22,6 +25,9 @@ class RandomSource:
         return self._seed
 
     def stream(self, name: str) -> random.Random:
+        # Variables:
+        #   name: What the stream is called; the name is part of its seed, so renaming
+        #     changes its history.
         if not name:
             raise ValueError("stream name must be non-empty")
         if name not in self._streams:
@@ -31,5 +37,8 @@ class RandomSource:
     def _derive_seed(self, name: str) -> int:
         # sha256, not hash(): Python salts str hashing per process, which
         # would make every run a different world.
+        # Variables:
+        #   digest: A hash of the master seed and the name; Python's own hash() is
+        #     salted per process and would change every run.
         digest = hashlib.sha256(f"{self._seed}:{name}".encode()).digest()
         return int.from_bytes(digest, "big")

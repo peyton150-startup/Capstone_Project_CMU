@@ -55,6 +55,11 @@ class MemoryService:
         index: MemoryIndex | None = None,
         recall: MemoryRecall | None = None,
     ):
+        # Variables:
+        #   repository: The SQL store, which is the authoritative copy of every memory.
+        #   policy: The checks a lesson must pass before it is kept.
+        #   index: The similarity index written to on promotion; None if there is none.
+        #   recall: How free-text searches are answered (semantic, keyword or none).
         self.repository = repository
         self.policy = policy if policy is not None else MemoryPromotionPolicy()
         self.index = index
@@ -63,6 +68,9 @@ class MemoryService:
         self.recall = recall
 
     def promote(self, candidate: ReflectionCandidate) -> PromotionDecision:
+        # Variables:
+        #   decision: The policy's verdict, before anything is stored.
+        #   result: What the store reported: stored, or the kind of duplicate it found.
         decision = self.policy.evaluate(candidate)
         if not decision.accepted:
             return decision
@@ -95,6 +103,10 @@ class MemoryService:
         Without it, word search over the most recent memories the store
         returns (at most 100).
         """
+        # Variables:
+        #   found: Full memory records the recall mode matched to the text.
+        #   candidates: The most recent stored memories, used when no recall mode is
+        #     set.
         if self.recall is not None:
             found = self.recall.recall_memories(text, k=limit).memories
             return tuple(recalled(memory) for memory in found)

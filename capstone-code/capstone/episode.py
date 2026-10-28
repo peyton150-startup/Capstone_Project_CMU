@@ -117,6 +117,11 @@ def score_episode(
     *,
     judged: bool,
 ) -> Score:
+    # Variables:
+    #   desk: The approval desk, which holds every request and what became of it.
+    #   start_tick: The tick the investigation began, to measure how long it took.
+    #   diagnosis: What the conclusion was turned into, or None if nobody has judged it.
+    #   judged: If False, the diagnosis is left unscored instead of counted as wrong.
     return evaluate(
         sim,
         diagnosis,
@@ -165,6 +170,10 @@ def build_world(
 
     The challenge composes its own faults, so it takes no `fault`.
     """
+    # Variables:
+    #   kind: standard (one seeded fault) or challenge (several faults at once).
+    #   fault: Forces which fault appears; the challenge chooses its own.
+    #   machines: How many machines the line has; None lets the seed choose.
     if kind == STANDARD:
         return build_scenario(seed, machines=machines, fault=fault)
     if kind == CHALLENGE:
@@ -206,6 +215,39 @@ def run_episode(
     With `watch`, someone follows the run as it happens (`capstone.progress`):
     it is shown copies of the agent's working state, never the simulator.
     """
+    # Variables:
+    #   seed: Decides the whole factory, so the same seed repeats the same run.
+    #   policy: The decision-maker that reasons about the anomaly.
+    #   approver: Stands in for the human who approves or rejects a request.
+    #   judge: Turns the agent's conclusion words into a named cause for scoring; None
+    #     leaves it unjudged.
+    #   memory: Lets the agent recall lessons and, with a log, learn from the run.
+    #   log: Where the finished investigation is written for audit.
+    #   budgets: Limits on calls, turns and time for the investigation.
+    #   clock: Seconds that only move forward; replaced in tests.
+    #   run_key: A name that fixes the run's ids, so a rerun gets the same ones.
+    #   hazards: If True, tools fail on the standard schedule.
+    #   manual: Lets the agent search the machine manual.
+    #   watch: Called with a copy of the agent's state so someone can follow the run.
+    #   settings: The project settings, read for the action bar and step mode.
+    #   sim: The factory with its hidden fault; never given to the agent.
+    #   desk: The human's approval desk; never given to the agent.
+    #   look: The read-only tools.
+    #   act: The tools that act, such as wait.
+    #   anomaly: What ordinary monitoring noticed first; the agent starts from this.
+    #   start_tick: The tick the investigation began.
+    #   provider: What the agent calls; layers are added for hazards, memory and the
+    #     manual.
+    #   unreliable: The provider with scheduled faults, kept to read its report
+    #     afterwards.
+    #   before_run: A time a day before the run began, used for the stale record.
+    #   world: A short label for the kind of factory, part of the run's name.
+    #   run_id: The run's identity, derived from its name.
+    #   state: The agent's working memory for this investigation.
+    #   deps: Everything the loop needs from outside.
+    #   learning: What the memory gate decided; None if memory was not used.
+    #   diagnosis: The cause the judge read from the conclusion, if a judge was given.
+    #   judged: Whether a judge was given.
     settings = get_settings()
     sim = build_world(seed, kind=kind, fault=fault, machines=machines)
     desk = ApprovalDesk(sim)
@@ -214,6 +256,9 @@ def run_episode(
     start_tick = sim.clock.tick
 
     def human_review(proposal) -> None:
+        # Variables:
+        #   approved: Whether the stand-in human said yes.
+        #   note: The reason the human gave.
         approved, note = approver(proposal)
         (desk.approve if approved else desk.reject)(proposal.proposal_id, note)
 

@@ -49,6 +49,10 @@ class SQLMemoryRepository:
         )
 
     def insert(self, memory: EpisodicMemory) -> InsertResult:
+        # Variables:
+        #   statement: An insert that does nothing on a conflict and returns the new
+        #     row's id.
+        #   inserted: The new memory's id, or None if the database found a conflict.
         statement = self.insert_statement(memory, dialect=self.engine.dialect.name)
         with self.engine.begin() as connection:
             inserted = connection.execute(statement).scalar_one_or_none()
@@ -109,6 +113,10 @@ class SQLMemoryRepository:
 
     def get_many(self, memory_ids: Sequence[UUID]) -> tuple[EpisodicMemory, ...]:
         """Records for the given IDs in the given order; unknown IDs are skipped."""
+        # Variables:
+        #   memory_ids: The ids wanted; the result keeps this order and skips unknown
+        #     ids.
+        #   found: The records the database returned, by id.
         if not memory_ids:
             return ()
         statement = select(episodic_memories.c.payload).where(

@@ -138,6 +138,10 @@ def diagnosis_supported(state: InvestigationState, deps: InvestigationDeps) -> b
     policy can still stop on its own and conclude, and the usual budgets
     still end research.
     """
+    # Variables:
+    #   leading: The explanation the agent currently believes most.
+    #   current: Ids of the explanations still in play, used to see if any open question
+    #     still tests one.
     leading = state.leading_hypothesis
     current = {h.id for h in state.hypotheses}
     return (
@@ -156,6 +160,8 @@ def confidence_stalled(state: InvestigationState, deps: InvestigationDeps) -> bo
     while testing. Rewording a claim or nudging a number by a hundredth is
     not progress; moving confidence by `min_confidence_change` is.
     """
+    # Variables:
+    #   recent: Confidence after each of the latest test results, oldest first.
     recent = [
         d.confidence
         for d in state.decisions
@@ -181,6 +187,11 @@ def check_termination(
     also stops while `followup_seconds` remain, so that the conclusion,
     the proposal, the work and the check keep the time they need.
     """
+    # Variables:
+    #   phase_iterations: Turns this phase has already taken, used only for the verify
+    #     limit.
+    #   budgets: The limits for this run (time, calls, turns).
+    #   now: The clock reading, taken once so every check uses the same moment.
     budgets = state.budgets
     now = deps.clock()
     if state.remaining_seconds(now) <= 0:
@@ -211,6 +222,9 @@ def seconds_left(
     state: InvestigationState, deps: InvestigationDeps, *, research: bool
 ) -> float:
     """The time a stage has left: research ends where the follow-up time begins."""
+    # Variables:
+    #   research: True for research stages, which stop early to keep time for the
+    #     follow-up.
     now = deps.clock()
     return state.research_seconds(now) if research else state.remaining_seconds(now)
 
@@ -232,6 +246,12 @@ def ask_policy(
     ran out, with less left than a retry would need. A ModelError with time
     still left is an outage and goes on up unchanged.
     """
+    # Variables:
+    #   question: The policy method to ask, e.g. decide or conclude.
+    #   research: True if the question draws on research time, False if it may use all
+    #     remaining time.
+    #   view: A deep copy of the state; the policy sees it, but changing it changes
+    #     nothing real.
     view = state.model_copy(deep=True)
     view.state_action_bar = deps.state_action_bar
     view.action_confidence_needed = None
@@ -264,6 +284,9 @@ def call_tool(
     given no answer. The agent carries on; it does not crash and it does
     not guess.
     """
+    # Variables:
+    #   followup: True if the call spends the follow-up allowance, not the research one.
+    #   result: The provider's answer, or None if it cannot be trusted.
     state.tool_call_count += 1
     if followup:
         state.followup_tool_calls_used += 1
@@ -294,6 +317,15 @@ def apply_interpretation(
     Raises ValueError, changing nothing, if a hypothesis cites evidence
     that does not exist: a belief must point at something that was seen.
     """
+    # Variables:
+    #   revised: The policy's new set of explanations, or None if it left them
+    #     unchanged.
+    #   ids: Ids of the revised explanations, which must all be different.
+    #   known: Ids of all evidence gathered so far; a belief may cite only these.
+    #   cited: Every evidence id one revised explanation relies on, for or against.
+    #   before: The old explanations by id, to count how many changed.
+    #   after: The new explanations by id, to count how many changed.
+    #   open_ids: Ids of questions still open, so a question is never added twice.
     if not isinstance(interpretation, Interpretation):
         raise ValueError("a policy must return an Interpretation")
     revised = interpretation.hypotheses
@@ -377,6 +409,13 @@ def gather(
     With `interpret=False`, for calls the loop makes itself, the policy is
     not asked what the answer means.
     """
+    # Variables:
+    #   signature: This question at this tick as text, used to spot a repeat.
+    #   result: The tool's answer, or None if it cannot be trusted.
+    #   outcome: observed, malformed_result or tool_error; anything but observed is a
+    #     wasted step.
+    #   evidence: The answer saved as a new piece of evidence, numbered E1, E2 and so
+    #     on.
     signature = call_signature(step.request, state.last_tick)
     if signature in state.seen_calls:
         # Looking is free in the simulator, so the same question at the same
@@ -502,6 +541,17 @@ def run_inner_loop(
     iterations are limited. The reason is returned and also written as
     the last DecisionRecord of the loop.
     """
+    # Variables:
+    #   pending_decision: In one-question mode, the next step proposed with the last
+    #     reading, held until the next turn's checks pass.
+    #   phase_iterations: How many turns this phase has taken so far.
+    #   reason: Why the loop must stop, or None to carry on.
+    #   decision: What the policy chose this turn: a tool call or a stop.
+    #   before_unproductive: The unproductive-step count before this turn, restored if
+    #     the reading fails.
+    #   evidence: The new evidence from this turn, or None if the call gave nothing
+    #     usable.
+    #   reply: In one-question mode, the combined reading and next decision.
     if state.started_at is None:
         # The deadline covers the whole investigation, so only the first loop
         # starts the timer. Without this the timeout could never fire.

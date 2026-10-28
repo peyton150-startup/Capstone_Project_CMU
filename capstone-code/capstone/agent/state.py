@@ -222,16 +222,22 @@ class InvestigationState(BaseModel):
 
     def remaining_seconds(self, now: float) -> float:
         """Time left on the whole-investigation deadline, never below zero."""
+        # Variables:
+        #   now: The clock reading to measure from, passed in so tests control time.
         if self.started_at is None:
             return self.budgets.timeout_seconds
         return max(0.0, self.budgets.timeout_seconds - (now - self.started_at))
 
     def research_seconds(self, now: float) -> float:
         """Time left for research: the deadline less what is kept for afterwards."""
+        # Variables:
+        #   now: The clock reading to measure from, passed in so tests control time.
         return max(0.0, self.remaining_seconds(now) - self.budgets.followup_seconds)
 
     def evidence_for(self, question_id: str) -> Evidence | None:
         """The newest evidence that answered a question, if any."""
+        # Variables:
+        #   ids: Evidence ids that answered this question, newest last.
         ids = self.answers.get(question_id)
         if not ids:
             return None

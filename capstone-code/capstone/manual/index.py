@@ -50,6 +50,10 @@ class KeywordManualSearch:
         self.sections = tuple(sections)
 
     def search(self, text: str, *, limit: int) -> tuple[ManualSection, ...]:
+        # Variables:
+        #   query: The words of the question, without common ones.
+        #   scored: Matching sections as (negative score, position, section), so a sort
+        #     puts the best first.
         query = _words(text)
         scored = []
         for order, section in enumerate(self.sections):
@@ -71,6 +75,14 @@ class ChromaManualIndex:
         embed: Embedder,
         embed_query: Embedder | None = None,
     ):
+        # Variables:
+        #   collection: The manual's own Chroma collection, kept apart from the memory
+        #     index.
+        #   sections: The manual's sections by number; results come from these, never
+        #     from the index.
+        #   embed: Turns section text into vectors.
+        #   embed_query: Turns a search into a vector; falls back to embed if no
+        #     separate one is given.
         self.collection = collection
         self.sections = {s.section_id: s for s in sections}
         self.embed = embed
@@ -78,6 +90,8 @@ class ChromaManualIndex:
 
     def build(self) -> int:
         """Index every section (again); returns how many."""
+        # Variables:
+        #   documents: The text embedded for each section: its title and body.
         sections = list(self.sections.values())
         documents = [section_document(s) for s in sections]
         self.collection.upsert(
@@ -91,6 +105,9 @@ class ChromaManualIndex:
         return len(sections)
 
     def search(self, text: str, *, limit: int) -> tuple[ManualSection, ...]:
+        # Variables:
+        #   result: Chroma's nearest matches, with only their section numbers asked for.
+        #   found: Section numbers, closest first.
         if self.collection.count() == 0:
             return ()
         result = self.collection.query(
@@ -110,6 +127,13 @@ def open_manual_index(
     settings, *, sections: Sequence[ManualSection] | None = None, rebuild: bool = False
 ) -> ChromaManualIndex:
     """The manual's index at CHROMA_PATH / MANUAL_COLLECTION, by EMBEDDING_MODEL."""
+    # Variables:
+    #   sections: The manual's sections; the real manual is loaded if none are given.
+    #   rebuild: If True, empty the collection first.
+    #   embedders: The passage and query embedders, or None for the local model.
+    #   passage: Embeds the sections.
+    #   query: Embeds a search.
+    #   collection: The Chroma collection for the manual.
     from capstone.memory.semantic import default_embedder
     from capstone.providers.embeddings import embedders_for
 

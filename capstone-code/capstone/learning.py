@@ -51,6 +51,19 @@ def learn_from(
     log: AuditLog,
 ) -> LearningOutcome:
     """Audit the investigation, then offer what it showed to the memory gate."""
+    # Variables:
+    #   state: The finished investigation.
+    #   policy: The decision-maker, asked for one advice sentence at most.
+    #   memory: The memory service whose gate decides what is kept.
+    #   log: Where the audit record is written first, whatever the gate does.
+    #   record: The shared record of the investigation; refuses one that has not
+    #     finished.
+    #   check: The after-the-fix check, if one was made.
+    #   requested: True only for a verified fix that was carried out; only then is the
+    #     model asked for a sentence.
+    #   lesson: The advice sentence, or None if none was asked for or the model failed.
+    #   written: The policy's reply before it is reduced to text.
+    #   candidate: What goes to the gate, or None if there is no outcome or no sentence.
     record = complete(state)  # refuses an unfinished investigation
     log.append(audit_record(state))
     check = record.verification

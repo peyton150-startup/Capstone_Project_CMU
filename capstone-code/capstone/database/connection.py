@@ -10,6 +10,11 @@ from capstone.settings import get_settings
 
 def check_database_connection() -> bool:
     """Load local configuration and check SELECT 1, closing all connections."""
+    # Variables:
+    #   url: The database address, with the driver set to psycopg for PostgreSQL.
+    #   connect_args: Extra connection settings; PostgreSQL gets a 10-second connect
+    #     timeout.
+    #   engine: The database engine, disposed in the end so no connection stays open.
     settings = get_settings()
     if settings.database_url is None:
         raise ValueError("Set DATABASE_URL in the local .env or environment.")
