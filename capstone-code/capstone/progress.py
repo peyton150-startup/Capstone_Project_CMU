@@ -170,8 +170,9 @@ class ProgressView:
     def _critique(self, state: InvestigationState) -> None:
         """The critic's verdict, printed once when it first appears."""
         # Variables:
-        #   record: What the critic stage produced.
-        #   r: The critic's reply, if there was a usable one.
+        #   record: What the critic stage produced; compared with the last one
+        #     printed so the line appears once.
+        #   r: The critic's reply; None when there was no usable one.
         record = state.critique
         if record is None or record == self.critique:
             return

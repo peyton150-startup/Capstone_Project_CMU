@@ -90,16 +90,19 @@ favoured_confidence 0.65; supports_action false."""
 def top_two(state: InvestigationState) -> list[Hypothesis]:
     """The hypotheses with the highest confidence, best first; a tie keeps list order."""
     # Variables:
-    #   state: The investigation, read only.
+    #   state: The investigation so far; read only, never changed here.
+    #   SHOWN_HYPOTHESES: How many hypotheses the critic gets to judge (two).
     return sorted(state.hypotheses, key=lambda h: -h.confidence)[:SHOWN_HYPOTHESES]
 
 
 def critique_view(state: InvestigationState, tools: Sequence[ToolSpec]) -> str:
     """What the critic is shown, built from the anomaly, evidence and two hypotheses."""
     # Variables:
-    #   anomaly: What was noticed that started the investigation.
+    #   tools: The agent's research tools, shown as text only so the critic can name
+    #     a check the agent could make; the critic cannot call them.
     #   lines: The prompt, built up section by section and joined at the end.
-    #   supported, contradicted: The evidence ids each shown hypothesis cites.
+    #   supported, contradicted: The evidence ids a shown hypothesis says back it or
+    #     count against it, so the critic can check those claims.
     anomaly = state.anomaly
     where = f" on {anomaly.machine_id}" if anomaly.machine_id else ""
     lines = [
@@ -128,6 +131,11 @@ class Critic:
     """Asks the one critique question and keeps its own record of each ask."""
 
     def __init__(self, client: Client, tools: Sequence[ToolSpec]):
+        # Variables:
+        #   client: Asks the critic's model chain one typed question; a fake in tests.
+        #   tools: The agent's research tools, shown to the critic as text.
+        #   calls: This critic's own record of every question it asked, kept apart
+        #     from the research agent's calls and tagged agent="critic".
         self.client = client
         self.tools = tuple(tools)
         self.calls: list[ModelCall] = []
@@ -142,7 +150,11 @@ class Critic:
         `ValueError`, recorded as `invalid_reply`.
         """
         # Variables:
-        #   shown: The ids of the hypotheses the critic was shown.
+        #   max_seconds: The most this one question may take, retries and fallback
+        #     included; past it the client gives up and raises ModelError.
+        #   shown: The ids of the hypotheses the critic was shown, so a reply naming
+        #     any other can be refused.
+        #   answer: The critic's typed reply, kept only if it passes `_problem`.
         shown = [h.id for h in top_two(state)]
         try:
             answer = self.client.ask(
@@ -168,8 +180,12 @@ class Critic:
     ) -> str | None:
         """Why a well-formed reply cannot be used, or None if it can."""
         # Variables:
-        #   known: Evidence ids that were gathered.
-        #   cited: Every evidence id the objections cite.
+        #   shown: The hypothesis ids the critic saw; `favoured` must be one of them
+        #     or "none", because it cannot have weighed a hypothesis it was not shown.
+        #   known: The ids of all evidence the agent gathered, the only ids an
+        #     objection may cite.
+        #   cited: Every evidence id the critic's objections point to.
+        #   missing: Cited ids that were never gathered, made up by the critic.
         if answer.favoured != "none" and answer.favoured not in shown:
             return f"favoured {answer.favoured!r} was not a hypothesis shown"
         known = {e.id for e in state.evidence}
@@ -181,6 +197,10 @@ class Critic:
 
     def _record(self, outcome: str) -> None:
         """Keep one record of the question just asked."""
+        # Variables:
+        #   outcome: answered, invalid_reply or no_answer; recorded on every ask.
+        #   client: Read for which model answered and every model it tried, which
+        #     the client keeps from its latest question.
         client = self.client
         self.calls.append(
             ModelCall(
@@ -197,8 +217,11 @@ class Critic:
     def _refuse(self, reason: str) -> None:
         """Mark the question just asked invalid, with the reason, and raise."""
         # Variables:
-        #   call: The record of the question just asked.
-        #   attempts: Every model tried, with the one that answered marked invalid.
+        #   reason: Why the reply cannot be used; kept in the record, never shown to
+        #     the critic.
+        #   call: The record of the question just asked, rewritten as an invalid reply.
+        #   attempts: Every model tried, with the one that answered also marked invalid
+        #     so the reason is on the model that gave the reply.
         call = self.calls[-1]
         attempts = list(call.attempts)
         if attempts and attempts[-1].outcome == "answered":

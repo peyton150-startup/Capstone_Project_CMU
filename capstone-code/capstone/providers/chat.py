@@ -686,7 +686,9 @@ def critic_client(
     investigator's models, and a critic answered by them is not a second look.
     """
     # Variables:
-    #   references: The critic's models, in the order they are tried.
+    #   transport: Sends the HTTP request; replaced by a fake in tests.
+    #   references: The critic's models from CRITIC_MODEL, in the order they are
+    #     tried; never the shared fallback models.
     settings = settings or get_settings()
     references = critic_models(settings)
     if not references:

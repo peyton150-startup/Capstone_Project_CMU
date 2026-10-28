@@ -328,7 +328,11 @@ def critic_labels(
     proposal that needs review is left out, so that pick stays unjudged.
     """
     # Variables:
-    #   proposer: Proposes a label for (run key, claim text).
+    #   records: The saved runs; each holds the claim the critic favoured, if any.
+    #   proposer: Reads one claim as a named cause (in production, the Jev
+    #     auto-labeller); a function so tests need no model.
+    #   proposal: The proposed label and whether a person should read it first.
+    #   labels: Run key to label, only for picks the proposer was sure of.
     labels = {}
     for record in records:
         if record.critic_favoured_claim is None:

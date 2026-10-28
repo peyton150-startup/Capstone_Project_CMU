@@ -187,11 +187,16 @@ def critique(state: InvestigationState, deps: InvestigationDeps) -> None:
     seconds it used: research and the follow-up reserve keep what they had.
     """
     # Variables:
-    #   shown: The ids of the hypotheses the critic is shown.
-    #   began: The clock when the question started.
-    #   outcome: answered, no_answer or invalid_reply.
-    #   result: The critic's reply, if there was a usable one.
-    #   used: Seconds the critic took, never negative.
+    #   deps.critic: The second reviewer; None means the stage does nothing.
+    #   deps.critic_seconds: The critic's own window, separate from the
+    #     investigation's deadline.
+    #   shown: The ids of the hypotheses the critic is shown, kept in the record.
+    #   began: The clock when the question started, to measure the critic's time.
+    #   outcome: answered, no_answer (no model replied in time) or invalid_reply
+    #     (a reply was refused); none of the three stops the run.
+    #   result: The critic's reply, or None unless it was answered.
+    #   used: Seconds the critic took, added to started_at so the investigation's
+    #     time left is the same after this stage as before it.
     if deps.critic is None or not state.hypotheses:
         return
     shown = tuple(h.id for h in top_two(state))

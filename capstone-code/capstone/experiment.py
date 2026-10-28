@@ -339,7 +339,10 @@ def overruled_text(record: ExperimentRecord) -> str:
 def favoured_claim(state) -> str | None:
     """The claim of the hypothesis the critic favoured; None if it favoured none."""
     # Variables:
-    #   result: The critic's reply, if it gave a usable one.
+    #   state: The finished investigation, which holds the critique and the
+    #     hypotheses the critic chose among.
+    #   result: The critic's reply; None when it gave no usable one, so there is
+    #     no pick to label.
     result = None if state.critique is None else state.critique.result
     if result is None:
         return None
