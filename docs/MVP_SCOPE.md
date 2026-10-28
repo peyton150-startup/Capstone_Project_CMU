@@ -1922,7 +1922,8 @@ progress view discussed on 2026-10-19 would be its first screen.
 expose the user-adjustable settings currently configured through `.env` as
 frontend controls, including `STEP_QUESTIONS` (one or two model questions
 per step) and `STATE_ACTION_BAR` (show or hide the action threshold in the
-prompt). Keep the same backend validation and enforcement; hiding the
+prompt), and, once the critic is built, `CRITIC_MODEL` and `CRITIC_SECONDS`
+(added 2026-10-28; see `docs/superpowers/specs/2026-10-28-critic-review-only-design.md`). Keep the same backend validation and enforcement; hiding the
 threshold does not disable it. API keys and other secrets stay in backend
 configuration and must not be sent to the frontend. This is a future
 requirement, conditional on building a frontend; no settings UI is built yet.
