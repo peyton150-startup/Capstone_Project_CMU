@@ -108,8 +108,9 @@ run by meeting a bar set in advance.
   decision.
 - **Its own models, in its own chain:** `CRITIC_MODEL` takes a
   comma-separated chain like `FALLBACK_MODEL`, tried in order through
-  `FallbackClient`. The developer's first test chain: **Mistral, then
-  Cohere**. The critic does **not** get the shared `FALLBACK_MODEL` chain
+  `FallbackClient`. The developer's chain (decided 2026-10-28, after the
+  live check below): **`mistral/ministral-14b-2512` first, then
+  `cohere/command-a-03-2025`**, to use the developer's Mistral plan first. The critic does **not** get the shared `FALLBACK_MODEL` chain
   added after its own: that chain leads back to the investigator's models
   (NVIDIA), and a critic answered by the investigator's own model is not an
   independent second look. Each critique records which model answered
@@ -218,6 +219,15 @@ timed out once in three at 30 s: with two models sharing the window, the
 first gets about 15 s, so the window is likely too short; the runs set it.
 Every reply still said `object`, so whether the critic objects too often is
 open until real runs are labelled.
+
+## After the critic: a survey of smaller models (developer, 2026-10-28)
+
+Once the critic is built and measured, look for other small models,
+starting with what the developer's Mistral plan reaches, that could take
+narrow jobs in this project (a critic, a labeller, a single policy
+question). Same method as the live check above and `capstone.benchmark`:
+valid typed replies, time, and quality on made-up cases, one live run at a
+time. Ministral 8B is already known to fail the critic's reply type.
 
 ## Later, not now (option 2)
 
