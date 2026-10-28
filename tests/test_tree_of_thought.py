@@ -263,6 +263,21 @@ def test_both_steps_run_the_same_case_and_the_tree_costs_one_more_question():
     assert tot.model_calls.questions == plain.model_calls.questions + 1
     [thought] = built[0].thoughts
     assert thought.kept == ("C1",) and thought.dropped == {"C2": "rated impossible"}
+    assert plain.thoughts is None
+    assert tot.thoughts == [thought]
+
+
+def test_saved_tree_survives_the_results_file(tmp_path):
+    """The tree is written with the record and read back unchanged."""
+    from capstone.experiment import append_records, read_records
+
+    case = [Case("bearing-6", 6, "bearing_degradation")]
+    [tot] = run_experiment(case, lambda: as_tree(scripted_models()), name="tot")
+    path = tmp_path / "tot.jsonl"
+    append_records(path, [tot])
+    [back] = read_records(path)
+    assert back.thoughts == tot.thoughts
+    assert back.thoughts[0].dropped == {"C2": "rated impossible"}
 
 
 def test_the_experiment_flag_builds_the_tree_policy(monkeypatch):

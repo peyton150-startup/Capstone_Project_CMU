@@ -57,6 +57,7 @@ from capstone.agent.completion import AuditLog, complete
 from capstone.agent.model_policy import ModelCall
 from capstone.agent.policy import ReasoningPolicy
 from capstone.agent.state import Budgets
+from capstone.agent.tree_of_thought import Thought
 from capstone.console import safe_console
 from capstone.episode import (
     CHALLENGE,
@@ -272,6 +273,10 @@ class ExperimentRecord(BaseModel):
     step_questions: int | None = Field(default=None, ge=1, le=2)
     # None in older records; specialists can identify themselves on each step.
     agent_steps: list[AgentStep] | None = None
+    # With --tree-of-thought: one tree per hypothesize step, in order (the
+    # candidates, their ratings, which were kept and why the rest were dropped).
+    # None: the run used the ordinary step (or predates this record).
+    thoughts: list[Thought] | None = None
 
 
 # Tools answered by something other than the factory.
@@ -338,6 +343,7 @@ def record_of(
     wall_seconds: float | None = None,
     with_memory: bool = False,
     with_manual: bool = False,
+    thoughts: Sequence[Thought] | None = None,
 ) -> ExperimentRecord:
     state = result.state
     concluded = state.conclusion
@@ -389,6 +395,7 @@ def record_of(
                 else model_calls.details
             )
         ],
+        thoughts=None if thoughts is None else list(thoughts),
     )
 
 
@@ -434,6 +441,7 @@ def run_experiment(
     #   result: The finished episode, including the simulator and its hidden truth.
     #   wall_seconds: How long the episode took on the wall clock.
     #   calls: The model questions asked; only model-backed policies keep them.
+    #   thoughts: The tree-of-thought trees; only the tree policy keeps them.
     #   record: The case's result for the experimenter.
     records = []
     for number, case in enumerate(cases, start=start):
@@ -458,6 +466,7 @@ def run_experiment(
         )
         wall_seconds = clock() - started
         calls = getattr(policy, "calls", None)  # kept by ModelPolicy only
+        thoughts = getattr(policy, "thoughts", None)  # kept by TreeOfThoughtPolicy only
         record = record_of(
             case,
             run_key,
@@ -466,6 +475,7 @@ def run_experiment(
             wall_seconds=wall_seconds,
             with_memory=memory is not None,
             with_manual=manual is not None,
+            thoughts=thoughts,
         )
         records.append(record)
         if on_record is not None:
