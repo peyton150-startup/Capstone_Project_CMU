@@ -1855,12 +1855,15 @@ rates them and prunes to at most three via `--tree-of-thought`.
 `investigation.critique` records its feedback without changing the
 conclusion or requesting another tool call. This is *not* Graph of Thoughts.
 
-**Prerequisite: critic feedback-loop experiment.** Separately test allowing
-a critic's substantive objection to request at most one bounded,
-read-only discriminating observation and one subsequent hypothesis revision.
-Do not let the critic approve actions, manufacture observations, override
-the independent evidence requirements, or repeat indefinitely. Measure the
-effect against the review-only critic before attributing improvements to GoT.
+**Prerequisite: critic feedback-loop experiment.** This is now a
+**HIGH-priority pilot-readiness item**, independent of whether GoT is adopted;
+see [pilot-readiness work](#high-priority-future-work--pilot-readiness-critic-follow-up-fast-triage-and-abstention-2026-10-29).
+Separately test allowing a critic's substantive objection to request at most
+one bounded, read-only discriminating observation and one subsequent hypothesis
+revision. Do not let the critic approve actions, manufacture observations,
+override the independent evidence requirements, or repeat indefinitely.
+Measure the effect against the review-only critic before attributing
+improvements to GoT.
 
 **Prerequisite: evidence-scored, multi-cause diagnosis (2026-10-29).**
 Before testing GoT, investigate whether an evidence-scored *multi-label*
@@ -2498,6 +2501,121 @@ motor and hydraulic failure modes are separate future candidates. Neither
 improvement changes the MVP commitment merely by being documented.
 
 See the [simulator fidelity reevaluation gates](FUTURE_WORK_REEVALUATION.md#high-priority-simulator-fidelity-candidates-2026-10-23).
+
+### High-priority future work — pilot-readiness: critic follow-up, fast triage, and abstention (2026-10-29)
+
+**Status: PLANNED, documentation only. Priority: HIGH, before a customer
+pilot and before expanding reasoning complexity.** These are three small,
+measurable changes to the existing simulator/agent workflow, not a new
+agent framework or permission to connect to real machinery. Capture a
+repeatable one-machine baseline with the current review-only critic and
+known-answer evaluation first. Implement each item in a separate PR with
+tests and matched before/after runs. Preserve Pydantic Graph, shared budgets,
+human approval and hidden-truth isolation.
+
+#### 1. Close the critic feedback loop (HIGH; first)
+
+**Gap:** `agent/critic.py` can critique the top two hypotheses, but
+`agent/investigation.py:critique` only records the result. Nothing downstream
+uses it to gather discriminating evidence or reconsider the leading
+diagnosis. A second opinion with no consequence is not a closed feedback
+loop.
+
+**Minimal implementation:** when the critic returns a valid, substantive
+objection, allow the existing investigation graph to schedule **at most one**
+new read-only observation using the critic's proposed discriminating check.
+Validate the named tool and arguments through the same allowlist/contracts
+and authorize no state-changing call. Interpret the new observation through
+the normal policy, allow **at most one** hypothesis update, and then proceed
+to the existing conclude/approval/verification stages. No repeated
+critic-triggered loops. If the objection is unsupported, its proposed tool
+is unavailable, there is insufficient time/budget, or the provider fails,
+record the reason and conclude conservatively; never invent or silently
+treat the absent evidence as confirming the diagnosis.
+
+**Acceptance tests:** a seeded ambiguous case where the critic identifies
+a real unresolved question and the agent performs exactly one legal
+observation before revising/concluding; no-objection and invalid-objection
+cases with zero extra calls; exhausted-budget, timeout and bad-tool cases;
+no execution/approval bypass or ground-truth leakage. Compare current
+review-only critic versus bounded follow-up on matched seeds: correct
+diagnoses, useful/valid evidence, unnecessary interventions, additional
+calls/tokens and p50/p95 latency. Do not assume the critic improves results;
+keep the feature opt-in until demonstrated.
+
+#### 2. Split rapid triage from deep investigation (HIGH)
+
+**Gap:** `agent/state.py:Budgets` currently defaults to a
+`timeout_seconds=1200` investigation with `followup_seconds=400`.
+A potentially 20-minute response is difficult to present as immediate
+shop-floor triage, although it may be acceptable for extended root-cause
+research.
+
+**Minimal implementation:** expose two explicit modes over the **same**
+`FactoryProvider`, typed evidence and agent orchestration:
+
+- **Rapid triage:** a tight configurable wall-clock/model/tool budget;
+  report anomaly, leading **preliminary** cause(s), evidence, uncertainty,
+  missing checks and whether a deep investigation is recommended. Return
+  `insufficient_evidence` rather than force a diagnosis if the budget ends.
+  This is **read-only**, with no maintenance proposal or execution.
+- **Deep investigation:** the existing longer, bounded
+  investigate/hypothesize/test/conclude/propose/verify/remember workflow,
+  invoked separately when appropriate. Give it a new run/investigation
+  identity and a traceable reference to the triage result. Never imply
+  that starting deep research is equivalent to human approval for a fix.
+
+**Engineering gate:** define a measurable triage response-time target
+(SLO) from actual provider latency, then set limits that can meet it;
+a candidate target such as p95 <= 90 seconds is a hypothesis, **not**
+a capability claim. Record service latency separately from simulation
+ticks, and count timeout/partial-result outcomes rather than hiding them.
+Triage may be extended only through an explicit deep-run decision; it
+must not secretly continue for 20 minutes.
+
+**Acceptance tests:** identical seeded fault and normal-operation cases
+run through triage and deep modes; a clear preliminary result vs.
+`insufficient_evidence`; hard budget enforcement even when providers
+are slow; deep mode retains existing human approval and post-action
+verification; neither mode sees hidden truth. Report p50/p95 latency,
+time-to-first-useful-answer, accuracy among answered cases, abstention
+rate, and additional model/tool calls.
+
+#### 3. Test abstention and degraded data in the simulator (HIGH)
+
+**Gap:** the simulator already supports faults and
+`providers/hazards.py:UnreliableProvider` can simulate timeouts,
+missing result rows, and stale maintenance records. Explicitly evaluate
+whether the investigator recognizes when those observations cannot
+justify a root-cause claim, rather than rewarding confident guesses.
+
+**Minimal implementation:** build a compact seeded evaluation matrix with:
+complete evidence (control), a dropped/missing sensor feed, delayed/stale
+data, conflicting observations, a misleading false alarm, and at least
+one compound-fault case. Use only the agent-visible provider boundary;
+keep hidden ground truth available **only** to the evaluator. Model
+`unavailable`/`stale`/`partial` separately from an observed normal
+value, and give the agent an explicit `insufficient_evidence` or
+`undetermined` outcome with a useful next check or human escalation.
+A successful retry or independent observation may resolve uncertainty;
+a failed retry must not be reinterpreted as evidence that no fault exists.
+
+**Acceptance tests and scorecard:** on a purposely unobservable case,
+agent abstains without proposing a repair; on a recoverable dropped-feed
+case, it retries or changes source within its budget and uses only valid
+observations; on a normal/false-alarm case it avoids unnecessary action.
+Measure accuracy **conditional on answering**, abstention/coverage,
+wrong confident conclusions, false interventions, recovery rate, evidence
+freshness/completeness and latency against the clean-data baseline.
+Make demo traces show both an appropriately uncertain answer and a
+successful recovery. Preserve replayability and all existing safety
+and verification checks.
+
+**Sequencing:** baseline -> one bounded critic follow-up -> rapid triage
+mode -> degraded-data/abstention regression suite -> pilot demonstration.
+The regression cases may be written alongside either earlier change.
+These tasks complement, rather than replace, the separate Haas VF/NGC
+reference-machine retrofit below; no physical Haas connection is needed.
 
 ### High-priority future work — retrofit the simulator around real Haas VF-series machines (2026-10-29)
 
