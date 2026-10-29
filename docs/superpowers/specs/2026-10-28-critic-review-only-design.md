@@ -320,3 +320,34 @@ its window) looks silent. Showing "asking the critic about H1, H2" needs a
 pending marker on the state (a new `CritiqueRecord` outcome or stage value)
 and a `notify` call before the question. PR #112 added the fuller result
 lines but not this.
+
+## Amendment (developer, 2026-10-29): before every conclusion, every hypothesis
+
+Two decisions above are changed, after the first live runs.
+
+- **Where.** The critique now runs before every conclusion, not only after
+  `test`. Both forks that used to go straight to `conclude`
+  (`anything_to_explain`, `anything_to_test`) now go to `critique`, so every
+  path passes `critique -> recheck -> conclude`. Reason: the first KA-03 run
+  with the critic ran out of research time in `investigate`, skipped `test`,
+  and so was never reviewed, although it was a reasoning miss. The record now
+  says which stage the critique followed (`CritiqueRecord.after_stage`:
+  `investigate`, `hypothesize` or `test`), read before the follow-up sets the
+  stage to `test`.
+- **What it sees.** Every hypothesis the agent holds, most believed first, up
+  to five (`SHOWN_HYPOTHESES`), with the leading one marked, instead of the two
+  leading ones. Reason: KA-03's true cause (batch 2) was the agent's third
+  hypothesis, so a top-two view hid it, and a reply favouring it would have
+  been refused. `favoured` may now be any shown id or `none`; a reply is
+  refused only for an id the agent never formed. `discriminating_check` should
+  separate the critic's pick from the leading explanation (from the runner-up
+  when it picks the leader).
+- **With the follow-up (`CRITIC_FOLLOWUP`, PR #119).** When the critic objects
+  and favours a hypothesis other than the leader, the follow-up's question
+  (`K1`) tests the critic's pick and names both ids. A run with no research
+  time left still gets the critique, but the follow-up skips, as it already
+  did.
+
+Not changed: review only unless `CRITIC_FOLLOWUP` is on; the critic's own time
+window; nothing the critic says counts at the action bar. The manual for the
+critic comes with the automatic manual retrieval (planned next).

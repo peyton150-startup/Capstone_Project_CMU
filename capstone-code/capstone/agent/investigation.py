@@ -10,7 +10,8 @@ what the turns are for:
     investigate  the inner loop gathers evidence
     hypothesize  the policy proposes explanations for that evidence
     test         the inner loop gathers evidence until one is supported
-    critique     an optional second model judges the two leading hypotheses
+    critique     an optional second model judges the hypotheses; every path
+                 into the conclusion passes through it
     recheck      optionally, one reading the critic pointed at (see `recheck`)
     conclude     the policy states a diagnosis; this module checks it
     propose      ask a human for the change, then read their decision back
@@ -46,7 +47,7 @@ from capstone.agent.artifacts import (
     TerminationReason,
     VerificationCheck,
 )
-from capstone.agent.critic import top_two
+from capstone.agent.critic import shown_hypotheses
 from capstone.agent.loop import (
     POLICY_ERRORS,
     InvestigationDeps,
@@ -182,7 +183,7 @@ def test(state: InvestigationState, deps: InvestigationDeps) -> None:
 
 
 def critique(state: InvestigationState, deps: InvestigationDeps) -> None:
-    """Ask the critic to judge the two leading hypotheses. Review only.
+    """Ask the critic to judge the agent's hypotheses before it concludes.
 
     Nothing in the run reads the answer. Whatever happens (no answer, an
     unusable reply), the run goes on to the conclusion. The critic has its
@@ -196,6 +197,8 @@ def critique(state: InvestigationState, deps: InvestigationDeps) -> None:
     #   shown_claims: Each shown hypothesis's claim as worded now, so the record
     #     keeps what the critic judged even if the agent rewords it later.
     #   shown: The ids of the hypotheses the critic is shown, kept in the record.
+    #   after_stage: The stage this critique followed, read now, before the
+    #     follow-up (`recheck`) sets the stage to test for its own call.
     #   began: The clock when the question started, to measure the critic's time.
     #   outcome: answered, no_answer (no model replied in time) or invalid_reply
     #     (a reply was refused); none of the three stops the run.
@@ -206,8 +209,11 @@ def critique(state: InvestigationState, deps: InvestigationDeps) -> None:
     #     time left is the same after this stage as before it.
     if deps.critic is None or not state.hypotheses:
         return
-    shown_claims = {h.id: h.claim for h in top_two(state)}
+    shown_claims = {h.id: h.claim for h in shown_hypotheses(state)}
     shown = tuple(shown_claims)
+    after_stage = (
+        state.stage if state.stage in ("investigate", "hypothesize", "test") else None
+    )
     began = deps.clock()
     outcome = "answered"
     result = None
@@ -231,6 +237,7 @@ def critique(state: InvestigationState, deps: InvestigationDeps) -> None:
         seconds=used,
         answered_by=answered_by,
         favoured_claim=None if result is None else shown_claims.get(result.favoured),
+        after_stage=after_stage,
     )
 
 
@@ -287,6 +294,9 @@ def recheck(state: InvestigationState, deps: InvestigationDeps) -> None:
     #   trigger: objection or agreement, or None when the stage does not run.
     #   reason: Why it did not run, for the record.
     #   leading: The agent's best explanation before the reading.
+    #   favoured: The hypothesis the critic picked; the question tests it when it
+    #     is not the leader.
+    #   target, text: The hypothesis the question tests, and its wording.
     #   question: The critic's check as an open question for the policy.
     #   summary: What every record of a run that went ahead shares.
     #   decision: The policy's one choice: a tool call or a stop.
@@ -301,9 +311,18 @@ def recheck(state: InvestigationState, deps: InvestigationDeps) -> None:
         return
     leading = state.leading_hypothesis
     check = state.critique.result.discriminating_check.strip()
-    question = Question(
-        id="K1", text=f"The critic's check: {check}", hypothesis_id=leading.id
-    )
+    favoured = state.critique.result.favoured
+    # The critic sees every hypothesis, so its check may be meant to separate
+    # another one (its pick) from the leader: then the question tests its pick.
+    if favoured != leading.id and any(h.id == favoured for h in state.hypotheses):
+        target = favoured
+        text = (
+            f"The critic's check, to tell {favoured} (the critic's pick) from "
+            f"{leading.id} (the agent's leading explanation): {check}"
+        )
+    else:
+        target, text = leading.id, f"The critic's check: {check}"
+    question = Question(id="K1", text=text, hypothesis_id=target)
     state.unanswered_questions.append(question)
     summary = {
         "trigger": trigger,
@@ -824,8 +843,10 @@ def build_graph():
         return decision
 
     def route(node_id: str, onward):
-        """Send "continue" onward and "conclude" to the conclusion."""
-        return choose(node_id, {"continue": onward, "conclude": conclude_step})
+        """Send "continue" onward and "conclude" to the critique, which every
+        path into the conclusion passes through (it does nothing without a
+        critic or a hypothesis)."""
+        return choose(node_id, {"continue": onward, "conclude": critique_step})
 
     builder.add(
         builder.edge_from(builder.start_node).to(observe_step),

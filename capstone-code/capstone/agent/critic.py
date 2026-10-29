@@ -1,12 +1,13 @@
-# The critic: a second model that judges the two leading hypotheses.
+# The critic: a second model that judges the agent's hypotheses before it concludes.
 # Responsibility: build its view, ask its one typed question, check the reply, keep its own call records.
-"""A second look at the agent's two best explanations, review only.
+"""A second look at the agent's explanations before every conclusion.
 
     critic = Critic(critic_client(settings), research_tools())
     result = critic.review(state, max_seconds=40)
 
 The critic is shown the evidence the agent gathered (the same section the
-agent's own questions get), the two hypotheses with the highest confidence,
+agent's own questions get), every hypothesis the agent holds (up to
+`SHOWN_HYPOTHESES`, most believed first, the leading one marked),
 and the names and descriptions of the agent's research tools as text. It
 cannot call them. It never sees the scenario, the run, a score or any
 hidden truth, because `critique_view` reads nothing but the state's anomaly,
@@ -44,26 +45,32 @@ __all__ = [
     "CritiqueResult",
     "RecheckRecord",
     "critique_view",
-    "top_two",
+    "SHOWN_HYPOTHESES",
+    "shown_hypotheses",
 ]
 
-# How many hypotheses the critic is shown.
-SHOWN_HYPOTHESES = 2
+# The most hypotheses the critic is shown. All of them, in practice (the
+# agent has held at most four in the saved runs); the cap keeps a small
+# model's prompt short. KA-03's true cause was the agent's third hypothesis,
+# which a top-two view hid.
+SHOWN_HYPOTHESES = 5
 
 # The worked example is about something other than this factory, on purpose:
 # it shows the steps without hinting at any answer.
 CRITIC_SYSTEM = """\
 You are a critic. An investigator has gathered evidence and holds several \
-explanations. You are shown the evidence and the two explanations it believes \
-most. You cannot look anything up and cannot call any tool. Judge only what is shown.
+explanations. You are shown the evidence and the explanations it holds, most \
+believed first; the first is its leading explanation. You cannot look anything \
+up and cannot call any tool. Judge only what is shown.
 
 Work through these steps, in order:
 1. Read each hypothesis and the evidence ids it says support or contradict it.
 2. For each hypothesis, list the evidence that fits it and the evidence that does not.
-3. Pick the hypothesis the evidence supports better. It need not be proven; \
-it must be the better fit. Pick none only if the evidence supports neither.
+3. Pick the hypothesis the evidence supports best. It need not be proven; \
+it must be the best fit. Pick none only if the evidence supports none of them.
 4. Name one call from the tool list, with its arguments, whose answer would \
-separate the two hypotheses. Use only tools in the list.
+separate your pick from the leading explanation (from the runner-up, if your \
+pick is the leading one). Use only tools in the list.
 5. List objections. Each has a kind, one sentence, and the evidence ids it rests \
 on. Cite only ids that are shown to you.
 6. Give the verdict: object if the investigator should doubt its leading \
@@ -88,16 +95,19 @@ objections: one missing_evidence citing E1; verdict: object; \
 favoured_confidence 0.65; supports_action false."""
 
 
-def top_two(state: InvestigationState) -> list[Hypothesis]:
-    """The hypotheses with the highest confidence, best first; a tie keeps list order."""
+def shown_hypotheses(state: InvestigationState) -> list[Hypothesis]:
+    """The hypotheses the critic judges: most believed first, a tie in list order.
+
+    The first is the agent's leading one (`leading_hypothesis` picks the same).
+    """
     # Variables:
     #   state: The investigation so far; read only, never changed here.
-    #   SHOWN_HYPOTHESES: How many hypotheses the critic gets to judge (two).
+    #   SHOWN_HYPOTHESES: The most the critic is shown.
     return sorted(state.hypotheses, key=lambda h: -h.confidence)[:SHOWN_HYPOTHESES]
 
 
 def critique_view(state: InvestigationState, tools: Sequence[ToolSpec]) -> str:
-    """What the critic is shown, built from the anomaly, evidence and two hypotheses."""
+    """What the critic is shown: the anomaly, the evidence and the hypotheses."""
     # Variables:
     #   tools: The agent's research tools, shown as text only so the critic can name
     #     a check the agent could make; the critic cannot call them.
@@ -113,11 +123,12 @@ def critique_view(state: InvestigationState, tools: Sequence[ToolSpec]) -> str:
         "",
         "HYPOTHESES SHOWN TO YOU:",
     ]
-    for h in top_two(state):
+    for rank, h in enumerate(shown_hypotheses(state)):
+        leading = ", the agent's leading explanation" if rank == 0 else ""
         supported = ", ".join(h.supporting_evidence_ids) or "none"
         contradicted = ", ".join(h.contradicting_evidence_ids) or "none"
         lines.append(
-            f"- {h.id} (confidence {h.confidence:.2f}): {h.claim} "
+            f"- {h.id} (confidence {h.confidence:.2f}{leading}): {h.claim} "
             f"Supported by: {supported}. Contradicted by: {contradicted}."
         )
     lines += [
@@ -144,7 +155,7 @@ class Critic:
     def review(
         self, state: InvestigationState, *, max_seconds: float
     ) -> CritiqueResult:
-        """Judge the two leading hypotheses within `max_seconds`.
+        """Judge the agent's hypotheses within `max_seconds`.
 
         A `ModelError` (no answer in time) passes up, recorded as `no_answer`.
         A reply that breaks the type, or cites what it was not shown, raises
@@ -156,7 +167,7 @@ class Critic:
         #   shown: The ids of the hypotheses the critic was shown, so a reply naming
         #     any other can be refused.
         #   answer: The critic's typed reply, kept only if it passes `_problem`.
-        shown = [h.id for h in top_two(state)]
+        shown = [h.id for h in shown_hypotheses(state)]
         try:
             answer = self.client.ask(
                 CRITIC_SYSTEM,
