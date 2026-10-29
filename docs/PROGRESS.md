@@ -169,6 +169,12 @@ alarm), then evaluation, then the agent itself.
   live. Still to build for item 2: the degraded-case matrix and the
   abstention scorecard (accuracy among answered cases, abstention rate,
   wrong confident conclusions, false interventions, recovery rate).
+- **2026-10-29 (docs-only): Codex runs the master experiments, Claude Code
+  builds the code.** At the developer's request, `AGENTS.md` §12 records the
+  split. Codex does the live master runs, their labelling and the result
+  notes. Claude Code builds features, fixes and tests through pull requests,
+  runs only tests and scripted offline runs itself, and hands merged changes
+  to Codex to run live.
 
 - **2026-10-29 (C2r): the critic follow-up, one reading where the critic
   pointed.** Item 1 of the 2026-10-29 pilot-readiness list. Taught first. The

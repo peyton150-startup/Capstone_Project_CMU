@@ -529,3 +529,22 @@ documented on GitHub where the developer can read it.
    research paper, credit it in the same PR: add a line to the "Research
    basis" section of `README.md` naming the change and linking the paper.
    List only papers that actually shaped a change that was made.
+
+---
+
+## 12. Who does what: Codex runs, Claude Code builds
+
+**Rule set by the developer, 2026-10-29.** Two coding agents work in this
+repository, with separate jobs:
+
+- **Codex runs the master experiments.** The live benchmark runs against real
+  models (the EV1 master baseline and later master runs, such as review-only
+  critic vs critic follow-up, or `--hazards blackout`), their labelling, and
+  the result notes in `docs/benchmarks/` and `docs/PROGRESS.md`.
+- **Claude Code builds the code.** Features, fixes, tests, refactors and their
+  pull requests. Claude Code does not start live master runs. It may run the
+  test suite and scripted (offline) runs to check its own work, and it hands
+  a change to Codex to run live once it is merged.
+
+Everything else in this file applies to both: one live run at a time, every
+change through a pull request (§11), and the developer's gates (§1).
