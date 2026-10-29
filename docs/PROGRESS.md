@@ -165,6 +165,30 @@ alarm), then evaluation, then the agent itself.
 
 ## Session notes
 
+- **2026-10-29 (config): the manual index is rebuilt before a run when the
+  manual changed.** Rule from the developer, who had just re-embedded the
+  manual by hand: **when the manual changes, the index must be rebuilt before
+  the next run.** Now automatic. `manual/index.py`: `section_digest` (a
+  fingerprint of each section's title, text and revision) is stored with each
+  section by `ChromaManualIndex.build`; `ChromaManualIndex.is_current` is true
+  only when the index holds exactly today's sections with today's
+  fingerprints; `ready_index` / `ready_manual_index` reuse a current index and
+  otherwise rebuild it first, saying why (empty, the manual changed, or built
+  by another embedding model). `experiment.open_manual` (used by
+  `capstone.experiment run` and `capstone.evals`) calls it before every
+  semantic run and prints "rebuilt the manual index before the run: ..." when
+  it rebuilt. The index is still built once and reused: the manual's vectors
+  do not change between runs, so only each search's own words are embedded.
+  An index built before fingerprints were kept (including the developer's
+  re-embed of today) is rebuilt once, on its next run. Tests
+  (`tests/test_manual.py`): an empty index is built; a current one is
+  reused; an edited title, text or revision changes the fingerprint and is
+  not current; a removed or added section is not current; a changed manual
+  is rebuilt with that reason; another embedding model is rebuilt; an index
+  without fingerprints is rebuilt once and then reused; a semantic run says
+  when it rebuilt and says nothing when it reused. Built ungated at the
+  developer's request (understood: no); to be taught 2026-10-30.
+
 - **2026-10-29 (config): the manual is on by default; `--no-manual` opts
   out.** The developer's choices: the manual is offered by default, searched by
   meaning (semantic, as `--manual` did; `--manual keyword` still picks shared

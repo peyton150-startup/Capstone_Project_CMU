@@ -49,6 +49,23 @@ Decisions made by the developer on 2026-10-22:
    `capstone.evals` alike; each record keeps `manual_searches` (query, outcome,
    sections) and the report adds a "manual:" line.
 
+## Keeping the index in step with the manual (2026-10-29)
+
+**Rule (developer, 2026-10-29): when the manual changes, the index must be
+rebuilt before the next run.** It is now automatic. Each indexed section
+carries a fingerprint of its title, text and revision (`section_digest`).
+Before every semantic run, `open_manual` calls `ready_manual_index`, which
+rebuilds the index first and prints why if:
+- it is empty (a new machine),
+- any section's fingerprint differs, or a section was added or removed (the
+  manual was edited), or
+- it was built by another embedding model (`EMBEDDING_MODEL` changed).
+
+Otherwise the built index is reused: the manual's vectors do not change
+between runs, so nothing is embedded again except each search's own words.
+`python -m capstone.manual.index --rebuild` still rebuilds by hand. An index
+built before fingerprints were kept is rebuilt once, on its next run.
+
 ## Evaluating it
 
 Run the same tuning cases with and without `--manual`, same model, prompts,

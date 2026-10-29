@@ -930,27 +930,28 @@ def add_manual_options(parser: argparse.ArgumentParser) -> None:
 
 
 def open_manual(mode: str) -> ManualSearch:
-    """The machine manual, searched by meaning ("semantic": the Chroma index built
-    by `python -m capstone.manual.index`) or by shared words ("keyword")."""
+    """The machine manual, searched by meaning ("semantic": its Chroma index) or
+    by shared words ("keyword").
+
+    Before a semantic run the index is checked against the manual and rebuilt
+    first if it is empty, out of date (the manual changed) or built by another
+    embedding model, so a run never searches an old manual.
+    """
     # Variables:
     #   mode: semantic searches by meaning, keyword by shared words.
     #   sections: The manual's checked sections.
-    #   index: The built semantic index; an empty one stops the run with a hint to build
-    #     it.
-    from capstone.manual.index import (
-        REBUILD_HINT,
-        KeywordManualSearch,
-        open_manual_index,
-    )
+    #   index: The semantic index, ready for the run.
+    #   rebuilt: Why the index was rebuilt first, or None when it was reused.
+    from capstone.manual.index import KeywordManualSearch, ready_manual_index
     from capstone.manual.sections import load_manual
     from capstone.settings import get_settings
 
     sections = load_manual()
     if mode == "keyword":
         return KeywordManualSearch(sections)
-    index = open_manual_index(get_settings(), sections=sections)
-    if index.collection.count() == 0:
-        raise SystemExit(f"the manual index is empty; build it first: {REBUILD_HINT}")
+    index, rebuilt = ready_manual_index(get_settings(), sections=sections)
+    if rebuilt is not None:
+        print(f"rebuilt the manual index before the run: {rebuilt}", flush=True)
     return index
 
 
