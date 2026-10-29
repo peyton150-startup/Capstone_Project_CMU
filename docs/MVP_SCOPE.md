@@ -1791,6 +1791,58 @@ model runs measure performance on repeatable cases without promising identical
 answers. These regression cases support the normal investigation workflow;
 they do not introduce the excluded failure-diagnostic benchmark mode.
 
+#### Graph of Thoughts (GoT) hypothesis reasoning — medium-priority evaluation (2026-10-29)
+
+**Status:** ROADMAP ONLY; not implemented. Evaluate after a measured baseline of
+the current investigator, optional depth-one Tree of Thoughts (ToT), and critic.
+This is a targeted reasoning experiment, not a replacement for Pydantic Graph
+or a commitment to add a second orchestration framework.
+
+**Existing code:** `agent/investigation.py` uses Pydantic Graph for stage
+routing; `agent/loop.py` enforces tool, evidence and time budgets;
+`agent/tree_of_thought.py` optionally generates up to five hypotheses,
+rates them and prunes to at most three via `--tree-of-thought`.
+`agent/critic.py` currently reviews the two leading hypotheses, but
+`investigation.critique` records its feedback without changing the
+conclusion or requesting another tool call. This is *not* Graph of Thoughts.
+
+**Prerequisite: critic feedback-loop experiment.** Separately test allowing
+a critic's substantive objection to request at most one bounded,
+read-only discriminating observation and one subsequent hypothesis revision.
+Do not let the critic approve actions, manufacture observations, override
+the independent evidence requirements, or repeat indefinitely. Measure the
+effect against the review-only critic before attributing improvements to GoT.
+
+**Minimal GoT prototype:** extend the *hypothesis reasoning policy*, not the
+macro workflow. Represent each competing diagnosis and its dependencies with
+typed nodes and explicit edges (`supports`, `contradicts`, `depends_on`,
+`refines` or `combines`) referencing observed evidence IDs. Allow a bounded
+merge of compatible branches (for example, concurrent bearing wear and
+excess cutting load), revision after a real tool result, and pruning based
+on grounded contradictions. A graph relation is an analyst hypothesis,
+not new sensor evidence. Keep candidate/merge counts, depth, model calls,
+tool calls, and elapsed time under the current shared budgets. Persist
+the proposed nodes/edges and selection outcomes as auditable artifacts,
+not hidden model chain-of-thought.
+
+**Evaluation and adoption gate:** use `capstone.experiment` with matched
+seeded single-fault and compound-fault cases to compare (1) standard policy,
+(2) opt-in ToT, and (3) a bounded GoT prototype. Hold model, manual/episodic
+retrieval, critic mode, tools, cases, and configured budgets constant in each
+comparison; evaluate critic feedback separately to avoid confounding.
+Measure root-cause accuracy, multiple-cause recall, evidence validity,
+contradiction handling, action correctness, false interventions, verified
+resolution, schema failures, model/tool calls, p50/p95 wall time, and
+provider cost where measurable. Include noisy, missing, stale and conflicting
+telemetry plus later Haas VF/NGC-compatible observations when available,
+without exposing simulator ground truth to the policy. Adopt GoT only if
+repeatable gains justify its added latency and maintenance complexity under
+the target pilot SLA; otherwise keep standard/ToT and the improved critic.
+No dependency changes or production enablement are authorized by this entry.
+
+Reference: [Graph of Thoughts: Solving Elaborate Problems with Large Language
+Models](https://arxiv.org/abs/2308.09687) (Besta et al., 2023).
+
 #### Pydantic AI runtime reliability review — candidate (2026-10-28)
 
 **Status:** HIGH-priority audit / small benchmark; roadmap only, not a
