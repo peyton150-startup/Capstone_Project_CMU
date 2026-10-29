@@ -1813,6 +1813,55 @@ Do not let the critic approve actions, manufacture observations, override
 the independent evidence requirements, or repeat indefinitely. Measure the
 effect against the review-only critic before attributing improvements to GoT.
 
+**Prerequisite: evidence-scored, multi-cause diagnosis (2026-10-29).**
+Before testing GoT, investigate whether an evidence-scored *multi-label*
+hypothesis policy better fits real machines with concurrent faults. The
+current ToT `prune()` uses model confidence, keeps at most three candidates,
+and can discard additional plausible causes solely because of their rank.
+Instead, retain independently supported, materially distinct causes even
+when several may all be true (for example bearing wear and excessive
+cutting load). Use a bounded active set and prioritize which hypotheses
+receive tool calls, rather than treating the top-k selection as a truth
+test. Reject a candidate for grounded contradictory evidence, invalid
+citations, or duplication; when a budget forces deferral, record it as
+*untested/deferred*, not false.
+
+Compute an **explainable evidence-strength score per hypothesis**, with
+separate contributing factors: observed support, observed contradictions,
+coverage of relevant symptoms, sensor/data reliability, and remaining
+unanswered discriminating checks. Use independent observations and evidence
+provenance, not just self-reported model confidence. Do not count correlated
+alarm/raw/summary views of the same observation as separate corroboration.
+Keep the score distinct from a probability of truth until it is calibrated
+against held-out labelled cases; simultaneous faults need not have scores
+that sum to 100. Permit rescoring as real evidence arrives and retain an
+explicit status (`candidate`, `supported`, `contradicted`,
+`deferred`, `unresolved`), plus an auditable score breakdown.
+
+**Required code/design review:** `agent/tree_of_thought.py` (score and
+evidence-based rejection versus hard top-three pruning);
+`contracts/hypotheses.py` (score components and per-hypothesis status);
+`agent/state.py` and `agent/loop.py` (`leading_hypothesis`,
+`diagnosis_supported`, and stopping conditions must not terminate while
+material concurrent faults remain untested); `agent/artifacts.py` and
+`agent/investigation.py` (current `AgentConclusion.hypothesis_id`
+is singular; consider a typed multi-cause conclusion with linked evidence
+and per-cause action/verification outcomes); and `agent/critic.py`
+(current review considers only two leading explanations). Preserve
+existing Pydantic Graph orchestration, human approval, read-only research
+tools, and observable verification of any approved intervention.
+
+**Acceptance test:** compare current top-k ToT and independent scoring on
+matched single-fault and compound-fault seeds, including noise, missing
+data, false alarms, and correlated telemetry. Evaluate multi-label
+precision/recall/F1, missed concurrent causes, false positive causes,
+quality/uniqueness of cited evidence, unnecessary interventions,
+post-action verification, p50/p95 runtime, and model/tool calls under
+the same budgets. Do not promote scores to calibrated probabilities,
+adopt the multi-cause output contract, or feed scores into the GoT prototype
+without demonstrated improvements and regression coverage. This is
+documentation-only future work, not authorization to change runtime code.
+
 **Minimal GoT prototype:** extend the *hypothesis reasoning policy*, not the
 macro workflow. Represent each competing diagnosis and its dependencies with
 typed nodes and explicit edges (`supports`, `contradicts`, `depends_on`,
