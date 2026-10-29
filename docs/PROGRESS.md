@@ -132,6 +132,27 @@ alarm), then evaluation, then the agent itself.
 
 ## Session notes
 
+- **2026-10-29: a stop leaves the call fields empty (prompt and schema).**
+  The investigator kept answering a decide question with `choice: stop` while
+  also setting `tool`, `arguments`, `question_id` or `hypothesis_id`, which
+  `NextStep.one_kind_of_step` refuses. Counted across every saved results file:
+  26 of 1,448 questions (1.8 %), all decide, in 10 of 87 runs, and none in the
+  earliest files. Each costs a question and counts as an unproductive step;
+  three in a row end the stage (KA-02 in the first critic run: three refused
+  stops, then `no_useful_action`, a wrong recorded stop reason). Likely cause:
+  `NextStep` is flat on purpose, so every field looks allowed on a stop, and the
+  decide prompt never said to leave them empty; a KA-01 stop said "Q2 is settled
+  by E2", which suggests `question_id: "Q2"`. Changes in `agent/model_policy.py`:
+  one sentence in `SYSTEM["decide"]` (used by the step-by-step and the combined
+  question): leave those four fields empty when stopping and say what was
+  settled, and which question, in `information_needed`; descriptions on the
+  four fields ("Only with choice call_tool; leave empty when stopping") and on
+  `stop_reason`, which reach the model with the schema; the refusal now ends
+  with `(found: <fields>)`, keeping the old wording first so older counts still
+  match. Still refused, never repaired. To check: the same count on the next
+  runs. Built ungated at the developer's choice (option 1 of three), developer
+  to review.
+
 - **2026-10-29 (docs-only): Haas VF-based simulator retrofit and older-machine support.** Recorded a HIGH-priority post-baseline future-work plan in `docs/MVP_SCOPE.md` for a real, revision-specific Haas VF NGC profile to replace the generic CNC as the simulator's eventual default, with optional Classic Control/RS-232 compatibility for early-2000s machines, `FactoryProvider` read-only adapters, manual/SOP RAG, field discovery, optional external sensors, explicit missing-data semantics and deterministic offline comparisons. No runtime changes or machine integrations were made; the existing `SIM-CNC-001` manual remains synthetic.
 
 

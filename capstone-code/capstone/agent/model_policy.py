@@ -118,16 +118,31 @@ class NextStep(Contract):
 
     choice: Literal["call_tool", "stop"]
     information_needed: str = Field(min_length=1)
-    tool: str | None = None
-    arguments: dict[str, JsonValue] = Field(default_factory=dict)
-    question_id: str | None = None
-    hypothesis_id: str | None = None
+    # The descriptions go to the model with the schema. The schema is flat, so
+    # without them every field looks allowed on a stop (measured 2026-10-28:
+    # 26 of 1,448 decide replies were stops that also set one of these).
+    tool: str | None = Field(
+        default=None,
+        description="The tool to call. Only with choice call_tool; leave empty when stopping.",
+    )
+    arguments: dict[str, JsonValue] = Field(
+        default_factory=dict,
+        description="The tool's arguments. Only with choice call_tool; leave empty when stopping.",
+    )
+    question_id: str | None = Field(
+        default=None,
+        description="The open question this call answers. Only with choice call_tool; leave empty when stopping.",
+    )
+    hypothesis_id: str | None = Field(
+        default=None,
+        description="The hypothesis this call tests. Only with choice call_tool; leave empty when stopping.",
+    )
     stop_reason: (
         Literal[
             TerminationReason.EVIDENCE_SUFFICIENT, TerminationReason.NO_USEFUL_ACTION
         ]
         | None
-    ) = None
+    ) = Field(default=None, description="Only with choice stop: why to stop.")
 
     @model_validator(mode="after")
     def one_kind_of_step(self):
@@ -140,10 +155,23 @@ class NextStep(Contract):
         else:
             if self.stop_reason is None:
                 raise ValueError("a stop step must give a stop_reason")
-            used = (self.tool, self.question_id, self.hypothesis_id)
-            if any(value is not None for value in used) or self.arguments:
+            # Variables:
+            #   found: The call-only fields this stop set, named in the refusal so
+            #     the record shows what the model sent.
+            found = [
+                name
+                for name, value in (
+                    ("tool", self.tool),
+                    ("arguments", self.arguments or None),
+                    ("question_id", self.question_id),
+                    ("hypothesis_id", self.hypothesis_id),
+                )
+                if value is not None
+            ]
+            if found:
                 raise ValueError(
-                    "a stop step names no tool, arguments, question_id or hypothesis_id"
+                    "a stop step names no tool, arguments, question_id or "
+                    f"hypothesis_id (found: {', '.join(found)})"
                 )
         return self
 
@@ -468,7 +496,9 @@ SYSTEM = {
         "choice to stop and stop_reason to evidence_sufficient when the evidence "
         "answers what this stage needs, or when the remaining budget is better "
         "saved than spent on a call unlikely to change your view, or "
-        "no_useful_action when no listed tool would help. "
+        "no_useful_action when no listed tool would help. When you stop, leave "
+        "tool, arguments, question_id and hypothesis_id empty: say what the "
+        "evidence settled, and which question, in information_needed instead. "
         "During investigate and test, before stopping with a leading but still "
         "uncertain explanation, make one discriminating check if it could change "
         "the conclusion and the budget permits it: compare the same sensor on "
