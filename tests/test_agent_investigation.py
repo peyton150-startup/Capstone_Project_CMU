@@ -1079,3 +1079,20 @@ def test_the_follow_up_still_tests_the_leader_when_the_critic_picked_it():
     [question] = [q for q in state.unanswered_questions if q.id == "K1"]
     assert question.hypothesis_id == "H1"
     assert question.text == "The critic's check: get_readings on CNC-02"
+
+
+# --- the critic's manual sections (Option B) are kept on the record ----------
+
+
+def test_the_record_keeps_which_manual_sections_the_critic_saw():
+    critic = FakeCritic()
+    critic.last_sections = ("§2.9", "§2.1")
+    state, _ = investigate(wear_policy(), critic=critic)
+    assert state.critique.manual_sections == ("§2.9", "§2.1")
+
+
+def test_a_critic_without_a_manual_records_none():
+    state, _ = investigate(wear_policy(), critic=FakeCritic())
+    assert state.critique.manual_sections is None
+    old = state.critique.model_dump(exclude={"manual_sections"})
+    assert type(state.critique).model_validate(old).manual_sections is None

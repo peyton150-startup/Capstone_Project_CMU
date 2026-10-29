@@ -195,3 +195,7 @@ class CritiqueRecord(Contract):
     # hypothesize when the run skipped testing (for example it ran out of
     # research time), so results can be split by path. None in older records.
     after_stage: Literal["investigate", "hypothesize", "test"] | None = None
+    # The manual sections the critic was shown ("§2.9"), found by code on the
+    # shown hypotheses' claims. Empty: a manual was offered and nothing was
+    # found. None: no manual (and in older records).
+    manual_sections: tuple[str, ...] | None = None

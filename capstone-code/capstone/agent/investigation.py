@@ -205,6 +205,8 @@ def critique(state: InvestigationState, deps: InvestigationDeps) -> None:
     #   result: The critic's reply, or None unless it was answered.
     #   answered_by: The model that gave the reply, read from the critic's own
     #     latest call record; None when no model replied.
+    #   deps.critic.last_sections: The manual sections the critic was shown
+    #     (Option B), kept on the record; None when the run offered no manual.
     #   used: Seconds the critic took, added to started_at so the investigation's
     #     time left is the same after this stage as before it.
     if deps.critic is None or not state.hypotheses:
@@ -236,6 +238,7 @@ def critique(state: InvestigationState, deps: InvestigationDeps) -> None:
         shown_hypotheses=shown,
         seconds=used,
         answered_by=answered_by,
+        manual_sections=getattr(deps.critic, "last_sections", None),
         favoured_claim=None if result is None else shown_claims.get(result.favoured),
         after_stage=after_stage,
     )

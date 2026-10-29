@@ -244,7 +244,7 @@ own time too, or it squeezes the follow-up reserve; decide it then.
 Not built. Each is its own change, taught first (AGENTS.md section 1) and
 its own PR.
 
-### 1. Let the critic use the machine manual (decided: Option B)
+### 1. Let the critic use the machine manual (decided: Option B; built 2026-10-29)
 
 Today the critic has no tools, by this spec ("No tools for the critic"), so
 it cannot search the manual even when the run offers it (`--manual`). If the
@@ -255,7 +255,7 @@ wants the critic to be allowed to use the manual. This reverses the
 
 **Chosen design, Option B: code searches for the critic.** Before the
 critic's one typed question, code runs `ManualSearch.search` on the claims of
-the two hypotheses the critic is shown and puts the top sections into its
+the hypotheses the critic is shown and puts the top sections into its
 prompt, labelled as general guidance for this machine model, not a look at the
 factory now (the same label `ORIGIN_LABELS["manual"]` gives the agent).
 
@@ -277,6 +277,16 @@ factory now (the same label `ORIGIN_LABELS["manual"]` gives the agent).
   names beyond what the manual's own text holds (check the manual's text
   against the rule kept for `TOOL_DESCRIPTIONS`); the critic's time includes
   the search; an empty search result changes nothing.
+
+**Built (2026-10-29, at the developer's request: a search for every hypothesis
+the critic sees).** `Critic(..., manual=...)` gets the run's `ManualSearch`
+(`episode.py` passes it when the run offers a manual). `manual_sections`
+searches each shown hypothesis's claim (up to five since C1b), at most
+`MANUAL_PER_HYPOTHESIS` = 2 sections each, shows each section once, in the
+order the hypotheses are shown, under `MANUAL_NOTE`, and `CRITIC_SYSTEM` says
+they are guidance, never evidence. The search runs inside `review`, so its time
+is the critic's. A failed search shows nothing. `CritiqueRecord.manual_sections`
+keeps the ids ("§2.9"), `()` when nothing was found, `None` without a manual.
 
 **Note on Option B (developer, 2026-10-28): we need to find a way to get the
 agent to call the manual.** In the first live critic run the manual was not
