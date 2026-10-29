@@ -1,5 +1,10 @@
 # Progress Log
 
+> **2026-10-29 — README technology stack:** Added an overview of the project's
+> language, frameworks, model integrations, optional storage, and development
+> tools to `README.md`. Documentation only; no behavior or understanding
+> status changed.
+
 > **2026-10-29 — docs-only pilot-readiness future work recorded (not implemented):**
 > [MVP_SCOPE.md](MVP_SCOPE.md#high-priority-future-work--pilot-readiness-critic-follow-up-fast-triage-and-abstention-2026-10-29)
 > now prioritizes (1) closing the review-only critic with at most one bounded
@@ -125,6 +130,10 @@ A component is complete only when both columns are checked.
 | EV1 | Configurable full-episode evaluation harness and single-agent master baseline | yes (after the build, 2026-10-28) | n/a (built first, taught after) | yes (baseline run 2026-10-28: 3 of 9 right) | partly — two walkthroughs on 2026-10-28. One (session note 2026-10-27, EV1): Q1 wrong, corrected; Q2 mostly right, completed; Q3 not answered, re-taught, follow-up check corrected; re-check of Q3 owed. The other (session note 2026-10-28, walkthroughs): Q1 in part, corrected; Q2 right, with an addition; Q3 wrong at first, corrected | `capstone/evals.py`, `evals/scenarios.json`, `experiment.py` (`AgentStep`), `agent/state.py`, `agent/model_policy.py`, `tests/test_evals.py`; session note 2026-10-27 (EV1) |
 | C1 | Critic, review only: a second model judges the two leading hypotheses between `test` and `conclude` and changes nothing in the run (first multi-agent role) | yes (design conversation 2026-10-28) | yes per the build plan (pre-check 2026-10-28); no session note records it here, developer to confirm | yes (tests only; no live run) | no - pre-merge walkthrough done 2026-10-28 (PR #106): Q1 outcome right, mechanism and record filled in; Q2 `started_at` right, wrongly said research loses the time (it is the follow-up reserve), corrected; Q3 not sure at first, taught, then the check right (accepted) with the reason mixed up, corrected (session note 2026-10-28, C1); mark left for the developer | `settings.py` (`critic`, `critic_model`, `critic_seconds`, `critic_models`), `providers/chat.py` (`critic_client`), `agent/artifacts.py` (`Objection`, `CritiqueResult`, `CritiqueRecord`), `agent/critic.py` (`Critic`, `CRITIC_SYSTEM`, `critique_view`, `top_two`), `agent/investigation.py` (`critique`, graph edge), `agent/loop.py` (`InvestigationDeps.critic`, `critic_seconds`), `agent/state.py` (`critique`), `episode.py`, `experiment.py`, `progress.py`, `evals.py`; session note 2026-10-28 (C1) |
 
+| C2r | Critic follow-up (`recheck`): one read-only reading where the critic pointed, when it objects or agrees below the action bar; opt-in `CRITIC_FOLLOWUP` | yes (2026-10-29) | yes (2026-10-29, after one correction: a normal reading means "not confirmed", not "no action needed") | yes | no — closing question outstanding | `agent/investigation.py` (`recheck_trigger`, `recheck`, graph edge `critique -> recheck -> conclude`), `agent/artifacts.py` (`RecheckRecord`), `agent/state.py` (`recheck`), `agent/loop.py` (`InvestigationDeps.critic_followup`), `settings.py` (`critic_followup`), `episode.py`, `experiment.py` (`ExperimentRecord.recheck`); session note 2026-10-29 (C2r) |
+| C1b | Critic before every conclusion, shown every hypothesis (up to five) | yes (2026-10-29) | yes (2026-10-29: which `favoured` is still refused, and why; right, the reason corrected) | yes | no (pre-merge walkthrough owed) | `agent/critic.py` (`shown_hypotheses`, `SHOWN_HYPOTHESES`, `CRITIC_SYSTEM`, `critique_view`), `agent/artifacts.py` (`CritiqueResult` descriptions, `CritiqueRecord.after_stage`), `agent/investigation.py` (`route`, `critique`, `recheck` question `K1`); session note 2026-10-29 (C1b) |
+| D1 | Timed sensor-feed blackout: the alarmed machine's sensors refuse for a seeded 10-50 ticks; opt-in `--hazards blackout` | yes (2026-10-29) | yes (2026-10-29, after one correction: the agent cannot fix a feed, it escalates and reports) | yes | no — closing question outstanding | `providers/hazards.py` (`Blackout`, `blackout_hazards`, `BLACKOUT_TICKS`, `BLACKOUT_STREAM`, `BLACKOUT_MESSAGE`, `HazardProfile`, `HazardReport.blocked`, `HazardReport.blackout_recovered`), `episode.py` (`run_episode(hazards=...)`), `experiment.py` (`--hazards [standard|blackout]`, `ExperimentRecord.hazards_blocked`, `ExperimentRecord.blackout_recovered`); session note 2026-10-29 (D1) |
+| D2 | Degraded-case matrix (`evals/degraded.json`) and the abstention scorecard: answering vs declining kept apart | yes (2026-10-29) | yes (2026-10-29, buckets right; completed: run A is also confident-and-wrong and missing-data-read-as-normal, and why that matters for a pilot) | yes | no — closing question outstanding | `evals.py` (`Scenario.hazards`, `EvalCase` scorecard fields, `AbstentionCard`, `abstention_card`, `names`, `CONFIDENT`, `NO_FAULT`, `EvalReport.abstention`, `check_resume`), `experiment.py` (`Case.hazards`), `evals/degraded.json`; session note 2026-10-29 (D2) |
 Every row above with four "yes" marks (or "n/a") is complete: no question is
 outstanding on it. Still to build after 12c, from `docs/MVP_SCOPE.md`: the
 other three fault scenarios (material batch, machine configuration, false
@@ -146,7 +155,156 @@ alarm), then evaluation, then the agent itself.
   The run had no invalid stop replies and three model timeouts. Recorded as
   future-work item 4 in
   `docs/superpowers/specs/2026-10-28-critic-review-only-design.md`: run the
-  critic before every conclusion. Nothing built.
+  critic before every conclusion. Nothing built in this note; item 4 was
+  then built in PR #122 (C1b).
+
+- **2026-10-29 (D2): the degraded-case matrix and the abstention
+  scorecard.** Item 2 of the 2026-10-29 pilot-readiness list, second piece
+  (the blackout was D1). Taught first. Gate question (a blackout on a worn
+  bearing: run A says "false alarm" at 0.85, run B names no cause): the
+  developer put A in committed and B in abstained, which is right. Completed:
+  A is also confident-and-wrong and missing-data-read-as-normal. That matters
+  for a pilot because B costs a technician a look, while A tells the shop a
+  wearing machine is fine. Built:
+  - `evals/degraded.json`, 11 cases on the known-answer seeds: clean and
+    `blackout` pairs for bearing (6), wrong setting (9), false alarm (8), bad
+    batch (7) and the compound challenge (3), plus one standard-hazards
+    bearing case (stale record). Run with
+    `python -m capstone.evals --config evals/degraded.json`. Live runs are
+    Codex's (`AGENTS.md` §12).
+  - Per-case hazards: `Scenario.hazards` and `Case.hazards`, used by
+    `run_experiment` before the run-wide setting. `check_resume` refuses a
+    saved episode whose hazards do not match its case.
+  - The scorecard (`AbstentionCard`, from `abstention_card`, kept on
+    `EvalReport.abstention`, printed by the CLI). A judged case is
+    *committed* when its label names a cause and *abstained* when it names
+    none. It reports: accuracy when committed, abstention rate, confident and
+    wrong (committed, wrong, confidence >= `CONFIDENT` = 0.8), false
+    interventions (a repair asked for that was wrong; needs no label),
+    missing data read as normal (a blackout case with a real fault labelled
+    `false_alarm`), and recovery (refused blackout cases that read the
+    sensors again once the feed was back).
+  - Plain accuracy is unchanged: abstaining still counts as wrong there. The
+    scorecard sits beside it.
+  Tests (`tests/test_evals.py`): the matrix pairs clean and blackout cases on
+  the same seeds; each case runs with its own hazards and resume checks
+  them; runs A and B score apart while plain accuracy is unchanged; just
+  below 0.8 is wrong but not confident; a blackout that never refused is not
+  a recovery case; missing-data-read-as-normal needs a blackout; a wrong
+  repair request is a false intervention without a label; unjudged cases
+  stay out of the label counts; old reports still read. Not run live.
+
+- **2026-10-29: C1b, the critic before every conclusion, shown every
+  hypothesis.** Step 1 of four agreed with the developer (critic placement,
+  automatic manual retrieval, observable evidence to recommend a fix, gap
+  classification with a trace). Built on PR #119's follow-up. Taught first; the
+  gate question (which `favoured` is still refused once every hypothesis is
+  shown) was answered right, with the reason corrected (review only, the agent
+  never sees the reply yet; the reasons today are that the critic cannot have
+  weighed an invented id and the record would be meaningless).
+  - `agent/investigation.py`: `route` sends both "conclude" branches to
+    `critique`, so every path passes `critique -> recheck -> conclude`.
+    `critique` records `after_stage` (read before `recheck` sets the stage to
+    test). `recheck`: when the critic objects and favours another hypothesis,
+    `K1` tests that pick and names both ids.
+  - `agent/critic.py`: `shown_hypotheses` replaces `top_two` (every hypothesis,
+    most believed first, ties in list order, at most `SHOWN_HYPOTHESES = 5`);
+    the view marks the leading one; `CRITIC_SYSTEM` asks for the best-supported
+    hypothesis and a check that separates the pick from the leader.
+  - `agent/artifacts.py`: `CritiqueResult` field descriptions match;
+    `CritiqueRecord.after_stage` (older records read as `None`).
+  - Tests: every hypothesis shown and capped at five; the leader marked once; a
+    third hypothesis may be favoured; one past the cap is refused; the critic
+    reviews a run that timed out in `investigate` (`after_stage` investigate);
+    `after_stage` test on the usual path and read before the follow-up; `K1`
+    tests the critic's pick when it is not the leader; the graph test expects
+    both forks to go to `critique`.
+  - Developer's note: tune the critic afterwards (it objected in every live run
+    so far, including the right ones).
+
+
+- **2026-10-29 (D1): a timed sensor-feed blackout.** Item 2 of the
+  2026-10-29 pilot-readiness list (degraded data and abstention), first
+  piece. Taught first. Gate question (a dead feed and three failed reads: why
+  not conclude "false alarm"?): right that a dead feed is not a false alarm
+  and the agent should escalate or report; corrected that it cannot
+  "intervene to fix the feed" (its actions are maintenance requests, and they
+  need human approval), and that `hazards_fired` is the evaluator's trace,
+  never shown to the agent. The developer's design choices: **timed only**
+  (no permanent blackout), with the length **random from a seeded stream**,
+  **10-50 ticks**, and hazards stay **opt-in** (off unless asked for).
+  Built: `Blackout(machine_id, until_tick)` in `providers/hazards.py`
+  refuses `get_readings`, `get_sensor_trend` and `get_sensor_summary` for that
+  one machine until `until_tick`, however often it is asked. The message
+  ("The sensor feed for CNC-02 is not responding.") never says when it
+  ends. `blackout_hazards` draws the length from the simulator's own
+  `RandomSource` stream `hazard.blackout`, from the run's start tick. A new
+  stream name leaves every other stream unchanged, so the factory is the
+  same world with or without it. The simulator is never touched. Asking again
+  works only after factory time has passed (`wait`). `HazardReport.blocked`
+  counts refused calls, and `blackout_recovered` (None without a blackout) is
+  True once the agent reads the machine's sensors after being refused.
+  `run_episode(hazards="blackout")` and `python -m capstone.experiment run
+  --hazards blackout` turn it on; `--hazards` alone is still the standard
+  schedule. Both are off by default. Records keep `hazards_blocked` and
+  `blackout_recovered`. Tests (`tests/test_hazards.py`, `tests/test_experiment.py`):
+  refuses until the end tick and never says when; other machines and tools
+  untouched; waiting past the end gives the real answer and records the
+  recovery (one tick short still refuses); a feed never refused is no
+  recovery; the factory is untouched; the length is seeded and within 10-50;
+  no named machine, no blackout; an episode reports it, repeats exactly and
+  keeps the same world; the CLI is off by default, `--hazards` is standard,
+  `--hazards blackout` is the blackout; older records still read. Not run
+  live. Still to build for item 2: the degraded-case matrix and the
+  abstention scorecard (accuracy among answered cases, abstention rate,
+  wrong confident conclusions, false interventions, recovery rate).
+- **2026-10-29 (docs-only): Codex runs the master experiments, Claude Code
+  builds the code.** At the developer's request, `AGENTS.md` §12 records the
+  split. Codex does the live master runs, their labelling and the result
+  notes. Claude Code builds features, fixes and tests through pull requests,
+  runs only tests and scripted offline runs itself, and hands merged changes
+  to Codex to run live.
+
+- **2026-10-29 (C2r): the critic follow-up, one reading where the critic
+  pointed.** Item 1 of the 2026-10-29 pilot-readiness list. Taught first. The
+  developer's goal: at about 0.80 the agent escalates, and the critic should
+  confirm so it can intervene. Two designs were offered: (A) the critic's
+  agreement lowers the bar, or (B) the agreement earns one confirming factory
+  reading. The developer chose B, with A kept for later, once labelled critic
+  runs show how often `supports_action` is right. Points from the teaching: in
+  EV1 the bar lowered no intervention (KA-01 escalated at 0.85 by its own
+  choice), and the critic sees the agent's evidence, so its agreement is not an
+  independent look. Gate question (leader at 0.82, critic agrees, the reading
+  is normal): right that it stays below the bar and escalates; corrected that
+  a normal reading means "not confirmed", not "no action needed", and that the
+  critic's agreement never counts at the bar.
+  Built: a stage `recheck` between `critique` and `conclude`, on only with
+  `CRITIC_FOLLOWUP` (default off, so the review-only critic stays the
+  baseline). `recheck_trigger` runs it when the critic answered and either
+  objected, or favoured the leading hypothesis while that was below
+  `min_action_confidence`. It skips, with the reason recorded, when the
+  critic gave no usable answer, named no check, favoured another hypothesis
+  without objecting, the leader already reaches the bar, or no research time
+  or tool call is left. When it runs, the critic's `discriminating_check`
+  becomes open question K1, tied to the leader. The agent's own policy is
+  asked for one test-stage decision, and at most one call goes through the
+  normal `gather` (allowlist, provenance labelled by its real source, one
+  interpretation). Then the run goes to `conclude`, where the bar applies to
+  the agent's own confidence as before. The critic is never asked again, so
+  the stage cannot loop. `RecheckRecord` (outcome, trigger, reason, question,
+  tool, evidence id, leader and confidence before and after) is kept on the
+  state and in `ExperimentRecord.recheck`. Tests: `tests/test_agent_investigation.py`
+  (off by default; no critic; an objection earns exactly one observable
+  reading that answers K1; never loops; agreement plus a confirming reading
+  intervenes; agreement without one still escalates; the same agreement
+  without the follow-up escalates; a stopping or bad policy decision makes no
+  call; trigger reasons, including the run's own bar; time and call budgets;
+  a skip calls nothing; the graph shape), `tests/test_episode.py` (the
+  setting reaches the run; off by default), `tests/test_experiment.py` (kept
+  in the record; older records still read). Not run live. Limits: the
+  policy may answer K1 with any read-only tool, not the one the critic named
+  (by design: the critic's text is never run as a call); one follow-up only;
+  the critic's own confidence and `supports_action` are recorded, never used.
 
 - **2026-10-29 (docs-only): Haas VF-based simulator retrofit and older-machine support.** Recorded a HIGH-priority post-baseline future-work plan in `docs/MVP_SCOPE.md` for a real, revision-specific Haas VF NGC profile to replace the generic CNC as the simulator's eventual default, with optional Classic Control/RS-232 compatibility for early-2000s machines, `FactoryProvider` read-only adapters, manual/SOP RAG, field discovery, optional external sensors, explicit missing-data semantics and deterministic offline comparisons. No runtime changes or machine integrations were made; the existing `SIM-CNC-001` manual remains synthetic.
 

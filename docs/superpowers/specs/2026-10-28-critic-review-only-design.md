@@ -342,17 +342,37 @@ the critic exists for, and the placement chosen above (between `test` and
 `conclude`) meant it never saw it. The critic reviews the runs that went
 smoothly and misses the ones where research ran long.
 
-To decide when built (taught first, its own PR):
-- Where: a critique on the `investigate -> conclude` and `hypothesize ->
-  conclude` routes too, or one critique stage just before `conclude` that every
-  route passes through.
-- What it judges when there is no test round: possibly fewer than two
-  hypotheses, or none (the stage now does nothing without hypotheses; with
-  none, there is nothing for it to compare).
-- Time: a run that stopped on `timeout` has little or no time left. The critic's
-  own window and the moved deadline already allow this (tested: the critic runs
-  after the deadline and the time left stays 0), but the follow-up reserve must
-  still not lose time.
-- Measurement: keep the route on the `CritiqueRecord`, so results can be split
-  by "after test" and "skipped test", and the bar (spec section "How tried and
-  true is decided") is not set from smooth runs only.
+Built in PR #122 (C1b, 2026-10-29): every route now passes the critique,
+the critic sees every hypothesis, and the record keeps the stage it
+followed (`after_stage`). See the amendment below for what changed.
+
+## Amendment (developer, 2026-10-29): before every conclusion, every hypothesis
+
+Two decisions above are changed, after the first live runs.
+
+- **Where.** The critique now runs before every conclusion, not only after
+  `test`. Both forks that used to go straight to `conclude`
+  (`anything_to_explain`, `anything_to_test`) now go to `critique`, so every
+  path passes `critique -> recheck -> conclude`. Reason: the first KA-03 run
+  with the critic ran out of research time in `investigate`, skipped `test`,
+  and so was never reviewed, although it was a reasoning miss. The record now
+  says which stage the critique followed (`CritiqueRecord.after_stage`:
+  `investigate`, `hypothesize` or `test`), read before the follow-up sets the
+  stage to `test`.
+- **What it sees.** Every hypothesis the agent holds, most believed first, up
+  to five (`SHOWN_HYPOTHESES`), with the leading one marked, instead of the two
+  leading ones. Reason: KA-03's true cause (batch 2) was the agent's third
+  hypothesis, so a top-two view hid it, and a reply favouring it would have
+  been refused. `favoured` may now be any shown id or `none`; a reply is
+  refused only for an id the agent never formed. `discriminating_check` should
+  separate the critic's pick from the leading explanation (from the runner-up
+  when it picks the leader).
+- **With the follow-up (`CRITIC_FOLLOWUP`, PR #119).** When the critic objects
+  and favours a hypothesis other than the leader, the follow-up's question
+  (`K1`) tests the critic's pick and names both ids. A run with no research
+  time left still gets the critique, but the follow-up skips, as it already
+  did.
+
+Not changed: review only unless `CRITIC_FOLLOWUP` is on; the critic's own time
+window; nothing the critic says counts at the action bar. The manual for the
+critic comes with the automatic manual retrieval (planned next).
