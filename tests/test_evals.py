@@ -486,3 +486,48 @@ def test_old_reports_without_the_scorecard_still_read(dark_bearing):
         ):
             case.pop(key)
     assert EvalReport.model_validate(old).abstention is None
+
+
+# --- the manual in the eval harness (on by default, --no-manual to opt out) ---
+
+
+def test_run_cases_offers_the_manual_when_given():
+    from capstone.manual.index import KeywordManualSearch
+    from capstone.manual.sections import load_manual
+
+    config = ScenarioConfig.model_validate(
+        {"cases": [{"id": "bearing-6", "seed": 6, "fault": "bearing_degradation"}]}
+    )
+    (offered,) = run_cases(
+        config,
+        name="manual-eval",
+        make_policy=stand_in,
+        manual=KeywordManualSearch(load_manual()),
+    )
+    (plain,) = run_cases(config, name="plain-eval", make_policy=stand_in)
+    assert offered.manual_searches is not None
+    assert plain.manual_searches is None
+
+
+def test_rescoring_saved_records_never_opens_the_manual(tmp_path, monkeypatch):
+    import capstone.evals as evals
+    from capstone.experiment import append_records
+
+    config = ScenarioConfig.model_validate(
+        {"cases": [{"id": "bearing-6", "seed": 6, "fault": "bearing_degradation"}]}
+    )
+    (record,) = run_cases(config, name="rescore", make_policy=stand_in)
+    saved = tmp_path / "records.jsonl"
+    append_records(saved, [record])
+    config_path = tmp_path / "config.json"
+    config_path.write_text(config.model_dump_json(), encoding="utf-8")
+
+    def no_manual(mode):
+        raise AssertionError("the manual was opened to rescore records")
+
+    monkeypatch.setattr(evals, "open_manual", no_manual)
+    out = tmp_path / "report.json"
+    argv = ["--config", str(config_path), "--name", "rescore", "--out", str(out)]
+    assert evals.main([*argv, "--records", str(saved)]) == 0
+    with pytest.raises(SystemExit):
+        evals.main([*argv, "--records", str(saved), "--manual", "--no-manual"])

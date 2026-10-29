@@ -43,8 +43,10 @@ Decisions made by the developer on 2026-10-22:
    factory now". It cannot verify a fix (only observable evidence counts), and
    the memory gate refuses a lesson that cites only the manual
    (`rests_on_manual`).
-5. Experiments: `python -m capstone.experiment run ... --manual` (by meaning) or
-   `--manual keyword`; each record keeps `manual_searches` (query, outcome,
+5. Experiments: the manual is offered by default, searched by meaning
+   (since 2026-10-29); `--manual keyword` searches by shared words and
+   `--no-manual` runs without it, in `capstone.experiment run` and
+   `capstone.evals` alike; each record keeps `manual_searches` (query, outcome,
    sections) and the report adds a "manual:" line.
 
 ## Evaluating it

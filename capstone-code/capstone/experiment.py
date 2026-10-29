@@ -906,6 +906,29 @@ def model_policy_factory(
     return lambda: kind(clients_for_jobs(), tools)
 
 
+def add_manual_options(parser: argparse.ArgumentParser) -> None:
+    """The manual is offered by default, searched by meaning; `--no-manual`
+    runs without it (developer, 2026-10-29). Shared by experiment and evals."""
+    # Variables:
+    #   choice: Either --manual [semantic|keyword] or --no-manual, not both.
+    choice = parser.add_mutually_exclusive_group()
+    choice.add_argument(
+        "--manual",
+        nargs="?",
+        const="semantic",
+        default="semantic",
+        choices=("semantic", "keyword"),
+        help="how the agent searches the machine manual (default: by meaning)",
+    )
+    choice.add_argument(
+        "--no-manual",
+        dest="manual",
+        action="store_const",
+        const=None,
+        help="run without the machine manual",
+    )
+
+
 def open_manual(mode: str) -> ManualSearch:
     """The machine manual, searched by meaning ("semantic": the Chroma index built
     by `python -m capstone.manual.index`) or by shared words ("keyword")."""
@@ -981,13 +1004,7 @@ def main(argv: Sequence[str] | None = None) -> int:
     run.add_argument("--out", type=Path, required=True)
     run.add_argument("--approve", choices=sorted(APPROVERS), default="all")
     run.add_argument("--memory", action="store_true", help="recall and learn")
-    run.add_argument(
-        "--manual",
-        nargs="?",
-        const="semantic",
-        choices=("semantic", "keyword"),
-        help="let the agent search the machine manual (default: by meaning)",
-    )
+    add_manual_options(run)
     run.add_argument("--audit", type=Path, help="audit log (needed to learn)")
     run.add_argument("--timeout-seconds", type=float, help="per investigation")
     run.add_argument(
