@@ -131,7 +131,7 @@ A component is complete only when both columns are checked.
 | C1 | Critic, review only: a second model judges the two leading hypotheses between `test` and `conclude` and changes nothing in the run (first multi-agent role) | yes (design conversation 2026-10-28) | yes per the build plan (pre-check 2026-10-28); no session note records it here, developer to confirm | yes (tests only; no live run) | no - pre-merge walkthrough done 2026-10-28 (PR #106): Q1 outcome right, mechanism and record filled in; Q2 `started_at` right, wrongly said research loses the time (it is the follow-up reserve), corrected; Q3 not sure at first, taught, then the check right (accepted) with the reason mixed up, corrected (session note 2026-10-28, C1); mark left for the developer | `settings.py` (`critic`, `critic_model`, `critic_seconds`, `critic_models`), `providers/chat.py` (`critic_client`), `agent/artifacts.py` (`Objection`, `CritiqueResult`, `CritiqueRecord`), `agent/critic.py` (`Critic`, `CRITIC_SYSTEM`, `critique_view`, `top_two`), `agent/investigation.py` (`critique`, graph edge), `agent/loop.py` (`InvestigationDeps.critic`, `critic_seconds`), `agent/state.py` (`critique`), `episode.py`, `experiment.py`, `progress.py`, `evals.py`; session note 2026-10-28 (C1) |
 
 | C2r | Critic follow-up (`recheck`): one read-only reading where the critic pointed, when it objects or agrees below the action bar; opt-in `CRITIC_FOLLOWUP` | yes (2026-10-29) | yes (2026-10-29, after one correction: a normal reading means "not confirmed", not "no action needed") | yes | no — closing question outstanding | `agent/investigation.py` (`recheck_trigger`, `recheck`, graph edge `critique -> recheck -> conclude`), `agent/artifacts.py` (`RecheckRecord`), `agent/state.py` (`recheck`), `agent/loop.py` (`InvestigationDeps.critic_followup`), `settings.py` (`critic_followup`), `episode.py`, `experiment.py` (`ExperimentRecord.recheck`); session note 2026-10-29 (C2r) |
-| C1b | Critic before every conclusion, shown every hypothesis (up to five) | yes (2026-10-29) | yes (2026-10-29: which `favoured` is still refused, and why; right, the reason corrected) | yes | no (pre-merge walkthrough owed) | `agent/critic.py` (`shown_hypotheses`, `SHOWN_HYPOTHESES`, `CRITIC_SYSTEM`, `critique_view`), `agent/artifacts.py` (`CritiqueResult` descriptions, `CritiqueRecord.after_stage`), `agent/investigation.py` (`route`, `critique`, `recheck` question `K1`); session note 2026-10-29 (C1b) |
+| C1b | Critic before every conclusion, shown every hypothesis (up to five) | yes (2026-10-29) | yes (2026-10-29: which `favoured` is still refused, and why; right, the reason corrected) | yes | no - walkthrough done 2026-10-29, after the merge at the developer's request (PR #122): Q1 mostly right, the record's consequence added; Q2 partly, the question's wording and the one-call mechanism corrected; Q3 wrong at first (the cap), taught, check right; mark left for the developer | `agent/critic.py` (`shown_hypotheses`, `SHOWN_HYPOTHESES`, `CRITIC_SYSTEM`, `critique_view`), `agent/artifacts.py` (`CritiqueResult` descriptions, `CritiqueRecord.after_stage`), `agent/investigation.py` (`route`, `critique`, `recheck` question `K1`); session note 2026-10-29 (C1b) |
 | D1 | Timed sensor-feed blackout: the alarmed machine's sensors refuse for a seeded 10-50 ticks; opt-in `--hazards blackout` | yes (2026-10-29) | yes (2026-10-29, after one correction: the agent cannot fix a feed, it escalates and reports) | yes | no — closing question outstanding | `providers/hazards.py` (`Blackout`, `blackout_hazards`, `BLACKOUT_TICKS`, `BLACKOUT_STREAM`, `BLACKOUT_MESSAGE`, `HazardProfile`, `HazardReport.blocked`, `HazardReport.blackout_recovered`), `episode.py` (`run_episode(hazards=...)`), `experiment.py` (`--hazards [standard|blackout]`, `ExperimentRecord.hazards_blocked`, `ExperimentRecord.blackout_recovered`); session note 2026-10-29 (D1) |
 | D2 | Degraded-case matrix (`evals/degraded.json`) and the abstention scorecard: answering vs declining kept apart | yes (2026-10-29) | yes (2026-10-29, buckets right; completed: run A is also confident-and-wrong and missing-data-read-as-normal, and why that matters for a pilot) | yes | no — closing question outstanding | `evals.py` (`Scenario.hazards`, `EvalCase` scorecard fields, `AbstentionCard`, `abstention_card`, `names`, `CONFIDENT`, `NO_FAULT`, `EvalReport.abstention`, `check_resume`), `experiment.py` (`Case.hazards`), `evals/degraded.json`; session note 2026-10-29 (D2) |
 Every row above with four "yes" marks (or "n/a") is complete: no question is
@@ -161,6 +161,40 @@ alarm), then evaluation, then the agent itself.
   match. Still refused, never repaired. To check: the same count on the next
   runs. Built ungated at the developer's choice (option 1 of three), developer
   to review.
+
+- **2026-10-29 (docs-only): a separate pass for variable comments.** Rule set
+  by the developer, now `AGENTS.md` section 7.1: after a change's code is
+  written and its tests pass, a separate pass checks the `# Variables:` block
+  at the top of every function the change created or changed, naming the
+  variables that carry meaning in one plain sentence each (not trivial ones),
+  then reruns lint and the touched tests, and the pull request lists the
+  commented functions. Applies to both coding agents.
+
+- **2026-10-29 (docs-only): walkthrough of PR #122 (C1b), given after the
+  merge at the developer's request** (so they could start testing in another
+  session). The 'Understood (post)' mark stays **no**; the developer decides.
+  - Q1 (why `after_stage` is read in `critique()`): mostly right, the state is
+    read before `recheck` changes `state.stage`. Refined: it is `recheck`, not
+    the critic, that sets the stage (even when it skips). Added: read in
+    `conclude()` with the follow-up on, every run would say `test`, so the
+    "skipped testing" split (KA-03 style) would vanish.
+  - Q2 (critic objects and favours H3 below a leading H1): `K1` tests H3,
+    right. Corrected: its text names both ids and carries the critic's check,
+    not its objection; the agent's own policy makes at most one read-only call
+    and may pick another tool or stop. Refined why: the check was built to
+    separate the pick from the leader, it avoids framing the reading as
+    confirming the leader, and the record attributes the reading to H3. Without
+    an objection the follow-up skips.
+  - Q3 (six hypotheses, `favoured` H6): wrong at first (said it is recorded
+    under H6). Taught: only five are shown, so H6 is refused as `invalid_reply`,
+    the whole reply is discarded, `recheck` skips ("no usable answer"), the run
+    concludes as normal. Risks: the cap can hide a sixth, correct hypothesis;
+    one bad field discards the whole reply. Check (four hypotheses, `favoured`
+    H6): right, refused because the critic hallucinated it; the skipped
+    follow-up added.
+  - Developer's idea, for the critic tuning: a confidence on each objection,
+    recorded first and checked against labels before anything reads it (it can
+    still be confidently wrong).
 
 - **2026-10-29 (docs-only): KA-03 with the critic, and a note to run the
   critic before every conclusion.** Live runs with the critic on (Ministral 14B
