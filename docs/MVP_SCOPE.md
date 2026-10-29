@@ -1847,23 +1847,37 @@ the current investigator, optional depth-one Tree of Thoughts (ToT), and critic.
 This is a targeted reasoning experiment, not a replacement for Pydantic Graph
 or a commitment to add a second orchestration framework.
 
+**Module 4.1 follow-up, gated behind the current evaluations:** The
+[ToT/critic evaluation future-work plan](TOT_CRITIC_EVALUATION_FUTURE_WORK.md)
+records the four next experiments: evidence-grounded pruning and deferred
+alternatives; pre-pruning critic checks; adaptive branching and limits; and
+evaluating model confidence/position bias against evidence strength. It also
+specifies A/B/C/D matched-run ablations and measurable go/no-go criteria.
+The developer reported **run 1 of 2 currently in progress** (2026-10-29);
+that status is not independently verified. Finish and preserve the existing
+two-run series unchanged before starting these new experiments.
+
 **Existing code:** `agent/investigation.py` uses Pydantic Graph for stage
 routing; `agent/loop.py` enforces tool, evidence and time budgets;
 `agent/tree_of_thought.py` optionally generates up to five hypotheses,
 rates them and prunes to at most three via `--tree-of-thought`.
-`agent/critic.py` currently reviews the two leading hypotheses, but
-`investigation.critique` records its feedback without changing the
-conclusion or requesting another tool call. This is *not* Graph of Thoughts.
+`agent/critic.py` can review up to five surviving hypotheses.
+`investigation.py` records the critique and supports an optional, bounded
+`recheck` of one critic-proposed read-only observation. The critic cannot
+directly change the conclusion or approve an action. This is *not* Graph
+of Thoughts.
 
-**Prerequisite: critic feedback-loop experiment.** This is now a
-**HIGH-priority pilot-readiness item**, independent of whether GoT is adopted;
-see [pilot-readiness work](#high-priority-future-work--pilot-readiness-critic-follow-up-fast-triage-and-abstention-2026-10-29).
-Separately test allowing a critic's substantive objection to request at most
-one bounded, read-only discriminating observation and one subsequent hypothesis
-revision. Do not let the critic approve actions, manufacture observations,
-override the independent evidence requirements, or repeat indefinitely.
-Measure the effect against the review-only critic before attributing
-improvements to GoT.
+**Prerequisite: measure the existing opt-in critic feedback loop.** This
+remains a **HIGH-priority pilot-readiness evaluation**, independent of whether
+GoT is adopted; see
+[pilot-readiness work](#high-priority-future-work--pilot-readiness-critic-follow-up-fast-triage-and-abstention-2026-10-29).
+The optional `recheck` now allows at most one critic-directed, read-only
+discriminating observation followed by agent interpretation. Compare it with
+review-only critique using matched runs, and verify that an objection leads
+to better evidence and diagnosis rather than just extra calls. The critic must
+not approve actions, manufacture observations, override independent evidence
+requirements, or repeat indefinitely. Measure this effect separately before
+attributing improvements to GoT.
 
 **Prerequisite: evidence-scored, multi-cause diagnosis (2026-10-29).**
 Before testing GoT, investigate whether an evidence-scored *multi-label*
