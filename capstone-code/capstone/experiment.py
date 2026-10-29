@@ -101,6 +101,8 @@ class Case:
     seed: int
     fault: str | None = None
     kind: str = STANDARD
+    # This case's own tool faults; None: the run's setting (`run_experiment`).
+    hazards: HazardProfile | None = None
 
 
 def known_cases() -> list[Case]:
@@ -506,7 +508,7 @@ def run_experiment(
             log=log,
             budgets=budgets,
             run_key=run_key,
-            hazards=hazards,
+            hazards=case.hazards or hazards,
             manual=manual,
             watch=None if watch is None else ProgressView(watch),
             critic=None if make_critic is None else make_critic(),

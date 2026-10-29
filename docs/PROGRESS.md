@@ -1,5 +1,10 @@
 # Progress Log
 
+> **2026-10-29 — README technology stack:** Added an overview of the project's
+> language, frameworks, model integrations, optional storage, and development
+> tools to `README.md`. Documentation only; no behavior or understanding
+> status changed.
+
 > **2026-10-29 — docs-only pilot-readiness future work recorded (not implemented):**
 > [MVP_SCOPE.md](MVP_SCOPE.md#high-priority-future-work--pilot-readiness-critic-follow-up-fast-triage-and-abstention-2026-10-29)
 > now prioritizes (1) closing the review-only critic with at most one bounded
@@ -128,6 +133,7 @@ A component is complete only when both columns are checked.
 | C2r | Critic follow-up (`recheck`): one read-only reading where the critic pointed, when it objects or agrees below the action bar; opt-in `CRITIC_FOLLOWUP` | yes (2026-10-29) | yes (2026-10-29, after one correction: a normal reading means "not confirmed", not "no action needed") | yes | no — closing question outstanding | `agent/investigation.py` (`recheck_trigger`, `recheck`, graph edge `critique -> recheck -> conclude`), `agent/artifacts.py` (`RecheckRecord`), `agent/state.py` (`recheck`), `agent/loop.py` (`InvestigationDeps.critic_followup`), `settings.py` (`critic_followup`), `episode.py`, `experiment.py` (`ExperimentRecord.recheck`); session note 2026-10-29 (C2r) |
 | C1b | Critic before every conclusion, shown every hypothesis (up to five) | yes (2026-10-29) | yes (2026-10-29: which `favoured` is still refused, and why; right, the reason corrected) | yes | no (pre-merge walkthrough owed) | `agent/critic.py` (`shown_hypotheses`, `SHOWN_HYPOTHESES`, `CRITIC_SYSTEM`, `critique_view`), `agent/artifacts.py` (`CritiqueResult` descriptions, `CritiqueRecord.after_stage`), `agent/investigation.py` (`route`, `critique`, `recheck` question `K1`); session note 2026-10-29 (C1b) |
 | D1 | Timed sensor-feed blackout: the alarmed machine's sensors refuse for a seeded 10-50 ticks; opt-in `--hazards blackout` | yes (2026-10-29) | yes (2026-10-29, after one correction: the agent cannot fix a feed, it escalates and reports) | yes | no — closing question outstanding | `providers/hazards.py` (`Blackout`, `blackout_hazards`, `BLACKOUT_TICKS`, `BLACKOUT_STREAM`, `BLACKOUT_MESSAGE`, `HazardProfile`, `HazardReport.blocked`, `HazardReport.blackout_recovered`), `episode.py` (`run_episode(hazards=...)`), `experiment.py` (`--hazards [standard|blackout]`, `ExperimentRecord.hazards_blocked`, `ExperimentRecord.blackout_recovered`); session note 2026-10-29 (D1) |
+| D2 | Degraded-case matrix (`evals/degraded.json`) and the abstention scorecard: answering vs declining kept apart | yes (2026-10-29) | yes (2026-10-29, buckets right; completed: run A is also confident-and-wrong and missing-data-read-as-normal, and why that matters for a pilot) | yes | no — closing question outstanding | `evals.py` (`Scenario.hazards`, `EvalCase` scorecard fields, `AbstentionCard`, `abstention_card`, `names`, `CONFIDENT`, `NO_FAULT`, `EvalReport.abstention`, `check_resume`), `experiment.py` (`Case.hazards`), `evals/degraded.json`; session note 2026-10-29 (D2) |
 Every row above with four "yes" marks (or "n/a") is complete: no question is
 outstanding on it. Still to build after 12c, from `docs/MVP_SCOPE.md`: the
 other three fault scenarios (material batch, machine configuration, false
@@ -142,6 +148,42 @@ alarm), then evaluation, then the agent itself.
   variables that carry meaning in one plain sentence each (not trivial ones),
   then reruns lint and the touched tests, and the pull request lists the
   commented functions. Applies to both coding agents.
+
+- **2026-10-29 (D2): the degraded-case matrix and the abstention
+  scorecard.** Item 2 of the 2026-10-29 pilot-readiness list, second piece
+  (the blackout was D1). Taught first. Gate question (a blackout on a worn
+  bearing: run A says "false alarm" at 0.85, run B names no cause): the
+  developer put A in committed and B in abstained, which is right. Completed:
+  A is also confident-and-wrong and missing-data-read-as-normal. That matters
+  for a pilot because B costs a technician a look, while A tells the shop a
+  wearing machine is fine. Built:
+  - `evals/degraded.json`, 11 cases on the known-answer seeds: clean and
+    `blackout` pairs for bearing (6), wrong setting (9), false alarm (8), bad
+    batch (7) and the compound challenge (3), plus one standard-hazards
+    bearing case (stale record). Run with
+    `python -m capstone.evals --config evals/degraded.json`. Live runs are
+    Codex's (`AGENTS.md` §12).
+  - Per-case hazards: `Scenario.hazards` and `Case.hazards`, used by
+    `run_experiment` before the run-wide setting. `check_resume` refuses a
+    saved episode whose hazards do not match its case.
+  - The scorecard (`AbstentionCard`, from `abstention_card`, kept on
+    `EvalReport.abstention`, printed by the CLI). A judged case is
+    *committed* when its label names a cause and *abstained* when it names
+    none. It reports: accuracy when committed, abstention rate, confident and
+    wrong (committed, wrong, confidence >= `CONFIDENT` = 0.8), false
+    interventions (a repair asked for that was wrong; needs no label),
+    missing data read as normal (a blackout case with a real fault labelled
+    `false_alarm`), and recovery (refused blackout cases that read the
+    sensors again once the feed was back).
+  - Plain accuracy is unchanged: abstaining still counts as wrong there. The
+    scorecard sits beside it.
+  Tests (`tests/test_evals.py`): the matrix pairs clean and blackout cases on
+  the same seeds; each case runs with its own hazards and resume checks
+  them; runs A and B score apart while plain accuracy is unchanged; just
+  below 0.8 is wrong but not confident; a blackout that never refused is not
+  a recovery case; missing-data-read-as-normal needs a blackout; a wrong
+  repair request is a false intervention without a label; unjudged cases
+  stay out of the label counts; old reports still read. Not run live.
 
 - **2026-10-29: C1b, the critic before every conclusion, shown every
   hypothesis.** Step 1 of four agreed with the developer (critic placement,
