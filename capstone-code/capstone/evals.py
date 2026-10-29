@@ -21,11 +21,14 @@ from capstone.experiment import (
     AgentStep,
     Case,
     ExperimentRecord,
+    add_manual_options,
     append_records,
     model_policy_factory,
+    open_manual,
     read_records,
     run_experiment,
 )
+from capstone.providers.manual import ManualSearch
 from capstone.providers.typesafe import judgment_client
 from capstone.settings import get_settings
 from capstone.simulator.generator import FAULTS
@@ -408,16 +411,24 @@ def run_cases(
     watch: Callable[[str], None] | None = None,
     start: int = 1,
     make_critic: Callable[[], Critic] | None = None,
+    manual: ManualSearch | None = None,
 ) -> list[ExperimentRecord]:
-    """Use the normal episode runner; the config is evaluator-side only."""
+    """Use the normal episode runner; the config is evaluator-side only.
+
+    With `manual`, the agent is offered the machine manual (the tool, and the
+    manual step when MANUAL_STEP is on), as `capstone.experiment run` does.
+    """
+    # Variables:
+    #   manual: The manual search to offer; None runs without the manual.
     return run_experiment(
         [scenario.as_case() for scenario in config.cases],
-        make_policy or model_policy_factory(False),
+        make_policy or model_policy_factory(False, with_manual=manual is not None),
         name=name,
         on_record=on_record,
         watch=watch,
         start=start,
         make_critic=make_critic,
+        manual=manual,
     )
 
 
@@ -513,6 +524,7 @@ def main(argv: Sequence[str] | None = None) -> int:
     )
     parser.add_argument("--compare-before", type=Path, help="prior eval report")
     parser.add_argument("--watch", action="store_true", help="show live agent progress")
+    add_manual_options(parser)
     args = parser.parse_args(argv)
     if args.labels and args.auto_label:
         parser.error("choose hand labels or automatic labels")
@@ -553,6 +565,8 @@ def main(argv: Sequence[str] | None = None) -> int:
                 on_record=save_record,
                 watch=show_progress if args.watch else None,
                 start=len(records) + 1,
+                # Opened only when episodes are run, never to rescore records.
+                manual=open_manual(args.manual) if args.manual else None,
             )
     wanted = [scenario.id for scenario in config.cases]
     if [record.scenario_id for record in records] != wanted:

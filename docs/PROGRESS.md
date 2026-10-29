@@ -165,6 +165,27 @@ alarm), then evaluation, then the agent itself.
 
 ## Session notes
 
+- **2026-10-29 (config): the manual is on by default; `--no-manual` opts
+  out.** The developer's choices: the manual is offered by default, searched by
+  meaning (semantic, as `--manual` did; `--manual keyword` still picks shared
+  words); the manual step (M1b) is on by default too (`MANUAL_STEP` now
+  defaults to true, `MANUAL_STEP=off` turns only the step off); and both
+  `capstone.experiment run` and `capstone.evals` get the same options.
+  `experiment.add_manual_options` adds `--manual [semantic|keyword]` (default
+  semantic) and `--no-manual`, one or the other. `evals.run_cases(manual=...)`
+  offers the tool and passes the manual to the episodes; the evals CLI opens
+  the manual only when it runs episodes, never to rescore `--records`. A
+  semantic run still needs the Chroma manual index built
+  (`python -m capstone.manual.index`) and stops with that hint if it is not.
+  Tests: `tests/test_experiment.py` (an autouse fixture swaps in the offline
+  keyword search; on by default by meaning; `--no-manual` gives none; both
+  flags together are refused; `MANUAL_STEP` defaults to on; the agent-search
+  record test turns the step off to keep its intent), `tests/test_evals.py`
+  (`run_cases` offers the manual when given; rescoring never opens it).
+  Config-level change, built ungated at the developer's request (understood:
+  no). Runs from now on differ from earlier runs, which had no manual unless
+  asked for: compare like with like.
+
 - **2026-10-29 (M2): Option B, the manual for the critic.** The developer
   decided Option B on 2026-10-28 (code searches the manual for the critic; the
   critic never calls a tool) and asked, on 2026-10-29, for a search on **every

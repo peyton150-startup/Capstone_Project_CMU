@@ -64,11 +64,11 @@ class Settings(BaseSettings):
         min_length=3,
         validation_alias="MANUAL_COLLECTION",
     )
-    # The manual step: with a manual offered (`--manual`), search it once on
-    # the anomaly before the agent plans, so the guidance is there from the
-    # start. The `search_manual` tool stays. Off by default, so runs stay
-    # comparable with the earlier manual runs.
-    manual_step: bool = Field(default=False, validation_alias="MANUAL_STEP")
+    # The manual step: with a manual offered (the default; `--no-manual` turns
+    # it off), search it once on the anomaly before the agent plans, so the
+    # guidance is there from the start. The `search_manual` tool stays. On by
+    # default (developer, 2026-10-29); MANUAL_STEP=off turns only the step off.
+    manual_step: bool = Field(default=True, validation_alias="MANUAL_STEP")
     # The model that turns memories and searches into vectors: "provider/model"
     # (NVIDIA only for now) or "local" for Chroma's bundled all-MiniLM-L6-v2.
     # Changing it means rebuilding the index: `python -m capstone.memory.backfill

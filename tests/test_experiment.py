@@ -35,6 +35,24 @@ from tests.test_episode import wear_policy
 from tests.test_known_answers import stand_in
 from tests.test_model_policy import scripted_models
 
+
+@pytest.fixture(autouse=True)
+def offline_manual(monkeypatch):
+    """The manual is on by default; tests search it by shared words, offline,
+    instead of opening the Chroma index. Keeps the modes asked for."""
+    from capstone.manual.index import KeywordManualSearch
+    from capstone.manual.sections import load_manual
+
+    opened = []
+
+    def fake_open(mode):
+        opened.append(mode)
+        return KeywordManualSearch(load_manual())
+
+    monkeypatch.setattr(experiment, "open_manual", fake_open)
+    return opened
+
+
 BEARING = Case("bearing-6", 6, "bearing_degradation")  # bearing wear on CNC-02
 BATCH = Case("batch-7", 7, "bad_material_batch")  # batch 2
 
@@ -728,7 +746,9 @@ def manual_stand_in():
     return agent
 
 
-def test_a_run_with_the_manual_records_what_it_looked_up():
+def test_a_run_with_the_manual_records_what_it_looked_up(monkeypatch):
+    # The agent's own search only: the manual step has its own tests.
+    monkeypatch.setenv("MANUAL_STEP", "off")
     from capstone.manual.index import KeywordManualSearch
     from capstone.manual.sections import load_manual
 
@@ -794,8 +814,34 @@ def test_the_command_passes_the_manual_on(tmp_path, monkeypatch):
 
     assert isinstance(ran["manual"], KeywordManualSearch)
     assert factory["with_manual"] is True
-    assert main(["run", "--name", "n", "--known", "--out", out]) == 0
+    argv = ["run", "--name", "n", "--known", "--out", out, "--no-manual"]
+    assert main(argv) == 0
     assert ran["manual"] is None and factory["with_manual"] is False
+
+
+def test_the_manual_is_on_by_default_by_meaning(tmp_path, monkeypatch, offline_manual):
+    ran = {}
+
+    def fake_run(cases, make_policy, **options):
+        ran.update(options)
+        return []
+
+    monkeypatch.setattr(experiment, "run_experiment", fake_run)
+    monkeypatch.setattr(
+        experiment, "model_policy_factory", lambda with_recall, **_: None
+    )
+    out = str(tmp_path / "r.jsonl")
+    assert main(["run", "--name", "d", "--known", "--out", out]) == 0
+    assert ran["manual"] is not None and offline_manual == ["semantic"]
+    with pytest.raises(SystemExit):  # one or the other, not both
+        main(["run", "--name", "e", "--known", "--out", out, "--manual", "--no-manual"])
+
+
+def test_the_manual_step_is_on_by_default(monkeypatch):
+    from capstone.settings import Settings
+
+    monkeypatch.delenv("MANUAL_STEP", raising=False)
+    assert Settings(_env_file=None).manual_step is True
 
 
 # --- the critic, review only -----------------------------------------------
