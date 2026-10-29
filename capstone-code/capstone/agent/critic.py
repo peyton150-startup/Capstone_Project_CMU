@@ -25,6 +25,7 @@ from `agent.artifacts` (the rule `test_agent_artifacts` keeps).
 """
 
 from collections.abc import Sequence
+from typing import TYPE_CHECKING
 
 from capstone.agent.artifacts import CritiqueRecord, CritiqueResult, RecheckRecord
 from capstone.agent.model_policy import (
@@ -36,7 +37,12 @@ from capstone.agent.model_policy import (
 from capstone.agent.state import InvestigationState
 from capstone.contracts.hypotheses import Hypothesis
 from capstone.contracts.tools import ToolSpec
+from capstone.manual.sections import ManualSection
 from capstone.providers.chat import invalid_outcome
+
+if TYPE_CHECKING:
+    # Only for the type: the manual provider is not imported at run time.
+    from capstone.providers.manual import ManualSearch
 
 __all__ = [
     "CRITIC_SYSTEM",
@@ -54,6 +60,15 @@ __all__ = [
 # model's prompt short. KA-03's true cause was the agent's third hypothesis,
 # which a top-two view hid.
 SHOWN_HYPOTHESES = 5
+# With a manual offered, code searches it on each shown hypothesis's claim
+# (Option B, spec section "Let the critic use the machine manual") and shows
+# the critic the sections found, at most this many per hypothesis.
+MANUAL_PER_HYPOTHESIS = 2
+MANUAL_NOTE = (
+    "MANUAL SECTIONS (general guidance for this model of machine, found by "
+    "searching the manual on each hypothesis above; not a look at this factory, "
+    "no evidence id, so never cite them as evidence):"
+)
 
 # The worked example is about something other than this factory, on purpose:
 # it shows the steps without hinting at any answer.
@@ -77,7 +92,10 @@ on. Cite only ids that are shown to you.
 hypothesis, no_objection if the evidence supports it and nothing undermines it.
 
 Rules: cite only evidence ids shown. Favour only a hypothesis id shown, or none. \
-Do not invent evidence. Reply with the JSON object in the schema and nothing else.
+Do not invent evidence. Manual sections, when shown, describe this model of \
+machine in general: use them for what a symptom can mean and which check would \
+separate the hypotheses, never as proof of what this factory is doing, and never \
+cite them as evidence. Reply with the JSON object in the schema and nothing else.
 
 Worked example (a different subject, to show the steps only):
 Anomaly: the leaves of a house plant are turning yellow.
@@ -106,11 +124,48 @@ def shown_hypotheses(state: InvestigationState) -> list[Hypothesis]:
     return sorted(state.hypotheses, key=lambda h: -h.confidence)[:SHOWN_HYPOTHESES]
 
 
-def critique_view(state: InvestigationState, tools: Sequence[ToolSpec]) -> str:
-    """What the critic is shown: the anomaly, the evidence and the hypotheses."""
+def manual_sections(
+    manual: "ManualSearch | None", hypotheses: Sequence[Hypothesis]
+) -> tuple[ManualSection, ...]:
+    """The manual sections for the critic: a search on each hypothesis's claim.
+
+    Best match first for each hypothesis in the order given, a section shown
+    once even when several claims find it. No manual, or a search that fails,
+    gives none: the critic then judges without it, as before.
+    """
+    # Variables:
+    #   manual: The run's manual search; None when the run offers no manual.
+    #   found: The sections so far, in order, each once.
+    #   seen: Section ids already in `found`.
+    #   hits: The sections one hypothesis's claim found, best match first.
+    if manual is None:
+        return ()
+    found: list[ManualSection] = []
+    seen: set[str] = set()
+    for hypothesis in hypotheses:
+        try:
+            hits = manual.search(hypothesis.claim, limit=MANUAL_PER_HYPOTHESIS)
+        except Exception:
+            continue  # a failed search (e.g. the index is down) shows nothing
+        for section in hits:
+            if section.section_id not in seen:
+                seen.add(section.section_id)
+                found.append(section)
+    return tuple(found)
+
+
+def critique_view(
+    state: InvestigationState,
+    tools: Sequence[ToolSpec],
+    sections: Sequence[ManualSection] = (),
+) -> str:
+    """What the critic is shown: the anomaly, the evidence, the hypotheses and,
+    with a manual, the sections found for them."""
     # Variables:
     #   tools: The agent's research tools, shown as text only so the critic can name
     #     a check the agent could make; the critic cannot call them.
+    #   sections: Manual sections found on the shown hypotheses' claims; empty
+    #     without a manual. Guidance, never evidence: they carry no evidence id.
     #   lines: The prompt, built up section by section and joined at the end.
     #   supported, contradicted: The evidence ids a shown hypothesis says back it or
     #     count against it, so the critic can check those claims.
@@ -131,6 +186,9 @@ def critique_view(state: InvestigationState, tools: Sequence[ToolSpec]) -> str:
             f"- {h.id} (confidence {h.confidence:.2f}{leading}): {h.claim} "
             f"Supported by: {supported}. Contradicted by: {contradicted}."
         )
+    if sections:
+        lines += ["", MANUAL_NOTE]
+        lines += [f"- §{s.section_id} {s.title}: {s.text}" for s in sections]
     lines += [
         "",
         "TOOLS THE AGENT CAN CALL (you cannot call them):",
@@ -142,15 +200,27 @@ def critique_view(state: InvestigationState, tools: Sequence[ToolSpec]) -> str:
 class Critic:
     """Asks the one critique question and keeps its own record of each ask."""
 
-    def __init__(self, client: Client, tools: Sequence[ToolSpec]):
+    def __init__(
+        self,
+        client: Client,
+        tools: Sequence[ToolSpec],
+        *,
+        manual: "ManualSearch | None" = None,
+    ):
         # Variables:
         #   client: Asks the critic's model chain one typed question; a fake in tests.
         #   tools: The agent's research tools, shown to the critic as text.
+        #   manual: The run's manual search, used by code before the question
+        #     (Option B); None when the run offers no manual.
         #   calls: This critic's own record of every question it asked, kept apart
         #     from the research agent's calls and tagged agent="critic".
+        #   last_sections: The ids of the manual sections shown at the latest
+        #     review, for the record; None without a manual.
         self.client = client
         self.tools = tuple(tools)
+        self.manual = manual
         self.calls: list[ModelCall] = []
+        self.last_sections: tuple[str, ...] | None = None
 
     def review(
         self, state: InvestigationState, *, max_seconds: float
@@ -167,11 +237,19 @@ class Critic:
         #   shown: The ids of the hypotheses the critic was shown, so a reply naming
         #     any other can be refused.
         #   answer: The critic's typed reply, kept only if it passes `_problem`.
-        shown = [h.id for h in shown_hypotheses(state)]
+        #   hypotheses: The hypotheses the critic is shown, most believed first.
+        #   sections: The manual sections found on their claims; the search runs
+        #     here, inside the critic's window, so its time counts as the critic's.
+        hypotheses = shown_hypotheses(state)
+        shown = [h.id for h in hypotheses]
+        sections = manual_sections(self.manual, hypotheses)
+        self.last_sections = (
+            None if self.manual is None else tuple(f"§{s.section_id}" for s in sections)
+        )
         try:
             answer = self.client.ask(
                 CRITIC_SYSTEM,
-                critique_view(state, self.tools),
+                critique_view(state, self.tools, sections),
                 CritiqueResult,
                 max_seconds=max_seconds,
             )

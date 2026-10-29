@@ -380,3 +380,32 @@ def test_a_critic_does_not_change_the_episode(monkeypatch):
     assert critiqued.state.conclusion == plain.state.conclusion
     assert critiqued.state.decisions == plain.state.decisions
     assert critiqued.score == plain.score
+
+
+def test_a_run_with_the_manual_gives_the_settings_critic_the_manual(monkeypatch):
+    import capstone.episode as episode
+    from capstone.manual.index import KeywordManualSearch
+    from capstone.manual.sections import load_manual
+    from tests.helpers import critique_result
+
+    class Client:
+        answered_by = "fake"
+        attempts = ()
+
+        def ask(self, system, prompt, answer_type, *, max_seconds=None):
+            return critique_result()
+
+    monkeypatch.setenv("CRITIC", "on")
+    monkeypatch.setattr(episode, "critic_client", lambda settings: Client())
+    with_manual = run_episode(
+        SEED,
+        wear_policy(),
+        fault="bearing_degradation",
+        clock=lambda: 0.0,
+        manual=KeywordManualSearch(load_manual()),
+    )
+    without = run_episode(
+        SEED, wear_policy(), fault="bearing_degradation", clock=lambda: 0.0
+    )
+    assert with_manual.state.critique.manual_sections is not None
+    assert without.state.critique.manual_sections is None

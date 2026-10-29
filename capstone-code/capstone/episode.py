@@ -269,7 +269,10 @@ def run_episode(
     settings = get_settings()
     if critic is None and settings.critic:
         critic = Critic(
-            critic_client(settings), getattr(policy, "tools", research_tools())
+            critic_client(settings),
+            getattr(policy, "tools", research_tools()),
+            # Option B: with a manual offered, code searches it for the critic.
+            manual=manual,
         )
     sim = build_world(seed, kind=kind, fault=fault, machines=machines)
     desk = ApprovalDesk(sim)

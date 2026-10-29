@@ -155,7 +155,9 @@ A component is complete only when both columns are checked.
 | C1b | Critic before every conclusion, shown every hypothesis (up to five) | yes (2026-10-29) | yes (2026-10-29: which `favoured` is still refused, and why; right, the reason corrected) | yes | no - walkthrough done 2026-10-29, after the merge at the developer's request (PR #122): Q1 mostly right, the record's consequence added; Q2 partly, the question's wording and the one-call mechanism corrected; Q3 wrong at first (the cap), taught, check right; mark left for the developer | `agent/critic.py` (`shown_hypotheses`, `SHOWN_HYPOTHESES`, `CRITIC_SYSTEM`, `critique_view`), `agent/artifacts.py` (`CritiqueResult` descriptions, `CritiqueRecord.after_stage`), `agent/investigation.py` (`route`, `critique`, `recheck` question `K1`); session note 2026-10-29 (C1b) |
 | D1 | Timed sensor-feed blackout: the alarmed machine's sensors refuse for a seeded 10-50 ticks; opt-in `--hazards blackout` | yes (2026-10-29) | yes (2026-10-29, after one correction: the agent cannot fix a feed, it escalates and reports) | yes | no — closing question outstanding | `providers/hazards.py` (`Blackout`, `blackout_hazards`, `BLACKOUT_TICKS`, `BLACKOUT_STREAM`, `BLACKOUT_MESSAGE`, `HazardProfile`, `HazardReport.blocked`, `HazardReport.blackout_recovered`), `episode.py` (`run_episode(hazards=...)`), `experiment.py` (`--hazards [standard|blackout]`, `ExperimentRecord.hazards_blocked`, `ExperimentRecord.blackout_recovered`); session note 2026-10-29 (D1) |
 | D2 | Degraded-case matrix (`evals/degraded.json`) and the abstention scorecard: answering vs declining kept apart | yes (2026-10-29) | yes (2026-10-29, buckets right; completed: run A is also confident-and-wrong and missing-data-read-as-normal, and why that matters for a pilot) | yes | no — closing question outstanding | `evals.py` (`Scenario.hazards`, `EvalCase` scorecard fields, `AbstentionCard`, `abstention_card`, `names`, `CONFIDENT`, `NO_FAULT`, `EvalReport.abstention`, `check_resume`), `experiment.py` (`Case.hazards`), `evals/degraded.json`; session note 2026-10-29 (D2) |
-| M1 | The manual step: with a manual offered, search it once on the anomaly before the agent plans; the `search_manual` tool stays; opt-in `MANUAL_STEP` | no — built first at the developer's request, to be taught after | no — built ungated, developer to review | yes | no | `agent/investigation.py` (`manual_query`, `consult_manual`, `MANUAL_STEP_LIMIT`, graph edge `observe -> manual -> plan`), `agent/loop.py` (`InvestigationDeps.manual_step`), `settings.py` (`manual_step`), `episode.py`, `evaluation/manual.py` (`ManualSearchRecord.automatic`); session note 2026-10-29 (M1) |
+| M2 | Option B for the critic: with a manual offered, code searches it on every hypothesis the critic is shown and puts the sections in its prompt as guidance | no — built first at the developer's request, to be taught after | no — built ungated, developer to review | yes | no | `agent/critic.py` (`manual_sections`, `MANUAL_PER_HYPOTHESIS`, `MANUAL_NOTE`, `Critic(manual=...)`, `Critic.last_sections`, `critique_view(sections=...)`, a `CRITIC_SYSTEM` rule), `agent/artifacts.py` (`CritiqueRecord.manual_sections`), `agent/investigation.py` (`critique`), `episode.py`; session note 2026-10-29 (M2) |
+
+| M1b | The manual step: with a manual offered, search it once on the anomaly before the agent plans; the `search_manual` tool stays; opt-in `MANUAL_STEP` | no — built first at the developer's request, to be taught after | no — built ungated, developer to review | yes | no | `agent/investigation.py` (`manual_query`, `consult_manual`, `MANUAL_STEP_LIMIT`, graph edge `observe -> manual -> plan`), `agent/loop.py` (`InvestigationDeps.manual_step`), `settings.py` (`manual_step`), `episode.py`, `evaluation/manual.py` (`ManualSearchRecord.automatic`); session note 2026-10-29 (M1) |
 Every row above with four "yes" marks (or "n/a") is complete: no question is
 outstanding on it. Still to build after 12c, from `docs/MVP_SCOPE.md`: the
 other three fault scenarios (material batch, machine configuration, false
@@ -163,7 +165,38 @@ alarm), then evaluation, then the agent itself.
 
 ## Session notes
 
-- **2026-10-29 (M1): the manual step, step 1 of the developer's manual
+- **2026-10-29 (M2): Option B, the manual for the critic.** The developer
+  decided Option B on 2026-10-28 (code searches the manual for the critic; the
+  critic never calls a tool) and asked, on 2026-10-29, for a search on **every
+  hypothesis the critic will see** (up to five since C1b), built first and
+  taught afterwards, not merged yet. Built ungated, developer to review
+  (understood: no). Separate from M1 (the agent's manual step), on its own
+  branch.
+  Built: `Critic(client, tools, manual=...)` gets the run's `ManualSearch`.
+  `episode.py` passes it when the run offers a manual. In `review`, before the
+  one question, `manual_sections` searches each shown hypothesis's claim
+  (`MANUAL_PER_HYPOTHESIS` = 2 sections each), keeps each section once, in the
+  order the hypotheses are shown, and `critique_view` adds them under
+  `MANUAL_NOTE` (guidance for the machine model, not a look at the factory, no
+  evidence id). `CRITIC_SYSTEM` gains one rule saying the same. The search runs
+  inside `review`, so its time is the critic's and the investigation keeps
+  its own. It calls the search directly, not the `search_manual` tool, so it
+  uses none of the agent's three searches and adds nothing to the agent's
+  evidence. A failed search shows nothing. `Critic.last_sections` and
+  `CritiqueRecord.manual_sections` keep the ids shown ("§2.9"): `()` when a
+  manual was offered and nothing was found, `None` without one (and in older
+  records). The critic still cannot cite a section: `_problem` refuses any id
+  that is not gathered evidence. Tests (`tests/test_critic.py`,
+  `tests/test_agent_investigation.py`, `tests/test_episode.py`): no manual,
+  no change; every shown hypothesis searched, sections shown once and in
+  order after the hypotheses; found nothing gives `()`; a failed search still
+  answers; a section id cited as evidence is refused; the prompt says
+  guidance, not evidence, and names no fault; the real manual shown to the
+  critic names no hidden truth; the record keeps the ids, older records read
+  `None`; a settings-built critic gets the manual only when the run offers
+  one. Spec section 1 marked built. Not run live.
+
+- **2026-10-29 (M1b): the manual step, step 1 of the developer's manual
   plan.** The developer's plan: first give the manual its own step, then keep
   it as a tool the agent can call (`search_manual`, which already exists). The
   developer asked for it to be built first and taught afterwards, and not to
