@@ -1,5 +1,6 @@
 """The machine manual and the search_manual tool, offline."""
 
+import itertools
 import json
 import re
 
@@ -11,7 +12,12 @@ from capstone.agent.loop import InvestigationDeps
 from capstone.agent.model_policy import render
 from capstone.contracts.tools import ToolRequest
 from capstone.evaluation.manual import build_manual_records
-from capstone.manual.index import ChromaManualIndex, KeywordManualSearch
+from capstone.manual.index import (
+    ChromaManualIndex,
+    KeywordManualSearch,
+    ready_index,
+    section_digest,
+)
 from capstone.manual.sections import (
     ManualSection,
     check_no_leaks,
@@ -391,3 +397,152 @@ def test_an_episode_runs_the_step_only_when_it_offers_a_manual(monkeypatch):
         manual=KeywordManualSearch(SECTIONS),
     )
     assert build_manual_records(quiet.state) == ()
+
+
+# --- the index is rebuilt before a run when the manual changed ----------------
+
+
+_OPENED = itertools.count()
+
+
+def opener(sections, *, model_changed=False):
+    """Opens one in-memory manual collection the way `open_manual_index` does:
+    with True, empty it first. Counts the opens and rebuilds."""
+    chromadb = pytest.importorskip("chromadb")
+    from capstone.memory.semantic import IndexModelMismatch
+    from tests.test_memory_semantic import fake_embed
+
+    client = chromadb.EphemeralClient()
+    # In-memory clients share collections in one process: one name per opener.
+    name = f"manual_ready_{next(_OPENED)}"
+    state = {"model_changed": model_changed, "rebuilds": 0}
+
+    def open_index(rebuild):
+        if rebuild:
+            state["rebuilds"] += 1
+            state["model_changed"] = False
+            try:
+                client.delete_collection(name)
+            except Exception:
+                pass
+        elif state["model_changed"]:
+            raise IndexModelMismatch("built by another model")
+        collection = client.get_or_create_collection(
+            name, embedding_function=None, configuration={"hnsw": {"space": "cosine"}}
+        )
+        return ChromaManualIndex(collection, sections, fake_embed)
+
+    return open_index, state
+
+
+def edited(section, **changes):
+    return section.model_copy(update=changes)
+
+
+def test_an_empty_index_is_built_before_the_run():
+    open_index, state = opener(SECTIONS)
+    index, why = ready_index(open_index)
+    assert why == "it was empty" and state["rebuilds"] == 1
+    assert index.collection.count() == len(SECTIONS) and index.is_current()
+
+
+def test_an_index_that_matches_the_manual_is_reused():
+    open_index, state = opener(SECTIONS)
+    ready_index(open_index)
+    index, why = ready_index(open_index)
+    assert why is None and state["rebuilds"] == 1  # no second build
+
+
+@pytest.mark.parametrize(
+    "change",
+    [
+        {"text": "Edited guidance."},
+        {"title": "A new title"},
+        {"revision": "1.2"},
+    ],
+)
+def test_an_edited_section_rebuilds_the_index_first(change):
+    open_index, state = opener(SECTIONS)
+    ready_index(open_index)
+    changed = [edited(SECTIONS[0], **change), *SECTIONS[1:]]
+    # Same collection, read with the edited manual.
+    index = ChromaManualIndex(
+        open_index(False).collection, changed, open_index(False).embed
+    )
+    assert not index.is_current()
+    assert section_digest(changed[0]) != section_digest(SECTIONS[0])
+
+
+def test_a_removed_or_added_section_is_not_current():
+    open_index, _ = opener(SECTIONS)
+    built, _ = ready_index(open_index)
+    fewer = ChromaManualIndex(built.collection, SECTIONS[:-1], built.embed)
+    assert not fewer.is_current()
+    extra = edited(SECTIONS[0], section_id="9.9")
+    more = ChromaManualIndex(built.collection, [*SECTIONS, extra], built.embed)
+    assert not more.is_current()
+
+
+def test_the_manual_changed_reason_and_rebuild():
+    open_index, state = opener(SECTIONS)
+    ready_index(open_index)
+    changed = [edited(SECTIONS[0], text="Edited guidance."), *SECTIONS[1:]]
+
+    def open_changed(rebuild):
+        index = open_index(rebuild)
+        return ChromaManualIndex(index.collection, changed, index.embed)
+
+    index, why = ready_index(open_changed)
+    assert why == "the manual changed since it was built"
+    assert state["rebuilds"] == 2 and index.is_current()
+
+
+def test_another_embedding_model_rebuilds_the_index():
+    open_index, state = opener(SECTIONS, model_changed=True)
+    index, why = ready_index(open_index)
+    assert why == "it was built by another embedding model"
+    assert state["rebuilds"] == 1 and index.is_current()
+
+
+def test_an_index_built_without_fingerprints_is_rebuilt_once():
+    open_index, state = opener(SECTIONS)
+    old = open_index(False)
+    old.collection.upsert(
+        ids=[s.section_id for s in SECTIONS],
+        documents=["x"] * len(SECTIONS),
+        embeddings=[list(v) for v in old.embed(["x"] * len(SECTIONS))],
+        metadatas=[
+            {"section_id": s.section_id, "revision": s.revision} for s in SECTIONS
+        ],
+    )
+    assert not old.is_current()
+    _, why = ready_index(open_index)
+    assert why == "the manual changed since it was built"
+    _, again = ready_index(open_index)
+    assert again is None
+
+
+def test_a_semantic_run_says_when_it_rebuilt_the_index(monkeypatch, capsys):
+    import capstone.experiment as experiment
+    import capstone.manual.index as manual_index
+
+    keyword = KeywordManualSearch(SECTIONS)
+    monkeypatch.setattr(
+        manual_index,
+        "ready_manual_index",
+        lambda settings, sections=None: (
+            keyword,
+            "the manual changed since it was built",
+        ),
+    )
+    assert experiment.open_manual("semantic") is keyword
+    assert "rebuilt the manual index before the run: the manual changed" in (
+        capsys.readouterr().out
+    )
+    monkeypatch.setattr(
+        manual_index,
+        "ready_manual_index",
+        lambda settings, sections=None: (keyword, None),
+    )
+    experiment.open_manual("semantic")
+    assert capsys.readouterr().out == ""  # reused: nothing to say
