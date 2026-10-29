@@ -141,6 +141,16 @@ alarm), then evaluation, then the agent itself.
 
 ## Session notes
 
+- **2026-10-29: PR #117 pre-merge walkthrough.** The developer explained
+  that a stop with a question ID is invalid and that `information_needed`
+  carries the explanation while call-only fields stay empty. The developer
+  correctly identified that mixed stop replies are recorded as invalid;
+  initially assumed the rejected reply still stops the stage. Corrected: the
+  loop may ask again, and a valid tool call can continue the investigation;
+  repeated unproductive steps can instead reach the limit. The developer
+  explained this distinction correctly after the correction. No live model
+  measurement of the prompt change was performed.
+
 - **2026-10-29: a stop leaves the call fields empty (prompt and schema).**
   The investigator kept answering a decide question with `choice: stop` while
   also setting `tool`, `arguments`, `question_id` or `hypothesis_id`, which
