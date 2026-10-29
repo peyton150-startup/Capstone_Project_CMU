@@ -1791,6 +1791,55 @@ model runs measure performance on repeatable cases without promising identical
 answers. These regression cases support the normal investigation workflow;
 they do not introduce the excluded failure-diagnostic benchmark mode.
 
+#### Evaluation-only model-response cache — medium priority (2026-10-29)
+
+**Status: PLANNED; not implemented.** Introduce a lightweight, opt-in
+**SQLite-backed evaluation cache** for repeated LLM judgment calls while
+developing hypothesis scoring, positional-bias tests, Tree of Thoughts (ToT),
+and a later Graph of Thoughts (GoT) prototype. The aim is to avoid paying for
+identical diagnostic calls during debugging and rescoring, **not** to make live
+agent runs appear faster, more consistent, or more accurate than they are.
+
+**Reuse what exists first:** `capstone.evals --records` already reads saved
+`ExperimentRecord` JSONL for offline rescoring without rerunning the agent;
+`--resume` continues an interrupted scenario evaluation from completed
+episodes. Keep these workflows. Add per-model-response caching only when they
+cannot support the experiment (for example replaying an identical hypothesis
+rating request while varying a downstream scoring formula). Do not conflate
+episode-result reuse with replay of individual model calls.
+
+**Key and stored record:** for a cacheable evaluation request, hash a canonical
+representation of the complete system/user prompt, exact evidence/context,
+candidate identities **and order**, model/provider ID and version when known,
+generation parameters, response schema, prompt/template revision, and
+relevant tool/manual/retrieval snapshot identifiers. Save the exact validated
+typed response plus timestamp, source call metadata, cache key version and
+cache-hit flag. Do not store API keys, secrets or evaluator-only ground truth
+in model-accessible cache entries. Missing inputs or mismatched versions
+must cause a miss, not a potentially incorrect reuse.
+
+**Safety and experiment integrity:** evaluation-only and explicitly opt-in;
+default to fresh calls in real investigations, live accuracy comparisons,
+latency/provider-reliability benchmarks, and tests of response variability.
+Position-permuted hypothesis lists get different cache keys and must first
+be sampled with fresh model calls; reuse their distinct captured responses
+only for subsequent *offline* scoring analysis. Never serve stale live sensor
+readings, intervention approvals, tool execution results, or hidden simulator
+causes from a model-response cache. Preserve existing provenance, human-only
+action approval, verification, and reality/observation/belief separation.
+Handle invalid replies, cache corruption, and schema drift as misses/errors
+rather than silently accepting answers. Track cache hits separately from
+fresh-call counts, costs and latency in reports.
+
+**Implementation and measurement gate:** prototype at the model client /
+evaluation harness boundary, with injectable clock/storage and scripted
+offline tests; avoid adding Redis, new services, or a second orchestration
+layer. Compare uncached versus warm-cache debugging workloads for API calls,
+wall time, storage use, and reproducibility, while ensuring fresh-run
+quality metrics are unchanged. Retain only if savings justify cache
+invalidation and maintenance complexity. Do not implement or enable
+runtime caching merely by adding this roadmap entry.
+
 #### Graph of Thoughts (GoT) hypothesis reasoning — medium-priority evaluation (2026-10-29)
 
 **Status:** ROADMAP ONLY; not implemented. Evaluate after a measured baseline of
