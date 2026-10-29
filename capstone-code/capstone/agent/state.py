@@ -20,6 +20,7 @@ from capstone.agent.artifacts import (
     CritiqueRecord,
     DetectedAnomaly,
     ProposalRecord,
+    RecheckRecord,
     TerminationReason,
     VerificationCheck,
 )
@@ -182,6 +183,9 @@ class InvestigationState(BaseModel):
     # What the critic said about the two leading hypotheses, or why it said
     # nothing. Review only: nothing else in the run reads it.
     critique: CritiqueRecord | None = None
+    # What the critic follow-up did (`investigation.recheck`), or why it did
+    # nothing. None: the follow-up is off, or no critic ran.
+    recheck: RecheckRecord | None = None
     # Set by the loop only on the copy a policy is given: how long the policy
     # may take to answer, the time its stage has left. None on the loop's own
     # state, and outside a running investigation.

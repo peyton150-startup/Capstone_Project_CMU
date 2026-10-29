@@ -324,6 +324,32 @@ def test_critic_on_without_model_fails_before_running(monkeypatch):
     assert reads == []
 
 
+def test_critic_followup_setting_reaches_the_run(monkeypatch):
+    monkeypatch.setenv("CRITIC", "off")
+    monkeypatch.setenv("CRITIC_FOLLOWUP", "on")
+    result = run_episode(
+        SEED,
+        wear_policy(),
+        fault="bearing_degradation",
+        clock=lambda: 0.0,
+        critic=FakeCritic(),
+    )
+    assert result.state.recheck is not None
+
+
+def test_critic_followup_off_by_default(monkeypatch):
+    monkeypatch.setenv("CRITIC", "off")
+    monkeypatch.delenv("CRITIC_FOLLOWUP", raising=False)
+    result = run_episode(
+        SEED,
+        wear_policy(),
+        fault="bearing_degradation",
+        clock=lambda: 0.0,
+        critic=FakeCritic(),
+    )
+    assert result.state.recheck is None
+
+
 def test_passed_critic_is_used(monkeypatch):
     monkeypatch.setenv("CRITIC", "off")
     critic = FakeCritic()

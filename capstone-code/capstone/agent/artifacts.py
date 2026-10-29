@@ -142,6 +142,40 @@ class CritiqueResult(Contract):
     )
 
 
+class RecheckRecord(Contract):
+    """What the critic follow-up did: one reading the critic pointed at, or why none.
+
+    The critic's reply only chooses whether to look and where; the reading
+    itself comes from the factory through the agent's own policy, and only it
+    can change the agent's confidence. None of this is evidence by itself.
+    """
+
+    # observed: a reading came back and became evidence. no_evidence: the call
+    # was made but gave nothing usable (an error, a bad or repeated answer).
+    # policy_stopped / invalid_decision / out_of_time: the policy made no call.
+    # skipped: the stage did not run; `reason` says why.
+    outcome: Literal[
+        "observed",
+        "no_evidence",
+        "policy_stopped",
+        "invalid_decision",
+        "out_of_time",
+        "skipped",
+    ]
+    # objection: the critic objected. agreement: it favoured the leading
+    # hypothesis while that was still below the action bar. None: skipped.
+    trigger: Literal["objection", "agreement"] | None = None
+    reason: str | None = None
+    # The open question the critic's check became, as shown to the policy.
+    question: str | None = None
+    tool: str | None = None
+    evidence_id: str | None = None
+    leading_before: str | None = None
+    confidence_before: float | None = Field(default=None, ge=0, le=1)
+    leading_after: str | None = None
+    confidence_after: float | None = Field(default=None, ge=0, le=1)
+
+
 class CritiqueRecord(Contract):
     """What the critic stage produced for one investigation, or why it produced nothing."""
 
