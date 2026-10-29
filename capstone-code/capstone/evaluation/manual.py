@@ -29,6 +29,9 @@ class ManualSearchRecord(Contract):
     outcome: SearchOutcome
     evidence_id: str | None = None
     sections: tuple[str, ...] = ()  # "§2.7", best match first
+    # True: the manual step's search, made by the loop before planning; False:
+    # one the agent chose. Older records read as False.
+    automatic: bool = False
 
 
 def build_manual_records(state) -> tuple[ManualSearchRecord, ...]:
@@ -69,6 +72,8 @@ def build_manual_records(state) -> tuple[ManualSearchRecord, ...]:
                 outcome=outcome,
                 evidence_id=evidence_id,
                 sections=sections,
+                # Only the manual step searches during observe.
+                automatic=decision.phase == "observe",
             )
         )
     return tuple(records)

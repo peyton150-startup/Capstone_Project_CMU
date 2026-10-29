@@ -6,6 +6,7 @@ The inner loop in `loop.py` knows how to take turns. This module decides
 what the turns are for:
 
     observe      ask the factory the time, start the timer
+    manual       optionally, search the machine manual on the anomaly's words
     plan         the policy lists what is worth finding out first
     investigate  the inner loop gathers evidence
     hypothesize  the policy proposes explanations for that evidence
@@ -64,6 +65,7 @@ from capstone.agent.policy import ActionRequest, CallTool, Interpretation, Stop
 from capstone.agent.state import InvestigationState, Phase, Question
 from capstone.contracts.tools import ToolRequest
 from capstone.providers.chat import ModelError
+from capstone.providers.manual import MANUAL_TOOL
 
 # Where a stage sends the investigation next.
 Route = Literal["continue", "conclude"]
@@ -102,6 +104,49 @@ def observe(state: InvestigationState, deps: InvestigationDeps) -> None:
     # That call was made before the tick was known. Note it under the tick
     # it reported too, so asking the time again straight away is a repeat.
     state.seen_calls.append(call_signature(step.request, state.last_tick))
+
+
+# How many manual sections the manual step asks for.
+MANUAL_STEP_LIMIT = 3
+
+
+def manual_query(state: InvestigationState) -> str:
+    """The words the manual step searches on: what monitoring noticed.
+
+    Only the anomaly is known this early (no hypotheses yet), so its kind and
+    description are the query. Both are observations, never the hidden truth.
+    """
+    # Variables:
+    #   kind: The anomaly's kind as words ("vibration_alarm" -> "vibration alarm").
+    anomaly = state.anomaly
+    kind = anomaly.kind.replace("_", " ")
+    return f"{kind}: {anomaly.description}"
+
+
+def consult_manual(state: InvestigationState, deps: InvestigationDeps) -> None:
+    """Search the machine manual once, on the anomaly, before the agent plans.
+
+    Off unless `deps.manual_step` (set only when the run offers a manual).
+    The loop makes the call itself, as it does for the time, through the
+    normal tool path: the answer becomes evidence labelled `manual` (general
+    guidance for the machine model, never a look at the factory now), it
+    counts as one of the manual's searches and as a tool call, and the policy
+    is not asked to read it here; it sees the sections in every later prompt.
+    The `search_manual` tool stays open for the agent's own searches.
+    """
+    # Variables:
+    #   step: The manual search the loop makes itself, not one the policy chose.
+    if not deps.manual_step:
+        return
+    state.stage = "observe"
+    step = CallTool(
+        information_needed="what the machine manual says about this anomaly",
+        request=ToolRequest(
+            name=MANUAL_TOOL,
+            arguments={"text": manual_query(state), "limit": MANUAL_STEP_LIMIT},
+        ),
+    )
+    gather(state, deps, "observe", step, interpret=False)
 
 
 def plan(state: InvestigationState, deps: InvestigationDeps) -> None:
@@ -788,6 +833,10 @@ def build_graph():
     async def observe_step(ctx: Context) -> None:
         return staged(observe, ctx)
 
+    @builder.step(node_id="manual")
+    async def manual_step(ctx: Context) -> None:
+        return staged(consult_manual, ctx)
+
     @builder.step(node_id="plan")
     async def plan_step(ctx: Context) -> None:
         return staged(plan, ctx)
@@ -850,7 +899,8 @@ def build_graph():
 
     builder.add(
         builder.edge_from(builder.start_node).to(observe_step),
-        builder.edge_from(observe_step).to(plan_step),
+        builder.edge_from(observe_step).to(manual_step),
+        builder.edge_from(manual_step).to(plan_step),
         builder.edge_from(plan_step).to(investigate_step),
         builder.edge_from(investigate_step).to(
             route("anything_to_explain", hypothesize_step)
