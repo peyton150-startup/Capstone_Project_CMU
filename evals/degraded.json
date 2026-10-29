@@ -1,0 +1,15 @@
+{
+  "cases": [
+    {"id": "DG-01-bearing-clean", "seed": 6, "fault": "bearing_degradation"},
+    {"id": "DG-02-bearing-blackout", "seed": 6, "fault": "bearing_degradation", "hazards": "blackout"},
+    {"id": "DG-03-bearing-stale", "seed": 6, "fault": "bearing_degradation", "hazards": "standard"},
+    {"id": "DG-04-setting-clean", "seed": 9, "fault": "wrong_setting"},
+    {"id": "DG-05-setting-blackout", "seed": 9, "fault": "wrong_setting", "hazards": "blackout"},
+    {"id": "DG-06-false-alarm-clean", "seed": 8, "fault": "false_alarm"},
+    {"id": "DG-07-false-alarm-blackout", "seed": 8, "fault": "false_alarm", "hazards": "blackout"},
+    {"id": "DG-08-batch-clean", "seed": 7, "fault": "bad_material_batch"},
+    {"id": "DG-09-batch-blackout", "seed": 7, "fault": "bad_material_batch", "hazards": "blackout"},
+    {"id": "DG-10-challenge-clean", "seed": 3, "kind": "challenge"},
+    {"id": "DG-11-challenge-blackout", "seed": 3, "kind": "challenge", "hazards": "blackout"}
+  ]
+}

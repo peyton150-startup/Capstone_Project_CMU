@@ -10,6 +10,7 @@ import json
 from collections import Counter, defaultdict
 from collections.abc import Callable, Sequence
 from pathlib import Path
+from typing import Literal
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
@@ -37,6 +38,8 @@ class Scenario(BaseModel):
     seed: int = Field(ge=0)
     kind: str = "standard"
     fault: str | None = None
+    # Tool faults for this case only (`capstone.providers.hazards`); None: none.
+    hazards: Literal["standard", "blackout"] | None = None
 
     @model_validator(mode="after")
     def valid_factory(self):
@@ -48,7 +51,7 @@ class Scenario(BaseModel):
         return self
 
     def as_case(self) -> Case:
-        return Case(self.id, self.seed, self.fault, self.kind)
+        return Case(self.id, self.seed, self.fault, self.kind, self.hazards)
 
 
 class ScenarioConfig(BaseModel):
@@ -95,6 +98,49 @@ class EvalCase(BaseModel):
     # Whether the critic's pick names the true cause, from its own label.
     # None: no label for the pick (none favoured, or the label needs review).
     critic_pick_correct: bool | None = None
+    # The abstention scorecard's view of this case. None: unjudged, or (for
+    # the blackout fields) the case had no blackout. Older reports lack them.
+    committed: bool | None = None  # the label names a cause; False: abstained
+    confidence: float | None = None
+    confident_wrong: bool | None = None
+    false_intervention: bool = False
+    blackout: bool = False
+    missing_read_as_normal: bool | None = None
+    blackout_recovered: bool | None = None
+
+
+# A committed answer at least this sure that is wrong counts as confident and
+# wrong on the scorecard. Fixed so reports compare; not the action bar.
+CONFIDENT = 0.8
+# The fault kind that means "nothing is wrong".
+NO_FAULT = "false_alarm"
+
+
+class AbstentionCard(BaseModel):
+    """Answering versus declining to answer, kept apart.
+
+    Plain accuracy counts a conclusion that names no cause as wrong. Here it
+    is counted as abstained, so an agent that says "I cannot tell" is not
+    scored like one that names the wrong cause with confidence.
+    """
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    judged: int
+    committed: int
+    abstained: int
+    accuracy_when_committed: float | None
+    abstention_rate: float | None
+    confident_wrong: int
+    false_interventions: int
+    blackout_cases: int
+    # Blackout cases with a real fault that were labelled "nothing wrong".
+    missing_read_as_normal: int
+    # Of the blackout cases where a call was refused, how many read the
+    # sensors again once the feed was back.
+    refused: int
+    recovered: int
+    recovery_rate: float | None
 
 
 class EvalReport(BaseModel):
@@ -106,6 +152,8 @@ class EvalReport(BaseModel):
     overall_accuracy: float | None
     accuracy_by_fault: dict[str, float | None]
     steps_by_agent: dict[str, int]
+    # None in reports from before the scorecard was kept.
+    abstention: AbstentionCard | None = None
 
 
 class CaseDifference(BaseModel):
@@ -194,6 +242,51 @@ def compare_reports(before: EvalReport, after: EvalReport) -> EvalComparison:
     )
 
 
+def names(diagnosis) -> set[str]:
+    """The fault kinds a label names (one diagnosis, several, or none)."""
+    if diagnosis is None:
+        return set()
+    if isinstance(diagnosis, list):
+        return {d.fault for d in diagnosis}
+    return {diagnosis.fault}
+
+
+def abstention_card(cases: Sequence[EvalCase]) -> AbstentionCard:
+    """The scorecard over a report's cases. Unjudged cases are left out of
+    every count that needs a label; false interventions and recovery need none."""
+    # Variables:
+    #   judged: Cases with a label that is not waiting for review.
+    #   committed: Judged cases whose label names a cause.
+    #   refused: Blackout cases where at least one sensor call was refused.
+    judged = [case for case in cases if case.committed is not None]
+    committed = [case for case in judged if case.committed]
+    blackout = [case for case in cases if case.blackout]
+    refused = [case for case in blackout if case.blackout_recovered is not None]
+    recovered = sum(case.blackout_recovered is True for case in refused)
+    return AbstentionCard(
+        judged=len(judged),
+        committed=len(committed),
+        abstained=len(judged) - len(committed),
+        accuracy_when_committed=(
+            sum(case.correct is True for case in committed) / len(committed)
+            if committed
+            else None
+        ),
+        abstention_rate=(
+            (len(judged) - len(committed)) / len(judged) if judged else None
+        ),
+        confident_wrong=sum(case.confident_wrong is True for case in cases),
+        false_interventions=sum(case.false_intervention for case in cases),
+        blackout_cases=len(blackout),
+        missing_read_as_normal=sum(
+            case.missing_read_as_normal is True for case in cases
+        ),
+        refused=len(refused),
+        recovered=recovered,
+        recovery_rate=recovered / len(refused) if refused else None,
+    )
+
+
 def report_of(
     name: str,
     records: Sequence[ExperimentRecord],
@@ -230,6 +323,12 @@ def report_of(
             for fault in set(truth):
                 by_fault[fault].append(correct)
         steps = record.agent_steps or []
+        judged = label is not None and not uncertain
+        committed = (label.diagnosis is not None) if judged else None
+        blackout = record.blackout_recovered is not None or any(
+            fired.startswith("blackout on ") for fired in record.hazards_fired or ()
+        )
+        named = names(label.diagnosis) if judged else set()
         critique = record.critique
         result = None if critique is None else critique.result
         critic_label = critic_labels.get(record.run_key)
@@ -259,6 +358,28 @@ def report_of(
                     if critic_label is None
                     else apply_label(record.score, critic_label.diagnosis).fully_right
                 ),
+                committed=committed,
+                confidence=record.confidence,
+                confident_wrong=(
+                    None
+                    if committed is None
+                    else committed
+                    and correct is False
+                    and (record.confidence or 0.0) >= CONFIDENT
+                ),
+                false_intervention=bool(record.score.recommended_actions)
+                and not record.score.recommendation_correct,
+                blackout=blackout,
+                missing_read_as_normal=(
+                    None
+                    if not blackout or not judged
+                    else NO_FAULT not in truth and NO_FAULT in named
+                ),
+                blackout_recovered=(
+                    record.blackout_recovered
+                    if blackout and (record.hazards_blocked or 0) > 0
+                    else None
+                ),
             )
         )
     judged = sum(case.correct is not None for case in cases)
@@ -274,6 +395,7 @@ def report_of(
             for fault, values in sorted(by_fault.items())
         },
         steps_by_agent=dict(sorted(agents.items())),
+        abstention=abstention_card(cases),
     )
 
 
@@ -314,6 +436,8 @@ def check_resume(
             or (
                 scenario.fault is not None and record.score.true_fault != scenario.fault
             )
+            # A case run with tool faults keeps a list of what fired (maybe empty).
+            or (scenario.hazards is None) != (record.hazards_fired is None)
         ):
             raise ValueError(f"saved episode {number} is not {expected}")
 
@@ -459,6 +583,11 @@ def main(argv: Sequence[str] | None = None) -> int:
                 "overall_accuracy": report.overall_accuracy,
                 "accuracy_by_fault": report.accuracy_by_fault,
                 "steps_by_agent": report.steps_by_agent,
+                "abstention": (
+                    None
+                    if report.abstention is None
+                    else report.abstention.model_dump()
+                ),
                 "out": str(args.out),
             },
             indent=2,
