@@ -141,6 +141,14 @@ alarm), then evaluation, then the agent itself.
 
 ## Session notes
 
+- **2026-10-29 (docs-only): a separate pass for variable comments.** Rule set
+  by the developer, now `AGENTS.md` section 7.1: after a change's code is
+  written and its tests pass, a separate pass checks the `# Variables:` block
+  at the top of every function the change created or changed, naming the
+  variables that carry meaning in one plain sentence each (not trivial ones),
+  then reruns lint and the touched tests, and the pull request lists the
+  commented functions. Applies to both coding agents.
+
 - **2026-10-29 (docs-only): walkthrough of PR #122 (C1b), given after the
   merge at the developer's request** (so they could start testing in another
   session). The 'Understood (post)' mark stays **no**; the developer decides.
