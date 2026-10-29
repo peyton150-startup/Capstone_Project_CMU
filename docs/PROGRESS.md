@@ -127,6 +127,7 @@ A component is complete only when both columns are checked.
 
 | C2r | Critic follow-up (`recheck`): one read-only reading where the critic pointed, when it objects or agrees below the action bar; opt-in `CRITIC_FOLLOWUP` | yes (2026-10-29) | yes (2026-10-29, after one correction: a normal reading means "not confirmed", not "no action needed") | yes | no — closing question outstanding | `agent/investigation.py` (`recheck_trigger`, `recheck`, graph edge `critique -> recheck -> conclude`), `agent/artifacts.py` (`RecheckRecord`), `agent/state.py` (`recheck`), `agent/loop.py` (`InvestigationDeps.critic_followup`), `settings.py` (`critic_followup`), `episode.py`, `experiment.py` (`ExperimentRecord.recheck`); session note 2026-10-29 (C2r) |
 | C1b | Critic before every conclusion, shown every hypothesis (up to five) | yes (2026-10-29) | yes (2026-10-29: which `favoured` is still refused, and why; right, the reason corrected) | yes | no (pre-merge walkthrough owed) | `agent/critic.py` (`shown_hypotheses`, `SHOWN_HYPOTHESES`, `CRITIC_SYSTEM`, `critique_view`), `agent/artifacts.py` (`CritiqueResult` descriptions, `CritiqueRecord.after_stage`), `agent/investigation.py` (`route`, `critique`, `recheck` question `K1`); session note 2026-10-29 (C1b) |
+| D1 | Timed sensor-feed blackout: the alarmed machine's sensors refuse for a seeded 10-50 ticks; opt-in `--hazards blackout` | yes (2026-10-29) | yes (2026-10-29, after one correction: the agent cannot fix a feed, it escalates and reports) | yes | no — closing question outstanding | `providers/hazards.py` (`Blackout`, `blackout_hazards`, `BLACKOUT_TICKS`, `BLACKOUT_STREAM`, `BLACKOUT_MESSAGE`, `HazardProfile`, `HazardReport.blocked`, `HazardReport.blackout_recovered`), `episode.py` (`run_episode(hazards=...)`), `experiment.py` (`--hazards [standard|blackout]`, `ExperimentRecord.hazards_blocked`, `ExperimentRecord.blackout_recovered`); session note 2026-10-29 (D1) |
 Every row above with four "yes" marks (or "n/a") is complete: no question is
 outstanding on it. Still to build after 12c, from `docs/MVP_SCOPE.md`: the
 other three fault scenarios (material batch, machine configuration, false
@@ -162,6 +163,42 @@ alarm), then evaluation, then the agent itself.
   - Developer's note: tune the critic afterwards (it objected in every live run
     so far, including the right ones).
 
+
+- **2026-10-29 (D1): a timed sensor-feed blackout.** Item 2 of the
+  2026-10-29 pilot-readiness list (degraded data and abstention), first
+  piece. Taught first. Gate question (a dead feed and three failed reads: why
+  not conclude "false alarm"?): right that a dead feed is not a false alarm
+  and the agent should escalate or report; corrected that it cannot
+  "intervene to fix the feed" (its actions are maintenance requests, and they
+  need human approval), and that `hazards_fired` is the evaluator's trace,
+  never shown to the agent. The developer's design choices: **timed only**
+  (no permanent blackout), with the length **random from a seeded stream**,
+  **10-50 ticks**, and hazards stay **opt-in** (off unless asked for).
+  Built: `Blackout(machine_id, until_tick)` in `providers/hazards.py`
+  refuses `get_readings`, `get_sensor_trend` and `get_sensor_summary` for that
+  one machine until `until_tick`, however often it is asked. The message
+  ("The sensor feed for CNC-02 is not responding.") never says when it
+  ends. `blackout_hazards` draws the length from the simulator's own
+  `RandomSource` stream `hazard.blackout`, from the run's start tick. A new
+  stream name leaves every other stream unchanged, so the factory is the
+  same world with or without it. The simulator is never touched. Asking again
+  works only after factory time has passed (`wait`). `HazardReport.blocked`
+  counts refused calls, and `blackout_recovered` (None without a blackout) is
+  True once the agent reads the machine's sensors after being refused.
+  `run_episode(hazards="blackout")` and `python -m capstone.experiment run
+  --hazards blackout` turn it on; `--hazards` alone is still the standard
+  schedule. Both are off by default. Records keep `hazards_blocked` and
+  `blackout_recovered`. Tests (`tests/test_hazards.py`, `tests/test_experiment.py`):
+  refuses until the end tick and never says when; other machines and tools
+  untouched; waiting past the end gives the real answer and records the
+  recovery (one tick short still refuses); a feed never refused is no
+  recovery; the factory is untouched; the length is seeded and within 10-50;
+  no named machine, no blackout; an episode reports it, repeats exactly and
+  keeps the same world; the CLI is off by default, `--hazards` is standard,
+  `--hazards blackout` is the blackout; older records still read. Not run
+  live. Still to build for item 2: the degraded-case matrix and the
+  abstention scorecard (accuracy among answered cases, abstention rate,
+  wrong confident conclusions, false interventions, recovery rate).
 - **2026-10-29 (docs-only): Codex runs the master experiments, Claude Code
   builds the code.** At the developer's request, `AGENTS.md` §12 records the
   split. Codex does the live master runs, their labelling and the result

@@ -65,6 +65,33 @@ def test_watching_shows_each_case_live_but_never_the_truth():
     assert record.conclusion is not None
 
 
+def test_hazards_are_off_unless_asked_for(tmp_path, monkeypatch):
+    ran = {}
+
+    def fake_run(cases, make_policy, **options):
+        ran.update(options)
+        return []
+
+    monkeypatch.setattr(experiment, "run_experiment", fake_run)
+    monkeypatch.setattr(
+        experiment, "model_policy_factory", lambda with_recall, **_: None
+    )
+    out = str(tmp_path / "r.jsonl")
+    assert main(["run", "--name", "a", "--known", "--out", out]) == 0
+    assert ran["hazards"] is False
+    assert main(["run", "--name", "b", "--known", "--out", out, "--hazards"]) == 0
+    assert ran["hazards"] == "standard"
+    argv = ["run", "--name", "c", "--known", "--out", out, "--hazards", "blackout"]
+    assert main(argv) == 0
+    assert ran["hazards"] == "blackout"
+
+
+def test_old_records_without_blackout_fields_still_read(records):
+    old = records[0].model_dump(exclude={"hazards_blocked", "blackout_recovered"})
+    back = ExperimentRecord.model_validate(old)
+    assert (back.hazards_blocked, back.blackout_recovered) == (None, None)
+
+
 def test_the_run_command_watches_by_default_and_quiet_turns_it_off(
     tmp_path, monkeypatch
 ):
