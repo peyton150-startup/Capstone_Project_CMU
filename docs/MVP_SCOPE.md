@@ -1838,6 +1838,55 @@ that sum to 100. Permit rescoring as real evidence arrives and retain an
 explicit status (`candidate`, `supported`, `contradicted`,
 `deferred`, `unresolved`), plus an auditable score breakdown.
 
+**Positional-bias and optional log-probability scoring evaluation (2026-10-29).**
+**Status: medium-priority, evaluation only; do not enable until demonstrated
+beneficial.** Current opt-in ToT sends the candidates in fixed generated order,
+asks for a single batch of model-reported confidences, sorts descending, and
+uses original candidate order as the tie-breaker
+(`agent/tree_of_thought.py:prune`). The chat provider
+(`providers/chat.py:ChatClient.ask`) sets temperature 0 but neither requests
+nor parses token log probabilities. Neither model-reported confidence nor
+raw token likelihood removes position/order effects or proves correctness.
+
+Evaluate **position invariance** before changing the scoring mechanism:
+(1) independently score each distinct hypothesis with the same sensor
+observations and evidence rubric, without presenting rival hypotheses as
+competing choices; (2) on a fixed set of matched cases, repeat the listwise
+judge after systematically rotating/permuting candidate order, retaining
+stable candidate IDs and normalizing output back to those IDs; and
+(3) compare per-candidate variance, rank reversals and correlation with
+presentation position against the single-order ToT baseline. Prefer a
+small bounded set of permutations, measure additional model calls and
+latency, and keep all runs within documented experiment budgets.
+Randomization is a diagnostic and possible mitigation, not proof that
+position bias is gone. Do not replace deterministic evidence validity
+checks with model votes.
+
+**Log-probability feasibility spike (optional):** check actual support from
+the configured NVIDIA/Nemotron and fallback model endpoints for
+`logprobs`/`top_logprobs` in the relevant response mode, including
+schema-constrained JSON output. Only if supported, test the likelihood of
+a tightly specified, length/label-controlled verdict per hypothesis and
+compare it with evidence-based scores and order-aggregated model ratings.
+Be alert to tokenization and label-order bias; avoid comparing raw
+sequence likelihoods of differently worded hypotheses or assuming
+logprobs are calibrated truth probabilities. The clients currently
+return only validated typed answers, so collecting optional logprobs
+would need an explicitly measured, backward-compatible provider
+response/metadata path; fallback must remain functional where scores
+are unavailable.
+
+**Go/no-go:** use held-out seeded single- and multiple-fault cases with
+missing/noisy/conflicting evidence. Compare order sensitivity,
+multi-label precision/recall/F1, calibration (only when a probability
+claim is made), independent-evidence citation quality, false
+interventions, root-cause/action correctness, additional tokens/calls,
+p50/p95 latency and availability across providers. Do not force softmax
+competition across hypotheses that can be simultaneously correct.
+Adopt the simplest scoring method that is materially more robust, and
+record untested/deferred hypotheses rather than silently pruning them.
+This evaluation precedes any production GoT scoring integration.
+
 **Required code/design review:** `agent/tree_of_thought.py` (score and
 evidence-based rejection versus hard top-three pruning);
 `contracts/hypotheses.py` (score components and per-hypothesis status);
