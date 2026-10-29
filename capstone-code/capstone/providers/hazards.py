@@ -22,15 +22,28 @@ hazards, each with a way out:
   sensors say otherwise when the bearing is in fact worn: the fresh
   readings should win over the record.
 
+One more, for a dropped sensor feed (`blackout_hazards`):
+
+- `Blackout`: the alarmed machine's sensor feed is dead from the start of
+  the run until a tick drawn from the seeded stream `hazard.blackout`
+  (10 to 50 ticks later). Every sensor call for that machine fails until
+  then, however often it is asked; asking again only works once factory
+  time has passed (the `wait` tool). The agent is never told when it ends.
+  A failed call is not a normal reading: an agent that concludes "nothing
+  is wrong" from it has read missing data as evidence.
+
 Faults sit on the tool boundary only. The simulator is never touched: a
 `Gap` hides rows from the answer, not from the factory. Which calls are hit
-is fixed by the schedule, never random, so a run repeats exactly. The
+is fixed by the schedule; the blackout's length comes from a seeded stream
+of the simulator's own random source, so a run still repeats exactly. The
 schedule is built from what monitoring noticed (observable), never from the
 hidden truth.
 """
 
+import random
 from collections import Counter
 from dataclasses import dataclass, field
+from typing import Literal
 from uuid import UUID
 
 from pydantic import JsonValue
@@ -39,6 +52,15 @@ from capstone.contracts.tools import ToolError, ToolRequest, ToolResult
 from capstone.providers.factory import FactoryProvider
 
 TIMEOUT_MESSAGE = "The tool timed out. It may answer if asked again."
+# Says the feed is down, never for how long: the agent is not told when it ends.
+BLACKOUT_MESSAGE = "The sensor feed for {machine_id} is not responding."
+# The sensor tools a dead feed takes down, for the one machine.
+BLACKOUT_TOOLS = ("get_readings", "get_sensor_trend", "get_sensor_summary")
+# How long the feed stays down, in ticks from the start of the run; the
+# length is drawn from the seeded stream named here. Chosen by the developer
+# (2026-10-29): short enough that one small wait clears it.
+BLACKOUT_TICKS = (10, 50)
+BLACKOUT_STREAM = "hazard.blackout"
 # List tools whose rows carry a tick, so part of a range can go missing.
 GAP_TOOLS = ("get_readings", "get_factory_readings", "get_events", "get_inspections")
 
@@ -76,7 +98,34 @@ class StaleRecord:
         return f"stale maintenance record on {self.machine_id}"
 
 
-Hazard = Timeout | Gap | StaleRecord
+@dataclass(frozen=True)
+class Blackout:
+    machine_id: str
+    # The first tick at which the feed answers again.
+    until_tick: int
+    tools: tuple[str, ...] = BLACKOUT_TOOLS
+
+    def describe(self) -> str:
+        return f"blackout on {self.machine_id} until tick {self.until_tick}"
+
+
+Hazard = Timeout | Gap | StaleRecord | Blackout
+# Which set of faults a run uses: the standard schedule, or a dead sensor feed.
+HazardProfile = Literal["standard", "blackout"]
+
+
+def blackout_hazards(
+    machine_id: str | None, start_tick: int, stream: random.Random
+) -> tuple[Hazard, ...]:
+    """A dead sensor feed on the machine monitoring named, for a seeded number
+    of ticks. With no machine named there is no feed to take down."""
+    # Variables:
+    #   stream: The seeded stream the length is drawn from (`BLACKOUT_STREAM`).
+    #   low, high: The shortest and longest blackout, in ticks.
+    if machine_id is None:
+        return ()
+    low, high = BLACKOUT_TICKS
+    return (Blackout(machine_id, start_tick + stream.randint(low, high)),)
 
 
 def standard_hazards(machine_id: str | None, run_start: str) -> tuple[Hazard, ...]:
@@ -104,6 +153,10 @@ class HazardReport:
     # Of the timeouts and gaps that fired, how many the agent followed with
     # a later successful call to the same tool: the recovery ToolBench-X asks for.
     retried: int = 0
+    # Sensor calls a blackout refused, and whether the agent read the machine's
+    # sensors again after the feed came back. None: there was no blackout.
+    blocked: int = 0
+    blackout_recovered: bool | None = None
 
 
 class UnreliableProvider:
@@ -123,6 +176,8 @@ class UnreliableProvider:
         # (tool, call number) of each fired timeout or gap still waiting for a retry.
         self._waiting: list[str] = []
         self.report = HazardReport()
+        if any(isinstance(hazard, Blackout) for hazard in hazards):
+            self.report.blackout_recovered = False
 
     def call(
         self,
@@ -146,6 +201,26 @@ class UnreliableProvider:
         nth = self._counts[name]
         context = {"run_id": run_id, "investigation_id": investigation_id}
 
+        blackout = self._blackout_for(request)
+        if blackout is not None:
+            clock = self._inner.call(ToolRequest(name="get_time"), **context)
+            if clock.tick is not None and clock.tick < blackout.until_tick:
+                if blackout.describe() not in self.report.fired:
+                    self.report.fired.append(blackout.describe())
+                self.report.blocked += 1
+                return ToolResult[JsonValue](
+                    success=False,
+                    tool=name,
+                    source=clock.source,
+                    tick=clock.tick,
+                    timestamp=clock.timestamp,
+                    error=ToolError(
+                        code="provider_error",
+                        message=BLACKOUT_MESSAGE.format(machine_id=blackout.machine_id),
+                    ),
+                    **context,
+                )
+
         timeout = self._find(Timeout, name, nth)
         if timeout is not None:
             self._fire(timeout)
@@ -163,6 +238,9 @@ class UnreliableProvider:
         result = self._inner.call(request, **context)
         if not result.success:
             return result
+        if blackout is not None and self.report.blocked:
+            # The feed is back and the agent asked again after being refused.
+            self.report.blackout_recovered = True
         if name in self._waiting:
             self._waiting.remove(name)
             self.report.retried += 1
@@ -187,6 +265,19 @@ class UnreliableProvider:
                         update={"data": self._with_record(result.data, stale)}
                     )
         return result
+
+    def _blackout_for(self, request: ToolRequest) -> Blackout | None:
+        """The blackout covering this sensor call, if any (whether or not it
+        has ended yet)."""
+        machine_id = request.arguments.get("machine_id")
+        for hazard in self._hazards:
+            if (
+                isinstance(hazard, Blackout)
+                and request.name in hazard.tools
+                and machine_id == hazard.machine_id
+            ):
+                return hazard
+        return None
 
     def _find(self, kind, tool: str, nth: int):
         for hazard in self._hazards:
