@@ -1,5 +1,15 @@
 # Progress Log
 
+> **2026-10-29 — docs-only pilot-readiness future work recorded (not implemented):**
+> [MVP_SCOPE.md](MVP_SCOPE.md#high-priority-future-work--pilot-readiness-critic-follow-up-fast-triage-and-abstention-2026-10-29)
+> now prioritizes (1) closing the review-only critic with at most one bounded
+> read-only discriminating observation/hypothesis revision, (2) separate
+> rapid, read-only preliminary triage from the current 1,200-second deep
+> investigation, and (3) deterministic degraded-data/abstention tests using
+> existing fault-injection tooling. Each needs its own later implementation
+> PR, matched before/after evaluation and safety/latency acceptance tests.
+> No agent behavior, simulator, tests or runtime settings changed here.
+
 Two separate completion criteria per component (see CLAUDE.md §1):
 
 - **Implemented** — code written, tests passing.
