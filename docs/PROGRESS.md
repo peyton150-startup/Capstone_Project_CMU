@@ -135,6 +135,14 @@ alarm), then evaluation, then the agent itself.
 
 ## Session notes
 
+- **2026-10-29 (docs-only): a separate pass for variable comments.** Rule set
+  by the developer, now `AGENTS.md` section 7.1: after a change's code is
+  written and its tests pass, a separate pass checks the `# Variables:` block
+  at the top of every function the change created or changed, naming the
+  variables that carry meaning in one plain sentence each (not trivial ones),
+  then reruns lint and the touched tests, and the pull request lists the
+  commented functions. Applies to both coding agents.
+
 - **2026-10-29: C1b, the critic before every conclusion, shown every
   hypothesis.** Step 1 of four agreed with the developer (critic placement,
   automatic manual retrieval, observable evidence to recommend a fix, gap

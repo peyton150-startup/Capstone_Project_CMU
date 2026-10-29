@@ -378,6 +378,35 @@ Bad increment: "implement the whole factory simulator."
 Do not create hundreds or thousands of lines in one step. Prefer the
 smallest implementation that proves the architectural idea.
 
+### 7.1 A separate pass for variable comments (rule set by the developer, 2026-10-29)
+
+After the code for a change is written and its tests pass, make one more,
+separate pass over every function the change created or changed, before the
+pull request is opened. In that pass, check the comment block at the top of
+each function and add or fix it, so that a reader can understand the function
+from it without tracing the code:
+
+```python
+def critique(state: InvestigationState, deps: InvestigationDeps) -> None:
+    """One-line docstring: what the function does."""
+    # Variables:
+    #   after_stage: The stage this critique followed, read before the
+    #     follow-up changes the stage.
+    #   used: Seconds the critic took, added to started_at so research keeps
+    #     its time.
+```
+
+- Name the variables that carry meaning: parameters whose role is not obvious
+  from their name, state it reads or changes, and values that steer the
+  control flow. One sentence each, in plain English, saying what the variable
+  is for, not its type.
+- Skip the trivial ones (a loop index, a name that already says it all).
+- Keep the block true: when a variable is renamed, removed or changes meaning,
+  update its line in the same change.
+- This pass is its own step, not something done while writing the code, so
+  that it is never skipped. Run `uv run ruff check` and the touched tests again
+  afterwards, and list the commented functions in the pull request.
+
 ---
 
 ## 8. Testing requirements
