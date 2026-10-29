@@ -289,8 +289,15 @@ different material. Find a way to get the agent to call the manual, measured
 before it is built (does it call it? does it change the conclusion?). Ideas to
 weigh, not decided: a stronger or earlier prompt rule; a stage that must
 search it once before `hypothesize`; code that searches on the anomaly's
-words and adds the sections as labelled evidence, as `RecallingProvider` does
-for memory. Each changes what the agent sees, so each is taught first.
+words and adds the sections as labelled evidence (new: no part of the agent
+does this today; memory, like the manual, is reached only through a tool the
+agent must call, `recall_memories` in `RecallingProvider`). Each changes what
+the agent sees, so each is taught first. Measured 2026-10-29: in the six saved
+runs that offered the manual, the agent searched it once (bearing, "vibration"),
+never on the batch or setting cases, although §2.9 of the manual ("Material
+Batch Quality") says to group inspection results by batch, the check KA-03
+missed. The only prompt rule (A15, `manual_use_note`) says to search it before
+recommending a repair, after the hypotheses exist.
 
 **Considered and not chosen, Option A: the critic calls `search_manual`
 itself** in a small ask, run-the-tool, ask-again loop inside its window. It
@@ -320,6 +327,24 @@ its window) looks silent. Showing "asking the critic about H1, H2" needs a
 pending marker on the state (a new `CritiqueRecord` outcome or stage value)
 and a `notify` call before the question. PR #112 added the fuller result
 lines but not this.
+
+### 4. Run the critic before every conclusion, not only after `test` (developer, 2026-10-29)
+
+Measured in the first KA-03 run with the critic (`critic-ka03-1.jsonl`, seed 7,
+bad material batch): research ran out of time inside `investigate` (stop:
+`timeout`, 835 s, three model timeouts), so the graph went straight to
+`conclude`. `hypothesize`, `test` and the critique were all skipped, and the
+record has no critique. The agent then escalated at 0.85 saying no machine or
+component was implicated, although its first look (`get_inspections`) showed
+the failed jobs on batch 2 and an early hypothesis named batch 2 (it fell from
+0.40 to 0.25 while a job-routing idea rose to 0.92). That is the reasoning miss
+the critic exists for, and the placement chosen above (between `test` and
+`conclude`) meant it never saw it. The critic reviews the runs that went
+smoothly and misses the ones where research ran long.
+
+Built in PR #122 (C1b, 2026-10-29): every route now passes the critique,
+the critic sees every hypothesis, and the record keeps the stage it
+followed (`after_stage`). See the amendment below for what changed.
 
 ## Amendment (developer, 2026-10-29): before every conclusion, every hypothesis
 
