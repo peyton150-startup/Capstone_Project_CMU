@@ -863,3 +863,15 @@ def test_a_critique_from_before_favoured_claim_still_reads():
         "seconds": 1.0,
     }
     assert CritiqueRecord.model_validate(old).favoured_claim is None
+
+
+def test_a_critique_from_before_after_stage_still_reads():
+    from capstone.agent.critic import CritiqueRecord
+
+    old = {
+        "outcome": "no_answer",
+        "result": None,
+        "shown_hypotheses": ["H1"],
+        "seconds": 1.0,
+    }
+    assert CritiqueRecord.model_validate(old).after_stage is None

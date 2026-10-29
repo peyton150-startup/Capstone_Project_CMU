@@ -487,10 +487,10 @@ def test_the_graph_draws_only_the_allowed_order():
         "plan --> investigate",
         "investigate --> anything_to_explain",
         "anything_to_explain --> hypothesize",
-        "anything_to_explain --> conclude",
+        "anything_to_explain --> critique",
         "hypothesize --> anything_to_test",
         "anything_to_test --> test",
-        "anything_to_test --> conclude",
+        "anything_to_test --> critique",
         "test --> critique",
         "critique --> recheck",
         "recheck --> conclude",
@@ -974,3 +974,108 @@ def test_a_skipped_follow_up_says_why_and_calls_nothing():
         state.recheck.reason == "the leading hypothesis already reaches the action bar"
     )
     assert provider.calls == []
+
+
+# --- the critic before every conclusion ----------------------------------------
+
+
+def believing_from_the_start(state, step, evidence):
+    """Every answer, from the first look on, supports the same explanation."""
+    return Interpretation(hypotheses=(wear(0.6, evidence.id),))
+
+
+def test_the_critic_reviews_a_run_that_timed_out_before_testing():
+    now = [0.0]
+
+    def respond(request):
+        now[0] += 40.0
+        return {"ok": True}
+
+    critic = FakeCritic()
+    state, _ = investigate(
+        wear_policy(interpret=believing_from_the_start),
+        respond=respond,
+        clock=lambda: now[0],
+        state=fresh_state(timeout_seconds=180.0, followup_seconds=60.0),
+        critic=critic,
+    )
+    assert state.termination_reason is TerminationReason.TIMEOUT
+    assert "test" not in stages(state)
+    assert len(critic.reviewed) == 1
+    assert state.critique.outcome == "answered"
+    assert state.critique.after_stage == "investigate"
+    assert state.conclusion is not None
+
+
+def test_after_a_test_round_the_critique_says_so():
+    state, _ = investigate(wear_policy(), critic=FakeCritic())
+    assert state.critique.after_stage == "test"
+
+
+def test_after_stage_is_read_before_the_follow_up_changes_the_stage():
+    state = fresh_state()
+    state.started_at = 0.0
+    state.stage = "hypothesize"
+    state.hypotheses = [wear(0.6, "E2")]
+    deps = InvestigationDeps(
+        provider=FakeProvider(),
+        policy=wear_policy(),
+        critic=FakeCritic(),
+        critic_followup=True,
+        clock=lambda: 0.0,
+    )
+    critique(state, deps)
+    recheck(state, deps)
+    assert state.stage == "test"  # the follow-up runs as a test step
+    assert state.critique.after_stage == "hypothesize"
+
+
+def stopping_policy():
+    policy = wear_policy()
+    policy.decide = lambda state, phase: Stop(
+        reason=TerminationReason.EVIDENCE_SUFFICIENT, information_needed="enough"
+    )
+    return policy
+
+
+def test_the_follow_up_tests_the_critic_s_pick_when_it_is_not_the_leader():
+    state = fresh_state()
+    state.started_at = 0.0
+    state.stage = "test"
+    state.hypotheses = [
+        wear(0.8, "E2"),
+        Hypothesis(id="H2", claim="the failed jobs share one batch", confidence=0.3),
+    ]
+    critic = FakeCritic(critique_result("object", favoured="H2"))
+    deps = InvestigationDeps(
+        provider=FakeProvider(),
+        policy=stopping_policy(),
+        critic=critic,
+        critic_followup=True,
+        clock=lambda: 0.0,
+    )
+    critique(state, deps)
+    recheck(state, deps)
+    [question] = [q for q in state.unanswered_questions if q.id == "K1"]
+    assert question.hypothesis_id == "H2"
+    assert "H2" in question.text and "H1" in question.text
+    assert state.recheck.question == question.text
+
+
+def test_the_follow_up_still_tests_the_leader_when_the_critic_picked_it():
+    state = fresh_state()
+    state.started_at = 0.0
+    state.stage = "test"
+    state.hypotheses = [wear(0.8, "E2")]
+    deps = InvestigationDeps(
+        provider=FakeProvider(),
+        policy=stopping_policy(),
+        critic=FakeCritic(critique_result("object", favoured="H1")),
+        critic_followup=True,
+        clock=lambda: 0.0,
+    )
+    critique(state, deps)
+    recheck(state, deps)
+    [question] = [q for q in state.unanswered_questions if q.id == "K1"]
+    assert question.hypothesis_id == "H1"
+    assert question.text == "The critic's check: get_readings on CNC-02"

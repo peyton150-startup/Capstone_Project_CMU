@@ -101,27 +101,28 @@ class Objection(Contract):
 
 
 class CritiqueResult(Contract):
-    """A second model's judgement of the two leading hypotheses. A belief, not evidence."""
+    """A second model's judgement of the agent's hypotheses. A belief, not evidence."""
 
     favoured: str = Field(
         description=(
-            "The id of the shown hypothesis the evidence supports better than the "
-            "other, not one proven beyond doubt. Use none only if the evidence "
-            "supports neither."
+            "The id of the shown hypothesis the evidence supports best, not one "
+            "proven beyond doubt. Use none only if the evidence supports none of "
+            "them."
         )
     )
     why: str = Field(
-        description="One or two sentences: the evidence that makes it the better fit."
+        description="One or two sentences: the evidence that makes it the best fit."
     )
     discriminating_check: str = Field(
         description=(
             "One call the agent could make with a tool from the list shown, with its "
-            "arguments, whose answer would tell the two hypotheses apart."
+            "arguments, whose answer would tell your pick apart from the leading "
+            "explanation (from the runner-up, if your pick is the leading one)."
         )
     )
     objections: tuple[Objection, ...] = Field(
         default=(),
-        description="Problems found with the favoured hypothesis or the other one.",
+        description="Problems found with any of the shown hypotheses.",
     )
     verdict: Literal["object", "no_objection"] = Field(
         description=(
@@ -190,3 +191,7 @@ class CritiqueRecord(Contract):
     # agent may reword it later (even after a fix worked), so this, not the
     # final belief, is what the critic's pick is labelled from. None: no pick.
     favoured_claim: str | None = None
+    # The stage the critique followed: test (the usual path) or investigate /
+    # hypothesize when the run skipped testing (for example it ran out of
+    # research time), so results can be split by path. None in older records.
+    after_stage: Literal["investigate", "hypothesize", "test"] | None = None

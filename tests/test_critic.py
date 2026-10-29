@@ -3,7 +3,13 @@
 import pytest
 
 from capstone.agent.artifacts import CritiqueResult, Objection
-from capstone.agent.critic import CRITIC_SYSTEM, Critic, critique_view, top_two
+from capstone.agent.critic import (
+    CRITIC_SYSTEM,
+    SHOWN_HYPOTHESES,
+    Critic,
+    critique_view,
+    shown_hypotheses,
+)
 from capstone.contracts.evidence import Evidence
 from capstone.contracts.hypotheses import Hypothesis
 from capstone.faults import FAULT_KINDS
@@ -89,25 +95,37 @@ def critic_with(reply):
     return Critic(client, research_tools()), client
 
 
-def test_top_two_by_confidence_ties_keep_order():
+def test_shown_hypotheses_are_all_of_them_by_confidence_ties_keep_order():
     state = state_with_hypotheses()
-    assert [h.id for h in top_two(state)] == ["H2", "H3"]
+    assert [h.id for h in shown_hypotheses(state)] == ["H2", "H3", "H1"]
     state.hypotheses = [hypothesis("H1", 0.4)]
-    assert [h.id for h in top_two(state)] == ["H1"]
+    assert [h.id for h in shown_hypotheses(state)] == ["H1"]
     state.hypotheses = []
-    assert top_two(state) == []
+    assert shown_hypotheses(state) == []
 
 
-def test_view_shows_two_hypotheses_evidence_and_tools_only():
+def test_at_most_five_hypotheses_are_shown():
+    state = state_with_hypotheses()
+    state.hypotheses = [hypothesis(f"H{n}", 0.9 - n / 10) for n in range(1, 8)]
+    assert SHOWN_HYPOTHESES == 5
+    assert [h.id for h in shown_hypotheses(state)] == ["H1", "H2", "H3", "H4", "H5"]
+
+
+def test_view_shows_every_hypothesis_evidence_and_tools_only():
     state = state_with_hypotheses()
     view = critique_view(state, research_tools())
-    assert "H2" in view and "H3" in view
-    assert "H1" not in view
+    assert "H1" in view and "H2" in view and "H3" in view
     assert "E1" in view and "E2" in view
     assert "get_readings" in view
     for word in HIDDEN_WORDS:
         assert word not in view
     assert str(RUN) not in view and str(INVESTIGATION) not in view
+
+
+def test_view_marks_the_agent_s_leading_explanation_once():
+    view = critique_view(state_with_hypotheses(), research_tools())
+    assert "H2 (confidence 0.70, the agent's leading explanation)" in view
+    assert view.count("the agent's leading explanation") == 1
 
 
 def test_system_prompt_names_no_fault():
@@ -143,11 +161,20 @@ def test_review_refuses_unknown_favoured():
     assert critic.calls[-1].attempts[-1].outcome.startswith("invalid reply")
 
 
-def test_review_refuses_a_hypothesis_it_was_not_shown():
-    # H1 exists in the state but is not among the two leading ones.
+def test_review_accepts_a_hypothesis_below_the_leading_two():
+    # H1 has the lowest confidence of three; it is shown, so it may be favoured.
     critic, _ = critic_with(result(favoured="H1"))
+    assert critic.review(state_with_hypotheses(), max_seconds=5).favoured == "H1"
+    assert critic.calls[-1].outcome == "answered"
+
+
+def test_review_refuses_a_hypothesis_it_was_not_shown():
+    # Seven hypotheses: H7 is past the five shown, so it cannot be favoured.
+    state = state_with_hypotheses()
+    state.hypotheses = [hypothesis(f"H{n}", 0.9 - n / 10) for n in range(1, 8)]
+    critic, _ = critic_with(result(favoured="H7"))
     with pytest.raises(ValueError):
-        critic.review(state_with_hypotheses(), max_seconds=5)
+        critic.review(state, max_seconds=5)
     assert critic.calls[-1].outcome == "invalid_reply"
 
 
