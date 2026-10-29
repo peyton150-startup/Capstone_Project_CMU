@@ -1,5 +1,10 @@
 # Progress Log
 
+> **2026-10-29 — README technology stack:** Added an overview of the project's
+> language, frameworks, model integrations, optional storage, and development
+> tools to `README.md`. Documentation only; no behavior or understanding
+> status changed.
+
 > **2026-10-29 — docs-only pilot-readiness future work recorded (not implemented):**
 > [MVP_SCOPE.md](MVP_SCOPE.md#high-priority-future-work--pilot-readiness-critic-follow-up-fast-triage-and-abstention-2026-10-29)
 > now prioritizes (1) closing the review-only critic with at most one bounded
