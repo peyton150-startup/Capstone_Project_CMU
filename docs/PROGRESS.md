@@ -122,6 +122,9 @@ alarm), then evaluation, then the agent itself.
 
 ## Session notes
 
+- **2026-10-29 (docs-only): Haas VF-based simulator retrofit and older-machine support.** Recorded a HIGH-priority post-baseline future-work plan in `docs/MVP_SCOPE.md` for a real, revision-specific Haas VF NGC profile to replace the generic CNC as the simulator's eventual default, with optional Classic Control/RS-232 compatibility for early-2000s machines, `FactoryProvider` read-only adapters, manual/SOP RAG, field discovery, optional external sensors, explicit missing-data semantics and deterministic offline comparisons. No runtime changes or machine integrations were made; the existing `SIM-CNC-001` manual remains synthetic.
+
+
 - **2026-10-28 (docs-only): future-work notes for the critic.** After the first
   live critic run the developer asked whether the critic may use the manual
   (it may not: no tools, by the spec) and chose Option B: code searches the
