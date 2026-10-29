@@ -6,7 +6,7 @@ import re
 import pytest
 
 from capstone.agent.artifacts import VerificationCheck
-from capstone.agent.investigation import run_investigation
+from capstone.agent.investigation import manual_query, run_investigation
 from capstone.agent.loop import InvestigationDeps
 from capstone.agent.model_policy import render
 from capstone.contracts.tools import ToolRequest
@@ -19,7 +19,7 @@ from capstone.manual.sections import (
     parse_manual,
 )
 from capstone.memory.contracts import ReflectionCandidate
-from capstone.memory.policy import MemoryPromotionPolicy
+from capstone.memory.policy import MemoryPromotionPolicy, normalize
 from capstone.providers.manual import (
     MANUAL_SPEC,
     MANUAL_TOOL,
@@ -283,3 +283,111 @@ def test_the_gate_refuses_a_lesson_that_rests_on_the_manual_alone():
 def test_a_lesson_may_cite_the_manual_beside_what_was_seen():
     decision = MemoryPromotionPolicy().evaluate(with_manual_item(only_manual=False))
     assert "rests_on_manual" not in decision.reasons
+
+
+# --- the manual step: one search on the anomaly before the agent plans --------
+
+
+def run_stepped(agent, *, manual_step=True, search=None):
+    provider, factory = manual_provider(search=search)
+    state = new_state()
+    state.last_tick = None
+    deps = InvestigationDeps(
+        provider=provider,
+        policy=agent,
+        clock=lambda: 0.0,
+        human_review=factory.approve,
+        manual_step=manual_step,
+    )
+    return run_investigation(state, deps), provider
+
+
+def test_the_manual_step_is_off_by_default():
+    state, provider = run_stepped(policy(), manual_step=False)
+    assert manual_items(state) == [] and provider.searched == []
+
+
+def test_the_manual_step_searches_on_the_anomaly_before_the_plan():
+    seen = []
+    agent = policy()
+    plain_plan = agent.plan
+    agent.plan = lambda state: seen.append(manual_items(state)) or plain_plan(state)
+    state, provider = run_stepped(agent)
+
+    [item] = manual_items(state)
+    [record] = build_manual_records(state)
+    assert record.automatic and record.outcome == "answered" and record.sections
+    assert record.text == manual_query(state)
+    assert provider.searched == [(normalize(manual_query(state)), 3)]
+    # The plan was asked with the sections already in its view.
+    assert seen == [[item]]
+    # Labelled as the manual, never as a look at the factory.
+    labels = {p.evidence_id: p.origin for p in state.provenance}
+    assert labels[item.id] == "manual"
+    phases = [d.phase for d in state.decisions]
+    assert phases.index("observe") < phases.index("plan")
+    manual_decision = next(d for d in state.decisions if d.tool == MANUAL_TOOL)
+    assert manual_decision.phase == "observe"
+
+
+def test_the_tool_stays_open_after_the_step():
+    state, _ = run_stepped(with_lookup(policy(), "investigate"))
+    records = build_manual_records(state)
+    assert [r.automatic for r in records] == [True, False]
+    assert all(r.outcome == "answered" for r in records)
+
+
+def test_the_step_uses_one_of_the_manual_s_searches():
+    agent = policy()
+    for words in ("one", "two", "three"):
+        agent.decisions["investigate"].insert(
+            0, ask(MANUAL_TOOL, text=f"spindle {words}")
+        )
+    state, _ = run_stepped(agent)
+    outcomes = [r.outcome for r in build_manual_records(state)]
+    assert outcomes[0] == "answered"  # the step
+    assert outcomes.count("answered") == MAX_SEARCHES
+    assert outcomes[-1] == "budget_spent"
+
+
+def test_the_query_is_the_anomaly_s_kind_and_words_only():
+    state = new_state()
+    query = manual_query(state)
+    assert query.startswith(state.anomaly.kind.replace("_", " ") + ": ")
+    assert query.endswith(state.anomaly.description)
+
+
+def test_old_manual_records_read_as_chosen_by_the_agent():
+    from capstone.evaluation.manual import ManualSearchRecord
+
+    old = {"sequence": 3, "text": "x", "outcome": "answered", "sections": ["§2.1"]}
+    assert ManualSearchRecord.model_validate(old).automatic is False
+
+
+def test_an_episode_runs_the_step_only_when_it_offers_a_manual(monkeypatch):
+    from capstone.episode import run_episode
+    from tests.test_episode import wear_policy
+
+    monkeypatch.setenv("MANUAL_STEP", "on")
+    plain = run_episode(
+        6, wear_policy(), fault="bearing_degradation", clock=lambda: 0.0
+    )
+    assert all(d.tool != MANUAL_TOOL for d in plain.state.decisions)
+    offered = run_episode(
+        6,
+        wear_policy(),
+        fault="bearing_degradation",
+        clock=lambda: 0.0,
+        manual=KeywordManualSearch(SECTIONS),
+    )
+    [record] = build_manual_records(offered.state)
+    assert record.automatic and record.outcome == "answered"
+    monkeypatch.setenv("MANUAL_STEP", "off")
+    quiet = run_episode(
+        6,
+        wear_policy(),
+        fault="bearing_degradation",
+        clock=lambda: 0.0,
+        manual=KeywordManualSearch(SECTIONS),
+    )
+    assert build_manual_records(quiet.state) == ()
