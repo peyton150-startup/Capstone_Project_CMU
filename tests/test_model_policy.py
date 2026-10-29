@@ -1073,3 +1073,66 @@ def test_episode_records_bar_visibility_even_if_planning_fails(monkeypatch):
     old = record.model_dump()
     del old["state_action_bar"]
     assert type(record).model_validate(old).state_action_bar is None
+
+
+# --- a stop leaves the call fields empty ---------------------------------------
+
+STOP_RULE = "When you stop, leave tool, arguments, question_id and hypothesis_id empty"
+CALL_FIELDS = ("tool", "arguments", "question_id", "hypothesis_id")
+
+
+def stop_reply(**extra):
+    return {
+        "choice": "stop",
+        "stop_reason": "evidence_sufficient",
+        "information_needed": "Q2 is settled by E2",
+    } | extra
+
+
+def test_decide_prompt_says_a_stop_leaves_the_call_fields_empty():
+    assert STOP_RULE in SYSTEM["decide"]
+    assert "information_needed" in SYSTEM["decide"]
+
+
+def test_the_combined_step_gets_the_same_rule():
+    reply = call("list_machines") | {"interpretation": {}}
+    p = policy(decide=[reply])
+    state = state_with_evidence()
+    p.interpret_and_decide(state, "test", ask("get_sensor_summary"), state.evidence[0])
+    assert STOP_RULE in p.clients["decide"].asked[0][0]
+
+
+def test_call_fields_are_described_as_call_only_in_the_schema():
+    fields = NextStep.model_json_schema()["properties"]
+    for name in CALL_FIELDS:
+        description = fields[name].get("description", "")
+        assert "call_tool" in description, name
+        assert "empty" in description, name
+    assert "stop" in fields["stop_reason"].get("description", "")
+
+
+@pytest.mark.parametrize(
+    "extra, found",
+    [
+        ({"question_id": "Q2"}, "question_id"),
+        ({"hypothesis_id": "H1"}, "hypothesis_id"),
+        (
+            {"tool": "get_readings", "arguments": {"machine_id": "CNC-02"}},
+            "tool, arguments",
+        ),
+    ],
+)
+def test_a_refused_stop_names_the_fields_it_found(extra, found):
+    with pytest.raises(ValueError) as refused:
+        NextStep.model_validate(stop_reply(**extra))
+    message = str(refused.value)
+    # The old wording stays first, so counts across older results still match.
+    assert (
+        "a stop step names no tool, arguments, question_id or hypothesis_id" in message
+    )
+    assert f"(found: {found})" in message
+
+
+def test_a_clean_stop_is_still_accepted():
+    step = NextStep.model_validate(stop_reply())
+    assert step.choice == "stop" and step.question_id is None
