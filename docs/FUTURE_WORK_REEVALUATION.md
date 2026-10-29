@@ -68,6 +68,18 @@ configuration. Candidates require independent causal fault behavior, sensors,
 approved maintenance/verification paths, and seeded tests; neither is built.
 See [Future Work 8 details](MVP_SCOPE.md#high-priority-simulator-fidelity-faster-bearing-vibration-ramp-and-machine-power-planned-2026-10-23).
 
+## Haas VF-series retrofit adoption gates (2026-10-29)
+
+**HIGH-priority planned simulator reference migration, not implemented.** See [Haas VF reference future work](MVP_SCOPE.md#high-priority-future-work--retrofit-the-simulator-around-real-haas-vf-series-machines-2026-10-29). First establish the current one-machine/critic baseline. The future default simulator reference is a versioned **Haas VF NGC** profile; optionally support **Classic Haas Control (CHC) via RS-232** for older shops. Do not confuse the synthetic `SIM-CNC-001` manual with real manufacturer documentation. Python can fetch supported telemetry, but cannot create unexposed measurements.
+
+| Gate | Adoption evidence | Stop / defer condition |
+|---|---|---|
+| Specific machine identity and manual | Exact VF model, control generation/firmware, reviewed OEM document version, permitted distribution | Model/version unknown, manual contradicted or rights unclear |
+| Telemetry discovery | Read-only NGC MTConnect `probe` / MDC or CHC Setting 143 RS-232 Q capability check; field/units/timestamp inventory | No safe access/permission, unknown or absent measurement |
+| Sensor and fault fidelity | Calibration against known physical operating modes; clear direct vs calculated vs external vs unavailable provenance | Simulator invents sensors or infers an unverified root cause from a proxy |
+| Safe adapters | No writes; isolated interfaces behind existing `FactoryProvider`; malformed/stale data and outages covered | Tool performs controller changes or bypasses human approval |
+| Comparative evaluation | Seeded offline parity vs present generic simulator and critic baseline; authorized shop evidence only with consent | Lost regression correctness, hidden truth leaks, unreasonable false confidence/latency |
+
 ## Corrections to the supplied conditions
 
 1. **Parts 1–3: separate structure, completeness, and truth.** The barricade
