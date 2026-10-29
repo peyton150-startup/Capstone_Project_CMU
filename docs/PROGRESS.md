@@ -15,6 +15,27 @@
 > PR, matched before/after evaluation and safety/latency acceptance tests.
 > No agent behavior, simulator, tests or runtime settings changed here.
 
+> **2026-10-29 — audit of the eight most recently merged PRs** (at main
+> commit `7ef7b61`): all already have detailed entries below. This index links
+> each change to its record without changing its understanding status:
+>
+> - #126: C1b walkthrough after merge; post-understanding remains no.
+> - #118: KA-01/02 critic results and KA-03 skipped-critique finding; the
+>   follow-up was implemented in #122.
+> - #125: README technology stack (the note above).
+> - #123: degraded-case matrix and abstention scorecard, row D2; closing
+>   question outstanding; not run live.
+> - #122: critic before conclusions and up to five hypotheses, row C1b;
+>   post-understanding remains no, as recorded in #126.
+> - #120: opt-in timed sensor blackout, row D1; closing question outstanding;
+>   not run live.
+> - #121: experiment/build responsibility split in the session notes.
+> - #119: opt-in critic follow-up, row C2r; closing question outstanding;
+>   not run live. #122 later changed which hypothesis K1 tests when the critic
+>   objects and favours a non-leading hypothesis.
+>
+> #124 and #117 were open at this audit; their changes are not yet on main.
+>
 Two separate completion criteria per component (see CLAUDE.md §1):
 
 - **Implemented** — code written, tests passing.
@@ -289,7 +310,7 @@ alarm), then evaluation, then the agent itself.
   no named machine, no blackout; an episode reports it, repeats exactly and
   keeps the same world; the CLI is off by default, `--hazards` is standard,
   `--hazards blackout` is the blackout; older records still read. Not run
-  live. Still to build for item 2: the degraded-case matrix and the
+  live. Later implemented in #123: the degraded-case matrix and the
   abstention scorecard (accuracy among answered cases, abstention rate,
   wrong confident conclusions, false interventions, recovery rate).
 - **2026-10-29 (docs-only): Codex runs the master experiments, Claude Code
@@ -320,7 +341,9 @@ alarm), then evaluation, then the agent itself.
   critic gave no usable answer, named no check, favoured another hypothesis
   without objecting, the leader already reaches the bar, or no research time
   or tool call is left. When it runs, the critic's `discriminating_check`
-  becomes open question K1, tied to the leader. The agent's own policy is
+  becomes open question K1, tied to the leader in this original build. #122
+  changes K1 to test the critic's pick when it objects and favours a
+  different hypothesis. The agent's own policy is
   asked for one test-stage decision, and at most one call goes through the
   normal `gather` (allowlist, provenance labelled by its real source, one
   interpretation). Then the run goes to `conclude`, where the bar applies to
