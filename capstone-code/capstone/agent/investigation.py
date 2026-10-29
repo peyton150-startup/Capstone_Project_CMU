@@ -10,6 +10,9 @@ what the turns are for:
     investigate  the inner loop gathers evidence
     hypothesize  the policy proposes explanations for that evidence
     test         the inner loop gathers evidence until one is supported
+    critique     an optional second model judges the hypotheses; every path
+                 into the conclusion passes through it
+    recheck      optionally, one reading the critic pointed at (see `recheck`)
     conclude     the policy states a diagnosis; this module checks it
     propose      ask a human for the change, then read their decision back
     execute      start the approved work and wait for it to finish
@@ -40,10 +43,11 @@ from capstone.agent.artifacts import (
     AgentConclusion,
     CritiqueRecord,
     ProposalRecord,
+    RecheckRecord,
     TerminationReason,
     VerificationCheck,
 )
-from capstone.agent.critic import top_two
+from capstone.agent.critic import shown_hypotheses
 from capstone.agent.loop import (
     POLICY_ERRORS,
     InvestigationDeps,
@@ -56,7 +60,7 @@ from capstone.agent.loop import (
     record,
     run_inner_loop,
 )
-from capstone.agent.policy import ActionRequest, CallTool, Interpretation
+from capstone.agent.policy import ActionRequest, CallTool, Interpretation, Stop
 from capstone.agent.state import InvestigationState, Phase, Question
 from capstone.contracts.tools import ToolRequest
 from capstone.providers.chat import ModelError
@@ -179,7 +183,7 @@ def test(state: InvestigationState, deps: InvestigationDeps) -> None:
 
 
 def critique(state: InvestigationState, deps: InvestigationDeps) -> None:
-    """Ask the critic to judge the two leading hypotheses. Review only.
+    """Ask the critic to judge the agent's hypotheses before it concludes.
 
     Nothing in the run reads the answer. Whatever happens (no answer, an
     unusable reply), the run goes on to the conclusion. The critic has its
@@ -193,6 +197,8 @@ def critique(state: InvestigationState, deps: InvestigationDeps) -> None:
     #   shown_claims: Each shown hypothesis's claim as worded now, so the record
     #     keeps what the critic judged even if the agent rewords it later.
     #   shown: The ids of the hypotheses the critic is shown, kept in the record.
+    #   after_stage: The stage this critique followed, read now, before the
+    #     follow-up (`recheck`) sets the stage to test for its own call.
     #   began: The clock when the question started, to measure the critic's time.
     #   outcome: answered, no_answer (no model replied in time) or invalid_reply
     #     (a reply was refused); none of the three stops the run.
@@ -203,8 +209,11 @@ def critique(state: InvestigationState, deps: InvestigationDeps) -> None:
     #     time left is the same after this stage as before it.
     if deps.critic is None or not state.hypotheses:
         return
-    shown_claims = {h.id: h.claim for h in top_two(state)}
+    shown_claims = {h.id: h.claim for h in shown_hypotheses(state)}
     shown = tuple(shown_claims)
+    after_stage = (
+        state.stage if state.stage in ("investigate", "hypothesize", "test") else None
+    )
     began = deps.clock()
     outcome = "answered"
     result = None
@@ -228,6 +237,129 @@ def critique(state: InvestigationState, deps: InvestigationDeps) -> None:
         seconds=used,
         answered_by=answered_by,
         favoured_claim=None if result is None else shown_claims.get(result.favoured),
+        after_stage=after_stage,
+    )
+
+
+def recheck_trigger(
+    state: InvestigationState, deps: InvestigationDeps
+) -> tuple[str | None, str | None]:
+    """Why the critic follow-up runs (objection or agreement), or why it does not.
+
+    Returns (trigger, None) to run, or (None, reason) to skip. It runs when the
+    critic objected, or when it favours the leading hypothesis while that is
+    still below the action bar, so one reading can confirm it or not. A leader
+    already at the bar has nothing to confirm. Time and tool calls must be left.
+    """
+    # Variables:
+    #   result: The critic's reply, if it gave a usable one.
+    #   leading: The agent's best explanation now.
+    critique = state.critique
+    result = None if critique is None else critique.result
+    if result is None:
+        return None, "the critic gave no usable answer"
+    leading = state.leading_hypothesis
+    if leading is None:
+        return None, "no hypothesis to test"
+    if not result.discriminating_check.strip():
+        return None, "the critic named no check"
+    if result.verdict == "object":
+        trigger = "objection"
+    elif result.favoured != leading.id:
+        return None, "the critic neither objected nor favoured the leading hypothesis"
+    elif leading.confidence >= deps.min_action_confidence:
+        return None, "the leading hypothesis already reaches the action bar"
+    else:
+        trigger = "agreement"
+    if state.research_seconds(deps.clock()) <= 0:
+        return None, "no research time left"
+    if state.remaining_tool_calls == 0:
+        return None, "no tool calls left"
+    return trigger, None
+
+
+def recheck(state: InvestigationState, deps: InvestigationDeps) -> None:
+    """One reading the critic pointed at, made by the agent's own policy.
+
+    Off unless `deps.critic_followup`. The critic's check becomes an open
+    question tied to the leading hypothesis; the policy is asked for one
+    test-stage decision, at most one read-only call is made through the
+    normal tool path (so its answer is labelled by its real source), and the
+    policy reads it once. Then the run goes on to the conclusion, where the
+    action bar applies to the agent's own confidence as before: the critic's
+    agreement, confidence and `supports_action` never count there. There is
+    no way back to the critic, so this cannot loop.
+    """
+    # Variables:
+    #   trigger: objection or agreement, or None when the stage does not run.
+    #   reason: Why it did not run, for the record.
+    #   leading: The agent's best explanation before the reading.
+    #   favoured: The hypothesis the critic picked; the question tests it when it
+    #     is not the leader.
+    #   target, text: The hypothesis the question tests, and its wording.
+    #   question: The critic's check as an open question for the policy.
+    #   summary: What every record of a run that went ahead shares.
+    #   decision: The policy's one choice: a tool call or a stop.
+    #   evidence: The reading, or None if the call gave nothing usable.
+    #   after: The agent's best explanation after reading the answer.
+    if not deps.critic_followup or deps.critic is None or state.critique is None:
+        return
+    state.stage = "test"
+    trigger, reason = recheck_trigger(state, deps)
+    if trigger is None:
+        state.recheck = RecheckRecord(outcome="skipped", reason=reason)
+        return
+    leading = state.leading_hypothesis
+    check = state.critique.result.discriminating_check.strip()
+    favoured = state.critique.result.favoured
+    # The critic sees every hypothesis, so its check may be meant to separate
+    # another one (its pick) from the leader: then the question tests its pick.
+    if favoured != leading.id and any(h.id == favoured for h in state.hypotheses):
+        target = favoured
+        text = (
+            f"The critic's check, to tell {favoured} (the critic's pick) from "
+            f"{leading.id} (the agent's leading explanation): {check}"
+        )
+    else:
+        target, text = leading.id, f"The critic's check: {check}"
+    question = Question(id="K1", text=text, hypothesis_id=target)
+    state.unanswered_questions.append(question)
+    summary = {
+        "trigger": trigger,
+        "question": question.text,
+        "leading_before": leading.id,
+        "confidence_before": leading.confidence,
+    }
+    need = "the reading the critic's check names"
+    try:
+        decision = ask_policy(
+            state, deps, lambda view: deps.policy.decide(view, "test"), research=True
+        )
+        if not isinstance(decision, CallTool | Stop):
+            raise ValueError("a policy must return CallTool or Stop")
+    except OutOfTime:
+        record(state, "test", "stopped", information_needed=need)
+        state.recheck = RecheckRecord(outcome="out_of_time", **summary)
+        return
+    except POLICY_ERRORS:
+        record(state, "test", "invalid_decision", information_needed=need)
+        state.recheck = RecheckRecord(outcome="invalid_decision", **summary)
+        return
+    if isinstance(decision, Stop):
+        record(state, "test", "stopped", information_needed=decision.information_needed)
+        state.recheck = RecheckRecord(
+            outcome="policy_stopped", reason=decision.information_needed, **summary
+        )
+        return
+    evidence = gather(state, deps, "test", decision)
+    after = state.leading_hypothesis
+    state.recheck = RecheckRecord(
+        outcome="no_evidence" if evidence is None else "observed",
+        tool=decision.request.name,
+        evidence_id=None if evidence is None else evidence.id,
+        leading_after=None if after is None else after.id,
+        confidence_after=None if after is None else after.confidence,
+        **summary,
     )
 
 
@@ -676,6 +808,10 @@ def build_graph():
     async def critique_step(ctx: Context) -> None:
         return staged(critique, ctx)
 
+    @builder.step(node_id="recheck")
+    async def recheck_step(ctx: Context) -> None:
+        return staged(recheck, ctx)
+
     @builder.step(node_id="conclude")
     async def conclude_step(ctx: Context) -> None:
         return staged(conclude, ctx)
@@ -707,8 +843,10 @@ def build_graph():
         return decision
 
     def route(node_id: str, onward):
-        """Send "continue" onward and "conclude" to the conclusion."""
-        return choose(node_id, {"continue": onward, "conclude": conclude_step})
+        """Send "continue" onward and "conclude" to the critique, which every
+        path into the conclusion passes through (it does nothing without a
+        critic or a hypothesis)."""
+        return choose(node_id, {"continue": onward, "conclude": critique_step})
 
     builder.add(
         builder.edge_from(builder.start_node).to(observe_step),
@@ -719,7 +857,8 @@ def build_graph():
         ),
         builder.edge_from(hypothesize_step).to(route("anything_to_test", test_step)),
         builder.edge_from(test_step).to(critique_step),
-        builder.edge_from(critique_step).to(conclude_step),
+        builder.edge_from(critique_step).to(recheck_step),
+        builder.edge_from(recheck_step).to(conclude_step),
         builder.edge_from(conclude_step).to(propose_step),
         builder.edge_from(propose_step).to(
             choose(

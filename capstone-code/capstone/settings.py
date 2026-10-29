@@ -127,6 +127,11 @@ class Settings(BaseSettings):
     # Live check 2026-10-28: good answers took 4-10 s and the 30 s timeouts
     # never answered; 40 s gives each of two models about 20 s.
     critic_seconds: float = Field(default=40.0, gt=0, validation_alias="CRITIC_SECONDS")
+    # The critic follow-up: when the critic objects, or agrees with a leading
+    # hypothesis still below the action bar, the agent makes one more reading
+    # where the critic pointed. Off by default, so the review-only critic stays
+    # the baseline. Needs CRITIC on; without it there is nothing to follow up.
+    critic_followup: bool = Field(default=False, validation_alias="CRITIC_FOLLOWUP")
 
     # Limits on every model question (MVP_SCOPE.md section 3). The loop's own
     # limits (iterations, tool calls, time per investigation) are in Budgets.

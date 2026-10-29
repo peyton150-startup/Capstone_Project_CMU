@@ -103,6 +103,10 @@ class InvestigationDeps:
     # is its own, on top of the investigation's time.
     critic: Critic | None = None
     critic_seconds: float = 40.0
+    # The critic follow-up (`investigation.recheck`): one reading the critic
+    # pointed at, when it objects or agrees below the action bar. Off: the
+    # critic stays review only.
+    critic_followup: bool = False
 
     def __post_init__(self) -> None:
         if self.step_questions not in (1, 2):

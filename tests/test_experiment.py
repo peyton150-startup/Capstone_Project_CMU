@@ -65,6 +65,33 @@ def test_watching_shows_each_case_live_but_never_the_truth():
     assert record.conclusion is not None
 
 
+def test_hazards_are_off_unless_asked_for(tmp_path, monkeypatch):
+    ran = {}
+
+    def fake_run(cases, make_policy, **options):
+        ran.update(options)
+        return []
+
+    monkeypatch.setattr(experiment, "run_experiment", fake_run)
+    monkeypatch.setattr(
+        experiment, "model_policy_factory", lambda with_recall, **_: None
+    )
+    out = str(tmp_path / "r.jsonl")
+    assert main(["run", "--name", "a", "--known", "--out", out]) == 0
+    assert ran["hazards"] is False
+    assert main(["run", "--name", "b", "--known", "--out", out, "--hazards"]) == 0
+    assert ran["hazards"] == "standard"
+    argv = ["run", "--name", "c", "--known", "--out", out, "--hazards", "blackout"]
+    assert main(argv) == 0
+    assert ran["hazards"] == "blackout"
+
+
+def test_old_records_without_blackout_fields_still_read(records):
+    old = records[0].model_dump(exclude={"hazards_blocked", "blackout_recovered"})
+    back = ExperimentRecord.model_validate(old)
+    assert (back.hazards_blocked, back.blackout_recovered) == (None, None)
+
+
 def test_the_run_command_watches_by_default_and_quiet_turns_it_off(
     tmp_path, monkeypatch
 ):
@@ -797,6 +824,25 @@ def test_critic_questions_follow_the_policy_s_own(monkeypatch):
     assert set(agents[:-1]) == {"research_agent"}
 
 
+def test_the_follow_up_is_kept_in_the_record(monkeypatch):
+    monkeypatch.setenv("CRITIC", "off")
+    monkeypatch.setenv("CRITIC_FOLLOWUP", "on")
+    [record] = run_experiment(
+        [BEARING], wear_policy, name="recheck", make_critic=FakeCritic
+    )
+    assert record.recheck is not None
+    monkeypatch.setenv("CRITIC_FOLLOWUP", "off")
+    [plain] = run_experiment(
+        [BEARING], wear_policy, name="recheck", make_critic=FakeCritic
+    )
+    assert plain.recheck is None
+
+
+def test_old_records_without_recheck_still_read(records):
+    old = records[0].model_dump(exclude={"recheck"})
+    assert ExperimentRecord.model_validate(old).recheck is None
+
+
 def test_old_records_without_critique_still_read(records):
     old = records[0].model_dump(exclude={"critique"})
     assert ExperimentRecord.model_validate(old).critique is None
@@ -844,3 +890,15 @@ def test_a_critique_from_before_favoured_claim_still_reads():
         "seconds": 1.0,
     }
     assert CritiqueRecord.model_validate(old).favoured_claim is None
+
+
+def test_a_critique_from_before_after_stage_still_reads():
+    from capstone.agent.critic import CritiqueRecord
+
+    old = {
+        "outcome": "no_answer",
+        "result": None,
+        "shown_hypotheses": ["H1"],
+        "seconds": 1.0,
+    }
+    assert CritiqueRecord.model_validate(old).after_stage is None

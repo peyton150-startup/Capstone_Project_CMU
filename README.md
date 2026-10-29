@@ -22,6 +22,22 @@ later, an AI research agent that investigates it through tools.
 - `capstone-code/capstone/simulator/` — the simulator (runs with no LLM).
 - `tests/` — pytest suite.
 
+## Frameworks and technology stack
+
+| Area | Technology | Role |
+|---|---|---|
+| Language and simulator | Python 3.11+ and the standard library | Runs the deterministic factory simulator and investigation tools locally, without an LLM. |
+| Data and configuration | Pydantic v2 and pydantic-settings | Validate shared contracts and load typed application settings. |
+| Agent orchestration | Pydantic Graph (`agent` extra) | Coordinates the investigation's stages and transitions. |
+| Model integrations | HTTP clients using Python's `urllib` | Connect to configured model providers; TypeSafe Jev supplies optional evaluator judgments. |
+| Database and migrations | PostgreSQL / Neon, SQLAlchemy, psycopg and Alembic (`database` extra) | Provide optional persistent episodic memory and schema migrations. |
+| Semantic memory | ChromaDB (`semantic` extra), with optional NVIDIA embeddings | Supports similarity search over stored lessons. |
+| Development and CI | uv, setuptools, pytest, pytest-cov, Ruff, pre-commit and GitHub Actions | Manage dependencies, package, test, lint, format and check changes. |
+
+The optional extras are declared in `pyproject.toml`; the simulator and offline
+tests do not require a database or model-provider credentials. See the setup
+sections below for the database extra and development commands.
+
 ## Opt-in investigation challenge
 
 ```python

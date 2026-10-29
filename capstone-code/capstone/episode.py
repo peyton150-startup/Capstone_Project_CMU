@@ -41,8 +41,11 @@ from capstone.memory.service import MemoryService
 from capstone.providers.chat import critic_client
 from capstone.providers.factory import SimulatorFactoryProvider, research_tools
 from capstone.providers.hazards import (
+    BLACKOUT_STREAM,
+    HazardProfile,
     HazardReport,
     UnreliableProvider,
+    blackout_hazards,
     standard_hazards,
 )
 from capstone.providers.manual import ManualProvider, ManualSearch
@@ -202,7 +205,7 @@ def run_episode(
     budgets: Budgets | None = None,
     clock: Callable[[], float] = monotonic,
     run_key: str | None = None,
-    hazards: bool = False,
+    hazards: bool | HazardProfile = False,
     manual: ManualSearch | None = None,
     watch: Callable[[InvestigationState], None] | None = None,
     critic: Critic | None = None,
@@ -212,7 +215,9 @@ def run_episode(
     With `memory`, the agent may recall past lessons and, with `log` as well,
     the finished investigation is audited and offered to the memory gate.
     With `hazards`, the agent's tools fail on the standard schedule
-    (`capstone.providers.hazards`), built from what monitoring noticed.
+    (`capstone.providers.hazards`), built from what monitoring noticed;
+    `hazards="blackout"` instead takes the alarmed machine's sensor feed
+    down for a seeded 10-50 ticks.
     With `manual`, the agent may search the machine manual
     (`capstone.providers.manual`); its answers are general guidance,
     labelled as such, never a look at the factory.
@@ -236,7 +241,8 @@ def run_episode(
     #   budgets: Limits on calls, turns and time for the investigation.
     #   clock: Seconds that only move forward; replaced in tests.
     #   run_key: A name that fixes the run's ids, so a rerun gets the same ones.
-    #   hazards: If True, tools fail on the standard schedule.
+    #   hazards: If True or "standard", tools fail on the standard schedule;
+    #     "blackout", the alarmed machine's sensor feed is down for a while.
     #   manual: Lets the agent search the machine manual.
     #   watch: Called with a copy of the agent's state so someone can follow the run.
     #   critic: Reviews the two leading hypotheses; None builds one from settings
@@ -280,7 +286,15 @@ def run_episode(
 
     provider = SimulatorFactoryProvider(look, act)
     unreliable = None
-    if hazards:
+    if hazards == "blackout":
+        unreliable = UnreliableProvider(
+            provider,
+            blackout_hazards(
+                anomaly.machine_id, start_tick, sim.rng.stream(BLACKOUT_STREAM)
+            ),
+        )
+        provider = unreliable
+    elif hazards:
         # A day before the run began: older than anything the run itself did.
         before_run = (sim.clock.time_at(0) - timedelta(days=1)).isoformat()
         unreliable = UnreliableProvider(
@@ -312,6 +326,7 @@ def run_episode(
         step_questions=settings.step_questions,
         critic=critic,
         critic_seconds=settings.critic_seconds,
+        critic_followup=settings.critic_followup,
     )
     run_investigation(state, deps)
 

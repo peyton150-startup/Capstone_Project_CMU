@@ -54,7 +54,7 @@ from time import monotonic
 from pydantic import BaseModel, ConfigDict, Field
 
 from capstone.agent.completion import AuditLog, complete
-from capstone.agent.critic import Critic, CritiqueRecord
+from capstone.agent.critic import Critic, CritiqueRecord, RecheckRecord
 from capstone.agent.model_policy import ModelCall
 from capstone.agent.policy import ReasoningPolicy
 from capstone.agent.state import Budgets
@@ -85,6 +85,7 @@ from capstone.evaluation.scoring import COMPOUND, Score, format_summary, summari
 from capstone.memory.service import MemoryService
 from capstone.progress import ProgressView
 from capstone.providers.chat import INVALID_REPLY, is_model_outcome
+from capstone.providers.hazards import HazardProfile
 from capstone.providers.manual import MANUAL_TOOL, ManualSearch
 from capstone.providers.recall import RECALL_TOOL
 from capstone.simulator.generator import FAULTS
@@ -100,6 +101,8 @@ class Case:
     seed: int
     fault: str | None = None
     kind: str = STANDARD
+    # This case's own tool faults; None: the run's setting (`run_experiment`).
+    hazards: HazardProfile | None = None
 
 
 def known_cases() -> list[Case]:
@@ -253,6 +256,11 @@ class ExperimentRecord(BaseModel):
     # None: the tools were reliable (and in results from before this was kept).
     hazards_fired: list[str] | None = None
     hazards_retried: int | None = None
+    # With a blackout: sensor calls it refused, and whether the agent read the
+    # machine's sensors again once the feed was back. None: no blackout (and
+    # in results from before these were kept).
+    hazards_blocked: int | None = None
+    blackout_recovered: bool | None = None
     # What the memory gate did with this run's investigation, with whether the
     # diagnosis was right (from the truth, filled in after the gate decided).
     # None: nothing reached the gate (no memory, no audit log, or no lesson).
@@ -280,6 +288,9 @@ class ExperimentRecord(BaseModel):
     # The claim of the hypothesis the critic favoured, so it can be labelled
     # as a cause the way a conclusion is. None: no pick (or an older record).
     critic_favoured_claim: str | None = None
+    # What the critic follow-up did (one reading, or why none). None: the
+    # follow-up was off (and in records from before it was kept).
+    recheck: RecheckRecord | None = None
     # With --tree-of-thought: one tree per hypothesize step, in order (the
     # candidates, their ratings, which were kept and why the rest were dropped).
     # None: the run used the ordinary step (or predates this record).
@@ -383,6 +394,14 @@ def record_of(
         wall_seconds=wall_seconds,
         hazards_fired=None if result.hazards is None else result.hazards.fired,
         hazards_retried=None if result.hazards is None else result.hazards.retried,
+        hazards_blocked=(
+            None
+            if result.hazards is None or result.hazards.blackout_recovered is None
+            else result.hazards.blocked
+        ),
+        blackout_recovered=(
+            None if result.hazards is None else result.hazards.blackout_recovered
+        ),
         memory_promotion=promotion,
         memory_uses=uses,
         recall_searches=list(build_search_records(state)) if with_memory else None,
@@ -392,6 +411,7 @@ def record_of(
         step_questions=state.step_questions,
         critique=state.critique,
         critic_favoured_claim=favoured_claim(state),
+        recheck=state.recheck,
         agent_steps=[
             AgentStep(
                 agent=decision.agent,
@@ -430,7 +450,7 @@ def run_experiment(
     budgets: Budgets | None = None,
     on_record: Callable[[ExperimentRecord], None] | None = None,
     clock: Callable[[], float] = monotonic,
-    hazards: bool = False,
+    hazards: bool | HazardProfile = False,
     manual: ManualSearch | None = None,
     start: int = 1,
     watch: Callable[[str], None] | None = None,
@@ -488,7 +508,7 @@ def run_experiment(
             log=log,
             budgets=budgets,
             run_key=run_key,
-            hazards=hazards,
+            hazards=case.hazards or hazards,
             manual=manual,
             watch=None if watch is None else ProgressView(watch),
             critic=None if make_critic is None else make_critic(),
@@ -972,8 +992,15 @@ def main(argv: Sequence[str] | None = None) -> int:
     run.add_argument("--timeout-seconds", type=float, help="per investigation")
     run.add_argument(
         "--hazards",
-        action="store_true",
-        help="tools time out, drop rows and show a stale record on a fixed schedule",
+        nargs="?",
+        const="standard",
+        default=False,
+        choices=("standard", "blackout"),
+        help=(
+            "standard (the default when given alone): tools time out, drop rows "
+            "and show a stale record on a fixed schedule; blackout: the alarmed "
+            "machine's sensor feed is down for a seeded 10-50 ticks"
+        ),
     )
     run.add_argument(
         "--tree-of-thought",
