@@ -7,14 +7,19 @@ from capstone.episode import run_episode
 from capstone.experiment import Case, record_of
 from capstone.providers.factory import SimulatorFactoryProvider
 from capstone.providers.hazards import (
+    BLACKOUT_STREAM,
+    BLACKOUT_TICKS,
     TIMEOUT_MESSAGE,
+    Blackout,
     Gap,
     StaleRecord,
     Timeout,
     UnreliableProvider,
+    blackout_hazards,
     standard_hazards,
 )
 from capstone.simulator.generator import build_scenario
+from capstone.simulator.rng import RandomSource
 from capstone.tools.actions import ActionTools, ApprovalDesk
 from capstone.tools.observation import ObservationTools
 from tests.test_episode import wear_policy
@@ -138,3 +143,115 @@ def test_without_hazards_nothing_is_reported():
     record = record_of(Case("seed-6/bearing", 6, "bearing_degradation"), "k", result)
     assert result.hazards is None
     assert (record.hazards_fired, record.hazards_retried) == (None, None)
+    assert (record.hazards_blocked, record.blackout_recovered) == (None, None)
+
+
+# --- a dead sensor feed, for a seeded while ------------------------------------
+
+
+def wait(ticks):
+    return ToolRequest(name="wait", arguments={"ticks": ticks})
+
+
+def test_a_blackout_refuses_the_machine_s_sensors_until_its_end_tick():
+    sim, clean = factory()
+    tick = sim.clock.tick
+    tools = UnreliableProvider(clean, (Blackout("CNC-01", tick + 20),))
+
+    first, again = tools.call(readings()), tools.call(readings())
+
+    for refused in (first, again):  # asking again does not help: time must pass
+        assert not refused.success and refused.data is None
+        assert refused.error.code == "provider_error"
+        assert refused.error.message == "The sensor feed for CNC-01 is not responding."
+    assert str(tick + 20) not in first.error.message  # never says when it ends
+    assert tools.report.fired == [f"blackout on CNC-01 until tick {tick + 20}"]
+    assert tools.report.blocked == 2
+    assert tools.report.blackout_recovered is False
+
+
+def test_a_blackout_leaves_other_machines_and_other_tools_alone():
+    sim, clean = factory()
+    tools = UnreliableProvider(clean, (Blackout("CNC-01", sim.clock.tick + 20),))
+    events = ToolRequest(name="get_events", arguments={"from_tick": 0, "to_tick": 599})
+
+    assert tools.call(readings("CNC-02")).data == clean.call(readings("CNC-02")).data
+    assert tools.call(events).data == clean.call(events).data
+    assert tools.report.fired == [] and tools.report.blocked == 0
+
+
+def test_after_waiting_past_the_end_the_feed_answers_and_recovery_is_kept():
+    sim, clean = factory()
+    tools = UnreliableProvider(clean, (Blackout("CNC-01", sim.clock.tick + 20),))
+    assert not tools.call(readings()).success
+
+    assert tools.call(wait(19)).success
+    assert not tools.call(readings()).success  # one tick short
+    assert tools.call(wait(1)).success
+    back = tools.call(readings())
+
+    assert back.success and back.data == clean.call(readings()).data
+    assert tools.report.blackout_recovered is True
+    assert tools.report.blocked == 2
+
+
+def test_a_feed_that_was_never_refused_is_not_a_recovery():
+    sim, clean = factory()
+    tools = UnreliableProvider(clean, (Blackout("CNC-01", sim.clock.tick + 20),))
+    tools.call(wait(30))
+    assert tools.call(readings()).success
+    assert tools.report.blackout_recovered is False
+    assert tools.report.fired == []
+
+
+def test_a_blackout_does_not_touch_the_factory():
+    sim, clean = factory()
+    before = len(sim.readings)
+    tools = UnreliableProvider(clean, (Blackout("CNC-01", sim.clock.tick + 20),))
+    tools.call(readings())
+    assert len(sim.readings) == before and sim.clock.tick == sim.clock.tick
+
+
+def test_the_length_is_seeded_and_within_the_range():
+    low, high = BLACKOUT_TICKS
+    ends = []
+    for seed in range(20):
+        [hazard] = blackout_hazards(
+            "CNC-02", 100, RandomSource(seed).stream(BLACKOUT_STREAM)
+        )
+        [same] = blackout_hazards(
+            "CNC-02", 100, RandomSource(seed).stream(BLACKOUT_STREAM)
+        )
+        assert hazard == same  # the same seed, the same blackout
+        assert 100 + low <= hazard.until_tick <= 100 + high
+        ends.append(hazard.until_tick)
+    assert len(set(ends)) > 1  # different seeds, different lengths
+
+
+def test_no_machine_named_means_no_blackout():
+    assert blackout_hazards(None, 0, RandomSource(1).stream(BLACKOUT_STREAM)) == ()
+
+
+def test_an_episode_with_a_blackout_reports_it_and_repeats_exactly():
+    def run(hazards):
+        return run_episode(
+            6,
+            wear_policy(),
+            fault="bearing_degradation",
+            clock=lambda: 0.0,
+            hazards=hazards,
+        )
+
+    result, again, plain = run("blackout"), run("blackout"), run(False)
+    record = record_of(Case("seed-6/bearing", 6, "bearing_degradation"), "k", result)
+
+    machine = result.state.anomaly.machine_id
+    assert result.hazards.fired[0].startswith(f"blackout on {machine} until tick ")
+    assert record.hazards_blocked == result.hazards.blocked > 0
+    assert record.blackout_recovered is False  # the scripted policy never waits
+    assert again.score == result.score and again.hazards == result.hazards
+    # Drawing the length uses its own stream: the factory is the same world.
+    assert plain.state.anomaly == result.state.anomaly
+    assert plain.score.true_fault == result.score.true_fault
+    refused = [d for d in result.state.decisions if d.error is not None]
+    assert refused and "not responding" in refused[0].error.message

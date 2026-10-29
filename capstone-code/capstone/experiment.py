@@ -85,6 +85,7 @@ from capstone.evaluation.scoring import COMPOUND, Score, format_summary, summari
 from capstone.memory.service import MemoryService
 from capstone.progress import ProgressView
 from capstone.providers.chat import INVALID_REPLY, is_model_outcome
+from capstone.providers.hazards import HazardProfile
 from capstone.providers.manual import MANUAL_TOOL, ManualSearch
 from capstone.providers.recall import RECALL_TOOL
 from capstone.simulator.generator import FAULTS
@@ -253,6 +254,11 @@ class ExperimentRecord(BaseModel):
     # None: the tools were reliable (and in results from before this was kept).
     hazards_fired: list[str] | None = None
     hazards_retried: int | None = None
+    # With a blackout: sensor calls it refused, and whether the agent read the
+    # machine's sensors again once the feed was back. None: no blackout (and
+    # in results from before these were kept).
+    hazards_blocked: int | None = None
+    blackout_recovered: bool | None = None
     # What the memory gate did with this run's investigation, with whether the
     # diagnosis was right (from the truth, filled in after the gate decided).
     # None: nothing reached the gate (no memory, no audit log, or no lesson).
@@ -386,6 +392,14 @@ def record_of(
         wall_seconds=wall_seconds,
         hazards_fired=None if result.hazards is None else result.hazards.fired,
         hazards_retried=None if result.hazards is None else result.hazards.retried,
+        hazards_blocked=(
+            None
+            if result.hazards is None or result.hazards.blackout_recovered is None
+            else result.hazards.blocked
+        ),
+        blackout_recovered=(
+            None if result.hazards is None else result.hazards.blackout_recovered
+        ),
         memory_promotion=promotion,
         memory_uses=uses,
         recall_searches=list(build_search_records(state)) if with_memory else None,
@@ -434,7 +448,7 @@ def run_experiment(
     budgets: Budgets | None = None,
     on_record: Callable[[ExperimentRecord], None] | None = None,
     clock: Callable[[], float] = monotonic,
-    hazards: bool = False,
+    hazards: bool | HazardProfile = False,
     manual: ManualSearch | None = None,
     start: int = 1,
     watch: Callable[[str], None] | None = None,
@@ -976,8 +990,15 @@ def main(argv: Sequence[str] | None = None) -> int:
     run.add_argument("--timeout-seconds", type=float, help="per investigation")
     run.add_argument(
         "--hazards",
-        action="store_true",
-        help="tools time out, drop rows and show a stale record on a fixed schedule",
+        nargs="?",
+        const="standard",
+        default=False,
+        choices=("standard", "blackout"),
+        help=(
+            "standard (the default when given alone): tools time out, drop rows "
+            "and show a stale record on a fixed schedule; blackout: the alarmed "
+            "machine's sensor feed is down for a seeded 10-50 ticks"
+        ),
     )
     run.add_argument(
         "--tree-of-thought",
