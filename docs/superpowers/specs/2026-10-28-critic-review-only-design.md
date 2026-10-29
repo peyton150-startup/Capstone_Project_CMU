@@ -289,8 +289,15 @@ different material. Find a way to get the agent to call the manual, measured
 before it is built (does it call it? does it change the conclusion?). Ideas to
 weigh, not decided: a stronger or earlier prompt rule; a stage that must
 search it once before `hypothesize`; code that searches on the anomaly's
-words and adds the sections as labelled evidence, as `RecallingProvider` does
-for memory. Each changes what the agent sees, so each is taught first.
+words and adds the sections as labelled evidence (new: no part of the agent
+does this today; memory, like the manual, is reached only through a tool the
+agent must call, `recall_memories` in `RecallingProvider`). Each changes what
+the agent sees, so each is taught first. Measured 2026-10-29: in the six saved
+runs that offered the manual, the agent searched it once (bearing, "vibration"),
+never on the batch or setting cases, although §2.9 of the manual ("Material
+Batch Quality") says to group inspection results by batch, the check KA-03
+missed. The only prompt rule (A15, `manual_use_note`) says to search it before
+recommending a repair, after the hypotheses exist.
 
 **Considered and not chosen, Option A: the critic calls `search_manual`
 itself** in a small ask, run-the-tool, ask-again loop inside its window. It
