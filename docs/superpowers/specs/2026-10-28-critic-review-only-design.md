@@ -320,3 +320,32 @@ its window) looks silent. Showing "asking the critic about H1, H2" needs a
 pending marker on the state (a new `CritiqueRecord` outcome or stage value)
 and a `notify` call before the question. PR #112 added the fuller result
 lines but not this.
+
+### 4. Run the critic before every conclusion, not only after `test` (developer, 2026-10-29)
+
+Measured in the first KA-03 run with the critic (`critic-ka03-1.jsonl`, seed 7,
+bad material batch): research ran out of time inside `investigate` (stop:
+`timeout`, 835 s, three model timeouts), so the graph went straight to
+`conclude`. `hypothesize`, `test` and the critique were all skipped, and the
+record has no critique. The agent then escalated at 0.85 saying no machine or
+component was implicated, although its first look (`get_inspections`) showed
+the failed jobs on batch 2 and an early hypothesis named batch 2 (it fell from
+0.40 to 0.25 while a job-routing idea rose to 0.92). That is the reasoning miss
+the critic exists for, and the placement chosen above (between `test` and
+`conclude`) meant it never saw it. The critic reviews the runs that went
+smoothly and misses the ones where research ran long.
+
+To decide when built (taught first, its own PR):
+- Where: a critique on the `investigate -> conclude` and `hypothesize ->
+  conclude` routes too, or one critique stage just before `conclude` that every
+  route passes through.
+- What it judges when there is no test round: possibly fewer than two
+  hypotheses, or none (the stage now does nothing without hypotheses; with
+  none, there is nothing for it to compare).
+- Time: a run that stopped on `timeout` has little or no time left. The critic's
+  own window and the moved deadline already allow this (tested: the critic runs
+  after the deadline and the time left stays 0), but the follow-up reserve must
+  still not lose time.
+- Measurement: keep the route on the `CritiqueRecord`, so results can be split
+  by "after test" and "skipped test", and the bar (spec section "How tried and
+  true is decided") is not set from smooth runs only.

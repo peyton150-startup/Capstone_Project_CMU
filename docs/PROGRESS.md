@@ -132,6 +132,22 @@ alarm), then evaluation, then the agent itself.
 
 ## Session notes
 
+- **2026-10-29 (docs-only): KA-03 with the critic, and a note to run the
+  critic before every conclusion.** Live runs with the critic on (Ministral 14B
+  then Cohere): `critic-known-1.jsonl` (KA-01, KA-02) and `critic-ka03-1.jsonl`
+  (KA-03, seed 7), files kept untracked in the developer's folder. Jev labels
+  (`critic-known-1.labels.jsonl`, none marked for review): KA-01 and KA-02 the
+  agent was right (bearing wear on CNC-02 and CNC-05, fixes resolved); the
+  critic answered in 6.1 s and 7.6 s, favoured the right cause both times
+  (provisional, labelled from the claim wording saved before PR #114), objected
+  both times, and said the evidence did not justify acting both times. KA-03:
+  research timed out in `investigate`, so `test` and the critique were skipped;
+  the agent escalated without naming batch 2 although its first look showed it.
+  The run had no invalid stop replies and three model timeouts. Recorded as
+  future-work item 4 in
+  `docs/superpowers/specs/2026-10-28-critic-review-only-design.md`: run the
+  critic before every conclusion. Nothing built.
+
 - **2026-10-29 (docs-only): Haas VF-based simulator retrofit and older-machine support.** Recorded a HIGH-priority post-baseline future-work plan in `docs/MVP_SCOPE.md` for a real, revision-specific Haas VF NGC profile to replace the generic CNC as the simulator's eventual default, with optional Classic Control/RS-232 compatibility for early-2000s machines, `FactoryProvider` read-only adapters, manual/SOP RAG, field discovery, optional external sensors, explicit missing-data semantics and deterministic offline comparisons. No runtime changes or machine integrations were made; the existing `SIM-CNC-001` manual remains synthetic.
 
 
