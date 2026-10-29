@@ -327,6 +327,8 @@ def run_episode(
         critic=critic,
         critic_seconds=settings.critic_seconds,
         critic_followup=settings.critic_followup,
+        # Only a run that offers the manual can search it.
+        manual_step=settings.manual_step and manual is not None,
     )
     run_investigation(state, deps)
 

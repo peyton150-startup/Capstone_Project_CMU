@@ -483,7 +483,8 @@ def test_the_graph_draws_only_the_allowed_order():
     arrows = {line for line in lines if "-->" in line}
     assert arrows == {
         "[*] --> observe",
-        "observe --> plan",
+        "observe --> manual",
+        "manual --> plan",
         "plan --> investigate",
         "investigate --> anything_to_explain",
         "anything_to_explain --> hypothesize",

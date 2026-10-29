@@ -107,6 +107,9 @@ class InvestigationDeps:
     # pointed at, when it objects or agrees below the action bar. Off: the
     # critic stays review only.
     critic_followup: bool = False
+    # The manual step (`investigation.consult_manual`): search the machine
+    # manual once on the anomaly before planning. Only with a manual offered.
+    manual_step: bool = False
 
     def __post_init__(self) -> None:
         if self.step_questions not in (1, 2):

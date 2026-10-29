@@ -155,12 +155,43 @@ A component is complete only when both columns are checked.
 | C1b | Critic before every conclusion, shown every hypothesis (up to five) | yes (2026-10-29) | yes (2026-10-29: which `favoured` is still refused, and why; right, the reason corrected) | yes | no - walkthrough done 2026-10-29, after the merge at the developer's request (PR #122): Q1 mostly right, the record's consequence added; Q2 partly, the question's wording and the one-call mechanism corrected; Q3 wrong at first (the cap), taught, check right; mark left for the developer | `agent/critic.py` (`shown_hypotheses`, `SHOWN_HYPOTHESES`, `CRITIC_SYSTEM`, `critique_view`), `agent/artifacts.py` (`CritiqueResult` descriptions, `CritiqueRecord.after_stage`), `agent/investigation.py` (`route`, `critique`, `recheck` question `K1`); session note 2026-10-29 (C1b) |
 | D1 | Timed sensor-feed blackout: the alarmed machine's sensors refuse for a seeded 10-50 ticks; opt-in `--hazards blackout` | yes (2026-10-29) | yes (2026-10-29, after one correction: the agent cannot fix a feed, it escalates and reports) | yes | no — closing question outstanding | `providers/hazards.py` (`Blackout`, `blackout_hazards`, `BLACKOUT_TICKS`, `BLACKOUT_STREAM`, `BLACKOUT_MESSAGE`, `HazardProfile`, `HazardReport.blocked`, `HazardReport.blackout_recovered`), `episode.py` (`run_episode(hazards=...)`), `experiment.py` (`--hazards [standard|blackout]`, `ExperimentRecord.hazards_blocked`, `ExperimentRecord.blackout_recovered`); session note 2026-10-29 (D1) |
 | D2 | Degraded-case matrix (`evals/degraded.json`) and the abstention scorecard: answering vs declining kept apart | yes (2026-10-29) | yes (2026-10-29, buckets right; completed: run A is also confident-and-wrong and missing-data-read-as-normal, and why that matters for a pilot) | yes | no — closing question outstanding | `evals.py` (`Scenario.hazards`, `EvalCase` scorecard fields, `AbstentionCard`, `abstention_card`, `names`, `CONFIDENT`, `NO_FAULT`, `EvalReport.abstention`, `check_resume`), `experiment.py` (`Case.hazards`), `evals/degraded.json`; session note 2026-10-29 (D2) |
+| M1 | The manual step: with a manual offered, search it once on the anomaly before the agent plans; the `search_manual` tool stays; opt-in `MANUAL_STEP` | no — built first at the developer's request, to be taught after | no — built ungated, developer to review | yes | no | `agent/investigation.py` (`manual_query`, `consult_manual`, `MANUAL_STEP_LIMIT`, graph edge `observe -> manual -> plan`), `agent/loop.py` (`InvestigationDeps.manual_step`), `settings.py` (`manual_step`), `episode.py`, `evaluation/manual.py` (`ManualSearchRecord.automatic`); session note 2026-10-29 (M1) |
 Every row above with four "yes" marks (or "n/a") is complete: no question is
 outstanding on it. Still to build after 12c, from `docs/MVP_SCOPE.md`: the
 other three fault scenarios (material batch, machine configuration, false
 alarm), then evaluation, then the agent itself.
 
 ## Session notes
+
+- **2026-10-29 (M1): the manual step, step 1 of the developer's manual
+  plan.** The developer's plan: first give the manual its own step, then keep
+  it as a tool the agent can call (`search_manual`, which already exists). The
+  developer asked for it to be built first and taught afterwards, and not to
+  be merged yet. Built ungated, developer to review (understood: no).
+  Why: in the six saved runs that offered the manual, the agent searched it
+  once, never on the batch or setting cases, although section 2.9 says to
+  group inspections by batch (the check KA-03 missed).
+  Built: a stage `manual` between `observe` and `plan`
+  (`consult_manual`), on only with `MANUAL_STEP` and a manual offered
+  (`episode.py` sets `manual_step` only when `manual` is given). The loop
+  makes one `search_manual` call itself, as it does for the time, on
+  `manual_query`: the anomaly's kind and description, the only words known
+  before any hypothesis. The search asks for `MANUAL_STEP_LIMIT` = 3
+  sections. It goes through the normal `gather` path, so the answer is
+  evidence labelled `manual` (general guidance, never a look at the
+  factory; `diagnosis_supported`, `verify` and the memory gate already
+  refuse to count it as observation). It counts as a tool call and as one of
+  the manual's three searches, and the policy is not asked to read it there:
+  it sees the sections in the plan's prompt and every later one.
+  `ManualSearchRecord.automatic` (False for older records) marks the step's
+  search apart from the agent's own. Tests (`tests/test_manual.py`): off by
+  default; the step searches on the anomaly before the plan, and the plan
+  sees the sections; it is labelled manual and recorded as automatic; the
+  tool stays open afterwards; the step uses one of the three searches; the
+  query is the anomaly's kind and words only; old records read as chosen by
+  the agent; an episode runs the step only when it offers a manual and
+  `MANUAL_STEP` is on. The graph-shape test now expects `observe --> manual
+  --> plan`. Not run live. Option B for the critic is its own PR.
 
 - **2026-10-29: PR #117 pre-merge walkthrough.** The developer explained
   that a stop with a question ID is invalid and that `information_needed`
