@@ -797,6 +797,25 @@ def test_critic_questions_follow_the_policy_s_own(monkeypatch):
     assert set(agents[:-1]) == {"research_agent"}
 
 
+def test_the_follow_up_is_kept_in_the_record(monkeypatch):
+    monkeypatch.setenv("CRITIC", "off")
+    monkeypatch.setenv("CRITIC_FOLLOWUP", "on")
+    [record] = run_experiment(
+        [BEARING], wear_policy, name="recheck", make_critic=FakeCritic
+    )
+    assert record.recheck is not None
+    monkeypatch.setenv("CRITIC_FOLLOWUP", "off")
+    [plain] = run_experiment(
+        [BEARING], wear_policy, name="recheck", make_critic=FakeCritic
+    )
+    assert plain.recheck is None
+
+
+def test_old_records_without_recheck_still_read(records):
+    old = records[0].model_dump(exclude={"recheck"})
+    assert ExperimentRecord.model_validate(old).recheck is None
+
+
 def test_old_records_without_critique_still_read(records):
     old = records[0].model_dump(exclude={"critique"})
     assert ExperimentRecord.model_validate(old).critique is None

@@ -125,12 +125,54 @@ A component is complete only when both columns are checked.
 | EV1 | Configurable full-episode evaluation harness and single-agent master baseline | yes (after the build, 2026-10-28) | n/a (built first, taught after) | yes (baseline run 2026-10-28: 3 of 9 right) | partly — two walkthroughs on 2026-10-28. One (session note 2026-10-27, EV1): Q1 wrong, corrected; Q2 mostly right, completed; Q3 not answered, re-taught, follow-up check corrected; re-check of Q3 owed. The other (session note 2026-10-28, walkthroughs): Q1 in part, corrected; Q2 right, with an addition; Q3 wrong at first, corrected | `capstone/evals.py`, `evals/scenarios.json`, `experiment.py` (`AgentStep`), `agent/state.py`, `agent/model_policy.py`, `tests/test_evals.py`; session note 2026-10-27 (EV1) |
 | C1 | Critic, review only: a second model judges the two leading hypotheses between `test` and `conclude` and changes nothing in the run (first multi-agent role) | yes (design conversation 2026-10-28) | yes per the build plan (pre-check 2026-10-28); no session note records it here, developer to confirm | yes (tests only; no live run) | no - pre-merge walkthrough done 2026-10-28 (PR #106): Q1 outcome right, mechanism and record filled in; Q2 `started_at` right, wrongly said research loses the time (it is the follow-up reserve), corrected; Q3 not sure at first, taught, then the check right (accepted) with the reason mixed up, corrected (session note 2026-10-28, C1); mark left for the developer | `settings.py` (`critic`, `critic_model`, `critic_seconds`, `critic_models`), `providers/chat.py` (`critic_client`), `agent/artifacts.py` (`Objection`, `CritiqueResult`, `CritiqueRecord`), `agent/critic.py` (`Critic`, `CRITIC_SYSTEM`, `critique_view`, `top_two`), `agent/investigation.py` (`critique`, graph edge), `agent/loop.py` (`InvestigationDeps.critic`, `critic_seconds`), `agent/state.py` (`critique`), `episode.py`, `experiment.py`, `progress.py`, `evals.py`; session note 2026-10-28 (C1) |
 
+| C2r | Critic follow-up (`recheck`): one read-only reading where the critic pointed, when it objects or agrees below the action bar; opt-in `CRITIC_FOLLOWUP` | yes (2026-10-29) | yes (2026-10-29, after one correction: a normal reading means "not confirmed", not "no action needed") | yes | no — closing question outstanding | `agent/investigation.py` (`recheck_trigger`, `recheck`, graph edge `critique -> recheck -> conclude`), `agent/artifacts.py` (`RecheckRecord`), `agent/state.py` (`recheck`), `agent/loop.py` (`InvestigationDeps.critic_followup`), `settings.py` (`critic_followup`), `episode.py`, `experiment.py` (`ExperimentRecord.recheck`); session note 2026-10-29 (C2r) |
 Every row above with four "yes" marks (or "n/a") is complete: no question is
 outstanding on it. Still to build after 12c, from `docs/MVP_SCOPE.md`: the
 other three fault scenarios (material batch, machine configuration, false
 alarm), then evaluation, then the agent itself.
 
 ## Session notes
+
+- **2026-10-29 (C2r): the critic follow-up, one reading where the critic
+  pointed.** Item 1 of the 2026-10-29 pilot-readiness list. Taught first. The
+  developer's goal: at about 0.80 the agent escalates, and the critic should
+  confirm so it can intervene. Two designs were offered: (A) the critic's
+  agreement lowers the bar, or (B) the agreement earns one confirming factory
+  reading. The developer chose B, with A kept for later, once labelled critic
+  runs show how often `supports_action` is right. Points from the teaching: in
+  EV1 the bar lowered no intervention (KA-01 escalated at 0.85 by its own
+  choice), and the critic sees the agent's evidence, so its agreement is not an
+  independent look. Gate question (leader at 0.82, critic agrees, the reading
+  is normal): right that it stays below the bar and escalates; corrected that
+  a normal reading means "not confirmed", not "no action needed", and that the
+  critic's agreement never counts at the bar.
+  Built: a stage `recheck` between `critique` and `conclude`, on only with
+  `CRITIC_FOLLOWUP` (default off, so the review-only critic stays the
+  baseline). `recheck_trigger` runs it when the critic answered and either
+  objected, or favoured the leading hypothesis while that was below
+  `min_action_confidence`. It skips, with the reason recorded, when the
+  critic gave no usable answer, named no check, favoured another hypothesis
+  without objecting, the leader already reaches the bar, or no research time
+  or tool call is left. When it runs, the critic's `discriminating_check`
+  becomes open question K1, tied to the leader. The agent's own policy is
+  asked for one test-stage decision, and at most one call goes through the
+  normal `gather` (allowlist, provenance labelled by its real source, one
+  interpretation). Then the run goes to `conclude`, where the bar applies to
+  the agent's own confidence as before. The critic is never asked again, so
+  the stage cannot loop. `RecheckRecord` (outcome, trigger, reason, question,
+  tool, evidence id, leader and confidence before and after) is kept on the
+  state and in `ExperimentRecord.recheck`. Tests: `tests/test_agent_investigation.py`
+  (off by default; no critic; an objection earns exactly one observable
+  reading that answers K1; never loops; agreement plus a confirming reading
+  intervenes; agreement without one still escalates; the same agreement
+  without the follow-up escalates; a stopping or bad policy decision makes no
+  call; trigger reasons, including the run's own bar; time and call budgets;
+  a skip calls nothing; the graph shape), `tests/test_episode.py` (the
+  setting reaches the run; off by default), `tests/test_experiment.py` (kept
+  in the record; older records still read). Not run live. Limits: the
+  policy may answer K1 with any read-only tool, not the one the critic named
+  (by design: the critic's text is never run as a call); one follow-up only;
+  the critic's own confidence and `supports_action` are recorded, never used.
 
 - **2026-10-29 (docs-only): Haas VF-based simulator retrofit and older-machine support.** Recorded a HIGH-priority post-baseline future-work plan in `docs/MVP_SCOPE.md` for a real, revision-specific Haas VF NGC profile to replace the generic CNC as the simulator's eventual default, with optional Classic Control/RS-232 compatibility for early-2000s machines, `FactoryProvider` read-only adapters, manual/SOP RAG, field discovery, optional external sensors, explicit missing-data semantics and deterministic offline comparisons. No runtime changes or machine integrations were made; the existing `SIM-CNC-001` manual remains synthetic.
 

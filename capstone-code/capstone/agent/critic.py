@@ -25,7 +25,7 @@ from `agent.artifacts` (the rule `test_agent_artifacts` keeps).
 
 from collections.abc import Sequence
 
-from capstone.agent.artifacts import CritiqueRecord, CritiqueResult
+from capstone.agent.artifacts import CritiqueRecord, CritiqueResult, RecheckRecord
 from capstone.agent.model_policy import (
     Client,
     ModelCall,
@@ -42,6 +42,7 @@ __all__ = [
     "Critic",
     "CritiqueRecord",
     "CritiqueResult",
+    "RecheckRecord",
     "critique_view",
     "top_two",
 ]

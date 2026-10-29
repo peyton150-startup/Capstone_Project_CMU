@@ -312,6 +312,7 @@ def run_episode(
         step_questions=settings.step_questions,
         critic=critic,
         critic_seconds=settings.critic_seconds,
+        critic_followup=settings.critic_followup,
     )
     run_investigation(state, deps)
 

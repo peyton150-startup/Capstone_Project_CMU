@@ -2,10 +2,16 @@ from itertools import groupby
 
 import pytest
 
-from capstone.agent.artifacts import AgentConclusion, TerminationReason
+from capstone.agent.artifacts import (
+    AgentConclusion,
+    CritiqueRecord,
+    TerminationReason,
+)
 from capstone.agent.investigation import (
     INVESTIGATION_GRAPH,
     critique,
+    recheck,
+    recheck_trigger,
     run_investigation,
 )
 from capstone.agent.loop import InvestigationDeps
@@ -486,7 +492,8 @@ def test_the_graph_draws_only_the_allowed_order():
         "anything_to_test --> test",
         "anything_to_test --> conclude",
         "test --> critique",
-        "critique --> conclude",
+        "critique --> recheck",
+        "recheck --> conclude",
         "conclude --> propose",
         "propose --> approved",
         "approved --> execute",
@@ -752,3 +759,218 @@ def test_later_rewording_does_not_change_the_recorded_claim():
         )
     ]
     assert state.critique.favoured_claim == "CNC-02 is wearing"
+
+
+# --- the critic follow-up: one reading where the critic pointed --------------
+
+
+def settled_at(confidence, confirmed=None):
+    """Tests leave the leader at `confidence`; the critic's check moves it to
+    `confirmed` (or leaves it where it was)."""
+
+    def interpret(state, step, evidence):
+        if step.question_id == "K1":
+            return Interpretation(
+                hypotheses=(wear(confirmed or confidence, "E2", evidence.id),)
+            )
+        if step.hypothesis_id is None:
+            return Interpretation()
+        return Interpretation(hypotheses=(wear(confidence, "E2", evidence.id),))
+
+    return interpret
+
+
+def as_sure_as_the_agent(state):
+    """Ask to intervene at whatever confidence the agent has reached."""
+    return conclusion("intervene", state.confidence, ("E2",)), REPLACE
+
+
+CHECK = ask("get_settings", question_id="K1", machine_id="CNC-02")
+
+
+def follow_up_policy(confidence, confirmed=None, check=CHECK):
+    """The worked example, plus an answer for the critic's question (K1) that
+    the policy gives only while that question is open."""
+    policy = wear_policy(
+        interpret=settled_at(confidence, confirmed), conclude=as_sure_as_the_agent
+    )
+    plain = policy.decide
+
+    def decide(state, phase):
+        if any(q.id == "K1" for q in state.unanswered_questions):
+            return check(state) if callable(check) else check
+        return plain(state, phase)
+
+    policy.decide = decide
+    return policy
+
+
+def agreeing(favoured="H1"):
+    return FakeCritic(critique_result("no_objection", favoured=favoured))
+
+
+def test_follow_up_is_off_by_default():
+    state, provider = investigate(wear_policy(), critic=FakeCritic())
+    assert state.recheck is None
+    assert "get_settings" not in [r.name for r in provider.calls]
+
+
+def test_follow_up_without_a_critic_does_nothing():
+    state, _ = investigate(wear_policy(), critic_followup=True)
+    assert state.critique is None and state.recheck is None
+
+
+def test_an_objection_earns_exactly_one_reading_where_the_critic_pointed():
+    state, provider = investigate(
+        follow_up_policy(0.95), critic=FakeCritic(), critic_followup=True
+    )
+    names = [r.name for r in provider.calls]
+    assert names.count("get_settings") == 1
+    assert names.index("get_settings") < names.index("propose_action")
+    record = state.recheck
+    assert record.outcome == "observed" and record.trigger == "objection"
+    assert record.tool == "get_settings"
+    assert record.question == "The critic's check: get_readings on CNC-02"
+    assert record.leading_before == "H1" and record.evidence_id is not None
+    # The answer is an observation like any other: labelled by its real source.
+    origin = {p.evidence_id: p.origin for p in state.provenance}
+    assert origin[record.evidence_id] == "observable"
+    assert state.answers["K1"] == [record.evidence_id]
+    assert all(q.id != "K1" for q in state.unanswered_questions)
+
+
+def test_the_follow_up_never_loops():
+    critic = FakeCritic()
+    # This call does not answer K1, so K1 stays open and the policy would
+    # keep calling it if it were asked again. It is asked once.
+    more = ask("get_events", machine_id="CNC-02")
+    state, provider = investigate(
+        follow_up_policy(0.95, check=more), critic=critic, critic_followup=True
+    )
+    assert len(critic.reviewed) == 1
+    names = [r.name for r in provider.calls]
+    assert names.count("get_events") == 1
+
+
+def test_agreement_below_the_bar_and_a_confirming_reading_lets_the_agent_act():
+    state, provider = investigate(
+        follow_up_policy(0.8, confirmed=0.95), critic=agreeing(), critic_followup=True
+    )
+    assert state.recheck.trigger == "agreement"
+    assert state.recheck.confidence_before == 0.8
+    assert state.recheck.confidence_after == 0.95
+    assert state.conclusion.recommendation == "intervene"
+    assert "propose_action" in [r.name for r in provider.calls]
+
+
+def test_agreement_without_a_confirming_reading_still_escalates():
+    # The critic agrees, but the reading did not raise the agent's own
+    # confidence: the bar applies to the agent, not to the critic's opinion.
+    state, provider = investigate(
+        follow_up_policy(0.8), critic=agreeing(), critic_followup=True
+    )
+    assert state.recheck.outcome == "observed"
+    assert state.recheck.confidence_after == 0.8
+    assert state.conclusion.recommendation == "escalate"
+    assert "propose_action" not in [r.name for r in provider.calls]
+
+
+def test_without_the_follow_up_the_same_agreement_escalates():
+    state, provider = investigate(
+        follow_up_policy(0.8, confirmed=0.95), critic=agreeing()
+    )
+    assert state.recheck is None
+    assert state.conclusion.recommendation == "escalate"
+    assert "get_settings" not in [r.name for r in provider.calls]
+
+
+def test_a_policy_that_stops_makes_no_call():
+    stop = Stop(reason=TerminationReason.NO_USEFUL_ACTION)
+    policy = follow_up_policy(0.8, check=stop)
+    state, provider = investigate(policy, critic=agreeing(), critic_followup=True)
+    assert state.recheck.outcome == "policy_stopped"
+    assert "get_settings" not in [r.name for r in provider.calls]
+
+
+def test_a_bad_decision_is_recorded_and_the_run_goes_on():
+    policy = follow_up_policy(0.8, check=lambda state: "not a decision")
+    state, _ = investigate(policy, critic=agreeing(), critic_followup=True)
+    assert state.recheck.outcome == "invalid_decision"
+    assert state.conclusion is not None
+
+
+def recheck_state(confidence=0.8, **budgets):
+    state = fresh_state(**budgets)
+    state.started_at = 0.0
+    state.hypotheses = [wear(confidence, "E2")]
+    return state
+
+
+def with_critique(state, reply):
+    state.critique = CritiqueRecord(
+        outcome="answered" if reply else "no_answer",
+        result=reply,
+        shown_hypotheses=("H1",),
+        seconds=1.0,
+    )
+    return state
+
+
+def trigger(state, **settings):
+    deps = InvestigationDeps(
+        provider=FakeProvider(), policy=wear_policy(), clock=lambda: 0.0, **settings
+    )
+    return recheck_trigger(state, deps)
+
+
+def test_trigger_reasons():
+    assert trigger(with_critique(recheck_state(), critique_result())) == (
+        "objection",
+        None,
+    )
+    agree = critique_result("no_objection")
+    assert trigger(with_critique(recheck_state(0.8), agree)) == ("agreement", None)
+    assert trigger(with_critique(recheck_state(0.9), agree)) == (
+        None,
+        "the leading hypothesis already reaches the action bar",
+    )
+    other = critique_result("no_objection", favoured="H2")
+    assert trigger(with_critique(recheck_state(), other))[0] is None
+    assert trigger(with_critique(recheck_state(), None)) == (
+        None,
+        "the critic gave no usable answer",
+    )
+    # The bar is the run's own setting.
+    assert trigger(
+        with_critique(recheck_state(0.9), agree), min_action_confidence=0.95
+    ) == ("agreement", None)
+
+
+def test_trigger_needs_time_and_a_tool_call_left():
+    late = recheck_state(timeout_seconds=100.0, followup_seconds=10.0)
+    late.started_at = -500.0
+    assert trigger(with_critique(late, critique_result())) == (
+        None,
+        "no research time left",
+    )
+    spent = recheck_state(max_tool_calls=1)
+    spent.tool_call_count = 1
+    assert trigger(with_critique(spent, critique_result()))[1] == "no tool calls left"
+
+
+def test_a_skipped_follow_up_says_why_and_calls_nothing():
+    state = with_critique(recheck_state(0.95), critique_result("no_objection"))
+    provider = FakeProvider()
+    deps = InvestigationDeps(
+        provider=provider,
+        policy=wear_policy(),
+        clock=lambda: 0.0,
+        critic=FakeCritic(),
+        critic_followup=True,
+    )
+    recheck(state, deps)
+    assert state.recheck.outcome == "skipped"
+    assert (
+        state.recheck.reason == "the leading hypothesis already reaches the action bar"
+    )
+    assert provider.calls == []

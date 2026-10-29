@@ -54,7 +54,7 @@ from time import monotonic
 from pydantic import BaseModel, ConfigDict, Field
 
 from capstone.agent.completion import AuditLog, complete
-from capstone.agent.critic import Critic, CritiqueRecord
+from capstone.agent.critic import Critic, CritiqueRecord, RecheckRecord
 from capstone.agent.model_policy import ModelCall
 from capstone.agent.policy import ReasoningPolicy
 from capstone.agent.state import Budgets
@@ -280,6 +280,9 @@ class ExperimentRecord(BaseModel):
     # The claim of the hypothesis the critic favoured, so it can be labelled
     # as a cause the way a conclusion is. None: no pick (or an older record).
     critic_favoured_claim: str | None = None
+    # What the critic follow-up did (one reading, or why none). None: the
+    # follow-up was off (and in records from before it was kept).
+    recheck: RecheckRecord | None = None
     # With --tree-of-thought: one tree per hypothesize step, in order (the
     # candidates, their ratings, which were kept and why the rest were dropped).
     # None: the run used the ordinary step (or predates this record).
@@ -392,6 +395,7 @@ def record_of(
         step_questions=state.step_questions,
         critique=state.critique,
         critic_favoured_claim=favoured_claim(state),
+        recheck=state.recheck,
         agent_steps=[
             AgentStep(
                 agent=decision.agent,
