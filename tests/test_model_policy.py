@@ -1145,3 +1145,25 @@ def test_a_refused_stop_names_the_fields_it_found(extra, found):
 def test_a_clean_stop_is_still_accepted():
     step = NextStep.model_validate(stop_reply())
     assert step.choice == "stop" and step.question_id is None
+
+
+# --- a complete scan accounts for every machine, not only the alarmed one ----
+
+SCAN_RULE = "A complete scan of the factory accounts for every machine"
+
+
+def test_every_job_is_told_to_scan_every_machine():
+    """From the 2026-10-30 master runs: on the compound case the alarm named a
+    decoy machine and all three runs concluded "nothing wrong" without looking
+    at the machine with both real faults."""
+    for job, system in SYSTEM.items():
+        assert SCAN_RULE in system, job
+        assert "other machines" in system, job
+
+
+def test_the_scan_rule_names_only_tools_the_agent_has():
+    from capstone.providers.factory import research_tools
+
+    names = {spec.name for spec in research_tools()}
+    assert "list_machines" in names
+    assert "list_machines" in SYSTEM["decide"]
