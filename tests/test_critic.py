@@ -323,6 +323,7 @@ def with_pruned(state):
             id="C4",
             claim="a bad material batch",
             reason="rated impossible",
+            status="contradicted",
             verdict="impossible",
             confidence=0.1,
             contradicting_evidence_ids=("E2",),
@@ -335,8 +336,8 @@ def test_the_critic_is_shown_what_was_ruled_out():
     view = critique_view(with_pruned(state_with_hypotheses()), research_tools())
     assert PRUNED_NOTE in view
     assert (
-        "- C4 (rated impossible, 0.10): a bad material batch Dropped: rated impossible."
-        in view
+        "- C4 (rated impossible, 0.10): a bad material batch "
+        "Dropped (contradicted): rated impossible." in view
     )
     assert view.index(PRUNED_NOTE) > view.index("HYPOTHESES SHOWN TO YOU:")
 

@@ -208,6 +208,23 @@ alarm), then evaluation, then the agent itself.
   critic is shown them, cannot favour one, and is told so; older audit lines
   read `()`; `--audit` without memory writes the record; the live view prints
   them once. Not run live.
+  **Added the same day (T1, still in #136, not merged until the developer's
+  two master runs finish):** P0 from `docs/TOT_CRITIC_EVALUATION_FUTURE_WORK.md`.
+  An "impossible" rating with no factory evidence was kept and ranked by its
+  confidence, which is confidence that the candidate is false, so
+  "impossible, 0.95" became H1 at 0.95, above both 0.9 bars; the factory-only
+  rule above makes the case more common. Now `unproven_confidence`
+  (`min(c, 1 - c)`) scores it, `prune` ranks it below every sure or likely
+  candidate and returns its rating with that score (so the hypothesis carries
+  it), and `Thought.unresolved` lists it (the raw rating stays in
+  `Thought.ratings`). And P1's "deferred is not false": `PrunedCandidate.status`
+  is `contradicted` (factory evidence cited) or `deferred` (ranked out,
+  unrated), shown to the critic and in the live view. Tests: `impossible, 0.95`
+  ranks below `likely, 0.6` at 0.05; a low sure or likely still outranks an
+  unproven impossible; its hypothesis stays under the bars and the tree lists
+  it; none listed otherwise; older trees read; the trace says contradicted or
+  deferred. The MAX-HIGH "agent never recommends a fix" note the developer
+  asked about was already in `docs/MVP_SCOPE.md`, word for word; nothing added.
 
 - **2026-10-29 (config): the manual index is rebuilt before a run when the
   manual changed.** Rule from the developer, who had just re-embedded the

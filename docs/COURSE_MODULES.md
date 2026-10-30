@@ -236,4 +236,9 @@ is not a focus now (developer's decision, 2026-10-20).
   point at nothing the critic could check. Since 2026-10-30, "impossible"
   rules a candidate out only with factory evidence (`origin == "observable"`):
   a manual section or a memory cannot, which matters now that the manual
-  step puts manual sections into every run before `hypothesize`.
+  step puts manual sections into every run before `hypothesize`. Each pruned
+  branch says whether it was `contradicted` or `deferred` (untested, not
+  false). A kept "impossible" that nothing factual backs ranks last, at a
+  neutral confidence (`unproven_confidence`), and is listed in
+  `Thought.unresolved`: its rating's confidence is confidence that it is
+  false, so it can never lead or clear the 0.9 bars.

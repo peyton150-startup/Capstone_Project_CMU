@@ -255,7 +255,7 @@ class ProgressView:
         self.pruned_shown = len(state.pruned_candidates)
         self.write("  ruled out by tree-of-thought:")
         for p in new:
-            self.write(f"    {p.id}  {shorten(p.claim, 60)}  ({p.reason})")
+            self.write(f"    {p.id}  {shorten(p.claim, 60)}  ({p.status}: {p.reason})")
 
 
 def truth_lines(score: Score) -> list[str]:

@@ -93,6 +93,10 @@ class Thought(Contract):
     kept: tuple[str, ...]  # candidate ids, in rank order
     # candidate id -> why it was dropped
     dropped: dict[str, str]
+    # Kept candidates whose rating said "impossible" with no factory evidence
+    # against them: kept, ranked last, at a neutral confidence. Empty in older
+    # records.
+    unresolved: tuple[str, ...] = ()
 
 
 GENERATE = (
@@ -127,6 +131,23 @@ def candidate_lines(candidates: Sequence[Candidate]) -> str:
     return "\n".join(lines)
 
 
+def unproven_confidence(confidence: float) -> float:
+    """A neutral score for an "impossible" verdict nothing factual backs.
+
+    The rating's confidence is confidence that the candidate is false; it says
+    little either way about the candidate being true, so the score never
+    exceeds 0.5 and falls as the model grows surer it is false.
+    """
+    return min(confidence, 1 - confidence)
+
+
+def unproven_rating(rating: Rating) -> Rating:
+    """The rating a kept, unproven "impossible" is ranked and believed by."""
+    return rating.model_copy(
+        update={"confidence": unproven_confidence(rating.confidence)}
+    )
+
+
 def prune(
     candidates: Sequence[Candidate],
     ratings: Sequence[Rating],
@@ -139,8 +160,10 @@ def prune(
     Deterministic: the same candidates and ratings always keep the same ones.
     The first rating of a candidate counts; a rating of an unknown id is ignored.
     "Impossible" drops a candidate only with a cited contradiction the factory
-    answered (`observed_ids`); otherwise the candidate is ranked by its
-    confidence like any other.
+    answered (`observed_ids`). Otherwise the candidate stays in the running
+    but ranks below every sure or likely one, with the neutral score
+    `unproven_confidence`, which the kept rating carries (so the hypothesis made
+    from it carries it too).
     """
     # Variables:
     #   breadth: How many candidates may survive.
@@ -191,7 +214,19 @@ def prune(
                 alive.append((order, candidate, rating))
         else:
             alive.append((order, candidate, rating))
-    alive.sort(key=lambda entry: (-entry[2].confidence, entry[0]))
+    # An unproven "impossible" keeps its place in the running, but its rating's
+    # confidence is how sure the model is that it is FALSE: ranked by that, an
+    # "impossible, 0.95" would lead at 0.95. So it ranks below every sure or
+    # likely candidate, and is scored `unproven_confidence` instead.
+    alive = [
+        (order, candidate, unproven_rating(rating))
+        if candidate.id in unproven
+        else (order, candidate, rating)
+        for order, candidate, rating in alive
+    ]
+    alive.sort(
+        key=lambda entry: (entry[1].id in unproven, -entry[2].confidence, entry[0])
+    )
     for _, candidate, _ in alive[breadth:]:
         ranked = f"ranked below the best {breadth}"
         dropped[candidate.id] = (
@@ -234,6 +269,9 @@ def pruned_trace(
                 id=candidate.id,
                 claim=candidate.claim,
                 reason=reason,
+                # Only a factory contradiction rules a candidate out; anything
+                # else (ranked out, unrated) leaves it untested, not false.
+                status="contradicted" if reason == "rated impossible" else "deferred",
                 verdict=None if rating is None else rating.verdict,
                 confidence=None if rating is None else rating.confidence,
                 supporting_evidence_ids=candidate.supporting_evidence_ids,
@@ -306,6 +344,8 @@ class TreeOfThoughtPolicy(ModelPolicy):
                 ratings=tuple(ratings),
                 kept=tuple(c.id for c, _ in kept),
                 dropped=dropped,
+                # Every kept "impossible" is unproven: a proven one was dropped.
+                unresolved=tuple(c.id for c, r in kept if r.verdict == "impossible"),
             )
         )
         hypotheses, questions = [], []

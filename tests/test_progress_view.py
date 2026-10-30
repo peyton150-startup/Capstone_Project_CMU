@@ -314,10 +314,13 @@ def test_the_view_prints_what_tree_of_thought_ruled_out_once():
     state = new_state()
     state.pruned_candidates = [
         PrunedCandidate(
-            id="C3", claim="a wrong speed setting", reason="rated impossible"
+            id="C3",
+            claim="a wrong speed setting",
+            reason="rated impossible",
+            status="contradicted",
         )
     ]
     view(state)
     view(state)
     assert lines.count("  ruled out by tree-of-thought:") == 1
-    assert "    C3  a wrong speed setting  (rated impossible)" in lines
+    assert "    C3  a wrong speed setting  (contradicted: rated impossible)" in lines

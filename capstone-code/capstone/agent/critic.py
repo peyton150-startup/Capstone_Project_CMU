@@ -207,7 +207,7 @@ def critique_view(
             supported = ", ".join(p.supporting_evidence_ids) or "none"
             contradicted = ", ".join(p.contradicting_evidence_ids) or "none"
             lines.append(
-                f"- {p.id}{rated}: {p.claim} Dropped: {p.reason}. "
+                f"- {p.id}{rated}: {p.claim} Dropped ({p.status}): {p.reason}. "
                 f"Supported by: {supported}. Contradicted by: {contradicted}."
             )
     if sections:

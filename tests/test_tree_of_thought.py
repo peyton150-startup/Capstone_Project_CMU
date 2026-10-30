@@ -12,6 +12,7 @@ from capstone.agent.tree_of_thought import (
     Ratings,
     TreeOfThoughtPolicy,
     prune,
+    pruned_trace,
 )
 from capstone.contracts.evidence import Evidence
 from capstone.contracts.provenance import ProvenanceReference
@@ -421,3 +422,70 @@ def test_a_tree_run_writes_its_pruned_branches_to_the_audit_log(tmp_path):
     assert record.pruned_candidates == tuple(result.state.pruned_candidates)
     # The shared record, which memory learns from, holds only the beliefs.
     assert "C2" not in [h.id for h in record.completed.hypotheses]
+
+
+# --- P0: an unproven "impossible" never leads at its "it is false" confidence -
+
+
+def test_an_unproven_impossible_ranks_below_likely_at_a_neutral_score():
+    """'impossible, 0.95' with nothing factual cited means 'surely false', not
+    'surely true': it must not lead, and must stay under the 0.9 bars."""
+    candidates = [candidate("C1"), candidate("C2")]
+    ratings = [rating("C1", "impossible", 0.95), rating("C2", "likely", 0.6)]
+    kept, dropped = prune(candidates, ratings, {"E1"}, 3, observed_ids={"E1"})
+    assert [c.id for c, _ in kept] == ["C2", "C1"] and dropped == {}
+    [(_, likely), (_, unproven)] = kept
+    assert likely.confidence == 0.6
+    assert unproven.confidence == pytest.approx(0.05)
+
+
+def test_even_a_low_sure_or_likely_outranks_an_unproven_impossible():
+    candidates = [candidate("C1"), candidate("C2"), candidate("C3")]
+    ratings = [
+        rating("C1", "impossible", 0.5),  # neutral 0.5
+        rating("C2", "sure", 0.3),
+        rating("C3", "likely", 0.2),
+    ]
+    kept, _ = prune(candidates, ratings, set(), 3)
+    assert [c.id for c, _ in kept] == ["C2", "C3", "C1"]
+
+
+def test_the_hypothesis_from_an_unproven_impossible_cannot_clear_the_bars():
+    generated = {"candidates": [{"id": "C1", "claim": "the spindle bearing is worn"}]}
+    rated = {
+        "ratings": [{"candidate_id": "C1", "verdict": "impossible", "confidence": 0.95}]
+    }
+    agent = tree(generated, rated)
+    [hypothesis] = agent.hypothesize(with_evidence()).hypotheses
+    assert hypothesis.confidence == pytest.approx(0.05) and hypothesis.confidence < 0.9
+    [thought] = agent.thoughts
+    assert thought.unresolved == ("C1",)
+    assert thought.ratings[0].confidence == 0.95  # the record keeps what was said
+
+
+def test_a_tree_without_unproven_ratings_lists_none():
+    agent = tree(GENERATED, RATED, breadth=2)
+    agent.hypothesize(with_evidence())
+    assert agent.thoughts[0].unresolved == ()
+
+
+def test_older_trees_read_without_unresolved():
+    from capstone.agent.tree_of_thought import Thought
+
+    old = {"candidates": [], "ratings": [], "kept": [], "dropped": {}}
+    assert Thought.model_validate(old).unresolved == ()
+
+
+# --- P1: deferred is not false ----------------------------------------------
+
+
+def test_the_trace_says_contradicted_or_deferred():
+    candidates = [candidate("C1"), candidate("C2"), candidate("C3"), candidate("C4")]
+    ratings = [
+        rating("C1", "impossible", 0.9, "E1"),  # factory evidence: contradicted
+        rating("C2", confidence=0.8),
+        rating("C3", confidence=0.1),  # ranked out: deferred
+    ]  # C4 never rated: deferred
+    _, dropped = prune(candidates, ratings, {"E1"}, 1, observed_ids={"E1"})
+    trace = {p.id: p.status for p in pruned_trace(candidates, ratings, dropped)}
+    assert trace == {"C1": "contradicted", "C3": "deferred", "C4": "deferred"}

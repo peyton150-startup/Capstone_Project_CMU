@@ -90,6 +90,9 @@ class PrunedCandidate(Contract):
     id: str = Field(min_length=1)  # the candidate id (C1, C2, ...)
     claim: str = Field(min_length=1)
     reason: str = Field(min_length=1)  # why `prune` dropped it
+    # contradicted: factory evidence was cited against it. deferred: dropped
+    # for another reason (ranked out, never rated): untested, not shown false.
+    status: Literal["contradicted", "deferred"] = "deferred"
     # The model's rating, if it gave one (an unrated candidate has none).
     verdict: str | None = None
     confidence: float | None = Field(default=None, ge=0, le=1)
