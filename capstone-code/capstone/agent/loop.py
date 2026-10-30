@@ -350,6 +350,8 @@ def apply_interpretation(
     #   before: The old explanations by id, to count how many changed.
     #   after: The new explanations by id, to count how many changed.
     #   open_ids: Ids of questions still open, so a question is never added twice.
+    #   interpretation.pruned: Only on tree-of-thought's hypothesize answer: the
+    #     candidates it ruled out, kept in the state's trace for the critic.
     if not isinstance(interpretation, Interpretation):
         raise ValueError("a policy must return an Interpretation")
     revised = interpretation.hypotheses
@@ -373,6 +375,9 @@ def apply_interpretation(
                 before.get(key) != after.get(key) for key in before.keys() | after
             )
         state.hypotheses = list(revised)
+    # What tree-of-thought ruled out goes into the trace as it is; `prune`
+    # already dropped any candidate that cited evidence never gathered.
+    state.pruned_candidates.extend(getattr(interpretation, "pruned", ()))
     open_ids = {q.id for q in state.unanswered_questions}
     for question in interpretation.new_questions:
         if question.id not in open_ids and question.id not in state.answers:

@@ -79,6 +79,27 @@ class Budgets(Contract):
         return self
 
 
+class PrunedCandidate(Contract):
+    """An explanation tree-of-thought considered and dropped, kept in the trace.
+
+    Not a hypothesis: nothing tests it, and the agent's beliefs do not include
+    it. Kept so the critic can see what was ruled out, and why, and say if a
+    dropped cause deserves another look.
+    """
+
+    id: str = Field(min_length=1)  # the candidate id (C1, C2, ...)
+    claim: str = Field(min_length=1)
+    reason: str = Field(min_length=1)  # why `prune` dropped it
+    # contradicted: factory evidence was cited against it. deferred: dropped
+    # for another reason (ranked out, never rated): untested, not shown false.
+    status: Literal["contradicted", "deferred"] = "deferred"
+    # The model's rating, if it gave one (an unrated candidate has none).
+    verdict: str | None = None
+    confidence: float | None = Field(default=None, ge=0, le=1)
+    supporting_evidence_ids: tuple[str, ...] = ()
+    contradicting_evidence_ids: tuple[str, ...] = ()
+
+
 class Question(Contract):
     """One piece of information the agent still needs."""
 
@@ -183,6 +204,9 @@ class InvestigationState(BaseModel):
     # What the critic said about the two leading hypotheses, or why it said
     # nothing. Review only: nothing else in the run reads it.
     critique: CritiqueRecord | None = None
+    # What tree-of-thought ruled out at the hypothesize step, and why. Empty
+    # without tree-of-thought. Shown to the critic; never tested or believed.
+    pruned_candidates: list[PrunedCandidate] = Field(default_factory=list)
     # What the critic follow-up did (`investigation.recheck`), or why it did
     # nothing. None: the follow-up is off, or no critic ran.
     recheck: RecheckRecord | None = None

@@ -170,6 +170,62 @@ alarm), then evaluation, then the agent itself.
 
 ## Session notes
 
+- **2026-10-30 (T1): tree-of-thought, factory-only eliminations, and the
+  pruned branches kept and shown.** Asked for by the developer after a review
+  of the three ToT fixes (#108, #109, #110, all intact on `main`). With the
+  manual on by default and the manual step before `hypothesize`, #109 let a
+  rating rule a cause out by citing a manual section. Built ungated at the
+  developer's request (understood: no).
+  - `agent/tree_of_thought.py`: `prune(..., observed_ids=...)` counts only
+    factory evidence as a contradiction (the policy passes the provenance ids
+    with `origin == "observable"`); the uncited reason now reads "rated
+    impossible with no factory evidence against it; ranked below the best N";
+    the `VALUE` prompt says manual sections and memories cannot rule a
+    candidate out. `pruned_trace` turns the dropped candidates into
+    `PrunedCandidate`s, and `hypothesize` returns them in
+    `PrunedInterpretation.pruned`.
+  - `agent/policy.py`: `PrunedInterpretation`, a code-only subclass of
+    `Interpretation`, so no model's reply can carry a pruned list (the model's
+    reply type is unchanged). `agent/state.py`: `PrunedCandidate` and
+    `InvestigationState.pruned_candidates`. `agent/loop.py`:
+    `apply_interpretation` keeps them.
+  - **Where the pruned branches are kept:** `state.pruned_candidates` (the
+    run's trace); the critic's prompt (`PRUNED_NOTE`, "RULED OUT BEFORE
+    TESTING"; `favoured` still only a current hypothesis; an `alternative`
+    objection and the check may aim at a dropped one, which the follow-up
+    then tests); the audit log (`AuditRecord.pruned_candidates`; `--audit`
+    now writes the record with or without memory, in `episode.py`), not the
+    shared `CompletedInvestigation`, since memory learns only from beliefs;
+    the live view ("ruled out by tree-of-thought:"); and, as before, the full
+    trees in `ExperimentRecord.thoughts`. Written into
+    `docs/COURSE_MODULES.md` (Module 4).
+  Tests (`tests/test_tree_of_thought.py`, `tests/test_critic.py`,
+  `tests/test_agent_completion.py`, `tests/test_progress_view.py`): a manual
+  citation cannot rule a cause out, a factory one can; hypothesize hands back
+  what it dropped (not what cited ungathered evidence); the model's reply type
+  has no pruned field; the loop keeps them and an ordinary reading adds none; a
+  tree run writes them to the audit log and not to the shared record; the
+  critic is shown them, cannot favour one, and is told so; older audit lines
+  read `()`; `--audit` without memory writes the record; the live view prints
+  them once. Not run live.
+  **Added the same day (T1, still in #136, not merged until the developer's
+  two master runs finish):** P0 from `docs/TOT_CRITIC_EVALUATION_FUTURE_WORK.md`.
+  An "impossible" rating with no factory evidence was kept and ranked by its
+  confidence, which is confidence that the candidate is false, so
+  "impossible, 0.95" became H1 at 0.95, above both 0.9 bars; the factory-only
+  rule above makes the case more common. Now `unproven_confidence`
+  (`min(c, 1 - c)`) scores it, `prune` ranks it below every sure or likely
+  candidate and returns its rating with that score (so the hypothesis carries
+  it), and `Thought.unresolved` lists it (the raw rating stays in
+  `Thought.ratings`). And P1's "deferred is not false": `PrunedCandidate.status`
+  is `contradicted` (factory evidence cited) or `deferred` (ranked out,
+  unrated), shown to the critic and in the live view. Tests: `impossible, 0.95`
+  ranks below `likely, 0.6` at 0.05; a low sure or likely still outranks an
+  unproven impossible; its hypothesis stays under the bars and the tree lists
+  it; none listed otherwise; older trees read; the trace says contradicted or
+  deferred. The MAX-HIGH "agent never recommends a fix" note the developer
+  asked about was already in `docs/MVP_SCOPE.md`, word for word; nothing added.
+
 - **2026-10-29 (config): the manual index is rebuilt before a run when the
   manual changed.** Rule from the developer, who had just re-embedded the
   manual by hand: **when the manual changes, the index must be rebuilt before

@@ -26,7 +26,7 @@ from dataclasses import dataclass
 from datetime import timedelta
 from time import monotonic
 
-from capstone.agent.completion import AuditLog
+from capstone.agent.completion import AuditLog, audit_record
 from capstone.agent.critic import Critic
 from capstone.agent.investigation import run_investigation
 from capstone.agent.loop import InvestigationDeps
@@ -337,7 +337,15 @@ def run_episode(
 
     learning = None
     if memory is not None and log is not None:
-        learning = learn_from(state, policy, memory, log)
+        learning = learn_from(state, policy, memory, log)  # audits, then learns
+    elif (
+        log is not None
+        and state.conclusion is not None
+        and state.termination_reason is not None
+    ):
+        # Without memory there is nothing to learn, but `--audit` still keeps
+        # the full record (decisions, provenance, pruned branches) for people.
+        log.append(audit_record(state))
 
     diagnosis, judged = None, judge is not None
     if judge is not None and state.conclusion is not None:

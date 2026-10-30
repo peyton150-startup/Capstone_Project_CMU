@@ -24,7 +24,7 @@ from capstone.agent.artifacts import (
     TerminationReason,
     VerificationCheck,
 )
-from capstone.agent.state import InvestigationState, Question
+from capstone.agent.state import InvestigationState, PrunedCandidate, Question
 from capstone.contracts import Contract
 from capstone.contracts.evidence import Evidence
 from capstone.contracts.hypotheses import Hypothesis
@@ -63,6 +63,16 @@ class Interpretation(Contract):
     # The full revised set of hypotheses, or None to leave them as they are.
     hypotheses: tuple[Hypothesis, ...] | None = None
     new_questions: tuple[Question, ...] = ()
+
+
+class PrunedInterpretation(Interpretation):
+    """An Interpretation that also says what tree-of-thought ruled out.
+
+    Built by code from `prune`, never asked of a model: the model's reply
+    type stays `Interpretation`, so no model can invent a pruned candidate.
+    """
+
+    pruned: tuple[PrunedCandidate, ...] = ()
 
 
 class ActionRequest(Contract):

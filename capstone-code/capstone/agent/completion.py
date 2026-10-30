@@ -8,7 +8,8 @@ Working memory lives for one run. Two things are made from it here:
                           reflection, memory and evaluation read
     audit_record(state)   that record plus everything else the run knew:
                           where the evidence came from, the proposal's
-                          status, every decision, the loop's counts
+                          status, every decision, the loop's counts, and
+                          what tree-of-thought ruled out
 
 `AuditLog` appends audit records to a file, one per line. It keeps every
 investigation, right or wrong, including evidence text such as a human's
@@ -27,7 +28,12 @@ from capstone.agent.artifacts import (
     ProposalRecord,
     VerificationCheck,
 )
-from capstone.agent.state import DecisionRecord, InvestigationState, ReasoningMetrics
+from capstone.agent.state import (
+    DecisionRecord,
+    InvestigationState,
+    PrunedCandidate,
+    ReasoningMetrics,
+)
 from capstone.contracts import Contract
 from capstone.contracts.completed_investigations import (
     ActionProposal,
@@ -128,6 +134,11 @@ class AuditRecord(Contract):
     verification: VerificationCheck | None
     decisions: tuple[DecisionRecord, ...]
     metrics: ReasoningMetrics
+    # What tree-of-thought ruled out before testing, and why. Kept here, for
+    # people, and not in the shared record: memory and reflection learn from
+    # what the agent believed, never from branches it dropped. Empty without
+    # tree-of-thought (and in older log lines).
+    pruned_candidates: tuple[PrunedCandidate, ...] = ()
 
 
 def audit_record(state: InvestigationState) -> AuditRecord:
@@ -143,6 +154,7 @@ def audit_record(state: InvestigationState) -> AuditRecord:
         verification=state.verification,
         decisions=tuple(state.decisions),
         metrics=state.metrics(),
+        pruned_candidates=tuple(state.pruned_candidates),
     )
 
 
