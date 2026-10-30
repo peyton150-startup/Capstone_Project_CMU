@@ -83,7 +83,7 @@ from capstone.evaluation.memory import (
 )
 from capstone.evaluation.scoring import COMPOUND, Score, format_summary, summarize
 from capstone.memory.service import MemoryService
-from capstone.progress import ProgressView
+from capstone.progress import ProgressView, print_progress
 from capstone.providers.chat import INVALID_REPLY, is_model_outcome
 from capstone.providers.hazards import HazardProfile
 from capstone.providers.manual import MANUAL_TOOL, ManualSearch
@@ -1068,7 +1068,9 @@ def main(argv: Sequence[str] | None = None) -> int:
         log = AuditLog(args.audit) if args.audit else None
 
         def live_line(line: str) -> None:
-            print(line, flush=True)
+            # Variables:
+            #   line: The progress text, colored only for an interactive terminal.
+            print_progress(line)
 
         def save_record(record: ExperimentRecord) -> None:
             append_records(args.out, [record])

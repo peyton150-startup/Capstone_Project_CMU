@@ -555,7 +555,11 @@ def main(argv: Sequence[str] | None = None) -> int:
             print(f"completed {record.scenario_id}", flush=True)
 
         def show_progress(message: str) -> None:
-            print(message, flush=True)
+            # Variables:
+            #   message: The progress text, colored only for an interactive terminal.
+            from capstone.progress import print_progress
+
+            print_progress(message)
 
         if len(records) < len(config.cases):
             remaining = ScenarioConfig(cases=config.cases[len(records) :])

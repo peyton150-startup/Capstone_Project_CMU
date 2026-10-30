@@ -1,5 +1,10 @@
 # Progress Log
 
+> **2026-10-30 — terminal progress colors:** Interactive progress output
+> highlights beliefs, existing investigation stages, evidence, critic details,
+> and conclusions. Redirected output and NO_COLOR remain plain. Display-only;
+> no investigation behavior or understanding status changed.
+
 > **2026-10-29 — README technology stack:** Added an overview of the project's
 > language, frameworks, model integrations, optional storage, and development
 > tools to `README.md`. Documentation only; no behavior or understanding
