@@ -170,6 +170,28 @@ alarm), then evaluation, then the agent itself.
 
 ## Session notes
 
+- **2026-10-30 (F3): the critic's verdict must agree with its own pick.** The
+  developer saw the critic's verdict not match what it said. In the
+  2026-10-30 runs it said "object" on 9 of 10 cases, including while favouring
+  the leader with a "why" that supported it and only minor gaps (KA-07 twice,
+  KA-01), and "no_objection" while favouring another hypothesis (KA-03,
+  H6 over the leader H3), which the follow-up then skipped. Likely cause: the
+  only worked example in `CRITIC_SYSTEM` favoured the leading H1 and still ended
+  `verdict: object`. Fixes: step 6 now ties the verdict to the pick
+  (no_objection when the pick is the leader and nothing contradicts it or
+  fits better; minor gaps are listed but do not change it), and the example
+  ends `no_objection`; `recheck_trigger` treats a pick of another current
+  hypothesis as an objection whatever the verdict; `verdict_mismatch` (with
+  `SERIOUS_OBJECTIONS` = contradiction, alternative) names a disagreement,
+  kept as `CritiqueRecord.verdict_mismatch`, `EvalCase.critic_verdict_mismatch`
+  and a live-view line. The reply itself is never corrected, so the prompt's
+  effect can be measured. Tests (`tests/test_critic.py`,
+  `tests/test_agent_investigation.py`, `tests/test_progress_view.py`,
+  `tests/test_evals.py`): each mismatch pattern and the agreeing ones; the
+  prompt and example; a no_objection that prefers another hypothesis is
+  tested; the record, report and view carry it. Built ungated; teaching later
+  (understood: no). Not run live.
+
 - **2026-10-30 (F2): manual 1.2, a bad lot does not fail every part.** From
   the 2026-10-30 master runs: on KA-03 the agent saw that only batch-2 jobs
   failed (all ten batch-1 jobs passed) and still ruled the batch out, because

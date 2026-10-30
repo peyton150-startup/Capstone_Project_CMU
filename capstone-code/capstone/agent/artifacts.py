@@ -199,3 +199,7 @@ class CritiqueRecord(Contract):
     # shown hypotheses' claims. Empty: a manual was offered and nothing was
     # found. None: no manual (and in older records).
     manual_sections: tuple[str, ...] | None = None
+    # Where the verdict disagrees with the critic's own pick
+    # (`critic.verdict_mismatch`), in words. None: they agree, no answer, or an
+    # older record.
+    verdict_mismatch: str | None = None

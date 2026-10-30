@@ -531,3 +531,24 @@ def test_rescoring_saved_records_never_opens_the_manual(tmp_path, monkeypatch):
     assert evals.main([*argv, "--records", str(saved)]) == 0
     with pytest.raises(SystemExit):
         evals.main([*argv, "--records", str(saved), "--manual", "--no-manual"])
+
+
+def test_the_report_carries_a_verdict_that_disagrees_with_the_pick(critiqued):
+    note = "object while favouring the leading H1, with no contradiction or alternative raised"
+    marked = critiqued.model_copy(
+        update={
+            "critique": critiqued.critique.model_copy(update={"verdict_mismatch": note})
+        }
+    )
+    [case] = report_of("s", [marked], {}).cases
+    assert case.critic_verdict_mismatch == note
+    # The fixture's fake critic objects while favouring the leader: the very
+    # mismatch seen live, so its record already names it.
+    [plain] = report_of("s", [critiqued], {}).cases
+    assert plain.critic_verdict_mismatch == critiqued.critique.verdict_mismatch
+    clean = critiqued.model_copy(
+        update={
+            "critique": critiqued.critique.model_copy(update={"verdict_mismatch": None})
+        }
+    )
+    assert report_of("s", [clean], {}).cases[0].critic_verdict_mismatch is None
