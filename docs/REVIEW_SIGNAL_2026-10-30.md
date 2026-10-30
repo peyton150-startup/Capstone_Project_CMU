@@ -18,6 +18,20 @@ Frames were sampled; audio was not transcribed. Narration-only claims are theref
 
 ## Signal, in priority order
 
+## Code vs. model: the rule used here
+
+Anything that can be checked exactly from data (thresholds, required fields, citation validity, time budgets, configuration limits, which model answers which job) is **code**. Anything that needs judgment over messy evidence (proposing causes, rating them, choosing the next check, writing the diagnosis) is the **model**. The model never decides whether a safety rule applies, and code never invents a cause.
+
+| Item | Code | Model |
+|---|---|---|
+| 1. P0 | Neutral score for unproven `impossible`; ranking; hypothesis confidence | Unchanged: still gives verdict and confidence |
+| 2. Runtime | Job routing, timeouts, new `value` job | None |
+| 3. Safety rules | Detect and block | None |
+| 4. Offsets / pockets | Simulator state, read tool, block | Explain and connect to other evidence |
+| 5. Technician check | Record request, return `unverified`, no evidence id | Choose which check |
+| 6. P5 | Whether to run the pass (ambiguity, time left), pruning | Re-rate kept candidates with new evidence |
+| 7. Machine profiles | Versioned profile data | Uses the profile through retrieval |
+
 ### 1. P0 confidence bug (already logged)
 
 See [P0](TOT_CRITIC_EVALUATION_FUTURE_WORK.md#p0--unproven-impossible-ratings-must-not-become-confident-hypotheses). An `impossible` rating with no cited contradiction keeps its raw confidence, so a 0.95 can become H1 and pass `min_diagnosis_confidence` and `min_action_confidence` (both 0.9). Small, deterministic fix; no extra model calls. **Highest priority after the baseline.**
@@ -26,7 +40,11 @@ See [P0](TOT_CRITIC_EVALUATION_FUTURE_WORK.md#p0--unproven-impossible-ratings-mu
 
 **Evidence:** `docs/benchmarks/2026-10-27-master-resumed.records.jsonl` (KA-06-setting) made 22 sequential model questions; single answers took about 4 s to 113 s on the primary model; 5 attempts timed out; the case ended `timeout` at about 881 s wall time. The fallback model answered narrow jobs in about 4 to 5 s.
 
-**Experiment:** Route narrow jobs (`decide`, ToT `value`) to the faster model in the chain; tighten per-call timeouts so failover happens sooner. Measure p50/p95 wall time, `timeout` terminations and accuracy against the frozen baseline. This is the lever for speed, not more agents (see [Not planned: a third agent](TOT_CRITIC_EVALUATION_FUTURE_WORK.md#not-planned-a-third-agent-for-speed)).
+**Experiment:** Send narrow jobs to the faster model and tighten per-call timeouts so failover happens sooner.
+
+- `decide`: configuration only. Set `DECIDE_MODEL` (job table in `providers/chat.py`, `JOBS` / `_JOB_SETTING`).
+- Per-call timeout: configuration only. `MODEL_QUESTION_SECONDS` (`settings.model_question_seconds`, used as `FallbackClient(max_seconds=...)`).
+- ToT `value`: **needs a code change.** Both ToT questions go to the `hypothesize` client by design, so `HYPOTHESIZE_MODEL` would move `generate` too. Add a `value` job to `JOBS`, a `value_model` / `VALUE_MODEL` setting in `_JOB_SETTING`, and have `TreeOfThoughtPolicy.hypothesize()` send the rating question with `self._ask("value", ...)`. Leave `generate` on `hypothesize`, since it needs the stronger model. Measure p50/p95 wall time, `timeout` terminations and accuracy against the frozen baseline. This is the lever for speed, not more agents (see [Not planned: a third agent](TOT_CRITIC_EVALUATION_FUTURE_WORK.md#not-planned-a-third-agent-for-speed)).
 
 ### 3. Deterministic safety rules stay out of the model
 
@@ -40,7 +58,12 @@ See [P0](TOT_CRITIC_EVALUATION_FUTURE_WORK.md#p0--unproven-impossible-ratings-mu
 
 **Gap:** The simulator has no tool-length offset, tool table or pocket model. Existing configuration coverage is `wrong_setting` (spindle speed 18 to 20% off standard, `reset_setting`) read through `get_settings`.
 
-**Future scenarios (one per fault pack, evaluator-only truth):** zero or missing offset; offset assigned to the wrong tool; empty or mismatched pocket; configuration unavailable. Expected agent behavior: name the specific problem, block the action, and never invent a missing value.
+**Future scenarios (one per fault pack, evaluator-only truth):** zero or missing offset; offset assigned to the wrong tool; empty or mismatched pocket; configuration unavailable.
+
+**Who does what:**
+
+- **Code:** the simulator state and a read-only tool that returns the tool table; the item 3 rule that detects the unsafe or unknown configuration and blocks the action; an unknown value is returned as unknown, never filled in.
+- **Model:** explain the finding in the diagnosis, connect it to other evidence (e.g. inspection rejects after a tool change), and choose what to check next. It never decides whether the block applies.
 
 **Haas reference fields (Video A screen):** spindle speed, spindle power (kW), surface speed, chip load, spindle load %, X/Y/Z axis load %, active tool, offset, pocket, max load, next tool, Safe Run (F3). Visible on the NGC control; the video does not show which are exposed to an external Python interface. Fold into the [Haas VF retrofit](MVP_SCOPE.md#high-priority-future-work--retrofit-the-simulator-around-real-haas-vf-series-machines-2026-10-29) profile.
 
@@ -50,11 +73,16 @@ Haas Safe Run limits damage once a collision starts; it does not prevent one. Do
 
 **Gap:** `sim-cnc-001.md` §2.2 and §2.3 already say a technician may verify bearing play, noise and lubrication state, but no tool lets the agent ask for that. Today the agent can only use sensor tools, so a physical check is either skipped or guessed.
 
-**Experiment:** Add a read-only tool that records a requested physical check (oil level, sight glass, bearing play, tool seated) and returns `unverified` in the simulator unless the scenario supplies an answer. Score whether the agent requests the right check and whether it ever states an unverified physical condition as fact.
+**Experiment:** Add a read-only tool that records a requested physical check (oil level, sight glass, bearing play, tool seated) and returns `unverified` in the simulator unless the scenario supplies an answer. **Who does what:**
+
+- **Model:** decide which physical check to ask for and when.
+- **Code:** record the request and return `unverified` with **no evidence id**. The existing rules then do the enforcement: `prune()` drops candidates citing ungathered evidence, and the critic checks that cited ids were gathered. So an unverified physical condition cannot be cited as evidence. Add a test for that.
+
+Score whether the agent requests the right check (evaluator side) and whether a conclusion ever states an unverified physical condition as fact.
 
 ### 6. P5 second depth, gated by ambiguity (already logged)
 
-See [P5](TOT_CRITIC_EVALUATION_FUTURE_WORK.md#p5--bounded-second-depth-through-observation-not-more-model-reasoning) and P3. Do after items 1 and 2 so the extra model call has room in the time budget.
+See [P5](TOT_CRITIC_EVALUATION_FUTURE_WORK.md#p5--bounded-second-depth-through-observation-not-more-model-reasoning) and P3. Do after items 1 and 2 so the extra model call has room in the time budget. **Code** decides whether the pass runs (observable ambiguity from P3, time left before `followup_seconds`) and prunes the result; the **model** only re-rates the kept candidates.
 
 ### 7. Low priority: machine class and material feed
 

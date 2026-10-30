@@ -86,7 +86,7 @@ That value is used downstream:
 **Time budget:** This adds one model question per investigation. Measured per-question latency in `docs/benchmarks/2026-10-27-master-resumed.records.jsonl` ranged from about 4 s to 113 s, and that run hit `timeout` at about 881 s wall time. So:
 
 - Skip the second pass when it would eat into `followup_seconds` (default 400 of `timeout_seconds` 1200, `agent/state.py`).
-- Prefer routing the `value` question to the faster model in the chain, since rating is a narrow job.
+- Route the `value` question to the faster model. This needs a new `value` job in `providers/chat.py` (`JOBS`, `_JOB_SETTING`) because both ToT questions currently use the `hypothesize` client; see [Review signal item 2](REVIEW_SIGNAL_2026-10-30.md#2-runtime-model-routing-and-per-call-timeouts).
 - Pair with P3: only branch (and only re-value) when the case is ambiguous.
 
 **Pass criteria:** Better recovery after an early wrong hypothesis and better true-cause retention than depth-one (cohort D), with no rise in `timeout` terminations and p95 wall time within budget.
