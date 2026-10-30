@@ -733,10 +733,18 @@ requirements, or repeat indefinitely. Measure this effect separately before
 attributing improvements to GoT.
 
 **Prerequisite: evidence-scored, multi-cause diagnosis (2026-10-29).**
+**Part built 2026-10-30 (PR #136, offline only):** only factory evidence
+(`origin == "observable"`) can rule a candidate out, so a manual section or a
+memory cannot; each pruned branch carries a status, `contradicted` or
+`deferred` (untested, not false), kept in the run's trace, the audit log and the
+critic's view; and a kept, unproven "impossible" rating is scored low
+(`unproven_confidence`) instead of ranking high. Still to do is the rest of this
+paragraph and the score below.
 Before testing GoT, investigate whether an evidence-scored *multi-label*
 hypothesis policy better fits real machines with concurrent faults. The
-current ToT `prune()` uses model confidence, keeps at most three candidates,
-and can discard additional plausible causes solely because of their rank.
+current ToT `prune()` still ranks by model confidence, keeps at most three
+candidates, and can discard additional plausible causes solely because of
+their rank (they are now recorded as `deferred`, but not retained).
 Instead, retain independently supported, materially distinct causes even
 when several may all be true (for example bearing wear and excessive
 cutting load). Use a bounded active set and prioritize which hypotheses
