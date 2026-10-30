@@ -70,7 +70,7 @@ def test_the_manual_is_its_fifteen_numbered_sections_and_nothing_else():
     ]  # fmt: skip
     speed = next(s for s in SECTIONS if s.section_id == "2.7")
     assert speed.title == "Spindle Speed Configuration and Machining Effects"
-    assert speed.citation == "SIM-CNC-001 §2.7" and speed.revision == "1.1"
+    assert speed.citation == "SIM-CNC-001 §2.7" and speed.revision == "1.2"
     text = " ".join(s.text for s in SECTIONS)
     assert "Document Provenance" not in text and "How to Use" not in text
     assert "**" not in text
@@ -149,7 +149,7 @@ def test_a_search_is_answered_from_the_manual_with_section_numbers():
     assert result.success and result.source == "manual" and result.tool == MANUAL_TOOL
     assert result.tick == factory.sim.clock.tick
     first = result.data[0]
-    assert first["section"] == "§2.1" and first["document"] == "SIM-CNC-001 rev 1.1"
+    assert first["section"] == "§2.1" and first["document"] == "SIM-CNC-001 rev 1.2"
     assert set(first) == {"section", "title", "text", "document"}
     assert len(result.data) == 3  # the default limit
 
@@ -458,7 +458,7 @@ def test_an_index_that_matches_the_manual_is_reused():
     [
         {"text": "Edited guidance."},
         {"title": "A new title"},
-        {"revision": "1.2"},
+        {"revision": "9.9"},
     ],
 )
 def test_an_edited_section_rebuilds_the_index_first(change):
@@ -546,3 +546,13 @@ def test_a_semantic_run_says_when_it_rebuilt_the_index(monkeypatch, capsys):
     )
     experiment.open_manual("semantic")
     assert capsys.readouterr().out == ""  # reused: nothing to say
+
+
+def test_section_2_9_says_passing_jobs_do_not_clear_a_bad_lot():
+    """From the 2026-10-30 master runs: the agent saw rejects in one batch only
+    and still ruled the batch out because some of its jobs passed."""
+    batch = next(s for s in SECTIONS if s.section_id == "2.9")
+    text = " ".join(batch.text.split())
+    assert "does not make every part fail" in text
+    assert "reject rate against other batches" in text
+    assert batch.revision == "1.2"
