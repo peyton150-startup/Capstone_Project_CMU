@@ -3,7 +3,7 @@
 **Status:** PLANNED / EVALUATION ONLY — not enabled, implemented, or approved for a runtime change by this document.  
 **Priority:** After the ongoing experiment finishes; first prioritize pruning correctness and evaluator quality.  
 **Source:** CMU Module 4, Mini-Lesson 4.1, *Tree-of-Thought Accuracy and Structure in Multi-Agents*; [Tree of Thoughts (Yao et al., 2023)](https://arxiv.org/abs/2305.10601).  
-**Related roadmap:** [MVP Scope — GoT and multi-cause diagnosis](MVP_SCOPE.md#graph-of-thoughts-got-hypothesis-reasoning--medium-priority-evaluation-2026-10-29) and [Future Work 7](MVP_SCOPE.md#future-work-7--model-evaluation-execution-budgets-and-computed-evidence).
+**Related:** [Review signal 2026-10-30](REVIEW_SIGNAL_2026-10-30.md) (verified findings from the ToT review and machining videos). **Related roadmap:** [MVP Scope — GoT and multi-cause diagnosis](MVP_SCOPE.md#graph-of-thoughts-got-hypothesis-reasoning--medium-priority-evaluation-2026-10-29) and [Future Work 7](MVP_SCOPE.md#future-work-7--model-evaluation-execution-budgets-and-computed-evidence).
 
 ## Scheduling gate: protect the runs in progress
 
@@ -86,7 +86,7 @@ That value is used downstream:
 **Time budget:** This adds one model question per investigation. Measured per-question latency in `docs/benchmarks/2026-10-27-master-resumed.records.jsonl` ranged from about 4 s to 113 s, and that run hit `timeout` at about 881 s wall time. So:
 
 - Skip the second pass when it would eat into `followup_seconds` (default 400 of `timeout_seconds` 1200, `agent/state.py`).
-- Prefer routing the `value` question to the faster model in the chain, since rating is a narrow job.
+- Route the `value` question to the faster model. This needs a new `value` job in `providers/chat.py` (`JOBS`, `_JOB_SETTING`) because both ToT questions currently use the `hypothesize` client; see [Review signal item 2](REVIEW_SIGNAL_2026-10-30.md#2-runtime-model-routing-and-per-call-timeouts).
 - Pair with P3: only branch (and only re-value) when the case is ambiguous.
 
 **Pass criteria:** Better recovery after an early wrong hypothesis and better true-cause retention than depth-one (cohort D), with no rise in `timeout` terminations and p95 wall time within budget.
