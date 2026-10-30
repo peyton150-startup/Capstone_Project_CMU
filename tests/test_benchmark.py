@@ -20,6 +20,14 @@ from capstone.providers.factory import research_tools
 from tests.test_model_policy import scripted_models
 
 
+@pytest.fixture(autouse=True)
+def two_questions_per_step(monkeypatch):
+    """The scripted model replies these tests play give separate interpret and
+    decide answers, so they run in two-question mode. One-question mode, the
+    default since 2026-10-30, has its own tests."""
+    monkeypatch.setenv("STEP_QUESTIONS", "2")
+
+
 def made(job, outcome, *attempts):
     return ModelCall(
         job=job,

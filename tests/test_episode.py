@@ -418,3 +418,32 @@ def test_the_follow_up_window_is_a_setting(monkeypatch):
     assert Settings(_env_file=None).critic_followup_seconds == 90.0
     monkeypatch.setenv("CRITIC_FOLLOWUP_SECONDS", "45")
     assert Settings(_env_file=None).critic_followup_seconds == 45.0
+
+
+def test_a_model_policy_runs_one_question_per_step_by_default(monkeypatch):
+    """The mode reaches the loop as 1 for a policy that can answer both at once."""
+    import capstone.episode as episode
+    from tests.test_model_policy import scripted_models
+
+    seen = []
+
+    def capture(state, deps):
+        seen.append((state.step_questions, deps.step_questions))
+        raise SystemExit  # the mode is all this test needs
+
+    monkeypatch.delenv("STEP_QUESTIONS", raising=False)
+    monkeypatch.setenv("CRITIC", "off")
+    monkeypatch.setattr(episode, "run_investigation", capture)
+    with pytest.raises(SystemExit):
+        run_episode(
+            SEED, scripted_models(), fault="bearing_degradation", clock=lambda: 0.0
+        )
+    assert seen == [(1, 1)]
+
+
+def test_a_scripted_policy_without_the_combined_question_runs_in_two(monkeypatch):
+    monkeypatch.delenv("STEP_QUESTIONS", raising=False)
+    result = run_episode(
+        SEED, wear_policy(), fault="bearing_degradation", clock=lambda: 0.0
+    )
+    assert result.state.step_questions == 2  # the record keeps the mode used

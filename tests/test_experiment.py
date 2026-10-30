@@ -37,6 +37,14 @@ from tests.test_model_policy import scripted_models
 
 
 @pytest.fixture(autouse=True)
+def two_questions_per_step(monkeypatch):
+    """The scripted model replies in these tests give separate interpret and
+    decide answers, so they run in two-question mode. One-question mode, the
+    default since 2026-10-30, has its own tests."""
+    monkeypatch.setenv("STEP_QUESTIONS", "2")
+
+
+@pytest.fixture(autouse=True)
 def offline_manual(monkeypatch):
     """The manual is on by default; tests search it by shared words, offline,
     instead of opening the Chroma index. Keeps the modes asked for."""

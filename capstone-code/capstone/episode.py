@@ -248,6 +248,8 @@ def run_episode(
     #   critic: Reviews the two leading hypotheses; None builds one from settings
     #     when CRITIC is on, and otherwise runs without one.
     #   settings: The project settings, read for the action bar and step mode.
+    #   step_questions: The questions per tool result actually used: the
+    #     setting, or 2 for a policy that cannot answer both in one.
     #   sim: The factory with its hidden fault; never given to the agent.
     #   desk: The human's approval desk; never given to the agent.
     #   look: The read-only tools.
@@ -304,6 +306,14 @@ def run_episode(
             provider, standard_hazards(anomaly.machine_id, before_run)
         )
         provider = unreliable
+    # One-question mode needs a policy that can read and decide in one answer
+    # (the model-backed ones can); a scripted policy without it runs in two.
+    # The record keeps the mode actually used.
+    step_questions = (
+        settings.step_questions
+        if callable(getattr(policy, "interpret_and_decide", None))
+        else 2
+    )
     world = "challenge" if kind == CHALLENGE else f"fault-{fault or 'any'}"
     run_id = run_id_for(run_key or f"episode/seed-{seed}/{world}")
     state = InvestigationState(
@@ -312,7 +322,7 @@ def run_episode(
         anomaly=anomaly,
         budgets=budgets or Budgets(),
         state_action_bar=settings.state_action_bar,
-        step_questions=settings.step_questions,
+        step_questions=step_questions,
     )
     if memory is not None:
         provider = RecallingProvider(provider, memory)
@@ -326,7 +336,7 @@ def run_episode(
         watch=watch,
         min_action_confidence=settings.min_action_confidence,
         state_action_bar=settings.state_action_bar,
-        step_questions=settings.step_questions,
+        step_questions=step_questions,
         critic=critic,
         critic_seconds=settings.critic_seconds,
         critic_followup=settings.critic_followup,

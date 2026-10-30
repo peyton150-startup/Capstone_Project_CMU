@@ -20,9 +20,10 @@ def test_step_questions_rejects_unsupported_modes(monkeypatch, value):
         Settings(_env_file=None)
 
 
-def test_step_questions_defaults_to_two(monkeypatch):
+def test_step_questions_defaults_to_one(monkeypatch):
+    """One question per step since 2026-10-30; STEP_QUESTIONS=2 asks two."""
     monkeypatch.delenv("STEP_QUESTIONS", raising=False)
-    assert Settings(_env_file=None).step_questions == 2
+    assert Settings(_env_file=None).step_questions == 1
 
 
 def test_environment_takes_precedence_over_dotenv(monkeypatch, tmp_path):
