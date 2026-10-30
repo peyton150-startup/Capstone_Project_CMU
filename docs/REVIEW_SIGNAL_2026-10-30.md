@@ -43,8 +43,8 @@ See [P0](TOT_CRITIC_EVALUATION_FUTURE_WORK.md#p0--unproven-impossible-ratings-mu
 **Experiment:** Send narrow jobs to the faster model and tighten per-call timeouts so failover happens sooner.
 
 - `decide`: configuration only. Set `DECIDE_MODEL` (job table in `providers/chat.py`, `JOBS` / `_JOB_SETTING`).
-- Per-call timeout: configuration only. `MODEL_QUESTION_SECONDS` (`settings.model_question_seconds`, used as `FallbackClient(max_seconds=...)`).
-- ToT `value`: **needs a code change.** Both ToT questions go to the `hypothesize` client by design, so `HYPOTHESIZE_MODEL` would move `generate` too. Add a `value` job to `JOBS`, a `value_model` / `VALUE_MODEL` setting in `_JOB_SETTING`, and have `TreeOfThoughtPolicy.hypothesize()` send the rating question with `self._ask("value", ...)`. Leave `generate` on `hypothesize`, since it needs the stronger model. Measure p50/p95 wall time, `timeout` terminations and accuracy against the frozen baseline. This is the lever for speed, not more agents (see [Not planned: a third agent](TOT_CRITIC_EVALUATION_FUTURE_WORK.md#not-planned-a-third-agent-for-speed)).
+- Per-call timeout: configuration only. `MODEL_QUESTION_SECONDS` (`settings.model_question_seconds`, default 90 s, passed as `FallbackClient(max_seconds=...)` in `clients_for_jobs()`).
+- ToT `value`: **needs a code change.** Both ToT questions go to the `hypothesize` client by design, so `HYPOTHESIZE_MODEL` would move `generate` too. Touch points: add `"value"` to `JOBS` and `_JOB_SETTING` (`providers/chat.py`); add `value_model = _optional("VALUE_MODEL")` to `Settings` and to the blank-is-missing validator list (`settings.py`); give `value` an entry in the per-job system-prompt table in `agent/model_policy.py` or confirm `_ask(..., system=VALUE)` never reads it; change the rating call in `TreeOfThoughtPolicy.hypothesize()` to `self._ask("value", ...)` and update its docstring (it currently says both questions use `hypothesize`); give `tests/test_tree_of_thought.py` a `value` fake client. With `VALUE_MODEL` unset it falls back to `DEFAULT_MODEL`, so default behavior is unchanged. Leave `generate` on `hypothesize`, since it needs the stronger model. Measure p50/p95 wall time, `timeout` terminations and accuracy against the frozen baseline. This is the lever for speed, not more agents (see [Not planned: a third agent](TOT_CRITIC_EVALUATION_FUTURE_WORK.md#not-planned-a-third-agent-for-speed)).
 
 ### 3. Deterministic safety rules stay out of the model
 
@@ -52,11 +52,11 @@ See [P0](TOT_CRITIC_EVALUATION_FUTURE_WORK.md#p0--unproven-impossible-ratings-mu
 
 **Principle:** A rule that code can check exactly (missing offset, tool not in pocket, setting out of range) is checked in code before or alongside model reasoning, never left for the LLM to notice. Same reasoning as P0.
 
-**Where it belongs:** the action/approval step (`investigation.py`, before `min_action_confidence` gating), as a hard block on recommending a run with unsafe or unknown configuration. It is a crash-**prevention** check, separate from the post-anomaly investigator and from ToT.
+**Where it belongs:** the action/approval step: `why_not_acted()` in `agent/investigation.py`, as a condition checked alongside "no evidence cited" and the `min_action_confidence` bar, as a hard block on recommending a run with unsafe or unknown configuration. It is a crash-**prevention** check, separate from the post-anomaly investigator and from ToT.
 
 ### 4. Tool offset and pocket state in the simulator
 
-**Gap:** The simulator has no tool-length offset, tool table or pocket model. Existing configuration coverage is `wrong_setting` (spindle speed 18 to 20% off standard, `reset_setting`) read through `get_settings`.
+**Gap:** The simulator has no tool-length offset, tool table or pocket model. Existing configuration coverage is `wrong_setting` (spindle speed 18 to 20% off standard, `reset_setting`) read through `get_settings`, which today returns only `machine_id` and `speed_rpm`.
 
 **Future scenarios (one per fault pack, evaluator-only truth):** zero or missing offset; offset assigned to the wrong tool; empty or mismatched pocket; configuration unavailable.
 
@@ -76,7 +76,7 @@ Haas Safe Run limits damage once a collision starts; it does not prevent one. Do
 **Experiment:** Add a read-only tool that records a requested physical check (oil level, sight glass, bearing play, tool seated) and returns `unverified` in the simulator unless the scenario supplies an answer. **Who does what:**
 
 - **Model:** decide which physical check to ask for and when.
-- **Code:** record the request and return `unverified` with **no evidence id**. The existing rules then do the enforcement: `prune()` drops candidates citing ungathered evidence, and the critic checks that cited ids were gathered. So an unverified physical condition cannot be cited as evidence. Add a test for that.
+- **Code:** record the request and return `unverified` with **no evidence id**. The existing rules then do the enforcement: hypotheses citing ungathered evidence are refused (`agent/loop.py`, "a hypothesis cites evidence that was not gathered"), conclusions too (`agent/investigation.py`, "the conclusion cites evidence that was not gathered"), ToT `prune()` drops such candidates, and the critic's objections may cite only gathered ids. So an unverified physical condition cannot be cited as evidence. Add a test for that. Free-text wording in the diagnosis is not checked by code, so the evaluator still scores it.
 
 Score whether the agent requests the right check (evaluator side) and whether a conclusion ever states an unverified physical condition as fact.
 
