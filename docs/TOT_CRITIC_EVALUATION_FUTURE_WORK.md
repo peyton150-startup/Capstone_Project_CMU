@@ -26,6 +26,12 @@ On 2026-10-29, the developer reported that the current evaluation is at **run 1 
 
 ### P0 — Unproven "impossible" ratings must not become confident hypotheses
 
+**Built 2026-10-30 (PR #136), offline only.** `unproven_confidence` (`min(c, 1 - c)`)
+scores a kept, unproven "impossible"; `prune` ranks it below every sure/likely
+candidate and returns its rating with that score, so its hypothesis carries it
+too; `Thought.unresolved` lists such candidates. Tests cover
+`impossible, 0.95` vs `likely, 0.6`.
+
 **Problem (verified against `main`, 2026-10-30):** In `prune()` (`agent/tree_of_thought.py`), a candidate rated `impossible` with no gathered contradiction is added to `unproven` and kept in `alive`, then ranked by `rating.confidence`. `TreeOfThoughtPolicy.hypothesize()` copies that same value into `Hypothesis.confidence`. But for an `impossible` verdict, the model's confidence is confidence *that the candidate is false*. A rating of `impossible, 0.95` with nothing cited therefore becomes H1 at 0.95.
 
 That value is used downstream:
@@ -47,6 +53,12 @@ That value is used downstream:
 
 ### P1 — Evidence-grounded pruning and deferred alternatives
 
+**Part built 2026-10-30 (PR #136):** only factory evidence (`origin ==
+"observable"`) can rule a candidate out, and each pruned branch carries a
+`status`, `contradicted` or `deferred` (untested, not false), kept in the
+state's trace, the audit log and the critic's view. Multi-cause retention and
+the rest below are still to do.
+
 **Problem:** `prune()` checks whether cited evidence IDs exist and permits an `impossible` verdict to remove a hypothesis when a gathered contradiction ID is cited. Citation existence alone does **not** establish a real contradiction. The fixed top-three cap can also discard plausible simultaneous causes merely by rank.
 
 **Experiment:** Compare current top-k against a bounded, evidence-aware policy. Distinguish `contradicted` (supported refutation), `deferred/untested` (budget/rank), `supported`, and `unresolved`. Make a deferred cause observable to evaluation; do not silently mark it false. Preserve multiple independently supported explanations, e.g., bearing wear **and** excess cutting load. Prefer deterministic contradiction/constraint checks where the simulator or sensor contract genuinely supports them; uncertain semantic claims remain unverified, not hard rejects.
@@ -54,6 +66,10 @@ That value is used downstream:
 **Pass criteria:** Improve true-cause retention and multi-cause recall without unacceptable extra false positives, unsafe interventions, or latency. Include cases with misleading but real evidence IDs, correlated measurements, noisy/missing telemetry, and false alarms.
 
 ### P2 — Critic review of possible false eliminations
+
+**Part built 2026-10-30 (PR #136):** the critic is shown the pruned
+candidates ("RULED OUT BEFORE TESTING"), with status and reason, and may argue
+for one through an `alternative` objection and its check; it cannot favour one.
 
 **Problem:** The existing critic sees **survivors**, not discarded candidates. A correct cause that was pruned before critique may be invisible to the reviewer. The optional post-critic one-observation loop does not fix a missing candidate by itself.
 

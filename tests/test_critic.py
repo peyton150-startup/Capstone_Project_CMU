@@ -7,6 +7,7 @@ from capstone.agent.critic import (
     CRITIC_SYSTEM,
     MANUAL_NOTE,
     MANUAL_PER_HYPOTHESIS,
+    PRUNED_NOTE,
     SHOWN_HYPOTHESES,
     Critic,
     critique_view,
@@ -309,3 +310,48 @@ def test_the_real_manual_shown_to_the_critic_names_no_hidden_truth():
     assert critic.last_sections
     prompt = client.asked[0][1].lower()
     assert not [w for w in HIDDEN_WORDS if w in prompt]
+
+
+# --- the critic sees what tree-of-thought ruled out --------------------------
+
+
+def with_pruned(state):
+    from capstone.agent.state import PrunedCandidate
+
+    state.pruned_candidates = [
+        PrunedCandidate(
+            id="C4",
+            claim="a bad material batch",
+            reason="rated impossible",
+            status="contradicted",
+            verdict="impossible",
+            confidence=0.1,
+            contradicting_evidence_ids=("E2",),
+        )
+    ]
+    return state
+
+
+def test_the_critic_is_shown_what_was_ruled_out():
+    view = critique_view(with_pruned(state_with_hypotheses()), research_tools())
+    assert PRUNED_NOTE in view
+    assert (
+        "- C4 (rated impossible, 0.10): a bad material batch "
+        "Dropped (contradicted): rated impossible." in view
+    )
+    assert view.index(PRUNED_NOTE) > view.index("HYPOTHESES SHOWN TO YOU:")
+
+
+def test_nothing_ruled_out_shows_no_such_section():
+    assert PRUNED_NOTE not in critique_view(state_with_hypotheses(), research_tools())
+
+
+def test_the_critic_cannot_favour_a_ruled_out_candidate():
+    critic, _ = critic_with(result(favoured="C4"))
+    with pytest.raises(ValueError, match="not a hypothesis shown"):
+        critic.review(with_pruned(state_with_hypotheses()), max_seconds=40)
+
+
+def test_the_prompt_says_ruled_out_candidates_are_not_hypotheses():
+    assert "ruled out are not hypotheses" in CRITIC_SYSTEM
+    assert "kind alternative" in CRITIC_SYSTEM

@@ -303,3 +303,24 @@ def test_no_color_environment_keeps_terminal_plain(monkeypatch):
     monkeypatch.setenv("NO_COLOR", "1")
     print_progress("CRITIC (ok): favoured H1")
     assert output.getvalue() == "CRITIC (ok): favoured H1\n"
+
+
+def test_the_view_prints_what_tree_of_thought_ruled_out_once():
+    from capstone.agent.state import PrunedCandidate
+    from tests.helpers import new_state
+
+    lines = []
+    view = ProgressView(lines.append)
+    state = new_state()
+    state.pruned_candidates = [
+        PrunedCandidate(
+            id="C3",
+            claim="a wrong speed setting",
+            reason="rated impossible",
+            status="contradicted",
+        )
+    ]
+    view(state)
+    view(state)
+    assert lines.count("  ruled out by tree-of-thought:") == 1
+    assert "    C3  a wrong speed setting  (contradicted: rated impossible)" in lines

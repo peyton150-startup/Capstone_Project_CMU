@@ -154,6 +154,8 @@ class ProgressView:
         self.started = False
         self.decisions_shown = 0
         self.beliefs: tuple = ()
+        # How many pruned candidates were already printed, so each is shown once.
+        self.pruned_shown = 0
         self.conclusion = None
         self.proposal = None
         self.verification = None
@@ -177,6 +179,7 @@ class ProgressView:
                 self.write(line)
         self.decisions_shown = len(state.decisions)
         self._beliefs(state)
+        self._pruned(state)
         self._critique(state)
         if state.conclusion is not None and state.conclusion != self.conclusion:
             self.conclusion = state.conclusion
@@ -241,6 +244,18 @@ class ProgressView:
                 self.write(
                     f"    {hypothesis_id} {confidence:.2f}  {shorten(claim, 80)}"
                 )
+
+    def _pruned(self, state: InvestigationState) -> None:
+        """What tree-of-thought ruled out, printed once when it first appears."""
+        # Variables:
+        #   new: Pruned candidates not printed yet.
+        new = state.pruned_candidates[self.pruned_shown :]
+        if not new:
+            return
+        self.pruned_shown = len(state.pruned_candidates)
+        self.write("  ruled out by tree-of-thought:")
+        for p in new:
+            self.write(f"    {p.id}  {shorten(p.claim, 60)}  ({p.status}: {p.reason})")
 
 
 def truth_lines(score: Score) -> list[str]:

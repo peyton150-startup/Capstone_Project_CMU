@@ -64,6 +64,12 @@ SHOWN_HYPOTHESES = 5
 # (Option B, spec section "Let the critic use the machine manual") and shows
 # the critic the sections found, at most this many per hypothesis.
 MANUAL_PER_HYPOTHESIS = 2
+PRUNED_NOTE = (
+    "RULED OUT BEFORE TESTING (the agent's tree-of-thought step considered these "
+    "and dropped them; they are not current hypotheses, so do not favour one, but "
+    "if one deserves another look say so in an objection of kind alternative and "
+    "aim the discriminating check at it):"
+)
 MANUAL_NOTE = (
     "MANUAL SECTIONS (general guidance for this model of machine, found by "
     "searching the manual on each hypothesis above; not a look at this factory, "
@@ -92,7 +98,10 @@ on. Cite only ids that are shown to you.
 hypothesis, no_objection if the evidence supports it and nothing undermines it.
 
 Rules: cite only evidence ids shown. Favour only a hypothesis id shown, or none. \
-Do not invent evidence. Manual sections, when shown, describe this model of \
+Do not invent evidence. Candidates shown as ruled out are not hypotheses: never \
+favour one; if the evidence says one was dropped wrongly, object with kind \
+alternative and aim the discriminating check at it. \
+Manual sections, when shown, describe this model of \
 machine in general: use them for what a symptom can mean and which check would \
 separate the hypotheses, never as proof of what this factory is doing, and never \
 cite them as evidence. Reply with the JSON object in the schema and nothing else.
@@ -166,6 +175,9 @@ def critique_view(
     #     a check the agent could make; the critic cannot call them.
     #   sections: Manual sections found on the shown hypotheses' claims; empty
     #     without a manual. Guidance, never evidence: they carry no evidence id.
+    #   state.pruned_candidates: What tree-of-thought ruled out, and why; shown so
+    #     the critic can say if a dropped cause deserves another look.
+    #   rated: A pruned candidate's rating, in words, if it was rated.
     #   lines: The prompt, built up section by section and joined at the end.
     #   supported, contradicted: The evidence ids a shown hypothesis says back it or
     #     count against it, so the critic can check those claims.
@@ -186,6 +198,18 @@ def critique_view(
             f"- {h.id} (confidence {h.confidence:.2f}{leading}): {h.claim} "
             f"Supported by: {supported}. Contradicted by: {contradicted}."
         )
+    if state.pruned_candidates:
+        lines += ["", PRUNED_NOTE]
+        for p in state.pruned_candidates:
+            rated = (
+                "" if p.verdict is None else f" (rated {p.verdict}, {p.confidence:.2f})"
+            )
+            supported = ", ".join(p.supporting_evidence_ids) or "none"
+            contradicted = ", ".join(p.contradicting_evidence_ids) or "none"
+            lines.append(
+                f"- {p.id}{rated}: {p.claim} Dropped ({p.status}): {p.reason}. "
+                f"Supported by: {supported}. Contradicted by: {contradicted}."
+            )
     if sections:
         lines += ["", MANUAL_NOTE]
         lines += [f"- §{s.section_id} {s.title}: {s.text}" for s in sections]
