@@ -11,7 +11,7 @@
 > status changed.
 
 > **2026-10-29 — docs-only pilot-readiness future work recorded (not implemented):**
-> [MVP_SCOPE.md](MVP_SCOPE.md#high-priority-future-work--pilot-readiness-critic-follow-up-fast-triage-and-abstention-2026-10-29)
+> [MVP_SCOPE.md](MVP_SCOPE.md#high-priority-future-work--pilot-readiness-fast-triage-and-the-rest-of-abstention-updated-2026-10-30)
 > now prioritizes (1) closing the review-only critic with at most one bounded
 > read-only discriminating observation/hypothesis revision, (2) separate
 > rapid, read-only preliminary triage from the current 1,200-second deep
@@ -169,6 +169,40 @@ other three fault scenarios (material batch, machine configuration, false
 alarm), then evaluation, then the agent itself.
 
 ## Session notes
+
+- **2026-10-30 (docs-only): the future-work area of `MVP_SCOPE.md` now lists
+  only work that is not built.** Asked for by the developer. The area went from
+  about 2,500 to about 2,100 lines. Each section was checked against this log
+  and the code (grep for MCP, OpenTelemetry, LangSmith, MMR, Voyage, Docling,
+  `similar_lesson`, triage, `compare_sensor_windows`, hypothesis/xdist/ty,
+  Dependabot) before it was removed or trimmed.
+  - **Removed, because built:** the `uv` adoption note; the three MAX-HIGH
+    changes (A10, A11); the known-answer scenarios (EV1); running the compound
+    challenge (E6); the "Implemented foundations" table; the fault-pack plan
+    (F3-F5), keeping only what is left; the "Next build candidates" table; the
+    cross-provider fallback section (L1, L2, L7, L8) and the role-configuration
+    section; the "why not CrewAI" bullets (kept in the 2026-10-26 note below).
+  - **Trimmed to what is left:** agent-directed RAG (built: R3, A7b, A9a, C3b,
+    M1; left: the usefulness record, reopening a search, memory over MCP);
+    pilot-readiness (critic loop built: C2r, C1b; degraded data built: D1, D2;
+    left: rapid triage, a live degraded run, a conflicting-observations case,
+    demo traces); simulator fidelity (F1-F5 built; left: the experiments
+    hookup, Brandon's review, kWh, amps, more components); FW3 (the critic is
+    built: C1, C1b, C2r, M2; the other roles stay); FW6 (only `uv audit`, `ty`,
+    Dependabot, xdist, Hypothesis stay); FW7 (sensor summaries and the provider
+    benchmark built).
+  - **Kept as written:** FW2 (nothing built), FW4, FW5, MMR, Voyage, Jev,
+    near-duplicate memory check, Docling, the evaluation cache, Graph of
+    Thoughts, the Pydantic AI review, Pydantic Evals, the Subquadratic audit,
+    the Haas retrofit, difficulty modes and the frontend notes, FW9, FW10.
+  - **New:** an index table by priority, group headings, and "Live runs and
+    follow-ups still owed" (the live comparisons for A12-A15 and the critic, the
+    degraded matrix, the memory comparison and its follow-ups, Jev agreement).
+  - "Future Work N" numbers and the A-D letters stay as fixed IDs (code
+    comments and tests cite them). Three headings were retitled and their links
+    in `FUTURE_WORK_REEVALUATION.md` and this file updated; every link into
+    `MVP_SCOPE.md` was rechecked. Not touched: other documents' prose that still
+    calls built items "planned".
 
 - **2026-10-30 (T1): tree-of-thought, factory-only eliminations, and the
   pruned branches kept and shown.** Asked for by the developer after a review

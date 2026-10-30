@@ -45,7 +45,7 @@ belongs in the first read-only MCP slice.
 These two candidates came from Brandon Reff's manufacturing-engineering
 feedback. They are **HIGH priority; not implemented**. The authoritative
 details and ranked build candidates live in
-[MVP_SCOPE.md, Future Work 8](MVP_SCOPE.md#high-priority-simulator-fidelity-faster-bearing-vibration-ramp-and-machine-power-planned-2026-10-23).
+[MVP_SCOPE.md, Future Work 8](MVP_SCOPE.md#high-priority-future-work--simulator-fidelity-what-is-left-updated-2026-10-30).
 This register records adoption gates, not authorization to change behavior.
 
 | Candidate | Adoption gate | Validation and deferral rules |
@@ -66,7 +66,7 @@ The servo and hydraulic additions are medium-high priority, after the
 immediate bearing and kW updates. Hydraulics must be opt-in per machine
 configuration. Candidates require independent causal fault behavior, sensors,
 approved maintenance/verification paths, and seeded tests; neither is built.
-See [Future Work 8 details](MVP_SCOPE.md#high-priority-simulator-fidelity-faster-bearing-vibration-ramp-and-machine-power-planned-2026-10-23).
+See [Future Work 8 details](MVP_SCOPE.md#high-priority-future-work--simulator-fidelity-what-is-left-updated-2026-10-30).
 
 ## Haas VF-series retrofit adoption gates (2026-10-29)
 
