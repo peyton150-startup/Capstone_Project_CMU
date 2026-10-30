@@ -101,6 +101,8 @@ class EvalCase(BaseModel):
     # Whether the critic's pick names the true cause, from its own label.
     # None: no label for the pick (none favoured, or the label needs review).
     critic_pick_correct: bool | None = None
+    # Where the critic's verdict disagreed with its own pick; None: it agreed.
+    critic_verdict_mismatch: str | None = None
     # The abstention scorecard's view of this case. None: unjudged, or (for
     # the blackout fields) the case had no blackout. Older reports lack them.
     committed: bool | None = None  # the label names a cause; False: abstained
@@ -356,6 +358,9 @@ def report_of(
                 critic_outcome=None if critique is None else critique.outcome,
                 critic_verdict=None if result is None else result.verdict,
                 critic_favoured=None if result is None else result.favoured,
+                critic_verdict_mismatch=(
+                    None if critique is None else critique.verdict_mismatch
+                ),
                 critic_pick_correct=(
                     None
                     if critic_label is None

@@ -1165,3 +1165,29 @@ def test_a_follow_up_slower_than_its_window_stops_on_time():
     recheck(state, deps)
     assert state.recheck.outcome == "out_of_time"
     assert state.remaining_seconds(now[0]) == before
+
+
+# --- a critic that favours another hypothesis is an objection to the leader ---
+
+
+def test_a_no_objection_that_prefers_another_hypothesis_still_gets_tested():
+    """Live 2026-10-30 (KA-03): the critic said no_objection but favoured H6,
+    not the leader, and the follow-up skipped it. Its pick is now tested."""
+    state = recheck_state(0.8)
+    state.hypotheses.append(
+        Hypothesis(id="H2", claim="the batch is bad", confidence=0.3)
+    )
+    reply = critique_result("no_objection", favoured="H2")
+    assert trigger(with_critique(state, reply)) == ("objection", None)
+
+
+def test_the_record_names_a_verdict_that_disagrees_with_the_pick():
+    critic = FakeCritic(critique_result("object", favoured="H1"))
+    state, _ = investigate(wear_policy(), critic=critic)
+    assert state.critique.verdict_mismatch == (
+        "object while favouring the leading H1, with no contradiction or "
+        "alternative raised"
+    )
+    agrees = FakeCritic(critique_result("no_objection", favoured="H1"))
+    state, _ = investigate(wear_policy(), critic=agrees)
+    assert state.critique.verdict_mismatch is None

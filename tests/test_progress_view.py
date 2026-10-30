@@ -324,3 +324,22 @@ def test_the_view_prints_what_tree_of_thought_ruled_out_once():
     view(state)
     assert lines.count("  ruled out by tree-of-thought:") == 1
     assert "    C3  a wrong speed setting  (contradicted: rated impossible)" in lines
+
+
+def test_the_view_says_when_the_verdict_does_not_match_the_pick():
+    from tests.helpers import new_state
+
+    lines = []
+    view = ProgressView(lines.append)
+    state = new_state()
+    state.critique = CritiqueRecord(
+        outcome="answered",
+        result=critique_result("object", favoured="H1"),
+        shown_hypotheses=("H1",),
+        seconds=5.0,
+        verdict_mismatch="object while favouring the leading H1, with no contradiction or alternative raised",
+    )
+    view(state)
+    assert any(
+        line.startswith("  verdict does not match the pick: object") for line in lines
+    )
