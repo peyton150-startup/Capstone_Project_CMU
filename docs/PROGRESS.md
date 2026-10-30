@@ -170,6 +170,20 @@ alarm), then evaluation, then the agent itself.
 
 ## Session notes
 
+- **2026-10-30 (F4): every model question is told to scan every machine.**
+  From the 2026-10-30 master runs: on KA-09 (compound) the true faults were
+  on CNC-07 (bearing wear and a wrong setting) while the alarm named CNC-03,
+  a decoy false alarm; all three runs concluded "CNC-03 glitch, nothing to
+  fix" (one at 0.95) without examining CNC-07. At the developer's wording,
+  `COMMON` in `agent/model_policy.py` (the start of every job's system prompt,
+  tree-of-thought included) now says a complete scan of the factory accounts
+  for every machine, not only the ones the alarm names, and that before
+  concluding nothing is wrong, or that the alarmed machine alone explains it,
+  the agent checks the other machines (`list_machines`, then their readings
+  and inspection results). Tests (`tests/test_model_policy.py`): every job's
+  prompt carries the rule; the tool it names exists. Prompt only, no code
+  check. Built ungated; teaching later (understood: no). Not run live.
+
 - **2026-10-30 (F2): manual 1.2, a bad lot does not fail every part.** From
   the 2026-10-30 master runs: on KA-03 the agent saw that only batch-2 jobs
   failed (all ten batch-1 jobs passed) and still ruled the batch out, because
