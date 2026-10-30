@@ -24,6 +24,27 @@ On 2026-10-29, the developer reported that the current evaluation is at **run 1 
 
 ## Ranked experiments after the baseline
 
+### P0 — Unproven "impossible" ratings must not become confident hypotheses
+
+**Problem (verified against `main`, 2026-10-30):** In `prune()` (`agent/tree_of_thought.py`), a candidate rated `impossible` with no gathered contradiction is added to `unproven` and kept in `alive`, then ranked by `rating.confidence`. `TreeOfThoughtPolicy.hypothesize()` copies that same value into `Hypothesis.confidence`. But for an `impossible` verdict, the model's confidence is confidence *that the candidate is false*. A rating of `impossible, 0.95` with nothing cited therefore becomes H1 at 0.95.
+
+That value is used downstream:
+
+- `InvestigationState.leading_hypothesis` / `confidence` (`agent/state.py`) pick the highest-confidence hypothesis.
+- `critic.shown_hypotheses()` sorts by confidence, so the critic sees it as the leading hypothesis.
+- `loop.py` gates diagnosis on `min_diagnosis_confidence` (default 0.9) and `investigation.py` gates action on `min_action_confidence` (default 0.9). A 0.95 "impossible" can clear both.
+
+`tests/test_tree_of_thought.py` only covers unproven-impossible ratings at 0.1 to 0.4, so this case is untested.
+
+**Change (small, deterministic, no extra model calls):**
+
+1. In `prune()`, rank an unproven `impossible` by a neutral score instead of `rating.confidence` (e.g. `min(rating.confidence, 1 - rating.confidence)`, or a fixed floor such as 0.1), and always rank it below every `sure`/`likely` candidate.
+2. In `hypothesize()`, set `Hypothesis.confidence` for an unproven candidate to that same neutral score, never the raw rating confidence.
+3. Record the case in `Thought` (e.g. `unresolved: tuple[str, ...]`) so experiment records show which kept candidates came from an unsupported `impossible` verdict.
+4. Add tests: `rating("C1", "impossible", 0.95)` with nothing cited must not rank first and must yield a hypothesis below `min_diagnosis_confidence`; a `likely, 0.6` candidate must outrank it.
+
+**Pass criteria:** The new tests pass; existing `test_tree_of_thought.py` tests are unchanged except where they assert the old ranking. No change to model-call count, so no latency impact.
+
 ### P1 — Evidence-grounded pruning and deferred alternatives
 
 **Problem:** `prune()` checks whether cited evidence IDs exist and permits an `impossible` verdict to remove a hypothesis when a gathered contradiction ID is cited. Citation existence alone does **not** establish a real contradiction. The fixed top-three cap can also discard plausible simultaneous causes merely by rank.
@@ -56,6 +77,24 @@ On 2026-10-29, the developer reported that the current evaluation is at **run 1 
 
 **Pass criteria:** Better evidence attribution, stable rankings under reordering, improved calibration only if probability calibration is actually measured, and fewer confidently wrong diagnoses.
 
+### P5 — Bounded second depth through observation, not more model reasoning
+
+**Problem:** Current ToT is depth one: `hypothesize` generates, rates and prunes once, and the kept candidates' questions (T1, T2, ...) go to the existing test stage. There is no point where the tree is re-valued after the test stage gathers new evidence, so an early wrong ranking is only corrected by the ordinary loop.
+
+**Experiment:** Reuse existing infrastructure rather than adding search code or agents. After the test stage answers the T questions, run one more `value` + `prune()` pass over the *same kept candidates* (no new `generate` call), using the newly gathered evidence IDs. Cap at depth two. Do not implement the course lab's breadth-five, depth-three BFS.
+
+**Time budget:** This adds one model question per investigation. Measured per-question latency in `docs/benchmarks/2026-10-27-master-resumed.records.jsonl` ranged from about 4 s to 113 s, and that run hit `timeout` at about 881 s wall time. So:
+
+- Skip the second pass when it would eat into `followup_seconds` (default 400 of `timeout_seconds` 1200, `agent/state.py`).
+- Prefer routing the `value` question to the faster model in the chain, since rating is a narrow job.
+- Pair with P3: only branch (and only re-value) when the case is ambiguous.
+
+**Pass criteria:** Better recovery after an early wrong hypothesis and better true-cause retention than depth-one (cohort D), with no rise in `timeout` terminations and p95 wall time within budget.
+
+### Not planned: a third agent for speed
+
+Considered on 2026-10-30 and rejected for now. The pipeline's time goes to sequential model calls and provider timeouts, not to agent count; another agent adds calls. A third agent would only cut time if it ran in parallel with currently sequential work, or did a narrow job (e.g. "should we branch?") on a much faster model. Cheaper levers first: route fast jobs to the faster model, tighten per-call timeouts so failover happens sooner, and P3's adaptive branching.
+
 ## Controlled comparison matrix
 
 | Cohort | Hypothesis policy | Critic | Critic-directed recheck | Question answered |
@@ -65,7 +104,7 @@ On 2026-10-29, the developer reported that the current evaluation is at **run 1 
 | C | Ordinary bounded investigator | On | One bounded, read-only check | Added value of closing the critic loop |
 | D | Opt-in depth-one ToT | On | Same one-check policy as C | Incremental value of ToT branching |
 
-Compare C vs D to isolate ToT; B vs C to isolate recheck; A vs B to isolate review. If evaluating P1–P4 changes, add a separate ablation against the most appropriate frozen cohort, **one change at a time**. Hold fixed the scenario/seed set, model/provider, prompts except the intended treatment, retrieval/manual snapshot, evaluation code, tool availability, approvals and configured global budgets. Disclose unavoidable model-call differences and whether results were fresh or replayed.
+For P0 and P5, add: **D0** = cohort D with the P0 fix, and **D2** = D0 plus the P5 second pass. Compare D vs D0 (fix only) and D0 vs D2 (depth two). Compare C vs D to isolate ToT; B vs C to isolate recheck; A vs B to isolate review. If evaluating P1–P4 changes, add a separate ablation against the most appropriate frozen cohort, **one change at a time**. Hold fixed the scenario/seed set, model/provider, prompts except the intended treatment, retrieval/manual snapshot, evaluation code, tool availability, approvals and configured global budgets. Disclose unavoidable model-call differences and whether results were fresh or replayed.
 
 **Core measures:** root-cause accuracy, correct-cause retention before/after pruning, multi-label precision/recall/F1 on applicable compound-fault cases, false interventions, action correctness, post-action verification, unsupported/contradictory citations, recovery after an early wrong hypothesis, abstention under degraded data, completion/failure rate, model/tool calls, tokens/provider cost if available, and p50/p95 wall time.
 
