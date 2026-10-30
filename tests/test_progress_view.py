@@ -234,3 +234,72 @@ def test_critic_without_an_answer_still_says_how_long_it_tried():
     ProgressView(lines.append)(state)
     at = lines.index("CRITIC (no_answer): no critique")
     assert lines[at + 1] == "  tried for 40.0 s"
+
+
+def test_terminal_progress_uses_color_without_changing_text(monkeypatch):
+    # Variables:
+    #   terminal: An interactive stream that captures the displayed text.
+    #   output: Captured text, checked with and without ANSI colors.
+    import io
+    import re
+    import sys
+
+    from capstone.progress import print_progress
+
+    class Terminal(io.StringIO):
+        def isatty(self):
+            return True
+
+    terminal = Terminal()
+    monkeypatch.setattr(sys, "stdout", terminal)
+    monkeypatch.delenv("NO_COLOR", raising=False)
+    for line in (
+        "  beliefs:",
+        "    H1 0.90  bearing",
+        "#1   observe     get_time()",
+        "#2   investigate get_readings()",
+        "CRITIC (ok): favoured H1",
+    ):
+        print_progress(line)
+    output = terminal.getvalue()
+    assert "\x1b[95mCRITIC (ok): favoured H1\x1b[0m" in output
+    assert re.sub(r"\x1b\[[0-9;]*m", "", output).splitlines() == [
+        "  beliefs:",
+        "    H1 0.90  bearing",
+        "#1   observe     get_time()",
+        "#2   investigate get_readings()",
+        "CRITIC (ok): favoured H1",
+    ]
+
+
+def test_redirected_progress_stays_plain(monkeypatch):
+    # Variables:
+    #   output: A redirected stream that must not contain color codes.
+    import io
+    import sys
+
+    from capstone.progress import print_progress
+
+    output = io.StringIO()
+    monkeypatch.setattr(sys, "stdout", output)
+    print_progress("  beliefs:")
+    assert output.getvalue() == "  beliefs:\n"
+
+
+def test_no_color_environment_keeps_terminal_plain(monkeypatch):
+    # Variables:
+    #   output: An interactive stream with colors disabled by the environment.
+    import io
+    import sys
+
+    from capstone.progress import print_progress
+
+    class Terminal(io.StringIO):
+        def isatty(self):
+            return True
+
+    output = Terminal()
+    monkeypatch.setattr(sys, "stdout", output)
+    monkeypatch.setenv("NO_COLOR", "1")
+    print_progress("CRITIC (ok): favoured H1")
+    assert output.getvalue() == "CRITIC (ok): favoured H1\n"

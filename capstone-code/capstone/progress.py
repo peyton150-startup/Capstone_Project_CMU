@@ -19,6 +19,8 @@ configured store but learns nothing (no audit log).
 """
 
 import argparse
+import os
+import re
 import sys
 from collections.abc import Callable, Sequence
 
@@ -43,6 +45,34 @@ Write = Callable[[str], None]
 # How much of an evidence item or an argument list fits on one line.
 CONTENT_WIDTH = 90
 TOP_BELIEFS = 3
+
+
+def print_progress(line: str) -> None:
+    """Print a progress line with color on interactive terminals."""
+    # Variables:
+    #   line: The unchanged progress text to show.
+    #   color: ANSI color for the line's label or stage, or None for plain text.
+    color = None
+    if re.match(r"^\s*beliefs:", line):
+        color = "95"
+    elif re.match(r"^\s*H\d+\s", line):
+        color = "96"
+    elif re.match(r"^#\d+\s+observe\b", line):
+        color = "92"
+    elif re.match(
+        r"^#\d+\s+(plan|investigate|research|hypothesize|test|decide|verify)\b", line
+    ):
+        color = "93"
+    elif re.match(
+        r"^(CONCLUSION|PROPOSAL|CHECK|CRITIC|  why:|  confidence |  tried for )", line
+    ):
+        color = "95"
+    elif re.match(r"^\s*->", line):
+        color = "36"
+    if color and sys.stdout.isatty() and "NO_COLOR" not in os.environ:
+        print(f"\033[{color}m{line}\033[0m", flush=True)
+    else:
+        print(line, flush=True)
 
 
 def shorten(text: str, width: int = CONTENT_WIDTH) -> str:
@@ -110,9 +140,9 @@ class ProgressView:
     check it showed), so being shown the same state twice prints nothing.
     """
 
-    def __init__(self, write: Write = print):
+    def __init__(self, write: Write = print_progress):
         # Variables:
-        #   write: Where lines go; print by default, replaced in tests.
+        #   write: Where lines go; colored terminal output by default, replaced in tests.
         #   started: Whether the opening line has been printed.
         #   decisions_shown: How many steps have been printed, so only new ones are.
         #   beliefs: The leading beliefs last printed.
@@ -249,7 +279,7 @@ def watch_episode(
     seed: int,
     policy: ReasoningPolicy,
     *,
-    write: Write = print,
+    write: Write = print_progress,
     **options,
 ) -> EpisodeResult:
     """Run one episode with the view attached; print the truth only at the end.
