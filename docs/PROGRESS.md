@@ -170,6 +170,24 @@ alarm), then evaluation, then the agent itself.
 
 ## Session notes
 
+- **2026-10-30 (F5, config): one question per step is the default.** The
+  developer's decision. The 2026-10-30 master runs all used
+  `STEP_QUESTIONS=2` and asked 23-35 model questions per case; every batch
+  and setting case timed out. `settings.step_questions` now defaults to 1
+  (A12's combined interpret-and-decide question, about half the questions);
+  `STEP_QUESTIONS=2` asks two. `.env.example` now shows 1. `episode.py` uses
+  the setting when the policy can answer both at once (`interpret_and_decide`,
+  which every model-backed policy has, tree-of-thought included) and 2 for a
+  scripted policy that cannot; the record keeps the mode used. Test files
+  whose scripted model replies are written for two questions
+  (`tests/test_model_policy.py`, `tests/test_experiment.py`) pin
+  `STEP_QUESTIONS=2` with an autouse fixture. Tests: the default is 1
+  (`tests/test_settings.py`); a model policy reaches the loop in mode 1, a
+  scripted one runs and is recorded in mode 2 (`tests/test_episode.py`). A
+  local `.env` copied from the old example still says 2 and wins over the
+  default. Built ungated at the developer's request (understood: no). Not run
+  live.
+
 - **2026-10-30 (F2): manual 1.2, a bad lot does not fail every part.** From
   the 2026-10-30 master runs: on KA-03 the agent saw that only batch-2 jobs
   failed (all ten batch-1 jobs passed) and still ruled the batch out, because

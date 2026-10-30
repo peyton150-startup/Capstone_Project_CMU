@@ -111,10 +111,13 @@ class Settings(BaseSettings):
     lesson_model: str | None = _optional("LESSON_MODEL")
     # Prompt visibility only: the confidence threshold is always enforced.
     state_action_bar: bool = Field(default=True, validation_alias="STATE_ACTION_BAR")
-    # Two questions per tool result today; one combines its interpretation
-    # with the next decision, using DECIDE_MODEL (or DEFAULT_MODEL).
+    # Questions per tool result. 1 (the default since 2026-10-30, developer's
+    # decision) combines the interpretation with the next decision, using
+    # DECIDE_MODEL (or DEFAULT_MODEL), about half the model questions; the
+    # 2026-10-30 master runs asked 23-35 per case with 2 and timed out on every
+    # batch and setting case. STEP_QUESTIONS=2 asks them separately.
     step_questions: int = Field(
-        default=2, ge=1, le=2, validation_alias="STEP_QUESTIONS"
+        default=1, ge=1, le=2, validation_alias="STEP_QUESTIONS"
     )
     # Asked when a job's own model cannot be reached. None: no fallback.
     # Several models, separated by commas, are tried in order: the second

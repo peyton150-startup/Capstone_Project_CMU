@@ -37,6 +37,15 @@ from capstone.providers.recall import RECALL_SPEC
 from capstone.tools.diagnosis import FAULT_KINDS
 from tests.helpers import ask, new_state
 
+
+@pytest.fixture(autouse=True)
+def two_questions_per_step(monkeypatch):
+    """The scripted model replies in these tests give separate interpret and
+    decide answers, so they run in two-question mode. One-question mode, the
+    default since 2026-10-30, has its own tests."""
+    monkeypatch.setenv("STEP_QUESTIONS", "2")
+
+
 ANSWER_TYPES = (PlanAnswer, NextStep, Interpretation, ConcludeAnswer, Judgement)
 
 
