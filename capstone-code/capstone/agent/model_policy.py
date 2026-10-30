@@ -479,7 +479,12 @@ COMMON = (
     "under BUDGET LEFT. Spend it where it can change the answer: prefer the call "
     "most likely to confirm or rule out a hypothesis over one that only adds "
     "detail. Being thorough matters more than being fast, but once more evidence "
-    "would not change the diagnosis, the work is done."
+    "would not change the diagnosis, the work is done. "
+    "A complete scan of the factory accounts for every machine, not only the ones "
+    "the alarm names: an alarm can point at a harmless machine while a real fault "
+    "sits on another. Before concluding that nothing is wrong, or that the "
+    "alarmed machine alone explains what you see, check the other machines too: "
+    "list_machines, then their sensor readings and the inspection results."
 )
 
 SYSTEM = {
