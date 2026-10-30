@@ -12,6 +12,7 @@ from capstone.agent.critic import (
     Critic,
     critique_view,
     shown_hypotheses,
+    verdict_mismatch,
 )
 from capstone.contracts.evidence import Evidence
 from capstone.contracts.hypotheses import Hypothesis
@@ -355,3 +356,53 @@ def test_the_critic_cannot_favour_a_ruled_out_candidate():
 def test_the_prompt_says_ruled_out_candidates_are_not_hypotheses():
     assert "ruled out are not hypotheses" in CRITIC_SYSTEM
     assert "kind alternative" in CRITIC_SYSTEM
+
+
+# --- the verdict must agree with the critic's own pick -----------------------
+
+
+@pytest.mark.parametrize(
+    "changes, mismatch",
+    [
+        # Live 2026-10-30: object, favouring the leader, minor gaps only.
+        (
+            {"favoured": "H1", "verdict": "object"},
+            "object while favouring the leading H1, with no contradiction or "
+            "alternative raised",
+        ),
+        # Live 2026-10-30: no_objection while preferring another hypothesis.
+        (
+            {"favoured": "H2", "verdict": "no_objection"},
+            "no_objection while favouring H2, not the leading H1",
+        ),
+        ({"favoured": "H1", "verdict": "no_objection"}, None),
+        ({"favoured": "H2", "verdict": "object"}, None),
+        ({"favoured": "none", "verdict": "no_objection"}, None),
+        (
+            {
+                "favoured": "H1",
+                "verdict": "object",
+                "objections": (
+                    Objection(
+                        kind="alternative", text="H2 fits too", evidence_ids=("E1",)
+                    ),
+                ),
+            },
+            None,
+        ),
+    ],
+)
+def test_a_verdict_that_disagrees_with_the_pick_is_named(changes, mismatch):
+    assert verdict_mismatch(result(**changes), "H1") == mismatch
+
+
+def test_no_leader_no_mismatch():
+    assert verdict_mismatch(result(verdict="no_objection"), None) is None
+
+
+def test_the_prompt_ties_the_verdict_to_the_pick():
+    assert "make it agree with your pick" in CRITIC_SYSTEM
+    # The worked example favours the leading H1 and so no longer objects.
+    example = CRITIC_SYSTEM.split("Worked example", 1)[1]
+    assert "verdict: no_objection" in example
+    assert "verdict: object;" not in example
