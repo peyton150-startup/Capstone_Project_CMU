@@ -192,6 +192,21 @@ alarm), then evaluation, then the agent itself.
   tested; the record, report and view carry it. Built ungated; teaching later
   (understood: no). Not run live.
 
+- **2026-10-30 (F2): manual 1.2, a bad lot does not fail every part.** From
+  the 2026-10-30 master runs: on KA-03 the agent saw that only batch-2 jobs
+  failed (all ten batch-1 jobs passed) and still ruled the batch out, because
+  "a uniform batch issue would not spare jobs 12 and 14". The manual step had
+  retrieved §2.9 each time, but §2.9 did not say that passing jobs do not
+  clear a lot. `manual/sim-cnc-001.md` §2.9 "How to interpret" now says a bad
+  lot raises the share of rejects without failing every part, that passing
+  jobs from it do not clear it, that a pattern among a few jobs is usually
+  chance, and to judge a batch by its reject rate against other batches. Kept
+  general: no numbers from any case. Revision 1.1 -> 1.2, so the index
+  rebuilds itself before the next run (it notices the change). Tests
+  (`tests/test_manual.py`): the new guidance is in §2.9 at revision 1.2; the
+  revision checks moved to 1.2. Built ungated; teaching later at the
+  developer's request (understood: no). Not run live.
+
 - **2026-10-30 (F1): the critic follow-up gets its own time window.** From
   the 2026-10-30 master runs: every batch and setting case ran out of research
   time (830-1000 s), so the follow-up skipped with "no research time left",

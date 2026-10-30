@@ -1,9 +1,10 @@
 # CNC Production-Line Maintenance & Diagnostic Manual
 
 **Document ID:** SIM-CNC-001
-**Revision:** 1.1 — October 22, 2026 (1.0 drafted by the developer; 1.1 removes the
+**Revision:** 1.2 — October 30, 2026 (1.0 drafted by the developer; 1.1 removes the
 station speed and cycle-time table from §1.1 and rewrites §2.7 to find a wrong
-setting from its effects, the developer's choice "B")
+setting from its effects, the developer's choice "B"; 1.2 adds to §2.9 that a
+bad lot raises the reject rate without failing every part)
 **Equipment:** Simulated CNC-01 through CNC-08 positions, when installed
 **Purpose:** Fault finding, normal operation, maintenance decisions
 **Status:** Training reference; not an OEM or safety-approved manual
@@ -268,9 +269,14 @@ request material certificates, dimensional checks and receiving inspection
 rather than treating the lot number as an answer.
 
 **How to interpret:** Batch IDs connect material and finished jobs; a defect rate
-is statistical, so one failed inspection is weak evidence. Material can be
-suspect even if equipment sensor trends remain normal, but also consider machine
-or inspection causes.
+is statistical, so one failed inspection is weak evidence. A bad lot raises the
+share of rejects; it does not make every part fail, so jobs from that lot that
+pass inspection do not clear it, and an alternating or other pattern among a few
+jobs is usually chance. Judge a batch by its reject rate against other batches
+run through the same stations: a clearly higher rate in one batch points at the
+material even when some of its jobs pass. Material can be suspect even if
+equipment sensor trends remain normal, but also consider machine or inspection
+causes.
 
 ## §2.10 Tool Wear, Workholding and Cutting-Process Problems
 
