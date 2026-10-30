@@ -48,7 +48,7 @@ from capstone.agent.artifacts import (
     TerminationReason,
     VerificationCheck,
 )
-from capstone.agent.critic import shown_hypotheses
+from capstone.agent.critic import shown_hypotheses, verdict_mismatch
 from capstone.agent.loop import (
     POLICY_ERRORS,
     InvestigationDeps,
@@ -284,6 +284,11 @@ def critique(state: InvestigationState, deps: InvestigationDeps) -> None:
         seconds=used,
         answered_by=answered_by,
         manual_sections=getattr(deps.critic, "last_sections", None),
+        verdict_mismatch=(
+            None
+            if result is None
+            else verdict_mismatch(result, shown[0] if shown else None)
+        ),
         favoured_claim=None if result is None else shown_claims.get(result.favoured),
         after_stage=after_stage,
     )
@@ -304,6 +309,8 @@ def recheck_trigger(
     # Variables:
     #   result: The critic's reply, if it gave a usable one.
     #   leading: The agent's best explanation now.
+    #   preferred: True when the critic favours another current hypothesis; that
+    #     is an objection to the leader even under a "no_objection" verdict.
     critique = state.critique
     result = None if critique is None else critique.result
     if result is None:
@@ -313,7 +320,12 @@ def recheck_trigger(
         return None, "no hypothesis to test"
     if not result.discriminating_check.strip():
         return None, "the critic named no check"
-    if result.verdict == "object":
+    preferred = result.favoured != leading.id and any(
+        h.id == result.favoured for h in state.hypotheses
+    )
+    if result.verdict == "object" or preferred:
+        # Favouring another hypothesis is an objection to the leader, whatever
+        # the verdict says (a "no_objection" pick of H6 was skipped live).
         trigger = "objection"
     elif result.favoured != leading.id:
         return None, "the critic neither objected nor favoured the leading hypothesis"

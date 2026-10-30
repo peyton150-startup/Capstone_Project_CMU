@@ -51,6 +51,7 @@ __all__ = [
     "CritiqueResult",
     "RecheckRecord",
     "critique_view",
+    "verdict_mismatch",
     "SHOWN_HYPOTHESES",
     "shown_hypotheses",
 ]
@@ -94,8 +95,12 @@ separate your pick from the leading explanation (from the runner-up, if your \
 pick is the leading one). Use only tools in the list.
 5. List objections. Each has a kind, one sentence, and the evidence ids it rests \
 on. Cite only ids that are shown to you.
-6. Give the verdict: object if the investigator should doubt its leading \
-hypothesis, no_objection if the evidence supports it and nothing undermines it.
+6. Give the verdict, and make it agree with your pick. no_objection: your pick \
+is the leading explanation and nothing you found contradicts it or fits better; \
+minor gaps (a check not yet made, a confidence a little high) are listed as \
+objections but do not change the verdict. object: you pick another hypothesis \
+or none, or you raise a contradiction or a better alternative against the \
+leading explanation.
 
 Rules: cite only evidence ids shown. Favour only a hypothesis id shown, or none. \
 Do not invent evidence. Candidates shown as ruled out are not hypotheses: never \
@@ -118,8 +123,40 @@ the soil moisture history, to see whether the soil stays wet between waterings. 
 Objection: missing_evidence, only one moisture reading was taken (E1).
 Reply: favoured H1; why: wet soil three days on and plenty of light; \
 discriminating_check: read the soil moisture history for the plant; \
-objections: one missing_evidence citing E1; verdict: object; \
-favoured_confidence 0.65; supports_action false."""
+objections: one missing_evidence citing E1; verdict: no_objection (H1 is the \
+leading explanation and nothing contradicts it; the missing reading is a minor \
+gap); favoured_confidence 0.65; supports_action false. Had H2 fitted better, \
+the pick would be H2 and the verdict object."""
+
+
+# Objection kinds that argue against the leading explanation itself; the
+# others (a check not yet made, a confidence a little high) are minor gaps.
+SERIOUS_OBJECTIONS = frozenset({"contradiction", "alternative"})
+
+
+def verdict_mismatch(result: CritiqueResult, leading: str | None) -> str | None:
+    """Where the critic's verdict disagrees with its own pick, in words; else None.
+
+    Found in the 2026-10-30 runs: "object" while favouring the leading
+    explanation with only minor gaps, and "no_objection" while favouring
+    another one. Recorded, never corrected: the reply stays as the critic gave
+    it, so the prompt's effect can be measured.
+    """
+    # Variables:
+    #   leading: The id of the leading explanation the critic was shown first.
+    #   serious: Whether any objection is a contradiction or a better alternative.
+    if leading is None:
+        return None
+    favoured = result.favoured
+    if result.verdict == "no_objection" and favoured not in ("none", leading):
+        return f"no_objection while favouring {favoured}, not the leading {leading}"
+    serious = any(o.kind in SERIOUS_OBJECTIONS for o in result.objections)
+    if result.verdict == "object" and favoured == leading and not serious:
+        return (
+            f"object while favouring the leading {leading}, with no "
+            "contradiction or alternative raised"
+        )
+    return None
 
 
 def shown_hypotheses(state: InvestigationState) -> list[Hypothesis]:

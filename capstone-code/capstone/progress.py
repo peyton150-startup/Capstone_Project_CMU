@@ -223,6 +223,8 @@ class ProgressView:
             f"check: {shorten(r.discriminating_check, 120)}"
         )
         self.write(f"  why: {shorten(r.why, 120)}")
+        if record.verdict_mismatch:
+            self.write(f"  verdict does not match the pick: {record.verdict_mismatch}")
         self.write(
             f"  confidence {r.favoured_confidence:.2f}, supports action: "
             f"{'yes' if r.supports_action else 'no'}, objections: {kinds}; "
