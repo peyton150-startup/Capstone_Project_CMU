@@ -409,3 +409,12 @@ def test_a_run_with_the_manual_gives_the_settings_critic_the_manual(monkeypatch)
     )
     assert with_manual.state.critique.manual_sections is not None
     assert without.state.critique.manual_sections is None
+
+
+def test_the_follow_up_window_is_a_setting(monkeypatch):
+    from capstone.settings import Settings
+
+    monkeypatch.delenv("CRITIC_FOLLOWUP_SECONDS", raising=False)
+    assert Settings(_env_file=None).critic_followup_seconds == 90.0
+    monkeypatch.setenv("CRITIC_FOLLOWUP_SECONDS", "45")
+    assert Settings(_env_file=None).critic_followup_seconds == 45.0

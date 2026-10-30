@@ -137,6 +137,12 @@ class Settings(BaseSettings):
     # where the critic pointed. Off by default, so the review-only critic stays
     # the baseline. Needs CRITIC on; without it there is nothing to follow up.
     critic_followup: bool = Field(default=False, validation_alias="CRITIC_FOLLOWUP")
+    # The follow-up's own window: one question, one call and one reading, on
+    # top of the investigation's time. Live questions took 4-113 s on
+    # 2026-10-27, so 90 s fits about two ordinary answers.
+    critic_followup_seconds: float = Field(
+        default=90.0, gt=0, validation_alias="CRITIC_FOLLOWUP_SECONDS"
+    )
 
     # Limits on every model question (MVP_SCOPE.md section 3). The loop's own
     # limits (iterations, tool calls, time per investigation) are in Budgets.

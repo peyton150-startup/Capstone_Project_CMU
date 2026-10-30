@@ -170,6 +170,23 @@ alarm), then evaluation, then the agent itself.
 
 ## Session notes
 
+- **2026-10-30 (F1): the critic follow-up gets its own time window.** From
+  the 2026-10-30 master runs: every batch and setting case ran out of research
+  time (830-1000 s), so the follow-up skipped with "no research time left",
+  including KA-05, where the critic named `get_settings`, the right check.
+  `recheck` now opens its own window, `deps.recheck_seconds`
+  (`CRITIC_FOLLOWUP_SECONDS`, default 90 s), as the critic has one: research
+  time left is set to that window while it runs, and afterwards `started_at`
+  moves by the seconds used, so the conclusion, proposal and check keep the
+  time they had. `recheck_trigger` no longer needs research time; it skips
+  when the window is 0 or no tool call is left. The body moved to
+  `follow_up`. Tests (`tests/test_agent_investigation.py`,
+  `tests/test_episode.py`): the trigger runs after research timed out; a zero
+  window skips; the follow-up runs in its window after a timeout, its question
+  is given 90 s, and the reserve is unchanged; a policy slower than the window
+  stops on time with the reserve unchanged; the setting reads. Built ungated;
+  teaching later at the developer's request (understood: no). Not run live.
+
 - **2026-10-30 (docs-only): the future-work area of `MVP_SCOPE.md` now lists
   only work that is not built.** Asked for by the developer. The area went from
   about 2,500 to about 2,100 lines. Each section was checked against this log
