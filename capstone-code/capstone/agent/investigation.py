@@ -297,7 +297,9 @@ def recheck_trigger(
     Returns (trigger, None) to run, or (None, reason) to skip. It runs when the
     critic objected, or when it favours the leading hypothesis while that is
     still below the action bar, so one reading can confirm it or not. A leader
-    already at the bar has nothing to confirm. Time and tool calls must be left.
+    already at the bar has nothing to confirm. A tool call must be left; time
+    need not be, because the follow-up has its own window (`recheck`), as the
+    critic does: the hard cases are exactly the ones whose research ran out.
     """
     # Variables:
     #   result: The critic's reply, if it gave a usable one.
@@ -319,8 +321,8 @@ def recheck_trigger(
         return None, "the leading hypothesis already reaches the action bar"
     else:
         trigger = "agreement"
-    if state.research_seconds(deps.clock()) <= 0:
-        return None, "no research time left"
+    if deps.recheck_seconds <= 0:
+        return None, "the follow-up has no time window"
     if state.remaining_tool_calls == 0:
         return None, "no tool calls left"
     return trigger, None
@@ -337,10 +339,47 @@ def recheck(state: InvestigationState, deps: InvestigationDeps) -> None:
     action bar applies to the agent's own confidence as before: the critic's
     agreement, confidence and `supports_action` never count there. There is
     no way back to the critic, so this cannot loop.
+
+    It has its own window, `deps.recheck_seconds`, even when research has run
+    out of time (live runs of 2026-10-30: every batch and setting case timed
+    out, and the follow-up skipped the very check the critic named). The
+    seconds it uses are added to `started_at` afterwards, so the conclusion,
+    the proposal and the check keep the time they had.
     """
     # Variables:
     #   trigger: objection or agreement, or None when the stage does not run.
     #   reason: Why it did not run, for the record.
+    #   began: The clock when the follow-up's window opened.
+    #   started: The investigation's real start, restored (moved by the seconds
+    #     used) when the window closes.
+    if not deps.critic_followup or deps.critic is None or state.critique is None:
+        return
+    state.stage = "test"
+    trigger, reason = recheck_trigger(state, deps)
+    if trigger is None:
+        state.recheck = RecheckRecord(outcome="skipped", reason=reason)
+        return
+    began = deps.clock()
+    started = state.started_at
+    if started is not None:
+        # Open the window: research time left is now exactly recheck_seconds.
+        budgets = state.budgets
+        state.started_at = began - (
+            budgets.timeout_seconds - budgets.followup_seconds - deps.recheck_seconds
+        )
+    try:
+        follow_up(state, deps, trigger)
+    finally:
+        if started is not None:
+            # Close it: the deadline moves by the seconds used, so the time
+            # left afterwards is what it was before the follow-up began.
+            state.started_at = started + max(0.0, deps.clock() - began)
+
+
+def follow_up(state: InvestigationState, deps: InvestigationDeps, trigger: str) -> None:
+    """The follow-up itself: one question, at most one call, one reading."""
+    # Variables:
+    #   trigger: objection or agreement, why the follow-up runs.
     #   leading: The agent's best explanation before the reading.
     #   favoured: The hypothesis the critic picked; the question tests it when it
     #     is not the leader.
@@ -350,13 +389,6 @@ def recheck(state: InvestigationState, deps: InvestigationDeps) -> None:
     #   decision: The policy's one choice: a tool call or a stop.
     #   evidence: The reading, or None if the call gave nothing usable.
     #   after: The agent's best explanation after reading the answer.
-    if not deps.critic_followup or deps.critic is None or state.critique is None:
-        return
-    state.stage = "test"
-    trigger, reason = recheck_trigger(state, deps)
-    if trigger is None:
-        state.recheck = RecheckRecord(outcome="skipped", reason=reason)
-        return
     leading = state.leading_hypothesis
     check = state.critique.result.discriminating_check.strip()
     favoured = state.critique.result.favoured

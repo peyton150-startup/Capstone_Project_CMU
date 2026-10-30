@@ -947,12 +947,14 @@ def test_trigger_reasons():
     ) == ("agreement", None)
 
 
-def test_trigger_needs_time_and_a_tool_call_left():
+def test_trigger_needs_a_tool_call_and_a_window_but_not_research_time():
+    # Research ran out (the live hard cases): the follow-up still runs.
     late = recheck_state(timeout_seconds=100.0, followup_seconds=10.0)
     late.started_at = -500.0
-    assert trigger(with_critique(late, critique_result())) == (
+    assert trigger(with_critique(late, critique_result())) == ("objection", None)
+    assert trigger(with_critique(late, critique_result()), recheck_seconds=0) == (
         None,
-        "no research time left",
+        "the follow-up has no time window",
     )
     spent = recheck_state(max_tool_calls=1)
     spent.tool_call_count = 1
@@ -1097,3 +1099,69 @@ def test_a_critic_without_a_manual_records_none():
     assert state.critique.manual_sections is None
     old = state.critique.model_dump(exclude={"manual_sections"})
     assert type(state.critique).model_validate(old).manual_sections is None
+
+
+def test_the_follow_up_runs_in_its_own_window_after_research_timed_out():
+    """Live, 2026-10-30: the critic named get_settings on a timed-out case and
+    the follow-up skipped it. Now it gets its own window and the follow-up
+    reserve keeps exactly the time it had."""
+    now = [1000.0]
+    seen = []
+    state = with_critique(
+        recheck_state(0.8, timeout_seconds=1200.0, followup_seconds=400.0),
+        critique_result(),
+    )
+    state.started_at = 0.0  # 1,000 s in: research is over, 200 s of reserve left
+    assert state.research_seconds(now[0]) == 0
+    before = state.remaining_seconds(now[0])
+
+    class Policy:
+        def decide(self, view, phase):
+            seen.append(view.seconds_for_question)
+            now[0] += 30.0  # the question takes 30 s
+            return CHECK
+
+        def interpret(self, view, step, evidence):
+            now[0] += 20.0
+            return Interpretation()
+
+    deps = InvestigationDeps(
+        provider=FakeProvider(),
+        policy=Policy(),
+        clock=lambda: now[0],
+        critic=FakeCritic(),
+        critic_followup=True,
+        recheck_seconds=90.0,
+    )
+    recheck(state, deps)
+    assert state.recheck.outcome == "observed"
+    assert seen == [90.0]  # the question was given the follow-up's window
+    assert state.remaining_seconds(now[0]) == before  # the reserve is untouched
+    assert state.research_seconds(now[0]) == 0
+
+
+def test_a_follow_up_slower_than_its_window_stops_on_time():
+    now = [1000.0]
+    state = with_critique(
+        recheck_state(0.8, timeout_seconds=1200.0, followup_seconds=400.0),
+        critique_result(),
+    )
+    state.started_at = 0.0
+    before = state.remaining_seconds(now[0])
+
+    class Slow:
+        def decide(self, view, phase):
+            now[0] += 120.0  # longer than the 90 s window
+            raise ModelError("no model answered in time")
+
+    deps = InvestigationDeps(
+        provider=FakeProvider(),
+        policy=Slow(),
+        clock=lambda: now[0],
+        critic=FakeCritic(),
+        critic_followup=True,
+        recheck_seconds=90.0,
+    )
+    recheck(state, deps)
+    assert state.recheck.outcome == "out_of_time"
+    assert state.remaining_seconds(now[0]) == before

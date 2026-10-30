@@ -107,6 +107,9 @@ class InvestigationDeps:
     # pointed at, when it objects or agrees below the action bar. Off: the
     # critic stays review only.
     critic_followup: bool = False
+    # The follow-up's own time window, on top of the investigation's time (as
+    # the critic's is), so it can run after research timed out.
+    recheck_seconds: float = 90.0
     # The manual step (`investigation.consult_manual`): search the machine
     # manual once on the anomaly before planning. Only with a manual offered.
     manual_step: bool = False
