@@ -216,3 +216,24 @@ is not a focus now (developer's decision, 2026-10-20).
   `run_experiment`: the same conclusion and a resolved fix, at the cost of
   one more model question. Not yet run live, so whether it helps a real
   model is unknown.
+
+  **Where the pruned branches are kept (2026-10-30).** Every candidate
+  `prune` drops is recorded, with its claim, rating and the reason it was
+  dropped, in four places:
+  - `state.pruned_candidates` (`PrunedCandidate`), the agent's working trace
+    for the run, filled by the loop from `PrunedInterpretation.pruned`;
+  - the critic's prompt, under "RULED OUT BEFORE TESTING", so the critic can
+    say (an `alternative` objection) that a dropped cause deserves another
+    look and aim its check, and the follow-up, at it;
+  - the audit log (`AuditRecord.pruned_candidates`, written with `--audit`,
+    with or without memory), for people. Not the shared
+    `CompletedInvestigation` record: memory and reflection learn only from
+    what the agent believed;
+  - the live view ("ruled out by tree-of-thought:"), once per run.
+  The full trees (all candidates, all ratings, kept and dropped) are also in
+  `ExperimentRecord.thoughts` (#108). A candidate dropped for citing evidence
+  never gathered is in `thoughts` but not in the trace, since its citations
+  point at nothing the critic could check. Since 2026-10-30, "impossible"
+  rules a candidate out only with factory evidence (`origin == "observable"`):
+  a manual section or a memory cannot, which matters now that the manual
+  step puts manual sections into every run before `hypothesize`.

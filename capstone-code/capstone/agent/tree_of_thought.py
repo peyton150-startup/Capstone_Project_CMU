@@ -22,9 +22,11 @@ at depth one, with breadth-first search:
              candidates rated impossible, citing evidence that was never
              gathered, or never rated are dropped, and the rest are ranked
              by confidence (ties by candidate order). "Impossible" drops a
-             candidate only when gathered evidence against it is cited (by
-             the rating or the candidate); without that it is ranked like
-             the rest, since a model's say-so is not a contradiction.
+             candidate only when factory evidence against it is cited (by
+             the rating or the candidate): a model's say-so is not a
+             contradiction, and neither is the manual or a memory, which
+             describe the machine type or a past run, not this factory now.
+             Without such evidence it is ranked like the rest.
 
 The kept candidates become the hypotheses (H1, H2, ... in rank order) with
 the valued confidence, and their questions become open questions that
@@ -36,6 +38,9 @@ Both questions go to the `hypothesize` job's client, so the job table is
 unchanged; the record of model questions shows two `hypothesize` calls.
 What the tree looked like is kept in `thoughts` for the experimenter (the
 candidates, their ratings, what was kept and why the rest were dropped).
+The dropped candidates are also handed back with the hypotheses
+(`PrunedInterpretation.pruned`), so the loop keeps them in the state's trace
+(`state.pruned_candidates`) and the critic sees what was ruled out.
 The policy still never changes `state`.
 """
 
@@ -45,8 +50,8 @@ from typing import Literal
 from pydantic import Field
 
 from capstone.agent.model_policy import COMMON, Client, ModelPolicy, render
-from capstone.agent.policy import Interpretation
-from capstone.agent.state import InvestigationState, Question
+from capstone.agent.policy import Interpretation, PrunedInterpretation
+from capstone.agent.state import InvestigationState, PrunedCandidate, Question
 from capstone.contracts import Contract
 from capstone.contracts.hypotheses import Hypothesis
 from capstone.contracts.tools import ToolSpec
@@ -105,7 +110,8 @@ VALUE = (
     "impossible: the evidence rules it out), a confidence between 0 and 1, and "
     "one question whose answer would tell it apart from the others. For "
     "impossible, list in contradicting_evidence_ids the evidence IDs that rule "
-    "it out; without them it is not ruled out."
+    "it out; without them it is not ruled out. Only the factory's own readings "
+    "and records can rule a candidate out: manual sections and memories cannot."
 )
 
 
@@ -126,26 +132,32 @@ def prune(
     ratings: Sequence[Rating],
     evidence_ids: set[str],
     breadth: int,
+    observed_ids: set[str] | None = None,
 ) -> tuple[list[tuple[Candidate, Rating]], dict[str, str]]:
     """The candidates to keep, best first, and why each other one was dropped.
 
     Deterministic: the same candidates and ratings always keep the same ones.
     The first rating of a candidate counts; a rating of an unknown id is ignored.
-    "Impossible" drops a candidate only with a cited contradiction that was
-    gathered; otherwise the candidate is ranked by its confidence like any other.
+    "Impossible" drops a candidate only with a cited contradiction the factory
+    answered (`observed_ids`); otherwise the candidate is ranked by its
+    confidence like any other.
     """
     # Variables:
     #   breadth: How many candidates may survive.
     #   evidence_ids: Ids of evidence that really exists; a candidate citing any other
     #     is dropped.
+    #   observed_ids: Ids of evidence the factory answered, the only kind that can
+    #     rule a candidate out; None treats all gathered evidence as observed.
     #   rated: The first rating for each candidate id; later duplicates are ignored.
     #   dropped: Why each removed candidate was dropped, by id.
     #   alive: Candidates still in the running, with their original position to break
     #     ties.
     #   seen: Candidate ids already handled, to catch a repeated id.
-    #   against: Gathered evidence cited against a candidate, by its rating or itself.
+    #   factual: The evidence that can rule a candidate out: `observed_ids`.
+    #   against: Factory evidence cited against a candidate, by its rating or itself.
     #   unproven: Candidates rated impossible with no such evidence, so not dropped
     #     for it.
+    factual = evidence_ids if observed_ids is None else evidence_ids & observed_ids
     rated: dict[str, Rating] = {}
     for rating in ratings:
         rated.setdefault(rating.candidate_id, rating)
@@ -171,7 +183,7 @@ def prune(
             against = {
                 *rating.contradicting_evidence_ids,
                 *candidate.contradicting_evidence_ids,
-            } & evidence_ids
+            } & factual
             if against:
                 dropped[candidate.id] = "rated impossible"
             else:
@@ -183,11 +195,52 @@ def prune(
     for _, candidate, _ in alive[breadth:]:
         ranked = f"ranked below the best {breadth}"
         dropped[candidate.id] = (
-            f"rated impossible with no contradiction cited; {ranked}"
+            f"rated impossible with no factory evidence against it; {ranked}"
             if candidate.id in unproven
             else ranked
         )
     return [(c, r) for _, c, r in alive[:breadth]], dropped
+
+
+def pruned_trace(
+    candidates: Sequence[Candidate],
+    ratings: Sequence[Rating],
+    dropped: Mapping[str, str],
+) -> tuple[PrunedCandidate, ...]:
+    """The dropped candidates as the state's trace keeps them, in candidate order.
+
+    A candidate dropped for citing evidence never gathered is left out: its
+    citations point at nothing the critic could check.
+    """
+    # Variables:
+    #   rated: The first rating of each candidate, as `prune` counts it.
+    #   seen: Candidate ids already added, so a repeated id appears once.
+    rated: dict[str, Rating] = {}
+    for rating in ratings:
+        rated.setdefault(rating.candidate_id, rating)
+    trace, seen = [], set()
+    for candidate in candidates:
+        reason = dropped.get(candidate.id)
+        if (
+            reason is None
+            or candidate.id in seen
+            or reason == "cites evidence that was not gathered"
+        ):
+            continue
+        seen.add(candidate.id)
+        rating = rated.get(candidate.id)
+        trace.append(
+            PrunedCandidate(
+                id=candidate.id,
+                claim=candidate.claim,
+                reason=reason,
+                verdict=None if rating is None else rating.verdict,
+                confidence=None if rating is None else rating.confidence,
+                supporting_evidence_ids=candidate.supporting_evidence_ids,
+                contradicting_evidence_ids=candidate.contradicting_evidence_ids,
+            )
+        )
+    return tuple(trace)
 
 
 class TreeOfThoughtPolicy(ModelPolicy):
@@ -239,8 +292,13 @@ class TreeOfThoughtPolicy(ModelPolicy):
             Ratings,
             system=VALUE,
         ).ratings
+        observed = {p.evidence_id for p in state.provenance if p.origin == "observable"}
         kept, dropped = prune(
-            generated, ratings, {e.id for e in state.evidence}, self.breadth
+            generated,
+            ratings,
+            {e.id for e in state.evidence},
+            self.breadth,
+            observed_ids=observed,
         )
         self.thoughts.append(
             Thought(
@@ -270,6 +328,8 @@ class TreeOfThoughtPolicy(ModelPolicy):
                         hypothesis_id=hypothesis_id,
                     )
                 )
-        return Interpretation(
-            hypotheses=tuple(hypotheses) or None, new_questions=tuple(questions)
+        return PrunedInterpretation(
+            hypotheses=tuple(hypotheses) or None,
+            new_questions=tuple(questions),
+            pruned=pruned_trace(generated, ratings, dropped),
         )

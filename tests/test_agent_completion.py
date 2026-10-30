@@ -313,3 +313,31 @@ def test_the_agent_has_no_tool_that_reads_the_log():
     for name in ("read_audit_log", "get_audit_log", "search_incident_history"):
         result = provider.call(ToolRequest(name=name))
         assert not result.success and result.error.code == "unknown_tool"
+
+
+def test_the_audit_record_keeps_what_tree_of_thought_ruled_out():
+    from capstone.agent.state import PrunedCandidate
+
+    state = ENDINGS["rejected"]()
+    state.pruned_candidates = [
+        PrunedCandidate(id="C3", claim="a wrong setting", reason="rated impossible")
+    ]
+    record = audit_record(state)
+    assert record.pruned_candidates == tuple(state.pruned_candidates)
+    assert "pruned" not in json.dumps(record.completed.model_dump(mode="json"))
+    old = record.model_dump(mode="json")
+    del old["pruned_candidates"]
+    assert AuditRecord.model_validate(old).pruned_candidates == ()
+
+
+def test_audit_without_memory_writes_the_record(tmp_path):
+    from capstone.episode import run_episode
+    from tests.test_episode import wear_policy
+
+    log = AuditLog(tmp_path / "audit.jsonl")
+    result = run_episode(
+        6, wear_policy(), fault="bearing_degradation", clock=lambda: 0.0, log=log
+    )
+    [record] = log.read()
+    assert record.completed.investigation_id == result.state.investigation_id
+    assert record.pruned_candidates == ()

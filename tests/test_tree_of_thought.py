@@ -14,6 +14,7 @@ from capstone.agent.tree_of_thought import (
     prune,
 )
 from capstone.contracts.evidence import Evidence
+from capstone.contracts.provenance import ProvenanceReference
 from capstone.experiment import Case, run_experiment
 from capstone.providers.chat import JOBS
 from capstone.providers.factory import research_tools
@@ -104,7 +105,7 @@ def test_an_uncited_impossible_ranked_out_says_so():
     kept, dropped = prune(candidates, ratings, set(), breadth=1)
     assert [c.id for c, _ in kept] == ["C1"]
     assert dropped == {
-        "C2": "rated impossible with no contradiction cited; ranked below the best 1"
+        "C2": "rated impossible with no factory evidence against it; ranked below the best 1"
     }
 
 
@@ -131,6 +132,15 @@ def with_evidence():
                 source_type="tool_result",
                 content="[]",
                 observed_tick=10,
+            )
+        )
+        # Answered by the factory, as the loop labels it.
+        state.provenance.append(
+            ProvenanceReference(
+                evidence_id=f"E{number}",
+                source_id="simulator:get_events",
+                source_type="tool_result",
+                origin="observable",
             )
         )
     return state
@@ -336,3 +346,78 @@ def test_the_experiment_flag_builds_the_tree_policy(monkeypatch):
     assert type(model_policy_factory(False)()) is ModelPolicy
     made = model_policy_factory(False, tree_of_thought=True)()
     assert isinstance(made, TreeOfThoughtPolicy)
+
+
+# --- only factory evidence rules a candidate out; pruned branches are kept ----
+
+
+def test_impossible_needs_factory_evidence_not_the_manual():
+    """With the manual on by default, every run has manual sections before
+    hypothesize. A rating that cites only one cannot rule a cause out."""
+    candidates = [candidate("C1"), candidate("C2"), candidate("C3")]
+    ratings = [
+        rating("C1", "impossible", 0.3, "M1"),  # only a manual section: kept
+        rating("C2", "impossible", 0.2, "E1"),  # a factory reading: dropped
+        rating("C3", confidence=0.5),
+    ]
+    kept, dropped = prune(candidates, ratings, {"E1", "M1"}, 3, observed_ids={"E1"})
+    assert [c.id for c, _ in kept] == ["C3", "C1"]
+    assert dropped == {"C2": "rated impossible"}
+    # Without the observed set, every gathered id counts, as before.
+    _, before = prune(candidates, ratings, {"E1", "M1"}, 3)
+    assert before == {"C1": "rated impossible", "C2": "rated impossible"}
+
+
+def test_hypothesize_hands_back_what_it_ruled_out():
+    from capstone.agent.policy import PrunedInterpretation
+
+    agent = tree(GENERATED, RATED, breadth=2)
+    answer = agent.hypothesize(with_evidence())
+    assert isinstance(answer, PrunedInterpretation)
+    # C4 cited evidence never gathered, so the critic could not check it.
+    [c3] = answer.pruned
+    assert (c3.id, c3.reason, c3.verdict, c3.confidence) == (
+        "C3",
+        "rated impossible",
+        "impossible",
+        0.1,
+    )
+    assert c3.claim == "a wrong speed setting on CNC-02"
+
+
+def test_the_model_s_reply_type_has_no_pruned_field():
+    """Only code builds the pruned list; no model reply can carry one."""
+    from capstone.agent.policy import Interpretation
+
+    assert "pruned" not in Interpretation.model_json_schema()["properties"]
+
+
+def test_the_loop_keeps_the_pruned_branches_in_the_state():
+    from capstone.agent.loop import apply_interpretation
+    from capstone.agent.policy import Interpretation
+
+    agent = tree(GENERATED, RATED, breadth=2)
+    state = with_evidence()
+    apply_interpretation(state, agent.hypothesize(state))
+    assert [p.id for p in state.pruned_candidates] == ["C3"]
+    apply_interpretation(state, Interpretation())  # an ordinary reading adds none
+    assert [p.id for p in state.pruned_candidates] == ["C3"]
+
+
+def test_a_tree_run_writes_its_pruned_branches_to_the_audit_log(tmp_path):
+    from capstone.agent.completion import AuditLog
+    from capstone.episode import run_episode
+
+    log = AuditLog(tmp_path / "audit.jsonl")
+    result = run_episode(
+        6,
+        as_tree(scripted_models()),
+        fault="bearing_degradation",
+        clock=lambda: 0.0,
+        log=log,
+    )
+    [record] = log.read()
+    assert [p.id for p in record.pruned_candidates] == ["C2"]
+    assert record.pruned_candidates == tuple(result.state.pruned_candidates)
+    # The shared record, which memory learns from, holds only the beliefs.
+    assert "C2" not in [h.id for h in record.completed.hypotheses]
