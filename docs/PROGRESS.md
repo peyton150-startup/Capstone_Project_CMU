@@ -259,6 +259,11 @@ alarm), then evaluation, then the agent itself.
 
 ## Session notes
 
+- **2026-10-31: frontend buttons listed (docs only).** `docs/MVP_SCOPE.md`
+  gains a "Frontend buttons" section: every setting and experiment option a
+  future frontend should offer, with defaults, `CRITIC_BLIND` included. Keys
+  and secrets stay in the backend. No code changed; no frontend is built.
+
 - **2026-10-31 (C1c): the blind critic.** From the run-2 master runs: in the
   challenge both the agent and the critic took the harmless spike for the
   whole story at 90%. The critic is shown the agent's ranking (sorted by
