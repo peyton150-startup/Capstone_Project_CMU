@@ -466,6 +466,11 @@ class Critic:
             raise
         self._record("answered")
         if self.blind:
+            # Checked before mapping back: the blind critic saw only labels, so a
+            # real id (say "H1") in its pick is a guess it was never shown, even
+            # though `_problem` would accept that id once mapped.
+            if answer.favoured != "none" and answer.favoured not in labels.values():
+                self._refuse(f"favoured {answer.favoured!r} was not a label shown")
             answer = self._unblind(answer, labels, shown)
         reason = self._problem(answer, shown, state)
         if reason is not None:
@@ -478,12 +483,12 @@ class Critic:
         """The blind reply in hypothesis ids, with the verdict code works out.
 
         Labels are turned back into ids in every text field, so the follow-up
-        and the record read as the anchored critic's do. A label never shown
-        stays as it is and is refused by `_problem`.
+        and the record read as the anchored critic's do. `review` has already
+        refused a pick that is not a label shown (or none).
         """
         # Variables:
         #   back: Label to hypothesis id, the reverse of `labels`.
-        #   favoured: The pick as an id, or "none", or an unknown label left alone.
+        #   favoured: The pick as a hypothesis id, or "none".
         #   leading: The agent's leading hypothesis (first in `shown`), which the
         #     critic was not told.
         back = {label: hid for hid, label in labels.items()}

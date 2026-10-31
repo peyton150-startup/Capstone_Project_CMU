@@ -522,6 +522,16 @@ def test_blind_review_refuses_a_label_it_was_not_shown():
     assert critic.calls[-1].outcome == "invalid_reply"
 
 
+def test_blind_review_refuses_a_real_id_it_was_never_shown():
+    """Found in the pre-merge walkthrough: a blind critic that writes "H1"
+    names an id hidden from it; that is a guess, not a pick, so it is refused
+    even though H1 is one of the agent's shown hypotheses."""
+    critic, _ = blind_critic(result(favoured="H1"))
+    with pytest.raises(ValueError, match="not a label shown"):
+        critic.review(state_with_hypotheses(), max_seconds=5)
+    assert critic.calls[-1].outcome == "invalid_reply"
+
+
 def test_anchored_critic_is_unchanged_by_default():
     critic, client = critic_with(result())
     critic.review(state_with_hypotheses(), max_seconds=5)

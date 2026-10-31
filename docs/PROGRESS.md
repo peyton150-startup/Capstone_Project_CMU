@@ -289,6 +289,12 @@ alarm), then evaluation, then the agent itself.
     verdict follows it (leader → no_objection, other or none → object); an
     unknown label is refused; the anchored critic is unchanged; the setting is
     off by default and reaches the run's record.
+  - Fixed during the pre-merge walkthrough (Q1): a blind critic that wrote a
+    real id ("H1") instead of a label was accepted, because `_problem` checks
+    real ids and H1 is one. Such a pick names an id the critic never saw, so
+    `review` now refuses any blind pick that is not a label shown or none
+    (`test_blind_review_refuses_a_real_id_it_was_never_shown`). The
+    developer's answer pointed at the case.
   - Pre-check 2026-10-31: the developer stated the idea (the critic sees the
     agent's confidence; judge blind so it cannot be biased), then needed two
     corrections: why code sets the verdict, and that a separate seed keeps the
