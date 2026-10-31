@@ -48,7 +48,10 @@ JOB_SETTINGS = (
     "FALLBACK_MODEL",
     "CRITIC",
     "CRITIC_MODEL",
+    "CRITIC_FALLBACK_MODEL",
     "CRITIC_SECONDS",
+    "PROVIDER_SAMPLING",
+    "MODEL_SAMPLING",
     "CLOUDFLARE_ACCOUNT_ID",
 )
 
@@ -633,6 +636,93 @@ def test_cohere_is_never_asked_for_more_output_than_it_accepts(monkeypatch):
     assert client_for("groq/some-model", settings()).max_output_tokens == 16384
     monkeypatch.setenv("MODEL_MAX_OUTPUT_TOKENS", "2000")
     assert client_for("cohere/command-a-03-2025", settings()).max_output_tokens == 2000
+
+
+@pytest.mark.parametrize(
+    "reference, temperature, top_p",
+    [
+        ("nvidia/nvidia/nemotron-3.5-super-vl-120b-a12b", 1.0, 0.95),
+        ("cohere/command-a-03-2025", 0.3, 0.75),
+        ("mistral/ministral-14b-2512", 0.0, None),
+        ("nvidia/another-model", 0.0, None),
+        ("cohere/another-model", 0.0, None),
+        ("mistral/another-model", 0.0, None),
+    ],
+)
+def test_model_sampling_reaches_the_outgoing_request(
+    monkeypatch, reference, temperature, top_p
+):
+    # Variables:
+    #   reference: An exact documented model or an unconfigured model on the same service.
+    #   body: The outgoing request, checked for the selected model's actual sampling.
+    monkeypatch.setenv(f"{reference.split('/')[0].upper()}_API_KEY", KEY)
+    transport = FakeTransport(chat('{"text": "x"}'))
+    client_for(reference, settings(), transport=transport).ask("s", "p", Lesson)
+    body = transport.requests[0][2]
+    assert body["temperature"] == temperature
+    if top_p is None:
+        assert "top_p" not in body
+    else:
+        assert body["top_p"] == top_p
+
+
+@pytest.mark.parametrize("critic", [False, True])
+def test_fallback_uses_its_own_model_sampling(monkeypatch, critic):
+    # Variables:
+    #   critic: Selects the independent critic chain or the investigator chain.
+    #   transport: Rejects the primary once, then returns a valid backup answer.
+    monkeypatch.setenv("NVIDIA_API_KEY", KEY)
+    monkeypatch.setenv("MISTRAL_API_KEY", KEY)
+    monkeypatch.setenv("COHERE_API_KEY", KEY)
+    configured = settings(
+        DEFAULT_MODEL="nvidia/nvidia/nemotron-3.5-super-vl-120b-a12b",
+        FALLBACK_MODEL="cohere/command-a-03-2025",
+        CRITIC_MODEL="mistral/ministral-14b-2512",
+        CRITIC_FALLBACK_MODEL="cohere/command-a-03-2025",
+    )
+    transport = FakeTransport(http_error(401), chat('{"text": "x"}'))
+    caller = (
+        critic_client(configured, transport=transport)
+        if critic
+        else clients_for_jobs(configured, transport=transport)["decide"]
+    )
+    assert caller.ask("s", "p", Lesson) == Lesson(text="x")
+    primary, fallback_body = [request[2] for request in transport.requests]
+    assert primary["temperature"] == (0.0 if critic else 1.0)
+    assert fallback_body["temperature"] == 0.3
+    assert fallback_body["top_p"] == 0.75
+
+
+def test_model_sampling_overrides_provider_and_inherits_omitted_fields(monkeypatch):
+    # Variables:
+    #   model, provider: Requests after combining the exact-model and provider layers.
+    monkeypatch.setenv("COHERE_API_KEY", KEY)
+    monkeypatch.setenv(
+        "PROVIDER_SAMPLING", '{"cohere":{"temperature":0.2,"top_p":0.8}}'
+    )
+    monkeypatch.setenv(
+        "MODEL_SAMPLING", '{"cohere/command-a-03-2025":{"temperature":0.1}}'
+    )
+    transport = FakeTransport(chat('{"text":"x"}'), chat('{"text":"x"}'))
+    for ref in ("cohere/command-a-03-2025", "cohere/another-model"):
+        client_for(ref, settings(), transport=transport).ask("s", "p", Lesson)
+    model, provider = [request[2] for request in transport.requests]
+    assert (model["temperature"], model["top_p"]) == (0.1, 0.8)
+    assert (provider["temperature"], provider["top_p"]) == (0.2, 0.8)
+
+
+def test_null_top_p_uses_service_default(monkeypatch):
+    # Variables:
+    #   body: The request after an explicit null removes the model's top_p default.
+    monkeypatch.setenv("COHERE_API_KEY", KEY)
+    monkeypatch.setenv("MODEL_SAMPLING", '{"cohere/command-a-03-2025":{"top_p":null}}')
+    transport = FakeTransport(chat('{"text":"x"}'))
+    client_for("cohere/command-a-03-2025", settings(), transport=transport).ask(
+        "s", "p", Lesson
+    )
+    body = transport.requests[0][2]
+    assert body["temperature"] == 0.3
+    assert "top_p" not in body
 
 
 def test_when_the_first_fallback_is_out_of_quota_the_second_answers():

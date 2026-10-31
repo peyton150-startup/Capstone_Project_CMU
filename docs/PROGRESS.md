@@ -1,5 +1,22 @@
 # Progress Log
 
+> **2026-10-31 — model sampling and independent critic backup settings:**
+> Built ungated at the developer's request (understood: no). `settings.py`
+> adds `SamplingOptions`, `PROVIDER_SAMPLING` and `MODEL_SAMPLING` JSON maps,
+> plus `CRITIC_FALLBACK_MODEL`. `critic_models` appends only its own backups
+> and deduplicates them, preserving legacy critic lists. `providers/chat.py`
+> adds exact-model sampling defaults and combines them with provider and model
+> overrides in `client_for`; `ChatClient` validates and sends temperature and
+> optional top_p. Defaults: NVIDIA Nemotron 3.5 Super VL text 1.0/0.95,
+> Cohere Command A 0.3/0.75, Ministral 14B 0/service default; other models
+> retain 0/service default. Model overrides win field by field; explicit null
+> removes top_p. `.env.example` and [MODEL_CONFIGURATION.md](MODEL_CONFIGURATION.md)
+> give copyable settings, precedence and provider references. Tests exercise
+> outgoing payloads, investigator and critic fallback routing, quoted `.env`
+> JSON, inheritance, invalid values and legacy critic chains. No live model
+> tests or master episodes for this change. PR to remain unmerged at the
+> developer's instruction; existing result files are unchanged.
+
 > **2026-10-31 — Cohere JSON-output fallback fix:** The interrupted ToT
 > run-2 files saved two cases each. Cohere's HTTP 422 was reproduced live
 > on a ToT generation request: `NO_VALID_RESPONSE_GENERATED` ("No valid

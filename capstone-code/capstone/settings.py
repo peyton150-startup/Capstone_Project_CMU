@@ -11,7 +11,7 @@ so any model can do any job.
 from pathlib import Path
 from typing import Literal
 
-from pydantic import Field, SecretStr, field_validator
+from pydantic import BaseModel, ConfigDict, Field, SecretStr, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 # The developer's choice for the agent (2026-10-20); listed by NVIDIA's hosted
@@ -30,6 +30,15 @@ REPO_ROOT = Path(__file__).resolve().parents[2]
 def _optional(alias: str):
     """An optional setting read from the environment name `alias`."""
     return Field(default=None, validation_alias=alias)
+
+
+class SamplingOptions(BaseModel):
+    """Sampling fields that a provider or exact model can override."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+    temperature: float = Field(default=0.0, ge=0, le=2, allow_inf_nan=False)
+    # An explicit null removes top_p from the request, using the service default.
+    top_p: float | None = Field(default=None, gt=0, le=1, allow_inf_nan=False)
 
 
 class Settings(BaseSettings):
@@ -102,6 +111,14 @@ class Settings(BaseSettings):
 
     # Which model answers which policy question. None: use default_model.
     default_model: str = Field(default=DEFAULT_MODEL, validation_alias="DEFAULT_MODEL")
+    # JSON maps in .env: provider name or full provider/model reference to the
+    # fields to override. Exact model fields take precedence over provider fields.
+    provider_sampling: dict[str, SamplingOptions] = Field(
+        default_factory=dict, validation_alias="PROVIDER_SAMPLING"
+    )
+    model_sampling: dict[str, SamplingOptions] = Field(
+        default_factory=dict, validation_alias="MODEL_SAMPLING"
+    )
     plan_model: str | None = _optional("PLAN_MODEL")
     decide_model: str | None = _optional("DECIDE_MODEL")
     interpret_model: str | None = _optional("INTERPRET_MODEL")
@@ -127,10 +144,11 @@ class Settings(BaseSettings):
     # The critic (review only): a second model that judges the two leading
     # hypotheses before the conclusion and changes nothing in the run. Off by
     # default so runs stay comparable with the baseline. Its models are its
-    # own comma-separated chain: the shared FALLBACK_MODEL chain is not added,
-    # because it leads back to the investigator's own models.
+    # own primary list and CRITIC_FALLBACK_MODEL chain: the investigator's
+    # FALLBACK_MODEL is never added. Comma-separated primary lists still work.
     critic: bool = Field(default=False, validation_alias="CRITIC")
     critic_model: str | None = _optional("CRITIC_MODEL")
+    critic_fallback_model: str | None = _optional("CRITIC_FALLBACK_MODEL")
     # The critic's own time window, on top of the investigation's time.
     # Live check 2026-10-28: good answers took 4-10 s and the 30 s timeouts
     # never answered; 40 s gives each of two models about 20 s.
@@ -206,6 +224,7 @@ class Settings(BaseSettings):
         "lesson_model",
         "fallback_model",
         "critic_model",
+        "critic_fallback_model",
         mode="before",
     )
     @classmethod
@@ -233,18 +252,20 @@ def fallback_models(settings: Settings) -> tuple[str, ...]:
 
 
 def critic_models(settings: Settings) -> tuple[str, ...]:
-    """The critic's chain from CRITIC_MODEL, in order; empty when none is set."""
+    """The critic's primary list then its own fallbacks, each model once."""
     # Variables:
     #   settings: The project settings.
     #   chain: The models in the order they are tried, each once.
     #   reference: One model written as provider/model.
+    #   configured: The primary list followed by the critic-only backup list.
     if not settings.critic_model:
         return ()
     chain: list[str] = []
-    for reference in settings.critic_model.split(","):
-        reference = reference.strip()
-        if reference and reference not in chain:
-            chain.append(reference)
+    for configured in (settings.critic_model, settings.critic_fallback_model):
+        for reference in (configured or "").split(","):
+            reference = reference.strip()
+            if reference and reference not in chain:
+                chain.append(reference)
     return tuple(chain)
 
 

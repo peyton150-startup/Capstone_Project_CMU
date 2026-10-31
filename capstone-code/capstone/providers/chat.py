@@ -45,7 +45,13 @@ from typing import TypeVar
 from pydantic import BaseModel, ValidationError
 
 from capstone.contracts import Contract
-from capstone.settings import Settings, critic_models, fallback_models, get_settings
+from capstone.settings import (
+    SamplingOptions,
+    Settings,
+    critic_models,
+    fallback_models,
+    get_settings,
+)
 
 # (url, headers, body, timeout in seconds) -> response body
 Transport = Callable[[str, dict[str, str], bytes, float], bytes]
@@ -133,6 +139,18 @@ class Attempt(Contract):
     # How long the request took, on the client's clock. The pause before a
     # retry is not included: it is the client waiting, not the model.
     seconds: float | None = None
+
+
+# Model-specific defaults: NVIDIA's text recommendation, Cohere's documented
+# starting values, and Ministral's low-temperature production guidance.
+# Unknown models keep temperature 0 and their service's default top_p.
+MODEL_SAMPLING_DEFAULTS = {
+    "nvidia/nvidia/nemotron-3.5-super-vl-120b-a12b": SamplingOptions(
+        temperature=1.0, top_p=0.95
+    ),
+    "cohere/command-a-03-2025": SamplingOptions(temperature=0.3, top_p=0.75),
+    "mistral/ministral-14b-2512": SamplingOptions(temperature=0.0),
+}
 
 
 @dataclass(frozen=True)
@@ -353,6 +371,8 @@ class ChatClient:
         max_output_tokens: int | None = None,
         structured_output: bool = False,
         json_output: bool = False,
+        temperature: float = 0.0,
+        top_p: float | None = None,
     ):
         # Variables:
         #   url: The chat-completions address of the provider.
@@ -366,6 +386,9 @@ class ChatClient:
         #     service must follow it.
         #   json_output: Request a JSON object when the provider supports that
         #     mode; the expected shape is still checked by the application.
+        #   temperature: How much randomness to request for this model.
+        #   top_p: Nucleus-sampling limit; None leaves it to the service.
+        #   sampling: Checked numeric values, including values supplied directly.
         if max_output_tokens is not None and max_output_tokens < 1:
             raise ValueError("max_output_tokens must be at least 1")
         self.url = url
@@ -380,6 +403,9 @@ class ChatClient:
         # service cannot reply in another shape (see Provider).
         self.structured_output = structured_output
         self.json_output = json_output
+        sampling = SamplingOptions(temperature=temperature, top_p=top_p)
+        self.temperature = sampling.temperature
+        self.top_p = sampling.top_p
 
     def __repr__(self) -> str:
         return f"ChatClient(url={self.url!r}, model={self.model!r})"
@@ -407,16 +433,15 @@ class ChatClient:
         #   limit: The shortest of the allowed waits, which is what is used.
         #   schema: The answer type's JSON schema as text, shown to the model in the
         #     system prompt.
-        #   body: The request sent to the service; temperature 0 keeps answers as
-        #     repeatable as the service allows. The provider's output mode asks
-        #     for its supported JSON format, and local validation checks the shape.
+        #   body: The request, with this model's sampling and supported JSON mode;
+        #     local validation still checks the answer's shape.
         #   raw: The service's reply bytes, before the text and JSON are pulled out and
         #     checked.
         limit = min(x for x in (self.timeout, timeout, max_seconds) if x is not None)
         schema = json.dumps(answer_type.model_json_schema())
         body = {
             "model": self.model,
-            "temperature": 0,
+            "temperature": self.temperature,
             "messages": [
                 {
                     "role": "system",
@@ -426,6 +451,8 @@ class ChatClient:
                 {"role": "user", "content": prompt},
             ],
         }
+        if self.top_p is not None:
+            body["top_p"] = self.top_p
         if self.max_output_tokens is not None:
             body["max_tokens"] = self.max_output_tokens
         if self.structured_output:
@@ -624,6 +651,9 @@ def client_for(
     #   provider: The provider's address, key setting, output mode and limits.
     #   key: The secret for that provider from settings; None means it is not set.
     #   url: The provider's address, with the Cloudflare account filled in if needed.
+    #   sampling: Effective values: code defaults, then provider overrides, then
+    #     exact model overrides; only explicitly configured fields replace values.
+    #   override: One layer of sampling settings; null top_p clears an earlier limit.
     settings = settings or get_settings()
     name, _, model = reference.partition("/")
     if name not in PROVIDERS or not model:
@@ -632,6 +662,16 @@ def client_for(
             f"from {sorted(PROVIDERS)}"
         )
     provider = PROVIDERS[name]
+    sampling = SamplingOptions()
+    for override in (
+        MODEL_SAMPLING_DEFAULTS.get(reference),
+        settings.provider_sampling.get(name),
+        settings.model_sampling.get(reference),
+    ):
+        if override is not None:
+            sampling = sampling.model_copy(
+                update=override.model_dump(exclude_unset=True)
+            )
     key = getattr(settings, provider.key_setting.lower())
     if key is None:
         raise ModelError(f"set {provider.key_setting} in the local .env or environment")
@@ -653,6 +693,8 @@ def client_for(
         ),
         structured_output=provider.structured_output,
         json_output=provider.json_output,
+        temperature=sampling.temperature,
+        top_p=sampling.top_p,
     )
 
 
