@@ -3,7 +3,7 @@
 **Status:** PLANNED / EVALUATION ONLY — not enabled, implemented, or approved for a runtime change by this document. Items already built are marked ✅ IMPLEMENTED (audit 2026-10-31, `main` at `af3b7bf`): P0, P2 (deterministic part) and cohorts A to D; P1 and P4 are partly built; P3 and P5 are not built.  
 **Priority:** After the ongoing experiment finishes; first prioritize pruning correctness and evaluator quality.  
 **Source:** CMU Module 4, Mini-Lesson 4.1, *Tree-of-Thought Accuracy and Structure in Multi-Agents*; [Tree of Thoughts (Yao et al., 2023)](https://arxiv.org/abs/2305.10601).  
-**Related:** [Review signal 2026-10-30](REVIEW_SIGNAL_2026-10-30.md) (verified findings from the ToT review and machining videos). **Related roadmap:** [MVP Scope — GoT and multi-cause diagnosis](MVP_SCOPE.md#graph-of-thoughts-got-hypothesis-reasoning--medium-priority-evaluation-2026-10-29) and [Future Work 7](MVP_SCOPE.md#future-work-7--model-evaluation-execution-budgets-and-computed-evidence).
+**Related:** [Review signal 2026-10-30](REVIEW_SIGNAL_2026-10-30.md) (verified findings from the ToT review and machining videos); [Run-2 findings](RUN2_FINDINGS_FUTURE_WORK.md) (2026-10-31: confident dismissal, follow-up starved of tool calls, job routes, the critic's verdict check). **Related roadmap:** [MVP Scope — GoT and multi-cause diagnosis](MVP_SCOPE.md#graph-of-thoughts-got-hypothesis-reasoning--medium-priority-evaluation-2026-10-29) and [Future Work 7](MVP_SCOPE.md#future-work-7--model-evaluation-execution-budgets-and-computed-evidence).
 
 ## Scheduling gate: protect the runs in progress
 
