@@ -457,11 +457,30 @@ def test_a_conclusion_comes_with_an_action_or_none():
         "diagnosis": "CNC-02 is wearing",
         "confidence": 0.9,
         "recommendation": "no_action",
+        "assessment": "supported",
     }
     agent = policy(conclude=[{"conclusion": concluded}])
     conclusion, action = agent.conclude(state_with_evidence())
     assert conclusion == AgentConclusion(**concluded) and action is None
     assert "replace_bearing" in SYSTEM["conclude"]  # the actions, not the causes
+
+
+def test_missing_model_completion_assessment_is_unresolved_not_a_silent_success():
+    agent = policy(
+        conclude=[
+            {
+                "conclusion": {
+                    "diagnosis": "not enough information",
+                    "confidence": 0.9,
+                    "recommendation": "no_action",
+                }
+            }
+        ]
+    )
+    conclusion, _ = agent.conclude(state_with_evidence())
+    assert conclusion.assessment == "unresolved"
+    assert conclusion.recommendation == "escalate"
+    assert conclusion.unresolved_questions
 
 
 def test_a_judgement_keeps_the_prediction_recorded_before_the_action():
@@ -602,6 +621,7 @@ def scripted_models():
             {
                 "conclusion": {
                     "diagnosis": "the spindle bearing on CNC-02 is wearing",
+                    "assessment": "supported",
                     "confidence": 0.95,
                     "recommendation": "intervene",
                     "hypothesis_id": "H1",

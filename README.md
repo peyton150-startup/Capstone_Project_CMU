@@ -327,6 +327,18 @@ through manufacturing feedback.
 Parts of this work were based on these papers. Each line names the change
 and the paper it came from.
 
+- Bounded factual evidence briefs with space reserved for routes, inspections
+  and measurements (`capstone/agent/evidence_brief.py`): informed by
+  [Lost in the Middle: How Language Models Use Long Contexts](https://arxiv.org/abs/2307.03172)
+  (Liu et al., 2023). This motivates testing evidence presentation; it does not
+  establish an accuracy gain in this simulator.
+- Critic correction grounded in a bounded new observation rather than confidence
+  alone (`capstone/agent/investigation.py`): informed by
+  [Large Language Models Cannot Self-Correct Reasoning Yet](https://arxiv.org/abs/2310.01798)
+  (Huang et al., 2024), which studies the limitations of intrinsic correction
+  without external feedback. Our deterministic checks verify mechanical facts,
+  not the truth of a causal explanation.
+
 - Scoring-integrity tests (`tests/test_scoring_integrity.py`): scoring
   never changes the simulator, gives the same score twice, and stays right
   as time moves on. Based on [When Agent Evaluation Becomes Unreliable](https://arxiv.org/abs/2610.16067)

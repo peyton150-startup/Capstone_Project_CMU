@@ -28,6 +28,7 @@ from collections.abc import Sequence
 from typing import TYPE_CHECKING
 
 from capstone.agent.artifacts import CritiqueRecord, CritiqueResult, RecheckRecord
+from capstone.agent.evidence_brief import evidence_brief
 from capstone.agent.model_policy import (
     Client,
     ModelCall,
@@ -90,9 +91,11 @@ Work through these steps, in order:
 2. For each hypothesis, list the evidence that fits it and the evidence that does not.
 3. Pick the hypothesis the evidence supports best. It need not be proven; \
 it must be the best fit. Pick none only if the evidence supports none of them.
-4. Name one call from the tool list, with its arguments, whose answer would \
+4. Name one read-only call from the tool list, with its arguments, whose answer would \
 separate your pick from the leading explanation (from the runner-up, if your \
-pick is the leading one). Use only tools in the list.
+pick is the leading one). Use only tools in the list. Also provide check_request \
+with its exact name and arguments. Never use wait or an action: the check must \
+not change the factory. Explain the expected contrasting outcomes in discriminating_check.
 5. List objections. Each has a kind, one sentence, and the evidence ids it rests \
 on. Cite only ids that are shown to you.
 6. Give the verdict, and make it agree with your pick. no_objection: your pick \
@@ -218,11 +221,13 @@ def critique_view(
     #   lines: The prompt, built up section by section and joined at the end.
     #   supported, contradicted: The evidence ids a shown hypothesis says back it or
     #     count against it, so the critic can check those claims.
+    #   evidence_brief: Arithmetic, coverage and routes derived from observable results.
     anomaly = state.anomaly
     where = f" on {anomaly.machine_id}" if anomaly.machine_id else ""
     lines = [
         f"ANOMALY ({anomaly.kind}{where}, tick {anomaly.tick}): {anomaly.description}",
         "",
+        evidence_brief(state),
         *evidence_section(state),
         "",
         "HYPOTHESES SHOWN TO YOU:",
@@ -234,6 +239,10 @@ def critique_view(
         lines.append(
             f"- {h.id} (confidence {h.confidence:.2f}{leading}): {h.claim} "
             f"Supported by: {supported}. Contradicted by: {contradicted}."
+        )
+        lines.append(
+            f"Expected: {h.expected_observations}; assumptions: {h.assumptions}; "
+            f"unexplained evidence: {h.unexplained_evidence_ids}; check: {h.discriminating_check}"
         )
     if state.pruned_candidates:
         lines += ["", PRUNED_NOTE]

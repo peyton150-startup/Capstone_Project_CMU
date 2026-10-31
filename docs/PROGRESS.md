@@ -1,5 +1,20 @@
 # Progress Log
 
+> **2026-10-31 — evidence use and investigation completion improvements:**
+> Built ungated at the developer's request (understood: no). Six approved
+> improvements plus pasted proposals 1/2/4 are implemented on a PR branch;
+> **do not merge**, per the developer. [Implementation notes](INVESTIGATION_REASONING.md)
+> describe the bounded observable evidence brief (`evidence_brief.py`), typed
+> hypothesis comparisons and numeric claims (`contracts/hypotheses.py`),
+> diagnostic-question ranking and final assessments (`model_policy.py`),
+> controller completion checks and a separate one-call critic allowance
+> (`investigation.py`, `loop.py`, `state.py`), and experiment audit fields
+> (`experiment.py`). Critic and ToT reuse the same evidence/comparison views.
+> No new provider, model, hidden-truth exposure, deeper ToT, or memory behavior.
+> Numeric verification checks arithmetic/provenance, not causal truth. Live
+> accuracy remains untested; old result files are unchanged. Adaptive ToT,
+> memory changes and the optional blind-critic experiment remain separate.
+
 > **2026-10-31 — model sampling and independent critic backup settings:**
 > Built ungated at the developer's request (understood: no). `settings.py`
 > adds `SamplingOptions`, `PROVIDER_SAMPLING` and `MODEL_SAMPLING` JSON maps,
