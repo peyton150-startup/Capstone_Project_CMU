@@ -14,8 +14,9 @@
 > give copyable settings, precedence and provider references. Tests exercise
 > outgoing payloads, investigator and critic fallback routing, quoted `.env`
 > JSON, inheritance, invalid values and legacy critic chains. No live model
-> tests or master episodes for this change. PR to remain unmerged at the
-> developer's instruction; existing result files are unchanged.
+> tests or master episodes for this change. The developer subsequently
+> requested merging PR #146 after verification, superseding the earlier hold.
+> No walkthrough understanding is claimed; existing result files are unchanged.
 
 > **2026-10-31 — Cohere JSON-output fallback fix:** The interrupted ToT
 > run-2 files saved two cases each. Cohere's HTTP 422 was reproduced live
