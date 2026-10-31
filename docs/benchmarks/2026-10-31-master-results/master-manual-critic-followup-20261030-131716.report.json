@@ -1,0 +1,1973 @@
+{
+  "name": "master-manual-critic-followup-20261030-131716",
+  "cases": [
+    {
+      "scenario_id": "KA-01-bearing",
+      "run_key": "master-manual-critic-followup-20261030-131716/1/KA-01-bearing",
+      "expected_faults": [
+        "bearing_degradation"
+      ],
+      "final_diagnosis": "CNC-02 has a developing mechanical vibration problem: the 4.50 mm/s alarm fired twice (tick 914 at 4.58 mm/s and tick 919 at 4.51 mm/s, E3) and vibration stayed elevated across the 910-929 window (bucket means 4.34 and 4.42 mm/s, E4/E9; raw readings 4.16-4.58 mm/s, E13). Load (E5), temperature (E6), and power (E12) are steady, and comparable machine CNC-04 runs far quieter (E11), so this is not an operating change, thermal effect, or sensor glitch - it points to spindle-bearing wear, imbalance, alignment, or loose mounting. The exact mechanical cause is not yet pinpointed. Confidence 0.85, below the 0.90 threshold for a parts replacement. A maintenance inspection (bearing play, mounting, alignment, balance) or continued readings above 4.50 mm/s with a rising trend would raise confidence and justify replace_bearing.",
+      "diagnosis_label": {
+        "run_key": "master-manual-critic-followup-20261030-131716/1/KA-01-bearing",
+        "diagnosis": null,
+        "labelled_by": "typesafe/jev-1.14.0",
+        "note": ""
+      },
+      "label_needs_review": false,
+      "correct": false,
+      "target_correct": false,
+      "tool_calls": 13,
+      "runtime_seconds": 814.4806485000299,
+      "agent_steps": [
+        {
+          "agent": "research_agent",
+          "kind": "decision",
+          "phase": "observe",
+          "outcome": "observed",
+          "tool": "get_time"
+        },
+        {
+          "agent": "research_agent",
+          "kind": "decision",
+          "phase": "observe",
+          "outcome": "observed",
+          "tool": "search_manual"
+        },
+        {
+          "agent": "research_agent",
+          "kind": "decision",
+          "phase": "plan",
+          "outcome": "decided",
+          "tool": null
+        },
+        {
+          "agent": "research_agent",
+          "kind": "decision",
+          "phase": "investigate",
+          "outcome": "observed",
+          "tool": "get_events"
+        },
+        {
+          "agent": "research_agent",
+          "kind": "decision",
+          "phase": "investigate",
+          "outcome": "observed",
+          "tool": "get_sensor_trend"
+        },
+        {
+          "agent": "research_agent",
+          "kind": "decision",
+          "phase": "investigate",
+          "outcome": "observed",
+          "tool": "get_sensor_trend"
+        },
+        {
+          "agent": "research_agent",
+          "kind": "decision",
+          "phase": "investigate",
+          "outcome": "observed",
+          "tool": "get_sensor_trend"
+        },
+        {
+          "agent": "research_agent",
+          "kind": "decision",
+          "phase": "investigate",
+          "outcome": "observed",
+          "tool": "get_factory_readings"
+        },
+        {
+          "agent": "research_agent",
+          "kind": "decision",
+          "phase": "investigate",
+          "outcome": "stopped",
+          "tool": null
+        },
+        {
+          "agent": "research_agent",
+          "kind": "decision",
+          "phase": "hypothesize",
+          "outcome": "decided",
+          "tool": null
+        },
+        {
+          "agent": "research_agent",
+          "kind": "decision",
+          "phase": "test",
+          "outcome": "observed",
+          "tool": "wait"
+        },
+        {
+          "agent": "research_agent",
+          "kind": "decision",
+          "phase": "test",
+          "outcome": "observed",
+          "tool": "get_sensor_trend"
+        },
+        {
+          "agent": "research_agent",
+          "kind": "decision",
+          "phase": "test",
+          "outcome": "observed",
+          "tool": "list_machines"
+        },
+        {
+          "agent": "research_agent",
+          "kind": "decision",
+          "phase": "test",
+          "outcome": "observed",
+          "tool": "get_sensor_trend"
+        },
+        {
+          "agent": "research_agent",
+          "kind": "decision",
+          "phase": "test",
+          "outcome": "observed",
+          "tool": "get_sensor_trend"
+        },
+        {
+          "agent": "research_agent",
+          "kind": "decision",
+          "phase": "test",
+          "outcome": "stopped",
+          "tool": null
+        },
+        {
+          "agent": "research_agent",
+          "kind": "decision",
+          "phase": "test",
+          "outcome": "observed",
+          "tool": "get_readings"
+        },
+        {
+          "agent": "research_agent",
+          "kind": "decision",
+          "phase": "decide",
+          "outcome": "decided",
+          "tool": null
+        },
+        {
+          "agent": "research_agent",
+          "kind": "model_question",
+          "phase": "plan",
+          "outcome": "answered",
+          "tool": null
+        },
+        {
+          "agent": "research_agent",
+          "kind": "model_question",
+          "phase": "decide",
+          "outcome": "answered",
+          "tool": null
+        },
+        {
+          "agent": "research_agent",
+          "kind": "model_question",
+          "phase": "interpret",
+          "outcome": "answered",
+          "tool": null
+        },
+        {
+          "agent": "research_agent",
+          "kind": "model_question",
+          "phase": "decide",
+          "outcome": "answered",
+          "tool": null
+        },
+        {
+          "agent": "research_agent",
+          "kind": "model_question",
+          "phase": "interpret",
+          "outcome": "answered",
+          "tool": null
+        },
+        {
+          "agent": "research_agent",
+          "kind": "model_question",
+          "phase": "decide",
+          "outcome": "answered",
+          "tool": null
+        },
+        {
+          "agent": "research_agent",
+          "kind": "model_question",
+          "phase": "interpret",
+          "outcome": "answered",
+          "tool": null
+        },
+        {
+          "agent": "research_agent",
+          "kind": "model_question",
+          "phase": "decide",
+          "outcome": "answered",
+          "tool": null
+        },
+        {
+          "agent": "research_agent",
+          "kind": "model_question",
+          "phase": "interpret",
+          "outcome": "answered",
+          "tool": null
+        },
+        {
+          "agent": "research_agent",
+          "kind": "model_question",
+          "phase": "decide",
+          "outcome": "answered",
+          "tool": null
+        },
+        {
+          "agent": "research_agent",
+          "kind": "model_question",
+          "phase": "interpret",
+          "outcome": "answered",
+          "tool": null
+        },
+        {
+          "agent": "research_agent",
+          "kind": "model_question",
+          "phase": "decide",
+          "outcome": "answered",
+          "tool": null
+        },
+        {
+          "agent": "research_agent",
+          "kind": "model_question",
+          "phase": "hypothesize",
+          "outcome": "answered",
+          "tool": null
+        },
+        {
+          "agent": "research_agent",
+          "kind": "model_question",
+          "phase": "decide",
+          "outcome": "answered",
+          "tool": null
+        },
+        {
+          "agent": "research_agent",
+          "kind": "model_question",
+          "phase": "interpret",
+          "outcome": "answered",
+          "tool": null
+        },
+        {
+          "agent": "research_agent",
+          "kind": "model_question",
+          "phase": "decide",
+          "outcome": "answered",
+          "tool": null
+        },
+        {
+          "agent": "research_agent",
+          "kind": "model_question",
+          "phase": "interpret",
+          "outcome": "answered",
+          "tool": null
+        },
+        {
+          "agent": "research_agent",
+          "kind": "model_question",
+          "phase": "decide",
+          "outcome": "answered",
+          "tool": null
+        },
+        {
+          "agent": "research_agent",
+          "kind": "model_question",
+          "phase": "interpret",
+          "outcome": "answered",
+          "tool": null
+        },
+        {
+          "agent": "research_agent",
+          "kind": "model_question",
+          "phase": "decide",
+          "outcome": "answered",
+          "tool": null
+        },
+        {
+          "agent": "research_agent",
+          "kind": "model_question",
+          "phase": "interpret",
+          "outcome": "answered",
+          "tool": null
+        },
+        {
+          "agent": "research_agent",
+          "kind": "model_question",
+          "phase": "decide",
+          "outcome": "answered",
+          "tool": null
+        },
+        {
+          "agent": "research_agent",
+          "kind": "model_question",
+          "phase": "interpret",
+          "outcome": "answered",
+          "tool": null
+        },
+        {
+          "agent": "research_agent",
+          "kind": "model_question",
+          "phase": "decide",
+          "outcome": "answered",
+          "tool": null
+        },
+        {
+          "agent": "research_agent",
+          "kind": "model_question",
+          "phase": "decide",
+          "outcome": "answered",
+          "tool": null
+        },
+        {
+          "agent": "research_agent",
+          "kind": "model_question",
+          "phase": "interpret",
+          "outcome": "answered",
+          "tool": null
+        },
+        {
+          "agent": "research_agent",
+          "kind": "model_question",
+          "phase": "conclude",
+          "outcome": "answered",
+          "tool": null
+        },
+        {
+          "agent": "critic",
+          "kind": "model_question",
+          "phase": "critique",
+          "outcome": "answered",
+          "tool": null
+        }
+      ],
+      "critic_outcome": "answered",
+      "critic_verdict": "object",
+      "critic_favoured": "H2",
+      "critic_pick_correct": null,
+      "committed": false,
+      "confidence": 0.85,
+      "confident_wrong": false,
+      "false_intervention": false,
+      "blackout": false,
+      "missing_read_as_normal": null,
+      "blackout_recovered": null
+    },
+    {
+      "scenario_id": "KA-03-batch",
+      "run_key": "master-manual-critic-followup-20261030-131716/2/KA-03-batch",
+      "expected_faults": [
+        "bad_material_batch"
+      ],
+      "final_diagnosis": "The inspection failures follow a clear batch-2 alternating pattern: odd-numbered batch-2 jobs failed (job 11 at tick 1086, job 13 at 1222, job 15 at 1364) while even-numbered batch-2 jobs passed (job 12 at 1156, job 14 at 1294, job 16 at 1433) [E3, E4, E10, E12]. Job 10 (batch 1) passed [E4], and the most recent job, 16, passed at tick 1433 [E12], so this is not a steadily worsening fault. Every job routes through all six CNC machines (CNC-01..CNC-06) [E5, E6, E7, E9, E10], so no single station is implicated (H2 contradicted), and the failures are specific odd jobs rather than random noise (H3 contradicted). We only have current speed settings (E8) with no history of changes; since all jobs use the same machines, static per-machine speeds cannot explain odd/even alternation, and there is no evidence settings changed over time (H4 unsupported). Q10: the only job after 15 with an inspection result is job 16, which passed at tick 1433 (batch 2) [E12]; E13 returns empty for 1435-1500 as expected. Q11: settings history is unavailable, but the parity pattern cannot be produced by per-machine speeds common to all jobs. Confidence: 0.85. Evidence that would raise it: a vibration trend showing no abnormal vibration (ruling out a mechanical/H4 cause), a settings change history, or continuation of the alternation on jobs 17/18.",
+      "diagnosis_label": {
+        "run_key": "master-manual-critic-followup-20261030-131716/2/KA-03-batch",
+        "diagnosis": null,
+        "labelled_by": "typesafe/jev-1.14.0",
+        "note": ""
+      },
+      "label_needs_review": false,
+      "correct": false,
+      "target_correct": false,
+      "tool_calls": 15,
+      "runtime_seconds": 999.0872900999966,
+      "agent_steps": [
+        {
+          "agent": "research_agent",
+          "kind": "decision",
+          "phase": "observe",
+          "outcome": "observed",
+          "tool": "get_time"
+        },
+        {
+          "agent": "research_agent",
+          "kind": "decision",
+          "phase": "observe",
+          "outcome": "observed",
+          "tool": "search_manual"
+        },
+        {
+          "agent": "research_agent",
+          "kind": "decision",
+          "phase": "plan",
+          "outcome": "decided",
+          "tool": null
+        },
+        {
+          "agent": "research_agent",
+          "kind": "decision",
+          "phase": "investigate",
+          "outcome": "observed",
+          "tool": "get_inspections"
+        },
+        {
+          "agent": "research_agent",
+          "kind": "decision",
+          "phase": "investigate",
+          "outcome": "observed",
+          "tool": "get_inspections"
+        },
+        {
+          "agent": "research_agent",
+          "kind": "decision",
+          "phase": "investigate",
+          "outcome": "observed",
+          "tool": "get_events"
+        },
+        {
+          "agent": "research_agent",
+          "kind": "decision",
+          "phase": "investigate",
+          "outcome": "observed",
+          "tool": "get_job_history"
+        },
+        {
+          "agent": "research_agent",
+          "kind": "decision",
+          "phase": "investigate",
+          "outcome": "observed",
+          "tool": "get_job_history"
+        },
+        {
+          "agent": "research_agent",
+          "kind": "decision",
+          "phase": "investigate",
+          "outcome": "observed",
+          "tool": "get_settings"
+        },
+        {
+          "agent": "research_agent",
+          "kind": "decision",
+          "phase": "investigate",
+          "outcome": "observed",
+          "tool": "get_events"
+        },
+        {
+          "agent": "research_agent",
+          "kind": "decision",
+          "phase": "investigate",
+          "outcome": "observed",
+          "tool": "get_events"
+        },
+        {
+          "agent": "research_agent",
+          "kind": "decision",
+          "phase": "investigate",
+          "outcome": "observed",
+          "tool": "wait"
+        },
+        {
+          "agent": "research_agent",
+          "kind": "decision",
+          "phase": "investigate",
+          "outcome": "observed",
+          "tool": "get_inspections"
+        },
+        {
+          "agent": "research_agent",
+          "kind": "decision",
+          "phase": "investigate",
+          "outcome": "observed",
+          "tool": "get_inspections"
+        },
+        {
+          "agent": "research_agent",
+          "kind": "decision",
+          "phase": "investigate",
+          "outcome": "repeated_call",
+          "tool": "get_inspections"
+        },
+        {
+          "agent": "research_agent",
+          "kind": "decision",
+          "phase": "investigate",
+          "outcome": "repeated_call",
+          "tool": "get_inspections"
+        },
+        {
+          "agent": "research_agent",
+          "kind": "decision",
+          "phase": "investigate",
+          "outcome": "stopped",
+          "tool": null
+        },
+        {
+          "agent": "research_agent",
+          "kind": "decision",
+          "phase": "test",
+          "outcome": "stopped",
+          "tool": null
+        },
+        {
+          "agent": "research_agent",
+          "kind": "decision",
+          "phase": "decide",
+          "outcome": "decided",
+          "tool": null
+        },
+        {
+          "agent": "research_agent",
+          "kind": "decision",
+          "phase": "verify",
+          "outcome": "observed",
+          "tool": "wait"
+        },
+        {
+          "agent": "research_agent",
+          "kind": "decision",
+          "phase": "verify",
+          "outcome": "observed",
+          "tool": "get_inspections"
+        },
+        {
+          "agent": "research_agent",
+          "kind": "decision",
+          "phase": "verify",
+          "outcome": "stopped",
+          "tool": null
+        },
+        {
+          "agent": "research_agent",
+          "kind": "decision",
+          "phase": "verify",
+          "outcome": "decided",
+          "tool": null
+        },
+        {
+          "agent": "research_agent",
+          "kind": "model_question",
+          "phase": "plan",
+          "outcome": "answered",
+          "tool": null
+        },
+        {
+          "agent": "research_agent",
+          "kind": "model_question",
+          "phase": "decide",
+          "outcome": "answered",
+          "tool": null
+        },
+        {
+          "agent": "research_agent",
+          "kind": "model_question",
+          "phase": "interpret",
+          "outcome": "answered",
+          "tool": null
+        },
+        {
+          "agent": "research_agent",
+          "kind": "model_question",
+          "phase": "decide",
+          "outcome": "answered",
+          "tool": null
+        },
+        {
+          "agent": "research_agent",
+          "kind": "model_question",
+          "phase": "interpret",
+          "outcome": "answered",
+          "tool": null
+        },
+        {
+          "agent": "research_agent",
+          "kind": "model_question",
+          "phase": "decide",
+          "outcome": "answered",
+          "tool": null
+        },
+        {
+          "agent": "research_agent",
+          "kind": "model_question",
+          "phase": "interpret",
+          "outcome": "answered",
+          "tool": null
+        },
+        {
+          "agent": "research_agent",
+          "kind": "model_question",
+          "phase": "decide",
+          "outcome": "answered",
+          "tool": null
+        },
+        {
+          "agent": "research_agent",
+          "kind": "model_question",
+          "phase": "interpret",
+          "outcome": "answered",
+          "tool": null
+        },
+        {
+          "agent": "research_agent",
+          "kind": "model_question",
+          "phase": "decide",
+          "outcome": "answered",
+          "tool": null
+        },
+        {
+          "agent": "research_agent",
+          "kind": "model_question",
+          "phase": "interpret",
+          "outcome": "answered",
+          "tool": null
+        },
+        {
+          "agent": "research_agent",
+          "kind": "model_question",
+          "phase": "decide",
+          "outcome": "answered",
+          "tool": null
+        },
+        {
+          "agent": "research_agent",
+          "kind": "model_question",
+          "phase": "interpret",
+          "outcome": "answered",
+          "tool": null
+        },
+        {
+          "agent": "research_agent",
+          "kind": "model_question",
+          "phase": "decide",
+          "outcome": "answered",
+          "tool": null
+        },
+        {
+          "agent": "research_agent",
+          "kind": "model_question",
+          "phase": "interpret",
+          "outcome": "answered",
+          "tool": null
+        },
+        {
+          "agent": "research_agent",
+          "kind": "model_question",
+          "phase": "decide",
+          "outcome": "answered",
+          "tool": null
+        },
+        {
+          "agent": "research_agent",
+          "kind": "model_question",
+          "phase": "interpret",
+          "outcome": "answered",
+          "tool": null
+        },
+        {
+          "agent": "research_agent",
+          "kind": "model_question",
+          "phase": "decide",
+          "outcome": "answered",
+          "tool": null
+        },
+        {
+          "agent": "research_agent",
+          "kind": "model_question",
+          "phase": "interpret",
+          "outcome": "answered",
+          "tool": null
+        },
+        {
+          "agent": "research_agent",
+          "kind": "model_question",
+          "phase": "decide",
+          "outcome": "answered",
+          "tool": null
+        },
+        {
+          "agent": "research_agent",
+          "kind": "model_question",
+          "phase": "interpret",
+          "outcome": "answered",
+          "tool": null
+        },
+        {
+          "agent": "research_agent",
+          "kind": "model_question",
+          "phase": "decide",
+          "outcome": "answered",
+          "tool": null
+        },
+        {
+          "agent": "research_agent",
+          "kind": "model_question",
+          "phase": "interpret",
+          "outcome": "answered",
+          "tool": null
+        },
+        {
+          "agent": "research_agent",
+          "kind": "model_question",
+          "phase": "decide",
+          "outcome": "answered",
+          "tool": null
+        },
+        {
+          "agent": "research_agent",
+          "kind": "model_question",
+          "phase": "decide",
+          "outcome": "answered",
+          "tool": null
+        },
+        {
+          "agent": "research_agent",
+          "kind": "model_question",
+          "phase": "decide",
+          "outcome": "no_answer",
+          "tool": null
+        },
+        {
+          "agent": "research_agent",
+          "kind": "model_question",
+          "phase": "decide",
+          "outcome": "no_answer",
+          "tool": null
+        },
+        {
+          "agent": "research_agent",
+          "kind": "model_question",
+          "phase": "conclude",
+          "outcome": "answered",
+          "tool": null
+        },
+        {
+          "agent": "research_agent",
+          "kind": "model_question",
+          "phase": "decide",
+          "outcome": "answered",
+          "tool": null
+        },
+        {
+          "agent": "research_agent",
+          "kind": "model_question",
+          "phase": "interpret",
+          "outcome": "answered",
+          "tool": null
+        },
+        {
+          "agent": "research_agent",
+          "kind": "model_question",
+          "phase": "decide",
+          "outcome": "answered",
+          "tool": null
+        },
+        {
+          "agent": "research_agent",
+          "kind": "model_question",
+          "phase": "interpret",
+          "outcome": "answered",
+          "tool": null
+        },
+        {
+          "agent": "research_agent",
+          "kind": "model_question",
+          "phase": "decide",
+          "outcome": "answered",
+          "tool": null
+        },
+        {
+          "agent": "research_agent",
+          "kind": "model_question",
+          "phase": "judge_verification",
+          "outcome": "answered",
+          "tool": null
+        },
+        {
+          "agent": "critic",
+          "kind": "model_question",
+          "phase": "critique",
+          "outcome": "answered",
+          "tool": null
+        }
+      ],
+      "critic_outcome": "answered",
+      "critic_verdict": "object",
+      "critic_favoured": "H1",
+      "critic_pick_correct": false,
+      "committed": false,
+      "confidence": 0.85,
+      "confident_wrong": false,
+      "false_intervention": false,
+      "blackout": false,
+      "missing_read_as_normal": null,
+      "blackout_recovered": null
+    },
+    {
+      "scenario_id": "KA-05-setting",
+      "run_key": "master-manual-critic-followup-20261030-131716/3/KA-05-setting",
+      "expected_faults": [
+        "wrong_setting"
+      ],
+      "final_diagnosis": "Inspection failures are confined to jobs 1, 2 and 4 of batch 1; job 3 passed. All four jobs ran the identical route (CNC-01 → CNC-02 → CNC-03 → CNC-04 → CNC-05) before inspection, so a persistent machine fault or a setting change cannot explain why job 3 passed while its neighbors failed (E3, E4, E6, E10, E11). Maintenance records show recent spindle-noise, coolant and sensor checks all in range (E7), and vibration trends for CNC-01 and CNC-02 show no rising fault signature (E12, E13). The best-supported explanation is material variation within batch 1 (H2) or inspection randomness (H4); an intermittent equipment fault (H3) remains possible but is not evidenced. No hypothesis reaches the 0.90 confidence needed to approve a repair, and none of the available actions (bearing, setting reset, servo drive, hydraulics) would fix a material cause.",
+      "diagnosis_label": {
+        "run_key": "master-manual-critic-followup-20261030-131716/3/KA-05-setting",
+        "diagnosis": null,
+        "labelled_by": "typesafe/jev-1.14.0",
+        "note": ""
+      },
+      "label_needs_review": true,
+      "correct": null,
+      "target_correct": null,
+      "tool_calls": 13,
+      "runtime_seconds": 845.1086565000005,
+      "agent_steps": [
+        {
+          "agent": "research_agent",
+          "kind": "decision",
+          "phase": "observe",
+          "outcome": "observed",
+          "tool": "get_time"
+        },
+        {
+          "agent": "research_agent",
+          "kind": "decision",
+          "phase": "observe",
+          "outcome": "observed",
+          "tool": "search_manual"
+        },
+        {
+          "agent": "research_agent",
+          "kind": "decision",
+          "phase": "plan",
+          "outcome": "decided",
+          "tool": null
+        },
+        {
+          "agent": "research_agent",
+          "kind": "decision",
+          "phase": "investigate",
+          "outcome": "observed",
+          "tool": "get_inspections"
+        },
+        {
+          "agent": "research_agent",
+          "kind": "decision",
+          "phase": "investigate",
+          "outcome": "observed",
+          "tool": "get_inspections"
+        },
+        {
+          "agent": "research_agent",
+          "kind": "decision",
+          "phase": "investigate",
+          "outcome": "observed",
+          "tool": "list_machines"
+        },
+        {
+          "agent": "research_agent",
+          "kind": "decision",
+          "phase": "investigate",
+          "outcome": "observed",
+          "tool": "get_job_history"
+        },
+        {
+          "agent": "research_agent",
+          "kind": "decision",
+          "phase": "investigate",
+          "outcome": "observed",
+          "tool": "get_maintenance_history"
+        },
+        {
+          "agent": "research_agent",
+          "kind": "decision",
+          "phase": "investigate",
+          "outcome": "observed",
+          "tool": "get_events"
+        },
+        {
+          "agent": "research_agent",
+          "kind": "decision",
+          "phase": "investigate",
+          "outcome": "observed",
+          "tool": "get_inspections"
+        },
+        {
+          "agent": "research_agent",
+          "kind": "decision",
+          "phase": "investigate",
+          "outcome": "observed",
+          "tool": "get_job_history"
+        },
+        {
+          "agent": "research_agent",
+          "kind": "decision",
+          "phase": "investigate",
+          "outcome": "observed",
+          "tool": "get_inspections"
+        },
+        {
+          "agent": "research_agent",
+          "kind": "decision",
+          "phase": "investigate",
+          "outcome": "observed",
+          "tool": "get_sensor_trend"
+        },
+        {
+          "agent": "research_agent",
+          "kind": "decision",
+          "phase": "investigate",
+          "outcome": "observed",
+          "tool": "get_sensor_trend"
+        },
+        {
+          "agent": "research_agent",
+          "kind": "decision",
+          "phase": "investigate",
+          "outcome": "stopped",
+          "tool": null
+        },
+        {
+          "agent": "research_agent",
+          "kind": "decision",
+          "phase": "decide",
+          "outcome": "decided",
+          "tool": null
+        },
+        {
+          "agent": "research_agent",
+          "kind": "model_question",
+          "phase": "plan",
+          "outcome": "answered",
+          "tool": null
+        },
+        {
+          "agent": "research_agent",
+          "kind": "model_question",
+          "phase": "decide",
+          "outcome": "answered",
+          "tool": null
+        },
+        {
+          "agent": "research_agent",
+          "kind": "model_question",
+          "phase": "interpret",
+          "outcome": "answered",
+          "tool": null
+        },
+        {
+          "agent": "research_agent",
+          "kind": "model_question",
+          "phase": "decide",
+          "outcome": "answered",
+          "tool": null
+        },
+        {
+          "agent": "research_agent",
+          "kind": "model_question",
+          "phase": "interpret",
+          "outcome": "answered",
+          "tool": null
+        },
+        {
+          "agent": "research_agent",
+          "kind": "model_question",
+          "phase": "decide",
+          "outcome": "answered",
+          "tool": null
+        },
+        {
+          "agent": "research_agent",
+          "kind": "model_question",
+          "phase": "interpret",
+          "outcome": "answered",
+          "tool": null
+        },
+        {
+          "agent": "research_agent",
+          "kind": "model_question",
+          "phase": "decide",
+          "outcome": "answered",
+          "tool": null
+        },
+        {
+          "agent": "research_agent",
+          "kind": "model_question",
+          "phase": "interpret",
+          "outcome": "answered",
+          "tool": null
+        },
+        {
+          "agent": "research_agent",
+          "kind": "model_question",
+          "phase": "decide",
+          "outcome": "answered",
+          "tool": null
+        },
+        {
+          "agent": "research_agent",
+          "kind": "model_question",
+          "phase": "interpret",
+          "outcome": "answered",
+          "tool": null
+        },
+        {
+          "agent": "research_agent",
+          "kind": "model_question",
+          "phase": "decide",
+          "outcome": "answered",
+          "tool": null
+        },
+        {
+          "agent": "research_agent",
+          "kind": "model_question",
+          "phase": "interpret",
+          "outcome": "answered",
+          "tool": null
+        },
+        {
+          "agent": "research_agent",
+          "kind": "model_question",
+          "phase": "decide",
+          "outcome": "answered",
+          "tool": null
+        },
+        {
+          "agent": "research_agent",
+          "kind": "model_question",
+          "phase": "interpret",
+          "outcome": "answered",
+          "tool": null
+        },
+        {
+          "agent": "research_agent",
+          "kind": "model_question",
+          "phase": "decide",
+          "outcome": "answered",
+          "tool": null
+        },
+        {
+          "agent": "research_agent",
+          "kind": "model_question",
+          "phase": "interpret",
+          "outcome": "answered",
+          "tool": null
+        },
+        {
+          "agent": "research_agent",
+          "kind": "model_question",
+          "phase": "decide",
+          "outcome": "answered",
+          "tool": null
+        },
+        {
+          "agent": "research_agent",
+          "kind": "model_question",
+          "phase": "interpret",
+          "outcome": "answered",
+          "tool": null
+        },
+        {
+          "agent": "research_agent",
+          "kind": "model_question",
+          "phase": "decide",
+          "outcome": "answered",
+          "tool": null
+        },
+        {
+          "agent": "research_agent",
+          "kind": "model_question",
+          "phase": "interpret",
+          "outcome": "answered",
+          "tool": null
+        },
+        {
+          "agent": "research_agent",
+          "kind": "model_question",
+          "phase": "decide",
+          "outcome": "answered",
+          "tool": null
+        },
+        {
+          "agent": "research_agent",
+          "kind": "model_question",
+          "phase": "interpret",
+          "outcome": "answered",
+          "tool": null
+        },
+        {
+          "agent": "research_agent",
+          "kind": "model_question",
+          "phase": "decide",
+          "outcome": "no_answer",
+          "tool": null
+        },
+        {
+          "agent": "research_agent",
+          "kind": "model_question",
+          "phase": "conclude",
+          "outcome": "answered",
+          "tool": null
+        },
+        {
+          "agent": "critic",
+          "kind": "model_question",
+          "phase": "critique",
+          "outcome": "answered",
+          "tool": null
+        }
+      ],
+      "critic_outcome": "answered",
+      "critic_verdict": "object",
+      "critic_favoured": "H2",
+      "critic_pick_correct": false,
+      "committed": null,
+      "confidence": 0.5,
+      "confident_wrong": null,
+      "false_intervention": false,
+      "blackout": false,
+      "missing_read_as_normal": null,
+      "blackout_recovered": null
+    },
+    {
+      "scenario_id": "KA-07-false-alarm",
+      "run_key": "master-manual-critic-followup-20261030-131716/4/KA-07-false-alarm",
+      "expected_faults": [
+        "false_alarm"
+      ],
+      "final_diagnosis": "CNC-01 had a transient vibration spike: readings were ~2.0–2.5 mm/s baseline through tick 520, jumped to 7.01–7.37 mm/s (above the 4.50 mm/s alarm setpoint) at ticks 521–524, then returned to ~2.2–2.4 mm/s at tick 525 and stayed there through tick 530. During the spike, machine load was unchanged (~66–69%, E6/E8), speed remained at 1000 rpm (E9), and no job change occurred around tick 521 (E7). Alarms fired only at ticks 521–524 (E5). This is a transient disturbance or momentary sensor interference, not a sustained shift, operating change, or developing equipment failure; the machine is back to normal operation.",
+      "diagnosis_label": {
+        "run_key": "master-manual-critic-followup-20261030-131716/4/KA-07-false-alarm",
+        "diagnosis": {
+          "fault": "false_alarm",
+          "machine_id": "CNC-01",
+          "batch_id": null,
+          "summary": ""
+        },
+        "labelled_by": "typesafe/jev-1.14.0",
+        "note": ""
+      },
+      "label_needs_review": false,
+      "correct": true,
+      "target_correct": true,
+      "tool_calls": 13,
+      "runtime_seconds": 553.2208170000231,
+      "agent_steps": [
+        {
+          "agent": "research_agent",
+          "kind": "decision",
+          "phase": "observe",
+          "outcome": "observed",
+          "tool": "get_time"
+        },
+        {
+          "agent": "research_agent",
+          "kind": "decision",
+          "phase": "observe",
+          "outcome": "observed",
+          "tool": "search_manual"
+        },
+        {
+          "agent": "research_agent",
+          "kind": "decision",
+          "phase": "plan",
+          "outcome": "decided",
+          "tool": null
+        },
+        {
+          "agent": "research_agent",
+          "kind": "decision",
+          "phase": "investigate",
+          "outcome": "observed",
+          "tool": "get_readings"
+        },
+        {
+          "agent": "research_agent",
+          "kind": "decision",
+          "phase": "investigate",
+          "outcome": "observed",
+          "tool": "get_readings"
+        },
+        {
+          "agent": "research_agent",
+          "kind": "decision",
+          "phase": "investigate",
+          "outcome": "observed",
+          "tool": "get_events"
+        },
+        {
+          "agent": "research_agent",
+          "kind": "decision",
+          "phase": "investigate",
+          "outcome": "observed",
+          "tool": "get_readings"
+        },
+        {
+          "agent": "research_agent",
+          "kind": "decision",
+          "phase": "investigate",
+          "outcome": "observed",
+          "tool": "get_events"
+        },
+        {
+          "agent": "research_agent",
+          "kind": "decision",
+          "phase": "investigate",
+          "outcome": "observed",
+          "tool": "get_readings"
+        },
+        {
+          "agent": "research_agent",
+          "kind": "decision",
+          "phase": "investigate",
+          "outcome": "observed",
+          "tool": "get_settings"
+        },
+        {
+          "agent": "research_agent",
+          "kind": "decision",
+          "phase": "investigate",
+          "outcome": "stopped",
+          "tool": null
+        },
+        {
+          "agent": "research_agent",
+          "kind": "decision",
+          "phase": "hypothesize",
+          "outcome": "decided",
+          "tool": null
+        },
+        {
+          "agent": "research_agent",
+          "kind": "decision",
+          "phase": "test",
+          "outcome": "stopped",
+          "tool": null
+        },
+        {
+          "agent": "research_agent",
+          "kind": "decision",
+          "phase": "test",
+          "outcome": "stopped",
+          "tool": null
+        },
+        {
+          "agent": "research_agent",
+          "kind": "decision",
+          "phase": "decide",
+          "outcome": "decided",
+          "tool": null
+        },
+        {
+          "agent": "research_agent",
+          "kind": "decision",
+          "phase": "verify",
+          "outcome": "observed",
+          "tool": "wait"
+        },
+        {
+          "agent": "research_agent",
+          "kind": "decision",
+          "phase": "verify",
+          "outcome": "observed",
+          "tool": "get_readings"
+        },
+        {
+          "agent": "research_agent",
+          "kind": "decision",
+          "phase": "verify",
+          "outcome": "observed",
+          "tool": "list_machines"
+        },
+        {
+          "agent": "research_agent",
+          "kind": "decision",
+          "phase": "verify",
+          "outcome": "observed",
+          "tool": "get_events"
+        },
+        {
+          "agent": "research_agent",
+          "kind": "decision",
+          "phase": "verify",
+          "outcome": "stopped",
+          "tool": null
+        },
+        {
+          "agent": "research_agent",
+          "kind": "decision",
+          "phase": "verify",
+          "outcome": "decided",
+          "tool": null
+        },
+        {
+          "agent": "research_agent",
+          "kind": "model_question",
+          "phase": "plan",
+          "outcome": "answered",
+          "tool": null
+        },
+        {
+          "agent": "research_agent",
+          "kind": "model_question",
+          "phase": "decide",
+          "outcome": "answered",
+          "tool": null
+        },
+        {
+          "agent": "research_agent",
+          "kind": "model_question",
+          "phase": "interpret",
+          "outcome": "answered",
+          "tool": null
+        },
+        {
+          "agent": "research_agent",
+          "kind": "model_question",
+          "phase": "decide",
+          "outcome": "answered",
+          "tool": null
+        },
+        {
+          "agent": "research_agent",
+          "kind": "model_question",
+          "phase": "interpret",
+          "outcome": "answered",
+          "tool": null
+        },
+        {
+          "agent": "research_agent",
+          "kind": "model_question",
+          "phase": "decide",
+          "outcome": "answered",
+          "tool": null
+        },
+        {
+          "agent": "research_agent",
+          "kind": "model_question",
+          "phase": "interpret",
+          "outcome": "answered",
+          "tool": null
+        },
+        {
+          "agent": "research_agent",
+          "kind": "model_question",
+          "phase": "decide",
+          "outcome": "answered",
+          "tool": null
+        },
+        {
+          "agent": "research_agent",
+          "kind": "model_question",
+          "phase": "interpret",
+          "outcome": "answered",
+          "tool": null
+        },
+        {
+          "agent": "research_agent",
+          "kind": "model_question",
+          "phase": "decide",
+          "outcome": "answered",
+          "tool": null
+        },
+        {
+          "agent": "research_agent",
+          "kind": "model_question",
+          "phase": "interpret",
+          "outcome": "answered",
+          "tool": null
+        },
+        {
+          "agent": "research_agent",
+          "kind": "model_question",
+          "phase": "decide",
+          "outcome": "answered",
+          "tool": null
+        },
+        {
+          "agent": "research_agent",
+          "kind": "model_question",
+          "phase": "interpret",
+          "outcome": "answered",
+          "tool": null
+        },
+        {
+          "agent": "research_agent",
+          "kind": "model_question",
+          "phase": "decide",
+          "outcome": "answered",
+          "tool": null
+        },
+        {
+          "agent": "research_agent",
+          "kind": "model_question",
+          "phase": "interpret",
+          "outcome": "answered",
+          "tool": null
+        },
+        {
+          "agent": "research_agent",
+          "kind": "model_question",
+          "phase": "decide",
+          "outcome": "answered",
+          "tool": null
+        },
+        {
+          "agent": "research_agent",
+          "kind": "model_question",
+          "phase": "hypothesize",
+          "outcome": "answered",
+          "tool": null
+        },
+        {
+          "agent": "research_agent",
+          "kind": "model_question",
+          "phase": "decide",
+          "outcome": "answered",
+          "tool": null
+        },
+        {
+          "agent": "research_agent",
+          "kind": "model_question",
+          "phase": "conclude",
+          "outcome": "answered",
+          "tool": null
+        },
+        {
+          "agent": "research_agent",
+          "kind": "model_question",
+          "phase": "decide",
+          "outcome": "answered",
+          "tool": null
+        },
+        {
+          "agent": "research_agent",
+          "kind": "model_question",
+          "phase": "interpret",
+          "outcome": "answered",
+          "tool": null
+        },
+        {
+          "agent": "research_agent",
+          "kind": "model_question",
+          "phase": "decide",
+          "outcome": "answered",
+          "tool": null
+        },
+        {
+          "agent": "research_agent",
+          "kind": "model_question",
+          "phase": "interpret",
+          "outcome": "answered",
+          "tool": null
+        },
+        {
+          "agent": "research_agent",
+          "kind": "model_question",
+          "phase": "decide",
+          "outcome": "answered",
+          "tool": null
+        },
+        {
+          "agent": "research_agent",
+          "kind": "model_question",
+          "phase": "interpret",
+          "outcome": "answered",
+          "tool": null
+        },
+        {
+          "agent": "research_agent",
+          "kind": "model_question",
+          "phase": "decide",
+          "outcome": "answered",
+          "tool": null
+        },
+        {
+          "agent": "research_agent",
+          "kind": "model_question",
+          "phase": "interpret",
+          "outcome": "answered",
+          "tool": null
+        },
+        {
+          "agent": "research_agent",
+          "kind": "model_question",
+          "phase": "decide",
+          "outcome": "answered",
+          "tool": null
+        },
+        {
+          "agent": "research_agent",
+          "kind": "model_question",
+          "phase": "judge_verification",
+          "outcome": "answered",
+          "tool": null
+        },
+        {
+          "agent": "critic",
+          "kind": "model_question",
+          "phase": "critique",
+          "outcome": "answered",
+          "tool": null
+        }
+      ],
+      "critic_outcome": "answered",
+      "critic_verdict": "object",
+      "critic_favoured": "H1",
+      "critic_pick_correct": null,
+      "committed": true,
+      "confidence": 0.9,
+      "confident_wrong": false,
+      "false_intervention": false,
+      "blackout": false,
+      "missing_read_as_normal": null,
+      "blackout_recovered": null
+    },
+    {
+      "scenario_id": "KA-09-challenge",
+      "run_key": "master-manual-critic-followup-20261030-131716/5/KA-09-challenge",
+      "expected_faults": [
+        "bearing_degradation",
+        "wrong_setting"
+      ],
+      "final_diagnosis": "CNC-03's vibration reading spiked above the 4.50 mm/s threshold for ticks 71-78 (5.00-5.21 mm/s, per E4 and E10) while the machine showed no corresponding operating abnormality: load stayed near zero throughout (E5), temperature stayed normal around 68-74°F (E6), and power stayed steady around 1.6-2.35 kW (E12). The vibration then collapsed to 0.37 mm/s at tick 79 and 0.17 mm/s at tick 80 (E10), with no further alarms (E4 ends at tick 78) and a near-zero minimum inside the alarm window (E13). A neighboring machine, CNC-01, shows normal vibration (E9), so this is not a factory-wide sensor problem. The pattern - sustained spurious high readings that vanish abruptly with no load, temperature, or power signature - indicates a malfunctioning or disturbed vibration sensor on CNC-03, not a genuine mechanical fault. The alarm has already self-cleared. Confidence 0.82; below the 0.90 threshold required for an intervene, and none of the human-approvable actions (bearing, servo drive, hydraulics, reset setting) addresses a sensor, so no mechanical change is warranted.",
+      "diagnosis_label": {
+        "run_key": "master-manual-critic-followup-20261030-131716/5/KA-09-challenge",
+        "diagnosis": {
+          "fault": "false_alarm",
+          "machine_id": "CNC-03",
+          "batch_id": null,
+          "summary": ""
+        },
+        "labelled_by": "typesafe/jev-1.14.0",
+        "note": ""
+      },
+      "label_needs_review": false,
+      "correct": false,
+      "target_correct": false,
+      "tool_calls": 15,
+      "runtime_seconds": 876.7783351999824,
+      "agent_steps": [
+        {
+          "agent": "research_agent",
+          "kind": "decision",
+          "phase": "observe",
+          "outcome": "observed",
+          "tool": "get_time"
+        },
+        {
+          "agent": "research_agent",
+          "kind": "decision",
+          "phase": "observe",
+          "outcome": "observed",
+          "tool": "search_manual"
+        },
+        {
+          "agent": "research_agent",
+          "kind": "decision",
+          "phase": "plan",
+          "outcome": "decided",
+          "tool": null
+        },
+        {
+          "agent": "research_agent",
+          "kind": "decision",
+          "phase": "investigate",
+          "outcome": "observed",
+          "tool": "get_readings"
+        },
+        {
+          "agent": "research_agent",
+          "kind": "decision",
+          "phase": "investigate",
+          "outcome": "observed",
+          "tool": "get_events"
+        },
+        {
+          "agent": "research_agent",
+          "kind": "decision",
+          "phase": "investigate",
+          "outcome": "observed",
+          "tool": "get_readings"
+        },
+        {
+          "agent": "research_agent",
+          "kind": "decision",
+          "phase": "investigate",
+          "outcome": "observed",
+          "tool": "get_readings"
+        },
+        {
+          "agent": "research_agent",
+          "kind": "decision",
+          "phase": "investigate",
+          "outcome": "observed",
+          "tool": "get_maintenance_history"
+        },
+        {
+          "agent": "research_agent",
+          "kind": "decision",
+          "phase": "investigate",
+          "outcome": "observed",
+          "tool": "get_settings"
+        },
+        {
+          "agent": "research_agent",
+          "kind": "decision",
+          "phase": "investigate",
+          "outcome": "observed",
+          "tool": "get_readings"
+        },
+        {
+          "agent": "research_agent",
+          "kind": "decision",
+          "phase": "investigate",
+          "outcome": "observed",
+          "tool": "get_readings"
+        },
+        {
+          "agent": "research_agent",
+          "kind": "decision",
+          "phase": "investigate",
+          "outcome": "observed",
+          "tool": "get_events"
+        },
+        {
+          "agent": "research_agent",
+          "kind": "decision",
+          "phase": "investigate",
+          "outcome": "observed",
+          "tool": "get_readings"
+        },
+        {
+          "agent": "research_agent",
+          "kind": "decision",
+          "phase": "investigate",
+          "outcome": "stopped",
+          "tool": null
+        },
+        {
+          "agent": "research_agent",
+          "kind": "decision",
+          "phase": "hypothesize",
+          "outcome": "decided",
+          "tool": null
+        },
+        {
+          "agent": "research_agent",
+          "kind": "decision",
+          "phase": "test",
+          "outcome": "stopped",
+          "tool": null
+        },
+        {
+          "agent": "research_agent",
+          "kind": "decision",
+          "phase": "test",
+          "outcome": "uninterpreted",
+          "tool": "get_sensor_trend"
+        },
+        {
+          "agent": "research_agent",
+          "kind": "decision",
+          "phase": "decide",
+          "outcome": "decided",
+          "tool": null
+        },
+        {
+          "agent": "research_agent",
+          "kind": "decision",
+          "phase": "verify",
+          "outcome": "observed",
+          "tool": "wait"
+        },
+        {
+          "agent": "research_agent",
+          "kind": "decision",
+          "phase": "verify",
+          "outcome": "observed",
+          "tool": "get_readings"
+        },
+        {
+          "agent": "research_agent",
+          "kind": "decision",
+          "phase": "verify",
+          "outcome": "stopped",
+          "tool": null
+        },
+        {
+          "agent": "research_agent",
+          "kind": "decision",
+          "phase": "verify",
+          "outcome": "decided",
+          "tool": null
+        },
+        {
+          "agent": "research_agent",
+          "kind": "model_question",
+          "phase": "plan",
+          "outcome": "answered",
+          "tool": null
+        },
+        {
+          "agent": "research_agent",
+          "kind": "model_question",
+          "phase": "decide",
+          "outcome": "answered",
+          "tool": null
+        },
+        {
+          "agent": "research_agent",
+          "kind": "model_question",
+          "phase": "interpret",
+          "outcome": "answered",
+          "tool": null
+        },
+        {
+          "agent": "research_agent",
+          "kind": "model_question",
+          "phase": "decide",
+          "outcome": "answered",
+          "tool": null
+        },
+        {
+          "agent": "research_agent",
+          "kind": "model_question",
+          "phase": "interpret",
+          "outcome": "answered",
+          "tool": null
+        },
+        {
+          "agent": "research_agent",
+          "kind": "model_question",
+          "phase": "decide",
+          "outcome": "answered",
+          "tool": null
+        },
+        {
+          "agent": "research_agent",
+          "kind": "model_question",
+          "phase": "interpret",
+          "outcome": "answered",
+          "tool": null
+        },
+        {
+          "agent": "research_agent",
+          "kind": "model_question",
+          "phase": "decide",
+          "outcome": "answered",
+          "tool": null
+        },
+        {
+          "agent": "research_agent",
+          "kind": "model_question",
+          "phase": "interpret",
+          "outcome": "answered",
+          "tool": null
+        },
+        {
+          "agent": "research_agent",
+          "kind": "model_question",
+          "phase": "decide",
+          "outcome": "answered",
+          "tool": null
+        },
+        {
+          "agent": "research_agent",
+          "kind": "model_question",
+          "phase": "interpret",
+          "outcome": "answered",
+          "tool": null
+        },
+        {
+          "agent": "research_agent",
+          "kind": "model_question",
+          "phase": "decide",
+          "outcome": "answered",
+          "tool": null
+        },
+        {
+          "agent": "research_agent",
+          "kind": "model_question",
+          "phase": "interpret",
+          "outcome": "answered",
+          "tool": null
+        },
+        {
+          "agent": "research_agent",
+          "kind": "model_question",
+          "phase": "decide",
+          "outcome": "answered",
+          "tool": null
+        },
+        {
+          "agent": "research_agent",
+          "kind": "model_question",
+          "phase": "interpret",
+          "outcome": "answered",
+          "tool": null
+        },
+        {
+          "agent": "research_agent",
+          "kind": "model_question",
+          "phase": "decide",
+          "outcome": "answered",
+          "tool": null
+        },
+        {
+          "agent": "research_agent",
+          "kind": "model_question",
+          "phase": "interpret",
+          "outcome": "answered",
+          "tool": null
+        },
+        {
+          "agent": "research_agent",
+          "kind": "model_question",
+          "phase": "decide",
+          "outcome": "answered",
+          "tool": null
+        },
+        {
+          "agent": "research_agent",
+          "kind": "model_question",
+          "phase": "interpret",
+          "outcome": "answered",
+          "tool": null
+        },
+        {
+          "agent": "research_agent",
+          "kind": "model_question",
+          "phase": "decide",
+          "outcome": "answered",
+          "tool": null
+        },
+        {
+          "agent": "research_agent",
+          "kind": "model_question",
+          "phase": "interpret",
+          "outcome": "answered",
+          "tool": null
+        },
+        {
+          "agent": "research_agent",
+          "kind": "model_question",
+          "phase": "decide",
+          "outcome": "answered",
+          "tool": null
+        },
+        {
+          "agent": "research_agent",
+          "kind": "model_question",
+          "phase": "hypothesize",
+          "outcome": "answered",
+          "tool": null
+        },
+        {
+          "agent": "research_agent",
+          "kind": "model_question",
+          "phase": "decide",
+          "outcome": "answered",
+          "tool": null
+        },
+        {
+          "agent": "research_agent",
+          "kind": "model_question",
+          "phase": "decide",
+          "outcome": "answered",
+          "tool": null
+        },
+        {
+          "agent": "research_agent",
+          "kind": "model_question",
+          "phase": "interpret",
+          "outcome": "no_answer",
+          "tool": null
+        },
+        {
+          "agent": "research_agent",
+          "kind": "model_question",
+          "phase": "conclude",
+          "outcome": "answered",
+          "tool": null
+        },
+        {
+          "agent": "research_agent",
+          "kind": "model_question",
+          "phase": "decide",
+          "outcome": "answered",
+          "tool": null
+        },
+        {
+          "agent": "research_agent",
+          "kind": "model_question",
+          "phase": "interpret",
+          "outcome": "answered",
+          "tool": null
+        },
+        {
+          "agent": "research_agent",
+          "kind": "model_question",
+          "phase": "decide",
+          "outcome": "answered",
+          "tool": null
+        },
+        {
+          "agent": "research_agent",
+          "kind": "model_question",
+          "phase": "interpret",
+          "outcome": "answered",
+          "tool": null
+        },
+        {
+          "agent": "research_agent",
+          "kind": "model_question",
+          "phase": "decide",
+          "outcome": "answered",
+          "tool": null
+        },
+        {
+          "agent": "research_agent",
+          "kind": "model_question",
+          "phase": "judge_verification",
+          "outcome": "answered",
+          "tool": null
+        },
+        {
+          "agent": "critic",
+          "kind": "model_question",
+          "phase": "critique",
+          "outcome": "answered",
+          "tool": null
+        }
+      ],
+      "critic_outcome": "answered",
+      "critic_verdict": "object",
+      "critic_favoured": "H1",
+      "critic_pick_correct": false,
+      "committed": true,
+      "confidence": 0.82,
+      "confident_wrong": true,
+      "false_intervention": false,
+      "blackout": false,
+      "missing_read_as_normal": null,
+      "blackout_recovered": null
+    }
+  ],
+  "judged": 4,
+  "overall_accuracy": 0.25,
+  "accuracy_by_fault": {
+    "bad_material_batch": 0.0,
+    "bearing_degradation": 0.0,
+    "false_alarm": 1.0,
+    "wrong_setting": 0.0
+  },
+  "steps_by_agent": {
+    "critic": 5,
+    "research_agent": 248
+  },
+  "abstention": {
+    "judged": 4,
+    "committed": 2,
+    "abstained": 2,
+    "accuracy_when_committed": 0.5,
+    "abstention_rate": 0.5,
+    "confident_wrong": 1,
+    "false_interventions": 0,
+    "blackout_cases": 0,
+    "missing_read_as_normal": 0,
+    "refused": 0,
+    "recovered": 0,
+    "recovery_rate": null
+  }
+}

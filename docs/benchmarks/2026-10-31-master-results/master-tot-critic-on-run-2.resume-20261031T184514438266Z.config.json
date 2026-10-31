@@ -1,0 +1,49 @@
+{
+  "run": "master-tot-critic-on-run-2",
+  "saved_cases": [
+    "KA-01-bearing",
+    "KA-03-batch"
+  ],
+  "remaining_cases": [
+    "KA-05-setting",
+    "KA-07-false-alarm",
+    "KA-09-challenge"
+  ],
+  "tree_of_thought": true,
+  "manual": "semantic",
+  "manual_step": true,
+  "step_questions": 1,
+  "critic": true,
+  "critic_followup": true,
+  "critic_seconds": 40.0,
+  "critic_followup_seconds": 90.0,
+  "models": {
+    "default_model": "nvidia/nvidia/nemotron-3.5-super-vl-120b-a12b",
+    "plan_model": null,
+    "decide_model": null,
+    "interpret_model": null,
+    "hypothesize_model": null,
+    "conclude_model": null,
+    "judge_model": null,
+    "fallback_model": "cohere/command-a-03-2025",
+    "critic_model": "mistral/ministral-14b-2512",
+    "critic_fallback_model": "cohere/command-a-03-2025"
+  },
+  "provider_sampling": {},
+  "model_sampling": {
+    "nvidia/nvidia/nemotron-3.5-super-vl-120b-a12b": {
+      "temperature": 1.0,
+      "top_p": 0.95
+    },
+    "cohere/command-a-03-2025": {
+      "temperature": 0.3,
+      "top_p": 0.75
+    },
+    "mistral/ministral-14b-2512": {
+      "temperature": 0.0,
+      "top_p": null
+    }
+  },
+  "sampling_defaults_pr": 146,
+  "note": "Prior episodes preserved. Remaining episodes use PR #145 JSON mode and PR #146 sampling; this is a mixed-configuration continuation, not a fresh baseline."
+}
