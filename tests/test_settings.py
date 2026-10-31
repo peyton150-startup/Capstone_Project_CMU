@@ -1,10 +1,46 @@
 """Settings checks use temporary files and fake credentials, never Neon."""
 
+import json
 import os
 
 import pytest
 
 from capstone.settings import Settings, critic_models, get_settings
+
+
+def test_sampling_can_be_loaded_from_dotenv(monkeypatch, tmp_path):
+    # Variables:
+    #   env_file: Quoted JSON configuration, loaded the same way as the user's .env.
+    monkeypatch.delenv("PROVIDER_SAMPLING", raising=False)
+    monkeypatch.delenv("MODEL_SAMPLING", raising=False)
+    env_file = tmp_path / ".env"
+    env_file.write_text(
+        'PROVIDER_SAMPLING=\'{"mistral":{"temperature":0.05}}\'\n'
+        'MODEL_SAMPLING=\'{"cohere/command-a-03-2025":{"temperature":0.3,"top_p":0.75}}\'\n'
+    )
+    config = Settings(_env_file=env_file)
+    assert config.provider_sampling["mistral"].temperature == 0.05
+    assert config.model_sampling["cohere/command-a-03-2025"].top_p == 0.75
+
+
+@pytest.mark.parametrize("alias", ["PROVIDER_SAMPLING", "MODEL_SAMPLING"])
+@pytest.mark.parametrize(
+    "options",
+    [
+        {"temperature": -0.1},
+        {"temperature": 2.1},
+        {"top_p": 0},
+        {"top_p": 1.1},
+        {"temprature": 0.3},
+    ],
+)
+def test_invalid_sampling_is_refused(monkeypatch, alias, options):
+    # Variables:
+    #   alias: Exercises both provider and exact-model environment maps.
+    #   options: Out-of-range values or a misspelled option that must fail early.
+    monkeypatch.setenv(alias, json.dumps({"cohere": options}))
+    with pytest.raises(ValueError):
+        Settings(_env_file=None)
 
 
 @pytest.mark.parametrize("value", ["1", "2"])
@@ -136,6 +172,32 @@ def test_blank_critic_model_is_unset(monkeypatch):
     s = Settings(_env_file=None)
     assert s.critic_model is None
     assert critic_models(s) == ()
+
+
+def test_critic_fallback_is_separate_and_deduplicated(monkeypatch):
+    # Variables:
+    #   s: Settings with a legacy critic list, a separate backup list and an unrelated
+    #     investigator fallback; the last must not enter the critic chain.
+    monkeypatch.setenv("CRITIC_MODEL", "mistral/primary, cohere/backup")
+    monkeypatch.setenv("CRITIC_FALLBACK_MODEL", "cohere/backup, mistral/last")
+    monkeypatch.setenv("FALLBACK_MODEL", "groq/investigator-only")
+    s = Settings(_env_file=None)
+    assert critic_models(s) == ("mistral/primary", "cohere/backup", "mistral/last")
+
+
+def test_critic_fallback_requires_a_primary(monkeypatch):
+    # Variables:
+    #   monkeypatch: Removes the primary to prove a backup alone cannot enable a chain.
+    monkeypatch.delenv("CRITIC_MODEL", raising=False)
+    monkeypatch.setenv("CRITIC_FALLBACK_MODEL", "cohere/backup")
+    assert critic_models(Settings(_env_file=None)) == ()
+
+
+def test_blank_critic_fallback_is_unset(monkeypatch):
+    # Variables:
+    #   monkeypatch: Supplies whitespace, which is treated as an unconfigured backup.
+    monkeypatch.setenv("CRITIC_FALLBACK_MODEL", "  ")
+    assert Settings(_env_file=None).critic_fallback_model is None
 
 
 def test_critic_seconds_must_be_positive(monkeypatch):
