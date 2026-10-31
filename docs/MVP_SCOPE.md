@@ -1336,6 +1336,14 @@ target, not the first build. A second agent can lower accuracy (the paper
 behind R4c found an LLM given a specialist's answer did worse than the
 specialist alone), so a role stays only if the comparison shows it helps.
 
+**2026-10-31:** a review of the LLM multi-agent survey (Guo et al., 2024) against
+`main` adds three planned items (critic anchoring ablation, operator rejection
+notes, a write-up in the survey's framework) and lists the survey ideas already
+built or rejected. See [MULTI_AGENT_SURVEY_FUTURE_WORK.md](MULTI_AGENT_SURVEY_FUTURE_WORK.md).
+Three 2026 manufacturing-agent papers add five more (silent-execution hazard,
+action-target checks, numeric claim provenance, downstream impact at approval,
+a propagated-symptom case): [MANUFACTURING_AGENT_PAPERS_FUTURE_WORK.md](MANUFACTURING_AGENT_PAPERS_FUTURE_WORK.md).
+
 #### Tools for specialist roles
 
 A role that needs factory evidence gets it through the same

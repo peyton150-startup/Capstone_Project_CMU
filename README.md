@@ -17,6 +17,11 @@ later, an AI research agent that investigates it through tools.
 - [Future Work reevaluation register](docs/FUTURE_WORK_REEVALUATION.md) —
   reviewed implementation conditions, adoption checks and reasons to defer or
   reject candidates, including the Datum/Ratchet prompt evaluation.
+- [Multi-agent survey future work](docs/MULTI_AGENT_SURVEY_FUTURE_WORK.md):
+  three planned items from an LLM multi-agent survey, and the survey ideas
+  already built or rejected.
+- [Manufacturing-agent papers future work](docs/MANUFACTURING_AGENT_PAPERS_FUTURE_WORK.md):
+  five planned items from three 2026 manufacturing-agent papers.
 - `capstone-code/capstone/` — the code, imported as `capstone`. Paths such as
   `capstone/simulator/` in these docs are inside `capstone-code/`.
 - `capstone-code/capstone/simulator/` — the simulator (runs with no LLM).
