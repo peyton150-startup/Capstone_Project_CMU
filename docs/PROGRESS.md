@@ -1,5 +1,14 @@
 # Progress Log
 
+> **2026-10-31: docs-only multi-agent survey future work (not implemented):**
+> [MULTI_AGENT_SURVEY_FUTURE_WORK.md](MULTI_AGENT_SURVEY_FUTURE_WORK.md) records
+> three items from Guo et al. (2024), checked against `main`: (1) a blind-critic
+> anchoring ablation, (2) using operator rejection notes, which are stored but
+> never read back, and (3) describing the system in the survey's framework for
+> the write-up. Linked from P4 and Future Work 3. No code, tests, settings or
+> understanding status changed; the paper is not yet in README "Research basis"
+> because no change based on it has been made.
+
 > **2026-10-30 — terminal progress colors:** Interactive progress output
 > highlights beliefs, existing investigation stages, evidence, critic details,
 > and conclusions. Redirected output and NO_COLOR remain plain. Display-only;

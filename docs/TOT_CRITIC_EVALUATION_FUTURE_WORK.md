@@ -91,6 +91,8 @@ for one through an `alternative` objection and its check; it cannot favour one.
 
 **Experiment:** Compare a transparent evidence-strength rubric (independent support, contradictions, symptom coverage, telemetry provenance/freshness, outstanding checks) against raw model confidence. Avoid double-counting correlated sensor summaries and readings. On a fixed set of cases, rotate candidate order and separately score individual hypotheses to quantify ranking/position sensitivity. Keep log-probability scoring an optional feasibility study, **not** a presumed bias fix or calibrated probability.
 
+**Critic side:** the matching check for the critic (a blind view with shuffled hypotheses and no "leading" marker) is planned in [Multi-agent survey item 1](MULTI_AGENT_SURVEY_FUTURE_WORK.md#1-critic-anchoring-ablation-medium-high-evaluation-only).
+
 **Pass criteria:** Better evidence attribution, stable rankings under reordering, improved calibration only if probability calibration is actually measured, and fewer confidently wrong diagnoses.
 
 ### P5 — Bounded second depth through observation, not more model reasoning
