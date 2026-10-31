@@ -390,19 +390,26 @@ def _resolved(sim: Simulator, truth) -> bool:
     #   truth: One real fault from the ground-truth record.
     #   state: The factory's true state; this reads hidden state, never evidence.
     #   machine: The machine the fault was on.
-    #   replaced: The tick the faulty bearing was replaced, if ever.
+    #   replaced: The tick the faulty part was replaced or repaired, if ever. A
+    #     servo drive or hydraulic leak never clears by itself, so only its repair
+    #     after the fault began counts.
     state = sim.state
     if truth.fault == "bad_material_batch":
         return state.batch is not None and state.batch.id > truth.batch_id
     machine = state.machines[truth.machine_id]
-    if truth.fault == "bearing_degradation":
-        replaced = machine.bearing_replaced_tick
+    repaired_at = {
+        "bearing_degradation": machine.bearing_replaced_tick,
+        "servo_drive_wear": machine.axis_replaced_tick,
+        "hydraulic_leak": machine.hydraulics_repaired_tick,
+    }
+    if truth.fault in repaired_at:
+        replaced = repaired_at[truth.fault]
         return replaced is not None and replaced >= truth.start_tick
     if truth.fault == "wrong_setting":
         return machine.speed_setting is None
-    return (
-        machine.condition.vibration_sensor_offset == 0.0
-    )  # false alarm: over by itself
+    if truth.fault == "false_alarm":
+        return machine.condition.vibration_sensor_offset == 0.0  # over by itself
+    raise ValueError(f"no resolved check for fault {truth.fault!r}")
 
 
 def summarize(scores: list[Score]) -> dict:
