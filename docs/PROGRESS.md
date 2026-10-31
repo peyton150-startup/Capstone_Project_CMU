@@ -1,5 +1,19 @@
 # Progress Log
 
+> **2026-10-31 — master results archived after both ToT continuations:**
+> [Results and limits](benchmarks/2026-10-31-master-results/README.md) records
+> seven live master runs (35 episodes), preserving 23 source artifacts with
+> hashes. Both run-2 files contain five unique cases and preserve their original
+> two-record backup prefixes. Critic off: 1/5 correct; critic on: 1/4 judged,
+> one label requiring review. All three appended episodes in each have ToT
+> traces and manual searches. The critic answered all three appended on-run
+> episodes but follow-up gathered no new evidence (tool budget, policy stop,
+> confidence threshold). All seven runs used seeds 6/7/9/8/3, including the
+> earlier run named parallel. Notes distinguish overlapping early runs,
+> missing early configs, provisional Jev labels and mixed pre/post-fix run-2
+> records. Original files unchanged; no new model calls or source changes.
+> Documentation only; understanding status unchanged.
+
 > **2026-10-31 — model sampling and independent critic backup settings:**
 > Built ungated at the developer's request (understood: no). `settings.py`
 > adds `SamplingOptions`, `PROVIDER_SAMPLING` and `MODEL_SAMPLING` JSON maps,

@@ -1,0 +1,1117 @@
+{
+  "runs": [
+    {
+      "name": "master-manual-20261030-115707",
+      "raw": "master-manual-20261030-115707.records.jsonl",
+      "report": "master-manual-20261030-115707.jev-report.json",
+      "cases": 5,
+      "judged": 4,
+      "correct": 2,
+      "accuracy": 0.5,
+      "needs_review": 1,
+      "report_text_encoding_differences": [
+        "KA-05-setting",
+        "KA-07-false-alarm"
+      ],
+      "details": [
+        {
+          "case": "KA-01-bearing",
+          "seed": 6,
+          "correct": true,
+          "label_needs_review": false,
+          "manual_searches": 1,
+          "thought_entries": 0,
+          "model_calls": {
+            "questions": 30,
+            "answered": 30,
+            "invalid_replies": 0,
+            "unanswered": 0,
+            "outage_attempts": 0,
+            "outage_reasons": {},
+            "answered_by": {
+              "nvidia/nemotron-3.5-super-vl-120b-a12b": 30
+            }
+          },
+          "critic_outcome": null,
+          "critic_pick_correct": null,
+          "recheck": null
+        },
+        {
+          "case": "KA-03-batch",
+          "seed": 7,
+          "correct": false,
+          "label_needs_review": false,
+          "manual_searches": 1,
+          "thought_entries": 0,
+          "model_calls": {
+            "questions": 23,
+            "answered": 22,
+            "invalid_replies": 0,
+            "unanswered": 1,
+            "outage_attempts": 6,
+            "outage_reasons": {
+              "the model service timed out": 6
+            },
+            "answered_by": {
+              "@cf/meta/llama-3.3-70b-instruct-fp8-fast": 4,
+              "nvidia/nemotron-3.5-super-vl-120b-a12b": 18
+            }
+          },
+          "critic_outcome": null,
+          "critic_pick_correct": null,
+          "recheck": null
+        },
+        {
+          "case": "KA-05-setting",
+          "seed": 9,
+          "correct": null,
+          "label_needs_review": true,
+          "manual_searches": 1,
+          "thought_entries": 0,
+          "model_calls": {
+            "questions": 25,
+            "answered": 24,
+            "invalid_replies": 0,
+            "unanswered": 1,
+            "outage_attempts": 4,
+            "outage_reasons": {
+              "the model service timed out": 4
+            },
+            "answered_by": {
+              "@cf/meta/llama-3.3-70b-instruct-fp8-fast": 2,
+              "nvidia/nemotron-3.5-super-vl-120b-a12b": 22
+            }
+          },
+          "critic_outcome": null,
+          "critic_pick_correct": null,
+          "recheck": null
+        },
+        {
+          "case": "KA-07-false-alarm",
+          "seed": 8,
+          "correct": true,
+          "label_needs_review": false,
+          "manual_searches": 1,
+          "thought_entries": 0,
+          "model_calls": {
+            "questions": 35,
+            "answered": 34,
+            "invalid_replies": 0,
+            "unanswered": 1,
+            "outage_attempts": 4,
+            "outage_reasons": {
+              "the model service answered HTTP 500": 1,
+              "the model service timed out": 3
+            },
+            "answered_by": {
+              "@cf/meta/llama-3.3-70b-instruct-fp8-fast": 1,
+              "nvidia/nemotron-3.5-super-vl-120b-a12b": 33
+            }
+          },
+          "critic_outcome": null,
+          "critic_pick_correct": null,
+          "recheck": null
+        },
+        {
+          "case": "KA-09-challenge",
+          "seed": 3,
+          "correct": false,
+          "label_needs_review": false,
+          "manual_searches": 1,
+          "thought_entries": 0,
+          "model_calls": {
+            "questions": 28,
+            "answered": 28,
+            "invalid_replies": 0,
+            "unanswered": 0,
+            "outage_attempts": 0,
+            "outage_reasons": {},
+            "answered_by": {
+              "nvidia/nemotron-3.5-super-vl-120b-a12b": 28
+            }
+          },
+          "critic_outcome": null,
+          "critic_pick_correct": null,
+          "recheck": null
+        }
+      ]
+    },
+    {
+      "name": "master-manual-critic-followup-20261030-131716",
+      "raw": "master-manual-critic-followup-20261030-131716.records.jsonl",
+      "report": "master-manual-critic-followup-20261030-131716.report.json",
+      "cases": 5,
+      "judged": 4,
+      "correct": 1,
+      "accuracy": 0.25,
+      "needs_review": 1,
+      "report_text_encoding_differences": [
+        "KA-05-setting",
+        "KA-07-false-alarm",
+        "KA-09-challenge"
+      ],
+      "details": [
+        {
+          "case": "KA-01-bearing",
+          "seed": 6,
+          "correct": false,
+          "label_needs_review": false,
+          "manual_searches": 1,
+          "thought_entries": 0,
+          "model_calls": {
+            "questions": 28,
+            "answered": 28,
+            "invalid_replies": 0,
+            "unanswered": 0,
+            "outage_attempts": 0,
+            "outage_reasons": {},
+            "answered_by": {
+              "ministral-14b-2512": 1,
+              "nvidia/nemotron-3.5-super-vl-120b-a12b": 27
+            }
+          },
+          "critic_outcome": "answered",
+          "critic_pick_correct": null,
+          "recheck": {
+            "outcome": "observed",
+            "trigger": "objection",
+            "reason": null,
+            "question": "The critic's check: get_readings {\"from_tick\": 910, \"to_tick\": 920, \"machine_id\": \"CNC-02\", \"sensor\": \"vibration\"} to inspect raw vibration data for frequency bands or harmonics that could distinguish mechanical issues (e.g., spindle-bearing wear) from sensor noise or transient disturbances.",
+            "tool": "get_readings",
+            "evidence_id": "E13",
+            "leading_before": "H2",
+            "confidence_before": 0.72,
+            "leading_after": "H2",
+            "confidence_after": 0.85
+          }
+        },
+        {
+          "case": "KA-03-batch",
+          "seed": 7,
+          "correct": false,
+          "label_needs_review": false,
+          "manual_searches": 1,
+          "thought_entries": 0,
+          "model_calls": {
+            "questions": 35,
+            "answered": 33,
+            "invalid_replies": 0,
+            "unanswered": 2,
+            "outage_attempts": 5,
+            "outage_reasons": {
+              "the model service timed out": 5
+            },
+            "answered_by": {
+              "@cf/meta/llama-3.3-70b-instruct-fp8-fast": 3,
+              "ministral-14b-2512": 1,
+              "nvidia/nemotron-3.5-super-vl-120b-a12b": 29
+            }
+          },
+          "critic_outcome": "answered",
+          "critic_pick_correct": false,
+          "recheck": {
+            "outcome": "out_of_time",
+            "trigger": "objection",
+            "reason": null,
+            "question": "The critic's check: get_sensor_trend {\"machine_id\": null, \"sensor\": \"vibration\", \"from_tick\": 1000, \"to_tick\": 1370, \"bucket_ticks\": 60} to compare vibration trends across machines for batch-2 jobs 11, 13, 15 (failed) vs. 12, 14 (passed), separating H1 (batch pattern) from H4 (speed/sensor-driven failures).",
+            "tool": null,
+            "evidence_id": null,
+            "leading_before": "H1",
+            "confidence_before": 0.8,
+            "leading_after": null,
+            "confidence_after": null
+          }
+        },
+        {
+          "case": "KA-05-setting",
+          "seed": 9,
+          "correct": null,
+          "label_needs_review": true,
+          "manual_searches": 1,
+          "thought_entries": 0,
+          "model_calls": {
+            "questions": 26,
+            "answered": 25,
+            "invalid_replies": 0,
+            "unanswered": 1,
+            "outage_attempts": 6,
+            "outage_reasons": {
+              "the model service timed out": 6
+            },
+            "answered_by": {
+              "@cf/meta/llama-3.3-70b-instruct-fp8-fast": 4,
+              "ministral-14b-2512": 1,
+              "nvidia/nemotron-3.5-super-vl-120b-a12b": 20
+            }
+          },
+          "critic_outcome": "answered",
+          "critic_pick_correct": false,
+          "recheck": {
+            "outcome": "skipped",
+            "trigger": null,
+            "reason": "no research time left",
+            "question": null,
+            "tool": null,
+            "evidence_id": null,
+            "leading_before": null,
+            "confidence_before": null,
+            "leading_after": null,
+            "confidence_after": null
+          }
+        },
+        {
+          "case": "KA-07-false-alarm",
+          "seed": 8,
+          "correct": true,
+          "label_needs_review": false,
+          "manual_searches": 1,
+          "thought_entries": 0,
+          "model_calls": {
+            "questions": 30,
+            "answered": 30,
+            "invalid_replies": 0,
+            "unanswered": 0,
+            "outage_attempts": 0,
+            "outage_reasons": {},
+            "answered_by": {
+              "ministral-14b-2512": 1,
+              "nvidia/nemotron-3.5-super-vl-120b-a12b": 29
+            }
+          },
+          "critic_outcome": "answered",
+          "critic_pick_correct": null,
+          "recheck": {
+            "outcome": "policy_stopped",
+            "trigger": "objection",
+            "reason": "None remaining for this stage. The evidence already settles the key question: CNC-01's vibration spiked to ~7.0\u20137.4 mm/s at ticks 521\u2013524 (alarms E5/E7) and returned to the ~2.0\u20132.5 mm/s baseline at tick 525, staying there through tick 530 (E4). Load was steady (~65\u201369%) during the spike (E8), speed was unchanged at 1000 rpm (E9), and no job change occurred around tick 521 (E7). This confirms H1 (transient event) and rules out H2 (sustained shift, contradicted by E4) and H3 (operating change, contradicted by E7\u2013E9). H4 (sensor/instrument glitch) remains a remote possibility but does not change the conclusion: the elevation was transient and resolved, with no sustained problem. The requested trend check (K1) would only re-summarize what E4 already shows tick-by-tick, so it would not change the diagnosis and the budget is better saved.",
+            "question": "The critic's check: get_sensor_trend {\"machine_id\":\"CNC-01\",\"sensor\":\"vibration\",\"from_tick\":500,\"to_tick\":530,\"bucket_ticks\":10} to confirm whether the spike is a single transient event or part of a broader trend.",
+            "tool": null,
+            "evidence_id": null,
+            "leading_before": "H1",
+            "confidence_before": 0.9,
+            "leading_after": null,
+            "confidence_after": null
+          }
+        },
+        {
+          "case": "KA-09-challenge",
+          "seed": 3,
+          "correct": false,
+          "label_needs_review": false,
+          "manual_searches": 1,
+          "thought_entries": 0,
+          "model_calls": {
+            "questions": 34,
+            "answered": 33,
+            "invalid_replies": 0,
+            "unanswered": 1,
+            "outage_attempts": 4,
+            "outage_reasons": {
+              "the model service timed out": 4
+            },
+            "answered_by": {
+              "@cf/meta/llama-3.3-70b-instruct-fp8-fast": 3,
+              "ministral-14b-2512": 1,
+              "nvidia/nemotron-3.5-super-vl-120b-a12b": 29
+            }
+          },
+          "critic_outcome": "answered",
+          "critic_pick_correct": false,
+          "recheck": {
+            "outcome": "observed",
+            "trigger": "objection",
+            "reason": null,
+            "question": "The critic's check, to tell H1 (the critic's pick) from H2 (the agent's leading explanation): get_sensor_trend {\"from_tick\": 70, \"to_tick\": 80, \"machine_id\": \"CNC-03\", \"sensor\": \"vibration\", \"bucket_ticks\": 10} to confirm whether the vibration drop at tick 79 is a sudden step change (supporting H1) or a gradual decline (supporting H2).",
+            "tool": "get_sensor_trend",
+            "evidence_id": "E13",
+            "leading_before": "H2",
+            "confidence_before": 0.78,
+            "leading_after": "H2",
+            "confidence_after": 0.78
+          }
+        }
+      ]
+    },
+    {
+      "name": "master-manual-critic-followup-parallel-20261030-131537-83a5d0cf",
+      "raw": "master-manual-critic-followup-parallel-20261030-131537-83a5d0cf.records.jsonl",
+      "report": "master-manual-critic-followup-parallel-20261030-131537-83a5d0cf.report.json",
+      "cases": 5,
+      "judged": 5,
+      "correct": 2,
+      "accuracy": 0.4,
+      "needs_review": 0,
+      "report_text_encoding_differences": [
+        "KA-01-bearing",
+        "KA-09-challenge"
+      ],
+      "details": [
+        {
+          "case": "KA-01-bearing",
+          "seed": 6,
+          "correct": true,
+          "label_needs_review": false,
+          "manual_searches": 1,
+          "thought_entries": 0,
+          "model_calls": {
+            "questions": 28,
+            "answered": 28,
+            "invalid_replies": 0,
+            "unanswered": 0,
+            "outage_attempts": 0,
+            "outage_reasons": {},
+            "answered_by": {
+              "ministral-14b-2512": 1,
+              "nvidia/nemotron-3.5-super-vl-120b-a12b": 27
+            }
+          },
+          "critic_outcome": "answered",
+          "critic_pick_correct": null,
+          "recheck": {
+            "outcome": "observed",
+            "trigger": "objection",
+            "reason": null,
+            "question": "The critic's check: get_maintenance_history {\"machine_id\": \"CNC-02\"} to check if recent maintenance (e.g., spindle service, tooling changes, or workholding adjustments) aligns with the onset of elevated vibration.",
+            "tool": "get_maintenance_history",
+            "evidence_id": "E12",
+            "leading_before": "H2",
+            "confidence_before": 0.9,
+            "leading_after": "H2",
+            "confidence_after": 0.9
+          }
+        },
+        {
+          "case": "KA-03-batch",
+          "seed": 7,
+          "correct": false,
+          "label_needs_review": false,
+          "manual_searches": 1,
+          "thought_entries": 0,
+          "model_calls": {
+            "questions": 28,
+            "answered": 27,
+            "invalid_replies": 0,
+            "unanswered": 1,
+            "outage_attempts": 7,
+            "outage_reasons": {
+              "the model service timed out": 7
+            },
+            "answered_by": {
+              "@cf/meta/llama-3.3-70b-instruct-fp8-fast": 6,
+              "ministral-14b-2512": 1,
+              "nvidia/nemotron-3.5-super-vl-120b-a12b": 20
+            }
+          },
+          "critic_outcome": "answered",
+          "critic_pick_correct": false,
+          "recheck": {
+            "outcome": "skipped",
+            "trigger": null,
+            "reason": "the critic neither objected nor favoured the leading hypothesis",
+            "question": null,
+            "tool": null,
+            "evidence_id": null,
+            "leading_before": null,
+            "confidence_before": null,
+            "leading_after": null,
+            "confidence_after": null
+          }
+        },
+        {
+          "case": "KA-05-setting",
+          "seed": 9,
+          "correct": false,
+          "label_needs_review": false,
+          "manual_searches": 1,
+          "thought_entries": 0,
+          "model_calls": {
+            "questions": 29,
+            "answered": 27,
+            "invalid_replies": 1,
+            "unanswered": 1,
+            "outage_attempts": 5,
+            "outage_reasons": {
+              "the model service timed out": 5
+            },
+            "answered_by": {
+              "@cf/meta/llama-3.3-70b-instruct-fp8-fast": 2,
+              "ministral-14b-2512": 1,
+              "nvidia/nemotron-3.5-super-vl-120b-a12b": 24
+            }
+          },
+          "critic_outcome": "answered",
+          "critic_pick_correct": false,
+          "recheck": {
+            "outcome": "skipped",
+            "trigger": null,
+            "reason": "no research time left",
+            "question": null,
+            "tool": null,
+            "evidence_id": null,
+            "leading_before": null,
+            "confidence_before": null,
+            "leading_after": null,
+            "confidence_after": null
+          }
+        },
+        {
+          "case": "KA-07-false-alarm",
+          "seed": 8,
+          "correct": true,
+          "label_needs_review": false,
+          "manual_searches": 1,
+          "thought_entries": 0,
+          "model_calls": {
+            "questions": 25,
+            "answered": 25,
+            "invalid_replies": 0,
+            "unanswered": 0,
+            "outage_attempts": 0,
+            "outage_reasons": {},
+            "answered_by": {
+              "ministral-14b-2512": 1,
+              "nvidia/nemotron-3.5-super-vl-120b-a12b": 24
+            }
+          },
+          "critic_outcome": "answered",
+          "critic_pick_correct": false,
+          "recheck": {
+            "outcome": "observed",
+            "trigger": "objection",
+            "reason": null,
+            "question": "The critic's check: get_sensor_trend {\"from_tick\":500,\"to_tick\":530,\"machine_id\":\"CNC-01\",\"sensor\":\"vibration\",\"bucket_ticks\":60} to confirm the spike is not part of a gradual rise or sustained trend.",
+            "tool": "get_readings",
+            "evidence_id": "E9",
+            "leading_before": "H1",
+            "confidence_before": 0.92,
+            "leading_after": "H1",
+            "confidence_after": 0.97
+          }
+        },
+        {
+          "case": "KA-09-challenge",
+          "seed": 3,
+          "correct": false,
+          "label_needs_review": false,
+          "manual_searches": 1,
+          "thought_entries": 0,
+          "model_calls": {
+            "questions": 26,
+            "answered": 26,
+            "invalid_replies": 0,
+            "unanswered": 0,
+            "outage_attempts": 0,
+            "outage_reasons": {},
+            "answered_by": {
+              "ministral-14b-2512": 1,
+              "nvidia/nemotron-3.5-super-vl-120b-a12b": 25
+            }
+          },
+          "critic_outcome": "answered",
+          "critic_pick_correct": null,
+          "recheck": {
+            "outcome": "observed",
+            "trigger": "objection",
+            "reason": null,
+            "question": "The critic's check, to tell H1 (the critic's pick) from H2 (the agent's leading explanation): get_sensor_trend {\"machine_id\": \"CNC-03\", \"sensor\": \"vibration\", \"from_tick\": 55, \"to_tick\": 80, \"bucket_ticks\": 10}",
+            "tool": "wait",
+            "evidence_id": "E12",
+            "leading_before": "H2",
+            "confidence_before": 0.8,
+            "leading_after": "H2",
+            "confidence_after": 0.8
+          }
+        }
+      ]
+    },
+    {
+      "name": "master-tot-critic-off-run-1",
+      "raw": "master-tot-critic-off-run-1.records.jsonl",
+      "report": "master-tot-critic-off-run-1.report.json",
+      "cases": 5,
+      "judged": 5,
+      "correct": 0,
+      "accuracy": 0.0,
+      "needs_review": 0,
+      "report_text_encoding_differences": [],
+      "details": [
+        {
+          "case": "KA-01-bearing",
+          "seed": 6,
+          "correct": false,
+          "label_needs_review": false,
+          "manual_searches": 1,
+          "thought_entries": 0,
+          "model_calls": {
+            "questions": 20,
+            "answered": 19,
+            "invalid_replies": 0,
+            "unanswered": 1,
+            "outage_attempts": 2,
+            "outage_reasons": {
+              "the model service answered HTTP 400": 1,
+              "the model service timed out": 1
+            },
+            "answered_by": {
+              "nvidia/nemotron-3.5-super-vl-120b-a12b": 19
+            }
+          },
+          "critic_outcome": null,
+          "critic_pick_correct": null,
+          "recheck": null
+        },
+        {
+          "case": "KA-03-batch",
+          "seed": 7,
+          "correct": false,
+          "label_needs_review": false,
+          "manual_searches": 1,
+          "thought_entries": 0,
+          "model_calls": {
+            "questions": 11,
+            "answered": 10,
+            "invalid_replies": 0,
+            "unanswered": 1,
+            "outage_attempts": 11,
+            "outage_reasons": {
+              "the model service timed out": 11
+            },
+            "answered_by": {
+              "@cf/meta/llama-3.3-70b-instruct-fp8-fast": 10
+            }
+          },
+          "critic_outcome": null,
+          "critic_pick_correct": null,
+          "recheck": null
+        },
+        {
+          "case": "KA-05-setting",
+          "seed": 9,
+          "correct": false,
+          "label_needs_review": false,
+          "manual_searches": 1,
+          "thought_entries": 0,
+          "model_calls": {
+            "questions": 5,
+            "answered": 4,
+            "invalid_replies": 0,
+            "unanswered": 1,
+            "outage_attempts": 9,
+            "outage_reasons": {
+              "the model service answered HTTP 429": 4,
+              "the model service timed out": 5
+            },
+            "answered_by": {
+              "@cf/meta/llama-3.3-70b-instruct-fp8-fast": 4
+            }
+          },
+          "critic_outcome": null,
+          "critic_pick_correct": null,
+          "recheck": null
+        },
+        {
+          "case": "KA-07-false-alarm",
+          "seed": 8,
+          "correct": false,
+          "label_needs_review": false,
+          "manual_searches": 1,
+          "thought_entries": 0,
+          "model_calls": {
+            "questions": 1,
+            "answered": 0,
+            "invalid_replies": 0,
+            "unanswered": 1,
+            "outage_attempts": 5,
+            "outage_reasons": {
+              "the model service answered HTTP 429": 4,
+              "the model service timed out": 1
+            },
+            "answered_by": {}
+          },
+          "critic_outcome": null,
+          "critic_pick_correct": null,
+          "recheck": null
+        },
+        {
+          "case": "KA-09-challenge",
+          "seed": 3,
+          "correct": false,
+          "label_needs_review": false,
+          "manual_searches": 1,
+          "thought_entries": 0,
+          "model_calls": {
+            "questions": 1,
+            "answered": 0,
+            "invalid_replies": 0,
+            "unanswered": 1,
+            "outage_attempts": 5,
+            "outage_reasons": {
+              "the model service answered HTTP 429": 4,
+              "the model service timed out": 1
+            },
+            "answered_by": {}
+          },
+          "critic_outcome": null,
+          "critic_pick_correct": null,
+          "recheck": null
+        }
+      ]
+    },
+    {
+      "name": "master-tot-critic-off-run-2",
+      "raw": "master-tot-critic-off-run-2.records.jsonl",
+      "report": "master-tot-critic-off-run-2.report.json",
+      "cases": 5,
+      "judged": 5,
+      "correct": 1,
+      "accuracy": 0.2,
+      "needs_review": 0,
+      "report_text_encoding_differences": [
+        "KA-07-false-alarm",
+        "KA-09-challenge"
+      ],
+      "details": [
+        {
+          "case": "KA-01-bearing",
+          "seed": 6,
+          "correct": false,
+          "label_needs_review": false,
+          "manual_searches": 1,
+          "thought_entries": 0,
+          "model_calls": {
+            "questions": 13,
+            "answered": 8,
+            "invalid_replies": 2,
+            "unanswered": 3,
+            "outage_attempts": 13,
+            "outage_reasons": {
+              "the model service timed out": 13
+            },
+            "answered_by": {
+              "command-a-03-2025": 8
+            }
+          },
+          "critic_outcome": null,
+          "critic_pick_correct": null,
+          "recheck": null
+        },
+        {
+          "case": "KA-03-batch",
+          "seed": 7,
+          "correct": false,
+          "label_needs_review": false,
+          "manual_searches": 1,
+          "thought_entries": 0,
+          "model_calls": {
+            "questions": 5,
+            "answered": 3,
+            "invalid_replies": 1,
+            "unanswered": 1,
+            "outage_attempts": 5,
+            "outage_reasons": {
+              "the model service answered HTTP 422": 1,
+              "the model service timed out": 4
+            },
+            "answered_by": {
+              "command-a-03-2025": 2,
+              "nvidia/nemotron-3.5-super-vl-120b-a12b": 1
+            }
+          },
+          "critic_outcome": null,
+          "critic_pick_correct": null,
+          "recheck": null
+        },
+        {
+          "case": "KA-05-setting",
+          "seed": 9,
+          "correct": false,
+          "label_needs_review": false,
+          "manual_searches": 1,
+          "thought_entries": 1,
+          "model_calls": {
+            "questions": 23,
+            "answered": 23,
+            "invalid_replies": 0,
+            "unanswered": 0,
+            "outage_attempts": 3,
+            "outage_reasons": {
+              "the model service answered HTTP 500": 2,
+              "the model service timed out": 1
+            },
+            "answered_by": {
+              "command-a-03-2025": 1,
+              "nvidia/nemotron-3.5-super-vl-120b-a12b": 22
+            }
+          },
+          "critic_outcome": null,
+          "critic_pick_correct": null,
+          "recheck": null
+        },
+        {
+          "case": "KA-07-false-alarm",
+          "seed": 8,
+          "correct": true,
+          "label_needs_review": false,
+          "manual_searches": 1,
+          "thought_entries": 1,
+          "model_calls": {
+            "questions": 24,
+            "answered": 24,
+            "invalid_replies": 0,
+            "unanswered": 0,
+            "outage_attempts": 1,
+            "outage_reasons": {
+              "the model service answered HTTP 500": 1
+            },
+            "answered_by": {
+              "nvidia/nemotron-3.5-super-vl-120b-a12b": 24
+            }
+          },
+          "critic_outcome": null,
+          "critic_pick_correct": null,
+          "recheck": null
+        },
+        {
+          "case": "KA-09-challenge",
+          "seed": 3,
+          "correct": false,
+          "label_needs_review": false,
+          "manual_searches": 1,
+          "thought_entries": 1,
+          "model_calls": {
+            "questions": 22,
+            "answered": 22,
+            "invalid_replies": 0,
+            "unanswered": 0,
+            "outage_attempts": 1,
+            "outage_reasons": {
+              "the model service timed out": 1
+            },
+            "answered_by": {
+              "command-a-03-2025": 1,
+              "nvidia/nemotron-3.5-super-vl-120b-a12b": 21
+            }
+          },
+          "critic_outcome": null,
+          "critic_pick_correct": null,
+          "recheck": null
+        }
+      ]
+    },
+    {
+      "name": "master-tot-critic-on-run-1",
+      "raw": "master-tot-critic-on-run-1.records.jsonl",
+      "report": "master-tot-critic-on-run-1.report.json",
+      "cases": 5,
+      "judged": 5,
+      "correct": 1,
+      "accuracy": 0.2,
+      "needs_review": 0,
+      "report_text_encoding_differences": [],
+      "details": [
+        {
+          "case": "KA-01-bearing",
+          "seed": 6,
+          "correct": true,
+          "label_needs_review": false,
+          "manual_searches": 1,
+          "thought_entries": 1,
+          "model_calls": {
+            "questions": 25,
+            "answered": 25,
+            "invalid_replies": 0,
+            "unanswered": 0,
+            "outage_attempts": 0,
+            "outage_reasons": {},
+            "answered_by": {
+              "ministral-14b-2512": 1,
+              "nvidia/nemotron-3.5-super-vl-120b-a12b": 24
+            }
+          },
+          "critic_outcome": "answered",
+          "critic_pick_correct": true,
+          "recheck": {
+            "outcome": "skipped",
+            "trigger": null,
+            "reason": "no tool calls left",
+            "question": null,
+            "tool": null,
+            "evidence_id": null,
+            "leading_before": null,
+            "confidence_before": null,
+            "leading_after": null,
+            "confidence_after": null
+          }
+        },
+        {
+          "case": "KA-03-batch",
+          "seed": 7,
+          "correct": false,
+          "label_needs_review": false,
+          "manual_searches": 1,
+          "thought_entries": 0,
+          "model_calls": {
+            "questions": 11,
+            "answered": 10,
+            "invalid_replies": 0,
+            "unanswered": 1,
+            "outage_attempts": 11,
+            "outage_reasons": {
+              "the model service timed out": 11
+            },
+            "answered_by": {
+              "@cf/meta/llama-3.3-70b-instruct-fp8-fast": 10
+            }
+          },
+          "critic_outcome": null,
+          "critic_pick_correct": null,
+          "recheck": null
+        },
+        {
+          "case": "KA-05-setting",
+          "seed": 9,
+          "correct": false,
+          "label_needs_review": false,
+          "manual_searches": 1,
+          "thought_entries": 0,
+          "model_calls": {
+            "questions": 5,
+            "answered": 4,
+            "invalid_replies": 0,
+            "unanswered": 1,
+            "outage_attempts": 9,
+            "outage_reasons": {
+              "the model service answered HTTP 429": 4,
+              "the model service timed out": 5
+            },
+            "answered_by": {
+              "@cf/meta/llama-3.3-70b-instruct-fp8-fast": 4
+            }
+          },
+          "critic_outcome": null,
+          "critic_pick_correct": null,
+          "recheck": null
+        },
+        {
+          "case": "KA-07-false-alarm",
+          "seed": 8,
+          "correct": false,
+          "label_needs_review": false,
+          "manual_searches": 1,
+          "thought_entries": 0,
+          "model_calls": {
+            "questions": 1,
+            "answered": 0,
+            "invalid_replies": 0,
+            "unanswered": 1,
+            "outage_attempts": 5,
+            "outage_reasons": {
+              "the model service answered HTTP 429": 4,
+              "the model service timed out": 1
+            },
+            "answered_by": {}
+          },
+          "critic_outcome": null,
+          "critic_pick_correct": null,
+          "recheck": null
+        },
+        {
+          "case": "KA-09-challenge",
+          "seed": 3,
+          "correct": false,
+          "label_needs_review": false,
+          "manual_searches": 1,
+          "thought_entries": 0,
+          "model_calls": {
+            "questions": 1,
+            "answered": 0,
+            "invalid_replies": 0,
+            "unanswered": 1,
+            "outage_attempts": 5,
+            "outage_reasons": {
+              "the model service answered HTTP 429": 4,
+              "the model service timed out": 1
+            },
+            "answered_by": {}
+          },
+          "critic_outcome": null,
+          "critic_pick_correct": null,
+          "recheck": null
+        }
+      ]
+    },
+    {
+      "name": "master-tot-critic-on-run-2",
+      "raw": "master-tot-critic-on-run-2.records.jsonl",
+      "report": "master-tot-critic-on-run-2.report.json",
+      "cases": 5,
+      "judged": 4,
+      "correct": 1,
+      "accuracy": 0.25,
+      "needs_review": 1,
+      "report_text_encoding_differences": [
+        "KA-05-setting",
+        "KA-07-false-alarm",
+        "KA-09-challenge"
+      ],
+      "details": [
+        {
+          "case": "KA-01-bearing",
+          "seed": 6,
+          "correct": false,
+          "label_needs_review": false,
+          "manual_searches": 1,
+          "thought_entries": 0,
+          "model_calls": {
+            "questions": 3,
+            "answered": 1,
+            "invalid_replies": 1,
+            "unanswered": 1,
+            "outage_attempts": 4,
+            "outage_reasons": {
+              "the model service answered HTTP 422": 1,
+              "the model service timed out": 3
+            },
+            "answered_by": {
+              "command-a-03-2025": 1
+            }
+          },
+          "critic_outcome": null,
+          "critic_pick_correct": null,
+          "recheck": null
+        },
+        {
+          "case": "KA-03-batch",
+          "seed": 7,
+          "correct": false,
+          "label_needs_review": false,
+          "manual_searches": 1,
+          "thought_entries": 0,
+          "model_calls": {
+            "questions": 8,
+            "answered": 7,
+            "invalid_replies": 0,
+            "unanswered": 1,
+            "outage_attempts": 9,
+            "outage_reasons": {
+              "the model service timed out": 9
+            },
+            "answered_by": {
+              "command-a-03-2025": 7
+            }
+          },
+          "critic_outcome": null,
+          "critic_pick_correct": null,
+          "recheck": null
+        },
+        {
+          "case": "KA-05-setting",
+          "seed": 9,
+          "correct": null,
+          "label_needs_review": true,
+          "manual_searches": 2,
+          "thought_entries": 1,
+          "model_calls": {
+            "questions": 25,
+            "answered": 25,
+            "invalid_replies": 0,
+            "unanswered": 0,
+            "outage_attempts": 1,
+            "outage_reasons": {
+              "the model service timed out": 1
+            },
+            "answered_by": {
+              "command-a-03-2025": 1,
+              "ministral-14b-2512": 1,
+              "nvidia/nemotron-3.5-super-vl-120b-a12b": 23
+            }
+          },
+          "critic_outcome": "answered",
+          "critic_pick_correct": false,
+          "recheck": {
+            "outcome": "skipped",
+            "trigger": null,
+            "reason": "no tool calls left",
+            "question": null,
+            "tool": null,
+            "evidence_id": null,
+            "leading_before": null,
+            "confidence_before": null,
+            "leading_after": null,
+            "confidence_after": null
+          }
+        },
+        {
+          "case": "KA-07-false-alarm",
+          "seed": 8,
+          "correct": true,
+          "label_needs_review": false,
+          "manual_searches": 1,
+          "thought_entries": 1,
+          "model_calls": {
+            "questions": 27,
+            "answered": 26,
+            "invalid_replies": 1,
+            "unanswered": 0,
+            "outage_attempts": 0,
+            "outage_reasons": {},
+            "answered_by": {
+              "ministral-14b-2512": 1,
+              "nvidia/nemotron-3.5-super-vl-120b-a12b": 25
+            }
+          },
+          "critic_outcome": "answered",
+          "critic_pick_correct": true,
+          "recheck": {
+            "outcome": "policy_stopped",
+            "trigger": "objection",
+            "reason": "Evidence settled: CNC-01 had a transient vibration excursion during job 8 \u2014 alarms at ticks 521-524 (7.01-7.37 mm/s; bucket 520-529 max 7.374, mean 4.245) that returned to baseline (~2.3 mm/s) by tick 530 and stayed normal through tick 540 (E4, E8, E15). Motor load was flat in baseline and spike windows (~66% both; E5), so load did not drive the vibration (Q_load answered); following_error was stable 520-524 (E13); events show only vibration alarms 521-524, no job change or stop (Q_events answered, E8). All other running machines were vibration-normal during 520-529 \u2014 CNC-02 (E9), CNC-04 (E10), CNC-05 (E11), CNC-06 (E12) \u2014 and CNC-03 was idle (E3), so the factory scan is complete and the spike is isolated to CNC-01 (Q_CNC05, Q_CNC06 answered). Temperature rose modestly during the spike while vibration had already normalized by tick 530 (E6), consistent with a real transient mechanical disturbance rather than a pure sensor fault, arguing against H3. No evidence of a developing fault. Diagnosis: H1 \u2014 brief self-resolving vibration excursion on CNC-01 (ticks 520-524), not a developing fault; H2's setpoint-alarm element noted (4.5 mm/s is a monitoring setpoint). Remaining uncertainty (exact per-tick value at tick 520, post-540 recurrence) is not decision-relevant: E8/E4 fix the spike profile and E15 confirms recovery, so no further call is likely to change the conclusion.",
+            "question": "The critic's check: get_readings {\"from_tick\": 520, \"to_tick\": 524, \"machine_id\": \"CNC-01\", \"sensor\": \"vibration\"} to confirm the exact vibration values and frequency of the spike, and compare with the following_error and load trends to rule out sensor noise or mechanical issues.",
+            "tool": null,
+            "evidence_id": null,
+            "leading_before": "H1",
+            "confidence_before": 0.88,
+            "leading_after": null,
+            "confidence_after": null
+          }
+        },
+        {
+          "case": "KA-09-challenge",
+          "seed": 3,
+          "correct": false,
+          "label_needs_review": false,
+          "manual_searches": 1,
+          "thought_entries": 1,
+          "model_calls": {
+            "questions": 20,
+            "answered": 20,
+            "invalid_replies": 0,
+            "unanswered": 0,
+            "outage_attempts": 1,
+            "outage_reasons": {
+              "the model service answered HTTP 500": 1
+            },
+            "answered_by": {
+              "ministral-14b-2512": 1,
+              "nvidia/nemotron-3.5-super-vl-120b-a12b": 19
+            }
+          },
+          "critic_outcome": "answered",
+          "critic_pick_correct": false,
+          "recheck": {
+            "outcome": "skipped",
+            "trigger": null,
+            "reason": "the leading hypothesis already reaches the action bar",
+            "question": null,
+            "tool": null,
+            "evidence_id": null,
+            "leading_before": null,
+            "confidence_before": null,
+            "leading_after": null,
+            "confidence_after": null
+          }
+        }
+      ]
+    }
+  ]
+}
