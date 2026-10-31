@@ -1,5 +1,16 @@
 # Progress Log
 
+> **2026-10-31 — run-2 findings recorded as future work (not built):**
+> [RUN2_FINDINGS_FUTURE_WORK.md](RUN2_FINDINGS_FUTURE_WORK.md) records five
+> problems from the run-2 tree-of-thought master runs, each with where it sits
+> in the code: (1) a "no action" conclusion while rejects stay high,
+> (3) the critic follow-up skipped for lack of tool calls or at the bar,
+> (4) job routes that cannot separate machines on a serial line, (5)
+> `verdict_mismatch` missing `no_objection` with serious objections, and (6)
+> why the runs cannot yet show an improvement. The developer chose to build
+> problem 2 (the critic anchoring on the agent's leader) next and to revisit
+> these later. Docs only; no code, tests, settings or understanding status changed.
+
 > **2026-10-31 — future-work docs marked with what is built:** Docs only; no
 > code, tests or settings changed. An audit of `main` (`af3b7bf`) marks each
 > item in `MULTI_AGENT_SURVEY_FUTURE_WORK.md`, `REVIEW_SIGNAL_2026-10-30.md`,
