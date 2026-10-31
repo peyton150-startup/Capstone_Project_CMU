@@ -834,19 +834,38 @@ def test_nvidia_is_asked_to_keep_to_the_answer_types_schema(monkeypatch):
 
 
 def test_providers_not_checked_send_no_response_format(monkeypatch):
-    monkeypatch.setenv("COHERE_API_KEY", KEY)
+    # Variables:
+    #   transport: Captures the request to a provider with no enabled output mode.
+    monkeypatch.setenv("MISTRAL_API_KEY", KEY)
     transport = FakeTransport(chat('{"text": "x"}'))
-    client_for("cohere/some-model", settings(), transport=transport).ask(
+    client_for("mistral/some-model", settings(), transport=transport).ask(
         "s", "p", Lesson
     )
     assert "response_format" not in transport.requests[0][2]
 
 
-def test_a_structured_reply_is_still_checked_against_the_type(monkeypatch):
+def test_cohere_requests_json_objects_and_keeps_the_schema_in_the_prompt(monkeypatch):
+    # Variables:
+    #   body: The actual outgoing payload, checked for JSON mode and schema guidance.
+    monkeypatch.setenv("COHERE_API_KEY", KEY)
+    transport = FakeTransport(chat('{"text": "x"}'))
+    result = client_for(
+        "cohere/command-a-03-2025", settings(), transport=transport
+    ).ask("s", "p", Lesson)
+    body = transport.requests[0][2]
+    assert body["response_format"] == {"type": "json_object"}
+    assert json.dumps(Lesson.model_json_schema()) in body["messages"][0]["content"]
+    assert result == Lesson(text="x")
+
+
+@pytest.mark.parametrize("provider", ["nvidia", "cohere"])
+def test_a_structured_reply_is_still_checked_against_the_type(monkeypatch, provider):
     """The service promising the shape is not trusted: the reply is validated."""
-    monkeypatch.setenv("NVIDIA_API_KEY", KEY)
+    # Variables:
+    #   provider: Exercises both schema mode and JSON-object mode with a wrong shape.
+    monkeypatch.setenv(f"{provider.upper()}_API_KEY", KEY)
     transport = FakeTransport(chat('{"wrong": 1}'))
-    ask = client_for("nvidia/some-model", settings(), transport=transport)
+    ask = client_for(f"{provider}/some-model", settings(), transport=transport)
     with pytest.raises(ValueError):
         ask.ask("s", "p", Lesson)
 
