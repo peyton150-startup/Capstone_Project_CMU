@@ -158,6 +158,11 @@ class Settings(BaseSettings):
     # where the critic pointed. Off by default, so the review-only critic stays
     # the baseline. Needs CRITIC on; without it there is nothing to follow up.
     critic_followup: bool = Field(default=False, validation_alias="CRITIC_FOLLOWUP")
+    # The blind critic: shown the hypotheses shuffled, under neutral labels,
+    # with no confidence and no "leading" mark, so it cannot anchor on the
+    # agent's choice; code then sets its verdict from its pick. Off by default,
+    # so the anchored critic stays the comparison. Needs CRITIC on.
+    critic_blind: bool = Field(default=False, validation_alias="CRITIC_BLIND")
     # The follow-up's own window: one question, one call and one reading, on
     # top of the investigation's time. Live questions took 4-113 s on
     # 2026-10-27, so 90 s fits about two ordinary answers.

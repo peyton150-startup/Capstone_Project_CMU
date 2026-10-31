@@ -411,6 +411,39 @@ def test_a_run_with_the_manual_gives_the_settings_critic_the_manual(monkeypatch)
     assert without.state.critique.manual_sections is None
 
 
+def test_critic_blind_is_off_by_default_and_reaches_the_run(monkeypatch):
+    """CRITIC_BLIND builds a blind settings critic; its record says so and
+    keeps the order shown, and the blind prompt is the one asked."""
+    import capstone.episode as episode
+    from capstone.agent.critic import CRITIC_BLIND_SYSTEM
+    from capstone.settings import Settings
+    from tests.helpers import critique_result
+
+    asked = []
+
+    class Client:
+        answered_by = "fake"
+        attempts = ()
+
+        def ask(self, system, prompt, answer_type, *, max_seconds=None):
+            asked.append(system)
+            return critique_result().model_copy(update={"favoured": "X1"})
+
+    monkeypatch.delenv("CRITIC_BLIND", raising=False)
+    assert Settings(_env_file=None).critic_blind is False
+    monkeypatch.setenv("CRITIC", "on")
+    monkeypatch.setenv("CRITIC_BLIND", "on")
+    monkeypatch.setattr(episode, "critic_client", lambda settings: Client())
+    result = run_episode(
+        SEED, wear_policy(), fault="bearing_degradation", clock=lambda: 0.0
+    )
+    critique = result.state.critique
+    assert asked == [CRITIC_BLIND_SYSTEM]
+    assert critique.blind is True and critique.outcome == "answered"
+    assert sorted(critique.shown_order) == sorted(critique.shown_hypotheses)
+    assert critique.result.favoured == critique.shown_order[0]  # X1, mapped back
+
+
 def test_the_follow_up_window_is_a_setting(monkeypatch):
     from capstone.settings import Settings
 

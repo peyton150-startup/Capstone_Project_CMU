@@ -216,3 +216,10 @@ class CritiqueRecord(Contract):
     # (`critic.verdict_mismatch`), in words. None: they agree, no answer, or an
     # older record.
     verdict_mismatch: str | None = None
+    # True when the critic judged blind (CRITIC_BLIND): shuffled, neutral
+    # labels, no confidence, no leading mark, and the verdict set by code from
+    # its pick. False in anchored runs and older records.
+    blind: bool = False
+    # Blind only: the hypothesis ids in the order the critic saw them, so
+    # position effects can be checked. None when not blind.
+    shown_order: tuple[str, ...] | None = None
