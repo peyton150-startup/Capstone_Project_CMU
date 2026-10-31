@@ -327,6 +327,12 @@ through manufacturing feedback.
 Parts of this work were based on these papers. Each line names the change
 and the paper it came from.
 
+- The opt-in blind critic, which judges the agent's hypotheses without its
+  ranking, confidence or leading mark (`CRITIC_BLIND`, `capstone/agent/critic.py`):
+  from the error-propagation concern in
+  [Large Language Model based Multi-Agents: A Survey of Progress and Challenges](https://arxiv.org/abs/2402.01680)
+  (Guo et al., 2024). Not yet measured live.
+
 - Bounded factual evidence briefs with space reserved for routes, inspections
   and measurements (`capstone/agent/evidence_brief.py`): informed by
   [Lost in the Middle: How Language Models Use Long Contexts](https://arxiv.org/abs/2307.03172)

@@ -254,6 +254,8 @@ def critique(state: InvestigationState, deps: InvestigationDeps) -> None:
     #     latest call record; None when no model replied.
     #   deps.critic.last_sections: The manual sections the critic was shown
     #     (Option B), kept on the record; None when the run offered no manual.
+    #   deps.critic.blind, deps.critic.last_order: Whether it judged blind and,
+    #     if so, the order it saw; kept so anchored and blind runs can be split.
     #   used: Seconds the critic took, added to started_at so the investigation's
     #     time left is the same after this stage as before it.
     if deps.critic is None or not state.hypotheses:
@@ -293,6 +295,8 @@ def critique(state: InvestigationState, deps: InvestigationDeps) -> None:
         ),
         favoured_claim=None if result is None else shown_claims.get(result.favoured),
         after_stage=after_stage,
+        blind=getattr(deps.critic, "blind", False),
+        shown_order=getattr(deps.critic, "last_order", None),
     )
 
 

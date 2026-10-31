@@ -24,6 +24,9 @@ Code outside `capstone.agent` imports the critic's records from here, never
 from `agent.artifacts` (the rule `test_agent_artifacts` keeps).
 """
 
+import hashlib
+import random
+import re
 from collections.abc import Sequence
 from typing import TYPE_CHECKING
 
@@ -51,6 +54,10 @@ __all__ = [
     "CritiqueRecord",
     "CritiqueResult",
     "RecheckRecord",
+    "CRITIC_BLIND_SYSTEM",
+    "blind_labels",
+    "blind_order",
+    "blind_verdict",
     "critique_view",
     "verdict_mismatch",
     "SHOWN_HYPOTHESES",
@@ -132,6 +139,106 @@ gap); favoured_confidence 0.65; supports_action false. Had H2 fitted better, \
 the pick would be H2 and the verdict object."""
 
 
+# The blind view (opt-in, CRITIC_BLIND): the same job without the agent's
+# ranking. Hypotheses come in a shuffled order under neutral labels, with no
+# confidence and no "leading" mark, so the critic cannot anchor on the agent's
+# choice. It still picks, names a check and lists objections; code sets the
+# verdict from the pick (`blind_verdict`), because a critic that does not know
+# which explanation leads cannot judge "against the leading explanation".
+CRITIC_BLIND_SYSTEM = """\
+You are a critic. An investigator has gathered evidence and holds several \
+explanations. You are shown the evidence and the explanations, in no \
+particular order and under neutral labels (X1, X2, ...). You are not told which \
+one the investigator believes most, on purpose: judge them on the evidence \
+alone. You cannot look anything up and cannot call any tool. Judge only what is shown.
+
+Work through these steps, in order:
+1. Read each hypothesis and the evidence ids it says support or contradict it.
+2. For each hypothesis, list the evidence that fits it and the evidence that does not.
+3. Pick the hypothesis the evidence supports best, by its label. It need not be \
+proven; it must be the best fit. Pick none only if the evidence supports none of them.
+4. Name one read-only call from the tool list, with its arguments, whose answer \
+would separate your pick from the next best hypothesis. Use only tools in the \
+list. Also provide check_request with its exact name and arguments. Never use \
+wait or an action: the check must not change the factory. Explain the expected \
+contrasting outcomes in discriminating_check.
+5. List objections. Each has a kind, one sentence, and the evidence ids it rests \
+on. Cite only ids that are shown to you.
+6. Set verdict to no_objection; the investigator's code replaces it with a \
+verdict worked out from your pick.
+
+Rules: cite only evidence ids shown. Favour only a label shown, or none. \
+Do not invent evidence. Candidates shown as ruled out are not hypotheses: never \
+favour one; if the evidence says one was dropped wrongly, object with kind \
+alternative and aim the discriminating check at it. \
+Manual sections, when shown, describe this model of \
+machine in general: use them for what a symptom can mean and which check would \
+separate the hypotheses, never as proof of what this factory is doing, and never \
+cite them as evidence. Reply with the JSON object in the schema and nothing else.
+
+Worked example (a different subject, to show the steps only):
+Anomaly: the leaves of a house plant are turning yellow.
+Evidence: E1 soil moisture reading: wet, three days after the last watering. \
+E2 light log: the plant sits by a bright window all day.
+X1: too little light. Contradicted by E2. X2: overwatering. Supported by E1.
+Steps: X2 fits E1 and does not conflict with E2. X1 conflicts with E2 and has \
+nothing supporting it. Better supported: X2. A call that would separate them: \
+the soil moisture history, to see whether the soil stays wet between waterings. \
+Objection: missing_evidence, only one moisture reading was taken (E1).
+Reply: favoured X2; why: wet soil three days on and plenty of light; \
+discriminating_check: read the soil moisture history for the plant; \
+objections: one missing_evidence citing E1; verdict: no_objection (set by code \
+afterwards); favoured_confidence 0.65; supports_action false."""
+
+
+def blind_order(state: InvestigationState) -> list[Hypothesis]:
+    """The shown hypotheses in a shuffled order that repeats on replay.
+
+    The order comes from a seed made from the anomaly and the hypothesis ids,
+    never from the simulator's random streams, so shuffling moves no factory
+    draw and the same state always gives the same order.
+    """
+    # Variables:
+    #   hypotheses: The ones the critic is shown, most believed first (the cap
+    #     and the set are the anchored view's; only the order changes).
+    #   key: Text fixed by the investigation so far; the same state, the same key.
+    #   seed: A number from the key's hash; Python's own `hash` of a str changes
+    #     between processes, so it is not used.
+    hypotheses = shown_hypotheses(state)
+    anomaly = state.anomaly
+    key = "|".join(
+        [anomaly.kind, anomaly.machine_id or "", str(anomaly.tick)]
+        + sorted(h.id for h in hypotheses)
+    )
+    seed = int.from_bytes(hashlib.sha256(key.encode()).digest()[:8], "big")
+    return random.Random(seed).sample(hypotheses, len(hypotheses))
+
+
+def blind_labels(order: Sequence[Hypothesis]) -> dict[str, str]:
+    """Neutral label for each hypothesis id, in the shown order: X1, X2, ..."""
+    return {h.id: f"X{n}" for n, h in enumerate(order, start=1)}
+
+
+def _rename(text: str, names: dict[str, str]) -> str:
+    """`text` with each whole-word key of `names` replaced by its value."""
+    # Variables:
+    #   names: Old name to new name, e.g. {"H1": "X2"} into the blind view, or
+    #     {"X2": "H1"} back out of the critic's reply.
+    if not names:
+        return text
+    pattern = re.compile(r"\b(" + "|".join(map(re.escape, names)) + r")\b")
+    return pattern.sub(lambda m: names[m.group(1)], text)
+
+
+def blind_verdict(favoured: str, leading: str | None) -> str:
+    """The verdict code sets for a blind critic: object unless it picked the leader."""
+    # Variables:
+    #   favoured: The critic's pick, already mapped back to a hypothesis id, or
+    #     "none".
+    #   leading: The agent's leading hypothesis id, which the critic was not told.
+    return "no_objection" if favoured == leading else "object"
+
+
 # Objection kinds that argue against the leading explanation itself; the
 # others (a check not yet made, a confidence a little high) are minor gaps.
 SERIOUS_OBJECTIONS = frozenset({"contradiction", "alternative"})
@@ -207,9 +314,15 @@ def critique_view(
     state: InvestigationState,
     tools: Sequence[ToolSpec],
     sections: Sequence[ManualSection] = (),
+    *,
+    blind: bool = False,
 ) -> str:
     """What the critic is shown: the anomaly, the evidence, the hypotheses and,
-    with a manual, the sections found for them."""
+    with a manual, the sections found for them.
+
+    With `blind`, the hypotheses come in `blind_order` under `blind_labels`,
+    with no confidence and no "leading" mark; everything else is the same.
+    """
     # Variables:
     #   tools: The agent's research tools, shown as text only so the critic can name
     #     a check the agent could make; the critic cannot call them.
@@ -222,6 +335,11 @@ def critique_view(
     #   supported, contradicted: The evidence ids a shown hypothesis says back it or
     #     count against it, so the critic can check those claims.
     #   evidence_brief: Arithmetic, coverage and routes derived from observable results.
+    #   blind: Hide the agent's ranking: shuffled order, neutral labels, no
+    #     confidence, no leading mark.
+    #   order: The hypotheses in the order shown.
+    #   labels: The name each hypothesis is shown under: its id, or X1, X2, ...
+    #   ranked: Its confidence and, for the first, the leading mark; empty when blind.
     anomaly = state.anomaly
     where = f" on {anomaly.machine_id}" if anomaly.machine_id else ""
     lines = [
@@ -232,18 +350,20 @@ def critique_view(
         "",
         "HYPOTHESES SHOWN TO YOU:",
     ]
-    for rank, h in enumerate(shown_hypotheses(state)):
+    order = blind_order(state) if blind else shown_hypotheses(state)
+    labels = blind_labels(order) if blind else {h.id: h.id for h in order}
+    for rank, h in enumerate(order):
         leading = ", the agent's leading explanation" if rank == 0 else ""
+        ranked = "" if blind else f" (confidence {h.confidence:.2f}{leading})"
         supported = ", ".join(h.supporting_evidence_ids) or "none"
         contradicted = ", ".join(h.contradicting_evidence_ids) or "none"
-        lines.append(
-            f"- {h.id} (confidence {h.confidence:.2f}{leading}): {h.claim} "
-            f"Supported by: {supported}. Contradicted by: {contradicted}."
-        )
-        lines.append(
+        shown = [
+            f"- {labels[h.id]}{ranked}: {h.claim} "
+            f"Supported by: {supported}. Contradicted by: {contradicted}.",
             f"Expected: {h.expected_observations}; assumptions: {h.assumptions}; "
-            f"unexplained evidence: {h.unexplained_evidence_ids}; check: {h.discriminating_check}"
-        )
+            f"unexplained evidence: {h.unexplained_evidence_ids}; check: {h.discriminating_check}",
+        ]
+        lines += [_rename(line, labels) for line in shown] if blind else shown
     if state.pruned_candidates:
         lines += ["", PRUNED_NOTE]
         for p in state.pruned_candidates:
@@ -276,21 +396,28 @@ class Critic:
         tools: Sequence[ToolSpec],
         *,
         manual: "ManualSearch | None" = None,
+        blind: bool = False,
     ):
         # Variables:
         #   client: Asks the critic's model chain one typed question; a fake in tests.
         #   tools: The agent's research tools, shown to the critic as text.
         #   manual: The run's manual search, used by code before the question
         #     (Option B); None when the run offers no manual.
+        #   blind: Show the hypotheses without the agent's ranking (CRITIC_BLIND);
+        #     code then sets the verdict from the pick.
         #   calls: This critic's own record of every question it asked, kept apart
         #     from the research agent's calls and tagged agent="critic".
         #   last_sections: The ids of the manual sections shown at the latest
         #     review, for the record; None without a manual.
+        #   last_order: The hypothesis ids in the order the blind critic saw them
+        #     at the latest review, for the record; None when not blind.
         self.client = client
         self.tools = tuple(tools)
         self.manual = manual
+        self.blind = blind
         self.calls: list[ModelCall] = []
         self.last_sections: tuple[str, ...] | None = None
+        self.last_order: tuple[str, ...] | None = None
 
     def review(
         self, state: InvestigationState, *, max_seconds: float
@@ -310,16 +437,24 @@ class Critic:
         #   hypotheses: The hypotheses the critic is shown, most believed first.
         #   sections: The manual sections found on their claims; the search runs
         #     here, inside the critic's window, so its time counts as the critic's.
+        #   labels: Blind only: each hypothesis id's neutral label, so the reply's
+        #     labels can be turned back into ids before it is checked.
         hypotheses = shown_hypotheses(state)
         shown = [h.id for h in hypotheses]
         sections = manual_sections(self.manual, hypotheses)
         self.last_sections = (
             None if self.manual is None else tuple(f"§{s.section_id}" for s in sections)
         )
+        labels: dict[str, str] = {}
+        self.last_order = None
+        if self.blind:
+            order = blind_order(state)
+            labels = blind_labels(order)
+            self.last_order = tuple(h.id for h in order)
         try:
             answer = self.client.ask(
-                CRITIC_SYSTEM,
-                critique_view(state, self.tools, sections),
+                CRITIC_BLIND_SYSTEM if self.blind else CRITIC_SYSTEM,
+                critique_view(state, self.tools, sections, blind=self.blind),
                 CritiqueResult,
                 max_seconds=max_seconds,
             )
@@ -330,10 +465,47 @@ class Critic:
             self._record("no_answer")
             raise
         self._record("answered")
+        if self.blind:
+            # Checked before mapping back: the blind critic saw only labels, so a
+            # real id (say "H1") in its pick is a guess it was never shown, even
+            # though `_problem` would accept that id once mapped.
+            if answer.favoured != "none" and answer.favoured not in labels.values():
+                self._refuse(f"favoured {answer.favoured!r} was not a label shown")
+            answer = self._unblind(answer, labels, shown)
         reason = self._problem(answer, shown, state)
         if reason is not None:
             self._refuse(reason)
         return answer
+
+    def _unblind(
+        self, answer: CritiqueResult, labels: dict[str, str], shown: list[str]
+    ) -> CritiqueResult:
+        """The blind reply in hypothesis ids, with the verdict code works out.
+
+        Labels are turned back into ids in every text field, so the follow-up
+        and the record read as the anchored critic's do. `review` has already
+        refused a pick that is not a label shown (or none).
+        """
+        # Variables:
+        #   back: Label to hypothesis id, the reverse of `labels`.
+        #   favoured: The pick as a hypothesis id, or "none".
+        #   leading: The agent's leading hypothesis (first in `shown`), which the
+        #     critic was not told.
+        back = {label: hid for hid, label in labels.items()}
+        favoured = back.get(answer.favoured, answer.favoured)
+        leading = shown[0] if shown else None
+        return answer.model_copy(
+            update={
+                "favoured": favoured,
+                "why": _rename(answer.why, back),
+                "discriminating_check": _rename(answer.discriminating_check, back),
+                "objections": tuple(
+                    o.model_copy(update={"text": _rename(o.text, back)})
+                    for o in answer.objections
+                ),
+                "verdict": blind_verdict(favoured, leading),
+            }
+        )
 
     def _problem(
         self, answer: CritiqueResult, shown: list[str], state: InvestigationState
