@@ -317,29 +317,86 @@ built. What is built is recorded, with its pull request, in
 [`PROGRESS.md`](PROGRESS.md); finished items were removed from here on
 2026-10-30. The "Future Work N" numbers and the item letters and numbers inside
 them are fixed IDs that code comments, tests and other documents cite, so they
-stay even though the sections are now grouped by priority, not by number.
+stay even though the sections are now grouped by topic, with items sorted from higher to lower priority within each category.
 
-| Priority | Where | Item | What is left |
+## Future work index: categories and priorities
+
+This reorganizes the existing roadmap, not its implementation status or authority to build. Explicit priorities are preserved; items previously unranked are assigned **LOW** for navigation unless their described dependencies indicate greater urgency. FAR FUTURE retains the project's near-last and absolute-last ordering. Each item links to the original detailed requirements below.
+
+| Category | Highest priority | Scope |
+|---|---|---|
+| [Pilot readiness and safety](#future-work-pilot-readiness) | HIGH | Rapid triage, reliable abstention |
+| [Simulator upgrades and machine fidelity](#future-work-simulator-upgrades) | HIGH | Haas fidelity, power/bearing validation, fault models |
+| [Evaluation, benchmarking and reasoning](#future-work-evaluation) | HIGH | Live runs, critic, ToT/GoT, runtime reliability |
+| [Retrieval and memory](#future-work-retrieval-and-memory) | MEDIUM | Manual and episodic search, reranking, ingestion |
+| [Multi-agent roles and coordination](#future-work-multi-agent-roles) | MEDIUM | Specialists, contracts, handoffs and model budgets |
+| [Tooling and infrastructure](#future-work-tooling) | MEDIUM | MCP, observability, audits and dev tools |
+| [Planning and automation](#future-work-planning-and-automation) | LOW | Controlled interventions and proactive monitoring |
+| [Frontend and operator experience](#future-work-frontend) | LOW | Difficulty recipes and safe configuration UI |
+| [Long-term portability and optional interfaces](#future-work-long-term) | LOW / FAR FUTURE | Cross-machine support, vision and voice |
+
+### All future-work entries — highest to lowest priority
+
+| Priority | Category | Item | Short summary |
 |---|---|---|---|
-| HIGH | [Pilot-readiness](#high-priority-future-work--pilot-readiness-fast-triage-and-the-rest-of-abstention-updated-2026-10-30) | Rapid triage versus deep investigation (item 2); degraded data (item 3) | Triage is not built. The blackout and the abstention scorecard are built (D1, D2); a live run, a conflicting-observations case and demo traces are open. |
-| HIGH | [Haas retrofit](#high-priority-future-work--retrofit-the-simulator-around-real-haas-vf-series-machines-2026-10-29) | Simulator around a real Haas VF-series NGC machine, plus older control support | Roadmap only. |
-| HIGH | [Simulator fidelity](#high-priority-future-work--simulator-fidelity-what-is-left-updated-2026-10-30) | Follow-ups to the bearing profile, kW power, servo and hydraulic packs, and amps | The first versions are built (F1-F5); the follow-ups are open. |
-| HIGH (audit) | [Future Work 7](#future-work-7--model-evaluation-execution-budgets-and-computed-evidence) | Pydantic AI runtime reliability review | Candidate audit and small benchmark. |
-| MEDIUM | [Future Work 7](#future-work-7--model-evaluation-execution-budgets-and-computed-evidence) | Evaluation-only response cache; evidence-scored multi-cause hypotheses and Graph of Thoughts; Pydantic Evals | Planned or candidates, gated on measurements. |
-| MEDIUM | [Future Work 1](#future-work-1--richer-research-and-document-ingestion) | MMR and Jev for episodic recall; Voyage rerank for the manual | Candidates. |
-| - | [Future Work 1](#future-work-1--richer-research-and-document-ingestion) | Near-duplicate memory check; agent-directed RAG leftovers; Docling | Planned or candidates; the near-duplicate threshold tool is built. |
-| - | [Live runs owed](#live-runs-and-follow-ups-still-owed) | Scored live runs and a few small follow-ups | No code; Codex runs the live runs. |
-| - | [Future Work 3](#future-work-3--multi-agent-research) | More roles: planner, researcher, evidence, analyst, synthesizer; Cohere Rerank; Requesty structured output | Planned; the critic is built. |
-| - | [Future Work 2](#future-work-2--mcp-architecture-observability-and-response-verification) | MCP, tracing and MCP-response verification | Planned; nothing built. |
-| - | [Future Work 6](#future-work-6--developer-efficiency--project-tooling) | uv audit, ty, Dependabot, xdist, Hypothesis | Candidates. |
-| - | [Future Work 8](#future-work-8--harder-scenarios-difficulty-modes-a-frontend-and-simulator-growth) | Difficulty modes and a frontend; key the fault draw; the next fault pack | Deferred or planned. |
-| - | [Repository audit](#developer-follow-up-subquadratic-whole-repository-audit) | Whole-repository audit by a long-context model | Pending. |
-| near-last | [Future Work 9](#future-work-9--sensor-triggered-on-demand-machine-vision-near-last-priority) | On-demand machine vision | Far future. |
-| last | [Future Work 10](#future-work-10--optional-technician-voice-input-absolute-last-priority) | Technician voice input | Far future. |
+| **HIGH** | Pilot readiness | [Fast read-only triage](#fw-rapid-triage) | Add strict latency budgets and a separate deep-investigation path. |
+| **HIGH** | Pilot readiness | [Degraded-data handling](#fw-degraded-data) | Live-test conflicting, missing and stale observations; demonstrate abstention and recovery. |
+| **HIGH** | Simulator | [Haas VF/NGC reference machine](#fw-haas-retrofit) | Ground the simulator in model-specific manuals and known supported telemetry. |
+| **HIGH** | Simulator | [Three-day bearing curve](#fw-bearing-progression) | Enable experiment selection and review wear curve with the manufacturing SME. |
+| **HIGH** | Simulator | [Power signal fidelity](#fw-power-validation) | Validate kW assumptions, relevant scoring and energy calculations. |
+| **HIGH** | Evaluation | [Current live run comparisons](#fw-live-runs) | Compare prompts, settings, manual, memory, and scorer outcomes on matched cases. |
+| **HIGH** | Evaluation | [Critic follow-up effectiveness](#fw-critic-comparison) | Compare review-only with bounded critic-driven recheck. |
+| **HIGH** | Evaluation | [Degraded matrix on live models](#fw-degraded-comparison) | Run clean vs degraded scenarios and examine false-confidence cases. |
+| **HIGH** | Evaluation | [Pydantic AI reliability audit](#fw-runtime-audit) | Benchmark deadlines and typed runtime safety; do not migrate without evidence. |
+| **MEDIUM** | Simulator | [Electrical current in amps](#fw-current-draw) | Measure whether current adds distinct value beyond existing power readings. |
+| **MEDIUM** | Simulator | [More servo and hydraulic modes](#fw-additional-failures) | Evaluate encoder, pump, valve, lubricant and overlapping-failure scenarios. |
+| **MEDIUM** | Simulator | [Fault draw and pack selection](#fw-fault-packs) | Keep seeded draws invariant and choose fault packs by experiment. |
+| **MEDIUM** | Evaluation | [ToT + critic ablations](#fw-tot-ablation) | Evaluate pruning, deferral, earlier critic checks and adaptive search. |
+| **MEDIUM** | Evaluation | [Concurrent-fault evidence scoring](#fw-multicause) | Support multiple evidence-backed causes rather than arbitrary top-k pruning. |
+| **MEDIUM** | Evaluation | [Position-bias / logprob check](#fw-position-bias) | Compare score stability under order changes and optional token likelihood. |
+| **MEDIUM** | Evaluation | [Bounded Graph of Thoughts](#fw-got-prototype) | Test graph hypothesis merges only if matched tests justify the overhead. |
+| **MEDIUM** | Evaluation | [Model-response evaluation cache](#fw-eval-cache) | Use opt-in SQLite for repeat judgments without caching production investigations. |
+| **MEDIUM** | Evaluation | [Role-specific model benchmarks](#fw-role-benchmarks) | Measure specialist task quality, latency, cost and schema failures. |
+| **MEDIUM** | Retrieval | [MMR episodic search](#fw-mmr) | Test diversity of historical investigations against similarity retrieval. |
+| **MEDIUM** | Retrieval | [Voyage manual reranking](#fw-voyage) | Benchmark only the manual/SOP retrieval path. |
+| **MEDIUM** | Retrieval | [Jev for recall or routing](#fw-jev-recall) | Test model-driven recall rerank and routing if baseline errors warrant it. |
+| **MEDIUM** | Multi-agent | [Planner / researcher / analyst roles](#fw-specialist-roles) | Add bounded specialist stages after demonstrated gains. |
+| **MEDIUM** | Multi-agent | [Typed handoffs and contracts](#fw-handoffs) | Define evidence-only, full and challenge handoffs with shared provenance. |
+| **MEDIUM** | Multi-agent | [Per-role execution budgets](#fw-agent-budgets) | Bound output, retries, tool calls and time across all agents. |
+| **MEDIUM** | Tooling | [Read-only MCP boundary](#fw-mcp) | Introduce authenticated MCP capabilities only when core agent is ready. |
+| **MEDIUM** | Tooling | [Traces and response validation](#fw-response-check) | Observe agent/tool calls and verify schema, permissions and freshness. |
+| **MEDIUM** | Tooling | [SubQ full-repo audit](#fw-subq) | Examine cross-file integrity on a pinned snapshot before sweeping refactors. |
+| **LOW** | Evaluation | [Prompt and setting comparisons](#fw-prompt-settings) | Finish existing targeted live A/B tests. |
+| **LOW** | Evaluation | [Episodic memory live comparison](#fw-memory-comparison) | Compare no memory, keyword and semantic recall modes. |
+| **LOW** | Evaluation | [Memory experiment reporting](#fw-memory-reporting) | Add focused reruns, repeats and memory-store manifest. |
+| **LOW** | Evaluation | [Keyword / semantic parity](#fw-recall-parity) | Align indexed fields and introduce semantic relevance cutoff. |
+| **LOW** | Evaluation | [Jev auto-label agreement](#fw-jev-labels) | Measure against hand labels before using predictions for scoring. |
+| **LOW** | Evaluation | [Regression-case expansion](#fw-regression-cases) | Extend known-answer suite when causal simulator support exists. |
+| **LOW** | Evaluation | [Deterministic sensor calculations](#fw-sensor-calculations) | Add window comparisons when justified by observed diagnostic need. |
+| **LOW** | Evaluation | [Pydantic Evals framework](#fw-pydantic-evals) | Consider framework substitution only after measured reporting pain. |
+| **LOW** | Retrieval | [Agent-directed RAG refinements](#fw-rag) | Improve remaining retrieval orchestration without redundant queries. |
+| **LOW** | Retrieval | [Near-duplicate memory filter](#fw-near-duplicate) | Test write-time semantic duplication threshold. |
+| **LOW** | Retrieval | [Docling / HybridChunker](#fw-docling) | Evaluate parsing of real PDFs and maintenance documents. |
+| **LOW** | Multi-agent | [Role compatibility probes](#fw-role-compatibility) | Check structured outputs, fallback and budget behavior per provider. |
+| **LOW** | Multi-agent | [Cohere Rerank](#fw-cohere-rerank) | Use retrieval-only reranking when justified; not a chat agent. |
+| **LOW** | Multi-agent | [Requesty strict JSON](#fw-requesty-json) | Test gateway JSON schema translation by actual provider/model. |
+| **LOW** | Tooling | [uv, ty, Dependabot, Hypothesis, xdist](#fw-tooling) | Conditionally improve testing and dependency hygiene. |
+| **LOW** | Planning | [Controlled process experiments](#fw-experiments) | Plan and verify small approved machine-setting trials. |
+| **LOW** | Planning | [Automatic monitoring triggers](#fw-proactive) | Start investigations proactively only after lifecycle safety is mature. |
+| **LOW** | Simulator | [Additional optional fault pack](#fw-next-pack) | Add a new causal fault only if benchmark coverage needs it. |
+| **LOW** | Frontend | [Difficulty modes and operator UI](#fw-frontend) | Offer 1/4/8-fault modes and safe configuration controls. |
+| **LOW** | Portability | [Equipment profiles and tenancy](#fw-portability) | Consider YAML, schemas and isolation only when actual needs appear. |
+| **FAR FUTURE** | Optional interfaces | [Sensor-triggered visual inspections](#fw-vision) | Use bounded camera/model observations only with shop approval. |
+| **FAR FUTURE** | Optional interfaces | [Technician voice reports](#fw-voice) | Offer reviewed speech input only after demonstrated user value. |
 
-Future Work 4 (planning and experiments) and 5 (proactive autonomy) are short paragraphs under [platform](#future-work-platform-and-tooling); the far-future portability gates are under [their own heading](#far-future-portability-candidates).
+**Organization:** Detailed sections are grouped by category and arranged HIGH → MEDIUM → LOW → FAR FUTURE within each group, while technical explanations and dependency notes remain with the relevant work. Future Work IDs are unchanged; FW7's specialist benchmarking and budgets appear under Multi-agent Roles. No implementation check or new feature development was performed.
 
-## Future work: high priority (pilot readiness and simulator realism)
+
+<a id="future-work-high-priority-pilot-readiness-and-simulator-realism"></a>
+
+## Future work: Pilot readiness and safety
+
+<a id="future-work-pilot-readiness"></a>
 
 ### High-priority future work — pilot-readiness: fast triage and the rest of abstention (updated 2026-10-30)
 
@@ -355,6 +412,8 @@ loop (the opt-in `recheck` follow-up, C2r, PR #119, and the critic before every
 conclusion with every hypothesis, C1b, PR #122), and the sensor-feed blackout
 with the degraded-case matrix and the abstention scorecard (D1, D2). Measuring
 the critic loop is under [live runs owed](#live-runs-and-follow-ups-still-owed).
+
+<a id="fw-rapid-triage"></a>
 
 #### 2. Split rapid triage from deep investigation (HIGH)
 
@@ -394,6 +453,8 @@ verification; neither mode sees hidden truth. Report p50/p95 latency,
 time-to-first-useful-answer, accuracy among answered cases, abstention
 rate, and additional model/tool calls.
 
+<a id="fw-degraded-data"></a>
+
 #### 3. Degraded data and abstention: what is left (HIGH)
 
 Built (D1, D2): the timed sensor-feed blackout (`--hazards blackout`), the
@@ -426,7 +487,16 @@ pilot demonstration. These tasks complement, rather than replace, the separate
 Haas VF/NGC reference-machine retrofit below; no physical Haas connection is
 needed.
 
+
+## Future work: Simulator upgrades and machine fidelity
+
+<a id="future-work-simulator-upgrades"></a>
+
 ### High-priority future work — retrofit the simulator around real Haas VF-series machines (2026-10-29)
+
+<a id="fw-haas-retrofit"></a>
+
+**Priority: HIGH.**
 
 **Status: ROADMAP ONLY; not implemented. Priority: HIGH, after the current single-machine investigation/critic baseline is measured.** The developer wants the reference/default CNC to be a **specific Haas VF-series machine with Next Generation Control (NGC)** rather than the fictional generic CNCs. Keep the existing seeded simulator, machine-independent agent and `FactoryProvider` interfaces. This is a **machine-specific simulator retrofit, not a promise that we already have a connected Haas, a complete manual, or every physical sensor**. Start with a single Haas reference machine and make multiple-machine lines an optional configuration. Do not replace the existing simulator or its tests wholesale until parity and regression checks pass.
 
@@ -453,12 +523,18 @@ needed.
 
 ### High-priority future work — simulator fidelity: what is left (updated 2026-10-30)
 
+<a id="fw-fidelity"></a>
+
+**Priority: HIGH for bearing and power review; MEDIUM for additional sensors and faults.**
+
 These come from the developer's discussion with manufacturing engineer Brandon
 Reff (2026-10-23). The bearing profile and kW power were first, and servo and
 hydraulic failures were added as fault packs; all are built and recorded in
 `PROGRESS.md` (F1 three-day bearing profile, F2 power in kW, F3-F5 the fault-pack
 registry and the servo-drive and hydraulic-leak packs). The numbers behind them
 are working assumptions for Brandon to review. What is left:
+
+<a id="fw-bearing-progression"></a>
 
 **A. Bearing progression.**
 
@@ -474,6 +550,8 @@ are working assumptions for Brandon to review. What is left:
   agent time budgets or the existing known-answer cases. Measurements and how to
   repeat them: `docs/benchmarks/2026-10-26-bearing-three-day.md`.
 
+<a id="fw-power-validation"></a>
+
 **B. Machine power.**
 
 - Brandon's review of the assumed numbers (idle 2 kW; running 2 kW plus spindle
@@ -485,6 +563,8 @@ are working assumptions for Brandon to review. What is left:
 - Whether power belongs in `RELEVANT_EVIDENCE` for the wrong-setting fault: it
   is not credited as evidence in scoring today.
 - Hydraulic pump power in the reading, when the hydraulic pack calls for it.
+
+<a id="fw-current-draw"></a>
 
 **C. Examine electrical current draw (amps) as a related observation.**
 
@@ -502,6 +582,8 @@ are working assumptions for Brandon to review. What is left:
 - This is a **related follow-up to HIGH-priority kW monitoring**, not a
   claim that a current sensor exists today. Evaluate the additional
   diagnostic value and cost before adding a separate telemetry channel.
+
+<a id="fw-additional-failures"></a>
 
 **D. More failure-capable components, after servo and hydraulics.**
 
@@ -523,48 +605,92 @@ Neither improvement changes the MVP commitment merely by being documented.
 
 See the [simulator fidelity reevaluation gates](FUTURE_WORK_REEVALUATION.md#high-priority-simulator-fidelity-candidates-2026-10-23).
 
-## Future work: measurement and evaluation
+### Future Work 8 — harder scenarios: difficulty modes, a frontend, and simulator growth
+
+Status: future work, partly built. Recorded 2026-10-20 at the developer's
+request. The compound challenge runs in experiments (E6: `run --challenge
+SEEDS` and the known-answer case KA-09), and scoring judges runs with several
+true faults (E5: `Score.causes`, `causes_found`, `wrong_causes`,
+`causes_resolved`, `fully_right`). What is left is below.
+
+#### Fault packs: what is left (planned 2026-10-22)
+
+<a id="fw-fault-packs"></a>
+
+**Priority: MEDIUM for deterministic pack selection; LOW for a new fault.**
+
+The registry (`capstone/faults.py`) and the servo-drive and hydraulic-leak packs
+are built (F3-F5); a new fault now costs 3 or 4 files, not about 12, and the
+agent-side and evaluator-side halves of each pack are kept apart. Left:
+
+- <a id="fw-fault-seeds"></a> **Key each seed's fault draw** so that adding or leaving out a pack does not
+  shift what the other faults draw. Today `build_scenario` draws from `FAULTS`
+  even when the fault is forced, so a longer list could change a seed's machine
+  and start tick; new packs avoid this only by being forced
+  (`DEFAULT_DRAW` keeps every existing seed unchanged).
+- <a id="fw-pack-selection"></a> **Choose packs per experiment.** Packs are fixed in code, not added at run time
+  (the same seed must build the same factory). Choosing which packs an
+  experiment uses is most of what the easy / intermediate / hard modes need;
+  each pack carries a `difficulty` tag that nothing reads yet.
+- <a id="fw-next-pack"></a> **The next pack** (for example coolant pressure with a coolant leak: pressure
+  falls, the machine runs hotter, rejects rise, and the fix is a coolant
+  repair). Decide first whether the new sensor raises its own alarm: monitoring
+  reacts only to an alarm, a stopped machine or a run of rejects. New sensors,
+  failure models and scenario injection are on the teaching list (`AGENTS.md`
+  section 2.1), so whether this is taught or built ungated is the developer's
+  call.
+
+
+<a id="future-work-measurement-and-evaluation"></a>
+
+## Future work: Evaluation, benchmarking and reasoning
+
+<a id="future-work-evaluation"></a>
 
 ### Live runs and follow-ups still owed
+
+<a id="fw-live-runs"></a>
+
+**Priority: HIGH for baseline, critic and degraded-data comparisons; LOW for optional reporting improvements.**
 
 The code for these is built; what is missing is a live, scored run or a small
 follow-up. Live runs are Codex's, one at a time (`AGENTS.md` section 12). Judge
 each against the master runs on the same known-answer cases.
 
-- **Prompt and setting changes** (live comparison outstanding for each):
+- <a id="fw-prompt-settings"></a> **Prompt and setting changes** (live comparison outstanding for each):
   `STEP_QUESTIONS=1` against 2 (A12); hiding the action bar from the prompt with
   `STATE_ACTION_BAR=false` (A13); the check-before-stopping guidance (A14); the
   manual guidance with the manual on by default and the manual step (A15, M1b).
-- **The critic:** review-only against the follow-up (`CRITIC_FOLLOWUP`, C2r) and
+- <a id="fw-critic-comparison"></a> **The critic:** review-only against the follow-up (`CRITIC_FOLLOWUP`, C2r) and
   against the critic before every conclusion with every hypothesis (C1b), on the
   nine known cases. Check whether its objections separate right runs from wrong
   ones: in both live runs that reached it (2026-10-29) it objected, including
   when the agent was right. Tuning the critic comes after these runs.
-- **The degraded-case matrix** (`evals/degraded.json`, D2) against the clean-data
+- <a id="fw-degraded-comparison"></a> **The degraded-case matrix** (`evals/degraded.json`, D2) against the clean-data
   baseline; see pilot-readiness item 3.
-- **A live memory comparison run:** fill the store on tuning seeds
+- <a id="fw-memory-comparison"></a> **A live memory comparison run:** fill the store on tuning seeds
   (`experiment run --memory --audit ...`), backfill the index
   (`python -m capstone.memory.backfill`), then
   `python -m capstone.memory_comparison run --known`, label and report. The
   command is built and was made fair (C3a, C3c) but has never run against a real
   model; it is the only way to learn whether memory improves investigations.
-- **Memory comparison follow-ups** (C3c notes): a `--cases` option on `run` to
+- <a id="fw-memory-reporting"></a> **Memory comparison follow-ups** (C3c notes): a `--cases` option on `run` to
   rerun chosen cases in every mode (the developer's idea, for cases lost to
   outages); repeats with a per-case win/loss count between modes; and a header
   recording the store's size, embedding model and policy version. With one run
   per case and outages removing cases, the totals are noisy and not always like
   for like.
-- **Make keyword and semantic recall comparable** (C3c notes 6-7): both searches
+- <a id="fw-recall-parity"></a> **Make keyword and semantic recall comparable** (C3c notes 6-7): both searches
   should read the same fields of a memory (keyword reads category, symptoms,
   action, machine and lesson; semantic embeds category, symptoms, diagnosis and
   lesson), and semantic search needs a relevance cutoff instead of always
   returning k memories, or a keyword/semantic difference is not purely words
   versus meaning and semantic mode puts unrelated memories in front of the agent.
   This changes what the agent sees: teach first.
-- **Finish the check on Jev's labels** (T1): measure its agreement with hand
+- <a id="fw-jev-labels"></a> **Finish the check on Jev's labels** (T1): measure its agreement with hand
   labels (`python -m capstone.evaluation.auto_label ... --hand`) before any
   experiment trusts it; add it to scoring only after that.
-- **Grow the known-answer suite after changes** to prompts, models, tools,
+- <a id="fw-regression-cases"></a> **Grow the known-answer suite after changes** to prompts, models, tools,
   memory, providers and handoffs. New cases (workload changes, ambient changes,
   sensor anomalies, idle behavior) are added only when the existing simulator
   can reproduce the intended condition; do not invent fault models just to fill
@@ -596,109 +722,63 @@ cannot score counterfactual intervention effects.
 These are staged additions to the existing build order, not a separate framework
 to implement before the remaining simulator actions and scenarios.
 
-#### Role-specific model benchmarking
+#### Pydantic AI runtime reliability review — candidate (2026-10-28)
 
-**Status:** the provider benchmark (`python -m capstone.benchmark`, A8c and L2) measures each model alone on the seven policy questions from real episodes. What is left is benchmarking for new roles.
+<a id="fw-runtime-audit"></a>
 
-Test candidate models against representative capstone tasks: infer likely
-causes from sensor evidence, compare trends, identify missing evidence, plan
-research, analyze verified evidence, challenge conclusions, and synthesize
-competing conclusions. Assess explicit results and evidence-supported
-explanations; do not request or score private chain-of-thought.
+**Priority: HIGH / audit only.**
 
-Record task correctness, explicit reasoning quality, unsupported-claim rate,
-Pydantic/schema success, tool-use success where applicable, latency, input and
-output tokens, total tokens, and failure rate. Record cost when provider usage
-and pricing data are available; mark missing usage or cost as unavailable.
-Use the results to justify quality/cost/latency tradeoffs and revise role
-assignments through the provider abstraction.
+**Status:** HIGH-priority audit / small benchmark; roadmap only, not a
+framework migration. **Newest update reviewed: Pydantic AI v2.63.0
+(2026-10-27; published 2026-10-28 UTC).** Its release adds `DetectLoops`
+for repeated-action loops and `Dataset.evaluate(task_timeout=...)` to
+bound each evaluation task attempt. Also review the recent v2.58.0
+(2026-10-19) whole-run `timeout=` / `RunContext.deadline`, per-request
+`request_timeout`, and SDK-level `max_retries`, and the v2.60.0
+(2026-10-22) model-selection context deadline/usage-limit changes.
+Official release references:
+[v2.63.0](https://github.com/pydantic/pydantic-ai/releases/tag/v2.63.0),
+[v2.60.0](https://github.com/pydantic/pydantic-ai/releases/tag/v2.60.0),
+[v2.58.0](https://github.com/pydantic/pydantic-ai/releases/tag/v2.58.0).
+Version/date are a review snapshot, not an automatic update policy. The project already uses **Pydantic Graph** for the
+macro investigation and has custom provider reliability controls in
+`capstone/providers/chat.py`, including `FallbackClient` and
+`run_with_deadline`. Review currently documented Pydantic AI runtime
+features for per-call and run deadlines, retries, fallback observability,
+loop detection, and evaluation timeouts; verify installed/package
+compatibility and actual API availability before relying on any of them.
 
-Candidates may include NVIDIA/Nemotron, Groq/GPT-OSS, Google Gemini, Mistral,
-Cohere, and Cloudflare-hosted specialist models. Verify actual model names,
-availability, and supported controls at implementation time. Keep the task
-set and scoring rubric small; the harness must not become a project of its
-own or require every provider to be connected at once.
+**Integration gate:** compare those facilities against existing code with
+the current `ChatClient`, Pydantic answer contracts, graph states, and
+`Budgets`. Do not introduce a second orchestration loop, replace Pydantic
+Graph, or create nested retries that overrun one 60-second investigation
+budget. A timeout must terminate or explicitly account for work; tool calls
+must not resume or replay consequential actions. Preserve hidden-truth
+isolation, human-only maintenance approval, and mandatory post-action
+verification.
 
-#### Per-agent reasoning and token budgets
-
-**Status:** the single agent has per-job models, request and question seconds, output tokens, retries and its `Budgets`; per-role values are not built.
-
-Each role should support `max_output_tokens`, `reasoning_effort`,
-`timeout_seconds`, `max_retries`, `max_tool_calls`, and `max_iterations`.
-The single-agent MVP uses the same concepts without introducing extra roles.
-Retain deterministic global investigation/tool-call limits across all roles,
-retries, and handoffs so local budgets cannot bypass termination rules.
-
-The project's chat client (`providers/chat.py`) translates supported provider
-controls; Future Work 3 uses it rather than a framework or a client per provider.
-Unsupported optional reasoning
-settings may be omitted with their effective configuration recorded; enforce
-execution limits in orchestration or reject configurations that cannot be
-bounded safely. Reasoning effort is a resource setting, not proof of correctness.
-
-#### Deterministic sensor computation tools
-
-`get_sensor_summary()` is built (machine and factory sensors). Add
-`compare_sensor_windows()` or moving averages only for a demonstrated
-investigation need. All calculations stay read-only, use the existing typed tool
-boundary, and reveal neither programmed root causes nor internal health or
-degradation values. MCP is a later transport for the same observations.
-
-#### Evaluation-only model-response cache — medium priority (2026-10-29)
-
-**Status: PLANNED; not implemented.** Introduce a lightweight, opt-in
-**SQLite-backed evaluation cache** for repeated LLM judgment calls while
-developing hypothesis scoring, positional-bias tests, Tree of Thoughts (ToT),
-and a later Graph of Thoughts (GoT) prototype. The aim is to avoid paying for
-identical diagnostic calls during debugging and rescoring, **not** to make live
-agent runs appear faster, more consistent, or more accurate than they are.
-
-**Reuse what exists first:** `capstone.evals --records` already reads saved
-`ExperimentRecord` JSONL for offline rescoring without rerunning the agent;
-`--resume` continues an interrupted scenario evaluation from completed
-episodes. Keep these workflows. Add per-model-response caching only when they
-cannot support the experiment (for example replaying an identical hypothesis
-rating request while varying a downstream scoring formula). Do not conflate
-episode-result reuse with replay of individual model calls.
-
-**Key and stored record:** for a cacheable evaluation request, hash a canonical
-representation of the complete system/user prompt, exact evidence/context,
-candidate identities **and order**, model/provider ID and version when known,
-generation parameters, response schema, prompt/template revision, and
-relevant tool/manual/retrieval snapshot identifiers. Save the exact validated
-typed response plus timestamp, source call metadata, cache key version and
-cache-hit flag. Do not store API keys, secrets or evaluator-only ground truth
-in model-accessible cache entries. Missing inputs or mismatched versions
-must cause a miss, not a potentially incorrect reuse.
-
-**Safety and experiment integrity:** evaluation-only and explicitly opt-in;
-default to fresh calls in real investigations, live accuracy comparisons,
-latency/provider-reliability benchmarks, and tests of response variability.
-Position-permuted hypothesis lists get different cache keys and must first
-be sampled with fresh model calls; reuse their distinct captured responses
-only for subsequent *offline* scoring analysis. Never serve stale live sensor
-readings, intervention approvals, tool execution results, or hidden simulator
-causes from a model-response cache. Preserve existing provenance, human-only
-action approval, verification, and reality/observation/belief separation.
-Handle invalid replies, cache corruption, and schema drift as misses/errors
-rather than silently accepting answers. Track cache hits separately from
-fresh-call counts, costs and latency in reports.
-
-**Implementation and measurement gate:** prototype at the model client /
-evaluation harness boundary, with injectable clock/storage and scripted
-offline tests; avoid adding Redis, new services, or a second orchestration
-layer. Compare uncached versus warm-cache debugging workloads for API calls,
-wall time, storage use, and reproducibility, while ensuring fresh-run
-quality metrics are unchanged. Retain only if savings justify cache
-invalidation and maintenance complexity. Do not implement or enable
-runtime caching merely by adding this roadmap entry.
+**Benchmark before adoption:** run the same seeded cases through current
+code and the smallest feasible native-feature prototype. Inject 429/5xx,
+latency, malformed JSON, repeated identical tool calls, failed fallback,
+and deadline exhaustion with offline stubs. Compare root-cause accuracy,
+completed investigations, p50/p95 wall time, tool/model call count, logged
+failure reasons, code removed, and reproducibility. Keep current controls
+where Pydantic AI does not materially improve reliability or would require
+disproportionate migration. No new SDK, version bump, provider, or runtime
+change is approved by this review.
 
 #### Graph of Thoughts (GoT) hypothesis reasoning — medium-priority evaluation (2026-10-29)
+
+<a id="fw-got"></a>
+
+**Priority: MEDIUM; only after matched current baselines.**
 
 **Status:** ROADMAP ONLY; not implemented. Evaluate after a measured baseline of
 the current investigator, optional depth-one Tree of Thoughts (ToT), and critic.
 This is a targeted reasoning experiment, not a replacement for Pydantic Graph
 or a commitment to add a second orchestration framework.
+
+<a id="fw-tot-ablation"></a>
 
 **Module 4.1 follow-up, gated behind the current evaluations:** The
 [ToT/critic evaluation future-work plan](TOT_CRITIC_EVALUATION_FUTURE_WORK.md)
@@ -732,6 +812,8 @@ not approve actions, manufacture observations, override independent evidence
 requirements, or repeat indefinitely. Measure this effect separately before
 attributing improvements to GoT.
 
+<a id="fw-multicause"></a>
+
 **Prerequisite: evidence-scored, multi-cause diagnosis (2026-10-29).**
 **Part built 2026-10-30 (PR #136, offline only):** only factory evidence
 (`origin == "observable"`) can rule a candidate out, so a manual section or a
@@ -764,6 +846,8 @@ against held-out labelled cases; simultaneous faults need not have scores
 that sum to 100. Permit rescoring as real evidence arrives and retain an
 explicit status (`candidate`, `supported`, `contradicted`,
 `deferred`, `unresolved`), plus an auditable score breakdown.
+
+<a id="fw-position-bias"></a>
 
 **Positional-bias and optional log-probability scoring evaluation (2026-10-29).**
 **Status: medium-priority, evaluation only; do not enable until demonstrated
@@ -838,6 +922,8 @@ adopt the multi-cause output contract, or feed scores into the GoT prototype
 without demonstrated improvements and regression coverage. This is
 documentation-only future work, not authorization to change runtime code.
 
+<a id="fw-got-prototype"></a>
+
 **Minimal GoT prototype:** extend the *hypothesis reasoning policy*, not the
 macro workflow. Represent each competing diagnosis and its dependencies with
 typed nodes and explicit edges (`supports`, `contradicts`, `depends_on`,
@@ -868,48 +954,76 @@ No dependency changes or production enablement are authorized by this entry.
 Reference: [Graph of Thoughts: Solving Elaborate Problems with Large Language
 Models](https://arxiv.org/abs/2308.09687) (Besta et al., 2023).
 
-#### Pydantic AI runtime reliability review — candidate (2026-10-28)
+#### Evaluation-only model-response cache — medium priority (2026-10-29)
 
-**Status:** HIGH-priority audit / small benchmark; roadmap only, not a
-framework migration. **Newest update reviewed: Pydantic AI v2.63.0
-(2026-10-27; published 2026-10-28 UTC).** Its release adds `DetectLoops`
-for repeated-action loops and `Dataset.evaluate(task_timeout=...)` to
-bound each evaluation task attempt. Also review the recent v2.58.0
-(2026-10-19) whole-run `timeout=` / `RunContext.deadline`, per-request
-`request_timeout`, and SDK-level `max_retries`, and the v2.60.0
-(2026-10-22) model-selection context deadline/usage-limit changes.
-Official release references:
-[v2.63.0](https://github.com/pydantic/pydantic-ai/releases/tag/v2.63.0),
-[v2.60.0](https://github.com/pydantic/pydantic-ai/releases/tag/v2.60.0),
-[v2.58.0](https://github.com/pydantic/pydantic-ai/releases/tag/v2.58.0).
-Version/date are a review snapshot, not an automatic update policy. The project already uses **Pydantic Graph** for the
-macro investigation and has custom provider reliability controls in
-`capstone/providers/chat.py`, including `FallbackClient` and
-`run_with_deadline`. Review currently documented Pydantic AI runtime
-features for per-call and run deadlines, retries, fallback observability,
-loop detection, and evaluation timeouts; verify installed/package
-compatibility and actual API availability before relying on any of them.
+<a id="fw-eval-cache"></a>
 
-**Integration gate:** compare those facilities against existing code with
-the current `ChatClient`, Pydantic answer contracts, graph states, and
-`Budgets`. Do not introduce a second orchestration loop, replace Pydantic
-Graph, or create nested retries that overrun one 60-second investigation
-budget. A timeout must terminate or explicitly account for work; tool calls
-must not resume or replay consequential actions. Preserve hidden-truth
-isolation, human-only maintenance approval, and mandatory post-action
-verification.
+**Priority: MEDIUM.**
 
-**Benchmark before adoption:** run the same seeded cases through current
-code and the smallest feasible native-feature prototype. Inject 429/5xx,
-latency, malformed JSON, repeated identical tool calls, failed fallback,
-and deadline exhaustion with offline stubs. Compare root-cause accuracy,
-completed investigations, p50/p95 wall time, tool/model call count, logged
-failure reasons, code removed, and reproducibility. Keep current controls
-where Pydantic AI does not materially improve reliability or would require
-disproportionate migration. No new SDK, version bump, provider, or runtime
-change is approved by this review.
+**Status: PLANNED; not implemented.** Introduce a lightweight, opt-in
+**SQLite-backed evaluation cache** for repeated LLM judgment calls while
+developing hypothesis scoring, positional-bias tests, Tree of Thoughts (ToT),
+and a later Graph of Thoughts (GoT) prototype. The aim is to avoid paying for
+identical diagnostic calls during debugging and rescoring, **not** to make live
+agent runs appear faster, more consistent, or more accurate than they are.
+
+**Reuse what exists first:** `capstone.evals --records` already reads saved
+`ExperimentRecord` JSONL for offline rescoring without rerunning the agent;
+`--resume` continues an interrupted scenario evaluation from completed
+episodes. Keep these workflows. Add per-model-response caching only when they
+cannot support the experiment (for example replaying an identical hypothesis
+rating request while varying a downstream scoring formula). Do not conflate
+episode-result reuse with replay of individual model calls.
+
+**Key and stored record:** for a cacheable evaluation request, hash a canonical
+representation of the complete system/user prompt, exact evidence/context,
+candidate identities **and order**, model/provider ID and version when known,
+generation parameters, response schema, prompt/template revision, and
+relevant tool/manual/retrieval snapshot identifiers. Save the exact validated
+typed response plus timestamp, source call metadata, cache key version and
+cache-hit flag. Do not store API keys, secrets or evaluator-only ground truth
+in model-accessible cache entries. Missing inputs or mismatched versions
+must cause a miss, not a potentially incorrect reuse.
+
+**Safety and experiment integrity:** evaluation-only and explicitly opt-in;
+default to fresh calls in real investigations, live accuracy comparisons,
+latency/provider-reliability benchmarks, and tests of response variability.
+Position-permuted hypothesis lists get different cache keys and must first
+be sampled with fresh model calls; reuse their distinct captured responses
+only for subsequent *offline* scoring analysis. Never serve stale live sensor
+readings, intervention approvals, tool execution results, or hidden simulator
+causes from a model-response cache. Preserve existing provenance, human-only
+action approval, verification, and reality/observation/belief separation.
+Handle invalid replies, cache corruption, and schema drift as misses/errors
+rather than silently accepting answers. Track cache hits separately from
+fresh-call counts, costs and latency in reports.
+
+**Implementation and measurement gate:** prototype at the model client /
+evaluation harness boundary, with injectable clock/storage and scripted
+offline tests; avoid adding Redis, new services, or a second orchestration
+layer. Compare uncached versus warm-cache debugging workloads for API calls,
+wall time, storage use, and reproducibility, while ensuring fresh-run
+quality metrics are unchanged. Retain only if savings justify cache
+invalidation and maintenance complexity. Do not implement or enable
+runtime caching merely by adding this roadmap entry.
+
+#### Deterministic sensor computation tools
+
+<a id="fw-sensor-calculations"></a>
+
+**Priority: LOW / conditional.**
+
+`get_sensor_summary()` is built (machine and factory sensors). Add
+`compare_sensor_windows()` or moving averages only for a demonstrated
+investigation need. All calculations stay read-only, use the existing typed tool
+boundary, and reveal neither programmed root causes nor internal health or
+degradation values. MCP is a later transport for the same observations.
 
 #### Pydantic Evals — candidate, not implemented
+
+<a id="fw-pydantic-evals"></a>
+
+**Priority: LOW / conditional.**
 
 Reevaluate when scenario generation, evaluation, and the normal agent workflow
 exist, and a small experiment harness would remove custom reporting plumbing.
@@ -941,70 +1055,10 @@ unit/integration tests, post-intervention verification, or MVP scoring.
 Do not add the rejected failure-diagnostic benchmark mode. No Evals dependency,
 dataset, evaluator, or runtime integration is implemented now.
 
-### Developer follow-up: Subquadratic whole-repository audit
 
-After integrating the Agent 1 reasoning workstream and Agent 2 memory workstream,
-have Subquadratic (SubQ) audit the entire project before making broad refactors.
-This is a developer audit task, not a new runtime dependency or research-agent
-role. Its purpose is to find issues whose evidence is scattered across code,
-tests, schemas, persistence, agent state, and architecture documents.
+## Future work: Retrieval and memory
 
-Give the reviewer a reproducible repository snapshot: branch, commit, working
-directory changes, project instructions, MVP scope, progress log, source, tests,
-schemas, migrations, and relevant sanitized logs. Exclude credentials, local
-environment files, dependency directories, Git internals, and generated caches.
-Record any files omitted or unread; do not claim whole-repository coverage when
-parts were not inspected. Distinguish implemented paths from planned or absent
-API, orchestration, evaluation, and persistence components.
-
-**Architecture consistency prompt:**
-
-> Read the entire repository, including the API layer where implemented, agent
-> orchestration, tests, schemas, migrations, persistence code, and architecture
-> documents. Trace a task from user input through the agent loop, tool boundary,
-> human approval, post-intervention verification, reflection, memory promotion,
-> and database storage/retrieval. Identify inconsistencies, dead code, duplicated
-> logic, incompatible contracts, and differences between implementation and
-> architecture. State explicitly where a path does not exist yet. Give file and
-> line evidence, impact, and suggested validation before changing anything.
-
-**Authorization and hidden-truth prompt:**
-
-> Read the repository and all tests. Find every place authorization is enforced.
-> Trace all action entry points and determine whether an agent can mutate the
-> environment or persistent state without the intended authorization boundary.
-> Check human approval, proposal versus execution, verification, tool/provider
-> allowlists, evaluator-only ground truth, and promotion/retrieval provenance.
-> Distinguish intended permissions from bypasses. Give evidence by file and line,
-> reachable call paths, and tests that prove or fail to cover each finding before
-> changing anything. Do not expose credentials or private evaluator answers in
-> agent-visible artifacts.
-
-Require an audit report with inspected snapshot and coverage, severity-ranked
-findings, concrete cross-file evidence, reproduction or regression-test proposals,
-and unresolved questions. Review findings before authorizing fixes. Evaluate
-whether SubQ finds additional supported issues compared with a Codex/Claude review
-of the same snapshot, rather than assuming a larger context guarantees accuracy.
-
-The intended division is Codex/Claude for routine implementation, debugging,
-tests, and focused refactors; trial SubQ for whole-repository analysis, cross-system
-debugging, architectural consistency, and proposals for larger refactors using
-code, specs, and sanitized logs together. Subquadratic describes long-context
-software engineering and reasoning across distributed evidence in its
-[SSA article](https://subq.ai/how-ssa-makes-long-context-practical).
-Its [introduction](https://subq.ai/introducing-subq) reports an 81.8% SWE-Bench
-Verified result; that is a published benchmark claim, not a guarantee about this
-repository or an audit performed here.
-
-At audit time, check model availability and account access. The official
-[model documentation](https://docs.subq.ai/using-the-api/models/) currently lists
-`subq-preview` for long-context chat with files and function calling, in early
-access. It separately lists `subq-snap-preview` for fast structured decisions;
-Snap is not the model selected for this repository audit. Recheck capabilities
-before running the audit. No SubQ dependency, credentials, integration, external
-repository upload, or model invocation is added by this roadmap entry.
-
-## Future work: retrieval and memory
+<a id="future-work-retrieval-and-memory"></a>
 
 ### Future Work 1 — richer research and document ingestion
 
@@ -1019,39 +1073,11 @@ immutable document/revision lineage. Reevaluate fact-specific source authority
 when comparable claims conflict, including conflicting revisions of one source.
 Do not silently resolve a missing or conflicting claim through model opinion.
 
-#### Agent-directed RAG and repeat retrieval (2026-10-18)
-
-Built (`PROGRESS.md`: R3, A7b, A9a, C3b, M1): the investigation agent itself
-chooses memory and manual searches (`recall_memories`, `search_manual`), by
-meaning, with at most three retrieval calls per knowledge gap, the first
-included; a repeated search is refused; each search is recorded. Per the
-decision of 2026-10-18 there is no second reasoning model and no dedicated RAG
-agent.
-
-What is left:
-
-- **Record the agent's usefulness assessment after each search** and the reason
-  for searching again: whether the results addressed the question, supported or
-  contradicted the hypothesis, and what gap remains. Today the query, the
-  outcome and the returned ids are recorded, not the assessment.
-- **Reopen a search from a draft answer.** If a draft conclusion shows
-  unsupported claims, the agent can search again. A high similarity score or the
-  agent's confidence alone does not establish that an answer is supported.
-  Empty, irrelevant, incomplete or contradictory results may trigger another
-  search with revised wording, different symptoms or an alternative hypothesis,
-  and search should seek evidence that could refute the current hypothesis as
-  well as support it. Repeating an identical query against an unchanged store is
-  not progress.
-- **Memory through the planned MCP server** (Future Work 2).
-
-Acceptance checks for the remainder: an empty or irrelevant first result can
-lead to a revised second search whose evidence reaches the answer; contradictory
-evidence can cause hypothesis revision; insufficient evidence at the call limit
-produces an explicit uncertain result without another retrieval; no second
-reasoning model or hidden truth is used. Use a scripted model and local store
-for deterministic offline tests.
-
 #### Maximal Marginal Relevance (MMR) for episodic recall — candidate (2026-10-23)
+
+<a id="fw-mmr"></a>
+
+**Priority: MEDIUM.**
 
 **Status:** medium-priority future work, not implemented. Reevaluate after the
 baseline episodic-memory retrieval is measured and actual investigations show
@@ -1087,6 +1113,10 @@ quality without exceeding the existing investigation budget. Any implementation
 gets its own PR and deterministic offline tests.
 
 #### Voyage AI Rerank for manual retrieval — candidate (2026-10-28)
+
+<a id="fw-voyage"></a>
+
+**Priority: MEDIUM.**
 
 **Status:** MEDIUM-priority experiment; roadmap only, not implemented. Test
 Voyage's current reranking API (for example, `rerank-3-lite`, subject to
@@ -1124,6 +1154,10 @@ operational complexity. No new key, dependency, paid API call, or implementation
 is authorized by recording this item.
 
 #### Jev (TypeSafe AI) for episodic recall reranking and investigation routing — candidate (2026-10-23)
+
+<a id="fw-jev-recall"></a>
+
+**Priority: MEDIUM.**
 
 **Status:** medium-priority future work, not implemented. Consider a small
 proof of concept only after the baseline memory-recall and agent-tool-routing
@@ -1165,7 +1199,47 @@ References:
 [TypeSafe Jev introduction](https://typesafe.ai/blog/introducing-system-one-models-and-jev);
 [Vercel's Jev typed-evaluation API](https://vercel.com/changelog/ai-gateway-now-supports-typesafe-clients-and-http-api-for-jev).
 
+#### Agent-directed RAG and repeat retrieval (2026-10-18)
+
+<a id="fw-rag"></a>
+
+**Priority: LOW for remaining improvements.**
+
+Built (`PROGRESS.md`: R3, A7b, A9a, C3b, M1): the investigation agent itself
+chooses memory and manual searches (`recall_memories`, `search_manual`), by
+meaning, with at most three retrieval calls per knowledge gap, the first
+included; a repeated search is refused; each search is recorded. Per the
+decision of 2026-10-18 there is no second reasoning model and no dedicated RAG
+agent.
+
+What is left:
+
+- **Record the agent's usefulness assessment after each search** and the reason
+  for searching again: whether the results addressed the question, supported or
+  contradicted the hypothesis, and what gap remains. Today the query, the
+  outcome and the returned ids are recorded, not the assessment.
+- **Reopen a search from a draft answer.** If a draft conclusion shows
+  unsupported claims, the agent can search again. A high similarity score or the
+  agent's confidence alone does not establish that an answer is supported.
+  Empty, irrelevant, incomplete or contradictory results may trigger another
+  search with revised wording, different symptoms or an alternative hypothesis,
+  and search should seek evidence that could refute the current hypothesis as
+  well as support it. Repeating an identical query against an unchanged store is
+  not progress.
+- **Memory through the planned MCP server** (Future Work 2).
+
+Acceptance checks for the remainder: an empty or irrelevant first result can
+lead to a revised second search whose evidence reaches the answer; contradictory
+evidence can cause hypothesis revision; insufficient evidence at the call limit
+produces an explicit uncertain result without another retrieval; no second
+reasoning model or hidden truth is used. Use a scripted model and local store
+for deterministic offline tests.
+
 #### Near-duplicate memory check (planned 2026-10-22)
+
+<a id="fw-near-duplicate"></a>
+
+**Priority: LOW / conditional.**
 
 Status: planned, not implemented. The concept was taught and the developer
 showed understanding on 2026-10-22 (see `PROGRESS.md`). Building it goes
@@ -1255,6 +1329,10 @@ Tool: `python -m capstone.memory.duplicate_threshold`.
 
 #### Docling + HybridChunker — candidate, not implemented
 
+<a id="fw-docling"></a>
+
+**Priority: LOW / conditional.**
+
 Reevaluate when actual manuals, SOPs, maintenance reports, and PDFs enter the
 RAG phase. Docling conversion followed by `HybridChunker` could replace custom
 PDF parsing and naive fixed-character splitting. The chunker refines document
@@ -1281,7 +1359,12 @@ replace ChromaDB, project contracts, or simulator behavior, and needs no
 LangChain/LlamaIndex wrapper merely to be used. No ingestion runtime or
 dependency is added now.
 
-## Future work: more roles (multi-agent)
+
+<a id="future-work-more-roles-multi-agent"></a>
+
+## Future work: Multi-agent roles and coordination
+
+<a id="future-work-multi-agent-roles"></a>
 
 ### Future Work 3 — multi-agent research
 
@@ -1294,6 +1377,92 @@ an agent cannot grant itself approval or arbitrary execution authority.
 This planned extension follows the single-agent MVP. The provider assignments
 below are initial targets; exact models and API availability will be confirmed
 when this extension is implemented.
+
+<a id="fw-specialist-roles"></a>
+
+#### Planned Multi-Agent Workflow
+
+The bounded post-MVP extension research workflow will be:
+
+```text
+                    RESEARCH QUESTION
+                           │
+                           ▼
+                  NEMOTRON PLANNER
+                     NVIDIA
+                           │
+                    FULL HANDOFF
+                           ▼
+                GPT-OSS RESEARCHER
+                      GROQ
+                           │
+                    FULL HANDOFF
+                           ▼
+               COHERE EVIDENCE AGENT
+                     COHERE
+                           │
+                  VERIFIED EVIDENCE
+                           │
+               ┌───────────┴───────────┐
+               │                       │
+      EVIDENCE-ONLY HANDOFF       RESEARCH STATE
+               │                       │
+               ▼                       │
+           GEMINI ANALYST              │
+          GOOGLE GEMINI                │
+               │                       │
+        independent analysis           │
+               │                       │
+               └───────────┬───────────┘
+                           │
+                   CHALLENGE HANDOFF
+                           ▼
+                   MISTRAL CRITIC
+                       MISTRAL
+                           │
+               critique / contradictions
+                           │
+                    FULL HANDOFF
+                           ▼
+                NEMOTRON SYNTHESIZER
+                       NVIDIA
+                           │
+                  enough evidence?
+                    /          \
+                  NO            YES
+                  │              │
+                  ▼              ▼
+           more research    recommendation
+                                  │
+                                  ▼
+                            action / HITL
+                                  │
+                                  ▼
+                             VERIFICATION
+```
+
+Cloudflare will operate as a specialist provider and does not need to appear in every investigation.
+
+When appropriate:
+
+```text
+Document / image / specialist task
+                │
+                ▼
+        CLOUDFLARE WORKERS AI
+                │
+        specialist model
+                │
+                ▼
+      structured observation
+                │
+                ▼
+       normal research state
+```
+
+Cloudflare may also provide fallback inference if another provider is unavailable or reaches its rate limit.
+
+---
 
 #### Standing constraints for any further role
 
@@ -1353,6 +1522,8 @@ multi-agent role does not by itself justify an MCP server, and any MCP client
 adopted then must add no OpenAI SDK. Test, for each role: only its permitted
 tools are offered, a call to any other tool is refused, hidden truth never
 appears in its view, and human approval cannot be bypassed.
+
+<a id="fw-handoffs"></a>
 
 #### Multi-Agent Handoff Protocol
 
@@ -1508,6 +1679,8 @@ Mistral will primarily perform this role.
 
 ---
 
+<a id="fw-interagent-contracts"></a>
+
 #### Structured Inter-Agent Communication
 
 The stage graph (`agent/investigation.py`) will decide when each handoff occurs, while Pydantic schemas will define the information transferred between agents.
@@ -1554,89 +1727,24 @@ This common schema allows output generated by NVIDIA, Groq, Mistral, Cohere, Goo
 
 ---
 
-#### Planned Multi-Agent Workflow
+#### Common contracts and structured handoffs
 
-The bounded post-MVP extension research workflow will be:
+**`CritiqueResult` is built; the other contracts are planned.** Each handoff is a project `Contract`, asked for
+the same way as the seven policy questions (`ModelPolicy._ask` in
+`agent/model_policy.py`): the reply must match the contract or it is refused
+and its reason recorded (`INVALID_REPLY`, L4); NVIDIA is asked to keep to the
+schema (`structured_output`, L5). Never pass raw model text to the next role.
 
-```text
-                    RESEARCH QUESTION
-                           │
-                           ▼
-                  NEMOTRON PLANNER
-                     NVIDIA
-                           │
-                    FULL HANDOFF
-                           ▼
-                GPT-OSS RESEARCHER
-                      GROQ
-                           │
-                    FULL HANDOFF
-                           ▼
-               COHERE EVIDENCE AGENT
-                     COHERE
-                           │
-                  VERIFIED EVIDENCE
-                           │
-               ┌───────────┴───────────┐
-               │                       │
-      EVIDENCE-ONLY HANDOFF       RESEARCH STATE
-               │                       │
-               ▼                       │
-           GEMINI ANALYST              │
-          GOOGLE GEMINI                │
-               │                       │
-        independent analysis           │
-               │                       │
-               └───────────┬───────────┘
-                           │
-                   CHALLENGE HANDOFF
-                           ▼
-                   MISTRAL CRITIC
-                       MISTRAL
-                           │
-               critique / contradictions
-                           │
-                    FULL HANDOFF
-                           ▼
-                NEMOTRON SYNTHESIZER
-                       NVIDIA
-                           │
-                  enough evidence?
-                    /          \
-                  NO            YES
-                  │              │
-                  ▼              ▼
-           more research    recommendation
-                                  │
-                                  ▼
-                            action / HITL
-                                  │
-                                  ▼
-                             VERIFICATION
-```
+The planned contracts remain `ResearchTask`, `ResearchFinding`,
+`VerifiedEvidence`, `AnalysisResult`, and `SynthesisResult` (`CritiqueResult` is built),
+created only as the workflow needs them. Keep the full, evidence-only, and
+challenge handoffs, with explicit artifacts rather than private
+chain-of-thought.
 
-Cloudflare will operate as a specialist provider and does not need to appear in every investigation.
-
-When appropriate:
-
-```text
-Document / image / specialist task
-                │
-                ▼
-        CLOUDFLARE WORKERS AI
-                │
-        specialist model
-                │
-                ▼
-      structured observation
-                │
-                ▼
-       normal research state
-```
-
-Cloudflare may also provide fallback inference if another provider is unavailable or reaches its rate limit.
-
----
+A valid Pydantic object proves structure, not factual correctness.
+`VerifiedEvidence` must record the evidence checks actually performed; an
+Evidence Agent's interpretation does not replace Future Work 2's deterministic
+MCP-response verification, source provenance, or evaluator-only ground truth.
 
 #### Provider Responsibilities
 
@@ -1760,24 +1868,101 @@ The boundary stays where it is: roles return project contracts, the graph
 enforces the order and the budgets, and nothing here replaces
 `FactoryProvider`, the simulator tools or human approval.
 
-#### Common contracts and structured handoffs
+#### Role-specific model benchmarking
 
-**`CritiqueResult` is built; the other contracts are planned.** Each handoff is a project `Contract`, asked for
-the same way as the seven policy questions (`ModelPolicy._ask` in
-`agent/model_policy.py`): the reply must match the contract or it is refused
-and its reason recorded (`INVALID_REPLY`, L4); NVIDIA is asked to keep to the
-schema (`structured_output`, L5). Never pass raw model text to the next role.
+<a id="fw-role-benchmarks"></a>
 
-The planned contracts remain `ResearchTask`, `ResearchFinding`,
-`VerifiedEvidence`, `AnalysisResult`, and `SynthesisResult` (`CritiqueResult` is built),
-created only as the workflow needs them. Keep the full, evidence-only, and
-challenge handoffs, with explicit artifacts rather than private
-chain-of-thought.
+**Priority: MEDIUM, conditional on new specialist roles.**
 
-A valid Pydantic object proves structure, not factual correctness.
-`VerifiedEvidence` must record the evidence checks actually performed; an
-Evidence Agent's interpretation does not replace Future Work 2's deterministic
-MCP-response verification, source provenance, or evaluator-only ground truth.
+**Status:** the provider benchmark (`python -m capstone.benchmark`, A8c and L2) measures each model alone on the seven policy questions from real episodes. What is left is benchmarking for new roles.
+
+Test candidate models against representative capstone tasks: infer likely
+causes from sensor evidence, compare trends, identify missing evidence, plan
+research, analyze verified evidence, challenge conclusions, and synthesize
+competing conclusions. Assess explicit results and evidence-supported
+explanations; do not request or score private chain-of-thought.
+
+Record task correctness, explicit reasoning quality, unsupported-claim rate,
+Pydantic/schema success, tool-use success where applicable, latency, input and
+output tokens, total tokens, and failure rate. Record cost when provider usage
+and pricing data are available; mark missing usage or cost as unavailable.
+Use the results to justify quality/cost/latency tradeoffs and revise role
+assignments through the provider abstraction.
+
+Candidates may include NVIDIA/Nemotron, Groq/GPT-OSS, Google Gemini, Mistral,
+Cohere, and Cloudflare-hosted specialist models. Verify actual model names,
+availability, and supported controls at implementation time. Keep the task
+set and scoring rubric small; the harness must not become a project of its
+own or require every provider to be connected at once.
+
+#### Per-agent reasoning and token budgets
+
+<a id="fw-agent-budgets"></a>
+
+**Priority: MEDIUM, conditional on new specialist roles.**
+
+**Status:** the single agent has per-job models, request and question seconds, output tokens, retries and its `Budgets`; per-role values are not built.
+
+Each role should support `max_output_tokens`, `reasoning_effort`,
+`timeout_seconds`, `max_retries`, `max_tool_calls`, and `max_iterations`.
+The single-agent MVP uses the same concepts without introducing extra roles.
+Retain deterministic global investigation/tool-call limits across all roles,
+retries, and handoffs so local budgets cannot bypass termination rules.
+
+The project's chat client (`providers/chat.py`) translates supported provider
+controls; Future Work 3 uses it rather than a framework or a client per provider.
+Unsupported optional reasoning
+settings may be omitted with their effective configuration recorded; enforce
+execution limits in orchestration or reject configurations that cannot be
+bounded safely. Reasoning effort is a resource setting, not proof of correctness.
+
+<a id="fw-role-compatibility"></a>
+
+#### Compatibility gate and focused tests
+
+Before assigning any selected model to a role, run a small opt-in compatibility
+probe. Record the exact model/endpoint, package versions, test date, required
+features, and observed results. Test basic completion, project Pydantic
+output, tool calling when required, timeout and output limits, usage/token
+reporting, and the required context size. Test any required reasoning or
+multimodal controls too. Model capabilities and parameter support vary;
+verify rather than treating a documented provider integration as sufficient.
+
+| Provider | Completion | Pydantic output | Role-required tools | Usage | Limits/context | Role-ready |
+|---|---|---|---|---|---|---|
+| NVIDIA | TBD | TBD | TBD | TBD | TBD | TBD |
+| Groq | TBD | TBD | TBD | TBD | TBD | TBD |
+| Cohere | TBD | TBD | TBD | TBD | TBD | TBD |
+| Gemini | TBD | TBD | TBD | TBD | TBD | TBD |
+| Mistral | TBD | TBD | TBD | TBD | TBD | TBD |
+| Cloudflare | TBD | TBD | TBD | TBD | TBD | TBD |
+
+Mark unneeded features not applicable and unavailable usage unavailable;
+never invent token counts. Decide whether a missing feature disqualifies the
+model for that role. Prefer a compatible model or supported configuration
+before writing a narrow special-case adapter with tests for the concrete gap.
+This compatibility probe complements Future Work 7's task-quality benchmarks;
+it does not replace them or require all six providers for the core MVP.
+
+Keep default tests offline with scripted model stand-ins. Prove:
+
+- The Evidence Agent can switch between configured Cohere and NVIDIA models
+  without agent, handoff, or downstream-contract changes.
+- Both paths produce the same required validated `VerifiedEvidence` contract;
+  invalid/raw outputs are rejected rather than forwarded.
+- A simulated eligible Cohere rate limit uses the configured compatible
+  fallback, while authentication/configuration errors stop execution.
+- Retries and fallback stay inside shared budgets, preserve tool permissions,
+  and never duplicate a consequential action.
+- Provider/model/fallback usage is visible in the audit trail.
+- Retrieval reranking preserves source IDs and remains independent of the
+  Evidence Agent's configured completion model.
+
+Reuse the existing chat client, job table and fallback; add only the
+reliability policy a role is shown to need. No multi-agent framework, generic
+routing platform, proxy deployment, six custom clients, or new dependencies. The core single-agent MVP plan and simulator behavior remain unchanged.
+
+<a id="fw-cohere-rerank"></a>
 
 #### Cohere Rerank is a separate retrieval operation
 
@@ -1795,6 +1980,8 @@ Candidate and returned counts are configurable. Preserve document IDs and
 source references through ranking. Relevance scores do not establish truth.
 Test reranking separately from chat models: changing the Evidence Agent's
 model must not change its reranker. Not planned for the first roles.
+
+<a id="fw-requesty-json"></a>
 
 #### Requesty gateway structured JSON output — candidate (2026-10-27)
 
@@ -1847,53 +2034,18 @@ dependencies, or mark the feature implemented or understood.
 Source: [Requesty — Structured Outputs Across LLM Providers: 244 Models
 Tested](https://www.requesty.ai/blog/structured-outputs-across-llm-providers-the-compatibility-mess).
 
-#### Compatibility gate and focused tests
 
-Before assigning any selected model to a role, run a small opt-in compatibility
-probe. Record the exact model/endpoint, package versions, test date, required
-features, and observed results. Test basic completion, project Pydantic
-output, tool calling when required, timeout and output limits, usage/token
-reporting, and the required context size. Test any required reasoning or
-multimodal controls too. Model capabilities and parameter support vary;
-verify rather than treating a documented provider integration as sufficient.
+<a id="future-work-platform-and-tooling"></a>
 
-| Provider | Completion | Pydantic output | Role-required tools | Usage | Limits/context | Role-ready |
-|---|---|---|---|---|---|---|
-| NVIDIA | TBD | TBD | TBD | TBD | TBD | TBD |
-| Groq | TBD | TBD | TBD | TBD | TBD | TBD |
-| Cohere | TBD | TBD | TBD | TBD | TBD | TBD |
-| Gemini | TBD | TBD | TBD | TBD | TBD | TBD |
-| Mistral | TBD | TBD | TBD | TBD | TBD | TBD |
-| Cloudflare | TBD | TBD | TBD | TBD | TBD | TBD |
+## Future work: Tooling and infrastructure
 
-Mark unneeded features not applicable and unavailable usage unavailable;
-never invent token counts. Decide whether a missing feature disqualifies the
-model for that role. Prefer a compatible model or supported configuration
-before writing a narrow special-case adapter with tests for the concrete gap.
-This compatibility probe complements Future Work 7's task-quality benchmarks;
-it does not replace them or require all six providers for the core MVP.
-
-Keep default tests offline with scripted model stand-ins. Prove:
-
-- The Evidence Agent can switch between configured Cohere and NVIDIA models
-  without agent, handoff, or downstream-contract changes.
-- Both paths produce the same required validated `VerifiedEvidence` contract;
-  invalid/raw outputs are rejected rather than forwarded.
-- A simulated eligible Cohere rate limit uses the configured compatible
-  fallback, while authentication/configuration errors stop execution.
-- Retries and fallback stay inside shared budgets, preserve tool permissions,
-  and never duplicate a consequential action.
-- Provider/model/fallback usage is visible in the audit trail.
-- Retrieval reranking preserves source IDs and remains independent of the
-  Evidence Agent's configured completion model.
-
-Reuse the existing chat client, job table and fallback; add only the
-reliability policy a role is shown to need. No multi-agent framework, generic
-routing platform, proxy deployment, six custom clients, or new dependencies. The core single-agent MVP plan and simulator behavior remain unchanged.
-
-## Future work: platform and tooling
+<a id="future-work-tooling"></a>
 
 ### Future Work 2 — MCP architecture, observability, and response verification
+
+<a id="fw-mcp"></a>
+
+**Priority: MEDIUM, only after single-agent MVP.**
 
 **Updated 2026-10-11. Planned; no MCP or tracing integration implemented.**
 
@@ -1949,6 +2101,8 @@ slice must expose an explicit read-only subset. Waiting changes simulation
 time and is not a read operation. Human approval stays outside agent access.
 "Authoritative machine state" means public observations, never hidden health,
 programmed fault causes, scenario configuration, or evaluator ground truth.
+
+<a id="fw-mcp-client"></a>
 
 #### First MCP client: Pydantic AI — planned, not implemented
 
@@ -2007,6 +2161,8 @@ inherently trusted. Shared-server agents can have different scopes; successful
 connection is not blanket authorization. Approval must come from the human
 approval boundary and cannot be granted by an agent to itself.
 
+<a id="fw-observability"></a>
+
 #### OpenTelemetry and LangSmith
 
 The planned first MCP slice includes OpenTelemetry as the common
@@ -2031,6 +2187,8 @@ not the source of factory truth. Do not build a duplicate observability
 platform. Keep secrets and evaluator-only truth out of agent-visible traces
 and operator views; instrumentation must not alter simulator randomness or
 simulation time. Preserve offline tests and optional telemetry integration.
+
+<a id="fw-response-check"></a>
 
 #### Small deterministic MCP-response verification layer
 
@@ -2137,40 +2295,78 @@ retrieval, but does not replace deterministic MCP-response checks or human
 approval. Post-intervention verification and evaluator-only ground truth
 remain separate responsibilities.
 
-**Future Work 4 — planning and experimentation.** Controlled experiments:
-*"Reduce Machine 2 feed rate by 5% for the next ten units and compare
-defect rates."*
+### Developer follow-up: Subquadratic whole-repository audit
 
-[FW4 gates](FUTURE_WORK_REEVALUATION.md#corrections-to-the-supplied-conditions):
-reuse basic proposal checks and define the smallest legal action transitions
-with the next action/graph integration. Recheck mutable safety conditions at
-execution; preflight is not approval or a hidden-cause prediction. Before any
-retryable/concurrent/restartable mutation boundary, including state-changing
-simulator MCP tools, require scoped action identity and payload/approval binding.
-Test duplicate delivery, conflicts, concurrency and uncertain outcomes.
-Database deduplication alone does not guarantee a single remote physical effect.
-Separate execution success from observable verification of effectiveness;
-the graph cannot report resolved success without post-intervention verification.
+<a id="fw-subq"></a>
 
-**Future Work 5 — proactive autonomy.** The system no longer waits for a
-human question:
+**Priority: MEDIUM, after core reasoning and memory integration.**
 
-```
-Factory state → continuous monitoring → anomaly discovered
-  → investigation created automatically → research → recommendation
-  → approval → intervention → verification
-```
+After integrating the Agent 1 reasoning workstream and Agent 2 memory workstream,
+have Subquadratic (SubQ) audit the entire project before making broad refactors.
+This is a developer audit task, not a new runtime dependency or research-agent
+role. Its purpose is to find issues whose evidence is scattered across code,
+tests, schemas, persistence, agent state, and architecture documents.
 
-[FW5 gates](FUTURE_WORK_REEVALUATION.md#future-technology--architecture-reevaluation-register):
-concurrency control requires an actual overlapping-work race, even within one
-process. Durable scheduling requires a workload that must survive restart.
-Use an outbox only for a demonstrated durable-state/dispatch dual-write gap:
-persist intent atomically, dispatch afterward, and handle duplicate delivery.
-An async dead-letter queue requires an actual retry pipeline. Compare a simple
-DB worker or existing framework before selecting a broker/job framework.
-Redriving consequential work must recheck approval, safety and idempotency.
+Give the reviewer a reproducible repository snapshot: branch, commit, working
+directory changes, project instructions, MVP scope, progress log, source, tests,
+schemas, migrations, and relevant sanitized logs. Exclude credentials, local
+environment files, dependency directories, Git internals, and generated caches.
+Record any files omitted or unread; do not claim whole-repository coverage when
+parts were not inspected. Distinguish implemented paths from planned or absent
+API, orchestration, evaluation, and persistence components.
+
+**Architecture consistency prompt:**
+
+> Read the entire repository, including the API layer where implemented, agent
+> orchestration, tests, schemas, migrations, persistence code, and architecture
+> documents. Trace a task from user input through the agent loop, tool boundary,
+> human approval, post-intervention verification, reflection, memory promotion,
+> and database storage/retrieval. Identify inconsistencies, dead code, duplicated
+> logic, incompatible contracts, and differences between implementation and
+> architecture. State explicitly where a path does not exist yet. Give file and
+> line evidence, impact, and suggested validation before changing anything.
+
+**Authorization and hidden-truth prompt:**
+
+> Read the repository and all tests. Find every place authorization is enforced.
+> Trace all action entry points and determine whether an agent can mutate the
+> environment or persistent state without the intended authorization boundary.
+> Check human approval, proposal versus execution, verification, tool/provider
+> allowlists, evaluator-only ground truth, and promotion/retrieval provenance.
+> Distinguish intended permissions from bypasses. Give evidence by file and line,
+> reachable call paths, and tests that prove or fail to cover each finding before
+> changing anything. Do not expose credentials or private evaluator answers in
+> agent-visible artifacts.
+
+Require an audit report with inspected snapshot and coverage, severity-ranked
+findings, concrete cross-file evidence, reproduction or regression-test proposals,
+and unresolved questions. Review findings before authorizing fixes. Evaluate
+whether SubQ finds additional supported issues compared with a Codex/Claude review
+of the same snapshot, rather than assuming a larger context guarantees accuracy.
+
+The intended division is Codex/Claude for routine implementation, debugging,
+tests, and focused refactors; trial SubQ for whole-repository analysis, cross-system
+debugging, architectural consistency, and proposals for larger refactors using
+code, specs, and sanitized logs together. Subquadratic describes long-context
+software engineering and reasoning across distributed evidence in its
+[SSA article](https://subq.ai/how-ssa-makes-long-context-practical).
+Its [introduction](https://subq.ai/introducing-subq) reports an 81.8% SWE-Bench
+Verified result; that is a published benchmark claim, not a guarantee about this
+repository or an audit performed here.
+
+At audit time, check model availability and account access. The official
+[model documentation](https://docs.subq.ai/using-the-api/models/) currently lists
+`subq-preview` for long-context chat with files and function calling, in early
+access. It separately lists `subq-snap-preview` for fast structured decisions;
+Snap is not the model selected for this repository audit. Recheck capabilities
+before running the audit. No SubQ dependency, credentials, integration, external
+repository upload, or model invocation is added by this roadmap entry.
 
 ### Future Work 6 — Developer Efficiency / Project Tooling
+
+<a id="fw-tooling"></a>
+
+**Priority: LOW / conditional.**
 
 [FW6 gates](FUTURE_WORK_REEVALUATION.md#future-technology--architecture-reevaluation-register):
 existing uv/Ruff/hooks/CI/coverage are IMPLEMENTED. Extend architectural invariant
@@ -2254,27 +2450,60 @@ no fixes or ignores were added. The baseline has seven diagnostic types:
 three invalid-assignment, and one each call-non-callable, invalid-return-type,
 and unknown-argument.
 
-### Far-future portability candidates
 
-Far-future portability candidates have separate
-[register gates](FUTURE_WORK_REEVALUATION.md#future-technology--architecture-reevaluation-register):
-schema-defined equipment requires a second genuinely different environment and
-repetitive capability code; YAML requires an actual profile-authoring need.
-Multi-tenant isolation/RLS requires mutually untrusted owners sharing persistent
-infrastructure. None is a course MVP requirement. ADRs may document settled,
-costly-to-reverse decisions without turning candidates into accepted designs.
+## Future work: Planning and automation
 
-## Future work: scenarios and a frontend
+<a id="future-work-planning-and-automation"></a>
 
-### Future Work 8 — harder scenarios: difficulty modes, a frontend, and simulator growth
+<a id="fw-experiments"></a>
 
-Status: future work, partly built. Recorded 2026-10-20 at the developer's
-request. The compound challenge runs in experiments (E6: `run --challenge
-SEEDS` and the known-answer case KA-09), and scoring judges runs with several
-true faults (E5: `Score.causes`, `causes_found`, `wrong_causes`,
-`causes_resolved`, `fully_right`). What is left is below.
+**Future Work 4 — planning and experimentation.** Controlled experiments:
+*"Reduce Machine 2 feed rate by 5% for the next ten units and compare
+defect rates."*
 
-#### Easy / intermediate / hard modes, with a frontend button
+[FW4 gates](FUTURE_WORK_REEVALUATION.md#corrections-to-the-supplied-conditions):
+reuse basic proposal checks and define the smallest legal action transitions
+with the next action/graph integration. Recheck mutable safety conditions at
+execution; preflight is not approval or a hidden-cause prediction. Before any
+retryable/concurrent/restartable mutation boundary, including state-changing
+simulator MCP tools, require scoped action identity and payload/approval binding.
+Test duplicate delivery, conflicts, concurrency and uncertain outcomes.
+Database deduplication alone does not guarantee a single remote physical effect.
+Separate execution success from observable verification of effectiveness;
+the graph cannot report resolved success without post-intervention verification.
+
+<a id="fw-proactive"></a>
+
+**Future Work 5 — proactive autonomy.** The system no longer waits for a
+human question:
+
+```
+Factory state → continuous monitoring → anomaly discovered
+  → investigation created automatically → research → recommendation
+  → approval → intervention → verification
+```
+
+[FW5 gates](FUTURE_WORK_REEVALUATION.md#future-technology--architecture-reevaluation-register):
+concurrency control requires an actual overlapping-work race, even within one
+process. Durable scheduling requires a workload that must survive restart.
+Use an outbox only for a demonstrated durable-state/dispatch dual-write gap:
+persist intent atomically, dispatch afterward, and handle duplicate delivery.
+An async dead-letter queue requires an actual retry pipeline. Compare a simple
+DB worker or existing framework before selecting a broker/job framework.
+Redriving consequential work must recheck approval, safety and idempotency.
+
+
+<a id="future-work-scenarios-and-a-frontend"></a>
+
+## Future work: Frontend and operator experience
+
+<a id="future-work-frontend"></a>
+
+### Easy / intermediate / hard modes, with a frontend button
+
+<a id="fw-frontend"></a>
+
+**Priority: LOW; deferred until a scored live baseline.**
 
 The developer wants three difficulty modes with 1 / 4 / 8 problems to fix,
 and a button on a frontend to pick one. **Deferred by the developer's
@@ -2314,32 +2543,32 @@ optional hydraulics; Future Work 8 D) are built as fault-pack registry entries
 (below), each tagged with the difficulty it belongs to, so the modes become a
 small filter over the registry when they are built.
 
-#### Fault packs: what is left (planned 2026-10-22)
 
-The registry (`capstone/faults.py`) and the servo-drive and hydraulic-leak packs
-are built (F3-F5); a new fault now costs 3 or 4 files, not about 12, and the
-agent-side and evaluator-side halves of each pack are kept apart. Left:
+<a id="future-work-far-future"></a>
 
-- **Key each seed's fault draw** so that adding or leaving out a pack does not
-  shift what the other faults draw. Today `build_scenario` draws from `FAULTS`
-  even when the fault is forced, so a longer list could change a seed's machine
-  and start tick; new packs avoid this only by being forced
-  (`DEFAULT_DRAW` keeps every existing seed unchanged).
-- **Choose packs per experiment.** Packs are fixed in code, not added at run time
-  (the same seed must build the same factory). Choosing which packs an
-  experiment uses is most of what the easy / intermediate / hard modes need;
-  each pack carries a `difficulty` tag that nothing reads yet.
-- **The next pack** (for example coolant pressure with a coolant leak: pressure
-  falls, the machine runs hotter, rejects rise, and the fix is a coolant
-  repair). Decide first whether the new sensor raises its own alarm: monitoring
-  reacts only to an alarm, a stopped machine or a run of rejects. New sensors,
-  failure models and scenario injection are on the teaching list (`AGENTS.md`
-  section 2.1), so whether this is taught or built ungated is the developer's
-  call.
+## Future work: Long-term portability and optional interfaces
 
-## Future work: far future
+<a id="future-work-long-term"></a>
+
+### Far-future portability candidates
+
+<a id="fw-portability"></a>
+
+**Priority: LONG TERM / conditional.**
+
+Far-future portability candidates have separate
+[register gates](FUTURE_WORK_REEVALUATION.md#future-technology--architecture-reevaluation-register):
+schema-defined equipment requires a second genuinely different environment and
+repetitive capability code; YAML requires an actual profile-authoring need.
+Multi-tenant isolation/RLS requires mutually untrusted owners sharing persistent
+infrastructure. None is a course MVP requirement. ADRs may document settled,
+costly-to-reverse decisions without turning candidates into accepted designs.
 
 ### Future Work 9 — sensor-triggered, on-demand machine vision (near-last priority)
+
+<a id="fw-vision"></a>
+
+**Priority: FAR FUTURE (near-last).**
 
 **Status: far-future only; not implemented. Recorded 2026-10-21 at the
 developer's request. This is a near-last roadmap item, to be considered only
@@ -2406,6 +2635,10 @@ boundary.
 
 ### Future Work 10 — optional technician voice input (absolute last priority)
 
+<a id="fw-voice"></a>
+
+**Priority: FAR FUTURE (absolute last).**
+
 **Status: far-future only; not implemented. Recorded 2026-10-21 at the
 developer's request. This is the absolute last roadmap item, after all
 other Future Work, including the optional machine-vision feature.** Do not
@@ -2438,3 +2671,4 @@ and whether the voice input improves supported diagnoses. If it does not
 show measurable value, leave it unbuilt. No audio integration, Voxtral
 dependency, voice-agent service, microphone access, or new training data is
 approved by this roadmap entry.
+
