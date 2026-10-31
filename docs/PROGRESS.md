@@ -1,5 +1,22 @@
 # Progress Log
 
+> **2026-10-31 — Cohere JSON-output fallback fix:** The interrupted ToT
+> run-2 files saved two cases each. Cohere's HTTP 422 was reproduced live
+> on a ToT generation request: `NO_VALID_RESPONSE_GENERATED` ("No valid
+> response generated. Try updating messages"). A diagnostic adding
+> `response_format={"type": "json_object"}` passed both generation and
+> rating and returned three valid hypotheses; ordinary and combined decision
+> probes also passed, and a short NVIDIA planning probe answered. These were
+> small live diagnostics, not master episodes or an availability guarantee.
+> After the change, the actual patched Cohere client also passed generation
+> and rating and returned three valid hypotheses, using the same small test state.
+> `providers/chat.py` now enables JSON-object mode for Cohere, keeping the
+> schema instruction and Pydantic validation. NVIDIA's schema mode is unchanged.
+> Tests check the payload, valid answers and refusal of wrong-shaped JSON.
+> Built ungated at the developer's request (understood: no). The existing
+> interrupted results remain provider-failure records; no episode was rerun.
+> Provider reference: [Cohere compatibility API](https://docs.cohere.com/docs/compatibility-api).
+
 > **2026-10-31: docs-only multi-agent survey future work (not implemented):**
 > [MULTI_AGENT_SURVEY_FUTURE_WORK.md](MULTI_AGENT_SURVEY_FUTURE_WORK.md) records
 > three items from Guo et al. (2024), checked against `main`: (1) a blind-critic

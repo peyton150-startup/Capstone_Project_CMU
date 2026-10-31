@@ -148,6 +148,9 @@ class Provider:
     # a limit below the project's MODEL_MAX_OUTPUT_TOKENS. A larger request
     # is refused outright (HTTP 400), so it is lowered to this instead.
     max_output_tokens: int | None = None
+    # Request JSON-object output where checked live; the answer type is still
+    # described in the prompt and validated locally.
+    json_output: bool = False
 
 
 PROVIDERS = {
@@ -170,6 +173,10 @@ PROVIDERS = {
         # Command A refused 16,384 on 2026-10-26: "max tokens must be less than
         # or equal to 8192, the maximum output length for this model".
         max_output_tokens=8192,
+        # Live ToT check, 2026-10-31: without JSON mode, Command A returned
+        # HTTP 422 NO_VALID_RESPONSE_GENERATED; generation and rating passed
+        # with JSON mode. This requests JSON, not a provider-enforced schema.
+        json_output=True,
     ),
     "cloudflare": Provider(
         "https://api.cloudflare.com/client/v4/accounts/{account}/ai/v1/chat/completions",
@@ -345,6 +352,7 @@ class ChatClient:
         timeout: float = 15.0,
         max_output_tokens: int | None = None,
         structured_output: bool = False,
+        json_output: bool = False,
     ):
         # Variables:
         #   url: The chat-completions address of the provider.
@@ -356,6 +364,8 @@ class ChatClient:
         #     provider's own limit.
         #   structured_output: If True, also send the answer type's schema so the
         #     service must follow it.
+        #   json_output: Request a JSON object when the provider supports that
+        #     mode; the expected shape is still checked by the application.
         if max_output_tokens is not None and max_output_tokens < 1:
             raise ValueError("max_output_tokens must be at least 1")
         self.url = url
@@ -369,6 +379,7 @@ class ChatClient:
         # Send the answer type's schema as `response_format` too, so the
         # service cannot reply in another shape (see Provider).
         self.structured_output = structured_output
+        self.json_output = json_output
 
     def __repr__(self) -> str:
         return f"ChatClient(url={self.url!r}, model={self.model!r})"
@@ -397,7 +408,8 @@ class ChatClient:
         #   schema: The answer type's JSON schema as text, shown to the model in the
         #     system prompt.
         #   body: The request sent to the service; temperature 0 keeps answers as
-        #     repeatable as the service allows.
+        #     repeatable as the service allows. The provider's output mode asks
+        #     for its supported JSON format, and local validation checks the shape.
         #   raw: The service's reply bytes, before the text and JSON are pulled out and
         #     checked.
         limit = min(x for x in (self.timeout, timeout, max_seconds) if x is not None)
@@ -425,6 +437,8 @@ class ChatClient:
                     "strict": True,
                 },
             }
+        elif self.json_output:
+            body["response_format"] = {"type": "json_object"}
         raw = post_json(self._transport, self.url, self._api_key, body, limit)
         return answer_type.model_validate_json(answer_json(reply_text(raw)))
 
@@ -607,7 +621,7 @@ def client_for(
     #   reference: A model written as provider/model, e.g. nvidia/model-name.
     #   name: The provider part of the reference.
     #   model: The model part of the reference.
-    #   provider: The provider's address, key setting and limits.
+    #   provider: The provider's address, key setting, output mode and limits.
     #   key: The secret for that provider from settings; None means it is not set.
     #   url: The provider's address, with the Cloudflare account filled in if needed.
     settings = settings or get_settings()
@@ -638,6 +652,7 @@ def client_for(
             settings.model_max_output_tokens, provider.max_output_tokens
         ),
         structured_output=provider.structured_output,
+        json_output=provider.json_output,
     )
 
 
