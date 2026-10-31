@@ -1,13 +1,13 @@
 # Future work: three items from the LLM multi-agent survey (2026-10-31)
 
-**Status:** PLANNED / FUTURE WORK ONLY. Nothing here changes code, tests, the simulator, settings or the runs in progress.
+**Status:** PLANNED / FUTURE WORK ONLY. *Audit 2026-10-31 against `main` at `af3b7bf`.* None of the three items is built; the "Already done" list at the end is built (✅ IMPLEMENTED).
 **Gate:** Same as [TOT_CRITIC_EVALUATION_FUTURE_WORK.md](TOT_CRITIC_EVALUATION_FUTURE_WORK.md#scheduling-gate-protect-the-runs-in-progress): finish and score the current baseline runs first.
 **Source:** [Large Language Model based Multi-Agents: A Survey of Progress and Challenges](https://arxiv.org/abs/2402.01680) (Guo et al., 2024).
 **Related:** [ToT and critic evaluation, P4](TOT_CRITIC_EVALUATION_FUTURE_WORK.md#p4--evaluate-the-evaluator-not-just-the-generator), [Future Work 3](MVP_SCOPE.md#future-work-3--multi-agent-research), [Review signal 2026-10-30](REVIEW_SIGNAL_2026-10-30.md).
 
 The survey was read against `main` (at `17ec5c8`). Most of its suggestions are already built or were already decided against. This page keeps only the three items that are new, and lists the rest at the end so they are not re-proposed.
 
-## 1. Critic anchoring ablation (MEDIUM-HIGH, evaluation only)
+## 1. Critic anchoring ablation (MEDIUM-HIGH, evaluation only) — ❌ NOT BUILT
 
 **Paper signal (Sec. 6.2):** in a multi-agent system, one agent's mistake can be accepted and repeated by the next agent. A reviewer that is told which answer the first agent prefers is the obvious path for that.
 
@@ -33,7 +33,7 @@ This is the critic-side version of P4's position-sensitivity check (P4 rotates c
 
 **Not in scope:** an extra analyst agent. The evidence-only handoff in Future Work 3 is the multi-agent version of the same idea and stays gated there.
 
-## 2. Operator rejection notes as feedback (LOW, design question first)
+## 2. Operator rejection notes as feedback (LOW, design question first) — ❌ NOT BUILT
 
 **Paper signal (Sec. 3.4):** human feedback is one of the four feedback sources, and the most direct one for aligning a system with what operators want.
 
@@ -49,7 +49,7 @@ This is the critic-side version of P4's position-sensitivity check (P4 rotates c
 
 **Pass criteria:** option 1 needs only a record test. Options 2 and 3 need a matched evaluation showing fewer repeated rejected proposals without unsafe behavior.
 
-## 3. Describe the system in the survey's framework (LOW effort, write-up)
+## 3. Describe the system in the survey's framework (LOW effort, write-up) — ❌ NOT BUILT
 
 **Paper signal (Sec. 3, Fig. 2):** the survey describes any multi-agent system with four parts: the environment the agents act in, how roles are defined, how agents communicate, and how they get better from feedback.
 
@@ -68,7 +68,7 @@ Also state what the project deliberately does not do from the survey: no debate 
 
 **When this is written:** credit the survey in the README "Research basis" section in the same PR (AGENTS.md §11, step 9). It is not credited there yet, because this page changes no code.
 
-## Already done or decided against (do not re-propose)
+## ✅ IMPLEMENTED or decided against (do not re-propose)
 
 - **A separate verifier agent.** The critic plus code checks cover it: hypotheses and conclusions citing ungathered evidence are refused (`agent/loop.py`, `agent/investigation.py`), and the critic never sees ground truth.
 - **Episodic memory of past successful investigations.** Built: `learning.py`, `memory/`, keyword and semantic recall, measured by `memory_comparison.py`.

@@ -1,5 +1,16 @@
 # Progress Log
 
+> **2026-10-31 — future-work docs marked with what is built:** Docs only; no
+> code, tests or settings changed. An audit of `main` (`af3b7bf`) marks each
+> item in `MULTI_AGENT_SURVEY_FUTURE_WORK.md`, `REVIEW_SIGNAL_2026-10-30.md`,
+> `TOT_CRITIC_EVALUATION_FUTURE_WORK.md` and
+> `SIMULATOR_DIFFICULTY_COMPATIBILITY.md` as ✅ IMPLEMENTED, 🟡 PARTLY
+> IMPLEMENTED or ❌ NOT BUILT. Built: P0, the deterministic part of P2,
+> cohorts A to D, the difficulty tests, and (stale limits corrected) the
+> solver, scoring and four repair actions. Not built: critic anchoring
+> ablation, `value` job, safety rules in `why_not_acted()`, P3, P5.
+> Understood: no — built ungated, developer to review.
+
 > **2026-10-31 — model sampling and independent critic backup settings:**
 > Built ungated at the developer's request (understood: no). `settings.py`
 > adds `SamplingOptions`, `PROVIDER_SAMPLING` and `MODEL_SAMPLING` JSON maps,
