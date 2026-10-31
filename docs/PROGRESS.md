@@ -8,6 +8,10 @@
 > the write-up. Linked from P4 and Future Work 3. No code, tests, settings or
 > understanding status changed; the paper is not yet in README "Research basis"
 > because no change based on it has been made.
+> The same PR adds [MANUFACTURING_AGENT_PAPERS_FUTURE_WORK.md](MANUFACTURING_AGENT_PAPERS_FUTURE_WORK.md):
+> five items from Hoang et al. (MAKA), Schall (P&ID-grounded validation) and
+> Köhle et al. (silent faults), led by a silent-execution hazard and
+> action-target checks in `why_not_acted()`. Also docs only.
 
 > **2026-10-30 — terminal progress colors:** Interactive progress output
 > highlights beliefs, existing investigation stages, evidence, critic details,
