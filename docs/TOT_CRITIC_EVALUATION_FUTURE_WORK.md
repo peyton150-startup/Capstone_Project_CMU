@@ -1,6 +1,6 @@
 # Future work: evidence-scored ToT and critic-controller evaluation
 
-**Status:** PLANNED / EVALUATION ONLY — not enabled, implemented, or approved for a runtime change by this document.  
+**Status:** PLANNED / EVALUATION ONLY — not enabled, implemented, or approved for a runtime change by this document. Items already built are marked ✅ IMPLEMENTED (audit 2026-10-31, `main` at `af3b7bf`): P0, P2 (deterministic part) and cohorts A to D; P1 and P4 are partly built; P3 and P5 are not built.  
 **Priority:** After the ongoing experiment finishes; first prioritize pruning correctness and evaluator quality.  
 **Source:** CMU Module 4, Mini-Lesson 4.1, *Tree-of-Thought Accuracy and Structure in Multi-Agents*; [Tree of Thoughts (Yao et al., 2023)](https://arxiv.org/abs/2305.10601).  
 **Related:** [Review signal 2026-10-30](REVIEW_SIGNAL_2026-10-30.md) (verified findings from the ToT review and machining videos). **Related roadmap:** [MVP Scope — GoT and multi-cause diagnosis](MVP_SCOPE.md#graph-of-thoughts-got-hypothesis-reasoning--medium-priority-evaluation-2026-10-29) and [Future Work 7](MVP_SCOPE.md#future-work-7--model-evaluation-execution-budgets-and-computed-evidence).
@@ -24,7 +24,7 @@ On 2026-10-29, the developer reported that the current evaluation is at **run 1 
 
 ## Ranked experiments after the baseline
 
-### P0 — Unproven "impossible" ratings must not become confident hypotheses
+### P0 — Unproven "impossible" ratings must not become confident hypotheses — ✅ IMPLEMENTED
 
 **Built 2026-10-30 (PR #136), offline only.** `unproven_confidence` (`min(c, 1 - c)`)
 scores a kept, unproven "impossible"; `prune` ranks it below every sure/likely
@@ -51,7 +51,9 @@ That value is used downstream:
 
 **Pass criteria:** The new tests pass; existing `test_tree_of_thought.py` tests are unchanged except where they assert the old ranking. No change to model-call count, so no latency impact.
 
-### P1 — Evidence-grounded pruning and deferred alternatives
+### P1 — Evidence-grounded pruning and deferred alternatives — 🟡 PARTLY IMPLEMENTED
+
+✅ IMPLEMENTED: observable-only contradiction, `contradicted`/`deferred` status. ❌ NOT BUILT: keeping several independent causes, and the top-k vs evidence-aware comparison.
 
 **Part built 2026-10-30 (PR #136):** only factory evidence (`origin ==
 "observable"`) can rule a candidate out, and each pruned branch carries a
@@ -65,7 +67,9 @@ the rest below are still to do.
 
 **Pass criteria:** Improve true-cause retention and multi-cause recall without unacceptable extra false positives, unsafe interventions, or latency. Include cases with misleading but real evidence IDs, correlated measurements, noisy/missing telemetry, and false alarms.
 
-### P2 — Critic review of possible false eliminations
+### P2 — Critic review of possible false eliminations — ✅ IMPLEMENTED (deterministic part)
+
+✅ IMPLEMENTED: the critic sees "RULED OUT BEFORE TESTING" (`critic.critique_view()`). ❌ NOT BUILT: the optional bounded pre-prune critic check that can reinstate a candidate.
 
 **Part built 2026-10-30 (PR #136):** the critic is shown the pruned
 candidates ("RULED OUT BEFORE TESTING"), with status and reason, and may argue
@@ -77,7 +81,7 @@ for one through an `alternative` objection and its check; it cannot favour one.
 
 **Pass criteria:** The critic detects and recovers more mistakenly discarded true causes, records its objections and the controller response, and does not merely increase model agreement or generate endless rechecks.
 
-### P3 — Adaptive branching and explicit controller limits
+### P3 — Adaptive branching and explicit controller limits — ❌ NOT BUILT
 
 **Problem:** Current opt-in ToT has static candidate and survivor counts (defaults five and three), although easy single-fault investigations may need no branching and ambiguous cases may need an extra alternative.
 
@@ -85,7 +89,9 @@ for one through an `alternative` objection and its check; it cannot favour one.
 
 **Pass criteria:** Match or improve root-cause/action accuracy on difficult cases while reducing unnecessary model calls on simple cases and respecting deadlines.
 
-### P4 — Evaluate the evaluator, not just the generator
+### P4 — Evaluate the evaluator, not just the generator — 🟡 PARTLY IMPLEMENTED
+
+✅ IMPLEMENTED: the critic measurements `critic_pick_correct` and `critic_verdict_mismatch` in `evals.py`. ❌ NOT BUILT: the evidence-strength rubric, candidate-order rotation, and the blind critic view.
 
 **Problem:** Current rankings rely on a model's self-reported confidence, with candidate order as a tie-breaker. Existence of a supporting citation is not proof of its strength. A critic can confidently prefer an unsupported explanation.
 
@@ -95,7 +101,7 @@ for one through an `alternative` objection and its check; it cannot favour one.
 
 **Pass criteria:** Better evidence attribution, stable rankings under reordering, improved calibration only if probability calibration is actually measured, and fewer confidently wrong diagnoses.
 
-### P5 — Bounded second depth through observation, not more model reasoning
+### P5 — Bounded second depth through observation, not more model reasoning — ❌ NOT BUILT
 
 **Problem:** Current ToT is depth one: `hypothesize` generates, rates and prunes once, and the kept candidates' questions (T1, T2, ...) go to the existing test stage. There is no point where the tree is re-valued after the test stage gathers new evidence, so an early wrong ranking is only corrected by the ordinary loop.
 
@@ -113,7 +119,9 @@ for one through an `alternative` objection and its check; it cannot favour one.
 
 Considered on 2026-10-30 and rejected for now. The pipeline's time goes to sequential model calls and provider timeouts, not to agent count; another agent adds calls. A third agent would only cut time if it ran in parallel with currently sequential work, or did a narrow job (e.g. "should we branch?") on a much faster model. Cheaper levers first: route fast jobs to the faster model, tighten per-call timeouts so failover happens sooner, and P3's adaptive branching.
 
-## Controlled comparison matrix
+## Controlled comparison matrix — ✅ IMPLEMENTED for cohorts A to D
+
+Cohorts A to D run through the `CRITIC_FOLLOWUP` setting, the ToT flag and the comparisons in `evals.py`. D0 is available (P0 is built); D2 needs P5.
 
 | Cohort | Hypothesis policy | Critic | Critic-directed recheck | Question answered |
 | --- | --- | --- | --- | --- |

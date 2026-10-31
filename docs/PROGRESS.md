@@ -2,8 +2,10 @@
 
 > **2026-10-31 — evidence use and investigation completion improvements:**
 > Built ungated at the developer's request (understood: no). Six approved
-> improvements plus pasted proposals 1/2/4 are implemented on a PR branch;
-> **do not merge**, per the developer. [Implementation notes](INVESTIGATION_REASONING.md)
+> improvements plus pasted proposals 1/2/4 are implemented in PR #150. The
+> developer subsequently authorized merging after reviewing the new PRs and
+> green checks, superseding the earlier hold. Understanding remains unverified.
+> [Implementation notes](INVESTIGATION_REASONING.md)
 > describe the bounded observable evidence brief (`evidence_brief.py`), typed
 > hypothesis comparisons and numeric claims (`contracts/hypotheses.py`),
 > diagnostic-question ranking and final assessments (`model_policy.py`),
@@ -14,6 +16,17 @@
 > Numeric verification checks arithmetic/provenance, not causal truth. Live
 > accuracy remains untested; old result files are unchanged. Adaptive ToT,
 > memory changes and the optional blind-critic experiment remain separate.
+
+> **2026-10-31 — future-work docs marked with what is built:** Docs only; no
+> code, tests or settings changed. An audit of `main` (`af3b7bf`) marks each
+> item in `MULTI_AGENT_SURVEY_FUTURE_WORK.md`, `REVIEW_SIGNAL_2026-10-30.md`,
+> `TOT_CRITIC_EVALUATION_FUTURE_WORK.md` and
+> `SIMULATOR_DIFFICULTY_COMPATIBILITY.md` as ✅ IMPLEMENTED, 🟡 PARTLY
+> IMPLEMENTED or ❌ NOT BUILT. Built: P0, the deterministic part of P2,
+> cohorts A to D, the difficulty tests, and (stale limits corrected) the
+> solver, scoring and four repair actions. Not built: critic anchoring
+> ablation, `value` job, safety rules in `why_not_acted()`, P3, P5.
+> Understood: no — built ungated, developer to review.
 
 > **2026-10-31 — model sampling and independent critic backup settings:**
 > Built ungated at the developer's request (understood: no). `settings.py`
@@ -226,12 +239,86 @@ A component is complete only when both columns are checked.
 | M2 | Option B for the critic: with a manual offered, code searches it on every hypothesis the critic is shown and puts the sections in its prompt as guidance | no — built first at the developer's request, to be taught after | no — built ungated, developer to review | yes | no | `agent/critic.py` (`manual_sections`, `MANUAL_PER_HYPOTHESIS`, `MANUAL_NOTE`, `Critic(manual=...)`, `Critic.last_sections`, `critique_view(sections=...)`, a `CRITIC_SYSTEM` rule), `agent/artifacts.py` (`CritiqueRecord.manual_sections`), `agent/investigation.py` (`critique`), `episode.py`; session note 2026-10-29 (M2) |
 
 | M1b | The manual step: with a manual offered, search it once on the anomaly before the agent plans; the `search_manual` tool stays; opt-in `MANUAL_STEP` | no — built first at the developer's request, to be taught after | no — built ungated, developer to review | yes | no | `agent/investigation.py` (`manual_query`, `consult_manual`, `MANUAL_STEP_LIMIT`, graph edge `observe -> manual -> plan`), `agent/loop.py` (`InvestigationDeps.manual_step`), `settings.py` (`manual_step`), `episode.py`, `evaluation/manual.py` (`ManualSearchRecord.automatic`); session note 2026-10-29 (M1) |
+| EV2 | Known cases KA-10 to KA-13 for the two forced-only faults (servo drive wear, hydraulic leak), which need a repair; manual rev 1.3 with §2.14 and §2.15 | no — built first at the developer's request ("merge first, I will learn later"), to be taught after | no — built ungated, developer to review | yes (tests only; no live run) | no | `evaluation/known_answers.py` (`KNOWN_CASES`, `BASELINE_CASES`, the asserts), `evals/scenarios.json`, `manual/sim-cnc-001.md` (§1.2, §2.13, §2.14, §2.15), `manual/sections.py` (`_LEAKS`), `evals.py` (`Scenario.valid_factory`), `evaluation/scoring.py` (`_resolved`: bug fix, both faults always counted as resolved), `tests/test_known_answers.py`, `tests/test_manual.py`, `tests/test_baseline.py`; session note 2026-10-31 (EV2) |
 Every row above with four "yes" marks (or "n/a") is complete: no question is
 outstanding on it. Still to build after 12c, from `docs/MVP_SCOPE.md`: the
 other three fault scenarios (material batch, machine configuration, false
 alarm), then evaluation, then the agent itself.
 
 ## Session notes
+
+- **2026-10-31 (EV2): two faults that need a repair join the known cases.**
+  From the run-2 tree-of-thought master runs (2026-10-31): in every master
+  run so far only bearing wear and the false alarm have been diagnosed right,
+  and when unsure the agent concludes "transient, leave it", which is right
+  only for the false alarm. The developer chose to add the two faults the code
+  already had but never drew (`in_default_draw=False` in `faults.py`): a
+  wearing servo drive and a hydraulic leak. Both keep getting worse until
+  their one repair (`replace_servo_drive`, `repair_hydraulics`), so "no
+  action" is always wrong for them.
+  - What changed: `evaluation/known_answers.py` adds KA-10-servo (seed 16,
+    CNC-04), KA-11-servo (seed 13, CNC-02), KA-12-hydraulic (seed 4, CNC-05)
+    and KA-13-hydraulic (seed 15, CNC-02). The seeds were chosen offline from
+    0-24, avoiding the seeds already used, so that each pair alarms on two
+    different machines at about the same tick as the other cases (1041-1376).
+    The asserts now require every default fault to have cases, and allow
+    cases for faults that are only ever forced (`FAULT_KINDS`).
+    `STANDARD_CASES` is every one-fault case. The new `BASELINE_CASES` is the
+    four default faults only, because the rule baseline has no rules for the
+    new two; `tests/test_baseline.py` uses it, and `capstone.baseline --known`
+    still prints every case, so its misses on the new cases are visible.
+    `evals/scenarios.json` (the master config) lists the four new cases, as
+    `test_master_config_covers_all_known_answer_cases` requires.
+  - Manual rev 1.3 (the developer asked for detailed sections on both
+    faults and how to fix them). §2.14 covers the feed-axis servo drive:
+    what following error is, the 20 µm alarm, wear that grows only while
+    running, power rising slightly, no change in vibration, heat or job
+    times, how to tell it from a bearing, a speed setting or a batch, that it
+    does not recover by itself, the replacement (about an hour), and what to
+    check afterwards. §2.15 covers hydraulic clamping: only stations fitted
+    with hydraulics, pressure flat when sound, no readings while down, a leak
+    that also grows while idle, the low-pressure alarm, no other channel
+    moving, that it does not recover by itself, the seal repair (40 ticks) and
+    what to check afterwards. §1.2 lists the power, following-error and
+    pressure channels. §2.13 lists all four repairs (it said only two) and
+    adds that wear and leaks keep progressing until repaired. The normal
+    pressure (70 bar), the alarm setpoint (55 bar) and the drive replacement
+    time (60 ticks) are not written as numbers, because they equal stations'
+    job times, and `test_no_section_gives_a_stations_standard_speed_or_job_time`
+    keeps job times out of the manual. Every fact was checked against
+    `simulator/sensors.py`, `scenarios.py`, `simulator.py` and `line.py`.
+    `manual/sections.py` now also refuses `servo_drive_wear` and
+    `hydraulic_leak` in a section. The semantic index rebuilds itself on the
+    next run, because the sections changed (`open_manual`).
+  - Two fixes the new cases exposed. `evals.py` refused any config case
+    outside `FAULTS`; it now accepts every `FAULT_KINDS` fault. And a scoring
+    bug: `evaluation/scoring.py` `_resolved` had no branch for either fault,
+    so both fell through to the false-alarm check and always counted as
+    "resolved", even with nothing repaired. Now only `axis_replaced_tick` /
+    `hydraulics_repaired_tick` at or after the fault's start counts (the same
+    rule `AxisDriveWear` and `HydraulicLeak` use to stop wearing), and a fault
+    with no rule raises instead of falling through. It reads hidden state only
+    and draws no random numbers, so no seeded stream moves. No earlier result
+    is affected: no master run has included these faults.
+  - Ungated summary: `docs/UNGATED_BUILD_SUMMARY.md` now lists every ungated
+    build with its current status (taught since, partly, or owed).
+  - Tests: each new case's truth and first alarm are pinned
+    (`test_each_case_builds_its_pinned_fault_and_symptom`); the scripted
+    stand-in runs them end to end
+    (`test_scores_match_the_pinned_expectations`);
+    `test_every_forced_only_case_needs_its_one_repair` checks the evaluator
+    expects exactly the right repair;
+    `test_a_forced_only_fault_counts_as_resolved_only_after_its_repair`
+    builds each case, checks it is still there 200 ticks after it began,
+    runs the repair through the approval desk and checks it is then gone;
+    `tests/test_scoring_integrity.py`
+    covers them through `STANDARD_CASES`; `tests/test_manual.py` pins the
+    seventeen sections, revision 1.3, a keyword search finding each new
+    section, the two leak names, and what each new section must say.
+  - Built ungated at the developer's request (understood: no); the pre-merge
+    walkthrough was waived by the developer ("merge first, I will learn
+    later") and is owed. Not run live: a master run on the new cases is
+    Codex's job (AGENTS.md §12).
 
 - **2026-10-30 (F5, config): one question per step is the default.** The
   developer's decision. The 2026-10-30 master runs all used
