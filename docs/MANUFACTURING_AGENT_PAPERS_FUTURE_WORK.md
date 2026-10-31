@@ -68,6 +68,8 @@ This fits next to review signal item 3 (safety rules in code), and should share 
 
 ## 4. Downstream impact shown at approval (LOW-MEDIUM)
 
+**Optional (developer, 2026-10-31):** kept on the list, but may not be implemented in the capstone.
+
 **Source:** B (downstream impact check).
 
 **Current behavior (verified):** the simulator already models jobs moving machine to machine and blocking (`simulator.py`, "blocked by"). A proposal shows the machine and action, not what stopping that machine does to the rest of the line.
@@ -77,6 +79,8 @@ This fits next to review signal item 3 (safety rules in code), and should share 
 **Pass criteria:** seeded tests on a known line layout. No hidden truth in the summary.
 
 ## 5. Propagated-symptom evaluation case (LOW-MEDIUM)
+
+**Optional (developer, 2026-10-31):** kept on the list, but may not be implemented in the capstone.
 
 **Source:** C (fault attribution degraded when evidence had to cross agents and modules).
 
