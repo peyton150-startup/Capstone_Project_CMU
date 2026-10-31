@@ -7,7 +7,9 @@
 
 The survey was read against `main` (at `17ec5c8`). Most of its suggestions are already built or were already decided against. This page keeps only the three items that are new, and lists the rest at the end so they are not re-proposed.
 
-## 1. Critic anchoring ablation (MEDIUM-HIGH, evaluation only) — ❌ NOT BUILT
+## 1. Critic anchoring ablation (MEDIUM-HIGH, evaluation only) — 🟡 BUILT, NOT YET RUN
+
+**Built 2026-10-31 (row C1c), offline only:** opt-in `CRITIC_BLIND`. `blind_order` shuffles the shown hypotheses from a seed made from the anomaly and the hypothesis ids (no simulator stream). `critique_view(blind=True)` shows them as X1, X2, ... with no confidence and no leading mark, and `CRITIC_BLIND_SYSTEM` asks for a pick without a leader. `Critic._unblind` maps the labels back and sets the verdict with `blind_verdict`: `object` unless the pick is the agent's leader. `CritiqueRecord.blind` and `shown_order` record it. The anchored-vs-blind comparison below has not been run; live runs are Codex's job.
 
 **Paper signal (Sec. 6.2):** in a multi-agent system, one agent's mistake can be accepted and repeated by the next agent. A reviewer that is told which answer the first agent prefers is the obvious path for that.
 

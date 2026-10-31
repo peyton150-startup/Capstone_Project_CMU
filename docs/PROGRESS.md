@@ -251,12 +251,49 @@ A component is complete only when both columns are checked.
 
 | M1b | The manual step: with a manual offered, search it once on the anomaly before the agent plans; the `search_manual` tool stays; opt-in `MANUAL_STEP` | no — built first at the developer's request, to be taught after | no — built ungated, developer to review | yes | no | `agent/investigation.py` (`manual_query`, `consult_manual`, `MANUAL_STEP_LIMIT`, graph edge `observe -> manual -> plan`), `agent/loop.py` (`InvestigationDeps.manual_step`), `settings.py` (`manual_step`), `episode.py`, `evaluation/manual.py` (`ManualSearchRecord.automatic`); session note 2026-10-29 (M1) |
 | EV2 | Known cases KA-10 to KA-13 for the two forced-only faults (servo drive wear, hydraulic leak), which need a repair; manual rev 1.3 with §2.14 and §2.15 | no — built first at the developer's request ("merge first, I will learn later"), to be taught after | no — built ungated, developer to review | yes (tests only; no live run) | no | `evaluation/known_answers.py` (`KNOWN_CASES`, `BASELINE_CASES`, the asserts), `evals/scenarios.json`, `manual/sim-cnc-001.md` (§1.2, §2.13, §2.14, §2.15), `manual/sections.py` (`_LEAKS`), `evals.py` (`Scenario.valid_factory`), `evaluation/scoring.py` (`_resolved`: bug fix, both faults always counted as resolved), `tests/test_known_answers.py`, `tests/test_manual.py`, `tests/test_baseline.py`; session note 2026-10-31 (EV2) |
+| C1c | Blind critic (opt-in `CRITIC_BLIND`): hypotheses shuffled under neutral labels, no confidence, no leading mark; code sets the verdict from the pick | yes (2026-10-31) | yes (2026-10-31, after two corrections: why code sets the verdict, and why the shuffle has its own seed; the prompt difference was stated by the agent, to be re-checked in the closing question) | yes (tests only; no live run) | no — pre-merge walkthrough outstanding | `agent/critic.py` (`CRITIC_BLIND_SYSTEM`, `blind_order`, `blind_labels`, `blind_verdict`, `_rename`, `critique_view(blind=)`, `Critic(blind=)`, `Critic.last_order`, `Critic._unblind`), `agent/artifacts.py` (`CritiqueRecord.blind`, `shown_order`), `agent/investigation.py` (`critique`), `settings.py` (`critic_blind`), `episode.py`, `.env.example`; session note 2026-10-31 (C1c) |
 Every row above with four "yes" marks (or "n/a") is complete: no question is
 outstanding on it. Still to build after 12c, from `docs/MVP_SCOPE.md`: the
 other three fault scenarios (material batch, machine configuration, false
 alarm), then evaluation, then the agent itself.
 
 ## Session notes
+
+- **2026-10-31 (C1c): the blind critic.** From the run-2 master runs: in the
+  challenge both the agent and the critic took the harmless spike for the
+  whole story at 90%. The critic is shown the agent's ranking (sorted by
+  confidence, numbers shown, the first marked "leading"), so it may anchor on
+  it (multi-agent survey item 1). The developer chose to build this one and
+  record the other run-2 findings for later (`RUN2_FINDINGS_FUTURE_WORK.md`).
+  - What changed: with `CRITIC_BLIND=on` the critic sees the same hypotheses,
+    evidence, ruled-out candidates and manual sections, but the hypotheses
+    come shuffled (`blind_order`), under labels X1, X2, ... (`blind_labels`;
+    real ids inside the hypothesis text are renamed too), with no confidence
+    and no leading mark. `CRITIC_BLIND_SYSTEM` asks for a pick without a
+    leader. Code maps the labels in the reply back to ids (`Critic._unblind`)
+    and sets the verdict (`blind_verdict`): `object` unless the pick is the
+    agent's leader, because a critic that is not told the leader cannot
+    judge "against the leading explanation". The record keeps `blind` and
+    `shown_order`.
+  - The shuffle's seed is a SHA-256 of the anomaly (kind, machine, tick) and
+    the hypothesis ids, never a simulator stream, so it moves no factory draw
+    and the same state gives the same order on replay.
+  - Off by default: anchored runs and the master config are unchanged. The
+    follow-up, `evals.py`'s `critic_pick_correct` and the recheck all read the
+    mapped-back ids, so anchored and blind runs compare directly. No extra
+    model calls.
+  - Tests (`tests/test_critic.py`, `tests/test_episode.py`): the blind view
+    has no confidence, no "leading" and no real id; the order repeats and
+    the leader lands in every position across anomalies; the shuffle moves no
+    simulator stream; the pick is mapped back in every text field and the
+    verdict follows it (leader → no_objection, other or none → object); an
+    unknown label is refused; the anchored critic is unchanged; the setting is
+    off by default and reaches the run's record.
+  - Pre-check 2026-10-31: the developer stated the idea (the critic sees the
+    agent's confidence; judge blind so it cannot be biased), then needed two
+    corrections: why code sets the verdict, and that a separate seed keeps the
+    factory's streams untouched. Closing question and pre-merge walkthrough
+    outstanding. Not run live (Codex's job, AGENTS.md §12).
 
 - **2026-10-31 (EV2): two faults that need a repair join the known cases.**
   From the run-2 tree-of-thought master runs (2026-10-31): in every master
