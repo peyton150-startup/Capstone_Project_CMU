@@ -49,6 +49,7 @@ from capstone.agent.artifacts import (
     VerificationCheck,
 )
 from capstone.agent.critic import shown_hypotheses, verdict_mismatch
+from capstone.agent.evidence_brief import verify_numeric_claims
 from capstone.agent.loop import (
     POLICY_ERRORS,
     InvestigationDeps,
@@ -65,6 +66,7 @@ from capstone.agent.policy import ActionRequest, CallTool, Interpretation, Stop
 from capstone.agent.state import InvestigationState, Phase, Question
 from capstone.contracts.tools import ToolRequest
 from capstone.providers.chat import ModelError
+from capstone.providers.factory import research_tools
 from capstone.providers.manual import MANUAL_TOOL
 
 # Where a stage sends the investigation next.
@@ -300,11 +302,10 @@ def recheck_trigger(
     """Why the critic follow-up runs (objection or agreement), or why it does not.
 
     Returns (trigger, None) to run, or (None, reason) to skip. It runs when the
-    critic objected, or when it favours the leading hypothesis while that is
-    still below the action bar, so one reading can confirm it or not. A leader
-    already at the bar has nothing to confirm. A tool call must be left; time
-    need not be, because the follow-up has its own window (`recheck`), as the
-    critic does: the hard cases are exactly the ones whose research ran out.
+    critic objected, or when it favours the leading hypothesis and names a
+    check. Confidence alone never skips that check. The separate critic-call
+    allowance must remain; research calls and research time need not remain,
+    because the follow-up has its own allowance and window (`recheck`).
     """
     # Variables:
     #   result: The critic's reply, if it gave a usable one.
@@ -329,14 +330,12 @@ def recheck_trigger(
         trigger = "objection"
     elif result.favoured != leading.id:
         return None, "the critic neither objected nor favoured the leading hypothesis"
-    elif leading.confidence >= deps.min_action_confidence:
-        return None, "the leading hypothesis already reaches the action bar"
     else:
         trigger = "agreement"
     if deps.recheck_seconds <= 0:
         return None, "the follow-up has no time window"
-    if state.remaining_tool_calls == 0:
-        return None, "no tool calls left"
+    if state.remaining_critic_tool_calls == 0:
+        return None, "no critic diagnostic calls left"
     return trigger, None
 
 
@@ -344,8 +343,9 @@ def recheck(state: InvestigationState, deps: InvestigationDeps) -> None:
     """One reading the critic pointed at, made by the agent's own policy.
 
     Off unless `deps.critic_followup`. The critic's check becomes an open
-    question tied to the leading hypothesis; the policy is asked for one
-    test-stage decision, at most one read-only call is made through the
+    question tied to a hypothesis. A structured check is executed directly;
+    a legacy unstructured check uses one policy decision. At most one
+    read-only call is made through the
     normal tool path (so its answer is labelled by its real source), and the
     policy reads it once. Then the run goes on to the conclusion, where the
     action bar applies to the agent's own confidence as before: the critic's
@@ -401,6 +401,10 @@ def follow_up(state: InvestigationState, deps: InvestigationDeps, trigger: str) 
     #   decision: The policy's one choice: a tool call or a stop.
     #   evidence: The reading, or None if the call gave nothing usable.
     #   after: The agent's best explanation after reading the answer.
+    #   structured: The critic's typed request, executed without a policy veto.
+    #   allowed: Existing read-only research tools; excludes time advancement/actions.
+    #   previous: An exact check already observed at this tick; safe to reuse.
+    #   observable: IDs assigned observable provenance by the loop, not the policy.
     leading = state.leading_hypothesis
     check = state.critique.result.discriminating_check.strip()
     favoured = state.critique.result.favoured
@@ -424,8 +428,21 @@ def follow_up(state: InvestigationState, deps: InvestigationDeps, trigger: str) 
     }
     need = "the reading the critic's check names"
     try:
-        decision = ask_policy(
-            state, deps, lambda view: deps.policy.decide(view, "test"), research=True
+        structured = state.critique.result.check_request
+        decision = (
+            CallTool(
+                information_needed=need,
+                request=structured,
+                question_id="K1",
+                hypothesis_id=target,
+            )
+            if structured is not None
+            else ask_policy(
+                state,
+                deps,
+                lambda view: deps.policy.decide(view, "test"),
+                research=True,
+            )
         )
         if not isinstance(decision, CallTool | Stop):
             raise ValueError("a policy must return CallTool or Stop")
@@ -439,11 +456,61 @@ def follow_up(state: InvestigationState, deps: InvestigationDeps, trigger: str) 
         return
     if isinstance(decision, Stop):
         record(state, "test", "stopped", information_needed=decision.information_needed)
+        observable = {
+            p.evidence_id for p in state.provenance if p.origin == "observable"
+        }
+        answered = decision.answered_evidence_ids
+        if answered and observable.issuperset(answered):
+            state.unanswered_questions = [
+                q for q in state.unanswered_questions if q.id != "K1"
+            ]
+            state.answers["K1"] = list(answered)
+            state.recheck = RecheckRecord(
+                outcome="already_answered",
+                evidence_id=answered[0],
+                reason="Policy cites existing observations answering the critic check; semantic adequacy is unverified.",
+                **summary,
+            )
+            return
         state.recheck = RecheckRecord(
             outcome="policy_stopped", reason=decision.information_needed, **summary
         )
         return
-    evidence = gather(state, deps, "test", decision)
+    allowed = {tool.name for tool in research_tools()} - {"wait"}
+    if decision.request.name not in allowed:
+        state.recheck = RecheckRecord(
+            outcome="invalid_decision",
+            reason="critic checks must use an observable read-only factory tool",
+            **summary,
+        )
+        return
+    observable = {p.evidence_id for p in state.provenance if p.origin == "observable"}
+    previous = next(
+        (
+            d
+            for d in reversed(state.decisions)
+            if d.tool == decision.request.name
+            and d.arguments == decision.request.arguments
+            and d.tick == state.last_tick
+            and d.evidence_ids
+            and observable.issuperset(d.evidence_ids)
+        ),
+        None,
+    )
+    if previous is not None:
+        state.unanswered_questions = [
+            q for q in state.unanswered_questions if q.id != "K1"
+        ]
+        state.answers["K1"] = list(previous.evidence_ids)
+        state.recheck = RecheckRecord(
+            outcome="already_answered",
+            tool=decision.request.name,
+            evidence_id=previous.evidence_ids[0],
+            reason="This exact check already returned observable evidence at the current tick.",
+            **summary,
+        )
+        return
+    evidence = gather(state, deps, "test", decision, critic_check=True)
     after = state.leading_hypothesis
     state.recheck = RecheckRecord(
         outcome="no_evidence" if evidence is None else "observed",
@@ -485,7 +552,7 @@ def check_conclusion(
     conclusion: AgentConclusion,
     request: ActionRequest | None,
 ) -> tuple[AgentConclusion, ActionRequest | None]:
-    """Accept a conclusion only if it points at things that exist.
+    """Check references, arithmetic and declared completion without proving a cause.
 
     Raises ValueError for a conclusion that cites evidence which was
     never gathered or a hypothesis which was never formed. A
@@ -497,6 +564,10 @@ def check_conclusion(
     #   conclusion: The policy's raw answer, before this check can lower it.
     #   request: The action the policy asked for with that answer, if any.
     #   known_hypotheses: Ids of the explanations the agent actually formed.
+    #   unverified: Structured arithmetic that observable data cannot establish.
+    #   gaps: Declared/open diagnostic questions and explicit conflicts, kept for review.
+    #   selected: The explanation claimed by the conclusion, if one was named.
+    #   observed: Only current-factory evidence can support a declared completion.
     if not isinstance(conclusion, AgentConclusion):
         raise ValueError("a policy must return a conclusion")
     if request is not None and not isinstance(request, ActionRequest):
@@ -509,6 +580,38 @@ def check_conclusion(
         and conclusion.hypothesis_id not in known_hypotheses
     ):
         raise ValueError("the conclusion names a hypothesis that was never formed")
+    unverified = verify_numeric_claims(state, conclusion.numeric_claims)
+    if conclusion.assessment is not None:
+        current = {h.id for h in state.hypotheses}
+        gaps = list(conclusion.unresolved_questions)
+        observed = {p.evidence_id for p in state.provenance if p.origin == "observable"}
+        if not observed.intersection(conclusion.evidence_ids):
+            gaps.append("No current observable evidence was cited for this diagnosis.")
+        gaps.extend(
+            q.text for q in state.unanswered_questions if q.hypothesis_id in current
+        )
+        selected = next(
+            (h for h in state.hypotheses if h.id == conclusion.hypothesis_id), None
+        )
+        if selected and (
+            selected.contradicting_evidence_ids or selected.unexplained_evidence_ids
+        ):
+            gaps.append(
+                "The selected hypothesis still has conflicting or unexplained evidence."
+            )
+        gaps.extend(unverified)
+        if gaps or conclusion.assessment == "unresolved":
+            conclusion = conclusion.model_copy(
+                update={
+                    "assessment": "unresolved",
+                    "recommendation": "escalate",
+                    "unresolved_questions": tuple(dict.fromkeys(gaps)),
+                    "next_check": conclusion.next_check
+                    or (
+                        gaps[0] if gaps else "Gather evidence to resolve the diagnosis."
+                    ),
+                }
+            )
     if conclusion.recommendation != "intervene":
         return conclusion, None
     if why_not_acted(deps, conclusion, request) is not None:
@@ -548,7 +651,12 @@ def conclude(state: InvestigationState, deps: InvestigationDeps) -> None:
         # is always None, so the checked pair would always say "no action named".
         state.policy_recommendation = answer.recommendation
         if answer.recommendation == "intervene" and request is None:
-            state.recommendation_lowered = why_not_acted(deps, answer, wanted)
+            state.recommendation_lowered = (
+                "investigation unresolved: "
+                + "; ".join(conclusion.unresolved_questions)
+                if conclusion.assessment == "unresolved"
+                else why_not_acted(deps, answer, wanted)
+            )
     except OutOfTime:
         conclusion, request, outcome = UNDETERMINED, None, "stopped"
         state.termination_reason = TerminationReason.TIMEOUT

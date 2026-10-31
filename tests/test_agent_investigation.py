@@ -932,8 +932,8 @@ def test_trigger_reasons():
     agree = critique_result("no_objection")
     assert trigger(with_critique(recheck_state(0.8), agree)) == ("agreement", None)
     assert trigger(with_critique(recheck_state(0.9), agree)) == (
+        "agreement",
         None,
-        "the leading hypothesis already reaches the action bar",
     )
     other = critique_result("no_objection", favoured="H2")
     assert trigger(with_critique(recheck_state(), other))[0] is None
@@ -958,11 +958,18 @@ def test_trigger_needs_a_tool_call_and_a_window_but_not_research_time():
     )
     spent = recheck_state(max_tool_calls=1)
     spent.tool_call_count = 1
-    assert trigger(with_critique(spent, critique_result()))[1] == "no tool calls left"
+    assert trigger(with_critique(spent, critique_result())) == ("objection", None)
+    spent.critic_tool_calls_used = 1
+    assert (
+        trigger(with_critique(spent, critique_result()))[1]
+        == "no critic diagnostic calls left"
+    )
 
 
-def test_a_skipped_follow_up_says_why_and_calls_nothing():
-    state = with_critique(recheck_state(0.95), critique_result("no_objection"))
+def test_a_disabled_critic_allowance_says_why_and_calls_nothing():
+    state = with_critique(
+        recheck_state(0.95, critic_tool_calls=0), critique_result("no_objection")
+    )
     provider = FakeProvider()
     deps = InvestigationDeps(
         provider=provider,
@@ -973,9 +980,7 @@ def test_a_skipped_follow_up_says_why_and_calls_nothing():
     )
     recheck(state, deps)
     assert state.recheck.outcome == "skipped"
-    assert (
-        state.recheck.reason == "the leading hypothesis already reaches the action bar"
-    )
+    assert state.recheck.reason == "no critic diagnostic calls left"
     assert provider.calls == []
 
 

@@ -52,6 +52,7 @@ class Stop(Contract):
         TerminationReason.EVIDENCE_SUFFICIENT, TerminationReason.NO_USEFUL_ACTION
     ]
     information_needed: str = "nothing further"
+    answered_evidence_ids: tuple[str, ...] = ()
 
 
 Decision = CallTool | Stop

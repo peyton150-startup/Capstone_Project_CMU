@@ -19,6 +19,8 @@ from typing import Literal
 from pydantic import Field
 
 from capstone.contracts import Contract
+from capstone.contracts.hypotheses import NumericClaim
+from capstone.contracts.tools import ToolRequest
 
 
 class TerminationReason(StrEnum):
@@ -52,6 +54,12 @@ class AgentConclusion(Contract):
     recommendation: Literal["intervene", "no_action", "escalate"]
     hypothesis_id: str | None = None
     evidence_ids: tuple[str, ...] = ()
+    # None keeps old saved records readable; model-backed answers request a status.
+    assessment: Literal["supported", "unresolved"] | None = None
+    unresolved_questions: tuple[str, ...] = ()
+    next_check: str | None = None
+    action_rationale: str | None = None
+    numeric_claims: tuple[NumericClaim, ...] = ()
 
 
 class ProposalRecord(Contract):
@@ -120,6 +128,10 @@ class CritiqueResult(Contract):
             "explanation (from the runner-up, if your pick is the leading one)."
         )
     )
+    check_request: ToolRequest | None = Field(
+        default=None,
+        description="The same discriminating check as a structured read-only tool request. Never wait or propose/execute an action.",
+    )
     objections: tuple[Objection, ...] = Field(
         default=(),
         description="Problems found with any of the shown hypotheses.",
@@ -147,7 +159,7 @@ class RecheckRecord(Contract):
     """What the critic follow-up did: one reading the critic pointed at, or why none.
 
     The critic's reply only chooses whether to look and where; the reading
-    itself comes from the factory through the agent's own policy, and only it
+    itself comes from the factory through the ordinary observation path, and only it
     can change the agent's confidence. None of this is evidence by itself.
     """
 
@@ -162,9 +174,10 @@ class RecheckRecord(Contract):
         "invalid_decision",
         "out_of_time",
         "skipped",
+        "already_answered",
     ]
     # objection: the critic objected. agreement: it favoured the leading
-    # hypothesis while that was still below the action bar. None: skipped.
+    # hypothesis and named a useful check. None: skipped.
     trigger: Literal["objection", "agreement"] | None = None
     reason: str | None = None
     # The open question the critic's check became, as shown to the policy.

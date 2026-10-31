@@ -1,5 +1,22 @@
 # Progress Log
 
+> **2026-10-31 — evidence use and investigation completion improvements:**
+> Built ungated at the developer's request (understood: no). Six approved
+> improvements plus pasted proposals 1/2/4 are implemented in PR #150. The
+> developer subsequently authorized merging after reviewing the new PRs and
+> green checks, superseding the earlier hold. Understanding remains unverified.
+> [Implementation notes](INVESTIGATION_REASONING.md)
+> describe the bounded observable evidence brief (`evidence_brief.py`), typed
+> hypothesis comparisons and numeric claims (`contracts/hypotheses.py`),
+> diagnostic-question ranking and final assessments (`model_policy.py`),
+> controller completion checks and a separate one-call critic allowance
+> (`investigation.py`, `loop.py`, `state.py`), and experiment audit fields
+> (`experiment.py`). Critic and ToT reuse the same evidence/comparison views.
+> No new provider, model, hidden-truth exposure, deeper ToT, or memory behavior.
+> Numeric verification checks arithmetic/provenance, not causal truth. Live
+> accuracy remains untested; old result files are unchanged. Adaptive ToT,
+> memory changes and the optional blind-critic experiment remain separate.
+
 > **2026-10-31 — run-2 findings recorded as future work (not built):**
 > [RUN2_FINDINGS_FUTURE_WORK.md](RUN2_FINDINGS_FUTURE_WORK.md) records five
 > problems from the run-2 tree-of-thought master runs, each with where it sits

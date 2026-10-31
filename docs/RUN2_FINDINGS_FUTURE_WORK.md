@@ -1,18 +1,30 @@
 # Future work: findings from the run-2 tree-of-thought master runs
 
-**Status:** NOT BUILT. Recorded 2026-10-31 for the developer to revisit later;
+**Status:** PARTLY IMPLEMENTED by PR #150; remaining ideas are future work.
+Recorded 2026-10-31 for the developer to revisit later;
 nothing here is approved for a runtime change.
 **Source:** the run-2 master runs `master-tot-critic-off-run-2` and
 `master-tot-critic-on-run-2` (2026-10-31), reviewed against `main`.
 **Related:** [ToT and critic evaluation](TOT_CRITIC_EVALUATION_FUTURE_WORK.md),
 [Multi-agent survey](MULTI_AGENT_SURVEY_FUTURE_WORK.md).
 
-The runs had no 429/422 errors and no unanswered questions, so availability
-improved. What remains is how the agent reasons and finishes. Six problems were
+The three appended episodes had no 429/422 errors or unanswered questions;
+the two older episodes retained their earlier failures. Critic-on also had one
+invalid reply in an appended episode. Availability improved, but these are
+mixed-configuration continuations. What remains is how the agent reasons and finishes. Six problems were
 found. Problem 2 (the critic reinforcing the agent's mistake) is being built
 separately as the blind-critic change. The other five are below. Each item
 needs its own pull request and the teach-first gate (AGENTS.md §1), and should
 be measured with matched cases before it becomes a default.
+
+**Integration note for PR #150:** its separate one-call critic allowance and
+confidence-independent trigger address the budget/bar skips in item 3. Structured
+read-only checks and explicit unresolved completion records address some further
+follow-up/finishing failures. Its observed-route view helps item 4's presentation,
+but does not make identical routes discriminating evidence. The reject-rate stop
+rule in item 1 and the serious-objection mismatch extension in item 5 remain
+unbuilt. Blind-critic work remains separate. No live accuracy improvement is
+established by the new offline tests; see [implementation and limits](INVESTIGATION_REASONING.md).
 
 ## 1. Confidently dismissing real faults as a transient
 
