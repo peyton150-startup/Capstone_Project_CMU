@@ -2527,6 +2527,41 @@ threshold does not disable it. API keys and other secrets stay in backend
 configuration and must not be sent to the frontend. This is a future
 requirement, conditional on building a frontend; no settings UI is built yet.
 
+### Frontend buttons
+
+<a id="fw-frontend-buttons"></a>
+
+The controls a frontend should offer when one is built (list of 2026-10-31).
+Each is a setting in `capstone-code/capstone/settings.py` (read from `.env`)
+or an option of the experiment command. The frontend only picks values; the
+backend keeps validating and enforcing them. Nothing here is built yet.
+
+| Button | Setting | Default | What it does |
+|---|---|---|---|
+| Difficulty mode | (planned, see above) | — | Easy / intermediate / hard: 1, 4 or 8 problems |
+| Critic | `CRITIC` | off | A second model reviews the agent's leading explanation |
+| Blind critic | `CRITIC_BLIND` | off | The critic sees the hypotheses shuffled, under neutral labels, with no confidence or leader; code sets its verdict from its pick |
+| Critic follow-up | `CRITIC_FOLLOWUP` | off | After an objection, or agreement below the action bar, the agent makes one more reading |
+| Critic model | `CRITIC_MODEL`, `CRITIC_FALLBACK_MODEL` | — | The critic's model and its backup |
+| Critic time | `CRITIC_SECONDS`, `CRITIC_FOLLOWUP_SECONDS` | 40 s, 90 s | Time allowed for the review and the follow-up |
+| Manual step | `MANUAL_STEP` | on | Search the maintenance manual before planning |
+| Questions per step | `STEP_QUESTIONS` | 1 | One or two model questions per tool result |
+| Show the action bar | `STATE_ACTION_BAR` | on | Show or hide the action threshold in the prompt (it is enforced either way) |
+| Action bar | `MIN_ACTION_CONFIDENCE` | 0.9 | Confidence needed before an action is allowed |
+| Memory recall | `MEMORY_RETRIEVAL_MODE` | semantic | semantic, keyword or none |
+| Agent models | `DEFAULT_MODEL`, `FALLBACK_MODEL`, per-stage `*_MODEL` | — | Which in-scope model each stage uses |
+| Sampling | `PROVIDER_SAMPLING`, `MODEL_SAMPLING` | — | Temperature and similar settings per provider or model |
+| Model limits | `MODEL_REQUEST_SECONDS`, `MODEL_QUESTION_SECONDS`, `MODEL_RETRIES`, `MODEL_MAX_OUTPUT_TOKENS` | 45 s, 90 s, 3, 16384 | Timeouts, retries and output length |
+| Tree of thought | `--tree-of-thought` | off | Rate several candidate explanations before choosing |
+| Manual search | `--manual`, `--no-manual` | semantic | Search the manual by meaning or by keyword, or give no manual |
+| Tool hazards | `--hazards` | off | `standard` (timeouts, dropped rows, a stale record) or `blackout` (the alarmed machine's sensor feed is down) |
+| Cases and seeds | `--known`, `--seeds` | — | Which known cases and seeds an experiment runs |
+
+Model choices are limited to the providers in AGENTS.md §9. API keys
+(`*_API_KEY`, `CLOUDFLARE_*`), `DATABASE_URL` and other secrets are never
+frontend controls: they stay in backend configuration and are never sent to
+the frontend.
+
 **Frontend note: the watcher runs in the run's own thread (developer's
 note, 2026-10-26).** The live progress view (LV, `python -m
 capstone.progress`) reads the run through `InvestigationDeps.watch`, which
