@@ -1,10 +1,12 @@
 # CNC Production-Line Maintenance & Diagnostic Manual
 
 **Document ID:** SIM-CNC-001
-**Revision:** 1.2 — October 30, 2026 (1.0 drafted by the developer; 1.1 removes the
+**Revision:** 1.3 — October 31, 2026 (1.0 drafted by the developer; 1.1 removes the
 station speed and cycle-time table from §1.1 and rewrites §2.7 to find a wrong
 setting from its effects, the developer's choice "B"; 1.2 adds to §2.9 that a
-bad lot raises the reject rate without failing every part)
+bad lot raises the reject rate without failing every part; 1.3 adds §2.14 on the
+feed-axis servo drive and §2.15 on hydraulic clamping, and brings §1.2 and
+§2.13 up to date with their channels and repairs)
 **Equipment:** Simulated CNC-01 through CNC-08 positions, when installed
 **Purpose:** Fault finding, normal operation, maintenance decisions
 **Status:** Training reference; not an OEM or safety-approved manual
@@ -14,7 +16,7 @@ no incident report, injected-fault selection, hidden state, scenario key, or
 case-specific diagnosis. Physical service requires the actual equipment
 manufacturer's procedures and site lockout/tagout practices.
 
-Only the numbered sections (§1.1 to §2.13) are indexed for the agent's
+Only the numbered sections (§1.1 to §2.15) are indexed for the agent's
 `search_manual` tool. This cover, the directory and the provenance notes are not.
 
 ## How to Use This Manual
@@ -77,7 +79,10 @@ are evidence; neither is a diagnosis.
 Observable channels and records: vibration (mm/s per station; speed, load and
 instruments affect readings); temperature (°F per station; thermal lag, compare
 factory air); load (% per station; active machining against idle matters); air
-temperature (°F, factory-wide; door and daily variation); events and job history
+temperature (°F, factory-wide; door and daily variation); power (kW per station;
+cutting load and speed, plus friction or a straining drive); following error (µm
+per station, the feed axis's lag behind its commanded path; §2.14); hydraulic
+pressure (bar, only on stations fitted with hydraulics; §2.15); events and job history
 (alarms, job movement, stops; events record observations, not causes);
 inspections (job, batch, pass or fail; outcomes are statistical); settings and
 maintenance (the current speed only, and service notes; service history is not
@@ -354,11 +359,94 @@ downtime are justified; obtain human approval before execution. After
 maintenance, compare the same operating signals and inspection outcomes over a
 meaningful subsequent window.
 
-**How to interpret:** On this line, the only state-changing interventions are an
-approved bearing replacement and an approved speed-setting reset. Other physical
-checks may require a technician and are not available as actions. "Insufficient
-evidence" or "continue observing" are legitimate conclusions. Completion of work
-is not proof the root cause was correct.
+**How to interpret:** On this line, the only state-changing interventions are
+four approved repairs: a spindle-bearing replacement (§2.2), a speed-setting
+reset (§2.7), a feed-axis servo drive replacement (§2.14) and a hydraulic seal
+repair on a station fitted with hydraulics (§2.15). Each fixes one mechanism
+only; none repairs material, tooling or an instrument. Other physical checks may
+require a technician and are not available as actions. "Insufficient evidence"
+or "continue observing" are legitimate conclusions when the evidence does not
+separate the causes, but a fault that keeps worsening does not clear by being
+watched: wear and leaks progress until repaired. Completion of work is not proof
+the root cause was correct.
+
+## §2.14 Feed-Axis Servo Drive: Following Error, Wear and Replacement
+
+**When to consult:** A following-error alarm; following error rising over many
+readings on one station; parts from one station failing inspection for size while
+its vibration and temperature stay normal.
+
+**Possible causes:** A wearing feed-axis servo drive (amplifier, motor or its
+feedback), a heavy cut, a faster speed setting, a binding axis, or an instrument
+fault on the axis channel.
+
+**Recommended checks:** Following error is how far the feed axis lags behind the
+position the controller commands, measured by the servo controller itself on
+every move. A healthy drive keeps it small, a few micrometres at normal load; a
+heavier cut or a faster speed adds a little; while a station is idle or stopped
+the drive only holds the axis still and the lag falls to about one micrometre, so
+compare running periods only. The alarm fires above 20 µm. A wearing drive adds
+lag that grows slowly at first and then faster, and only while the station runs:
+a harder job wears it faster. Read the trend on the affected station over a long
+running window, and compare it with the same channel on other stations. Check
+power on the same station: a straining drive draws a little more. Check vibration,
+temperature and job times: a worn drive leaves them unchanged, while a worn
+spindle bearing raises vibration and heat and lengthens jobs (§2.2), and a wrong
+speed changes job times at one moment and then holds them steady (§2.7). Group
+inspection results by the station each failed job passed through: a drive fault
+follows the station across material batches, while a bad lot follows the batch
+across stations (§2.9).
+
+**How to interpret:** A lagging axis cuts parts off size, so more jobs from that
+station fail inspection, and the share grows as the drive wears; as with any
+defect rate, some of its jobs still pass (§2.9). A following error that keeps
+rising during production does not recover by itself and is not a transient: it
+keeps worsening until the drive is replaced, and an alarm that briefly clears is
+not evidence the drive is sound. The corrective action is an approved servo drive
+replacement, which takes the station out of service for about an hour; the
+maintenance record of the work states the condition of the drive removed, which
+is direct evidence of whether it was worn. Afterwards, following error during
+running work should return to a few micrometres and that station's rejects should
+fall back; if they do not, look again (an instrument, a binding axis or a second
+fault).
+
+## §2.15 Hydraulic Clamping: Pressure Loss, Seal Leaks and Repair
+
+**When to consult:** A low hydraulic-pressure alarm; hydraulic pressure falling
+over many readings on one station; workpieces shifting or parts failing
+inspection on a station fitted with hydraulics.
+
+**Possible causes:** Leaking hydraulic seals, a weakening pump, a sticking relief
+valve, an instrument fault on the pressure transducer, or normal draw during a
+heavy cut.
+
+**Recommended checks:** Only some stations have hydraulics; the machine list
+shows which. The pump holds a steady pressure whenever the station is powered,
+running or idle, and cutting draws only a few bar from it, so a sound system reads
+nearly flat. When a station is down, its hydraulic unit and transducer are
+switched off and send no readings: missing samples then are not a pressure loss.
+A seal leak lowers the pressure slowly at first and then faster, and unlike wear
+on the spindle or the feed axis it keeps growing while the station sits idle,
+because the pump keeps running. The low-pressure alarm fires when a reading falls
+below its setpoint, which the alarm event states. Read the pressure trend over a
+long window that includes idle periods, and compare idle readings with idle
+readings: a fall that persists while the station is not cutting is a leak, not a
+heavy cut. A pressure loss does not change vibration, temperature, following
+error or job times, which separates it from a bearing (§2.2), a drive (§2.14) or
+a speed setting (§2.7). Group inspection results by station and by batch as in
+§2.14. An erratic reading with gaps and no matching quality change points at the
+transducer instead (§2.11).
+
+**How to interpret:** Low clamping pressure lets the workpiece shift in the cut,
+so more jobs from that station fail inspection, and the share grows as the leak
+does; some of its jobs still pass (§2.9). A falling pressure does not recover by
+itself, and readings that briefly return above the setpoint during idle or light
+work do not clear it: the leak keeps growing until the seals are replaced. The
+corrective action is an approved hydraulic repair, possible only on a station
+fitted with hydraulics, which takes it out of service for about 40 ticks to
+replace the seals; the maintenance record of the work states the condition of the
+seals removed. Afterwards the pressure should return to its steady level and that
+station's rejects should fall back; if they do not, look again.
 
 ## Document Provenance and Use Limits
 
@@ -366,7 +454,13 @@ A synthetic, scenario-independent training manual, drafted by the developer on
 2026-10-22 from the line's ordinary capabilities and general manufacturing
 diagnostic reasoning, and checked against the code at commit `4c62fa6`: the
 alarm setpoint (4.5 mm/s) and the action durations (45, 135 and 10 ticks) match
-`simulator/line.py` and `simulator/simulator.py`. It was not generated from a
+`simulator/line.py` and `simulator/simulator.py`. Revision 1.3 (§2.14, §2.15) was
+written on 2026-10-31 by the coding assistant at the developer's request, from
+`simulator/sensors.py`, `simulator/scenarios.py` and `simulator/line.py`: the
+following-error alarm (20 µm), the idle holding lag (about 1 µm), the drive
+replacement (about an hour) and the seal repair (40 ticks). The pressure setpoint
+and the normal pressure are left to the alarm event and the readings, because
+their values equal stations' job times, which this manual does not give (§1.1). It was not generated from a
 particular experiment, seed, incident result or hidden ground-truth record. No
 OEM-approved torque values, lubrication grades, vibration acceptance classes,
 runout tolerances, coolant concentrations, calibration intervals or lockout
