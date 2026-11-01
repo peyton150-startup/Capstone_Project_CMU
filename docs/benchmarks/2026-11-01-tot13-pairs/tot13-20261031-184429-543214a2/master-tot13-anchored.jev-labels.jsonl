@@ -1,0 +1,13 @@
+{"run_key":"master-tot13-anchored/1/KA-01-bearing","diagnosis":{"fault":"bearing_degradation","machine_id":"CNC-02","batch_id":null,"summary":""},"labelled_by":"typesafe/jev-1.14.0","note":""}
+{"run_key":"master-tot13-anchored/2/KA-02-bearing","diagnosis":null,"labelled_by":"typesafe/jev-1.14.0","note":""}
+{"run_key":"master-tot13-anchored/3/KA-03-batch","diagnosis":null,"labelled_by":"typesafe/jev-1.14.0","note":""}
+{"run_key":"master-tot13-anchored/4/KA-04-batch","diagnosis":{"fault":"bad_material_batch","machine_id":null,"batch_id":2,"summary":""},"labelled_by":"typesafe/jev-1.14.0","note":""}
+{"run_key":"master-tot13-anchored/5/KA-05-setting","diagnosis":null,"labelled_by":"typesafe/jev-1.14.0","note":""}
+{"run_key":"master-tot13-anchored/6/KA-06-setting","diagnosis":{"fault":"bad_material_batch","machine_id":null,"batch_id":2,"summary":""},"labelled_by":"typesafe/jev-1.14.0","note":""}
+{"run_key":"master-tot13-anchored/7/KA-07-false-alarm","diagnosis":null,"labelled_by":"typesafe/jev-latest","note":""}
+{"run_key":"master-tot13-anchored/8/KA-08-false-alarm","diagnosis":null,"labelled_by":"typesafe/jev-latest","note":""}
+{"run_key":"master-tot13-anchored/9/KA-09-challenge","diagnosis":null,"labelled_by":"typesafe/jev-latest","note":""}
+{"run_key":"master-tot13-anchored/10/KA-10-servo","diagnosis":null,"labelled_by":"typesafe/jev-latest","note":""}
+{"run_key":"master-tot13-anchored/11/KA-11-servo","diagnosis":{"fault":"false_alarm","machine_id":"CNC-02","batch_id":null,"summary":""},"labelled_by":"typesafe/jev-1.14.0","note":""}
+{"run_key":"master-tot13-anchored/12/KA-12-hydraulic","diagnosis":{"fault":"hydraulic_leak","machine_id":"CNC-05","batch_id":null,"summary":""},"labelled_by":"typesafe/jev-1.14.0","note":""}
+{"run_key":"master-tot13-anchored/13/KA-13-hydraulic","diagnosis":null,"labelled_by":"typesafe/jev-latest","note":""}

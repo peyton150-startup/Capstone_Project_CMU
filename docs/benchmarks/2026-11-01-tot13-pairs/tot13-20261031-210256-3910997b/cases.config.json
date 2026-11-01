@@ -1,0 +1,17 @@
+{
+  "cases": [
+    {"id": "KA-01-bearing", "seed": 6, "fault": "bearing_degradation"},
+    {"id": "KA-02-bearing", "seed": 9, "fault": "bearing_degradation"},
+    {"id": "KA-03-batch", "seed": 7, "fault": "bad_material_batch"},
+    {"id": "KA-04-batch", "seed": 8, "fault": "bad_material_batch"},
+    {"id": "KA-05-setting", "seed": 9, "fault": "wrong_setting"},
+    {"id": "KA-06-setting", "seed": 10, "fault": "wrong_setting"},
+    {"id": "KA-07-false-alarm", "seed": 8, "fault": "false_alarm"},
+    {"id": "KA-08-false-alarm", "seed": 11, "fault": "false_alarm"},
+    {"id": "KA-09-challenge", "seed": 3, "kind": "challenge"},
+    {"id": "KA-10-servo", "seed": 16, "fault": "servo_drive_wear"},
+    {"id": "KA-11-servo", "seed": 13, "fault": "servo_drive_wear"},
+    {"id": "KA-12-hydraulic", "seed": 4, "fault": "hydraulic_leak"},
+    {"id": "KA-13-hydraulic", "seed": 15, "fault": "hydraulic_leak"}
+  ]
+}

@@ -1,0 +1,6 @@
+{"run_key":"master-tot13-blind/1/KA-01-bearing","diagnosis":{"fault":"bearing_degradation","machine_id":"CNC-02","batch_id":null,"summary":""},"labelled_by":"typesafe/jev-1.14.0","note":""}
+{"run_key":"master-tot13-blind/4/KA-04-batch","diagnosis":{"fault":"bad_material_batch","machine_id":null,"batch_id":null,"summary":""},"labelled_by":"typesafe/jev-1.14.0","note":""}
+{"run_key":"master-tot13-blind/8/KA-08-false-alarm","diagnosis":{"fault":"false_alarm","machine_id":"CNC-03","batch_id":null,"summary":""},"labelled_by":"typesafe/jev-1.14.0","note":""}
+{"run_key":"master-tot13-blind/10/KA-10-servo","diagnosis":{"fault":"servo_drive_wear","machine_id":"CNC-04","batch_id":null,"summary":""},"labelled_by":"typesafe/jev-1.14.0","note":""}
+{"run_key":"master-tot13-blind/11/KA-11-servo","diagnosis":{"fault":"servo_drive_wear","machine_id":"CNC-02","batch_id":null,"summary":""},"labelled_by":"typesafe/jev-1.14.0","note":""}
+{"run_key":"master-tot13-blind/12/KA-12-hydraulic","diagnosis":{"fault":"hydraulic_leak","machine_id":"CNC-05","batch_id":null,"summary":""},"labelled_by":"typesafe/jev-1.14.0","note":""}

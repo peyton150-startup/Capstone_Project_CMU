@@ -1,5 +1,18 @@
 # Progress Log
 
+> **2026-11-01 — two 13-case ToT anchored/blind pairs completed and recorded:**
+> [Results archive](benchmarks/2026-11-01-tot13-pairs/README.md) preserves four
+> live runs, 52 episodes and 36 source artifacts from frozen commit `e59208d`.
+> Pair A: anchored 3/12 judged and blind 3/12; pair B: anchored 6/13 and blind
+> 6/11, with two blind labels awaiting review. Same confirmed-correct counts
+> within each pair do not show improvement. Notes preserve manual failures,
+> reported internet disruption, NVIDIA 429/502 attempts, cross-pair overlap
+> after the developer waived the guard, and two in-place manual re-embedding
+> events during A anchored. All 52 recommendations escalated; 39 assessments
+> were unresolved and 13 absent. Run keys repeat between pairs, so identities
+> include pair ID. Original records/labels unchanged; no new model calls or
+> source behavior changes. Results/docs only; understanding status unchanged.
+
 > **2026-10-31 — evidence use and investigation completion improvements:**
 > Built ungated at the developer's request (understood: no). Six approved
 > improvements plus pasted proposals 1/2/4 are implemented in PR #150. The

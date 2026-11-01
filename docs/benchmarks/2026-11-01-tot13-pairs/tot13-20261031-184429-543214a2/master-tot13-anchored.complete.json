@@ -1,0 +1,9 @@
+{
+  "cases": 13,
+  "finished_utc": "2026-11-01T00:57:02.737252+00:00",
+  "judged": 12,
+  "needs_review": [
+    "master-tot13-anchored/5/KA-05-setting"
+  ],
+  "report_sha256": "7b5d19300b53751210c82f1008f3876ff330f484db7d24bfec33589859306e44"
+}
