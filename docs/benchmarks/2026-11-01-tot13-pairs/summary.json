@@ -1,0 +1,1898 @@
+{
+  "runs": [
+    {
+      "pair": "tot13-20261031-184429-543214a2",
+      "mode": "anchored",
+      "name": "master-tot13-anchored",
+      "commit": "e59208d584938ed96a606bc317354882fcc8e01c",
+      "cases": 13,
+      "correct": 3,
+      "judged": 12,
+      "needs_review": 1,
+      "accuracy": 0.25,
+      "model_calls": {
+        "questions": 223,
+        "answered": 211,
+        "invalid_replies": 3,
+        "unanswered": 9,
+        "outage_attempts": 47
+      },
+      "outage_reasons": {
+        "the model service timed out": 19,
+        "the model service could not be reached": 28
+      },
+      "manual_search_outcomes": {
+        "answered": 10,
+        "failed": 4
+      },
+      "critic_outcomes": {
+        "answered": 9,
+        "not_run": 4
+      },
+      "rechecks": {
+        "observed": 6,
+        "already_answered": 3
+      },
+      "assessments": {
+        "unresolved": 8,
+        "not_recorded": 5
+      },
+      "recommendations": {
+        "escalate": 13
+      },
+      "started_utc": "2026-10-31T22:45:13.246361+00:00",
+      "finished_utc": "2026-11-01T00:57:02.737252+00:00",
+      "case_details": [
+        {
+          "case": "KA-01-bearing",
+          "seed": 6,
+          "correct": true,
+          "needs_review": false,
+          "assessment": "unresolved",
+          "recommendation": "escalate",
+          "unresolved_questions": [
+            "Is CNC-02 power elevated or abnormal over ticks 900-920? Distinguishes H1 (normal) from H2 (abnormal).",
+            "Is the CNC-02 vibration fault in the spindle or bearings, and what does the manual prescribe for persistent vibration above the 4.50 mm/s setpoint?",
+            "Do CNC-06/CNC-07/CNC-08 vibration baselines reveal an additional fault independent of CNC-02, and is CNC-04's sharp step-up around tick 909 a separate line-wide issue?",
+            "Is CNC-02's ~4.3 mm/s vibration normal for job 12/hydraulics, or an outlier versus same-class peers such as CNC-05?",
+            "E15: unverified"
+          ],
+          "next_check": "Is CNC-02 power elevated or abnormal over ticks 900-920? Distinguishes H1 (normal) from H2 (abnormal).",
+          "manual_outcomes": [
+            "answered"
+          ],
+          "outage_reasons": {},
+          "invalid_reasons": {},
+          "recheck": {
+            "outcome": "observed",
+            "trigger": "agreement",
+            "reason": null,
+            "question": "The critic's check: get_sensor_trend {\"machine_id\": \"CNC-02\", \"sensor\": \"vibration\", \"from_tick\": 840, \"to_tick\": 920, \"bucket_ticks\": 60}",
+            "tool": "get_sensor_trend",
+            "evidence_id": "E15",
+            "leading_before": "H1",
+            "confidence_before": 0.88,
+            "leading_after": "H1",
+            "confidence_after": 0.95
+          },
+          "critic_outcome": "answered"
+        },
+        {
+          "case": "KA-02-bearing",
+          "seed": 9,
+          "correct": false,
+          "needs_review": false,
+          "assessment": "unresolved",
+          "recommendation": "escalate",
+          "unresolved_questions": [
+            "Which subsystem on CNC-05 is faulty: bearing/spindle, feed-axis servo drive, or hydraulics?",
+            "Did new vibration alarms fire on CNC-05 between ticks 834 and 850 (events not retrieved for that window)?",
+            "After the 10-tick wait (tick 840\u2192850), does CNC-05 vibration stay stable ~4.3-4.5 mm/s or climb beyond 4.50 mm/s with new alarms?",
+            "The selected hypothesis still has conflicting or unexplained evidence.",
+            "E21: unverified",
+            "E3: unverified",
+            "E5: unverified",
+            "E18: unverified"
+          ],
+          "next_check": "Retrieve CNC-05 events for ticks 834-850 and hydraulic_pressure/power trends for 840-850 to isolate bearing vs servo drive vs hydraulics before choosing replace_bearing, replace_servo_drive, or repair_hydraulics.",
+          "manual_outcomes": [
+            "answered"
+          ],
+          "outage_reasons": {
+            "the model service timed out": 1
+          },
+          "invalid_reasons": {},
+          "recheck": {
+            "outcome": "observed",
+            "trigger": "agreement",
+            "reason": null,
+            "question": "The critic's check: get_sensor_trend {\"bucket_ticks\":5,\"from_tick\":840,\"machine_id\":\"CNC-05\",\"sensor\":\"vibration\",\"to_tick\":850}",
+            "tool": "get_sensor_trend",
+            "evidence_id": "E21",
+            "leading_before": "H1",
+            "confidence_before": 0.88,
+            "leading_after": "H1",
+            "confidence_after": 0.88
+          },
+          "critic_outcome": "answered"
+        },
+        {
+          "case": "KA-03-batch",
+          "seed": 7,
+          "correct": false,
+          "needs_review": false,
+          "assessment": "unresolved",
+          "recommendation": "escalate",
+          "unresolved_questions": [
+            "The final answer omitted its completion assessment.",
+            "Did the passed batch-2 jobs (12, 14) experience CNC-06 vibration during machining comparable to the failed batch-2 jobs (11, 13, 15), and is there a material-lot change at batch 2 with no corresponding machine-setting change?",
+            "Was any machine setting or tool offset changed at the batch-2 start on CNC-01/CNC-02 (upstream), and does that change apply to all batch-2 jobs while batch-1 jobs ran with the prior setting?"
+          ],
+          "next_check": "get_readings CNC-06 vibration from_tick 1228 to_tick 1363 (covers both job 14 passed window and job 15 failed window)",
+          "manual_outcomes": [
+            "answered"
+          ],
+          "outage_reasons": {
+            "the model service timed out": 2
+          },
+          "invalid_reasons": {},
+          "recheck": {
+            "outcome": "already_answered",
+            "trigger": "objection",
+            "reason": "This exact check already returned observable evidence at the current tick.",
+            "question": "The critic's check, to tell H3 (the critic's pick) from H1 (the agent's leading explanation): get_readings {\"from_tick\": 1080, \"machine_id\": \"CNC-06\", \"sensor\": \"vibration\", \"to_tick\": 1363} for jobs 12 and 14 (passed) vs jobs 11, 13, and 15 (failed) to compare vibration levels during their CNC-06 windows.",
+            "tool": "get_readings",
+            "evidence_id": "E19",
+            "leading_before": "H1",
+            "confidence_before": 0.8,
+            "leading_after": null,
+            "confidence_after": null
+          },
+          "critic_outcome": "answered"
+        },
+        {
+          "case": "KA-04-batch",
+          "seed": 8,
+          "correct": true,
+          "needs_review": false,
+          "assessment": "unresolved",
+          "recommendation": "escalate",
+          "unresolved_questions": [
+            "Direct material/lot conformance evidence for the lots behind jobs 11-13 has not been obtained (T1: hardness, contamination, dimensional checks, material certificates).",
+            "Whether any equipment alarm occurred during ticks 900-1220 tied to jobs 11-13 is not fully settled because E16 was truncated in the failure window.",
+            "Does full inspection history (pre-tick-800) show batch 2's reject rate clearly above other batches, establishing a real elevation?",
+            "Q5: Do material certificates/hardness/contamination/dimensional checks for the lots behind jobs 11\u201313 show the stock is out of spec (confirming C1) or in spec (pointing back to equipment)?",
+            "Do events during ticks 900-1220 show a material batch/lot change or an equipment alarm tied to jobs 11-13?",
+            "E7: unverified"
+          ],
+          "next_check": "Obtain material certificates and hardness/contamination/dimensional results for the jobs 11-13 lots (T1); if those are in-spec, inspect CNC-03/04/05/06 (especially CNC-06) for an intermittent equipment fault.",
+          "manual_outcomes": [
+            "answered"
+          ],
+          "outage_reasons": {},
+          "invalid_reasons": {
+            "wrong shape: the answer: Value error, a call_tool step must name a tool": 1
+          },
+          "recheck": {
+            "outcome": "already_answered",
+            "trigger": "agreement",
+            "reason": "This exact check already returned observable evidence at the current tick.",
+            "question": "The critic's check: get_sensor_trend for 'following_error' on CNC-03 during batch-2 processing (jobs 11-13) to confirm no abnormal sensor trace that would support H2.",
+            "tool": "get_sensor_trend",
+            "evidence_id": "E15",
+            "leading_before": "H1",
+            "confidence_before": 0.92,
+            "leading_after": null,
+            "confidence_after": null
+          },
+          "critic_outcome": "answered"
+        },
+        {
+          "case": "KA-05-setting",
+          "seed": 9,
+          "correct": null,
+          "needs_review": true,
+          "assessment": "unresolved",
+          "recommendation": "escalate",
+          "unresolved_questions": [
+            "Was the inspection instrument/tolerance within specification across ticks 324-547 (direct test of H2)?",
+            "Could an unexamined condition on CNC-02, CNC-03 or CNC-05 during jobs 1-2 explain those failures (their job-window readings are not fully compared)?",
+            "Is any condition still changing such that future jobs are at risk?",
+            "Does CNC-04 vibration during each job's CNC-04 window separate jobs 1, 2, 4 from job 3 (e.g. job 4's window ~252-460 and job 1's ~184-248), or was CNC-04 vibration high for all four jobs?",
+            "Did the inspection tolerance or instrument remain in specification across ticks 324-547 (between job 3's pass at tick 471 and the surrounding failures), e.g. via calibration records or a known-good reference part?",
+            "The selected hypothesis still has conflicting or unexplained evidence.",
+            "E13: unverified",
+            "E10: unverified",
+            "E7: unverified"
+          ],
+          "next_check": "Have a technician verify inspection instrument calibration/tolerance across ticks 324-547 and run a known-good reference part through the line; do not perform a CNC repair first.",
+          "manual_outcomes": [
+            "answered",
+            "answered"
+          ],
+          "outage_reasons": {
+            "the model service timed out": 4
+          },
+          "invalid_reasons": {},
+          "recheck": {
+            "outcome": "observed",
+            "trigger": "objection",
+            "reason": null,
+            "question": "The critic's check, to tell H2 (the critic's pick) from H1 (the agent's leading explanation): get_inspections from_tick 471 to_tick 550 to track jobs 5-9 pass/fail outcomes against time (to test H2's prediction of time-dependent variation).",
+            "tool": "get_inspections",
+            "evidence_id": "E19",
+            "leading_before": "H1",
+            "confidence_before": 0.8,
+            "leading_after": "H1",
+            "confidence_after": 0.8
+          },
+          "critic_outcome": "answered"
+        },
+        {
+          "case": "KA-06-setting",
+          "seed": 10,
+          "correct": false,
+          "needs_review": false,
+          "assessment": "unresolved",
+          "recommendation": "escalate",
+          "unresolved_questions": [
+            "Exact machine routes of failed jobs 19 and 20 and of passed jobs 17 and 18 were not fully reviewed, so a station shared only by failures is not 100% excluded.",
+            "The incoming material/lot source for batch 2 was not measured, so the material/process cause is inferred, not directly confirmed.",
+            "E8: unverified",
+            "E11: unverified",
+            "E15: unverified",
+            "E12: unverified",
+            "E13: unverified",
+            "E14: unverified",
+            "E18: unverified",
+            "E4: unverified"
+          ],
+          "next_check": "Review job-17/18/19/20 machine routes (get_events/get_job_history) and batch-2 material lots to confirm no single station is used by all failures but by no passed job.",
+          "manual_outcomes": [
+            "answered"
+          ],
+          "outage_reasons": {
+            "the model service timed out": 6
+          },
+          "invalid_reasons": {},
+          "recheck": {
+            "outcome": "already_answered",
+            "trigger": "agreement",
+            "reason": "This exact check already returned observable evidence at the current tick.",
+            "question": "The critic's check: Compare the machine routes of failed jobs 19 and 20 against passed batch-2 jobs (e.g., jobs 15, 16, 17) to confirm whether the same machines were used for both failed and passed jobs in batch 2. If the routes overlap significantly, this would further support H2 (nonuniform material/process) over H1 (single faulty machine).",
+            "tool": "get_events",
+            "evidence_id": "E6",
+            "leading_before": "H2",
+            "confidence_before": 0.85,
+            "leading_after": null,
+            "confidence_after": null
+          },
+          "critic_outcome": "answered"
+        },
+        {
+          "case": "KA-07-false-alarm",
+          "seed": 8,
+          "correct": false,
+          "needs_review": false,
+          "assessment": null,
+          "recommendation": "escalate",
+          "unresolved_questions": [],
+          "next_check": null,
+          "manual_outcomes": [
+            "answered"
+          ],
+          "outage_reasons": {
+            "the model service could not be reached": 4,
+            "the model service timed out": 1
+          },
+          "invalid_reasons": {},
+          "recheck": null,
+          "critic_outcome": null
+        },
+        {
+          "case": "KA-08-false-alarm",
+          "seed": 11,
+          "correct": false,
+          "needs_review": false,
+          "assessment": null,
+          "recommendation": "escalate",
+          "unresolved_questions": [],
+          "next_check": null,
+          "manual_outcomes": [
+            "failed"
+          ],
+          "outage_reasons": {
+            "the model service could not be reached": 8
+          },
+          "invalid_reasons": {},
+          "recheck": null,
+          "critic_outcome": null
+        },
+        {
+          "case": "KA-09-challenge",
+          "seed": 3,
+          "correct": false,
+          "needs_review": false,
+          "assessment": null,
+          "recommendation": "escalate",
+          "unresolved_questions": [],
+          "next_check": null,
+          "manual_outcomes": [
+            "failed"
+          ],
+          "outage_reasons": {
+            "the model service could not be reached": 5,
+            "the model service timed out": 2
+          },
+          "invalid_reasons": {
+            "wrong shape: the answer: Value error, a stop step names no tool, arguments, question_id or hypothesis_id (found: hypothesis_id)": 1
+          },
+          "recheck": null,
+          "critic_outcome": null
+        },
+        {
+          "case": "KA-10-servo",
+          "seed": 16,
+          "correct": false,
+          "needs_review": false,
+          "assessment": null,
+          "recommendation": "escalate",
+          "unresolved_questions": [],
+          "next_check": null,
+          "manual_outcomes": [
+            "failed"
+          ],
+          "outage_reasons": {
+            "the model service could not be reached": 8
+          },
+          "invalid_reasons": {},
+          "recheck": null,
+          "critic_outcome": null
+        },
+        {
+          "case": "KA-11-servo",
+          "seed": 13,
+          "correct": false,
+          "needs_review": false,
+          "assessment": "unresolved",
+          "recommendation": "escalate",
+          "unresolved_questions": [
+            "Read CNC-02 following_error for ticks after 1360 and poll line-wide events: if it stays below 20 \u00b5m and declining with no new CNC-02 alarm, C1 holds; a new CNC-02 alarm favors C2, and an alarm on another machine favors C3.",
+            "E11: unverified"
+          ],
+          "next_check": "Read CNC-02 following_error for ticks after 1360 and poll line-wide events: if it stays below 20 \u00b5m and declining with no new CNC-02 alarm, C1 holds; a new CNC-02 alarm favors C2, and an alarm on another machine favors C3.",
+          "manual_outcomes": [
+            "failed"
+          ],
+          "outage_reasons": {
+            "the model service could not be reached": 3
+          },
+          "invalid_reasons": {},
+          "recheck": {
+            "outcome": "observed",
+            "trigger": "objection",
+            "reason": null,
+            "question": "The critic's check: get_sensor_trend {\"machine_id\": \"CNC-02\", \"sensor\": \"following_error\", \"from_tick\": 1360, \"to_tick\": 1420, \"bucket_ticks\": 60}",
+            "tool": "get_sensor_trend",
+            "evidence_id": "E11",
+            "leading_before": "H1",
+            "confidence_before": 0.97,
+            "leading_after": "H1",
+            "confidence_after": 0.97
+          },
+          "critic_outcome": "answered"
+        },
+        {
+          "case": "KA-12-hydraulic",
+          "seed": 4,
+          "correct": true,
+          "needs_review": false,
+          "assessment": "unresolved",
+          "recommendation": "escalate",
+          "unresolved_questions": [
+            "E4: unverified",
+            "E6: unverified",
+            "E5: unverified"
+          ],
+          "next_check": "E4: unverified",
+          "manual_outcomes": [
+            "answered"
+          ],
+          "outage_reasons": {},
+          "invalid_reasons": {},
+          "recheck": {
+            "outcome": "observed",
+            "trigger": "agreement",
+            "reason": null,
+            "question": "The critic's check: get_sensor_trend {\"bucket_ticks\":15,\"from_tick\":1300,\"machine_id\":\"CNC-05\",\"sensor\":\"hydraulic_pressure\",\"to_tick\":1350} to see if pressure stabilizes or continues falling after tick 1300, separating a leak (H1) from a transient fault (H3) or a self-recovering issue.",
+            "tool": "get_sensor_trend",
+            "evidence_id": "E9",
+            "leading_before": "H1",
+            "confidence_before": 0.92,
+            "leading_after": "H1",
+            "confidence_after": 0.95
+          },
+          "critic_outcome": "answered"
+        },
+        {
+          "case": "KA-13-hydraulic",
+          "seed": 15,
+          "correct": false,
+          "needs_review": false,
+          "assessment": null,
+          "recommendation": "escalate",
+          "unresolved_questions": [],
+          "next_check": null,
+          "manual_outcomes": [
+            "answered"
+          ],
+          "outage_reasons": {
+            "the model service timed out": 3
+          },
+          "invalid_reasons": {
+            "cut off at the output-token limit": 1
+          },
+          "recheck": {
+            "outcome": "observed",
+            "trigger": "agreement",
+            "reason": null,
+            "question": "The critic's check: get_sensor_trend {\"bucket_ticks\": 60, \"from_tick\": 1050, \"machine_id\": \"CNC-02\", \"sensor\": \"hydraulic_pressure\", \"to_tick\": 1170}",
+            "tool": "get_sensor_trend",
+            "evidence_id": "E20",
+            "leading_before": "leaking_seals",
+            "confidence_before": 0.75,
+            "leading_after": "leaking_seals",
+            "confidence_after": 0.85
+          },
+          "critic_outcome": "answered"
+        }
+      ]
+    },
+    {
+      "pair": "tot13-20261031-184429-543214a2",
+      "mode": "blind",
+      "name": "master-tot13-blind",
+      "commit": "e59208d584938ed96a606bc317354882fcc8e01c",
+      "cases": 13,
+      "correct": 3,
+      "judged": 12,
+      "needs_review": 1,
+      "accuracy": 0.25,
+      "model_calls": {
+        "questions": 223,
+        "answered": 212,
+        "invalid_replies": 1,
+        "unanswered": 10,
+        "outage_attempts": 48
+      },
+      "outage_reasons": {
+        "the model service timed out": 18,
+        "the model service could not be reached": 30
+      },
+      "manual_search_outcomes": {
+        "answered": 11,
+        "failed": 2
+      },
+      "critic_outcomes": {
+        "answered": 10,
+        "not_run": 3
+      },
+      "rechecks": {
+        "observed": 9,
+        "already_answered": 1
+      },
+      "assessments": {
+        "unresolved": 9,
+        "not_recorded": 4
+      },
+      "recommendations": {
+        "escalate": 13
+      },
+      "started_utc": "2026-11-01T00:57:02.997380+00:00",
+      "finished_utc": "2026-11-01T03:15:28.446297+00:00",
+      "case_details": [
+        {
+          "case": "KA-01-bearing",
+          "seed": 6,
+          "correct": false,
+          "needs_review": false,
+          "assessment": "unresolved",
+          "recommendation": "escalate",
+          "unresolved_questions": [
+            "Exact root cause of the CNC-04 step change (bearing vs other mechanical cause) is not confirmed",
+            "CNC-01 and CNC-03 are idle with no sensor data, so their condition remains untested",
+            "The selected hypothesis still has conflicting or unexplained evidence."
+          ],
+          "next_check": "After CNC-02 returns to service, verify its vibration stays below 4.50 mm/s with no new alarms; then trend CNC-04 and decide on a separate repair for it.",
+          "manual_outcomes": [
+            "answered"
+          ],
+          "outage_reasons": {
+            "the model service timed out": 2
+          },
+          "invalid_reasons": {},
+          "recheck": {
+            "outcome": "observed",
+            "trigger": "agreement",
+            "reason": null,
+            "question": "The critic's check: Check whether CNC-02 vibration readings remain near or above 4.50 mm/s in the next 10 ticks (930-940) to confirm if the alarm condition persists or resolves.",
+            "tool": "get_readings",
+            "evidence_id": "E17",
+            "leading_before": "H2",
+            "confidence_before": 0.85,
+            "leading_after": "H2",
+            "confidence_after": 0.93
+          },
+          "critic_outcome": "answered"
+        },
+        {
+          "case": "KA-02-bearing",
+          "seed": 9,
+          "correct": false,
+          "needs_review": false,
+          "assessment": null,
+          "recommendation": "escalate",
+          "unresolved_questions": [],
+          "next_check": null,
+          "manual_outcomes": [
+            "answered"
+          ],
+          "outage_reasons": {
+            "the model service could not be reached": 8
+          },
+          "invalid_reasons": {},
+          "recheck": null,
+          "critic_outcome": null
+        },
+        {
+          "case": "KA-03-batch",
+          "seed": 7,
+          "correct": false,
+          "needs_review": false,
+          "assessment": null,
+          "recommendation": "escalate",
+          "unresolved_questions": [],
+          "next_check": null,
+          "manual_outcomes": [
+            "failed"
+          ],
+          "outage_reasons": {
+            "the model service could not be reached": 8
+          },
+          "invalid_reasons": {},
+          "recheck": null,
+          "critic_outcome": null
+        },
+        {
+          "case": "KA-04-batch",
+          "seed": 8,
+          "correct": false,
+          "needs_review": false,
+          "assessment": "unresolved",
+          "recommendation": "escalate",
+          "unresolved_questions": [
+            "H1 vs H2: do CNC-03/CNC-04 show normal ~1.8 mm/s vibration in 1082-1216 while CNC-05/CNC-06 stay elevated?",
+            "Did any material loading, maintenance, or setting change affect batch 2 or CNC-05/CNC-06?",
+            "Have any jobs since job 13 been inspected, and on which machines, to split pass/fail by batch and last machine?"
+          ],
+          "next_check": "Get CNC-03 and CNC-04 vibration summaries for 1082-1216 to complete the peer baseline comparison.",
+          "manual_outcomes": [
+            "answered"
+          ],
+          "outage_reasons": {
+            "the model service could not be reached": 7,
+            "the model service timed out": 3
+          },
+          "invalid_reasons": {},
+          "recheck": {
+            "outcome": "observed",
+            "trigger": "agreement",
+            "reason": null,
+            "question": "The critic's check: Compare vibration trends (get_sensor_trend) for CNC-02 and CNC-03 during the same tick windows as CNC-05/06 (1010\u20131216) to confirm whether their vibration levels remain near the peer baseline (~1.8 mm/s) or also rise.",
+            "tool": "get_sensor_trend",
+            "evidence_id": "E15",
+            "leading_before": "H2",
+            "confidence_before": 0.6,
+            "leading_after": "H2",
+            "confidence_after": 0.6
+          },
+          "critic_outcome": "answered"
+        },
+        {
+          "case": "KA-05-setting",
+          "seed": 9,
+          "correct": false,
+          "needs_review": false,
+          "assessment": null,
+          "recommendation": "escalate",
+          "unresolved_questions": [],
+          "next_check": null,
+          "manual_outcomes": [
+            "answered"
+          ],
+          "outage_reasons": {
+            "the model service could not be reached": 4,
+            "the model service timed out": 1
+          },
+          "invalid_reasons": {},
+          "recheck": null,
+          "critic_outcome": null
+        },
+        {
+          "case": "KA-06-setting",
+          "seed": 10,
+          "correct": false,
+          "needs_review": false,
+          "assessment": null,
+          "recommendation": "escalate",
+          "unresolved_questions": [],
+          "next_check": null,
+          "manual_outcomes": [
+            "failed"
+          ],
+          "outage_reasons": {
+            "the model service could not be reached": 3,
+            "the model service timed out": 5
+          },
+          "invalid_reasons": {
+            "cut off at the output-token limit": 1
+          },
+          "recheck": {
+            "outcome": "observed",
+            "trigger": "objection",
+            "reason": null,
+            "question": "The critic's check, to tell H4 (the critic's pick) from H1 (the agent's leading explanation): Compare CNC-01 vs CNC-06 vibration means over 1400-1770 from E5/E6, focusing on the final high-vibration blocks (1640-1770) to confirm if CNC-06's vibration is persistently elevated and tied to failures.",
+            "tool": "get_sensor_summary",
+            "evidence_id": "E14",
+            "leading_before": "H1",
+            "confidence_before": 0.5,
+            "leading_after": "H1",
+            "confidence_after": 0.5
+          },
+          "critic_outcome": "answered"
+        },
+        {
+          "case": "KA-07-false-alarm",
+          "seed": 8,
+          "correct": null,
+          "needs_review": true,
+          "assessment": "unresolved",
+          "recommendation": "escalate",
+          "unresolved_questions": [
+            "T1: independent corroboration (second accelerometer/channel, inspection finding, or part-quality reject) that CNC-01 truly exceeded 4.50 mm/s at ticks 521-524, to exclude vibration-channel sensor fault H3",
+            "Is there independent evidence (second accelerometer, inspection finding, or part-quality reject) that CNC-01 actually vibrated above 4.5 mm/s at ticks 521-524, or is the exceedance supported only by the CNC-01 vibration channel/alarm (leaving sensor fault C2 viable)?",
+            "Is there any logged job/process event for CNC-01 job 8 at ticks 521-524 (operation/tool/feed change) correlated with the spike, given E5 records only CNC-01 vibration alarms in that window?",
+            "E5: unverified",
+            "E13: unverified"
+          ],
+          "next_check": "If the exceedance recurs, capture CNC-01 temperature per tick during the event and job-8 inspection/reject results; a concurrent thermal rise or part reject would confirm a real mechanical event (H1) over a channel fault (H3). A persistent recurrence would warrant replace_bearing (about 45 ticks downtime) rather than no_action.",
+          "manual_outcomes": [
+            "answered"
+          ],
+          "outage_reasons": {},
+          "invalid_reasons": {},
+          "recheck": {
+            "outcome": "observed",
+            "trigger": "agreement",
+            "reason": null,
+            "question": "The critic's check: get_sensor_trend for CNC-01 vibration from tick 515 to 530 with bucket_ticks=10 to confirm whether the spike was a single transient event or part of a gradual trend.",
+            "tool": "get_sensor_trend",
+            "evidence_id": "E13",
+            "leading_before": "H1",
+            "confidence_before": 0.92,
+            "leading_after": "H1",
+            "confidence_after": 0.95
+          },
+          "critic_outcome": "answered"
+        },
+        {
+          "case": "KA-08-false-alarm",
+          "seed": 11,
+          "correct": false,
+          "needs_review": false,
+          "assessment": "unresolved",
+          "recommendation": "escalate",
+          "unresolved_questions": [
+            "Whether CNC-03 vibration will exceed 4.50 mm/s again on its next loaded run; the root cause of the transient is not identified from available data."
+          ],
+          "next_check": "Observe CNC-03 vibration during its next job run; recurrence above 4.50 mm/s would indicate a recurring mechanical fault requiring component-level inspection (bearing/servo/hydraulics as applicable).",
+          "manual_outcomes": [
+            "answered"
+          ],
+          "outage_reasons": {
+            "the model service timed out": 1
+          },
+          "invalid_reasons": {},
+          "recheck": {
+            "outcome": "observed",
+            "trigger": "agreement",
+            "reason": null,
+            "question": "The critic's check: get_sensor_trend for CNC-03 vibration from tick 375 to 400 with bucket_ticks=10 to confirm the spike was isolated to ticks 381-383 and not part of a broader trend.",
+            "tool": "get_sensor_trend",
+            "evidence_id": "E19",
+            "leading_before": "H1",
+            "confidence_before": 0.55,
+            "leading_after": "H1",
+            "confidence_after": 0.75
+          },
+          "critic_outcome": "answered"
+        },
+        {
+          "case": "KA-09-challenge",
+          "seed": 3,
+          "correct": false,
+          "needs_review": false,
+          "assessment": "unresolved",
+          "recommendation": "escalate",
+          "unresolved_questions": [
+            "Was the ~5 mm/s vibration on CNC-03 at ticks 71-78 a sensor artifact (H1) or real intermittent mechanical motion (H2)?",
+            "Will the vibration recur when CNC-03 returns to production under load?",
+            "If CNC-03's vibration sensor were swapped with a known-good sensor (e.g., CNC-04's), would the high ~5 mm/s readings move with the sensor or stay on CNC-03?",
+            "Does an independent vibration measurement (second accelerometer or direct inspection) of CNC-03 during ticks 71-78 confirm real physical motion of the machine?",
+            "The selected hypothesis still has conflicting or unexplained evidence.",
+            "E6: unverified"
+          ],
+          "next_check": "Monitor CNC-03 vibration when it next runs under load; if ~5 mm/s recurs, obtain an independent vibration measurement or direct inspection (T2), and if real motion is confirmed have a human evaluate replace_bearing on CNC-03.",
+          "manual_outcomes": [
+            "answered"
+          ],
+          "outage_reasons": {},
+          "invalid_reasons": {},
+          "recheck": {
+            "outcome": "observed",
+            "trigger": "agreement",
+            "reason": null,
+            "question": "The critic's check: Compare the vibration readings of CNC-03 with those of a known-good sensor on another machine (e.g., CNC-01) during the same time window to confirm whether the spike is isolated to CNC-03 or shared across machines.",
+            "tool": "get_readings",
+            "evidence_id": "E14",
+            "leading_before": "H1",
+            "confidence_before": 0.8,
+            "leading_after": "H1",
+            "confidence_after": 0.82
+          },
+          "critic_outcome": "answered"
+        },
+        {
+          "case": "KA-10-servo",
+          "seed": 16,
+          "correct": true,
+          "needs_review": false,
+          "assessment": "unresolved",
+          "recommendation": "escalate",
+          "unresolved_questions": [
+            "Exact failed component: axis servo drive versus binding axis/bearing, which determines whether replace_servo_drive or replace_bearing is the correct repair.",
+            "Whether CNC-04 parts from job 14 (started tick 1098) are failing size inspection; no post-1098 inspection results exist yet.",
+            "Is CNC-05 following_error low (like CNC-01/02/03) or also elevated? Completes uniqueness test across all five stations.",
+            "Over a longer running window, does CNC-04 following_error stay elevated while CNC-01/02/03/05 remain low, and do CNC-04 parts begin failing size inspection?",
+            "The selected hypothesis still has conflicting or unexplained evidence."
+          ],
+          "next_check": "After servo-drive replacement, verify CNC-04 following_error settles to the ~3-5 \u00b5m band seen on CNC-01/02/03/05 and no further following_error values exceed 20 \u00b5m.",
+          "manual_outcomes": [
+            "answered"
+          ],
+          "outage_reasons": {
+            "the model service timed out": 2
+          },
+          "invalid_reasons": {},
+          "recheck": {
+            "outcome": "observed",
+            "trigger": "agreement",
+            "reason": null,
+            "question": "The critic's check: get_sensor_trend for CNC-04 following_error from tick 1000 to 1130 with a smaller bucket size (e.g., 10 ticks) to confirm whether the rise is gradual and persistent, or if there are transient spikes coinciding with job changes.",
+            "tool": "get_sensor_trend",
+            "evidence_id": "E14",
+            "leading_before": "H1",
+            "confidence_before": 0.85,
+            "leading_after": "H1",
+            "confidence_after": 0.85
+          },
+          "critic_outcome": "answered"
+        },
+        {
+          "case": "KA-11-servo",
+          "seed": 13,
+          "correct": true,
+          "needs_review": false,
+          "assessment": "unresolved",
+          "recommendation": "escalate",
+          "unresolved_questions": [
+            "Whether any mechanical wear (ball screw, ball nut, axial bearings, H2) coexists with the servo-drive degradation - load and vibration are flat, but no physical inspection was performed; this does not change the indicated repair.",
+            "Does restarting or re-tuning CNC-02's motion controller immediately restore following_error to its pre-1200 baseline (~13.7 \u00b5m)?",
+            "Does physical inspection of CNC-02's ball screw, ball nut, or axial bearings show measurable wear or backlash?",
+            "The selected hypothesis still has conflicting or unexplained evidence.",
+            "E3: unverified",
+            "E16: unverified",
+            "E5: unverified",
+            "E6: unverified",
+            "E11: unverified"
+          ],
+          "next_check": "After the servo drive is replaced and CNC-02 restarts, verify that following_error returns to its pre-1200 baseline (~13.7 \u00b5m) and remains below the 20 \u00b5m alarm threshold.",
+          "manual_outcomes": [
+            "answered"
+          ],
+          "outage_reasons": {},
+          "invalid_reasons": {},
+          "recheck": {
+            "outcome": "observed",
+            "trigger": "agreement",
+            "reason": null,
+            "question": "The critic's check: Check the **maintenance history of CNC-02's servo drive** to see if prior replacements or repairs align with the observed trend in following_error.",
+            "tool": "get_maintenance_history",
+            "evidence_id": "E18",
+            "leading_before": "H1",
+            "confidence_before": 0.85,
+            "leading_after": "H1",
+            "confidence_after": 0.92
+          },
+          "critic_outcome": "answered"
+        },
+        {
+          "case": "KA-12-hydraulic",
+          "seed": 4,
+          "correct": true,
+          "needs_review": false,
+          "assessment": "unresolved",
+          "recommendation": "escalate",
+          "unresolved_questions": [
+            "Group CNC-05 inspection/pass-reject results by station and batch around the alarm (Q4): is the reject share growing while some jobs still pass, as expected from real low clamping pressure?",
+            "Does CNC-05 have a dedicated hydraulic supply branch/line (downstream of a splitter) that could be restricted independently of CNC-02, whose pressure stays normal (E5)?",
+            "CNC-05 reject share by station/batch around the alarm: cannot be observed because CNC-05 is idle (job_id null) with no recent parts; not required to establish the hydraulic-cause diagnosis. Revisit once CNC-05 resumes production.",
+            "E4: unverified",
+            "E5: unverified"
+          ],
+          "next_check": "Group CNC-05 inspection/pass-reject results by station and batch around the alarm (Q4): is the reject share growing while some jobs still pass, as expected from real low clamping pressure?",
+          "manual_outcomes": [
+            "answered"
+          ],
+          "outage_reasons": {
+            "the model service timed out": 2
+          },
+          "invalid_reasons": {},
+          "recheck": {
+            "outcome": "observed",
+            "trigger": "agreement",
+            "reason": null,
+            "question": "The critic's check: get_readings for CNC-05 hydraulic_pressure from tick 1100 to 1290 with a focus on idle periods (e.g., ticks 1220\u20131290, when CNC-05 was idle) to confirm whether pressure continued to fall without recovery, or if there were brief spikes above the setpoint (which would suggest a leak rather than a supply restriction).",
+            "tool": "get_readings",
+            "evidence_id": "E7",
+            "leading_before": "H1",
+            "confidence_before": 0.9,
+            "leading_after": "H1",
+            "confidence_after": 0.9
+          },
+          "critic_outcome": "answered"
+        },
+        {
+          "case": "KA-13-hydraulic",
+          "seed": 15,
+          "correct": false,
+          "needs_review": false,
+          "assessment": "unresolved",
+          "recommendation": "escalate",
+          "unresolved_questions": [
+            "Distinguish H2 (intermittent physical restriction) from H1 (repeated transducer noise): two sub-55 dips are observed but not conclusively differentiated.",
+            "CNC-07 also has hydraulics but its pressure was never checked; it has no symptom or alarm, so it is untested rather than cleared.",
+            "Does the CNC-02 pressure dip at tick 1041 occur without any corresponding load increase (favoring a physical intermittent restriction over normal load draw)?",
+            "Did CNC-02 pressure recover to 59.18 bar at tick 1050 while load remained high (~47 bar), which would contradict a pure load-draw explanation and favor a transient or sensor cause?"
+          ],
+          "next_check": "Record CNC-02 hydraulic_pressure and load over the next ~30 ticks to confirm recurrence and that dips occur without load changes before a human authorizes repair_hydraulics.",
+          "manual_outcomes": [
+            "answered"
+          ],
+          "outage_reasons": {
+            "the model service timed out": 2
+          },
+          "invalid_reasons": {},
+          "recheck": {
+            "outcome": "already_answered",
+            "trigger": "agreement",
+            "reason": "This exact check already returned observable evidence at the current tick.",
+            "question": "The critic's check: Check the hydraulic pressure trend on CNC-02 from tick 1050 to 1060 for recurrence of sub-55 bar readings. If the pressure remains stable above 55 bar, this supports H1 (transducer error). If another sub-55 dip occurs, this would support H2 (intermittent restriction).",
+            "tool": "get_readings",
+            "evidence_id": "E14",
+            "leading_before": "H1",
+            "confidence_before": 0.75,
+            "leading_after": null,
+            "confidence_after": null
+          },
+          "critic_outcome": "answered"
+        }
+      ]
+    },
+    {
+      "pair": "tot13-20261031-210256-3910997b",
+      "mode": "anchored",
+      "name": "master-tot13-anchored",
+      "commit": "e59208d584938ed96a606bc317354882fcc8e01c",
+      "cases": 13,
+      "correct": 6,
+      "judged": 13,
+      "needs_review": 0,
+      "accuracy": 0.46153846153846156,
+      "model_calls": {
+        "questions": 208,
+        "answered": 198,
+        "invalid_replies": 1,
+        "unanswered": 9,
+        "outage_attempts": 59
+      },
+      "outage_reasons": {
+        "the model service could not be reached": 42,
+        "the model service timed out": 17
+      },
+      "manual_search_outcomes": {
+        "answered": 9,
+        "failed": 4
+      },
+      "critic_outcomes": {
+        "not_run": 4,
+        "answered": 9
+      },
+      "rechecks": {
+        "no_evidence": 2,
+        "observed": 6,
+        "already_answered": 1
+      },
+      "assessments": {
+        "not_recorded": 4,
+        "unresolved": 9
+      },
+      "recommendations": {
+        "escalate": 13
+      },
+      "started_utc": "2026-11-01T01:03:20.424231+00:00",
+      "finished_utc": "2026-11-01T03:06:53.060543+00:00",
+      "case_details": [
+        {
+          "case": "KA-01-bearing",
+          "seed": 6,
+          "correct": false,
+          "needs_review": false,
+          "assessment": null,
+          "recommendation": "escalate",
+          "unresolved_questions": [],
+          "next_check": null,
+          "manual_outcomes": [
+            "answered"
+          ],
+          "outage_reasons": {
+            "the model service could not be reached": 8
+          },
+          "invalid_reasons": {},
+          "recheck": null,
+          "critic_outcome": null
+        },
+        {
+          "case": "KA-02-bearing",
+          "seed": 9,
+          "correct": false,
+          "needs_review": false,
+          "assessment": null,
+          "recommendation": "escalate",
+          "unresolved_questions": [],
+          "next_check": null,
+          "manual_outcomes": [
+            "failed"
+          ],
+          "outage_reasons": {
+            "the model service could not be reached": 8
+          },
+          "invalid_reasons": {},
+          "recheck": null,
+          "critic_outcome": null
+        },
+        {
+          "case": "KA-03-batch",
+          "seed": 7,
+          "correct": false,
+          "needs_review": false,
+          "assessment": "unresolved",
+          "recommendation": "escalate",
+          "unresolved_questions": [
+            "The final answer omitted its completion assessment.",
+            "No current observable evidence was cited for this diagnosis.",
+            "Does CNC-01 vibration during batch-2 (ticks 1000-1370) show odd-job elevation (H1) or uniform readings across odd/even jobs (H2)? CNC-01 batch-2 data is currently unchecked.",
+            "The critic's check: Compare the raw vibration readings of CNC-06 during passed jobs 12 and 14 (E15, E17) with those during failed jobs 11, 13, and 15, focusing on the same time windows (e.g., 1086-1155 for job 12, 1156-1221 for job 13, 1228-1293 for job 14, 1018-1085 for job 11, 1296-1363 for job 15). If no consistent elevation in vibration is found during failed jobs, H2 is strongly supported."
+          ],
+          "next_check": "The final answer omitted its completion assessment.",
+          "manual_outcomes": [
+            "failed"
+          ],
+          "outage_reasons": {
+            "the model service could not be reached": 7,
+            "the model service timed out": 2
+          },
+          "invalid_reasons": {},
+          "recheck": {
+            "outcome": "no_evidence",
+            "trigger": "objection",
+            "reason": null,
+            "question": "The critic's check: Compare the raw vibration readings of CNC-06 during passed jobs 12 and 14 (E15, E17) with those during failed jobs 11, 13, and 15, focusing on the same time windows (e.g., 1086-1155 for job 12, 1156-1221 for job 13, 1228-1293 for job 14, 1018-1085 for job 11, 1296-1363 for job 15). If no consistent elevation in vibration is found during failed jobs, H2 is strongly supported.",
+            "tool": "get_readings",
+            "evidence_id": null,
+            "leading_before": "H2",
+            "confidence_before": 0.55,
+            "leading_after": "H2",
+            "confidence_after": 0.55
+          },
+          "critic_outcome": "answered"
+        },
+        {
+          "case": "KA-04-batch",
+          "seed": 8,
+          "correct": false,
+          "needs_review": false,
+          "assessment": null,
+          "recommendation": "escalate",
+          "unresolved_questions": [],
+          "next_check": null,
+          "manual_outcomes": [
+            "answered"
+          ],
+          "outage_reasons": {
+            "the model service could not be reached": 4,
+            "the model service timed out": 2
+          },
+          "invalid_reasons": {},
+          "recheck": null,
+          "critic_outcome": null
+        },
+        {
+          "case": "KA-05-setting",
+          "seed": 9,
+          "correct": false,
+          "needs_review": false,
+          "assessment": null,
+          "recommendation": "escalate",
+          "unresolved_questions": [],
+          "next_check": null,
+          "manual_outcomes": [
+            "failed"
+          ],
+          "outage_reasons": {
+            "the model service could not be reached": 8
+          },
+          "invalid_reasons": {},
+          "recheck": null,
+          "critic_outcome": null
+        },
+        {
+          "case": "KA-06-setting",
+          "seed": 10,
+          "correct": false,
+          "needs_review": false,
+          "assessment": "unresolved",
+          "recommendation": "escalate",
+          "unresolved_questions": [
+            "Confirm CNC-07 vibration readings during failure ticks 1698-1768 compared to passing windows 1370-1639.",
+            "Verify if passing jobs 17 and 18 visit the same machines as failed jobs to rule out H4 completely.",
+            "Do passing batch-2 jobs 17 and 18 visit the same machines (CNC-01..CNC-07) as the failed jobs, fully ruling out H4?",
+            "Are there alarms, stops, blocks, or maintenance events near failure ticks 1702 and 1768 on any machine?",
+            "The critic's check: Compare the raw vibration readings of CNC-07 during jobs 15-18 (passing) with those during jobs 14, 19, and 20 (failing) to confirm whether elevated vibration correlates with inspection failures.",
+            "The selected hypothesis still has conflicting or unexplained evidence.",
+            "E14: unverified"
+          ],
+          "next_check": "K1: Compare raw vibration readings of CNC-07 during jobs 15-18 (passing) with those during jobs 14, 19, and 20 (failing) to confirm the correlation between elevated vibration and inspection failures.",
+          "manual_outcomes": [
+            "failed"
+          ],
+          "outage_reasons": {
+            "the model service could not be reached": 7,
+            "the model service timed out": 4
+          },
+          "invalid_reasons": {
+            "not valid JSON": 1
+          },
+          "recheck": {
+            "outcome": "no_evidence",
+            "trigger": "objection",
+            "reason": null,
+            "question": "The critic's check: Compare the raw vibration readings of CNC-07 during jobs 15-18 (passing) with those during jobs 14, 19, and 20 (failing) to confirm whether elevated vibration correlates with inspection failures.",
+            "tool": "get_readings",
+            "evidence_id": null,
+            "leading_before": "H1",
+            "confidence_before": 0.25,
+            "leading_after": "H1",
+            "confidence_after": 0.25
+          },
+          "critic_outcome": "answered"
+        },
+        {
+          "case": "KA-07-false-alarm",
+          "seed": 8,
+          "correct": true,
+          "needs_review": false,
+          "assessment": "unresolved",
+          "recommendation": "escalate",
+          "unresolved_questions": [
+            "The initiating cause of the transient disturbance (e.g., a brief cut, feed, or workpiece event) was not identified.",
+            "Vibration decayed to near-zero (0.08-0.19 mm/s) by ticks 537-540; the reason for that decay is unknown but is below alarm level and does not change the diagnosis.",
+            "CNC-01 power and factory air temperature around tick 521 (remaining parts of Q5).",
+            "The selected hypothesis still has conflicting or unexplained evidence.",
+            "E4: unverified",
+            "E7: unverified",
+            "E8: unverified"
+          ],
+          "next_check": "Monitor CNC-01 vibration during its next job run and flag any recurrence above 4.5 mm/s.",
+          "manual_outcomes": [
+            "answered"
+          ],
+          "outage_reasons": {},
+          "invalid_reasons": {},
+          "recheck": {
+            "outcome": "observed",
+            "trigger": "objection",
+            "reason": null,
+            "question": "The critic's check: get_factory_readings {\"from_tick\": 520, \"to_tick\": 529, \"sensor\": \"air_temperature\"} and get_readings {\"from_tick\": 520, \"to_tick\": 529, \"machine_id\": \"CNC-01\", \"sensor\": \"temperature\"} to check for factory-wide or machine-specific temperature anomalies during the alarm window.",
+            "tool": "get_factory_readings",
+            "evidence_id": "E13",
+            "leading_before": "H1-transient",
+            "confidence_before": 0.85,
+            "leading_after": "H1-transient",
+            "confidence_after": 0.85
+          },
+          "critic_outcome": "answered"
+        },
+        {
+          "case": "KA-08-false-alarm",
+          "seed": 11,
+          "correct": true,
+          "needs_review": false,
+          "assessment": "unresolved",
+          "recommendation": "escalate",
+          "unresolved_questions": [
+            "Root cause of the single transient CNC-03 vibration spike at tick 381 was not identified",
+            "Was factory air temperature anomalous during ticks 375-390 (coincident with the CNC-03 vibration spike)?",
+            "Does CNC-03 vibration recur above 4.5 mm/s in ticks 390-400?",
+            "Is CNC-04 vibration normal during ticks 375-390, especially at 381-383, to rule out CNC-04 as a peer source transmitting vibration to CNC-03?",
+            "E14: unverified"
+          ],
+          "next_check": "Continue routine CNC-03 vibration monitoring; if vibration exceeds 4.5 mm/s again, investigate mechanical causes such as bearing or servo drive on CNC-03",
+          "manual_outcomes": [
+            "answered"
+          ],
+          "outage_reasons": {},
+          "invalid_reasons": {},
+          "recheck": {
+            "outcome": "observed",
+            "trigger": "agreement",
+            "reason": null,
+            "question": "The critic's check: get_sensor_trend {\"from_tick\": 375, \"to_tick\": 400, \"machine_id\": \"CNC-03\", \"sensor\": \"vibration\", \"bucket_ticks\": 10} to confirm the transient nature of the spike and rule out gradual or recurring issues.",
+            "tool": "get_sensor_trend",
+            "evidence_id": "E14",
+            "leading_before": "H1",
+            "confidence_before": 0.88,
+            "leading_after": "H1",
+            "confidence_after": 0.95
+          },
+          "critic_outcome": "answered"
+        },
+        {
+          "case": "KA-09-challenge",
+          "seed": 3,
+          "correct": false,
+          "needs_review": false,
+          "assessment": "unresolved",
+          "recommendation": "escalate",
+          "unresolved_questions": [
+            "Whether the CNC-03 vibration sensor or its signal path is intermittently faulty and could re-alarm; this cannot be distinguished from a one-off transient with current data.",
+            "Did factory air temperature vary during ticks 60-80?",
+            "Did parts from CNC-03 fail inspection around ticks 71-80?",
+            "Was CNC-03 temperature abnormal during ticks 71-80?",
+            "Was CNC-03 power draw abnormal during ticks 71-80?",
+            "E14: unverified"
+          ],
+          "next_check": "Monitor CNC-03 vibration when it next runs; if high-vibration alarms recur while idle, inspect the vibration sensor and signal path (none of the available repairs - bearing, setting reset, servo drive, hydraulics - targets a vibration sensor).",
+          "manual_outcomes": [
+            "answered"
+          ],
+          "outage_reasons": {
+            "the model service timed out": 2
+          },
+          "invalid_reasons": {},
+          "recheck": {
+            "outcome": "observed",
+            "trigger": "objection",
+            "reason": null,
+            "question": "The critic's check: get_sensor_trend for CNC-03 vibration from tick 60 to 80 with bucket_ticks=10 to see if the alarm window shows a persistent trend or a single spike.",
+            "tool": "get_sensor_trend",
+            "evidence_id": "E14",
+            "leading_before": "H1",
+            "confidence_before": 0.85,
+            "leading_after": "H1",
+            "confidence_after": 0.85
+          },
+          "critic_outcome": "answered"
+        },
+        {
+          "case": "KA-10-servo",
+          "seed": 16,
+          "correct": true,
+          "needs_review": false,
+          "assessment": "unresolved",
+          "recommendation": "escalate",
+          "unresolved_questions": [
+            "Whether CNC-03 following_error is flat like CNC-01/02/05 (would fully exclude a line-wide fault)",
+            "Whether CNC-04 vibration is elevated above CNC-01 (bearing wear would raise vibration; drive wear need not)",
+            "Whether CNC-04 job times lengthened gradually or stepped abruptly (bearing vs wrong-speed alternatives)",
+            "Did CNC-04 job times lengthen gradually or step abruptly (bearing wear or wrong speed)?",
+            "The selected hypothesis still has conflicting or unexplained evidence.",
+            "E4: unverified",
+            "E9: unverified",
+            "E14: unverified",
+            "E6: unverified",
+            "E15: unverified",
+            "E16: unverified"
+          ],
+          "next_check": "Read CNC-03 following_error and CNC-04 vs CNC-01 vibration over recent ticks; if CNC-03 is flat and CNC-04 vibration \u2248 CNC-01, the drive-wear diagnosis is confirmed and a human can be asked to approve replace_servo_drive on CNC-04.",
+          "manual_outcomes": [
+            "answered"
+          ],
+          "outage_reasons": {
+            "the model service timed out": 3
+          },
+          "invalid_reasons": {},
+          "recheck": {
+            "outcome": "already_answered",
+            "trigger": "objection",
+            "reason": "This exact check already returned observable evidence at the current tick.",
+            "question": "The critic's check: Compare CNC-04 vibration trend (E10) with CNC-01 vibration trend (E12) to see if CNC-04 vibration is elevated or flat.",
+            "tool": "get_sensor_trend",
+            "evidence_id": "E12",
+            "leading_before": "H_worn_drive_CNC04",
+            "confidence_before": 0.6,
+            "leading_after": null,
+            "confidence_after": null
+          },
+          "critic_outcome": "answered"
+        },
+        {
+          "case": "KA-11-servo",
+          "seed": 13,
+          "correct": true,
+          "needs_review": false,
+          "assessment": "unresolved",
+          "recommendation": "escalate",
+          "unresolved_questions": [
+            "Exact failing component on CNC-02 (servo drive vs another axis-drive element) to choose between replace_servo_drive and replace_bearing; whether CNC-04, CNC-06 and CNC-07 following_error are also stable to fully exclude a line-wide cause.",
+            "The selected hypothesis still has conflicting or unexplained evidence.",
+            "E4: unverified",
+            "E16: unverified",
+            "E14: unverified",
+            "E10: unverified",
+            "E12: unverified"
+          ],
+          "next_check": "Retrieve following_error trends for CNC-04, CNC-06 and CNC-07 (and idle CNC-05) over a recent window; if all remain around 3\u20134 \u00b5m while only CNC-02 rises, a human can approve replace_servo_drive on CNC-02.",
+          "manual_outcomes": [
+            "answered"
+          ],
+          "outage_reasons": {
+            "the model service timed out": 4
+          },
+          "invalid_reasons": {},
+          "recheck": {
+            "outcome": "observed",
+            "trigger": "agreement",
+            "reason": null,
+            "question": "The critic's check: get_sensor_summary for CNC-01 vs CNC-02 temperature from tick 1200 to 1360 to confirm whether CNC-02's temperature is significantly elevated (supporting binding, H4) or stable (supporting servo wear, H1).",
+            "tool": "get_sensor_summary",
+            "evidence_id": "E16",
+            "leading_before": "H1",
+            "confidence_before": 0.75,
+            "leading_after": "H1",
+            "confidence_after": 0.75
+          },
+          "critic_outcome": "answered"
+        },
+        {
+          "case": "KA-12-hydraulic",
+          "seed": 4,
+          "correct": true,
+          "needs_review": false,
+          "assessment": "unresolved",
+          "recommendation": "escalate",
+          "unresolved_questions": [
+            "Exact failing component (seals, pump, or relief valve) not identified; repair_hydraulics replaces seals and addresses the seal-leak presentation.",
+            "E5: unverified"
+          ],
+          "next_check": "After repair_hydraulics, sample CNC-05 hydraulic_pressure over the next ~60 ticks; it should hold flat above 55 bar and not re-alarm.",
+          "manual_outcomes": [
+            "answered"
+          ],
+          "outage_reasons": {},
+          "invalid_reasons": {},
+          "recheck": {
+            "outcome": "observed",
+            "trigger": "agreement",
+            "reason": null,
+            "question": "The critic's check: get_maintenance_history {\"machine_id\": \"CNC-05\"}",
+            "tool": "get_maintenance_history",
+            "evidence_id": "E11",
+            "leading_before": "H1",
+            "confidence_before": 0.97,
+            "leading_after": "H1",
+            "confidence_after": 0.92
+          },
+          "critic_outcome": "answered"
+        },
+        {
+          "case": "KA-13-hydraulic",
+          "seed": 15,
+          "correct": true,
+          "needs_review": false,
+          "assessment": "unresolved",
+          "recommendation": "escalate",
+          "unresolved_questions": [
+            "Whether the failing element is the seals versus the pump itself; seal replacement is the available repair, so if pressure keeps falling after repair the pump is implicated and escalation is needed.",
+            "Does CNC-07 hydraulic pressure remain flat over 900\u20131050 (completing the shared-supply vs localized-fault discrimination)?",
+            "The selected hypothesis still has conflicting or unexplained evidence.",
+            "E4: unverified",
+            "E6: unverified"
+          ],
+          "next_check": "Whether the failing element is the seals versus the pump itself; seal replacement is the available repair, so if pressure keeps falling after repair the pump is implicated and escalation is needed.",
+          "manual_outcomes": [
+            "answered"
+          ],
+          "outage_reasons": {},
+          "invalid_reasons": {},
+          "recheck": {
+            "outcome": "observed",
+            "trigger": "agreement",
+            "reason": null,
+            "question": "The critic's check: get_readings {\"from_tick\": 1060, \"to_tick\": 1070, \"machine_id\": \"CNC-02\", \"sensor\": \"hydraulic_pressure\"} and get_readings {\"from_tick\": 1060, \"to_tick\": 1070, \"machine_id\": \"CNC-05\", \"sensor\": \"hydraulic_pressure\"}",
+            "tool": "get_readings",
+            "evidence_id": "E11",
+            "leading_before": "H1",
+            "confidence_before": 0.8,
+            "leading_after": "H1",
+            "confidence_after": 0.8
+          },
+          "critic_outcome": "answered"
+        }
+      ]
+    },
+    {
+      "pair": "tot13-20261031-210256-3910997b",
+      "mode": "blind",
+      "name": "master-tot13-blind",
+      "commit": "e59208d584938ed96a606bc317354882fcc8e01c",
+      "cases": 13,
+      "correct": 6,
+      "judged": 11,
+      "needs_review": 2,
+      "accuracy": 0.5454545454545454,
+      "model_calls": {
+        "questions": 285,
+        "answered": 276,
+        "invalid_replies": 2,
+        "unanswered": 7,
+        "outage_attempts": 32
+      },
+      "outage_reasons": {
+        "the model service timed out": 27,
+        "the model service answered HTTP 502": 1,
+        "the model service answered HTTP 429": 4
+      },
+      "manual_search_outcomes": {
+        "answered": 13
+      },
+      "critic_outcomes": {
+        "answered": 11,
+        "invalid_reply": 2
+      },
+      "rechecks": {
+        "observed": 8,
+        "already_answered": 3,
+        "skipped": 2
+      },
+      "assessments": {
+        "unresolved": 13
+      },
+      "recommendations": {
+        "escalate": 13
+      },
+      "started_utc": "2026-11-01T03:06:53.242592+00:00",
+      "finished_utc": "2026-11-01T05:54:41.975164+00:00",
+      "case_details": [
+        {
+          "case": "KA-01-bearing",
+          "seed": 6,
+          "correct": false,
+          "needs_review": false,
+          "assessment": "unresolved",
+          "recommendation": "escalate",
+          "unresolved_questions": [
+            "Exact root cause within CNC-02 (spindle bearing, spindle, lubrication, or other mechanical cause) \u2014 vibration data cannot distinguish these.",
+            "Is CNC-07 vibration normal in ticks 914-920?",
+            "Does CNC-02 remain below the 4.50 mm/s threshold on the next ticks with no repeat alarm, while an independent vibration check confirms the tick-914 reading was physically real?",
+            "Does CNC-02 vibration stay below 4.50 mm/s across the next several ticks with no repeat alarm?",
+            "What is the root cause within CNC-02 (spindle, bearing, lubrication, or other mechanical cause)? Vibration readings alone cannot determine this; requires inspection or maintenance action."
+          ],
+          "next_check": "Inspect CNC-02 spindle/bearing/lubrication (maintenance inspection), or retrieve repair proposals via get_proposals, before selecting replace_bearing, reset_setting, replace_servo_drive, or repair_hydraulics.",
+          "manual_outcomes": [
+            "answered"
+          ],
+          "outage_reasons": {
+            "the model service timed out": 2
+          },
+          "invalid_reasons": {},
+          "recheck": {
+            "outcome": "observed",
+            "trigger": "agreement",
+            "reason": null,
+            "question": "The critic's check: Compare CNC-02's vibration trend with its spindle speed and motor load over the same period to see if the elevated vibration correlates with specific operating conditions (e.g., high load or speed changes), which would support H1 (transient spike) or H2 (nuisance trip). If vibration remains elevated regardless of load/speed, H3 (developing fault) is confirmed.",
+            "tool": "get_sensor_trend",
+            "evidence_id": "E16",
+            "leading_before": "H3",
+            "confidence_before": 0.85,
+            "leading_after": "H3",
+            "confidence_after": 0.85
+          },
+          "critic_outcome": "answered"
+        },
+        {
+          "case": "KA-02-bearing",
+          "seed": 9,
+          "correct": null,
+          "needs_review": true,
+          "assessment": "unresolved",
+          "recommendation": "escalate",
+          "unresolved_questions": [
+            "Whether the sustained ~68% load is the intended operating point for CNC-05's current job or itself an unintended process change.",
+            "Whether CNC-05 following_error (roughly 2.7-6.0 \u00b5m, E18) has a defined limit and whether it is exceeded.",
+            "Retrieve CNC-05 vibration and load for ticks 760-799: were vibration ~4+ mm/s and load ~68% there too? Yes supports C4 (inherently high normal level, threshold too low); no weakens C4 in favor of C1 or C3."
+          ],
+          "next_check": "If CNC-05 load later returns to ~54% while vibration still exceeds 4.50 mm/s, test H1 (mechanical fault) with per-tick load-vibration comparison and physical inspection.",
+          "manual_outcomes": [
+            "answered"
+          ],
+          "outage_reasons": {
+            "the model service timed out": 2
+          },
+          "invalid_reasons": {},
+          "recheck": {
+            "outcome": "observed",
+            "trigger": "agreement",
+            "reason": null,
+            "question": "The critic's check: get_readings with arguments {'from_tick': 800, 'to_tick': 830, 'machine_id': 'CNC-05', 'sensor': 'following_error'} to check for axis lag that would indicate mechanical stress beyond load alone.",
+            "tool": "get_readings",
+            "evidence_id": "E18",
+            "leading_before": "H2",
+            "confidence_before": 0.9,
+            "leading_after": "H2",
+            "confidence_after": 0.9
+          },
+          "critic_outcome": "answered"
+        },
+        {
+          "case": "KA-03-batch",
+          "seed": 7,
+          "correct": true,
+          "needs_review": false,
+          "assessment": "unresolved",
+          "recommendation": "escalate",
+          "unresolved_questions": [
+            "Do batch-3 jobs (starting with job 16) pass inspection, confirming the fault is confined to the batch-2 material lot?",
+            "Do failures stay confined to batch 2 at a high reject rate if more jobs run, or do they spread randomly across batches and time?",
+            "Do subsequent batch-3 jobs pass consistently, keeping failures confined to batch 2, or do failures appear in batch 3 too (random/time-varying)?",
+            "Did batch-3 job 16 pass or fail inspection after CNC-06?"
+          ],
+          "next_check": "get_inspections from_tick 1367 to_tick 1440 to read job 16's inspection result (job 16 started CNC-06 at tick 1367, per E15).",
+          "manual_outcomes": [
+            "answered"
+          ],
+          "outage_reasons": {
+            "the model service timed out": 2
+          },
+          "invalid_reasons": {},
+          "recheck": {
+            "outcome": "observed",
+            "trigger": "agreement",
+            "reason": null,
+            "question": "The critic's check: Check the inspection result for job 16 (batch 3) after it leaves CNC-06 (started at tick 1367). If it passes, this strengthens H1 (batch-2 is defective); if it fails, reconsider H3 or H2.",
+            "tool": "get_inspections",
+            "evidence_id": "E20",
+            "leading_before": "H1",
+            "confidence_before": 0.85,
+            "leading_after": "H1",
+            "confidence_after": 0.85
+          },
+          "critic_outcome": "answered"
+        },
+        {
+          "case": "KA-04-batch",
+          "seed": 8,
+          "correct": null,
+          "needs_review": true,
+          "assessment": "unresolved",
+          "recommendation": "escalate",
+          "unresolved_questions": [
+            "Do jobs 15-18 pass or fail inspection, and what are their batch IDs? (Q_new)",
+            "Does any single batch show a clearly higher reject rate through the same stations? (Q3)",
+            "Are CNC-01/CNC-02/CNC-03 vibration/sensor readings normal, ruling out a line-wide machine cause?",
+            "Would a known-good batch-1 part pass CNC-04/CNC-05/CNC-06 inspection now? (T3)",
+            "Do jobs 14-18 (now that time has advanced to tick 1320) pass or fail inspection, and what are their batch IDs?",
+            "The selected hypothesis still has conflicting or unexplained evidence.",
+            "E4: unverified",
+            "E12: unverified",
+            "E8: unverified"
+          ],
+          "next_check": "Wait for jobs 15-18 to reach inspection (current tick 1320; jobs started ~1030-1040, full route ~390 ticks, so inspections expected ~1420-1450), then retrieve get_inspections from_tick 1320 to capture jobs 15-18 results and batch IDs; compare batch reject rates and check CNC-01/02/03 sensors.",
+          "manual_outcomes": [
+            "answered"
+          ],
+          "outage_reasons": {
+            "the model service answered HTTP 502": 1
+          },
+          "invalid_reasons": {},
+          "recheck": {
+            "outcome": "already_answered",
+            "trigger": "agreement",
+            "reason": "This exact check already returned observable evidence at the current tick.",
+            "question": "The critic's check: Compare inspection results of jobs 14\u201318 by batch (if available) to confirm whether batch-2 rejects persist or if batch-1 jobs processed through CNC-04/05/06 pass inspection.",
+            "tool": "get_inspections",
+            "evidence_id": "E12",
+            "leading_before": "H1",
+            "confidence_before": 0.7,
+            "leading_after": null,
+            "confidence_after": null
+          },
+          "critic_outcome": "answered"
+        },
+        {
+          "case": "KA-05-setting",
+          "seed": 9,
+          "correct": false,
+          "needs_review": false,
+          "assessment": "unresolved",
+          "recommendation": "escalate",
+          "unresolved_questions": [
+            "Confirmation of job 3's full route to verify if it visited CNC-05 during elevated following error/vibration.",
+            "The selected hypothesis still has conflicting or unexplained evidence."
+          ],
+          "next_check": "get_job_history(job_id=3)",
+          "manual_outcomes": [
+            "answered"
+          ],
+          "outage_reasons": {
+            "the model service timed out": 4
+          },
+          "invalid_reasons": {},
+          "recheck": {
+            "outcome": "already_answered",
+            "trigger": "objection",
+            "reason": "This exact check already returned observable evidence at the current tick.",
+            "question": "The critic's check, to tell H5 (the critic's pick) from H3 (the agent's leading explanation): Confirm whether job 3 visited CNC-05 by retrieving its full route via `get_job_history(job_id=3)` and checking for any CNC-05 entries. If job 3 did not visit CNC-05, this strengthens H5. If it did, H3 (intermittent faults or multiple causes) would be more plausible.",
+            "tool": "get_job_history",
+            "evidence_id": "E16",
+            "leading_before": "H3",
+            "confidence_before": 0.72,
+            "leading_after": null,
+            "confidence_after": null
+          },
+          "critic_outcome": "answered"
+        },
+        {
+          "case": "KA-06-setting",
+          "seed": 10,
+          "correct": false,
+          "needs_review": false,
+          "assessment": "unresolved",
+          "recommendation": "escalate",
+          "unresolved_questions": [
+            "Which machine, if any, produces the failures: CNC-06 handoff/block (H1), within-batch material/fixture/ambient variation (H2), or intermittent CNC-02 hydraulic fault (H3)?",
+            "Do CNC-06 sensor readings during jobs 14/19/20 differ from passing jobs 15\u201318, especially around the CNC-05\u2192CNC-06 blocks?",
+            "Do CNC-02 hydraulic sensor readings show anomalies on failed-job ticks versus passing-job ticks?",
+            "Do material/fixture/ambient records for batch 2 separate failed jobs 14/19/20 from passing jobs 15\u201318?",
+            "Do CNC-06 sensor/block records show an anomaly at the CNC-05\u2192CNC-06 handoff on failed jobs 14/19/20 but not on passing jobs 15\u201318, especially job 18 which was blocked by CNC-06 yet passed?",
+            "Is there any machine-sensor anomaly correlated with failed jobs 14/19/20 versus passing jobs 15\u201318, or are failures uncorrelated with machine state (consistent with within-batch-2 variation)?",
+            "Do CNC-02 sensor/hydraulic records show an anomaly on failed jobs 14/19/20 but not on passing jobs 15\u201318, given every job was blocked by CNC-02 after CNC-01?",
+            "E6: unverified",
+            "E19: unverified",
+            "E18: unverified"
+          ],
+          "next_check": "Retrieve CNC-06 and CNC-02 sensor/event records for the failed-job windows versus passing jobs 15\u201318, and pull batch-2 material/fixture/ambient records, to discriminate H1/H2/H3 before any intervention.",
+          "manual_outcomes": [
+            "answered"
+          ],
+          "outage_reasons": {
+            "the model service timed out": 1
+          },
+          "invalid_reasons": {
+            "wrong shape: discriminating_check_explanation: Extra inputs are not permitted": 1
+          },
+          "recheck": {
+            "outcome": "skipped",
+            "trigger": null,
+            "reason": "the critic gave no usable answer",
+            "question": null,
+            "tool": null,
+            "evidence_id": null,
+            "leading_before": null,
+            "confidence_before": null,
+            "leading_after": null,
+            "confidence_after": null
+          },
+          "critic_outcome": "invalid_reply"
+        },
+        {
+          "case": "KA-07-false-alarm",
+          "seed": 8,
+          "correct": false,
+          "needs_review": false,
+          "assessment": "unresolved",
+          "recommendation": "escalate",
+          "unresolved_questions": [
+            "Does CNC-01 idle temperature keep falling toward ~77 \u00b0F ambient or remain elevated?",
+            "Is CNC-03 (idle) near ambient temperature, confirming ~116 \u00b0F is abnormal for an idle machine?",
+            "Does the vibration fault recur if CNC-01 is run under load?",
+            "Over ticks 530-550, is CNC-03 (the other idle machine) temperature near ambient (~77 \u00b0F) while CNC-01 stays ~116-125 \u00b0F?",
+            "Over ticks 530-550, does CNC-01 idle temperature converge toward CNC-03's idle temperature (~77 \u00b0F), or stay far above it?",
+            "The selected hypothesis still has conflicting or unexplained evidence."
+          ],
+          "next_check": "Measure CNC-03 idle temperature and CNC-01 temperature over a shared recent window: if CNC-01 stays far above CNC-03 (~77 \u00b0F), H1 is confirmed; if CNC-01 converges toward ambient, H2 wins.",
+          "manual_outcomes": [
+            "answered"
+          ],
+          "outage_reasons": {
+            "the model service timed out": 1
+          },
+          "invalid_reasons": {
+            "wrong shape: discriminating_check_expected_outcomes: Extra inputs are not permitted": 1
+          },
+          "recheck": {
+            "outcome": "skipped",
+            "trigger": null,
+            "reason": "the critic gave no usable answer",
+            "question": null,
+            "tool": null,
+            "evidence_id": null,
+            "leading_before": null,
+            "confidence_before": null,
+            "leading_after": null,
+            "confidence_after": null
+          },
+          "critic_outcome": "invalid_reply"
+        },
+        {
+          "case": "KA-08-false-alarm",
+          "seed": 11,
+          "correct": true,
+          "needs_review": false,
+          "assessment": "unresolved",
+          "recommendation": "escalate",
+          "unresolved_questions": [
+            "Whether the excursion could recur if CNC-03 runs another loaded job - not testable while CNC-03 is idle; no recurrence has been observed.",
+            "Did CNC-03 vibration return to ~1.5\u20131.8 mm/s after tick 384 while the machine stayed running, or did it drop to near zero because the machine stopped/unloaded?",
+            "E5: unverified",
+            "E19: unverified"
+          ],
+          "next_check": "Whether the excursion could recur if CNC-03 runs another loaded job - not testable while CNC-03 is idle; no recurrence has been observed.",
+          "manual_outcomes": [
+            "answered"
+          ],
+          "outage_reasons": {
+            "the model service timed out": 1
+          },
+          "invalid_reasons": {},
+          "recheck": {
+            "outcome": "observed",
+            "trigger": "agreement",
+            "reason": null,
+            "question": "The critic's check: Check CNC-03 vibration during its next loaded job cycle (e.g., ticks 420\u2013450) to see if spikes above 4.50 mm/s recur under load. If they do, H3 (intermittent fault) is supported; if not, H2 remains the best fit.",
+            "tool": "get_sensor_trend",
+            "evidence_id": "E19",
+            "leading_before": "H2",
+            "confidence_before": 0.9,
+            "leading_after": "H2",
+            "confidence_after": 0.94
+          },
+          "critic_outcome": "answered"
+        },
+        {
+          "case": "KA-09-challenge",
+          "seed": 3,
+          "correct": false,
+          "needs_review": false,
+          "assessment": "unresolved",
+          "recommendation": "escalate",
+          "unresolved_questions": [
+            "CNC-06 and CNC-07 vibration during ticks 71-78 was not directly observed (E15 covered CNC-04 only)",
+            "No independent vibration reference on CNC-03 exists to cross-check the onboard sensor against",
+            "What was CNC-03's motor load during ticks 60-80, especially during the alarm window 71-78?",
+            "Does an independent vibration reference on CNC-03 agree with the onboard sensor during operation, or does the onboard sensor read high while an independent measure reads normal?",
+            "Did other idle machines (CNC-04, CNC-06, CNC-07) also show vibration above 4.50 mm/s during ticks 71-78, or was the spike unique to CNC-03?",
+            "E5: unverified"
+          ],
+          "next_check": "Check CNC-06 and CNC-07 vibration during ticks 71-78 to confirm the spike was CNC-03-specific (confirmatory only; would not change the no-action diagnosis). If CNC-03 later runs under load, re-read vibration/load/power/temperature to confirm no recurrence.",
+          "manual_outcomes": [
+            "answered"
+          ],
+          "outage_reasons": {
+            "the model service timed out": 1
+          },
+          "invalid_reasons": {},
+          "recheck": {
+            "outcome": "observed",
+            "trigger": "agreement",
+            "reason": null,
+            "question": "The critic's check: Compare vibration trends of CNC-04, CNC-06, and CNC-07 during ticks 71-78 to see if they also spiked (indicating a factory-wide disturbance) or remained normal (supporting H1).",
+            "tool": "get_sensor_summary",
+            "evidence_id": "E15",
+            "leading_before": "H1",
+            "confidence_before": 0.92,
+            "leading_after": "H1",
+            "confidence_after": 0.95
+          },
+          "critic_outcome": "answered"
+        },
+        {
+          "case": "KA-10-servo",
+          "seed": 16,
+          "correct": true,
+          "needs_review": false,
+          "assessment": "unresolved",
+          "recommendation": "escalate",
+          "unresolved_questions": [
+            "Does CNC-04 show axis binding signatures such as elevated motor current or position lag without a speed change?",
+            "Was there a step change in CNC-04 cut depth or feed speed around the time following_error began rising?",
+            "The selected hypothesis still has conflicting or unexplained evidence.",
+            "E10: unverified"
+          ],
+          "next_check": "Does CNC-04 show axis binding signatures such as elevated motor current or position lag without a speed change?",
+          "manual_outcomes": [
+            "answered"
+          ],
+          "outage_reasons": {
+            "the model service timed out": 5
+          },
+          "invalid_reasons": {},
+          "recheck": {
+            "outcome": "observed",
+            "trigger": "agreement",
+            "reason": null,
+            "question": "The critic's check: Compare CNC-04's power consumption trend with other machines (e.g., CNC-01, CNC-02, CNC-03) over the same period to confirm slight elevation, as expected for servo drive wear (H1) vs. normal variation (H3).",
+            "tool": "get_sensor_trend",
+            "evidence_id": "E17",
+            "leading_before": "H1",
+            "confidence_before": 0.8,
+            "leading_after": "H1",
+            "confidence_after": 0.75
+          },
+          "critic_outcome": "answered"
+        },
+        {
+          "case": "KA-11-servo",
+          "seed": 13,
+          "correct": true,
+          "needs_review": false,
+          "assessment": "unresolved",
+          "recommendation": "escalate",
+          "unresolved_questions": [
+            "Whether CNC-02's actual axis position error is truly ~19-20 \u00b5m or whether the following_error channel itself is biased high (H2); an independent position check is needed to raise confidence above 0.90 so replace_servo_drive can be approved.",
+            "Is CNC-02's actual axis position error confirmed near zero by independent measurement while the servo-controller channel reports high lag?",
+            "Did CNC-02 speed or cut-depth parameters change as a step when the following_error began rising, rather than increasing gradually as wear would produce?",
+            "The selected hypothesis still has conflicting or unexplained evidence.",
+            "E3: unverified"
+          ],
+          "next_check": "Measure CNC-02 actual axis position independently (external encoder/laser or a second channel) while CNC-02 runs; if actual lag matches the reported ~19-20 \u00b5m, confirm H1 and have a human approve replace_servo_drive on CNC-02 (stops about 60 ticks, fits a new axis servo drive, after which following_error should return to the 3-6 \u00b5m band seen at other stations).",
+          "manual_outcomes": [
+            "answered"
+          ],
+          "outage_reasons": {
+            "the model service timed out": 4
+          },
+          "invalid_reasons": {},
+          "recheck": {
+            "outcome": "already_answered",
+            "trigger": "agreement",
+            "reason": "This exact check already returned observable evidence at the current tick.",
+            "question": "The critic's check: Measure CNC-02 axis position independently (e.g., via an external encoder or laser) while running and compare it to the reported following_error to confirm whether the lag is real or a sensor bias.",
+            "tool": "get_readings",
+            "evidence_id": "E14",
+            "leading_before": "H1",
+            "confidence_before": 0.85,
+            "leading_after": null,
+            "confidence_after": null
+          },
+          "critic_outcome": "answered"
+        },
+        {
+          "case": "KA-12-hydraulic",
+          "seed": 4,
+          "correct": true,
+          "needs_review": false,
+          "assessment": "unresolved",
+          "recommendation": "escalate",
+          "unresolved_questions": [
+            "Which component inside CNC-05's hydraulics is failing (seal vs pump vs relief valve vs transducer); seal leak is most consistent with the idle progression, but not isolated.",
+            "Read pressure at the shared hydraulic supply split upstream of CNC-05's dedicated branch while idle: if it stays steady around 68-69 bar (like CNC-02, E5) while CNC-05 decays to 55 or below, is the loss confined to CNC-05's branch/machine (C3/C1) rather than the shared supply?",
+            "E4: unverified",
+            "E10: unverified",
+            "E5: unverified"
+          ],
+          "next_check": "Which component inside CNC-05's hydraulics is failing (seal vs pump vs relief valve vs transducer); seal leak is most consistent with the idle progression, but not isolated.",
+          "manual_outcomes": [
+            "answered"
+          ],
+          "outage_reasons": {
+            "the model service timed out": 2
+          },
+          "invalid_reasons": {},
+          "recheck": {
+            "outcome": "observed",
+            "trigger": "agreement",
+            "reason": null,
+            "question": "The critic's check: get_sensor_trend with arguments {'machine_id': 'CNC-05', 'sensor': 'hydraulic_pressure', 'from_tick': 1290, 'to_tick': 1350, 'bucket_ticks': 1} to observe whether the pressure stabilizes or continues to fall during idle periods, confirming a leak (H1) or ruling it out (H2).",
+            "tool": "get_sensor_trend",
+            "evidence_id": "E12",
+            "leading_before": "H1",
+            "confidence_before": 0.85,
+            "leading_after": "H1",
+            "confidence_after": 0.85
+          },
+          "critic_outcome": "answered"
+        },
+        {
+          "case": "KA-13-hydraulic",
+          "seed": 15,
+          "correct": true,
+          "needs_review": false,
+          "assessment": "unresolved",
+          "recommendation": "escalate",
+          "unresolved_questions": [
+            "Exact failing component not isolated: seals vs. pump vs. sticking relief valve; seal replacement may not fully correct a pump or relief-valve fault.",
+            "The selected hypothesis still has conflicting or unexplained evidence.",
+            "E5: unverified",
+            "E11: unverified",
+            "E12: unverified",
+            "E6: unverified",
+            "E7: unverified"
+          ],
+          "next_check": "After repair_hydraulics, verify CNC-02 hydraulic_pressure rises back above the 55 bar setpoint and stabilizes near 66-71 bar, flat across cuts and idle like CNC-05/CNC-07, with no further low-pressure alarm; if pressure keeps falling, suspect pump or relief valve and escalate.",
+          "manual_outcomes": [
+            "answered"
+          ],
+          "outage_reasons": {
+            "the model service answered HTTP 429": 4,
+            "the model service timed out": 2
+          },
+          "invalid_reasons": {},
+          "recheck": {
+            "outcome": "observed",
+            "trigger": "agreement",
+            "reason": null,
+            "question": "The critic's check: Check whether CNC-02's hydraulic pressure remains below 55 bar during idle periods (ticks 1050\u20131150) and whether inspection failures begin to appear for jobs processed on CNC-02 after tick 1050.",
+            "tool": "get_sensor_trend",
+            "evidence_id": "E12",
+            "leading_before": "H1",
+            "confidence_before": 0.95,
+            "leading_after": "H1",
+            "confidence_after": 0.98
+          },
+          "critic_outcome": "answered"
+        }
+      ]
+    }
+  ],
+  "cross_pair_overlap": [
+    {
+      "left": "tot13-20261031-184429-543214a2/blind",
+      "right": "tot13-20261031-210256-3910997b/anchored",
+      "start_utc": "2026-11-01T01:03:20.424231+00:00",
+      "end_utc": "2026-11-01T03:06:53.060543+00:00",
+      "minutes": 123.54
+    },
+    {
+      "left": "tot13-20261031-184429-543214a2/blind",
+      "right": "tot13-20261031-210256-3910997b/blind",
+      "start_utc": "2026-11-01T03:06:53.242592+00:00",
+      "end_utc": "2026-11-01T03:15:28.446297+00:00",
+      "minutes": 8.59
+    }
+  ],
+  "cross_pair_settings_difference": [
+    "CHROMA_PATH"
+  ],
+  "composite_identity": "pair_id + run_key; run keys repeat between pairs"
+}
