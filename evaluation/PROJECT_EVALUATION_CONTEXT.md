@@ -10,7 +10,7 @@ can still be read against the context it was made in.
 - context_version: 1.0.0
 - rubric_version it pairs with: 1.0.0 (`EVALUATION_RUBRIC.md`)
 - inventory_version: 1.0.0 (`inventory/*.json`)
-- packet_schema_version: 1.0.0 (`RUN_EVIDENCE_SCHEMA.json`)
+- packet_schema_version: 1.1.0 (`RUN_EVIDENCE_SCHEMA.json`)
 
 ## 1. What the system is for
 

@@ -63,12 +63,23 @@ def request_usage(files: list[dict]) -> dict[str, dict]:
     #     cost totals over them; None when no request reported a figure.
     #   first: The first answer in a file that carries usage; all answers of one
     #     request carry the same figures.
+    #   failed_requests: Files `snap_request` wrote for a request that failed
+    #     (an `error` and no answers), counted apart from the answered ones.
     usage: dict[str, dict] = {}
     for file in files:
         provider = file["tags"]["provider"]
         entry = usage.setdefault(
-            provider, {"requests": 0, "input_tokens": None, "cost_usd": None}
+            provider,
+            {
+                "requests": 0,
+                "failed_requests": 0,
+                "input_tokens": None,
+                "cost_usd": None,
+            },
         )
+        if file.get("error"):
+            entry["failed_requests"] += 1
+            continue
         entry["requests"] += 1
         first = next(
             (a for a in file["answers"] if a.get("input_tokens") is not None), None
@@ -133,7 +144,15 @@ def build_report(files: list[dict], reference: dict | None) -> dict:
         # so the median over answers is the median over requests weighted by
         # how many questions each carried; close enough for a report line.
         latencies = [a["latency_seconds"] for a in mine if a.get("latency_seconds")]
-        spent = usage.get(name, {"requests": 0, "input_tokens": None, "cost_usd": None})
+        spent = usage.get(
+            name,
+            {
+                "requests": 0,
+                "failed_requests": 0,
+                "input_tokens": None,
+                "cost_usd": None,
+            },
+        )
         by_type: dict[str, list[float]] = defaultdict(list)
         for a in mine:
             if a.get("confidence") is not None:
@@ -143,6 +162,7 @@ def build_report(files: list[dict], reference: dict | None) -> dict:
             "models_reported": sorted({str(a.get("model_reported")) for a in mine}),
             "answers": len(mine),
             "requests": spent["requests"],
+            "failed_requests": spent["failed_requests"],
             "median_latency_seconds": round(median(latencies), 3)
             if latencies
             else None,

@@ -5,12 +5,13 @@
 
 A packet has two halves, kept apart on purpose:
 
-- `snap_view`: what a judge may see. The scenario id, the configuration, the
-  anomaly, the trace (evidence, hypotheses, decisions, critique, conclusion,
+- `snap_view`: what a judge may see. An opaque run reference, the
+  configuration, the anomaly, the trace (evidence, hypotheses, decisions, critique, conclusion,
   verification), and the code-computed facts that need no hidden truth.
   It never holds the true fault, the true machine or batch, or any score
   field derived from hidden state, so a judge of investigation quality
-  cannot anchor on the answer.
+  cannot anchor on the answer. The run key and scenario id sit in `meta`,
+  which is never sent: scenario ids name the fault (`KA-01-bearing`).
 - `evaluator_only`: the deterministic metrics that compare the run with the
   hidden truth (root-cause correctness from the label, the right action,
   resolution, evidence share, miss kind, verification calibration). Code
@@ -31,6 +32,7 @@ in step.
 import argparse
 import hashlib
 import json
+import re
 import sys
 from collections import Counter
 from pathlib import Path
@@ -46,7 +48,10 @@ from capstone.contracts.investigations import run_id_for  # noqa: E402
 from capstone.evaluation.labels import Label, LabelBook, apply_label  # noqa: E402
 from capstone.experiment import ExperimentRecord, read_records  # noqa: E402
 
-PACKET_SCHEMA_VERSION = "1.0.0"
+# 1.1.0: what a record-only trace does not keep (decision arguments,
+# confidence, information needed; machines and sensors read) is null, not 0.0,
+# "" or empty.
+PACKET_SCHEMA_VERSION = "1.1.0"
 RUBRIC_VERSION = "1.0.0"
 
 # A committed answer at least this sure that is wrong is "confident and
@@ -64,6 +69,11 @@ class Strict(BaseModel):
 class PacketMeta(Strict):
     packet_schema_version: str = PACKET_SCHEMA_VERSION
     rubric_version: str = RUBRIC_VERSION
+    # The run's key and scenario id stay here, never in `snap_view`: scenario
+    # ids name the fault (`KA-01-bearing`, `KA-07-false-alarm`), so a judge who
+    # saw them would know the answer it is meant to judge the agent on.
+    run_key: str
+    scenario_id: str
     commit_sha: str | None = None
     records_file: str
     audit_file: str | None = None
@@ -111,16 +121,20 @@ class HypothesisView(Strict):
 
 
 class DecisionView(Strict):
+    """One decision; in a record-only trace the fields the record does not
+    keep (arguments, confidence, information needed) are None, never a
+    made-up value a judge could read as the agent's."""
+
     sequence: int
     agent: str
     phase: str
     tick: int | None
     tool: str | None
-    arguments: dict[str, Any] = Field(default_factory=dict)
+    arguments: dict[str, Any] | None = Field(default_factory=dict)
     outcome: str
     evidence_ids: list[str] = Field(default_factory=list)
-    confidence: float
-    information_needed: str
+    confidence: float | None
+    information_needed: str | None
     error: str | None = None
 
 
@@ -155,6 +169,8 @@ class RecheckView(Strict):
     outcome: str
     trigger: str | None = None
     reason: str | None = None
+    # The open question the critic's check became, as shown to the policy.
+    question: str | None = None
     tool: str | None = None
     evidence_id: str | None = None
     leading_before: str | None = None
@@ -206,8 +222,10 @@ class ObservableFacts(Strict):
     invalid_replies: int | None
     unanswered: int | None
     outage_attempts: int | None
-    machines_examined: list[str] = Field(default_factory=list)
-    sensors_read: dict[str, list[str]] = Field(default_factory=dict)
+    # None when the trace is record-only: the record keeps no tool arguments,
+    # so which machines and sensors were read is unknown, not "none".
+    machines_examined: list[str] | None = Field(default_factory=list)
+    sensors_read: dict[str, list[str]] | None = Field(default_factory=dict)
     repeated_calls: int = 0
     failed_tool_calls: int = 0
     committed: bool | None = None
@@ -223,8 +241,9 @@ class ObservableFacts(Strict):
 
 
 class SnapView(Strict):
-    run_key: str
-    scenario_id: str
+    # An opaque reference to the run (the first 12 hex digits of the SHA-256
+    # of its key), so a judge's answer can be traced without naming the case.
+    run_ref: str
     configuration: Configuration
     trace: Trace
     facts: ObservableFacts
@@ -280,8 +299,10 @@ class RunEvidencePacket(Strict):
 def configuration_of(record: ExperimentRecord) -> Configuration:
     """What the run was configured with, as far as the record says (None: unknown)."""
     # Variables:
-    #   critic: blind or anchored from the critique record; off when the record
-    #     is recent enough to have kept one and none ran; None in older records.
+    #   critic: blind or anchored from the critique record; None without one.
+    #     The record keeps no critic setting, and a critic-on run that timed out
+    #     or lost its model before the critique has no record either, so "off"
+    #     cannot be told from "never reached" and is never claimed.
     #   hazards: blackout when the blackout fields were kept or a blackout fired
     #     (the same reading `capstone.evals.report_of` uses), else standard;
     #     None when the tools were reliable.
@@ -289,8 +310,6 @@ def configuration_of(record: ExperimentRecord) -> Configuration:
     critic = None
     if critique is not None:
         critic = "blind" if critique.blind else "anchored"
-    elif record.recheck is None:
-        critic = "off" if record.agent_steps is not None else None
     hazards = None
     if record.hazards_fired is not None:
         blackout = record.blackout_recovered is not None or any(
@@ -435,6 +454,10 @@ def trace_from_audit(record: ExperimentRecord, audit: AuditRecord) -> Trace:
 
 
 def trace_from_record(record: ExperimentRecord) -> Trace:
+    """The trace an `ExperimentRecord` alone allows, marked `record_only`."""
+    # Variables:
+    #   decisions: The record's decision steps; tool and outcome are kept, while
+    #     arguments, confidence and information needed are None (not recorded).
     critique = record.critique
     critique_view = None
     if critique is not None:
@@ -479,9 +502,10 @@ def trace_from_record(record: ExperimentRecord) -> Trace:
             phase=step.phase,
             tick=None,
             tool=step.tool,
+            arguments=None,
             outcome=step.outcome,
-            confidence=0.0,
-            information_needed="(not kept in the record)",
+            confidence=None,
+            information_needed=None,
         )
         for number, step in enumerate(
             (s for s in record.agent_steps or () if s.kind == "decision"), start=1
@@ -506,16 +530,26 @@ def trace_from_record(record: ExperimentRecord) -> Trace:
 
 
 def facts_of(record: ExperimentRecord, trace: Trace) -> ObservableFacts:
+    """The code-computed facts of one run that need no hidden truth."""
+    # Variables:
+    #   full: True when the trace came from an audit log; only then are the
+    #     decisions' arguments, and so the machines and sensors read, known.
+    #   machines, sensors: What the decisions' arguments name, by machine.
+    #   repeated, failed: Decisions refused as repeats, and tool calls that failed;
+    #     the record keeps outcomes, so these are known either way.
+    #   origins: Each evidence item's origin, for counting what the conclusion cites.
     score = record.score
     calls = record.model_calls
+    full = trace.completeness == "full"
     machines: set[str] = set()
     sensors: dict[str, set[str]] = {}
     repeated = failed = 0
     for decision in trace.decisions:
-        machine = decision.arguments.get("machine_id")
+        arguments = decision.arguments or {}
+        machine = arguments.get("machine_id")
         if isinstance(machine, str):
             machines.add(machine)
-            sensor = decision.arguments.get("sensor")
+            sensor = arguments.get("sensor")
             if isinstance(sensor, str):
                 sensors.setdefault(machine, set()).add(sensor)
         repeated += decision.outcome == "repeated_call"
@@ -541,8 +575,10 @@ def facts_of(record: ExperimentRecord, trace: Trace) -> ObservableFacts:
         invalid_replies=None if calls is None else calls.invalid_replies,
         unanswered=None if calls is None else calls.unanswered,
         outage_attempts=None if calls is None else calls.outage_attempts,
-        machines_examined=sorted(machines),
-        sensors_read={m: sorted(s) for m, s in sorted(sensors.items())},
+        machines_examined=sorted(machines) if full else None,
+        sensors_read=(
+            {m: sorted(s) for m, s in sorted(sensors.items())} if full else None
+        ),
         repeated_calls=repeated,
         failed_tool_calls=failed,
         committed=None,  # filled from the label below
@@ -669,6 +705,8 @@ def build_packet(
     )
     return RunEvidencePacket(
         meta=PacketMeta(
+            run_key=record.run_key,
+            scenario_id=record.scenario_id,
             commit_sha=commit_sha,
             records_file=records_file,
             audit_file=audit_file,
@@ -676,8 +714,7 @@ def build_packet(
             record_digest=hashlib.sha256(line.encode("utf-8")).hexdigest(),
         ),
         snap_view=SnapView(
-            run_key=record.run_key,
-            scenario_id=record.scenario_id,
+            run_ref=run_ref(record.run_key),
             configuration=configuration_of(record),
             trace=trace,
             facts=facts,
@@ -704,12 +741,22 @@ HIDDEN_WORDS = (
 )
 
 
+def run_ref(run_key: str) -> str:
+    """The judge-side name of a run: a hash, since the key names the scenario."""
+    return hashlib.sha256(run_key.encode("utf-8")).hexdigest()[:12]
+
+
 def check_no_truth_in_view(packet: RunEvidencePacket) -> None:
-    """ValueError if the judge's half carries a truth field name, whatever its case."""
+    """ValueError if the judge's half carries a truth field name, whatever its
+    case, or the run's scenario id (which names the fault)."""
     # Variables:
     #   text: The judge's half as JSON, lower-cased so a name in another case is
     #     caught too.
     text = packet.snap_view.model_dump_json().lower()
+    if packet.meta.scenario_id.lower() in text:
+        raise ValueError(
+            f"snap_view carries the scenario id {packet.meta.scenario_id!r}"
+        )
     for word in HIDDEN_WORDS:
         if word in text:
             raise ValueError(f"snap_view carries {word!r}")
@@ -722,7 +769,19 @@ def build_all(
     critic_labels_path: Path | None = None,
     audit_path: Path | None = None,
     commit_sha: str | None = None,
+    refused: list[dict] | None = None,
 ) -> list[RunEvidencePacket]:
+    """One packet per record, each checked for truth in the judge's view.
+
+    With `refused` given, a packet that fails the check is left out and
+    named there (run key and reason) so the rest of the batch is still
+    built; without it the first failure raises, as a library call should.
+    """
+    # Variables:
+    #   lines: The non-empty record lines, for each packet's record digest.
+    #   audits: Audit records by run id; a run without one gets a record-only trace.
+    #   refused: Where packets that failed the truth check are listed, or None
+    #     to raise on the first.
     lines = [
         line for line in records_path.read_text(encoding="utf-8").splitlines() if line
     ]
@@ -739,14 +798,27 @@ def build_all(
             label=labels.get(record.run_key),
             critic_label=critic_labels.get(record.run_key),
             audit=audit,
-            records_file=str(records_path),
-            audit_file=None if audit_path is None else str(audit_path),
-            labels_file=None if labels_path is None else str(labels_path),
+            # Forward slashes, so a packet built on Windows names its sources
+            # the same way as one built anywhere else.
+            records_file=records_path.as_posix(),
+            audit_file=None if audit_path is None else audit_path.as_posix(),
+            labels_file=None if labels_path is None else labels_path.as_posix(),
             commit_sha=commit_sha,
         )
-        check_no_truth_in_view(packet)
+        try:
+            check_no_truth_in_view(packet)
+        except ValueError as problem:
+            if refused is None:
+                raise
+            refused.append({"run_key": record.run_key, "reason": str(problem)})
+            continue
         packets.append(packet)
     return packets
+
+
+def packet_file_name(run_key: str) -> str:
+    """A packet's file name, valid on every operating system."""
+    return re.sub(r'[<>:"\\|?*]', "_", run_key.replace("/", "__")) + ".json"
 
 
 def batch_summary(packets: list[RunEvidencePacket]) -> dict:
@@ -760,19 +832,22 @@ def batch_summary(packets: list[RunEvidencePacket]) -> dict:
     counted as zero).
     """
     # Variables:
-    #   judged: Packets whose label exists, so `fully_right` is True or False.
     #   reasoned: Packets where a model answered; outage runs are left out of
-    #     every reasoning total, as `summarize` does.
+    #     every reasoning total, as `summarize` does (its `judged` counts only
+    #     these too). An outage run's "no_conclusion" label would otherwise
+    #     count as an abstention.
+    #   judged: Reasoned packets whose label exists, so `fully_right` is True
+    #     or False.
     #   committed: Judged packets whose label names a cause.
     #   cal: How many packets fall in each verification-calibration class.
     #   available, collected: Relevant evidence items that existed, and that were
     #     looked at, pooled over the reasoned runs.
     #   shares: The per-run evidence shares of the runs that had relevant evidence.
     #   timed: The reasoned runs whose wall time was recorded.
-    judged = [p for p in packets if p.evaluator_only.fully_right is not None]
     reasoned = [p for p in packets if not p.evaluator_only.model_unavailable]
+    judged = [p for p in reasoned if p.evaluator_only.fully_right is not None]
     committed = [p for p in judged if p.evaluator_only.abstained is False]
-    cal = Counter(p.evaluator_only.verification_calibration for p in packets)
+    cal = Counter(p.evaluator_only.verification_calibration for p in reasoned)
     available = sum(len(p.evaluator_only.relevant_evidence) for p in reasoned)
     collected = sum(len(p.evaluator_only.relevant_evidence_collected) for p in reasoned)
     shares = [
@@ -819,7 +894,7 @@ def batch_summary(packets: list[RunEvidencePacket]) -> dict:
             )
         ),
         "verification_calibration": dict(sorted(cal.items())),
-        "timeouts": sum(p.snap_view.facts.finished_on_time is False for p in packets),
+        "timeouts": sum(p.snap_view.facts.finished_on_time is False for p in reasoned),
         "mean_tool_calls": (
             sum(p.snap_view.facts.tool_calls for p in reasoned) / len(reasoned)
             if reasoned
@@ -834,6 +909,10 @@ def batch_summary(packets: list[RunEvidencePacket]) -> dict:
 
 
 def main(argv=None) -> int:
+    """Build a batch's packets, its summary and, optionally, the packet schema."""
+    # Variables:
+    #   refused: Packets the truth check left out; listed in the summary so a
+    #     smaller batch is never mistaken for the whole run.
     parser = argparse.ArgumentParser(prog="python -m evaltools.run_packet")
     parser.add_argument("--records", type=Path, required=True)
     parser.add_argument("--labels", type=Path)
@@ -847,20 +926,25 @@ def main(argv=None) -> int:
         help="also write the JSON schema of a packet to this path",
     )
     args = parser.parse_args(argv)
+    refused: list[dict] = []
     packets = build_all(
         args.records,
         labels_path=args.labels,
         critic_labels_path=args.critic_labels,
         audit_path=args.audit,
         commit_sha=args.commit,
+        refused=refused,
     )
     args.out.mkdir(parents=True, exist_ok=True)
     for packet in packets:
-        name = packet.snap_view.run_key.replace("/", "__") + ".json"
-        (args.out / name).write_text(
+        (args.out / packet_file_name(packet.meta.run_key)).write_text(
             packet.model_dump_json(indent=1) + "\n", encoding="utf-8"
         )
     summary = batch_summary(packets)
+    # A refused run is out of every total above, so the summary says so.
+    summary["refused"] = refused
+    if refused:
+        print(f"{len(refused)} packet(s) refused by the truth check", file=sys.stderr)
     (args.out / "BATCH_SUMMARY.json").write_text(
         json.dumps(summary, indent=1) + "\n", encoding="utf-8"
     )

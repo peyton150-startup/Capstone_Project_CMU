@@ -11,17 +11,19 @@ Answers to the audit's final questions, with the evidence behind each. On
 602 functions and methods in `capstone-code/capstone` (24 of them protocol
 stubs or abstract definitions, 213 classes listed through their methods),
 17 agent-facing tools (15 factory tools of which 3 are the loop's fixed
-procedure, plus `recall_memories` and `search_manual`), 1,361 test
-functions giving 1,712 cases. Exclusions are listed in the matrix.
+procedure, plus `recall_memories` and `search_manual`), 1,378 test
+functions giving 1,729 cases. Exclusions are listed in the matrix.
 
-**2. How many functions have meaningful verification coverage?** 557 are
-executed by at least one test and 374 by a direct test. After reviewer
-judgment: 45 VERIFIED, 344 PARTIALLY VERIFIED, 171 INSUFFICIENT EVIDENCE
+**2. How many functions have meaningful verification coverage?** 549 are
+executed by at least one test and 204 by a direct test (a test that names
+the function, its module or its file as whole words; an earlier count of
+374 matched names as substrings). After reviewer judgment: 45 VERIFIED,
+195 PARTIALLY VERIFIED, 320 INSUFFICIENT EVIDENCE
 (executed only by other modules' tests or at import), 18 NOT TESTED, 24 NOT
 APPLICABLE, 0 FAILED. "Meaningful" in the rubric's sense (contract stated,
 failure paths asserted) is the 45 VERIFIED, all in the loop, the stages,
 the provider boundary, the approval desk, scoring, the memory gate, the
-client and the hazards. The other 344 have direct tests that passed; their
+client and the hazards. The other 195 have direct tests that passed; their
 failure paths are not individually established.
 
 **3. How many tests adequately verify their intended behaviour?** All

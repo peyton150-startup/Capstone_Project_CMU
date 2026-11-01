@@ -62,9 +62,12 @@ uv run python -m evaltools.run_packet --records <run>.jsonl --labels <run>.label
     --audit <run>.audit.jsonl --commit <sha> --out packets/<run>
 ```
 
-Each packet has `snap_view` (what a judge may see: configuration, trace,
-code-computed facts) and `evaluator_only` (truth comparisons). The builder
-refuses a packet whose judge half carries a truth field name.
+Each packet has `meta` (sources, run key, scenario id), `snap_view` (what a
+judge may see: an opaque `run_ref`, configuration, trace, code-computed
+facts) and `evaluator_only` (truth comparisons). Only `snap_view` is sent;
+scenario ids name the fault, so they stay in `meta`. The builder leaves out
+(and lists under `refused`) a packet whose judge half carries a truth field
+name or the scenario id. Runs where no model answered are asked nothing.
 `BATCH_SUMMARY.json` holds the deterministic batch metrics of
 `EVALUATION_RUBRIC.md` section 6. Without `--audit` the packet is
 `record_only` and most RUN questions are recorded as unknown.
@@ -109,6 +112,10 @@ so one long run never stops the batch; send it alone with
 
 To send: `SUBQ_API_KEY=... TYPESAFE_API_KEY=... uv run python -m evaltools.snap_request --provider both --send ...`.
 Answers are normalized into `DECISION_ANSWER_SCHEMA.json` as they arrive.
+A request that fails (an HTTP error, a timeout, a reply that is not JSON)
+is written as an answers file with `error` and no answers, the batch goes
+on, and the exit status is 1; run the same command again and only the
+requests without error-free answers are sent.
 Then `uv run python -m evaltools.compare_evaluators --answers requests/<run> --reference reference/<run>.json --out comparison/<run>`
 writes the agreement report (`agreement.md`): rates by question, every
 disagreement for review, latency, tokens and cost per provider (tokens and

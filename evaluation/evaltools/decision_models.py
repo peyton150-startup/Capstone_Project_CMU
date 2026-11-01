@@ -180,6 +180,7 @@ def normalize(
     model_reported: str | None,
     latency_seconds: float | None,
     input_tokens: int | None,
+    model_requested: str | None = None,
 ) -> dict:
     """One answer in the provider-neutral shape.
 
@@ -189,6 +190,11 @@ def normalize(
     the probability sits from one half, scaled to 0-1, which is a
     convenience for sorting, not calibration.
     """
+    # Variables:
+    #   model_requested: The model id the request asked for (a `--model`
+    #     override included); None falls back to the provider's default.
+    #   provider_record: The provider's table entry, for its default model and
+    #     its price.
     kind = question["type"]
     if raw.get("type") not in (None, kind):
         raise ValueError(
@@ -214,7 +220,7 @@ def normalize(
     )
     return {
         "provider": provider,
-        "model_requested": provider_record.model,
+        "model_requested": model_requested or provider_record.model,
         "model_reported": model_reported,
         "question_id": question["id"],
         "question_name": question["name"],
@@ -268,8 +274,18 @@ def compare(a: dict, b: dict) -> dict:
 
 def reference_match(answer: dict, expected: Any) -> bool:
     """Does a normalized answer match a reviewer's expected answer?"""
+    # Variables:
+    #   expected: The reviewer's answer: a boolean for a noul (the strings
+    #     "true"/"false" are read as such, since bool("false") is True), an
+    #     option for a choice, a level for a score.
     kind = answer["type"]
     if kind == "noul":
+        if isinstance(expected, str):
+            if expected.lower() not in ("true", "false"):
+                raise ValueError(
+                    f"a noul reference must be true or false: {expected!r}"
+                )
+            expected = expected.lower() == "true"
         return (answer["value"] >= 0.5) == bool(expected)
     if kind == "choice":
         return answer["value"] == expected

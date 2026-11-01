@@ -34,8 +34,10 @@ import argparse
 import hashlib
 import json
 import os
+import re
 import sys
 import time
+import urllib.error
 import urllib.request
 from datetime import datetime, timezone
 from pathlib import Path
@@ -119,6 +121,11 @@ def load_questions(path: Path = QUESTIONS_PATH) -> tuple[dict, list[DecisionQues
     ids = [q.id for q in questions]
     if len(ids) != len(set(ids)):
         raise ValueError("question ids must be unique")
+    # A request keys its questions by name, so a repeated name would silently
+    # replace another question in the same request.
+    names = [q.name for q in questions]
+    if len(names) != len(set(names)):
+        raise ValueError("question names must be unique")
     return raw, questions
 
 
@@ -190,6 +197,7 @@ def applicable_run_questions(
     #   full: True when the packet was built from an audit log, so the trace holds
     #     the evidence, hypotheses and decision arguments.
     #   conclusion: The conclusion view, or {} when the run reached none.
+    #   outage: True when no model answered; such a run is asked nothing.
     #   skipped: Question id to the reason it is not asked of this packet.
     #   chosen: The questions this packet can answer, in file order.
     view = packet["snap_view"]
@@ -198,9 +206,14 @@ def applicable_run_questions(
     conclusion = trace.get("conclusion") or {}
     skipped: dict[str, str] = {}
     chosen = []
+    outage = view["facts"].get("termination_reason") == "model_unavailable"
     for q in questions_for("RUN", questions):
         reason = None
-        if q.id in NEEDS_FULL_TRACE and not full:
+        if outage:
+            # As in every reasoning total: an outage run measures the model
+            # services' uptime, not the agent's reasoning.
+            reason = "not_applicable: no model answered (model_unavailable)"
+        elif q.id in NEEDS_FULL_TRACE and not full:
             reason = "unknown: trace.completeness is record_only (run without --audit)"
         elif q.id == "RUN-03" and trace.get("critique") is None:
             reason = "not_run: no critic in this run"
@@ -211,7 +224,10 @@ def applicable_run_questions(
             or view["configuration"].get("memory_offered")
         ):
             reason = "not_offered: neither the manual nor memory was offered"
-        elif q.id == "RUN-09" and conclusion.get("recommendation") == "escalate":
+        elif q.id == "RUN-09" and conclusion.get("recommendation") in (
+            None,
+            "escalate",
+        ):
             reason = "not_applicable: the agent did not commit"
         elif q.id == "RUN-10" and conclusion.get("recommendation") != "no_action":
             reason = "not_applicable: the recommendation was not no_action"
@@ -255,7 +271,9 @@ def run_requests(
             "skipped_questions": skipped,
             "packet_file": path.name,
         }
-        item_id = packet["snap_view"]["run_key"]
+        # The run key names the request files and pairs answers; it is in the
+        # packet's meta, which is never sent.
+        item_id = packet["meta"]["run_key"]
         for provider in providers:
             unfittable = None
             if chosen:
@@ -391,6 +409,51 @@ def tool_state(tool: dict, functions_by_id: dict) -> dict:
     }
 
 
+def item_requests(
+    items: list[tuple[str, dict]],
+    questions: list[DecisionQuestion],
+    providers: list[DecisionProvider],
+    *,
+    meta: dict,
+    state_tokens: int | None,
+) -> list:
+    """Request items for function, test or tool states, one set per provider.
+
+    A state too large for the budget is written with `body: None` and the
+    reason, as `run_requests` does for packets, so it never stops the batch.
+    """
+    # Variables:
+    #   items: (item id, state) pairs, one per function, test or tool asked for.
+    #   unfittable: Why `fit_state` could not fit this state to the budget.
+    built = []
+    for item_id, state in items:
+        for provider in providers:
+            try:
+                built += build_request(
+                    state,
+                    questions,
+                    model=provider.model,
+                    item_id=item_id,
+                    meta=meta,
+                    provider=provider.name,
+                    state_tokens=state_tokens,
+                )
+            except ValueError as unfittable:
+                built.append(
+                    {
+                        "tags": {
+                            **meta,
+                            "provider": provider.name,
+                            "item_id": item_id,
+                            "question_ids": [],
+                            "unfittable": str(unfittable),
+                        },
+                        "body": None,
+                    }
+                )
+    return built
+
+
 # --- sending ---------------------------------------------------------------------------
 
 
@@ -413,40 +476,114 @@ def send(provider: DecisionProvider, body: dict, api_key: str, timeout: float = 
 
 
 def normalized_answers(item: dict, reply: dict, latency: float) -> list[dict]:
-    """Every answer in the reply, in the common schema, in question order."""
+    """Every answer in the reply, in the common schema, in question order.
+
+    An answer that is missing or not in the shape its question expects is
+    kept as an entry with `value: None` and the reason, so one bad answer
+    never loses the others of the same (paid) request.
+    """
+    # Variables:
+    #   tags: The request's tags; `model_requested` there is the model actually
+    #     asked for, a `--model` override included.
+    #   tokens: The request's input tokens, the same on every answer of it.
+    #   answers: The reply's answers by question name, {} when it has none.
     tags = item["tags"]
-    usage = reply.get("usage", {}) if isinstance(reply, dict) else {}
+    reply = reply if isinstance(reply, dict) else {}
+    usage = reply.get("usage") or {}
     tokens = usage.get("input_tokens")
-    answers = reply.get("answers", {})
+    answers = reply.get("answers") or {}
     found = []
     for name, question in tags["questions"].items():
         raw = answers.get(name)
-        if raw is None:
-            found.append(
-                {
-                    "provider": tags["provider"],
-                    "question_id": question["id"],
-                    "question_name": name,
-                    "type": question["type"],
-                    "value": None,
-                    "error": "no answer in the reply",
-                }
-            )
-            continue
+        error = "no answer in the reply" if raw is None else None
+        if raw is not None:
+            try:
+                found.append(
+                    normalize(
+                        tags["provider"],
+                        question,
+                        raw,
+                        model_reported=reply.get("model"),
+                        latency_seconds=round(latency, 3),
+                        input_tokens=tokens,
+                        model_requested=tags.get("model_requested"),
+                    )
+                )
+                continue
+            except (KeyError, TypeError, ValueError) as problem:
+                error = f"unreadable answer: {problem}"
         found.append(
-            normalize(
-                tags["provider"],
-                question,
-                raw,
-                model_reported=reply.get("model"),
-                latency_seconds=round(latency, 3),
-                input_tokens=tokens,
-            )
+            {
+                "provider": tags["provider"],
+                "question_id": question["id"],
+                "question_name": name,
+                "type": question["type"],
+                "value": None,
+                "error": error,
+            }
         )
     return found
 
 
-def write_requests(built: list, out: Path, *, send_them: bool) -> None:
+# Characters Windows refuses in a file name. A function id such as
+# `capstone.agent.loop:gather` has one; left in, Windows writes an empty file
+# and hides the content in an alternate data stream.
+UNSAFE_NAME = re.compile(r'[<>:"/\\|?*]')
+
+
+def file_stem(number: int, tags: dict) -> str:
+    """A request's file name without extension, valid on every operating system."""
+    # Variables:
+    #   safe: The item id with `/` and `::` written as `__` (the names run keys
+    #     and test ids already had) and any other refused character as `_`.
+    safe = tags["item_id"].replace("/", "__").replace("::", "__")
+    safe = UNSAFE_NAME.sub("_", safe)
+    return f"{number:03d}_{tags['provider']}_{safe}"
+
+
+def describe_failure(error: Exception) -> str:
+    """A short reason a request failed, without the request (and so the key)."""
+    if isinstance(error, urllib.error.HTTPError):
+        return f"HTTP {error.code} {error.reason}"
+    return f"{type(error).__name__}: {error}"
+
+
+def already_answered(path: Path, tags: dict) -> bool:
+    """True when `path` holds error-free answers to this same request."""
+    # Variables:
+    #   saved: The answers file written earlier, if it can be read.
+    if not path.exists():
+        return False
+    try:
+        saved = json.loads(path.read_text(encoding="utf-8"))
+    except ValueError:
+        return False
+    return (
+        "error" not in saved
+        and saved.get("tags", {}).get("state_digest") == tags.get("state_digest")
+        and saved.get("tags", {}).get("question_ids") == tags.get("question_ids")
+    )
+
+
+def write_json(path: Path, payload: dict) -> None:
+    path.write_text(json.dumps(payload, indent=1, default=str) + "\n", encoding="utf-8")
+
+
+def write_requests(built: list, out: Path, *, send_them: bool) -> dict[str, int]:
+    """Write every request file and, when sending, post each and write its answers.
+
+    A request whose answers file already holds error-free answers to the same
+    state and questions is not sent again, so a batch stopped by an outage
+    can be rerun without paying twice. A request that fails (an HTTP error, a
+    timeout, a reply that is not JSON) is written as an answers file with the
+    error and no answers, and the batch goes on.
+    """
+    # Variables:
+    #   send_them: True to post the requests; False writes the files only.
+    #   counts: How many requests were sent, failed, or skipped because they
+    #     were already answered, for the closing line of `main`.
+    #   stem: The file name both of a request's files share.
+    #   answers_path: Where that request's answers (or its failure) go.
     out.mkdir(parents=True, exist_ok=True)
     if send_them:
         for name in {item["tags"]["provider"] for item in built}:
@@ -454,33 +591,58 @@ def write_requests(built: list, out: Path, *, send_them: bool) -> None:
                 raise SystemExit(
                     f"--send needs {PROVIDERS[name].key_env} in the environment"
                 )
+    counts = {"sent": 0, "failed": 0, "already_answered": 0}
     for number, item in enumerate(built, start=1):
         tags = item["tags"]
-        safe = tags["item_id"].replace("/", "__").replace("::", "__")
-        stem = f"{number:03d}_{tags['provider']}_{safe}"
-        (out / f"{stem}.request.json").write_text(
-            json.dumps(item, indent=1, default=str) + "\n", encoding="utf-8"
-        )
-        if send_them and item["body"] is not None:
-            provider = PROVIDERS[tags["provider"]]
+        stem = file_stem(number, tags)
+        write_json(out / f"{stem}.request.json", item)
+        if not send_them or item["body"] is None:
+            continue
+        answers_path = out / f"{stem}.answers.json"
+        if already_answered(answers_path, tags):
+            counts["already_answered"] += 1
+            continue
+        provider = PROVIDERS[tags["provider"]]
+        # OSError covers URLError, HTTPError and timeouts; ValueError a reply
+        # that is not JSON.
+        try:
             reply, latency = send(provider, item["body"], os.environ[provider.key_env])
-            (out / f"{stem}.answers.json").write_text(
-                json.dumps(
-                    {
-                        "tags": tags,
-                        "answers": normalized_answers(item, reply, latency),
-                        "raw_reply": reply,
-                        "answered_at": datetime.now(timezone.utc).isoformat(),
-                    },
-                    indent=1,
-                    default=str,
-                )
-                + "\n",
-                encoding="utf-8",
+        except (OSError, ValueError) as error:
+            write_json(
+                answers_path,
+                {
+                    "tags": tags,
+                    "answers": [],
+                    "error": describe_failure(error),
+                    "answered_at": datetime.now(timezone.utc).isoformat(),
+                },
             )
+            counts["failed"] += 1
+            continue
+        write_json(
+            answers_path,
+            {
+                "tags": tags,
+                "answers": normalized_answers(item, reply, latency),
+                "raw_reply": reply,
+                "answered_at": datetime.now(timezone.utc).isoformat(),
+            },
+        )
+        counts["sent"] += 1
+    return counts
 
 
 def main(argv=None) -> int:
+    """Build (and with `--send`, post) the requests for one family of items."""
+    # Variables:
+    #   providers: The decision models to prepare requests for, with a `--model`
+    #     override applied when one provider is chosen.
+    #   state_tokens: The evidence budget every state is fitted to; None with
+    #     `--full-context`.
+    #   known, wanted: The inventory entries of this family, and the ids asked
+    #     for; an id not in the inventory is a usage error, not a crash.
+    #   counts: Sent, failed and already-answered requests; any failure makes
+    #     the exit status 1 so a script notices.
     parser = argparse.ArgumentParser(prog="python -m evaltools.snap_request")
     parser.add_argument("--questions", type=Path, default=QUESTIONS_PATH)
     parser.add_argument("--inventory", type=Path, default=INVENTORY)
@@ -543,50 +705,42 @@ def main(argv=None) -> int:
                 (args.inventory / "TEST_INVENTORY.json").read_text("utf-8")
             )["tests"]
         }
-        if args.kind == "functions":
-            family, items = (
-                "FN",
-                [
-                    (i, function_state(functions_by_id[i], tests_by_id))
-                    for i in args.ids
-                ],
-            )
-        elif args.kind == "tests":
-            family, items = (
-                "TS",
-                [(i, test_state(tests_by_id[i], functions_by_id)) for i in args.ids],
-            )
+        tools_by_name = {
+            t["name"]: t
+            for t in json.loads(
+                (args.inventory / "TOOL_INVENTORY.json").read_text("utf-8")
+            )["tools"]
+        }
+        family, known, wanted = {
+            "functions": ("FN", functions_by_id, getattr(args, "ids", None)),
+            "tests": ("TS", tests_by_id, getattr(args, "ids", None)),
+            "tools": ("TL", tools_by_name, getattr(args, "names", None)),
+        }[args.kind]
+        unknown = [i for i in wanted if i not in known]
+        if unknown:
+            parser.error(f"not in the inventory: {', '.join(unknown)}")
+        if family == "FN":
+            items = [(i, function_state(known[i], tests_by_id)) for i in wanted]
+        elif family == "TS":
+            items = [(i, test_state(known[i], functions_by_id)) for i in wanted]
         else:
-            tools_by_name = {
-                t["name"]: t
-                for t in json.loads(
-                    (args.inventory / "TOOL_INVENTORY.json").read_text("utf-8")
-                )["tools"]
-            }
-            family, items = (
-                "TL",
-                [
-                    (n, tool_state(tools_by_name[n], functions_by_id))
-                    for n in args.names
-                ],
-            )
-        built = []
-        for item_id, state in items:
-            for provider in providers:
-                built += build_request(
-                    state,
-                    questions_for(family, questions),
-                    model=provider.model,
-                    item_id=item_id,
-                    meta={**meta, "family": family},
-                    provider=provider.name,
-                    state_tokens=state_tokens,
-                )
-    write_requests(built, args.out, send_them=args.send)
-    print(
-        f"{len(built)} request file(s) in {args.out}" + (" (sent)" if args.send else "")
+            items = [(n, tool_state(known[n], functions_by_id)) for n in wanted]
+        built = item_requests(
+            items,
+            questions_for(family, questions),
+            providers,
+            meta={**meta, "family": family},
+            state_tokens=state_tokens,
+        )
+    counts = write_requests(built, args.out, send_them=args.send)
+    sent = (
+        f" (sent {counts['sent']}, failed {counts['failed']}, "
+        f"already answered {counts['already_answered']})"
+        if args.send
+        else ""
     )
-    return 0
+    print(f"{len(built)} request file(s) in {args.out}{sent}")
+    return 1 if counts["failed"] else 0
 
 
 if __name__ == "__main__":

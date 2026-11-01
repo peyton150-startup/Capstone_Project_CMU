@@ -1,7 +1,9 @@
 {
  "meta": {
-  "packet_schema_version": "1.0.0",
+  "packet_schema_version": "1.1.0",
   "rubric_version": "1.0.0",
+  "run_key": "master-single-2026-10-27/2/KA-02-bearing",
+  "scenario_id": "KA-02-bearing",
   "commit_sha": null,
   "records_file": "../docs/benchmarks/2026-10-27-master-resumed.records.jsonl",
   "audit_file": null,
@@ -9,12 +11,11 @@
   "record_digest": "57cf0a6f2b9ebe52277955f8c0baa36ccb1da804b21b95e04557739e2e841b70"
  },
  "snap_view": {
-  "run_key": "master-single-2026-10-27/2/KA-02-bearing",
-  "scenario_id": "KA-02-bearing",
+  "run_ref": "54754eb1c004",
   "configuration": {
    "step_questions": 2,
    "state_action_bar": true,
-   "critic": "off",
+   "critic": null,
    "critic_followup_on": null,
    "manual_offered": false,
    "manual_step": null,
@@ -40,11 +41,11 @@
      "phase": "observe",
      "tick": null,
      "tool": "get_time",
-     "arguments": {},
+     "arguments": null,
      "outcome": "observed",
      "evidence_ids": [],
-     "confidence": 0.0,
-     "information_needed": "(not kept in the record)",
+     "confidence": null,
+     "information_needed": null,
      "error": null
     },
     {
@@ -53,11 +54,11 @@
      "phase": "plan",
      "tick": null,
      "tool": null,
-     "arguments": {},
+     "arguments": null,
      "outcome": "decided",
      "evidence_ids": [],
-     "confidence": 0.0,
-     "information_needed": "(not kept in the record)",
+     "confidence": null,
+     "information_needed": null,
      "error": null
     },
     {
@@ -66,11 +67,11 @@
      "phase": "investigate",
      "tick": null,
      "tool": "get_readings",
-     "arguments": {},
+     "arguments": null,
      "outcome": "observed",
      "evidence_ids": [],
-     "confidence": 0.0,
-     "information_needed": "(not kept in the record)",
+     "confidence": null,
+     "information_needed": null,
      "error": null
     },
     {
@@ -79,11 +80,11 @@
      "phase": "investigate",
      "tick": null,
      "tool": "get_sensor_summary",
-     "arguments": {},
+     "arguments": null,
      "outcome": "observed",
      "evidence_ids": [],
-     "confidence": 0.0,
-     "information_needed": "(not kept in the record)",
+     "confidence": null,
+     "information_needed": null,
      "error": null
     },
     {
@@ -92,11 +93,11 @@
      "phase": "investigate",
      "tick": null,
      "tool": "get_events",
-     "arguments": {},
+     "arguments": null,
      "outcome": "observed",
      "evidence_ids": [],
-     "confidence": 0.0,
-     "information_needed": "(not kept in the record)",
+     "confidence": null,
+     "information_needed": null,
      "error": null
     },
     {
@@ -105,11 +106,11 @@
      "phase": "investigate",
      "tick": null,
      "tool": "list_machines",
-     "arguments": {},
+     "arguments": null,
      "outcome": "observed",
      "evidence_ids": [],
-     "confidence": 0.0,
-     "information_needed": "(not kept in the record)",
+     "confidence": null,
+     "information_needed": null,
      "error": null
     },
     {
@@ -118,11 +119,11 @@
      "phase": "investigate",
      "tick": null,
      "tool": null,
-     "arguments": {},
+     "arguments": null,
      "outcome": "invalid_decision",
      "evidence_ids": [],
-     "confidence": 0.0,
-     "information_needed": "(not kept in the record)",
+     "confidence": null,
+     "information_needed": null,
      "error": null
     },
     {
@@ -131,11 +132,11 @@
      "phase": "investigate",
      "tick": null,
      "tool": null,
-     "arguments": {},
+     "arguments": null,
      "outcome": "invalid_decision",
      "evidence_ids": [],
-     "confidence": 0.0,
-     "information_needed": "(not kept in the record)",
+     "confidence": null,
+     "information_needed": null,
      "error": null
     },
     {
@@ -144,11 +145,11 @@
      "phase": "investigate",
      "tick": null,
      "tool": null,
-     "arguments": {},
+     "arguments": null,
      "outcome": "invalid_decision",
      "evidence_ids": [],
-     "confidence": 0.0,
-     "information_needed": "(not kept in the record)",
+     "confidence": null,
+     "information_needed": null,
      "error": null
     },
     {
@@ -157,11 +158,11 @@
      "phase": "investigate",
      "tick": null,
      "tool": null,
-     "arguments": {},
+     "arguments": null,
      "outcome": "stopped",
      "evidence_ids": [],
-     "confidence": 0.0,
-     "information_needed": "(not kept in the record)",
+     "confidence": null,
+     "information_needed": null,
      "error": null
     },
     {
@@ -170,11 +171,11 @@
      "phase": "hypothesize",
      "tick": null,
      "tool": null,
-     "arguments": {},
+     "arguments": null,
      "outcome": "decided",
      "evidence_ids": [],
-     "confidence": 0.0,
-     "information_needed": "(not kept in the record)",
+     "confidence": null,
+     "information_needed": null,
      "error": null
     },
     {
@@ -183,11 +184,11 @@
      "phase": "test",
      "tick": null,
      "tool": null,
-     "arguments": {},
+     "arguments": null,
      "outcome": "invalid_decision",
      "evidence_ids": [],
-     "confidence": 0.0,
-     "information_needed": "(not kept in the record)",
+     "confidence": null,
+     "information_needed": null,
      "error": null
     },
     {
@@ -196,11 +197,11 @@
      "phase": "test",
      "tick": null,
      "tool": null,
-     "arguments": {},
+     "arguments": null,
      "outcome": "invalid_decision",
      "evidence_ids": [],
-     "confidence": 0.0,
-     "information_needed": "(not kept in the record)",
+     "confidence": null,
+     "information_needed": null,
      "error": null
     },
     {
@@ -209,11 +210,11 @@
      "phase": "test",
      "tick": null,
      "tool": "wait",
-     "arguments": {},
+     "arguments": null,
      "outcome": "observed",
      "evidence_ids": [],
-     "confidence": 0.0,
-     "information_needed": "(not kept in the record)",
+     "confidence": null,
+     "information_needed": null,
      "error": null
     },
     {
@@ -222,11 +223,11 @@
      "phase": "test",
      "tick": null,
      "tool": "get_readings",
-     "arguments": {},
+     "arguments": null,
      "outcome": "observed",
      "evidence_ids": [],
-     "confidence": 0.0,
-     "information_needed": "(not kept in the record)",
+     "confidence": null,
+     "information_needed": null,
      "error": null
     },
     {
@@ -235,11 +236,11 @@
      "phase": "test",
      "tick": null,
      "tool": null,
-     "arguments": {},
+     "arguments": null,
      "outcome": "stopped",
      "evidence_ids": [],
-     "confidence": 0.0,
-     "information_needed": "(not kept in the record)",
+     "confidence": null,
+     "information_needed": null,
      "error": null
     },
     {
@@ -248,11 +249,11 @@
      "phase": "decide",
      "tick": null,
      "tool": null,
-     "arguments": {},
+     "arguments": null,
      "outcome": "decided",
      "evidence_ids": [],
-     "confidence": 0.0,
-     "information_needed": "(not kept in the record)",
+     "confidence": null,
+     "information_needed": null,
      "error": null
     },
     {
@@ -261,11 +262,11 @@
      "phase": "propose",
      "tick": null,
      "tool": "propose_action",
-     "arguments": {},
+     "arguments": null,
      "outcome": "observed",
      "evidence_ids": [],
-     "confidence": 0.0,
-     "information_needed": "(not kept in the record)",
+     "confidence": null,
+     "information_needed": null,
      "error": null
     },
     {
@@ -274,11 +275,11 @@
      "phase": "propose",
      "tick": null,
      "tool": "get_proposals",
-     "arguments": {},
+     "arguments": null,
      "outcome": "observed",
      "evidence_ids": [],
-     "confidence": 0.0,
-     "information_needed": "(not kept in the record)",
+     "confidence": null,
+     "information_needed": null,
      "error": null
     },
     {
@@ -287,11 +288,11 @@
      "phase": "execute",
      "tick": null,
      "tool": "execute_action",
-     "arguments": {},
+     "arguments": null,
      "outcome": "observed",
      "evidence_ids": [],
-     "confidence": 0.0,
-     "information_needed": "(not kept in the record)",
+     "confidence": null,
+     "information_needed": null,
      "error": null
     },
     {
@@ -300,11 +301,11 @@
      "phase": "execute",
      "tick": null,
      "tool": "wait",
-     "arguments": {},
+     "arguments": null,
      "outcome": "observed",
      "evidence_ids": [],
-     "confidence": 0.0,
-     "information_needed": "(not kept in the record)",
+     "confidence": null,
+     "information_needed": null,
      "error": null
     },
     {
@@ -313,11 +314,11 @@
      "phase": "verify",
      "tick": null,
      "tool": "wait",
-     "arguments": {},
+     "arguments": null,
      "outcome": "observed",
      "evidence_ids": [],
-     "confidence": 0.0,
-     "information_needed": "(not kept in the record)",
+     "confidence": null,
+     "information_needed": null,
      "error": null
     },
     {
@@ -326,11 +327,11 @@
      "phase": "verify",
      "tick": null,
      "tool": "get_readings",
-     "arguments": {},
+     "arguments": null,
      "outcome": "observed",
      "evidence_ids": [],
-     "confidence": 0.0,
-     "information_needed": "(not kept in the record)",
+     "confidence": null,
+     "information_needed": null,
      "error": null
     },
     {
@@ -339,11 +340,11 @@
      "phase": "verify",
      "tick": null,
      "tool": "get_events",
-     "arguments": {},
+     "arguments": null,
      "outcome": "observed",
      "evidence_ids": [],
-     "confidence": 0.0,
-     "information_needed": "(not kept in the record)",
+     "confidence": null,
+     "information_needed": null,
      "error": null
     },
     {
@@ -352,11 +353,11 @@
      "phase": "verify",
      "tick": null,
      "tool": null,
-     "arguments": {},
+     "arguments": null,
      "outcome": "stopped",
      "evidence_ids": [],
-     "confidence": 0.0,
-     "information_needed": "(not kept in the record)",
+     "confidence": null,
+     "information_needed": null,
      "error": null
     },
     {
@@ -365,11 +366,11 @@
      "phase": "verify",
      "tick": null,
      "tool": null,
-     "arguments": {},
+     "arguments": null,
      "outcome": "decided",
      "evidence_ids": [],
-     "confidence": 0.0,
-     "information_needed": "(not kept in the record)",
+     "confidence": null,
+     "information_needed": null,
      "error": null
     }
    ],
@@ -428,8 +429,8 @@
    "invalid_replies": 5,
    "unanswered": 0,
    "outage_attempts": 0,
-   "machines_examined": [],
-   "sensors_read": {},
+   "machines_examined": null,
+   "sensors_read": null,
    "repeated_calls": 0,
    "failed_tool_calls": 0,
    "committed": true,

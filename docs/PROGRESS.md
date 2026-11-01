@@ -330,6 +330,34 @@ alarm), then evaluation, then the agent itself.
     instead of stopping the batch; the hazard profile is read the way
     `evals.report_of` reads it. Two tests added, two extended. Built
     ungated, developer to review.
+  - Bug fixes after a pre-merge review (same PR, 2026-11-01): request and
+    packet file names now replace every character Windows refuses (a
+    function id's `:` had made Windows write empty files and hide the
+    content); a failed `--send` request is written with its error and the
+    batch goes on, and a rerun sends only what has no error-free answers;
+    answers name the model actually requested (`--model`); an unreadable
+    answer no longer loses the rest of its request; failed requests are
+    counted apart in the agreement report; record-only packets give the
+    machines and sensors read, and each decision's arguments, confidence
+    and information needed, as null instead of empty or 0.0 (packet schema
+    1.1.0, the nine master packets regenerated); a packet that fails the
+    truth check is left out and named in `BATCH_SUMMARY.json` instead of
+    stopping the batch; packet sources are written with forward slashes;
+    a test counts as direct for a function only when it names it as whole
+    words (inventories rebuilt); RUN-09 is no longer asked of a run with no
+    conclusion; an unknown id is a usage error; an unfittable function,
+    test or tool state is skipped with its reason; a noul reference written
+    as "true"/"false" text is read as a boolean. A second pass ran the tools
+    on the other master records in the main folder: packet building crashed
+    on every critic follow-up run (`RecheckView` lacked the record's
+    `question`); the judge's view carried the scenario id and run key, which
+    name the fault (`KA-01-bearing`), so both moved to `meta` and the view
+    has an opaque `run_ref`; outage runs were counted in the batch's judged,
+    abstained and correct totals and sent to the judges; a run with no
+    critique record claimed `critic: off`; `traced_run` gained the
+    `experiment run` options (manual, hazards, tree of thought, timeout) and
+    refuses to append to earlier records. Fifteen tests added, one extended.
+    Built ungated, developer to review (understood: no).
 
 - **2026-10-31 (LV2): the progress view catches up.** Before the fresh
   anchored-vs-blind pair, the live view (`capstone.progress`, also used by

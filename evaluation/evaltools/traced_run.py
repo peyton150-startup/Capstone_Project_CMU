@@ -4,7 +4,10 @@
         --name master-x --out results.jsonl --audit audit.jsonl --trace trace.json
 
 The same cases, policy and records as `python -m capstone.evals` (it calls
-`capstone.experiment.run_experiment` one case at a time), under the coverage
+`capstone.experiment.run_experiment` one case at a time), with the run options
+of `capstone.experiment run` (`--manual`/`--no-manual`, `--hazards`,
+`--tree-of-thought`, `--timeout-seconds`) so it can match a master run's
+configuration, under the coverage
 tracer with one dynamic context per run key. Afterwards `trace.json` maps
 each run key to the `capstone` functions that ran during it, by the ids the
 function inventory uses, so implementation-level verification and the
@@ -92,6 +95,14 @@ def run_traced(cases, make_policy, *, name: str, cov, on_record=None, **options)
 
 
 def main(argv=None) -> int:
+    """Run the configured cases under the tracer and write records and the trace."""
+    # Variables:
+    #   args.manual: semantic or keyword search of the manual, or None
+    #     (`--no-manual`); the same options and default as `capstone.experiment run`.
+    #   args.hazards: False, standard or blackout, as `experiment run --hazards`.
+    #   budgets: The per-investigation time limit when `--timeout-seconds` is
+    #     given, split as `experiment run` splits it; None keeps the default.
+    #   manual: The opened manual search, or None when not offered or scripted.
     parser = argparse.ArgumentParser(prog="python -m evaltools.traced_run")
     parser.add_argument(
         "--config", type=Path, default=REPO / "evals" / "scenarios.json"
@@ -102,25 +113,60 @@ def main(argv=None) -> int:
     parser.add_argument("--trace", type=Path, required=True, help="function trace")
     parser.add_argument("--coverage-file", type=Path, default=Path(".coverage.trace"))
     parser.add_argument("--scripted", action="store_true", help="offline stand-in")
-    parser.add_argument("--no-manual", action="store_true")
+    # The run options of `capstone.experiment run`, so a traced run can be
+    # configured like the master run it is meant to explain. Defined here, not
+    # imported, so the tracer starts before any `capstone` module is loaded.
+    manual = parser.add_mutually_exclusive_group()
+    manual.add_argument(
+        "--manual",
+        nargs="?",
+        const="semantic",
+        default="semantic",
+        choices=("semantic", "keyword"),
+    )
+    manual.add_argument("--no-manual", dest="manual", action="store_const", const=None)
+    parser.add_argument(
+        "--hazards",
+        nargs="?",
+        const="standard",
+        default=False,
+        choices=("standard", "blackout"),
+    )
+    parser.add_argument("--tree-of-thought", action="store_true")
+    parser.add_argument("--timeout-seconds", type=float)
     args = parser.parse_args(argv)
+    # Appending to an earlier file would give two records the same run key.
+    for path in (args.out, args.audit):
+        if path is not None and path.exists() and path.stat().st_size:
+            parser.error(f"{path} already has records; choose a new file")
 
     cov = start_tracer(args.coverage_file)
 
     from capstone.agent.completion import AuditLog
+    from capstone.agent.state import Budgets
     from capstone.evals import load_scenarios
     from capstone.experiment import append_records, model_policy_factory, open_manual
 
     config = load_scenarios(args.config)
     cases = [s.as_case() for s in config.cases]
+    budgets = None
+    if args.timeout_seconds is not None:
+        budgets = Budgets(
+            timeout_seconds=args.timeout_seconds,
+            followup_seconds=args.timeout_seconds / 3,
+        )
     if args.scripted:
         from tests.test_known_answers import stand_in
 
         make_policy = stand_in
         manual = None
     else:
-        manual = None if args.no_manual else open_manual("semantic")
-        make_policy = model_policy_factory(False, with_manual=manual is not None)
+        manual = None if args.manual is None else open_manual(args.manual)
+        make_policy = model_policy_factory(
+            False,
+            tree_of_thought=args.tree_of_thought,
+            with_manual=manual is not None,
+        )
 
     def save(record) -> None:
         append_records(args.out, [record])
@@ -134,6 +180,8 @@ def main(argv=None) -> int:
         on_record=save,
         log=AuditLog(args.audit) if args.audit else None,
         manual=manual,
+        budgets=budgets,
+        hazards=args.hazards,
     )
     trace = functions_hit(args.coverage_file)
     args.trace.write_text(json.dumps(trace, indent=1) + "\n", encoding="utf-8")

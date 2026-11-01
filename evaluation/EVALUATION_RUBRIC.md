@@ -4,7 +4,7 @@
   or a threshold is a new version; results carry the version they were
   scored under and are never rescored silently.
 - Pairs with `PROJECT_EVALUATION_CONTEXT.md` 1.0.0, `SNAP_QUESTIONS.json`
-  1.0.0 and `RUN_EVIDENCE_SCHEMA.json` 1.0.0.
+  1.0.0 and `RUN_EVIDENCE_SCHEMA.json` 1.1.0.
 
 ## 0. Two scores, never one percentage
 
@@ -65,7 +65,7 @@ TL-03 is listed by name.
 
 ## 4. Level 3: test quality
 
-Per test (1,361 functions, 1,712 parametrized cases, 12 of them this framework's own), from
+Per test (1,378 functions, 1,729 parametrized cases, 29 of them this framework's own), from
 `inventory/TEST_INVENTORY.json`:
 
 | Metric | Calculation | Deterministic? |
@@ -155,8 +155,9 @@ blockers. No percentage is computed.
   agreement with the reference answers is recorded in
   `EVALUATION_AUDIT.md` section 9.
 - Labels are decided before any batch comparison and never changed after.
-- The judge never sees `evaluator_only`; the hidden-truth words are checked
-  absent from every `snap_view` by `run_packet.check_no_truth_in_view`.
+- The judge never sees `evaluator_only` or `meta` (whose run key and
+  scenario id name the fault); the hidden-truth words and the scenario id are
+  checked absent from every `snap_view` by `run_packet.check_no_truth_in_view`.
 - Judge answers are stored with `rubric_version`, `question_ids`,
   `state_digest` and `commit_sha`; a rubric change invalidates nothing but
   starts a new column.

@@ -40,6 +40,13 @@ def test_master_run_packets_keep_the_truth_out_of_the_judge_view(master_packets)
         assert not [word for word in HIDDEN if word in text]
         assert packet.evaluator_only.true_faults
         assert packet.snap_view.trace.completeness == "record_only"
+        # What the record does not keep is unknown, not zero or empty.
+        assert packet.snap_view.facts.machines_examined is None
+        assert packet.snap_view.facts.sensors_read is None
+        for decision in packet.snap_view.trace.decisions:
+            assert decision.confidence is None
+            assert decision.arguments is None
+            assert decision.information_needed is None
 
 
 def test_master_run_summary_matches_the_published_result(master_packets):
@@ -425,3 +432,256 @@ def test_the_agreement_report_pairs_only_identical_states_and_flags_disagreement
     assert snap["mean_confidence_by_type"] == {"noul": 0.8}
     text = compare_evaluators.markdown(report)
     assert "f1" in text and "Caveats" in text
+
+
+# --- fixes after review -------------------------------------------------------------
+
+
+def request_item(item_id, provider="snap", model="subq-snap-1.1"):
+    """A minimal sendable request item, as `build_request` shapes one."""
+    question = {"id": "FN-01", "name": "q", "type": "noul"}
+    return {
+        "tags": {
+            "provider": provider,
+            "model_requested": model,
+            "item_id": item_id,
+            "question_ids": ["FN-01"],
+            "questions": {"q": question},
+            "state_digest": "d",
+        },
+        "body": {"model": model, "state": {}, "questions": {}},
+    }
+
+
+def test_request_file_names_are_valid_on_every_operating_system(tmp_path):
+    """A function id has a colon; Windows would write an empty file for it."""
+    built = [
+        request_item("capstone.agent.loop:gather"),
+        request_item("tests/test_x.py::test_y"),
+    ]
+    snap_request.write_requests(built, tmp_path, send_them=False)
+    names = sorted(p.name for p in tmp_path.iterdir())
+    assert names == [
+        "001_snap_capstone.agent.loop_gather.request.json",
+        "002_snap_tests__test_x.py__test_y.request.json",
+    ]
+    assert all(p.stat().st_size > 0 for p in tmp_path.iterdir())
+
+
+def test_a_failed_request_is_recorded_and_a_rerun_sends_only_what_is_missing(
+    tmp_path, monkeypatch
+):
+    import urllib.error
+
+    monkeypatch.setenv("SUBQ_API_KEY", "test-key")
+    sent = []
+
+    def flaky(provider, body, api_key, timeout=90.0):
+        sent.append(body)
+        if len(sent) == 1:
+            raise urllib.error.HTTPError(provider.endpoint, 429, "Too Many", {}, None)
+        return {"model": "m", "answers": {"q": {"type": "noul", "noul": 0.7}}}, 0.1
+
+    monkeypatch.setattr(snap_request, "send", flaky)
+    built = [request_item("a"), request_item("b")]
+    counts = snap_request.write_requests(built, tmp_path, send_them=True)
+    assert counts == {"sent": 1, "failed": 1, "already_answered": 0}
+    failed = json.loads((tmp_path / "001_snap_a.answers.json").read_text())
+    assert failed["error"] == "HTTP 429 Too Many" and failed["answers"] == []
+    assert "test-key" not in json.dumps(failed)
+    # The rerun sends only the request that failed.
+    counts = snap_request.write_requests(built, tmp_path, send_them=True)
+    assert counts == {"sent": 1, "failed": 0, "already_answered": 1}
+    assert len(sent) == 3
+
+
+def test_answers_name_the_model_requested_and_keep_unreadable_ones(tmp_path):
+    item = request_item("a", model="subq-snap-custom")
+    item["tags"]["questions"]["r"] = {"id": "FN-02", "name": "r", "type": "noul"}
+    reply = {"answers": {"q": {"noul": 0.9}, "r": {"type": "noul"}}}
+    good, bad = snap_request.normalized_answers(item, reply, 0.5)
+    assert good["model_requested"] == "subq-snap-custom"
+    assert bad["value"] is None and "unreadable" in bad["error"]
+    # A reply that is not a JSON object loses no answer silently either.
+    assert all(
+        a["value"] is None for a in snap_request.normalized_answers(item, [], 0.5)
+    )
+
+
+def test_failed_requests_are_counted_apart_from_answered_ones():
+    from evaltools import compare_evaluators
+
+    files = [
+        {"tags": {"provider": "snap"}, "answers": [], "error": "HTTP 500 x"},
+        {
+            "tags": {"provider": "snap"},
+            "answers": [{"input_tokens": 50, "cost_usd": 0.0}],
+        },
+    ]
+    usage = compare_evaluators.request_usage(files)["snap"]
+    assert usage["requests"] == 1 and usage["failed_requests"] == 1
+    assert usage["input_tokens"] == 50
+
+
+def test_a_refused_packet_is_left_out_and_named_not_fatal(monkeypatch):
+    first = run_packet.build_all(MASTER_RECORDS, labels_path=MASTER_LABELS)[0]
+    marker = first.snap_view.run_ref  # in this packet's judge view only
+    monkeypatch.setattr(run_packet, "HIDDEN_WORDS", (marker,))
+    refused = []
+    packets = run_packet.build_all(
+        MASTER_RECORDS, labels_path=MASTER_LABELS, refused=refused
+    )
+    assert len(packets) == 8
+    assert [r["run_key"] for r in refused] == [first.meta.run_key]
+    with pytest.raises(ValueError):
+        run_packet.build_all(MASTER_RECORDS, labels_path=MASTER_LABELS)
+
+
+def test_the_judge_view_never_names_the_scenario(master_packets):
+    """Scenario ids name the fault (KA-01-bearing), so they stay in meta."""
+    for packet in master_packets:
+        text = packet.snap_view.model_dump_json().lower()
+        assert packet.meta.scenario_id.lower() not in text
+        assert packet.meta.run_key.lower() not in text
+        assert packet.snap_view.run_ref == run_packet.run_ref(packet.meta.run_key)
+    packet = master_packets[0]
+    tainted = packet.model_copy(
+        update={
+            "snap_view": packet.snap_view.model_copy(
+                update={
+                    "trace": packet.snap_view.trace.model_copy(
+                        update={"anomaly": f"see {packet.meta.scenario_id}"}
+                    )
+                }
+            )
+        }
+    )
+    with pytest.raises(ValueError, match="scenario id"):
+        run_packet.check_no_truth_in_view(tainted)
+
+
+def test_a_recheck_record_reaches_the_packet_whole():
+    """Every follow-up run failed here: the view lacked the record's `question`."""
+    from capstone.agent.artifacts import RecheckRecord
+
+    assert set(run_packet.RecheckView.model_fields) == set(RecheckRecord.model_fields)
+    record = next(iter(run_packet.read_records(MASTER_RECORDS)))
+    followed = record.model_copy(
+        update={
+            "recheck": RecheckRecord(
+                outcome="observed", trigger="objection", question="vibration again?"
+            )
+        }
+    )
+    line = followed.model_dump_json()
+    packet = run_packet.build_packet(
+        followed,
+        line,
+        label=None,
+        critic_label=None,
+        audit=None,
+        records_file="r",
+        audit_file=None,
+        labels_file=None,
+        commit_sha=None,
+    )
+    assert packet.snap_view.trace.recheck.question == "vibration again?"
+    assert packet.snap_view.configuration.critic_followup_on is True
+
+
+def test_outage_runs_are_out_of_the_reasoning_totals_and_asked_nothing(
+    master_packets,
+):
+    _, questions = snap_request.load_questions()
+    down = master_packets[0].model_copy(
+        update={
+            "evaluator_only": master_packets[0].evaluator_only.model_copy(
+                update={"model_unavailable": True}
+            ),
+            "snap_view": master_packets[0].snap_view.model_copy(
+                update={
+                    "facts": master_packets[0].snap_view.facts.model_copy(
+                        update={"termination_reason": "model_unavailable"}
+                    )
+                }
+            ),
+        }
+    )
+    batch = [down, *master_packets[1:]]
+    summary = run_packet.batch_summary(batch)
+    assert summary["model_unavailable"] == 1
+    assert summary["judged"] == 8
+    chosen, skipped = snap_request.applicable_run_questions(
+        json.loads(down.model_dump_json()), questions
+    )
+    assert chosen == []
+    assert all("model_unavailable" in reason for reason in skipped.values())
+
+
+def test_a_run_without_a_critique_does_not_claim_the_critic_was_off(master_packets):
+    for packet in master_packets:
+        if packet.snap_view.trace.critique is None:
+            assert packet.snap_view.configuration.critic is None
+
+
+def test_packet_file_names_are_valid_on_every_operating_system():
+    assert run_packet.packet_file_name("ev:1/2/KA-01") == "ev_1__2__KA-01.json"
+
+
+def test_a_function_is_named_by_a_test_only_as_whole_words():
+    assert build_inventory.names_function("test_gather_reads_two", "gather")
+    assert build_inventory.names_function("test_job_history", "job_history")
+    assert build_inventory.names_function("test_x_fit_state", "_fit_state")
+    assert not build_inventory.names_function("test_relevant_evidence", "relevant_e")
+    assert not build_inventory.names_function("test_gathering", "gather")
+    assert not build_inventory.names_function("test_run_it", "run")
+
+
+def test_run_09_is_not_asked_of_a_run_without_a_conclusion(master_packets):
+    _, questions = snap_request.load_questions()
+    packet = json.loads(master_packets[0].model_dump_json())
+    packet["snap_view"]["trace"]["completeness"] = "full"
+    packet["snap_view"]["trace"]["conclusion"] = None
+    chosen, skipped = snap_request.applicable_run_questions(packet, questions)
+    assert "RUN-09" not in {q.id for q in chosen}
+    assert skipped["RUN-09"].startswith("not_applicable")
+
+
+def test_a_noul_reference_written_as_text_is_read_as_a_boolean():
+    from evaltools import decision_models
+
+    answer = {"type": "noul", "value": 0.9}
+    assert decision_models.reference_match(answer, "true") is True
+    assert decision_models.reference_match(answer, "False") is False
+    with pytest.raises(ValueError):
+        decision_models.reference_match(answer, "maybe")
+
+
+def test_an_unfittable_function_state_is_skipped_not_fatal():
+    from evaltools import decision_models
+
+    _, questions = snap_request.load_questions()
+    built = snap_request.item_requests(
+        [("small", {"x": 1}), ("big", {"source": "x" * 10_000})],
+        snap_request.questions_for("FN", questions),
+        [decision_models.PROVIDERS["snap"]],
+        meta={"family": "FN"},
+        state_tokens=100,
+    )
+    by_item = {item["tags"]["item_id"]: item for item in built}
+    assert by_item["small"]["body"] is not None
+    assert by_item["big"]["body"] is None
+    assert "does not fit" in by_item["big"]["tags"]["unfittable"]
+
+
+def test_a_traced_run_refuses_to_append_to_earlier_records(tmp_path):
+    """Appending would give two records the same run key."""
+    from evaltools import traced_run
+
+    out = tmp_path / "records.jsonl"
+    out.write_text('{"earlier": true}\n')
+    with pytest.raises(SystemExit) as stopped:
+        traced_run.main(
+            ["--name", "x", "--out", str(out), "--trace", str(tmp_path / "t.json")]
+        )
+    assert stopped.value.code == 2

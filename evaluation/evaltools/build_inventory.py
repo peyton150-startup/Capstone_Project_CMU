@@ -627,11 +627,39 @@ def direct_test_files(module: str) -> set[str]:
     return candidates
 
 
+def names_function(text: str, name: str) -> bool:
+    """True when `name` is in `text` as whole underscore-separated words.
+
+    `gather` names `test_gather_reads_two_sensors` but `rel` does not name
+    `test_relevant_evidence`. Names under four characters (`run`, `get`)
+    name nothing: too many tests contain them by chance.
+    """
+    # Variables:
+    #   name: The function's name, lower-cased, without leading or trailing
+    #     underscores (a private `_helper` is named by `helper`).
+    name = name.lower().strip("_")
+    if len(name) < 4:
+        return False
+    return re.search(rf"(?:^|_){re.escape(name)}(?:_|$)", text.lower()) is not None
+
+
 def capped(items: list, cap: int = LIST_CAP) -> list:
     return items[:cap]
 
 
 def build(coverage_path: Path | None, junit_path: Path | None, out: Path) -> dict:
+    """Write the four inventory files and return the verification matrix."""
+    # Variables:
+    #   contexts: Per file, which tests executed each line (from coverage).
+    #   outcomes: Each test's junit outcome; a test not in it is `not_run`.
+    #   executing_tests: The tests that executed at least one statement of the
+    #     function being recorded.
+    #   core: The function's name without a `get_` prefix, matched against test
+    #     file names (`get_job_history` -> `test_job_history.py`).
+    #   direct: The executing tests that name the function or its module;
+    #     the rest are indirect.
+    #   coverage_class: none, import-only, indirect, direct or no-statements;
+    #     it sets the derived status unless a curated note overrides it.
     functions: list[FunctionInfo] = []
     for path in sorted(PACKAGE.rglob("*.py")):
         functions.extend(collect_functions(path))
@@ -668,13 +696,15 @@ def build(coverage_path: Path | None, junit_path: Path | None, out: Path) -> dic
         direct_files = direct_test_files(f.module)
         # A test file or test named for the function (get_job_history ->
         # test_job_history.py) counts as direct too.
-        core = f.name.lower().removeprefix("get_").strip("_")
+        # Names are matched as whole words (`names_function`), so a short name
+        # contained in an unrelated test's name does not make that test direct.
+        core = f.name.lower().removeprefix("get_")
         direct = sorted(
             t
             for t in executing_tests
             if t.split("::")[0] in direct_files
-            or f.name.lower() in t.split("::")[-1].lower()
-            or (len(core) > 4 and core in t.split("::")[0].lower())
+            or names_function(t.split("::")[-1], f.name)
+            or names_function(Path(t.split("::")[0]).stem, core)
         )
         indirect = sorted(executing_tests - set(direct))
         for t in executing_tests:

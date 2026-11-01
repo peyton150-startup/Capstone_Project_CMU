@@ -354,6 +354,7 @@
   },
   "DecisionView": {
    "additionalProperties": false,
+   "description": "One decision; in a record-only trace the fields the record does not\nkeep (arguments, confidence, information needed) are None, never a\nmade-up value a judge could read as the agent's.",
    "properties": {
     "sequence": {
      "title": "Sequence",
@@ -390,9 +391,16 @@
      "title": "Tool"
     },
     "arguments": {
-     "additionalProperties": true,
-     "title": "Arguments",
-     "type": "object"
+     "anyOf": [
+      {
+       "additionalProperties": true,
+       "type": "object"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "title": "Arguments"
     },
     "outcome": {
      "title": "Outcome",
@@ -406,12 +414,26 @@
      "type": "array"
     },
     "confidence": {
-     "title": "Confidence",
-     "type": "number"
+     "anyOf": [
+      {
+       "type": "number"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "title": "Confidence"
     },
     "information_needed": {
-     "title": "Information Needed",
-     "type": "string"
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "title": "Information Needed"
     },
     "error": {
      "anyOf": [
@@ -933,21 +955,35 @@
      "title": "Outage Attempts"
     },
     "machines_examined": {
-     "items": {
-      "type": "string"
-     },
-     "title": "Machines Examined",
-     "type": "array"
+     "anyOf": [
+      {
+       "items": {
+        "type": "string"
+       },
+       "type": "array"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "title": "Machines Examined"
     },
     "sensors_read": {
-     "additionalProperties": {
-      "items": {
-       "type": "string"
+     "anyOf": [
+      {
+       "additionalProperties": {
+        "items": {
+         "type": "string"
+        },
+        "type": "array"
+       },
+       "type": "object"
       },
-      "type": "array"
-     },
-     "title": "Sensors Read",
-     "type": "object"
+      {
+       "type": "null"
+      }
+     ],
+     "title": "Sensors Read"
     },
     "repeated_calls": {
      "default": 0,
@@ -1075,13 +1111,21 @@
    "additionalProperties": false,
    "properties": {
     "packet_schema_version": {
-     "default": "1.0.0",
+     "default": "1.1.0",
      "title": "Packet Schema Version",
      "type": "string"
     },
     "rubric_version": {
      "default": "1.0.0",
      "title": "Rubric Version",
+     "type": "string"
+    },
+    "run_key": {
+     "title": "Run Key",
+     "type": "string"
+    },
+    "scenario_id": {
+     "title": "Scenario Id",
      "type": "string"
     },
     "commit_sha": {
@@ -1130,6 +1174,8 @@
     }
    },
    "required": [
+    "run_key",
+    "scenario_id",
     "records_file",
     "record_digest"
    ],
@@ -1166,6 +1212,18 @@
      ],
      "default": null,
      "title": "Reason"
+    },
+    "question": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null,
+     "title": "Question"
     },
     "tool": {
      "anyOf": [
@@ -1249,12 +1307,8 @@
   "SnapView": {
    "additionalProperties": false,
    "properties": {
-    "run_key": {
-     "title": "Run Key",
-     "type": "string"
-    },
-    "scenario_id": {
-     "title": "Scenario Id",
+    "run_ref": {
+     "title": "Run Ref",
      "type": "string"
     },
     "configuration": {
@@ -1268,8 +1322,7 @@
     }
    },
    "required": [
-    "run_key",
-    "scenario_id",
+    "run_ref",
     "configuration",
     "trace",
     "facts"

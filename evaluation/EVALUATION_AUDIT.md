@@ -178,8 +178,8 @@ faults, machines examined, RUN-01).
   contents, the hypotheses, the decision arguments or the critic's text.
   Those exist only in the audit log (`agent/completion.AuditRecord`,
   written with `--audit`). The nine master-single packets are
-  `record_only`; even `machines_examined` is empty because the record has
-  no tool arguments. No run on record can be judged for evidence quality.
+  `record_only`; even `machines_examined` is unknown (null) because the
+  record has no tool arguments. No run on record can be judged for evidence quality.
   Fix: run `evals` with `--audit` always (a one-line default), or keep the
   audit file beside every results file.
 - **R2. Provenance of a run is incomplete.** Neither `ExperimentRecord` nor
@@ -278,17 +278,19 @@ faults, machines examined, RUN-01).
 ### Tests
 
 - **T1. Numbers.** 602 project functions (24 protocol stubs or abstract
-  definitions). 557 executed by at least one test, 374 by a direct test. 18
+  definitions). 549 executed by at least one test, 204 by a direct test
+  (whole-word name match; 374 under the earlier substring match). 18
   never executed: the command-line `main`s of `baseline`, `manual.index`,
   `memory.backfill`, `duplicate_threshold`, the console approver, and the
   live-only paths `evals.automatic_labels`, `experiment.open_memory`,
   `manual.index.ready_manual_index` / `open_manual_index`,
   `memory.semantic.default_embedder`, `memory_comparison.open_store_and_index`,
-  two nested helpers of `evals.main`, and three trivial properties. 3
-  executed only at import. 20 executed with under 80 percent of their
+  two nested helpers of `evals.main`, and three trivial properties. 11
+  executed only outside any test's context (at import or collection; 3 in
+  the first build). 19 executed with under 80 percent of their
   statements (`VERIFICATION_MATRIX.json` `counts`), among them `evals.main`
-  (28 of 60) and `memory_comparison.main` (25 of 37). 1,361 test functions
-  (1,712 cases), all passed on the reviewed commit. The live model path
+  (28 of 60) and `memory_comparison.main` (25 of 37). 1,378 test functions
+  (1,729 cases), all passed on the reviewed commit. The live model path
   (`clients_for_jobs` through a real transport) is, correctly, never
   executed offline.
 - **T2. Scripted episodes prove plumbing, not reasoning.** The known-answer

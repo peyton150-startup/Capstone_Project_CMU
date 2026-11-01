@@ -28,5 +28,6 @@
  "mean_tool_calls": 12.333333333333334,
  "timed_runs": 9,
  "mean_wall_seconds": 694.594647966668,
- "traces_complete": 0
+ "traces_complete": 0,
+ "refused": []
 }
