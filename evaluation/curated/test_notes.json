@@ -1,0 +1,117 @@
+{
+  "schema": "Reviewer judgments keyed by test id (file::name). `judgment` is one of STRONG (the assertions establish the claim and would fail if the behaviour broke), ADEQUATE (establishes the claim with a known limit), WEAK (could pass with a broken implementation, or checks less than it claims), STRUCTURAL (a rule about the code's shape, not behaviour; legitimate but exercises no project function). `why` says what was read. Reviewed on main at bc9d155 (2026-11-01).",
+  "items": {
+    "tests/test_scoring_integrity.py::test_scoring_does_not_change_the_simulator": {
+      "judgment": "STRONG",
+      "why": "Compares a scored simulator with an unscored twin on state, clock, event count and the next thirty ticks of readings, so any RNG draw or state write by `evaluate` would show."
+    },
+    "tests/test_scoring_integrity.py::test_the_same_finished_episode_gets_the_same_score": {
+      "judgment": "STRONG",
+      "why": "Equality of whole Score models across a repeat and a twin."
+    },
+    "tests/test_scoring_integrity.py::test_a_right_answer_stays_right_as_time_moves_on": {
+      "judgment": "STRONG",
+      "why": "Four truth-side marks checked before and after 300 more ticks for every one-fault case."
+    },
+    "tests/test_observation_tools.py::test_nothing_hidden_leaks_through_any_tool_over_a_full_run": {
+      "judgment": "STRONG",
+      "why": "Calls every tool after 1200 ticks with a fault present, requires non-empty answers, checks hidden words are absent and pins the exact key set of every answer, so a new field cannot appear unnoticed. Limit: a leak carried inside a message string in other words would not be caught."
+    },
+    "tests/test_episode.py::test_the_agent_never_holds_the_answer_key": {
+      "judgment": "ADEQUATE",
+      "why": "Searches the final working memory for four hidden words. It would miss a leak that carries the truth under another name (a machine id alone is not hidden, so it cannot be used); the key-set test in test_observation_tools is the stronger guard."
+    },
+    "tests/test_known_answers.py::test_no_record_shows_the_truth_to_the_policy": {
+      "judgment": "ADEQUATE",
+      "why": "Checks every state the stand-in saw for two words; the same limit as above. The pinned-anomaly test and the key-set test carry most of the weight."
+    },
+    "tests/test_known_answers.py::test_scores_match_the_pinned_expectations": {
+      "judgment": "STRONG",
+      "why": "Pins relevant evidence collected, resolved, recommendation_correct and actions_taken for all thirteen cases with a look-once stand-in; a change in scoring or in a case's factory fails it."
+    },
+    "tests/test_known_answers.py::test_the_suite_is_repeatable": {
+      "judgment": "STRONG",
+      "why": "Whole-record equality across two runs, excluding only wall time."
+    },
+    "tests/test_agent_verification.py::test_no_answer_key_is_involved_in_the_judgement": {
+      "judgment": "STRONG",
+      "why": "Runs the check with a provider that would expose truth-like fields and asserts the judgement rests on the policy's cited observable evidence only."
+    },
+    "tests/test_agent_verification.py::test_a_look_now_at_data_from_before_the_work_does_not_count": {
+      "judgment": "STRONG",
+      "why": "Parametrized windows that start at or before the work finish are shown to give inconclusive."
+    },
+    "tests/test_agent_investigation.py::test_a_conclusion_resting_on_misleading_but_real_evidence_is_accepted": {
+      "judgment": "STRONG",
+      "why": "Documents the limit of `check_conclusion` honestly: mechanically valid citations pass whatever they say. This is the test that proves the evaluator needs an evidence-quality judge."
+    },
+    "tests/test_agent_loop.py::test_confidence_alone_is_not_a_supported_diagnosis": {
+      "judgment": "STRONG",
+      "why": "A 0.95 hypothesis with one supporter does not stop the test phase; a second observable supporter does."
+    },
+    "tests/test_model_policy.py::test_a_whole_episode_runs_on_model_replies_alone": {
+      "judgment": "ADEQUATE",
+      "why": "Scripted JSON replies drive a full episode: proves the prompt/answer plumbing and the stage sequence, not reasoning quality. Must not be read as evidence that the agent diagnoses well."
+    },
+    "tests/test_model_policy.py::test_no_prompt_or_answer_schema_lists_the_possible_causes": {
+      "judgment": "STRONG",
+      "why": "Guards the 'find the cause in the evidence' rule against prompt edits; string-based but exact."
+    },
+    "tests/test_critic.py::test_system_prompt_names_no_fault": {
+      "judgment": "STRUCTURAL",
+      "why": "A text rule on the prompt; exercises no project function but protects the hidden-truth boundary in prose."
+    },
+    "tests/test_critic.py::test_review_does_not_change_the_state": {
+      "judgment": "STRONG",
+      "why": "Model-dump equality before and after review."
+    },
+    "tests/test_evaluation.py::test_a_reset_resolves_a_wrong_setting": {
+      "judgment": "WEAK",
+      "why": "Asserts only `action_correct and score.resolved` (truthiness). It does not check what the action list holds or that resolution comes from `speed_setting` being None rather than, say, the batch rule; a broken `_resolved` that returned True for any setting case would pass."
+    },
+    "tests/test_evaluation.py::test_rejected_proposals_do_not_count_as_actions": {
+      "judgment": "WEAK",
+      "why": "Truthiness-only assertions on three fields; the rejected proposal's status text and the empty actions list are not checked explicitly."
+    },
+    "tests/test_evaluation.py::test_no_answer_scores_nothing_right_even_on_a_false_alarm": {
+      "judgment": "ADEQUATE",
+      "why": "Negated truthiness on the two root-cause marks is what the claim needs, but the recommendation side is untested here."
+    },
+    "tests/test_experiment.py::test_results_from_before_the_policy_recommendation_was_kept_still_read": {
+      "judgment": "STRUCTURAL",
+      "why": "Backward-compatibility of the record format; exercises only pydantic parsing."
+    },
+    "tests/test_agent_artifacts.py::test_the_agent_package_does_not_import_truth_side_code": {
+      "judgment": "STRUCTURAL",
+      "why": "An import-graph rule enforced by reading source; exercises no project function but is the architectural guard the AGENTS.md boundary needs."
+    },
+    "tests/test_console.py::test_without_it_the_same_print_raised": {
+      "judgment": "ADEQUATE",
+      "why": "Flagged as having no assertion because it relies on pytest.raises context; it does check the failure path it claims."
+    },
+    "tests/test_bearing_degradation.py::test_the_default_phases_change_nothing": {
+      "judgment": "ADEQUATE",
+      "why": "Truthiness on an equality of reading lists is enough for the claim; flagged by the heuristic only because the comparison is written as one boolean expression."
+    },
+    "tests/test_baseline.py::test_the_right_repair_is_carried_out_and_nothing_for_a_false_alarm": {
+      "judgment": "WEAK",
+      "why": "Truthiness-only on action_correct/resolved; does not pin which repair or that nothing was proposed on the false alarm beyond a falsy check."
+    },
+    "tests/test_evals.py::test_full_episode_report_keeps_truth_out_of_policy_and_scores_only_labels": {
+      "judgment": "STRONG",
+      "why": "Checks the policy saw no truth words and that accuracy is None without a label and set only with one."
+    },
+    "tests/test_evals.py::test_comparison_requires_same_cases_and_preserves_unknown_accuracy": {
+      "judgment": "ADEQUATE",
+      "why": "Proves what `compare_reports` refuses; it cannot prove what it should refuse but does not (configuration differences)."
+    },
+    "tests/test_hazards.py::test_an_episode_with_hazards_reports_them_and_repeats_exactly": {
+      "judgment": "STRONG",
+      "why": "Whole-record equality across two hazard runs plus the fired list."
+    },
+    "tests/test_manual.py::test_no_section_gives_a_stations_standard_speed_or_job_time": {
+      "judgment": "STRONG",
+      "why": "Guards numeric leaks of standard speeds and job times into the manual."
+    }
+  }
+}

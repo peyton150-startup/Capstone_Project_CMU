@@ -253,12 +253,58 @@ A component is complete only when both columns are checked.
 | EV2 | Known cases KA-10 to KA-13 for the two forced-only faults (servo drive wear, hydraulic leak), which need a repair; manual rev 1.3 with §2.14 and §2.15 | no — built first at the developer's request ("merge first, I will learn later"), to be taught after | no — built ungated, developer to review | yes (tests only; no live run) | no | `evaluation/known_answers.py` (`KNOWN_CASES`, `BASELINE_CASES`, the asserts), `evals/scenarios.json`, `manual/sim-cnc-001.md` (§1.2, §2.13, §2.14, §2.15), `manual/sections.py` (`_LEAKS`), `evals.py` (`Scenario.valid_factory`), `evaluation/scoring.py` (`_resolved`: bug fix, both faults always counted as resolved), `tests/test_known_answers.py`, `tests/test_manual.py`, `tests/test_baseline.py`; session note 2026-10-31 (EV2) |
 | C1c | Blind critic (opt-in `CRITIC_BLIND`): hypotheses shuffled under neutral labels, no confidence, no leading mark; code sets the verdict from the pick | yes (2026-10-31) | yes (2026-10-31, after two corrections: why code sets the verdict, and why the shuffle has its own seed; the prompt difference was stated by the agent, to be re-checked in the closing question) | yes (tests only; no live run) | no — walkthrough done 2026-10-31: Q1 unsure, but the answer pointed at a real bug (a blind pick naming a real id was accepted), fixed; Q2 right (the leader's longer support list leaks the ranking; accept and measure); Q3 right (check the follow-up used the critic's point), fields added; mark left for the developer | `agent/critic.py` (`CRITIC_BLIND_SYSTEM`, `blind_order`, `blind_labels`, `blind_verdict`, `_rename`, `critique_view(blind=)`, `Critic(blind=)`, `Critic.last_order`, `Critic._unblind`), `agent/artifacts.py` (`CritiqueRecord.blind`, `shown_order`), `agent/investigation.py` (`critique`), `settings.py` (`critic_blind`), `episode.py`, `.env.example`; session note 2026-10-31 (C1c) |
 | LV2 | Progress view catches up with #150 and #152 (display only): run header (critic mode, manual and embedding model, manual step, tree-of-thought, hazards); blind mark and shown order on the critic line; the follow-up's outcome, reason, question and leader before/after; the conclusion's assessment, open questions and next check; the three call allowances; each manual search's outcome and sections; contradicted vs deferred tree-of-thought candidates | no — built first at the developer's request, to be taught after | no — built ungated, developer to review | yes (tests only; no live run) | no — pre-merge walkthrough owed later (developer, 2026-10-31: "merge asap", "walkthrough owed later") | `progress.py` (`run_header`, `manual_line`, `call_lines`, `ProgressView._recheck`, `shown_order_line`, `assessment_lines`, `calls_line`, `belief`, `PRUNED_HEADINGS`, `_critique`, `_pruned`, `step_line`), `evaluation/manual.py` (`manual_search_record`), `experiment.py` (`main` prints the header); session note 2026-10-31 (LV2) |
+| EVF | Evaluation framework: function/test/tool inventories from per-test coverage, run evidence packets (judge view apart from truth), Snap 1.1 decision questions, rubric, audit of what the master runs prove (`evaluation/`) | no — built first at the developer's request (the two evaluation prompts of 2026-11-01), to be taught after | no — built ungated, developer to review | yes (docs, JSON artifacts and offline scaffolding; no production code changed) | no | `evaluation/EVALUATION_README.md`, `evaluation/EVALUATION_AUDIT.md`, `evaluation/FINAL_REPORT.md`, `evaluation/evaltools/*`, `tests/test_evaluation_tools.py`; session note 2026-11-01 (EVF) |
 Every row above with four "yes" marks (or "n/a") is complete: no question is
 outstanding on it. Still to build after 12c, from `docs/MVP_SCOPE.md`: the
 other three fault scenarios (material batch, machine configuration, false
 alarm), then evaluation, then the agent itself.
 
 ## Session notes
+
+- **2026-11-01 (EVF): evaluation framework and audit, built ungated.** From
+  the developer's two prompts (an evaluation-architecture review for a
+  long-context model, then a function-, tool-, test- and run-level
+  verification framework that SubQ Snap 1.1 can score). Nothing in the
+  agent, the simulator, the prompts or the scoring changed; `pyproject.toml`
+  gains `evaluation` on the pytest and ruff paths and `.github/test_groups.py`
+  lists the one new test file.
+  - `evaluation/evaltools/build_inventory.py` lists every project function
+    (602 on this commit), test (1357 functions, 1,708 cases) and agent tool
+    (17) from the syntax tree, joins them through per-test coverage contexts
+    (`pytest --cov-context=test`) and the junit report, and writes
+    `inventory/*.json`. Derived statuses are conservative; only
+    `curated/function_notes.json` (59 reviewed functions) and
+    `curated/test_notes.json` (28 reviewed tests) can say VERIFIED or FAILED.
+  - `evaltools/run_packet.py` turns an `ExperimentRecord` (and, when the run
+    kept one, its audit log) into a packet with a `snap_view` a judge may see
+    and an `evaluator_only` half with the truth comparisons, plus
+    `verification_calibration` (the agent's verdict against the truth of
+    resolution) and `cited_by_origin` (manual or memory cited, not only
+    retrieved). The committed `RUN_EVIDENCE_SCHEMA.json` is generated from
+    it. `packets/master-single-2026-10-27/` holds the nine packets of the
+    only master run whose records are in the repository.
+  - `evaltools/snap_request.py` builds `POST /v1/systemone` bodies from
+    `SNAP_QUESTIONS.json` (22 questions: 12 per run, 3 per function, 3 per
+    test, 3 per tool, 2 per batch comparison), at most 16 per request,
+    dry-run by default; `--send` needs `SUBQ_API_KEY` in the environment.
+    docs.subq.ai was not reachable from the session, so the request shape is
+    second-hand and the score-level key is marked to confirm.
+  - `evaltools/traced_run.py` runs cases one at a time under the coverage
+    tracer so each run key maps to the functions it executed.
+  - The audit (`EVALUATION_AUDIT.md`) and the final report
+    (`FINAL_REPORT.md`) say what the master runs prove: the loop, the
+    boundary and the scoring are well tested; the reported numbers are not
+    like for like across runs; several summary figures (right
+    recommendations, resolved, evidence share) can rise while the agent
+    gets worse; no run on record kept the evidence a judge needs.
+  - Tests (`tests/test_evaluation_tools.py`, CI group Evaluation): packets
+    keep truth out of the judge view and reproduce the 3/9 of EV1; the
+    schema matches the model; questions batch at 16; an audit log gives a
+    full trace; the traced runner names executed functions; the inventory
+    counts every definition and refuses stale curated ids.
+  - Not done: no Snap request was sent; the reference set for validating
+    the judge is designed, not filled; the live experiments proposed
+    (critic off/on matched, all 13 cases frozen, repeats) are Codex's.
 
 - **2026-10-31 (LV2): the progress view catches up.** Before the fresh
   anchored-vs-blind pair, the live view (`capstone.progress`, also used by

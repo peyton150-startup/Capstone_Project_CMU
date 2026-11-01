@@ -1,0 +1,1532 @@
+{
+ "$defs": {
+  "ConclusionView": {
+   "additionalProperties": false,
+   "properties": {
+    "diagnosis": {
+     "title": "Diagnosis",
+     "type": "string"
+    },
+    "confidence": {
+     "title": "Confidence",
+     "type": "number"
+    },
+    "recommendation": {
+     "title": "Recommendation",
+     "type": "string"
+    },
+    "policy_recommendation": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null,
+     "title": "Policy Recommendation"
+    },
+    "recommendation_lowered": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null,
+     "title": "Recommendation Lowered"
+    },
+    "assessment": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null,
+     "title": "Assessment"
+    },
+    "unresolved_questions": {
+     "items": {
+      "type": "string"
+     },
+     "title": "Unresolved Questions",
+     "type": "array"
+    },
+    "next_check": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null,
+     "title": "Next Check"
+    },
+    "evidence_ids": {
+     "items": {
+      "type": "string"
+     },
+     "title": "Evidence Ids",
+     "type": "array"
+    },
+    "hypothesis_id": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null,
+     "title": "Hypothesis Id"
+    }
+   },
+   "required": [
+    "diagnosis",
+    "confidence",
+    "recommendation"
+   ],
+   "title": "ConclusionView",
+   "type": "object"
+  },
+  "Configuration": {
+   "additionalProperties": false,
+   "description": "What the run was configured with, as far as the record says.",
+   "properties": {
+    "step_questions": {
+     "anyOf": [
+      {
+       "type": "integer"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null,
+     "title": "Step Questions"
+    },
+    "state_action_bar": {
+     "anyOf": [
+      {
+       "type": "boolean"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null,
+     "title": "State Action Bar"
+    },
+    "critic": {
+     "anyOf": [
+      {
+       "enum": [
+        "off",
+        "anchored",
+        "blind"
+       ],
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null,
+     "title": "Critic"
+    },
+    "critic_followup_on": {
+     "anyOf": [
+      {
+       "type": "boolean"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null,
+     "title": "Critic Followup On"
+    },
+    "manual_offered": {
+     "anyOf": [
+      {
+       "type": "boolean"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null,
+     "title": "Manual Offered"
+    },
+    "manual_step": {
+     "anyOf": [
+      {
+       "type": "boolean"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null,
+     "title": "Manual Step"
+    },
+    "memory_offered": {
+     "anyOf": [
+      {
+       "type": "boolean"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null,
+     "title": "Memory Offered"
+    },
+    "tree_of_thought": {
+     "anyOf": [
+      {
+       "type": "boolean"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null,
+     "title": "Tree Of Thought"
+    },
+    "hazards": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null,
+     "title": "Hazards"
+    },
+    "models_answering": {
+     "additionalProperties": {
+      "type": "integer"
+     },
+     "title": "Models Answering",
+     "type": "object"
+    }
+   },
+   "title": "Configuration",
+   "type": "object"
+  },
+  "CritiqueView": {
+   "additionalProperties": false,
+   "properties": {
+    "outcome": {
+     "title": "Outcome",
+     "type": "string"
+    },
+    "blind": {
+     "default": false,
+     "title": "Blind",
+     "type": "boolean"
+    },
+    "verdict": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null,
+     "title": "Verdict"
+    },
+    "favoured": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null,
+     "title": "Favoured"
+    },
+    "favoured_claim": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null,
+     "title": "Favoured Claim"
+    },
+    "why": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null,
+     "title": "Why"
+    },
+    "discriminating_check": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null,
+     "title": "Discriminating Check"
+    },
+    "objections": {
+     "items": {
+      "additionalProperties": true,
+      "type": "object"
+     },
+     "title": "Objections",
+     "type": "array"
+    },
+    "verdict_mismatch": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null,
+     "title": "Verdict Mismatch"
+    },
+    "manual_sections": {
+     "anyOf": [
+      {
+       "items": {
+        "type": "string"
+       },
+       "type": "array"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null,
+     "title": "Manual Sections"
+    },
+    "seconds": {
+     "anyOf": [
+      {
+       "type": "number"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null,
+     "title": "Seconds"
+    }
+   },
+   "required": [
+    "outcome"
+   ],
+   "title": "CritiqueView",
+   "type": "object"
+  },
+  "DecisionView": {
+   "additionalProperties": false,
+   "properties": {
+    "sequence": {
+     "title": "Sequence",
+     "type": "integer"
+    },
+    "agent": {
+     "title": "Agent",
+     "type": "string"
+    },
+    "phase": {
+     "title": "Phase",
+     "type": "string"
+    },
+    "tick": {
+     "anyOf": [
+      {
+       "type": "integer"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "title": "Tick"
+    },
+    "tool": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "title": "Tool"
+    },
+    "arguments": {
+     "additionalProperties": true,
+     "title": "Arguments",
+     "type": "object"
+    },
+    "outcome": {
+     "title": "Outcome",
+     "type": "string"
+    },
+    "evidence_ids": {
+     "items": {
+      "type": "string"
+     },
+     "title": "Evidence Ids",
+     "type": "array"
+    },
+    "confidence": {
+     "title": "Confidence",
+     "type": "number"
+    },
+    "information_needed": {
+     "title": "Information Needed",
+     "type": "string"
+    },
+    "error": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null,
+     "title": "Error"
+    }
+   },
+   "required": [
+    "sequence",
+    "agent",
+    "phase",
+    "tick",
+    "tool",
+    "outcome",
+    "confidence",
+    "information_needed"
+   ],
+   "title": "DecisionView",
+   "type": "object"
+  },
+  "EvaluatorOnly": {
+   "additionalProperties": false,
+   "description": "Deterministic truth comparisons. Never sent to a judge of quality.",
+   "properties": {
+    "true_faults": {
+     "items": {
+      "additionalProperties": true,
+      "type": "object"
+     },
+     "title": "True Faults",
+     "type": "array"
+    },
+    "distractors": {
+     "items": {
+      "additionalProperties": true,
+      "type": "object"
+     },
+     "title": "Distractors",
+     "type": "array"
+    },
+    "label": {
+     "anyOf": [
+      {
+       "additionalProperties": true,
+       "type": "object"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "title": "Label"
+    },
+    "labelled_by": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "title": "Labelled By"
+    },
+    "root_cause_correct": {
+     "anyOf": [
+      {
+       "type": "boolean"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "title": "Root Cause Correct"
+    },
+    "target_correct": {
+     "anyOf": [
+      {
+       "type": "boolean"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "title": "Target Correct"
+    },
+    "fully_right": {
+     "anyOf": [
+      {
+       "type": "boolean"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "title": "Fully Right"
+    },
+    "causes_found": {
+     "anyOf": [
+      {
+       "type": "integer"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "title": "Causes Found"
+    },
+    "wrong_causes": {
+     "anyOf": [
+      {
+       "type": "integer"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "title": "Wrong Causes"
+    },
+    "recommendation_correct": {
+     "title": "Recommendation Correct",
+     "type": "boolean"
+    },
+    "action_correct": {
+     "title": "Action Correct",
+     "type": "boolean"
+    },
+    "resolved": {
+     "title": "Resolved",
+     "type": "boolean"
+    },
+    "unnecessary_interventions": {
+     "items": {
+      "type": "string"
+     },
+     "title": "Unnecessary Interventions",
+     "type": "array"
+    },
+    "false_intervention": {
+     "title": "False Intervention",
+     "type": "boolean"
+    },
+    "relevant_evidence": {
+     "items": {
+      "type": "string"
+     },
+     "title": "Relevant Evidence",
+     "type": "array"
+    },
+    "relevant_evidence_collected": {
+     "items": {
+      "type": "string"
+     },
+     "title": "Relevant Evidence Collected",
+     "type": "array"
+    },
+    "evidence_share": {
+     "anyOf": [
+      {
+       "type": "number"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "title": "Evidence Share"
+    },
+    "miss_kind": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "title": "Miss Kind"
+    },
+    "abstained": {
+     "anyOf": [
+      {
+       "type": "boolean"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "title": "Abstained"
+    },
+    "confident_wrong": {
+     "anyOf": [
+      {
+       "type": "boolean"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "title": "Confident Wrong"
+    },
+    "verification_calibration": {
+     "enum": [
+      "true_resolved",
+      "true_unresolved",
+      "false_resolved",
+      "false_unresolved",
+      "inconclusive",
+      "not_performed",
+      "no_verdict"
+     ],
+     "title": "Verification Calibration",
+     "type": "string"
+    },
+    "model_unavailable": {
+     "title": "Model Unavailable",
+     "type": "boolean"
+    },
+    "critic_pick_label": {
+     "anyOf": [
+      {
+       "additionalProperties": true,
+       "type": "object"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null,
+     "title": "Critic Pick Label"
+    },
+    "critic_pick_correct": {
+     "anyOf": [
+      {
+       "type": "boolean"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null,
+     "title": "Critic Pick Correct"
+    }
+   },
+   "required": [
+    "true_faults",
+    "distractors",
+    "label",
+    "labelled_by",
+    "root_cause_correct",
+    "target_correct",
+    "fully_right",
+    "causes_found",
+    "wrong_causes",
+    "recommendation_correct",
+    "action_correct",
+    "resolved",
+    "unnecessary_interventions",
+    "false_intervention",
+    "relevant_evidence",
+    "relevant_evidence_collected",
+    "evidence_share",
+    "miss_kind",
+    "abstained",
+    "confident_wrong",
+    "verification_calibration",
+    "model_unavailable"
+   ],
+   "title": "EvaluatorOnly",
+   "type": "object"
+  },
+  "EvidenceItem": {
+   "additionalProperties": false,
+   "properties": {
+    "id": {
+     "title": "Id",
+     "type": "string"
+    },
+    "tool": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "title": "Tool"
+    },
+    "arguments": {
+     "additionalProperties": true,
+     "title": "Arguments",
+     "type": "object"
+    },
+    "origin": {
+     "title": "Origin",
+     "type": "string"
+    },
+    "observed_tick": {
+     "anyOf": [
+      {
+       "type": "integer"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "title": "Observed Tick"
+    },
+    "content": {
+     "title": "Content",
+     "type": "string"
+    },
+    "truncated": {
+     "default": false,
+     "title": "Truncated",
+     "type": "boolean"
+    }
+   },
+   "required": [
+    "id",
+    "tool",
+    "origin",
+    "observed_tick",
+    "content"
+   ],
+   "title": "EvidenceItem",
+   "type": "object"
+  },
+  "HypothesisView": {
+   "additionalProperties": false,
+   "properties": {
+    "id": {
+     "title": "Id",
+     "type": "string"
+    },
+    "claim": {
+     "title": "Claim",
+     "type": "string"
+    },
+    "confidence": {
+     "title": "Confidence",
+     "type": "number"
+    },
+    "supporting_evidence_ids": {
+     "items": {
+      "type": "string"
+     },
+     "title": "Supporting Evidence Ids",
+     "type": "array"
+    },
+    "contradicting_evidence_ids": {
+     "items": {
+      "type": "string"
+     },
+     "title": "Contradicting Evidence Ids",
+     "type": "array"
+    },
+    "unexplained_evidence_ids": {
+     "items": {
+      "type": "string"
+     },
+     "title": "Unexplained Evidence Ids",
+     "type": "array"
+    },
+    "expected_observations": {
+     "items": {
+      "type": "string"
+     },
+     "title": "Expected Observations",
+     "type": "array"
+    },
+    "assumptions": {
+     "items": {
+      "type": "string"
+     },
+     "title": "Assumptions",
+     "type": "array"
+    },
+    "discriminating_check": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null,
+     "title": "Discriminating Check"
+    }
+   },
+   "required": [
+    "id",
+    "claim",
+    "confidence"
+   ],
+   "title": "HypothesisView",
+   "type": "object"
+  },
+  "ObservableFacts": {
+   "additionalProperties": false,
+   "description": "Code-computed facts that need no hidden truth.",
+   "properties": {
+    "termination_reason": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "title": "Termination Reason"
+    },
+    "finished_on_time": {
+     "anyOf": [
+      {
+       "type": "boolean"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "title": "Finished On Time"
+    },
+    "tool_calls": {
+     "title": "Tool Calls",
+     "type": "integer"
+    },
+    "factory_calls": {
+     "anyOf": [
+      {
+       "type": "integer"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "title": "Factory Calls"
+    },
+    "iterations": {
+     "title": "Iterations",
+     "type": "integer"
+    },
+    "ticks_elapsed": {
+     "title": "Ticks Elapsed",
+     "type": "integer"
+    },
+    "wall_seconds": {
+     "anyOf": [
+      {
+       "type": "number"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "title": "Wall Seconds"
+    },
+    "model_questions": {
+     "anyOf": [
+      {
+       "type": "integer"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "title": "Model Questions"
+    },
+    "model_answered": {
+     "anyOf": [
+      {
+       "type": "integer"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "title": "Model Answered"
+    },
+    "invalid_replies": {
+     "anyOf": [
+      {
+       "type": "integer"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "title": "Invalid Replies"
+    },
+    "unanswered": {
+     "anyOf": [
+      {
+       "type": "integer"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "title": "Unanswered"
+    },
+    "outage_attempts": {
+     "anyOf": [
+      {
+       "type": "integer"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "title": "Outage Attempts"
+    },
+    "machines_examined": {
+     "items": {
+      "type": "string"
+     },
+     "title": "Machines Examined",
+     "type": "array"
+    },
+    "sensors_read": {
+     "additionalProperties": {
+      "items": {
+       "type": "string"
+      },
+      "type": "array"
+     },
+     "title": "Sensors Read",
+     "type": "object"
+    },
+    "repeated_calls": {
+     "default": 0,
+     "title": "Repeated Calls",
+     "type": "integer"
+    },
+    "failed_tool_calls": {
+     "default": 0,
+     "title": "Failed Tool Calls",
+     "type": "integer"
+    },
+    "committed": {
+     "anyOf": [
+      {
+       "type": "boolean"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null,
+     "title": "Committed"
+    },
+    "confidence": {
+     "anyOf": [
+      {
+       "type": "number"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null,
+     "title": "Confidence"
+    },
+    "evidence_cited_by_conclusion": {
+     "anyOf": [
+      {
+       "type": "integer"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null,
+     "title": "Evidence Cited By Conclusion"
+    },
+    "observable_evidence_cited": {
+     "anyOf": [
+      {
+       "type": "integer"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null,
+     "title": "Observable Evidence Cited"
+    },
+    "cited_by_origin": {
+     "additionalProperties": {
+      "type": "integer"
+     },
+     "title": "Cited By Origin",
+     "type": "object"
+    },
+    "hazards_fired": {
+     "anyOf": [
+      {
+       "items": {
+        "type": "string"
+       },
+       "type": "array"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null,
+     "title": "Hazards Fired"
+    },
+    "hazards_retried": {
+     "anyOf": [
+      {
+       "type": "integer"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null,
+     "title": "Hazards Retried"
+    },
+    "blackout_recovered": {
+     "anyOf": [
+      {
+       "type": "boolean"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null,
+     "title": "Blackout Recovered"
+    }
+   },
+   "required": [
+    "termination_reason",
+    "finished_on_time",
+    "tool_calls",
+    "factory_calls",
+    "iterations",
+    "ticks_elapsed",
+    "wall_seconds",
+    "model_questions",
+    "model_answered",
+    "invalid_replies",
+    "unanswered",
+    "outage_attempts"
+   ],
+   "title": "ObservableFacts",
+   "type": "object"
+  },
+  "PacketMeta": {
+   "additionalProperties": false,
+   "properties": {
+    "packet_schema_version": {
+     "default": "1.0.0",
+     "title": "Packet Schema Version",
+     "type": "string"
+    },
+    "rubric_version": {
+     "default": "1.0.0",
+     "title": "Rubric Version",
+     "type": "string"
+    },
+    "commit_sha": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null,
+     "title": "Commit Sha"
+    },
+    "records_file": {
+     "title": "Records File",
+     "type": "string"
+    },
+    "audit_file": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null,
+     "title": "Audit File"
+    },
+    "labels_file": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null,
+     "title": "Labels File"
+    },
+    "record_digest": {
+     "title": "Record Digest",
+     "type": "string"
+    }
+   },
+   "required": [
+    "records_file",
+    "record_digest"
+   ],
+   "title": "PacketMeta",
+   "type": "object"
+  },
+  "RecheckView": {
+   "additionalProperties": false,
+   "properties": {
+    "outcome": {
+     "title": "Outcome",
+     "type": "string"
+    },
+    "trigger": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null,
+     "title": "Trigger"
+    },
+    "reason": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null,
+     "title": "Reason"
+    },
+    "tool": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null,
+     "title": "Tool"
+    },
+    "evidence_id": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null,
+     "title": "Evidence Id"
+    },
+    "leading_before": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null,
+     "title": "Leading Before"
+    },
+    "confidence_before": {
+     "anyOf": [
+      {
+       "type": "number"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null,
+     "title": "Confidence Before"
+    },
+    "leading_after": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null,
+     "title": "Leading After"
+    },
+    "confidence_after": {
+     "anyOf": [
+      {
+       "type": "number"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null,
+     "title": "Confidence After"
+    }
+   },
+   "required": [
+    "outcome"
+   ],
+   "title": "RecheckView",
+   "type": "object"
+  },
+  "SnapView": {
+   "additionalProperties": false,
+   "properties": {
+    "run_key": {
+     "title": "Run Key",
+     "type": "string"
+    },
+    "scenario_id": {
+     "title": "Scenario Id",
+     "type": "string"
+    },
+    "configuration": {
+     "$ref": "#/$defs/Configuration"
+    },
+    "trace": {
+     "$ref": "#/$defs/Trace"
+    },
+    "facts": {
+     "$ref": "#/$defs/ObservableFacts"
+    }
+   },
+   "required": [
+    "run_key",
+    "scenario_id",
+    "configuration",
+    "trace",
+    "facts"
+   ],
+   "title": "SnapView",
+   "type": "object"
+  },
+  "Trace": {
+   "additionalProperties": false,
+   "properties": {
+    "completeness": {
+     "enum": [
+      "full",
+      "record_only"
+     ],
+     "title": "Completeness",
+     "type": "string"
+    },
+    "anomaly": {
+     "title": "Anomaly",
+     "type": "string"
+    },
+    "anomaly_kind": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null,
+     "title": "Anomaly Kind"
+    },
+    "anomaly_machine": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null,
+     "title": "Anomaly Machine"
+    },
+    "evidence": {
+     "items": {
+      "$ref": "#/$defs/EvidenceItem"
+     },
+     "title": "Evidence",
+     "type": "array"
+    },
+    "hypotheses": {
+     "items": {
+      "$ref": "#/$defs/HypothesisView"
+     },
+     "title": "Hypotheses",
+     "type": "array"
+    },
+    "pruned_candidates": {
+     "items": {
+      "additionalProperties": true,
+      "type": "object"
+     },
+     "title": "Pruned Candidates",
+     "type": "array"
+    },
+    "decisions": {
+     "items": {
+      "$ref": "#/$defs/DecisionView"
+     },
+     "title": "Decisions",
+     "type": "array"
+    },
+    "tools_used": {
+     "items": {
+      "type": "string"
+     },
+     "title": "Tools Used",
+     "type": "array"
+    },
+    "conclusion": {
+     "anyOf": [
+      {
+       "$ref": "#/$defs/ConclusionView"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null
+    },
+    "critique": {
+     "anyOf": [
+      {
+       "$ref": "#/$defs/CritiqueView"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null
+    },
+    "recheck": {
+     "anyOf": [
+      {
+       "$ref": "#/$defs/RecheckView"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null
+    },
+    "verification": {
+     "anyOf": [
+      {
+       "$ref": "#/$defs/VerificationView"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null
+    },
+    "proposal": {
+     "anyOf": [
+      {
+       "additionalProperties": true,
+       "type": "object"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null,
+     "title": "Proposal"
+    },
+    "manual_searches": {
+     "items": {
+      "additionalProperties": true,
+      "type": "object"
+     },
+     "title": "Manual Searches",
+     "type": "array"
+    },
+    "recall_searches": {
+     "items": {
+      "additionalProperties": true,
+      "type": "object"
+     },
+     "title": "Recall Searches",
+     "type": "array"
+    }
+   },
+   "required": [
+    "completeness",
+    "anomaly"
+   ],
+   "title": "Trace",
+   "type": "object"
+  },
+  "VerificationView": {
+   "additionalProperties": false,
+   "properties": {
+    "outcome": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "title": "Outcome"
+    },
+    "prediction": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null,
+     "title": "Prediction"
+    },
+    "evidence_ids": {
+     "items": {
+      "type": "string"
+     },
+     "title": "Evidence Ids",
+     "type": "array"
+    },
+    "checked_tick": {
+     "anyOf": [
+      {
+       "type": "integer"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null,
+     "title": "Checked Tick"
+    },
+    "action_started_tick": {
+     "anyOf": [
+      {
+       "type": "integer"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null,
+     "title": "Action Started Tick"
+    },
+    "action_finish_tick": {
+     "anyOf": [
+      {
+       "type": "integer"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null,
+     "title": "Action Finish Tick"
+    }
+   },
+   "required": [
+    "outcome"
+   ],
+   "title": "VerificationView",
+   "type": "object"
+  }
+ },
+ "additionalProperties": false,
+ "properties": {
+  "meta": {
+   "$ref": "#/$defs/PacketMeta"
+  },
+  "snap_view": {
+   "$ref": "#/$defs/SnapView"
+  },
+  "evaluator_only": {
+   "$ref": "#/$defs/EvaluatorOnly"
+  }
+ },
+ "required": [
+  "meta",
+  "snap_view",
+  "evaluator_only"
+ ],
+ "title": "RunEvidencePacket",
+ "type": "object"
+}

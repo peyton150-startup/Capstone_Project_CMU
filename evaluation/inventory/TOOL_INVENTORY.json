@@ -1,0 +1,1185 @@
+{
+ "inventory_version": "1.0.0",
+ "tools": [
+  {
+   "name": "get_time",
+   "offered_to_policy": true,
+   "invoked_by": "research_agent policy (decide), critic follow-up (read-only research tools except wait), loop itself (get_time, wait in execute)",
+   "changes_factory": false,
+   "needs_human_approval": false,
+   "description": "The current tick and clock time.",
+   "argument_schema": {
+    "additionalProperties": false,
+    "properties": {},
+    "title": "NoArguments",
+    "type": "object"
+   },
+   "output_contract": "ClockObservation",
+   "implementation": "capstone.tools.observation:ObservationTools.get_time",
+   "boundary": "capstone.providers.factory:SimulatorFactoryProvider.call -> run_tool (argument model, output model rebuild, MAX_ROWS=300, errors without detail)",
+   "simulator_access": "reads sim.readings / event_log / state through ObservationTools, or ActionTools for wait and the approval desk; never sim.ground_truth() or MachineCondition",
+   "tests": [
+    "tests/test_observation_tools.py::test_get_time_reports_tick_and_clock_time",
+    "tests/test_agent_action.py::test_a_human_hook_that_decides_nothing_does_not_count_as_approval",
+    "tests/test_agent_action.py::test_a_long_repair_is_waited_out_in_steps_the_factory_accepts",
+    "tests/test_agent_action.py::test_a_proposal_the_factory_refuses_is_never_put_to_the_human",
+    "tests/test_agent_action.py::test_a_rejection_stops_after_the_read_back_and_keeps_the_reason",
+    "tests/test_agent_action.py::test_an_approval_with_no_calls_left_is_not_a_fix",
+    "tests/test_agent_action.py::test_an_approved_action_is_asked_for_read_back_started_and_waited_out",
+    "tests/test_agent_action.py::test_follow_up_calls_use_their_own_allowance_and_leave_the_stop_reason_alone",
+    "tests/test_agent_action.py::test_no_hidden_truth_reaches_working_memory_on_the_action_path",
+    "tests/test_agent_action.py::test_nothing_is_asked_when_the_conclusion_wants_no_change",
+    "tests/test_agent_action.py::test_the_decision_is_read_even_if_the_same_question_was_asked_this_tick",
+    "tests/test_agent_action.py::test_the_human_s_note_is_kept_as_evidence",
+    "tests/test_agent_action.py::test_the_loop_makes_the_calls_not_the_policy",
+    "tests/test_agent_action.py::test_the_proposal_handed_to_the_human_cannot_be_used_to_approve",
+    "tests/test_agent_action.py::test_with_no_allowance_at_all_the_action_is_never_submitted",
+    "tests/test_agent_action.py::test_with_no_human_answer_the_proposal_stays_pending",
+    "tests/test_agent_action.py::test_work_that_cannot_start_is_recorded_as_approved_and_not_carried_out",
+    "tests/test_agent_completion.py::test_a_check_that_was_never_made_is_left_out",
+    "tests/test_agent_completion.py::test_a_fix_that_did_not_work_is_recorded_as_failed",
+    "tests/test_agent_completion.py::test_a_proposal_nobody_answered_is_shown_as_pending",
+    "tests/test_agent_completion.py::test_a_rejection_and_its_reason_are_in_the_record",
+    "tests/test_agent_completion.py::test_a_rejection_note_is_kept_in_the_log_in_words",
+    "tests/test_agent_completion.py::test_a_resolved_check_is_verified_at_the_tick_it_was_made",
+    "tests/test_agent_completion.py::test_a_verified_fix_becomes_a_complete_shared_record",
+    "tests/test_agent_completion.py::test_an_approval_that_was_never_carried_out_can_be_told_apart_from_a_fix",
+    "tests/test_agent_completion.py::test_an_inconclusive_check_stays_unverified",
+    "tests/test_agent_completion.py::test_audit_without_memory_writes_the_record",
+    "tests/test_agent_completion.py::test_doing_nothing_and_checking_is_recorded_with_its_result",
+    "tests/test_agent_completion.py::test_every_ending_produces_a_valid_record_that_cites_only_real_evidence",
+    "tests/test_agent_completion.py::test_no_action_is_recorded_when_none_was_wanted",
+    "tests/test_agent_completion.py::test_no_hidden_truth_is_written_to_the_log"
+   ],
+   "test_count": 256,
+   "verification_status": "PARTIALLY VERIFIED",
+   "snap_questions": [
+    "TL-01",
+    "TL-02",
+    "TL-03"
+   ]
+  },
+  {
+   "name": "list_machines",
+   "offered_to_policy": true,
+   "invoked_by": "research_agent policy (decide), critic follow-up (read-only research tools except wait), loop itself (get_time, wait in execute)",
+   "changes_factory": false,
+   "needs_human_approval": false,
+   "description": "Every machine on the line in order, its status (running / idle / down), current job, and whether it has a hydraulic system.",
+   "argument_schema": {
+    "additionalProperties": false,
+    "properties": {},
+    "title": "NoArguments",
+    "type": "object"
+   },
+   "output_contract": "MachineObservation[]",
+   "implementation": "capstone.tools.observation:ObservationTools.list_machines",
+   "boundary": "capstone.providers.factory:SimulatorFactoryProvider.call -> run_tool (argument model, output model rebuild, MAX_ROWS=300, errors without detail)",
+   "simulator_access": "reads sim.readings / event_log / state through ObservationTools, or ActionTools for wait and the approval desk; never sim.ground_truth() or MachineCondition",
+   "tests": [
+    "tests/test_job_history.py::test_list_machines_shows_who_is_holding_what",
+    "tests/test_observation_tools.py::test_list_machines_shows_id_status_and_current_job_only",
+    "tests/test_agent_investigation.py::test_research_through_the_real_provider_changes_nothing_in_the_factory",
+    "tests/test_agent_loop.py::test_the_loop_gathers_evidence_through_the_real_provider_without_hidden_truth",
+    "tests/test_build_line.py::test_the_agents_tools_work_on_the_standard_line",
+    "tests/test_factory_provider.py::test_adapter_logs_metadata_without_tool_payloads",
+    "tests/test_factory_provider.py::test_all_read_tools_preserve_existing_observable_shapes",
+    "tests/test_factory_provider.py::test_an_answer_that_breaks_its_contract_is_reported_without_its_content",
+    "tests/test_factory_provider.py::test_observations_carry_simulation_time_and_trace_ids_without_advancing",
+    "tests/test_false_alarm.py::test_the_ground_truth_names_a_false_alarm_and_the_tool_view_does_not",
+    "tests/test_hydraulics.py::test_the_agent_sees_which_machines_have_hydraulics",
+    "tests/test_job_history.py::test_an_idle_machine_holding_a_job_looks_different_from_an_idle_empty_one",
+    "tests/test_load.py::test_the_agent_sees_load_only_through_the_load_sensor",
+    "tests/test_manual.py::test_every_other_tool_goes_to_the_inner_provider_unchanged",
+    "tests/test_material_batch.py::test_the_agent_sees_batch_numbers_and_never_the_quality",
+    "tests/test_observation_tools.py::test_answers_are_plain_data",
+    "tests/test_observation_tools.py::test_editing_an_answer_does_not_edit_the_factory",
+    "tests/test_observation_tools.py::test_looking_does_not_advance_time_or_change_the_factory",
+    "tests/test_observation_tools.py::test_nothing_hidden_leaks_through_any_tool_over_a_full_run",
+    "tests/test_production_line.py::test_the_agent_sees_id_status_and_current_job_for_each_machine_and_no_more",
+    "tests/test_quality.py::test_the_agent_sees_pass_or_fail_and_never_the_risk",
+    "tests/test_recall_tool.py::test_every_other_tool_goes_to_the_factory_unchanged",
+    "tests/test_simulator_challenge.py::test_challenge_has_sparse_samples_and_self_ending_anomaly_alongside_real_faults",
+    "tests/test_simulator_challenge.py::test_challenge_is_replayable_through_unchanged_tools_and_keeps_truth_hidden",
+    "tests/test_simulator_challenge.py::test_different_seeds_change_observations_but_keep_the_same_challenge_logic",
+    "tests/test_slow_when_worn.py::test_nothing_about_speed_or_progress_reaches_the_agent_directly",
+    "tests/test_thermometer.py::test_the_machine_tool_cannot_return_the_thermometer",
+    "tests/test_wait_tool.py::test_looking_is_free_however_often_the_agent_looks",
+    "tests/test_wrong_setting.py::test_the_agent_can_read_each_machines_speed_but_not_what_it_should_be"
+   ],
+   "test_count": 29,
+   "verification_status": "PARTIALLY VERIFIED",
+   "snap_questions": [
+    "TL-01",
+    "TL-02",
+    "TL-03"
+   ]
+  },
+  {
+   "name": "get_settings",
+   "offered_to_policy": true,
+   "invoked_by": "research_agent policy (decide), critic follow-up (read-only research tools except wait), loop itself (get_time, wait in execute)",
+   "changes_factory": false,
+   "needs_human_approval": false,
+   "description": "Each machine's current spindle speed in rpm. Standard speeds differ by machine and are not shown.",
+   "argument_schema": {
+    "additionalProperties": false,
+    "properties": {},
+    "title": "NoArguments",
+    "type": "object"
+   },
+   "output_contract": "SettingObservation[]",
+   "implementation": "capstone.tools.observation:ObservationTools.get_settings",
+   "boundary": "capstone.providers.factory:SimulatorFactoryProvider.call -> run_tool (argument model, output model rebuild, MAX_ROWS=300, errors without detail)",
+   "simulator_access": "reads sim.readings / event_log / state through ObservationTools, or ActionTools for wait and the approval desk; never sim.ground_truth() or MachineCondition",
+   "tests": [
+    "tests/test_difficulty_tool_compatibility.py::test_compound_fault_repair_can_leave_a_symptom_through_unchanged_tools",
+    "tests/test_factory_provider.py::test_all_read_tools_preserve_existing_observable_shapes",
+    "tests/test_false_alarm.py::test_the_ground_truth_names_a_false_alarm_and_the_tool_view_does_not",
+    "tests/test_observation_tools.py::test_answers_are_plain_data",
+    "tests/test_observation_tools.py::test_looking_does_not_advance_time_or_change_the_factory",
+    "tests/test_observation_tools.py::test_nothing_hidden_leaks_through_any_tool_over_a_full_run",
+    "tests/test_setting_reset.py::test_the_reset_stays_reset_because_the_fault_wrote_only_once",
+    "tests/test_simulator_challenge.py::test_challenge_has_sparse_samples_and_self_ending_anomaly_alongside_real_faults",
+    "tests/test_simulator_challenge.py::test_challenge_is_replayable_through_unchanged_tools_and_keeps_truth_hidden",
+    "tests/test_simulator_challenge.py::test_different_seeds_change_observations_but_keep_the_same_challenge_logic",
+    "tests/test_wrong_setting.py::test_the_agent_can_read_each_machines_speed_but_not_what_it_should_be"
+   ],
+   "test_count": 11,
+   "verification_status": "INSUFFICIENT EVIDENCE",
+   "snap_questions": [
+    "TL-01",
+    "TL-02",
+    "TL-03"
+   ]
+  },
+  {
+   "name": "get_readings",
+   "offered_to_policy": true,
+   "invoked_by": "research_agent policy (decide), critic follow-up (read-only research tools except wait), loop itself (get_time, wait in execute)",
+   "changes_factory": false,
+   "needs_human_approval": false,
+   "description": "Raw readings from one machine sensor (vibration mm/s, temperature \u00b0F, load %, power: electrical demand in kW, or following_error: how far the axis lags its commanded position, in \u00b5m; or hydraulic_pressure in bar, only on machines with hydraulics) in a tick range. One tick is one minute. At most 300 rows; for longer ranges use get_sensor_trend.",
+   "argument_schema": {
+    "additionalProperties": false,
+    "properties": {
+     "from_tick": {
+      "minimum": 0,
+      "title": "From Tick",
+      "type": "integer"
+     },
+     "to_tick": {
+      "minimum": 0,
+      "title": "To Tick",
+      "type": "integer"
+     },
+     "machine_id": {
+      "title": "Machine Id",
+      "type": "string"
+     },
+     "sensor": {
+      "enum": [
+       "vibration",
+       "temperature",
+       "load",
+       "power",
+       "following_error",
+       "hydraulic_pressure"
+      ],
+      "title": "Sensor",
+      "type": "string"
+     }
+    },
+    "required": [
+     "from_tick",
+     "to_tick",
+     "machine_id",
+     "sensor"
+    ],
+    "title": "ReadingsArguments",
+    "type": "object"
+   },
+   "output_contract": "SensorObservation[]",
+   "implementation": "capstone.tools.observation:ObservationTools.get_readings",
+   "boundary": "capstone.providers.factory:SimulatorFactoryProvider.call -> run_tool (argument model, output model rebuild, MAX_ROWS=300, errors without detail)",
+   "simulator_access": "reads sim.readings / event_log / state through ObservationTools, or ActionTools for wait and the approval desk; never sim.ground_truth() or MachineCondition",
+   "tests": [
+    "tests/test_observation_tools.py::test_get_readings_returns_one_machine_one_sensor_in_the_tick_range",
+    "tests/test_agent_action.py::test_a_human_hook_that_decides_nothing_does_not_count_as_approval",
+    "tests/test_agent_action.py::test_a_long_repair_is_waited_out_in_steps_the_factory_accepts",
+    "tests/test_agent_action.py::test_a_proposal_the_factory_refuses_is_never_put_to_the_human",
+    "tests/test_agent_action.py::test_a_rejection_stops_after_the_read_back_and_keeps_the_reason",
+    "tests/test_agent_action.py::test_an_approval_with_no_calls_left_is_not_a_fix",
+    "tests/test_agent_action.py::test_an_approved_action_is_asked_for_read_back_started_and_waited_out",
+    "tests/test_agent_action.py::test_follow_up_calls_use_their_own_allowance_and_leave_the_stop_reason_alone",
+    "tests/test_agent_action.py::test_no_hidden_truth_reaches_working_memory_on_the_action_path",
+    "tests/test_agent_action.py::test_nothing_is_asked_when_the_conclusion_wants_no_change",
+    "tests/test_agent_action.py::test_the_decision_is_read_even_if_the_same_question_was_asked_this_tick",
+    "tests/test_agent_action.py::test_the_human_s_note_is_kept_as_evidence",
+    "tests/test_agent_action.py::test_the_loop_makes_the_calls_not_the_policy",
+    "tests/test_agent_action.py::test_the_proposal_handed_to_the_human_cannot_be_used_to_approve",
+    "tests/test_agent_action.py::test_with_no_allowance_at_all_the_action_is_never_submitted",
+    "tests/test_agent_action.py::test_with_no_human_answer_the_proposal_stays_pending",
+    "tests/test_agent_action.py::test_work_that_cannot_start_is_recorded_as_approved_and_not_carried_out",
+    "tests/test_agent_completion.py::test_a_check_that_was_never_made_is_left_out",
+    "tests/test_agent_completion.py::test_a_fix_that_did_not_work_is_recorded_as_failed",
+    "tests/test_agent_completion.py::test_a_proposal_nobody_answered_is_shown_as_pending",
+    "tests/test_agent_completion.py::test_a_rejection_and_its_reason_are_in_the_record",
+    "tests/test_agent_completion.py::test_a_rejection_note_is_kept_in_the_log_in_words",
+    "tests/test_agent_completion.py::test_a_resolved_check_is_verified_at_the_tick_it_was_made",
+    "tests/test_agent_completion.py::test_a_verified_fix_becomes_a_complete_shared_record",
+    "tests/test_agent_completion.py::test_an_approval_that_was_never_carried_out_can_be_told_apart_from_a_fix",
+    "tests/test_agent_completion.py::test_an_inconclusive_check_stays_unverified",
+    "tests/test_agent_completion.py::test_audit_without_memory_writes_the_record",
+    "tests/test_agent_completion.py::test_doing_nothing_and_checking_is_recorded_with_its_result",
+    "tests/test_agent_completion.py::test_every_ending_produces_a_valid_record_that_cites_only_real_evidence",
+    "tests/test_agent_completion.py::test_no_action_is_recorded_when_none_was_wanted",
+    "tests/test_agent_completion.py::test_no_hidden_truth_is_written_to_the_log"
+   ],
+   "test_count": 236,
+   "verification_status": "VERIFIED",
+   "snap_questions": [
+    "TL-01",
+    "TL-02",
+    "TL-03"
+   ]
+  },
+  {
+   "name": "get_sensor_trend",
+   "offered_to_policy": true,
+   "invoked_by": "research_agent policy (decide), critic follow-up (read-only research tools except wait), loop itself (get_time, wait in execute)",
+   "changes_factory": false,
+   "needs_human_approval": false,
+   "description": "One machine sensor (vibration, temperature, load, power, following_error or hydraulic_pressure) summarised per block of ticks: mean, min, max and count for each block (bucket_ticks, default 60). Shows whether a change is gradual or a single jump, at a fraction of the size of get_readings. Idle readings are included, which pulls a block's mean down while a machine waits.",
+   "argument_schema": {
+    "additionalProperties": false,
+    "properties": {
+     "from_tick": {
+      "minimum": 0,
+      "title": "From Tick",
+      "type": "integer"
+     },
+     "to_tick": {
+      "minimum": 0,
+      "title": "To Tick",
+      "type": "integer"
+     },
+     "machine_id": {
+      "title": "Machine Id",
+      "type": "string"
+     },
+     "sensor": {
+      "enum": [
+       "vibration",
+       "temperature",
+       "load",
+       "power",
+       "following_error",
+       "hydraulic_pressure"
+      ],
+      "title": "Sensor",
+      "type": "string"
+     },
+     "bucket_ticks": {
+      "default": 60,
+      "minimum": 1,
+      "title": "Bucket Ticks",
+      "type": "integer"
+     }
+    },
+    "required": [
+     "from_tick",
+     "to_tick",
+     "machine_id",
+     "sensor"
+    ],
+    "title": "TrendArguments",
+    "type": "object"
+   },
+   "output_contract": "SensorTrendObservation[]",
+   "implementation": "capstone.tools.observation:ObservationTools.get_sensor_trend",
+   "boundary": "capstone.providers.factory:SimulatorFactoryProvider.call -> run_tool (argument model, output model rebuild, MAX_ROWS=300, errors without detail)",
+   "simulator_access": "reads sim.readings / event_log / state through ObservationTools, or ActionTools for wait and the approval desk; never sim.ground_truth() or MachineCondition",
+   "tests": [
+    "tests/test_agent_completion.py::test_audit_without_memory_writes_the_record",
+    "tests/test_benchmark.py::test_each_episode_is_timed_and_handed_on_as_it_ends",
+    "tests/test_benchmark.py::test_episodes_are_run_and_recorded_for_each_fault_and_seed",
+    "tests/test_episode.py::test_a_bearing_fault_is_found_fixed_checked_and_scored_in_full",
+    "tests/test_episode.py::test_a_critic_does_not_change_the_episode",
+    "tests/test_episode.py::test_a_human_who_refuses_leaves_the_fault_in_place",
+    "tests/test_episode.py::test_a_label_added_afterwards_scores_the_same_run",
+    "tests/test_episode.py::test_a_run_with_the_manual_gives_the_settings_critic_the_manual",
+    "tests/test_episode.py::test_a_scripted_policy_without_the_combined_question_runs_in_two",
+    "tests/test_episode.py::test_a_verified_fix_is_audited_and_remembered",
+    "tests/test_episode.py::test_a_whole_episode_records_the_section_nine_fields",
+    "tests/test_episode.py::test_critic_blind_is_off_by_default_and_reaches_the_run",
+    "tests/test_episode.py::test_critic_followup_off_by_default",
+    "tests/test_episode.py::test_critic_followup_setting_reaches_the_run",
+    "tests/test_episode.py::test_critic_off_by_default_keeps_results",
+    "tests/test_episode.py::test_passed_critic_is_used",
+    "tests/test_episode.py::test_the_agent_never_holds_the_answer_key",
+    "tests/test_episode.py::test_the_same_seed_gives_the_same_episode",
+    "tests/test_episode.py::test_without_a_judge_the_diagnosis_is_unjudged_but_the_action_is_scored",
+    "tests/test_episode.py::test_without_an_audit_log_nothing_is_learned",
+    "tests/test_evals.py::test_comparison_requires_same_cases_and_preserves_unknown_accuracy",
+    "tests/test_evals.py::test_each_case_runs_with_its_own_hazards",
+    "tests/test_evals.py::test_full_episode_report_keeps_truth_out_of_policy_and_scores_only_labels",
+    "tests/test_evals.py::test_master_run_can_show_existing_live_progress_hooks",
+    "tests/test_evals.py::test_record_keeps_the_claim_the_critic_favoured",
+    "tests/test_evals.py::test_records_without_critic_report_none",
+    "tests/test_evals.py::test_rescoring_saved_records_never_opens_the_manual",
+    "tests/test_evals.py::test_resume_accepts_only_the_saved_prefix_and_keeps_run_numbers",
+    "tests/test_evals.py::test_review_flag_excludes_provisional_label_from_accuracy",
+    "tests/test_evals.py::test_run_cases_offers_the_manual_when_given"
+   ],
+   "test_count": 95,
+   "verification_status": "PARTIALLY VERIFIED",
+   "snap_questions": [
+    "TL-01",
+    "TL-02",
+    "TL-03"
+   ]
+  },
+  {
+   "name": "get_factory_readings",
+   "offered_to_policy": true,
+   "invoked_by": "research_agent policy (decide), critic follow-up (read-only research tools except wait), loop itself (get_time, wait in execute)",
+   "changes_factory": false,
+   "needs_human_approval": false,
+   "description": "The factory air thermometer (sensor 'air_temperature', \u00b0F) in a tick range.",
+   "argument_schema": {
+    "additionalProperties": false,
+    "properties": {
+     "from_tick": {
+      "minimum": 0,
+      "title": "From Tick",
+      "type": "integer"
+     },
+     "to_tick": {
+      "minimum": 0,
+      "title": "To Tick",
+      "type": "integer"
+     },
+     "sensor": {
+      "const": "air_temperature",
+      "title": "Sensor",
+      "type": "string"
+     }
+    },
+    "required": [
+     "from_tick",
+     "to_tick",
+     "sensor"
+    ],
+    "title": "FactoryReadingsArguments",
+    "type": "object"
+   },
+   "output_contract": "SensorObservation[]",
+   "implementation": "capstone.tools.observation:ObservationTools.get_factory_readings",
+   "boundary": "capstone.providers.factory:SimulatorFactoryProvider.call -> run_tool (argument model, output model rebuild, MAX_ROWS=300, errors without detail)",
+   "simulator_access": "reads sim.readings / event_log / state through ObservationTools, or ActionTools for wait and the approval desk; never sim.ground_truth() or MachineCondition",
+   "tests": [
+    "tests/test_thermometer.py::test_the_agent_reads_it_through_get_factory_readings",
+    "tests/test_build_line.py::test_the_agents_tools_work_on_the_standard_line",
+    "tests/test_factory_provider.py::test_all_read_tools_preserve_existing_observable_shapes",
+    "tests/test_observation_tools.py::test_answers_are_plain_data",
+    "tests/test_observation_tools.py::test_looking_does_not_advance_time_or_change_the_factory",
+    "tests/test_observation_tools.py::test_nothing_hidden_leaks_through_any_tool_over_a_full_run",
+    "tests/test_sensor_summary.py::test_factory_summary_selects_only_factory_observations",
+    "tests/test_sensor_summary.py::test_provider_preserves_empty_and_populated_summary_results",
+    "tests/test_thermometer.py::test_a_healthy_machines_own_heat_is_43_degrees_all_day_whatever_the_air_does",
+    "tests/test_thermometer.py::test_wear_shows_as_own_heat_climbing_above_43",
+    "tests/test_wait_tool.py::test_looking_is_free_however_often_the_agent_looks"
+   ],
+   "test_count": 11,
+   "verification_status": "PARTIALLY VERIFIED",
+   "snap_questions": [
+    "TL-01",
+    "TL-02",
+    "TL-03"
+   ]
+  },
+  {
+   "name": "get_sensor_summary",
+   "offered_to_policy": true,
+   "invoked_by": "research_agent policy (decide), critic follow-up (read-only research tools except wait), loop itself (get_time, wait in execute)",
+   "changes_factory": false,
+   "needs_human_approval": false,
+   "description": "Count, mean, minimum, maximum, first and last reading of one sensor in a tick range. Use machine_id null for air_temperature. The rate is the change from the first to the last reading, not a fitted trend.",
+   "argument_schema": {
+    "additionalProperties": false,
+    "properties": {
+     "from_tick": {
+      "minimum": 0,
+      "title": "From Tick",
+      "type": "integer"
+     },
+     "to_tick": {
+      "minimum": 0,
+      "title": "To Tick",
+      "type": "integer"
+     },
+     "machine_id": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Machine Id"
+     },
+     "sensor": {
+      "enum": [
+       "vibration",
+       "temperature",
+       "load",
+       "power",
+       "following_error",
+       "hydraulic_pressure",
+       "air_temperature"
+      ],
+      "title": "Sensor",
+      "type": "string"
+     }
+    },
+    "required": [
+     "from_tick",
+     "to_tick",
+     "machine_id",
+     "sensor"
+    ],
+    "title": "SensorSummaryArguments",
+    "type": "object"
+   },
+   "output_contract": "SensorSummaryObservation",
+   "implementation": "capstone.tools.observation:ObservationTools.get_sensor_summary",
+   "boundary": "capstone.providers.factory:SimulatorFactoryProvider.call -> run_tool (argument model, output model rebuild, MAX_ROWS=300, errors without detail)",
+   "simulator_access": "reads sim.readings / event_log / state through ObservationTools, or ActionTools for wait and the approval desk; never sim.ground_truth() or MachineCondition",
+   "tests": [
+    "tests/test_agent_action.py::test_a_human_hook_that_decides_nothing_does_not_count_as_approval",
+    "tests/test_agent_action.py::test_a_long_repair_is_waited_out_in_steps_the_factory_accepts",
+    "tests/test_agent_action.py::test_a_proposal_the_factory_refuses_is_never_put_to_the_human",
+    "tests/test_agent_action.py::test_a_rejection_stops_after_the_read_back_and_keeps_the_reason",
+    "tests/test_agent_action.py::test_an_approval_with_no_calls_left_is_not_a_fix",
+    "tests/test_agent_action.py::test_an_approved_action_is_asked_for_read_back_started_and_waited_out",
+    "tests/test_agent_action.py::test_follow_up_calls_use_their_own_allowance_and_leave_the_stop_reason_alone",
+    "tests/test_agent_action.py::test_no_hidden_truth_reaches_working_memory_on_the_action_path",
+    "tests/test_agent_action.py::test_nothing_is_asked_when_the_conclusion_wants_no_change",
+    "tests/test_agent_action.py::test_the_decision_is_read_even_if_the_same_question_was_asked_this_tick",
+    "tests/test_agent_action.py::test_the_human_s_note_is_kept_as_evidence",
+    "tests/test_agent_action.py::test_the_loop_makes_the_calls_not_the_policy",
+    "tests/test_agent_action.py::test_the_proposal_handed_to_the_human_cannot_be_used_to_approve",
+    "tests/test_agent_action.py::test_with_no_allowance_at_all_the_action_is_never_submitted",
+    "tests/test_agent_action.py::test_with_no_human_answer_the_proposal_stays_pending",
+    "tests/test_agent_action.py::test_work_that_cannot_start_is_recorded_as_approved_and_not_carried_out",
+    "tests/test_agent_completion.py::test_a_check_that_was_never_made_is_left_out",
+    "tests/test_agent_completion.py::test_a_fix_that_did_not_work_is_recorded_as_failed",
+    "tests/test_agent_completion.py::test_a_proposal_nobody_answered_is_shown_as_pending",
+    "tests/test_agent_completion.py::test_a_rejection_and_its_reason_are_in_the_record",
+    "tests/test_agent_completion.py::test_a_rejection_note_is_kept_in_the_log_in_words",
+    "tests/test_agent_completion.py::test_a_resolved_check_is_verified_at_the_tick_it_was_made",
+    "tests/test_agent_completion.py::test_a_verified_fix_becomes_a_complete_shared_record",
+    "tests/test_agent_completion.py::test_an_approval_that_was_never_carried_out_can_be_told_apart_from_a_fix",
+    "tests/test_agent_completion.py::test_an_inconclusive_check_stays_unverified",
+    "tests/test_agent_completion.py::test_audit_without_memory_writes_the_record",
+    "tests/test_agent_completion.py::test_doing_nothing_and_checking_is_recorded_with_its_result",
+    "tests/test_agent_completion.py::test_every_ending_produces_a_valid_record_that_cites_only_real_evidence",
+    "tests/test_agent_completion.py::test_no_action_is_recorded_when_none_was_wanted",
+    "tests/test_agent_completion.py::test_no_hidden_truth_is_written_to_the_log"
+   ],
+   "test_count": 188,
+   "verification_status": "VERIFIED",
+   "snap_questions": [
+    "TL-01",
+    "TL-02",
+    "TL-03"
+   ]
+  },
+  {
+   "name": "get_events",
+   "offered_to_policy": true,
+   "invoked_by": "research_agent policy (decide), critic follow-up (read-only research tools except wait), loop itself (get_time, wait in execute)",
+   "changes_factory": false,
+   "needs_human_approval": false,
+   "description": "Event log in a tick range: alarms, machine stops, job started/finished/blocked, inspections, material batches, loading door, maintenance. Optionally one machine only.",
+   "argument_schema": {
+    "additionalProperties": false,
+    "properties": {
+     "from_tick": {
+      "minimum": 0,
+      "title": "From Tick",
+      "type": "integer"
+     },
+     "to_tick": {
+      "minimum": 0,
+      "title": "To Tick",
+      "type": "integer"
+     },
+     "machine_id": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "default": null,
+      "title": "Machine Id"
+     }
+    },
+    "required": [
+     "from_tick",
+     "to_tick"
+    ],
+    "title": "EventsArguments",
+    "type": "object"
+   },
+   "output_contract": "EventObservation[]",
+   "implementation": "capstone.tools.observation:ObservationTools.get_events",
+   "boundary": "capstone.providers.factory:SimulatorFactoryProvider.call -> run_tool (argument model, output model rebuild, MAX_ROWS=300, errors without detail)",
+   "simulator_access": "reads sim.readings / event_log / state through ObservationTools, or ActionTools for wait and the approval desk; never sim.ground_truth() or MachineCondition",
+   "tests": [
+    "tests/test_observation_tools.py::test_get_events_can_be_narrowed_to_one_machine",
+    "tests/test_agent_action.py::test_a_human_hook_that_decides_nothing_does_not_count_as_approval",
+    "tests/test_agent_action.py::test_a_long_repair_is_waited_out_in_steps_the_factory_accepts",
+    "tests/test_agent_action.py::test_a_proposal_the_factory_refuses_is_never_put_to_the_human",
+    "tests/test_agent_action.py::test_a_rejection_stops_after_the_read_back_and_keeps_the_reason",
+    "tests/test_agent_action.py::test_an_approval_with_no_calls_left_is_not_a_fix",
+    "tests/test_agent_action.py::test_an_approved_action_is_asked_for_read_back_started_and_waited_out",
+    "tests/test_agent_action.py::test_follow_up_calls_use_their_own_allowance_and_leave_the_stop_reason_alone",
+    "tests/test_agent_action.py::test_no_hidden_truth_reaches_working_memory_on_the_action_path",
+    "tests/test_agent_action.py::test_nothing_is_asked_when_the_conclusion_wants_no_change",
+    "tests/test_agent_action.py::test_the_decision_is_read_even_if_the_same_question_was_asked_this_tick",
+    "tests/test_agent_action.py::test_the_human_s_note_is_kept_as_evidence",
+    "tests/test_agent_action.py::test_the_loop_makes_the_calls_not_the_policy",
+    "tests/test_agent_action.py::test_the_proposal_handed_to_the_human_cannot_be_used_to_approve",
+    "tests/test_agent_action.py::test_with_no_allowance_at_all_the_action_is_never_submitted",
+    "tests/test_agent_action.py::test_with_no_human_answer_the_proposal_stays_pending",
+    "tests/test_agent_action.py::test_work_that_cannot_start_is_recorded_as_approved_and_not_carried_out",
+    "tests/test_agent_completion.py::test_a_check_that_was_never_made_is_left_out",
+    "tests/test_agent_completion.py::test_a_fix_that_did_not_work_is_recorded_as_failed",
+    "tests/test_agent_completion.py::test_a_proposal_nobody_answered_is_shown_as_pending",
+    "tests/test_agent_completion.py::test_a_rejection_and_its_reason_are_in_the_record",
+    "tests/test_agent_completion.py::test_a_rejection_note_is_kept_in_the_log_in_words",
+    "tests/test_agent_completion.py::test_a_resolved_check_is_verified_at_the_tick_it_was_made",
+    "tests/test_agent_completion.py::test_a_verified_fix_becomes_a_complete_shared_record",
+    "tests/test_agent_completion.py::test_an_approval_that_was_never_carried_out_can_be_told_apart_from_a_fix",
+    "tests/test_agent_completion.py::test_an_inconclusive_check_stays_unverified",
+    "tests/test_agent_completion.py::test_audit_without_memory_writes_the_record",
+    "tests/test_agent_completion.py::test_doing_nothing_and_checking_is_recorded_with_its_result",
+    "tests/test_agent_completion.py::test_every_ending_produces_a_valid_record_that_cites_only_real_evidence",
+    "tests/test_agent_completion.py::test_no_action_is_recorded_when_none_was_wanted",
+    "tests/test_agent_completion.py::test_no_hidden_truth_is_written_to_the_log"
+   ],
+   "test_count": 229,
+   "verification_status": "PARTIALLY VERIFIED",
+   "snap_questions": [
+    "TL-01",
+    "TL-02",
+    "TL-03"
+   ]
+  },
+  {
+   "name": "get_job_history",
+   "offered_to_policy": true,
+   "invoked_by": "research_agent policy (decide), critic follow-up (read-only research tools except wait), loop itself (get_time, wait in execute)",
+   "changes_factory": false,
+   "needs_human_approval": false,
+   "description": "Everything the event log says about one job, across machines.",
+   "argument_schema": {
+    "additionalProperties": false,
+    "properties": {
+     "job_id": {
+      "minimum": 1,
+      "title": "Job Id",
+      "type": "integer"
+     }
+    },
+    "required": [
+     "job_id"
+    ],
+    "title": "JobArguments",
+    "type": "object"
+   },
+   "output_contract": "EventObservation[]",
+   "implementation": "capstone.tools.observation:ObservationTools.get_job_history",
+   "boundary": "capstone.providers.factory:SimulatorFactoryProvider.call -> run_tool (argument model, output model rebuild, MAX_ROWS=300, errors without detail)",
+   "simulator_access": "reads sim.readings / event_log / state through ObservationTools, or ActionTools for wait and the approval desk; never sim.ground_truth() or MachineCondition",
+   "tests": [
+    "tests/test_build_line.py::test_jobs_reach_the_end_of_the_longest_line",
+    "tests/test_factory_provider.py::test_all_read_tools_preserve_existing_observable_shapes",
+    "tests/test_job_history.py::test_a_breakdown_ahead_holds_the_job_with_no_end",
+    "tests/test_job_history.py::test_history_of_an_unknown_job_is_empty_and_answers_are_plain_data",
+    "tests/test_job_history.py::test_job_1_on_an_empty_line_is_never_held_up",
+    "tests/test_job_history.py::test_started_to_finished_is_always_the_machines_own_working_time",
+    "tests/test_job_history.py::test_the_machine_before_the_slow_one_is_held_up_on_every_job_once_the_line_is_full",
+    "tests/test_observation_tools.py::test_answers_are_plain_data",
+    "tests/test_observation_tools.py::test_looking_does_not_advance_time_or_change_the_factory",
+    "tests/test_observation_tools.py::test_nothing_hidden_leaks_through_any_tool_over_a_full_run",
+    "tests/test_quality.py::test_the_inspection_is_the_last_entry_in_a_jobs_history",
+    "tests/test_slow_when_worn.py::test_a_half_worn_machine_takes_78_ticks_instead_of_70",
+    "tests/test_slow_when_worn.py::test_a_healthy_line_keeps_its_exact_times",
+    "tests/test_slow_when_worn.py::test_as_the_bearing_wears_each_job_takes_at_least_as_long_as_the_last",
+    "tests/test_slow_when_worn.py::test_its_neighbours_keep_their_own_working_times",
+    "tests/test_slow_when_worn.py::test_natural_variation_keeps_each_job_within_two_ticks_of_normal",
+    "tests/test_slow_when_worn.py::test_same_seed_gives_the_same_times_and_another_seed_different_ones",
+    "tests/test_slow_when_worn.py::test_the_machine_after_it_waits_longer_empty",
+    "tests/test_slow_when_worn.py::test_the_machine_before_it_waits_longer_holding_finished_jobs",
+    "tests/test_slow_when_worn.py::test_the_standard_line_has_natural_variation_switched_on",
+    "tests/test_slow_when_worn.py::test_with_variation_a_slightly_worn_machine_hides_among_normal_jobs"
+   ],
+   "test_count": 21,
+   "verification_status": "INSUFFICIENT EVIDENCE",
+   "snap_questions": [
+    "TL-01",
+    "TL-02",
+    "TL-03"
+   ]
+  },
+  {
+   "name": "get_maintenance_history",
+   "offered_to_policy": true,
+   "invoked_by": "research_agent policy (decide), critic follow-up (read-only research tools except wait), loop itself (get_time, wait in execute)",
+   "changes_factory": false,
+   "needs_human_approval": false,
+   "description": "Service records for one machine or all (machine_id null), oldest first: visits from the months before the run (a date, tick null) and maintenance during it (with its tick). What a technician did and wrote, not a cause.",
+   "argument_schema": {
+    "additionalProperties": false,
+    "properties": {
+     "machine_id": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "default": null,
+      "title": "Machine Id"
+     }
+    },
+    "title": "MaintenanceArguments",
+    "type": "object"
+   },
+   "output_contract": "MaintenanceObservation[]",
+   "implementation": "capstone.tools.observation:ObservationTools.get_maintenance_history",
+   "boundary": "capstone.providers.factory:SimulatorFactoryProvider.call -> run_tool (argument model, output model rebuild, MAX_ROWS=300, errors without detail)",
+   "simulator_access": "reads sim.readings / event_log / state through ObservationTools, or ActionTools for wait and the approval desk; never sim.ground_truth() or MachineCondition",
+   "tests": [
+    "tests/test_factory_provider.py::test_all_read_tools_preserve_existing_observable_shapes",
+    "tests/test_hazards.py::test_a_stale_record_joins_the_history_of_its_machine_in_date_order",
+    "tests/test_maintenance_history.py::test_the_provider_offers_it_with_checked_arguments",
+    "tests/test_maintenance_history.py::test_the_tool_shows_past_records_then_this_runs_maintenance",
+    "tests/test_observation_tools.py::test_answers_are_plain_data",
+    "tests/test_observation_tools.py::test_looking_does_not_advance_time_or_change_the_factory",
+    "tests/test_observation_tools.py::test_nothing_hidden_leaks_through_any_tool_over_a_full_run"
+   ],
+   "test_count": 7,
+   "verification_status": "INSUFFICIENT EVIDENCE",
+   "snap_questions": [
+    "TL-01",
+    "TL-02",
+    "TL-03"
+   ]
+  },
+  {
+   "name": "get_inspections",
+   "offered_to_policy": true,
+   "invoked_by": "research_agent policy (decide), critic follow-up (read-only research tools except wait), loop itself (get_time, wait in execute)",
+   "changes_factory": false,
+   "needs_human_approval": false,
+   "description": "Pass/fail inspection results (with material batch) for jobs that left the line in a tick range.",
+   "argument_schema": {
+    "additionalProperties": false,
+    "properties": {
+     "from_tick": {
+      "minimum": 0,
+      "title": "From Tick",
+      "type": "integer"
+     },
+     "to_tick": {
+      "minimum": 0,
+      "title": "To Tick",
+      "type": "integer"
+     }
+    },
+    "required": [
+     "from_tick",
+     "to_tick"
+    ],
+    "title": "TickRange",
+    "type": "object"
+   },
+   "output_contract": "InspectionObservation[]",
+   "implementation": "capstone.tools.observation:ObservationTools.get_inspections",
+   "boundary": "capstone.providers.factory:SimulatorFactoryProvider.call -> run_tool (argument model, output model rebuild, MAX_ROWS=300, errors without detail)",
+   "simulator_access": "reads sim.readings / event_log / state through ObservationTools, or ActionTools for wait and the approval desk; never sim.ground_truth() or MachineCondition",
+   "tests": [
+    "tests/test_quality.py::test_get_inspections_returns_results_in_a_tick_range_as_plain_data",
+    "tests/test_agent_completion.py::test_audit_without_memory_writes_the_record",
+    "tests/test_baseline.py::test_known_cases_score_as_pinned_and_repeat_exactly",
+    "tests/test_baseline.py::test_the_right_repair_is_carried_out_and_nothing_for_a_false_alarm",
+    "tests/test_baseline.py::test_the_rules_use_only_the_agents_tools_and_ask_for_nothing_themselves",
+    "tests/test_benchmark.py::test_a_model_that_never_answers_ends_each_episode_as_unavailable",
+    "tests/test_benchmark.py::test_each_episode_is_timed_and_handed_on_as_it_ends",
+    "tests/test_benchmark.py::test_episodes_are_run_and_recorded_for_each_fault_and_seed",
+    "tests/test_benchmark.py::test_the_command_writes_the_table_and_the_raw_calls",
+    "tests/test_episode.py::test_a_bearing_fault_is_found_fixed_checked_and_scored_in_full",
+    "tests/test_episode.py::test_a_critic_does_not_change_the_episode",
+    "tests/test_episode.py::test_a_human_who_refuses_leaves_the_fault_in_place",
+    "tests/test_episode.py::test_a_label_added_afterwards_scores_the_same_run",
+    "tests/test_episode.py::test_a_model_policy_runs_one_question_per_step_by_default",
+    "tests/test_episode.py::test_a_run_with_the_manual_gives_the_settings_critic_the_manual",
+    "tests/test_episode.py::test_a_scripted_policy_without_the_combined_question_runs_in_two",
+    "tests/test_episode.py::test_a_verified_fix_is_audited_and_remembered",
+    "tests/test_episode.py::test_a_whole_episode_records_the_section_nine_fields",
+    "tests/test_episode.py::test_an_episode_on_the_challenge_is_scored_with_several_causes",
+    "tests/test_episode.py::test_critic_blind_is_off_by_default_and_reaches_the_run",
+    "tests/test_episode.py::test_critic_followup_off_by_default",
+    "tests/test_episode.py::test_critic_followup_setting_reaches_the_run",
+    "tests/test_episode.py::test_critic_off_by_default_keeps_results",
+    "tests/test_episode.py::test_monitoring_names_a_symptom_and_no_machine_for_a_run_of_rejects",
+    "tests/test_episode.py::test_passed_critic_is_used",
+    "tests/test_episode.py::test_the_agent_never_holds_the_answer_key",
+    "tests/test_episode.py::test_the_same_seed_gives_the_same_episode",
+    "tests/test_episode.py::test_without_a_judge_the_diagnosis_is_unjudged_but_the_action_is_scored",
+    "tests/test_episode.py::test_without_an_audit_log_nothing_is_learned",
+    "tests/test_evals.py::test_comparison_requires_same_cases_and_preserves_unknown_accuracy",
+    "tests/test_evals.py::test_confident_no_fault_and_honest_abstention_score_apart"
+   ],
+   "test_count": 118,
+   "verification_status": "PARTIALLY VERIFIED",
+   "snap_questions": [
+    "TL-01",
+    "TL-02",
+    "TL-03"
+   ]
+  },
+  {
+   "name": "wait",
+   "offered_to_policy": true,
+   "invoked_by": "research_agent policy (decide), critic follow-up (read-only research tools except wait), loop itself (get_time, wait in execute)",
+   "changes_factory": true,
+   "needs_human_approval": false,
+   "description": "Let the factory run for some ticks. The only way time passes; looking is free.",
+   "argument_schema": {
+    "additionalProperties": false,
+    "properties": {
+     "ticks": {
+      "minimum": 1,
+      "title": "Ticks",
+      "type": "integer"
+     }
+    },
+    "required": [
+     "ticks"
+    ],
+    "title": "WaitArguments",
+    "type": "object"
+   },
+   "output_contract": "ClockObservation",
+   "implementation": "capstone.tools.actions:ActionTools.wait",
+   "boundary": "capstone.providers.factory:SimulatorFactoryProvider.call -> run_tool (argument model, output model rebuild, MAX_ROWS=300, errors without detail)",
+   "simulator_access": "reads sim.readings / event_log / state through ObservationTools, or ActionTools for wait and the approval desk; never sim.ground_truth() or MachineCondition",
+   "tests": [
+    "tests/test_agent_action.py::test_a_long_repair_is_waited_out_in_steps_the_factory_accepts",
+    "tests/test_agent_action.py::test_an_approved_action_is_asked_for_read_back_started_and_waited_out",
+    "tests/test_agent_verification.py::test_a_no_action_conclusion_is_checked_by_waiting_and_looking_again",
+    "tests/test_agent_verification.py::test_the_wait_for_the_work_to_finish_is_not_evidence_of_the_result",
+    "tests/test_approval.py::test_the_whole_loop_propose_approve_execute_wait_verify",
+    "tests/test_factory_provider.py::test_wait_uses_existing_bounded_action_and_reports_new_time",
+    "tests/test_hazards.py::test_after_waiting_past_the_end_the_feed_answers_and_recovery_is_kept",
+    "tests/test_wait_tool.py::test_bad_waits_are_refused_and_nothing_moves",
+    "tests/test_wait_tool.py::test_every_waited_tick_leaves_its_readings_behind",
+    "tests/test_wait_tool.py::test_the_factory_does_not_wait_for_the_agent_a_fault_keeps_developing",
+    "tests/test_wait_tool.py::test_the_limit_per_wait_can_be_set",
+    "tests/test_wait_tool.py::test_wait_moves_the_clock_by_exactly_that_many_ticks_and_reports_the_time",
+    "tests/test_wait_tool.py::test_waiting_is_the_same_as_the_factory_running_by_itself",
+    "tests/test_agent_action.py::test_follow_up_calls_use_their_own_allowance_and_leave_the_stop_reason_alone",
+    "tests/test_agent_action.py::test_no_hidden_truth_reaches_working_memory_on_the_action_path",
+    "tests/test_agent_action.py::test_the_decision_is_read_even_if_the_same_question_was_asked_this_tick",
+    "tests/test_agent_action.py::test_the_human_s_note_is_kept_as_evidence",
+    "tests/test_agent_action.py::test_the_loop_makes_the_calls_not_the_policy",
+    "tests/test_agent_completion.py::test_a_check_that_was_never_made_is_left_out",
+    "tests/test_agent_completion.py::test_a_fix_that_did_not_work_is_recorded_as_failed",
+    "tests/test_agent_completion.py::test_a_resolved_check_is_verified_at_the_tick_it_was_made",
+    "tests/test_agent_completion.py::test_a_verified_fix_becomes_a_complete_shared_record",
+    "tests/test_agent_completion.py::test_an_inconclusive_check_stays_unverified",
+    "tests/test_agent_completion.py::test_audit_without_memory_writes_the_record",
+    "tests/test_agent_completion.py::test_doing_nothing_and_checking_is_recorded_with_its_result",
+    "tests/test_agent_completion.py::test_every_ending_produces_a_valid_record_that_cites_only_real_evidence",
+    "tests/test_agent_completion.py::test_no_action_is_recorded_when_none_was_wanted",
+    "tests/test_agent_completion.py::test_no_hidden_truth_is_written_to_the_log",
+    "tests/test_agent_completion.py::test_the_action_cites_what_the_factory_reported_about_it",
+    "tests/test_agent_completion.py::test_the_log_is_only_ever_added_to",
+    "tests/test_agent_completion.py::test_the_log_keeps_every_investigation_one_per_line",
+    "tests/test_agent_completion.py::test_the_same_run_twice_gives_the_same_record",
+    "tests/test_agent_loop.py::test_the_loop_gathers_evidence_through_the_real_provider_without_hidden_truth",
+    "tests/test_agent_provenance.py::test_evidence_cited_by_the_conclusion_and_the_check_all_have_labels",
+    "tests/test_agent_provenance.py::test_labels_match_the_evidence_one_to_one_through_a_whole_investigation",
+    "tests/test_agent_verification.py::test_a_fix_on_the_wrong_machine_is_found_not_to_have_worked",
+    "tests/test_agent_verification.py::test_a_fix_that_worked_is_found_by_looking_again",
+    "tests/test_agent_verification.py::test_a_judgement_resting_only_on_earlier_evidence_is_inconclusive",
+    "tests/test_agent_verification.py::test_a_look_now_at_data_from_before_the_work_does_not_count",
+    "tests/test_agent_verification.py::test_a_policy_that_looked_cannot_report_that_it_did_not",
+    "tests/test_agent_verification.py::test_an_unusable_judgement_is_inconclusive",
+    "tests/test_agent_verification.py::test_checking_uses_the_follow_up_allowance_and_leaves_the_stop_reason",
+    "tests/test_agent_verification.py::test_looking_without_letting_time_pass_after_the_work_does_not_count"
+   ],
+   "test_count": 215,
+   "verification_status": "VERIFIED",
+   "snap_questions": [
+    "TL-01",
+    "TL-02",
+    "TL-03"
+   ]
+  },
+  {
+   "name": "propose_action",
+   "offered_to_policy": false,
+   "invoked_by": "loop procedure (propose/execute stages)",
+   "changes_factory": false,
+   "needs_human_approval": false,
+   "description": "Ask a human to approve a change to the factory. replace_bearing stops the machine about 45 ticks (135 if it has broken down); reset_setting stops it 10 ticks and puts its speed back to standard; replace_servo_drive stops it 60 ticks and fits a new axis servo drive; repair_hydraulics (machines with hydraulics only) stops it 40 ticks and replaces its seals. Nothing happens until a human decides; check with get_proposals. The reason says why, and what you expect to see afterwards.",
+   "argument_schema": {
+    "additionalProperties": false,
+    "properties": {
+     "machine_id": {
+      "title": "Machine Id",
+      "type": "string"
+     },
+     "action": {
+      "title": "Action",
+      "type": "string"
+     },
+     "reason": {
+      "title": "Reason",
+      "type": "string"
+     }
+    },
+    "required": [
+     "machine_id",
+     "action",
+     "reason"
+    ],
+    "title": "ProposalArguments",
+    "type": "object"
+   },
+   "output_contract": "ProposalObservation",
+   "implementation": "capstone.tools.actions:ActionTools.propose_action",
+   "boundary": "capstone.providers.factory:SimulatorFactoryProvider.call -> run_tool (argument model, output model rebuild, MAX_ROWS=300, errors without detail)",
+   "simulator_access": "reads sim.readings / event_log / state through ObservationTools, or ActionTools for wait and the approval desk; never sim.ground_truth() or MachineCondition",
+   "tests": [
+    "tests/test_agent_action.py::test_a_human_hook_that_decides_nothing_does_not_count_as_approval",
+    "tests/test_agent_action.py::test_a_long_repair_is_waited_out_in_steps_the_factory_accepts",
+    "tests/test_agent_action.py::test_a_proposal_the_factory_refuses_is_never_put_to_the_human",
+    "tests/test_agent_action.py::test_a_rejection_stops_after_the_read_back_and_keeps_the_reason",
+    "tests/test_agent_action.py::test_an_approval_with_no_calls_left_is_not_a_fix",
+    "tests/test_agent_action.py::test_an_approved_action_is_asked_for_read_back_started_and_waited_out",
+    "tests/test_agent_action.py::test_follow_up_calls_use_their_own_allowance_and_leave_the_stop_reason_alone",
+    "tests/test_agent_action.py::test_no_hidden_truth_reaches_working_memory_on_the_action_path",
+    "tests/test_agent_action.py::test_the_decision_is_read_even_if_the_same_question_was_asked_this_tick",
+    "tests/test_agent_action.py::test_the_human_s_note_is_kept_as_evidence",
+    "tests/test_agent_action.py::test_the_loop_makes_the_calls_not_the_policy",
+    "tests/test_agent_action.py::test_the_proposal_handed_to_the_human_cannot_be_used_to_approve",
+    "tests/test_agent_action.py::test_with_no_human_answer_the_proposal_stays_pending",
+    "tests/test_agent_action.py::test_work_that_cannot_start_is_recorded_as_approved_and_not_carried_out",
+    "tests/test_agent_completion.py::test_a_check_that_was_never_made_is_left_out",
+    "tests/test_agent_completion.py::test_a_fix_that_did_not_work_is_recorded_as_failed",
+    "tests/test_agent_completion.py::test_a_proposal_nobody_answered_is_shown_as_pending",
+    "tests/test_agent_completion.py::test_a_rejection_and_its_reason_are_in_the_record",
+    "tests/test_agent_completion.py::test_a_rejection_note_is_kept_in_the_log_in_words",
+    "tests/test_agent_completion.py::test_a_resolved_check_is_verified_at_the_tick_it_was_made",
+    "tests/test_agent_completion.py::test_a_verified_fix_becomes_a_complete_shared_record",
+    "tests/test_agent_completion.py::test_an_approval_that_was_never_carried_out_can_be_told_apart_from_a_fix",
+    "tests/test_agent_completion.py::test_an_inconclusive_check_stays_unverified",
+    "tests/test_agent_completion.py::test_audit_without_memory_writes_the_record",
+    "tests/test_agent_completion.py::test_every_ending_produces_a_valid_record_that_cites_only_real_evidence",
+    "tests/test_agent_completion.py::test_no_hidden_truth_is_written_to_the_log",
+    "tests/test_agent_completion.py::test_the_action_cites_what_the_factory_reported_about_it",
+    "tests/test_agent_completion.py::test_the_audit_record_holds_what_the_shared_record_leaves_out",
+    "tests/test_agent_completion.py::test_the_audit_record_keeps_what_tree_of_thought_ruled_out",
+    "tests/test_agent_completion.py::test_the_log_is_only_ever_added_to"
+   ],
+   "test_count": 206,
+   "verification_status": "INSUFFICIENT EVIDENCE",
+   "snap_questions": [
+    "TL-01",
+    "TL-02",
+    "TL-03"
+   ]
+  },
+  {
+   "name": "get_proposals",
+   "offered_to_policy": false,
+   "invoked_by": "loop procedure (propose/execute stages)",
+   "changes_factory": false,
+   "needs_human_approval": false,
+   "description": "Every proposal so far and whether it was approved or rejected.",
+   "argument_schema": {
+    "additionalProperties": false,
+    "properties": {},
+    "title": "NoArguments",
+    "type": "object"
+   },
+   "output_contract": "ProposalObservation[]",
+   "implementation": "capstone.tools.actions:ActionTools.get_proposals",
+   "boundary": "capstone.providers.factory:SimulatorFactoryProvider.call -> run_tool (argument model, output model rebuild, MAX_ROWS=300, errors without detail)",
+   "simulator_access": "reads sim.readings / event_log / state through ObservationTools, or ActionTools for wait and the approval desk; never sim.ground_truth() or MachineCondition",
+   "tests": [
+    "tests/test_agent_action.py::test_a_human_hook_that_decides_nothing_does_not_count_as_approval",
+    "tests/test_agent_action.py::test_a_long_repair_is_waited_out_in_steps_the_factory_accepts",
+    "tests/test_agent_action.py::test_a_rejection_stops_after_the_read_back_and_keeps_the_reason",
+    "tests/test_agent_action.py::test_an_approval_with_no_calls_left_is_not_a_fix",
+    "tests/test_agent_action.py::test_an_approved_action_is_asked_for_read_back_started_and_waited_out",
+    "tests/test_agent_action.py::test_follow_up_calls_use_their_own_allowance_and_leave_the_stop_reason_alone",
+    "tests/test_agent_action.py::test_no_hidden_truth_reaches_working_memory_on_the_action_path",
+    "tests/test_agent_action.py::test_the_decision_is_read_even_if_the_same_question_was_asked_this_tick",
+    "tests/test_agent_action.py::test_the_human_s_note_is_kept_as_evidence",
+    "tests/test_agent_action.py::test_the_loop_makes_the_calls_not_the_policy",
+    "tests/test_agent_action.py::test_the_proposal_handed_to_the_human_cannot_be_used_to_approve",
+    "tests/test_agent_action.py::test_with_no_human_answer_the_proposal_stays_pending",
+    "tests/test_agent_action.py::test_work_that_cannot_start_is_recorded_as_approved_and_not_carried_out",
+    "tests/test_agent_completion.py::test_a_check_that_was_never_made_is_left_out",
+    "tests/test_agent_completion.py::test_a_fix_that_did_not_work_is_recorded_as_failed",
+    "tests/test_agent_completion.py::test_a_proposal_nobody_answered_is_shown_as_pending",
+    "tests/test_agent_completion.py::test_a_rejection_and_its_reason_are_in_the_record",
+    "tests/test_agent_completion.py::test_a_rejection_note_is_kept_in_the_log_in_words",
+    "tests/test_agent_completion.py::test_a_resolved_check_is_verified_at_the_tick_it_was_made",
+    "tests/test_agent_completion.py::test_a_verified_fix_becomes_a_complete_shared_record",
+    "tests/test_agent_completion.py::test_an_approval_that_was_never_carried_out_can_be_told_apart_from_a_fix",
+    "tests/test_agent_completion.py::test_an_inconclusive_check_stays_unverified",
+    "tests/test_agent_completion.py::test_audit_without_memory_writes_the_record",
+    "tests/test_agent_completion.py::test_every_ending_produces_a_valid_record_that_cites_only_real_evidence",
+    "tests/test_agent_completion.py::test_no_hidden_truth_is_written_to_the_log",
+    "tests/test_agent_completion.py::test_the_action_cites_what_the_factory_reported_about_it",
+    "tests/test_agent_completion.py::test_the_audit_record_holds_what_the_shared_record_leaves_out",
+    "tests/test_agent_completion.py::test_the_audit_record_keeps_what_tree_of_thought_ruled_out",
+    "tests/test_agent_completion.py::test_the_log_is_only_ever_added_to",
+    "tests/test_agent_completion.py::test_the_log_keeps_every_investigation_one_per_line"
+   ],
+   "test_count": 159,
+   "verification_status": "INSUFFICIENT EVIDENCE",
+   "snap_questions": [
+    "TL-01",
+    "TL-02",
+    "TL-03"
+   ]
+  },
+  {
+   "name": "execute_action",
+   "offered_to_policy": false,
+   "invoked_by": "loop procedure (propose/execute stages)",
+   "changes_factory": true,
+   "needs_human_approval": true,
+   "description": "Start the work of a proposal a human has approved. Says when it will finish.",
+   "argument_schema": {
+    "additionalProperties": false,
+    "properties": {
+     "proposal_id": {
+      "minimum": 1,
+      "title": "Proposal Id",
+      "type": "integer"
+     }
+    },
+    "required": [
+     "proposal_id"
+    ],
+    "title": "ExecuteArguments",
+    "type": "object"
+   },
+   "output_contract": "ExecutionObservation",
+   "implementation": "capstone.tools.actions:ActionTools.execute_action",
+   "boundary": "capstone.providers.factory:SimulatorFactoryProvider.call -> run_tool (argument model, output model rebuild, MAX_ROWS=300, errors without detail)",
+   "simulator_access": "reads sim.readings / event_log / state through ObservationTools, or ActionTools for wait and the approval desk; never sim.ground_truth() or MachineCondition",
+   "tests": [
+    "tests/test_factory_provider.py::test_execute_action_is_refused_until_a_human_approves_then_reports_the_work",
+    "tests/test_agent_action.py::test_a_long_repair_is_waited_out_in_steps_the_factory_accepts",
+    "tests/test_agent_action.py::test_an_approved_action_is_asked_for_read_back_started_and_waited_out",
+    "tests/test_agent_action.py::test_follow_up_calls_use_their_own_allowance_and_leave_the_stop_reason_alone",
+    "tests/test_agent_action.py::test_no_hidden_truth_reaches_working_memory_on_the_action_path",
+    "tests/test_agent_action.py::test_the_decision_is_read_even_if_the_same_question_was_asked_this_tick",
+    "tests/test_agent_action.py::test_the_human_s_note_is_kept_as_evidence",
+    "tests/test_agent_action.py::test_the_loop_makes_the_calls_not_the_policy",
+    "tests/test_agent_action.py::test_work_that_cannot_start_is_recorded_as_approved_and_not_carried_out",
+    "tests/test_agent_completion.py::test_a_check_that_was_never_made_is_left_out",
+    "tests/test_agent_completion.py::test_a_fix_that_did_not_work_is_recorded_as_failed",
+    "tests/test_agent_completion.py::test_a_resolved_check_is_verified_at_the_tick_it_was_made",
+    "tests/test_agent_completion.py::test_a_verified_fix_becomes_a_complete_shared_record",
+    "tests/test_agent_completion.py::test_an_inconclusive_check_stays_unverified",
+    "tests/test_agent_completion.py::test_audit_without_memory_writes_the_record",
+    "tests/test_agent_completion.py::test_every_ending_produces_a_valid_record_that_cites_only_real_evidence",
+    "tests/test_agent_completion.py::test_no_hidden_truth_is_written_to_the_log",
+    "tests/test_agent_completion.py::test_the_action_cites_what_the_factory_reported_about_it",
+    "tests/test_agent_completion.py::test_the_log_is_only_ever_added_to",
+    "tests/test_agent_completion.py::test_the_log_keeps_every_investigation_one_per_line",
+    "tests/test_agent_completion.py::test_the_same_run_twice_gives_the_same_record",
+    "tests/test_agent_provenance.py::test_evidence_cited_by_the_conclusion_and_the_check_all_have_labels",
+    "tests/test_agent_provenance.py::test_labels_match_the_evidence_one_to_one_through_a_whole_investigation",
+    "tests/test_agent_verification.py::test_a_fix_on_the_wrong_machine_is_found_not_to_have_worked",
+    "tests/test_agent_verification.py::test_a_fix_that_worked_is_found_by_looking_again",
+    "tests/test_agent_verification.py::test_a_judgement_resting_only_on_earlier_evidence_is_inconclusive",
+    "tests/test_agent_verification.py::test_a_look_now_at_data_from_before_the_work_does_not_count",
+    "tests/test_agent_verification.py::test_a_policy_that_looked_cannot_report_that_it_did_not",
+    "tests/test_agent_verification.py::test_an_unusable_judgement_is_inconclusive",
+    "tests/test_agent_verification.py::test_checking_uses_the_follow_up_allowance_and_leaves_the_stop_reason",
+    "tests/test_agent_verification.py::test_looking_without_letting_time_pass_after_the_work_does_not_count"
+   ],
+   "test_count": 168,
+   "verification_status": "PARTIALLY VERIFIED",
+   "snap_questions": [
+    "TL-01",
+    "TL-02",
+    "TL-03"
+   ]
+  },
+  {
+   "name": "recall_memories",
+   "offered_to_policy": true,
+   "invoked_by": "research_agent policy when the run offers it; the manual step also calls search_manual once before planning",
+   "changes_factory": false,
+   "needs_human_approval": false,
+   "description": "Search lessons kept from earlier investigations by words, e.g. the symptom. An answer is a past investigation's belief, not a look at the factory now: it can suggest where to look, never prove anything. At most 3 searches per investigation; the same search twice is refused. If an answer does not help, search again with different words, or carry on without memory.",
+   "argument_schema": {
+    "additionalProperties": false,
+    "properties": {
+     "text": {
+      "minLength": 1,
+      "title": "Text",
+      "type": "string"
+     },
+     "limit": {
+      "default": 5,
+      "maximum": 10,
+      "minimum": 1,
+      "title": "Limit",
+      "type": "integer"
+     }
+    },
+    "required": [
+     "text"
+    ],
+    "title": "RecallArguments",
+    "type": "object"
+   },
+   "output_contract": "RecalledMemory[] (safe view)",
+   "implementation": "capstone.providers.recall:RecallingProvider.call",
+   "boundary": "source 'memory'; the loop labels provenance origin='memory' so verification and the memory gate discount it",
+   "simulator_access": "none; answers come from the memory store or the manual, stamped with the factory tick only",
+   "limits": "at most 3 searches, repeats refused (providers/recall.py)",
+   "tests": [
+    "tests/test_experiment.py::test_a_recalled_memory_the_agent_cites_is_marked_used",
+    "tests/test_experiment.py::test_the_report_traces_a_recalled_lesson_to_a_wrong_diagnosis",
+    "tests/test_memory_comparison.py::test_a_refused_repeat_counts_as_a_call_but_a_skipped_one_does_not",
+    "tests/test_memory_comparison.py::test_factory_calls_leave_memory_searches_out",
+    "tests/test_memory_comparison.py::test_keyword_and_semantic_recall_differ_by_what_their_search_finds",
+    "tests/test_memory_comparison.py::test_no_memory_offers_no_recall_and_keeps_no_memory_records",
+    "tests/test_memory_semantic.py::test_recall_tool_answers_from_semantic_recall",
+    "tests/test_recall_tool.py::test_bad_recall_arguments_are_refused",
+    "tests/test_recall_tool.py::test_recall_is_answered_from_memory_at_the_factorys_current_tick",
+    "tests/test_recall_tool.py::test_recalled_evidence_is_labelled_memory_and_the_rest_observable",
+    "tests/test_episode.py::test_a_verified_fix_is_audited_and_remembered",
+    "tests/test_episode.py::test_without_an_audit_log_nothing_is_learned",
+    "tests/test_experiment.py::test_an_uncited_memory_is_unknown_not_unused",
+    "tests/test_experiment.py::test_nothing_the_evaluator_knows_reaches_the_memory_store",
+    "tests/test_experiment.py::test_the_gate_decision_is_recorded_beside_the_run",
+    "tests/test_memory_comparison.py::test_a_failed_semantic_search_is_reported_failed_not_answered_by_keyword",
+    "tests/test_memory_comparison.py::test_a_mode_may_be_named_only_once",
+    "tests/test_memory_comparison.py::test_every_mode_runs_the_same_cases_and_keeps_its_mode",
+    "tests/test_memory_comparison.py::test_outage_runs_are_counted_then_left_out_of_every_total",
+    "tests/test_memory_comparison.py::test_semantic_mode_asks_the_index",
+    "tests/test_memory_comparison.py::test_semantic_mode_never_runs_as_keyword_search_unseen",
+    "tests/test_memory_comparison.py::test_the_command_reports_a_results_file",
+    "tests/test_memory_comparison.py::test_the_comparison_writes_nothing_to_memory",
+    "tests/test_memory_comparison.py::test_the_report_puts_the_modes_side_by_side_with_labels",
+    "tests/test_memory_comparison.py::test_the_report_warns_when_the_modes_ran_different_cases",
+    "tests/test_memory_comparison.py::test_the_runs_are_interleaved_case_by_case",
+    "tests/test_recall_tool.py::test_a_failed_search_does_not_spend_the_budget",
+    "tests/test_recall_tool.py::test_a_failing_memory_store_says_nothing_about_why",
+    "tests/test_recall_tool.py::test_a_fix_cannot_be_verified_by_citing_a_memory",
+    "tests/test_recall_tool.py::test_a_loop_level_repeat_is_recorded_as_repeated",
+    "tests/test_recall_tool.py::test_a_real_look_still_verifies_when_a_memory_is_also_cited",
+    "tests/test_recall_tool.py::test_an_investigation_sees_the_refusal_and_its_searches_are_recorded",
+    "tests/test_recall_tool.py::test_end_to_end_a_conclusion_citing_a_memory_is_not_remembered",
+    "tests/test_recall_tool.py::test_every_other_tool_goes_to_the_factory_unchanged",
+    "tests/test_recall_tool.py::test_nothing_found_is_an_empty_answer_not_an_error",
+    "tests/test_recall_tool.py::test_only_max_searches_are_answered",
+    "tests/test_recall_tool.py::test_the_same_search_twice_is_refused_and_never_reaches_the_store",
+    "tests/test_recall_tool.py::test_the_same_words_with_a_different_limit_is_a_new_search"
+   ],
+   "test_count": 38,
+   "verification_status": "VERIFIED",
+   "snap_questions": [
+    "TL-01",
+    "TL-02",
+    "TL-03"
+   ]
+  },
+  {
+   "name": "search_manual",
+   "offered_to_policy": true,
+   "invoked_by": "research_agent policy when the run offers it; the manual step also calls search_manual once before planning",
+   "changes_factory": false,
+   "needs_human_approval": false,
+   "description": "Search the maintenance manual for this machine model (SIM-CNC-001) by words, e.g. a symptom or a suspected cause. Returns numbered sections (cite them as \u00a72.7): what a symptom can mean, possible causes, and the checks that tell them apart. The manual describes the machine type, not what is happening now: confirm what it suggests with the factory's own data. At most 3 searches per investigation; the same search twice is refused.",
+   "argument_schema": {
+    "additionalProperties": false,
+    "properties": {
+     "text": {
+      "minLength": 1,
+      "title": "Text",
+      "type": "string"
+     },
+     "limit": {
+      "default": 3,
+      "maximum": 5,
+      "minimum": 1,
+      "title": "Limit",
+      "type": "integer"
+     }
+    },
+    "required": [
+     "text"
+    ],
+    "title": "ManualArguments",
+    "type": "object"
+   },
+   "output_contract": "manual section rows (section, title, text, document)",
+   "implementation": "capstone.providers.manual:ManualProvider.call",
+   "boundary": "source 'manual'; the loop labels provenance origin='manual' so verification and the memory gate discount it",
+   "simulator_access": "none; answers come from the memory store or the manual, stamped with the factory tick only",
+   "limits": "at most 3 searches, repeats refused (providers/manual.py); sections checked for leaks (manual/sections.py)",
+   "tests": [
+    "tests/test_manual.py::test_a_failing_index_says_nothing_about_why",
+    "tests/test_manual.py::test_a_fix_cannot_be_verified_by_citing_the_manual",
+    "tests/test_manual.py::test_a_real_look_still_verifies_when_the_manual_is_also_cited",
+    "tests/test_manual.py::test_a_search_is_answered_from_the_manual_with_section_numbers",
+    "tests/test_manual.py::test_an_episode_runs_the_step_only_when_it_offers_a_manual",
+    "tests/test_manual.py::test_bad_arguments_are_refused",
+    "tests/test_manual.py::test_every_other_tool_goes_to_the_inner_provider_unchanged",
+    "tests/test_manual.py::test_manual_evidence_is_labelled_manual_and_marked_in_every_prompt",
+    "tests/test_manual.py::test_repeats_and_the_budget_are_refused",
+    "tests/test_manual.py::test_the_manual_step_is_off_by_default",
+    "tests/test_manual.py::test_the_manual_step_searches_on_the_anomaly_before_the_plan",
+    "tests/test_manual.py::test_the_step_uses_one_of_the_manual_s_searches",
+    "tests/test_manual.py::test_the_tool_stays_open_after_the_step",
+    "tests/test_episode.py::test_a_run_with_the_manual_gives_the_settings_critic_the_manual",
+    "tests/test_evals.py::test_run_cases_offers_the_manual_when_given",
+    "tests/test_experiment.py::test_a_run_with_the_manual_records_what_it_looked_up",
+    "tests/test_experiment.py::test_model_failures_survive_the_cli_file_and_report",
+    "tests/test_experiment.py::test_the_command_line_runs_labels_and_reports"
+   ],
+   "test_count": 18,
+   "verification_status": "VERIFIED",
+   "snap_questions": [
+    "TL-01",
+    "TL-02",
+    "TL-03"
+   ]
+  }
+ ]
+}

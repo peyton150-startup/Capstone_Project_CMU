@@ -1,0 +1,400 @@
+{
+  "rubric_version": "1.0.0",
+  "api": {
+    "endpoint": "POST https://api.subq.ai/v1/systemone",
+    "model": "subq-snap-1.1",
+    "request_shape": "{model, state, questions: {name: {type: noul|choice|score, instructions, criteria}}}",
+    "answer_shape": "answers.<name>.noul (probability of yes) | answers.<name>.{choice, confidence, probabilities} | answers.<name>.{score, confidence, probabilities}",
+    "limits": "1-16 named questions per request; 384K-token context; score questions take 2-10 ordered level descriptions; choice questions 2-255 options",
+    "verification_status": "SECOND-HAND. docs.subq.ai was not reachable from the session that wrote this file; the shape follows the published quickstart as quoted by search results and two open-source clients (devbux/subq-snap-mcp, opentalon PR #394), and matches the TypeSafe System One shape already used in capstone/providers/typesafe.py. Confirm the exact key for score levels (criteria vs levels) against docs.subq.ai before the first live request."
+  },
+  "principles": [
+    "Deterministic checks take precedence: a question is never asked where code already computes the answer from the record or the hidden truth.",
+    "Snap judges the quality of the investigation, never whether the answer matches ground truth; the judge's state never carries the true fault.",
+    "Every question has a missing-evidence rule. A packet with trace.completeness = record_only cannot answer RUN-01, RUN-02, RUN-08, RUN-09 or RUN-12; those are recorded as 'unknown' without a request.",
+    "A probability from a noul question is a model's preference, not a calibrated correctness probability. Thresholds below are decision rules for the report, not claims about calibration.",
+    "Scores are reported per item and per batch with their denominators; nothing is folded into one overall percentage."
+  ],
+  "questions": [
+    {
+      "id": "RUN-01",
+      "family": "RUN",
+      "name": "evidence_quality",
+      "applies_to": "one master-run packet (snap_view)",
+      "type": "score",
+      "instructions": "Read `trace`. Judge whether the final `conclusion.diagnosis` is supported by relevant evidence the factory itself returned (origin 'observable'), rather than by assumptions, manual guidance or memory alone. Consider only evidence ids the conclusion or the selected hypothesis cites and what those items actually contain.",
+      "criteria": [
+        "0: The conclusion cites no observable evidence, or the cited evidence does not bear on the claim.",
+        "1: One cited observable item loosely relates to the claim; key symptoms the claim depends on were never read.",
+        "2: Cited observable evidence shows the symptom the claim names, but a plausible alternative explanation of the same evidence was not examined.",
+        "3: Cited observable evidence shows the symptom and at least one discriminating reading was made that separates the claim from an alternative.",
+        "4: Cited observable evidence shows the symptom, discriminating readings separate it from the alternatives, and other machines or batches were checked before the conclusion."
+      ],
+      "required_evidence": ["trace.evidence", "trace.hypotheses", "trace.conclusion", "trace.decisions"],
+      "missing_evidence": "If trace.completeness is record_only, do not ask; record unknown.",
+      "deterministic_precedence": "evaluator_only.evidence_share and relevant_evidence_collected give the truth-side view of coverage; this question gives the judge's view of whether what was collected supports what was concluded. Report both, never one for the other.",
+      "scoring_note": "Report the probability-weighted score and the modal level; a mean below 2 on a run scored root_cause_correct=true is flagged 'misleading success'."
+    },
+    {
+      "id": "RUN-02",
+      "family": "RUN",
+      "name": "hypothesis_reasoning",
+      "applies_to": "one master-run packet (snap_view)",
+      "type": "score",
+      "instructions": "Read `trace.hypotheses`, `trace.pruned_candidates` and the decisions in phase 'test'. Judge whether the investigator considered competing plausible causes for the anomaly and tested them against each other, rather than pursuing one explanation from the start.",
+      "criteria": [
+        "0: One hypothesis only, or several hypotheses that are rewordings of the same cause.",
+        "1: Several distinct hypotheses were listed but no decision in the test phase was aimed at telling them apart.",
+        "2: Distinct hypotheses and at least one test-phase reading that bears on a rival, but confidences moved without the cited evidence changing.",
+        "3: Distinct hypotheses, discriminating readings, and confidences revised in a way the cited evidence explains.",
+        "4: As 3, and a hypothesis that needs no change to the factory (a transient, a batch, a setting) was held and tested, not only mechanical faults."
+      ],
+      "required_evidence": ["trace.hypotheses", "trace.decisions", "trace.evidence"],
+      "missing_evidence": "record_only packets: unknown.",
+      "deterministic_precedence": "none; this is interpretation."
+    },
+    {
+      "id": "RUN-03",
+      "family": "RUN",
+      "name": "critic_effectiveness",
+      "applies_to": "one master-run packet with trace.critique present",
+      "type": "choice",
+      "instructions": "Read `trace.critique`, `trace.recheck`, the hypotheses and the conclusion. Did the critic identify an important weakness (a contradiction, a missing check, a better alternative) and did a useful follow-up happen when one was warranted?",
+      "criteria": {
+        "effective": "The critic named a real weakness or the best-supported alternative, and the follow-up reading (or the conclusion) reflects it.",
+        "ineffective": "The critic missed an evident weakness, objected without substance, or its point was available and ignored (recheck skipped, policy_stopped, or the conclusion unchanged despite a contradicting reading).",
+        "not_required": "The leading hypothesis was already well supported and the critic's agreement was reasonable; no follow-up was needed.",
+        "unknown": "No usable critique (outcome no_answer or invalid_reply), or the trace is incomplete."
+      },
+      "required_evidence": ["trace.critique", "trace.recheck", "trace.hypotheses", "trace.conclusion"],
+      "missing_evidence": "No critique record: not asked; recorded as not_run.",
+      "deterministic_precedence": "critique.verdict_mismatch, recheck.outcome and recheck.trigger are code facts; evaluator_only.critic_pick_correct says whether the pick named the true cause. Those are reported beside this answer."
+    },
+    {
+      "id": "RUN-04",
+      "family": "RUN",
+      "name": "retrieval_quality",
+      "applies_to": "one master-run packet with manual or memory offered",
+      "type": "choice",
+      "instructions": "Read `trace.manual_searches`, `trace.recall_searches`, the evidence items whose origin is 'manual' or 'memory', and where those ids are cited. Did the retrieved passages or memories materially support the investigation?",
+      "criteria": {
+        "useful": "A retrieved section or memory is cited by a hypothesis, a decision or the conclusion, and the reasoning that cites it is consistent with its content.",
+        "unnecessary": "Retrieval happened but nothing retrieved was cited or acted on; the investigation would read the same without it.",
+        "misleading": "A retrieved item was cited in support of a claim it does not support, or steered a reading away from the symptom.",
+        "not_retrieved": "The tool was offered but never answered a search (no search, or every search refused or failed).",
+        "unknown": "The trace is incomplete."
+      },
+      "required_evidence": ["trace.manual_searches", "trace.recall_searches", "trace.evidence", "trace.hypotheses"],
+      "missing_evidence": "Neither offered: not asked; recorded as not_offered.",
+      "deterministic_precedence": "search counts, refusals and the sections returned are code facts (manual_searches, recall_searches); whether a memory was cited is `memory_uses.used` in the record."
+    },
+    {
+      "id": "RUN-05",
+      "family": "RUN",
+      "name": "verification_demonstrated",
+      "applies_to": "one master-run packet",
+      "type": "choice",
+      "instructions": "Read `trace.verification`, `trace.proposal` and the evidence observed after `action_finish_tick` (or after the conclusion for a no-action run). Does the trace show that the agent checked its prediction against observations made after the work, and that the verdict follows from them?",
+      "criteria": {
+        "yes": "Observable evidence with a data window after the work (or after the conclusion) was read, the verdict cites it, and the cited values agree with the verdict.",
+        "no": "No look after the work, the verdict cites evidence from before the work, or the cited values contradict the verdict.",
+        "not_applicable": "The run ended with escalate or without a proposal, so no remedy was there to verify.",
+        "unknown": "The trace is incomplete."
+      },
+      "required_evidence": ["trace.verification", "trace.evidence", "trace.decisions"],
+      "missing_evidence": "record_only packets: unknown.",
+      "deterministic_precedence": "The loop already refuses a verdict that rests on evidence from before the work (`capstone.agent.investigation.verify`); evaluator_only.verification_calibration compares the verdict with the truth. This question adds only whether the cited numbers support the verdict."
+    },
+    {
+      "id": "RUN-06",
+      "family": "RUN",
+      "name": "abstention_appropriate",
+      "applies_to": "one master-run packet",
+      "type": "choice",
+      "instructions": "Read the conclusion, its confidence and assessment, and the evidence. If the agent declined to name a cause (escalate / unresolved) was the evidence in fact insufficient? If it named a cause with high confidence, was the evidence sufficient for that confidence?",
+      "criteria": {
+        "appropriate": "Declined when the evidence left two or more causes open, or committed when the cited evidence settles the cause.",
+        "inappropriate": "Declined although the cited evidence settled the cause, or committed with confidence 0.8 or more while a rival cause was untested or a contradiction stood.",
+        "not_applicable": "The run never reached a reasoned conclusion (model unavailable, undetermined by timeout)."
+      },
+      "required_evidence": ["trace.conclusion", "trace.hypotheses", "trace.evidence"],
+      "missing_evidence": "record_only packets: unknown.",
+      "deterministic_precedence": "evaluator_only.abstained and confident_wrong are code facts from the label and the truth; this question judges the decision against the evidence shown, not against the truth."
+    },
+    {
+      "id": "RUN-07",
+      "family": "RUN",
+      "name": "failure_classification",
+      "applies_to": "one master-run packet whose conclusion is wrong, unresolved or escalated",
+      "type": "choice",
+      "instructions": "Read the whole trace. What most seriously undermined this investigation? Choose the single earliest cause that, had it gone right, would most likely have changed the outcome.",
+      "criteria": {
+        "reasoning": "The relevant readings were in hand and misread: the hypotheses or confidences do not follow from the cited evidence.",
+        "retrieval": "A manual or memory answer was absent, unhelpful or misleading at the point it mattered.",
+        "critic": "The critic missed or misdirected, or its correct point was dropped.",
+        "tooling": "Tool errors, refused calls, repeated calls, a blackout or a gap left the needed reading unavailable, or the budget ran out before it could be made.",
+        "verification": "The diagnosis and action were right but the post-action check was missing or wrong.",
+        "none_observed": "Nothing undermined it: the investigation reads as sound.",
+        "unknown": "The trace is incomplete."
+      },
+      "required_evidence": ["trace"],
+      "missing_evidence": "record_only packets: the judge may use tools_used, decisions outcomes and termination_reason only; answer unknown unless a tooling or timeout cause is evident from them.",
+      "deterministic_precedence": "evaluator_only.miss_kind (evidence_miss vs reasoning_miss) and facts.termination_reason are code facts reported beside this answer."
+    },
+    {
+      "id": "RUN-08",
+      "family": "RUN",
+      "name": "conclusion_support",
+      "applies_to": "one master-run packet",
+      "type": "score",
+      "instructions": "Independently of whether the diagnosis is true, how well does the trace support the final conclusion as stated? Consider the cited evidence, the unexplained and contradicting evidence the hypotheses list, open questions, and whether the stated confidence matches.",
+      "criteria": [
+        "0: The conclusion is not supported: cited evidence is absent, irrelevant or contradicts it.",
+        "1: Weakly supported: one consistent reading, with alternatives or contradictions left open.",
+        "2: Partly supported: the symptom is shown, but at least one listed contradiction, unexplained item or open question remains.",
+        "3: Well supported: the cited evidence shows the symptom and separates the cause from the alternatives the agent considered.",
+        "4: Fully supported: as 3, with the confidence stated proportionate and nothing material left open."
+      ],
+      "required_evidence": ["trace.conclusion", "trace.hypotheses", "trace.evidence"],
+      "missing_evidence": "record_only packets: unknown.",
+      "deterministic_precedence": "`check_conclusion` already lowers an unresolved conclusion to escalate; this question measures the quality of the text and citations, which code cannot."
+    },
+    {
+      "id": "RUN-09",
+      "family": "RUN",
+      "name": "unsupported_confidence",
+      "applies_to": "one master-run packet with a committed conclusion",
+      "type": "noul",
+      "instructions": "Is the confidence stated in `trace.conclusion.confidence` higher than the cited evidence allows?",
+      "criteria": {
+        "true": "A rival hypothesis with cited support was never tested, a contradiction or unexplained item is listed for the selected hypothesis, or the cited evidence is a single reading, yet confidence is 0.8 or more.",
+        "false": "The stated confidence is proportionate: discriminating readings were made and nothing material is left open, or the confidence is already low."
+      },
+      "required_evidence": ["trace.conclusion", "trace.hypotheses", "trace.evidence"],
+      "missing_evidence": "record_only packets: unknown.",
+      "decision_rule": "A probability of 0.7 or more is reported as 'overconfident'; 0.3 or less as 'proportionate'; between, 'unclear' (the TypeSafe thresholds already used by auto_label.py, not calibrated for this project)."
+    },
+    {
+      "id": "RUN-10",
+      "family": "RUN",
+      "name": "scan_before_no_fault",
+      "applies_to": "one master-run packet whose recommendation is no_action",
+      "type": "noul",
+      "instructions": "The conclusion says nothing needs fixing. Before concluding that, did the investigation examine machines other than the one the alarm named (list_machines, then readings or inspections for them)?",
+      "criteria": {
+        "true": "At least one other machine's sensor readings or the line's inspection results were read after the alarm and before the conclusion.",
+        "false": "Only the alarmed machine was examined, or no machine list was read."
+      },
+      "required_evidence": ["trace.decisions", "trace.evidence"],
+      "missing_evidence": "record_only packets: unknown.",
+      "deterministic_precedence": "PREFER THE CODE: facts.machines_examined lists the machines named in tool arguments; with a full trace this question is redundant and is only asked to validate the deterministic check on the reference set."
+    },
+    {
+      "id": "RUN-11",
+      "family": "RUN",
+      "name": "critic_feedback_used",
+      "applies_to": "one master-run packet with trace.critique and trace.recheck present",
+      "type": "choice",
+      "instructions": "Read `trace.critique` (the check it named), `trace.recheck` and the hypotheses before and after. Did the investigator use the critic's feedback?",
+      "criteria": {
+        "used": "The follow-up reading was made where the critic pointed, and the leading hypothesis or its confidence changed in the direction the reading supports (or stayed when the reading confirmed it).",
+        "ignored": "A usable critique named a check and the follow-up was skipped, stopped by the policy, refused, or made but the beliefs did not respond to what it showed.",
+        "no_feedback": "The critic gave no usable check (no_answer, invalid_reply, or an empty discriminating_check).",
+        "unknown": "The trace is incomplete."
+      },
+      "required_evidence": ["trace.critique", "trace.recheck", "trace.hypotheses"],
+      "missing_evidence": "No recheck record: not asked (the follow-up was off).",
+      "deterministic_precedence": "recheck.outcome, confidence_before and confidence_after are code facts; this question adds whether the response to the reading was sensible."
+    },
+    {
+      "id": "RUN-12",
+      "family": "RUN",
+      "name": "evidence_cited_matches_content",
+      "applies_to": "one master-run packet",
+      "type": "noul",
+      "instructions": "For each evidence id the conclusion cites, read that item's content. Does every cited item actually show what the conclusion says it shows?",
+      "criteria": {
+        "true": "Every cited item contains the reading, event or result the conclusion attributes to it.",
+        "false": "At least one cited item does not contain what is attributed to it (wrong machine, wrong sensor, a value not present, an event not there), or the conclusion cites nothing."
+      },
+      "required_evidence": ["trace.conclusion", "trace.evidence"],
+      "missing_evidence": "record_only packets: unknown.",
+      "deterministic_precedence": "`check_conclusion` verifies that cited ids exist and `verify_numeric_claims` checks structured numbers; neither checks the prose. This question covers the prose."
+    },
+    {
+      "id": "FN-01",
+      "family": "FN",
+      "name": "implementation_matches_contract",
+      "applies_to": "one function evidence packet (source, docstring, variable block, tests)",
+      "type": "noul",
+      "instructions": "Read the function's source and its stated contract (docstring and `# Variables:` block). Does the implementation do what the contract says, for every branch, including error paths?",
+      "criteria": {
+        "true": "Every statement in the contract is implemented and no branch does something the contract does not describe.",
+        "false": "A documented behaviour is missing, a branch does something undocumented that a caller would need to know, or the contract is absent so nothing can be matched."
+      },
+      "required_evidence": ["source", "docstring", "callers"],
+      "missing_evidence": "No docstring and no variable block: answer false and flag 'contract unspecified'.",
+      "deterministic_precedence": "Test outcomes (passed/failed) are code facts from the junit report."
+    },
+    {
+      "id": "FN-02",
+      "family": "FN",
+      "name": "failure_paths_covered",
+      "applies_to": "one function evidence packet",
+      "type": "choice",
+      "instructions": "Compare the function's branches, raises and except clauses with the tests listed as executing it. Are the failure and boundary paths exercised by a test that asserts on their outcome?",
+      "criteria": {
+        "covered": "Every raise, except clause and boundary condition visible in the source is reached by a listed test that asserts on the result.",
+        "partly": "The happy path and some failure paths are asserted; at least one raise, except clause or boundary is not.",
+        "uncovered": "Only the happy path is asserted, or the listed tests execute the function without asserting on its result.",
+        "not_applicable": "The function has no failure path (pure data access, a property)."
+      },
+      "required_evidence": ["source", "tests", "coverage"],
+      "missing_evidence": "No executing tests: answer uncovered.",
+      "deterministic_precedence": "Line coverage and the test list are code facts from the verification matrix; the judge rates the assertions."
+    },
+    {
+      "id": "FN-03",
+      "family": "FN",
+      "name": "evidence_sufficient_for_correctness",
+      "applies_to": "one function evidence packet",
+      "type": "choice",
+      "instructions": "Given the tests that execute this function, their assertions and their outcomes, is the available evidence sufficient to call the function correct against its contract?",
+      "criteria": {
+        "sufficient": "Direct tests assert the contract's behaviour on realistic inputs including failure paths, and all passed.",
+        "insufficient": "The function is executed only incidentally by other tests, assertions are weak, failure paths are untested, or a test failed or was skipped.",
+        "not_applicable": "A stub, a protocol method or a one-line accessor whose correctness is established by its type alone."
+      },
+      "required_evidence": ["tests", "coverage", "outcomes"],
+      "missing_evidence": "No tests: insufficient.",
+      "deterministic_precedence": "The verification matrix's coverage_class is the starting point; the judge may lower but never raise a FAILED or NOT TESTED status."
+    },
+    {
+      "id": "TS-01",
+      "family": "TS",
+      "name": "test_proves_its_claim",
+      "applies_to": "one test evidence packet (test source, docstring, functions exercised, outcome)",
+      "type": "noul",
+      "instructions": "The test's name and docstring make a claim. Do its assertions establish that claim about the functions it exercises?",
+      "criteria": {
+        "true": "The assertions check the specific behaviour the name claims, on inputs that exercise it.",
+        "false": "The assertions check something weaker or different from the claim (only that no error occurred, only a type, only a field exists), or the claim is not about the project code the test exercises."
+      },
+      "required_evidence": ["test_source", "exercises"],
+      "missing_evidence": "No exercised project function (coverage absent): unknown.",
+      "deterministic_precedence": "assertion counts and forms are code facts."
+    },
+    {
+      "id": "TS-02",
+      "family": "TS",
+      "name": "would_fail_if_broken",
+      "applies_to": "one test evidence packet",
+      "type": "noul",
+      "instructions": "Imagine the behaviour the test claims to verify were broken in the implementation (the wrong branch taken, the check removed, the value off by one). Would this test fail?",
+      "criteria": {
+        "true": "A plausible breakage of the claimed behaviour changes an asserted value.",
+        "false": "The test could still pass because its inputs come from a stub that fixes the outcome, the assertion is on a mocked return, or the assertion is too loose to notice."
+      },
+      "required_evidence": ["test_source", "helpers used"],
+      "missing_evidence": "none",
+      "deterministic_precedence": "A mutation-testing result, where available, takes precedence over this judgement."
+    },
+    {
+      "id": "TS-03",
+      "family": "TS",
+      "name": "assertion_strength",
+      "applies_to": "one test evidence packet",
+      "type": "score",
+      "instructions": "Rate the specificity of the test's assertions relative to the behaviour it claims.",
+      "criteria": [
+        "0: No assertion, or only that no exception was raised.",
+        "1: Truthiness or not-None checks only.",
+        "2: Specific values or types asserted on part of the outcome; side effects or state transitions not checked where they matter.",
+        "3: Specific values asserted on the whole relevant outcome, including state changes or raised errors where the claim needs them."
+      ],
+      "required_evidence": ["test_source"],
+      "missing_evidence": "none",
+      "deterministic_precedence": "quality_flags no_assertion and weak_assertions_only are code facts and fix the score at 0 or 1 without asking."
+    },
+    {
+      "id": "TL-01",
+      "family": "TL",
+      "name": "boundary_enforced",
+      "applies_to": "one tool evidence packet (schema, implementation, provider wiring, tests)",
+      "type": "noul",
+      "instructions": "Read the tool's implementation and the provider's wiring. Can the tool return anything the agent must not see (hidden condition, ground truth, approval powers, raw errors with secrets), or change the factory without the intended authorization?",
+      "criteria": {
+        "true": "Every field returned is rebuilt from an output contract, no hidden field or secret can pass, and any factory change goes through the approval desk or the wait tool as designed.",
+        "false": "A code path can return hidden state, a raw exception, or change the factory without approval."
+      },
+      "required_evidence": ["implementation", "boundary", "tests"],
+      "missing_evidence": "none",
+      "deterministic_precedence": "tests/test_observation_tools.py::test_nothing_hidden_leaks_through_any_tool_over_a_full_run and tests/test_factory_provider.py are the deterministic checks; this question looks for paths those tests do not reach."
+    },
+    {
+      "id": "TL-02",
+      "family": "TL",
+      "name": "description_matches_behaviour",
+      "applies_to": "one tool evidence packet",
+      "type": "noul",
+      "instructions": "Compare the tool description a model is shown with what the implementation does and refuses. Would a model that trusts the description be misled?",
+      "criteria": {
+        "true": "The description states the arguments, limits and meaning of the answer as implemented.",
+        "false": "The description promises something the implementation does not do, omits a limit the implementation enforces (rows, ranges, sensors), or describes the answer's meaning wrongly."
+      },
+      "required_evidence": ["description", "argument_schema", "implementation"],
+      "missing_evidence": "none",
+      "deterministic_precedence": "tests/test_factory_provider.py::test_every_tool_is_described_and_no_description_names_a_missing_tool checks presence, not accuracy."
+    },
+    {
+      "id": "TL-03",
+      "family": "TL",
+      "name": "silent_failure_risk",
+      "applies_to": "one tool evidence packet",
+      "type": "score",
+      "instructions": "How likely is this tool to return a value that is wrong or incomplete without signalling failure (success=true with misleading data)?",
+      "criteria": [
+        "0: Cannot: the answer is a direct projection of recorded data with no filtering that could drop rows.",
+        "1: Unlikely: filtering or arithmetic exists but is simple and tested on boundaries.",
+        "2: Possible: windows, units or ordering could silently exclude or distort data and the tests do not cover that case.",
+        "3: Likely: the answer depends on state the agent cannot see (an injected hazard, a stale record) and nothing marks the answer as degraded."
+      ],
+      "required_evidence": ["implementation", "tests", "hazards"],
+      "missing_evidence": "none",
+      "deterministic_precedence": "The hazard tests pin the designed degradations; this question looks for undesigned ones."
+    },
+    {
+      "id": "BT-01",
+      "family": "BT",
+      "name": "comparison_valid",
+      "applies_to": "one experiment comparison packet (two batch summaries with their configurations)",
+      "type": "choice",
+      "instructions": "Two batches are compared. From their configurations, commits, scenario sets, models, retrieval settings, rubric versions and label sources, is a like-for-like comparison valid?",
+      "criteria": {
+        "valid": "Same scenarios and seeds, same label rule and rubric version, one configuration difference (the treatment), models and settings otherwise identical, no resumed mixed-configuration runs.",
+        "partially_valid": "Same scenarios but more than one difference, or a resumed run with a settings change inside it, so a difference can be reported but not attributed.",
+        "invalid": "Different scenarios, different label rules, or results of unknown configuration."
+      },
+      "required_evidence": ["batch configurations", "commits", "label files"],
+      "missing_evidence": "Unknown configuration: invalid.",
+      "deterministic_precedence": "`capstone.evals.compare_reports` refuses different scenario sets; the rest is interpretation."
+    },
+    {
+      "id": "BT-02",
+      "family": "BT",
+      "name": "improvement_supported",
+      "applies_to": "one experiment comparison packet",
+      "type": "choice",
+      "instructions": "Given the per-case results and the number of cases, does the evidence support a claim that the treatment improved root-cause accuracy and evidence-grounded decisions without more unsupported conclusions, more tool calls or more failures?",
+      "criteria": {
+        "improvement": "More cases right, no more confident-wrong, no more false interventions, and tool calls or latency not materially higher, over at least two repeats per case or 13 or more matched cases.",
+        "regression": "Fewer right, or more confident-wrong or false interventions, with the same sample conditions.",
+        "no_difference": "Differences within one case either way with the sample conditions met.",
+        "insufficient_sample": "One run per case, fewer than the matched cases above, or outages removed cases from one side."
+      },
+      "required_evidence": ["batch summaries", "per-case differences"],
+      "missing_evidence": "none",
+      "deterministic_precedence": "All counts come from BATCH_SUMMARY.json; the judge applies the sample rule, which the report also applies in code."
+    }
+  ]
+}

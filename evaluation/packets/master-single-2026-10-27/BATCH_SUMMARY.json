@@ -1,0 +1,27 @@
+{
+ "runs": 9,
+ "model_unavailable": 0,
+ "judged": 9,
+ "root_cause_correct": 3,
+ "accuracy_when_committed": 0.75,
+ "abstained": 5,
+ "confident_wrong": 1,
+ "recommendation_correct": 5,
+ "action_correct": 5,
+ "resolved": 4,
+ "false_interventions": 1,
+ "evidence_share_mean": 0.7259259259259259,
+ "miss_kinds": {
+  "evidence_miss": 4,
+  "reasoning_miss": 2
+ },
+ "verification_calibration": {
+  "no_verdict": 5,
+  "true_resolved": 3,
+  "true_unresolved": 1
+ },
+ "timeouts": 5,
+ "mean_tool_calls": 12.333333333333334,
+ "mean_wall_seconds": 694.594647966668,
+ "traces_complete": 0
+}
