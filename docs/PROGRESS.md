@@ -269,11 +269,11 @@ alarm), then evaluation, then the agent itself.
   gains `evaluation` on the pytest and ruff paths and `.github/test_groups.py`
   lists the one new test file.
   - `evaluation/evaltools/build_inventory.py` lists every project function
-    (602 on this commit), test (1357 functions, 1,708 cases) and agent tool
+    (602 on this commit), test (1,361 functions, 1,712 cases) and agent tool
     (17) from the syntax tree, joins them through per-test coverage contexts
     (`pytest --cov-context=test`) and the junit report, and writes
     `inventory/*.json`. Derived statuses are conservative; only
-    `curated/function_notes.json` (59 reviewed functions) and
+    `curated/function_notes.json` (63 reviewed functions) and
     `curated/test_notes.json` (28 reviewed tests) can say VERIFIED or FAILED.
   - `evaltools/run_packet.py` turns an `ExperimentRecord` (and, when the run
     kept one, its audit log) into a packet with a `snap_view` a judge may see

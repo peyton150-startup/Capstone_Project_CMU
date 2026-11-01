@@ -11,26 +11,26 @@ Answers to the audit's final questions, with the evidence behind each. On
 602 functions and methods in `capstone-code/capstone` (24 of them protocol
 stubs or abstract definitions, 213 classes listed through their methods),
 17 agent-facing tools (15 factory tools of which 3 are the loop's fixed
-procedure, plus `recall_memories` and `search_manual`), 1,357 test
-functions giving 1,708 cases. Exclusions are listed in the matrix.
+procedure, plus `recall_memories` and `search_manual`), 1,361 test
+functions giving 1,712 cases. Exclusions are listed in the matrix.
 
 **2. How many functions have meaningful verification coverage?** 557 are
-executed by at least one test and 369 by a direct test. After reviewer
-judgment: 43 VERIFIED, 340 PARTIALLY VERIFIED, 177 INSUFFICIENT EVIDENCE
+executed by at least one test and 374 by a direct test. After reviewer
+judgment: 45 VERIFIED, 344 PARTIALLY VERIFIED, 171 INSUFFICIENT EVIDENCE
 (executed only by other modules' tests or at import), 18 NOT TESTED, 24 NOT
 APPLICABLE, 0 FAILED. "Meaningful" in the rubric's sense (contract stated,
-failure paths asserted) is the 43 VERIFIED, all in the loop, the stages,
+failure paths asserted) is the 45 VERIFIED, all in the loop, the stages,
 the provider boundary, the approval desk, scoring, the memory gate, the
-client and the hazards. The other 340 have direct tests that passed; their
+client and the hazards. The other 344 have direct tests that passed; their
 failure paths are not individually established.
 
 **3. How many tests adequately verify their intended behaviour?** All
 1,349 pre-existing test functions passed. Reviewed by hand: 28, of which
 15 STRONG, 7 ADEQUATE, 3 STRUCTURAL, 3 WEAK. Heuristically flagged: 49
 assert only truthiness or not-None (most adequate for their claim on
-inspection, 3 confirmed weak), 95 exercise no project function (rules about
+inspection, 3 confirmed weak), 97 exercise no project function (rules about
 imports, prompts and record formats), 1 has no assert statement (it uses
-`pytest.raises`). The honest answer is "most, with 1,329 not individually
+`pytest.raises`). The honest answer is "most, with 1,333 not individually
 assessed"; TS-01 to TS-03 are written for that assessment.
 
 **4. Which tests could pass while the implementation is wrong?**

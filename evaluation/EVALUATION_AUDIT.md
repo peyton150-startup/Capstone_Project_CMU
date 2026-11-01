@@ -39,7 +39,7 @@ read: `simulator/thermal.py`, `events.py`, `clock.py`, `rng.py`,
 Those modules are in the inventories with machine-derived statuses only.
 
 Executed: the whole offline suite with per-test coverage (1,700 cases
-passed before this change, 8 added), the inventory builder, the packet
+passed before this change, 12 added), the inventory builder, the packet
 builder on the one master run whose records are in the repository, the
 request builder in dry run, and the traced runner with the scripted
 stand-in. No model was called and no live run was launched.
@@ -54,7 +54,7 @@ the 2026-10-27 master report, records and labels, `README.md`.
 
 Limits: docs.subq.ai did not resolve from the session, so the Decisions
 API shape in `SNAP_QUESTIONS.json` is second-hand (S1). Hand review covered
-59 functions and 28 tests; the other 543 functions and 1,329 tests carry
+63 functions and 28 tests; the other 539 functions and 1,333 tests carry
 machine-derived statuses only (`VERIFICATION_MATRIX.json`).
 
 ## 2. What a successful master run currently means (Phase 2)
@@ -252,7 +252,7 @@ faults, machines examined, RUN-01).
 - **A6 (well designed).** Budgets, repeats, provenance, the supported-
   diagnosis gate, the fixed procedure after the conclusion and the
   verification rules are enforced by the loop, not the policy, and the
-  tests prove each one (`curated/function_notes.json`: 43 VERIFIED).
+  tests prove each one (`curated/function_notes.json`: 45 VERIFIED).
 
 ### Leakage boundary
 
@@ -278,7 +278,7 @@ faults, machines examined, RUN-01).
 ### Tests
 
 - **T1. Numbers.** 602 project functions (24 protocol stubs or abstract
-  definitions). 557 executed by at least one test, 369 by a direct test. 18
+  definitions). 557 executed by at least one test, 374 by a direct test. 18
   never executed: the command-line `main`s of `baseline`, `manual.index`,
   `memory.backfill`, `duplicate_threshold`, the console approver, and the
   live-only paths `evals.automatic_labels`, `experiment.open_memory`,
@@ -287,8 +287,8 @@ faults, machines examined, RUN-01).
   two nested helpers of `evals.main`, and three trivial properties. 3
   executed only at import. 20 executed with under 80 percent of their
   statements (`VERIFICATION_MATRIX.json` `counts`), among them `evals.main`
-  (28 of 60) and `memory_comparison.main` (25 of 37). 1,357 test functions
-  (1,708 cases), all passed on the reviewed commit. The live model path
+  (28 of 60) and `memory_comparison.main` (25 of 37). 1,361 test functions
+  (1,712 cases), all passed on the reviewed commit. The live model path
   (`clients_for_jobs` through a real transport) is, correctly, never
   executed offline.
 - **T2. Scripted episodes prove plumbing, not reasoning.** The known-answer
@@ -299,7 +299,7 @@ faults, machines examined, RUN-01).
 - **T3. Heuristic flags.** 49 tests assert only truthiness or not-None; on
   review 3 of the 6 read were WEAK (a broken `_resolved` for wrong settings
   could pass `test_a_reset_resolves_a_wrong_setting`) and the rest adequate
-  for their claim. 95 tests exercise no project function: import rules,
+  for their claim. 97 tests exercise no project function: import rules,
   prompt text rules, backward-compatibility of records, data-model limits.
   They are legitimate but they inflate "tests per module" if counted as
   behaviour. 97 patch dependencies (monkeypatch or mock); 14 may skip

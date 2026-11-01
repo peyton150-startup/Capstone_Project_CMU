@@ -34002,14 +34002,32 @@
    },
    "raises_checks": 0,
    "uses": [],
-   "quality_flags": [
-    "exercises_no_project_function"
-   ],
+   "quality_flags": [],
    "claims": "master run packets keep the truth out of the judge view",
-   "execution_outcome": "not_run",
-   "exercises": [],
-   "exercise_count": 0,
-   "modules_exercised": [],
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.contracts.investigations:run_id_for",
+    "capstone.evaluation.labels:LabelBook.__init__",
+    "capstone.evaluation.labels:LabelBook.read",
+    "capstone.evaluation.labels:apply_label",
+    "capstone.evaluation.scoring:Cause.named_by",
+    "capstone.evaluation.scoring:Score.fully_right",
+    "capstone.evaluation.scoring:Score.miss_kind",
+    "capstone.evaluation.scoring:Score.model_unavailable",
+    "capstone.evaluation.scoring:Score.unnecessary_actions",
+    "capstone.evaluation.scoring:_closest",
+    "capstone.evaluation.scoring:_named",
+    "capstone.evaluation.scoring:judge",
+    "capstone.evaluation.scoring:judge_causes",
+    "capstone.experiment:read_records"
+   ],
+   "exercise_count": 14,
+   "modules_exercised": [
+    "capstone.contracts.investigations",
+    "capstone.evaluation.labels",
+    "capstone.evaluation.scoring",
+    "capstone.experiment"
+   ],
    "judgment": "NOT ASSESSED",
    "curated": {},
    "snap_questions": [
@@ -34038,7 +34056,7 @@
     "exercises_no_project_function"
    ],
    "claims": "3 of 9 right, 5 timeouts: the numbers docs/PROGRESS.md recorded for EV1.",
-   "execution_outcome": "not_run",
+   "execution_outcome": "passed",
    "exercises": [],
    "exercise_count": 0,
    "modules_exercised": [],
@@ -34068,7 +34086,7 @@
     "exercises_no_project_function"
    ],
    "claims": "the committed schema is the one the packet model generates",
-   "execution_outcome": "not_run",
+   "execution_outcome": "passed",
    "exercises": [],
    "exercise_count": 0,
    "modules_exercised": [],
@@ -34100,7 +34118,7 @@
     "exercises_no_project_function"
    ],
    "claims": "snap questions are well formed and batch at the api limit",
-   "execution_outcome": "not_run",
+   "execution_outcome": "passed",
    "exercises": [],
    "exercise_count": 0,
    "modules_exercised": [],
@@ -34134,7 +34152,7 @@
     "exercises_no_project_function"
    ],
    "claims": "record only packets skip the questions that need a trace",
-   "execution_outcome": "not_run",
+   "execution_outcome": "passed",
    "exercises": [],
    "exercise_count": 0,
    "modules_exercised": [],
@@ -34163,14 +34181,82 @@
    },
    "raises_checks": 0,
    "uses": [],
-   "quality_flags": [
-    "exercises_no_project_function"
-   ],
+   "quality_flags": [],
    "claims": "an audit log gives the packet a full trace",
-   "execution_outcome": "not_run",
-   "exercises": [],
-   "exercise_count": 0,
-   "modules_exercised": [],
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.agent.completion:AuditLog.__init__",
+    "capstone.agent.completion:AuditLog.append",
+    "capstone.agent.completion:AuditLog.read",
+    "capstone.agent.completion:audit_record",
+    "capstone.agent.completion:complete",
+    "capstone.agent.completion:shared_verification",
+    "capstone.agent.evidence_brief:observations",
+    "capstone.agent.evidence_brief:verify_numeric_claims",
+    "capstone.agent.investigation:build_graph",
+    "capstone.agent.investigation:build_graph.<locals>.conclude_step",
+    "capstone.agent.investigation:build_graph.<locals>.critique_step",
+    "capstone.agent.investigation:build_graph.<locals>.hypothesize_step",
+    "capstone.agent.investigation:build_graph.<locals>.investigate_step",
+    "capstone.agent.investigation:build_graph.<locals>.manual_step",
+    "capstone.agent.investigation:build_graph.<locals>.observe_step",
+    "capstone.agent.investigation:build_graph.<locals>.plan_step",
+    "capstone.agent.investigation:build_graph.<locals>.propose_step",
+    "capstone.agent.investigation:build_graph.<locals>.recheck_step",
+    "capstone.agent.investigation:build_graph.<locals>.staged",
+    "capstone.agent.investigation:check_conclusion",
+    "capstone.agent.investigation:conclude",
+    "capstone.agent.investigation:consult_manual",
+    "capstone.agent.investigation:critique",
+    "capstone.agent.investigation:gathered_in",
+    "capstone.agent.investigation:hypothesize",
+    "capstone.agent.investigation:investigate",
+    "capstone.agent.investigation:observe",
+    "capstone.agent.investigation:plan",
+    "capstone.agent.investigation:propose",
+    "capstone.agent.investigation:recheck",
+    "capstone.agent.investigation:run_investigation",
+    "capstone.agent.loop:InvestigationDeps.__post_init__",
+    "capstone.agent.loop:apply_interpretation",
+    "capstone.agent.loop:ask_policy",
+    "capstone.agent.loop:call_signature",
+    "capstone.agent.loop:call_tool",
+    "capstone.agent.loop:check_termination",
+    "capstone.agent.loop:gather",
+    "capstone.agent.loop:notify",
+    "capstone.agent.loop:record"
+   ],
+   "exercise_count": 173,
+   "modules_exercised": [
+    "capstone.agent.completion",
+    "capstone.agent.evidence_brief",
+    "capstone.agent.investigation",
+    "capstone.agent.loop",
+    "capstone.agent.monitor",
+    "capstone.agent.state",
+    "capstone.contracts.completed_investigations",
+    "capstone.contracts.investigations",
+    "capstone.contracts.tools",
+    "capstone.episode",
+    "capstone.evaluation.scoring",
+    "capstone.experiment",
+    "capstone.faults",
+    "capstone.providers.factory",
+    "capstone.settings",
+    "capstone.simulator.clock",
+    "capstone.simulator.events",
+    "capstone.simulator.generator",
+    "capstone.simulator.line",
+    "capstone.simulator.maintenance",
+    "capstone.simulator.rng",
+    "capstone.simulator.scenarios",
+    "capstone.simulator.sensors",
+    "capstone.simulator.simulator",
+    "capstone.simulator.state",
+    "capstone.simulator.thermal",
+    "capstone.tools.actions",
+    "capstone.tools.observation"
+   ],
    "judgment": "NOT ASSESSED",
    "curated": {},
    "snap_questions": [
@@ -34200,7 +34286,7 @@
     "exercises_no_project_function"
    ],
    "claims": "the traced run names the functions each case executed",
-   "execution_outcome": "not_run",
+   "execution_outcome": "passed",
    "exercises": [],
    "exercise_count": 0,
    "modules_exercised": [],
@@ -34235,7 +34321,136 @@
     "exercises_no_project_function"
    ],
    "claims": "the inventory lists every function and every curated item exists",
-   "execution_outcome": "not_run",
+   "execution_outcome": "passed",
+   "exercises": [],
+   "exercise_count": 0,
+   "modules_exercised": [],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_evaluation_tools.py::test_both_providers_get_the_same_fitted_state_and_questions",
+   "file": "tests/test_evaluation_tools.py",
+   "name": "test_both_providers_get_the_same_fitted_state_and_questions",
+   "line": 176,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [
+    "master_packets"
+   ],
+   "assertions": 5,
+   "assert_forms": {
+    "equality": 4,
+    "inequality": 1
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [
+    "exercises_no_project_function"
+   ],
+   "claims": "both providers get the same fitted state and questions",
+   "execution_outcome": "passed",
+   "exercises": [],
+   "exercise_count": 0,
+   "modules_exercised": [],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_evaluation_tools.py::test_fitting_a_state_is_deterministic_and_keeps_the_conclusion",
+   "file": "tests/test_evaluation_tools.py",
+   "name": "test_fitting_a_state_is_deterministic_and_keeps_the_conclusion",
+   "line": 200,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 6,
+   "assert_forms": {
+    "equality": 4,
+    "membership": 1,
+    "ordering": 1
+   },
+   "raises_checks": 1,
+   "uses": [],
+   "quality_flags": [
+    "exercises_no_project_function"
+   ],
+   "claims": "fitting a state is deterministic and keeps the conclusion",
+   "execution_outcome": "passed",
+   "exercises": [],
+   "exercise_count": 0,
+   "modules_exercised": [],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_evaluation_tools.py::test_answers_normalize_to_one_schema_and_compare_by_the_stated_rules",
+   "file": "tests/test_evaluation_tools.py",
+   "name": "test_answers_normalize_to_one_schema_and_compare_by_the_stated_rules",
+   "line": 224,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 9,
+   "assert_forms": {
+    "equality": 3,
+    "identity_constant": 6
+   },
+   "raises_checks": 2,
+   "uses": [],
+   "quality_flags": [
+    "exercises_no_project_function"
+   ],
+   "claims": "answers normalize to one schema and compare by the stated rules",
+   "execution_outcome": "passed",
+   "exercises": [],
+   "exercise_count": 0,
+   "modules_exercised": [],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_evaluation_tools.py::test_the_agreement_report_pairs_only_identical_states_and_flags_disagreements",
+   "file": "tests/test_evaluation_tools.py",
+   "name": "test_the_agreement_report_pairs_only_identical_states_and_flags_disagreements",
+   "line": 308,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [
+    "tmp_path"
+   ],
+   "assertions": 7,
+   "assert_forms": {
+    "equality": 6,
+    "truthiness": 1
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [
+    "exercises_no_project_function"
+   ],
+   "claims": "the agreement report pairs only identical states and flags disagreements",
+   "execution_outcome": "passed",
    "exercises": [],
    "exercise_count": 0,
    "modules_exercised": [],

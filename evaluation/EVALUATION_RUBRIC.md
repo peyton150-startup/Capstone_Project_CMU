@@ -65,7 +65,7 @@ TL-03 is listed by name.
 
 ## 4. Level 3: test quality
 
-Per test (1,357 functions, 1,708 parametrized cases, 12 of them this framework's own), from
+Per test (1,361 functions, 1,712 parametrized cases, 12 of them this framework's own), from
 `inventory/TEST_INVENTORY.json`:
 
 | Metric | Calculation | Deterministic? |

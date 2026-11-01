@@ -126,7 +126,7 @@
    "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
    "contract_specified": true,
    "executed_in_tests": true,
-   "test_count": 63,
+   "test_count": 64,
    "direct_tests": [
     "tests/test_agent_completion.py::test_a_check_that_was_never_made_is_left_out",
     "tests/test_agent_completion.py::test_a_failed_investigation_still_leaves_an_honest_record",
@@ -153,6 +153,7 @@
    ],
    "indirect_tests": [
     "tests/test_episode.py::test_a_verified_fix_is_audited_and_remembered",
+    "tests/test_evaluation_tools.py::test_an_audit_log_gives_the_packet_a_full_trace",
     "tests/test_experiment.py::test_a_recalled_memory_the_agent_cites_is_marked_used",
     "tests/test_experiment.py::test_an_uncited_memory_is_unknown_not_unused",
     "tests/test_experiment.py::test_nothing_the_evaluator_knows_reaches_the_memory_store",
@@ -180,10 +181,9 @@
     "tests/test_memory_comparison.py::test_semantic_mode_never_runs_as_keyword_search_unseen",
     "tests/test_memory_comparison.py::test_the_command_reports_a_results_file",
     "tests/test_memory_comparison.py::test_the_comparison_writes_nothing_to_memory",
-    "tests/test_memory_comparison.py::test_the_report_puts_the_modes_side_by_side_with_labels",
-    "tests/test_memory_comparison.py::test_the_report_warns_when_the_modes_ran_different_cases"
+    "tests/test_memory_comparison.py::test_the_report_puts_the_modes_side_by_side_with_labels"
    ],
-   "indirect_test_count": 41,
+   "indirect_test_count": 42,
    "statements_executed": 4,
    "statements_in_body": 4,
    "statement_coverage": 1.0,
@@ -238,7 +238,7 @@
    "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
    "contract_specified": true,
    "executed_in_tests": true,
-   "test_count": 64,
+   "test_count": 65,
    "direct_tests": [
     "tests/test_agent_completion.py::test_a_check_that_was_never_made_is_left_out",
     "tests/test_agent_completion.py::test_a_failed_investigation_still_leaves_an_honest_record",
@@ -265,6 +265,7 @@
    ],
    "indirect_tests": [
     "tests/test_episode.py::test_a_verified_fix_is_audited_and_remembered",
+    "tests/test_evaluation_tools.py::test_an_audit_log_gives_the_packet_a_full_trace",
     "tests/test_experiment.py::test_a_recalled_memory_the_agent_cites_is_marked_used",
     "tests/test_experiment.py::test_an_uncited_memory_is_unknown_not_unused",
     "tests/test_experiment.py::test_nothing_the_evaluator_knows_reaches_the_memory_store",
@@ -292,10 +293,9 @@
     "tests/test_memory_comparison.py::test_semantic_mode_asks_the_index",
     "tests/test_memory_comparison.py::test_semantic_mode_never_runs_as_keyword_search_unseen",
     "tests/test_memory_comparison.py::test_the_command_reports_a_results_file",
-    "tests/test_memory_comparison.py::test_the_comparison_writes_nothing_to_memory",
-    "tests/test_memory_comparison.py::test_the_report_puts_the_modes_side_by_side_with_labels"
+    "tests/test_memory_comparison.py::test_the_comparison_writes_nothing_to_memory"
    ],
-   "indirect_test_count": 42,
+   "indirect_test_count": 43,
    "statements_executed": 7,
    "statements_in_body": 7,
    "statement_coverage": 1.0,
@@ -342,7 +342,7 @@
    "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
    "contract_specified": true,
    "executed_in_tests": true,
-   "test_count": 40,
+   "test_count": 41,
    "direct_tests": [
     "tests/test_agent_completion.py::test_a_rejection_note_is_kept_in_the_log_in_words",
     "tests/test_agent_completion.py::test_audit_without_memory_writes_the_record",
@@ -354,6 +354,7 @@
    ],
    "indirect_tests": [
     "tests/test_episode.py::test_a_verified_fix_is_audited_and_remembered",
+    "tests/test_evaluation_tools.py::test_an_audit_log_gives_the_packet_a_full_trace",
     "tests/test_experiment.py::test_a_recalled_memory_the_agent_cites_is_marked_used",
     "tests/test_experiment.py::test_an_uncited_memory_is_unknown_not_unused",
     "tests/test_experiment.py::test_nothing_the_evaluator_knows_reaches_the_memory_store",
@@ -381,10 +382,9 @@
     "tests/test_memory_comparison.py::test_semantic_mode_never_runs_as_keyword_search_unseen",
     "tests/test_memory_comparison.py::test_the_command_reports_a_results_file",
     "tests/test_memory_comparison.py::test_the_comparison_writes_nothing_to_memory",
-    "tests/test_memory_comparison.py::test_the_report_puts_the_modes_side_by_side_with_labels",
-    "tests/test_memory_comparison.py::test_the_report_warns_when_the_modes_ran_different_cases"
+    "tests/test_memory_comparison.py::test_the_report_puts_the_modes_side_by_side_with_labels"
    ],
-   "indirect_test_count": 33,
+   "indirect_test_count": 34,
    "statements_executed": 1,
    "statements_in_body": 1,
    "statement_coverage": 1.0,
@@ -446,7 +446,7 @@
    "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
    "contract_specified": false,
    "executed_in_tests": true,
-   "test_count": 39,
+   "test_count": 40,
    "direct_tests": [
     "tests/test_agent_completion.py::test_a_rejection_note_is_kept_in_the_log_in_words",
     "tests/test_agent_completion.py::test_audit_without_memory_writes_the_record",
@@ -456,6 +456,7 @@
    ],
    "indirect_tests": [
     "tests/test_episode.py::test_a_verified_fix_is_audited_and_remembered",
+    "tests/test_evaluation_tools.py::test_an_audit_log_gives_the_packet_a_full_trace",
     "tests/test_experiment.py::test_a_recalled_memory_the_agent_cites_is_marked_used",
     "tests/test_experiment.py::test_an_uncited_memory_is_unknown_not_unused",
     "tests/test_experiment.py::test_nothing_the_evaluator_knows_reaches_the_memory_store",
@@ -483,10 +484,9 @@
     "tests/test_memory_comparison.py::test_semantic_mode_asks_the_index",
     "tests/test_memory_comparison.py::test_semantic_mode_never_runs_as_keyword_search_unseen",
     "tests/test_memory_comparison.py::test_the_command_reports_a_results_file",
-    "tests/test_memory_comparison.py::test_the_comparison_writes_nothing_to_memory",
-    "tests/test_memory_comparison.py::test_the_report_puts_the_modes_side_by_side_with_labels"
+    "tests/test_memory_comparison.py::test_the_comparison_writes_nothing_to_memory"
    ],
-   "indirect_test_count": 34,
+   "indirect_test_count": 35,
    "statements_executed": 1,
    "statements_in_body": 1,
    "statement_coverage": 1.0,
@@ -562,7 +562,7 @@
    "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
    "contract_specified": false,
    "executed_in_tests": true,
-   "test_count": 38,
+   "test_count": 39,
    "direct_tests": [
     "tests/test_agent_completion.py::test_a_rejection_note_is_kept_in_the_log_in_words",
     "tests/test_agent_completion.py::test_audit_without_memory_writes_the_record",
@@ -572,6 +572,7 @@
    ],
    "indirect_tests": [
     "tests/test_episode.py::test_a_verified_fix_is_audited_and_remembered",
+    "tests/test_evaluation_tools.py::test_an_audit_log_gives_the_packet_a_full_trace",
     "tests/test_experiment.py::test_a_recalled_memory_the_agent_cites_is_marked_used",
     "tests/test_experiment.py::test_an_uncited_memory_is_unknown_not_unused",
     "tests/test_experiment.py::test_nothing_the_evaluator_knows_reaches_the_memory_store",
@@ -599,10 +600,9 @@
     "tests/test_memory_comparison.py::test_semantic_mode_never_runs_as_keyword_search_unseen",
     "tests/test_memory_comparison.py::test_the_command_reports_a_results_file",
     "tests/test_memory_comparison.py::test_the_comparison_writes_nothing_to_memory",
-    "tests/test_memory_comparison.py::test_the_report_puts_the_modes_side_by_side_with_labels",
-    "tests/test_memory_comparison.py::test_the_report_warns_when_the_modes_ran_different_cases"
+    "tests/test_memory_comparison.py::test_the_report_puts_the_modes_side_by_side_with_labels"
    ],
-   "indirect_test_count": 33,
+   "indirect_test_count": 34,
    "statements_executed": 2,
    "statements_in_body": 2,
    "statement_coverage": 1.0,
@@ -655,7 +655,7 @@
    "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
    "contract_specified": false,
    "executed_in_tests": true,
-   "test_count": 15,
+   "test_count": 16,
    "direct_tests": [
     "tests/test_agent_completion.py::test_audit_without_memory_writes_the_record",
     "tests/test_agent_completion.py::test_the_log_is_only_ever_added_to",
@@ -663,6 +663,7 @@
    ],
    "indirect_tests": [
     "tests/test_episode.py::test_a_verified_fix_is_audited_and_remembered",
+    "tests/test_evaluation_tools.py::test_an_audit_log_gives_the_packet_a_full_trace",
     "tests/test_learning.py::test_a_failed_fix_is_remembered_in_codes_words_without_asking",
     "tests/test_learning.py::test_a_model_that_declines_leaves_no_memory",
     "tests/test_learning.py::test_a_model_that_fails_leaves_no_memory",
@@ -675,7 +676,7 @@
     "tests/test_learning.py::test_the_same_investigation_is_remembered_once",
     "tests/test_tree_of_thought.py::test_a_tree_run_writes_its_pruned_branches_to_the_audit_log"
    ],
-   "indirect_test_count": 12,
+   "indirect_test_count": 13,
    "statements_executed": 4,
    "statements_in_body": 4,
    "statement_coverage": 1.0,
@@ -1849,7 +1850,7 @@
    "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
    "contract_specified": true,
    "executed_in_tests": true,
-   "test_count": 339,
+   "test_count": 340,
    "direct_tests": [],
    "indirect_tests": [
     "tests/test_agent_action.py::test_a_human_hook_that_decides_nothing_does_not_count_as_approval",
@@ -1883,7 +1884,7 @@
     "tests/test_agent_completion.py::test_no_action_is_recorded_when_none_was_wanted",
     "tests/test_agent_completion.py::test_no_hidden_truth_is_written_to_the_log"
    ],
-   "indirect_test_count": 339,
+   "indirect_test_count": 340,
    "statements_executed": 12,
    "statements_in_body": 12,
    "statement_coverage": 1.0,
@@ -2079,7 +2080,7 @@
    "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
    "contract_specified": true,
    "executed_in_tests": true,
-   "test_count": 253,
+   "test_count": 254,
    "direct_tests": [],
    "indirect_tests": [
     "tests/test_agent_action.py::test_a_human_hook_that_decides_nothing_does_not_count_as_approval",
@@ -2113,7 +2114,7 @@
     "tests/test_agent_completion.py::test_no_action_is_recorded_when_none_was_wanted",
     "tests/test_agent_completion.py::test_no_hidden_truth_is_written_to_the_log"
    ],
-   "indirect_test_count": 253,
+   "indirect_test_count": 254,
    "statements_executed": 25,
    "statements_in_body": 30,
    "statement_coverage": 0.833,
@@ -2270,7 +2271,7 @@
    "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
    "contract_specified": true,
    "executed_in_tests": true,
-   "test_count": 241,
+   "test_count": 242,
    "direct_tests": [
     "tests/test_agent_investigation.py::test_a_bad_decision_is_recorded_and_the_run_goes_on",
     "tests/test_agent_investigation.py::test_a_bad_plan_is_recorded_and_the_investigation_carries_on",
@@ -2335,7 +2336,7 @@
     "tests/test_agent_completion.py::test_every_ending_produces_a_valid_record_that_cites_only_real_evidence",
     "tests/test_agent_completion.py::test_no_action_is_recorded_when_none_was_wanted"
    ],
-   "indirect_test_count": 188,
+   "indirect_test_count": 189,
    "statements_executed": 1,
    "statements_in_body": 1,
    "statement_coverage": 1.0,
@@ -2383,7 +2384,7 @@
    "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
    "contract_specified": true,
    "executed_in_tests": true,
-   "test_count": 249,
+   "test_count": 250,
    "direct_tests": [
     "tests/test_agent_investigation.py::test_a_bad_decision_is_recorded_and_the_run_goes_on",
     "tests/test_agent_investigation.py::test_a_bad_plan_is_recorded_and_the_investigation_carries_on",
@@ -2448,7 +2449,7 @@
     "tests/test_agent_completion.py::test_every_ending_produces_a_valid_record_that_cites_only_real_evidence",
     "tests/test_agent_completion.py::test_no_action_is_recorded_when_none_was_wanted"
    ],
-   "indirect_test_count": 192,
+   "indirect_test_count": 193,
    "statements_executed": 5,
    "statements_in_body": 5,
    "statement_coverage": 1.0,
@@ -2550,7 +2551,7 @@
    "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
    "contract_specified": true,
    "executed_in_tests": true,
-   "test_count": 249,
+   "test_count": 250,
    "direct_tests": [
     "tests/test_agent_investigation.py::test_a_bad_decision_is_recorded_and_the_run_goes_on",
     "tests/test_agent_investigation.py::test_a_bad_plan_is_recorded_and_the_investigation_carries_on",
@@ -2615,7 +2616,7 @@
     "tests/test_agent_completion.py::test_every_ending_produces_a_valid_record_that_cites_only_real_evidence",
     "tests/test_agent_completion.py::test_no_action_is_recorded_when_none_was_wanted"
    ],
-   "indirect_test_count": 193,
+   "indirect_test_count": 194,
    "statements_executed": 5,
    "statements_in_body": 5,
    "statement_coverage": 1.0,
@@ -2670,7 +2671,116 @@
    "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
    "contract_specified": true,
    "executed_in_tests": true,
-   "test_count": 249,
+   "test_count": 250,
+   "direct_tests": [
+    "tests/test_agent_investigation.py::test_a_bad_decision_is_recorded_and_the_run_goes_on",
+    "tests/test_agent_investigation.py::test_a_bad_plan_is_recorded_and_the_investigation_carries_on",
+    "tests/test_agent_investigation.py::test_a_conclusion_citing_evidence_that_was_never_gathered_is_refused",
+    "tests/test_agent_investigation.py::test_a_conclusion_naming_a_hypothesis_that_was_never_formed_is_refused",
+    "tests/test_agent_investigation.py::test_a_conclusion_resting_on_misleading_but_real_evidence_is_accepted",
+    "tests/test_agent_investigation.py::test_a_critic_without_a_call_record_still_works",
+    "tests/test_agent_investigation.py::test_a_critic_without_a_manual_records_none",
+    "tests/test_agent_investigation.py::test_a_justified_action_is_recorded_with_what_the_agent_expects_to_change",
+    "tests/test_agent_investigation.py::test_a_policy_that_stops_makes_no_call",
+    "tests/test_agent_investigation.py::test_a_repeat_is_caught_from_the_policy_s_very_first_question",
+    "tests/test_agent_investigation.py::test_a_timeout_while_investigating_goes_straight_to_the_conclusion",
+    "tests/test_agent_investigation.py::test_after_a_test_round_the_critique_says_so",
+    "tests/test_agent_investigation.py::test_agreement_below_the_bar_and_a_confirming_reading_lets_the_agent_act",
+    "tests/test_agent_investigation.py::test_agreement_without_a_confirming_reading_still_escalates",
+    "tests/test_agent_investigation.py::test_an_accepted_or_unchanged_recommendation_records_no_lowering",
+    "tests/test_agent_investigation.py::test_an_action_is_dropped_when_the_conclusion_does_not_recommend_one",
+    "tests/test_agent_investigation.py::test_an_explanation_citing_evidence_that_was_never_gathered_is_refused",
+    "tests/test_agent_investigation.py::test_an_investigation_goes_through_the_stages_in_order",
+    "tests/test_agent_investigation.py::test_an_investigation_survives_the_factory_not_telling_the_time",
+    "tests/test_agent_investigation.py::test_an_objection_earns_exactly_one_reading_where_the_critic_pointed",
+    "tests/test_agent_investigation.py::test_an_outage_ends_the_investigation_with_its_own_reason",
+    "tests/test_agent_investigation.py::test_an_outage_inside_the_research_loop_is_not_an_unproductive_turn",
+    "tests/test_agent_investigation.py::test_an_unjustified_intervention_is_lowered_to_escalate",
+    "tests/test_agent_investigation.py::test_an_unusable_conclusion_becomes_an_honest_undetermined",
+    "tests/test_agent_investigation.py::test_critic_answer_is_recorded_and_changes_nothing",
+    "tests/test_agent_investigation.py::test_critic_is_shown_a_copy_of_the_state",
+    "tests/test_agent_investigation.py::test_critic_outage_does_not_end_the_run",
+    "tests/test_agent_investigation.py::test_critic_skipped_without_hypotheses",
+    "tests/test_agent_investigation.py::test_critic_time_does_not_shorten_the_investigation",
+    "tests/test_agent_investigation.py::test_critique_claim_is_none_when_the_critic_favoured_none"
+   ],
+   "indirect_tests": [
+    "tests/test_agent_action.py::test_a_human_hook_that_decides_nothing_does_not_count_as_approval",
+    "tests/test_agent_action.py::test_a_long_repair_is_waited_out_in_steps_the_factory_accepts",
+    "tests/test_agent_action.py::test_a_proposal_the_factory_refuses_is_never_put_to_the_human",
+    "tests/test_agent_action.py::test_a_rejection_stops_after_the_read_back_and_keeps_the_reason",
+    "tests/test_agent_action.py::test_an_approval_with_no_calls_left_is_not_a_fix",
+    "tests/test_agent_action.py::test_an_approved_action_is_asked_for_read_back_started_and_waited_out",
+    "tests/test_agent_action.py::test_follow_up_calls_use_their_own_allowance_and_leave_the_stop_reason_alone",
+    "tests/test_agent_action.py::test_no_hidden_truth_reaches_working_memory_on_the_action_path",
+    "tests/test_agent_action.py::test_nothing_is_asked_when_the_conclusion_wants_no_change",
+    "tests/test_agent_action.py::test_the_decision_is_read_even_if_the_same_question_was_asked_this_tick",
+    "tests/test_agent_action.py::test_the_human_s_note_is_kept_as_evidence",
+    "tests/test_agent_action.py::test_the_loop_makes_the_calls_not_the_policy",
+    "tests/test_agent_action.py::test_the_proposal_handed_to_the_human_cannot_be_used_to_approve",
+    "tests/test_agent_action.py::test_with_no_allowance_at_all_the_action_is_never_submitted",
+    "tests/test_agent_action.py::test_with_no_human_answer_the_proposal_stays_pending",
+    "tests/test_agent_action.py::test_work_that_cannot_start_is_recorded_as_approved_and_not_carried_out",
+    "tests/test_agent_completion.py::test_a_check_that_was_never_made_is_left_out",
+    "tests/test_agent_completion.py::test_a_failed_investigation_still_leaves_an_honest_record",
+    "tests/test_agent_completion.py::test_a_fix_that_did_not_work_is_recorded_as_failed",
+    "tests/test_agent_completion.py::test_a_proposal_nobody_answered_is_shown_as_pending",
+    "tests/test_agent_completion.py::test_a_rejection_and_its_reason_are_in_the_record",
+    "tests/test_agent_completion.py::test_a_rejection_note_is_kept_in_the_log_in_words",
+    "tests/test_agent_completion.py::test_a_resolved_check_is_verified_at_the_tick_it_was_made",
+    "tests/test_agent_completion.py::test_a_verified_fix_becomes_a_complete_shared_record",
+    "tests/test_agent_completion.py::test_an_approval_that_was_never_carried_out_can_be_told_apart_from_a_fix",
+    "tests/test_agent_completion.py::test_an_inconclusive_check_stays_unverified",
+    "tests/test_agent_completion.py::test_audit_without_memory_writes_the_record",
+    "tests/test_agent_completion.py::test_doing_nothing_and_checking_is_recorded_with_its_result",
+    "tests/test_agent_completion.py::test_every_ending_produces_a_valid_record_that_cites_only_real_evidence",
+    "tests/test_agent_completion.py::test_no_action_is_recorded_when_none_was_wanted"
+   ],
+   "indirect_test_count": 191,
+   "statements_executed": 11,
+   "statements_in_body": 13,
+   "statement_coverage": 0.846,
+   "coverage_class": "direct",
+   "verification_status": "PARTIALLY VERIFIED",
+   "status_source": "derived",
+   "curated": {},
+   "snap_questions": [
+    "FN-01",
+    "FN-02",
+    "FN-03"
+   ]
+  },
+  {
+   "id": "capstone.agent.investigation:investigate",
+   "module": "capstone.agent.investigation",
+   "file": "capstone-code/capstone/agent/investigation.py",
+   "line": 187,
+   "end_line": 196,
+   "name": "investigate",
+   "qualname": "investigate",
+   "kind": "function",
+   "signature": "state: InvestigationState, deps: InvestigationDeps -> Route",
+   "purpose": "Gather evidence. Go straight to the conclusion if there is nothing to explain.",
+   "docstring": "Gather evidence. Go straight to the conclusion if there is nothing to explain.",
+   "has_variable_block": true,
+   "decorators": [],
+   "raises": [],
+   "catches": [],
+   "calls": [
+    "gathered_in",
+    "run_inner_loop"
+   ],
+   "side_effect_hints": [],
+   "statements": 7,
+   "is_stub": false,
+   "mutates_parameters": [
+    "state"
+   ],
+   "static_callers": [],
+   "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
+   "contract_specified": true,
+   "executed_in_tests": true,
+   "test_count": 246,
    "direct_tests": [
     "tests/test_agent_investigation.py::test_a_bad_decision_is_recorded_and_the_run_goes_on",
     "tests/test_agent_investigation.py::test_a_bad_plan_is_recorded_and_the_investigation_carries_on",
@@ -2736,115 +2846,6 @@
     "tests/test_agent_completion.py::test_no_action_is_recorded_when_none_was_wanted"
    ],
    "indirect_test_count": 190,
-   "statements_executed": 11,
-   "statements_in_body": 13,
-   "statement_coverage": 0.846,
-   "coverage_class": "direct",
-   "verification_status": "PARTIALLY VERIFIED",
-   "status_source": "derived",
-   "curated": {},
-   "snap_questions": [
-    "FN-01",
-    "FN-02",
-    "FN-03"
-   ]
-  },
-  {
-   "id": "capstone.agent.investigation:investigate",
-   "module": "capstone.agent.investigation",
-   "file": "capstone-code/capstone/agent/investigation.py",
-   "line": 187,
-   "end_line": 196,
-   "name": "investigate",
-   "qualname": "investigate",
-   "kind": "function",
-   "signature": "state: InvestigationState, deps: InvestigationDeps -> Route",
-   "purpose": "Gather evidence. Go straight to the conclusion if there is nothing to explain.",
-   "docstring": "Gather evidence. Go straight to the conclusion if there is nothing to explain.",
-   "has_variable_block": true,
-   "decorators": [],
-   "raises": [],
-   "catches": [],
-   "calls": [
-    "gathered_in",
-    "run_inner_loop"
-   ],
-   "side_effect_hints": [],
-   "statements": 7,
-   "is_stub": false,
-   "mutates_parameters": [
-    "state"
-   ],
-   "static_callers": [],
-   "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
-   "contract_specified": true,
-   "executed_in_tests": true,
-   "test_count": 245,
-   "direct_tests": [
-    "tests/test_agent_investigation.py::test_a_bad_decision_is_recorded_and_the_run_goes_on",
-    "tests/test_agent_investigation.py::test_a_bad_plan_is_recorded_and_the_investigation_carries_on",
-    "tests/test_agent_investigation.py::test_a_conclusion_citing_evidence_that_was_never_gathered_is_refused",
-    "tests/test_agent_investigation.py::test_a_conclusion_naming_a_hypothesis_that_was_never_formed_is_refused",
-    "tests/test_agent_investigation.py::test_a_conclusion_resting_on_misleading_but_real_evidence_is_accepted",
-    "tests/test_agent_investigation.py::test_a_critic_without_a_call_record_still_works",
-    "tests/test_agent_investigation.py::test_a_critic_without_a_manual_records_none",
-    "tests/test_agent_investigation.py::test_a_justified_action_is_recorded_with_what_the_agent_expects_to_change",
-    "tests/test_agent_investigation.py::test_a_policy_that_stops_makes_no_call",
-    "tests/test_agent_investigation.py::test_a_repeat_is_caught_from_the_policy_s_very_first_question",
-    "tests/test_agent_investigation.py::test_a_timeout_while_investigating_goes_straight_to_the_conclusion",
-    "tests/test_agent_investigation.py::test_after_a_test_round_the_critique_says_so",
-    "tests/test_agent_investigation.py::test_agreement_below_the_bar_and_a_confirming_reading_lets_the_agent_act",
-    "tests/test_agent_investigation.py::test_agreement_without_a_confirming_reading_still_escalates",
-    "tests/test_agent_investigation.py::test_an_accepted_or_unchanged_recommendation_records_no_lowering",
-    "tests/test_agent_investigation.py::test_an_action_is_dropped_when_the_conclusion_does_not_recommend_one",
-    "tests/test_agent_investigation.py::test_an_explanation_citing_evidence_that_was_never_gathered_is_refused",
-    "tests/test_agent_investigation.py::test_an_investigation_goes_through_the_stages_in_order",
-    "tests/test_agent_investigation.py::test_an_investigation_survives_the_factory_not_telling_the_time",
-    "tests/test_agent_investigation.py::test_an_objection_earns_exactly_one_reading_where_the_critic_pointed",
-    "tests/test_agent_investigation.py::test_an_outage_ends_the_investigation_with_its_own_reason",
-    "tests/test_agent_investigation.py::test_an_outage_inside_the_research_loop_is_not_an_unproductive_turn",
-    "tests/test_agent_investigation.py::test_an_unjustified_intervention_is_lowered_to_escalate",
-    "tests/test_agent_investigation.py::test_an_unusable_conclusion_becomes_an_honest_undetermined",
-    "tests/test_agent_investigation.py::test_critic_answer_is_recorded_and_changes_nothing",
-    "tests/test_agent_investigation.py::test_critic_is_shown_a_copy_of_the_state",
-    "tests/test_agent_investigation.py::test_critic_outage_does_not_end_the_run",
-    "tests/test_agent_investigation.py::test_critic_skipped_without_hypotheses",
-    "tests/test_agent_investigation.py::test_critic_time_does_not_shorten_the_investigation",
-    "tests/test_agent_investigation.py::test_critique_claim_is_none_when_the_critic_favoured_none"
-   ],
-   "indirect_tests": [
-    "tests/test_agent_action.py::test_a_human_hook_that_decides_nothing_does_not_count_as_approval",
-    "tests/test_agent_action.py::test_a_long_repair_is_waited_out_in_steps_the_factory_accepts",
-    "tests/test_agent_action.py::test_a_proposal_the_factory_refuses_is_never_put_to_the_human",
-    "tests/test_agent_action.py::test_a_rejection_stops_after_the_read_back_and_keeps_the_reason",
-    "tests/test_agent_action.py::test_an_approval_with_no_calls_left_is_not_a_fix",
-    "tests/test_agent_action.py::test_an_approved_action_is_asked_for_read_back_started_and_waited_out",
-    "tests/test_agent_action.py::test_follow_up_calls_use_their_own_allowance_and_leave_the_stop_reason_alone",
-    "tests/test_agent_action.py::test_no_hidden_truth_reaches_working_memory_on_the_action_path",
-    "tests/test_agent_action.py::test_nothing_is_asked_when_the_conclusion_wants_no_change",
-    "tests/test_agent_action.py::test_the_decision_is_read_even_if_the_same_question_was_asked_this_tick",
-    "tests/test_agent_action.py::test_the_human_s_note_is_kept_as_evidence",
-    "tests/test_agent_action.py::test_the_loop_makes_the_calls_not_the_policy",
-    "tests/test_agent_action.py::test_the_proposal_handed_to_the_human_cannot_be_used_to_approve",
-    "tests/test_agent_action.py::test_with_no_allowance_at_all_the_action_is_never_submitted",
-    "tests/test_agent_action.py::test_with_no_human_answer_the_proposal_stays_pending",
-    "tests/test_agent_action.py::test_work_that_cannot_start_is_recorded_as_approved_and_not_carried_out",
-    "tests/test_agent_completion.py::test_a_check_that_was_never_made_is_left_out",
-    "tests/test_agent_completion.py::test_a_failed_investigation_still_leaves_an_honest_record",
-    "tests/test_agent_completion.py::test_a_fix_that_did_not_work_is_recorded_as_failed",
-    "tests/test_agent_completion.py::test_a_proposal_nobody_answered_is_shown_as_pending",
-    "tests/test_agent_completion.py::test_a_rejection_and_its_reason_are_in_the_record",
-    "tests/test_agent_completion.py::test_a_rejection_note_is_kept_in_the_log_in_words",
-    "tests/test_agent_completion.py::test_a_resolved_check_is_verified_at_the_tick_it_was_made",
-    "tests/test_agent_completion.py::test_a_verified_fix_becomes_a_complete_shared_record",
-    "tests/test_agent_completion.py::test_an_approval_that_was_never_carried_out_can_be_told_apart_from_a_fix",
-    "tests/test_agent_completion.py::test_an_inconclusive_check_stays_unverified",
-    "tests/test_agent_completion.py::test_audit_without_memory_writes_the_record",
-    "tests/test_agent_completion.py::test_doing_nothing_and_checking_is_recorded_with_its_result",
-    "tests/test_agent_completion.py::test_every_ending_produces_a_valid_record_that_cites_only_real_evidence",
-    "tests/test_agent_completion.py::test_no_action_is_recorded_when_none_was_wanted"
-   ],
-   "indirect_test_count": 189,
    "statements_executed": 6,
    "statements_in_body": 6,
    "statement_coverage": 1.0,
@@ -2892,7 +2893,7 @@
    "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
    "contract_specified": true,
    "executed_in_tests": true,
-   "test_count": 234,
+   "test_count": 235,
    "direct_tests": [
     "tests/test_agent_investigation.py::test_a_bad_decision_is_recorded_and_the_run_goes_on",
     "tests/test_agent_investigation.py::test_a_bad_plan_is_recorded_and_the_investigation_carries_on",
@@ -2957,7 +2958,7 @@
     "tests/test_agent_completion.py::test_no_action_is_recorded_when_none_was_wanted",
     "tests/test_agent_completion.py::test_no_hidden_truth_is_written_to_the_log"
    ],
-   "indirect_test_count": 184,
+   "indirect_test_count": 185,
    "statements_executed": 9,
    "statements_in_body": 11,
    "statement_coverage": 0.818,
@@ -3089,7 +3090,7 @@
    "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
    "contract_specified": true,
    "executed_in_tests": true,
-   "test_count": 247,
+   "test_count": 248,
    "direct_tests": [
     "tests/test_agent_investigation.py::test_a_bad_decision_is_recorded_and_the_run_goes_on",
     "tests/test_agent_investigation.py::test_a_bad_plan_is_recorded_and_the_investigation_carries_on",
@@ -3154,7 +3155,7 @@
     "tests/test_agent_completion.py::test_every_ending_produces_a_valid_record_that_cites_only_real_evidence",
     "tests/test_agent_completion.py::test_no_action_is_recorded_when_none_was_wanted"
    ],
-   "indirect_test_count": 187,
+   "indirect_test_count": 188,
    "statements_executed": 20,
    "statements_in_body": 20,
    "statement_coverage": 1.0,
@@ -3290,7 +3291,7 @@
    "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
    "contract_specified": true,
    "executed_in_tests": true,
-   "test_count": 250,
+   "test_count": 251,
    "direct_tests": [
     "tests/test_agent_investigation.py::test_a_bad_decision_is_recorded_and_the_run_goes_on",
     "tests/test_agent_investigation.py::test_a_bad_plan_is_recorded_and_the_investigation_carries_on",
@@ -3355,7 +3356,7 @@
     "tests/test_agent_completion.py::test_every_ending_produces_a_valid_record_that_cites_only_real_evidence",
     "tests/test_agent_completion.py::test_no_action_is_recorded_when_none_was_wanted"
    ],
-   "indirect_test_count": 190,
+   "indirect_test_count": 191,
    "statements_executed": 16,
    "statements_in_body": 16,
    "statement_coverage": 1.0,
@@ -3616,7 +3617,7 @@
    "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
    "contract_specified": true,
    "executed_in_tests": true,
-   "test_count": 242,
+   "test_count": 243,
    "direct_tests": [
     "tests/test_agent_investigation.py::test_a_bad_decision_is_recorded_and_the_run_goes_on",
     "tests/test_agent_investigation.py::test_a_bad_plan_is_recorded_and_the_investigation_carries_on",
@@ -3681,7 +3682,7 @@
     "tests/test_agent_completion.py::test_no_action_is_recorded_when_none_was_wanted",
     "tests/test_agent_completion.py::test_no_hidden_truth_is_written_to_the_log"
    ],
-   "indirect_test_count": 189,
+   "indirect_test_count": 190,
    "statements_executed": 25,
    "statements_in_body": 28,
    "statement_coverage": 0.893,
@@ -3743,7 +3744,7 @@
    "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
    "contract_specified": true,
    "executed_in_tests": true,
-   "test_count": 242,
+   "test_count": 243,
    "direct_tests": [
     "tests/test_agent_investigation.py::test_a_bad_decision_is_recorded_and_the_run_goes_on",
     "tests/test_agent_investigation.py::test_a_bad_plan_is_recorded_and_the_investigation_carries_on",
@@ -3808,7 +3809,7 @@
     "tests/test_agent_completion.py::test_every_ending_produces_a_valid_record_that_cites_only_real_evidence",
     "tests/test_agent_completion.py::test_no_action_is_recorded_when_none_was_wanted"
    ],
-   "indirect_test_count": 188,
+   "indirect_test_count": 189,
    "statements_executed": 19,
    "statements_in_body": 21,
    "statement_coverage": 0.905,
@@ -4091,7 +4092,7 @@
    "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
    "contract_specified": true,
    "executed_in_tests": true,
-   "test_count": 241,
+   "test_count": 242,
    "direct_tests": [
     "tests/test_agent_investigation.py::test_a_bad_decision_is_recorded_and_the_run_goes_on",
     "tests/test_agent_investigation.py::test_a_bad_plan_is_recorded_and_the_investigation_carries_on",
@@ -4156,7 +4157,7 @@
     "tests/test_agent_completion.py::test_every_ending_produces_a_valid_record_that_cites_only_real_evidence",
     "tests/test_agent_completion.py::test_no_action_is_recorded_when_none_was_wanted"
    ],
-   "indirect_test_count": 187,
+   "indirect_test_count": 188,
    "statements_executed": 22,
    "statements_in_body": 22,
    "statement_coverage": 1.0,
@@ -4497,7 +4498,7 @@
    "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
    "contract_specified": true,
    "executed_in_tests": true,
-   "test_count": 249,
+   "test_count": 250,
    "direct_tests": [
     "tests/test_agent_investigation.py::test_a_bad_decision_is_recorded_and_the_run_goes_on",
     "tests/test_agent_investigation.py::test_a_bad_plan_is_recorded_and_the_investigation_carries_on",
@@ -4562,7 +4563,7 @@
     "tests/test_agent_completion.py::test_every_ending_produces_a_valid_record_that_cites_only_real_evidence",
     "tests/test_agent_completion.py::test_no_action_is_recorded_when_none_was_wanted"
    ],
-   "indirect_test_count": 193,
+   "indirect_test_count": 194,
    "statements_executed": 51,
    "statements_in_body": 51,
    "statement_coverage": 1.0,
@@ -4625,7 +4626,7 @@
    "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
    "contract_specified": true,
    "executed_in_tests": true,
-   "test_count": 249,
+   "test_count": 250,
    "direct_tests": [
     "tests/test_agent_investigation.py::test_a_bad_decision_is_recorded_and_the_run_goes_on",
     "tests/test_agent_investigation.py::test_a_bad_plan_is_recorded_and_the_investigation_carries_on",
@@ -4690,7 +4691,7 @@
     "tests/test_agent_completion.py::test_every_ending_produces_a_valid_record_that_cites_only_real_evidence",
     "tests/test_agent_completion.py::test_no_action_is_recorded_when_none_was_wanted"
    ],
-   "indirect_test_count": 193,
+   "indirect_test_count": 194,
    "statements_executed": 3,
    "statements_in_body": 3,
    "statement_coverage": 1.0,
@@ -4734,7 +4735,7 @@
    "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
    "contract_specified": false,
    "executed_in_tests": true,
-   "test_count": 249,
+   "test_count": 250,
    "direct_tests": [
     "tests/test_agent_investigation.py::test_a_bad_decision_is_recorded_and_the_run_goes_on",
     "tests/test_agent_investigation.py::test_a_bad_plan_is_recorded_and_the_investigation_carries_on",
@@ -4799,7 +4800,7 @@
     "tests/test_agent_completion.py::test_every_ending_produces_a_valid_record_that_cites_only_real_evidence",
     "tests/test_agent_completion.py::test_no_action_is_recorded_when_none_was_wanted"
    ],
-   "indirect_test_count": 193,
+   "indirect_test_count": 194,
    "statements_executed": 1,
    "statements_in_body": 1,
    "statement_coverage": 1.0,
@@ -4843,7 +4844,7 @@
    "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
    "contract_specified": false,
    "executed_in_tests": true,
-   "test_count": 249,
+   "test_count": 250,
    "direct_tests": [
     "tests/test_agent_investigation.py::test_a_bad_decision_is_recorded_and_the_run_goes_on",
     "tests/test_agent_investigation.py::test_a_bad_plan_is_recorded_and_the_investigation_carries_on",
@@ -4908,7 +4909,7 @@
     "tests/test_agent_completion.py::test_every_ending_produces_a_valid_record_that_cites_only_real_evidence",
     "tests/test_agent_completion.py::test_no_action_is_recorded_when_none_was_wanted"
    ],
-   "indirect_test_count": 191,
+   "indirect_test_count": 192,
    "statements_executed": 1,
    "statements_in_body": 1,
    "statement_coverage": 1.0,
@@ -4952,7 +4953,7 @@
    "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
    "contract_specified": false,
    "executed_in_tests": true,
-   "test_count": 249,
+   "test_count": 250,
    "direct_tests": [
     "tests/test_agent_investigation.py::test_a_bad_decision_is_recorded_and_the_run_goes_on",
     "tests/test_agent_investigation.py::test_a_bad_plan_is_recorded_and_the_investigation_carries_on",
@@ -5017,7 +5018,7 @@
     "tests/test_agent_completion.py::test_every_ending_produces_a_valid_record_that_cites_only_real_evidence",
     "tests/test_agent_completion.py::test_no_action_is_recorded_when_none_was_wanted"
    ],
-   "indirect_test_count": 193,
+   "indirect_test_count": 194,
    "statements_executed": 1,
    "statements_in_body": 1,
    "statement_coverage": 1.0,
@@ -5061,7 +5062,7 @@
    "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
    "contract_specified": false,
    "executed_in_tests": true,
-   "test_count": 245,
+   "test_count": 246,
    "direct_tests": [
     "tests/test_agent_investigation.py::test_a_bad_decision_is_recorded_and_the_run_goes_on",
     "tests/test_agent_investigation.py::test_a_bad_plan_is_recorded_and_the_investigation_carries_on",
@@ -5126,7 +5127,7 @@
     "tests/test_agent_completion.py::test_every_ending_produces_a_valid_record_that_cites_only_real_evidence",
     "tests/test_agent_completion.py::test_no_action_is_recorded_when_none_was_wanted"
    ],
-   "indirect_test_count": 189,
+   "indirect_test_count": 190,
    "statements_executed": 1,
    "statements_in_body": 1,
    "statement_coverage": 1.0,
@@ -5170,7 +5171,7 @@
    "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
    "contract_specified": false,
    "executed_in_tests": true,
-   "test_count": 234,
+   "test_count": 235,
    "direct_tests": [
     "tests/test_agent_investigation.py::test_a_bad_decision_is_recorded_and_the_run_goes_on",
     "tests/test_agent_investigation.py::test_a_bad_plan_is_recorded_and_the_investigation_carries_on",
@@ -5235,7 +5236,7 @@
     "tests/test_agent_completion.py::test_no_action_is_recorded_when_none_was_wanted",
     "tests/test_agent_completion.py::test_no_hidden_truth_is_written_to_the_log"
    ],
-   "indirect_test_count": 184,
+   "indirect_test_count": 185,
    "statements_executed": 1,
    "statements_in_body": 1,
    "statement_coverage": 1.0,
@@ -5388,7 +5389,7 @@
    "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
    "contract_specified": false,
    "executed_in_tests": true,
-   "test_count": 241,
+   "test_count": 242,
    "direct_tests": [
     "tests/test_agent_investigation.py::test_a_bad_decision_is_recorded_and_the_run_goes_on",
     "tests/test_agent_investigation.py::test_a_bad_plan_is_recorded_and_the_investigation_carries_on",
@@ -5453,7 +5454,7 @@
     "tests/test_agent_completion.py::test_every_ending_produces_a_valid_record_that_cites_only_real_evidence",
     "tests/test_agent_completion.py::test_no_action_is_recorded_when_none_was_wanted"
    ],
-   "indirect_test_count": 187,
+   "indirect_test_count": 188,
    "statements_executed": 1,
    "statements_in_body": 1,
    "statement_coverage": 1.0,
@@ -5497,7 +5498,7 @@
    "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
    "contract_specified": false,
    "executed_in_tests": true,
-   "test_count": 241,
+   "test_count": 242,
    "direct_tests": [
     "tests/test_agent_investigation.py::test_a_bad_decision_is_recorded_and_the_run_goes_on",
     "tests/test_agent_investigation.py::test_a_bad_plan_is_recorded_and_the_investigation_carries_on",
@@ -5562,7 +5563,7 @@
     "tests/test_agent_completion.py::test_every_ending_produces_a_valid_record_that_cites_only_real_evidence",
     "tests/test_agent_completion.py::test_no_action_is_recorded_when_none_was_wanted"
    ],
-   "indirect_test_count": 187,
+   "indirect_test_count": 188,
    "statements_executed": 1,
    "statements_in_body": 1,
    "statement_coverage": 1.0,
@@ -5606,7 +5607,7 @@
    "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
    "contract_specified": false,
    "executed_in_tests": true,
-   "test_count": 241,
+   "test_count": 242,
    "direct_tests": [
     "tests/test_agent_investigation.py::test_a_bad_decision_is_recorded_and_the_run_goes_on",
     "tests/test_agent_investigation.py::test_a_bad_plan_is_recorded_and_the_investigation_carries_on",
@@ -5671,7 +5672,7 @@
     "tests/test_agent_completion.py::test_every_ending_produces_a_valid_record_that_cites_only_real_evidence",
     "tests/test_agent_completion.py::test_no_action_is_recorded_when_none_was_wanted"
    ],
-   "indirect_test_count": 187,
+   "indirect_test_count": 188,
    "statements_executed": 1,
    "statements_in_body": 1,
    "statement_coverage": 1.0,
@@ -5715,7 +5716,7 @@
    "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
    "contract_specified": false,
    "executed_in_tests": true,
-   "test_count": 241,
+   "test_count": 242,
    "direct_tests": [
     "tests/test_agent_investigation.py::test_a_bad_decision_is_recorded_and_the_run_goes_on",
     "tests/test_agent_investigation.py::test_a_bad_plan_is_recorded_and_the_investigation_carries_on",
@@ -5780,7 +5781,7 @@
     "tests/test_agent_completion.py::test_every_ending_produces_a_valid_record_that_cites_only_real_evidence",
     "tests/test_agent_completion.py::test_no_action_is_recorded_when_none_was_wanted"
    ],
-   "indirect_test_count": 187,
+   "indirect_test_count": 188,
    "statements_executed": 1,
    "statements_in_body": 1,
    "statement_coverage": 1.0,
@@ -6082,7 +6083,7 @@
    "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
    "contract_specified": true,
    "executed_in_tests": true,
-   "test_count": 249,
+   "test_count": 250,
    "direct_tests": [
     "tests/test_agent_investigation.py::test_a_bad_decision_is_recorded_and_the_run_goes_on",
     "tests/test_agent_investigation.py::test_a_bad_plan_is_recorded_and_the_investigation_carries_on",
@@ -6147,7 +6148,7 @@
     "tests/test_agent_completion.py::test_every_ending_produces_a_valid_record_that_cites_only_real_evidence",
     "tests/test_agent_completion.py::test_no_action_is_recorded_when_none_was_wanted"
    ],
-   "indirect_test_count": 193,
+   "indirect_test_count": 194,
    "statements_executed": 6,
    "statements_in_body": 6,
    "statement_coverage": 1.0,
@@ -6250,7 +6251,7 @@
    "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
    "contract_specified": false,
    "executed_in_tests": true,
-   "test_count": 322,
+   "test_count": 323,
    "direct_tests": [
     "tests/test_agent_loop.py::test_a_cached_decision_cannot_run_after_the_combined_question_spends_the_time",
     "tests/test_agent_loop.py::test_a_combined_next_step_cannot_exceed_its_phases_call_budget",
@@ -6315,7 +6316,7 @@
     "tests/test_agent_completion.py::test_every_ending_produces_a_valid_record_that_cites_only_real_evidence",
     "tests/test_agent_completion.py::test_no_action_is_recorded_when_none_was_wanted"
    ],
-   "indirect_test_count": 274,
+   "indirect_test_count": 275,
    "statements_executed": 2,
    "statements_in_body": 4,
    "statement_coverage": 0.5,
@@ -6366,7 +6367,7 @@
    "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
    "contract_specified": true,
    "executed_in_tests": true,
-   "test_count": 300,
+   "test_count": 301,
    "direct_tests": [
     "tests/test_agent_loop.py::test_a_cached_decision_cannot_run_after_the_combined_question_spends_the_time",
     "tests/test_agent_loop.py::test_a_combined_next_step_cannot_exceed_its_phases_call_budget",
@@ -6431,7 +6432,7 @@
     "tests/test_agent_completion.py::test_every_ending_produces_a_valid_record_that_cites_only_real_evidence",
     "tests/test_agent_completion.py::test_no_action_is_recorded_when_none_was_wanted"
    ],
-   "indirect_test_count": 255,
+   "indirect_test_count": 256,
    "statements_executed": 6,
    "statements_in_body": 6,
    "statement_coverage": 1.0,
@@ -6666,7 +6667,7 @@
    "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
    "contract_specified": true,
    "executed_in_tests": true,
-   "test_count": 296,
+   "test_count": 297,
    "direct_tests": [
     "tests/test_agent_loop.py::test_a_cached_decision_cannot_run_after_the_combined_question_spends_the_time",
     "tests/test_agent_loop.py::test_a_combined_next_step_cannot_exceed_its_phases_call_budget",
@@ -6731,7 +6732,7 @@
     "tests/test_agent_completion.py::test_every_ending_produces_a_valid_record_that_cites_only_real_evidence",
     "tests/test_agent_completion.py::test_no_action_is_recorded_when_none_was_wanted"
    ],
-   "indirect_test_count": 251,
+   "indirect_test_count": 252,
    "statements_executed": 22,
    "statements_in_body": 23,
    "statement_coverage": 0.957,
@@ -6786,7 +6787,7 @@
    "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
    "contract_specified": true,
    "executed_in_tests": true,
-   "test_count": 305,
+   "test_count": 306,
    "direct_tests": [
     "tests/test_agent_loop.py::test_a_cached_decision_cannot_run_after_the_combined_question_spends_the_time",
     "tests/test_agent_loop.py::test_a_combined_next_step_cannot_exceed_its_phases_call_budget",
@@ -6851,7 +6852,7 @@
     "tests/test_agent_completion.py::test_every_ending_produces_a_valid_record_that_cites_only_real_evidence",
     "tests/test_agent_completion.py::test_no_action_is_recorded_when_none_was_wanted"
    ],
-   "indirect_test_count": 260,
+   "indirect_test_count": 261,
    "statements_executed": 2,
    "statements_in_body": 2,
    "statement_coverage": 1.0,
@@ -6908,7 +6909,7 @@
    "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
    "contract_specified": true,
    "executed_in_tests": true,
-   "test_count": 307,
+   "test_count": 308,
    "direct_tests": [
     "tests/test_agent_loop.py::test_a_cached_decision_cannot_run_after_the_combined_question_spends_the_time",
     "tests/test_agent_loop.py::test_a_combined_next_step_cannot_exceed_its_phases_call_budget",
@@ -6973,7 +6974,7 @@
     "tests/test_agent_completion.py::test_every_ending_produces_a_valid_record_that_cites_only_real_evidence",
     "tests/test_agent_completion.py::test_no_action_is_recorded_when_none_was_wanted"
    ],
-   "indirect_test_count": 262,
+   "indirect_test_count": 263,
    "statements_executed": 13,
    "statements_in_body": 13,
    "statement_coverage": 1.0,
@@ -7029,7 +7030,7 @@
    "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
    "contract_specified": true,
    "executed_in_tests": true,
-   "test_count": 300,
+   "test_count": 301,
    "direct_tests": [
     "tests/test_agent_loop.py::test_a_cached_decision_cannot_run_after_the_combined_question_spends_the_time",
     "tests/test_agent_loop.py::test_a_combined_next_step_cannot_exceed_its_phases_call_budget",
@@ -7094,7 +7095,7 @@
     "tests/test_agent_completion.py::test_every_ending_produces_a_valid_record_that_cites_only_real_evidence",
     "tests/test_agent_completion.py::test_no_action_is_recorded_when_none_was_wanted"
    ],
-   "indirect_test_count": 258,
+   "indirect_test_count": 253,
    "statements_executed": 15,
    "statements_in_body": 15,
    "statement_coverage": 1.0,
@@ -7165,7 +7166,7 @@
    "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
    "contract_specified": true,
    "executed_in_tests": true,
-   "test_count": 287,
+   "test_count": 288,
    "direct_tests": [
     "tests/test_agent_loop.py::test_a_cached_decision_cannot_run_after_the_combined_question_spends_the_time",
     "tests/test_agent_loop.py::test_a_combined_next_step_cannot_exceed_its_phases_call_budget",
@@ -7230,7 +7231,7 @@
     "tests/test_agent_completion.py::test_every_ending_produces_a_valid_record_that_cites_only_real_evidence",
     "tests/test_agent_completion.py::test_no_action_is_recorded_when_none_was_wanted"
    ],
-   "indirect_test_count": 255,
+   "indirect_test_count": 256,
    "statements_executed": 22,
    "statements_in_body": 24,
    "statement_coverage": 0.917,
@@ -7303,7 +7304,7 @@
    "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
    "contract_specified": true,
    "executed_in_tests": true,
-   "test_count": 307,
+   "test_count": 308,
    "direct_tests": [
     "tests/test_agent_action.py::test_work_that_cannot_start_is_recorded_as_approved_and_not_carried_out",
     "tests/test_agent_completion.py::test_a_failed_investigation_still_leaves_an_honest_record",
@@ -7368,7 +7369,7 @@
     "tests/test_agent_investigation.py::test_a_follow_up_slower_than_its_window_stops_on_time",
     "tests/test_agent_investigation.py::test_a_policy_that_stops_makes_no_call"
    ],
-   "indirect_test_count": 217,
+   "indirect_test_count": 218,
    "statements_executed": 1,
    "statements_in_body": 1,
    "statement_coverage": 1.0,
@@ -7414,7 +7415,7 @@
    "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
    "contract_specified": true,
    "executed_in_tests": true,
-   "test_count": 300,
+   "test_count": 301,
    "direct_tests": [
     "tests/test_agent_loop.py::test_a_cached_decision_cannot_run_after_the_combined_question_spends_the_time",
     "tests/test_agent_loop.py::test_a_combined_next_step_cannot_exceed_its_phases_call_budget",
@@ -7479,7 +7480,7 @@
     "tests/test_agent_completion.py::test_every_ending_produces_a_valid_record_that_cites_only_real_evidence",
     "tests/test_agent_completion.py::test_no_action_is_recorded_when_none_was_wanted"
    ],
-   "indirect_test_count": 258,
+   "indirect_test_count": 259,
    "statements_executed": 1,
    "statements_in_body": 1,
    "statement_coverage": 1.0,
@@ -7543,7 +7544,7 @@
    "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
    "contract_specified": true,
    "executed_in_tests": true,
-   "test_count": 300,
+   "test_count": 301,
    "direct_tests": [
     "tests/test_agent_investigation.py::test_a_conclusion_citing_evidence_that_was_never_gathered_is_refused",
     "tests/test_agent_investigation.py::test_an_explanation_citing_evidence_that_was_never_gathered_is_refused",
@@ -7608,7 +7609,7 @@
     "tests/test_agent_completion.py::test_every_ending_produces_a_valid_record_that_cites_only_real_evidence",
     "tests/test_agent_completion.py::test_no_action_is_recorded_when_none_was_wanted"
    ],
-   "indirect_test_count": 255,
+   "indirect_test_count": 256,
    "statements_executed": 39,
    "statements_in_body": 39,
    "statement_coverage": 1.0,
@@ -7683,7 +7684,7 @@
    "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
    "contract_specified": true,
    "executed_in_tests": true,
-   "test_count": 296,
+   "test_count": 297,
    "direct_tests": [
     "tests/test_agent_loop.py::test_a_cached_decision_cannot_run_after_the_combined_question_spends_the_time",
     "tests/test_agent_loop.py::test_a_combined_next_step_cannot_exceed_its_phases_call_budget",
@@ -7748,7 +7749,7 @@
     "tests/test_agent_completion.py::test_every_ending_produces_a_valid_record_that_cites_only_real_evidence",
     "tests/test_agent_completion.py::test_no_action_is_recorded_when_none_was_wanted"
    ],
-   "indirect_test_count": 251,
+   "indirect_test_count": 252,
    "statements_executed": 53,
    "statements_in_body": 55,
    "statement_coverage": 0.964,
@@ -9894,7 +9895,7 @@
    "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
    "contract_specified": true,
    "executed_in_tests": true,
-   "test_count": 108,
+   "test_count": 109,
    "direct_tests": [],
    "indirect_tests": [
     "tests/test_agent_completion.py::test_audit_without_memory_writes_the_record",
@@ -9928,7 +9929,7 @@
     "tests/test_evals.py::test_comparison_requires_same_cases_and_preserves_unknown_accuracy",
     "tests/test_evals.py::test_confident_no_fault_and_honest_abstention_score_apart"
    ],
-   "indirect_test_count": 108,
+   "indirect_test_count": 109,
    "statements_executed": 15,
    "statements_in_body": 16,
    "statement_coverage": 0.938,
@@ -10296,7 +10297,7 @@
    "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
    "contract_specified": false,
    "executed_in_tests": true,
-   "test_count": 434,
+   "test_count": 435,
    "direct_tests": [],
    "indirect_tests": [
     "tests/test_agent_action.py::test_a_human_hook_that_decides_nothing_does_not_count_as_approval",
@@ -10330,7 +10331,7 @@
     "tests/test_agent_completion.py::test_audit_without_memory_writes_the_record",
     "tests/test_agent_completion.py::test_doing_nothing_and_checking_is_recorded_with_its_result"
    ],
-   "indirect_test_count": 434,
+   "indirect_test_count": 435,
    "statements_executed": 3,
    "statements_in_body": 3,
    "statement_coverage": 1.0,
@@ -10373,7 +10374,7 @@
    "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
    "contract_specified": true,
    "executed_in_tests": true,
-   "test_count": 308,
+   "test_count": 309,
    "direct_tests": [
     "tests/test_agent_investigation.py::test_the_confidence_needed_to_act_is_a_setting",
     "tests/test_agent_loop.py::test_confidence_alone_is_not_a_supported_diagnosis",
@@ -10414,7 +10415,7 @@
     "tests/test_agent_completion.py::test_every_ending_produces_a_valid_record_that_cites_only_real_evidence",
     "tests/test_agent_completion.py::test_no_action_is_recorded_when_none_was_wanted"
    ],
-   "indirect_test_count": 302,
+   "indirect_test_count": 303,
    "statements_executed": 1,
    "statements_in_body": 1,
    "statement_coverage": 1.0,
@@ -10607,7 +10608,7 @@
    "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
    "contract_specified": true,
    "executed_in_tests": true,
-   "test_count": 356,
+   "test_count": 357,
    "direct_tests": [],
    "indirect_tests": [
     "tests/test_agent_action.py::test_a_human_hook_that_decides_nothing_does_not_count_as_approval",
@@ -10641,7 +10642,7 @@
     "tests/test_agent_completion.py::test_every_ending_produces_a_valid_record_that_cites_only_real_evidence",
     "tests/test_agent_completion.py::test_no_action_is_recorded_when_none_was_wanted"
    ],
-   "indirect_test_count": 356,
+   "indirect_test_count": 357,
    "statements_executed": 1,
    "statements_in_body": 1,
    "statement_coverage": 1.0,
@@ -10761,7 +10762,7 @@
    "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
    "contract_specified": false,
    "executed_in_tests": true,
-   "test_count": 352,
+   "test_count": 353,
    "direct_tests": [],
    "indirect_tests": [
     "tests/test_agent_action.py::test_a_human_hook_that_decides_nothing_does_not_count_as_approval",
@@ -10795,7 +10796,7 @@
     "tests/test_agent_completion.py::test_every_ending_produces_a_valid_record_that_cites_only_real_evidence",
     "tests/test_agent_completion.py::test_no_action_is_recorded_when_none_was_wanted"
    ],
-   "indirect_test_count": 352,
+   "indirect_test_count": 353,
    "statements_executed": 1,
    "statements_in_body": 1,
    "statement_coverage": 1.0,
@@ -10838,7 +10839,7 @@
    "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
    "contract_specified": false,
    "executed_in_tests": true,
-   "test_count": 352,
+   "test_count": 353,
    "direct_tests": [],
    "indirect_tests": [
     "tests/test_agent_action.py::test_a_human_hook_that_decides_nothing_does_not_count_as_approval",
@@ -10872,7 +10873,7 @@
     "tests/test_agent_completion.py::test_every_ending_produces_a_valid_record_that_cites_only_real_evidence",
     "tests/test_agent_completion.py::test_no_action_is_recorded_when_none_was_wanted"
    ],
-   "indirect_test_count": 352,
+   "indirect_test_count": 353,
    "statements_executed": 1,
    "statements_in_body": 1,
    "statement_coverage": 1.0,
@@ -10995,7 +10996,7 @@
    "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
    "contract_specified": true,
    "executed_in_tests": true,
-   "test_count": 306,
+   "test_count": 307,
    "direct_tests": [],
    "indirect_tests": [
     "tests/test_agent_action.py::test_a_human_hook_that_decides_nothing_does_not_count_as_approval",
@@ -11029,7 +11030,7 @@
     "tests/test_agent_completion.py::test_every_ending_produces_a_valid_record_that_cites_only_real_evidence",
     "tests/test_agent_completion.py::test_no_action_is_recorded_when_none_was_wanted"
    ],
-   "indirect_test_count": 306,
+   "indirect_test_count": 307,
    "statements_executed": 2,
    "statements_in_body": 3,
    "statement_coverage": 0.667,
@@ -11074,7 +11075,7 @@
    "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
    "contract_specified": true,
    "executed_in_tests": true,
-   "test_count": 305,
+   "test_count": 306,
    "direct_tests": [],
    "indirect_tests": [
     "tests/test_agent_action.py::test_a_human_hook_that_decides_nothing_does_not_count_as_approval",
@@ -11108,7 +11109,7 @@
     "tests/test_agent_completion.py::test_every_ending_produces_a_valid_record_that_cites_only_real_evidence",
     "tests/test_agent_completion.py::test_no_action_is_recorded_when_none_was_wanted"
    ],
-   "indirect_test_count": 305,
+   "indirect_test_count": 306,
    "statements_executed": 1,
    "statements_in_body": 1,
    "statement_coverage": 1.0,
@@ -11250,7 +11251,7 @@
    "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
    "contract_specified": false,
    "executed_in_tests": true,
-   "test_count": 41,
+   "test_count": 42,
    "direct_tests": [],
    "indirect_tests": [
     "tests/test_agent_completion.py::test_a_rejection_note_is_kept_in_the_log_in_words",
@@ -11262,6 +11263,7 @@
     "tests/test_agent_completion.py::test_the_log_keeps_every_investigation_one_per_line",
     "tests/test_agent_loop.py::test_the_loop_reports_its_reason_but_does_not_set_the_final_one",
     "tests/test_episode.py::test_a_verified_fix_is_audited_and_remembered",
+    "tests/test_evaluation_tools.py::test_an_audit_log_gives_the_packet_a_full_trace",
     "tests/test_experiment.py::test_a_recalled_memory_the_agent_cites_is_marked_used",
     "tests/test_experiment.py::test_an_uncited_memory_is_unknown_not_unused",
     "tests/test_experiment.py::test_nothing_the_evaluator_knows_reaches_the_memory_store",
@@ -11281,10 +11283,9 @@
     "tests/test_memory_comparison.py::test_a_mode_may_be_named_only_once",
     "tests/test_memory_comparison.py::test_a_refused_repeat_counts_as_a_call_but_a_skipped_one_does_not",
     "tests/test_memory_comparison.py::test_every_mode_runs_the_same_cases_and_keeps_its_mode",
-    "tests/test_memory_comparison.py::test_factory_calls_leave_memory_searches_out",
-    "tests/test_memory_comparison.py::test_keyword_and_semantic_recall_differ_by_what_their_search_finds"
+    "tests/test_memory_comparison.py::test_factory_calls_leave_memory_searches_out"
    ],
-   "indirect_test_count": 41,
+   "indirect_test_count": 42,
    "statements_executed": 1,
    "statements_in_body": 1,
    "statement_coverage": 1.0,
@@ -13049,7 +13050,7 @@
    "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
    "contract_specified": true,
    "executed_in_tests": true,
-   "test_count": 112,
+   "test_count": 113,
    "direct_tests": [],
    "indirect_tests": [
     "tests/test_agent_completion.py::test_a_check_that_was_never_made_is_left_out",
@@ -13074,16 +13075,16 @@
     "tests/test_agent_completion.py::test_the_log_keeps_every_investigation_one_per_line",
     "tests/test_agent_completion.py::test_the_same_run_twice_gives_the_same_record",
     "tests/test_episode.py::test_a_verified_fix_is_audited_and_remembered",
+    "tests/test_evaluation_tools.py::test_an_audit_log_gives_the_packet_a_full_trace",
     "tests/test_experiment.py::test_a_recalled_memory_the_agent_cites_is_marked_used",
     "tests/test_experiment.py::test_an_uncited_memory_is_unknown_not_unused",
     "tests/test_experiment.py::test_nothing_the_evaluator_knows_reaches_the_memory_store",
     "tests/test_experiment.py::test_the_gate_decision_is_recorded_beside_the_run",
     "tests/test_experiment.py::test_the_report_traces_a_recalled_lesson_to_a_wrong_diagnosis",
     "tests/test_learning.py::test_a_failed_fix_is_remembered_in_codes_words_without_asking",
-    "tests/test_learning.py::test_a_model_that_declines_leaves_no_memory",
-    "tests/test_learning.py::test_a_model_that_fails_leaves_no_memory"
+    "tests/test_learning.py::test_a_model_that_declines_leaves_no_memory"
    ],
-   "indirect_test_count": 112,
+   "indirect_test_count": 113,
    "statements_executed": 4,
    "statements_in_body": 4,
    "statement_coverage": 1.0,
@@ -13185,7 +13186,7 @@
    "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
    "contract_specified": true,
    "executed_in_tests": true,
-   "test_count": 108,
+   "test_count": 110,
    "direct_tests": [],
    "indirect_tests": [
     "tests/test_agent_completion.py::test_audit_without_memory_writes_the_record",
@@ -13219,7 +13220,7 @@
     "tests/test_evals.py::test_confident_no_fault_and_honest_abstention_score_apart",
     "tests/test_evals.py::test_each_case_runs_with_its_own_hazards"
    ],
-   "indirect_test_count": 108,
+   "indirect_test_count": 110,
    "statements_executed": 2,
    "statements_in_body": 3,
    "statement_coverage": 0.667,
@@ -13266,7 +13267,7 @@
    "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
    "contract_specified": true,
    "executed_in_tests": true,
-   "test_count": 107,
+   "test_count": 108,
    "direct_tests": [],
    "indirect_tests": [
     "tests/test_agent_completion.py::test_audit_without_memory_writes_the_record",
@@ -13300,7 +13301,7 @@
     "tests/test_evals.py::test_confident_no_fault_and_honest_abstention_score_apart",
     "tests/test_evals.py::test_each_case_runs_with_its_own_hazards"
    ],
-   "indirect_test_count": 107,
+   "indirect_test_count": 108,
    "statements_executed": 3,
    "statements_in_body": 3,
    "statement_coverage": 1.0,
@@ -13346,7 +13347,7 @@
    "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
    "contract_specified": false,
    "executed_in_tests": true,
-   "test_count": 353,
+   "test_count": 354,
    "direct_tests": [],
    "indirect_tests": [
     "tests/test_agent_action.py::test_a_human_hook_that_decides_nothing_does_not_count_as_approval",
@@ -13380,7 +13381,7 @@
     "tests/test_agent_completion.py::test_every_ending_produces_a_valid_record_that_cites_only_real_evidence",
     "tests/test_agent_completion.py::test_no_action_is_recorded_when_none_was_wanted"
    ],
-   "indirect_test_count": 353,
+   "indirect_test_count": 354,
    "statements_executed": 3,
    "statements_in_body": 3,
    "statement_coverage": 1.0,
@@ -13426,7 +13427,7 @@
    "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
    "contract_specified": false,
    "executed_in_tests": true,
-   "test_count": 352,
+   "test_count": 353,
    "direct_tests": [],
    "indirect_tests": [
     "tests/test_agent_action.py::test_a_human_hook_that_decides_nothing_does_not_count_as_approval",
@@ -13460,7 +13461,7 @@
     "tests/test_agent_completion.py::test_every_ending_produces_a_valid_record_that_cites_only_real_evidence",
     "tests/test_agent_completion.py::test_no_action_is_recorded_when_none_was_wanted"
    ],
-   "indirect_test_count": 352,
+   "indirect_test_count": 353,
    "statements_executed": 4,
    "statements_in_body": 5,
    "statement_coverage": 0.8,
@@ -13801,7 +13802,7 @@
    "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
    "contract_specified": true,
    "executed_in_tests": true,
-   "test_count": 102,
+   "test_count": 103,
    "direct_tests": [
     "tests/test_episode.py::test_a_bearing_fault_is_found_fixed_checked_and_scored_in_full",
     "tests/test_episode.py::test_a_critic_does_not_change_the_episode",
@@ -13839,6 +13840,7 @@
     "tests/test_evals.py::test_resume_accepts_only_the_saved_prefix_and_keeps_run_numbers",
     "tests/test_evals.py::test_review_flag_excludes_provisional_label_from_accuracy",
     "tests/test_evals.py::test_run_cases_offers_the_manual_when_given",
+    "tests/test_evaluation_tools.py::test_an_audit_log_gives_the_packet_a_full_trace",
     "tests/test_experiment.py::test_a_challenge_run_is_built_and_scored_with_several_faults",
     "tests/test_experiment.py::test_a_model_policy_run_keeps_its_call_summary_and_its_time",
     "tests/test_experiment.py::test_a_recalled_memory_the_agent_cites_is_marked_used",
@@ -13851,10 +13853,9 @@
     "tests/test_experiment.py::test_old_records_without_blackout_fields_still_read",
     "tests/test_experiment.py::test_run_keys_are_unique_per_execution",
     "tests/test_experiment.py::test_the_command_line_runs_labels_and_reports",
-    "tests/test_experiment.py::test_the_follow_up_is_kept_in_the_record",
-    "tests/test_experiment.py::test_the_gate_decision_is_recorded_beside_the_run"
+    "tests/test_experiment.py::test_the_follow_up_is_kept_in_the_record"
    ],
-   "indirect_test_count": 84,
+   "indirect_test_count": 85,
    "statements_executed": 1,
    "statements_in_body": 1,
    "statement_coverage": 1.0,
@@ -13895,7 +13896,7 @@
    "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
    "contract_specified": true,
    "executed_in_tests": true,
-   "test_count": 102,
+   "test_count": 103,
    "direct_tests": [
     "tests/test_episode.py::test_a_bearing_fault_is_found_fixed_checked_and_scored_in_full",
     "tests/test_episode.py::test_a_critic_does_not_change_the_episode",
@@ -13933,6 +13934,7 @@
     "tests/test_evals.py::test_resume_accepts_only_the_saved_prefix_and_keeps_run_numbers",
     "tests/test_evals.py::test_review_flag_excludes_provisional_label_from_accuracy",
     "tests/test_evals.py::test_run_cases_offers_the_manual_when_given",
+    "tests/test_evaluation_tools.py::test_an_audit_log_gives_the_packet_a_full_trace",
     "tests/test_experiment.py::test_a_challenge_run_is_built_and_scored_with_several_faults",
     "tests/test_experiment.py::test_a_model_policy_run_keeps_its_call_summary_and_its_time",
     "tests/test_experiment.py::test_a_recalled_memory_the_agent_cites_is_marked_used",
@@ -13945,10 +13947,9 @@
     "tests/test_experiment.py::test_old_records_without_blackout_fields_still_read",
     "tests/test_experiment.py::test_run_keys_are_unique_per_execution",
     "tests/test_experiment.py::test_the_command_line_runs_labels_and_reports",
-    "tests/test_experiment.py::test_the_follow_up_is_kept_in_the_record",
-    "tests/test_experiment.py::test_the_gate_decision_is_recorded_beside_the_run"
+    "tests/test_experiment.py::test_the_follow_up_is_kept_in_the_record"
    ],
-   "indirect_test_count": 84,
+   "indirect_test_count": 85,
    "statements_executed": 1,
    "statements_in_body": 1,
    "statement_coverage": 1.0,
@@ -14041,7 +14042,7 @@
    "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
    "contract_specified": true,
    "executed_in_tests": true,
-   "test_count": 110,
+   "test_count": 111,
    "direct_tests": [
     "tests/test_episode.py::test_a_bearing_fault_is_found_fixed_checked_and_scored_in_full",
     "tests/test_episode.py::test_a_critic_does_not_change_the_episode",
@@ -14084,6 +14085,7 @@
     "tests/test_evals.py::test_resume_accepts_only_the_saved_prefix_and_keeps_run_numbers",
     "tests/test_evals.py::test_review_flag_excludes_provisional_label_from_accuracy",
     "tests/test_evals.py::test_run_cases_offers_the_manual_when_given",
+    "tests/test_evaluation_tools.py::test_an_audit_log_gives_the_packet_a_full_trace",
     "tests/test_experiment.py::test_a_challenge_run_is_built_and_scored_with_several_faults",
     "tests/test_experiment.py::test_a_model_policy_run_keeps_its_call_summary_and_its_time",
     "tests/test_experiment.py::test_a_recalled_memory_the_agent_cites_is_marked_used",
@@ -14095,10 +14097,9 @@
     "tests/test_experiment.py::test_nothing_the_evaluator_knows_reaches_the_memory_store",
     "tests/test_experiment.py::test_old_records_without_blackout_fields_still_read",
     "tests/test_experiment.py::test_run_keys_are_unique_per_execution",
-    "tests/test_experiment.py::test_the_command_line_runs_labels_and_reports",
-    "tests/test_experiment.py::test_the_follow_up_is_kept_in_the_record"
+    "tests/test_experiment.py::test_the_command_line_runs_labels_and_reports"
    ],
-   "indirect_test_count": 88,
+   "indirect_test_count": 89,
    "statements_executed": 7,
    "statements_in_body": 7,
    "statement_coverage": 1.0,
@@ -14179,7 +14180,7 @@
    "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
    "contract_specified": true,
    "executed_in_tests": true,
-   "test_count": 104,
+   "test_count": 105,
    "direct_tests": [
     "tests/test_episode.py::test_a_bearing_fault_is_found_fixed_checked_and_scored_in_full",
     "tests/test_episode.py::test_a_critic_does_not_change_the_episode",
@@ -14219,6 +14220,7 @@
     "tests/test_evals.py::test_resume_accepts_only_the_saved_prefix_and_keeps_run_numbers",
     "tests/test_evals.py::test_review_flag_excludes_provisional_label_from_accuracy",
     "tests/test_evals.py::test_run_cases_offers_the_manual_when_given",
+    "tests/test_evaluation_tools.py::test_an_audit_log_gives_the_packet_a_full_trace",
     "tests/test_experiment.py::test_a_challenge_run_is_built_and_scored_with_several_faults",
     "tests/test_experiment.py::test_a_model_policy_run_keeps_its_call_summary_and_its_time",
     "tests/test_experiment.py::test_a_recalled_memory_the_agent_cites_is_marked_used",
@@ -14231,10 +14233,9 @@
     "tests/test_experiment.py::test_old_records_without_blackout_fields_still_read",
     "tests/test_experiment.py::test_run_keys_are_unique_per_execution",
     "tests/test_experiment.py::test_the_command_line_runs_labels_and_reports",
-    "tests/test_experiment.py::test_the_follow_up_is_kept_in_the_record",
-    "tests/test_experiment.py::test_the_gate_decision_is_recorded_beside_the_run"
+    "tests/test_experiment.py::test_the_follow_up_is_kept_in_the_record"
    ],
-   "indirect_test_count": 84,
+   "indirect_test_count": 85,
    "statements_executed": 39,
    "statements_in_body": 40,
    "statement_coverage": 0.975,
@@ -16013,14 +16014,15 @@
    "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
    "contract_specified": true,
    "executed_in_tests": true,
-   "test_count": 3,
+   "test_count": 4,
    "direct_tests": [],
    "indirect_tests": [
     "tests/test_auto_label.py::test_the_command_writes_proposals_and_reports_agreement",
+    "tests/test_evaluation_tools.py::test_master_run_packets_keep_the_truth_out_of_the_judge_view",
     "tests/test_experiment.py::test_label_book_keeps_the_latest_label",
     "tests/test_experiment.py::test_the_command_line_runs_labels_and_reports"
    ],
-   "indirect_test_count": 3,
+   "indirect_test_count": 4,
    "statements_executed": 1,
    "statements_in_body": 1,
    "statement_coverage": 1.0,
@@ -16134,14 +16136,15 @@
    "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
    "contract_specified": true,
    "executed_in_tests": true,
-   "test_count": 3,
+   "test_count": 4,
    "direct_tests": [],
    "indirect_tests": [
     "tests/test_auto_label.py::test_the_command_writes_proposals_and_reports_agreement",
+    "tests/test_evaluation_tools.py::test_master_run_packets_keep_the_truth_out_of_the_judge_view",
     "tests/test_experiment.py::test_label_book_keeps_the_latest_label",
     "tests/test_experiment.py::test_the_command_line_runs_labels_and_reports"
    ],
-   "indirect_test_count": 3,
+   "indirect_test_count": 4,
    "statements_executed": 8,
    "statements_in_body": 8,
    "statement_coverage": 1.0,
@@ -16191,7 +16194,7 @@
    "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
    "contract_specified": true,
    "executed_in_tests": true,
-   "test_count": 16,
+   "test_count": 17,
    "direct_tests": [],
    "indirect_tests": [
     "tests/test_evals.py::test_comparison_requires_same_cases_and_preserves_unknown_accuracy",
@@ -16203,6 +16206,7 @@
     "tests/test_evals.py::test_missing_data_read_as_normal_needs_a_blackout",
     "tests/test_evals.py::test_records_without_critic_report_none",
     "tests/test_evaluation.py::test_a_label_with_several_causes_judges_a_compound_row_from_the_row_alone",
+    "tests/test_evaluation_tools.py::test_master_run_packets_keep_the_truth_out_of_the_judge_view",
     "tests/test_experiment.py::test_a_batch_label_is_judged_by_batch",
     "tests/test_experiment.py::test_a_label_scores_the_root_cause_from_the_row_alone",
     "tests/test_experiment.py::test_report_applies_labels",
@@ -16211,7 +16215,7 @@
     "tests/test_memory_comparison.py::test_outage_runs_are_counted_then_left_out_of_every_total",
     "tests/test_memory_comparison.py::test_the_report_puts_the_modes_side_by_side_with_labels"
    ],
-   "indirect_test_count": 16,
+   "indirect_test_count": 17,
    "statements_executed": 1,
    "statements_in_body": 1,
    "statement_coverage": 1.0,
@@ -16942,7 +16946,7 @@
    "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
    "contract_specified": false,
    "executed_in_tests": true,
-   "test_count": 141,
+   "test_count": 142,
    "direct_tests": [
     "tests/test_episode.py::test_critic_blind_is_off_by_default_and_reaches_the_run",
     "tests/test_episode.py::test_critic_followup_off_by_default",
@@ -16989,7 +16993,7 @@
     "tests/test_evals.py::test_rescoring_saved_records_never_opens_the_manual",
     "tests/test_evals.py::test_resume_accepts_only_the_saved_prefix_and_keeps_run_numbers"
    ],
-   "indirect_test_count": 129,
+   "indirect_test_count": 130,
    "statements_executed": 1,
    "statements_in_body": 1,
    "statement_coverage": 1.0,
@@ -17079,7 +17083,7 @@
    "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
    "contract_specified": true,
    "executed_in_tests": true,
-   "test_count": 45,
+   "test_count": 46,
    "direct_tests": [],
    "indirect_tests": [
     "tests/test_baseline.py::test_known_cases_score_as_pinned_and_repeat_exactly",
@@ -17113,7 +17117,7 @@
     "tests/test_evaluation.py::test_one_fault_runs_also_carry_their_cause_and_partial_credit",
     "tests/test_evaluation.py::test_rejected_proposals_do_not_count_as_actions"
    ],
-   "indirect_test_count": 45,
+   "indirect_test_count": 46,
    "statements_executed": 5,
    "statements_in_body": 5,
    "statement_coverage": 1.0,
@@ -17158,7 +17162,7 @@
    "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
    "contract_specified": true,
    "executed_in_tests": true,
-   "test_count": 60,
+   "test_count": 61,
    "direct_tests": [],
    "indirect_tests": [
     "tests/test_baseline.py::test_known_cases_score_as_pinned_and_repeat_exactly",
@@ -17192,7 +17196,7 @@
     "tests/test_evaluation.py::test_a_wrong_recommendation_is_not_credited",
     "tests/test_evaluation.py::test_an_unlabelled_diagnosis_is_left_unscored_not_counted_wrong"
    ],
-   "indirect_test_count": 60,
+   "indirect_test_count": 61,
    "statements_executed": 3,
    "statements_in_body": 3,
    "statement_coverage": 1.0,
@@ -17235,7 +17239,7 @@
    "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
    "contract_specified": true,
    "executed_in_tests": true,
-   "test_count": 17,
+   "test_count": 18,
    "direct_tests": [
     "tests/test_evaluation.py::test_both_causes_named_and_fixed_is_fully_right",
     "tests/test_evaluation.py::test_one_cause_named_and_fixed_is_half_credit_not_fully_right"
@@ -17254,10 +17258,11 @@
     "tests/test_evaluation.py::test_blaming_a_distractor_is_a_wrong_cause_but_naming_the_spike_is_not",
     "tests/test_evaluation.py::test_one_fault_runs_also_carry_their_cause_and_partial_credit",
     "tests/test_evaluation.py::test_the_summary_reports_several_fault_runs_apart",
+    "tests/test_evaluation_tools.py::test_master_run_packets_keep_the_truth_out_of_the_judge_view",
     "tests/test_experiment.py::test_a_run_with_several_faults_shows_its_causes_found_and_fixed",
     "tests/test_experiment.py::test_the_report_totals_and_lists_one_and_several_fault_runs_apart"
    ],
-   "indirect_test_count": 15,
+   "indirect_test_count": 16,
    "statements_executed": 3,
    "statements_in_body": 3,
    "statement_coverage": 1.0,
@@ -17298,7 +17303,7 @@
    "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
    "contract_specified": false,
    "executed_in_tests": true,
-   "test_count": 36,
+   "test_count": 38,
    "direct_tests": [],
    "indirect_tests": [
     "tests/test_episode.py::test_a_whole_episode_records_the_section_nine_fields",
@@ -17314,6 +17319,8 @@
     "tests/test_evaluation.py::test_the_summary_counts_each_kind_of_miss",
     "tests/test_evaluation.py::test_the_summary_counts_runs_with_an_unnecessary_intervention",
     "tests/test_evaluation.py::test_the_summary_reports_several_fault_runs_apart",
+    "tests/test_evaluation_tools.py::test_an_audit_log_gives_the_packet_a_full_trace",
+    "tests/test_evaluation_tools.py::test_master_run_packets_keep_the_truth_out_of_the_judge_view",
     "tests/test_experiment.py::test_a_report_of_one_kind_only_is_not_split",
     "tests/test_experiment.py::test_a_run_with_several_faults_shows_its_causes_found_and_fixed",
     "tests/test_experiment.py::test_a_run_with_the_manual_records_what_it_looked_up",
@@ -17328,11 +17335,9 @@
     "tests/test_experiment.py::test_the_report_says_how_many_runs_were_held_out",
     "tests/test_experiment.py::test_the_report_says_when_no_model_was_recorded",
     "tests/test_experiment.py::test_the_report_shows_an_overruled_intervention_and_why",
-    "tests/test_experiment.py::test_the_report_shows_the_model_questions",
-    "tests/test_experiment.py::test_the_report_totals_and_lists_one_and_several_fault_runs_apart",
-    "tests/test_experiment.py::test_the_report_traces_a_recalled_lesson_to_a_wrong_diagnosis"
+    "tests/test_experiment.py::test_the_report_shows_the_model_questions"
    ],
-   "indirect_test_count": 36,
+   "indirect_test_count": 38,
    "statements_executed": 1,
    "statements_in_body": 1,
    "statement_coverage": 1.0,
@@ -17375,7 +17380,7 @@
    "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
    "contract_specified": true,
    "executed_in_tests": true,
-   "test_count": 28,
+   "test_count": 29,
    "direct_tests": [
     "tests/test_evaluation.py::test_a_right_unjudged_or_unanswered_run_has_no_miss_kind"
    ],
@@ -17390,6 +17395,7 @@
     "tests/test_evaluation.py::test_the_summary_counts_each_kind_of_miss",
     "tests/test_evaluation.py::test_the_summary_counts_runs_with_an_unnecessary_intervention",
     "tests/test_evaluation.py::test_the_summary_reports_several_fault_runs_apart",
+    "tests/test_evaluation_tools.py::test_master_run_packets_keep_the_truth_out_of_the_judge_view",
     "tests/test_experiment.py::test_a_report_of_one_kind_only_is_not_split",
     "tests/test_experiment.py::test_a_run_with_several_faults_shows_its_causes_found_and_fixed",
     "tests/test_experiment.py::test_a_run_with_the_manual_records_what_it_looked_up",
@@ -17408,7 +17414,7 @@
     "tests/test_experiment.py::test_the_report_totals_and_lists_one_and_several_fault_runs_apart",
     "tests/test_experiment.py::test_the_report_traces_a_recalled_lesson_to_a_wrong_diagnosis"
    ],
-   "indirect_test_count": 27,
+   "indirect_test_count": 28,
    "statements_executed": 7,
    "statements_in_body": 7,
    "statement_coverage": 1.0,
@@ -17460,7 +17466,7 @@
    "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
    "contract_specified": true,
    "executed_in_tests": true,
-   "test_count": 32,
+   "test_count": 34,
    "direct_tests": [],
    "indirect_tests": [
     "tests/test_episode.py::test_without_a_judge_the_diagnosis_is_unjudged_but_the_action_is_scored",
@@ -17478,6 +17484,8 @@
     "tests/test_evaluation.py::test_the_summary_counts_each_kind_of_miss",
     "tests/test_evaluation.py::test_the_summary_counts_runs_with_an_unnecessary_intervention",
     "tests/test_evaluation.py::test_the_summary_reports_several_fault_runs_apart",
+    "tests/test_evaluation_tools.py::test_an_audit_log_gives_the_packet_a_full_trace",
+    "tests/test_evaluation_tools.py::test_master_run_packets_keep_the_truth_out_of_the_judge_view",
     "tests/test_experiment.py::test_a_report_of_one_kind_only_is_not_split",
     "tests/test_experiment.py::test_a_run_with_several_faults_shows_its_causes_found_and_fixed",
     "tests/test_experiment.py::test_a_run_with_the_manual_records_what_it_looked_up",
@@ -17490,11 +17498,9 @@
     "tests/test_experiment.py::test_the_command_line_runs_labels_and_reports",
     "tests/test_experiment.py::test_the_report_has_no_memory_line_without_memory",
     "tests/test_experiment.py::test_the_report_says_how_many_runs_were_held_out",
-    "tests/test_experiment.py::test_the_report_says_when_no_model_was_recorded",
-    "tests/test_experiment.py::test_the_report_shows_an_overruled_intervention_and_why",
-    "tests/test_experiment.py::test_the_report_shows_the_model_questions"
+    "tests/test_experiment.py::test_the_report_says_when_no_model_was_recorded"
    ],
-   "indirect_test_count": 32,
+   "indirect_test_count": 34,
    "statements_executed": 3,
    "statements_in_body": 5,
    "statement_coverage": 0.6,
@@ -17561,7 +17567,7 @@
    "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
    "contract_specified": true,
    "executed_in_tests": true,
-   "test_count": 141,
+   "test_count": 142,
    "direct_tests": [],
    "indirect_tests": [
     "tests/test_agent_completion.py::test_audit_without_memory_writes_the_record",
@@ -17595,7 +17601,7 @@
     "tests/test_evals.py::test_full_episode_report_keeps_truth_out_of_policy_and_scores_only_labels",
     "tests/test_evals.py::test_master_run_can_show_existing_live_progress_hooks"
    ],
-   "indirect_test_count": 141,
+   "indirect_test_count": 142,
    "statements_executed": 17,
    "statements_in_body": 17,
    "statement_coverage": 1.0,
@@ -17650,7 +17656,7 @@
    "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
    "contract_specified": false,
    "executed_in_tests": true,
-   "test_count": 60,
+   "test_count": 61,
    "direct_tests": [
     "tests/test_evaluation.py::test_both_causes_named_and_fixed_is_fully_right",
     "tests/test_evaluation.py::test_one_cause_named_and_fixed_is_half_credit_not_fully_right"
@@ -17687,7 +17693,7 @@
     "tests/test_evaluation.py::test_a_wrong_recommendation_is_not_credited",
     "tests/test_evaluation.py::test_an_unlabelled_diagnosis_is_left_unscored_not_counted_wrong"
    ],
-   "indirect_test_count": 58,
+   "indirect_test_count": 59,
    "statements_executed": 5,
    "statements_in_body": 5,
    "statement_coverage": 1.0,
@@ -17738,10 +17744,11 @@
    "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
    "contract_specified": true,
    "executed_in_tests": true,
-   "test_count": 60,
+   "test_count": 61,
    "direct_tests": [
     "tests/test_evaluation.py::test_a_label_with_several_causes_judges_a_compound_row_from_the_row_alone",
     "tests/test_evaluation.py::test_a_right_unjudged_or_unanswered_run_has_no_miss_kind",
+    "tests/test_evaluation_tools.py::test_master_run_packets_keep_the_truth_out_of_the_judge_view",
     "tests/test_experiment.py::test_a_batch_label_is_judged_by_batch"
    ],
    "indirect_tests": [
@@ -17827,7 +17834,7 @@
    "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
    "contract_specified": true,
    "executed_in_tests": true,
-   "test_count": 53,
+   "test_count": 54,
    "direct_tests": [],
    "indirect_tests": [
     "tests/test_baseline.py::test_known_cases_score_as_pinned_and_repeat_exactly",
@@ -17861,7 +17868,7 @@
     "tests/test_evaluation.py::test_asking_for_nothing_is_never_unnecessary",
     "tests/test_evaluation.py::test_doing_nothing_is_the_right_action_for_a_false_alarm_or_a_bad_batch"
    ],
-   "indirect_test_count": 53,
+   "indirect_test_count": 54,
    "statements_executed": 5,
    "statements_in_body": 5,
    "statement_coverage": 1.0,
@@ -17906,7 +17913,7 @@
    "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
    "contract_specified": true,
    "executed_in_tests": true,
-   "test_count": 142,
+   "test_count": 143,
    "direct_tests": [
     "tests/test_evaluation.py::test_a_bad_batch_is_not_resolved_while_it_is_still_in_use",
     "tests/test_known_answers.py::test_a_forced_only_fault_counts_as_resolved_only_after_its_repair"
@@ -17943,7 +17950,7 @@
     "tests/test_evals.py::test_full_episode_report_keeps_truth_out_of_policy_and_scores_only_labels",
     "tests/test_evals.py::test_master_run_can_show_existing_live_progress_hooks"
    ],
-   "indirect_test_count": 140,
+   "indirect_test_count": 141,
    "statements_executed": 12,
    "statements_in_body": 13,
    "statement_coverage": 0.923,
@@ -18323,7 +18330,7 @@
    "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
    "contract_specified": false,
    "executed_in_tests": true,
-   "test_count": 7,
+   "test_count": 8,
    "direct_tests": [
     "tests/test_experiment.py::test_hazards_are_off_unless_asked_for",
     "tests/test_experiment.py::test_the_command_passes_the_manual_on",
@@ -18331,11 +18338,12 @@
     "tests/test_experiment.py::test_the_run_command_watches_by_default_and_quiet_turns_it_off"
    ],
    "indirect_tests": [
+    "tests/test_evaluation_tools.py::test_an_audit_log_gives_the_packet_a_full_trace",
     "tests/test_known_answers.py::test_every_case_gives_one_complete_record",
     "tests/test_known_answers.py::test_no_record_shows_the_truth_to_the_policy",
     "tests/test_known_answers.py::test_the_suite_is_repeatable"
    ],
-   "indirect_test_count": 3,
+   "indirect_test_count": 4,
    "statements_executed": 1,
    "statements_in_body": 1,
    "statement_coverage": 1.0,
@@ -18606,7 +18614,7 @@
    "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
    "contract_specified": true,
    "executed_in_tests": true,
-   "test_count": 55,
+   "test_count": 56,
    "direct_tests": [
     "tests/test_experiment.py::test_a_challenge_run_is_built_and_scored_with_several_faults",
     "tests/test_experiment.py::test_a_model_policy_run_keeps_its_call_summary_and_its_time",
@@ -18640,6 +18648,7 @@
     "tests/test_evals.py::test_resume_accepts_only_the_saved_prefix_and_keeps_run_numbers",
     "tests/test_evals.py::test_review_flag_excludes_provisional_label_from_accuracy",
     "tests/test_evals.py::test_run_cases_offers_the_manual_when_given",
+    "tests/test_evaluation_tools.py::test_an_audit_log_gives_the_packet_a_full_trace",
     "tests/test_hazards.py::test_an_episode_with_a_blackout_reports_it_and_repeats_exactly",
     "tests/test_hazards.py::test_an_episode_with_hazards_reports_them_and_repeats_exactly",
     "tests/test_hazards.py::test_without_hazards_nothing_is_reported",
@@ -18657,10 +18666,9 @@
     "tests/test_memory_comparison.py::test_semantic_mode_asks_the_index",
     "tests/test_memory_comparison.py::test_semantic_mode_never_runs_as_keyword_search_unseen",
     "tests/test_memory_comparison.py::test_the_command_reports_a_results_file",
-    "tests/test_memory_comparison.py::test_the_comparison_writes_nothing_to_memory",
-    "tests/test_memory_comparison.py::test_the_report_puts_the_modes_side_by_side_with_labels"
+    "tests/test_memory_comparison.py::test_the_comparison_writes_nothing_to_memory"
    ],
-   "indirect_test_count": 36,
+   "indirect_test_count": 37,
    "statements_executed": 1,
    "statements_in_body": 1,
    "statement_coverage": 1.0,
@@ -18834,7 +18842,7 @@
    "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
    "contract_specified": true,
    "executed_in_tests": true,
-   "test_count": 56,
+   "test_count": 57,
    "direct_tests": [
     "tests/test_experiment.py::test_a_challenge_run_is_built_and_scored_with_several_faults",
     "tests/test_experiment.py::test_a_model_policy_run_keeps_its_call_summary_and_its_time",
@@ -18869,6 +18877,7 @@
     "tests/test_evals.py::test_resume_accepts_only_the_saved_prefix_and_keeps_run_numbers",
     "tests/test_evals.py::test_review_flag_excludes_provisional_label_from_accuracy",
     "tests/test_evals.py::test_run_cases_offers_the_manual_when_given",
+    "tests/test_evaluation_tools.py::test_an_audit_log_gives_the_packet_a_full_trace",
     "tests/test_hazards.py::test_an_episode_with_a_blackout_reports_it_and_repeats_exactly",
     "tests/test_hazards.py::test_an_episode_with_hazards_reports_them_and_repeats_exactly",
     "tests/test_hazards.py::test_without_hazards_nothing_is_reported",
@@ -18886,10 +18895,9 @@
     "tests/test_memory_comparison.py::test_semantic_mode_asks_the_index",
     "tests/test_memory_comparison.py::test_semantic_mode_never_runs_as_keyword_search_unseen",
     "tests/test_memory_comparison.py::test_the_command_reports_a_results_file",
-    "tests/test_memory_comparison.py::test_the_comparison_writes_nothing_to_memory",
-    "tests/test_memory_comparison.py::test_the_report_puts_the_modes_side_by_side_with_labels"
+    "tests/test_memory_comparison.py::test_the_comparison_writes_nothing_to_memory"
    ],
-   "indirect_test_count": 36,
+   "indirect_test_count": 37,
    "statements_executed": 1,
    "statements_in_body": 1,
    "statement_coverage": 1.0,
@@ -18939,7 +18947,7 @@
    "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
    "contract_specified": true,
    "executed_in_tests": true,
-   "test_count": 55,
+   "test_count": 56,
    "direct_tests": [
     "tests/test_experiment.py::test_a_challenge_run_is_built_and_scored_with_several_faults",
     "tests/test_experiment.py::test_a_model_policy_run_keeps_its_call_summary_and_its_time",
@@ -18973,6 +18981,7 @@
     "tests/test_evals.py::test_resume_accepts_only_the_saved_prefix_and_keeps_run_numbers",
     "tests/test_evals.py::test_review_flag_excludes_provisional_label_from_accuracy",
     "tests/test_evals.py::test_run_cases_offers_the_manual_when_given",
+    "tests/test_evaluation_tools.py::test_an_audit_log_gives_the_packet_a_full_trace",
     "tests/test_hazards.py::test_an_episode_with_a_blackout_reports_it_and_repeats_exactly",
     "tests/test_hazards.py::test_an_episode_with_hazards_reports_them_and_repeats_exactly",
     "tests/test_hazards.py::test_without_hazards_nothing_is_reported",
@@ -18990,10 +18999,9 @@
     "tests/test_memory_comparison.py::test_semantic_mode_asks_the_index",
     "tests/test_memory_comparison.py::test_semantic_mode_never_runs_as_keyword_search_unseen",
     "tests/test_memory_comparison.py::test_the_command_reports_a_results_file",
-    "tests/test_memory_comparison.py::test_the_comparison_writes_nothing_to_memory",
-    "tests/test_memory_comparison.py::test_the_report_puts_the_modes_side_by_side_with_labels"
+    "tests/test_memory_comparison.py::test_the_comparison_writes_nothing_to_memory"
    ],
-   "indirect_test_count": 36,
+   "indirect_test_count": 37,
    "statements_executed": 4,
    "statements_in_body": 4,
    "statement_coverage": 1.0,
@@ -19058,7 +19066,7 @@
    "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
    "contract_specified": true,
    "executed_in_tests": true,
-   "test_count": 50,
+   "test_count": 51,
    "direct_tests": [
     "tests/test_experiment.py::test_a_challenge_run_is_built_and_scored_with_several_faults",
     "tests/test_experiment.py::test_a_model_policy_run_keeps_its_call_summary_and_its_time",
@@ -19092,6 +19100,7 @@
     "tests/test_evals.py::test_resume_accepts_only_the_saved_prefix_and_keeps_run_numbers",
     "tests/test_evals.py::test_review_flag_excludes_provisional_label_from_accuracy",
     "tests/test_evals.py::test_run_cases_offers_the_manual_when_given",
+    "tests/test_evaluation_tools.py::test_an_audit_log_gives_the_packet_a_full_trace",
     "tests/test_known_answers.py::test_every_case_gives_one_complete_record",
     "tests/test_known_answers.py::test_no_record_shows_the_truth_to_the_policy",
     "tests/test_known_answers.py::test_the_suite_is_repeatable",
@@ -19109,10 +19118,9 @@
     "tests/test_memory_comparison.py::test_the_comparison_writes_nothing_to_memory",
     "tests/test_memory_comparison.py::test_the_report_puts_the_modes_side_by_side_with_labels",
     "tests/test_memory_comparison.py::test_the_report_warns_when_the_modes_ran_different_cases",
-    "tests/test_memory_comparison.py::test_the_runs_are_interleaved_case_by_case",
-    "tests/test_tree_of_thought.py::test_both_steps_run_the_same_case_and_the_tree_costs_one_more_question"
+    "tests/test_memory_comparison.py::test_the_runs_are_interleaved_case_by_case"
    ],
-   "indirect_test_count": 31,
+   "indirect_test_count": 32,
    "statements_executed": 18,
    "statements_in_body": 18,
    "statement_coverage": 1.0,
@@ -19163,17 +19171,18 @@
    "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
    "contract_specified": false,
    "executed_in_tests": true,
-   "test_count": 5,
+   "test_count": 6,
    "direct_tests": [
     "tests/test_experiment.py::test_model_failures_survive_the_cli_file_and_report",
     "tests/test_experiment.py::test_the_command_line_runs_labels_and_reports"
    ],
    "indirect_tests": [
     "tests/test_evals.py::test_rescoring_saved_records_never_opens_the_manual",
+    "tests/test_evaluation_tools.py::test_an_audit_log_gives_the_packet_a_full_trace",
     "tests/test_memory_comparison.py::test_the_command_reports_a_results_file",
     "tests/test_tree_of_thought.py::test_saved_tree_survives_the_results_file"
    ],
-   "indirect_test_count": 3,
+   "indirect_test_count": 4,
    "statements_executed": 3,
    "statements_in_body": 3,
    "statement_coverage": 1.0,
@@ -19220,17 +19229,19 @@
    "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
    "contract_specified": false,
    "executed_in_tests": true,
-   "test_count": 5,
+   "test_count": 7,
    "direct_tests": [
     "tests/test_experiment.py::test_model_failures_survive_the_cli_file_and_report",
     "tests/test_experiment.py::test_the_command_line_runs_labels_and_reports"
    ],
    "indirect_tests": [
     "tests/test_evals.py::test_rescoring_saved_records_never_opens_the_manual",
+    "tests/test_evaluation_tools.py::test_an_audit_log_gives_the_packet_a_full_trace",
+    "tests/test_evaluation_tools.py::test_master_run_packets_keep_the_truth_out_of_the_judge_view",
     "tests/test_memory_comparison.py::test_the_command_reports_a_results_file",
     "tests/test_tree_of_thought.py::test_saved_tree_survives_the_results_file"
    ],
-   "indirect_test_count": 3,
+   "indirect_test_count": 5,
    "statements_executed": 2,
    "statements_in_body": 2,
    "statement_coverage": 1.0,
@@ -20640,7 +20651,7 @@
    "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
    "contract_specified": false,
    "executed_in_tests": true,
-   "test_count": 141,
+   "test_count": 142,
    "direct_tests": [],
    "indirect_tests": [
     "tests/test_agent_completion.py::test_audit_without_memory_writes_the_record",
@@ -20674,7 +20685,7 @@
     "tests/test_evals.py::test_full_episode_report_keeps_truth_out_of_policy_and_scores_only_labels",
     "tests/test_evals.py::test_master_run_can_show_existing_live_progress_hooks"
    ],
-   "indirect_test_count": 141,
+   "indirect_test_count": 142,
    "statements_executed": 1,
    "statements_in_body": 1,
    "statement_coverage": 1.0,
@@ -20717,7 +20728,7 @@
    "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
    "contract_specified": true,
    "executed_in_tests": true,
-   "test_count": 110,
+   "test_count": 111,
    "direct_tests": [],
    "indirect_tests": [
     "tests/test_agent_completion.py::test_audit_without_memory_writes_the_record",
@@ -20751,7 +20762,7 @@
     "tests/test_evals.py::test_full_episode_report_keeps_truth_out_of_policy_and_scores_only_labels",
     "tests/test_evals.py::test_master_run_can_show_existing_live_progress_hooks"
    ],
-   "indirect_test_count": 110,
+   "indirect_test_count": 111,
    "statements_executed": 9,
    "statements_in_body": 9,
    "statement_coverage": 1.0,
@@ -20843,7 +20854,7 @@
    "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
    "contract_specified": true,
    "executed_in_tests": true,
-   "test_count": 140,
+   "test_count": 141,
    "direct_tests": [
     "tests/test_episode.py::test_a_bearing_fault_is_found_fixed_checked_and_scored_in_full",
     "tests/test_evaluation.py::test_a_perfect_bearing_investigation_scores_full_marks",
@@ -20881,7 +20892,7 @@
     "tests/test_evals.py::test_full_episode_report_keeps_truth_out_of_policy_and_scores_only_labels",
     "tests/test_evals.py::test_master_run_can_show_existing_live_progress_hooks"
    ],
-   "indirect_test_count": 137,
+   "indirect_test_count": 138,
    "statements_executed": 6,
    "statements_in_body": 6,
    "statement_coverage": 1.0,
@@ -21145,7 +21156,9 @@
    "contract_specified": true,
    "executed_in_tests": true,
    "test_count": 11,
-   "direct_tests": [],
+   "direct_tests": [
+    "tests/test_servo_drive.py::test_forcing_the_servo_fault_keeps_the_seeds_machine_and_start"
+   ],
    "indirect_tests": [
     "tests/test_evaluation.py::test_the_agent_can_name_every_fault_the_generator_can_build",
     "tests/test_fault_packs.py::test_every_pack_builds_its_own_fault",
@@ -21156,15 +21169,14 @@
     "tests/test_known_answers.py::test_the_suite_is_repeatable",
     "tests/test_scoring_integrity.py::test_a_right_answer_stays_right_as_time_moves_on",
     "tests/test_scoring_integrity.py::test_scoring_does_not_change_the_simulator",
-    "tests/test_scoring_integrity.py::test_the_same_finished_episode_gets_the_same_score",
-    "tests/test_servo_drive.py::test_forcing_the_servo_fault_keeps_the_seeds_machine_and_start"
+    "tests/test_scoring_integrity.py::test_the_same_finished_episode_gets_the_same_score"
    ],
-   "indirect_test_count": 11,
+   "indirect_test_count": 10,
    "statements_executed": 2,
    "statements_in_body": 2,
    "statement_coverage": 1.0,
-   "coverage_class": "indirect",
-   "verification_status": "INSUFFICIENT EVIDENCE",
+   "coverage_class": "direct",
+   "verification_status": "PARTIALLY VERIFIED",
    "status_source": "derived",
    "curated": {},
    "snap_questions": [
@@ -30597,7 +30609,7 @@
    "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
    "contract_specified": true,
    "executed_in_tests": true,
-   "test_count": 241,
+   "test_count": 242,
    "direct_tests": [],
    "indirect_tests": [
     "tests/test_agent_action.py::test_a_human_hook_that_decides_nothing_does_not_count_as_approval",
@@ -30631,7 +30643,7 @@
     "tests/test_agent_completion.py::test_no_action_is_recorded_when_none_was_wanted",
     "tests/test_agent_completion.py::test_no_hidden_truth_is_written_to_the_log"
    ],
-   "indirect_test_count": 241,
+   "indirect_test_count": 242,
    "statements_executed": 18,
    "statements_in_body": 18,
    "statement_coverage": 1.0,
@@ -30728,7 +30740,7 @@
    "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
    "contract_specified": false,
    "executed_in_tests": true,
-   "test_count": 208,
+   "test_count": 209,
    "direct_tests": [],
    "indirect_tests": [
     "tests/test_agent_action.py::test_a_human_hook_that_decides_nothing_does_not_count_as_approval",
@@ -30762,7 +30774,7 @@
     "tests/test_agent_completion.py::test_no_action_is_recorded_when_none_was_wanted",
     "tests/test_agent_completion.py::test_no_hidden_truth_is_written_to_the_log"
    ],
-   "indirect_test_count": 208,
+   "indirect_test_count": 209,
    "statements_executed": 3,
    "statements_in_body": 3,
    "statement_coverage": 1.0,
@@ -31065,7 +31077,7 @@
    "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
    "contract_specified": true,
    "executed_in_tests": true,
-   "test_count": 250,
+   "test_count": 251,
    "direct_tests": [],
    "indirect_tests": [
     "tests/test_agent_action.py::test_a_human_hook_that_decides_nothing_does_not_count_as_approval",
@@ -31099,7 +31111,7 @@
     "tests/test_agent_completion.py::test_no_action_is_recorded_when_none_was_wanted",
     "tests/test_agent_completion.py::test_no_hidden_truth_is_written_to_the_log"
    ],
-   "indirect_test_count": 250,
+   "indirect_test_count": 251,
    "statements_executed": 3,
    "statements_in_body": 3,
    "statement_coverage": 1.0,
@@ -31152,7 +31164,7 @@
    "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
    "contract_specified": true,
    "executed_in_tests": true,
-   "test_count": 245,
+   "test_count": 246,
    "direct_tests": [
     "tests/test_agent_action.py::test_an_approval_with_no_calls_left_is_not_a_fix",
     "tests/test_agent_action.py::test_follow_up_calls_use_their_own_allowance_and_leave_the_stop_reason_alone",
@@ -31204,7 +31216,7 @@
     "tests/test_agent_completion.py::test_the_agent_has_no_tool_that_reads_the_log",
     "tests/test_agent_completion.py::test_the_audit_record_holds_what_the_shared_record_leaves_out"
    ],
-   "indirect_test_count": 228,
+   "indirect_test_count": 229,
    "statements_executed": 11,
    "statements_in_body": 11,
    "statement_coverage": 1.0,
@@ -33018,7 +33030,7 @@
    "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
    "contract_specified": true,
    "executed_in_tests": true,
-   "test_count": 180,
+   "test_count": 181,
    "direct_tests": [
     "tests/test_settings.py::test_blank_critic_fallback_is_unset",
     "tests/test_settings.py::test_blank_critic_model_is_unset",
@@ -33073,7 +33085,7 @@
     "tests/test_chat_client.py::test_nvidia_is_asked_to_keep_to_the_answer_types_schema",
     "tests/test_chat_client.py::test_only_providers_in_use_need_a_key"
    ],
-   "indirect_test_count": 160,
+   "indirect_test_count": 161,
    "statements_executed": 3,
    "statements_in_body": 3,
    "statement_coverage": 1.0,
@@ -33257,7 +33269,7 @@
    "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
    "contract_specified": true,
    "executed_in_tests": true,
-   "test_count": 117,
+   "test_count": 118,
    "direct_tests": [
     "tests/test_settings.py::test_get_settings_reads_current_environment_without_stale_cache"
    ],
@@ -33293,7 +33305,7 @@
     "tests/test_episode.py::test_without_a_judge_the_diagnosis_is_unjudged_but_the_action_is_scored",
     "tests/test_episode.py::test_without_an_audit_log_nothing_is_learned"
    ],
-   "indirect_test_count": 116,
+   "indirect_test_count": 117,
    "statements_executed": 1,
    "statements_in_body": 1,
    "statement_coverage": 1.0,
@@ -33442,7 +33454,7 @@
    "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
    "contract_specified": true,
    "executed_in_tests": true,
-   "test_count": 604,
+   "test_count": 605,
    "direct_tests": [
     "tests/test_clock.py::test_advance_many_ticks",
     "tests/test_clock.py::test_advance_one_tick_moves_now_by_tick_duration",
@@ -33487,7 +33499,7 @@
     "tests/test_agent_completion.py::test_no_action_is_recorded_when_none_was_wanted",
     "tests/test_agent_completion.py::test_no_hidden_truth_is_written_to_the_log"
    ],
-   "indirect_test_count": 594,
+   "indirect_test_count": 595,
    "statements_executed": 5,
    "statements_in_body": 5,
    "statement_coverage": 1.0,
@@ -33528,7 +33540,7 @@
    "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
    "contract_specified": false,
    "executed_in_tests": true,
-   "test_count": 351,
+   "test_count": 352,
    "direct_tests": [
     "tests/test_agent_action.py::test_the_decision_is_read_even_if_the_same_question_was_asked_this_tick",
     "tests/test_agent_completion.py::test_a_resolved_check_is_verified_at_the_tick_it_was_made",
@@ -33583,7 +33595,7 @@
     "tests/test_agent_completion.py::test_the_action_cites_what_the_factory_reported_about_it",
     "tests/test_agent_completion.py::test_the_agent_has_no_tool_that_reads_the_log"
    ],
-   "indirect_test_count": 331,
+   "indirect_test_count": 332,
    "statements_executed": 1,
    "statements_in_body": 1,
    "statement_coverage": 1.0,
@@ -33672,7 +33684,7 @@
    "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
    "contract_specified": false,
    "executed_in_tests": true,
-   "test_count": 286,
+   "test_count": 287,
    "direct_tests": [
     "tests/test_agent_verification.py::test_a_look_now_at_data_from_before_the_work_does_not_count",
     "tests/test_baseline.py::test_known_cases_score_as_pinned_and_repeat_exactly",
@@ -33719,7 +33731,7 @@
     "tests/test_agent_completion.py::test_no_action_is_recorded_when_none_was_wanted",
     "tests/test_agent_completion.py::test_no_hidden_truth_is_written_to_the_log"
    ],
-   "indirect_test_count": 274,
+   "indirect_test_count": 275,
    "statements_executed": 1,
    "statements_in_body": 1,
    "statement_coverage": 1.0,
@@ -33767,7 +33779,7 @@
    "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
    "contract_specified": true,
    "executed_in_tests": true,
-   "test_count": 289,
+   "test_count": 290,
    "direct_tests": [
     "tests/test_clock.py::test_advance_many_ticks",
     "tests/test_clock.py::test_advance_one_tick_moves_now_by_tick_duration",
@@ -33810,7 +33822,7 @@
     "tests/test_agent_completion.py::test_no_action_is_recorded_when_none_was_wanted",
     "tests/test_agent_completion.py::test_no_hidden_truth_is_written_to_the_log"
    ],
-   "indirect_test_count": 281,
+   "indirect_test_count": 282,
    "statements_executed": 3,
    "statements_in_body": 3,
    "statement_coverage": 1.0,
@@ -33856,7 +33868,7 @@
    "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
    "contract_specified": true,
    "executed_in_tests": true,
-   "test_count": 527,
+   "test_count": 528,
    "direct_tests": [
     "tests/test_clock.py::test_advance_many_ticks",
     "tests/test_clock.py::test_advance_one_tick_moves_now_by_tick_duration",
@@ -33899,7 +33911,7 @@
     "tests/test_agent_completion.py::test_no_action_is_recorded_when_none_was_wanted",
     "tests/test_agent_completion.py::test_no_hidden_truth_is_written_to_the_log"
    ],
-   "indirect_test_count": 519,
+   "indirect_test_count": 520,
    "statements_executed": 4,
    "statements_in_body": 4,
    "statement_coverage": 1.0,
@@ -34619,7 +34631,7 @@
    "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
    "contract_specified": false,
    "executed_in_tests": true,
-   "test_count": 596,
+   "test_count": 597,
    "direct_tests": [
     "tests/test_events.py::test_alarm_follows_the_evidence_not_the_hidden_truth",
     "tests/test_events.py::test_log_keeps_events_oldest_first",
@@ -34660,7 +34672,7 @@
     "tests/test_agent_completion.py::test_no_action_is_recorded_when_none_was_wanted",
     "tests/test_agent_completion.py::test_no_hidden_truth_is_written_to_the_log"
    ],
-   "indirect_test_count": 590,
+   "indirect_test_count": 591,
    "statements_executed": 1,
    "statements_in_body": 1,
    "statement_coverage": 1.0,
@@ -34703,7 +34715,7 @@
    "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
    "contract_specified": true,
    "executed_in_tests": true,
-   "test_count": 299,
+   "test_count": 300,
    "direct_tests": [
     "tests/test_events.py::test_alarm_follows_the_evidence_not_the_hidden_truth",
     "tests/test_events.py::test_log_keeps_events_oldest_first",
@@ -34748,7 +34760,7 @@
     "tests/test_agent_completion.py::test_no_action_is_recorded_when_none_was_wanted",
     "tests/test_agent_completion.py::test_no_hidden_truth_is_written_to_the_log"
    ],
-   "indirect_test_count": 289,
+   "indirect_test_count": 290,
    "statements_executed": 1,
    "statements_in_body": 1,
    "statement_coverage": 1.0,
@@ -34810,7 +34822,7 @@
    "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
    "contract_specified": false,
    "executed_in_tests": true,
-   "test_count": 478,
+   "test_count": 479,
    "direct_tests": [
     "tests/test_agent_action.py::test_work_that_cannot_start_is_recorded_as_approved_and_not_carried_out",
     "tests/test_agent_completion.py::test_a_fix_that_did_not_work_is_recorded_as_failed",
@@ -34875,7 +34887,7 @@
     "tests/test_agent_provenance.py::test_evidence_cited_by_the_conclusion_and_the_check_all_have_labels",
     "tests/test_agent_provenance.py::test_labels_match_the_evidence_one_to_one_through_a_whole_investigation"
    ],
-   "indirect_test_count": 434,
+   "indirect_test_count": 435,
    "statements_executed": 3,
    "statements_in_body": 3,
    "statement_coverage": 1.0,
@@ -34935,7 +34947,7 @@
    "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
    "contract_specified": true,
    "executed_in_tests": true,
-   "test_count": 450,
+   "test_count": 451,
    "direct_tests": [
     "tests/test_events.py::test_alarm_fires_only_above_the_threshold",
     "tests/test_events.py::test_alarm_follows_the_evidence_not_the_hidden_truth",
@@ -34976,7 +34988,7 @@
     "tests/test_agent_completion.py::test_no_action_is_recorded_when_none_was_wanted",
     "tests/test_agent_completion.py::test_no_hidden_truth_is_written_to_the_log"
    ],
-   "indirect_test_count": 444,
+   "indirect_test_count": 445,
    "statements_executed": 3,
    "statements_in_body": 3,
    "statement_coverage": 1.0,
@@ -35019,7 +35031,7 @@
    "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
    "contract_specified": true,
    "executed_in_tests": true,
-   "test_count": 400,
+   "test_count": 401,
    "direct_tests": [
     "tests/test_agent_completion.py::test_a_check_that_was_never_made_is_left_out",
     "tests/test_agent_completion.py::test_a_resolved_check_is_verified_at_the_tick_it_was_made",
@@ -35073,7 +35085,7 @@
     "tests/test_agent_completion.py::test_the_audit_record_holds_what_the_shared_record_leaves_out",
     "tests/test_agent_completion.py::test_the_audit_record_keeps_what_tree_of_thought_ruled_out"
    ],
-   "indirect_test_count": 381,
+   "indirect_test_count": 382,
    "statements_executed": 10,
    "statements_in_body": 10,
    "statement_coverage": 1.0,
@@ -35128,7 +35140,7 @@
    "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
    "contract_specified": true,
    "executed_in_tests": true,
-   "test_count": 169,
+   "test_count": 170,
    "direct_tests": [
     "tests/test_generator.py::test_a_fault_can_be_forced_and_the_rest_still_comes_from_the_seed",
     "tests/test_generator.py::test_an_unknown_bearing_profile_is_refused",
@@ -35174,7 +35186,7 @@
     "tests/test_episode.py::test_without_an_audit_log_nothing_is_learned",
     "tests/test_evals.py::test_comparison_requires_same_cases_and_preserves_unknown_accuracy"
    ],
-   "indirect_test_count": 158,
+   "indirect_test_count": 159,
    "statements_executed": 13,
    "statements_in_body": 13,
    "statement_coverage": 1.0,
@@ -35224,7 +35236,7 @@
    "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
    "contract_specified": false,
    "executed_in_tests": true,
-   "test_count": 388,
+   "test_count": 389,
    "direct_tests": [],
    "indirect_tests": [
     "tests/test_agent_action.py::test_a_human_hook_that_decides_nothing_does_not_count_as_approval",
@@ -35258,7 +35270,7 @@
     "tests/test_agent_completion.py::test_no_action_is_recorded_when_none_was_wanted",
     "tests/test_agent_completion.py::test_no_hidden_truth_is_written_to_the_log"
    ],
-   "indirect_test_count": 388,
+   "indirect_test_count": 389,
    "statements_executed": 1,
    "statements_in_body": 1,
    "statement_coverage": 1.0,
@@ -35329,8 +35341,21 @@
    "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
    "contract_specified": true,
    "executed_in_tests": true,
-   "test_count": 388,
-   "direct_tests": [],
+   "test_count": 389,
+   "direct_tests": [
+    "tests/test_build_line.py::test_a_fault_added_afterwards_sees_the_lines_work_and_stops_the_line",
+    "tests/test_build_line.py::test_a_given_size_overrides_the_seed_and_changes_nothing_else",
+    "tests/test_build_line.py::test_a_healthy_day_has_work_door_openings_and_no_trouble",
+    "tests/test_build_line.py::test_any_size_from_three_to_eight_builds_and_runs",
+    "tests/test_build_line.py::test_jobs_reach_the_end_of_the_longest_line",
+    "tests/test_build_line.py::test_same_seed_gives_the_same_day_and_a_different_seed_a_different_one",
+    "tests/test_build_line.py::test_sizes_outside_three_to_eight_are_refused",
+    "tests/test_build_line.py::test_the_afternoon_peak_follows_the_clock_whatever_time_the_run_starts",
+    "tests/test_build_line.py::test_the_agents_tools_work_on_the_standard_line",
+    "tests/test_build_line.py::test_the_second_machine_is_the_slowest_step_so_the_first_is_held_up",
+    "tests/test_build_line.py::test_the_seed_decides_the_size_when_none_is_given",
+    "tests/test_build_line.py::test_working_times_can_be_set_and_must_match_the_number_of_machines"
+   ],
    "indirect_tests": [
     "tests/test_agent_action.py::test_a_human_hook_that_decides_nothing_does_not_count_as_approval",
     "tests/test_agent_action.py::test_a_long_repair_is_waited_out_in_steps_the_factory_accepts",
@@ -35363,12 +35388,12 @@
     "tests/test_agent_completion.py::test_no_action_is_recorded_when_none_was_wanted",
     "tests/test_agent_completion.py::test_no_hidden_truth_is_written_to_the_log"
    ],
-   "indirect_test_count": 388,
+   "indirect_test_count": 377,
    "statements_executed": 27,
    "statements_in_body": 27,
    "statement_coverage": 1.0,
-   "coverage_class": "indirect",
-   "verification_status": "INSUFFICIENT EVIDENCE",
+   "coverage_class": "direct",
+   "verification_status": "PARTIALLY VERIFIED",
    "status_source": "derived",
    "curated": {},
    "snap_questions": [
@@ -35414,7 +35439,7 @@
    "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
    "contract_specified": true,
    "executed_in_tests": true,
-   "test_count": 387,
+   "test_count": 388,
    "direct_tests": [],
    "indirect_tests": [
     "tests/test_agent_action.py::test_a_human_hook_that_decides_nothing_does_not_count_as_approval",
@@ -35448,7 +35473,7 @@
     "tests/test_agent_completion.py::test_no_action_is_recorded_when_none_was_wanted",
     "tests/test_agent_completion.py::test_no_hidden_truth_is_written_to_the_log"
    ],
-   "indirect_test_count": 387,
+   "indirect_test_count": 388,
    "statements_executed": 9,
    "statements_in_body": 9,
    "statement_coverage": 1.0,
@@ -35508,7 +35533,7 @@
    "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
    "contract_specified": true,
    "executed_in_tests": true,
-   "test_count": 664,
+   "test_count": 665,
    "direct_tests": [
     "tests/test_rng.py::test_derivation_is_pinned_so_recorded_histories_survive_refactors",
     "tests/test_rng.py::test_different_names_under_same_seed_give_different_sequences",
@@ -35552,7 +35577,7 @@
     "tests/test_agent_completion.py::test_no_action_is_recorded_when_none_was_wanted",
     "tests/test_agent_completion.py::test_no_hidden_truth_is_written_to_the_log"
    ],
-   "indirect_test_count": 655,
+   "indirect_test_count": 656,
    "statements_executed": 2,
    "statements_in_body": 2,
    "statement_coverage": 1.0,
@@ -35650,7 +35675,7 @@
    "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
    "contract_specified": true,
    "executed_in_tests": true,
-   "test_count": 653,
+   "test_count": 654,
    "direct_tests": [
     "tests/test_generator.py::test_choosing_the_fault_shifts_no_other_stream",
     "tests/test_generator.py::test_the_bearing_profile_moves_no_stream",
@@ -35700,7 +35725,7 @@
     "tests/test_agent_completion.py::test_no_action_is_recorded_when_none_was_wanted",
     "tests/test_agent_completion.py::test_no_hidden_truth_is_written_to_the_log"
    ],
-   "indirect_test_count": 638,
+   "indirect_test_count": 639,
    "statements_executed": 5,
    "statements_in_body": 5,
    "statement_coverage": 1.0,
@@ -35746,7 +35771,7 @@
    "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
    "contract_specified": true,
    "executed_in_tests": true,
-   "test_count": 653,
+   "test_count": 654,
    "direct_tests": [
     "tests/test_rng.py::test_derivation_is_pinned_so_recorded_histories_survive_refactors",
     "tests/test_rng.py::test_different_names_under_same_seed_give_different_sequences",
@@ -35789,7 +35814,7 @@
     "tests/test_agent_completion.py::test_no_action_is_recorded_when_none_was_wanted",
     "tests/test_agent_completion.py::test_no_hidden_truth_is_written_to_the_log"
    ],
-   "indirect_test_count": 645,
+   "indirect_test_count": 646,
    "statements_executed": 2,
    "statements_in_body": 2,
    "statement_coverage": 1.0,
@@ -35851,7 +35876,7 @@
    "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
    "contract_specified": true,
    "executed_in_tests": true,
-   "test_count": 571,
+   "test_count": 572,
    "direct_tests": [
     "tests/test_scenarios.py::test_duplicate_scenario_name_is_rejected",
     "tests/test_scenarios.py::test_same_seed_gives_identical_scenario_history",
@@ -35892,7 +35917,7 @@
     "tests/test_agent_completion.py::test_no_action_is_recorded_when_none_was_wanted",
     "tests/test_agent_completion.py::test_no_hidden_truth_is_written_to_the_log"
    ],
-   "indirect_test_count": 565,
+   "indirect_test_count": 566,
    "statements_executed": 3,
    "statements_in_body": 3,
    "statement_coverage": 1.0,
@@ -36042,7 +36067,7 @@
    "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
    "contract_specified": true,
    "executed_in_tests": true,
-   "test_count": 343,
+   "test_count": 344,
    "direct_tests": [],
    "indirect_tests": [
     "tests/test_agent_action.py::test_a_human_hook_that_decides_nothing_does_not_count_as_approval",
@@ -36076,7 +36101,7 @@
     "tests/test_agent_completion.py::test_no_action_is_recorded_when_none_was_wanted",
     "tests/test_agent_completion.py::test_no_hidden_truth_is_written_to_the_log"
    ],
-   "indirect_test_count": 343,
+   "indirect_test_count": 344,
    "statements_executed": 17,
    "statements_in_body": 17,
    "statement_coverage": 1.0,
@@ -36120,7 +36145,7 @@
    "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
    "contract_specified": true,
    "executed_in_tests": true,
-   "test_count": 324,
+   "test_count": 325,
    "direct_tests": [],
    "indirect_tests": [
     "tests/test_agent_action.py::test_a_human_hook_that_decides_nothing_does_not_count_as_approval",
@@ -36154,7 +36179,7 @@
     "tests/test_agent_completion.py::test_no_action_is_recorded_when_none_was_wanted",
     "tests/test_agent_completion.py::test_no_hidden_truth_is_written_to_the_log"
    ],
-   "indirect_test_count": 324,
+   "indirect_test_count": 325,
    "statements_executed": 14,
    "statements_in_body": 14,
    "statement_coverage": 1.0,
@@ -36198,10 +36223,12 @@
    "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
    "contract_specified": false,
    "executed_in_tests": true,
-   "test_count": 152,
+   "test_count": 153,
    "direct_tests": [
+    "tests/test_ground_truth.py::test_bearing_degradation_declares_its_own_story",
     "tests/test_ground_truth.py::test_ground_truth_does_not_depend_on_how_the_run_went",
-    "tests/test_ground_truth.py::test_reading_ground_truth_changes_nothing"
+    "tests/test_ground_truth.py::test_reading_ground_truth_changes_nothing",
+    "tests/test_ground_truth.py::test_records_come_in_the_order_scenarios_were_added"
    ],
    "indirect_tests": [
     "tests/test_agent_action.py::test_no_hidden_truth_reaches_working_memory_on_the_action_path",
@@ -36235,7 +36262,7 @@
     "tests/test_episode.py::test_the_standard_world_is_the_one_fault_scenario",
     "tests/test_episode.py::test_without_a_judge_the_diagnosis_is_unjudged_but_the_action_is_scored"
    ],
-   "indirect_test_count": 150,
+   "indirect_test_count": 149,
    "statements_executed": 1,
    "statements_in_body": 1,
    "statement_coverage": 1.0,
@@ -37435,7 +37462,7 @@
    "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
    "contract_specified": true,
    "executed_in_tests": true,
-   "test_count": 442,
+   "test_count": 443,
    "direct_tests": [],
    "indirect_tests": [
     "tests/test_agent_action.py::test_a_human_hook_that_decides_nothing_does_not_count_as_approval",
@@ -37469,7 +37496,7 @@
     "tests/test_agent_completion.py::test_no_action_is_recorded_when_none_was_wanted",
     "tests/test_agent_completion.py::test_no_hidden_truth_is_written_to_the_log"
    ],
-   "indirect_test_count": 442,
+   "indirect_test_count": 443,
    "statements_executed": 2,
    "statements_in_body": 2,
    "statement_coverage": 1.0,
@@ -37510,7 +37537,7 @@
    "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
    "contract_specified": true,
    "executed_in_tests": true,
-   "test_count": 409,
+   "test_count": 410,
    "direct_tests": [],
    "indirect_tests": [
     "tests/test_agent_action.py::test_a_human_hook_that_decides_nothing_does_not_count_as_approval",
@@ -37544,7 +37571,7 @@
     "tests/test_agent_completion.py::test_no_action_is_recorded_when_none_was_wanted",
     "tests/test_agent_completion.py::test_no_hidden_truth_is_written_to_the_log"
    ],
-   "indirect_test_count": 409,
+   "indirect_test_count": 410,
    "statements_executed": 3,
    "statements_in_body": 3,
    "statement_coverage": 1.0,
@@ -37613,7 +37640,7 @@
    "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
    "contract_specified": true,
    "executed_in_tests": true,
-   "test_count": 495,
+   "test_count": 496,
    "direct_tests": [],
    "indirect_tests": [
     "tests/test_agent_action.py::test_a_human_hook_that_decides_nothing_does_not_count_as_approval",
@@ -37647,7 +37674,7 @@
     "tests/test_agent_completion.py::test_no_action_is_recorded_when_none_was_wanted",
     "tests/test_agent_completion.py::test_no_hidden_truth_is_written_to_the_log"
    ],
-   "indirect_test_count": 495,
+   "indirect_test_count": 496,
    "statements_executed": 12,
    "statements_in_body": 14,
    "statement_coverage": 0.857,
@@ -37701,7 +37728,7 @@
    "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
    "contract_specified": true,
    "executed_in_tests": true,
-   "test_count": 439,
+   "test_count": 440,
    "direct_tests": [],
    "indirect_tests": [
     "tests/test_agent_action.py::test_a_human_hook_that_decides_nothing_does_not_count_as_approval",
@@ -37735,7 +37762,7 @@
     "tests/test_agent_completion.py::test_no_action_is_recorded_when_none_was_wanted",
     "tests/test_agent_completion.py::test_no_hidden_truth_is_written_to_the_log"
    ],
-   "indirect_test_count": 439,
+   "indirect_test_count": 440,
    "statements_executed": 18,
    "statements_in_body": 18,
    "statement_coverage": 1.0,
@@ -37790,7 +37817,7 @@
    "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
    "contract_specified": true,
    "executed_in_tests": true,
-   "test_count": 439,
+   "test_count": 440,
    "direct_tests": [],
    "indirect_tests": [
     "tests/test_agent_action.py::test_a_human_hook_that_decides_nothing_does_not_count_as_approval",
@@ -37824,7 +37851,7 @@
     "tests/test_agent_completion.py::test_no_action_is_recorded_when_none_was_wanted",
     "tests/test_agent_completion.py::test_no_hidden_truth_is_written_to_the_log"
    ],
-   "indirect_test_count": 439,
+   "indirect_test_count": 440,
    "statements_executed": 23,
    "statements_in_body": 23,
    "statement_coverage": 1.0,
@@ -37870,7 +37897,7 @@
    "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
    "contract_specified": true,
    "executed_in_tests": true,
-   "test_count": 363,
+   "test_count": 364,
    "direct_tests": [],
    "indirect_tests": [
     "tests/test_agent_action.py::test_a_human_hook_that_decides_nothing_does_not_count_as_approval",
@@ -37904,7 +37931,7 @@
     "tests/test_agent_completion.py::test_no_action_is_recorded_when_none_was_wanted",
     "tests/test_agent_completion.py::test_no_hidden_truth_is_written_to_the_log"
    ],
-   "indirect_test_count": 363,
+   "indirect_test_count": 364,
    "statements_executed": 8,
    "statements_in_body": 8,
    "statement_coverage": 1.0,
@@ -37950,8 +37977,21 @@
    "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
    "contract_specified": true,
    "executed_in_tests": true,
-   "test_count": 438,
+   "test_count": 439,
    "direct_tests": [
+    "tests/test_bearing_replacement.py::test_a_fault_that_begins_after_the_repair_still_happens",
+    "tests/test_bearing_replacement.py::test_a_machine_already_under_repair_is_refused",
+    "tests/test_bearing_replacement.py::test_a_machine_that_already_broke_down_takes_three_times_as_long",
+    "tests/test_bearing_replacement.py::test_a_planned_replacement_takes_the_machine_down_for_exactly_45_ticks",
+    "tests/test_bearing_replacement.py::test_on_the_standard_line_the_machine_cools_during_the_repair",
+    "tests/test_bearing_replacement.py::test_replacing_a_healthy_bearing_costs_production_and_changes_nothing_else",
+    "tests/test_bearing_replacement.py::test_same_seed_and_same_repair_give_the_same_history",
+    "tests/test_bearing_replacement.py::test_the_fault_does_not_come_back_after_the_repair",
+    "tests/test_bearing_replacement.py::test_the_line_backs_up_during_the_repair_and_flows_again_after",
+    "tests/test_bearing_replacement.py::test_the_machine_keeps_its_job_through_the_repair_and_carries_on",
+    "tests/test_bearing_replacement.py::test_the_new_bearing_is_perfect_and_the_symptoms_go_away",
+    "tests/test_bearing_replacement.py::test_the_repair_does_not_rewrite_the_answer_key",
+    "tests/test_bearing_replacement.py::test_the_technician_reports_the_state_of_the_bearing_that_came_out",
     "tests/test_episode.py::test_a_human_who_refuses_leaves_the_fault_in_place"
    ],
    "indirect_tests": [
@@ -37986,7 +38026,7 @@
     "tests/test_agent_completion.py::test_no_action_is_recorded_when_none_was_wanted",
     "tests/test_agent_completion.py::test_no_hidden_truth_is_written_to_the_log"
    ],
-   "indirect_test_count": 437,
+   "indirect_test_count": 425,
    "statements_executed": 4,
    "statements_in_body": 4,
    "statement_coverage": 1.0,
@@ -38028,7 +38068,7 @@
    "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
    "contract_specified": false,
    "executed_in_tests": true,
-   "test_count": 179,
+   "test_count": 180,
    "direct_tests": [
     "tests/test_false_alarm.py::test_the_ground_truth_names_a_false_alarm_and_the_tool_view_does_not",
     "tests/test_material_batch.py::test_the_ground_truth_names_the_batch_and_no_machine",
@@ -38067,7 +38107,7 @@
     "tests/test_episode.py::test_the_agent_never_holds_the_answer_key",
     "tests/test_episode.py::test_the_challenge_world_is_the_compound_challenge"
    ],
-   "indirect_test_count": 175,
+   "indirect_test_count": 176,
    "statements_executed": 1,
    "statements_in_body": 1,
    "statement_coverage": 1.0,
@@ -38129,7 +38169,7 @@
    "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
    "contract_specified": true,
    "executed_in_tests": true,
-   "test_count": 412,
+   "test_count": 413,
    "direct_tests": [],
    "indirect_tests": [
     "tests/test_agent_action.py::test_a_human_hook_that_decides_nothing_does_not_count_as_approval",
@@ -38163,7 +38203,7 @@
     "tests/test_agent_completion.py::test_no_action_is_recorded_when_none_was_wanted",
     "tests/test_agent_completion.py::test_no_hidden_truth_is_written_to_the_log"
    ],
-   "indirect_test_count": 412,
+   "indirect_test_count": 413,
    "statements_executed": 5,
    "statements_in_body": 5,
    "statement_coverage": 1.0,
@@ -38209,7 +38249,7 @@
    "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
    "contract_specified": true,
    "executed_in_tests": true,
-   "test_count": 363,
+   "test_count": 364,
    "direct_tests": [],
    "indirect_tests": [
     "tests/test_agent_action.py::test_a_human_hook_that_decides_nothing_does_not_count_as_approval",
@@ -38243,7 +38283,7 @@
     "tests/test_agent_completion.py::test_no_action_is_recorded_when_none_was_wanted",
     "tests/test_agent_completion.py::test_no_hidden_truth_is_written_to_the_log"
    ],
-   "indirect_test_count": 363,
+   "indirect_test_count": 364,
    "statements_executed": 3,
    "statements_in_body": 3,
    "statement_coverage": 1.0,
@@ -38285,7 +38325,7 @@
    "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
    "contract_specified": false,
    "executed_in_tests": true,
-   "test_count": 174,
+   "test_count": 175,
    "direct_tests": [
     "tests/test_ambient.py::test_ambient_is_not_a_fault_and_declares_no_ground_truth",
     "tests/test_false_alarm.py::test_the_ground_truth_names_a_false_alarm_and_the_tool_view_does_not",
@@ -38323,7 +38363,7 @@
     "tests/test_episode.py::test_the_same_seed_gives_the_same_episode",
     "tests/test_episode.py::test_the_standard_world_is_the_one_fault_scenario"
    ],
-   "indirect_test_count": 171,
+   "indirect_test_count": 172,
    "statements_executed": 1,
    "statements_in_body": 1,
    "statement_coverage": 1.0,
@@ -38388,7 +38428,7 @@
    "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
    "contract_specified": true,
    "executed_in_tests": true,
-   "test_count": 406,
+   "test_count": 407,
    "direct_tests": [],
    "indirect_tests": [
     "tests/test_agent_action.py::test_a_human_hook_that_decides_nothing_does_not_count_as_approval",
@@ -38422,7 +38462,7 @@
     "tests/test_agent_completion.py::test_no_action_is_recorded_when_none_was_wanted",
     "tests/test_agent_completion.py::test_no_hidden_truth_is_written_to_the_log"
    ],
-   "indirect_test_count": 406,
+   "indirect_test_count": 407,
    "statements_executed": 10,
    "statements_in_body": 10,
    "statement_coverage": 1.0,
@@ -38470,7 +38510,7 @@
    "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
    "contract_specified": true,
    "executed_in_tests": true,
-   "test_count": 356,
+   "test_count": 357,
    "direct_tests": [],
    "indirect_tests": [
     "tests/test_agent_action.py::test_a_human_hook_that_decides_nothing_does_not_count_as_approval",
@@ -38504,7 +38544,7 @@
     "tests/test_agent_completion.py::test_no_action_is_recorded_when_none_was_wanted",
     "tests/test_agent_completion.py::test_no_hidden_truth_is_written_to_the_log"
    ],
-   "indirect_test_count": 356,
+   "indirect_test_count": 357,
    "statements_executed": 10,
    "statements_in_body": 10,
    "statement_coverage": 1.0,
@@ -38546,7 +38586,7 @@
    "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
    "contract_specified": false,
    "executed_in_tests": true,
-   "test_count": 173,
+   "test_count": 174,
    "direct_tests": [
     "tests/test_false_alarm.py::test_the_ground_truth_names_a_false_alarm_and_the_tool_view_does_not",
     "tests/test_loading_door.py::test_the_door_is_not_a_fault_and_declares_no_ground_truth"
@@ -38583,7 +38623,7 @@
     "tests/test_episode.py::test_the_same_seed_gives_the_same_episode",
     "tests/test_episode.py::test_the_standard_world_is_the_one_fault_scenario"
    ],
-   "indirect_test_count": 171,
+   "indirect_test_count": 172,
    "statements_executed": 1,
    "statements_in_body": 1,
    "statement_coverage": 1.0,
@@ -38645,7 +38685,7 @@
    "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
    "contract_specified": true,
    "executed_in_tests": true,
-   "test_count": 584,
+   "test_count": 585,
    "direct_tests": [
     "tests/test_sensors.py::test_more_wear_means_more_vibration",
     "tests/test_sensors.py::test_noise_makes_consecutive_readings_differ_for_identical_state",
@@ -38691,7 +38731,7 @@
     "tests/test_agent_completion.py::test_no_action_is_recorded_when_none_was_wanted",
     "tests/test_agent_completion.py::test_no_hidden_truth_is_written_to_the_log"
    ],
-   "indirect_test_count": 573,
+   "indirect_test_count": 574,
    "statements_executed": 3,
    "statements_in_body": 3,
    "statement_coverage": 1.0,
@@ -38746,7 +38786,7 @@
    "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
    "contract_specified": false,
    "executed_in_tests": true,
-   "test_count": 518,
+   "test_count": 519,
    "direct_tests": [
     "tests/test_agent_action.py::test_a_rejection_stops_after_the_read_back_and_keeps_the_reason",
     "tests/test_agent_action.py::test_an_approved_action_is_asked_for_read_back_started_and_waited_out",
@@ -38811,7 +38851,7 @@
     "tests/test_agent_completion.py::test_the_audit_record_holds_what_the_shared_record_leaves_out",
     "tests/test_agent_completion.py::test_the_audit_record_keeps_what_tree_of_thought_ruled_out"
    ],
-   "indirect_test_count": 472,
+   "indirect_test_count": 473,
    "statements_executed": 3,
    "statements_in_body": 3,
    "statement_coverage": 1.0,
@@ -38856,7 +38896,7 @@
    "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
    "contract_specified": true,
    "executed_in_tests": true,
-   "test_count": 478,
+   "test_count": 479,
    "direct_tests": [
     "tests/test_benchmark.py::test_a_model_that_never_answers_ends_each_episode_as_unavailable"
    ],
@@ -38892,7 +38932,7 @@
     "tests/test_agent_completion.py::test_no_action_is_recorded_when_none_was_wanted",
     "tests/test_agent_completion.py::test_no_hidden_truth_is_written_to_the_log"
    ],
-   "indirect_test_count": 477,
+   "indirect_test_count": 478,
    "statements_executed": 1,
    "statements_in_body": 1,
    "statement_coverage": 1.0,
@@ -38996,7 +39036,7 @@
    "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
    "contract_specified": true,
    "executed_in_tests": true,
-   "test_count": 536,
+   "test_count": 537,
    "direct_tests": [
     "tests/test_sensors.py::test_more_wear_means_more_vibration",
     "tests/test_sensors.py::test_noise_makes_consecutive_readings_differ_for_identical_state",
@@ -39042,7 +39082,7 @@
     "tests/test_agent_completion.py::test_no_action_is_recorded_when_none_was_wanted",
     "tests/test_agent_completion.py::test_no_hidden_truth_is_written_to_the_log"
    ],
-   "indirect_test_count": 525,
+   "indirect_test_count": 526,
    "statements_executed": 7,
    "statements_in_body": 7,
    "statement_coverage": 1.0,
@@ -39086,7 +39126,7 @@
    "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
    "contract_specified": true,
    "executed_in_tests": true,
-   "test_count": 472,
+   "test_count": 473,
    "direct_tests": [
     "tests/test_hydraulics.py::test_pressure_is_measured_only_where_there_is_hydraulics",
     "tests/test_sensors.py::test_more_wear_means_more_vibration",
@@ -39131,7 +39171,7 @@
     "tests/test_agent_completion.py::test_no_action_is_recorded_when_none_was_wanted",
     "tests/test_agent_completion.py::test_no_hidden_truth_is_written_to_the_log"
    ],
-   "indirect_test_count": 462,
+   "indirect_test_count": 463,
    "statements_executed": 7,
    "statements_in_body": 7,
    "statement_coverage": 1.0,
@@ -39193,7 +39233,7 @@
    "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
    "contract_specified": true,
    "executed_in_tests": true,
-   "test_count": 452,
+   "test_count": 453,
    "direct_tests": [],
    "indirect_tests": [
     "tests/test_agent_action.py::test_a_human_hook_that_decides_nothing_does_not_count_as_approval",
@@ -39227,7 +39267,7 @@
     "tests/test_agent_completion.py::test_no_action_is_recorded_when_none_was_wanted",
     "tests/test_agent_completion.py::test_no_hidden_truth_is_written_to_the_log"
    ],
-   "indirect_test_count": 452,
+   "indirect_test_count": 453,
    "statements_executed": 2,
    "statements_in_body": 2,
    "statement_coverage": 1.0,
@@ -39270,7 +39310,7 @@
    "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
    "contract_specified": false,
    "executed_in_tests": true,
-   "test_count": 399,
+   "test_count": 400,
    "direct_tests": [
     "tests/test_hydraulics.py::test_pressure_is_measured_only_where_there_is_hydraulics"
    ],
@@ -39306,7 +39346,7 @@
     "tests/test_agent_completion.py::test_no_action_is_recorded_when_none_was_wanted",
     "tests/test_agent_completion.py::test_no_hidden_truth_is_written_to_the_log"
    ],
-   "indirect_test_count": 398,
+   "indirect_test_count": 399,
    "statements_executed": 1,
    "statements_in_body": 1,
    "statement_coverage": 1.0,
@@ -39368,7 +39408,7 @@
    "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
    "contract_specified": true,
    "executed_in_tests": true,
-   "test_count": 428,
+   "test_count": 429,
    "direct_tests": [],
    "indirect_tests": [
     "tests/test_agent_action.py::test_a_human_hook_that_decides_nothing_does_not_count_as_approval",
@@ -39402,7 +39442,7 @@
     "tests/test_agent_completion.py::test_no_action_is_recorded_when_none_was_wanted",
     "tests/test_agent_completion.py::test_no_hidden_truth_is_written_to_the_log"
    ],
-   "indirect_test_count": 428,
+   "indirect_test_count": 429,
    "statements_executed": 3,
    "statements_in_body": 3,
    "statement_coverage": 1.0,
@@ -39446,7 +39486,7 @@
    "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
    "contract_specified": true,
    "executed_in_tests": true,
-   "test_count": 378,
+   "test_count": 379,
    "direct_tests": [
     "tests/test_hydraulics.py::test_pressure_is_measured_only_where_there_is_hydraulics"
    ],
@@ -39482,7 +39522,7 @@
     "tests/test_agent_completion.py::test_no_action_is_recorded_when_none_was_wanted",
     "tests/test_agent_completion.py::test_no_hidden_truth_is_written_to_the_log"
    ],
-   "indirect_test_count": 377,
+   "indirect_test_count": 378,
    "statements_executed": 5,
    "statements_in_body": 5,
    "statement_coverage": 1.0,
@@ -39544,7 +39584,7 @@
    "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
    "contract_specified": true,
    "executed_in_tests": true,
-   "test_count": 397,
+   "test_count": 398,
    "direct_tests": [],
    "indirect_tests": [
     "tests/test_agent_action.py::test_a_human_hook_that_decides_nothing_does_not_count_as_approval",
@@ -39578,7 +39618,7 @@
     "tests/test_agent_completion.py::test_no_action_is_recorded_when_none_was_wanted",
     "tests/test_agent_completion.py::test_no_hidden_truth_is_written_to_the_log"
    ],
-   "indirect_test_count": 397,
+   "indirect_test_count": 398,
    "statements_executed": 6,
    "statements_in_body": 6,
    "statement_coverage": 1.0,
@@ -39622,7 +39662,7 @@
    "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
    "contract_specified": true,
    "executed_in_tests": true,
-   "test_count": 349,
+   "test_count": 350,
    "direct_tests": [
     "tests/test_hydraulics.py::test_pressure_is_measured_only_where_there_is_hydraulics"
    ],
@@ -39658,7 +39698,7 @@
     "tests/test_agent_completion.py::test_no_action_is_recorded_when_none_was_wanted",
     "tests/test_agent_completion.py::test_no_hidden_truth_is_written_to_the_log"
    ],
-   "indirect_test_count": 348,
+   "indirect_test_count": 349,
    "statements_executed": 9,
    "statements_in_body": 9,
    "statement_coverage": 1.0,
@@ -39720,7 +39760,7 @@
    "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
    "contract_specified": true,
    "executed_in_tests": true,
-   "test_count": 391,
+   "test_count": 392,
    "direct_tests": [],
    "indirect_tests": [
     "tests/test_agent_action.py::test_a_human_hook_that_decides_nothing_does_not_count_as_approval",
@@ -39754,7 +39794,7 @@
     "tests/test_agent_completion.py::test_no_action_is_recorded_when_none_was_wanted",
     "tests/test_agent_completion.py::test_no_hidden_truth_is_written_to_the_log"
    ],
-   "indirect_test_count": 391,
+   "indirect_test_count": 392,
    "statements_executed": 7,
    "statements_in_body": 7,
    "statement_coverage": 1.0,
@@ -39798,7 +39838,7 @@
    "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
    "contract_specified": true,
    "executed_in_tests": true,
-   "test_count": 343,
+   "test_count": 344,
    "direct_tests": [
     "tests/test_hydraulics.py::test_pressure_is_measured_only_where_there_is_hydraulics"
    ],
@@ -39834,7 +39874,7 @@
     "tests/test_agent_completion.py::test_no_action_is_recorded_when_none_was_wanted",
     "tests/test_agent_completion.py::test_no_hidden_truth_is_written_to_the_log"
    ],
-   "indirect_test_count": 342,
+   "indirect_test_count": 343,
    "statements_executed": 7,
    "statements_in_body": 7,
    "statement_coverage": 1.0,
@@ -39896,7 +39936,7 @@
    "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
    "contract_specified": true,
    "executed_in_tests": true,
-   "test_count": 389,
+   "test_count": 390,
    "direct_tests": [],
    "indirect_tests": [
     "tests/test_agent_action.py::test_a_human_hook_that_decides_nothing_does_not_count_as_approval",
@@ -39930,7 +39970,7 @@
     "tests/test_agent_completion.py::test_no_action_is_recorded_when_none_was_wanted",
     "tests/test_agent_completion.py::test_no_hidden_truth_is_written_to_the_log"
    ],
-   "indirect_test_count": 389,
+   "indirect_test_count": 390,
    "statements_executed": 5,
    "statements_in_body": 5,
    "statement_coverage": 1.0,
@@ -39974,7 +40014,7 @@
    "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
    "contract_specified": true,
    "executed_in_tests": true,
-   "test_count": 340,
+   "test_count": 341,
    "direct_tests": [
     "tests/test_hydraulics.py::test_pressure_is_measured_only_where_there_is_hydraulics"
    ],
@@ -40010,7 +40050,7 @@
     "tests/test_agent_completion.py::test_no_action_is_recorded_when_none_was_wanted",
     "tests/test_agent_completion.py::test_no_hidden_truth_is_written_to_the_log"
    ],
-   "indirect_test_count": 339,
+   "indirect_test_count": 340,
    "statements_executed": 7,
    "statements_in_body": 7,
    "statement_coverage": 1.0,
@@ -40054,7 +40094,7 @@
    "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
    "contract_specified": true,
    "executed_in_tests": true,
-   "test_count": 340,
+   "test_count": 341,
    "direct_tests": [
     "tests/test_benchmark.py::test_a_model_that_never_answers_ends_each_episode_as_unavailable"
    ],
@@ -40090,7 +40130,7 @@
     "tests/test_agent_completion.py::test_no_action_is_recorded_when_none_was_wanted",
     "tests/test_agent_completion.py::test_no_hidden_truth_is_written_to_the_log"
    ],
-   "indirect_test_count": 339,
+   "indirect_test_count": 340,
    "statements_executed": 1,
    "statements_in_body": 1,
    "statement_coverage": 1.0,
@@ -40152,7 +40192,7 @@
    "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
    "contract_specified": true,
    "executed_in_tests": true,
-   "test_count": 397,
+   "test_count": 398,
    "direct_tests": [],
    "indirect_tests": [
     "tests/test_agent_action.py::test_a_human_hook_that_decides_nothing_does_not_count_as_approval",
@@ -40186,7 +40226,7 @@
     "tests/test_agent_completion.py::test_no_action_is_recorded_when_none_was_wanted",
     "tests/test_agent_completion.py::test_no_hidden_truth_is_written_to_the_log"
    ],
-   "indirect_test_count": 397,
+   "indirect_test_count": 398,
    "statements_executed": 3,
    "statements_in_body": 3,
    "statement_coverage": 1.0,
@@ -40236,7 +40276,7 @@
    "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
    "contract_specified": false,
    "executed_in_tests": true,
-   "test_count": 348,
+   "test_count": 349,
    "direct_tests": [
     "tests/test_agent_action.py::test_a_rejection_stops_after_the_read_back_and_keeps_the_reason",
     "tests/test_agent_action.py::test_an_approved_action_is_asked_for_read_back_started_and_waited_out",
@@ -40289,7 +40329,7 @@
     "tests/test_agent_completion.py::test_the_audit_record_holds_what_the_shared_record_leaves_out",
     "tests/test_agent_completion.py::test_the_audit_record_keeps_what_tree_of_thought_ruled_out"
    ],
-   "indirect_test_count": 330,
+   "indirect_test_count": 331,
    "statements_executed": 2,
    "statements_in_body": 2,
    "statement_coverage": 1.0,
@@ -40358,7 +40398,7 @@
    "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
    "contract_specified": true,
    "executed_in_tests": true,
-   "test_count": 595,
+   "test_count": 596,
    "direct_tests": [
     "tests/test_simulator.py::test_duplicate_sensor_is_rejected",
     "tests/test_simulator.py::test_log_accumulates_every_reading_oldest_first",
@@ -40400,7 +40440,7 @@
     "tests/test_agent_completion.py::test_no_action_is_recorded_when_none_was_wanted",
     "tests/test_agent_completion.py::test_no_hidden_truth_is_written_to_the_log"
    ],
-   "indirect_test_count": 588,
+   "indirect_test_count": 589,
    "statements_executed": 22,
    "statements_in_body": 22,
    "statement_coverage": 1.0,
@@ -40444,7 +40484,7 @@
    "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
    "contract_specified": false,
    "executed_in_tests": true,
-   "test_count": 585,
+   "test_count": 586,
    "direct_tests": [
     "tests/test_simulator.py::test_duplicate_sensor_is_rejected",
     "tests/test_simulator.py::test_log_accumulates_every_reading_oldest_first",
@@ -40485,7 +40525,7 @@
     "tests/test_agent_completion.py::test_no_action_is_recorded_when_none_was_wanted",
     "tests/test_agent_completion.py::test_no_hidden_truth_is_written_to_the_log"
    ],
-   "indirect_test_count": 579,
+   "indirect_test_count": 580,
    "statements_executed": 3,
    "statements_in_body": 3,
    "statement_coverage": 1.0,
@@ -40532,7 +40572,7 @@
    "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
    "contract_specified": false,
    "executed_in_tests": true,
-   "test_count": 542,
+   "test_count": 543,
    "direct_tests": [
     "tests/test_simulator.py::test_duplicate_sensor_is_rejected",
     "tests/test_simulator.py::test_log_accumulates_every_reading_oldest_first",
@@ -40574,7 +40614,7 @@
     "tests/test_agent_completion.py::test_no_action_is_recorded_when_none_was_wanted",
     "tests/test_agent_completion.py::test_no_hidden_truth_is_written_to_the_log"
    ],
-   "indirect_test_count": 535,
+   "indirect_test_count": 536,
    "statements_executed": 5,
    "statements_in_body": 5,
    "statement_coverage": 1.0,
@@ -40621,7 +40661,7 @@
    "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
    "contract_specified": false,
    "executed_in_tests": true,
-   "test_count": 394,
+   "test_count": 395,
    "direct_tests": [],
    "indirect_tests": [
     "tests/test_agent_action.py::test_a_human_hook_that_decides_nothing_does_not_count_as_approval",
@@ -40655,7 +40695,7 @@
     "tests/test_agent_completion.py::test_no_action_is_recorded_when_none_was_wanted",
     "tests/test_agent_completion.py::test_no_hidden_truth_is_written_to_the_log"
    ],
-   "indirect_test_count": 394,
+   "indirect_test_count": 395,
    "statements_executed": 3,
    "statements_in_body": 3,
    "statement_coverage": 1.0,
@@ -40698,7 +40738,7 @@
    "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
    "contract_specified": false,
    "executed_in_tests": true,
-   "test_count": 447,
+   "test_count": 448,
    "direct_tests": [],
    "indirect_tests": [
     "tests/test_agent_action.py::test_a_human_hook_that_decides_nothing_does_not_count_as_approval",
@@ -40732,7 +40772,7 @@
     "tests/test_agent_completion.py::test_no_action_is_recorded_when_none_was_wanted",
     "tests/test_agent_completion.py::test_no_hidden_truth_is_written_to_the_log"
    ],
-   "indirect_test_count": 447,
+   "indirect_test_count": 448,
    "statements_executed": 1,
    "statements_in_body": 1,
    "statement_coverage": 1.0,
@@ -40781,7 +40821,7 @@
    "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
    "contract_specified": false,
    "executed_in_tests": true,
-   "test_count": 558,
+   "test_count": 559,
    "direct_tests": [],
    "indirect_tests": [
     "tests/test_agent_action.py::test_a_human_hook_that_decides_nothing_does_not_count_as_approval",
@@ -40815,7 +40855,7 @@
     "tests/test_agent_completion.py::test_no_action_is_recorded_when_none_was_wanted",
     "tests/test_agent_completion.py::test_no_hidden_truth_is_written_to_the_log"
    ],
-   "indirect_test_count": 558,
+   "indirect_test_count": 559,
    "statements_executed": 3,
    "statements_in_body": 3,
    "statement_coverage": 1.0,
@@ -40859,13 +40899,15 @@
    "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
    "contract_specified": true,
    "executed_in_tests": true,
-   "test_count": 186,
+   "test_count": 187,
    "direct_tests": [
     "tests/test_ambient.py::test_ambient_is_not_a_fault_and_declares_no_ground_truth",
     "tests/test_false_alarm.py::test_the_ground_truth_names_a_false_alarm_and_the_tool_view_does_not",
+    "tests/test_ground_truth.py::test_bearing_degradation_declares_its_own_story",
     "tests/test_ground_truth.py::test_ground_truth_does_not_depend_on_how_the_run_went",
     "tests/test_ground_truth.py::test_no_scenarios_means_no_ground_truth",
     "tests/test_ground_truth.py::test_reading_ground_truth_changes_nothing",
+    "tests/test_ground_truth.py::test_records_come_in_the_order_scenarios_were_added",
     "tests/test_loading_door.py::test_the_door_is_not_a_fault_and_declares_no_ground_truth",
     "tests/test_material_batch.py::test_the_ground_truth_names_the_batch_and_no_machine",
     "tests/test_production_line.py::test_the_line_is_not_a_fault_and_declares_no_ground_truth",
@@ -40903,7 +40945,7 @@
     "tests/test_episode.py::test_the_agent_never_holds_the_answer_key",
     "tests/test_episode.py::test_the_challenge_world_is_the_compound_challenge"
    ],
-   "indirect_test_count": 177,
+   "indirect_test_count": 176,
    "statements_executed": 2,
    "statements_in_body": 2,
    "statement_coverage": 1.0,
@@ -41370,7 +41412,7 @@
    "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
    "contract_specified": true,
    "executed_in_tests": true,
-   "test_count": 279,
+   "test_count": 280,
    "direct_tests": [
     "tests/test_factory_provider.py::test_a_trend_is_far_smaller_than_the_readings_it_summarises",
     "tests/test_false_alarm.py::test_only_the_vibration_readings_in_the_window_differ_from_the_same_day_without_it",
@@ -41415,7 +41457,7 @@
     "tests/test_agent_completion.py::test_no_action_is_recorded_when_none_was_wanted",
     "tests/test_agent_completion.py::test_no_hidden_truth_is_written_to_the_log"
    ],
-   "indirect_test_count": 269,
+   "indirect_test_count": 270,
    "statements_executed": 1,
    "statements_in_body": 1,
    "statement_coverage": 1.0,
@@ -41485,7 +41527,7 @@
    "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
    "contract_specified": true,
    "executed_in_tests": true,
-   "test_count": 521,
+   "test_count": 522,
    "direct_tests": [
     "tests/test_agent_action.py::test_a_long_repair_is_waited_out_in_steps_the_factory_accepts",
     "tests/test_build_line.py::test_the_second_machine_is_the_slowest_step_so_the_first_is_held_up",
@@ -41541,7 +41583,7 @@
     "tests/test_agent_completion.py::test_no_hidden_truth_is_written_to_the_log",
     "tests/test_agent_completion.py::test_the_action_cites_what_the_factory_reported_about_it"
    ],
-   "indirect_test_count": 500,
+   "indirect_test_count": 501,
    "statements_executed": 22,
    "statements_in_body": 22,
    "statement_coverage": 1.0,
@@ -41593,7 +41635,7 @@
    "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
    "contract_specified": true,
    "executed_in_tests": true,
-   "test_count": 521,
+   "test_count": 522,
    "direct_tests": [
     "tests/test_simulator.py::test_log_accumulates_every_reading_oldest_first",
     "tests/test_simulator.py::test_same_seed_gives_identical_factory_history",
@@ -41633,7 +41675,7 @@
     "tests/test_agent_completion.py::test_no_action_is_recorded_when_none_was_wanted",
     "tests/test_agent_completion.py::test_no_hidden_truth_is_written_to_the_log"
    ],
-   "indirect_test_count": 516,
+   "indirect_test_count": 517,
    "statements_executed": 2,
    "statements_in_body": 2,
    "statement_coverage": 1.0,
@@ -41678,7 +41720,7 @@
    "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
    "contract_specified": true,
    "executed_in_tests": true,
-   "test_count": 519,
+   "test_count": 520,
    "direct_tests": [
     "tests/test_simulator.py::test_log_accumulates_every_reading_oldest_first",
     "tests/test_simulator.py::test_same_seed_gives_identical_factory_history",
@@ -41718,7 +41760,7 @@
     "tests/test_agent_completion.py::test_no_action_is_recorded_when_none_was_wanted",
     "tests/test_agent_completion.py::test_no_hidden_truth_is_written_to_the_log"
    ],
-   "indirect_test_count": 514,
+   "indirect_test_count": 515,
    "statements_executed": 16,
    "statements_in_body": 16,
    "statement_coverage": 1.0,
@@ -41762,7 +41804,7 @@
    "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
    "contract_specified": false,
    "executed_in_tests": true,
-   "test_count": 436,
+   "test_count": 437,
    "direct_tests": [],
    "indirect_tests": [
     "tests/test_agent_action.py::test_a_human_hook_that_decides_nothing_does_not_count_as_approval",
@@ -41796,7 +41838,7 @@
     "tests/test_agent_completion.py::test_no_action_is_recorded_when_none_was_wanted",
     "tests/test_agent_completion.py::test_no_hidden_truth_is_written_to_the_log"
    ],
-   "indirect_test_count": 436,
+   "indirect_test_count": 437,
    "statements_executed": 1,
    "statements_in_body": 1,
    "statement_coverage": 1.0,
@@ -41841,7 +41883,7 @@
    "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
    "contract_specified": true,
    "executed_in_tests": true,
-   "test_count": 519,
+   "test_count": 520,
    "direct_tests": [
     "tests/test_simulator.py::test_log_accumulates_every_reading_oldest_first",
     "tests/test_simulator.py::test_same_seed_gives_identical_factory_history",
@@ -41881,7 +41923,7 @@
     "tests/test_agent_completion.py::test_no_action_is_recorded_when_none_was_wanted",
     "tests/test_agent_completion.py::test_no_hidden_truth_is_written_to_the_log"
    ],
-   "indirect_test_count": 514,
+   "indirect_test_count": 515,
    "statements_executed": 4,
    "statements_in_body": 4,
    "statement_coverage": 1.0,
@@ -41925,7 +41967,7 @@
    "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
    "contract_specified": true,
    "executed_in_tests": true,
-   "test_count": 519,
+   "test_count": 520,
    "direct_tests": [
     "tests/test_simulator.py::test_log_accumulates_every_reading_oldest_first",
     "tests/test_simulator.py::test_same_seed_gives_identical_factory_history",
@@ -41965,7 +42007,7 @@
     "tests/test_agent_completion.py::test_no_action_is_recorded_when_none_was_wanted",
     "tests/test_agent_completion.py::test_no_hidden_truth_is_written_to_the_log"
    ],
-   "indirect_test_count": 514,
+   "indirect_test_count": 515,
    "statements_executed": 4,
    "statements_in_body": 4,
    "statement_coverage": 1.0,
@@ -42009,7 +42051,7 @@
    "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
    "contract_specified": true,
    "executed_in_tests": true,
-   "test_count": 519,
+   "test_count": 520,
    "direct_tests": [
     "tests/test_simulator.py::test_log_accumulates_every_reading_oldest_first",
     "tests/test_simulator.py::test_same_seed_gives_identical_factory_history",
@@ -42049,7 +42091,7 @@
     "tests/test_agent_completion.py::test_no_action_is_recorded_when_none_was_wanted",
     "tests/test_agent_completion.py::test_no_hidden_truth_is_written_to_the_log"
    ],
-   "indirect_test_count": 514,
+   "indirect_test_count": 515,
    "statements_executed": 4,
    "statements_in_body": 4,
    "statement_coverage": 1.0,
@@ -42093,7 +42135,7 @@
    "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
    "contract_specified": true,
    "executed_in_tests": true,
-   "test_count": 519,
+   "test_count": 520,
    "direct_tests": [
     "tests/test_simulator.py::test_log_accumulates_every_reading_oldest_first",
     "tests/test_simulator.py::test_same_seed_gives_identical_factory_history",
@@ -42133,7 +42175,7 @@
     "tests/test_agent_completion.py::test_no_action_is_recorded_when_none_was_wanted",
     "tests/test_agent_completion.py::test_no_hidden_truth_is_written_to_the_log"
    ],
-   "indirect_test_count": 514,
+   "indirect_test_count": 515,
    "statements_executed": 2,
    "statements_in_body": 2,
    "statement_coverage": 1.0,
@@ -42182,7 +42224,7 @@
    "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
    "contract_specified": true,
    "executed_in_tests": true,
-   "test_count": 519,
+   "test_count": 520,
    "direct_tests": [
     "tests/test_simulator.py::test_log_accumulates_every_reading_oldest_first",
     "tests/test_simulator.py::test_same_seed_gives_identical_factory_history",
@@ -42222,7 +42264,7 @@
     "tests/test_agent_completion.py::test_no_action_is_recorded_when_none_was_wanted",
     "tests/test_agent_completion.py::test_no_hidden_truth_is_written_to_the_log"
    ],
-   "indirect_test_count": 514,
+   "indirect_test_count": 515,
    "statements_executed": 22,
    "statements_in_body": 22,
    "statement_coverage": 1.0,
@@ -42507,7 +42549,7 @@
    "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
    "contract_specified": true,
    "executed_in_tests": true,
-   "test_count": 519,
+   "test_count": 520,
    "direct_tests": [
     "tests/test_simulator.py::test_log_accumulates_every_reading_oldest_first",
     "tests/test_simulator.py::test_same_seed_gives_identical_factory_history",
@@ -42547,7 +42589,7 @@
     "tests/test_agent_completion.py::test_no_action_is_recorded_when_none_was_wanted",
     "tests/test_agent_completion.py::test_no_hidden_truth_is_written_to_the_log"
    ],
-   "indirect_test_count": 514,
+   "indirect_test_count": 515,
    "statements_executed": 3,
    "statements_in_body": 4,
    "statement_coverage": 0.75,
@@ -42588,7 +42630,7 @@
    "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
    "contract_specified": true,
    "executed_in_tests": true,
-   "test_count": 627,
+   "test_count": 628,
    "direct_tests": [
     "tests/test_power_sensor.py::test_the_same_work_at_a_higher_speed_draws_more_power",
     "tests/test_setting_reset.py::test_an_approved_reset_stops_the_machine_for_ten_ticks_then_restores_the_standard_speed",
@@ -42630,7 +42672,7 @@
     "tests/test_agent_completion.py::test_no_action_is_recorded_when_none_was_wanted",
     "tests/test_agent_completion.py::test_no_hidden_truth_is_written_to_the_log"
    ],
-   "indirect_test_count": 620,
+   "indirect_test_count": 621,
    "statements_executed": 1,
    "statements_in_body": 1,
    "statement_coverage": 1.0,
@@ -42671,7 +42713,7 @@
    "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
    "contract_specified": true,
    "executed_in_tests": true,
-   "test_count": 627,
+   "test_count": 628,
    "direct_tests": [],
    "indirect_tests": [
     "tests/test_agent_action.py::test_a_human_hook_that_decides_nothing_does_not_count_as_approval",
@@ -42705,7 +42747,7 @@
     "tests/test_agent_completion.py::test_no_action_is_recorded_when_none_was_wanted",
     "tests/test_agent_completion.py::test_no_hidden_truth_is_written_to_the_log"
    ],
-   "indirect_test_count": 627,
+   "indirect_test_count": 628,
    "statements_executed": 1,
    "statements_in_body": 1,
    "statement_coverage": 1.0,
@@ -42746,7 +42788,7 @@
    "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
    "contract_specified": true,
    "executed_in_tests": true,
-   "test_count": 521,
+   "test_count": 522,
    "direct_tests": [],
    "indirect_tests": [
     "tests/test_agent_action.py::test_a_human_hook_that_decides_nothing_does_not_count_as_approval",
@@ -42780,7 +42822,7 @@
     "tests/test_agent_completion.py::test_no_action_is_recorded_when_none_was_wanted",
     "tests/test_agent_completion.py::test_no_hidden_truth_is_written_to_the_log"
    ],
-   "indirect_test_count": 521,
+   "indirect_test_count": 522,
    "statements_executed": 2,
    "statements_in_body": 2,
    "statement_coverage": 1.0,
@@ -42824,7 +42866,7 @@
    "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
    "contract_specified": true,
    "executed_in_tests": true,
-   "test_count": 375,
+   "test_count": 376,
    "direct_tests": [],
    "indirect_tests": [
     "tests/test_agent_action.py::test_a_human_hook_that_decides_nothing_does_not_count_as_approval",
@@ -42858,7 +42900,7 @@
     "tests/test_agent_completion.py::test_no_action_is_recorded_when_none_was_wanted",
     "tests/test_agent_completion.py::test_no_hidden_truth_is_written_to_the_log"
    ],
-   "indirect_test_count": 375,
+   "indirect_test_count": 376,
    "statements_executed": 3,
    "statements_in_body": 4,
    "statement_coverage": 0.75,
@@ -42899,7 +42941,7 @@
    "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
    "contract_specified": true,
    "executed_in_tests": true,
-   "test_count": 589,
+   "test_count": 590,
    "direct_tests": [],
    "indirect_tests": [
     "tests/test_agent_action.py::test_a_human_hook_that_decides_nothing_does_not_count_as_approval",
@@ -42933,7 +42975,7 @@
     "tests/test_agent_completion.py::test_no_action_is_recorded_when_none_was_wanted",
     "tests/test_agent_completion.py::test_no_hidden_truth_is_written_to_the_log"
    ],
-   "indirect_test_count": 589,
+   "indirect_test_count": 590,
    "statements_executed": 1,
    "statements_in_body": 1,
    "statement_coverage": 1.0,
@@ -42987,7 +43029,7 @@
    "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
    "contract_specified": false,
    "executed_in_tests": true,
-   "test_count": 595,
+   "test_count": 596,
    "direct_tests": [
     "tests/test_agent_completion.py::test_the_log_is_only_ever_added_to",
     "tests/test_build_line.py::test_a_fault_added_afterwards_sees_the_lines_work_and_stops_the_line",
@@ -43035,7 +43077,7 @@
     "tests/test_agent_completion.py::test_no_action_is_recorded_when_none_was_wanted",
     "tests/test_agent_completion.py::test_no_hidden_truth_is_written_to_the_log"
    ],
-   "indirect_test_count": 582,
+   "indirect_test_count": 583,
    "statements_executed": 3,
    "statements_in_body": 3,
    "statement_coverage": 1.0,
@@ -43077,7 +43119,7 @@
    "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
    "contract_specified": true,
    "executed_in_tests": true,
-   "test_count": 602,
+   "test_count": 603,
    "direct_tests": [],
    "indirect_tests": [
     "tests/test_agent_action.py::test_a_human_hook_that_decides_nothing_does_not_count_as_approval",
@@ -43111,7 +43153,7 @@
     "tests/test_agent_completion.py::test_no_action_is_recorded_when_none_was_wanted",
     "tests/test_agent_completion.py::test_no_hidden_truth_is_written_to_the_log"
    ],
-   "indirect_test_count": 602,
+   "indirect_test_count": 603,
    "statements_executed": 6,
    "statements_in_body": 6,
    "statement_coverage": 1.0,
@@ -43156,7 +43198,7 @@
    "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
    "contract_specified": true,
    "executed_in_tests": true,
-   "test_count": 599,
+   "test_count": 600,
    "direct_tests": [],
    "indirect_tests": [
     "tests/test_agent_action.py::test_a_human_hook_that_decides_nothing_does_not_count_as_approval",
@@ -43190,7 +43232,7 @@
     "tests/test_agent_completion.py::test_no_action_is_recorded_when_none_was_wanted",
     "tests/test_agent_completion.py::test_no_hidden_truth_is_written_to_the_log"
    ],
-   "indirect_test_count": 599,
+   "indirect_test_count": 600,
    "statements_executed": 2,
    "statements_in_body": 2,
    "statement_coverage": 1.0,
@@ -43235,7 +43277,7 @@
    "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
    "contract_specified": true,
    "executed_in_tests": true,
-   "test_count": 520,
+   "test_count": 521,
    "direct_tests": [],
    "indirect_tests": [
     "tests/test_agent_action.py::test_a_human_hook_that_decides_nothing_does_not_count_as_approval",
@@ -43269,7 +43311,7 @@
     "tests/test_agent_completion.py::test_no_action_is_recorded_when_none_was_wanted",
     "tests/test_agent_completion.py::test_no_hidden_truth_is_written_to_the_log"
    ],
-   "indirect_test_count": 520,
+   "indirect_test_count": 521,
    "statements_executed": 2,
    "statements_in_body": 2,
    "statement_coverage": 1.0,
@@ -43329,7 +43371,7 @@
    "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
    "contract_specified": true,
    "executed_in_tests": true,
-   "test_count": 326,
+   "test_count": 327,
    "direct_tests": [],
    "indirect_tests": [
     "tests/test_agent_action.py::test_a_human_hook_that_decides_nothing_does_not_count_as_approval",
@@ -43363,7 +43405,7 @@
     "tests/test_agent_completion.py::test_no_action_is_recorded_when_none_was_wanted",
     "tests/test_agent_completion.py::test_no_hidden_truth_is_written_to_the_log"
    ],
-   "indirect_test_count": 326,
+   "indirect_test_count": 327,
    "statements_executed": 2,
    "statements_in_body": 2,
    "statement_coverage": 1.0,
@@ -43487,7 +43529,7 @@
    "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
    "contract_specified": false,
    "executed_in_tests": true,
-   "test_count": 225,
+   "test_count": 226,
    "direct_tests": [
     "tests/test_approval.py::test_bad_proposals_are_refused_and_not_recorded",
     "tests/test_evaluation.py::test_rejected_proposals_do_not_count_as_actions"
@@ -43524,7 +43566,7 @@
     "tests/test_agent_completion.py::test_the_action_cites_what_the_factory_reported_about_it",
     "tests/test_agent_completion.py::test_the_audit_record_holds_what_the_shared_record_leaves_out"
    ],
-   "indirect_test_count": 223,
+   "indirect_test_count": 224,
    "statements_executed": 1,
    "statements_in_body": 1,
    "statement_coverage": 1.0,
@@ -44041,7 +44083,7 @@
    "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
    "contract_specified": true,
    "executed_in_tests": true,
-   "test_count": 326,
+   "test_count": 327,
    "direct_tests": [],
    "indirect_tests": [
     "tests/test_agent_action.py::test_a_human_hook_that_decides_nothing_does_not_count_as_approval",
@@ -44075,7 +44117,7 @@
     "tests/test_agent_completion.py::test_no_action_is_recorded_when_none_was_wanted",
     "tests/test_agent_completion.py::test_no_hidden_truth_is_written_to_the_log"
    ],
-   "indirect_test_count": 326,
+   "indirect_test_count": 327,
    "statements_executed": 3,
    "statements_in_body": 3,
    "statement_coverage": 1.0,
@@ -44126,7 +44168,7 @@
    "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
    "contract_specified": true,
    "executed_in_tests": true,
-   "test_count": 215,
+   "test_count": 216,
    "direct_tests": [
     "tests/test_agent_action.py::test_a_long_repair_is_waited_out_in_steps_the_factory_accepts",
     "tests/test_agent_action.py::test_an_approved_action_is_asked_for_read_back_started_and_waited_out",
@@ -44174,7 +44216,7 @@
     "tests/test_agent_verification.py::test_checking_uses_the_follow_up_allowance_and_leaves_the_stop_reason",
     "tests/test_agent_verification.py::test_looking_without_letting_time_pass_after_the_work_does_not_count"
    ],
-   "indirect_test_count": 202,
+   "indirect_test_count": 203,
    "statements_executed": 5,
    "statements_in_body": 6,
    "statement_coverage": 0.833,
@@ -44269,9 +44311,17 @@
    "statements_in_body": 9,
    "statement_coverage": 0.889,
    "coverage_class": "indirect",
-   "verification_status": "INSUFFICIENT EVIDENCE",
-   "status_source": "derived",
-   "curated": {},
+   "verification_status": "VERIFIED",
+   "status_source": "curated",
+   "curated": {
+    "judgment": "Unknown machine, unknown action, blank reason and hydraulics on a machine without them are refused and nothing is recorded; a good proposal is recorded pending with its tick and changes nothing in the factory.",
+    "evidence": [
+     "tests/test_approval.py::test_bad_proposals_are_refused_and_not_recorded",
+     "tests/test_approval.py::test_proposing_changes_nothing_in_the_factory",
+     "tests/test_approval.py::test_a_proposal_is_recorded_as_pending_with_its_reason_and_tick"
+    ],
+    "gaps": []
+   },
    "snap_questions": [
     "FN-01",
     "FN-02",
@@ -44344,9 +44394,18 @@
    "statements_in_body": 1,
    "statement_coverage": 1.0,
    "coverage_class": "indirect",
-   "verification_status": "INSUFFICIENT EVIDENCE",
-   "status_source": "derived",
-   "curated": {},
+   "verification_status": "PARTIALLY VERIFIED",
+   "status_source": "curated",
+   "curated": {
+    "judgment": "Read back after approval and rejection in the action-path tests; the copies it returns cannot be used to approve.",
+    "evidence": [
+     "tests/test_approval.py::test_the_agent_gets_copies_it_cannot_use_to_approve_itself",
+     "tests/test_agent_action.py::test_an_approved_action_is_asked_for_read_back_started_and_waited_out"
+    ],
+    "gaps": [
+     "No direct test of the list's order or of a proposal carried out showing its executed and finish ticks."
+    ]
+   },
    "snap_questions": [
     "FN-01",
     "FN-02",
@@ -44427,9 +44486,16 @@
    "statements_in_body": 3,
    "statement_coverage": 1.0,
    "coverage_class": "direct",
-   "verification_status": "PARTIALLY VERIFIED",
-   "status_source": "derived",
-   "curated": {},
+   "verification_status": "VERIFIED",
+   "status_source": "curated",
+   "curated": {
+    "judgment": "Malformed ids are refused; otherwise the desk's carry_out rules apply (approved only, once).",
+    "evidence": [
+     "tests/test_approval.py::test_unknown_or_malformed_proposal_ids_are_refused",
+     "tests/test_approval.py::test_executing_an_approved_proposal_starts_the_repair_and_says_when_it_ends"
+    ],
+    "gaps": []
+   },
    "snap_questions": [
     "FN-01",
     "FN-02",
@@ -44482,7 +44548,7 @@
    "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
    "contract_specified": false,
    "executed_in_tests": true,
-   "test_count": 359,
+   "test_count": 360,
    "direct_tests": [],
    "indirect_tests": [
     "tests/test_agent_action.py::test_a_human_hook_that_decides_nothing_does_not_count_as_approval",
@@ -44516,7 +44582,7 @@
     "tests/test_agent_completion.py::test_no_action_is_recorded_when_none_was_wanted",
     "tests/test_agent_completion.py::test_no_hidden_truth_is_written_to_the_log"
    ],
-   "indirect_test_count": 359,
+   "indirect_test_count": 360,
    "statements_executed": 1,
    "statements_in_body": 1,
    "statement_coverage": 1.0,
@@ -44561,7 +44627,7 @@
    "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
    "contract_specified": false,
    "executed_in_tests": true,
-   "test_count": 256,
+   "test_count": 257,
    "direct_tests": [
     "tests/test_observation_tools.py::test_get_time_reports_tick_and_clock_time"
    ],
@@ -44597,7 +44663,7 @@
     "tests/test_agent_completion.py::test_no_action_is_recorded_when_none_was_wanted",
     "tests/test_agent_completion.py::test_no_hidden_truth_is_written_to_the_log"
    ],
-   "indirect_test_count": 255,
+   "indirect_test_count": 256,
    "statements_executed": 2,
    "statements_in_body": 2,
    "statement_coverage": 1.0,
@@ -44794,7 +44860,7 @@
    "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
    "contract_specified": false,
    "executed_in_tests": true,
-   "test_count": 236,
+   "test_count": 237,
    "direct_tests": [
     "tests/test_observation_tools.py::test_get_readings_returns_one_machine_one_sensor_in_the_tick_range"
    ],
@@ -44830,7 +44896,7 @@
     "tests/test_agent_completion.py::test_no_action_is_recorded_when_none_was_wanted",
     "tests/test_agent_completion.py::test_no_hidden_truth_is_written_to_the_log"
    ],
-   "indirect_test_count": 235,
+   "indirect_test_count": 236,
    "statements_executed": 5,
    "statements_in_body": 6,
    "statement_coverage": 0.833,
@@ -44891,7 +44957,7 @@
    "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
    "contract_specified": true,
    "executed_in_tests": true,
-   "test_count": 95,
+   "test_count": 96,
    "direct_tests": [],
    "indirect_tests": [
     "tests/test_agent_completion.py::test_audit_without_memory_writes_the_record",
@@ -44925,7 +44991,7 @@
     "tests/test_evals.py::test_review_flag_excludes_provisional_label_from_accuracy",
     "tests/test_evals.py::test_run_cases_offers_the_manual_when_given"
    ],
-   "indirect_test_count": 95,
+   "indirect_test_count": 96,
    "statements_executed": 5,
    "statements_in_body": 6,
    "statement_coverage": 0.833,
@@ -45050,7 +45116,19 @@
    "contract_specified": true,
    "executed_in_tests": true,
    "test_count": 188,
-   "direct_tests": [],
+   "direct_tests": [
+    "tests/test_sensor_summary.py::test_empty_summary_has_no_invented_values_or_units",
+    "tests/test_sensor_summary.py::test_factory_summary_selects_only_factory_observations",
+    "tests/test_sensor_summary.py::test_invalid_window_is_rejected_directly_and_through_provider",
+    "tests/test_sensor_summary.py::test_mixed_units_are_rejected_instead_of_combined",
+    "tests/test_sensor_summary.py::test_nonfinite_values_are_rejected",
+    "tests/test_sensor_summary.py::test_provider_preserves_empty_and_populated_summary_results",
+    "tests/test_sensor_summary.py::test_provider_summary_is_read_only_and_independent_of_hidden_truth",
+    "tests/test_sensor_summary.py::test_same_seed_produces_same_summary_without_consuming_randomness",
+    "tests/test_sensor_summary.py::test_single_sample_has_zero_delta_but_no_rate",
+    "tests/test_sensor_summary.py::test_summary_orders_and_filters_readings_and_uses_elapsed_ticks",
+    "tests/test_sensor_summary.py::test_unknown_machine_is_rejected"
+   ],
    "indirect_tests": [
     "tests/test_agent_action.py::test_a_human_hook_that_decides_nothing_does_not_count_as_approval",
     "tests/test_agent_action.py::test_a_long_repair_is_waited_out_in_steps_the_factory_accepts",
@@ -45083,11 +45161,11 @@
     "tests/test_agent_completion.py::test_no_action_is_recorded_when_none_was_wanted",
     "tests/test_agent_completion.py::test_no_hidden_truth_is_written_to_the_log"
    ],
-   "indirect_test_count": 188,
+   "indirect_test_count": 177,
    "statements_executed": 18,
    "statements_in_body": 18,
    "statement_coverage": 1.0,
-   "coverage_class": "indirect",
+   "coverage_class": "direct",
    "verification_status": "VERIFIED",
    "status_source": "curated",
    "curated": {
@@ -45133,7 +45211,7 @@
    "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
    "contract_specified": false,
    "executed_in_tests": true,
-   "test_count": 229,
+   "test_count": 230,
    "direct_tests": [
     "tests/test_observation_tools.py::test_get_events_can_be_narrowed_to_one_machine"
    ],
@@ -45169,7 +45247,7 @@
     "tests/test_agent_completion.py::test_no_action_is_recorded_when_none_was_wanted",
     "tests/test_agent_completion.py::test_no_hidden_truth_is_written_to_the_log"
    ],
-   "indirect_test_count": 228,
+   "indirect_test_count": 229,
    "statements_executed": 2,
    "statements_in_body": 2,
    "statement_coverage": 1.0,
@@ -45213,24 +45291,34 @@
    "contract_specified": true,
    "executed_in_tests": true,
    "test_count": 7,
-   "direct_tests": [],
+   "direct_tests": [
+    "tests/test_maintenance_history.py::test_the_provider_offers_it_with_checked_arguments",
+    "tests/test_maintenance_history.py::test_the_tool_shows_past_records_then_this_runs_maintenance"
+   ],
    "indirect_tests": [
     "tests/test_factory_provider.py::test_all_read_tools_preserve_existing_observable_shapes",
     "tests/test_hazards.py::test_a_stale_record_joins_the_history_of_its_machine_in_date_order",
-    "tests/test_maintenance_history.py::test_the_provider_offers_it_with_checked_arguments",
-    "tests/test_maintenance_history.py::test_the_tool_shows_past_records_then_this_runs_maintenance",
     "tests/test_observation_tools.py::test_answers_are_plain_data",
     "tests/test_observation_tools.py::test_looking_does_not_advance_time_or_change_the_factory",
     "tests/test_observation_tools.py::test_nothing_hidden_leaks_through_any_tool_over_a_full_run"
    ],
-   "indirect_test_count": 7,
+   "indirect_test_count": 5,
    "statements_executed": 5,
    "statements_in_body": 5,
    "statement_coverage": 1.0,
-   "coverage_class": "indirect",
-   "verification_status": "INSUFFICIENT EVIDENCE",
-   "status_source": "derived",
-   "curated": {},
+   "coverage_class": "direct",
+   "verification_status": "PARTIALLY VERIFIED",
+   "status_source": "curated",
+   "curated": {
+    "judgment": "Past records then this run's, oldest first, with and without a machine filter; the stale-record hazard is tested on top of it.",
+    "evidence": [
+     "tests/test_maintenance_history.py",
+     "tests/test_hazards.py::test_a_stale_record_joins_the_history_of_its_machine_in_date_order"
+    ],
+    "gaps": [
+     "Only 7 tests execute it; an unknown machine on this tool is checked through `_check` but not asserted here."
+    ]
+   },
    "snap_questions": [
     "FN-01",
     "FN-02",
@@ -45265,15 +45353,16 @@
    "contract_specified": true,
    "executed_in_tests": true,
    "test_count": 21,
-   "direct_tests": [],
-   "indirect_tests": [
-    "tests/test_build_line.py::test_jobs_reach_the_end_of_the_longest_line",
-    "tests/test_factory_provider.py::test_all_read_tools_preserve_existing_observable_shapes",
+   "direct_tests": [
     "tests/test_job_history.py::test_a_breakdown_ahead_holds_the_job_with_no_end",
     "tests/test_job_history.py::test_history_of_an_unknown_job_is_empty_and_answers_are_plain_data",
     "tests/test_job_history.py::test_job_1_on_an_empty_line_is_never_held_up",
     "tests/test_job_history.py::test_started_to_finished_is_always_the_machines_own_working_time",
-    "tests/test_job_history.py::test_the_machine_before_the_slow_one_is_held_up_on_every_job_once_the_line_is_full",
+    "tests/test_job_history.py::test_the_machine_before_the_slow_one_is_held_up_on_every_job_once_the_line_is_full"
+   ],
+   "indirect_tests": [
+    "tests/test_build_line.py::test_jobs_reach_the_end_of_the_longest_line",
+    "tests/test_factory_provider.py::test_all_read_tools_preserve_existing_observable_shapes",
     "tests/test_observation_tools.py::test_answers_are_plain_data",
     "tests/test_observation_tools.py::test_looking_does_not_advance_time_or_change_the_factory",
     "tests/test_observation_tools.py::test_nothing_hidden_leaks_through_any_tool_over_a_full_run",
@@ -45289,12 +45378,12 @@
     "tests/test_slow_when_worn.py::test_the_standard_line_has_natural_variation_switched_on",
     "tests/test_slow_when_worn.py::test_with_variation_a_slightly_worn_machine_hides_among_normal_jobs"
    ],
-   "indirect_test_count": 21,
+   "indirect_test_count": 16,
    "statements_executed": 1,
    "statements_in_body": 1,
    "statement_coverage": 1.0,
-   "coverage_class": "indirect",
-   "verification_status": "INSUFFICIENT EVIDENCE",
+   "coverage_class": "direct",
+   "verification_status": "PARTIALLY VERIFIED",
    "status_source": "derived",
    "curated": {},
    "snap_questions": [
@@ -45333,7 +45422,7 @@
    "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
    "contract_specified": true,
    "executed_in_tests": true,
-   "test_count": 118,
+   "test_count": 119,
    "direct_tests": [
     "tests/test_quality.py::test_get_inspections_returns_results_in_a_tick_range_as_plain_data"
    ],
@@ -45369,7 +45458,7 @@
     "tests/test_evals.py::test_comparison_requires_same_cases_and_preserves_unknown_accuracy",
     "tests/test_evals.py::test_confident_no_fault_and_honest_abstention_score_apart"
    ],
-   "indirect_test_count": 117,
+   "indirect_test_count": 118,
    "statements_executed": 3,
    "statements_in_body": 3,
    "statement_coverage": 1.0,
@@ -45413,7 +45502,7 @@
    "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
    "contract_specified": false,
    "executed_in_tests": true,
-   "test_count": 243,
+   "test_count": 244,
    "direct_tests": [],
    "indirect_tests": [
     "tests/test_agent_action.py::test_a_human_hook_that_decides_nothing_does_not_count_as_approval",
@@ -45447,7 +45536,7 @@
     "tests/test_agent_completion.py::test_no_action_is_recorded_when_none_was_wanted",
     "tests/test_agent_completion.py::test_no_hidden_truth_is_written_to_the_log"
    ],
-   "indirect_test_count": 243,
+   "indirect_test_count": 244,
    "statements_executed": 1,
    "statements_in_body": 1,
    "statement_coverage": 1.0,
@@ -45496,7 +45585,7 @@
    "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
    "contract_specified": false,
    "executed_in_tests": true,
-   "test_count": 271,
+   "test_count": 272,
    "direct_tests": [
     "tests/test_agent_completion.py::test_a_check_that_was_never_made_is_left_out",
     "tests/test_agent_completion.py::test_a_resolved_check_is_verified_at_the_tick_it_was_made",
@@ -45545,7 +45634,7 @@
     "tests/test_agent_completion.py::test_the_audit_record_keeps_what_tree_of_thought_ruled_out",
     "tests/test_agent_completion.py::test_the_log_is_only_ever_added_to"
    ],
-   "indirect_test_count": 257,
+   "indirect_test_count": 258,
    "statements_executed": 4,
    "statements_in_body": 4,
    "statement_coverage": 1.0,

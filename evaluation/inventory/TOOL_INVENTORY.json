@@ -51,7 +51,7 @@
     "tests/test_agent_completion.py::test_no_action_is_recorded_when_none_was_wanted",
     "tests/test_agent_completion.py::test_no_hidden_truth_is_written_to_the_log"
    ],
-   "test_count": 256,
+   "test_count": 257,
    "verification_status": "PARTIALLY VERIFIED",
    "snap_questions": [
     "TL-01",
@@ -236,7 +236,7 @@
     "tests/test_agent_completion.py::test_no_action_is_recorded_when_none_was_wanted",
     "tests/test_agent_completion.py::test_no_hidden_truth_is_written_to_the_log"
    ],
-   "test_count": 236,
+   "test_count": 237,
    "verification_status": "VERIFIED",
    "snap_questions": [
     "TL-01",
@@ -332,7 +332,7 @@
     "tests/test_evals.py::test_review_flag_excludes_provisional_label_from_accuracy",
     "tests/test_evals.py::test_run_cases_offers_the_manual_when_given"
    ],
-   "test_count": 95,
+   "test_count": 96,
    "verification_status": "PARTIALLY VERIFIED",
    "snap_questions": [
     "TL-01",
@@ -458,6 +458,17 @@
    "boundary": "capstone.providers.factory:SimulatorFactoryProvider.call -> run_tool (argument model, output model rebuild, MAX_ROWS=300, errors without detail)",
    "simulator_access": "reads sim.readings / event_log / state through ObservationTools, or ActionTools for wait and the approval desk; never sim.ground_truth() or MachineCondition",
    "tests": [
+    "tests/test_sensor_summary.py::test_empty_summary_has_no_invented_values_or_units",
+    "tests/test_sensor_summary.py::test_factory_summary_selects_only_factory_observations",
+    "tests/test_sensor_summary.py::test_invalid_window_is_rejected_directly_and_through_provider",
+    "tests/test_sensor_summary.py::test_mixed_units_are_rejected_instead_of_combined",
+    "tests/test_sensor_summary.py::test_nonfinite_values_are_rejected",
+    "tests/test_sensor_summary.py::test_provider_preserves_empty_and_populated_summary_results",
+    "tests/test_sensor_summary.py::test_provider_summary_is_read_only_and_independent_of_hidden_truth",
+    "tests/test_sensor_summary.py::test_same_seed_produces_same_summary_without_consuming_randomness",
+    "tests/test_sensor_summary.py::test_single_sample_has_zero_delta_but_no_rate",
+    "tests/test_sensor_summary.py::test_summary_orders_and_filters_readings_and_uses_elapsed_ticks",
+    "tests/test_sensor_summary.py::test_unknown_machine_is_rejected",
     "tests/test_agent_action.py::test_a_human_hook_that_decides_nothing_does_not_count_as_approval",
     "tests/test_agent_action.py::test_a_long_repair_is_waited_out_in_steps_the_factory_accepts",
     "tests/test_agent_action.py::test_a_proposal_the_factory_refuses_is_never_put_to_the_human",
@@ -574,7 +585,7 @@
     "tests/test_agent_completion.py::test_no_action_is_recorded_when_none_was_wanted",
     "tests/test_agent_completion.py::test_no_hidden_truth_is_written_to_the_log"
    ],
-   "test_count": 229,
+   "test_count": 230,
    "verification_status": "PARTIALLY VERIFIED",
    "snap_questions": [
     "TL-01",
@@ -609,13 +620,13 @@
    "boundary": "capstone.providers.factory:SimulatorFactoryProvider.call -> run_tool (argument model, output model rebuild, MAX_ROWS=300, errors without detail)",
    "simulator_access": "reads sim.readings / event_log / state through ObservationTools, or ActionTools for wait and the approval desk; never sim.ground_truth() or MachineCondition",
    "tests": [
-    "tests/test_build_line.py::test_jobs_reach_the_end_of_the_longest_line",
-    "tests/test_factory_provider.py::test_all_read_tools_preserve_existing_observable_shapes",
     "tests/test_job_history.py::test_a_breakdown_ahead_holds_the_job_with_no_end",
     "tests/test_job_history.py::test_history_of_an_unknown_job_is_empty_and_answers_are_plain_data",
     "tests/test_job_history.py::test_job_1_on_an_empty_line_is_never_held_up",
     "tests/test_job_history.py::test_started_to_finished_is_always_the_machines_own_working_time",
     "tests/test_job_history.py::test_the_machine_before_the_slow_one_is_held_up_on_every_job_once_the_line_is_full",
+    "tests/test_build_line.py::test_jobs_reach_the_end_of_the_longest_line",
+    "tests/test_factory_provider.py::test_all_read_tools_preserve_existing_observable_shapes",
     "tests/test_observation_tools.py::test_answers_are_plain_data",
     "tests/test_observation_tools.py::test_looking_does_not_advance_time_or_change_the_factory",
     "tests/test_observation_tools.py::test_nothing_hidden_leaks_through_any_tool_over_a_full_run",
@@ -632,7 +643,7 @@
     "tests/test_slow_when_worn.py::test_with_variation_a_slightly_worn_machine_hides_among_normal_jobs"
    ],
    "test_count": 21,
-   "verification_status": "INSUFFICIENT EVIDENCE",
+   "verification_status": "PARTIALLY VERIFIED",
    "snap_questions": [
     "TL-01",
     "TL-02",
@@ -670,16 +681,16 @@
    "boundary": "capstone.providers.factory:SimulatorFactoryProvider.call -> run_tool (argument model, output model rebuild, MAX_ROWS=300, errors without detail)",
    "simulator_access": "reads sim.readings / event_log / state through ObservationTools, or ActionTools for wait and the approval desk; never sim.ground_truth() or MachineCondition",
    "tests": [
-    "tests/test_factory_provider.py::test_all_read_tools_preserve_existing_observable_shapes",
-    "tests/test_hazards.py::test_a_stale_record_joins_the_history_of_its_machine_in_date_order",
     "tests/test_maintenance_history.py::test_the_provider_offers_it_with_checked_arguments",
     "tests/test_maintenance_history.py::test_the_tool_shows_past_records_then_this_runs_maintenance",
+    "tests/test_factory_provider.py::test_all_read_tools_preserve_existing_observable_shapes",
+    "tests/test_hazards.py::test_a_stale_record_joins_the_history_of_its_machine_in_date_order",
     "tests/test_observation_tools.py::test_answers_are_plain_data",
     "tests/test_observation_tools.py::test_looking_does_not_advance_time_or_change_the_factory",
     "tests/test_observation_tools.py::test_nothing_hidden_leaks_through_any_tool_over_a_full_run"
    ],
    "test_count": 7,
-   "verification_status": "INSUFFICIENT EVIDENCE",
+   "verification_status": "PARTIALLY VERIFIED",
    "snap_questions": [
     "TL-01",
     "TL-02",
@@ -751,7 +762,7 @@
     "tests/test_evals.py::test_comparison_requires_same_cases_and_preserves_unknown_accuracy",
     "tests/test_evals.py::test_confident_no_fault_and_honest_abstention_score_apart"
    ],
-   "test_count": 118,
+   "test_count": 119,
    "verification_status": "PARTIALLY VERIFIED",
    "snap_questions": [
     "TL-01",
@@ -830,7 +841,7 @@
     "tests/test_agent_verification.py::test_checking_uses_the_follow_up_allowance_and_leaves_the_stop_reason",
     "tests/test_agent_verification.py::test_looking_without_letting_time_pass_after_the_work_does_not_count"
    ],
-   "test_count": 215,
+   "test_count": 216,
    "verification_status": "VERIFIED",
    "snap_questions": [
     "TL-01",
@@ -906,7 +917,7 @@
     "tests/test_agent_completion.py::test_the_log_is_only_ever_added_to"
    ],
    "test_count": 206,
-   "verification_status": "INSUFFICIENT EVIDENCE",
+   "verification_status": "VERIFIED",
    "snap_questions": [
     "TL-01",
     "TL-02",
@@ -963,7 +974,7 @@
     "tests/test_agent_completion.py::test_the_log_keeps_every_investigation_one_per_line"
    ],
    "test_count": 159,
-   "verification_status": "INSUFFICIENT EVIDENCE",
+   "verification_status": "PARTIALLY VERIFIED",
    "snap_questions": [
     "TL-01",
     "TL-02",
@@ -1030,7 +1041,7 @@
     "tests/test_agent_verification.py::test_looking_without_letting_time_pass_after_the_work_does_not_count"
    ],
    "test_count": 168,
-   "verification_status": "PARTIALLY VERIFIED",
+   "verification_status": "VERIFIED",
    "snap_questions": [
     "TL-01",
     "TL-02",
