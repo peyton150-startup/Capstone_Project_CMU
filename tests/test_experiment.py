@@ -119,8 +119,11 @@ def test_old_records_without_blackout_fields_still_read(records):
 
 
 def test_the_run_command_watches_by_default_and_quiet_turns_it_off(
-    tmp_path, monkeypatch
+    tmp_path, monkeypatch, capsys
 ):
+    # Variables:
+    #   ran: The options the (faked) experiment was started with.
+    #   printed: What the command printed; the RUN header only when watching.
     ran = {}
 
     def fake_run(cases, make_policy, **options):
@@ -134,8 +137,11 @@ def test_the_run_command_watches_by_default_and_quiet_turns_it_off(
     out = str(tmp_path / "r.jsonl")
     assert main(["run", "--name", "w", "--known", "--out", out]) == 0
     assert callable(ran["watch"])
+    printed = capsys.readouterr().out
+    assert "RUN: critic " in printed and "RUN: tree-of-thought off" in printed
     assert main(["run", "--name", "q", "--known", "--out", out, "--quiet"]) == 0
     assert ran["watch"] is None
+    assert "RUN:" not in capsys.readouterr().out
 
 
 def test_the_report_shows_an_overruled_intervention_and_why(records):

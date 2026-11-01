@@ -83,7 +83,7 @@ from capstone.evaluation.memory import (
 )
 from capstone.evaluation.scoring import COMPOUND, Score, format_summary, summarize
 from capstone.memory.service import MemoryService
-from capstone.progress import ProgressView, print_progress
+from capstone.progress import ProgressView, print_progress, run_header
 from capstone.providers.chat import INVALID_REPLY, is_model_outcome
 from capstone.providers.hazards import HazardProfile
 from capstone.providers.manual import MANUAL_TOOL, ManualSearch
@@ -1094,6 +1094,17 @@ def main(argv: Sequence[str] | None = None) -> int:
             print(f"{record.scenario_id}: {record.conclusion!r}", flush=True)
             for line in format_call_failures(record):
                 print(line, flush=True)
+
+        if not args.quiet:
+            from capstone.settings import get_settings
+
+            for line in run_header(
+                get_settings(),
+                manual=args.manual,
+                tree_of_thought=args.tree_of_thought,
+                hazards=args.hazards,
+            ):
+                live_line(line)
 
         records = run_experiment(
             cases,

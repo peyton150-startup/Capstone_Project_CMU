@@ -39,41 +39,45 @@ def build_manual_records(state) -> tuple[ManualSearchRecord, ...]:
     # Variables:
     #   state: The finished investigation state, read for its decision records.
     #   contents: The text of each piece of evidence, by id.
-    #   records: One record per manual search, in order.
+    contents = {e.id: e.content for e in state.evidence}
+    return tuple(
+        manual_search_record(decision, contents)
+        for decision in state.decisions
+        if decision.tool == MANUAL_TOOL
+    )
+
+
+def manual_search_record(decision, contents: dict[str, str]) -> ManualSearchRecord:
+    """What one search_manual decision came to; also used by the live view."""
+    # Variables:
+    #   decision: One search_manual step from the loop's decision records.
+    #   contents: The text of each piece of evidence, by id, for the sections.
     #   text: What was searched for; None if the arguments were unusable.
     #   message: The tool's error message, if the call failed or was refused.
     #   evidence_id: The evidence that holds the answer, if there was one.
     #   sections: The manual sections returned, best match first.
     #   outcome: answered, repeated, budget_spent or failed.
-    contents = {e.id: e.content for e in state.evidence}
-    records = []
-    for decision in state.decisions:
-        if decision.tool != MANUAL_TOOL:
-            continue
-        text = decision.arguments.get("text")
-        message = decision.error.message if decision.error is not None else None
-        evidence_id, sections = None, ()
-        if decision.outcome == "repeated_call" or message == REPEATED_SEARCH:
-            outcome = "repeated"
-        elif message == SEARCHES_SPENT:
-            outcome = "budget_spent"
-        elif decision.evidence_ids:
-            outcome = "answered"
-            [evidence_id] = decision.evidence_ids
-            sections = tuple(
-                item["section"] for item in json.loads(contents[evidence_id]) or ()
-            )
-        else:
-            outcome = "failed"
-        records.append(
-            ManualSearchRecord(
-                sequence=decision.sequence,
-                text=text if isinstance(text, str) else None,
-                outcome=outcome,
-                evidence_id=evidence_id,
-                sections=sections,
-                # Only the manual step searches during observe.
-                automatic=decision.phase == "observe",
-            )
+    text = decision.arguments.get("text")
+    message = decision.error.message if decision.error is not None else None
+    evidence_id, sections = None, ()
+    if decision.outcome == "repeated_call" or message == REPEATED_SEARCH:
+        outcome = "repeated"
+    elif message == SEARCHES_SPENT:
+        outcome = "budget_spent"
+    elif decision.evidence_ids:
+        outcome = "answered"
+        [evidence_id] = decision.evidence_ids
+        sections = tuple(
+            item["section"] for item in json.loads(contents[evidence_id]) or ()
         )
-    return tuple(records)
+    else:
+        outcome = "failed"
+    return ManualSearchRecord(
+        sequence=decision.sequence,
+        text=text if isinstance(text, str) else None,
+        outcome=outcome,
+        evidence_id=evidence_id,
+        sections=sections,
+        # Only the manual step searches during observe.
+        automatic=decision.phase == "observe",
+    )

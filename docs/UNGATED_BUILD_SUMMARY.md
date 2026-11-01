@@ -99,6 +99,22 @@ and D2 still have a closing question or a mark outstanding; see `PROGRESS.md`.
 | `manual/sim-cnc-001.md` | Rev 1.3: §2.14 servo drive, §2.15 hydraulic clamping; §1.2 and §2.13 updated | How each fault shows, how to tell it from the others, that it never recovers by itself, and its one repair. |
 | `manual/sections.py` | `_LEAKS` refuses `servo_drive_wear` and `hydraulic_leak` | The manual cannot name the internal fault names. |
 
+### LV2 — The progress view catches up (2026-10-31)
+
+Display only: what the operator sees live, never what the agent sees.
+
+| Where | Added | Meaning |
+|---|---|---|
+| `progress.py` | `run_header` | Two `RUN:` lines before the first case: critic off / anchored / blind and the follow-up, how the manual is searched (with the embedding model for semantic search), the manual step, tree-of-thought and hazards. Model names only, never keys. |
+| `progress.py` | `_critique`, `shown_order_line` | A blind critique's heading says `blind`, and a line shows which label stood for which hypothesis and where the agent's leader landed in the shuffle. |
+| `progress.py` | `ProgressView._recheck`, `belief` | The critic follow-up's outcome (observed, no evidence, already answered, skipped, ...), its trigger, reason, question, tool and evidence, and the leader before and after. |
+| `progress.py` | `assessment_lines` | Under the conclusion: supported or unresolved, the open questions and the next check. |
+| `progress.py` | `calls_line` | After the conclusion and the check: research, critic-check and after-the-action calls, each against its own limit. |
+| `progress.py` | `step_line`, `call_lines`, `manual_line` | Each manual search gets a line: who searched (manual step or agent), answered / failed / repeated / out of searches, and the sections returned. |
+| `progress.py` | `_pruned`, `PRUNED_HEADINGS` | Tree-of-thought candidates split into "ruled out (contradicted by evidence)" and "set aside (deferred, not disproved)". |
+| `evaluation/manual.py` | `manual_search_record` | One search classified on its own; `build_manual_records` now uses it, so the view and the saved records agree. |
+| `experiment.py` | `main` | Prints the run header unless `--quiet`. |
+
 ## The original session-5 builds (rows 13c-17)
 
 > **2026-10-19:** the older agent described in rows 16-17 below (`agent.py`,

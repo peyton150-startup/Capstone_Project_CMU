@@ -252,12 +252,26 @@ A component is complete only when both columns are checked.
 | M1b | The manual step: with a manual offered, search it once on the anomaly before the agent plans; the `search_manual` tool stays; opt-in `MANUAL_STEP` | no — built first at the developer's request, to be taught after | no — built ungated, developer to review | yes | no | `agent/investigation.py` (`manual_query`, `consult_manual`, `MANUAL_STEP_LIMIT`, graph edge `observe -> manual -> plan`), `agent/loop.py` (`InvestigationDeps.manual_step`), `settings.py` (`manual_step`), `episode.py`, `evaluation/manual.py` (`ManualSearchRecord.automatic`); session note 2026-10-29 (M1) |
 | EV2 | Known cases KA-10 to KA-13 for the two forced-only faults (servo drive wear, hydraulic leak), which need a repair; manual rev 1.3 with §2.14 and §2.15 | no — built first at the developer's request ("merge first, I will learn later"), to be taught after | no — built ungated, developer to review | yes (tests only; no live run) | no | `evaluation/known_answers.py` (`KNOWN_CASES`, `BASELINE_CASES`, the asserts), `evals/scenarios.json`, `manual/sim-cnc-001.md` (§1.2, §2.13, §2.14, §2.15), `manual/sections.py` (`_LEAKS`), `evals.py` (`Scenario.valid_factory`), `evaluation/scoring.py` (`_resolved`: bug fix, both faults always counted as resolved), `tests/test_known_answers.py`, `tests/test_manual.py`, `tests/test_baseline.py`; session note 2026-10-31 (EV2) |
 | C1c | Blind critic (opt-in `CRITIC_BLIND`): hypotheses shuffled under neutral labels, no confidence, no leading mark; code sets the verdict from the pick | yes (2026-10-31) | yes (2026-10-31, after two corrections: why code sets the verdict, and why the shuffle has its own seed; the prompt difference was stated by the agent, to be re-checked in the closing question) | yes (tests only; no live run) | no — walkthrough done 2026-10-31: Q1 unsure, but the answer pointed at a real bug (a blind pick naming a real id was accepted), fixed; Q2 right (the leader's longer support list leaks the ranking; accept and measure); Q3 right (check the follow-up used the critic's point), fields added; mark left for the developer | `agent/critic.py` (`CRITIC_BLIND_SYSTEM`, `blind_order`, `blind_labels`, `blind_verdict`, `_rename`, `critique_view(blind=)`, `Critic(blind=)`, `Critic.last_order`, `Critic._unblind`), `agent/artifacts.py` (`CritiqueRecord.blind`, `shown_order`), `agent/investigation.py` (`critique`), `settings.py` (`critic_blind`), `episode.py`, `.env.example`; session note 2026-10-31 (C1c) |
+| LV2 | Progress view catches up with #150 and #152 (display only): run header (critic mode, manual and embedding model, manual step, tree-of-thought, hazards); blind mark and shown order on the critic line; the follow-up's outcome, reason, question and leader before/after; the conclusion's assessment, open questions and next check; the three call allowances; each manual search's outcome and sections; contradicted vs deferred tree-of-thought candidates | no — built first at the developer's request, to be taught after | no — built ungated, developer to review | yes (tests only; no live run) | no — pre-merge walkthrough owed later (developer, 2026-10-31: "merge asap", "walkthrough owed later") | `progress.py` (`run_header`, `manual_line`, `call_lines`, `ProgressView._recheck`, `shown_order_line`, `assessment_lines`, `calls_line`, `belief`, `PRUNED_HEADINGS`, `_critique`, `_pruned`, `step_line`), `evaluation/manual.py` (`manual_search_record`), `experiment.py` (`main` prints the header); session note 2026-10-31 (LV2) |
 Every row above with four "yes" marks (or "n/a") is complete: no question is
 outstanding on it. Still to build after 12c, from `docs/MVP_SCOPE.md`: the
 other three fault scenarios (material batch, machine configuration, false
 alarm), then evaluation, then the agent itself.
 
 ## Session notes
+
+- **2026-10-31 (LV2): the progress view catches up.** Before the fresh
+  anchored-vs-blind pair, the live view (`capstone.progress`, also used by
+  `capstone.experiment run`) could not show which critic treatment ran, what
+  the follow-up did, why a plausible diagnosis escalated, which call allowance
+  ran out, whether a manual search worked, or whether a tree-of-thought
+  candidate was disproved or only set aside. Six display-only changes fix that
+  (row LV2). Nothing the agent sees changes; the records already held all of
+  it. Manual failures print only "failed": the tool keeps no cause, so the view
+  does not guess one. Live retry/fallback messages need new event reporting
+  and are not done. Codex: after this merges, move the launcher pin for both
+  new runs to the merge commit; leave a running run on its own version.
+  Built ungated; the pre-merge walkthrough is owed later.
 
 - **2026-10-31: frontend buttons listed (docs only).** `docs/MVP_SCOPE.md`
   gains a "Frontend buttons" section: every setting and experiment option a
