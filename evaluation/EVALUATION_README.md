@@ -101,14 +101,20 @@ uv run python -m evaltools.snap_request --out requests/tl tools --names get_read
 Each `*.request.json` holds the exact `POST /v1/systemone` body (model,
 state, up to 16 named questions) and tags: rubric version, commit, question
 ids, a digest of the state. Read them before sending. Questions a packet
-cannot answer are listed under `skipped_questions` with the reason.
+cannot answer are listed under `skipped_questions` with the reason. A
+packet whose judge view does not fit the evidence budget even after
+trimming is written with `body: null` and the reason under `unfittable`,
+so one long run never stops the batch; send it alone with
+`--full-context` if a single provider's answer is wanted.
 
 To send: `SUBQ_API_KEY=... TYPESAFE_API_KEY=... uv run python -m evaltools.snap_request --provider both --send ...`.
 Answers are normalized into `DECISION_ANSWER_SCHEMA.json` as they arrive.
 Then `uv run python -m evaltools.compare_evaluators --answers requests/<run> --reference reference/<run>.json --out comparison/<run>`
 writes the agreement report (`agreement.md`): rates by question, every
-disagreement for review, latency, tokens and cost per provider, and each
-provider's agreement with the reviewer's answers.
+disagreement for review, latency, tokens and cost per provider (tokens and
+cost counted once per request, since the services report usage per
+request, not per question), and each provider's agreement with the
+reviewer's answers.
 Answers are written beside the requests as `*.answers.json`. Before the
 first live request confirm the question shape against docs.subq.ai (the
 score-level key is unconfirmed; see `SNAP_QUESTIONS.json` `api`).

@@ -58,6 +58,14 @@ QUESTIONS_PATH = EVALUATION / "SNAP_QUESTIONS.json"
 INVENTORY = EVALUATION / "inventory"
 MAX_QUESTIONS_PER_REQUEST = min(p.max_questions for p in PROVIDERS.values())
 
+# The RUN questions that read the evidence, the hypotheses or the decisions'
+# arguments, which only an audit log holds. A `record_only` packet records
+# them as unknown without a request. The principles of SNAP_QUESTIONS.json
+# list the same ids; a test keeps the two in step.
+NEEDS_FULL_TRACE = frozenset(
+    {"RUN-01", "RUN-02", "RUN-05", "RUN-06", "RUN-08", "RUN-09", "RUN-10", "RUN-12"}
+)
+
 
 class DecisionQuestion(BaseModel):
     model_config = ConfigDict(extra="allow", frozen=True)
@@ -178,25 +186,21 @@ def applicable_run_questions(
     packet: dict, questions: list[DecisionQuestion]
 ) -> tuple[list[DecisionQuestion], dict[str, str]]:
     """Which RUN questions a packet can answer, and why the others are skipped."""
+    # Variables:
+    #   full: True when the packet was built from an audit log, so the trace holds
+    #     the evidence, hypotheses and decision arguments.
+    #   conclusion: The conclusion view, or {} when the run reached none.
+    #   skipped: Question id to the reason it is not asked of this packet.
+    #   chosen: The questions this packet can answer, in file order.
     view = packet["snap_view"]
     trace = view["trace"]
     full = trace["completeness"] == "full"
     conclusion = trace.get("conclusion") or {}
     skipped: dict[str, str] = {}
     chosen = []
-    needs_trace = {
-        "RUN-01",
-        "RUN-02",
-        "RUN-05",
-        "RUN-06",
-        "RUN-08",
-        "RUN-09",
-        "RUN-10",
-        "RUN-12",
-    }
     for q in questions_for("RUN", questions):
         reason = None
-        if q.id in needs_trace and not full:
+        if q.id in NEEDS_FULL_TRACE and not full:
             reason = "unknown: trace.completeness is record_only (run without --audit)"
         elif q.id == "RUN-03" and trace.get("critique") is None:
             reason = "not_run: no critic in this run"
@@ -225,6 +229,18 @@ def run_requests(
     *,
     state_tokens: int | None,
 ) -> list:
+    """One request item per packet and provider; an item with no body is skipped.
+
+    A packet that can answer no question, or whose judge view does not fit
+    the evidence budget even after `fit_state` has trimmed it, is written
+    with `body: None` and the reason in its tags, so one such packet never
+    stops the rest of the batch and the gap is recorded, not silent.
+    """
+    # Variables:
+    #   chosen, skipped: The questions this packet can answer, and why the rest
+    #     are not asked.
+    #   meta: Tags shared by every request built from this packet.
+    #   unfittable: Why the state could not be fitted to the budget, or None.
     built = []
     for path in sorted(packet_dir.glob("*.json")):
         if path.name == "BATCH_SUMMARY.json":
@@ -241,30 +257,35 @@ def run_requests(
         }
         item_id = packet["snap_view"]["run_key"]
         for provider in providers:
+            unfittable = None
             if chosen:
-                built.extend(
-                    build_request(
-                        packet["snap_view"],
-                        chosen,
-                        model=provider.model,
-                        item_id=item_id,
-                        meta=meta,
-                        provider=provider.name,
-                        state_tokens=state_tokens,
+                try:
+                    built.extend(
+                        build_request(
+                            packet["snap_view"],
+                            chosen,
+                            model=provider.model,
+                            item_id=item_id,
+                            meta=meta,
+                            provider=provider.name,
+                            state_tokens=state_tokens,
+                        )
                     )
-                )
-            else:
-                built.append(
-                    {
-                        "tags": {
-                            **meta,
-                            "provider": provider.name,
-                            "item_id": item_id,
-                            "question_ids": [],
-                        },
-                        "body": None,
-                    }
-                )
+                    continue
+                except ValueError as error:
+                    unfittable = str(error)
+            built.append(
+                {
+                    "tags": {
+                        **meta,
+                        "provider": provider.name,
+                        "item_id": item_id,
+                        "question_ids": [],
+                        **({} if unfittable is None else {"unfittable": unfittable}),
+                    },
+                    "body": None,
+                }
+            )
     return built
 
 

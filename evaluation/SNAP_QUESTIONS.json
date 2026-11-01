@@ -32,7 +32,7 @@
   "principles": [
     "Deterministic checks take precedence: a question is never asked where code already computes the answer from the record or the hidden truth.",
     "Snap judges the quality of the investigation, never whether the answer matches ground truth; the judge's state never carries the true fault.",
-    "Every question has a missing-evidence rule. A packet with trace.completeness = record_only cannot answer RUN-01, RUN-02, RUN-08, RUN-09 or RUN-12; those are recorded as 'unknown' without a request.",
+    "Every question has a missing-evidence rule. A packet with trace.completeness = record_only cannot answer RUN-01, RUN-02, RUN-05, RUN-06, RUN-08, RUN-09, RUN-10 or RUN-12 (evaltools.snap_request.NEEDS_FULL_TRACE); those are recorded as 'unknown' without a request.",
     "A probability from a noul question is a model's preference, not a calibrated correctness probability. Thresholds below are decision rules for the report, not claims about calibration.",
     "Scores are reported per item and per batch with their denominators; nothing is folded into one overall percentage."
   ],
@@ -173,7 +173,7 @@
       "id": "RUN-07",
       "family": "RUN",
       "name": "failure_classification",
-      "applies_to": "one master-run packet whose conclusion is wrong, unresolved or escalated",
+      "applies_to": "one master-run packet; asked of every run, with none_observed for one that reads as sound, so the judge never learns from the question which runs were wrong",
       "type": "choice",
       "instructions": "Read the whole trace. What most seriously undermined this investigation? Choose the single earliest cause that, had it gone right, would most likely have changed the outcome.",
       "criteria": {

@@ -50,8 +50,49 @@ def index_answers(files: list[dict]) -> dict:
     return found
 
 
+def request_usage(files: list[dict]) -> dict[str, dict]:
+    """Per provider: requests, input tokens and cost, counted once per request.
+
+    Every answer in a request carries that request's `input_tokens` and
+    `cost_usd` (the service reports usage per request, not per question), so
+    summing over answers would count one request once per question asked.
+    Here each answers file is one request and is counted once.
+    """
+    # Variables:
+    #   usage: For each provider, how many requests were sent and the token and
+    #     cost totals over them; None when no request reported a figure.
+    #   first: The first answer in a file that carries usage; all answers of one
+    #     request carry the same figures.
+    usage: dict[str, dict] = {}
+    for file in files:
+        provider = file["tags"]["provider"]
+        entry = usage.setdefault(
+            provider, {"requests": 0, "input_tokens": None, "cost_usd": None}
+        )
+        entry["requests"] += 1
+        first = next(
+            (a for a in file["answers"] if a.get("input_tokens") is not None), None
+        )
+        if first is None:
+            continue
+        entry["input_tokens"] = (entry["input_tokens"] or 0) + first["input_tokens"]
+        if first.get("cost_usd") is not None:
+            entry["cost_usd"] = (entry["cost_usd"] or 0.0) + first["cost_usd"]
+    return usage
+
+
 def build_report(files: list[dict], reference: dict | None) -> dict:
+    """The agreement report over every answers file, with an optional reference set."""
+    # Variables:
+    #   answers: Every usable answer, by provider, item and question.
+    #   providers: The provider names found; pairs are formed only with exactly two.
+    #   pairs: One comparison per question both providers answered on the same state.
+    #   unmatched: Answers with no partner, or whose partner saw a different state.
+    #   usage: Request counts, tokens and cost per provider, counted once per request.
+    #   reference: The reviewer's expected answers, {item: {question: expected}}, or
+    #     None when none were given.
     answers = index_answers(files)
+    usage = request_usage(files)
     providers = sorted({key[0] for key in answers})
     pairs = []
     unmatched = []
@@ -88,20 +129,33 @@ def build_report(files: list[dict], reference: dict | None) -> dict:
     per_provider = {}
     for name in providers:
         mine = [a for (p, _, _), (a, _) in answers.items() if p == name]
+        # Latency is per request too, but every answer of a request shares it,
+        # so the median over answers is the median over requests weighted by
+        # how many questions each carried; close enough for a report line.
         latencies = [a["latency_seconds"] for a in mine if a.get("latency_seconds")]
-        tokens = [a["input_tokens"] for a in mine if a.get("input_tokens")]
-        costs = [a["cost_usd"] for a in mine if a.get("cost_usd") is not None]
-        confidences = [a["confidence"] for a in mine if a.get("confidence") is not None]
+        spent = usage.get(name, {"requests": 0, "input_tokens": None, "cost_usd": None})
+        by_type: dict[str, list[float]] = defaultdict(list)
+        for a in mine:
+            if a.get("confidence") is not None:
+                by_type[a["type"]].append(a["confidence"])
         entry = {
             "model_requested": PROVIDERS[name].model if name in PROVIDERS else None,
             "models_reported": sorted({str(a.get("model_reported")) for a in mine}),
             "answers": len(mine),
+            "requests": spent["requests"],
             "median_latency_seconds": round(median(latencies), 3)
             if latencies
             else None,
-            "input_tokens_total": sum(tokens) if tokens else None,
-            "cost_usd_total": round(sum(costs), 6) if costs else None,
-            "mean_confidence": round(mean(confidences), 3) if confidences else None,
+            "input_tokens_total": spent["input_tokens"],
+            "cost_usd_total": (
+                None if spent["cost_usd"] is None else round(spent["cost_usd"], 6)
+            ),
+            # A noul's confidence is a distance from one half, a choice's or a
+            # score's is the service's own figure: kept apart, never averaged
+            # across kinds (rubric section 9).
+            "mean_confidence_by_type": {
+                kind: round(mean(values), 3) for kind, values in sorted(by_type.items())
+            },
         }
         if reference:
             hits, tried = 0, 0
@@ -151,6 +205,10 @@ def build_report(files: list[dict], reference: dict | None) -> dict:
 
 
 def markdown(report: dict) -> str:
+    """The report as tables a person can read, one line per provider and per disagreement."""
+    # Variables:
+    #   report: The dictionary `build_report` made.
+    #   confidence: One provider's mean confidence per question kind, as text.
     lines = ["# Evaluator agreement", ""]
     lines.append(
         f"Providers: {', '.join(report['providers']) or 'none'}; pairs compared: {report['pairs_compared']}; agreement rate: {report['agreement_rate']}"
@@ -163,13 +221,17 @@ def markdown(report: dict) -> str:
         "",
         "## Per provider",
         "",
-        "| Provider | Model requested | Models reported | Answers | Median latency s | Input tokens | Cost USD | Mean confidence | Reference agreement |",
-        "|---|---|---|---|---|---|---|---|---|",
+        "| Provider | Model requested | Models reported | Requests | Answers | Median latency s | Input tokens | Cost USD | Mean confidence by type | Reference agreement |",
+        "|---|---|---|---|---|---|---|---|---|---|",
     ]
     for name, entry in report["per_provider"].items():
         ref = entry.get("reference_agreement", {})
+        confidence = (
+            ", ".join(f"{k} {v}" for k, v in entry["mean_confidence_by_type"].items())
+            or "-"
+        )
         lines.append(
-            f"| {name} | {entry['model_requested']} | {', '.join(entry['models_reported'])} | {entry['answers']} | {entry['median_latency_seconds']} | {entry['input_tokens_total']} | {entry['cost_usd_total']} | {entry['mean_confidence']} | {ref.get('matched')}/{ref.get('compared')} |"
+            f"| {name} | {entry['model_requested']} | {', '.join(entry['models_reported'])} | {entry['requests']} | {entry['answers']} | {entry['median_latency_seconds']} | {entry['input_tokens_total']} | {entry['cost_usd_total']} | {confidence} | {ref.get('matched')}/{ref.get('compared')} |"
         )
     lines += ["", "## Disagreements for human review", ""]
     if not report["disagreements_for_review"]:

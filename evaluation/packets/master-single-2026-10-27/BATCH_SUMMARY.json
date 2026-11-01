@@ -10,6 +10,10 @@
  "action_correct": 5,
  "resolved": 4,
  "false_interventions": 1,
+ "evidence_available": 27,
+ "evidence_collected": 18,
+ "evidence_share": 0.6666666666666666,
+ "evidence_share_runs": 9,
  "evidence_share_mean": 0.7259259259259259,
  "miss_kinds": {
   "evidence_miss": 4,
@@ -22,6 +26,7 @@
  },
  "timeouts": 5,
  "mean_tool_calls": 12.333333333333334,
+ "timed_runs": 9,
  "mean_wall_seconds": 694.594647966668,
  "traces_complete": 0
 }

@@ -125,7 +125,7 @@ From `BATCH_SUMMARY.json`. Denominators are stated with every figure.
 | right recommendation | `recommendation_correct` / reasoned runs. Caveat: true for an escalate on any case that needs no action; report beside abstention | yes |
 | false interventions | asked for a fix the truth did not need / reasoned | yes |
 | appropriate intervention, resolved | as scoring; `resolved` credits faults that clear by themselves, so report `causes_resolved` for repair-needing faults apart | yes |
-| evidence share | relevant evidence collected / available (any window counts; see audit E3) | yes |
+| evidence share | pooled: relevant evidence collected / available over the reasoned runs (any window counts; see audit E3), as `scoring.summarize` computes it; beside it the mean of the per-run shares over the runs that had any relevant evidence (`evidence_share_runs`), never counting a run with none as zero | yes |
 | miss kinds | evidence_miss / reasoning_miss counts over wrong judged runs | yes |
 | verification calibration | distribution of the seven classes | yes |
 | timeouts, model_unavailable | by termination reason | yes |

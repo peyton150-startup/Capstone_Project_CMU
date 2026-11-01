@@ -25,7 +25,7 @@ REPO = Path(__file__).resolve().parents[1]
 BENCHMARKS = REPO / "docs" / "benchmarks"
 MASTER_RECORDS = BENCHMARKS / "2026-10-27-master-resumed.records.jsonl"
 MASTER_LABELS = BENCHMARKS / "2026-10-27-master-labels.jsonl"
-HIDDEN = ("true_fault", "true_machine_id", "ground_truth", "evaluator_only")
+HIDDEN = run_packet.HIDDEN_WORDS
 
 
 @pytest.fixture(scope="module")
@@ -52,6 +52,30 @@ def test_master_run_summary_matches_the_published_result(master_packets):
     # Right recommendations include three abstentions on no-action cases.
     assert summary["recommendation_correct"] == 5
     assert summary["abstained"] == 5
+    # Evidence share is pooled (collected over available, as `summarize` and
+    # the rubric define it) and, apart, averaged over the runs that had any.
+    assert summary["evidence_share"] == pytest.approx(
+        summary["evidence_collected"] / summary["evidence_available"]
+    )
+    assert summary["evidence_share_runs"] == 9
+    assert summary["timed_runs"] == 9
+
+
+def test_the_truth_guard_catches_a_hidden_field_in_any_letter_case(master_packets):
+    packet = master_packets[0]
+    tainted = packet.model_copy(
+        update={
+            "snap_view": packet.snap_view.model_copy(
+                update={
+                    "trace": packet.snap_view.trace.model_copy(
+                        update={"anomaly": "note: True_Batch_ID 3 looks bad"}
+                    )
+                }
+            )
+        }
+    )
+    with pytest.raises(ValueError, match="true_batch_id"):
+        run_packet.check_no_truth_in_view(tainted)
 
 
 def test_the_committed_schema_is_the_one_the_packet_model_generates():
@@ -66,6 +90,19 @@ def test_snap_questions_are_well_formed_and_batch_at_the_api_limit():
     assert raw["rubric_version"] == run_packet.RUBRIC_VERSION
     families = {q.family for q in questions}
     assert families == {"RUN", "FN", "TS", "TL", "BT"}
+    # The questions a record-only packet cannot answer are named once in the
+    # code and once in the file's principles; the two must agree.
+    stated = {
+        q.id
+        for q in questions
+        if q.family == "RUN" and "record_only packets: unknown" in q.missing_evidence
+    }
+    stated |= {
+        q.id for q in questions if "record_only, do not ask" in q.missing_evidence
+    }
+    assert stated == snap_request.NEEDS_FULL_TRACE
+    principle = next(p for p in raw["principles"] if "record_only" in p)
+    assert all(q_id in principle for q_id in snap_request.NEEDS_FULL_TRACE)
     for question in questions:
         body = question.to_request()
         assert body["type"] == question.type
@@ -84,6 +121,34 @@ def test_record_only_packets_skip_the_questions_that_need_a_trace(master_packets
     chosen, skipped = snap_request.applicable_run_questions(packet, questions)
     assert {q.id for q in chosen} <= {"RUN-07"}
     assert "RUN-01" in skipped and "record_only" in skipped["RUN-01"]
+
+
+def test_an_unfittable_packet_is_recorded_as_skipped_not_fatal(
+    master_packets, tmp_path
+):
+    """One packet whose judge view cannot be trimmed to the budget does not
+    stop the batch: its item has no body and says why."""
+    from evaltools import decision_models
+
+    _, questions = snap_request.load_questions()
+    small = json.loads(master_packets[0].model_dump_json())
+    big = json.loads(master_packets[1].model_dump_json())
+    # The conclusion is never trimmed, so a huge one cannot be fitted.
+    big["snap_view"]["trace"]["conclusion"]["diagnosis"] = "x" * (
+        decision_models.MATCHED_STATE_TOKENS * decision_models.CHARS_PER_TOKEN + 1000
+    )
+    for name, packet in (("a.json", small), ("b.json", big)):
+        (tmp_path / name).write_text(json.dumps(packet))
+    built = snap_request.run_requests(
+        tmp_path,
+        questions,
+        [decision_models.PROVIDERS["snap"]],
+        state_tokens=decision_models.MATCHED_STATE_TOKENS,
+    )
+    by_file = {item["tags"]["packet_file"]: item for item in built}
+    assert by_file["a.json"]["body"] is not None
+    assert by_file["b.json"]["body"] is None
+    assert "does not fit" in by_file["b.json"]["tags"]["unfittable"]
 
 
 def test_an_audit_log_gives_the_packet_a_full_trace(tmp_path):
@@ -342,6 +407,10 @@ def test_the_agreement_report_pairs_only_identical_states_and_flags_disagreement
         answers_file("snap", "f2", 0.9, "one"),
         answers_file("jev", "f2", 0.9, "other"),
     ]
+    # A request with two questions reports its tokens once, on both answers.
+    files[0]["answers"].append(
+        {**files[0]["answers"][0], "question_id": "FN-02", "question_name": "q2"}
+    )
     report = compare_evaluators.build_report(files, {"f1": {"FN-01": True}})
     assert report["pairs_compared"] == 1
     assert report["agreement_rate"] == 0.0
@@ -349,5 +418,10 @@ def test_the_agreement_report_pairs_only_identical_states_and_flags_disagreement
     assert report["unmatched"][0]["item_id"] == "f2"
     assert report["per_provider"]["snap"]["reference_agreement"]["matched"] == 1
     assert report["per_provider"]["jev"]["reference_agreement"]["matched"] == 0
+    snap = report["per_provider"]["snap"]
+    # Three answers over two requests: tokens counted per request, not per answer.
+    assert snap["answers"] == 3 and snap["requests"] == 2
+    assert snap["input_tokens_total"] == 200
+    assert snap["mean_confidence_by_type"] == {"noul": 0.8}
     text = compare_evaluators.markdown(report)
     assert "f1" in text and "Caveats" in text

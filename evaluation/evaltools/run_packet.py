@@ -278,15 +278,25 @@ class RunEvidencePacket(Strict):
 
 
 def configuration_of(record: ExperimentRecord) -> Configuration:
+    """What the run was configured with, as far as the record says (None: unknown)."""
+    # Variables:
+    #   critic: blind or anchored from the critique record; off when the record
+    #     is recent enough to have kept one and none ran; None in older records.
+    #   hazards: blackout when the blackout fields were kept or a blackout fired
+    #     (the same reading `capstone.evals.report_of` uses), else standard;
+    #     None when the tools were reliable.
     critique = record.critique
     critic = None
     if critique is not None:
         critic = "blind" if critique.blind else "anchored"
-    elif record.critique is None and record.recheck is None:
+    elif record.recheck is None:
         critic = "off" if record.agent_steps is not None else None
     hazards = None
     if record.hazards_fired is not None:
-        hazards = "blackout" if record.blackout_recovered is not None else "standard"
+        blackout = record.blackout_recovered is not None or any(
+            fired.startswith("blackout on ") for fired in record.hazards_fired
+        )
+        hazards = "blackout" if blackout else "standard"
     return Configuration(
         step_questions=record.step_questions,
         state_action_bar=record.state_action_bar,
@@ -676,12 +686,30 @@ def build_packet(
     )
 
 
-HIDDEN_WORDS = ("true_fault", "true_machine_id", "ground_truth", "evaluator_only")
+# Field names that exist only on the truth side (`Score`, `GroundTruth`, the
+# packet's own `evaluator_only` half). None may appear anywhere in a judge's
+# view, in any letter case. Prose words such as "distractor" are not listed:
+# a model may write them in a hypothesis, and that is belief, not truth.
+HIDDEN_WORDS = (
+    "true_fault",
+    "true_machine_id",
+    "true_batch_id",
+    "ground_truth",
+    "evaluator_only",
+    "expected_action",
+    "wanted_actions",
+    "relevant_evidence_collected",
+    "causes_found",
+    "wrong_causes",
+)
 
 
 def check_no_truth_in_view(packet: RunEvidencePacket) -> None:
-    """ValueError if the judge's half carries a truth field name."""
-    text = packet.snap_view.model_dump_json()
+    """ValueError if the judge's half carries a truth field name, whatever its case."""
+    # Variables:
+    #   text: The judge's half as JSON, lower-cased so a name in another case is
+    #     caught too.
+    text = packet.snap_view.model_dump_json().lower()
     for word in HIDDEN_WORDS:
         if word in text:
             raise ValueError(f"snap_view carries {word!r}")
@@ -722,11 +750,41 @@ def build_all(
 
 
 def batch_summary(packets: list[RunEvidencePacket]) -> dict:
-    """Deterministic totals over a batch, with the denominators stated."""
+    """Deterministic totals over a batch, with the denominators stated.
+
+    Evidence share is reported two ways, as the rubric (section 6) and
+    `capstone.evaluation.scoring.summarize` define it: pooled, every relevant
+    item collected over every relevant item available across the reasoned
+    runs; and as the mean of the per-run shares over the runs that had any
+    relevant evidence (a run with none has no share and is left out, never
+    counted as zero).
+    """
+    # Variables:
+    #   judged: Packets whose label exists, so `fully_right` is True or False.
+    #   reasoned: Packets where a model answered; outage runs are left out of
+    #     every reasoning total, as `summarize` does.
+    #   committed: Judged packets whose label names a cause.
+    #   cal: How many packets fall in each verification-calibration class.
+    #   available, collected: Relevant evidence items that existed, and that were
+    #     looked at, pooled over the reasoned runs.
+    #   shares: The per-run evidence shares of the runs that had relevant evidence.
+    #   timed: The reasoned runs whose wall time was recorded.
     judged = [p for p in packets if p.evaluator_only.fully_right is not None]
     reasoned = [p for p in packets if not p.evaluator_only.model_unavailable]
     committed = [p for p in judged if p.evaluator_only.abstained is False]
     cal = Counter(p.evaluator_only.verification_calibration for p in packets)
+    available = sum(len(p.evaluator_only.relevant_evidence) for p in reasoned)
+    collected = sum(len(p.evaluator_only.relevant_evidence_collected) for p in reasoned)
+    shares = [
+        p.evaluator_only.evidence_share
+        for p in reasoned
+        if p.evaluator_only.evidence_share is not None
+    ]
+    timed = [
+        p.snap_view.facts.wall_seconds
+        for p in reasoned
+        if p.snap_view.facts.wall_seconds is not None
+    ]
     return {
         "runs": len(packets),
         "model_unavailable": len(packets) - len(reasoned),
@@ -750,11 +808,11 @@ def batch_summary(packets: list[RunEvidencePacket]) -> dict:
         "false_interventions": sum(
             p.evaluator_only.false_intervention for p in reasoned
         ),
-        "evidence_share_mean": (
-            sum(p.evaluator_only.evidence_share or 0 for p in reasoned) / len(reasoned)
-            if reasoned
-            else None
-        ),
+        "evidence_available": available,
+        "evidence_collected": collected,
+        "evidence_share": collected / available if available else None,
+        "evidence_share_runs": len(shares),
+        "evidence_share_mean": sum(shares) / len(shares) if shares else None,
         "miss_kinds": dict(
             Counter(
                 p.evaluator_only.miss_kind for p in judged if p.evaluator_only.miss_kind
@@ -767,11 +825,8 @@ def batch_summary(packets: list[RunEvidencePacket]) -> dict:
             if reasoned
             else None
         ),
-        "mean_wall_seconds": (
-            sum(p.snap_view.facts.wall_seconds or 0 for p in reasoned) / len(reasoned)
-            if reasoned
-            else None
-        ),
+        "timed_runs": len(timed),
+        "mean_wall_seconds": sum(timed) / len(timed) if timed else None,
         "traces_complete": sum(
             p.snap_view.trace.completeness == "full" for p in packets
         ),

@@ -314,6 +314,22 @@ alarm), then evaluation, then the agent itself.
     validating the judges is designed, not filled; the live experiments
     proposed (critic off/on matched, all 13 cases frozen, repeats) are
     Codex's.
+  - Refinements after a read of the whole project against the tooling
+    (same PR, same day): the agreement report counted each request's
+    input tokens and cost once per question answered (now once per
+    request, with a request count and the mean confidence kept per question
+    kind); the batch summary now reports the evidence share pooled as
+    `scoring.summarize` and the rubric define it, beside the per-run mean
+    over runs that had any relevant evidence, and times only the timed
+    runs; the judge-view truth guard checks ten truth-side field names in
+    any letter case instead of four; the questions a record-only packet
+    cannot answer are one named set (`snap_request.NEEDS_FULL_TRACE`) that
+    a test keeps equal to the question file's rules (the file's principles
+    had listed five of the eight); a packet whose judge view cannot be
+    fitted to the evidence budget is written as skipped with the reason
+    instead of stopping the batch; the hazard profile is read the way
+    `evals.report_of` reads it. Two tests added, two extended. Built
+    ungated, developer to review.
 
 - **2026-10-31 (LV2): the progress view catches up.** Before the fresh
   anchored-vs-blind pair, the live view (`capstone.progress`, also used by

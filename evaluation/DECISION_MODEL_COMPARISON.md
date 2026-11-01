@@ -53,8 +53,10 @@ questions to `POST https://api.typesafe.ai/v1/systemone` and reads
 5. **Agreement, disagreement, confidence, latency, tokens, cost.**
    `evaltools.compare_evaluators` writes `agreement.json` and
    `agreement.md`: agreement rate overall, by family and by question;
-   every disagreement with both values; per-provider median latency,
-   total tokens, total cost and mean confidence.
+   every disagreement with both values; per-provider request count, median
+   latency, total tokens and cost (counted once per request) and mean
+   confidence per question kind (a noul's distance from one half is never
+   averaged with a choice's or a score's service confidence).
 6. **Disagreements go to a person; agreement is not correctness.** The
    report lists `disagreements_for_review` and carries the caveat in its
    output; the reference set is the only source of correctness.
