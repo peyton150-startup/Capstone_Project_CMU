@@ -1,23 +1,33 @@
-"""Turn evidence packets and SNAP_QUESTIONS.json into Decisions API requests.
+"""Turn evidence packets and SNAP_QUESTIONS.json into decision-model requests.
 
-    uv run python -m evaltools.snap_request runs --packets packets/<batch> --out requests/<batch>
-    uv run python -m evaltools.snap_request functions --ids capstone.agent.loop:gather ...
-    uv run python -m evaltools.snap_request tests --ids tests/test_agent_loop.py::test_...
-    uv run python -m evaltools.snap_request tools --names get_readings wait
+    uv run python -m evaltools.snap_request --out requests/<batch> runs --packets packets/<batch>
+    uv run python -m evaltools.snap_request --provider both --out requests/<batch> runs --packets ...
+    uv run python -m evaltools.snap_request --out requests/fn functions --ids capstone.agent.loop:gather
+    uv run python -m evaltools.snap_request --out requests/ts tests --ids tests/test_x.py::test_y
+    uv run python -m evaltools.snap_request --out requests/tl tools --names get_readings wait
+
+The questions are provider-neutral: the same named questions, criteria,
+scales and missing-evidence rules go to SubQ Snap (`--provider snap`, the
+default), TypeSafe Jev (`--provider jev`) or both (`--provider both`). In a
+matched comparison every provider receives the same state, fitted to the
+smaller context budget by one deterministic rule (`decision_models.fit_state`),
+so a disagreement is never explained by one model having seen more.
 
 By default nothing is sent: each request body is written to a JSON file so a
 person can read exactly what the judge would see. `--send` posts the files
-with the key in the SUBQ_API_KEY environment variable and writes the answers
-beside them, each tagged with the rubric version, the commit, the question
-ids and a digest of the state, so a result can always be traced to the exact
-evidence it was given.
+with the key named by the provider (`SUBQ_API_KEY`, `TYPESAFE_API_KEY`) in
+the environment and writes the answers beside them, normalized into the
+common schema and tagged with the rubric version, the commit, the question
+ids, the provider, the model requested and reported, latency, tokens and
+cost, so a result can always be traced to the exact evidence it was given.
 
 The judge is only ever given the `snap_view` half of a run packet. The
 `evaluator_only` half (hidden truth comparisons) stays on disk.
 
-SubQ is not one of the agent's model providers (AGENTS.md section 9 lists
-those). This module is evaluation tooling outside the `capstone` package; it
-adds no setting, dependency or default to the agent.
+Neither service is one of the agent's model providers in the sense of
+AGENTS.md section 9 (TypeSafe is already in scope for the evaluator's typed
+judgments). This module is evaluation tooling outside the `capstone`
+package; it adds no setting, dependency or default to the agent.
 """
 
 import argparse
@@ -25,6 +35,7 @@ import hashlib
 import json
 import os
 import sys
+import time
 import urllib.request
 from datetime import datetime, timezone
 from pathlib import Path
@@ -32,15 +43,23 @@ from typing import Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
+from evaltools.decision_models import (
+    MATCHED_STATE_TOKENS,
+    PROVIDERS,
+    DecisionProvider,
+    estimate_tokens,
+    fit_state,
+    normalize,
+)
+
 REPO = Path(__file__).resolve().parents[2]
 EVALUATION = REPO / "evaluation"
 QUESTIONS_PATH = EVALUATION / "SNAP_QUESTIONS.json"
 INVENTORY = EVALUATION / "inventory"
-ENDPOINT = "https://api.subq.ai/v1/systemone"
-MAX_QUESTIONS_PER_REQUEST = 16
+MAX_QUESTIONS_PER_REQUEST = min(p.max_questions for p in PROVIDERS.values())
 
 
-class SnapQuestion(BaseModel):
+class DecisionQuestion(BaseModel):
     model_config = ConfigDict(extra="allow", frozen=True)
 
     id: str = Field(pattern=r"^[A-Z]{2,3}-\d{2}$")
@@ -71,27 +90,31 @@ class SnapQuestion(BaseModel):
         return self
 
     def to_request(self) -> dict:
-        """The question in the API's shape. The score key is the one to confirm."""
+        """The question in the System One shape both services share."""
         body: dict[str, Any] = {"type": self.type, "instructions": self.instructions}
         if self.type == "score":
-            # SECOND-HAND: confirm against docs.subq.ai whether ordered levels go
-            # under "criteria" (as TypeSafe's shape suggests) or "levels".
+            # SECOND-HAND: confirm against each service's documentation whether
+            # ordered levels go under "criteria" or "levels".
             body["criteria"] = list(self.criteria)
         else:
             body["criteria"] = dict(self.criteria)
         return body
 
 
-def load_questions(path: Path = QUESTIONS_PATH) -> tuple[dict, list[SnapQuestion]]:
+# The name the tests and older notes use.
+SnapQuestion = DecisionQuestion
+
+
+def load_questions(path: Path = QUESTIONS_PATH) -> tuple[dict, list[DecisionQuestion]]:
     raw = json.loads(path.read_text(encoding="utf-8"))
-    questions = [SnapQuestion.model_validate(q) for q in raw["questions"]]
+    questions = [DecisionQuestion.model_validate(q) for q in raw["questions"]]
     ids = [q.id for q in questions]
     if len(ids) != len(set(ids)):
         raise ValueError("question ids must be unique")
     return raw, questions
 
 
-def questions_for(family: str, questions: list[SnapQuestion]) -> list[SnapQuestion]:
+def questions_for(family: str, questions: list[DecisionQuestion]) -> list:
     return [q for q in questions if q.family == family]
 
 
@@ -102,9 +125,24 @@ def digest(state: Any) -> str:
 
 
 def build_request(
-    state: Any, questions: list[SnapQuestion], *, model: str, item_id: str, meta: dict
+    state: Any,
+    questions: list[DecisionQuestion],
+    *,
+    model: str,
+    item_id: str,
+    meta: dict,
+    provider: str = "snap",
+    state_tokens: int | None = MATCHED_STATE_TOKENS,
 ) -> list[dict]:
-    """One or more request bodies (at most 16 questions each) plus their tags."""
+    """Request bodies (at most 16 questions each) plus their tags, for one provider.
+
+    `state_tokens` is the evidence budget the state is fitted to; None sends
+    the state whole (a provider's own limit still applies). The same budget
+    given to two providers yields the same fitted state and the same digest.
+    """
+    trimmed: list[str] = []
+    if state_tokens is not None and isinstance(state, dict):
+        state, trimmed = fit_state(state, state_tokens)
     requests = []
     for start in range(0, len(questions), MAX_QUESTIONS_PER_REQUEST):
         chunk = questions[start : start + MAX_QUESTIONS_PER_REQUEST]
@@ -112,9 +150,15 @@ def build_request(
             {
                 "tags": {
                     **meta,
+                    "provider": provider,
+                    "model_requested": model,
                     "item_id": item_id,
                     "question_ids": [q.id for q in chunk],
+                    "questions": {q.name: q.model_dump() for q in chunk},
                     "state_digest": digest(state),
+                    "state_tokens_estimate": estimate_tokens(state),
+                    "state_budget_tokens": state_tokens,
+                    "state_trimmed": trimmed,
                     "built_at": datetime.now(timezone.utc).isoformat(),
                 },
                 "body": {
@@ -131,8 +175,8 @@ def build_request(
 
 
 def applicable_run_questions(
-    packet: dict, questions: list[SnapQuestion]
-) -> tuple[list[SnapQuestion], dict[str, str]]:
+    packet: dict, questions: list[DecisionQuestion]
+) -> tuple[list[DecisionQuestion], dict[str, str]]:
     """Which RUN questions a packet can answer, and why the others are skipped."""
     view = packet["snap_view"]
     trace = view["trace"]
@@ -140,24 +184,21 @@ def applicable_run_questions(
     conclusion = trace.get("conclusion") or {}
     skipped: dict[str, str] = {}
     chosen = []
+    needs_trace = {
+        "RUN-01",
+        "RUN-02",
+        "RUN-05",
+        "RUN-06",
+        "RUN-08",
+        "RUN-09",
+        "RUN-10",
+        "RUN-12",
+    }
     for q in questions_for("RUN", questions):
         reason = None
-        if (
-            q.id
-            in (
-                "RUN-01",
-                "RUN-02",
-                "RUN-05",
-                "RUN-06",
-                "RUN-08",
-                "RUN-09",
-                "RUN-10",
-                "RUN-12",
-            )
-            and not full
-        ):
+        if q.id in needs_trace and not full:
             reason = "unknown: trace.completeness is record_only (run without --audit)"
-        elif q.id in ("RUN-03",) and trace.get("critique") is None:
+        elif q.id == "RUN-03" and trace.get("critique") is None:
             reason = "not_run: no critic in this run"
         elif q.id == "RUN-11" and trace.get("recheck") is None:
             reason = "not_asked: the critic follow-up was off"
@@ -177,7 +218,13 @@ def applicable_run_questions(
     return chosen, skipped
 
 
-def run_requests(packet_dir: Path, questions: list[SnapQuestion], model: str) -> list:
+def run_requests(
+    packet_dir: Path,
+    questions: list[DecisionQuestion],
+    providers: list[DecisionProvider],
+    *,
+    state_tokens: int | None,
+) -> list:
     built = []
     for path in sorted(packet_dir.glob("*.json")):
         if path.name == "BATCH_SUMMARY.json":
@@ -192,27 +239,32 @@ def run_requests(packet_dir: Path, questions: list[SnapQuestion], model: str) ->
             "skipped_questions": skipped,
             "packet_file": path.name,
         }
-        if chosen:
-            built.extend(
-                build_request(
-                    packet["snap_view"],
-                    chosen,
-                    model=model,
-                    item_id=packet["snap_view"]["run_key"],
-                    meta=meta,
+        item_id = packet["snap_view"]["run_key"]
+        for provider in providers:
+            if chosen:
+                built.extend(
+                    build_request(
+                        packet["snap_view"],
+                        chosen,
+                        model=provider.model,
+                        item_id=item_id,
+                        meta=meta,
+                        provider=provider.name,
+                        state_tokens=state_tokens,
+                    )
                 )
-            )
-        else:
-            built.append(
-                {
-                    "tags": {
-                        **meta,
-                        "item_id": packet["snap_view"]["run_key"],
-                        "question_ids": [],
-                    },
-                    "body": None,
-                }
-            )
+            else:
+                built.append(
+                    {
+                        "tags": {
+                            **meta,
+                            "provider": provider.name,
+                            "item_id": item_id,
+                            "question_ids": [],
+                        },
+                        "body": None,
+                    }
+                )
     return built
 
 
@@ -321,9 +373,10 @@ def tool_state(tool: dict, functions_by_id: dict) -> dict:
 # --- sending ---------------------------------------------------------------------------
 
 
-def send(body: dict, api_key: str, timeout: float = 60.0) -> dict:
+def send(provider: DecisionProvider, body: dict, api_key: str, timeout: float = 90.0):
+    """POST one request; returns (reply, latency seconds)."""
     request = urllib.request.Request(
-        ENDPOINT,
+        provider.endpoint,
         data=json.dumps(body).encode("utf-8"),
         headers={
             "Authorization": f"Bearer {api_key}",
@@ -332,28 +385,70 @@ def send(body: dict, api_key: str, timeout: float = 60.0) -> dict:
         },
         method="POST",
     )
+    started = time.monotonic()
     with urllib.request.urlopen(request, timeout=timeout) as response:
-        return json.loads(response.read())
+        reply = json.loads(response.read())
+    return reply, time.monotonic() - started
+
+
+def normalized_answers(item: dict, reply: dict, latency: float) -> list[dict]:
+    """Every answer in the reply, in the common schema, in question order."""
+    tags = item["tags"]
+    usage = reply.get("usage", {}) if isinstance(reply, dict) else {}
+    tokens = usage.get("input_tokens")
+    answers = reply.get("answers", {})
+    found = []
+    for name, question in tags["questions"].items():
+        raw = answers.get(name)
+        if raw is None:
+            found.append(
+                {
+                    "provider": tags["provider"],
+                    "question_id": question["id"],
+                    "question_name": name,
+                    "type": question["type"],
+                    "value": None,
+                    "error": "no answer in the reply",
+                }
+            )
+            continue
+        found.append(
+            normalize(
+                tags["provider"],
+                question,
+                raw,
+                model_reported=reply.get("model"),
+                latency_seconds=round(latency, 3),
+                input_tokens=tokens,
+            )
+        )
+    return found
 
 
 def write_requests(built: list, out: Path, *, send_them: bool) -> None:
     out.mkdir(parents=True, exist_ok=True)
-    api_key = os.environ.get("SUBQ_API_KEY")
-    if send_them and not api_key:
-        raise SystemExit("--send needs SUBQ_API_KEY in the environment")
+    if send_them:
+        for name in {item["tags"]["provider"] for item in built}:
+            if not os.environ.get(PROVIDERS[name].key_env):
+                raise SystemExit(
+                    f"--send needs {PROVIDERS[name].key_env} in the environment"
+                )
     for number, item in enumerate(built, start=1):
         tags = item["tags"]
-        stem = f"{number:03d}_{tags['item_id'].replace('/', '__').replace('::', '__')}"
+        safe = tags["item_id"].replace("/", "__").replace("::", "__")
+        stem = f"{number:03d}_{tags['provider']}_{safe}"
         (out / f"{stem}.request.json").write_text(
             json.dumps(item, indent=1, default=str) + "\n", encoding="utf-8"
         )
         if send_them and item["body"] is not None:
-            answers = send(item["body"], api_key)
+            provider = PROVIDERS[tags["provider"]]
+            reply, latency = send(provider, item["body"], os.environ[provider.key_env])
             (out / f"{stem}.answers.json").write_text(
                 json.dumps(
                     {
                         "tags": tags,
-                        "answers": answers,
+                        "answers": normalized_answers(item, reply, latency),
+                        "raw_reply": reply,
                         "answered_at": datetime.now(timezone.utc).isoformat(),
                     },
                     indent=1,
@@ -368,9 +463,22 @@ def main(argv=None) -> int:
     parser = argparse.ArgumentParser(prog="python -m evaltools.snap_request")
     parser.add_argument("--questions", type=Path, default=QUESTIONS_PATH)
     parser.add_argument("--inventory", type=Path, default=INVENTORY)
+    parser.add_argument(
+        "--provider",
+        choices=(*PROVIDERS, "both"),
+        default="snap",
+        help="which decision model(s) to prepare requests for",
+    )
+    parser.add_argument(
+        "--full-context",
+        action="store_true",
+        help="send the state whole (one provider only; breaks a matched comparison)",
+    )
     parser.add_argument("--model", default=None, help="override the model id")
     parser.add_argument("--out", type=Path, required=True)
-    parser.add_argument("--send", action="store_true", help="post with SUBQ_API_KEY")
+    parser.add_argument(
+        "--send", action="store_true", help="post with the provider's key"
+    )
     kinds = parser.add_subparsers(dest="kind", required=True)
     runs = kinds.add_parser("runs")
     runs.add_argument("--packets", type=Path, required=True)
@@ -382,11 +490,25 @@ def main(argv=None) -> int:
     tools.add_argument("--names", nargs="+", required=True)
     args = parser.parse_args(argv)
 
+    providers = (
+        list(PROVIDERS.values())
+        if args.provider == "both"
+        else [PROVIDERS[args.provider]]
+    )
+    if args.model is not None:
+        if len(providers) != 1:
+            parser.error("--model needs one provider")
+        providers = [DecisionProvider(**{**providers[0].__dict__, "model": args.model})]
+    if args.full_context and len(providers) != 1:
+        parser.error("--full-context needs one provider; a comparison is matched")
+    state_tokens = None if args.full_context else MATCHED_STATE_TOKENS
+
     raw, questions = load_questions(args.questions)
-    model = args.model or raw["api"]["model"]
     meta = {"rubric_version": raw["rubric_version"]}
     if args.kind == "runs":
-        built = run_requests(args.packets, questions, model)
+        built = run_requests(
+            args.packets, questions, providers, state_tokens=state_tokens
+        )
     else:
         functions_by_id = {
             f["id"]: f
@@ -400,27 +522,19 @@ def main(argv=None) -> int:
                 (args.inventory / "TEST_INVENTORY.json").read_text("utf-8")
             )["tests"]
         }
-        built = []
         if args.kind == "functions":
-            for item in args.ids:
-                state = function_state(functions_by_id[item], tests_by_id)
-                built += build_request(
-                    state,
-                    questions_for("FN", questions),
-                    model=model,
-                    item_id=item,
-                    meta={**meta, "family": "FN"},
-                )
+            family, items = (
+                "FN",
+                [
+                    (i, function_state(functions_by_id[i], tests_by_id))
+                    for i in args.ids
+                ],
+            )
         elif args.kind == "tests":
-            for item in args.ids:
-                state = test_state(tests_by_id[item], functions_by_id)
-                built += build_request(
-                    state,
-                    questions_for("TS", questions),
-                    model=model,
-                    item_id=item,
-                    meta={**meta, "family": "TS"},
-                )
+            family, items = (
+                "TS",
+                [(i, test_state(tests_by_id[i], functions_by_id)) for i in args.ids],
+            )
         else:
             tools_by_name = {
                 t["name"]: t
@@ -428,14 +542,24 @@ def main(argv=None) -> int:
                     (args.inventory / "TOOL_INVENTORY.json").read_text("utf-8")
                 )["tools"]
             }
-            for name in args.names:
-                state = tool_state(tools_by_name[name], functions_by_id)
+            family, items = (
+                "TL",
+                [
+                    (n, tool_state(tools_by_name[n], functions_by_id))
+                    for n in args.names
+                ],
+            )
+        built = []
+        for item_id, state in items:
+            for provider in providers:
                 built += build_request(
                     state,
-                    questions_for("TL", questions),
-                    model=model,
-                    item_id=name,
-                    meta={**meta, "family": "TL"},
+                    questions_for(family, questions),
+                    model=provider.model,
+                    item_id=item_id,
+                    meta={**meta, "family": family},
+                    provider=provider.name,
+                    state_tokens=state_tokens,
                 )
     write_requests(built, args.out, send_them=args.send)
     print(

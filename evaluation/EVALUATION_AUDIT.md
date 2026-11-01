@@ -346,15 +346,24 @@ faults, machines examined, RUN-01).
 
 ### Snap integration
 
-- **S1. API shape second-hand.** docs.subq.ai did not resolve; the request
-  shape follows the quickstart as quoted by search results and two
-  open-source clients, and matches the TypeSafe System One client already
-  in the repository (`providers/typesafe.py`). The score-level key is
-  marked to confirm. No request was sent.
-- **S2. Scope.** SubQ is not an agent provider (AGENTS.md section 9). The
-  request builder lives outside `capstone`, adds no setting, dependency or
-  default, and reads its key from the environment of the person who sends.
-  The developer should confirm this reading before any live request.
+- **S1. API shapes second-hand.** Neither docs.subq.ai nor
+  docs.typesafe.ai resolved; the request shape follows the quickstart as
+  quoted by search results and two open-source clients, and matches the
+  TypeSafe System One client already in the repository
+  (`providers/typesafe.py`). The score-level key and Jev's
+  questions-per-request limit are marked to confirm
+  (`DECISION_MODEL_COMPARISON.md` section 1). No request was sent.
+- **S2. Scope.** SubQ is not an agent provider (AGENTS.md section 9) and
+  TypeSafe is in scope for the evaluator only. The request builder lives
+  outside `capstone`, adds no setting, dependency or default, and reads
+  each key from the environment of the person who sends. The developer
+  should confirm this reading before any live request.
+- **S3. Two judges.** Snap and Jev are run as independent evaluators on
+  the same fitted evidence; the report measures agreement and lists
+  disagreements for review, and the reference set decides who was right.
+  Whether the second judge earns its keep is decided per question family
+  after the first traced batch (`DECISION_MODEL_COMPARISON.md` sections
+  5 and 6).
 
 ## 4. The challenge scenarios (Phase 4)
 

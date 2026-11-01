@@ -168,3 +168,186 @@ def test_the_inventory_lists_every_function_and_every_curated_item_exists(tmp_pa
     )
     tools = json.loads((tmp_path / "TOOL_INVENTORY.json").read_text())["tools"]
     assert {t["name"] for t in tools} >= {"get_readings", "wait", "search_manual"}
+
+
+# --- two decision models on the same evidence ---------------------------------------
+
+
+def test_both_providers_get_the_same_fitted_state_and_questions(master_packets):
+    from evaltools import decision_models
+
+    _, questions = snap_request.load_questions()
+    state = json.loads(master_packets[1].snap_view.model_dump_json())
+    built = {
+        name: snap_request.build_request(
+            state,
+            snap_request.questions_for("RUN", questions)[:3],
+            model=provider.model,
+            item_id="x",
+            meta={},
+            provider=name,
+        )[0]
+        for name, provider in decision_models.PROVIDERS.items()
+    }
+    snap, jev = built["snap"], built["jev"]
+    assert snap["tags"]["state_digest"] == jev["tags"]["state_digest"]
+    assert snap["body"]["state"] == jev["body"]["state"]
+    assert snap["body"]["questions"] == jev["body"]["questions"]
+    assert snap["body"]["model"] != jev["body"]["model"]
+    assert snap["tags"]["state_budget_tokens"] == decision_models.MATCHED_STATE_TOKENS
+
+
+def test_fitting_a_state_is_deterministic_and_keeps_the_conclusion():
+    from evaltools import decision_models
+
+    big = {
+        "trace": {
+            "evidence": [{"id": f"E{i}", "content": "x" * 5000} for i in range(40)],
+            "decisions": [{"information_needed": "why", "tool": "get_time"}] * 50,
+            "pruned_candidates": [{"id": "C1"}],
+            "conclusion": {"diagnosis": "keep me"},
+            "hypotheses": [{"id": "H1"}],
+        }
+    }
+    fitted, log = decision_models.fit_state(big, 3000)
+    again, _ = decision_models.fit_state(big, 3000)
+    assert fitted == again
+    assert decision_models.estimate_tokens(fitted) <= 3000
+    assert fitted["trace"]["conclusion"] == {"diagnosis": "keep me"}
+    assert fitted["trace"]["hypotheses"] == [{"id": "H1"}]
+    assert "evidence content cut to 600 characters" in log
+    assert big["trace"]["evidence"][0]["content"] == "x" * 5000  # untouched
+    with pytest.raises(ValueError):
+        decision_models.fit_state(big, 10)
+
+
+def test_answers_normalize_to_one_schema_and_compare_by_the_stated_rules():
+    from evaltools import decision_models
+
+    noul = {"id": "RUN-09", "name": "unsupported_confidence", "type": "noul"}
+    choice = {"id": "RUN-05", "name": "verification_demonstrated", "type": "choice"}
+    score = {"id": "RUN-08", "name": "conclusion_support", "type": "score"}
+    a = decision_models.normalize(
+        "snap",
+        noul,
+        {"type": "noul", "noul": 0.9},
+        model_reported="subq-snap-1.1",
+        latency_seconds=1.0,
+        input_tokens=1000,
+    )
+    b = decision_models.normalize(
+        "jev",
+        noul,
+        {"type": "noul", "noul": 0.35},
+        model_reported="jev-1.14.0",
+        latency_seconds=2.0,
+        input_tokens=1000,
+    )
+    assert set(a) == set(b)
+    assert a["cost_usd"] == pytest.approx(0.040 / 1000)
+    assert b["cost_usd"] == pytest.approx(0.042 / 1000)
+    assert decision_models.compare(a, b)["agree"] is False
+    close = decision_models.normalize(
+        "jev",
+        noul,
+        {"noul": 0.45},
+        model_reported=None,
+        latency_seconds=None,
+        input_tokens=None,
+    )
+    assert decision_models.compare(close, b)["agree"] is True  # within 0.2
+    yes = decision_models.normalize(
+        "snap",
+        choice,
+        {"type": "choice", "choice": "yes", "confidence": 0.8},
+        model_reported=None,
+        latency_seconds=None,
+        input_tokens=None,
+    )
+    no = decision_models.normalize(
+        "jev",
+        choice,
+        {"type": "choice", "choice": "no", "confidence": 0.6},
+        model_reported=None,
+        latency_seconds=None,
+        input_tokens=None,
+    )
+    assert decision_models.compare(yes, no)["agree"] is False
+    three = decision_models.normalize(
+        "snap",
+        score,
+        {"type": "score", "score": 3.2, "confidence": 0.5},
+        model_reported=None,
+        latency_seconds=None,
+        input_tokens=None,
+    )
+    nearly = decision_models.normalize(
+        "jev",
+        score,
+        {"type": "score", "score": 2.8},
+        model_reported=None,
+        latency_seconds=None,
+        input_tokens=None,
+    )
+    assert decision_models.compare(three, nearly)["agree"] is True
+    assert decision_models.reference_match(three, 3) is True
+    assert decision_models.reference_match(yes, "no") is False
+    with pytest.raises(ValueError):
+        decision_models.normalize(
+            "snap",
+            noul,
+            {"type": "choice", "choice": "x"},
+            model_reported=None,
+            latency_seconds=None,
+            input_tokens=None,
+        )
+    with pytest.raises(ValueError):
+        decision_models.compare(a, yes)
+
+
+def test_the_agreement_report_pairs_only_identical_states_and_flags_disagreements(
+    tmp_path,
+):
+    from evaltools import compare_evaluators
+
+    question = {"id": "FN-01", "name": "q", "type": "noul", "criteria": {}}
+
+    def answers_file(provider, item, value, digest):
+        return {
+            "tags": {
+                "provider": provider,
+                "item_id": item,
+                "state_digest": digest,
+                "questions": {"q": question},
+            },
+            "answers": [
+                {
+                    "provider": provider,
+                    "question_id": "FN-01",
+                    "question_name": "q",
+                    "type": "noul",
+                    "value": value,
+                    "confidence": abs(value - 0.5) * 2,
+                    "latency_seconds": 1.0,
+                    "input_tokens": 100,
+                    "cost_usd": 0.0,
+                    "model_reported": provider,
+                }
+            ],
+        }
+
+    files = [
+        answers_file("snap", "f1", 0.9, "same"),
+        answers_file("jev", "f1", 0.2, "same"),
+        answers_file("snap", "f2", 0.9, "one"),
+        answers_file("jev", "f2", 0.9, "other"),
+    ]
+    report = compare_evaluators.build_report(files, {"f1": {"FN-01": True}})
+    assert report["pairs_compared"] == 1
+    assert report["agreement_rate"] == 0.0
+    assert report["disagreements_for_review"][0]["item_id"] == "f1"
+    assert report["unmatched"][0]["item_id"] == "f2"
+    assert report["per_provider"]["snap"]["reference_agreement"]["matched"] == 1
+    assert report["per_provider"]["jev"]["reference_agreement"]["matched"] == 0
+    text = compare_evaluators.markdown(report)
+    assert "f1" in text and "Caveats" in text

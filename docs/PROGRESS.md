@@ -302,9 +302,18 @@ alarm), then evaluation, then the agent itself.
     schema matches the model; questions batch at 16; an audit log gives a
     full trace; the traced runner names executed functions; the inventory
     counts every definition and refuses stale curated ids.
-  - Not done: no Snap request was sent; the reference set for validating
-    the judge is designed, not filled; the live experiments proposed
-    (critic off/on matched, all 13 cases frozen, repeats) are Codex's.
+  - Two decision models (the developer's third prompt): `decision_models.py`
+    holds the Snap and Jev facts (second-hand, marked), one deterministic
+    evidence-fitting rule so both see the same state within Jev's smaller
+    budget, a common answer schema (`DECISION_ANSWER_SCHEMA.json`) and the
+    agreement rules; `snap_request --provider both`; `compare_evaluators`
+    writes the agreement report with disagreements for review and each
+    model's agreement with the reviewer's reference answers.
+    `DECISION_MODEL_COMPARISON.md` says when to keep both.
+  - Not done: no Snap or Jev request was sent; the reference set for
+    validating the judges is designed, not filled; the live experiments
+    proposed (critic off/on matched, all 13 cases frozen, repeats) are
+    Codex's.
 
 - **2026-10-31 (LV2): the progress view catches up.** Before the fresh
   anchored-vs-blind pair, the live view (`capstone.progress`, also used by

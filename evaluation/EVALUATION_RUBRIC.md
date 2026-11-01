@@ -39,7 +39,7 @@ VERIFIED is a judgment that the test proves the contract.
 
 ## 2. Level 1: function correctness
 
-Per function (597 on the reviewed commit), from `inventory/FUNCTION_INVENTORY.json`:
+Per function (602 on the reviewed commit), from `inventory/FUNCTION_INVENTORY.json`:
 
 | Metric | Calculation | Deterministic? | Evidence |
 |---|---|---|---|
@@ -50,7 +50,7 @@ Per function (597 on the reviewed commit), from `inventory/FUNCTION_INVENTORY.js
 | failure_paths_covered | FN-02 judgment, or a reviewer | no (judge) | source + tests |
 | verification_status | section 1 | mixed | curated notes |
 
-Aggregates: counts by status (denominator: all 597, with NOT APPLICABLE
+Aggregates: counts by status (denominator: all 602, with NOT APPLICABLE
 listed apart), by module (`VERIFICATION_MATRIX.json` `by_module`).
 
 ## 3. Level 2: tool correctness
@@ -65,7 +65,7 @@ TL-03 is listed by name.
 
 ## 4. Level 3: test quality
 
-Per test (1349 functions, 1700 parametrized cases), from
+Per test (1,357 functions, 1,708 parametrized cases, 12 of them this framework's own), from
 `inventory/TEST_INVENTORY.json`:
 
 | Metric | Calculation | Deterministic? |
@@ -161,6 +161,11 @@ blockers. No percentage is computed.
   `state_digest` and `commit_sha`; a rubric change invalidates nothing but
   starts a new column.
 - Snap results never enter the agent's memory store or any prompt.
+- Two decision models (Snap 1.1 and Jev 1.14) answer the same questions on
+  the same fitted state; their agreement is reported, their disagreements
+  are the review queue, and only the reference set says which was right
+  (`DECISION_MODEL_COMPARISON.md`). Agreement rules: noul same side of 0.5
+  or within 0.2; choice equal; score within half a level.
 
 ## 9. Aggregation rules
 

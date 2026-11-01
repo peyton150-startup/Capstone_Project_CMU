@@ -179,3 +179,24 @@ configuration. The framework in this folder is what makes the question
 answerable: packets with the judge view apart from the truth, the guarded
 batch table, the comparison questions BT-01 and BT-02, and the three
 experiments above.
+
+## Part D: two decision models
+
+*Does having two independent decision models materially improve our
+ability to detect misleading master-run successes, or does it simply add
+complexity?*
+
+It improves detection only through its disagreements. A misleading success
+is a run the deterministic scorer calls right and a judge calls poorly
+supported; one generous judge never raises that flag, and two independent
+judges make generosity visible as a disagreement the reviewer then settles
+against the trace and the reference set. If the two share a blind spot
+(both praise fluent conclusions), agreement is high and worthless, which
+the deliberately broken reference packet is there to expose. So: run Jev
+as the second evaluator on the first traced batch with the reference set
+filled first, measure each model's agreement with the reviewer per
+question family, and keep both only where their disagreements prove to be
+the useful review queue. The design, the matched evidence budget, the
+common schema and the agreement report are in
+`DECISION_MODEL_COMPARISON.md`; the deterministic layer stays the arbiter
+of correctness either way.

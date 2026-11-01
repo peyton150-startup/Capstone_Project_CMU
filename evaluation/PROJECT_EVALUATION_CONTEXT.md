@@ -166,10 +166,10 @@ master runs saved in `docs/benchmarks/` were made without `--audit`.
 - Live runs are Codex's job (AGENTS.md section 12); this framework prepares
   and scores, it does not launch.
 - Model providers in scope: NVIDIA, Groq, Mistral, Gemini, Cohere,
-  Cloudflare, the routers, TypeSafe Jev for typed judgments. SubQ Snap is
-  used here only as an evaluator of evidence, outside the `capstone`
-  package, with its key in the environment of the person running
-  `evaltools.snap_request --send`.
+  Cloudflare, the routers, TypeSafe Jev for typed judgments. SubQ Snap and
+  TypeSafe Jev are used here only as evaluators of evidence, outside the
+  `capstone` package, with their keys in the environment of the person
+  running `evaltools.snap_request --send`.
 - Held-out seeds 1000-1009 (`experiment.HELD_OUT_SEEDS`) are for reported
   numbers; nothing may be tuned on them.
 - A real model does not answer identically twice; one run per case is a
