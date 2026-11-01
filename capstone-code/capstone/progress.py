@@ -37,7 +37,9 @@ from capstone.episode import (
     reject_all,
     run_episode,
 )
+from capstone.evaluation.manual import manual_search_record
 from capstone.evaluation.scoring import Score
+from capstone.providers.manual import MANUAL_TOOL
 from capstone.simulator.generator import FAULTS
 
 Write = Callable[[str], None]
@@ -64,7 +66,9 @@ def print_progress(line: str) -> None:
     ):
         color = "93"
     elif re.match(
-        r"^(CONCLUSION|PROPOSAL|CHECK|CRITIC|  why:|  confidence |  tried for )", line
+        r"^(RUN|CONCLUSION|PROPOSAL|CHECK|CRITIC|FOLLOW-UP|  why:|  confidence "
+        r"|  tried for |  assessment:|  calls:)",
+        line,
     ):
         color = "95"
     elif re.match(r"^\s*->", line):
@@ -90,7 +94,38 @@ def call_text(decision: DecisionRecord) -> str:
 
 
 def step_line(decision: DecisionRecord, state: InvestigationState) -> list[str]:
-    """The lines for one decision: what was asked, and what came of it."""
+    """The lines for one decision: what was asked, and what came of it.
+
+    A manual search gets one more line saying how it went (answered, failed,
+    repeated or out of searches) and which sections came back, since a manual
+    being offered does not mean a search worked.
+    """
+    # Variables:
+    #   lines: The call and its result, from `call_lines`.
+    lines = call_lines(decision, state)
+    if decision.tool == MANUAL_TOOL:
+        lines.append(manual_line(decision, state))
+    return lines
+
+
+def manual_line(decision: DecisionRecord, state: InvestigationState) -> str:
+    """How one manual search went, as the saved manual record would say it."""
+    # Variables:
+    #   record: The search classified as the experiment's records classify it.
+    #   who: Whether the loop's manual step made the search or the agent chose it.
+    #   found: The sections returned, or a note that none matched.
+    record = manual_search_record(decision, {e.id: e.content for e in state.evidence})
+    who = "manual step" if record.automatic else "agent's search"
+    if record.outcome != "answered":
+        # A failure's own message (if any) is on the line above; the tool does
+        # not record the cause, so this line does not guess one.
+        return f"       manual ({who}): {record.outcome.replace('_', ' ')}"
+    found = ", ".join(record.sections) or "no section matched"
+    return f"       manual ({who}): answered, sections {found}"
+
+
+def call_lines(decision: DecisionRecord, state: InvestigationState) -> list[str]:
+    """The call one decision made and what came of it."""
     # Variables:
     #   decision: One step the agent took.
     #   state: The agent's working state, read for the evidence the step produced.
@@ -146,20 +181,23 @@ class ProgressView:
         #   started: Whether the opening line has been printed.
         #   decisions_shown: How many steps have been printed, so only new ones are.
         #   beliefs: The leading beliefs last printed.
+        #   pruned_shown: How many tree-of-thought candidates were printed, so
+        #     each is shown once.
         #   conclusion: The conclusion last printed.
         #   proposal: The proposal last printed.
         #   verification: The check last printed.
         #   critique: The critic's record last printed.
+        #   recheck: The critic follow-up's record last printed.
         self.write = write
         self.started = False
         self.decisions_shown = 0
         self.beliefs: tuple = ()
-        # How many pruned candidates were already printed, so each is shown once.
         self.pruned_shown = 0
         self.conclusion = None
         self.proposal = None
         self.verification = None
         self.critique = None
+        self.recheck = None
 
     def __call__(self, state: InvestigationState) -> None:
         # Variables:
@@ -181,6 +219,7 @@ class ProgressView:
         self._beliefs(state)
         self._pruned(state)
         self._critique(state)
+        self._recheck(state)
         if state.conclusion is not None and state.conclusion != self.conclusion:
             self.conclusion = state.conclusion
             c = state.conclusion
@@ -188,6 +227,9 @@ class ProgressView:
                 f"CONCLUSION ({c.confidence:.2f}, {c.recommendation}): "
                 f"{shorten(c.diagnosis, 200)}"
             )
+            for line in assessment_lines(c):
+                self.write(line)
+            self.write(calls_line(state))
         proposal = state.proposed_action
         if proposal is not None and proposal != self.proposal:
             self.proposal = proposal
@@ -199,6 +241,37 @@ class ProgressView:
         if check is not None and check != self.verification:
             self.verification = check
             self.write(f"CHECK: {check.outcome} ({shorten(check.prediction, 120)})")
+            self.write(calls_line(state))
+
+    def _recheck(self, state: InvestigationState) -> None:
+        """What the critic follow-up did, printed once when it first appears."""
+        # Variables:
+        #   record: The follow-up's record; compared with the last one printed.
+        #   why: The trigger (objection or agreement), or "skipped".
+        #   call: The tool it used and the evidence it got, when it made a call.
+        #   got: That evidence's id, or "no evidence" when the call gave nothing.
+        record = state.recheck
+        if record is None or record == self.recheck:
+            return
+        self.recheck = record
+        if record.outcome == "skipped":
+            self.write(f"FOLLOW-UP skipped: {record.reason or 'no reason recorded'}")
+            return
+        why = record.trigger or "no trigger"
+        call = ""
+        if record.tool is not None:
+            got = record.evidence_id or "no evidence"
+            call = f", {record.tool} -> {got}"
+        self.write(f"FOLLOW-UP ({why}): {record.outcome.replace('_', ' ')}{call}")
+        if record.reason:
+            self.write(f"  why: {shorten(record.reason, 120)}")
+        if record.question:
+            self.write(f"  question: {shorten(record.question, 120)}")
+        if record.leading_before is not None:
+            self.write(
+                f"  leader before {belief(record.leading_before, record.confidence_before)}"
+                f", after {belief(record.leading_after, record.confidence_after)}"
+            )
 
     def _critique(self, state: InvestigationState) -> None:
         """The critic's verdict, printed once when it first appears."""
@@ -208,20 +281,25 @@ class ProgressView:
         #   r: The critic's reply; None when there was no usable one.
         #   kinds: The kinds of objection the critic raised, in order, so the line
         #     shows how it objected without printing every sentence.
+        #   mode: ", blind" for a blind critique; anchored ones keep the plain
+        #     heading, so either treatment is plain from the first line.
         record = state.critique
         if record is None or record == self.critique:
             return
         self.critique = record
         r = record.result
+        mode = ", blind" if record.blind else ""
         if r is None:
-            self.write(f"CRITIC ({record.outcome}): no critique")
+            self.write(f"CRITIC ({record.outcome}{mode}): no critique")
             self.write(f"  tried for {record.seconds:.1f} s")
             return
         kinds = ", ".join(o.kind for o in r.objections) or "none"
         self.write(
-            f"CRITIC ({record.outcome}): favoured {r.favoured}, {r.verdict}, "
+            f"CRITIC ({record.outcome}{mode}): favoured {r.favoured}, {r.verdict}, "
             f"check: {shorten(r.discriminating_check, 120)}"
         )
+        if record.blind and record.shown_order:
+            self.write(f"  {shown_order_line(record)}")
         self.write(f"  why: {shorten(r.why, 120)}")
         if record.verdict_mismatch:
             self.write(f"  verdict does not match the pick: {record.verdict_mismatch}")
@@ -248,16 +326,136 @@ class ProgressView:
                 )
 
     def _pruned(self, state: InvestigationState) -> None:
-        """What tree-of-thought ruled out, printed once when it first appears."""
+        """What tree-of-thought dropped, printed once when it first appears.
+
+        Contradicted candidates were ruled out by evidence; deferred ones were
+        only set aside (rated lower, not disproved), so they get their own heading.
+        """
         # Variables:
         #   new: Pruned candidates not printed yet.
+        #   heading: The heading for one status.
+        #   group: The new candidates with that status, in the order pruned.
         new = state.pruned_candidates[self.pruned_shown :]
         if not new:
             return
         self.pruned_shown = len(state.pruned_candidates)
-        self.write("  ruled out by tree-of-thought:")
-        for p in new:
-            self.write(f"    {p.id}  {shorten(p.claim, 60)}  ({p.status}: {p.reason})")
+        for status, heading in PRUNED_HEADINGS.items():
+            group = [p for p in new if p.status == status]
+            if not group:
+                continue
+            self.write(heading)
+            for p in group:
+                self.write(f"    {p.id}  {shorten(p.claim, 60)}  ({p.reason})")
+
+
+PRUNED_HEADINGS = {
+    "contradicted": "  ruled out by tree-of-thought (contradicted by evidence):",
+    "deferred": "  set aside by tree-of-thought (deferred, not disproved):",
+}
+
+
+def belief(hypothesis_id: str | None, confidence: float | None) -> str:
+    """A hypothesis id with its confidence, or "none"."""
+    if hypothesis_id is None:
+        return "none"
+    return hypothesis_id if confidence is None else f"{hypothesis_id} {confidence:.2f}"
+
+
+def shown_order_line(record) -> str:
+    """Which label stood for which hypothesis in a blind critique.
+
+    The agent's leader is the first of `shown_hypotheses` (the anchored order),
+    so its position in the shuffle shows whether the critic picked by place.
+    """
+    # Variables:
+    #   record: A blind CritiqueRecord with its shown order.
+    #   labels: Each shown label with the hypothesis it stood for.
+    #   leader: The agent's leading hypothesis when the critic was asked.
+    labels = [f"X{n}={h}" for n, h in enumerate(record.shown_order, start=1)]
+    line = "shown as " + ", ".join(labels)
+    leader = record.shown_hypotheses[0] if record.shown_hypotheses else None
+    if leader in record.shown_order:
+        line += (
+            f"; the agent's leader {leader} was X{record.shown_order.index(leader) + 1}"
+        )
+    return line
+
+
+def assessment_lines(conclusion) -> list[str]:
+    """Whether the agent called its diagnosis supported or unresolved, and what is open.
+
+    Explains why a plausible diagnosis can still end in escalation. Older
+    conclusions without an assessment print nothing.
+    """
+    # Variables:
+    #   conclusion: The agent's AgentConclusion.
+    #   lines: The assessment, then the open questions and the next check if any.
+    if conclusion.assessment is None:
+        return []
+    lines = [f"  assessment: {conclusion.assessment}"]
+    if conclusion.unresolved_questions:
+        lines.append(
+            "  open: " + shorten("; ".join(conclusion.unresolved_questions), 160)
+        )
+    if conclusion.next_check:
+        lines.append(f"  next check: {shorten(conclusion.next_check, 120)}")
+    return lines
+
+
+def calls_line(state: InvestigationState) -> str:
+    """The three separate call allowances, used against their limits.
+
+    Research, the critic's one check, and the checks after an action are
+    budgeted apart (`InvestigationState.research_tool_calls`), so one running
+    out does not spend the others.
+    """
+    # Variables:
+    #   budgets: The run's limits.
+    budgets = state.budgets
+    return (
+        f"  calls: research {state.research_tool_calls}/{budgets.max_tool_calls}, "
+        f"critic check {state.critic_tool_calls_used}/{budgets.critic_tool_calls}, "
+        f"after the action {state.followup_tool_calls_used}/{budgets.followup_tool_calls}"
+    )
+
+
+def run_header(
+    settings, *, manual: str | None, tree_of_thought: bool = False, hazards=False
+) -> list[str]:
+    """What this run is set to, printed once before the first case.
+
+    Names the critic treatment (off, anchored or blind, and the follow-up),
+    the manual (how it is searched and, for semantic search, the embedding
+    model), the manual step, tree-of-thought and hazards. Model names only:
+    no key or other secret is read here.
+    """
+    # Variables:
+    #   settings: The project settings (CRITIC, CRITIC_BLIND, ... EMBEDDING_MODEL).
+    #   manual: semantic, keyword, or None for no manual.
+    #   tree_of_thought: Whether the hypothesize step branches and prunes.
+    #   hazards: False, True / "standard", or "blackout".
+    #   critic: The critic treatment in words.
+    #   book: The manual setting in words.
+    if not settings.critic:
+        critic = "critic off"
+    else:
+        critic = (
+            f"critic {'blind' if settings.critic_blind else 'anchored'}, "
+            f"follow-up {'on' if settings.critic_followup else 'off'}"
+        )
+    if manual is None:
+        book = "no manual"
+    elif manual == "semantic":
+        book = f"manual by meaning ({settings.embedding_model})"
+    else:
+        book = f"manual by {manual}"
+    if hazards is True:
+        hazards = "standard"
+    return [
+        f"RUN: {critic}; {book}, manual step {'on' if settings.manual_step else 'off'}",
+        f"RUN: tree-of-thought {'on' if tree_of_thought else 'off'}; "
+        f"hazards {hazards or 'off'}",
+    ]
 
 
 def truth_lines(score: Score) -> list[str]:
@@ -340,7 +538,10 @@ def main(argv: Sequence[str] | None = None) -> int:
     args = parser.parse_args(argv)
 
     from capstone.experiment import model_policy_factory, open_manual, open_memory
+    from capstone.settings import get_settings
 
+    for line in run_header(get_settings(), manual=args.manual, hazards=args.hazards):
+        print_progress(line)
     memory = open_memory() if args.memory else None
     manual = open_manual(args.manual) if args.manual else None
     policy = model_policy_factory(
