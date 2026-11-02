@@ -58,6 +58,15 @@ The numbered requirements are the definitive implementation checklist. **P0** it
 - **Pass:** Hidden-truth sentinel values and scenario names cannot appear in any serialized provider request; violating packets are refused and counted. Judge questions are not selected using outcome truth or labels. Deterministic truth comparison runs only after judge output is captured.
 - **Likely files:** run_packet.py, snap_request.py, tests/test_evaluation_tools.py.
 
+#### EVAL-19 — Send judge requests the way the project's live client does, and refuse impossible answers (P0)
+
+Found by probing PR #155 on 2026-11-02 (`snap_request.send` and `decision_models.normalize` called directly with a captured transport and hand-made replies).
+
+- **Current issue:** `snap_request.send` builds its own `urllib` request with only `Accept`, `Authorization` and `Content-Type`, so Python adds its default `Python-urllib` User-Agent. Cloudflare-fronted services refuse that with HTTP 403 (the reason `capstone.providers.chat` sends `USER_AGENT`). Its timeout is per socket operation, not for the whole request, and its errors are raw `urllib` exceptions. Separately, `normalize` accepted the choice `"zzz"` for a question whose options were `a`/`b`, and a noul of `1.7`; the live TypeSafe client (`capstone/providers/typesafe.py`) refuses both.
+- **Change:** Send through `capstone.providers.chat.post_json` (User-Agent, one whole-request deadline, keyless `ModelError`s), with an injectable transport for tests. In `normalize`, refuse a choice that is not one of the question's options and a noul or score outside its range, so the answer is kept as unreadable with a reason rather than counted.
+- **Pass:** A captured-transport test sees the project's User-Agent and no key in any error text. An off-list choice, a noul outside 0–1 and a non-numeric score each become `value: None` with an error, and the other answers of the same request survive.
+- **Likely files:** snap_request.py, decision_models.py, tests/test_evaluation_tools.py.
+
 ### P1 — required for an entire-project evaluation
 
 #### EVAL-05 — Rebuild the inventory and publish a coverage manifest (P1)
@@ -136,11 +145,26 @@ The numbered requirements are the definitive implementation checklist. **P0** it
 - **EVAL-17 — Repeatability and statistical confidence (P2):** use frozen same-seed repeat sets and a declared comparison design; distinguish repeat-run stochastic variation from a true improvement. Report sample size and uncertainty rather than overclaiming from one run.
 - **EVAL-18 — Observability and performance budgets (P2):** correlate trace spans, retrieval latency, model calls/fallbacks, token usage and resource spend by episode and question; set explicit retry budgets, parallelism limits and safe interruption controls.
 
+#### EVAL-20 — Show the judge each test and tool as it really is (P1)
+
+Found by the same 2026-11-02 probe, against the 1,378 inventoried tests.
+
+- **Current issue:** `snap_request.test_state` shows a test as the 80 lines from its first line, and `function_state` shows each covering test as 60 lines. 1,377 of 1,378 tests are shorter than that, so the judge also reads the neighbouring tests (and one longer test is cut off). Every one of the 17 tool states carries the same `providers/factory.py` lines 1–120, of a 450-line file: repeated in each request and still incomplete. Lists are cut without a note: covering tests to 12, exercised functions to 15 (5 tests are cut today), tool tests to 20.
+- **Change:** Use each test's own end line from the source's syntax tree (the inventory already records `end_line` for functions). Replace the fixed factory excerpt with the function that wires that tool, found by name. Wherever a list or a text is shortened, say so in the state (how many were kept of how many), as `fit_state` already does for trimmed evidence.
+- **Pass:** No test state contains a second `def test_`; the longest test is shown whole or marked as cut. Two tool states no longer share an identical wiring excerpt. A state built from a 16-function test says `15 of 16 shown`.
+- **Likely files:** snap_request.py, build_inventory.py (test end lines), tests.
+
+#### EVAL-21 — Keep stated counts in step with the question file (P2)
+
+- **Current issue:** `docs/PROGRESS.md` (EVF session note) says `SNAP_QUESTIONS.json` holds 22 questions; it holds 23 (RUN 12, FN 3, TS 3, TL 3, BT 2). Corrected in the same change as this item.
+- **Change:** Generate counts quoted in the evaluation documents from the files they describe, or test them, so they cannot drift again.
+- **Pass:** A test fails when a document's stated question count differs from `load_questions()`.
+
 ## 3. Gate sequence: when to run what
 
 ### Gate A — safe offline preflight
 
-- [ ] EVAL-01 through EVAL-05 pass identity, label, cache, truth-boundary and manifest tests on the chosen commit.
+- [ ] EVAL-01 through EVAL-05 and EVAL-19 pass identity, label, cache, truth-boundary, manifest, transport and answer-validation tests on the chosen commit.
 - [ ] Import all 52 archived PR #156 episodes with zero collisions and exactly four pending diagnoses.
 - [ ] Regenerate the full first-party inventory, reconcile all deliberate exclusions and validate artifact/checksum provenance.
 - [ ] Build packets and dry-run all applicable questions without external model or vendor API calls.
@@ -197,6 +221,10 @@ The numbered requirements are the definitive implementation checklist. **P0** it
 | T14 | Many questions in one request | Usage and latency counted per request; missing response counts reconcile |
 | T15 | Change target commit/config or scenario seed | Evaluation provenance mismatch is rejected or prominently flagged |
 | T16 | Mutated implementation with superficially passing assertions | Test-quality gate detects insufficient coverage or fails the intended regression |
+| T17 | Captured transport on a judge request | The project's User-Agent is sent; no key appears in any error |
+| T18 | Off-list choice, noul above 1, non-numeric score | Each answer is kept unreadable with a reason; the rest of the request survives |
+| T19 | Test and tool states built from the full inventory | No neighbouring test is included; every shortened list or text says how much was kept |
+| T20 | Stated question count in the evaluation docs | Matches `load_questions()` |
 
 ## 5. Deliverables for the actual implementation PRs
 
@@ -210,7 +238,7 @@ The implementation should produce, at minimum:
 6. An independently adjudicated reference set and calibration report for available decision models.
 7. Per-item/per-episode consolidated findings and per-batch aggregation with correct denominators, operational failure classes, provenance and costs.
 8. Positive and negative synthetic intervention/verification evidence.
-9. Regression tests T01–T16 and a reproducible, documented dry-run command.
+9. Regression tests T01–T20 and a reproducible, documented dry-run command.
 10. A final readiness report clearly separating **implemented**, **verified**, **incomplete**, **not implemented**, **future work** and **blocked for missing evidence**.
 
 ## 6. Constraints and handoff
