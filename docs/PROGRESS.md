@@ -1,17 +1,26 @@
 # Progress Log
 
-> **2026-11-02 — incident-first line-wide investigation added to draft PR #157 (not built):**
-> [MVP future work](MVP_SCOPE.md#fw-incident-context) now prioritizes a bounded
-> incident packet over machine-only alarm scope: trigger, whole-line snapshot,
-> unfiltered recent events, neighbor trends and topology/time-window correlation.
-> The existing investigator selects further checks; the critic challenges both
-> omitted relevant machines and speculative upstream blame. Four matched-seed
-> scenarios compare alarm-centered vs incident-first behavior (wrong-machine
-> alarm, cascading effects, independent faults, and silent degradation with
-> an explicit scheduled-scan trigger), plus a normal/false-alarm control.
-> Real automatic alarm-free detection still requires later deterministic
-> monitoring. No runtime, model, tests or data pipeline implemented; docs only,
-> with no new understanding claim.
+> **2026-11-02 — incident-first line-wide investigation scope added to draft PR #157 (not built):**
+> [Line-wide future work](MVP_SCOPE.md#fw-line-scope) has three separately
+> measurable HIGH-priority additions: (1) a bounded incident context step in
+> `observe` before the manual/planning stages, with trigger/as-of tick, all
+> machine statuses/jobs, unfiltered recent events, upstream/downstream trends,
+> per-machine data quality and investigation provenance; (2) an **opt-in**
+> [critic coverage check](MVP_SCOPE.md#fw-critic-coverage), also usable with
+> blind critique, challenging both omissions and speculative neighbor blame;
+> and (3) [matched A/B/C evaluation](MVP_SCOPE.md#fw-scope-comparison),
+> comparing alarm-centered, line-wide without coverage critic, and line-wide
+> with coverage critic on the same seeded wrong-machine, cascading,
+> independent-fault, silent-degradation and normal/false-alarm cases.
+> The [pilot-readiness pointer](MVP_SCOPE.md#fw-incident-context) links to
+> those canonical Evaluation entries, avoiding duplicate requirements.
+> A scheduled/routine-check trigger tests diagnosis of a silent fault;
+> automatic early detection is **not** implemented and remains part of the
+> later deterministic monitor. Basic topology/time-window correlation comes
+> first, not a triage LLM, telemetry database or additional agent framework.
+> Docs only; no code, tests, models, telemetry service or understanding gate
+> changed. Each implementation increment still needs its own PR and
+> demonstrated before/after results.
 
 > **2026-11-02 — simulated telemetry ingestion and replay added to future work (not built):**
 > Updated [MVP scope and future work](MVP_SCOPE.md#fw-telemetry-replay) with a
