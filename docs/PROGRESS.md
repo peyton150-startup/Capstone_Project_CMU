@@ -1,5 +1,16 @@
 # Progress Log
 
+> **2026-11-02 — PR #155 evaluator readiness criteria (documentation only):**
+> [CRITERIA_FOR_EVALUATOR.md](../evaluation/CRITERIA_FOR_EVALUATOR.md) records
+> the original evaluator blockers and new integration requirements from
+> merged PR #156's 52 archived episodes (duplicate raw run keys, four
+> review-pending labels, record-only traces and confounded comparisons).
+> It defines P0/P1/P2 fixes, 16 regression checks and four staged gates
+> for a trustworthy full-project evaluation. The checklist is **not an
+> implementation or an approval to run paid models**: no evaluation code,
+> scoring, tests, agent behavior, archived results or live experiments changed.
+> Understood: no — documented ungated, developer to review.
+
 > **2026-10-31 — evidence use and investigation completion improvements:**
 > Built ungated at the developer's request (understood: no). Six approved
 > improvements plus pasted proposals 1/2/4 are implemented in PR #150. The
