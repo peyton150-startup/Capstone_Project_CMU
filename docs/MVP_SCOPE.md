@@ -2744,6 +2744,20 @@ Redriving consequential work must recheck approval, safety and idempotency.
 
 <a id="future-work-frontend"></a>
 
+<a id="fw-frontend-stack"></a>
+
+**Frontend stack (developer's decision, 2026-11-02).** The frontend is a
+React app, and the backend it talks to is a FastAPI service in front of the
+existing `capstone` package. Do not build it with Gradio or Streamlit. FastAPI
+exposes read-only endpoints that return the existing Pydantic contracts
+(`CompletedInvestigation`, audit records, progress-watcher snapshots), plus the
+approval and settings actions, validated by the same backend rules as today.
+It never exposes the simulator's ground truth or any API key. Live progress
+reaches the page through the watcher queue described under "Frontend note"
+below (for example over a WebSocket or server-sent events), never by blocking
+the run. Neither FastAPI nor React is a dependency yet; each is added in the
+PR that first uses it.
+
 ### Easy / intermediate / hard modes, with a frontend button
 
 <a id="fw-frontend"></a>

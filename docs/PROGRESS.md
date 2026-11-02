@@ -7,7 +7,9 @@
 > already in `CompletedInvestigation` and `Hypothesis`, and lists five small
 > additive backend changes the screen depends on (evidence assessment beside
 > confidence, fixed stop reasons, critic outcome in the handoff, structured
-> rejection reasons, expected outcome for verification). Nothing built; no
+> rejection reasons, expected outcome for verification). It also records the
+> developer's stack decision: a React frontend over a FastAPI backend, not
+> Gradio or Streamlit ([MVP_SCOPE.md](MVP_SCOPE.md#fw-frontend-stack)). Nothing built; no
 > code, tests, settings or understanding status changed.
 
 > **2026-11-02 — concrete evaluator bugs added to the readiness criteria (documentation only):**
