@@ -1,6 +1,6 @@
 # Criteria for evaluator — full-project readiness and required fixes
 
-**Status:** specification / remediation checklist, 2026-11-02. **No fixes in this document are claimed to be implemented.** This file records the prerequisites for promoting PR #155's offline evaluation scaffolding into a reliable, repeatable evaluation of the entire in-scope capstone. It does not authorize a paid API call, a live master run, an agent/simulator change, or a merge.
+**Status:** specification / remediation checklist, 2026-11-02. **No fixes in this document are claimed to be implemented.** Since then, items with a **Status (2026-11-02)** line are implemented on a branch and tested offline only; nothing here is verified live. This file records the prerequisites for promoting PR #155's offline evaluation scaffolding into a reliable, repeatable evaluation of the entire in-scope capstone. It does not authorize a paid API call, a live master run, an agent/simulator change, or a merge.
 
 **Related work:** PR #155 (inventories, packets, Snap/Jev request scaffolding, rubric and audit); merged PR #156 (two 13-case anchored/blind pairs, 52 archived episodes); evaluation/EVALUATION_AUDIT.md; evaluation/EVALUATION_RUBRIC.md; evaluation/EVALUATION_README.md; evaluation/DECISION_MODEL_COMPARISON.md; docs/benchmarks/2026-11-01-tot13-pairs/README.md; docs/MVP_SCOPE.md.
 
@@ -32,12 +32,16 @@ The numbered requirements are the definitive implementation checklist. **P0** it
 
 #### EVAL-01 — Preserve composite run identity across archives (P0)
 
+- **Status (2026-11-02):** implemented on branch `fix/evaluator-p0-criteria`, offline tests only; developer review owed, not verified live. Packets, run references, packet/request/answer file names and answer pairing use the episode key `namespace::run_key`; `run_packet --archive` imports all 52 PR #156 episodes in one operation (52 unique keys, references and file names); a repeated run key without a namespace, or twice in one file, is refused; `compare_evaluators` refuses two answers to one question of one item. Not done: the target commit/config is carried in the packet's `meta`, not in the key.
+
 - **Current issue:** PR #156's pair A and pair B reuse raw run keys. PR #155's packet/answer paths and joins use a run key or derived run-ref in places, and its comparison indexes answers by provider, item ID and question ID. Combining pairs can collide or overwrite.
 - **Change:** Define a canonical episode key containing at least (pair_id or experiment_namespace, run_key), plus the target commit/config where needed. Propagate it through record import, label/review joins, audit lookup, opaque judge-side run reference, packet names, request IDs, answers, summaries and cross-provider comparisons. Keep the human-readable original run_key as provenance. Never use fault-bearing scenario IDs as judge-side identifiers.
 - **Pass:** Import all 52 PR #156 episodes in one operation; exactly 52 unique episodes and no overwritten packet, label, request or answer. A test deliberately inserts the same run key under two pair IDs and proves both survive. Missing namespace is rejected if collisions exist.
 - **Likely files:** evaluation/evaltools/run_packet.py, snap_request.py, compare_evaluators.py, new archive importer/runner and tests/test_evaluation_tools.py.
 
 #### EVAL-02 — Respect review-pending labels and denominators (P0)
+
+- **Status (2026-11-02):** implemented on branch `fix/evaluator-p0-criteria`, offline tests only; developer review owed, not verified live. Proposal-format label files are read and `needs_review` honoured; `--review-report` reads an eval report's `label_needs_review` flags and refuses a report label that differs from the file's; a pending label is kept as `label_status: pending_review` and the run is unjudged. The archive reproduces 3/12, 3/12, 6/13, 6/11 with exactly four pending (`evals_judged`/`evals_correct`, outage runs included as `capstone.evals` counts them; the reasoning totals still leave outage runs out).
 
 - **Current issue:** run_packet.evaluator_only_of treats the presence of a label as a judged run, while PR #156 preserves label_needs_review separately in its Jev reports. Presence of a provisional label is not final adjudication.
 - **Change:** Import the per-episode review flag (or an independently reviewed adjudication record); set pending labels to **unjudged**, never automatically correct, wrong or abstained. Preserve the original proposal, reviewer status and provenance. Reject ambiguous merges between labels and report flags. Use the same eligible-denominator rule as capstone.evals and document treatment of model-unavailable episodes separately.
@@ -46,6 +50,8 @@ The numbered requirements are the definitive implementation checklist. **P0** it
 
 #### EVAL-03 — Make judge request caching/retries identity-safe (P0)
 
+- **Status (2026-11-02):** implemented on branch `fix/evaluator-p0-criteria`, offline tests only; developer review owed, not verified live. Each request carries a `request_fingerprint` of provider, endpoint, the whole body, the full question definitions, the budget, the rubric and `NORMALIZE_VERSION`; files are named by provider, item and fingerprint, not position; a saved answer is reused only for an equal fingerprint with an answer to every question; files are written atomically; HTTP 429/5xx, timeouts and unreachable services are retried twice (2 s, 4 s). Not done: a question-schema version separate from the rubric version.
+
 - **Current issue:** snap_request.already_answered checks the evidence state digest and question IDs, but not all semantic request inputs. Changed wording, rubric, provider/model or answer schema can leave an old "answered" file looking reusable. Sequential index-based filenames are also fragile if the item order changes.
 - **Change:** Derive a stable fingerprint from the **canonical full outgoing request** (provider and endpoint, requested model/version, fitted state bytes/digest, complete question names/types/instructions/criteria/levels, rubric + question-schema version, context-fit settings and normalization version). Bind responses to that fingerprint and source commit. Match it on resume; use stable collision-resistant request filenames/IDs. Never reuse invalid, partial, mismatched or failed responses as completed judgments. Implement atomic writes and clear failure/retry policy, including 429/5xx/timeouts.
 - **Pass:** Reordering items preserves correct matches; changing model, question text, scoring criteria, rubric, source state or fit budget forces a fresh request. A matching successful response is reused exactly once. Failed/partial responses are surfaced and retried safely, not counted as complete.
@@ -53,12 +59,16 @@ The numbered requirements are the definitive implementation checklist. **P0** it
 
 #### EVAL-04 — Enforce evaluator/truth isolation end to end (P0)
 
+- **Status (2026-11-02):** implemented on branch `fix/evaluator-p0-criteria`, offline tests only; developer review owed, not verified live. The judge view is passed through `SnapView` (no undefined field) and checked before and after fitting for truth field names and the run's scenario id, run key and episode key; three adversarial fixtures are refused before any request; questions are chosen from the judge view alone. Not done: semantic leaks that use none of those strings cannot be proven absent.
+
 - **Current issue:** the judge's snap_view is intentionally separate from evaluator_only, but a field-name blacklist cannot prove absence of all semantic or indirect leaks. The archive's scenario IDs themselves name fault types.
 - **Change:** Use an explicit allowlisted judge-state projection at the last request boundary. Keep scenario IDs, original run keys, true faults/targets, score fields, expected actions, reference answers and correctness labels out of every model-visible field, including free-text metadata and question applicability. Generate opaque identifiers from collision-safe composite IDs. Validate both pre-fit and post-fit payloads; add adversarial leak fixtures.
 - **Pass:** Hidden-truth sentinel values and scenario names cannot appear in any serialized provider request; violating packets are refused and counted. Judge questions are not selected using outcome truth or labels. Deterministic truth comparison runs only after judge output is captured.
 - **Likely files:** run_packet.py, snap_request.py, tests/test_evaluation_tools.py.
 
 #### EVAL-19 — Send judge requests the way the project's live client does, and refuse impossible answers (P0)
+
+- **Status (2026-11-02):** implemented on branch `fix/evaluator-p0-criteria`, offline tests only; developer review owed, not verified live. `send` uses `post_json` with an injectable transport; `normalize` refuses an off-list choice, a noul outside 0–1, a score outside its levels and non-numeric values (`NORMALIZE_VERSION` 1.1.0).
 
 Found by probing PR #155 on 2026-11-02 (`snap_request.send` and `decision_models.normalize` called directly with a captured transport and hand-made replies).
 
@@ -135,6 +145,8 @@ Found by probing PR #155 on 2026-11-02 (`snap_request.send` and `decision_models
 
 #### EVAL-15 — Make aggregation, uncertainty and resource use auditable (P1)
 
+- **Status (2026-11-02):** in part, on branch `fix/evaluator-p0-criteria`: median latency is now over requests, not answers; tokens and cost were already counted once per request. The rest is open.
+
 - **Change:** Report per-item, per-fault, per-batch and MVP-readiness breakdowns with thresholds and counts for abstention, confident-wrong, misleading success, false intervention, timeouts and missing evidence. Keep numerical score, categorical choice and noul preferences separate. Count latency/tokens/cost **once per request** (including failures) and compare latency at request level, not answer-weighted median. Guard against silent truncation, dropped oversized packets, duplicate answers and unknown statuses.
 - **Pass:** Fixture totals match hand-calculated expectations; a 12-question request does not count 12 times for tokens/latency/cost; missing/unfittable/skipped counts reconcile to the planned question manifest. "Improvement" is unavailable unless BT-02's replicate and no-regression criteria pass.
 - **Likely files:** compare_evaluators.py, run_packet.py, consolidated reporter and tests.
@@ -147,6 +159,8 @@ Found by probing PR #155 on 2026-11-02 (`snap_request.send` and `decision_models
 
 #### EVAL-20 — Show the judge each test and tool as it really is (P1)
 
+- **Status (2026-11-02):** implemented on branch `fix/evaluator-p0-criteria`, offline tests only; developer review owed, not verified live. Test sources run from the test's first to its last line (syntax tree); every shortened list or text says so (`tests_shown`, `exercises_shown`, `source_cut`); each tool shows only the lines that name it in `providers/factory.py` and in its own implementation file (the manual and memory tools are wired in `providers/manual.py` and `providers/recall.py`, which the old fixed excerpt never showed).
+
 Found by the same 2026-11-02 probe, against the 1,378 inventoried tests.
 
 - **Current issue:** `snap_request.test_state` shows a test as the 80 lines from its first line, and `function_state` shows each covering test as 60 lines. 1,377 of 1,378 tests are shorter than that, so the judge also reads the neighbouring tests (and one longer test is cut off). Every one of the 17 tool states carries the same `providers/factory.py` lines 1–120, of a 450-line file: repeated in each request and still incomplete. Lists are cut without a note: covering tests to 12, exercised functions to 15 (5 tests are cut today), tool tests to 20.
@@ -155,6 +169,8 @@ Found by the same 2026-11-02 probe, against the 1,378 inventoried tests.
 - **Likely files:** snap_request.py, build_inventory.py (test end lines), tests.
 
 #### EVAL-21 — Keep stated counts in step with the question file (P2)
+
+- **Status (2026-11-02):** implemented on branch `fix/evaluator-p0-criteria`, offline tests only; developer review owed, not verified live. A test compares the EVF note's stated counts with `load_questions()`.
 
 - **Current issue:** `docs/PROGRESS.md` (EVF session note) says `SNAP_QUESTIONS.json` holds 22 questions; it holds 23 (RUN 12, FN 3, TS 3, TL 3, BT 2). Corrected in the same change as this item.
 - **Change:** Generate counts quoted in the evaluation documents from the files they describe, or test them, so they cannot drift again.

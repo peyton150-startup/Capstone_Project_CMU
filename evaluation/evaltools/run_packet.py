@@ -45,13 +45,16 @@ sys.path.insert(0, str(REPO / "capstone-code"))
 
 from capstone.agent.completion import AuditLog, AuditRecord  # noqa: E402
 from capstone.contracts.investigations import run_id_for  # noqa: E402
-from capstone.evaluation.labels import Label, LabelBook, apply_label  # noqa: E402
+from capstone.evaluation.labels import Label, apply_label  # noqa: E402
 from capstone.experiment import ExperimentRecord, read_records  # noqa: E402
 
 # 1.1.0: what a record-only trace does not keep (decision arguments,
 # confidence, information needed; machines and sensors read) is null, not 0.0,
 # "" or empty.
-PACKET_SCHEMA_VERSION = "1.1.0"
+# 1.2.0: `meta.namespace` and `meta.episode_key` (one run key can repeat across
+# archived pairs), and `evaluator_only.label_status` (a label awaiting review
+# is kept but not scored).
+PACKET_SCHEMA_VERSION = "1.2.0"
 RUBRIC_VERSION = "1.0.0"
 
 # A committed answer at least this sure that is wrong is "confident and
@@ -74,6 +77,13 @@ class PacketMeta(Strict):
     # saw them would know the answer it is meant to judge the agent on.
     run_key: str
     scenario_id: str
+    # Where the run comes from when one run key can repeat: the archived pair
+    # or experiment it belongs to (PR #156's two pairs reuse every key).
+    namespace: str | None = None
+    # The run's unique name in a batch: `namespace::run_key`, or the run key
+    # alone without a namespace. Packet files, request files and answers are
+    # named and paired by it.
+    episode_key: str
     commit_sha: str | None = None
     records_file: str
     audit_file: str | None = None
@@ -256,6 +266,10 @@ class EvaluatorOnly(Strict):
     distractors: list[dict[str, Any]]
     label: dict[str, Any] | None
     labelled_by: str | None
+    # "judged": the label is scored. "pending_review": a label exists but a
+    # person must read it first, so the run is unjudged and the label is kept
+    # only as provenance. "unlabelled": no label.
+    label_status: Literal["judged", "pending_review", "unlabelled"]
     root_cause_correct: bool | None
     target_correct: bool | None
     fully_right: bool | None
@@ -615,11 +629,21 @@ def calibration(record: ExperimentRecord) -> str:
 
 
 def evaluator_only_of(
-    record: ExperimentRecord, label: Label | None, critic_label: Label | None
+    record: ExperimentRecord,
+    label: Label | None,
+    critic_label: Label | None,
+    *,
+    pending_review: bool = False,
 ) -> EvaluatorOnly:
+    """The truth comparisons of one run; a label awaiting review is not scored."""
+    # Variables:
+    #   pending_review: True when the label is only a proposal a person must
+    #     read first (as `capstone.evals.report_of` treats `needs_review`): the
+    #     run stays unjudged, never counted right, wrong or abstained.
+    #   judged: True when a label exists and is not awaiting review.
     score = record.score
-    scored = score if label is None else apply_label(score, label.diagnosis)
-    judged = label is not None
+    judged = label is not None and not pending_review
+    scored = apply_label(score, label.diagnosis) if judged else score
     committed = None if not judged else label.diagnosis is not None
     correct = scored.fully_right if judged else None
     if judged and correct is None:  # older rows without causes
@@ -651,6 +675,13 @@ def evaluator_only_of(
         distractors=[c.model_dump() for c in score.distractors],
         label=None if label is None else json.loads(label.model_dump_json()),
         labelled_by=None if label is None else label.labelled_by,
+        label_status=(
+            "unlabelled"
+            if label is None
+            else "pending_review"
+            if pending_review
+            else "judged"
+        ),
         root_cause_correct=scored.fault_correct if judged else None,
         target_correct=scored.target_correct if judged else None,
         fully_right=correct,
@@ -691,22 +722,40 @@ def build_packet(
     critic_label: Label | None,
     audit: AuditRecord | None,
     records_file: str,
+    pending_review: bool = False,
+    namespace: str | None = None,
     audit_file: str | None,
     labels_file: str | None,
     commit_sha: str | None,
 ) -> RunEvidencePacket:
+    """One run's packet: the judge's view and, apart, its truth comparisons."""
+    # Variables:
+    #   pending_review: True when the run's label awaits a person's review; the
+    #     label is kept but the run is not scored.
+    #   namespace: The pair or experiment the run belongs to; with the run key
+    #     it makes the episode key that names the packet and its run reference.
+    #   key: That episode key.
     trace = (
         trace_from_record(record) if audit is None else trace_from_audit(record, audit)
     )
     facts = facts_of(record, trace)
-    evaluator = evaluator_only_of(record, label, critic_label)
-    facts = facts.model_copy(
-        update={"committed": None if label is None else not evaluator.abstained}
+    evaluator = evaluator_only_of(
+        record, label, critic_label, pending_review=pending_review
     )
+    facts = facts.model_copy(
+        update={
+            "committed": None
+            if evaluator.abstained is None
+            else not evaluator.abstained
+        }
+    )
+    key = episode_key(record.run_key, namespace)
     return RunEvidencePacket(
         meta=PacketMeta(
             run_key=record.run_key,
             scenario_id=record.scenario_id,
+            namespace=namespace,
+            episode_key=key,
             commit_sha=commit_sha,
             records_file=records_file,
             audit_file=audit_file,
@@ -714,7 +763,7 @@ def build_packet(
             record_digest=hashlib.sha256(line.encode("utf-8")).hexdigest(),
         ),
         snap_view=SnapView(
-            run_ref=run_ref(record.run_key),
+            run_ref=run_ref(key),
             configuration=configuration_of(record),
             trace=trace,
             facts=facts,
@@ -741,9 +790,37 @@ HIDDEN_WORDS = (
 )
 
 
-def run_ref(run_key: str) -> str:
-    """The judge-side name of a run: a hash, since the key names the scenario."""
-    return hashlib.sha256(run_key.encode("utf-8")).hexdigest()[:12]
+def episode_key(run_key: str, namespace: str | None) -> str:
+    """A run's unique name: `namespace::run_key`, or the run key alone."""
+    return run_key if namespace is None else f"{namespace}::{run_key}"
+
+
+def run_ref(key: str) -> str:
+    """The judge-side name of a run: a hash, since the key names the scenario.
+
+    Built from the episode key, so the same run key in two archived pairs gets
+    two references.
+    """
+    return hashlib.sha256(key.encode("utf-8")).hexdigest()[:12]
+
+
+def forbidden_in_view(meta: PacketMeta) -> list[str]:
+    """Texts that must never appear in what a judge reads, lower-cased.
+
+    The truth-side field names, and this run's scenario id, run key and episode
+    key (scenario ids name the fault: `KA-01-bearing`).
+    """
+    # Variables:
+    #   names: The run's own identifiers; a namespace alone names no fault, but
+    #     the episode key holds the run key, so it is listed too.
+    names = [meta.scenario_id, meta.run_key, meta.episode_key]
+    return [*HIDDEN_WORDS, *(n.lower() for n in names if n)]
+
+
+def leak_in(text: str, forbidden: list[str]) -> str | None:
+    """The first forbidden text found in `text` (any letter case), or None."""
+    lowered = text.lower()
+    return next((word for word in forbidden if word.lower() in lowered), None)
 
 
 def check_no_truth_in_view(packet: RunEvidencePacket) -> None:
@@ -757,9 +834,77 @@ def check_no_truth_in_view(packet: RunEvidencePacket) -> None:
         raise ValueError(
             f"snap_view carries the scenario id {packet.meta.scenario_id!r}"
         )
-    for word in HIDDEN_WORDS:
-        if word in text:
-            raise ValueError(f"snap_view carries {word!r}")
+    word = leak_in(text, forbidden_in_view(packet.meta))
+    if word is not None:
+        raise ValueError(f"snap_view carries {word!r}")
+
+
+def read_labels(path: Path | None) -> tuple[dict[str, Label], set[str]]:
+    """Labels by run key, and the run keys whose label awaits review.
+
+    Reads both shapes on disk: a `LabelBook` line (`{"run_key", "diagnosis",
+    ...}`) and an auto-label proposal line (`{"label": {...}, "needs_review":
+    bool, ...}`, as `capstone.evaluation.auto_label` writes). A later line for
+    the same run replaces an earlier one, as in `LabelBook`.
+    """
+    # Variables:
+    #   row: One line of the file, parsed.
+    #   needs: Whether that line's label awaits a person's review.
+    #   pending: Run keys whose latest line is a proposal that needs review.
+    if path is None:
+        return {}, set()
+    labels: dict[str, Label] = {}
+    pending: set[str] = set()
+    for number, line in enumerate(path.read_text(encoding="utf-8").splitlines(), 1):
+        if not line.strip():
+            continue
+        row = json.loads(line)
+        if isinstance(row, dict) and "label" in row and "needs_review" in row:
+            if not isinstance(row["needs_review"], bool):
+                raise ValueError(f"{path.name}:{number}: needs_review is not a bool")
+            label = Label.model_validate(row["label"])
+            needs = row["needs_review"]
+        else:
+            label = Label.model_validate(row)
+            needs = False
+        labels[label.run_key] = label
+        if needs:
+            pending.add(label.run_key)
+        else:
+            pending.discard(label.run_key)
+    return labels, pending
+
+
+def review_flags(report_path: Path, labels: dict[str, Label]) -> set[str]:
+    """Run keys an eval report (`capstone.evals`) marks `label_needs_review`.
+
+    ValueError when the report and the labels disagree, so a flag can never
+    be joined to the wrong label: a run the report labels but the labels file
+    lacks, or a report label that differs from the file's.
+    """
+    # Variables:
+    #   case: One run in the report, with its label and review flag.
+    #   theirs, mine: That run's label in the report and in the labels file.
+    report = json.loads(report_path.read_text(encoding="utf-8"))
+    flagged = set()
+    for case in report.get("cases", []):
+        key = case["run_key"]
+        theirs = case.get("diagnosis_label")
+        mine = labels.get(key)
+        if theirs is not None:
+            if mine is None:
+                raise ValueError(
+                    f"{report_path.name}: {key} has a label in the report "
+                    "but not in the labels file"
+                )
+            if Label.model_validate(theirs) != mine:
+                raise ValueError(
+                    f"{report_path.name}: {key}: the report's label differs "
+                    "from the labels file's"
+                )
+        if case.get("label_needs_review"):
+            flagged.add(key)
+    return flagged
 
 
 def build_all(
@@ -768,26 +913,45 @@ def build_all(
     labels_path: Path | None = None,
     critic_labels_path: Path | None = None,
     audit_path: Path | None = None,
+    review_report_path: Path | None = None,
+    namespace: str | None = None,
     commit_sha: str | None = None,
     refused: list[dict] | None = None,
 ) -> list[RunEvidencePacket]:
     """One packet per record, each checked for truth in the judge's view.
 
     With `refused` given, a packet that fails the check is left out and
-    named there (run key and reason) so the rest of the batch is still
+    named there (episode key and reason) so the rest of the batch is still
     built; without it the first failure raises, as a library call should.
+    A run key that appears twice in one records file is refused outright:
+    two packets would share one name.
     """
     # Variables:
     #   lines: The non-empty record lines, for each packet's record digest.
+    #   repeated: Run keys that appear more than once in this file.
+    #   pending: Run keys whose label awaits review, from a proposal file and
+    #     from `review_report_path`; their packets stay unjudged.
+    #   critic_pending: Critic picks whose label awaits review; left unscored.
     #   audits: Audit records by run id; a run without one gets a record-only trace.
+    #   namespace: The archived pair or experiment these records belong to, so
+    #     the same run key elsewhere gets its own episode key.
     #   refused: Where packets that failed the truth check are listed, or None
     #     to raise on the first.
     lines = [
         line for line in records_path.read_text(encoding="utf-8").splitlines() if line
     ]
     records = read_records(records_path)
-    labels = LabelBook(labels_path).read() if labels_path else {}
-    critic_labels = LabelBook(critic_labels_path).read() if critic_labels_path else {}
+    repeated = sorted(
+        key for key, n in Counter(r.run_key for r in records).items() if n > 1
+    )
+    if repeated:
+        raise ValueError(
+            f"{records_path.name}: run key(s) repeat in one file: {repeated[:3]}"
+        )
+    labels, pending = read_labels(labels_path)
+    if review_report_path is not None:
+        pending |= review_flags(review_report_path, labels)
+    critic_labels, critic_pending = read_labels(critic_labels_path)
     audits = audit_by_run(audit_path)
     packets = []
     for line, record in zip(lines, records, strict=True):
@@ -796,8 +960,16 @@ def build_all(
             record,
             line,
             label=labels.get(record.run_key),
-            critic_label=critic_labels.get(record.run_key),
+            pending_review=record.run_key in pending,
+            # A critic pick awaiting review stays unjudged, as
+            # `capstone.evals.critic_labels` leaves it out.
+            critic_label=(
+                None
+                if record.run_key in critic_pending
+                else critic_labels.get(record.run_key)
+            ),
             audit=audit,
+            namespace=namespace,
             # Forward slashes, so a packet built on Windows names its sources
             # the same way as one built anywhere else.
             records_file=records_path.as_posix(),
@@ -810,15 +982,79 @@ def build_all(
         except ValueError as problem:
             if refused is None:
                 raise
-            refused.append({"run_key": record.run_key, "reason": str(problem)})
+            refused.append(
+                {"episode_key": packet.meta.episode_key, "reason": str(problem)}
+            )
             continue
         packets.append(packet)
     return packets
 
 
-def packet_file_name(run_key: str) -> str:
-    """A packet's file name, valid on every operating system."""
-    return re.sub(r'[<>:"\\|?*]', "_", run_key.replace("/", "__")) + ".json"
+def check_unique(packets: list[RunEvidencePacket]) -> None:
+    """ValueError when two packets share an episode key (one would overwrite)."""
+    # Variables:
+    #   repeated: Episode keys that more than one packet carries.
+    repeated = sorted(
+        key for key, n in Counter(p.meta.episode_key for p in packets).items() if n > 1
+    )
+    if repeated:
+        raise ValueError(
+            "episode keys repeat; give each source its own namespace: "
+            + ", ".join(repeated[:3])
+        )
+
+
+def build_archive(
+    archive: Path, *, refused: list[dict] | None = None
+) -> list[RunEvidencePacket]:
+    """Packets for every run of an archived results folder, in one operation.
+
+    The folder holds one subfolder per pair (as `docs/benchmarks/
+    2026-11-01-tot13-pairs/`), each with `<run>.records.jsonl` and, when they
+    exist, `<run>.jev-labels.jsonl`, `<run>.critic-jev-labels.jsonl` and
+    `<run>.jev-report.json` (whose `label_needs_review` flags keep a proposal
+    unjudged). Each pair's folder name is its namespace, so a run key repeated
+    across pairs yields two episodes. The commit of each run comes from the
+    folder's `summary.json` when it has one.
+    """
+    # Variables:
+    #   commits: (pair, run name) to the commit that run was made on.
+    #   pair: The subfolder's name, used as the namespace of its runs.
+    #   stem: The run's file name without `.records.jsonl`.
+    summary_path = archive / "summary.json"
+    commits = {}
+    if summary_path.exists():
+        for run in json.loads(summary_path.read_text(encoding="utf-8")).get("runs", []):
+            commits[(run.get("pair"), run.get("name"))] = run.get("commit")
+    packets = []
+    for records_path in sorted(archive.glob("*/*.records.jsonl")):
+        pair = records_path.parent.name
+        stem = records_path.name.removesuffix(".records.jsonl")
+        packets += build_all(
+            records_path,
+            labels_path=_sibling(records_path, stem, ".jev-labels.jsonl"),
+            critic_labels_path=_sibling(records_path, stem, ".critic-jev-labels.jsonl"),
+            review_report_path=_sibling(records_path, stem, ".jev-report.json"),
+            namespace=pair,
+            commit_sha=commits.get((pair, stem)),
+            refused=refused,
+        )
+    if not packets:
+        raise ValueError(f"no */*.records.jsonl under {archive}")
+    check_unique(packets)
+    return packets
+
+
+def _sibling(records_path: Path, stem: str, suffix: str) -> Path | None:
+    """The run's file with `suffix` beside its records, or None if absent."""
+    path = records_path.with_name(stem + suffix)
+    return path if path.exists() else None
+
+
+def packet_file_name(key: str) -> str:
+    """A packet's file name from its episode key, valid on every operating system."""
+    safe = key.replace("::", "__").replace("/", "__")
+    return re.sub(r'[<>:"\\|?*]', "_", safe) + ".json"
 
 
 def batch_summary(packets: list[RunEvidencePacket]) -> dict:
@@ -836,8 +1072,8 @@ def batch_summary(packets: list[RunEvidencePacket]) -> dict:
     #     every reasoning total, as `summarize` does (its `judged` counts only
     #     these too). An outage run's "no_conclusion" label would otherwise
     #     count as an abstention.
-    #   judged: Reasoned packets whose label exists, so `fully_right` is True
-    #     or False.
+    #   judged: Reasoned packets whose label exists and is not awaiting review,
+    #     so `fully_right` is True or False.
     #   committed: Judged packets whose label names a cause.
     #   cal: How many packets fall in each verification-calibration class.
     #   available, collected: Relevant evidence items that existed, and that were
@@ -864,6 +1100,20 @@ def batch_summary(packets: list[RunEvidencePacket]) -> dict:
         "runs": len(packets),
         "model_unavailable": len(packets) - len(reasoned),
         "judged": len(judged),
+        # Labels that exist but await a person's review: unjudged, never
+        # counted right, wrong or abstained.
+        "pending_review": sum(
+            p.evaluator_only.label_status == "pending_review" for p in reasoned
+        ),
+        # The denominators `capstone.evals` publishes (its `judged` and
+        # accuracy): every scored label, outage runs included. The totals
+        # above leave outage runs out; both are kept so a packet batch can be
+        # checked against a published eval report.
+        "evals_judged": sum(p.evaluator_only.label_status == "judged" for p in packets),
+        "evals_correct": sum(p.evaluator_only.fully_right is True for p in packets),
+        "evals_pending_review": sum(
+            p.evaluator_only.label_status == "pending_review" for p in packets
+        ),
         "root_cause_correct": sum(p.evaluator_only.fully_right is True for p in judged),
         "accuracy_when_committed": (
             sum(p.evaluator_only.fully_right is True for p in committed)
@@ -913,10 +1163,26 @@ def main(argv=None) -> int:
     # Variables:
     #   refused: Packets the truth check left out; listed in the summary so a
     #     smaller batch is never mistaken for the whole run.
+    #   packets: One per run: from one records file, or from every run of an
+    #     archived results folder (`--archive`).
     parser = argparse.ArgumentParser(prog="python -m evaltools.run_packet")
-    parser.add_argument("--records", type=Path, required=True)
+    source = parser.add_mutually_exclusive_group(required=True)
+    source.add_argument("--records", type=Path)
+    source.add_argument(
+        "--archive",
+        type=Path,
+        help="a results folder with one subfolder per pair (see build_archive)",
+    )
     parser.add_argument("--labels", type=Path)
     parser.add_argument("--critic-labels", type=Path)
+    parser.add_argument(
+        "--review-report",
+        type=Path,
+        help="an eval report whose label_needs_review flags keep labels unjudged",
+    )
+    parser.add_argument(
+        "--namespace", help="the pair or experiment the records belong to"
+    )
     parser.add_argument("--audit", type=Path, help="audit log from --audit")
     parser.add_argument("--commit", help="the commit the run was made on")
     parser.add_argument("--out", type=Path, required=True)
@@ -927,17 +1193,33 @@ def main(argv=None) -> int:
     )
     args = parser.parse_args(argv)
     refused: list[dict] = []
-    packets = build_all(
-        args.records,
-        labels_path=args.labels,
-        critic_labels_path=args.critic_labels,
-        audit_path=args.audit,
-        commit_sha=args.commit,
-        refused=refused,
-    )
+    if args.archive is not None:
+        if any(
+            (
+                args.labels,
+                args.critic_labels,
+                args.review_report,
+                args.namespace,
+                args.audit,
+                args.commit,
+            )
+        ):
+            parser.error("--archive finds each run's files itself; give it alone")
+        packets = build_archive(args.archive, refused=refused)
+    else:
+        packets = build_all(
+            args.records,
+            labels_path=args.labels,
+            critic_labels_path=args.critic_labels,
+            review_report_path=args.review_report,
+            namespace=args.namespace,
+            audit_path=args.audit,
+            commit_sha=args.commit,
+            refused=refused,
+        )
     args.out.mkdir(parents=True, exist_ok=True)
     for packet in packets:
-        (args.out / packet_file_name(packet.meta.run_key)).write_text(
+        (args.out / packet_file_name(packet.meta.episode_key)).write_text(
             packet.model_dump_json(indent=1) + "\n", encoding="utf-8"
         )
     summary = batch_summary(packets)

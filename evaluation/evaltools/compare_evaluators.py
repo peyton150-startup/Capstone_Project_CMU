@@ -36,17 +36,33 @@ def load_answers(folder: Path) -> list[dict]:
 
 
 def index_answers(files: list[dict]) -> dict:
-    """(provider, item_id, question_id) -> (normalized answer, tags)."""
+    """(provider, item_id, question_id) -> (normalized answer, tags).
+
+    ValueError when two answers files answer the same question of the same
+    item for the same provider: one would silently replace the other (an
+    older request left in the folder, or two runs sharing a run key without a
+    namespace). Each must be resolved before a report is made.
+    """
+    # Variables:
+    #   key: Provider, item and question; an item is a function, test, tool or
+    #     episode key.
+    #   seen: Which request fingerprint answered each key first.
     found = {}
+    seen: dict[tuple, str | None] = {}
     for file in files:
         tags = file["tags"]
         for answer in file["answers"]:
             if answer.get("value") is None:
                 continue
-            found[(tags["provider"], tags["item_id"], answer["question_id"])] = (
-                answer,
-                tags,
-            )
+            key = (tags["provider"], tags["item_id"], answer["question_id"])
+            if key in found:
+                raise ValueError(
+                    f"two answers for {key} (requests {seen[key]} and "
+                    f"{tags.get('request_fingerprint')}); keep one answers folder "
+                    "per batch"
+                )
+            found[key] = (answer, tags)
+            seen[key] = tags.get("request_fingerprint")
     return found
 
 
@@ -140,10 +156,17 @@ def build_report(files: list[dict], reference: dict | None) -> dict:
     per_provider = {}
     for name in providers:
         mine = [a for (p, _, _), (a, _) in answers.items() if p == name]
-        # Latency is per request too, but every answer of a request shares it,
-        # so the median over answers is the median over requests weighted by
-        # how many questions each carried; close enough for a report line.
-        latencies = [a["latency_seconds"] for a in mine if a.get("latency_seconds")]
+        # Latency belongs to a request, not to each of its answers, so the
+        # median is over answered requests (one figure per answers file); a
+        # request with many questions is not counted once per question.
+        latencies = [
+            file["answers"][0]["latency_seconds"]
+            for file in files
+            if file["tags"]["provider"] == name
+            and not file.get("error")
+            and file["answers"]
+            and file["answers"][0].get("latency_seconds") is not None
+        ]
         spent = usage.get(
             name,
             {

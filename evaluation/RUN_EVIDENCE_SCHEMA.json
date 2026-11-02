@@ -504,6 +504,15 @@
      ],
      "title": "Labelled By"
     },
+    "label_status": {
+     "enum": [
+      "judged",
+      "pending_review",
+      "unlabelled"
+     ],
+     "title": "Label Status",
+     "type": "string"
+    },
     "root_cause_correct": {
      "anyOf": [
       {
@@ -688,6 +697,7 @@
     "distractors",
     "label",
     "labelled_by",
+    "label_status",
     "root_cause_correct",
     "target_correct",
     "fully_right",
@@ -1111,7 +1121,7 @@
    "additionalProperties": false,
    "properties": {
     "packet_schema_version": {
-     "default": "1.1.0",
+     "default": "1.2.0",
      "title": "Packet Schema Version",
      "type": "string"
     },
@@ -1126,6 +1136,22 @@
     },
     "scenario_id": {
      "title": "Scenario Id",
+     "type": "string"
+    },
+    "namespace": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null,
+     "title": "Namespace"
+    },
+    "episode_key": {
+     "title": "Episode Key",
      "type": "string"
     },
     "commit_sha": {
@@ -1176,6 +1202,7 @@
    "required": [
     "run_key",
     "scenario_id",
+    "episode_key",
     "records_file",
     "record_digest"
    ],

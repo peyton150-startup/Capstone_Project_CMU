@@ -12,6 +12,7 @@ import ast
 import json
 import subprocess
 import sys
+import textwrap
 from pathlib import Path
 
 import pytest
@@ -440,7 +441,7 @@ def test_the_agreement_report_pairs_only_identical_states_and_flags_disagreement
 def request_item(item_id, provider="snap", model="subq-snap-1.1"):
     """A minimal sendable request item, as `build_request` shapes one."""
     question = {"id": "FN-01", "name": "q", "type": "noul"}
-    return {
+    item = {
         "tags": {
             "provider": provider,
             "model_requested": model,
@@ -449,8 +450,33 @@ def request_item(item_id, provider="snap", model="subq-snap-1.1"):
             "questions": {"q": question},
             "state_digest": "d",
         },
-        "body": {"model": model, "state": {}, "questions": {}},
+        "body": {"model": model, "state": {"item": item_id}, "questions": {}},
     }
+    item["tags"]["request_fingerprint"] = snap_request.request_fingerprint(
+        item["tags"], item["body"]
+    )
+    return item
+
+
+def fake_transport(replies):
+    """A transport that records each request and answers from `replies` in turn.
+
+    A reply that is an exception is raised, as the network would.
+    """
+    sent = []
+
+    def transport(url, headers, body, timeout):
+        sent.append({"url": url, "headers": headers, "body": json.loads(body)})
+        reply = replies[min(len(sent), len(replies)) - 1]
+        if isinstance(reply, Exception):
+            raise reply
+        return json.dumps(reply).encode()
+
+    transport.sent = sent
+    return transport
+
+
+GOOD_REPLY = {"model": "m", "answers": {"q": {"type": "noul", "noul": 0.7}}}
 
 
 def test_request_file_names_are_valid_on_every_operating_system(tmp_path):
@@ -461,9 +487,10 @@ def test_request_file_names_are_valid_on_every_operating_system(tmp_path):
     ]
     snap_request.write_requests(built, tmp_path, send_them=False)
     names = sorted(p.name for p in tmp_path.iterdir())
+    fingerprints = [item["tags"]["request_fingerprint"][:12] for item in built]
     assert names == [
-        "001_snap_capstone.agent.loop_gather.request.json",
-        "002_snap_tests__test_x.py__test_y.request.json",
+        f"snap_capstone.agent.loop_gather_{fingerprints[0]}.request.json",
+        f"snap_tests__test_x.py__test_y_{fingerprints[1]}.request.json",
     ]
     assert all(p.stat().st_size > 0 for p in tmp_path.iterdir())
 
@@ -474,25 +501,24 @@ def test_a_failed_request_is_recorded_and_a_rerun_sends_only_what_is_missing(
     import urllib.error
 
     monkeypatch.setenv("SUBQ_API_KEY", "test-key")
-    sent = []
-
-    def flaky(provider, body, api_key, timeout=90.0):
-        sent.append(body)
-        if len(sent) == 1:
-            raise urllib.error.HTTPError(provider.endpoint, 429, "Too Many", {}, None)
-        return {"model": "m", "answers": {"q": {"type": "noul", "noul": 0.7}}}, 0.1
-
-    monkeypatch.setattr(snap_request, "send", flaky)
+    busy = urllib.error.HTTPError("https://x", 429, "Too Many", {}, None)
+    transport = fake_transport([busy, GOOD_REPLY])
     built = [request_item("a"), request_item("b")]
-    counts = snap_request.write_requests(built, tmp_path, send_them=True)
+    counts = snap_request.write_requests(
+        built, tmp_path, send_them=True, transport=transport, retries=0
+    )
     assert counts == {"sent": 1, "failed": 1, "already_answered": 0}
-    failed = json.loads((tmp_path / "001_snap_a.answers.json").read_text())
-    assert failed["error"] == "HTTP 429 Too Many" and failed["answers"] == []
+    stem = snap_request.file_stem(built[0]["tags"])
+    failed = json.loads((tmp_path / f"{stem}.answers.json").read_text())
+    assert failed["error"] == "the model service answered HTTP 429"
+    assert failed["answers"] == []
     assert "test-key" not in json.dumps(failed)
     # The rerun sends only the request that failed.
-    counts = snap_request.write_requests(built, tmp_path, send_them=True)
+    counts = snap_request.write_requests(
+        built, tmp_path, send_them=True, transport=transport, retries=0
+    )
     assert counts == {"sent": 1, "failed": 0, "already_answered": 1}
-    assert len(sent) == 3
+    assert len(transport.sent) == 3
 
 
 def test_answers_name_the_model_requested_and_keep_unreadable_ones(tmp_path):
@@ -532,7 +558,7 @@ def test_a_refused_packet_is_left_out_and_named_not_fatal(monkeypatch):
         MASTER_RECORDS, labels_path=MASTER_LABELS, refused=refused
     )
     assert len(packets) == 8
-    assert [r["run_key"] for r in refused] == [first.meta.run_key]
+    assert [r["episode_key"] for r in refused] == [first.meta.episode_key]
     with pytest.raises(ValueError):
         run_packet.build_all(MASTER_RECORDS, labels_path=MASTER_LABELS)
 
@@ -685,3 +711,415 @@ def test_a_traced_run_refuses_to_append_to_earlier_records(tmp_path):
             ["--name", "x", "--out", str(out), "--trace", str(tmp_path / "t.json")]
         )
     assert stopped.value.code == 2
+
+
+# --- evaluator readiness fixes (CRITERIA_FOR_EVALUATOR.md) ----------------------------
+
+TOT13_PAIRS = BENCHMARKS / "2026-11-01-tot13-pairs"
+# The published PR #156 figures (summary.json): confirmed correct over judged,
+# per pair and arm, with the labels still awaiting review.
+PUBLISHED = {
+    ("tot13-20261031-184429-543214a2", "master-tot13-anchored"): (3, 12, 1),
+    ("tot13-20261031-184429-543214a2", "master-tot13-blind"): (3, 12, 1),
+    ("tot13-20261031-210256-3910997b", "master-tot13-anchored"): (6, 13, 0),
+    ("tot13-20261031-210256-3910997b", "master-tot13-blind"): (6, 11, 2),
+}
+
+
+@pytest.fixture(scope="module")
+def archive_packets():
+    refused = []
+    packets = run_packet.build_archive(TOT13_PAIRS, refused=refused)
+    assert refused == []
+    return packets
+
+
+def test_the_archive_imports_52_distinct_episodes(archive_packets):
+    """EVAL-01 / T01: both pairs reuse every run key, and none is overwritten."""
+    keys = [p.meta.episode_key for p in archive_packets]
+    assert len(keys) == len(set(keys)) == 52
+    assert len({p.meta.run_key for p in archive_packets}) == 26
+    assert len({p.snap_view.run_ref for p in archive_packets}) == 52
+    names = {run_packet.packet_file_name(k) for k in keys}
+    assert len(names) == 52
+    assert {p.meta.commit_sha for p in archive_packets} == {
+        "e59208d584938ed96a606bc317354882fcc8e01c"
+    }
+
+
+def test_the_archive_keeps_the_published_denominators(archive_packets):
+    """EVAL-02 / T02: pending labels stay unjudged; the four arms match summary.json."""
+    by_run = {}
+    for packet in archive_packets:
+        by_run.setdefault(
+            (packet.meta.namespace, packet.meta.run_key.split("/")[0]), []
+        ).append(packet)
+    found = {}
+    for key, packets in by_run.items():
+        summary = run_packet.batch_summary(packets)
+        found[key] = (
+            summary["evals_correct"],
+            summary["evals_judged"],
+            summary["evals_pending_review"],
+        )
+    assert found == PUBLISHED
+    pending = [
+        p for p in archive_packets if p.evaluator_only.label_status == "pending_review"
+    ]
+    assert len(pending) == 4
+    for packet in pending:
+        # Kept as provenance, never scored.
+        assert packet.evaluator_only.label is not None
+        assert packet.evaluator_only.fully_right is None
+        assert packet.evaluator_only.abstained is None
+        assert packet.snap_view.facts.committed is None
+
+
+def test_a_repeated_run_key_needs_a_namespace(tmp_path):
+    """EVAL-01 / T01: the same records under two names survive; unnamed, refused."""
+    one = run_packet.build_all(MASTER_RECORDS, namespace="pair-a")
+    two = run_packet.build_all(MASTER_RECORDS, namespace="pair-b")
+    run_packet.check_unique(one + two)
+    assert {p.snap_view.run_ref for p in one}.isdisjoint(
+        p.snap_view.run_ref for p in two
+    )
+    with pytest.raises(ValueError, match="namespace"):
+        run_packet.check_unique(
+            run_packet.build_all(MASTER_RECORDS) + run_packet.build_all(MASTER_RECORDS)
+        )
+    # One file repeating a run key is refused outright.
+    line = MASTER_RECORDS.read_text(encoding="utf-8").splitlines()[0]
+    twice = tmp_path / "twice.records.jsonl"
+    twice.write_text(line + "\n" + line + "\n", encoding="utf-8")
+    with pytest.raises(ValueError, match="repeat"):
+        run_packet.build_all(twice)
+
+
+def test_a_proposal_awaiting_review_is_kept_but_not_scored(tmp_path):
+    """EVAL-02: auto-label proposal files are read and `needs_review` is honoured."""
+    labels = [
+        json.loads(line)
+        for line in MASTER_LABELS.read_text(encoding="utf-8").splitlines()
+        if line
+    ]
+    proposals = tmp_path / "proposals.jsonl"
+    proposals.write_text(
+        "".join(
+            json.dumps({"label": label, "needs_review": i == 0}) + "\n"
+            for i, label in enumerate(labels)
+        ),
+        encoding="utf-8",
+    )
+    plain = run_packet.build_all(MASTER_RECORDS, labels_path=MASTER_LABELS)
+    proposed = run_packet.build_all(MASTER_RECORDS, labels_path=proposals)
+    by_key = {p.meta.run_key: p for p in proposed}
+    held = by_key[labels[0]["run_key"]].evaluator_only
+    assert held.label_status == "pending_review" and held.fully_right is None
+    assert held.label == plain[0].evaluator_only.label
+    before = run_packet.batch_summary(plain)
+    after = run_packet.batch_summary(proposed)
+    assert after["evals_judged"] == before["evals_judged"] - 1
+    assert after["evals_pending_review"] == 1
+
+
+def test_a_review_report_that_disagrees_with_the_labels_is_refused(tmp_path):
+    """EVAL-02: a flag is never joined to a different label."""
+    labels, _ = run_packet.read_labels(MASTER_LABELS)
+    key, label = next(iter(labels.items()))
+    other = json.loads(label.model_dump_json()) | {"labelled_by": "someone else"}
+    report = tmp_path / "report.json"
+    report.write_text(
+        json.dumps(
+            {
+                "cases": [
+                    {
+                        "run_key": key,
+                        "diagnosis_label": other,
+                        "label_needs_review": True,
+                    }
+                ]
+            }
+        ),
+        encoding="utf-8",
+    )
+    with pytest.raises(ValueError, match="differs"):
+        run_packet.review_flags(report, labels)
+
+
+def fingerprinted(state, question, *, model="m", tokens=None):
+    return snap_request.build_request(
+        state,
+        [question],
+        model=model,
+        item_id="i",
+        meta={"rubric_version": "1.0.0"},
+        state_tokens=tokens,
+    )[0]["tags"]["request_fingerprint"]
+
+
+def test_every_request_input_changes_the_fingerprint():
+    """EVAL-03 / T04: a saved answer is never reused for a changed request."""
+    _, questions = snap_request.load_questions()
+    question = questions[0]
+    state = {"a": 1}
+    base = fingerprinted(state, question)
+    assert fingerprinted(state, question) == base
+    reworded = question.model_copy(update={"instructions": question.instructions + "!"})
+    variants = [
+        fingerprinted(state, question, model="other-model"),
+        fingerprinted({"a": 2}, question),
+        fingerprinted(state, reworded),
+        fingerprinted(state, question, tokens=10_000),
+    ]
+    assert base not in variants and len(set(variants)) == len(variants)
+
+
+def test_reordered_items_keep_their_files_and_answers(tmp_path, monkeypatch):
+    """EVAL-03 / T03: names do not depend on order; a rerun re-sends nothing."""
+    monkeypatch.setenv("SUBQ_API_KEY", "test-key")
+    transport = fake_transport([GOOD_REPLY])
+    built = [request_item("a"), request_item("b")]
+    snap_request.write_requests(built, tmp_path, send_them=True, transport=transport)
+    counts = snap_request.write_requests(
+        list(reversed(built)), tmp_path, send_them=True, transport=transport
+    )
+    assert counts == {"sent": 0, "failed": 0, "already_answered": 2}
+    assert len(transport.sent) == 2
+    assert not list(tmp_path.glob("*.partial"))
+
+
+def test_a_partial_answer_is_asked_again(tmp_path, monkeypatch):
+    """EVAL-03 / T07: a reply missing an answer is not a completed judgment."""
+    monkeypatch.setenv("SUBQ_API_KEY", "test-key")
+    transport = fake_transport([{"model": "m", "answers": {}}, GOOD_REPLY])
+    built = [request_item("a")]
+    snap_request.write_requests(built, tmp_path, send_them=True, transport=transport)
+    counts = snap_request.write_requests(
+        built, tmp_path, send_them=True, transport=transport
+    )
+    assert counts["sent"] == 1 and counts["already_answered"] == 0
+
+
+def test_a_passing_outage_is_retried_and_a_lasting_one_recorded(tmp_path, monkeypatch):
+    """EVAL-03: HTTP 429 and 5xx are tried again; the wait comes from `sleep`."""
+    import urllib.error
+
+    monkeypatch.setenv("SUBQ_API_KEY", "test-key")
+    busy = urllib.error.HTTPError("https://x", 503, "Busy", {}, None)
+    waits = []
+    transport = fake_transport([busy, busy, GOOD_REPLY])
+    counts = snap_request.write_requests(
+        [request_item("a")],
+        tmp_path,
+        send_them=True,
+        transport=transport,
+        retries=2,
+        sleep=waits.append,
+    )
+    assert counts["sent"] == 1 and waits == [2.0, 4.0]
+    refused = urllib.error.HTTPError("https://x", 401, "No", {}, None)
+    transport = fake_transport([refused])
+    counts = snap_request.write_requests(
+        [request_item("b")],
+        tmp_path,
+        send_them=True,
+        transport=transport,
+        retries=2,
+        sleep=waits.append,
+    )
+    assert counts["failed"] == 1 and len(transport.sent) == 1
+
+
+def leaky_packet_dir(tmp_path, master_packets, change):
+    """A packet folder holding one master packet after `change(packet_json)`."""
+    packet = json.loads(master_packets[0].model_dump_json())
+    change(packet)
+    folder = tmp_path / "packets"
+    folder.mkdir()
+    (folder / "p.json").write_text(json.dumps(packet), encoding="utf-8")
+    return folder
+
+
+@pytest.mark.parametrize(
+    "change",
+    [
+        # The scenario id written into free text the judge would read.
+        lambda p: p["snap_view"]["facts"].update(
+            {"termination_reason": p["meta"]["scenario_id"]}
+        ),
+        # A truth-side field name added to the judge's half on disk.
+        lambda p: p["snap_view"]["configuration"].update({"hazards": "true_fault"}),
+        # A field the judge view does not define.
+        lambda p: p["snap_view"].update({"evaluator_note": "x"}),
+    ],
+)
+def test_a_leaking_packet_on_disk_is_refused_before_any_request(
+    tmp_path, master_packets, change
+):
+    """EVAL-04 / T05: the last boundary re-checks what would be sent."""
+    _, questions = snap_request.load_questions()
+    folder = leaky_packet_dir(tmp_path, master_packets, change)
+    built = snap_request.run_requests(
+        folder,
+        questions,
+        [snap_request.PROVIDERS["snap"]],
+        state_tokens=snap_request.MATCHED_STATE_TOKENS,
+    )
+    assert [b["body"] for b in built] == [None]
+    assert built[0]["tags"]["unfittable"].startswith("refused")
+
+
+def test_every_master_request_is_free_of_the_runs_own_ids(master_packets, tmp_path):
+    """EVAL-04 / T05: no sent body names its scenario, run key or episode key."""
+    _, questions = snap_request.load_questions()
+    folder = tmp_path / "packets"
+    folder.mkdir()
+    for packet in master_packets:
+        name = run_packet.packet_file_name(packet.meta.episode_key)
+        (folder / name).write_text(packet.model_dump_json(), encoding="utf-8")
+    built = snap_request.run_requests(
+        folder,
+        questions,
+        list(snap_request.PROVIDERS.values()),
+        state_tokens=snap_request.MATCHED_STATE_TOKENS,
+    )
+    sent = [b for b in built if b["body"] is not None]
+    assert sent
+    for packet in master_packets:
+        for item in sent:
+            text = json.dumps(item["body"]).lower()
+            assert packet.meta.scenario_id.lower() not in text
+            assert packet.meta.run_key.lower() not in text
+
+
+def test_judge_requests_carry_the_project_user_agent_and_no_key(monkeypatch):
+    """EVAL-19 / T17: sent with post_json, as the project's model clients are."""
+    import urllib.error
+
+    from capstone.providers.chat import USER_AGENT, ModelError
+
+    transport = fake_transport([GOOD_REPLY])
+    snap_request.send(
+        snap_request.PROVIDERS["jev"], {"x": 1}, "secret-key", transport=transport
+    )
+    headers = transport.sent[0]["headers"]
+    assert headers["User-Agent"] == USER_AGENT
+    assert headers["Authorization"] == "Bearer secret-key"
+    failing = fake_transport([urllib.error.HTTPError("https://x", 500, "x", {}, None)])
+    with pytest.raises(ModelError) as caught:
+        snap_request.send(
+            snap_request.PROVIDERS["jev"], {}, "secret-key", transport=failing
+        )
+    assert "secret-key" not in snap_request.describe_failure(caught.value)
+
+
+@pytest.mark.parametrize(
+    "question, raw",
+    [
+        ({"type": "choice", "criteria": {"a": "", "b": ""}}, {"choice": "zzz"}),
+        ({"type": "choice", "criteria": {"a": "", "b": ""}}, {"choice": 1}),
+        ({"type": "noul", "criteria": {}}, {"noul": 1.7}),
+        ({"type": "noul", "criteria": {}}, {"noul": -0.1}),
+        ({"type": "noul", "criteria": {}}, {"noul": "0.5"}),
+        ({"type": "noul", "criteria": {}}, {"noul": float("nan")}),
+        ({"type": "score", "criteria": ["0", "1", "2"]}, {"score": 3}),
+        ({"type": "score", "criteria": ["0", "1", "2"]}, {"score": True}),
+    ],
+)
+def test_an_impossible_answer_is_kept_unreadable(question, raw):
+    """EVAL-19 / T18: refused as the live TypeSafe client refuses it."""
+    question = {"id": "FN-01", "name": "q", **question}
+    item = request_item("a")
+    item["tags"]["questions"] = {
+        "q": question,
+        "r": {"id": "FN-02", "name": "r", "type": "noul", "criteria": {}},
+    }
+    bad, good = snap_request.normalized_answers(
+        item, {"answers": {"q": raw, "r": {"noul": 0.2}}}, 0.1
+    )
+    assert bad["value"] is None and "unreadable" in bad["error"]
+    assert good["value"] == 0.2
+
+
+def test_states_show_each_test_whole_and_say_what_was_cut():
+    """EVAL-20 / T19: no neighbouring test; every shortened list says so."""
+    inventory = REPO / "evaluation" / "inventory"
+    functions = {
+        f["id"]: f
+        for f in json.loads((inventory / "FUNCTION_INVENTORY.json").read_text("utf-8"))[
+            "functions"
+        ]
+    }
+    tests = json.loads((inventory / "TEST_INVENTORY.json").read_text("utf-8"))["tests"]
+    tools = json.loads((inventory / "TOOL_INVENTORY.json").read_text("utf-8"))["tools"]
+    for test in tests:
+        state = snap_request.test_state(test, functions)
+        if state["source_cut"] is None:
+            body = ast.parse(textwrap.dedent(state["source"])).body
+            assert len(body) == 1, test["id"]
+        known = [f for f in test["exercises"] if f in functions]
+        if len(known) > snap_request.FUNCTIONS_PER_TEST:
+            assert state["exercises_shown"] == (
+                f"{snap_request.FUNCTIONS_PER_TEST} of {len(known)} shown"
+            )
+        else:
+            assert state["exercises_shown"] is None
+    wiring = [
+        snap_request.tool_state(t, functions)["provider_wiring_source"] for t in tools
+    ]
+    assert all(w for w in wiring)
+    assert len(set(wiring)) == len(wiring)
+    for tool, text in zip(tools, wiring, strict=True):
+        assert f'"{tool["name"]}"' in text
+
+
+def test_the_stated_question_count_matches_the_question_file():
+    """EVAL-21 / T20: the EVF note's count is the file's count."""
+    import re
+
+    _, questions = snap_request.load_questions()
+    families = [q.family for q in questions]
+    progress = (REPO / "docs" / "PROGRESS.md").read_text(encoding="utf-8")
+    stated = re.search(
+        r"\((\d+) questions: (\d+) per run, (\d+) per function, (\d+) per\s+test, "
+        r"(\d+) per tool, (\d+) per batch comparison\)",
+        progress,
+    )
+    assert stated is not None
+    total, *per_family = (int(n) for n in stated.groups())
+    assert total == len(questions)
+    assert per_family == [families.count(f) for f in ("RUN", "FN", "TS", "TL", "BT")]
+
+
+def test_two_answers_to_one_question_are_refused_and_latency_is_per_request():
+    """EVAL-01 / EVAL-15: no silent overwrite; one latency figure per request."""
+    from evaltools import compare_evaluators
+
+    def answers_file(item, latency, fingerprint, n=1):
+        return {
+            "tags": {
+                "provider": "snap",
+                "item_id": item,
+                "request_fingerprint": fingerprint,
+                "state_digest": "d",
+                "model_requested": "m",
+            },
+            "answers": [
+                {
+                    "question_id": f"FN-0{i}",
+                    "type": "noul",
+                    "value": 0.5,
+                    "latency_seconds": latency,
+                }
+                for i in range(1, n + 1)
+            ],
+        }
+
+    with pytest.raises(ValueError, match="two answers"):
+        compare_evaluators.index_answers(
+            [answers_file("a", 1.0, "f1"), answers_file("a", 1.0, "f2")]
+        )
+    report = compare_evaluators.build_report(
+        [answers_file("a", 1.0, "f1", n=9), answers_file("b", 3.0, "f2")], None
+    )
+    assert report["per_provider"]["snap"]["median_latency_seconds"] == 2.0

@@ -1,9 +1,11 @@
 {
  "meta": {
-  "packet_schema_version": "1.1.0",
+  "packet_schema_version": "1.2.0",
   "rubric_version": "1.0.0",
   "run_key": "master-single-2026-10-27/2/KA-02-bearing",
   "scenario_id": "KA-02-bearing",
+  "namespace": null,
+  "episode_key": "master-single-2026-10-27/2/KA-02-bearing",
   "commit_sha": null,
   "records_file": "../docs/benchmarks/2026-10-27-master-resumed.records.jsonl",
   "audit_file": null,
@@ -464,6 +466,7 @@
    "note": "drafted by the coding assistant from the conclusion's words, not the true fault; shown to Peyton 2026-10-28; names a worn bearing"
   },
   "labelled_by": "coding assistant",
+  "label_status": "judged",
   "root_cause_correct": true,
   "target_correct": true,
   "fully_right": true,
