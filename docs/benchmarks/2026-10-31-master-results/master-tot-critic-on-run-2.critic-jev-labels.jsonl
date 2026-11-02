@@ -1,0 +1,3 @@
+{"run_key":"master-tot-critic-on-run-2/3/KA-05-setting","diagnosis":null,"labelled_by":"typesafe/jev-1.14.0","note":""}
+{"run_key":"master-tot-critic-on-run-2/4/KA-07-false-alarm","diagnosis":{"fault":"false_alarm","machine_id":"CNC-01","batch_id":null,"summary":""},"labelled_by":"typesafe/jev-1.14.0","note":""}
+{"run_key":"master-tot-critic-on-run-2/5/KA-09-challenge","diagnosis":{"fault":"false_alarm","machine_id":"CNC-03","batch_id":null,"summary":""},"labelled_by":"typesafe/jev-1.14.0","note":""}

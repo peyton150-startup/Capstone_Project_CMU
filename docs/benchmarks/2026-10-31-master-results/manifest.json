@@ -1,0 +1,142 @@
+{
+  "files": [
+    {
+      "file": "master-manual-20261030-115707.config.json",
+      "bytes": 359,
+      "sha256": "d2e707efa02293c1422eaf785b4293130bc68bb3ff3e3c3ddecc080a2a3536ac",
+      "source": "experiment_checkout"
+    },
+    {
+      "file": "master-manual-20261030-115707.records.jsonl",
+      "bytes": 72530,
+      "sha256": "0f4190b032aa3c47913ee60f7c6baa9ccac40ebabe9f33fe0ef3c7c270954834",
+      "source": "experiment_checkout"
+    },
+    {
+      "file": "master-manual-20261030-115707.report.json",
+      "bytes": 53960,
+      "sha256": "53ff42a20f91eb13c0cd31debd301c49475ae6e78341a864365c6d4fb3b58cba",
+      "source": "experiment_checkout"
+    },
+    {
+      "file": "master-manual-critic-followup-20261030-131716.records.jsonl",
+      "bytes": 90073,
+      "sha256": "af3ef9158f455cd9b6090eb42f75483f46e83bd6b52f9c890695afdac669ea00",
+      "source": "experiment_checkout"
+    },
+    {
+      "file": "master-manual-critic-followup-20261030-131716.report.json",
+      "bytes": 58395,
+      "sha256": "54e46e2a32249b456e49bb00b26d4d7067e33ab9474d6763693a9cf928916fac",
+      "source": "experiment_checkout"
+    },
+    {
+      "file": "master-manual-critic-followup-parallel-20261030-131537-83a5d0cf.records.jsonl",
+      "bytes": 81270,
+      "sha256": "635b83b7b7d672e9cf93169705e5377fd19177a637ee1709622a562f0502de6f",
+      "source": "experiment_checkout"
+    },
+    {
+      "file": "master-manual-critic-followup-parallel-20261030-131537-83a5d0cf.report.json",
+      "bytes": 53744,
+      "sha256": "7e6d05450409cbc0d375c33f8fc1b66d9cbef5c2d78618f88e811c3fe26aeb09",
+      "source": "experiment_checkout"
+    },
+    {
+      "file": "master-tot-critic-off-run-1.records.jsonl",
+      "bytes": 31417,
+      "sha256": "7e3d69cc2cbd2138f9cf4c4d55f5219d79c98135c0ceec83098604c563e095d6",
+      "source": "experiment_checkout"
+    },
+    {
+      "file": "master-tot-critic-off-run-1.report.json",
+      "bytes": 22429,
+      "sha256": "ef080e5f91923976f5e20d02fe4a4310d736a836a1f0c43b062fc50040a2e588",
+      "source": "experiment_checkout"
+    },
+    {
+      "file": "master-tot-critic-off-run-2.before-resume-20261031T180917612232Z.jsonl",
+      "bytes": 13092,
+      "sha256": "ade25fd58b22adfe1c73cbef3b1d527fa98ad6b59af03236251330d6bf170307",
+      "source": "experiment_checkout"
+    },
+    {
+      "file": "master-tot-critic-off-run-2.jev-labels.jsonl",
+      "bytes": 819,
+      "sha256": "b433c25f433c77e1afb52039fcf7df0ab7eb877b890b8945aa9e41679fc6212e",
+      "source": "experiment_checkout"
+    },
+    {
+      "file": "master-tot-critic-off-run-2.records.jsonl",
+      "bytes": 60322,
+      "sha256": "dc2182a1667e691a8fe55dbc58df2f8b7023f5ffdd340d1c2d7c716faf97b3bc",
+      "source": "experiment_checkout"
+    },
+    {
+      "file": "master-tot-critic-off-run-2.report.json",
+      "bytes": 42429,
+      "sha256": "dfc56e5a69c303a0b9554716025ce7a2d1d8e92ff61787be42245d91182615eb",
+      "source": "experiment_checkout"
+    },
+    {
+      "file": "master-tot-critic-off-run-2.resume-20261031T180917612232Z.config.json",
+      "bytes": 1400,
+      "sha256": "c6a9c1646464b25bb9f1db715efe4ff9c755b76d107ea10d1d40776895940166",
+      "source": "experiment_checkout"
+    },
+    {
+      "file": "master-tot-critic-on-run-1.records.jsonl",
+      "bytes": 39129,
+      "sha256": "2b7bcb30e196bf64abab8d52c16a32ff439237891a41c6066ff1da3001b28b38",
+      "source": "experiment_checkout"
+    },
+    {
+      "file": "master-tot-critic-on-run-1.report.json",
+      "bytes": 24892,
+      "sha256": "dade5a64fa4256fdee2d7a8641d15f685f9aef7afda9978e19af7982ac71c047",
+      "source": "experiment_checkout"
+    },
+    {
+      "file": "master-tot-critic-on-run-2.before-resume-20261031T184514438266Z.jsonl",
+      "bytes": 10149,
+      "sha256": "e8e881f723fa8776c7fad535ef64da3d720afee28a75b7f64e5899d9ff4cdf61",
+      "source": "experiment_checkout"
+    },
+    {
+      "file": "master-tot-critic-on-run-2.critic-jev-labels.jsonl",
+      "bytes": 506,
+      "sha256": "42a66393e7228ab464fe8281503a0d54a06c8a71bbc65fe3fa45e23144b8f0e1",
+      "source": "experiment_checkout"
+    },
+    {
+      "file": "master-tot-critic-on-run-2.jev-labels.jsonl",
+      "bytes": 744,
+      "sha256": "fbe0158aa452fbe7641650c5330d20e38579ef562b9a161ffd2603c521f9db2f",
+      "source": "experiment_checkout"
+    },
+    {
+      "file": "master-tot-critic-on-run-2.records.jsonl",
+      "bytes": 67147,
+      "sha256": "ccc104c96a2e56db1650092a9e05835a6d7bf79bf8dcffeb0d18fc12760328e0",
+      "source": "experiment_checkout"
+    },
+    {
+      "file": "master-tot-critic-on-run-2.report.json",
+      "bytes": 40917,
+      "sha256": "1cb20ae7acd74a67880fc02dfa58f3c126cf439b417f2f8163b457c8b89a65c2",
+      "source": "experiment_checkout"
+    },
+    {
+      "file": "master-tot-critic-on-run-2.resume-20261031T184514438266Z.config.json",
+      "bytes": 1397,
+      "sha256": "4598abce2cde016187f437b444c16541a2701d13f740549e545496239718f61d",
+      "source": "experiment_checkout"
+    },
+    {
+      "file": "master-manual-20261030-115707.jev-report.json",
+      "bytes": 55345,
+      "sha256": "2abc45cbc8d4db03cea06b10be788d520997698239fdce6506fb144365520e9f",
+      "source": "codex_worktree"
+    }
+  ]
+}
