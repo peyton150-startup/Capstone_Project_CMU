@@ -31,6 +31,8 @@ package; it adds no setting, dependency or default to the agent.
 """
 
 import argparse
+import ast
+import functools
 import hashlib
 import json
 import os
@@ -38,7 +40,7 @@ import re
 import sys
 import time
 import urllib.error
-import urllib.request
+from collections.abc import Callable
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Literal
@@ -47,14 +49,28 @@ from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from evaltools.decision_models import (
     MATCHED_STATE_TOKENS,
+    NORMALIZE_VERSION,
     PROVIDERS,
     DecisionProvider,
     estimate_tokens,
     fit_state,
     normalize,
 )
+from evaltools.run_packet import HIDDEN_WORDS, SnapView, leak_in
 
 REPO = Path(__file__).resolve().parents[2]
+sys.path.insert(0, str(REPO / "capstone-code"))
+
+# The project's own POST helper, the one its model clients use: it sends a
+# User-Agent (Cloudflare-fronted services refuse urllib's default with HTTP
+# 403), keeps one deadline for the whole request and raises keyless errors.
+from capstone.providers.chat import (  # noqa: E402
+    ModelError,
+    Transport,
+    post_json,
+    urllib_transport,
+)
+
 EVALUATION = REPO / "evaluation"
 QUESTIONS_PATH = EVALUATION / "SNAP_QUESTIONS.json"
 INVENTORY = EVALUATION / "inventory"
@@ -139,6 +155,36 @@ def digest(state: Any) -> str:
     ).hexdigest()
 
 
+def request_fingerprint(tags: dict, body: dict) -> str:
+    """SHA-256 of everything that decides a request's answer.
+
+    The provider and its endpoint, the whole body that is sent (model, fitted
+    state, every question's type, instructions and criteria), each question's
+    full definition, the evidence budget, the rubric version and the version
+    of `normalize`. Two requests with one fingerprint would be answered the
+    same way, so a saved answer is reused only for an equal fingerprint;
+    changing any of these sends the request again.
+    """
+    # Variables:
+    #   canonical: The inputs above, as sorted-key JSON so the same inputs
+    #     always give the same bytes.
+    provider = tags["provider"]
+    canonical = json.dumps(
+        {
+            "provider": provider,
+            "endpoint": PROVIDERS[provider].endpoint if provider in PROVIDERS else None,
+            "body": body,
+            "questions": tags.get("questions"),
+            "state_budget_tokens": tags.get("state_budget_tokens"),
+            "rubric_version": tags.get("rubric_version"),
+            "normalize_version": NORMALIZE_VERSION,
+        },
+        sort_keys=True,
+        default=str,
+    )
+    return hashlib.sha256(canonical.encode("utf-8")).hexdigest()
+
+
 def build_request(
     state: Any,
     questions: list[DecisionQuestion],
@@ -154,35 +200,42 @@ def build_request(
     `state_tokens` is the evidence budget the state is fitted to; None sends
     the state whole (a provider's own limit still applies). The same budget
     given to two providers yields the same fitted state and the same digest.
+    Each request's tags carry its `request_fingerprint`.
     """
+    # Variables:
+    #   trimmed: What `fit_state` cut to fit the budget, recorded in the tags.
+    #   chunk: The questions of one request, at most the providers' limit.
+    #   item: One request's tags and body; its fingerprint is taken from both.
     trimmed: list[str] = []
     if state_tokens is not None and isinstance(state, dict):
         state, trimmed = fit_state(state, state_tokens)
     requests = []
     for start in range(0, len(questions), MAX_QUESTIONS_PER_REQUEST):
         chunk = questions[start : start + MAX_QUESTIONS_PER_REQUEST]
-        requests.append(
-            {
-                "tags": {
-                    **meta,
-                    "provider": provider,
-                    "model_requested": model,
-                    "item_id": item_id,
-                    "question_ids": [q.id for q in chunk],
-                    "questions": {q.name: q.model_dump() for q in chunk},
-                    "state_digest": digest(state),
-                    "state_tokens_estimate": estimate_tokens(state),
-                    "state_budget_tokens": state_tokens,
-                    "state_trimmed": trimmed,
-                    "built_at": datetime.now(timezone.utc).isoformat(),
-                },
-                "body": {
-                    "model": model,
-                    "state": state,
-                    "questions": {q.name: q.to_request() for q in chunk},
-                },
-            }
+        item = {
+            "tags": {
+                **meta,
+                "provider": provider,
+                "model_requested": model,
+                "item_id": item_id,
+                "question_ids": [q.id for q in chunk],
+                "questions": {q.name: q.model_dump() for q in chunk},
+                "state_digest": digest(state),
+                "state_tokens_estimate": estimate_tokens(state),
+                "state_budget_tokens": state_tokens,
+                "state_trimmed": trimmed,
+                "built_at": datetime.now(timezone.utc).isoformat(),
+            },
+            "body": {
+                "model": model,
+                "state": state,
+                "questions": {q.name: q.to_request() for q in chunk},
+            },
+        }
+        item["tags"]["request_fingerprint"] = request_fingerprint(
+            item["tags"], item["body"]
         )
+        requests.append(item)
     return requests
 
 
@@ -253,16 +306,27 @@ def run_requests(
     stops the rest of the batch and the gap is recorded, not silent.
     """
     # Variables:
+    #   view: The judge's half, passed through `SnapView` (which refuses any
+    #     field it does not define), so only allowed fields can be sent.
+    #   forbidden: The truth-side names and this run's own ids, which must
+    #     appear in no state that is sent (see `judge_view`).
     #   chosen, skipped: The questions this packet can answer, and why the rest
     #     are not asked.
     #   meta: Tags shared by every request built from this packet.
     #   unfittable: Why the state could not be fitted to the budget, or None.
+    #   refusal: Why the packet's judge view was refused, or None.
     built = []
     for path in sorted(packet_dir.glob("*.json")):
         if path.name == "BATCH_SUMMARY.json":
             continue
         packet = json.loads(path.read_text(encoding="utf-8"))
-        chosen, skipped = applicable_run_questions(packet, questions)
+        forbidden = forbidden_for(packet["meta"])
+        view, refusal = judge_view(packet, forbidden)
+        chosen, skipped = (
+            applicable_run_questions({"snap_view": view}, questions)
+            if view is not None
+            else ([], {})
+        )
         meta = {
             "family": "RUN",
             "rubric_version": packet["meta"]["rubric_version"],
@@ -271,25 +335,36 @@ def run_requests(
             "skipped_questions": skipped,
             "packet_file": path.name,
         }
-        # The run key names the request files and pairs answers; it is in the
-        # packet's meta, which is never sent.
-        item_id = packet["meta"]["run_key"]
+        # The episode key names the request files and pairs answers (a run
+        # key alone can repeat across archived pairs); it is in the packet's
+        # meta, which is never sent. Packets older than schema 1.2.0 have none.
+        item_id = packet["meta"].get("episode_key") or packet["meta"]["run_key"]
         for provider in providers:
-            unfittable = None
+            unfittable = refusal
             if chosen:
                 try:
-                    built.extend(
-                        build_request(
-                            packet["snap_view"],
-                            chosen,
-                            model=provider.model,
-                            item_id=item_id,
-                            meta=meta,
-                            provider=provider.name,
-                            state_tokens=state_tokens,
-                        )
+                    requests = build_request(
+                        view,
+                        chosen,
+                        model=provider.model,
+                        item_id=item_id,
+                        meta=meta,
+                        provider=provider.name,
+                        state_tokens=state_tokens,
                     )
-                    continue
+                    # Checked again after fitting: what is sent is what counts.
+                    leaked = next(
+                        (
+                            word
+                            for r in requests
+                            if (word := leak_in(json.dumps(r["body"]), forbidden))
+                        ),
+                        None,
+                    )
+                    if leaked is None:
+                        built.extend(requests)
+                        continue
+                    unfittable = f"refused: the request carries {leaked!r}"
                 except ValueError as error:
                     unfittable = str(error)
             built.append(
@@ -307,7 +382,45 @@ def run_requests(
     return built
 
 
+def forbidden_for(meta: dict) -> list[str]:
+    """What no state sent for this packet may contain, from its `meta`.
+
+    The truth-side field names, and the run's scenario id, run key and episode
+    key: scenario ids name the fault (`KA-01-bearing`).
+    """
+    names = [meta.get("scenario_id"), meta.get("run_key"), meta.get("episode_key")]
+    return [*HIDDEN_WORDS, *(str(n).lower() for n in names if n)]
+
+
+def judge_view(packet: dict, forbidden: list[str]) -> tuple[dict | None, str | None]:
+    """The packet's judge view as it may be sent, or None and why it was refused.
+
+    Only the fields `SnapView` defines pass (anything added to the file on
+    disk is refused), and no forbidden text may appear in them.
+    """
+    # Variables:
+    #   view: The judge's half after the allowlist, as plain JSON data.
+    try:
+        view = SnapView.model_validate(packet["snap_view"]).model_dump(mode="json")
+    except (KeyError, ValueError) as problem:
+        return None, f"refused: snap_view is not a valid judge view ({problem})"
+    leaked = leak_in(json.dumps(view), forbidden)
+    if leaked is not None:
+        return None, f"refused: snap_view carries {leaked!r}"
+    return view, None
+
+
 # --- functions, tests and tools -----------------------------------------------------------
+
+
+# How much of a list or a text a state keeps. Whatever is cut is said so in
+# the state (`shown`), never dropped silently.
+TESTS_PER_FUNCTION = 12
+FUNCTIONS_PER_TEST = 15
+TESTS_PER_TOOL = 20
+TEST_SOURCE_CHARS = 4000
+COVERING_TEST_SOURCE_CHARS = 3000
+FACTORY = "capstone-code/capstone/providers/factory.py"
 
 
 def source_lines(file: str, line: int, end_line: int) -> str:
@@ -315,12 +428,52 @@ def source_lines(file: str, line: int, end_line: int) -> str:
     return "\n".join(text[line - 1 : end_line])
 
 
+@functools.cache
+def definition_ends(file: str) -> dict[int, int]:
+    """Each function's first line to its last, from the file's syntax tree."""
+    tree = ast.parse((REPO / file).read_text(encoding="utf-8"))
+    return {
+        node.lineno: node.end_lineno
+        for node in ast.walk(tree)
+        if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef))
+    }
+
+
+def test_source(record: dict, chars: int) -> tuple[str, str | None]:
+    """A test's own source, from its first line to its last, and a note if cut.
+
+    The end comes from the syntax tree, so the text never runs on into the
+    next test; a source longer than `chars` is cut and the note says so.
+    """
+    # Variables:
+    #   end: The test's last line; its first line alone if the tree has no
+    #     function starting there (the note says so).
+    end = definition_ends(record["file"]).get(record["line"])
+    if end is None:
+        return source_lines(record["file"], record["line"], record["line"]), (
+            "only the first line: no function starts there in the source"
+        )
+    text = source_lines(record["file"], record["line"], end)
+    if len(text) <= chars:
+        return text, None
+    return text[:chars], f"cut to {chars} of {len(text)} characters"
+
+
+def shown(kept: int, total: int) -> str | None:
+    """`"12 of 15 shown"` when a list was cut, else None."""
+    return None if kept >= total else f"{kept} of {total} shown"
+
+
 def function_state(record: dict, tests_by_id: dict) -> dict:
+    # Variables:
+    #   tests: Every covering test found in the inventory, before the cap.
+    #   cut: Why a covering test's source was shortened, or None.
     tests = []
     for test_id in record["direct_tests"] + record["indirect_tests"]:
         t = tests_by_id.get(test_id)
         if t is None:
             continue
+        source, cut = test_source(t, COVERING_TEST_SOURCE_CHARS)
         tests.append(
             {
                 "id": t["id"],
@@ -329,7 +482,8 @@ def function_state(record: dict, tests_by_id: dict) -> dict:
                 "assert_forms": t["assert_forms"],
                 "raises_checks": t["raises_checks"],
                 "execution_outcome": t["execution_outcome"],
-                "source": source_lines(t["file"], t["line"], t["line"] + 60)[:3000],
+                "source": source,
+                **({"source_cut": cut} if cut else {}),
             }
         )
     return {
@@ -351,18 +505,23 @@ def function_state(record: dict, tests_by_id: dict) -> dict:
             "statement_coverage": record["statement_coverage"],
             "test_count": record["test_count"],
         },
-        "tests": tests[:12],
+        "tests": tests[:TESTS_PER_FUNCTION],
+        "tests_shown": shown(TESTS_PER_FUNCTION, len(tests)),
     }
 
 
 def test_state(record: dict, functions_by_id: dict) -> dict:
+    # Variables:
+    #   exercised: The functions the test runs that the inventory knows.
+    #   cut: Why the test's source was shortened, or None.
+    exercised = [f for f in record["exercises"] if f in functions_by_id]
+    source, cut = test_source(record, TEST_SOURCE_CHARS)
     return {
         "test_id": record["id"],
         "claims": record["claims"],
         "docstring": record["docstring"],
-        "source": source_lines(record["file"], record["line"], record["line"] + 80)[
-            :4000
-        ],
+        "source": source,
+        "source_cut": cut,
         "assertions": record["assertions"],
         "assert_forms": record["assert_forms"],
         "raises_checks": record["raises_checks"],
@@ -375,13 +534,48 @@ def test_state(record: dict, functions_by_id: dict) -> dict:
                 "purpose": functions_by_id[f]["purpose"],
                 "file": functions_by_id[f]["file"],
             }
-            for f in record["exercises"][:15]
-            if f in functions_by_id
+            for f in exercised[:FUNCTIONS_PER_TEST]
         ],
+        "exercises_shown": shown(FUNCTIONS_PER_TEST, len(exercised)),
     }
 
 
+def wiring_lines(tool: str, files: list[str], after: int = 4) -> str | None:
+    """The lines of `files` that name `tool`, each with the next few, by file.
+
+    In `providers/factory.py` these are the tool's description, its argument
+    contract and its entry in the provider's call table; a tool served by its
+    own provider (the manual, memory recall) is named in that provider's file.
+    So the judge reads how this tool, not every tool, is wired. Separate
+    passages are joined by `...`. None when no file names the tool.
+    """
+    # Variables:
+    #   text: One file's lines.
+    #   keep: The line numbers to show, each naming line and the `after` after it.
+    parts: list[str] = []
+    for file in files:
+        text = (REPO / file).read_text(encoding="utf-8").splitlines()
+        keep: set[int] = set()
+        for number, line in enumerate(text):
+            if f'"{tool}"' in line:
+                keep.update(range(number, min(number + after + 1, len(text))))
+        if not keep:
+            continue
+        parts.append(f"# {file}")
+        previous = None
+        for number in sorted(keep):
+            if previous is not None and number != previous + 1:
+                parts.append("...")
+            parts.append(f"{number + 1}: {text[number]}")
+            previous = number
+    return "\n".join(parts) if parts else None
+
+
 def tool_state(tool: dict, functions_by_id: dict) -> dict:
+    """What a judge reads about one agent tool: contract, code, wiring, tests."""
+    # Variables:
+    #   impl: The inventory entry of the function that implements the tool, or
+    #     None; its file is also searched for the tool's wiring.
     impl = functions_by_id.get(tool["implementation"])
     return {
         "tool": tool["name"],
@@ -398,10 +592,12 @@ def tool_state(tool: dict, functions_by_id: dict) -> dict:
             if impl is None
             else source_lines(impl["file"], impl["line"], impl["end_line"])
         ),
-        "provider_wiring_source": source_lines(
-            "capstone-code/capstone/providers/factory.py", 1, 120
+        "provider_wiring_source": wiring_lines(
+            tool["name"],
+            [FACTORY] + ([impl["file"]] if impl and impl["file"] != FACTORY else []),
         ),
-        "tests": tool["tests"][:20],
+        "tests": tool["tests"][:TESTS_PER_TOOL],
+        "tests_shown": shown(TESTS_PER_TOOL, len(tool["tests"])),
         "hazards_note": "Scheduled faults in capstone/providers/hazards.py can time "
         "out, drop the middle third of ticked rows, add a stale maintenance "
         "record or black out one machine's sensor tools; these are designed "
@@ -457,22 +653,26 @@ def item_requests(
 # --- sending ---------------------------------------------------------------------------
 
 
-def send(provider: DecisionProvider, body: dict, api_key: str, timeout: float = 90.0):
-    """POST one request; returns (reply, latency seconds)."""
-    request = urllib.request.Request(
-        provider.endpoint,
-        data=json.dumps(body).encode("utf-8"),
-        headers={
-            "Authorization": f"Bearer {api_key}",
-            "Content-Type": "application/json",
-            "Accept": "application/json",
-        },
-        method="POST",
-    )
+def send(
+    provider: DecisionProvider,
+    body: dict,
+    api_key: str,
+    timeout: float = 90.0,
+    transport: Transport = urllib_transport,
+):
+    """POST one request; returns (reply, latency seconds).
+
+    Sent with `capstone.providers.chat.post_json`: the project's User-Agent,
+    one deadline for the whole request, and a `ModelError` that names no key
+    or reply when the service does not answer. ValueError when the reply is
+    not JSON.
+    """
+    # Variables:
+    #   transport: What really sends the bytes; tests pass one that records them.
+    #   started: When the request left, for the latency the answers record.
     started = time.monotonic()
-    with urllib.request.urlopen(request, timeout=timeout) as response:
-        reply = json.loads(response.read())
-    return reply, time.monotonic() - started
+    raw = post_json(transport, provider.endpoint, api_key, body, timeout)
+    return json.loads(raw), time.monotonic() - started
 
 
 def normalized_answers(item: dict, reply: dict, latency: float) -> list[dict]:
@@ -531,59 +731,99 @@ def normalized_answers(item: dict, reply: dict, latency: float) -> list[dict]:
 UNSAFE_NAME = re.compile(r'[<>:"/\\|?*]')
 
 
-def file_stem(number: int, tags: dict) -> str:
-    """A request's file name without extension, valid on every operating system."""
+def file_stem(tags: dict) -> str:
+    """A request's file name without extension, valid on every operating system.
+
+    Named by provider, item and the first 12 hex digits of the request's
+    fingerprint, never by its place in the batch, so reordering or adding
+    items leaves every name (and every saved answer) where it was.
+    """
     # Variables:
     #   safe: The item id with `/` and `::` written as `__` (the names run keys
     #     and test ids already had) and any other refused character as `_`.
     safe = tags["item_id"].replace("/", "__").replace("::", "__")
     safe = UNSAFE_NAME.sub("_", safe)
-    return f"{number:03d}_{tags['provider']}_{safe}"
+    return f"{tags['provider']}_{safe}_{tags['request_fingerprint'][:12]}"
 
 
 def describe_failure(error: Exception) -> str:
     """A short reason a request failed, without the request (and so the key)."""
+    if isinstance(error, ModelError):
+        return str(error)  # post_json's reasons name no key and no reply
     if isinstance(error, urllib.error.HTTPError):
         return f"HTTP {error.code} {error.reason}"
     return f"{type(error).__name__}: {error}"
 
 
 def already_answered(path: Path, tags: dict) -> bool:
-    """True when `path` holds error-free answers to this same request."""
+    """True when `path` holds complete answers to exactly this request.
+
+    The same request fingerprint (model, state, question wording, criteria,
+    budget, rubric and normalization), no error, and a usable answer to every
+    question asked: a failed or partial reply is asked again, never reused.
+    """
     # Variables:
     #   saved: The answers file written earlier, if it can be read.
+    #   answers: Its answers, one per question asked when complete.
     if not path.exists():
         return False
     try:
         saved = json.loads(path.read_text(encoding="utf-8"))
     except ValueError:
         return False
+    answers = saved.get("answers") or []
     return (
         "error" not in saved
-        and saved.get("tags", {}).get("state_digest") == tags.get("state_digest")
-        and saved.get("tags", {}).get("question_ids") == tags.get("question_ids")
+        and saved.get("tags", {}).get("request_fingerprint")
+        == tags.get("request_fingerprint")
+        and len(answers) == len(tags.get("question_ids", []))
+        and all(a.get("value") is not None for a in answers)
     )
 
 
 def write_json(path: Path, payload: dict) -> None:
-    path.write_text(json.dumps(payload, indent=1, default=str) + "\n", encoding="utf-8")
+    """Write `payload` whole or not at all: to a temporary file, then renamed.
+
+    A batch stopped mid-write leaves the old file (or none), never half of one
+    that a rerun would read as an answer.
+    """
+    partial = path.with_name(path.name + ".partial")
+    partial.write_text(
+        json.dumps(payload, indent=1, default=str) + "\n", encoding="utf-8"
+    )
+    os.replace(partial, path)
 
 
-def write_requests(built: list, out: Path, *, send_them: bool) -> dict[str, int]:
+def write_requests(
+    built: list,
+    out: Path,
+    *,
+    send_them: bool,
+    transport: Transport = urllib_transport,
+    retries: int = 2,
+    sleep: Callable[[float], None] = time.sleep,
+) -> dict[str, int]:
     """Write every request file and, when sending, post each and write its answers.
 
-    A request whose answers file already holds error-free answers to the same
-    state and questions is not sent again, so a batch stopped by an outage
-    can be rerun without paying twice. A request that fails (an HTTP error, a
-    timeout, a reply that is not JSON) is written as an answers file with the
-    error and no answers, and the batch goes on.
+    A request whose answers file already holds complete answers to the same
+    request (`already_answered`) is not sent again, so a batch stopped by an
+    outage can be rerun without paying twice. A request the service could not
+    answer for a passing reason (HTTP 429 or 5xx, a timeout, no connection) is
+    tried again up to `retries` more times, waiting 2, 4, ... seconds. One
+    that still fails, or fails for good (another HTTP error, a reply that is
+    not JSON), is written as an answers file with the error and no answers,
+    and the batch goes on.
     """
     # Variables:
     #   send_them: True to post the requests; False writes the files only.
+    #   transport, sleep: What sends the bytes and what waits between tries;
+    #     tests pass ones that touch no network and no clock.
     #   counts: How many requests were sent, failed, or skipped because they
     #     were already answered, for the closing line of `main`.
     #   stem: The file name both of a request's files share.
     #   answers_path: Where that request's answers (or its failure) go.
+    #   attempts: How many times this request was posted.
+    #   failed: True once the request has failed for good; its error is written.
     out.mkdir(parents=True, exist_ok=True)
     if send_them:
         for name in {item["tags"]["provider"] for item in built}:
@@ -592,9 +832,16 @@ def write_requests(built: list, out: Path, *, send_them: bool) -> dict[str, int]
                     f"--send needs {PROVIDERS[name].key_env} in the environment"
                 )
     counts = {"sent": 0, "failed": 0, "already_answered": 0}
-    for number, item in enumerate(built, start=1):
+    for item in built:
         tags = item["tags"]
-        stem = file_stem(number, tags)
+        if item["body"] is None:
+            # Never sent, so it has no fingerprint; named by item alone.
+            safe = UNSAFE_NAME.sub(
+                "_", tags["item_id"].replace("/", "__").replace("::", "__")
+            )
+            write_json(out / f"{tags['provider']}_{safe}_unsent.request.json", item)
+            continue
+        stem = file_stem(tags)
         write_json(out / f"{stem}.request.json", item)
         if not send_them or item["body"] is None:
             continue
@@ -603,21 +850,39 @@ def write_requests(built: list, out: Path, *, send_them: bool) -> dict[str, int]
             counts["already_answered"] += 1
             continue
         provider = PROVIDERS[tags["provider"]]
-        # OSError covers URLError, HTTPError and timeouts; ValueError a reply
-        # that is not JSON.
-        try:
-            reply, latency = send(provider, item["body"], os.environ[provider.key_env])
-        except (OSError, ValueError) as error:
-            write_json(
-                answers_path,
-                {
-                    "tags": tags,
-                    "answers": [],
-                    "error": describe_failure(error),
-                    "answered_at": datetime.now(timezone.utc).isoformat(),
-                },
-            )
-            counts["failed"] += 1
+        attempts = 0
+        failed = False
+        while True:
+            attempts += 1
+            # ModelError: the service did not answer (post_json); OSError, a
+            # transport that raises directly; ValueError, a reply not JSON.
+            try:
+                reply, latency = send(
+                    provider,
+                    item["body"],
+                    os.environ[provider.key_env],
+                    transport=transport,
+                )
+                break
+            except (ModelError, OSError, ValueError) as error:
+                passing = isinstance(error, ModelError) and error.transient
+                if passing and attempts <= retries:
+                    sleep(2.0**attempts)
+                    continue
+                write_json(
+                    answers_path,
+                    {
+                        "tags": tags,
+                        "answers": [],
+                        "error": describe_failure(error),
+                        "attempts": attempts,
+                        "answered_at": datetime.now(timezone.utc).isoformat(),
+                    },
+                )
+                counts["failed"] += 1
+                failed = True
+                break
+        if failed:
             continue
         write_json(
             answers_path,
@@ -625,6 +890,7 @@ def write_requests(built: list, out: Path, *, send_them: bool) -> dict[str, int]
                 "tags": tags,
                 "answers": normalized_answers(item, reply, latency),
                 "raw_reply": reply,
+                "attempts": attempts,
                 "answered_at": datetime.now(timezone.utc).isoformat(),
             },
         )

@@ -15,6 +15,7 @@ before the first live request.
 """
 
 import json
+import math
 from dataclasses import asdict, dataclass
 from typing import Any
 
@@ -172,6 +173,14 @@ def fit_state(state: dict, max_tokens: int = MATCHED_STATE_TOKENS) -> tuple[dict
 # --- the common answer schema ---------------------------------------------------------
 
 
+# The version of the rules `normalize` applies. A saved answer was read under
+# one version; changing the rules changes every request's fingerprint, so old
+# answers are asked again rather than reused (snap_request.request_fingerprint).
+# 1.1.0: a choice must be one of the question's options, a noul a probability
+# from 0 to 1, a score a number within the question's levels.
+NORMALIZE_VERSION = "1.1.0"
+
+
 def normalize(
     provider: str,
     question: dict,
@@ -195,21 +204,37 @@ def normalize(
     #     override included); None falls back to the provider's default.
     #   provider_record: The provider's table entry, for its default model and
     #     its price.
+    #   criteria: The question's options (choice) or ordered levels (score);
+    #     an answer outside them is refused, as the live TypeSafe client does.
     kind = question["type"]
     if raw.get("type") not in (None, kind):
         raise ValueError(
             f"{question['id']}: answer type {raw.get('type')!r} is not {kind}"
         )
+    criteria = question.get("criteria")
     if kind == "noul":
-        value = float(raw["noul"])
+        value = _number(raw["noul"], question["id"])
+        if not 0.0 <= value <= 1.0:
+            raise ValueError(f"{question['id']}: noul {value} is not from 0 to 1")
         confidence = abs(value - 0.5) * 2
         probabilities = {"true": value, "false": 1 - value}
     elif kind == "choice":
-        value = str(raw["choice"])
+        value = raw["choice"]
+        if not isinstance(value, str) or (
+            isinstance(criteria, dict) and value not in criteria
+        ):
+            raise ValueError(
+                f"{question['id']}: choice {value!r} is not one of the options"
+            )
         confidence = raw.get("confidence")
         probabilities = raw.get("probabilities")
     else:
-        value = float(raw["score"])
+        value = _number(raw["score"], question["id"])
+        if isinstance(criteria, list) and not 0 <= value <= len(criteria) - 1:
+            raise ValueError(
+                f"{question['id']}: score {value} is outside levels "
+                f"0 to {len(criteria) - 1}"
+            )
         confidence = raw.get("confidence")
         probabilities = raw.get("probabilities")
     provider_record = PROVIDERS[provider]
@@ -232,6 +257,16 @@ def normalize(
         "input_tokens": input_tokens,
         "cost_usd": cost,
     }
+
+
+def _number(raw: Any, question_id: str) -> float:
+    """`raw` as a finite float; ValueError for text, a bool, NaN or infinity."""
+    if isinstance(raw, bool) or not isinstance(raw, (int, float)):
+        raise ValueError(f"{question_id}: {raw!r} is not a number")
+    value = float(raw)
+    if not math.isfinite(value):
+        raise ValueError(f"{question_id}: {raw!r} is not a finite number")
+    return value
 
 
 # --- agreement ------------------------------------------------------------------------

@@ -1,5 +1,18 @@
 # Progress Log
 
+> **2026-11-02 — evaluator P0 fixes from the readiness criteria (built ungated):**
+> Branch `fix/evaluator-p0-criteria` implements EVAL-01 (episode keys
+> `namespace::run_key`; `run_packet --archive` imports PR #156's 52 episodes
+> with no collision), EVAL-02 (review-pending labels kept but unjudged; the
+> archive reproduces 3/12, 3/12, 6/13, 6/11 with four pending), EVAL-03
+> (request fingerprints, order-free file names, reuse only of complete
+> answers, atomic writes, retries on 429/5xx/timeouts), EVAL-04 (allowlisted
+> judge view checked before and after fitting), EVAL-19 (`post_json`
+> transport; impossible answers refused), EVAL-20 (whole test sources, noted
+> cuts, per-tool wiring) and EVAL-21 (count test), plus per-request latency
+> (part of EVAL-15). Offline tests only; no model was called. Understood: no —
+> built ungated at the developer's request, developer to review.
+
 > **2026-11-02 — concrete evaluator bugs added to the readiness criteria (documentation only):**
 > [CRITERIA_FOR_EVALUATOR.md](../evaluation/CRITERIA_FOR_EVALUATOR.md) gains
 > EVAL-19 (P0: judge requests lack the project's User-Agent and timeout, and

@@ -63,7 +63,21 @@ Live runs are Codex's job (AGENTS.md section 12). Whoever runs one should:
 cd evaluation
 uv run python -m evaltools.run_packet --records <run>.jsonl --labels <run>.labels.jsonl \
     --audit <run>.audit.jsonl --commit <sha> --out packets/<run>
+# every run of an archived results folder (one subfolder per pair), in one go:
+uv run python -m evaltools.run_packet --archive ../docs/benchmarks/2026-11-01-tot13-pairs \
+    --out packets/tot13-pairs
 ```
+
+Each packet is named by its **episode key**, `namespace::run_key`. Archived
+pairs reuse every run key, so `--archive` uses each pair's folder name as
+the namespace (`--namespace` does the same for one records file), and two
+packets with one episode key are refused rather than overwritten. A label
+may be a hand label or an auto-label proposal (`{"label", "needs_review"}`);
+one that needs review, or that `--review-report` (an eval report) flags
+`label_needs_review`, is kept with `label_status: pending_review` and the
+run stays unjudged. `BATCH_SUMMARY.json` gives `evals_judged` and
+`evals_correct`, the denominators `capstone.evals` publishes (outage runs
+included), beside its own reasoning totals (outage runs left out).
 
 Each packet has `meta` (sources, run key, scenario id), `snap_view` (what a
 judge may see: an opaque `run_ref`, configuration, trace, code-computed
@@ -106,7 +120,14 @@ uv run python -m evaltools.snap_request --out requests/tl tools --names get_read
 
 Each `*.request.json` holds the exact `POST /v1/systemone` body (model,
 state, up to 16 named questions) and tags: rubric version, commit, question
-ids, a digest of the state. Read them before sending. Questions a packet
+ids, a digest of the state and a `request_fingerprint` of everything that
+decides the answer (provider, model, fitted state, question wording and
+criteria, budget, rubric and normalization versions). Files are named
+`<provider>_<item>_<fingerprint[:12]>`, so reordering items changes no name.
+The judge view is passed through the `SnapView` model (no field it does not
+define) and checked, before and after fitting, for truth field names and the
+run's own scenario id, run key and episode key; a packet that fails is
+written with `body: null` and a `refused: ...` reason. Read them before sending. Questions a packet
 cannot answer are listed under `skipped_questions` with the reason. A
 packet whose judge view does not fit the evidence budget even after
 trimming is written with `body: null` and the reason under `unfittable`,
@@ -115,10 +136,18 @@ so one long run never stops the batch; send it alone with
 
 To send: `SUBQ_API_KEY=... TYPESAFE_API_KEY=... uv run python -m evaltools.snap_request --provider both --send ...`.
 Answers are normalized into `DECISION_ANSWER_SCHEMA.json` as they arrive.
-A request that fails (an HTTP error, a timeout, a reply that is not JSON)
-is written as an answers file with `error` and no answers, the batch goes
-on, and the exit status is 1; run the same command again and only the
-requests without error-free answers are sent.
+Requests are sent with the project's `capstone.providers.chat.post_json`
+(its User-Agent, one deadline per request, errors that name no key). HTTP
+429/5xx, timeouts and unreachable services are tried twice more (waiting 2
+then 4 seconds). A request that still fails, or fails for good (another HTTP
+error, a reply that is not JSON), is written as an answers file with `error`
+and no answers, the batch goes on, and the exit status is 1; run the same
+command again and only requests without complete answers to the same
+fingerprint are sent. An answer outside its question's options or range (a
+choice not offered, a noul outside 0–1, a score outside its levels) is kept
+with `value: null` and the reason. `compare_evaluators` refuses a folder that
+holds two answers to one question of one item, and takes the median latency
+over requests, not answers.
 Then `uv run python -m evaltools.compare_evaluators --answers requests/<run> --reference reference/<run>.json --out comparison/<run>`
 writes the agreement report (`agreement.md`): rates by question, every
 disagreement for review, latency, tokens and cost per provider (tokens and

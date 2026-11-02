@@ -1,9 +1,11 @@
 {
  "meta": {
-  "packet_schema_version": "1.1.0",
+  "packet_schema_version": "1.2.0",
   "rubric_version": "1.0.0",
   "run_key": "master-single-2026-10-27/1/KA-01-bearing",
   "scenario_id": "KA-01-bearing",
+  "namespace": null,
+  "episode_key": "master-single-2026-10-27/1/KA-01-bearing",
   "commit_sha": null,
   "records_file": "../docs/benchmarks/2026-10-27-master-resumed.records.jsonl",
   "audit_file": null,
@@ -270,6 +272,7 @@
    "note": "Peyton's decision 2026-10-28, labelled by the conclusion's words, not the true fault: names only a 'developing mechanical issue'; a bearing is a hypothesis for a further check"
   },
   "labelled_by": "coding assistant",
+  "label_status": "judged",
   "root_cause_correct": false,
   "target_correct": false,
   "fully_right": false,
