@@ -1,5 +1,16 @@
 # Progress Log
 
+> **2026-11-02 — simulated telemetry ingestion and replay added to future work (not built):**
+> Updated [MVP scope and future work](MVP_SCOPE.md#fw-telemetry-replay) with a
+> medium-priority staged plan: one context-rich time-series store for recent
+> and historical queries, deterministic continuous line-wide monitoring not
+> restricted to the alarmed machine, a seeded stream-versus-replay parity
+> evaluation, and explicit cold-start/missing-data treatment. Actual
+> MTConnect/OPC UA/external sensors remain conditional pilot work, not an MVP
+> prerequisite. Cross-referenced existing Future Work 5 dispatch/monitoring.
+> Docs only; no code, tests, database, real-model calls or understanding gate
+> changed.
+
 > **2026-11-01 — two 13-case ToT anchored/blind pairs completed and recorded:**
 > [Results archive](benchmarks/2026-11-01-tot13-pairs/README.md) preserves four
 > live runs, 52 episodes and 36 source artifacts from frozen commit `e59208d`.
