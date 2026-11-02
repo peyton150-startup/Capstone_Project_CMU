@@ -92,7 +92,7 @@
   "evaluation/evaltools/build_inventory.py": "aa28d370c59a1839b7840bee0bb9428d1c78ca61a5d40a650f0577ce5ef87f5d",
   "evaluation/evaltools/compare_evaluators.py": "7d682c9747846be2dad59477005cc689dfe32c125358302d8d6f9d264da87d79",
   "evaluation/evaltools/decision_models.py": "49cabb0558bf05d6fd1326c0a96a16ecfe7cd2a0ea0bcaaad77310d984289391",
-  "evaluation/evaltools/full_evaluation.py": "24e0fc2e7bf8ee1b6ad71520083eb4ae5778ceaa3f63693ec2c6d8a949f4b518",
+  "evaluation/evaltools/full_evaluation.py": "198a148ca0ecdd00ed2b5ae3098f3e5f1c4464e5307c251bd45a9a1a6f3e529f",
   "evaluation/evaltools/run_packet.py": "581ef7270e2849e98c3d473727c05c9e5728583477567b07e2a081fdcd6e8a3a",
   "evaluation/evaltools/snap_request.py": "3e14d7fa7b1901388351f5ace87a423f0495ab397b3b6a5f15312a07224c2fd6",
   "evaluation/evaltools/traced_run.py": "bf4b13869577f25697a35cd51009f0ecdb996ec1425097d797c2073d80cf8644",
@@ -131,7 +131,7 @@
   "tests/test_failure.py": "ecd776064fc155eba92530de63e68e3d9c375c2e9edac0fdff221f460de0be31",
   "tests/test_false_alarm.py": "874f88e86e966938ce2094df580676347a6e464028d52e624cb172c9e41a993e",
   "tests/test_fault_packs.py": "8469925cad06684823639e91051caabb06c126fdbcf00300534a6a24b90fe85a",
-  "tests/test_full_evaluation.py": "36b81ca109c3df4f18defe02824b15c673e5345b46e8ab9e3e9a5e23364fbf60",
+  "tests/test_full_evaluation.py": "4b6080c803d1beacec2dd7de6aaec677f1457699decd2ec7de61489c261e0433",
   "tests/test_generator.py": "c080082dd5a9a3aa81d684df7fc5f1960ea897d6e76c03597069711cd8b4bec4",
   "tests/test_ground_truth.py": "9ac9af3bf6af7306ffc7e918481030271a33b0cdedfb2a07d11d104d61b63ef2",
   "tests/test_hazards.py": "acb971bc9f893844e74e98061bbd1c91e1b74ec0a429e24b85af6ec31197649f",
@@ -185,17 +185,17 @@
   "tests/test_wait_tool.py": "a52271a89eb75efbc9c862c4ad85d3d20a1f5dbc2f92f4eb149d01b7f0c99b6b",
   "tests/test_wrong_setting.py": "a7dcc4186bcee6a5980da4fc1f7a47c1b9210055618a88756e44a1991e39de47"
  },
- "coverage_sha256": "59e50a17f62fbec3cd5fcdee9c12372ac817d8fd67ee69aead8f1f0766d5d636",
- "junit_sha256": "d2f5d50186225c25232650bd3b06790231db750b9a453cd5fb4ad386164e6970",
+ "coverage_sha256": "a3da4efced4aaa273ba61672b35c3779fb5c136dca833bf46145b6b31526ca44",
+ "junit_sha256": "866c2f1c62314dd2910e979045c95dd816f22ca57b44698fef1836ddfc0d975c",
  "counts": {
-  "functions": 721,
+  "functions": 722,
   "classes_note": "classes are listed through their methods",
-  "tests": 1413,
+  "tests": 1414,
   "tools": 17,
   "functions_by_status": {
    "INSUFFICIENT EVIDENCE": 320,
    "NOT APPLICABLE": 24,
-   "NOT TESTED": 137,
+   "NOT TESTED": 138,
    "PARTIALLY VERIFIED": 195,
    "VERIFIED": 45
   },
@@ -204,7 +204,7 @@
    "import-only": 11,
    "indirect": 345,
    "no-statements": 24,
-   "none": 137
+   "none": 138
   },
   "functions_executed_in_tests": 549,
   "functions_with_direct_tests": 204,
@@ -282,6 +282,7 @@
    "evaluation.evaltools.full_evaluation:ledger_rows",
    "evaluation.evaltools.full_evaluation:plan",
    "evaluation.evaltools.full_evaluation:_bodiless",
+   "evaluation.evaltools.full_evaluation:request_tokens_estimate",
    "evaluation.evaltools.full_evaluation:budget",
    "evaluation.evaltools.full_evaluation:pending_batch",
    "evaluation.evaltools.full_evaluation:settle",
@@ -383,6 +384,7 @@
   ],
   "stubs_or_protocols": 24,
   "tests_by_outcome": {
+   "failed": 1,
    "passed": 1413
   },
   "tests_with_no_assertion": [
@@ -932,6 +934,7 @@
    "tests/test_full_evaluation.py::test_an_answer_to_another_request_settles_nothing",
    "tests/test_full_evaluation.py::test_small_batches_resume_without_resending_completed_requests",
    "tests/test_full_evaluation.py::test_a_plan_over_budget_is_refused_before_sending",
+   "tests/test_full_evaluation.py::test_the_budget_counts_the_whole_request_with_a_margin",
    "tests/test_full_evaluation.py::test_sending_needs_both_limits",
    "tests/test_full_evaluation.py::test_a_dry_run_writes_the_ledger_and_report",
    "tests/test_full_evaluation.py::test_a_pinned_commit_that_is_not_checked_out_is_refused",
@@ -1800,7 +1803,7 @@
    "direct": 0
   },
   "evaluation.evaltools.full_evaluation": {
-   "functions": 24,
+   "functions": 25,
    "executed": 0,
    "direct": 0
   },
@@ -7323,6 +7326,12 @@
    "direct": [],
    "indirect": []
   },
+  "evaluation.evaltools.full_evaluation:request_tokens_estimate": {
+   "count": 0,
+   "status": "NOT TESTED",
+   "direct": [],
+   "indirect": []
+  },
   "evaluation.evaltools.full_evaluation:budget": {
    "count": 0,
    "status": "NOT TESTED",
@@ -12019,6 +12028,11 @@
    "functions": []
   },
   "tests/test_full_evaluation.py::test_a_plan_over_budget_is_refused_before_sending": {
+   "count": 0,
+   "judgment": "NOT ASSESSED",
+   "functions": []
+  },
+  "tests/test_full_evaluation.py::test_the_budget_counts_the_whole_request_with_a_margin": {
    "count": 0,
    "judgment": "NOT ASSESSED",
    "functions": []

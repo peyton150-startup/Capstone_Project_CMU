@@ -242,6 +242,34 @@ def test_a_plan_over_budget_is_refused_before_sending(tmp_path, monkeypatch):
     assert not list(tmp_path.rglob("*.answers.json"))
 
 
+def test_the_budget_counts_the_whole_request_with_a_margin():
+    """The questions are paid for too; the 2026-11-02 Jev pilot billed 1.2-1.4x
+    the four-characters-per-token estimate of the whole body."""
+    from evaltools.decision_models import estimate_tokens
+
+    questions = {f"q{i}": {"type": "noul", "text": "x" * 4000} for i in range(3)}
+    body = {"model": "jev-1.14.0", "state": {"a": "y" * 400}, "questions": questions}
+    item = {
+        "body": body,
+        "tags": {
+            "provider": "jev",
+            "state_tokens_estimate": estimate_tokens(body["state"]),
+        },
+    }
+    spend = full_evaluation.budget([item])["per_provider"]["jev"]
+    whole = estimate_tokens(body)
+    assert spend["input_tokens_estimate"] >= 1.4 * whole
+    # The pilot's real counts against this estimate: every one stays under it.
+    for body_estimate, billed in [
+        (1098, 1529),
+        (1105, 1386),
+        (1036, 1314),
+        (1495, 1763),
+        (1175, 1515),
+    ]:
+        assert full_evaluation.request_tokens_estimate(body_estimate) >= billed
+
+
 def test_sending_needs_both_limits(tmp_path):
     with pytest.raises(SystemExit):
         full_evaluation.main(["--out", str(tmp_path), "--send", "--max-usd", "1"])
