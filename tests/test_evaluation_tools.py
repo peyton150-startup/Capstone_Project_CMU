@@ -26,6 +26,7 @@ REPO = Path(__file__).resolve().parents[1]
 BENCHMARKS = REPO / "docs" / "benchmarks"
 MASTER_RECORDS = BENCHMARKS / "2026-10-27-master-resumed.records.jsonl"
 MASTER_LABELS = BENCHMARKS / "2026-10-27-master-labels.jsonl"
+AUDITED_FIVE = BENCHMARKS / "2026-11-02-audited-known-cases"
 HIDDEN = run_packet.HIDDEN_WORDS
 
 
@@ -177,6 +178,34 @@ def test_an_audit_log_gives_the_packet_a_full_trace(tmp_path):
     assert packet.evaluator_only.abstained is None
 
 
+def test_audited_import_rejects_missing_duplicate_and_orphan_traces(tmp_path):
+    """A declared audit cannot silently lose or add an episode."""
+    case = known_cases()[0]
+    records = run_experiment([case], stand_in, name="audit-check")
+    records_path = tmp_path / "records.jsonl"
+    audit_path = tmp_path / "audit.jsonl"
+    append_records(records_path, records)
+    audit_path.write_text("", encoding="utf-8")
+    with pytest.raises(ValueError, match="audit/record mismatch"):
+        run_packet.build_all(records_path, audit_path=audit_path)
+    log = AuditLog(audit_path)
+    run_experiment([case], stand_in, name="audit-check", log=log)
+    assert (
+        run_packet.build_all(records_path, audit_path=audit_path)[
+            0
+        ].snap_view.trace.completeness
+        == "full"
+    )
+    audit_line = audit_path.read_text(encoding="utf-8")
+    audit_path.write_text(audit_line + audit_line, encoding="utf-8")
+    with pytest.raises(ValueError, match="duplicate audit run id"):
+        run_packet.build_all(records_path, audit_path=audit_path)
+    audit_path.write_text("", encoding="utf-8")
+    run_experiment([known_cases()[1]], stand_in, name="audit-check", log=log)
+    with pytest.raises(ValueError, match="orphan="):
+        run_packet.build_all(records_path, audit_path=audit_path)
+
+
 def test_the_traced_run_names_the_functions_each_case_executed(tmp_path):
     config = tmp_path / "one.json"
     config.write_text(
@@ -219,7 +248,11 @@ def test_the_traced_run_names_the_functions_each_case_executed(tmp_path):
 def test_the_inventory_lists_every_function_and_every_curated_item_exists(tmp_path):
     matrix = build_inventory.build(None, None, tmp_path)
     counted = 0
-    for path in (REPO / "capstone-code" / "capstone").rglob("*.py"):
+    source_paths = [
+        *(REPO / "capstone-code" / "capstone").rglob("*.py"),
+        *(REPO / "evaluation" / "evaltools").rglob("*.py"),
+    ]
+    for path in source_paths:
         tree = ast.parse(path.read_text(encoding="utf-8"))
         counted += sum(
             isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef))
@@ -744,6 +777,19 @@ def test_the_archive_imports_52_distinct_episodes(archive_packets):
     assert len(names) == 52
     assert {p.meta.commit_sha for p in archive_packets} == {
         "e59208d584938ed96a606bc317354882fcc8e01c"
+    }
+
+
+def test_both_archives_import_57_episodes_with_five_real_traces(archive_packets):
+    audited = run_packet.build_archive(AUDITED_FIVE)
+    packets = [*archive_packets, *audited]
+    assert len(packets) == len({p.meta.episode_key for p in packets}) == 57
+    assert len(audited) == 5
+    assert {p.snap_view.trace.completeness for p in archive_packets} == {"record_only"}
+    assert {p.snap_view.trace.completeness for p in audited} == {"full"}
+    assert all(p.snap_view.trace.decisions for p in audited)
+    assert {p.meta.commit_sha for p in audited} == {
+        "31ddd79eb3ab6a3bc0c01f43fb3b137348346394"
     }
 
 

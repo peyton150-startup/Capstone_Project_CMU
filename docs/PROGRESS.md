@@ -1,5 +1,38 @@
 # Progress Log
 
+> **2026-11-02 — PR #160 pre-merge walkthrough done (developer answered all three questions):**
+> (1) Answers are matched to ledger rows by request fingerprint, not by file name or position; understood that names and order can change, and the correction added that the fingerprint hashes the whole request, so a changed request never settles a row with an old answer. (2) Understood that a refused episode keeps explicit `refused` RUN rows so totals reconcile, and the correction added that the report's `refused_packets` list is not what totals are checked against. (3) Answered in part: understood that the batch is checked against `--max-requests` and the cost estimate, and the correction added that without `--batch-size` the whole plan is checked, and that the dollar cap counts input tokens only (no outputs, retries or failed calls).
+
+> **2026-11-02 — evaluator F01-F05 fixes finished and offline dry run proven (built ungated, developer to review; understood: no):**
+> Audit logs now reach packets with strict missing/duplicate/orphan checks (F01); evaluator code and every executable test file are in the inventory, and a new unindexed evaluator function trips preflight (F02); refused episodes keep explicit RUN ledger rows (F03); a large plan runs in small resumable slices (F04); an explicit clean commit with matching source hashes is required (F05).
+> Inventories were rebuilt from a full coverage run (1,773 tests passed). The offline dry run over both archives on commit `342e529` reported 57 episodes (52 record-only, 5 full traces), 88 test files, no unexplained or stale files, and 4,350 planned requests (about $0.0852 input) split evenly between Snap and Jev. No judge request was sent; no EVAL-09 pilot has run.
+
+> **2026-11-02 — full-project evaluation command (built ungated):** Branch
+> `feature/full-project-evaluation`, stacked on `fix/evaluator-p0-criteria`
+> (PR #159), adds `evaluation/evaltools/full_evaluation.py`: one command that
+> records provenance, writes a scope manifest of every tracked Python file
+> (EVAL-05, in part), plans every FN/TS/TL/RUN/BT question into a ledger with
+> a status per row, refuses `--send` over `--max-requests`/`--max-usd`
+> (EVAL-06, in part) and writes a report that keeps correctness, comparisons,
+> evidence, reliability and judging apart with denominators (EVAL-07, in
+> part). Dry run over the PR #156 archive: 52 episodes, published 3/12, 3/12,
+> 6/13, 6/11 reproduced, both pairs `insufficient_sample` (11 matched cases
+> of 13 needed). Offline tests only; no model was called. Understood: no —
+> built ungated, developer to review.
+
+> **2026-11-02 — evaluator P0 fixes from the readiness criteria (built ungated):**
+> Branch `fix/evaluator-p0-criteria` implements EVAL-01 (episode keys
+> `namespace::run_key`; `run_packet --archive` imports PR #156's 52 episodes
+> with no collision), EVAL-02 (review-pending labels kept but unjudged; the
+> archive reproduces 3/12, 3/12, 6/13, 6/11 with four pending), EVAL-03
+> (request fingerprints, order-free file names, reuse only of complete
+> answers, atomic writes, retries on 429/5xx/timeouts), EVAL-04 (allowlisted
+> judge view checked before and after fitting), EVAL-19 (`post_json`
+> transport; impossible answers refused), EVAL-20 (whole test sources, noted
+> cuts, per-tool wiring) and EVAL-21 (count test), plus per-request latency
+> (part of EVAL-15). Offline tests only; no model was called. Understood: no —
+> built ungated at the developer's request, developer to review.
+
 > **2026-11-02 — operator investigation screen recorded as frontend future work (documentation only):**
 > [MVP_SCOPE.md](MVP_SCOPE.md#fw-frontend-operator-screen) gains a LOW-priority
 > design for the first operator screen, drawn from Amershi et al. (CHI 2019)
@@ -22,19 +55,6 @@
 > attempts and one HTTP 500 attempt. It provides trace evidence for a limited
 > evaluator pilot, not an accuracy or paired-improvement claim. No EVAL-09 judge
 > request was made. Results/docs only; understanding status unchanged.
-
-> **2026-11-02 — evaluator P0 fixes from the readiness criteria (built ungated):**
-> Branch `fix/evaluator-p0-criteria` implements EVAL-01 (episode keys
-> `namespace::run_key`; `run_packet --archive` imports PR #156's 52 episodes
-> with no collision), EVAL-02 (review-pending labels kept but unjudged; the
-> archive reproduces 3/12, 3/12, 6/13, 6/11 with four pending), EVAL-03
-> (request fingerprints, order-free file names, reuse only of complete
-> answers, atomic writes, retries on 429/5xx/timeouts), EVAL-04 (allowlisted
-> judge view checked before and after fitting), EVAL-19 (`post_json`
-> transport; impossible answers refused), EVAL-20 (whole test sources, noted
-> cuts, per-tool wiring) and EVAL-21 (count test), plus per-request latency
-> (part of EVAL-15). Offline tests only; no model was called. Understood: no —
-> built ungated at the developer's request, developer to review.
 
 > **2026-11-02 — concrete evaluator bugs added to the readiness criteria (documentation only):**
 > [CRITERIA_FOR_EVALUATOR.md](../evaluation/CRITERIA_FOR_EVALUATOR.md) gains

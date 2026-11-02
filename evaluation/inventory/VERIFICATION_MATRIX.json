@@ -3,15 +3,199 @@
  "coverage_file": "..\\.coverage",
  "coverage_available": true,
  "junit_available": true,
+ "source_sha256": {
+  "capstone-code/capstone/__init__.py": "1ae00da29b0773e3b186b4040967c5b9fbfa556efc440434df0f97f479635a02",
+  "capstone-code/capstone/agent/__init__.py": "87e28fd4a82f0c0022ddf37a6b714466cb5445c3ab2b94d3cab25a55f776b313",
+  "capstone-code/capstone/agent/artifacts.py": "9fd92da8862dfa26b6797e24a61e8cf0ffee48a5c73d4b4f70ebccf8b074987b",
+  "capstone-code/capstone/agent/completion.py": "05841833e196a9ac41144bce6fc95bcc8a6309ffefcc66a31996b28f030cc386",
+  "capstone-code/capstone/agent/critic.py": "82dcf0784e91ea34dea176ed4170257fd1835ee5b95464c9e80f9de119574fb4",
+  "capstone-code/capstone/agent/evidence_brief.py": "23f05f6b11a3f64ba96100edf1538142136bb98164e56ca9c68f10872f7986a8",
+  "capstone-code/capstone/agent/investigation.py": "654469a04c2f09e08b7240c2f94fbe06ba343744882680d7f28883bfd6ebca96",
+  "capstone-code/capstone/agent/loop.py": "5bcf5ef03a1ce16f3dac6a9692f58cbd6bd7b9b5fc9c91c3df4ef7d2819fd540",
+  "capstone-code/capstone/agent/model_policy.py": "1f9f3537cfa14e40ccf2b2aef3a0b7ae769927b283648b9e0cc438e760f15414",
+  "capstone-code/capstone/agent/monitor.py": "62c1eca74bc1a9b7a4454aed5dfe9c8baeadc868f42a147c8da5d9466da30ecc",
+  "capstone-code/capstone/agent/policy.py": "cf8d8408be5abf557ad9a434e814510effe4c05ac12bb8272319678fa5ce2a2f",
+  "capstone-code/capstone/agent/state.py": "f0eb2cc7e353d44b5ff4c809cb23965e3c3db446f044e0b60080e2483e4c38da",
+  "capstone-code/capstone/agent/tree_of_thought.py": "21c9223651355607bd7c63b9edacb7943188548d82d1c61e74d8cc12a03886f7",
+  "capstone-code/capstone/baseline.py": "1acab63d6c15cf64edeaaf02e2b7598de7f71046ab52aaac02189834c37cebf0",
+  "capstone-code/capstone/benchmark.py": "2638960900e86be5cbb3946b475a963da91817e18761b5f1e8764a06acdd2055",
+  "capstone-code/capstone/console.py": "ad94604fd645e6aacf92cf072aa9339adaf3b269299d70e12911062d470ef87f",
+  "capstone-code/capstone/contracts/__init__.py": "f9081c1e4ff5235386827d2fd85c9b0ba9071192cd27d2a7fc2acb0b7b907433",
+  "capstone-code/capstone/contracts/completed_investigations.py": "1dd73565034cf71d7f0e19c55c73eb5771bd571bee2cbe78f6223436b284d9af",
+  "capstone-code/capstone/contracts/evidence.py": "32662741a547cc152c6fbc3412818a646cc71ca7355590f42c9db308656aace7",
+  "capstone-code/capstone/contracts/hypotheses.py": "ec280f772077f932d79fe1b321125e7762f8b4dcba6838687748cc327629ed3f",
+  "capstone-code/capstone/contracts/investigations.py": "cb24d51c0bc994de4171b25e436d341b3802bc5e6407709dc417bd61d0b15825",
+  "capstone-code/capstone/contracts/observations.py": "d714d26f918b76a256c748a84835a4a6fc177533a4a97905af889f2499495d44",
+  "capstone-code/capstone/contracts/provenance.py": "9ac8196d389cc6b56ed64e7baca22604417907e5443d9a71ecdcdbcbe75339c6",
+  "capstone-code/capstone/contracts/tools.py": "86bd2e3106922fe6391d6c4250ec027aa92566b043859e1f3aa56d2626d874fb",
+  "capstone-code/capstone/database/__init__.py": "0281b49fc37eea352b748cadf095abe2d8ca2d3826538e529a86cbced008643f",
+  "capstone-code/capstone/database/connection.py": "3d38d7be208211265046340b4294bce3aadeb08f0cb81c691846c79daf76bd0c",
+  "capstone-code/capstone/episode.py": "ef2fe1736caeba29d1a316cf9a86bb0dd89b2383139bed89212fc5a59b742f18",
+  "capstone-code/capstone/evals.py": "452c4d3bae42427438ce74094765003a60f1ff2ac4614e1efdf3959e96c71991",
+  "capstone-code/capstone/evaluation/__init__.py": "3cac2031f773e1ef3629ba6beec56ced3bd37131dae1b1ac8fc1e5e6a9124eb5",
+  "capstone-code/capstone/evaluation/auto_label.py": "197794f3cab3ec7818f5786e9ccc11e6f3df9be6451c8772f1881ade7ca7d4a4",
+  "capstone-code/capstone/evaluation/known_answers.py": "f84d88fd300236ba685742664790dae801ad2d179c0b978de4826a0df34b4aee",
+  "capstone-code/capstone/evaluation/labels.py": "10d964e91f657e447f9409c6929ac2c5de5ad35d0a057fb8201091acf8b0e1dd",
+  "capstone-code/capstone/evaluation/manual.py": "0fa2b4a1b62c95b9ca85723a676a539d17b577a3ecbf4427e1e7364c5e9a44c2",
+  "capstone-code/capstone/evaluation/memory.py": "80dfe928d4cfff99fc06b7c42ad01c5aeadab6470988a4a0292e2b923f4595c9",
+  "capstone-code/capstone/evaluation/scoring.py": "c8c75691a07f58c0cf3394279f041218fc18267a511abdbbb259a261b46f39d7",
+  "capstone-code/capstone/experiment.py": "e9781e67f2a00b4f9c570aec948c2d52ba42eebe9cb49b10c4fb9130841620be",
+  "capstone-code/capstone/faults.py": "f52fc70151782286d8ba7f22345df57d0d575e06c13b8b3076abde92718ee6ae",
+  "capstone-code/capstone/learning.py": "03e1d7083f21cb716e260befe2d8ad3b8b542f2d8a387e0e9f27155c2614ebf7",
+  "capstone-code/capstone/manual/__init__.py": "b4e075ea34226bd0df0c76941f4726945173a77db8282c492fd916f89d9c06a3",
+  "capstone-code/capstone/manual/index.py": "aa857f6ee0408f2a98d8acd599153153ee4b3c28c8507d04c79d67058573677f",
+  "capstone-code/capstone/manual/sections.py": "84ce76d85428caa13245925fbbaa1430c37180623a247cf95f4d1b712ed20e0b",
+  "capstone-code/capstone/memory/__init__.py": "5c78ba5ecfa6bc1813e4c7aa55b7bebe1b24bbd3b388b5ad0fc3279c62b74060",
+  "capstone-code/capstone/memory/backfill.py": "74a784548a9a2519b6838f34e9bebd2759eb664f486e8fd25f27b879f8371c96",
+  "capstone-code/capstone/memory/contracts.py": "c671b77d7720c5716fc1cafd72cab229b2c359eb27507d743bb4c4b7dad3bcf0",
+  "capstone-code/capstone/memory/duplicate_threshold.py": "b779120e9e7a97b656273e1aaac9902efcdb5fce2d2b19a813176420dd78d875",
+  "capstone-code/capstone/memory/policy.py": "228ebba48f6047be677ee7459266cd32edbce6501a9a86aa8744861a40a30a88",
+  "capstone-code/capstone/memory/recall.py": "0019c14085108fdc4496056c436b4824e31185d9afc7eba3605b0e3f4176d327",
+  "capstone-code/capstone/memory/reflection.py": "fc48bd0a0df23b93cba5992990a618deb29a6bfa79c0ddefe38d68b9805d242e",
+  "capstone-code/capstone/memory/repository.py": "eaf84248942aaf8403314c6a6dd654590a2691fee6b1b5885e3cb0b0777e67ad",
+  "capstone-code/capstone/memory/schema.py": "4d43317230a3e8c304e3fc9023332faf8ff77cb7954a692acedcce73d951a78e",
+  "capstone-code/capstone/memory/semantic.py": "807ef807fda49ca82a1ee3ca0bf06a26f544752fcaff5af06977d9f62178fe48",
+  "capstone-code/capstone/memory/service.py": "ed7a6d5466f9b993468829866dfd3a96919f0b4a5970adf82a6753f61fa3d378",
+  "capstone-code/capstone/memory_comparison.py": "49a3abaa768403fa21fecba981311b4c217a359aa3621a5e3310fc4565427acd",
+  "capstone-code/capstone/observability.py": "f766abea4f5fc94828c0778e182410d1ee3a65a16c54c111caa903436c36be71",
+  "capstone-code/capstone/progress.py": "aa3ba7e95d2ebc4e3d5ef146d393a97a55d8228e09995cfab3894004ef043610",
+  "capstone-code/capstone/providers/__init__.py": "3c5dc87099f8ec4ac1db4e949c0a54a0025df89af62e93f3e9cb147d5c380b58",
+  "capstone-code/capstone/providers/chat.py": "25edd66d16af859191dcab70c10959f8c9a75c52585d027acdb1d0e98769bc71",
+  "capstone-code/capstone/providers/embeddings.py": "a16df4faf5e0bbc60e5fd67e2aaa2cc76f2c5dc218c635a828ee39639b5cdaa8",
+  "capstone-code/capstone/providers/factory.py": "65c572ab8a66e3b88c26241754a6f9b6596536283fb9f673f8c358cabfac9679",
+  "capstone-code/capstone/providers/hazards.py": "4549f0bbba0b6267c4e0f69fba71b5668cc024e89d19e4c61ef32a08292799f5",
+  "capstone-code/capstone/providers/manual.py": "befcdb6fceb495a99c2fb32b9d075b0539b1d83c3629eb88a266daa437db7908",
+  "capstone-code/capstone/providers/recall.py": "8bbf12b6c65ae12e04916c1c160977968c955e044df670d7aa8ad3d91b7d94d5",
+  "capstone-code/capstone/providers/typesafe.py": "d8142540e5dc39b66393640512ca9d2f99ce4ccef22052166a9ce46d9657da50",
+  "capstone-code/capstone/settings.py": "e7e9bb5e68be17a11f36c0b13cd3022b63a2fd51abdb8f010e5476cab355d7c4",
+  "capstone-code/capstone/simulator/__init__.py": "3f7a4fa529e19d54c1ee6ee16f5847c5d412119ef75a9f893a9634ac6e48375b",
+  "capstone-code/capstone/simulator/challenge.py": "9a05452e238b420320649ac0e6fee4131ff4e10666f6cd1220559a389063d250",
+  "capstone-code/capstone/simulator/clock.py": "e91bccc802f0d248b0901b24d9fbe56b7d41c10af25bbf92e6946b30da00967a",
+  "capstone-code/capstone/simulator/disturbances.py": "0314c1a9b2877e3f36eae64b67e1ce0b535e1395c7d31b4f91650f4e69a260ab",
+  "capstone-code/capstone/simulator/events.py": "b5b9f0050953b43071bd4aabbbe79dbed1c4b660a45eea3e0343571aa2c05694",
+  "capstone-code/capstone/simulator/generator.py": "c5bacadf8d713a9fee856b38e6ec2417767ba31754bf858923de94c884c3406f",
+  "capstone-code/capstone/simulator/ground_truth.py": "a1383a5fee7511eda37ce514c82ded3933b3495a8c7afcd265286ecc929c220e",
+  "capstone-code/capstone/simulator/line.py": "a4c173e6fab56435500db0c333b9c5af74ed2854cfab3eeadba84bd134ec21c0",
+  "capstone-code/capstone/simulator/maintenance.py": "ad4cd0a011ba3f90a4665e7f36ec295e32c21db9636c747060205bf0124ae8bd",
+  "capstone-code/capstone/simulator/rng.py": "2e4698809374ea175c150a8e25f519697428a679951e2b1d333b771abe1f6334",
+  "capstone-code/capstone/simulator/scenarios.py": "6449f1bd590f7d75320d7d98c2098244670c3344d434b8f071ec4f38ad96205a",
+  "capstone-code/capstone/simulator/sensors.py": "37bad3668c78798d3cf7ff5a2412104b203f9a79d31b97ec682fdb5ebe9dc494",
+  "capstone-code/capstone/simulator/simulator.py": "328d7240bfb95126e85254aebcdcea01406a158c601378336b7f8d3ccbee9402",
+  "capstone-code/capstone/simulator/state.py": "3581125a9982a05faa493c8a7f38c4e9f795e6ef4562c9cf3fc972f869eff55e",
+  "capstone-code/capstone/simulator/thermal.py": "dc6840e3cc72c5dfe52f7fab495a286ae3a5bf51d9c915a76feeda82443c20ed",
+  "capstone-code/capstone/tools/__init__.py": "8709d93809c99aa38ac86cff3b9b184577eb5364409fbb4947977a4925ea36cf",
+  "capstone-code/capstone/tools/actions.py": "8f7c8dd467ef4a0b2264de8c05996c2f90fc547f1ed165aee20e2b5bacc40225",
+  "capstone-code/capstone/tools/diagnosis.py": "98ec3bf852d7db2a002c4d8c70f83cfa71ee66046baeea3d6d54f967f3543f55",
+  "capstone-code/capstone/tools/errors.py": "32cc03629449f2311ed055f6703988c93c7faf3b4a3e3a97fb578a3d27bb4603",
+  "capstone-code/capstone/tools/observation.py": "4d64f302de179883db02219d7f9ad90efae133559dc34a86c80ad21ece6f3504",
+  "evaluation/evaltools/__init__.py": "4916bb1c8f29e498eb99d345befa0553a6d5528bbb5c2cfe519b555a2889e93d",
+  "evaluation/evaltools/build_inventory.py": "aa28d370c59a1839b7840bee0bb9428d1c78ca61a5d40a650f0577ce5ef87f5d",
+  "evaluation/evaltools/compare_evaluators.py": "7d682c9747846be2dad59477005cc689dfe32c125358302d8d6f9d264da87d79",
+  "evaluation/evaltools/decision_models.py": "49cabb0558bf05d6fd1326c0a96a16ecfe7cd2a0ea0bcaaad77310d984289391",
+  "evaluation/evaltools/full_evaluation.py": "24e0fc2e7bf8ee1b6ad71520083eb4ae5778ceaa3f63693ec2c6d8a949f4b518",
+  "evaluation/evaltools/run_packet.py": "581ef7270e2849e98c3d473727c05c9e5728583477567b07e2a081fdcd6e8a3a",
+  "evaluation/evaltools/snap_request.py": "3e14d7fa7b1901388351f5ace87a423f0495ab397b3b6a5f15312a07224c2fd6",
+  "evaluation/evaltools/traced_run.py": "bf4b13869577f25697a35cd51009f0ecdb996ec1425097d797c2073d80cf8644",
+  "tests/test_agent_action.py": "01e7938e5ca7c9a90c28054e75bfc7fcd7919b94c9fa2397f24917058527fb6c",
+  "tests/test_agent_artifacts.py": "948a3777fccc423a900cca3a27f13655d13ebdbd1fd3da154ddb53fa23d0545a",
+  "tests/test_agent_completion.py": "72f8e59745310a944c7738c51e5635df3aca58c564bc1dd63cda109a3d01681b",
+  "tests/test_agent_investigation.py": "3456a1d2061f14b16b866520120c0fd43a365bc702429e837304bcbf1b5b8363",
+  "tests/test_agent_loop.py": "c127105429242023f81a2febe4b102691a3ebbeb13d68e6e7db26b58f6d6a900",
+  "tests/test_agent_provenance.py": "0a8879334099f19c074d24e20e474cc034b11ed801584ad3428f438c1f2ac8df",
+  "tests/test_agent_verification.py": "6ab84fe9e86518ba92c58d3f3aca1447ae8fb5c033f3159189070b85a2de72b3",
+  "tests/test_ambient.py": "11cbdf4734bf0c6c8ed76fa9c1c2ca3a222a635a113eb61b8b53e572f4f79edf",
+  "tests/test_approval.py": "a0c90760e310ed519881cdbd9cf501e483cc7c6fe1e98f4728da43136c2adcfc",
+  "tests/test_auto_label.py": "3c931f0c01d361c96f02769c4fd98f73a9378ac2962d654bc9531b1118da98ac",
+  "tests/test_baseline.py": "1c1da81abee863544010e6688d6d4b772b4523390f2e095917bedccaaa43b50a",
+  "tests/test_bearing_degradation.py": "eed3148b837bea8abb6c426621402741f3b3cc03c32ed410a58a5e19e0bcca82",
+  "tests/test_bearing_replacement.py": "0801156ab0d32dc4742d6bb6807eb53f8275489f349732825d65e9a9077328d5",
+  "tests/test_benchmark.py": "d75a695f83f30d1d347cfe63d6da62e91277811972158fd5f161dfe851b51cc8",
+  "tests/test_build_line.py": "6d7b84fffe9c760166de3c0c77e9f10b069fc7b2125fb34f1fa120536651e85d",
+  "tests/test_chat_client.py": "b33d5fe7dc40c4399b01b379abcc085ed9e5087f30278e0316b89774ade9e7d8",
+  "tests/test_clock.py": "39b154ee0e5451edd84b27d76d1871c9e4cc48a83acf27e522b8a915bef8e4e5",
+  "tests/test_console.py": "7961f89d846a105c98c9a01fb936c4233d4fe6bdc75ea5749b96d9b71cfe75d1",
+  "tests/test_contracts.py": "4475acc6ae588f691e3f747d8e039d61bec99c87b1dbb771ce2225199cbd8763",
+  "tests/test_critic.py": "2044f1f8f7b25fe8418ecdd528d7185ed1646fa06cdf38638f62fcb6354883e7",
+  "tests/test_database_connection.py": "042e6f1d226ce19f033107e70fab1924c4c353eb3641732ea9dec9623ec0bb83",
+  "tests/test_difficulty_tool_compatibility.py": "8d7a01acac90559a92bab3e92f002acc3c4a60f8ae654d4cf057bb10cbd6e18f",
+  "tests/test_duplicate_threshold.py": "8b7eb7d485182f9d8f70a915ff134cd6ad6ed448408c06e5a4ec8e981d6844de",
+  "tests/test_embeddings.py": "c012b45a1c3222153492e76f152afce3fbcb3bafc96ae59f409b023b26546716",
+  "tests/test_env_example.py": "c633780aa890db278910a1d50be27f1b3cf08e42e90ddf62f403c8628a1d1247",
+  "tests/test_episode.py": "351a42c6a4718eb647b117f04b63f2636a8bd7e800db7ca11514323304b34fea",
+  "tests/test_evals.py": "d19ca7b89a42c3246ec528a831e5464b0aed8c96fcba7ccf3bd29f137e46d1c6",
+  "tests/test_evaluation.py": "8b9df54c4ca7789f99c111989ab520d7780c37777e7ccc4cdb21392ea752b833",
+  "tests/test_evaluation_tools.py": "d85e297884b2d6537d72384d5ca8e257420aae88684185b53a65b202c3ea5f29",
+  "tests/test_events.py": "b82917a6735cb71ddb515fe0f9ed81e30d07d0e93ec867a8d11c33e611212dfc",
+  "tests/test_experiment.py": "8a3b8a6481fadf64f4ddfb2baa3a4072bf3f2385e7dc0251987b3345b570db65",
+  "tests/test_factory_provider.py": "fc8a6f10ccc88e47b89b25d34466f96fe6ef4d941a81197deb25e04ab8b2c2d7",
+  "tests/test_failure.py": "ecd776064fc155eba92530de63e68e3d9c375c2e9edac0fdff221f460de0be31",
+  "tests/test_false_alarm.py": "874f88e86e966938ce2094df580676347a6e464028d52e624cb172c9e41a993e",
+  "tests/test_fault_packs.py": "8469925cad06684823639e91051caabb06c126fdbcf00300534a6a24b90fe85a",
+  "tests/test_full_evaluation.py": "36b81ca109c3df4f18defe02824b15c673e5345b46e8ab9e3e9a5e23364fbf60",
+  "tests/test_generator.py": "c080082dd5a9a3aa81d684df7fc5f1960ea897d6e76c03597069711cd8b4bec4",
+  "tests/test_ground_truth.py": "9ac9af3bf6af7306ffc7e918481030271a33b0cdedfb2a07d11d104d61b63ef2",
+  "tests/test_hazards.py": "acb971bc9f893844e74e98061bbd1c91e1b74ec0a429e24b85af6ec31197649f",
+  "tests/test_hydraulics.py": "f85a8e793a1709620f25244f5df457889f062b3cf833be4e1ac95fac51ae4b10",
+  "tests/test_job_history.py": "1320b374409b889c7fa94cd9497c649b90f09d88e6abbccc728b36e6ff2f15bc",
+  "tests/test_known_answers.py": "09f17601ca08b4997ef461d291c631cd206a188fe3dc7e7ae7de776b5096ccbc",
+  "tests/test_learning.py": "733c16bee14cebe398a8dada590ca1f9f6996026e1b2f224770208c977998512",
+  "tests/test_load.py": "ab3e2dc315f2364924ee8f16189eb8414455bb05e77ba802faee48341fd22e58",
+  "tests/test_load_wear_coupling.py": "dd3af00a787087972a3b338894aa77ba291ff1c231270c090a57da304c76691e",
+  "tests/test_loading_door.py": "fef3b0704687b0a53b23dbde9eb9b7a76a579587a598d85174281d07f1fb5704",
+  "tests/test_maintenance_history.py": "df00c1cdd7c558e72c3af7d87b06908ae850e67a638aa541cc44ee6d30a63b3d",
+  "tests/test_manual.py": "17d45fd247b86f7b7a9b5391dfb9857a2314e235a9befa902d12febeeeb8834f",
+  "tests/test_material_batch.py": "16f45bd41b5d3781987e83a708d7a8fa8a21ebf7ed7192d20e6d4982f81a5b99",
+  "tests/test_memory_comparison.py": "4ce4995c0c19f6241bbaa230d8ffabf1364641ee122c7f1d0c0491bc7ee010ca",
+  "tests/test_memory_evaluation.py": "85262239ba9518cddc4b3e5980548c38eaca995525bcae9a3cd1a63f57a9a5e6",
+  "tests/test_memory_policy.py": "52566dc37c3432f8fa94156f2aaf4b5cc9ab4790708bb00c9c63f1e838f801f3",
+  "tests/test_memory_recall.py": "dcc5d69ea0311110a190123fc4e4a543675790b4ff1f30b1f4388b40118557ef",
+  "tests/test_memory_reflection.py": "6a0d292b2e8f6829fd3b4199bac6651e68ff89e859fb4fdabfe1301b247ab0a2",
+  "tests/test_memory_repository.py": "ba6dac15408488ff6b498bd58c83709123b7c6510388bec19f1b5040269bf0f8",
+  "tests/test_memory_semantic.py": "58b59bd4078c5d1c4e86a96a33a556e4c4e2e512bff945df2c817dfad59e5d1c",
+  "tests/test_migrations.py": "bf4a497093c603e26cb29f39147c135440be9b50514176afb806617863f8bca3",
+  "tests/test_model_policy.py": "1a36247d7dea6a7ffb84a59fd53932d6020d4e29a1eacab515be3c56519bb069",
+  "tests/test_observability.py": "c3b06b5442c44756f9fa4d346829e8a8402c546568f122c855da479129307e47",
+  "tests/test_observation_tools.py": "707e45d47d2be5ab5ba703f913e3abbae574b643cda31a2f666084ab8e957659",
+  "tests/test_power_sensor.py": "832bacdc2d89d300259bba28c086a69ac84fdd4330a84e231920a16d3da62e69",
+  "tests/test_production_line.py": "5bc1cd23a552aee9596f5502c24669103fb5ffbd5ff84c7cd81ececd51d868ad",
+  "tests/test_progress_view.py": "3cc3cfeac608bb32e6ddc082ee446e4e1bdec895403769c590cd393eb396711b",
+  "tests/test_quality.py": "f1cd4e1f76b51a81021545cc96a8fb8e904af160d7c7d1240691d237d987bef8",
+  "tests/test_reasoning_evidence.py": "0c3f2991005fb65bc0fa219910cce80227a888cfd4a36c1b1e523bdd38ad6344",
+  "tests/test_recall_tool.py": "989ef1d04b4e92509de7a9786b520397f84b9ac879fd749d2b22a15d933ae13a",
+  "tests/test_request_deadline.py": "58283f2181b15c9d8083f269223d862449cee80052cdee30c00f224d3ce0e725",
+  "tests/test_rng.py": "619e27ea42d33fb58cc1109ee86bd69c0647b2610e274343280bfb5f8db32592",
+  "tests/test_scenarios.py": "9a39ded7e295fcd622704845cfee84b2e23b18e43ac469ad3931e0a9d7cba6ac",
+  "tests/test_scoring_integrity.py": "908e6d60210fe1d6ea012c13edbf3783ee8e440a224053d0987113d787b04464",
+  "tests/test_sensor_summary.py": "ac5f40a004fd7382d3661f95522390eab14dd94de51289a0c5c3ac27590af4f3",
+  "tests/test_sensors.py": "2275c594bbdf9287761939480ac79fa818696abcd759607e6f8d6c1b9d86fa15",
+  "tests/test_servo_drive.py": "87ed0a4cc941b2859ec0296b0a0f2c4b73dce0dc0afd9fa05c417ead41bc30a5",
+  "tests/test_setting_reset.py": "70de9d5abb5d1094a0b4efa169a69c7cdd78ab102468dcf25d0c3fbd8bf80c5b",
+  "tests/test_settings.py": "0900ad768a7120e871922436263d706045151a84b2daba51fa170292acdeff6b",
+  "tests/test_simulator.py": "5f3e8db8f0ba6509d09b9e706fe18dcd51c013ef5fed674b23f4d65408171d06",
+  "tests/test_simulator_challenge.py": "051970b2cfd888768a2aa94023fcde60e409025d49fed26d6e67b0f820dc120a",
+  "tests/test_simulator_disturbances.py": "c954ea0a72e017bae22eb3007e360260e4e84acc6e621c49224d2570fb0d77bb",
+  "tests/test_slow_when_worn.py": "bf11ea04d9852380e78a07b2a55e296f0f416019070a2af6caa711e92d7ddd98",
+  "tests/test_state.py": "77d3a1256d4d6ebee6524eb9b1619c88d89128d38d7fb3fc058353ac5a974d53",
+  "tests/test_temperature_sensor.py": "54f3c7bc53883ea0c86ec11b6cd8dbf372795a891a754db9f3e06389ef6400b7",
+  "tests/test_thermal_lag.py": "f7386763b100f75c82b6ff1ad34c630828ce2f2be55a1e10e633589dfeb117cb",
+  "tests/test_thermometer.py": "c13320d0e57285c4b4c55fefb000e4e8f8ed077033117949f02cd2da7aa7817c",
+  "tests/test_tree_of_thought.py": "1a2f3ff19f85333cbb53e040fa5bbb090cf8357ef74930c4e29e4734ec390305",
+  "tests/test_two_lines.py": "0658dabf750de3b18111b9f30c19a2fc2a2a9582b37fc5edbde4733e5480c55e",
+  "tests/test_typesafe_client.py": "e9672498f96597ca062073a7a9f1cff64430bf5304a908f6fb959056a703e747",
+  "tests/test_wait_tool.py": "a52271a89eb75efbc9c862c4ad85d3d20a1f5dbc2f92f4eb149d01b7f0c99b6b",
+  "tests/test_wrong_setting.py": "a7dcc4186bcee6a5980da4fc1f7a47c1b9210055618a88756e44a1991e39de47"
+ },
+ "coverage_sha256": "59e50a17f62fbec3cd5fcdee9c12372ac817d8fd67ee69aead8f1f0766d5d636",
+ "junit_sha256": "d2f5d50186225c25232650bd3b06790231db750b9a453cd5fb4ad386164e6970",
  "counts": {
-  "functions": 602,
+  "functions": 721,
   "classes_note": "classes are listed through their methods",
-  "tests": 1378,
+  "tests": 1413,
   "tools": 17,
   "functions_by_status": {
    "INSUFFICIENT EVIDENCE": 320,
    "NOT APPLICABLE": 24,
-   "NOT TESTED": 18,
+   "NOT TESTED": 137,
    "PARTIALLY VERIFIED": 195,
    "VERIFIED": 45
   },
@@ -20,7 +204,7 @@
    "import-only": 11,
    "indirect": 345,
    "no-statements": 24,
-   "none": 18
+   "none": 137
   },
   "functions_executed_in_tests": 549,
   "functions_with_direct_tests": 204,
@@ -42,7 +226,126 @@
    "capstone.providers.chat:FallbackClient.__repr__",
    "capstone.simulator.clock:SimulationClock.tick_duration",
    "capstone.simulator.disturbances:_SensorDisturbance._effect",
-   "capstone.simulator.rng:RandomSource.seed"
+   "capstone.simulator.rng:RandomSource.seed",
+   "evaluation.evaltools.build_inventory:rel",
+   "evaluation.evaltools.build_inventory:module_name",
+   "evaluation.evaltools.build_inventory:leading_comment",
+   "evaluation.evaltools.build_inventory:exception_names",
+   "evaluation.evaltools.build_inventory:call_name",
+   "evaluation.evaltools.build_inventory:count_statements",
+   "evaluation.evaltools.build_inventory:is_stub",
+   "evaluation.evaltools.build_inventory:function_kind",
+   "evaluation.evaltools.build_inventory:mutated_parameters",
+   "evaluation.evaltools.build_inventory:collect_functions",
+   "evaluation.evaltools.build_inventory:collect_functions.<locals>.visit",
+   "evaluation.evaltools.build_inventory:assert_form",
+   "evaluation.evaltools.build_inventory:collect_tests",
+   "evaluation.evaltools.build_inventory:normalize_context",
+   "evaluation.evaltools.build_inventory:read_coverage",
+   "evaluation.evaltools.build_inventory:read_junit",
+   "evaluation.evaltools.build_inventory:read_curated",
+   "evaluation.evaltools.build_inventory:collect_tools",
+   "evaluation.evaltools.build_inventory:direct_test_files",
+   "evaluation.evaltools.build_inventory:names_function",
+   "evaluation.evaltools.build_inventory:capped",
+   "evaluation.evaltools.build_inventory:build",
+   "evaluation.evaltools.build_inventory:main",
+   "evaluation.evaltools.compare_evaluators:load_answers",
+   "evaluation.evaltools.compare_evaluators:index_answers",
+   "evaluation.evaltools.compare_evaluators:request_usage",
+   "evaluation.evaltools.compare_evaluators:build_report",
+   "evaluation.evaltools.compare_evaluators:build_report.<locals>.rate",
+   "evaluation.evaltools.compare_evaluators:markdown",
+   "evaluation.evaltools.compare_evaluators:main",
+   "evaluation.evaltools.decision_models:DecisionProvider.state_chars",
+   "evaluation.evaltools.decision_models:estimate_tokens",
+   "evaluation.evaltools.decision_models:_truncate_evidence",
+   "evaluation.evaltools.decision_models:fit_state",
+   "evaluation.evaltools.decision_models:normalize",
+   "evaluation.evaltools.decision_models:_number",
+   "evaluation.evaltools.decision_models:compare",
+   "evaluation.evaltools.decision_models:reference_match",
+   "evaluation.evaltools.decision_models:provider_table",
+   "evaluation.evaltools.full_evaluation:git",
+   "evaluation.evaltools.full_evaluation:sha256_of",
+   "evaluation.evaltools.full_evaluation:provenance",
+   "evaluation.evaltools.full_evaluation:tracked_python_files",
+   "evaluation.evaltools.full_evaluation:has_functions",
+   "evaluation.evaltools.full_evaluation:scope_manifest",
+   "evaluation.evaltools.full_evaluation:run_name",
+   "evaluation.evaltools.full_evaluation:case_number",
+   "evaluation.evaltools.full_evaluation:run_settings",
+   "evaluation.evaltools.full_evaluation:case_outcome",
+   "evaluation.evaltools.full_evaluation:sample_rule",
+   "evaluation.evaltools.full_evaluation:sample_rule.<locals>.right",
+   "evaluation.evaltools.full_evaluation:comparisons",
+   "evaluation.evaltools.full_evaluation:ledger_rows",
+   "evaluation.evaltools.full_evaluation:plan",
+   "evaluation.evaltools.full_evaluation:_bodiless",
+   "evaluation.evaltools.full_evaluation:budget",
+   "evaluation.evaltools.full_evaluation:pending_batch",
+   "evaluation.evaltools.full_evaluation:settle",
+   "evaluation.evaltools.full_evaluation:ratio",
+   "evaluation.evaltools.full_evaluation:report",
+   "evaluation.evaltools.full_evaluation:markdown",
+   "evaluation.evaltools.full_evaluation:markdown.<locals>.fraction",
+   "evaluation.evaltools.full_evaluation:main",
+   "evaluation.evaltools.run_packet:configuration_of",
+   "evaluation.evaltools.run_packet:trace_from_audit",
+   "evaluation.evaltools.run_packet:trace_from_record",
+   "evaluation.evaltools.run_packet:facts_of",
+   "evaluation.evaltools.run_packet:calibration",
+   "evaluation.evaltools.run_packet:evaluator_only_of",
+   "evaluation.evaltools.run_packet:audit_by_run",
+   "evaluation.evaltools.run_packet:build_packet",
+   "evaluation.evaltools.run_packet:episode_key",
+   "evaluation.evaltools.run_packet:run_ref",
+   "evaluation.evaltools.run_packet:forbidden_in_view",
+   "evaluation.evaltools.run_packet:leak_in",
+   "evaluation.evaltools.run_packet:check_no_truth_in_view",
+   "evaluation.evaltools.run_packet:read_labels",
+   "evaluation.evaltools.run_packet:review_flags",
+   "evaluation.evaltools.run_packet:build_all",
+   "evaluation.evaltools.run_packet:check_unique",
+   "evaluation.evaltools.run_packet:build_archive",
+   "evaluation.evaltools.run_packet:_sibling",
+   "evaluation.evaltools.run_packet:packet_file_name",
+   "evaluation.evaltools.run_packet:batch_summary",
+   "evaluation.evaltools.run_packet:main",
+   "evaluation.evaltools.snap_request:DecisionQuestion.criteria_fit_type",
+   "evaluation.evaltools.snap_request:DecisionQuestion.to_request",
+   "evaluation.evaltools.snap_request:load_questions",
+   "evaluation.evaltools.snap_request:questions_for",
+   "evaluation.evaltools.snap_request:digest",
+   "evaluation.evaltools.snap_request:request_fingerprint",
+   "evaluation.evaltools.snap_request:build_request",
+   "evaluation.evaltools.snap_request:applicable_run_questions",
+   "evaluation.evaltools.snap_request:run_requests",
+   "evaluation.evaltools.snap_request:forbidden_for",
+   "evaluation.evaltools.snap_request:judge_view",
+   "evaluation.evaltools.snap_request:source_lines",
+   "evaluation.evaltools.snap_request:definition_ends",
+   "evaluation.evaltools.snap_request:test_source",
+   "evaluation.evaltools.snap_request:shown",
+   "evaluation.evaltools.snap_request:function_state",
+   "evaluation.evaltools.snap_request:test_state",
+   "evaluation.evaltools.snap_request:wiring_lines",
+   "evaluation.evaltools.snap_request:tool_state",
+   "evaluation.evaltools.snap_request:item_requests",
+   "evaluation.evaltools.snap_request:send",
+   "evaluation.evaltools.snap_request:normalized_answers",
+   "evaluation.evaltools.snap_request:file_stem",
+   "evaluation.evaltools.snap_request:describe_failure",
+   "evaluation.evaltools.snap_request:already_answered",
+   "evaluation.evaltools.snap_request:write_json",
+   "evaluation.evaltools.snap_request:write_requests",
+   "evaluation.evaltools.snap_request:main",
+   "evaluation.evaltools.traced_run:function_spans",
+   "evaluation.evaltools.traced_run:functions_hit",
+   "evaluation.evaltools.traced_run:start_tracer",
+   "evaluation.evaltools.traced_run:run_traced",
+   "evaluation.evaltools.traced_run:main",
+   "evaluation.evaltools.traced_run:main.<locals>.save"
   ],
   "functions_executed_only_at_import": [
    "capstone.agent.investigation:build_graph.<locals>.choose",
@@ -80,7 +383,7 @@
   ],
   "stubs_or_protocols": 24,
   "tests_by_outcome": {
-   "passed": 1378
+   "passed": 1413
   },
   "tests_with_no_assertion": [
    "tests/test_console.py::test_without_it_the_same_print_raised"
@@ -104,6 +407,8 @@
    "tests/test_evaluation.py::test_only_outages_report_nothing_scored",
    "tests/test_evaluation.py::test_the_needed_fix_is_not_unnecessary",
    "tests/test_evaluation.py::test_asking_for_nothing_is_never_unnecessary",
+   "tests/test_evaluation_tools.py::test_a_partial_answer_is_asked_again",
+   "tests/test_evaluation_tools.py::test_a_passing_outage_is_retried_and_a_lasting_one_recorded",
    "tests/test_experiment.py::test_results_from_before_the_policy_recommendation_was_kept_still_read",
    "tests/test_fault_packs.py::test_a_correct_action_is_one_the_desk_knows_and_only_causes_need_one",
    "tests/test_generator.py::test_the_compressed_profile_is_the_default",
@@ -496,6 +801,7 @@
    "tests/test_evaluation_tools.py::test_snap_questions_are_well_formed_and_batch_at_the_api_limit",
    "tests/test_evaluation_tools.py::test_record_only_packets_skip_the_questions_that_need_a_trace",
    "tests/test_evaluation_tools.py::test_an_unfittable_packet_is_recorded_as_skipped_not_fatal",
+   "tests/test_evaluation_tools.py::test_audited_import_rejects_missing_duplicate_and_orphan_traces",
    "tests/test_evaluation_tools.py::test_the_traced_run_names_the_functions_each_case_executed",
    "tests/test_evaluation_tools.py::test_the_inventory_lists_every_function_and_every_curated_item_exists",
    "tests/test_evaluation_tools.py::test_both_providers_get_the_same_fitted_state_and_questions",
@@ -517,6 +823,22 @@
    "tests/test_evaluation_tools.py::test_a_noul_reference_written_as_text_is_read_as_a_boolean",
    "tests/test_evaluation_tools.py::test_an_unfittable_function_state_is_skipped_not_fatal",
    "tests/test_evaluation_tools.py::test_a_traced_run_refuses_to_append_to_earlier_records",
+   "tests/test_evaluation_tools.py::test_the_archive_imports_52_distinct_episodes",
+   "tests/test_evaluation_tools.py::test_the_archive_keeps_the_published_denominators",
+   "tests/test_evaluation_tools.py::test_a_repeated_run_key_needs_a_namespace",
+   "tests/test_evaluation_tools.py::test_a_proposal_awaiting_review_is_kept_but_not_scored",
+   "tests/test_evaluation_tools.py::test_a_review_report_that_disagrees_with_the_labels_is_refused",
+   "tests/test_evaluation_tools.py::test_every_request_input_changes_the_fingerprint",
+   "tests/test_evaluation_tools.py::test_reordered_items_keep_their_files_and_answers",
+   "tests/test_evaluation_tools.py::test_a_partial_answer_is_asked_again",
+   "tests/test_evaluation_tools.py::test_a_passing_outage_is_retried_and_a_lasting_one_recorded",
+   "tests/test_evaluation_tools.py::test_a_leaking_packet_on_disk_is_refused_before_any_request",
+   "tests/test_evaluation_tools.py::test_every_master_request_is_free_of_the_runs_own_ids",
+   "tests/test_evaluation_tools.py::test_judge_requests_carry_the_project_user_agent_and_no_key",
+   "tests/test_evaluation_tools.py::test_an_impossible_answer_is_kept_unreadable",
+   "tests/test_evaluation_tools.py::test_states_show_each_test_whole_and_say_what_was_cut",
+   "tests/test_evaluation_tools.py::test_the_stated_question_count_matches_the_question_file",
+   "tests/test_evaluation_tools.py::test_two_answers_to_one_question_are_refused_and_latency_is_per_request",
    "tests/test_events.py::test_event_is_immutable",
    "tests/test_events.py::test_log_keeps_events_oldest_first",
    "tests/test_events.py::test_log_refuses_an_event_older_than_its_latest",
@@ -600,6 +922,23 @@
    "tests/test_fault_packs.py::test_agent_facing_code_never_reads_the_evaluator_side",
    "tests/test_fault_packs.py::test_every_pack_builds_its_own_fault",
    "tests/test_fault_packs.py::test_the_seed_contract_is_unchanged",
+   "tests/test_full_evaluation.py::test_every_episode_and_question_has_one_ledger_row",
+   "tests/test_full_evaluation.py::test_refused_episode_keeps_every_run_question_row",
+   "tests/test_full_evaluation.py::test_the_report_keeps_the_published_denominators",
+   "tests/test_full_evaluation.py::test_each_pair_is_compared_and_the_sample_rule_is_applied_in_code",
+   "tests/test_full_evaluation.py::test_a_comparison_request_names_no_scenario_or_run_key",
+   "tests/test_full_evaluation.py::test_the_sample_rule_is_met_with_enough_matched_cases",
+   "tests/test_full_evaluation.py::test_answers_settle_the_ledger_by_fingerprint",
+   "tests/test_full_evaluation.py::test_an_answer_to_another_request_settles_nothing",
+   "tests/test_full_evaluation.py::test_small_batches_resume_without_resending_completed_requests",
+   "tests/test_full_evaluation.py::test_a_plan_over_budget_is_refused_before_sending",
+   "tests/test_full_evaluation.py::test_sending_needs_both_limits",
+   "tests/test_full_evaluation.py::test_a_dry_run_writes_the_ledger_and_report",
+   "tests/test_full_evaluation.py::test_a_pinned_commit_that_is_not_checked_out_is_refused",
+   "tests/test_full_evaluation.py::test_provenance_needs_an_explicit_clean_commit",
+   "tests/test_full_evaluation.py::test_the_scope_manifest_classes_every_file",
+   "tests/test_full_evaluation.py::test_the_repository_has_no_unexplained_python_file",
+   "tests/test_full_evaluation.py::test_a_new_evaluator_function_requires_inventory_regeneration",
    "tests/test_generator.py::test_one_fault_per_scenario_and_the_clock_not_yet_started",
    "tests/test_generator.py::test_the_same_seed_gives_the_same_fault_and_the_same_day",
    "tests/test_generator.py::test_every_fault_appears_across_seeds_and_names_what_it_is_about",
@@ -1444,6 +1783,41 @@
    "functions": 14,
    "executed": 14,
    "direct": 1
+  },
+  "evaluation.evaltools.build_inventory": {
+   "functions": 23,
+   "executed": 0,
+   "direct": 0
+  },
+  "evaluation.evaltools.compare_evaluators": {
+   "functions": 7,
+   "executed": 0,
+   "direct": 0
+  },
+  "evaluation.evaltools.decision_models": {
+   "functions": 9,
+   "executed": 0,
+   "direct": 0
+  },
+  "evaluation.evaltools.full_evaluation": {
+   "functions": 24,
+   "executed": 0,
+   "direct": 0
+  },
+  "evaluation.evaltools.run_packet": {
+   "functions": 22,
+   "executed": 0,
+   "direct": 0
+  },
+  "evaluation.evaltools.snap_request": {
+   "functions": 28,
+   "executed": 0,
+   "direct": 0
+  },
+  "evaluation.evaltools.traced_run": {
+   "functions": 6,
+   "executed": 0,
+   "direct": 0
   }
  },
  "function_to_tests": {
@@ -2818,12 +3192,11 @@
    ]
   },
   "capstone.contracts.hypotheses:NumericClaim.ordered_window": {
-   "count": 2,
+   "count": 1,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
-    "tests/test_reasoning_evidence.py::test_manual_or_memory_cannot_create_machine_coverage_or_numeric_facts",
-    "tests/test_reasoning_evidence.py::test_numeric_verifier_checks_values_units_and_windows_without_judging_causes"
+    "tests/test_evaluation_tools.py::test_both_archives_import_57_episodes_with_five_real_traces"
    ]
   },
   "capstone.contracts.investigations:run_id_for": {
@@ -6619,6 +6992,720 @@
     "tests/test_factory_provider.py::test_an_answer_that_breaks_its_contract_is_reported_without_its_content",
     "tests/test_observation_tools.py::test_bad_requests_are_refused"
    ]
+  },
+  "evaluation.evaltools.build_inventory:rel": {
+   "count": 0,
+   "status": "NOT TESTED",
+   "direct": [],
+   "indirect": []
+  },
+  "evaluation.evaltools.build_inventory:module_name": {
+   "count": 0,
+   "status": "NOT TESTED",
+   "direct": [],
+   "indirect": []
+  },
+  "evaluation.evaltools.build_inventory:leading_comment": {
+   "count": 0,
+   "status": "NOT TESTED",
+   "direct": [],
+   "indirect": []
+  },
+  "evaluation.evaltools.build_inventory:exception_names": {
+   "count": 0,
+   "status": "NOT TESTED",
+   "direct": [],
+   "indirect": []
+  },
+  "evaluation.evaltools.build_inventory:call_name": {
+   "count": 0,
+   "status": "NOT TESTED",
+   "direct": [],
+   "indirect": []
+  },
+  "evaluation.evaltools.build_inventory:count_statements": {
+   "count": 0,
+   "status": "NOT TESTED",
+   "direct": [],
+   "indirect": []
+  },
+  "evaluation.evaltools.build_inventory:is_stub": {
+   "count": 0,
+   "status": "NOT TESTED",
+   "direct": [],
+   "indirect": []
+  },
+  "evaluation.evaltools.build_inventory:function_kind": {
+   "count": 0,
+   "status": "NOT TESTED",
+   "direct": [],
+   "indirect": []
+  },
+  "evaluation.evaltools.build_inventory:mutated_parameters": {
+   "count": 0,
+   "status": "NOT TESTED",
+   "direct": [],
+   "indirect": []
+  },
+  "evaluation.evaltools.build_inventory:collect_functions": {
+   "count": 0,
+   "status": "NOT TESTED",
+   "direct": [],
+   "indirect": []
+  },
+  "evaluation.evaltools.build_inventory:collect_functions.<locals>.visit": {
+   "count": 0,
+   "status": "NOT TESTED",
+   "direct": [],
+   "indirect": []
+  },
+  "evaluation.evaltools.build_inventory:assert_form": {
+   "count": 0,
+   "status": "NOT TESTED",
+   "direct": [],
+   "indirect": []
+  },
+  "evaluation.evaltools.build_inventory:collect_tests": {
+   "count": 0,
+   "status": "NOT TESTED",
+   "direct": [],
+   "indirect": []
+  },
+  "evaluation.evaltools.build_inventory:normalize_context": {
+   "count": 0,
+   "status": "NOT TESTED",
+   "direct": [],
+   "indirect": []
+  },
+  "evaluation.evaltools.build_inventory:read_coverage": {
+   "count": 0,
+   "status": "NOT TESTED",
+   "direct": [],
+   "indirect": []
+  },
+  "evaluation.evaltools.build_inventory:read_junit": {
+   "count": 0,
+   "status": "NOT TESTED",
+   "direct": [],
+   "indirect": []
+  },
+  "evaluation.evaltools.build_inventory:read_curated": {
+   "count": 0,
+   "status": "NOT TESTED",
+   "direct": [],
+   "indirect": []
+  },
+  "evaluation.evaltools.build_inventory:collect_tools": {
+   "count": 0,
+   "status": "NOT TESTED",
+   "direct": [],
+   "indirect": []
+  },
+  "evaluation.evaltools.build_inventory:direct_test_files": {
+   "count": 0,
+   "status": "NOT TESTED",
+   "direct": [],
+   "indirect": []
+  },
+  "evaluation.evaltools.build_inventory:names_function": {
+   "count": 0,
+   "status": "NOT TESTED",
+   "direct": [],
+   "indirect": []
+  },
+  "evaluation.evaltools.build_inventory:capped": {
+   "count": 0,
+   "status": "NOT TESTED",
+   "direct": [],
+   "indirect": []
+  },
+  "evaluation.evaltools.build_inventory:build": {
+   "count": 0,
+   "status": "NOT TESTED",
+   "direct": [],
+   "indirect": []
+  },
+  "evaluation.evaltools.build_inventory:main": {
+   "count": 0,
+   "status": "NOT TESTED",
+   "direct": [],
+   "indirect": []
+  },
+  "evaluation.evaltools.compare_evaluators:load_answers": {
+   "count": 0,
+   "status": "NOT TESTED",
+   "direct": [],
+   "indirect": []
+  },
+  "evaluation.evaltools.compare_evaluators:index_answers": {
+   "count": 0,
+   "status": "NOT TESTED",
+   "direct": [],
+   "indirect": []
+  },
+  "evaluation.evaltools.compare_evaluators:request_usage": {
+   "count": 0,
+   "status": "NOT TESTED",
+   "direct": [],
+   "indirect": []
+  },
+  "evaluation.evaltools.compare_evaluators:build_report": {
+   "count": 0,
+   "status": "NOT TESTED",
+   "direct": [],
+   "indirect": []
+  },
+  "evaluation.evaltools.compare_evaluators:build_report.<locals>.rate": {
+   "count": 0,
+   "status": "NOT TESTED",
+   "direct": [],
+   "indirect": []
+  },
+  "evaluation.evaltools.compare_evaluators:markdown": {
+   "count": 0,
+   "status": "NOT TESTED",
+   "direct": [],
+   "indirect": []
+  },
+  "evaluation.evaltools.compare_evaluators:main": {
+   "count": 0,
+   "status": "NOT TESTED",
+   "direct": [],
+   "indirect": []
+  },
+  "evaluation.evaltools.decision_models:DecisionProvider.state_chars": {
+   "count": 0,
+   "status": "NOT TESTED",
+   "direct": [],
+   "indirect": []
+  },
+  "evaluation.evaltools.decision_models:estimate_tokens": {
+   "count": 0,
+   "status": "NOT TESTED",
+   "direct": [],
+   "indirect": []
+  },
+  "evaluation.evaltools.decision_models:_truncate_evidence": {
+   "count": 0,
+   "status": "NOT TESTED",
+   "direct": [],
+   "indirect": []
+  },
+  "evaluation.evaltools.decision_models:fit_state": {
+   "count": 0,
+   "status": "NOT TESTED",
+   "direct": [],
+   "indirect": []
+  },
+  "evaluation.evaltools.decision_models:normalize": {
+   "count": 0,
+   "status": "NOT TESTED",
+   "direct": [],
+   "indirect": []
+  },
+  "evaluation.evaltools.decision_models:_number": {
+   "count": 0,
+   "status": "NOT TESTED",
+   "direct": [],
+   "indirect": []
+  },
+  "evaluation.evaltools.decision_models:compare": {
+   "count": 0,
+   "status": "NOT TESTED",
+   "direct": [],
+   "indirect": []
+  },
+  "evaluation.evaltools.decision_models:reference_match": {
+   "count": 0,
+   "status": "NOT TESTED",
+   "direct": [],
+   "indirect": []
+  },
+  "evaluation.evaltools.decision_models:provider_table": {
+   "count": 0,
+   "status": "NOT TESTED",
+   "direct": [],
+   "indirect": []
+  },
+  "evaluation.evaltools.full_evaluation:git": {
+   "count": 0,
+   "status": "NOT TESTED",
+   "direct": [],
+   "indirect": []
+  },
+  "evaluation.evaltools.full_evaluation:sha256_of": {
+   "count": 0,
+   "status": "NOT TESTED",
+   "direct": [],
+   "indirect": []
+  },
+  "evaluation.evaltools.full_evaluation:provenance": {
+   "count": 0,
+   "status": "NOT TESTED",
+   "direct": [],
+   "indirect": []
+  },
+  "evaluation.evaltools.full_evaluation:tracked_python_files": {
+   "count": 0,
+   "status": "NOT TESTED",
+   "direct": [],
+   "indirect": []
+  },
+  "evaluation.evaltools.full_evaluation:has_functions": {
+   "count": 0,
+   "status": "NOT TESTED",
+   "direct": [],
+   "indirect": []
+  },
+  "evaluation.evaltools.full_evaluation:scope_manifest": {
+   "count": 0,
+   "status": "NOT TESTED",
+   "direct": [],
+   "indirect": []
+  },
+  "evaluation.evaltools.full_evaluation:run_name": {
+   "count": 0,
+   "status": "NOT TESTED",
+   "direct": [],
+   "indirect": []
+  },
+  "evaluation.evaltools.full_evaluation:case_number": {
+   "count": 0,
+   "status": "NOT TESTED",
+   "direct": [],
+   "indirect": []
+  },
+  "evaluation.evaltools.full_evaluation:run_settings": {
+   "count": 0,
+   "status": "NOT TESTED",
+   "direct": [],
+   "indirect": []
+  },
+  "evaluation.evaltools.full_evaluation:case_outcome": {
+   "count": 0,
+   "status": "NOT TESTED",
+   "direct": [],
+   "indirect": []
+  },
+  "evaluation.evaltools.full_evaluation:sample_rule": {
+   "count": 0,
+   "status": "NOT TESTED",
+   "direct": [],
+   "indirect": []
+  },
+  "evaluation.evaltools.full_evaluation:sample_rule.<locals>.right": {
+   "count": 0,
+   "status": "NOT TESTED",
+   "direct": [],
+   "indirect": []
+  },
+  "evaluation.evaltools.full_evaluation:comparisons": {
+   "count": 0,
+   "status": "NOT TESTED",
+   "direct": [],
+   "indirect": []
+  },
+  "evaluation.evaltools.full_evaluation:ledger_rows": {
+   "count": 0,
+   "status": "NOT TESTED",
+   "direct": [],
+   "indirect": []
+  },
+  "evaluation.evaltools.full_evaluation:plan": {
+   "count": 0,
+   "status": "NOT TESTED",
+   "direct": [],
+   "indirect": []
+  },
+  "evaluation.evaltools.full_evaluation:_bodiless": {
+   "count": 0,
+   "status": "NOT TESTED",
+   "direct": [],
+   "indirect": []
+  },
+  "evaluation.evaltools.full_evaluation:budget": {
+   "count": 0,
+   "status": "NOT TESTED",
+   "direct": [],
+   "indirect": []
+  },
+  "evaluation.evaltools.full_evaluation:pending_batch": {
+   "count": 0,
+   "status": "NOT TESTED",
+   "direct": [],
+   "indirect": []
+  },
+  "evaluation.evaltools.full_evaluation:settle": {
+   "count": 0,
+   "status": "NOT TESTED",
+   "direct": [],
+   "indirect": []
+  },
+  "evaluation.evaltools.full_evaluation:ratio": {
+   "count": 0,
+   "status": "NOT TESTED",
+   "direct": [],
+   "indirect": []
+  },
+  "evaluation.evaltools.full_evaluation:report": {
+   "count": 0,
+   "status": "NOT TESTED",
+   "direct": [],
+   "indirect": []
+  },
+  "evaluation.evaltools.full_evaluation:markdown": {
+   "count": 0,
+   "status": "NOT TESTED",
+   "direct": [],
+   "indirect": []
+  },
+  "evaluation.evaltools.full_evaluation:markdown.<locals>.fraction": {
+   "count": 0,
+   "status": "NOT TESTED",
+   "direct": [],
+   "indirect": []
+  },
+  "evaluation.evaltools.full_evaluation:main": {
+   "count": 0,
+   "status": "NOT TESTED",
+   "direct": [],
+   "indirect": []
+  },
+  "evaluation.evaltools.run_packet:configuration_of": {
+   "count": 0,
+   "status": "NOT TESTED",
+   "direct": [],
+   "indirect": []
+  },
+  "evaluation.evaltools.run_packet:trace_from_audit": {
+   "count": 0,
+   "status": "NOT TESTED",
+   "direct": [],
+   "indirect": []
+  },
+  "evaluation.evaltools.run_packet:trace_from_record": {
+   "count": 0,
+   "status": "NOT TESTED",
+   "direct": [],
+   "indirect": []
+  },
+  "evaluation.evaltools.run_packet:facts_of": {
+   "count": 0,
+   "status": "NOT TESTED",
+   "direct": [],
+   "indirect": []
+  },
+  "evaluation.evaltools.run_packet:calibration": {
+   "count": 0,
+   "status": "NOT TESTED",
+   "direct": [],
+   "indirect": []
+  },
+  "evaluation.evaltools.run_packet:evaluator_only_of": {
+   "count": 0,
+   "status": "NOT TESTED",
+   "direct": [],
+   "indirect": []
+  },
+  "evaluation.evaltools.run_packet:audit_by_run": {
+   "count": 0,
+   "status": "NOT TESTED",
+   "direct": [],
+   "indirect": []
+  },
+  "evaluation.evaltools.run_packet:build_packet": {
+   "count": 0,
+   "status": "NOT TESTED",
+   "direct": [],
+   "indirect": []
+  },
+  "evaluation.evaltools.run_packet:episode_key": {
+   "count": 0,
+   "status": "NOT TESTED",
+   "direct": [],
+   "indirect": []
+  },
+  "evaluation.evaltools.run_packet:run_ref": {
+   "count": 0,
+   "status": "NOT TESTED",
+   "direct": [],
+   "indirect": []
+  },
+  "evaluation.evaltools.run_packet:forbidden_in_view": {
+   "count": 0,
+   "status": "NOT TESTED",
+   "direct": [],
+   "indirect": []
+  },
+  "evaluation.evaltools.run_packet:leak_in": {
+   "count": 0,
+   "status": "NOT TESTED",
+   "direct": [],
+   "indirect": []
+  },
+  "evaluation.evaltools.run_packet:check_no_truth_in_view": {
+   "count": 0,
+   "status": "NOT TESTED",
+   "direct": [],
+   "indirect": []
+  },
+  "evaluation.evaltools.run_packet:read_labels": {
+   "count": 0,
+   "status": "NOT TESTED",
+   "direct": [],
+   "indirect": []
+  },
+  "evaluation.evaltools.run_packet:review_flags": {
+   "count": 0,
+   "status": "NOT TESTED",
+   "direct": [],
+   "indirect": []
+  },
+  "evaluation.evaltools.run_packet:build_all": {
+   "count": 0,
+   "status": "NOT TESTED",
+   "direct": [],
+   "indirect": []
+  },
+  "evaluation.evaltools.run_packet:check_unique": {
+   "count": 0,
+   "status": "NOT TESTED",
+   "direct": [],
+   "indirect": []
+  },
+  "evaluation.evaltools.run_packet:build_archive": {
+   "count": 0,
+   "status": "NOT TESTED",
+   "direct": [],
+   "indirect": []
+  },
+  "evaluation.evaltools.run_packet:_sibling": {
+   "count": 0,
+   "status": "NOT TESTED",
+   "direct": [],
+   "indirect": []
+  },
+  "evaluation.evaltools.run_packet:packet_file_name": {
+   "count": 0,
+   "status": "NOT TESTED",
+   "direct": [],
+   "indirect": []
+  },
+  "evaluation.evaltools.run_packet:batch_summary": {
+   "count": 0,
+   "status": "NOT TESTED",
+   "direct": [],
+   "indirect": []
+  },
+  "evaluation.evaltools.run_packet:main": {
+   "count": 0,
+   "status": "NOT TESTED",
+   "direct": [],
+   "indirect": []
+  },
+  "evaluation.evaltools.snap_request:DecisionQuestion.criteria_fit_type": {
+   "count": 0,
+   "status": "NOT TESTED",
+   "direct": [],
+   "indirect": []
+  },
+  "evaluation.evaltools.snap_request:DecisionQuestion.to_request": {
+   "count": 0,
+   "status": "NOT TESTED",
+   "direct": [],
+   "indirect": []
+  },
+  "evaluation.evaltools.snap_request:load_questions": {
+   "count": 0,
+   "status": "NOT TESTED",
+   "direct": [],
+   "indirect": []
+  },
+  "evaluation.evaltools.snap_request:questions_for": {
+   "count": 0,
+   "status": "NOT TESTED",
+   "direct": [],
+   "indirect": []
+  },
+  "evaluation.evaltools.snap_request:digest": {
+   "count": 0,
+   "status": "NOT TESTED",
+   "direct": [],
+   "indirect": []
+  },
+  "evaluation.evaltools.snap_request:request_fingerprint": {
+   "count": 0,
+   "status": "NOT TESTED",
+   "direct": [],
+   "indirect": []
+  },
+  "evaluation.evaltools.snap_request:build_request": {
+   "count": 0,
+   "status": "NOT TESTED",
+   "direct": [],
+   "indirect": []
+  },
+  "evaluation.evaltools.snap_request:applicable_run_questions": {
+   "count": 0,
+   "status": "NOT TESTED",
+   "direct": [],
+   "indirect": []
+  },
+  "evaluation.evaltools.snap_request:run_requests": {
+   "count": 0,
+   "status": "NOT TESTED",
+   "direct": [],
+   "indirect": []
+  },
+  "evaluation.evaltools.snap_request:forbidden_for": {
+   "count": 0,
+   "status": "NOT TESTED",
+   "direct": [],
+   "indirect": []
+  },
+  "evaluation.evaltools.snap_request:judge_view": {
+   "count": 0,
+   "status": "NOT TESTED",
+   "direct": [],
+   "indirect": []
+  },
+  "evaluation.evaltools.snap_request:source_lines": {
+   "count": 0,
+   "status": "NOT TESTED",
+   "direct": [],
+   "indirect": []
+  },
+  "evaluation.evaltools.snap_request:definition_ends": {
+   "count": 0,
+   "status": "NOT TESTED",
+   "direct": [],
+   "indirect": []
+  },
+  "evaluation.evaltools.snap_request:test_source": {
+   "count": 0,
+   "status": "NOT TESTED",
+   "direct": [],
+   "indirect": []
+  },
+  "evaluation.evaltools.snap_request:shown": {
+   "count": 0,
+   "status": "NOT TESTED",
+   "direct": [],
+   "indirect": []
+  },
+  "evaluation.evaltools.snap_request:function_state": {
+   "count": 0,
+   "status": "NOT TESTED",
+   "direct": [],
+   "indirect": []
+  },
+  "evaluation.evaltools.snap_request:test_state": {
+   "count": 0,
+   "status": "NOT TESTED",
+   "direct": [],
+   "indirect": []
+  },
+  "evaluation.evaltools.snap_request:wiring_lines": {
+   "count": 0,
+   "status": "NOT TESTED",
+   "direct": [],
+   "indirect": []
+  },
+  "evaluation.evaltools.snap_request:tool_state": {
+   "count": 0,
+   "status": "NOT TESTED",
+   "direct": [],
+   "indirect": []
+  },
+  "evaluation.evaltools.snap_request:item_requests": {
+   "count": 0,
+   "status": "NOT TESTED",
+   "direct": [],
+   "indirect": []
+  },
+  "evaluation.evaltools.snap_request:send": {
+   "count": 0,
+   "status": "NOT TESTED",
+   "direct": [],
+   "indirect": []
+  },
+  "evaluation.evaltools.snap_request:normalized_answers": {
+   "count": 0,
+   "status": "NOT TESTED",
+   "direct": [],
+   "indirect": []
+  },
+  "evaluation.evaltools.snap_request:file_stem": {
+   "count": 0,
+   "status": "NOT TESTED",
+   "direct": [],
+   "indirect": []
+  },
+  "evaluation.evaltools.snap_request:describe_failure": {
+   "count": 0,
+   "status": "NOT TESTED",
+   "direct": [],
+   "indirect": []
+  },
+  "evaluation.evaltools.snap_request:already_answered": {
+   "count": 0,
+   "status": "NOT TESTED",
+   "direct": [],
+   "indirect": []
+  },
+  "evaluation.evaltools.snap_request:write_json": {
+   "count": 0,
+   "status": "NOT TESTED",
+   "direct": [],
+   "indirect": []
+  },
+  "evaluation.evaltools.snap_request:write_requests": {
+   "count": 0,
+   "status": "NOT TESTED",
+   "direct": [],
+   "indirect": []
+  },
+  "evaluation.evaltools.snap_request:main": {
+   "count": 0,
+   "status": "NOT TESTED",
+   "direct": [],
+   "indirect": []
+  },
+  "evaluation.evaltools.traced_run:function_spans": {
+   "count": 0,
+   "status": "NOT TESTED",
+   "direct": [],
+   "indirect": []
+  },
+  "evaluation.evaltools.traced_run:functions_hit": {
+   "count": 0,
+   "status": "NOT TESTED",
+   "direct": [],
+   "indirect": []
+  },
+  "evaluation.evaltools.traced_run:start_tracer": {
+   "count": 0,
+   "status": "NOT TESTED",
+   "direct": [],
+   "indirect": []
+  },
+  "evaluation.evaltools.traced_run:run_traced": {
+   "count": 0,
+   "status": "NOT TESTED",
+   "direct": [],
+   "indirect": []
+  },
+  "evaluation.evaltools.traced_run:main": {
+   "count": 0,
+   "status": "NOT TESTED",
+   "direct": [],
+   "indirect": []
+  },
+  "evaluation.evaltools.traced_run:main.<locals>.save": {
+   "count": 0,
+   "status": "NOT TESTED",
+   "direct": [],
+   "indirect": []
   }
  },
  "test_to_functions": {
@@ -10037,6 +11124,11 @@
     "capstone.experiment:known_cases"
    ]
   },
+  "tests/test_evaluation_tools.py::test_audited_import_rejects_missing_duplicate_and_orphan_traces": {
+   "count": 0,
+   "judgment": "NOT ASSESSED",
+   "functions": []
+  },
   "tests/test_evaluation_tools.py::test_the_traced_run_names_the_functions_each_case_executed": {
    "count": 0,
    "judgment": "NOT ASSESSED",
@@ -10138,6 +11230,93 @@
    "functions": []
   },
   "tests/test_evaluation_tools.py::test_a_traced_run_refuses_to_append_to_earlier_records": {
+   "count": 0,
+   "judgment": "NOT ASSESSED",
+   "functions": []
+  },
+  "tests/test_evaluation_tools.py::test_the_archive_imports_52_distinct_episodes": {
+   "count": 0,
+   "judgment": "NOT ASSESSED",
+   "functions": []
+  },
+  "tests/test_evaluation_tools.py::test_both_archives_import_57_episodes_with_five_real_traces": {
+   "count": 1,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.contracts.hypotheses:NumericClaim.ordered_window"
+   ]
+  },
+  "tests/test_evaluation_tools.py::test_the_archive_keeps_the_published_denominators": {
+   "count": 0,
+   "judgment": "NOT ASSESSED",
+   "functions": []
+  },
+  "tests/test_evaluation_tools.py::test_a_repeated_run_key_needs_a_namespace": {
+   "count": 0,
+   "judgment": "NOT ASSESSED",
+   "functions": []
+  },
+  "tests/test_evaluation_tools.py::test_a_proposal_awaiting_review_is_kept_but_not_scored": {
+   "count": 0,
+   "judgment": "NOT ASSESSED",
+   "functions": []
+  },
+  "tests/test_evaluation_tools.py::test_a_review_report_that_disagrees_with_the_labels_is_refused": {
+   "count": 0,
+   "judgment": "NOT ASSESSED",
+   "functions": []
+  },
+  "tests/test_evaluation_tools.py::test_every_request_input_changes_the_fingerprint": {
+   "count": 0,
+   "judgment": "NOT ASSESSED",
+   "functions": []
+  },
+  "tests/test_evaluation_tools.py::test_reordered_items_keep_their_files_and_answers": {
+   "count": 0,
+   "judgment": "NOT ASSESSED",
+   "functions": []
+  },
+  "tests/test_evaluation_tools.py::test_a_partial_answer_is_asked_again": {
+   "count": 0,
+   "judgment": "NOT ASSESSED",
+   "functions": []
+  },
+  "tests/test_evaluation_tools.py::test_a_passing_outage_is_retried_and_a_lasting_one_recorded": {
+   "count": 0,
+   "judgment": "NOT ASSESSED",
+   "functions": []
+  },
+  "tests/test_evaluation_tools.py::test_a_leaking_packet_on_disk_is_refused_before_any_request": {
+   "count": 0,
+   "judgment": "NOT ASSESSED",
+   "functions": []
+  },
+  "tests/test_evaluation_tools.py::test_every_master_request_is_free_of_the_runs_own_ids": {
+   "count": 0,
+   "judgment": "NOT ASSESSED",
+   "functions": []
+  },
+  "tests/test_evaluation_tools.py::test_judge_requests_carry_the_project_user_agent_and_no_key": {
+   "count": 0,
+   "judgment": "NOT ASSESSED",
+   "functions": []
+  },
+  "tests/test_evaluation_tools.py::test_an_impossible_answer_is_kept_unreadable": {
+   "count": 0,
+   "judgment": "NOT ASSESSED",
+   "functions": []
+  },
+  "tests/test_evaluation_tools.py::test_states_show_each_test_whole_and_say_what_was_cut": {
+   "count": 0,
+   "judgment": "NOT ASSESSED",
+   "functions": []
+  },
+  "tests/test_evaluation_tools.py::test_the_stated_question_count_matches_the_question_file": {
+   "count": 0,
+   "judgment": "NOT ASSESSED",
+   "functions": []
+  },
+  "tests/test_evaluation_tools.py::test_two_answers_to_one_question_are_refused_and_latency_is_per_request": {
    "count": 0,
    "judgment": "NOT ASSESSED",
    "functions": []
@@ -10790,6 +11969,91 @@
    "functions": []
   },
   "tests/test_fault_packs.py::test_the_seed_contract_is_unchanged": {
+   "count": 0,
+   "judgment": "NOT ASSESSED",
+   "functions": []
+  },
+  "tests/test_full_evaluation.py::test_every_episode_and_question_has_one_ledger_row": {
+   "count": 0,
+   "judgment": "NOT ASSESSED",
+   "functions": []
+  },
+  "tests/test_full_evaluation.py::test_refused_episode_keeps_every_run_question_row": {
+   "count": 0,
+   "judgment": "NOT ASSESSED",
+   "functions": []
+  },
+  "tests/test_full_evaluation.py::test_the_report_keeps_the_published_denominators": {
+   "count": 0,
+   "judgment": "NOT ASSESSED",
+   "functions": []
+  },
+  "tests/test_full_evaluation.py::test_each_pair_is_compared_and_the_sample_rule_is_applied_in_code": {
+   "count": 0,
+   "judgment": "NOT ASSESSED",
+   "functions": []
+  },
+  "tests/test_full_evaluation.py::test_a_comparison_request_names_no_scenario_or_run_key": {
+   "count": 0,
+   "judgment": "NOT ASSESSED",
+   "functions": []
+  },
+  "tests/test_full_evaluation.py::test_the_sample_rule_is_met_with_enough_matched_cases": {
+   "count": 0,
+   "judgment": "NOT ASSESSED",
+   "functions": []
+  },
+  "tests/test_full_evaluation.py::test_answers_settle_the_ledger_by_fingerprint": {
+   "count": 0,
+   "judgment": "NOT ASSESSED",
+   "functions": []
+  },
+  "tests/test_full_evaluation.py::test_an_answer_to_another_request_settles_nothing": {
+   "count": 0,
+   "judgment": "NOT ASSESSED",
+   "functions": []
+  },
+  "tests/test_full_evaluation.py::test_small_batches_resume_without_resending_completed_requests": {
+   "count": 0,
+   "judgment": "NOT ASSESSED",
+   "functions": []
+  },
+  "tests/test_full_evaluation.py::test_a_plan_over_budget_is_refused_before_sending": {
+   "count": 0,
+   "judgment": "NOT ASSESSED",
+   "functions": []
+  },
+  "tests/test_full_evaluation.py::test_sending_needs_both_limits": {
+   "count": 0,
+   "judgment": "NOT ASSESSED",
+   "functions": []
+  },
+  "tests/test_full_evaluation.py::test_a_dry_run_writes_the_ledger_and_report": {
+   "count": 0,
+   "judgment": "NOT ASSESSED",
+   "functions": []
+  },
+  "tests/test_full_evaluation.py::test_a_pinned_commit_that_is_not_checked_out_is_refused": {
+   "count": 0,
+   "judgment": "NOT ASSESSED",
+   "functions": []
+  },
+  "tests/test_full_evaluation.py::test_provenance_needs_an_explicit_clean_commit": {
+   "count": 0,
+   "judgment": "NOT ASSESSED",
+   "functions": []
+  },
+  "tests/test_full_evaluation.py::test_the_scope_manifest_classes_every_file": {
+   "count": 0,
+   "judgment": "NOT ASSESSED",
+   "functions": []
+  },
+  "tests/test_full_evaluation.py::test_the_repository_has_no_unexplained_python_file": {
+   "count": 0,
+   "judgment": "NOT ASSESSED",
+   "functions": []
+  },
+  "tests/test_full_evaluation.py::test_a_new_evaluator_function_requires_inventory_regeneration": {
    "count": 0,
    "judgment": "NOT ASSESSED",
    "functions": []
@@ -13287,11 +14551,10 @@
    "functions": []
   },
   "tests/test_reasoning_evidence.py::test_manual_or_memory_cannot_create_machine_coverage_or_numeric_facts": {
-   "count": 2,
+   "count": 1,
    "judgment": "NOT ASSESSED",
    "functions": [
-    "capstone.agent.evidence_brief:verify_numeric_claims",
-    "capstone.contracts.hypotheses:NumericClaim.ordered_window"
+    "capstone.agent.evidence_brief:verify_numeric_claims"
    ]
   },
   "tests/test_reasoning_evidence.py::test_route_is_ordered_observed_visits_not_a_complete_inferred_route": {
@@ -13307,11 +14570,10 @@
    "functions": []
   },
   "tests/test_reasoning_evidence.py::test_numeric_verifier_checks_values_units_and_windows_without_judging_causes": {
-   "count": 2,
+   "count": 1,
    "judgment": "NOT ASSESSED",
    "functions": [
-    "capstone.agent.evidence_brief:verify_numeric_claims",
-    "capstone.contracts.hypotheses:NumericClaim.ordered_window"
+    "capstone.agent.evidence_brief:verify_numeric_claims"
    ]
   },
   "tests/test_reasoning_evidence.py::test_hypothesis_comparison_is_visible_and_invalid_gap_citations_are_refused": {
@@ -14794,7 +16056,6 @@
   "`migrations/`: Alembic scaffolding; `env.py` is exercised by tests/test_migrations.py but is not part of the `capstone` package.",
   "`test_db_connection.py` (repository top): a manual connection probe.",
   "`.github/test_groups.py`: CI wiring, checked by CI itself.",
-  "`evaluation/evaltools/`: this scaffolding.",
   "Generated files: `.coverage`, `.pytest-tmp/`, `.chroma/`."
  ],
  "question_families": {

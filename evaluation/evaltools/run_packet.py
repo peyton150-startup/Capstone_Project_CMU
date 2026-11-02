@@ -709,9 +709,17 @@ def evaluator_only_of(
 
 
 def audit_by_run(path: Path | None) -> dict[str, AuditRecord]:
+    """Read one audit record per run id, refusing duplicate trace identities."""
+    # Variables:
+    #   audits: Saved completed audit records for this run file.
+    #   ids: Their run ids, checked before indexing so duplicates stay visible.
     if path is None:
         return {}
-    return {str(r.completed.run_id): r for r in AuditLog(path).read()}
+    audits = AuditLog(path).read()
+    ids = [str(record.completed.run_id) for record in audits]
+    if len(ids) != len(set(ids)):
+        raise ValueError(f"{path.name}: duplicate audit run id")
+    return dict(zip(ids, audits, strict=True))
 
 
 def build_packet(
@@ -933,6 +941,8 @@ def build_all(
     #     from `review_report_path`; their packets stay unjudged.
     #   critic_pending: Critic picks whose label awaits review; left unscored.
     #   audits: Audit records by run id; a run without one gets a record-only trace.
+    #   expected: Run ids in the records file; when an audit file exists, its
+    #     ids must match exactly, including no orphaned partial case.
     #   namespace: The archived pair or experiment these records belong to, so
     #     the same run key elsewhere gets its own episode key.
     #   refused: Where packets that failed the truth check are listed, or None
@@ -953,6 +963,15 @@ def build_all(
         pending |= review_flags(review_report_path, labels)
     critic_labels, critic_pending = read_labels(critic_labels_path)
     audits = audit_by_run(audit_path)
+    if audit_path is not None:
+        expected = {str(run_id_for(record.run_key)) for record in records}
+        if set(audits) != expected:
+            missing = sorted(expected - set(audits))
+            orphan = sorted(set(audits) - expected)
+            raise ValueError(
+                f"{audit_path.name}: audit/record mismatch; "
+                f"missing={missing[:3]}, orphan={orphan[:3]}"
+            )
     packets = []
     for line, record in zip(lines, records, strict=True):
         audit = audits.get(str(run_id_for(record.run_key)))
@@ -1011,7 +1030,7 @@ def build_archive(
 
     The folder holds one subfolder per pair (as `docs/benchmarks/
     2026-11-01-tot13-pairs/`), each with `<run>.records.jsonl` and, when they
-    exist, `<run>.jev-labels.jsonl`, `<run>.critic-jev-labels.jsonl` and
+    exist, `<run>.audit.jsonl`, `<run>.jev-labels.jsonl`, `<run>.critic-jev-labels.jsonl` and
     `<run>.jev-report.json` (whose `label_needs_review` flags keep a proposal
     unjudged). Each pair's folder name is its namespace, so a run key repeated
     across pairs yields two episodes. The commit of each run comes from the
@@ -1019,21 +1038,30 @@ def build_archive(
     """
     # Variables:
     #   commits: (pair, run name) to the commit that run was made on.
+    #   summary_path: The archive index that names each run's source commit.
     #   pair: The subfolder's name, used as the namespace of its runs.
     #   stem: The run's file name without `.records.jsonl`.
     summary_path = archive / "summary.json"
     commits = {}
     if summary_path.exists():
         for run in json.loads(summary_path.read_text(encoding="utf-8")).get("runs", []):
-            commits[(run.get("pair"), run.get("name"))] = run.get("commit")
+            commit = run.get("commit")
+            if not isinstance(commit, str) or not re.fullmatch(r"[0-9a-f]{40}", commit):
+                raise ValueError(
+                    "archive summary has a run without a full source commit"
+                )
+            commits[(run.get("pair"), run.get("name"))] = commit
     packets = []
     for records_path in sorted(archive.glob("*/*.records.jsonl")):
         pair = records_path.parent.name
         stem = records_path.name.removesuffix(".records.jsonl")
+        if (pair, stem) not in commits:
+            raise ValueError(f"{records_path.name}: source commit missing from summary")
         packets += build_all(
             records_path,
             labels_path=_sibling(records_path, stem, ".jev-labels.jsonl"),
             critic_labels_path=_sibling(records_path, stem, ".critic-jev-labels.jsonl"),
+            audit_path=_sibling(records_path, stem, ".audit.jsonl"),
             review_report_path=_sibling(records_path, stem, ".jev-report.json"),
             namespace=pair,
             commit_sha=commits.get((pair, stem)),
