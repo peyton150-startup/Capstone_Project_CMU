@@ -2823,6 +2823,79 @@ optional hydraulics; Future Work 8 D) are built as fault-pack registry entries
 (below), each tagged with the difficulty it belongs to, so the modes become a
 small filter over the registry when they are built.
 
+### Operator investigation screen (human–AI interaction guidance)
+
+<a id="fw-frontend-operator-screen"></a>
+
+**Priority: LOW; recorded 2026-11-02, not built.** What the first operator
+screen should show once a frontend exists, taken from two readings on
+designing for people who act on AI output:
+[Amershi et al., "Guidelines for Human-AI Interaction" (CHI 2019)](https://www.microsoft.com/en-us/research/wp-content/uploads/2019/01/Guidelines-for-Human-AI-Interaction-camera-ready.pdf)
+(mainly G2 "make clear how well the system can do what it can do", G9
+efficient correction, G10 scope services when in doubt, G11 make clear why)
+and [Google PAIR, "Errors and Graceful Failure"](https://pair.withgoogle.com/chapter/errors-failing/)
+(say specifically what the system could not do; hand control back with
+context; collect feedback on errors). Neither paper has shaped a code change
+yet, so neither is in README "Research basis".
+
+The screen is a read-only view of `CompletedInvestigation`
+(`capstone-code/capstone/contracts/completed_investigations.py`) and the run's
+audit records. It never reads the simulator or ground truth, so it sees only
+what the agent saw.
+
+| Panel | What it shows | Source today | Gap |
+|---|---|---|---|
+| Incident header | Machine, alarm summary, symptoms, sim time | `Anomaly`, `VerificationResult.observed_tick` | — |
+| Diagnosis | Leading explanation and up to four alternatives, each with its claim | `hypotheses`, `conclusion.diagnosis` | — |
+| Evidence | Supporting, contradicting and unexplained evidence for each hypothesis, linked to the reading it came from | `supporting_/contradicting_/unexplained_evidence_ids`, `evidence` | — |
+| What would settle it | The next check that tells the hypotheses apart | `Hypothesis.discriminating_check` | — |
+| How sure | Model confidence, shown as the model's own rating, not as a probability; next to it, whether the evidence substantiates the diagnosis | `confidence` | No evidence-assessment field yet (backend item 1 below) |
+| Why it stopped | Plain reason when the agent escalated or abstained: too little evidence, conflicting evidence, stale or missing readings, model or provider failure | `termination_reason` (free text) | Reasons are not a fixed set yet (backend item 2) |
+| Critic | Whether the critic agreed, and whether its follow-up reading changed the leader | critic records | Not in the handoff contract yet |
+| Proposed action | Action, machine, reason, evidence; the action bar it had to clear; clearly marked "not executed" until approved | `ActionProposal`, `MIN_ACTION_CONFIDENCE` | — |
+| Approve / reject | Approve, or reject with a reason chosen from a short list plus free text | approval desk | Reasons are free text and never read back (backend item 4) |
+| Verification | Expected versus observed after the action; "unverified" and "unknown" shown as such, not hidden | `VerificationResult` | Expected outcome not recorded yet (backend item 5) |
+| Full trace | Every tool call and model step, behind a "details" link, not on the main screen | audit records | — |
+
+Rules for the screen:
+
+- Lead with the problem, the likely cause, its evidence and the next step.
+  Keep agent traces and reasoning steps behind the details view.
+- Never show model confidence as "90% likely". It is the model's own rating
+  and is not calibrated.
+- When the agent could not finish, say specifically what was missing (which
+  machine, which sensor, which time window) and give the operator the next
+  manual check, not a generic error.
+- An escalation is a normal outcome, not a failure screen: it hands the case
+  to a person with everything the agent found.
+- Approval stays a backend decision under the same rules; the screen only
+  collects the operator's choice. Rejection reasons are stored as operator
+  feedback, never as evidence or ground truth.
+- Updates arrive through the progress-watcher queue described above, never
+  by blocking the run.
+
+**Backend changes this screen depends on** (each a small additive change to
+existing contracts, each its own PR and gate; none started):
+
+1. An evidence assessment next to confidence (substantiated, incomplete,
+   contradicted), set by rules in code from the evidence ids and numeric-claim
+   checks, not by the model.
+2. A fixed set of stop and escalation reasons (insufficient evidence,
+   contradicting evidence, stale or missing telemetry, provider failure,
+   budget exhausted), kept beside the existing free-text `termination_reason`.
+3. Critic outcome in the handoff: agreed or objected, and whether the
+   follow-up reading changed the leading hypothesis.
+4. Structured rejection reasons at the approval desk, read back into memory
+   as operator feedback.
+5. The expected observation for a proposed action, so verification can show
+   expected versus observed.
+
+**Later, separate from correctness scoring:** a small usability check with
+people who know manufacturing: same investigation shown as a plain report and
+as this screen; measure whether they find the conclusion and its evidence,
+tell a supported conclusion from a speculative one, and avoid approving an
+unsupported action. This does not replace improving diagnostic accuracy.
+
 
 <a id="future-work-far-future"></a>
 

@@ -1,5 +1,15 @@
 # Progress Log
 
+> **2026-11-02 — operator investigation screen recorded as frontend future work (documentation only):**
+> [MVP_SCOPE.md](MVP_SCOPE.md#fw-frontend-operator-screen) gains a LOW-priority
+> design for the first operator screen, drawn from Amershi et al. (CHI 2019)
+> and Google PAIR's "Errors and Graceful Failure". It maps each panel to fields
+> already in `CompletedInvestigation` and `Hypothesis`, and lists five small
+> additive backend changes the screen depends on (evidence assessment beside
+> confidence, fixed stop reasons, critic outcome in the handoff, structured
+> rejection reasons, expected outcome for verification). Nothing built; no
+> code, tests, settings or understanding status changed.
+
 > **2026-11-02 — concrete evaluator bugs added to the readiness criteria (documentation only):**
 > [CRITERIA_FOR_EVALUATOR.md](../evaluation/CRITERIA_FOR_EVALUATOR.md) gains
 > EVAL-19 (P0: judge requests lack the project's User-Agent and timeout, and
