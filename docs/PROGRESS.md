@@ -1,5 +1,15 @@
 # Progress Log
 
+> **2026-11-02 — concrete evaluator bugs added to the readiness criteria (documentation only):**
+> [CRITERIA_FOR_EVALUATOR.md](../evaluation/CRITERIA_FOR_EVALUATOR.md) gains
+> EVAL-19 (P0: judge requests lack the project's User-Agent and timeout, and
+> impossible answers such as an off-list choice are accepted), EVAL-20 (P1:
+> fixed 60/80-line test windows show neighbouring tests, one factory excerpt
+> repeated in every tool state, silent list caps) and EVAL-21 (P2: stated
+> question counts drift), with tests T17–T20. The EVF note's "22 questions" is
+> corrected to 23. Found by offline probes; nothing is fixed here. Understood:
+> no — documented ungated, developer to review.
+
 > **2026-11-02 — PR #155 evaluator readiness criteria (documentation only):**
 > [CRITERIA_FOR_EVALUATOR.md](../evaluation/CRITERIA_FOR_EVALUATOR.md) records
 > the original evaluator blockers and new integration requirements from
@@ -355,7 +365,7 @@ alarm), then evaluation, then the agent itself.
     it. `packets/master-single-2026-10-27/` holds the nine packets of the
     only master run whose records are in the repository.
   - `evaltools/snap_request.py` builds `POST /v1/systemone` bodies from
-    `SNAP_QUESTIONS.json` (22 questions: 12 per run, 3 per function, 3 per
+    `SNAP_QUESTIONS.json` (23 questions: 12 per run, 3 per function, 3 per
     test, 3 per tool, 2 per batch comparison), at most 16 per request,
     dry-run by default; `--send` needs `SUBQ_API_KEY` in the environment.
     docs.subq.ai was not reachable from the session, so the request shape is
