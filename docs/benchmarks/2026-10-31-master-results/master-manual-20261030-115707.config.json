@@ -1,0 +1,9 @@
+{
+  "cases": [
+    {"id": "KA-01-bearing", "seed": 6, "fault": "bearing_degradation"},
+    {"id": "KA-03-batch", "seed": 7, "fault": "bad_material_batch"},
+    {"id": "KA-05-setting", "seed": 9, "fault": "wrong_setting"},
+    {"id": "KA-07-false-alarm", "seed": 8, "fault": "false_alarm"},
+    {"id": "KA-09-challenge", "seed": 3, "kind": "challenge"}
+  ]
+}

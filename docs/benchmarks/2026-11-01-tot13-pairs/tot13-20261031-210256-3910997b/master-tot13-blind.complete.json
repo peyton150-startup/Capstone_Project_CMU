@@ -1,0 +1,10 @@
+{
+  "cases": 13,
+  "finished_utc": "2026-11-01T05:54:41.975164+00:00",
+  "judged": 11,
+  "needs_review": [
+    "master-tot13-blind/2/KA-02-bearing",
+    "master-tot13-blind/4/KA-04-batch"
+  ],
+  "report_sha256": "6abe34447fb7414a3d15317f218cf6f94522849fc41bc36ff1fda929e8eb8880"
+}

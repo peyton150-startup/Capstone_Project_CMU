@@ -11,6 +11,52 @@
 > scoring, tests, agent behavior, archived results or live experiments changed.
 > Understood: no — documented ungated, developer to review.
 
+> **2026-11-02 — incident-first line-wide investigation scope added to draft PR #157 (not built):**
+> [Line-wide future work](MVP_SCOPE.md#fw-line-scope) has three separately
+> measurable HIGH-priority additions: (1) a bounded incident context step in
+> `observe` before the manual/planning stages, with trigger/as-of tick, all
+> machine statuses/jobs, unfiltered recent events, upstream/downstream trends,
+> per-machine data quality and investigation provenance; (2) an **opt-in**
+> [critic coverage check](MVP_SCOPE.md#fw-critic-coverage), also usable with
+> blind critique, challenging both omissions and speculative neighbor blame;
+> and (3) [matched A/B/C evaluation](MVP_SCOPE.md#fw-scope-comparison),
+> comparing alarm-centered, line-wide without coverage critic, and line-wide
+> with coverage critic on the same seeded wrong-machine, cascading,
+> independent-fault, silent-degradation and normal/false-alarm cases.
+> The [pilot-readiness pointer](MVP_SCOPE.md#fw-incident-context) links to
+> those canonical Evaluation entries, avoiding duplicate requirements.
+> A scheduled/routine-check trigger tests diagnosis of a silent fault;
+> automatic early detection is **not** implemented and remains part of the
+> later deterministic monitor. Basic topology/time-window correlation comes
+> first, not a triage LLM, telemetry database or additional agent framework.
+> Docs only; no code, tests, models, telemetry service or understanding gate
+> changed. Each implementation increment still needs its own PR and
+> demonstrated before/after results.
+
+> **2026-11-02 — simulated telemetry ingestion and replay added to future work (not built):**
+> Updated [MVP scope and future work](MVP_SCOPE.md#fw-telemetry-replay) with a
+> medium-priority staged plan: one context-rich time-series store for recent
+> and historical queries, deterministic continuous line-wide monitoring not
+> restricted to the alarmed machine, a seeded stream-versus-replay parity
+> evaluation, and explicit cold-start/missing-data treatment. Actual
+> MTConnect/OPC UA/external sensors remain conditional pilot work, not an MVP
+> prerequisite. Cross-referenced existing Future Work 5 dispatch/monitoring.
+> Docs only; no code, tests, database, real-model calls or understanding gate
+> changed.
+
+> **2026-11-01 — two 13-case ToT anchored/blind pairs completed and recorded:**
+> [Results archive](benchmarks/2026-11-01-tot13-pairs/README.md) preserves four
+> live runs, 52 episodes and 36 source artifacts from frozen commit `e59208d`.
+> Pair A: anchored 3/12 judged and blind 3/12; pair B: anchored 6/13 and blind
+> 6/11, with two blind labels awaiting review. Same confirmed-correct counts
+> within each pair do not show improvement. Notes preserve manual failures,
+> reported internet disruption, NVIDIA 429/502 attempts, cross-pair overlap
+> after the developer waived the guard, and two in-place manual re-embedding
+> events during A anchored. All 52 recommendations escalated; 39 assessments
+> were unresolved and 13 absent. Run keys repeat between pairs, so identities
+> include pair ID. Original records/labels unchanged; no new model calls or
+> source behavior changes. Results/docs only; understanding status unchanged.
+
 > **2026-10-31 — evidence use and investigation completion improvements:**
 > Built ungated at the developer's request (understood: no). Six approved
 > improvements plus pasted proposals 1/2/4 are implemented in PR #150. The
@@ -49,6 +95,20 @@
 > solver, scoring and four repair actions. Not built: critic anchoring
 > ablation, `value` job, safety rules in `why_not_acted()`, P3, P5.
 > Understood: no — built ungated, developer to review.
+
+> **2026-10-31 — master results archived after both ToT continuations:**
+> [Results and limits](benchmarks/2026-10-31-master-results/README.md) records
+> seven live master runs (35 episodes), preserving 23 source artifacts with
+> hashes. Both run-2 files contain five unique cases and preserve their original
+> two-record backup prefixes. Critic off: 1/5 correct; critic on: 1/4 judged,
+> one label requiring review. All three appended episodes in each have ToT
+> traces and manual searches. The critic answered all three appended on-run
+> episodes but follow-up gathered no new evidence (tool budget, policy stop,
+> confidence threshold). All seven runs used seeds 6/7/9/8/3, including the
+> earlier run named parallel. Notes distinguish overlapping early runs,
+> missing early configs, provisional Jev labels and mixed pre/post-fix run-2
+> records. Original files unchanged; no new model calls or source changes.
+> Documentation only; understanding status unchanged.
 
 > **2026-10-31 — model sampling and independent critic backup settings:**
 > Built ungated at the developer's request (understood: no). `settings.py`

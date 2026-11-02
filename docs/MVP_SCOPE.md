@@ -327,10 +327,10 @@ This reorganizes the existing roadmap, not its implementation status or authorit
 |---|---|---|
 | [Pilot readiness and safety](#future-work-pilot-readiness) | HIGH | Rapid triage, reliable abstention |
 | [Simulator upgrades and machine fidelity](#future-work-simulator-upgrades) | HIGH | Haas fidelity, power/bearing validation, fault models |
-| [Evaluation, benchmarking and reasoning](#future-work-evaluation) | HIGH | Live runs, critic, ToT/GoT, runtime reliability |
+| [Evaluation, benchmarking and reasoning](#future-work-evaluation) | HIGH | Line-wide investigation scope, live runs, critic, ToT/GoT, runtime reliability |
 | [Retrieval and memory](#future-work-retrieval-and-memory) | MEDIUM | Manual and episodic search, reranking, ingestion |
 | [Multi-agent roles and coordination](#future-work-multi-agent-roles) | MEDIUM | Specialists, contracts, handoffs and model budgets |
-| [Tooling and infrastructure](#future-work-tooling) | MEDIUM | MCP, observability, audits and dev tools |
+| [Tooling and infrastructure](#future-work-tooling) | MEDIUM | Simulated telemetry ingestion/replay, MCP, observability, audits |
 | [Planning and automation](#future-work-planning-and-automation) | LOW | Controlled interventions and proactive monitoring |
 | [Frontend and operator experience](#future-work-frontend) | LOW | Difficulty recipes and safe configuration UI |
 | [Long-term portability and optional interfaces](#future-work-long-term) | LOW / FAR FUTURE | Cross-machine support, vision and voice |
@@ -344,6 +344,9 @@ This reorganizes the existing roadmap, not its implementation status or authorit
 | **HIGH** | Simulator | [Haas VF/NGC reference machine](#fw-haas-retrofit) | Ground the simulator in model-specific manuals and known supported telemetry. |
 | **HIGH** | Simulator | [Three-day bearing curve](#fw-bearing-progression) | Enable experiment selection and review wear curve with the manufacturing SME. |
 | **HIGH** | Simulator | [Power signal fidelity](#fw-power-validation) | Validate kW assumptions, relevant scoring and energy calculations. |
+| **HIGH** | Evaluation | [Line-wide investigation context](#fw-line-context) | Treat the alarmed machine as a starting point; check the relevant line before forming hypotheses. Buildable now. |
+| **HIGH** | Evaluation | [Critic coverage check](#fw-critic-coverage) | Opt-in critic challenges both missing cross-machine checks and unsupported neighbor attribution. |
+| **HIGH** | Evaluation | [Alarm-centered vs line-wide comparison](#fw-scope-comparison) | Match seeds and settings; wrong-machine, silent, cascading, independent and normal cases. |
 | **HIGH** | Evaluation | [Current live run comparisons](#fw-live-runs) | Compare prompts, settings, manual, memory, and scorer outcomes on matched cases. |
 | **HIGH** | Evaluation | [Critic follow-up effectiveness](#fw-critic-comparison) | Compare review-only with bounded critic-driven recheck. |
 | **HIGH** | Evaluation | [Degraded matrix on live models](#fw-degraded-comparison) | Run clean vs degraded scenarios and examine false-confidence cases. |
@@ -363,6 +366,7 @@ This reorganizes the existing roadmap, not its implementation status or authorit
 | **MEDIUM** | Multi-agent | [Planner / researcher / analyst roles](#fw-specialist-roles) | Add bounded specialist stages after demonstrated gains. |
 | **MEDIUM** | Multi-agent | [Typed handoffs and contracts](#fw-handoffs) | Define evidence-only, full and challenge handoffs with shared provenance. |
 | **MEDIUM** | Multi-agent | [Per-role execution budgets](#fw-agent-budgets) | Bound output, retries, tool calls and time across all agents. |
+| **MEDIUM** | Tooling | [Simulated telemetry stream and replay](#fw-telemetry-replay) | Store context-rich readings once; query recent/history windows and compare replay with monitoring. |
 | **MEDIUM** | Tooling | [Read-only MCP boundary](#fw-mcp) | Introduce authenticated MCP capabilities only when core agent is ready. |
 | **MEDIUM** | Tooling | [Traces and response validation](#fw-response-check) | Observe agent/tool calls and verify schema, permissions and freshness. |
 | **MEDIUM** | Tooling | [SubQ full-repo audit](#fw-subq) | Examine cross-file integrity on a pinned snapshot before sweeping refactors. |
@@ -397,6 +401,22 @@ This reorganizes the existing roadmap, not its implementation status or authorit
 ## Future work: Pilot readiness and safety
 
 <a id="future-work-pilot-readiness"></a>
+
+### First increment — line-wide investigation before continuous monitoring (HIGH; proposed 2026-11-02)
+
+<a id="fw-incident-context"></a>
+
+**Status: FUTURE WORK, not implemented.** The immediate pilot-readiness
+improvement is the [incident-first, line-wide investigation scope](#fw-line-scope)
+under Evaluation. A bounded incident packet gives the existing investigator
+the trigger, line snapshot, cross-machine events and neighbor trends before
+planning. Its [critic coverage check](#fw-critic-coverage) is opt-in;
+[matched-seed comparisons](#fw-scope-comparison) must show improved causal
+attribution without unjustified upstream blame or excessive investigation.
+Implement and evaluate this workflow change **before** the [simulated telemetry
+store and continuous monitor](#fw-telemetry-replay). This remains within the
+single-line, Pydantic Graph, read-only evidence, human approval and
+post-intervention verification boundaries.
 
 ### High-priority future work — pilot-readiness: fast triage and the rest of abstention (updated 2026-10-30)
 
@@ -482,8 +502,9 @@ Left:
 - **Demo traces** showing both an appropriately uncertain answer and a
   successful recovery.
 
-**Sequencing:** rapid triage mode next, then the live degraded-data run, then a
-pilot demonstration. These tasks complement, rather than replace, the separate
+**Sequencing:** record the alarm-centered baseline and evaluate the
+[incident-first context packet](#fw-incident-context) first; then rapid triage
+mode and the live degraded-data run before any pilot demonstration. These tasks complement, rather than replace, the separate
 Haas VF/NGC reference-machine retrofit below; no physical Haas connection is
 needed.
 
@@ -696,6 +717,134 @@ each against the master runs on the same known-answer cases.
   can reproduce the intended condition; do not invent fault models just to fill
   the list. Ground truth stays with the evaluator, and repeatable simulator
   inputs do not imply identical live model outputs.
+
+### Line-wide investigation scope (HIGH; near-term; proposed 2026-11-02)
+
+<a id="fw-line-scope"></a>
+
+**Status: FUTURE WORK, buildable now; no runtime changes in this PR.**
+This work changes the existing investigation workflow and its evaluation,
+not the underlying simulator, model or reasoning framework. It does **not**
+depend on a new telemetry store, continuous monitor or replay system and
+should not wait for them. An alarm tells us where a symptom appeared,
+**not** where the problem originated. Preserve Pydantic Graph, the existing
+`FactoryProvider`, shared budgets, manual and episodic retrieval, human
+approval, mandatory verification and evaluator-only hidden causal truth.
+
+1. <a id="fw-line-context"></a> **Line-wide investigation context (first
+   increment).** Today the triggering `DetectedAnomaly` effectively narrows
+   the investigation to its machine. Add a mandatory, bounded
+   **incident-context assembly step** in the `observe` stage of
+   `agent/investigation.py`, before the manual and planning stages. Pass
+   the existing investigator an *incident*, not a machine-only assignment:
+   - **Trigger:** source event/alarm/anomaly kind, description, original
+     machine ID (nullable), event identifier if available, and trigger
+     simulation tick/time. A routine check with `machine_id=None` uses
+     this same step; it does not mean an always-on monitor exists.
+   - **Whole-line snapshot:** `list_machines()` for **every** machine's
+     observed status and current job, with an as-of tick, and a simple
+     upstream/downstream topology based on the CNC-01-upward line order.
+     Capture current machine state *at trigger time*: querying it later
+     does not reconstruct a historical snapshot.
+   - **Cross-machine events:** recent `get_events()` with **no machine
+     filter**, over a bounded configurable preceding simulation-tick
+     window. Preserve event times/source, coverage and missing/incomplete
+     history; do not leak events after the trigger into a before-trigger
+     incident packet.
+   - **Neighbor trends:** bounded `get_sensor_summary()` or
+     `get_sensor_trend()` for the triggering machine and its immediate
+     upstream/downstream neighbors. Preserve sample counts, time window,
+     missing/stale/partial status and provenance. Do not dump all raw
+     sensor readings across the factory into the model's prompt.
+   - **Line record:** categorize each machine as abnormal, apparently
+     unaffected or lacking reliable observations *for this window*,
+     without treating incomplete evidence as proof of health. Keep this
+     context and each examined machine/reason in investigation state and
+     trace; let the investigator select deeper targeted checks and
+     hypothesis-discriminating observations as needed.
+
+   Start correlation with only **topology plus an explicit simulation-time
+   window** (for example, if CNC-02 alarms, inspect CNC-01's preceding
+   abnormal events). Correlation supplies a lead, not causal proof.
+   Preserve distinct incident groups for independent machine faults.
+   Do not invent a triage LLM or new tool by default: existing
+   `list_machines()`, unfiltered `get_events()` and trend/summary tools
+   should support the initial packet. A small typed assembly step or
+   backward-compatible `DetectedAnomaly` enrichment is sufficient.
+   Evidence provenance matters; two summaries of the same readings are
+   not independent confirmations. Keep packets compact so extending
+   scope does not exhaust the research budget.
+
+2. <a id="fw-critic-coverage"></a> **Critic coverage check (second,
+   independently evaluated increment).** Give the existing critic one
+   additional responsibility: before committing to a root cause, challenge
+   whether a *sufficient relevant portion* of the line was examined.
+   Object when the conclusion names a root machine without the context
+   record, or when an abnormal upstream/downstream machine was neither
+   investigated nor ruled out using cited observations. Also object when
+   the investigator blames a neighbor without a supported temporal/physical
+   link, or collapses unrelated faults into a single cause. More scanning
+   is not automatically better: request the **smallest discriminating,
+   read-only follow-up** and retain time, token, tool and recheck limits.
+
+   Introduce an **opt-in setting** comparable to `CRITIC_BLIND`, so the
+   coverage check can be measured separately from the line-wide packet.
+   It must also work in blind-critic mode. Run the baseline
+   [critic follow-up effectiveness comparison](#fw-critic-comparison)
+   before attributing changes to this new critic responsibility; otherwise
+   review-only versus recheck effects become confounded. The critic's
+   opinion remains a challenge, never authoritative sensor evidence or
+   permission to intervene.
+
+3. <a id="fw-scope-comparison"></a> **Alarm-centered vs line-wide
+   comparison (acceptance gate).** Freeze the simulator code, fault
+   injections, seeds, context cutoff, available observation tools,
+   model/prompt settings, retrieval options and budgets. Compare on
+   *identical observable cases*:
+   **A** current alarm-centered workflow,
+   **B** incident-first line-wide packet without coverage critic, and
+   **C** incident-first packet *with* opt-in coverage critic.
+   Record any unavoidable prompt differences as the treatment; do not
+   claim identical prompt text when context is intentionally expanded.
+   Keep all injected root-cause truth evaluator-only.
+
+   | Scenario | What it tests |
+   |---|---|
+   | Wrong-machine alarm | CNC-02 alarms while CNC-01 is the real source; find the causal machine rather than repeat the alert location. |
+   | Silent degradation | A progressive fault has no alarm; use the existing explicit routine-check/scheduled-scan trigger to test investigation of trends, **not** pre-alarm detection. |
+   | Cascading failure | One machine's fault delays downstream work or causes multiple symptoms; explain causal propagation without counting duplicate symptoms as independent proof. |
+   | Independent failures | Two unrelated machine faults coexist; find the second cause and avoid false upstream blame or a fabricated common origin. |
+   | Normal / false-alarm control | No persistent fault; detect whether wider scope invents causes, adds irrelevant checks or recommends unnecessary intervention. |
+
+   Score each arm for true root-machine identification, causal links,
+   affected-machine coverage, false healthy-neighbor attribution, missed
+   concurrent causes, abstention/insufficient evidence, wrong or unnecessary
+   intervention, critic follow-up utility, tool/model calls, tokens and
+   p50/p95 wall time. Record incident-packet provenance, actual observed
+   windows, missing/stale data and the machines investigated. Preserve
+   existing diagnosis, action and post-intervention verification metrics.
+   Compare on repeated matched runs where model variability permits and
+   distinguish provider failures from reasoning misses. The broader packet
+   succeeds only if causal attribution improves without unacceptable
+   false positives, added cost or over-investigation.
+
+   **Simulation realism gate:** Existing line blocking can illustrate some
+   downstream effects, but do not claim a strong cross-machine propagation
+   scenario until the simulator genuinely reproduces it; add a distinct
+   known-answer scenario first if necessary
+   ([regression-case expansion](#fw-regression-cases)).
+   Automatic detection of alarm-free degradation is a different claim,
+   measured only after the later [deterministic continuous monitor](#fw-telemetry-replay)
+   exists. Neither a scheduled trigger nor reading trend data alone
+   demonstrates autonomous early detection.
+
+**Implementation order:** pin alarm-centered baseline → incident packet in
+`observe` → matched A/B seeded evaluation → opt-in critic coverage check →
+matched B/C evaluation. Only then consider the
+[telemetry ingestion and replay](#fw-telemetry-replay) or
+[proactive dispatch lifecycle](#fw-proactive). Each implementation
+increment gets its own PR and tests. This documentation creates no new
+understanding/implementation completion claim.
 
 ### Future Work 7 — model evaluation, execution budgets, and computed evidence
 
@@ -2041,6 +2190,100 @@ Tested](https://www.requesty.ai/blog/structured-outputs-across-llm-providers-the
 
 <a id="future-work-tooling"></a>
 
+### Simulated telemetry ingestion, unified sensor history and replay (MEDIUM; proposed 2026-11-02)
+
+<a id="fw-telemetry-replay"></a>
+
+**Status: FUTURE WORK ONLY.** First prove the separate
+[incident-first, line-wide context increment](#fw-incident-context) without
+requiring a new database or continuous monitor. Prioritize the
+simulated-stream proof after that comparison and the existing single-agent
+investigation baseline are stable; do not claim a live
+collector, persistent sensor database, real-machine access, or a completed
+replay test today. This is a data-acquisition and evidence-availability layer,
+not a new LLM "live mode" or a replacement for the existing reasoning graph.
+
+**Stage A — capstone-scale simulated stream and historical queries:**
+
+1. Make the existing seeded simulator a **timed telemetry producer** through a
+   small, replaceable producer/ingestion interface. It must still support
+   deterministic offline tests without a database, wall-clock sleep, an LLM or
+   proprietary factory data. Persist observations to one logical time-series
+   reading store (PostgreSQL; TimescaleDB is optional after measured volume
+   warrants it), separate from Chroma manuals and episodic memories. Keep
+   observable events/alarms and job/status transitions correlated by timestamps
+   and identifiers, whether in a companion event table or typed record stream.
+2. Specify a common reading contract before choosing transport: source and
+   sample identifiers, run/line/machine identity (nullable for factory ambient
+   readings), channel, value, unit, **observed timestamp or simulation tick**,
+   ingestion timestamp, quality/freshness flags and provenance. Capture
+   operating context **at the reading's time**: machine status/mode, spindle
+   RPM, measured load if available, active job/operation and applicable
+   settings. Distinguish absent data from a measured zero; do not fabricate
+   sensors or context. Preserve source clock offsets, gaps, duplicates,
+   out-of-order arrival and ingestion lag, and make replay writes idempotent.
+3. Make the agent's read-only `FactoryProvider` observation surface return
+   **windowed readings, trends, events and summaries** from this store.
+   "Live" means a sufficiently fresh recent window (for example last N
+   seconds); "historical" means an older bounded window of **the same stored
+   measurements**. Both need explicit source time, as-of cutoffs, completeness
+   and freshness; a recent query is not proof that the physical machine is
+   currently healthy. Preserve existing tool contracts where practical, using
+   a separate provider implementation rather than rewriting investigator,
+   critic, manual RAG or memory logic.
+4. Run a **deterministic, always-on monitoring service**, not an LLM polling
+   sensor rows. Begin with documented fixed/manufacturer thresholds,
+   sustained-change/rate-of-change rules and missing/stale-data detection;
+   add context-matched baselines only when representative observations exist.
+   Compare like operating conditions (RPM, load, mode and job), with
+   hysteresis, deduplication and clear alert provenance. Cold-start status
+   must be `baseline_unavailable` or equivalent, never "normal by default".
+5. **Decouple alarm location from investigation scope.** A machine alarm is
+   one symptom, not a root-cause label. The near-term agent-side
+   [line-wide context, coverage critic and matched comparison](#fw-line-scope)
+   are separately buildable now and do **not** depend on this store.
+   Here the deterministic monitor adds triggers: silent degradation,
+   cross-machine flow changes, routine health checks and data-quality
+   incidents can initiate triage. Correlate upstream/downstream machines using
+   a bounded line-wide status/event summary before targeted deep research.
+   Group likely cascading alarms into an incident, but preserve distinct
+   independent faults; never assume one shared cause. Existing safety and
+   controller alarm handling remain independent of the LLM.
+
+**Replay acceptance gate:** Capture one seeded stream with known fault truth
+kept evaluator-only, then supply the **same timestamped observation windows**
+from (a) the advancing simulated stream and (b) replay of stored records.
+Verify equal available observations, context, event ordering, freshness/gap
+semantics and deterministic monitor decisions. With pinned prompts/model
+settings, compare root-cause/affected-machine conclusions, cited evidence,
+abstention and tool usage; do not require byte-identical free-text output
+from a nondeterministic model. Test an alarm on the wrong machine, an
+alarm-free progressive fault, a cascading line effect, independent concurrent
+faults, cold start, dropped/stale/late/duplicated readings and a normal run.
+Report detection delay, false/missed triggers, data completeness, diagnostic
+accuracy, budget use and replay parity. Do not confuse tape replay with
+counterfactual post-intervention verification.
+
+**Stage B — real equipment is deferred and conditional.** Only with a willing
+shop, authorized read-only access and a verified machine capability matrix
+should an MTConnect/OPC UA or approved MQTT/external-sensor adapter replace the
+simulator producer. The *same* ingestion contract and agent-facing read tools
+should work; OT security, edge buffering, clock synchronization, shadow mode
+and shop-floor validation are separate pilot gates, not Stage A deliverables.
+No assumption that a physical machine is available for the capstone.
+
+**Dependencies and boundaries:** Preserve seeded determinism, hidden-truth
+isolation, human approval and verification. This follows the
+[incident-first context and matched-seed evaluation](#fw-incident-context),
+which can use simulator-held data before any database. Coordinate with
+[rapid triage](#fw-rapid-triage), [degraded data](#fw-degraded-data),
+[Haas reference-machine capabilities](#fw-haas-retrofit) and
+[Future Work 5 monitoring/dispatch](#fw-proactive). The present
+`ObservationTools` read simulator-held observations; this proposal does
+**not** assert that a PostgreSQL time-series pipeline already exists. Build
+and compare the simplest measured slice before introducing a broker, new
+multi-agent monitor or high-frequency infrastructure.
+
 ### Future Work 2 — MCP architecture, observability, and response verification
 
 <a id="fw-mcp"></a>
@@ -2482,6 +2725,8 @@ Factory state → continuous monitoring → anomaly discovered
   → investigation created automatically → research → recommendation
   → approval → intervention → verification
 ```
+
+**Related investigation scope:** [Incident-first line-wide investigation](#fw-line-scope) is the first, database-free workflow test. [Simulated telemetry ingestion and replay](#fw-telemetry-replay) follows with a shared live/history evidence store and deterministic line-wide monitor. FW5 is the later durable incident scheduling/dispatch lifecycle; an alarm must not restrict investigation to the machine that raised it, and no LLM needs to poll every reading.
 
 [FW5 gates](FUTURE_WORK_REEVALUATION.md#future-technology--architecture-reevaluation-register):
 concurrency control requires an actual overlapping-work race, even within one
