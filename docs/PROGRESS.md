@@ -1,5 +1,38 @@
 # Progress Log
 
+> **2026-11-02 — incident-first line-wide investigation scope added to draft PR #157 (not built):**
+> [Line-wide future work](MVP_SCOPE.md#fw-line-scope) has three separately
+> measurable HIGH-priority additions: (1) a bounded incident context step in
+> `observe` before the manual/planning stages, with trigger/as-of tick, all
+> machine statuses/jobs, unfiltered recent events, upstream/downstream trends,
+> per-machine data quality and investigation provenance; (2) an **opt-in**
+> [critic coverage check](MVP_SCOPE.md#fw-critic-coverage), also usable with
+> blind critique, challenging both omissions and speculative neighbor blame;
+> and (3) [matched A/B/C evaluation](MVP_SCOPE.md#fw-scope-comparison),
+> comparing alarm-centered, line-wide without coverage critic, and line-wide
+> with coverage critic on the same seeded wrong-machine, cascading,
+> independent-fault, silent-degradation and normal/false-alarm cases.
+> The [pilot-readiness pointer](MVP_SCOPE.md#fw-incident-context) links to
+> those canonical Evaluation entries, avoiding duplicate requirements.
+> A scheduled/routine-check trigger tests diagnosis of a silent fault;
+> automatic early detection is **not** implemented and remains part of the
+> later deterministic monitor. Basic topology/time-window correlation comes
+> first, not a triage LLM, telemetry database or additional agent framework.
+> Docs only; no code, tests, models, telemetry service or understanding gate
+> changed. Each implementation increment still needs its own PR and
+> demonstrated before/after results.
+
+> **2026-11-02 — simulated telemetry ingestion and replay added to future work (not built):**
+> Updated [MVP scope and future work](MVP_SCOPE.md#fw-telemetry-replay) with a
+> medium-priority staged plan: one context-rich time-series store for recent
+> and historical queries, deterministic continuous line-wide monitoring not
+> restricted to the alarmed machine, a seeded stream-versus-replay parity
+> evaluation, and explicit cold-start/missing-data treatment. Actual
+> MTConnect/OPC UA/external sensors remain conditional pilot work, not an MVP
+> prerequisite. Cross-referenced existing Future Work 5 dispatch/monitoring.
+> Docs only; no code, tests, database, real-model calls or understanding gate
+> changed.
+
 > **2026-11-01 — two 13-case ToT anchored/blind pairs completed and recorded:**
 > [Results archive](benchmarks/2026-11-01-tot13-pairs/README.md) preserves four
 > live runs, 52 episodes and 36 source artifacts from frozen commit `e59208d`.
