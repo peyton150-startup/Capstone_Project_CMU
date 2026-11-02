@@ -1,0 +1,32 @@
+{
+  "accuracy_or_comparison_claim": false,
+  "human_reviewed_labels": 0,
+  "runs": [
+    {
+      "audit_records": 5,
+      "cases": 5,
+      "commit": "31ddd79eb3ab6a3bc0c01f43fb3b137348346394",
+      "correct": 3,
+      "judged": 5,
+      "name": "master-audited-20261102-tot13-blind",
+      "needs_review": [],
+      "outage_attempts": 19,
+      "outage_reasons": {
+        "the model service answered HTTP 500": 1,
+        "the model service timed out": 18
+      },
+      "pair": "audited-tot13-blind"
+    }
+  ],
+  "scope": "First five of thirteen known-answer cases; one arm; stopped by hand for time.",
+  "unrun_cases": [
+    "KA-06",
+    "KA-07",
+    "KA-08",
+    "KA-09",
+    "KA-10",
+    "KA-11",
+    "KA-12",
+    "KA-13"
+  ]
+}
