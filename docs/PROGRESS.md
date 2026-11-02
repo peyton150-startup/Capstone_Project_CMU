@@ -1,5 +1,9 @@
 # Progress Log
 
+> **2026-11-02 — evaluator F01-F05 fixes finished and offline dry run proven (built ungated, developer to review; understood: no):**
+> Audit logs now reach packets with strict missing/duplicate/orphan checks (F01); evaluator code and every executable test file are in the inventory, and a new unindexed evaluator function trips preflight (F02); refused episodes keep explicit RUN ledger rows (F03); a large plan runs in small resumable slices (F04); an explicit clean commit with matching source hashes is required (F05).
+> Inventories were rebuilt from a full coverage run (1,773 tests passed). The offline dry run over both archives on commit `342e529` reported 57 episodes (52 record-only, 5 full traces), 88 test files, no unexplained or stale files, and 4,350 planned requests (about $0.0852 input) split evenly between Snap and Jev. No judge request was sent; no EVAL-09 pilot has run.
+
 > **2026-11-02 — full-project evaluation command (built ungated):** Branch
 > `feature/full-project-evaluation`, stacked on `fix/evaluator-p0-criteria`
 > (PR #159), adds `evaluation/evaltools/full_evaluation.py`: one command that
