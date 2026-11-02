@@ -1,0 +1,641 @@
+{
+  "schema": "Reviewer judgments keyed by function id (module:qualname). `verification_status` overrides the derived default in FUNCTION_INVENTORY.json and may be any of VERIFIED, FAILED, PARTIALLY VERIFIED, NOT TESTED, INSUFFICIENT EVIDENCE, NOT APPLICABLE. `evidence` names the tests or records the judgment rests on; `gaps` names what is still unproven. Reviewed against main at bc9d155 (2026-11-01) by reading the implementation and the named tests, not by running a model.",
+  "reviewer": "evaluation architecture review, 2026-11-01",
+  "items": {
+    "capstone.evaluation.scoring:evaluate": {
+      "verification_status": "VERIFIED",
+      "judgment": "Reads hidden truth only after the run; the tests prove purity (the simulator and its future readings are unchanged), determinism (same episode, same score) and stability over time, plus the one-fault and compound contracts.",
+      "evidence": [
+        "tests/test_scoring_integrity.py",
+        "tests/test_evaluation.py::test_a_perfect_bearing_investigation_scores_full_marks",
+        "tests/test_evaluation.py::test_the_wrong_machine_and_the_wrong_repair_are_each_caught",
+        "tests/test_evaluation.py::test_a_run_with_several_faults_scores_its_causes_and_lists_distractors"
+      ],
+      "gaps": [
+        "`relevant_evidence_collected` credits any call that names the right tool, sensor and machine, whatever the tick window; a one-tick read counts as collected (see EVALUATION_AUDIT.md finding E3)."
+      ]
+    },
+    "capstone.evaluation.scoring:judge": {
+      "verification_status": "VERIFIED",
+      "judgment": "Label-to-row judging is tested for one cause, several causes, the closest named cause and the compound rule, and uses only the row.",
+      "evidence": [
+        "tests/test_evaluation.py::test_a_label_with_several_causes_judges_a_compound_row_from_the_row_alone",
+        "tests/test_experiment.py::test_a_label_scores_the_root_cause_from_the_row_alone",
+        "tests/test_experiment.py::test_a_batch_label_is_judged_by_batch"
+      ],
+      "gaps": []
+    },
+    "capstone.evaluation.scoring:_resolved": {
+      "verification_status": "VERIFIED",
+      "judgment": "Every fault kind now has a rule and an unknown kind raises; the forced-only faults are pinned as unresolved until their repair. Note the history: until PR #149 servo and hydraulic faults fell through to the false-alarm branch and always counted as resolved, and no test caught it, which is the kind of silent evaluator defect this framework exists to find.",
+      "evidence": [
+        "tests/test_known_answers.py::test_a_forced_only_fault_counts_as_resolved_only_after_its_repair",
+        "tests/test_scoring_integrity.py::test_a_right_answer_stays_right_as_time_moves_on",
+        "tests/test_evaluation.py::test_a_bad_batch_is_not_resolved_while_it_is_still_in_use"
+      ],
+      "gaps": [
+        "A false alarm or a bad batch counts as resolved once it ends by itself, so `resolved` credits runs in which the agent did nothing (audit finding E4)."
+      ]
+    },
+    "capstone.evaluation.scoring:summarize": {
+      "verification_status": "PARTIALLY VERIFIED",
+      "judgment": "Counts and averages are tested, and model-unavailable runs are shown to be excluded. The denominators are mixed on one summary line (root causes over judged runs, recommendations over scored runs) and nothing tests that a reader cannot be misled by it.",
+      "evidence": [
+        "tests/test_evaluation.py::test_summary_counts_and_averages",
+        "tests/test_evaluation.py::test_runs_without_a_model_are_left_out_of_the_reasoning_totals"
+      ],
+      "gaps": [
+        "No test pins which runs each denominator counts; see rubric section on denominators."
+      ]
+    },
+    "capstone.evaluation.scoring:Score.unnecessary_actions": {
+      "verification_status": "VERIFIED",
+      "judgment": "Five direct tests cover a fix on a false alarm, any fix on a bad batch, the needed fix, the wrong machine and asking for nothing.",
+      "evidence": [
+        "tests/test_evaluation.py::test_a_fix_asked_for_on_a_false_alarm_is_unnecessary_even_if_rejected",
+        "tests/test_evaluation.py::test_a_fix_on_the_wrong_machine_is_unnecessary_and_misses_the_needed_one"
+      ],
+      "gaps": []
+    },
+    "capstone.evaluation.scoring:Score.miss_kind": {
+      "verification_status": "PARTIALLY VERIFIED",
+      "judgment": "The evidence-miss / reasoning-miss split is tested, but it inherits the weakness of `relevant_evidence_collected`: a run that read every relevant sensor for one tick is classed a reasoning miss.",
+      "evidence": [
+        "tests/test_evaluation.py::test_a_wrong_diagnosis_without_all_the_evidence_is_an_evidence_miss",
+        "tests/test_evaluation.py::test_a_wrong_diagnosis_with_all_the_evidence_is_a_reasoning_miss"
+      ],
+      "gaps": [
+        "Window adequacy is not part of the evidence test."
+      ]
+    },
+    "capstone.agent.loop:check_termination": {
+      "verification_status": "VERIFIED",
+      "judgment": "The documented order (time, supported diagnosis, research time, unproductive steps, stalled confidence, verify allowance, iterations, calls) is pinned by tests that exercise each reason.",
+      "evidence": [
+        "tests/test_agent_loop.py::test_the_timer_starts_with_the_loop_and_a_timeout_stops_it",
+        "tests/test_agent_loop.py::test_reaching_the_answer_on_the_last_allowed_call_is_success_not_exhaustion",
+        "tests/test_agent_loop.py::test_verification_spends_its_own_allowance_not_the_research_budget",
+        "tests/test_agent_loop.py::test_testing_stops_when_three_results_barely_move_confidence"
+      ],
+      "gaps": []
+    },
+    "capstone.agent.loop:diagnosis_supported": {
+      "verification_status": "VERIFIED",
+      "judgment": "Confidence alone, a contradiction, an open question on a current hypothesis, non-factory supporters and a wrong numeric claim are each shown to block the automatic stop.",
+      "evidence": [
+        "tests/test_agent_loop.py::test_confidence_alone_is_not_a_supported_diagnosis",
+        "tests/test_agent_loop.py::test_an_open_contradiction_blocks_the_automatic_stop",
+        "tests/test_agent_loop.py::test_an_open_question_on_a_current_explanation_blocks_the_automatic_stop",
+        "tests/test_agent_loop.py::test_only_factory_answers_count_as_support_for_the_automatic_stop"
+      ],
+      "gaps": [
+        "This gate governs only the loop's own stop. A policy may still stop itself (`evidence_sufficient`) and conclude at any confidence; see audit finding A2."
+      ]
+    },
+    "capstone.agent.loop:gather": {
+      "verification_status": "VERIFIED",
+      "judgment": "Repeat at the same tick, failed call, malformed answer, uninterpreted answer and out-of-time interpretation are each tested with the records they leave.",
+      "evidence": [
+        "tests/test_agent_loop.py::test_the_same_question_at_the_same_tick_is_skipped_without_a_call",
+        "tests/test_agent_loop.py::test_a_failed_call_is_counted_but_is_not_evidence",
+        "tests/test_agent_loop.py::test_a_good_answer_is_kept_when_the_policy_fails_to_interpret_it",
+        "tests/test_model_policy.py::test_a_cut_off_interpretation_keeps_the_evidence_and_the_run_goes_on"
+      ],
+      "gaps": []
+    },
+    "capstone.agent.loop:call_tool": {
+      "verification_status": "VERIFIED",
+      "judgment": "An answer for another tool or another investigation, and a provider exception, are each shown not to become evidence.",
+      "evidence": [
+        "tests/test_agent_loop.py::test_an_answer_for_a_different_tool_is_not_evidence",
+        "tests/test_agent_loop.py::test_an_answer_for_a_different_investigation_is_not_evidence",
+        "tests/test_agent_loop.py::test_an_unusable_answer_is_not_evidence_and_does_not_crash"
+      ],
+      "gaps": []
+    },
+    "capstone.agent.loop:apply_interpretation": {
+      "verification_status": "PARTIALLY VERIFIED",
+      "judgment": "Citing ungathered evidence is refused and revisions are counted; the duplicate-hypothesis-id refusal and the numeric-claim refusal before any belief changes are covered by test_reasoning_evidence.",
+      "evidence": [
+        "tests/test_agent_loop.py::test_a_hypothesis_citing_evidence_that_was_never_gathered_is_refused",
+        "tests/test_reasoning_evidence.py::test_numeric_mismatch_cannot_be_applied_as_a_new_belief"
+      ],
+      "gaps": [
+        "No test for the duplicate-id branch (`hypothesis ids must be unique`) was found by name; confirm or add one."
+      ]
+    },
+    "capstone.agent.loop:run_inner_loop": {
+      "verification_status": "VERIFIED",
+      "judgment": "Both step modes, every stop reason, the cached decision in one-question mode and the budget checks before a cached decision are tested.",
+      "evidence": [
+        "tests/test_agent_loop.py::test_combined_steps_use_one_question_per_result_and_apply_last_belief",
+        "tests/test_agent_loop.py::test_a_cached_decision_cannot_run_after_the_combined_question_spends_the_time",
+        "tests/test_agent_loop.py::test_a_policy_that_always_has_another_question_still_ends"
+      ],
+      "gaps": []
+    },
+    "capstone.agent.loop:ask_policy": {
+      "verification_status": "VERIFIED",
+      "judgment": "The copy-of-state rule and the timeout-versus-outage distinction are tested.",
+      "evidence": [
+        "tests/test_agent_loop.py::test_the_policy_is_given_a_copy_and_cannot_change_working_memory",
+        "tests/test_model_policy.py::test_giving_up_just_before_the_deadline_is_a_timeout_not_an_outage",
+        "tests/test_model_policy.py::test_a_failure_with_time_left_is_still_an_outage"
+      ],
+      "gaps": []
+    },
+    "capstone.agent.investigation:check_conclusion": {
+      "verification_status": "VERIFIED",
+      "judgment": "Ungathered citations, an unformed hypothesis, an unjustified intervention (no action, no evidence, below the bar) and an unresolved assessment are each tested, as is that a misleading but real citation is accepted (the check is mechanical, not causal).",
+      "evidence": [
+        "tests/test_agent_investigation.py::test_a_conclusion_citing_evidence_that_was_never_gathered_is_refused",
+        "tests/test_agent_investigation.py::test_an_unjustified_intervention_is_lowered_to_escalate",
+        "tests/test_agent_investigation.py::test_a_conclusion_resting_on_misleading_but_real_evidence_is_accepted",
+        "tests/test_reasoning_evidence.py::test_completion_cannot_claim_supported_with_unresolved_diagnostic_questions"
+      ],
+      "gaps": [
+        "By design it cannot judge whether cited evidence supports the diagnosis; that is RUN-01/RUN-08/RUN-12 territory."
+      ]
+    },
+    "capstone.agent.investigation:verify": {
+      "verification_status": "VERIFIED",
+      "judgment": "Twenty-two tests pin that only observable evidence from after the work (data window and tick) can support resolved / not_resolved, that the prediction is the one recorded before the action, and that inconclusive and not_performed are reported honestly.",
+      "evidence": [
+        "tests/test_agent_verification.py::test_a_judgement_resting_only_on_earlier_evidence_is_inconclusive",
+        "tests/test_agent_verification.py::test_a_look_now_at_data_from_before_the_work_does_not_count",
+        "tests/test_agent_verification.py::test_no_answer_key_is_involved_in_the_judgement"
+      ],
+      "gaps": [
+        "The verdict itself (resolved vs not) is the policy's reading of the numbers; whether that reading is right is not checked by code (packet metric verification_calibration, question RUN-05)."
+      ]
+    },
+    "capstone.agent.investigation:propose": {
+      "verification_status": "VERIFIED",
+      "judgment": "The fixed procedure (ask, read back, human decides, execute only if approved) is tested including a refused proposal, a pending decision and a hook that decides nothing.",
+      "evidence": [
+        "tests/test_agent_action.py::test_a_rejection_stops_after_the_read_back_and_keeps_the_reason",
+        "tests/test_agent_action.py::test_a_human_hook_that_decides_nothing_does_not_count_as_approval",
+        "tests/test_agent_action.py::test_the_proposal_handed_to_the_human_cannot_be_used_to_approve"
+      ],
+      "gaps": []
+    },
+    "capstone.agent.investigation:execute": {
+      "verification_status": "VERIFIED",
+      "judgment": "Work that cannot start, a long repair waited out in steps and time that does not move are each tested.",
+      "evidence": [
+        "tests/test_agent_action.py::test_work_that_cannot_start_is_recorded_as_approved_and_not_carried_out",
+        "tests/test_agent_action.py::test_a_long_repair_is_waited_out_in_steps_the_factory_accepts"
+      ],
+      "gaps": []
+    },
+    "capstone.agent.investigation:critique": {
+      "verification_status": "VERIFIED",
+      "judgment": "The critic's answer, outage and invalid reply are recorded without changing the run; its time is given back to the investigation; the record keeps the claim as worded then.",
+      "evidence": [
+        "tests/test_agent_investigation.py::test_critic_answer_is_recorded_and_changes_nothing",
+        "tests/test_agent_investigation.py::test_critic_time_does_not_shorten_the_investigation",
+        "tests/test_agent_investigation.py::test_later_rewording_does_not_change_the_recorded_claim"
+      ],
+      "gaps": [
+        "Review only by default: nothing in the run reads the verdict. Whether the critic helps is an experiment question, not a code question."
+      ]
+    },
+    "capstone.agent.investigation:recheck_trigger": {
+      "verification_status": "PARTIALLY VERIFIED",
+      "judgment": "The trigger reasons (objection, agreement, a pick of another hypothesis under no_objection) and the window/allowance conditions are tested.",
+      "evidence": [
+        "tests/test_agent_investigation.py::test_trigger_reasons",
+        "tests/test_agent_investigation.py::test_a_no_objection_that_prefers_another_hypothesis_still_gets_tested",
+        "tests/test_agent_investigation.py::test_trigger_needs_a_tool_call_and_a_window_but_not_research_time"
+      ],
+      "gaps": [
+        "A `no_objection` verdict with a serious objection listed does not trigger (RUN2 finding 5); not a contract violation, but a measured blind spot."
+      ]
+    },
+    "capstone.agent.investigation:follow_up": {
+      "verification_status": "PARTIALLY VERIFIED",
+      "judgment": "One reading where the critic pointed, read-only tools only, reuse of an exact observed check, and a policy stop are tested.",
+      "evidence": [
+        "tests/test_agent_investigation.py::test_an_objection_earns_exactly_one_reading_where_the_critic_pointed",
+        "tests/test_reasoning_evidence.py::test_critic_check_never_executes_wait_or_an_action",
+        "tests/test_reasoning_evidence.py::test_an_exact_current_tick_critic_check_reuses_observations_without_a_call"
+      ],
+      "gaps": [
+        "The `already_answered` outcome accepts the policy's claim that existing evidence answers the critic's check; the record itself says semantic adequacy is unverified."
+      ]
+    },
+    "capstone.agent.investigation:build_graph": {
+      "verification_status": "VERIFIED",
+      "judgment": "The allowed order and the single path to the work are pinned.",
+      "evidence": [
+        "tests/test_agent_investigation.py::test_the_graph_draws_only_the_allowed_order",
+        "tests/test_agent_investigation.py::test_the_work_can_only_be_reached_through_the_proposal"
+      ],
+      "gaps": []
+    },
+    "capstone.agent.critic:Critic.review": {
+      "verification_status": "VERIFIED",
+      "judgment": "Refusal of an unshown pick, of ungathered citations, of a real id from a blind critic, the model-error pass-through and the no-state-change rule are tested.",
+      "evidence": [
+        "tests/test_critic.py::test_review_refuses_a_hypothesis_it_was_not_shown",
+        "tests/test_critic.py::test_review_refuses_ungathered_evidence",
+        "tests/test_critic.py::test_blind_review_refuses_a_real_id_it_was_never_shown",
+        "tests/test_critic.py::test_review_does_not_change_the_state"
+      ],
+      "gaps": []
+    },
+    "capstone.agent.critic:verdict_mismatch": {
+      "verification_status": "PARTIALLY VERIFIED",
+      "judgment": "Both mismatch patterns and the agreeing cases are parametrized; the function does what its docstring says.",
+      "evidence": [
+        "tests/test_critic.py::test_a_verdict_that_disagrees_with_the_pick_is_named"
+      ],
+      "gaps": [
+        "A `no_objection` beside contradiction or alternative objections is not named (RUN2 finding 5)."
+      ]
+    },
+    "capstone.agent.model_policy:evidence_section": {
+      "verification_status": "VERIFIED",
+      "judgment": "The size limit, the priority order (newest, cited, rest), the note and the no-invented-id rule are tested.",
+      "evidence": [
+        "tests/test_model_policy.py::test_many_large_pieces_of_evidence_stay_within_the_section_limit",
+        "tests/test_model_policy.py::test_every_id_is_listed_once_in_order_and_none_is_invented"
+      ],
+      "gaps": []
+    },
+    "capstone.agent.model_policy:ModelPolicy.decide": {
+      "verification_status": "VERIFIED",
+      "judgment": "A call to an unoffered tool is refused and recorded against the model; stop replies with call fields are refused.",
+      "evidence": [
+        "tests/test_model_policy.py::test_a_call_to_a_tool_not_offered_is_refused_and_counted_against_the_model",
+        "tests/test_model_policy.py::test_each_choice_keeps_to_its_own_fields"
+      ],
+      "gaps": []
+    },
+    "capstone.agent.model_policy:ModelPolicy.conclude": {
+      "verification_status": "VERIFIED",
+      "judgment": "An omitted assessment becomes unresolved and escalate without losing the diagnosis.",
+      "evidence": [
+        "tests/test_model_policy.py::test_missing_model_completion_assessment_is_unresolved_not_a_silent_success"
+      ],
+      "gaps": []
+    },
+    "capstone.agent.evidence_brief:verify_numeric_claims": {
+      "verification_status": "VERIFIED",
+      "judgment": "Values, units, windows, unknown units (unverified, not false) and ungathered references are tested; it judges arithmetic, never causes.",
+      "evidence": [
+        "tests/test_reasoning_evidence.py::test_numeric_verifier_checks_values_units_and_windows_without_judging_causes",
+        "tests/test_reasoning_evidence.py::test_unknown_units_cannot_be_declared_wrong_by_the_numeric_verifier"
+      ],
+      "gaps": [
+        "Only structured `numeric_claims` are checked; numbers in prose are not."
+      ]
+    },
+    "capstone.agent.evidence_brief:evidence_brief": {
+      "verification_status": "PARTIALLY VERIFIED",
+      "judgment": "Coverage, routes, duplicates, section budgets and the manual/memory exclusion are tested.",
+      "evidence": [
+        "tests/test_reasoning_evidence.py::test_machine_coverage_distinguishes_unchecked_from_normal",
+        "tests/test_reasoning_evidence.py::test_long_measurements_cannot_hide_routes_or_inspections_in_the_brief"
+      ],
+      "gaps": [
+        "No live evidence yet that the brief improves decisions; the 2026-10-31 notes say live accuracy is untested."
+      ]
+    },
+    "capstone.agent.tree_of_thought:prune": {
+      "verification_status": "VERIFIED",
+      "judgment": "Determinism, first-rating rule, impossible-only-with-factory-contradiction, unproven ranking and breadth are tested.",
+      "evidence": [
+        "tests/test_tree_of_thought.py::test_pruning_is_deterministic_and_counts_a_candidates_first_rating",
+        "tests/test_tree_of_thought.py::test_impossible_drops_a_candidate_only_with_a_cited_contradiction",
+        "tests/test_tree_of_thought.py::test_an_unproven_impossible_ranks_below_likely_at_a_neutral_score"
+      ],
+      "gaps": []
+    },
+    "capstone.providers.factory:run_tool": {
+      "verification_status": "VERIFIED",
+      "judgment": "Invalid arguments, a tool's own refusal, an over-long answer, a contract-breaking answer and any other failure are each reported as specified without leaking content.",
+      "evidence": [
+        "tests/test_factory_provider.py::test_a_refused_request_says_what_to_correct",
+        "tests/test_factory_provider.py::test_an_answer_that_breaks_its_contract_is_reported_without_its_content",
+        "tests/test_factory_provider.py::test_an_answer_too_long_for_a_prompt_is_refused_with_a_way_to_ask_for_less"
+      ],
+      "gaps": []
+    },
+    "capstone.providers.factory:SimulatorFactoryProvider.call": {
+      "verification_status": "VERIFIED",
+      "judgment": "Unknown tools cannot reach truth or approval; results carry tick and trace ids; the logger gets metadata only.",
+      "evidence": [
+        "tests/test_factory_provider.py::test_unknown_tool_cannot_reach_ground_truth_or_approval",
+        "tests/test_factory_provider.py::test_adapter_logs_metadata_without_tool_payloads",
+        "tests/test_factory_provider.py::test_the_provider_offers_no_way_to_approve_or_reject"
+      ],
+      "gaps": []
+    },
+    "capstone.tools.observation:ObservationTools.get_readings": {
+      "verification_status": "VERIFIED",
+      "judgment": "Shape, range, unknown machine and the pressure-sensor refusal are tested, and the full-run leak test pins the key set of every tool's answer.",
+      "evidence": [
+        "tests/test_observation_tools.py::test_get_readings_returns_one_machine_one_sensor_in_the_tick_range",
+        "tests/test_observation_tools.py::test_nothing_hidden_leaks_through_any_tool_over_a_full_run"
+      ],
+      "gaps": []
+    },
+    "capstone.tools.observation:ObservationTools.get_sensor_summary": {
+      "verification_status": "VERIFIED",
+      "judgment": "Eleven direct tests cover empty windows, single samples, mixed units, nonfinite values, factory sensors and the endpoint rate.",
+      "evidence": [
+        "tests/test_sensor_summary.py"
+      ],
+      "gaps": []
+    },
+    "capstone.tools.observation:ObservationTools.get_sensor_trend": {
+      "verification_status": "PARTIALLY VERIFIED",
+      "judgment": "Size and shape are tested; idle readings are included by documented design.",
+      "evidence": [
+        "tests/test_factory_provider.py::test_a_trend_is_far_smaller_than_the_readings_it_summarises"
+      ],
+      "gaps": [
+        "No test pins bucket boundaries at the end of a range or a bucket larger than the range."
+      ]
+    },
+    "capstone.tools.actions:ApprovalDesk.carry_out": {
+      "verification_status": "VERIFIED",
+      "judgment": "Refused until approved, once only, unknown ids refused, and an edited copy cannot unlock execution.",
+      "evidence": [
+        "tests/test_approval.py::test_the_agent_cannot_execute_what_a_human_has_not_approved",
+        "tests/test_approval.py::test_an_approval_can_be_used_only_once",
+        "tests/test_approval.py::test_an_edited_copy_of_a_proposal_does_not_unlock_execution"
+      ],
+      "gaps": []
+    },
+    "capstone.tools.actions:ActionTools.wait": {
+      "verification_status": "VERIFIED",
+      "judgment": "Bounds, type checks and the clock moving are tested.",
+      "evidence": [
+        "tests/test_wait_tool.py"
+      ],
+      "gaps": []
+    },
+    "capstone.episode:run_episode": {
+      "verification_status": "VERIFIED",
+      "judgment": "For the plumbing: a whole scripted episode is found, fixed, checked and scored; the same seed repeats; the agent's state never holds the answer key; the critic and settings reach the run.",
+      "evidence": [
+        "tests/test_episode.py::test_a_bearing_fault_is_found_fixed_checked_and_scored_in_full",
+        "tests/test_episode.py::test_the_same_seed_gives_the_same_episode",
+        "tests/test_episode.py::test_the_agent_never_holds_the_answer_key"
+      ],
+      "gaps": [
+        "The live model path (clients_for_jobs) is never executed offline; its reliability comes from the benchmark and master runs only."
+      ]
+    },
+    "capstone.experiment:record_of": {
+      "verification_status": "PARTIALLY VERIFIED",
+      "judgment": "Fields are shown to round-trip and older rows still read. By design the record keeps no evidence, hypotheses or tool arguments, so a saved master run cannot be judged for evidence quality without the separate audit log (audit finding R1).",
+      "evidence": [
+        "tests/test_experiment.py::test_a_model_policy_run_keeps_its_call_summary_and_its_time",
+        "tests/test_experiment.py::test_old_records_without_critique_still_read"
+      ],
+      "gaps": [
+        "Record completeness for post-hoc judging is a design gap, not a defect."
+      ]
+    },
+    "capstone.experiment:report": {
+      "verification_status": "PARTIALLY VERIFIED",
+      "judgment": "Lines and totals are tested; the summary line counts escalations on no-action cases as right recommendations (audit finding E2).",
+      "evidence": [
+        "tests/test_experiment.py::test_report_applies_labels",
+        "tests/test_experiment.py::test_the_report_totals_and_lists_one_and_several_fault_runs_apart"
+      ],
+      "gaps": []
+    },
+    "capstone.evals:report_of": {
+      "verification_status": "PARTIALLY VERIFIED",
+      "judgment": "Truth stays out of the policy, labels alone score accuracy, review-flagged labels stay unjudged, the critic fields and the abstention card are tested.",
+      "evidence": [
+        "tests/test_evals.py::test_full_episode_report_keeps_truth_out_of_policy_and_scores_only_labels",
+        "tests/test_evals.py::test_review_flag_excludes_provisional_label_from_accuracy",
+        "tests/test_evals.py::test_confident_no_fault_and_honest_abstention_score_apart"
+      ],
+      "gaps": [
+        "EvalCase carries no termination reason, so a timed-out run is indistinguishable from a reasoned one in the JSON report (audit finding R3)."
+      ]
+    },
+    "capstone.evals:compare_reports": {
+      "verification_status": "PARTIALLY VERIFIED",
+      "judgment": "Same-scenario and unknown-accuracy rules are tested.",
+      "evidence": [
+        "tests/test_evals.py::test_comparison_requires_same_cases_and_preserves_unknown_accuracy"
+      ],
+      "gaps": [
+        "Configurations (step mode, critic, manual, models) are not compared, so two batches with different settings compare without a warning (audit finding X1)."
+      ]
+    },
+    "capstone.evals:check_resume": {
+      "verification_status": "PARTIALLY VERIFIED",
+      "judgment": "Prefix matching is tested; settings are not compared (recorded in the EV1 walkthrough).",
+      "evidence": [
+        "tests/test_evals.py::test_resume_accepts_only_the_saved_prefix_and_keeps_run_numbers"
+      ],
+      "gaps": [
+        "A resumed run can mix configurations (the 2026-10-30/31 run-2 files did)."
+      ]
+    },
+    "capstone.evaluation.auto_label:propose": {
+      "verification_status": "PARTIALLY VERIFIED",
+      "judgment": "Thresholds and review marking are tested against a fake judgment client.",
+      "evidence": [
+        "tests/test_auto_label.py"
+      ],
+      "gaps": [
+        "Agreement with hand labels has never been measured live (MVP_SCOPE 'finish the check on Jev's labels'); until then auto labels must not feed accuracy."
+      ]
+    },
+    "capstone.evaluation.labels:LabelBook.read": {
+      "verification_status": "VERIFIED",
+      "judgment": "Latest label wins; a missing file is empty.",
+      "evidence": [
+        "tests/test_experiment.py::test_label_book_keeps_the_latest_label"
+      ],
+      "gaps": []
+    },
+    "capstone.learning:learn_from": {
+      "verification_status": "VERIFIED",
+      "judgment": "Audit first, lesson only for a verified carried-out fix, code-written failure lesson, model failure costs only the lesson.",
+      "evidence": [
+        "tests/test_learning.py"
+      ],
+      "gaps": []
+    },
+    "capstone.memory.policy:MemoryPromotionPolicy.evaluate": {
+      "verification_status": "VERIFIED",
+      "judgment": "Every refusal reason has a test, including hidden-truth text, memory-only and manual-only provenance, and no-action-taken.",
+      "evidence": [
+        "tests/test_memory_policy.py"
+      ],
+      "gaps": []
+    },
+    "capstone.providers.chat:FallbackClient.ask": {
+      "verification_status": "VERIFIED",
+      "judgment": "Time shares, retries with doubling pauses, non-transient failures moving on, invalid replies raising at once and the out-of-time flag are tested.",
+      "evidence": [
+        "tests/test_chat_client.py"
+      ],
+      "gaps": []
+    },
+    "capstone.providers.chat:run_with_deadline": {
+      "verification_status": "VERIFIED",
+      "judgment": "Whole-request deadline, result and exception pass-through are tested.",
+      "evidence": [
+        "tests/test_request_deadline.py"
+      ],
+      "gaps": [
+        "The abandoned thread keeps running; documented, not tested for resource growth."
+      ]
+    },
+    "capstone.providers.hazards:UnreliableProvider.call": {
+      "verification_status": "VERIFIED",
+      "judgment": "Timeout, gap, stale record, blackout, recovery accounting and the untouched simulator are tested, and an episode with hazards repeats exactly.",
+      "evidence": [
+        "tests/test_hazards.py"
+      ],
+      "gaps": []
+    },
+    "capstone.providers.recall:RecallingProvider.call": {
+      "verification_status": "VERIFIED",
+      "judgment": "Repeat refusal, the search allowance, store failures without detail and the memory source label are tested.",
+      "evidence": [
+        "tests/test_recall_tool.py"
+      ],
+      "gaps": []
+    },
+    "capstone.providers.manual:ManualProvider.call": {
+      "verification_status": "VERIFIED",
+      "judgment": "As recall: limits, refusals, the manual source label; plus the leak check on sections.",
+      "evidence": [
+        "tests/test_manual.py"
+      ],
+      "gaps": []
+    },
+    "capstone.manual.sections:check_no_leaks": {
+      "verification_status": "VERIFIED",
+      "judgment": "Fault names, seeds, case ids and 'ground truth' are refused in any section.",
+      "evidence": [
+        "tests/test_manual.py",
+        "tests/test_critic.py::test_the_real_manual_shown_to_the_critic_names_no_hidden_truth"
+      ],
+      "gaps": [
+        "A leak written in other words (a standard speed as a number) is guarded by a separate test only for job times and speeds."
+      ]
+    },
+    "capstone.simulator.simulator:Simulator.step": {
+      "verification_status": "VERIFIED",
+      "judgment": "The order contract (reality, consequences, warming, readings, alarms) and determinism are pinned across the simulator test files.",
+      "evidence": [
+        "tests/test_simulator.py",
+        "tests/test_failure.py",
+        "tests/test_bearing_degradation.py",
+        "tests/test_production_line.py"
+      ],
+      "gaps": []
+    },
+    "capstone.simulator.simulator:Simulator.ground_truth": {
+      "verification_status": "VERIFIED",
+      "judgment": "Immutable, order of scenarios, unchanged by the run, reading it changes nothing.",
+      "evidence": [
+        "tests/test_ground_truth.py"
+      ],
+      "gaps": []
+    },
+    "capstone.simulator.generator:build_scenario": {
+      "verification_status": "VERIFIED",
+      "judgment": "Seed determinism, forced faults and the untouched streams are tested; the known-answer cases pin thirteen factories.",
+      "evidence": [
+        "tests/test_generator.py",
+        "tests/test_known_answers.py::test_each_case_builds_its_pinned_fault_and_symptom"
+      ],
+      "gaps": []
+    },
+    "capstone.simulator.challenge:build_challenge": {
+      "verification_status": "VERIFIED",
+      "judgment": "Composition, determinism and the pinned KA-09 truth.",
+      "evidence": [
+        "tests/test_simulator_challenge.py",
+        "tests/test_known_answers.py::test_each_case_builds_its_pinned_fault_and_symptom"
+      ],
+      "gaps": []
+    },
+    "capstone.agent.monitor:detect_anomaly": {
+      "verification_status": "PARTIALLY VERIFIED",
+      "judgment": "Executed only through episode and known-answer tests, which pin what it notices for thirteen cases and that it names no cause.",
+      "evidence": [
+        "tests/test_known_answers.py::test_each_case_builds_its_pinned_fault_and_symptom",
+        "tests/test_episode.py::test_monitoring_names_a_symptom_and_no_machine_for_a_run_of_rejects"
+      ],
+      "gaps": [
+        "No direct test of the routine-check branch at max_ticks or of a stopped-machine status event being noticed before an alarm."
+      ]
+    },
+    "capstone.baseline:diagnose": {
+      "verification_status": "PARTIALLY VERIFIED",
+      "judgment": "Five tests and the known-case run; thresholds were tuned on seeds 1-20 and the held-out check is a printed table, not an assertion.",
+      "evidence": [
+        "tests/test_baseline.py",
+        "docs/benchmarks/2026-10-26-baseline-known.txt"
+      ],
+      "gaps": [
+        "Its 9/9 on the known cases is on tuning-adjacent seeds; the agent comparison should use held-out seeds (HELD_OUT_SEEDS)."
+      ]
+    },
+    "capstone.settings:Settings.blank_is_missing": {
+      "verification_status": "VERIFIED",
+      "judgment": "Defaults, blank-is-missing, chains and the .env.example parity are tested.",
+      "evidence": [
+        "tests/test_settings.py",
+        "tests/test_env_example.py"
+      ],
+      "gaps": []
+    },
+    "capstone.tools.actions:ActionTools.propose_action": {
+      "verification_status": "VERIFIED",
+      "judgment": "Unknown machine, unknown action, blank reason and hydraulics on a machine without them are refused and nothing is recorded; a good proposal is recorded pending with its tick and changes nothing in the factory.",
+      "evidence": [
+        "tests/test_approval.py::test_bad_proposals_are_refused_and_not_recorded",
+        "tests/test_approval.py::test_proposing_changes_nothing_in_the_factory",
+        "tests/test_approval.py::test_a_proposal_is_recorded_as_pending_with_its_reason_and_tick"
+      ],
+      "gaps": []
+    },
+    "capstone.tools.actions:ActionTools.execute_action": {
+      "verification_status": "VERIFIED",
+      "judgment": "Malformed ids are refused; otherwise the desk's carry_out rules apply (approved only, once).",
+      "evidence": [
+        "tests/test_approval.py::test_unknown_or_malformed_proposal_ids_are_refused",
+        "tests/test_approval.py::test_executing_an_approved_proposal_starts_the_repair_and_says_when_it_ends"
+      ],
+      "gaps": []
+    },
+    "capstone.tools.actions:ActionTools.get_proposals": {
+      "verification_status": "PARTIALLY VERIFIED",
+      "judgment": "Read back after approval and rejection in the action-path tests; the copies it returns cannot be used to approve.",
+      "evidence": [
+        "tests/test_approval.py::test_the_agent_gets_copies_it_cannot_use_to_approve_itself",
+        "tests/test_agent_action.py::test_an_approved_action_is_asked_for_read_back_started_and_waited_out"
+      ],
+      "gaps": [
+        "No direct test of the list's order or of a proposal carried out showing its executed and finish ticks."
+      ]
+    },
+    "capstone.tools.observation:ObservationTools.get_maintenance_history": {
+      "verification_status": "PARTIALLY VERIFIED",
+      "judgment": "Past records then this run's, oldest first, with and without a machine filter; the stale-record hazard is tested on top of it.",
+      "evidence": [
+        "tests/test_maintenance_history.py",
+        "tests/test_hazards.py::test_a_stale_record_joins_the_history_of_its_machine_in_date_order"
+      ],
+      "gaps": [
+        "Only 7 tests execute it; an unknown machine on this tool is checked through `_check` but not asserted here."
+      ]
+    }
+  }
+}

@@ -1,0 +1,301 @@
+{
+ "meta": {
+  "packet_schema_version": "1.1.0",
+  "rubric_version": "1.0.0",
+  "run_key": "master-single-2026-10-27/1/KA-01-bearing",
+  "scenario_id": "KA-01-bearing",
+  "commit_sha": null,
+  "records_file": "../docs/benchmarks/2026-10-27-master-resumed.records.jsonl",
+  "audit_file": null,
+  "labels_file": "../docs/benchmarks/2026-10-27-master-labels.jsonl",
+  "record_digest": "21e4269cd28b22b48f10ef0b121d39f5fbb0c144fdaca054f0a3761c1c8124b3"
+ },
+ "snap_view": {
+  "run_ref": "4359c963e7db",
+  "configuration": {
+   "step_questions": 2,
+   "state_action_bar": true,
+   "critic": null,
+   "critic_followup_on": null,
+   "manual_offered": false,
+   "manual_step": null,
+   "memory_offered": false,
+   "tree_of_thought": null,
+   "hazards": null,
+   "models_answering": {
+    "nvidia/nemotron-3.5-super-vl-120b-a12b": 17
+   }
+  },
+  "trace": {
+   "completeness": "record_only",
+   "anomaly": "alarm on CNC-02: vibration 4.58 mm/s above 4.50",
+   "anomaly_kind": null,
+   "anomaly_machine": null,
+   "evidence": [],
+   "hypotheses": [],
+   "pruned_candidates": [],
+   "decisions": [
+    {
+     "sequence": 1,
+     "agent": "research_agent",
+     "phase": "observe",
+     "tick": null,
+     "tool": "get_time",
+     "arguments": null,
+     "outcome": "observed",
+     "evidence_ids": [],
+     "confidence": null,
+     "information_needed": null,
+     "error": null
+    },
+    {
+     "sequence": 2,
+     "agent": "research_agent",
+     "phase": "plan",
+     "tick": null,
+     "tool": null,
+     "arguments": null,
+     "outcome": "decided",
+     "evidence_ids": [],
+     "confidence": null,
+     "information_needed": null,
+     "error": null
+    },
+    {
+     "sequence": 3,
+     "agent": "research_agent",
+     "phase": "investigate",
+     "tick": null,
+     "tool": "get_readings",
+     "arguments": null,
+     "outcome": "observed",
+     "evidence_ids": [],
+     "confidence": null,
+     "information_needed": null,
+     "error": null
+    },
+    {
+     "sequence": 4,
+     "agent": "research_agent",
+     "phase": "investigate",
+     "tick": null,
+     "tool": "get_events",
+     "arguments": null,
+     "outcome": "observed",
+     "evidence_ids": [],
+     "confidence": null,
+     "information_needed": null,
+     "error": null
+    },
+    {
+     "sequence": 5,
+     "agent": "research_agent",
+     "phase": "investigate",
+     "tick": null,
+     "tool": "get_maintenance_history",
+     "arguments": null,
+     "outcome": "observed",
+     "evidence_ids": [],
+     "confidence": null,
+     "information_needed": null,
+     "error": null
+    },
+    {
+     "sequence": 6,
+     "agent": "research_agent",
+     "phase": "investigate",
+     "tick": null,
+     "tool": "get_readings",
+     "arguments": null,
+     "outcome": "observed",
+     "evidence_ids": [],
+     "confidence": null,
+     "information_needed": null,
+     "error": null
+    },
+    {
+     "sequence": 7,
+     "agent": "research_agent",
+     "phase": "investigate",
+     "tick": null,
+     "tool": null,
+     "arguments": null,
+     "outcome": "stopped",
+     "evidence_ids": [],
+     "confidence": null,
+     "information_needed": null,
+     "error": null
+    },
+    {
+     "sequence": 8,
+     "agent": "research_agent",
+     "phase": "hypothesize",
+     "tick": null,
+     "tool": null,
+     "arguments": null,
+     "outcome": "decided",
+     "evidence_ids": [],
+     "confidence": null,
+     "information_needed": null,
+     "error": null
+    },
+    {
+     "sequence": 9,
+     "agent": "research_agent",
+     "phase": "test",
+     "tick": null,
+     "tool": "get_readings",
+     "arguments": null,
+     "outcome": "observed",
+     "evidence_ids": [],
+     "confidence": null,
+     "information_needed": null,
+     "error": null
+    },
+    {
+     "sequence": 10,
+     "agent": "research_agent",
+     "phase": "test",
+     "tick": null,
+     "tool": "get_events",
+     "arguments": null,
+     "outcome": "observed",
+     "evidence_ids": [],
+     "confidence": null,
+     "information_needed": null,
+     "error": null
+    },
+    {
+     "sequence": 11,
+     "agent": "research_agent",
+     "phase": "test",
+     "tick": null,
+     "tool": null,
+     "arguments": null,
+     "outcome": "stopped",
+     "evidence_ids": [],
+     "confidence": null,
+     "information_needed": null,
+     "error": null
+    },
+    {
+     "sequence": 12,
+     "agent": "research_agent",
+     "phase": "decide",
+     "tick": null,
+     "tool": null,
+     "arguments": null,
+     "outcome": "decided",
+     "evidence_ids": [],
+     "confidence": null,
+     "information_needed": null,
+     "error": null
+    }
+   ],
+   "tools_used": [
+    "get_time",
+    "get_readings",
+    "get_events",
+    "get_maintenance_history",
+    "get_readings",
+    "get_readings",
+    "get_events"
+   ],
+   "conclusion": {
+    "diagnosis": "CNC-02 is showing intermittent vibration exceeding the 4.50 mm/s threshold: alarms at tick 914 (4.58 mm/s) and tick 919 (4.51 mm/s), with readings below threshold in between (915–918, 920). Load is stable (~53–57%, E6), so this is not load-driven process variation. No prior alarms before 914 (E3, E7), so this is a new/developing pattern rather than a one-off transient (H1) or long-standing variation (H4). A sensor fault (H3) is not ruled out but unsupported. The pattern best fits H2: a developing mechanical issue causing repeated threshold exceedances that may recur or escalate. Confidence is about 0.85, below the 0.90 needed to intervene. One more check — spindle temperature during the same window — could confirm a mechanical cause (overheating bearing) and raise confidence to intervene, or support a sensor fault if temperature is normal.",
+    "confidence": 0.85,
+    "recommendation": "escalate",
+    "policy_recommendation": "escalate",
+    "recommendation_lowered": null,
+    "assessment": null,
+    "unresolved_questions": [],
+    "next_check": null,
+    "evidence_ids": [],
+    "hypothesis_id": null
+   },
+   "critique": null,
+   "recheck": null,
+   "verification": {
+    "outcome": null,
+    "prediction": null,
+    "evidence_ids": [],
+    "checked_tick": null,
+    "action_started_tick": null,
+    "action_finish_tick": null
+   },
+   "proposal": null,
+   "manual_searches": [],
+   "recall_searches": []
+  },
+  "facts": {
+   "termination_reason": "evidence_sufficient",
+   "finished_on_time": true,
+   "tool_calls": 7,
+   "factory_calls": 7,
+   "iterations": 8,
+   "ticks_elapsed": 0,
+   "wall_seconds": 237.93899070000043,
+   "model_questions": 17,
+   "model_answered": 17,
+   "invalid_replies": 0,
+   "unanswered": 0,
+   "outage_attempts": 0,
+   "machines_examined": null,
+   "sensors_read": null,
+   "repeated_calls": 0,
+   "failed_tool_calls": 0,
+   "committed": false,
+   "confidence": 0.85,
+   "evidence_cited_by_conclusion": 0,
+   "observable_evidence_cited": null,
+   "cited_by_origin": {},
+   "hazards_fired": null,
+   "hazards_retried": null,
+   "blackout_recovered": null
+  }
+ },
+ "evaluator_only": {
+  "true_faults": [
+   {
+    "fault": "bearing_degradation",
+    "machine_id": "CNC-02",
+    "batch_id": null
+   }
+  ],
+  "distractors": [],
+  "label": {
+   "run_key": "master-single-2026-10-27/1/KA-01-bearing",
+   "diagnosis": null,
+   "labelled_by": "coding assistant",
+   "note": "Peyton's decision 2026-10-28, labelled by the conclusion's words, not the true fault: names only a 'developing mechanical issue'; a bearing is a hypothesis for a further check"
+  },
+  "labelled_by": "coding assistant",
+  "root_cause_correct": false,
+  "target_correct": false,
+  "fully_right": false,
+  "causes_found": 0,
+  "wrong_causes": 0,
+  "recommendation_correct": false,
+  "action_correct": false,
+  "resolved": false,
+  "unnecessary_interventions": [],
+  "false_intervention": false,
+  "relevant_evidence": [
+   "vibration of CNC-02",
+   "temperature of CNC-02",
+   "events of CNC-02"
+  ],
+  "relevant_evidence_collected": [
+   "vibration of CNC-02",
+   "events of CNC-02"
+  ],
+  "evidence_share": 0.6666666666666666,
+  "miss_kind": "evidence_miss",
+  "abstained": true,
+  "confident_wrong": false,
+  "verification_calibration": "no_verdict",
+  "model_unavailable": false,
+  "critic_pick_label": null,
+  "critic_pick_correct": null
+ }
+}

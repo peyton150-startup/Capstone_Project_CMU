@@ -53,7 +53,7 @@ include = ["capstone*"]
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 # Find `capstone` in capstone-code/ even without an installed copy.
-pythonpath = ["capstone-code"]
+pythonpath = ["capstone-code", "evaluation"]
 # One fixed scratch folder (git-ignored), cleared by pytest at the start of each run.
 addopts = "--basetemp=.pytest-tmp"
 
@@ -61,7 +61,7 @@ addopts = "--basetemp=.pytest-tmp"
 target-version = "py311"
 line-length = 88
 # Where the project's own code is, so `capstone` imports sort as first-party.
-src = [".", "capstone-code"]
+src = [".", "capstone-code", "evaluation"]
 
 [tool.ruff.lint]
 select = ["E4", "E7", "E9", "F", "I"]

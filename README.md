@@ -22,6 +22,11 @@ later, an AI research agent that investigates it through tools.
   already built or rejected.
 - [Manufacturing-agent papers future work](docs/MANUFACTURING_AGENT_PAPERS_FUTURE_WORK.md):
   five planned items from three 2026 manufacturing-agent papers.
+- `evaluation/` — the evaluation framework (added 2026-11-01): inventories of
+  every function, test and tool with their verification status, run evidence
+  packets, the Snap 1.1 decision questions, the rubric, and the audit of what
+  the master runs prove. Start at
+  [`evaluation/EVALUATION_README.md`](evaluation/EVALUATION_README.md).
 - `capstone-code/capstone/` — the code, imported as `capstone`. Paths such as
   `capstone/simulator/` in these docs are inside `capstone-code/`.
 - `capstone-code/capstone/simulator/` — the simulator (runs with no LLM).

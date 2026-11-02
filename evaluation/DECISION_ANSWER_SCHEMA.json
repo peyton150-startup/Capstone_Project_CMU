@@ -1,0 +1,34 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Provider-neutral decision answer",
+  "description": "One normalized answer from a decision model (SubQ Snap or TypeSafe Jev) to one question of SNAP_QUESTIONS.json, as written by evaltools.decision_models.normalize and read by evaltools.compare_evaluators. Version 1.0.0.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["provider", "model_requested", "model_reported", "question_id", "question_name", "type", "value", "confidence", "probabilities", "latency_seconds", "input_tokens", "cost_usd"],
+  "properties": {
+    "provider": {"type": "string", "enum": ["snap", "jev"]},
+    "model_requested": {"type": "string", "description": "The model id sent in the request, pinned (subq-snap-1.1, jev-1.14.0)."},
+    "model_reported": {"type": ["string", "null"], "description": "The model id the reply named; may differ from an alias."},
+    "question_id": {"type": "string", "pattern": "^[A-Z]{2,3}-\\d{2}$"},
+    "question_name": {"type": "string"},
+    "type": {"type": "string", "enum": ["noul", "choice", "score"]},
+    "value": {
+      "description": "noul: probability of yes (0-1); choice: the chosen option; score: the probability-weighted level, which may fall between levels.",
+      "type": ["number", "string"]
+    },
+    "confidence": {"type": ["number", "null"], "minimum": 0, "maximum": 1, "description": "The service's own confidence for choice and score; for a noul, how far the probability sits from one half scaled to 0-1 (a sorting aid, not calibration)."},
+    "probabilities": {"type": ["object", "null"], "additionalProperties": {"type": "number"}},
+    "latency_seconds": {"type": ["number", "null"]},
+    "input_tokens": {"type": ["integer", "null"]},
+    "cost_usd": {"type": ["number", "null"], "description": "input_tokens times the provider's listed input price; output is free for both services."}
+  },
+  "answer_file": {
+    "description": "A *.answers.json file holds {tags, answers, raw_reply, answered_at}. tags carry provider, model_requested, item_id, question_ids, questions, rubric_version, commit_sha, state_digest, state_tokens_estimate, state_budget_tokens, state_trimmed and built_at; answers is a list of records in this schema (an answer the service omitted has value null and an error string instead)."
+  },
+  "agreement_rules": {
+    "noul": "agree when both probabilities are on the same side of 0.5, or within 0.2 of each other",
+    "choice": "agree when the chosen options are equal",
+    "score": "agree when the weighted levels are within 0.5 of each other",
+    "reference": "a reviewer's expected answer matches by the same rules (noul: side of 0.5 against a boolean)"
+  }
+}
