@@ -23408,10 +23408,40 @@
    ]
   },
   {
+   "id": "tests/test_full_evaluation.py::test_the_budget_counts_the_whole_request_with_a_margin",
+   "file": "tests/test_full_evaluation.py",
+   "name": "test_the_budget_counts_the_whole_request_with_a_margin",
+   "line": 245,
+   "docstring": "The questions are paid for too; the 2026-11-02 Jev pilot billed 1.2-1.4x\nthe four-characters-per-token estimate of the whole body.",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 2,
+   "assert_forms": {
+    "ordering": 2
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [
+    "exercises_no_project_function"
+   ],
+   "claims": "The questions are paid for too; the 2026-11-02 Jev pilot billed 1.2-1.4x",
+   "execution_outcome": "passed",
+   "exercises": [],
+   "exercise_count": 0,
+   "modules_exercised": [],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
    "id": "tests/test_full_evaluation.py::test_sending_needs_both_limits",
    "file": "tests/test_full_evaluation.py",
    "name": "test_sending_needs_both_limits",
-   "line": 245,
+   "line": 273,
    "docstring": "",
    "parametrized": false,
    "fixtures": [
@@ -23441,7 +23471,7 @@
    "id": "tests/test_full_evaluation.py::test_a_dry_run_writes_the_ledger_and_report",
    "file": "tests/test_full_evaluation.py",
    "name": "test_a_dry_run_writes_the_ledger_and_report",
-   "line": 250,
+   "line": 278,
    "docstring": "",
    "parametrized": false,
    "fixtures": [
@@ -23479,7 +23509,7 @@
    "id": "tests/test_full_evaluation.py::test_a_pinned_commit_that_is_not_checked_out_is_refused",
    "file": "tests/test_full_evaluation.py",
    "name": "test_a_pinned_commit_that_is_not_checked_out_is_refused",
-   "line": 284,
+   "line": 312,
    "docstring": "",
    "parametrized": false,
    "fixtures": [],
@@ -23508,7 +23538,7 @@
    "id": "tests/test_full_evaluation.py::test_provenance_needs_an_explicit_clean_commit",
    "file": "tests/test_full_evaluation.py",
    "name": "test_provenance_needs_an_explicit_clean_commit",
-   "line": 291,
+   "line": 319,
    "docstring": "",
    "parametrized": false,
    "fixtures": [
@@ -23541,7 +23571,7 @@
    "id": "tests/test_full_evaluation.py::test_the_scope_manifest_classes_every_file",
    "file": "tests/test_full_evaluation.py",
    "name": "test_the_scope_manifest_classes_every_file",
-   "line": 304,
+   "line": 332,
    "docstring": "",
    "parametrized": false,
    "fixtures": [
@@ -23576,7 +23606,7 @@
    "id": "tests/test_full_evaluation.py::test_the_repository_has_no_unexplained_python_file",
    "file": "tests/test_full_evaluation.py",
    "name": "test_the_repository_has_no_unexplained_python_file",
-   "line": 337,
+   "line": 365,
    "docstring": "Every tracked Python file is inventoried, a test, excluded with a reason,\nor holds no function; a new module the inventory misses fails here.",
    "parametrized": false,
    "fixtures": [],
@@ -23590,7 +23620,7 @@
     "exercises_no_project_function"
    ],
    "claims": "Every tracked Python file is inventoried, a test, excluded with a reason,",
-   "execution_outcome": "passed",
+   "execution_outcome": "failed",
    "exercises": [],
    "exercise_count": 0,
    "modules_exercised": [],
@@ -23606,7 +23636,7 @@
    "id": "tests/test_full_evaluation.py::test_a_new_evaluator_function_requires_inventory_regeneration",
    "file": "tests/test_full_evaluation.py",
    "name": "test_a_new_evaluator_function_requires_inventory_regeneration",
-   "line": 357,
+   "line": 385,
    "docstring": "",
    "parametrized": false,
    "fixtures": [

@@ -37,6 +37,7 @@ import argparse
 import ast
 import hashlib
 import json
+import math
 import subprocess
 import sys
 from collections import Counter, defaultdict
@@ -48,6 +49,7 @@ from evaltools.decision_models import (
     NORMALIZE_VERSION,
     PROVIDERS,
     DecisionProvider,
+    estimate_tokens,
 )
 
 REPO = snap_request.REPO
@@ -660,11 +662,27 @@ def _bodiless(comparison: dict, provider: DecisionProvider, meta: dict, reason: 
     }
 
 
+# The 2026-11-02 Jev pilot (5 requests) billed 1.18-1.39 times the
+# four-characters-per-token estimate of the whole request body, so the budget
+# adds half again: an estimate should stay above what is billed, not below.
+REQUEST_TOKEN_MARGIN = 1.5
+
+
+def request_tokens_estimate(body_tokens: int) -> int:
+    """Input tokens a request is expected to bill, from its body's estimate."""
+    return math.ceil(body_tokens * REQUEST_TOKEN_MARGIN)
+
+
 def budget(built: list) -> dict:
-    """Requests, input tokens (estimated) and cost (estimated) per provider."""
+    """Requests, input tokens (estimated) and cost (estimated) per provider.
+
+    Input only: output tokens and retries are not priced here.
+    """
     # Variables:
     #   per: Each provider's requests with a body (only those are sent), their
     #     estimated input tokens and, from the provider's price, the cost.
+    #   tokens: One request's estimate from its whole body (state and
+    #     questions), with the margin, not the state alone.
     per: dict[str, dict] = {}
     for item in built:
         if item["body"] is None:
@@ -673,8 +691,9 @@ def budget(built: list) -> dict:
         entry = per.setdefault(
             tags["provider"], {"requests": 0, "input_tokens_estimate": 0}
         )
+        tokens = request_tokens_estimate(estimate_tokens(item["body"]))
         entry["requests"] += 1
-        entry["input_tokens_estimate"] += tags["state_tokens_estimate"]
+        entry["input_tokens_estimate"] += tokens
     for name, entry in per.items():
         entry["cost_usd_estimate"] = round(
             entry["input_tokens_estimate"]
