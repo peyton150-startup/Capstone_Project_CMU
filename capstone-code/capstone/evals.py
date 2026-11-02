@@ -28,10 +28,10 @@ from capstone.experiment import (
     read_records,
     run_experiment,
 )
+from capstone.faults import FAULT_KINDS
 from capstone.providers.manual import ManualSearch
 from capstone.providers.typesafe import judgment_client
 from capstone.settings import get_settings
-from capstone.simulator.generator import FAULTS
 
 
 class Scenario(BaseModel):
@@ -46,10 +46,14 @@ class Scenario(BaseModel):
 
     @model_validator(mode="after")
     def valid_factory(self):
+        """A challenge picks its own faults; a standard case forces a known one."""
+        # Variables:
+        #   fault: Must be one of FAULT_KINDS, which includes the forced-only
+        #     faults (servo drive wear, hydraulic leak) the generator never draws.
         if self.kind == "challenge":
             if self.fault is not None:
                 raise ValueError("challenge cases choose their own faults")
-        elif self.kind != "standard" or self.fault not in FAULTS:
+        elif self.kind != "standard" or self.fault not in FAULT_KINDS:
             raise ValueError("standard cases must force a supported fault")
         return self
 

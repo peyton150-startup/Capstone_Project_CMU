@@ -1,6 +1,6 @@
 # Simulator difficulty compatibility verification
 
-Checked 2026-10-18 against this checkout. The developer authorized harder
+Checked 2026-10-18 against this checkout; limits re-audited 2026-10-31 (see the ✅ IMPLEMENTED note below). The developer authorized harder
 simulator behavior only if it requires no investigation-side code changes.
 This check adds tests, not new production behavior.
 
@@ -67,6 +67,27 @@ windows, composability, alarm suppression, recovery and noise-stream alignment.
 Challenge tests prove same-seed replay, different-seed variation, sparse histories,
 line sizes, and hidden state exclusion. `build_line()` remains the ordinary
 factory; callers opt into the challenge explicitly. No new dependencies or LLM.
+
+> **✅ IMPLEMENTED since this section was written (audit 2026-10-31, `main` at
+> `af3b7bf`).** The limits in the paragraph below no longer hold, except the
+> last two rows of this list:
+>
+> - **Solver runtime and evaluator: ✅ IMPLEMENTED.** The full agent loop
+>   (`agent/investigation.py`), `evals.py` and `evaluation/scoring.py` exist.
+> - **Challenge scoring: ✅ IMPLEMENTED.** The challenge is known-answer case
+>   `KA-09-challenge` (`evaluation/known_answers.py`), scored with partial
+>   credit per cause (`COMPOUND`, `causes_resolved`).
+> - **Setting reset: ✅ IMPLEMENTED.** `ActionTools` / `ApprovalDesk.carry_out`
+>   also support `reset_setting`, `replace_servo_drive` and `repair_hydraulics`
+>   besides `replace_bearing`.
+> - **Sensor calibration action: ❌ NOT BUILT.** Instrument drift still cannot
+>   be repaired.
+> - **Several interventions per investigation: ❌ NOT BUILT.**
+>   `CompletedInvestigation` still has one `proposed_action` and a free-text
+>   diagnosis, so the challenge's bearing and speed faults on one machine
+>   cannot both be fixed in one investigation.
+
+Original text (written 2026-10-18):
 
 The challenge is an investigation exercise, not a new fully scored benchmark.
 There is still no connected solver runtime or general simulator evaluator in

@@ -2,7 +2,7 @@
 # Responsibility: read the manual's Markdown into sections; refuse hidden truth.
 """The manual's numbered sections, the unit the agent searches.
 
-    sections = load_manual()            # §1.1 .. §2.13 of SIM-CNC-001
+    sections = load_manual()            # §1.1 .. §2.15 of SIM-CNC-001
     check_no_leaks(sections)            # ValueError if one names a hidden fault
 
 The manual (`sim-cnc-001.md`, beside this file) is written by the developer
@@ -33,7 +33,8 @@ _REVISION = re.compile(r"\*\*Revision:\*\*\s*([\d.]+)")
 # its hidden-state vocabulary, seeds and known-answer case IDs.
 _LEAKS = re.compile(
     r"bearing_degradation|bad_material_batch|wrong_setting|false_alarm"
-    r"|sensor_drift|sensor_dropout|ground[ _]truth|hidden state"
+    r"|sensor_drift|sensor_dropout|servo_drive_wear|hydraulic_leak"
+    r"|ground[ _]truth|hidden state"
     r"|\bseed\b|\bKA-\d",
     re.IGNORECASE,
 )

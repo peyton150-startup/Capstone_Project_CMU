@@ -1,0 +1,53 @@
+{
+  "cases_sha256": "2e0570d1bc6c79ccb267ffc49a50aae3647568d1aa32c7f61e59c2bee662b025",
+  "commit": "e59208d584938ed96a606bc317354882fcc8e01c",
+  "settings": {
+    "CHROMA_COLLECTION": "episodic_memories",
+    "CHROMA_PATH": "C:\\Users\\nicol\\CapstoneRuns\\tot13-20261031-210256-3910997b\\manual-index",
+    "CONCLUDE_MODEL": null,
+    "CRITIC": true,
+    "CRITIC_BLIND": true,
+    "CRITIC_FALLBACK_MODEL": "cohere/command-a-03-2025",
+    "CRITIC_FOLLOWUP": true,
+    "CRITIC_FOLLOWUP_SECONDS": 90.0,
+    "CRITIC_MODEL": "mistral/ministral-14b-2512",
+    "CRITIC_SECONDS": 40.0,
+    "DECIDE_MODEL": null,
+    "DEFAULT_MODEL": "nvidia/nvidia/nemotron-3.5-super-vl-120b-a12b",
+    "EMBEDDING_MODEL": "nvidia/nvidia/nemotron-3-embed-1b",
+    "FALLBACK_MODEL": "cohere/command-a-03-2025",
+    "HYPOTHESIZE_MODEL": null,
+    "INTERPRET_MODEL": null,
+    "JUDGE_MODEL": null,
+    "LESSON_MODEL": null,
+    "MANUAL_COLLECTION": "cnc_machine_manual_v1",
+    "MANUAL_STEP": true,
+    "MEMORY_RETRIEVAL_MODE": "none",
+    "MIN_ACTION_CONFIDENCE": 0.9,
+    "MODEL_MAX_OUTPUT_TOKENS": 16384,
+    "MODEL_QUESTION_SECONDS": 240.0,
+    "MODEL_REQUEST_SECONDS": 120.0,
+    "MODEL_RETRIES": 3,
+    "MODEL_SAMPLING": {
+      "cohere/command-a-03-2025": {
+        "temperature": 0.3,
+        "top_p": 0.75
+      },
+      "mistral/ministral-14b-2512": {
+        "temperature": 0.0,
+        "top_p": null
+      },
+      "nvidia/nvidia/nemotron-3.5-super-vl-120b-a12b": {
+        "temperature": 1.0,
+        "top_p": 0.95
+      }
+    },
+    "PLAN_MODEL": null,
+    "PROVIDER_SAMPLING": {},
+    "STATE_ACTION_BAR": true,
+    "STEP_QUESTIONS": 1,
+    "TYPESAFE_MODEL": "jev-latest"
+  },
+  "shared_sha256": "77e7d0f1aad7f7c6e6f2b3654c13d3740d7ed0620a93ff89a6536862f43a5ab7",
+  "variant": "blind"
+}

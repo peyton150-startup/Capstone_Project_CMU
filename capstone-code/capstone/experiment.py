@@ -83,7 +83,7 @@ from capstone.evaluation.memory import (
 )
 from capstone.evaluation.scoring import COMPOUND, Score, format_summary, summarize
 from capstone.memory.service import MemoryService
-from capstone.progress import ProgressView, print_progress
+from capstone.progress import ProgressView, print_progress, run_header
 from capstone.providers.chat import INVALID_REPLY, is_model_outcome
 from capstone.providers.hazards import HazardProfile
 from capstone.providers.manual import MANUAL_TOOL, ManualSearch
@@ -243,6 +243,11 @@ class ExperimentRecord(BaseModel):
     # intervention was lowered to escalate. None in older results.
     policy_recommendation: str | None = None
     recommendation_lowered: str | None = None
+    assessment: str | None = None
+    unresolved_questions: tuple[str, ...] = ()
+    next_check: str | None = None
+    action_rationale: str | None = None
+    critic_tool_calls_used: int = 0
     verification: str | None
     tools_used: list[str]
     score: Score
@@ -374,6 +379,11 @@ def record_of(
     with_manual: bool = False,
     thoughts: Sequence[Thought] | None = None,
 ) -> ExperimentRecord:
+    """Save the episode and its completion/action audit without rerunning any reasoning."""
+    # Variables:
+    #   concluded: The controller-checked belief, including unresolved gaps and next check.
+    #   state: Includes the critic diagnostic-call count, distinct from verification calls.
+    #   promotion, uses: Optional memory audit; never converted into present factory facts.
     state = result.state
     concluded = state.conclusion
     promotion, uses = memory_records(result) if with_memory else (None, None)
@@ -387,6 +397,13 @@ def record_of(
         recommendation=None if concluded is None else concluded.recommendation,
         policy_recommendation=state.policy_recommendation,
         recommendation_lowered=state.recommendation_lowered,
+        assessment=None if concluded is None else concluded.assessment,
+        unresolved_questions=()
+        if concluded is None
+        else concluded.unresolved_questions,
+        next_check=None if concluded is None else concluded.next_check,
+        action_rationale=None if concluded is None else concluded.action_rationale,
+        critic_tool_calls_used=state.critic_tool_calls_used,
         verification=None if state.verification is None else state.verification.outcome,
         tools_used=[d.tool for d in state.decisions if d.tool is not None],
         score=result.score,
@@ -1077,6 +1094,17 @@ def main(argv: Sequence[str] | None = None) -> int:
             print(f"{record.scenario_id}: {record.conclusion!r}", flush=True)
             for line in format_call_failures(record):
                 print(line, flush=True)
+
+        if not args.quiet:
+            from capstone.settings import get_settings
+
+            for line in run_header(
+                get_settings(),
+                manual=args.manual,
+                tree_of_thought=args.tree_of_thought,
+                hazards=args.hazards,
+            ):
+                live_line(line)
 
         records = run_experiment(
             cases,

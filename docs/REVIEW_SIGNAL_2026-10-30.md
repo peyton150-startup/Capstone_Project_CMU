@@ -1,6 +1,6 @@
 # Review signal: ToT code review and four machining videos (2026-10-30)
 
-**Status:** PLANNED / FUTURE WORK ONLY. Nothing here changes code, tests, the simulator, settings or the runs in progress.
+**Status:** PLANNED / FUTURE WORK ONLY, except where an item is marked ✅ IMPLEMENTED. *Audit 2026-10-31 against `main` at `af3b7bf`.* Item 1 is built, item 2 is partly built, items 3 to 7 are not built.
 **Gate:** Same as [TOT_CRITIC_EVALUATION_FUTURE_WORK.md](TOT_CRITIC_EVALUATION_FUTURE_WORK.md#scheduling-gate-protect-the-runs-in-progress): finish and score the current baseline runs first.
 
 This page keeps only the **verified signal** from four outside reviews (one code review, three video reviews) and one extra video. Each claim was checked against `main` or against frames of the uploaded file. Claims that were already done, overstated or unsupported are listed at the end so they are not re-proposed.
@@ -32,11 +32,15 @@ Anything that can be checked exactly from data (thresholds, required fields, cit
 | 6. P5 | Whether to run the pass (ambiguity, time left), pruning | Re-rate kept candidates with new evidence |
 | 7. Machine profiles | Versioned profile data | Uses the profile through retrieval |
 
-### 1. P0 confidence bug (already logged)
+### 1. P0 confidence bug (already logged) — ✅ IMPLEMENTED (PR #136)
+
+**✅ IMPLEMENTED.** `unproven_confidence()`, `prune()` and `Thought.unresolved` in `agent/tree_of_thought.py`; tests in `tests/test_tree_of_thought.py`. Nothing left to do.
 
 See [P0](TOT_CRITIC_EVALUATION_FUTURE_WORK.md#p0--unproven-impossible-ratings-must-not-become-confident-hypotheses). An `impossible` rating with no cited contradiction keeps its raw confidence, so a 0.95 can become H1 and pass `min_diagnosis_confidence` and `min_action_confidence` (both 0.9). Small, deterministic fix; no extra model calls. **Highest priority after the baseline.**
 
-### 2. Runtime: model routing and per-call timeouts
+### 2. Runtime: model routing and per-call timeouts — 🟡 PARTLY IMPLEMENTED
+
+**✅ IMPLEMENTED:** `DECIDE_MODEL` and `MODEL_QUESTION_SECONDS` (configuration only). **❌ NOT BUILT:** the `value` job: `TreeOfThoughtPolicy.hypothesize()` still sends the rating question to the `hypothesize` client, and `JOBS` has no `value`.
 
 **Evidence:** `docs/benchmarks/2026-10-27-master-resumed.records.jsonl` (KA-06-setting) made 22 sequential model questions; single answers took about 4 s to 113 s on the primary model; 5 attempts timed out; the case ended `timeout` at about 881 s wall time. The fallback model answered narrow jobs in about 4 to 5 s.
 
@@ -46,7 +50,9 @@ See [P0](TOT_CRITIC_EVALUATION_FUTURE_WORK.md#p0--unproven-impossible-ratings-mu
 - Per-call timeout: configuration only. `MODEL_QUESTION_SECONDS` (`settings.model_question_seconds`, default 90 s, passed as `FallbackClient(max_seconds=...)` in `clients_for_jobs()`).
 - ToT `value`: **needs a code change.** Both ToT questions go to the `hypothesize` client by design, so `HYPOTHESIZE_MODEL` would move `generate` too. Touch points: add `"value"` to `JOBS` and `_JOB_SETTING` (`providers/chat.py`); add `value_model = _optional("VALUE_MODEL")` to `Settings` and to the blank-is-missing validator list (`settings.py`); give `value` an entry in the per-job system-prompt table in `agent/model_policy.py` or confirm `_ask(..., system=VALUE)` never reads it; change the rating call in `TreeOfThoughtPolicy.hypothesize()` to `self._ask("value", ...)` and update its docstring (it currently says both questions use `hypothesize`); give `tests/test_tree_of_thought.py` a `value` fake client. With `VALUE_MODEL` unset it falls back to `DEFAULT_MODEL`, so default behavior is unchanged. Leave `generate` on `hypothesize`, since it needs the stronger model. Measure p50/p95 wall time, `timeout` terminations and accuracy against the frozen baseline. This is the lever for speed, not more agents (see [Not planned: a third agent](TOT_CRITIC_EVALUATION_FUTURE_WORK.md#not-planned-a-third-agent-for-speed)).
 
-### 3. Deterministic safety rules stay out of the model
+### 3. Deterministic safety rules stay out of the model — ❌ NOT BUILT
+
+`why_not_acted()` still checks only: an action is named, evidence is cited, confidence reaches the bar. (Only `propose_action()` refuses `repair_hydraulics` on a machine without hydraulics.)
 
 **Evidence (Video A, ~4:00):** the control shows program `O09601 (M6 - ZERO OFFSET CHECK)`: `M16` tool change, `G04 P2` dwell, then `IF [#[#3026 + 2000] LT [1.]] THEN #[#3026 + 2000] = 99.` That is, after a tool change, if the active tool's length offset is under 1, set it to 99. The value 99 is the presenter's example, not a safe default.
 
@@ -54,7 +60,7 @@ See [P0](TOT_CRITIC_EVALUATION_FUTURE_WORK.md#p0--unproven-impossible-ratings-mu
 
 **Where it belongs:** the action/approval step: `why_not_acted()` in `agent/investigation.py`, as a condition checked alongside "no evidence cited" and the `min_action_confidence` bar, as a hard block on recommending a run with unsafe or unknown configuration. It is a crash-**prevention** check, separate from the post-anomaly investigator and from ToT.
 
-### 4. Tool offset and pocket state in the simulator
+### 4. Tool offset and pocket state in the simulator — ❌ NOT BUILT
 
 **Gap:** The simulator has no tool-length offset, tool table or pocket model. Existing configuration coverage is `wrong_setting` (spindle speed 18 to 20% off standard, `reset_setting`) read through `get_settings`, which today returns only `machine_id` and `speed_rpm`.
 
@@ -69,7 +75,7 @@ See [P0](TOT_CRITIC_EVALUATION_FUTURE_WORK.md#p0--unproven-impossible-ratings-mu
 
 Haas Safe Run limits damage once a collision starts; it does not prevent one. Do not model it as prevention.
 
-### 5. A "request technician check" tool
+### 5. A "request technician check" tool — ❌ NOT BUILT
 
 **Gap:** `sim-cnc-001.md` §2.2 and §2.3 already say a technician may verify bearing play, noise and lubrication state, but no tool lets the agent ask for that. Today the agent can only use sensor tools, so a physical check is either skipped or guessed.
 
@@ -80,11 +86,11 @@ Haas Safe Run limits damage once a collision starts; it does not prevent one. Do
 
 Score whether the agent requests the right check (evaluator side) and whether a conclusion ever states an unverified physical condition as fact.
 
-### 6. P5 second depth, gated by ambiguity (already logged)
+### 6. P5 second depth, gated by ambiguity (already logged) — ❌ NOT BUILT
 
 See [P5](TOT_CRITIC_EVALUATION_FUTURE_WORK.md#p5--bounded-second-depth-through-observation-not-more-model-reasoning) and P3. Do after items 1 and 2 so the extra model call has room in the time budget. **Code** decides whether the pass runs (observable ambiguity from P3, time left before `followup_seconds`) and prunes the result; the **model** only re-rates the kept candidates.
 
-### 7. Low priority: machine class and material feed
+### 7. Low priority: machine class and material feed — ❌ NOT BUILT (note only)
 
 **Evidence (Video C):** a sliding-headstock lathe fed from a bar feeder, a different machine class from the Haas VF mill reference.
 

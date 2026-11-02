@@ -1,0 +1,193 @@
+"""Two fresh matched ToT runs; only CRITIC_BLIND changes between variants."""
+import hashlib
+import json
+import os
+import subprocess
+import sys
+from datetime import datetime, timezone
+from pathlib import Path
+
+import capstone
+from pydantic import SecretStr
+from capstone.agent.state import Budgets
+from capstone.agent.tree_of_thought import DEFAULT_BREADTH, DEFAULT_CANDIDATES
+from capstone.console import safe_console
+from capstone.evaluation.labels import LabelBook
+from capstone.evals import automatic_labels, check_resume, load_scenarios, report_of, reserve_raw_output
+from capstone.experiment import append_records, model_policy_factory, open_manual, read_records, run_experiment
+from capstone.progress import print_progress
+from capstone.settings import Settings, get_settings
+
+PIN = "e59208d584938ed96a606bc317354882fcc8e01c"
+
+
+def digest(path):
+    return hashlib.sha256(Path(path).read_bytes()).hexdigest()
+
+
+def write_json(path, value):
+    with Path(path).open("x", encoding="utf-8", newline="\n") as output:
+        output.write(json.dumps(value, indent=2, sort_keys=True) + "\n")
+
+
+def check_source(source):
+    actual = subprocess.check_output(["git", "-C", str(source), "rev-parse", "HEAD"], text=True).strip()
+    dirty = subprocess.check_output(["git", "-C", str(source), "status", "--porcelain", "--untracked-files=no"], text=True).strip()
+    if actual != PIN or dirty:
+        raise RuntimeError("Frozen source commit changed or has tracked edits. Start a new pair; do not resume.")
+    if not Path(capstone.__file__).resolve().is_relative_to(source.resolve()):
+        raise RuntimeError("Python imported capstone from the wrong checkout.")
+
+
+def public_settings(settings, private):
+    dumped = settings.model_dump(mode="json", exclude=private)
+    return {str(field.validation_alias or name): dumped[name]
+            for name, field in Settings.model_fields.items() if name not in private}
+
+
+def configure(project, results):
+    # Init arguments override inherited shell/.env settings for controlled factors.
+    fixed = {
+        "DEFAULT_MODEL": "nvidia/nvidia/nemotron-3.5-super-vl-120b-a12b",
+        "FALLBACK_MODEL": "cohere/command-a-03-2025",
+        "CRITIC_MODEL": "mistral/ministral-14b-2512",
+        "CRITIC_FALLBACK_MODEL": "cohere/command-a-03-2025",
+        "CRITIC": True, "CRITIC_FOLLOWUP": True, "CRITIC_BLIND": False,
+        "CRITIC_SECONDS": 40, "CRITIC_FOLLOWUP_SECONDS": 90,
+        "MANUAL_STEP": True, "STEP_QUESTIONS": 1,
+        "CHROMA_PATH": str(results.parent / "manual-index"),
+        "MEMORY_RETRIEVAL_MODE": "none",
+        "PROVIDER_SAMPLING": {},
+        "MODEL_SAMPLING": {
+            "nvidia/nvidia/nemotron-3.5-super-vl-120b-a12b": {"temperature": 1.0, "top_p": 0.95},
+            "cohere/command-a-03-2025": {"temperature": 0.3, "top_p": 0.75},
+            "mistral/ministral-14b-2512": {"temperature": 0.0, "top_p": None},
+        },
+    }
+    for job in ("PLAN", "DECIDE", "INTERPRET", "HYPOTHESIZE", "CONCLUDE", "JUDGE", "LESSON"):
+        fixed[f"{job}_MODEL"] = None
+    settings = Settings(_env_file=project / ".env", **fixed)
+    if not hasattr(settings, "critic_blind"):
+        raise RuntimeError("This checkout lacks merged PR #152.")
+    required = ("nvidia_api_key", "cohere_api_key", "mistral_api_key", "typesafe_api_key")
+    missing = [name.upper() for name in required if getattr(settings, name) is None]
+    if missing:
+        raise RuntimeError("Missing credentials in .env/environment: " + ", ".join(missing))
+    private = {name for name in Settings.model_fields
+               if name.endswith(("_api_key", "_api_token")) or name in ("database_url", "cloudflare_account_id")}
+    public = public_settings(settings, private)
+    # Every subsequent get_settings() sees these exact values. The detached
+    # checkout has no .env; future edits to the original .env are not reloaded.
+    for name, field in Settings.model_fields.items():
+        alias = field.validation_alias or name
+        value = getattr(settings, name)
+        os.environ.pop(str(alias), None)
+        if value is None:
+            continue
+        if isinstance(value, SecretStr):
+            os.environ[str(alias)] = value.get_secret_value()
+        elif isinstance(value, bool):
+            os.environ[str(alias)] = "on" if value else "off"
+        elif isinstance(value, Path):
+            os.environ[str(alias)] = str(value)
+        elif name in ("provider_sampling", "model_sampling"):
+            os.environ[str(alias)] = json.dumps(public[str(alias)])
+        else:
+            os.environ[str(alias)] = str(value)
+    return public, private
+
+
+def finish_labels(name, records, results):
+    print(f"Jev labelling all {len(records)} saved episodes for {name}...", flush=True)
+    labels, review, picks = automatic_labels(records)
+    for suffix, values in (("jev-labels", labels), ("critic-jev-labels", picks)):
+        path = results / f"{name}.{suffix}.jsonl"
+        path.touch(exist_ok=False)
+        book = LabelBook(path)
+        for label in values.values():
+            book.add(label)
+    report = report_of(name, records, labels, needs_review=review, critic_labels=picks)
+    report_path = results / f"{name}.jev-report.json"
+    with report_path.open("x", encoding="utf-8", newline="\n") as output:
+        output.write(report.model_dump_json(indent=2) + "\n")
+    write_json(results / f"{name}.complete.json", {
+        "cases": len(records), "judged": report.judged,
+        "needs_review": sorted(review), "report_sha256": digest(report_path),
+        "finished_utc": datetime.now(timezone.utc).isoformat(),
+    })
+    print(f"Saved {report_path}; {len(review)} provisional labels need review.", flush=True)
+
+
+def main(project, source, results):
+    safe_console()
+    check_source(source)
+    results.mkdir(parents=True, exist_ok=True)
+    case_source = source / "evals" / "scenarios.json"
+    case_path = results / "cases.config.json"
+    with case_path.open("xb") as output:
+        output.write(case_source.read_bytes())
+    config = load_scenarios(case_path)
+    if len(config.cases) != 13 or [int(c.id.split("-")[1]) for c in config.cases] != list(range(1, 14)):
+        raise RuntimeError("Expected exactly the ordered KA-01 through KA-13 cases.")
+    public, private = configure(project, results)
+    budgets = Budgets()
+    shared_path = results / "shared-config.json"
+    write_json(shared_path, {
+        "commit": PIN, "settings": public, "budgets": budgets.model_dump(mode="json"),
+        "cases_sha256": digest(case_path), "uv_lock_sha256": digest(source / "uv.lock"),
+        "manual_sha256": digest(source / "capstone-code/capstone/manual/sim-cnc-001.md"),
+        "runner_sha256": digest(__file__), "python": sys.version,
+        "tree_of_thought": True, "tot_candidates": DEFAULT_CANDIDATES, "tot_breadth": DEFAULT_BREADTH,
+        "manual": "semantic", "memory": "disabled", "hazards": False,
+        "approval_policy": "approve_all (simulator experiments)",
+        "only_configured_treatment_difference": "CRITIC_BLIND",
+        "notes": ["Fresh runs only; no resume or overwriting.",
+                  "Blind mode includes shuffled neutral labels and code-derived verdicts.",
+                  "Provider responses/availability are nondeterministic; one pair does not establish causation.",
+                  "Credentials are held in memory and are not saved in public configs."],
+    })
+    shared_hash = digest(shared_path)
+    case_hash = digest(case_path)
+    manual = open_manual("semantic")
+    for number, (variant, blind) in enumerate((("anchored", False), ("blind", True)), start=1):
+        check_source(source)
+        if digest(shared_path) != shared_hash or digest(case_path) != case_hash:
+            raise RuntimeError("Frozen comparison files changed. Stop; do not resume.")
+        os.environ["CRITIC_BLIND"] = "on" if blind else "off"
+        actual = public_settings(get_settings(), private)
+        expected = dict(public, CRITIC_BLIND=blind)
+        if actual != expected:
+            raise RuntimeError("Effective settings drifted from the frozen configuration.")
+        name = f"master-tot13-{variant}"
+        write_json(results / f"{name}.config.json", {
+            "commit": PIN, "shared_sha256": shared_hash, "settings": actual,
+            "cases_sha256": case_hash, "variant": variant,
+        })
+        raw = results / f"{name}.records.jsonl"
+        reserve_raw_output(raw)
+        print(f"\n=== Run {number}/2: {variant}; 13 cases; ToT/manual/critic/follow-up ON ===", flush=True)
+
+        def save(record):
+            append_records(raw, [record])
+            print(f"Saved {record.scenario_id} -> {raw.name}", flush=True)
+
+        run_experiment(
+            [case.as_case() for case in config.cases],
+            model_policy_factory(False, tree_of_thought=True, with_manual=True),
+            name=name, budgets=budgets, on_record=save, watch=print_progress, manual=manual,
+        )
+        records = read_records(raw)
+        check_resume(config, name, records)
+        if len(records) != 13 or len({record.run_key for record in records}) != 13:
+            raise RuntimeError("Incomplete or duplicate results; the next variant will not start.")
+        for record in records:
+            if record.critique is not None and record.critique.blind != blind:
+                raise RuntimeError("Saved critic mode does not match this variant.")
+        finish_labels(name, records, results)
+    write_json(results / "pair.complete.json", {"commit": PIN, "shared_sha256": shared_hash,
+               "cases_per_run": 13, "runs": 2, "finished_utc": datetime.now(timezone.utc).isoformat()})
+    print(f"\nBOTH RUNS AND JEV LABELLING COMPLETE\nResults: {results}", flush=True)
+
+
+if __name__ == "__main__":
+    main(*(Path(value).resolve() for value in sys.argv[1:4]))

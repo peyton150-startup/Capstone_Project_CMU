@@ -1,0 +1,11 @@
+{
+  "started_utc": "2026-11-01T00:30:24.730116+00:00",
+  "embedding_model": "nvidia/nvidia/nemotron-3-embed-1b",
+  "collection": "cnc_machine_manual_v1",
+  "mode": "in_place_upsert_no_delete",
+  "sections": 17,
+  "outcome": "completed",
+  "verified_matches": 3,
+  "backup": "C:\\Users\\nicol\\CapstoneRuns\\tot13-20261031-184429-543214a2\\results\\manual-index-before-reembed-20261101T003024730031Z.json",
+  "finished_utc": "2026-11-01T00:30:30.080382+00:00"
+}

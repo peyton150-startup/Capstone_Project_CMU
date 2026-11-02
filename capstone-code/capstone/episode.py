@@ -275,6 +275,7 @@ def run_episode(
             getattr(policy, "tools", research_tools()),
             # Option B: with a manual offered, code searches it for the critic.
             manual=manual,
+            blind=settings.critic_blind,
         )
     sim = build_world(seed, kind=kind, fault=fault, machines=machines)
     desk = ApprovalDesk(sim)

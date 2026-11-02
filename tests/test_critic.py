@@ -4,12 +4,15 @@ import pytest
 
 from capstone.agent.artifacts import CritiqueResult, Objection
 from capstone.agent.critic import (
+    CRITIC_BLIND_SYSTEM,
     CRITIC_SYSTEM,
     MANUAL_NOTE,
     MANUAL_PER_HYPOTHESIS,
     PRUNED_NOTE,
     SHOWN_HYPOTHESES,
     Critic,
+    blind_labels,
+    blind_order,
     critique_view,
     shown_hypotheses,
     verdict_mismatch,
@@ -406,3 +409,138 @@ def test_the_prompt_ties_the_verdict_to_the_pick():
     example = CRITIC_SYSTEM.split("Worked example", 1)[1]
     assert "verdict: no_objection" in example
     assert "verdict: object;" not in example
+
+
+# --- the blind critic (CRITIC_BLIND) -----------------------------------------
+
+
+def blind_critic(reply):
+    client = FakeClient(reply)
+    return Critic(client, research_tools(), blind=True), client
+
+
+def label_of(state, hypothesis_id):
+    """The neutral label a hypothesis is shown under in the blind view."""
+    return blind_labels(blind_order(state))[hypothesis_id]
+
+
+def test_blind_view_hides_the_ranking_and_the_ids():
+    """No confidence, no leading mark and no real id: nothing to anchor on."""
+    state = state_with_hypotheses()
+    view = critique_view(state, research_tools(), blind=True)
+    assert "confidence" not in view and "leading" not in view
+    for hid in ("H1", "H2", "H3"):
+        assert hid not in view  # the claims say "H1: ...", relabelled too
+    assert "X1" in view and "X2" in view and "X3" in view
+    assert "E1" in view and "E2" in view and "get_readings" in view
+
+
+def test_blind_order_repeats_on_replay_and_shows_the_same_hypotheses():
+    state = state_with_hypotheses()
+    first = [h.id for h in blind_order(state)]
+    assert first == [h.id for h in blind_order(state.model_copy(deep=True))]
+    assert sorted(first) == sorted(h.id for h in shown_hypotheses(state))
+
+
+def test_blind_order_does_not_always_put_the_leader_first():
+    """Across different investigations the leader lands in different places."""
+    # Variables:
+    #   places: Where the leader (H1, most believed) lands, over many anomalies.
+    places = set()
+    for tick in range(40):
+        state = state_with_hypotheses()
+        state.hypotheses = [
+            hypothesis("H1", 0.9),
+            hypothesis("H2", 0.5),
+            hypothesis("H3", 0.3),
+        ]
+        state.anomaly = state.anomaly.model_copy(update={"tick": tick})
+        places.add([h.id for h in blind_order(state)].index("H1"))
+    assert places == {0, 1, 2}
+
+
+def test_blind_order_draws_nothing_from_the_simulator():
+    """The shuffle has its own seed: building it twice from a world moves no
+    simulator stream, so the factory plays out the same."""
+    from capstone.episode import build_world
+
+    def readings_after(shuffle: bool):
+        sim = build_world(6, fault="bearing_degradation")
+        if shuffle:
+            blind_order(state_with_hypotheses())
+        for _ in range(50):
+            sim.step()
+        return sim.state.model_dump()
+
+    assert readings_after(True) == readings_after(False)
+
+
+def test_blind_review_uses_the_blind_prompt():
+    state = state_with_hypotheses()
+    critic, client = blind_critic(result(favoured=label_of(state, "H2")))
+    critic.review(state, max_seconds=5)
+    system, prompt, _, _ = client.asked[0]
+    assert system == CRITIC_BLIND_SYSTEM
+    assert "leading" not in prompt
+
+
+@pytest.mark.parametrize(
+    "pick, verdict",
+    [("H2", "no_objection"), ("H1", "object"), ("H3", "object")],
+)
+def test_blind_pick_is_mapped_back_and_code_sets_the_verdict(pick, verdict):
+    """H2 leads (0.70, first in list order); the critic was not told that."""
+    state = state_with_hypotheses()
+    label = label_of(state, pick)
+    reply = result(
+        favoured=label,
+        why=f"{label} fits E1.",
+        discriminating_check=f"get_readings to tell {label} apart",
+        objections=(
+            Objection(kind="alternative", text=f"{label} fits", evidence_ids=("E1",)),
+        ),
+        verdict="no_objection",  # what the blind prompt asks for; code replaces it
+    )
+    critic, _ = blind_critic(reply)
+    answer = critic.review(state, max_seconds=5)
+    assert answer.favoured == pick and answer.verdict == verdict
+    assert pick in answer.why and pick in answer.discriminating_check
+    assert answer.objections[0].text == f"{pick} fits"
+    assert critic.last_order == tuple(h.id for h in blind_order(state))
+
+
+def test_blind_none_is_an_objection():
+    critic, _ = blind_critic(result(favoured="none", verdict="no_objection"))
+    answer = critic.review(state_with_hypotheses(), max_seconds=5)
+    assert (answer.favoured, answer.verdict) == ("none", "object")
+
+
+def test_blind_review_refuses_a_label_it_was_not_shown():
+    critic, _ = blind_critic(result(favoured="X9"))
+    with pytest.raises(ValueError, match="X9"):
+        critic.review(state_with_hypotheses(), max_seconds=5)
+    assert critic.calls[-1].outcome == "invalid_reply"
+
+
+def test_blind_review_refuses_a_real_id_it_was_never_shown():
+    """Found in the pre-merge walkthrough: a blind critic that writes "H1"
+    names an id hidden from it; that is a guess, not a pick, so it is refused
+    even though H1 is one of the agent's shown hypotheses."""
+    critic, _ = blind_critic(result(favoured="H1"))
+    with pytest.raises(ValueError, match="not a label shown"):
+        critic.review(state_with_hypotheses(), max_seconds=5)
+    assert critic.calls[-1].outcome == "invalid_reply"
+
+
+def test_anchored_critic_is_unchanged_by_default():
+    critic, client = critic_with(result())
+    critic.review(state_with_hypotheses(), max_seconds=5)
+    assert client.asked[0][0] == CRITIC_SYSTEM
+    assert critic.blind is False and critic.last_order is None
+
+
+def test_blind_prompt_names_no_fault_and_asks_for_labels():
+    for kind in FAULT_KINDS:
+        assert kind not in CRITIC_BLIND_SYSTEM
+    assert "not told which" in CRITIC_BLIND_SYSTEM
+    assert "leading explanation" not in CRITIC_BLIND_SYSTEM

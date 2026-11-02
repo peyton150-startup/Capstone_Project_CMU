@@ -1,5 +1,90 @@
 # Progress Log
 
+> **2026-11-02 — incident-first line-wide investigation scope added to draft PR #157 (not built):**
+> [Line-wide future work](MVP_SCOPE.md#fw-line-scope) has three separately
+> measurable HIGH-priority additions: (1) a bounded incident context step in
+> `observe` before the manual/planning stages, with trigger/as-of tick, all
+> machine statuses/jobs, unfiltered recent events, upstream/downstream trends,
+> per-machine data quality and investigation provenance; (2) an **opt-in**
+> [critic coverage check](MVP_SCOPE.md#fw-critic-coverage), also usable with
+> blind critique, challenging both omissions and speculative neighbor blame;
+> and (3) [matched A/B/C evaluation](MVP_SCOPE.md#fw-scope-comparison),
+> comparing alarm-centered, line-wide without coverage critic, and line-wide
+> with coverage critic on the same seeded wrong-machine, cascading,
+> independent-fault, silent-degradation and normal/false-alarm cases.
+> The [pilot-readiness pointer](MVP_SCOPE.md#fw-incident-context) links to
+> those canonical Evaluation entries, avoiding duplicate requirements.
+> A scheduled/routine-check trigger tests diagnosis of a silent fault;
+> automatic early detection is **not** implemented and remains part of the
+> later deterministic monitor. Basic topology/time-window correlation comes
+> first, not a triage LLM, telemetry database or additional agent framework.
+> Docs only; no code, tests, models, telemetry service or understanding gate
+> changed. Each implementation increment still needs its own PR and
+> demonstrated before/after results.
+
+> **2026-11-02 — simulated telemetry ingestion and replay added to future work (not built):**
+> Updated [MVP scope and future work](MVP_SCOPE.md#fw-telemetry-replay) with a
+> medium-priority staged plan: one context-rich time-series store for recent
+> and historical queries, deterministic continuous line-wide monitoring not
+> restricted to the alarmed machine, a seeded stream-versus-replay parity
+> evaluation, and explicit cold-start/missing-data treatment. Actual
+> MTConnect/OPC UA/external sensors remain conditional pilot work, not an MVP
+> prerequisite. Cross-referenced existing Future Work 5 dispatch/monitoring.
+> Docs only; no code, tests, database, real-model calls or understanding gate
+> changed.
+
+> **2026-11-01 — two 13-case ToT anchored/blind pairs completed and recorded:**
+> [Results archive](benchmarks/2026-11-01-tot13-pairs/README.md) preserves four
+> live runs, 52 episodes and 36 source artifacts from frozen commit `e59208d`.
+> Pair A: anchored 3/12 judged and blind 3/12; pair B: anchored 6/13 and blind
+> 6/11, with two blind labels awaiting review. Same confirmed-correct counts
+> within each pair do not show improvement. Notes preserve manual failures,
+> reported internet disruption, NVIDIA 429/502 attempts, cross-pair overlap
+> after the developer waived the guard, and two in-place manual re-embedding
+> events during A anchored. All 52 recommendations escalated; 39 assessments
+> were unresolved and 13 absent. Run keys repeat between pairs, so identities
+> include pair ID. Original records/labels unchanged; no new model calls or
+> source behavior changes. Results/docs only; understanding status unchanged.
+
+> **2026-10-31 — evidence use and investigation completion improvements:**
+> Built ungated at the developer's request (understood: no). Six approved
+> improvements plus pasted proposals 1/2/4 are implemented in PR #150. The
+> developer subsequently authorized merging after reviewing the new PRs and
+> green checks, superseding the earlier hold. Understanding remains unverified.
+> [Implementation notes](INVESTIGATION_REASONING.md)
+> describe the bounded observable evidence brief (`evidence_brief.py`), typed
+> hypothesis comparisons and numeric claims (`contracts/hypotheses.py`),
+> diagnostic-question ranking and final assessments (`model_policy.py`),
+> controller completion checks and a separate one-call critic allowance
+> (`investigation.py`, `loop.py`, `state.py`), and experiment audit fields
+> (`experiment.py`). Critic and ToT reuse the same evidence/comparison views.
+> No new provider, model, hidden-truth exposure, deeper ToT, or memory behavior.
+> Numeric verification checks arithmetic/provenance, not causal truth. Live
+> accuracy remains untested; old result files are unchanged. Adaptive ToT,
+> memory changes and the optional blind-critic experiment remain separate.
+
+> **2026-10-31 — run-2 findings recorded as future work (not built):**
+> [RUN2_FINDINGS_FUTURE_WORK.md](RUN2_FINDINGS_FUTURE_WORK.md) records five
+> problems from the run-2 tree-of-thought master runs, each with where it sits
+> in the code: (1) a "no action" conclusion while rejects stay high,
+> (3) the critic follow-up skipped for lack of tool calls or at the bar,
+> (4) job routes that cannot separate machines on a serial line, (5)
+> `verdict_mismatch` missing `no_objection` with serious objections, and (6)
+> why the runs cannot yet show an improvement. The developer chose to build
+> problem 2 (the critic anchoring on the agent's leader) next and to revisit
+> these later. Docs only; no code, tests, settings or understanding status changed.
+
+> **2026-10-31 — future-work docs marked with what is built:** Docs only; no
+> code, tests or settings changed. An audit of `main` (`af3b7bf`) marks each
+> item in `MULTI_AGENT_SURVEY_FUTURE_WORK.md`, `REVIEW_SIGNAL_2026-10-30.md`,
+> `TOT_CRITIC_EVALUATION_FUTURE_WORK.md` and
+> `SIMULATOR_DIFFICULTY_COMPATIBILITY.md` as ✅ IMPLEMENTED, 🟡 PARTLY
+> IMPLEMENTED or ❌ NOT BUILT. Built: P0, the deterministic part of P2,
+> cohorts A to D, the difficulty tests, and (stale limits corrected) the
+> solver, scoring and four repair actions. Not built: critic anchoring
+> ablation, `value` job, safety rules in `why_not_acted()`, P3, P5.
+> Understood: no — built ungated, developer to review.
+
 > **2026-10-31 — master results archived after both ToT continuations:**
 > [Results and limits](benchmarks/2026-10-31-master-results/README.md) records
 > seven live master runs (35 episodes), preserving 23 source artifacts with
@@ -225,12 +310,158 @@ A component is complete only when both columns are checked.
 | M2 | Option B for the critic: with a manual offered, code searches it on every hypothesis the critic is shown and puts the sections in its prompt as guidance | no — built first at the developer's request, to be taught after | no — built ungated, developer to review | yes | no | `agent/critic.py` (`manual_sections`, `MANUAL_PER_HYPOTHESIS`, `MANUAL_NOTE`, `Critic(manual=...)`, `Critic.last_sections`, `critique_view(sections=...)`, a `CRITIC_SYSTEM` rule), `agent/artifacts.py` (`CritiqueRecord.manual_sections`), `agent/investigation.py` (`critique`), `episode.py`; session note 2026-10-29 (M2) |
 
 | M1b | The manual step: with a manual offered, search it once on the anomaly before the agent plans; the `search_manual` tool stays; opt-in `MANUAL_STEP` | no — built first at the developer's request, to be taught after | no — built ungated, developer to review | yes | no | `agent/investigation.py` (`manual_query`, `consult_manual`, `MANUAL_STEP_LIMIT`, graph edge `observe -> manual -> plan`), `agent/loop.py` (`InvestigationDeps.manual_step`), `settings.py` (`manual_step`), `episode.py`, `evaluation/manual.py` (`ManualSearchRecord.automatic`); session note 2026-10-29 (M1) |
+| EV2 | Known cases KA-10 to KA-13 for the two forced-only faults (servo drive wear, hydraulic leak), which need a repair; manual rev 1.3 with §2.14 and §2.15 | no — built first at the developer's request ("merge first, I will learn later"), to be taught after | no — built ungated, developer to review | yes (tests only; no live run) | no | `evaluation/known_answers.py` (`KNOWN_CASES`, `BASELINE_CASES`, the asserts), `evals/scenarios.json`, `manual/sim-cnc-001.md` (§1.2, §2.13, §2.14, §2.15), `manual/sections.py` (`_LEAKS`), `evals.py` (`Scenario.valid_factory`), `evaluation/scoring.py` (`_resolved`: bug fix, both faults always counted as resolved), `tests/test_known_answers.py`, `tests/test_manual.py`, `tests/test_baseline.py`; session note 2026-10-31 (EV2) |
+| C1c | Blind critic (opt-in `CRITIC_BLIND`): hypotheses shuffled under neutral labels, no confidence, no leading mark; code sets the verdict from the pick | yes (2026-10-31) | yes (2026-10-31, after two corrections: why code sets the verdict, and why the shuffle has its own seed; the prompt difference was stated by the agent, to be re-checked in the closing question) | yes (tests only; no live run) | no — walkthrough done 2026-10-31: Q1 unsure, but the answer pointed at a real bug (a blind pick naming a real id was accepted), fixed; Q2 right (the leader's longer support list leaks the ranking; accept and measure); Q3 right (check the follow-up used the critic's point), fields added; mark left for the developer | `agent/critic.py` (`CRITIC_BLIND_SYSTEM`, `blind_order`, `blind_labels`, `blind_verdict`, `_rename`, `critique_view(blind=)`, `Critic(blind=)`, `Critic.last_order`, `Critic._unblind`), `agent/artifacts.py` (`CritiqueRecord.blind`, `shown_order`), `agent/investigation.py` (`critique`), `settings.py` (`critic_blind`), `episode.py`, `.env.example`; session note 2026-10-31 (C1c) |
+| LV2 | Progress view catches up with #150 and #152 (display only): run header (critic mode, manual and embedding model, manual step, tree-of-thought, hazards); blind mark and shown order on the critic line; the follow-up's outcome, reason, question and leader before/after; the conclusion's assessment, open questions and next check; the three call allowances; each manual search's outcome and sections; contradicted vs deferred tree-of-thought candidates | no — built first at the developer's request, to be taught after | no — built ungated, developer to review | yes (tests only; no live run) | no — pre-merge walkthrough owed later (developer, 2026-10-31: "merge asap", "walkthrough owed later") | `progress.py` (`run_header`, `manual_line`, `call_lines`, `ProgressView._recheck`, `shown_order_line`, `assessment_lines`, `calls_line`, `belief`, `PRUNED_HEADINGS`, `_critique`, `_pruned`, `step_line`), `evaluation/manual.py` (`manual_search_record`), `experiment.py` (`main` prints the header); session note 2026-10-31 (LV2) |
 Every row above with four "yes" marks (or "n/a") is complete: no question is
 outstanding on it. Still to build after 12c, from `docs/MVP_SCOPE.md`: the
 other three fault scenarios (material batch, machine configuration, false
 alarm), then evaluation, then the agent itself.
 
 ## Session notes
+
+- **2026-10-31 (LV2): the progress view catches up.** Before the fresh
+  anchored-vs-blind pair, the live view (`capstone.progress`, also used by
+  `capstone.experiment run`) could not show which critic treatment ran, what
+  the follow-up did, why a plausible diagnosis escalated, which call allowance
+  ran out, whether a manual search worked, or whether a tree-of-thought
+  candidate was disproved or only set aside. Six display-only changes fix that
+  (row LV2). Nothing the agent sees changes; the records already held all of
+  it. Manual failures print only "failed": the tool keeps no cause, so the view
+  does not guess one. Live retry/fallback messages need new event reporting
+  and are not done. Codex: after this merges, move the launcher pin for both
+  new runs to the merge commit; leave a running run on its own version.
+  Built ungated; the pre-merge walkthrough is owed later.
+
+- **2026-10-31: frontend buttons listed (docs only).** `docs/MVP_SCOPE.md`
+  gains a "Frontend buttons" section: every setting and experiment option a
+  future frontend should offer, with defaults, `CRITIC_BLIND` included. Keys
+  and secrets stay in the backend. No code changed; no frontend is built.
+
+- **2026-10-31 (C1c): the blind critic.** From the run-2 master runs: in the
+  challenge both the agent and the critic took the harmless spike for the
+  whole story at 90%. The critic is shown the agent's ranking (sorted by
+  confidence, numbers shown, the first marked "leading"), so it may anchor on
+  it (multi-agent survey item 1). The developer chose to build this one and
+  record the other run-2 findings for later (`RUN2_FINDINGS_FUTURE_WORK.md`).
+  - What changed: with `CRITIC_BLIND=on` the critic sees the same hypotheses,
+    evidence, ruled-out candidates and manual sections, but the hypotheses
+    come shuffled (`blind_order`), under labels X1, X2, ... (`blind_labels`;
+    real ids inside the hypothesis text are renamed too), with no confidence
+    and no leading mark. `CRITIC_BLIND_SYSTEM` asks for a pick without a
+    leader. Code maps the labels in the reply back to ids (`Critic._unblind`)
+    and sets the verdict (`blind_verdict`): `object` unless the pick is the
+    agent's leader, because a critic that is not told the leader cannot
+    judge "against the leading explanation". The record keeps `blind` and
+    `shown_order`.
+  - The shuffle's seed is a SHA-256 of the anomaly (kind, machine, tick) and
+    the hypothesis ids, never a simulator stream, so it moves no factory draw
+    and the same state gives the same order on replay.
+  - Off by default: anchored runs and the master config are unchanged. The
+    follow-up, `evals.py`'s `critic_pick_correct` and the recheck all read the
+    mapped-back ids, so anchored and blind runs compare directly. No extra
+    model calls.
+  - Tests (`tests/test_critic.py`, `tests/test_episode.py`): the blind view
+    has no confidence, no "leading" and no real id; the order repeats and
+    the leader lands in every position across anomalies; the shuffle moves no
+    simulator stream; the pick is mapped back in every text field and the
+    verdict follows it (leader → no_objection, other or none → object); an
+    unknown label is refused; the anchored critic is unchanged; the setting is
+    off by default and reaches the run's record.
+  - Fixed during the pre-merge walkthrough (Q1): a blind critic that wrote a
+    real id ("H1") instead of a label was accepted, because `_problem` checks
+    real ids and H1 is one. Such a pick names an id the critic never saw, so
+    `review` now refuses any blind pick that is not a label shown or none
+    (`test_blind_review_refuses_a_real_id_it_was_never_shown`). The
+    developer's answer pointed at the case.
+  - Pre-check 2026-10-31: the developer stated the idea (the critic sees the
+    agent's confidence; judge blind so it cannot be biased), then needed two
+    corrections: why code sets the verdict, and that a separate seed keeps the
+    factory's streams untouched. Not run live (Codex's job, AGENTS.md §12).
+  - Pre-merge walkthrough 2026-10-31 (PR #152). Q1, why `_unblind` runs before
+    `_problem`: unsure; the right answer is that `_problem` checks real ids,
+    so it would refuse every correct label. The developer's guess (a
+    mislabelled "H1" gets recorded) was a real bug, fixed above. Q2, how the
+    blind critic could still find the leader: right, the leader usually has
+    the longest support list because the agent gathers evidence for what it
+    believes; accepted as evidence and measurable through `shown_order`. Q3,
+    which record fields show the blind critic helped: right, the follow-up must
+    have used the critic's point; completed with `critique.blind`,
+    `critic_pick_correct`, `recheck` trigger, outcome and confidence, and the
+    final score, and that one case is a snapshot.
+
+- **2026-10-31 (EV2): two faults that need a repair join the known cases.**
+  From the run-2 tree-of-thought master runs (2026-10-31): in every master
+  run so far only bearing wear and the false alarm have been diagnosed right,
+  and when unsure the agent concludes "transient, leave it", which is right
+  only for the false alarm. The developer chose to add the two faults the code
+  already had but never drew (`in_default_draw=False` in `faults.py`): a
+  wearing servo drive and a hydraulic leak. Both keep getting worse until
+  their one repair (`replace_servo_drive`, `repair_hydraulics`), so "no
+  action" is always wrong for them.
+  - What changed: `evaluation/known_answers.py` adds KA-10-servo (seed 16,
+    CNC-04), KA-11-servo (seed 13, CNC-02), KA-12-hydraulic (seed 4, CNC-05)
+    and KA-13-hydraulic (seed 15, CNC-02). The seeds were chosen offline from
+    0-24, avoiding the seeds already used, so that each pair alarms on two
+    different machines at about the same tick as the other cases (1041-1376).
+    The asserts now require every default fault to have cases, and allow
+    cases for faults that are only ever forced (`FAULT_KINDS`).
+    `STANDARD_CASES` is every one-fault case. The new `BASELINE_CASES` is the
+    four default faults only, because the rule baseline has no rules for the
+    new two; `tests/test_baseline.py` uses it, and `capstone.baseline --known`
+    still prints every case, so its misses on the new cases are visible.
+    `evals/scenarios.json` (the master config) lists the four new cases, as
+    `test_master_config_covers_all_known_answer_cases` requires.
+  - Manual rev 1.3 (the developer asked for detailed sections on both
+    faults and how to fix them). §2.14 covers the feed-axis servo drive:
+    what following error is, the 20 µm alarm, wear that grows only while
+    running, power rising slightly, no change in vibration, heat or job
+    times, how to tell it from a bearing, a speed setting or a batch, that it
+    does not recover by itself, the replacement (about an hour), and what to
+    check afterwards. §2.15 covers hydraulic clamping: only stations fitted
+    with hydraulics, pressure flat when sound, no readings while down, a leak
+    that also grows while idle, the low-pressure alarm, no other channel
+    moving, that it does not recover by itself, the seal repair (40 ticks) and
+    what to check afterwards. §1.2 lists the power, following-error and
+    pressure channels. §2.13 lists all four repairs (it said only two) and
+    adds that wear and leaks keep progressing until repaired. The normal
+    pressure (70 bar), the alarm setpoint (55 bar) and the drive replacement
+    time (60 ticks) are not written as numbers, because they equal stations'
+    job times, and `test_no_section_gives_a_stations_standard_speed_or_job_time`
+    keeps job times out of the manual. Every fact was checked against
+    `simulator/sensors.py`, `scenarios.py`, `simulator.py` and `line.py`.
+    `manual/sections.py` now also refuses `servo_drive_wear` and
+    `hydraulic_leak` in a section. The semantic index rebuilds itself on the
+    next run, because the sections changed (`open_manual`).
+  - Two fixes the new cases exposed. `evals.py` refused any config case
+    outside `FAULTS`; it now accepts every `FAULT_KINDS` fault. And a scoring
+    bug: `evaluation/scoring.py` `_resolved` had no branch for either fault,
+    so both fell through to the false-alarm check and always counted as
+    "resolved", even with nothing repaired. Now only `axis_replaced_tick` /
+    `hydraulics_repaired_tick` at or after the fault's start counts (the same
+    rule `AxisDriveWear` and `HydraulicLeak` use to stop wearing), and a fault
+    with no rule raises instead of falling through. It reads hidden state only
+    and draws no random numbers, so no seeded stream moves. No earlier result
+    is affected: no master run has included these faults.
+  - Ungated summary: `docs/UNGATED_BUILD_SUMMARY.md` now lists every ungated
+    build with its current status (taught since, partly, or owed).
+  - Tests: each new case's truth and first alarm are pinned
+    (`test_each_case_builds_its_pinned_fault_and_symptom`); the scripted
+    stand-in runs them end to end
+    (`test_scores_match_the_pinned_expectations`);
+    `test_every_forced_only_case_needs_its_one_repair` checks the evaluator
+    expects exactly the right repair;
+    `test_a_forced_only_fault_counts_as_resolved_only_after_its_repair`
+    builds each case, checks it is still there 200 ticks after it began,
+    runs the repair through the approval desk and checks it is then gone;
+    `tests/test_scoring_integrity.py`
+    covers them through `STANDARD_CASES`; `tests/test_manual.py` pins the
+    seventeen sections, revision 1.3, a keyword search finding each new
+    section, the two leak names, and what each new section must say.
+  - Built ungated at the developer's request (understood: no); the pre-merge
+    walkthrough was waived by the developer ("merge first, I will learn
+    later") and is owed. Not run live: a master run on the new cases is
+    Codex's job (AGENTS.md §12).
 
 - **2026-10-30 (F5, config): one question per step is the default.** The
   developer's decision. The 2026-10-30 master runs all used

@@ -66,6 +66,10 @@ class Candidate(Contract):
     claim: str = Field(min_length=1)
     supporting_evidence_ids: tuple[str, ...] = ()
     contradicting_evidence_ids: tuple[str, ...] = ()
+    expected_observations: tuple[str, ...] = ()
+    assumptions: tuple[str, ...] = ()
+    unexplained_evidence_ids: tuple[str, ...] = ()
+    discriminating_check: str | None = None
 
 
 class Candidates(Contract):
@@ -358,6 +362,11 @@ class TreeOfThoughtPolicy(ModelPolicy):
                     confidence=rating.confidence,
                     supporting_evidence_ids=candidate.supporting_evidence_ids,
                     contradicting_evidence_ids=candidate.contradicting_evidence_ids,
+                    expected_observations=candidate.expected_observations,
+                    assumptions=candidate.assumptions,
+                    unexplained_evidence_ids=candidate.unexplained_evidence_ids,
+                    discriminating_check=candidate.discriminating_check
+                    or rating.question,
                 )
             )
             if rating.question and rating.question.strip():

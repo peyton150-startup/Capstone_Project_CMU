@@ -67,6 +67,8 @@ class Budgets(Contract):
     # A separate allowance for proposing an action and checking that it worked,
     # so that research can never spend the calls verification needs.
     followup_tool_calls: int = Field(default=14, ge=0)
+    # At most one separate diagnostic read when critic follow-up is enabled.
+    critic_tool_calls: int = Field(default=1, ge=0, le=1)
     # The same for time: research stops this many seconds before the deadline,
     # leaving them for the conclusion, the proposal, the work and the check.
     followup_seconds: float = Field(default=400.0, ge=0)
@@ -106,6 +108,9 @@ class Question(Contract):
     id: str = Field(min_length=1)
     text: str = Field(min_length=1)
     hypothesis_id: str | None = None
+    distinguishes_hypothesis_ids: tuple[str, ...] = ()
+    signal_reliability: Literal["direct", "indirect", "unknown"] = "unknown"
+    estimated_calls: int = Field(default=1, ge=1, le=3)
 
 
 class DecisionRecord(Contract):
@@ -167,6 +172,7 @@ class InvestigationState(BaseModel):
     iteration_count: int = Field(default=0, ge=0)
     tool_call_count: int = Field(default=0, ge=0)
     followup_tool_calls_used: int = Field(default=0, ge=0)
+    critic_tool_calls_used: int = Field(default=0, ge=0)
     repeated_calls: int = Field(default=0, ge=0)
     failed_tool_calls: int = Field(default=0, ge=0)
     malformed_results: int = Field(default=0, ge=0)
@@ -238,7 +244,19 @@ class InvestigationState(BaseModel):
 
     @property
     def research_tool_calls(self) -> int:
-        return self.tool_call_count - self.followup_tool_calls_used
+        """Calls charged to research, excluding the two separate checking allowances."""
+        # Variables:
+        #   tool_call_count: Every real call, including verification and critic reads.
+        return (
+            self.tool_call_count
+            - self.followup_tool_calls_used
+            - self.critic_tool_calls_used
+        )
+
+    @property
+    def remaining_critic_tool_calls(self) -> int:
+        """The single diagnostic read research cannot spend, or zero once used."""
+        return max(0, self.budgets.critic_tool_calls - self.critic_tool_calls_used)
 
     @property
     def remaining_iterations(self) -> int:

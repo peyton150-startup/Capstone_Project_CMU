@@ -45,6 +45,7 @@ from capstone.agent.artifacts import (
     TerminationReason,
     VerificationCheck,
 )
+from capstone.agent.evidence_brief import evidence_brief
 from capstone.agent.policy import (
     ActionRequest,
     CallTool,
@@ -118,6 +119,10 @@ class NextStep(Contract):
 
     choice: Literal["call_tool", "stop"]
     information_needed: str = Field(min_length=1)
+    answered_evidence_ids: tuple[str, ...] = Field(
+        default=(),
+        description="When stopping because a check is already answered, cite the actual observable evidence that answers it.",
+    )
     # The descriptions go to the model with the schema. The schema is flat, so
     # without them every field looks allowed on a stop (measured 2026-10-28:
     # 26 of 1,448 decide replies were stops that also set one of these).
@@ -176,9 +181,14 @@ class NextStep(Contract):
         return self
 
     def decision(self) -> Decision:
+        """Turn checked model fields into the loop's tool-call or stop artifact."""
+        # Variables:
+        #   answered_evidence_ids: A stop's claim that observations already answer a check.
         if self.choice == "stop":
             return Stop(
-                reason=self.stop_reason, information_needed=self.information_needed
+                reason=self.stop_reason,
+                information_needed=self.information_needed,
+                answered_evidence_ids=self.answered_evidence_ids,
             )
         return CallTool(
             information_needed=self.information_needed,
@@ -359,13 +369,16 @@ def render(state: InvestigationState) -> str:
     #     remaining.
     #   lines: The prompt, built up section by section and joined at the end.
     #   failed: The latest failed tool calls, shown so the model can correct them.
+    #   current_ids: Limits discrimination credit to hypotheses actually in play.
+    #   questions: A stable discrimination/reliability/cost ordering, not probabilities.
     anomaly = state.anomaly
     where = f" on {anomaly.machine_id}" if anomaly.machine_id else ""
     now = "unknown" if state.last_tick is None else str(state.last_tick)
     budget = (
         f"BUDGET LEFT: {state.remaining_tool_calls} research tool calls, "
         f"{state.remaining_iterations} turns, {state.remaining_followup_tool_calls} "
-        "calls for checking after an action"
+        f"calls for checking after an action, {state.remaining_critic_tool_calls} "
+        "reserved critic diagnostic calls (only when critic follow-up is enabled)"
     )
     # A model cannot sense time passing, so the stage's time left is a number.
     if state.seconds_for_question is not None:
@@ -379,13 +392,26 @@ def render(state: InvestigationState) -> str:
     if state.conclusion is None and state.remaining_tool_calls <= LOW_CALLS:
         lines.append(LOW_BUDGET_NOTE)
     lines += ["", "OPEN QUESTIONS:"]
-    for question in state.unanswered_questions:
+    current_ids = {h.id for h in state.hypotheses}
+    questions = sorted(
+        state.unanswered_questions,
+        key=lambda q: (
+            -len(set(q.distinguishes_hypothesis_ids) & current_ids),
+            {"direct": 0, "indirect": 1, "unknown": 2}[q.signal_reliability],
+            q.estimated_calls,
+        ),
+    )
+    for question in questions:
         tests = f" [tests {question.hypothesis_id}]" if question.hypothesis_id else ""
-        lines.append(f"- {question.id}: {question.text}{tests}")
+        lines.append(
+            f"- {question.id}: {question.text}{tests}; separates "
+            f"{question.distinguishes_hypothesis_ids}; signal {question.signal_reliability}; "
+            f"estimated calls {question.estimated_calls}"
+        )
     if not state.unanswered_questions:
         lines.append("(none)")
 
-    lines += ["", *evidence_section(state)]
+    lines += ["", evidence_brief(state), "", *evidence_section(state)]
 
     lines += ["", "HYPOTHESES:"]
     for h in state.hypotheses:
@@ -394,6 +420,14 @@ def render(state: InvestigationState) -> str:
         lines.append(
             f"- {h.id} (confidence {h.confidence:.2f}): {h.claim} "
             f"Supported by: {supported}. Contradicted by: {contradicted}."
+        )
+        lines.extend(
+            (
+                f"  Expected observations: {h.expected_observations or 'not specified'}. "
+                f"Assumptions: {h.assumptions or 'not specified'}.",
+                f"  Unexplained: {', '.join(h.unexplained_evidence_ids) or 'none identified'}. "
+                f"Distinguishing check: {h.discriminating_check or 'not specified'}.",
+            )
         )
     if not state.hypotheses:
         lines.append("(none)")
@@ -485,6 +519,18 @@ COMMON = (
     "sits on another. Before concluding that nothing is wrong, or that the "
     "alarmed machine alone explains what you see, check the other machines too: "
     "list_machines, then their sensor readings and the inspection results."
+    " A recovered alarm explains that signal only, not the absence of faults "
+    "elsewhere. Multiple unrelated causes can coexist. Missing measurements "
+    "are unknown, not normal. A passing part does not by itself rule out a "
+    "cause that raises the reject rate. Compare data from compatible operating "
+    "conditions and time windows; a retrieval tick is not a measurement tick. "
+    "For each hypothesis supply expected_observations, assumptions, unexplained_evidence_ids "
+    "and a discriminating_check. Cite observations rather than treating the manual "
+    "as proof. Put checkable arithmetic in numeric_claims; uncheckable causal "
+    "claims remain beliefs. For diagnostic questions identify the actual rival "
+    "hypothesis IDs they distinguish, signal_reliability and estimated_calls. "
+    "The question ordering is a simple discrimination/reliability/cost rubric, "
+    "not a probability of diagnostic success."
 )
 
 SYSTEM = {
@@ -535,7 +581,16 @@ SYSTEM = {
         "Recommend intervene only if a change a human can approve would fix it, and "
         "then give that action with a prediction an operator could check "
         "afterwards. Recommend no_action if nothing needs changing, or escalate if "
-        "you cannot tell. The changes a human can approve: "
+        "you cannot tell. Set assessment to supported or unresolved. State what "
+        "is established now, unresolved_questions and one concrete next_check "
+        "when unresolved. A final answer must not be a future plan beginning "
+        "Pending or I need to investigate. Exhausting the budget does not make "
+        "a diagnosis supported. Account for conflicting evidence and untested "
+        "alternatives before claiming completion. Decide the diagnosis independently "
+        "of the available repairs and the intervention confidence threshold. "
+        "No suitable repair does not mean no fault: preserve the diagnosis and "
+        "escalate for a human when appropriate. Give action_rationale separately. "
+        "The changes a human can approve: "
         f"{TOOL_DESCRIPTIONS['propose_action']}"
     ),
     "judge_verification": (
@@ -722,9 +777,24 @@ class ModelPolicy:
     def conclude(
         self, state: InvestigationState
     ) -> tuple[AgentConclusion, ActionRequest | None]:
+        """Ask for the final belief, treating an omitted assessment as unresolved."""
+        # Variables:
+        #   conclusion: The typed model belief; its diagnosis survives an unresolved status.
+        #   answer.action: A proposed repair, independently checked by the controller.
         prompt = render(state) + action_bar_note(state)
         answer = self._ask("conclude", state, prompt, ConcludeAnswer)
-        return answer.conclusion, answer.action
+        conclusion = answer.conclusion
+        if conclusion.assessment is None:
+            conclusion = conclusion.model_copy(
+                update={
+                    "assessment": "unresolved",
+                    "recommendation": "escalate",
+                    "unresolved_questions": (
+                        "The final answer omitted its completion assessment.",
+                    ),
+                }
+            )
+        return conclusion, answer.action
 
     def judge_verification(self, state: InvestigationState) -> VerificationCheck:
         verdict = self._ask("judge_verification", state, render(state), Judgement)

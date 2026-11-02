@@ -63,14 +63,14 @@ def manual_items(state):
 # --- the manual itself ------------------------------------------------------------
 
 
-def test_the_manual_is_its_fifteen_numbered_sections_and_nothing_else():
+def test_the_manual_is_its_seventeen_numbered_sections_and_nothing_else():
     assert [s.section_id for s in SECTIONS] == [
         "1.1", "1.2", "2.1", "2.2", "2.3", "2.4", "2.5", "2.6",
-        "2.7", "2.8", "2.9", "2.10", "2.11", "2.12", "2.13",
+        "2.7", "2.8", "2.9", "2.10", "2.11", "2.12", "2.13", "2.14", "2.15",
     ]  # fmt: skip
     speed = next(s for s in SECTIONS if s.section_id == "2.7")
     assert speed.title == "Spindle Speed Configuration and Machining Effects"
-    assert speed.citation == "SIM-CNC-001 §2.7" and speed.revision == "1.2"
+    assert speed.citation == "SIM-CNC-001 §2.7" and speed.revision == "1.3"
     text = " ".join(s.text for s in SECTIONS)
     assert "Document Provenance" not in text and "How to Use" not in text
     assert "**" not in text
@@ -89,7 +89,15 @@ def test_no_section_gives_a_stations_standard_speed_or_job_time():
 
 @pytest.mark.parametrize(
     "leak",
-    ["bearing_degradation", "a wrong_setting case", "seed 42", "KA-03", "ground truth"],
+    [
+        "bearing_degradation",
+        "a wrong_setting case",
+        "servo_drive_wear",
+        "a hydraulic_leak",
+        "seed 42",
+        "KA-03",
+        "ground truth",
+    ],
 )
 def test_a_section_that_names_hidden_truth_is_refused(leak):
     sections = parse_manual(f"**Revision:** 9\n## §9.1 Bad\nThe answer is {leak}.\n")
@@ -108,6 +116,8 @@ def test_a_section_that_names_hidden_truth_is_refused(leak):
         ("spindle speed setting wrong", "2.7"),
         ("inspection rejects by material batch", "2.9"),
         ("sensor false alarm dropout", "2.11"),
+        ("following error alarm servo drive", "2.14"),
+        ("low hydraulic pressure alarm leak", "2.15"),
     ],
 )
 def test_a_symptom_finds_its_section_in_the_top_three(query, expected):
@@ -129,7 +139,7 @@ def test_the_chroma_index_returns_only_sections_the_manual_has():
         configuration={"hnsw": {"space": "cosine"}},
     )
     index = ChromaManualIndex(collection, SECTIONS, fake_embed)
-    assert index.build() == 15
+    assert index.build() == 17
     found = index.search("speed setting configuration", limit=3)
     assert len(found) == 3 and all(isinstance(s, ManualSection) for s in found)
     # An index built before a section was removed cannot hand it back.
@@ -149,7 +159,7 @@ def test_a_search_is_answered_from_the_manual_with_section_numbers():
     assert result.success and result.source == "manual" and result.tool == MANUAL_TOOL
     assert result.tick == factory.sim.clock.tick
     first = result.data[0]
-    assert first["section"] == "§2.1" and first["document"] == "SIM-CNC-001 rev 1.2"
+    assert first["section"] == "§2.1" and first["document"] == "SIM-CNC-001 rev 1.3"
     assert set(first) == {"section", "title", "text", "document"}
     assert len(result.data) == 3  # the default limit
 
@@ -555,4 +565,31 @@ def test_section_2_9_says_passing_jobs_do_not_clear_a_bad_lot():
     text = " ".join(batch.text.split())
     assert "does not make every part fail" in text
     assert "reject rate against other batches" in text
-    assert batch.revision == "1.2"
+    assert batch.revision == "1.3"
+
+
+@pytest.mark.parametrize(
+    "section_id,signal,repair",
+    [
+        ("2.14", "following error", "servo drive replacement"),
+        ("2.15", "low hydraulic-pressure alarm", "hydraulic repair"),
+    ],
+)
+def test_each_forced_only_fault_has_a_section_on_its_signs_and_its_one_repair(
+    section_id, signal, repair
+):
+    """The servo-drive and hydraulic cases (KA-10 to KA-13) need a fix: the
+    section says what the fault looks like, that it does not clear by itself,
+    and which repair ends it."""
+    section = next(s for s in SECTIONS if s.section_id == section_id)
+    text = " ".join(section.text.split())
+    assert signal in text and repair in text
+    assert "does not recover by itself" in text
+    assert "rejects should fall back" in text  # what to check after the work
+
+
+def test_section_2_13_lists_all_four_repairs():
+    text = next(s for s in SECTIONS if s.section_id == "2.13").text
+    for repair in ("bearing replacement", "speed-setting reset", "servo drive"):
+        assert repair in text
+    assert "hydraulic seal repair" in text

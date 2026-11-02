@@ -29,6 +29,7 @@ from typing import TypeVar
 
 from capstone.agent.artifacts import ProposalRecord, TerminationReason
 from capstone.agent.critic import Critic
+from capstone.agent.evidence_brief import verify_numeric_claims
 from capstone.agent.policy import (
     CallTool,
     Interpretation,
@@ -104,7 +105,7 @@ class InvestigationDeps:
     critic: Critic | None = None
     critic_seconds: float = 40.0
     # The critic follow-up (`investigation.recheck`): one reading the critic
-    # pointed at, when it objects or agrees below the action bar. Off: the
+    # pointed at, when it objects or agrees and names a check. Off: the
     # critic stays review only.
     critic_followup: bool = False
     # The follow-up's own time window, on top of the investigation's time (as
@@ -176,6 +177,8 @@ def diagnosis_supported(state: InvestigationState, deps: InvestigationDeps) -> b
         and leading.confidence >= deps.min_diagnosis_confidence
         and backed >= deps.min_supporting_evidence
         and not leading.contradicting_evidence_ids
+        and not leading.unexplained_evidence_ids
+        and not verify_numeric_claims(state, leading.numeric_claims)
         and not any(q.hypothesis_id in current for q in state.unanswered_questions)
     )
 
@@ -303,6 +306,7 @@ def call_tool(
     request: ToolRequest,
     *,
     followup: bool = False,
+    critic_check: bool = False,
 ) -> ToolResult | None:
     """Make one counted tool call. Returns None when the answer cannot be trusted.
 
@@ -313,10 +317,13 @@ def call_tool(
     """
     # Variables:
     #   followup: True if the call spends the follow-up allowance, not the research one.
+    #   critic_check: Charges the separate diagnostic allowance, never verification.
     #   result: The provider's answer, or None if it cannot be trusted.
     state.tool_call_count += 1
     if followup:
         state.followup_tool_calls_used += 1
+    if critic_check:
+        state.critic_tool_calls_used += 1
     try:
         result = deps.provider.call(
             request, run_id=state.run_id, investigation_id=state.investigation_id
@@ -355,6 +362,7 @@ def apply_interpretation(
     #   open_ids: Ids of questions still open, so a question is never added twice.
     #   interpretation.pruned: Only on tree-of-thought's hypothesize answer: the
     #     candidates it ruled out, kept in the state's trace for the critic.
+    #   hypothesis.numeric_claims: Arithmetic checked before any revised belief is applied.
     if not isinstance(interpretation, Interpretation):
         raise ValueError("a policy must return an Interpretation")
     revised = interpretation.hypotheses
@@ -367,9 +375,11 @@ def apply_interpretation(
             cited = (
                 *hypothesis.supporting_evidence_ids,
                 *hypothesis.contradicting_evidence_ids,
+                *hypothesis.unexplained_evidence_ids,
             )
             if not known.issuperset(cited):
                 raise ValueError("a hypothesis cites evidence that was not gathered")
+            verify_numeric_claims(state, hypothesis.numeric_claims)
         if state.hypotheses:
             # The first set is a starting point, not a revision.
             before = {h.id: h for h in state.hypotheses}
@@ -433,6 +443,7 @@ def gather(
     step: CallTool,
     *,
     followup: bool = False,
+    critic_check: bool = False,
     interpret: bool = True,
 ) -> Evidence | None:
     """Call one tool and keep its answer as evidence. Always leaves a record.
@@ -448,6 +459,7 @@ def gather(
     #     wasted step.
     #   evidence: The answer saved as a new piece of evidence, numbered E1, E2 and so
     #     on.
+    #   critic_check: The controller's bounded read, excluded from research call usage.
     signature = call_signature(step.request, state.last_tick)
     if signature in state.seen_calls:
         # Looking is free in the simulator, so the same question at the same
@@ -464,7 +476,9 @@ def gather(
         return None
     state.seen_calls.append(signature)
 
-    result = call_tool(state, deps, step.request, followup=followup)
+    result = call_tool(
+        state, deps, step.request, followup=followup, critic_check=critic_check
+    )
     outcome: StepOutcome = "observed"
     if result is None or (result.success and result.data is None):
         state.malformed_results += 1

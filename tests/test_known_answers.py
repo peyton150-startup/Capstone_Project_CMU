@@ -16,11 +16,11 @@ from capstone.agent.artifacts import AgentConclusion
 from capstone.agent.monitor import detect_anomaly
 from capstone.episode import build_world
 from capstone.evaluation.known_answers import KNOWN_CASES
-from capstone.evaluation.scoring import COMPOUND
+from capstone.evaluation.scoring import COMPOUND, CORRECT_ACTION, _resolved
 from capstone.experiment import known_cases, run_experiment
 from capstone.tools.actions import ActionTools, ApprovalDesk
 from capstone.tools.observation import ObservationTools
-from tests.helpers import ScriptedPolicy, ask
+from tests.helpers import ScriptedPolicy, approve_and_run, ask
 
 # scenario id: (true machine, true batch, what monitoring notices, on which machine)
 PINNED = {
@@ -35,6 +35,12 @@ PINNED = {
     # Several faults: no single machine. Monitoring first sees the harmless
     # spike on CNC-03, not the machine with the two real faults.
     "KA-09-challenge": (None, None, "alarm", "CNC-03"),
+    # Forced-only faults: the servo controller's following-error alarm, and
+    # the low-pressure alarm on a station fitted with hydraulics.
+    "KA-10-servo": ("CNC-04", None, "alarm", "CNC-04"),
+    "KA-11-servo": ("CNC-02", None, "alarm", "CNC-02"),
+    "KA-12-hydraulic": ("CNC-05", None, "alarm", "CNC-05"),
+    "KA-13-hydraulic": ("CNC-02", None, "alarm", "CNC-02"),
 }
 
 # The compound challenge: each true fault and where it is.
@@ -60,7 +66,60 @@ EXPECTED = {
     "KA-08-false-alarm": (["vibration of CNC-03"], True),
     # Looking once at the decoy collects nothing about the two real causes.
     "KA-09-challenge": ([], False),
+    # The stand-in reads vibration, which neither fault moves, and nothing is
+    # repaired, so the cause is still there at the end.
+    "KA-10-servo": ([], False),
+    "KA-11-servo": ([], False),
+    "KA-12-hydraulic": ([], False),
+    "KA-13-hydraulic": ([], False),
 }
+
+
+def test_every_forced_only_case_needs_its_one_repair():
+    """A servo drive or a hydraulic leak never clears by itself: the evaluator
+    expects exactly its repair, so "leave it alone" scores as a miss."""
+    # Variables:
+    #   repairs: The one repair the evaluator should expect for each forced-only fault.
+    #   forced: The known cases whose fault is one of them.
+    repairs = {
+        "servo_drive_wear": "replace_servo_drive",
+        "hydraulic_leak": "repair_hydraulics",
+    }
+    forced = [c for c in KNOWN_CASES if c.fault in repairs]
+    assert len(forced) == 4
+    for case in forced:
+        sim = build_world(case.seed, kind=case.kind, fault=case.fault)
+        (truth,) = sim.ground_truth()
+        assert CORRECT_ACTION[truth.fault] == repairs[case.fault]
+
+
+@pytest.mark.parametrize(
+    "case",
+    [c for c in KNOWN_CASES if c.fault in ("servo_drive_wear", "hydraulic_leak")],
+    ids=lambda c: c.scenario_id,
+)
+def test_a_forced_only_fault_counts_as_resolved_only_after_its_repair(case):
+    """Scoring reads the repair tick the simulator sets, so waiting never
+    clears the fault and the right repair always does."""
+    # Variables:
+    #   truth: The case's one real fault, with its machine and start tick.
+    #   action: The repair the fault pack asks for.
+    #   finish: The tick the repair ends, as the simulator reports it.
+    sim = build_world(case.seed, kind=case.kind, fault=case.fault)
+    (truth,) = sim.ground_truth()
+    while sim.clock.tick <= truth.start_tick + 200:
+        sim.step()
+    assert not _resolved(sim, truth)  # still there after hundreds of ticks
+    action = CORRECT_ACTION[truth.fault]
+    desk = ApprovalDesk(sim)
+    act = ActionTools(sim, desk)
+    approve_and_run(
+        desk, act, act.propose_action(truth.machine_id, action, "test")["id"]
+    )
+    finish = sim.state.machines[truth.machine_id].maintenance_until
+    while sim.clock.tick <= finish:
+        sim.step()
+    assert _resolved(sim, truth)
 
 
 @pytest.mark.parametrize("case", KNOWN_CASES, ids=lambda c: c.scenario_id)
