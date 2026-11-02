@@ -1,5 +1,18 @@
 # Progress Log
 
+> **2026-11-02 — incident-first line-wide investigation added to draft PR #157 (not built):**
+> [MVP future work](MVP_SCOPE.md#fw-incident-context) now prioritizes a bounded
+> incident packet over machine-only alarm scope: trigger, whole-line snapshot,
+> unfiltered recent events, neighbor trends and topology/time-window correlation.
+> The existing investigator selects further checks; the critic challenges both
+> omitted relevant machines and speculative upstream blame. Four matched-seed
+> scenarios compare alarm-centered vs incident-first behavior (wrong-machine
+> alarm, cascading effects, independent faults, and silent degradation with
+> an explicit scheduled-scan trigger), plus a normal/false-alarm control.
+> Real automatic alarm-free detection still requires later deterministic
+> monitoring. No runtime, model, tests or data pipeline implemented; docs only,
+> with no new understanding claim.
+
 > **2026-11-02 — simulated telemetry ingestion and replay added to future work (not built):**
 > Updated [MVP scope and future work](MVP_SCOPE.md#fw-telemetry-replay) with a
 > medium-priority staged plan: one context-rich time-series store for recent
