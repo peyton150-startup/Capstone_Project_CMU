@@ -1,5 +1,7 @@
 # Evaluation workflow
 
+> **Full-project readiness:** [CRITERIA_FOR_EVALUATOR.md](CRITERIA_FOR_EVALUATOR.md) defines the unresolved P0/P1 fixes, regression tests and staged acceptance gates. The scripts below describe the current scaffold; they do not establish that an end-to-end project evaluation is ready or calibrated.
+
 How to produce the evidence, build the inventories and packets, prepare
 Snap requests, read the results and compare experiments. Everything here
 runs offline except the optional `--send`, which posts prepared requests to
@@ -14,6 +16,7 @@ Paths are relative to the repository top. Commands use `uv run`; a plain
 
 | File | Purpose |
 |---|---|
+| `CRITERIA_FOR_EVALUATOR.md` | Required repairs, acceptance tests and gates before the whole-project evaluation can be trusted; status is proposed/not yet implemented |
 | `PROJECT_EVALUATION_CONTEXT.md` | Stable, verified knowledge of the architecture, the execution path, the boundaries and the experiments on record (versioned) |
 | `EVALUATION_RUBRIC.md` | Metric definitions, denominators, statuses, aggregation rules (versioned) |
 | `MVP_SCOPE_MATRIX.md` | Each MVP requirement with status, evidence and gaps |
