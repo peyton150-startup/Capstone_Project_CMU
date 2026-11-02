@@ -1,5 +1,17 @@
 # Progress Log
 
+> **2026-11-02 — operator investigation screen recorded as frontend future work (documentation only):**
+> [MVP_SCOPE.md](MVP_SCOPE.md#fw-frontend-operator-screen) gains a LOW-priority
+> design for the first operator screen, drawn from Amershi et al. (CHI 2019)
+> and Google PAIR's "Errors and Graceful Failure". It maps each panel to fields
+> already in `CompletedInvestigation` and `Hypothesis`, and lists five small
+> additive backend changes the screen depends on (evidence assessment beside
+> confidence, fixed stop reasons, critic outcome in the handoff, structured
+> rejection reasons, expected outcome for verification). It also records the
+> developer's stack decision: a React frontend over a FastAPI backend, not
+> Gradio or Streamlit ([MVP_SCOPE.md](MVP_SCOPE.md#fw-frontend-stack)). Nothing built; no
+> code, tests, settings or understanding status changed.
+
 > **2026-11-02 — five audited known-answer master cases archived:**
 > [Results and raw traces](benchmarks/2026-11-02-audited-known-cases/README.md)
 > preserve one live ToT blind-critic run on commit `31ddd79`, covering ordered
