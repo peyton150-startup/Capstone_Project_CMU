@@ -1,0 +1,2 @@
+{"run_key":"master-audited-20261102-tot13-blind/1/KA-01-bearing","diagnosis":{"fault":"bearing_degradation","machine_id":"CNC-02","batch_id":null,"summary":""},"labelled_by":"typesafe/jev-1.14.0","note":""}
+{"run_key":"master-audited-20261102-tot13-blind/2/KA-02-bearing","diagnosis":{"fault":"false_alarm","machine_id":"CNC-05","batch_id":null,"summary":""},"labelled_by":"typesafe/jev-1.14.0","note":""}

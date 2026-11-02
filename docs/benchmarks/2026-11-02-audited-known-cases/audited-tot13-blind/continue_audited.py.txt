@@ -1,0 +1,96 @@
+"""Run one audited known-case master batch with the last ToT13 settings."""
+
+import json
+import os
+from pathlib import Path
+
+from pydantic import SecretStr
+
+from capstone.agent.completion import AuditLog
+from capstone.experiment import (
+    append_records,
+    known_cases,
+    model_policy_factory,
+    open_manual,
+    read_records,
+    run_experiment,
+)
+from capstone.settings import Settings
+
+ROOT = Path(__file__).resolve().parent
+OUT = ROOT / "docs/benchmarks/2026-11-02-audited-known-cases/audited-tot13-blind"
+NAME = "master-audited-20261102-tot13-blind"
+
+fixed = {
+    "DEFAULT_MODEL": "nvidia/nvidia/nemotron-3.5-super-vl-120b-a12b",
+    "FALLBACK_MODEL": "cohere/command-a-03-2025",
+    "CRITIC_MODEL": "mistral/ministral-14b-2512",
+    "CRITIC_FALLBACK_MODEL": "cohere/command-a-03-2025",
+    "CRITIC": True,
+    "CRITIC_BLIND": True,
+    "CRITIC_FOLLOWUP": True,
+    "CRITIC_SECONDS": 40,
+    "CRITIC_FOLLOWUP_SECONDS": 90,
+    "MANUAL_STEP": True,
+    "STEP_QUESTIONS": 1,
+    "CHROMA_PATH": str(ROOT / ".local-audited-manual-index"),
+    "MEMORY_RETRIEVAL_MODE": "none",
+    "EMBEDDING_MODEL": "nvidia/nvidia/nemotron-3-embed-1b",
+    "PROVIDER_SAMPLING": {},
+    "MODEL_SAMPLING": {
+        "nvidia/nvidia/nemotron-3.5-super-vl-120b-a12b": {"temperature": 1.0, "top_p": 0.95},
+        "cohere/command-a-03-2025": {"temperature": 0.3, "top_p": 0.75},
+        "mistral/ministral-14b-2512": {"temperature": 0.0, "top_p": None},
+    },
+}
+for job in ("PLAN", "DECIDE", "INTERPRET", "HYPOTHESIZE", "CONCLUDE", "JUDGE", "LESSON"):
+    fixed[f"{job}_MODEL"] = None
+
+settings = Settings(_env_file=ROOT.parent.parent / ".env", **fixed)
+for field in ("nvidia_api_key", "cohere_api_key", "mistral_api_key", "typesafe_api_key"):
+    if getattr(settings, field) is None:
+        raise RuntimeError(f"Missing {field.upper()}")
+private = {name for name in Settings.model_fields if name.endswith(("_api_key", "_api_token")) or name in ("database_url", "cloudflare_account_id")}
+public = settings.model_dump(mode="json", exclude=private)
+for name, field in Settings.model_fields.items():
+    alias = str(field.validation_alias or name)
+    value = getattr(settings, name)
+    os.environ.pop(alias, None)
+    if value is None:
+        continue
+    if isinstance(value, SecretStr):
+        os.environ[alias] = value.get_secret_value()
+    elif isinstance(value, bool):
+        os.environ[alias] = "on" if value else "off"
+    elif isinstance(value, Path):
+        os.environ[alias] = str(value)
+    elif name in ("provider_sampling", "model_sampling"):
+        os.environ[alias] = json.dumps(public[name])
+    else:
+        os.environ[alias] = str(value)
+
+records_path = OUT / f"{NAME}.records.jsonl"
+audit_path = OUT / f"{NAME}.audit.jsonl"
+records = read_records(records_path)
+audits = AuditLog(audit_path).read()
+cases = known_cases()
+if len(records) != 4 or len(audits) != 4:
+    raise RuntimeError("Expected exactly four saved records and audits")
+if [r.scenario_id for r in records] != [c.scenario_id for c in cases[:4]]:
+    raise RuntimeError("Saved cases do not match the ordered known cases")
+
+
+def save(record):
+    append_records(records_path, [record])
+    print(f"Saved {record.scenario_id}", flush=True)
+
+
+run_experiment(
+    cases[4:8],
+    model_policy_factory(False, tree_of_thought=True, with_manual=True),
+    name=NAME,
+    log=AuditLog(audit_path),
+    manual=open_manual("semantic"),
+    start=5,
+    on_record=save,
+)
