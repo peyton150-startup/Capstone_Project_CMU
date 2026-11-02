@@ -1,5 +1,18 @@
 # Progress Log
 
+> **2026-11-02 — full-project evaluation command (built ungated):** Branch
+> `feature/full-project-evaluation`, stacked on `fix/evaluator-p0-criteria`
+> (PR #159), adds `evaluation/evaltools/full_evaluation.py`: one command that
+> records provenance, writes a scope manifest of every tracked Python file
+> (EVAL-05, in part), plans every FN/TS/TL/RUN/BT question into a ledger with
+> a status per row, refuses `--send` over `--max-requests`/`--max-usd`
+> (EVAL-06, in part) and writes a report that keeps correctness, comparisons,
+> evidence, reliability and judging apart with denominators (EVAL-07, in
+> part). Dry run over the PR #156 archive: 52 episodes, published 3/12, 3/12,
+> 6/13, 6/11 reproduced, both pairs `insufficient_sample` (11 matched cases
+> of 13 needed). Offline tests only; no model was called. Understood: no —
+> built ungated, developer to review.
+
 > **2026-11-02 — evaluator P0 fixes from the readiness criteria (built ungated):**
 > Branch `fix/evaluator-p0-criteria` implements EVAL-01 (episode keys
 > `namespace::run_key`; `run_packet --archive` imports PR #156's 52 episodes
