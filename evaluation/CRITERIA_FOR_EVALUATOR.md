@@ -182,24 +182,81 @@ Found by the same 2026-11-02 probe, against the 1,378 inventoried tests.
 - **Change:** Generate counts quoted in the evaluation documents from the files they describe, or test them, so they cannot drift again.
 - **Pass:** A test fails when a document's stated question count differs from `load_questions()`.
 
+### Confirmed PR #160 follow-up findings (2026-11-02; documentation only)
+
+**Source and scope.** A second review checked the implementation on open PR #160 (`feature/full-project-evaluation`, stacked on open PR #159) against the archived data on `main`. The defects below are **confirmed by static code inspection**, not fixed by this update. The independent reviewer could not execute the acceptance suite because Python 3.14 was unavailable in that environment. The repository's previously reported offline tests/CI do not establish that these *new* acceptance cases pass. PR #159 and #160 must remain unmerged pending developer review.
+
+**Readiness distinction.** Findings F01–F04 are P0 barriers to a **complete, accurately accounted, bounded and practically resumable** full run; raising limits may allow requests to start, but does not solve missing evidence or ledger omissions. F05–F09 are P1 requirements for a reproducible and credible interpretation. The ability to finish HTTP requests is **not** proof that the evaluation is correct. Nothing below authorizes live sending, paid API use, new master runs, or merging.
+
+#### F01 — Import and validate real audit logs (P0; EVAL-08 / EVAL-06)
+
+- **Observed:** `evaluation/evaltools/run_packet.py::build_archive()` discovers `<run>.records.jsonl`, label, critic-label and report siblings, but fails to pass the existing `<run>.audit.jsonl` sibling to `build_all()`. The five complete audit records saved by merged PR #162 would therefore appear to be `record_only`.
+- **Fix:** Resolve `audit_path=_sibling(records_path, stem, ".audit.jsonl")`; verify exact bijection between audit `run_id` and record episode identity, with no missing, duplicate, orphan, mislabeled or truncated audit entries. Fail the strict audited-import gate if an expected audit is absent or invalid. Never manufacture a trace for older records.
+- **Pass (T21):** Import PR #156's 52 record-only episodes **and** PR #162's five audited episodes using both `--archive` arguments; exactly **57 unique composite identities**, with **52 record-only and five full traces**; five audited RUN packets contain actual saved audit evidence. Reject an orphan, duplicate and missing expected audit in negative tests. **Not yet executed.**
+
+#### F02 — Close the test inventory and evaluator-code omission (P0; EVAL-05)
+
+- **Observed:** Of **88 tracked `tests/test_*.py` files**, the referenced inventory includes **87**: `tests/test_full_evaluation.py` is missing. `scope_manifest()` classifies any otherwise unknown file in `tests/` as `test_support`, so the omission does not fail the existing unexplained-file gate. `evaluation/evaltools/` is excluded wholesale despite containing the evaluator implementation under assessment.
+- **Fix:** Regenerate the inventory and coverage/JUnit data against the exact chosen commit. Enumerate all tracked test definitions and distinguish legitimate support modules from executable test files. Do not let a `test_*.py` file silently fall into support. Include evaluator modules in a self-test / separately verified inventory (or a per-file explicit exclusion with its own test evidence); reconcile functions, tools, tests and coverage bidirectionally.
+- **Pass (T22):** All **88 currently tracked test files** are accounted for, including `tests/test_full_evaluation.py`; zero unexplained executable tests; insertion of an unindexed `tests/test_*.py` or an unreviewed evaluator function trips preflight. Counts must be recomputed, not hardcoded to 88.
+
+#### F03 — Give every refused episode explicit question-ledger rows (P0; EVAL-06 / EVAL-07)
+
+- **Observed:** `full_evaluation.plan()` collects refused packets and the summary reports them, but `ledger_rows()` walks only built request items. A packet refused during `build_archive()` has **no RUN question rows**, breaking per-episode and per-provider reconciliation.
+- **Fix:** Preserve every rejected episode identity and reason before requesting; emit one explicit `refused` (or documented applicable skip) row for **each expected RUN question and selected provider**. Do not classify refused as answered, and do not omit it from total eligibility or completeness accounting. Detect duplicate and missing ledger keys.
+- **Pass (T23):** Inject one truth-leaking or invalid packet into an otherwise valid 57-episode import. Its identity remains visible, its RUN ledger rows are all present and refused, no requests for it are sent, and planned + skipped + refused + settled totals reconcile by provider, family, item and question.
+
+#### F04 — Make requests and money limits usable during an actual large run (P0; EVAL-06 / EVAL-15)
+
+- **Observed:** `full_evaluation.budget()` estimates **input tokens only**, not outputs or retries. `--max-requests` / `--max-usd` compare against the **entire plan** and abort before any send if the plan exceeds a limit. The current archive-only dry run reported around **2,016 requests per provider**; a small authorized budget cannot process the first slice.
+- **Fix:** Keep the full plan/ledger, but add bounded `--max-new-requests` / batch-size, a real wall-clock deadline, checkpointed state, and idempotent resume. Estimate both input and output tokens plus retry exposure; enforce an explicit hard spending policy from **measured** usage when returned, and a conservative fallback/stop when actual spend is unknown. Count remaining rather than already completed requests. Require explicit opt-in for live work and do not equate input-only estimates with dollar caps.
+- **Pass (T24):** A full dry run can be resumed through many **small** fake-provider slices with no duplicate payment/response; cap exhaustion stops safely with pending rows preserved. Retries, failures, response costs and unavailable usage never silently exceed or masquerade as a validated spending cap.
+
+#### F05 — Require stable target and per-run source provenance (P1; EVAL-05 / EVAL-03)
+
+- **Observed:** `--commit` is optional, and `provenance()` records a dirty checkout rather than rejecting it. Inventory SHA-256s do not establish that coverage/inventories were built at the declared commit.
+- **Fix/pass (T25):** Require an explicit commit and clean tracked workspace for a publishable assessment; prove inventory regeneration at that commit, with question/rubric and archive hashes. Keep the **current code commit** distinct from each **historical experiment source commit** (including PR #156 and #162 runs). Reject missing/mismatched provenance or prominently demote it to exploratory-only, never silently claim reproducibility.
+
+#### F06 — Pair experiments by scenario and seed, not by position (P1; EVAL-12)
+
+- **Observed:** `full_evaluation.case_number()` derives the match from the numeric slot in the run key (`run/2/...`); two episodes at position 2 could be unrelated scenarios/seeds. The current 13-matched sample rule does not independently establish compatible experiment configuration.
+- **Fix/pass (T26):** Join on stable case/scenario identity **and seed**, validated from source-private metadata; use opaque judge-visible labels. Detect a reordered, replaced or differently seeded case even when sequence numbers match. Check frozen model/prompt/manual/memory/settings and PR #156's operational interruptions, and prevent unsupported causal improvement claims.
+
+#### F07 — Finish per-item finding and independent-reference joins (P1; EVAL-07 / EVAL-10)
+
+- **Observed:** `report()` primarily reports function verification-status totals, test execution outcomes and judge ledger states. It does not yet give a per-function/per-tool/per-test judgment joined to independent, versioned human references, nor independently calibrated evidence-grounding findings.
+- **Fix/pass (T27):** Publish each item's deterministically checked claims, executed tests, assertion strength, judge answer, reviewer reference, disagreements and insufficiency reason. Preserve separate **functional correctness** and **verification confidence** measures; keep agent effectiveness and reliability distinct. Unknown/pending never automatically becomes VERIFIED.
+
+#### F08 — Validate real Snap/Jev contracts before scaling (P1; EVAL-09 / EVAL-10)
+
+- **Observed:** The project's question schema uses **`noul`** as an explicit provider-side question type and **Jev** as the configured TypeSafe evaluator name. Do **not** silently replace `noul` with `null`: `null` is also a missing-value concept, not necessarily the vendor's question type. Provider model naming and request/answer shapes remain **unverified live**.
+- **Fix/pass (T28):** With separately authorized tiny calls, check actual API names, authentication, three answer types (`noul`, choice, score), response fields, model IDs, rate limits, deadline, usage and output cost. Freeze independent reference judgments *before* judge responses; Jev-generated diagnosis proposals cannot independently calibrate Jev. Keep unknown contracts explicitly blocked or degraded.
+
+#### F09 — Detect plausible failures, not merely passing tests (P1; EVAL-13 / EVAL-14)
+
+- **Observed:** Offline evaluator tests demonstrate important scaffolding but are not a substitute for falsification of runtime assertions, bad retrieval/critic evidence, and repair verification.
+- **Fix/pass (T29):** Use risk-ranked mutations and negative controls (unsupported but fluent diagnosis, retrieval failure, invalid critic output, wrong-machine evidence, unauthorized/misapplied fix, failed verification and self-clearing fault). Verify at least one audited success and failure path with a simulated technician-authorized intervention. No real machine control or unapproved master runs.
+
+**Implementation order:** fix **F01 then F03** first (small, immediate evidence/accounting blockers), followed by **F02 and F04** (full inventory and bounded completion). Next enforce F05/F06 and finish the P1 trust/calibration work. Run **Gate A** offline, **Gate B** with fake providers, **Gate C** with explicit authorization for a tiny live pilot, and only then **Gate D** for the evidence-based full-project assessment.
+
 ## 3. Gate sequence: when to run what
 
 ### Gate A — safe offline preflight
 
 - [ ] EVAL-01 through EVAL-05 and EVAL-19 pass identity, label, cache, truth-boundary, manifest, transport and answer-validation tests on the chosen commit.
-- [ ] Import all 52 archived PR #156 episodes with zero collisions and exactly four pending diagnoses.
-- [ ] Regenerate the full first-party inventory, reconcile all deliberate exclusions and validate artifact/checksum provenance.
+- [ ] Import all 52 archived PR #156 episodes with zero collisions and exactly four pending diagnoses; additionally ingest PR #162's five audited cases with **57 unique composite identities**, correct audit linkage, and five full (not record-only) traces (F01/T21).
+- [ ] Regenerate the full first-party inventory, reconcile all deliberate exclusions and validate artifact/checksum provenance; explicitly account for every executable test file (including `tests/test_full_evaluation.py`) and the evaluator's own Python implementation (F02/T22).
 - [ ] Build packets and dry-run all applicable questions without external model or vendor API calls.
-- [ ] Refused, missing-trace, out-of-scope, unfittable and pending items appear in a machine-readable manifest.
+- [ ] Refused, missing-trace, out-of-scope, unfittable and pending items appear in a machine-readable manifest **and a reconciled per-question ledger** (F03/T23).
 
 **Result permitted:** "offline inventory and dry-run ready". **Not permitted:** "full-project evaluator validated".
 
 ### Gate B — full offline integration
 
 - [ ] EVAL-06 through EVAL-08 and EVAL-11 through EVAL-13 and EVAL-15 satisfy their tests.
-- [ ] Complete FN/TS/TL/RUN/BT orchestration and checkpoint/resume with fake/recorded provider replies.
+- [ ] Complete FN/TS/TL/RUN/BT orchestration and checkpoint/resume with fake/recorded provider replies; prove small bounded batches can finish a large plan across resumptions without duplicate requests or unaccounted usage (F04/T24).
 - [ ] Consolidated reports preserve the published PR #156 denominators and compare the paired arms correctly.
-- [ ] Every result names its target commit, rubric/question versions, evidence completeness and confidence status.
+- [ ] Every result names its explicit clean target commit, separate historical run commits, rubric/question versions, evidence completeness and confidence status; invalid case/seed joins are blocked (F05/F06, T25/T26).
 - [ ] All intentional test mutations/negative controls are caught.
 
 **Result permitted:** "whole-project evaluation pipeline works offline". It still cannot claim live-judge reliability or full agent-behavior verification.
@@ -207,7 +264,7 @@ Found by the same 2026-11-02 probe, against the 1,378 inventoried tests.
 ### Gate C — approved small live calibration
 
 - [ ] Developer explicitly authorizes the small API pilot and associated spend. Do not make live provider requests as part of these documentation changes.
-- [ ] EVAL-09 validates real Snap/Jev contracts; EVAL-10 freezes independent reference judgments first.
+- [ ] EVAL-09 validates real Snap/Jev contracts, including the provider-defined `noul` question type; EVAL-10 freezes independent reference judgments first (F08/T28).
 - [ ] Each question family used for scoring has adequate reference support; uncalibrated families remain human-review-only.
 - [ ] Request fingerprints, interruption/retry behavior, input costs and provider identity survive real replies.
 
@@ -219,7 +276,7 @@ Found by the same 2026-11-02 probe, against the 1,378 inventoried tests.
 - [ ] New master-run batches carry complete audits and frozen provenance; archived record-only cases are never falsely upgraded.
 - [ ] The approved evaluation plan covers simulator, agent, retrieval, memory, ToT, critic, tools, tests, end-to-end episodes, failure modes and MVP scope.
 - [ ] P0/P1 acceptance tests pass on the **exact same code and rubric revisions** being evaluated; all missingness and exclusions remain visible.
-- [ ] A final report provides deterministic outcomes and calibrated judge assessments side by side, every denominator, outstanding gaps and a separate MVP-readiness verdict.
+- [ ] A final report provides deterministic outcomes and calibrated judge assessments side by side, per-item findings, every denominator, outstanding gaps, distinct functional-correctness and verification-confidence results, and a separate MVP-readiness verdict (F07/F09, T27/T29).
 
 **Result permitted:** "full-project evaluation completed", with any remaining unverified behavior explicitly reported rather than concealed.
 
@@ -247,6 +304,15 @@ Found by the same 2026-11-02 probe, against the 1,378 inventoried tests.
 | T18 | Off-list choice, noul above 1, non-numeric score | Each answer is kept unreadable with a reason; the rest of the request survives |
 | T19 | Test and tool states built from the full inventory | No neighbouring test is included; every shortened list or text says how much was kept |
 | T20 | Stated question count in the evaluation docs | Matches `load_questions()` |
+| T21 | Import both PR #156 and #162 archives, then corrupt audit linkage | 57 unique identities, 52 record-only and five full traces; orphan/duplicate/missing expected audits rejected |
+| T22 | Reconcile 88 tracked test files and evaluator code; inject unindexed test | `tests/test_full_evaluation.py` and evaluator modules explicitly accounted for; new omissions fail preflight |
+| T23 | Refuse one packet before request building | Every expected RUN question/provider remains in the refused ledger; zero dropped rows or sent refusals |
+| T24 | Large fake-provider plan with tiny request/time/money budget and resumed passes | Full eventual completion without duplicate sends; input/output/retry exposure and actual usage constrained or safely stopped |
+| T25 | Missing SHA, dirty worktree, stale inventories, different archive source commit | Publishable evaluation refused/demoted; target code, coverage and historical run provenance distinguishable |
+| T26 | Permute case positions and seeds while keeping the same case numbers | Mismatched scenario/seed/config invalidates pair; no unwarranted improvement claim |
+| T27 | Reference judgments and incomplete functional evidence | Per-function/tool/test findings join independent reference and judge decisions; two nonblended scores, no invented VERIFIED |
+| T28 | Authorized small live API contract and calibration pilot | `noul`, choice, score plus model/auth/usage contracts verified or explicitly unavailable; independent frozen references |
+| T29 | Risk-ranked mutation and positive/negative simulated repair controls | Weak tests, unsupported conclusions and false resolution fail; authorized repair vs failure are distinguished |
 
 ## 5. Deliverables for the actual implementation PRs
 
@@ -260,7 +326,7 @@ The implementation should produce, at minimum:
 6. An independently adjudicated reference set and calibration report for available decision models.
 7. Per-item/per-episode consolidated findings and per-batch aggregation with correct denominators, operational failure classes, provenance and costs.
 8. Positive and negative synthetic intervention/verification evidence.
-9. Regression tests T01–T20 and a reproducible, documented dry-run command.
+9. Regression tests T01–T29 (including the confirmed F01–F09 defects) and a reproducible, documented dry-run command.
 10. A final readiness report clearly separating **implemented**, **verified**, **incomplete**, **not implemented**, **future work** and **blocked for missing evidence**.
 
 ## 6. Constraints and handoff
@@ -272,4 +338,4 @@ The implementation should produce, at minimum:
 - Don't add model providers to the agent. Snap/Jev are optional evaluator-side services only, subject to explicit authorization for live calls.
 - **No repository merge, live master run, external API invocation or production logic change is implied by this specification.**
 
-**Release decision:** PR #155's current scaffold can be used for offline inventory work and limited dry runs. Treat the full-project evaluator as **NOT READY** until P0/P1 requirements and Gates A–D are actually satisfied and evidenced.
+**Release decision:** PR #155's current scaffold can be used for offline inventory work and limited dry runs. As of the static PR #160 review on 2026-11-02, F01–F04 remain confirmed implementation blockers and F05–F09 remain trust/reproducibility requirements. The independent reviewer could not run the new Python 3.14 acceptance tests, so their outcomes are unknown. Treat the full-project evaluator as **NOT READY** until P0/P1 requirements and Gates A–D are actually satisfied and evidenced. Keep PR #159 and PR #160 **unmerged** pending developer review.
