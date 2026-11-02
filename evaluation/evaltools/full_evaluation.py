@@ -42,7 +42,7 @@ import sys
 from collections import Counter, defaultdict
 from pathlib import Path
 
-from evaltools import run_packet, snap_request
+from evaltools import build_inventory, run_packet, snap_request
 from evaltools.decision_models import (
     MATCHED_STATE_TOKENS,
     NORMALIZE_VERSION,
@@ -62,7 +62,6 @@ SKIP_STATUSES = ("unknown", "not_applicable", "not_run", "not_offered", "not_ask
 # prefix, with the reason; the reasons follow VERIFICATION_MATRIX.json
 # `exclusions`. Anything else not inventoried is "unexplained".
 EXCLUDED = (
-    ("evaluation/evaltools/", "evaluation scaffolding, tested by its own tests"),
     ("migrations/", "Alembic scaffolding outside the capstone package"),
     (".github/", "CI wiring, checked by CI itself"),
     ("test_db_connection.py", "a manual connection probe"),
@@ -104,17 +103,34 @@ def provenance(commit: str | None, inventory: Path, rubric_version: str) -> dict
     #   dirty: Tracked files changed but not committed, which the commit alone
     #     does not describe.
     head = git("rev-parse", "HEAD")
-    if commit is not None and head is not None and not head.startswith(commit):
+    if commit is None or head is None:
+        raise ValueError("an explicit checked-out --commit is required")
+    if not head.startswith(commit):
         raise ValueError(f"--commit {commit} is not the checked-out commit {head}")
     dirty = git("status", "--porcelain", "--untracked-files=no")
+    if dirty is None or dirty:
+        raise ValueError(
+            "the evaluation target must have no uncommitted tracked changes"
+        )
+    matrix = json.loads((inventory / "VERIFICATION_MATRIX.json").read_text("utf-8"))
+    source_hashes = matrix.get("source_sha256") or {}
+    if not source_hashes or not matrix.get("coverage_available") or not matrix.get("junit_available"):
+        raise ValueError("inventory lacks source hashes or full coverage/JUnit evidence")
+    mismatched = [
+        file
+        for file, expected in source_hashes.items()
+        if not (REPO / file).exists() or sha256_of(REPO / file) != expected
+    ]
+    if mismatched:
+        raise ValueError(f"inventory source hash mismatch: {mismatched[:3]}")
     return {
         "report_version": REPORT_VERSION,
         "commit_pinned": commit,
         "commit_checked_out": head,
         "tracked_changes_uncommitted": None if dirty is None else bool(dirty),
-        # The inventories record no commit of their own; their hashes say
-        # exactly which files were read.
-        "inventory_commit": "unknown: the inventories do not record one",
+        "inventory_source_hashes_verified": True,
+        "coverage_sha256": matrix["coverage_sha256"],
+        "junit_sha256": matrix["junit_sha256"],
         "inventory_sha256": {
             path.name: sha256_of(path) for path in sorted(inventory.glob("*.json"))
         },
@@ -170,6 +186,11 @@ def scope_manifest(
             entry = {"class": "inventoried"}
         elif file in test_files:
             entry = {"class": "tests"}
+        elif file.startswith("tests/test_") and file.endswith(".py"):
+            entry = {
+                "class": "unexplained",
+                "reason": "executable test absent from inventory",
+            }
         elif file.startswith("tests/"):
             entry = {"class": "test_support"}
         elif reason := next((r for p, r in EXCLUDED if file.startswith(p)), None):
@@ -179,12 +200,21 @@ def scope_manifest(
         else:
             entry = {"class": "unexplained"}
         classes[file] = entry
+    evaluator_gaps = []
+    for file in files:
+        path = REPO / file
+        if not file.startswith("evaluation/evaltools/") or not path.exists():
+            continue
+        actual = {item.id for item in build_inventory.collect_functions(path)}
+        indexed = {key for key, entry in functions.items() if entry["file"] == file}
+        evaluator_gaps.extend(sorted(actual - indexed))
     stale = sorted((inventoried | test_files) - set(files))
     counts = Counter(entry["class"] for entry in classes.values())
     return {
         "counts": dict(sorted(counts.items())),
         "unexplained": sorted(
-            f for f, e in classes.items() if e["class"] == "unexplained"
+            [f for f, e in classes.items() if e["class"] == "unexplained"]
+            + evaluator_gaps
         ),
         "stale": stale,
         "files": classes,
@@ -557,6 +587,20 @@ def plan(
                     )
                 built.append(request)
     rows = ledger_rows(built, family_questions)
+    if "RUN" in families:
+        rows.extend(
+            {
+                "family": "RUN",
+                "item_id": entry["episode_key"],
+                "provider": provider.name,
+                "question_id": question_id,
+                "status": "refused",
+                "reason": entry["reason"],
+            }
+            for entry in refused
+            for provider in providers
+            for question_id in family_questions["RUN"]
+        )
     if "FN" in families:
         # Functions the inventory asks nothing about (verification status NOT
         # APPLICABLE) still get rows, so no function drops out unrecorded.
@@ -574,6 +618,9 @@ def plan(
             for provider in providers
             for q in family_questions["FN"]
         ]
+    keys = [(r["family"], r["item_id"], r["provider"], r["question_id"]) for r in rows]
+    if len(keys) != len(set(keys)):
+        raise ValueError("duplicate question ledger row")
     return {
         "built": built,
         "rows": rows,
@@ -631,6 +678,27 @@ def budget(built: list) -> dict:
             sum(e["cost_usd_estimate"] for e in per.values()), 4
         ),
     }
+
+
+def pending_batch(built: list, requests_dir: Path, size: int) -> list:
+    """Select the next bounded set of unanswered requests in plan order."""
+    # Variables:
+    #   item: A planned request, skipped when it has no body or saved complete
+    #     answers for the same fingerprint.
+    #   size: The most new requests this invocation may send.
+    if size < 1:
+        raise ValueError("--batch-size must be positive")
+    pending = []
+    for item in built:
+        if item["body"] is None:
+            continue
+        tags = item["tags"]
+        answer = requests_dir / f"{snap_request.file_stem(tags)}.answers.json"
+        if not snap_request.already_answered(answer, tags):
+            pending.append(item)
+        if len(pending) == size:
+            break
+    return pending
 
 
 def settle(rows: list[dict], requests_dir: Path) -> list[dict]:
@@ -923,6 +991,11 @@ def main(argv=None) -> int:
     parser.add_argument("--send", action="store_true", help="post the requests")
     parser.add_argument("--max-requests", type=int, help="refuse to send more")
     parser.add_argument("--max-usd", type=float, help="refuse to send above this")
+    parser.add_argument(
+        "--batch-size",
+        type=int,
+        help="send at most this many pending requests; rerun to resume",
+    )
     args = parser.parse_args(argv)
     families = tuple(f.strip() for f in args.families.split(",") if f.strip())
     unknown = set(families) - {"FN", "TS", "TL", "RUN", "BT"}
@@ -956,21 +1029,23 @@ def main(argv=None) -> int:
         file=sys.stderr,
     )
     requests_dir = args.out / "requests"
+    sending = planned["built"]
     if args.send:
+        if args.batch_size is not None:
+            sending = pending_batch(planned["built"], requests_dir, args.batch_size)
+        batch_spend = budget(sending)
         if (
-            spend["requests"] > args.max_requests
-            or spend["cost_usd_estimate"] > args.max_usd
+            batch_spend["requests"] > args.max_requests
+            or batch_spend["cost_usd_estimate"] > args.max_usd
         ):
             print(
-                f"refused: the plan ({spend['requests']} requests, "
-                f"${spend['cost_usd_estimate']}) is over --max-requests "
+                f"refused: the batch ({batch_spend['requests']} requests, "
+                f"${batch_spend['cost_usd_estimate']}) is over --max-requests "
                 f"{args.max_requests} or --max-usd {args.max_usd}; nothing was sent",
                 file=sys.stderr,
             )
             return 2
-    counts = snap_request.write_requests(
-        planned["built"], requests_dir, send_them=args.send
-    )
+    counts = snap_request.write_requests(sending, requests_dir, send_them=args.send)
     rows = settle(planned["rows"], requests_dir)
     scope = scope_manifest(planned["functions"], planned["tests"])
     result = report(planned, rows, scope, prov, spend)

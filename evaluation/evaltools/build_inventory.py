@@ -15,6 +15,7 @@ written by a reviewer) can raise a status to VERIFIED or lower it to FAILED.
 
 import argparse
 import ast
+import hashlib
 import json
 import re
 import sys
@@ -26,6 +27,7 @@ from pathlib import Path
 REPO = Path(__file__).resolve().parents[2]
 SOURCE_ROOT = REPO / "capstone-code"
 PACKAGE = SOURCE_ROOT / "capstone"
+EVALUATOR_PACKAGE = REPO / "evaluation" / "evaltools"
 TESTS = REPO / "tests"
 CURATED = REPO / "evaluation" / "curated"
 DEFAULT_OUT = REPO / "evaluation" / "inventory"
@@ -42,7 +44,6 @@ EXCLUSIONS = [
     "tests/test_migrations.py but is not part of the `capstone` package.",
     "`test_db_connection.py` (repository top): a manual connection probe.",
     "`.github/test_groups.py`: CI wiring, checked by CI itself.",
-    "`evaluation/evaltools/`: this scaffolding.",
     "Generated files: `.coverage`, `.pytest-tmp/`, `.chroma/`.",
 ]
 
@@ -660,11 +661,13 @@ def build(coverage_path: Path | None, junit_path: Path | None, out: Path) -> dic
     #     the rest are indirect.
     #   coverage_class: none, import-only, indirect, direct or no-statements;
     #     it sets the derived status unless a curated note overrides it.
+    source_paths = sorted((*PACKAGE.rglob("*.py"), *EVALUATOR_PACKAGE.rglob("*.py")))
+    test_paths = sorted(TESTS.glob("test_*.py"))
     functions: list[FunctionInfo] = []
-    for path in sorted(PACKAGE.rglob("*.py")):
+    for path in source_paths:
         functions.extend(collect_functions(path))
     tests: list[TestInfo] = []
-    for path in sorted(TESTS.glob("test_*.py")):
+    for path in test_paths:
         tests.extend(collect_tests(path))
 
     contexts, executed, statements = read_coverage(coverage_path)
@@ -804,6 +807,18 @@ def build(coverage_path: Path | None, junit_path: Path | None, out: Path) -> dic
         "coverage_file": None if coverage_path is None else str(coverage_path),
         "coverage_available": bool(contexts),
         "junit_available": bool(outcomes),
+        "source_sha256": {
+            rel(path): hashlib.sha256(path.read_bytes()).hexdigest()
+            for path in (*source_paths, *test_paths)
+        },
+        "coverage_sha256": (
+            hashlib.sha256(coverage_path.read_bytes()).hexdigest()
+            if coverage_path is not None else None
+        ),
+        "junit_sha256": (
+            hashlib.sha256(junit_path.read_bytes()).hexdigest()
+            if junit_path is not None else None
+        ),
         "counts": {
             "functions": len(function_records),
             "classes_note": "classes are listed through their methods",

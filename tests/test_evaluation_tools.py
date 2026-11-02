@@ -177,6 +177,34 @@ def test_an_audit_log_gives_the_packet_a_full_trace(tmp_path):
     assert packet.evaluator_only.abstained is None
 
 
+def test_audited_import_rejects_missing_duplicate_and_orphan_traces(tmp_path):
+    """A declared audit cannot silently lose or add an episode."""
+    case = known_cases()[0]
+    records = run_experiment([case], stand_in, name="audit-check")
+    records_path = tmp_path / "records.jsonl"
+    audit_path = tmp_path / "audit.jsonl"
+    append_records(records_path, records)
+    audit_path.write_text("", encoding="utf-8")
+    with pytest.raises(ValueError, match="audit/record mismatch"):
+        run_packet.build_all(records_path, audit_path=audit_path)
+    log = AuditLog(audit_path)
+    run_experiment([case], stand_in, name="audit-check", log=log)
+    assert (
+        run_packet.build_all(records_path, audit_path=audit_path)[
+            0
+        ].snap_view.trace.completeness
+        == "full"
+    )
+    audit_line = audit_path.read_text(encoding="utf-8")
+    audit_path.write_text(audit_line + audit_line, encoding="utf-8")
+    with pytest.raises(ValueError, match="duplicate audit run id"):
+        run_packet.build_all(records_path, audit_path=audit_path)
+    audit_path.write_text("", encoding="utf-8")
+    run_experiment([known_cases()[1]], stand_in, name="audit-check", log=log)
+    with pytest.raises(ValueError, match="orphan="):
+        run_packet.build_all(records_path, audit_path=audit_path)
+
+
 def test_the_traced_run_names_the_functions_each_case_executed(tmp_path):
     config = tmp_path / "one.json"
     config.write_text(

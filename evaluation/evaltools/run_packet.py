@@ -711,7 +711,11 @@ def evaluator_only_of(
 def audit_by_run(path: Path | None) -> dict[str, AuditRecord]:
     if path is None:
         return {}
-    return {str(r.completed.run_id): r for r in AuditLog(path).read()}
+    audits = AuditLog(path).read()
+    ids = [str(record.completed.run_id) for record in audits]
+    if len(ids) != len(set(ids)):
+        raise ValueError(f"{path.name}: duplicate audit run id")
+    return dict(zip(ids, audits, strict=True))
 
 
 def build_packet(
@@ -953,6 +957,15 @@ def build_all(
         pending |= review_flags(review_report_path, labels)
     critic_labels, critic_pending = read_labels(critic_labels_path)
     audits = audit_by_run(audit_path)
+    if audit_path is not None:
+        expected = {str(run_id_for(record.run_key)) for record in records}
+        if set(audits) != expected:
+            missing = sorted(expected - set(audits))
+            orphan = sorted(set(audits) - expected)
+            raise ValueError(
+                f"{audit_path.name}: audit/record mismatch; "
+                f"missing={missing[:3]}, orphan={orphan[:3]}"
+            )
     packets = []
     for line, record in zip(lines, records, strict=True):
         audit = audits.get(str(run_id_for(record.run_key)))
@@ -1025,15 +1038,23 @@ def build_archive(
     commits = {}
     if summary_path.exists():
         for run in json.loads(summary_path.read_text(encoding="utf-8")).get("runs", []):
-            commits[(run.get("pair"), run.get("name"))] = run.get("commit")
+            commit = run.get("commit")
+            if not isinstance(commit, str) or not re.fullmatch(r"[0-9a-f]{40}", commit):
+                raise ValueError(
+                    "archive summary has a run without a full source commit"
+                )
+            commits[(run.get("pair"), run.get("name"))] = commit
     packets = []
     for records_path in sorted(archive.glob("*/*.records.jsonl")):
         pair = records_path.parent.name
         stem = records_path.name.removesuffix(".records.jsonl")
+        if (pair, stem) not in commits:
+            raise ValueError(f"{records_path.name}: source commit missing from summary")
         packets += build_all(
             records_path,
             labels_path=_sibling(records_path, stem, ".jev-labels.jsonl"),
             critic_labels_path=_sibling(records_path, stem, ".critic-jev-labels.jsonl"),
+            audit_path=_sibling(records_path, stem, ".audit.jsonl"),
             review_report_path=_sibling(records_path, stem, ".jev-report.json"),
             namespace=pair,
             commit_sha=commits.get((pair, stem)),

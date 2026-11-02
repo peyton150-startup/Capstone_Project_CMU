@@ -5,6 +5,7 @@ goes through a fake transport.
 """
 
 import json
+from types import SimpleNamespace
 
 import pytest
 
@@ -40,6 +41,30 @@ def test_every_episode_and_question_has_one_ledger_row(planned):
     allowed = {"planned", *full_evaluation.SKIP_STATUSES, "unfittable", "refused"}
     assert {r["status"] for r in run_rows} <= allowed
     assert result["refused_packets"] == []
+
+
+def test_refused_episode_keeps_every_run_question_row(tmp_path, monkeypatch):
+    """An invalid episode is still counted in the RUN ledger."""
+    from evaltools import run_packet
+
+    def refuse_archive(_archive, *, refused):
+        refused.append({"episode_key": "pair::run/1/KA-01", "reason": "invalid trace"})
+        return []
+
+    monkeypatch.setattr(run_packet, "build_archive", refuse_archive)
+    result = full_evaluation.plan(
+        inventory=snap_request.INVENTORY,
+        archives=[tmp_path],
+        providers=JEV,
+        out=tmp_path,
+        commit=None,
+        families=("RUN",),
+    )
+    rows = result["rows"]
+    assert len(rows) == 12
+    assert {row["status"] for row in rows} == {"refused"}
+    assert {row["item_id"] for row in rows} == {"pair::run/1/KA-01"}
+    assert result["built"] == []
 
 
 def test_the_report_keeps_the_published_denominators(planned):
@@ -163,9 +188,39 @@ def test_an_answer_to_another_request_settles_nothing(planned, tmp_path):
     assert {r["status"] for r in full_evaluation.settle(rows, tmp_path)} == {"planned"}
 
 
+def test_small_batches_resume_without_resending_completed_requests(
+    planned, tmp_path, monkeypatch
+):
+    """A large plan can advance through saved answers one request at a time."""
+    _, result = planned
+    bt = [item for item in result["built"] if item["tags"]["family"] == "BT"]
+    assert len(bt) == 2
+    first = full_evaluation.pending_batch(bt, tmp_path, 1)
+    assert first == bt[:1]
+    monkeypatch.setenv(PROVIDERS["jev"].key_env, "test-key")
+    reply = {
+        "model": "m",
+        "answers": {
+            "comparison_valid": {"type": "choice", "choice": "valid"},
+            "improvement_supported": {
+                "type": "choice",
+                "choice": "insufficient_sample",
+            },
+        },
+    }
+    snap_request.write_requests(
+        first, tmp_path, send_them=True, transport=fake_transport([reply]), retries=0
+    )
+    assert full_evaluation.pending_batch(bt, tmp_path, 1) == bt[1:]
+    assert full_evaluation.pending_batch(bt, tmp_path, 2) == bt[1:]
+    with pytest.raises(ValueError, match="positive"):
+        full_evaluation.pending_batch(bt, tmp_path, 0)
+
+
 def test_a_plan_over_budget_is_refused_before_sending(tmp_path, monkeypatch):
     """Nothing is written as answers, and no key is needed to be refused."""
     monkeypatch.delenv(PROVIDERS["jev"].key_env, raising=False)
+    monkeypatch.setattr(full_evaluation, "provenance", lambda *args: {})
     status = full_evaluation.main(
         [
             "--archive",
@@ -192,7 +247,19 @@ def test_sending_needs_both_limits(tmp_path):
         full_evaluation.main(["--out", str(tmp_path), "--send", "--max-usd", "1"])
 
 
-def test_a_dry_run_writes_the_ledger_and_report(tmp_path):
+def test_a_dry_run_writes_the_ledger_and_report(tmp_path, monkeypatch):
+    monkeypatch.setattr(
+        full_evaluation,
+        "provenance",
+        lambda *args: {
+            "commit_pinned": "test",
+            "commit_checked_out": "test",
+            "tracked_changes_uncommitted": False,
+            "rubric_version": "1.0.0",
+            "packet_schema_version": "test",
+            "normalize_version": "test",
+        },
+    )
     status = full_evaluation.main(
         [
             "--archive",
@@ -221,6 +288,19 @@ def test_a_pinned_commit_that_is_not_checked_out_is_refused():
         full_evaluation.provenance("0" * 40, snap_request.INVENTORY, "1.0.0")
 
 
+def test_provenance_needs_an_explicit_clean_commit(monkeypatch):
+    head = "a" * 40
+    monkeypatch.setattr(
+        full_evaluation,
+        "git",
+        lambda *args: head if args == ("rev-parse", "HEAD") else " M example.py",
+    )
+    with pytest.raises(ValueError, match="explicit"):
+        full_evaluation.provenance(None, snap_request.INVENTORY, "1.0.0")
+    with pytest.raises(ValueError, match="uncommitted"):
+        full_evaluation.provenance(head, snap_request.INVENTORY, "1.0.0")
+
+
 def test_the_scope_manifest_classes_every_file(monkeypatch):
     monkeypatch.setattr(full_evaluation, "has_functions", lambda path: True)
     functions = {
@@ -244,10 +324,13 @@ def test_the_scope_manifest_classes_every_file(monkeypatch):
         "capstone-code/capstone/a.py": "inventoried",
         "tests/test_a.py": "tests",
         "tests/helpers.py": "test_support",
-        "evaluation/evaltools/x.py": "excluded",
+        "evaluation/evaltools/x.py": "unexplained",
         "capstone-code/capstone/new.py": "unexplained",
     }
-    assert scope["unexplained"] == ["capstone-code/capstone/new.py"]
+    assert scope["unexplained"] == [
+        "capstone-code/capstone/new.py",
+        "evaluation/evaltools/x.py",
+    ]
     assert scope["stale"] == ["capstone-code/capstone/gone.py"]
 
 
@@ -269,3 +352,16 @@ def test_the_repository_has_no_unexplained_python_file():
     scope = full_evaluation.scope_manifest(functions, tests)
     assert scope["unexplained"] == []
     assert scope["stale"] == []
+
+
+def test_a_new_evaluator_function_requires_inventory_regeneration(monkeypatch):
+    path = "evaluation/evaltools/full_evaluation.py"
+    indexed = "evaltools.full_evaluation:existing"
+    added = "evaltools.full_evaluation:new_function"
+    monkeypatch.setattr(
+        full_evaluation.build_inventory,
+        "collect_functions",
+        lambda _path: [SimpleNamespace(id=indexed), SimpleNamespace(id=added)],
+    )
+    scope = full_evaluation.scope_manifest({indexed: {"file": path}}, {}, files=[path])
+    assert scope["unexplained"] == [added]
