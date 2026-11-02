@@ -661,6 +661,8 @@ def build(coverage_path: Path | None, junit_path: Path | None, out: Path) -> dic
     #     the rest are indirect.
     #   coverage_class: none, import-only, indirect, direct or no-statements;
     #     it sets the derived status unless a curated note overrides it.
+    #   source_paths: Project and evaluator implementation files to index.
+    #   test_paths: Every executable test file, including evaluator tests.
     source_paths = sorted((*PACKAGE.rglob("*.py"), *EVALUATOR_PACKAGE.rglob("*.py")))
     test_paths = sorted(TESTS.glob("test_*.py"))
     functions: list[FunctionInfo] = []
@@ -813,11 +815,13 @@ def build(coverage_path: Path | None, junit_path: Path | None, out: Path) -> dic
         },
         "coverage_sha256": (
             hashlib.sha256(coverage_path.read_bytes()).hexdigest()
-            if coverage_path is not None else None
+            if coverage_path is not None
+            else None
         ),
         "junit_sha256": (
             hashlib.sha256(junit_path.read_bytes()).hexdigest()
-            if junit_path is not None else None
+            if junit_path is not None
+            else None
         ),
         "counts": {
             "functions": len(function_records),

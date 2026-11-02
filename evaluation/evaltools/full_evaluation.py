@@ -95,13 +95,16 @@ def sha256_of(path: Path) -> str:
 def provenance(commit: str | None, inventory: Path, rubric_version: str) -> dict:
     """What this evaluation was made from, so a result can be traced and repeated.
 
-    ValueError when `commit` is given and is not the checked-out commit: the
-    inventories and code read here would not be the ones named.
+    The explicit commit must be checked out cleanly, with inventory source
+    hashes matching every implementation and test file it describes.
     """
     # Variables:
     #   head: The checked-out commit, or None outside a git checkout.
     #   dirty: Tracked files changed but not committed, which the commit alone
     #     does not describe.
+    #   matrix: Inventory provenance and coverage/JUnit availability.
+    #   source_hashes: File digests recorded when the inventory was built.
+    #   mismatched: Sources changed since that build, making results stale.
     head = git("rev-parse", "HEAD")
     if commit is None or head is None:
         raise ValueError("an explicit checked-out --commit is required")
@@ -114,8 +117,14 @@ def provenance(commit: str | None, inventory: Path, rubric_version: str) -> dict
         )
     matrix = json.loads((inventory / "VERIFICATION_MATRIX.json").read_text("utf-8"))
     source_hashes = matrix.get("source_sha256") or {}
-    if not source_hashes or not matrix.get("coverage_available") or not matrix.get("junit_available"):
-        raise ValueError("inventory lacks source hashes or full coverage/JUnit evidence")
+    if (
+        not source_hashes
+        or not matrix.get("coverage_available")
+        or not matrix.get("junit_available")
+    ):
+        raise ValueError(
+            "inventory lacks source hashes or full coverage/JUnit evidence"
+        )
     mismatched = [
         file
         for file, expected in source_hashes.items()
@@ -177,6 +186,7 @@ def scope_manifest(
     # Variables:
     #   inventoried, test_files: The files the function and test inventories name.
     #   classes: Each file's class and, for an exclusion, why.
+    #   evaluator_gaps: Functions in evaluator modules absent from the inventory.
     files = tracked_python_files() if files is None else files
     inventoried = {f["file"] for f in functions.values()}
     test_files = {t["file"] for t in tests.values()}
@@ -483,6 +493,7 @@ def plan(
     #   packets: Every archived episode's packet, for RUN and BT.
     #   refused: Packets the truth check left out while building.
     #   built: Every request item, with or without a body.
+    #   rows: Per-question statuses, including refused episodes.
     #   family_questions: Each family's question ids, for the rows of items
     #     that are not sent.
     #   compared: Every comparison of two runs in one archived pair (BT).
@@ -966,8 +977,9 @@ def main(argv=None) -> int:
     # Variables:
     #   providers: The decision models to prepare requests for.
     #   planned: The plan: request items, ledger rows, packets, comparisons.
-    #   spend: Expected requests and cost; checked against the limits before
-    #     anything is sent.
+    #   spend: Full-plan estimated requests and input cost for the report.
+    #   sending: The bounded unanswered slice selected for this invocation.
+    #   batch_spend: Estimated input cost of that slice, checked before sends.
     #   counts: Sent, failed and already-answered requests, when sending.
     parser = argparse.ArgumentParser(prog="python -m evaltools.full_evaluation")
     parser.add_argument(

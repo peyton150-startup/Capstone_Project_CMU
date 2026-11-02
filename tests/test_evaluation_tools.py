@@ -26,6 +26,7 @@ REPO = Path(__file__).resolve().parents[1]
 BENCHMARKS = REPO / "docs" / "benchmarks"
 MASTER_RECORDS = BENCHMARKS / "2026-10-27-master-resumed.records.jsonl"
 MASTER_LABELS = BENCHMARKS / "2026-10-27-master-labels.jsonl"
+AUDITED_FIVE = BENCHMARKS / "2026-11-02-audited-known-cases"
 HIDDEN = run_packet.HIDDEN_WORDS
 
 
@@ -247,7 +248,11 @@ def test_the_traced_run_names_the_functions_each_case_executed(tmp_path):
 def test_the_inventory_lists_every_function_and_every_curated_item_exists(tmp_path):
     matrix = build_inventory.build(None, None, tmp_path)
     counted = 0
-    for path in (REPO / "capstone-code" / "capstone").rglob("*.py"):
+    source_paths = [
+        *(REPO / "capstone-code" / "capstone").rglob("*.py"),
+        *(REPO / "evaluation" / "evaltools").rglob("*.py"),
+    ]
+    for path in source_paths:
         tree = ast.parse(path.read_text(encoding="utf-8"))
         counted += sum(
             isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef))
@@ -772,6 +777,19 @@ def test_the_archive_imports_52_distinct_episodes(archive_packets):
     assert len(names) == 52
     assert {p.meta.commit_sha for p in archive_packets} == {
         "e59208d584938ed96a606bc317354882fcc8e01c"
+    }
+
+
+def test_both_archives_import_57_episodes_with_five_real_traces(archive_packets):
+    audited = run_packet.build_archive(AUDITED_FIVE)
+    packets = [*archive_packets, *audited]
+    assert len(packets) == len({p.meta.episode_key for p in packets}) == 57
+    assert len(audited) == 5
+    assert {p.snap_view.trace.completeness for p in archive_packets} == {"record_only"}
+    assert {p.snap_view.trace.completeness for p in audited} == {"full"}
+    assert all(p.snap_view.trace.decisions for p in audited)
+    assert {p.meta.commit_sha for p in audited} == {
+        "31ddd79eb3ab6a3bc0c01f43fb3b137348346394"
     }
 
 

@@ -709,6 +709,10 @@ def evaluator_only_of(
 
 
 def audit_by_run(path: Path | None) -> dict[str, AuditRecord]:
+    """Read one audit record per run id, refusing duplicate trace identities."""
+    # Variables:
+    #   audits: Saved completed audit records for this run file.
+    #   ids: Their run ids, checked before indexing so duplicates stay visible.
     if path is None:
         return {}
     audits = AuditLog(path).read()
@@ -937,6 +941,8 @@ def build_all(
     #     from `review_report_path`; their packets stay unjudged.
     #   critic_pending: Critic picks whose label awaits review; left unscored.
     #   audits: Audit records by run id; a run without one gets a record-only trace.
+    #   expected: Run ids in the records file; when an audit file exists, its
+    #     ids must match exactly, including no orphaned partial case.
     #   namespace: The archived pair or experiment these records belong to, so
     #     the same run key elsewhere gets its own episode key.
     #   refused: Where packets that failed the truth check are listed, or None
@@ -1024,7 +1030,7 @@ def build_archive(
 
     The folder holds one subfolder per pair (as `docs/benchmarks/
     2026-11-01-tot13-pairs/`), each with `<run>.records.jsonl` and, when they
-    exist, `<run>.jev-labels.jsonl`, `<run>.critic-jev-labels.jsonl` and
+    exist, `<run>.audit.jsonl`, `<run>.jev-labels.jsonl`, `<run>.critic-jev-labels.jsonl` and
     `<run>.jev-report.json` (whose `label_needs_review` flags keep a proposal
     unjudged). Each pair's folder name is its namespace, so a run key repeated
     across pairs yields two episodes. The commit of each run comes from the
@@ -1032,6 +1038,7 @@ def build_archive(
     """
     # Variables:
     #   commits: (pair, run name) to the commit that run was made on.
+    #   summary_path: The archive index that names each run's source commit.
     #   pair: The subfolder's name, used as the namespace of its runs.
     #   stem: The run's file name without `.records.jsonl`.
     summary_path = archive / "summary.json"
