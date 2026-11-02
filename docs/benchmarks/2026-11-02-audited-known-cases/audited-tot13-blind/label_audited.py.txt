@@ -1,0 +1,35 @@
+"""Propose Jev labels for the five saved audited episodes without editing records."""
+
+import os
+from pathlib import Path
+
+from capstone.evaluation.labels import LabelBook
+from capstone.evals import automatic_labels, report_of
+from capstone.experiment import read_records
+from capstone.settings import Settings
+
+ROOT = Path(__file__).resolve().parent
+OUT = ROOT / "docs/benchmarks/2026-11-02-audited-known-cases/audited-tot13-blind"
+NAME = "master-audited-20261102-tot13-blind"
+
+settings = Settings(_env_file=ROOT.parent.parent / ".env")
+if settings.typesafe_api_key is None:
+    raise RuntimeError("Missing TYPESAFE_API_KEY")
+os.environ["TYPESAFE_API_KEY"] = settings.typesafe_api_key.get_secret_value()
+
+records = read_records(OUT / f"{NAME}.records.jsonl")
+if len(records) != 5:
+    raise RuntimeError("Expected exactly five completed records")
+labels, review, picks = automatic_labels(records)
+for suffix, values in (("jev-labels", labels), ("critic-jev-labels", picks)):
+    path = OUT / f"{NAME}.{suffix}.jsonl"
+    if path.exists():
+        raise RuntimeError(f"Refusing to overwrite {path.name}")
+    book = LabelBook(path)
+    for label in values.values():
+        book.add(label)
+report = report_of(NAME, records, labels, needs_review=review, critic_labels=picks)
+path = OUT / f"{NAME}.jev-report.json"
+with path.open("x", encoding="utf-8", newline="\n") as output:
+    output.write(report.model_dump_json(indent=2) + "\n")
+print(f"labelled={len(labels)} judged={report.judged} pending={len(review)} critic_picks={len(picks)}")

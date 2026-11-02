@@ -1,5 +1,16 @@
 # Progress Log
 
+> **2026-11-02 — five audited known-answer master cases archived:**
+> [Results and raw traces](benchmarks/2026-11-02-audited-known-cases/README.md)
+> preserve one live ToT blind-critic run on commit `31ddd79`, covering ordered
+> KA-01 through KA-05. The developer stopped it by hand for time; eight cases
+> remain unrun. Five records and five audit entries were saved, with no partial
+> sixth audit tail. Jev proposed five diagnosis labels (none flagged for review)
+> and two critic-pick labels; no person reviewed them. The run had 18 timeout
+> attempts and one HTTP 500 attempt. It provides trace evidence for a limited
+> evaluator pilot, not an accuracy or paired-improvement claim. No EVAL-09 judge
+> request was made. Results/docs only; understanding status unchanged.
+
 > **2026-11-02 — concrete evaluator bugs added to the readiness criteria (documentation only):**
 > [CRITERIA_FOR_EVALUATOR.md](../evaluation/CRITERIA_FOR_EVALUATOR.md) gains
 > EVAL-19 (P0: judge requests lack the project's User-Agent and timeout, and
