@@ -51,6 +51,11 @@ def http_get(url: str) -> str:
     MTConnect agents answer a bad request (e.g. OUT_OF_RANGE) with HTTP 400 and
     an MTConnectError document, so the error body must be read, not dropped.
     """
+    # Variables:
+    #   url: The full agent address for one request, e.g. .../sample?from=5.
+    #   request: A GET request asking for XML; no other method is ever built.
+    #   body: An HTTP error's content; returned if it is an MTConnect error
+    #     document, otherwise the HTTP error is raised again.
     request = urllib.request.Request(
         url, method="GET", headers={"Accept": "application/xml"}
     )
@@ -120,6 +125,10 @@ class MTConnectCollector:
 
     def _url(self, request: str) -> str:
         """The URL for a request, scoped to the device if one was chosen."""
+        # Variables:
+        #   request: The MTConnect request and its query, e.g. "current" or
+        #     "sample?from=5&count=1000".
+        #   prefix: The agent's address, plus "/<device>" when one was chosen.
         prefix = f"{self.base_url}/{self.device}" if self.device else self.base_url
         return f"{prefix}/{request}"
 
@@ -135,6 +144,13 @@ class MTConnectCollector:
         # Variables:
         #   starting: True for the first request, or after a gap or restart.
         #   requested_from: The sequence we asked /sample to start from.
+        #   url: /current when starting, else /sample from requested_from.
+        #   document: The parsed reply: its header numbers and its records.
+        #   restarted: True when the agent's instanceId changed since the last
+        #     poll, meaning its sequence numbers started again.
+        #   records: The reply's records, minus any already written.
+        #   gap: True when data may have been lost: a restart, or the agent's
+        #     oldest held sequence is past where we asked to start.
         starting = self._next is None
         requested_from = self._next
         url = (
@@ -178,6 +194,9 @@ class MTConnectCollector:
 
 def append_jsonl(path: Path, records: list[Line]) -> None:
     """Append records or markers to a JSONL file, one per line, flushed at once."""
+    # Variables:
+    #   path: The telemetry file; created if missing, never overwritten.
+    #   records: Observations and markers to append, in the order given.
     if not records:
         return
     with path.open("a", encoding="utf-8") as sink:
@@ -205,8 +224,14 @@ def run_collector(
     stays visible in the file.
     """
     # Variables:
+    #   collector: The agent reader; keeps its place in the agent's sequence.
+    #   out: The JSONL file every record and marker is appended to.
     #   interval: Seconds between polls; never below MIN_INTERVAL_SECONDS.
     #   max_polls: Stop after this many polls; None runs until interrupted.
+    #   sleep: Waits between polls; replaced by a fake clock in tests.
+    #   log: Where failures and gaps are reported; None means standard error.
+    #   polls: Polls made so far, compared with max_polls.
+    #   result: One poll's records and its gap and more_waiting flags.
     #   written: Records appended so far, returned for the caller's summary.
     #   reason: Why collection ended on purpose, written into the stop marker.
     #   heartbeat_every: Seconds without a written line after which a
@@ -259,6 +284,9 @@ def _marker(
     reason: str | None = None,
 ) -> CollectorMarker:
     """A start or stop marker for this collector, timed on its clock."""
+    # Variables:
+    #   event: "started" or "stopped".
+    #   reason: Why it stopped (e.g. "interrupted"); None for a start.
     return CollectorMarker(
         source=collector.base_url, event=event, at=collector.now(), reason=reason
     )

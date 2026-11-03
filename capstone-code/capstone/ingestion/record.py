@@ -67,6 +67,8 @@ class TelemetryRecord(BaseModel):
 
     def number(self) -> float | None:
         """The value as a float, or None if it is missing or not numeric."""
+        # Variables:
+        #   value: The stored text; event words like "ACTIVE" give None, never 0.
         if self.value is None:
             return None
         try:
@@ -111,6 +113,8 @@ def parse_line(text: str) -> Line:
     Raises pydantic.ValidationError (or ValueError for bad JSON) if it is neither.
     """
     # Variables:
+    #   text: One line of the telemetry file, without its newline.
+    #   data: The line's JSON object.
     #   kind: The line's record_type; missing means an observation written
     #     before markers existed.
     data = json.loads(text)
