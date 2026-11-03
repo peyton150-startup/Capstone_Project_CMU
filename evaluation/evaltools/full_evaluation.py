@@ -82,6 +82,11 @@ PRIVATE_SETTING = ("PATH", "KEY", "TOKEN", "SECRET", "PASSWORD")
 
 def git(*args: str) -> str | None:
     """The output of a git command in the repository, or None if git fails."""
+    # Variables:
+    #   args: The git subcommand and its arguments, run in the repository root.
+    #   CalledProcessError / OSError: Both mean "git gave no answer" (a non-zero
+    #     exit, or git not installed), and both return None rather than raise,
+    #     so a caller can fall back.
     try:
         return subprocess.run(
             ["git", *args], cwd=REPO, capture_output=True, text=True, check=True
@@ -156,6 +161,10 @@ def provenance(commit: str | None, inventory: Path, rubric_version: str) -> dict
 
 def tracked_python_files() -> list[str]:
     """Every Python file git tracks, as repository-relative POSIX paths."""
+    # Variables:
+    #   listed: git's list of tracked `.py` files, or None when git is
+    #     unavailable; then the files are found by walking the tree instead,
+    #     skipping the virtual environment and pytest's temporary directory.
     listed = git("ls-files", "*.py")
     if listed is None:
         return sorted(
@@ -168,6 +177,9 @@ def tracked_python_files() -> list[str]:
 
 def has_functions(path: Path) -> bool:
     """True when the file defines at least one function or method."""
+    # Variables:
+    #   tree: The file's parsed syntax tree; a file with only constants or
+    #     imports has no function and is left out of the scope.
     tree = ast.parse(path.read_text(encoding="utf-8"))
     return any(
         isinstance(n, (ast.FunctionDef, ast.AsyncFunctionDef)) for n in ast.walk(tree)
@@ -243,6 +255,10 @@ def run_name(packet: run_packet.RunEvidencePacket) -> str:
 
 def case_number(packet: run_packet.RunEvidencePacket) -> str:
     """The case's place in its run (`2` in `run/2/KA-02-bearing`), naming no fault."""
+    # Variables:
+    #   parts: The run key split on "/"; a key with three or more parts carries
+    #     the case number second. A shorter key falls back to the packet's
+    #     neutral run reference, so the judge never sees the fault's name.
     parts = packet.meta.run_key.split("/")
     return parts[1] if len(parts) > 2 else packet.snap_view.run_ref
 
@@ -280,6 +296,10 @@ def run_settings(packet: run_packet.RunEvidencePacket) -> dict | None:
 
 def case_outcome(packet: run_packet.RunEvidencePacket) -> dict:
     """One case's code-computed outcome, for a comparison state."""
+    # Variables:
+    #   truth: The packet's evaluator-only view of the case (label status and
+    #     whether the answer was right, abstained, or confidently wrong). Code
+    #     computes these, so the judge reads them but never decides them.
     truth = packet.evaluator_only
     return {
         "label_status": truth.label_status,
@@ -649,6 +669,11 @@ def plan(
 
 def _bodiless(comparison: dict, provider: DecisionProvider, meta: dict, reason: str):
     """A comparison request item that will not be sent, with the reason."""
+    # Variables:
+    #   reason: Why no request could be built (for example, the state does not
+    #     fit the provider), kept under `unfittable` so the ledger shows it.
+    #   meta: The shared tags of the planned run, copied into this item.
+    #   "body": None: The marker that nothing is sent; the budget skips it.
     return {
         "tags": {
             **meta,
