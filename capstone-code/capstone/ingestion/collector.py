@@ -38,6 +38,9 @@ MIN_INTERVAL_SECONDS = 1.0
 # The most bytes read from one response, so a broken agent cannot exhaust memory.
 MAX_RESPONSE_BYTES = 20_000_000
 REQUEST_TIMEOUT_SECONDS = 10.0
+# After this many seconds with nothing written, a successful poll writes a
+# heartbeat line. A watchdog's silence limit must be longer than this.
+HEARTBEAT_SECONDS = 60.0
 
 Fetch = Callable[[str], str]
 
@@ -191,6 +194,7 @@ def run_collector(
     max_polls: int | None = None,
     sleep: Callable[[float], None] = time.sleep,
     log: TextIO | None = None,
+    heartbeat_every: float = HEARTBEAT_SECONDS,
 ) -> int:
     """Poll until max_polls (or forever), writing records; returns records written.
 
@@ -205,11 +209,16 @@ def run_collector(
     #   max_polls: Stop after this many polls; None runs until interrupted.
     #   written: Records appended so far, returned for the caller's summary.
     #   reason: Why collection ended on purpose, written into the stop marker.
+    #   heartbeat_every: Seconds without a written line after which a
+    #     successful poll writes a heartbeat. A failed poll never does, so an
+    #     unreachable agent shows up as silence.
+    #   last_write: When the collector last wrote any line, on its own clock.
     if interval < MIN_INTERVAL_SECONDS:
         raise ValueError(f"interval must be at least {MIN_INTERVAL_SECONDS} s")
     written = 0
     polls = 0
     append_jsonl(out, [_marker(collector, "started")])
+    last_write = collector.now()
     try:
         while max_polls is None or polls < max_polls:
             polls += 1
@@ -224,6 +233,12 @@ def run_collector(
                 continue
             append_jsonl(out, result.records)
             written += len(result.records)
+            now = collector.now()
+            if result.records:
+                last_write = now
+            elif (now - last_write).total_seconds() >= heartbeat_every:
+                append_jsonl(out, [_marker(collector, "heartbeat")])
+                last_write = now
             if result.gap:
                 print(
                     "gap: some observations were lost; restarted from /current",
@@ -240,7 +255,7 @@ def run_collector(
 
 def _marker(
     collector: MTConnectCollector,
-    event: Literal["started", "stopped"],
+    event: Literal["started", "heartbeat", "stopped"],
     reason: str | None = None,
 ) -> CollectorMarker:
     """A start or stop marker for this collector, timed on its clock."""

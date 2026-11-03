@@ -4,7 +4,7 @@
 
     uv run python -m capstone.monitoring --input telemetry.jsonl
     uv run python -m capstone.monitoring --input telemetry.jsonl --alerts alerts.jsonl \
-        --follow --threshold LS1load=0:120 --stale-after 60
+        --follow --threshold LS1load=0:120 --stale-after 180
 
 Deterministic: the alerts are a function of the file's records and the
 options only. The wall clock is never read, so following a file live and
@@ -54,7 +54,10 @@ def main(argv: Sequence[str] | None = None) -> int:
         "--interval", type=float, default=2.0, help="seconds between reads"
     )
     parser.add_argument(
-        "--stale-after", type=float, default=60.0, help="seconds of silence"
+        "--stale-after",
+        type=float,
+        default=180.0,
+        help="seconds of silence (above the 60 s heartbeat plus the poll interval)",
     )
     parser.add_argument(
         "--threshold",

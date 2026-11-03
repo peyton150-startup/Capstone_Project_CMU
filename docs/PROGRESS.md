@@ -1,5 +1,16 @@
 # Progress Log
 
+> **2026-11-03 — collector heartbeat and live crash watchdog (built ungated, developer to review; understood: no):**
+> Second follow-up from PR #165's walkthrough, stacked on the stop markers (PR #166). The collector now writes a
+> `heartbeat` marker when polls succeed but nothing new has been written for 60 s (`HEARTBEAT_SECONDS`); failed polls never
+> write one, so an unreachable agent shows as silence. The deterministic monitor counts a heartbeat as contact with that
+> agent's devices, so a quiet machine is no longer called stale; its default `stale_after` rose from 60 s to 180 s (must
+> exceed heartbeat plus poll interval). New package `capstone.watchdog` (`python -m capstone.watchdog`), the only
+> telemetry process that reads the wall clock: `last_line` reads the file's newest complete line, and `Watchdog.check`
+> raises one live-only `silent` alert when it is older than `--silent-after` (180 s) and is not a clean stop, then
+> `recovered` when lines return or a clean stop is written. Kept outside `monitoring/`, so the monitor's no-clock guard
+> still holds. Live check against demo.mtconnect.org: quiet after a clean stop; one alert on a file cut off mid-run.
+
 > **2026-11-03 — collector start/stop markers: a planned stop is no longer mistaken for a crash (built ungated, developer to review; understood: no):**
 > Follow-up agreed in PR #165's walkthrough. The collector now writes a `CollectorMarker` line (`record_type: "collector"`)
 > when it starts and when it stops on purpose (Ctrl+C or `--polls` reached, with the reason). A crash or killed process
