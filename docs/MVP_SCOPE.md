@@ -2358,16 +2358,16 @@ equipment into the current MVP.
 
 #### Implementation inside the capstone (after the MVP gates)
 
-Proposed additions under \`capstone-code/capstone/\` (names are provisional):
+Proposed additions under `capstone-code/capstone/` (names are provisional):
 
-- \`ingestion/\`: a read-only Haas MTConnect adapter, optional CHC adapter,
+- `ingestion/`: a read-only Haas MTConnect adapter, optional CHC adapter,
   bounded-rate collector, normalization/validation, source sequence IDs,
   edge spool and idempotent batch ingestion.
-- \`data_sources/\`: simulator, stored-history/replay and real-machine
+- `data_sources/`: simulator, stored-history/replay and real-machine
   provider adapters behind the **existing read-only observation and
   FactoryProvider/tool contracts**, where compatible. Preserve tool-level
   provenance, machine identity, time windows and sensor availability.
-- \`monitoring/\`: a deterministic, continuously running monitor for
+- `monitoring/`: a deterministic, continuously running monitor for
   status/mode changes, safe thresholds, contextual load/RPM trends,
   alarms, staleness and missing observations. Include cooldown and
   deduplication; do not run an LLM on every poll. Use the existing
