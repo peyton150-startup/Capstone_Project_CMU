@@ -42,6 +42,9 @@ class WatchdogAlert(BaseModel):
 
 def line_time(line: Line) -> datetime:
     """When a line was written: a marker's time, or a record's receive time."""
+    # Variables:
+    #   line: The newest line of the telemetry file; both kinds carry a time
+    #     set by the collector's clock.
     return line.at if isinstance(line, CollectorMarker) else line.received_at
 
 
@@ -127,6 +130,10 @@ class Watchdog:
         written: datetime,
     ) -> WatchdogAlert:
         """An alert about the watched file."""
+        # Variables:
+        #   now: The wall-clock time of the check that raised the alert.
+        #   written: The time of the newest line at that check, kept so a reader
+        #     can see how long the silence was.
         return WatchdogAlert(
             kind=kind,
             severity=severity,

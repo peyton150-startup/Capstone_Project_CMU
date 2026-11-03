@@ -258,6 +258,7 @@ def run_collector(
                 continue
             append_jsonl(out, result.records)
             written += len(result.records)
+            # now: The collector's clock after this poll, compared with last_write.
             now = collector.now()
             if result.records:
                 last_write = now
@@ -283,9 +284,9 @@ def _marker(
     event: Literal["started", "heartbeat", "stopped"],
     reason: str | None = None,
 ) -> CollectorMarker:
-    """A start or stop marker for this collector, timed on its clock."""
+    """A start, heartbeat or stop marker for this collector, timed on its clock."""
     # Variables:
-    #   event: "started" or "stopped".
+    #   event: "started", "heartbeat" (alive, nothing new to write) or "stopped".
     #   reason: Why it stopped (e.g. "interrupted"); None for a start.
     return CollectorMarker(
         source=collector.base_url, event=event, at=collector.now(), reason=reason

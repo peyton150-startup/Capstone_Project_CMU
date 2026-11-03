@@ -17,6 +17,10 @@ from capstone.watchdog.watchdog import Watchdog, WatchdogAlert, last_line
 
 def report(alerts: list[WatchdogAlert], path: Path | None) -> None:
     """Print alerts and, if a path is given, append them to a JSONL file."""
+    # Variables:
+    #   alerts: What this check raised; usually empty.
+    #   path: The watchdog's own alerts file, kept apart from the monitor's
+    #     replayable alerts; None means print only.
     for alert in alerts:
         print(
             f"{alert.at.isoformat()} {alert.severity.upper():7} {alert.kind}: {alert.message}"
@@ -31,7 +35,11 @@ def report(alerts: list[WatchdogAlert], path: Path | None) -> None:
 def main(argv: Sequence[str] | None = None) -> int:
     """Check the file every --interval seconds until interrupted (or --checks)."""
     # Variables:
+    #   args: The parsed options: input file, alerts file, silence limit,
+    #     check interval and check limit.
     #   checks: Stop after this many checks; None runs until interrupted.
+    #   watchdog: Remembers whether a silence is already reported.
+    #   done: Checks made so far, compared with --checks.
     parser = argparse.ArgumentParser(prog="python -m capstone.watchdog")
     parser.add_argument(
         "--input", type=Path, required=True, help="collector JSONL file"
