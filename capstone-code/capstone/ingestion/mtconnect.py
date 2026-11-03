@@ -40,6 +40,7 @@ class MTConnectError(Exception):
         # Variables:
         #   codes: The agent's error codes, e.g. ["OUT_OF_RANGE"]; the collector
         #     uses them to decide how to recover.
+        #   message: The agent's error text, joined, for logs.
         super().__init__(message)
         self.codes = codes
 
@@ -64,11 +65,17 @@ class StreamsDocument:
 
 def _local(tag: str) -> str:
     """The element name without its XML namespace."""
+    # Variables:
+    #   tag: A name like "{urn:mtconnect.org:MTConnectStreams:2.8}Samples";
+    #     everything up to "}" is the namespace, which differs by version.
     return tag.rsplit("}", 1)[-1]
 
 
 def _child(element: ET.Element, name: str) -> ET.Element | None:
     """The first direct child with this local name, if any."""
+    # Variables:
+    #   element: The parent to search; only its direct children are looked at.
+    #   name: The child's name without namespace, e.g. "Header".
     for child in element:
         if _local(child.tag) == name:
             return child
@@ -92,8 +99,12 @@ def raise_if_error(root: ET.Element) -> None:
     if _local(root.tag) != "MTConnectError":
         return
     # Variables:
+    #   root: The document's top element; only MTConnectError raises.
     #   codes: Every errorCode attribute found. 1.x writes <Error errorCode=..>,
     #     2.x writes a named element such as <OutOfRange errorCode=..>.
+    #   texts: Each error's message: 2.x puts it in <ErrorMessage>, 1.x in the
+    #     element's own text.
+    #   errors: The <Errors> element holding one child per error, if present.
     codes: list[str] = []
     texts: list[str] = []
     errors = _child(root, "Errors")
@@ -116,8 +127,15 @@ def parse_streams(
     # Variables:
     #   source: The agent's base URL, copied onto every record.
     #   received_at: When the collector got this response, copied onto every record.
+    #   xml_text: The agent's raw reply.
     #   instance_id: Read from the header and copied onto every record, so a
     #     later reader can tell runs of the agent apart.
+    #   header: The <Header> element with the agent's sequence numbers.
+    #   records: Every observation in the document, sorted by sequence.
+    #   streams: The <Streams> element: one DeviceStream per machine, each
+    #     holding ComponentStreams, each holding Samples/Events/Condition.
+    #   category: SAMPLE, EVENT or CONDITION, from the section's name; other
+    #     sections are skipped.
     root = ET.fromstring(xml_text)
     raise_if_error(root)
     if _local(root.tag) != "MTConnectStreams":
@@ -175,6 +193,10 @@ def _record(
 ) -> TelemetryRecord:
     """Turn one observation element into a record."""
     # Variables:
+    #   item: One observation element, e.g. <RotaryVelocity ...>1200</...>.
+    #   category: Which section it came from: SAMPLE, EVENT or CONDITION.
+    #   device, component: The DeviceStream and ComponentStream names it sits in.
+    #   source, instance_id, received_at: Copied unchanged onto the record.
     #   tag: The element's own name. For samples and events it is the
     #     observation type (SpindleSpeed); for a condition it is the level
     #     (Normal, Warning, Fault, Unavailable) and the type is an attribute.

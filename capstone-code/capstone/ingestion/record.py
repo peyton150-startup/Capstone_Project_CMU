@@ -1,7 +1,14 @@
 # One normalized telemetry observation, the unit every later layer reads.
 # Responsibility: define the stored record shape; no I/O and no interpretation.
-"""The versioned record the collector writes and the monitor reads."""
+"""The versioned lines the collector writes and the monitor reads.
 
+A telemetry file holds two kinds of line, told apart by `record_type`:
+`observation` (a TelemetryRecord) and `collector` (a CollectorMarker saying
+the collector started or stopped on purpose). Lines written before markers
+existed have no `record_type` and are read as observations.
+"""
+
+import json
 from datetime import datetime
 from typing import Literal
 
@@ -20,6 +27,7 @@ class TelemetryRecord(BaseModel):
     model_config = ConfigDict(frozen=True, extra="forbid")
 
     # Variables:
+    #   record_type: Always "observation"; tells this line apart from a marker.
     #   schema_version: Bumped if the stored shape changes, so old files stay readable.
     #   source: The agent's base URL, so records from two agents never mix silently.
     #   instance_id: The agent's run id; it changes when the agent restarts and its
@@ -38,6 +46,7 @@ class TelemetryRecord(BaseModel):
     #   sequence: The agent's sequence number; orders records and finds gaps.
     #   source_timestamp: When the agent says the value was observed.
     #   received_at: When this collector received it (UTC), to measure lag.
+    record_type: Literal["observation"] = "observation"
     schema_version: Literal[1] = 1
     source: str
     instance_id: str | None
@@ -58,9 +67,55 @@ class TelemetryRecord(BaseModel):
 
     def number(self) -> float | None:
         """The value as a float, or None if it is missing or not numeric."""
+        # Variables:
+        #   value: The stored text; event words like "ACTIVE" give None, never 0.
         if self.value is None:
             return None
         try:
             return float(self.value)
         except ValueError:
             return None
+
+
+class CollectorMarker(BaseModel):
+    """A line saying the collector started, or stopped on purpose.
+
+    A clean stop (Ctrl+C or the poll limit) writes `stopped`. A crash, a
+    killed process or a power cut writes nothing, so a `started` line that is
+    not preceded by `stopped` means the previous run did not end cleanly.
+    """
+
+    model_config = ConfigDict(frozen=True, extra="forbid")
+
+    # Variables:
+    #   record_type: Always "collector"; tells this line apart from an observation.
+    #   source: The agent the collector was reading, matching its records' source.
+    #   event: "started" when collection begins, "stopped" when it ends on purpose.
+    #   at: The collector's clock (UTC) when the event happened.
+    #   reason: Why it stopped, e.g. "interrupted" or "poll limit reached".
+    record_type: Literal["collector"] = "collector"
+    schema_version: Literal[1] = 1
+    source: str
+    event: Literal["started", "stopped"]
+    at: datetime
+    reason: str | None = None
+
+
+Line = TelemetryRecord | CollectorMarker
+
+
+def parse_line(text: str) -> Line:
+    """Read one JSONL line as an observation or a collector marker.
+
+    Raises pydantic.ValidationError (or ValueError for bad JSON) if it is neither.
+    """
+    # Variables:
+    #   text: One line of the telemetry file, without its newline.
+    #   data: The line's JSON object.
+    #   kind: The line's record_type; missing means an observation written
+    #     before markers existed.
+    data = json.loads(text)
+    kind = data.get("record_type", "observation") if isinstance(data, dict) else None
+    if kind == "collector":
+        return CollectorMarker.model_validate(data)
+    return TelemetryRecord.model_validate(data)

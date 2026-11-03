@@ -41,11 +41,11 @@
   "capstone-code/capstone/evaluation/scoring.py": "c8c75691a07f58c0cf3394279f041218fc18267a511abdbbb259a261b46f39d7",
   "capstone-code/capstone/experiment.py": "e9781e67f2a00b4f9c570aec948c2d52ba42eebe9cb49b10c4fb9130841620be",
   "capstone-code/capstone/faults.py": "f52fc70151782286d8ba7f22345df57d0d575e06c13b8b3076abde92718ee6ae",
-  "capstone-code/capstone/ingestion/__init__.py": "9dbe794c13d208ba8f5df11e2b1c1c04e26d81c0697465fdd6ef9ee1bd154f17",
-  "capstone-code/capstone/ingestion/__main__.py": "4197e1f19b5fec78f6c4e9dc9aebb40377af56673ba7aa04a22ec812acb70828",
-  "capstone-code/capstone/ingestion/collector.py": "ce05b524cfd7c4f1760c5bc893c367b0c4a7382f0f5def0e88db12bd75802e9d",
-  "capstone-code/capstone/ingestion/mtconnect.py": "fca5dd02a702cb10d49e62cc5942c8746eb391d6687d7a84d1573fba5077def7",
-  "capstone-code/capstone/ingestion/record.py": "0ea3a656077c6cc252f76a11fe7fac2a6d1fe51358352f7130239e01026728e8",
+  "capstone-code/capstone/ingestion/__init__.py": "3b889abd9612d202defed04198a7b6e6f1c8f87bc80a46b338407c1ac33f5a8d",
+  "capstone-code/capstone/ingestion/__main__.py": "2ed3e3bfca9f4f358c5e0a5afef8da7693b23379c3283577d59d9a284b40265e",
+  "capstone-code/capstone/ingestion/collector.py": "62a72092a1a83b8f71c0703b10e9dd50d5d7f2cf16d35ed4d60dede2ef4d58a9",
+  "capstone-code/capstone/ingestion/mtconnect.py": "d45eebab95a027d5b5d2dfe2e72e11a445e635501f1932b3ca061784e9f8183e",
+  "capstone-code/capstone/ingestion/record.py": "f94d88a7b3ea6936bcff2a0eeb7315b03f9f6d42b5680ba90f9bf976a02047d8",
   "capstone-code/capstone/learning.py": "03e1d7083f21cb716e260befe2d8ad3b8b542f2d8a387e0e9f27155c2614ebf7",
   "capstone-code/capstone/manual/__init__.py": "b4e075ea34226bd0df0c76941f4726945173a77db8282c492fd916f89d9c06a3",
   "capstone-code/capstone/manual/index.py": "aa857f6ee0408f2a98d8acd599153153ee4b3c28c8507d04c79d67058573677f",
@@ -63,9 +63,9 @@
   "capstone-code/capstone/memory/service.py": "ed7a6d5466f9b993468829866dfd3a96919f0b4a5970adf82a6753f61fa3d378",
   "capstone-code/capstone/memory_comparison.py": "49a3abaa768403fa21fecba981311b4c217a359aa3621a5e3310fc4565427acd",
   "capstone-code/capstone/monitoring/__init__.py": "cf843cb64dde298146cf13ffe78da39710c6347b22a58fd316fbfbdd954b3233",
-  "capstone-code/capstone/monitoring/__main__.py": "13cd46a044dd59831d8809b22c8624587630b2cba1aeb1f4c501243c2168af12",
-  "capstone-code/capstone/monitoring/monitor.py": "6f7ec58f70eec050f64555fc084391512e7ff10be063cfbf7d76ead3804f08ed",
-  "capstone-code/capstone/monitoring/runner.py": "c5f7f2448c1f53cb39e03637eb436aa109e54da89dba047d146b04f2c7f91038",
+  "capstone-code/capstone/monitoring/__main__.py": "98cf2daf9ce93956c8668bc2955da42354fecb049e8f6c3f8ef2e1d4e60206e7",
+  "capstone-code/capstone/monitoring/monitor.py": "e58b513e83a44a18563fbebaaef237a8d75a03a9a4dc3c84d706622d1d971e78",
+  "capstone-code/capstone/monitoring/runner.py": "34affc88db9e78776d37edd753eddd108bfbdfa0e3fac7dfb1580dbc3ec09e2f",
   "capstone-code/capstone/observability.py": "f766abea4f5fc94828c0778e182410d1ee3a65a16c54c111caa903436c36be71",
   "capstone-code/capstone/progress.py": "aa3ba7e95d2ebc4e3d5ef146d393a97a55d8228e09995cfab3894004ef043610",
   "capstone-code/capstone/providers/__init__.py": "3c5dc87099f8ec4ac1db4e949c0a54a0025df89af62e93f3e9cb147d5c380b58",
@@ -163,7 +163,7 @@
   "tests/test_memory_semantic.py": "58b59bd4078c5d1c4e86a96a33a556e4c4e2e512bff945df2c817dfad59e5d1c",
   "tests/test_migrations.py": "bf4a497093c603e26cb29f39147c135440be9b50514176afb806617863f8bca3",
   "tests/test_model_policy.py": "1a36247d7dea6a7ffb84a59fd53932d6020d4e29a1eacab515be3c56519bb069",
-  "tests/test_mtconnect_ingestion.py": "fc4bb8f74be0bf1148543a675276bf195cc24ac147df3cc4a249902009bf5514",
+  "tests/test_mtconnect_ingestion.py": "0b5035ea56af41d1720b98c298d598e441973d4f0e2393f345fe1afefe2c1f69",
   "tests/test_observability.py": "c3b06b5442c44756f9fa4d346829e8a8402c546568f122c855da479129307e47",
   "tests/test_observation_tools.py": "707e45d47d2be5ab5ba703f913e3abbae574b643cda31a2f666084ab8e957659",
   "tests/test_power_sensor.py": "832bacdc2d89d300259bba28c086a69ac84fdd4330a84e231920a16d3da62e69",
@@ -186,7 +186,7 @@
   "tests/test_simulator_disturbances.py": "c954ea0a72e017bae22eb3007e360260e4e84acc6e621c49224d2570fb0d77bb",
   "tests/test_slow_when_worn.py": "bf11ea04d9852380e78a07b2a55e296f0f416019070a2af6caa711e92d7ddd98",
   "tests/test_state.py": "77d3a1256d4d6ebee6524eb9b1619c88d89128d38d7fb3fc058353ac5a974d53",
-  "tests/test_telemetry_monitor.py": "b2a9a03cbc0623255cab9277409d1c61b81e614c8df9a51861defdabdd98e75b",
+  "tests/test_telemetry_monitor.py": "8054b44f8bededa32476d746e57e01feda2daf024c0ce9fa563edf5679cf1215",
   "tests/test_temperature_sensor.py": "54f3c7bc53883ea0c86ec11b6cd8dbf372795a891a754db9f3e06389ef6400b7",
   "tests/test_thermal_lag.py": "f7386763b100f75c82b6ff1ad34c630828ce2f2be55a1e10e633589dfeb117cb",
   "tests/test_thermometer.py": "c13320d0e57285c4b4c55fefb000e4e8f8ed077033117949f02cd2da7aa7817c",
@@ -196,15 +196,15 @@
   "tests/test_wait_tool.py": "a52271a89eb75efbc9c862c4ad85d3d20a1f5dbc2f92f4eb149d01b7f0c99b6b",
   "tests/test_wrong_setting.py": "a7dcc4186bcee6a5980da4fc1f7a47c1b9210055618a88756e44a1991e39de47"
  },
- "coverage_sha256": "eb604508b769b280e436bd72e4dd430894a145f8042d7bad3c695f72f50ef915",
- "junit_sha256": "81d53cfc061e86c457d4b11ace8653c0c7a37554207a817711ae1481be6af9d1",
+ "coverage_sha256": "c3aa0886558a25efe6dd5b6ce23b7a62aa4fb41986b59242fa9779f33b6187ba",
+ "junit_sha256": "0557b00d8cc1860fc20a59af670f5f88049f9ed34b1db9e86150ea3a1bd5f92f",
  "counts": {
-  "functions": 756,
+  "functions": 760,
   "classes_note": "classes are listed through their methods",
-  "tests": 1444,
+  "tests": 1451,
   "tools": 17,
   "functions_by_status": {
-   "INSUFFICIENT EVIDENCE": 344,
+   "INSUFFICIENT EVIDENCE": 348,
    "NOT APPLICABLE": 24,
    "NOT TESTED": 142,
    "PARTIALLY VERIFIED": 201,
@@ -213,11 +213,11 @@
   "functions_by_coverage_class": {
    "direct": 210,
    "import-only": 11,
-   "indirect": 369,
+   "indirect": 373,
    "no-statements": 24,
    "none": 142
   },
-  "functions_executed_in_tests": 579,
+  "functions_executed_in_tests": 583,
   "functions_with_direct_tests": 210,
   "functions_never_executed": [
    "capstone.baseline:_seeds",
@@ -402,7 +402,7 @@
   ],
   "stubs_or_protocols": 24,
   "tests_by_outcome": {
-   "passed": 1444
+   "passed": 1451
   },
   "tests_with_no_assertion": [
    "tests/test_console.py::test_without_it_the_same_print_raised"
@@ -1202,6 +1202,8 @@
    "tests/test_mtconnect_ingestion.py::test_sample_drops_records_already_seen",
    "tests/test_mtconnect_ingestion.py::test_buffer_overrun_is_reported_as_a_gap",
    "tests/test_mtconnect_ingestion.py::test_more_waiting_when_the_agent_holds_more_than_one_request",
+   "tests/test_mtconnect_ingestion.py::test_a_crash_writes_no_stop_marker",
+   "tests/test_mtconnect_ingestion.py::test_lines_written_before_markers_existed_still_read_as_observations",
    "tests/test_observability.py::test_event_context_is_json_with_explicit_simulator_tick",
    "tests/test_observability.py::test_missing_context_is_omitted_and_no_wall_clock_is_added",
    "tests/test_observability.py::test_unapproved_fields_are_rejected_without_logging_values",
@@ -1410,6 +1412,8 @@
    "tests/test_telemetry_monitor.py::test_replay_is_deterministic",
    "tests/test_telemetry_monitor.py::test_following_a_file_in_pieces_gives_the_same_alerts_as_replaying_it",
    "tests/test_telemetry_monitor.py::test_monitoring_is_plain_code_with_no_model_clock_or_network",
+   "tests/test_telemetry_monitor.py::test_data_without_a_start_marker_counts_as_a_running_collector",
+   "tests/test_telemetry_monitor.py::test_follower_reads_markers_and_observations",
    "tests/test_temperature_sensor.py::test_reading_carries_identity_unit_and_its_own_stream",
    "tests/test_temperature_sensor.py::test_temperature_rises_in_a_straight_line_with_wear",
    "tests/test_temperature_sensor.py::test_a_machine_that_is_not_running_sits_at_room_temperature",
@@ -1631,8 +1635,8 @@
    "direct": 0
   },
   "capstone.ingestion.collector": {
-   "functions": 8,
-   "executed": 6,
+   "functions": 9,
+   "executed": 7,
    "direct": 3
   },
   "capstone.ingestion.mtconnect": {
@@ -1641,8 +1645,8 @@
    "direct": 0
   },
   "capstone.ingestion.record": {
-   "functions": 1,
-   "executed": 1,
+   "functions": 2,
+   "executed": 2,
    "direct": 0
   },
   "capstone.learning": {
@@ -1716,8 +1720,8 @@
    "direct": 0
   },
   "capstone.monitoring.monitor": {
-   "functions": 11,
-   "executed": 11,
+   "functions": 13,
+   "executed": 13,
    "direct": 3
   },
   "capstone.monitoring.runner": {
@@ -4326,13 +4330,23 @@
    ]
   },
   "capstone.ingestion.collector:run_collector": {
-   "count": 2,
+   "count": 3,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_mtconnect_ingestion.py::test_run_collector_refuses_to_poll_faster_than_the_minimum",
     "tests/test_mtconnect_ingestion.py::test_run_collector_writes_jsonl_and_survives_failures"
    ],
-   "indirect": []
+   "indirect": [
+    "tests/test_mtconnect_ingestion.py::test_ctrl_c_writes_a_clean_stop_and_keeps_the_count"
+   ]
+  },
+  "capstone.ingestion.collector:_marker": {
+   "count": 1,
+   "status": "INSUFFICIENT EVIDENCE",
+   "direct": [],
+   "indirect": [
+    "tests/test_mtconnect_ingestion.py::test_run_collector_writes_jsonl_and_survives_failures"
+   ]
   },
   "capstone.ingestion.mtconnect:MTConnectError.__init__": {
    "count": 1,
@@ -4400,6 +4414,14 @@
     "tests/test_mtconnect_ingestion.py::test_parse_maps_samples_events_and_conditions",
     "tests/test_mtconnect_ingestion.py::test_unavailable_stays_missing_and_is_never_zero",
     "tests/test_telemetry_monitor.py::test_condition_alerts_once_escalates_and_recovers"
+   ]
+  },
+  "capstone.ingestion.record:parse_line": {
+   "count": 1,
+   "status": "INSUFFICIENT EVIDENCE",
+   "direct": [],
+   "indirect": [
+    "tests/test_mtconnect_ingestion.py::test_run_collector_writes_jsonl_and_survives_failures"
    ]
   },
   "capstone.learning:learn_from": {
@@ -5114,6 +5136,23 @@
     "tests/test_telemetry_monitor.py::test_unavailable_from_the_start_is_not_an_alert"
    ]
   },
+  "capstone.monitoring.monitor:Monitor.observe_marker": {
+   "count": 2,
+   "status": "INSUFFICIENT EVIDENCE",
+   "direct": [],
+   "indirect": [
+    "tests/test_telemetry_monitor.py::test_a_clean_stop_and_later_start_is_not_stale",
+    "tests/test_telemetry_monitor.py::test_a_start_without_a_clean_stop_warns_of_a_crash"
+   ]
+  },
+  "capstone.monitoring.monitor:Monitor._collector": {
+   "count": 1,
+   "status": "INSUFFICIENT EVIDENCE",
+   "direct": [],
+   "indirect": [
+    "tests/test_telemetry_monitor.py::test_a_clean_stop_and_later_start_is_not_stale"
+   ]
+  },
   "capstone.monitoring.monitor:Monitor.check_stale": {
    "count": 2,
    "status": "INSUFFICIENT EVIDENCE",
@@ -5213,10 +5252,11 @@
    ]
   },
   "capstone.monitoring.runner:replay": {
-   "count": 1,
+   "count": 2,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
+    "tests/test_telemetry_monitor.py::test_a_clean_stop_and_later_start_is_not_stale",
     "tests/test_telemetry_monitor.py::test_condition_alerts_once_escalates_and_recovers"
    ]
   },
@@ -14454,11 +14494,13 @@
    "functions": []
   },
   "tests/test_mtconnect_ingestion.py::test_run_collector_writes_jsonl_and_survives_failures": {
-   "count": 2,
+   "count": 4,
    "judgment": "NOT ASSESSED",
    "functions": [
+    "capstone.ingestion.collector:_marker",
     "capstone.ingestion.collector:append_jsonl",
-    "capstone.ingestion.collector:run_collector"
+    "capstone.ingestion.collector:run_collector",
+    "capstone.ingestion.record:parse_line"
    ]
   },
   "tests/test_mtconnect_ingestion.py::test_run_collector_refuses_to_poll_faster_than_the_minimum": {
@@ -14474,6 +14516,23 @@
    "functions": [
     "capstone.ingestion.collector:http_get"
    ]
+  },
+  "tests/test_mtconnect_ingestion.py::test_ctrl_c_writes_a_clean_stop_and_keeps_the_count": {
+   "count": 1,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.ingestion.collector:run_collector"
+   ]
+  },
+  "tests/test_mtconnect_ingestion.py::test_a_crash_writes_no_stop_marker": {
+   "count": 0,
+   "judgment": "NOT ASSESSED",
+   "functions": []
+  },
+  "tests/test_mtconnect_ingestion.py::test_lines_written_before_markers_existed_still_read_as_observations": {
+   "count": 0,
+   "judgment": "NOT ASSESSED",
+   "functions": []
   },
   "tests/test_observability.py::test_event_context_is_json_with_explicit_simulator_tick": {
    "count": 0,
@@ -16029,6 +16088,32 @@
    "functions": []
   },
   "tests/test_telemetry_monitor.py::test_monitoring_is_plain_code_with_no_model_clock_or_network": {
+   "count": 0,
+   "judgment": "NOT ASSESSED",
+   "functions": []
+  },
+  "tests/test_telemetry_monitor.py::test_a_clean_stop_and_later_start_is_not_stale": {
+   "count": 3,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.monitoring.monitor:Monitor._collector",
+    "capstone.monitoring.monitor:Monitor.observe_marker",
+    "capstone.monitoring.runner:replay"
+   ]
+  },
+  "tests/test_telemetry_monitor.py::test_a_start_without_a_clean_stop_warns_of_a_crash": {
+   "count": 1,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.monitoring.monitor:Monitor.observe_marker"
+   ]
+  },
+  "tests/test_telemetry_monitor.py::test_data_without_a_start_marker_counts_as_a_running_collector": {
+   "count": 0,
+   "judgment": "NOT ASSESSED",
+   "functions": []
+  },
+  "tests/test_telemetry_monitor.py::test_follower_reads_markers_and_observations": {
    "count": 0,
    "judgment": "NOT ASSESSED",
    "functions": []

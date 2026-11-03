@@ -3,6 +3,7 @@
 from datetime import UTC, datetime, timedelta
 
 from capstone.ingestion import TelemetryRecord
+from capstone.ingestion.record import CollectorMarker
 from capstone.monitoring import JsonlFollower, Monitor, Threshold, replay
 from capstone.monitoring.__main__ import main
 
@@ -232,3 +233,64 @@ def test_monitoring_is_plain_code_with_no_model_clock_or_network():
                     source.name,
                     node.func.attr,
                 )
+
+
+def marker(event: str, seconds: float, reason=None) -> CollectorMarker:
+    return CollectorMarker(
+        source="http://agent:8082",
+        event=event,
+        at=T0 + timedelta(seconds=seconds),
+        reason=reason,
+    )
+
+
+def test_a_clean_stop_and_later_start_is_not_stale():
+    alerts = run(
+        [
+            marker("started", 0),
+            rec("exec", "ACTIVE", seconds=1),
+            marker("stopped", 2, "interrupted"),
+            marker("started", 3600),
+            rec("exec", "ACTIVE", seconds=3601),
+        ],
+        Monitor(stale_after=60),
+    )
+    assert [(a.kind, a.severity, a.message) for a in alerts] == [
+        ("collector", "info", "collector started"),
+        ("collector", "info", "collector stopped (interrupted)"),
+        ("collector", "info", "collector started"),
+    ]
+
+
+def test_a_start_without_a_clean_stop_warns_of_a_crash():
+    alerts = run(
+        [
+            marker("started", 0),
+            rec("exec", "ACTIVE", seconds=1),
+            marker("started", 600),
+            rec("exec", "ACTIVE", seconds=601),
+        ],
+        Monitor(stale_after=60),
+    )
+    assert kinds(alerts) == [
+        ("collector", "info"),
+        ("stale", "warning"),
+        ("collector", "warning"),
+        ("recovered", "info"),
+    ]
+    assert "may have crashed" in alerts[2].message
+
+
+def test_data_without_a_start_marker_counts_as_a_running_collector():
+    alerts = run(
+        [rec("exec", "ACTIVE"), marker("started", 10)], Monitor(stale_after=60)
+    )
+    assert kinds(alerts) == [("collector", "warning")]
+
+
+def test_follower_reads_markers_and_observations(tmp_path):
+    path = tmp_path / "telemetry.jsonl"
+    lines = [marker("started", 0), rec("exec", "READY"), marker("stopped", 5)]
+    text = "".join(x.model_dump_json() + "\n" for x in lines)
+    path.write_text(text, encoding="utf-8")
+    assert JsonlFollower(path).read_new() == lines

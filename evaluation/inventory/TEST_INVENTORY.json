@@ -34579,7 +34579,7 @@
    "id": "tests/test_mtconnect_ingestion.py::test_parse_reads_header_and_sorts_records_by_sequence",
    "file": "tests/test_mtconnect_ingestion.py",
    "name": "test_parse_reads_header_and_sorts_records_by_sequence",
-   "line": 102,
+   "line": 103,
    "docstring": "",
    "parametrized": false,
    "fixtures": [],
@@ -34616,7 +34616,7 @@
    "id": "tests/test_mtconnect_ingestion.py::test_parse_maps_samples_events_and_conditions",
    "file": "tests/test_mtconnect_ingestion.py",
    "name": "test_parse_maps_samples_events_and_conditions",
-   "line": 113,
+   "line": 114,
    "docstring": "",
    "parametrized": false,
    "fixtures": [],
@@ -34649,7 +34649,7 @@
    "id": "tests/test_mtconnect_ingestion.py::test_unavailable_stays_missing_and_is_never_zero",
    "file": "tests/test_mtconnect_ingestion.py",
    "name": "test_unavailable_stays_missing_and_is_never_zero",
-   "line": 134,
+   "line": 135,
    "docstring": "",
    "parametrized": false,
    "fixtures": [],
@@ -34682,7 +34682,7 @@
    "id": "tests/test_mtconnect_ingestion.py::test_dataset_entries_are_stored_as_sorted_json",
    "file": "tests/test_mtconnect_ingestion.py",
    "name": "test_dataset_entries_are_stored_as_sorted_json",
-   "line": 142,
+   "line": 143,
    "docstring": "",
    "parametrized": false,
    "fixtures": [],
@@ -34712,7 +34712,7 @@
    "id": "tests/test_mtconnect_ingestion.py::test_older_schema_namespace_parses_the_same",
    "file": "tests/test_mtconnect_ingestion.py",
    "name": "test_older_schema_namespace_parses_the_same",
-   "line": 147,
+   "line": 148,
    "docstring": "",
    "parametrized": false,
    "fixtures": [],
@@ -34742,7 +34742,7 @@
    "id": "tests/test_mtconnect_ingestion.py::test_error_documents_raise_with_their_codes",
    "file": "tests/test_mtconnect_ingestion.py",
    "name": "test_error_documents_raise_with_their_codes",
-   "line": 152,
+   "line": 153,
    "docstring": "",
    "parametrized": true,
    "fixtures": [
@@ -34777,7 +34777,7 @@
    "id": "tests/test_mtconnect_ingestion.py::test_records_round_trip_through_json",
    "file": "tests/test_mtconnect_ingestion.py",
    "name": "test_records_round_trip_through_json",
-   "line": 158,
+   "line": 159,
    "docstring": "",
    "parametrized": false,
    "fixtures": [],
@@ -34809,7 +34809,7 @@
    "id": "tests/test_mtconnect_ingestion.py::test_first_poll_reads_current_then_samples_from_next_sequence",
    "file": "tests/test_mtconnect_ingestion.py",
    "name": "test_first_poll_reads_current_then_samples_from_next_sequence",
-   "line": 172,
+   "line": 173,
    "docstring": "",
    "parametrized": false,
    "fixtures": [],
@@ -34843,7 +34843,7 @@
    "id": "tests/test_mtconnect_ingestion.py::test_device_scopes_every_request",
    "file": "tests/test_mtconnect_ingestion.py",
    "name": "test_device_scopes_every_request",
-   "line": 183,
+   "line": 184,
    "docstring": "",
    "parametrized": false,
    "fixtures": [],
@@ -34873,7 +34873,7 @@
    "id": "tests/test_mtconnect_ingestion.py::test_sample_drops_records_already_seen",
    "file": "tests/test_mtconnect_ingestion.py",
    "name": "test_sample_drops_records_already_seen",
-   "line": 190,
+   "line": 191,
    "docstring": "",
    "parametrized": false,
    "fixtures": [],
@@ -34904,7 +34904,7 @@
    "id": "tests/test_mtconnect_ingestion.py::test_out_of_range_reports_a_gap_and_restarts_from_current",
    "file": "tests/test_mtconnect_ingestion.py",
    "name": "test_out_of_range_reports_a_gap_and_restarts_from_current",
-   "line": 201,
+   "line": 202,
    "docstring": "",
    "parametrized": false,
    "fixtures": [],
@@ -34937,7 +34937,7 @@
    "id": "tests/test_mtconnect_ingestion.py::test_buffer_overrun_is_reported_as_a_gap",
    "file": "tests/test_mtconnect_ingestion.py",
    "name": "test_buffer_overrun_is_reported_as_a_gap",
-   "line": 213,
+   "line": 214,
    "docstring": "",
    "parametrized": false,
    "fixtures": [],
@@ -34967,7 +34967,7 @@
    "id": "tests/test_mtconnect_ingestion.py::test_agent_restart_discards_old_sequences_and_restarts",
    "file": "tests/test_mtconnect_ingestion.py",
    "name": "test_agent_restart_discards_old_sequences_and_restarts",
-   "line": 222,
+   "line": 223,
    "docstring": "",
    "parametrized": false,
    "fixtures": [],
@@ -35000,7 +35000,7 @@
    "id": "tests/test_mtconnect_ingestion.py::test_more_waiting_when_the_agent_holds_more_than_one_request",
    "file": "tests/test_mtconnect_ingestion.py",
    "name": "test_more_waiting_when_the_agent_holds_more_than_one_request",
-   "line": 236,
+   "line": 237,
    "docstring": "",
    "parametrized": false,
    "fixtures": [],
@@ -35030,15 +35030,15 @@
    "id": "tests/test_mtconnect_ingestion.py::test_run_collector_writes_jsonl_and_survives_failures",
    "file": "tests/test_mtconnect_ingestion.py",
    "name": "test_run_collector_writes_jsonl_and_survives_failures",
-   "line": 246,
+   "line": 247,
    "docstring": "",
    "parametrized": false,
    "fixtures": [
     "tmp_path"
    ],
-   "assertions": 4,
+   "assertions": 6,
    "assert_forms": {
-    "equality": 4
+    "equality": 6
    },
    "raises_checks": 0,
    "uses": [],
@@ -35046,12 +35046,15 @@
    "claims": "run collector writes jsonl and survives failures",
    "execution_outcome": "passed",
    "exercises": [
+    "capstone.ingestion.collector:_marker",
     "capstone.ingestion.collector:append_jsonl",
-    "capstone.ingestion.collector:run_collector"
+    "capstone.ingestion.collector:run_collector",
+    "capstone.ingestion.record:parse_line"
    ],
-   "exercise_count": 2,
+   "exercise_count": 4,
    "modules_exercised": [
-    "capstone.ingestion.collector"
+    "capstone.ingestion.collector",
+    "capstone.ingestion.record"
    ],
    "judgment": "NOT ASSESSED",
    "curated": {},
@@ -35065,7 +35068,7 @@
    "id": "tests/test_mtconnect_ingestion.py::test_run_collector_refuses_to_poll_faster_than_the_minimum",
    "file": "tests/test_mtconnect_ingestion.py",
    "name": "test_run_collector_refuses_to_poll_faster_than_the_minimum",
-   "line": 273,
+   "line": 269,
    "docstring": "",
    "parametrized": false,
    "fixtures": [
@@ -35097,7 +35100,7 @@
    "id": "tests/test_mtconnect_ingestion.py::test_http_get_sends_only_get_and_reads_error_bodies",
    "file": "tests/test_mtconnect_ingestion.py",
    "name": "test_http_get_sends_only_get_and_reads_error_bodies",
-   "line": 280,
+   "line": 276,
    "docstring": "",
    "parametrized": false,
    "fixtures": [
@@ -35124,6 +35127,102 @@
    "modules_exercised": [
     "capstone.ingestion.collector"
    ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_mtconnect_ingestion.py::test_ctrl_c_writes_a_clean_stop_and_keeps_the_count",
+   "file": "tests/test_mtconnect_ingestion.py",
+   "name": "test_ctrl_c_writes_a_clean_stop_and_keeps_the_count",
+   "line": 313,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [
+    "tmp_path"
+   ],
+   "assertions": 3,
+   "assert_forms": {
+    "equality": 3
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "ctrl c writes a clean stop and keeps the count",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.ingestion.collector:run_collector"
+   ],
+   "exercise_count": 1,
+   "modules_exercised": [
+    "capstone.ingestion.collector"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_mtconnect_ingestion.py::test_a_crash_writes_no_stop_marker",
+   "file": "tests/test_mtconnect_ingestion.py",
+   "name": "test_a_crash_writes_no_stop_marker",
+   "line": 325,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [
+    "tmp_path"
+   ],
+   "assertions": 1,
+   "assert_forms": {
+    "equality": 1
+   },
+   "raises_checks": 1,
+   "uses": [],
+   "quality_flags": [
+    "exercises_no_project_function"
+   ],
+   "claims": "a crash writes no stop marker",
+   "execution_outcome": "passed",
+   "exercises": [],
+   "exercise_count": 0,
+   "modules_exercised": [],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_mtconnect_ingestion.py::test_lines_written_before_markers_existed_still_read_as_observations",
+   "file": "tests/test_mtconnect_ingestion.py",
+   "name": "test_lines_written_before_markers_existed_still_read_as_observations",
+   "line": 333,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 1,
+   "assert_forms": {
+    "equality": 1
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [
+    "exercises_no_project_function"
+   ],
+   "claims": "lines written before markers existed still read as observations",
+   "execution_outcome": "passed",
+   "exercises": [],
+   "exercise_count": 0,
+   "modules_exercised": [],
    "judgment": "NOT ASSESSED",
    "curated": {},
    "snap_questions": [
@@ -43470,7 +43569,7 @@
    "id": "tests/test_telemetry_monitor.py::test_condition_alerts_once_escalates_and_recovers",
    "file": "tests/test_telemetry_monitor.py",
    "name": "test_condition_alerts_once_escalates_and_recovers",
-   "line": 57,
+   "line": 58,
    "docstring": "",
    "parametrized": false,
    "fixtures": [],
@@ -43514,7 +43613,7 @@
    "id": "tests/test_telemetry_monitor.py::test_unavailable_from_the_start_is_not_an_alert",
    "file": "tests/test_telemetry_monitor.py",
    "name": "test_unavailable_from_the_start_is_not_an_alert",
-   "line": 77,
+   "line": 78,
    "docstring": "",
    "parametrized": false,
    "fixtures": [],
@@ -43547,7 +43646,7 @@
    "id": "tests/test_telemetry_monitor.py::test_channel_going_unavailable_alerts_and_recovers",
    "file": "tests/test_telemetry_monitor.py",
    "name": "test_channel_going_unavailable_alerts_and_recovers",
-   "line": 81,
+   "line": 82,
    "docstring": "",
    "parametrized": false,
    "fixtures": [],
@@ -43583,7 +43682,7 @@
    "id": "tests/test_telemetry_monitor.py::test_status_changes_are_reported_but_not_the_first_value",
    "file": "tests/test_telemetry_monitor.py",
    "name": "test_status_changes_are_reported_but_not_the_first_value",
-   "line": 93,
+   "line": 94,
    "docstring": "",
    "parametrized": false,
    "fixtures": [],
@@ -43615,7 +43714,7 @@
    "id": "tests/test_telemetry_monitor.py::test_emergency_stop_triggered_is_a_fault",
    "file": "tests/test_telemetry_monitor.py",
    "name": "test_emergency_stop_triggered_is_a_fault",
-   "line": 99,
+   "line": 100,
    "docstring": "",
    "parametrized": false,
    "fixtures": [],
@@ -43645,7 +43744,7 @@
    "id": "tests/test_telemetry_monitor.py::test_threshold_by_id_or_name_fires_once_and_recovers",
    "file": "tests/test_telemetry_monitor.py",
    "name": "test_threshold_by_id_or_name_fires_once_and_recovers",
-   "line": 109,
+   "line": 110,
    "docstring": "",
    "parametrized": false,
    "fixtures": [],
@@ -43678,7 +43777,7 @@
    "id": "tests/test_telemetry_monitor.py::test_silence_in_a_recording_is_found_without_the_wall_clock",
    "file": "tests/test_telemetry_monitor.py",
    "name": "test_silence_in_a_recording_is_found_without_the_wall_clock",
-   "line": 125,
+   "line": 126,
    "docstring": "",
    "parametrized": false,
    "fixtures": [],
@@ -43712,7 +43811,7 @@
    "id": "tests/test_telemetry_monitor.py::test_stale_is_reported_once_per_silence",
    "file": "tests/test_telemetry_monitor.py",
    "name": "test_stale_is_reported_once_per_silence",
-   "line": 134,
+   "line": 135,
    "docstring": "",
    "parametrized": false,
    "fixtures": [],
@@ -43742,7 +43841,7 @@
    "id": "tests/test_telemetry_monitor.py::test_replay_is_deterministic",
    "file": "tests/test_telemetry_monitor.py",
    "name": "test_replay_is_deterministic",
-   "line": 142,
+   "line": 143,
    "docstring": "",
    "parametrized": false,
    "fixtures": [],
@@ -43772,7 +43871,7 @@
    "id": "tests/test_telemetry_monitor.py::test_follower_reads_only_complete_lines_and_skips_bad_ones",
    "file": "tests/test_telemetry_monitor.py",
    "name": "test_follower_reads_only_complete_lines_and_skips_bad_ones",
-   "line": 152,
+   "line": 153,
    "docstring": "",
    "parametrized": false,
    "fixtures": [
@@ -43811,7 +43910,7 @@
    "id": "tests/test_telemetry_monitor.py::test_command_line_replay_writes_alerts",
    "file": "tests/test_telemetry_monitor.py",
    "name": "test_command_line_replay_writes_alerts",
-   "line": 165,
+   "line": 166,
    "docstring": "",
    "parametrized": false,
    "fixtures": [
@@ -43848,7 +43947,7 @@
    "id": "tests/test_telemetry_monitor.py::test_following_a_file_in_pieces_gives_the_same_alerts_as_replaying_it",
    "file": "tests/test_telemetry_monitor.py",
    "name": "test_following_a_file_in_pieces_gives_the_same_alerts_as_replaying_it",
-   "line": 178,
+   "line": 179,
    "docstring": "",
    "parametrized": false,
    "fixtures": [
@@ -43880,7 +43979,7 @@
    "id": "tests/test_telemetry_monitor.py::test_monitoring_is_plain_code_with_no_model_clock_or_network",
    "file": "tests/test_telemetry_monitor.py",
    "name": "test_monitoring_is_plain_code_with_no_model_clock_or_network",
-   "line": 203,
+   "line": 204,
    "docstring": "The monitor never calls a model or the agent, and never reads a clock.",
    "parametrized": false,
    "fixtures": [],
@@ -43895,6 +43994,136 @@
     "exercises_no_project_function"
    ],
    "claims": "The monitor never calls a model or the agent, and never reads a clock.",
+   "execution_outcome": "passed",
+   "exercises": [],
+   "exercise_count": 0,
+   "modules_exercised": [],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_telemetry_monitor.py::test_a_clean_stop_and_later_start_is_not_stale",
+   "file": "tests/test_telemetry_monitor.py",
+   "name": "test_a_clean_stop_and_later_start_is_not_stale",
+   "line": 247,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 1,
+   "assert_forms": {
+    "equality": 1
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "a clean stop and later start is not stale",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.monitoring.monitor:Monitor._collector",
+    "capstone.monitoring.monitor:Monitor.observe_marker",
+    "capstone.monitoring.runner:replay"
+   ],
+   "exercise_count": 3,
+   "modules_exercised": [
+    "capstone.monitoring.monitor",
+    "capstone.monitoring.runner"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_telemetry_monitor.py::test_a_start_without_a_clean_stop_warns_of_a_crash",
+   "file": "tests/test_telemetry_monitor.py",
+   "name": "test_a_start_without_a_clean_stop_warns_of_a_crash",
+   "line": 265,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 2,
+   "assert_forms": {
+    "equality": 1,
+    "membership": 1
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "a start without a clean stop warns of a crash",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.monitoring.monitor:Monitor.observe_marker"
+   ],
+   "exercise_count": 1,
+   "modules_exercised": [
+    "capstone.monitoring.monitor"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_telemetry_monitor.py::test_data_without_a_start_marker_counts_as_a_running_collector",
+   "file": "tests/test_telemetry_monitor.py",
+   "name": "test_data_without_a_start_marker_counts_as_a_running_collector",
+   "line": 284,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 1,
+   "assert_forms": {
+    "equality": 1
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [
+    "exercises_no_project_function"
+   ],
+   "claims": "data without a start marker counts as a running collector",
+   "execution_outcome": "passed",
+   "exercises": [],
+   "exercise_count": 0,
+   "modules_exercised": [],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_telemetry_monitor.py::test_follower_reads_markers_and_observations",
+   "file": "tests/test_telemetry_monitor.py",
+   "name": "test_follower_reads_markers_and_observations",
+   "line": 291,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [
+    "tmp_path"
+   ],
+   "assertions": 1,
+   "assert_forms": {
+    "equality": 1
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [
+    "exercises_no_project_function"
+   ],
+   "claims": "follower reads markers and observations",
    "execution_outcome": "passed",
    "exercises": [],
    "exercise_count": 0,
