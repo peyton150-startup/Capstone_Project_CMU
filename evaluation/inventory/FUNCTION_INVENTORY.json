@@ -236,6 +236,7 @@
    "mutates_parameters": [],
    "static_callers": [
     "capstone.agent.tree_of_thought:TreeOfThoughtPolicy.__init__",
+    "capstone.ingestion.mtconnect:MTConnectError.__init__",
     "capstone.providers.chat:ModelError.__init__",
     "capstone.simulator.disturbances:SensorDrift.__init__",
     "capstone.simulator.disturbances:TransientAnomaly.__init__",
@@ -390,7 +391,9 @@
     "capstone.evals:main",
     "capstone.evaluation.auto_label:main",
     "capstone.experiment:main",
+    "capstone.ingestion.collector:http_get",
     "capstone.memory_comparison:main",
+    "capstone.monitoring.runner:JsonlFollower.read_new",
     "capstone.providers.chat:urllib_transport",
     "capstone.providers.chat:urllib_transport.<locals>.send",
     "capstone.simulator.simulator:Simulator.step",
@@ -877,6 +880,7 @@
    "mutates_parameters": [],
    "static_callers": [
     "capstone.agent.tree_of_thought:TreeOfThoughtPolicy.__init__",
+    "capstone.ingestion.mtconnect:MTConnectError.__init__",
     "capstone.providers.chat:ModelError.__init__",
     "capstone.simulator.disturbances:SensorDrift.__init__",
     "capstone.simulator.disturbances:TransientAnomaly.__init__",
@@ -1125,7 +1129,8 @@
    "is_stub": false,
    "mutates_parameters": [],
    "static_callers": [
-    "capstone.agent.critic:Critic.review"
+    "capstone.agent.critic:Critic.review",
+    "capstone.ingestion.mtconnect:parse_streams"
    ],
    "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
    "contract_specified": true,
@@ -1647,7 +1652,9 @@
    "mutates_parameters": [
     "state"
    ],
-   "static_callers": [],
+   "static_callers": [
+    "capstone.monitoring.runner:replay"
+   ],
    "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
    "contract_specified": true,
    "executed_in_tests": true,
@@ -5327,6 +5334,7 @@
    "mutates_parameters": [],
    "static_callers": [
     "capstone.agent.tree_of_thought:TreeOfThoughtPolicy.__init__",
+    "capstone.ingestion.mtconnect:MTConnectError.__init__",
     "capstone.providers.chat:ModelError.__init__",
     "capstone.simulator.disturbances:SensorDrift.__init__",
     "capstone.simulator.disturbances:TransientAnomaly.__init__",
@@ -7269,6 +7277,7 @@
    "is_stub": false,
    "mutates_parameters": [],
    "static_callers": [
+    "capstone.ingestion.mtconnect:MTConnectError.__init__",
     "capstone.providers.chat:ModelError.__init__",
     "capstone.simulator.disturbances:SensorDrift.__init__",
     "capstone.simulator.disturbances:TransientAnomaly.__init__",
@@ -7396,6 +7405,7 @@
    "mutates_parameters": [],
    "static_callers": [
     "capstone.agent.tree_of_thought:TreeOfThoughtPolicy.__init__",
+    "capstone.ingestion.mtconnect:MTConnectError.__init__",
     "capstone.providers.chat:ModelError.__init__",
     "capstone.simulator.disturbances:SensorDrift.__init__",
     "capstone.simulator.disturbances:TransientAnomaly.__init__",
@@ -7511,6 +7521,7 @@
    "mutates_parameters": [],
    "static_callers": [
     "capstone.baseline:diagnose",
+    "capstone.ingestion.collector:utc_now",
     "evaluation.evaltools.snap_request:build_request",
     "evaluation.evaltools.snap_request:write_requests"
    ],
@@ -10979,6 +10990,7 @@
    "mutates_parameters": [],
    "static_callers": [
     "capstone.agent.tree_of_thought:TreeOfThoughtPolicy.__init__",
+    "capstone.ingestion.mtconnect:MTConnectError.__init__",
     "capstone.providers.chat:ModelError.__init__",
     "capstone.simulator.disturbances:SensorDrift.__init__",
     "capstone.simulator.disturbances:TransientAnomaly.__init__",
@@ -11058,6 +11070,7 @@
     "capstone.agent.tree_of_thought:pruned_trace",
     "capstone.evals:automatic_labels",
     "capstone.experiment:main",
+    "capstone.monitoring.monitor:Monitor._start",
     "capstone.simulator.simulator:Simulator.add_machine",
     "evaluation.evaltools.build_inventory:build",
     "evaluation.evaltools.build_inventory:direct_test_files",
@@ -11120,7 +11133,9 @@
     "capstone.evals:main",
     "capstone.evaluation.auto_label:main",
     "capstone.experiment:main",
+    "capstone.ingestion.collector:http_get",
     "capstone.memory_comparison:main",
+    "capstone.monitoring.runner:JsonlFollower.read_new",
     "capstone.providers.chat:urllib_transport",
     "capstone.providers.chat:urllib_transport.<locals>.send",
     "capstone.simulator.simulator:Simulator.step",
@@ -15002,6 +15017,943 @@
    ]
   },
   {
+   "id": "capstone.ingestion.__main__:main",
+   "module": "capstone.ingestion.__main__",
+   "file": "capstone-code/capstone/ingestion/__main__.py",
+   "line": 23,
+   "end_line": 59,
+   "name": "main",
+   "qualname": "main",
+   "kind": "function",
+   "signature": "argv: Sequence[str] | None=None -> int",
+   "purpose": "Run the collector until interrupted or --polls is reached.",
+   "docstring": "Run the collector until interrupted or --polls is reached.",
+   "has_variable_block": false,
+   "decorators": [],
+   "raises": [],
+   "catches": [
+    "KeyboardInterrupt"
+   ],
+   "calls": [
+    "ArgumentParser",
+    "MTConnectCollector",
+    "add_argument",
+    "error",
+    "parse_args",
+    "print",
+    "probe",
+    "run_collector",
+    "write_text"
+   ],
+   "side_effect_hints": [
+    "writes_file",
+    "prints"
+   ],
+   "statements": 23,
+   "is_stub": false,
+   "mutates_parameters": [],
+   "static_callers": [],
+   "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
+   "contract_specified": true,
+   "executed_in_tests": false,
+   "test_count": 0,
+   "direct_tests": [],
+   "indirect_tests": [],
+   "indirect_test_count": 0,
+   "statements_executed": 0,
+   "statements_in_body": 23,
+   "statement_coverage": 0.0,
+   "coverage_class": "none",
+   "verification_status": "NOT TESTED",
+   "status_source": "derived",
+   "curated": {},
+   "snap_questions": [
+    "FN-01",
+    "FN-02",
+    "FN-03"
+   ]
+  },
+  {
+   "id": "capstone.ingestion.collector:http_get",
+   "module": "capstone.ingestion.collector",
+   "file": "capstone-code/capstone/ingestion/collector.py",
+   "line": 45,
+   "end_line": 63,
+   "name": "http_get",
+   "qualname": "http_get",
+   "kind": "function",
+   "signature": "url: str -> str",
+   "purpose": "GET a URL and return the body, including the body of an HTTP error.",
+   "docstring": "GET a URL and return the body, including the body of an HTTP error.\n\nMTConnect agents answer a bad request (e.g. OUT_OF_RANGE) with HTTP 400 and\nan MTConnectError document, so the error body must be read, not dropped.",
+   "has_variable_block": false,
+   "decorators": [],
+   "raises": [],
+   "catches": [
+    "HTTPError"
+   ],
+   "calls": [
+    "Request",
+    "decode",
+    "read",
+    "urlopen"
+   ],
+   "side_effect_hints": [
+    "writes_file",
+    "network"
+   ],
+   "statements": 9,
+   "is_stub": false,
+   "mutates_parameters": [],
+   "static_callers": [],
+   "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
+   "contract_specified": true,
+   "executed_in_tests": true,
+   "test_count": 1,
+   "direct_tests": [
+    "tests/test_mtconnect_ingestion.py::test_http_get_sends_only_get_and_reads_error_bodies"
+   ],
+   "indirect_tests": [],
+   "indirect_test_count": 0,
+   "statements_executed": 7,
+   "statements_in_body": 9,
+   "statement_coverage": 0.778,
+   "coverage_class": "direct",
+   "verification_status": "PARTIALLY VERIFIED",
+   "status_source": "derived",
+   "curated": {},
+   "snap_questions": [
+    "FN-01",
+    "FN-02",
+    "FN-03"
+   ]
+  },
+  {
+   "id": "capstone.ingestion.collector:utc_now",
+   "module": "capstone.ingestion.collector",
+   "file": "capstone-code/capstone/ingestion/collector.py",
+   "line": 66,
+   "end_line": 68,
+   "name": "utc_now",
+   "qualname": "utc_now",
+   "kind": "function",
+   "signature": " -> datetime",
+   "purpose": "The current time in UTC (the collector's receive clock).",
+   "docstring": "The current time in UTC (the collector's receive clock).",
+   "has_variable_block": false,
+   "decorators": [],
+   "raises": [],
+   "catches": [],
+   "calls": [
+    "now"
+   ],
+   "side_effect_hints": [],
+   "statements": 2,
+   "is_stub": false,
+   "mutates_parameters": [],
+   "static_callers": [],
+   "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
+   "contract_specified": true,
+   "executed_in_tests": false,
+   "test_count": 0,
+   "direct_tests": [],
+   "indirect_tests": [],
+   "indirect_test_count": 0,
+   "statements_executed": 0,
+   "statements_in_body": 1,
+   "statement_coverage": 0.0,
+   "coverage_class": "none",
+   "verification_status": "NOT TESTED",
+   "status_source": "derived",
+   "curated": {},
+   "snap_questions": [
+    "FN-01",
+    "FN-02",
+    "FN-03"
+   ]
+  },
+  {
+   "id": "capstone.ingestion.collector:MTConnectCollector.__init__",
+   "module": "capstone.ingestion.collector",
+   "file": "capstone-code/capstone/ingestion/collector.py",
+   "line": 88,
+   "end_line": 115,
+   "name": "__init__",
+   "qualname": "MTConnectCollector.__init__",
+   "kind": "method",
+   "signature": "self, base_url: str, *, device: str | None=None, count: int=1000, fetch: Fetch=http_get, now: Callable[[], datetime]=utc_now -> None",
+   "purpose": "",
+   "docstring": "",
+   "has_variable_block": true,
+   "decorators": [],
+   "raises": [
+    "ValueError"
+   ],
+   "catches": [],
+   "calls": [
+    "ValueError",
+    "rstrip"
+   ],
+   "side_effect_hints": [],
+   "statements": 9,
+   "is_stub": false,
+   "mutates_parameters": [],
+   "static_callers": [
+    "capstone.agent.tree_of_thought:TreeOfThoughtPolicy.__init__",
+    "capstone.ingestion.mtconnect:MTConnectError.__init__",
+    "capstone.providers.chat:ModelError.__init__",
+    "capstone.simulator.disturbances:SensorDrift.__init__",
+    "capstone.simulator.disturbances:TransientAnomaly.__init__",
+    "capstone.simulator.disturbances:_SensorDisturbance.__init__",
+    "capstone.simulator.scenarios:AmbientTemperature.__init__",
+    "capstone.simulator.scenarios:AxisDriveWear.__init__",
+    "capstone.simulator.scenarios:BadMaterialBatch.__init__",
+    "capstone.simulator.scenarios:BearingDegradation.__init__",
+    "capstone.simulator.scenarios:FalseAlarm.__init__",
+    "capstone.simulator.scenarios:HydraulicLeak.__init__",
+    "capstone.simulator.scenarios:LoadingDoor.__init__",
+    "capstone.simulator.scenarios:ProductionLine.__init__",
+    "capstone.simulator.scenarios:WrongSetting.__init__",
+    "capstone.simulator.sensors:FollowingErrorSensor.__init__",
+    "capstone.simulator.sensors:HydraulicPressureSensor.__init__",
+    "capstone.simulator.sensors:LoadSensor.__init__",
+    "capstone.simulator.sensors:PowerSensor.__init__",
+    "capstone.simulator.sensors:TemperatureSensor.__init__",
+    "capstone.simulator.sensors:VibrationSensor.__init__"
+   ],
+   "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
+   "contract_specified": true,
+   "executed_in_tests": true,
+   "test_count": 1,
+   "direct_tests": [],
+   "indirect_tests": [
+    "tests/test_mtconnect_ingestion.py::test_first_poll_reads_current_then_samples_from_next_sequence"
+   ],
+   "indirect_test_count": 1,
+   "statements_executed": 8,
+   "statements_in_body": 9,
+   "statement_coverage": 0.889,
+   "coverage_class": "indirect",
+   "verification_status": "INSUFFICIENT EVIDENCE",
+   "status_source": "derived",
+   "curated": {},
+   "snap_questions": [
+    "FN-01",
+    "FN-02",
+    "FN-03"
+   ]
+  },
+  {
+   "id": "capstone.ingestion.collector:MTConnectCollector._url",
+   "module": "capstone.ingestion.collector",
+   "file": "capstone-code/capstone/ingestion/collector.py",
+   "line": 117,
+   "end_line": 120,
+   "name": "_url",
+   "qualname": "MTConnectCollector._url",
+   "kind": "method",
+   "signature": "self, request: str -> str",
+   "purpose": "The URL for a request, scoped to the device if one was chosen.",
+   "docstring": "The URL for a request, scoped to the device if one was chosen.",
+   "has_variable_block": false,
+   "decorators": [],
+   "raises": [],
+   "catches": [],
+   "calls": [],
+   "side_effect_hints": [],
+   "statements": 3,
+   "is_stub": false,
+   "mutates_parameters": [],
+   "static_callers": [
+    "capstone.ingestion.collector:MTConnectCollector.poll",
+    "capstone.ingestion.collector:MTConnectCollector.probe"
+   ],
+   "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
+   "contract_specified": true,
+   "executed_in_tests": true,
+   "test_count": 1,
+   "direct_tests": [],
+   "indirect_tests": [
+    "tests/test_mtconnect_ingestion.py::test_first_poll_reads_current_then_samples_from_next_sequence"
+   ],
+   "indirect_test_count": 1,
+   "statements_executed": 2,
+   "statements_in_body": 2,
+   "statement_coverage": 1.0,
+   "coverage_class": "indirect",
+   "verification_status": "INSUFFICIENT EVIDENCE",
+   "status_source": "derived",
+   "curated": {},
+   "snap_questions": [
+    "FN-01",
+    "FN-02",
+    "FN-03"
+   ]
+  },
+  {
+   "id": "capstone.ingestion.collector:MTConnectCollector.probe",
+   "module": "capstone.ingestion.collector",
+   "file": "capstone-code/capstone/ingestion/collector.py",
+   "line": 122,
+   "end_line": 124,
+   "name": "probe",
+   "qualname": "MTConnectCollector.probe",
+   "kind": "method",
+   "signature": "self -> str",
+   "purpose": "The agent's /probe document: which data items this machine exposes.",
+   "docstring": "The agent's /probe document: which data items this machine exposes.",
+   "has_variable_block": false,
+   "decorators": [],
+   "raises": [],
+   "catches": [],
+   "calls": [
+    "_fetch",
+    "_url"
+   ],
+   "side_effect_hints": [],
+   "statements": 2,
+   "is_stub": false,
+   "mutates_parameters": [],
+   "static_callers": [
+    "capstone.ingestion.__main__:main"
+   ],
+   "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
+   "contract_specified": true,
+   "executed_in_tests": false,
+   "test_count": 0,
+   "direct_tests": [],
+   "indirect_tests": [],
+   "indirect_test_count": 0,
+   "statements_executed": 0,
+   "statements_in_body": 1,
+   "statement_coverage": 0.0,
+   "coverage_class": "none",
+   "verification_status": "NOT TESTED",
+   "status_source": "derived",
+   "curated": {},
+   "snap_questions": [
+    "FN-01",
+    "FN-02",
+    "FN-03"
+   ]
+  },
+  {
+   "id": "capstone.ingestion.collector:MTConnectCollector.poll",
+   "module": "capstone.ingestion.collector",
+   "file": "capstone-code/capstone/ingestion/collector.py",
+   "line": 126,
+   "end_line": 172,
+   "name": "poll",
+   "qualname": "MTConnectCollector.poll",
+   "kind": "method",
+   "signature": "self -> PollResult",
+   "purpose": "Fetch what is new since the last poll.",
+   "docstring": "Fetch what is new since the last poll.\n\nRaises on network or parse failure; the caller decides to retry.",
+   "has_variable_block": true,
+   "decorators": [],
+   "raises": [],
+   "catches": [
+    "MTConnectError"
+   ],
+   "calls": [
+    "PollResult",
+    "_fetch",
+    "_now",
+    "_url",
+    "parse_streams"
+   ],
+   "side_effect_hints": [],
+   "statements": 21,
+   "is_stub": false,
+   "mutates_parameters": [],
+   "static_callers": [
+    "capstone.ingestion.collector:run_collector"
+   ],
+   "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
+   "contract_specified": true,
+   "executed_in_tests": true,
+   "test_count": 3,
+   "direct_tests": [
+    "tests/test_mtconnect_ingestion.py::test_first_poll_reads_current_then_samples_from_next_sequence"
+   ],
+   "indirect_tests": [
+    "tests/test_mtconnect_ingestion.py::test_agent_restart_discards_old_sequences_and_restarts",
+    "tests/test_mtconnect_ingestion.py::test_out_of_range_reports_a_gap_and_restarts_from_current"
+   ],
+   "indirect_test_count": 2,
+   "statements_executed": 20,
+   "statements_in_body": 21,
+   "statement_coverage": 0.952,
+   "coverage_class": "direct",
+   "verification_status": "PARTIALLY VERIFIED",
+   "status_source": "derived",
+   "curated": {},
+   "snap_questions": [
+    "FN-01",
+    "FN-02",
+    "FN-03"
+   ]
+  },
+  {
+   "id": "capstone.ingestion.collector:append_jsonl",
+   "module": "capstone.ingestion.collector",
+   "file": "capstone-code/capstone/ingestion/collector.py",
+   "line": 175,
+   "end_line": 182,
+   "name": "append_jsonl",
+   "qualname": "append_jsonl",
+   "kind": "function",
+   "signature": "path: Path, records: list[TelemetryRecord] -> None",
+   "purpose": "Append records to a JSONL file, one per line, flushed at once.",
+   "docstring": "Append records to a JSONL file, one per line, flushed at once.",
+   "has_variable_block": false,
+   "decorators": [],
+   "raises": [],
+   "catches": [],
+   "calls": [
+    "flush",
+    "model_dump_json",
+    "open",
+    "write"
+   ],
+   "side_effect_hints": [
+    "writes_file"
+   ],
+   "statements": 7,
+   "is_stub": false,
+   "mutates_parameters": [],
+   "static_callers": [
+    "capstone.ingestion.collector:run_collector"
+   ],
+   "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
+   "contract_specified": true,
+   "executed_in_tests": true,
+   "test_count": 1,
+   "direct_tests": [],
+   "indirect_tests": [
+    "tests/test_mtconnect_ingestion.py::test_run_collector_writes_jsonl_and_survives_failures"
+   ],
+   "indirect_test_count": 1,
+   "statements_executed": 6,
+   "statements_in_body": 6,
+   "statement_coverage": 1.0,
+   "coverage_class": "indirect",
+   "verification_status": "INSUFFICIENT EVIDENCE",
+   "status_source": "derived",
+   "curated": {},
+   "snap_questions": [
+    "FN-01",
+    "FN-02",
+    "FN-03"
+   ]
+  },
+  {
+   "id": "capstone.ingestion.collector:run_collector",
+   "module": "capstone.ingestion.collector",
+   "file": "capstone-code/capstone/ingestion/collector.py",
+   "line": 185,
+   "end_line": 226,
+   "name": "run_collector",
+   "qualname": "run_collector",
+   "kind": "function",
+   "signature": "collector: MTConnectCollector, out: Path, *, interval: float, max_polls: int | None=None, sleep: Callable[[float], None]=time.sleep, log: TextIO | None=None -> int",
+   "purpose": "Poll until max_polls (or forever), writing records; returns records written.",
+   "docstring": "Poll until max_polls (or forever), writing records; returns records written.\n\nFailures are reported and retried; one bad response never stops collection.",
+   "has_variable_block": true,
+   "decorators": [],
+   "raises": [
+    "ValueError"
+   ],
+   "catches": [
+    "OSError, ParseError, ValueError, MTConnectError"
+   ],
+   "calls": [
+    "ValueError",
+    "append_jsonl",
+    "len",
+    "poll",
+    "print",
+    "sleep",
+    "type"
+   ],
+   "side_effect_hints": [
+    "prints",
+    "sleeps"
+   ],
+   "statements": 19,
+   "is_stub": false,
+   "mutates_parameters": [],
+   "static_callers": [
+    "capstone.ingestion.__main__:main"
+   ],
+   "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
+   "contract_specified": true,
+   "executed_in_tests": true,
+   "test_count": 2,
+   "direct_tests": [
+    "tests/test_mtconnect_ingestion.py::test_run_collector_refuses_to_poll_faster_than_the_minimum",
+    "tests/test_mtconnect_ingestion.py::test_run_collector_writes_jsonl_and_survives_failures"
+   ],
+   "indirect_tests": [],
+   "indirect_test_count": 0,
+   "statements_executed": 18,
+   "statements_in_body": 19,
+   "statement_coverage": 0.947,
+   "coverage_class": "direct",
+   "verification_status": "PARTIALLY VERIFIED",
+   "status_source": "derived",
+   "curated": {},
+   "snap_questions": [
+    "FN-01",
+    "FN-02",
+    "FN-03"
+   ]
+  },
+  {
+   "id": "capstone.ingestion.mtconnect:MTConnectError.__init__",
+   "module": "capstone.ingestion.mtconnect",
+   "file": "capstone-code/capstone/ingestion/mtconnect.py",
+   "line": 39,
+   "end_line": 44,
+   "name": "__init__",
+   "qualname": "MTConnectError.__init__",
+   "kind": "method",
+   "signature": "self, codes: list[str], message: str -> None",
+   "purpose": "",
+   "docstring": "",
+   "has_variable_block": true,
+   "decorators": [],
+   "raises": [],
+   "catches": [],
+   "calls": [
+    "__init__",
+    "super"
+   ],
+   "side_effect_hints": [],
+   "statements": 2,
+   "is_stub": false,
+   "mutates_parameters": [],
+   "static_callers": [
+    "capstone.agent.tree_of_thought:TreeOfThoughtPolicy.__init__",
+    "capstone.providers.chat:ModelError.__init__",
+    "capstone.simulator.disturbances:SensorDrift.__init__",
+    "capstone.simulator.disturbances:TransientAnomaly.__init__",
+    "capstone.simulator.disturbances:_SensorDisturbance.__init__",
+    "capstone.simulator.scenarios:AmbientTemperature.__init__",
+    "capstone.simulator.scenarios:AxisDriveWear.__init__",
+    "capstone.simulator.scenarios:BadMaterialBatch.__init__",
+    "capstone.simulator.scenarios:BearingDegradation.__init__",
+    "capstone.simulator.scenarios:FalseAlarm.__init__",
+    "capstone.simulator.scenarios:HydraulicLeak.__init__",
+    "capstone.simulator.scenarios:LoadingDoor.__init__",
+    "capstone.simulator.scenarios:ProductionLine.__init__",
+    "capstone.simulator.scenarios:WrongSetting.__init__",
+    "capstone.simulator.sensors:FollowingErrorSensor.__init__",
+    "capstone.simulator.sensors:HydraulicPressureSensor.__init__",
+    "capstone.simulator.sensors:LoadSensor.__init__",
+    "capstone.simulator.sensors:PowerSensor.__init__",
+    "capstone.simulator.sensors:TemperatureSensor.__init__",
+    "capstone.simulator.sensors:VibrationSensor.__init__"
+   ],
+   "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
+   "contract_specified": true,
+   "executed_in_tests": true,
+   "test_count": 1,
+   "direct_tests": [],
+   "indirect_tests": [
+    "tests/test_mtconnect_ingestion.py::test_error_documents_raise_with_their_codes"
+   ],
+   "indirect_test_count": 1,
+   "statements_executed": 2,
+   "statements_in_body": 2,
+   "statement_coverage": 1.0,
+   "coverage_class": "indirect",
+   "verification_status": "INSUFFICIENT EVIDENCE",
+   "status_source": "derived",
+   "curated": {},
+   "snap_questions": [
+    "FN-01",
+    "FN-02",
+    "FN-03"
+   ]
+  },
+  {
+   "id": "capstone.ingestion.mtconnect:_local",
+   "module": "capstone.ingestion.mtconnect",
+   "file": "capstone-code/capstone/ingestion/mtconnect.py",
+   "line": 65,
+   "end_line": 67,
+   "name": "_local",
+   "qualname": "_local",
+   "kind": "function",
+   "signature": "tag: str -> str",
+   "purpose": "The element name without its XML namespace.",
+   "docstring": "The element name without its XML namespace.",
+   "has_variable_block": false,
+   "decorators": [],
+   "raises": [],
+   "catches": [],
+   "calls": [
+    "rsplit"
+   ],
+   "side_effect_hints": [],
+   "statements": 2,
+   "is_stub": false,
+   "mutates_parameters": [],
+   "static_callers": [
+    "capstone.ingestion.mtconnect:_child",
+    "capstone.ingestion.mtconnect:_record",
+    "capstone.ingestion.mtconnect:_value",
+    "capstone.ingestion.mtconnect:parse_streams",
+    "capstone.ingestion.mtconnect:raise_if_error"
+   ],
+   "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
+   "contract_specified": true,
+   "executed_in_tests": true,
+   "test_count": 1,
+   "direct_tests": [],
+   "indirect_tests": [
+    "tests/test_mtconnect_ingestion.py::test_parse_reads_header_and_sorts_records_by_sequence"
+   ],
+   "indirect_test_count": 1,
+   "statements_executed": 1,
+   "statements_in_body": 1,
+   "statement_coverage": 1.0,
+   "coverage_class": "indirect",
+   "verification_status": "INSUFFICIENT EVIDENCE",
+   "status_source": "derived",
+   "curated": {},
+   "snap_questions": [
+    "FN-01",
+    "FN-02",
+    "FN-03"
+   ]
+  },
+  {
+   "id": "capstone.ingestion.mtconnect:_child",
+   "module": "capstone.ingestion.mtconnect",
+   "file": "capstone-code/capstone/ingestion/mtconnect.py",
+   "line": 70,
+   "end_line": 75,
+   "name": "_child",
+   "qualname": "_child",
+   "kind": "function",
+   "signature": "element: ET.Element, name: str -> ET.Element | None",
+   "purpose": "The first direct child with this local name, if any.",
+   "docstring": "The first direct child with this local name, if any.",
+   "has_variable_block": false,
+   "decorators": [],
+   "raises": [],
+   "catches": [],
+   "calls": [
+    "_local"
+   ],
+   "side_effect_hints": [],
+   "statements": 5,
+   "is_stub": false,
+   "mutates_parameters": [],
+   "static_callers": [
+    "capstone.ingestion.mtconnect:parse_streams",
+    "capstone.ingestion.mtconnect:raise_if_error"
+   ],
+   "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
+   "contract_specified": true,
+   "executed_in_tests": true,
+   "test_count": 2,
+   "direct_tests": [],
+   "indirect_tests": [
+    "tests/test_mtconnect_ingestion.py::test_parse_reads_header_and_sorts_records_by_sequence",
+    "tests/test_mtconnect_ingestion.py::test_records_round_trip_through_json"
+   ],
+   "indirect_test_count": 2,
+   "statements_executed": 4,
+   "statements_in_body": 4,
+   "statement_coverage": 1.0,
+   "coverage_class": "indirect",
+   "verification_status": "INSUFFICIENT EVIDENCE",
+   "status_source": "derived",
+   "curated": {},
+   "snap_questions": [
+    "FN-01",
+    "FN-02",
+    "FN-03"
+   ]
+  },
+  {
+   "id": "capstone.ingestion.mtconnect:_value",
+   "module": "capstone.ingestion.mtconnect",
+   "file": "capstone-code/capstone/ingestion/mtconnect.py",
+   "line": 78,
+   "end_line": 87,
+   "name": "_value",
+   "qualname": "_value",
+   "kind": "function",
+   "signature": "element: ET.Element -> str | None",
+   "purpose": "An observation's value as text: plain text, or JSON for DataSet entries.",
+   "docstring": "An observation's value as text: plain text, or JSON for DataSet entries.",
+   "has_variable_block": false,
+   "decorators": [],
+   "raises": [],
+   "catches": [],
+   "calls": [
+    "_local",
+    "dumps",
+    "get",
+    "strip"
+   ],
+   "side_effect_hints": [],
+   "statements": 6,
+   "is_stub": false,
+   "mutates_parameters": [],
+   "static_callers": [
+    "capstone.ingestion.mtconnect:_record"
+   ],
+   "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
+   "contract_specified": true,
+   "executed_in_tests": true,
+   "test_count": 1,
+   "direct_tests": [],
+   "indirect_tests": [
+    "tests/test_mtconnect_ingestion.py::test_parse_reads_header_and_sorts_records_by_sequence"
+   ],
+   "indirect_test_count": 1,
+   "statements_executed": 5,
+   "statements_in_body": 5,
+   "statement_coverage": 1.0,
+   "coverage_class": "indirect",
+   "verification_status": "INSUFFICIENT EVIDENCE",
+   "status_source": "derived",
+   "curated": {},
+   "snap_questions": [
+    "FN-01",
+    "FN-02",
+    "FN-03"
+   ]
+  },
+  {
+   "id": "capstone.ingestion.mtconnect:raise_if_error",
+   "module": "capstone.ingestion.mtconnect",
+   "file": "capstone-code/capstone/ingestion/mtconnect.py",
+   "line": 90,
+   "end_line": 105,
+   "name": "raise_if_error",
+   "qualname": "raise_if_error",
+   "kind": "function",
+   "signature": "root: ET.Element -> None",
+   "purpose": "Raise MTConnectError if this is an error document (1.x or 2.x form).",
+   "docstring": "Raise MTConnectError if this is an error document (1.x or 2.x form).",
+   "has_variable_block": true,
+   "decorators": [],
+   "raises": [
+    "MTConnectError"
+   ],
+   "catches": [],
+   "calls": [
+    "MTConnectError",
+    "_child",
+    "_local",
+    "append",
+    "get",
+    "join",
+    "strip"
+   ],
+   "side_effect_hints": [],
+   "statements": 12,
+   "is_stub": false,
+   "mutates_parameters": [],
+   "static_callers": [
+    "capstone.ingestion.mtconnect:parse_streams"
+   ],
+   "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
+   "contract_specified": true,
+   "executed_in_tests": true,
+   "test_count": 2,
+   "direct_tests": [],
+   "indirect_tests": [
+    "tests/test_mtconnect_ingestion.py::test_error_documents_raise_with_their_codes",
+    "tests/test_mtconnect_ingestion.py::test_parse_reads_header_and_sorts_records_by_sequence"
+   ],
+   "indirect_test_count": 2,
+   "statements_executed": 11,
+   "statements_in_body": 11,
+   "statement_coverage": 1.0,
+   "coverage_class": "indirect",
+   "verification_status": "INSUFFICIENT EVIDENCE",
+   "status_source": "derived",
+   "curated": {},
+   "snap_questions": [
+    "FN-01",
+    "FN-02",
+    "FN-03"
+   ]
+  },
+  {
+   "id": "capstone.ingestion.mtconnect:parse_streams",
+   "module": "capstone.ingestion.mtconnect",
+   "file": "capstone-code/capstone/ingestion/mtconnect.py",
+   "line": 108,
+   "end_line": 163,
+   "name": "parse_streams",
+   "qualname": "parse_streams",
+   "kind": "function",
+   "signature": "xml_text: str, *, source: str, received_at: datetime -> StreamsDocument",
+   "purpose": "Parse an MTConnectStreams response into records, in sequence order.",
+   "docstring": "Parse an MTConnectStreams response into records, in sequence order.\n\nRaises MTConnectError for an error document and ValueError for anything\nthat is not a streams document.",
+   "has_variable_block": true,
+   "decorators": [],
+   "raises": [
+    "ValueError"
+   ],
+   "catches": [],
+   "calls": [
+    "StreamsDocument",
+    "ValueError",
+    "_child",
+    "_local",
+    "_record",
+    "append",
+    "fromstring",
+    "get",
+    "int",
+    "raise_if_error",
+    "sort"
+   ],
+   "side_effect_hints": [],
+   "statements": 25,
+   "is_stub": false,
+   "mutates_parameters": [],
+   "static_callers": [
+    "capstone.ingestion.collector:MTConnectCollector.poll"
+   ],
+   "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
+   "contract_specified": true,
+   "executed_in_tests": true,
+   "test_count": 1,
+   "direct_tests": [],
+   "indirect_tests": [
+    "tests/test_mtconnect_ingestion.py::test_parse_reads_header_and_sorts_records_by_sequence"
+   ],
+   "indirect_test_count": 1,
+   "statements_executed": 19,
+   "statements_in_body": 24,
+   "statement_coverage": 0.792,
+   "coverage_class": "indirect",
+   "verification_status": "INSUFFICIENT EVIDENCE",
+   "status_source": "derived",
+   "curated": {},
+   "snap_questions": [
+    "FN-01",
+    "FN-02",
+    "FN-03"
+   ]
+  },
+  {
+   "id": "capstone.ingestion.mtconnect:_record",
+   "module": "capstone.ingestion.mtconnect",
+   "file": "capstone-code/capstone/ingestion/mtconnect.py",
+   "line": 166,
+   "end_line": 211,
+   "name": "_record",
+   "qualname": "_record",
+   "kind": "function",
+   "signature": "item: ET.Element, category: Category, *, device: str, component: str, source: str, instance_id: str | None, received_at: datetime -> TelemetryRecord",
+   "purpose": "Turn one observation element into a record.",
+   "docstring": "Turn one observation element into a record.",
+   "has_variable_block": true,
+   "decorators": [],
+   "raises": [],
+   "catches": [],
+   "calls": [
+    "TelemetryRecord",
+    "_local",
+    "_value",
+    "get",
+    "int",
+    "strip",
+    "upper"
+   ],
+   "side_effect_hints": [],
+   "statements": 13,
+   "is_stub": false,
+   "mutates_parameters": [],
+   "static_callers": [
+    "capstone.agent.critic:Critic.review",
+    "capstone.ingestion.mtconnect:parse_streams"
+   ],
+   "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
+   "contract_specified": true,
+   "executed_in_tests": true,
+   "test_count": 1,
+   "direct_tests": [],
+   "indirect_tests": [
+    "tests/test_mtconnect_ingestion.py::test_parse_reads_header_and_sorts_records_by_sequence"
+   ],
+   "indirect_test_count": 1,
+   "statements_executed": 12,
+   "statements_in_body": 12,
+   "statement_coverage": 1.0,
+   "coverage_class": "indirect",
+   "verification_status": "INSUFFICIENT EVIDENCE",
+   "status_source": "derived",
+   "curated": {},
+   "snap_questions": [
+    "FN-01",
+    "FN-02",
+    "FN-03"
+   ]
+  },
+  {
+   "id": "capstone.ingestion.record:TelemetryRecord.number",
+   "module": "capstone.ingestion.record",
+   "file": "capstone-code/capstone/ingestion/record.py",
+   "line": 59,
+   "end_line": 66,
+   "name": "number",
+   "qualname": "TelemetryRecord.number",
+   "kind": "method",
+   "signature": "self -> float | None",
+   "purpose": "The value as a float, or None if it is missing or not numeric.",
+   "docstring": "The value as a float, or None if it is missing or not numeric.",
+   "has_variable_block": false,
+   "decorators": [],
+   "raises": [],
+   "catches": [
+    "ValueError"
+   ],
+   "calls": [
+    "float"
+   ],
+   "side_effect_hints": [],
+   "statements": 6,
+   "is_stub": false,
+   "mutates_parameters": [],
+   "static_callers": [
+    "capstone.monitoring.monitor:Monitor._threshold"
+   ],
+   "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
+   "contract_specified": true,
+   "executed_in_tests": true,
+   "test_count": 3,
+   "direct_tests": [],
+   "indirect_tests": [
+    "tests/test_mtconnect_ingestion.py::test_parse_maps_samples_events_and_conditions",
+    "tests/test_mtconnect_ingestion.py::test_unavailable_stays_missing_and_is_never_zero",
+    "tests/test_telemetry_monitor.py::test_condition_alerts_once_escalates_and_recovers"
+   ],
+   "indirect_test_count": 3,
+   "statements_executed": 6,
+   "statements_in_body": 6,
+   "statement_coverage": 1.0,
+   "coverage_class": "indirect",
+   "verification_status": "INSUFFICIENT EVIDENCE",
+   "status_source": "derived",
+   "curated": {},
+   "snap_questions": [
+    "FN-01",
+    "FN-02",
+    "FN-03"
+   ]
+  },
+  {
    "id": "capstone.learning:learn_from",
    "module": "capstone.learning",
    "file": "capstone-code/capstone/learning.py",
@@ -15242,6 +16194,7 @@
    "mutates_parameters": [],
    "static_callers": [
     "capstone.agent.tree_of_thought:TreeOfThoughtPolicy.__init__",
+    "capstone.ingestion.mtconnect:MTConnectError.__init__",
     "capstone.providers.chat:ModelError.__init__",
     "capstone.simulator.disturbances:SensorDrift.__init__",
     "capstone.simulator.disturbances:TransientAnomaly.__init__",
@@ -15369,6 +16322,7 @@
    "mutates_parameters": [],
    "static_callers": [
     "capstone.agent.tree_of_thought:TreeOfThoughtPolicy.__init__",
+    "capstone.ingestion.mtconnect:MTConnectError.__init__",
     "capstone.providers.chat:ModelError.__init__",
     "capstone.simulator.disturbances:SensorDrift.__init__",
     "capstone.simulator.disturbances:TransientAnomaly.__init__",
@@ -16717,6 +17671,7 @@
    "mutates_parameters": [],
    "static_callers": [
     "capstone.agent.tree_of_thought:TreeOfThoughtPolicy.__init__",
+    "capstone.ingestion.mtconnect:MTConnectError.__init__",
     "capstone.providers.chat:ModelError.__init__",
     "capstone.simulator.disturbances:SensorDrift.__init__",
     "capstone.simulator.disturbances:TransientAnomaly.__init__",
@@ -17212,6 +18167,7 @@
    "mutates_parameters": [],
    "static_callers": [
     "capstone.agent.tree_of_thought:TreeOfThoughtPolicy.__init__",
+    "capstone.ingestion.mtconnect:MTConnectError.__init__",
     "capstone.providers.chat:ModelError.__init__",
     "capstone.simulator.disturbances:SensorDrift.__init__",
     "capstone.simulator.disturbances:TransientAnomaly.__init__",
@@ -17452,6 +18408,7 @@
    "mutates_parameters": [],
    "static_callers": [
     "capstone.agent.tree_of_thought:TreeOfThoughtPolicy.__init__",
+    "capstone.ingestion.mtconnect:MTConnectError.__init__",
     "capstone.providers.chat:ModelError.__init__",
     "capstone.simulator.disturbances:SensorDrift.__init__",
     "capstone.simulator.disturbances:TransientAnomaly.__init__",
@@ -17953,6 +18910,7 @@
    "mutates_parameters": [],
    "static_callers": [
     "capstone.agent.tree_of_thought:TreeOfThoughtPolicy.__init__",
+    "capstone.ingestion.mtconnect:MTConnectError.__init__",
     "capstone.providers.chat:ModelError.__init__",
     "capstone.simulator.disturbances:SensorDrift.__init__",
     "capstone.simulator.disturbances:TransientAnomaly.__init__",
@@ -18595,6 +19553,7 @@
    "mutates_parameters": [],
    "static_callers": [
     "capstone.agent.tree_of_thought:TreeOfThoughtPolicy.__init__",
+    "capstone.ingestion.mtconnect:MTConnectError.__init__",
     "capstone.providers.chat:ModelError.__init__",
     "capstone.simulator.disturbances:SensorDrift.__init__",
     "capstone.simulator.disturbances:TransientAnomaly.__init__",
@@ -19561,6 +20520,939 @@
    ]
   },
   {
+   "id": "capstone.monitoring.__main__:parse_threshold",
+   "module": "capstone.monitoring.__main__",
+   "file": "capstone-code/capstone/monitoring/__main__.py",
+   "line": 24,
+   "end_line": 35,
+   "name": "parse_threshold",
+   "qualname": "parse_threshold",
+   "kind": "function",
+   "signature": "text: str -> tuple[str, Threshold]",
+   "purpose": "Parse NAME=LOW:HIGH into a channel key and its range.",
+   "docstring": "Parse NAME=LOW:HIGH into a channel key and its range.",
+   "has_variable_block": false,
+   "decorators": [],
+   "raises": [
+    "ArgumentTypeError"
+   ],
+   "catches": [
+    "ValueError"
+   ],
+   "calls": [
+    "ArgumentTypeError",
+    "Threshold",
+    "float",
+    "split"
+   ],
+   "side_effect_hints": [],
+   "statements": 8,
+   "is_stub": false,
+   "mutates_parameters": [],
+   "static_callers": [],
+   "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
+   "contract_specified": true,
+   "executed_in_tests": false,
+   "test_count": 0,
+   "direct_tests": [],
+   "indirect_tests": [],
+   "indirect_test_count": 0,
+   "statements_executed": 0,
+   "statements_in_body": 8,
+   "statement_coverage": 0.0,
+   "coverage_class": "none",
+   "verification_status": "NOT TESTED",
+   "status_source": "derived",
+   "curated": {},
+   "snap_questions": [
+    "FN-01",
+    "FN-02",
+    "FN-03"
+   ]
+  },
+  {
+   "id": "capstone.monitoring.__main__:main",
+   "module": "capstone.monitoring.__main__",
+   "file": "capstone-code/capstone/monitoring/__main__.py",
+   "line": 38,
+   "end_line": 79,
+   "name": "main",
+   "qualname": "main",
+   "kind": "function",
+   "signature": "argv: Sequence[str] | None=None -> int",
+   "purpose": "Replay the file once, or with --follow keep reading it as it grows.",
+   "docstring": "Replay the file once, or with --follow keep reading it as it grows.",
+   "has_variable_block": true,
+   "decorators": [],
+   "raises": [],
+   "catches": [
+    "KeyboardInterrupt"
+   ],
+   "calls": [
+    "ArgumentParser",
+    "JsonlFollower",
+    "Monitor",
+    "add_argument",
+    "append_alerts",
+    "dict",
+    "parse_args",
+    "print",
+    "read_new",
+    "replay",
+    "sleep"
+   ],
+   "side_effect_hints": [
+    "prints",
+    "sleeps"
+   ],
+   "statements": 20,
+   "is_stub": false,
+   "mutates_parameters": [],
+   "static_callers": [],
+   "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
+   "contract_specified": true,
+   "executed_in_tests": true,
+   "test_count": 1,
+   "direct_tests": [],
+   "indirect_tests": [
+    "tests/test_telemetry_monitor.py::test_command_line_replay_writes_alerts"
+   ],
+   "indirect_test_count": 1,
+   "statements_executed": 13,
+   "statements_in_body": 20,
+   "statement_coverage": 0.65,
+   "coverage_class": "indirect",
+   "verification_status": "INSUFFICIENT EVIDENCE",
+   "status_source": "derived",
+   "curated": {},
+   "snap_questions": [
+    "FN-01",
+    "FN-02",
+    "FN-03"
+   ]
+  },
+  {
+   "id": "capstone.monitoring.monitor:Monitor.__init__",
+   "module": "capstone.monitoring.monitor",
+   "file": "capstone-code/capstone/monitoring/monitor.py",
+   "line": 68,
+   "end_line": 92,
+   "name": "__init__",
+   "qualname": "Monitor.__init__",
+   "kind": "method",
+   "signature": "self, *, thresholds: dict[str, Threshold] | None=None, stale_after: float=60.0 -> None",
+   "purpose": "",
+   "docstring": "",
+   "has_variable_block": true,
+   "decorators": [],
+   "raises": [],
+   "catches": [],
+   "calls": [
+    "set"
+   ],
+   "side_effect_hints": [],
+   "statements": 7,
+   "is_stub": false,
+   "mutates_parameters": [],
+   "static_callers": [
+    "capstone.agent.tree_of_thought:TreeOfThoughtPolicy.__init__",
+    "capstone.ingestion.mtconnect:MTConnectError.__init__",
+    "capstone.providers.chat:ModelError.__init__",
+    "capstone.simulator.disturbances:SensorDrift.__init__",
+    "capstone.simulator.disturbances:TransientAnomaly.__init__",
+    "capstone.simulator.disturbances:_SensorDisturbance.__init__",
+    "capstone.simulator.scenarios:AmbientTemperature.__init__",
+    "capstone.simulator.scenarios:AxisDriveWear.__init__",
+    "capstone.simulator.scenarios:BadMaterialBatch.__init__",
+    "capstone.simulator.scenarios:BearingDegradation.__init__",
+    "capstone.simulator.scenarios:FalseAlarm.__init__",
+    "capstone.simulator.scenarios:HydraulicLeak.__init__",
+    "capstone.simulator.scenarios:LoadingDoor.__init__",
+    "capstone.simulator.scenarios:ProductionLine.__init__",
+    "capstone.simulator.scenarios:WrongSetting.__init__",
+    "capstone.simulator.sensors:FollowingErrorSensor.__init__",
+    "capstone.simulator.sensors:HydraulicPressureSensor.__init__",
+    "capstone.simulator.sensors:LoadSensor.__init__",
+    "capstone.simulator.sensors:PowerSensor.__init__",
+    "capstone.simulator.sensors:TemperatureSensor.__init__",
+    "capstone.simulator.sensors:VibrationSensor.__init__"
+   ],
+   "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
+   "contract_specified": true,
+   "executed_in_tests": true,
+   "test_count": 1,
+   "direct_tests": [],
+   "indirect_tests": [
+    "tests/test_telemetry_monitor.py::test_condition_alerts_once_escalates_and_recovers"
+   ],
+   "indirect_test_count": 1,
+   "statements_executed": 7,
+   "statements_in_body": 7,
+   "statement_coverage": 1.0,
+   "coverage_class": "indirect",
+   "verification_status": "INSUFFICIENT EVIDENCE",
+   "status_source": "derived",
+   "curated": {},
+   "snap_questions": [
+    "FN-01",
+    "FN-02",
+    "FN-03"
+   ]
+  },
+  {
+   "id": "capstone.monitoring.monitor:Monitor.observe",
+   "module": "capstone.monitoring.monitor",
+   "file": "capstone-code/capstone/monitoring/monitor.py",
+   "line": 94,
+   "end_line": 115,
+   "name": "observe",
+   "qualname": "Monitor.observe",
+   "kind": "method",
+   "signature": "self, record: TelemetryRecord -> list[Alert]",
+   "purpose": "Update state with one record and return the alerts it causes.",
+   "docstring": "Update state with one record and return the alerts it causes.",
+   "has_variable_block": true,
+   "decorators": [],
+   "raises": [],
+   "catches": [],
+   "calls": [
+    "_availability",
+    "_condition",
+    "_device_back",
+    "_status",
+    "_threshold",
+    "get"
+   ],
+   "side_effect_hints": [],
+   "statements": 16,
+   "is_stub": false,
+   "mutates_parameters": [],
+   "static_callers": [
+    "capstone.monitoring.runner:replay"
+   ],
+   "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
+   "contract_specified": true,
+   "executed_in_tests": true,
+   "test_count": 3,
+   "direct_tests": [],
+   "indirect_tests": [
+    "tests/test_telemetry_monitor.py::test_channel_going_unavailable_alerts_and_recovers",
+    "tests/test_telemetry_monitor.py::test_condition_alerts_once_escalates_and_recovers",
+    "tests/test_telemetry_monitor.py::test_unavailable_from_the_start_is_not_an_alert"
+   ],
+   "indirect_test_count": 3,
+   "statements_executed": 15,
+   "statements_in_body": 15,
+   "statement_coverage": 1.0,
+   "coverage_class": "indirect",
+   "verification_status": "INSUFFICIENT EVIDENCE",
+   "status_source": "derived",
+   "curated": {},
+   "snap_questions": [
+    "FN-01",
+    "FN-02",
+    "FN-03"
+   ]
+  },
+  {
+   "id": "capstone.monitoring.monitor:Monitor.check_stale",
+   "module": "capstone.monitoring.monitor",
+   "file": "capstone-code/capstone/monitoring/monitor.py",
+   "line": 117,
+   "end_line": 137,
+   "name": "check_stale",
+   "qualname": "Monitor.check_stale",
+   "kind": "method",
+   "signature": "self, now: datetime -> list[Alert]",
+   "purpose": "Alert for every device silent for longer than stale_after at `now`.",
+   "docstring": "Alert for every device silent for longer than stale_after at `now`.",
+   "has_variable_block": true,
+   "decorators": [],
+   "raises": [],
+   "catches": [],
+   "calls": [
+    "Alert",
+    "_start",
+    "append",
+    "items",
+    "sorted",
+    "total_seconds"
+   ],
+   "side_effect_hints": [],
+   "statements": 7,
+   "is_stub": false,
+   "mutates_parameters": [],
+   "static_callers": [
+    "capstone.monitoring.runner:replay"
+   ],
+   "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
+   "contract_specified": true,
+   "executed_in_tests": true,
+   "test_count": 2,
+   "direct_tests": [],
+   "indirect_tests": [
+    "tests/test_telemetry_monitor.py::test_condition_alerts_once_escalates_and_recovers",
+    "tests/test_telemetry_monitor.py::test_silence_in_a_recording_is_found_without_the_wall_clock"
+   ],
+   "indirect_test_count": 2,
+   "statements_executed": 6,
+   "statements_in_body": 6,
+   "statement_coverage": 1.0,
+   "coverage_class": "indirect",
+   "verification_status": "INSUFFICIENT EVIDENCE",
+   "status_source": "derived",
+   "curated": {},
+   "snap_questions": [
+    "FN-01",
+    "FN-02",
+    "FN-03"
+   ]
+  },
+  {
+   "id": "capstone.monitoring.monitor:Monitor._start",
+   "module": "capstone.monitoring.monitor",
+   "file": "capstone-code/capstone/monitoring/monitor.py",
+   "line": 139,
+   "end_line": 144,
+   "name": "_start",
+   "qualname": "Monitor._start",
+   "kind": "method",
+   "signature": "self, flag: tuple[str, str | None, str] -> bool",
+   "purpose": "Mark a state as alerting; True only the first time.",
+   "docstring": "Mark a state as alerting; True only the first time.",
+   "has_variable_block": false,
+   "decorators": [],
+   "raises": [],
+   "catches": [],
+   "calls": [
+    "add"
+   ],
+   "side_effect_hints": [],
+   "statements": 5,
+   "is_stub": false,
+   "mutates_parameters": [],
+   "static_callers": [
+    "capstone.monitoring.monitor:Monitor._availability",
+    "capstone.monitoring.monitor:Monitor._threshold",
+    "capstone.monitoring.monitor:Monitor.check_stale"
+   ],
+   "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
+   "contract_specified": true,
+   "executed_in_tests": true,
+   "test_count": 2,
+   "direct_tests": [],
+   "indirect_tests": [
+    "tests/test_telemetry_monitor.py::test_channel_going_unavailable_alerts_and_recovers",
+    "tests/test_telemetry_monitor.py::test_threshold_by_id_or_name_fires_once_and_recovers"
+   ],
+   "indirect_test_count": 2,
+   "statements_executed": 4,
+   "statements_in_body": 4,
+   "statement_coverage": 1.0,
+   "coverage_class": "indirect",
+   "verification_status": "INSUFFICIENT EVIDENCE",
+   "status_source": "derived",
+   "curated": {},
+   "snap_questions": [
+    "FN-01",
+    "FN-02",
+    "FN-03"
+   ]
+  },
+  {
+   "id": "capstone.monitoring.monitor:Monitor._end",
+   "module": "capstone.monitoring.monitor",
+   "file": "capstone-code/capstone/monitoring/monitor.py",
+   "line": 146,
+   "end_line": 151,
+   "name": "_end",
+   "qualname": "Monitor._end",
+   "kind": "method",
+   "signature": "self, flag: tuple[str, str | None, str] -> bool",
+   "purpose": "Clear an alerting state; True only if it was alerting.",
+   "docstring": "Clear an alerting state; True only if it was alerting.",
+   "has_variable_block": false,
+   "decorators": [],
+   "raises": [],
+   "catches": [],
+   "calls": [
+    "discard"
+   ],
+   "side_effect_hints": [],
+   "statements": 5,
+   "is_stub": false,
+   "mutates_parameters": [],
+   "static_callers": [
+    "capstone.monitoring.monitor:Monitor._availability",
+    "capstone.monitoring.monitor:Monitor._device_back",
+    "capstone.monitoring.monitor:Monitor._threshold"
+   ],
+   "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
+   "contract_specified": true,
+   "executed_in_tests": true,
+   "test_count": 2,
+   "direct_tests": [],
+   "indirect_tests": [
+    "tests/test_telemetry_monitor.py::test_channel_going_unavailable_alerts_and_recovers",
+    "tests/test_telemetry_monitor.py::test_condition_alerts_once_escalates_and_recovers"
+   ],
+   "indirect_test_count": 2,
+   "statements_executed": 4,
+   "statements_in_body": 4,
+   "statement_coverage": 1.0,
+   "coverage_class": "indirect",
+   "verification_status": "INSUFFICIENT EVIDENCE",
+   "status_source": "derived",
+   "curated": {},
+   "snap_questions": [
+    "FN-01",
+    "FN-02",
+    "FN-03"
+   ]
+  },
+  {
+   "id": "capstone.monitoring.monitor:Monitor._alert",
+   "module": "capstone.monitoring.monitor",
+   "file": "capstone-code/capstone/monitoring/monitor.py",
+   "line": 153,
+   "end_line": 165,
+   "name": "_alert",
+   "qualname": "Monitor._alert",
+   "kind": "method",
+   "signature": "self, record: TelemetryRecord, kind: AlertKind, severity: Severity, message: str -> Alert",
+   "purpose": "An alert about one record's channel.",
+   "docstring": "An alert about one record's channel.",
+   "has_variable_block": false,
+   "decorators": [],
+   "raises": [],
+   "catches": [],
+   "calls": [
+    "Alert"
+   ],
+   "side_effect_hints": [],
+   "statements": 2,
+   "is_stub": false,
+   "mutates_parameters": [],
+   "static_callers": [
+    "capstone.monitoring.monitor:Monitor._availability",
+    "capstone.monitoring.monitor:Monitor._condition",
+    "capstone.monitoring.monitor:Monitor._device_back",
+    "capstone.monitoring.monitor:Monitor._status",
+    "capstone.monitoring.monitor:Monitor._threshold"
+   ],
+   "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
+   "contract_specified": true,
+   "executed_in_tests": true,
+   "test_count": 1,
+   "direct_tests": [],
+   "indirect_tests": [
+    "tests/test_telemetry_monitor.py::test_condition_alerts_once_escalates_and_recovers"
+   ],
+   "indirect_test_count": 1,
+   "statements_executed": 1,
+   "statements_in_body": 1,
+   "statement_coverage": 1.0,
+   "coverage_class": "indirect",
+   "verification_status": "INSUFFICIENT EVIDENCE",
+   "status_source": "derived",
+   "curated": {},
+   "snap_questions": [
+    "FN-01",
+    "FN-02",
+    "FN-03"
+   ]
+  },
+  {
+   "id": "capstone.monitoring.monitor:Monitor._device_back",
+   "module": "capstone.monitoring.monitor",
+   "file": "capstone-code/capstone/monitoring/monitor.py",
+   "line": 167,
+   "end_line": 173,
+   "name": "_device_back",
+   "qualname": "Monitor._device_back",
+   "kind": "method",
+   "signature": "self, record: TelemetryRecord -> list[Alert]",
+   "purpose": "A recovered alert if this record ends a stale period for its device.",
+   "docstring": "A recovered alert if this record ends a stale period for its device.",
+   "has_variable_block": false,
+   "decorators": [],
+   "raises": [],
+   "catches": [],
+   "calls": [
+    "_alert",
+    "_end"
+   ],
+   "side_effect_hints": [],
+   "statements": 4,
+   "is_stub": false,
+   "mutates_parameters": [],
+   "static_callers": [
+    "capstone.monitoring.monitor:Monitor.observe"
+   ],
+   "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
+   "contract_specified": true,
+   "executed_in_tests": true,
+   "test_count": 2,
+   "direct_tests": [],
+   "indirect_tests": [
+    "tests/test_telemetry_monitor.py::test_condition_alerts_once_escalates_and_recovers",
+    "tests/test_telemetry_monitor.py::test_silence_in_a_recording_is_found_without_the_wall_clock"
+   ],
+   "indirect_test_count": 2,
+   "statements_executed": 3,
+   "statements_in_body": 3,
+   "statement_coverage": 1.0,
+   "coverage_class": "indirect",
+   "verification_status": "INSUFFICIENT EVIDENCE",
+   "status_source": "derived",
+   "curated": {},
+   "snap_questions": [
+    "FN-01",
+    "FN-02",
+    "FN-03"
+   ]
+  },
+  {
+   "id": "capstone.monitoring.monitor:Monitor._availability",
+   "module": "capstone.monitoring.monitor",
+   "file": "capstone-code/capstone/monitoring/monitor.py",
+   "line": 175,
+   "end_line": 202,
+   "name": "_availability",
+   "qualname": "Monitor._availability",
+   "kind": "method",
+   "signature": "self, record: TelemetryRecord, previous: TelemetryRecord | None -> list[Alert]",
+   "purpose": "Alert when a channel that had a value goes UNAVAILABLE, and when it returns.",
+   "docstring": "Alert when a channel that had a value goes UNAVAILABLE, and when it returns.\n\nA channel unavailable from the start is not an alert: many controls\nlist channels they never fill.",
+   "has_variable_block": true,
+   "decorators": [],
+   "raises": [],
+   "catches": [],
+   "calls": [
+    "_alert",
+    "_end",
+    "_start"
+   ],
+   "side_effect_hints": [],
+   "statements": 9,
+   "is_stub": false,
+   "mutates_parameters": [],
+   "static_callers": [
+    "capstone.monitoring.monitor:Monitor.observe"
+   ],
+   "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
+   "contract_specified": true,
+   "executed_in_tests": true,
+   "test_count": 3,
+   "direct_tests": [],
+   "indirect_tests": [
+    "tests/test_telemetry_monitor.py::test_channel_going_unavailable_alerts_and_recovers",
+    "tests/test_telemetry_monitor.py::test_condition_alerts_once_escalates_and_recovers",
+    "tests/test_telemetry_monitor.py::test_unavailable_from_the_start_is_not_an_alert"
+   ],
+   "indirect_test_count": 3,
+   "statements_executed": 8,
+   "statements_in_body": 8,
+   "statement_coverage": 1.0,
+   "coverage_class": "indirect",
+   "verification_status": "INSUFFICIENT EVIDENCE",
+   "status_source": "derived",
+   "curated": {},
+   "snap_questions": [
+    "FN-01",
+    "FN-02",
+    "FN-03"
+   ]
+  },
+  {
+   "id": "capstone.monitoring.monitor:Monitor._condition",
+   "module": "capstone.monitoring.monitor",
+   "file": "capstone-code/capstone/monitoring/monitor.py",
+   "line": 204,
+   "end_line": 226,
+   "name": "_condition",
+   "qualname": "Monitor._condition",
+   "kind": "method",
+   "signature": "self, record: TelemetryRecord -> list[Alert]",
+   "purpose": "Alert when a condition goes WARNING/FAULT; recover when it is NORMAL.",
+   "docstring": "Alert when a condition goes WARNING/FAULT; recover when it is NORMAL.",
+   "has_variable_block": true,
+   "decorators": [],
+   "raises": [],
+   "catches": [],
+   "calls": [
+    "_alert",
+    "get"
+   ],
+   "side_effect_hints": [],
+   "statements": 15,
+   "is_stub": false,
+   "mutates_parameters": [],
+   "static_callers": [
+    "capstone.monitoring.monitor:Monitor.observe"
+   ],
+   "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
+   "contract_specified": true,
+   "executed_in_tests": true,
+   "test_count": 1,
+   "direct_tests": [
+    "tests/test_telemetry_monitor.py::test_condition_alerts_once_escalates_and_recovers"
+   ],
+   "indirect_tests": [],
+   "indirect_test_count": 0,
+   "statements_executed": 14,
+   "statements_in_body": 14,
+   "statement_coverage": 1.0,
+   "coverage_class": "direct",
+   "verification_status": "PARTIALLY VERIFIED",
+   "status_source": "derived",
+   "curated": {},
+   "snap_questions": [
+    "FN-01",
+    "FN-02",
+    "FN-03"
+   ]
+  },
+  {
+   "id": "capstone.monitoring.monitor:Monitor._status",
+   "module": "capstone.monitoring.monitor",
+   "file": "capstone-code/capstone/monitoring/monitor.py",
+   "line": 228,
+   "end_line": 249,
+   "name": "_status",
+   "qualname": "Monitor._status",
+   "kind": "method",
+   "signature": "self, record: TelemetryRecord, previous: TelemetryRecord | None -> list[Alert]",
+   "purpose": "An info alert when machine status changes; E-stop triggered is a fault.",
+   "docstring": "An info alert when machine status changes; E-stop triggered is a fault.",
+   "has_variable_block": true,
+   "decorators": [],
+   "raises": [],
+   "catches": [],
+   "calls": [
+    "_alert"
+   ],
+   "side_effect_hints": [],
+   "statements": 5,
+   "is_stub": false,
+   "mutates_parameters": [],
+   "static_callers": [
+    "capstone.monitoring.monitor:Monitor.observe"
+   ],
+   "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
+   "contract_specified": true,
+   "executed_in_tests": true,
+   "test_count": 2,
+   "direct_tests": [
+    "tests/test_telemetry_monitor.py::test_status_changes_are_reported_but_not_the_first_value"
+   ],
+   "indirect_tests": [
+    "tests/test_telemetry_monitor.py::test_channel_going_unavailable_alerts_and_recovers"
+   ],
+   "indirect_test_count": 1,
+   "statements_executed": 4,
+   "statements_in_body": 4,
+   "statement_coverage": 1.0,
+   "coverage_class": "direct",
+   "verification_status": "PARTIALLY VERIFIED",
+   "status_source": "derived",
+   "curated": {},
+   "snap_questions": [
+    "FN-01",
+    "FN-02",
+    "FN-03"
+   ]
+  },
+  {
+   "id": "capstone.monitoring.monitor:Monitor._threshold",
+   "module": "capstone.monitoring.monitor",
+   "file": "capstone-code/capstone/monitoring/monitor.py",
+   "line": 251,
+   "end_line": 279,
+   "name": "_threshold",
+   "qualname": "Monitor._threshold",
+   "kind": "method",
+   "signature": "self, record: TelemetryRecord -> list[Alert]",
+   "purpose": "Alert when a numeric channel leaves its range; recover when it returns.",
+   "docstring": "Alert when a numeric channel leaves its range; recover when it returns.",
+   "has_variable_block": true,
+   "decorators": [],
+   "raises": [],
+   "catches": [],
+   "calls": [
+    "_alert",
+    "_end",
+    "_start",
+    "get",
+    "number"
+   ],
+   "side_effect_hints": [],
+   "statements": 13,
+   "is_stub": false,
+   "mutates_parameters": [],
+   "static_callers": [
+    "capstone.monitoring.monitor:Monitor.observe"
+   ],
+   "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
+   "contract_specified": true,
+   "executed_in_tests": true,
+   "test_count": 2,
+   "direct_tests": [
+    "tests/test_telemetry_monitor.py::test_threshold_by_id_or_name_fires_once_and_recovers"
+   ],
+   "indirect_tests": [
+    "tests/test_telemetry_monitor.py::test_condition_alerts_once_escalates_and_recovers"
+   ],
+   "indirect_test_count": 1,
+   "statements_executed": 12,
+   "statements_in_body": 12,
+   "statement_coverage": 1.0,
+   "coverage_class": "direct",
+   "verification_status": "PARTIALLY VERIFIED",
+   "status_source": "derived",
+   "curated": {},
+   "snap_questions": [
+    "FN-01",
+    "FN-02",
+    "FN-03"
+   ]
+  },
+  {
+   "id": "capstone.monitoring.runner:JsonlFollower.__init__",
+   "module": "capstone.monitoring.runner",
+   "file": "capstone-code/capstone/monitoring/runner.py",
+   "line": 23,
+   "end_line": 29,
+   "name": "__init__",
+   "qualname": "JsonlFollower.__init__",
+   "kind": "method",
+   "signature": "self, path: Path, *, log: TextIO | None=None -> None",
+   "purpose": "",
+   "docstring": "",
+   "has_variable_block": true,
+   "decorators": [],
+   "raises": [],
+   "catches": [],
+   "calls": [],
+   "side_effect_hints": [],
+   "statements": 3,
+   "is_stub": false,
+   "mutates_parameters": [],
+   "static_callers": [
+    "capstone.agent.tree_of_thought:TreeOfThoughtPolicy.__init__",
+    "capstone.ingestion.mtconnect:MTConnectError.__init__",
+    "capstone.providers.chat:ModelError.__init__",
+    "capstone.simulator.disturbances:SensorDrift.__init__",
+    "capstone.simulator.disturbances:TransientAnomaly.__init__",
+    "capstone.simulator.disturbances:_SensorDisturbance.__init__",
+    "capstone.simulator.scenarios:AmbientTemperature.__init__",
+    "capstone.simulator.scenarios:AxisDriveWear.__init__",
+    "capstone.simulator.scenarios:BadMaterialBatch.__init__",
+    "capstone.simulator.scenarios:BearingDegradation.__init__",
+    "capstone.simulator.scenarios:FalseAlarm.__init__",
+    "capstone.simulator.scenarios:HydraulicLeak.__init__",
+    "capstone.simulator.scenarios:LoadingDoor.__init__",
+    "capstone.simulator.scenarios:ProductionLine.__init__",
+    "capstone.simulator.scenarios:WrongSetting.__init__",
+    "capstone.simulator.sensors:FollowingErrorSensor.__init__",
+    "capstone.simulator.sensors:HydraulicPressureSensor.__init__",
+    "capstone.simulator.sensors:LoadSensor.__init__",
+    "capstone.simulator.sensors:PowerSensor.__init__",
+    "capstone.simulator.sensors:TemperatureSensor.__init__",
+    "capstone.simulator.sensors:VibrationSensor.__init__"
+   ],
+   "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
+   "contract_specified": true,
+   "executed_in_tests": true,
+   "test_count": 1,
+   "direct_tests": [],
+   "indirect_tests": [
+    "tests/test_telemetry_monitor.py::test_follower_reads_only_complete_lines_and_skips_bad_ones"
+   ],
+   "indirect_test_count": 1,
+   "statements_executed": 3,
+   "statements_in_body": 3,
+   "statement_coverage": 1.0,
+   "coverage_class": "indirect",
+   "verification_status": "INSUFFICIENT EVIDENCE",
+   "status_source": "derived",
+   "curated": {},
+   "snap_questions": [
+    "FN-01",
+    "FN-02",
+    "FN-03"
+   ]
+  },
+  {
+   "id": "capstone.monitoring.runner:JsonlFollower.read_new",
+   "module": "capstone.monitoring.runner",
+   "file": "capstone-code/capstone/monitoring/runner.py",
+   "line": 31,
+   "end_line": 56,
+   "name": "read_new",
+   "qualname": "JsonlFollower.read_new",
+   "kind": "method",
+   "signature": "self -> list[TelemetryRecord]",
+   "purpose": "Records from complete lines added since the last call.",
+   "docstring": "Records from complete lines added since the last call.",
+   "has_variable_block": true,
+   "decorators": [],
+   "raises": [],
+   "catches": [
+    "ValidationError"
+   ],
+   "calls": [
+    "append",
+    "decode",
+    "error_count",
+    "exists",
+    "model_validate_json",
+    "open",
+    "print",
+    "read",
+    "rfind",
+    "seek",
+    "splitlines",
+    "strip"
+   ],
+   "side_effect_hints": [
+    "writes_file",
+    "prints"
+   ],
+   "statements": 16,
+   "is_stub": false,
+   "mutates_parameters": [],
+   "static_callers": [
+    "capstone.monitoring.__main__:main"
+   ],
+   "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
+   "contract_specified": true,
+   "executed_in_tests": true,
+   "test_count": 1,
+   "direct_tests": [],
+   "indirect_tests": [
+    "tests/test_telemetry_monitor.py::test_follower_reads_only_complete_lines_and_skips_bad_ones"
+   ],
+   "indirect_test_count": 1,
+   "statements_executed": 14,
+   "statements_in_body": 16,
+   "statement_coverage": 0.875,
+   "coverage_class": "indirect",
+   "verification_status": "INSUFFICIENT EVIDENCE",
+   "status_source": "derived",
+   "curated": {},
+   "snap_questions": [
+    "FN-01",
+    "FN-02",
+    "FN-03"
+   ]
+  },
+  {
+   "id": "capstone.monitoring.runner:replay",
+   "module": "capstone.monitoring.runner",
+   "file": "capstone-code/capstone/monitoring/runner.py",
+   "line": 59,
+   "end_line": 70,
+   "name": "replay",
+   "qualname": "replay",
+   "kind": "function",
+   "signature": "records: Iterable[TelemetryRecord], monitor: Monitor -> list[Alert]",
+   "purpose": "Run the monitor over stored records; the same input gives the same alerts.",
+   "docstring": "Run the monitor over stored records; the same input gives the same alerts.\n\nStaleness is checked against each record's receive time, so a silence in\nthe recording is found without looking at the wall clock. Reading a file\nin several pieces (follow mode) gives the same alerts as reading it whole.",
+   "has_variable_block": false,
+   "decorators": [],
+   "raises": [],
+   "catches": [],
+   "calls": [
+    "check_stale",
+    "observe"
+   ],
+   "side_effect_hints": [],
+   "statements": 6,
+   "is_stub": false,
+   "mutates_parameters": [],
+   "static_callers": [
+    "capstone.monitoring.__main__:main"
+   ],
+   "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
+   "contract_specified": true,
+   "executed_in_tests": true,
+   "test_count": 1,
+   "direct_tests": [],
+   "indirect_tests": [
+    "tests/test_telemetry_monitor.py::test_condition_alerts_once_escalates_and_recovers"
+   ],
+   "indirect_test_count": 1,
+   "statements_executed": 5,
+   "statements_in_body": 5,
+   "statement_coverage": 1.0,
+   "coverage_class": "indirect",
+   "verification_status": "INSUFFICIENT EVIDENCE",
+   "status_source": "derived",
+   "curated": {},
+   "snap_questions": [
+    "FN-01",
+    "FN-02",
+    "FN-03"
+   ]
+  },
+  {
+   "id": "capstone.monitoring.runner:append_alerts",
+   "module": "capstone.monitoring.runner",
+   "file": "capstone-code/capstone/monitoring/runner.py",
+   "line": 73,
+   "end_line": 90,
+   "name": "append_alerts",
+   "qualname": "append_alerts",
+   "kind": "function",
+   "signature": "path: Path | None, alerts: list[Alert], *, echo: TextIO | None=None -> None",
+   "purpose": "Print alerts and, if a path is given, append them to a JSONL file.",
+   "docstring": "Print alerts and, if a path is given, append them to a JSONL file.",
+   "has_variable_block": true,
+   "decorators": [],
+   "raises": [],
+   "catches": [],
+   "calls": [
+    "isoformat",
+    "model_dump_json",
+    "open",
+    "print",
+    "upper",
+    "write"
+   ],
+   "side_effect_hints": [
+    "writes_file",
+    "prints"
+   ],
+   "statements": 8,
+   "is_stub": false,
+   "mutates_parameters": [],
+   "static_callers": [
+    "capstone.monitoring.__main__:main"
+   ],
+   "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
+   "contract_specified": true,
+   "executed_in_tests": true,
+   "test_count": 1,
+   "direct_tests": [],
+   "indirect_tests": [
+    "tests/test_telemetry_monitor.py::test_command_line_replay_writes_alerts"
+   ],
+   "indirect_test_count": 1,
+   "statements_executed": 6,
+   "statements_in_body": 7,
+   "statement_coverage": 0.857,
+   "coverage_class": "indirect",
+   "verification_status": "INSUFFICIENT EVIDENCE",
+   "status_source": "derived",
+   "curated": {},
+   "snap_questions": [
+    "FN-01",
+    "FN-02",
+    "FN-03"
+   ]
+  },
+  {
    "id": "capstone.observability:_safe_identifier",
    "module": "capstone.observability",
    "file": "capstone-code/capstone/observability.py",
@@ -19648,6 +21540,7 @@
    "mutates_parameters": [],
    "static_callers": [
     "capstone.agent.tree_of_thought:TreeOfThoughtPolicy.__init__",
+    "capstone.ingestion.mtconnect:MTConnectError.__init__",
     "capstone.providers.chat:ModelError.__init__",
     "capstone.simulator.disturbances:SensorDrift.__init__",
     "capstone.simulator.disturbances:TransientAnomaly.__init__",
@@ -20140,6 +22033,7 @@
    "mutates_parameters": [],
    "static_callers": [
     "capstone.agent.tree_of_thought:TreeOfThoughtPolicy.__init__",
+    "capstone.ingestion.mtconnect:MTConnectError.__init__",
     "capstone.providers.chat:ModelError.__init__",
     "capstone.simulator.disturbances:SensorDrift.__init__",
     "capstone.simulator.disturbances:TransientAnomaly.__init__",
@@ -20939,6 +22833,7 @@
    "mutates_parameters": [],
    "static_callers": [
     "capstone.agent.tree_of_thought:TreeOfThoughtPolicy.__init__",
+    "capstone.ingestion.mtconnect:MTConnectError.__init__",
     "capstone.simulator.disturbances:SensorDrift.__init__",
     "capstone.simulator.disturbances:TransientAnomaly.__init__",
     "capstone.simulator.disturbances:_SensorDisturbance.__init__",
@@ -21519,6 +23414,7 @@
    "mutates_parameters": [],
    "static_callers": [
     "capstone.agent.tree_of_thought:TreeOfThoughtPolicy.__init__",
+    "capstone.ingestion.mtconnect:MTConnectError.__init__",
     "capstone.providers.chat:ModelError.__init__",
     "capstone.simulator.disturbances:SensorDrift.__init__",
     "capstone.simulator.disturbances:TransientAnomaly.__init__",
@@ -21696,6 +23592,7 @@
    "mutates_parameters": [],
    "static_callers": [
     "capstone.agent.tree_of_thought:TreeOfThoughtPolicy.__init__",
+    "capstone.ingestion.mtconnect:MTConnectError.__init__",
     "capstone.providers.chat:ModelError.__init__",
     "capstone.simulator.disturbances:SensorDrift.__init__",
     "capstone.simulator.disturbances:TransientAnomaly.__init__",
@@ -22362,6 +24259,7 @@
    "mutates_parameters": [],
    "static_callers": [
     "capstone.agent.tree_of_thought:TreeOfThoughtPolicy.__init__",
+    "capstone.ingestion.mtconnect:MTConnectError.__init__",
     "capstone.providers.chat:ModelError.__init__",
     "capstone.simulator.disturbances:SensorDrift.__init__",
     "capstone.simulator.disturbances:TransientAnomaly.__init__",
@@ -22964,6 +24862,7 @@
    "mutates_parameters": [],
    "static_callers": [
     "capstone.agent.tree_of_thought:TreeOfThoughtPolicy.__init__",
+    "capstone.ingestion.mtconnect:MTConnectError.__init__",
     "capstone.providers.chat:ModelError.__init__",
     "capstone.simulator.disturbances:SensorDrift.__init__",
     "capstone.simulator.disturbances:TransientAnomaly.__init__",
@@ -23446,6 +25345,7 @@
    "mutates_parameters": [],
    "static_callers": [
     "capstone.agent.tree_of_thought:TreeOfThoughtPolicy.__init__",
+    "capstone.ingestion.mtconnect:MTConnectError.__init__",
     "capstone.providers.chat:ModelError.__init__",
     "capstone.simulator.disturbances:SensorDrift.__init__",
     "capstone.simulator.disturbances:TransientAnomaly.__init__",
@@ -23931,6 +25831,7 @@
    "mutates_parameters": [],
    "static_callers": [
     "capstone.agent.tree_of_thought:TreeOfThoughtPolicy.__init__",
+    "capstone.ingestion.mtconnect:MTConnectError.__init__",
     "capstone.providers.chat:ModelError.__init__",
     "capstone.simulator.disturbances:SensorDrift.__init__",
     "capstone.simulator.disturbances:TransientAnomaly.__init__",
@@ -24120,6 +26021,7 @@
    "mutates_parameters": [],
    "static_callers": [
     "capstone.agent.tree_of_thought:TreeOfThoughtPolicy.__init__",
+    "capstone.ingestion.mtconnect:MTConnectError.__init__",
     "capstone.providers.chat:ModelError.__init__",
     "capstone.simulator.disturbances:SensorDrift.__init__",
     "capstone.simulator.disturbances:TransientAnomaly.__init__",
@@ -24413,6 +26315,7 @@
    "mutates_parameters": [],
    "static_callers": [
     "capstone.agent.tree_of_thought:TreeOfThoughtPolicy.__init__",
+    "capstone.ingestion.mtconnect:MTConnectError.__init__",
     "capstone.providers.chat:ModelError.__init__",
     "capstone.simulator.disturbances:SensorDrift.__init__",
     "capstone.simulator.disturbances:TransientAnomaly.__init__",
@@ -24978,6 +26881,7 @@
    "mutates_parameters": [],
    "static_callers": [
     "capstone.agent.tree_of_thought:TreeOfThoughtPolicy.__init__",
+    "capstone.ingestion.mtconnect:MTConnectError.__init__",
     "capstone.providers.chat:ModelError.__init__",
     "capstone.simulator.disturbances:SensorDrift.__init__",
     "capstone.simulator.disturbances:TransientAnomaly.__init__",
@@ -25139,6 +27043,7 @@
    "mutates_parameters": [],
    "static_callers": [
     "capstone.baseline:diagnose",
+    "capstone.ingestion.collector:utc_now",
     "evaluation.evaltools.snap_request:build_request",
     "evaluation.evaltools.snap_request:write_requests"
    ],
@@ -25303,6 +27208,7 @@
    "mutates_parameters": [],
    "static_callers": [
     "capstone.agent.tree_of_thought:TreeOfThoughtPolicy.__init__",
+    "capstone.ingestion.mtconnect:MTConnectError.__init__",
     "capstone.providers.chat:ModelError.__init__",
     "capstone.simulator.disturbances:SensorDrift.__init__",
     "capstone.simulator.disturbances:TransientAnomaly.__init__",
@@ -25521,6 +27427,7 @@
    "mutates_parameters": [],
    "static_callers": [
     "capstone.agent.tree_of_thought:TreeOfThoughtPolicy.__init__",
+    "capstone.ingestion.mtconnect:MTConnectError.__init__",
     "capstone.providers.chat:ModelError.__init__",
     "capstone.simulator.disturbances:TransientAnomaly.__init__",
     "capstone.simulator.disturbances:_SensorDisturbance.__init__",
@@ -25642,6 +27549,7 @@
    "mutates_parameters": [],
    "static_callers": [
     "capstone.agent.tree_of_thought:TreeOfThoughtPolicy.__init__",
+    "capstone.ingestion.mtconnect:MTConnectError.__init__",
     "capstone.providers.chat:ModelError.__init__",
     "capstone.simulator.disturbances:SensorDrift.__init__",
     "capstone.simulator.disturbances:_SensorDisturbance.__init__",
@@ -25803,6 +27711,7 @@
    "mutates_parameters": [],
    "static_callers": [
     "capstone.agent.tree_of_thought:TreeOfThoughtPolicy.__init__",
+    "capstone.ingestion.mtconnect:MTConnectError.__init__",
     "capstone.providers.chat:ModelError.__init__",
     "capstone.simulator.disturbances:SensorDrift.__init__",
     "capstone.simulator.disturbances:TransientAnomaly.__init__",
@@ -25985,6 +27894,7 @@
    "mutates_parameters": [],
    "static_callers": [
     "capstone.agent.tree_of_thought:TreeOfThoughtPolicy.__init__",
+    "capstone.ingestion.mtconnect:MTConnectError.__init__",
     "capstone.providers.chat:ModelError.__init__",
     "capstone.simulator.disturbances:SensorDrift.__init__",
     "capstone.simulator.disturbances:TransientAnomaly.__init__",
@@ -26354,6 +28264,7 @@
    "mutates_parameters": [],
    "static_callers": [
     "capstone.agent.tree_of_thought:TreeOfThoughtPolicy.__init__",
+    "capstone.ingestion.mtconnect:MTConnectError.__init__",
     "capstone.providers.chat:ModelError.__init__",
     "capstone.simulator.disturbances:SensorDrift.__init__",
     "capstone.simulator.disturbances:TransientAnomaly.__init__",
@@ -26577,6 +28488,7 @@
    "mutates_parameters": [],
    "static_callers": [
     "capstone.agent.tree_of_thought:TreeOfThoughtPolicy.__init__",
+    "capstone.ingestion.mtconnect:MTConnectError.__init__",
     "capstone.providers.chat:ModelError.__init__",
     "capstone.simulator.disturbances:SensorDrift.__init__",
     "capstone.simulator.disturbances:TransientAnomaly.__init__",
@@ -26733,6 +28645,7 @@
    "mutates_parameters": [],
    "static_callers": [
     "capstone.agent.tree_of_thought:TreeOfThoughtPolicy.__init__",
+    "capstone.ingestion.mtconnect:MTConnectError.__init__",
     "capstone.providers.chat:ModelError.__init__",
     "capstone.simulator.disturbances:SensorDrift.__init__",
     "capstone.simulator.disturbances:TransientAnomaly.__init__",
@@ -26905,6 +28818,7 @@
    "mutates_parameters": [],
    "static_callers": [
     "capstone.agent.tree_of_thought:TreeOfThoughtPolicy.__init__",
+    "capstone.ingestion.mtconnect:MTConnectError.__init__",
     "capstone.providers.chat:ModelError.__init__",
     "capstone.simulator.disturbances:SensorDrift.__init__",
     "capstone.simulator.disturbances:TransientAnomaly.__init__",
@@ -27074,6 +28988,7 @@
    "mutates_parameters": [],
    "static_callers": [
     "capstone.agent.tree_of_thought:TreeOfThoughtPolicy.__init__",
+    "capstone.ingestion.mtconnect:MTConnectError.__init__",
     "capstone.providers.chat:ModelError.__init__",
     "capstone.simulator.disturbances:SensorDrift.__init__",
     "capstone.simulator.disturbances:TransientAnomaly.__init__",
@@ -27247,6 +29162,7 @@
    "mutates_parameters": [],
    "static_callers": [
     "capstone.agent.tree_of_thought:TreeOfThoughtPolicy.__init__",
+    "capstone.ingestion.mtconnect:MTConnectError.__init__",
     "capstone.providers.chat:ModelError.__init__",
     "capstone.simulator.disturbances:SensorDrift.__init__",
     "capstone.simulator.disturbances:TransientAnomaly.__init__",
@@ -27413,6 +29329,7 @@
    "mutates_parameters": [],
    "static_callers": [
     "capstone.agent.tree_of_thought:TreeOfThoughtPolicy.__init__",
+    "capstone.ingestion.mtconnect:MTConnectError.__init__",
     "capstone.providers.chat:ModelError.__init__",
     "capstone.simulator.disturbances:SensorDrift.__init__",
     "capstone.simulator.disturbances:TransientAnomaly.__init__",
@@ -27579,6 +29496,7 @@
    "mutates_parameters": [],
    "static_callers": [
     "capstone.agent.tree_of_thought:TreeOfThoughtPolicy.__init__",
+    "capstone.ingestion.mtconnect:MTConnectError.__init__",
     "capstone.providers.chat:ModelError.__init__",
     "capstone.simulator.disturbances:SensorDrift.__init__",
     "capstone.simulator.disturbances:TransientAnomaly.__init__",
@@ -27844,6 +29762,7 @@
    "mutates_parameters": [],
    "static_callers": [
     "capstone.agent.tree_of_thought:TreeOfThoughtPolicy.__init__",
+    "capstone.ingestion.mtconnect:MTConnectError.__init__",
     "capstone.providers.chat:ModelError.__init__",
     "capstone.simulator.disturbances:SensorDrift.__init__",
     "capstone.simulator.disturbances:TransientAnomaly.__init__",
@@ -28182,6 +30101,7 @@
    "mutates_parameters": [],
    "static_callers": [
     "capstone.agent.tree_of_thought:TreeOfThoughtPolicy.__init__",
+    "capstone.ingestion.mtconnect:MTConnectError.__init__",
     "capstone.providers.chat:ModelError.__init__",
     "capstone.simulator.disturbances:SensorDrift.__init__",
     "capstone.simulator.disturbances:TransientAnomaly.__init__",
@@ -28350,6 +30270,7 @@
    "mutates_parameters": [],
    "static_callers": [
     "capstone.agent.tree_of_thought:TreeOfThoughtPolicy.__init__",
+    "capstone.ingestion.mtconnect:MTConnectError.__init__",
     "capstone.providers.chat:ModelError.__init__",
     "capstone.simulator.disturbances:SensorDrift.__init__",
     "capstone.simulator.disturbances:TransientAnomaly.__init__",
@@ -28517,6 +30438,7 @@
    "mutates_parameters": [],
    "static_callers": [
     "capstone.agent.tree_of_thought:TreeOfThoughtPolicy.__init__",
+    "capstone.ingestion.mtconnect:MTConnectError.__init__",
     "capstone.providers.chat:ModelError.__init__",
     "capstone.simulator.disturbances:SensorDrift.__init__",
     "capstone.simulator.disturbances:TransientAnomaly.__init__",
@@ -28592,7 +30514,9 @@
     "capstone.evals:main",
     "capstone.evaluation.auto_label:main",
     "capstone.experiment:main",
+    "capstone.ingestion.collector:http_get",
     "capstone.memory_comparison:main",
+    "capstone.monitoring.runner:JsonlFollower.read_new",
     "capstone.providers.chat:urllib_transport",
     "capstone.providers.chat:urllib_transport.<locals>.send",
     "capstone.simulator.simulator:Simulator.step",
@@ -28741,6 +30665,7 @@
    "mutates_parameters": [],
    "static_callers": [
     "capstone.agent.tree_of_thought:TreeOfThoughtPolicy.__init__",
+    "capstone.ingestion.mtconnect:MTConnectError.__init__",
     "capstone.providers.chat:ModelError.__init__",
     "capstone.simulator.disturbances:SensorDrift.__init__",
     "capstone.simulator.disturbances:TransientAnomaly.__init__",
@@ -28857,6 +30782,7 @@
    "mutates_parameters": [],
    "static_callers": [
     "capstone.agent.tree_of_thought:TreeOfThoughtPolicy.__init__",
+    "capstone.ingestion.mtconnect:MTConnectError.__init__",
     "capstone.providers.chat:ModelError.__init__",
     "capstone.simulator.disturbances:SensorDrift.__init__",
     "capstone.simulator.disturbances:TransientAnomaly.__init__",
@@ -28972,6 +30898,7 @@
    "mutates_parameters": [],
    "static_callers": [
     "capstone.agent.tree_of_thought:TreeOfThoughtPolicy.__init__",
+    "capstone.ingestion.mtconnect:MTConnectError.__init__",
     "capstone.providers.chat:ModelError.__init__",
     "capstone.simulator.disturbances:SensorDrift.__init__",
     "capstone.simulator.disturbances:TransientAnomaly.__init__",
@@ -29088,6 +31015,7 @@
    "mutates_parameters": [],
    "static_callers": [
     "capstone.agent.tree_of_thought:TreeOfThoughtPolicy.__init__",
+    "capstone.ingestion.mtconnect:MTConnectError.__init__",
     "capstone.providers.chat:ModelError.__init__",
     "capstone.simulator.disturbances:SensorDrift.__init__",
     "capstone.simulator.disturbances:TransientAnomaly.__init__",
@@ -29204,6 +31132,7 @@
    "mutates_parameters": [],
    "static_callers": [
     "capstone.agent.tree_of_thought:TreeOfThoughtPolicy.__init__",
+    "capstone.ingestion.mtconnect:MTConnectError.__init__",
     "capstone.providers.chat:ModelError.__init__",
     "capstone.simulator.disturbances:SensorDrift.__init__",
     "capstone.simulator.disturbances:TransientAnomaly.__init__",
@@ -29320,6 +31249,7 @@
    "mutates_parameters": [],
    "static_callers": [
     "capstone.agent.tree_of_thought:TreeOfThoughtPolicy.__init__",
+    "capstone.ingestion.mtconnect:MTConnectError.__init__",
     "capstone.providers.chat:ModelError.__init__",
     "capstone.simulator.disturbances:SensorDrift.__init__",
     "capstone.simulator.disturbances:TransientAnomaly.__init__",
@@ -29484,6 +31414,7 @@
    "mutates_parameters": [],
    "static_callers": [
     "capstone.agent.tree_of_thought:TreeOfThoughtPolicy.__init__",
+    "capstone.ingestion.mtconnect:MTConnectError.__init__",
     "capstone.providers.chat:ModelError.__init__",
     "capstone.simulator.disturbances:SensorDrift.__init__",
     "capstone.simulator.disturbances:TransientAnomaly.__init__",
@@ -29554,7 +31485,9 @@
     "capstone.evals:main",
     "capstone.evaluation.auto_label:main",
     "capstone.experiment:main",
+    "capstone.ingestion.collector:http_get",
     "capstone.memory_comparison:main",
+    "capstone.monitoring.runner:JsonlFollower.read_new",
     "capstone.providers.chat:urllib_transport",
     "capstone.providers.chat:urllib_transport.<locals>.send",
     "capstone.simulator.simulator:Simulator.step",
@@ -29616,6 +31549,7 @@
    "mutates_parameters": [],
    "static_callers": [
     "capstone.agent.tree_of_thought:TreeOfThoughtPolicy.__init__",
+    "capstone.ingestion.mtconnect:MTConnectError.__init__",
     "capstone.providers.chat:ModelError.__init__",
     "capstone.simulator.disturbances:SensorDrift.__init__",
     "capstone.simulator.disturbances:TransientAnomaly.__init__",
@@ -31342,6 +33276,7 @@
     "capstone.agent.tree_of_thought:pruned_trace",
     "capstone.evals:automatic_labels",
     "capstone.experiment:main",
+    "capstone.monitoring.monitor:Monitor._start",
     "capstone.simulator.simulator:Simulator.add_machine",
     "evaluation.evaltools.build_inventory:build",
     "evaluation.evaltools.build_inventory:direct_test_files",
@@ -31546,6 +33481,7 @@
    "mutates_parameters": [],
    "static_callers": [
     "capstone.agent.tree_of_thought:TreeOfThoughtPolicy.__init__",
+    "capstone.ingestion.mtconnect:MTConnectError.__init__",
     "capstone.providers.chat:ModelError.__init__",
     "capstone.simulator.disturbances:SensorDrift.__init__",
     "capstone.simulator.disturbances:TransientAnomaly.__init__",
@@ -32026,6 +33962,7 @@
    "mutates_parameters": [],
    "static_callers": [
     "capstone.agent.tree_of_thought:TreeOfThoughtPolicy.__init__",
+    "capstone.ingestion.mtconnect:MTConnectError.__init__",
     "capstone.providers.chat:ModelError.__init__",
     "capstone.simulator.disturbances:SensorDrift.__init__",
     "capstone.simulator.disturbances:TransientAnomaly.__init__",
@@ -32335,6 +34272,7 @@
    "mutates_parameters": [],
    "static_callers": [
     "capstone.agent.tree_of_thought:TreeOfThoughtPolicy.__init__",
+    "capstone.ingestion.mtconnect:MTConnectError.__init__",
     "capstone.providers.chat:ModelError.__init__",
     "capstone.simulator.disturbances:SensorDrift.__init__",
     "capstone.simulator.disturbances:TransientAnomaly.__init__",
