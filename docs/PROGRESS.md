@@ -1,5 +1,14 @@
 # Progress Log
 
+> **2026-11-03 — planned third agent: Evidence Integrity (documentation only; not built; understanding unchanged):**
+> Added Future Work 3's preferred first three-agent increment in `docs/MVP_SCOPE.md` and a dedicated
+> `docs/THIRD_AGENT_EVIDENCE_INTEGRITY_FUTURE_WORK.md` covering exact role boundaries, architecture, typed
+> Pydantic handoff proposals, tool permissions, deterministic quality checks, baseline ablations and adoption gates.
+> The new role will independently decide bounded *data coverage* queries before the Investigator forms causal
+> hypotheses. The Investigator retains hypotheses/diagnosis/manual/memory; the Critic retains hypothesis challenges.
+> No runtime code, tests, provider settings, model API, simulator, collector, live adapter, or graph stage changed.
+
+
 > **2026-11-03 — collector heartbeat and live crash watchdog (built ungated, developer to review; understood: no):**
 > Second follow-up from PR #165's walkthrough, stacked on the stop markers (PR #166). The collector now writes a
 > `heartbeat` marker when polls succeed but nothing new has been written for 60 s (`HEARTBEAT_SECONDS`); failed polls never
