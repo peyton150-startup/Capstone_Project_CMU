@@ -7,14 +7,12 @@ from collections.abc import Iterable
 from pathlib import Path
 from typing import TextIO
 
-from pydantic import ValidationError
-
-from capstone.ingestion.record import TelemetryRecord
+from capstone.ingestion.record import CollectorMarker, Line, parse_line
 from capstone.monitoring.monitor import Alert, Monitor
 
 
 class JsonlFollower:
-    """Reads records added to a JSONL file since the last read.
+    """Reads observations and collector markers added to a JSONL file.
 
     Only complete lines are read, so a line the collector is still writing is
     picked up on the next read instead of being parsed half-written.
@@ -28,8 +26,8 @@ class JsonlFollower:
         self.log = log
         self._offset = 0
 
-    def read_new(self) -> list[TelemetryRecord]:
-        """Records from complete lines added since the last call."""
+    def read_new(self) -> list[Line]:
+        """Lines (observations and markers) completed since the last call."""
         if not self.path.exists():
             return []
         with self.path.open("rb") as source:
@@ -42,31 +40,37 @@ class JsonlFollower:
         #     next read.
         end = data.rfind(b"\n") + 1
         self._offset += end
-        records = []
-        for line in data[:end].decode("utf-8").splitlines():
-            if not line.strip():
+        lines: list[Line] = []
+        for text in data[:end].decode("utf-8").splitlines():
+            if not text.strip():
                 continue
             try:
-                records.append(TelemetryRecord.model_validate_json(line))
-            except ValidationError as error:
+                lines.append(parse_line(text))
+            except ValueError as error:
                 print(
-                    f"skipped unreadable line: {error.error_count()} errors",
+                    f"skipped unreadable line: {type(error).__name__}",
                     file=self.log or sys.stderr,
                 )
-        return records
+        return lines
 
 
-def replay(records: Iterable[TelemetryRecord], monitor: Monitor) -> list[Alert]:
+def replay(records: Iterable[Line], monitor: Monitor) -> list[Alert]:
     """Run the monitor over stored records; the same input gives the same alerts.
 
     Staleness is checked against each record's receive time, so a silence in
     the recording is found without looking at the wall clock. Reading a file
     in several pieces (follow mode) gives the same alerts as reading it whole.
     """
+    # Variables:
+    #   record: An observation, or a collector marker (timed by its `at`).
     alerts: list[Alert] = []
     for record in records:
-        alerts += monitor.check_stale(record.received_at)
-        alerts += monitor.observe(record)
+        if isinstance(record, CollectorMarker):
+            alerts += monitor.check_stale(record.at)
+            alerts += monitor.observe_marker(record)
+        else:
+            alerts += monitor.check_stale(record.received_at)
+            alerts += monitor.observe(record)
     return alerts
 
 

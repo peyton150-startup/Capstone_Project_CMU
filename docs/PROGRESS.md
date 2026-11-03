@@ -1,5 +1,15 @@
 # Progress Log
 
+> **2026-11-03 — collector start/stop markers: a planned stop is no longer mistaken for a crash (built ungated, developer to review; understood: no):**
+> Follow-up agreed in PR #165's walkthrough. The collector now writes a `CollectorMarker` line (`record_type: "collector"`)
+> when it starts and when it stops on purpose (Ctrl+C or `--polls` reached, with the reason). A crash or killed process
+> writes no stop marker. Observation lines gain `record_type: "observation"`; older lines without it still read as
+> observations (`parse_line`). The deterministic monitor handles markers in `observe_marker`: a clean stop ends stale
+> checks for that agent's devices, and a start not preceded by a clean stop is a `collector` warning that the previous
+> run may have crashed. Still no wall clock: a crash is found when the collector starts again. Live crash detection is the
+> next PR (a separate watchdog). Live smoke run against demo.mtconnect.org (2 polls) wrote both markers and the monitor
+> reported them. Evaluator inventories rebuilt from a full coverage run.
+
 > **2026-11-03 — smallest read-only MTConnect collector and deterministic monitor (built ungated, developer to review; understood: no):**
 > Built from the plan in PR #164 (Haas live-telemetry pilot), at the developer's request, smallest version only.
 > `capstone.ingestion` polls an MTConnect agent with HTTP GET only (`/current`, then `/sample?from=<nextSequence>`),

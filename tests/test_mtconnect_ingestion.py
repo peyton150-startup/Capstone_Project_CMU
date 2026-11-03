@@ -19,6 +19,7 @@ from capstone.ingestion import (
     run_collector,
 )
 from capstone.ingestion import collector as collector_module
+from capstone.ingestion.record import CollectorMarker, parse_line
 
 NOW = datetime(2026, 11, 3, 12, 0, tzinfo=UTC)
 NS2 = "urn:mtconnect.org:MTConnectStreams:2.8"
@@ -257,15 +258,10 @@ def test_run_collector_writes_jsonl_and_survives_failures(tmp_path):
         collector(agent), out, interval=2, max_polls=4, sleep=sleeps.append, log=log
     )
     assert written == 6
-    lines = out.read_text(encoding="utf-8").splitlines()
-    assert [TelemetryRecord.model_validate_json(line).sequence for line in lines] == [
-        3,
-        10,
-        11,
-        12,
-        13,
-        14,
-    ]
+    lines = [parse_line(t) for t in out.read_text(encoding="utf-8").splitlines()]
+    assert [line.sequence for line in lines[1:-1]] == [3, 10, 11, 12, 13, 14]
+    assert (lines[0].event, lines[-1].event) == ("started", "stopped")
+    assert lines[-1].reason == "poll limit reached"
     assert log.getvalue().count("poll failed") == 2
     assert sleeps == [2, 2, 2, 2]
 
@@ -295,3 +291,47 @@ def test_http_get_sends_only_get_and_reads_error_bodies(monkeypatch):
         "http://agent:8082/sample?from=1"
     )
     assert seen == ["GET"]
+
+
+# --- start and stop markers ------------------------------------------------
+
+
+class Interrupting(FakeAgent):
+    """An agent whose second request is interrupted by Ctrl+C."""
+
+    def __call__(self, url: str) -> str:
+        if self.urls:
+            raise KeyboardInterrupt
+        return super().__call__(url)
+
+
+def markers(path) -> list[CollectorMarker]:
+    lines = [parse_line(t) for t in path.read_text(encoding="utf-8").splitlines()]
+    return [line for line in lines if isinstance(line, CollectorMarker)]
+
+
+def test_ctrl_c_writes_a_clean_stop_and_keeps_the_count(tmp_path):
+    out = tmp_path / "telemetry.jsonl"
+    agent = Interrupting(streams(SPINDLE, nxt=15, last=14))
+    written = run_collector(collector(agent), out, interval=1, sleep=lambda _: None)
+    assert written == 6
+    assert [(m.event, m.reason) for m in markers(out)] == [
+        ("started", None),
+        ("stopped", "interrupted"),
+    ]
+    assert markers(out)[0].source == "http://agent:8082"
+
+
+def test_a_crash_writes_no_stop_marker(tmp_path):
+    out = tmp_path / "telemetry.jsonl"
+    agent = FakeAgent(RuntimeError("bug in the collector"))
+    with pytest.raises(RuntimeError):
+        run_collector(collector(agent), out, interval=1, sleep=lambda _: None)
+    assert [m.event for m in markers(out)] == ["started"]
+
+
+def test_lines_written_before_markers_existed_still_read_as_observations():
+    record = parse(streams(SPINDLE)).records[0]
+    old_line = json.loads(record.model_dump_json())
+    del old_line["record_type"]
+    assert parse_line(json.dumps(old_line)) == record

@@ -12,6 +12,10 @@ Rules, all edge-triggered (an alert fires when a state starts, and a
 - threshold:     a numeric channel leaves an operator-given [low, high] range.
 - stale:         a device's records are more than `stale_after` seconds apart
                  (measured on the records' receive times, not the wall clock).
+- collector:     the collector's start and stop markers. A clean stop ends
+                 stale checks for its devices (a planned pause is not a fault);
+                 a start not preceded by a stop is a warning that the previous
+                 run ended without a clean stop (it may have crashed).
 
 This is plain code: no model or agent monitors, and nothing here reads a
 clock, the network or a random source. The monitor is a pure function of
@@ -24,10 +28,16 @@ from typing import Literal
 
 from pydantic import BaseModel, ConfigDict
 
-from capstone.ingestion.record import TelemetryRecord
+from capstone.ingestion.record import CollectorMarker, TelemetryRecord
 
 AlertKind = Literal[
-    "condition", "unavailable", "status_change", "threshold", "stale", "recovered"
+    "condition",
+    "unavailable",
+    "status_change",
+    "threshold",
+    "stale",
+    "recovered",
+    "collector",
 ]
 Severity = Literal["info", "warning", "fault"]
 
@@ -42,7 +52,9 @@ class Alert(BaseModel):
     # Variables:
     #   kind: Which rule fired, or `recovered` when a flagged state ended.
     #   severity: info for changes and recoveries; warning or fault for problems.
-    #   data_item_id: The channel concerned; None for a whole-device alert (stale).
+    #   device: The machine concerned; for a collector alert, the agent's URL.
+    #   data_item_id: The channel concerned; None for a whole-device alert
+    #     (stale) or a collector alert.
     #   at: The record's source time, or the check time for a stale alert.
     #   sequence: The record that caused the alert, to find it in the file.
     kind: AlertKind
@@ -83,6 +95,10 @@ class Monitor:
         #     change is measured against what was last reported, not a gap.
         #   _levels: Each condition channel's current WARNING/FAULT level; a
         #     channel absent here is normal.
+        #   _devices: The devices each source (agent URL) has reported, so a
+        #     stop marker can end stale checks for exactly those devices.
+        #   _running: Sources whose collector has started or sent data and
+        #     not yet written a clean stop.
         self.thresholds = thresholds or {}
         self.stale_after = stale_after
         self._last: dict[tuple[str, str], TelemetryRecord] = {}
@@ -90,6 +106,8 @@ class Monitor:
         self._levels: dict[tuple[str, str], str] = {}
         self._flagged: set[tuple[str, str | None, str]] = set()
         self._last_seen: dict[str, datetime] = {}
+        self._devices: dict[str, set[str]] = {}
+        self._running: set[str] = set()
 
     def observe(self, record: TelemetryRecord) -> list[Alert]:
         """Update state with one record and return the alerts it causes."""
@@ -105,6 +123,8 @@ class Monitor:
         if record.available:
             self._known[key] = record
         self._last_seen[record.device] = record.received_at
+        self._devices.setdefault(record.source, set()).add(record.device)
+        self._running.add(record.source)
 
         alerts += self._availability(record, previous)
         if record.category == "CONDITION":
@@ -113,6 +133,44 @@ class Monitor:
             alerts += self._status(record, known)
         alerts += self._threshold(record)
         return alerts
+
+    def observe_marker(self, marker: CollectorMarker) -> list[Alert]:
+        """Note a collector start or clean stop and return the alerts it causes."""
+        # Variables:
+        #   was_running: True if this source's collector had started (or sent
+        #     data) and never wrote a clean stop; a new start then means the
+        #     previous run ended some other way.
+        was_running = marker.source in self._running
+        if marker.event == "stopped":
+            self._running.discard(marker.source)
+            for device in self._devices.get(marker.source, set()):
+                self._last_seen.pop(device, None)
+            reason = f" ({marker.reason})" if marker.reason else ""
+            return [self._collector(marker, "info", f"collector stopped{reason}")]
+        self._running.add(marker.source)
+        if was_running:
+            return [
+                self._collector(
+                    marker,
+                    "warning",
+                    "collector restarted without a clean stop; the previous run "
+                    "may have crashed",
+                )
+            ]
+        return [self._collector(marker, "info", "collector started")]
+
+    def _collector(
+        self, marker: CollectorMarker, severity: Severity, message: str
+    ) -> Alert:
+        """An alert about the collector itself, keyed by its agent URL."""
+        return Alert(
+            kind="collector",
+            severity=severity,
+            device=marker.source,
+            data_item_id=None,
+            message=message,
+            at=marker.at,
+        )
 
     def check_stale(self, now: datetime) -> list[Alert]:
         """Alert for every device silent for longer than stale_after at `now`."""
