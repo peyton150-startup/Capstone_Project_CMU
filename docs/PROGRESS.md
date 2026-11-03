@@ -1,5 +1,17 @@
 # Progress Log
 
+> **2026-11-03 — Haas live-telemetry collector and read-only manufacturer pilot plan added (documentation only):**
+> [MVP_SCOPE.md](MVP_SCOPE.md#fw-haas-live-pilot) now records the post-MVP,
+> one-machine Haas collection plan for manufacturer outreach: shop/IT approval,
+> NGC/CHC capability discovery, outbound-only on-site bridge where needed,
+> capture contracts, separate collection/monitoring processes, private storage,
+> 7-day opt-in pilot with optional 30-day extension, shadow-mode replay and
+> evaluation limits, stop/revocation gates, development sizing and operator
+> discovery questions. This expands the existing ingestion/replay and Haas
+> future work; no factory access, deployed service, code or tests were added.
+> Understanding status unchanged (documentation only).
+
+
 > **2026-11-02 — first live Jev pilot, and the cost estimate fixed (built ungated, developer to review; understood: no):**
 > At the developer's request, Claude Code ran one five-request Jev batch on `main` `629a268` (`--provider jev --send --batch-size 5 --max-requests 5 --max-usd 0.05`; output kept outside the repository in `C:\Users\nicol\CapstoneRuns\jev-pilot-20261102`). All five returned (15 answers, all FN questions on `capstone.agent.completion`, one attempt each, model `jev-1.14.0`), billed $0.000315 for 7,507 input tokens. The evaluator had estimated about 2.2x too few tokens: it counted only the evidence state. `full_evaluation.budget` now estimates each request from its whole body (state and questions) and adds `REQUEST_TOKEN_MARGIN` = 1.5, through the new `request_tokens_estimate`; on the pilot's five requests the new estimate is above every billed count. Still input only: outputs and retries are not priced. The answers are not yet checked against reviewed reference judgments.
 
