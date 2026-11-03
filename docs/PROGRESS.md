@@ -1,5 +1,20 @@
 # Progress Log
 
+> **2026-11-03 — smallest read-only MTConnect collector and deterministic monitor (built ungated, developer to review; understood: no):**
+> Built from the plan in PR #164 (Haas live-telemetry pilot), at the developer's request, smallest version only.
+> `capstone.ingestion` polls an MTConnect agent with HTTP GET only (`/current`, then `/sample?from=<nextSequence>`),
+> parses MTConnectStreams (1.x and 2.x namespaces) into versioned `TelemetryRecord`s and appends them to JSONL;
+> UNAVAILABLE stays missing (`available=False`, `value=None`), OUT_OF_RANGE (HTTP 400 error document) and agent
+> restarts (new `instanceId`) restart from `/current` and are reported as gaps, network/parse failures are retried,
+> polling is never faster than 1 s, and `--save-probe` saves the machine's `/probe` capability list.
+> `capstone.monitoring` is a separate, plain-code, deterministic process (no model or agent monitors): it replays or
+> follows the JSONL and raises edge-triggered alerts for condition WARNING/FAULT, channels going unavailable,
+> Execution/ControllerMode/EmergencyStop changes, operator thresholds and stale devices (from gaps between record
+> receive times; the wall clock is never read, so live and replay give the same alerts).
+> Shape checked against the public demo agent demo.mtconnect.org (MTConnect 2.8; 3-poll smoke run, 153 records, no
+> duplicates). Not run against a Haas or any shop machine. The research agent does not read the records or alerts yet.
+> Tests: `tests/test_mtconnect_ingestion.py`, `tests/test_telemetry_monitor.py` (new CI group "Live telemetry").
+
 > **2026-11-02 — first live Jev pilot, and the cost estimate fixed (built ungated, developer to review; understood: no):**
 > At the developer's request, Claude Code ran one five-request Jev batch on `main` `629a268` (`--provider jev --send --batch-size 5 --max-requests 5 --max-usd 0.05`; output kept outside the repository in `C:\Users\nicol\CapstoneRuns\jev-pilot-20261102`). All five returned (15 answers, all FN questions on `capstone.agent.completion`, one attempt each, model `jev-1.14.0`), billed $0.000315 for 7,507 input tokens. The evaluator had estimated about 2.2x too few tokens: it counted only the evidence state. `full_evaluation.budget` now estimates each request from its whole body (state and questions) and adds `REQUEST_TOKEN_MARGIN` = 1.5, through the new `request_tokens_estimate`; on the pilot's five requests the new estimate is above every billed count. Still input only: outputs and retries are not priced. The answers are not yet checked against reviewed reference judgments.
 
