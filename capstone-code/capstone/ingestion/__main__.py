@@ -22,6 +22,12 @@ from capstone.ingestion.collector import (
 
 def main(argv: Sequence[str] | None = None) -> int:
     """Run the collector until interrupted or --polls is reached."""
+    # Variables:
+    #   argv: Command-line arguments; None means the real ones (tests pass a list).
+    #   args: The parsed options: agent URL, device, output file, interval,
+    #     count, poll limit and probe file.
+    #   collector: The agent reader built from those options.
+    #   written: Records appended, printed as the run's summary.
     parser = argparse.ArgumentParser(prog="python -m capstone.ingestion")
     parser.add_argument("--url", required=True, help="MTConnect agent base URL")
     parser.add_argument("--device", help="only this device on a multi-device agent")

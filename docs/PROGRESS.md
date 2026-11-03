@@ -9,6 +9,13 @@
 > run may have crashed. Still no wall clock: a crash is found when the collector starts again. Live crash detection is the
 > next PR (a separate watchdog). Live smoke run against demo.mtconnect.org (2 polls) wrote both markers and the monitor
 > reported them. Evaluator inventories rebuilt from a full coverage run.
+> Pre-merge walkthrough (2026-11-03): Q1 (Ctrl+C mid-poll) right that it stops gracefully and keeps the count; added
+> that `reason = "interrupted"` is an assignment, that KeyboardInterrupt passes the retry handler because it is a
+> BaseException, and that the last line is the `stopped (interrupted)` marker. Q2 (an hour's planned pause) right that
+> there is no stale alert; corrected that three info `collector` alerts are still printed, and that `_last_seen.pop`
+> on `stopped` is what prevents the stale alert. Q3 (old PR 165 files) right that they load; explained the
+> `record_type` default in `parse_line`, and that appending a new run to an old file warns of a crash because old data
+> counts as running. At the developer's request, every ingestion function now describes its meaningful variables.
 
 > **2026-11-03 — smallest read-only MTConnect collector and deterministic monitor (built ungated, developer to review; understood: no):**
 > Built from the plan in PR #164 (Haas live-telemetry pilot), at the developer's request, smallest version only.
