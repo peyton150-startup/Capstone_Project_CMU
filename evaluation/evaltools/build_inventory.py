@@ -35,7 +35,7 @@ DEFAULT_OUT = REPO / "evaluation" / "inventory"
 INVENTORY_VERSION = "1.0.0"
 
 # How many ids a list keeps before it is cut, so the files stay readable.
-LIST_CAP = 30
+LIST_CAP = 80
 
 # Excluded from the inventory, documented for the audit (Phase 2 requires it).
 EXCLUSIONS = [
@@ -648,6 +648,21 @@ def capped(items: list, cap: int = LIST_CAP) -> list:
     return items[:cap]
 
 
+def static_callers_of(target: FunctionInfo, functions: list[FunctionInfo]) -> list[str]:
+    """Find possible callers, matching constructors by their class name."""
+    # Variables:
+    #   called_name: The name a caller writes; constructors are called through
+    #     their class, not through the shared name ``__init__``.
+    called_name = target.name
+    if target.name == "__init__" and "." in target.qualname:
+        called_name = target.qualname.rsplit(".", 2)[-2]
+    return sorted(
+        function.id
+        for function in functions
+        if called_name in function.calls and function.id != target.id
+    )
+
+
 def build(coverage_path: Path | None, junit_path: Path | None, out: Path) -> dict:
     """Write the four inventory files and return the verification matrix."""
     # Variables:
@@ -661,6 +676,8 @@ def build(coverage_path: Path | None, junit_path: Path | None, out: Path) -> dic
     #     the rest are indirect.
     #   coverage_class: none, import-only, indirect, direct or no-statements;
     #     it sets the derived status unless a curated note overrides it.
+    #   callers: Possible source callers of this function; constructors use
+    #     their class name so other classes' __init__ methods do not match.
     #   source_paths: Project and evaluator implementation files to index.
     #   test_paths: Every executable test file, including evaluator tests.
     source_paths = sorted((*PACKAGE.rglob("*.py"), *EVALUATOR_PACKAGE.rglob("*.py")))
@@ -726,7 +743,7 @@ def build(coverage_path: Path | None, junit_path: Path | None, out: Path) -> dic
         status = note.get("verification_status", STATUS_DEFAULTS[coverage_class])
         if status not in ALLOWED_STATUS:
             raise ValueError(f"{f.id}: unknown status {status!r}")
-        callers = sorted(g.id for g in functions if f.name in g.calls and g.id != f.id)
+        callers = static_callers_of(f, functions)
         function_records.append(
             {
                 **f.__dict__,

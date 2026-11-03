@@ -1,5 +1,24 @@
 # Progress Log
 
+> **2026-11-03 — evaluator test attribution and constructor callers (built ungated, developer to review; understood: no):**
+> The developer authorized Codex to make this one code fix despite the usual
+> build/run split in `AGENTS.md` section 12. The five-request Jev pilot's
+> function packets omitted tests that assert action evidence and verification.
+> Python 3.14 selected coverage.py's `sysmon` core, which warned that dynamic
+> test contexts may be incomplete; a `ctrace` probe recovered the missing
+> contexts. `pyproject.toml` now pins `ctrace`. `build_inventory.py` matches
+> constructor callers by class name rather than every `__init__`, and keeps
+> up to 80 test ids per direct/indirect list. `snap_request.py` shows up to
+> 80 function test sources, reports the count against all executing tests,
+> and keeps FN-02/FN-03 `unknown` when sources are omitted or cut. The five
+> pilot functions now have all 42–66 executing tests in their packets and fit
+> the matched evidence budget; other functions with more tests keep visible
+> unknowns. `tests/test_evaluation_tools.py` covers per-test contexts,
+> constructor matching, complete pilot evidence and incomplete-packet skips.
+> Rebuilt inventories and offline verification are recorded in the PR. The
+> previous five Jev answers remain transport diagnostics; no new model call
+> or independent human reference judgment was made.
+
 > **2026-11-02 — first live Jev pilot, and the cost estimate fixed (built ungated, developer to review; understood: no):**
 > At the developer's request, Claude Code ran one five-request Jev batch on `main` `629a268` (`--provider jev --send --batch-size 5 --max-requests 5 --max-usd 0.05`; output kept outside the repository in `C:\Users\nicol\CapstoneRuns\jev-pilot-20261102`). All five returned (15 answers, all FN questions on `capstone.agent.completion`, one attempt each, model `jev-1.14.0`), billed $0.000315 for 7,507 input tokens. The evaluator had estimated about 2.2x too few tokens: it counted only the evidence state. `full_evaluation.budget` now estimates each request from its whole body (state and questions) and adds `REQUEST_TOKEN_MARGIN` = 1.5, through the new `request_tokens_estimate`; on the pilot's five requests the new estimate is above every billed count. Still input only: outputs and retries are not priced. The answers are not yet checked against reviewed reference judgments.
 
