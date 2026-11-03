@@ -397,6 +397,7 @@
     "capstone.providers.chat:urllib_transport",
     "capstone.providers.chat:urllib_transport.<locals>.send",
     "capstone.simulator.simulator:Simulator.step",
+    "capstone.watchdog.watchdog:last_line",
     "evaluation.evaltools.build_inventory:read_coverage",
     "evaluation.evaltools.run_packet:audit_by_run",
     "evaluation.evaltools.traced_run:functions_hit"
@@ -7523,7 +7524,9 @@
     "capstone.baseline:diagnose",
     "capstone.ingestion.collector:MTConnectCollector.poll",
     "capstone.ingestion.collector:_marker",
+    "capstone.ingestion.collector:run_collector",
     "capstone.ingestion.collector:utc_now",
+    "capstone.watchdog.__main__:main",
     "evaluation.evaltools.snap_request:build_request",
     "evaluation.evaltools.snap_request:write_requests"
    ],
@@ -11143,6 +11146,7 @@
     "capstone.providers.chat:urllib_transport",
     "capstone.providers.chat:urllib_transport.<locals>.send",
     "capstone.simulator.simulator:Simulator.step",
+    "capstone.watchdog.watchdog:last_line",
     "evaluation.evaltools.build_inventory:read_coverage",
     "evaluation.evaltools.run_packet:audit_by_run",
     "evaluation.evaltools.traced_run:functions_hit"
@@ -13938,6 +13942,7 @@
    "mutates_parameters": [],
    "static_callers": [
     "capstone.experiment:main",
+    "capstone.watchdog.__main__:main",
     "evaluation.evaltools.full_evaluation:main"
    ],
    "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
@@ -15081,8 +15086,8 @@
    "id": "capstone.ingestion.collector:http_get",
    "module": "capstone.ingestion.collector",
    "file": "capstone-code/capstone/ingestion/collector.py",
-   "line": 45,
-   "end_line": 63,
+   "line": 48,
+   "end_line": 66,
    "name": "http_get",
    "qualname": "http_get",
    "kind": "function",
@@ -15135,8 +15140,8 @@
    "id": "capstone.ingestion.collector:utc_now",
    "module": "capstone.ingestion.collector",
    "file": "capstone-code/capstone/ingestion/collector.py",
-   "line": 66,
-   "end_line": 68,
+   "line": 69,
+   "end_line": 71,
    "name": "utc_now",
    "qualname": "utc_now",
    "kind": "function",
@@ -15179,8 +15184,8 @@
    "id": "capstone.ingestion.collector:MTConnectCollector.__init__",
    "module": "capstone.ingestion.collector",
    "file": "capstone-code/capstone/ingestion/collector.py",
-   "line": 88,
-   "end_line": 116,
+   "line": 91,
+   "end_line": 119,
    "name": "__init__",
    "qualname": "MTConnectCollector.__init__",
    "kind": "method",
@@ -15230,7 +15235,7 @@
    "test_count": 1,
    "direct_tests": [],
    "indirect_tests": [
-    "tests/test_mtconnect_ingestion.py::test_first_poll_reads_current_then_samples_from_next_sequence"
+    "tests/test_collector_watchdog.py::test_a_quiet_machine_gets_a_heartbeat_every_minute"
    ],
    "indirect_test_count": 1,
    "statements_executed": 8,
@@ -15250,8 +15255,8 @@
    "id": "capstone.ingestion.collector:MTConnectCollector._url",
    "module": "capstone.ingestion.collector",
    "file": "capstone-code/capstone/ingestion/collector.py",
-   "line": 118,
-   "end_line": 121,
+   "line": 121,
+   "end_line": 124,
    "name": "_url",
    "qualname": "MTConnectCollector._url",
    "kind": "method",
@@ -15277,7 +15282,7 @@
    "test_count": 1,
    "direct_tests": [],
    "indirect_tests": [
-    "tests/test_mtconnect_ingestion.py::test_first_poll_reads_current_then_samples_from_next_sequence"
+    "tests/test_collector_watchdog.py::test_a_quiet_machine_gets_a_heartbeat_every_minute"
    ],
    "indirect_test_count": 1,
    "statements_executed": 2,
@@ -15297,8 +15302,8 @@
    "id": "capstone.ingestion.collector:MTConnectCollector.probe",
    "module": "capstone.ingestion.collector",
    "file": "capstone-code/capstone/ingestion/collector.py",
-   "line": 123,
-   "end_line": 125,
+   "line": 126,
+   "end_line": 128,
    "name": "probe",
    "qualname": "MTConnectCollector.probe",
    "kind": "method",
@@ -15344,8 +15349,8 @@
    "id": "capstone.ingestion.collector:MTConnectCollector.poll",
    "module": "capstone.ingestion.collector",
    "file": "capstone-code/capstone/ingestion/collector.py",
-   "line": 127,
-   "end_line": 173,
+   "line": 130,
+   "end_line": 176,
    "name": "poll",
    "qualname": "MTConnectCollector.poll",
    "kind": "method",
@@ -15375,20 +15380,20 @@
    "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
    "contract_specified": true,
    "executed_in_tests": true,
-   "test_count": 3,
-   "direct_tests": [
-    "tests/test_mtconnect_ingestion.py::test_first_poll_reads_current_then_samples_from_next_sequence"
-   ],
+   "test_count": 4,
+   "direct_tests": [],
    "indirect_tests": [
+    "tests/test_collector_watchdog.py::test_a_quiet_machine_gets_a_heartbeat_every_minute",
+    "tests/test_collector_watchdog.py::test_failed_polls_never_write_a_heartbeat",
     "tests/test_mtconnect_ingestion.py::test_agent_restart_discards_old_sequences_and_restarts",
     "tests/test_mtconnect_ingestion.py::test_out_of_range_reports_a_gap_and_restarts_from_current"
    ],
-   "indirect_test_count": 2,
+   "indirect_test_count": 4,
    "statements_executed": 20,
    "statements_in_body": 21,
    "statement_coverage": 0.952,
-   "coverage_class": "direct",
-   "verification_status": "PARTIALLY VERIFIED",
+   "coverage_class": "indirect",
+   "verification_status": "INSUFFICIENT EVIDENCE",
    "status_source": "derived",
    "curated": {},
    "snap_questions": [
@@ -15401,8 +15406,8 @@
    "id": "capstone.ingestion.collector:append_jsonl",
    "module": "capstone.ingestion.collector",
    "file": "capstone-code/capstone/ingestion/collector.py",
-   "line": 176,
-   "end_line": 183,
+   "line": 179,
+   "end_line": 186,
    "name": "append_jsonl",
    "qualname": "append_jsonl",
    "kind": "function",
@@ -15434,7 +15439,7 @@
    "test_count": 1,
    "direct_tests": [],
    "indirect_tests": [
-    "tests/test_mtconnect_ingestion.py::test_run_collector_writes_jsonl_and_survives_failures"
+    "tests/test_collector_watchdog.py::test_a_quiet_machine_gets_a_heartbeat_every_minute"
    ],
    "indirect_test_count": 1,
    "statements_executed": 6,
@@ -15454,12 +15459,12 @@
    "id": "capstone.ingestion.collector:run_collector",
    "module": "capstone.ingestion.collector",
    "file": "capstone-code/capstone/ingestion/collector.py",
-   "line": 186,
-   "end_line": 238,
+   "line": 189,
+   "end_line": 253,
    "name": "run_collector",
    "qualname": "run_collector",
    "kind": "function",
-   "signature": "collector: MTConnectCollector, out: Path, *, interval: float, max_polls: int | None=None, sleep: Callable[[float], None]=time.sleep, log: TextIO | None=None -> int",
+   "signature": "collector: MTConnectCollector, out: Path, *, interval: float, max_polls: int | None=None, sleep: Callable[[float], None]=time.sleep, log: TextIO | None=None, heartbeat_every: float=HEARTBEAT_SECONDS -> int",
    "purpose": "Poll until max_polls (or forever), writing records; returns records written.",
    "docstring": "Poll until max_polls (or forever), writing records; returns records written.\n\nFailures are reported and retried; one bad response never stops collection.\nA `started` marker is written first. A `stopped` marker is written only\nwhen collection ends on purpose: the poll limit, or Ctrl+C (which is then\nnot re-raised). Any other exception ends it without a marker, so a crash\nstays visible in the file.",
    "has_variable_block": true,
@@ -15476,16 +15481,18 @@
     "_marker",
     "append_jsonl",
     "len",
+    "now",
     "poll",
     "print",
     "sleep",
+    "total_seconds",
     "type"
    ],
    "side_effect_hints": [
     "prints",
     "sleeps"
    ],
-   "statements": 24,
+   "statements": 31,
    "is_stub": false,
    "mutates_parameters": [],
    "static_callers": [
@@ -15494,18 +15501,20 @@
    "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
    "contract_specified": true,
    "executed_in_tests": true,
-   "test_count": 3,
+   "test_count": 5,
    "direct_tests": [
     "tests/test_mtconnect_ingestion.py::test_run_collector_refuses_to_poll_faster_than_the_minimum",
     "tests/test_mtconnect_ingestion.py::test_run_collector_writes_jsonl_and_survives_failures"
    ],
    "indirect_tests": [
+    "tests/test_collector_watchdog.py::test_a_quiet_machine_gets_a_heartbeat_every_minute",
+    "tests/test_collector_watchdog.py::test_failed_polls_never_write_a_heartbeat",
     "tests/test_mtconnect_ingestion.py::test_ctrl_c_writes_a_clean_stop_and_keeps_the_count"
    ],
-   "indirect_test_count": 1,
-   "statements_executed": 24,
-   "statements_in_body": 25,
-   "statement_coverage": 0.96,
+   "indirect_test_count": 3,
+   "statements_executed": 31,
+   "statements_in_body": 32,
+   "statement_coverage": 0.969,
    "coverage_class": "direct",
    "verification_status": "PARTIALLY VERIFIED",
    "status_source": "derived",
@@ -15520,12 +15529,12 @@
    "id": "capstone.ingestion.collector:_marker",
    "module": "capstone.ingestion.collector",
    "file": "capstone-code/capstone/ingestion/collector.py",
-   "line": 241,
-   "end_line": 249,
+   "line": 256,
+   "end_line": 264,
    "name": "_marker",
    "qualname": "_marker",
    "kind": "function",
-   "signature": "collector: MTConnectCollector, event: Literal['started', 'stopped'], reason: str | None=None -> CollectorMarker",
+   "signature": "collector: MTConnectCollector, event: Literal['started', 'heartbeat', 'stopped'], reason: str | None=None -> CollectorMarker",
    "purpose": "A start or stop marker for this collector, timed on its clock.",
    "docstring": "A start or stop marker for this collector, timed on its clock.",
    "has_variable_block": false,
@@ -15549,7 +15558,7 @@
    "test_count": 1,
    "direct_tests": [],
    "indirect_tests": [
-    "tests/test_mtconnect_ingestion.py::test_run_collector_writes_jsonl_and_survives_failures"
+    "tests/test_collector_watchdog.py::test_a_quiet_machine_gets_a_heartbeat_every_minute"
    ],
    "indirect_test_count": 1,
    "statements_executed": 1,
@@ -15669,7 +15678,7 @@
    "test_count": 1,
    "direct_tests": [],
    "indirect_tests": [
-    "tests/test_mtconnect_ingestion.py::test_parse_reads_header_and_sorts_records_by_sequence"
+    "tests/test_collector_watchdog.py::test_a_quiet_machine_gets_a_heartbeat_every_minute"
    ],
    "indirect_test_count": 1,
    "statements_executed": 1,
@@ -15718,7 +15727,7 @@
    "test_count": 2,
    "direct_tests": [],
    "indirect_tests": [
-    "tests/test_mtconnect_ingestion.py::test_parse_reads_header_and_sorts_records_by_sequence",
+    "tests/test_collector_watchdog.py::test_a_quiet_machine_gets_a_heartbeat_every_minute",
     "tests/test_mtconnect_ingestion.py::test_records_round_trip_through_json"
    ],
    "indirect_test_count": 2,
@@ -15826,8 +15835,8 @@
    "test_count": 2,
    "direct_tests": [],
    "indirect_tests": [
-    "tests/test_mtconnect_ingestion.py::test_error_documents_raise_with_their_codes",
-    "tests/test_mtconnect_ingestion.py::test_parse_reads_header_and_sorts_records_by_sequence"
+    "tests/test_collector_watchdog.py::test_a_quiet_machine_gets_a_heartbeat_every_minute",
+    "tests/test_mtconnect_ingestion.py::test_error_documents_raise_with_their_codes"
    ],
    "indirect_test_count": 2,
    "statements_executed": 11,
@@ -15884,12 +15893,13 @@
    "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
    "contract_specified": true,
    "executed_in_tests": true,
-   "test_count": 1,
+   "test_count": 2,
    "direct_tests": [],
    "indirect_tests": [
+    "tests/test_collector_watchdog.py::test_a_quiet_machine_gets_a_heartbeat_every_minute",
     "tests/test_mtconnect_ingestion.py::test_parse_reads_header_and_sorts_records_by_sequence"
    ],
-   "indirect_test_count": 1,
+   "indirect_test_count": 2,
    "statements_executed": 19,
    "statements_in_body": 24,
    "statement_coverage": 0.792,
@@ -15989,14 +15999,13 @@
    "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
    "contract_specified": true,
    "executed_in_tests": true,
-   "test_count": 3,
+   "test_count": 2,
    "direct_tests": [],
    "indirect_tests": [
-    "tests/test_mtconnect_ingestion.py::test_parse_maps_samples_events_and_conditions",
-    "tests/test_mtconnect_ingestion.py::test_unavailable_stays_missing_and_is_never_zero",
-    "tests/test_telemetry_monitor.py::test_condition_alerts_once_escalates_and_recovers"
+    "tests/test_collector_watchdog.py::test_the_monitor_counts_a_heartbeat_as_contact",
+    "tests/test_mtconnect_ingestion.py::test_unavailable_stays_missing_and_is_never_zero"
    ],
-   "indirect_test_count": 3,
+   "indirect_test_count": 2,
    "statements_executed": 6,
    "statements_in_body": 6,
    "statement_coverage": 1.0,
@@ -16014,8 +16023,8 @@
    "id": "capstone.ingestion.record:parse_line",
    "module": "capstone.ingestion.record",
    "file": "capstone-code/capstone/ingestion/record.py",
-   "line": 105,
-   "end_line": 117,
+   "line": 108,
+   "end_line": 120,
    "name": "parse_line",
    "qualname": "parse_line",
    "kind": "function",
@@ -16037,17 +16046,19 @@
    "is_stub": false,
    "mutates_parameters": [],
    "static_callers": [
-    "capstone.monitoring.runner:JsonlFollower.read_new"
+    "capstone.monitoring.runner:JsonlFollower.read_new",
+    "capstone.watchdog.watchdog:last_line"
    ],
    "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
    "contract_specified": true,
    "executed_in_tests": true,
-   "test_count": 1,
+   "test_count": 2,
    "direct_tests": [],
    "indirect_tests": [
-    "tests/test_mtconnect_ingestion.py::test_run_collector_writes_jsonl_and_survives_failures"
+    "tests/test_collector_watchdog.py::test_a_quiet_machine_gets_a_heartbeat_every_minute",
+    "tests/test_collector_watchdog.py::test_last_line_skips_a_half_written_line_and_bad_lines"
    ],
-   "indirect_test_count": 1,
+   "indirect_test_count": 2,
    "statements_executed": 5,
    "statements_in_body": 5,
    "statement_coverage": 1.0,
@@ -20683,7 +20694,7 @@
    "module": "capstone.monitoring.__main__",
    "file": "capstone-code/capstone/monitoring/__main__.py",
    "line": 38,
-   "end_line": 79,
+   "end_line": 82,
    "name": "main",
    "qualname": "main",
    "kind": "function",
@@ -20743,12 +20754,12 @@
    "id": "capstone.monitoring.monitor:Monitor.__init__",
    "module": "capstone.monitoring.monitor",
    "file": "capstone-code/capstone/monitoring/monitor.py",
-   "line": 80,
-   "end_line": 110,
+   "line": 82,
+   "end_line": 113,
    "name": "__init__",
    "qualname": "Monitor.__init__",
    "kind": "method",
-   "signature": "self, *, thresholds: dict[str, Threshold] | None=None, stale_after: float=60.0 -> None",
+   "signature": "self, *, thresholds: dict[str, Threshold] | None=None, stale_after: float=180.0 -> None",
    "purpose": "",
    "docstring": "",
    "has_variable_block": true,
@@ -20791,7 +20802,7 @@
    "test_count": 1,
    "direct_tests": [],
    "indirect_tests": [
-    "tests/test_telemetry_monitor.py::test_condition_alerts_once_escalates_and_recovers"
+    "tests/test_collector_watchdog.py::test_the_monitor_counts_a_heartbeat_as_contact"
    ],
    "indirect_test_count": 1,
    "statements_executed": 9,
@@ -20811,8 +20822,8 @@
    "id": "capstone.monitoring.monitor:Monitor.observe",
    "module": "capstone.monitoring.monitor",
    "file": "capstone-code/capstone/monitoring/monitor.py",
-   "line": 112,
-   "end_line": 135,
+   "line": 115,
+   "end_line": 138,
    "name": "observe",
    "qualname": "Monitor.observe",
    "kind": "method",
@@ -20844,14 +20855,13 @@
    "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
    "contract_specified": true,
    "executed_in_tests": true,
-   "test_count": 3,
+   "test_count": 2,
    "direct_tests": [],
    "indirect_tests": [
-    "tests/test_telemetry_monitor.py::test_channel_going_unavailable_alerts_and_recovers",
-    "tests/test_telemetry_monitor.py::test_condition_alerts_once_escalates_and_recovers",
-    "tests/test_telemetry_monitor.py::test_unavailable_from_the_start_is_not_an_alert"
+    "tests/test_collector_watchdog.py::test_the_monitor_counts_a_heartbeat_as_contact",
+    "tests/test_telemetry_monitor.py::test_condition_alerts_once_escalates_and_recovers"
    ],
-   "indirect_test_count": 3,
+   "indirect_test_count": 2,
    "statements_executed": 17,
    "statements_in_body": 17,
    "statement_coverage": 1.0,
@@ -20869,8 +20879,8 @@
    "id": "capstone.monitoring.monitor:Monitor.observe_marker",
    "module": "capstone.monitoring.monitor",
    "file": "capstone-code/capstone/monitoring/monitor.py",
-   "line": 137,
-   "end_line": 160,
+   "line": 140,
+   "end_line": 168,
    "name": "observe_marker",
    "qualname": "Monitor.observe_marker",
    "kind": "method",
@@ -20890,7 +20900,7 @@
     "set"
    ],
    "side_effect_hints": [],
-   "statements": 12,
+   "statements": 17,
    "is_stub": false,
    "mutates_parameters": [],
    "static_callers": [
@@ -20899,15 +20909,16 @@
    "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
    "contract_specified": true,
    "executed_in_tests": true,
-   "test_count": 2,
+   "test_count": 3,
    "direct_tests": [],
    "indirect_tests": [
+    "tests/test_collector_watchdog.py::test_the_monitor_counts_a_heartbeat_as_contact",
     "tests/test_telemetry_monitor.py::test_a_clean_stop_and_later_start_is_not_stale",
     "tests/test_telemetry_monitor.py::test_a_start_without_a_clean_stop_warns_of_a_crash"
    ],
-   "indirect_test_count": 2,
-   "statements_executed": 11,
-   "statements_in_body": 11,
+   "indirect_test_count": 3,
+   "statements_executed": 16,
+   "statements_in_body": 16,
    "statement_coverage": 1.0,
    "coverage_class": "indirect",
    "verification_status": "INSUFFICIENT EVIDENCE",
@@ -20923,8 +20934,8 @@
    "id": "capstone.monitoring.monitor:Monitor._collector",
    "module": "capstone.monitoring.monitor",
    "file": "capstone-code/capstone/monitoring/monitor.py",
-   "line": 162,
-   "end_line": 173,
+   "line": 170,
+   "end_line": 181,
    "name": "_collector",
    "qualname": "Monitor._collector",
    "kind": "method",
@@ -20949,16 +20960,16 @@
    "contract_specified": true,
    "executed_in_tests": true,
    "test_count": 1,
-   "direct_tests": [],
-   "indirect_tests": [
-    "tests/test_telemetry_monitor.py::test_a_clean_stop_and_later_start_is_not_stale"
+   "direct_tests": [
+    "tests/test_collector_watchdog.py::test_the_monitor_counts_a_heartbeat_as_contact"
    ],
-   "indirect_test_count": 1,
+   "indirect_tests": [],
+   "indirect_test_count": 0,
    "statements_executed": 1,
    "statements_in_body": 1,
    "statement_coverage": 1.0,
-   "coverage_class": "indirect",
-   "verification_status": "INSUFFICIENT EVIDENCE",
+   "coverage_class": "direct",
+   "verification_status": "PARTIALLY VERIFIED",
    "status_source": "derived",
    "curated": {},
    "snap_questions": [
@@ -20971,8 +20982,8 @@
    "id": "capstone.monitoring.monitor:Monitor.check_stale",
    "module": "capstone.monitoring.monitor",
    "file": "capstone-code/capstone/monitoring/monitor.py",
-   "line": 175,
-   "end_line": 195,
+   "line": 183,
+   "end_line": 203,
    "name": "check_stale",
    "qualname": "Monitor.check_stale",
    "kind": "method",
@@ -21004,7 +21015,7 @@
    "test_count": 2,
    "direct_tests": [],
    "indirect_tests": [
-    "tests/test_telemetry_monitor.py::test_condition_alerts_once_escalates_and_recovers",
+    "tests/test_collector_watchdog.py::test_the_monitor_counts_a_heartbeat_as_contact",
     "tests/test_telemetry_monitor.py::test_silence_in_a_recording_is_found_without_the_wall_clock"
    ],
    "indirect_test_count": 2,
@@ -21025,8 +21036,8 @@
    "id": "capstone.monitoring.monitor:Monitor._start",
    "module": "capstone.monitoring.monitor",
    "file": "capstone-code/capstone/monitoring/monitor.py",
-   "line": 197,
-   "end_line": 202,
+   "line": 205,
+   "end_line": 210,
    "name": "_start",
    "qualname": "Monitor._start",
    "kind": "method",
@@ -21076,8 +21087,8 @@
    "id": "capstone.monitoring.monitor:Monitor._end",
    "module": "capstone.monitoring.monitor",
    "file": "capstone-code/capstone/monitoring/monitor.py",
-   "line": 204,
-   "end_line": 209,
+   "line": 212,
+   "end_line": 217,
    "name": "_end",
    "qualname": "Monitor._end",
    "kind": "method",
@@ -21106,8 +21117,8 @@
    "test_count": 2,
    "direct_tests": [],
    "indirect_tests": [
-    "tests/test_telemetry_monitor.py::test_channel_going_unavailable_alerts_and_recovers",
-    "tests/test_telemetry_monitor.py::test_condition_alerts_once_escalates_and_recovers"
+    "tests/test_collector_watchdog.py::test_the_monitor_counts_a_heartbeat_as_contact",
+    "tests/test_telemetry_monitor.py::test_channel_going_unavailable_alerts_and_recovers"
    ],
    "indirect_test_count": 2,
    "statements_executed": 4,
@@ -21127,8 +21138,8 @@
    "id": "capstone.monitoring.monitor:Monitor._alert",
    "module": "capstone.monitoring.monitor",
    "file": "capstone-code/capstone/monitoring/monitor.py",
-   "line": 211,
-   "end_line": 223,
+   "line": 219,
+   "end_line": 231,
    "name": "_alert",
    "qualname": "Monitor._alert",
    "kind": "method",
@@ -21151,7 +21162,8 @@
     "capstone.monitoring.monitor:Monitor._condition",
     "capstone.monitoring.monitor:Monitor._device_back",
     "capstone.monitoring.monitor:Monitor._status",
-    "capstone.monitoring.monitor:Monitor._threshold"
+    "capstone.monitoring.monitor:Monitor._threshold",
+    "capstone.watchdog.watchdog:Watchdog.check"
    ],
    "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
    "contract_specified": true,
@@ -21179,8 +21191,8 @@
    "id": "capstone.monitoring.monitor:Monitor._device_back",
    "module": "capstone.monitoring.monitor",
    "file": "capstone-code/capstone/monitoring/monitor.py",
-   "line": 225,
-   "end_line": 231,
+   "line": 233,
+   "end_line": 239,
    "name": "_device_back",
    "qualname": "Monitor._device_back",
    "kind": "method",
@@ -21208,7 +21220,7 @@
    "test_count": 2,
    "direct_tests": [],
    "indirect_tests": [
-    "tests/test_telemetry_monitor.py::test_condition_alerts_once_escalates_and_recovers",
+    "tests/test_collector_watchdog.py::test_the_monitor_counts_a_heartbeat_as_contact",
     "tests/test_telemetry_monitor.py::test_silence_in_a_recording_is_found_without_the_wall_clock"
    ],
    "indirect_test_count": 2,
@@ -21229,8 +21241,8 @@
    "id": "capstone.monitoring.monitor:Monitor._availability",
    "module": "capstone.monitoring.monitor",
    "file": "capstone-code/capstone/monitoring/monitor.py",
-   "line": 233,
-   "end_line": 260,
+   "line": 241,
+   "end_line": 268,
    "name": "_availability",
    "qualname": "Monitor._availability",
    "kind": "method",
@@ -21259,8 +21271,8 @@
    "test_count": 3,
    "direct_tests": [],
    "indirect_tests": [
+    "tests/test_collector_watchdog.py::test_the_monitor_counts_a_heartbeat_as_contact",
     "tests/test_telemetry_monitor.py::test_channel_going_unavailable_alerts_and_recovers",
-    "tests/test_telemetry_monitor.py::test_condition_alerts_once_escalates_and_recovers",
     "tests/test_telemetry_monitor.py::test_unavailable_from_the_start_is_not_an_alert"
    ],
    "indirect_test_count": 3,
@@ -21281,8 +21293,8 @@
    "id": "capstone.monitoring.monitor:Monitor._condition",
    "module": "capstone.monitoring.monitor",
    "file": "capstone-code/capstone/monitoring/monitor.py",
-   "line": 262,
-   "end_line": 284,
+   "line": 270,
+   "end_line": 292,
    "name": "_condition",
    "qualname": "Monitor._condition",
    "kind": "method",
@@ -21330,8 +21342,8 @@
    "id": "capstone.monitoring.monitor:Monitor._status",
    "module": "capstone.monitoring.monitor",
    "file": "capstone-code/capstone/monitoring/monitor.py",
-   "line": 286,
-   "end_line": 307,
+   "line": 294,
+   "end_line": 315,
    "name": "_status",
    "qualname": "Monitor._status",
    "kind": "method",
@@ -21360,7 +21372,7 @@
     "tests/test_telemetry_monitor.py::test_status_changes_are_reported_but_not_the_first_value"
    ],
    "indirect_tests": [
-    "tests/test_telemetry_monitor.py::test_channel_going_unavailable_alerts_and_recovers"
+    "tests/test_collector_watchdog.py::test_the_monitor_counts_a_heartbeat_as_contact"
    ],
    "indirect_test_count": 1,
    "statements_executed": 4,
@@ -21380,8 +21392,8 @@
    "id": "capstone.monitoring.monitor:Monitor._threshold",
    "module": "capstone.monitoring.monitor",
    "file": "capstone-code/capstone/monitoring/monitor.py",
-   "line": 309,
-   "end_line": 337,
+   "line": 317,
+   "end_line": 345,
    "name": "_threshold",
    "qualname": "Monitor._threshold",
    "kind": "method",
@@ -21414,7 +21426,7 @@
     "tests/test_telemetry_monitor.py::test_threshold_by_id_or_name_fires_once_and_recovers"
    ],
    "indirect_tests": [
-    "tests/test_telemetry_monitor.py::test_condition_alerts_once_escalates_and_recovers"
+    "tests/test_collector_watchdog.py::test_the_monitor_counts_a_heartbeat_as_contact"
    ],
    "indirect_test_count": 1,
    "statements_executed": 12,
@@ -21592,13 +21604,12 @@
    "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
    "contract_specified": true,
    "executed_in_tests": true,
-   "test_count": 2,
+   "test_count": 1,
    "direct_tests": [],
    "indirect_tests": [
-    "tests/test_telemetry_monitor.py::test_a_clean_stop_and_later_start_is_not_stale",
-    "tests/test_telemetry_monitor.py::test_condition_alerts_once_escalates_and_recovers"
+    "tests/test_collector_watchdog.py::test_the_monitor_counts_a_heartbeat_as_contact"
    ],
-   "indirect_test_count": 2,
+   "indirect_test_count": 1,
    "statements_executed": 8,
    "statements_in_body": 8,
    "statement_coverage": 1.0,
@@ -27261,7 +27272,9 @@
     "capstone.baseline:diagnose",
     "capstone.ingestion.collector:MTConnectCollector.poll",
     "capstone.ingestion.collector:_marker",
+    "capstone.ingestion.collector:run_collector",
     "capstone.ingestion.collector:utc_now",
+    "capstone.watchdog.__main__:main",
     "evaluation.evaltools.snap_request:build_request",
     "evaluation.evaltools.snap_request:write_requests"
    ],
@@ -28179,7 +28192,8 @@
    "is_stub": false,
    "mutates_parameters": [],
    "static_callers": [
-    "capstone.simulator.simulator:Simulator.step"
+    "capstone.simulator.simulator:Simulator.step",
+    "capstone.watchdog.__main__:main"
    ],
    "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
    "contract_specified": true,
@@ -30738,6 +30752,7 @@
     "capstone.providers.chat:urllib_transport",
     "capstone.providers.chat:urllib_transport.<locals>.send",
     "capstone.simulator.simulator:Simulator.step",
+    "capstone.watchdog.watchdog:last_line",
     "evaluation.evaltools.build_inventory:read_coverage",
     "evaluation.evaltools.run_packet:audit_by_run",
     "evaluation.evaltools.traced_run:functions_hit"
@@ -31709,6 +31724,7 @@
     "capstone.providers.chat:urllib_transport",
     "capstone.providers.chat:urllib_transport.<locals>.send",
     "capstone.simulator.simulator:Simulator.step",
+    "capstone.watchdog.watchdog:last_line",
     "evaluation.evaltools.build_inventory:read_coverage",
     "evaluation.evaltools.run_packet:audit_by_run",
     "evaluation.evaltools.traced_run:functions_hit"
@@ -35253,6 +35269,408 @@
    ]
   },
   {
+   "id": "capstone.watchdog.__main__:report",
+   "module": "capstone.watchdog.__main__",
+   "file": "capstone-code/capstone/watchdog/__main__.py",
+   "line": 18,
+   "end_line": 28,
+   "name": "report",
+   "qualname": "report",
+   "kind": "function",
+   "signature": "alerts: list[WatchdogAlert], path: Path | None -> None",
+   "purpose": "Print alerts and, if a path is given, append them to a JSONL file.",
+   "docstring": "Print alerts and, if a path is given, append them to a JSONL file.",
+   "has_variable_block": false,
+   "decorators": [],
+   "raises": [],
+   "catches": [],
+   "calls": [
+    "isoformat",
+    "model_dump_json",
+    "open",
+    "print",
+    "upper",
+    "write"
+   ],
+   "side_effect_hints": [
+    "writes_file",
+    "prints"
+   ],
+   "statements": 8,
+   "is_stub": false,
+   "mutates_parameters": [],
+   "static_callers": [
+    "capstone.experiment:main",
+    "capstone.watchdog.__main__:main",
+    "evaluation.evaltools.full_evaluation:main"
+   ],
+   "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
+   "contract_specified": true,
+   "executed_in_tests": true,
+   "test_count": 1,
+   "direct_tests": [],
+   "indirect_tests": [
+    "tests/test_collector_watchdog.py::test_command_line_reports_a_dead_collector"
+   ],
+   "indirect_test_count": 1,
+   "statements_executed": 6,
+   "statements_in_body": 7,
+   "statement_coverage": 0.857,
+   "coverage_class": "indirect",
+   "verification_status": "INSUFFICIENT EVIDENCE",
+   "status_source": "derived",
+   "curated": {},
+   "snap_questions": [
+    "FN-01",
+    "FN-02",
+    "FN-03"
+   ]
+  },
+  {
+   "id": "capstone.watchdog.__main__:main",
+   "module": "capstone.watchdog.__main__",
+   "file": "capstone-code/capstone/watchdog/__main__.py",
+   "line": 31,
+   "end_line": 64,
+   "name": "main",
+   "qualname": "main",
+   "kind": "function",
+   "signature": "argv: Sequence[str] | None=None -> int",
+   "purpose": "Check the file every --interval seconds until interrupted (or --checks).",
+   "docstring": "Check the file every --interval seconds until interrupted (or --checks).",
+   "has_variable_block": true,
+   "decorators": [],
+   "raises": [],
+   "catches": [
+    "KeyboardInterrupt"
+   ],
+   "calls": [
+    "ArgumentParser",
+    "Watchdog",
+    "add_argument",
+    "check",
+    "last_line",
+    "now",
+    "parse_args",
+    "print",
+    "report",
+    "sleep"
+   ],
+   "side_effect_hints": [
+    "prints",
+    "sleeps"
+   ],
+   "statements": 18,
+   "is_stub": false,
+   "mutates_parameters": [],
+   "static_callers": [],
+   "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
+   "contract_specified": true,
+   "executed_in_tests": true,
+   "test_count": 1,
+   "direct_tests": [],
+   "indirect_tests": [
+    "tests/test_collector_watchdog.py::test_command_line_reports_a_dead_collector"
+   ],
+   "indirect_test_count": 1,
+   "statements_executed": 15,
+   "statements_in_body": 18,
+   "statement_coverage": 0.833,
+   "coverage_class": "indirect",
+   "verification_status": "INSUFFICIENT EVIDENCE",
+   "status_source": "derived",
+   "curated": {},
+   "snap_questions": [
+    "FN-01",
+    "FN-02",
+    "FN-03"
+   ]
+  },
+  {
+   "id": "capstone.watchdog.watchdog:line_time",
+   "module": "capstone.watchdog.watchdog",
+   "file": "capstone-code/capstone/watchdog/watchdog.py",
+   "line": 43,
+   "end_line": 45,
+   "name": "line_time",
+   "qualname": "line_time",
+   "kind": "function",
+   "signature": "line: Line -> datetime",
+   "purpose": "When a line was written: a marker's time, or a record's receive time.",
+   "docstring": "When a line was written: a marker's time, or a record's receive time.",
+   "has_variable_block": false,
+   "decorators": [],
+   "raises": [],
+   "catches": [],
+   "calls": [
+    "isinstance"
+   ],
+   "side_effect_hints": [],
+   "statements": 2,
+   "is_stub": false,
+   "mutates_parameters": [],
+   "static_callers": [
+    "capstone.watchdog.watchdog:Watchdog.check"
+   ],
+   "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
+   "contract_specified": true,
+   "executed_in_tests": true,
+   "test_count": 1,
+   "direct_tests": [],
+   "indirect_tests": [
+    "tests/test_collector_watchdog.py::test_fresh_data_raises_nothing"
+   ],
+   "indirect_test_count": 1,
+   "statements_executed": 1,
+   "statements_in_body": 1,
+   "statement_coverage": 1.0,
+   "coverage_class": "indirect",
+   "verification_status": "INSUFFICIENT EVIDENCE",
+   "status_source": "derived",
+   "curated": {},
+   "snap_questions": [
+    "FN-01",
+    "FN-02",
+    "FN-03"
+   ]
+  },
+  {
+   "id": "capstone.watchdog.watchdog:last_line",
+   "module": "capstone.watchdog.watchdog",
+   "file": "capstone-code/capstone/watchdog/watchdog.py",
+   "line": 48,
+   "end_line": 73,
+   "name": "last_line",
+   "qualname": "last_line",
+   "kind": "function",
+   "signature": "path: Path -> Line | None",
+   "purpose": "The file's last complete, readable line, or None if there is none.",
+   "docstring": "The file's last complete, readable line, or None if there is none.\n\nReads only the end of the file, so a week of telemetry costs nothing.\nA half-written final line is ignored; the line before it is used.",
+   "has_variable_block": true,
+   "decorators": [],
+   "raises": [],
+   "catches": [
+    "ValueError"
+   ],
+   "calls": [
+    "decode",
+    "exists",
+    "max",
+    "open",
+    "parse_line",
+    "read",
+    "reversed",
+    "rfind",
+    "seek",
+    "splitlines",
+    "tell"
+   ],
+   "side_effect_hints": [
+    "writes_file"
+   ],
+   "statements": 17,
+   "is_stub": false,
+   "mutates_parameters": [],
+   "static_callers": [
+    "capstone.watchdog.__main__:main"
+   ],
+   "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
+   "contract_specified": true,
+   "executed_in_tests": true,
+   "test_count": 1,
+   "direct_tests": [
+    "tests/test_collector_watchdog.py::test_last_line_skips_a_half_written_line_and_bad_lines"
+   ],
+   "indirect_tests": [],
+   "indirect_test_count": 0,
+   "statements_executed": 16,
+   "statements_in_body": 17,
+   "statement_coverage": 0.941,
+   "coverage_class": "direct",
+   "verification_status": "PARTIALLY VERIFIED",
+   "status_source": "derived",
+   "curated": {},
+   "snap_questions": [
+    "FN-01",
+    "FN-02",
+    "FN-03"
+   ]
+  },
+  {
+   "id": "capstone.watchdog.watchdog:Watchdog.__init__",
+   "module": "capstone.watchdog.watchdog",
+   "file": "capstone-code/capstone/watchdog/watchdog.py",
+   "line": 79,
+   "end_line": 88,
+   "name": "__init__",
+   "qualname": "Watchdog.__init__",
+   "kind": "method",
+   "signature": "self, path: Path, *, silent_after: float=180.0 -> None",
+   "purpose": "",
+   "docstring": "",
+   "has_variable_block": true,
+   "decorators": [],
+   "raises": [],
+   "catches": [],
+   "calls": [],
+   "side_effect_hints": [],
+   "statements": 3,
+   "is_stub": false,
+   "mutates_parameters": [],
+   "static_callers": [
+    "capstone.agent.tree_of_thought:TreeOfThoughtPolicy.__init__",
+    "capstone.ingestion.mtconnect:MTConnectError.__init__",
+    "capstone.providers.chat:ModelError.__init__",
+    "capstone.simulator.disturbances:SensorDrift.__init__",
+    "capstone.simulator.disturbances:TransientAnomaly.__init__",
+    "capstone.simulator.disturbances:_SensorDisturbance.__init__",
+    "capstone.simulator.scenarios:AmbientTemperature.__init__",
+    "capstone.simulator.scenarios:AxisDriveWear.__init__",
+    "capstone.simulator.scenarios:BadMaterialBatch.__init__",
+    "capstone.simulator.scenarios:BearingDegradation.__init__",
+    "capstone.simulator.scenarios:FalseAlarm.__init__",
+    "capstone.simulator.scenarios:HydraulicLeak.__init__",
+    "capstone.simulator.scenarios:LoadingDoor.__init__",
+    "capstone.simulator.scenarios:ProductionLine.__init__",
+    "capstone.simulator.scenarios:WrongSetting.__init__",
+    "capstone.simulator.sensors:FollowingErrorSensor.__init__",
+    "capstone.simulator.sensors:HydraulicPressureSensor.__init__",
+    "capstone.simulator.sensors:LoadSensor.__init__",
+    "capstone.simulator.sensors:PowerSensor.__init__",
+    "capstone.simulator.sensors:TemperatureSensor.__init__",
+    "capstone.simulator.sensors:VibrationSensor.__init__"
+   ],
+   "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
+   "contract_specified": true,
+   "executed_in_tests": true,
+   "test_count": 1,
+   "direct_tests": [],
+   "indirect_tests": [
+    "tests/test_collector_watchdog.py::test_fresh_data_raises_nothing"
+   ],
+   "indirect_test_count": 1,
+   "statements_executed": 3,
+   "statements_in_body": 3,
+   "statement_coverage": 1.0,
+   "coverage_class": "indirect",
+   "verification_status": "INSUFFICIENT EVIDENCE",
+   "status_source": "derived",
+   "curated": {},
+   "snap_questions": [
+    "FN-01",
+    "FN-02",
+    "FN-03"
+   ]
+  },
+  {
+   "id": "capstone.watchdog.watchdog:Watchdog.check",
+   "module": "capstone.watchdog.watchdog",
+   "file": "capstone-code/capstone/watchdog/watchdog.py",
+   "line": 90,
+   "end_line": 119,
+   "name": "check",
+   "qualname": "Watchdog.check",
+   "kind": "method",
+   "signature": "self, line: Line | None, now: datetime -> list[WatchdogAlert]",
+   "purpose": "Compare the newest line with `now` and return any alert.",
+   "docstring": "Compare the newest line with `now` and return any alert.",
+   "has_variable_block": true,
+   "decorators": [],
+   "raises": [],
+   "catches": [],
+   "calls": [
+    "_alert",
+    "isinstance",
+    "line_time",
+    "total_seconds"
+   ],
+   "side_effect_hints": [],
+   "statements": 16,
+   "is_stub": false,
+   "mutates_parameters": [],
+   "static_callers": [
+    "capstone.simulator.simulator:Simulator.step",
+    "capstone.watchdog.__main__:main"
+   ],
+   "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
+   "contract_specified": true,
+   "executed_in_tests": true,
+   "test_count": 3,
+   "direct_tests": [],
+   "indirect_tests": [
+    "tests/test_collector_watchdog.py::test_an_empty_or_missing_file_raises_nothing",
+    "tests/test_collector_watchdog.py::test_fresh_data_raises_nothing",
+    "tests/test_collector_watchdog.py::test_silence_without_a_clean_stop_alerts_once_then_recovers"
+   ],
+   "indirect_test_count": 3,
+   "statements_executed": 15,
+   "statements_in_body": 15,
+   "statement_coverage": 1.0,
+   "coverage_class": "indirect",
+   "verification_status": "INSUFFICIENT EVIDENCE",
+   "status_source": "derived",
+   "curated": {},
+   "snap_questions": [
+    "FN-01",
+    "FN-02",
+    "FN-03"
+   ]
+  },
+  {
+   "id": "capstone.watchdog.watchdog:Watchdog._alert",
+   "module": "capstone.watchdog.watchdog",
+   "file": "capstone-code/capstone/watchdog/watchdog.py",
+   "line": 121,
+   "end_line": 137,
+   "name": "_alert",
+   "qualname": "Watchdog._alert",
+   "kind": "method",
+   "signature": "self, kind: Literal['silent', 'recovered'], severity: Literal['info', 'warning'], message: str, now: datetime, written: datetime -> WatchdogAlert",
+   "purpose": "An alert about the watched file.",
+   "docstring": "An alert about the watched file.",
+   "has_variable_block": false,
+   "decorators": [],
+   "raises": [],
+   "catches": [],
+   "calls": [
+    "WatchdogAlert",
+    "str"
+   ],
+   "side_effect_hints": [],
+   "statements": 2,
+   "is_stub": false,
+   "mutates_parameters": [],
+   "static_callers": [
+    "capstone.monitoring.monitor:Monitor._availability",
+    "capstone.monitoring.monitor:Monitor._condition",
+    "capstone.monitoring.monitor:Monitor._device_back",
+    "capstone.monitoring.monitor:Monitor._status",
+    "capstone.monitoring.monitor:Monitor._threshold",
+    "capstone.watchdog.watchdog:Watchdog.check"
+   ],
+   "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
+   "contract_specified": true,
+   "executed_in_tests": true,
+   "test_count": 1,
+   "direct_tests": [],
+   "indirect_tests": [
+    "tests/test_collector_watchdog.py::test_silence_without_a_clean_stop_alerts_once_then_recovers"
+   ],
+   "indirect_test_count": 1,
+   "statements_executed": 1,
+   "statements_in_body": 1,
+   "statement_coverage": 1.0,
+   "coverage_class": "indirect",
+   "verification_status": "INSUFFICIENT EVIDENCE",
+   "status_source": "derived",
+   "curated": {},
+   "snap_questions": [
+    "FN-01",
+    "FN-02",
+    "FN-03"
+   ]
+  },
+  {
    "id": "evaluation.evaltools.build_inventory:rel",
    "module": "evaluation.evaltools.build_inventory",
    "file": "evaluation/evaltools/build_inventory.py",
@@ -38461,6 +38879,7 @@
    "mutates_parameters": [],
    "static_callers": [
     "capstone.experiment:main",
+    "capstone.watchdog.__main__:main",
     "evaluation.evaltools.full_evaluation:main"
    ],
    "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",

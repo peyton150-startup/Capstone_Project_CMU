@@ -78,9 +78,11 @@ class TelemetryRecord(BaseModel):
 
 
 class CollectorMarker(BaseModel):
-    """A line saying the collector started, or stopped on purpose.
+    """A line saying the collector started, is alive, or stopped on purpose.
 
-    A clean stop (Ctrl+C or the poll limit) writes `stopped`. A crash, a
+    A heartbeat is written when polls succeed but nothing new has been written
+    for a while (a quiet machine), so silence in the file means the collector
+    or its connection is down, not that the machine is idle. A clean stop (Ctrl+C or the poll limit) writes `stopped`. A crash, a
     killed process or a power cut writes nothing, so a `started` line that is
     not preceded by `stopped` means the previous run did not end cleanly.
     """
@@ -90,13 +92,14 @@ class CollectorMarker(BaseModel):
     # Variables:
     #   record_type: Always "collector"; tells this line apart from an observation.
     #   source: The agent the collector was reading, matching its records' source.
-    #   event: "started" when collection begins, "stopped" when it ends on purpose.
+    #   event: "started" when collection begins, "heartbeat" when it is alive
+    #     but has had nothing new to write, "stopped" when it ends on purpose.
     #   at: The collector's clock (UTC) when the event happened.
     #   reason: Why it stopped, e.g. "interrupted" or "poll limit reached".
     record_type: Literal["collector"] = "collector"
     schema_version: Literal[1] = 1
     source: str
-    event: Literal["started", "stopped"]
+    event: Literal["started", "heartbeat", "stopped"]
     at: datetime
     reason: str | None = None
 

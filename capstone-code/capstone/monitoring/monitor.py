@@ -15,7 +15,9 @@ Rules, all edge-triggered (an alert fires when a state starts, and a
 - collector:     the collector's start and stop markers. A clean stop ends
                  stale checks for its devices (a planned pause is not a fault);
                  a start not preceded by a stop is a warning that the previous
-                 run ended without a clean stop (it may have crashed).
+                 run ended without a clean stop (it may have crashed); a
+                 heartbeat counts as contact with that agent's devices, so a
+                 quiet machine is not called stale.
 
 This is plain code: no model or agent monitors, and nothing here reads a
 clock, the network or a random source. The monitor is a pure function of
@@ -81,12 +83,13 @@ class Monitor:
         self,
         *,
         thresholds: dict[str, Threshold] | None = None,
-        stale_after: float = 60.0,
+        stale_after: float = 180.0,
     ) -> None:
         # Variables:
         #   thresholds: Safe ranges keyed by data item id or name; empty means
         #     no threshold rule runs.
-        #   stale_after: Seconds of silence after which a device is called stale.
+        #   stale_after: Seconds of silence after which a device is called stale;
+        #     keep it above the collector's heartbeat (60 s) plus its poll interval.
         #   _last: The last record seen for each (device, data item).
         #   _flagged: (device, data item, rule) states that are currently
         #     alerting, so the same problem is not reported twice.
@@ -141,6 +144,11 @@ class Monitor:
         #     data) and never wrote a clean stop; a new start then means the
         #     previous run ended some other way.
         was_running = marker.source in self._running
+        if marker.event == "heartbeat":
+            self._running.add(marker.source)
+            for device in self._devices.get(marker.source, set()):
+                self._last_seen[device] = marker.at
+            return []
         if marker.event == "stopped":
             self._running.discard(marker.source)
             for device in self._devices.get(marker.source, set()):

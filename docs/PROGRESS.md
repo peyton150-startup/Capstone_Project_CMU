@@ -1,5 +1,22 @@
 # Progress Log
 
+> **2026-11-03 — collector heartbeat and live crash watchdog (built ungated, developer to review; understood: no):**
+> Second follow-up from PR #165's walkthrough, stacked on the stop markers (PR #166). The collector now writes a
+> `heartbeat` marker when polls succeed but nothing new has been written for 60 s (`HEARTBEAT_SECONDS`); failed polls never
+> write one, so an unreachable agent shows as silence. The deterministic monitor counts a heartbeat as contact with that
+> agent's devices, so a quiet machine is no longer called stale; its default `stale_after` rose from 60 s to 180 s (must
+> exceed heartbeat plus poll interval). New package `capstone.watchdog` (`python -m capstone.watchdog`), the only
+> telemetry process that reads the wall clock: `last_line` reads the file's newest complete line, and `Watchdog.check`
+> raises one live-only `silent` alert when it is older than `--silent-after` (180 s) and is not a clean stop, then
+> `recovered` when lines return or a clean stop is written. Kept outside `monitoring/`, so the monitor's no-clock guard
+> still holds. Live check against demo.mtconnect.org: quiet after a clean stop; one alert on a file cut off mid-run.
+> Pre-merge walkthrough (2026-11-03): Q1 (an idle night) right that a busy machine gets no heartbeats; corrected that
+> `started` is written once and a heartbeat only after 60 s without a write, and that without heartbeats the watchdog
+> would raise a false alarm every night. Q2 (network cable pulled) right that the file goes silent; corrected that the
+> alert comes about 180-190 s after the last line, and that a failed poll's `continue` skips the heartbeat check.
+> Q3 (why a separate package, why `now` is a parameter) gave process independence; corrected that the main reason is
+> keeping the monitor deterministic (its no-clock guard), and that `now` is passed in so the rule can be tested exactly.
+
 > **2026-11-03 — collector start/stop markers: a planned stop is no longer mistaken for a crash (built ungated, developer to review; understood: no):**
 > Follow-up agreed in PR #165's walkthrough. The collector now writes a `CollectorMarker` line (`record_type: "collector"`)
 > when it starts and when it stops on purpose (Ctrl+C or `--polls` reached, with the reason). A crash or killed process

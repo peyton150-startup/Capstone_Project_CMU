@@ -12451,6 +12451,410 @@
    ]
   },
   {
+   "id": "tests/test_collector_watchdog.py::test_fresh_data_raises_nothing",
+   "file": "tests/test_collector_watchdog.py",
+   "name": "test_fresh_data_raises_nothing",
+   "line": 47,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [
+    "tmp_path"
+   ],
+   "assertions": 1,
+   "assert_forms": {
+    "equality": 1
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "fresh data raises nothing",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.watchdog.watchdog:Watchdog.__init__",
+    "capstone.watchdog.watchdog:Watchdog.check",
+    "capstone.watchdog.watchdog:line_time"
+   ],
+   "exercise_count": 3,
+   "modules_exercised": [
+    "capstone.watchdog.watchdog"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_collector_watchdog.py::test_silence_without_a_clean_stop_alerts_once_then_recovers",
+   "file": "tests/test_collector_watchdog.py",
+   "name": "test_silence_without_a_clean_stop_alerts_once_then_recovers",
+   "line": 51,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [
+    "tmp_path"
+   ],
+   "assertions": 4,
+   "assert_forms": {
+    "equality": 4
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "silence without a clean stop alerts once then recovers",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.watchdog.watchdog:Watchdog._alert",
+    "capstone.watchdog.watchdog:Watchdog.check"
+   ],
+   "exercise_count": 2,
+   "modules_exercised": [
+    "capstone.watchdog.watchdog"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_collector_watchdog.py::test_a_clean_stop_is_never_called_silent",
+   "file": "tests/test_collector_watchdog.py",
+   "name": "test_a_clean_stop_is_never_called_silent",
+   "line": 63,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [
+    "tmp_path"
+   ],
+   "assertions": 1,
+   "assert_forms": {
+    "equality": 1
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [
+    "exercises_no_project_function"
+   ],
+   "claims": "a clean stop is never called silent",
+   "execution_outcome": "passed",
+   "exercises": [],
+   "exercise_count": 0,
+   "modules_exercised": [],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_collector_watchdog.py::test_a_stop_after_an_alert_closes_it",
+   "file": "tests/test_collector_watchdog.py",
+   "name": "test_a_stop_after_an_alert_closes_it",
+   "line": 68,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [
+    "tmp_path"
+   ],
+   "assertions": 1,
+   "assert_forms": {
+    "equality": 1
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [
+    "exercises_no_project_function"
+   ],
+   "claims": "a stop after an alert closes it",
+   "execution_outcome": "passed",
+   "exercises": [],
+   "exercise_count": 0,
+   "modules_exercised": [],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_collector_watchdog.py::test_heartbeats_keep_a_quiet_machine_from_looking_dead",
+   "file": "tests/test_collector_watchdog.py",
+   "name": "test_heartbeats_keep_a_quiet_machine_from_looking_dead",
+   "line": 77,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [
+    "tmp_path"
+   ],
+   "assertions": 1,
+   "assert_forms": {
+    "equality": 1
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [
+    "exercises_no_project_function"
+   ],
+   "claims": "heartbeats keep a quiet machine from looking dead",
+   "execution_outcome": "passed",
+   "exercises": [],
+   "exercise_count": 0,
+   "modules_exercised": [],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_collector_watchdog.py::test_an_empty_or_missing_file_raises_nothing",
+   "file": "tests/test_collector_watchdog.py",
+   "name": "test_an_empty_or_missing_file_raises_nothing",
+   "line": 82,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [
+    "tmp_path"
+   ],
+   "assertions": 1,
+   "assert_forms": {
+    "equality": 1
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "an empty or missing file raises nothing",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.watchdog.watchdog:Watchdog.check"
+   ],
+   "exercise_count": 1,
+   "modules_exercised": [
+    "capstone.watchdog.watchdog"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_collector_watchdog.py::test_last_line_skips_a_half_written_line_and_bad_lines",
+   "file": "tests/test_collector_watchdog.py",
+   "name": "test_last_line_skips_a_half_written_line_and_bad_lines",
+   "line": 89,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [
+    "tmp_path"
+   ],
+   "assertions": 4,
+   "assert_forms": {
+    "equality": 2,
+    "is_none": 2
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [
+    "may_skip"
+   ],
+   "claims": "last line skips a half written line and bad lines",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.ingestion.record:parse_line",
+    "capstone.watchdog.watchdog:last_line"
+   ],
+   "exercise_count": 2,
+   "modules_exercised": [
+    "capstone.ingestion.record",
+    "capstone.watchdog.watchdog"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_collector_watchdog.py::test_command_line_reports_a_dead_collector",
+   "file": "tests/test_collector_watchdog.py",
+   "name": "test_command_line_reports_a_dead_collector",
+   "line": 100,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [
+    "tmp_path"
+   ],
+   "assertions": 2,
+   "assert_forms": {
+    "equality": 1,
+    "membership": 1
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "command line reports a dead collector",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.watchdog.__main__:main",
+    "capstone.watchdog.__main__:report"
+   ],
+   "exercise_count": 2,
+   "modules_exercised": [
+    "capstone.watchdog.__main__"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_collector_watchdog.py::test_a_quiet_machine_gets_a_heartbeat_every_minute",
+   "file": "tests/test_collector_watchdog.py",
+   "name": "test_a_quiet_machine_gets_a_heartbeat_every_minute",
+   "line": 137,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [
+    "tmp_path"
+   ],
+   "assertions": 1,
+   "assert_forms": {
+    "equality": 1
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "a quiet machine gets a heartbeat every minute",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.ingestion.collector:MTConnectCollector.__init__",
+    "capstone.ingestion.collector:MTConnectCollector._url",
+    "capstone.ingestion.collector:MTConnectCollector.poll",
+    "capstone.ingestion.collector:_marker",
+    "capstone.ingestion.collector:append_jsonl",
+    "capstone.ingestion.collector:run_collector",
+    "capstone.ingestion.mtconnect:_child",
+    "capstone.ingestion.mtconnect:_local",
+    "capstone.ingestion.mtconnect:parse_streams",
+    "capstone.ingestion.mtconnect:raise_if_error",
+    "capstone.ingestion.record:parse_line"
+   ],
+   "exercise_count": 11,
+   "modules_exercised": [
+    "capstone.ingestion.collector",
+    "capstone.ingestion.mtconnect",
+    "capstone.ingestion.record"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_collector_watchdog.py::test_failed_polls_never_write_a_heartbeat",
+   "file": "tests/test_collector_watchdog.py",
+   "name": "test_failed_polls_never_write_a_heartbeat",
+   "line": 145,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [
+    "tmp_path",
+    "capsys"
+   ],
+   "assertions": 2,
+   "assert_forms": {
+    "equality": 1,
+    "membership": 1
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "failed polls never write a heartbeat",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.ingestion.collector:MTConnectCollector.poll",
+    "capstone.ingestion.collector:run_collector"
+   ],
+   "exercise_count": 2,
+   "modules_exercised": [
+    "capstone.ingestion.collector"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_collector_watchdog.py::test_the_monitor_counts_a_heartbeat_as_contact",
+   "file": "tests/test_collector_watchdog.py",
+   "name": "test_the_monitor_counts_a_heartbeat_as_contact",
+   "line": 157,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 1,
+   "assert_forms": {
+    "equality": 1
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "the monitor counts a heartbeat as contact",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.ingestion.record:TelemetryRecord.number",
+    "capstone.monitoring.monitor:Monitor.__init__",
+    "capstone.monitoring.monitor:Monitor._availability",
+    "capstone.monitoring.monitor:Monitor._collector",
+    "capstone.monitoring.monitor:Monitor._device_back",
+    "capstone.monitoring.monitor:Monitor._end",
+    "capstone.monitoring.monitor:Monitor._status",
+    "capstone.monitoring.monitor:Monitor._threshold",
+    "capstone.monitoring.monitor:Monitor.check_stale",
+    "capstone.monitoring.monitor:Monitor.observe",
+    "capstone.monitoring.monitor:Monitor.observe_marker",
+    "capstone.monitoring.runner:replay"
+   ],
+   "exercise_count": 12,
+   "modules_exercised": [
+    "capstone.ingestion.record",
+    "capstone.monitoring.monitor",
+    "capstone.monitoring.runner"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
    "id": "tests/test_console.py::test_an_unencodable_character_is_escaped_not_fatal",
    "file": "tests/test_console.py",
    "name": "test_an_unencodable_character_is_escaped_not_fatal",
@@ -34593,14 +34997,11 @@
    "claims": "parse reads header and sorts records by sequence",
    "execution_outcome": "passed",
    "exercises": [
-    "capstone.ingestion.mtconnect:_child",
-    "capstone.ingestion.mtconnect:_local",
     "capstone.ingestion.mtconnect:_record",
     "capstone.ingestion.mtconnect:_value",
-    "capstone.ingestion.mtconnect:parse_streams",
-    "capstone.ingestion.mtconnect:raise_if_error"
+    "capstone.ingestion.mtconnect:parse_streams"
    ],
-   "exercise_count": 6,
+   "exercise_count": 3,
    "modules_exercised": [
     "capstone.ingestion.mtconnect"
    ],
@@ -34627,16 +35028,14 @@
    },
    "raises_checks": 0,
    "uses": [],
-   "quality_flags": [],
+   "quality_flags": [
+    "exercises_no_project_function"
+   ],
    "claims": "parse maps samples events and conditions",
    "execution_outcome": "passed",
-   "exercises": [
-    "capstone.ingestion.record:TelemetryRecord.number"
-   ],
-   "exercise_count": 1,
-   "modules_exercised": [
-    "capstone.ingestion.record"
-   ],
+   "exercises": [],
+   "exercise_count": 0,
+   "modules_exercised": [],
    "judgment": "NOT ASSESSED",
    "curated": {},
    "snap_questions": [
@@ -34819,18 +35218,14 @@
    },
    "raises_checks": 0,
    "uses": [],
-   "quality_flags": [],
+   "quality_flags": [
+    "exercises_no_project_function"
+   ],
    "claims": "first poll reads current then samples from next sequence",
    "execution_outcome": "passed",
-   "exercises": [
-    "capstone.ingestion.collector:MTConnectCollector.__init__",
-    "capstone.ingestion.collector:MTConnectCollector._url",
-    "capstone.ingestion.collector:MTConnectCollector.poll"
-   ],
-   "exercise_count": 3,
-   "modules_exercised": [
-    "capstone.ingestion.collector"
-   ],
+   "exercises": [],
+   "exercise_count": 0,
+   "modules_exercised": [],
    "judgment": "NOT ASSESSED",
    "curated": {},
    "snap_questions": [
@@ -35046,15 +35441,11 @@
    "claims": "run collector writes jsonl and survives failures",
    "execution_outcome": "passed",
    "exercises": [
-    "capstone.ingestion.collector:_marker",
-    "capstone.ingestion.collector:append_jsonl",
-    "capstone.ingestion.collector:run_collector",
-    "capstone.ingestion.record:parse_line"
+    "capstone.ingestion.collector:run_collector"
    ],
-   "exercise_count": 4,
+   "exercise_count": 1,
    "modules_exercised": [
-    "capstone.ingestion.collector",
-    "capstone.ingestion.record"
+    "capstone.ingestion.collector"
    ],
    "judgment": "NOT ASSESSED",
    "curated": {},
@@ -43583,23 +43974,13 @@
    "claims": "condition alerts once escalates and recovers",
    "execution_outcome": "passed",
    "exercises": [
-    "capstone.ingestion.record:TelemetryRecord.number",
-    "capstone.monitoring.monitor:Monitor.__init__",
     "capstone.monitoring.monitor:Monitor._alert",
-    "capstone.monitoring.monitor:Monitor._availability",
     "capstone.monitoring.monitor:Monitor._condition",
-    "capstone.monitoring.monitor:Monitor._device_back",
-    "capstone.monitoring.monitor:Monitor._end",
-    "capstone.monitoring.monitor:Monitor._threshold",
-    "capstone.monitoring.monitor:Monitor.check_stale",
-    "capstone.monitoring.monitor:Monitor.observe",
-    "capstone.monitoring.runner:replay"
+    "capstone.monitoring.monitor:Monitor.observe"
    ],
-   "exercise_count": 11,
+   "exercise_count": 3,
    "modules_exercised": [
-    "capstone.ingestion.record",
-    "capstone.monitoring.monitor",
-    "capstone.monitoring.runner"
+    "capstone.monitoring.monitor"
    ],
    "judgment": "NOT ASSESSED",
    "curated": {},
@@ -43627,10 +44008,9 @@
    "claims": "unavailable from the start is not an alert",
    "execution_outcome": "passed",
    "exercises": [
-    "capstone.monitoring.monitor:Monitor._availability",
-    "capstone.monitoring.monitor:Monitor.observe"
+    "capstone.monitoring.monitor:Monitor._availability"
    ],
-   "exercise_count": 2,
+   "exercise_count": 1,
    "modules_exercised": [
     "capstone.monitoring.monitor"
    ],
@@ -43662,11 +44042,9 @@
    "exercises": [
     "capstone.monitoring.monitor:Monitor._availability",
     "capstone.monitoring.monitor:Monitor._end",
-    "capstone.monitoring.monitor:Monitor._start",
-    "capstone.monitoring.monitor:Monitor._status",
-    "capstone.monitoring.monitor:Monitor.observe"
+    "capstone.monitoring.monitor:Monitor._start"
    ],
-   "exercise_count": 5,
+   "exercise_count": 3,
    "modules_exercised": [
     "capstone.monitoring.monitor"
    ],
@@ -44024,14 +44402,11 @@
    "claims": "a clean stop and later start is not stale",
    "execution_outcome": "passed",
    "exercises": [
-    "capstone.monitoring.monitor:Monitor._collector",
-    "capstone.monitoring.monitor:Monitor.observe_marker",
-    "capstone.monitoring.runner:replay"
+    "capstone.monitoring.monitor:Monitor.observe_marker"
    ],
-   "exercise_count": 3,
+   "exercise_count": 1,
    "modules_exercised": [
-    "capstone.monitoring.monitor",
-    "capstone.monitoring.runner"
+    "capstone.monitoring.monitor"
    ],
    "judgment": "NOT ASSESSED",
    "curated": {},
