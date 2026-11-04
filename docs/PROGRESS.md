@@ -1,5 +1,20 @@
 # Progress Log
 
+> **2026-11-03 — Haas live-telemetry collector and read-only manufacturer pilot plan added (documentation only):**
+> [MVP_SCOPE.md](MVP_SCOPE.md#fw-haas-live-pilot) now records the post-MVP,
+> one-machine Haas collection plan for manufacturer outreach: shop/IT approval,
+> NGC/CHC capability discovery, outbound-only on-site bridge where needed,
+> capture contracts, separate collection/monitoring processes, private storage,
+> 7-day opt-in pilot with optional 30-day extension, shadow-mode replay and
+> evaluation limits, stop/revocation gates, development sizing and operator
+> discovery questions. This expands the existing ingestion/replay and Haas
+> future work; no factory access, deployed service, code or tests were added.
+> Understanding status unchanged (documentation only).
+> **Updated 2026-11-04 after review:** the plan now says what is already built (collector, monitor, watchdog;
+> tested only on the public demo), keeps the first pilot's data on the on-site PC, adds the confirmed Haas MTConnect
+> settings, the real-data provider as the main missing piece, proposed success targets, what one machine can and
+> cannot test, an agreement checklist and revised sizing.
+
 > **2026-11-04 — telemetry kept out of git checkouts (built ungated, developer to review; understood: no):**
 > From the PR #164 review: this repository is public, and nothing stopped collected shop telemetry from being
 > committed. New `capstone/ingestion/privacy.py` (`git_checkout_containing`, `refusal`, `ALLOW_FLAG`, `ALLOW_HELP`).

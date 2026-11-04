@@ -330,7 +330,7 @@ This reorganizes the existing roadmap, not its implementation status or authorit
 | [Evaluation, benchmarking and reasoning](#future-work-evaluation) | HIGH | Line-wide investigation scope, live runs, critic, ToT/GoT, runtime reliability |
 | [Retrieval and memory](#future-work-retrieval-and-memory) | MEDIUM | Manual and episodic search, reranking, ingestion |
 | [Multi-agent roles and coordination](#future-work-multi-agent-roles) | MEDIUM | Specialists, contracts, handoffs and model budgets |
-| [Tooling and infrastructure](#future-work-tooling) | MEDIUM | Simulated telemetry ingestion/replay, MCP, observability, audits |
+| [Tooling and infrastructure](#future-work-tooling) | HIGH for manufacturer outreach; MEDIUM for implementation | Haas live pilot collection, simulated ingestion/replay, MCP, observability, audits |
 | [Planning and automation](#future-work-planning-and-automation) | LOW | Controlled interventions and proactive monitoring |
 | [Frontend and operator experience](#future-work-frontend) | LOW | Difficulty recipes and safe configuration UI |
 | [Long-term portability and optional interfaces](#future-work-long-term) | LOW / FAR FUTURE | Cross-machine support, vision and voice |
@@ -342,6 +342,7 @@ This reorganizes the existing roadmap, not its implementation status or authorit
 | **HIGH** | Pilot readiness | [Fast read-only triage](#fw-rapid-triage) | Add strict latency budgets and a separate deep-investigation path. |
 | **HIGH** | Pilot readiness | [Degraded-data handling](#fw-degraded-data) | Live-test conflicting, missing and stale observations; demonstrate abstention and recovery. |
 | **HIGH** | Simulator | [Haas VF/NGC reference machine](#fw-haas-retrofit) | Ground the simulator in model-specific manuals and known supported telemetry. |
+| **HIGH — outreach plan only** | Tooling | [Haas live-telemetry pilot plan](#fw-haas-live-pilot) | Qualify one consenting shop and define safe read-only access, collection, storage, and shadow-mode deployment; build remains post-MVP. |
 | **HIGH** | Simulator | [Three-day bearing curve](#fw-bearing-progression) | Enable experiment selection and review wear curve with the manufacturing SME. |
 | **HIGH** | Simulator | [Power signal fidelity](#fw-power-validation) | Validate kW assumptions, relevant scoring and energy calculations. |
 | **HIGH** | Evaluation | [Line-wide investigation context](#fw-line-context) | Treat the alarmed machine as a starting point; check the relevant line before forming hypotheses. Buildable now. |
@@ -2279,7 +2280,7 @@ Report detection delay, false/missed triggers, data completeness, diagnostic
 accuracy, budget use and replay parity. Do not confuse tape replay with
 counterfactual post-intervention verification.
 
-**Stage B — real equipment is deferred and conditional.** Only with a willing
+**Stage B — real equipment is deferred and conditional.** The concrete shop-facing [Haas live-telemetry pilot plan](#fw-haas-live-pilot) below is ready for outreach, but does not authorize implementation or machine access. Only with a willing
 shop, authorized read-only access and a verified machine capability matrix
 should an MTConnect/OPC UA or approved MQTT/external-sensor adapter replace the
 simulator producer. The *same* ingestion contract and agent-facing read tools
@@ -2298,6 +2299,250 @@ which can use simulator-held data before any database. Coordinate with
 **not** assert that a PostgreSQL time-series pipeline already exists. Build
 and compare the simplest measured slice before introducing a broker, new
 multi-agent monitor or high-frequency infrastructure.
+
+### Haas live-telemetry collection and manufacturer pilot (HIGH for outreach planning; post-MVP implementation)
+
+<a id="fw-haas-live-pilot"></a>
+
+**Status: DOCUMENTED PLAN ONLY (2026-11-03).** The developer intends to
+contact manufacturers about a small, read-only Haas pilot. This is a
+**module within the existing capstone repository**, not a separate GitHub
+product. The collector, deterministic monitor and research agent must be
+**separately runnable processes** so a model timeout or deployment restart
+cannot block acquisition. Nothing in this plan implies a connected Haas,
+approved shop, finished collector, or verified diagnosis on physical data.
+Keep the existing seeded simulator and master-run evaluator usable without
+factory access. This extends [the unified ingestion/replay plan](#fw-telemetry-replay)
+and [Haas capability review](#fw-haas-retrofit); it does not move real
+equipment into the current MVP.
+
+**What already exists (checked against `main`, 2026-11-04).** Built and
+tested only against the public `demo.mtconnect.org` agent, never a Haas:
+the read-only MTConnect collector (`capstone/ingestion/`: GET only, minimum
+1 s and default 5 s poll interval, 10 s timeout, 20 MB response cap,
+`started`/`heartbeat`/`stopped` markers, 60 s heartbeat, `--save-probe`), the
+deterministic monitor (`capstone/monitoring/`) and the collector watchdog
+(`capstone/watchdog/`), PRs #165–#167. The output-path guard (collector,
+monitor and watchdog refuse to write inside a git checkout) is in its own
+pull request. **Not built:** the on-site spool and outbound upload, any
+hosted ingestion API, a provider that lets the agent read collected data,
+alert delivery to a person, and file rotation.
+
+#### What to offer a manufacturer
+
+- **One-machine, opt-in pilot.** Begin with an approved connectivity/field
+  discovery session; propose **7 days of collection**, with a **30-day
+  extension only if the manufacturer agrees**. No line-wide installation
+  or production-system integration is required for the first pilot.
+- **Read-only and non-disruptive by design, not assumed safe.** No controller
+  writes, resets, cycle-start/stop, setting edits, macro/program transfers,
+  autonomous maintenance or production intervention. Verify supported query
+  frequency and operational impact with the shop before leaving a collector
+  running. The factory's safety systems remain authoritative; technicians
+  decide what to do with any findings.
+- **Useful first output.** Give the participating shop a limited summary of
+  machine operating state, available trends, alarms and data gaps, plus
+  evidence-backed *candidate* anomalies. Do not promise predictive
+  maintenance, a confirmed bearing diagnosis, or verified cost savings from
+  a week of mostly normal observations.
+- **Explicit consent and data control.** Approval must come from an
+  authorized shop owner/manager and its IT/OT contact, not just an operator
+  willing to talk. Agree in writing on approved machine(s), queried fields,
+  access method, retention/deletion, hosting location, permitted use,
+  anonymization, sharing and revocation. Keep raw shop data private; never
+  commit customer telemetry, program content, serial numbers, credentials or
+  identifiable job/customer details to this public repository. Only
+  explicitly authorized anonymized examples may be published.
+
+#### Connectivity: choose the safest supported path
+
+1. **Identify the machine before designing the adapter:** exact Haas model,
+   approximate year, Classic Haas Control (CHC) versus Next Generation
+   Control (NGC), control/software revision, available Ethernet/serial
+   connection and who administers it. Record any identifying details in a
+   private pilot inventory.
+2. **Prefer existing read-only telemetry.** For a compatible, approved NGC
+   machine, inspect MTConnect's available data items (for example via its
+   read-only probe/current/sample interface) and consider authorized Haas
+   Machine Data Collection if appropriate. For CHC, separately check the
+   model's supported read-only RS-232/Q queries. Do **not** presume every
+   Haas supports MTConnect, or that spindle temperature, vibration, motor
+   current, power or detailed fault signals are exported. Public guides
+   (MachineMetrics) say NGC MTConnect is under Settings → Network →
+   MTConnect, on port 8082, usually on by default, with software
+   100.20.000.1200 or later recommended for the fullest data. No login is
+   documented for it, so treat it as an open read interface: keep the
+   collector on the same approved network segment. No Haas list of data
+   items was found; sources suggest machine state, execution, spindle
+   and feed, alarms, program and part count. The machine's own `/probe`
+   (`python -m capstone.ingestion --save-probe`) is the authoritative list.
+3. **Default network topology:** run a small **on-site Python collector/
+   bridge** on an approved PC or mini-computer within the factory network
+   and read only the authorized controller endpoint. **For the first pilot,
+   keep the data on that PC** (the collector already writes local JSONL)
+   and export it by an agreed manual step. Later, if approved, buffer
+   samples locally during internet outages and send encrypted **outbound
+   HTTPS** batches to a hosted ingestion API; neither the upload nor the API
+   exists yet. No inbound internet exposure of
+   the CNC or factory router. If the shop expressly authorizes a tightly
+   controlled VPN to a compatible endpoint, consider direct hosted
+   collection; **Render does not automatically reach private factory LANs**.
+   A Render background worker can run a non-serverless cloud process, but
+   that alone does not solve the OT network boundary.
+4. If no safe/approved connection exists, stop; do not improvise firewall
+   rules, scan the OT network or deploy external sensors without separate
+   written approval. Offer an offline export or recorded-data pilot only
+   if the shop permits it.
+
+#### Implementation inside the capstone (after the MVP gates)
+
+Proposed additions under `capstone-code/capstone/` (names are provisional):
+
+- `ingestion/` (**collector built**): still to add an optional CHC
+  adapter, the edge spool and idempotent batch upload.
+- **A real-data provider (the main missing piece).** `FactoryProvider` in
+  `providers/factory.py` is already the plug-in point (the hazards wrapper
+  uses it). A new provider must read collected JSONL and answer the
+  existing tools: map wall-clock timestamps to ticks, map each Haas data
+  item to a tool sensor with its unit, and return unavailable for anything
+  not collected. The tools' sensors today are `vibration`, `temperature`,
+  `load`, `power`, `following_error` and `hydraulic_pressure`; most will
+  probably be unavailable on a Haas, and spindle speed or feed may need
+  new sensor names. Write the mapping table only after the machine's
+  `/probe` is saved.
+- `monitoring/` and `watchdog/` (**built**): still to add delivery of alerts
+  to a person (they only write files today), cooldown where needed, and
+  per-channel thresholds from the probe. Do not run an LLM on every poll.
+  Use the existing investigation/critic path only when an actionable
+  incident is formed.
+- **Keep shop data out of this public repository:** the output-path guard
+  refuses paths inside a git checkout, and `.gitignore` lists `telemetry/`
+  and `pilot-data/`. A blanket `*.jsonl` rule is not possible:
+  `docs/benchmarks/` tracks benchmark JSONL files.
+- **Storage:** keep raw transport payloads when authorized and practical,
+  but normalize to a versioned record with source/machine/channel,
+  value/unit or typed event, source timestamp (UTC plus clock-offset
+  quality), receive timestamp, sequence, provenance, validity and
+  operating context. Persist to an access-controlled PostgreSQL store
+  or appropriate compressed time-series files (e.g. Parquet). JSONL is
+  suitable for small fixtures, interchange and deterministic replay;
+  **Markdown is documentation, not telemetry storage**. Preserve actual
+  missing data rather than filling values from simulator assumptions.
+- **Deployment:** one capstone repo, separate collector/edge process,
+  hosted ingestion API/storage and independent monitoring/agent workers.
+  Pin per-pilot configurations and credentials outside source control;
+  record service health, upload lag, gaps, clock drift and restarts. On the
+  on-site PC: enough disk for the pilot plus a rotation rule, clock sync
+  (NTP) checked before the start, and a named person who patches the PC
+  and restarts the collector when the watchdog reports it silent.
+
+The agent should see the same *types* of observations in simulation, replay
+and live mode; it must not see simulator-only hidden fault truth. Missing
+channels are unavailable, not zero or fabricated. A real-data investigation
+is initially **shadow/read-only**: it may report a suspected cause and
+request technician validation, but cannot execute a machine fix.
+Counterfactual post-repair verification is **not possible** from a static
+recording; only separately authorized technician actions and subsequent
+measurements can support real-world outcome claims.
+
+**What one machine can and cannot test.** The planned
+[Line Sentinel](#fw-line-sentinel) compares machines with their peers; one
+machine has none, so only its comparison with its own past applies. A
+7-day capture is mostly a cold start (`baseline_unavailable`) and mostly
+normal operation. The pilot can test collection, data quality, the monitor
+and the watchdog. It cannot test diagnosis accuracy unless the shop
+shares past alarm and maintenance history or a technician logs events
+during the week.
+
+#### Phased trial and acceptance checks
+
+1. **Outreach/discovery (before coding):** confirm one willing shop, the
+   decision-maker and IT/OT approver, target model/control, rough available
+   data fields, connection options and pilot permission. Prepare a one-page
+   data-flow/privacy sheet and read-only pilot agreement.
+2. **Bench proof (no production machine required):** implement against
+   recorded/synthetic protocol fixtures; test decoding, corrupt responses,
+   disconnect/retry, spool/backfill, duplicates, sequence gaps, timestamps,
+   missing fields and clean stop/revoke. Keep simulator regressions green.
+3. **Approved on-machine smoke test:** during a shop-approved window,
+   first save the machine's `/probe` (`--save-probe`, to a folder outside
+   the repository), then check what the controller actually exposes and whether the permitted
+   poll rate has negligible *measured* production impact. Confirm
+   controller generation, units, timestamps, alarms, mode and load/RPM
+   field mapping; save the capability matrix privately.
+4. **7-day collection pilot:** obtain logs without gaps being silently
+   hidden. Proposed targets, to agree with the shop before starting: a 5 s
+   poll interval (never below the collector's 1 s minimum, slower if the
+   shop asks); collection running at least 95% of the approved hours; no
+   unexplained gap over 10 minutes; and stop at once if the shop reports
+   any effect on the machine or network. Report collection uptime, missing/late/duplicated samples,
+   freshness, observed modes and alarm/event coverage; review findings
+   with the shop. Extend to 30 days only after explicit approval and
+   demonstrated stable operation.
+5. **Replay and shadow agent check:** replay selected captured windows
+   through the common observation interface, compare with live windows
+   and confirm no future-sample leakage. Test monitor alert noise and
+   abstention for unsupported sensors; have a technician review any
+   candidate incident. Measure investigatory accuracy **only** where a
+   confirmed maintenance/root-cause label exists. Do not mix unlabeled
+   real data into synthetic known-answer accuracy metrics.
+6. **Exit/revocation:** verify the shop can stop collection at once,
+   disable the bridge credentials and obtain/deletion-request its data
+   under the written agreement. Do not proceed beyond a read-only pilot
+   without a new security and safety review.
+
+**Rough build sizing, not a promise:** The collector, monitor and watchdog
+exist, so collecting from one compatible Haas with local storage is a few
+days of setup and testing once access is approved. The real-data provider
+and mapping table add roughly a week after the probe is saved; the spool,
+upload and hosted API add another 1–2 weeks. Then the actual 7- or 30-day
+capture period. The specific machine's protocol support,
+shop access/security approval, optional edge hardware and integration tests
+can dominate the calendar. Budget hosting, outbound connectivity and a
+shop-approved edge device separately. Building the full anomaly-monitor/
+agent integration is additional scope; prove collection first.
+
+#### Discovery questions for calls (2026-11-04 onward)
+
+- Which Haas model/year and control generation (NGC or CHC) is available,
+  and is there existing MTConnect/MDC or an approved export path?
+- Who may approve a **read-only** pilot and coordinate IT/OT network access?
+- Is there an approved on-site PC/network segment for a collector that
+  sends **outbound-only** encrypted updates, or must data remain on-site?
+- Which data can leave the site (mode/status, alarms, spindle RPM, load,
+  cycle/part count)? Are any channels, job IDs or timestamps restricted?
+- Would a short, approved connectivity check followed by **7 days** of
+  collection be acceptable, with an optional 30-day extension?
+- Can a technician confirm relevant events/maintenance outcomes so
+  later agent assessments can be grounded rather than guessed?
+- Can the shop share past alarm history and maintenance records for the
+  machine, so a mostly normal week can still be compared with real events?
+- Is any work on this machine export-controlled (for example ITAR) or under
+  a customer confidentiality agreement that limits what data can leave?
+
+**Agreement checklist (before any data leaves the machine):** a written
+pilot agreement or NDA; who owns the raw data and anything derived from
+it; retention and deletion; whether any export-controlled or confidential
+customer work runs on the machine; liability and insurance for the
+on-site PC; confirmation that connecting does not affect the machine's
+warranty or service terms (ask the shop or its Haas Factory Outlet); and
+how the shop stops the pilot.
+
+**Short, accurate operator-facing explanation:**
+> I'm building a manufacturing research assistant that investigates unusual
+> machine behavior. I'm looking for one shop willing to try a limited,
+> read-only data pilot on a Haas CNC: first confirm what the controller
+> already exposes, then—if your team approves—record operational readings
+> for about a week. We wouldn't change machine settings or interfere with
+> production. Your team would approve the connection and what data can
+> leave the facility, and you could stop the pilot at any time.
+
+**Go/no-go before the first real packet:** Named shop owner/IT approval;
+verified machine and read-only supported interface; agreed field list,
+poll rate, retention and hosting; secure network design; edge/API
+credentials and revocation; documented rollback/stop; and a shop-approved
+low-impact connection test. If any is missing, use synthetic or explicitly
+permitted recorded data instead.
 
 ### Future Work 2 — MCP architecture, observability, and response verification
 
