@@ -14,6 +14,10 @@
 > Investigator can go deeper (right); corrected that it ranks by what looks unusual, not by what could be broken, that it
 > suggests rather than forces, and that the list has no fixed size; the developer raised calibrating "unusual", now a
 > section of the design. No runtime code, tests, provider settings, simulator, collector or graph stage changed.
+> **Caveats and order (added after merge):** the 0-of-13 figure is a rough keyword grouping of the 57 runs, not the
+> official labels. Thresholds, window lengths and the false-incident target are not chosen. Build order: line-wide
+> incident packet first, then the A/B comparison; the Sentinel (arms D, E) only if B still misses faults on machines that
+> never alarmed.
 
 
 > **2026-11-03 — collector heartbeat and live crash watchdog (built ungated, developer to review; understood: no):**
