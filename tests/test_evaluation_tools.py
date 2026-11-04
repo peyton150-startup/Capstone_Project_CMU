@@ -276,6 +276,133 @@ def test_the_inventory_lists_every_function_and_every_curated_item_exists(tmp_pa
     assert {t["name"] for t in tools} >= {"get_readings", "wait", "search_manual"}
 
 
+def test_per_test_coverage_contexts_reach_the_inventory(tmp_path):
+    """A configured coverage run keeps both tests that call one function."""
+    # Variables:
+    #   coverage_path: The isolated data file read back through the inventory
+    #     parser after the probe finishes.
+    #   probe: A subprocess keeps its coverage tracer separate from pytest-cov.
+    #   contexts: Test ids attributed to the source line exercised twice.
+    coverage_path = tmp_path / ".coverage.contexts"
+    probe = textwrap.dedent(
+        """
+        import sys
+        from pathlib import Path
+        from coverage import Coverage
+        sys.path.insert(0, str(Path(sys.argv[2]) / "evaluation"))
+        from evaltools.build_inventory import names_function
+        coverage = Coverage(data_file=sys.argv[1], config_file=str(Path(sys.argv[2]) / "pyproject.toml"))
+        coverage.start()
+        for name in ("first", "second"):
+            coverage.switch_context(f"tests/test_evaluation_tools.py::test_{name}")
+            names_function("sensor_alarm", "sensor")
+        coverage.stop()
+        coverage.save()
+        """
+    )
+    completed = subprocess.run(
+        [sys.executable, "-c", probe, str(coverage_path), str(REPO)],
+        cwd=REPO,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    assert completed.returncode == 0, completed.stderr
+    contexts, _, _ = build_inventory.read_coverage(coverage_path)
+    expected = {
+        "tests/test_evaluation_tools.py::test_first",
+        "tests/test_evaluation_tools.py::test_second",
+    }
+    assert expected in contexts["evaluation/evaltools/build_inventory.py"].values()
+
+
+def test_constructor_callers_are_matched_by_class_name():
+    """An unrelated class constructor is not a caller of AuditLog.__init__."""
+    # Variables:
+    #   functions: Source functions whose call expressions can name AuditLog.
+    #   target: The AuditLog constructor being checked for false callers.
+    #   callers: Source functions reported as constructing AuditLog.
+    functions = build_inventory.collect_functions(
+        REPO / "capstone-code" / "capstone" / "agent" / "completion.py"
+    )
+    functions += build_inventory.collect_functions(
+        REPO / "capstone-code" / "capstone" / "experiment.py"
+    )
+    functions += build_inventory.collect_functions(
+        REPO / "evaluation" / "evaltools" / "run_packet.py"
+    )
+    target = next(
+        function
+        for function in functions
+        if function.id == "capstone.agent.completion:AuditLog.__init__"
+    )
+    callers = build_inventory.static_callers_of(target, functions)
+    assert callers == [
+        "capstone.experiment:main",
+        "evaluation.evaltools.run_packet:audit_by_run",
+    ]
+
+
+def test_function_questions_need_the_complete_test_evidence():
+    """Incomplete function packets keep FN-02/03 unknown, without a model call."""
+    # Variables:
+    #   complete: A five-pilot function whose rebuilt test list is complete.
+    #   truncated: A heavily used constructor whose test list still has a cap.
+    #   shortened: A function packet with a cut test source, even though its
+    #     test id list is complete.
+    from evaltools import decision_models
+
+    inventory = json.loads(
+        (snap_request.INVENTORY / "FUNCTION_INVENTORY.json").read_text("utf-8")
+    )["functions"]
+    tests = {
+        test["id"]: test
+        for test in json.loads(
+            (snap_request.INVENTORY / "TEST_INVENTORY.json").read_text("utf-8")
+        )["tests"]
+    }
+    by_id = {function["id"]: function for function in inventory}
+    complete = snap_request.function_state(
+        by_id["capstone.agent.completion:action_evidence_ids"], tests
+    )
+    truncated = snap_request.function_state(
+        by_id["capstone.simulator.rng:RandomSource.__init__"], tests
+    )
+    assert complete["coverage"]["test_count"] == len(complete["tests"])
+    assert complete["tests_shown"] is None
+    assert any(
+        test["id"].endswith("test_the_action_cites_what_the_factory_reported_about_it")
+        for test in complete["tests"]
+    )
+    assert truncated["tests_shown"] is not None
+    assert truncated["tests_shown"].endswith(
+        f"of {truncated['coverage']['test_count']} shown"
+    )
+    _, questions = snap_request.load_questions()
+    requests = snap_request.item_requests(
+        [("complete", complete), ("truncated", truncated)],
+        snap_request.questions_for("FN", questions),
+        [decision_models.PROVIDERS["jev"]],
+        meta={"family": "FN", "rubric_version": "1.0.0"},
+        state_tokens=None,
+    )
+    assert requests[0]["tags"]["question_ids"] == ["FN-01", "FN-02", "FN-03"]
+    assert requests[1]["tags"]["question_ids"] == ["FN-01"]
+    assert requests[1]["tags"]["skipped_questions"] == {
+        "FN-02": "unknown: function test evidence is incomplete",
+        "FN-03": "unknown: function test evidence is incomplete",
+    }
+    shortened = {**complete, "tests": [{**complete["tests"][0], "source_cut": "cut"}]}
+    [shortened_request] = snap_request.item_requests(
+        [("shortened", shortened)],
+        snap_request.questions_for("FN", questions),
+        [decision_models.PROVIDERS["jev"]],
+        meta={"family": "FN", "rubric_version": "1.0.0"},
+        state_tokens=None,
+    )
+    assert shortened_request["tags"]["question_ids"] == ["FN-01"]
+
+
 # --- two decision models on the same evidence ---------------------------------------
 
 

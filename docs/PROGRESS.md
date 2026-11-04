@@ -12,6 +12,101 @@
 > Understanding status unchanged (documentation only).
 
 
+> **2026-11-03 — evaluator test attribution and constructor callers (built ungated, developer to review; understood: no):**
+> The developer authorized Codex to make this one code fix despite the usual
+> build/run split in `AGENTS.md` section 12. The five-request Jev pilot's
+> function packets omitted tests that assert action evidence and verification.
+> Python 3.14 selected coverage.py's `sysmon` core, which warned that dynamic
+> test contexts may be incomplete; a `ctrace` probe recovered the missing
+> contexts. `pyproject.toml` now pins `ctrace`. `build_inventory.py` matches
+> constructor callers by class name rather than every `__init__`, and keeps
+> up to 80 test ids per direct/indirect list. `snap_request.py` shows up to
+> 80 function test sources, reports the count against all executing tests,
+> and keeps FN-02/FN-03 `unknown` when sources are omitted or cut. The five
+> pilot functions now have all 42–66 executing tests in their packets and fit
+> the matched evidence budget; other functions with more tests keep visible
+> unknowns. `tests/test_evaluation_tools.py` covers per-test contexts,
+> constructor matching, complete pilot evidence and incomplete-packet skips.
+> Rebuilt inventories and offline verification are recorded in the PR. The
+> previous five Jev answers remain transport diagnostics; no new model call
+> or independent human reference judgment was made.
+
+> **2026-11-03 — planned third agent: the Line Sentinel (documentation only; not built; understanding unchanged):**
+> PR #170 first proposed a separate Evidence Integrity Agent. At the developer's request it was reviewed against the
+> existing future work and reworked into one third agent, the **Line Sentinel**: `docs/THIRD_AGENT_LINE_SENTINEL_FUTURE_WORK.md`
+> (replaces `THIRD_AGENT_EVIDENCE_INTEGRITY_FUTURE_WORK.md`) and a `fw-line-sentinel` section in `docs/MVP_SCOPE.md`.
+> It decides where and when an investigation starts and whether that data can be trusted, and never names a cause.
+> Evidence: 0 of 13 archived master runs were right when the faulty machine did not alarm (KA-05/06/09), because
+> `detect_anomaly` hands over the first alarm's machine. Code scores machines against peers and their own past with
+> thresholds calibrated on normal seeds and labels them abnormal / can't tell / normal-looking; the model only requests
+> read-only checks and orders machines; it never monitors. Measured as arms D (code only) and E (with the model) after
+> the line-wide packet. The integrity checks are kept as code inside it. Also fixed: the earlier draft's anchor had
+> displaced `fw-specialist-roles`. Developer's explanation back: the Sentinel narrows which machines to look at so the
+> Investigator can go deeper (right); corrected that it ranks by what looks unusual, not by what could be broken, that it
+> suggests rather than forces, and that the list has no fixed size; the developer raised calibrating "unusual", now a
+> section of the design. No runtime code, tests, provider settings, simulator, collector or graph stage changed.
+> **Caveats and order (added after merge):** the 0-of-13 figure is a rough keyword grouping of the 57 runs, not the
+> official labels. Thresholds, window lengths and the false-incident target are not chosen. Build order: line-wide
+> incident packet first, then the A/B comparison; the Sentinel (arms D, E) only if B still misses faults on machines that
+> never alarmed.
+
+
+> **2026-11-03 — collector heartbeat and live crash watchdog (built ungated, developer to review; understood: no):**
+> Second follow-up from PR #165's walkthrough, stacked on the stop markers (PR #166). The collector now writes a
+> `heartbeat` marker when polls succeed but nothing new has been written for 60 s (`HEARTBEAT_SECONDS`); failed polls never
+> write one, so an unreachable agent shows as silence. The deterministic monitor counts a heartbeat as contact with that
+> agent's devices, so a quiet machine is no longer called stale; its default `stale_after` rose from 60 s to 180 s (must
+> exceed heartbeat plus poll interval). New package `capstone.watchdog` (`python -m capstone.watchdog`), the only
+> telemetry process that reads the wall clock: `last_line` reads the file's newest complete line, and `Watchdog.check`
+> raises one live-only `silent` alert when it is older than `--silent-after` (180 s) and is not a clean stop, then
+> `recovered` when lines return or a clean stop is written. Kept outside `monitoring/`, so the monitor's no-clock guard
+> still holds. Live check against demo.mtconnect.org: quiet after a clean stop; one alert on a file cut off mid-run.
+> Pre-merge walkthrough (2026-11-03): Q1 (an idle night) right that a busy machine gets no heartbeats; corrected that
+> `started` is written once and a heartbeat only after 60 s without a write, and that without heartbeats the watchdog
+> would raise a false alarm every night. Q2 (network cable pulled) right that the file goes silent; corrected that the
+> alert comes about 180-190 s after the last line, and that a failed poll's `continue` skips the heartbeat check.
+> Q3 (why a separate package, why `now` is a parameter) gave process independence; corrected that the main reason is
+> keeping the monitor deterministic (its no-clock guard), and that `now` is passed in so the rule can be tested exactly.
+
+> **2026-11-03 — collector start/stop markers: a planned stop is no longer mistaken for a crash (built ungated, developer to review; understood: no):**
+> Follow-up agreed in PR #165's walkthrough. The collector now writes a `CollectorMarker` line (`record_type: "collector"`)
+> when it starts and when it stops on purpose (Ctrl+C or `--polls` reached, with the reason). A crash or killed process
+> writes no stop marker. Observation lines gain `record_type: "observation"`; older lines without it still read as
+> observations (`parse_line`). The deterministic monitor handles markers in `observe_marker`: a clean stop ends stale
+> checks for that agent's devices, and a start not preceded by a clean stop is a `collector` warning that the previous
+> run may have crashed. Still no wall clock: a crash is found when the collector starts again. Live crash detection is the
+> next PR (a separate watchdog). Live smoke run against demo.mtconnect.org (2 polls) wrote both markers and the monitor
+> reported them. Evaluator inventories rebuilt from a full coverage run.
+> Pre-merge walkthrough (2026-11-03): Q1 (Ctrl+C mid-poll) right that it stops gracefully and keeps the count; added
+> that `reason = "interrupted"` is an assignment, that KeyboardInterrupt passes the retry handler because it is a
+> BaseException, and that the last line is the `stopped (interrupted)` marker. Q2 (an hour's planned pause) right that
+> there is no stale alert; corrected that three info `collector` alerts are still printed, and that `_last_seen.pop`
+> on `stopped` is what prevents the stale alert. Q3 (old PR 165 files) right that they load; explained the
+> `record_type` default in `parse_line`, and that appending a new run to an old file warns of a crash because old data
+> counts as running. At the developer's request, every ingestion function now describes its meaningful variables.
+
+> **2026-11-03 — smallest read-only MTConnect collector and deterministic monitor (built ungated, developer to review; understood: no):**
+> Built from the plan in PR #164 (Haas live-telemetry pilot), at the developer's request, smallest version only.
+> `capstone.ingestion` polls an MTConnect agent with HTTP GET only (`/current`, then `/sample?from=<nextSequence>`),
+> parses MTConnectStreams (1.x and 2.x namespaces) into versioned `TelemetryRecord`s and appends them to JSONL;
+> UNAVAILABLE stays missing (`available=False`, `value=None`), OUT_OF_RANGE (HTTP 400 error document) and agent
+> restarts (new `instanceId`) restart from `/current` and are reported as gaps, network/parse failures are retried,
+> polling is never faster than 1 s, and `--save-probe` saves the machine's `/probe` capability list.
+> `capstone.monitoring` is a separate, plain-code, deterministic process (no model or agent monitors): it replays or
+> follows the JSONL and raises edge-triggered alerts for condition WARNING/FAULT, channels going unavailable,
+> Execution/ControllerMode/EmergencyStop changes, operator thresholds and stale devices (from gaps between record
+> receive times; the wall clock is never read, so live and replay give the same alerts).
+> Shape checked against the public demo agent demo.mtconnect.org (MTConnect 2.8; 3-poll smoke run, 153 records, no
+> duplicates). Not run against a Haas or any shop machine. The research agent does not read the records or alerts yet.
+> Tests: `tests/test_mtconnect_ingestion.py`, `tests/test_telemetry_monitor.py` (new CI group "Live telemetry").
+> Evaluator inventories rebuilt from a full coverage run (1,805 passed) so the new modules are inventoried.
+> Pre-merge walkthrough (2026-11-03): Q1 (why an agent restart discards the reply) partly right, corrected: sequence
+> numbers restart, so keeping it would silently skip readings and mix two numberings. Q2 (alerts for
+> NORMAL-WARNING-WARNING-WARNING-FAULT-FAULT-NORMAL) found warning and fault, missed `recovered`; corrected, and noted
+> that nothing triggers the agent yet. Q3 (when a crashed collector is flagged stale) answered "after 60 s"; corrected:
+> only when data resumes, because the monitor never reads the clock. Agreed follow-ups: a collector stop marker, then a
+> clock-reading crash watchdog kept outside the deterministic monitor.
+
 > **2026-11-02 — first live Jev pilot, and the cost estimate fixed (built ungated, developer to review; understood: no):**
 > At the developer's request, Claude Code ran one five-request Jev batch on `main` `629a268` (`--provider jev --send --batch-size 5 --max-requests 5 --max-usd 0.05`; output kept outside the repository in `C:\Users\nicol\CapstoneRuns\jev-pilot-20261102`). All five returned (15 answers, all FN questions on `capstone.agent.completion`, one attempt each, model `jev-1.14.0`), billed $0.000315 for 7,507 input tokens. The evaluator had estimated about 2.2x too few tokens: it counted only the evidence state. `full_evaluation.budget` now estimates each request from its whole body (state and questions) and adds `REQUEST_TOKEN_MARGIN` = 1.5, through the new `request_tokens_estimate`; on the pilot's five requests the new estimate is above every billed count. Still input only: outputs and retries are not priced. The answers are not yet checked against reviewed reference judgments.
 
@@ -416,6 +511,8 @@ other three fault scenarios (material batch, machine configuration, false
 alarm), then evaluation, then the agent itself.
 
 ## Session notes
+
+- **2026-11-03: variable comments for the functions in PRs #160 and #163 (comments only, built ungated, developer to review; understood: no).** Checked every function those PRs added or changed in `evaluation/evaltools/` against the latest `main` (PR #167 touches other modules, so adds nothing here). 17 of the 29 already had a `# Variables:` block (none stale); now 23 do. Added blocks to `git`, `tracked_python_files`, `has_functions`, `case_number`, `case_outcome` and `_bodiless` in `full_evaluation.py`; one-line helpers whose names say it all were skipped (`sha256_of`, `run_name`, `ratio`, `request_tokens_estimate`, nested `right` and `fraction`). No behaviour change. The evaluator inventories were not regenerated (they need a full coverage run) and still hold the old source text of these six.
 
 - **2026-11-01 (EVF): evaluation framework and audit, built ungated.** From
   the developer's two prompts (an evaluation-architecture review for a

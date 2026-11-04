@@ -381,3 +381,11 @@ and the paper it came from.
   has each rated sure / likely / impossible against the evidence, and keeps
   the best few, pruned in code. Based on [Tree of Thoughts: Deliberate Problem Solving with Large Language Models](https://arxiv.org/abs/2305.10601)
   (Yao et al., 2023).
+- The planned Line Sentinel, a third agent that decides where and when an
+  investigation starts (`docs/THIRD_AGENT_LINE_SENTINEL_FUTURE_WORK.md`, design
+  only, not built): placed before the investigation chain rather than as another
+  step inside it, following [Towards a Science of Scaling Agent Systems](https://arxiv.org/abs/2512.08296)
+  (arXiv, 2025), where coordination helps work that splits into parts and hurts
+  long sequential chains; and aimed at the premature commitment to a wrong
+  hypothesis described in [LLM-as-an-Investigator](https://arxiv.org/abs/2606.13220)
+  (arXiv, 2026), which the first-alarm handover causes here.
