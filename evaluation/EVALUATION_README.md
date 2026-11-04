@@ -92,9 +92,17 @@ name or the scenario id. Runs where no model answered are asked nothing.
 ## 3. Build and read the inventories
 
 ```sh
-uv run pytest --cov=capstone --cov-context=test --cov-report= --junitxml=junit.xml
+uv run pytest --cov=capstone --cov=evaltools --cov-context=test --cov-report= --junitxml=junit.xml
 cd evaluation && uv run python -m evaltools.build_inventory --coverage ../.coverage --junit ../junit.xml
 ```
+
+The repository pins coverage.py's `ctrace` core because the evaluator needs
+per-test contexts. On Python 3.14, the default `sysmon` core can lose those
+contexts while still reporting passing tests. Rebuild the inventory from a
+complete coverage and JUnit run after changing source or tests. Function
+packets show at most 80 test sources; when any test is omitted or a source is
+cut, FN-02 and FN-03 remain `unknown` in the ledger instead of receiving a
+judgment based on incomplete test evidence.
 
 Add or change reviewer judgments in `curated/*.json` (a note for an item
 that no longer exists fails the build, so stale judgments cannot linger),

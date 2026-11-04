@@ -57,6 +57,11 @@ pythonpath = ["capstone-code", "evaluation"]
 # One fixed scratch folder (git-ignored), cleared by pytest at the start of each run.
 addopts = "--basetemp=.pytest-tmp"
 
+[tool.coverage.run]
+# The evaluator needs per-test contexts; sysmon (Python 3.14's default)
+# cannot reliably record contexts switched by pytest-cov.
+core = "ctrace"
+
 [tool.ruff]
 target-version = "py311"
 line-length = 88

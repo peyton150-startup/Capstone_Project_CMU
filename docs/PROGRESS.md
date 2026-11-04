@@ -1,5 +1,24 @@
 # Progress Log
 
+> **2026-11-03 — evaluator test attribution and constructor callers (built ungated, developer to review; understood: no):**
+> The developer authorized Codex to make this one code fix despite the usual
+> build/run split in `AGENTS.md` section 12. The five-request Jev pilot's
+> function packets omitted tests that assert action evidence and verification.
+> Python 3.14 selected coverage.py's `sysmon` core, which warned that dynamic
+> test contexts may be incomplete; a `ctrace` probe recovered the missing
+> contexts. `pyproject.toml` now pins `ctrace`. `build_inventory.py` matches
+> constructor callers by class name rather than every `__init__`, and keeps
+> up to 80 test ids per direct/indirect list. `snap_request.py` shows up to
+> 80 function test sources, reports the count against all executing tests,
+> and keeps FN-02/FN-03 `unknown` when sources are omitted or cut. The five
+> pilot functions now have all 42–66 executing tests in their packets and fit
+> the matched evidence budget; other functions with more tests keep visible
+> unknowns. `tests/test_evaluation_tools.py` covers per-test contexts,
+> constructor matching, complete pilot evidence and incomplete-packet skips.
+> Rebuilt inventories and offline verification are recorded in the PR. The
+> previous five Jev answers remain transport diagnostics; no new model call
+> or independent human reference judgment was made.
+
 > **2026-11-03 — planned third agent: the Line Sentinel (documentation only; not built; understanding unchanged):**
 > PR #170 first proposed a separate Evidence Integrity Agent. At the developer's request it was reviewed against the
 > existing future work and reworked into one third agent, the **Line Sentinel**: `docs/THIRD_AGENT_LINE_SENTINEL_FUTURE_WORK.md`

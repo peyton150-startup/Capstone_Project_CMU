@@ -415,7 +415,7 @@ def judge_view(packet: dict, forbidden: list[str]) -> tuple[dict | None, str | N
 
 # How much of a list or a text a state keeps. Whatever is cut is said so in
 # the state (`shown`), never dropped silently.
-TESTS_PER_FUNCTION = 12
+TESTS_PER_FUNCTION = 80
 FUNCTIONS_PER_TEST = 15
 TESTS_PER_TOOL = 20
 TEST_SOURCE_CHARS = 4000
@@ -506,7 +506,7 @@ def function_state(record: dict, tests_by_id: dict) -> dict:
             "test_count": record["test_count"],
         },
         "tests": tests[:TESTS_PER_FUNCTION],
-        "tests_shown": shown(TESTS_PER_FUNCTION, len(tests)),
+        "tests_shown": shown(min(TESTS_PER_FUNCTION, len(tests)), record["test_count"]),
     }
 
 
@@ -621,16 +621,36 @@ def item_requests(
     # Variables:
     #   items: (item id, state) pairs, one per function, test or tool asked for.
     #   unfittable: Why `fit_state` could not fit this state to the budget.
+    #   incomplete_tests: Function test evidence was omitted or shortened, so
+    #     the failure-path and sufficiency questions cannot be judged.
+    #   chosen, skipped: Questions sent to the judge and questions kept as
+    #     explicit unknowns in the evaluation ledger.
     built = []
     for item_id, state in items:
+        incomplete_tests = meta.get("family") == "FN" and (
+            state.get("tests_shown") is not None
+            or any("source_cut" in test for test in state.get("tests", ()))
+        )
+        chosen = (
+            [q for q in questions if q.id == "FN-01"] if incomplete_tests else questions
+        )
+        skipped = (
+            {
+                q.id: "unknown: function test evidence is incomplete"
+                for q in questions
+                if q.id in ("FN-02", "FN-03")
+            }
+            if incomplete_tests
+            else {}
+        )
         for provider in providers:
             try:
                 built += build_request(
                     state,
-                    questions,
+                    chosen,
                     model=provider.model,
                     item_id=item_id,
-                    meta=meta,
+                    meta={**meta, "skipped_questions": skipped},
                     provider=provider.name,
                     state_tokens=state_tokens,
                 )
@@ -639,6 +659,7 @@ def item_requests(
                     {
                         "tags": {
                             **meta,
+                            "skipped_questions": skipped,
                             "provider": provider.name,
                             "item_id": item_id,
                             "question_ids": [],
