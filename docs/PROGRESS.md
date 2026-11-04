@@ -7,6 +7,7 @@
 > inside any git checkout unless `--allow-inside-repo` is given, for synthetic fixtures only. `.gitignore` adds
 > `telemetry/` and `pilot-data/`. A blanket `*.jsonl` rule was not used: `docs/benchmarks/` tracks 37 benchmark
 > JSONL files. Tests in `tests/test_mtconnect_ingestion.py`; two existing CLI tests now pass the flag.
+> Merged on the developer's instruction before the pre-merge walkthrough (AGENTS.md §11 step 6); the walkthrough is still owed.
 
 > **2026-11-03 — evaluator test attribution and constructor callers (built ungated, developer to review; understood: no):**
 > The developer authorized Codex to make this one code fix despite the usual
