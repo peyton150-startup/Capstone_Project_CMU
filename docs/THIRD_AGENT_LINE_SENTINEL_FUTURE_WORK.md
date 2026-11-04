@@ -191,22 +191,36 @@ from pydantic import Field
 from capstone.contracts import Contract
 
 DataIssue = Literal[
-    "missing", "unavailable", "stale", "gap", "duplicate", "out_of_order",
-    "unknown_unit", "clock_mismatch", "conflicting_sources",
+    "missing",
+    "unavailable",
+    "stale",
+    "gap",
+    "duplicate",
+    "out_of_order",
+    "unknown_unit",
+    "clock_mismatch",
+    "conflicting_sources",
     "baseline_unavailable",
 ]
 MachineLabel = Literal["abnormal", "cant_tell", "normal_looking"]
+
 
 class CheckRequest(Contract):
     # The model's only request type: one more read-only check. Code validates
     # the arguments against the tool's own schema and the time window.
     tool_name: Literal[
-        "get_time", "list_machines", "get_readings", "get_sensor_trend",
-        "get_sensor_summary", "get_factory_readings", "get_events",
+        "get_time",
+        "list_machines",
+        "get_readings",
+        "get_sensor_trend",
+        "get_sensor_summary",
+        "get_factory_readings",
+        "get_events",
         "get_inspections",
     ]
     arguments: dict
     machine_id: str | None = None
+
 
 class ChannelScore(Contract):
     # Computed by code, never by the model.
@@ -214,19 +228,21 @@ class ChannelScore(Contract):
     channel: str = Field(min_length=1)
     from_tick: int = Field(ge=0)
     to_tick: int = Field(ge=0)
-    peer_score: float | None = None    # None: too few comparable peers
-    own_score: float | None = None     # None: no history before the window
+    peer_score: float | None = None  # None: too few comparable peers
+    own_score: float | None = None  # None: no history before the window
     sustained_ticks: int = Field(ge=0)
     issues: tuple[DataIssue, ...] = ()
     evidence_ids: tuple[str, ...] = ()
 
+
 class MachineEntry(Contract):
     machine_id: str = Field(min_length=1)
-    label: MachineLabel                # computed by code
-    since_tick: int | None = None      # first tick of the lasting change
+    label: MachineLabel  # computed by code
+    since_tick: int | None = None  # first tick of the lasting change
     scores: tuple[ChannelScore, ...]
     ordered_by: Literal["code", "model"]
-    cited_evidence_ids: tuple[str, ...] = ()   # required when ordered_by="model"
+    cited_evidence_ids: tuple[str, ...] = ()  # required when ordered_by="model"
+
 
 class SentinelBrief(Contract):
     incident_id: str = Field(min_length=1)
