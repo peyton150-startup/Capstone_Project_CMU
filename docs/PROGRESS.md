@@ -1,12 +1,19 @@
 # Progress Log
 
-> **2026-11-03 — planned third agent: Evidence Integrity (documentation only; not built; understanding unchanged):**
-> Added Future Work 3's preferred first three-agent increment in `docs/MVP_SCOPE.md` and a dedicated
-> `docs/THIRD_AGENT_EVIDENCE_INTEGRITY_FUTURE_WORK.md` covering exact role boundaries, architecture, typed
-> Pydantic handoff proposals, tool permissions, deterministic quality checks, baseline ablations and adoption gates.
-> The new role will independently decide bounded *data coverage* queries before the Investigator forms causal
-> hypotheses. The Investigator retains hypotheses/diagnosis/manual/memory; the Critic retains hypothesis challenges.
-> No runtime code, tests, provider settings, model API, simulator, collector, live adapter, or graph stage changed.
+> **2026-11-03 — planned third agent: the Line Sentinel (documentation only; not built; understanding unchanged):**
+> PR #170 first proposed a separate Evidence Integrity Agent. At the developer's request it was reviewed against the
+> existing future work and reworked into one third agent, the **Line Sentinel**: `docs/THIRD_AGENT_LINE_SENTINEL_FUTURE_WORK.md`
+> (replaces `THIRD_AGENT_EVIDENCE_INTEGRITY_FUTURE_WORK.md`) and a `fw-line-sentinel` section in `docs/MVP_SCOPE.md`.
+> It decides where and when an investigation starts and whether that data can be trusted, and never names a cause.
+> Evidence: 0 of 13 archived master runs were right when the faulty machine did not alarm (KA-05/06/09), because
+> `detect_anomaly` hands over the first alarm's machine. Code scores machines against peers and their own past with
+> thresholds calibrated on normal seeds and labels them abnormal / can't tell / normal-looking; the model only requests
+> read-only checks and orders machines; it never monitors. Measured as arms D (code only) and E (with the model) after
+> the line-wide packet. The integrity checks are kept as code inside it. Also fixed: the earlier draft's anchor had
+> displaced `fw-specialist-roles`. Developer's explanation back: the Sentinel narrows which machines to look at so the
+> Investigator can go deeper (right); corrected that it ranks by what looks unusual, not by what could be broken, that it
+> suggests rather than forces, and that the list has no fixed size; the developer raised calibrating "unusual", now a
+> section of the design. No runtime code, tests, provider settings, simulator, collector or graph stage changed.
 
 
 > **2026-11-03 — collector heartbeat and live crash watchdog (built ungated, developer to review; understood: no):**

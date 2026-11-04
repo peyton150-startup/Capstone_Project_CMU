@@ -363,7 +363,7 @@ This reorganizes the existing roadmap, not its implementation status or authorit
 | **MEDIUM** | Retrieval | [MMR episodic search](#fw-mmr) | Test diversity of historical investigations against similarity retrieval. |
 | **MEDIUM** | Retrieval | [Voyage manual reranking](#fw-voyage) | Benchmark only the manual/SOP retrieval path. |
 | **MEDIUM** | Retrieval | [Jev for recall or routing](#fw-jev-recall) | Test model-driven recall rerank and routing if baseline errors warrant it. |
-| **MEDIUM** | Multi-agent | [Independent Evidence Integrity Agent (third role)](#fw-independent-evidence-integrity-agent) | Bounded coverage/freshness/provenance decisions before causal investigation; no hypothesis or critic overlap. |
+| **MEDIUM** | Multi-agent | [Line Sentinel (third agent)](#fw-line-sentinel) | Decide where and when to investigate, and whether that data can be trusted, after the line-wide packet; never names a cause. |
 | **MEDIUM** | Multi-agent | [Planner / researcher / analyst roles](#fw-specialist-roles) | Add bounded specialist stages after demonstrated gains. |
 | **MEDIUM** | Multi-agent | [Typed handoffs and contracts](#fw-handoffs) | Define evidence-only, full and challenge handoffs with shared provenance. |
 | **MEDIUM** | Multi-agent | [Per-role execution budgets](#fw-agent-budgets) | Bound output, retries, tool calls and time across all agents. |
@@ -841,7 +841,9 @@ approval, mandatory verification and evaluator-only hidden causal truth.
 
 **Implementation order:** pin alarm-centered baseline → incident packet in
 `observe` → matched A/B seeded evaluation → opt-in critic coverage check →
-matched B/C evaluation. Only then consider the
+matched B/C evaluation. If B still misses faults on machines that never
+alarmed, evaluate the [Line Sentinel](#fw-line-sentinel) as arms D and E.
+Only then consider the
 [telemetry ingestion and replay](#fw-telemetry-replay) or
 [proactive dispatch lifecycle](#fw-proactive). Each implementation
 increment gets its own PR and tests. This documentation creates no new
@@ -1524,21 +1526,23 @@ the first MCP boundary. Reuse the same permitted capabilities and contracts.
 An execution service may execute only an exact human-approved request;
 an agent cannot grant itself approval or arbitrary execution authority.
 
-This planned extension follows the single-agent MVP. The provider assignments
-below are initial targets; exact models and API availability will be confirmed
-when this extension is implemented.
+<a id="fw-line-sentinel"></a>
+
+#### Third agent: the Line Sentinel (MEDIUM; proposed 2026-11-03)
+
+**Status: FUTURE WORK ONLY — not implemented.** One third model-driven role that decides **where and when** an investigation starts and **whether the data there can be trusted**. It never names a cause. In the 57 archived master runs, the investigator was right 0 of 13 times when the faulty machine was not the one that alarmed (wrong setting KA-05/06, decoy KA-09), because `detect_anomaly` hands over the first alarm's machine.
+
+Deterministic code scores every machine against its peers and its own recent past, in the same operating context, with thresholds calibrated on normal-operation seeds only. It labels each machine **abnormal**, **can't tell** (untrusted or missing data, no baseline) or **normal-looking**. The model may only request bounded read-only checks and set the order of machines, citing evidence; code computes every score and label. The Investigator starts from the top of the brief but may look at any machine; the Critic reads the same brief. The model never monitors: a deterministic alert or a scheduled routine check wakes it once per incident.
+
+It comes after the [line-wide incident packet](#fw-line-context) and its evaluation, and is measured as two new arms in the [scope comparison](#fw-scope-comparison): **D** (code-only brief) and **E** (with the model). Build E only if D still misses non-alarming faults. The data-trust checks from an earlier draft's separate Evidence Integrity Agent are kept as code inside the Sentinel; a separate integrity role is reconsidered only if a live degraded-data run shows a gap the Sentinel does not cover.
+
+See **[the Line Sentinel design: evidence, calibration, boundaries, proposed contracts and tests](THIRD_AGENT_LINE_SENTINEL_FUTURE_WORK.md)**. The larger multi-provider workflow below stays a long-term option.
+
+The larger multi-provider workflow below follows the single-agent MVP. Its
+provider assignments are initial targets; exact models and API availability
+will be confirmed when this extension is implemented.
 
 <a id="fw-specialist-roles"></a>
-
-<a id="fw-independent-evidence-integrity-agent"></a>
-
-#### First three-agent increment: independent Evidence Integrity Agent (MEDIUM; proposed 2026-11-03)
-
-**Status: FUTURE WORK ONLY — not implemented.** Add one third model-driven role only after the line-wide incident packet, established two-agent baseline, and a demonstrated data-integrity gap. Its mandate is **observable data quality and completeness** (provenance, freshness, gaps, units, sequence/timestamp alignment, cross-machine coverage), **not** evidence interpretation, cause ranking, manual or episodic retrieval, critic challenge, or action selection.
-
-Its model can decide which bounded *read-only coverage* observation to request next. Deterministic code validates the result and computes quality flags; the model cannot declare a source valid. The Investigator alone owns hypotheses and diagnostic research; the existing Critic alone owns counterarguments and one optional discriminating recheck. The three roles have separate view schemas, tool allowlists, typed handoffs, time budgets and evidence-based evaluation. No agent sees hidden simulator truth or approves a repair. Prefer a deterministic-only coverage packet if it performs equally well, and retain this role only after a matched-seed two-versus-three-agent comparison demonstrates value.
-
-See **[Third-agent role definition, three-agent architecture, proposed Pydantic handoff contracts, and acceptance tests](THIRD_AGENT_EVIDENCE_INTEGRITY_FUTURE_WORK.md)**. This is the first preferred extension; the larger multi-provider workflow below remains a long-term option, not the current implementation plan.
 
 #### Planned Multi-Agent Workflow
 
