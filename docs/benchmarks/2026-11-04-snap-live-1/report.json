@@ -1,0 +1,410 @@
+{
+ "provenance": {
+  "report_version": "1.0.0",
+  "commit_pinned": "0ca0b1689ea8ff0fc66cc7ed09f686a133a9652c",
+  "commit_checked_out": "0ca0b1689ea8ff0fc66cc7ed09f686a133a9652c",
+  "tracked_changes_uncommitted": false,
+  "inventory_source_hashes_verified": true,
+  "coverage_sha256": "26758dd00f1e91423318ab1b45d5455f291178d097d0899c0e253d4fbe9e77f2",
+  "junit_sha256": "429d09d6db83a36d70303dcf5ec8222029953541ccb0262e67e22f99953d0e6d",
+  "inventory_sha256": {
+   "FUNCTION_INVENTORY.json": "6bd6db83328373b56fb2fa481318ede0b38b4187e1c422192bd9b4f1d3dfd34e",
+   "TEST_INVENTORY.json": "1578c4eaec3c0e87bd8fa48c04714ab4cb6d9a30fb970703d4d90294b1cb69ca",
+   "TOOL_INVENTORY.json": "b08b4f437e022d2418596826de3186d2ff2c2b7fa7c2616c8ce503545ebf90cb",
+   "VERIFICATION_MATRIX.json": "04e92495958e78b7939b75e49373458ad3a8f7c8e503bc695b567d5196bd3c12"
+  },
+  "rubric_version": "1.0.0",
+  "packet_schema_version": "1.3.0",
+  "normalize_version": "1.1.0"
+ },
+ "scope": {
+  "counts": {
+   "excluded": 4,
+   "inventoried": 81,
+   "no_functions": 23,
+   "test_support": 2,
+   "tests": 91
+  },
+  "unexplained": [],
+  "stale": []
+ },
+ "budget": {
+  "per_provider": {
+   "snap": {
+    "requests": 2296,
+    "input_tokens_estimate": 10752952,
+    "cost_usd_estimate": 0.4301
+   }
+  },
+  "requests": 2296,
+  "cost_usd_estimate": 0.4301
+ },
+ "correctness": {
+  "runs": [
+   {
+    "namespace": "audited-tot13-blind",
+    "run": "master-audited-20261102-tot13-blind",
+    "commit": "31ddd79eb3ab6a3bc0c01f43fb3b137348346394",
+    "episodes": 5,
+    "correct_of_judged": {
+     "n": 3,
+     "of": 5,
+     "rate": 0.6
+    },
+    "pending_review": 0,
+    "reasoned_correct_of_judged": {
+     "n": 3,
+     "of": 5,
+     "rate": 0.6
+    },
+    "abstained_of_judged": {
+     "n": 1,
+     "of": 5,
+     "rate": 0.2
+    },
+    "confident_wrong_of_judged": {
+     "n": 0,
+     "of": 5,
+     "rate": 0.0
+    },
+    "false_interventions_of_reasoned": {
+     "n": 0,
+     "of": 5,
+     "rate": 0.0
+    }
+   },
+   {
+    "namespace": "tot13-20261031-184429-543214a2",
+    "run": "master-tot13-anchored",
+    "commit": "e59208d584938ed96a606bc317354882fcc8e01c",
+    "episodes": 13,
+    "correct_of_judged": {
+     "n": 3,
+     "of": 12,
+     "rate": 0.25
+    },
+    "pending_review": 1,
+    "reasoned_correct_of_judged": {
+     "n": 3,
+     "of": 8,
+     "rate": 0.375
+    },
+    "abstained_of_judged": {
+     "n": 3,
+     "of": 8,
+     "rate": 0.375
+    },
+    "confident_wrong_of_judged": {
+     "n": 2,
+     "of": 8,
+     "rate": 0.25
+    },
+    "false_interventions_of_reasoned": {
+     "n": 0,
+     "of": 9,
+     "rate": 0.0
+    }
+   },
+   {
+    "namespace": "tot13-20261031-184429-543214a2",
+    "run": "master-tot13-blind",
+    "commit": "e59208d584938ed96a606bc317354882fcc8e01c",
+    "episodes": 13,
+    "correct_of_judged": {
+     "n": 3,
+     "of": 12,
+     "rate": 0.25
+    },
+    "pending_review": 1,
+    "reasoned_correct_of_judged": {
+     "n": 3,
+     "of": 9,
+     "rate": 0.333
+    },
+    "abstained_of_judged": {
+     "n": 5,
+     "of": 9,
+     "rate": 0.556
+    },
+    "confident_wrong_of_judged": {
+     "n": 1,
+     "of": 9,
+     "rate": 0.111
+    },
+    "false_interventions_of_reasoned": {
+     "n": 0,
+     "of": 10,
+     "rate": 0.0
+    }
+   },
+   {
+    "namespace": "tot13-20261031-210256-3910997b",
+    "run": "master-tot13-anchored",
+    "commit": "e59208d584938ed96a606bc317354882fcc8e01c",
+    "episodes": 13,
+    "correct_of_judged": {
+     "n": 6,
+     "of": 13,
+     "rate": 0.462
+    },
+    "pending_review": 0,
+    "reasoned_correct_of_judged": {
+     "n": 6,
+     "of": 9,
+     "rate": 0.667
+    },
+    "abstained_of_judged": {
+     "n": 2,
+     "of": 9,
+     "rate": 0.222
+    },
+    "confident_wrong_of_judged": {
+     "n": 1,
+     "of": 9,
+     "rate": 0.111
+    },
+    "false_interventions_of_reasoned": {
+     "n": 0,
+     "of": 9,
+     "rate": 0.0
+    }
+   },
+   {
+    "namespace": "tot13-20261031-210256-3910997b",
+    "run": "master-tot13-blind",
+    "commit": "e59208d584938ed96a606bc317354882fcc8e01c",
+    "episodes": 13,
+    "correct_of_judged": {
+     "n": 6,
+     "of": 11,
+     "rate": 0.545
+    },
+    "pending_review": 2,
+    "reasoned_correct_of_judged": {
+     "n": 6,
+     "of": 11,
+     "rate": 0.545
+    },
+    "abstained_of_judged": {
+     "n": 3,
+     "of": 11,
+     "rate": 0.273
+    },
+    "confident_wrong_of_judged": {
+     "n": 1,
+     "of": 11,
+     "rate": 0.091
+    },
+    "false_interventions_of_reasoned": {
+     "n": 0,
+     "of": 13,
+     "rate": 0.0
+    }
+   }
+  ],
+  "functions_by_verification_status": {
+   "INSUFFICIENT EVIDENCE": 296,
+   "NOT APPLICABLE": 24,
+   "NOT TESTED": 36,
+   "PARTIALLY VERIFIED": 372,
+   "VERIFIED": 45
+  },
+  "functions": 773,
+  "tests_by_execution_outcome": {
+   "passed": 1482
+  },
+  "tests": 1482,
+  "tools": 17
+ },
+ "comparisons": [
+  {
+   "item_id": "BT::tot13-20261031-184429-543214a2::master-tot13-anchored__vs__master-tot13-blind",
+   "sample_rule_in_code": {
+    "cases_a": 13,
+    "cases_b": 13,
+    "paired_by_scenario_and_seed": 13,
+    "unpaired_a": 0,
+    "unpaired_b": 0,
+    "ambiguous": 0,
+    "position_mismatches": 0,
+    "matched_judged": 11,
+    "right_on_matched_a": 3,
+    "right_on_matched_b": 3,
+    "rule": "insufficient_sample"
+   }
+  },
+  {
+   "item_id": "BT::tot13-20261031-210256-3910997b::master-tot13-anchored__vs__master-tot13-blind",
+   "sample_rule_in_code": {
+    "cases_a": 13,
+    "cases_b": 13,
+    "paired_by_scenario_and_seed": 13,
+    "unpaired_a": 0,
+    "unpaired_b": 0,
+    "ambiguous": 0,
+    "position_mismatches": 0,
+    "matched_judged": 11,
+    "right_on_matched_a": 6,
+    "right_on_matched_b": 6,
+    "rule": "insufficient_sample"
+   }
+  }
+ ],
+ "evidence": {
+  "episodes": 57,
+  "full_traces": 5,
+  "record_only_traces": 52
+ },
+ "reliability": {
+  "episodes_model_unavailable": 11,
+  "termination_reasons": {
+   "diagnosis_supported": 1,
+   "evidence_sufficient": 14,
+   "max_tool_calls": 3,
+   "model_unavailable": 11,
+   "no_useful_action": 8,
+   "timeout": 20
+  },
+  "packets_refused_by_truth_check": []
+ },
+ "judging": {
+  "rows": 7504,
+  "by_status": {
+   "answered": 6564,
+   "not_applicable": 214,
+   "unknown": 726
+  },
+  "by_family": {
+   "BT": {
+    "answered": 4
+   },
+   "FN": {
+    "answered": 1849,
+    "not_applicable": 72,
+    "unknown": 398
+   },
+   "RUN": {
+    "answered": 214,
+    "not_applicable": 142,
+    "unknown": 328
+   },
+   "TL": {
+    "answered": 51
+   },
+   "TS": {
+    "answered": 4446
+   }
+  },
+  "by_question": {
+   "BT-01": {
+    "answered": 2
+   },
+   "BT-02": {
+    "answered": 2
+   },
+   "FN-01": {
+    "answered": 749,
+    "not_applicable": 24
+   },
+   "FN-02": {
+    "answered": 550,
+    "not_applicable": 24,
+    "unknown": 199
+   },
+   "FN-03": {
+    "answered": 550,
+    "not_applicable": 24,
+    "unknown": 199
+   },
+   "RUN-01": {
+    "answered": 5,
+    "not_applicable": 11,
+    "unknown": 41
+   },
+   "RUN-02": {
+    "answered": 5,
+    "not_applicable": 11,
+    "unknown": 41
+   },
+   "RUN-03": {
+    "answered": 46,
+    "not_applicable": 11
+   },
+   "RUN-04": {
+    "answered": 46,
+    "not_applicable": 11
+   },
+   "RUN-05": {
+    "answered": 5,
+    "not_applicable": 11,
+    "unknown": 41
+   },
+   "RUN-06": {
+    "answered": 5,
+    "not_applicable": 11,
+    "unknown": 41
+   },
+   "RUN-07": {
+    "answered": 46,
+    "not_applicable": 11
+   },
+   "RUN-08": {
+    "answered": 5,
+    "not_applicable": 11,
+    "unknown": 41
+   },
+   "RUN-09": {
+    "not_applicable": 16,
+    "unknown": 41
+   },
+   "RUN-10": {
+    "not_applicable": 16,
+    "unknown": 41
+   },
+   "RUN-11": {
+    "answered": 46,
+    "not_applicable": 11
+   },
+   "RUN-12": {
+    "answered": 5,
+    "not_applicable": 11,
+    "unknown": 41
+   },
+   "TL-01": {
+    "answered": 17
+   },
+   "TL-02": {
+    "answered": 17
+   },
+   "TL-03": {
+    "answered": 17
+   },
+   "TS-01": {
+    "answered": 1482
+   },
+   "TS-02": {
+    "answered": 1482
+   },
+   "TS-03": {
+    "answered": 1482
+   }
+  }
+ },
+ "missingness": {
+  "not_applicable": 214,
+  "unknown": 726
+ },
+ "readiness": {
+  "snap": {
+   "key_env": "SUBQ_API_KEY",
+   "key_present": true,
+   "live_contract_verified": true
+  }
+ },
+ "live_budget": {
+  "sent": 2276,
+  "spent_usd": 0.31097880000002187,
+  "stop_reason": null,
+  "reserved_or_settled": 2296
+ }
+}
