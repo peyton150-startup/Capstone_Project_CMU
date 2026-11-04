@@ -23,3 +23,6 @@ venv/
 # monitor and watchdog refuse paths inside a checkout; this catches copies.
 telemetry/
 pilot-data/
+
+# Full-evaluator output folders (archive chosen results under docs/benchmarks/)
+evaluation/full-eval/
