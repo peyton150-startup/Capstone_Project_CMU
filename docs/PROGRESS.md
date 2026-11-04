@@ -10,6 +10,10 @@
 > discovery questions. This expands the existing ingestion/replay and Haas
 > future work; no factory access, deployed service, code or tests were added.
 > Understanding status unchanged (documentation only).
+> **Updated 2026-11-04 after review:** the plan now says what is already built (collector, monitor, watchdog;
+> tested only on the public demo), keeps the first pilot's data on the on-site PC, adds the confirmed Haas MTConnect
+> settings, the real-data provider as the main missing piece, proposed success targets, what one machine can and
+> cannot test, an agreement checklist and revised sizing.
 
 
 > **2026-11-03 — evaluator test attribution and constructor callers (built ungated, developer to review; understood: no):**
