@@ -335,3 +335,56 @@ def test_lines_written_before_markers_existed_still_read_as_observations():
     old_line = json.loads(record.model_dump_json())
     del old_line["record_type"]
     assert parse_line(json.dumps(old_line)) == record
+
+
+# --- keeping shop telemetry out of git checkouts ----------------------------
+
+
+def test_a_checkout_is_found_from_a_git_folder_or_a_worktree_git_file(tmp_path):
+    from capstone.ingestion.privacy import git_checkout_containing
+
+    normal, worktree = tmp_path / "normal", tmp_path / "worktree"
+    (normal / ".git").mkdir(parents=True)
+    worktree.mkdir()
+    (worktree / ".git").write_text("gitdir: elsewhere", encoding="utf-8")
+    assert git_checkout_containing(normal / "data" / "t.jsonl") == normal.resolve()
+    assert git_checkout_containing(worktree / "t.jsonl") == worktree.resolve()
+
+
+def test_a_path_outside_every_checkout_is_allowed():
+    import tempfile
+    from pathlib import Path
+
+    from capstone.ingestion.privacy import git_checkout_containing, refusal
+
+    outside = Path(tempfile.mkdtemp()) / "telemetry.jsonl"
+    if git_checkout_containing(outside) is not None:
+        pytest.skip("the system temp folder is inside a git checkout here")
+    assert refusal(outside, "--out") is None
+
+
+@pytest.mark.parametrize("option", ["--out", "--save-probe"])
+def test_the_collector_refuses_to_write_inside_the_repository(tmp_path, capsys, option):
+    from capstone.ingestion.__main__ import main
+
+    # pytest's scratch folder sits inside this checkout (--basetemp=.pytest-tmp).
+    with pytest.raises(SystemExit) as stop:
+        main(["--url", "http://agent:8082", option, str(tmp_path / "t.jsonl")])
+    assert stop.value.code == 2
+    assert "inside the git checkout" in capsys.readouterr().err
+    assert not (tmp_path / "t.jsonl").exists()
+
+
+@pytest.mark.parametrize("package", ["capstone.monitoring", "capstone.watchdog"])
+def test_monitor_and_watchdog_refuse_alerts_inside_the_repository(
+    tmp_path, capsys, package
+):
+    import importlib
+
+    main = importlib.import_module(f"{package}.__main__").main
+    source = tmp_path / "t.jsonl"
+    source.write_text("", encoding="utf-8")
+    with pytest.raises(SystemExit) as stop:
+        main(["--input", str(source), "--alerts", str(tmp_path / "a.jsonl")])
+    assert stop.value.code == 2
+    assert "inside the git checkout" in capsys.readouterr().err
