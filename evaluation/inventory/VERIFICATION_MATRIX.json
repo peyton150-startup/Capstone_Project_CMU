@@ -41,6 +41,11 @@
   "capstone-code/capstone/evaluation/scoring.py": "c8c75691a07f58c0cf3394279f041218fc18267a511abdbbb259a261b46f39d7",
   "capstone-code/capstone/experiment.py": "e9781e67f2a00b4f9c570aec948c2d52ba42eebe9cb49b10c4fb9130841620be",
   "capstone-code/capstone/faults.py": "f52fc70151782286d8ba7f22345df57d0d575e06c13b8b3076abde92718ee6ae",
+  "capstone-code/capstone/ingestion/__init__.py": "3b889abd9612d202defed04198a7b6e6f1c8f87bc80a46b338407c1ac33f5a8d",
+  "capstone-code/capstone/ingestion/__main__.py": "70f72f05c9d7e51c3146ee86e5609ef1ab54aa5c248488efca2bd99a0e3d89af",
+  "capstone-code/capstone/ingestion/collector.py": "2f1f55d0aaed1483bc4c311ffbc23b912be46e51f1de9a39dffcc5211d7899d0",
+  "capstone-code/capstone/ingestion/mtconnect.py": "8811611c2ab3d463de391296f0e91d1ed470b1756792a01d7980cb45cc112ddc",
+  "capstone-code/capstone/ingestion/record.py": "ab7ffc7d11f205f5f1f29543f017788d02d1433b72adb95131dee6383b89f7ed",
   "capstone-code/capstone/learning.py": "03e1d7083f21cb716e260befe2d8ad3b8b542f2d8a387e0e9f27155c2614ebf7",
   "capstone-code/capstone/manual/__init__.py": "b4e075ea34226bd0df0c76941f4726945173a77db8282c492fd916f89d9c06a3",
   "capstone-code/capstone/manual/index.py": "aa857f6ee0408f2a98d8acd599153153ee4b3c28c8507d04c79d67058573677f",
@@ -57,6 +62,10 @@
   "capstone-code/capstone/memory/semantic.py": "807ef807fda49ca82a1ee3ca0bf06a26f544752fcaff5af06977d9f62178fe48",
   "capstone-code/capstone/memory/service.py": "ed7a6d5466f9b993468829866dfd3a96919f0b4a5970adf82a6753f61fa3d378",
   "capstone-code/capstone/memory_comparison.py": "49a3abaa768403fa21fecba981311b4c217a359aa3621a5e3310fc4565427acd",
+  "capstone-code/capstone/monitoring/__init__.py": "cf843cb64dde298146cf13ffe78da39710c6347b22a58fd316fbfbdd954b3233",
+  "capstone-code/capstone/monitoring/__main__.py": "7e59e5786d8402860e757809efbc0f525cc9f173ffcfc6395aa800f2be11e1b4",
+  "capstone-code/capstone/monitoring/monitor.py": "c5c9b8a591434499e054c145bcb81bc8086aaaa0824bc608e6f52ef9240df6de",
+  "capstone-code/capstone/monitoring/runner.py": "34affc88db9e78776d37edd753eddd108bfbdfa0e3fac7dfb1580dbc3ec09e2f",
   "capstone-code/capstone/observability.py": "f766abea4f5fc94828c0778e182410d1ee3a65a16c54c111caa903436c36be71",
   "capstone-code/capstone/progress.py": "aa3ba7e95d2ebc4e3d5ef146d393a97a55d8228e09995cfab3894004ef043610",
   "capstone-code/capstone/providers/__init__.py": "3c5dc87099f8ec4ac1db4e949c0a54a0025df89af62e93f3e9cb147d5c380b58",
@@ -88,11 +97,14 @@
   "capstone-code/capstone/tools/diagnosis.py": "98ec3bf852d7db2a002c4d8c70f83cfa71ee66046baeea3d6d54f967f3543f55",
   "capstone-code/capstone/tools/errors.py": "32cc03629449f2311ed055f6703988c93c7faf3b4a3e3a97fb578a3d27bb4603",
   "capstone-code/capstone/tools/observation.py": "4d64f302de179883db02219d7f9ad90efae133559dc34a86c80ad21ece6f3504",
+  "capstone-code/capstone/watchdog/__init__.py": "af50d413d5d91898422aba18497f6416d269b1be9067536b45c0117c57573b3a",
+  "capstone-code/capstone/watchdog/__main__.py": "ca993bbef53777a2bae148b4ea7ba2533f78aa1de48507c9b6ad1fea51d182d8",
+  "capstone-code/capstone/watchdog/watchdog.py": "1e4ca11bb08bebee2c9778c0126859bb2c58345b91e3ab456641367782eb50ec",
   "evaluation/evaltools/__init__.py": "4916bb1c8f29e498eb99d345befa0553a6d5528bbb5c2cfe519b555a2889e93d",
   "evaluation/evaltools/build_inventory.py": "c0a26124cf401b0174e7b0c7da2e6d06ccc612d9e8cc420b8d8d77bd00d6128d",
   "evaluation/evaltools/compare_evaluators.py": "7d682c9747846be2dad59477005cc689dfe32c125358302d8d6f9d264da87d79",
   "evaluation/evaltools/decision_models.py": "49cabb0558bf05d6fd1326c0a96a16ecfe7cd2a0ea0bcaaad77310d984289391",
-  "evaluation/evaltools/full_evaluation.py": "198a148ca0ecdd00ed2b5ae3098f3e5f1c4464e5307c251bd45a9a1a6f3e529f",
+  "evaluation/evaltools/full_evaluation.py": "c111844c2e7b9a8fc2ec21a6e3e5a79f5ce1050b767e85f710ba327110aa5b65",
   "evaluation/evaltools/run_packet.py": "581ef7270e2849e98c3d473727c05c9e5728583477567b07e2a081fdcd6e8a3a",
   "evaluation/evaltools/snap_request.py": "3247e8ccc2306fdbacd6885ed6bb50022d991d8f0f1107307370d5a7be02b0eb",
   "evaluation/evaltools/traced_run.py": "bf4b13869577f25697a35cd51009f0ecdb996ec1425097d797c2073d80cf8644",
@@ -113,6 +125,7 @@
   "tests/test_build_line.py": "6d7b84fffe9c760166de3c0c77e9f10b069fc7b2125fb34f1fa120536651e85d",
   "tests/test_chat_client.py": "b33d5fe7dc40c4399b01b379abcc085ed9e5087f30278e0316b89774ade9e7d8",
   "tests/test_clock.py": "39b154ee0e5451edd84b27d76d1871c9e4cc48a83acf27e522b8a915bef8e4e5",
+  "tests/test_collector_watchdog.py": "e47c2ce52372bb414c382468600014f6453e9e5ef094e8ff103246b303a71cc3",
   "tests/test_console.py": "7961f89d846a105c98c9a01fb936c4233d4fe6bdc75ea5749b96d9b71cfe75d1",
   "tests/test_contracts.py": "4475acc6ae588f691e3f747d8e039d61bec99c87b1dbb771ce2225199cbd8763",
   "tests/test_critic.py": "2044f1f8f7b25fe8418ecdd528d7185ed1646fa06cdf38638f62fcb6354883e7",
@@ -154,6 +167,7 @@
   "tests/test_memory_semantic.py": "58b59bd4078c5d1c4e86a96a33a556e4c4e2e512bff945df2c817dfad59e5d1c",
   "tests/test_migrations.py": "bf4a497093c603e26cb29f39147c135440be9b50514176afb806617863f8bca3",
   "tests/test_model_policy.py": "1a36247d7dea6a7ffb84a59fd53932d6020d4e29a1eacab515be3c56519bb069",
+  "tests/test_mtconnect_ingestion.py": "0b5035ea56af41d1720b98c298d598e441973d4f0e2393f345fe1afefe2c1f69",
   "tests/test_observability.py": "c3b06b5442c44756f9fa4d346829e8a8402c546568f122c855da479129307e47",
   "tests/test_observation_tools.py": "707e45d47d2be5ab5ba703f913e3abbae574b643cda31a2f666084ab8e957659",
   "tests/test_power_sensor.py": "832bacdc2d89d300259bba28c086a69ac84fdd4330a84e231920a16d3da62e69",
@@ -176,6 +190,7 @@
   "tests/test_simulator_disturbances.py": "c954ea0a72e017bae22eb3007e360260e4e84acc6e621c49224d2570fb0d77bb",
   "tests/test_slow_when_worn.py": "bf11ea04d9852380e78a07b2a55e296f0f416019070a2af6caa711e92d7ddd98",
   "tests/test_state.py": "77d3a1256d4d6ebee6524eb9b1619c88d89128d38d7fb3fc058353ac5a974d53",
+  "tests/test_telemetry_monitor.py": "8054b44f8bededa32476d746e57e01feda2daf024c0ce9fa563edf5679cf1215",
   "tests/test_temperature_sensor.py": "54f3c7bc53883ea0c86ec11b6cd8dbf372795a891a754db9f3e06389ef6400b7",
   "tests/test_thermal_lag.py": "f7386763b100f75c82b6ff1ad34c630828ce2f2be55a1e10e633589dfeb117cb",
   "tests/test_thermometer.py": "c13320d0e57285c4b4c55fefb000e4e8f8ed077033117949f02cd2da7aa7817c",
@@ -185,29 +200,29 @@
   "tests/test_wait_tool.py": "a52271a89eb75efbc9c862c4ad85d3d20a1f5dbc2f92f4eb149d01b7f0c99b6b",
   "tests/test_wrong_setting.py": "a7dcc4186bcee6a5980da4fc1f7a47c1b9210055618a88756e44a1991e39de47"
  },
- "coverage_sha256": "0eae9579241586021cb8d98ca9b2bb78c6b1787e0cd07fc0247ecb415f118f64",
- "junit_sha256": "a098b15f51acb27d8f127a970e62f971d1bd14dc45bca87ffacf0686bc018713",
+ "coverage_sha256": "4fd5d127848167ada933436b28f01d9a1eb304e42941737c4f715622a51873c2",
+ "junit_sha256": "5bd68b7d1161d45b65287dd903bc2a9e208090c2a154115b63837d197871b313",
  "counts": {
-  "functions": 723,
+  "functions": 768,
   "classes_note": "classes are listed through their methods",
-  "tests": 1417,
+  "tests": 1465,
   "tools": 17,
   "functions_by_status": {
-   "INSUFFICIENT EVIDENCE": 268,
+   "INSUFFICIENT EVIDENCE": 297,
    "NOT APPLICABLE": 24,
-   "NOT TESTED": 32,
-   "PARTIALLY VERIFIED": 354,
+   "NOT TESTED": 36,
+   "PARTIALLY VERIFIED": 366,
    "VERIFIED": 45
   },
   "functions_by_coverage_class": {
-   "direct": 383,
+   "direct": 395,
    "import-only": 3,
-   "indirect": 281,
+   "indirect": 310,
    "no-statements": 24,
-   "none": 32
+   "none": 36
   },
-  "functions_executed_in_tests": 664,
-  "functions_with_direct_tests": 383,
+  "functions_executed_in_tests": 705,
+  "functions_with_direct_tests": 395,
   "functions_never_executed": [
    "capstone.baseline:_seeds",
    "capstone.baseline:main",
@@ -216,6 +231,9 @@
    "capstone.evals:main.<locals>.save_record",
    "capstone.evals:main.<locals>.show_progress",
    "capstone.experiment:open_memory",
+   "capstone.ingestion.__main__:main",
+   "capstone.ingestion.collector:utc_now",
+   "capstone.ingestion.collector:MTConnectCollector.probe",
    "capstone.manual.index:ready_manual_index",
    "capstone.manual.index:open_manual_index",
    "capstone.manual.index:main",
@@ -223,6 +241,7 @@
    "capstone.memory.duplicate_threshold:main",
    "capstone.memory.semantic:default_embedder",
    "capstone.memory_comparison:open_store_and_index",
+   "capstone.monitoring.__main__:parse_threshold",
    "capstone.providers.chat:FallbackClient.__repr__",
    "capstone.simulator.clock:SimulationClock.tick_duration",
    "capstone.simulator.disturbances:_SensorDisturbance._effect",
@@ -260,9 +279,12 @@
    "capstone.evaluation.memory:MemoryPromotionRecord.consistent_storage (3/5)",
    "capstone.evaluation.scoring:Score.unnecessary_actions (3/5)",
    "capstone.experiment:_right (2/3)",
+   "capstone.ingestion.collector:http_get (7/9)",
+   "capstone.ingestion.mtconnect:parse_streams (19/24)",
    "capstone.memory.contracts:PromotionDecision.consistent_decision (4/7)",
    "capstone.memory.semantic:ChromaMemoryIndex.search (3/4)",
    "capstone.memory_comparison:main (25/37)",
+   "capstone.monitoring.__main__:main (13/20)",
    "capstone.progress:belief (2/3)",
    "capstone.progress:main (10/19)",
    "capstone.simulator.scenarios:HydraulicLeak.__init__ (7/9)",
@@ -277,13 +299,15 @@
    "evaluation.evaltools.run_packet:configuration_of (7/9)",
    "evaluation.evaltools.snap_request:DecisionQuestion.criteria_fit_type (5/9)",
    "evaluation.evaltools.snap_request:load_questions (7/9)",
+   "evaluation.evaltools.snap_request:test_source (5/7)",
    "evaluation.evaltools.snap_request:describe_failure (2/5)",
    "evaluation.evaltools.snap_request:already_answered (6/8)",
    "evaluation.evaltools.traced_run:main (18/42)"
   ],
   "stubs_or_protocols": 24,
   "tests_by_outcome": {
-   "passed": 1417
+   "failed": 1,
+   "passed": 1464
   },
   "tests_with_no_assertion": [
    "tests/test_console.py::test_without_it_the_same_print_raised"
@@ -430,6 +454,7 @@
    "tests/test_state.py::test_bearing_health_outside_unit_interval_is_rejected_on_assignment",
    "tests/test_state.py::test_empty_id_is_rejected",
    "tests/test_state.py::test_condition_is_structurally_separable_from_observable_facts",
+   "tests/test_telemetry_monitor.py::test_monitoring_is_plain_code_with_no_model_clock_or_network",
    "tests/test_tree_of_thought.py::test_the_rating_prompt_asks_for_the_contradicting_evidence",
    "tests/test_tree_of_thought.py::test_the_model_s_reply_type_has_no_pruned_field",
    "tests/test_tree_of_thought.py::test_older_trees_read_without_unresolved",
@@ -572,6 +597,26 @@
    "executed": 10,
    "direct": 6
   },
+  "capstone.ingestion.__main__": {
+   "functions": 1,
+   "executed": 0,
+   "direct": 0
+  },
+  "capstone.ingestion.collector": {
+   "functions": 9,
+   "executed": 7,
+   "direct": 4
+  },
+  "capstone.ingestion.mtconnect": {
+   "functions": 7,
+   "executed": 7,
+   "direct": 0
+  },
+  "capstone.ingestion.record": {
+   "functions": 2,
+   "executed": 2,
+   "direct": 0
+  },
   "capstone.learning": {
    "functions": 1,
    "executed": 1,
@@ -636,6 +681,21 @@
    "functions": 13,
    "executed": 12,
    "direct": 12
+  },
+  "capstone.monitoring.__main__": {
+   "functions": 2,
+   "executed": 1,
+   "direct": 0
+  },
+  "capstone.monitoring.monitor": {
+   "functions": 13,
+   "executed": 13,
+   "direct": 5
+  },
+  "capstone.monitoring.runner": {
+   "functions": 4,
+   "executed": 4,
+   "direct": 1
   },
   "capstone.observability": {
    "functions": 4,
@@ -761,6 +821,16 @@
    "functions": 14,
    "executed": 14,
    "direct": 10
+  },
+  "capstone.watchdog.__main__": {
+   "functions": 2,
+   "executed": 2,
+   "direct": 0
+  },
+  "capstone.watchdog.watchdog": {
+   "functions": 5,
+   "executed": 5,
+   "direct": 2
   },
   "evaluation.evaltools.build_inventory": {
    "functions": 24,
@@ -6182,6 +6252,290 @@
    ],
    "indirect": []
   },
+  "capstone.ingestion.__main__:main": {
+   "count": 0,
+   "status": "NOT TESTED",
+   "direct": [],
+   "indirect": []
+  },
+  "capstone.ingestion.collector:http_get": {
+   "count": 1,
+   "status": "PARTIALLY VERIFIED",
+   "direct": [
+    "tests/test_mtconnect_ingestion.py::test_http_get_sends_only_get_and_reads_error_bodies"
+   ],
+   "indirect": []
+  },
+  "capstone.ingestion.collector:utc_now": {
+   "count": 0,
+   "status": "NOT TESTED",
+   "direct": [],
+   "indirect": []
+  },
+  "capstone.ingestion.collector:MTConnectCollector.__init__": {
+   "count": 13,
+   "status": "INSUFFICIENT EVIDENCE",
+   "direct": [],
+   "indirect": [
+    "tests/test_collector_watchdog.py::test_a_quiet_machine_gets_a_heartbeat_every_minute",
+    "tests/test_collector_watchdog.py::test_failed_polls_never_write_a_heartbeat",
+    "tests/test_mtconnect_ingestion.py::test_a_crash_writes_no_stop_marker",
+    "tests/test_mtconnect_ingestion.py::test_agent_restart_discards_old_sequences_and_restarts",
+    "tests/test_mtconnect_ingestion.py::test_buffer_overrun_is_reported_as_a_gap",
+    "tests/test_mtconnect_ingestion.py::test_ctrl_c_writes_a_clean_stop_and_keeps_the_count",
+    "tests/test_mtconnect_ingestion.py::test_device_scopes_every_request",
+    "tests/test_mtconnect_ingestion.py::test_first_poll_reads_current_then_samples_from_next_sequence",
+    "tests/test_mtconnect_ingestion.py::test_more_waiting_when_the_agent_holds_more_than_one_request",
+    "tests/test_mtconnect_ingestion.py::test_out_of_range_reports_a_gap_and_restarts_from_current",
+    "tests/test_mtconnect_ingestion.py::test_run_collector_refuses_to_poll_faster_than_the_minimum",
+    "tests/test_mtconnect_ingestion.py::test_run_collector_writes_jsonl_and_survives_failures"
+   ]
+  },
+  "capstone.ingestion.collector:MTConnectCollector._url": {
+   "count": 12,
+   "status": "INSUFFICIENT EVIDENCE",
+   "direct": [],
+   "indirect": [
+    "tests/test_collector_watchdog.py::test_a_quiet_machine_gets_a_heartbeat_every_minute",
+    "tests/test_collector_watchdog.py::test_failed_polls_never_write_a_heartbeat",
+    "tests/test_mtconnect_ingestion.py::test_a_crash_writes_no_stop_marker",
+    "tests/test_mtconnect_ingestion.py::test_agent_restart_discards_old_sequences_and_restarts",
+    "tests/test_mtconnect_ingestion.py::test_buffer_overrun_is_reported_as_a_gap",
+    "tests/test_mtconnect_ingestion.py::test_ctrl_c_writes_a_clean_stop_and_keeps_the_count",
+    "tests/test_mtconnect_ingestion.py::test_device_scopes_every_request",
+    "tests/test_mtconnect_ingestion.py::test_first_poll_reads_current_then_samples_from_next_sequence",
+    "tests/test_mtconnect_ingestion.py::test_more_waiting_when_the_agent_holds_more_than_one_request",
+    "tests/test_mtconnect_ingestion.py::test_out_of_range_reports_a_gap_and_restarts_from_current",
+    "tests/test_mtconnect_ingestion.py::test_run_collector_writes_jsonl_and_survives_failures",
+    "tests/test_mtconnect_ingestion.py::test_sample_drops_records_already_seen"
+   ]
+  },
+  "capstone.ingestion.collector:MTConnectCollector.probe": {
+   "count": 0,
+   "status": "NOT TESTED",
+   "direct": [],
+   "indirect": []
+  },
+  "capstone.ingestion.collector:MTConnectCollector.poll": {
+   "count": 12,
+   "status": "PARTIALLY VERIFIED",
+   "direct": [
+    "tests/test_mtconnect_ingestion.py::test_first_poll_reads_current_then_samples_from_next_sequence"
+   ],
+   "indirect": [
+    "tests/test_collector_watchdog.py::test_a_quiet_machine_gets_a_heartbeat_every_minute",
+    "tests/test_collector_watchdog.py::test_failed_polls_never_write_a_heartbeat",
+    "tests/test_mtconnect_ingestion.py::test_a_crash_writes_no_stop_marker",
+    "tests/test_mtconnect_ingestion.py::test_agent_restart_discards_old_sequences_and_restarts",
+    "tests/test_mtconnect_ingestion.py::test_buffer_overrun_is_reported_as_a_gap",
+    "tests/test_mtconnect_ingestion.py::test_ctrl_c_writes_a_clean_stop_and_keeps_the_count",
+    "tests/test_mtconnect_ingestion.py::test_device_scopes_every_request",
+    "tests/test_mtconnect_ingestion.py::test_more_waiting_when_the_agent_holds_more_than_one_request",
+    "tests/test_mtconnect_ingestion.py::test_out_of_range_reports_a_gap_and_restarts_from_current",
+    "tests/test_mtconnect_ingestion.py::test_run_collector_writes_jsonl_and_survives_failures",
+    "tests/test_mtconnect_ingestion.py::test_sample_drops_records_already_seen"
+   ]
+  },
+  "capstone.ingestion.collector:append_jsonl": {
+   "count": 5,
+   "status": "INSUFFICIENT EVIDENCE",
+   "direct": [],
+   "indirect": [
+    "tests/test_collector_watchdog.py::test_a_quiet_machine_gets_a_heartbeat_every_minute",
+    "tests/test_collector_watchdog.py::test_failed_polls_never_write_a_heartbeat",
+    "tests/test_mtconnect_ingestion.py::test_a_crash_writes_no_stop_marker",
+    "tests/test_mtconnect_ingestion.py::test_ctrl_c_writes_a_clean_stop_and_keeps_the_count",
+    "tests/test_mtconnect_ingestion.py::test_run_collector_writes_jsonl_and_survives_failures"
+   ]
+  },
+  "capstone.ingestion.collector:run_collector": {
+   "count": 6,
+   "status": "PARTIALLY VERIFIED",
+   "direct": [
+    "tests/test_mtconnect_ingestion.py::test_run_collector_refuses_to_poll_faster_than_the_minimum",
+    "tests/test_mtconnect_ingestion.py::test_run_collector_writes_jsonl_and_survives_failures"
+   ],
+   "indirect": [
+    "tests/test_collector_watchdog.py::test_a_quiet_machine_gets_a_heartbeat_every_minute",
+    "tests/test_collector_watchdog.py::test_failed_polls_never_write_a_heartbeat",
+    "tests/test_mtconnect_ingestion.py::test_a_crash_writes_no_stop_marker",
+    "tests/test_mtconnect_ingestion.py::test_ctrl_c_writes_a_clean_stop_and_keeps_the_count"
+   ]
+  },
+  "capstone.ingestion.collector:_marker": {
+   "count": 5,
+   "status": "PARTIALLY VERIFIED",
+   "direct": [
+    "tests/test_mtconnect_ingestion.py::test_a_crash_writes_no_stop_marker"
+   ],
+   "indirect": [
+    "tests/test_collector_watchdog.py::test_a_quiet_machine_gets_a_heartbeat_every_minute",
+    "tests/test_collector_watchdog.py::test_failed_polls_never_write_a_heartbeat",
+    "tests/test_mtconnect_ingestion.py::test_ctrl_c_writes_a_clean_stop_and_keeps_the_count",
+    "tests/test_mtconnect_ingestion.py::test_run_collector_writes_jsonl_and_survives_failures"
+   ]
+  },
+  "capstone.ingestion.mtconnect:MTConnectError.__init__": {
+   "count": 2,
+   "status": "INSUFFICIENT EVIDENCE",
+   "direct": [],
+   "indirect": [
+    "tests/test_mtconnect_ingestion.py::test_error_documents_raise_with_their_codes",
+    "tests/test_mtconnect_ingestion.py::test_out_of_range_reports_a_gap_and_restarts_from_current"
+   ]
+  },
+  "capstone.ingestion.mtconnect:_local": {
+   "count": 18,
+   "status": "INSUFFICIENT EVIDENCE",
+   "direct": [],
+   "indirect": [
+    "tests/test_collector_watchdog.py::test_a_quiet_machine_gets_a_heartbeat_every_minute",
+    "tests/test_mtconnect_ingestion.py::test_agent_restart_discards_old_sequences_and_restarts",
+    "tests/test_mtconnect_ingestion.py::test_buffer_overrun_is_reported_as_a_gap",
+    "tests/test_mtconnect_ingestion.py::test_ctrl_c_writes_a_clean_stop_and_keeps_the_count",
+    "tests/test_mtconnect_ingestion.py::test_dataset_entries_are_stored_as_sorted_json",
+    "tests/test_mtconnect_ingestion.py::test_device_scopes_every_request",
+    "tests/test_mtconnect_ingestion.py::test_error_documents_raise_with_their_codes",
+    "tests/test_mtconnect_ingestion.py::test_first_poll_reads_current_then_samples_from_next_sequence",
+    "tests/test_mtconnect_ingestion.py::test_lines_written_before_markers_existed_still_read_as_observations",
+    "tests/test_mtconnect_ingestion.py::test_more_waiting_when_the_agent_holds_more_than_one_request",
+    "tests/test_mtconnect_ingestion.py::test_older_schema_namespace_parses_the_same",
+    "tests/test_mtconnect_ingestion.py::test_out_of_range_reports_a_gap_and_restarts_from_current"
+   ]
+  },
+  "capstone.ingestion.mtconnect:_child": {
+   "count": 18,
+   "status": "INSUFFICIENT EVIDENCE",
+   "direct": [],
+   "indirect": [
+    "tests/test_collector_watchdog.py::test_a_quiet_machine_gets_a_heartbeat_every_minute",
+    "tests/test_mtconnect_ingestion.py::test_agent_restart_discards_old_sequences_and_restarts",
+    "tests/test_mtconnect_ingestion.py::test_buffer_overrun_is_reported_as_a_gap",
+    "tests/test_mtconnect_ingestion.py::test_ctrl_c_writes_a_clean_stop_and_keeps_the_count",
+    "tests/test_mtconnect_ingestion.py::test_dataset_entries_are_stored_as_sorted_json",
+    "tests/test_mtconnect_ingestion.py::test_device_scopes_every_request",
+    "tests/test_mtconnect_ingestion.py::test_error_documents_raise_with_their_codes",
+    "tests/test_mtconnect_ingestion.py::test_first_poll_reads_current_then_samples_from_next_sequence",
+    "tests/test_mtconnect_ingestion.py::test_lines_written_before_markers_existed_still_read_as_observations",
+    "tests/test_mtconnect_ingestion.py::test_more_waiting_when_the_agent_holds_more_than_one_request",
+    "tests/test_mtconnect_ingestion.py::test_older_schema_namespace_parses_the_same",
+    "tests/test_mtconnect_ingestion.py::test_out_of_range_reports_a_gap_and_restarts_from_current"
+   ]
+  },
+  "capstone.ingestion.mtconnect:_value": {
+   "count": 12,
+   "status": "INSUFFICIENT EVIDENCE",
+   "direct": [],
+   "indirect": [
+    "tests/test_mtconnect_ingestion.py::test_agent_restart_discards_old_sequences_and_restarts",
+    "tests/test_mtconnect_ingestion.py::test_ctrl_c_writes_a_clean_stop_and_keeps_the_count",
+    "tests/test_mtconnect_ingestion.py::test_dataset_entries_are_stored_as_sorted_json",
+    "tests/test_mtconnect_ingestion.py::test_first_poll_reads_current_then_samples_from_next_sequence",
+    "tests/test_mtconnect_ingestion.py::test_lines_written_before_markers_existed_still_read_as_observations",
+    "tests/test_mtconnect_ingestion.py::test_older_schema_namespace_parses_the_same",
+    "tests/test_mtconnect_ingestion.py::test_parse_maps_samples_events_and_conditions",
+    "tests/test_mtconnect_ingestion.py::test_parse_reads_header_and_sorts_records_by_sequence",
+    "tests/test_mtconnect_ingestion.py::test_records_round_trip_through_json",
+    "tests/test_mtconnect_ingestion.py::test_run_collector_writes_jsonl_and_survives_failures",
+    "tests/test_mtconnect_ingestion.py::test_sample_drops_records_already_seen",
+    "tests/test_mtconnect_ingestion.py::test_unavailable_stays_missing_and_is_never_zero"
+   ]
+  },
+  "capstone.ingestion.mtconnect:raise_if_error": {
+   "count": 18,
+   "status": "INSUFFICIENT EVIDENCE",
+   "direct": [],
+   "indirect": [
+    "tests/test_collector_watchdog.py::test_a_quiet_machine_gets_a_heartbeat_every_minute",
+    "tests/test_mtconnect_ingestion.py::test_agent_restart_discards_old_sequences_and_restarts",
+    "tests/test_mtconnect_ingestion.py::test_buffer_overrun_is_reported_as_a_gap",
+    "tests/test_mtconnect_ingestion.py::test_ctrl_c_writes_a_clean_stop_and_keeps_the_count",
+    "tests/test_mtconnect_ingestion.py::test_dataset_entries_are_stored_as_sorted_json",
+    "tests/test_mtconnect_ingestion.py::test_device_scopes_every_request",
+    "tests/test_mtconnect_ingestion.py::test_error_documents_raise_with_their_codes",
+    "tests/test_mtconnect_ingestion.py::test_first_poll_reads_current_then_samples_from_next_sequence",
+    "tests/test_mtconnect_ingestion.py::test_lines_written_before_markers_existed_still_read_as_observations",
+    "tests/test_mtconnect_ingestion.py::test_more_waiting_when_the_agent_holds_more_than_one_request",
+    "tests/test_mtconnect_ingestion.py::test_older_schema_namespace_parses_the_same",
+    "tests/test_mtconnect_ingestion.py::test_out_of_range_reports_a_gap_and_restarts_from_current"
+   ]
+  },
+  "capstone.ingestion.mtconnect:parse_streams": {
+   "count": 18,
+   "status": "INSUFFICIENT EVIDENCE",
+   "direct": [],
+   "indirect": [
+    "tests/test_collector_watchdog.py::test_a_quiet_machine_gets_a_heartbeat_every_minute",
+    "tests/test_mtconnect_ingestion.py::test_agent_restart_discards_old_sequences_and_restarts",
+    "tests/test_mtconnect_ingestion.py::test_buffer_overrun_is_reported_as_a_gap",
+    "tests/test_mtconnect_ingestion.py::test_ctrl_c_writes_a_clean_stop_and_keeps_the_count",
+    "tests/test_mtconnect_ingestion.py::test_dataset_entries_are_stored_as_sorted_json",
+    "tests/test_mtconnect_ingestion.py::test_device_scopes_every_request",
+    "tests/test_mtconnect_ingestion.py::test_error_documents_raise_with_their_codes",
+    "tests/test_mtconnect_ingestion.py::test_first_poll_reads_current_then_samples_from_next_sequence",
+    "tests/test_mtconnect_ingestion.py::test_lines_written_before_markers_existed_still_read_as_observations",
+    "tests/test_mtconnect_ingestion.py::test_more_waiting_when_the_agent_holds_more_than_one_request",
+    "tests/test_mtconnect_ingestion.py::test_older_schema_namespace_parses_the_same",
+    "tests/test_mtconnect_ingestion.py::test_out_of_range_reports_a_gap_and_restarts_from_current"
+   ]
+  },
+  "capstone.ingestion.mtconnect:_record": {
+   "count": 12,
+   "status": "INSUFFICIENT EVIDENCE",
+   "direct": [],
+   "indirect": [
+    "tests/test_mtconnect_ingestion.py::test_agent_restart_discards_old_sequences_and_restarts",
+    "tests/test_mtconnect_ingestion.py::test_ctrl_c_writes_a_clean_stop_and_keeps_the_count",
+    "tests/test_mtconnect_ingestion.py::test_dataset_entries_are_stored_as_sorted_json",
+    "tests/test_mtconnect_ingestion.py::test_first_poll_reads_current_then_samples_from_next_sequence",
+    "tests/test_mtconnect_ingestion.py::test_lines_written_before_markers_existed_still_read_as_observations",
+    "tests/test_mtconnect_ingestion.py::test_older_schema_namespace_parses_the_same",
+    "tests/test_mtconnect_ingestion.py::test_parse_maps_samples_events_and_conditions",
+    "tests/test_mtconnect_ingestion.py::test_parse_reads_header_and_sorts_records_by_sequence",
+    "tests/test_mtconnect_ingestion.py::test_records_round_trip_through_json",
+    "tests/test_mtconnect_ingestion.py::test_run_collector_writes_jsonl_and_survives_failures",
+    "tests/test_mtconnect_ingestion.py::test_sample_drops_records_already_seen",
+    "tests/test_mtconnect_ingestion.py::test_unavailable_stays_missing_and_is_never_zero"
+   ]
+  },
+  "capstone.ingestion.record:TelemetryRecord.number": {
+   "count": 17,
+   "status": "INSUFFICIENT EVIDENCE",
+   "direct": [],
+   "indirect": [
+    "tests/test_collector_watchdog.py::test_the_monitor_counts_a_heartbeat_as_contact",
+    "tests/test_mtconnect_ingestion.py::test_parse_maps_samples_events_and_conditions",
+    "tests/test_mtconnect_ingestion.py::test_unavailable_stays_missing_and_is_never_zero",
+    "tests/test_telemetry_monitor.py::test_a_clean_stop_and_later_start_is_not_stale",
+    "tests/test_telemetry_monitor.py::test_a_start_without_a_clean_stop_warns_of_a_crash",
+    "tests/test_telemetry_monitor.py::test_channel_going_unavailable_alerts_and_recovers",
+    "tests/test_telemetry_monitor.py::test_command_line_replay_writes_alerts",
+    "tests/test_telemetry_monitor.py::test_condition_alerts_once_escalates_and_recovers",
+    "tests/test_telemetry_monitor.py::test_data_without_a_start_marker_counts_as_a_running_collector",
+    "tests/test_telemetry_monitor.py::test_emergency_stop_triggered_is_a_fault",
+    "tests/test_telemetry_monitor.py::test_following_a_file_in_pieces_gives_the_same_alerts_as_replaying_it",
+    "tests/test_telemetry_monitor.py::test_replay_is_deterministic"
+   ]
+  },
+  "capstone.ingestion.record:parse_line": {
+   "count": 12,
+   "status": "INSUFFICIENT EVIDENCE",
+   "direct": [],
+   "indirect": [
+    "tests/test_collector_watchdog.py::test_a_quiet_machine_gets_a_heartbeat_every_minute",
+    "tests/test_collector_watchdog.py::test_command_line_reports_a_dead_collector",
+    "tests/test_collector_watchdog.py::test_failed_polls_never_write_a_heartbeat",
+    "tests/test_collector_watchdog.py::test_last_line_skips_a_half_written_line_and_bad_lines",
+    "tests/test_mtconnect_ingestion.py::test_a_crash_writes_no_stop_marker",
+    "tests/test_mtconnect_ingestion.py::test_ctrl_c_writes_a_clean_stop_and_keeps_the_count",
+    "tests/test_mtconnect_ingestion.py::test_lines_written_before_markers_existed_still_read_as_observations",
+    "tests/test_mtconnect_ingestion.py::test_run_collector_writes_jsonl_and_survives_failures",
+    "tests/test_telemetry_monitor.py::test_command_line_replay_writes_alerts",
+    "tests/test_telemetry_monitor.py::test_follower_reads_markers_and_observations",
+    "tests/test_telemetry_monitor.py::test_follower_reads_only_complete_lines_and_skips_bad_ones",
+    "tests/test_telemetry_monitor.py::test_following_a_file_in_pieces_gives_the_same_alerts_as_replaying_it"
+   ]
+  },
   "capstone.learning:learn_from": {
    "count": 33,
    "status": "VERIFIED",
@@ -7511,6 +7865,292 @@
     "tests/test_memory_comparison.py::test_the_command_reports_a_results_file"
    ],
    "indirect": []
+  },
+  "capstone.monitoring.__main__:parse_threshold": {
+   "count": 0,
+   "status": "NOT TESTED",
+   "direct": [],
+   "indirect": []
+  },
+  "capstone.monitoring.__main__:main": {
+   "count": 1,
+   "status": "INSUFFICIENT EVIDENCE",
+   "direct": [],
+   "indirect": [
+    "tests/test_telemetry_monitor.py::test_command_line_replay_writes_alerts"
+   ]
+  },
+  "capstone.monitoring.monitor:Monitor.__init__": {
+   "count": 15,
+   "status": "INSUFFICIENT EVIDENCE",
+   "direct": [],
+   "indirect": [
+    "tests/test_collector_watchdog.py::test_the_monitor_counts_a_heartbeat_as_contact",
+    "tests/test_telemetry_monitor.py::test_a_clean_stop_and_later_start_is_not_stale",
+    "tests/test_telemetry_monitor.py::test_a_start_without_a_clean_stop_warns_of_a_crash",
+    "tests/test_telemetry_monitor.py::test_channel_going_unavailable_alerts_and_recovers",
+    "tests/test_telemetry_monitor.py::test_command_line_replay_writes_alerts",
+    "tests/test_telemetry_monitor.py::test_condition_alerts_once_escalates_and_recovers",
+    "tests/test_telemetry_monitor.py::test_data_without_a_start_marker_counts_as_a_running_collector",
+    "tests/test_telemetry_monitor.py::test_emergency_stop_triggered_is_a_fault",
+    "tests/test_telemetry_monitor.py::test_following_a_file_in_pieces_gives_the_same_alerts_as_replaying_it",
+    "tests/test_telemetry_monitor.py::test_replay_is_deterministic",
+    "tests/test_telemetry_monitor.py::test_silence_in_a_recording_is_found_without_the_wall_clock",
+    "tests/test_telemetry_monitor.py::test_stale_is_reported_once_per_silence"
+   ]
+  },
+  "capstone.monitoring.monitor:Monitor.observe": {
+   "count": 15,
+   "status": "INSUFFICIENT EVIDENCE",
+   "direct": [],
+   "indirect": [
+    "tests/test_collector_watchdog.py::test_the_monitor_counts_a_heartbeat_as_contact",
+    "tests/test_telemetry_monitor.py::test_a_clean_stop_and_later_start_is_not_stale",
+    "tests/test_telemetry_monitor.py::test_a_start_without_a_clean_stop_warns_of_a_crash",
+    "tests/test_telemetry_monitor.py::test_channel_going_unavailable_alerts_and_recovers",
+    "tests/test_telemetry_monitor.py::test_command_line_replay_writes_alerts",
+    "tests/test_telemetry_monitor.py::test_condition_alerts_once_escalates_and_recovers",
+    "tests/test_telemetry_monitor.py::test_data_without_a_start_marker_counts_as_a_running_collector",
+    "tests/test_telemetry_monitor.py::test_emergency_stop_triggered_is_a_fault",
+    "tests/test_telemetry_monitor.py::test_following_a_file_in_pieces_gives_the_same_alerts_as_replaying_it",
+    "tests/test_telemetry_monitor.py::test_replay_is_deterministic",
+    "tests/test_telemetry_monitor.py::test_silence_in_a_recording_is_found_without_the_wall_clock",
+    "tests/test_telemetry_monitor.py::test_stale_is_reported_once_per_silence"
+   ]
+  },
+  "capstone.monitoring.monitor:Monitor.observe_marker": {
+   "count": 4,
+   "status": "INSUFFICIENT EVIDENCE",
+   "direct": [],
+   "indirect": [
+    "tests/test_collector_watchdog.py::test_the_monitor_counts_a_heartbeat_as_contact",
+    "tests/test_telemetry_monitor.py::test_a_clean_stop_and_later_start_is_not_stale",
+    "tests/test_telemetry_monitor.py::test_a_start_without_a_clean_stop_warns_of_a_crash",
+    "tests/test_telemetry_monitor.py::test_data_without_a_start_marker_counts_as_a_running_collector"
+   ]
+  },
+  "capstone.monitoring.monitor:Monitor._collector": {
+   "count": 4,
+   "status": "PARTIALLY VERIFIED",
+   "direct": [
+    "tests/test_collector_watchdog.py::test_the_monitor_counts_a_heartbeat_as_contact",
+    "tests/test_telemetry_monitor.py::test_data_without_a_start_marker_counts_as_a_running_collector"
+   ],
+   "indirect": [
+    "tests/test_telemetry_monitor.py::test_a_clean_stop_and_later_start_is_not_stale",
+    "tests/test_telemetry_monitor.py::test_a_start_without_a_clean_stop_warns_of_a_crash"
+   ]
+  },
+  "capstone.monitoring.monitor:Monitor.check_stale": {
+   "count": 15,
+   "status": "INSUFFICIENT EVIDENCE",
+   "direct": [],
+   "indirect": [
+    "tests/test_collector_watchdog.py::test_the_monitor_counts_a_heartbeat_as_contact",
+    "tests/test_telemetry_monitor.py::test_a_clean_stop_and_later_start_is_not_stale",
+    "tests/test_telemetry_monitor.py::test_a_start_without_a_clean_stop_warns_of_a_crash",
+    "tests/test_telemetry_monitor.py::test_channel_going_unavailable_alerts_and_recovers",
+    "tests/test_telemetry_monitor.py::test_command_line_replay_writes_alerts",
+    "tests/test_telemetry_monitor.py::test_condition_alerts_once_escalates_and_recovers",
+    "tests/test_telemetry_monitor.py::test_data_without_a_start_marker_counts_as_a_running_collector",
+    "tests/test_telemetry_monitor.py::test_emergency_stop_triggered_is_a_fault",
+    "tests/test_telemetry_monitor.py::test_following_a_file_in_pieces_gives_the_same_alerts_as_replaying_it",
+    "tests/test_telemetry_monitor.py::test_replay_is_deterministic",
+    "tests/test_telemetry_monitor.py::test_silence_in_a_recording_is_found_without_the_wall_clock",
+    "tests/test_telemetry_monitor.py::test_stale_is_reported_once_per_silence"
+   ]
+  },
+  "capstone.monitoring.monitor:Monitor._start": {
+   "count": 6,
+   "status": "PARTIALLY VERIFIED",
+   "direct": [
+    "tests/test_telemetry_monitor.py::test_a_start_without_a_clean_stop_warns_of_a_crash"
+   ],
+   "indirect": [
+    "tests/test_telemetry_monitor.py::test_channel_going_unavailable_alerts_and_recovers",
+    "tests/test_telemetry_monitor.py::test_following_a_file_in_pieces_gives_the_same_alerts_as_replaying_it",
+    "tests/test_telemetry_monitor.py::test_silence_in_a_recording_is_found_without_the_wall_clock",
+    "tests/test_telemetry_monitor.py::test_stale_is_reported_once_per_silence",
+    "tests/test_telemetry_monitor.py::test_threshold_by_id_or_name_fires_once_and_recovers"
+   ]
+  },
+  "capstone.monitoring.monitor:Monitor._end": {
+   "count": 15,
+   "status": "INSUFFICIENT EVIDENCE",
+   "direct": [],
+   "indirect": [
+    "tests/test_collector_watchdog.py::test_the_monitor_counts_a_heartbeat_as_contact",
+    "tests/test_telemetry_monitor.py::test_a_clean_stop_and_later_start_is_not_stale",
+    "tests/test_telemetry_monitor.py::test_a_start_without_a_clean_stop_warns_of_a_crash",
+    "tests/test_telemetry_monitor.py::test_channel_going_unavailable_alerts_and_recovers",
+    "tests/test_telemetry_monitor.py::test_command_line_replay_writes_alerts",
+    "tests/test_telemetry_monitor.py::test_condition_alerts_once_escalates_and_recovers",
+    "tests/test_telemetry_monitor.py::test_data_without_a_start_marker_counts_as_a_running_collector",
+    "tests/test_telemetry_monitor.py::test_emergency_stop_triggered_is_a_fault",
+    "tests/test_telemetry_monitor.py::test_following_a_file_in_pieces_gives_the_same_alerts_as_replaying_it",
+    "tests/test_telemetry_monitor.py::test_replay_is_deterministic",
+    "tests/test_telemetry_monitor.py::test_silence_in_a_recording_is_found_without_the_wall_clock",
+    "tests/test_telemetry_monitor.py::test_stale_is_reported_once_per_silence"
+   ]
+  },
+  "capstone.monitoring.monitor:Monitor._alert": {
+   "count": 10,
+   "status": "INSUFFICIENT EVIDENCE",
+   "direct": [],
+   "indirect": [
+    "tests/test_telemetry_monitor.py::test_a_start_without_a_clean_stop_warns_of_a_crash",
+    "tests/test_telemetry_monitor.py::test_channel_going_unavailable_alerts_and_recovers",
+    "tests/test_telemetry_monitor.py::test_command_line_replay_writes_alerts",
+    "tests/test_telemetry_monitor.py::test_condition_alerts_once_escalates_and_recovers",
+    "tests/test_telemetry_monitor.py::test_emergency_stop_triggered_is_a_fault",
+    "tests/test_telemetry_monitor.py::test_following_a_file_in_pieces_gives_the_same_alerts_as_replaying_it",
+    "tests/test_telemetry_monitor.py::test_replay_is_deterministic",
+    "tests/test_telemetry_monitor.py::test_silence_in_a_recording_is_found_without_the_wall_clock",
+    "tests/test_telemetry_monitor.py::test_status_changes_are_reported_but_not_the_first_value",
+    "tests/test_telemetry_monitor.py::test_threshold_by_id_or_name_fires_once_and_recovers"
+   ]
+  },
+  "capstone.monitoring.monitor:Monitor._device_back": {
+   "count": 15,
+   "status": "INSUFFICIENT EVIDENCE",
+   "direct": [],
+   "indirect": [
+    "tests/test_collector_watchdog.py::test_the_monitor_counts_a_heartbeat_as_contact",
+    "tests/test_telemetry_monitor.py::test_a_clean_stop_and_later_start_is_not_stale",
+    "tests/test_telemetry_monitor.py::test_a_start_without_a_clean_stop_warns_of_a_crash",
+    "tests/test_telemetry_monitor.py::test_channel_going_unavailable_alerts_and_recovers",
+    "tests/test_telemetry_monitor.py::test_command_line_replay_writes_alerts",
+    "tests/test_telemetry_monitor.py::test_condition_alerts_once_escalates_and_recovers",
+    "tests/test_telemetry_monitor.py::test_data_without_a_start_marker_counts_as_a_running_collector",
+    "tests/test_telemetry_monitor.py::test_emergency_stop_triggered_is_a_fault",
+    "tests/test_telemetry_monitor.py::test_following_a_file_in_pieces_gives_the_same_alerts_as_replaying_it",
+    "tests/test_telemetry_monitor.py::test_replay_is_deterministic",
+    "tests/test_telemetry_monitor.py::test_silence_in_a_recording_is_found_without_the_wall_clock",
+    "tests/test_telemetry_monitor.py::test_stale_is_reported_once_per_silence"
+   ]
+  },
+  "capstone.monitoring.monitor:Monitor._availability": {
+   "count": 15,
+   "status": "INSUFFICIENT EVIDENCE",
+   "direct": [],
+   "indirect": [
+    "tests/test_collector_watchdog.py::test_the_monitor_counts_a_heartbeat_as_contact",
+    "tests/test_telemetry_monitor.py::test_a_clean_stop_and_later_start_is_not_stale",
+    "tests/test_telemetry_monitor.py::test_a_start_without_a_clean_stop_warns_of_a_crash",
+    "tests/test_telemetry_monitor.py::test_channel_going_unavailable_alerts_and_recovers",
+    "tests/test_telemetry_monitor.py::test_command_line_replay_writes_alerts",
+    "tests/test_telemetry_monitor.py::test_condition_alerts_once_escalates_and_recovers",
+    "tests/test_telemetry_monitor.py::test_data_without_a_start_marker_counts_as_a_running_collector",
+    "tests/test_telemetry_monitor.py::test_emergency_stop_triggered_is_a_fault",
+    "tests/test_telemetry_monitor.py::test_following_a_file_in_pieces_gives_the_same_alerts_as_replaying_it",
+    "tests/test_telemetry_monitor.py::test_replay_is_deterministic",
+    "tests/test_telemetry_monitor.py::test_silence_in_a_recording_is_found_without_the_wall_clock",
+    "tests/test_telemetry_monitor.py::test_stale_is_reported_once_per_silence"
+   ]
+  },
+  "capstone.monitoring.monitor:Monitor._condition": {
+   "count": 3,
+   "status": "PARTIALLY VERIFIED",
+   "direct": [
+    "tests/test_telemetry_monitor.py::test_condition_alerts_once_escalates_and_recovers"
+   ],
+   "indirect": [
+    "tests/test_telemetry_monitor.py::test_following_a_file_in_pieces_gives_the_same_alerts_as_replaying_it",
+    "tests/test_telemetry_monitor.py::test_replay_is_deterministic"
+   ]
+  },
+  "capstone.monitoring.monitor:Monitor._status": {
+   "count": 12,
+   "status": "PARTIALLY VERIFIED",
+   "direct": [
+    "tests/test_telemetry_monitor.py::test_status_changes_are_reported_but_not_the_first_value"
+   ],
+   "indirect": [
+    "tests/test_collector_watchdog.py::test_the_monitor_counts_a_heartbeat_as_contact",
+    "tests/test_telemetry_monitor.py::test_a_clean_stop_and_later_start_is_not_stale",
+    "tests/test_telemetry_monitor.py::test_a_start_without_a_clean_stop_warns_of_a_crash",
+    "tests/test_telemetry_monitor.py::test_channel_going_unavailable_alerts_and_recovers",
+    "tests/test_telemetry_monitor.py::test_command_line_replay_writes_alerts",
+    "tests/test_telemetry_monitor.py::test_data_without_a_start_marker_counts_as_a_running_collector",
+    "tests/test_telemetry_monitor.py::test_emergency_stop_triggered_is_a_fault",
+    "tests/test_telemetry_monitor.py::test_following_a_file_in_pieces_gives_the_same_alerts_as_replaying_it",
+    "tests/test_telemetry_monitor.py::test_replay_is_deterministic",
+    "tests/test_telemetry_monitor.py::test_silence_in_a_recording_is_found_without_the_wall_clock",
+    "tests/test_telemetry_monitor.py::test_stale_is_reported_once_per_silence"
+   ]
+  },
+  "capstone.monitoring.monitor:Monitor._threshold": {
+   "count": 15,
+   "status": "PARTIALLY VERIFIED",
+   "direct": [
+    "tests/test_telemetry_monitor.py::test_threshold_by_id_or_name_fires_once_and_recovers"
+   ],
+   "indirect": [
+    "tests/test_collector_watchdog.py::test_the_monitor_counts_a_heartbeat_as_contact",
+    "tests/test_telemetry_monitor.py::test_a_clean_stop_and_later_start_is_not_stale",
+    "tests/test_telemetry_monitor.py::test_a_start_without_a_clean_stop_warns_of_a_crash",
+    "tests/test_telemetry_monitor.py::test_channel_going_unavailable_alerts_and_recovers",
+    "tests/test_telemetry_monitor.py::test_command_line_replay_writes_alerts",
+    "tests/test_telemetry_monitor.py::test_condition_alerts_once_escalates_and_recovers",
+    "tests/test_telemetry_monitor.py::test_data_without_a_start_marker_counts_as_a_running_collector",
+    "tests/test_telemetry_monitor.py::test_emergency_stop_triggered_is_a_fault",
+    "tests/test_telemetry_monitor.py::test_following_a_file_in_pieces_gives_the_same_alerts_as_replaying_it",
+    "tests/test_telemetry_monitor.py::test_replay_is_deterministic",
+    "tests/test_telemetry_monitor.py::test_silence_in_a_recording_is_found_without_the_wall_clock",
+    "tests/test_telemetry_monitor.py::test_stale_is_reported_once_per_silence"
+   ]
+  },
+  "capstone.monitoring.runner:JsonlFollower.__init__": {
+   "count": 4,
+   "status": "INSUFFICIENT EVIDENCE",
+   "direct": [],
+   "indirect": [
+    "tests/test_telemetry_monitor.py::test_command_line_replay_writes_alerts",
+    "tests/test_telemetry_monitor.py::test_follower_reads_markers_and_observations",
+    "tests/test_telemetry_monitor.py::test_follower_reads_only_complete_lines_and_skips_bad_ones",
+    "tests/test_telemetry_monitor.py::test_following_a_file_in_pieces_gives_the_same_alerts_as_replaying_it"
+   ]
+  },
+  "capstone.monitoring.runner:JsonlFollower.read_new": {
+   "count": 4,
+   "status": "INSUFFICIENT EVIDENCE",
+   "direct": [],
+   "indirect": [
+    "tests/test_telemetry_monitor.py::test_command_line_replay_writes_alerts",
+    "tests/test_telemetry_monitor.py::test_follower_reads_markers_and_observations",
+    "tests/test_telemetry_monitor.py::test_follower_reads_only_complete_lines_and_skips_bad_ones",
+    "tests/test_telemetry_monitor.py::test_following_a_file_in_pieces_gives_the_same_alerts_as_replaying_it"
+   ]
+  },
+  "capstone.monitoring.runner:replay": {
+   "count": 14,
+   "status": "PARTIALLY VERIFIED",
+   "direct": [
+    "tests/test_telemetry_monitor.py::test_command_line_replay_writes_alerts",
+    "tests/test_telemetry_monitor.py::test_replay_is_deterministic"
+   ],
+   "indirect": [
+    "tests/test_collector_watchdog.py::test_the_monitor_counts_a_heartbeat_as_contact",
+    "tests/test_telemetry_monitor.py::test_a_clean_stop_and_later_start_is_not_stale",
+    "tests/test_telemetry_monitor.py::test_a_start_without_a_clean_stop_warns_of_a_crash",
+    "tests/test_telemetry_monitor.py::test_channel_going_unavailable_alerts_and_recovers",
+    "tests/test_telemetry_monitor.py::test_condition_alerts_once_escalates_and_recovers",
+    "tests/test_telemetry_monitor.py::test_data_without_a_start_marker_counts_as_a_running_collector",
+    "tests/test_telemetry_monitor.py::test_emergency_stop_triggered_is_a_fault",
+    "tests/test_telemetry_monitor.py::test_following_a_file_in_pieces_gives_the_same_alerts_as_replaying_it",
+    "tests/test_telemetry_monitor.py::test_silence_in_a_recording_is_found_without_the_wall_clock",
+    "tests/test_telemetry_monitor.py::test_status_changes_are_reported_but_not_the_first_value",
+    "tests/test_telemetry_monitor.py::test_threshold_by_id_or_name_fires_once_and_recovers",
+    "tests/test_telemetry_monitor.py::test_unavailable_from_the_start_is_not_an_alert"
+   ]
+  },
+  "capstone.monitoring.runner:append_alerts": {
+   "count": 1,
+   "status": "INSUFFICIENT EVIDENCE",
+   "direct": [],
+   "indirect": [
+    "tests/test_telemetry_monitor.py::test_command_line_replay_writes_alerts"
+   ]
   },
   "capstone.observability:_safe_identifier": {
    "count": 8,
@@ -12124,6 +12764,84 @@
     "tests/test_agent_action.py::test_the_decision_is_read_even_if_the_same_question_was_asked_this_tick",
     "tests/test_agent_action.py::test_the_human_s_note_is_kept_as_evidence",
     "tests/test_agent_action.py::test_the_loop_makes_the_calls_not_the_policy"
+   ]
+  },
+  "capstone.watchdog.__main__:report": {
+   "count": 1,
+   "status": "INSUFFICIENT EVIDENCE",
+   "direct": [],
+   "indirect": [
+    "tests/test_collector_watchdog.py::test_command_line_reports_a_dead_collector"
+   ]
+  },
+  "capstone.watchdog.__main__:main": {
+   "count": 1,
+   "status": "INSUFFICIENT EVIDENCE",
+   "direct": [],
+   "indirect": [
+    "tests/test_collector_watchdog.py::test_command_line_reports_a_dead_collector"
+   ]
+  },
+  "capstone.watchdog.watchdog:line_time": {
+   "count": 6,
+   "status": "INSUFFICIENT EVIDENCE",
+   "direct": [],
+   "indirect": [
+    "tests/test_collector_watchdog.py::test_a_clean_stop_is_never_called_silent",
+    "tests/test_collector_watchdog.py::test_a_stop_after_an_alert_closes_it",
+    "tests/test_collector_watchdog.py::test_command_line_reports_a_dead_collector",
+    "tests/test_collector_watchdog.py::test_fresh_data_raises_nothing",
+    "tests/test_collector_watchdog.py::test_heartbeats_keep_a_quiet_machine_from_looking_dead",
+    "tests/test_collector_watchdog.py::test_silence_without_a_clean_stop_alerts_once_then_recovers"
+   ]
+  },
+  "capstone.watchdog.watchdog:last_line": {
+   "count": 2,
+   "status": "PARTIALLY VERIFIED",
+   "direct": [
+    "tests/test_collector_watchdog.py::test_last_line_skips_a_half_written_line_and_bad_lines"
+   ],
+   "indirect": [
+    "tests/test_collector_watchdog.py::test_command_line_reports_a_dead_collector"
+   ]
+  },
+  "capstone.watchdog.watchdog:Watchdog.__init__": {
+   "count": 7,
+   "status": "INSUFFICIENT EVIDENCE",
+   "direct": [],
+   "indirect": [
+    "tests/test_collector_watchdog.py::test_a_clean_stop_is_never_called_silent",
+    "tests/test_collector_watchdog.py::test_a_stop_after_an_alert_closes_it",
+    "tests/test_collector_watchdog.py::test_an_empty_or_missing_file_raises_nothing",
+    "tests/test_collector_watchdog.py::test_command_line_reports_a_dead_collector",
+    "tests/test_collector_watchdog.py::test_fresh_data_raises_nothing",
+    "tests/test_collector_watchdog.py::test_heartbeats_keep_a_quiet_machine_from_looking_dead",
+    "tests/test_collector_watchdog.py::test_silence_without_a_clean_stop_alerts_once_then_recovers"
+   ]
+  },
+  "capstone.watchdog.watchdog:Watchdog.check": {
+   "count": 7,
+   "status": "INSUFFICIENT EVIDENCE",
+   "direct": [],
+   "indirect": [
+    "tests/test_collector_watchdog.py::test_a_clean_stop_is_never_called_silent",
+    "tests/test_collector_watchdog.py::test_a_stop_after_an_alert_closes_it",
+    "tests/test_collector_watchdog.py::test_an_empty_or_missing_file_raises_nothing",
+    "tests/test_collector_watchdog.py::test_command_line_reports_a_dead_collector",
+    "tests/test_collector_watchdog.py::test_fresh_data_raises_nothing",
+    "tests/test_collector_watchdog.py::test_heartbeats_keep_a_quiet_machine_from_looking_dead",
+    "tests/test_collector_watchdog.py::test_silence_without_a_clean_stop_alerts_once_then_recovers"
+   ]
+  },
+  "capstone.watchdog.watchdog:Watchdog._alert": {
+   "count": 3,
+   "status": "PARTIALLY VERIFIED",
+   "direct": [
+    "tests/test_collector_watchdog.py::test_a_stop_after_an_alert_closes_it"
+   ],
+   "indirect": [
+    "tests/test_collector_watchdog.py::test_command_line_reports_a_dead_collector",
+    "tests/test_collector_watchdog.py::test_silence_without_a_clean_stop_alerts_once_then_recovers"
    ]
   },
   "evaluation.evaltools.build_inventory:rel": {
@@ -21229,6 +21947,131 @@
     "capstone.simulator.clock:SimulationClock.now",
     "capstone.simulator.clock:SimulationClock.tick",
     "capstone.simulator.clock:SimulationClock.time_at"
+   ]
+  },
+  "tests/test_collector_watchdog.py::test_fresh_data_raises_nothing": {
+   "count": 3,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.watchdog.watchdog:Watchdog.__init__",
+    "capstone.watchdog.watchdog:Watchdog.check",
+    "capstone.watchdog.watchdog:line_time"
+   ]
+  },
+  "tests/test_collector_watchdog.py::test_silence_without_a_clean_stop_alerts_once_then_recovers": {
+   "count": 4,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.watchdog.watchdog:Watchdog.__init__",
+    "capstone.watchdog.watchdog:Watchdog._alert",
+    "capstone.watchdog.watchdog:Watchdog.check",
+    "capstone.watchdog.watchdog:line_time"
+   ]
+  },
+  "tests/test_collector_watchdog.py::test_a_clean_stop_is_never_called_silent": {
+   "count": 3,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.watchdog.watchdog:Watchdog.__init__",
+    "capstone.watchdog.watchdog:Watchdog.check",
+    "capstone.watchdog.watchdog:line_time"
+   ]
+  },
+  "tests/test_collector_watchdog.py::test_a_stop_after_an_alert_closes_it": {
+   "count": 4,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.watchdog.watchdog:Watchdog.__init__",
+    "capstone.watchdog.watchdog:Watchdog._alert",
+    "capstone.watchdog.watchdog:Watchdog.check",
+    "capstone.watchdog.watchdog:line_time"
+   ]
+  },
+  "tests/test_collector_watchdog.py::test_heartbeats_keep_a_quiet_machine_from_looking_dead": {
+   "count": 3,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.watchdog.watchdog:Watchdog.__init__",
+    "capstone.watchdog.watchdog:Watchdog.check",
+    "capstone.watchdog.watchdog:line_time"
+   ]
+  },
+  "tests/test_collector_watchdog.py::test_an_empty_or_missing_file_raises_nothing": {
+   "count": 2,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.watchdog.watchdog:Watchdog.__init__",
+    "capstone.watchdog.watchdog:Watchdog.check"
+   ]
+  },
+  "tests/test_collector_watchdog.py::test_last_line_skips_a_half_written_line_and_bad_lines": {
+   "count": 2,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.ingestion.record:parse_line",
+    "capstone.watchdog.watchdog:last_line"
+   ]
+  },
+  "tests/test_collector_watchdog.py::test_command_line_reports_a_dead_collector": {
+   "count": 8,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.ingestion.record:parse_line",
+    "capstone.watchdog.__main__:main",
+    "capstone.watchdog.__main__:report",
+    "capstone.watchdog.watchdog:Watchdog.__init__",
+    "capstone.watchdog.watchdog:Watchdog._alert",
+    "capstone.watchdog.watchdog:Watchdog.check",
+    "capstone.watchdog.watchdog:last_line",
+    "capstone.watchdog.watchdog:line_time"
+   ]
+  },
+  "tests/test_collector_watchdog.py::test_a_quiet_machine_gets_a_heartbeat_every_minute": {
+   "count": 11,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.ingestion.collector:MTConnectCollector.__init__",
+    "capstone.ingestion.collector:MTConnectCollector._url",
+    "capstone.ingestion.collector:MTConnectCollector.poll",
+    "capstone.ingestion.collector:_marker",
+    "capstone.ingestion.collector:append_jsonl",
+    "capstone.ingestion.collector:run_collector",
+    "capstone.ingestion.mtconnect:_child",
+    "capstone.ingestion.mtconnect:_local",
+    "capstone.ingestion.mtconnect:parse_streams",
+    "capstone.ingestion.mtconnect:raise_if_error",
+    "capstone.ingestion.record:parse_line"
+   ]
+  },
+  "tests/test_collector_watchdog.py::test_failed_polls_never_write_a_heartbeat": {
+   "count": 7,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.ingestion.collector:MTConnectCollector.__init__",
+    "capstone.ingestion.collector:MTConnectCollector._url",
+    "capstone.ingestion.collector:MTConnectCollector.poll",
+    "capstone.ingestion.collector:_marker",
+    "capstone.ingestion.collector:append_jsonl",
+    "capstone.ingestion.collector:run_collector",
+    "capstone.ingestion.record:parse_line"
+   ]
+  },
+  "tests/test_collector_watchdog.py::test_the_monitor_counts_a_heartbeat_as_contact": {
+   "count": 12,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.ingestion.record:TelemetryRecord.number",
+    "capstone.monitoring.monitor:Monitor.__init__",
+    "capstone.monitoring.monitor:Monitor._availability",
+    "capstone.monitoring.monitor:Monitor._collector",
+    "capstone.monitoring.monitor:Monitor._device_back",
+    "capstone.monitoring.monitor:Monitor._end",
+    "capstone.monitoring.monitor:Monitor._status",
+    "capstone.monitoring.monitor:Monitor._threshold",
+    "capstone.monitoring.monitor:Monitor.check_stale",
+    "capstone.monitoring.monitor:Monitor.observe",
+    "capstone.monitoring.monitor:Monitor.observe_marker",
+    "capstone.monitoring.runner:replay"
    ]
   },
   "tests/test_console.py::test_an_unencodable_character_is_escaped_not_fatal": {
@@ -33945,6 +34788,268 @@
     "capstone.providers.factory:tool_spec"
    ]
   },
+  "tests/test_mtconnect_ingestion.py::test_parse_reads_header_and_sorts_records_by_sequence": {
+   "count": 6,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.ingestion.mtconnect:_child",
+    "capstone.ingestion.mtconnect:_local",
+    "capstone.ingestion.mtconnect:_record",
+    "capstone.ingestion.mtconnect:_value",
+    "capstone.ingestion.mtconnect:parse_streams",
+    "capstone.ingestion.mtconnect:raise_if_error"
+   ]
+  },
+  "tests/test_mtconnect_ingestion.py::test_parse_maps_samples_events_and_conditions": {
+   "count": 7,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.ingestion.mtconnect:_child",
+    "capstone.ingestion.mtconnect:_local",
+    "capstone.ingestion.mtconnect:_record",
+    "capstone.ingestion.mtconnect:_value",
+    "capstone.ingestion.mtconnect:parse_streams",
+    "capstone.ingestion.mtconnect:raise_if_error",
+    "capstone.ingestion.record:TelemetryRecord.number"
+   ]
+  },
+  "tests/test_mtconnect_ingestion.py::test_unavailable_stays_missing_and_is_never_zero": {
+   "count": 7,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.ingestion.mtconnect:_child",
+    "capstone.ingestion.mtconnect:_local",
+    "capstone.ingestion.mtconnect:_record",
+    "capstone.ingestion.mtconnect:_value",
+    "capstone.ingestion.mtconnect:parse_streams",
+    "capstone.ingestion.mtconnect:raise_if_error",
+    "capstone.ingestion.record:TelemetryRecord.number"
+   ]
+  },
+  "tests/test_mtconnect_ingestion.py::test_dataset_entries_are_stored_as_sorted_json": {
+   "count": 6,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.ingestion.mtconnect:_child",
+    "capstone.ingestion.mtconnect:_local",
+    "capstone.ingestion.mtconnect:_record",
+    "capstone.ingestion.mtconnect:_value",
+    "capstone.ingestion.mtconnect:parse_streams",
+    "capstone.ingestion.mtconnect:raise_if_error"
+   ]
+  },
+  "tests/test_mtconnect_ingestion.py::test_older_schema_namespace_parses_the_same": {
+   "count": 6,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.ingestion.mtconnect:_child",
+    "capstone.ingestion.mtconnect:_local",
+    "capstone.ingestion.mtconnect:_record",
+    "capstone.ingestion.mtconnect:_value",
+    "capstone.ingestion.mtconnect:parse_streams",
+    "capstone.ingestion.mtconnect:raise_if_error"
+   ]
+  },
+  "tests/test_mtconnect_ingestion.py::test_error_documents_raise_with_their_codes": {
+   "count": 5,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.ingestion.mtconnect:MTConnectError.__init__",
+    "capstone.ingestion.mtconnect:_child",
+    "capstone.ingestion.mtconnect:_local",
+    "capstone.ingestion.mtconnect:parse_streams",
+    "capstone.ingestion.mtconnect:raise_if_error"
+   ]
+  },
+  "tests/test_mtconnect_ingestion.py::test_records_round_trip_through_json": {
+   "count": 6,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.ingestion.mtconnect:_child",
+    "capstone.ingestion.mtconnect:_local",
+    "capstone.ingestion.mtconnect:_record",
+    "capstone.ingestion.mtconnect:_value",
+    "capstone.ingestion.mtconnect:parse_streams",
+    "capstone.ingestion.mtconnect:raise_if_error"
+   ]
+  },
+  "tests/test_mtconnect_ingestion.py::test_first_poll_reads_current_then_samples_from_next_sequence": {
+   "count": 9,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.ingestion.collector:MTConnectCollector.__init__",
+    "capstone.ingestion.collector:MTConnectCollector._url",
+    "capstone.ingestion.collector:MTConnectCollector.poll",
+    "capstone.ingestion.mtconnect:_child",
+    "capstone.ingestion.mtconnect:_local",
+    "capstone.ingestion.mtconnect:_record",
+    "capstone.ingestion.mtconnect:_value",
+    "capstone.ingestion.mtconnect:parse_streams",
+    "capstone.ingestion.mtconnect:raise_if_error"
+   ]
+  },
+  "tests/test_mtconnect_ingestion.py::test_device_scopes_every_request": {
+   "count": 7,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.ingestion.collector:MTConnectCollector.__init__",
+    "capstone.ingestion.collector:MTConnectCollector._url",
+    "capstone.ingestion.collector:MTConnectCollector.poll",
+    "capstone.ingestion.mtconnect:_child",
+    "capstone.ingestion.mtconnect:_local",
+    "capstone.ingestion.mtconnect:parse_streams",
+    "capstone.ingestion.mtconnect:raise_if_error"
+   ]
+  },
+  "tests/test_mtconnect_ingestion.py::test_sample_drops_records_already_seen": {
+   "count": 9,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.ingestion.collector:MTConnectCollector.__init__",
+    "capstone.ingestion.collector:MTConnectCollector._url",
+    "capstone.ingestion.collector:MTConnectCollector.poll",
+    "capstone.ingestion.mtconnect:_child",
+    "capstone.ingestion.mtconnect:_local",
+    "capstone.ingestion.mtconnect:_record",
+    "capstone.ingestion.mtconnect:_value",
+    "capstone.ingestion.mtconnect:parse_streams",
+    "capstone.ingestion.mtconnect:raise_if_error"
+   ]
+  },
+  "tests/test_mtconnect_ingestion.py::test_out_of_range_reports_a_gap_and_restarts_from_current": {
+   "count": 8,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.ingestion.collector:MTConnectCollector.__init__",
+    "capstone.ingestion.collector:MTConnectCollector._url",
+    "capstone.ingestion.collector:MTConnectCollector.poll",
+    "capstone.ingestion.mtconnect:MTConnectError.__init__",
+    "capstone.ingestion.mtconnect:_child",
+    "capstone.ingestion.mtconnect:_local",
+    "capstone.ingestion.mtconnect:parse_streams",
+    "capstone.ingestion.mtconnect:raise_if_error"
+   ]
+  },
+  "tests/test_mtconnect_ingestion.py::test_buffer_overrun_is_reported_as_a_gap": {
+   "count": 7,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.ingestion.collector:MTConnectCollector.__init__",
+    "capstone.ingestion.collector:MTConnectCollector._url",
+    "capstone.ingestion.collector:MTConnectCollector.poll",
+    "capstone.ingestion.mtconnect:_child",
+    "capstone.ingestion.mtconnect:_local",
+    "capstone.ingestion.mtconnect:parse_streams",
+    "capstone.ingestion.mtconnect:raise_if_error"
+   ]
+  },
+  "tests/test_mtconnect_ingestion.py::test_agent_restart_discards_old_sequences_and_restarts": {
+   "count": 9,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.ingestion.collector:MTConnectCollector.__init__",
+    "capstone.ingestion.collector:MTConnectCollector._url",
+    "capstone.ingestion.collector:MTConnectCollector.poll",
+    "capstone.ingestion.mtconnect:_child",
+    "capstone.ingestion.mtconnect:_local",
+    "capstone.ingestion.mtconnect:_record",
+    "capstone.ingestion.mtconnect:_value",
+    "capstone.ingestion.mtconnect:parse_streams",
+    "capstone.ingestion.mtconnect:raise_if_error"
+   ]
+  },
+  "tests/test_mtconnect_ingestion.py::test_more_waiting_when_the_agent_holds_more_than_one_request": {
+   "count": 7,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.ingestion.collector:MTConnectCollector.__init__",
+    "capstone.ingestion.collector:MTConnectCollector._url",
+    "capstone.ingestion.collector:MTConnectCollector.poll",
+    "capstone.ingestion.mtconnect:_child",
+    "capstone.ingestion.mtconnect:_local",
+    "capstone.ingestion.mtconnect:parse_streams",
+    "capstone.ingestion.mtconnect:raise_if_error"
+   ]
+  },
+  "tests/test_mtconnect_ingestion.py::test_run_collector_writes_jsonl_and_survives_failures": {
+   "count": 13,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.ingestion.collector:MTConnectCollector.__init__",
+    "capstone.ingestion.collector:MTConnectCollector._url",
+    "capstone.ingestion.collector:MTConnectCollector.poll",
+    "capstone.ingestion.collector:_marker",
+    "capstone.ingestion.collector:append_jsonl",
+    "capstone.ingestion.collector:run_collector",
+    "capstone.ingestion.mtconnect:_child",
+    "capstone.ingestion.mtconnect:_local",
+    "capstone.ingestion.mtconnect:_record",
+    "capstone.ingestion.mtconnect:_value",
+    "capstone.ingestion.mtconnect:parse_streams",
+    "capstone.ingestion.mtconnect:raise_if_error",
+    "capstone.ingestion.record:parse_line"
+   ]
+  },
+  "tests/test_mtconnect_ingestion.py::test_run_collector_refuses_to_poll_faster_than_the_minimum": {
+   "count": 2,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.ingestion.collector:MTConnectCollector.__init__",
+    "capstone.ingestion.collector:run_collector"
+   ]
+  },
+  "tests/test_mtconnect_ingestion.py::test_http_get_sends_only_get_and_reads_error_bodies": {
+   "count": 1,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.ingestion.collector:http_get"
+   ]
+  },
+  "tests/test_mtconnect_ingestion.py::test_ctrl_c_writes_a_clean_stop_and_keeps_the_count": {
+   "count": 13,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.ingestion.collector:MTConnectCollector.__init__",
+    "capstone.ingestion.collector:MTConnectCollector._url",
+    "capstone.ingestion.collector:MTConnectCollector.poll",
+    "capstone.ingestion.collector:_marker",
+    "capstone.ingestion.collector:append_jsonl",
+    "capstone.ingestion.collector:run_collector",
+    "capstone.ingestion.mtconnect:_child",
+    "capstone.ingestion.mtconnect:_local",
+    "capstone.ingestion.mtconnect:_record",
+    "capstone.ingestion.mtconnect:_value",
+    "capstone.ingestion.mtconnect:parse_streams",
+    "capstone.ingestion.mtconnect:raise_if_error",
+    "capstone.ingestion.record:parse_line"
+   ]
+  },
+  "tests/test_mtconnect_ingestion.py::test_a_crash_writes_no_stop_marker": {
+   "count": 7,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.ingestion.collector:MTConnectCollector.__init__",
+    "capstone.ingestion.collector:MTConnectCollector._url",
+    "capstone.ingestion.collector:MTConnectCollector.poll",
+    "capstone.ingestion.collector:_marker",
+    "capstone.ingestion.collector:append_jsonl",
+    "capstone.ingestion.collector:run_collector",
+    "capstone.ingestion.record:parse_line"
+   ]
+  },
+  "tests/test_mtconnect_ingestion.py::test_lines_written_before_markers_existed_still_read_as_observations": {
+   "count": 7,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.ingestion.mtconnect:_child",
+    "capstone.ingestion.mtconnect:_local",
+    "capstone.ingestion.mtconnect:_record",
+    "capstone.ingestion.mtconnect:_value",
+    "capstone.ingestion.mtconnect:parse_streams",
+    "capstone.ingestion.mtconnect:raise_if_error",
+    "capstone.ingestion.record:parse_line"
+   ]
+  },
   "tests/test_observability.py::test_event_context_is_json_with_explicit_simulator_tick": {
    "count": 4,
    "judgment": "NOT ASSESSED",
@@ -38837,6 +39942,282 @@
    "count": 0,
    "judgment": "NOT ASSESSED",
    "functions": []
+  },
+  "tests/test_telemetry_monitor.py::test_condition_alerts_once_escalates_and_recovers": {
+   "count": 11,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.ingestion.record:TelemetryRecord.number",
+    "capstone.monitoring.monitor:Monitor.__init__",
+    "capstone.monitoring.monitor:Monitor._alert",
+    "capstone.monitoring.monitor:Monitor._availability",
+    "capstone.monitoring.monitor:Monitor._condition",
+    "capstone.monitoring.monitor:Monitor._device_back",
+    "capstone.monitoring.monitor:Monitor._end",
+    "capstone.monitoring.monitor:Monitor._threshold",
+    "capstone.monitoring.monitor:Monitor.check_stale",
+    "capstone.monitoring.monitor:Monitor.observe",
+    "capstone.monitoring.runner:replay"
+   ]
+  },
+  "tests/test_telemetry_monitor.py::test_unavailable_from_the_start_is_not_an_alert": {
+   "count": 9,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.ingestion.record:TelemetryRecord.number",
+    "capstone.monitoring.monitor:Monitor.__init__",
+    "capstone.monitoring.monitor:Monitor._availability",
+    "capstone.monitoring.monitor:Monitor._device_back",
+    "capstone.monitoring.monitor:Monitor._end",
+    "capstone.monitoring.monitor:Monitor._threshold",
+    "capstone.monitoring.monitor:Monitor.check_stale",
+    "capstone.monitoring.monitor:Monitor.observe",
+    "capstone.monitoring.runner:replay"
+   ]
+  },
+  "tests/test_telemetry_monitor.py::test_channel_going_unavailable_alerts_and_recovers": {
+   "count": 12,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.ingestion.record:TelemetryRecord.number",
+    "capstone.monitoring.monitor:Monitor.__init__",
+    "capstone.monitoring.monitor:Monitor._alert",
+    "capstone.monitoring.monitor:Monitor._availability",
+    "capstone.monitoring.monitor:Monitor._device_back",
+    "capstone.monitoring.monitor:Monitor._end",
+    "capstone.monitoring.monitor:Monitor._start",
+    "capstone.monitoring.monitor:Monitor._status",
+    "capstone.monitoring.monitor:Monitor._threshold",
+    "capstone.monitoring.monitor:Monitor.check_stale",
+    "capstone.monitoring.monitor:Monitor.observe",
+    "capstone.monitoring.runner:replay"
+   ]
+  },
+  "tests/test_telemetry_monitor.py::test_status_changes_are_reported_but_not_the_first_value": {
+   "count": 11,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.ingestion.record:TelemetryRecord.number",
+    "capstone.monitoring.monitor:Monitor.__init__",
+    "capstone.monitoring.monitor:Monitor._alert",
+    "capstone.monitoring.monitor:Monitor._availability",
+    "capstone.monitoring.monitor:Monitor._device_back",
+    "capstone.monitoring.monitor:Monitor._end",
+    "capstone.monitoring.monitor:Monitor._status",
+    "capstone.monitoring.monitor:Monitor._threshold",
+    "capstone.monitoring.monitor:Monitor.check_stale",
+    "capstone.monitoring.monitor:Monitor.observe",
+    "capstone.monitoring.runner:replay"
+   ]
+  },
+  "tests/test_telemetry_monitor.py::test_emergency_stop_triggered_is_a_fault": {
+   "count": 11,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.ingestion.record:TelemetryRecord.number",
+    "capstone.monitoring.monitor:Monitor.__init__",
+    "capstone.monitoring.monitor:Monitor._alert",
+    "capstone.monitoring.monitor:Monitor._availability",
+    "capstone.monitoring.monitor:Monitor._device_back",
+    "capstone.monitoring.monitor:Monitor._end",
+    "capstone.monitoring.monitor:Monitor._status",
+    "capstone.monitoring.monitor:Monitor._threshold",
+    "capstone.monitoring.monitor:Monitor.check_stale",
+    "capstone.monitoring.monitor:Monitor.observe",
+    "capstone.monitoring.runner:replay"
+   ]
+  },
+  "tests/test_telemetry_monitor.py::test_threshold_by_id_or_name_fires_once_and_recovers": {
+   "count": 11,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.ingestion.record:TelemetryRecord.number",
+    "capstone.monitoring.monitor:Monitor.__init__",
+    "capstone.monitoring.monitor:Monitor._alert",
+    "capstone.monitoring.monitor:Monitor._availability",
+    "capstone.monitoring.monitor:Monitor._device_back",
+    "capstone.monitoring.monitor:Monitor._end",
+    "capstone.monitoring.monitor:Monitor._start",
+    "capstone.monitoring.monitor:Monitor._threshold",
+    "capstone.monitoring.monitor:Monitor.check_stale",
+    "capstone.monitoring.monitor:Monitor.observe",
+    "capstone.monitoring.runner:replay"
+   ]
+  },
+  "tests/test_telemetry_monitor.py::test_silence_in_a_recording_is_found_without_the_wall_clock": {
+   "count": 12,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.ingestion.record:TelemetryRecord.number",
+    "capstone.monitoring.monitor:Monitor.__init__",
+    "capstone.monitoring.monitor:Monitor._alert",
+    "capstone.monitoring.monitor:Monitor._availability",
+    "capstone.monitoring.monitor:Monitor._device_back",
+    "capstone.monitoring.monitor:Monitor._end",
+    "capstone.monitoring.monitor:Monitor._start",
+    "capstone.monitoring.monitor:Monitor._status",
+    "capstone.monitoring.monitor:Monitor._threshold",
+    "capstone.monitoring.monitor:Monitor.check_stale",
+    "capstone.monitoring.monitor:Monitor.observe",
+    "capstone.monitoring.runner:replay"
+   ]
+  },
+  "tests/test_telemetry_monitor.py::test_stale_is_reported_once_per_silence": {
+   "count": 10,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.ingestion.record:TelemetryRecord.number",
+    "capstone.monitoring.monitor:Monitor.__init__",
+    "capstone.monitoring.monitor:Monitor._availability",
+    "capstone.monitoring.monitor:Monitor._device_back",
+    "capstone.monitoring.monitor:Monitor._end",
+    "capstone.monitoring.monitor:Monitor._start",
+    "capstone.monitoring.monitor:Monitor._status",
+    "capstone.monitoring.monitor:Monitor._threshold",
+    "capstone.monitoring.monitor:Monitor.check_stale",
+    "capstone.monitoring.monitor:Monitor.observe"
+   ]
+  },
+  "tests/test_telemetry_monitor.py::test_replay_is_deterministic": {
+   "count": 12,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.ingestion.record:TelemetryRecord.number",
+    "capstone.monitoring.monitor:Monitor.__init__",
+    "capstone.monitoring.monitor:Monitor._alert",
+    "capstone.monitoring.monitor:Monitor._availability",
+    "capstone.monitoring.monitor:Monitor._condition",
+    "capstone.monitoring.monitor:Monitor._device_back",
+    "capstone.monitoring.monitor:Monitor._end",
+    "capstone.monitoring.monitor:Monitor._status",
+    "capstone.monitoring.monitor:Monitor._threshold",
+    "capstone.monitoring.monitor:Monitor.check_stale",
+    "capstone.monitoring.monitor:Monitor.observe",
+    "capstone.monitoring.runner:replay"
+   ]
+  },
+  "tests/test_telemetry_monitor.py::test_follower_reads_only_complete_lines_and_skips_bad_ones": {
+   "count": 3,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.ingestion.record:parse_line",
+    "capstone.monitoring.runner:JsonlFollower.__init__",
+    "capstone.monitoring.runner:JsonlFollower.read_new"
+   ]
+  },
+  "tests/test_telemetry_monitor.py::test_command_line_replay_writes_alerts": {
+   "count": 16,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.ingestion.record:TelemetryRecord.number",
+    "capstone.ingestion.record:parse_line",
+    "capstone.monitoring.__main__:main",
+    "capstone.monitoring.monitor:Monitor.__init__",
+    "capstone.monitoring.monitor:Monitor._alert",
+    "capstone.monitoring.monitor:Monitor._availability",
+    "capstone.monitoring.monitor:Monitor._device_back",
+    "capstone.monitoring.monitor:Monitor._end",
+    "capstone.monitoring.monitor:Monitor._status",
+    "capstone.monitoring.monitor:Monitor._threshold",
+    "capstone.monitoring.monitor:Monitor.check_stale",
+    "capstone.monitoring.monitor:Monitor.observe",
+    "capstone.monitoring.runner:JsonlFollower.__init__",
+    "capstone.monitoring.runner:JsonlFollower.read_new",
+    "capstone.monitoring.runner:append_alerts",
+    "capstone.monitoring.runner:replay"
+   ]
+  },
+  "tests/test_telemetry_monitor.py::test_following_a_file_in_pieces_gives_the_same_alerts_as_replaying_it": {
+   "count": 16,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.ingestion.record:TelemetryRecord.number",
+    "capstone.ingestion.record:parse_line",
+    "capstone.monitoring.monitor:Monitor.__init__",
+    "capstone.monitoring.monitor:Monitor._alert",
+    "capstone.monitoring.monitor:Monitor._availability",
+    "capstone.monitoring.monitor:Monitor._condition",
+    "capstone.monitoring.monitor:Monitor._device_back",
+    "capstone.monitoring.monitor:Monitor._end",
+    "capstone.monitoring.monitor:Monitor._start",
+    "capstone.monitoring.monitor:Monitor._status",
+    "capstone.monitoring.monitor:Monitor._threshold",
+    "capstone.monitoring.monitor:Monitor.check_stale",
+    "capstone.monitoring.monitor:Monitor.observe",
+    "capstone.monitoring.runner:JsonlFollower.__init__",
+    "capstone.monitoring.runner:JsonlFollower.read_new",
+    "capstone.monitoring.runner:replay"
+   ]
+  },
+  "tests/test_telemetry_monitor.py::test_monitoring_is_plain_code_with_no_model_clock_or_network": {
+   "count": 0,
+   "judgment": "NOT ASSESSED",
+   "functions": []
+  },
+  "tests/test_telemetry_monitor.py::test_a_clean_stop_and_later_start_is_not_stale": {
+   "count": 12,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.ingestion.record:TelemetryRecord.number",
+    "capstone.monitoring.monitor:Monitor.__init__",
+    "capstone.monitoring.monitor:Monitor._availability",
+    "capstone.monitoring.monitor:Monitor._collector",
+    "capstone.monitoring.monitor:Monitor._device_back",
+    "capstone.monitoring.monitor:Monitor._end",
+    "capstone.monitoring.monitor:Monitor._status",
+    "capstone.monitoring.monitor:Monitor._threshold",
+    "capstone.monitoring.monitor:Monitor.check_stale",
+    "capstone.monitoring.monitor:Monitor.observe",
+    "capstone.monitoring.monitor:Monitor.observe_marker",
+    "capstone.monitoring.runner:replay"
+   ]
+  },
+  "tests/test_telemetry_monitor.py::test_a_start_without_a_clean_stop_warns_of_a_crash": {
+   "count": 14,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.ingestion.record:TelemetryRecord.number",
+    "capstone.monitoring.monitor:Monitor.__init__",
+    "capstone.monitoring.monitor:Monitor._alert",
+    "capstone.monitoring.monitor:Monitor._availability",
+    "capstone.monitoring.monitor:Monitor._collector",
+    "capstone.monitoring.monitor:Monitor._device_back",
+    "capstone.monitoring.monitor:Monitor._end",
+    "capstone.monitoring.monitor:Monitor._start",
+    "capstone.monitoring.monitor:Monitor._status",
+    "capstone.monitoring.monitor:Monitor._threshold",
+    "capstone.monitoring.monitor:Monitor.check_stale",
+    "capstone.monitoring.monitor:Monitor.observe",
+    "capstone.monitoring.monitor:Monitor.observe_marker",
+    "capstone.monitoring.runner:replay"
+   ]
+  },
+  "tests/test_telemetry_monitor.py::test_data_without_a_start_marker_counts_as_a_running_collector": {
+   "count": 12,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.ingestion.record:TelemetryRecord.number",
+    "capstone.monitoring.monitor:Monitor.__init__",
+    "capstone.monitoring.monitor:Monitor._availability",
+    "capstone.monitoring.monitor:Monitor._collector",
+    "capstone.monitoring.monitor:Monitor._device_back",
+    "capstone.monitoring.monitor:Monitor._end",
+    "capstone.monitoring.monitor:Monitor._status",
+    "capstone.monitoring.monitor:Monitor._threshold",
+    "capstone.monitoring.monitor:Monitor.check_stale",
+    "capstone.monitoring.monitor:Monitor.observe",
+    "capstone.monitoring.monitor:Monitor.observe_marker",
+    "capstone.monitoring.runner:replay"
+   ]
+  },
+  "tests/test_telemetry_monitor.py::test_follower_reads_markers_and_observations": {
+   "count": 3,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.ingestion.record:parse_line",
+    "capstone.monitoring.runner:JsonlFollower.__init__",
+    "capstone.monitoring.runner:JsonlFollower.read_new"
+   ]
   },
   "tests/test_temperature_sensor.py::test_reading_carries_identity_unit_and_its_own_stream": {
    "count": 11,

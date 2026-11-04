@@ -23705,6 +23705,440 @@
    ]
   },
   {
+   "id": "tests/test_collector_watchdog.py::test_fresh_data_raises_nothing",
+   "file": "tests/test_collector_watchdog.py",
+   "name": "test_fresh_data_raises_nothing",
+   "line": 47,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [
+    "tmp_path"
+   ],
+   "assertions": 1,
+   "assert_forms": {
+    "equality": 1
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "fresh data raises nothing",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.watchdog.watchdog:Watchdog.__init__",
+    "capstone.watchdog.watchdog:Watchdog.check",
+    "capstone.watchdog.watchdog:line_time"
+   ],
+   "exercise_count": 3,
+   "modules_exercised": [
+    "capstone.watchdog.watchdog"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_collector_watchdog.py::test_silence_without_a_clean_stop_alerts_once_then_recovers",
+   "file": "tests/test_collector_watchdog.py",
+   "name": "test_silence_without_a_clean_stop_alerts_once_then_recovers",
+   "line": 51,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [
+    "tmp_path"
+   ],
+   "assertions": 4,
+   "assert_forms": {
+    "equality": 4
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "silence without a clean stop alerts once then recovers",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.watchdog.watchdog:Watchdog.__init__",
+    "capstone.watchdog.watchdog:Watchdog._alert",
+    "capstone.watchdog.watchdog:Watchdog.check",
+    "capstone.watchdog.watchdog:line_time"
+   ],
+   "exercise_count": 4,
+   "modules_exercised": [
+    "capstone.watchdog.watchdog"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_collector_watchdog.py::test_a_clean_stop_is_never_called_silent",
+   "file": "tests/test_collector_watchdog.py",
+   "name": "test_a_clean_stop_is_never_called_silent",
+   "line": 63,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [
+    "tmp_path"
+   ],
+   "assertions": 1,
+   "assert_forms": {
+    "equality": 1
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "a clean stop is never called silent",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.watchdog.watchdog:Watchdog.__init__",
+    "capstone.watchdog.watchdog:Watchdog.check",
+    "capstone.watchdog.watchdog:line_time"
+   ],
+   "exercise_count": 3,
+   "modules_exercised": [
+    "capstone.watchdog.watchdog"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_collector_watchdog.py::test_a_stop_after_an_alert_closes_it",
+   "file": "tests/test_collector_watchdog.py",
+   "name": "test_a_stop_after_an_alert_closes_it",
+   "line": 68,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [
+    "tmp_path"
+   ],
+   "assertions": 1,
+   "assert_forms": {
+    "equality": 1
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "a stop after an alert closes it",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.watchdog.watchdog:Watchdog.__init__",
+    "capstone.watchdog.watchdog:Watchdog._alert",
+    "capstone.watchdog.watchdog:Watchdog.check",
+    "capstone.watchdog.watchdog:line_time"
+   ],
+   "exercise_count": 4,
+   "modules_exercised": [
+    "capstone.watchdog.watchdog"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_collector_watchdog.py::test_heartbeats_keep_a_quiet_machine_from_looking_dead",
+   "file": "tests/test_collector_watchdog.py",
+   "name": "test_heartbeats_keep_a_quiet_machine_from_looking_dead",
+   "line": 77,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [
+    "tmp_path"
+   ],
+   "assertions": 1,
+   "assert_forms": {
+    "equality": 1
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "heartbeats keep a quiet machine from looking dead",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.watchdog.watchdog:Watchdog.__init__",
+    "capstone.watchdog.watchdog:Watchdog.check",
+    "capstone.watchdog.watchdog:line_time"
+   ],
+   "exercise_count": 3,
+   "modules_exercised": [
+    "capstone.watchdog.watchdog"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_collector_watchdog.py::test_an_empty_or_missing_file_raises_nothing",
+   "file": "tests/test_collector_watchdog.py",
+   "name": "test_an_empty_or_missing_file_raises_nothing",
+   "line": 82,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [
+    "tmp_path"
+   ],
+   "assertions": 1,
+   "assert_forms": {
+    "equality": 1
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "an empty or missing file raises nothing",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.watchdog.watchdog:Watchdog.__init__",
+    "capstone.watchdog.watchdog:Watchdog.check"
+   ],
+   "exercise_count": 2,
+   "modules_exercised": [
+    "capstone.watchdog.watchdog"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_collector_watchdog.py::test_last_line_skips_a_half_written_line_and_bad_lines",
+   "file": "tests/test_collector_watchdog.py",
+   "name": "test_last_line_skips_a_half_written_line_and_bad_lines",
+   "line": 89,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [
+    "tmp_path"
+   ],
+   "assertions": 4,
+   "assert_forms": {
+    "equality": 2,
+    "is_none": 2
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [
+    "may_skip"
+   ],
+   "claims": "last line skips a half written line and bad lines",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.ingestion.record:parse_line",
+    "capstone.watchdog.watchdog:last_line"
+   ],
+   "exercise_count": 2,
+   "modules_exercised": [
+    "capstone.ingestion.record",
+    "capstone.watchdog.watchdog"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_collector_watchdog.py::test_command_line_reports_a_dead_collector",
+   "file": "tests/test_collector_watchdog.py",
+   "name": "test_command_line_reports_a_dead_collector",
+   "line": 100,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [
+    "tmp_path"
+   ],
+   "assertions": 2,
+   "assert_forms": {
+    "equality": 1,
+    "membership": 1
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "command line reports a dead collector",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.ingestion.record:parse_line",
+    "capstone.watchdog.__main__:main",
+    "capstone.watchdog.__main__:report",
+    "capstone.watchdog.watchdog:Watchdog.__init__",
+    "capstone.watchdog.watchdog:Watchdog._alert",
+    "capstone.watchdog.watchdog:Watchdog.check",
+    "capstone.watchdog.watchdog:last_line",
+    "capstone.watchdog.watchdog:line_time"
+   ],
+   "exercise_count": 8,
+   "modules_exercised": [
+    "capstone.ingestion.record",
+    "capstone.watchdog.__main__",
+    "capstone.watchdog.watchdog"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_collector_watchdog.py::test_a_quiet_machine_gets_a_heartbeat_every_minute",
+   "file": "tests/test_collector_watchdog.py",
+   "name": "test_a_quiet_machine_gets_a_heartbeat_every_minute",
+   "line": 137,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [
+    "tmp_path"
+   ],
+   "assertions": 1,
+   "assert_forms": {
+    "equality": 1
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "a quiet machine gets a heartbeat every minute",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.ingestion.collector:MTConnectCollector.__init__",
+    "capstone.ingestion.collector:MTConnectCollector._url",
+    "capstone.ingestion.collector:MTConnectCollector.poll",
+    "capstone.ingestion.collector:_marker",
+    "capstone.ingestion.collector:append_jsonl",
+    "capstone.ingestion.collector:run_collector",
+    "capstone.ingestion.mtconnect:_child",
+    "capstone.ingestion.mtconnect:_local",
+    "capstone.ingestion.mtconnect:parse_streams",
+    "capstone.ingestion.mtconnect:raise_if_error",
+    "capstone.ingestion.record:parse_line"
+   ],
+   "exercise_count": 11,
+   "modules_exercised": [
+    "capstone.ingestion.collector",
+    "capstone.ingestion.mtconnect",
+    "capstone.ingestion.record"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_collector_watchdog.py::test_failed_polls_never_write_a_heartbeat",
+   "file": "tests/test_collector_watchdog.py",
+   "name": "test_failed_polls_never_write_a_heartbeat",
+   "line": 145,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [
+    "tmp_path",
+    "capsys"
+   ],
+   "assertions": 2,
+   "assert_forms": {
+    "equality": 1,
+    "membership": 1
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "failed polls never write a heartbeat",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.ingestion.collector:MTConnectCollector.__init__",
+    "capstone.ingestion.collector:MTConnectCollector._url",
+    "capstone.ingestion.collector:MTConnectCollector.poll",
+    "capstone.ingestion.collector:_marker",
+    "capstone.ingestion.collector:append_jsonl",
+    "capstone.ingestion.collector:run_collector",
+    "capstone.ingestion.record:parse_line"
+   ],
+   "exercise_count": 7,
+   "modules_exercised": [
+    "capstone.ingestion.collector",
+    "capstone.ingestion.record"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_collector_watchdog.py::test_the_monitor_counts_a_heartbeat_as_contact",
+   "file": "tests/test_collector_watchdog.py",
+   "name": "test_the_monitor_counts_a_heartbeat_as_contact",
+   "line": 157,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 1,
+   "assert_forms": {
+    "equality": 1
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "the monitor counts a heartbeat as contact",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.ingestion.record:TelemetryRecord.number",
+    "capstone.monitoring.monitor:Monitor.__init__",
+    "capstone.monitoring.monitor:Monitor._availability",
+    "capstone.monitoring.monitor:Monitor._collector",
+    "capstone.monitoring.monitor:Monitor._device_back",
+    "capstone.monitoring.monitor:Monitor._end",
+    "capstone.monitoring.monitor:Monitor._status",
+    "capstone.monitoring.monitor:Monitor._threshold",
+    "capstone.monitoring.monitor:Monitor.check_stale",
+    "capstone.monitoring.monitor:Monitor.observe",
+    "capstone.monitoring.monitor:Monitor.observe_marker",
+    "capstone.monitoring.runner:replay"
+   ],
+   "exercise_count": 12,
+   "modules_exercised": [
+    "capstone.ingestion.record",
+    "capstone.monitoring.monitor",
+    "capstone.monitoring.runner"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
    "id": "tests/test_console.py::test_an_unencodable_character_is_escaped_not_fatal",
    "file": "tests/test_console.py",
    "name": "test_an_unencodable_character_is_escaped_not_fatal",
@@ -44290,7 +44724,7 @@
    "uses": [],
    "quality_flags": [],
    "claims": "Every tracked Python file is inventoried, a test, excluded with a reason,",
-   "execution_outcome": "passed",
+   "execution_outcome": "failed",
    "exercises": [
     "evaluation.evaltools.build_inventory:call_name",
     "evaluation.evaltools.build_inventory:collect_functions",
@@ -65527,6 +65961,803 @@
    ]
   },
   {
+   "id": "tests/test_mtconnect_ingestion.py::test_parse_reads_header_and_sorts_records_by_sequence",
+   "file": "tests/test_mtconnect_ingestion.py",
+   "name": "test_parse_reads_header_and_sorts_records_by_sequence",
+   "line": 103,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 3,
+   "assert_forms": {
+    "equality": 3
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "parse reads header and sorts records by sequence",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.ingestion.mtconnect:_child",
+    "capstone.ingestion.mtconnect:_local",
+    "capstone.ingestion.mtconnect:_record",
+    "capstone.ingestion.mtconnect:_value",
+    "capstone.ingestion.mtconnect:parse_streams",
+    "capstone.ingestion.mtconnect:raise_if_error"
+   ],
+   "exercise_count": 6,
+   "modules_exercised": [
+    "capstone.ingestion.mtconnect"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_mtconnect_ingestion.py::test_parse_maps_samples_events_and_conditions",
+   "file": "tests/test_mtconnect_ingestion.py",
+   "name": "test_parse_maps_samples_events_and_conditions",
+   "line": 114,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 6,
+   "assert_forms": {
+    "equality": 5,
+    "truthiness": 1
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "parse maps samples events and conditions",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.ingestion.mtconnect:_child",
+    "capstone.ingestion.mtconnect:_local",
+    "capstone.ingestion.mtconnect:_record",
+    "capstone.ingestion.mtconnect:_value",
+    "capstone.ingestion.mtconnect:parse_streams",
+    "capstone.ingestion.mtconnect:raise_if_error",
+    "capstone.ingestion.record:TelemetryRecord.number"
+   ],
+   "exercise_count": 7,
+   "modules_exercised": [
+    "capstone.ingestion.mtconnect",
+    "capstone.ingestion.record"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_mtconnect_ingestion.py::test_unavailable_stays_missing_and_is_never_zero",
+   "file": "tests/test_mtconnect_ingestion.py",
+   "name": "test_unavailable_stays_missing_and_is_never_zero",
+   "line": 135,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 3,
+   "assert_forms": {
+    "identity_constant": 1,
+    "is_none": 2
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "unavailable stays missing and is never zero",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.ingestion.mtconnect:_child",
+    "capstone.ingestion.mtconnect:_local",
+    "capstone.ingestion.mtconnect:_record",
+    "capstone.ingestion.mtconnect:_value",
+    "capstone.ingestion.mtconnect:parse_streams",
+    "capstone.ingestion.mtconnect:raise_if_error",
+    "capstone.ingestion.record:TelemetryRecord.number"
+   ],
+   "exercise_count": 7,
+   "modules_exercised": [
+    "capstone.ingestion.mtconnect",
+    "capstone.ingestion.record"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_mtconnect_ingestion.py::test_dataset_entries_are_stored_as_sorted_json",
+   "file": "tests/test_mtconnect_ingestion.py",
+   "name": "test_dataset_entries_are_stored_as_sorted_json",
+   "line": 143,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 1,
+   "assert_forms": {
+    "equality": 1
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "dataset entries are stored as sorted json",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.ingestion.mtconnect:_child",
+    "capstone.ingestion.mtconnect:_local",
+    "capstone.ingestion.mtconnect:_record",
+    "capstone.ingestion.mtconnect:_value",
+    "capstone.ingestion.mtconnect:parse_streams",
+    "capstone.ingestion.mtconnect:raise_if_error"
+   ],
+   "exercise_count": 6,
+   "modules_exercised": [
+    "capstone.ingestion.mtconnect"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_mtconnect_ingestion.py::test_older_schema_namespace_parses_the_same",
+   "file": "tests/test_mtconnect_ingestion.py",
+   "name": "test_older_schema_namespace_parses_the_same",
+   "line": 148,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 1,
+   "assert_forms": {
+    "equality": 1
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "older schema namespace parses the same",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.ingestion.mtconnect:_child",
+    "capstone.ingestion.mtconnect:_local",
+    "capstone.ingestion.mtconnect:_record",
+    "capstone.ingestion.mtconnect:_value",
+    "capstone.ingestion.mtconnect:parse_streams",
+    "capstone.ingestion.mtconnect:raise_if_error"
+   ],
+   "exercise_count": 6,
+   "modules_exercised": [
+    "capstone.ingestion.mtconnect"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_mtconnect_ingestion.py::test_error_documents_raise_with_their_codes",
+   "file": "tests/test_mtconnect_ingestion.py",
+   "name": "test_error_documents_raise_with_their_codes",
+   "line": 153,
+   "docstring": "",
+   "parametrized": true,
+   "fixtures": [
+    "xml"
+   ],
+   "assertions": 1,
+   "assert_forms": {
+    "equality": 1
+   },
+   "raises_checks": 1,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "error documents raise with their codes",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.ingestion.mtconnect:MTConnectError.__init__",
+    "capstone.ingestion.mtconnect:_child",
+    "capstone.ingestion.mtconnect:_local",
+    "capstone.ingestion.mtconnect:parse_streams",
+    "capstone.ingestion.mtconnect:raise_if_error"
+   ],
+   "exercise_count": 5,
+   "modules_exercised": [
+    "capstone.ingestion.mtconnect"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_mtconnect_ingestion.py::test_records_round_trip_through_json",
+   "file": "tests/test_mtconnect_ingestion.py",
+   "name": "test_records_round_trip_through_json",
+   "line": 159,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 1,
+   "assert_forms": {
+    "equality": 1
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "records round trip through json",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.ingestion.mtconnect:_child",
+    "capstone.ingestion.mtconnect:_local",
+    "capstone.ingestion.mtconnect:_record",
+    "capstone.ingestion.mtconnect:_value",
+    "capstone.ingestion.mtconnect:parse_streams",
+    "capstone.ingestion.mtconnect:raise_if_error"
+   ],
+   "exercise_count": 6,
+   "modules_exercised": [
+    "capstone.ingestion.mtconnect"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_mtconnect_ingestion.py::test_first_poll_reads_current_then_samples_from_next_sequence",
+   "file": "tests/test_mtconnect_ingestion.py",
+   "name": "test_first_poll_reads_current_then_samples_from_next_sequence",
+   "line": 173,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 2,
+   "assert_forms": {
+    "equality": 2
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "first poll reads current then samples from next sequence",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.ingestion.collector:MTConnectCollector.__init__",
+    "capstone.ingestion.collector:MTConnectCollector._url",
+    "capstone.ingestion.collector:MTConnectCollector.poll",
+    "capstone.ingestion.mtconnect:_child",
+    "capstone.ingestion.mtconnect:_local",
+    "capstone.ingestion.mtconnect:_record",
+    "capstone.ingestion.mtconnect:_value",
+    "capstone.ingestion.mtconnect:parse_streams",
+    "capstone.ingestion.mtconnect:raise_if_error"
+   ],
+   "exercise_count": 9,
+   "modules_exercised": [
+    "capstone.ingestion.collector",
+    "capstone.ingestion.mtconnect"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_mtconnect_ingestion.py::test_device_scopes_every_request",
+   "file": "tests/test_mtconnect_ingestion.py",
+   "name": "test_device_scopes_every_request",
+   "line": 184,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 1,
+   "assert_forms": {
+    "equality": 1
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "device scopes every request",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.ingestion.collector:MTConnectCollector.__init__",
+    "capstone.ingestion.collector:MTConnectCollector._url",
+    "capstone.ingestion.collector:MTConnectCollector.poll",
+    "capstone.ingestion.mtconnect:_child",
+    "capstone.ingestion.mtconnect:_local",
+    "capstone.ingestion.mtconnect:parse_streams",
+    "capstone.ingestion.mtconnect:raise_if_error"
+   ],
+   "exercise_count": 7,
+   "modules_exercised": [
+    "capstone.ingestion.collector",
+    "capstone.ingestion.mtconnect"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_mtconnect_ingestion.py::test_sample_drops_records_already_seen",
+   "file": "tests/test_mtconnect_ingestion.py",
+   "name": "test_sample_drops_records_already_seen",
+   "line": 191,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 2,
+   "assert_forms": {
+    "equality": 1,
+    "identity_constant": 1
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "sample drops records already seen",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.ingestion.collector:MTConnectCollector.__init__",
+    "capstone.ingestion.collector:MTConnectCollector._url",
+    "capstone.ingestion.collector:MTConnectCollector.poll",
+    "capstone.ingestion.mtconnect:_child",
+    "capstone.ingestion.mtconnect:_local",
+    "capstone.ingestion.mtconnect:_record",
+    "capstone.ingestion.mtconnect:_value",
+    "capstone.ingestion.mtconnect:parse_streams",
+    "capstone.ingestion.mtconnect:raise_if_error"
+   ],
+   "exercise_count": 9,
+   "modules_exercised": [
+    "capstone.ingestion.collector",
+    "capstone.ingestion.mtconnect"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_mtconnect_ingestion.py::test_out_of_range_reports_a_gap_and_restarts_from_current",
+   "file": "tests/test_mtconnect_ingestion.py",
+   "name": "test_out_of_range_reports_a_gap_and_restarts_from_current",
+   "line": 202,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 2,
+   "assert_forms": {
+    "equality": 1,
+    "truthiness": 1
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "out of range reports a gap and restarts from current",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.ingestion.collector:MTConnectCollector.__init__",
+    "capstone.ingestion.collector:MTConnectCollector._url",
+    "capstone.ingestion.collector:MTConnectCollector.poll",
+    "capstone.ingestion.mtconnect:MTConnectError.__init__",
+    "capstone.ingestion.mtconnect:_child",
+    "capstone.ingestion.mtconnect:_local",
+    "capstone.ingestion.mtconnect:parse_streams",
+    "capstone.ingestion.mtconnect:raise_if_error"
+   ],
+   "exercise_count": 8,
+   "modules_exercised": [
+    "capstone.ingestion.collector",
+    "capstone.ingestion.mtconnect"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_mtconnect_ingestion.py::test_buffer_overrun_is_reported_as_a_gap",
+   "file": "tests/test_mtconnect_ingestion.py",
+   "name": "test_buffer_overrun_is_reported_as_a_gap",
+   "line": 214,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 1,
+   "assert_forms": {
+    "identity_constant": 1
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "buffer overrun is reported as a gap",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.ingestion.collector:MTConnectCollector.__init__",
+    "capstone.ingestion.collector:MTConnectCollector._url",
+    "capstone.ingestion.collector:MTConnectCollector.poll",
+    "capstone.ingestion.mtconnect:_child",
+    "capstone.ingestion.mtconnect:_local",
+    "capstone.ingestion.mtconnect:parse_streams",
+    "capstone.ingestion.mtconnect:raise_if_error"
+   ],
+   "exercise_count": 7,
+   "modules_exercised": [
+    "capstone.ingestion.collector",
+    "capstone.ingestion.mtconnect"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_mtconnect_ingestion.py::test_agent_restart_discards_old_sequences_and_restarts",
+   "file": "tests/test_mtconnect_ingestion.py",
+   "name": "test_agent_restart_discards_old_sequences_and_restarts",
+   "line": 223,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 3,
+   "assert_forms": {
+    "equality": 2,
+    "truthiness": 1
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "agent restart discards old sequences and restarts",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.ingestion.collector:MTConnectCollector.__init__",
+    "capstone.ingestion.collector:MTConnectCollector._url",
+    "capstone.ingestion.collector:MTConnectCollector.poll",
+    "capstone.ingestion.mtconnect:_child",
+    "capstone.ingestion.mtconnect:_local",
+    "capstone.ingestion.mtconnect:_record",
+    "capstone.ingestion.mtconnect:_value",
+    "capstone.ingestion.mtconnect:parse_streams",
+    "capstone.ingestion.mtconnect:raise_if_error"
+   ],
+   "exercise_count": 9,
+   "modules_exercised": [
+    "capstone.ingestion.collector",
+    "capstone.ingestion.mtconnect"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_mtconnect_ingestion.py::test_more_waiting_when_the_agent_holds_more_than_one_request",
+   "file": "tests/test_mtconnect_ingestion.py",
+   "name": "test_more_waiting_when_the_agent_holds_more_than_one_request",
+   "line": 237,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 1,
+   "assert_forms": {
+    "identity_constant": 1
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "more waiting when the agent holds more than one request",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.ingestion.collector:MTConnectCollector.__init__",
+    "capstone.ingestion.collector:MTConnectCollector._url",
+    "capstone.ingestion.collector:MTConnectCollector.poll",
+    "capstone.ingestion.mtconnect:_child",
+    "capstone.ingestion.mtconnect:_local",
+    "capstone.ingestion.mtconnect:parse_streams",
+    "capstone.ingestion.mtconnect:raise_if_error"
+   ],
+   "exercise_count": 7,
+   "modules_exercised": [
+    "capstone.ingestion.collector",
+    "capstone.ingestion.mtconnect"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_mtconnect_ingestion.py::test_run_collector_writes_jsonl_and_survives_failures",
+   "file": "tests/test_mtconnect_ingestion.py",
+   "name": "test_run_collector_writes_jsonl_and_survives_failures",
+   "line": 247,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [
+    "tmp_path"
+   ],
+   "assertions": 6,
+   "assert_forms": {
+    "equality": 6
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "run collector writes jsonl and survives failures",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.ingestion.collector:MTConnectCollector.__init__",
+    "capstone.ingestion.collector:MTConnectCollector._url",
+    "capstone.ingestion.collector:MTConnectCollector.poll",
+    "capstone.ingestion.collector:_marker",
+    "capstone.ingestion.collector:append_jsonl",
+    "capstone.ingestion.collector:run_collector",
+    "capstone.ingestion.mtconnect:_child",
+    "capstone.ingestion.mtconnect:_local",
+    "capstone.ingestion.mtconnect:_record",
+    "capstone.ingestion.mtconnect:_value",
+    "capstone.ingestion.mtconnect:parse_streams",
+    "capstone.ingestion.mtconnect:raise_if_error",
+    "capstone.ingestion.record:parse_line"
+   ],
+   "exercise_count": 13,
+   "modules_exercised": [
+    "capstone.ingestion.collector",
+    "capstone.ingestion.mtconnect",
+    "capstone.ingestion.record"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_mtconnect_ingestion.py::test_run_collector_refuses_to_poll_faster_than_the_minimum",
+   "file": "tests/test_mtconnect_ingestion.py",
+   "name": "test_run_collector_refuses_to_poll_faster_than_the_minimum",
+   "line": 269,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [
+    "tmp_path"
+   ],
+   "assertions": 0,
+   "assert_forms": {},
+   "raises_checks": 1,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "run collector refuses to poll faster than the minimum",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.ingestion.collector:MTConnectCollector.__init__",
+    "capstone.ingestion.collector:run_collector"
+   ],
+   "exercise_count": 2,
+   "modules_exercised": [
+    "capstone.ingestion.collector"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_mtconnect_ingestion.py::test_http_get_sends_only_get_and_reads_error_bodies",
+   "file": "tests/test_mtconnect_ingestion.py",
+   "name": "test_http_get_sends_only_get_and_reads_error_bodies",
+   "line": 276,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [
+    "monkeypatch"
+   ],
+   "assertions": 2,
+   "assert_forms": {
+    "equality": 1,
+    "membership": 1
+   },
+   "raises_checks": 0,
+   "uses": [
+    "monkeypatch"
+   ],
+   "quality_flags": [
+    "patches_dependencies"
+   ],
+   "claims": "http get sends only get and reads error bodies",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.ingestion.collector:http_get"
+   ],
+   "exercise_count": 1,
+   "modules_exercised": [
+    "capstone.ingestion.collector"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_mtconnect_ingestion.py::test_ctrl_c_writes_a_clean_stop_and_keeps_the_count",
+   "file": "tests/test_mtconnect_ingestion.py",
+   "name": "test_ctrl_c_writes_a_clean_stop_and_keeps_the_count",
+   "line": 313,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [
+    "tmp_path"
+   ],
+   "assertions": 3,
+   "assert_forms": {
+    "equality": 3
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "ctrl c writes a clean stop and keeps the count",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.ingestion.collector:MTConnectCollector.__init__",
+    "capstone.ingestion.collector:MTConnectCollector._url",
+    "capstone.ingestion.collector:MTConnectCollector.poll",
+    "capstone.ingestion.collector:_marker",
+    "capstone.ingestion.collector:append_jsonl",
+    "capstone.ingestion.collector:run_collector",
+    "capstone.ingestion.mtconnect:_child",
+    "capstone.ingestion.mtconnect:_local",
+    "capstone.ingestion.mtconnect:_record",
+    "capstone.ingestion.mtconnect:_value",
+    "capstone.ingestion.mtconnect:parse_streams",
+    "capstone.ingestion.mtconnect:raise_if_error",
+    "capstone.ingestion.record:parse_line"
+   ],
+   "exercise_count": 13,
+   "modules_exercised": [
+    "capstone.ingestion.collector",
+    "capstone.ingestion.mtconnect",
+    "capstone.ingestion.record"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_mtconnect_ingestion.py::test_a_crash_writes_no_stop_marker",
+   "file": "tests/test_mtconnect_ingestion.py",
+   "name": "test_a_crash_writes_no_stop_marker",
+   "line": 325,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [
+    "tmp_path"
+   ],
+   "assertions": 1,
+   "assert_forms": {
+    "equality": 1
+   },
+   "raises_checks": 1,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "a crash writes no stop marker",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.ingestion.collector:MTConnectCollector.__init__",
+    "capstone.ingestion.collector:MTConnectCollector._url",
+    "capstone.ingestion.collector:MTConnectCollector.poll",
+    "capstone.ingestion.collector:_marker",
+    "capstone.ingestion.collector:append_jsonl",
+    "capstone.ingestion.collector:run_collector",
+    "capstone.ingestion.record:parse_line"
+   ],
+   "exercise_count": 7,
+   "modules_exercised": [
+    "capstone.ingestion.collector",
+    "capstone.ingestion.record"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_mtconnect_ingestion.py::test_lines_written_before_markers_existed_still_read_as_observations",
+   "file": "tests/test_mtconnect_ingestion.py",
+   "name": "test_lines_written_before_markers_existed_still_read_as_observations",
+   "line": 333,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 1,
+   "assert_forms": {
+    "equality": 1
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "lines written before markers existed still read as observations",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.ingestion.mtconnect:_child",
+    "capstone.ingestion.mtconnect:_local",
+    "capstone.ingestion.mtconnect:_record",
+    "capstone.ingestion.mtconnect:_value",
+    "capstone.ingestion.mtconnect:parse_streams",
+    "capstone.ingestion.mtconnect:raise_if_error",
+    "capstone.ingestion.record:parse_line"
+   ],
+   "exercise_count": 7,
+   "modules_exercised": [
+    "capstone.ingestion.mtconnect",
+    "capstone.ingestion.record"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
    "id": "tests/test_observability.py::test_event_context_is_json_with_explicit_simulator_tick",
    "file": "tests/test_observability.py",
    "name": "test_event_context_is_json_with_explicit_simulator_tick",
@@ -81424,6 +82655,753 @@
    "exercises": [],
    "exercise_count": 0,
    "modules_exercised": [],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_telemetry_monitor.py::test_condition_alerts_once_escalates_and_recovers",
+   "file": "tests/test_telemetry_monitor.py",
+   "name": "test_condition_alerts_once_escalates_and_recovers",
+   "line": 58,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 2,
+   "assert_forms": {
+    "equality": 2
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "condition alerts once escalates and recovers",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.ingestion.record:TelemetryRecord.number",
+    "capstone.monitoring.monitor:Monitor.__init__",
+    "capstone.monitoring.monitor:Monitor._alert",
+    "capstone.monitoring.monitor:Monitor._availability",
+    "capstone.monitoring.monitor:Monitor._condition",
+    "capstone.monitoring.monitor:Monitor._device_back",
+    "capstone.monitoring.monitor:Monitor._end",
+    "capstone.monitoring.monitor:Monitor._threshold",
+    "capstone.monitoring.monitor:Monitor.check_stale",
+    "capstone.monitoring.monitor:Monitor.observe",
+    "capstone.monitoring.runner:replay"
+   ],
+   "exercise_count": 11,
+   "modules_exercised": [
+    "capstone.ingestion.record",
+    "capstone.monitoring.monitor",
+    "capstone.monitoring.runner"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_telemetry_monitor.py::test_unavailable_from_the_start_is_not_an_alert",
+   "file": "tests/test_telemetry_monitor.py",
+   "name": "test_unavailable_from_the_start_is_not_an_alert",
+   "line": 78,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 1,
+   "assert_forms": {
+    "equality": 1
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "unavailable from the start is not an alert",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.ingestion.record:TelemetryRecord.number",
+    "capstone.monitoring.monitor:Monitor.__init__",
+    "capstone.monitoring.monitor:Monitor._availability",
+    "capstone.monitoring.monitor:Monitor._device_back",
+    "capstone.monitoring.monitor:Monitor._end",
+    "capstone.monitoring.monitor:Monitor._threshold",
+    "capstone.monitoring.monitor:Monitor.check_stale",
+    "capstone.monitoring.monitor:Monitor.observe",
+    "capstone.monitoring.runner:replay"
+   ],
+   "exercise_count": 9,
+   "modules_exercised": [
+    "capstone.ingestion.record",
+    "capstone.monitoring.monitor",
+    "capstone.monitoring.runner"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_telemetry_monitor.py::test_channel_going_unavailable_alerts_and_recovers",
+   "file": "tests/test_telemetry_monitor.py",
+   "name": "test_channel_going_unavailable_alerts_and_recovers",
+   "line": 82,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 1,
+   "assert_forms": {
+    "equality": 1
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "channel going unavailable alerts and recovers",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.ingestion.record:TelemetryRecord.number",
+    "capstone.monitoring.monitor:Monitor.__init__",
+    "capstone.monitoring.monitor:Monitor._alert",
+    "capstone.monitoring.monitor:Monitor._availability",
+    "capstone.monitoring.monitor:Monitor._device_back",
+    "capstone.monitoring.monitor:Monitor._end",
+    "capstone.monitoring.monitor:Monitor._start",
+    "capstone.monitoring.monitor:Monitor._status",
+    "capstone.monitoring.monitor:Monitor._threshold",
+    "capstone.monitoring.monitor:Monitor.check_stale",
+    "capstone.monitoring.monitor:Monitor.observe",
+    "capstone.monitoring.runner:replay"
+   ],
+   "exercise_count": 12,
+   "modules_exercised": [
+    "capstone.ingestion.record",
+    "capstone.monitoring.monitor",
+    "capstone.monitoring.runner"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_telemetry_monitor.py::test_status_changes_are_reported_but_not_the_first_value",
+   "file": "tests/test_telemetry_monitor.py",
+   "name": "test_status_changes_are_reported_but_not_the_first_value",
+   "line": 94,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 2,
+   "assert_forms": {
+    "equality": 2
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "status changes are reported but not the first value",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.ingestion.record:TelemetryRecord.number",
+    "capstone.monitoring.monitor:Monitor.__init__",
+    "capstone.monitoring.monitor:Monitor._alert",
+    "capstone.monitoring.monitor:Monitor._availability",
+    "capstone.monitoring.monitor:Monitor._device_back",
+    "capstone.monitoring.monitor:Monitor._end",
+    "capstone.monitoring.monitor:Monitor._status",
+    "capstone.monitoring.monitor:Monitor._threshold",
+    "capstone.monitoring.monitor:Monitor.check_stale",
+    "capstone.monitoring.monitor:Monitor.observe",
+    "capstone.monitoring.runner:replay"
+   ],
+   "exercise_count": 11,
+   "modules_exercised": [
+    "capstone.ingestion.record",
+    "capstone.monitoring.monitor",
+    "capstone.monitoring.runner"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_telemetry_monitor.py::test_emergency_stop_triggered_is_a_fault",
+   "file": "tests/test_telemetry_monitor.py",
+   "name": "test_emergency_stop_triggered_is_a_fault",
+   "line": 100,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 1,
+   "assert_forms": {
+    "equality": 1
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "emergency stop triggered is a fault",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.ingestion.record:TelemetryRecord.number",
+    "capstone.monitoring.monitor:Monitor.__init__",
+    "capstone.monitoring.monitor:Monitor._alert",
+    "capstone.monitoring.monitor:Monitor._availability",
+    "capstone.monitoring.monitor:Monitor._device_back",
+    "capstone.monitoring.monitor:Monitor._end",
+    "capstone.monitoring.monitor:Monitor._status",
+    "capstone.monitoring.monitor:Monitor._threshold",
+    "capstone.monitoring.monitor:Monitor.check_stale",
+    "capstone.monitoring.monitor:Monitor.observe",
+    "capstone.monitoring.runner:replay"
+   ],
+   "exercise_count": 11,
+   "modules_exercised": [
+    "capstone.ingestion.record",
+    "capstone.monitoring.monitor",
+    "capstone.monitoring.runner"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_telemetry_monitor.py::test_threshold_by_id_or_name_fires_once_and_recovers",
+   "file": "tests/test_telemetry_monitor.py",
+   "name": "test_threshold_by_id_or_name_fires_once_and_recovers",
+   "line": 110,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 2,
+   "assert_forms": {
+    "equality": 2
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "threshold by id or name fires once and recovers",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.ingestion.record:TelemetryRecord.number",
+    "capstone.monitoring.monitor:Monitor.__init__",
+    "capstone.monitoring.monitor:Monitor._alert",
+    "capstone.monitoring.monitor:Monitor._availability",
+    "capstone.monitoring.monitor:Monitor._device_back",
+    "capstone.monitoring.monitor:Monitor._end",
+    "capstone.monitoring.monitor:Monitor._start",
+    "capstone.monitoring.monitor:Monitor._threshold",
+    "capstone.monitoring.monitor:Monitor.check_stale",
+    "capstone.monitoring.monitor:Monitor.observe",
+    "capstone.monitoring.runner:replay"
+   ],
+   "exercise_count": 11,
+   "modules_exercised": [
+    "capstone.ingestion.record",
+    "capstone.monitoring.monitor",
+    "capstone.monitoring.runner"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_telemetry_monitor.py::test_silence_in_a_recording_is_found_without_the_wall_clock",
+   "file": "tests/test_telemetry_monitor.py",
+   "name": "test_silence_in_a_recording_is_found_without_the_wall_clock",
+   "line": 126,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 2,
+   "assert_forms": {
+    "equality": 1,
+    "is_none": 1
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "silence in a recording is found without the wall clock",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.ingestion.record:TelemetryRecord.number",
+    "capstone.monitoring.monitor:Monitor.__init__",
+    "capstone.monitoring.monitor:Monitor._alert",
+    "capstone.monitoring.monitor:Monitor._availability",
+    "capstone.monitoring.monitor:Monitor._device_back",
+    "capstone.monitoring.monitor:Monitor._end",
+    "capstone.monitoring.monitor:Monitor._start",
+    "capstone.monitoring.monitor:Monitor._status",
+    "capstone.monitoring.monitor:Monitor._threshold",
+    "capstone.monitoring.monitor:Monitor.check_stale",
+    "capstone.monitoring.monitor:Monitor.observe",
+    "capstone.monitoring.runner:replay"
+   ],
+   "exercise_count": 12,
+   "modules_exercised": [
+    "capstone.ingestion.record",
+    "capstone.monitoring.monitor",
+    "capstone.monitoring.runner"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_telemetry_monitor.py::test_stale_is_reported_once_per_silence",
+   "file": "tests/test_telemetry_monitor.py",
+   "name": "test_stale_is_reported_once_per_silence",
+   "line": 135,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 3,
+   "assert_forms": {
+    "equality": 3
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "stale is reported once per silence",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.ingestion.record:TelemetryRecord.number",
+    "capstone.monitoring.monitor:Monitor.__init__",
+    "capstone.monitoring.monitor:Monitor._availability",
+    "capstone.monitoring.monitor:Monitor._device_back",
+    "capstone.monitoring.monitor:Monitor._end",
+    "capstone.monitoring.monitor:Monitor._start",
+    "capstone.monitoring.monitor:Monitor._status",
+    "capstone.monitoring.monitor:Monitor._threshold",
+    "capstone.monitoring.monitor:Monitor.check_stale",
+    "capstone.monitoring.monitor:Monitor.observe"
+   ],
+   "exercise_count": 10,
+   "modules_exercised": [
+    "capstone.ingestion.record",
+    "capstone.monitoring.monitor"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_telemetry_monitor.py::test_replay_is_deterministic",
+   "file": "tests/test_telemetry_monitor.py",
+   "name": "test_replay_is_deterministic",
+   "line": 143,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 1,
+   "assert_forms": {
+    "equality": 1
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "replay is deterministic",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.ingestion.record:TelemetryRecord.number",
+    "capstone.monitoring.monitor:Monitor.__init__",
+    "capstone.monitoring.monitor:Monitor._alert",
+    "capstone.monitoring.monitor:Monitor._availability",
+    "capstone.monitoring.monitor:Monitor._condition",
+    "capstone.monitoring.monitor:Monitor._device_back",
+    "capstone.monitoring.monitor:Monitor._end",
+    "capstone.monitoring.monitor:Monitor._status",
+    "capstone.monitoring.monitor:Monitor._threshold",
+    "capstone.monitoring.monitor:Monitor.check_stale",
+    "capstone.monitoring.monitor:Monitor.observe",
+    "capstone.monitoring.runner:replay"
+   ],
+   "exercise_count": 12,
+   "modules_exercised": [
+    "capstone.ingestion.record",
+    "capstone.monitoring.monitor",
+    "capstone.monitoring.runner"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_telemetry_monitor.py::test_follower_reads_only_complete_lines_and_skips_bad_ones",
+   "file": "tests/test_telemetry_monitor.py",
+   "name": "test_follower_reads_only_complete_lines_and_skips_bad_ones",
+   "line": 153,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [
+    "tmp_path",
+    "capsys"
+   ],
+   "assertions": 3,
+   "assert_forms": {
+    "equality": 2,
+    "membership": 1
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [
+    "may_skip"
+   ],
+   "claims": "follower reads only complete lines and skips bad ones",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.ingestion.record:parse_line",
+    "capstone.monitoring.runner:JsonlFollower.__init__",
+    "capstone.monitoring.runner:JsonlFollower.read_new"
+   ],
+   "exercise_count": 3,
+   "modules_exercised": [
+    "capstone.ingestion.record",
+    "capstone.monitoring.runner"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_telemetry_monitor.py::test_command_line_replay_writes_alerts",
+   "file": "tests/test_telemetry_monitor.py",
+   "name": "test_command_line_replay_writes_alerts",
+   "line": 166,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [
+    "tmp_path"
+   ],
+   "assertions": 2,
+   "assert_forms": {
+    "equality": 1,
+    "membership": 1
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "command line replay writes alerts",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.ingestion.record:TelemetryRecord.number",
+    "capstone.ingestion.record:parse_line",
+    "capstone.monitoring.__main__:main",
+    "capstone.monitoring.monitor:Monitor.__init__",
+    "capstone.monitoring.monitor:Monitor._alert",
+    "capstone.monitoring.monitor:Monitor._availability",
+    "capstone.monitoring.monitor:Monitor._device_back",
+    "capstone.monitoring.monitor:Monitor._end",
+    "capstone.monitoring.monitor:Monitor._status",
+    "capstone.monitoring.monitor:Monitor._threshold",
+    "capstone.monitoring.monitor:Monitor.check_stale",
+    "capstone.monitoring.monitor:Monitor.observe",
+    "capstone.monitoring.runner:JsonlFollower.__init__",
+    "capstone.monitoring.runner:JsonlFollower.read_new",
+    "capstone.monitoring.runner:append_alerts",
+    "capstone.monitoring.runner:replay"
+   ],
+   "exercise_count": 16,
+   "modules_exercised": [
+    "capstone.ingestion.record",
+    "capstone.monitoring.__main__",
+    "capstone.monitoring.monitor",
+    "capstone.monitoring.runner"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_telemetry_monitor.py::test_following_a_file_in_pieces_gives_the_same_alerts_as_replaying_it",
+   "file": "tests/test_telemetry_monitor.py",
+   "name": "test_following_a_file_in_pieces_gives_the_same_alerts_as_replaying_it",
+   "line": 179,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [
+    "tmp_path"
+   ],
+   "assertions": 2,
+   "assert_forms": {
+    "equality": 2
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "following a file in pieces gives the same alerts as replaying it",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.ingestion.record:TelemetryRecord.number",
+    "capstone.ingestion.record:parse_line",
+    "capstone.monitoring.monitor:Monitor.__init__",
+    "capstone.monitoring.monitor:Monitor._alert",
+    "capstone.monitoring.monitor:Monitor._availability",
+    "capstone.monitoring.monitor:Monitor._condition",
+    "capstone.monitoring.monitor:Monitor._device_back",
+    "capstone.monitoring.monitor:Monitor._end",
+    "capstone.monitoring.monitor:Monitor._start",
+    "capstone.monitoring.monitor:Monitor._status",
+    "capstone.monitoring.monitor:Monitor._threshold",
+    "capstone.monitoring.monitor:Monitor.check_stale",
+    "capstone.monitoring.monitor:Monitor.observe",
+    "capstone.monitoring.runner:JsonlFollower.__init__",
+    "capstone.monitoring.runner:JsonlFollower.read_new",
+    "capstone.monitoring.runner:replay"
+   ],
+   "exercise_count": 16,
+   "modules_exercised": [
+    "capstone.ingestion.record",
+    "capstone.monitoring.monitor",
+    "capstone.monitoring.runner"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_telemetry_monitor.py::test_monitoring_is_plain_code_with_no_model_clock_or_network",
+   "file": "tests/test_telemetry_monitor.py",
+   "name": "test_monitoring_is_plain_code_with_no_model_clock_or_network",
+   "line": 204,
+   "docstring": "The monitor never calls a model or the agent, and never reads a clock.",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 2,
+   "assert_forms": {
+    "membership": 1,
+    "negation": 1
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [
+    "exercises_no_project_function"
+   ],
+   "claims": "The monitor never calls a model or the agent, and never reads a clock.",
+   "execution_outcome": "passed",
+   "exercises": [],
+   "exercise_count": 0,
+   "modules_exercised": [],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_telemetry_monitor.py::test_a_clean_stop_and_later_start_is_not_stale",
+   "file": "tests/test_telemetry_monitor.py",
+   "name": "test_a_clean_stop_and_later_start_is_not_stale",
+   "line": 247,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 1,
+   "assert_forms": {
+    "equality": 1
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "a clean stop and later start is not stale",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.ingestion.record:TelemetryRecord.number",
+    "capstone.monitoring.monitor:Monitor.__init__",
+    "capstone.monitoring.monitor:Monitor._availability",
+    "capstone.monitoring.monitor:Monitor._collector",
+    "capstone.monitoring.monitor:Monitor._device_back",
+    "capstone.monitoring.monitor:Monitor._end",
+    "capstone.monitoring.monitor:Monitor._status",
+    "capstone.monitoring.monitor:Monitor._threshold",
+    "capstone.monitoring.monitor:Monitor.check_stale",
+    "capstone.monitoring.monitor:Monitor.observe",
+    "capstone.monitoring.monitor:Monitor.observe_marker",
+    "capstone.monitoring.runner:replay"
+   ],
+   "exercise_count": 12,
+   "modules_exercised": [
+    "capstone.ingestion.record",
+    "capstone.monitoring.monitor",
+    "capstone.monitoring.runner"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_telemetry_monitor.py::test_a_start_without_a_clean_stop_warns_of_a_crash",
+   "file": "tests/test_telemetry_monitor.py",
+   "name": "test_a_start_without_a_clean_stop_warns_of_a_crash",
+   "line": 265,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 2,
+   "assert_forms": {
+    "equality": 1,
+    "membership": 1
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "a start without a clean stop warns of a crash",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.ingestion.record:TelemetryRecord.number",
+    "capstone.monitoring.monitor:Monitor.__init__",
+    "capstone.monitoring.monitor:Monitor._alert",
+    "capstone.monitoring.monitor:Monitor._availability",
+    "capstone.monitoring.monitor:Monitor._collector",
+    "capstone.monitoring.monitor:Monitor._device_back",
+    "capstone.monitoring.monitor:Monitor._end",
+    "capstone.monitoring.monitor:Monitor._start",
+    "capstone.monitoring.monitor:Monitor._status",
+    "capstone.monitoring.monitor:Monitor._threshold",
+    "capstone.monitoring.monitor:Monitor.check_stale",
+    "capstone.monitoring.monitor:Monitor.observe",
+    "capstone.monitoring.monitor:Monitor.observe_marker",
+    "capstone.monitoring.runner:replay"
+   ],
+   "exercise_count": 14,
+   "modules_exercised": [
+    "capstone.ingestion.record",
+    "capstone.monitoring.monitor",
+    "capstone.monitoring.runner"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_telemetry_monitor.py::test_data_without_a_start_marker_counts_as_a_running_collector",
+   "file": "tests/test_telemetry_monitor.py",
+   "name": "test_data_without_a_start_marker_counts_as_a_running_collector",
+   "line": 284,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 1,
+   "assert_forms": {
+    "equality": 1
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "data without a start marker counts as a running collector",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.ingestion.record:TelemetryRecord.number",
+    "capstone.monitoring.monitor:Monitor.__init__",
+    "capstone.monitoring.monitor:Monitor._availability",
+    "capstone.monitoring.monitor:Monitor._collector",
+    "capstone.monitoring.monitor:Monitor._device_back",
+    "capstone.monitoring.monitor:Monitor._end",
+    "capstone.monitoring.monitor:Monitor._status",
+    "capstone.monitoring.monitor:Monitor._threshold",
+    "capstone.monitoring.monitor:Monitor.check_stale",
+    "capstone.monitoring.monitor:Monitor.observe",
+    "capstone.monitoring.monitor:Monitor.observe_marker",
+    "capstone.monitoring.runner:replay"
+   ],
+   "exercise_count": 12,
+   "modules_exercised": [
+    "capstone.ingestion.record",
+    "capstone.monitoring.monitor",
+    "capstone.monitoring.runner"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_telemetry_monitor.py::test_follower_reads_markers_and_observations",
+   "file": "tests/test_telemetry_monitor.py",
+   "name": "test_follower_reads_markers_and_observations",
+   "line": 291,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [
+    "tmp_path"
+   ],
+   "assertions": 1,
+   "assert_forms": {
+    "equality": 1
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "follower reads markers and observations",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.ingestion.record:parse_line",
+    "capstone.monitoring.runner:JsonlFollower.__init__",
+    "capstone.monitoring.runner:JsonlFollower.read_new"
+   ],
+   "exercise_count": 3,
+   "modules_exercised": [
+    "capstone.ingestion.record",
+    "capstone.monitoring.runner"
+   ],
    "judgment": "NOT ASSESSED",
    "curated": {},
    "snap_questions": [

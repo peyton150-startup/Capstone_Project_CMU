@@ -119,6 +119,12 @@ GROUPS: dict[str, list[str]] = {
     ],
     # The runner: one seeded episode from fault to score, end to end.
     "Episode": ["episode", "progress_view"],
+    # Real-machine telemetry: the read-only MTConnect collector and its monitor.
+    "Live telemetry": [
+        "mtconnect_ingestion",
+        "telemetry_monitor",
+        "collector_watchdog",
+    ],
 }
 
 
