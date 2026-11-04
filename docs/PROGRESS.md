@@ -15,6 +15,14 @@
 > settings, the real-data provider as the main missing piece, proposed success targets, what one machine can and
 > cannot test, an agreement checklist and revised sizing.
 
+> **2026-11-04 — telemetry kept out of git checkouts (built ungated, developer to review; understood: no):**
+> From the PR #164 review: this repository is public, and nothing stopped collected shop telemetry from being
+> committed. New `capstone/ingestion/privacy.py` (`git_checkout_containing`, `refusal`, `ALLOW_FLAG`, `ALLOW_HELP`).
+> The collector (`--out`, `--save-probe`), monitor (`--alerts`) and watchdog (`--alerts`) now refuse an output path
+> inside any git checkout unless `--allow-inside-repo` is given, for synthetic fixtures only. `.gitignore` adds
+> `telemetry/` and `pilot-data/`. A blanket `*.jsonl` rule was not used: `docs/benchmarks/` tracks 37 benchmark
+> JSONL files. Tests in `tests/test_mtconnect_ingestion.py`; two existing CLI tests now pass the flag.
+> Merged on the developer's instruction before the pre-merge walkthrough (AGENTS.md §11 step 6); the walkthrough is still owed.
 
 > **2026-11-03 — evaluator test attribution and constructor callers (built ungated, developer to review; understood: no):**
 > The developer authorized Codex to make this one code fix despite the usual

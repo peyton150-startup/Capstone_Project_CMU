@@ -100,7 +100,8 @@ def test_last_line_skips_a_half_written_line_and_bad_lines(tmp_path):
 def test_command_line_reports_a_dead_collector(tmp_path):
     source, alerts = tmp_path / "t.jsonl", tmp_path / "w.jsonl"
     write(source, [marker("started", -10_000), record(-9_990)])
-    assert main(["--input", str(source), "--alerts", str(alerts), "--checks", "1"]) == 0
+    args = ["--input", str(source), "--alerts", str(alerts), "--checks", "1"]
+    assert main([*args, "--allow-inside-repo"]) == 0
     assert '"kind":"silent"' in alerts.read_text("utf-8")
 
 
