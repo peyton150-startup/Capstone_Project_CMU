@@ -43944,7 +43944,7 @@
    "id": "tests/test_full_evaluation.py::test_every_episode_and_question_has_one_ledger_row",
    "file": "tests/test_full_evaluation.py",
    "name": "test_every_episode_and_question_has_one_ledger_row",
-   "line": 34,
+   "line": 36,
    "docstring": "52 episodes x 12 RUN questions, each once, each with a status.",
    "parametrized": false,
    "fixtures": [
@@ -43975,15 +43975,16 @@
     "capstone.experiment:read_records",
     "evaluation.evaltools.decision_models:estimate_tokens",
     "evaluation.evaltools.decision_models:fit_state",
+    "evaluation.evaltools.full_evaluation:case_identity",
     "evaluation.evaltools.full_evaluation:case_number",
     "evaluation.evaltools.full_evaluation:case_outcome",
     "evaluation.evaltools.full_evaluation:comparisons",
     "evaluation.evaltools.full_evaluation:ledger_rows",
+    "evaluation.evaltools.full_evaluation:match_cases",
     "evaluation.evaltools.full_evaluation:plan",
     "evaluation.evaltools.full_evaluation:run_name",
     "evaluation.evaltools.full_evaluation:run_settings",
     "evaluation.evaltools.full_evaluation:sample_rule",
-    "evaluation.evaltools.full_evaluation:sample_rule.<locals>.right",
     "evaluation.evaltools.run_packet:_sibling",
     "evaluation.evaltools.run_packet:audit_by_run",
     "evaluation.evaltools.run_packet:batch_summary",
@@ -43999,10 +44000,9 @@
     "evaluation.evaltools.run_packet:facts_of",
     "evaluation.evaltools.run_packet:forbidden_in_view",
     "evaluation.evaltools.run_packet:leak_in",
-    "evaluation.evaltools.run_packet:packet_file_name",
-    "evaluation.evaltools.run_packet:read_labels"
+    "evaluation.evaltools.run_packet:packet_file_name"
    ],
-   "exercise_count": 54,
+   "exercise_count": 55,
    "modules_exercised": [
     "capstone.contracts.investigations",
     "capstone.evaluation.labels",
@@ -44025,7 +44025,7 @@
    "id": "tests/test_full_evaluation.py::test_refused_episode_keeps_every_run_question_row",
    "file": "tests/test_full_evaluation.py",
    "name": "test_refused_episode_keeps_every_run_question_row",
-   "line": 46,
+   "line": 48,
    "docstring": "An invalid episode is still counted in the RUN ledger.",
    "parametrized": false,
    "fixtures": [
@@ -44072,7 +44072,7 @@
    "id": "tests/test_full_evaluation.py::test_the_report_keeps_the_published_denominators",
    "file": "tests/test_full_evaluation.py",
    "name": "test_the_report_keeps_the_published_denominators",
-   "line": 70,
+   "line": 72,
    "docstring": "Correctness per arm is the published n/judged with the pending labels.",
    "parametrized": false,
    "fixtures": [
@@ -44116,7 +44116,7 @@
    "id": "tests/test_full_evaluation.py::test_each_pair_is_compared_and_the_sample_rule_is_applied_in_code",
    "file": "tests/test_full_evaluation.py",
    "name": "test_each_pair_is_compared_and_the_sample_rule_is_applied_in_code",
-   "line": 93,
+   "line": 95,
    "docstring": "Two comparisons (one per pair); 11 matched cases is under the 13 needed.",
    "parametrized": false,
    "fixtures": [
@@ -44149,7 +44149,7 @@
    "id": "tests/test_full_evaluation.py::test_a_comparison_request_names_no_scenario_or_run_key",
    "file": "tests/test_full_evaluation.py",
    "name": "test_a_comparison_request_names_no_scenario_or_run_key",
-   "line": 106,
+   "line": 108,
    "docstring": "The BT state carries outcomes by case number, never the fault's name.",
    "parametrized": false,
    "fixtures": [
@@ -44182,7 +44182,7 @@
    "id": "tests/test_full_evaluation.py::test_the_sample_rule_is_met_with_enough_matched_cases",
    "file": "tests/test_full_evaluation.py",
    "name": "test_the_sample_rule_is_met_with_enough_matched_cases",
-   "line": 120,
+   "line": 122,
    "docstring": "",
    "parametrized": false,
    "fixtures": [
@@ -44203,11 +44203,12 @@
    "claims": "the sample rule is met with enough matched cases",
    "execution_outcome": "passed",
    "exercises": [
+    "evaluation.evaltools.full_evaluation:case_identity",
     "evaluation.evaltools.full_evaluation:case_number",
-    "evaluation.evaltools.full_evaluation:sample_rule",
-    "evaluation.evaltools.full_evaluation:sample_rule.<locals>.right"
+    "evaluation.evaltools.full_evaluation:match_cases",
+    "evaluation.evaltools.full_evaluation:sample_rule"
    ],
-   "exercise_count": 3,
+   "exercise_count": 4,
    "modules_exercised": [
     "evaluation.evaltools.full_evaluation"
    ],
@@ -44223,7 +44224,7 @@
    "id": "tests/test_full_evaluation.py::test_answers_settle_the_ledger_by_fingerprint",
    "file": "tests/test_full_evaluation.py",
    "name": "test_answers_settle_the_ledger_by_fingerprint",
-   "line": 139,
+   "line": 141,
    "docstring": "Sent answers mark rows answered; a failed request marks them failed.",
    "parametrized": false,
    "fixtures": [
@@ -44277,7 +44278,7 @@
    "id": "tests/test_full_evaluation.py::test_an_answer_to_another_request_settles_nothing",
    "file": "tests/test_full_evaluation.py",
    "name": "test_an_answer_to_another_request_settles_nothing",
-   "line": 176,
+   "line": 178,
    "docstring": "",
    "parametrized": false,
    "fixtures": [
@@ -44312,7 +44313,7 @@
    "id": "tests/test_full_evaluation.py::test_small_batches_resume_without_resending_completed_requests",
    "file": "tests/test_full_evaluation.py",
    "name": "test_small_batches_resume_without_resending_completed_requests",
-   "line": 191,
+   "line": 193,
    "docstring": "A large plan can advance through saved answers one request at a time.",
    "parametrized": false,
    "fixtures": [
@@ -44364,7 +44365,7 @@
    "id": "tests/test_full_evaluation.py::test_budgeted_send_reserves_before_post_and_resumes_from_measured_usage",
    "file": "tests/test_full_evaluation.py",
    "name": "test_budgeted_send_reserves_before_post_and_resumes_from_measured_usage",
-   "line": 220,
+   "line": 222,
    "docstring": "A small slice cannot overspend or repay a completed request on resume.",
    "parametrized": false,
    "fixtures": [
@@ -44425,7 +44426,7 @@
    "id": "tests/test_full_evaluation.py::test_budgeted_send_keeps_uncertain_charge_reserved_and_stops",
    "file": "tests/test_full_evaluation.py",
    "name": "test_budgeted_send_keeps_uncertain_charge_reserved_and_stops",
-   "line": 272,
+   "line": 274,
    "docstring": "Missing usage leaves a charge reserved and prevents another paid post.",
    "parametrized": false,
    "fixtures": [
@@ -44485,7 +44486,7 @@
    "id": "tests/test_full_evaluation.py::test_budgeted_send_refuses_a_charge_larger_than_the_remaining_cap",
    "file": "tests/test_full_evaluation.py",
    "name": "test_budgeted_send_refuses_a_charge_larger_than_the_remaining_cap",
-   "line": 316,
+   "line": 318,
    "docstring": "The whole possible input charge is reserved before any paid post.",
    "parametrized": false,
    "fixtures": [
@@ -44536,7 +44537,7 @@
    "id": "tests/test_full_evaluation.py::test_budgeted_send_reserves_the_documented_binary_context_window",
    "file": "tests/test_full_evaluation.py",
    "name": "test_budgeted_send_reserves_the_documented_binary_context_window",
-   "line": 349,
+   "line": 351,
    "docstring": "Snap's 384K window is 393,216 tokens, not a decimal 384,000.",
    "parametrized": false,
    "fixtures": [
@@ -44586,7 +44587,7 @@
    "id": "tests/test_full_evaluation.py::test_budgeted_send_rejects_nonfinite_limits",
    "file": "tests/test_full_evaluation.py",
    "name": "test_budgeted_send_rejects_nonfinite_limits",
-   "line": 382,
+   "line": 384,
    "docstring": "NaN or infinity cannot turn the dollar or time guard off.",
    "parametrized": false,
    "fixtures": [
@@ -44618,7 +44619,7 @@
    "id": "tests/test_full_evaluation.py::test_unverified_provider_is_refused_before_a_mixed_batch_posts",
    "file": "tests/test_full_evaluation.py",
    "name": "test_unverified_provider_is_refused_before_a_mixed_batch_posts",
-   "line": 402,
+   "line": 404,
    "docstring": "A both-provider plan makes no paid call if either price is unknown.",
    "parametrized": false,
    "fixtures": [
@@ -44667,7 +44668,7 @@
    "id": "tests/test_full_evaluation.py::test_a_saved_reply_finishes_an_interrupted_reservation",
    "file": "tests/test_full_evaluation.py",
    "name": "test_a_saved_reply_finishes_an_interrupted_reservation",
-   "line": 437,
+   "line": 439,
    "docstring": "A crash after saving the reply can resume without another paid post.",
    "parametrized": false,
    "fixtures": [
@@ -44727,7 +44728,7 @@
    "id": "tests/test_full_evaluation.py::test_malformed_usage_stops_with_a_visible_reason",
    "file": "tests/test_full_evaluation.py",
    "name": "test_malformed_usage_stops_with_a_visible_reason",
-   "line": 487,
+   "line": 489,
    "docstring": "A malformed provider usage field is an unknown charge, not a crash.",
    "parametrized": false,
    "fixtures": [
@@ -44788,7 +44789,7 @@
    "id": "tests/test_full_evaluation.py::test_full_command_uses_budgeted_sender",
    "file": "tests/test_full_evaluation.py",
    "name": "test_full_command_uses_budgeted_sender",
-   "line": 519,
+   "line": 521,
    "docstring": "The full command applies its limits to new sends, not the whole plan.",
    "parametrized": false,
    "fixtures": [
@@ -44835,6 +44836,7 @@
     "evaluation.evaltools.decision_models:estimate_tokens",
     "evaluation.evaltools.decision_models:fit_state",
     "evaluation.evaltools.full_evaluation:budget",
+    "evaluation.evaltools.full_evaluation:case_identity",
     "evaluation.evaltools.full_evaluation:case_number",
     "evaluation.evaltools.full_evaluation:case_outcome",
     "evaluation.evaltools.full_evaluation:comparisons",
@@ -44844,13 +44846,12 @@
     "evaluation.evaltools.full_evaluation:main",
     "evaluation.evaltools.full_evaluation:markdown",
     "evaluation.evaltools.full_evaluation:markdown.<locals>.fraction",
+    "evaluation.evaltools.full_evaluation:match_cases",
     "evaluation.evaltools.full_evaluation:plan",
     "evaluation.evaltools.full_evaluation:ratio",
-    "evaluation.evaltools.full_evaluation:report",
-    "evaluation.evaltools.full_evaluation:request_tokens_estimate",
-    "evaluation.evaltools.full_evaluation:run_name"
+    "evaluation.evaltools.full_evaluation:readiness"
    ],
-   "exercise_count": 73,
+   "exercise_count": 75,
    "modules_exercised": [
     "capstone.contracts.investigations",
     "capstone.evaluation.labels",
@@ -44874,7 +44875,7 @@
    "id": "tests/test_full_evaluation.py::test_a_plan_over_budget_is_refused_before_sending",
    "file": "tests/test_full_evaluation.py",
    "name": "test_a_plan_over_budget_is_refused_before_sending",
-   "line": 564,
+   "line": 566,
    "docstring": "Nothing is written as answers, and no key is needed to be refused.",
    "parametrized": false,
    "fixtures": [
@@ -44923,6 +44924,7 @@
     "evaluation.evaltools.decision_models:fit_state",
     "evaluation.evaltools.full_evaluation:budget",
     "evaluation.evaltools.full_evaluation:budgeted_send",
+    "evaluation.evaltools.full_evaluation:case_identity",
     "evaluation.evaltools.full_evaluation:case_number",
     "evaluation.evaltools.full_evaluation:case_outcome",
     "evaluation.evaltools.full_evaluation:comparisons",
@@ -44932,12 +44934,11 @@
     "evaluation.evaltools.full_evaluation:main",
     "evaluation.evaltools.full_evaluation:markdown",
     "evaluation.evaltools.full_evaluation:markdown.<locals>.fraction",
+    "evaluation.evaltools.full_evaluation:match_cases",
     "evaluation.evaltools.full_evaluation:plan",
-    "evaluation.evaltools.full_evaluation:ratio",
-    "evaluation.evaltools.full_evaluation:report",
-    "evaluation.evaltools.full_evaluation:request_tokens_estimate"
+    "evaluation.evaltools.full_evaluation:ratio"
    ],
-   "exercise_count": 74,
+   "exercise_count": 76,
    "modules_exercised": [
     "capstone.contracts.investigations",
     "capstone.evaluation.labels",
@@ -44961,7 +44962,7 @@
    "id": "tests/test_full_evaluation.py::test_the_budget_counts_the_whole_request_with_a_margin",
    "file": "tests/test_full_evaluation.py",
    "name": "test_the_budget_counts_the_whole_request_with_a_margin",
-   "line": 600,
+   "line": 602,
    "docstring": "The questions are paid for too; the 2026-11-02 Jev pilot billed 1.2-1.4x\nthe four-characters-per-token estimate of the whole body.",
    "parametrized": false,
    "fixtures": [],
@@ -44996,7 +44997,7 @@
    "id": "tests/test_full_evaluation.py::test_sending_needs_both_limits",
    "file": "tests/test_full_evaluation.py",
    "name": "test_sending_needs_both_limits",
-   "line": 628,
+   "line": 630,
    "docstring": "",
    "parametrized": false,
    "fixtures": [
@@ -45028,7 +45029,7 @@
    "id": "tests/test_full_evaluation.py::test_a_dry_run_writes_the_ledger_and_report",
    "file": "tests/test_full_evaluation.py",
    "name": "test_a_dry_run_writes_the_ledger_and_report",
-   "line": 633,
+   "line": 635,
    "docstring": "",
    "parametrized": false,
    "fixtures": [
@@ -45077,6 +45078,7 @@
     "evaluation.evaltools.decision_models:estimate_tokens",
     "evaluation.evaltools.decision_models:fit_state",
     "evaluation.evaltools.full_evaluation:budget",
+    "evaluation.evaltools.full_evaluation:case_identity",
     "evaluation.evaltools.full_evaluation:case_number",
     "evaluation.evaltools.full_evaluation:case_outcome",
     "evaluation.evaltools.full_evaluation:comparisons",
@@ -45086,13 +45088,12 @@
     "evaluation.evaltools.full_evaluation:main",
     "evaluation.evaltools.full_evaluation:markdown",
     "evaluation.evaltools.full_evaluation:markdown.<locals>.fraction",
+    "evaluation.evaltools.full_evaluation:match_cases",
     "evaluation.evaltools.full_evaluation:plan",
     "evaluation.evaltools.full_evaluation:ratio",
-    "evaluation.evaltools.full_evaluation:report",
-    "evaluation.evaltools.full_evaluation:request_tokens_estimate",
-    "evaluation.evaltools.full_evaluation:run_name"
+    "evaluation.evaltools.full_evaluation:readiness"
    ],
-   "exercise_count": 76,
+   "exercise_count": 78,
    "modules_exercised": [
     "capstone.contracts.investigations",
     "capstone.evaluation.labels",
@@ -45116,7 +45117,7 @@
    "id": "tests/test_full_evaluation.py::test_a_pinned_commit_that_is_not_checked_out_is_refused",
    "file": "tests/test_full_evaluation.py",
    "name": "test_a_pinned_commit_that_is_not_checked_out_is_refused",
-   "line": 667,
+   "line": 669,
    "docstring": "",
    "parametrized": false,
    "fixtures": [],
@@ -45149,7 +45150,7 @@
    "id": "tests/test_full_evaluation.py::test_provenance_needs_an_explicit_clean_commit",
    "file": "tests/test_full_evaluation.py",
    "name": "test_provenance_needs_an_explicit_clean_commit",
-   "line": 674,
+   "line": 676,
    "docstring": "",
    "parametrized": false,
    "fixtures": [
@@ -45185,7 +45186,7 @@
    "id": "tests/test_full_evaluation.py::test_the_scope_manifest_classes_every_file",
    "file": "tests/test_full_evaluation.py",
    "name": "test_the_scope_manifest_classes_every_file",
-   "line": 687,
+   "line": 689,
    "docstring": "",
    "parametrized": false,
    "fixtures": [
@@ -45223,7 +45224,7 @@
    "id": "tests/test_full_evaluation.py::test_the_repository_has_no_unexplained_python_file",
    "file": "tests/test_full_evaluation.py",
    "name": "test_the_repository_has_no_unexplained_python_file",
-   "line": 720,
+   "line": 722,
    "docstring": "Every tracked Python file is inventoried, a test, excluded with a reason,\nor holds no function; a new module the inventory misses fails here.",
    "parametrized": false,
    "fixtures": [],
@@ -45270,7 +45271,7 @@
    "id": "tests/test_full_evaluation.py::test_a_new_evaluator_function_requires_inventory_regeneration",
    "file": "tests/test_full_evaluation.py",
    "name": "test_a_new_evaluator_function_requires_inventory_regeneration",
-   "line": 740,
+   "line": 742,
    "docstring": "",
    "parametrized": false,
    "fixtures": [
@@ -45295,6 +45296,425 @@
    "exercise_count": 1,
    "modules_exercised": [
     "evaluation.evaltools.full_evaluation"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_full_evaluation.py::test_archived_cases_pair_by_scenario_and_seed",
+   "file": "tests/test_full_evaluation.py",
+   "name": "test_archived_cases_pair_by_scenario_and_seed",
+   "line": 771,
+   "docstring": "Every archived packet carries its seed, and the two arms pair on it.",
+   "parametrized": false,
+   "fixtures": [
+    "planned"
+   ],
+   "assertions": 4,
+   "assert_forms": {
+    "call_truthiness": 1,
+    "equality": 3
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "Every archived packet carries its seed, and the two arms pair on it.",
+   "execution_outcome": "passed",
+   "exercises": [
+    "evaluation.evaltools.full_evaluation:case_identity",
+    "evaluation.evaltools.full_evaluation:case_number",
+    "evaluation.evaltools.full_evaluation:match_cases",
+    "evaluation.evaltools.full_evaluation:sample_rule"
+   ],
+   "exercise_count": 4,
+   "modules_exercised": [
+    "evaluation.evaltools.full_evaluation"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_full_evaluation.py::test_reordered_cases_still_pair_and_the_reordering_is_flagged",
+   "file": "tests/test_full_evaluation.py",
+   "name": "test_reordered_cases_still_pair_and_the_reordering_is_flagged",
+   "line": 782,
+   "docstring": "Rotating B's case numbers changes no pairing, but is reported.",
+   "parametrized": false,
+   "fixtures": [
+    "planned"
+   ],
+   "assertions": 3,
+   "assert_forms": {
+    "equality": 3
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "Rotating B's case numbers changes no pairing, but is reported.",
+   "execution_outcome": "passed",
+   "exercises": [
+    "evaluation.evaltools.full_evaluation:case_identity",
+    "evaluation.evaltools.full_evaluation:case_number",
+    "evaluation.evaltools.full_evaluation:match_cases",
+    "evaluation.evaltools.full_evaluation:sample_rule"
+   ],
+   "exercise_count": 4,
+   "modules_exercised": [
+    "evaluation.evaltools.full_evaluation"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_full_evaluation.py::test_a_differently_seeded_case_is_not_paired",
+   "file": "tests/test_full_evaluation.py",
+   "name": "test_a_differently_seeded_case_is_not_paired",
+   "line": 803,
+   "docstring": "Same slot and scenario but another seed is a different case.",
+   "parametrized": false,
+   "fixtures": [
+    "planned"
+   ],
+   "assertions": 4,
+   "assert_forms": {
+    "equality": 4
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "Same slot and scenario but another seed is a different case.",
+   "execution_outcome": "passed",
+   "exercises": [
+    "evaluation.evaltools.full_evaluation:case_identity",
+    "evaluation.evaltools.full_evaluation:case_number",
+    "evaluation.evaltools.full_evaluation:match_cases",
+    "evaluation.evaltools.full_evaluation:sample_rule"
+   ],
+   "exercise_count": 4,
+   "modules_exercised": [
+    "evaluation.evaltools.full_evaluation"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_full_evaluation.py::test_a_case_without_a_seed_or_with_a_repeated_one_is_ambiguous",
+   "file": "tests/test_full_evaluation.py",
+   "name": "test_a_case_without_a_seed_or_with_a_repeated_one_is_ambiguous",
+   "line": 816,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [
+    "planned"
+   ],
+   "assertions": 3,
+   "assert_forms": {
+    "equality": 3
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "a case without a seed or with a repeated one is ambiguous",
+   "execution_outcome": "passed",
+   "exercises": [
+    "evaluation.evaltools.full_evaluation:case_identity",
+    "evaluation.evaltools.full_evaluation:case_number",
+    "evaluation.evaltools.full_evaluation:match_cases",
+    "evaluation.evaltools.full_evaluation:sample_rule"
+   ],
+   "exercise_count": 4,
+   "modules_exercised": [
+    "evaluation.evaltools.full_evaluation"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_full_evaluation.py::test_a_large_plan_finishes_through_small_resumed_slices",
+   "file": "tests/test_full_evaluation.py",
+   "name": "test_a_large_plan_finishes_through_small_resumed_slices",
+   "line": 871,
+   "docstring": "T24: many small slices finish the plan; no request is posted twice.",
+   "parametrized": false,
+   "fixtures": [
+    "snap_plan",
+    "tmp_path",
+    "monkeypatch"
+   ],
+   "assertions": 10,
+   "assert_forms": {
+    "equality": 7,
+    "ordering": 3
+   },
+   "raises_checks": 0,
+   "uses": [
+    "monkeypatch"
+   ],
+   "quality_flags": [
+    "patches_dependencies"
+   ],
+   "claims": "T24: many small slices finish the plan; no request is posted twice.",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.contracts.investigations:run_id_for",
+    "capstone.evaluation.labels:apply_label",
+    "capstone.evaluation.scoring:Cause.named_by",
+    "capstone.evaluation.scoring:Score.fully_right",
+    "capstone.evaluation.scoring:Score.miss_kind",
+    "capstone.evaluation.scoring:Score.model_unavailable",
+    "capstone.evaluation.scoring:Score.unnecessary_actions",
+    "capstone.evaluation.scoring:_closest",
+    "capstone.evaluation.scoring:_named",
+    "capstone.evaluation.scoring:judge",
+    "capstone.evaluation.scoring:judge_causes",
+    "capstone.experiment:read_records",
+    "capstone.providers.chat:post_json",
+    "evaluation.evaltools.decision_models:_number",
+    "evaluation.evaltools.decision_models:estimate_tokens",
+    "evaluation.evaltools.decision_models:fit_state",
+    "evaluation.evaltools.decision_models:normalize",
+    "evaluation.evaltools.full_evaluation:budgeted_send",
+    "evaluation.evaltools.full_evaluation:case_identity",
+    "evaluation.evaltools.full_evaluation:case_number",
+    "evaluation.evaltools.full_evaluation:case_outcome",
+    "evaluation.evaltools.full_evaluation:comparisons",
+    "evaluation.evaltools.full_evaluation:ledger_rows",
+    "evaluation.evaltools.full_evaluation:match_cases",
+    "evaluation.evaltools.full_evaluation:measured_snap_charge",
+    "evaluation.evaltools.full_evaluation:plan",
+    "evaluation.evaltools.full_evaluation:run_name",
+    "evaluation.evaltools.full_evaluation:run_settings",
+    "evaluation.evaltools.full_evaluation:sample_rule",
+    "evaluation.evaltools.full_evaluation:settle",
+    "evaluation.evaltools.run_packet:_sibling",
+    "evaluation.evaltools.run_packet:audit_by_run",
+    "evaluation.evaltools.run_packet:batch_summary",
+    "evaluation.evaltools.run_packet:build_all",
+    "evaluation.evaltools.run_packet:build_archive",
+    "evaluation.evaltools.run_packet:build_packet",
+    "evaluation.evaltools.run_packet:calibration",
+    "evaluation.evaltools.run_packet:check_no_truth_in_view",
+    "evaluation.evaltools.run_packet:check_unique",
+    "evaluation.evaltools.run_packet:configuration_of"
+   ],
+   "exercise_count": 72,
+   "modules_exercised": [
+    "capstone.contracts.investigations",
+    "capstone.evaluation.labels",
+    "capstone.evaluation.scoring",
+    "capstone.experiment",
+    "capstone.providers.chat",
+    "evaluation.evaltools.decision_models",
+    "evaluation.evaltools.full_evaluation",
+    "evaluation.evaltools.run_packet",
+    "evaluation.evaltools.snap_request"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_full_evaluation.py::test_cap_exhaustion_stops_safely_and_keeps_pending_rows",
+   "file": "tests/test_full_evaluation.py",
+   "name": "test_cap_exhaustion_stops_safely_and_keeps_pending_rows",
+   "line": 916,
+   "docstring": "The dollar cap is never passed, across resumes, and unsent rows stay planned.",
+   "parametrized": false,
+   "fixtures": [
+    "snap_plan",
+    "tmp_path",
+    "monkeypatch"
+   ],
+   "assertions": 6,
+   "assert_forms": {
+    "equality": 2,
+    "ordering": 4
+   },
+   "raises_checks": 0,
+   "uses": [
+    "monkeypatch"
+   ],
+   "quality_flags": [
+    "patches_dependencies"
+   ],
+   "claims": "The dollar cap is never passed, across resumes, and unsent rows stay planned.",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.providers.chat:post_json",
+    "evaluation.evaltools.decision_models:_number",
+    "evaluation.evaltools.decision_models:normalize",
+    "evaluation.evaltools.full_evaluation:budgeted_send",
+    "evaluation.evaltools.full_evaluation:measured_snap_charge",
+    "evaluation.evaltools.full_evaluation:settle",
+    "evaluation.evaltools.snap_request:already_answered",
+    "evaluation.evaltools.snap_request:file_stem",
+    "evaluation.evaltools.snap_request:normalized_answers",
+    "evaluation.evaltools.snap_request:send",
+    "evaluation.evaltools.snap_request:write_json",
+    "evaluation.evaltools.snap_request:write_requests"
+   ],
+   "exercise_count": 12,
+   "modules_exercised": [
+    "capstone.providers.chat",
+    "evaluation.evaltools.decision_models",
+    "evaluation.evaltools.full_evaluation",
+    "evaluation.evaltools.snap_request"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_full_evaluation.py::test_env_file_loads_only_the_provider_keys",
+   "file": "tests/test_full_evaluation.py",
+   "name": "test_env_file_loads_only_the_provider_keys",
+   "line": 951,
+   "docstring": "The key file sets the selected provider's key and nothing else.",
+   "parametrized": false,
+   "fixtures": [
+    "tmp_path",
+    "monkeypatch"
+   ],
+   "assertions": 5,
+   "assert_forms": {
+    "equality": 4,
+    "membership": 1
+   },
+   "raises_checks": 0,
+   "uses": [
+    "monkeypatch"
+   ],
+   "quality_flags": [
+    "patches_dependencies"
+   ],
+   "claims": "The key file sets the selected provider's key and nothing else.",
+   "execution_outcome": "passed",
+   "exercises": [
+    "evaluation.evaltools.full_evaluation:load_provider_keys"
+   ],
+   "exercise_count": 1,
+   "modules_exercised": [
+    "evaluation.evaltools.full_evaluation"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_full_evaluation.py::test_a_dry_run_reports_whether_snap_could_be_sent",
+   "file": "tests/test_full_evaluation.py",
+   "name": "test_a_dry_run_reports_whether_snap_could_be_sent",
+   "line": 968,
+   "docstring": "The report says the key is set and Snap's contract is verified; no value leaks.",
+   "parametrized": false,
+   "fixtures": [
+    "tmp_path",
+    "monkeypatch"
+   ],
+   "assertions": 3,
+   "assert_forms": {
+    "equality": 2,
+    "membership": 1
+   },
+   "raises_checks": 0,
+   "uses": [
+    "monkeypatch"
+   ],
+   "quality_flags": [
+    "patches_dependencies"
+   ],
+   "claims": "The report says the key is set and Snap's contract is verified; no value leaks.",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.contracts.investigations:run_id_for",
+    "capstone.evaluation.labels:apply_label",
+    "capstone.evaluation.scoring:Cause.named_by",
+    "capstone.evaluation.scoring:Score.fully_right",
+    "capstone.evaluation.scoring:Score.miss_kind",
+    "capstone.evaluation.scoring:Score.model_unavailable",
+    "capstone.evaluation.scoring:Score.unnecessary_actions",
+    "capstone.evaluation.scoring:_closest",
+    "capstone.evaluation.scoring:_named",
+    "capstone.evaluation.scoring:judge",
+    "capstone.evaluation.scoring:judge_causes",
+    "capstone.experiment:read_records",
+    "evaluation.evaltools.build_inventory:call_name",
+    "evaluation.evaltools.build_inventory:collect_functions",
+    "evaluation.evaltools.build_inventory:collect_functions.<locals>.visit",
+    "evaluation.evaltools.build_inventory:count_statements",
+    "evaluation.evaltools.build_inventory:exception_names",
+    "evaluation.evaltools.build_inventory:function_kind",
+    "evaluation.evaltools.build_inventory:is_stub",
+    "evaluation.evaltools.build_inventory:leading_comment",
+    "evaluation.evaltools.build_inventory:module_name",
+    "evaluation.evaltools.build_inventory:mutated_parameters",
+    "evaluation.evaltools.build_inventory:rel",
+    "evaluation.evaltools.decision_models:estimate_tokens",
+    "evaluation.evaltools.decision_models:fit_state",
+    "evaluation.evaltools.full_evaluation:budget",
+    "evaluation.evaltools.full_evaluation:case_identity",
+    "evaluation.evaltools.full_evaluation:case_number",
+    "evaluation.evaltools.full_evaluation:case_outcome",
+    "evaluation.evaltools.full_evaluation:comparisons",
+    "evaluation.evaltools.full_evaluation:git",
+    "evaluation.evaltools.full_evaluation:has_functions",
+    "evaluation.evaltools.full_evaluation:ledger_rows",
+    "evaluation.evaltools.full_evaluation:load_provider_keys",
+    "evaluation.evaltools.full_evaluation:main",
+    "evaluation.evaltools.full_evaluation:markdown",
+    "evaluation.evaltools.full_evaluation:markdown.<locals>.fraction",
+    "evaluation.evaltools.full_evaluation:match_cases",
+    "evaluation.evaltools.full_evaluation:plan",
+    "evaluation.evaltools.full_evaluation:ratio"
+   ],
+   "exercise_count": 79,
+   "modules_exercised": [
+    "capstone.contracts.investigations",
+    "capstone.evaluation.labels",
+    "capstone.evaluation.scoring",
+    "capstone.experiment",
+    "evaluation.evaltools.build_inventory",
+    "evaluation.evaltools.decision_models",
+    "evaluation.evaltools.full_evaluation",
+    "evaluation.evaltools.run_packet",
+    "evaluation.evaltools.snap_request"
    ],
    "judgment": "NOT ASSESSED",
    "curated": {},
