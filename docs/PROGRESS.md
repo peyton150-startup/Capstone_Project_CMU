@@ -1,5 +1,16 @@
 # Progress Log
 
+> **2026-11-04 — evaluator ready for a live Snap run (built ungated, developer to review; understood: no):**
+> Stacked on PR #172. Run packets keep each record's `seed` in private
+> `meta` (packet schema 1.3.0), and `full_evaluation.match_cases` pairs two
+> runs on scenario id and seed instead of slot number, reporting unpaired,
+> ambiguous and reordered cases (F06). Two tests drive the whole Snap plan
+> through many small fake slices with no duplicate post and stop at the dollar
+> cap without passing it across resumes (F04 / T24). `--env-file` loads only
+> the selected providers' keys from a git-ignored file, and every run reports
+> per provider whether its key is set and its live contract verified. Jev
+> stays blocked until Gate C. No model was called.
+
 > **2026-11-04 — bounded full-evaluator sending (built ungated, developer to review; understood: no):**
 > The developer authorized Codex to make evaluator code changes for this
 > session without changing `AGENTS.md`. `full_evaluation.budgeted_send` now

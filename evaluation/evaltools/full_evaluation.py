@@ -314,35 +314,104 @@ def case_outcome(packet: run_packet.RunEvidencePacket) -> dict:
     }
 
 
+def case_identity(packet: run_packet.RunEvidencePacket) -> tuple[str, int] | None:
+    """What a case ran: its scenario id and seed, or None without a seed.
+
+    Read from the packet's private `meta`, never shown to a judge.
+    """
+    if packet.meta.seed is None:
+        return None
+    return (packet.meta.scenario_id, packet.meta.seed)
+
+
+def match_cases(a: list, b: list) -> dict:
+    """Pair two runs' cases on scenario and seed, and name what cannot be paired.
+
+    Returns `pairs` (judge label, A packet, B packet) in case order, the
+    unpaired packets of each run, how many packets are `ambiguous` (no seed,
+    or a scenario and seed that repeat inside one run), and
+    `position_mismatches`: case numbers both runs use for different cases,
+    the reordering or replacement that pairing by position would hide.
+    """
+    # Variables:
+    #   index_a, index_b: Each run's packets grouped by case identity.
+    #   unique_a, unique_b: The identities that name exactly one packet in a
+    #     run; only those can be paired without guessing.
+    #   ambiguous: Packets left unpaired because their identity is missing or
+    #     repeats in their run; counted so they never vanish silently.
+    #   order: Sorts case numbers as numbers ("2" before "10").
+    #   pairs: The paired cases, labelled by A's case number for the judge.
+    #   by_number_a, by_number_b: Each run's identities by case number, for
+    #     the position check.
+    index_a: dict = defaultdict(list)
+    index_b: dict = defaultdict(list)
+    for group, index in ((a, index_a), (b, index_b)):
+        for packet in group:
+            index[case_identity(packet)].append(packet)
+    unique_a = {k for k, v in index_a.items() if k is not None and len(v) == 1}
+    unique_b = {k for k, v in index_b.items() if k is not None and len(v) == 1}
+    ambiguous = sum(
+        len(v)
+        for index, unique in ((index_a, unique_a), (index_b, unique_b))
+        for k, v in index.items()
+        if k not in unique
+    )
+    order = lambda c: (len(c), c)  # noqa: E731 - numeric-looking case order
+    pairs = sorted(
+        (
+            (case_number(index_a[k][0]), index_a[k][0], index_b[k][0])
+            for k in unique_a & unique_b
+        ),
+        key=lambda pair: order(pair[0]),
+    )
+    by_number_a = {case_number(p): case_identity(p) for p in a}
+    by_number_b = {case_number(p): case_identity(p) for p in b}
+    return {
+        "pairs": pairs,
+        "only_a": [index_a[k][0] for k in sorted(unique_a - unique_b)],
+        "only_b": [index_b[k][0] for k in sorted(unique_b - unique_a)],
+        "ambiguous": ambiguous,
+        "position_mismatches": sum(
+            by_number_a[n] != by_number_b[n]
+            for n in set(by_number_a) & set(by_number_b)
+        ),
+    }
+
+
 def sample_rule(a: list, b: list) -> dict:
     """BT-02's sample rule in code: cases judged in both runs, and the counts on them.
 
-    `a` and `b` are the two runs' packets. A case counts as matched when it
-    has the same case number in both and is judged in both (a label not
-    awaiting review). Below `MATCHED_CASES_NEEDED` matched cases, with one run
-    per case, the rule's answer is `insufficient_sample` whatever the counts.
+    `a` and `b` are the two runs' packets. A case counts as matched when both
+    runs ran the same scenario with the same seed (`match_cases`) and it is
+    judged in both (a label not awaiting review). Below `MATCHED_CASES_NEEDED`
+    matched cases, with one run per case, the rule's answer is
+    `insufficient_sample` whatever the counts.
     """
     # Variables:
-    #   by_case_a, by_case_b: Each run's packets by case number.
-    #   matched: Case numbers judged in both runs.
-    by_case_a = {case_number(p): p for p in a}
-    by_case_b = {case_number(p): p for p in b}
-    matched = sorted(
-        c
-        for c in set(by_case_a) & set(by_case_b)
-        if by_case_a[c].evaluator_only.label_status == "judged"
-        and by_case_b[c].evaluator_only.label_status == "judged"
-    )
-
-    def right(by_case):
-        return sum(by_case[c].evaluator_only.fully_right is True for c in matched)
-
+    #   cases: The scenario-and-seed pairing of the two runs.
+    #   matched: The pairs judged in both runs.
+    cases = match_cases(a, b)
+    matched = [
+        (pa, pb)
+        for _, pa, pb in cases["pairs"]
+        if pa.evaluator_only.label_status == "judged"
+        and pb.evaluator_only.label_status == "judged"
+    ]
     return {
         "cases_a": len(a),
         "cases_b": len(b),
+        "paired_by_scenario_and_seed": len(cases["pairs"]),
+        "unpaired_a": len(cases["only_a"]),
+        "unpaired_b": len(cases["only_b"]),
+        "ambiguous": cases["ambiguous"],
+        "position_mismatches": cases["position_mismatches"],
         "matched_judged": len(matched),
-        "right_on_matched_a": right(by_case_a),
-        "right_on_matched_b": right(by_case_b),
+        "right_on_matched_a": sum(
+            pa.evaluator_only.fully_right is True for pa, _ in matched
+        ),
+        "right_on_matched_b": sum(
+            pb.evaluator_only.fully_right is True for _, pb in matched
+        ),
         "rule": (
             "insufficient_sample"
             if len(matched) < MATCHED_CASES_NEEDED
@@ -362,6 +431,7 @@ def comparisons(packets: list) -> list[dict]:
     #   runs: Packets by (namespace, run name), only for namespaced packets.
     #   by_namespace: The run names of each namespace; every two of them make
     #     one comparison.
+    #   cases: The two runs' cases paired on scenario and seed (`match_cases`).
     #   state: What the judge is shown: both runs' settings and summaries and
     #     each case's outcome, keyed by case number only.
     #   forbidden: The scenario ids and keys of every packet in the comparison,
@@ -378,11 +448,7 @@ def comparisons(packets: list) -> list[dict]:
         for i, first in enumerate(names):
             for second in names[i + 1 :]:
                 a, b = runs[(namespace, first)], runs[(namespace, second)]
-                cases = sorted(
-                    {case_number(p) for p in a + b}, key=lambda c: (len(c), c)
-                )
-                by_a = {case_number(p): p for p in a}
-                by_b = {case_number(p): p for p in b}
+                cases = match_cases(a, b)
                 state = {
                     "comparison": f"{first} vs {second}",
                     "batches": [
@@ -404,13 +470,27 @@ def comparisons(packets: list) -> list[dict]:
                         }
                         for label, name, group in (("A", first, a), ("B", second, b))
                     ],
+                    # Paired on scenario and seed; the label is A's case
+                    # number, so the judge still sees no fault name.
                     "per_case": [
+                        {"case": c, "A": case_outcome(pa), "B": case_outcome(pb)}
+                        for c, pa, pb in cases["pairs"]
+                    ]
+                    + [
                         {
-                            "case": c,
-                            "A": case_outcome(by_a[c]) if c in by_a else None,
-                            "B": case_outcome(by_b[c]) if c in by_b else None,
+                            "case": f"{case_number(p)} (A only)",
+                            "A": case_outcome(p),
+                            "B": None,
                         }
-                        for c in cases
+                        for p in cases["only_a"]
+                    ]
+                    + [
+                        {
+                            "case": f"{case_number(p)} (B only)",
+                            "A": None,
+                            "B": case_outcome(p),
+                        }
+                        for p in cases["only_b"]
                     ],
                     "sample_rule_in_code": sample_rule(a, b),
                 }
@@ -1114,6 +1194,8 @@ def markdown(result: dict) -> str:
     #   lines: The page, built line by line.
     #   live: The measured or reserved spend and stop reason of an opted-in
     #     send; absent in an offline dry run.
+    #   readiness: Per provider, whether its key is set and its live contract
+    #     verified, so a dry run says whether `--send` could start.
     def fraction(r: dict) -> str:
         return f"{r['n']}/{r['of']}"
 
@@ -1158,9 +1240,13 @@ def markdown(result: dict) -> str:
     for comparison in result["comparisons"]:
         rule = comparison["sample_rule_in_code"]
         lines.append(
-            f"- `{comparison['item_id']}`: {rule['matched_judged']} cases judged in "
-            f"both; right on those A {rule['right_on_matched_a']}, B "
-            f"{rule['right_on_matched_b']}; rule: **{rule['rule']}**."
+            f"- `{comparison['item_id']}`: {rule['paired_by_scenario_and_seed']} "
+            f"cases paired by scenario and seed ({rule['unpaired_a']} only in A, "
+            f"{rule['unpaired_b']} only in B, {rule['ambiguous']} ambiguous, "
+            f"{rule['position_mismatches']} case numbers naming different cases); "
+            f"{rule['matched_judged']} judged in both; right on those A "
+            f"{rule['right_on_matched_a']}, B {rule['right_on_matched_b']}; "
+            f"rule: **{rule['rule']}**."
         )
     evidence = result["evidence"]
     lines += [
@@ -1194,6 +1280,14 @@ def markdown(result: dict) -> str:
         f"${spend['cost_usd_estimate']}.",
         "",
     ]
+    for name, state in (result.get("readiness") or {}).items():
+        lines.append(
+            f"- {name}: key `{state['key_env']}` "
+            f"{'set' if state['key_present'] else 'not set'}; live contract "
+            f"{'verified' if state['live_contract_verified'] else 'not verified (Gate C)'}."
+        )
+    if result.get("readiness"):
+        lines.append("")
     live = result.get("live_budget")
     if live is not None:
         lines += [
@@ -1210,6 +1304,54 @@ def markdown(result: dict) -> str:
 # --- command ------------------------------------------------------------------------------
 
 
+# Providers whose live request window and usage contract are confirmed, so
+# `budgeted_send` will post to them. Jev waits for Gate C's live calibration.
+LIVE_READY = ("snap",)
+
+
+def load_provider_keys(path: Path, providers: list[DecisionProvider]) -> list[str]:
+    """Put the providers' API keys from a `NAME=value` file into the environment.
+
+    Only the providers' own key names are read; every other line is ignored,
+    a key already in the environment wins, and no value is printed or
+    returned. Returns the names that were loaded.
+    """
+    # Variables:
+    #   wanted: The key names of the selected providers (`SUBQ_API_KEY`, ...).
+    #   name, value: One `NAME=value` line, with optional quotes and `export`.
+    #   loaded: The key names set from the file, returned without values.
+    wanted = {provider.key_env for provider in providers}
+    loaded = []
+    for line in path.read_text(encoding="utf-8").splitlines():
+        line = line.strip().removeprefix("export ").strip()
+        if not line or line.startswith("#") or "=" not in line:
+            continue
+        name, value = (part.strip() for part in line.split("=", 1))
+        value = value.strip("\"'")
+        if name in wanted and value and not os.environ.get(name):
+            os.environ[name] = value
+            loaded.append(name)
+    return sorted(loaded)
+
+
+def readiness(providers: list[DecisionProvider]) -> dict:
+    """Whether each selected provider could be sent to now: key set, contract known.
+
+    Says only whether a key is present, never its value.
+    """
+    # Variables:
+    #   LIVE_READY: The providers `budgeted_send` will post to; any other is
+    #     reported as blocked until its live contract is checked.
+    return {
+        provider.name: {
+            "key_env": provider.key_env,
+            "key_present": bool(os.environ.get(provider.key_env)),
+            "live_contract_verified": provider.name in LIVE_READY,
+        }
+        for provider in providers
+    }
+
+
 def main(argv=None) -> int:
     """Plan, optionally send, then write the ledger and the report."""
     # Variables:
@@ -1218,6 +1360,8 @@ def main(argv=None) -> int:
     #   spend: Full-plan estimated requests and input cost for the report.
     #   limit: The most new requests this invocation may send.
     #   counts: New sends, cumulative reserved/settled cost and stop reason.
+    #   ready: Per provider, whether its key is set and live sending is
+    #     allowed; printed before planning and kept in the report.
     parser = argparse.ArgumentParser(prog="python -m evaltools.full_evaluation")
     parser.add_argument(
         "--commit", help="the commit being evaluated (must be checked out)"
@@ -1247,6 +1391,11 @@ def main(argv=None) -> int:
         help="stop starting requests after this many seconds (default: 600)",
     )
     parser.add_argument(
+        "--env-file",
+        type=Path,
+        help="read provider API keys (e.g. SUBQ_API_KEY=...) from this file",
+    )
+    parser.add_argument(
         "--batch-size",
         type=int,
         help="send at most this many pending requests; rerun to resume",
@@ -1263,6 +1412,18 @@ def main(argv=None) -> int:
         if args.provider == "both"
         else [PROVIDERS[args.provider]]
     )
+    if args.env_file is not None:
+        if not args.env_file.exists():
+            parser.error(f"--env-file {args.env_file} does not exist")
+        load_provider_keys(args.env_file, providers)
+    ready = readiness(providers)
+    for name, state in ready.items():
+        print(
+            f"{name}: {state['key_env']} "
+            f"{'set' if state['key_present'] else 'NOT set'}; live sending "
+            f"{'allowed' if state['live_contract_verified'] else 'blocked until Gate C'}",
+            file=sys.stderr,
+        )
     raw, _ = snap_request.load_questions()
     try:
         prov = provenance(args.commit, args.inventory, raw["rubric_version"])
@@ -1300,6 +1461,7 @@ def main(argv=None) -> int:
     rows = settle(planned["rows"], requests_dir)
     scope = scope_manifest(planned["functions"], planned["tests"])
     result = report(planned, rows, scope, prov, spend)
+    result["readiness"] = ready
     if args.send:
         result["live_budget"] = counts
     with (args.out / "ledger.jsonl").open("w", encoding="utf-8", newline="\n") as file:

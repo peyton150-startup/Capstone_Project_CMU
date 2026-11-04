@@ -202,6 +202,27 @@ Snap's [model page](https://docs.subq.ai/using-the-api/models/) lists the
 input price and free output; its [Decisions API](https://docs.subq.ai/endpoints/decisions-api/)
 states the 393,216-token context limit and usage fields.
 
+### Running the Snap half live
+
+Put the Snap key in a git-ignored file (`.env` and `.env.*` are ignored), one
+line: `SUBQ_API_KEY=...`. `--env-file` reads only the selected providers' key
+names from it and never prints a value. Commit or stash first: the target must
+be a clean, checked-out commit. Then, from `evaluation/`:
+
+```
+uv run python -m evaltools.full_evaluation --commit $(git rev-parse HEAD)     --archive ../docs/benchmarks/2026-11-01-tot13-pairs     --archive ../docs/benchmarks/2026-11-02-audited-known-cases     --provider snap --env-file ../.env --out full-eval/snap-1
+```
+
+That dry run prints whether `SUBQ_API_KEY` is set and the full plan's request
+count and input estimate, and writes `report.md`. Add
+`--send --max-requests 20 --max-usd 0.50` to post a first slice; rerun the
+same command to resume. Each post reserves about $0.0157 (Snap's whole
+393,216-token window at $0.04 per million) until its usage settles, so
+`--max-usd` must exceed the expected spend by at least one reservation. Exit
+code 2 means a slice stopped on an uncertain charge, a missing key or an
+unverified provider; read `stop` in `report.md` before resuming. Pairs of runs
+are compared case by case on scenario and seed, never by slot number.
+
 ## 5. Interpret results
 
 - Report deterministic metrics and judge answers side by side, per case,

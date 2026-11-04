@@ -5,6 +5,8 @@ goes through a fake transport.
 """
 
 import json
+import os
+from collections import Counter
 from types import SimpleNamespace
 
 import pytest
@@ -748,3 +750,263 @@ def test_a_new_evaluator_function_requires_inventory_regeneration(monkeypatch):
     )
     scope = full_evaluation.scope_manifest({indexed: {"file": path}}, {}, files=[path])
     assert scope["unexplained"] == [added]
+
+
+# --- F06: pairing by scenario and seed ---------------------------------------------
+
+
+def _one_pair(result):
+    """The anchored and blind runs of one archived pair."""
+    namespace = result["packets"][0].meta.namespace
+    group = [p for p in result["packets"] if p.meta.namespace == namespace]
+    a = [p for p in group if p.meta.run_key.startswith("master-tot13-anchored")]
+    b = [p for p in group if p.meta.run_key.startswith("master-tot13-blind")]
+    return a, b
+
+
+def _with_meta(packet, **update):
+    return packet.model_copy(update={"meta": packet.meta.model_copy(update=update)})
+
+
+def test_archived_cases_pair_by_scenario_and_seed(planned):
+    """Every archived packet carries its seed, and the two arms pair on it."""
+    _, result = planned
+    assert all(p.meta.seed is not None for p in result["packets"])
+    a, b = _one_pair(result)
+    rule = full_evaluation.sample_rule(a, b)
+    assert rule["paired_by_scenario_and_seed"] == len(a) == len(b)
+    assert rule["ambiguous"] == rule["position_mismatches"] == 0
+    assert rule["unpaired_a"] == rule["unpaired_b"] == 0
+
+
+def test_reordered_cases_still_pair_and_the_reordering_is_flagged(planned):
+    """Rotating B's case numbers changes no pairing, but is reported."""
+    _, result = planned
+    a, b = _one_pair(result)
+    numbers = [full_evaluation.case_number(p) for p in b]
+    rotated = [
+        _with_meta(
+            p,
+            run_key=p.meta.run_key.replace(
+                f"/{n}/", f"/{numbers[(i + 1) % len(numbers)]}/", 1
+            ),
+        )
+        for i, (p, n) in enumerate(zip(b, numbers, strict=True))
+    ]
+    before = full_evaluation.sample_rule(a, b)
+    after = full_evaluation.sample_rule(a, rotated)
+    assert after["matched_judged"] == before["matched_judged"]
+    assert after["right_on_matched_b"] == before["right_on_matched_b"]
+    assert after["position_mismatches"] == len(b)
+
+
+def test_a_differently_seeded_case_is_not_paired(planned):
+    """Same slot and scenario but another seed is a different case."""
+    _, result = planned
+    a, b = _one_pair(result)
+    changed = [_with_meta(b[0], seed=b[0].meta.seed + 1000), *b[1:]]
+    rule = full_evaluation.sample_rule(a, changed)
+    assert rule["paired_by_scenario_and_seed"] == len(a) - 1
+    assert rule["unpaired_a"] == rule["unpaired_b"] == 1
+    assert rule["position_mismatches"] == 1
+    compared = full_evaluation.match_cases(a, changed)
+    assert compared["only_b"][0].meta.seed == b[0].meta.seed + 1000
+
+
+def test_a_case_without_a_seed_or_with_a_repeated_one_is_ambiguous(planned):
+    _, result = planned
+    a, b = _one_pair(result)
+    no_seed = [_with_meta(a[0], seed=None), *a[1:]]
+    assert full_evaluation.sample_rule(no_seed, b)["ambiguous"] == 1
+    repeated = [*a, _with_meta(a[0], run_key=a[0].meta.run_key + "-again")]
+    rule = full_evaluation.sample_rule(repeated, b)
+    assert rule["ambiguous"] == 2
+    assert rule["paired_by_scenario_and_seed"] == len(a) - 1
+
+
+# --- F04 / T24: a large plan through many small fake slices ------------------------
+
+
+def _answering_transport(input_tokens):
+    """A fake Snap that answers every question of every body, and keeps each post."""
+    posts = []
+
+    def transport(url, headers, data, timeout):
+        body = json.loads(data)
+        posts.append(body)
+        answers = {}
+        for name, question in body["questions"].items():
+            if question["type"] == "noul":
+                answers[name] = {"type": "noul", "noul": 0.7}
+            elif question["type"] == "choice":
+                first = next(iter(question["criteria"]))
+                answers[name] = {"type": "choice", "choice": first}
+            else:
+                answers[name] = {"type": "score", "score": 0}
+        reply = {
+            "model": PROVIDERS["snap"].model,
+            "usage": {"input_tokens": input_tokens, "output_tokens": 0},
+            "answers": answers,
+        }
+        return json.dumps(reply).encode()
+
+    transport.posts = posts
+    return transport
+
+
+@pytest.fixture(scope="module")
+def snap_plan(tmp_path_factory):
+    """The RUN, BT and TL plan for Snap alone: a large plan to drive in slices."""
+    out = tmp_path_factory.mktemp("snap-plan")
+    return full_evaluation.plan(
+        inventory=snap_request.INVENTORY,
+        archives=[TOT13_PAIRS],
+        providers=[PROVIDERS["snap"]],
+        out=out,
+        commit=None,
+        families=("RUN", "BT", "TL"),
+    )
+
+
+def test_a_large_plan_finishes_through_small_resumed_slices(
+    snap_plan, tmp_path, monkeypatch
+):
+    """T24: many small slices finish the plan; no request is posted twice."""
+    monkeypatch.setenv(PROVIDERS["snap"].key_env, "test-key")
+    bodies = [item for item in snap_plan["built"] if item["body"] is not None]
+    assert len(bodies) > 50
+    transport = _answering_transport(input_tokens=2_000)
+    slices = []
+    while True:
+        result = full_evaluation.budgeted_send(
+            snap_plan["built"],
+            tmp_path,
+            max_new_requests=7,
+            max_usd=1.0,
+            max_seconds=60,
+            transport=transport,
+        )
+        slices.append(result)
+        if result["stop_reason"] is None:
+            break
+        assert result["stop_reason"] == "request_limit"
+        assert len(slices) < 100
+    assert len(slices) >= len(bodies) // 7
+    assert len(transport.posts) == len(bodies)
+    unique = {json.dumps(body, sort_keys=True) for body in transport.posts}
+    assert len(unique) == len(bodies)
+    expected = len(bodies) * 2_000 * PROVIDERS["snap"].usd_per_million_input / 1e6
+    assert slices[-1]["spent_usd"] == pytest.approx(expected)
+    settled = full_evaluation.settle(snap_plan["rows"], tmp_path)
+    sent_rows = {r["status"] for r in settled if r.get("request_fingerprint")}
+    assert sent_rows == {"answered"}
+    # A finished plan sends nothing more.
+    again = full_evaluation.budgeted_send(
+        snap_plan["built"],
+        tmp_path,
+        max_new_requests=7,
+        max_usd=1.0,
+        max_seconds=60,
+        transport=transport,
+    )
+    assert again["sent"] == 0
+    assert len(transport.posts) == len(bodies)
+
+
+def test_cap_exhaustion_stops_safely_and_keeps_pending_rows(
+    snap_plan, tmp_path, monkeypatch
+):
+    """The dollar cap is never passed, across resumes, and unsent rows stay planned."""
+    monkeypatch.setenv(PROVIDERS["snap"].key_env, "test-key")
+    transport = _answering_transport(input_tokens=300_000)
+    price = PROVIDERS["snap"].usd_per_million_input / 1e6
+    reserve = full_evaluation.SNAP_BILLABLE_INPUT_CEILING * price
+    cap = 0.05
+    for _ in range(3):
+        result = full_evaluation.budgeted_send(
+            snap_plan["built"],
+            tmp_path,
+            max_new_requests=50,
+            max_usd=cap,
+            max_seconds=60,
+            transport=transport,
+        )
+        assert result["stop_reason"] == "usd_limit"
+        assert result["spent_usd"] <= cap
+        assert result["spent_usd"] + reserve > cap
+    each = 300_000 * price
+    assert len(transport.posts) == int((cap - reserve) // each) + 1
+    statuses = Counter(
+        r["status"]
+        for r in full_evaluation.settle(snap_plan["rows"], tmp_path)
+        if r.get("request_fingerprint")
+    )
+    assert statuses["answered"] > 0
+    assert statuses["planned"] > 0
+
+
+# --- Snap key input ----------------------------------------------------------------
+
+
+def test_env_file_loads_only_the_provider_keys(tmp_path, monkeypatch):
+    """The key file sets the selected provider's key and nothing else."""
+    snap = PROVIDERS["snap"]
+    monkeypatch.delenv(snap.key_env, raising=False)
+    monkeypatch.delenv("UNRELATED_SECRET", raising=False)
+    keys = tmp_path / ".env"
+    keys.write_text(
+        f"# keys\nexport {snap.key_env}='abc'\nUNRELATED_SECRET=x\n", encoding="utf-8"
+    )
+    assert full_evaluation.load_provider_keys(keys, [snap]) == [snap.key_env]
+    assert os.environ[snap.key_env] == "abc"
+    assert "UNRELATED_SECRET" not in os.environ
+    monkeypatch.setenv(snap.key_env, "already-set")
+    assert full_evaluation.load_provider_keys(keys, [snap]) == []
+    assert os.environ[snap.key_env] == "already-set"
+
+
+def test_a_dry_run_reports_whether_snap_could_be_sent(tmp_path, monkeypatch):
+    """The report says the key is set and Snap's contract is verified; no value leaks."""
+    snap = PROVIDERS["snap"]
+    monkeypatch.delenv(snap.key_env, raising=False)
+    monkeypatch.setattr(
+        full_evaluation,
+        "provenance",
+        lambda *args: {
+            "commit_pinned": "test",
+            "commit_checked_out": "test",
+            "tracked_changes_uncommitted": False,
+            "rubric_version": "1.0.0",
+            "packet_schema_version": "test",
+            "normalize_version": "test",
+        },
+    )
+    keys = tmp_path / "keys.env"
+    keys.write_text(f"{snap.key_env}=secret-value-123\n", encoding="utf-8")
+    out = tmp_path / "out"
+    status = full_evaluation.main(
+        [
+            "--archive",
+            str(TOT13_PAIRS),
+            "--families",
+            "BT",
+            "--provider",
+            "snap",
+            "--env-file",
+            str(keys),
+            "--out",
+            str(out),
+        ]
+    )
+    # The key file put the value in the process; take it out again.
+    monkeypatch.delenv(snap.key_env, raising=False)
+    assert status == 0
+    report = json.loads((out / "report.json").read_text(encoding="utf-8"))
+    assert report["readiness"]["snap"] == {
+        "key_env": snap.key_env,
+        "key_present": True,
+        "live_contract_verified": True,
+    }
+    for written in out.rglob("*"):
+        if written.is_file():
+            assert "secret-value-123" not in written.read_text("utf-8", "replace")
