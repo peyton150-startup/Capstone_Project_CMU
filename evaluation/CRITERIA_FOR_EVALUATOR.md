@@ -208,6 +208,15 @@ Found by the same 2026-11-02 probe, against the 1,378 inventoried tests.
 
 #### F04 — Make requests and money limits usable during an actual large run (P0; EVAL-06 / EVAL-15)
 
+- **Status (2026-11-04):** bounded Snap sending implemented and tested offline
+  on the evaluator fix branch. The full plan remains visible; each invocation
+  has request, cumulative dollar and wall-clock limits. A full-window charge
+  is reserved before posting; measured usage settles it; missing usage or an
+  interrupted post stops further sends without retrying. Jev/mixed live
+  sending remains blocked until Gate C confirms its request window and usage
+  contract. No paid request was made for this change. The complete T24
+  large-plan fake-provider acceptance run and live calibration remain open.
+
 - **Observed:** `full_evaluation.budget()` estimates **input tokens only**, not outputs or retries. `--max-requests` / `--max-usd` compare against the **entire plan** and abort before any send if the plan exceeds a limit. The current archive-only dry run reported around **2,016 requests per provider**; a small authorized budget cannot process the first slice.
 - **Fix:** Keep the full plan/ledger, but add bounded `--max-new-requests` / batch-size, a real wall-clock deadline, checkpointed state, and idempotent resume. Estimate both input and output tokens plus retry exposure; enforce an explicit hard spending policy from **measured** usage when returned, and a conservative fallback/stop when actual spend is unknown. Count remaining rather than already completed requests. Require explicit opt-in for live work and do not equate input-only estimates with dollar caps.
 - **Pass (T24):** A full dry run can be resumed through many **small** fake-provider slices with no duplicate payment/response; cap exhaustion stops safely with pending rows preserved. Retries, failures, response costs and unavailable usage never silently exceed or masquerade as a validated spending cap.

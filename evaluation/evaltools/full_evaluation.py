@@ -19,11 +19,10 @@ What it does, in order (CRITERIA_FOR_EVALUATOR.md EVAL-05, -06, -07):
    comparison of two runs in one archived pair (BT questions). Each item and
    question gets one ledger row: planned, or why it is not asked (unknown,
    not applicable, not run, not offered, not asked, unfittable, refused).
-4. **Budget.** The expected requests, input tokens and cost are printed.
-   With `--send`, a plan over `--max-requests` or `--max-usd` is refused
-   before anything is sent.
-5. **Send** (only with `--send`), through `snap_request.write_requests`:
-   resumable, reusing only complete answers to the same request fingerprint.
+4. **Budget.** The full-plan input estimate is printed. A live Snap slice
+   reserves its maximum charge before each new post, then settles reported usage.
+5. **Send** (only with `--send`): one bounded attempt per request, with
+   cumulative dollar and time limits. An uncertain charge stops the slice.
 6. **Ledger and report.** `ledger.jsonl` (one row per item, question and
    provider, with its final status) and `report.json` / `report.md`, which
    keep correctness, evidence, reliability, scope and missingness apart and
@@ -38,9 +37,12 @@ import ast
 import hashlib
 import json
 import math
+import os
 import subprocess
 import sys
+import time
 from collections import Counter, defaultdict
+from collections.abc import Callable
 from pathlib import Path
 
 from evaltools import build_inventory, run_packet, snap_request
@@ -692,6 +694,11 @@ def _bodiless(comparison: dict, provider: DecisionProvider, meta: dict, reason: 
 # adds half again: an estimate should stay above what is billed, not below.
 REQUEST_TOKEN_MARGIN = 1.5
 
+# The public Snap API says its 384K window is 393,216 tokens and its
+# decisions output is free. Reserve the entire billable input window before
+# posting, even if the fitted request looks much shorter.
+SNAP_BILLABLE_INPUT_CEILING = 393_216
+
 
 def request_tokens_estimate(body_tokens: int) -> int:
     """Input tokens a request is expected to bill, from its body's estimate."""
@@ -754,6 +761,181 @@ def pending_batch(built: list, requests_dir: Path, size: int) -> list:
         if len(pending) == size:
             break
     return pending
+
+
+def measured_snap_charge(
+    answer_path: Path, provider: DecisionProvider
+) -> tuple[float, int] | None:
+    """The billed input charge of one saved Snap reply, when usage is valid."""
+    # Variables:
+    #   reply: The raw provider reply saved with the answers, when it is an object.
+    #   usage: The provider's own token count, read from the saved raw reply.
+    #   token_count: Billable input tokens, bounded by Snap's context window.
+    if not answer_path.exists():
+        return None
+    answer = json.loads(answer_path.read_text(encoding="utf-8"))
+    reply = answer.get("raw_reply")
+    usage = reply.get("usage") if isinstance(reply, dict) else None
+    usage = usage if isinstance(usage, dict) else {}
+    token_count = usage.get("input_tokens")
+    if (
+        isinstance(token_count, bool)
+        or not isinstance(token_count, int)
+        or not 0 <= token_count <= SNAP_BILLABLE_INPUT_CEILING
+        or usage.get("output_tokens") != 0
+    ):
+        return None
+    return token_count * provider.usd_per_million_input / 1_000_000, token_count
+
+
+def budgeted_send(
+    built: list,
+    requests_dir: Path,
+    *,
+    max_new_requests: int,
+    max_usd: float,
+    max_seconds: float,
+    transport=snap_request.urllib_transport,
+    clock: Callable[[], float] = time.monotonic,
+) -> dict:
+    """Send a bounded slice, reserving its possible charge before each post.
+
+    Snap's input window and free-output contract are documented. One attempt per request
+    avoids an unmeasured retry charge. A missing usage report or interrupted
+    post leaves its reservation in place and stops later sends on resume.
+    """
+    # Variables:
+    #   transport, clock: The HTTP sender and monotonic timer; tests replace
+    #     both without making a paid request or waiting for wall-clock time.
+    #   deadline: The latest monotonic time a new post may begin.
+    #   reservations: Charges already settled or reserved in this output folder.
+    #   spent: The cumulative settled and reserved charge, including older slices.
+    #   charge: The full input-window price reserved before a post.
+    #   remaining: Seconds left in this invocation, also passed as the timeout.
+    #   reason: Why the next request was left pending or refused.
+    #   measured: The saved provider charge, replacing the reserved maximum.
+    if (
+        max_new_requests < 1
+        or not math.isfinite(max_usd)
+        or not math.isfinite(max_seconds)
+        or max_usd <= 0
+        or max_seconds <= 0
+    ):
+        raise ValueError("request, USD and time limits must be positive and finite")
+    requests_dir.mkdir(parents=True, exist_ok=True)
+    deadline = clock() + max_seconds
+    reservations = {}
+    for path in requests_dir.glob("*.reservation.json"):
+        saved = json.loads(path.read_text(encoding="utf-8"))
+        reservations[path] = saved
+    spent = sum(float(entry["charge_usd"]) for entry in reservations.values())
+    if any(
+        item["body"] is not None and item["tags"]["provider"] != "snap"
+        for item in built
+    ):
+        return {
+            "sent": 0,
+            "spent_usd": spent,
+            "stop_reason": "provider_context_unverified",
+            "reserved_or_settled": len(reservations),
+        }
+    sent = 0
+    reason = None
+    for item in built:
+        if item["body"] is None:
+            continue
+        tags = item["tags"]
+        provider = PROVIDERS[tags["provider"]]
+        if provider.name != "snap":
+            reason = "provider_context_unverified"
+            break
+        stem = snap_request.file_stem(tags)
+        answer_path = requests_dir / f"{stem}.answers.json"
+        reservation_path = requests_dir / f"{stem}.reservation.json"
+        if reservation_path in reservations:
+            reservation = reservations[reservation_path]
+            if (
+                reservation.get("request_fingerprint") != tags["request_fingerprint"]
+                or reservation.get("provider") != provider.name
+            ):
+                reason = "reservation_mismatch"
+                break
+            if reservation["status"] == "reserved" and snap_request.already_answered(
+                answer_path, tags
+            ):
+                measured = measured_snap_charge(answer_path, provider)
+                if measured is not None:
+                    spent += measured[0] - reservation["charge_usd"]
+                    reservation.update(
+                        charge_usd=measured[0],
+                        input_tokens=measured[1],
+                        status="settled",
+                    )
+                    snap_request.write_json(reservation_path, reservation)
+            if reservation["status"] == "settled" and snap_request.already_answered(
+                answer_path, tags
+            ):
+                continue
+            reason = "usage_unknown"
+            break
+        if answer_path.exists():
+            reason = "unaccounted_prior_answer"
+            break
+        if sent >= max_new_requests:
+            reason = "request_limit"
+            break
+        remaining = deadline - clock()
+        if remaining <= 0:
+            reason = "time_limit"
+            break
+        if not os.environ.get(provider.key_env):
+            reason = "missing_provider_key"
+            break
+        charge = (
+            SNAP_BILLABLE_INPUT_CEILING * provider.usd_per_million_input / 1_000_000
+        )
+        if spent + charge > max_usd:
+            reason = "usd_limit"
+            break
+        reservation = {
+            "request_fingerprint": tags["request_fingerprint"],
+            "provider": provider.name,
+            "charge_usd": charge,
+            "status": "reserved",
+        }
+        snap_request.write_json(reservation_path, reservation)
+        reservations[reservation_path] = reservation
+        spent += charge
+        counts = snap_request.write_requests(
+            [item],
+            requests_dir,
+            send_them=True,
+            transport=transport,
+            retries=0,
+            timeout_seconds=min(90.0, remaining),
+        )
+        sent += 1
+        if counts["failed"]:
+            reason = "usage_unknown"
+            break
+        measured = measured_snap_charge(answer_path, provider)
+        if measured is None:
+            reason = "usage_unknown"
+            break
+        reservation["charge_usd"] = measured[0]
+        reservation["status"] = "settled"
+        reservation["input_tokens"] = measured[1]
+        snap_request.write_json(reservation_path, reservation)
+        spent += measured[0] - charge
+        if not snap_request.already_answered(answer_path, tags):
+            reason = "incomplete_answer"
+            break
+    return {
+        "sent": sent,
+        "spent_usd": spent,
+        "stop_reason": reason,
+        "reserved_or_settled": len(reservations),
+    }
 
 
 def settle(rows: list[dict], requests_dir: Path) -> list[dict]:
@@ -930,6 +1112,8 @@ def markdown(result: dict) -> str:
 
     # Variables:
     #   lines: The page, built line by line.
+    #   live: The measured or reserved spend and stop reason of an opted-in
+    #     send; absent in an offline dry run.
     def fraction(r: dict) -> str:
         return f"{r['n']}/{r['of']}"
 
@@ -1010,6 +1194,16 @@ def markdown(result: dict) -> str:
         f"${spend['cost_usd_estimate']}.",
         "",
     ]
+    live = result.get("live_budget")
+    if live is not None:
+        lines += [
+            "## Live send budget",
+            "",
+            f"New requests sent: {live['sent']}; cumulative settled or reserved "
+            f"charge: ${live['spent_usd']:.6f}; stop: "
+            f"{live['stop_reason'] or 'complete'}.",
+            "",
+        ]
     return "\n".join(lines)
 
 
@@ -1022,9 +1216,8 @@ def main(argv=None) -> int:
     #   providers: The decision models to prepare requests for.
     #   planned: The plan: request items, ledger rows, packets, comparisons.
     #   spend: Full-plan estimated requests and input cost for the report.
-    #   sending: The bounded unanswered slice selected for this invocation.
-    #   batch_spend: Estimated input cost of that slice, checked before sends.
-    #   counts: Sent, failed and already-answered requests, when sending.
+    #   limit: The most new requests this invocation may send.
+    #   counts: New sends, cumulative reserved/settled cost and stop reason.
     parser = argparse.ArgumentParser(prog="python -m evaltools.full_evaluation")
     parser.add_argument(
         "--commit", help="the commit being evaluated (must be checked out)"
@@ -1047,6 +1240,12 @@ def main(argv=None) -> int:
     parser.add_argument("--send", action="store_true", help="post the requests")
     parser.add_argument("--max-requests", type=int, help="refuse to send more")
     parser.add_argument("--max-usd", type=float, help="refuse to send above this")
+    parser.add_argument(
+        "--max-seconds",
+        type=float,
+        default=600.0,
+        help="stop starting requests after this many seconds (default: 600)",
+    )
     parser.add_argument(
         "--batch-size",
         type=int,
@@ -1085,26 +1284,24 @@ def main(argv=None) -> int:
         file=sys.stderr,
     )
     requests_dir = args.out / "requests"
-    sending = planned["built"]
     if args.send:
-        if args.batch_size is not None:
-            sending = pending_batch(planned["built"], requests_dir, args.batch_size)
-        batch_spend = budget(sending)
-        if (
-            batch_spend["requests"] > args.max_requests
-            or batch_spend["cost_usd_estimate"] > args.max_usd
-        ):
-            print(
-                f"refused: the batch ({batch_spend['requests']} requests, "
-                f"${batch_spend['cost_usd_estimate']}) is over --max-requests "
-                f"{args.max_requests} or --max-usd {args.max_usd}; nothing was sent",
-                file=sys.stderr,
-            )
-            return 2
-    counts = snap_request.write_requests(sending, requests_dir, send_them=args.send)
+        limit = min(args.max_requests, args.batch_size or args.max_requests)
+        counts = budgeted_send(
+            planned["built"],
+            requests_dir,
+            max_new_requests=limit,
+            max_usd=args.max_usd,
+            max_seconds=args.max_seconds,
+        )
+    else:
+        counts = snap_request.write_requests(
+            planned["built"], requests_dir, send_them=False
+        )
     rows = settle(planned["rows"], requests_dir)
     scope = scope_manifest(planned["functions"], planned["tests"])
     result = report(planned, rows, scope, prov, spend)
+    if args.send:
+        result["live_budget"] = counts
     with (args.out / "ledger.jsonl").open("w", encoding="utf-8", newline="\n") as file:
         for row in rows:
             file.write(json.dumps(row, default=str) + "\n")
@@ -1116,7 +1313,16 @@ def main(argv=None) -> int:
     )
     (args.out / "report.md").write_text(markdown(result), encoding="utf-8")
     print(json.dumps(result["missingness"]))
-    return 1 if args.send and counts["failed"] else 0
+    if args.send and counts["stop_reason"] in (
+        "usage_unknown",
+        "provider_context_unverified",
+        "unaccounted_prior_answer",
+        "incomplete_answer",
+        "missing_provider_key",
+        "reservation_mismatch",
+    ):
+        return 2
+    return 0
 
 
 if __name__ == "__main__":

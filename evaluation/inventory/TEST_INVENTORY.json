@@ -44361,10 +44361,520 @@
    ]
   },
   {
+   "id": "tests/test_full_evaluation.py::test_budgeted_send_reserves_before_post_and_resumes_from_measured_usage",
+   "file": "tests/test_full_evaluation.py",
+   "name": "test_budgeted_send_reserves_before_post_and_resumes_from_measured_usage",
+   "line": 220,
+   "docstring": "A small slice cannot overspend or repay a completed request on resume.",
+   "parametrized": false,
+   "fixtures": [
+    "tmp_path",
+    "monkeypatch"
+   ],
+   "assertions": 6,
+   "assert_forms": {
+    "equality": 4,
+    "ordering": 2
+   },
+   "raises_checks": 0,
+   "uses": [
+    "monkeypatch"
+   ],
+   "quality_flags": [
+    "patches_dependencies"
+   ],
+   "claims": "A small slice cannot overspend or repay a completed request on resume.",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.providers.chat:post_json",
+    "evaluation.evaltools.decision_models:_number",
+    "evaluation.evaltools.decision_models:estimate_tokens",
+    "evaluation.evaltools.decision_models:fit_state",
+    "evaluation.evaltools.decision_models:normalize",
+    "evaluation.evaltools.full_evaluation:budgeted_send",
+    "evaluation.evaltools.full_evaluation:measured_snap_charge",
+    "evaluation.evaltools.snap_request:DecisionQuestion.criteria_fit_type",
+    "evaluation.evaltools.snap_request:DecisionQuestion.to_request",
+    "evaluation.evaltools.snap_request:already_answered",
+    "evaluation.evaltools.snap_request:build_request",
+    "evaluation.evaltools.snap_request:digest",
+    "evaluation.evaltools.snap_request:file_stem",
+    "evaluation.evaltools.snap_request:load_questions",
+    "evaluation.evaltools.snap_request:normalized_answers",
+    "evaluation.evaltools.snap_request:request_fingerprint",
+    "evaluation.evaltools.snap_request:send",
+    "evaluation.evaltools.snap_request:write_json",
+    "evaluation.evaltools.snap_request:write_requests"
+   ],
+   "exercise_count": 19,
+   "modules_exercised": [
+    "capstone.providers.chat",
+    "evaluation.evaltools.decision_models",
+    "evaluation.evaltools.full_evaluation",
+    "evaluation.evaltools.snap_request"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_full_evaluation.py::test_budgeted_send_keeps_uncertain_charge_reserved_and_stops",
+   "file": "tests/test_full_evaluation.py",
+   "name": "test_budgeted_send_keeps_uncertain_charge_reserved_and_stops",
+   "line": 272,
+   "docstring": "Missing usage leaves a charge reserved and prevents another paid post.",
+   "parametrized": false,
+   "fixtures": [
+    "tmp_path",
+    "monkeypatch"
+   ],
+   "assertions": 4,
+   "assert_forms": {
+    "equality": 4
+   },
+   "raises_checks": 0,
+   "uses": [
+    "monkeypatch"
+   ],
+   "quality_flags": [
+    "patches_dependencies"
+   ],
+   "claims": "Missing usage leaves a charge reserved and prevents another paid post.",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.providers.chat:post_json",
+    "evaluation.evaltools.decision_models:_number",
+    "evaluation.evaltools.decision_models:estimate_tokens",
+    "evaluation.evaltools.decision_models:fit_state",
+    "evaluation.evaltools.decision_models:normalize",
+    "evaluation.evaltools.full_evaluation:budgeted_send",
+    "evaluation.evaltools.full_evaluation:measured_snap_charge",
+    "evaluation.evaltools.snap_request:DecisionQuestion.criteria_fit_type",
+    "evaluation.evaltools.snap_request:DecisionQuestion.to_request",
+    "evaluation.evaltools.snap_request:already_answered",
+    "evaluation.evaltools.snap_request:build_request",
+    "evaluation.evaltools.snap_request:digest",
+    "evaluation.evaltools.snap_request:file_stem",
+    "evaluation.evaltools.snap_request:load_questions",
+    "evaluation.evaltools.snap_request:normalized_answers",
+    "evaluation.evaltools.snap_request:request_fingerprint",
+    "evaluation.evaltools.snap_request:send",
+    "evaluation.evaltools.snap_request:write_json",
+    "evaluation.evaltools.snap_request:write_requests"
+   ],
+   "exercise_count": 19,
+   "modules_exercised": [
+    "capstone.providers.chat",
+    "evaluation.evaltools.decision_models",
+    "evaluation.evaltools.full_evaluation",
+    "evaluation.evaltools.snap_request"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_full_evaluation.py::test_budgeted_send_refuses_a_charge_larger_than_the_remaining_cap",
+   "file": "tests/test_full_evaluation.py",
+   "name": "test_budgeted_send_refuses_a_charge_larger_than_the_remaining_cap",
+   "line": 316,
+   "docstring": "The whole possible input charge is reserved before any paid post.",
+   "parametrized": false,
+   "fixtures": [
+    "tmp_path",
+    "monkeypatch"
+   ],
+   "assertions": 3,
+   "assert_forms": {
+    "equality": 2,
+    "negation": 1
+   },
+   "raises_checks": 0,
+   "uses": [
+    "monkeypatch"
+   ],
+   "quality_flags": [
+    "patches_dependencies"
+   ],
+   "claims": "The whole possible input charge is reserved before any paid post.",
+   "execution_outcome": "passed",
+   "exercises": [
+    "evaluation.evaltools.decision_models:estimate_tokens",
+    "evaluation.evaltools.decision_models:fit_state",
+    "evaluation.evaltools.full_evaluation:budgeted_send",
+    "evaluation.evaltools.snap_request:DecisionQuestion.criteria_fit_type",
+    "evaluation.evaltools.snap_request:DecisionQuestion.to_request",
+    "evaluation.evaltools.snap_request:build_request",
+    "evaluation.evaltools.snap_request:digest",
+    "evaluation.evaltools.snap_request:file_stem",
+    "evaluation.evaltools.snap_request:load_questions",
+    "evaluation.evaltools.snap_request:request_fingerprint"
+   ],
+   "exercise_count": 10,
+   "modules_exercised": [
+    "evaluation.evaltools.decision_models",
+    "evaluation.evaltools.full_evaluation",
+    "evaluation.evaltools.snap_request"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_full_evaluation.py::test_budgeted_send_reserves_the_documented_binary_context_window",
+   "file": "tests/test_full_evaluation.py",
+   "name": "test_budgeted_send_reserves_the_documented_binary_context_window",
+   "line": 349,
+   "docstring": "Snap's 384K window is 393,216 tokens, not a decimal 384,000.",
+   "parametrized": false,
+   "fixtures": [
+    "tmp_path",
+    "monkeypatch"
+   ],
+   "assertions": 2,
+   "assert_forms": {
+    "equality": 2
+   },
+   "raises_checks": 0,
+   "uses": [
+    "monkeypatch"
+   ],
+   "quality_flags": [
+    "patches_dependencies"
+   ],
+   "claims": "Snap's 384K window is 393,216 tokens, not a decimal 384,000.",
+   "execution_outcome": "passed",
+   "exercises": [
+    "evaluation.evaltools.decision_models:estimate_tokens",
+    "evaluation.evaltools.decision_models:fit_state",
+    "evaluation.evaltools.full_evaluation:budgeted_send",
+    "evaluation.evaltools.snap_request:DecisionQuestion.criteria_fit_type",
+    "evaluation.evaltools.snap_request:DecisionQuestion.to_request",
+    "evaluation.evaltools.snap_request:build_request",
+    "evaluation.evaltools.snap_request:digest",
+    "evaluation.evaltools.snap_request:file_stem",
+    "evaluation.evaltools.snap_request:load_questions",
+    "evaluation.evaltools.snap_request:request_fingerprint"
+   ],
+   "exercise_count": 10,
+   "modules_exercised": [
+    "evaluation.evaltools.decision_models",
+    "evaluation.evaltools.full_evaluation",
+    "evaluation.evaltools.snap_request"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_full_evaluation.py::test_budgeted_send_rejects_nonfinite_limits",
+   "file": "tests/test_full_evaluation.py",
+   "name": "test_budgeted_send_rejects_nonfinite_limits",
+   "line": 382,
+   "docstring": "NaN or infinity cannot turn the dollar or time guard off.",
+   "parametrized": false,
+   "fixtures": [
+    "tmp_path"
+   ],
+   "assertions": 0,
+   "assert_forms": {},
+   "raises_checks": 2,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "NaN or infinity cannot turn the dollar or time guard off.",
+   "execution_outcome": "passed",
+   "exercises": [
+    "evaluation.evaltools.full_evaluation:budgeted_send"
+   ],
+   "exercise_count": 1,
+   "modules_exercised": [
+    "evaluation.evaltools.full_evaluation"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_full_evaluation.py::test_unverified_provider_is_refused_before_a_mixed_batch_posts",
+   "file": "tests/test_full_evaluation.py",
+   "name": "test_unverified_provider_is_refused_before_a_mixed_batch_posts",
+   "line": 402,
+   "docstring": "A both-provider plan makes no paid call if either price is unknown.",
+   "parametrized": false,
+   "fixtures": [
+    "tmp_path",
+    "monkeypatch"
+   ],
+   "assertions": 2,
+   "assert_forms": {
+    "equality": 2
+   },
+   "raises_checks": 0,
+   "uses": [
+    "monkeypatch"
+   ],
+   "quality_flags": [
+    "patches_dependencies"
+   ],
+   "claims": "A both-provider plan makes no paid call if either price is unknown.",
+   "execution_outcome": "passed",
+   "exercises": [
+    "evaluation.evaltools.decision_models:estimate_tokens",
+    "evaluation.evaltools.decision_models:fit_state",
+    "evaluation.evaltools.full_evaluation:budgeted_send",
+    "evaluation.evaltools.snap_request:DecisionQuestion.criteria_fit_type",
+    "evaluation.evaltools.snap_request:DecisionQuestion.to_request",
+    "evaluation.evaltools.snap_request:build_request",
+    "evaluation.evaltools.snap_request:digest",
+    "evaluation.evaltools.snap_request:load_questions",
+    "evaluation.evaltools.snap_request:request_fingerprint"
+   ],
+   "exercise_count": 9,
+   "modules_exercised": [
+    "evaluation.evaltools.decision_models",
+    "evaluation.evaltools.full_evaluation",
+    "evaluation.evaltools.snap_request"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_full_evaluation.py::test_a_saved_reply_finishes_an_interrupted_reservation",
+   "file": "tests/test_full_evaluation.py",
+   "name": "test_a_saved_reply_finishes_an_interrupted_reservation",
+   "line": 437,
+   "docstring": "A crash after saving the reply can resume without another paid post.",
+   "parametrized": false,
+   "fixtures": [
+    "tmp_path",
+    "monkeypatch"
+   ],
+   "assertions": 2,
+   "assert_forms": {
+    "equality": 2
+   },
+   "raises_checks": 0,
+   "uses": [
+    "monkeypatch"
+   ],
+   "quality_flags": [
+    "patches_dependencies"
+   ],
+   "claims": "A crash after saving the reply can resume without another paid post.",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.providers.chat:post_json",
+    "evaluation.evaltools.decision_models:_number",
+    "evaluation.evaltools.decision_models:estimate_tokens",
+    "evaluation.evaltools.decision_models:fit_state",
+    "evaluation.evaltools.decision_models:normalize",
+    "evaluation.evaltools.full_evaluation:budgeted_send",
+    "evaluation.evaltools.full_evaluation:measured_snap_charge",
+    "evaluation.evaltools.snap_request:DecisionQuestion.criteria_fit_type",
+    "evaluation.evaltools.snap_request:DecisionQuestion.to_request",
+    "evaluation.evaltools.snap_request:already_answered",
+    "evaluation.evaltools.snap_request:build_request",
+    "evaluation.evaltools.snap_request:digest",
+    "evaluation.evaltools.snap_request:file_stem",
+    "evaluation.evaltools.snap_request:load_questions",
+    "evaluation.evaltools.snap_request:normalized_answers",
+    "evaluation.evaltools.snap_request:request_fingerprint",
+    "evaluation.evaltools.snap_request:send",
+    "evaluation.evaltools.snap_request:write_json",
+    "evaluation.evaltools.snap_request:write_requests"
+   ],
+   "exercise_count": 19,
+   "modules_exercised": [
+    "capstone.providers.chat",
+    "evaluation.evaltools.decision_models",
+    "evaluation.evaltools.full_evaluation",
+    "evaluation.evaltools.snap_request"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_full_evaluation.py::test_malformed_usage_stops_with_a_visible_reason",
+   "file": "tests/test_full_evaluation.py",
+   "name": "test_malformed_usage_stops_with_a_visible_reason",
+   "line": 487,
+   "docstring": "A malformed provider usage field is an unknown charge, not a crash.",
+   "parametrized": false,
+   "fixtures": [
+    "tmp_path",
+    "monkeypatch"
+   ],
+   "assertions": 2,
+   "assert_forms": {
+    "equality": 1,
+    "ordering": 1
+   },
+   "raises_checks": 0,
+   "uses": [
+    "monkeypatch"
+   ],
+   "quality_flags": [
+    "patches_dependencies"
+   ],
+   "claims": "A malformed provider usage field is an unknown charge, not a crash.",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.providers.chat:post_json",
+    "evaluation.evaltools.decision_models:_number",
+    "evaluation.evaltools.decision_models:estimate_tokens",
+    "evaluation.evaltools.decision_models:fit_state",
+    "evaluation.evaltools.decision_models:normalize",
+    "evaluation.evaltools.full_evaluation:budgeted_send",
+    "evaluation.evaltools.full_evaluation:measured_snap_charge",
+    "evaluation.evaltools.snap_request:DecisionQuestion.criteria_fit_type",
+    "evaluation.evaltools.snap_request:DecisionQuestion.to_request",
+    "evaluation.evaltools.snap_request:already_answered",
+    "evaluation.evaltools.snap_request:build_request",
+    "evaluation.evaltools.snap_request:digest",
+    "evaluation.evaltools.snap_request:file_stem",
+    "evaluation.evaltools.snap_request:load_questions",
+    "evaluation.evaltools.snap_request:normalized_answers",
+    "evaluation.evaltools.snap_request:request_fingerprint",
+    "evaluation.evaltools.snap_request:send",
+    "evaluation.evaltools.snap_request:write_json",
+    "evaluation.evaltools.snap_request:write_requests"
+   ],
+   "exercise_count": 19,
+   "modules_exercised": [
+    "capstone.providers.chat",
+    "evaluation.evaltools.decision_models",
+    "evaluation.evaltools.full_evaluation",
+    "evaluation.evaltools.snap_request"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_full_evaluation.py::test_full_command_uses_budgeted_sender",
+   "file": "tests/test_full_evaluation.py",
+   "name": "test_full_command_uses_budgeted_sender",
+   "line": 519,
+   "docstring": "The full command applies its limits to new sends, not the whole plan.",
+   "parametrized": false,
+   "fixtures": [
+    "tmp_path",
+    "monkeypatch"
+   ],
+   "assertions": 3,
+   "assert_forms": {
+    "equality": 3
+   },
+   "raises_checks": 0,
+   "uses": [
+    "monkeypatch"
+   ],
+   "quality_flags": [
+    "patches_dependencies"
+   ],
+   "claims": "The full command applies its limits to new sends, not the whole plan.",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.contracts.investigations:run_id_for",
+    "capstone.evaluation.labels:apply_label",
+    "capstone.evaluation.scoring:Cause.named_by",
+    "capstone.evaluation.scoring:Score.fully_right",
+    "capstone.evaluation.scoring:Score.miss_kind",
+    "capstone.evaluation.scoring:Score.model_unavailable",
+    "capstone.evaluation.scoring:Score.unnecessary_actions",
+    "capstone.evaluation.scoring:_closest",
+    "capstone.evaluation.scoring:_named",
+    "capstone.evaluation.scoring:judge",
+    "capstone.evaluation.scoring:judge_causes",
+    "capstone.experiment:read_records",
+    "evaluation.evaltools.build_inventory:call_name",
+    "evaluation.evaltools.build_inventory:collect_functions",
+    "evaluation.evaltools.build_inventory:collect_functions.<locals>.visit",
+    "evaluation.evaltools.build_inventory:count_statements",
+    "evaluation.evaltools.build_inventory:exception_names",
+    "evaluation.evaltools.build_inventory:function_kind",
+    "evaluation.evaltools.build_inventory:is_stub",
+    "evaluation.evaltools.build_inventory:leading_comment",
+    "evaluation.evaltools.build_inventory:module_name",
+    "evaluation.evaltools.build_inventory:mutated_parameters",
+    "evaluation.evaltools.build_inventory:rel",
+    "evaluation.evaltools.decision_models:estimate_tokens",
+    "evaluation.evaltools.decision_models:fit_state",
+    "evaluation.evaltools.full_evaluation:budget",
+    "evaluation.evaltools.full_evaluation:case_number",
+    "evaluation.evaltools.full_evaluation:case_outcome",
+    "evaluation.evaltools.full_evaluation:comparisons",
+    "evaluation.evaltools.full_evaluation:git",
+    "evaluation.evaltools.full_evaluation:has_functions",
+    "evaluation.evaltools.full_evaluation:ledger_rows",
+    "evaluation.evaltools.full_evaluation:main",
+    "evaluation.evaltools.full_evaluation:markdown",
+    "evaluation.evaltools.full_evaluation:markdown.<locals>.fraction",
+    "evaluation.evaltools.full_evaluation:plan",
+    "evaluation.evaltools.full_evaluation:ratio",
+    "evaluation.evaltools.full_evaluation:report",
+    "evaluation.evaltools.full_evaluation:request_tokens_estimate",
+    "evaluation.evaltools.full_evaluation:run_name"
+   ],
+   "exercise_count": 73,
+   "modules_exercised": [
+    "capstone.contracts.investigations",
+    "capstone.evaluation.labels",
+    "capstone.evaluation.scoring",
+    "capstone.experiment",
+    "evaluation.evaltools.build_inventory",
+    "evaluation.evaltools.decision_models",
+    "evaluation.evaltools.full_evaluation",
+    "evaluation.evaltools.run_packet",
+    "evaluation.evaltools.snap_request"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
    "id": "tests/test_full_evaluation.py::test_a_plan_over_budget_is_refused_before_sending",
    "file": "tests/test_full_evaluation.py",
    "name": "test_a_plan_over_budget_is_refused_before_sending",
-   "line": 220,
+   "line": 564,
    "docstring": "Nothing is written as answers, and no key is needed to be refused.",
    "parametrized": false,
    "fixtures": [
@@ -44398,41 +44908,42 @@
     "capstone.evaluation.scoring:judge",
     "capstone.evaluation.scoring:judge_causes",
     "capstone.experiment:read_records",
+    "evaluation.evaltools.build_inventory:call_name",
+    "evaluation.evaltools.build_inventory:collect_functions",
+    "evaluation.evaltools.build_inventory:collect_functions.<locals>.visit",
+    "evaluation.evaltools.build_inventory:count_statements",
+    "evaluation.evaltools.build_inventory:exception_names",
+    "evaluation.evaltools.build_inventory:function_kind",
+    "evaluation.evaltools.build_inventory:is_stub",
+    "evaluation.evaltools.build_inventory:leading_comment",
+    "evaluation.evaltools.build_inventory:module_name",
+    "evaluation.evaltools.build_inventory:mutated_parameters",
+    "evaluation.evaltools.build_inventory:rel",
     "evaluation.evaltools.decision_models:estimate_tokens",
     "evaluation.evaltools.decision_models:fit_state",
     "evaluation.evaltools.full_evaluation:budget",
+    "evaluation.evaltools.full_evaluation:budgeted_send",
     "evaluation.evaltools.full_evaluation:case_number",
     "evaluation.evaltools.full_evaluation:case_outcome",
     "evaluation.evaltools.full_evaluation:comparisons",
+    "evaluation.evaltools.full_evaluation:git",
+    "evaluation.evaltools.full_evaluation:has_functions",
     "evaluation.evaltools.full_evaluation:ledger_rows",
     "evaluation.evaltools.full_evaluation:main",
+    "evaluation.evaltools.full_evaluation:markdown",
+    "evaluation.evaltools.full_evaluation:markdown.<locals>.fraction",
     "evaluation.evaltools.full_evaluation:plan",
-    "evaluation.evaltools.full_evaluation:request_tokens_estimate",
-    "evaluation.evaltools.full_evaluation:run_name",
-    "evaluation.evaltools.full_evaluation:run_settings",
-    "evaluation.evaltools.full_evaluation:sample_rule",
-    "evaluation.evaltools.full_evaluation:sample_rule.<locals>.right",
-    "evaluation.evaltools.run_packet:_sibling",
-    "evaluation.evaltools.run_packet:audit_by_run",
-    "evaluation.evaltools.run_packet:batch_summary",
-    "evaluation.evaltools.run_packet:build_all",
-    "evaluation.evaltools.run_packet:build_archive",
-    "evaluation.evaltools.run_packet:build_packet",
-    "evaluation.evaltools.run_packet:calibration",
-    "evaluation.evaltools.run_packet:check_no_truth_in_view",
-    "evaluation.evaltools.run_packet:check_unique",
-    "evaluation.evaltools.run_packet:configuration_of",
-    "evaluation.evaltools.run_packet:episode_key",
-    "evaluation.evaltools.run_packet:evaluator_only_of",
-    "evaluation.evaltools.run_packet:facts_of",
-    "evaluation.evaltools.run_packet:forbidden_in_view"
+    "evaluation.evaltools.full_evaluation:ratio",
+    "evaluation.evaltools.full_evaluation:report",
+    "evaluation.evaltools.full_evaluation:request_tokens_estimate"
    ],
-   "exercise_count": 53,
+   "exercise_count": 74,
    "modules_exercised": [
     "capstone.contracts.investigations",
     "capstone.evaluation.labels",
     "capstone.evaluation.scoring",
     "capstone.experiment",
+    "evaluation.evaltools.build_inventory",
     "evaluation.evaltools.decision_models",
     "evaluation.evaltools.full_evaluation",
     "evaluation.evaltools.run_packet",
@@ -44450,7 +44961,7 @@
    "id": "tests/test_full_evaluation.py::test_the_budget_counts_the_whole_request_with_a_margin",
    "file": "tests/test_full_evaluation.py",
    "name": "test_the_budget_counts_the_whole_request_with_a_margin",
-   "line": 245,
+   "line": 600,
    "docstring": "The questions are paid for too; the 2026-11-02 Jev pilot billed 1.2-1.4x\nthe four-characters-per-token estimate of the whole body.",
    "parametrized": false,
    "fixtures": [],
@@ -44485,7 +44996,7 @@
    "id": "tests/test_full_evaluation.py::test_sending_needs_both_limits",
    "file": "tests/test_full_evaluation.py",
    "name": "test_sending_needs_both_limits",
-   "line": 273,
+   "line": 628,
    "docstring": "",
    "parametrized": false,
    "fixtures": [
@@ -44517,7 +45028,7 @@
    "id": "tests/test_full_evaluation.py::test_a_dry_run_writes_the_ledger_and_report",
    "file": "tests/test_full_evaluation.py",
    "name": "test_a_dry_run_writes_the_ledger_and_report",
-   "line": 278,
+   "line": 633,
    "docstring": "",
    "parametrized": false,
    "fixtures": [
@@ -44605,7 +45116,7 @@
    "id": "tests/test_full_evaluation.py::test_a_pinned_commit_that_is_not_checked_out_is_refused",
    "file": "tests/test_full_evaluation.py",
    "name": "test_a_pinned_commit_that_is_not_checked_out_is_refused",
-   "line": 312,
+   "line": 667,
    "docstring": "",
    "parametrized": false,
    "fixtures": [],
@@ -44638,7 +45149,7 @@
    "id": "tests/test_full_evaluation.py::test_provenance_needs_an_explicit_clean_commit",
    "file": "tests/test_full_evaluation.py",
    "name": "test_provenance_needs_an_explicit_clean_commit",
-   "line": 319,
+   "line": 674,
    "docstring": "",
    "parametrized": false,
    "fixtures": [
@@ -44674,7 +45185,7 @@
    "id": "tests/test_full_evaluation.py::test_the_scope_manifest_classes_every_file",
    "file": "tests/test_full_evaluation.py",
    "name": "test_the_scope_manifest_classes_every_file",
-   "line": 332,
+   "line": 687,
    "docstring": "",
    "parametrized": false,
    "fixtures": [
@@ -44712,7 +45223,7 @@
    "id": "tests/test_full_evaluation.py::test_the_repository_has_no_unexplained_python_file",
    "file": "tests/test_full_evaluation.py",
    "name": "test_the_repository_has_no_unexplained_python_file",
-   "line": 365,
+   "line": 720,
    "docstring": "Every tracked Python file is inventoried, a test, excluded with a reason,\nor holds no function; a new module the inventory misses fails here.",
    "parametrized": false,
    "fixtures": [],
@@ -44724,7 +45235,7 @@
    "uses": [],
    "quality_flags": [],
    "claims": "Every tracked Python file is inventoried, a test, excluded with a reason,",
-   "execution_outcome": "failed",
+   "execution_outcome": "passed",
    "exercises": [
     "evaluation.evaltools.build_inventory:call_name",
     "evaluation.evaltools.build_inventory:collect_functions",
@@ -44759,7 +45270,7 @@
    "id": "tests/test_full_evaluation.py::test_a_new_evaluator_function_requires_inventory_regeneration",
    "file": "tests/test_full_evaluation.py",
    "name": "test_a_new_evaluator_function_requires_inventory_regeneration",
-   "line": 385,
+   "line": 740,
    "docstring": "",
    "parametrized": false,
    "fixtures": [

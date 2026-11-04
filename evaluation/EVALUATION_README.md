@@ -184,8 +184,23 @@ trace completeness, reliability and judging status apart; every figure has
 its denominator and there is no blended score. `--commit` must be the
 checked-out commit. `--families` limits the plan (`FN,TS,TL,RUN,BT`);
 `--provider` picks `snap`, `jev` or `both`. `--send` also needs
-`--max-requests` and `--max-usd`, and a plan over either is refused before
-anything is sent; a rerun reuses answers by request fingerprint.
+`--max-requests` and `--max-usd`. These now limit **new posts in this
+invocation** and cumulative spend in the same output folder; `--batch-size`
+may set a smaller slice. `--max-seconds` bounds the invocation (600 seconds
+by default). The full plan and its pending ledger remain visible. For Snap,
+the sender reserves the price of its full 393,216-token input window before
+each post, sends once without an automatic retry, then replaces the reserve
+with the provider's measured input usage. A failed/interrupted post or reply
+without valid usage keeps its reserve and stops later posts, including on
+resume. Complete saved replies can settle an interrupted reservation without
+posting again. `report.json` and `report.md` show the live spend and stop
+reason. Jev/mixed live slices currently stop before posting: Jev's request
+window and usage contract still need the small live calibration in Gate C.
+Dry runs for either provider still work. The separate `snap_request --send`
+command retains its own retry behavior and is not covered by this budget guard.
+Snap's [model page](https://docs.subq.ai/using-the-api/models/) lists the
+input price and free output; its [Decisions API](https://docs.subq.ai/endpoints/decisions-api/)
+states the 393,216-token context limit and usage fields.
 
 ## 5. Interpret results
 

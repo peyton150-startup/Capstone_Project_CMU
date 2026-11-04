@@ -217,10 +217,365 @@ def test_small_batches_resume_without_resending_completed_requests(
         full_evaluation.pending_batch(bt, tmp_path, 0)
 
 
+def test_budgeted_send_reserves_before_post_and_resumes_from_measured_usage(
+    tmp_path, monkeypatch
+):
+    """A small slice cannot overspend or repay a completed request on resume."""
+    _, questions = snap_request.load_questions()
+    items = [
+        snap_request.build_request(
+            {"case": n},
+            questions[:1],
+            model=PROVIDERS["snap"].model,
+            item_id=f"case-{n}",
+            meta={"family": "FN"},
+            provider="snap",
+        )[0]
+        for n in (1, 2)
+    ]
+    monkeypatch.setenv(PROVIDERS["snap"].key_env, "test-key")
+    reply = {
+        "model": PROVIDERS["snap"].model,
+        "usage": {"input_tokens": 100, "output_tokens": 0},
+        "answers": {questions[0].name: {"type": "score", "score": 3.0}},
+    }
+    sent = []
+
+    def transport(url, headers, data, timeout):
+        sent.append(data)
+        return json.dumps(reply).encode()
+
+    first = full_evaluation.budgeted_send(
+        items,
+        tmp_path,
+        max_new_requests=1,
+        max_usd=0.02,
+        max_seconds=30,
+        transport=transport,
+    )
+    assert first["sent"] == 1
+    assert len(sent) == 1
+    assert first["spent_usd"] < 0.02
+    second = full_evaluation.budgeted_send(
+        items,
+        tmp_path,
+        max_new_requests=1,
+        max_usd=0.02,
+        max_seconds=30,
+        transport=transport,
+    )
+    assert second["sent"] == 1
+    assert len(sent) == 2
+    assert second["spent_usd"] < 0.02
+
+
+def test_budgeted_send_keeps_uncertain_charge_reserved_and_stops(tmp_path, monkeypatch):
+    """Missing usage leaves a charge reserved and prevents another paid post."""
+    _, questions = snap_request.load_questions()
+    items = [
+        snap_request.build_request(
+            {"case": n},
+            questions[:1],
+            model=PROVIDERS["snap"].model,
+            item_id=f"case-{n}",
+            meta={"family": "FN"},
+            provider="snap",
+        )[0]
+        for n in (1, 2)
+    ]
+    monkeypatch.setenv(PROVIDERS["snap"].key_env, "test-key")
+    reply = {"answers": {questions[0].name: {"type": "score", "score": 3.0}}}
+    sent = []
+
+    def transport(url, headers, data, timeout):
+        sent.append(data)
+        return json.dumps(reply).encode()
+
+    result = full_evaluation.budgeted_send(
+        items,
+        tmp_path,
+        max_new_requests=2,
+        max_usd=0.02,
+        max_seconds=30,
+        transport=transport,
+    )
+    assert len(sent) == 1
+    assert result["stop_reason"] == "usage_unknown"
+    resumed = full_evaluation.budgeted_send(
+        items,
+        tmp_path,
+        max_new_requests=2,
+        max_usd=0.02,
+        max_seconds=30,
+        transport=transport,
+    )
+    assert len(sent) == 1
+    assert resumed["stop_reason"] == "usage_unknown"
+
+
+def test_budgeted_send_refuses_a_charge_larger_than_the_remaining_cap(
+    tmp_path, monkeypatch
+):
+    """The whole possible input charge is reserved before any paid post."""
+    _, questions = snap_request.load_questions()
+    item = snap_request.build_request(
+        {"case": 1},
+        questions[:1],
+        model=PROVIDERS["snap"].model,
+        item_id="case-1",
+        meta={"family": "FN"},
+        provider="snap",
+    )[0]
+    monkeypatch.setenv(PROVIDERS["snap"].key_env, "test-key")
+    sent = []
+
+    def transport(url, headers, data, timeout):
+        sent.append(data)
+        return b"{}"
+
+    result = full_evaluation.budgeted_send(
+        [item],
+        tmp_path,
+        max_new_requests=1,
+        max_usd=0.001,
+        max_seconds=30,
+        transport=transport,
+    )
+    assert result["stop_reason"] == "usd_limit"
+    assert sent == []
+    assert not list(tmp_path.glob("*.reservation.json"))
+
+
+def test_budgeted_send_reserves_the_documented_binary_context_window(
+    tmp_path, monkeypatch
+):
+    """Snap's 384K window is 393,216 tokens, not a decimal 384,000."""
+    _, questions = snap_request.load_questions()
+    item = snap_request.build_request(
+        {"case": 1},
+        questions[:1],
+        model=PROVIDERS["snap"].model,
+        item_id="case-1",
+        meta={"family": "FN"},
+        provider="snap",
+    )[0]
+    monkeypatch.setenv(PROVIDERS["snap"].key_env, "test-key")
+    sent = []
+
+    def transport(url, headers, data, timeout):
+        sent.append(data)
+        return b"{}"
+
+    between = 384_000 * 0.04 / 1_000_000 + 0.0001
+    result = full_evaluation.budgeted_send(
+        [item],
+        tmp_path,
+        max_new_requests=1,
+        max_usd=between,
+        max_seconds=30,
+        transport=transport,
+    )
+    assert result["stop_reason"] == "usd_limit"
+    assert sent == []
+
+
+def test_budgeted_send_rejects_nonfinite_limits(tmp_path):
+    """NaN or infinity cannot turn the dollar or time guard off."""
+    with pytest.raises(ValueError, match="finite"):
+        full_evaluation.budgeted_send(
+            [],
+            tmp_path,
+            max_new_requests=1,
+            max_usd=float("nan"),
+            max_seconds=30,
+        )
+    with pytest.raises(ValueError, match="finite"):
+        full_evaluation.budgeted_send(
+            [],
+            tmp_path,
+            max_new_requests=1,
+            max_usd=1,
+            max_seconds=float("inf"),
+        )
+
+
+def test_unverified_provider_is_refused_before_a_mixed_batch_posts(
+    tmp_path, monkeypatch
+):
+    """A both-provider plan makes no paid call if either price is unknown."""
+    _, questions = snap_request.load_questions()
+    items = [
+        snap_request.build_request(
+            {"case": 1},
+            questions[:1],
+            model=PROVIDERS[name].model,
+            item_id=name,
+            meta={"family": "FN"},
+            provider=name,
+        )[0]
+        for name in ("snap", "jev")
+    ]
+    monkeypatch.setenv(PROVIDERS["snap"].key_env, "test-key")
+    sent = []
+
+    def transport(url, headers, data, timeout):
+        sent.append(data)
+        return b"{}"
+
+    result = full_evaluation.budgeted_send(
+        items,
+        tmp_path,
+        max_new_requests=2,
+        max_usd=1,
+        max_seconds=30,
+        transport=transport,
+    )
+    assert result["stop_reason"] == "provider_context_unverified"
+    assert sent == []
+
+
+def test_a_saved_reply_finishes_an_interrupted_reservation(tmp_path, monkeypatch):
+    """A crash after saving the reply can resume without another paid post."""
+    _, questions = snap_request.load_questions()
+    items = [
+        snap_request.build_request(
+            {"case": n},
+            questions[:1],
+            model=PROVIDERS["snap"].model,
+            item_id=f"case-{n}",
+            meta={"family": "FN"},
+            provider="snap",
+        )[0]
+        for n in (1, 2)
+    ]
+    monkeypatch.setenv(PROVIDERS["snap"].key_env, "test-key")
+    reply = {
+        "usage": {"input_tokens": 100, "output_tokens": 0},
+        "answers": {questions[0].name: {"type": "score", "score": 3.0}},
+    }
+    sent = []
+
+    def transport(url, headers, data, timeout):
+        sent.append(data)
+        return json.dumps(reply).encode()
+
+    snap_request.write_requests(
+        items[:1], tmp_path, send_them=True, transport=transport, retries=0
+    )
+    stem = snap_request.file_stem(items[0]["tags"])
+    snap_request.write_json(
+        tmp_path / f"{stem}.reservation.json",
+        {
+            "request_fingerprint": items[0]["tags"]["request_fingerprint"],
+            "provider": "snap",
+            "charge_usd": 0.01572864,
+            "status": "reserved",
+        },
+    )
+    result = full_evaluation.budgeted_send(
+        items,
+        tmp_path,
+        max_new_requests=1,
+        max_usd=0.02,
+        max_seconds=30,
+        transport=transport,
+    )
+    assert result["sent"] == 1
+    assert len(sent) == 2
+
+
+def test_malformed_usage_stops_with_a_visible_reason(tmp_path, monkeypatch):
+    """A malformed provider usage field is an unknown charge, not a crash."""
+    _, questions = snap_request.load_questions()
+    item = snap_request.build_request(
+        {"case": 1},
+        questions[:1],
+        model=PROVIDERS["snap"].model,
+        item_id="case-1",
+        meta={"family": "FN"},
+        provider="snap",
+    )[0]
+    monkeypatch.setenv(PROVIDERS["snap"].key_env, "test-key")
+    reply = {
+        "usage": "bad usage",
+        "answers": {questions[0].name: {"type": "score", "score": 3.0}},
+    }
+
+    def transport(url, headers, data, timeout):
+        return json.dumps(reply).encode()
+
+    result = full_evaluation.budgeted_send(
+        [item],
+        tmp_path,
+        max_new_requests=1,
+        max_usd=0.02,
+        max_seconds=30,
+        transport=transport,
+    )
+    assert result["stop_reason"] == "usage_unknown"
+    assert result["spent_usd"] > 0
+
+
+def test_full_command_uses_budgeted_sender(tmp_path, monkeypatch):
+    """The full command applies its limits to new sends, not the whole plan."""
+    monkeypatch.setattr(
+        full_evaluation,
+        "provenance",
+        lambda *args: {
+            "commit_pinned": "test",
+            "commit_checked_out": "test",
+            "tracked_changes_uncommitted": False,
+            "rubric_version": "test",
+            "packet_schema_version": "test",
+            "normalize_version": "test",
+        },
+    )
+    called = []
+
+    def bounded(items, folder, **limits):
+        called.append(limits)
+        return {"sent": 0, "spent_usd": 0, "stop_reason": "request_limit"}
+
+    monkeypatch.setattr(full_evaluation, "budgeted_send", bounded)
+    status = full_evaluation.main(
+        [
+            "--archive",
+            str(TOT13_PAIRS),
+            "--families",
+            "BT",
+            "--provider",
+            "snap",
+            "--out",
+            str(tmp_path),
+            "--send",
+            "--max-requests",
+            "1",
+            "--max-usd",
+            "0.02",
+            "--max-seconds",
+            "15",
+        ]
+    )
+    assert status == 0
+    assert called[0]["max_new_requests"] == 1
+    assert called[0]["max_seconds"] == 15
+
+
 def test_a_plan_over_budget_is_refused_before_sending(tmp_path, monkeypatch):
     """Nothing is written as answers, and no key is needed to be refused."""
     monkeypatch.delenv(PROVIDERS["jev"].key_env, raising=False)
-    monkeypatch.setattr(full_evaluation, "provenance", lambda *args: {})
+    monkeypatch.setattr(
+        full_evaluation,
+        "provenance",
+        lambda *args: {
+            "commit_pinned": "test",
+            "commit_checked_out": "test",
+            "tracked_changes_uncommitted": False,
+            "rubric_version": "test",
+            "packet_schema_version": "test",
+            "normalize_version": "test",
+        },
+    )
     status = full_evaluation.main(
         [
             "--archive",

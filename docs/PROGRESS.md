@@ -1,5 +1,18 @@
 # Progress Log
 
+> **2026-11-04 — bounded full-evaluator sending (built ungated, developer to review; understood: no):**
+> The developer authorized Codex to make evaluator code changes for this
+> session without changing `AGENTS.md`. `full_evaluation.budgeted_send` now
+> applies a per-invocation request and time limit plus a cumulative dollar
+> limit to small Snap slices. It writes a full-window charge reservation before
+> each post, sends once, settles measured usage, and stops if usage or an
+> interrupted charge is uncertain. `measured_snap_charge` validates the saved
+> usage; `main` writes the live spend and stop reason in its report. The
+> request sender accepts the remaining slice time as its timeout. Jev/mixed
+> live slices remain blocked until Gate C validates their request/usage
+> contract. No model call was made; tests and coverage inventory are in the PR.
+
+
 > **2026-11-03 — evaluator test attribution and constructor callers (built ungated, developer to review; understood: no):**
 > The developer authorized Codex to make this one code fix despite the usual
 > build/run split in `AGENTS.md` section 12. The five-request Jev pilot's
