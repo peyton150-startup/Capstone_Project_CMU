@@ -1,0 +1,620 @@
+{
+ "counts": {
+  "excluded": 4,
+  "inventoried": 81,
+  "no_functions": 23,
+  "test_support": 2,
+  "tests": 91
+ },
+ "unexplained": [],
+ "stale": [],
+ "files": {
+  ".github/test_groups.py": {
+   "class": "excluded",
+   "reason": "CI wiring, checked by CI itself"
+  },
+  "capstone-code/capstone/__init__.py": {
+   "class": "no_functions"
+  },
+  "capstone-code/capstone/agent/__init__.py": {
+   "class": "no_functions"
+  },
+  "capstone-code/capstone/agent/artifacts.py": {
+   "class": "no_functions"
+  },
+  "capstone-code/capstone/agent/completion.py": {
+   "class": "inventoried"
+  },
+  "capstone-code/capstone/agent/critic.py": {
+   "class": "inventoried"
+  },
+  "capstone-code/capstone/agent/evidence_brief.py": {
+   "class": "inventoried"
+  },
+  "capstone-code/capstone/agent/investigation.py": {
+   "class": "inventoried"
+  },
+  "capstone-code/capstone/agent/loop.py": {
+   "class": "inventoried"
+  },
+  "capstone-code/capstone/agent/model_policy.py": {
+   "class": "inventoried"
+  },
+  "capstone-code/capstone/agent/monitor.py": {
+   "class": "inventoried"
+  },
+  "capstone-code/capstone/agent/policy.py": {
+   "class": "inventoried"
+  },
+  "capstone-code/capstone/agent/state.py": {
+   "class": "inventoried"
+  },
+  "capstone-code/capstone/agent/tree_of_thought.py": {
+   "class": "inventoried"
+  },
+  "capstone-code/capstone/baseline.py": {
+   "class": "inventoried"
+  },
+  "capstone-code/capstone/benchmark.py": {
+   "class": "inventoried"
+  },
+  "capstone-code/capstone/console.py": {
+   "class": "inventoried"
+  },
+  "capstone-code/capstone/contracts/__init__.py": {
+   "class": "no_functions"
+  },
+  "capstone-code/capstone/contracts/completed_investigations.py": {
+   "class": "inventoried"
+  },
+  "capstone-code/capstone/contracts/evidence.py": {
+   "class": "no_functions"
+  },
+  "capstone-code/capstone/contracts/hypotheses.py": {
+   "class": "inventoried"
+  },
+  "capstone-code/capstone/contracts/investigations.py": {
+   "class": "inventoried"
+  },
+  "capstone-code/capstone/contracts/observations.py": {
+   "class": "no_functions"
+  },
+  "capstone-code/capstone/contracts/provenance.py": {
+   "class": "no_functions"
+  },
+  "capstone-code/capstone/contracts/tools.py": {
+   "class": "inventoried"
+  },
+  "capstone-code/capstone/database/__init__.py": {
+   "class": "no_functions"
+  },
+  "capstone-code/capstone/database/connection.py": {
+   "class": "inventoried"
+  },
+  "capstone-code/capstone/episode.py": {
+   "class": "inventoried"
+  },
+  "capstone-code/capstone/evals.py": {
+   "class": "inventoried"
+  },
+  "capstone-code/capstone/evaluation/__init__.py": {
+   "class": "no_functions"
+  },
+  "capstone-code/capstone/evaluation/auto_label.py": {
+   "class": "inventoried"
+  },
+  "capstone-code/capstone/evaluation/known_answers.py": {
+   "class": "no_functions"
+  },
+  "capstone-code/capstone/evaluation/labels.py": {
+   "class": "inventoried"
+  },
+  "capstone-code/capstone/evaluation/manual.py": {
+   "class": "inventoried"
+  },
+  "capstone-code/capstone/evaluation/memory.py": {
+   "class": "inventoried"
+  },
+  "capstone-code/capstone/evaluation/scoring.py": {
+   "class": "inventoried"
+  },
+  "capstone-code/capstone/experiment.py": {
+   "class": "inventoried"
+  },
+  "capstone-code/capstone/faults.py": {
+   "class": "inventoried"
+  },
+  "capstone-code/capstone/ingestion/__init__.py": {
+   "class": "no_functions"
+  },
+  "capstone-code/capstone/ingestion/__main__.py": {
+   "class": "inventoried"
+  },
+  "capstone-code/capstone/ingestion/collector.py": {
+   "class": "inventoried"
+  },
+  "capstone-code/capstone/ingestion/mtconnect.py": {
+   "class": "inventoried"
+  },
+  "capstone-code/capstone/ingestion/record.py": {
+   "class": "inventoried"
+  },
+  "capstone-code/capstone/learning.py": {
+   "class": "inventoried"
+  },
+  "capstone-code/capstone/manual/__init__.py": {
+   "class": "no_functions"
+  },
+  "capstone-code/capstone/manual/index.py": {
+   "class": "inventoried"
+  },
+  "capstone-code/capstone/manual/sections.py": {
+   "class": "inventoried"
+  },
+  "capstone-code/capstone/memory/__init__.py": {
+   "class": "no_functions"
+  },
+  "capstone-code/capstone/memory/backfill.py": {
+   "class": "inventoried"
+  },
+  "capstone-code/capstone/memory/contracts.py": {
+   "class": "inventoried"
+  },
+  "capstone-code/capstone/memory/duplicate_threshold.py": {
+   "class": "inventoried"
+  },
+  "capstone-code/capstone/memory/policy.py": {
+   "class": "inventoried"
+  },
+  "capstone-code/capstone/memory/recall.py": {
+   "class": "inventoried"
+  },
+  "capstone-code/capstone/memory/reflection.py": {
+   "class": "inventoried"
+  },
+  "capstone-code/capstone/memory/repository.py": {
+   "class": "inventoried"
+  },
+  "capstone-code/capstone/memory/schema.py": {
+   "class": "no_functions"
+  },
+  "capstone-code/capstone/memory/semantic.py": {
+   "class": "inventoried"
+  },
+  "capstone-code/capstone/memory/service.py": {
+   "class": "inventoried"
+  },
+  "capstone-code/capstone/memory_comparison.py": {
+   "class": "inventoried"
+  },
+  "capstone-code/capstone/monitoring/__init__.py": {
+   "class": "no_functions"
+  },
+  "capstone-code/capstone/monitoring/__main__.py": {
+   "class": "inventoried"
+  },
+  "capstone-code/capstone/monitoring/monitor.py": {
+   "class": "inventoried"
+  },
+  "capstone-code/capstone/monitoring/runner.py": {
+   "class": "inventoried"
+  },
+  "capstone-code/capstone/observability.py": {
+   "class": "inventoried"
+  },
+  "capstone-code/capstone/progress.py": {
+   "class": "inventoried"
+  },
+  "capstone-code/capstone/providers/__init__.py": {
+   "class": "no_functions"
+  },
+  "capstone-code/capstone/providers/chat.py": {
+   "class": "inventoried"
+  },
+  "capstone-code/capstone/providers/embeddings.py": {
+   "class": "inventoried"
+  },
+  "capstone-code/capstone/providers/factory.py": {
+   "class": "inventoried"
+  },
+  "capstone-code/capstone/providers/hazards.py": {
+   "class": "inventoried"
+  },
+  "capstone-code/capstone/providers/manual.py": {
+   "class": "inventoried"
+  },
+  "capstone-code/capstone/providers/recall.py": {
+   "class": "inventoried"
+  },
+  "capstone-code/capstone/providers/typesafe.py": {
+   "class": "inventoried"
+  },
+  "capstone-code/capstone/settings.py": {
+   "class": "inventoried"
+  },
+  "capstone-code/capstone/simulator/__init__.py": {
+   "class": "no_functions"
+  },
+  "capstone-code/capstone/simulator/challenge.py": {
+   "class": "inventoried"
+  },
+  "capstone-code/capstone/simulator/clock.py": {
+   "class": "inventoried"
+  },
+  "capstone-code/capstone/simulator/disturbances.py": {
+   "class": "inventoried"
+  },
+  "capstone-code/capstone/simulator/events.py": {
+   "class": "inventoried"
+  },
+  "capstone-code/capstone/simulator/generator.py": {
+   "class": "inventoried"
+  },
+  "capstone-code/capstone/simulator/ground_truth.py": {
+   "class": "no_functions"
+  },
+  "capstone-code/capstone/simulator/line.py": {
+   "class": "inventoried"
+  },
+  "capstone-code/capstone/simulator/maintenance.py": {
+   "class": "inventoried"
+  },
+  "capstone-code/capstone/simulator/rng.py": {
+   "class": "inventoried"
+  },
+  "capstone-code/capstone/simulator/scenarios.py": {
+   "class": "inventoried"
+  },
+  "capstone-code/capstone/simulator/sensors.py": {
+   "class": "inventoried"
+  },
+  "capstone-code/capstone/simulator/simulator.py": {
+   "class": "inventoried"
+  },
+  "capstone-code/capstone/simulator/state.py": {
+   "class": "inventoried"
+  },
+  "capstone-code/capstone/simulator/thermal.py": {
+   "class": "inventoried"
+  },
+  "capstone-code/capstone/tools/__init__.py": {
+   "class": "no_functions"
+  },
+  "capstone-code/capstone/tools/actions.py": {
+   "class": "inventoried"
+  },
+  "capstone-code/capstone/tools/diagnosis.py": {
+   "class": "no_functions"
+  },
+  "capstone-code/capstone/tools/errors.py": {
+   "class": "no_functions"
+  },
+  "capstone-code/capstone/tools/observation.py": {
+   "class": "inventoried"
+  },
+  "capstone-code/capstone/watchdog/__init__.py": {
+   "class": "no_functions"
+  },
+  "capstone-code/capstone/watchdog/__main__.py": {
+   "class": "inventoried"
+  },
+  "capstone-code/capstone/watchdog/watchdog.py": {
+   "class": "inventoried"
+  },
+  "evaluation/evaltools/__init__.py": {
+   "class": "no_functions"
+  },
+  "evaluation/evaltools/build_inventory.py": {
+   "class": "inventoried"
+  },
+  "evaluation/evaltools/compare_evaluators.py": {
+   "class": "inventoried"
+  },
+  "evaluation/evaltools/decision_models.py": {
+   "class": "inventoried"
+  },
+  "evaluation/evaltools/full_evaluation.py": {
+   "class": "inventoried"
+  },
+  "evaluation/evaltools/run_packet.py": {
+   "class": "inventoried"
+  },
+  "evaluation/evaltools/snap_request.py": {
+   "class": "inventoried"
+  },
+  "evaluation/evaltools/traced_run.py": {
+   "class": "inventoried"
+  },
+  "migrations/env.py": {
+   "class": "excluded",
+   "reason": "Alembic scaffolding outside the capstone package"
+  },
+  "migrations/versions/0001_episodic_memory.py": {
+   "class": "excluded",
+   "reason": "Alembic scaffolding outside the capstone package"
+  },
+  "test_db_connection.py": {
+   "class": "excluded",
+   "reason": "a manual connection probe"
+  },
+  "tests/__init__.py": {
+   "class": "test_support"
+  },
+  "tests/helpers.py": {
+   "class": "test_support"
+  },
+  "tests/test_agent_action.py": {
+   "class": "tests"
+  },
+  "tests/test_agent_artifacts.py": {
+   "class": "tests"
+  },
+  "tests/test_agent_completion.py": {
+   "class": "tests"
+  },
+  "tests/test_agent_investigation.py": {
+   "class": "tests"
+  },
+  "tests/test_agent_loop.py": {
+   "class": "tests"
+  },
+  "tests/test_agent_provenance.py": {
+   "class": "tests"
+  },
+  "tests/test_agent_verification.py": {
+   "class": "tests"
+  },
+  "tests/test_ambient.py": {
+   "class": "tests"
+  },
+  "tests/test_approval.py": {
+   "class": "tests"
+  },
+  "tests/test_auto_label.py": {
+   "class": "tests"
+  },
+  "tests/test_baseline.py": {
+   "class": "tests"
+  },
+  "tests/test_bearing_degradation.py": {
+   "class": "tests"
+  },
+  "tests/test_bearing_replacement.py": {
+   "class": "tests"
+  },
+  "tests/test_benchmark.py": {
+   "class": "tests"
+  },
+  "tests/test_build_line.py": {
+   "class": "tests"
+  },
+  "tests/test_chat_client.py": {
+   "class": "tests"
+  },
+  "tests/test_clock.py": {
+   "class": "tests"
+  },
+  "tests/test_collector_watchdog.py": {
+   "class": "tests"
+  },
+  "tests/test_console.py": {
+   "class": "tests"
+  },
+  "tests/test_contracts.py": {
+   "class": "tests"
+  },
+  "tests/test_critic.py": {
+   "class": "tests"
+  },
+  "tests/test_database_connection.py": {
+   "class": "tests"
+  },
+  "tests/test_difficulty_tool_compatibility.py": {
+   "class": "tests"
+  },
+  "tests/test_duplicate_threshold.py": {
+   "class": "tests"
+  },
+  "tests/test_embeddings.py": {
+   "class": "tests"
+  },
+  "tests/test_env_example.py": {
+   "class": "tests"
+  },
+  "tests/test_episode.py": {
+   "class": "tests"
+  },
+  "tests/test_evals.py": {
+   "class": "tests"
+  },
+  "tests/test_evaluation.py": {
+   "class": "tests"
+  },
+  "tests/test_evaluation_tools.py": {
+   "class": "tests"
+  },
+  "tests/test_events.py": {
+   "class": "tests"
+  },
+  "tests/test_experiment.py": {
+   "class": "tests"
+  },
+  "tests/test_factory_provider.py": {
+   "class": "tests"
+  },
+  "tests/test_failure.py": {
+   "class": "tests"
+  },
+  "tests/test_false_alarm.py": {
+   "class": "tests"
+  },
+  "tests/test_fault_packs.py": {
+   "class": "tests"
+  },
+  "tests/test_full_evaluation.py": {
+   "class": "tests"
+  },
+  "tests/test_generator.py": {
+   "class": "tests"
+  },
+  "tests/test_ground_truth.py": {
+   "class": "tests"
+  },
+  "tests/test_hazards.py": {
+   "class": "tests"
+  },
+  "tests/test_hydraulics.py": {
+   "class": "tests"
+  },
+  "tests/test_job_history.py": {
+   "class": "tests"
+  },
+  "tests/test_known_answers.py": {
+   "class": "tests"
+  },
+  "tests/test_learning.py": {
+   "class": "tests"
+  },
+  "tests/test_load.py": {
+   "class": "tests"
+  },
+  "tests/test_load_wear_coupling.py": {
+   "class": "tests"
+  },
+  "tests/test_loading_door.py": {
+   "class": "tests"
+  },
+  "tests/test_maintenance_history.py": {
+   "class": "tests"
+  },
+  "tests/test_manual.py": {
+   "class": "tests"
+  },
+  "tests/test_material_batch.py": {
+   "class": "tests"
+  },
+  "tests/test_memory_comparison.py": {
+   "class": "tests"
+  },
+  "tests/test_memory_evaluation.py": {
+   "class": "tests"
+  },
+  "tests/test_memory_policy.py": {
+   "class": "tests"
+  },
+  "tests/test_memory_recall.py": {
+   "class": "tests"
+  },
+  "tests/test_memory_reflection.py": {
+   "class": "tests"
+  },
+  "tests/test_memory_repository.py": {
+   "class": "tests"
+  },
+  "tests/test_memory_semantic.py": {
+   "class": "tests"
+  },
+  "tests/test_migrations.py": {
+   "class": "tests"
+  },
+  "tests/test_model_policy.py": {
+   "class": "tests"
+  },
+  "tests/test_mtconnect_ingestion.py": {
+   "class": "tests"
+  },
+  "tests/test_observability.py": {
+   "class": "tests"
+  },
+  "tests/test_observation_tools.py": {
+   "class": "tests"
+  },
+  "tests/test_power_sensor.py": {
+   "class": "tests"
+  },
+  "tests/test_production_line.py": {
+   "class": "tests"
+  },
+  "tests/test_progress_view.py": {
+   "class": "tests"
+  },
+  "tests/test_quality.py": {
+   "class": "tests"
+  },
+  "tests/test_reasoning_evidence.py": {
+   "class": "tests"
+  },
+  "tests/test_recall_tool.py": {
+   "class": "tests"
+  },
+  "tests/test_request_deadline.py": {
+   "class": "tests"
+  },
+  "tests/test_rng.py": {
+   "class": "tests"
+  },
+  "tests/test_scenarios.py": {
+   "class": "tests"
+  },
+  "tests/test_scoring_integrity.py": {
+   "class": "tests"
+  },
+  "tests/test_sensor_summary.py": {
+   "class": "tests"
+  },
+  "tests/test_sensors.py": {
+   "class": "tests"
+  },
+  "tests/test_servo_drive.py": {
+   "class": "tests"
+  },
+  "tests/test_setting_reset.py": {
+   "class": "tests"
+  },
+  "tests/test_settings.py": {
+   "class": "tests"
+  },
+  "tests/test_simulator.py": {
+   "class": "tests"
+  },
+  "tests/test_simulator_challenge.py": {
+   "class": "tests"
+  },
+  "tests/test_simulator_disturbances.py": {
+   "class": "tests"
+  },
+  "tests/test_slow_when_worn.py": {
+   "class": "tests"
+  },
+  "tests/test_state.py": {
+   "class": "tests"
+  },
+  "tests/test_telemetry_monitor.py": {
+   "class": "tests"
+  },
+  "tests/test_temperature_sensor.py": {
+   "class": "tests"
+  },
+  "tests/test_thermal_lag.py": {
+   "class": "tests"
+  },
+  "tests/test_thermometer.py": {
+   "class": "tests"
+  },
+  "tests/test_tree_of_thought.py": {
+   "class": "tests"
+  },
+  "tests/test_two_lines.py": {
+   "class": "tests"
+  },
+  "tests/test_typesafe_client.py": {
+   "class": "tests"
+  },
+  "tests/test_wait_tool.py": {
+   "class": "tests"
+  },
+  "tests/test_wrong_setting.py": {
+   "class": "tests"
+  }
+ }
+}

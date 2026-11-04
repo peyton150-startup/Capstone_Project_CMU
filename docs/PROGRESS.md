@@ -1,5 +1,18 @@
 # Progress Log
 
+> **2026-11-04 — first full live Snap evaluation (exploratory, uncalibrated):**
+> At the developer's direction in the session, Claude Code ran the Snap half of
+> the full evaluator live on commit `0ca0b16`. AGENTS.md §12 usually gives live
+> runs to Codex. It used both archives (57 episodes) and ran in two resumed
+> slices. All 2,296 requests were answered, giving 6,564 answers with none
+> empty. Every answer came from `subq-snap-1.1` on its first attempt, for
+> $0.311 measured, under the $1.00 cap. Snap agrees with the code that both
+> experiment pairs are `insufficient_sample`. FN-01 scored 202 of 749
+> functions below 0.5, mostly small helpers with no docstring. With no human
+> reference judgments yet, the results are exploratory, not a full-project
+> evaluation. The results and a note are in
+> `docs/benchmarks/2026-11-04-snap-live-1/`.
+
 > **2026-11-04 — evaluator ready for a live Snap run (built ungated, developer to review; understood: no):**
 > Stacked on PR #172. Run packets keep each record's `seed` in private
 > `meta` (packet schema 1.3.0), and `full_evaluation.match_cases` pairs two
