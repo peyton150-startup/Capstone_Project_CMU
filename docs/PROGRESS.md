@@ -1,5 +1,12 @@
 # Progress Log
 
+> **2026-11-05 — PR descriptions state their trade-offs (documentation only; understanding unchanged):**
+> At the developer's request, AGENTS.md §11 step 4 now requires a
+> **Trade-offs** section in every PR description. For each significant choice
+> it says what it gains, what it costs, and the alternative set aside and why.
+> The developer chose AGENTS.md over CLAUDE.md, so the rule applies to both
+> Claude Code and Codex.
+
 > **2026-11-05 — offline ToT trace audit (results only):**
 > [Audit note](benchmarks/2026-11-05-tot-trace-audit.md) reads the 52 archived
 > episodes from the two 13-case anchored/blind pairs. Only 33 saved a tree;

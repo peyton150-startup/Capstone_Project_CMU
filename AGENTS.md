@@ -521,6 +521,11 @@ documented on GitHub where the developer can read it.
      Never present a scripted or mocked run as a live one.
    - **Gate status:** taught and understood, built ungated, or a closing
      question still outstanding, matching `docs/PROGRESS.md`.
+   - **Trade-offs (rule set by the developer, 2026-11-05):** for each
+     significant choice, what it gains, what it costs, and the alternative
+     that was set aside and why. Include changes that affect what a model is
+     shown or how runs compare. A trade-off a reviewer would only find by
+     reading the diff belongs here.
    - **Not done / known limits.**
    - Any commit that reached `main` without a PR, listed so it is recorded.
 5. Wait for the PR's CI to finish (`gh pr checks <number> --watch`). Never
