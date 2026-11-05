@@ -20,6 +20,10 @@ later, an AI research agent that investigates it through tools.
 - [Multi-agent survey future work](docs/MULTI_AGENT_SURVEY_FUTURE_WORK.md):
   three planned items from an LLM multi-agent survey, and the survey ideas
   already built or rejected.
+- [Course notebooks future work](docs/COURSE_NOTEBOOKS_FUTURE_WORK.md):
+  five planned items from the course lab notebooks (audit by default,
+  aggregation tools, three-times ToT rating, separate uncertainty labels,
+  MMR for memory recall).
 - [Manufacturing-agent papers future work](docs/MANUFACTURING_AGENT_PAPERS_FUTURE_WORK.md):
   five planned items from three 2026 manufacturing-agent papers.
 - `evaluation/` — the evaluation framework (added 2026-11-01): inventories of
