@@ -1,5 +1,10 @@
 # Progress Log
 
+> **2026-11-05 — Docker Desktop for sandbox checks (documentation only; understanding unchanged):**
+> At the developer's request, AGENTS.md §9 says that a check needing an isolated
+> sandbox uses Docker Desktop, after `docker info` succeeds. CLAUDE.md points to it.
+> The test suite does not need Docker.
+
 > **2026-11-04 — fixes from the live Snap run (built ungated, developer to review; understood: no):**
 > Four findings from `docs/benchmarks/2026-11-04-snap-live-1/`, each checked by
 > reading the code.
