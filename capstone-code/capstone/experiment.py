@@ -941,7 +941,11 @@ def model_policy_factory(
 
 def tree_options_from(settings) -> TreeOptions:
     """The tree's switches, read from the TOT_* settings (all off by default)."""
-    return TreeOptions(retain=settings.tot_retain)
+    return TreeOptions(
+        retain=settings.tot_retain,
+        rank=settings.tot_rank,
+        rotate=settings.tot_rotate,
+    )
 
 
 def add_manual_options(parser: argparse.ArgumentParser) -> None:

@@ -421,3 +421,141 @@ def test_a_tree_record_keeps_its_options():
     assert record.tree_options == TreeOptions()
     [plain] = run_experiment(case, scripted_models, name="plain")
     assert plain.tree_options is None
+
+
+# --- P4: order rotation, the position check and the evidence rubric -------------
+
+
+def test_rotation_starts_the_listing_at_the_offset_and_wraps_round():
+    from capstone.agent.tree_of_thought import rotated
+
+    candidates = [cand(f"C{n}") for n in range(1, 5)]
+    assert [c.id for c in rotated(candidates, 1)] == ["C2", "C3", "C4", "C1"]
+    assert [c.id for c in rotated(candidates, 6)] == ["C3", "C4", "C1", "C2"]
+    assert rotated([], 3) == []
+
+
+def test_a_rotated_tree_lists_the_candidates_in_its_shown_order():
+    agent = tree_policy(FOUR, FOUR_RATED, rotate=True)
+    state = tree_state("E1", "E2")
+    agent.hypothesize(state)
+    [thought] = agent.thoughts
+    offset = state.investigation_id.int % 4
+    expected = [f"C{(offset + n) % 4 + 1}" for n in range(4)]
+    assert list(thought.shown_order) == expected
+    [_, (_, prompt, _)] = agent.clients["hypothesize"].asked
+    listed = [
+        line.split(":")[0][2:] for line in prompt.splitlines() if line[:3] == "- C"
+    ]
+    assert listed == expected
+    # Rotation changes only the listing: the same ratings keep the same ones.
+    assert thought.kept == ("C1", "C2", "C3")
+
+
+def test_an_unrotated_tree_records_the_generated_order():
+    agent = tree_policy(FOUR, FOUR_RATED)
+    agent.hypothesize(tree_state("E1", "E2"))
+    assert agent.thoughts[0].shown_order == ("C1", "C2", "C3", "C4")
+
+
+def test_older_trees_read_without_a_shown_order():
+    old = {"candidates": [], "ratings": [], "kept": [], "dropped": {}}
+    assert Thought.model_validate(old).shown_order == ()
+
+
+def test_the_position_check_pairs_each_listing_place_with_its_rating():
+    from capstone.tree_reach import position_effect
+
+    agent = tree_policy(FOUR, FOUR_RATED, rotate=True)
+    state = tree_state("E1", "E2")
+    agent.hypothesize(state)
+    case = [Case("bearing-6", 6, "bearing_degradation")]
+    [record] = run_experiment(case, lambda: as_tree(scripted_models()), name="tot")
+    record = record.model_copy(update={"thoughts": agent.thoughts})
+    effect = position_effect([record])
+    assert effect["trees"] == 1
+    first = agent.thoughts[0].shown_order[0]
+    confidence = {r.candidate_id: r.confidence for r in agent.thoughts[0].ratings}
+    assert effect["by_position"][1]["mean_confidence"] == confidence[first]
+    assert effect["rotated_trees"] == (agent.thoughts[0].shown_order[0] != "C1")
+
+
+def test_the_evidence_rubric_ranks_independent_support_above_confidence():
+    """Two views of one sensor are one family; events and inspections are two."""
+    state = tree_state("E1", "E2", source="simulator:get_readings")
+    state = tree_state_more(state, "E3", "simulator:get_sensor_summary")
+    state = tree_state_more(state, "E4", "simulator:get_events")
+    state = tree_state_more(state, "E5", "simulator:get_inspections")
+    generated = {
+        "candidates": [
+            {"id": "C1", "claim": "a", "supporting_evidence_ids": ["E1", "E2", "E3"]},
+            {"id": "C2", "claim": "b", "supporting_evidence_ids": ["E4", "E5"]},
+        ]
+    }
+    rated = {
+        "ratings": [
+            {"candidate_id": "C1", "verdict": "likely", "confidence": 0.9},
+            {"candidate_id": "C2", "verdict": "likely", "confidence": 0.6},
+        ]
+    }
+    by_evidence = tree_policy(generated, rated, rank="evidence", breadth=1)
+    assert by_evidence.hypothesize(state).hypotheses[0].claim == "b"
+    by_confidence = tree_policy(generated, rated, breadth=1)
+    assert by_confidence.hypothesize(state).hypotheses[0].claim == "a"
+
+
+def tree_state_more(state, evidence_id, source):
+    state.evidence.append(
+        Evidence(
+            id=evidence_id,
+            source_id=source,
+            source_type="tool_result",
+            content="[]",
+            observed_tick=10,
+        )
+    )
+    state.provenance.append(
+        ProvenanceReference(
+            evidence_id=evidence_id,
+            source_id=source,
+            source_type="tool_result",
+            origin="observable",
+        )
+    )
+    return state
+
+
+def test_the_rubric_puts_a_settled_verdict_first_and_counts_contradictions():
+    from capstone.agent.tree_of_thought import Ranked, evidence_strength
+
+    families = {"E1": "get_events", "E2": "get_inspections"}
+    sure = Ranked(order=0, candidate=cand("C1", "E1"), rating=rate("C1", "sure", 0.5))
+    contradicted = Ranked(
+        order=1,
+        candidate=Candidate(
+            id="C2",
+            claim="x",
+            supporting_evidence_ids=("E1", "E2"),
+            contradicting_evidence_ids=("E2",),
+        ),
+        rating=rate("C2", "likely", 0.9),
+    )
+    assert evidence_strength(sure, families, {"E1", "E2"}) == (2, 1, 0)
+    assert evidence_strength(contradicted, families, {"E1", "E2"}) == (1, 1, 0)
+    unproven = Ranked(
+        order=2,
+        candidate=cand("C3", "E1"),
+        rating=rate("C3", "impossible"),
+        unproven=True,
+    )
+    assert evidence_strength(unproven, families, {"E1"})[0] == 0
+
+
+def test_the_rank_and_rotate_settings_reach_the_tree(monkeypatch):
+    from capstone.experiment import model_policy_factory
+
+    fake_clients(monkeypatch)
+    monkeypatch.setenv("TOT_RANK", "evidence")
+    monkeypatch.setenv("TOT_ROTATE", "true")
+    options = model_policy_factory(False, tree_of_thought=True)().options
+    assert (options.rank, options.rotate) == ("evidence", True)

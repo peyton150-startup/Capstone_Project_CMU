@@ -129,6 +129,56 @@ def summarize(reaches: Sequence[Reach]) -> dict:
     return {"runs": len(reaches), "groups": groups}
 
 
+def position_effect(records: Iterable[ExperimentRecord]) -> dict:
+    """How the rating question treated candidates by where it listed them (P4).
+
+    For every saved tree with ratings, each candidate's place in the listing
+    (1 = shown first) is paired with the confidence it was given and whether it
+    ended up kept. With TOT_ROTATE the listing rotates between runs, so a
+    position effect shows up as a confidence or keep rate that falls with the
+    position; without rotation, position and the model's own generated order
+    are the same and cannot be told apart. An exploratory check, not a test of
+    significance: report the counts with it.
+    """
+    # Variables:
+    #   shown: The listing order of one tree: its shown_order, or the generated
+    #     order for trees saved before it was kept.
+    #   first: Each candidate's first rating, as pruning counts it.
+    #   positions: Position -> the confidences and keep flags seen there.
+    positions: dict[int, dict[str, list]] = {}
+    trees = rotated = 0
+    for record in records:
+        for thought in record.thoughts or []:
+            if not thought.ratings:
+                continue
+            trees += 1
+            shown = thought.shown_order or tuple(c.id for c in thought.candidates)
+            rotated += shown != tuple(c.id for c in thought.candidates)
+            first: dict[str, float] = {}
+            for rating in thought.ratings:
+                first.setdefault(rating.candidate_id, rating.confidence)
+            for place, candidate_id in enumerate(shown, start=1):
+                if candidate_id not in first:
+                    continue
+                seen = positions.setdefault(place, {"confidence": [], "kept": []})
+                seen["confidence"].append(first[candidate_id])
+                seen["kept"].append(candidate_id in thought.kept)
+    return {
+        "trees": trees,
+        "rotated_trees": rotated,
+        "by_position": {
+            place: {
+                "ratings": len(seen["confidence"]),
+                "mean_confidence": round(
+                    sum(seen["confidence"]) / len(seen["confidence"]), 3
+                ),
+                "kept_rate": round(sum(seen["kept"]) / len(seen["kept"]), 3),
+            }
+            for place, seen in sorted(positions.items())
+        },
+    }
+
+
 def read_all(paths: Iterable[Path]) -> list[ExperimentRecord]:
     """Every record of every file, in file order."""
     records: list[ExperimentRecord] = []
@@ -144,13 +194,33 @@ def main(argv: Sequence[str] | None = None) -> int:
     parser = argparse.ArgumentParser(prog="python -m capstone.tree_reach")
     parser.add_argument("records", type=Path, nargs="+")
     parser.add_argument("--json", action="store_true")
+    parser.add_argument(
+        "--positions",
+        action="store_true",
+        help="also report confidence and keep rate by listing position (P4)",
+    )
     args = parser.parse_args(argv)
-    reaches = [reach_of(r) for r in read_all(args.records)]
+    records = read_all(args.records)
+    reaches = [reach_of(r) for r in records]
     summary = summarize(reaches)
+    positions = position_effect(records) if args.positions else None
     if args.json:
         rows = [r.model_dump(mode="json") for r in reaches]
-        print(json.dumps({"summary": summary, "runs": rows}, indent=1))
+        out = {"summary": summary, "runs": rows}
+        if positions is not None:
+            out["positions"] = positions
+        print(json.dumps(out, indent=1))
         return 0
+    if positions is not None:
+        print(
+            f"positions: {positions['trees']} tree(s), "
+            f"{positions['rotated_trees']} listed in a rotated order"
+        )
+        for place, row in positions["by_position"].items():
+            print(
+                f"  shown {place}: {row['ratings']} rating(s), mean confidence "
+                f"{row['mean_confidence']}, kept {row['kept_rate']:.0%}"
+            )
     print(f"{summary['runs']} run(s)")
     for name, group in summary["groups"].items():
         print(

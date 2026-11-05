@@ -185,6 +185,15 @@ class Settings(BaseSettings):
     tot_retain: Literal["top_k", "evidence"] = Field(
         default="top_k", validation_alias="TOT_RETAIN"
     )
+    # P4: confidence ranks candidates by the model's confidence; evidence by
+    # a transparent rubric first (verdict, factory evidence families for less
+    # against, gaps), then confidence.
+    tot_rank: Literal["confidence", "evidence"] = Field(
+        default="confidence", validation_alias="TOT_RANK"
+    )
+    # P4: list the candidates to the rating question in an order rotated per
+    # run, so `python -m capstone.tree_reach --positions` can measure position bias.
+    tot_rotate: bool = Field(default=False, validation_alias="TOT_ROTATE")
 
     # Limits on every model question (MVP_SCOPE.md section 3). The loop's own
     # limits (iterations, tool calls, time per investigation) are in Budgets.

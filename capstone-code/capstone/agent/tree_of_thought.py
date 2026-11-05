@@ -77,6 +77,9 @@ class TreeOptions(Contract):
     # P4: confidence ranks by the model's confidence; evidence by the
     # transparent evidence rubric first (`evidence_strength`).
     rank: Literal["confidence", "evidence"] = "confidence"
+    # P4: show the candidates to the rating question in a rotated order (by
+    # the investigation id), so position effects can be measured across runs.
+    rotate: bool = False
 
     @model_validator(mode="after")
     def breadth_fits(self):
@@ -128,6 +131,10 @@ class Thought(Contract):
     # P1: candidates kept beyond the top `breadth`, by id, with why
     # (`retention_reason`). Empty with top-k retention and in older records.
     retained: dict[str, str] = Field(default_factory=dict)
+    # P4: the candidate ids in the order the rating question listed them.
+    # The generated order unless TOT_ROTATE; empty in older records, which
+    # always listed them in generated order.
+    shown_order: tuple[str, ...] = ()
 
 
 GENERATE = (
@@ -160,6 +167,21 @@ def candidate_lines(candidates: Sequence[Candidate]) -> str:
             f"Contradicted by: {contradicted}."
         )
     return "\n".join(lines)
+
+
+def rotated(candidates: Sequence[Candidate], offset: int) -> list[Candidate]:
+    """The candidates starting at `offset` (wrapping round), for the rating question.
+
+    A rotation, not a shuffle: every candidate keeps its neighbours, so across
+    runs each one is shown first, second and so on equally often, and nothing
+    random is needed. Ties are still broken by the generated order.
+    """
+    # Variables:
+    #   offset: Where the listing starts; taken modulo the count.
+    if not candidates:
+        return []
+    start = offset % len(candidates)
+    return [*candidates[start:], *candidates[:start]]
 
 
 def unproven_confidence(confidence: float) -> float:
@@ -591,10 +613,15 @@ class TreeOfThoughtPolicy(ModelPolicy):
                 Thought(candidates=(), ratings=(), kept=(), dropped={})
             )
             return Interpretation()
+        shown = (
+            rotated(generated, state.investigation_id.int + len(self.thoughts))
+            if self.options.rotate
+            else list(generated)
+        )
         ratings = self._ask(
             "hypothesize",
             state,
-            f"{view}\n\n{candidate_lines(generated)}",
+            f"{view}\n\n{candidate_lines(shown)}",
             Ratings,
             system=VALUE,
         ).ratings
@@ -608,6 +635,7 @@ class TreeOfThoughtPolicy(ModelPolicy):
                 # Every kept "impossible" is unproven: a proven one was dropped.
                 unresolved=tuple(c.id for c, r in kept if r.verdict == "impossible"),
                 retained=retained,
+                shown_order=tuple(c.id for c in shown),
             )
         )
         hypotheses, questions = [], []
