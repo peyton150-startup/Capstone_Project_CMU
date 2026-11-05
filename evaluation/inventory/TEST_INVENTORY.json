@@ -24008,7 +24008,7 @@
    "id": "tests/test_collector_watchdog.py::test_a_quiet_machine_gets_a_heartbeat_every_minute",
    "file": "tests/test_collector_watchdog.py",
    "name": "test_a_quiet_machine_gets_a_heartbeat_every_minute",
-   "line": 137,
+   "line": 138,
    "docstring": "",
    "parametrized": false,
    "fixtures": [
@@ -24054,7 +24054,7 @@
    "id": "tests/test_collector_watchdog.py::test_failed_polls_never_write_a_heartbeat",
    "file": "tests/test_collector_watchdog.py",
    "name": "test_failed_polls_never_write_a_heartbeat",
-   "line": 145,
+   "line": 146,
    "docstring": "",
    "parametrized": false,
    "fixtures": [
@@ -24097,7 +24097,7 @@
    "id": "tests/test_collector_watchdog.py::test_the_monitor_counts_a_heartbeat_as_contact",
    "file": "tests/test_collector_watchdog.py",
    "name": "test_the_monitor_counts_a_heartbeat_as_contact",
-   "line": 157,
+   "line": 158,
    "docstring": "",
    "parametrized": false,
    "fixtures": [],
@@ -45236,7 +45236,7 @@
    "uses": [],
    "quality_flags": [],
    "claims": "Every tracked Python file is inventoried, a test, excluded with a reason,",
-   "execution_outcome": "passed",
+   "execution_outcome": "failed",
    "exercises": [
     "evaluation.evaltools.build_inventory:call_name",
     "evaluation.evaltools.build_inventory:collect_functions",
@@ -67689,6 +67689,158 @@
    ]
   },
   {
+   "id": "tests/test_mtconnect_ingestion.py::test_a_checkout_is_found_from_a_git_folder_or_a_worktree_git_file",
+   "file": "tests/test_mtconnect_ingestion.py",
+   "name": "test_a_checkout_is_found_from_a_git_folder_or_a_worktree_git_file",
+   "line": 343,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [
+    "tmp_path"
+   ],
+   "assertions": 2,
+   "assert_forms": {
+    "equality": 2
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "a checkout is found from a git folder or a worktree git file",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.ingestion.privacy:git_checkout_containing"
+   ],
+   "exercise_count": 1,
+   "modules_exercised": [
+    "capstone.ingestion.privacy"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_mtconnect_ingestion.py::test_a_path_outside_every_checkout_is_allowed",
+   "file": "tests/test_mtconnect_ingestion.py",
+   "name": "test_a_path_outside_every_checkout_is_allowed",
+   "line": 354,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 1,
+   "assert_forms": {
+    "is_none": 1
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [
+    "may_skip"
+   ],
+   "claims": "a path outside every checkout is allowed",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.ingestion.privacy:git_checkout_containing",
+    "capstone.ingestion.privacy:refusal"
+   ],
+   "exercise_count": 2,
+   "modules_exercised": [
+    "capstone.ingestion.privacy"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_mtconnect_ingestion.py::test_the_collector_refuses_to_write_inside_the_repository",
+   "file": "tests/test_mtconnect_ingestion.py",
+   "name": "test_the_collector_refuses_to_write_inside_the_repository",
+   "line": 367,
+   "docstring": "",
+   "parametrized": true,
+   "fixtures": [
+    "tmp_path",
+    "capsys",
+    "option"
+   ],
+   "assertions": 3,
+   "assert_forms": {
+    "equality": 1,
+    "membership": 1,
+    "negation": 1
+   },
+   "raises_checks": 1,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "the collector refuses to write inside the repository",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.ingestion.__main__:main",
+    "capstone.ingestion.privacy:git_checkout_containing",
+    "capstone.ingestion.privacy:refusal"
+   ],
+   "exercise_count": 3,
+   "modules_exercised": [
+    "capstone.ingestion.__main__",
+    "capstone.ingestion.privacy"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_mtconnect_ingestion.py::test_monitor_and_watchdog_refuse_alerts_inside_the_repository",
+   "file": "tests/test_mtconnect_ingestion.py",
+   "name": "test_monitor_and_watchdog_refuse_alerts_inside_the_repository",
+   "line": 379,
+   "docstring": "",
+   "parametrized": true,
+   "fixtures": [
+    "tmp_path",
+    "capsys",
+    "package"
+   ],
+   "assertions": 2,
+   "assert_forms": {
+    "equality": 1,
+    "membership": 1
+   },
+   "raises_checks": 1,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "monitor and watchdog refuse alerts inside the repository",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.ingestion.privacy:git_checkout_containing",
+    "capstone.ingestion.privacy:refusal",
+    "capstone.monitoring.__main__:main",
+    "capstone.watchdog.__main__:main"
+   ],
+   "exercise_count": 4,
+   "modules_exercised": [
+    "capstone.ingestion.privacy",
+    "capstone.monitoring.__main__",
+    "capstone.watchdog.__main__"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
    "id": "tests/test_observability.py::test_event_context_is_json_with_explicit_simulator_tick",
    "file": "tests/test_observability.py",
    "name": "test_event_context_is_json_with_explicit_simulator_tick",
@@ -84088,7 +84240,7 @@
    "id": "tests/test_telemetry_monitor.py::test_following_a_file_in_pieces_gives_the_same_alerts_as_replaying_it",
    "file": "tests/test_telemetry_monitor.py",
    "name": "test_following_a_file_in_pieces_gives_the_same_alerts_as_replaying_it",
-   "line": 179,
+   "line": 182,
    "docstring": "",
    "parametrized": false,
    "fixtures": [
@@ -84139,7 +84291,7 @@
    "id": "tests/test_telemetry_monitor.py::test_monitoring_is_plain_code_with_no_model_clock_or_network",
    "file": "tests/test_telemetry_monitor.py",
    "name": "test_monitoring_is_plain_code_with_no_model_clock_or_network",
-   "line": 204,
+   "line": 207,
    "docstring": "The monitor never calls a model or the agent, and never reads a clock.",
    "parametrized": false,
    "fixtures": [],
@@ -84170,7 +84322,7 @@
    "id": "tests/test_telemetry_monitor.py::test_a_clean_stop_and_later_start_is_not_stale",
    "file": "tests/test_telemetry_monitor.py",
    "name": "test_a_clean_stop_and_later_start_is_not_stale",
-   "line": 247,
+   "line": 250,
    "docstring": "",
    "parametrized": false,
    "fixtures": [],
@@ -84215,7 +84367,7 @@
    "id": "tests/test_telemetry_monitor.py::test_a_start_without_a_clean_stop_warns_of_a_crash",
    "file": "tests/test_telemetry_monitor.py",
    "name": "test_a_start_without_a_clean_stop_warns_of_a_crash",
-   "line": 265,
+   "line": 268,
    "docstring": "",
    "parametrized": false,
    "fixtures": [],
@@ -84263,7 +84415,7 @@
    "id": "tests/test_telemetry_monitor.py::test_data_without_a_start_marker_counts_as_a_running_collector",
    "file": "tests/test_telemetry_monitor.py",
    "name": "test_data_without_a_start_marker_counts_as_a_running_collector",
-   "line": 284,
+   "line": 287,
    "docstring": "",
    "parametrized": false,
    "fixtures": [],
@@ -84308,7 +84460,7 @@
    "id": "tests/test_telemetry_monitor.py::test_follower_reads_markers_and_observations",
    "file": "tests/test_telemetry_monitor.py",
    "name": "test_follower_reads_markers_and_observations",
-   "line": 291,
+   "line": 294,
    "docstring": "",
    "parametrized": false,
    "fixtures": [

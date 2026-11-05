@@ -1,5 +1,25 @@
 # Progress Log
 
+> **2026-11-04 — PRs #172 and #174 merged before their walkthroughs (developer to review; understood: no):**
+> On the developer's instruction ("merge them now, I will do the walkthrough later"), #174 was
+> brought up to date with `main` and merged, which also landed #172's commits. The function, test
+> and verification inventories were rebuilt from a fresh full coverage run after the merge. The
+> pre-merge walkthroughs (AGENTS.md §11 step 6) for both PRs are still owed.
+
+> **2026-11-04 — first full live Snap evaluation (exploratory, uncalibrated):**
+> At the developer's direction in the session, Claude Code ran the Snap half of
+> the full evaluator live on commit `0ca0b16`
+> (PR #174, stacked on #172). AGENTS.md §12 usually gives live
+> runs to Codex. It used both archives (57 episodes) and ran in two resumed
+> slices. All 2,296 requests were answered, giving 6,564 answers with none
+> empty. Every answer came from `subq-snap-1.1` on its first attempt, for
+> $0.311 measured, under the $1.00 cap. Snap agrees with the code that both
+> experiment pairs are `insufficient_sample`. FN-01 scored 202 of 749
+> functions below 0.5, mostly small helpers with no docstring. With no human
+> reference judgments yet, the results are exploratory, not a full-project
+> evaluation. The results and a note are in
+> `docs/benchmarks/2026-11-04-snap-live-1/`.
+
 > **2026-11-04 — evaluator ready for a live Snap run (built ungated, developer to review; understood: no):**
 > Stacked on PR #172. Run packets keep each record's `seed` in private
 > `meta` (packet schema 1.3.0), and `full_evaluation.match_cases` pairs two
@@ -23,6 +43,29 @@
 > live slices remain blocked until Gate C validates their request/usage
 > contract. No model call was made; tests and coverage inventory are in the PR.
 
+> **2026-11-03 — Haas live-telemetry collector and read-only manufacturer pilot plan added (documentation only):**
+> [MVP_SCOPE.md](MVP_SCOPE.md#fw-haas-live-pilot) now records the post-MVP,
+> one-machine Haas collection plan for manufacturer outreach: shop/IT approval,
+> NGC/CHC capability discovery, outbound-only on-site bridge where needed,
+> capture contracts, separate collection/monitoring processes, private storage,
+> 7-day opt-in pilot with optional 30-day extension, shadow-mode replay and
+> evaluation limits, stop/revocation gates, development sizing and operator
+> discovery questions. This expands the existing ingestion/replay and Haas
+> future work; no factory access, deployed service, code or tests were added.
+> Understanding status unchanged (documentation only).
+> **Updated 2026-11-04 after review:** the plan now says what is already built (collector, monitor, watchdog;
+> tested only on the public demo), keeps the first pilot's data on the on-site PC, adds the confirmed Haas MTConnect
+> settings, the real-data provider as the main missing piece, proposed success targets, what one machine can and
+> cannot test, an agreement checklist and revised sizing.
+
+> **2026-11-04 — telemetry kept out of git checkouts (built ungated, developer to review; understood: no):**
+> From the PR #164 review: this repository is public, and nothing stopped collected shop telemetry from being
+> committed. New `capstone/ingestion/privacy.py` (`git_checkout_containing`, `refusal`, `ALLOW_FLAG`, `ALLOW_HELP`).
+> The collector (`--out`, `--save-probe`), monitor (`--alerts`) and watchdog (`--alerts`) now refuse an output path
+> inside any git checkout unless `--allow-inside-repo` is given, for synthetic fixtures only. `.gitignore` adds
+> `telemetry/` and `pilot-data/`. A blanket `*.jsonl` rule was not used: `docs/benchmarks/` tracks 37 benchmark
+> JSONL files. Tests in `tests/test_mtconnect_ingestion.py`; two existing CLI tests now pass the flag.
+> Merged on the developer's instruction before the pre-merge walkthrough (AGENTS.md §11 step 6); the walkthrough is still owed.
 
 > **2026-11-03 — evaluator test attribution and constructor callers (built ungated, developer to review; understood: no):**
 > The developer authorized Codex to make this one code fix despite the usual

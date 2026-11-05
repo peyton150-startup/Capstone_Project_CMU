@@ -12,6 +12,7 @@ from collections.abc import Sequence
 from datetime import UTC, datetime
 from pathlib import Path
 
+from capstone.ingestion.privacy import ALLOW_FLAG, ALLOW_HELP, refusal
 from capstone.watchdog.watchdog import Watchdog, WatchdogAlert, last_line
 
 
@@ -40,6 +41,9 @@ def main(argv: Sequence[str] | None = None) -> int:
     #   checks: Stop after this many checks; None runs until interrupted.
     #   watchdog: Remembers whether a silence is already reported.
     #   done: Checks made so far, compared with --checks.
+    #   allow_inside_repo: Lets --alerts sit inside a git checkout; for
+    #     synthetic fixtures only.
+    #   problem: Why the --alerts path is refused, or a false value if allowed.
     parser = argparse.ArgumentParser(prog="python -m capstone.watchdog")
     parser.add_argument(
         "--input", type=Path, required=True, help="collector JSONL file"
@@ -55,7 +59,13 @@ def main(argv: Sequence[str] | None = None) -> int:
         "--interval", type=float, default=10.0, help="seconds between checks"
     )
     parser.add_argument("--checks", type=int, help="stop after this many checks")
+    parser.add_argument(ALLOW_FLAG, action="store_true", help=ALLOW_HELP)
     args = parser.parse_args(argv)
+    problem = (
+        args.alerts and not args.allow_inside_repo and refusal(args.alerts, "--alerts")
+    )
+    if problem:
+        parser.error(problem)
 
     watchdog = Watchdog(args.input, silent_after=args.silent_after)
     done = 0

@@ -17,6 +17,7 @@ import time
 from collections.abc import Sequence
 from pathlib import Path
 
+from capstone.ingestion.privacy import ALLOW_FLAG, ALLOW_HELP, refusal
 from capstone.monitoring.monitor import Monitor, Threshold
 from capstone.monitoring.runner import JsonlFollower, append_alerts, replay
 
@@ -42,6 +43,9 @@ def main(argv: Sequence[str] | None = None) -> int:
     #     replay the file once and exit. Either way the same records give the
     #     same alerts.
     #   interval: Only how often the file is re-read; it never changes an alert.
+    #   allow_inside_repo: Lets --alerts sit inside a git checkout; for
+    #     synthetic fixtures only, since alerts name the shop's machines.
+    #   problem: Why the --alerts path is refused, or a false value if allowed.
     parser = argparse.ArgumentParser(prog="python -m capstone.monitoring")
     parser.add_argument(
         "--input", type=Path, required=True, help="collector JSONL file"
@@ -66,7 +70,13 @@ def main(argv: Sequence[str] | None = None) -> int:
         default=[],
         help="safe range for a channel, NAME=LOW:HIGH (repeatable)",
     )
+    parser.add_argument(ALLOW_FLAG, action="store_true", help=ALLOW_HELP)
     args = parser.parse_args(argv)
+    problem = (
+        args.alerts and not args.allow_inside_repo and refusal(args.alerts, "--alerts")
+    )
+    if problem:
+        parser.error(problem)
 
     monitor = Monitor(thresholds=dict(args.threshold), stale_after=args.stale_after)
     follower = JsonlFollower(args.input)

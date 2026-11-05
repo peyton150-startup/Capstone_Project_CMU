@@ -18,3 +18,11 @@ venv/
 .env.*
 !.env.example
 .chroma/
+
+# Real shop telemetry never goes in this public repository. The collector,
+# monitor and watchdog refuse paths inside a checkout; this catches copies.
+telemetry/
+pilot-data/
+
+# Full-evaluator output folders (archive chosen results under docs/benchmarks/)
+evaluation/full-eval/

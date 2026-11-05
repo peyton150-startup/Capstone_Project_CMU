@@ -172,7 +172,10 @@ def test_command_line_replay_writes_alerts(tmp_path):
         ),
         encoding="utf-8",
     )
-    assert main(["--input", str(source), "--alerts", str(alerts)]) == 0
+    assert (
+        main(["--input", str(source), "--alerts", str(alerts), "--allow-inside-repo"])
+        == 0
+    )
     assert '"kind":"status_change"' in alerts.read_text(encoding="utf-8")
 
 
