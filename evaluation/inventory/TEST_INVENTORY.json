@@ -26453,6 +26453,252 @@
    ]
   },
   {
+   "id": "tests/test_decide_reasoning_effort.py::test_unset_sends_no_reasoning_field_for_any_job",
+   "file": "tests/test_decide_reasoning_effort.py",
+   "name": "test_unset_sends_no_reasoning_field_for_any_job",
+   "line": 85,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 2,
+   "assert_forms": {
+    "is_none": 1,
+    "membership": 1
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "unset sends no reasoning field for any job",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.providers.chat:ChatClient.__init__",
+    "capstone.providers.chat:ChatClient.ask",
+    "capstone.providers.chat:FallbackClient.__init__",
+    "capstone.providers.chat:FallbackClient.ask",
+    "capstone.providers.chat:FallbackClient.ask.<locals>.tried",
+    "capstone.providers.chat:_capped",
+    "capstone.providers.chat:answer_json",
+    "capstone.providers.chat:client_for",
+    "capstone.providers.chat:clients_for_jobs",
+    "capstone.providers.chat:post_json",
+    "capstone.providers.chat:reply_text",
+    "capstone.settings:Settings.blank_is_missing",
+    "capstone.settings:fallback_models"
+   ],
+   "exercise_count": 13,
+   "modules_exercised": [
+    "capstone.providers.chat",
+    "capstone.settings"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_decide_reasoning_effort.py::test_low_reaches_the_decide_question_and_no_other",
+   "file": "tests/test_decide_reasoning_effort.py",
+   "name": "test_low_reaches_the_decide_question_and_no_other",
+   "line": 92,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 2,
+   "assert_forms": {
+    "equality": 1,
+    "membership": 1
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "low reaches the decide question and no other",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.providers.chat:ChatClient.__init__",
+    "capstone.providers.chat:ChatClient.ask",
+    "capstone.providers.chat:FallbackClient.__init__",
+    "capstone.providers.chat:FallbackClient.ask",
+    "capstone.providers.chat:FallbackClient.ask.<locals>.tried",
+    "capstone.providers.chat:_capped",
+    "capstone.providers.chat:answer_json",
+    "capstone.providers.chat:client_for",
+    "capstone.providers.chat:clients_for_jobs",
+    "capstone.providers.chat:post_json",
+    "capstone.providers.chat:reply_text",
+    "capstone.settings:Settings.blank_is_missing",
+    "capstone.settings:fallback_models"
+   ],
+   "exercise_count": 13,
+   "modules_exercised": [
+    "capstone.providers.chat",
+    "capstone.settings"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_decide_reasoning_effort.py::test_the_fallback_model_is_not_sent_the_field",
+   "file": "tests/test_decide_reasoning_effort.py",
+   "name": "test_the_fallback_model_is_not_sent_the_field",
+   "line": 100,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 4,
+   "assert_forms": {
+    "equality": 3,
+    "membership": 1
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "the fallback model is not sent the field",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.providers.chat:ChatClient.__init__",
+    "capstone.providers.chat:ChatClient.ask",
+    "capstone.providers.chat:FallbackClient.__init__",
+    "capstone.providers.chat:FallbackClient.ask",
+    "capstone.providers.chat:FallbackClient.ask.<locals>.tried",
+    "capstone.providers.chat:ModelError.__init__",
+    "capstone.providers.chat:_capped",
+    "capstone.providers.chat:answer_json",
+    "capstone.providers.chat:client_for",
+    "capstone.providers.chat:clients_for_jobs",
+    "capstone.providers.chat:post_json",
+    "capstone.providers.chat:reply_text",
+    "capstone.settings:Settings.blank_is_missing",
+    "capstone.settings:fallback_models"
+   ],
+   "exercise_count": 14,
+   "modules_exercised": [
+    "capstone.providers.chat",
+    "capstone.settings"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_decide_reasoning_effort.py::test_a_non_nvidia_decide_model_is_never_sent_it",
+   "file": "tests/test_decide_reasoning_effort.py",
+   "name": "test_a_non_nvidia_decide_model_is_never_sent_it",
+   "line": 114,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 1,
+   "assert_forms": {
+    "membership": 1
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "a non nvidia decide model is never sent it",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.providers.chat:ChatClient.__init__",
+    "capstone.providers.chat:ChatClient.ask",
+    "capstone.providers.chat:FallbackClient.__init__",
+    "capstone.providers.chat:FallbackClient.ask",
+    "capstone.providers.chat:FallbackClient.ask.<locals>.tried",
+    "capstone.providers.chat:_capped",
+    "capstone.providers.chat:answer_json",
+    "capstone.providers.chat:client_for",
+    "capstone.providers.chat:clients_for_jobs",
+    "capstone.providers.chat:post_json",
+    "capstone.providers.chat:reply_text",
+    "capstone.settings:Settings.blank_is_missing",
+    "capstone.settings:fallback_models"
+   ],
+   "exercise_count": 13,
+   "modules_exercised": [
+    "capstone.providers.chat",
+    "capstone.settings"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_decide_reasoning_effort.py::test_only_the_documented_levels_are_accepted",
+   "file": "tests/test_decide_reasoning_effort.py",
+   "name": "test_only_the_documented_levels_are_accepted",
+   "line": 119,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 0,
+   "assert_forms": {},
+   "raises_checks": 1,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "only the documented levels are accepted",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.settings:Settings.blank_is_missing"
+   ],
+   "exercise_count": 1,
+   "modules_exercised": [
+    "capstone.settings"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_decide_reasoning_effort.py::test_the_run_header_names_the_effort_only_when_set",
+   "file": "tests/test_decide_reasoning_effort.py",
+   "name": "test_the_run_header_names_the_effort_only_when_set",
+   "line": 137,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 2,
+   "assert_forms": {
+    "equality": 2
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "the run header names the effort only when set",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.progress:run_header"
+   ],
+   "exercise_count": 1,
+   "modules_exercised": [
+    "capstone.progress"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
    "id": "tests/test_difficulty_tool_compatibility.py::test_drift_or_transient_samples_use_existing_reading_and_summary_formats",
    "file": "tests/test_difficulty_tool_compatibility.py",
    "name": "test_drift_or_transient_samples_use_existing_reading_and_summary_formats",
@@ -45253,7 +45499,7 @@
    "uses": [],
    "quality_flags": [],
    "claims": "Every tracked Python file is inventoried, a test, excluded with a reason,",
-   "execution_outcome": "passed",
+   "execution_outcome": "failed",
    "exercises": [
     "evaluation.evaltools.build_inventory:call_name",
     "evaluation.evaltools.build_inventory:collect_functions",

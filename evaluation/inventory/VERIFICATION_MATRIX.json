@@ -68,16 +68,16 @@
   "capstone-code/capstone/monitoring/monitor.py": "c5c9b8a591434499e054c145bcb81bc8086aaaa0824bc608e6f52ef9240df6de",
   "capstone-code/capstone/monitoring/runner.py": "34affc88db9e78776d37edd753eddd108bfbdfa0e3fac7dfb1580dbc3ec09e2f",
   "capstone-code/capstone/observability.py": "f766abea4f5fc94828c0778e182410d1ee3a65a16c54c111caa903436c36be71",
-  "capstone-code/capstone/progress.py": "aa3ba7e95d2ebc4e3d5ef146d393a97a55d8228e09995cfab3894004ef043610",
+  "capstone-code/capstone/progress.py": "a301df50062aff5767aa9adbb60efbdbba75d3036d7f4ce7a6ff5e3c519e6ee6",
   "capstone-code/capstone/providers/__init__.py": "3c5dc87099f8ec4ac1db4e949c0a54a0025df89af62e93f3e9cb147d5c380b58",
-  "capstone-code/capstone/providers/chat.py": "25edd66d16af859191dcab70c10959f8c9a75c52585d027acdb1d0e98769bc71",
+  "capstone-code/capstone/providers/chat.py": "9f83b9b61777f9d1c9f23af841a331eabd9368a46c140659154fbbd597bf13b3",
   "capstone-code/capstone/providers/embeddings.py": "a16df4faf5e0bbc60e5fd67e2aaa2cc76f2c5dc218c635a828ee39639b5cdaa8",
   "capstone-code/capstone/providers/factory.py": "dee3a0bb6e910bb9cb0c943d84605f7f8ee766d337209420543f0bd188549698",
   "capstone-code/capstone/providers/hazards.py": "4549f0bbba0b6267c4e0f69fba71b5668cc024e89d19e4c61ef32a08292799f5",
   "capstone-code/capstone/providers/manual.py": "befcdb6fceb495a99c2fb32b9d075b0539b1d83c3629eb88a266daa437db7908",
   "capstone-code/capstone/providers/recall.py": "8bbf12b6c65ae12e04916c1c160977968c955e044df670d7aa8ad3d91b7d94d5",
   "capstone-code/capstone/providers/typesafe.py": "d8142540e5dc39b66393640512ca9d2f99ce4ccef22052166a9ce46d9657da50",
-  "capstone-code/capstone/settings.py": "4c50ea269f47f6baeb3ba896abb8f80b59c79d64cc7d36b8763572ccf5aef272",
+  "capstone-code/capstone/settings.py": "dafc7cdde76d42357703ea674b6bc4175b0556513de4fea09e03bd02ce3d5ca2",
   "capstone-code/capstone/simulator/__init__.py": "3f7a4fa529e19d54c1ee6ee16f5847c5d412119ef75a9f893a9634ac6e48375b",
   "capstone-code/capstone/simulator/challenge.py": "9a05452e238b420320649ac0e6fee4131ff4e10666f6cd1220559a389063d250",
   "capstone-code/capstone/simulator/clock.py": "e91bccc802f0d248b0901b24d9fbe56b7d41c10af25bbf92e6946b30da00967a",
@@ -131,6 +131,7 @@
   "tests/test_contracts.py": "4475acc6ae588f691e3f747d8e039d61bec99c87b1dbb771ce2225199cbd8763",
   "tests/test_critic.py": "2044f1f8f7b25fe8418ecdd528d7185ed1646fa06cdf38638f62fcb6354883e7",
   "tests/test_database_connection.py": "042e6f1d226ce19f033107e70fab1924c4c353eb3641732ea9dec9623ec0bb83",
+  "tests/test_decide_reasoning_effort.py": "c83066025e7c00bdfea49ee7ef307f719bcdece3e80b59f4c49b455d373d67bb",
   "tests/test_difficulty_tool_compatibility.py": "8d7a01acac90559a92bab3e92f002acc3c4a60f8ae654d4cf057bb10cbd6e18f",
   "tests/test_duplicate_threshold.py": "8b7eb7d485182f9d8f70a915ff134cd6ad6ed448408c06e5a4ec8e981d6844de",
   "tests/test_embeddings.py": "c012b45a1c3222153492e76f152afce3fbcb3bafc96ae59f409b023b26546716",
@@ -196,18 +197,18 @@
   "tests/test_thermal_lag.py": "f7386763b100f75c82b6ff1ad34c630828ce2f2be55a1e10e633589dfeb117cb",
   "tests/test_thermometer.py": "c13320d0e57285c4b4c55fefb000e4e8f8ed077033117949f02cd2da7aa7817c",
   "tests/test_tree_of_thought.py": "1a2f3ff19f85333cbb53e040fa5bbb090cf8357ef74930c4e29e4734ec390305",
-  "tests/test_triage.py": "b2edfd515fa12a371a3a9a0d8b528227ec621875684337ea53212876d456fde8",
+  "tests/test_triage.py": "81908db03ee7a876d5147b71c19d3d465b14192b1667d2f0e658180599555be9",
   "tests/test_two_lines.py": "0658dabf750de3b18111b9f30c19a2fc2a2a9582b37fc5edbde4733e5480c55e",
   "tests/test_typesafe_client.py": "e9672498f96597ca062073a7a9f1cff64430bf5304a908f6fb959056a703e747",
   "tests/test_wait_tool.py": "ccec624a885634bbfcf97c4b09e7fdf523097c9e468e5bc5f6d07d863179dc49",
   "tests/test_wrong_setting.py": "a7dcc4186bcee6a5980da4fc1f7a47c1b9210055618a88756e44a1991e39de47"
  },
- "coverage_sha256": "b00948377009d4a79203e6557b6a48d8300d898a0df950de64f02d608ab32be1",
- "junit_sha256": "90e2b81bbe8440de043f0a97ff92cb78c104717536ce9670500dd90c679dc5bc",
+ "coverage_sha256": "7945e7c0962e9c56e47dcbca5b2059ce72d5be1249947eb7cdc4023e429e1162",
+ "junit_sha256": "c1210cb39b71482e8eceb7121148e8e73eb537e0968a80fb74bfe188dcf19ea3",
  "counts": {
   "functions": 781,
   "classes_note": "classes are listed through their methods",
-  "tests": 1503,
+  "tests": 1509,
   "tools": 17,
   "functions_by_status": {
    "INSUFFICIENT EVIDENCE": 301,
@@ -308,7 +309,8 @@
   ],
   "stubs_or_protocols": 24,
   "tests_by_outcome": {
-   "passed": 1503
+   "failed": 1,
+   "passed": 1508
   },
   "tests_with_no_assertion": [
    "tests/test_console.py::test_without_it_the_same_print_raised"
@@ -8676,9 +8678,10 @@
    ]
   },
   "capstone.progress:run_header": {
-   "count": 9,
+   "count": 10,
    "status": "PARTIALLY VERIFIED",
    "direct": [
+    "tests/test_decide_reasoning_effort.py::test_the_run_header_names_the_effort_only_when_set",
     "tests/test_progress_view.py::test_the_run_header_names_the_critic_treatment"
    ],
    "indirect": [
@@ -8725,7 +8728,7 @@
    ]
   },
   "capstone.providers.chat:ModelError.__init__": {
-   "count": 59,
+   "count": 60,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
@@ -8828,7 +8831,7 @@
    ]
   },
   "capstone.providers.chat:post_json": {
-   "count": 72,
+   "count": 76,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
@@ -8847,7 +8850,7 @@
    ]
   },
   "capstone.providers.chat:reply_text": {
-   "count": 35,
+   "count": 39,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
@@ -8866,7 +8869,7 @@
    ]
   },
   "capstone.providers.chat:answer_json": {
-   "count": 33,
+   "count": 37,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
@@ -8885,7 +8888,7 @@
    ]
   },
   "capstone.providers.chat:ChatClient.__init__": {
-   "count": 61,
+   "count": 65,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
@@ -8912,7 +8915,7 @@
    ]
   },
   "capstone.providers.chat:ChatClient.ask": {
-   "count": 48,
+   "count": 52,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
@@ -8931,7 +8934,7 @@
    ]
   },
   "capstone.providers.chat:FallbackClient.__init__": {
-   "count": 35,
+   "count": 39,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
@@ -8974,7 +8977,7 @@
    "indirect": []
   },
   "capstone.providers.chat:FallbackClient.ask": {
-   "count": 26,
+   "count": 30,
    "status": "VERIFIED",
    "direct": [],
    "indirect": [
@@ -9010,7 +9013,7 @@
    ]
   },
   "capstone.providers.chat:FallbackClient.ask.<locals>.tried": {
-   "count": 25,
+   "count": 29,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_chat_client.py::test_every_model_tried_is_recorded_even_when_a_later_one_answers",
@@ -9049,7 +9052,7 @@
    ]
   },
   "capstone.providers.chat:client_for": {
-   "count": 25,
+   "count": 29,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
@@ -9068,7 +9071,7 @@
    ]
   },
   "capstone.providers.chat:_capped": {
-   "count": 22,
+   "count": 26,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
@@ -9087,7 +9090,7 @@
    ]
   },
   "capstone.providers.chat:clients_for_jobs": {
-   "count": 7,
+   "count": 11,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
@@ -9097,7 +9100,11 @@
     "tests/test_chat_client.py::test_fallback_uses_its_own_model_sampling",
     "tests/test_chat_client.py::test_only_providers_in_use_need_a_key",
     "tests/test_chat_client.py::test_several_fallback_models_are_tried_in_the_order_given",
-    "tests/test_chat_client.py::test_the_limits_come_from_settings"
+    "tests/test_chat_client.py::test_the_limits_come_from_settings",
+    "tests/test_decide_reasoning_effort.py::test_a_non_nvidia_decide_model_is_never_sent_it",
+    "tests/test_decide_reasoning_effort.py::test_low_reaches_the_decide_question_and_no_other",
+    "tests/test_decide_reasoning_effort.py::test_the_fallback_model_is_not_sent_the_field",
+    "tests/test_decide_reasoning_effort.py::test_unset_sends_no_reasoning_field_for_any_job"
    ]
   },
   "capstone.providers.chat:critic_client": {
@@ -9710,7 +9717,7 @@
    "indirect": []
   },
   "capstone.settings:Settings.blank_is_missing": {
-   "count": 195,
+   "count": 200,
    "status": "VERIFIED",
    "direct": [
     "tests/test_settings.py::test_blank_critic_fallback_is_unset",
@@ -9742,7 +9749,7 @@
    ]
   },
   "capstone.settings:fallback_models": {
-   "count": 7,
+   "count": 11,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_chat_client.py::test_several_fallback_models_are_tried_in_the_order_given"
@@ -9753,7 +9760,11 @@
     "tests/test_chat_client.py::test_every_job_uses_the_default_model_unless_named",
     "tests/test_chat_client.py::test_fallback_uses_its_own_model_sampling",
     "tests/test_chat_client.py::test_only_providers_in_use_need_a_key",
-    "tests/test_chat_client.py::test_the_limits_come_from_settings"
+    "tests/test_chat_client.py::test_the_limits_come_from_settings",
+    "tests/test_decide_reasoning_effort.py::test_a_non_nvidia_decide_model_is_never_sent_it",
+    "tests/test_decide_reasoning_effort.py::test_low_reaches_the_decide_question_and_no_other",
+    "tests/test_decide_reasoning_effort.py::test_the_fallback_model_is_not_sent_the_field",
+    "tests/test_decide_reasoning_effort.py::test_unset_sends_no_reasoning_field_for_any_job"
    ]
   },
   "capstone.settings:critic_models": {
@@ -23338,6 +23349,97 @@
     "capstone.database.connection:check_database_connection",
     "capstone.settings:Settings.blank_is_missing",
     "capstone.settings:get_settings"
+   ]
+  },
+  "tests/test_decide_reasoning_effort.py::test_unset_sends_no_reasoning_field_for_any_job": {
+   "count": 13,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.providers.chat:ChatClient.__init__",
+    "capstone.providers.chat:ChatClient.ask",
+    "capstone.providers.chat:FallbackClient.__init__",
+    "capstone.providers.chat:FallbackClient.ask",
+    "capstone.providers.chat:FallbackClient.ask.<locals>.tried",
+    "capstone.providers.chat:_capped",
+    "capstone.providers.chat:answer_json",
+    "capstone.providers.chat:client_for",
+    "capstone.providers.chat:clients_for_jobs",
+    "capstone.providers.chat:post_json",
+    "capstone.providers.chat:reply_text",
+    "capstone.settings:Settings.blank_is_missing",
+    "capstone.settings:fallback_models"
+   ]
+  },
+  "tests/test_decide_reasoning_effort.py::test_low_reaches_the_decide_question_and_no_other": {
+   "count": 13,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.providers.chat:ChatClient.__init__",
+    "capstone.providers.chat:ChatClient.ask",
+    "capstone.providers.chat:FallbackClient.__init__",
+    "capstone.providers.chat:FallbackClient.ask",
+    "capstone.providers.chat:FallbackClient.ask.<locals>.tried",
+    "capstone.providers.chat:_capped",
+    "capstone.providers.chat:answer_json",
+    "capstone.providers.chat:client_for",
+    "capstone.providers.chat:clients_for_jobs",
+    "capstone.providers.chat:post_json",
+    "capstone.providers.chat:reply_text",
+    "capstone.settings:Settings.blank_is_missing",
+    "capstone.settings:fallback_models"
+   ]
+  },
+  "tests/test_decide_reasoning_effort.py::test_the_fallback_model_is_not_sent_the_field": {
+   "count": 14,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.providers.chat:ChatClient.__init__",
+    "capstone.providers.chat:ChatClient.ask",
+    "capstone.providers.chat:FallbackClient.__init__",
+    "capstone.providers.chat:FallbackClient.ask",
+    "capstone.providers.chat:FallbackClient.ask.<locals>.tried",
+    "capstone.providers.chat:ModelError.__init__",
+    "capstone.providers.chat:_capped",
+    "capstone.providers.chat:answer_json",
+    "capstone.providers.chat:client_for",
+    "capstone.providers.chat:clients_for_jobs",
+    "capstone.providers.chat:post_json",
+    "capstone.providers.chat:reply_text",
+    "capstone.settings:Settings.blank_is_missing",
+    "capstone.settings:fallback_models"
+   ]
+  },
+  "tests/test_decide_reasoning_effort.py::test_a_non_nvidia_decide_model_is_never_sent_it": {
+   "count": 13,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.providers.chat:ChatClient.__init__",
+    "capstone.providers.chat:ChatClient.ask",
+    "capstone.providers.chat:FallbackClient.__init__",
+    "capstone.providers.chat:FallbackClient.ask",
+    "capstone.providers.chat:FallbackClient.ask.<locals>.tried",
+    "capstone.providers.chat:_capped",
+    "capstone.providers.chat:answer_json",
+    "capstone.providers.chat:client_for",
+    "capstone.providers.chat:clients_for_jobs",
+    "capstone.providers.chat:post_json",
+    "capstone.providers.chat:reply_text",
+    "capstone.settings:Settings.blank_is_missing",
+    "capstone.settings:fallback_models"
+   ]
+  },
+  "tests/test_decide_reasoning_effort.py::test_only_the_documented_levels_are_accepted": {
+   "count": 1,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.settings:Settings.blank_is_missing"
+   ]
+  },
+  "tests/test_decide_reasoning_effort.py::test_the_run_header_names_the_effort_only_when_set": {
+   "count": 1,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.progress:run_header"
    ]
   },
   "tests/test_difficulty_tool_compatibility.py::test_drift_or_transient_samples_use_existing_reading_and_summary_formats": {
