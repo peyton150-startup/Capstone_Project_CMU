@@ -201,8 +201,8 @@
   "tests/test_wait_tool.py": "a52271a89eb75efbc9c862c4ad85d3d20a1f5dbc2f92f4eb149d01b7f0c99b6b",
   "tests/test_wrong_setting.py": "a7dcc4186bcee6a5980da4fc1f7a47c1b9210055618a88756e44a1991e39de47"
  },
- "coverage_sha256": "329c0d096b8cf31f35a03d91586836d5fb477864b30ba98989e002acc0ddf8ee",
- "junit_sha256": "142b913bff81bd10590903df3a90988ffee2d6c1c87eb63f4f9be2c052e0e189",
+ "coverage_sha256": "94a01869aa6a14aeb0606afceb0ecdfa24f168f3d8ae41f72dd7221b8a401441",
+ "junit_sha256": "3dad5ef9a2233290eb81dc2a97d03b3a874868b7866bcca6804b5060b9a8c54a",
  "counts": {
   "functions": 775,
   "classes_note": "classes are listed through their methods",
@@ -300,14 +300,14 @@
    "evaluation.evaltools.run_packet:configuration_of (7/9)",
    "evaluation.evaltools.snap_request:DecisionQuestion.criteria_fit_type (5/9)",
    "evaluation.evaltools.snap_request:load_questions (7/9)",
+   "evaluation.evaltools.snap_request:test_source (5/7)",
    "evaluation.evaltools.snap_request:describe_failure (2/5)",
    "evaluation.evaltools.snap_request:already_answered (6/8)",
    "evaluation.evaltools.traced_run:main (18/42)"
   ],
   "stubs_or_protocols": 24,
   "tests_by_outcome": {
-   "failed": 1,
-   "passed": 1485
+   "passed": 1486
   },
   "tests_with_no_assertion": [
    "tests/test_console.py::test_without_it_the_same_print_raised"

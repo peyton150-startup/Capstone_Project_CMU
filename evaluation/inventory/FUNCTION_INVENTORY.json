@@ -65559,9 +65559,9 @@
     "tests/test_evaluation_tools.py::test_states_show_each_test_whole_and_say_what_was_cut"
    ],
    "indirect_test_count": 2,
-   "statements_executed": 6,
+   "statements_executed": 5,
    "statements_in_body": 7,
-   "statement_coverage": 0.857,
+   "statement_coverage": 0.714,
    "coverage_class": "indirect",
    "verification_status": "INSUFFICIENT EVIDENCE",
    "status_source": "derived",
