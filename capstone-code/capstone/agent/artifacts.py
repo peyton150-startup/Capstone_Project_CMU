@@ -222,6 +222,24 @@ class ReinstatementRecord(Contract):
     seconds: float = Field(default=0.0, ge=0)
 
 
+class RevaluationRecord(Contract):
+    """What the tree's second rating pass did (TOT_REVALUE), or why it did nothing."""
+
+    # revalued: the kept explanations were rated again. nothing_new: the test
+    # stage gathered nothing, so there was nothing to rate them against.
+    # no_time: no research time was left. no_answer / invalid_reply: as for
+    # the critique; the hypotheses are left as they were.
+    outcome: Literal["revalued", "nothing_new", "no_time", "no_answer", "invalid_reply"]
+    # Hypothesis id -> confidence before and after; an unrated one keeps its own.
+    confidence_before: dict[str, float] = Field(default_factory=dict)
+    confidence_after: dict[str, float] = Field(default_factory=dict)
+    # Hypothesis id -> why it was removed: only a factory contradiction removes one.
+    dropped: dict[str, str] = Field(default_factory=dict)
+    # Hypotheses the reply did not rate, left unchanged.
+    unrated: tuple[str, ...] = ()
+    seconds: float = Field(default=0.0, ge=0)
+
+
 class CritiqueRecord(Contract):
     """What the critic stage produced for one investigation, or why it produced nothing."""
 

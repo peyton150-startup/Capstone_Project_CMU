@@ -22,6 +22,7 @@ from capstone.agent.artifacts import (
     ProposalRecord,
     RecheckRecord,
     ReinstatementRecord,
+    RevaluationRecord,
     TerminationReason,
     VerificationCheck,
 )
@@ -275,6 +276,9 @@ class InvestigationState(BaseModel):
     # P2 (TOT_REINSTATE): what the critic's reinstatement question did right
     # after pruning. None: it was off, or there was nothing pruned to offer.
     reinstatement: ReinstatementRecord | None = None
+    # P5 (TOT_REVALUE): what the tree's second rating pass, after the test
+    # stage, did. None: it was off, or the policy is not the tree.
+    revaluation: RevaluationRecord | None = None
     # Set by the loop only on the copy a policy is given: how long the policy
     # may take to answer, the time its stage has left. None on the loop's own
     # state, and outside a running investigation.

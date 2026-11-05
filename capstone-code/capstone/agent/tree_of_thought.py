@@ -49,6 +49,7 @@ from typing import Literal
 
 from pydantic import Field, model_validator
 
+from capstone.agent.artifacts import RevaluationRecord
 from capstone.agent.model_policy import COMMON, Client, ModelPolicy, render
 from capstone.agent.policy import Interpretation, PrunedInterpretation
 from capstone.agent.state import InvestigationState, PrunedCandidate, Question
@@ -83,6 +84,10 @@ class TreeOptions(Contract):
     # P3: decide from the agent's current beliefs whether to branch at all,
     # and whether to keep one more candidate (`branching`).
     adaptive: bool = False
+    # P5: after the test stage, rate the kept explanations once more against
+    # the new evidence (`TreeOfThoughtPolicy.revalue`). Depth two, no new
+    # candidates.
+    revalue: bool = False
 
     @model_validator(mode="after")
     def breadth_fits(self):
@@ -163,6 +168,12 @@ VALUE = (
     "impossible, list in contradicting_evidence_ids the evidence IDs that rule "
     "it out; without them it is not ruled out. Only the factory's own readings "
     "and records can rule a candidate out: manual sections and memories cannot."
+)
+
+REVALUE = (
+    f"{VALUE}\n\nThe candidates are the explanations kept after the first rating, "
+    "by their hypothesis ids (H1, H2, ...). The test stage has since gathered "
+    "more evidence: rate each one again in its light."
 )
 
 
@@ -760,4 +771,88 @@ class TreeOfThoughtPolicy(ModelPolicy):
             hypotheses=tuple(hypotheses) or None,
             new_questions=tuple(questions),
             pruned=pruned_trace(generated, ratings, dropped),
+        )
+
+    def revalue(
+        self, state: InvestigationState
+    ) -> tuple[PrunedInterpretation, RevaluationRecord]:
+        """Rate the kept explanations once more, after the test stage (P5).
+
+        No new candidates are generated: the hypotheses are shown under their
+        own ids and rated again with what the test stage found. Code, as in the
+        first pass, decides what the ratings change: a rated hypothesis takes
+        its new confidence; one rated "impossible" is removed only with factory
+        evidence against it (otherwise it keeps its confidence); one left
+        unrated is left alone. The question goes to the `value` client when
+        VALUE_MODEL gave one, else to the `hypothesize` client.
+        """
+        # Variables:
+        #   job: The client the question goes to, and the name it is recorded under.
+        #   shown: The hypotheses as candidates, under their own ids.
+        #   rated: Hypothesis id -> its first rating in the reply.
+        #   observed: Ids of evidence the factory answered, the only kind that
+        #     can remove a hypothesis.
+        #   against: The factory evidence a hypothesis rated impossible is
+        #     contradicted by, from the rating and the hypothesis.
+        #   kept, removed: The hypotheses that stay, and the trace of those removed.
+        job = "value" if "value" in self.clients else "hypothesize"
+        shown = [
+            Candidate(
+                id=h.id,
+                claim=h.claim,
+                supporting_evidence_ids=h.supporting_evidence_ids,
+                contradicting_evidence_ids=h.contradicting_evidence_ids,
+            )
+            for h in state.hypotheses
+        ]
+        ratings = self._ask(
+            job,
+            state,
+            f"{render(state)}\n\n{candidate_lines(shown)}",
+            Ratings,
+            system=REVALUE,
+        ).ratings
+        rated: dict[str, Rating] = {}
+        for rating in ratings:
+            rated.setdefault(rating.candidate_id, rating)
+        observed = {p.evidence_id for p in state.provenance if p.origin == "observable"}
+        kept, removed, dropped = [], [], {}
+        for h in state.hypotheses:
+            rating = rated.get(h.id)
+            if rating is None:
+                kept.append(h)
+                continue
+            if rating.verdict == "impossible":
+                against = (
+                    set(rating.contradicting_evidence_ids)
+                    | set(h.contradicting_evidence_ids)
+                ) & observed
+                if against:
+                    dropped[h.id] = "rated impossible"
+                    removed.append(
+                        PrunedCandidate(
+                            id=h.id,
+                            claim=h.claim,
+                            reason="rated impossible after testing",
+                            status="contradicted",
+                            verdict=rating.verdict,
+                            confidence=rating.confidence,
+                            supporting_evidence_ids=h.supporting_evidence_ids,
+                            contradicting_evidence_ids=tuple(sorted(against)),
+                        )
+                    )
+                    continue
+                kept.append(h)  # a say-so is not a contradiction
+                continue
+            kept.append(h.model_copy(update={"confidence": rating.confidence}))
+        record = RevaluationRecord(
+            outcome="revalued",
+            confidence_before={h.id: h.confidence for h in state.hypotheses},
+            confidence_after={h.id: h.confidence for h in kept},
+            dropped=dropped,
+            unrated=tuple(h.id for h in state.hypotheses if h.id not in rated),
+        )
+        return (
+            PrunedInterpretation(hypotheses=tuple(kept), pruned=tuple(removed)),
+            record,
         )

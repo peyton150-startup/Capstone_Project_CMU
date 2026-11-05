@@ -47,6 +47,7 @@ from capstone.agent.artifacts import (
     ProposalRecord,
     RecheckRecord,
     ReinstatementRecord,
+    RevaluationRecord,
     TerminationReason,
     VerificationCheck,
 )
@@ -347,9 +348,51 @@ def reconsider(state: InvestigationState, deps: InvestigationDeps) -> None:
 
 
 def test(state: InvestigationState, deps: InvestigationDeps) -> None:
-    """Gather evidence that tells the explanations apart."""
+    """Gather evidence that tells the explanations apart, then re-rate them (P5)."""
     state.stage = "test"
     state.termination_reason = run_inner_loop(state, deps, "test")
+    revalue(state, deps)
+
+
+def revalue(state: InvestigationState, deps: InvestigationDeps) -> None:
+    """Have the tree rate its kept explanations again with the test stage's evidence.
+
+    Only for a tree policy with TOT_REVALUE and hypotheses to rate. The question
+    draws on research time, so it is skipped when none is left and the
+    follow-up time stays whole. Whatever goes wrong (no answer, an unusable
+    reply), the hypotheses stay as they were and the run goes on.
+    """
+    # Variables:
+    #   ask: The policy's revalue method; only the tree policy has one.
+    #   began, used: The clock when the question started, and the seconds it took.
+    #   outcome: What the record says happened when the question gave nothing.
+    ask = getattr(deps.policy, "revalue", None)
+    options = getattr(deps.policy, "options", None)
+    if ask is None or not getattr(options, "revalue", False) or not state.hypotheses:
+        return
+    if not gathered_in(state, "test"):
+        state.revaluation = RevaluationRecord(outcome="nothing_new")
+        return
+    if state.started_at is not None and state.research_seconds(deps.clock()) <= 0:
+        state.revaluation = RevaluationRecord(outcome="no_time")
+        return
+    began = deps.clock()
+    outcome = None
+    try:
+        interpretation, answer = ask_policy(state, deps, ask, research=True)
+        apply_interpretation(state, interpretation)
+    except OutOfTime:
+        outcome = "no_time"
+        state.termination_reason = TerminationReason.TIMEOUT
+    except ModelError:
+        outcome = "no_answer"
+    except POLICY_ERRORS:
+        outcome = "invalid_reply"
+    used = max(0.0, deps.clock() - began)
+    if outcome is None:
+        state.revaluation = answer.model_copy(update={"seconds": used})
+    else:
+        state.revaluation = RevaluationRecord(outcome=outcome, seconds=used)
 
 
 def critique(state: InvestigationState, deps: InvestigationDeps) -> None:

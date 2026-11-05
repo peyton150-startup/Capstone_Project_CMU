@@ -63,7 +63,7 @@ from capstone.agent.critic import (
 from capstone.agent.model_policy import ModelCall
 from capstone.agent.policy import ReasoningPolicy
 from capstone.agent.state import Budgets
-from capstone.agent.tree_of_thought import Thought, TreeOptions
+from capstone.agent.tree_of_thought import RevaluationRecord, Thought, TreeOptions
 from capstone.console import safe_console
 from capstone.episode import (
     CHALLENGE,
@@ -339,6 +339,9 @@ class ExperimentRecord(BaseModel):
     # P2 (TOT_REINSTATE): what the critic's reinstatement question did. None:
     # it was off or had nothing to offer (and in older records).
     reinstatement: ReinstatementRecord | None = None
+    # P5 (TOT_REVALUE): what the tree's second rating pass did. None: it was
+    # off, or an older record.
+    revaluation: RevaluationRecord | None = None
     # With triage on: the rapid triage that ran first. The fields above then
     # describe the deep run that followed, or the triage when none did.
     # None: triage was off (and in records from before it was kept).
@@ -525,6 +528,7 @@ def record_of(
         hypothesis_reserve_used=state.hypothesis_reserve_used,
         tree_options=tree_options,
         reinstatement=state.reinstatement,
+        revaluation=state.revaluation,
         triage=triage_record(result),
     )
 
@@ -1041,13 +1045,23 @@ def model_policy_factory(
         tools = (*tools, MANUAL_SPEC)
     if tree_of_thought:
         options = tree_options_from(get_settings())
-        return lambda: TreeOfThoughtPolicy(clients_for_jobs(), tools, options=options)
+        from capstone.providers.chat import value_client
+
+        def tree() -> TreeOfThoughtPolicy:
+            clients = clients_for_jobs()
+            second = value_client() if options.revalue else None
+            if second is not None:
+                clients["value"] = second  # VALUE_MODEL: the faster rating model
+            return TreeOfThoughtPolicy(clients, tools, options=options)
+
+        return tree
     return lambda: ModelPolicy(clients_for_jobs(), tools)
 
 
 def tree_options_from(settings) -> TreeOptions:
     """The tree's switches, read from the TOT_* settings (all off by default)."""
     return TreeOptions(
+        revalue=settings.tot_revalue,
         retain=settings.tot_retain,
         rank=settings.tot_rank,
         rotate=settings.tot_rotate,

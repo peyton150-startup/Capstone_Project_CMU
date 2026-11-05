@@ -853,3 +853,169 @@ def test_the_report_groups_a_skipped_tree_apart():
         candidates=(), ratings=(), kept=(), dropped={}, branching="skipped"
     )
     assert group_of(record.model_copy(update={"thoughts": [skipped]})) == "skipped"
+
+
+# P5: the second rating pass after the test stage.
+from capstone.agent.investigation import revalue  # noqa: E402
+from capstone.agent.tree_of_thought import RevaluationRecord  # noqa: E402
+
+FOUR_HELD = ((0.6, ("E1",)), (0.5, ("E2",)), (0.4, ("E3",)), (0.3, ()))
+REVALUED = {
+    "ratings": [
+        {"candidate_id": "H1", "verdict": "likely", "confidence": 0.9},
+        {
+            "candidate_id": "H2",
+            "verdict": "impossible",
+            "confidence": 0.1,
+            "contradicting_evidence_ids": ["E3"],
+        },
+        {"candidate_id": "H3", "verdict": "impossible", "confidence": 0.05},
+    ]
+}
+
+
+def revaluing_policy(reply, *, value_client=False):
+    clients = {job: FakeModel() for job in JOBS}
+    clients["value" if value_client else "hypothesize"] = FakeModel(reply)
+    return TreeOfThoughtPolicy(
+        clients, research_tools(), options=TreeOptions(revalue=True)
+    )
+
+
+def test_the_second_pass_updates_confidences_and_drops_only_what_the_factory_ruled_out():
+    agent = revaluing_policy(REVALUED)
+    state = believing(tree_state("E1", "E2", "E3"), *FOUR_HELD)
+    answer, record = agent.revalue(state)
+    assert [(h.id, h.confidence) for h in answer.hypotheses] == [
+        ("H1", 0.9),  # rated again: takes the new confidence
+        ("H3", 0.4),  # "impossible" with no evidence: a say-so, kept as it was
+        ("H4", 0.3),  # unrated: left alone
+    ]
+    [removed] = answer.pruned
+    assert (removed.id, removed.status, removed.contradicting_evidence_ids) == (
+        "H2",
+        "contradicted",
+        ("E3",),
+    )
+    assert record.outcome == "revalued"
+    assert record.dropped == {"H2": "rated impossible"}
+    assert record.unrated == ("H4",)
+    assert record.confidence_before["H1"] == 0.6
+    assert record.confidence_after == {"H1": 0.9, "H3": 0.4, "H4": 0.3}
+    # No new candidates: one question, listing the hypotheses by their own ids.
+    [(_, prompt, _)] = agent.clients["hypothesize"].asked
+    assert "- H1:" in prompt and "- C1:" not in prompt
+
+
+def test_evidence_the_factory_did_not_give_cannot_remove_a_hypothesis():
+    agent = revaluing_policy(REVALUED)
+    unbacked = tree_state("E1", "E2", "E3")
+    unbacked.provenance.clear()
+    answer, record = agent.revalue(believing(unbacked, *FOUR_HELD))
+    assert [h.id for h in answer.hypotheses] == ["H1", "H2", "H3", "H4"]
+    assert record.dropped == {}
+
+
+def test_the_second_pass_goes_to_the_value_model_when_one_is_set():
+    agent = revaluing_policy(REVALUED, value_client=True)
+    agent.revalue(believing(tree_state("E1", "E2", "E3"), *FOUR_HELD))
+    assert agent.calls[-1].job == "value"
+    assert agent.clients["hypothesize"].asked == []
+
+
+def with_revalue(policy, answer, *, enabled=True):
+    """A scripted policy given a revalue step, as the tree policy has."""
+    asked = []
+
+    def ask(state):
+        asked.append(state)
+        if isinstance(answer, Exception):
+            raise answer
+        return answer(state)
+
+    policy.options = TreeOptions(revalue=enabled)
+    policy.revalue = ask
+    return policy, asked
+
+
+def raised(state):
+    """The held hypotheses with H1 at 0.9, as a second pass might return."""
+    hypotheses = tuple(
+        h.model_copy(update={"confidence": 0.9}) if h.id == "H1" else h
+        for h in state.hypotheses
+    )
+    return (
+        PrunedInterpretation(hypotheses=hypotheses),
+        RevaluationRecord(outcome="revalued", confidence_after={"H1": 0.9}),
+    )
+
+
+def test_the_run_re_rates_after_the_test_stage_and_keeps_the_record():
+    policy, asked = with_revalue(wear_policy(), raised)
+    state, _ = investigate(policy)
+    [view] = asked
+    assert view.stage == "test" and view.evidence  # after the test readings
+    assert state.revaluation.outcome == "revalued"
+    # The conclusion was reached with the re-rated beliefs.
+    assert state.hypotheses[0].confidence == 0.9
+    assert state.conclusion is not None
+
+
+def test_the_second_pass_is_off_unless_switched_on():
+    policy, asked = with_revalue(wear_policy(), raised, enabled=False)
+    state, _ = investigate(policy)
+    assert asked == [] and state.revaluation is None
+    state, _ = investigate(wear_policy())  # the ordinary policy has no second pass
+    assert state.revaluation is None
+
+
+@pytest.mark.parametrize(
+    ("error", "outcome"),
+    [(ModelError("down"), "no_answer"), (ValueError("bad"), "invalid_reply")],
+)
+def test_a_failed_second_pass_leaves_the_hypotheses_and_the_run_goes_on(error, outcome):
+    plain, _ = investigate(wear_policy())
+    policy, _ = with_revalue(wear_policy(), error)
+    state, _ = investigate(policy)
+    assert state.revaluation.outcome == outcome
+    assert state.hypotheses == plain.hypotheses
+    assert state.conclusion is not None
+
+
+def test_a_second_pass_that_runs_out_of_time_ends_research():
+    late = ModelError("slow")
+    late.out_of_time = True
+    policy, _ = with_revalue(wear_policy(), late)
+    state, _ = investigate(policy)
+    assert state.revaluation.outcome == "no_time"
+    assert state.termination_reason is TerminationReason.TIMEOUT
+
+
+def test_the_second_pass_is_skipped_with_nothing_new_or_no_time_left():
+    policy, asked = with_revalue(wear_policy(), raised)
+    state, _ = investigate(policy)
+    asked.clear()
+    untested = state.model_copy(deep=True)
+    untested.decisions = [d for d in untested.decisions if d.phase != "test"]
+    deps = InvestigationDeps(provider=None, policy=policy, clock=lambda: 0.0)
+    revalue(untested, deps)
+    assert untested.revaluation.outcome == "nothing_new"
+    late = state.model_copy(deep=True)
+    late.started_at = 0.0
+    revalue(late, InvestigationDeps(provider=None, policy=policy, clock=lambda: 1e9))
+    assert late.revaluation.outcome == "no_time"
+    assert asked == []  # neither asked the model
+
+
+def test_the_revalue_settings_reach_the_tree(monkeypatch):
+    from capstone.experiment import model_policy_factory
+    from capstone.providers.chat import value_client
+    from tests.test_chat_client import KEY, settings
+
+    fake_clients(monkeypatch)
+    monkeypatch.setenv("TOT_REVALUE", "true")
+    assert model_policy_factory(False, tree_of_thought=True)().options.revalue
+    monkeypatch.setenv("NVIDIA_API_KEY", KEY)
+    assert value_client(settings()) is None
+    monkeypatch.setenv("VALUE_MODEL", "nvidia/fast-model")
+    assert value_client(settings()).model == "fast-model"

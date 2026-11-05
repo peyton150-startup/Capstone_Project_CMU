@@ -126,6 +126,9 @@ class Settings(BaseSettings):
     conclude_model: str | None = _optional("CONCLUDE_MODEL")
     judge_model: str | None = _optional("JUDGE_MODEL")
     lesson_model: str | None = _optional("LESSON_MODEL")
+    # P5: the model for the tree's second rating pass (TOT_REVALUE), ideally a
+    # faster one; unset, the pass uses the hypothesize model.
+    value_model: str | None = _optional("VALUE_MODEL")
     # Prompt visibility only: the confidence threshold is always enforced.
     state_action_bar: bool = Field(default=True, validation_alias="STATE_ACTION_BAR")
     # Questions per tool result. 1 (the default since 2026-10-30, developer's
@@ -202,6 +205,10 @@ class Settings(BaseSettings):
     # case (one explanation at 0.8+, 0.3 ahead, two factory readings behind it)
     # gets the ordinary one-question step; an ambiguous one keeps one more.
     tot_adaptive: bool = Field(default=False, validation_alias="TOT_ADAPTIVE")
+    # P5: after the test stage, rate the kept explanations once more against
+    # the new evidence (one more question, skipped when no research time is
+    # left); only a factory contradiction removes one.
+    tot_revalue: bool = Field(default=False, validation_alias="TOT_REVALUE")
     # Rapid triage (MVP_SCOPE.md, "Split rapid triage from deep
     # investigation"): a short, read-only first look before the deep run.
     # Off by default (developer, 2026-11-05), so runs stay comparable with the
@@ -272,6 +279,7 @@ class Settings(BaseSettings):
         "conclude_model",
         "judge_model",
         "lesson_model",
+        "value_model",
         "fallback_model",
         "critic_model",
         "critic_fallback_model",
