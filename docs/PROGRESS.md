@@ -19,6 +19,18 @@
 > (4) `run_traced`'s docstring now says that it stops and saves the coverage
 > tracer.
 
+> **2026-11-05 — offline ToT trace audit (results only):**
+> [Audit note](benchmarks/2026-11-05-tot-trace-audit.md) reads the 52 archived
+> episodes from the two 13-case anchored/blind pairs. Only 33 saved a tree;
+> 16 ended before a `hypothesize` question, and three asked it without an
+> answer. The 165 generated candidates yielded 88 kept, 43 dropped as
+> `impossible` with a cited factory ID, and 34 deferred by rank. In two KA-09
+> trees, a broad unchecked-machine alternative mentioning CNC-07 was ranked
+> out; the B blind critic mentioned it, but the final diagnosis still missed
+> both CNC-07 faults. This is a historical, descriptive audit, not a model
+> run, a semantic validation of contradictions, or an accuracy comparison.
+> Code, prompts, labels, scores, simulator and understanding status unchanged.
+
 > **2026-11-04 — PRs #172 and #174 merged before their walkthroughs (developer to review; understood: no):**
 > On the developer's instruction ("merge them now, I will do the walkthrough later"), #174 was
 > brought up to date with `main` and merged, which also landed #172's commits. The function, test
