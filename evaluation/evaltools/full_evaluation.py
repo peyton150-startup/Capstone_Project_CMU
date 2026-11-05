@@ -19,11 +19,10 @@ What it does, in order (CRITERIA_FOR_EVALUATOR.md EVAL-05, -06, -07):
    comparison of two runs in one archived pair (BT questions). Each item and
    question gets one ledger row: planned, or why it is not asked (unknown,
    not applicable, not run, not offered, not asked, unfittable, refused).
-4. **Budget.** The expected requests, input tokens and cost are printed.
-   With `--send`, a plan over `--max-requests` or `--max-usd` is refused
-   before anything is sent.
-5. **Send** (only with `--send`), through `snap_request.write_requests`:
-   resumable, reusing only complete answers to the same request fingerprint.
+4. **Budget.** The full-plan input estimate is printed. A live Snap slice
+   reserves its maximum charge before each new post, then settles reported usage.
+5. **Send** (only with `--send`): one bounded attempt per request, with
+   cumulative dollar and time limits. An uncertain charge stops the slice.
 6. **Ledger and report.** `ledger.jsonl` (one row per item, question and
    provider, with its final status) and `report.json` / `report.md`, which
    keep correctness, evidence, reliability, scope and missingness apart and
@@ -38,9 +37,12 @@ import ast
 import hashlib
 import json
 import math
+import os
 import subprocess
 import sys
+import time
 from collections import Counter, defaultdict
+from collections.abc import Callable
 from pathlib import Path
 
 from evaltools import build_inventory, run_packet, snap_request
@@ -312,35 +314,104 @@ def case_outcome(packet: run_packet.RunEvidencePacket) -> dict:
     }
 
 
+def case_identity(packet: run_packet.RunEvidencePacket) -> tuple[str, int] | None:
+    """What a case ran: its scenario id and seed, or None without a seed.
+
+    Read from the packet's private `meta`, never shown to a judge.
+    """
+    if packet.meta.seed is None:
+        return None
+    return (packet.meta.scenario_id, packet.meta.seed)
+
+
+def match_cases(a: list, b: list) -> dict:
+    """Pair two runs' cases on scenario and seed, and name what cannot be paired.
+
+    Returns `pairs` (judge label, A packet, B packet) in case order, the
+    unpaired packets of each run, how many packets are `ambiguous` (no seed,
+    or a scenario and seed that repeat inside one run), and
+    `position_mismatches`: case numbers both runs use for different cases,
+    the reordering or replacement that pairing by position would hide.
+    """
+    # Variables:
+    #   index_a, index_b: Each run's packets grouped by case identity.
+    #   unique_a, unique_b: The identities that name exactly one packet in a
+    #     run; only those can be paired without guessing.
+    #   ambiguous: Packets left unpaired because their identity is missing or
+    #     repeats in their run; counted so they never vanish silently.
+    #   order: Sorts case numbers as numbers ("2" before "10").
+    #   pairs: The paired cases, labelled by A's case number for the judge.
+    #   by_number_a, by_number_b: Each run's identities by case number, for
+    #     the position check.
+    index_a: dict = defaultdict(list)
+    index_b: dict = defaultdict(list)
+    for group, index in ((a, index_a), (b, index_b)):
+        for packet in group:
+            index[case_identity(packet)].append(packet)
+    unique_a = {k for k, v in index_a.items() if k is not None and len(v) == 1}
+    unique_b = {k for k, v in index_b.items() if k is not None and len(v) == 1}
+    ambiguous = sum(
+        len(v)
+        for index, unique in ((index_a, unique_a), (index_b, unique_b))
+        for k, v in index.items()
+        if k not in unique
+    )
+    order = lambda c: (len(c), c)  # noqa: E731 - numeric-looking case order
+    pairs = sorted(
+        (
+            (case_number(index_a[k][0]), index_a[k][0], index_b[k][0])
+            for k in unique_a & unique_b
+        ),
+        key=lambda pair: order(pair[0]),
+    )
+    by_number_a = {case_number(p): case_identity(p) for p in a}
+    by_number_b = {case_number(p): case_identity(p) for p in b}
+    return {
+        "pairs": pairs,
+        "only_a": [index_a[k][0] for k in sorted(unique_a - unique_b)],
+        "only_b": [index_b[k][0] for k in sorted(unique_b - unique_a)],
+        "ambiguous": ambiguous,
+        "position_mismatches": sum(
+            by_number_a[n] != by_number_b[n]
+            for n in set(by_number_a) & set(by_number_b)
+        ),
+    }
+
+
 def sample_rule(a: list, b: list) -> dict:
     """BT-02's sample rule in code: cases judged in both runs, and the counts on them.
 
-    `a` and `b` are the two runs' packets. A case counts as matched when it
-    has the same case number in both and is judged in both (a label not
-    awaiting review). Below `MATCHED_CASES_NEEDED` matched cases, with one run
-    per case, the rule's answer is `insufficient_sample` whatever the counts.
+    `a` and `b` are the two runs' packets. A case counts as matched when both
+    runs ran the same scenario with the same seed (`match_cases`) and it is
+    judged in both (a label not awaiting review). Below `MATCHED_CASES_NEEDED`
+    matched cases, with one run per case, the rule's answer is
+    `insufficient_sample` whatever the counts.
     """
     # Variables:
-    #   by_case_a, by_case_b: Each run's packets by case number.
-    #   matched: Case numbers judged in both runs.
-    by_case_a = {case_number(p): p for p in a}
-    by_case_b = {case_number(p): p for p in b}
-    matched = sorted(
-        c
-        for c in set(by_case_a) & set(by_case_b)
-        if by_case_a[c].evaluator_only.label_status == "judged"
-        and by_case_b[c].evaluator_only.label_status == "judged"
-    )
-
-    def right(by_case):
-        return sum(by_case[c].evaluator_only.fully_right is True for c in matched)
-
+    #   cases: The scenario-and-seed pairing of the two runs.
+    #   matched: The pairs judged in both runs.
+    cases = match_cases(a, b)
+    matched = [
+        (pa, pb)
+        for _, pa, pb in cases["pairs"]
+        if pa.evaluator_only.label_status == "judged"
+        and pb.evaluator_only.label_status == "judged"
+    ]
     return {
         "cases_a": len(a),
         "cases_b": len(b),
+        "paired_by_scenario_and_seed": len(cases["pairs"]),
+        "unpaired_a": len(cases["only_a"]),
+        "unpaired_b": len(cases["only_b"]),
+        "ambiguous": cases["ambiguous"],
+        "position_mismatches": cases["position_mismatches"],
         "matched_judged": len(matched),
-        "right_on_matched_a": right(by_case_a),
-        "right_on_matched_b": right(by_case_b),
+        "right_on_matched_a": sum(
+            pa.evaluator_only.fully_right is True for pa, _ in matched
+        ),
+        "right_on_matched_b": sum(
+            pb.evaluator_only.fully_right is True for _, pb in matched
+        ),
         "rule": (
             "insufficient_sample"
             if len(matched) < MATCHED_CASES_NEEDED
@@ -360,6 +431,7 @@ def comparisons(packets: list) -> list[dict]:
     #   runs: Packets by (namespace, run name), only for namespaced packets.
     #   by_namespace: The run names of each namespace; every two of them make
     #     one comparison.
+    #   cases: The two runs' cases paired on scenario and seed (`match_cases`).
     #   state: What the judge is shown: both runs' settings and summaries and
     #     each case's outcome, keyed by case number only.
     #   forbidden: The scenario ids and keys of every packet in the comparison,
@@ -376,11 +448,7 @@ def comparisons(packets: list) -> list[dict]:
         for i, first in enumerate(names):
             for second in names[i + 1 :]:
                 a, b = runs[(namespace, first)], runs[(namespace, second)]
-                cases = sorted(
-                    {case_number(p) for p in a + b}, key=lambda c: (len(c), c)
-                )
-                by_a = {case_number(p): p for p in a}
-                by_b = {case_number(p): p for p in b}
+                cases = match_cases(a, b)
                 state = {
                     "comparison": f"{first} vs {second}",
                     "batches": [
@@ -402,13 +470,27 @@ def comparisons(packets: list) -> list[dict]:
                         }
                         for label, name, group in (("A", first, a), ("B", second, b))
                     ],
+                    # Paired on scenario and seed; the label is A's case
+                    # number, so the judge still sees no fault name.
                     "per_case": [
+                        {"case": c, "A": case_outcome(pa), "B": case_outcome(pb)}
+                        for c, pa, pb in cases["pairs"]
+                    ]
+                    + [
                         {
-                            "case": c,
-                            "A": case_outcome(by_a[c]) if c in by_a else None,
-                            "B": case_outcome(by_b[c]) if c in by_b else None,
+                            "case": f"{case_number(p)} (A only)",
+                            "A": case_outcome(p),
+                            "B": None,
                         }
-                        for c in cases
+                        for p in cases["only_a"]
+                    ]
+                    + [
+                        {
+                            "case": f"{case_number(p)} (B only)",
+                            "A": None,
+                            "B": case_outcome(p),
+                        }
+                        for p in cases["only_b"]
                     ],
                     "sample_rule_in_code": sample_rule(a, b),
                 }
@@ -692,6 +774,11 @@ def _bodiless(comparison: dict, provider: DecisionProvider, meta: dict, reason: 
 # adds half again: an estimate should stay above what is billed, not below.
 REQUEST_TOKEN_MARGIN = 1.5
 
+# The public Snap API says its 384K window is 393,216 tokens and its
+# decisions output is free. Reserve the entire billable input window before
+# posting, even if the fitted request looks much shorter.
+SNAP_BILLABLE_INPUT_CEILING = 393_216
+
 
 def request_tokens_estimate(body_tokens: int) -> int:
     """Input tokens a request is expected to bill, from its body's estimate."""
@@ -754,6 +841,181 @@ def pending_batch(built: list, requests_dir: Path, size: int) -> list:
         if len(pending) == size:
             break
     return pending
+
+
+def measured_snap_charge(
+    answer_path: Path, provider: DecisionProvider
+) -> tuple[float, int] | None:
+    """The billed input charge of one saved Snap reply, when usage is valid."""
+    # Variables:
+    #   reply: The raw provider reply saved with the answers, when it is an object.
+    #   usage: The provider's own token count, read from the saved raw reply.
+    #   token_count: Billable input tokens, bounded by Snap's context window.
+    if not answer_path.exists():
+        return None
+    answer = json.loads(answer_path.read_text(encoding="utf-8"))
+    reply = answer.get("raw_reply")
+    usage = reply.get("usage") if isinstance(reply, dict) else None
+    usage = usage if isinstance(usage, dict) else {}
+    token_count = usage.get("input_tokens")
+    if (
+        isinstance(token_count, bool)
+        or not isinstance(token_count, int)
+        or not 0 <= token_count <= SNAP_BILLABLE_INPUT_CEILING
+        or usage.get("output_tokens") != 0
+    ):
+        return None
+    return token_count * provider.usd_per_million_input / 1_000_000, token_count
+
+
+def budgeted_send(
+    built: list,
+    requests_dir: Path,
+    *,
+    max_new_requests: int,
+    max_usd: float,
+    max_seconds: float,
+    transport=snap_request.urllib_transport,
+    clock: Callable[[], float] = time.monotonic,
+) -> dict:
+    """Send a bounded slice, reserving its possible charge before each post.
+
+    Snap's input window and free-output contract are documented. One attempt per request
+    avoids an unmeasured retry charge. A missing usage report or interrupted
+    post leaves its reservation in place and stops later sends on resume.
+    """
+    # Variables:
+    #   transport, clock: The HTTP sender and monotonic timer; tests replace
+    #     both without making a paid request or waiting for wall-clock time.
+    #   deadline: The latest monotonic time a new post may begin.
+    #   reservations: Charges already settled or reserved in this output folder.
+    #   spent: The cumulative settled and reserved charge, including older slices.
+    #   charge: The full input-window price reserved before a post.
+    #   remaining: Seconds left in this invocation, also passed as the timeout.
+    #   reason: Why the next request was left pending or refused.
+    #   measured: The saved provider charge, replacing the reserved maximum.
+    if (
+        max_new_requests < 1
+        or not math.isfinite(max_usd)
+        or not math.isfinite(max_seconds)
+        or max_usd <= 0
+        or max_seconds <= 0
+    ):
+        raise ValueError("request, USD and time limits must be positive and finite")
+    requests_dir.mkdir(parents=True, exist_ok=True)
+    deadline = clock() + max_seconds
+    reservations = {}
+    for path in requests_dir.glob("*.reservation.json"):
+        saved = json.loads(path.read_text(encoding="utf-8"))
+        reservations[path] = saved
+    spent = sum(float(entry["charge_usd"]) for entry in reservations.values())
+    if any(
+        item["body"] is not None and item["tags"]["provider"] != "snap"
+        for item in built
+    ):
+        return {
+            "sent": 0,
+            "spent_usd": spent,
+            "stop_reason": "provider_context_unverified",
+            "reserved_or_settled": len(reservations),
+        }
+    sent = 0
+    reason = None
+    for item in built:
+        if item["body"] is None:
+            continue
+        tags = item["tags"]
+        provider = PROVIDERS[tags["provider"]]
+        if provider.name != "snap":
+            reason = "provider_context_unverified"
+            break
+        stem = snap_request.file_stem(tags)
+        answer_path = requests_dir / f"{stem}.answers.json"
+        reservation_path = requests_dir / f"{stem}.reservation.json"
+        if reservation_path in reservations:
+            reservation = reservations[reservation_path]
+            if (
+                reservation.get("request_fingerprint") != tags["request_fingerprint"]
+                or reservation.get("provider") != provider.name
+            ):
+                reason = "reservation_mismatch"
+                break
+            if reservation["status"] == "reserved" and snap_request.already_answered(
+                answer_path, tags
+            ):
+                measured = measured_snap_charge(answer_path, provider)
+                if measured is not None:
+                    spent += measured[0] - reservation["charge_usd"]
+                    reservation.update(
+                        charge_usd=measured[0],
+                        input_tokens=measured[1],
+                        status="settled",
+                    )
+                    snap_request.write_json(reservation_path, reservation)
+            if reservation["status"] == "settled" and snap_request.already_answered(
+                answer_path, tags
+            ):
+                continue
+            reason = "usage_unknown"
+            break
+        if answer_path.exists():
+            reason = "unaccounted_prior_answer"
+            break
+        if sent >= max_new_requests:
+            reason = "request_limit"
+            break
+        remaining = deadline - clock()
+        if remaining <= 0:
+            reason = "time_limit"
+            break
+        if not os.environ.get(provider.key_env):
+            reason = "missing_provider_key"
+            break
+        charge = (
+            SNAP_BILLABLE_INPUT_CEILING * provider.usd_per_million_input / 1_000_000
+        )
+        if spent + charge > max_usd:
+            reason = "usd_limit"
+            break
+        reservation = {
+            "request_fingerprint": tags["request_fingerprint"],
+            "provider": provider.name,
+            "charge_usd": charge,
+            "status": "reserved",
+        }
+        snap_request.write_json(reservation_path, reservation)
+        reservations[reservation_path] = reservation
+        spent += charge
+        counts = snap_request.write_requests(
+            [item],
+            requests_dir,
+            send_them=True,
+            transport=transport,
+            retries=0,
+            timeout_seconds=min(90.0, remaining),
+        )
+        sent += 1
+        if counts["failed"]:
+            reason = "usage_unknown"
+            break
+        measured = measured_snap_charge(answer_path, provider)
+        if measured is None:
+            reason = "usage_unknown"
+            break
+        reservation["charge_usd"] = measured[0]
+        reservation["status"] = "settled"
+        reservation["input_tokens"] = measured[1]
+        snap_request.write_json(reservation_path, reservation)
+        spent += measured[0] - charge
+        if not snap_request.already_answered(answer_path, tags):
+            reason = "incomplete_answer"
+            break
+    return {
+        "sent": sent,
+        "spent_usd": spent,
+        "stop_reason": reason,
+        "reserved_or_settled": len(reservations),
+    }
 
 
 def settle(rows: list[dict], requests_dir: Path) -> list[dict]:
@@ -930,6 +1192,10 @@ def markdown(result: dict) -> str:
 
     # Variables:
     #   lines: The page, built line by line.
+    #   live: The measured or reserved spend and stop reason of an opted-in
+    #     send; absent in an offline dry run.
+    #   readiness: Per provider, whether its key is set and its live contract
+    #     verified, so a dry run says whether `--send` could start.
     def fraction(r: dict) -> str:
         return f"{r['n']}/{r['of']}"
 
@@ -974,9 +1240,13 @@ def markdown(result: dict) -> str:
     for comparison in result["comparisons"]:
         rule = comparison["sample_rule_in_code"]
         lines.append(
-            f"- `{comparison['item_id']}`: {rule['matched_judged']} cases judged in "
-            f"both; right on those A {rule['right_on_matched_a']}, B "
-            f"{rule['right_on_matched_b']}; rule: **{rule['rule']}**."
+            f"- `{comparison['item_id']}`: {rule['paired_by_scenario_and_seed']} "
+            f"cases paired by scenario and seed ({rule['unpaired_a']} only in A, "
+            f"{rule['unpaired_b']} only in B, {rule['ambiguous']} ambiguous, "
+            f"{rule['position_mismatches']} case numbers naming different cases); "
+            f"{rule['matched_judged']} judged in both; right on those A "
+            f"{rule['right_on_matched_a']}, B {rule['right_on_matched_b']}; "
+            f"rule: **{rule['rule']}**."
         )
     evidence = result["evidence"]
     lines += [
@@ -1010,10 +1280,76 @@ def markdown(result: dict) -> str:
         f"${spend['cost_usd_estimate']}.",
         "",
     ]
+    for name, state in (result.get("readiness") or {}).items():
+        lines.append(
+            f"- {name}: key `{state['key_env']}` "
+            f"{'set' if state['key_present'] else 'not set'}; live contract "
+            f"{'verified' if state['live_contract_verified'] else 'not verified (Gate C)'}."
+        )
+    if result.get("readiness"):
+        lines.append("")
+    live = result.get("live_budget")
+    if live is not None:
+        lines += [
+            "## Live send budget",
+            "",
+            f"New requests sent: {live['sent']}; cumulative settled or reserved "
+            f"charge: ${live['spent_usd']:.6f}; stop: "
+            f"{live['stop_reason'] or 'complete'}.",
+            "",
+        ]
     return "\n".join(lines)
 
 
 # --- command ------------------------------------------------------------------------------
+
+
+# Providers whose live request window and usage contract are confirmed, so
+# `budgeted_send` will post to them. Jev waits for Gate C's live calibration.
+LIVE_READY = ("snap",)
+
+
+def load_provider_keys(path: Path, providers: list[DecisionProvider]) -> list[str]:
+    """Put the providers' API keys from a `NAME=value` file into the environment.
+
+    Only the providers' own key names are read; every other line is ignored,
+    a key already in the environment wins, and no value is printed or
+    returned. Returns the names that were loaded.
+    """
+    # Variables:
+    #   wanted: The key names of the selected providers (`SUBQ_API_KEY`, ...).
+    #   name, value: One `NAME=value` line, with optional quotes and `export`.
+    #   loaded: The key names set from the file, returned without values.
+    wanted = {provider.key_env for provider in providers}
+    loaded = []
+    for line in path.read_text(encoding="utf-8").splitlines():
+        line = line.strip().removeprefix("export ").strip()
+        if not line or line.startswith("#") or "=" not in line:
+            continue
+        name, value = (part.strip() for part in line.split("=", 1))
+        value = value.strip("\"'")
+        if name in wanted and value and not os.environ.get(name):
+            os.environ[name] = value
+            loaded.append(name)
+    return sorted(loaded)
+
+
+def readiness(providers: list[DecisionProvider]) -> dict:
+    """Whether each selected provider could be sent to now: key set, contract known.
+
+    Says only whether a key is present, never its value.
+    """
+    # Variables:
+    #   LIVE_READY: The providers `budgeted_send` will post to; any other is
+    #     reported as blocked until its live contract is checked.
+    return {
+        provider.name: {
+            "key_env": provider.key_env,
+            "key_present": bool(os.environ.get(provider.key_env)),
+            "live_contract_verified": provider.name in LIVE_READY,
+        }
+        for provider in providers
+    }
 
 
 def main(argv=None) -> int:
@@ -1022,9 +1358,10 @@ def main(argv=None) -> int:
     #   providers: The decision models to prepare requests for.
     #   planned: The plan: request items, ledger rows, packets, comparisons.
     #   spend: Full-plan estimated requests and input cost for the report.
-    #   sending: The bounded unanswered slice selected for this invocation.
-    #   batch_spend: Estimated input cost of that slice, checked before sends.
-    #   counts: Sent, failed and already-answered requests, when sending.
+    #   limit: The most new requests this invocation may send.
+    #   counts: New sends, cumulative reserved/settled cost and stop reason.
+    #   ready: Per provider, whether its key is set and live sending is
+    #     allowed; printed before planning and kept in the report.
     parser = argparse.ArgumentParser(prog="python -m evaltools.full_evaluation")
     parser.add_argument(
         "--commit", help="the commit being evaluated (must be checked out)"
@@ -1048,6 +1385,17 @@ def main(argv=None) -> int:
     parser.add_argument("--max-requests", type=int, help="refuse to send more")
     parser.add_argument("--max-usd", type=float, help="refuse to send above this")
     parser.add_argument(
+        "--max-seconds",
+        type=float,
+        default=600.0,
+        help="stop starting requests after this many seconds (default: 600)",
+    )
+    parser.add_argument(
+        "--env-file",
+        type=Path,
+        help="read provider API keys (e.g. SUBQ_API_KEY=...) from this file",
+    )
+    parser.add_argument(
         "--batch-size",
         type=int,
         help="send at most this many pending requests; rerun to resume",
@@ -1064,6 +1412,18 @@ def main(argv=None) -> int:
         if args.provider == "both"
         else [PROVIDERS[args.provider]]
     )
+    if args.env_file is not None:
+        if not args.env_file.exists():
+            parser.error(f"--env-file {args.env_file} does not exist")
+        load_provider_keys(args.env_file, providers)
+    ready = readiness(providers)
+    for name, state in ready.items():
+        print(
+            f"{name}: {state['key_env']} "
+            f"{'set' if state['key_present'] else 'NOT set'}; live sending "
+            f"{'allowed' if state['live_contract_verified'] else 'blocked until Gate C'}",
+            file=sys.stderr,
+        )
     raw, _ = snap_request.load_questions()
     try:
         prov = provenance(args.commit, args.inventory, raw["rubric_version"])
@@ -1085,26 +1445,25 @@ def main(argv=None) -> int:
         file=sys.stderr,
     )
     requests_dir = args.out / "requests"
-    sending = planned["built"]
     if args.send:
-        if args.batch_size is not None:
-            sending = pending_batch(planned["built"], requests_dir, args.batch_size)
-        batch_spend = budget(sending)
-        if (
-            batch_spend["requests"] > args.max_requests
-            or batch_spend["cost_usd_estimate"] > args.max_usd
-        ):
-            print(
-                f"refused: the batch ({batch_spend['requests']} requests, "
-                f"${batch_spend['cost_usd_estimate']}) is over --max-requests "
-                f"{args.max_requests} or --max-usd {args.max_usd}; nothing was sent",
-                file=sys.stderr,
-            )
-            return 2
-    counts = snap_request.write_requests(sending, requests_dir, send_them=args.send)
+        limit = min(args.max_requests, args.batch_size or args.max_requests)
+        counts = budgeted_send(
+            planned["built"],
+            requests_dir,
+            max_new_requests=limit,
+            max_usd=args.max_usd,
+            max_seconds=args.max_seconds,
+        )
+    else:
+        counts = snap_request.write_requests(
+            planned["built"], requests_dir, send_them=False
+        )
     rows = settle(planned["rows"], requests_dir)
     scope = scope_manifest(planned["functions"], planned["tests"])
     result = report(planned, rows, scope, prov, spend)
+    result["readiness"] = ready
+    if args.send:
+        result["live_budget"] = counts
     with (args.out / "ledger.jsonl").open("w", encoding="utf-8", newline="\n") as file:
         for row in rows:
             file.write(json.dumps(row, default=str) + "\n")
@@ -1116,7 +1475,16 @@ def main(argv=None) -> int:
     )
     (args.out / "report.md").write_text(markdown(result), encoding="utf-8")
     print(json.dumps(result["missingness"]))
-    return 1 if args.send and counts["failed"] else 0
+    if args.send and counts["stop_reason"] in (
+        "usage_unknown",
+        "provider_context_unverified",
+        "unaccounted_prior_answer",
+        "incomplete_answer",
+        "missing_provider_key",
+        "reservation_mismatch",
+    ):
+        return 2
+    return 0
 
 
 if __name__ == "__main__":

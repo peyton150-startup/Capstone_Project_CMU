@@ -1,9 +1,15 @@
 # Progress Log
 
+> **2026-11-04 — PRs #172 and #174 merged before their walkthroughs (developer to review; understood: no):**
+> On the developer's instruction ("merge them now, I will do the walkthrough later"), #174 was
+> brought up to date with `main` and merged, which also landed #172's commits. The function, test
+> and verification inventories were rebuilt from a fresh full coverage run after the merge. The
+> pre-merge walkthroughs (AGENTS.md §11 step 6) for both PRs are still owed.
+
 > **2026-11-04 — first full live Snap evaluation (exploratory, uncalibrated):**
 > At the developer's direction in the session, Claude Code ran the Snap half of
 > the full evaluator live on commit `0ca0b16`
-> (PR #174, stacked on #172; neither is on `main` yet). AGENTS.md §12 usually gives live
+> (PR #174, stacked on #172). AGENTS.md §12 usually gives live
 > runs to Codex. It used both archives (57 episodes) and ran in two resumed
 > slices. All 2,296 requests were answered, giving 6,564 answers with none
 > empty. Every answer came from `subq-snap-1.1` on its first attempt, for
@@ -13,6 +19,29 @@
 > reference judgments yet, the results are exploratory, not a full-project
 > evaluation. The results and a note are in
 > `docs/benchmarks/2026-11-04-snap-live-1/`.
+
+> **2026-11-04 — evaluator ready for a live Snap run (built ungated, developer to review; understood: no):**
+> Stacked on PR #172. Run packets keep each record's `seed` in private
+> `meta` (packet schema 1.3.0), and `full_evaluation.match_cases` pairs two
+> runs on scenario id and seed instead of slot number, reporting unpaired,
+> ambiguous and reordered cases (F06). Two tests drive the whole Snap plan
+> through many small fake slices with no duplicate post and stop at the dollar
+> cap without passing it across resumes (F04 / T24). `--env-file` loads only
+> the selected providers' keys from a git-ignored file, and every run reports
+> per provider whether its key is set and its live contract verified. Jev
+> stays blocked until Gate C. No model was called.
+
+> **2026-11-04 — bounded full-evaluator sending (built ungated, developer to review; understood: no):**
+> The developer authorized Codex to make evaluator code changes for this
+> session without changing `AGENTS.md`. `full_evaluation.budgeted_send` now
+> applies a per-invocation request and time limit plus a cumulative dollar
+> limit to small Snap slices. It writes a full-window charge reservation before
+> each post, sends once, settles measured usage, and stops if usage or an
+> interrupted charge is uncertain. `measured_snap_charge` validates the saved
+> usage; `main` writes the live spend and stop reason in its report. The
+> request sender accepts the remaining slice time as its timeout. Jev/mixed
+> live slices remain blocked until Gate C validates their request/usage
+> contract. No model call was made; tests and coverage inventory are in the PR.
 
 > **2026-11-03 — Haas live-telemetry collector and read-only manufacturer pilot plan added (documentation only):**
 > [MVP_SCOPE.md](MVP_SCOPE.md#fw-haas-live-pilot) now records the post-MVP,

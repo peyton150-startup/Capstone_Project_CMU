@@ -34452,14 +34452,29 @@
     "capstone.evaluation.scoring:_named",
     "capstone.evaluation.scoring:judge",
     "capstone.evaluation.scoring:judge_causes",
-    "capstone.experiment:read_records"
+    "capstone.experiment:read_records",
+    "evaluation.evaltools.run_packet:audit_by_run",
+    "evaluation.evaltools.run_packet:build_all",
+    "evaluation.evaltools.run_packet:build_packet",
+    "evaluation.evaltools.run_packet:calibration",
+    "evaluation.evaltools.run_packet:check_no_truth_in_view",
+    "evaluation.evaltools.run_packet:configuration_of",
+    "evaluation.evaltools.run_packet:episode_key",
+    "evaluation.evaltools.run_packet:evaluator_only_of",
+    "evaluation.evaltools.run_packet:facts_of",
+    "evaluation.evaltools.run_packet:forbidden_in_view",
+    "evaluation.evaltools.run_packet:leak_in",
+    "evaluation.evaltools.run_packet:read_labels",
+    "evaluation.evaltools.run_packet:run_ref",
+    "evaluation.evaltools.run_packet:trace_from_record"
    ],
-   "exercise_count": 12,
+   "exercise_count": 26,
    "modules_exercised": [
     "capstone.contracts.investigations",
     "capstone.evaluation.labels",
     "capstone.evaluation.scoring",
-    "capstone.experiment"
+    "capstone.experiment",
+    "evaluation.evaltools.run_packet"
    ],
    "judgment": "NOT ASSESSED",
    "curated": {},
@@ -34485,14 +34500,16 @@
    },
    "raises_checks": 0,
    "uses": [],
-   "quality_flags": [
-    "exercises_no_project_function"
-   ],
+   "quality_flags": [],
    "claims": "3 of 9 right, 5 timeouts: the numbers docs/PROGRESS.md recorded for EV1.",
    "execution_outcome": "passed",
-   "exercises": [],
-   "exercise_count": 0,
-   "modules_exercised": [],
+   "exercises": [
+    "evaluation.evaltools.run_packet:batch_summary"
+   ],
+   "exercise_count": 1,
+   "modules_exercised": [
+    "evaluation.evaltools.run_packet"
+   ],
    "judgment": "NOT ASSESSED",
    "curated": {},
    "snap_questions": [
@@ -34515,14 +34532,18 @@
    "assert_forms": {},
    "raises_checks": 1,
    "uses": [],
-   "quality_flags": [
-    "exercises_no_project_function"
-   ],
+   "quality_flags": [],
    "claims": "the truth guard catches a hidden field in any letter case",
    "execution_outcome": "passed",
-   "exercises": [],
-   "exercise_count": 0,
-   "modules_exercised": [],
+   "exercises": [
+    "evaluation.evaltools.run_packet:check_no_truth_in_view",
+    "evaluation.evaltools.run_packet:forbidden_in_view",
+    "evaluation.evaltools.run_packet:leak_in"
+   ],
+   "exercise_count": 3,
+   "modules_exercised": [
+    "evaluation.evaltools.run_packet"
+   ],
    "judgment": "NOT ASSESSED",
    "curated": {},
    "snap_questions": [
@@ -34577,14 +34598,24 @@
    },
    "raises_checks": 0,
    "uses": [],
-   "quality_flags": [
-    "exercises_no_project_function"
-   ],
+   "quality_flags": [],
    "claims": "snap questions are well formed and batch at the api limit",
    "execution_outcome": "passed",
-   "exercises": [],
-   "exercise_count": 0,
-   "modules_exercised": [],
+   "exercises": [
+    "evaluation.evaltools.decision_models:estimate_tokens",
+    "evaluation.evaltools.decision_models:fit_state",
+    "evaluation.evaltools.snap_request:DecisionQuestion.criteria_fit_type",
+    "evaluation.evaltools.snap_request:DecisionQuestion.to_request",
+    "evaluation.evaltools.snap_request:build_request",
+    "evaluation.evaltools.snap_request:digest",
+    "evaluation.evaltools.snap_request:load_questions",
+    "evaluation.evaltools.snap_request:request_fingerprint"
+   ],
+   "exercise_count": 8,
+   "modules_exercised": [
+    "evaluation.evaltools.decision_models",
+    "evaluation.evaltools.snap_request"
+   ],
    "judgment": "NOT ASSESSED",
    "curated": {},
    "snap_questions": [
@@ -34611,14 +34642,20 @@
    "raises_checks": 0,
    "uses": [],
    "quality_flags": [
-    "may_skip",
-    "exercises_no_project_function"
+    "may_skip"
    ],
    "claims": "record only packets skip the questions that need a trace",
    "execution_outcome": "passed",
-   "exercises": [],
-   "exercise_count": 0,
-   "modules_exercised": [],
+   "exercises": [
+    "evaluation.evaltools.snap_request:DecisionQuestion.criteria_fit_type",
+    "evaluation.evaltools.snap_request:applicable_run_questions",
+    "evaluation.evaltools.snap_request:load_questions",
+    "evaluation.evaltools.snap_request:questions_for"
+   ],
+   "exercise_count": 4,
+   "modules_exercised": [
+    "evaluation.evaltools.snap_request"
+   ],
    "judgment": "NOT ASSESSED",
    "curated": {},
    "snap_questions": [
@@ -34647,14 +34684,33 @@
    "raises_checks": 0,
    "uses": [],
    "quality_flags": [
-    "may_skip",
-    "exercises_no_project_function"
+    "may_skip"
    ],
    "claims": "One packet whose judge view cannot be trimmed to the budget does not",
    "execution_outcome": "passed",
-   "exercises": [],
-   "exercise_count": 0,
-   "modules_exercised": [],
+   "exercises": [
+    "evaluation.evaltools.decision_models:_truncate_evidence",
+    "evaluation.evaltools.decision_models:estimate_tokens",
+    "evaluation.evaltools.decision_models:fit_state",
+    "evaluation.evaltools.run_packet:leak_in",
+    "evaluation.evaltools.snap_request:DecisionQuestion.criteria_fit_type",
+    "evaluation.evaltools.snap_request:DecisionQuestion.to_request",
+    "evaluation.evaltools.snap_request:applicable_run_questions",
+    "evaluation.evaltools.snap_request:build_request",
+    "evaluation.evaltools.snap_request:digest",
+    "evaluation.evaltools.snap_request:forbidden_for",
+    "evaluation.evaltools.snap_request:judge_view",
+    "evaluation.evaltools.snap_request:load_questions",
+    "evaluation.evaltools.snap_request:questions_for",
+    "evaluation.evaltools.snap_request:request_fingerprint",
+    "evaluation.evaltools.snap_request:run_requests"
+   ],
+   "exercise_count": 15,
+   "modules_exercised": [
+    "evaluation.evaltools.decision_models",
+    "evaluation.evaltools.run_packet",
+    "evaluation.evaltools.snap_request"
+   ],
    "judgment": "NOT ASSESSED",
    "curated": {},
    "snap_questions": [
@@ -34725,7 +34781,7 @@
     "capstone.agent.loop:notify",
     "capstone.agent.loop:record"
    ],
-   "exercise_count": 173,
+   "exercise_count": 187,
    "modules_exercised": [
     "capstone.agent.completion",
     "capstone.agent.evidence_brief",
@@ -34754,7 +34810,8 @@
     "capstone.simulator.state",
     "capstone.simulator.thermal",
     "capstone.tools.actions",
-    "capstone.tools.observation"
+    "capstone.tools.observation",
+    "evaluation.evaltools.run_packet"
    ],
    "judgment": "NOT ASSESSED",
    "curated": {},
@@ -34825,7 +34882,7 @@
     "capstone.agent.loop:notify",
     "capstone.agent.loop:record"
    ],
-   "exercise_count": 173,
+   "exercise_count": 187,
    "modules_exercised": [
     "capstone.agent.completion",
     "capstone.agent.evidence_brief",
@@ -34854,7 +34911,8 @@
     "capstone.simulator.state",
     "capstone.simulator.thermal",
     "capstone.tools.actions",
-    "capstone.tools.observation"
+    "capstone.tools.observation",
+    "evaluation.evaltools.run_packet"
    ],
    "judgment": "NOT ASSESSED",
    "curated": {},
@@ -34916,14 +34974,36 @@
    },
    "raises_checks": 0,
    "uses": [],
-   "quality_flags": [
-    "exercises_no_project_function"
-   ],
+   "quality_flags": [],
    "claims": "the inventory lists every function and every curated item exists",
    "execution_outcome": "passed",
-   "exercises": [],
-   "exercise_count": 0,
-   "modules_exercised": [],
+   "exercises": [
+    "evaluation.evaltools.build_inventory:assert_form",
+    "evaluation.evaltools.build_inventory:build",
+    "evaluation.evaltools.build_inventory:call_name",
+    "evaluation.evaltools.build_inventory:capped",
+    "evaluation.evaltools.build_inventory:collect_functions",
+    "evaluation.evaltools.build_inventory:collect_functions.<locals>.visit",
+    "evaluation.evaltools.build_inventory:collect_tests",
+    "evaluation.evaltools.build_inventory:collect_tools",
+    "evaluation.evaltools.build_inventory:count_statements",
+    "evaluation.evaltools.build_inventory:direct_test_files",
+    "evaluation.evaltools.build_inventory:exception_names",
+    "evaluation.evaltools.build_inventory:function_kind",
+    "evaluation.evaltools.build_inventory:is_stub",
+    "evaluation.evaltools.build_inventory:leading_comment",
+    "evaluation.evaltools.build_inventory:module_name",
+    "evaluation.evaltools.build_inventory:mutated_parameters",
+    "evaluation.evaltools.build_inventory:read_coverage",
+    "evaluation.evaltools.build_inventory:read_curated",
+    "evaluation.evaltools.build_inventory:read_junit",
+    "evaluation.evaltools.build_inventory:rel",
+    "evaluation.evaltools.build_inventory:static_callers_of"
+   ],
+   "exercise_count": 21,
+   "modules_exercised": [
+    "evaluation.evaltools.build_inventory"
+   ],
    "judgment": "NOT ASSESSED",
    "curated": {},
    "snap_questions": [
@@ -34949,14 +35029,18 @@
    },
    "raises_checks": 0,
    "uses": [],
-   "quality_flags": [
-    "exercises_no_project_function"
-   ],
+   "quality_flags": [],
    "claims": "A configured coverage run keeps both tests that call one function.",
    "execution_outcome": "passed",
-   "exercises": [],
-   "exercise_count": 0,
-   "modules_exercised": [],
+   "exercises": [
+    "evaluation.evaltools.build_inventory:normalize_context",
+    "evaluation.evaltools.build_inventory:read_coverage",
+    "evaluation.evaltools.build_inventory:rel"
+   ],
+   "exercise_count": 3,
+   "modules_exercised": [
+    "evaluation.evaltools.build_inventory"
+   ],
    "judgment": "NOT ASSESSED",
    "curated": {},
    "snap_questions": [
@@ -34979,14 +35063,27 @@
    },
    "raises_checks": 0,
    "uses": [],
-   "quality_flags": [
-    "exercises_no_project_function"
-   ],
+   "quality_flags": [],
    "claims": "An unrelated class constructor is not a caller of AuditLog.__init__.",
    "execution_outcome": "passed",
-   "exercises": [],
-   "exercise_count": 0,
-   "modules_exercised": [],
+   "exercises": [
+    "evaluation.evaltools.build_inventory:call_name",
+    "evaluation.evaltools.build_inventory:collect_functions",
+    "evaluation.evaltools.build_inventory:collect_functions.<locals>.visit",
+    "evaluation.evaltools.build_inventory:count_statements",
+    "evaluation.evaltools.build_inventory:exception_names",
+    "evaluation.evaltools.build_inventory:function_kind",
+    "evaluation.evaltools.build_inventory:is_stub",
+    "evaluation.evaltools.build_inventory:leading_comment",
+    "evaluation.evaltools.build_inventory:module_name",
+    "evaluation.evaltools.build_inventory:mutated_parameters",
+    "evaluation.evaltools.build_inventory:rel",
+    "evaluation.evaltools.build_inventory:static_callers_of"
+   ],
+   "exercise_count": 12,
+   "modules_exercised": [
+    "evaluation.evaltools.build_inventory"
+   ],
    "judgment": "NOT ASSESSED",
    "curated": {},
    "snap_questions": [
@@ -35013,14 +35110,31 @@
    "raises_checks": 0,
    "uses": [],
    "quality_flags": [
-    "may_skip",
-    "exercises_no_project_function"
+    "may_skip"
    ],
    "claims": "Incomplete function packets keep FN-02/03 unknown, without a model call.",
    "execution_outcome": "passed",
-   "exercises": [],
-   "exercise_count": 0,
-   "modules_exercised": [],
+   "exercises": [
+    "evaluation.evaltools.decision_models:estimate_tokens",
+    "evaluation.evaltools.snap_request:DecisionQuestion.criteria_fit_type",
+    "evaluation.evaltools.snap_request:DecisionQuestion.to_request",
+    "evaluation.evaltools.snap_request:build_request",
+    "evaluation.evaltools.snap_request:definition_ends",
+    "evaluation.evaltools.snap_request:digest",
+    "evaluation.evaltools.snap_request:function_state",
+    "evaluation.evaltools.snap_request:item_requests",
+    "evaluation.evaltools.snap_request:load_questions",
+    "evaluation.evaltools.snap_request:questions_for",
+    "evaluation.evaltools.snap_request:request_fingerprint",
+    "evaluation.evaltools.snap_request:shown",
+    "evaluation.evaltools.snap_request:source_lines",
+    "evaluation.evaltools.snap_request:test_source"
+   ],
+   "exercise_count": 14,
+   "modules_exercised": [
+    "evaluation.evaltools.decision_models",
+    "evaluation.evaltools.snap_request"
+   ],
    "judgment": "NOT ASSESSED",
    "curated": {},
    "snap_questions": [
@@ -35046,14 +35160,25 @@
    },
    "raises_checks": 0,
    "uses": [],
-   "quality_flags": [
-    "exercises_no_project_function"
-   ],
+   "quality_flags": [],
    "claims": "both providers get the same fitted state and questions",
    "execution_outcome": "passed",
-   "exercises": [],
-   "exercise_count": 0,
-   "modules_exercised": [],
+   "exercises": [
+    "evaluation.evaltools.decision_models:estimate_tokens",
+    "evaluation.evaltools.decision_models:fit_state",
+    "evaluation.evaltools.snap_request:DecisionQuestion.criteria_fit_type",
+    "evaluation.evaltools.snap_request:DecisionQuestion.to_request",
+    "evaluation.evaltools.snap_request:build_request",
+    "evaluation.evaltools.snap_request:digest",
+    "evaluation.evaltools.snap_request:load_questions",
+    "evaluation.evaltools.snap_request:questions_for",
+    "evaluation.evaltools.snap_request:request_fingerprint"
+   ],
+   "exercise_count": 9,
+   "modules_exercised": [
+    "evaluation.evaltools.decision_models",
+    "evaluation.evaltools.snap_request"
+   ],
    "judgment": "NOT ASSESSED",
    "curated": {},
    "snap_questions": [
@@ -35078,14 +35203,18 @@
    },
    "raises_checks": 1,
    "uses": [],
-   "quality_flags": [
-    "exercises_no_project_function"
-   ],
+   "quality_flags": [],
    "claims": "fitting a state is deterministic and keeps the conclusion",
    "execution_outcome": "passed",
-   "exercises": [],
-   "exercise_count": 0,
-   "modules_exercised": [],
+   "exercises": [
+    "evaluation.evaltools.decision_models:_truncate_evidence",
+    "evaluation.evaltools.decision_models:estimate_tokens",
+    "evaluation.evaltools.decision_models:fit_state"
+   ],
+   "exercise_count": 3,
+   "modules_exercised": [
+    "evaluation.evaltools.decision_models"
+   ],
    "judgment": "NOT ASSESSED",
    "curated": {},
    "snap_questions": [
@@ -35109,14 +35238,19 @@
    },
    "raises_checks": 2,
    "uses": [],
-   "quality_flags": [
-    "exercises_no_project_function"
-   ],
+   "quality_flags": [],
    "claims": "answers normalize to one schema and compare by the stated rules",
    "execution_outcome": "passed",
-   "exercises": [],
-   "exercise_count": 0,
-   "modules_exercised": [],
+   "exercises": [
+    "evaluation.evaltools.decision_models:_number",
+    "evaluation.evaltools.decision_models:compare",
+    "evaluation.evaltools.decision_models:normalize",
+    "evaluation.evaltools.decision_models:reference_match"
+   ],
+   "exercise_count": 4,
+   "modules_exercised": [
+    "evaluation.evaltools.decision_models"
+   ],
    "judgment": "NOT ASSESSED",
    "curated": {},
    "snap_questions": [
@@ -35142,14 +35276,23 @@
    },
    "raises_checks": 0,
    "uses": [],
-   "quality_flags": [
-    "exercises_no_project_function"
-   ],
+   "quality_flags": [],
    "claims": "the agreement report pairs only identical states and flags disagreements",
    "execution_outcome": "passed",
-   "exercises": [],
-   "exercise_count": 0,
-   "modules_exercised": [],
+   "exercises": [
+    "evaluation.evaltools.compare_evaluators:build_report",
+    "evaluation.evaltools.compare_evaluators:build_report.<locals>.rate",
+    "evaluation.evaltools.compare_evaluators:index_answers",
+    "evaluation.evaltools.compare_evaluators:markdown",
+    "evaluation.evaltools.compare_evaluators:request_usage",
+    "evaluation.evaltools.decision_models:compare",
+    "evaluation.evaltools.decision_models:reference_match"
+   ],
+   "exercise_count": 7,
+   "modules_exercised": [
+    "evaluation.evaltools.compare_evaluators",
+    "evaluation.evaltools.decision_models"
+   ],
    "judgment": "NOT ASSESSED",
    "curated": {},
    "snap_questions": [
@@ -35175,14 +35318,19 @@
    },
    "raises_checks": 0,
    "uses": [],
-   "quality_flags": [
-    "exercises_no_project_function"
-   ],
+   "quality_flags": [],
    "claims": "A function id has a colon; Windows would write an empty file for it.",
    "execution_outcome": "passed",
-   "exercises": [],
-   "exercise_count": 0,
-   "modules_exercised": [],
+   "exercises": [
+    "evaluation.evaltools.snap_request:file_stem",
+    "evaluation.evaltools.snap_request:request_fingerprint",
+    "evaluation.evaltools.snap_request:write_json",
+    "evaluation.evaltools.snap_request:write_requests"
+   ],
+   "exercise_count": 4,
+   "modules_exercised": [
+    "evaluation.evaltools.snap_request"
+   ],
    "judgment": "NOT ASSESSED",
    "curated": {},
    "snap_questions": [
@@ -35219,11 +35367,23 @@
    "execution_outcome": "passed",
    "exercises": [
     "capstone.providers.chat:ModelError.__init__",
-    "capstone.providers.chat:post_json"
+    "capstone.providers.chat:post_json",
+    "evaluation.evaltools.decision_models:_number",
+    "evaluation.evaltools.decision_models:normalize",
+    "evaluation.evaltools.snap_request:already_answered",
+    "evaluation.evaltools.snap_request:describe_failure",
+    "evaluation.evaltools.snap_request:file_stem",
+    "evaluation.evaltools.snap_request:normalized_answers",
+    "evaluation.evaltools.snap_request:request_fingerprint",
+    "evaluation.evaltools.snap_request:send",
+    "evaluation.evaltools.snap_request:write_json",
+    "evaluation.evaltools.snap_request:write_requests"
    ],
-   "exercise_count": 2,
+   "exercise_count": 12,
    "modules_exercised": [
-    "capstone.providers.chat"
+    "capstone.providers.chat",
+    "evaluation.evaltools.decision_models",
+    "evaluation.evaltools.snap_request"
    ],
    "judgment": "NOT ASSESSED",
    "curated": {},
@@ -35251,14 +35411,20 @@
    },
    "raises_checks": 0,
    "uses": [],
-   "quality_flags": [
-    "exercises_no_project_function"
-   ],
+   "quality_flags": [],
    "claims": "answers name the model requested and keep unreadable ones",
    "execution_outcome": "passed",
-   "exercises": [],
-   "exercise_count": 0,
-   "modules_exercised": [],
+   "exercises": [
+    "evaluation.evaltools.decision_models:_number",
+    "evaluation.evaltools.decision_models:normalize",
+    "evaluation.evaltools.snap_request:normalized_answers",
+    "evaluation.evaltools.snap_request:request_fingerprint"
+   ],
+   "exercise_count": 4,
+   "modules_exercised": [
+    "evaluation.evaltools.decision_models",
+    "evaluation.evaltools.snap_request"
+   ],
    "judgment": "NOT ASSESSED",
    "curated": {},
    "snap_questions": [
@@ -35282,14 +35448,16 @@
    },
    "raises_checks": 0,
    "uses": [],
-   "quality_flags": [
-    "exercises_no_project_function"
-   ],
+   "quality_flags": [],
    "claims": "failed requests are counted apart from answered ones",
    "execution_outcome": "passed",
-   "exercises": [],
-   "exercise_count": 0,
-   "modules_exercised": [],
+   "exercises": [
+    "evaluation.evaltools.compare_evaluators:request_usage"
+   ],
+   "exercise_count": 1,
+   "modules_exercised": [
+    "evaluation.evaltools.compare_evaluators"
+   ],
    "judgment": "NOT ASSESSED",
    "curated": {},
    "snap_questions": [
@@ -35333,14 +35501,29 @@
     "capstone.evaluation.scoring:_named",
     "capstone.evaluation.scoring:judge",
     "capstone.evaluation.scoring:judge_causes",
-    "capstone.experiment:read_records"
+    "capstone.experiment:read_records",
+    "evaluation.evaltools.run_packet:audit_by_run",
+    "evaluation.evaltools.run_packet:build_all",
+    "evaluation.evaltools.run_packet:build_packet",
+    "evaluation.evaltools.run_packet:calibration",
+    "evaluation.evaltools.run_packet:check_no_truth_in_view",
+    "evaluation.evaltools.run_packet:configuration_of",
+    "evaluation.evaltools.run_packet:episode_key",
+    "evaluation.evaltools.run_packet:evaluator_only_of",
+    "evaluation.evaltools.run_packet:facts_of",
+    "evaluation.evaltools.run_packet:forbidden_in_view",
+    "evaluation.evaltools.run_packet:leak_in",
+    "evaluation.evaltools.run_packet:read_labels",
+    "evaluation.evaltools.run_packet:run_ref",
+    "evaluation.evaltools.run_packet:trace_from_record"
    ],
-   "exercise_count": 12,
+   "exercise_count": 26,
    "modules_exercised": [
     "capstone.contracts.investigations",
     "capstone.evaluation.labels",
     "capstone.evaluation.scoring",
-    "capstone.experiment"
+    "capstone.experiment",
+    "evaluation.evaltools.run_packet"
    ],
    "judgment": "NOT ASSESSED",
    "curated": {},
@@ -35367,14 +35550,17 @@
    },
    "raises_checks": 1,
    "uses": [],
-   "quality_flags": [
-    "exercises_no_project_function"
-   ],
+   "quality_flags": [],
    "claims": "Scenario ids name the fault (KA-01-bearing), so they stay in meta.",
    "execution_outcome": "passed",
-   "exercises": [],
-   "exercise_count": 0,
-   "modules_exercised": [],
+   "exercises": [
+    "evaluation.evaltools.run_packet:check_no_truth_in_view",
+    "evaluation.evaltools.run_packet:run_ref"
+   ],
+   "exercise_count": 2,
+   "modules_exercised": [
+    "evaluation.evaltools.run_packet"
+   ],
    "judgment": "NOT ASSESSED",
    "curated": {},
    "snap_questions": [
@@ -35404,12 +35590,21 @@
    "exercises": [
     "capstone.evaluation.scoring:Score.model_unavailable",
     "capstone.evaluation.scoring:Score.unnecessary_actions",
-    "capstone.experiment:read_records"
+    "capstone.experiment:read_records",
+    "evaluation.evaltools.run_packet:build_packet",
+    "evaluation.evaltools.run_packet:calibration",
+    "evaluation.evaltools.run_packet:configuration_of",
+    "evaluation.evaltools.run_packet:episode_key",
+    "evaluation.evaltools.run_packet:evaluator_only_of",
+    "evaluation.evaltools.run_packet:facts_of",
+    "evaluation.evaltools.run_packet:run_ref",
+    "evaluation.evaltools.run_packet:trace_from_record"
    ],
-   "exercise_count": 3,
+   "exercise_count": 11,
    "modules_exercised": [
     "capstone.evaluation.scoring",
-    "capstone.experiment"
+    "capstone.experiment",
+    "evaluation.evaltools.run_packet"
    ],
    "judgment": "NOT ASSESSED",
    "curated": {},
@@ -35437,14 +35632,22 @@
    "raises_checks": 0,
    "uses": [],
    "quality_flags": [
-    "may_skip",
-    "exercises_no_project_function"
+    "may_skip"
    ],
    "claims": "outage runs are out of the reasoning totals and asked nothing",
    "execution_outcome": "passed",
-   "exercises": [],
-   "exercise_count": 0,
-   "modules_exercised": [],
+   "exercises": [
+    "evaluation.evaltools.run_packet:batch_summary",
+    "evaluation.evaltools.snap_request:DecisionQuestion.criteria_fit_type",
+    "evaluation.evaltools.snap_request:applicable_run_questions",
+    "evaluation.evaltools.snap_request:load_questions",
+    "evaluation.evaltools.snap_request:questions_for"
+   ],
+   "exercise_count": 5,
+   "modules_exercised": [
+    "evaluation.evaltools.run_packet",
+    "evaluation.evaltools.snap_request"
+   ],
    "judgment": "NOT ASSESSED",
    "curated": {},
    "snap_questions": [
@@ -35499,14 +35702,16 @@
    },
    "raises_checks": 0,
    "uses": [],
-   "quality_flags": [
-    "exercises_no_project_function"
-   ],
+   "quality_flags": [],
    "claims": "packet file names are valid on every operating system",
    "execution_outcome": "passed",
-   "exercises": [],
-   "exercise_count": 0,
-   "modules_exercised": [],
+   "exercises": [
+    "evaluation.evaltools.run_packet:packet_file_name"
+   ],
+   "exercise_count": 1,
+   "modules_exercised": [
+    "evaluation.evaltools.run_packet"
+   ],
    "judgment": "NOT ASSESSED",
    "curated": {},
    "snap_questions": [
@@ -35530,14 +35735,16 @@
    },
    "raises_checks": 0,
    "uses": [],
-   "quality_flags": [
-    "exercises_no_project_function"
-   ],
+   "quality_flags": [],
    "claims": "a function is named by a test only as whole words",
    "execution_outcome": "passed",
-   "exercises": [],
-   "exercise_count": 0,
-   "modules_exercised": [],
+   "exercises": [
+    "evaluation.evaltools.build_inventory:names_function"
+   ],
+   "exercise_count": 1,
+   "modules_exercised": [
+    "evaluation.evaltools.build_inventory"
+   ],
    "judgment": "NOT ASSESSED",
    "curated": {},
    "snap_questions": [
@@ -35564,14 +35771,20 @@
    "raises_checks": 0,
    "uses": [],
    "quality_flags": [
-    "may_skip",
-    "exercises_no_project_function"
+    "may_skip"
    ],
    "claims": "run 09 is not asked of a run without a conclusion",
    "execution_outcome": "passed",
-   "exercises": [],
-   "exercise_count": 0,
-   "modules_exercised": [],
+   "exercises": [
+    "evaluation.evaltools.snap_request:DecisionQuestion.criteria_fit_type",
+    "evaluation.evaltools.snap_request:applicable_run_questions",
+    "evaluation.evaltools.snap_request:load_questions",
+    "evaluation.evaltools.snap_request:questions_for"
+   ],
+   "exercise_count": 4,
+   "modules_exercised": [
+    "evaluation.evaltools.snap_request"
+   ],
    "judgment": "NOT ASSESSED",
    "curated": {},
    "snap_questions": [
@@ -35594,14 +35807,16 @@
    },
    "raises_checks": 1,
    "uses": [],
-   "quality_flags": [
-    "exercises_no_project_function"
-   ],
+   "quality_flags": [],
    "claims": "a noul reference written as text is read as a boolean",
    "execution_outcome": "passed",
-   "exercises": [],
-   "exercise_count": 0,
-   "modules_exercised": [],
+   "exercises": [
+    "evaluation.evaltools.decision_models:reference_match"
+   ],
+   "exercise_count": 1,
+   "modules_exercised": [
+    "evaluation.evaltools.decision_models"
+   ],
    "judgment": "NOT ASSESSED",
    "curated": {},
    "snap_questions": [
@@ -35627,14 +35842,28 @@
    "raises_checks": 0,
    "uses": [],
    "quality_flags": [
-    "may_skip",
-    "exercises_no_project_function"
+    "may_skip"
    ],
    "claims": "an unfittable function state is skipped not fatal",
    "execution_outcome": "passed",
-   "exercises": [],
-   "exercise_count": 0,
-   "modules_exercised": [],
+   "exercises": [
+    "evaluation.evaltools.decision_models:_truncate_evidence",
+    "evaluation.evaltools.decision_models:estimate_tokens",
+    "evaluation.evaltools.decision_models:fit_state",
+    "evaluation.evaltools.snap_request:DecisionQuestion.criteria_fit_type",
+    "evaluation.evaltools.snap_request:DecisionQuestion.to_request",
+    "evaluation.evaltools.snap_request:build_request",
+    "evaluation.evaltools.snap_request:digest",
+    "evaluation.evaltools.snap_request:item_requests",
+    "evaluation.evaltools.snap_request:load_questions",
+    "evaluation.evaltools.snap_request:questions_for",
+    "evaluation.evaltools.snap_request:request_fingerprint"
+   ],
+   "exercise_count": 11,
+   "modules_exercised": [
+    "evaluation.evaltools.decision_models",
+    "evaluation.evaltools.snap_request"
+   ],
    "judgment": "NOT ASSESSED",
    "curated": {},
    "snap_questions": [
@@ -35659,14 +35888,16 @@
    },
    "raises_checks": 1,
    "uses": [],
-   "quality_flags": [
-    "exercises_no_project_function"
-   ],
+   "quality_flags": [],
    "claims": "Appending would give two records the same run key.",
    "execution_outcome": "passed",
-   "exercises": [],
-   "exercise_count": 0,
-   "modules_exercised": [],
+   "exercises": [
+    "evaluation.evaltools.traced_run:main"
+   ],
+   "exercise_count": 1,
+   "modules_exercised": [
+    "evaluation.evaltools.traced_run"
+   ],
    "judgment": "NOT ASSESSED",
    "curated": {},
    "snap_questions": [
@@ -35706,14 +35937,34 @@
     "capstone.evaluation.scoring:_named",
     "capstone.evaluation.scoring:judge",
     "capstone.evaluation.scoring:judge_causes",
-    "capstone.experiment:read_records"
+    "capstone.experiment:read_records",
+    "evaluation.evaltools.run_packet:_sibling",
+    "evaluation.evaltools.run_packet:audit_by_run",
+    "evaluation.evaltools.run_packet:build_all",
+    "evaluation.evaltools.run_packet:build_archive",
+    "evaluation.evaltools.run_packet:build_packet",
+    "evaluation.evaltools.run_packet:calibration",
+    "evaluation.evaltools.run_packet:check_no_truth_in_view",
+    "evaluation.evaltools.run_packet:check_unique",
+    "evaluation.evaltools.run_packet:configuration_of",
+    "evaluation.evaltools.run_packet:episode_key",
+    "evaluation.evaltools.run_packet:evaluator_only_of",
+    "evaluation.evaltools.run_packet:facts_of",
+    "evaluation.evaltools.run_packet:forbidden_in_view",
+    "evaluation.evaltools.run_packet:leak_in",
+    "evaluation.evaltools.run_packet:packet_file_name",
+    "evaluation.evaltools.run_packet:read_labels",
+    "evaluation.evaltools.run_packet:review_flags",
+    "evaluation.evaltools.run_packet:run_ref",
+    "evaluation.evaltools.run_packet:trace_from_record"
    ],
-   "exercise_count": 12,
+   "exercise_count": 31,
    "modules_exercised": [
     "capstone.contracts.investigations",
     "capstone.evaluation.labels",
     "capstone.evaluation.scoring",
-    "capstone.experiment"
+    "capstone.experiment",
+    "evaluation.evaltools.run_packet"
    ],
    "judgment": "NOT ASSESSED",
    "curated": {},
@@ -35759,9 +36010,27 @@
     "capstone.evaluation.scoring:_named",
     "capstone.evaluation.scoring:judge",
     "capstone.evaluation.scoring:judge_causes",
-    "capstone.experiment:read_records"
+    "capstone.experiment:read_records",
+    "evaluation.evaltools.run_packet:_sibling",
+    "evaluation.evaltools.run_packet:audit_by_run",
+    "evaluation.evaltools.run_packet:build_all",
+    "evaluation.evaltools.run_packet:build_archive",
+    "evaluation.evaltools.run_packet:build_packet",
+    "evaluation.evaltools.run_packet:calibration",
+    "evaluation.evaltools.run_packet:check_no_truth_in_view",
+    "evaluation.evaltools.run_packet:check_unique",
+    "evaluation.evaltools.run_packet:configuration_of",
+    "evaluation.evaltools.run_packet:episode_key",
+    "evaluation.evaltools.run_packet:evaluator_only_of",
+    "evaluation.evaltools.run_packet:facts_of",
+    "evaluation.evaltools.run_packet:forbidden_in_view",
+    "evaluation.evaltools.run_packet:leak_in",
+    "evaluation.evaltools.run_packet:read_labels",
+    "evaluation.evaltools.run_packet:review_flags",
+    "evaluation.evaltools.run_packet:run_ref",
+    "evaluation.evaltools.run_packet:trace_from_audit"
    ],
-   "exercise_count": 16,
+   "exercise_count": 34,
    "modules_exercised": [
     "capstone.agent.completion",
     "capstone.contracts.completed_investigations",
@@ -35769,7 +36038,8 @@
     "capstone.contracts.investigations",
     "capstone.evaluation.labels",
     "capstone.evaluation.scoring",
-    "capstone.experiment"
+    "capstone.experiment",
+    "evaluation.evaltools.run_packet"
    ],
    "judgment": "NOT ASSESSED",
    "curated": {},
@@ -35797,14 +36067,16 @@
    },
    "raises_checks": 0,
    "uses": [],
-   "quality_flags": [
-    "exercises_no_project_function"
-   ],
+   "quality_flags": [],
    "claims": "EVAL-02 / T02: pending labels stay unjudged; the four arms match summary.json.",
    "execution_outcome": "passed",
-   "exercises": [],
-   "exercise_count": 0,
-   "modules_exercised": [],
+   "exercises": [
+    "evaluation.evaltools.run_packet:batch_summary"
+   ],
+   "exercise_count": 1,
+   "modules_exercised": [
+    "evaluation.evaltools.run_packet"
+   ],
    "judgment": "NOT ASSESSED",
    "curated": {},
    "snap_questions": [
@@ -35836,13 +36108,29 @@
     "capstone.contracts.investigations:run_id_for",
     "capstone.evaluation.scoring:Score.model_unavailable",
     "capstone.evaluation.scoring:Score.unnecessary_actions",
-    "capstone.experiment:read_records"
+    "capstone.experiment:read_records",
+    "evaluation.evaltools.run_packet:audit_by_run",
+    "evaluation.evaltools.run_packet:build_all",
+    "evaluation.evaltools.run_packet:build_packet",
+    "evaluation.evaltools.run_packet:calibration",
+    "evaluation.evaltools.run_packet:check_no_truth_in_view",
+    "evaluation.evaltools.run_packet:check_unique",
+    "evaluation.evaltools.run_packet:configuration_of",
+    "evaluation.evaltools.run_packet:episode_key",
+    "evaluation.evaltools.run_packet:evaluator_only_of",
+    "evaluation.evaltools.run_packet:facts_of",
+    "evaluation.evaltools.run_packet:forbidden_in_view",
+    "evaluation.evaltools.run_packet:leak_in",
+    "evaluation.evaltools.run_packet:read_labels",
+    "evaluation.evaltools.run_packet:run_ref",
+    "evaluation.evaltools.run_packet:trace_from_record"
    ],
-   "exercise_count": 4,
+   "exercise_count": 19,
    "modules_exercised": [
     "capstone.contracts.investigations",
     "capstone.evaluation.scoring",
-    "capstone.experiment"
+    "capstone.experiment",
+    "evaluation.evaltools.run_packet"
    ],
    "judgment": "NOT ASSESSED",
    "curated": {},
@@ -35884,14 +36172,30 @@
     "capstone.evaluation.scoring:_named",
     "capstone.evaluation.scoring:judge",
     "capstone.evaluation.scoring:judge_causes",
-    "capstone.experiment:read_records"
+    "capstone.experiment:read_records",
+    "evaluation.evaltools.run_packet:audit_by_run",
+    "evaluation.evaltools.run_packet:batch_summary",
+    "evaluation.evaltools.run_packet:build_all",
+    "evaluation.evaltools.run_packet:build_packet",
+    "evaluation.evaltools.run_packet:calibration",
+    "evaluation.evaltools.run_packet:check_no_truth_in_view",
+    "evaluation.evaltools.run_packet:configuration_of",
+    "evaluation.evaltools.run_packet:episode_key",
+    "evaluation.evaltools.run_packet:evaluator_only_of",
+    "evaluation.evaltools.run_packet:facts_of",
+    "evaluation.evaltools.run_packet:forbidden_in_view",
+    "evaluation.evaltools.run_packet:leak_in",
+    "evaluation.evaltools.run_packet:read_labels",
+    "evaluation.evaltools.run_packet:run_ref",
+    "evaluation.evaltools.run_packet:trace_from_record"
    ],
-   "exercise_count": 12,
+   "exercise_count": 27,
    "modules_exercised": [
     "capstone.contracts.investigations",
     "capstone.evaluation.labels",
     "capstone.evaluation.scoring",
-    "capstone.experiment"
+    "capstone.experiment",
+    "evaluation.evaltools.run_packet"
    ],
    "judgment": "NOT ASSESSED",
    "curated": {},
@@ -35915,14 +36219,17 @@
    "assert_forms": {},
    "raises_checks": 1,
    "uses": [],
-   "quality_flags": [
-    "exercises_no_project_function"
-   ],
+   "quality_flags": [],
    "claims": "EVAL-02: a flag is never joined to a different label.",
    "execution_outcome": "passed",
-   "exercises": [],
-   "exercise_count": 0,
-   "modules_exercised": [],
+   "exercises": [
+    "evaluation.evaltools.run_packet:read_labels",
+    "evaluation.evaltools.run_packet:review_flags"
+   ],
+   "exercise_count": 2,
+   "modules_exercised": [
+    "evaluation.evaltools.run_packet"
+   ],
    "judgment": "NOT ASSESSED",
    "curated": {},
    "snap_questions": [
@@ -35946,14 +36253,24 @@
    },
    "raises_checks": 0,
    "uses": [],
-   "quality_flags": [
-    "exercises_no_project_function"
-   ],
+   "quality_flags": [],
    "claims": "EVAL-03 / T04: a saved answer is never reused for a changed request.",
    "execution_outcome": "passed",
-   "exercises": [],
-   "exercise_count": 0,
-   "modules_exercised": [],
+   "exercises": [
+    "evaluation.evaltools.decision_models:estimate_tokens",
+    "evaluation.evaltools.decision_models:fit_state",
+    "evaluation.evaltools.snap_request:DecisionQuestion.criteria_fit_type",
+    "evaluation.evaltools.snap_request:DecisionQuestion.to_request",
+    "evaluation.evaltools.snap_request:build_request",
+    "evaluation.evaltools.snap_request:digest",
+    "evaluation.evaltools.snap_request:load_questions",
+    "evaluation.evaltools.snap_request:request_fingerprint"
+   ],
+   "exercise_count": 8,
+   "modules_exercised": [
+    "evaluation.evaltools.decision_models",
+    "evaluation.evaltools.snap_request"
+   ],
    "judgment": "NOT ASSESSED",
    "curated": {},
    "snap_questions": [
@@ -35989,11 +36306,22 @@
    "claims": "EVAL-03 / T03: names do not depend on order; a rerun re-sends nothing.",
    "execution_outcome": "passed",
    "exercises": [
-    "capstone.providers.chat:post_json"
+    "capstone.providers.chat:post_json",
+    "evaluation.evaltools.decision_models:_number",
+    "evaluation.evaltools.decision_models:normalize",
+    "evaluation.evaltools.snap_request:already_answered",
+    "evaluation.evaltools.snap_request:file_stem",
+    "evaluation.evaltools.snap_request:normalized_answers",
+    "evaluation.evaltools.snap_request:request_fingerprint",
+    "evaluation.evaltools.snap_request:send",
+    "evaluation.evaltools.snap_request:write_json",
+    "evaluation.evaltools.snap_request:write_requests"
    ],
-   "exercise_count": 1,
+   "exercise_count": 10,
    "modules_exercised": [
-    "capstone.providers.chat"
+    "capstone.providers.chat",
+    "evaluation.evaltools.decision_models",
+    "evaluation.evaltools.snap_request"
    ],
    "judgment": "NOT ASSESSED",
    "curated": {},
@@ -36030,11 +36358,22 @@
    "claims": "EVAL-03 / T07: a reply missing an answer is not a completed judgment.",
    "execution_outcome": "passed",
    "exercises": [
-    "capstone.providers.chat:post_json"
+    "capstone.providers.chat:post_json",
+    "evaluation.evaltools.decision_models:_number",
+    "evaluation.evaltools.decision_models:normalize",
+    "evaluation.evaltools.snap_request:already_answered",
+    "evaluation.evaltools.snap_request:file_stem",
+    "evaluation.evaltools.snap_request:normalized_answers",
+    "evaluation.evaltools.snap_request:request_fingerprint",
+    "evaluation.evaltools.snap_request:send",
+    "evaluation.evaltools.snap_request:write_json",
+    "evaluation.evaltools.snap_request:write_requests"
    ],
-   "exercise_count": 1,
+   "exercise_count": 10,
    "modules_exercised": [
-    "capstone.providers.chat"
+    "capstone.providers.chat",
+    "evaluation.evaltools.decision_models",
+    "evaluation.evaltools.snap_request"
    ],
    "judgment": "NOT ASSESSED",
    "curated": {},
@@ -36072,11 +36411,23 @@
    "execution_outcome": "passed",
    "exercises": [
     "capstone.providers.chat:ModelError.__init__",
-    "capstone.providers.chat:post_json"
+    "capstone.providers.chat:post_json",
+    "evaluation.evaltools.decision_models:_number",
+    "evaluation.evaltools.decision_models:normalize",
+    "evaluation.evaltools.snap_request:already_answered",
+    "evaluation.evaltools.snap_request:describe_failure",
+    "evaluation.evaltools.snap_request:file_stem",
+    "evaluation.evaltools.snap_request:normalized_answers",
+    "evaluation.evaltools.snap_request:request_fingerprint",
+    "evaluation.evaltools.snap_request:send",
+    "evaluation.evaltools.snap_request:write_json",
+    "evaluation.evaltools.snap_request:write_requests"
    ],
-   "exercise_count": 2,
+   "exercise_count": 12,
    "modules_exercised": [
-    "capstone.providers.chat"
+    "capstone.providers.chat",
+    "evaluation.evaltools.decision_models",
+    "evaluation.evaltools.snap_request"
    ],
    "judgment": "NOT ASSESSED",
    "curated": {},
@@ -36105,14 +36456,22 @@
    },
    "raises_checks": 0,
    "uses": [],
-   "quality_flags": [
-    "exercises_no_project_function"
-   ],
+   "quality_flags": [],
    "claims": "EVAL-04 / T05: the last boundary re-checks what would be sent.",
    "execution_outcome": "passed",
-   "exercises": [],
-   "exercise_count": 0,
-   "modules_exercised": [],
+   "exercises": [
+    "evaluation.evaltools.run_packet:leak_in",
+    "evaluation.evaltools.snap_request:DecisionQuestion.criteria_fit_type",
+    "evaluation.evaltools.snap_request:forbidden_for",
+    "evaluation.evaltools.snap_request:judge_view",
+    "evaluation.evaltools.snap_request:load_questions",
+    "evaluation.evaltools.snap_request:run_requests"
+   ],
+   "exercise_count": 6,
+   "modules_exercised": [
+    "evaluation.evaltools.run_packet",
+    "evaluation.evaltools.snap_request"
+   ],
    "judgment": "NOT ASSESSED",
    "curated": {},
    "snap_questions": [
@@ -36139,14 +36498,32 @@
    },
    "raises_checks": 0,
    "uses": [],
-   "quality_flags": [
-    "exercises_no_project_function"
-   ],
+   "quality_flags": [],
    "claims": "EVAL-04 / T05: no sent body names its scenario, run key or episode key.",
    "execution_outcome": "passed",
-   "exercises": [],
-   "exercise_count": 0,
-   "modules_exercised": [],
+   "exercises": [
+    "evaluation.evaltools.decision_models:estimate_tokens",
+    "evaluation.evaltools.decision_models:fit_state",
+    "evaluation.evaltools.run_packet:leak_in",
+    "evaluation.evaltools.run_packet:packet_file_name",
+    "evaluation.evaltools.snap_request:DecisionQuestion.criteria_fit_type",
+    "evaluation.evaltools.snap_request:DecisionQuestion.to_request",
+    "evaluation.evaltools.snap_request:applicable_run_questions",
+    "evaluation.evaltools.snap_request:build_request",
+    "evaluation.evaltools.snap_request:digest",
+    "evaluation.evaltools.snap_request:forbidden_for",
+    "evaluation.evaltools.snap_request:judge_view",
+    "evaluation.evaltools.snap_request:load_questions",
+    "evaluation.evaltools.snap_request:questions_for",
+    "evaluation.evaltools.snap_request:request_fingerprint",
+    "evaluation.evaltools.snap_request:run_requests"
+   ],
+   "exercise_count": 15,
+   "modules_exercised": [
+    "evaluation.evaltools.decision_models",
+    "evaluation.evaltools.run_packet",
+    "evaluation.evaltools.snap_request"
+   ],
    "judgment": "NOT ASSESSED",
    "curated": {},
    "snap_questions": [
@@ -36182,11 +36559,14 @@
    "execution_outcome": "passed",
    "exercises": [
     "capstone.providers.chat:ModelError.__init__",
-    "capstone.providers.chat:post_json"
+    "capstone.providers.chat:post_json",
+    "evaluation.evaltools.snap_request:describe_failure",
+    "evaluation.evaltools.snap_request:send"
    ],
-   "exercise_count": 2,
+   "exercise_count": 4,
    "modules_exercised": [
-    "capstone.providers.chat"
+    "capstone.providers.chat",
+    "evaluation.evaltools.snap_request"
    ],
    "judgment": "NOT ASSESSED",
    "curated": {},
@@ -36214,14 +36594,20 @@
    },
    "raises_checks": 0,
    "uses": [],
-   "quality_flags": [
-    "exercises_no_project_function"
-   ],
+   "quality_flags": [],
    "claims": "EVAL-19 / T18: refused as the live TypeSafe client refuses it.",
    "execution_outcome": "passed",
-   "exercises": [],
-   "exercise_count": 0,
-   "modules_exercised": [],
+   "exercises": [
+    "evaluation.evaltools.decision_models:_number",
+    "evaluation.evaltools.decision_models:normalize",
+    "evaluation.evaltools.snap_request:normalized_answers",
+    "evaluation.evaltools.snap_request:request_fingerprint"
+   ],
+   "exercise_count": 4,
+   "modules_exercised": [
+    "evaluation.evaltools.decision_models",
+    "evaluation.evaltools.snap_request"
+   ],
    "judgment": "NOT ASSESSED",
    "curated": {},
    "snap_questions": [
@@ -36247,14 +36633,22 @@
    },
    "raises_checks": 0,
    "uses": [],
-   "quality_flags": [
-    "exercises_no_project_function"
-   ],
+   "quality_flags": [],
    "claims": "EVAL-20 / T19: no neighbouring test; every shortened list says so.",
    "execution_outcome": "passed",
-   "exercises": [],
-   "exercise_count": 0,
-   "modules_exercised": [],
+   "exercises": [
+    "evaluation.evaltools.snap_request:definition_ends",
+    "evaluation.evaltools.snap_request:shown",
+    "evaluation.evaltools.snap_request:source_lines",
+    "evaluation.evaltools.snap_request:test_source",
+    "evaluation.evaltools.snap_request:test_state",
+    "evaluation.evaltools.snap_request:tool_state",
+    "evaluation.evaltools.snap_request:wiring_lines"
+   ],
+   "exercise_count": 7,
+   "modules_exercised": [
+    "evaluation.evaltools.snap_request"
+   ],
    "judgment": "NOT ASSESSED",
    "curated": {},
    "snap_questions": [
@@ -36278,14 +36672,17 @@
    },
    "raises_checks": 0,
    "uses": [],
-   "quality_flags": [
-    "exercises_no_project_function"
-   ],
+   "quality_flags": [],
    "claims": "EVAL-21 / T20: the EVF note's count is the file's count.",
    "execution_outcome": "passed",
-   "exercises": [],
-   "exercise_count": 0,
-   "modules_exercised": [],
+   "exercises": [
+    "evaluation.evaltools.snap_request:DecisionQuestion.criteria_fit_type",
+    "evaluation.evaltools.snap_request:load_questions"
+   ],
+   "exercise_count": 2,
+   "modules_exercised": [
+    "evaluation.evaltools.snap_request"
+   ],
    "judgment": "NOT ASSESSED",
    "curated": {},
    "snap_questions": [
@@ -36308,14 +36705,19 @@
    },
    "raises_checks": 1,
    "uses": [],
-   "quality_flags": [
-    "exercises_no_project_function"
-   ],
+   "quality_flags": [],
    "claims": "EVAL-01 / EVAL-15: no silent overwrite; one latency figure per request.",
    "execution_outcome": "passed",
-   "exercises": [],
-   "exercise_count": 0,
-   "modules_exercised": [],
+   "exercises": [
+    "evaluation.evaltools.compare_evaluators:build_report",
+    "evaluation.evaltools.compare_evaluators:build_report.<locals>.rate",
+    "evaluation.evaltools.compare_evaluators:index_answers",
+    "evaluation.evaltools.compare_evaluators:request_usage"
+   ],
+   "exercise_count": 4,
+   "modules_exercised": [
+    "evaluation.evaltools.compare_evaluators"
+   ],
    "judgment": "NOT ASSESSED",
    "curated": {},
    "snap_questions": [
@@ -43542,7 +43944,7 @@
    "id": "tests/test_full_evaluation.py::test_every_episode_and_question_has_one_ledger_row",
    "file": "tests/test_full_evaluation.py",
    "name": "test_every_episode_and_question_has_one_ledger_row",
-   "line": 34,
+   "line": 36,
    "docstring": "52 episodes x 12 RUN questions, each once, each with a status.",
    "parametrized": false,
    "fixtures": [
@@ -43570,14 +43972,46 @@
     "capstone.evaluation.scoring:_named",
     "capstone.evaluation.scoring:judge",
     "capstone.evaluation.scoring:judge_causes",
-    "capstone.experiment:read_records"
+    "capstone.experiment:read_records",
+    "evaluation.evaltools.decision_models:estimate_tokens",
+    "evaluation.evaltools.decision_models:fit_state",
+    "evaluation.evaltools.full_evaluation:case_identity",
+    "evaluation.evaltools.full_evaluation:case_number",
+    "evaluation.evaltools.full_evaluation:case_outcome",
+    "evaluation.evaltools.full_evaluation:comparisons",
+    "evaluation.evaltools.full_evaluation:ledger_rows",
+    "evaluation.evaltools.full_evaluation:match_cases",
+    "evaluation.evaltools.full_evaluation:plan",
+    "evaluation.evaltools.full_evaluation:run_name",
+    "evaluation.evaltools.full_evaluation:run_settings",
+    "evaluation.evaltools.full_evaluation:sample_rule",
+    "evaluation.evaltools.run_packet:_sibling",
+    "evaluation.evaltools.run_packet:audit_by_run",
+    "evaluation.evaltools.run_packet:batch_summary",
+    "evaluation.evaltools.run_packet:build_all",
+    "evaluation.evaltools.run_packet:build_archive",
+    "evaluation.evaltools.run_packet:build_packet",
+    "evaluation.evaltools.run_packet:calibration",
+    "evaluation.evaltools.run_packet:check_no_truth_in_view",
+    "evaluation.evaltools.run_packet:check_unique",
+    "evaluation.evaltools.run_packet:configuration_of",
+    "evaluation.evaltools.run_packet:episode_key",
+    "evaluation.evaltools.run_packet:evaluator_only_of",
+    "evaluation.evaltools.run_packet:facts_of",
+    "evaluation.evaltools.run_packet:forbidden_in_view",
+    "evaluation.evaltools.run_packet:leak_in",
+    "evaluation.evaltools.run_packet:packet_file_name"
    ],
-   "exercise_count": 12,
+   "exercise_count": 55,
    "modules_exercised": [
     "capstone.contracts.investigations",
     "capstone.evaluation.labels",
     "capstone.evaluation.scoring",
-    "capstone.experiment"
+    "capstone.experiment",
+    "evaluation.evaltools.decision_models",
+    "evaluation.evaltools.full_evaluation",
+    "evaluation.evaltools.run_packet",
+    "evaluation.evaltools.snap_request"
    ],
    "judgment": "NOT ASSESSED",
    "curated": {},
@@ -43591,7 +44025,7 @@
    "id": "tests/test_full_evaluation.py::test_refused_episode_keeps_every_run_question_row",
    "file": "tests/test_full_evaluation.py",
    "name": "test_refused_episode_keeps_every_run_question_row",
-   "line": 46,
+   "line": 48,
    "docstring": "An invalid episode is still counted in the RUN ledger.",
    "parametrized": false,
    "fixtures": [
@@ -43607,14 +44041,25 @@
     "monkeypatch"
    ],
    "quality_flags": [
-    "patches_dependencies",
-    "exercises_no_project_function"
+    "patches_dependencies"
    ],
    "claims": "An invalid episode is still counted in the RUN ledger.",
    "execution_outcome": "passed",
-   "exercises": [],
-   "exercise_count": 0,
-   "modules_exercised": [],
+   "exercises": [
+    "evaluation.evaltools.full_evaluation:ledger_rows",
+    "evaluation.evaltools.full_evaluation:plan",
+    "evaluation.evaltools.run_packet:check_unique",
+    "evaluation.evaltools.snap_request:DecisionQuestion.criteria_fit_type",
+    "evaluation.evaltools.snap_request:load_questions",
+    "evaluation.evaltools.snap_request:questions_for",
+    "evaluation.evaltools.snap_request:run_requests"
+   ],
+   "exercise_count": 7,
+   "modules_exercised": [
+    "evaluation.evaltools.full_evaluation",
+    "evaluation.evaltools.run_packet",
+    "evaluation.evaltools.snap_request"
+   ],
    "judgment": "NOT ASSESSED",
    "curated": {},
    "snap_questions": [
@@ -43627,7 +44072,7 @@
    "id": "tests/test_full_evaluation.py::test_the_report_keeps_the_published_denominators",
    "file": "tests/test_full_evaluation.py",
    "name": "test_the_report_keeps_the_published_denominators",
-   "line": 70,
+   "line": 72,
    "docstring": "Correctness per arm is the published n/judged with the pending labels.",
    "parametrized": false,
    "fixtures": [
@@ -43640,14 +44085,25 @@
    },
    "raises_checks": 0,
    "uses": [],
-   "quality_flags": [
-    "exercises_no_project_function"
-   ],
+   "quality_flags": [],
    "claims": "Correctness per arm is the published n/judged with the pending labels.",
    "execution_outcome": "passed",
-   "exercises": [],
-   "exercise_count": 0,
-   "modules_exercised": [],
+   "exercises": [
+    "evaluation.evaltools.decision_models:estimate_tokens",
+    "evaluation.evaltools.full_evaluation:budget",
+    "evaluation.evaltools.full_evaluation:ratio",
+    "evaluation.evaltools.full_evaluation:report",
+    "evaluation.evaltools.full_evaluation:request_tokens_estimate",
+    "evaluation.evaltools.full_evaluation:run_name",
+    "evaluation.evaltools.full_evaluation:settle",
+    "evaluation.evaltools.run_packet:batch_summary"
+   ],
+   "exercise_count": 8,
+   "modules_exercised": [
+    "evaluation.evaltools.decision_models",
+    "evaluation.evaltools.full_evaluation",
+    "evaluation.evaltools.run_packet"
+   ],
    "judgment": "NOT ASSESSED",
    "curated": {},
    "snap_questions": [
@@ -43660,7 +44116,7 @@
    "id": "tests/test_full_evaluation.py::test_each_pair_is_compared_and_the_sample_rule_is_applied_in_code",
    "file": "tests/test_full_evaluation.py",
    "name": "test_each_pair_is_compared_and_the_sample_rule_is_applied_in_code",
-   "line": 93,
+   "line": 95,
    "docstring": "Two comparisons (one per pair); 11 matched cases is under the 13 needed.",
    "parametrized": false,
    "fixtures": [
@@ -43693,7 +44149,7 @@
    "id": "tests/test_full_evaluation.py::test_a_comparison_request_names_no_scenario_or_run_key",
    "file": "tests/test_full_evaluation.py",
    "name": "test_a_comparison_request_names_no_scenario_or_run_key",
-   "line": 106,
+   "line": 108,
    "docstring": "The BT state carries outcomes by case number, never the fault's name.",
    "parametrized": false,
    "fixtures": [
@@ -43726,7 +44182,7 @@
    "id": "tests/test_full_evaluation.py::test_the_sample_rule_is_met_with_enough_matched_cases",
    "file": "tests/test_full_evaluation.py",
    "name": "test_the_sample_rule_is_met_with_enough_matched_cases",
-   "line": 120,
+   "line": 122,
    "docstring": "",
    "parametrized": false,
    "fixtures": [
@@ -43742,14 +44198,20 @@
     "monkeypatch"
    ],
    "quality_flags": [
-    "patches_dependencies",
-    "exercises_no_project_function"
+    "patches_dependencies"
    ],
    "claims": "the sample rule is met with enough matched cases",
    "execution_outcome": "passed",
-   "exercises": [],
-   "exercise_count": 0,
-   "modules_exercised": [],
+   "exercises": [
+    "evaluation.evaltools.full_evaluation:case_identity",
+    "evaluation.evaltools.full_evaluation:case_number",
+    "evaluation.evaltools.full_evaluation:match_cases",
+    "evaluation.evaltools.full_evaluation:sample_rule"
+   ],
+   "exercise_count": 4,
+   "modules_exercised": [
+    "evaluation.evaltools.full_evaluation"
+   ],
    "judgment": "NOT ASSESSED",
    "curated": {},
    "snap_questions": [
@@ -43762,7 +44224,7 @@
    "id": "tests/test_full_evaluation.py::test_answers_settle_the_ledger_by_fingerprint",
    "file": "tests/test_full_evaluation.py",
    "name": "test_answers_settle_the_ledger_by_fingerprint",
-   "line": 139,
+   "line": 141,
    "docstring": "Sent answers mark rows answered; a failed request marks them failed.",
    "parametrized": false,
    "fixtures": [
@@ -43786,11 +44248,23 @@
    "execution_outcome": "passed",
    "exercises": [
     "capstone.providers.chat:ModelError.__init__",
-    "capstone.providers.chat:post_json"
+    "capstone.providers.chat:post_json",
+    "evaluation.evaltools.decision_models:normalize",
+    "evaluation.evaltools.full_evaluation:settle",
+    "evaluation.evaltools.snap_request:already_answered",
+    "evaluation.evaltools.snap_request:describe_failure",
+    "evaluation.evaltools.snap_request:file_stem",
+    "evaluation.evaltools.snap_request:normalized_answers",
+    "evaluation.evaltools.snap_request:send",
+    "evaluation.evaltools.snap_request:write_json",
+    "evaluation.evaltools.snap_request:write_requests"
    ],
-   "exercise_count": 2,
+   "exercise_count": 11,
    "modules_exercised": [
-    "capstone.providers.chat"
+    "capstone.providers.chat",
+    "evaluation.evaltools.decision_models",
+    "evaluation.evaltools.full_evaluation",
+    "evaluation.evaltools.snap_request"
    ],
    "judgment": "NOT ASSESSED",
    "curated": {},
@@ -43804,7 +44278,7 @@
    "id": "tests/test_full_evaluation.py::test_an_answer_to_another_request_settles_nothing",
    "file": "tests/test_full_evaluation.py",
    "name": "test_an_answer_to_another_request_settles_nothing",
-   "line": 176,
+   "line": 178,
    "docstring": "",
    "parametrized": false,
    "fixtures": [
@@ -43817,14 +44291,16 @@
    },
    "raises_checks": 0,
    "uses": [],
-   "quality_flags": [
-    "exercises_no_project_function"
-   ],
+   "quality_flags": [],
    "claims": "an answer to another request settles nothing",
    "execution_outcome": "passed",
-   "exercises": [],
-   "exercise_count": 0,
-   "modules_exercised": [],
+   "exercises": [
+    "evaluation.evaltools.full_evaluation:settle"
+   ],
+   "exercise_count": 1,
+   "modules_exercised": [
+    "evaluation.evaltools.full_evaluation"
+   ],
    "judgment": "NOT ASSESSED",
    "curated": {},
    "snap_questions": [
@@ -43837,7 +44313,7 @@
    "id": "tests/test_full_evaluation.py::test_small_batches_resume_without_resending_completed_requests",
    "file": "tests/test_full_evaluation.py",
    "name": "test_small_batches_resume_without_resending_completed_requests",
-   "line": 191,
+   "line": 193,
    "docstring": "A large plan can advance through saved answers one request at a time.",
    "parametrized": false,
    "fixtures": [
@@ -43860,11 +44336,532 @@
    "claims": "A large plan can advance through saved answers one request at a time.",
    "execution_outcome": "passed",
    "exercises": [
-    "capstone.providers.chat:post_json"
+    "capstone.providers.chat:post_json",
+    "evaluation.evaltools.decision_models:normalize",
+    "evaluation.evaltools.full_evaluation:pending_batch",
+    "evaluation.evaltools.snap_request:already_answered",
+    "evaluation.evaltools.snap_request:file_stem",
+    "evaluation.evaltools.snap_request:normalized_answers",
+    "evaluation.evaltools.snap_request:send",
+    "evaluation.evaltools.snap_request:write_json",
+    "evaluation.evaltools.snap_request:write_requests"
+   ],
+   "exercise_count": 9,
+   "modules_exercised": [
+    "capstone.providers.chat",
+    "evaluation.evaltools.decision_models",
+    "evaluation.evaltools.full_evaluation",
+    "evaluation.evaltools.snap_request"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_full_evaluation.py::test_budgeted_send_reserves_before_post_and_resumes_from_measured_usage",
+   "file": "tests/test_full_evaluation.py",
+   "name": "test_budgeted_send_reserves_before_post_and_resumes_from_measured_usage",
+   "line": 222,
+   "docstring": "A small slice cannot overspend or repay a completed request on resume.",
+   "parametrized": false,
+   "fixtures": [
+    "tmp_path",
+    "monkeypatch"
+   ],
+   "assertions": 6,
+   "assert_forms": {
+    "equality": 4,
+    "ordering": 2
+   },
+   "raises_checks": 0,
+   "uses": [
+    "monkeypatch"
+   ],
+   "quality_flags": [
+    "patches_dependencies"
+   ],
+   "claims": "A small slice cannot overspend or repay a completed request on resume.",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.providers.chat:post_json",
+    "evaluation.evaltools.decision_models:_number",
+    "evaluation.evaltools.decision_models:estimate_tokens",
+    "evaluation.evaltools.decision_models:fit_state",
+    "evaluation.evaltools.decision_models:normalize",
+    "evaluation.evaltools.full_evaluation:budgeted_send",
+    "evaluation.evaltools.full_evaluation:measured_snap_charge",
+    "evaluation.evaltools.snap_request:DecisionQuestion.criteria_fit_type",
+    "evaluation.evaltools.snap_request:DecisionQuestion.to_request",
+    "evaluation.evaltools.snap_request:already_answered",
+    "evaluation.evaltools.snap_request:build_request",
+    "evaluation.evaltools.snap_request:digest",
+    "evaluation.evaltools.snap_request:file_stem",
+    "evaluation.evaltools.snap_request:load_questions",
+    "evaluation.evaltools.snap_request:normalized_answers",
+    "evaluation.evaltools.snap_request:request_fingerprint",
+    "evaluation.evaltools.snap_request:send",
+    "evaluation.evaltools.snap_request:write_json",
+    "evaluation.evaltools.snap_request:write_requests"
+   ],
+   "exercise_count": 19,
+   "modules_exercised": [
+    "capstone.providers.chat",
+    "evaluation.evaltools.decision_models",
+    "evaluation.evaltools.full_evaluation",
+    "evaluation.evaltools.snap_request"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_full_evaluation.py::test_budgeted_send_keeps_uncertain_charge_reserved_and_stops",
+   "file": "tests/test_full_evaluation.py",
+   "name": "test_budgeted_send_keeps_uncertain_charge_reserved_and_stops",
+   "line": 274,
+   "docstring": "Missing usage leaves a charge reserved and prevents another paid post.",
+   "parametrized": false,
+   "fixtures": [
+    "tmp_path",
+    "monkeypatch"
+   ],
+   "assertions": 4,
+   "assert_forms": {
+    "equality": 4
+   },
+   "raises_checks": 0,
+   "uses": [
+    "monkeypatch"
+   ],
+   "quality_flags": [
+    "patches_dependencies"
+   ],
+   "claims": "Missing usage leaves a charge reserved and prevents another paid post.",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.providers.chat:post_json",
+    "evaluation.evaltools.decision_models:_number",
+    "evaluation.evaltools.decision_models:estimate_tokens",
+    "evaluation.evaltools.decision_models:fit_state",
+    "evaluation.evaltools.decision_models:normalize",
+    "evaluation.evaltools.full_evaluation:budgeted_send",
+    "evaluation.evaltools.full_evaluation:measured_snap_charge",
+    "evaluation.evaltools.snap_request:DecisionQuestion.criteria_fit_type",
+    "evaluation.evaltools.snap_request:DecisionQuestion.to_request",
+    "evaluation.evaltools.snap_request:already_answered",
+    "evaluation.evaltools.snap_request:build_request",
+    "evaluation.evaltools.snap_request:digest",
+    "evaluation.evaltools.snap_request:file_stem",
+    "evaluation.evaltools.snap_request:load_questions",
+    "evaluation.evaltools.snap_request:normalized_answers",
+    "evaluation.evaltools.snap_request:request_fingerprint",
+    "evaluation.evaltools.snap_request:send",
+    "evaluation.evaltools.snap_request:write_json",
+    "evaluation.evaltools.snap_request:write_requests"
+   ],
+   "exercise_count": 19,
+   "modules_exercised": [
+    "capstone.providers.chat",
+    "evaluation.evaltools.decision_models",
+    "evaluation.evaltools.full_evaluation",
+    "evaluation.evaltools.snap_request"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_full_evaluation.py::test_budgeted_send_refuses_a_charge_larger_than_the_remaining_cap",
+   "file": "tests/test_full_evaluation.py",
+   "name": "test_budgeted_send_refuses_a_charge_larger_than_the_remaining_cap",
+   "line": 318,
+   "docstring": "The whole possible input charge is reserved before any paid post.",
+   "parametrized": false,
+   "fixtures": [
+    "tmp_path",
+    "monkeypatch"
+   ],
+   "assertions": 3,
+   "assert_forms": {
+    "equality": 2,
+    "negation": 1
+   },
+   "raises_checks": 0,
+   "uses": [
+    "monkeypatch"
+   ],
+   "quality_flags": [
+    "patches_dependencies"
+   ],
+   "claims": "The whole possible input charge is reserved before any paid post.",
+   "execution_outcome": "passed",
+   "exercises": [
+    "evaluation.evaltools.decision_models:estimate_tokens",
+    "evaluation.evaltools.decision_models:fit_state",
+    "evaluation.evaltools.full_evaluation:budgeted_send",
+    "evaluation.evaltools.snap_request:DecisionQuestion.criteria_fit_type",
+    "evaluation.evaltools.snap_request:DecisionQuestion.to_request",
+    "evaluation.evaltools.snap_request:build_request",
+    "evaluation.evaltools.snap_request:digest",
+    "evaluation.evaltools.snap_request:file_stem",
+    "evaluation.evaltools.snap_request:load_questions",
+    "evaluation.evaltools.snap_request:request_fingerprint"
+   ],
+   "exercise_count": 10,
+   "modules_exercised": [
+    "evaluation.evaltools.decision_models",
+    "evaluation.evaltools.full_evaluation",
+    "evaluation.evaltools.snap_request"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_full_evaluation.py::test_budgeted_send_reserves_the_documented_binary_context_window",
+   "file": "tests/test_full_evaluation.py",
+   "name": "test_budgeted_send_reserves_the_documented_binary_context_window",
+   "line": 351,
+   "docstring": "Snap's 384K window is 393,216 tokens, not a decimal 384,000.",
+   "parametrized": false,
+   "fixtures": [
+    "tmp_path",
+    "monkeypatch"
+   ],
+   "assertions": 2,
+   "assert_forms": {
+    "equality": 2
+   },
+   "raises_checks": 0,
+   "uses": [
+    "monkeypatch"
+   ],
+   "quality_flags": [
+    "patches_dependencies"
+   ],
+   "claims": "Snap's 384K window is 393,216 tokens, not a decimal 384,000.",
+   "execution_outcome": "passed",
+   "exercises": [
+    "evaluation.evaltools.decision_models:estimate_tokens",
+    "evaluation.evaltools.decision_models:fit_state",
+    "evaluation.evaltools.full_evaluation:budgeted_send",
+    "evaluation.evaltools.snap_request:DecisionQuestion.criteria_fit_type",
+    "evaluation.evaltools.snap_request:DecisionQuestion.to_request",
+    "evaluation.evaltools.snap_request:build_request",
+    "evaluation.evaltools.snap_request:digest",
+    "evaluation.evaltools.snap_request:file_stem",
+    "evaluation.evaltools.snap_request:load_questions",
+    "evaluation.evaltools.snap_request:request_fingerprint"
+   ],
+   "exercise_count": 10,
+   "modules_exercised": [
+    "evaluation.evaltools.decision_models",
+    "evaluation.evaltools.full_evaluation",
+    "evaluation.evaltools.snap_request"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_full_evaluation.py::test_budgeted_send_rejects_nonfinite_limits",
+   "file": "tests/test_full_evaluation.py",
+   "name": "test_budgeted_send_rejects_nonfinite_limits",
+   "line": 384,
+   "docstring": "NaN or infinity cannot turn the dollar or time guard off.",
+   "parametrized": false,
+   "fixtures": [
+    "tmp_path"
+   ],
+   "assertions": 0,
+   "assert_forms": {},
+   "raises_checks": 2,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "NaN or infinity cannot turn the dollar or time guard off.",
+   "execution_outcome": "passed",
+   "exercises": [
+    "evaluation.evaltools.full_evaluation:budgeted_send"
    ],
    "exercise_count": 1,
    "modules_exercised": [
-    "capstone.providers.chat"
+    "evaluation.evaltools.full_evaluation"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_full_evaluation.py::test_unverified_provider_is_refused_before_a_mixed_batch_posts",
+   "file": "tests/test_full_evaluation.py",
+   "name": "test_unverified_provider_is_refused_before_a_mixed_batch_posts",
+   "line": 404,
+   "docstring": "A both-provider plan makes no paid call if either price is unknown.",
+   "parametrized": false,
+   "fixtures": [
+    "tmp_path",
+    "monkeypatch"
+   ],
+   "assertions": 2,
+   "assert_forms": {
+    "equality": 2
+   },
+   "raises_checks": 0,
+   "uses": [
+    "monkeypatch"
+   ],
+   "quality_flags": [
+    "patches_dependencies"
+   ],
+   "claims": "A both-provider plan makes no paid call if either price is unknown.",
+   "execution_outcome": "passed",
+   "exercises": [
+    "evaluation.evaltools.decision_models:estimate_tokens",
+    "evaluation.evaltools.decision_models:fit_state",
+    "evaluation.evaltools.full_evaluation:budgeted_send",
+    "evaluation.evaltools.snap_request:DecisionQuestion.criteria_fit_type",
+    "evaluation.evaltools.snap_request:DecisionQuestion.to_request",
+    "evaluation.evaltools.snap_request:build_request",
+    "evaluation.evaltools.snap_request:digest",
+    "evaluation.evaltools.snap_request:load_questions",
+    "evaluation.evaltools.snap_request:request_fingerprint"
+   ],
+   "exercise_count": 9,
+   "modules_exercised": [
+    "evaluation.evaltools.decision_models",
+    "evaluation.evaltools.full_evaluation",
+    "evaluation.evaltools.snap_request"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_full_evaluation.py::test_a_saved_reply_finishes_an_interrupted_reservation",
+   "file": "tests/test_full_evaluation.py",
+   "name": "test_a_saved_reply_finishes_an_interrupted_reservation",
+   "line": 439,
+   "docstring": "A crash after saving the reply can resume without another paid post.",
+   "parametrized": false,
+   "fixtures": [
+    "tmp_path",
+    "monkeypatch"
+   ],
+   "assertions": 2,
+   "assert_forms": {
+    "equality": 2
+   },
+   "raises_checks": 0,
+   "uses": [
+    "monkeypatch"
+   ],
+   "quality_flags": [
+    "patches_dependencies"
+   ],
+   "claims": "A crash after saving the reply can resume without another paid post.",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.providers.chat:post_json",
+    "evaluation.evaltools.decision_models:_number",
+    "evaluation.evaltools.decision_models:estimate_tokens",
+    "evaluation.evaltools.decision_models:fit_state",
+    "evaluation.evaltools.decision_models:normalize",
+    "evaluation.evaltools.full_evaluation:budgeted_send",
+    "evaluation.evaltools.full_evaluation:measured_snap_charge",
+    "evaluation.evaltools.snap_request:DecisionQuestion.criteria_fit_type",
+    "evaluation.evaltools.snap_request:DecisionQuestion.to_request",
+    "evaluation.evaltools.snap_request:already_answered",
+    "evaluation.evaltools.snap_request:build_request",
+    "evaluation.evaltools.snap_request:digest",
+    "evaluation.evaltools.snap_request:file_stem",
+    "evaluation.evaltools.snap_request:load_questions",
+    "evaluation.evaltools.snap_request:normalized_answers",
+    "evaluation.evaltools.snap_request:request_fingerprint",
+    "evaluation.evaltools.snap_request:send",
+    "evaluation.evaltools.snap_request:write_json",
+    "evaluation.evaltools.snap_request:write_requests"
+   ],
+   "exercise_count": 19,
+   "modules_exercised": [
+    "capstone.providers.chat",
+    "evaluation.evaltools.decision_models",
+    "evaluation.evaltools.full_evaluation",
+    "evaluation.evaltools.snap_request"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_full_evaluation.py::test_malformed_usage_stops_with_a_visible_reason",
+   "file": "tests/test_full_evaluation.py",
+   "name": "test_malformed_usage_stops_with_a_visible_reason",
+   "line": 489,
+   "docstring": "A malformed provider usage field is an unknown charge, not a crash.",
+   "parametrized": false,
+   "fixtures": [
+    "tmp_path",
+    "monkeypatch"
+   ],
+   "assertions": 2,
+   "assert_forms": {
+    "equality": 1,
+    "ordering": 1
+   },
+   "raises_checks": 0,
+   "uses": [
+    "monkeypatch"
+   ],
+   "quality_flags": [
+    "patches_dependencies"
+   ],
+   "claims": "A malformed provider usage field is an unknown charge, not a crash.",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.providers.chat:post_json",
+    "evaluation.evaltools.decision_models:_number",
+    "evaluation.evaltools.decision_models:estimate_tokens",
+    "evaluation.evaltools.decision_models:fit_state",
+    "evaluation.evaltools.decision_models:normalize",
+    "evaluation.evaltools.full_evaluation:budgeted_send",
+    "evaluation.evaltools.full_evaluation:measured_snap_charge",
+    "evaluation.evaltools.snap_request:DecisionQuestion.criteria_fit_type",
+    "evaluation.evaltools.snap_request:DecisionQuestion.to_request",
+    "evaluation.evaltools.snap_request:already_answered",
+    "evaluation.evaltools.snap_request:build_request",
+    "evaluation.evaltools.snap_request:digest",
+    "evaluation.evaltools.snap_request:file_stem",
+    "evaluation.evaltools.snap_request:load_questions",
+    "evaluation.evaltools.snap_request:normalized_answers",
+    "evaluation.evaltools.snap_request:request_fingerprint",
+    "evaluation.evaltools.snap_request:send",
+    "evaluation.evaltools.snap_request:write_json",
+    "evaluation.evaltools.snap_request:write_requests"
+   ],
+   "exercise_count": 19,
+   "modules_exercised": [
+    "capstone.providers.chat",
+    "evaluation.evaltools.decision_models",
+    "evaluation.evaltools.full_evaluation",
+    "evaluation.evaltools.snap_request"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_full_evaluation.py::test_full_command_uses_budgeted_sender",
+   "file": "tests/test_full_evaluation.py",
+   "name": "test_full_command_uses_budgeted_sender",
+   "line": 521,
+   "docstring": "The full command applies its limits to new sends, not the whole plan.",
+   "parametrized": false,
+   "fixtures": [
+    "tmp_path",
+    "monkeypatch"
+   ],
+   "assertions": 3,
+   "assert_forms": {
+    "equality": 3
+   },
+   "raises_checks": 0,
+   "uses": [
+    "monkeypatch"
+   ],
+   "quality_flags": [
+    "patches_dependencies"
+   ],
+   "claims": "The full command applies its limits to new sends, not the whole plan.",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.contracts.investigations:run_id_for",
+    "capstone.evaluation.labels:apply_label",
+    "capstone.evaluation.scoring:Cause.named_by",
+    "capstone.evaluation.scoring:Score.fully_right",
+    "capstone.evaluation.scoring:Score.miss_kind",
+    "capstone.evaluation.scoring:Score.model_unavailable",
+    "capstone.evaluation.scoring:Score.unnecessary_actions",
+    "capstone.evaluation.scoring:_closest",
+    "capstone.evaluation.scoring:_named",
+    "capstone.evaluation.scoring:judge",
+    "capstone.evaluation.scoring:judge_causes",
+    "capstone.experiment:read_records",
+    "evaluation.evaltools.build_inventory:call_name",
+    "evaluation.evaltools.build_inventory:collect_functions",
+    "evaluation.evaltools.build_inventory:collect_functions.<locals>.visit",
+    "evaluation.evaltools.build_inventory:count_statements",
+    "evaluation.evaltools.build_inventory:exception_names",
+    "evaluation.evaltools.build_inventory:function_kind",
+    "evaluation.evaltools.build_inventory:is_stub",
+    "evaluation.evaltools.build_inventory:leading_comment",
+    "evaluation.evaltools.build_inventory:module_name",
+    "evaluation.evaltools.build_inventory:mutated_parameters",
+    "evaluation.evaltools.build_inventory:rel",
+    "evaluation.evaltools.decision_models:estimate_tokens",
+    "evaluation.evaltools.decision_models:fit_state",
+    "evaluation.evaltools.full_evaluation:budget",
+    "evaluation.evaltools.full_evaluation:case_identity",
+    "evaluation.evaltools.full_evaluation:case_number",
+    "evaluation.evaltools.full_evaluation:case_outcome",
+    "evaluation.evaltools.full_evaluation:comparisons",
+    "evaluation.evaltools.full_evaluation:git",
+    "evaluation.evaltools.full_evaluation:has_functions",
+    "evaluation.evaltools.full_evaluation:ledger_rows",
+    "evaluation.evaltools.full_evaluation:main",
+    "evaluation.evaltools.full_evaluation:markdown",
+    "evaluation.evaltools.full_evaluation:markdown.<locals>.fraction",
+    "evaluation.evaltools.full_evaluation:match_cases",
+    "evaluation.evaltools.full_evaluation:plan",
+    "evaluation.evaltools.full_evaluation:ratio",
+    "evaluation.evaltools.full_evaluation:readiness"
+   ],
+   "exercise_count": 75,
+   "modules_exercised": [
+    "capstone.contracts.investigations",
+    "capstone.evaluation.labels",
+    "capstone.evaluation.scoring",
+    "capstone.experiment",
+    "evaluation.evaltools.build_inventory",
+    "evaluation.evaltools.decision_models",
+    "evaluation.evaltools.full_evaluation",
+    "evaluation.evaltools.run_packet",
+    "evaluation.evaltools.snap_request"
    ],
    "judgment": "NOT ASSESSED",
    "curated": {},
@@ -43878,7 +44875,7 @@
    "id": "tests/test_full_evaluation.py::test_a_plan_over_budget_is_refused_before_sending",
    "file": "tests/test_full_evaluation.py",
    "name": "test_a_plan_over_budget_is_refused_before_sending",
-   "line": 220,
+   "line": 566,
    "docstring": "Nothing is written as answers, and no key is needed to be refused.",
    "parametrized": false,
    "fixtures": [
@@ -43911,14 +44908,47 @@
     "capstone.evaluation.scoring:_named",
     "capstone.evaluation.scoring:judge",
     "capstone.evaluation.scoring:judge_causes",
-    "capstone.experiment:read_records"
+    "capstone.experiment:read_records",
+    "evaluation.evaltools.build_inventory:call_name",
+    "evaluation.evaltools.build_inventory:collect_functions",
+    "evaluation.evaltools.build_inventory:collect_functions.<locals>.visit",
+    "evaluation.evaltools.build_inventory:count_statements",
+    "evaluation.evaltools.build_inventory:exception_names",
+    "evaluation.evaltools.build_inventory:function_kind",
+    "evaluation.evaltools.build_inventory:is_stub",
+    "evaluation.evaltools.build_inventory:leading_comment",
+    "evaluation.evaltools.build_inventory:module_name",
+    "evaluation.evaltools.build_inventory:mutated_parameters",
+    "evaluation.evaltools.build_inventory:rel",
+    "evaluation.evaltools.decision_models:estimate_tokens",
+    "evaluation.evaltools.decision_models:fit_state",
+    "evaluation.evaltools.full_evaluation:budget",
+    "evaluation.evaltools.full_evaluation:budgeted_send",
+    "evaluation.evaltools.full_evaluation:case_identity",
+    "evaluation.evaltools.full_evaluation:case_number",
+    "evaluation.evaltools.full_evaluation:case_outcome",
+    "evaluation.evaltools.full_evaluation:comparisons",
+    "evaluation.evaltools.full_evaluation:git",
+    "evaluation.evaltools.full_evaluation:has_functions",
+    "evaluation.evaltools.full_evaluation:ledger_rows",
+    "evaluation.evaltools.full_evaluation:main",
+    "evaluation.evaltools.full_evaluation:markdown",
+    "evaluation.evaltools.full_evaluation:markdown.<locals>.fraction",
+    "evaluation.evaltools.full_evaluation:match_cases",
+    "evaluation.evaltools.full_evaluation:plan",
+    "evaluation.evaltools.full_evaluation:ratio"
    ],
-   "exercise_count": 12,
+   "exercise_count": 76,
    "modules_exercised": [
     "capstone.contracts.investigations",
     "capstone.evaluation.labels",
     "capstone.evaluation.scoring",
-    "capstone.experiment"
+    "capstone.experiment",
+    "evaluation.evaltools.build_inventory",
+    "evaluation.evaltools.decision_models",
+    "evaluation.evaltools.full_evaluation",
+    "evaluation.evaltools.run_packet",
+    "evaluation.evaltools.snap_request"
    ],
    "judgment": "NOT ASSESSED",
    "curated": {},
@@ -43932,7 +44962,7 @@
    "id": "tests/test_full_evaluation.py::test_the_budget_counts_the_whole_request_with_a_margin",
    "file": "tests/test_full_evaluation.py",
    "name": "test_the_budget_counts_the_whole_request_with_a_margin",
-   "line": 245,
+   "line": 602,
    "docstring": "The questions are paid for too; the 2026-11-02 Jev pilot billed 1.2-1.4x\nthe four-characters-per-token estimate of the whole body.",
    "parametrized": false,
    "fixtures": [],
@@ -43942,14 +44972,19 @@
    },
    "raises_checks": 0,
    "uses": [],
-   "quality_flags": [
-    "exercises_no_project_function"
-   ],
+   "quality_flags": [],
    "claims": "The questions are paid for too; the 2026-11-02 Jev pilot billed 1.2-1.4x",
    "execution_outcome": "passed",
-   "exercises": [],
-   "exercise_count": 0,
-   "modules_exercised": [],
+   "exercises": [
+    "evaluation.evaltools.decision_models:estimate_tokens",
+    "evaluation.evaltools.full_evaluation:budget",
+    "evaluation.evaltools.full_evaluation:request_tokens_estimate"
+   ],
+   "exercise_count": 3,
+   "modules_exercised": [
+    "evaluation.evaltools.decision_models",
+    "evaluation.evaltools.full_evaluation"
+   ],
    "judgment": "NOT ASSESSED",
    "curated": {},
    "snap_questions": [
@@ -43962,7 +44997,7 @@
    "id": "tests/test_full_evaluation.py::test_sending_needs_both_limits",
    "file": "tests/test_full_evaluation.py",
    "name": "test_sending_needs_both_limits",
-   "line": 273,
+   "line": 630,
    "docstring": "",
    "parametrized": false,
    "fixtures": [
@@ -43972,14 +45007,16 @@
    "assert_forms": {},
    "raises_checks": 1,
    "uses": [],
-   "quality_flags": [
-    "exercises_no_project_function"
-   ],
+   "quality_flags": [],
    "claims": "sending needs both limits",
    "execution_outcome": "passed",
-   "exercises": [],
-   "exercise_count": 0,
-   "modules_exercised": [],
+   "exercises": [
+    "evaluation.evaltools.full_evaluation:main"
+   ],
+   "exercise_count": 1,
+   "modules_exercised": [
+    "evaluation.evaltools.full_evaluation"
+   ],
    "judgment": "NOT ASSESSED",
    "curated": {},
    "snap_questions": [
@@ -43992,7 +45029,7 @@
    "id": "tests/test_full_evaluation.py::test_a_dry_run_writes_the_ledger_and_report",
    "file": "tests/test_full_evaluation.py",
    "name": "test_a_dry_run_writes_the_ledger_and_report",
-   "line": 278,
+   "line": 635,
    "docstring": "",
    "parametrized": false,
    "fixtures": [
@@ -44026,14 +45063,47 @@
     "capstone.evaluation.scoring:_named",
     "capstone.evaluation.scoring:judge",
     "capstone.evaluation.scoring:judge_causes",
-    "capstone.experiment:read_records"
+    "capstone.experiment:read_records",
+    "evaluation.evaltools.build_inventory:call_name",
+    "evaluation.evaltools.build_inventory:collect_functions",
+    "evaluation.evaltools.build_inventory:collect_functions.<locals>.visit",
+    "evaluation.evaltools.build_inventory:count_statements",
+    "evaluation.evaltools.build_inventory:exception_names",
+    "evaluation.evaltools.build_inventory:function_kind",
+    "evaluation.evaltools.build_inventory:is_stub",
+    "evaluation.evaltools.build_inventory:leading_comment",
+    "evaluation.evaltools.build_inventory:module_name",
+    "evaluation.evaltools.build_inventory:mutated_parameters",
+    "evaluation.evaltools.build_inventory:rel",
+    "evaluation.evaltools.decision_models:estimate_tokens",
+    "evaluation.evaltools.decision_models:fit_state",
+    "evaluation.evaltools.full_evaluation:budget",
+    "evaluation.evaltools.full_evaluation:case_identity",
+    "evaluation.evaltools.full_evaluation:case_number",
+    "evaluation.evaltools.full_evaluation:case_outcome",
+    "evaluation.evaltools.full_evaluation:comparisons",
+    "evaluation.evaltools.full_evaluation:git",
+    "evaluation.evaltools.full_evaluation:has_functions",
+    "evaluation.evaltools.full_evaluation:ledger_rows",
+    "evaluation.evaltools.full_evaluation:main",
+    "evaluation.evaltools.full_evaluation:markdown",
+    "evaluation.evaltools.full_evaluation:markdown.<locals>.fraction",
+    "evaluation.evaltools.full_evaluation:match_cases",
+    "evaluation.evaltools.full_evaluation:plan",
+    "evaluation.evaltools.full_evaluation:ratio",
+    "evaluation.evaltools.full_evaluation:readiness"
    ],
-   "exercise_count": 12,
+   "exercise_count": 78,
    "modules_exercised": [
     "capstone.contracts.investigations",
     "capstone.evaluation.labels",
     "capstone.evaluation.scoring",
-    "capstone.experiment"
+    "capstone.experiment",
+    "evaluation.evaltools.build_inventory",
+    "evaluation.evaltools.decision_models",
+    "evaluation.evaltools.full_evaluation",
+    "evaluation.evaltools.run_packet",
+    "evaluation.evaltools.snap_request"
    ],
    "judgment": "NOT ASSESSED",
    "curated": {},
@@ -44047,7 +45117,7 @@
    "id": "tests/test_full_evaluation.py::test_a_pinned_commit_that_is_not_checked_out_is_refused",
    "file": "tests/test_full_evaluation.py",
    "name": "test_a_pinned_commit_that_is_not_checked_out_is_refused",
-   "line": 312,
+   "line": 669,
    "docstring": "",
    "parametrized": false,
    "fixtures": [],
@@ -44056,14 +45126,18 @@
    "raises_checks": 1,
    "uses": [],
    "quality_flags": [
-    "may_skip",
-    "exercises_no_project_function"
+    "may_skip"
    ],
    "claims": "a pinned commit that is not checked out is refused",
    "execution_outcome": "passed",
-   "exercises": [],
-   "exercise_count": 0,
-   "modules_exercised": [],
+   "exercises": [
+    "evaluation.evaltools.full_evaluation:git",
+    "evaluation.evaltools.full_evaluation:provenance"
+   ],
+   "exercise_count": 2,
+   "modules_exercised": [
+    "evaluation.evaltools.full_evaluation"
+   ],
    "judgment": "NOT ASSESSED",
    "curated": {},
    "snap_questions": [
@@ -44076,7 +45150,7 @@
    "id": "tests/test_full_evaluation.py::test_provenance_needs_an_explicit_clean_commit",
    "file": "tests/test_full_evaluation.py",
    "name": "test_provenance_needs_an_explicit_clean_commit",
-   "line": 319,
+   "line": 676,
    "docstring": "",
    "parametrized": false,
    "fixtures": [
@@ -44089,14 +45163,17 @@
     "monkeypatch"
    ],
    "quality_flags": [
-    "patches_dependencies",
-    "exercises_no_project_function"
+    "patches_dependencies"
    ],
    "claims": "provenance needs an explicit clean commit",
    "execution_outcome": "passed",
-   "exercises": [],
-   "exercise_count": 0,
-   "modules_exercised": [],
+   "exercises": [
+    "evaluation.evaltools.full_evaluation:provenance"
+   ],
+   "exercise_count": 1,
+   "modules_exercised": [
+    "evaluation.evaltools.full_evaluation"
+   ],
    "judgment": "NOT ASSESSED",
    "curated": {},
    "snap_questions": [
@@ -44109,7 +45186,7 @@
    "id": "tests/test_full_evaluation.py::test_the_scope_manifest_classes_every_file",
    "file": "tests/test_full_evaluation.py",
    "name": "test_the_scope_manifest_classes_every_file",
-   "line": 332,
+   "line": 689,
    "docstring": "",
    "parametrized": false,
    "fixtures": [
@@ -44124,14 +45201,17 @@
     "monkeypatch"
    ],
    "quality_flags": [
-    "patches_dependencies",
-    "exercises_no_project_function"
+    "patches_dependencies"
    ],
    "claims": "the scope manifest classes every file",
    "execution_outcome": "passed",
-   "exercises": [],
-   "exercise_count": 0,
-   "modules_exercised": [],
+   "exercises": [
+    "evaluation.evaltools.full_evaluation:scope_manifest"
+   ],
+   "exercise_count": 1,
+   "modules_exercised": [
+    "evaluation.evaltools.full_evaluation"
+   ],
    "judgment": "NOT ASSESSED",
    "curated": {},
    "snap_questions": [
@@ -44144,7 +45224,7 @@
    "id": "tests/test_full_evaluation.py::test_the_repository_has_no_unexplained_python_file",
    "file": "tests/test_full_evaluation.py",
    "name": "test_the_repository_has_no_unexplained_python_file",
-   "line": 365,
+   "line": 722,
    "docstring": "Every tracked Python file is inventoried, a test, excluded with a reason,\nor holds no function; a new module the inventory misses fails here.",
    "parametrized": false,
    "fixtures": [],
@@ -44154,14 +45234,31 @@
    },
    "raises_checks": 0,
    "uses": [],
-   "quality_flags": [
-    "exercises_no_project_function"
-   ],
+   "quality_flags": [],
    "claims": "Every tracked Python file is inventoried, a test, excluded with a reason,",
    "execution_outcome": "passed",
-   "exercises": [],
-   "exercise_count": 0,
-   "modules_exercised": [],
+   "exercises": [
+    "evaluation.evaltools.build_inventory:call_name",
+    "evaluation.evaltools.build_inventory:collect_functions",
+    "evaluation.evaltools.build_inventory:collect_functions.<locals>.visit",
+    "evaluation.evaltools.build_inventory:count_statements",
+    "evaluation.evaltools.build_inventory:exception_names",
+    "evaluation.evaltools.build_inventory:function_kind",
+    "evaluation.evaltools.build_inventory:is_stub",
+    "evaluation.evaltools.build_inventory:leading_comment",
+    "evaluation.evaltools.build_inventory:module_name",
+    "evaluation.evaltools.build_inventory:mutated_parameters",
+    "evaluation.evaltools.build_inventory:rel",
+    "evaluation.evaltools.full_evaluation:git",
+    "evaluation.evaltools.full_evaluation:has_functions",
+    "evaluation.evaltools.full_evaluation:scope_manifest",
+    "evaluation.evaltools.full_evaluation:tracked_python_files"
+   ],
+   "exercise_count": 15,
+   "modules_exercised": [
+    "evaluation.evaltools.build_inventory",
+    "evaluation.evaltools.full_evaluation"
+   ],
    "judgment": "NOT ASSESSED",
    "curated": {},
    "snap_questions": [
@@ -44174,7 +45271,7 @@
    "id": "tests/test_full_evaluation.py::test_a_new_evaluator_function_requires_inventory_regeneration",
    "file": "tests/test_full_evaluation.py",
    "name": "test_a_new_evaluator_function_requires_inventory_regeneration",
-   "line": 385,
+   "line": 742,
    "docstring": "",
    "parametrized": false,
    "fixtures": [
@@ -44189,14 +45286,436 @@
     "monkeypatch"
    ],
    "quality_flags": [
-    "patches_dependencies",
-    "exercises_no_project_function"
+    "patches_dependencies"
    ],
    "claims": "a new evaluator function requires inventory regeneration",
    "execution_outcome": "passed",
-   "exercises": [],
-   "exercise_count": 0,
-   "modules_exercised": [],
+   "exercises": [
+    "evaluation.evaltools.full_evaluation:scope_manifest"
+   ],
+   "exercise_count": 1,
+   "modules_exercised": [
+    "evaluation.evaltools.full_evaluation"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_full_evaluation.py::test_archived_cases_pair_by_scenario_and_seed",
+   "file": "tests/test_full_evaluation.py",
+   "name": "test_archived_cases_pair_by_scenario_and_seed",
+   "line": 771,
+   "docstring": "Every archived packet carries its seed, and the two arms pair on it.",
+   "parametrized": false,
+   "fixtures": [
+    "planned"
+   ],
+   "assertions": 4,
+   "assert_forms": {
+    "call_truthiness": 1,
+    "equality": 3
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "Every archived packet carries its seed, and the two arms pair on it.",
+   "execution_outcome": "passed",
+   "exercises": [
+    "evaluation.evaltools.full_evaluation:case_identity",
+    "evaluation.evaltools.full_evaluation:case_number",
+    "evaluation.evaltools.full_evaluation:match_cases",
+    "evaluation.evaltools.full_evaluation:sample_rule"
+   ],
+   "exercise_count": 4,
+   "modules_exercised": [
+    "evaluation.evaltools.full_evaluation"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_full_evaluation.py::test_reordered_cases_still_pair_and_the_reordering_is_flagged",
+   "file": "tests/test_full_evaluation.py",
+   "name": "test_reordered_cases_still_pair_and_the_reordering_is_flagged",
+   "line": 782,
+   "docstring": "Rotating B's case numbers changes no pairing, but is reported.",
+   "parametrized": false,
+   "fixtures": [
+    "planned"
+   ],
+   "assertions": 3,
+   "assert_forms": {
+    "equality": 3
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "Rotating B's case numbers changes no pairing, but is reported.",
+   "execution_outcome": "passed",
+   "exercises": [
+    "evaluation.evaltools.full_evaluation:case_identity",
+    "evaluation.evaltools.full_evaluation:case_number",
+    "evaluation.evaltools.full_evaluation:match_cases",
+    "evaluation.evaltools.full_evaluation:sample_rule"
+   ],
+   "exercise_count": 4,
+   "modules_exercised": [
+    "evaluation.evaltools.full_evaluation"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_full_evaluation.py::test_a_differently_seeded_case_is_not_paired",
+   "file": "tests/test_full_evaluation.py",
+   "name": "test_a_differently_seeded_case_is_not_paired",
+   "line": 803,
+   "docstring": "Same slot and scenario but another seed is a different case.",
+   "parametrized": false,
+   "fixtures": [
+    "planned"
+   ],
+   "assertions": 4,
+   "assert_forms": {
+    "equality": 4
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "Same slot and scenario but another seed is a different case.",
+   "execution_outcome": "passed",
+   "exercises": [
+    "evaluation.evaltools.full_evaluation:case_identity",
+    "evaluation.evaltools.full_evaluation:case_number",
+    "evaluation.evaltools.full_evaluation:match_cases",
+    "evaluation.evaltools.full_evaluation:sample_rule"
+   ],
+   "exercise_count": 4,
+   "modules_exercised": [
+    "evaluation.evaltools.full_evaluation"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_full_evaluation.py::test_a_case_without_a_seed_or_with_a_repeated_one_is_ambiguous",
+   "file": "tests/test_full_evaluation.py",
+   "name": "test_a_case_without_a_seed_or_with_a_repeated_one_is_ambiguous",
+   "line": 816,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [
+    "planned"
+   ],
+   "assertions": 3,
+   "assert_forms": {
+    "equality": 3
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "a case without a seed or with a repeated one is ambiguous",
+   "execution_outcome": "passed",
+   "exercises": [
+    "evaluation.evaltools.full_evaluation:case_identity",
+    "evaluation.evaltools.full_evaluation:case_number",
+    "evaluation.evaltools.full_evaluation:match_cases",
+    "evaluation.evaltools.full_evaluation:sample_rule"
+   ],
+   "exercise_count": 4,
+   "modules_exercised": [
+    "evaluation.evaltools.full_evaluation"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_full_evaluation.py::test_a_large_plan_finishes_through_small_resumed_slices",
+   "file": "tests/test_full_evaluation.py",
+   "name": "test_a_large_plan_finishes_through_small_resumed_slices",
+   "line": 871,
+   "docstring": "T24: many small slices finish the plan; no request is posted twice.",
+   "parametrized": false,
+   "fixtures": [
+    "snap_plan",
+    "tmp_path",
+    "monkeypatch"
+   ],
+   "assertions": 10,
+   "assert_forms": {
+    "equality": 7,
+    "ordering": 3
+   },
+   "raises_checks": 0,
+   "uses": [
+    "monkeypatch"
+   ],
+   "quality_flags": [
+    "patches_dependencies"
+   ],
+   "claims": "T24: many small slices finish the plan; no request is posted twice.",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.contracts.investigations:run_id_for",
+    "capstone.evaluation.labels:apply_label",
+    "capstone.evaluation.scoring:Cause.named_by",
+    "capstone.evaluation.scoring:Score.fully_right",
+    "capstone.evaluation.scoring:Score.miss_kind",
+    "capstone.evaluation.scoring:Score.model_unavailable",
+    "capstone.evaluation.scoring:Score.unnecessary_actions",
+    "capstone.evaluation.scoring:_closest",
+    "capstone.evaluation.scoring:_named",
+    "capstone.evaluation.scoring:judge",
+    "capstone.evaluation.scoring:judge_causes",
+    "capstone.experiment:read_records",
+    "capstone.providers.chat:post_json",
+    "evaluation.evaltools.decision_models:_number",
+    "evaluation.evaltools.decision_models:estimate_tokens",
+    "evaluation.evaltools.decision_models:fit_state",
+    "evaluation.evaltools.decision_models:normalize",
+    "evaluation.evaltools.full_evaluation:budgeted_send",
+    "evaluation.evaltools.full_evaluation:case_identity",
+    "evaluation.evaltools.full_evaluation:case_number",
+    "evaluation.evaltools.full_evaluation:case_outcome",
+    "evaluation.evaltools.full_evaluation:comparisons",
+    "evaluation.evaltools.full_evaluation:ledger_rows",
+    "evaluation.evaltools.full_evaluation:match_cases",
+    "evaluation.evaltools.full_evaluation:measured_snap_charge",
+    "evaluation.evaltools.full_evaluation:plan",
+    "evaluation.evaltools.full_evaluation:run_name",
+    "evaluation.evaltools.full_evaluation:run_settings",
+    "evaluation.evaltools.full_evaluation:sample_rule",
+    "evaluation.evaltools.full_evaluation:settle",
+    "evaluation.evaltools.run_packet:_sibling",
+    "evaluation.evaltools.run_packet:audit_by_run",
+    "evaluation.evaltools.run_packet:batch_summary",
+    "evaluation.evaltools.run_packet:build_all",
+    "evaluation.evaltools.run_packet:build_archive",
+    "evaluation.evaltools.run_packet:build_packet",
+    "evaluation.evaltools.run_packet:calibration",
+    "evaluation.evaltools.run_packet:check_no_truth_in_view",
+    "evaluation.evaltools.run_packet:check_unique",
+    "evaluation.evaltools.run_packet:configuration_of"
+   ],
+   "exercise_count": 72,
+   "modules_exercised": [
+    "capstone.contracts.investigations",
+    "capstone.evaluation.labels",
+    "capstone.evaluation.scoring",
+    "capstone.experiment",
+    "capstone.providers.chat",
+    "evaluation.evaltools.decision_models",
+    "evaluation.evaltools.full_evaluation",
+    "evaluation.evaltools.run_packet",
+    "evaluation.evaltools.snap_request"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_full_evaluation.py::test_cap_exhaustion_stops_safely_and_keeps_pending_rows",
+   "file": "tests/test_full_evaluation.py",
+   "name": "test_cap_exhaustion_stops_safely_and_keeps_pending_rows",
+   "line": 916,
+   "docstring": "The dollar cap is never passed, across resumes, and unsent rows stay planned.",
+   "parametrized": false,
+   "fixtures": [
+    "snap_plan",
+    "tmp_path",
+    "monkeypatch"
+   ],
+   "assertions": 6,
+   "assert_forms": {
+    "equality": 2,
+    "ordering": 4
+   },
+   "raises_checks": 0,
+   "uses": [
+    "monkeypatch"
+   ],
+   "quality_flags": [
+    "patches_dependencies"
+   ],
+   "claims": "The dollar cap is never passed, across resumes, and unsent rows stay planned.",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.providers.chat:post_json",
+    "evaluation.evaltools.decision_models:_number",
+    "evaluation.evaltools.decision_models:normalize",
+    "evaluation.evaltools.full_evaluation:budgeted_send",
+    "evaluation.evaltools.full_evaluation:measured_snap_charge",
+    "evaluation.evaltools.full_evaluation:settle",
+    "evaluation.evaltools.snap_request:already_answered",
+    "evaluation.evaltools.snap_request:file_stem",
+    "evaluation.evaltools.snap_request:normalized_answers",
+    "evaluation.evaltools.snap_request:send",
+    "evaluation.evaltools.snap_request:write_json",
+    "evaluation.evaltools.snap_request:write_requests"
+   ],
+   "exercise_count": 12,
+   "modules_exercised": [
+    "capstone.providers.chat",
+    "evaluation.evaltools.decision_models",
+    "evaluation.evaltools.full_evaluation",
+    "evaluation.evaltools.snap_request"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_full_evaluation.py::test_env_file_loads_only_the_provider_keys",
+   "file": "tests/test_full_evaluation.py",
+   "name": "test_env_file_loads_only_the_provider_keys",
+   "line": 951,
+   "docstring": "The key file sets the selected provider's key and nothing else.",
+   "parametrized": false,
+   "fixtures": [
+    "tmp_path",
+    "monkeypatch"
+   ],
+   "assertions": 5,
+   "assert_forms": {
+    "equality": 4,
+    "membership": 1
+   },
+   "raises_checks": 0,
+   "uses": [
+    "monkeypatch"
+   ],
+   "quality_flags": [
+    "patches_dependencies"
+   ],
+   "claims": "The key file sets the selected provider's key and nothing else.",
+   "execution_outcome": "passed",
+   "exercises": [
+    "evaluation.evaltools.full_evaluation:load_provider_keys"
+   ],
+   "exercise_count": 1,
+   "modules_exercised": [
+    "evaluation.evaltools.full_evaluation"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_full_evaluation.py::test_a_dry_run_reports_whether_snap_could_be_sent",
+   "file": "tests/test_full_evaluation.py",
+   "name": "test_a_dry_run_reports_whether_snap_could_be_sent",
+   "line": 968,
+   "docstring": "The report says the key is set and Snap's contract is verified; no value leaks.",
+   "parametrized": false,
+   "fixtures": [
+    "tmp_path",
+    "monkeypatch"
+   ],
+   "assertions": 3,
+   "assert_forms": {
+    "equality": 2,
+    "membership": 1
+   },
+   "raises_checks": 0,
+   "uses": [
+    "monkeypatch"
+   ],
+   "quality_flags": [
+    "patches_dependencies"
+   ],
+   "claims": "The report says the key is set and Snap's contract is verified; no value leaks.",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.contracts.investigations:run_id_for",
+    "capstone.evaluation.labels:apply_label",
+    "capstone.evaluation.scoring:Cause.named_by",
+    "capstone.evaluation.scoring:Score.fully_right",
+    "capstone.evaluation.scoring:Score.miss_kind",
+    "capstone.evaluation.scoring:Score.model_unavailable",
+    "capstone.evaluation.scoring:Score.unnecessary_actions",
+    "capstone.evaluation.scoring:_closest",
+    "capstone.evaluation.scoring:_named",
+    "capstone.evaluation.scoring:judge",
+    "capstone.evaluation.scoring:judge_causes",
+    "capstone.experiment:read_records",
+    "evaluation.evaltools.build_inventory:call_name",
+    "evaluation.evaltools.build_inventory:collect_functions",
+    "evaluation.evaltools.build_inventory:collect_functions.<locals>.visit",
+    "evaluation.evaltools.build_inventory:count_statements",
+    "evaluation.evaltools.build_inventory:exception_names",
+    "evaluation.evaltools.build_inventory:function_kind",
+    "evaluation.evaltools.build_inventory:is_stub",
+    "evaluation.evaltools.build_inventory:leading_comment",
+    "evaluation.evaltools.build_inventory:module_name",
+    "evaluation.evaltools.build_inventory:mutated_parameters",
+    "evaluation.evaltools.build_inventory:rel",
+    "evaluation.evaltools.decision_models:estimate_tokens",
+    "evaluation.evaltools.decision_models:fit_state",
+    "evaluation.evaltools.full_evaluation:budget",
+    "evaluation.evaltools.full_evaluation:case_identity",
+    "evaluation.evaltools.full_evaluation:case_number",
+    "evaluation.evaltools.full_evaluation:case_outcome",
+    "evaluation.evaltools.full_evaluation:comparisons",
+    "evaluation.evaltools.full_evaluation:git",
+    "evaluation.evaltools.full_evaluation:has_functions",
+    "evaluation.evaltools.full_evaluation:ledger_rows",
+    "evaluation.evaltools.full_evaluation:load_provider_keys",
+    "evaluation.evaltools.full_evaluation:main",
+    "evaluation.evaltools.full_evaluation:markdown",
+    "evaluation.evaltools.full_evaluation:markdown.<locals>.fraction",
+    "evaluation.evaltools.full_evaluation:match_cases",
+    "evaluation.evaltools.full_evaluation:plan",
+    "evaluation.evaltools.full_evaluation:ratio"
+   ],
+   "exercise_count": 79,
+   "modules_exercised": [
+    "capstone.contracts.investigations",
+    "capstone.evaluation.labels",
+    "capstone.evaluation.scoring",
+    "capstone.experiment",
+    "evaluation.evaltools.build_inventory",
+    "evaluation.evaltools.decision_models",
+    "evaluation.evaltools.full_evaluation",
+    "evaluation.evaltools.run_packet",
+    "evaluation.evaltools.snap_request"
+   ],
    "judgment": "NOT ASSESSED",
    "curated": {},
    "snap_questions": [

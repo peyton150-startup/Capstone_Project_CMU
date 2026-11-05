@@ -5,6 +5,8 @@ goes through a fake transport.
 """
 
 import json
+import os
+from collections import Counter
 from types import SimpleNamespace
 
 import pytest
@@ -217,10 +219,365 @@ def test_small_batches_resume_without_resending_completed_requests(
         full_evaluation.pending_batch(bt, tmp_path, 0)
 
 
+def test_budgeted_send_reserves_before_post_and_resumes_from_measured_usage(
+    tmp_path, monkeypatch
+):
+    """A small slice cannot overspend or repay a completed request on resume."""
+    _, questions = snap_request.load_questions()
+    items = [
+        snap_request.build_request(
+            {"case": n},
+            questions[:1],
+            model=PROVIDERS["snap"].model,
+            item_id=f"case-{n}",
+            meta={"family": "FN"},
+            provider="snap",
+        )[0]
+        for n in (1, 2)
+    ]
+    monkeypatch.setenv(PROVIDERS["snap"].key_env, "test-key")
+    reply = {
+        "model": PROVIDERS["snap"].model,
+        "usage": {"input_tokens": 100, "output_tokens": 0},
+        "answers": {questions[0].name: {"type": "score", "score": 3.0}},
+    }
+    sent = []
+
+    def transport(url, headers, data, timeout):
+        sent.append(data)
+        return json.dumps(reply).encode()
+
+    first = full_evaluation.budgeted_send(
+        items,
+        tmp_path,
+        max_new_requests=1,
+        max_usd=0.02,
+        max_seconds=30,
+        transport=transport,
+    )
+    assert first["sent"] == 1
+    assert len(sent) == 1
+    assert first["spent_usd"] < 0.02
+    second = full_evaluation.budgeted_send(
+        items,
+        tmp_path,
+        max_new_requests=1,
+        max_usd=0.02,
+        max_seconds=30,
+        transport=transport,
+    )
+    assert second["sent"] == 1
+    assert len(sent) == 2
+    assert second["spent_usd"] < 0.02
+
+
+def test_budgeted_send_keeps_uncertain_charge_reserved_and_stops(tmp_path, monkeypatch):
+    """Missing usage leaves a charge reserved and prevents another paid post."""
+    _, questions = snap_request.load_questions()
+    items = [
+        snap_request.build_request(
+            {"case": n},
+            questions[:1],
+            model=PROVIDERS["snap"].model,
+            item_id=f"case-{n}",
+            meta={"family": "FN"},
+            provider="snap",
+        )[0]
+        for n in (1, 2)
+    ]
+    monkeypatch.setenv(PROVIDERS["snap"].key_env, "test-key")
+    reply = {"answers": {questions[0].name: {"type": "score", "score": 3.0}}}
+    sent = []
+
+    def transport(url, headers, data, timeout):
+        sent.append(data)
+        return json.dumps(reply).encode()
+
+    result = full_evaluation.budgeted_send(
+        items,
+        tmp_path,
+        max_new_requests=2,
+        max_usd=0.02,
+        max_seconds=30,
+        transport=transport,
+    )
+    assert len(sent) == 1
+    assert result["stop_reason"] == "usage_unknown"
+    resumed = full_evaluation.budgeted_send(
+        items,
+        tmp_path,
+        max_new_requests=2,
+        max_usd=0.02,
+        max_seconds=30,
+        transport=transport,
+    )
+    assert len(sent) == 1
+    assert resumed["stop_reason"] == "usage_unknown"
+
+
+def test_budgeted_send_refuses_a_charge_larger_than_the_remaining_cap(
+    tmp_path, monkeypatch
+):
+    """The whole possible input charge is reserved before any paid post."""
+    _, questions = snap_request.load_questions()
+    item = snap_request.build_request(
+        {"case": 1},
+        questions[:1],
+        model=PROVIDERS["snap"].model,
+        item_id="case-1",
+        meta={"family": "FN"},
+        provider="snap",
+    )[0]
+    monkeypatch.setenv(PROVIDERS["snap"].key_env, "test-key")
+    sent = []
+
+    def transport(url, headers, data, timeout):
+        sent.append(data)
+        return b"{}"
+
+    result = full_evaluation.budgeted_send(
+        [item],
+        tmp_path,
+        max_new_requests=1,
+        max_usd=0.001,
+        max_seconds=30,
+        transport=transport,
+    )
+    assert result["stop_reason"] == "usd_limit"
+    assert sent == []
+    assert not list(tmp_path.glob("*.reservation.json"))
+
+
+def test_budgeted_send_reserves_the_documented_binary_context_window(
+    tmp_path, monkeypatch
+):
+    """Snap's 384K window is 393,216 tokens, not a decimal 384,000."""
+    _, questions = snap_request.load_questions()
+    item = snap_request.build_request(
+        {"case": 1},
+        questions[:1],
+        model=PROVIDERS["snap"].model,
+        item_id="case-1",
+        meta={"family": "FN"},
+        provider="snap",
+    )[0]
+    monkeypatch.setenv(PROVIDERS["snap"].key_env, "test-key")
+    sent = []
+
+    def transport(url, headers, data, timeout):
+        sent.append(data)
+        return b"{}"
+
+    between = 384_000 * 0.04 / 1_000_000 + 0.0001
+    result = full_evaluation.budgeted_send(
+        [item],
+        tmp_path,
+        max_new_requests=1,
+        max_usd=between,
+        max_seconds=30,
+        transport=transport,
+    )
+    assert result["stop_reason"] == "usd_limit"
+    assert sent == []
+
+
+def test_budgeted_send_rejects_nonfinite_limits(tmp_path):
+    """NaN or infinity cannot turn the dollar or time guard off."""
+    with pytest.raises(ValueError, match="finite"):
+        full_evaluation.budgeted_send(
+            [],
+            tmp_path,
+            max_new_requests=1,
+            max_usd=float("nan"),
+            max_seconds=30,
+        )
+    with pytest.raises(ValueError, match="finite"):
+        full_evaluation.budgeted_send(
+            [],
+            tmp_path,
+            max_new_requests=1,
+            max_usd=1,
+            max_seconds=float("inf"),
+        )
+
+
+def test_unverified_provider_is_refused_before_a_mixed_batch_posts(
+    tmp_path, monkeypatch
+):
+    """A both-provider plan makes no paid call if either price is unknown."""
+    _, questions = snap_request.load_questions()
+    items = [
+        snap_request.build_request(
+            {"case": 1},
+            questions[:1],
+            model=PROVIDERS[name].model,
+            item_id=name,
+            meta={"family": "FN"},
+            provider=name,
+        )[0]
+        for name in ("snap", "jev")
+    ]
+    monkeypatch.setenv(PROVIDERS["snap"].key_env, "test-key")
+    sent = []
+
+    def transport(url, headers, data, timeout):
+        sent.append(data)
+        return b"{}"
+
+    result = full_evaluation.budgeted_send(
+        items,
+        tmp_path,
+        max_new_requests=2,
+        max_usd=1,
+        max_seconds=30,
+        transport=transport,
+    )
+    assert result["stop_reason"] == "provider_context_unverified"
+    assert sent == []
+
+
+def test_a_saved_reply_finishes_an_interrupted_reservation(tmp_path, monkeypatch):
+    """A crash after saving the reply can resume without another paid post."""
+    _, questions = snap_request.load_questions()
+    items = [
+        snap_request.build_request(
+            {"case": n},
+            questions[:1],
+            model=PROVIDERS["snap"].model,
+            item_id=f"case-{n}",
+            meta={"family": "FN"},
+            provider="snap",
+        )[0]
+        for n in (1, 2)
+    ]
+    monkeypatch.setenv(PROVIDERS["snap"].key_env, "test-key")
+    reply = {
+        "usage": {"input_tokens": 100, "output_tokens": 0},
+        "answers": {questions[0].name: {"type": "score", "score": 3.0}},
+    }
+    sent = []
+
+    def transport(url, headers, data, timeout):
+        sent.append(data)
+        return json.dumps(reply).encode()
+
+    snap_request.write_requests(
+        items[:1], tmp_path, send_them=True, transport=transport, retries=0
+    )
+    stem = snap_request.file_stem(items[0]["tags"])
+    snap_request.write_json(
+        tmp_path / f"{stem}.reservation.json",
+        {
+            "request_fingerprint": items[0]["tags"]["request_fingerprint"],
+            "provider": "snap",
+            "charge_usd": 0.01572864,
+            "status": "reserved",
+        },
+    )
+    result = full_evaluation.budgeted_send(
+        items,
+        tmp_path,
+        max_new_requests=1,
+        max_usd=0.02,
+        max_seconds=30,
+        transport=transport,
+    )
+    assert result["sent"] == 1
+    assert len(sent) == 2
+
+
+def test_malformed_usage_stops_with_a_visible_reason(tmp_path, monkeypatch):
+    """A malformed provider usage field is an unknown charge, not a crash."""
+    _, questions = snap_request.load_questions()
+    item = snap_request.build_request(
+        {"case": 1},
+        questions[:1],
+        model=PROVIDERS["snap"].model,
+        item_id="case-1",
+        meta={"family": "FN"},
+        provider="snap",
+    )[0]
+    monkeypatch.setenv(PROVIDERS["snap"].key_env, "test-key")
+    reply = {
+        "usage": "bad usage",
+        "answers": {questions[0].name: {"type": "score", "score": 3.0}},
+    }
+
+    def transport(url, headers, data, timeout):
+        return json.dumps(reply).encode()
+
+    result = full_evaluation.budgeted_send(
+        [item],
+        tmp_path,
+        max_new_requests=1,
+        max_usd=0.02,
+        max_seconds=30,
+        transport=transport,
+    )
+    assert result["stop_reason"] == "usage_unknown"
+    assert result["spent_usd"] > 0
+
+
+def test_full_command_uses_budgeted_sender(tmp_path, monkeypatch):
+    """The full command applies its limits to new sends, not the whole plan."""
+    monkeypatch.setattr(
+        full_evaluation,
+        "provenance",
+        lambda *args: {
+            "commit_pinned": "test",
+            "commit_checked_out": "test",
+            "tracked_changes_uncommitted": False,
+            "rubric_version": "test",
+            "packet_schema_version": "test",
+            "normalize_version": "test",
+        },
+    )
+    called = []
+
+    def bounded(items, folder, **limits):
+        called.append(limits)
+        return {"sent": 0, "spent_usd": 0, "stop_reason": "request_limit"}
+
+    monkeypatch.setattr(full_evaluation, "budgeted_send", bounded)
+    status = full_evaluation.main(
+        [
+            "--archive",
+            str(TOT13_PAIRS),
+            "--families",
+            "BT",
+            "--provider",
+            "snap",
+            "--out",
+            str(tmp_path),
+            "--send",
+            "--max-requests",
+            "1",
+            "--max-usd",
+            "0.02",
+            "--max-seconds",
+            "15",
+        ]
+    )
+    assert status == 0
+    assert called[0]["max_new_requests"] == 1
+    assert called[0]["max_seconds"] == 15
+
+
 def test_a_plan_over_budget_is_refused_before_sending(tmp_path, monkeypatch):
     """Nothing is written as answers, and no key is needed to be refused."""
     monkeypatch.delenv(PROVIDERS["jev"].key_env, raising=False)
-    monkeypatch.setattr(full_evaluation, "provenance", lambda *args: {})
+    monkeypatch.setattr(
+        full_evaluation,
+        "provenance",
+        lambda *args: {
+            "commit_pinned": "test",
+            "commit_checked_out": "test",
+            "tracked_changes_uncommitted": False,
+            "rubric_version": "test",
+            "packet_schema_version": "test",
+            "normalize_version": "test",
+        },
+    )
     status = full_evaluation.main(
         [
             "--archive",
@@ -393,3 +750,263 @@ def test_a_new_evaluator_function_requires_inventory_regeneration(monkeypatch):
     )
     scope = full_evaluation.scope_manifest({indexed: {"file": path}}, {}, files=[path])
     assert scope["unexplained"] == [added]
+
+
+# --- F06: pairing by scenario and seed ---------------------------------------------
+
+
+def _one_pair(result):
+    """The anchored and blind runs of one archived pair."""
+    namespace = result["packets"][0].meta.namespace
+    group = [p for p in result["packets"] if p.meta.namespace == namespace]
+    a = [p for p in group if p.meta.run_key.startswith("master-tot13-anchored")]
+    b = [p for p in group if p.meta.run_key.startswith("master-tot13-blind")]
+    return a, b
+
+
+def _with_meta(packet, **update):
+    return packet.model_copy(update={"meta": packet.meta.model_copy(update=update)})
+
+
+def test_archived_cases_pair_by_scenario_and_seed(planned):
+    """Every archived packet carries its seed, and the two arms pair on it."""
+    _, result = planned
+    assert all(p.meta.seed is not None for p in result["packets"])
+    a, b = _one_pair(result)
+    rule = full_evaluation.sample_rule(a, b)
+    assert rule["paired_by_scenario_and_seed"] == len(a) == len(b)
+    assert rule["ambiguous"] == rule["position_mismatches"] == 0
+    assert rule["unpaired_a"] == rule["unpaired_b"] == 0
+
+
+def test_reordered_cases_still_pair_and_the_reordering_is_flagged(planned):
+    """Rotating B's case numbers changes no pairing, but is reported."""
+    _, result = planned
+    a, b = _one_pair(result)
+    numbers = [full_evaluation.case_number(p) for p in b]
+    rotated = [
+        _with_meta(
+            p,
+            run_key=p.meta.run_key.replace(
+                f"/{n}/", f"/{numbers[(i + 1) % len(numbers)]}/", 1
+            ),
+        )
+        for i, (p, n) in enumerate(zip(b, numbers, strict=True))
+    ]
+    before = full_evaluation.sample_rule(a, b)
+    after = full_evaluation.sample_rule(a, rotated)
+    assert after["matched_judged"] == before["matched_judged"]
+    assert after["right_on_matched_b"] == before["right_on_matched_b"]
+    assert after["position_mismatches"] == len(b)
+
+
+def test_a_differently_seeded_case_is_not_paired(planned):
+    """Same slot and scenario but another seed is a different case."""
+    _, result = planned
+    a, b = _one_pair(result)
+    changed = [_with_meta(b[0], seed=b[0].meta.seed + 1000), *b[1:]]
+    rule = full_evaluation.sample_rule(a, changed)
+    assert rule["paired_by_scenario_and_seed"] == len(a) - 1
+    assert rule["unpaired_a"] == rule["unpaired_b"] == 1
+    assert rule["position_mismatches"] == 1
+    compared = full_evaluation.match_cases(a, changed)
+    assert compared["only_b"][0].meta.seed == b[0].meta.seed + 1000
+
+
+def test_a_case_without_a_seed_or_with_a_repeated_one_is_ambiguous(planned):
+    _, result = planned
+    a, b = _one_pair(result)
+    no_seed = [_with_meta(a[0], seed=None), *a[1:]]
+    assert full_evaluation.sample_rule(no_seed, b)["ambiguous"] == 1
+    repeated = [*a, _with_meta(a[0], run_key=a[0].meta.run_key + "-again")]
+    rule = full_evaluation.sample_rule(repeated, b)
+    assert rule["ambiguous"] == 2
+    assert rule["paired_by_scenario_and_seed"] == len(a) - 1
+
+
+# --- F04 / T24: a large plan through many small fake slices ------------------------
+
+
+def _answering_transport(input_tokens):
+    """A fake Snap that answers every question of every body, and keeps each post."""
+    posts = []
+
+    def transport(url, headers, data, timeout):
+        body = json.loads(data)
+        posts.append(body)
+        answers = {}
+        for name, question in body["questions"].items():
+            if question["type"] == "noul":
+                answers[name] = {"type": "noul", "noul": 0.7}
+            elif question["type"] == "choice":
+                first = next(iter(question["criteria"]))
+                answers[name] = {"type": "choice", "choice": first}
+            else:
+                answers[name] = {"type": "score", "score": 0}
+        reply = {
+            "model": PROVIDERS["snap"].model,
+            "usage": {"input_tokens": input_tokens, "output_tokens": 0},
+            "answers": answers,
+        }
+        return json.dumps(reply).encode()
+
+    transport.posts = posts
+    return transport
+
+
+@pytest.fixture(scope="module")
+def snap_plan(tmp_path_factory):
+    """The RUN, BT and TL plan for Snap alone: a large plan to drive in slices."""
+    out = tmp_path_factory.mktemp("snap-plan")
+    return full_evaluation.plan(
+        inventory=snap_request.INVENTORY,
+        archives=[TOT13_PAIRS],
+        providers=[PROVIDERS["snap"]],
+        out=out,
+        commit=None,
+        families=("RUN", "BT", "TL"),
+    )
+
+
+def test_a_large_plan_finishes_through_small_resumed_slices(
+    snap_plan, tmp_path, monkeypatch
+):
+    """T24: many small slices finish the plan; no request is posted twice."""
+    monkeypatch.setenv(PROVIDERS["snap"].key_env, "test-key")
+    bodies = [item for item in snap_plan["built"] if item["body"] is not None]
+    assert len(bodies) > 50
+    transport = _answering_transport(input_tokens=2_000)
+    slices = []
+    while True:
+        result = full_evaluation.budgeted_send(
+            snap_plan["built"],
+            tmp_path,
+            max_new_requests=7,
+            max_usd=1.0,
+            max_seconds=60,
+            transport=transport,
+        )
+        slices.append(result)
+        if result["stop_reason"] is None:
+            break
+        assert result["stop_reason"] == "request_limit"
+        assert len(slices) < 100
+    assert len(slices) >= len(bodies) // 7
+    assert len(transport.posts) == len(bodies)
+    unique = {json.dumps(body, sort_keys=True) for body in transport.posts}
+    assert len(unique) == len(bodies)
+    expected = len(bodies) * 2_000 * PROVIDERS["snap"].usd_per_million_input / 1e6
+    assert slices[-1]["spent_usd"] == pytest.approx(expected)
+    settled = full_evaluation.settle(snap_plan["rows"], tmp_path)
+    sent_rows = {r["status"] for r in settled if r.get("request_fingerprint")}
+    assert sent_rows == {"answered"}
+    # A finished plan sends nothing more.
+    again = full_evaluation.budgeted_send(
+        snap_plan["built"],
+        tmp_path,
+        max_new_requests=7,
+        max_usd=1.0,
+        max_seconds=60,
+        transport=transport,
+    )
+    assert again["sent"] == 0
+    assert len(transport.posts) == len(bodies)
+
+
+def test_cap_exhaustion_stops_safely_and_keeps_pending_rows(
+    snap_plan, tmp_path, monkeypatch
+):
+    """The dollar cap is never passed, across resumes, and unsent rows stay planned."""
+    monkeypatch.setenv(PROVIDERS["snap"].key_env, "test-key")
+    transport = _answering_transport(input_tokens=300_000)
+    price = PROVIDERS["snap"].usd_per_million_input / 1e6
+    reserve = full_evaluation.SNAP_BILLABLE_INPUT_CEILING * price
+    cap = 0.05
+    for _ in range(3):
+        result = full_evaluation.budgeted_send(
+            snap_plan["built"],
+            tmp_path,
+            max_new_requests=50,
+            max_usd=cap,
+            max_seconds=60,
+            transport=transport,
+        )
+        assert result["stop_reason"] == "usd_limit"
+        assert result["spent_usd"] <= cap
+        assert result["spent_usd"] + reserve > cap
+    each = 300_000 * price
+    assert len(transport.posts) == int((cap - reserve) // each) + 1
+    statuses = Counter(
+        r["status"]
+        for r in full_evaluation.settle(snap_plan["rows"], tmp_path)
+        if r.get("request_fingerprint")
+    )
+    assert statuses["answered"] > 0
+    assert statuses["planned"] > 0
+
+
+# --- Snap key input ----------------------------------------------------------------
+
+
+def test_env_file_loads_only_the_provider_keys(tmp_path, monkeypatch):
+    """The key file sets the selected provider's key and nothing else."""
+    snap = PROVIDERS["snap"]
+    monkeypatch.delenv(snap.key_env, raising=False)
+    monkeypatch.delenv("UNRELATED_SECRET", raising=False)
+    keys = tmp_path / ".env"
+    keys.write_text(
+        f"# keys\nexport {snap.key_env}='abc'\nUNRELATED_SECRET=x\n", encoding="utf-8"
+    )
+    assert full_evaluation.load_provider_keys(keys, [snap]) == [snap.key_env]
+    assert os.environ[snap.key_env] == "abc"
+    assert "UNRELATED_SECRET" not in os.environ
+    monkeypatch.setenv(snap.key_env, "already-set")
+    assert full_evaluation.load_provider_keys(keys, [snap]) == []
+    assert os.environ[snap.key_env] == "already-set"
+
+
+def test_a_dry_run_reports_whether_snap_could_be_sent(tmp_path, monkeypatch):
+    """The report says the key is set and Snap's contract is verified; no value leaks."""
+    snap = PROVIDERS["snap"]
+    monkeypatch.delenv(snap.key_env, raising=False)
+    monkeypatch.setattr(
+        full_evaluation,
+        "provenance",
+        lambda *args: {
+            "commit_pinned": "test",
+            "commit_checked_out": "test",
+            "tracked_changes_uncommitted": False,
+            "rubric_version": "1.0.0",
+            "packet_schema_version": "test",
+            "normalize_version": "test",
+        },
+    )
+    keys = tmp_path / "keys.env"
+    keys.write_text(f"{snap.key_env}=secret-value-123\n", encoding="utf-8")
+    out = tmp_path / "out"
+    status = full_evaluation.main(
+        [
+            "--archive",
+            str(TOT13_PAIRS),
+            "--families",
+            "BT",
+            "--provider",
+            "snap",
+            "--env-file",
+            str(keys),
+            "--out",
+            str(out),
+        ]
+    )
+    # The key file put the value in the process; take it out again.
+    monkeypatch.delenv(snap.key_env, raising=False)
+    assert status == 0
+    report = json.loads((out / "report.json").read_text(encoding="utf-8"))
+    assert report["readiness"]["snap"] == {
+        "key_env": snap.key_env,
+        "key_present": True,
+        "live_contract_verified": True,
+    }
+    for written in out.rglob("*"):
+        if written.is_file():
+            assert "secret-value-123" not in written.read_text("utf-8", "replace")

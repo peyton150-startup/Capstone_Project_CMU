@@ -54,7 +54,9 @@ from capstone.experiment import ExperimentRecord, read_records  # noqa: E402
 # 1.2.0: `meta.namespace` and `meta.episode_key` (one run key can repeat across
 # archived pairs), and `evaluator_only.label_status` (a label awaiting review
 # is kept but not scored).
-PACKET_SCHEMA_VERSION = "1.2.0"
+# 1.3.0: `meta.seed`, so two runs are paired by scenario and seed rather than
+# by their position in the run key (CRITERIA F06).
+PACKET_SCHEMA_VERSION = "1.3.0"
 RUBRIC_VERSION = "1.0.0"
 
 # A committed answer at least this sure that is wrong is "confident and
@@ -77,6 +79,10 @@ class PacketMeta(Strict):
     # saw them would know the answer it is meant to judge the agent on.
     run_key: str
     scenario_id: str
+    # The case's simulator seed. With the scenario id it names the case, so
+    # two runs of a pair are matched on what was run, not on slot number.
+    # Kept here, never in `snap_view`, like the scenario id.
+    seed: int | None = None
     # Where the run comes from when one run key can repeat: the archived pair
     # or experiment it belongs to (PR #156's two pairs reuse every key).
     namespace: str | None = None
@@ -762,6 +768,7 @@ def build_packet(
         meta=PacketMeta(
             run_key=record.run_key,
             scenario_id=record.scenario_id,
+            seed=record.seed,
             namespace=namespace,
             episode_key=key,
             commit_sha=commit_sha,

@@ -190,6 +190,8 @@ Found by the same 2026-11-02 probe, against the 1,378 inventoried tests.
 
 #### F01 — Import and validate real audit logs (P0; EVAL-08 / EVAL-06)
 
+- **Status (2026-11-04):** implemented in code on `main` (`build_archive` passes the `.audit.jsonl` sibling; `build_all` refuses an audit/record mismatch). The PR #172 dry run over both archives found 57 episodes. Offline only.
+
 - **Observed:** `evaluation/evaltools/run_packet.py::build_archive()` discovers `<run>.records.jsonl`, label, critic-label and report siblings, but fails to pass the existing `<run>.audit.jsonl` sibling to `build_all()`. The five complete audit records saved by merged PR #162 would therefore appear to be `record_only`.
 - **Fix:** Resolve `audit_path=_sibling(records_path, stem, ".audit.jsonl")`; verify exact bijection between audit `run_id` and record episode identity, with no missing, duplicate, orphan, mislabeled or truncated audit entries. Fail the strict audited-import gate if an expected audit is absent or invalid. Never manufacture a trace for older records.
 - **Pass (T21):** Import PR #156's 52 record-only episodes **and** PR #162's five audited episodes using both `--archive` arguments; exactly **57 unique composite identities**, with **52 record-only and five full traces**; five audited RUN packets contain actual saved audit evidence. Reject an orphan, duplicate and missing expected audit in negative tests. **Not yet executed.**
@@ -202,11 +204,25 @@ Found by the same 2026-11-02 probe, against the 1,378 inventoried tests.
 
 #### F03 — Give every refused episode explicit question-ledger rows (P0; EVAL-06 / EVAL-07)
 
+- **Status (2026-11-04):** implemented in code on `main`: `plan` writes one `refused` RUN row per question and provider for every episode `build_archive` refused (`test_refused_episode_keeps_every_run_question_row`). Offline only.
+
 - **Observed:** `full_evaluation.plan()` collects refused packets and the summary reports them, but `ledger_rows()` walks only built request items. A packet refused during `build_archive()` has **no RUN question rows**, breaking per-episode and per-provider reconciliation.
 - **Fix:** Preserve every rejected episode identity and reason before requesting; emit one explicit `refused` (or documented applicable skip) row for **each expected RUN question and selected provider**. Do not classify refused as answered, and do not omit it from total eligibility or completeness accounting. Detect duplicate and missing ledger keys.
 - **Pass (T23):** Inject one truth-leaking or invalid packet into an otherwise valid 57-episode import. Its identity remains visible, its RUN ledger rows are all present and refused, no requests for it are sent, and planned + skipped + refused + settled totals reconcile by provider, family, item and question.
 
 #### F04 — Make requests and money limits usable during an actual large run (P0; EVAL-06 / EVAL-15)
+
+- **Status (2026-11-04):** bounded Snap sending implemented and tested offline
+  on the evaluator fix branch. The full plan remains visible; each invocation
+  has request, cumulative dollar and wall-clock limits. A full-window charge
+  is reserved before posting; measured usage settles it; missing usage or an
+  interrupted post stops further sends without retrying. Jev/mixed live
+  sending remains blocked until Gate C confirms its request window and usage
+  contract. No paid request was made for this change. The T24 large-plan
+  fake-provider run is a test on `feature/evaluator-snap-ready`
+  (`test_a_large_plan_finishes_through_small_resumed_slices`,
+  `test_cap_exhaustion_stops_safely_and_keeps_pending_rows`); live calibration
+  remains open.
 
 - **Observed:** `full_evaluation.budget()` estimates **input tokens only**, not outputs or retries. `--max-requests` / `--max-usd` compare against the **entire plan** and abort before any send if the plan exceeds a limit. The current archive-only dry run reported around **2,016 requests per provider**; a small authorized budget cannot process the first slice.
 - **Fix:** Keep the full plan/ledger, but add bounded `--max-new-requests` / batch-size, a real wall-clock deadline, checkpointed state, and idempotent resume. Estimate both input and output tokens plus retry exposure; enforce an explicit hard spending policy from **measured** usage when returned, and a conservative fallback/stop when actual spend is unknown. Count remaining rather than already completed requests. Require explicit opt-in for live work and do not equate input-only estimates with dollar caps.
@@ -214,10 +230,14 @@ Found by the same 2026-11-02 probe, against the 1,378 inventoried tests.
 
 #### F05 — Require stable target and per-run source provenance (P1; EVAL-05 / EVAL-03)
 
+- **Status (2026-11-04):** `provenance` refuses a missing or not-checked-out `--commit`, uncommitted tracked changes, and an inventory whose source hashes or coverage/JUnit evidence do not match; each packet keeps its own run's `commit_sha`, reported per run. Offline only.
+
 - **Observed:** `--commit` is optional, and `provenance()` records a dirty checkout rather than rejecting it. Inventory SHA-256s do not establish that coverage/inventories were built at the declared commit.
 - **Fix/pass (T25):** Require an explicit commit and clean tracked workspace for a publishable assessment; prove inventory regeneration at that commit, with question/rubric and archive hashes. Keep the **current code commit** distinct from each **historical experiment source commit** (including PR #156 and #162 runs). Reject missing/mismatched provenance or prominently demote it to exploratory-only, never silently claim reproducibility.
 
 #### F06 — Pair experiments by scenario and seed, not by position (P1; EVAL-12)
+
+- **Status (2026-11-04):** implemented on `feature/evaluator-snap-ready`, offline tests only. Packets keep the record's `seed` in private `meta` (schema 1.3.0); `match_cases` pairs the arms on scenario id and seed, and the sample rule reports cases only in A or B, ambiguous ones (no seed, or repeated) and case numbers that name different cases. The judge still sees only case numbers. Not done: an automatic check that both arms' frozen settings match apart from the treatment (they are shown side by side, not compared).
 
 - **Observed:** `full_evaluation.case_number()` derives the match from the numeric slot in the run key (`run/2/...`); two episodes at position 2 could be unrelated scenarios/seeds. The current 13-matched sample rule does not independently establish compatible experiment configuration.
 - **Fix/pass (T26):** Join on stable case/scenario identity **and seed**, validated from source-private metadata; use opaque judge-visible labels. Detect a reordered, replaced or differently seeded case even when sequence numbers match. Check frozen model/prompt/manual/memory/settings and PR #156's operational interruptions, and prevent unsupported causal improvement claims.

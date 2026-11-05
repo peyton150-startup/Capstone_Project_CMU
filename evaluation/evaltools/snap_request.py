@@ -706,11 +706,14 @@ def normalized_answers(item: dict, reply: dict, latency: float) -> list[dict]:
     # Variables:
     #   tags: The request's tags; `model_requested` there is the model actually
     #     asked for, a `--model` override included.
+    #   usage: Provider token counts, or empty when the reply's usage field is
+    #     malformed; a budgeted caller will keep its charge reserved.
     #   tokens: The request's input tokens, the same on every answer of it.
     #   answers: The reply's answers by question name, {} when it has none.
     tags = item["tags"]
     reply = reply if isinstance(reply, dict) else {}
-    usage = reply.get("usage") or {}
+    usage = reply.get("usage")
+    usage = usage if isinstance(usage, dict) else {}
     tokens = usage.get("input_tokens")
     answers = reply.get("answers") or {}
     found = []
@@ -823,6 +826,7 @@ def write_requests(
     transport: Transport = urllib_transport,
     retries: int = 2,
     sleep: Callable[[float], None] = time.sleep,
+    timeout_seconds: float = 90.0,
 ) -> dict[str, int]:
     """Write every request file and, when sending, post each and write its answers.
 
@@ -839,6 +843,8 @@ def write_requests(
     #   send_them: True to post the requests; False writes the files only.
     #   transport, sleep: What sends the bytes and what waits between tries;
     #     tests pass ones that touch no network and no clock.
+    #   timeout_seconds: The maximum time a POST may use; the full evaluator
+    #     passes its remaining slice time and disables retries.
     #   counts: How many requests were sent, failed, or skipped because they
     #     were already answered, for the closing line of `main`.
     #   stem: The file name both of a request's files share.
@@ -882,6 +888,7 @@ def write_requests(
                     provider,
                     item["body"],
                     os.environ[provider.key_env],
+                    timeout=timeout_seconds,
                     transport=transport,
                 )
                 break
