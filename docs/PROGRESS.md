@@ -1,5 +1,20 @@
 # Progress Log
 
+> **2026-11-05 — rapid triage mode (taught and gated; closing walkthrough owed):**
+> Before the code, the developer answered the check question: the block on
+> proposing must be in code because a model can ignore a prompt, and a triage
+> without an answer still needs a deep run. Opt-in (`TRIAGE=on` or
+> `--triage`), off by default. A triage (`mode="triage"`, `triage_budgets`:
+> 90 s, 6 tool calls, no follow-up or critic) never proposes, executes or
+> verifies; `propose()` routes it to the end. Code sets `deep_recommended`
+> (`needs_deep_run`): only a supported "no action" closes the case. A deep run
+> follows as investigation 2 with `follows_triage`, and is not shown the
+> triage's conclusion. Records carry a `TriageRecord`, and the report a p50/p95
+> line. The 90 s / 6-call limits are placeholders until Codex measures live
+> latency. Scripted tests only; no live model run. The developer also said
+> (2026-11-05) that hazards will not be used, so the conflicting-observations
+> case was dropped and hazards were left unchanged.
+
 > **2026-11-05 — PR descriptions state their trade-offs (documentation only; understanding unchanged):**
 > At the developer's request, AGENTS.md §11 step 4 now requires a
 > **Trade-offs** section in every PR description. For each significant choice

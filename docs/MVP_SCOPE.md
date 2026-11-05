@@ -339,8 +339,8 @@ This reorganizes the existing roadmap, not its implementation status or authorit
 
 | Priority | Category | Item | Short summary |
 |---|---|---|---|
-| **HIGH** | Pilot readiness | [Fast read-only triage](#fw-rapid-triage) | Add strict latency budgets and a separate deep-investigation path. |
-| **HIGH** | Pilot readiness | [Degraded-data handling](#fw-degraded-data) | Live-test conflicting, missing and stale observations; demonstrate abstention and recovery. |
+| **HIGH** | Pilot readiness | [Fast read-only triage](#fw-rapid-triage) | Built 2026-11-05, opt-in; live latency target still to measure. |
+| **HIGH** | Pilot readiness | [Degraded-data handling](#fw-degraded-data) | Set aside 2026-11-05: hazards will not be used. |
 | **HIGH** | Simulator | [Haas VF/NGC reference machine](#fw-haas-retrofit) | Ground the simulator in model-specific manuals and known supported telemetry. |
 | **HIGH — outreach plan only** | Tooling | [Haas live-telemetry pilot plan](#fw-haas-live-pilot) | Qualify one consenting shop and define safe read-only access, collection, storage, and shadow-mode deployment; build remains post-MVP. |
 | **HIGH** | Simulator | [Three-day bearing curve](#fw-bearing-progression) | Enable experiment selection and review wear curve with the manufacturing SME. |
@@ -439,6 +439,16 @@ the critic loop is under [live runs owed](#live-runs-and-follow-ups-still-owed).
 
 #### 2. Split rapid triage from deep investigation (HIGH)
 
+**Status (2026-11-05): built, opt-in, off by default** (`TRIAGE=on` or
+`experiment run --triage`). `InvestigationState.mode="triage"` with
+`triage_budgets` (90 s, 6 tool calls, no follow-up or critic: placeholders
+until live latency is measured); `propose()` ends a triage, so it is
+read-only by construction; `needs_deep_run` decides in code whether a deep
+run (investigation 2, `follows_triage`) follows; experiment records and the
+report give triage p50/p95 seconds, supported vs not, timeouts and deep runs.
+Still owed: the live latency measurement and the triage/deep comparison runs
+(Codex), and labelling triage conclusions apart from the deep run's.
+
 **Gap:** `agent/state.py:Budgets` currently defaults to a
 `timeout_seconds=1200` investigation with `followup_seconds=400`.
 A potentially 20-minute response is difficult to present as immediate
@@ -478,6 +488,10 @@ rate, and additional model/tool calls.
 <a id="fw-degraded-data"></a>
 
 #### 3. Degraded data and abstention: what is left (HIGH)
+
+**Status (2026-11-05): set aside.** The developer said hazards will not be
+used, so the items below (live matrix, conflicting-observations case, demo
+traces) are not planned; the hazard code stays as it is unless it breaks.
 
 Built (D1, D2): the timed sensor-feed blackout (`--hazards blackout`), the
 standard hazards (timeouts, dropped rows, a stale record), the 11-case degraded
