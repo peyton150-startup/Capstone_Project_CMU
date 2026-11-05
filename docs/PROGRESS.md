@@ -1,6 +1,9 @@
 # Progress Log
 
 > **2026-11-05 — rapid triage mode (taught and gated; closing walkthrough owed):**
+> Merged before its walkthrough on the developer's instruction ("merge and we
+> will do the walkthrough later"); the pre-merge walkthrough (AGENTS.md §11
+> step 6) for PR #184 is still owed (understood: no, until it is done).
 > Before the code, the developer answered the check question: the block on
 > proposing must be in code because a model can ignore a prompt, and a triage
 > without an answer still needs a deep run. Opt-in (`TRIAGE=on` or
