@@ -105,13 +105,15 @@ The multi-agent coordination notebook (Part 1: agent count, roles, one-way / two
 
 **Decision:** not planned. A second round would only run on cases where a serious critic objection survives the follow-up, which is a small subset of the master runs, so it would add model calls and wall time for little expected gain. The current design stays: one critic pass and at most one follow-up check, no repeated critic cycle (`INVESTIGATION_REASONING.md`). Cases where the objection survives end `contested` (P4) and escalate to a human instead.
 
-### P7. Cost per correct diagnosis in the batch table (SMALL, evaluation)
+### P7. Cost per correct diagnosis in the batch table (SMALL, evaluation; extends an existing table)
 
 **Notebook signal (Part 2, benchmarking):** compare configurations by quality per unit of effort, not quality alone.
 
-**Current behavior:** `evaluation/scoring.py` reports mean tool calls and `evals.py` reports runtime and tool-call changes. Model calls are not totalled, and nothing divides cost by correct outcomes. P3 and P4 each add model calls, so accuracy alone can hide a bad trade.
+**Already in place (do not rebuild):** each run records its model calls (`ExperimentRecord.model_calls`, a `CallSummary`; progress row E1, reported by `format_model_calls`). The rubric's batch table (`evaluation/EVALUATION_RUBRIC.md`) already has means over reasoned runs for tool calls, factory calls, wall seconds, model questions, invalid replies and outage attempts. Token cost is not measured (audit X3). `MVP_SCOPE.md` already lists tool/model calls, tokens and p50/p95 wall time for its wider-scope experiment.
 
-**Change:** add model calls, tool calls and wall seconds per `fully_right` case to the batch table, beside the existing counts. Deterministic, computed from records already kept (or the P1 audit log).
+**What is missing:** those are means per run. Nothing divides cost by correct outcomes, so a configuration that adds calls and gets more cases right cannot be compared fairly with one that is cheaper and gets fewer right. P3 and P4 each add model calls, so this matters before they are measured.
+
+**Change:** add one row to the rubric's batch table: total model questions, tool calls and wall seconds divided by the number of `fully_right` cases (shown as "n/a" when there are none). Computed from records already kept; no new recording. Tokens stay out until X3 is addressed.
 
 **Check:** a record test on a scripted batch; no live run needed.
 
