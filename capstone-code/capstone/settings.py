@@ -136,6 +136,16 @@ class Settings(BaseSettings):
     step_questions: int = Field(
         default=1, ge=1, le=2, validation_alias="STEP_QUESTIONS"
     )
+    # How hard NVIDIA's thinking models reason on the decide question only
+    # (choosing the next tool; with STEP_QUESTIONS=1 it also interprets the
+    # last result). Sent as "reasoning_effort", which NVIDIA documents for
+    # Nemotron 3.5 Super: "low" and "medium" pick a shorter reasoning mode,
+    # "high" is full reasoning. None (the default) sends nothing, so requests
+    # stay as before and runs stay comparable. Other providers and every other
+    # question are never sent it (developer, 2026-11-05).
+    decide_reasoning_effort: Literal["low", "medium", "high"] | None = _optional(
+        "DECIDE_REASONING_EFFORT"
+    )
     # Asked when a job's own model cannot be reached. None: no fallback.
     # Several models, separated by commas, are tried in order: the second
     # when the first is out too (for example its daily quota is spent).

@@ -426,7 +426,8 @@ def run_header(
 
     Names the critic treatment (off, anchored or blind, and the follow-up),
     the manual (how it is searched and, for semantic search, the embedding
-    model), the manual step, tree-of-thought and hazards. Model names only:
+    model), the manual step, tree-of-thought, hazards and, when set, the
+    decide step's reasoning effort. Model names only:
     no key or other secret is read here.
     """
     # Variables:
@@ -436,6 +437,8 @@ def run_header(
     #   hazards: False, True / "standard", or "blackout".
     #   critic: The critic treatment in words.
     #   book: The manual setting in words.
+    #   effort: DECIDE_REASONING_EFFORT, or None when it is not set; a third
+    #     line names it only when set, so the usual header is unchanged.
     if not settings.critic:
         critic = "critic off"
     else:
@@ -451,11 +454,15 @@ def run_header(
         book = f"manual by {manual}"
     if hazards is True:
         hazards = "standard"
-    return [
+    lines = [
         f"RUN: {critic}; {book}, manual step {'on' if settings.manual_step else 'off'}",
         f"RUN: tree-of-thought {'on' if tree_of_thought else 'off'}; "
         f"hazards {hazards or 'off'}",
     ]
+    effort = getattr(settings, "decide_reasoning_effort", None)
+    if effort is not None:
+        lines.append(f"RUN: decide reasoning effort {effort} (NVIDIA models only)")
+    return lines
 
 
 def truth_lines(score: Score) -> list[str]:

@@ -169,6 +169,11 @@ class Provider:
     # Request JSON-object output where checked live; the answer type is still
     # described in the prompt and validated locally.
     json_output: bool = False
+    # The service accepts the top-level "reasoning_effort" field for its
+    # thinking models (NVIDIA documents it for Nemotron 3.5 Super). Only these
+    # providers are sent DECIDE_REASONING_EFFORT; to others it could be an
+    # unknown field that gets the request refused.
+    reasoning_effort: bool = False
 
 
 PROVIDERS = {
@@ -176,6 +181,7 @@ PROVIDERS = {
         "https://integrate.api.nvidia.com/v1/chat/completions",
         "NVIDIA_API_KEY",
         structured_output=True,
+        reasoning_effort=True,
     ),
     "groq": Provider("https://api.groq.com/openai/v1/chat/completions", "GROQ_API_KEY"),
     "mistral": Provider(
@@ -373,6 +379,7 @@ class ChatClient:
         json_output: bool = False,
         temperature: float = 0.0,
         top_p: float | None = None,
+        reasoning_effort: str | None = None,
     ):
         # Variables:
         #   url: The chat-completions address of the provider.
@@ -388,6 +395,8 @@ class ChatClient:
         #     mode; the expected shape is still checked by the application.
         #   temperature: How much randomness to request for this model.
         #   top_p: Nucleus-sampling limit; None leaves it to the service.
+        #   reasoning_effort: How hard a thinking model reasons ("low", "medium"
+        #     or "high"), sent as "reasoning_effort"; None sends no such field.
         #   sampling: Checked numeric values, including values supplied directly.
         if max_output_tokens is not None and max_output_tokens < 1:
             raise ValueError("max_output_tokens must be at least 1")
@@ -406,6 +415,7 @@ class ChatClient:
         sampling = SamplingOptions(temperature=temperature, top_p=top_p)
         self.temperature = sampling.temperature
         self.top_p = sampling.top_p
+        self.reasoning_effort = reasoning_effort
 
     def __repr__(self) -> str:
         return f"ChatClient(url={self.url!r}, model={self.model!r})"
@@ -433,8 +443,9 @@ class ChatClient:
         #   limit: The shortest of the allowed waits, which is what is used.
         #   schema: The answer type's JSON schema as text, shown to the model in the
         #     system prompt.
-        #   body: The request, with this model's sampling and supported JSON mode;
-        #     local validation still checks the answer's shape.
+        #   body: The request, with this model's sampling, supported JSON mode and,
+        #     when set for this job, its reasoning effort; local validation still
+        #     checks the answer's shape.
         #   raw: The service's reply bytes, before the text and JSON are pulled out and
         #     checked.
         limit = min(x for x in (self.timeout, timeout, max_seconds) if x is not None)
@@ -455,6 +466,8 @@ class ChatClient:
             body["top_p"] = self.top_p
         if self.max_output_tokens is not None:
             body["max_tokens"] = self.max_output_tokens
+        if self.reasoning_effort is not None:
+            body["reasoning_effort"] = self.reasoning_effort
         if self.structured_output:
             body["response_format"] = {
                 "type": "json_schema",
@@ -642,8 +655,14 @@ def client_for(
     settings: Settings | None = None,
     *,
     transport: Transport = urllib_transport,
+    reasoning_effort: str | None = None,
 ) -> ChatClient:
-    """A client for "provider/model". ModelError names any missing setting."""
+    """A client for "provider/model". ModelError names any missing setting.
+
+    `reasoning_effort` is passed on only when the provider accepts it; for
+    any other provider it is dropped, so a fallback model's request is
+    unchanged.
+    """
     # Variables:
     #   reference: A model written as provider/model, e.g. nvidia/model-name.
     #   name: The provider part of the reference.
@@ -654,6 +673,8 @@ def client_for(
     #   sampling: Effective values: code defaults, then provider overrides, then
     #     exact model overrides; only explicitly configured fields replace values.
     #   override: One layer of sampling settings; null top_p clears an earlier limit.
+    #   reasoning_effort: The reasoning level the caller wants for this job's
+    #     requests, or None; kept only if the provider accepts the field.
     settings = settings or get_settings()
     name, _, model = reference.partition("/")
     if name not in PROVIDERS or not model:
@@ -695,6 +716,7 @@ def client_for(
         json_output=provider.json_output,
         temperature=sampling.temperature,
         top_p=sampling.top_p,
+        reasoning_effort=reasoning_effort if provider.reasoning_effort else None,
     )
 
 
@@ -719,15 +741,21 @@ def clients_for_jobs(
     # Variables:
     #   references: The models for one job: its own, then the shared fallbacks not
     #     already listed.
+    #   effort: DECIDE_REASONING_EFFORT for the decide job; None for every other
+    #     job, whose requests stay unchanged.
     settings = settings or get_settings()
     clients = {}
     for job in JOBS:
+        effort = settings.decide_reasoning_effort if job == "decide" else None
         references = [getattr(settings, _JOB_SETTING[job]) or settings.default_model]
         for reference in fallback_models(settings):
             if reference not in references:
                 references.append(reference)
         clients[job] = FallbackClient(
-            [client_for(r, settings, transport=transport) for r in references],
+            [
+                client_for(r, settings, transport=transport, reasoning_effort=effort)
+                for r in references
+            ],
             retries=settings.model_retries,
             max_seconds=settings.model_question_seconds,
         )
