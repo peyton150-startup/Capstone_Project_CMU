@@ -629,6 +629,8 @@ alarm), then evaluation, then the agent itself.
 
 ## Session notes
 
+- **2026-11-05: AGENTS.md restates the variable-comment rule for every code PR (docs only).** At the developer's request, §7.1 now says plainly that it applies to every pull request that changes code, and that the `# Variables:` block at the top of each function names its highest-signal variables. §11 step 4 gains a "Variable comments" item: a code PR lists the functions whose block was added or updated. The rule itself dates from 2026-10-29; this only makes it explicit and checkable in the PR description.
+
 - **2026-11-03: variable comments for the functions in PRs #160 and #163 (comments only, built ungated, developer to review; understood: no).** Checked every function those PRs added or changed in `evaluation/evaltools/` against the latest `main` (PR #167 touches other modules, so adds nothing here). 17 of the 29 already had a `# Variables:` block (none stale); now 23 do. Added blocks to `git`, `tracked_python_files`, `has_functions`, `case_number`, `case_outcome` and `_bodiless` in `full_evaluation.py`; one-line helpers whose names say it all were skipped (`sha256_of`, `run_name`, `ratio`, `request_tokens_estimate`, nested `right` and `fraction`). No behaviour change. The evaluator inventories were not regenerated (they need a full coverage run) and still hold the old source text of these six.
 
 - **2026-11-01 (EVF): evaluation framework and audit, built ungated.** From
