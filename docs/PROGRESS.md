@@ -34,7 +34,7 @@
 > sandbox uses Docker Desktop, after `docker info` succeeds. CLAUDE.md points to it.
 > The test suite does not need Docker.
 
-> **2026-11-04 — fixes from the live Snap run (built ungated, developer to review; understood: no):**
+> **2026-11-04 — fixes from the live Snap run (built ungated; walkthrough done 2026-11-05):**
 > Four findings from `docs/benchmarks/2026-11-04-snap-live-1/`, each checked by
 > reading the code.
 > (1) Nothing told a model the `wait` limit. The tool refused more than 480
