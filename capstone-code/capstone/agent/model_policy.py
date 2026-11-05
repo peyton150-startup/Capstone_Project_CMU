@@ -49,6 +49,7 @@ from capstone.agent.evidence_brief import evidence_brief
 from capstone.agent.policy import (
     ActionRequest,
     CallTool,
+    CallTools,
     Decision,
     Interpretation,
     InterpretedStep,
@@ -196,6 +197,92 @@ class NextStep(Contract):
             question_id=self.question_id,
             hypothesis_id=self.hypothesis_id,
         )
+
+
+class ListedCall(Contract):
+    """One tool call in a list of calls (DECIDE_CALLS above 1)."""
+
+    tool: str = Field(min_length=1, description="The tool to call.")
+    arguments: dict[str, JsonValue] = Field(
+        default_factory=dict, description="The tool's arguments."
+    )
+    information_needed: str = Field(
+        min_length=1, description="What this call should find out."
+    )
+    question_id: str | None = Field(
+        default=None, description="The open question this call answers, if any."
+    )
+    hypothesis_id: str | None = Field(
+        default=None, description="The hypothesis this call tests, if any."
+    )
+
+
+# Flat, like NextStep. Only asked for when DECIDE_CALLS is above 1, so with
+# the default every prompt and schema stays exactly as before.
+class NextSteps(Contract):
+    """The next step: one or more tool calls (choice call_tools) or a stop."""
+
+    choice: Literal["call_tools", "stop"]
+    information_needed: str = Field(
+        min_length=1,
+        description="For a stop: what the evidence settled. For calls: what the calls together should find out.",
+    )
+    answered_evidence_ids: tuple[str, ...] = Field(
+        default=(),
+        description="When stopping because a check is already answered, cite the actual observable evidence that answers it.",
+    )
+    calls: tuple[ListedCall, ...] = Field(
+        default=(),
+        description="Only with choice call_tools: the calls, run in this order before you see any answer. Leave empty when stopping.",
+    )
+    stop_reason: (
+        Literal[
+            TerminationReason.EVIDENCE_SUFFICIENT, TerminationReason.NO_USEFUL_ACTION
+        ]
+        | None
+    ) = Field(default=None, description="Only with choice stop: why to stop.")
+
+    @model_validator(mode="after")
+    def one_kind_of_step(self):
+        """Calls need at least one call and no stop reason; a stop names none."""
+        if self.choice == "call_tools":
+            if not self.calls:
+                raise ValueError("a call_tools step must list at least one call")
+            if self.stop_reason is not None:
+                raise ValueError("a call_tools step gives no stop_reason")
+        else:
+            if self.stop_reason is None:
+                raise ValueError("a stop step must give a stop_reason")
+            if self.calls:
+                raise ValueError("a stop step lists no calls")
+        return self
+
+    def decision(self) -> Decision:
+        """A Stop, one CallTool for a single call, or CallTools for several."""
+        # Variables:
+        #   steps: Each listed call as the loop's own CallTool, in the model's order.
+        if self.choice == "stop":
+            return Stop(
+                reason=self.stop_reason,
+                information_needed=self.information_needed,
+                answered_evidence_ids=self.answered_evidence_ids,
+            )
+        steps = tuple(
+            CallTool(
+                information_needed=call.information_needed,
+                request=ToolRequest(name=call.tool, arguments=call.arguments),
+                question_id=call.question_id,
+                hypothesis_id=call.hypothesis_id,
+            )
+            for call in self.calls
+        )
+        return steps[0] if len(steps) == 1 else CallTools(steps=steps)
+
+
+class StepsAnswer(NextSteps):
+    """Updated beliefs plus the next step or steps based on those updated beliefs."""
+
+    interpretation: Interpretation
 
 
 class ConcludeAnswer(Contract):
@@ -626,6 +713,25 @@ PHASE = {
 }
 
 
+# Added to the decide question's system prompt only when DECIDE_CALLS is
+# above 1; {limit} is filled in with the setting.
+DECIDE_CALLS_NOTE = (
+    "You may list up to {limit} tool calls in calls. They run in the order "
+    "you list them, before you see any of their answers, and then you read "
+    "all the answers at once. List several only when each is worth making "
+    "whatever the others show, such as the same sensor on several machines "
+    "or several sensors on one machine. Reads only: wait moves the factory "
+    "forward, so a wait must be the only call you list, and the loop drops "
+    "a wait listed after other calls and everything after it. One call is "
+    "fine when the next choice depends on its answer."
+)
+
+
+def calls_note(state: InvestigationState) -> str:
+    """The decide prompt's note on listing several calls, with this run's limit."""
+    return DECIDE_CALLS_NOTE.format(limit=state.decide_calls)
+
+
 class ModelPolicy:
     """The seven policy questions, each put to its own model client."""
 
@@ -710,17 +816,25 @@ class ModelPolicy:
 
     def decide(self, state: InvestigationState, phase: LoopPhase) -> Decision:
         # Variables:
-        #   offered: Names of the tools this policy was shown; a call to any other is
-        #     refused.
+        #   batching: Whether this run lets one answer list several calls
+        #     (state.decide_calls above 1); off, the question is exactly as before.
         prompt = (
             f"{render(state)}\n\n{PHASE[phase]}\n\n"
             f"TOOLS YOU MAY CALL:\n{tool_list(self.tools)}"
         )
         prompt += manual_use_note(self.tools, phase)
-        decision = self._ask("decide", state, prompt, NextStep).decision()
-        offered = {t.name for t in self.tools}
-        if isinstance(decision, CallTool) and decision.request.name not in offered:
-            self._refuse(f"{decision.request.name} is not a tool offered here")
+        batching = state.decide_calls > 1
+        if not batching:
+            decision = self._ask("decide", state, prompt, NextStep).decision()
+        else:
+            decision = self._ask(
+                "decide",
+                state,
+                prompt,
+                NextSteps,
+                system=f"{SYSTEM['decide']}\n\n{calls_note(state)}",
+            ).decision()
+        self._check_offered(decision)
         return decision
 
     def interpret(
@@ -744,32 +858,83 @@ class ModelPolicy:
         evidence: Evidence,
     ) -> InterpretedStep:
         """Ask DECIDE_MODEL for both parts; the loop applies neither until valid."""
-        prompt = (
-            f"{render(state)}\n\n{PHASE[phase]}\n\n"
+        # Variables:
+        #   just_asked: The line naming the call just made and its answer's
+        #     evidence ID, worded exactly as before batching.
+        just_asked = (
             f"JUST ASKED: {step.request.name} {compact(step.request.arguments)}, "
-            f"to learn: {step.information_needed}. Its answer is {evidence.id} above.\n\n"
+            f"to learn: {step.information_needed}. Its answer is {evidence.id} above."
+        )
+        return self._read_and_decide(state, phase, just_asked)
+
+    def interpret_and_decide_many(
+        self,
+        state: InvestigationState,
+        phase: LoopPhase,
+        steps: tuple[tuple[CallTool, Evidence], ...],
+    ) -> InterpretedStep:
+        """Batch mode: one question reads every new result of a list of calls."""
+        # Variables:
+        #   steps: Each call that produced evidence, with that evidence, in the
+        #     order the calls ran.
+        #   lines: One numbered line per call, naming its answer's evidence ID.
+        lines = [
+            f"{n}. {step.request.name} {compact(step.request.arguments)}, to learn: "
+            f"{step.information_needed}. Its answer is {evidence.id} above."
+            for n, (step, evidence) in enumerate(steps, start=1)
+        ]
+        just_asked = (
+            "JUST ASKED, in this order, before you saw any answer:\n" + "\n".join(lines)
+        )
+        return self._read_and_decide(state, phase, just_asked)
+
+    def _read_and_decide(
+        self, state: InvestigationState, phase: LoopPhase, just_asked: str
+    ) -> InterpretedStep:
+        """The combined question: interpret what was just asked, then choose next."""
+        # Variables:
+        #   just_asked: The lines naming the call or calls just made and the
+        #     evidence IDs of their answers.
+        #   system: The decide prompt plus the interpretation duty and, when
+        #     batching, the note on listing several calls.
+        #   answer_type: StepAnswer (one call) or StepsAnswer (a list), by
+        #     state.decide_calls.
+        prompt = (
+            f"{render(state)}\n\n{PHASE[phase]}\n\n{just_asked}\n\n"
             f"TOOLS YOU MAY CALL:\n{tool_list(self.tools)}"
         )
         prompt += manual_use_note(self.tools, phase)
-        answer = self._ask(
-            "decide",
-            state,
-            prompt,
-            StepAnswer,
-            system=(
-                f"{SYSTEM['decide']}\n\nAlso interpret the newest evidence in the "
-                "interpretation field: give the full revised hypotheses with "
-                "supporting and contradicting evidence IDs (or null to keep them), "
-                "and any new questions. Choose the next step based on these updated "
-                "beliefs. Never assume the result of a tool you have not called."
-            ),
+        system = (
+            f"{SYSTEM['decide']}\n\nAlso interpret the newest evidence in the "
+            "interpretation field: give the full revised hypotheses with "
+            "supporting and contradicting evidence IDs (or null to keep them), "
+            "and any new questions. Choose the next step based on these updated "
+            "beliefs. Never assume the result of a tool you have not called."
         )
+        answer_type: type[StepAnswer] | type[StepsAnswer] = StepAnswer
+        if state.decide_calls > 1:
+            system += f"\n\n{calls_note(state)}"
+            answer_type = StepsAnswer
+        answer = self._ask("decide", state, prompt, answer_type, system=system)
         decision = answer.decision()
-        if isinstance(decision, CallTool) and decision.request.name not in {
-            t.name for t in self.tools
-        }:
-            self._refuse(f"{decision.request.name} is not a tool offered here")
+        self._check_offered(decision)
         return InterpretedStep(interpretation=answer.interpretation, decision=decision)
+
+    def _check_offered(self, decision: Decision) -> None:
+        """Refuse a call, or any call in a list, to a tool this policy was not shown."""
+        # Variables:
+        #   offered: Names of the tools this policy was shown.
+        #   steps: The calls in the decision; none for a stop.
+        offered = {t.name for t in self.tools}
+        if isinstance(decision, CallTools):
+            steps = decision.steps
+        elif isinstance(decision, CallTool):
+            steps = (decision,)
+        else:
+            steps = ()
+        for step in steps:
+            if step.request.name not in offered:
+                self._refuse(f"{step.request.name} is not a tool offered here")
 
     def hypothesize(self, state: InvestigationState) -> Interpretation:
         return self._ask("hypothesize", state, render(state), Interpretation)

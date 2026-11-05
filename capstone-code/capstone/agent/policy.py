@@ -55,7 +55,18 @@ class Stop(Contract):
     answered_evidence_ids: tuple[str, ...] = ()
 
 
-Decision = CallTool | Stop
+class CallTools(Contract):
+    """Several tool calls chosen in one answer (DECIDE_CALLS above 1).
+
+    The loop runs them in order before the policy sees any of their answers,
+    cuts the list at the first `wait` (only reads may share an answer) and at
+    the budget left, and then asks one question about all the new evidence.
+    """
+
+    steps: tuple[CallTool, ...] = Field(min_length=2)
+
+
+Decision = CallTool | CallTools | Stop
 
 
 class Interpretation(Contract):
@@ -127,6 +138,18 @@ class ReasoningPolicy(Protocol):
         evidence: Evidence,
     ) -> InterpretedStep:
         """One-question mode: read the latest result and propose the next step."""
+        ...
+
+    def interpret_and_decide_many(
+        self,
+        state: InvestigationState,
+        phase: LoopPhase,
+        steps: tuple[tuple[CallTool, Evidence], ...],
+    ) -> InterpretedStep:
+        """Batch mode: read several new results at once and propose the next step.
+
+        Needed only with DECIDE_CALLS above 1 in one-question mode.
+        """
         ...
 
     def hypothesize(self, state: InvestigationState) -> Interpretation:

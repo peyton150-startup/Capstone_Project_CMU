@@ -136,6 +136,14 @@ class Settings(BaseSettings):
     step_questions: int = Field(
         default=1, ge=1, le=2, validation_alias="STEP_QUESTIONS"
     )
+    # The most tool calls one decide answer may list (developer, 2026-11-05).
+    # 1, the default, is one call per answer, and the model's prompt and
+    # answer schema stay exactly as before. Above 1 the model may list several
+    # reads; the loop runs them in order, cuts the list at the first wait (time
+    # only moves on its own), and then asks one question about all the new
+    # evidence: fewer model questions per case. Each call still counts against
+    # the tool-call budget.
+    decide_calls: int = Field(default=1, ge=1, le=5, validation_alias="DECIDE_CALLS")
     # Asked when a job's own model cannot be reached. None: no fallback.
     # Several models, separated by commas, are tried in order: the second
     # when the first is out too (for example its daily quota is spent).

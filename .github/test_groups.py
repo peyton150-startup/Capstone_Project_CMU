@@ -76,6 +76,7 @@ GROUPS: dict[str, list[str]] = {
     "Reasoning loop": [
         "agent_artifacts",
         "agent_loop",
+        "decide_calls",
         "agent_investigation",
         "agent_action",
     ],
