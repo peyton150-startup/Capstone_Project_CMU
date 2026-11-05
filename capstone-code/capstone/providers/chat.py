@@ -755,6 +755,9 @@ def value_client(
     Not one of the seven jobs: only the tree policy asks it, and without its
     own model the pass goes to the hypothesize client, as the first rating does.
     """
+    # Variables:
+    #   settings.value_model: The model for the second rating; None means the
+    #     tree asks its hypothesize client instead.
     settings = settings or get_settings()
     if settings.value_model is None:
         return None

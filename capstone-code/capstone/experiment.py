@@ -1048,6 +1048,10 @@ def model_policy_factory(
         from capstone.providers.chat import value_client
 
         def tree() -> TreeOfThoughtPolicy:
+            # Variables:
+            #   clients: The seven jobs' clients, plus `value` for P5 when
+            #     VALUE_MODEL names a model for the second rating.
+            #   second: That client, or None (the hypothesize client answers).
             clients = clients_for_jobs()
             second = value_client() if options.revalue else None
             if second is not None:

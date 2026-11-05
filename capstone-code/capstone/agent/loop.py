@@ -228,9 +228,13 @@ def check_termination(
     supported diagnosis beats a budget, so a loop that reaches its answer
     on its last allowed call reports success, not exhaustion. Research
     also stops while `followup_seconds` remain, so that the conclusion,
-    the proposal, the work and the check keep the time they need.
+    the proposal, the work and the check keep the time they need, and,
+    before the hypotheses, while `hypothesis_seconds` remain on top of that
+    (`held_for_hypotheses`), so the hypothesize question still gets asked.
     """
     # Variables:
+    #   phase: Which loop is asking; the hypothesis reserve is held only in
+    #     the stages before the hypotheses.
     #   phase_iterations: Turns this phase has already taken, used only for the verify
     #     limit.
     #   budgets: The limits for this run (time, calls, turns).

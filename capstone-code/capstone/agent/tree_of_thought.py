@@ -441,6 +441,10 @@ def rank_candidates(
 
 def ranked_out(entry: Ranked, breadth: int) -> str:
     """Why a candidate below the cut was dropped, in the words the trace keeps."""
+    # Variables:
+    #   entry: The candidate below the cut; `unproven` marks an "impossible"
+    #     rating with no factory evidence, which the reason then says.
+    #   breadth: Where the cut was, for the reason's wording.
     ranked = f"ranked below the best {breadth}"
     if entry.unproven:
         return f"rated impossible with no factory evidence against it; {ranked}"
@@ -671,10 +675,16 @@ class TreeOfThoughtPolicy(ModelPolicy):
     def hypothesize(self, state: InvestigationState) -> Interpretation:
         # Variables:
         #   view: The same working-memory text every question is shown.
+        #   mode, breadth, why: What adaptive branching chose (P3): skip the tree,
+        #     the usual breadth or one more; "static" with the usual breadth
+        #     when it is off.
         #   generated: The candidate explanations the model proposed, capped at the
         #     candidate count.
+        #   shown: The candidates in the order the rating question lists them:
+        #     rotated by the investigation id with TOT_ROTATE (P4), else as generated.
         #   ratings: The model's verdict and confidence for each candidate.
         #   kept: The best candidates after pruning, each with its rating, best first.
+        #   retained: Candidates kept beyond the breadth, with why (P1).
         #   dropped: Why each other candidate was removed, kept for the record.
         #   hypotheses: The kept candidates turned into hypotheses H1, H2 and so on.
         #   questions: One question per kept candidate that would tell it apart from the
