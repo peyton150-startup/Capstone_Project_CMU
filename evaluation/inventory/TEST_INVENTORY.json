@@ -90216,6 +90216,173 @@
     "TS-02",
     "TS-03"
    ]
+  },
+  {
+   "id": "tests/test_agent_completion.py::test_the_audit_record_keeps_incident_context_without_promoting_it_to_memory",
+   "file": "tests/test_agent_completion.py",
+   "name": "test_the_audit_record_keeps_incident_context_without_promoting_it_to_memory",
+   "line": 346,
+   "docstring": "The packet remains auditable and older log lines remain readable.",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 3,
+   "assert_forms": {
+    "equality": 1,
+    "is_none": 1,
+    "membership": 1
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "The packet remains auditable and older log lines remain readable.",
+   "execution_outcome": "not_run",
+   "exercises": [],
+   "exercise_count": 0,
+   "modules_exercised": [],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_agent_investigation.py::test_incident_context_uses_bounded_observations_before_planning",
+   "file": "tests/test_agent_investigation.py",
+   "name": "test_incident_context_uses_bounded_observations_before_planning",
+   "line": 197,
+   "docstring": "The packet keeps source references and respects the trigger cutoff.",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 12,
+   "assert_forms": {
+    "call_truthiness": 2,
+    "equality": 5,
+    "is_not_none": 1,
+    "membership": 3,
+    "truthiness": 1
+   },
+   "raises_checks": 0,
+   "uses": [
+    "FakeProvider"
+   ],
+   "quality_flags": [],
+   "claims": "The packet keeps source references and respects the trigger cutoff.",
+   "execution_outcome": "not_run",
+   "exercises": [],
+   "exercise_count": 0,
+   "modules_exercised": [],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_agent_investigation.py::test_incident_context_marks_missing_calls_and_preserves_research_budget",
+   "file": "tests/test_agent_investigation.py",
+   "name": "test_incident_context_marks_missing_calls_and_preserves_research_budget",
+   "line": 275,
+   "docstring": "A small call budget leaves research capacity and records skipped reads.",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 4,
+   "assert_forms": {
+    "equality": 3,
+    "is_not_none": 1
+   },
+   "raises_checks": 0,
+   "uses": [
+    "FakeProvider"
+   ],
+   "quality_flags": [
+    "may_skip"
+   ],
+   "claims": "A small call budget leaves research capacity and records skipped reads.",
+   "execution_outcome": "not_run",
+   "exercises": [],
+   "exercise_count": 0,
+   "modules_exercised": [],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_agent_investigation.py::test_incident_context_without_an_explicit_sensor_avoids_guessing_one",
+   "file": "tests/test_agent_investigation.py",
+   "name": "test_incident_context_without_an_explicit_sensor_avoids_guessing_one",
+   "line": 297,
+   "docstring": "Inspection failures alone do not pick a sensor for nearby summaries.",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 3,
+   "assert_forms": {
+    "equality": 1,
+    "is_not_none": 1,
+    "negation": 1
+   },
+   "raises_checks": 0,
+   "uses": [
+    "FakeProvider"
+   ],
+   "quality_flags": [],
+   "claims": "Inspection failures alone do not pick a sensor for nearby summaries.",
+   "execution_outcome": "not_run",
+   "exercises": [],
+   "exercise_count": 0,
+   "modules_exercised": [],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_experiment.py::test_line_context_setting_and_evidence_references_reach_the_record",
+   "file": "tests/test_experiment.py",
+   "name": "test_line_context_setting_and_evidence_references_reach_the_record",
+   "line": 967,
+   "docstring": "The opt-in packet is saved, and old experiment records still load.",
+   "parametrized": false,
+   "fixtures": [
+    "monkeypatch"
+   ],
+   "assertions": 7,
+   "assert_forms": {
+    "identity_constant": 1,
+    "is_not_none": 1,
+    "membership": 1,
+    "ordering": 1,
+    "truthiness": 3
+   },
+   "raises_checks": 0,
+   "uses": [
+    "monkeypatch"
+   ],
+   "quality_flags": [
+    "patches_dependencies"
+   ],
+   "claims": "The opt-in packet is saved, and old experiment records still load.",
+   "execution_outcome": "not_run",
+   "exercises": [],
+   "exercise_count": 0,
+   "modules_exercised": [],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
   }
  ]
 }

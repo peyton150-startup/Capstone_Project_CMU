@@ -18,6 +18,8 @@
 > not shared memory. `.env.example` documents the opt-in arm.
 > Focused offline tests cover cutoff, provenance, call reserve, missing
 > coverage, no guessed sensor, record persistence and old-record loading.
+> The evaluation inventory lists the three new functions and five new tests;
+> their coverage classifications await a complete instrumented run.
 > The packet uses current observed settings/status, not a reconstructed
 > trigger-time snapshot; monitoring can discover an alarm inside a 10-tick
 > scan. It offers only nearby sensor summaries and leaves deeper line checks

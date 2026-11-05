@@ -7,15 +7,16 @@
   "capstone-code/capstone/__init__.py": "1ae00da29b0773e3b186b4040967c5b9fbfa556efc440434df0f97f479635a02",
   "capstone-code/capstone/agent/__init__.py": "87e28fd4a82f0c0022ddf37a6b714466cb5445c3ab2b94d3cab25a55f776b313",
   "capstone-code/capstone/agent/artifacts.py": "9fd92da8862dfa26b6797e24a61e8cf0ffee48a5c73d4b4f70ebccf8b074987b",
-  "capstone-code/capstone/agent/completion.py": "05841833e196a9ac41144bce6fc95bcc8a6309ffefcc66a31996b28f030cc386",
+  "capstone-code/capstone/agent/completion.py": "2315b04a495f1916c4f417646a348f44e5ec23d5283ba6cae42d3a9955ed0503",
   "capstone-code/capstone/agent/critic.py": "82dcf0784e91ea34dea176ed4170257fd1835ee5b95464c9e80f9de119574fb4",
   "capstone-code/capstone/agent/evidence_brief.py": "23f05f6b11a3f64ba96100edf1538142136bb98164e56ca9c68f10872f7986a8",
-  "capstone-code/capstone/agent/investigation.py": "654469a04c2f09e08b7240c2f94fbe06ba343744882680d7f28883bfd6ebca96",
+  "capstone-code/capstone/agent/incident_context.py": "ddc8caecd198a3c97f11e31d21bfedc3e7b5abe5e25bedac627d47bc784106a2",
+  "capstone-code/capstone/agent/investigation.py": "efb86278213a44e83b8d443b0d01c514b127dcb3af4c01fe8211ee8579075102",
   "capstone-code/capstone/agent/loop.py": "5bcf5ef03a1ce16f3dac6a9692f58cbd6bd7b9b5fc9c91c3df4ef7d2819fd540",
-  "capstone-code/capstone/agent/model_policy.py": "1f9f3537cfa14e40ccf2b2aef3a0b7ae769927b283648b9e0cc438e760f15414",
+  "capstone-code/capstone/agent/model_policy.py": "6cc639c319964222c0b417d369e1f8560f851e0d0870db7ac27300c39cafdd17",
   "capstone-code/capstone/agent/monitor.py": "62c1eca74bc1a9b7a4454aed5dfe9c8baeadc868f42a147c8da5d9466da30ecc",
   "capstone-code/capstone/agent/policy.py": "cf8d8408be5abf557ad9a434e814510effe4c05ac12bb8272319678fa5ce2a2f",
-  "capstone-code/capstone/agent/state.py": "f0eb2cc7e353d44b5ff4c809cb23965e3c3db446f044e0b60080e2483e4c38da",
+  "capstone-code/capstone/agent/state.py": "f8c4ef596944e6693043b043da0c46466cfb7661fd125208e21700449eb7fe61",
   "capstone-code/capstone/agent/tree_of_thought.py": "21c9223651355607bd7c63b9edacb7943188548d82d1c61e74d8cc12a03886f7",
   "capstone-code/capstone/baseline.py": "1acab63d6c15cf64edeaaf02e2b7598de7f71046ab52aaac02189834c37cebf0",
   "capstone-code/capstone/benchmark.py": "2638960900e86be5cbb3946b475a963da91817e18761b5f1e8764a06acdd2055",
@@ -30,7 +31,7 @@
   "capstone-code/capstone/contracts/tools.py": "86bd2e3106922fe6391d6c4250ec027aa92566b043859e1f3aa56d2626d874fb",
   "capstone-code/capstone/database/__init__.py": "0281b49fc37eea352b748cadf095abe2d8ca2d3826538e529a86cbced008643f",
   "capstone-code/capstone/database/connection.py": "3d38d7be208211265046340b4294bce3aadeb08f0cb81c691846c79daf76bd0c",
-  "capstone-code/capstone/episode.py": "ef2fe1736caeba29d1a316cf9a86bb0dd89b2383139bed89212fc5a59b742f18",
+  "capstone-code/capstone/episode.py": "b6b1eff7636094e66a26503fd114b4d3eb620a0910698635d9d4ceccc88a3cf4",
   "capstone-code/capstone/evals.py": "452c4d3bae42427438ce74094765003a60f1ff2ac4614e1efdf3959e96c71991",
   "capstone-code/capstone/evaluation/__init__.py": "3cac2031f773e1ef3629ba6beec56ced3bd37131dae1b1ac8fc1e5e6a9124eb5",
   "capstone-code/capstone/evaluation/auto_label.py": "197794f3cab3ec7818f5786e9ccc11e6f3df9be6451c8772f1881ade7ca7d4a4",
@@ -39,7 +40,7 @@
   "capstone-code/capstone/evaluation/manual.py": "0fa2b4a1b62c95b9ca85723a676a539d17b577a3ecbf4427e1e7364c5e9a44c2",
   "capstone-code/capstone/evaluation/memory.py": "80dfe928d4cfff99fc06b7c42ad01c5aeadab6470988a4a0292e2b923f4595c9",
   "capstone-code/capstone/evaluation/scoring.py": "c8c75691a07f58c0cf3394279f041218fc18267a511abdbbb259a261b46f39d7",
-  "capstone-code/capstone/experiment.py": "e9781e67f2a00b4f9c570aec948c2d52ba42eebe9cb49b10c4fb9130841620be",
+  "capstone-code/capstone/experiment.py": "116b127451db0c0d8761688b569492d4a43eb068ab4d13e8d71841748dc4ae8f",
   "capstone-code/capstone/faults.py": "f52fc70151782286d8ba7f22345df57d0d575e06c13b8b3076abde92718ee6ae",
   "capstone-code/capstone/ingestion/__init__.py": "3b889abd9612d202defed04198a7b6e6f1c8f87bc80a46b338407c1ac33f5a8d",
   "capstone-code/capstone/ingestion/__main__.py": "4098a5f47920d7a06ebaa8861b3d5a21f332f4c9c965ed43f725d2e058aa2363",
@@ -72,12 +73,12 @@
   "capstone-code/capstone/providers/__init__.py": "3c5dc87099f8ec4ac1db4e949c0a54a0025df89af62e93f3e9cb147d5c380b58",
   "capstone-code/capstone/providers/chat.py": "25edd66d16af859191dcab70c10959f8c9a75c52585d027acdb1d0e98769bc71",
   "capstone-code/capstone/providers/embeddings.py": "a16df4faf5e0bbc60e5fd67e2aaa2cc76f2c5dc218c635a828ee39639b5cdaa8",
-  "capstone-code/capstone/providers/factory.py": "58bb8b6594866ad2e8e303138d4f5e756a8dfeaf470e950d355b0f24eec0ab6c",
+  "capstone-code/capstone/providers/factory.py": "dee3a0bb6e910bb9cb0c943d84605f7f8ee766d337209420543f0bd188549698",
   "capstone-code/capstone/providers/hazards.py": "4549f0bbba0b6267c4e0f69fba71b5668cc024e89d19e4c61ef32a08292799f5",
   "capstone-code/capstone/providers/manual.py": "befcdb6fceb495a99c2fb32b9d075b0539b1d83c3629eb88a266daa437db7908",
   "capstone-code/capstone/providers/recall.py": "8bbf12b6c65ae12e04916c1c160977968c955e044df670d7aa8ad3d91b7d94d5",
   "capstone-code/capstone/providers/typesafe.py": "d8142540e5dc39b66393640512ca9d2f99ce4ccef22052166a9ce46d9657da50",
-  "capstone-code/capstone/settings.py": "e7e9bb5e68be17a11f36c0b13cd3022b63a2fd51abdb8f010e5476cab355d7c4",
+  "capstone-code/capstone/settings.py": "f30a10110552aca74eb9b66359b2ee022011172aa7b4024ca407da9f3c4f2d6d",
   "capstone-code/capstone/simulator/__init__.py": "3f7a4fa529e19d54c1ee6ee16f5847c5d412119ef75a9f893a9634ac6e48375b",
   "capstone-code/capstone/simulator/challenge.py": "9a05452e238b420320649ac0e6fee4131ff4e10666f6cd1220559a389063d250",
   "capstone-code/capstone/simulator/clock.py": "e91bccc802f0d248b0901b24d9fbe56b7d41c10af25bbf92e6946b30da00967a",
@@ -94,7 +95,7 @@
   "capstone-code/capstone/simulator/state.py": "3581125a9982a05faa493c8a7f38c4e9f795e6ef4562c9cf3fc972f869eff55e",
   "capstone-code/capstone/simulator/thermal.py": "dc6840e3cc72c5dfe52f7fab495a286ae3a5bf51d9c915a76feeda82443c20ed",
   "capstone-code/capstone/tools/__init__.py": "8709d93809c99aa38ac86cff3b9b184577eb5364409fbb4947977a4925ea36cf",
-  "capstone-code/capstone/tools/actions.py": "3c350747ce970c44c3ce14ddeed4d8bcc77419b867fbd39d54fb425b26edda81",
+  "capstone-code/capstone/tools/actions.py": "7868599b49b968ef0c353e649f20c0c263631686bdd587a45ed87b9727e3215f",
   "capstone-code/capstone/tools/diagnosis.py": "98ec3bf852d7db2a002c4d8c70f83cfa71ee66046baeea3d6d54f967f3543f55",
   "capstone-code/capstone/tools/errors.py": "32cc03629449f2311ed055f6703988c93c7faf3b4a3e3a97fb578a3d27bb4603",
   "capstone-code/capstone/tools/observation.py": "4d64f302de179883db02219d7f9ad90efae133559dc34a86c80ad21ece6f3504",
@@ -111,8 +112,8 @@
   "evaluation/evaltools/traced_run.py": "d53090114dead802f246586a60c5c51621b4246d9f6a5940319d59996146ac17",
   "tests/test_agent_action.py": "01e7938e5ca7c9a90c28054e75bfc7fcd7919b94c9fa2397f24917058527fb6c",
   "tests/test_agent_artifacts.py": "948a3777fccc423a900cca3a27f13655d13ebdbd1fd3da154ddb53fa23d0545a",
-  "tests/test_agent_completion.py": "72f8e59745310a944c7738c51e5635df3aca58c564bc1dd63cda109a3d01681b",
-  "tests/test_agent_investigation.py": "3456a1d2061f14b16b866520120c0fd43a365bc702429e837304bcbf1b5b8363",
+  "tests/test_agent_completion.py": "be20d84b4f0e882890d003d90fc81994f87badc1ad7c508b9f9007d8c5b99465",
+  "tests/test_agent_investigation.py": "67d40fd64066e10f0ffa2aab5850547455a8247dd809f4acc2d0896cc413a3eb",
   "tests/test_agent_loop.py": "c127105429242023f81a2febe4b102691a3ebbeb13d68e6e7db26b58f6d6a900",
   "tests/test_agent_provenance.py": "0a8879334099f19c074d24e20e474cc034b11ed801584ad3428f438c1f2ac8df",
   "tests/test_agent_verification.py": "6ab84fe9e86518ba92c58d3f3aca1447ae8fb5c033f3159189070b85a2de72b3",
@@ -140,15 +141,15 @@
   "tests/test_evaluation.py": "8b9df54c4ca7789f99c111989ab520d7780c37777e7ccc4cdb21392ea752b833",
   "tests/test_evaluation_tools.py": "52ca64af07c51c439461003db03bc85aa489f979452a4e15e37db1595171fe08",
   "tests/test_events.py": "b82917a6735cb71ddb515fe0f9ed81e30d07d0e93ec867a8d11c33e611212dfc",
-  "tests/test_experiment.py": "8a3b8a6481fadf64f4ddfb2baa3a4072bf3f2385e7dc0251987b3345b570db65",
-  "tests/test_factory_provider.py": "64dea43eebf1f219f836d44b678b4915e33089aa7781a1762a7205976b0e8748",
+  "tests/test_experiment.py": "f812fbe4df806cef34f4763073d31043824bcbb74038c9ac5a2651a1f7241b61",
+  "tests/test_factory_provider.py": "5f57eaa75e7bf11dcc45c87fc65a207578c492c1f3ceb0dc60ca7c5ae67bc77b",
   "tests/test_failure.py": "ecd776064fc155eba92530de63e68e3d9c375c2e9edac0fdff221f460de0be31",
   "tests/test_false_alarm.py": "874f88e86e966938ce2094df580676347a6e464028d52e624cb172c9e41a993e",
   "tests/test_fault_packs.py": "8469925cad06684823639e91051caabb06c126fdbcf00300534a6a24b90fe85a",
   "tests/test_full_evaluation.py": "d850c2adc6a3bd2839f3e93a7d322f059408e1e93a0c43fefb6af697d20b6994",
   "tests/test_generator.py": "c080082dd5a9a3aa81d684df7fc5f1960ea897d6e76c03597069711cd8b4bec4",
   "tests/test_ground_truth.py": "9ac9af3bf6af7306ffc7e918481030271a33b0cdedfb2a07d11d104d61b63ef2",
-  "tests/test_hazards.py": "c97f7a7f5c3f0591ef1b0ee8475405e69413970e7d418baf47590b07415b6a0b",
+  "tests/test_hazards.py": "a4d11c20adc7915395468f7b19502af26b49103f160afdcbe911d623d94afb4a",
   "tests/test_hydraulics.py": "f85a8e793a1709620f25244f5df457889f062b3cf833be4e1ac95fac51ae4b10",
   "tests/test_job_history.py": "1320b374409b889c7fa94cd9497c649b90f09d88e6abbccc728b36e6ff2f15bc",
   "tests/test_known_answers.py": "09f17601ca08b4997ef461d291c631cd206a188fe3dc7e7ae7de776b5096ccbc",
@@ -190,7 +191,7 @@
   "tests/test_simulator_challenge.py": "051970b2cfd888768a2aa94023fcde60e409025d49fed26d6e67b0f820dc120a",
   "tests/test_simulator_disturbances.py": "c954ea0a72e017bae22eb3007e360260e4e84acc6e621c49224d2570fb0d77bb",
   "tests/test_slow_when_worn.py": "bf11ea04d9852380e78a07b2a55e296f0f416019070a2af6caa711e92d7ddd98",
-  "tests/test_state.py": "91a2e61cb1d1a3129cff3609f8899e99835e7748c44fb6eb7f7be0babbdb0b49",
+  "tests/test_state.py": "741ae0454602e933120be27b061243220bf5922d22c34700addc42765cfc39c8",
   "tests/test_telemetry_monitor.py": "f2bef2082c333298700a46fd855d16714ae30cf0874c6d08516642baf920f431",
   "tests/test_temperature_sensor.py": "54f3c7bc53883ea0c86ec11b6cd8dbf372795a891a754db9f3e06389ef6400b7",
   "tests/test_thermal_lag.py": "f7386763b100f75c82b6ff1ad34c630828ce2f2be55a1e10e633589dfeb117cb",
@@ -204,14 +205,14 @@
  "coverage_sha256": "f2ffca370a21550bea3f59b7180877c1cd4c057b3a1853cc3149d113087413de",
  "junit_sha256": "9b5d7a39602ac70be3d6c909b7d463212cb6028bf3d2c6ed6d4f32b40a061662",
  "counts": {
-  "functions": 775,
+  "functions": 778,
   "classes_note": "classes are listed through their methods",
-  "tests": 1487,
+  "tests": 1492,
   "tools": 17,
   "functions_by_status": {
    "INSUFFICIENT EVIDENCE": 299,
    "NOT APPLICABLE": 24,
-   "NOT TESTED": 35,
+   "NOT TESTED": 38,
    "PARTIALLY VERIFIED": 372,
    "VERIFIED": 45
   },
@@ -220,7 +221,7 @@
    "import-only": 3,
    "indirect": 312,
    "no-statements": 24,
-   "none": 35
+   "none": 38
   },
   "functions_executed_in_tests": 713,
   "functions_with_direct_tests": 401,
@@ -259,7 +260,10 @@
    "evaluation.evaltools.traced_run:functions_hit",
    "evaluation.evaltools.traced_run:start_tracer",
    "evaluation.evaltools.traced_run:run_traced",
-   "evaluation.evaltools.traced_run:main.<locals>.save"
+   "evaluation.evaltools.traced_run:main.<locals>.save",
+   "capstone.agent.incident_context:incident_sensor",
+   "capstone.agent.incident_context:context_call",
+   "capstone.agent.incident_context:assemble_incident_context"
   ],
   "functions_executed_only_at_import": [
    "capstone.agent.investigation:build_graph.<locals>.choose",
@@ -306,7 +310,8 @@
   ],
   "stubs_or_protocols": 24,
   "tests_by_outcome": {
-   "passed": 1487
+   "passed": 1487,
+   "not_run": 5
   },
   "tests_with_no_assertion": [
    "tests/test_console.py::test_without_it_the_same_print_raised"
@@ -868,6 +873,11 @@
   "evaluation.evaltools.traced_run": {
    "functions": 6,
    "executed": 1,
+   "direct": 0
+  },
+  "capstone.agent.incident_context": {
+   "functions": 3,
+   "executed": 0,
    "direct": 0
   }
  },
@@ -14504,6 +14514,24 @@
    ]
   },
   "evaluation.evaltools.traced_run:main.<locals>.save": {
+   "count": 0,
+   "status": "NOT TESTED",
+   "direct": [],
+   "indirect": []
+  },
+  "capstone.agent.incident_context:incident_sensor": {
+   "count": 0,
+   "status": "NOT TESTED",
+   "direct": [],
+   "indirect": []
+  },
+  "capstone.agent.incident_context:context_call": {
+   "count": 0,
+   "status": "NOT TESTED",
+   "direct": [],
+   "indirect": []
+  },
+  "capstone.agent.incident_context:assemble_incident_context": {
    "count": 0,
    "status": "NOT TESTED",
    "direct": [],
@@ -42726,6 +42754,31 @@
     "capstone.simulator.scenarios:working_speed",
     "capstone.simulator.sensors:Sensor.__init__"
    ]
+  },
+  "tests/test_agent_completion.py::test_the_audit_record_keeps_incident_context_without_promoting_it_to_memory": {
+   "count": 0,
+   "judgment": "NOT ASSESSED",
+   "functions": []
+  },
+  "tests/test_agent_investigation.py::test_incident_context_uses_bounded_observations_before_planning": {
+   "count": 0,
+   "judgment": "NOT ASSESSED",
+   "functions": []
+  },
+  "tests/test_agent_investigation.py::test_incident_context_marks_missing_calls_and_preserves_research_budget": {
+   "count": 0,
+   "judgment": "NOT ASSESSED",
+   "functions": []
+  },
+  "tests/test_agent_investigation.py::test_incident_context_without_an_explicit_sensor_avoids_guessing_one": {
+   "count": 0,
+   "judgment": "NOT ASSESSED",
+   "functions": []
+  },
+  "tests/test_experiment.py::test_line_context_setting_and_evidence_references_reach_the_record": {
+   "count": 0,
+   "judgment": "NOT ASSESSED",
+   "functions": []
   }
  },
  "tool_to_tests": {
@@ -43738,5 +43791,6 @@
   "FN": "function-level Snap questions (SNAP_QUESTIONS.json, family FN)",
   "TS": "test-level Snap questions (family TS)",
   "TL": "tool-level Snap questions (family TL)"
- }
+ },
+ "incremental_update_note": "Three new functions and five new tests were appended from AST discovery. Their coverage and JUnit classifications are unavailable because a complete instrumented run did not finish; older classifications retain their prior coverage/JUnit provenance. The ordinary full suite passed 1855 tests."
 }
