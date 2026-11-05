@@ -28,7 +28,7 @@ from capstone.contracts.tools import (
     ToolSpec,
     TraceContext,
 )
-from capstone.tools.actions import ActionTools
+from capstone.tools.actions import MAX_WAIT_TICKS, ActionTools
 from capstone.tools.errors import ToolInputError
 from capstone.tools.observation import ObservationTools
 
@@ -178,7 +178,8 @@ class JobArguments(NoArguments):
 
 
 class WaitArguments(NoArguments):
-    ticks: int = Field(ge=1)
+    # The limit is in the schema so a model sees it before it asks.
+    ticks: int = Field(ge=1, le=MAX_WAIT_TICKS)
 
 
 class ProposalArguments(NoArguments):
@@ -244,7 +245,10 @@ TOOL_DESCRIPTIONS: dict[str, str] = {
         "Pass/fail inspection results (with material batch) for jobs that left "
         "the line in a tick range."
     ),
-    "wait": "Let the factory run for some ticks. The only way time passes; looking is free.",
+    "wait": (
+        f"Let the factory run for 1 to {MAX_WAIT_TICKS} ticks, then report the new "
+        "tick and time. The only way time passes; looking is free."
+    ),
     "propose_action": (
         "Ask a human to approve a change to the factory. replace_bearing stops the "
         "machine about 45 ticks (135 if it has broken down); reset_setting stops it "

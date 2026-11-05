@@ -206,10 +206,11 @@ def test_a_feed_that_was_never_refused_is_not_a_recovery():
 
 def test_a_blackout_does_not_touch_the_factory():
     sim, clean = factory()
-    before = len(sim.readings)
+    readings_before, tick_before = len(sim.readings), sim.clock.tick
     tools = UnreliableProvider(clean, (Blackout("CNC-01", sim.clock.tick + 20),))
     tools.call(readings())
-    assert len(sim.readings) == before and sim.clock.tick == sim.clock.tick
+    assert len(sim.readings) == readings_before
+    assert sim.clock.tick == tick_before
 
 
 def test_the_length_is_seeded_and_within_the_range():

@@ -263,7 +263,7 @@ def test_all_read_tools_preserve_existing_observable_shapes():
             },
             "unknown machine CNC-99",
         ),
-        ("wait", {"ticks": 1000}, "ticks must be a whole number from 1 to 480"),
+        ("wait", {"ticks": 1000}, "ticks: Input should be less than or equal to 480"),
         (
             "propose_action",
             {"machine_id": "CNC-01", "action": "replace bearing", "reason": "worn"},
