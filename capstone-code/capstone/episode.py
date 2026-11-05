@@ -357,6 +357,7 @@ def run_episode(
         # Only a run that offers the manual can search it.
         manual_step=settings.manual_step and manual is not None,
         hypothesis_seconds=settings.hypothesis_reserve_seconds,
+        critic_reinstate=settings.tot_reinstate,
     )
     research = state.budgets.timeout_seconds - state.budgets.followup_seconds
     if deps.hypothesis_seconds >= research:

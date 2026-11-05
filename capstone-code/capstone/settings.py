@@ -194,6 +194,10 @@ class Settings(BaseSettings):
     # P4: list the candidates to the rating question in an order rotated per
     # run, so `python -m capstone.tree_reach --positions` can measure position bias.
     tot_rotate: bool = Field(default=False, validation_alias="TOT_ROTATE")
+    # P2: right after pruning, ask the critic (one extra critic question, in
+    # its own window) whether one dropped candidate deserves a check; if so it
+    # becomes the least believed hypothesis. Needs CRITIC on and a tree run.
+    tot_reinstate: bool = Field(default=False, validation_alias="TOT_REINSTATE")
     # Rapid triage (MVP_SCOPE.md, "Split rapid triage from deep
     # investigation"): a short, read-only first look before the deep run.
     # Off by default (developer, 2026-11-05), so runs stay comparable with the

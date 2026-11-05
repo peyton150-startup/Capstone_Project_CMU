@@ -46,6 +46,7 @@ from capstone.agent.artifacts import (
     CritiqueRecord,
     ProposalRecord,
     RecheckRecord,
+    ReinstatementRecord,
     TerminationReason,
     VerificationCheck,
 )
@@ -64,7 +65,8 @@ from capstone.agent.loop import (
     run_inner_loop,
 )
 from capstone.agent.policy import ActionRequest, CallTool, Interpretation, Stop
-from capstone.agent.state import InvestigationState, Phase, Question
+from capstone.agent.state import InvestigationState, Phase, PrunedCandidate, Question
+from capstone.contracts.hypotheses import Hypothesis
 from capstone.contracts.tools import ToolRequest
 from capstone.providers.chat import ModelError
 from capstone.providers.factory import research_tools
@@ -237,7 +239,111 @@ def hypothesize(state: InvestigationState, deps: InvestigationDeps) -> Route:
         information_needed="what could explain the evidence",
         termination_reason=reason,
     )
+    if outcome == "decided":
+        reconsider(state, deps)
     return "continue" if state.hypotheses else "conclude"
+
+
+# The question id a reinstated candidate's check is kept under.
+REINSTATED_QUESTION = "R1"
+
+
+def reinstated_confidence(candidate: PrunedCandidate, floor: float) -> float:
+    """The confidence a reinstated candidate starts at: never above the kept ones.
+
+    The critic's reason is a belief, not a reading, so the candidate starts no
+    higher than the least believed kept hypothesis (`floor`), and no higher than
+    its own rating. One rated "impossible" with factory evidence against it
+    starts at most at 0.5: that evidence still stands until a check says otherwise.
+    """
+    # Variables:
+    #   candidate: The dropped candidate the critic named.
+    #   floor: The confidence of the least believed kept hypothesis.
+    #   rated: Its own rated confidence, or 0.5 if it was never rated.
+    rated = 0.5 if candidate.confidence is None else candidate.confidence
+    if candidate.status == "contradicted":
+        rated = min(rated, 1 - rated, 0.5)
+    return round(min(rated, floor), 6)
+
+
+def reconsider(state: InvestigationState, deps: InvestigationDeps) -> None:
+    """Let the critic bring back one candidate pruning dropped, to be tested (P2).
+
+    Off unless `deps.critic_reinstate`, a critic and something pruned. The
+    critic is asked once, in its own window (the deadline moves back by the
+    seconds it used, as for the critique). If it names a dropped candidate,
+    that candidate becomes the least believed hypothesis, with its check as an
+    open question for the test stage, and leaves the pruned list. Whatever the
+    critic says or fails to say, the run goes on.
+    """
+    # Variables:
+    #   offered: The dropped candidate ids, in the order the critic saw them.
+    #   began, used: The clock when the question started, and the seconds it took.
+    #   answer: The critic's checked reply, or None if it gave no usable one.
+    #   outcome: What the record says happened.
+    #   chosen: The dropped candidate the critic named.
+    #   taken: Hypothesis ids already in use, so the new one gets a fresh id.
+    if not (deps.critic_reinstate and deps.critic is not None):
+        return
+    if not state.pruned_candidates or not state.hypotheses:
+        return
+    offered = tuple(p.id for p in state.pruned_candidates)
+    began = deps.clock()
+    answer, outcome = None, "declined"
+    try:
+        answer = deps.critic.reconsider(
+            state.model_copy(deep=True), max_seconds=deps.critic_seconds
+        )
+    except ModelError:
+        outcome = "no_answer"
+    except POLICY_ERRORS:
+        outcome = "invalid_reply"
+    used = max(0.0, deps.clock() - began)
+    if state.started_at is not None:
+        state.started_at += used
+    record_args = {"offered": offered, "seconds": used}
+    if answer is None or answer.candidate_id == "none":
+        state.reinstatement = ReinstatementRecord(
+            outcome=outcome, why=None if answer is None else answer.why, **record_args
+        )
+        return
+    chosen = next(p for p in state.pruned_candidates if p.id == answer.candidate_id)
+    taken = {h.id for h in state.hypotheses}
+    number = len(taken) + 1
+    while f"H{number}" in taken:
+        number += 1
+    confidence = reinstated_confidence(
+        chosen, min(h.confidence for h in state.hypotheses)
+    )
+    hypothesis = Hypothesis(
+        id=f"H{number}",
+        claim=chosen.claim,
+        confidence=confidence,
+        supporting_evidence_ids=chosen.supporting_evidence_ids,
+        contradicting_evidence_ids=chosen.contradicting_evidence_ids,
+        discriminating_check=answer.check,
+    )
+    check = (answer.check or answer.why or chosen.claim).strip()
+    apply_interpretation(
+        state,
+        Interpretation(
+            hypotheses=(*state.hypotheses, hypothesis),
+            new_questions=(
+                Question(
+                    id=REINSTATED_QUESTION, text=check, hypothesis_id=hypothesis.id
+                ),
+            ),
+        ),
+    )
+    state.pruned_candidates = [p for p in state.pruned_candidates if p.id != chosen.id]
+    state.reinstatement = ReinstatementRecord(
+        outcome="reinstated",
+        candidate_id=chosen.id,
+        hypothesis_id=hypothesis.id,
+        confidence=confidence,
+        why=answer.why,
+        **record_args,
+    )
 
 
 def test(state: InvestigationState, deps: InvestigationDeps) -> None:

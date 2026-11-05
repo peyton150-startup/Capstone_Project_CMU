@@ -54,7 +54,12 @@ from time import monotonic
 from pydantic import BaseModel, ConfigDict, Field
 
 from capstone.agent.completion import AuditLog, complete
-from capstone.agent.critic import Critic, CritiqueRecord, RecheckRecord
+from capstone.agent.critic import (
+    Critic,
+    CritiqueRecord,
+    RecheckRecord,
+    ReinstatementRecord,
+)
 from capstone.agent.model_policy import ModelCall
 from capstone.agent.policy import ReasoningPolicy
 from capstone.agent.state import Budgets
@@ -331,6 +336,9 @@ class ExperimentRecord(BaseModel):
     # The tree-of-thought options the run's policy used (P1-P5 switches).
     # None: the ordinary policy, or a record from before they were kept.
     tree_options: TreeOptions | None = None
+    # P2 (TOT_REINSTATE): what the critic's reinstatement question did. None:
+    # it was off or had nothing to offer (and in older records).
+    reinstatement: ReinstatementRecord | None = None
     # With triage on: the rapid triage that ran first. The fields above then
     # describe the deep run that followed, or the triage when none did.
     # None: triage was off (and in records from before it was kept).
@@ -516,6 +524,7 @@ def record_of(
         thoughts=None if thoughts is None else list(thoughts),
         hypothesis_reserve_used=state.hypothesis_reserve_used,
         tree_options=tree_options,
+        reinstatement=state.reinstatement,
         triage=triage_record(result),
     )
 

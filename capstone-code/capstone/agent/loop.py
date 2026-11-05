@@ -120,6 +120,11 @@ class InvestigationDeps:
     # The trace audit of 2026-11-05 found 7 of 16 tree-less runs had spent all
     # research time investigating and gone straight to the conclusion.
     hypothesis_seconds: float = 0.0
+    # P2 (TOT_REINSTATE): right after tree-of-thought pruning, ask the critic
+    # whether one dropped candidate deserves a check (`investigation.reconsider`).
+    # It uses the critic's own window. Off: pruned candidates are only shown to
+    # the critique later, as before. Needs a critic.
+    critic_reinstate: bool = False
 
     def __post_init__(self) -> None:
         if self.step_questions not in (1, 2):

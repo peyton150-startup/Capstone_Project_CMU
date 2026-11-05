@@ -559,3 +559,202 @@ def test_the_rank_and_rotate_settings_reach_the_tree(monkeypatch):
     monkeypatch.setenv("TOT_ROTATE", "true")
     options = model_policy_factory(False, tree_of_thought=True)().options
     assert (options.rank, options.rotate) == ("evidence", True)
+
+
+# --- P2: the critic may bring back one dropped candidate ------------------------
+
+from capstone.agent.critic import (  # noqa: E402
+    REINSTATE_SYSTEM,
+    Critic,
+    Reinstatement,
+    reinstate_view,
+)
+from capstone.agent.investigation import reinstated_confidence  # noqa: E402
+from capstone.agent.policy import PrunedInterpretation  # noqa: E402
+from capstone.agent.state import PrunedCandidate  # noqa: E402
+from capstone.contracts.hypotheses import Hypothesis  # noqa: E402
+from capstone.providers.chat import ModelError  # noqa: E402
+from tests.helpers import critique_result  # noqa: E402
+
+CNC07 = PrunedCandidate(
+    id="C5",
+    claim="the real fault is on CNC-07, which nobody has checked",
+    reason="ranked below the best 3",
+    status="deferred",
+    verdict="likely",
+    confidence=0.7,
+)
+RULED_OUT = PrunedCandidate(
+    id="C4",
+    claim="a passing glitch",
+    reason="rated impossible",
+    status="contradicted",
+    verdict="impossible",
+    confidence=0.8,
+    contradicting_evidence_ids=("E2",),
+)
+
+
+def with_pruned(*pruned):
+    state = tree_state("E1", "E2")
+    state.hypotheses = [
+        Hypothesis(id="H1", claim="CNC-03 wear", confidence=0.8),
+        Hypothesis(id="H2", claim="CNC-03 sensor fault", confidence=0.6),
+    ]
+    state.pruned_candidates = list(pruned)
+    return state
+
+
+def test_the_reinstatement_view_shows_kept_and_dropped_but_no_truth():
+    view = reinstate_view(with_pruned(CNC07, RULED_OUT), research_tools())
+    assert "KEPT EXPLANATIONS:" in view and "DROPPED BEFORE TESTING:" in view
+    assert "- C5 (rated likely, 0.70): the real fault is on CNC-07" in view
+    assert "Dropped (contradicted): rated impossible" in view
+    for hidden in ("ground_truth", "bearing_health", "true_fault"):
+        assert hidden not in view
+
+
+def critic_with(*replies):
+    return Critic(FakeModel(*replies), research_tools())
+
+
+def test_the_critic_names_a_dropped_candidate_and_its_question_is_recorded():
+    critic = critic_with(
+        {"candidate_id": "C5", "why": "nobody looked at CNC-07", "check": "read CNC-07"}
+    )
+    answer = critic.reconsider(with_pruned(CNC07), max_seconds=30)
+    assert answer == Reinstatement(
+        candidate_id="C5", why="nobody looked at CNC-07", check="read CNC-07"
+    )
+    [(system, _, kind)] = critic.client.asked
+    assert system == REINSTATE_SYSTEM and kind is Reinstatement
+    assert [(c.job, c.agent, c.outcome) for c in critic.calls] == [
+        ("reinstate", "critic", "answered")
+    ]
+
+
+@pytest.mark.parametrize(
+    "reply",
+    [
+        {"candidate_id": "C9", "why": "x"},  # not a dropped candidate
+        {"candidate_id": "C5", "why": "x", "evidence_ids": ["E7"]},  # never gathered
+        {"candidate_id": "H1", "why": "x"},  # a kept hypothesis, not a dropped one
+    ],
+    ids=["unknown id", "ungathered evidence", "kept hypothesis"],
+)
+def test_a_reinstatement_naming_what_was_not_offered_is_refused(reply):
+    critic = critic_with(reply)
+    with pytest.raises(ValueError):
+        critic.reconsider(with_pruned(CNC07), max_seconds=30)
+    assert critic.calls[-1].outcome == "invalid_reply"
+
+
+def test_a_reinstated_candidate_never_starts_above_the_kept_ones():
+    assert reinstated_confidence(CNC07, floor=0.6) == 0.6  # rated 0.7, floor 0.6
+    assert reinstated_confidence(CNC07, floor=0.9) == 0.7
+    # Factory evidence was against it: at most 0.5 until a check says otherwise.
+    assert reinstated_confidence(RULED_OUT, floor=0.9) == pytest.approx(0.2)
+    unrated = CNC07.model_copy(update={"verdict": None, "confidence": None})
+    assert reinstated_confidence(unrated, floor=0.9) == 0.5
+
+
+class StubCritic:
+    """Answers the reinstatement question and the later critique."""
+
+    def __init__(self, reinstatement):
+        self.reinstatement = reinstatement
+        self.calls = []
+        self.reconsidered = []
+
+    def reconsider(self, state, *, max_seconds):
+        self.reconsidered.append(max_seconds)
+        if isinstance(self.reinstatement, Exception):
+            raise self.reinstatement
+        return self.reinstatement
+
+    def review(self, state, *, max_seconds):
+        return critique_result()
+
+
+def pruning_policy():
+    """The worked example, with a hypothesize step that also dropped C5."""
+    return wear_policy(
+        hypothesize=lambda state: PrunedInterpretation(
+            hypotheses=(
+                Hypothesis(
+                    id="H1",
+                    claim="CNC-02 is wearing",
+                    confidence=0.6,
+                    supporting_evidence_ids=("E2",),
+                ),
+            ),
+            pruned=(CNC07,),
+        )
+    )
+
+
+def test_a_reinstated_candidate_becomes_a_hypothesis_with_its_check():
+    critic = StubCritic(
+        Reinstatement(candidate_id="C5", why="unchecked", check="read CNC-07")
+    )
+    seen = []
+    state, _ = investigate(
+        pruning_policy(), critic=critic, critic_reinstate=True, watch=seen.append
+    )
+    # The scripted test reading later rewrites the beliefs, so look at the
+    # states the run went through: the test stage started with H2 in them.
+    assert any(
+        s.stage == "test" and CNC07.claim in [h.claim for h in s.hypotheses]
+        for s in seen
+    )
+    record = state.reinstatement
+    assert (record.outcome, record.candidate_id, record.hypothesis_id) == (
+        "reinstated",
+        "C5",
+        "H2",
+    )
+    assert record.offered == ("C5",)
+    assert record.confidence == 0.6  # no higher than H1 when it was reinstated
+    assert "C5" not in [p.id for p in state.pruned_candidates]
+    assert critic.reconsidered  # asked in the critic's own window
+    # Its check went to the test stage as an open question tied to H2.
+    open_r1 = [q for q in state.unanswered_questions if q.id == "R1"]
+    assert "R1" in state.answers or [q.hypothesis_id for q in open_r1] == ["H2"]
+
+
+def test_a_declined_or_failed_reinstatement_changes_nothing():
+    for reply, outcome in [
+        (Reinstatement(candidate_id="none", why="all fit"), "declined"),
+        (ModelError("down"), "no_answer"),
+        (ValueError("bad"), "invalid_reply"),
+    ]:
+        state, _ = investigate(
+            pruning_policy(), critic=StubCritic(reply), critic_reinstate=True
+        )
+        assert state.reinstatement.outcome == outcome
+        assert [p.id for p in state.pruned_candidates] == ["C5"]
+        assert state.conclusion is not None  # the run went on
+
+
+def test_reinstatement_is_off_by_default_and_needs_something_pruned():
+    critic = StubCritic(Reinstatement(candidate_id="C5"))
+    state, _ = investigate(pruning_policy(), critic=critic)
+    assert state.reinstatement is None and critic.reconsidered == []
+    state, _ = investigate(wear_policy(), critic=critic, critic_reinstate=True)
+    assert state.reinstatement is None  # the ordinary step prunes nothing
+
+
+def test_the_reinstate_setting_reaches_the_run(monkeypatch):
+    from capstone.episode import run_episode
+
+    monkeypatch.setenv("TOT_REINSTATE", "true")
+    critic = StubCritic(Reinstatement(candidate_id="none"))
+    result = run_episode(
+        6,
+        as_tree(scripted_models()),
+        fault="bearing_degradation",
+        clock=lambda: 0.0,
+        critic=critic,
+    )
+    assert result.state.reinstatement.outcome == "declined"
+    assert critic.reconsidered
