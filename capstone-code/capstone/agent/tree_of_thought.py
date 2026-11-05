@@ -47,7 +47,7 @@ The policy still never changes `state`.
 from collections.abc import Mapping, Sequence
 from typing import Literal
 
-from pydantic import Field
+from pydantic import Field, model_validator
 
 from capstone.agent.model_policy import COMMON, Client, ModelPolicy, render
 from capstone.agent.policy import Interpretation, PrunedInterpretation
@@ -59,6 +59,22 @@ from capstone.contracts.tools import ToolSpec
 # How many candidate explanations to ask for, and how many survive pruning.
 DEFAULT_CANDIDATES = 5
 DEFAULT_BREADTH = 3
+
+
+class TreeOptions(Contract):
+    """The tree's switches, kept on each experiment record so runs can be compared.
+
+    The defaults are the depth-one tree every archived ToT run used.
+    """
+
+    candidates: int = Field(default=DEFAULT_CANDIDATES, ge=1)
+    breadth: int = Field(default=DEFAULT_BREADTH, ge=1)
+
+    @model_validator(mode="after")
+    def breadth_fits(self):
+        if self.breadth > self.candidates:
+            raise ValueError("breadth must be between 1 and the candidate count")
+        return self
 
 
 class Candidate(Contract):
@@ -295,12 +311,20 @@ class TreeOfThoughtPolicy(ModelPolicy):
         *,
         candidates: int = DEFAULT_CANDIDATES,
         breadth: int = DEFAULT_BREADTH,
+        options: TreeOptions | None = None,
     ):
-        if not 1 <= breadth <= candidates:
-            raise ValueError("breadth must be between 1 and the candidate count")
+        # Variables:
+        #   candidates, breadth: The tree's size; ignored when `options` is given,
+        #     which carries its own.
+        #   options: Every switch of the tree, kept for the experiment record.
+        if options is None:
+            if not 1 <= breadth <= candidates:
+                raise ValueError("breadth must be between 1 and the candidate count")
+            options = TreeOptions(candidates=candidates, breadth=breadth)
         super().__init__(clients, tools)
-        self.candidates = candidates
-        self.breadth = breadth
+        self.options = options
+        self.candidates = options.candidates
+        self.breadth = options.breadth
         self.thoughts: list[Thought] = []
 
     def hypothesize(self, state: InvestigationState) -> Interpretation:

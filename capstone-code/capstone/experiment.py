@@ -58,7 +58,7 @@ from capstone.agent.critic import Critic, CritiqueRecord, RecheckRecord
 from capstone.agent.model_policy import ModelCall
 from capstone.agent.policy import ReasoningPolicy
 from capstone.agent.state import Budgets
-from capstone.agent.tree_of_thought import Thought
+from capstone.agent.tree_of_thought import Thought, TreeOptions
 from capstone.console import safe_console
 from capstone.episode import (
     CHALLENGE,
@@ -300,6 +300,13 @@ class ExperimentRecord(BaseModel):
     # candidates, their ratings, which were kept and why the rest were dropped).
     # None: the run used the ordinary step (or predates this record).
     thoughts: list[Thought] | None = None
+    # The hypothesis reserve (HYPOTHESIS_RESERVE_SECONDS): True when it let
+    # the hypothesize question be asked after research ran out of time, False
+    # when it was kept but not needed. None: no reserve (and older records).
+    hypothesis_reserve_used: bool | None = None
+    # The tree-of-thought options the run's policy used (P1-P5 switches).
+    # None: the ordinary policy, or a record from before they were kept.
+    tree_options: TreeOptions | None = None
 
 
 # Tools answered by something other than the factory.
@@ -378,6 +385,7 @@ def record_of(
     with_memory: bool = False,
     with_manual: bool = False,
     thoughts: Sequence[Thought] | None = None,
+    tree_options: TreeOptions | None = None,
 ) -> ExperimentRecord:
     """Save the episode and its completion/action audit without rerunning any reasoning."""
     # Variables:
@@ -453,6 +461,8 @@ def record_of(
             )
         ],
         thoughts=None if thoughts is None else list(thoughts),
+        hypothesis_reserve_used=state.hypothesis_reserve_used,
+        tree_options=tree_options,
     )
 
 
@@ -544,6 +554,8 @@ def run_experiment(
             with_memory=memory is not None,
             with_manual=manual is not None,
             thoughts=thoughts,
+            # Kept by TreeOfThoughtPolicy only, like its thoughts.
+            tree_options=getattr(policy, "options", None),
         )
         records.append(record)
         if on_record is not None:

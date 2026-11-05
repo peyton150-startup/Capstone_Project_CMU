@@ -170,6 +170,16 @@ class Settings(BaseSettings):
         default=90.0, gt=0, validation_alias="CRITIC_FOLLOWUP_SECONDS"
     )
 
+    # Tree-of-thought and hypothesis options (TOT_CRITIC_EVALUATION_FUTURE_WORK.md).
+    # All off by default, so runs stay comparable with the archived ToT pairs.
+    # The hypothesis reserve: research before the hypothesize question stops
+    # this many seconds early, so a run that researches until its time is up
+    # still forms explanations. 0 keeps no reserve. A tree question pair took
+    # roughly 30-120 s live, so 120 is a reasonable trial value.
+    hypothesis_reserve_seconds: float = Field(
+        default=0.0, ge=0, validation_alias="HYPOTHESIS_RESERVE_SECONDS"
+    )
+
     # Limits on every model question (MVP_SCOPE.md section 3). The loop's own
     # limits (iterations, tool calls, time per investigation) are in Budgets.
     # The most tokens one reply may use, thinking included. Measured live on

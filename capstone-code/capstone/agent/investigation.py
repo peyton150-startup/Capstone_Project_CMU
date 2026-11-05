@@ -185,13 +185,29 @@ def plan(state: InvestigationState, deps: InvestigationDeps) -> None:
 
 
 def investigate(state: InvestigationState, deps: InvestigationDeps) -> Route:
-    """Gather evidence. Go straight to the conclusion if there is nothing to explain."""
+    """Gather evidence. Go straight to the conclusion if there is nothing to explain.
+
+    Out of time also goes to the conclusion, unless a hypothesis reserve
+    (`deps.hypothesis_seconds`) was kept and is still there: then the
+    hypothesize question is asked in it, so the run still forms explanations.
+    """
     # Variables:
     #   reason: Why the inner loop stopped, also saved as the run's termination reason.
+    #   gathered: Whether this stage found anything to explain.
+    #   reserved: Whether research time remains once the reserve is let go,
+    #     i.e. the reserve is what stopped research, not the deadline itself.
     state.stage = "investigate"
     reason = run_inner_loop(state, deps, "investigate")
     state.termination_reason = reason
-    if reason is TerminationReason.TIMEOUT or not gathered_in(state, "investigate"):
+    gathered = bool(gathered_in(state, "investigate"))
+    if deps.hypothesis_seconds > 0:
+        reserved = state.research_seconds(deps.clock()) > 0
+        state.hypothesis_reserve_used = (
+            reason is TerminationReason.TIMEOUT and reserved and gathered
+        )
+        if state.hypothesis_reserve_used:
+            return "continue"
+    if reason is TerminationReason.TIMEOUT or not gathered:
         return "conclude"
     return "continue"
 
