@@ -5,7 +5,7 @@
 **Source:** nine course lab notebooks (introduction to LLMs, tool calling, building a ReAct agent, tree of thoughts, agentic harnesses, MCP, multi-agent coordination, domain RAG, RAG with MMR).
 **Related:** [Final report](../evaluation/FINAL_REPORT.md), [Investigation reasoning](INVESTIGATION_REASONING.md), [Run-2 findings](RUN2_FINDINGS_FUTURE_WORK.md), [Episodic memory](EPISODIC_MEMORY.md).
 
-The notebooks were read against the project to find small and medium changes, not a refactor. Most of what they teach is already built (see the list at the end). Seven items are new (P6 and P7 from a focused review of the multi-agent notebook). The goal is better results from the reasoning the agent already has.
+The notebooks were read against the project to find small and medium changes, not a refactor. Most of what they teach is already built (see the list at the end). Six items are planned (P7 from a focused review of the multi-agent notebook); P6 was considered and decided against. The goal is better results from the reasoning the agent already has.
 
 ## Recommended order
 
@@ -14,7 +14,7 @@ The notebooks were read against the project to find small and medium changes, no
 3. A matched run on KA-03 to KA-06 and KA-09 before and after P2.
 4. P3 and P4, measured in the critic on/off experiment from the final report.
 5. P5, only after memory has run live and the measurement below says it is needed.
-6. P7 alongside P3 and P4 (so their extra calls are visible); P6 only if the contested rate from P4 is high.
+6. P7 before measuring P3 and P4, so their extra model calls are visible.
 
 ## P1. Audit log on by default (SMALL, evaluation)
 
@@ -97,25 +97,19 @@ Optionally the same per-batch tallies go into the evidence brief.
 
 ## Multi-agent coordination notebook: focused review
 
-The multi-agent coordination notebook (Part 1: agent count, roles, one-way / two-way / brainstorm protocols; Part 2: conditional routing, capped revise-and-review loops, failover, benchmarking by quality and cost) was reviewed on its own against `main`. Most of it is already built or already decided against (see the list below). Two items are new, both small, and two notes connect it to existing plans.
+The multi-agent coordination notebook (Part 1: agent count, roles, one-way / two-way / brainstorm protocols; Part 2: conditional routing, capped revise-and-review loops, failover, benchmarking by quality and cost) was reviewed on its own against `main`. Most of it is already built or already decided against (see the list below). One item is planned (P7), one was decided against (P6), and two notes connect it to existing plans.
 
-### P6. Capped second critic round, gated on the contested rate (SMALL, reasoning; gated on a measurement)
+### P6. Capped second critic round: DECIDED AGAINST (2026-11-05)
 
-**Notebook signal (Part 2):** a reviewer and reviser loop that repeats until the review passes or `max_retries` is reached. The cap is what keeps the loop affordable.
+**Notebook signal (Part 2):** a reviewer and reviser loop that repeats until the review passes or a retry cap is reached.
 
-**Current behavior:** one critic pass and at most one follow-up check (`Budgets.critic_tool_calls`, 0 to 1). `INVESTIGATION_REASONING.md` states there is no repeated critic cycle. Open-ended debate was rejected for latency ([survey list](MULTI_AGENT_SURVEY_FUTURE_WORK.md#-implemented-or-decided-against-do-not-re-propose)).
-
-**Measurement first:** this is not debate. It only runs when P4's `contested` label would otherwise be set (a serious critic objection still stands after the follow-up). Count `contested` cases on a frozen batch first. If they are rare, do not build this.
-
-**Change, if needed:** when the follow-up gathered new evidence and a serious objection still stands, allow one more critic review of the revised conclusion, with `max_critic_rounds = 2` as a hard cap inside the existing follow-up window. No new tool allowance; the round reads evidence already gathered. If the objection survives the second round, the case ends `contested` and escalates.
-
-**Check:** contested cases resolved correctly versus regressions (a correct leader talked out of it), plus extra model calls and wall time. Pair with the blind critic so anchoring and a second round are not measured together.
+**Decision:** not planned. A second round would only run on cases where a serious critic objection survives the follow-up, which is a small subset of the master runs, so it would add model calls and wall time for little expected gain. The current design stays: one critic pass and at most one follow-up check, no repeated critic cycle (`INVESTIGATION_REASONING.md`). Cases where the objection survives end `contested` (P4) and escalate to a human instead.
 
 ### P7. Cost per correct diagnosis in the batch table (SMALL, evaluation)
 
 **Notebook signal (Part 2, benchmarking):** compare configurations by quality per unit of effort, not quality alone.
 
-**Current behavior:** `evaluation/scoring.py` reports mean tool calls and `evals.py` reports runtime and tool-call changes. Model calls are not totalled, and nothing divides cost by correct outcomes. P3, P4 and P6 each add model calls, so accuracy alone can hide a bad trade.
+**Current behavior:** `evaluation/scoring.py` reports mean tool calls and `evals.py` reports runtime and tool-call changes. Model calls are not totalled, and nothing divides cost by correct outcomes. P3 and P4 each add model calls, so accuracy alone can hide a bad trade.
 
 **Change:** add model calls, tool calls and wall seconds per `fully_right` case to the batch table, beside the existing counts. Deterministic, computed from records already kept (or the P1 audit log).
 
@@ -123,7 +117,7 @@ The multi-agent coordination notebook (Part 1: agent count, roles, one-way / two
 
 ### Notes that connect to existing plans
 
-- **Routing the critic like the branching.** The notebook's conditional routing (and its cited protocol-router result) matches ToT [P3 adaptive branching](TOT_CRITIC_EVALUATION_FUTURE_WORK.md#p3--adaptive-branching-and-explicit-controller-limits---not-built). When P3's ambiguity controller is built, let the same observable signals also choose how much critic work a case gets (no follow-up on a clear case, follow-up and P6 on an ambiguous one). No separate controller.
+- **Routing the critic like the branching.** The notebook's conditional routing (and its cited protocol-router result) matches ToT [P3 adaptive branching](TOT_CRITIC_EVALUATION_FUTURE_WORK.md#p3--adaptive-branching-and-explicit-controller-limits---not-built). When P3's ambiguity controller is built, let the same observable signals also choose how much critic work a case gets (no follow-up on a clear case, the follow-up on an ambiguous one). No separate controller.
 - **Distractors and the Line Sentinel.** The notebook cites a benchmark where a single agent degrades sharply as distractors are added. KA-09 has a deliberate distractor (the harmless CNC-03 spike) and the agent never reached CNC-07. That supports the [Line Sentinel](THIRD_AGENT_LINE_SENTINEL_FUTURE_WORK.md) design. P2's `compare_machines` is the cheap deterministic first step: build it first, and the Sentinel can use it later instead of new code.
 
 ### Already covered from this notebook (do not re-propose)
@@ -135,6 +129,7 @@ The multi-agent coordination notebook (Part 1: agent count, roles, one-way / two
 - **MCP-style tool registry with validation:** `run_tool` checks requests and answers against contracts.
 - **Failover:** `FallbackClient` per job with per-question time limits; tool errors are returned, not raised into the loop.
 - **Majority voting across agents:** covered by P4's self-consistency check.
+- **Repeated review and revise loops:** decided against (P6).
 
 ## Worth learning, not building now
 
