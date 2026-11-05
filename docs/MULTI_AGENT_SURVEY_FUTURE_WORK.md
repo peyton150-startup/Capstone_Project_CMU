@@ -24,10 +24,10 @@ Thus the anchored critic sees the investigator's ranking. The blind critic hides
 
 **Implemented experiment and optional replication:** the opt-in blind critic view was compared against the anchored mode using frozen within-pair cohorts (C or D in the [comparison matrix](TOT_CRITIC_EVALUATION_FUTURE_WORK.md#controlled-comparison-matrix)). All code changes listed below are built. A clean replication is still optional.
 
-- **Code:** shuffle the shown hypotheses with a seeded order (no simulator random stream, same order on replay), drop the "leading" marker and the confidence values from the view, and record the shown order in the critique record.
-- **Code:** derive the verdict from the critic's pick, since a blind critic cannot judge "against the leading explanation": `object` when the pick is not the agent's leading hypothesis or is none, otherwise `no_objection`. The critic still lists its objections. `verdict_mismatch()` then needs a blind-mode rule.
+- **Implemented code:** shuffle the shown hypotheses with a seeded order (no simulator random stream, same order on replay), drop the "leading" marker and the confidence values from the view, and record the shown order in the critique record.
+- **Implemented code:** derive the verdict from the critic's pick, since a blind critic cannot judge "against the leading explanation": `object` when the pick is not the agent's leading hypothesis or is none, otherwise `no_objection`. The critic still lists its objections. The returned pick is mapped back to real IDs and the code-derived verdict is recorded; no extra blind-mode mismatch implementation is pending for this behavior.
 - **Model:** unchanged. It still picks the best-fitting hypothesis, names one discriminating call and lists objections.
-- No extra model calls, so no latency cost.
+- No additional critic model call is required for blinding; comparable latency and accuracy still need to be measured rather than assumed.
 
 This is the critic-side version of P4's position-sensitivity check (P4 rotates candidate order for hypothesis ranking). Run them together or one after the other, not mixed in one cohort.
 
