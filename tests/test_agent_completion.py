@@ -330,6 +330,29 @@ def test_the_audit_record_keeps_what_tree_of_thought_ruled_out():
     assert AuditRecord.model_validate(old).pruned_candidates == ()
 
 
+def test_the_audit_record_keeps_incident_context_without_promoting_it_to_memory():
+    """The packet remains auditable and older log lines remain readable."""
+    # Variables:
+    #   state: A finished investigation with one observable line packet.
+    #   old: The same audit line before the optional packet field existed.
+    from capstone.agent.state import IncidentContext
+
+    state = ENDINGS["rejected"]()
+    state.incident_context = IncidentContext(
+        trigger_tick=10,
+        as_of_tick=12,
+        from_tick=0,
+        machine_ids=("CNC-01", "CNC-02"),
+        evidence_by_tool={"list_machines": "E1"},
+        unavailable=("get_events: unavailable",),
+    )
+    record = audit_record(state)
+    assert record.incident_context == state.incident_context
+    assert "incident_context" not in record.completed.model_dump()
+    old = record.model_dump(mode="json", exclude={"incident_context"})
+    assert AuditRecord.model_validate(old).incident_context is None
+
+
 def test_audit_without_memory_writes_the_record(tmp_path):
     from capstone.episode import run_episode
     from tests.test_episode import wear_policy

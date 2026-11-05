@@ -371,6 +371,9 @@ def render(state: InvestigationState) -> str:
     #   failed: The latest failed tool calls, shown so the model can correct them.
     #   current_ids: Limits discrimination credit to hypotheses actually in play.
     #   questions: A stable discrimination/reliability/cost ordering, not probabilities.
+    #   context: The opt-in incident packet's evidence references and coverage,
+    #     shown without turning an alarm location into a root-cause claim.
+    #   sources, summaries: Compact references to the original tool answers.
     anomaly = state.anomaly
     where = f" on {anomaly.machine_id}" if anomaly.machine_id else ""
     now = "unknown" if state.last_tick is None else str(state.last_tick)
@@ -391,6 +394,37 @@ def render(state: InvestigationState) -> str:
     # Only when research calls are nearly spent, so no turn is primed to hurry.
     if state.conclusion is None and state.remaining_tool_calls <= LOW_CALLS:
         lines.append(LOW_BUDGET_NOTE)
+    if state.incident_context is not None:
+        context = state.incident_context
+        sources = (
+            ", ".join(
+                f"{tool} {evidence_id}"
+                for tool, evidence_id in context.evidence_by_tool.items()
+            )
+            or "none"
+        )
+        summaries = (
+            ", ".join(
+                f"{machine_id} {evidence_id}"
+                for machine_id, evidence_id in context.summary_evidence.items()
+            )
+            or "none"
+        )
+        lines += [
+            "INCIDENT CONTEXT (observations, not diagnoses):",
+            f"Trigger tick {context.trigger_tick}; current snapshot as of tick "
+            f"{context.as_of_tick if context.as_of_tick is not None else 'unknown'}; "
+            f"history window {context.from_tick}-{context.trigger_tick}.",
+            f"Line machines: {', '.join(context.machine_ids) or 'unknown'}; "
+            f"tool evidence: {sources}; nearby sensor summaries: {summaries}.",
+            f"Missing or uncollected: {', '.join(context.unavailable) or 'none recorded'}. "
+            "An unmeasured machine is not known to be healthy.",
+        ]
+        if context.as_of_tick != context.trigger_tick:
+            lines.append(
+                "The current machine/settings snapshot is not a trigger-time snapshot; "
+                "do not assume those values held at the trigger tick."
+            )
     lines += ["", "OPEN QUESTIONS:"]
     current_ids = {h.id for h in state.hypotheses}
     questions = sorted(

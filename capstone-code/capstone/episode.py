@@ -248,6 +248,7 @@ def run_episode(
     #   critic: Reviews the two leading hypotheses; None builds one from settings
     #     when CRITIC is on, and otherwise runs without one.
     #   settings: The project settings, read for the action bar and step mode.
+    #   settings.line_context: Enables the bounded observable incident packet.
     #   step_questions: The questions per tool result actually used: the
     #     setting, or 2 for a policy that cannot answer both in one.
     #   sim: The factory with its hidden fault; never given to the agent.
@@ -324,6 +325,7 @@ def run_episode(
         budgets=budgets or Budgets(),
         state_action_bar=settings.state_action_bar,
         step_questions=step_questions,
+        line_context_enabled=settings.line_context,
     )
     if memory is not None:
         provider = RecallingProvider(provider, memory)

@@ -102,6 +102,19 @@ class PrunedCandidate(Contract):
     contradicting_evidence_ids: tuple[str, ...] = ()
 
 
+class IncidentContext(Contract):
+    """Observed line context and references to its original tool answers."""
+
+    trigger_tick: int = Field(ge=0)
+    as_of_tick: int | None = Field(default=None, ge=0)
+    from_tick: int = Field(ge=0)
+    machine_ids: tuple[str, ...] = ()
+    neighbor_ids: tuple[str, ...] = ()
+    evidence_by_tool: dict[str, str] = Field(default_factory=dict)
+    summary_evidence: dict[str, str] = Field(default_factory=dict)
+    unavailable: tuple[str, ...] = ()
+
+
 class Question(Contract):
     """One piece of information the agent still needs."""
 
@@ -159,6 +172,9 @@ class InvestigationState(BaseModel):
     state_action_bar: bool = True
     # The configured loop mode, kept for experiment records. The loop sets it.
     step_questions: int = Field(default=2, ge=1, le=2)
+    # Opt-in comparison arm: gather bounded line context before planning.
+    line_context_enabled: bool = False
+    incident_context: IncidentContext | None = None
 
     evidence: list[Evidence] = Field(default_factory=list)
     # One label per evidence item, written by the loop when it arrived.

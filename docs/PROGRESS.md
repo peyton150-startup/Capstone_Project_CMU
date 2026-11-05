@@ -1,5 +1,30 @@
 # Progress Log
 
+> **2026-11-05 — first line-wide incident-context increment (built for an opt-in comparison; live effect not measured):**
+> The developer passed the pre-build check: the alarm starts an investigation
+> but cannot limit its machines; observed measurements need source and time,
+> missing data cannot mean normal, and hidden simulator truth must stay out.
+> `agent/incident_context.py` adds `incident_sensor` (uses a sensor only when
+> the trigger explicitly names one), `context_call` (reads through the normal
+> provider while preserving at least half the research-call budget), and
+> `assemble_incident_context` (gathers current line status/jobs and settings,
+> recent unfiltered events and inspections, plus trigger/neighbor summaries).
+> `agent/state.py` adds `IncidentContext`, an index to the original observable
+> evidence and missing calls; `investigation.observe` runs it before manual
+> and planning only when `LINE_CONTEXT=on`. `model_policy.render` shows the
+> packet's coverage and warns when the current snapshot is later than the
+> alarm tick. `episode.py` wires the setting; `experiment.py` and
+> `agent/completion.py` retain the packet in experiment and audit records,
+> not shared memory. `.env.example` documents the opt-in arm.
+> Focused offline tests cover cutoff, provenance, call reserve, missing
+> coverage, no guessed sensor, record persistence and old-record loading.
+> The packet uses current observed settings/status, not a reconstructed
+> trigger-time snapshot; monitoring can discover an alarm inside a 10-tick
+> scan. It offers only nearby sensor summaries and leaves deeper line checks
+> to the Investigator. No live model comparison or accuracy gain is claimed.
+> **Understood (pre): yes. Understood (post): no — closing check outstanding.**
+
+
 > **2026-11-04 — PRs #172 and #174 merged before their walkthroughs (developer to review; understood: no):**
 > On the developer's instruction ("merge them now, I will do the walkthrough later"), #174 was
 > brought up to date with `main` and merged, which also landed #172's commits. The function, test
