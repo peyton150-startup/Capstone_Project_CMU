@@ -80,6 +80,9 @@ class TreeOptions(Contract):
     # P4: show the candidates to the rating question in a rotated order (by
     # the investigation id), so position effects can be measured across runs.
     rotate: bool = False
+    # P3: decide from the agent's current beliefs whether to branch at all,
+    # and whether to keep one more candidate (`branching`).
+    adaptive: bool = False
 
     @model_validator(mode="after")
     def breadth_fits(self):
@@ -135,6 +138,12 @@ class Thought(Contract):
     # The generated order unless TOT_ROTATE; empty in older records, which
     # always listed them in generated order.
     shown_order: tuple[str, ...] = ()
+    # P3: what adaptive branching chose. static: adaptive branching was off
+    # (and older records). skipped: one clear explanation, so the ordinary
+    # one-question step ran instead of a tree. default: the usual breadth.
+    # wide: an ambiguous case, kept one more candidate.
+    branching: Literal["static", "skipped", "default", "wide"] = "static"
+    branching_reason: str | None = None
 
 
 GENERATE = (
@@ -167,6 +176,65 @@ def candidate_lines(candidates: Sequence[Candidate]) -> str:
             f"Contradicted by: {contradicted}."
         )
     return "\n".join(lines)
+
+
+# P3's thresholds. A clear case: a leading explanation at CLEAR_CONFIDENCE or
+# more, ahead of the next by CLEAR_MARGIN, backed by CLEAR_SUPPORT factory
+# readings, with nothing against it or left unexplained. An ambiguous case:
+# nothing believed yet, a leader under AMBIGUOUS_CONFIDENCE, a runner-up within
+# AMBIGUOUS_MARGIN, or a leader with evidence against it or left unexplained.
+CLEAR_CONFIDENCE = 0.8
+CLEAR_MARGIN = 0.3
+CLEAR_SUPPORT = 2
+AMBIGUOUS_CONFIDENCE = 0.5
+AMBIGUOUS_MARGIN = 0.15
+
+
+def branching(
+    state: InvestigationState, options: TreeOptions
+) -> tuple[Literal["skipped", "default", "wide"], int, str]:
+    """Whether to branch, how many to keep, and why, from what the agent holds (P3).
+
+    Reads only the agent's beliefs and the provenance of its evidence: the same
+    observable state every question is shown, never the truth. Returns
+    ("skipped", 0, why) for a clear case, ("wide", breadth + 1, why) for an
+    ambiguous one (never above the candidate count), else ("default", breadth, why).
+    """
+    # Variables:
+    #   ranked: The agent's hypotheses, most believed first.
+    #   leading: The most believed one.
+    #   runner_up: The next one's confidence, 0 with only one.
+    #   backed: How many of the leader's supporters the factory answered.
+    #   wider: The breadth for an ambiguous case.
+    breadth = options.breadth
+    wider = min(options.candidates, breadth + 1)
+    ranked = sorted(state.hypotheses, key=lambda h: -h.confidence)
+    if not ranked:
+        return "wide", wider, "no explanation is held yet"
+    leading = ranked[0]
+    runner_up = ranked[1].confidence if len(ranked) > 1 else 0.0
+    if leading.contradicting_evidence_ids or leading.unexplained_evidence_ids:
+        return "wide", wider, "the leading explanation has evidence against it or gaps"
+    if leading.confidence < AMBIGUOUS_CONFIDENCE:
+        return "wide", wider, f"the leading explanation is at {leading.confidence:.2f}"
+    if leading.confidence - runner_up < AMBIGUOUS_MARGIN:
+        return "wide", wider, "the two leading explanations are close"
+    observed = {p.evidence_id for p in state.provenance if p.origin == "observable"}
+    backed = len(set(leading.supporting_evidence_ids) & observed)
+    if (
+        leading.confidence >= CLEAR_CONFIDENCE
+        and leading.confidence - runner_up >= CLEAR_MARGIN
+        and backed >= CLEAR_SUPPORT
+    ):
+        return (
+            "skipped",
+            0,
+            (
+                f"one clear explanation at {leading.confidence:.2f}, "
+                f"backed by {backed} factory readings"
+            ),
+        )
+    return "default", breadth, "neither clear nor ambiguous"
 
 
 def rotated(candidates: Sequence[Candidate], offset: int) -> list[Candidate]:
@@ -601,6 +669,22 @@ class TreeOfThoughtPolicy(ModelPolicy):
         #   questions: One question per kept candidate that would tell it apart from the
         #     rest.
         view = render(state)
+        mode, breadth, why = "static", self.breadth, None
+        if self.options.adaptive:
+            mode, breadth, why = branching(state, self.options)
+            if mode == "skipped":
+                self.thoughts.append(
+                    Thought(
+                        candidates=(),
+                        ratings=(),
+                        kept=(),
+                        dropped={},
+                        branching=mode,
+                        branching_reason=why,
+                    )
+                )
+                # One clear explanation: the ordinary one-question step.
+                return super().hypothesize(state)
         generated = self._ask(
             "hypothesize",
             state,
@@ -610,7 +694,14 @@ class TreeOfThoughtPolicy(ModelPolicy):
         ).candidates[: self.candidates]
         if not generated:
             self.thoughts.append(
-                Thought(candidates=(), ratings=(), kept=(), dropped={})
+                Thought(
+                    candidates=(),
+                    ratings=(),
+                    kept=(),
+                    dropped={},
+                    branching=mode,
+                    branching_reason=why,
+                )
             )
             return Interpretation()
         shown = (
@@ -625,7 +716,7 @@ class TreeOfThoughtPolicy(ModelPolicy):
             Ratings,
             system=VALUE,
         ).ratings
-        kept, dropped, retained = self.select(state, generated, ratings)
+        kept, dropped, retained = self.select(state, generated, ratings, breadth)
         self.thoughts.append(
             Thought(
                 candidates=tuple(generated),
@@ -636,6 +727,8 @@ class TreeOfThoughtPolicy(ModelPolicy):
                 unresolved=tuple(c.id for c, r in kept if r.verdict == "impossible"),
                 retained=retained,
                 shown_order=tuple(c.id for c in shown),
+                branching=mode,
+                branching_reason=why,
             )
         )
         hypotheses, questions = [], []

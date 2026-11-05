@@ -758,3 +758,98 @@ def test_the_reinstate_setting_reaches_the_run(monkeypatch):
     )
     assert result.state.reinstatement.outcome == "declined"
     assert critic.reconsidered
+
+
+# P3: adaptive branching.
+from capstone.agent.tree_of_thought import branching  # noqa: E402
+
+
+def believing(state, *beliefs):
+    """The state holding hypotheses given as (confidence, supporters) pairs."""
+    state.hypotheses = [
+        Hypothesis(
+            id=f"H{n}",
+            claim=f"cause {n}",
+            confidence=confidence,
+            supporting_evidence_ids=list(supporters),
+        )
+        for n, (confidence, supporters) in enumerate(beliefs, start=1)
+    ]
+    return state
+
+
+def test_branching_reads_clear_default_and_ambiguous_cases():
+    options = TreeOptions(adaptive=True)
+    clear = believing(tree_state("E1", "E2"), (0.9, ("E1", "E2")), (0.3, ()))
+    assert branching(clear, options)[:2] == ("skipped", 0)
+    thin = believing(tree_state("E1", "E2"), (0.9, ("E1",)), (0.3, ()))
+    assert branching(thin, options)[:2] == ("default", 3)
+    close = believing(tree_state("E1"), (0.7, ("E1",)), (0.6, ()))
+    assert branching(close, options)[:2] == ("wide", 4)
+    assert branching(tree_state("E1"), options)[:2] == ("wide", 4)
+    weak = believing(tree_state("E1"), (0.4, ("E1",)))
+    assert branching(weak, options)[:2] == ("wide", 4)
+
+
+def test_support_the_factory_did_not_give_does_not_make_a_case_clear():
+    # Evidence without an observable provenance (a manual page, a memory)
+    # does not count towards the two factory readings a clear case needs.
+    unbacked = tree_state("E1", "E2")
+    unbacked.provenance.clear()
+    state = believing(unbacked, (0.9, ("E1", "E2")))
+    assert branching(state, TreeOptions(adaptive=True))[0] == "default"
+
+
+def test_a_clear_case_skips_the_tree_and_asks_one_question():
+    agent = tree_policy({"hypotheses": None}, adaptive=True)
+    state = believing(tree_state("E1", "E2"), (0.9, ("E1", "E2")))
+    agent.hypothesize(state)
+    assert len(agent.clients["hypothesize"].asked) == 1
+    [thought] = agent.thoughts
+    assert thought.branching == "skipped" and thought.candidates == ()
+    assert "0.90" in thought.branching_reason
+
+
+def test_an_ambiguous_case_keeps_one_more_candidate():
+    agent = tree_policy(FOUR, FOUR_RATED, adaptive=True)
+    answer = agent.hypothesize(tree_state("E1", "E2"))
+    assert len(answer.hypotheses) == 4
+    [thought] = agent.thoughts
+    assert thought.branching == "wide" and thought.dropped == {}
+
+
+def test_a_default_case_keeps_the_usual_breadth():
+    agent = tree_policy(FOUR, FOUR_RATED, adaptive=True)
+    state = believing(tree_state("E1", "E2"), (0.7, ("E1",)), (0.3, ()))
+    assert len(agent.hypothesize(state).hypotheses) == 3
+    assert agent.thoughts[0].branching == "default"
+
+
+def test_without_adaptive_the_tree_is_static_whatever_the_beliefs():
+    agent = tree_policy(FOUR, FOUR_RATED)
+    state = believing(tree_state("E1", "E2"), (0.9, ("E1", "E2")))
+    assert len(agent.hypothesize(state).hypotheses) == 3
+    assert agent.thoughts[0].branching == "static"
+    assert (
+        Thought.model_validate(
+            {"candidates": [], "ratings": [], "kept": [], "dropped": {}}
+        ).branching
+        == "static"
+    )
+
+
+def test_the_adaptive_setting_reaches_the_tree(monkeypatch):
+    from capstone.experiment import model_policy_factory
+
+    fake_clients(monkeypatch)
+    monkeypatch.setenv("TOT_ADAPTIVE", "true")
+    assert model_policy_factory(False, tree_of_thought=True)().options.adaptive
+
+
+def test_the_report_groups_a_skipped_tree_apart():
+    case = [Case("bearing-6", 6, "bearing_degradation")]
+    [record] = run_experiment(case, lambda: as_tree(scripted_models()), name="tot")
+    skipped = Thought(
+        candidates=(), ratings=(), kept=(), dropped={}, branching="skipped"
+    )
+    assert group_of(record.model_copy(update={"thoughts": [skipped]})) == "skipped"

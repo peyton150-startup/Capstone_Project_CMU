@@ -198,6 +198,10 @@ class Settings(BaseSettings):
     # its own window) whether one dropped candidate deserves a check; if so it
     # becomes the least believed hypothesis. Needs CRITIC on and a tree run.
     tot_reinstate: bool = Field(default=False, validation_alias="TOT_REINSTATE")
+    # P3: decide from the agent's current beliefs whether to branch. A clear
+    # case (one explanation at 0.8+, 0.3 ahead, two factory readings behind it)
+    # gets the ordinary one-question step; an ambiguous one keeps one more.
+    tot_adaptive: bool = Field(default=False, validation_alias="TOT_ADAPTIVE")
     # Rapid triage (MVP_SCOPE.md, "Split rapid triage from deep
     # investigation"): a short, read-only first look before the deep run.
     # Off by default (developer, 2026-11-05), so runs stay comparable with the

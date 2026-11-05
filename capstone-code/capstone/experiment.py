@@ -1051,6 +1051,7 @@ def tree_options_from(settings) -> TreeOptions:
         retain=settings.tot_retain,
         rank=settings.tot_rank,
         rotate=settings.tot_rotate,
+        adaptive=settings.tot_adaptive,
     )
 
 
