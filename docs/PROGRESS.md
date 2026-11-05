@@ -1,9 +1,20 @@
 # Progress Log
 
-> **2026-11-05 — rapid triage mode (taught and gated; closing walkthrough owed):**
+> **2026-11-05 — rapid triage mode (taught and gated; walkthrough done):**
 > Merged before its walkthrough on the developer's instruction ("merge and we
-> will do the walkthrough later"); the pre-merge walkthrough (AGENTS.md §11
-> step 6) for PR #184 is still owed (understood: no, until it is done).
+> will do the walkthrough later"). The walkthrough (AGENTS.md §11 step 6) was
+> done afterwards, with three questions. (1) Why a triage may skip `verify`:
+> the developer saw that nothing is proposed or executed, but not that
+> `verify` checks a "no action" claim; corrected. A supported "no action"
+> triage is the one case that ends unchecked (a known limit; a short
+> verification after such a triage is a candidate follow-up). (2) Why the deep
+> run gets `follows_triage` but not the triage's conclusion: understood
+> (independence, no anchoring; cost: repeated reads). (3) The slow-provider
+> path: outcome understood (timeout, deep run follows); corrected that the
+> conclusion is the fixed `UNDETERMINED` placeholder (escalate), not a model
+> guess, and that a deep run follows because no answer is not "nothing wrong".
+> Understood: yes, after correction. Open follow-ups: verify a confident triage
+> "no action"; hand-label triage conclusions apart from the deep run's.
 > Before the code, the developer answered the check question: the block on
 > proposing must be in code because a model can ignore a prompt, and a triage
 > without an answer still needs a deep run. Opt-in (`TRIAGE=on` or
