@@ -69,6 +69,14 @@ class TreeOptions(Contract):
 
     candidates: int = Field(default=DEFAULT_CANDIDATES, ge=1)
     breadth: int = Field(default=DEFAULT_BREADTH, ge=1)
+    # P1: top_k keeps the best `breadth`; evidence also keeps up to
+    # `retain_extra` more that may be separate causes (`retain`).
+    retain: Literal["top_k", "evidence"] = "top_k"
+    retain_extra: int = Field(default=2, ge=0)
+    retain_floor: float = Field(default=0.5, ge=0, le=1)
+    # P4: confidence ranks by the model's confidence; evidence by the
+    # transparent evidence rubric first (`evidence_strength`).
+    rank: Literal["confidence", "evidence"] = "confidence"
 
     @model_validator(mode="after")
     def breadth_fits(self):
@@ -117,6 +125,9 @@ class Thought(Contract):
     # against them: kept, ranked last, at a neutral confidence. Empty in older
     # records.
     unresolved: tuple[str, ...] = ()
+    # P1: candidates kept beyond the top `breadth`, by id, with why
+    # (`retention_reason`). Empty with top-k retention and in older records.
+    retained: dict[str, str] = Field(default_factory=dict)
 
 
 GENERATE = (
@@ -168,29 +179,95 @@ def unproven_rating(rating: Rating) -> Rating:
     )
 
 
-def prune(
+# Sensor tools give views of the same readings (a summary, a trend and the raw
+# values of one sensor are not three separate findings), so the evidence
+# rubric counts them as one family; every other tool is its own family.
+SENSOR_TOOLS = frozenset(
+    {"get_readings", "get_sensor_trend", "get_factory_readings", "get_sensor_summary"}
+)
+# The order of the verdicts in the evidence rubric: settled first.
+VERDICT_TIER = {"sure": 2, "likely": 1, "impossible": 0}
+
+
+class Ranked(Contract):
+    """One candidate still in the running after the hard drops, with its rating.
+
+    `rating` is the one it is believed by (an unproven "impossible" carries the
+    neutral score), and `order` its place in the model's list, for ties.
+    """
+
+    order: int
+    candidate: Candidate
+    rating: Rating
+    unproven: bool = False
+
+
+def evidence_family(source_id: str) -> str:
+    """The family a piece of evidence counts in for the rubric: "sensor" or its tool."""
+    # Variables:
+    #   tool: The tool part of a source id such as "simulator:get_readings".
+    tool = source_id.rsplit(":", 1)[-1]
+    return "sensor" if tool in SENSOR_TOOLS else tool
+
+
+def evidence_strength(
+    entry: Ranked, families: Mapping[str, str], observed_ids: set[str]
+) -> tuple[int, int, int]:
+    """The rubric's score for one candidate: (verdict tier, net support, -gaps).
+
+    Net support is the number of evidence families among the factory evidence
+    supporting the candidate, less the factory evidence cited against it (by the
+    candidate or its rating). Gaps are the evidence it says it leaves
+    unexplained. Higher is better in every part; parts are compared in order.
+    Only factory answers count: a manual section or a memory supports nothing here.
+    """
+    # Variables:
+    #   families: Evidence id -> its family (`evidence_family`), for gathered evidence.
+    #   observed_ids: Ids the factory answered; nothing else counts as support.
+    #   supported: The families of the factory evidence for the candidate.
+    #   against: The factory evidence cited against it.
+    candidate, rating = entry.candidate, entry.rating
+    supported = {
+        families[e]
+        for e in candidate.supporting_evidence_ids
+        if e in observed_ids and e in families
+    }
+    against = {
+        *candidate.contradicting_evidence_ids,
+        *rating.contradicting_evidence_ids,
+    } & observed_ids
+    tier = 0 if entry.unproven else VERDICT_TIER[rating.verdict]
+    return tier, len(supported) - len(against), -len(candidate.unexplained_evidence_ids)
+
+
+def rank_candidates(
     candidates: Sequence[Candidate],
     ratings: Sequence[Rating],
     evidence_ids: set[str],
-    breadth: int,
     observed_ids: set[str] | None = None,
-) -> tuple[list[tuple[Candidate, Rating]], dict[str, str]]:
-    """The candidates to keep, best first, and why each other one was dropped.
+    *,
+    rank: Literal["confidence", "evidence"] = "confidence",
+    families: Mapping[str, str] | None = None,
+) -> tuple[list[Ranked], dict[str, str]]:
+    """Every candidate still in the running, best first, and why the others went.
 
-    Deterministic: the same candidates and ratings always keep the same ones.
-    The first rating of a candidate counts; a rating of an unknown id is ignored.
-    "Impossible" drops a candidate only with a cited contradiction the factory
-    answered (`observed_ids`). Otherwise the candidate stays in the running
-    but ranks below every sure or likely one, with the neutral score
-    `unproven_confidence`, which the kept rating carries (so the hypothesis made
-    from it carries it too).
+    The hard drops come first and do not depend on rank: a repeated id, evidence
+    that was never gathered, no rating, or "impossible" with factory evidence
+    against it. The rest are ordered by `rank`:
+
+        confidence  unproven "impossible" last, then the model's confidence,
+                    then the model's order (the depth-one tree's rule)
+        evidence    the evidence rubric (`evidence_strength`) first, then the
+                    model's confidence, then the model's order (P4)
     """
     # Variables:
-    #   breadth: How many candidates may survive.
     #   evidence_ids: Ids of evidence that really exists; a candidate citing any other
     #     is dropped.
     #   observed_ids: Ids of evidence the factory answered, the only kind that can
     #     rule a candidate out; None treats all gathered evidence as observed.
+    #   rank: Which ordering to use, as above.
+    #   families: Evidence id -> family, needed by the evidence rubric; None
+    #     counts every id as its own family.
     #   rated: The first rating for each candidate id; later duplicates are ignored.
     #   dropped: Why each removed candidate was dropped, by id.
     #   alive: Candidates still in the running, with their original position to break
@@ -238,23 +315,137 @@ def prune(
     # confidence is how sure the model is that it is FALSE: ranked by that, an
     # "impossible, 0.95" would lead at 0.95. So it ranks below every sure or
     # likely candidate, and is scored `unproven_confidence` instead.
-    alive = [
-        (order, candidate, unproven_rating(rating))
-        if candidate.id in unproven
-        else (order, candidate, rating)
+    entries = [
+        Ranked(
+            order=order,
+            candidate=candidate,
+            rating=unproven_rating(rating) if candidate.id in unproven else rating,
+            unproven=candidate.id in unproven,
+        )
         for order, candidate, rating in alive
     ]
-    alive.sort(
-        key=lambda entry: (entry[1].id in unproven, -entry[2].confidence, entry[0])
-    )
-    for _, candidate, _ in alive[breadth:]:
-        ranked = f"ranked below the best {breadth}"
-        dropped[candidate.id] = (
-            f"rated impossible with no factory evidence against it; {ranked}"
-            if candidate.id in unproven
-            else ranked
+    if rank == "evidence":
+        known = families or {e: e for e in evidence_ids}
+        entries.sort(
+            key=lambda e: (
+                tuple(-part for part in evidence_strength(e, known, factual)),
+                -e.rating.confidence,
+                e.order,
+            )
         )
-    return [(c, r) for _, c, r in alive[:breadth]], dropped
+    else:
+        entries.sort(key=lambda e: (e.unproven, -e.rating.confidence, e.order))
+    return entries, dropped
+
+
+def ranked_out(entry: Ranked, breadth: int) -> str:
+    """Why a candidate below the cut was dropped, in the words the trace keeps."""
+    ranked = f"ranked below the best {breadth}"
+    if entry.unproven:
+        return f"rated impossible with no factory evidence against it; {ranked}"
+    return ranked
+
+
+def prune(
+    candidates: Sequence[Candidate],
+    ratings: Sequence[Rating],
+    evidence_ids: set[str],
+    breadth: int,
+    observed_ids: set[str] | None = None,
+) -> tuple[list[tuple[Candidate, Rating]], dict[str, str]]:
+    """The candidates to keep, best first, and why each other one was dropped.
+
+    Deterministic: the same candidates and ratings always keep the same ones.
+    The first rating of a candidate counts; a rating of an unknown id is ignored.
+    "Impossible" drops a candidate only with a cited contradiction the factory
+    answered (`observed_ids`). Otherwise the candidate stays in the running
+    but ranks below every sure or likely one, with the neutral score
+    `unproven_confidence`, which the kept rating carries (so the hypothesis made
+    from it carries it too). The best `breadth` are kept (`rank_candidates`).
+    """
+    # Variables:
+    #   breadth: How many candidates may survive.
+    #   ranked: Every candidate still in the running, best first.
+    #   dropped: Why each removed candidate was dropped, by id.
+    ranked, dropped = rank_candidates(candidates, ratings, evidence_ids, observed_ids)
+    for entry in ranked[breadth:]:
+        dropped[entry.candidate.id] = ranked_out(entry, breadth)
+    return [(e.candidate, e.rating) for e in ranked[:breadth]], dropped
+
+
+# Why a candidate below the cut was kept anyway (P1), as `Thought.retained` says.
+INDEPENDENT = "independent factory evidence"
+UNTESTED = "an untested alternative with a check"
+
+
+def retention_reason(
+    entry: Ranked, kept: Sequence[Ranked], observed_ids: set[str], floor: float
+) -> str | None:
+    """Why a candidate ranked below the cut should be kept as well, or None.
+
+    Only a sure or likely candidate at `floor` confidence or more qualifies,
+    and only for one of two reasons:
+
+    - independent factory evidence: it cites factory evidence no kept candidate
+      cites, so it may be a second, simultaneous cause (bearing wear and a wrong
+      setting on one machine, say), not a rewording of a kept one;
+    - an untested alternative: it cites no supporting evidence at all but names
+      a check, so it points where nobody has looked yet (another machine), and
+      one tool call can test it. The audit's KA-09 lost its CNC-07 candidates
+      this way.
+    """
+    # Variables:
+    #   floor: The least confidence an extra candidate needs.
+    #   cited: Factory evidence the kept candidates already cite.
+    #   own: The candidate's own factory support.
+    #   check: The question that would test it, from the rating or the candidate.
+    candidate, rating = entry.candidate, entry.rating
+    if entry.unproven or rating.verdict == "impossible" or rating.confidence < floor:
+        return None
+    cited = {e for k in kept for e in k.candidate.supporting_evidence_ids}
+    own = set(candidate.supporting_evidence_ids) & observed_ids
+    if own - cited:
+        return INDEPENDENT
+    check = candidate.discriminating_check or rating.question
+    if not candidate.supporting_evidence_ids and check and check.strip():
+        return UNTESTED
+    return None
+
+
+def retain(
+    ranked: Sequence[Ranked],
+    breadth: int,
+    observed_ids: set[str],
+    *,
+    extra: int,
+    floor: float,
+    calls_left: int,
+) -> tuple[list[Ranked], dict[str, str]]:
+    """The best `breadth`, plus up to `extra` more that may be separate causes (P1).
+
+    The top-k cut is kept as it is; this only adds to it, so a run with
+    retention keeps everything the depth-one tree would have kept. Each kept
+    candidate needs at least one research call to be tested, so no more are
+    kept than `calls_left` allows: the reserve of calls is the cap.
+    Returns the kept entries, best first, and why each extra one was kept.
+    """
+    # Variables:
+    #   extra: The most candidates kept beyond `breadth`.
+    #   floor: The least confidence an extra candidate needs.
+    #   calls_left: Research tool calls still available; one per kept candidate.
+    #   kept: The top-k, then the extras in rank order.
+    #   why: Extra candidate id -> why it was kept (`retention_reason`).
+    kept = list(ranked[:breadth])
+    room = min(extra, max(0, calls_left - len(kept)))
+    why: dict[str, str] = {}
+    for entry in ranked[breadth:]:
+        if len(why) >= room:
+            break
+        reason = retention_reason(entry, kept, observed_ids, floor)
+        if reason is not None:
+            kept.append(entry)
+            why[entry.candidate.id] = reason
+    return kept, why
 
 
 def pruned_trace(
@@ -327,6 +518,55 @@ class TreeOfThoughtPolicy(ModelPolicy):
         self.breadth = options.breadth
         self.thoughts: list[Thought] = []
 
+    def select(
+        self,
+        state: InvestigationState,
+        generated: Sequence[Candidate],
+        ratings: Sequence[Rating],
+        breadth: int | None = None,
+    ) -> tuple[list[tuple[Candidate, Rating]], dict[str, str], dict[str, str]]:
+        """Rank and cut the rated candidates as the options say.
+
+        Returns the kept candidates with their ratings, best first; why each
+        other one was dropped; and why each one kept beyond `breadth` was kept.
+        """
+        # Variables:
+        #   breadth: How many the top-k cut keeps; None uses the options' breadth.
+        #   observed: Ids of evidence the factory answered, the only kind that
+        #     can rule a candidate out or count as support.
+        #   families: Evidence id -> family, for the evidence rubric.
+        #   ranked: Every candidate still in the running, best first.
+        #   chosen: The kept entries: the top-k, then any extras (P1).
+        #   retained: Extra candidate id -> why it was kept.
+        options = self.options
+        breadth = options.breadth if breadth is None else breadth
+        observed = {p.evidence_id for p in state.provenance if p.origin == "observable"}
+        families = {e.id: evidence_family(e.source_id) for e in state.evidence}
+        ranked, dropped = rank_candidates(
+            generated,
+            ratings,
+            set(families),
+            observed_ids=observed,
+            rank=options.rank,
+            families=families,
+        )
+        if options.retain == "evidence":
+            chosen, retained = retain(
+                ranked,
+                breadth,
+                observed,
+                extra=options.retain_extra,
+                floor=options.retain_floor,
+                calls_left=state.remaining_tool_calls,
+            )
+        else:
+            chosen, retained = list(ranked[:breadth]), {}
+        kept_ids = {e.candidate.id for e in chosen}
+        for entry in ranked:
+            if entry.candidate.id not in kept_ids:
+                dropped[entry.candidate.id] = ranked_out(entry, breadth)
+        return [(e.candidate, e.rating) for e in chosen], dropped, retained
+
     def hypothesize(self, state: InvestigationState) -> Interpretation:
         # Variables:
         #   view: The same working-memory text every question is shown.
@@ -358,14 +598,7 @@ class TreeOfThoughtPolicy(ModelPolicy):
             Ratings,
             system=VALUE,
         ).ratings
-        observed = {p.evidence_id for p in state.provenance if p.origin == "observable"}
-        kept, dropped = prune(
-            generated,
-            ratings,
-            {e.id for e in state.evidence},
-            self.breadth,
-            observed_ids=observed,
-        )
+        kept, dropped, retained = self.select(state, generated, ratings)
         self.thoughts.append(
             Thought(
                 candidates=tuple(generated),
@@ -374,6 +607,7 @@ class TreeOfThoughtPolicy(ModelPolicy):
                 dropped=dropped,
                 # Every kept "impossible" is unproven: a proven one was dropped.
                 unresolved=tuple(c.id for c, r in kept if r.verdict == "impossible"),
+                retained=retained,
             )
         )
         hypotheses, questions = [], []

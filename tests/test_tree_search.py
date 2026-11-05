@@ -6,10 +6,27 @@ import pytest
 
 from capstone.agent.artifacts import TerminationReason
 from capstone.agent.loop import InvestigationDeps, held_for_hypotheses
+from capstone.agent.tree_of_thought import (
+    INDEPENDENT,
+    UNTESTED,
+    Candidate,
+    Rating,
+    Thought,
+    TreeOfThoughtPolicy,
+    TreeOptions,
+    rank_candidates,
+    retain,
+)
+from capstone.contracts.evidence import Evidence
+from capstone.contracts.provenance import ProvenanceReference
 from capstone.experiment import Case, run_experiment
+from capstone.providers.chat import JOBS
+from capstone.providers.factory import research_tools
 from capstone.tree_reach import group_of, reach_of, summarize
 from tests.helpers import ask, new_state
 from tests.test_agent_investigation import fresh_state, investigate, stages, wear_policy
+from tests.test_model_policy import FakeModel, scripted_models
+from tests.test_tree_of_thought import as_tree
 
 
 @pytest.fixture(autouse=True)
@@ -183,3 +200,224 @@ def test_the_stop_reason_for_a_timeout_is_still_timeout():
         if d.phase == "investigate" and d.outcome == "stopped"
     ]
     assert stopped[-1].termination_reason is TerminationReason.TIMEOUT
+
+
+# --- P1: keep several evidence-backed causes ----------------------------------
+
+
+def cand(id, *supporting, check=None):
+    return Candidate(
+        id=id,
+        claim=f"explanation {id}",
+        supporting_evidence_ids=supporting,
+        discriminating_check=check,
+    )
+
+
+def rate(id, verdict="likely", confidence=0.6, question=None):
+    return Rating(
+        candidate_id=id, verdict=verdict, confidence=confidence, question=question
+    )
+
+
+def ranked(candidates, ratings, observed=("E1", "E2", "E3")):
+    entries, _ = rank_candidates(candidates, ratings, set(observed), set(observed))
+    return entries
+
+
+def descending(candidates):
+    return [rate(c.id, confidence=0.9 - 0.1 * n) for n, c in enumerate(candidates)]
+
+
+def test_retention_keeps_the_top_k_and_adds_a_second_cause_with_its_own_evidence():
+    """Bearing wear (E1) and a wrong setting (E3) on one machine: the setting
+    ranks fourth but cites evidence no kept candidate cites, so it stays."""
+    candidates = [
+        cand("C1", "E1"),
+        cand("C2", "E1"),
+        cand("C3", "E1", "E2"),
+        cand("C4", "E3"),
+        cand("C5", "E1"),
+    ]
+    kept, why = retain(
+        ranked(candidates, descending(candidates)),
+        3,
+        {"E1", "E2", "E3"},
+        extra=2,
+        floor=0.5,
+        calls_left=10,
+    )
+    assert [e.candidate.id for e in kept] == ["C1", "C2", "C3", "C4"]
+    assert why == {"C4": INDEPENDENT}  # C5 only repeats kept evidence
+
+
+def test_retention_keeps_an_untested_alternative_that_names_a_check():
+    """KA-09's lost candidate: the fault may be on a machine nobody checked."""
+    candidates = [
+        cand("C1", "E1"),
+        cand("C2", "E1"),
+        cand("C3", "E1"),
+        cand("C4", check="Read CNC-07 sensors over the alarm window"),
+        cand("C5"),  # no evidence and no check: nothing to test it with
+    ]
+    _, why = retain(
+        ranked(candidates, descending(candidates)),
+        3,
+        {"E1"},
+        extra=2,
+        floor=0.5,
+        calls_left=10,
+    )
+    assert why == {"C4": UNTESTED}
+
+
+def test_retention_never_keeps_a_weak_or_impossible_candidate():
+    candidates = [cand("C1", "E1"), cand("C2", "E3"), cand("C3", "E2")]
+    ratings = [
+        rate("C1", confidence=0.9),
+        rate("C2", confidence=0.4),  # below the floor
+        rate("C3", "impossible", 0.8),  # unproven impossible: never an extra
+    ]
+    _, why = retain(
+        ranked(candidates, ratings),
+        1,
+        {"E1", "E2", "E3"},
+        extra=2,
+        floor=0.5,
+        calls_left=10,
+    )
+    assert why == {}
+
+
+def test_retention_keeps_no_more_than_the_calls_left_can_test():
+    candidates = [cand("C1", "E1"), cand("C2", "E2"), cand("C3", "E3")]
+    ratings = [rate(c.id, confidence=0.8) for c in candidates]
+    every = {"E1", "E2", "E3"}
+    kept, why = retain(
+        ranked(candidates, ratings), 1, every, extra=2, floor=0.5, calls_left=2
+    )
+    assert [e.candidate.id for e in kept] == ["C1", "C2"]
+    assert why == {"C2": INDEPENDENT}
+    kept, _ = retain(
+        ranked(candidates, ratings), 1, every, extra=2, floor=0.5, calls_left=0
+    )
+    assert [e.candidate.id for e in kept] == ["C1"]  # the top-k is never cut
+
+
+def test_a_manual_section_is_not_independent_evidence():
+    candidates = [cand("C1", "E1"), cand("C2", "M1")]
+    ratings = [rate("C1", confidence=0.9), rate("C2", confidence=0.8)]
+    entries, _ = rank_candidates(candidates, ratings, {"E1", "M1"}, {"E1"})
+    _, why = retain(entries, 1, {"E1"}, extra=2, floor=0.5, calls_left=10)
+    assert why == {}
+
+
+def tree_state(*ids, source="simulator:get_events"):
+    state = new_state()
+    for evidence_id in ids:
+        state.evidence.append(
+            Evidence(
+                id=evidence_id,
+                source_id=source,
+                source_type="tool_result",
+                content="[]",
+                observed_tick=10,
+            )
+        )
+        state.provenance.append(
+            ProvenanceReference(
+                evidence_id=evidence_id,
+                source_id=source,
+                source_type="tool_result",
+                origin="observable",
+            )
+        )
+    return state
+
+
+def tree_policy(*hypothesize_replies, **options):
+    clients = {job: FakeModel() for job in JOBS}
+    clients["hypothesize"] = FakeModel(*hypothesize_replies)
+    return TreeOfThoughtPolicy(
+        clients, research_tools(), options=TreeOptions(**options)
+    )
+
+
+FOUR = {
+    "candidates": [
+        {"id": "C1", "claim": "bearing wear", "supporting_evidence_ids": ["E1"]},
+        {"id": "C2", "claim": "a loose sensor", "supporting_evidence_ids": ["E1"]},
+        {"id": "C3", "claim": "a passing glitch", "supporting_evidence_ids": ["E1"]},
+        {"id": "C4", "claim": "a wrong setting", "supporting_evidence_ids": ["E2"]},
+    ]
+}
+FOUR_RATED = {
+    "ratings": [
+        {"candidate_id": f"C{n}", "verdict": "likely", "confidence": c, "question": q}
+        for n, c, q in [
+            (1, 0.8, "Did vibration climb?"),
+            (2, 0.7, None),
+            (3, 0.6, None),
+            (4, 0.55, "Is the speed setting off?"),
+        ]
+    ]
+}
+
+
+def test_the_tree_with_retention_makes_the_extra_cause_a_hypothesis():
+    agent = tree_policy(FOUR, FOUR_RATED, retain="evidence")
+    answer = agent.hypothesize(tree_state("E1", "E2"))
+    assert [h.claim for h in answer.hypotheses] == [
+        "bearing wear",
+        "a loose sensor",
+        "a passing glitch",
+        "a wrong setting",
+    ]
+    assert [q.hypothesis_id for q in answer.new_questions] == ["H1", "H4"]
+    [thought] = agent.thoughts
+    assert thought.retained == {"C4": INDEPENDENT}
+    assert "C4" not in thought.dropped
+    assert answer.pruned == ()  # nothing was dropped
+
+
+def test_top_k_retention_is_the_depth_one_tree_unchanged():
+    agent = tree_policy(FOUR, FOUR_RATED)
+    answer = agent.hypothesize(tree_state("E1", "E2"))
+    assert len(answer.hypotheses) == 3
+    [thought] = agent.thoughts
+    assert thought.retained == {}
+    assert thought.dropped == {"C4": "ranked below the best 3"}
+
+
+def test_older_trees_read_without_retained():
+    old = {"candidates": [], "ratings": [], "kept": [], "dropped": {}}
+    assert Thought.model_validate(old).retained == {}
+
+
+def fake_clients(monkeypatch):
+    import capstone.providers.chat as chat
+
+    monkeypatch.setattr(
+        chat, "clients_for_jobs", lambda: {j: FakeModel() for j in chat.JOBS}
+    )
+
+
+def test_the_retain_setting_reaches_the_tree(monkeypatch):
+    from capstone.experiment import model_policy_factory
+
+    fake_clients(monkeypatch)
+    monkeypatch.setenv("TOT_RETAIN", "evidence")
+    assert model_policy_factory(False, tree_of_thought=True)().options.retain == (
+        "evidence"
+    )
+    monkeypatch.delenv("TOT_RETAIN")
+    made = model_policy_factory(False, tree_of_thought=True)()
+    assert made.options == TreeOptions()
+
+
+def test_a_tree_record_keeps_its_options():
+    case = [Case("bearing-6", 6, "bearing_degradation")]
+    [record] = run_experiment(case, lambda: as_tree(scripted_models()), name="tot")
+    assert record.tree_options == TreeOptions()
+    [plain] = run_experiment(case, scripted_models, name="plain")
+    assert plain.tree_options is None

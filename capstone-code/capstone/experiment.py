@@ -916,11 +916,13 @@ def model_policy_factory(
     #   tree_of_thought: Use the policy that generates, rates and prunes explanations.
     #   with_manual: Offer the manual search tool.
     #   tools: The tools the policy may choose from.
-    #   kind: Which policy class to build.
+    #   options: The tree's switches from the TOT_* settings, read once so every
+    #     case of the experiment uses the same ones.
     from capstone.agent.model_policy import ModelPolicy
     from capstone.agent.tree_of_thought import TreeOfThoughtPolicy
     from capstone.providers.chat import clients_for_jobs
     from capstone.providers.factory import research_tools
+    from capstone.settings import get_settings
 
     tools = research_tools()
     if with_recall:
@@ -931,8 +933,15 @@ def model_policy_factory(
         from capstone.providers.manual import MANUAL_SPEC
 
         tools = (*tools, MANUAL_SPEC)
-    kind = TreeOfThoughtPolicy if tree_of_thought else ModelPolicy
-    return lambda: kind(clients_for_jobs(), tools)
+    if tree_of_thought:
+        options = tree_options_from(get_settings())
+        return lambda: TreeOfThoughtPolicy(clients_for_jobs(), tools, options=options)
+    return lambda: ModelPolicy(clients_for_jobs(), tools)
+
+
+def tree_options_from(settings) -> TreeOptions:
+    """The tree's switches, read from the TOT_* settings (all off by default)."""
+    return TreeOptions(retain=settings.tot_retain)
 
 
 def add_manual_options(parser: argparse.ArgumentParser) -> None:

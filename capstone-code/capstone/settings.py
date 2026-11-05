@@ -179,6 +179,12 @@ class Settings(BaseSettings):
     hypothesis_reserve_seconds: float = Field(
         default=0.0, ge=0, validation_alias="HYPOTHESIS_RESERVE_SECONDS"
     )
+    # P1, with --tree-of-thought only: top_k keeps the best three candidates;
+    # evidence also keeps up to two more that cite factory evidence no kept one
+    # cites, or that name a check for somewhere nobody has looked yet.
+    tot_retain: Literal["top_k", "evidence"] = Field(
+        default="top_k", validation_alias="TOT_RETAIN"
+    )
 
     # Limits on every model question (MVP_SCOPE.md section 3). The loop's own
     # limits (iterations, tool calls, time per investigation) are in Budgets.
