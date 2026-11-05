@@ -52,7 +52,21 @@
 > `test_bearing_replacement.py`.
 > (4) `run_traced`'s docstring now says that it stops and saves the coverage
 > tracer.
-> Merged on the developer's instruction ("merge both") before the pre-merge walkthrough (AGENTS.md §11 step 6); the walkthrough is still owed.
+> Merged on the developer's instruction ("merge both") before the pre-merge walkthrough (AGENTS.md §11 step 6).
+> Walkthrough done afterwards (2026-11-05), three questions. (1) Why keep the
+> inner 480 check in `ActionTools.wait` when the schema in `run_tool` already
+> refuses: the developer saw that the provider path never reaches the tool;
+> added that the tool's `max_wait` is configurable and some callers skip the
+> provider, so the inner check enforces the real rule (defence in depth).
+> (2) Comparing live runs across #177: partly; the developer pointed to where
+> the error is raised; corrected that the main change is the tool text the
+> model reads, so runs before and after are not like-for-like even without
+> errors (check the commit, the `wait` usage, or compare on one commit).
+> (3) A test that cannot fail: understood why it is worse than none (false
+> confidence); taught how to find one (break the code on purpose, read the
+> assertion against the action, per-test coverage flags). Understood: yes,
+> after correction. Latent gap noted: a lower `max_wait` would bring back a
+> hidden limit, since the schema always says 480.
 
 > **2026-11-05 — PR descriptions state their trade-offs (documentation only; understanding unchanged):**
 > At the developer's request, AGENTS.md §11 step 4 now requires a
