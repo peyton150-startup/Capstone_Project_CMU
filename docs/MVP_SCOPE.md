@@ -765,6 +765,13 @@ approval, mandatory verification and evaluator-only hidden causal truth.
      trace; let the investigator select deeper targeted checks and
      hypothesis-discriminating observations as needed.
 
+   **Refinements (2026-11-05):** see [A4 line snapshot](COURSE_NOTEBOOKS_FUTURE_WORK.md#a4-line-snapshot-at-the-start-of-the-investigation-medium-evidence)
+   for additions (every machine's sensor summaries, reject counts per batch,
+   reads through the hazard-wrapped provider, a coverage split of exposed,
+   targeted and used machines) and an open question: who decides the line
+   record's "abnormal" category, and by what threshold, given the rule that
+   code returns numbers, not labels.
+
    Start correlation with only **topology plus an explicit simulation-time
    window** (for example, if CNC-02 alarms, inspect CNC-01's preceding
    abnormal events). Correlation supplies a lead, not causal proof.

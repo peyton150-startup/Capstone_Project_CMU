@@ -72,6 +72,12 @@ This fits next to review signal item 3 (safety rules in code), and should share 
 
 **Pass criteria:** tests for each refusal reason, and a measured **false-block rate** on correct actions from saved records (B's main weakness was blocking 6 of 8 valid proposals). Keep a rule only if it blocks wrong actions without blocking many right ones. A blocked action is lowered to `escalate`, not dropped.
 
+**Refinement (2026-11-05):** split the change into two checks, because only the first is deterministic today.
+
+- **2a. Target machine in targeted evidence.** The proposed machine must appear in cited observable evidence from a call that *targeted* that machine. Once a line snapshot or a cross-machine tool exists, every machine appears in some cited evidence, so "appears in cited evidence" alone would always pass. Uses `machines_targeted` from [A1 in the course notebooks page](COURSE_NOTEBOOKS_FUTURE_WORK.md#a1-split-machine-coverage-into-exposed-targeted-and-used-small-evaluation).
+- **2b. Action fits the fault.** Not deterministic today: the conclusion names its cause only in free text (`Hypothesis.claim`, `AgentConclusion`), with no fault-kind field. Add a model-declared `fault_kind` to the conclusion from a fixed list (`bearing_degradation`, `wrong_setting`, `servo_drive_wear`, `hydraulic_leak`, `bad_material_batch`, `none`, `unknown`), then check the action against a fixed table (bearing to `replace_bearing`, setting to `reset_setting`, servo to `replace_servo_drive`, hydraulic to `repair_hydraulics`; batch, none and unknown allow no repair). A repair proposed for a batch fault is then blocked, since no repair addresses one. The same field gives the [failure funnel (A2)](COURSE_NOTEBOOKS_FUTURE_WORK.md#a2-failure-funnel-per-wrong-case-medium-evaluation) a structured conclusion cause to compare with the truth (hypotheses and candidates still need labels).
+- **Expected effect is small at first.** The final report records that the agent rarely proposes a fix, and human approval plus post-action verification already guard actions. The false-block rate will rest on few saved records. Treat this as a safety rule, not an accuracy improvement.
+
 ## 3. Numeric claim provenance (MEDIUM, evaluator side first)
 
 **Status (2026-11-05): 🟡 PARTLY IMPLEMENTED — do not rebuild the existing verifier.**
@@ -85,6 +91,8 @@ This fits next to review signal item 3 (safety rules in code), and should share 
 **Remaining experiment:** evaluate a read-only/offline extractor for value-plus-unit assertions in saved conclusions, match them to gathered source readings with defined rounding and window semantics, and report `unsupported_numbers` per case. Do not mistake ticks, IDs, confidence values or estimated figures for sensor readings. Reuse the existing structured verifier wherever the asserted measurement can be represented as a `NumericClaim`. Make free-text checking a runtime gate only if a measured unsupported-claim problem and an acceptable false-flag rate justify it.
 
 **Pass criteria:** extraction/matching tests with both supported and unsupported examples; count unsupported and ambiguous claims across saved master records; measure false flags. No new model calls.
+
+**Placement (2026-11-05):** build the `unsupported_numbers` count in the same pull request as the [failure funnel (A2)](COURSE_NOTEBOOKS_FUTURE_WORK.md#a2-failure-funnel-per-wrong-case-medium-evaluation): both are evaluator-only reads of saved records. It is a measurement, not a gate.
 
 ## 4. Downstream impact shown at approval (LOW-MEDIUM)
 
@@ -111,6 +119,11 @@ This fits next to review signal item 3 (safety rules in code), and should share 
 **Current behavior (rechecked):** `build_challenge()` puts **two physical faults on the same machine** (bearing wear and wrong setting), with a transient vibration disturbance and sensor drift/dropout on two other machines. It is not an upstream-cause/downstream-symptom attribution test. `tests/test_production_line.py` does demonstrate downstream starvation and upstream blocking when a machine is down; it does not test the agent's root-cause attribution. The 13 known-answer cases in `evals/scenarios.json` have no dedicated propagated-symptom scenario.
 
 **Remaining change:** add a seeded known-answer case in `evals/scenarios.json` in which a demonstrated upstream fault primarily produces a downstream starvation/blocked-machine symptom. Score whether the agent attributes the cause to the upstream machine, not simply to the symptomatic machine; include an evidence trail showing how the simulator caused the propagation. Keep the new case in the [line-wide scope comparison](MVP_SCOPE.md#fw-scope-comparison) so it is measured alongside the alarm-centered baseline. First verify that the simulated symptoms actually occur for the chosen seed.
+
+**Refinement (2026-11-05):**
+
+- **Already planned there; do not add a second case set.** The [scope comparison](MVP_SCOPE.md#fw-scope-comparison) already lists a *wrong-machine alarm* and a *cascading failure* scenario. This item is those scenarios. Build them once, for that comparison.
+- **The trigger must land downstream.** `detect_anomaly()` (`agent/monitor.py`) starts an investigation only on `alarm` or `status` events, or on a run of failed inspections. A starved or blocked downstream machine produces job events ("blocked by ..."), not alarm or status events, so it does not start an investigation by itself. The seeded case must make the first trigger a downstream symptom (an alarm or a reject run there) while the cause is upstream. Otherwise the investigation starts at the upstream machine and the case does not test propagation. Check the first trigger for the chosen seed before adding the case.
 
 ## Already done or not adopted (do not re-propose)
 
