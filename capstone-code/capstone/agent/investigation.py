@@ -706,6 +706,10 @@ def needs_deep_run(conclusion: AgentConclusion) -> bool:
     finding that nothing is wrong. A fixed rule, so the model cannot argue
     its way out of it.
     """
+    # Variables:
+    #   conclusion: The triage's answer. Its recommendation is the model's own,
+    #     and its assessment is "supported" only when the evidence backed it,
+    #     so a timeout (UNDETERMINED) never counts as "nothing wrong".
     return not (
         conclusion.recommendation == "no_action"
         and conclusion.assessment == "supported"

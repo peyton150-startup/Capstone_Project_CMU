@@ -561,7 +561,6 @@ def run_experiment(
     #   wall_seconds: How long the episode took on the wall clock.
     #   calls: The model questions asked; only model-backed policies keep them,
     #     followed by the critic's, if one ran.
-    #   calls: The model questions asked; only model-backed policies keep them.
     #   thoughts: The tree-of-thought trees; only the tree policy keeps them.
     #   record: The case's result for the experimenter.
     records = []
@@ -1094,6 +1093,24 @@ APPROVERS = {"all": approve_all, "none": reject_all, "console": ask_on_console}
 
 
 def main(argv: Sequence[str] | None = None) -> int:
+    """The command line: run cases, label their conclusions, or report them."""
+    # Variables:
+    #   argv: The command-line words; None reads the real command line, and
+    #     tests pass their own.
+    #   args.command: Which subcommand was chosen, "run", "label" or "report";
+    #     it decides which branch below runs.
+    #   cases: The cases to run, from exactly one of --known, --held-out,
+    #     --challenge or --seeds (with --faults).
+    #   budgets: Time limits for each investigation; None keeps the defaults
+    #     unless --timeout-seconds was given.
+    #   memory, manual, log: The optional memory store, operator manual and
+    #     audit log; each is None unless its option was given.
+    #   args.triage: True with --triage, otherwise None so the TRIAGE setting
+    #     decides; passed through to run_experiment.
+    #   records: The finished results, saved as each case ends; for "label" and
+    #     "report", the results read back from --results.
+    #   done: The run keys already labelled, so labelling skips them.
+    #   labels: Hand labels to score conclusions against; empty without --labels.
     safe_console()  # a conclusion with "→" must not stop the run
     parser = argparse.ArgumentParser(prog="python -m capstone.experiment")
     commands = parser.add_subparsers(dest="command", required=True)

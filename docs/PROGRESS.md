@@ -629,6 +629,8 @@ alarm), then evaluation, then the agent itself.
 
 ## Session notes
 
+- **2026-11-05: variable comments for the functions changed today in PRs #184 and #177 (comments only, built ungated, developer to review; understood: no).** Checked every function those PRs added or changed. Most already had a correct `# Variables:` block (`conclude`, `propose`, `triage_budgets`, `run_episode`, `run_triage_then_deep`, `triage_record`, `record_of`, `nearest_rank`, `format_triage`, `report`, `run_traced`). Added blocks to `needs_deep_run` (agent/investigation.py) and the command-line `main` (experiment.py); removed a duplicated `calls` line from `run_experiment`; and noted in `ActionTools.__init__` that a smaller `max_wait` is enforced but not shown in the wait tool's schema. No behaviour change.
+
 - **2026-11-03: variable comments for the functions in PRs #160 and #163 (comments only, built ungated, developer to review; understood: no).** Checked every function those PRs added or changed in `evaluation/evaltools/` against the latest `main` (PR #167 touches other modules, so adds nothing here). 17 of the 29 already had a `# Variables:` block (none stale); now 23 do. Added blocks to `git`, `tracked_python_files`, `has_functions`, `case_number`, `case_outcome` and `_bodiless` in `full_evaluation.py`; one-line helpers whose names say it all were skipped (`sha256_of`, `run_name`, `ratio`, `request_tokens_estimate`, nested `right` and `fraction`). No behaviour change. The evaluator inventories were not regenerated (they need a full coverage run) and still hold the old source text of these six.
 
 - **2026-11-01 (EVF): evaluation framework and audit, built ungated.** From
