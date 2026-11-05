@@ -16,6 +16,7 @@ what the turns are for:
     recheck      optionally, one reading the critic pointed at (see `recheck`)
     conclude     the policy states a diagnosis; this module checks it
     propose      ask a human for the change, then read their decision back
+                 (a rapid triage, `mode="triage"`, ends here: read-only)
     execute      start the approved work and wait for it to finish
     verify       look again and judge whether the problem went away
 
@@ -636,7 +637,9 @@ def conclude(state: InvestigationState, deps: InvestigationDeps) -> None:
     #   wanted: The action the model asked for with that answer, before the check.
     #   conclusion: What survived the check; this is what the agent now believes.
     #   request: The action that survived the check, or None if it was lowered or never
-    #     named.
+    #     named. Always None in a triage, which proposes nothing.
+    #   state.mode: "triage" keeps the answer but saves no change to propose,
+    #     and sets `deep_recommended` from it by fixed rule.
     state.stage = "decide"
     outcome = "decided"
     try:
@@ -673,6 +676,11 @@ def conclude(state: InvestigationState, deps: InvestigationDeps) -> None:
         conclusion, request, outcome = UNDETERMINED, None, "invalid_decision"
     state.conclusion = conclusion
     state.concluded_tick = state.last_tick
+    if state.mode == "triage":
+        # Triage is read-only: what the model wanted stays in
+        # `policy_recommendation`, but no change is saved to propose.
+        request = None
+        state.deep_recommended = needs_deep_run(conclusion)
     if conclusion.recommendation == "no_action":
         state.predicted_effect = NO_ACTION_PREDICTION
     if request is not None:
@@ -691,6 +699,21 @@ def conclude(state: InvestigationState, deps: InvestigationDeps) -> None:
         information_needed="the diagnosis and what to do about it",
         evidence_ids=conclusion.evidence_ids,
         termination_reason=state.termination_reason,
+    )
+
+
+def needs_deep_run(conclusion: AgentConclusion) -> bool:
+    """Whether a triage's answer leaves work for a deep investigation.
+
+    Only a supported "nothing needs doing" closes the case. A fix, an
+    escalation, an unresolved answer or a triage that ran out of time all
+    need a deep run: triage found no answer, which is not the same as
+    finding that nothing is wrong. A fixed rule, so the model cannot argue
+    its way out of it.
+    """
+    return not (
+        conclusion.recommendation == "no_action"
+        and conclusion.assessment == "supported"
     )
 
 
@@ -754,6 +777,7 @@ def propose(state: InvestigationState, deps: InvestigationDeps) -> ActionRoute:
     what the agent assumes.
     """
     # Variables:
+    #   state.mode: "triage" ends the run here, before anything is asked for.
     #   wanted: The action the conclusion asked for, saved earlier as not_submitted.
     #   answer: The factory's reply to propose_action, which carries the proposal id.
     #   submitted: The proposal as the factory now holds it, with its id and pending
@@ -762,6 +786,10 @@ def propose(state: InvestigationState, deps: InvestigationDeps) -> ActionRoute:
     #     decision.
     #   mine: This investigation's own proposal row, or {} if the factory did not list
     #     it.
+    if state.mode == "triage":
+        # Enforced here, not in a prompt: a triage never asks for a change,
+        # never starts work and never verifies, whatever the model said.
+        return "finish"
     wanted = state.proposed_action
     if wanted is None:
         # Doing nothing is also a claim that can be checked later.

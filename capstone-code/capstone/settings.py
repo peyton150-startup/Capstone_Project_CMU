@@ -171,6 +171,19 @@ class Settings(BaseSettings):
         default=90.0, gt=0, validation_alias="CRITIC_FOLLOWUP_SECONDS"
     )
 
+    # Rapid triage (MVP_SCOPE.md, "Split rapid triage from deep
+    # investigation"): a short, read-only first look before the deep run.
+    # Off by default (developer, 2026-11-05), so runs stay comparable with the
+    # baseline. The time and call limits are starting points, not a measured
+    # response-time target. TRIAGE_THEN_DEEP=off stops after the triage, to
+    # measure it alone.
+    triage: bool = Field(default=False, validation_alias="TRIAGE")
+    triage_seconds: float = Field(default=90.0, gt=0, validation_alias="TRIAGE_SECONDS")
+    triage_tool_calls: int = Field(
+        default=6, ge=1, validation_alias="TRIAGE_TOOL_CALLS"
+    )
+    triage_then_deep: bool = Field(default=True, validation_alias="TRIAGE_THEN_DEEP")
+
     # Limits on every model question (MVP_SCOPE.md section 3). The loop's own
     # limits (iterations, tool calls, time per investigation) are in Budgets.
     # The most tokens one reply may use, thinking included. Measured live on

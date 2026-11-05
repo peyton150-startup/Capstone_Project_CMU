@@ -227,6 +227,30 @@ def summarize_calls(calls: Sequence[ModelCall]) -> CallSummary:
     )
 
 
+class TriageRecord(BaseModel):
+    """What a rapid triage answered before any deep run, for the experimenter.
+
+    Its latency is wall-clock seconds, kept apart from simulation ticks.
+    """
+
+    model_config = ConfigDict(frozen=True, extra="forbid")
+
+    seconds: float
+    conclusion: str | None
+    confidence: float | None
+    # The checked recommendation, and the one the model gave before the check
+    # (a triage never proposes, so "intervene" here only asks for a deep run).
+    recommendation: str | None
+    policy_recommendation: str | None = None
+    assessment: str | None = None
+    termination_reason: str | None = None
+    tool_calls: int = 0
+    # Set by code from the conclusion: whether a deep run should follow, and
+    # whether one did (TRIAGE_THEN_DEEP=off stops after the triage).
+    deep_recommended: bool
+    deep_ran: bool
+
+
 class ExperimentRecord(BaseModel):
     """One episode for the experimenter. Holds the truth: evaluator-side only."""
 
@@ -303,6 +327,10 @@ class ExperimentRecord(BaseModel):
     # candidates, their ratings, which were kept and why the rest were dropped).
     # None: the run used the ordinary step (or predates this record).
     thoughts: list[Thought] | None = None
+    # With triage on: the rapid triage that ran first. The fields above then
+    # describe the deep run that followed, or the triage when none did.
+    # None: triage was off (and in records from before it was kept).
+    triage: TriageRecord | None = None
 
 
 # Tools answered by something other than the factory.
@@ -369,6 +397,31 @@ def favoured_claim(state) -> str | None:
     # Variables:
     #   state: The finished investigation, which holds the critique record.
     return None if state.critique is None else state.critique.favoured_claim
+
+
+def triage_record(result: EpisodeResult) -> TriageRecord | None:
+    """The triage's answer and timing; None when triage was off."""
+    # Variables:
+    #   first: The triage investigation.
+    #   concluded: The triage's checked conclusion, if it reached one.
+    first = result.triage
+    if first is None or result.triage_seconds is None:
+        return None
+    concluded = first.conclusion
+    return TriageRecord(
+        seconds=result.triage_seconds,
+        conclusion=None if concluded is None else concluded.diagnosis,
+        confidence=None if concluded is None else concluded.confidence,
+        recommendation=None if concluded is None else concluded.recommendation,
+        policy_recommendation=first.policy_recommendation,
+        assessment=None if concluded is None else concluded.assessment,
+        termination_reason=(
+            None if first.termination_reason is None else first.termination_reason.value
+        ),
+        tool_calls=first.tool_call_count,
+        deep_recommended=bool(first.deep_recommended),
+        deep_ran=result.state is not first,
+    )
 
 
 def record_of(
@@ -460,6 +513,7 @@ def record_of(
             )
         ],
         thoughts=None if thoughts is None else list(thoughts),
+        triage=triage_record(result),
     )
 
 
@@ -479,6 +533,7 @@ def run_experiment(
     start: int = 1,
     watch: Callable[[str], None] | None = None,
     make_critic: Callable[[], Critic] | None = None,
+    triage: bool | None = None,
 ) -> list[ExperimentRecord]:
     """Run each case once with a fresh policy. `name` makes every run key unique.
 
@@ -504,6 +559,7 @@ def run_experiment(
     #   start: The number of the first case in the run keys.
     #   watch: Prints a live view of each case; the hidden truth is never printed.
     #   make_critic: Builds a fresh critic for each case; None leaves it to settings.
+    #   triage: Run a rapid triage before each deep run; None leaves it to settings.
     #   records: One record per case, in order.
     #   run_key: A unique name for this case's run.
     #   policy: A fresh decision-maker, so no case learns from another's state.
@@ -536,6 +592,7 @@ def run_experiment(
             manual=manual,
             watch=None if watch is None else ProgressView(watch),
             critic=None if make_critic is None else make_critic(),
+            triage=triage,
         )
         wall_seconds = clock() - started
         calls = getattr(policy, "calls", None)  # kept by ModelPolicy only
@@ -621,6 +678,43 @@ def format_model_calls(records: Sequence[ExperimentRecord]) -> str:
     if timed:
         line += f"; {sum(timed) / len(timed):.0f} s per episode on average"
     return line
+
+
+def nearest_rank(values: Sequence[float], share: float) -> float:
+    """The value at `share` (0.5 for the median, 0.95 for p95) by nearest rank."""
+    # Variables:
+    #   ordered: The values from smallest to largest.
+    #   rank: The 1-based position of the value that covers `share` of them.
+    ordered = sorted(values)
+    rank = max(1, -(-int(share * 100) * len(ordered) // 100))
+    return ordered[min(rank, len(ordered)) - 1]
+
+
+def format_triage(records: Sequence[ExperimentRecord]) -> str | None:
+    """One line on the rapid triages; None when no run had one.
+
+    Counts time-outs and unresolved answers rather than hiding them: a triage
+    that did not answer is reported as such.
+    """
+    # Variables:
+    #   kept: The triage of each run that had one.
+    #   seconds: How long each triage took on the wall clock.
+    #   answered: Triages that ended with a supported conclusion.
+    #   timed_out: Triages stopped by their deadline.
+    kept = [r.triage for r in records if r.triage is not None]
+    if not kept:
+        return None
+    seconds = [t.seconds for t in kept]
+    answered = sum(t.assessment == "supported" for t in kept)
+    timed_out = sum(t.termination_reason == "timeout" for t in kept)
+    return (
+        f"triage: {len(kept)} run(s), p50 {nearest_rank(seconds, 0.5):.0f} s, "
+        f"p95 {nearest_rank(seconds, 0.95):.0f} s; {answered} supported, "
+        f"{len(kept) - answered} not ({timed_out} timed out); "
+        f"deep run asked for {sum(t.deep_recommended for t in kept)}, "
+        f"ran {sum(t.deep_ran for t in kept)}; "
+        f"{sum(t.tool_calls for t in kept)} triage tool calls"
+    )
 
 
 def _right(score: Score) -> bool | None:
@@ -805,6 +899,7 @@ def report(records: Sequence[ExperimentRecord], labels: dict[str, Label]) -> str
     #   lines: The report, built line by line.
     #   memory: The memory section, if any run used memory.
     #   manual: The manual section, if any run used the manual.
+    #   triaged: The triage line, if any run had a rapid triage.
     scores = labelled(records, labels)
     held = sum(r.seed in HELD_OUT_SEEDS for r in records)
     pairs = list(zip(records, scores, strict=True))
@@ -824,7 +919,9 @@ def report(records: Sequence[ExperimentRecord], labels: dict[str, Label]) -> str
     memory = format_memory(records, scores)
     lines += [] if memory is None else [memory]
     manual = format_manual(records)
-    lines += ([] if manual is None else [manual]) + [""]
+    lines += [] if manual is None else [manual]
+    triaged = format_triage(records)
+    lines += ([] if triaged is None else [triaged]) + [""]
 
     def lines_for(group):
         # Variables:
@@ -1050,6 +1147,15 @@ def main(argv: Sequence[str] | None = None) -> int:
         help="hypothesize by generating, valuing and pruning candidates (opt-in)",
     )
     run.add_argument(
+        "--triage",
+        action="store_true",
+        default=None,
+        help=(
+            "a short read-only triage before each deep run (opt-in; also TRIAGE=on); "
+            "the deep run follows only when the triage leaves work for it"
+        ),
+    )
+    run.add_argument(
         "--quiet",
         action="store_true",
         help="no live progress view: one line per finished case (the view is on by default)",
@@ -1129,6 +1235,7 @@ def main(argv: Sequence[str] | None = None) -> int:
             manual=manual,
             on_record=save_record,
             watch=None if args.quiet else live_line,
+            triage=args.triage,
         )
         print(report(records, {}))
         return 0

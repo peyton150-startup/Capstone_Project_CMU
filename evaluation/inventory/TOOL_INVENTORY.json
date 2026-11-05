@@ -101,7 +101,7 @@
     "tests/test_episode.py::test_a_verified_fix_is_audited_and_remembered",
     "tests/test_episode.py::test_a_whole_episode_records_the_section_nine_fields"
    ],
-   "test_count": 258,
+   "test_count": 271,
    "verification_status": "PARTIALLY VERIFIED",
    "snap_questions": [
     "TL-01",
@@ -336,7 +336,7 @@
     "tests/test_episode.py::test_critic_blind_is_off_by_default_and_reaches_the_run",
     "tests/test_episode.py::test_critic_followup_off_by_default"
    ],
-   "test_count": 238,
+   "test_count": 250,
    "verification_status": "VERIFIED",
    "snap_questions": [
     "TL-01",
@@ -482,7 +482,7 @@
     "tests/test_observation_tools.py::test_looking_does_not_advance_time_or_change_the_factory",
     "tests/test_observation_tools.py::test_nothing_hidden_leaks_through_any_tool_over_a_full_run"
    ],
-   "test_count": 97,
+   "test_count": 109,
    "verification_status": "PARTIALLY VERIFIED",
    "snap_questions": [
     "TL-01",
@@ -700,7 +700,7 @@
     "tests/test_episode.py::test_the_same_seed_gives_the_same_episode",
     "tests/test_episode.py::test_without_a_judge_the_diagnosis_is_unjudged_but_the_action_is_scored"
    ],
-   "test_count": 188,
+   "test_count": 200,
    "verification_status": "VERIFIED",
    "snap_questions": [
     "TL-01",
@@ -835,7 +835,7 @@
     "tests/test_episode.py::test_critic_blind_is_off_by_default_and_reaches_the_run",
     "tests/test_episode.py::test_critic_followup_off_by_default"
    ],
-   "test_count": 231,
+   "test_count": 244,
    "verification_status": "PARTIALLY VERIFIED",
    "snap_questions": [
     "TL-01",
@@ -1062,7 +1062,7 @@
     "tests/test_memory_comparison.py::test_semantic_mode_asks_the_index",
     "tests/test_memory_comparison.py::test_semantic_mode_never_runs_as_keyword_search_unseen"
    ],
-   "test_count": 120,
+   "test_count": 133,
    "verification_status": "PARTIALLY VERIFIED",
    "snap_questions": [
     "TL-01",
@@ -1191,7 +1191,7 @@
     "tests/test_evals.py::test_review_flag_excludes_provisional_label_from_accuracy",
     "tests/test_evals.py::test_run_cases_offers_the_manual_when_given"
    ],
-   "test_count": 217,
+   "test_count": 230,
    "verification_status": "VERIFIED",
    "snap_questions": [
     "TL-01",
@@ -1316,7 +1316,7 @@
     "tests/test_episode.py::test_a_run_with_the_manual_gives_the_settings_critic_the_manual",
     "tests/test_episode.py::test_a_scripted_policy_without_the_combined_question_runs_in_two"
    ],
-   "test_count": 206,
+   "test_count": 214,
    "verification_status": "VERIFIED",
    "snap_questions": [
     "TL-01",
@@ -1423,7 +1423,7 @@
     "tests/test_evals.py::test_record_keeps_the_claim_the_critic_favoured",
     "tests/test_experiment.py::test_a_model_policy_run_keeps_its_call_summary_and_its_time"
    ],
-   "test_count": 159,
+   "test_count": 167,
    "verification_status": "PARTIALLY VERIFIED",
    "snap_questions": [
     "TL-01",
@@ -1540,7 +1540,7 @@
     "tests/test_experiment.py::test_critic_questions_counted_and_tagged",
     "tests/test_experiment.py::test_critic_questions_follow_the_policy_s_own"
    ],
-   "test_count": 168,
+   "test_count": 175,
    "verification_status": "VERIFIED",
    "snap_questions": [
     "TL-01",

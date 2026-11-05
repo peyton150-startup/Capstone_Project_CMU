@@ -26,6 +26,24 @@
 > to the Investigator. No live model comparison or accuracy gain is claimed.
 > **Understood (pre): yes. Understood (post): no — closing check outstanding.**
 
+> **2026-11-05 — rapid triage mode (taught and gated; closing walkthrough owed):**
+> Merged before its walkthrough on the developer's instruction ("merge and we
+> will do the walkthrough later"); the pre-merge walkthrough (AGENTS.md §11
+> step 6) for PR #184 is still owed (understood: no, until it is done).
+> Before the code, the developer answered the check question: the block on
+> proposing must be in code because a model can ignore a prompt, and a triage
+> without an answer still needs a deep run. Opt-in (`TRIAGE=on` or
+> `--triage`), off by default. A triage (`mode="triage"`, `triage_budgets`:
+> 90 s, 6 tool calls, no follow-up or critic) never proposes, executes or
+> verifies; `propose()` routes it to the end. Code sets `deep_recommended`
+> (`needs_deep_run`): only a supported "no action" closes the case. A deep run
+> follows as investigation 2 with `follows_triage`, and is not shown the
+> triage's conclusion. Records carry a `TriageRecord`, and the report a p50/p95
+> line. The 90 s / 6-call limits are placeholders until Codex measures live
+> latency. Scripted tests only; no live model run. The developer also said
+> (2026-11-05) that hazards will not be used, so the conflicting-observations
+> case was dropped and hazards were left unchanged.
+
 > **2026-11-05 — Docker Desktop for sandbox checks (documentation only; understanding unchanged):**
 > At the developer's request, AGENTS.md §9 says that a check needing an isolated
 > sandbox uses Docker Desktop, after `docker info` succeeds. CLAUDE.md points to it.
