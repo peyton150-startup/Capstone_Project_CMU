@@ -22,7 +22,7 @@ unjudged. `rescore` applies a label afterwards, without running again.
 """
 
 from collections.abc import Callable
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from datetime import timedelta
 from time import monotonic
 
@@ -33,7 +33,7 @@ from capstone.agent.loop import InvestigationDeps
 from capstone.agent.model_policy import ModelCall
 from capstone.agent.monitor import detect_anomaly
 from capstone.agent.policy import ReasoningPolicy
-from capstone.agent.state import Budgets, InvestigationState
+from capstone.agent.state import Budgets, InvestigationState, triage_budgets
 from capstone.contracts.investigations import investigation_id_for, run_id_for
 from capstone.evaluation.scoring import Score, evaluate
 from capstone.learning import LearningOutcome, learn_from
@@ -108,6 +108,11 @@ class EpisodeResult:
     hazards: HazardReport | None = None
     # The critic's model questions, tagged agent="critic"; empty without one.
     critic_calls: tuple[ModelCall, ...] = ()
+    # With triage on: the rapid triage that came first, and its wall-clock
+    # seconds. `state` is then the deep run that followed, or the triage
+    # itself when no deep run followed. None: triage was off.
+    triage: InvestigationState | None = None
+    triage_seconds: float | None = None
 
     @property
     def conclusion(self) -> str | None:
@@ -209,6 +214,7 @@ def run_episode(
     manual: ManualSearch | None = None,
     watch: Callable[[InvestigationState], None] | None = None,
     critic: Critic | None = None,
+    triage: bool | None = None,
 ) -> EpisodeResult:
     """Run one seeded episode from the fault's start to its score.
 
@@ -229,6 +235,9 @@ def run_episode(
     two leading hypotheses before the conclusion (review only: it changes
     nothing in the run). It is built from settings before the factory, so a
     missing CRITIC_MODEL fails before the case runs.
+    With `triage` (or, when it is None, TRIAGE=on in settings), a short
+    read-only triage runs first (`run_triage_then_deep`); a deep run with
+    its own investigation id follows when the triage leaves work for one.
     """
     # Variables:
     #   seed: Decides the whole factory, so the same seed repeats the same run.
@@ -247,6 +256,9 @@ def run_episode(
     #   watch: Called with a copy of the agent's state so someone can follow the run.
     #   critic: Reviews the two leading hypotheses; None builds one from settings
     #     when CRITIC is on, and otherwise runs without one.
+    #   triage: Run a rapid triage first; None reads TRIAGE from settings.
+    #   triage_state: The triage investigation, when triage was on.
+    #   triage_seconds: How long the triage took on `clock`.
     #   settings: The project settings, read for the action bar and step mode.
     #   step_questions: The questions per tool result actually used: the
     #     setting, or 2 for a policy that cannot answer both in one.
@@ -352,7 +364,13 @@ def run_episode(
             "HYPOTHESIS_RESERVE_SECONDS must leave some research time "
             f"(research has {research:g} s)"
         )
-    run_investigation(state, deps)
+    triage_state, triage_seconds = None, None
+    if settings.triage if triage is None else triage:
+        triage_state, state, triage_seconds = run_triage_then_deep(
+            state, deps, budgets, settings, log
+        )
+    else:
+        run_investigation(state, deps)
 
     learning = None
     if memory is not None and log is not None:
@@ -380,4 +398,56 @@ def run_episode(
         start_tick,
         None if unreliable is None else unreliable.report,
         () if critic is None else tuple(critic.calls),
+        triage_state,
+        triage_seconds,
     )
+
+
+def run_triage_then_deep(
+    first: InvestigationState,
+    deps: InvestigationDeps,
+    budgets: Budgets | None,
+    settings,
+    log: AuditLog | None,
+) -> tuple[InvestigationState, InvestigationState, float]:
+    """Run a rapid triage on `first`, then a deep run if it leaves work.
+
+    Returns the triage, the investigation to score (the deep run, or the
+    triage when none followed) and the triage's seconds on `deps.clock`.
+    The triage runs without the critic: its own time window would overrun a
+    short deadline. The deep run is the next investigation of the same run
+    (`investigation_id_for(run_id, 2)`), with normal budgets and approval;
+    it gets the triage's id, never its conclusion, so a quick guess cannot
+    anchor it. With `log`, the triage is audited as well.
+    """
+    # Variables:
+    #   first: The prepared investigation, turned into the triage.
+    #   budgets: The deep run's limits; None uses the defaults.
+    #   started: The clock reading when the triage began.
+    #   seconds: How long the triage took.
+    #   deep: The deep investigation that follows, if the triage asked for one.
+    first.mode = "triage"
+    first.budgets = triage_budgets(settings.triage_seconds, settings.triage_tool_calls)
+    started = deps.clock()
+    # The hypothesis reserve is for the deep run: the triage's short window
+    # would have little or no research time left with it.
+    run_investigation(
+        first,
+        replace(deps, critic=None, critic_followup=False, hypothesis_seconds=0.0),
+    )
+    seconds = deps.clock() - started
+    if log is not None and first.conclusion is not None and first.termination_reason:
+        log.append(audit_record(first))
+    if not (settings.triage_then_deep and first.deep_recommended):
+        return first, first, seconds
+    deep = InvestigationState(
+        run_id=first.run_id,
+        investigation_id=investigation_id_for(first.run_id, 2),
+        anomaly=first.anomaly,
+        budgets=budgets or Budgets(),
+        state_action_bar=first.state_action_bar,
+        step_questions=first.step_questions,
+        follows_triage=first.investigation_id,
+    )
+    run_investigation(deep, deps)
+    return first, deep, seconds
