@@ -5,16 +5,17 @@
 **Source:** nine course lab notebooks (introduction to LLMs, tool calling, building a ReAct agent, tree of thoughts, agentic harnesses, MCP, multi-agent coordination, domain RAG, RAG with MMR).
 **Related:** [Final report](../evaluation/FINAL_REPORT.md), [Investigation reasoning](INVESTIGATION_REASONING.md), [Run-2 findings](RUN2_FINDINGS_FUTURE_WORK.md), [Episodic memory](EPISODIC_MEMORY.md).
 
-The notebooks were read against the project to find small and medium changes, not a refactor. Most of what they teach is already built (see the list at the end). Six items are planned (P7 from a focused review of the multi-agent notebook); P6 was considered and decided against. The goal is better results from the reasoning the agent already has.
+The notebooks were read against the project to find small and medium changes, not a refactor. Most of what they teach is already built (see the list at the end). Six items are planned from the notebooks (P7 from a focused review of the multi-agent notebook; P6 was decided against), and seven more (A1 to A7) refine how evidence enters the reasoning, how hypotheses are kept, and how the two are evaluated together. The goal is better results from the reasoning the agent already has.
 
 ## Recommended order
 
-1. P1, audit by default (makes every later change measurable).
-2. P2, aggregation tools and wider numeric verification.
-3. A matched run on KA-03 to KA-06 and KA-09 before and after P2.
-4. P3 and P4, measured in the critic on/off experiment from the final report.
-5. P5, only after memory has run live and the measurement below says it is needed.
-6. P7 before measuring P3 and P4, so their extra model calls are visible.
+1. P1, audit by default, together with A1 (machine coverage split) and the deterministic parts of A2 (failure funnel). Makes failures measurable without new model calls.
+2. A3, question resolution. A correctness fix, built whatever the funnel shows.
+3. P2 aggregation tools and A4 line snapshot (sharing one set of functions), with A5 (support counted by distinct signal). Matched run on KA-03 to KA-06, KA-09, KA-07 and KA-08 before and after.
+4. The rest of A2 (hypothesis history and label-based cause matching), then A7.
+5. P7 before measuring P3 and P4, so their extra model calls are visible; then P3 and P4 in the critic on/off experiment from the final report.
+6. A6 (unanimous pruning) only if the funnel shows the true cause being pruned or deferred.
+7. P5, only after memory has run live and its measurement says it is needed.
 
 ## P1. Audit log on by default (SMALL, evaluation)
 
@@ -49,6 +50,8 @@ Optionally the same per-batch tallies go into the evidence brief.
 - Extend `NumericClaim` so reject rates and comparison values are verifiable metrics. A misstated count is then refused before it is applied, the same way a misstated sensor mean is now.
 - Known limit: numbers written only in prose are not extracted or checked today (`INVESTIGATION_REASONING.md`). To close that, a supported conclusion could require a structured claim for every number it depends on, or treat an uncited number as unverified.
 
+**Refinements (A4):** a batch with zero inspections reports an unknown rate, never 0%; each row keeps passed, failed and total counts. The same functions feed the A4 line snapshot.
+
 **Follow-on:** the reject-rate stop rule from run-2 item 1 becomes cheap to build on `get_inspection_summary`.
 
 **Check:** KA-03 to KA-06 and KA-09 with frozen configuration and `--audit`, before and after. KA-07 and KA-08 must still conclude "no action". Compare tool calls and wall time as well as accuracy.
@@ -61,7 +64,9 @@ Optionally the same per-batch tallies go into the evidence brief.
 
 **Change:** rate each candidate three times at a temperature above zero and aggregate in code. Keep the existing rule that "impossible" drops a candidate only with cited factory evidence against it. When the three ratings split (for example one "likely" and one "impossible"), record `rating_split` on that candidate in the ToT trace (`thoughts`). It describes a candidate, not the conclusion, so it does not go on the final label.
 
-**Cost:** two extra `hypothesize` calls per investigation. Record them.
+**Cost:** two extra calls per investigation compared with today. Record them.
+
+**Refinements:** temperature is set per model, and both ToT questions use the `hypothesize` job, so raising the rating temperature needs its own `value` job in `providers/chat.py` (`JOBS`, `_JOB_SETTING`), as ToT P5 already proposes; generation must stay unchanged. `prune()` keeps the first rating per candidate, so three ratings need an explicit aggregation step, not three `Rating` objects passed in.
 
 ## P4. Separate uncertainty labels, including self-consistency (MEDIUM, reasoning and evaluation)
 
@@ -132,6 +137,103 @@ The multi-agent coordination notebook (Part 1: agent count, roles, one-way / two
 - **Failover:** `FallbackClient` per job with per-question time limits; tool errors are returned, not raised into the loop.
 - **Majority voting across agents:** covered by P4's self-consistency check.
 - **Repeated review and revise loops:** decided against (P6).
+
+## Evidence, hypotheses and evaluation: refined plan (2026-11-05)
+
+These items address three themes: what evidence enters the reasoning, how hypotheses are chosen and told apart, and how retrieval and reasoning are evaluated together. Each claim below was checked against `main` at `948f40a`. An outside review of the first draft cited OpenAI and Pydantic AI documentation; those do not apply directly (models are Mistral, Gemini and Groq through OpenAI-compatible endpoints with the project's own `urllib` client, and the code uses `pydantic_graph`, not a Pydantic AI `Agent`), but its code-level points were checked and the valid ones are folded in below.
+
+### A1. Split machine coverage into exposed, targeted and used (SMALL, evaluation)
+
+**Current behavior:** `run_packet.facts_of()` builds `machines_examined` only from explicit `machine_id` tool arguments. A line-wide snapshot or a cross-machine tool would not count, and a machine shown in a snapshot would wrongly look "examined".
+
+**Change:** three facts in place of one:
+
+| Fact | Meaning |
+|---|---|
+| `machines_exposed` | machines whose readings entered the evidence (snapshot, cross-machine tools, targeted calls) |
+| `machines_targeted` | machines named in a tool call the agent chose |
+| `machines_used_in_reasoning` | machines whose evidence a hypothesis, question or the conclusion cites |
+
+Lands with P1 and **before** A4, or the snapshot experiment cannot be read.
+
+### A2. Failure funnel per wrong case (MEDIUM, evaluation)
+
+**Purpose:** say where each wrong case first failed, so the next fix is chosen from data. Evaluation only; truth never reaches the agent.
+
+| Stage | Question | How it is decided |
+|---|---|---|
+| 1 | Was the faulty machine or batch exposed, targeted, used? | code, from A1 |
+| 2 | Was the true cause ever proposed? | labels on each hypothesis and candidate claim |
+| 3 | Was it proposed, then pruned or deferred? | labels plus the ToT disposition |
+| 4 | Was it kept but not selected at the conclusion? | labels plus the conclusion's `hypothesis_id` |
+| 5 | Right cause, wrong or missing action? | code, from existing action and resolution scoring |
+
+**Matching free text to causes:** claims are free text, so stages 2 to 4 reuse `evaluation/auto_label.py` (per-fault-kind yes/no, machine ids chosen from ids code found in the text, uncertain answers flagged for review, agreement measured against hand labels) on every hypothesis and candidate claim, not only the conclusion. Anything uncertain is reported as `unknown_requires_review`, never forced into a stage. Code does the funnel logic; cause matching depends on labels.
+
+**Compound and no-fault cases:** classify each true cause separately, then aggregate (KA-09). False-alarm cases use a separate no-fault branch (did the agent invent a cause or propose a fix).
+
+**Prerequisite, hypothesis history:** `AuditRecord` keeps only the final hypotheses and `DecisionRecord` only a `hypothesis_id` per step. Add a structured hypothesis event to the audit each time hypotheses are set or revised: id, claim, stage, cited evidence ids and disposition (active, revised, dropped, contradicted, deferred). These are recorded decisions, not chain-of-thought.
+
+**Prerequisite, full traces:** the 2026-11-04 Snap archive has 5 full traces of 57 episodes. Funnel conclusions need P1 first.
+
+### A3. Keep a question open until it is resolved (SMALL to MEDIUM, reasoning; correctness fix)
+
+**Current behavior (a defect):** in `agent/loop.py`, `gather()` removes a question from `unanswered_questions` as soon as a tool returns valid data, before interpretation. Because its id is then in `state.answers`, `apply_interpretation` cannot reopen it. An insufficient answer closes the question permanently, and `diagnosis_supported` and `check_conclusion` stop counting it. Two tests lock this in: `test_an_answer_closes_the_question_it_was_asked_for` and `test_a_good_answer_is_kept_when_the_policy_fails_to_interpret_it` (`tests/test_agent_loop.py`); they change on purpose.
+
+**Change:**
+
+- Two stores in `InvestigationState`: evidence gathered while attempting a question, and evidence that resolved it.
+- The interpretation returns a status for the question it was answering: `resolved` or `insufficient`. A missing status means the question stays open (the same safe default as a missing `assessment`). Only a reply that passes its typed contract can resolve a question.
+- Code marks a question `insufficient` on its own only where the tool semantics are clear: a sensor-reading tool with a requested window that returned no samples or too few. An empty `get_events` answer is valid ("no alarms in that window") and is not marked insufficient. A sparse series is not insufficient merely because its first sample is after `from_tick`.
+- A controller-recorded `superseded` status for a question whose hypothesis was dropped: it no longer blocks completion and is not counted as resolved.
+- Wired into both modes, `interpret()` and `interpret_and_decide()`, and into the critic follow-up check.
+- Optional: say explicitly which open questions block completion. Today only questions tied to a current hypothesis do; planning questions with no `hypothesis_id` do not.
+
+The existing budget stop prevents an open question from looping forever.
+
+**Tests:** insufficient answers stay open with their evidence attached; resolved closes; superseded neither blocks nor counts as resolved; empty events resolve; both modes; follow-up.
+
+### A4. Line snapshot at the start of the investigation (MEDIUM, evidence)
+
+**Current behavior:** `detect_anomaly()` (`agent/monitor.py`) returns at the first alarm or status event, and the investigation starts from that machine. In KA-09 the decoy on CNC-03 set the focus and CNC-07 was never examined. The trigger stays as it is; the change is what the agent sees first.
+
+**Change:** after `observe()` (`agent/investigation.py`), a controller-owned, read-only snapshot recorded as one timestamped evidence item: every machine's status, per-machine summaries of key sensors, reject counts per batch, and current settings. Built from the same functions as the P2 tools.
+
+**Rules:**
+
+- Reads go through the factory provider (and so through `UnreliableProvider` hazards in `episode.py`), never directly through `ObservationTools`. It uses none of the agent's research calls, but its reads and time are recorded.
+- Raw numbers only: requested window and actual coverage (`sample_count`, `first_tick`, `last_tick`), units, mean, min, max; passed, failed and total per batch; unknown where data is missing. No labels or thresholds.
+- Its own section in the evidence brief within the 8,000-character limit. Every machine's id and status always appears; measurement detail is shortened first.
+- Measured with A1, so "shown in the snapshot" is not mistaken for "examined".
+
+**Check:** KA-03 to KA-06 and KA-09 should improve; KA-07 and KA-08 must still conclude "no action" (more data must not invent causes). Compare tool calls and wall time.
+
+### A5. Count supporting evidence by distinct signal (SMALL, reasoning)
+
+**Current behavior:** `diagnosis_supported` (`agent/loop.py`) counts distinct supporting evidence ids against `min_supporting_evidence`. A `get_readings` and a `get_sensor_summary` over the same machine, sensor and window already count as two. A snapshot would add a third view of the same signal. The evidence brief warns about repeated measurements, but the gate does not use that.
+
+**Change:** count support by distinct (machine, sensor, window) signal, not by evidence id, for every tool. Fixes the existing double counting as well as the snapshot case.
+
+### A6. Unanimous three-rating pruning (SMALL; only if A2 shows a pruning problem)
+
+**Idea:** with P3's three ratings, drop a candidate as `contradicted` only when all three usable ratings say impossible and cite factory evidence. Fewer than three usable ratings, or a split, means deferred.
+
+**Why this waits:** three ratings from one model on the same evidence are not independent proofs. More importantly, an unproven "impossible" already ranks below every sure or likely candidate, so with breadth 3 of 5 it usually drops out as `deferred` anyway: the rule would mostly change the label, not the outcome. It only matters if deferred candidates can come back, for example through a bounded reconsideration of one deferred alternative or ToT P5's re-valuation.
+
+**Measure first (A2 stage 3):** how often the true cause is contradicted and how often it is deferred. Build A6 only if either is common.
+
+**Tests (if built):** split votes, missing ratings, a shared wrong contradiction, a correct candidate that is only ranked out (`tests/test_tree_of_thought.py`).
+
+### A7. `retrieved_not_cited` for the manual and memory (SMALL, evaluation)
+
+**Already in place:** `run_packet.py` computes `cited_by_origin` from the conclusion's evidence ids and their provenance.
+
+**Change:** report each manual and memory item at four levels: retrieved, shown to the investigator, cited in a hypothesis, cited in the conclusion. Name the gap `retrieved_not_cited`, not "unused": the manual can legitimately shape which check is asked for without being cited as evidence, because it is guidance, not proof.
+
+### Considered and set aside
+
+- **Phrasing-robustness tests:** the agent's inputs are mostly structured tool JSON; alarm text, manual passages and claims are natural language, but the expected value is low for now. Keep the existing structured-input and uncertainty tests.
+- **Confidence calibration:** 13 known cases are too few. Keep the deterministic completion gates and the confident-wrong count; do not treat thresholds such as 0.9 as calibrated probabilities.
 
 ## Worth learning, not building now
 
