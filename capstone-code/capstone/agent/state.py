@@ -81,6 +81,45 @@ class Budgets(Contract):
         return self
 
 
+# Rapid triage (MVP_SCOPE.md, "Split rapid triage from deep investigation"):
+# a short, read-only first look. These limits are starting points, not a
+# measured response-time target: that has to come from live provider latency.
+TRIAGE_SECONDS = 90.0
+# Of those, the seconds research leaves for the conclusion.
+TRIAGE_CONCLUDE_SECONDS = 20.0
+TRIAGE_TOOL_CALLS = 6
+TRIAGE_ITERATIONS = 8
+
+# Which kind of investigation this is. "deep" is the full workflow and the
+# default; "triage" never proposes, executes or verifies anything.
+Mode = Literal["deep", "triage"]
+
+
+def triage_budgets(
+    seconds: float = TRIAGE_SECONDS, tool_calls: int = TRIAGE_TOOL_CALLS
+) -> Budgets:
+    """The limits for a rapid triage: short, with nothing kept for a fix.
+
+    No follow-up calls (triage proposes nothing, so there is nothing to
+    verify) and no critic reading. Research stops `TRIAGE_CONCLUDE_SECONDS`
+    before the deadline, or a quarter of it when the deadline is shorter, so
+    the conclusion always has time.
+    """
+    # Variables:
+    #   seconds: The whole triage's wall-clock deadline.
+    #   tool_calls: The most factory calls research may make.
+    #   kept: The seconds research leaves for the conclusion.
+    kept = min(TRIAGE_CONCLUDE_SECONDS, seconds / 4)
+    return Budgets(
+        max_iterations=TRIAGE_ITERATIONS,
+        max_tool_calls=tool_calls,
+        timeout_seconds=seconds,
+        followup_tool_calls=0,
+        critic_tool_calls=0,
+        followup_seconds=kept,
+    )
+
+
 class PrunedCandidate(Contract):
     """An explanation tree-of-thought considered and dropped, kept in the trace.
 
@@ -155,6 +194,13 @@ class InvestigationState(BaseModel):
     investigation_id: UUID
     anomaly: DetectedAnomaly
     budgets: Budgets = Field(default_factory=Budgets)
+    # "triage": a read-only first look that never proposes a change; "deep":
+    # the full workflow. See `triage_budgets`.
+    mode: Mode = "deep"
+    # On a deep run started from a triage: that triage's investigation id,
+    # so the two can be traced. Only the reference: the deep run is not shown
+    # the triage's conclusion.
+    follows_triage: UUID | None = None
     # Whether prompts state the action threshold; kept for experiment records.
     state_action_bar: bool = True
     # The configured loop mode, kept for experiment records. The loop sets it.
@@ -207,6 +253,10 @@ class InvestigationState(BaseModel):
     action_started_tick: int | None = Field(default=None, ge=0)
     action_finish_tick: int | None = Field(default=None, ge=0)
     verification: VerificationCheck | None = None
+    # Triage only: whether a deep investigation should follow. Set by code
+    # from the conclusion (`investigation.needs_deep_run`), never by the model.
+    # None on a deep run.
+    deep_recommended: bool | None = None
     # What the critic said about the two leading hypotheses, or why it said
     # nothing. Review only: nothing else in the run reads it.
     critique: CritiqueRecord | None = None
