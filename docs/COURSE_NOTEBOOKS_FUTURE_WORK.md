@@ -11,7 +11,7 @@ The notebooks were read against the project to find small and medium changes, no
 
 1. P1, audit by default, together with A1 (machine coverage split) and the deterministic parts of A2 (failure funnel). Makes failures measurable without new model calls.
 2. A3, question resolution. A correctness fix, built whatever the funnel shows.
-3. P2 aggregation tools and A4 line snapshot (sharing one set of functions), with A5 (support counted by distinct signal). Matched run on KA-03 to KA-06, KA-09, KA-07 and KA-08 before and after.
+3. P2 aggregation tools and A4 line snapshot (sharing one set of functions; A4 is the planned `MVP_SCOPE.md` line-wide packet, refined), with A5 (support counted by distinct signal). Measured in the planned alarm-centered vs line-wide comparison, which should include KA-03 to KA-06, KA-09, KA-07 and KA-08 and the propagated-symptom cases (manufacturing papers item 5).
 4. The rest of A2 (hypothesis history and label-based cause matching), then A7.
 5. P7 before measuring P3 and P4, so their extra model calls are visible; then P3 and P4 in the critic on/off experiment from the final report.
 6. A6 (unanimous pruning) only if the funnel shows the true cause being pruned or deferred.
@@ -172,6 +172,8 @@ Lands with P1 and **before** A4, or the snapshot experiment cannot be read.
 
 **Compound and no-fault cases:** classify each true cause separately, then aggregate (KA-09). False-alarm cases use a separate no-fault branch (did the agent invent a cause or propose a fix).
 
+**A structured conclusion cause:** [manufacturing papers item 2b](MANUFACTURING_AGENT_PAPERS_FUTURE_WORK.md#2-action-target-consistency-checks-in-why_not_acted-medium-high) proposes a model-declared `fault_kind` on the conclusion. If built, stage 4 and the episode result compare that field with the truth directly; labels are still needed for hypotheses and candidates. The `unsupported_numbers` count (manufacturing papers item 3) goes in the same pull request as the funnel.
+
 **Prerequisite, hypothesis history:** `AuditRecord` keeps only the final hypotheses and `DecisionRecord` only a `hypothesis_id` per step. Add a structured hypothesis event to the audit each time hypotheses are set or revised: id, claim, stage, cited evidence ids and disposition (active, revised, dropped, contradicted, deferred). These are recorded decisions, not chain-of-thought.
 
 **Prerequisite, full traces:** the 2026-11-04 Snap archive has 5 full traces of 57 episodes. Funnel conclusions need P1 first.
@@ -194,6 +196,8 @@ The existing budget stop prevents an open question from looping forever.
 **Tests:** insufficient answers stay open with their evidence attached; resolved closes; superseded neither blocks nor counts as resolved; empty events resolve; both modes; follow-up.
 
 ### A4. Line snapshot at the start of the investigation (MEDIUM, evidence)
+
+**Relation to existing plans (2026-11-05):** this refines the planned [incident-first, line-wide investigation scope](MVP_SCOPE.md#fw-incident-context) (HIGH in `MVP_SCOPE.md`), which already proposes a trigger record, whole-line status, unfiltered cross-machine events and neighbor trends, measured in the [alarm-centered vs line-wide comparison](MVP_SCOPE.md#fw-scope-comparison). Build one feature, not two. A4 adds: sensor summaries for **every** machine (not only the trigger's neighbors), reject counts per batch, the P2 shared functions, A1's coverage split, and A5's distinct-signal counting. **Open question to settle before building:** that plan's "line record" sorts machines into abnormal, apparently unaffected or lacking reliable observations, without saying who decides or by what threshold. If code decides, that conflicts with the rule below (no labels or thresholds). Either the model makes that call from the raw numbers, or the line record keeps only "observed" versus "lacking reliable observations", which code can decide from coverage.
 
 **Current behavior:** `detect_anomaly()` (`agent/monitor.py`) returns at the first alarm or status event, and the investigation starts from that machine. In KA-09 the decoy on CNC-03 set the focus and CNC-07 was never examined. The trigger stays as it is; the change is what the agent sees first.
 

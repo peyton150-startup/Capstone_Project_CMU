@@ -1076,11 +1076,12 @@
    "invoked_by": "research_agent policy (decide), critic follow-up (read-only research tools except wait), loop itself (get_time, wait in execute)",
    "changes_factory": true,
    "needs_human_approval": false,
-   "description": "Let the factory run for some ticks. The only way time passes; looking is free.",
+   "description": "Let the factory run for 1 to 480 ticks, then report the new tick and time. The only way time passes; looking is free.",
    "argument_schema": {
     "additionalProperties": false,
     "properties": {
      "ticks": {
+      "maximum": 480,
       "minimum": 1,
       "title": "Ticks",
       "type": "integer"
@@ -1106,6 +1107,7 @@
     "tests/test_wait_tool.py::test_the_answer_is_plain_data",
     "tests/test_wait_tool.py::test_the_factory_does_not_wait_for_the_agent_a_fault_keeps_developing",
     "tests/test_wait_tool.py::test_the_limit_per_wait_can_be_set",
+    "tests/test_wait_tool.py::test_the_wait_limit_a_model_is_shown_is_the_one_the_tool_enforces",
     "tests/test_wait_tool.py::test_wait_moves_the_clock_by_exactly_that_many_ticks_and_reports_the_time",
     "tests/test_wait_tool.py::test_waiting_is_the_same_as_the_factory_running_by_itself",
     "tests/test_agent_action.py::test_a_long_repair_is_waited_out_in_steps_the_factory_accepts",

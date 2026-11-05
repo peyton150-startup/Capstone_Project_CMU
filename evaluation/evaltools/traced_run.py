@@ -73,7 +73,19 @@ def start_tracer(coverage_file: Path):
 
 
 def run_traced(cases, make_policy, *, name: str, cov, on_record=None, **options):
-    """`run_experiment` one case at a time, each under its own coverage context."""
+    """`run_experiment` one case at a time, each under its own coverage context.
+
+    Case `number` (from 1) runs under the context `"{name}/{number}/{scenario}"`
+    and keeps that number as its `start`, so its run key matches the context.
+    When the cases end, or one raises, the tracer is stopped and its data saved:
+    `cov` cannot be used for anything more afterwards.
+    """
+    # Variables:
+    #   cov: The coverage tracer `start_tracer` started; this function switches
+    #     its context per case, then stops and saves it.
+    #   on_record: Passed to `run_experiment`, called with each finished record.
+    #   options: Any other `run_experiment` settings, the same for every case.
+    #   records: Every case's records, in case order.
     from capstone.experiment import run_experiment
 
     records = []

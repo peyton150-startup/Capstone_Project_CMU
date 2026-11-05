@@ -18,8 +18,11 @@ later, an AI research agent that investigates it through tools.
   reviewed implementation conditions, adoption checks and reasons to defer or
   reject candidates, including the Datum/Ratchet prompt evaluation.
 - [Multi-agent survey future work](docs/MULTI_AGENT_SURVEY_FUTURE_WORK.md):
-  three planned items from an LLM multi-agent survey, and the survey ideas
-  already built or rejected.
+  completed blind-critic experiment, remaining operator-feedback design and
+  partially documented survey-framework write-up.
+- [Run-2 findings](docs/RUN2_FINDINGS_FUTURE_WORK.md): historical ToT/critic
+  failure modes, the completed critic-follow-up fix and still-open reasoning
+  checks. `docs/MVP_SCOPE.md` remains the active roadmap.
 - [Course notebooks future work](docs/COURSE_NOTEBOOKS_FUTURE_WORK.md):
   six planned items from the course lab notebooks (audit by default,
   aggregation tools, three-times ToT rating, separate uncertainty labels,
@@ -342,7 +345,9 @@ and the paper it came from.
   ranking, confidence or leading mark (`CRITIC_BLIND`, `capstone/agent/critic.py`):
   from the error-propagation concern in
   [Large Language Model based Multi-Agents: A Survey of Progress and Challenges](https://arxiv.org/abs/2402.01680)
-  (Guo et al., 2024). Not yet measured live.
+  (Guo et al., 2024). The two archived 13-case anchored/blind pairs
+  did not establish an accuracy improvement; see the
+  [paired-run results](docs/benchmarks/2026-11-01-tot13-pairs/README.md).
 
 - Bounded factual evidence briefs with space reserved for routes, inspections
   and measurements (`capstone/agent/evidence_brief.py`): informed by
