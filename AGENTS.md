@@ -435,6 +435,12 @@ Tooling: `pytest`. Run tests after every implementation step.
 - Set up with `uv sync --all-extras` (as CI does), then `uv run pytest`
   and `uv run ruff check` / `uv run ruff format --check`.
 - No external services. Everything runs locally and offline.
+- **Sandbox checks use Docker Desktop (rule set by the developer, 2026-11-05).**
+  If a check needs an isolated sandbox, such as a container or a clean
+  environment that must not touch the real machine, use Docker Desktop. Run
+  `docker info` first. If it fails, start Docker Desktop, or ask the developer
+  to open it, and do not go on until it succeeds. Docker is optional for the
+  test suite: `uv run pytest` must pass without it, and no test may need it.
 - Model providers in scope, and no others: Mistral, Google Gemini, Groq,
   NVIDIA, Cohere and Cloudflare, and (added by the developer on 2026-10-21,
   for comparing larger models) the routers Requesty, xKiro, LLM7 (for a
