@@ -1,5 +1,25 @@
 # Progress Log
 
+> **2026-11-04 — fixes from the live Snap run (built ungated, developer to review; understood: no):**
+> Four findings from `docs/benchmarks/2026-11-04-snap-live-1/`, each checked by
+> reading the code.
+> (1) Nothing told a model the `wait` limit. The tool refused more than 480
+> ticks, but its schema said only `ticks >= 1` and its description gave no
+> limit. New `tools.actions.MAX_WAIT_TICKS` (480) is now the tool's default,
+> the schema's `maximum` and part of the description. A too-long wait is now
+> refused by the schema check, with "Input should be less than or equal to
+> 480". **The description a model is shown changed**, so later live runs see a
+> slightly different tool list than earlier ones.
+> (2) `test_a_blackout_does_not_touch_the_factory` compared the clock with
+> itself; it now compares with the tick saved before the call.
+> (3) Three `test_state.py` tests named step logic and repair actions they
+> never called. Each now checks something more, and two are renamed to what
+> they test. The behaviour itself is tested in `test_failure.py` and
+> `test_bearing_replacement.py`.
+> (4) `run_traced`'s docstring now says that it stops and saves the coverage
+> tracer.
+> Merged on the developer's instruction ("merge both") before the pre-merge walkthrough (AGENTS.md §11 step 6); the walkthrough is still owed.
+
 > **2026-11-05 — PR descriptions state their trade-offs (documentation only; understanding unchanged):**
 > At the developer's request, AGENTS.md §11 step 4 now requires a
 > **Trade-offs** section in every PR description. For each significant choice

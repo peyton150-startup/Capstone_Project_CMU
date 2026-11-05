@@ -109,3 +109,17 @@ def test_the_answer_is_plain_data():
     _, _, act = factory()
     answer = act.wait(10)
     assert json.loads(json.dumps(answer)) == answer
+
+
+def test_the_wait_limit_a_model_is_shown_is_the_one_the_tool_enforces():
+    """Snap's 2026-11-04 review found the description and schema gave no upper limit."""
+    from capstone.providers.factory import tool_spec
+    from capstone.tools.actions import MAX_WAIT_TICKS
+
+    spec = tool_spec("wait")
+    assert spec.arguments["properties"]["ticks"]["maximum"] == MAX_WAIT_TICKS
+    assert f"1 to {MAX_WAIT_TICKS} ticks" in spec.description
+    sim, _, act = factory()
+    assert act.max_wait == MAX_WAIT_TICKS
+    act.wait(MAX_WAIT_TICKS)
+    assert sim.clock.tick == MAX_WAIT_TICKS

@@ -11,8 +11,10 @@ def test_new_machine_is_healthy_and_running():
 
 
 def test_can_start_already_degraded():
+    """A scenario may start a machine worn: health is set, and it still runs."""
     m = MachineState(id="CNC-04", condition=MachineCondition(bearing_health=0.7))
     assert m.condition.bearing_health == 0.7
+    assert m.status == MachineStatus.RUNNING
 
 
 def test_scenario_can_lower_bearing_health_in_place():
@@ -21,16 +23,26 @@ def test_scenario_can_lower_bearing_health_in_place():
     assert m.condition.bearing_health == pytest.approx(0.7)
 
 
-def test_action_can_restore_bearing_health():
+def test_condition_accepts_a_full_restore_in_place():
+    """Setting health back to the 1.0 bound passes the check made on assignment.
+
+    The repair action itself is tested in `tests/test_bearing_replacement.py`.
+    """
     m = MachineState(id="CNC-04", condition=MachineCondition(bearing_health=0.15))
+    condition = m.condition
     m.condition.bearing_health = 1.0
-    assert m.condition.bearing_health == 1.0
+    assert m.condition is condition
+    assert m.model_dump()["condition"]["bearing_health"] == 1.0
 
 
-def test_step_logic_can_change_status():
+def test_a_status_change_shows_in_the_observable_facts():
+    """Status is writable, and the change is what an observer is shown.
+
+    The step logic that takes a machine down is tested in `tests/test_failure.py`.
+    """
     m = MachineState(id="CNC-04")
     m.status = MachineStatus.DOWN
-    assert m.status == MachineStatus.DOWN
+    assert m.model_dump(exclude={"condition"})["status"] == "down"
 
 
 @pytest.mark.parametrize("bad", [-0.01, 1.01])

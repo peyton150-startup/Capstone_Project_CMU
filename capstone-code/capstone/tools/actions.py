@@ -7,6 +7,10 @@ from capstone.faults import ACTIONS
 from capstone.simulator.simulator import Simulator
 from capstone.tools.errors import ToolInputError
 
+# The most ticks one `wait` may skip. The tool's argument schema and the
+# description a model is shown state the same limit (`providers/factory.py`).
+MAX_WAIT_TICKS = 480
+
 
 class Proposal(BaseModel):
     """A request from the agent to change the factory, and what became of it."""
@@ -134,12 +138,13 @@ class ActionTools:
         simulator: Simulator,
         desk: ApprovalDesk | None = None,
         *,
-        max_wait: int = 480,
+        max_wait: int = MAX_WAIT_TICKS,
     ):
         # Variables:
         #   desk: The human's approval desk; one is made if none is given. The agent is
         #     never given it.
-        #   max_wait: The most ticks a single wait may skip.
+        #   max_wait: The most ticks a single wait may skip: MAX_WAIT_TICKS, the
+        #     limit the model is shown, unless a test sets a smaller one.
         self._sim = simulator
         self._desk = desk or ApprovalDesk(simulator)
         self.max_wait = max_wait
