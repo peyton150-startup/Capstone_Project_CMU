@@ -72,7 +72,7 @@
   "capstone-code/capstone/providers/__init__.py": "3c5dc87099f8ec4ac1db4e949c0a54a0025df89af62e93f3e9cb147d5c380b58",
   "capstone-code/capstone/providers/chat.py": "25edd66d16af859191dcab70c10959f8c9a75c52585d027acdb1d0e98769bc71",
   "capstone-code/capstone/providers/embeddings.py": "a16df4faf5e0bbc60e5fd67e2aaa2cc76f2c5dc218c635a828ee39639b5cdaa8",
-  "capstone-code/capstone/providers/factory.py": "65c572ab8a66e3b88c26241754a6f9b6596536283fb9f673f8c358cabfac9679",
+  "capstone-code/capstone/providers/factory.py": "58bb8b6594866ad2e8e303138d4f5e756a8dfeaf470e950d355b0f24eec0ab6c",
   "capstone-code/capstone/providers/hazards.py": "4549f0bbba0b6267c4e0f69fba71b5668cc024e89d19e4c61ef32a08292799f5",
   "capstone-code/capstone/providers/manual.py": "befcdb6fceb495a99c2fb32b9d075b0539b1d83c3629eb88a266daa437db7908",
   "capstone-code/capstone/providers/recall.py": "8bbf12b6c65ae12e04916c1c160977968c955e044df670d7aa8ad3d91b7d94d5",
@@ -94,7 +94,7 @@
   "capstone-code/capstone/simulator/state.py": "3581125a9982a05faa493c8a7f38c4e9f795e6ef4562c9cf3fc972f869eff55e",
   "capstone-code/capstone/simulator/thermal.py": "dc6840e3cc72c5dfe52f7fab495a286ae3a5bf51d9c915a76feeda82443c20ed",
   "capstone-code/capstone/tools/__init__.py": "8709d93809c99aa38ac86cff3b9b184577eb5364409fbb4947977a4925ea36cf",
-  "capstone-code/capstone/tools/actions.py": "8f7c8dd467ef4a0b2264de8c05996c2f90fc547f1ed165aee20e2b5bacc40225",
+  "capstone-code/capstone/tools/actions.py": "3c350747ce970c44c3ce14ddeed4d8bcc77419b867fbd39d54fb425b26edda81",
   "capstone-code/capstone/tools/diagnosis.py": "98ec3bf852d7db2a002c4d8c70f83cfa71ee66046baeea3d6d54f967f3543f55",
   "capstone-code/capstone/tools/errors.py": "32cc03629449f2311ed055f6703988c93c7faf3b4a3e3a97fb578a3d27bb4603",
   "capstone-code/capstone/tools/observation.py": "4d64f302de179883db02219d7f9ad90efae133559dc34a86c80ad21ece6f3504",
@@ -108,7 +108,7 @@
   "evaluation/evaltools/full_evaluation.py": "8eb3b03ab980415301eac87578115d0f944ecfd3a7968cec521eac4df432fc4a",
   "evaluation/evaltools/run_packet.py": "f023788dda9a1b521aad9e6df3e24e04500cf9a1afa61170afa1e453ca1a501f",
   "evaluation/evaltools/snap_request.py": "47c47420e260e4d0d6bc95aa243ac89dcdfd4eb8cfcd88fec36138e365df3ecb",
-  "evaluation/evaltools/traced_run.py": "bf4b13869577f25697a35cd51009f0ecdb996ec1425097d797c2073d80cf8644",
+  "evaluation/evaltools/traced_run.py": "d53090114dead802f246586a60c5c51621b4246d9f6a5940319d59996146ac17",
   "tests/test_agent_action.py": "01e7938e5ca7c9a90c28054e75bfc7fcd7919b94c9fa2397f24917058527fb6c",
   "tests/test_agent_artifacts.py": "948a3777fccc423a900cca3a27f13655d13ebdbd1fd3da154ddb53fa23d0545a",
   "tests/test_agent_completion.py": "72f8e59745310a944c7738c51e5635df3aca58c564bc1dd63cda109a3d01681b",
@@ -141,14 +141,14 @@
   "tests/test_evaluation_tools.py": "52ca64af07c51c439461003db03bc85aa489f979452a4e15e37db1595171fe08",
   "tests/test_events.py": "b82917a6735cb71ddb515fe0f9ed81e30d07d0e93ec867a8d11c33e611212dfc",
   "tests/test_experiment.py": "8a3b8a6481fadf64f4ddfb2baa3a4072bf3f2385e7dc0251987b3345b570db65",
-  "tests/test_factory_provider.py": "fc8a6f10ccc88e47b89b25d34466f96fe6ef4d941a81197deb25e04ab8b2c2d7",
+  "tests/test_factory_provider.py": "64dea43eebf1f219f836d44b678b4915e33089aa7781a1762a7205976b0e8748",
   "tests/test_failure.py": "ecd776064fc155eba92530de63e68e3d9c375c2e9edac0fdff221f460de0be31",
   "tests/test_false_alarm.py": "874f88e86e966938ce2094df580676347a6e464028d52e624cb172c9e41a993e",
   "tests/test_fault_packs.py": "8469925cad06684823639e91051caabb06c126fdbcf00300534a6a24b90fe85a",
   "tests/test_full_evaluation.py": "d850c2adc6a3bd2839f3e93a7d322f059408e1e93a0c43fefb6af697d20b6994",
   "tests/test_generator.py": "c080082dd5a9a3aa81d684df7fc5f1960ea897d6e76c03597069711cd8b4bec4",
   "tests/test_ground_truth.py": "9ac9af3bf6af7306ffc7e918481030271a33b0cdedfb2a07d11d104d61b63ef2",
-  "tests/test_hazards.py": "acb971bc9f893844e74e98061bbd1c91e1b74ec0a429e24b85af6ec31197649f",
+  "tests/test_hazards.py": "c97f7a7f5c3f0591ef1b0ee8475405e69413970e7d418baf47590b07415b6a0b",
   "tests/test_hydraulics.py": "f85a8e793a1709620f25244f5df457889f062b3cf833be4e1ac95fac51ae4b10",
   "tests/test_job_history.py": "1320b374409b889c7fa94cd9497c649b90f09d88e6abbccc728b36e6ff2f15bc",
   "tests/test_known_answers.py": "09f17601ca08b4997ef461d291c631cd206a188fe3dc7e7ae7de776b5096ccbc",
@@ -190,7 +190,7 @@
   "tests/test_simulator_challenge.py": "051970b2cfd888768a2aa94023fcde60e409025d49fed26d6e67b0f820dc120a",
   "tests/test_simulator_disturbances.py": "c954ea0a72e017bae22eb3007e360260e4e84acc6e621c49224d2570fb0d77bb",
   "tests/test_slow_when_worn.py": "bf11ea04d9852380e78a07b2a55e296f0f416019070a2af6caa711e92d7ddd98",
-  "tests/test_state.py": "77d3a1256d4d6ebee6524eb9b1619c88d89128d38d7fb3fc058353ac5a974d53",
+  "tests/test_state.py": "91a2e61cb1d1a3129cff3609f8899e99835e7748c44fb6eb7f7be0babbdb0b49",
   "tests/test_telemetry_monitor.py": "f2bef2082c333298700a46fd855d16714ae30cf0874c6d08516642baf920f431",
   "tests/test_temperature_sensor.py": "54f3c7bc53883ea0c86ec11b6cd8dbf372795a891a754db9f3e06389ef6400b7",
   "tests/test_thermal_lag.py": "f7386763b100f75c82b6ff1ad34c630828ce2f2be55a1e10e633589dfeb117cb",
@@ -198,15 +198,15 @@
   "tests/test_tree_of_thought.py": "1a2f3ff19f85333cbb53e040fa5bbb090cf8357ef74930c4e29e4734ec390305",
   "tests/test_two_lines.py": "0658dabf750de3b18111b9f30c19a2fc2a2a9582b37fc5edbde4733e5480c55e",
   "tests/test_typesafe_client.py": "e9672498f96597ca062073a7a9f1cff64430bf5304a908f6fb959056a703e747",
-  "tests/test_wait_tool.py": "a52271a89eb75efbc9c862c4ad85d3d20a1f5dbc2f92f4eb149d01b7f0c99b6b",
+  "tests/test_wait_tool.py": "ccec624a885634bbfcf97c4b09e7fdf523097c9e468e5bc5f6d07d863179dc49",
   "tests/test_wrong_setting.py": "a7dcc4186bcee6a5980da4fc1f7a47c1b9210055618a88756e44a1991e39de47"
  },
- "coverage_sha256": "94a01869aa6a14aeb0606afceb0ecdfa24f168f3d8ae41f72dd7221b8a401441",
- "junit_sha256": "3dad5ef9a2233290eb81dc2a97d03b3a874868b7866bcca6804b5060b9a8c54a",
+ "coverage_sha256": "f2ffca370a21550bea3f59b7180877c1cd4c057b3a1853cc3149d113087413de",
+ "junit_sha256": "9b5d7a39602ac70be3d6c909b7d463212cb6028bf3d2c6ed6d4f32b40a061662",
  "counts": {
   "functions": 775,
   "classes_note": "classes are listed through their methods",
-  "tests": 1486,
+  "tests": 1487,
   "tools": 17,
   "functions_by_status": {
    "INSUFFICIENT EVIDENCE": 299,
@@ -300,14 +300,13 @@
    "evaluation.evaltools.run_packet:configuration_of (7/9)",
    "evaluation.evaltools.snap_request:DecisionQuestion.criteria_fit_type (5/9)",
    "evaluation.evaltools.snap_request:load_questions (7/9)",
-   "evaluation.evaltools.snap_request:test_source (5/7)",
    "evaluation.evaltools.snap_request:describe_failure (2/5)",
    "evaluation.evaltools.snap_request:already_answered (6/8)",
    "evaluation.evaltools.traced_run:main (18/42)"
   ],
   "stubs_or_protocols": 24,
   "tests_by_outcome": {
-   "passed": 1486
+   "passed": 1487
   },
   "tests_with_no_assertion": [
    "tests/test_console.py::test_without_it_the_same_print_raised"
@@ -339,7 +338,6 @@
    "tests/test_generator.py::test_the_bearing_profile_changes_nothing_for_other_faults",
    "tests/test_ground_truth.py::test_reading_ground_truth_changes_nothing",
    "tests/test_ground_truth.py::test_no_event_in_a_full_run_names_the_cause",
-   "tests/test_hazards.py::test_a_blackout_does_not_touch_the_factory",
    "tests/test_hydraulics.py::test_a_leak_trips_the_low_pressure_alarm_on_its_machine",
    "tests/test_job_history.py::test_an_idle_machine_holding_a_job_looks_different_from_an_idle_empty_one",
    "tests/test_known_answers.py::test_no_record_shows_the_truth_to_the_policy",
@@ -448,8 +446,8 @@
    "tests/test_state.py::test_new_machine_is_healthy_and_running",
    "tests/test_state.py::test_can_start_already_degraded",
    "tests/test_state.py::test_scenario_can_lower_bearing_health_in_place",
-   "tests/test_state.py::test_action_can_restore_bearing_health",
-   "tests/test_state.py::test_step_logic_can_change_status",
+   "tests/test_state.py::test_condition_accepts_a_full_restore_in_place",
+   "tests/test_state.py::test_a_status_change_shows_in_the_observable_facts",
    "tests/test_state.py::test_bearing_health_outside_unit_interval_is_rejected_on_construction",
    "tests/test_state.py::test_bearing_health_outside_unit_interval_is_rejected_on_assignment",
    "tests/test_state.py::test_empty_id_is_rejected",
@@ -9097,7 +9095,7 @@
    ]
   },
   "capstone.providers.factory:tool_spec": {
-   "count": 99,
+   "count": 100,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
@@ -9674,7 +9672,7 @@
    ]
   },
   "capstone.simulator.clock:SimulationClock.__init__": {
-   "count": 606,
+   "count": 607,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_clock.py::test_advance_many_ticks",
@@ -9704,7 +9702,7 @@
    ]
   },
   "capstone.simulator.clock:SimulationClock.tick": {
-   "count": 353,
+   "count": 354,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_agent_action.py::test_the_decision_is_read_even_if_the_same_question_was_asked_this_tick",
@@ -9742,7 +9740,7 @@
    "indirect": []
   },
   "capstone.simulator.clock:SimulationClock.now": {
-   "count": 288,
+   "count": 289,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_clock.py::test_advance_many_ticks",
@@ -9768,7 +9766,7 @@
    ]
   },
   "capstone.simulator.clock:SimulationClock.time_at": {
-   "count": 291,
+   "count": 292,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_clock.py::test_advance_many_ticks",
@@ -9796,7 +9794,7 @@
    ]
   },
   "capstone.simulator.clock:SimulationClock.advance": {
-   "count": 529,
+   "count": 530,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_clock.py::test_advance_many_ticks",
@@ -10015,7 +10013,7 @@
    ]
   },
   "capstone.simulator.events:EventLog.__init__": {
-   "count": 598,
+   "count": 599,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_events.py::test_alarm_follows_the_evidence_not_the_hidden_truth",
@@ -10071,7 +10069,7 @@
    ]
   },
   "capstone.simulator.events:EventLog.record": {
-   "count": 480,
+   "count": 481,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_agent_completion.py::test_a_rejection_and_its_reason_are_in_the_record",
@@ -10103,7 +10101,7 @@
    ]
   },
   "capstone.simulator.events:ThresholdAlarm.__init__": {
-   "count": 452,
+   "count": 453,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_events.py::test_alarm_fires_only_above_the_threshold",
@@ -10129,7 +10127,7 @@
    ]
   },
   "capstone.simulator.events:ThresholdAlarm.check": {
-   "count": 402,
+   "count": 403,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_agent_completion.py::test_a_check_that_was_never_made_is_left_out",
@@ -10192,7 +10190,7 @@
    ]
   },
   "capstone.simulator.line:machine_names": {
-   "count": 390,
+   "count": 391,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
@@ -10211,7 +10209,7 @@
    ]
   },
   "capstone.simulator.line:build_line": {
-   "count": 390,
+   "count": 391,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_build_line.py::test_a_fault_added_afterwards_sees_the_lines_work_and_stops_the_line",
@@ -10243,7 +10241,7 @@
    ]
   },
   "capstone.simulator.maintenance:past_maintenance": {
-   "count": 389,
+   "count": 390,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
@@ -10262,7 +10260,7 @@
    ]
   },
   "capstone.simulator.rng:RandomSource.__init__": {
-   "count": 666,
+   "count": 667,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_rng.py::test_derivation_is_pinned_so_recorded_histories_survive_refactors",
@@ -10297,7 +10295,7 @@
    "indirect": []
   },
   "capstone.simulator.rng:RandomSource.stream": {
-   "count": 655,
+   "count": 656,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_generator.py::test_choosing_the_fault_shifts_no_other_stream",
@@ -10329,7 +10327,7 @@
    ]
   },
   "capstone.simulator.rng:RandomSource._derive_seed": {
-   "count": 655,
+   "count": 656,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_rng.py::test_derivation_is_pinned_so_recorded_histories_survive_refactors",
@@ -10357,7 +10355,7 @@
    ]
   },
   "capstone.simulator.scenarios:Scenario.__init__": {
-   "count": 573,
+   "count": 574,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_scenarios.py::test_duplicate_scenario_name_is_rejected",
@@ -10745,7 +10743,7 @@
    ]
   },
   "capstone.simulator.scenarios:working_speed": {
-   "count": 444,
+   "count": 445,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
@@ -10764,7 +10762,7 @@
    ]
   },
   "capstone.simulator.scenarios:defect_mark": {
-   "count": 411,
+   "count": 412,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
@@ -10783,7 +10781,7 @@
    ]
   },
   "capstone.simulator.scenarios:ProductionLine.__init__": {
-   "count": 497,
+   "count": 498,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
@@ -10802,7 +10800,7 @@
    ]
   },
   "capstone.simulator.scenarios:ProductionLine.apply": {
-   "count": 441,
+   "count": 442,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
@@ -10821,7 +10819,7 @@
    ]
   },
   "capstone.simulator.scenarios:ProductionLine._move_jobs": {
-   "count": 441,
+   "count": 442,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
@@ -10840,7 +10838,7 @@
    ]
   },
   "capstone.simulator.scenarios:ProductionLine._cut_from_batch": {
-   "count": 365,
+   "count": 366,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
@@ -10859,7 +10857,7 @@
    ]
   },
   "capstone.simulator.scenarios:ProductionLine._place": {
-   "count": 440,
+   "count": 441,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_episode.py::test_a_human_who_refuses_leaves_the_fault_in_place"
@@ -10904,7 +10902,7 @@
    ]
   },
   "capstone.simulator.scenarios:AmbientTemperature.__init__": {
-   "count": 414,
+   "count": 415,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
@@ -10923,7 +10921,7 @@
    ]
   },
   "capstone.simulator.scenarios:AmbientTemperature.apply": {
-   "count": 365,
+   "count": 366,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
@@ -10965,7 +10963,7 @@
    ]
   },
   "capstone.simulator.scenarios:LoadingDoor.__init__": {
-   "count": 408,
+   "count": 409,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
@@ -10984,7 +10982,7 @@
    ]
   },
   "capstone.simulator.scenarios:LoadingDoor.apply": {
-   "count": 358,
+   "count": 359,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
@@ -11025,7 +11023,7 @@
    ]
   },
   "capstone.simulator.sensors:Sensor.__init__": {
-   "count": 586,
+   "count": 587,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_sensors.py::test_more_wear_means_more_vibration",
@@ -11056,7 +11054,7 @@
    ]
   },
   "capstone.simulator.sensors:Sensor.read": {
-   "count": 520,
+   "count": 521,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_agent_action.py::test_a_rejection_stops_after_the_read_back_and_keeps_the_reason",
@@ -11088,7 +11086,7 @@
    ]
   },
   "capstone.simulator.sensors:Sensor.available": {
-   "count": 480,
+   "count": 481,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
@@ -11113,7 +11111,7 @@
    "indirect": []
   },
   "capstone.simulator.sensors:VibrationSensor.__init__": {
-   "count": 538,
+   "count": 539,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_sensors.py::test_more_wear_means_more_vibration",
@@ -11144,7 +11142,7 @@
    ]
   },
   "capstone.simulator.sensors:VibrationSensor._measure": {
-   "count": 474,
+   "count": 475,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_sensors.py::test_more_wear_means_more_vibration",
@@ -11173,7 +11171,7 @@
    ]
   },
   "capstone.simulator.sensors:TemperatureSensor.__init__": {
-   "count": 454,
+   "count": 455,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
@@ -11192,7 +11190,7 @@
    ]
   },
   "capstone.simulator.sensors:TemperatureSensor._measure": {
-   "count": 401,
+   "count": 402,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
@@ -11211,7 +11209,7 @@
    ]
   },
   "capstone.simulator.sensors:LoadSensor.__init__": {
-   "count": 430,
+   "count": 431,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
@@ -11230,7 +11228,7 @@
    ]
   },
   "capstone.simulator.sensors:LoadSensor._measure": {
-   "count": 380,
+   "count": 381,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
@@ -11249,7 +11247,7 @@
    ]
   },
   "capstone.simulator.sensors:PowerSensor.__init__": {
-   "count": 399,
+   "count": 400,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
@@ -11268,7 +11266,7 @@
    ]
   },
   "capstone.simulator.sensors:PowerSensor._measure": {
-   "count": 351,
+   "count": 352,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
@@ -11287,7 +11285,7 @@
    ]
   },
   "capstone.simulator.sensors:FollowingErrorSensor.__init__": {
-   "count": 393,
+   "count": 394,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
@@ -11306,7 +11304,7 @@
    ]
   },
   "capstone.simulator.sensors:FollowingErrorSensor._measure": {
-   "count": 345,
+   "count": 346,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
@@ -11325,7 +11323,7 @@
    ]
   },
   "capstone.simulator.sensors:HydraulicPressureSensor.__init__": {
-   "count": 391,
+   "count": 392,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
@@ -11344,7 +11342,7 @@
    ]
   },
   "capstone.simulator.sensors:HydraulicPressureSensor._measure": {
-   "count": 342,
+   "count": 343,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
@@ -11363,7 +11361,7 @@
    ]
   },
   "capstone.simulator.sensors:HydraulicPressureSensor.available": {
-   "count": 342,
+   "count": 343,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
@@ -11382,7 +11380,7 @@
    ]
   },
   "capstone.simulator.sensors:FactoryThermometer.__init__": {
-   "count": 399,
+   "count": 400,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
@@ -11401,7 +11399,7 @@
    ]
   },
   "capstone.simulator.sensors:FactoryThermometer.read": {
-   "count": 350,
+   "count": 351,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_agent_action.py::test_a_rejection_stops_after_the_read_back_and_keeps_the_reason",
@@ -11428,7 +11426,7 @@
    ]
   },
   "capstone.simulator.simulator:Simulator.__init__": {
-   "count": 597,
+   "count": 598,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_simulator.py::test_duplicate_sensor_is_rejected",
@@ -11455,7 +11453,7 @@
    ]
   },
   "capstone.simulator.simulator:Simulator.add_machine": {
-   "count": 587,
+   "count": 588,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_simulator.py::test_duplicate_sensor_is_rejected",
@@ -11481,7 +11479,7 @@
    ]
   },
   "capstone.simulator.simulator:Simulator.add_sensor": {
-   "count": 544,
+   "count": 545,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_simulator.py::test_duplicate_sensor_is_rejected",
@@ -11508,7 +11506,7 @@
    ]
   },
   "capstone.simulator.simulator:Simulator.add_factory_sensor": {
-   "count": 396,
+   "count": 397,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
@@ -11527,7 +11525,7 @@
    ]
   },
   "capstone.simulator.simulator:Simulator.add_alarm": {
-   "count": 449,
+   "count": 450,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
@@ -11546,7 +11544,7 @@
    ]
   },
   "capstone.simulator.simulator:Simulator.add_scenario": {
-   "count": 560,
+   "count": 561,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
@@ -11728,7 +11726,7 @@
    ]
   },
   "capstone.simulator.simulator:Simulator.step": {
-   "count": 523,
+   "count": 524,
    "status": "VERIFIED",
    "direct": [
     "tests/test_build_line.py::test_the_second_machine_is_the_slowest_step_so_the_first_is_held_up",
@@ -11760,7 +11758,7 @@
    ]
   },
   "capstone.simulator.simulator:Simulator._update_reality": {
-   "count": 523,
+   "count": 524,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_simulator.py::test_log_accumulates_every_reading_oldest_first",
@@ -11785,7 +11783,7 @@
    ]
   },
   "capstone.simulator.simulator:Simulator._record_job_events": {
-   "count": 521,
+   "count": 522,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_simulator.py::test_log_accumulates_every_reading_oldest_first",
@@ -11810,7 +11808,7 @@
    ]
   },
   "capstone.simulator.simulator:Simulator._record_job": {
-   "count": 438,
+   "count": 439,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
@@ -11829,7 +11827,7 @@
    ]
   },
   "capstone.simulator.simulator:Simulator._record_inspections": {
-   "count": 521,
+   "count": 522,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_simulator.py::test_log_accumulates_every_reading_oldest_first",
@@ -11854,7 +11852,7 @@
    ]
   },
   "capstone.simulator.simulator:Simulator._record_batch": {
-   "count": 521,
+   "count": 522,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_simulator.py::test_log_accumulates_every_reading_oldest_first",
@@ -11879,7 +11877,7 @@
    ]
   },
   "capstone.simulator.simulator:Simulator._record_door": {
-   "count": 521,
+   "count": 522,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_simulator.py::test_log_accumulates_every_reading_oldest_first",
@@ -11904,7 +11902,7 @@
    ]
   },
   "capstone.simulator.simulator:Simulator._warm_or_cool_machines": {
-   "count": 521,
+   "count": 522,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_simulator.py::test_log_accumulates_every_reading_oldest_first",
@@ -11929,7 +11927,7 @@
    ]
   },
   "capstone.simulator.simulator:Simulator._finish_maintenance": {
-   "count": 521,
+   "count": 522,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_simulator.py::test_log_accumulates_every_reading_oldest_first",
@@ -12016,7 +12014,7 @@
    ]
   },
   "capstone.simulator.simulator:Simulator._apply_consequences": {
-   "count": 521,
+   "count": 522,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_simulator.py::test_log_accumulates_every_reading_oldest_first",
@@ -12041,7 +12039,7 @@
    ]
   },
   "capstone.simulator.state:MachineState.speed": {
-   "count": 629,
+   "count": 630,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_power_sensor.py::test_the_same_work_at_a_higher_speed_draws_more_power",
@@ -12067,7 +12065,7 @@
    ]
   },
   "capstone.simulator.state:MachineState.speed_ratio": {
-   "count": 629,
+   "count": 630,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
@@ -12086,7 +12084,7 @@
    ]
   },
   "capstone.simulator.state:MachineState.job_done": {
-   "count": 523,
+   "count": 524,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
@@ -12105,7 +12103,7 @@
    ]
   },
   "capstone.simulator.state:FactoryState.next_on_line": {
-   "count": 377,
+   "count": 378,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
@@ -12124,7 +12122,7 @@
    ]
   },
   "capstone.simulator.state:FactoryState.air_temperature": {
-   "count": 591,
+   "count": 592,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
@@ -12143,7 +12141,7 @@
    ]
   },
   "capstone.simulator.state:FactoryState.add": {
-   "count": 597,
+   "count": 598,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
@@ -12162,7 +12160,7 @@
    ]
   },
   "capstone.simulator.thermal:settling_temperature": {
-   "count": 604,
+   "count": 605,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
@@ -12181,7 +12179,7 @@
    ]
   },
   "capstone.simulator.thermal:settle": {
-   "count": 601,
+   "count": 602,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
@@ -12200,7 +12198,7 @@
    ]
   },
   "capstone.simulator.thermal:warm_or_cool": {
-   "count": 522,
+   "count": 523,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
@@ -12219,7 +12217,7 @@
    ]
   },
   "capstone.tools.actions:ApprovalDesk.__init__": {
-   "count": 328,
+   "count": 329,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
@@ -12388,7 +12386,7 @@
    ]
   },
   "capstone.tools.actions:ActionTools.__init__": {
-   "count": 328,
+   "count": 329,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
@@ -12419,6 +12417,7 @@
     "tests/test_wait_tool.py::test_the_answer_is_plain_data",
     "tests/test_wait_tool.py::test_the_factory_does_not_wait_for_the_agent_a_fault_keeps_developing",
     "tests/test_wait_tool.py::test_the_limit_per_wait_can_be_set",
+    "tests/test_wait_tool.py::test_the_wait_limit_a_model_is_shown_is_the_one_the_tool_enforces",
     "tests/test_wait_tool.py::test_wait_moves_the_clock_by_exactly_that_many_ticks_and_reports_the_time",
     "tests/test_wait_tool.py::test_waiting_is_the_same_as_the_factory_running_by_itself"
    ],
@@ -12497,7 +12496,7 @@
    ]
   },
   "capstone.tools.observation:ObservationTools.__init__": {
-   "count": 361,
+   "count": 362,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
@@ -27605,7 +27604,7 @@
    ]
   },
   "tests/test_factory_provider.py::test_a_refused_request_says_what_to_correct": {
-   "count": 53,
+   "count": 52,
    "judgment": "NOT ASSESSED",
    "functions": [
     "capstone.contracts.tools:ToolResult.consistent_outcome",
@@ -40529,12 +40528,12 @@
    "judgment": "NOT ASSESSED",
    "functions": []
   },
-  "tests/test_state.py::test_action_can_restore_bearing_health": {
+  "tests/test_state.py::test_condition_accepts_a_full_restore_in_place": {
    "count": 0,
    "judgment": "NOT ASSESSED",
    "functions": []
   },
-  "tests/test_state.py::test_step_logic_can_change_status": {
+  "tests/test_state.py::test_a_status_change_shows_in_the_observable_facts": {
    "count": 0,
    "judgment": "NOT ASSESSED",
    "functions": []
@@ -42294,6 +42293,32 @@
     "capstone.simulator.scenarios:ProductionLine.__init__"
    ]
   },
+  "tests/test_wait_tool.py::test_the_wait_limit_a_model_is_shown_is_the_one_the_tool_enforces": {
+   "count": 75,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.providers.factory:tool_spec",
+    "capstone.simulator.clock:SimulationClock.__init__",
+    "capstone.simulator.clock:SimulationClock.advance",
+    "capstone.simulator.clock:SimulationClock.now",
+    "capstone.simulator.clock:SimulationClock.tick",
+    "capstone.simulator.clock:SimulationClock.time_at",
+    "capstone.simulator.events:EventLog.__init__",
+    "capstone.simulator.events:EventLog.record",
+    "capstone.simulator.events:ThresholdAlarm.__init__",
+    "capstone.simulator.events:ThresholdAlarm.check",
+    "capstone.simulator.line:build_line",
+    "capstone.simulator.line:machine_names",
+    "capstone.simulator.maintenance:past_maintenance",
+    "capstone.simulator.rng:RandomSource.__init__",
+    "capstone.simulator.rng:RandomSource._derive_seed",
+    "capstone.simulator.rng:RandomSource.stream",
+    "capstone.simulator.scenarios:AmbientTemperature.__init__",
+    "capstone.simulator.scenarios:AmbientTemperature.apply",
+    "capstone.simulator.scenarios:LoadingDoor.__init__",
+    "capstone.simulator.scenarios:LoadingDoor.apply"
+   ]
+  },
   "tests/test_wrong_setting.py::test_a_machine_runs_at_its_standard_speed_unless_set_otherwise": {
    "count": 4,
    "judgment": "NOT ASSESSED",
@@ -43310,6 +43335,7 @@
    "tests/test_wait_tool.py::test_the_answer_is_plain_data",
    "tests/test_wait_tool.py::test_the_factory_does_not_wait_for_the_agent_a_fault_keeps_developing",
    "tests/test_wait_tool.py::test_the_limit_per_wait_can_be_set",
+   "tests/test_wait_tool.py::test_the_wait_limit_a_model_is_shown_is_the_one_the_tool_enforces",
    "tests/test_wait_tool.py::test_wait_moves_the_clock_by_exactly_that_many_ticks_and_reports_the_time",
    "tests/test_wait_tool.py::test_waiting_is_the_same_as_the_factory_running_by_itself",
    "tests/test_agent_action.py::test_a_long_repair_is_waited_out_in_steps_the_factory_accepts",
