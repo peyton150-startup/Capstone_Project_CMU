@@ -87,11 +87,22 @@
 > run, a semantic validation of contradictions, or an accuracy comparison.
 > Code, prompts, labels, scores, simulator and understanding status unchanged.
 
-> **2026-11-04 — PRs #172 and #174 merged before their walkthroughs (developer to review; understood: no):**
+> **2026-11-04 — PRs #172 and #174 merged before their walkthroughs (walkthrough done 2026-11-05):**
 > On the developer's instruction ("merge them now, I will do the walkthrough later"), #174 was
 > brought up to date with `main` and merged, which also landed #172's commits. The function, test
 > and verification inventories were rebuilt from a fresh full coverage run after the merge. The
-> pre-merge walkthroughs (AGENTS.md §11 step 6) for both PRs are still owed.
+> pre-merge walkthroughs (AGENTS.md §11 step 6) for both PRs were done afterwards, on
+> 2026-11-05, as one walkthrough with three questions. (1) Why `budgeted_send` writes the
+> reservation before posting: the developer saw that there is never a blank amount; corrected
+> that the point is the cap surviving a kill mid-post (an unrecorded in-flight charge could be
+> spent twice), that the reservation is the full-window upper bound and not an estimate, and
+> that it is settled per request, with missing usage stopping later sends. (2) A rerun case
+> with a different seed: the developer saw old position pairing compares different cases
+> unnoticed and that the case is left out; corrected that it is unpaired (`only_a`/`only_b`,
+> counted in `position_mismatches`), not "ambiguous" (no seed, or a repeated identity).
+> (3) `--env-file` key handling: the developer gave the secrecy reason; added least privilege
+> (only the selected providers' key names), environment-wins precedence, and why `readiness`
+> reports presence only. Understood: yes, after correction.
 
 > **2026-11-04 — first full live Snap evaluation (exploratory, uncalibrated):**
 > At the developer's direction in the session, Claude Code ran the Snap half of
