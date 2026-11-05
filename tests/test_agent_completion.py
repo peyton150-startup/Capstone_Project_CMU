@@ -330,6 +330,19 @@ def test_the_audit_record_keeps_what_tree_of_thought_ruled_out():
     assert AuditRecord.model_validate(old).pruned_candidates == ()
 
 
+def test_audit_without_memory_writes_the_record(tmp_path):
+    from capstone.episode import run_episode
+    from tests.test_episode import wear_policy
+
+    log = AuditLog(tmp_path / "audit.jsonl")
+    result = run_episode(
+        6, wear_policy(), fault="bearing_degradation", clock=lambda: 0.0, log=log
+    )
+    [record] = log.read()
+    assert record.completed.investigation_id == result.state.investigation_id
+    assert record.pruned_candidates == ()
+
+
 def test_the_audit_record_keeps_incident_context_without_promoting_it_to_memory():
     """The packet remains auditable and older log lines remain readable."""
     # Variables:
@@ -351,16 +364,3 @@ def test_the_audit_record_keeps_incident_context_without_promoting_it_to_memory(
     assert "incident_context" not in record.completed.model_dump()
     old = record.model_dump(mode="json", exclude={"incident_context"})
     assert AuditRecord.model_validate(old).incident_context is None
-
-
-def test_audit_without_memory_writes_the_record(tmp_path):
-    from capstone.episode import run_episode
-    from tests.test_episode import wear_policy
-
-    log = AuditLog(tmp_path / "audit.jsonl")
-    result = run_episode(
-        6, wear_policy(), fault="bearing_degradation", clock=lambda: 0.0, log=log
-    )
-    [record] = log.read()
-    assert record.completed.investigation_id == result.state.investigation_id
-    assert record.pruned_candidates == ()
