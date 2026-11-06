@@ -17,6 +17,7 @@ from tests.helpers import ScriptedPolicy, ask, new_state
 
 RESEARCH = [
     "simulator:get_time",
+    "simulator:get_line_screening",
     "simulator:get_sensor_summary",
     "simulator:get_events",
 ]
@@ -67,7 +68,7 @@ def wear(confidence, *supporting):
 def interpret(state, step, evidence):
     if step.hypothesis_id is None:
         return Interpretation()
-    return Interpretation(hypotheses=(wear(0.95, "E2", evidence.id),))
+    return Interpretation(hypotheses=(wear(0.95, "E3", evidence.id),))
 
 
 def policy(*, recommendation="intervene", machine_id="CNC-02", extra_research=()):
@@ -76,7 +77,7 @@ def policy(*, recommendation="intervene", machine_id="CNC-02", extra_research=()
         confidence=0.95,
         recommendation=recommendation,
         hypothesis_id="H1",
-        evidence_ids=("E2", "E3"),
+        evidence_ids=("E3", "E4"),
     )
     request = ActionRequest(
         machine_id=machine_id,
@@ -107,7 +108,7 @@ def policy(*, recommendation="intervene", machine_id="CNC-02", extra_research=()
             ],
         },
         interpret,
-        hypothesize=lambda state: Interpretation(hypotheses=(wear(0.6, "E2"),)),
+        hypothesize=lambda state: Interpretation(hypotheses=(wear(0.6, "E3"),)),
         conclude=lambda state: (concluded, request),
     )
 
