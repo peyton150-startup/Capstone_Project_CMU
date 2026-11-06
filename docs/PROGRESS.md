@@ -1,5 +1,23 @@
 # Progress Log
 
+> **2026-11-06 — staged CPU anomaly detector promoted to HIGH-priority future work (documentation only):**
+> `docs/MVP_SCOPE.md` now lists a CPU-based statistical detector under
+> **Tooling and infrastructure** in both top-of-document future-work tables,
+> with a dedicated `fw-cpu-anomaly-detector` section. Stages are: (0) built-in
+> Python rolling-window/rate checks, (1) optional NumPy/SciPy robust statistical
+> features, (2) conditional scikit-learn batch anomaly learning, and
+> (3) optional River online learning if continuous telemetry justifies it.
+> The detector performs a bounded CPU screening pass on **every machine in
+> the line**, including machines without alarms, and returns read-only,
+> provenance-backed assessments into the existing line-wide incident context;
+> it never states the root cause.
+> Persistent deviations can trigger the existing bounded investigation while
+> the agent still chooses tests and the human retains action approval.
+> Follow the existing line-context baseline and compare each new stage with
+> held-out normal/fault cases, false alarms, detection lead time and CPU costs.
+> This documents future work only: no detector, model, line-context adapter,
+> dependencies, or tests were implemented; understanding status unchanged.
+>
 > **2026-11-05 — rapid triage mode (taught and gated; walkthrough done):**
 > Merged before its walkthrough on the developer's instruction ("merge and we
 > will do the walkthrough later"). The walkthrough (AGENTS.md §11 step 6) was
