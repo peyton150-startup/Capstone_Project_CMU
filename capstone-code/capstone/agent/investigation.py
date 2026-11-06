@@ -811,6 +811,9 @@ def conclude(state: InvestigationState, deps: InvestigationDeps) -> None:
     #     named. Always None in a triage, which proposes nothing.
     #   state.mode: "triage" keeps the answer but saves no change to propose,
     #     and sets `deep_recommended` from it by fixed rule.
+    #   error: The rule the answer broke, when the policy or the check refused
+    #     it; saved as state.conclusion_rejected so the record says why the
+    #     conclusion is "undetermined".
     state.stage = "decide"
     outcome = "decided"
     try:
@@ -828,7 +831,8 @@ def conclude(state: InvestigationState, deps: InvestigationDeps) -> None:
         #   policy_recommendation="escalate", lowered=None -> the model chose it
         #   policy_recommendation="intervene", lowered=<why> -> the check lowered it
         #   policy_recommendation=None -> these lines never ran: time ran out or
-        #     the reply was unusable, and UNDETERMINED (escalate) was used
+        #     the reply was unusable, and UNDETERMINED (escalate) was used;
+        #     conclusion_rejected then says why the reply was unusable
         #
         # The reason uses the raw `answer, wanted`: after the check `request`
         # is always None, so the checked pair would always say "no action named".
@@ -843,8 +847,9 @@ def conclude(state: InvestigationState, deps: InvestigationDeps) -> None:
     except OutOfTime:
         conclusion, request, outcome = UNDETERMINED, None, "stopped"
         state.termination_reason = TerminationReason.TIMEOUT
-    except POLICY_ERRORS:
+    except POLICY_ERRORS as error:
         conclusion, request, outcome = UNDETERMINED, None, "invalid_decision"
+        state.conclusion_rejected = rejection_reason(error)
     state.conclusion = conclusion
     state.concluded_tick = state.last_tick
     if state.mode == "triage":
@@ -871,6 +876,15 @@ def conclude(state: InvestigationState, deps: InvestigationDeps) -> None:
         evidence_ids=conclusion.evidence_ids,
         termination_reason=state.termination_reason,
     )
+
+
+def rejection_reason(error: Exception) -> str:
+    """Why a final answer was refused, as one line for the record."""
+    # Variables:
+    #   text: The error's own message, which names the broken rule; the error's
+    #     type stands in when the message is empty.
+    text = " ".join(str(error).split())
+    return text or type(error).__name__
 
 
 def needs_deep_run(conclusion: AgentConclusion) -> bool:
