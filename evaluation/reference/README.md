@@ -15,12 +15,14 @@ Open only `reference/<new-cohort>-review/blinded/*.json`. Each file has an opaqu
 criteria. Do not open `private_mapping.json`, truth-side packets, existing SNAP
 answers or paired-arm scores while deciding. The default sample is eight RUN,
 eight function, eight test, five tool and two batch items; full-trace RUN items
-come first. Adjust `--run`, `--function`, `--test`, `--tool` and `--batch` to
+and functions with all three judge questions come first. Adjust `--run`,
+`--function`, `--test`, `--tool` and `--batch` to
 enlarge it, then freeze the exported folder. Check the sample includes both
 sound and deliberately broken evidence; a hash sample alone does not ensure
 that diversity.
 
-Write `answers.json` as `{ "review_id": { "RUN-01": 3, "RUN-12": true } }`.
+Copy `answers.template.json` to a separate `answers.json`, then add judgments
+under each opaque ID, for example `{ "review_id": { "RUN-01": 3, "RUN-12": true } }`.
 Scores are integer rubric levels, choices are the exact named options, and
 `noul` answers are true or false. Skipping a question means leaving its key
 out, not giving it zero. Import the reviewed answers:

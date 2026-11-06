@@ -915,6 +915,10 @@ def test_new_cohort_preflight_requires_matching_audit_evidence(master_packets):
     )
     with pytest.raises(ValueError, match="unknown cited evidence IDs"):
         require_full_traces([broken])
+    with pytest.raises(ValueError, match="refused packet"):
+        require_full_traces(
+            [full], refused=[{"episode_key": "blocked-case", "reason": "truth leak"}]
+        )
 
 
 # --- evaluator readiness fixes (CRITERIA_FOR_EVALUATOR.md) ----------------------------

@@ -40,14 +40,20 @@ def trace_issues(packet: RunEvidencePacket) -> list[str]:
     return issues
 
 
-def require_full_traces(packets: Sequence[RunEvidencePacket]) -> None:
+def require_full_traces(
+    packets: Sequence[RunEvidencePacket], *, refused: Sequence[dict] = ()
+) -> None:
     """Refuse a new cohort whose audit evidence cannot support RUN questions."""
     # Variables:
     #   problems: Episode identities and their trace issues, shown before any send.
+    #   refused: Packets rejected by the hidden-truth check before trace checking.
     problems = [
         f"{packet.meta.episode_key}: {', '.join(issues)}"
         for packet in packets
         if (issues := trace_issues(packet))
     ]
+    problems.extend(
+        f"{item['episode_key']}: refused packet ({item['reason']})" for item in refused
+    )
     if problems:
         raise ValueError("incomplete audited cohort: " + "; ".join(problems[:5]))

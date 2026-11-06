@@ -21,7 +21,8 @@ def export_requests(requests: Path, out: Path, limits: dict[str, int]) -> dict:
     """Write a deterministic, answer-free sample from prepared requests."""
     # Variables:
     #   items: One state and its questions per internal item, across request chunks.
-    #   chosen: The sampled items, selected by opaque ID within each family.
+    #   chosen: The sampled items, preferring full RUN traces and function
+    #     states with all three questions before opaque-ID ordering.
     #   mapping: Private link from each blinded ID back to its evaluator item.
     if any(requests.glob("*.answers.json")):
         raise ValueError(
@@ -54,6 +55,7 @@ def export_requests(requests: Path, out: Path, limits: dict[str, int]) -> dict:
                 pair[1]["state"].get("trace", {}).get("completeness") != "full"
                 if family == "RUN"
                 else False,
+                -len(pair[1]["questions"]) if family == "FN" else 0,
                 review_id(pair[0]),
             ),
         )
@@ -83,6 +85,10 @@ def export_requests(requests: Path, out: Path, limits: dict[str, int]) -> dict:
     )
     (out / "manifest.json").write_text(
         json.dumps(manifest, indent=1) + "\n", encoding="utf-8"
+    )
+    (out / "answers.template.json").write_text(
+        json.dumps({item["review_id"]: {} for item in manifest}, indent=1) + "\n",
+        encoding="utf-8",
     )
     return {
         "items": len(manifest),

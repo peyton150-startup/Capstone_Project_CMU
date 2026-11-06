@@ -1588,7 +1588,9 @@ def main(argv=None) -> int:
     )
     if args.require_full_traces:
         try:
-            audit_preflight.require_full_traces(planned["packets"])
+            audit_preflight.require_full_traces(
+                planned["packets"], refused=planned["refused_packets"]
+            )
         except ValueError as error:
             parser.error(str(error))
     spend = budget(planned["built"])

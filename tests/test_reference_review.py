@@ -40,6 +40,7 @@ def test_review_packets_hide_run_identity_and_import_checked_answers(tmp_path):
     (opaque,) = json.loads((review / "private_mapping.json").read_text())
     blinded = (review / "blinded" / f"{opaque}.json").read_text()
     assert internal not in blinded and "opaque" in blinded
+    assert json.loads((review / "answers.template.json").read_text()) == {opaque: {}}
     answers = tmp_path / "answers.json"
     answers.write_text(json.dumps({opaque: {"RUN-01": 2, "RUN-12": True}}))
     reference = tmp_path / "reference.json"
@@ -61,3 +62,33 @@ def test_review_export_refuses_a_request_folder_with_model_answers(tmp_path):
     (requests / "one.answers.json").write_text("{}")
     with pytest.raises(ValueError, match="model answers already exist"):
         export_requests(requests, tmp_path / "review", {"RUN": 1})
+
+
+def test_function_sample_prefers_items_with_all_judgments(tmp_path):
+    """The reference set includes functions whose test questions are answerable."""
+    # Variables:
+    #   questions: The full function rubric for the evidence-rich candidate.
+    #   mapping: The selected opaque ID's private function identity.
+    requests = tmp_path / "requests"
+    requests.mkdir()
+    questions = {
+        f"question_{n}": {"id": f"FN-0{n}", "type": "noul", "criteria": {}}
+        for n in (1, 2, 3)
+    }
+    for item_id, selected in (
+        ("fn_sparse", {"question_1": questions["question_1"]}),
+        ("fn_full", questions),
+    ):
+        (requests / f"{item_id}.request.json").write_text(
+            json.dumps(
+                {
+                    "tags": {"family": "FN", "item_id": item_id, "questions": selected},
+                    "body": {"state": {"function_id": item_id}},
+                }
+            ),
+            encoding="utf-8",
+        )
+    review = tmp_path / "review"
+    export_requests(requests, review, {"FN": 1})
+    mapping = json.loads((review / "private_mapping.json").read_text())
+    assert list(mapping.values()) == ["fn_full"]
