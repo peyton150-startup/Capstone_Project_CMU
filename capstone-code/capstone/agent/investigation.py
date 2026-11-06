@@ -108,13 +108,20 @@ def gathered_in(state: InvestigationState, phase: Phase) -> int:
 
 
 def observe(state: InvestigationState, deps: InvestigationDeps) -> None:
-    """Start the timer and learn the current tick before anything else is asked.
+    """Start the timer, learn the current tick, and screen the whole line.
 
     The repeat check compares "same question, same tick", so the tick
-    has to be known before the policy asks its first question.
+    has to be known before the policy asks its first question. The line
+    screening follows, always, so every machine's numbers are in the
+    evidence before the agent plans, not only the one that alarmed.
     """
     # Variables:
     #   step: The get_time call the loop makes itself, not one the policy chose.
+    #   screen: The line screening the loop asks for itself, in every
+    #     investigation: each machine's recent running readings against the
+    #     saved healthy line, before anything is planned.
+    #   calls_before: The call count before the screening, so exactly the
+    #     screening's call goes to its own allowance and not to research.
     #   state.line_context_enabled: Whether this comparison arm gathers the
     #     bounded observable packet before the manual and plan stages.
     if state.started_at is None:
@@ -127,6 +134,13 @@ def observe(state: InvestigationState, deps: InvestigationDeps) -> None:
     # That call was made before the tick was known. Note it under the tick
     # it reported too, so asking the time again straight away is a repeat.
     state.seen_calls.append(call_signature(step.request, state.last_tick))
+    screen = CallTool(
+        information_needed="every machine's recent running readings against a healthy line",
+        request=ToolRequest(name="get_line_screening"),
+    )
+    calls_before = state.tool_call_count
+    gather(state, deps, "observe", screen, interpret=False)
+    state.screening_tool_calls_used += state.tool_call_count - calls_before
     if state.line_context_enabled:
         assemble_incident_context(state, deps)
 
