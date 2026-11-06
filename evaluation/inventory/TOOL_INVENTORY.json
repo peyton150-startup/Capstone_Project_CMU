@@ -101,7 +101,7 @@
     "tests/test_episode.py::test_a_scripted_policy_without_the_combined_question_runs_in_two",
     "tests/test_episode.py::test_a_verified_fix_is_audited_and_remembered"
    ],
-   "test_count": 273,
+   "test_count": 281,
    "verification_status": "PARTIALLY VERIFIED",
    "snap_questions": [
     "TL-01",
@@ -155,10 +155,11 @@
     "tests/test_simulator_challenge.py::test_different_seeds_change_observations_but_keep_the_same_challenge_logic",
     "tests/test_slow_when_worn.py::test_nothing_about_speed_or_progress_reaches_the_agent_directly",
     "tests/test_thermometer.py::test_the_machine_tool_cannot_return_the_thermometer",
+    "tests/test_triage.py::test_with_line_context_the_deep_run_gathers_its_own_packet",
     "tests/test_wait_tool.py::test_looking_is_free_however_often_the_agent_looks",
     "tests/test_wrong_setting.py::test_the_agent_can_read_each_machines_speed_but_not_what_it_should_be"
    ],
-   "test_count": 30,
+   "test_count": 31,
    "verification_status": "PARTIALLY VERIFIED",
    "snap_questions": [
     "TL-01",
@@ -195,9 +196,10 @@
     "tests/test_simulator_challenge.py::test_challenge_has_sparse_samples_and_self_ending_anomaly_alongside_real_faults",
     "tests/test_simulator_challenge.py::test_challenge_is_replayable_through_unchanged_tools_and_keeps_truth_hidden",
     "tests/test_simulator_challenge.py::test_different_seeds_change_observations_but_keep_the_same_challenge_logic",
+    "tests/test_triage.py::test_with_line_context_the_deep_run_gathers_its_own_packet",
     "tests/test_wrong_setting.py::test_the_agent_can_read_each_machines_speed_but_not_what_it_should_be"
    ],
-   "test_count": 12,
+   "test_count": 13,
    "verification_status": "INSUFFICIENT EVIDENCE",
    "snap_questions": [
     "TL-01",
@@ -338,7 +340,7 @@
     "tests/test_episode.py::test_a_whole_episode_records_the_section_nine_fields",
     "tests/test_episode.py::test_critic_blind_is_off_by_default_and_reaches_the_run"
    ],
-   "test_count": 252,
+   "test_count": 259,
    "verification_status": "VERIFIED",
    "snap_questions": [
     "TL-01",
@@ -484,7 +486,7 @@
     "tests/test_observation_tools.py::test_answers_are_plain_data",
     "tests/test_observation_tools.py::test_looking_does_not_advance_time_or_change_the_factory"
    ],
-   "test_count": 110,
+   "test_count": 117,
    "verification_status": "PARTIALLY VERIFIED",
    "snap_questions": [
     "TL-01",
@@ -702,7 +704,7 @@
     "tests/test_episode.py::test_the_agent_never_holds_the_answer_key",
     "tests/test_episode.py::test_the_same_seed_gives_the_same_episode"
    ],
-   "test_count": 202,
+   "test_count": 209,
    "verification_status": "VERIFIED",
    "snap_questions": [
     "TL-01",
@@ -837,7 +839,7 @@
     "tests/test_episode.py::test_an_episode_on_the_challenge_is_scored_with_several_causes",
     "tests/test_episode.py::test_critic_blind_is_off_by_default_and_reaches_the_run"
    ],
-   "test_count": 246,
+   "test_count": 254,
    "verification_status": "PARTIALLY VERIFIED",
    "snap_questions": [
     "TL-01",
@@ -1064,7 +1066,7 @@
     "tests/test_memory_comparison.py::test_outage_runs_are_counted_then_left_out_of_every_total",
     "tests/test_memory_comparison.py::test_semantic_mode_asks_the_index"
    ],
-   "test_count": 134,
+   "test_count": 142,
    "verification_status": "PARTIALLY VERIFIED",
    "snap_questions": [
     "TL-01",
@@ -1193,7 +1195,7 @@
     "tests/test_evals.py::test_review_flag_excludes_provisional_label_from_accuracy",
     "tests/test_evals.py::test_run_cases_offers_the_manual_when_given"
    ],
-   "test_count": 231,
+   "test_count": 239,
    "verification_status": "VERIFIED",
    "snap_questions": [
     "TL-01",
@@ -1318,7 +1320,7 @@
     "tests/test_episode.py::test_a_label_added_afterwards_scores_the_same_run",
     "tests/test_episode.py::test_a_run_with_the_manual_gives_the_settings_critic_the_manual"
    ],
-   "test_count": 215,
+   "test_count": 222,
    "verification_status": "VERIFIED",
    "snap_questions": [
     "TL-01",
@@ -1425,7 +1427,7 @@
     "tests/test_episode.py::test_without_an_audit_log_nothing_is_learned",
     "tests/test_evals.py::test_record_keeps_the_claim_the_critic_favoured"
    ],
-   "test_count": 168,
+   "test_count": 175,
    "verification_status": "PARTIALLY VERIFIED",
    "snap_questions": [
     "TL-01",
@@ -1542,7 +1544,7 @@
     "tests/test_experiment.py::test_critic_questions_counted_and_tagged",
     "tests/test_experiment.py::test_critic_questions_follow_the_policy_s_own"
    ],
-   "test_count": 175,
+   "test_count": 182,
    "verification_status": "VERIFIED",
    "snap_questions": [
     "TL-01",
