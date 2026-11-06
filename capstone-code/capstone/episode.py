@@ -429,6 +429,8 @@ def run_triage_then_deep(
     #   started: The clock reading when the triage began.
     #   seconds: How long the triage took.
     #   deep: The deep investigation that follows, if the triage asked for one.
+    #   first.line_context_enabled: Copied to the deep run, which builds a fresh
+    #     line-wide packet rather than reusing the triage's.
     first.mode = "triage"
     first.budgets = triage_budgets(settings.triage_seconds, settings.triage_tool_calls)
     started = deps.clock()
@@ -451,6 +453,9 @@ def run_triage_then_deep(
         state_action_bar=first.state_action_bar,
         step_questions=first.step_questions,
         follows_triage=first.investigation_id,
+        # LINE_CONTEXT: the deep run gathers its own packet, with its own
+        # budget; the triage's packet was capped by the triage's few calls.
+        line_context_enabled=first.line_context_enabled,
     )
     run_investigation(deep, deps)
     return first, deep, seconds
