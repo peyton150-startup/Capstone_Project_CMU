@@ -67,6 +67,7 @@ GROUPS: dict[str, list[str]] = {
         "job_history",
         "observability",
         "observation_tools",
+        "line_screening",
         "sensor_summary",
         "settings",
         "env_example",

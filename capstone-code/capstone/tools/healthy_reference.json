@@ -1,0 +1,535 @@
+{
+ "ranges": {
+  "CNC-01": {
+   "following_error": {
+    "running": {
+     "count": 2499,
+     "mean": 4.211797,
+     "median": 4.243031,
+     "sd": 0.807063,
+     "spread": 0.822233
+    }
+   },
+   "load": {
+    "running": {
+     "count": 2499,
+     "mean": 55.135518,
+     "median": 55.012967,
+     "sd": 14.078443,
+     "spread": 18.091968
+    }
+   },
+   "power": {
+    "running": {
+     "count": 2499,
+     "mean": 10.270996,
+     "median": 10.233183,
+     "sd": 2.10713,
+     "spread": 2.754949
+    }
+   },
+   "temperature": {
+    "start": {
+     "count": 50,
+     "mean": 111.392451,
+     "median": 111.050939,
+     "sd": 2.074584,
+     "spread": 2.253164
+    },
+    "steady": {
+     "count": 2349,
+     "mean": 113.11923,
+     "median": 113.543928,
+     "sd": 6.201273,
+     "spread": 6.076775
+    },
+    "warming": {
+     "count": 100,
+     "mean": 110.882208,
+     "median": 111.595933,
+     "sd": 3.94191,
+     "spread": 1.548569
+    }
+   },
+   "vibration": {
+    "running": {
+     "count": 2499,
+     "mean": 2.08093,
+     "median": 2.082653,
+     "sd": 0.258259,
+     "spread": 0.285127
+    }
+   }
+  },
+  "CNC-02": {
+   "following_error": {
+    "running": {
+     "count": 2821,
+     "mean": 4.212307,
+     "median": 4.235807,
+     "sd": 0.800997,
+     "spread": 0.821572
+    }
+   },
+   "hydraulic_pressure": {
+    "running": {
+     "count": 2821,
+     "mean": 68.900451,
+     "median": 68.899734,
+     "sd": 0.826678,
+     "spread": 0.826816
+    }
+   },
+   "load": {
+    "running": {
+     "count": 2821,
+     "mean": 55.132786,
+     "median": 55.057264,
+     "sd": 13.830682,
+     "spread": 17.630902
+    }
+   },
+   "power": {
+    "running": {
+     "count": 2821,
+     "mean": 10.273029,
+     "median": 10.238225,
+     "sd": 2.075831,
+     "spread": 2.704739
+    }
+   },
+   "temperature": {
+    "start": {
+     "count": 50,
+     "mean": 97.849782,
+     "median": 100.765777,
+     "sd": 10.102158,
+     "spread": 9.277712
+    },
+    "steady": {
+     "count": 2671,
+     "mean": 118.510338,
+     "median": 118.565421,
+     "sd": 4.352079,
+     "spread": 4.134033
+    },
+    "warming": {
+     "count": 100,
+     "mean": 112.920004,
+     "median": 112.993856,
+     "sd": 1.951095,
+     "spread": 1.850031
+    }
+   },
+   "vibration": {
+    "running": {
+     "count": 2821,
+     "mean": 2.078898,
+     "median": 2.080697,
+     "sd": 0.2534,
+     "spread": 0.271084
+    }
+   }
+  },
+  "CNC-03": {
+   "following_error": {
+    "running": {
+     "count": 2174,
+     "mean": 4.222863,
+     "median": 4.217897,
+     "sd": 0.826253,
+     "spread": 0.859032
+    }
+   },
+   "load": {
+    "running": {
+     "count": 2174,
+     "mean": 55.244475,
+     "median": 54.936773,
+     "sd": 13.786237,
+     "spread": 17.953217
+    }
+   },
+   "power": {
+    "running": {
+     "count": 2174,
+     "mean": 10.282525,
+     "median": 10.237227,
+     "sd": 2.05389,
+     "spread": 2.688248
+    }
+   },
+   "temperature": {
+    "start": {
+     "count": 50,
+     "mean": 98.384926,
+     "median": 101.517848,
+     "sd": 10.710143,
+     "spread": 11.122124
+    },
+    "steady": {
+     "count": 2024,
+     "mean": 110.523025,
+     "median": 111.203925,
+     "sd": 7.466828,
+     "spread": 7.533231
+    },
+    "warming": {
+     "count": 100,
+     "mean": 108.654293,
+     "median": 110.219949,
+     "sd": 7.273371,
+     "spread": 7.095096
+    }
+   },
+   "vibration": {
+    "running": {
+     "count": 2174,
+     "mean": 2.075133,
+     "median": 2.077912,
+     "sd": 0.250531,
+     "spread": 0.271283
+    }
+   }
+  },
+  "CNC-04": {
+   "following_error": {
+    "running": {
+     "count": 2516,
+     "mean": 4.214313,
+     "median": 4.229284,
+     "sd": 0.802907,
+     "spread": 0.833622
+    }
+   },
+   "load": {
+    "running": {
+     "count": 2516,
+     "mean": 55.19861,
+     "median": 54.887226,
+     "sd": 13.742791,
+     "spread": 17.555947
+    }
+   },
+   "power": {
+    "running": {
+     "count": 2516,
+     "mean": 10.269495,
+     "median": 10.227425,
+     "sd": 2.063025,
+     "spread": 2.683164
+    }
+   },
+   "temperature": {
+    "start": {
+     "count": 50,
+     "mean": 99.336835,
+     "median": 102.246481,
+     "sd": 10.713509,
+     "spread": 10.092402
+    },
+    "steady": {
+     "count": 2366,
+     "mean": 115.814179,
+     "median": 115.930037,
+     "sd": 5.423209,
+     "spread": 5.032378
+    },
+    "warming": {
+     "count": 100,
+     "mean": 113.348265,
+     "median": 113.927846,
+     "sd": 2.726737,
+     "spread": 2.650804
+    }
+   },
+   "vibration": {
+    "running": {
+     "count": 2516,
+     "mean": 2.075194,
+     "median": 2.074419,
+     "sd": 0.253944,
+     "spread": 0.27999
+    }
+   }
+  },
+  "CNC-05": {
+   "following_error": {
+    "running": {
+     "count": 2266,
+     "mean": 4.243357,
+     "median": 4.256084,
+     "sd": 0.793192,
+     "spread": 0.824518
+    }
+   },
+   "hydraulic_pressure": {
+    "running": {
+     "count": 2266,
+     "mean": 68.902124,
+     "median": 68.896724,
+     "sd": 0.864594,
+     "spread": 0.86852
+    }
+   },
+   "load": {
+    "running": {
+     "count": 2266,
+     "mean": 55.359581,
+     "median": 55.155117,
+     "sd": 13.878188,
+     "spread": 17.357314
+    }
+   },
+   "power": {
+    "running": {
+     "count": 2266,
+     "mean": 10.305455,
+     "median": 10.257033,
+     "sd": 2.06745,
+     "spread": 2.685779
+    }
+   },
+   "temperature": {
+    "start": {
+     "count": 50,
+     "mean": 101.04733,
+     "median": 103.724974,
+     "sd": 10.614253,
+     "spread": 10.051381
+    },
+    "steady": {
+     "count": 2116,
+     "mean": 113.188708,
+     "median": 113.714692,
+     "sd": 6.966352,
+     "spread": 7.088165
+    },
+    "warming": {
+     "count": 100,
+     "mean": 112.645619,
+     "median": 113.870424,
+     "sd": 5.159585,
+     "spread": 4.609289
+    }
+   },
+   "vibration": {
+    "running": {
+     "count": 2266,
+     "mean": 2.075479,
+     "median": 2.072919,
+     "sd": 0.255461,
+     "spread": 0.282817
+    }
+   }
+  },
+  "CNC-06": {
+   "following_error": {
+    "running": {
+     "count": 2505,
+     "mean": 4.202139,
+     "median": 4.194386,
+     "sd": 0.827464,
+     "spread": 0.845698
+    }
+   },
+   "load": {
+    "running": {
+     "count": 2505,
+     "mean": 55.357347,
+     "median": 54.898533,
+     "sd": 13.994463,
+     "spread": 17.980606
+    }
+   },
+   "power": {
+    "running": {
+     "count": 2505,
+     "mean": 10.299074,
+     "median": 10.197091,
+     "sd": 2.082158,
+     "spread": 2.721462
+    }
+   },
+   "temperature": {
+    "start": {
+     "count": 50,
+     "mean": 101.785403,
+     "median": 105.162107,
+     "sd": 10.534819,
+     "spread": 9.352124
+    },
+    "steady": {
+     "count": 2355,
+     "mean": 117.437342,
+     "median": 117.108968,
+     "sd": 5.24955,
+     "spread": 5.526125
+    },
+    "warming": {
+     "count": 100,
+     "mean": 116.132831,
+     "median": 116.507677,
+     "sd": 2.378669,
+     "spread": 2.580198
+    }
+   },
+   "vibration": {
+    "running": {
+     "count": 2505,
+     "mean": 2.077981,
+     "median": 2.077561,
+     "sd": 0.258141,
+     "spread": 0.282891
+    }
+   }
+  },
+  "CNC-07": {
+   "following_error": {
+    "running": {
+     "count": 2081,
+     "mean": 4.195239,
+     "median": 4.199439,
+     "sd": 0.828103,
+     "spread": 0.858477
+    }
+   },
+   "hydraulic_pressure": {
+    "running": {
+     "count": 2081,
+     "mean": 68.918182,
+     "median": 68.914587,
+     "sd": 0.823877,
+     "spread": 0.822347
+    }
+   },
+   "load": {
+    "running": {
+     "count": 2081,
+     "mean": 54.911888,
+     "median": 54.308621,
+     "sd": 13.906796,
+     "spread": 18.000481
+    }
+   },
+   "power": {
+    "running": {
+     "count": 2081,
+     "mean": 10.243836,
+     "median": 10.175022,
+     "sd": 2.082068,
+     "spread": 2.70863
+    }
+   },
+   "temperature": {
+    "start": {
+     "count": 50,
+     "mean": 103.340013,
+     "median": 106.616386,
+     "sd": 10.598646,
+     "spread": 10.248805
+    },
+    "steady": {
+     "count": 1931,
+     "mean": 111.72437,
+     "median": 111.964522,
+     "sd": 7.045734,
+     "spread": 6.831067
+    },
+    "warming": {
+     "count": 100,
+     "mean": 113.449296,
+     "median": 115.353659,
+     "sd": 6.170863,
+     "spread": 4.788157
+    }
+   },
+   "vibration": {
+    "running": {
+     "count": 2081,
+     "mean": 2.081955,
+     "median": 2.088749,
+     "sd": 0.258042,
+     "spread": 0.279798
+    }
+   }
+  },
+  "CNC-08": {
+   "following_error": {
+    "running": {
+     "count": 2168,
+     "mean": 4.230284,
+     "median": 4.242796,
+     "sd": 0.811588,
+     "spread": 0.854139
+    }
+   },
+   "load": {
+    "running": {
+     "count": 2168,
+     "mean": 55.506429,
+     "median": 54.94697,
+     "sd": 13.781212,
+     "spread": 17.39808
+    }
+   },
+   "power": {
+    "running": {
+     "count": 2168,
+     "mean": 10.33362,
+     "median": 10.240056,
+     "sd": 2.044694,
+     "spread": 2.587672
+    }
+   },
+   "temperature": {
+    "start": {
+     "count": 50,
+     "mean": 104.660332,
+     "median": 107.960125,
+     "sd": 10.726893,
+     "spread": 10.233031
+    },
+    "steady": {
+     "count": 2018,
+     "mean": 113.786843,
+     "median": 113.514985,
+     "sd": 6.51035,
+     "spread": 6.571029
+    },
+    "warming": {
+     "count": 100,
+     "mean": 115.451008,
+     "median": 116.89187,
+     "sd": 4.927981,
+     "spread": 3.572332
+    }
+   },
+   "vibration": {
+    "running": {
+     "count": 2168,
+     "mean": 2.084366,
+     "median": 2.083815,
+     "sd": 0.248915,
+     "spread": 0.267997
+    }
+   }
+  }
+ },
+ "settings": {
+  "machines": 8,
+  "min_recent": 20,
+  "recent_readings": 60,
+  "running_load": 15.0,
+  "seed": 1,
+  "source": "separate baseline run of the simulated standard line, normal operation",
+  "ticks": 2880,
+  "warmup_boundaries": [
+   50,
+   150
+  ],
+  "warmup_sensors": [
+   "temperature"
+  ]
+ }
+}

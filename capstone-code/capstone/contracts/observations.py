@@ -50,6 +50,31 @@ class SensorSummaryObservation(Contract):
     rate_of_change: float | None = Field(allow_inf_nan=False)
 
 
+class LineScreeningObservation(Contract):
+    """One machine sensor's recent running readings against a saved healthy line.
+
+    Numbers and coverage only: no "abnormal" label and no cause. Scores are
+    in units of the healthy spread; how far is too far is for the reader.
+    """
+
+    machine_id: str
+    sensor: str
+    # scored, or why not: not_running_yet, too_few_running_readings, no_reference.
+    status: Literal[
+        "scored", "not_running_yet", "too_few_running_readings", "no_reference"
+    ]
+    running_readings: int = Field(ge=0)
+    reference: str
+    warmup_stage: str | None = None
+    window_readings: int | None = Field(default=None, ge=0)
+    window_from_tick: int | None = Field(default=None, ge=0)
+    window_to_tick: int | None = Field(default=None, ge=0)
+    window_median: float | None = Field(default=None, allow_inf_nan=False)
+    reference_median: float | None = Field(default=None, allow_inf_nan=False)
+    robust_score: float | None = Field(default=None, allow_inf_nan=False)
+    plain_score: float | None = Field(default=None, allow_inf_nan=False)
+
+
 class SensorTrendObservation(Contract):
     """One block of a sensor's readings: arithmetic on observable samples only."""
 

@@ -78,11 +78,11 @@ def mean(state, evidence_id):
 def compare_with_before(state):
     """The agent's own judgement: has the vibration come down from what E2 showed?"""
     latest = state.evidence[-1].id
-    fell = mean(state, latest) < mean(state, "E2") - 0.5
+    fell = mean(state, latest) < mean(state, "E3") - 0.5
     return VerificationCheck(
         outcome="resolved" if fell else "not_resolved",
         prediction="rewritten after the fact",
-        evidence_ids=("E2", latest),
+        evidence_ids=("E3", latest),
         checked_tick=1,
     )
 
@@ -106,7 +106,7 @@ def policy(
                     id="H1",
                     claim="CNC-02 is wearing",
                     confidence=0.95,
-                    supporting_evidence_ids=("E2", evidence.id),
+                    supporting_evidence_ids=("E3", evidence.id),
                 ),
             )
         )
@@ -116,7 +116,7 @@ def policy(
         confidence=0.95,
         recommendation=recommendation,
         hypothesis_id="H1",
-        evidence_ids=("E2", "E3"),
+        evidence_ids=("E3", "E4"),
     )
     request = ActionRequest(
         machine_id=machine_id,
@@ -145,7 +145,7 @@ def policy(
                     id="H1",
                     claim="CNC-02 is wearing",
                     confidence=0.6,
-                    supporting_evidence_ids=("E2",),
+                    supporting_evidence_ids=("E3",),
                 ),
             )
         ),
@@ -179,8 +179,8 @@ def test_a_fix_that_worked_is_found_by_looking_again():
     check = state.verification
     latest = state.evidence[-1]
     assert check.outcome == "resolved"
-    assert check.evidence_ids == ("E2", latest.id)
-    assert mean(state, latest.id) < mean(state, "E2") - 0.5
+    assert check.evidence_ids == ("E3", latest.id)
+    assert mean(state, latest.id) < mean(state, "E3") - 0.5
     assert latest.observed_tick == 945 > state.action_finish_tick == 645
     assert factory.sim.state.machines["CNC-02"].condition.bearing_health == 1.0
 
@@ -190,7 +190,7 @@ def test_a_fix_on_the_wrong_machine_is_found_not_to_have_worked():
     assert state.action_carried_out  # the repair really was done, on CNC-01
     assert state.proposed_action.machine_id == "CNC-01"
     assert state.verification.outcome == "not_resolved"
-    assert mean(state, state.evidence[-1].id) > mean(state, "E2")
+    assert mean(state, state.evidence[-1].id) > mean(state, "E3")
     # Nobody told the agent: it used the same judgement as in the test above.
     assert factory.sim.state.machines["CNC-02"].condition.bearing_health < 1.0
 
