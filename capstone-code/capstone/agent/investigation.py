@@ -65,7 +65,13 @@ from capstone.agent.loop import (
     record,
     run_inner_loop,
 )
-from capstone.agent.policy import ActionRequest, CallTool, Interpretation, Stop
+from capstone.agent.policy import (
+    ActionRequest,
+    CallTool,
+    CallTools,
+    Interpretation,
+    Stop,
+)
 from capstone.agent.state import InvestigationState, Phase, PrunedCandidate, Question
 from capstone.contracts.hypotheses import Hypothesis
 from capstone.contracts.tools import ToolRequest
@@ -534,6 +540,8 @@ def recheck(state: InvestigationState, deps: InvestigationDeps) -> None:
     #   began: The clock when the follow-up's window opened.
     #   started: The investigation's real start, restored (moved by the seconds
     #     used) when the window closes.
+    #   decision: The one reading to make: the critic's structured check, or
+    #     the policy's choice (only the first call if it listed several).
     if not deps.critic_followup or deps.critic is None or state.critique is None:
         return
     state.stage = "test"
@@ -614,6 +622,9 @@ def follow_up(state: InvestigationState, deps: InvestigationDeps, trigger: str) 
                 research=True,
             )
         )
+        # The recheck is one reading; from a list of calls, only the first runs.
+        if isinstance(decision, CallTools):
+            decision = decision.steps[0]
         if not isinstance(decision, CallTool | Stop):
             raise ValueError("a policy must return CallTool or Stop")
     except OutOfTime:
