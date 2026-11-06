@@ -263,6 +263,9 @@ def run_episode(
     #   settings.line_context: Enables the bounded observable incident packet.
     #   step_questions: The questions per tool result actually used: the
     #     setting, or 2 for a policy that cannot answer both in one.
+    #   decide_calls: The most tool calls one decide answer may list: the
+    #     DECIDE_CALLS setting, or 1 for a policy that cannot read several
+    #     results in one question.
     #   sim: The factory with its hidden fault; never given to the agent.
     #   desk: The human's approval desk; never given to the agent.
     #   look: The read-only tools.
@@ -328,6 +331,14 @@ def run_episode(
         if callable(getattr(policy, "interpret_and_decide", None))
         else 2
     )
+    # Several calls per answer need a policy that can read them together in
+    # one-question mode; any other policy keeps one call per answer.
+    decide_calls = (
+        settings.decide_calls
+        if step_questions == 2
+        or callable(getattr(policy, "interpret_and_decide_many", None))
+        else 1
+    )
     world = "challenge" if kind == CHALLENGE else f"fault-{fault or 'any'}"
     run_id = run_id_for(run_key or f"episode/seed-{seed}/{world}")
     state = InvestigationState(
@@ -352,6 +363,7 @@ def run_episode(
         min_action_confidence=settings.min_action_confidence,
         state_action_bar=settings.state_action_bar,
         step_questions=step_questions,
+        decide_calls=decide_calls,
         critic=critic,
         critic_seconds=settings.critic_seconds,
         critic_followup=settings.critic_followup,

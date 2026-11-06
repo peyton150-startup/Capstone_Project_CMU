@@ -62,7 +62,7 @@ from capstone.agent.critic import (
 )
 from capstone.agent.model_policy import ModelCall
 from capstone.agent.policy import ReasoningPolicy
-from capstone.agent.state import Budgets, IncidentContext
+from capstone.agent.state import BatchTrace, Budgets, IncidentContext
 from capstone.agent.tree_of_thought import RevaluationRecord, Thought, TreeOptions
 from capstone.console import safe_console
 from capstone.episode import (
@@ -186,6 +186,10 @@ class AgentStep(BaseModel):
     phase: str
     outcome: str
     tool: str | None = None
+    # With DECIDE_CALLS above 1: which decide answer chose this call, and its
+    # place in that answer. None otherwise (and in older records).
+    batch: int | None = None
+    batch_position: int | None = None
 
 
 def summarize_calls(calls: Sequence[ModelCall]) -> CallSummary:
@@ -349,6 +353,11 @@ class ExperimentRecord(BaseModel):
     # describe the deep run that followed, or the triage when none did.
     # None: triage was off (and in records from before it was kept).
     triage: TriageRecord | None = None
+    # DECIDE_CALLS for this run, and what batching did (answers, calls chosen
+    # and run, and the cuts). None in records from before it was kept; the
+    # trace is also None when DECIDE_CALLS was 1.
+    decide_calls: int | None = Field(default=None, ge=1)
+    decide_batches: BatchTrace | None = None
 
 
 # Tools answered by something other than the factory.
@@ -505,6 +514,8 @@ def record_of(
         step_questions=state.step_questions,
         line_context_enabled=state.line_context_enabled,
         incident_context=state.incident_context,
+        decide_calls=state.decide_calls,
+        decide_batches=state.decide_batches,
         critique=state.critique,
         critic_favoured_claim=favoured_claim(state),
         recheck=state.recheck,
@@ -515,6 +526,8 @@ def record_of(
                 phase=decision.phase,
                 outcome=decision.outcome,
                 tool=decision.tool,
+                batch=decision.batch,
+                batch_position=decision.batch_position,
             )
             for decision in state.decisions
         ]
@@ -741,6 +754,28 @@ def format_triage(records: Sequence[ExperimentRecord]) -> str | None:
     )
 
 
+def format_batches(records: Sequence[ExperimentRecord]) -> str | None:
+    """One line on several tool calls per decide answer; None when no run batched."""
+    # Variables:
+    #   kept: The batch trace of each run that had DECIDE_CALLS above 1.
+    #   answers: Decide answers that chose at least one call, over those runs.
+    #   run: Tool calls the loop ran from those answers.
+    kept = [r.decide_batches for r in records if r.decide_batches is not None]
+    if not kept:
+        return None
+    answers = sum(t.answers for t in kept)
+    run = sum(t.run for t in kept)
+    per_answer = run / answers if answers else 0.0
+    return (
+        f"decide batches: {len(kept)} run(s), {answers} answers chose "
+        f"{sum(t.chosen for t in kept)} calls and ran {run} ({per_answer:.1f} per "
+        f"answer); {sum(t.read_together for t in kept)} read together; cut "
+        f"{sum(t.cut_at_wait for t in kept)} at a wait, "
+        f"{sum(t.cut_over_limit for t in kept)} over the limit, "
+        f"{sum(t.cut_for_budget for t in kept)} for budget"
+    )
+
+
 def _right(score: Score) -> bool | None:
     """Right cause and right machine or batch; None until judged."""
     if score.fault_correct is None:
@@ -924,6 +959,7 @@ def report(records: Sequence[ExperimentRecord], labels: dict[str, Label]) -> str
     #   memory: The memory section, if any run used memory.
     #   manual: The manual section, if any run used the manual.
     #   triaged: The triage line, if any run had a rapid triage.
+    #   batched: The decide-batches line, if any run had DECIDE_CALLS above 1.
     scores = labelled(records, labels)
     held = sum(r.seed in HELD_OUT_SEEDS for r in records)
     pairs = list(zip(records, scores, strict=True))
@@ -945,7 +981,9 @@ def report(records: Sequence[ExperimentRecord], labels: dict[str, Label]) -> str
     manual = format_manual(records)
     lines += [] if manual is None else [manual]
     triaged = format_triage(records)
-    lines += ([] if triaged is None else [triaged]) + [""]
+    lines += [] if triaged is None else [triaged]
+    batched = format_batches(records)
+    lines += ([] if batched is None else [batched]) + [""]
 
     def lines_for(group):
         # Variables:

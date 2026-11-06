@@ -32,13 +32,21 @@ from capstone.agent.critic import Critic
 from capstone.agent.evidence_brief import verify_numeric_claims
 from capstone.agent.policy import (
     CallTool,
+    CallTools,
     Interpretation,
     InterpretedStep,
     LoopPhase,
     ReasoningPolicy,
     Stop,
 )
-from capstone.agent.state import DecisionRecord, InvestigationState, Phase, StepOutcome
+from capstone.agent.state import (
+    MAX_DECIDE_CALLS,
+    BatchTrace,
+    DecisionRecord,
+    InvestigationState,
+    Phase,
+    StepOutcome,
+)
 from capstone.contracts.evidence import Evidence
 from capstone.contracts.provenance import (
     MANUAL_SOURCE,
@@ -99,6 +107,9 @@ class InvestigationDeps:
     # it can read what the agent has, never change it. None: nobody watches.
     watch: Callable[[InvestigationState], None] | None = field(default=None)
     step_questions: int = 2
+    # The most tool calls one decide answer may list (DECIDE_CALLS). 1, the
+    # default, is one call per answer, exactly as before batching.
+    decide_calls: int = 1
     # A second model that reviews the two leading hypotheses before the
     # conclusion (`investigation.critique`). None: no critique. Its window
     # is its own, on top of the investigation's time.
@@ -136,6 +147,17 @@ class InvestigationDeps:
         ):
             raise ValueError(
                 "one-question mode needs a policy with interpret_and_decide"
+            )
+        if not 1 <= self.decide_calls <= MAX_DECIDE_CALLS:
+            raise ValueError(f"decide_calls must be from 1 to {MAX_DECIDE_CALLS}")
+        if (
+            self.decide_calls > 1
+            and self.step_questions == 1
+            and not callable(getattr(self.policy, "interpret_and_decide_many", None))
+        ):
+            raise ValueError(
+                "several calls per answer in one-question mode need a policy "
+                "with interpret_and_decide_many"
             )
 
 
@@ -623,6 +645,111 @@ def gather(
     return evidence
 
 
+def batch_steps(
+    decision: CallTool | CallTools, limit: int, budget: int
+) -> tuple[list[CallTool], int, int, int]:
+    """The calls to run from one decide answer, and how many were cut, by reason.
+
+    In order: at most `limit` calls; then a cut at the first `wait` (a wait
+    listed first runs alone; one listed later is dropped with everything
+    after it, so the policy sees the reads before choosing to let time pass);
+    then at most `budget` calls, never fewer than one.
+    """
+    # Variables:
+    #   limit: DECIDE_CALLS, the most calls one answer may run.
+    #   budget: The tool calls this phase has left; the loop's checks already
+    #     ensured at least one before the policy was asked.
+    #   steps: The calls still to run, cut down step by step.
+    #   over: Calls dropped for being past the limit.
+    #   keep: How many calls run before the first wait (or 1 when wait is first).
+    #   at_wait: Calls dropped at the wait.
+    #   for_budget: Calls dropped because the budget is spent.
+    steps = [decision] if isinstance(decision, CallTool) else list(decision.steps)
+    over = max(0, len(steps) - limit)
+    steps = steps[:limit]
+    keep = next(
+        (max(1, i) for i, step in enumerate(steps) if step.request.name == "wait"),
+        len(steps),
+    )
+    at_wait = len(steps) - keep
+    steps = steps[:keep]
+    room = max(1, budget)
+    for_budget = max(0, len(steps) - room)
+    return steps[:room], at_wait, over, for_budget
+
+
+def run_batch(
+    state: InvestigationState,
+    deps: InvestigationDeps,
+    phase: LoopPhase,
+    decision: CallTool | CallTools,
+) -> list[tuple[CallTool, Evidence, int]]:
+    """Run the calls of one decide answer in order; return those that gave evidence.
+
+    With one call this is exactly `gather`, as before batching. With
+    DECIDE_CALLS above 1 it also numbers the answer, marks each call's record
+    with that number and its place, and counts the cuts in the trace.
+    """
+    # Variables:
+    #   budget: The tool calls this phase has left (follow-up calls in verify).
+    #   steps: The calls left after the cuts, in the policy's order.
+    #   trace: The run's batch counts; None when batching is off.
+    #   batch: This answer's number, written on each of its calls' records.
+    #   read: Each call that produced evidence, with that evidence and the
+    #     index of its record, so the reading can update those records.
+    budget = (
+        state.remaining_followup_tool_calls
+        if phase == "verify"
+        else state.remaining_tool_calls
+    )
+    steps, at_wait, over, for_budget = batch_steps(decision, deps.decide_calls, budget)
+    trace = state.decide_batches
+    batch = None
+    if trace is not None:
+        trace = trace.model_copy(
+            update={
+                "answers": trace.answers + 1,
+                "chosen": trace.chosen + len(steps) + at_wait + over + for_budget,
+                "run": trace.run + len(steps),
+                "cut_at_wait": trace.cut_at_wait + at_wait,
+                "cut_over_limit": trace.cut_over_limit + over,
+                "cut_for_budget": trace.cut_for_budget + for_budget,
+            }
+        )
+        state.decide_batches = trace
+        batch = trace.answers
+    read = []
+    for position, step in enumerate(steps, start=1):
+        evidence = gather(
+            state,
+            deps,
+            phase,
+            step,
+            followup=phase == "verify",
+            interpret=deps.step_questions == 2,
+        )
+        if batch is not None:
+            state.decisions[-1] = state.decisions[-1].model_copy(
+                update={"batch": batch, "batch_position": position}
+            )
+        if evidence is not None:
+            read.append((step, evidence, len(state.decisions) - 1))
+    return read
+
+
+def mark_read(
+    state: InvestigationState,
+    read: list[tuple[CallTool, Evidence, int]],
+    update: dict,
+) -> None:
+    """Apply one update (its outcome or confidence) to the records of every call read."""
+    # Variables:
+    #   read: The calls that produced evidence this turn, with their record indexes.
+    #   update: The fields to change on each of those records.
+    for _, _, index in read:
+        state.decisions[index] = state.decisions[index].model_copy(update=update)
+
+
 def run_inner_loop(
     state: InvestigationState, deps: InvestigationDeps, phase: LoopPhase
 ) -> TerminationReason:
@@ -637,11 +764,14 @@ def run_inner_loop(
     #     reading, held until the next turn's checks pass.
     #   phase_iterations: How many turns this phase has taken so far.
     #   reason: Why the loop must stop, or None to carry on.
-    #   decision: What the policy chose this turn: a tool call or a stop.
+    #   decision: What the policy chose this turn: a tool call, a list of calls
+    #     (DECIDE_CALLS above 1) or a stop.
     #   before_unproductive: The unproductive-step count before this turn, restored if
     #     the reading fails.
-    #   evidence: The new evidence from this turn, or None if the call gave nothing
-    #     usable.
+    #   read: The calls this turn that produced evidence, with that evidence and
+    #     the index of each call's record; empty if none gave anything usable.
+    #   pairs: With several results, each call and its evidence, read together
+    #     in one question.
     #   reply: In one-question mode, the combined reading and next decision.
     if state.started_at is None:
         # The deadline covers the whole investigation, so only the first loop
@@ -649,6 +779,9 @@ def run_inner_loop(
         state.started_at = deps.clock()
     state.unproductive_steps = 0
     state.step_questions = deps.step_questions
+    state.decide_calls = deps.decide_calls
+    if deps.decide_calls > 1 and state.decide_batches is None:
+        state.decide_batches = BatchTrace()
     pending_decision = None
     phase_iterations = 0
     while True:
@@ -676,8 +809,8 @@ def run_inner_loop(
                     lambda view: deps.policy.decide(view, phase),
                     research=phase != "verify",
                 )
-            if not isinstance(decision, CallTool | Stop):
-                raise ValueError("a policy must return CallTool or Stop")
+            if not isinstance(decision, CallTool | CallTools | Stop):
+                raise ValueError("a policy must return CallTool, CallTools or Stop")
         except OutOfTime:
             record(
                 state,
@@ -710,36 +843,45 @@ def run_inner_loop(
             )
             return reason
         before_unproductive = state.unproductive_steps
-        evidence = gather(
-            state,
-            deps,
-            phase,
-            decision,
-            followup=phase == "verify",
-            interpret=deps.step_questions == 2,
-        )
-        if deps.step_questions == 1 and evidence is not None:
+        read = run_batch(state, deps, phase, decision)
+        if deps.step_questions == 1 and read:
             # Interpret even the last permitted tool result. The next step is
             # cached, never executed until the next turn's budget checks pass.
+            # Several results from one answer are read in one question.
             try:
                 if seconds_left(state, deps, research=phase != "verify") <= 0:
                     raise OutOfTime()
-                reply = ask_policy(
-                    state,
-                    deps,
-                    lambda view: deps.policy.interpret_and_decide(
-                        view, phase, decision, evidence
-                    ),
-                    research=phase != "verify",
-                )
+                if len(read) == 1:
+                    [(step, evidence, _)] = read
+                    reply = ask_policy(
+                        state,
+                        deps,
+                        lambda view: deps.policy.interpret_and_decide(
+                            view, phase, step, evidence
+                        ),
+                        research=phase != "verify",
+                    )
+                else:
+                    pairs = tuple((step, evidence) for step, evidence, _ in read)
+                    reply = ask_policy(
+                        state,
+                        deps,
+                        lambda view: deps.policy.interpret_and_decide_many(
+                            view, phase, pairs
+                        ),
+                        research=phase != "verify",
+                    )
+                    trace = state.decide_batches
+                    if trace is not None:
+                        state.decide_batches = trace.model_copy(
+                            update={"read_together": trace.read_together + 1}
+                        )
                 if not isinstance(reply, InterpretedStep):
                     raise ValueError("a combined reply must be an InterpretedStep")
                 apply_interpretation(state, reply.interpretation)
                 pending_decision = reply.decision
             except OutOfTime:
-                state.decisions[-1] = state.decisions[-1].model_copy(
-                    update={"outcome": "uninterpreted"}
-                )
+                mark_read(state, read, {"outcome": "uninterpreted"})
                 record(
                     state,
                     phase,
@@ -751,10 +893,6 @@ def run_inner_loop(
             except POLICY_ERRORS:
                 state.interpretation_failures += 1
                 state.unproductive_steps = before_unproductive + 1
-                state.decisions[-1] = state.decisions[-1].model_copy(
-                    update={"outcome": "uninterpreted"}
-                )
+                mark_read(state, read, {"outcome": "uninterpreted"})
                 continue
-            state.decisions[-1] = state.decisions[-1].model_copy(
-                update={"confidence": state.confidence}
-            )
+            mark_read(state, read, {"confidence": state.confidence})
