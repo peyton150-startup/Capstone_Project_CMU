@@ -30,7 +30,13 @@ import re
 from collections.abc import Sequence
 from typing import TYPE_CHECKING
 
-from capstone.agent.artifacts import CritiqueRecord, CritiqueResult, RecheckRecord
+from capstone.agent.artifacts import (
+    CritiqueRecord,
+    CritiqueResult,
+    RecheckRecord,
+    Reinstatement,
+    ReinstatementRecord,
+)
 from capstone.agent.evidence_brief import evidence_brief
 from capstone.agent.model_policy import (
     Client,
@@ -54,6 +60,10 @@ __all__ = [
     "CritiqueRecord",
     "CritiqueResult",
     "RecheckRecord",
+    "REINSTATE_SYSTEM",
+    "Reinstatement",
+    "ReinstatementRecord",
+    "reinstate_view",
     "CRITIC_BLIND_SYSTEM",
     "blind_labels",
     "blind_order",
@@ -189,6 +199,69 @@ Reply: favoured X2; why: wet soil three days on and plenty of light; \
 discriminating_check: read the soil moisture history for the plant; \
 objections: one missing_evidence citing E1; verdict: no_objection (set by code \
 afterwards); favoured_confidence 0.65; supports_action false."""
+
+
+# P2 (opt-in, TOT_REINSTATE): asked right after tree-of-thought pruning, before
+# any testing, whether one dropped candidate was dropped wrongly and deserves a
+# check. A separate, narrow question, so the ordinary critique stays as it is.
+REINSTATE_SYSTEM = """\
+You are a critic. An investigator proposed several candidate explanations, \
+rated them and dropped some before testing any. You are shown the evidence, \
+the explanations it kept and the ones it dropped, each with why. You cannot \
+look anything up and cannot call any tool.
+
+Decide whether one dropped candidate was dropped wrongly and deserves one \
+read-only check. Reinstate one only when the evidence shown gives a concrete \
+reason: it fits evidence the kept explanations leave unexplained, the evidence \
+cited against it does not really contradict it, or it concerns something no \
+kept explanation covers and nobody has looked at yet. A dropped candidate that \
+merely repeats a kept one, or that the evidence plainly rules out, stays dropped.
+
+Reply with candidate_id: the id of the one dropped candidate (C1, C2, ...), or \
+"none". Give why in one or two sentences, the evidence_ids it rests on (only ids \
+shown; none is fine for an untested candidate), and check: the one read-only \
+look that would test it. Choose "none" when no dropped candidate has such a \
+reason. Reply with the JSON object in the schema and nothing else."""
+
+
+def reinstate_view(state: InvestigationState, tools: Sequence[ToolSpec]) -> str:
+    """What the reinstatement question shows: the evidence, kept and dropped candidates.
+
+    Like `critique_view`, it reads only the anomaly, the evidence, the
+    hypotheses and the pruned candidates: no truth, no score.
+    """
+    # Variables:
+    #   kept: The hypotheses the agent holds now, most believed first.
+    #   lines: The prompt, built up section by section and joined at the end.
+    anomaly = state.anomaly
+    where = f" on {anomaly.machine_id}" if anomaly.machine_id else ""
+    lines = [
+        f"ANOMALY ({anomaly.kind}{where}, tick {anomaly.tick}): {anomaly.description}",
+        "",
+        evidence_brief(state),
+        *evidence_section(state),
+        "",
+        "KEPT EXPLANATIONS:",
+    ]
+    kept = shown_hypotheses(state)
+    for h in kept:
+        supported = ", ".join(h.supporting_evidence_ids) or "none"
+        lines.append(
+            f"- {h.id} (confidence {h.confidence:.2f}): {h.claim} "
+            f"Supported by: {supported}. Unexplained: "
+            f"{', '.join(h.unexplained_evidence_ids) or 'none'}."
+        )
+    lines += ["", "DROPPED BEFORE TESTING:"]
+    for p in state.pruned_candidates:
+        rated = "" if p.verdict is None else f" (rated {p.verdict}, {p.confidence:.2f})"
+        supported = ", ".join(p.supporting_evidence_ids) or "none"
+        contradicted = ", ".join(p.contradicting_evidence_ids) or "none"
+        lines.append(
+            f"- {p.id}{rated}: {p.claim} Dropped ({p.status}): {p.reason}. "
+            f"Supported by: {supported}. Contradicted by: {contradicted}."
+        )
+    lines += ["", "TOOLS THE AGENT CAN CALL (you cannot call them):", tool_list(tools)]
+    return "\n".join(lines)
 
 
 def blind_order(state: InvestigationState) -> list[Hypothesis]:
@@ -477,6 +550,45 @@ class Critic:
             self._refuse(reason)
         return answer
 
+    def reconsider(
+        self, state: InvestigationState, *, max_seconds: float
+    ) -> Reinstatement:
+        """Ask whether one pruned candidate deserves testing, within `max_seconds` (P2).
+
+        A `ModelError` passes up, recorded as `no_answer`. A reply that breaks
+        the type, names a candidate that was not dropped, or cites evidence
+        never gathered raises `ValueError`, recorded as `invalid_reply`.
+        """
+        # Variables:
+        #   max_seconds: The most this one question may take, retries included.
+        #   offered: The dropped candidate ids the critic may name.
+        #   known: The ids of all evidence gathered, the only ids it may cite.
+        #   answer: The critic's typed reply, kept only if it passes the checks.
+        offered = {p.id for p in state.pruned_candidates}
+        try:
+            answer = self.client.ask(
+                REINSTATE_SYSTEM,
+                reinstate_view(state, self.tools),
+                Reinstatement,
+                max_seconds=max_seconds,
+            )
+        except ValueError:
+            self._record("invalid_reply", job="reinstate")
+            raise
+        except BaseException:
+            self._record("no_answer", job="reinstate")
+            raise
+        self._record("answered", job="reinstate")
+        if answer.candidate_id != "none" and answer.candidate_id not in offered:
+            self._refuse(f"{answer.candidate_id!r} was not a dropped candidate")
+        known = {e.id for e in state.evidence}
+        missing = sorted(set(answer.evidence_ids) - known)
+        if missing:
+            self._refuse(
+                f"cited evidence that was never gathered: {', '.join(missing)}"
+            )
+        return answer
+
     def _unblind(
         self, answer: CritiqueResult, labels: dict[str, str], shown: list[str]
     ) -> CritiqueResult:
@@ -527,16 +639,17 @@ class Critic:
             return f"cited evidence that was never gathered: {', '.join(missing)}"
         return None
 
-    def _record(self, outcome: str) -> None:
+    def _record(self, outcome: str, job: str = "critique") -> None:
         """Keep one record of the question just asked."""
         # Variables:
         #   outcome: answered, invalid_reply or no_answer; recorded on every ask.
+        #   job: Which critic question it was: critique, or reinstate (P2).
         #   client: Read for which model answered and every model it tried, which
         #     the client keeps from its latest question.
         client = self.client
         self.calls.append(
             ModelCall(
-                job="critique",
+                job=job,
                 agent="critic",
                 outcome=outcome,
                 answered_by=getattr(client, "answered_by", None)

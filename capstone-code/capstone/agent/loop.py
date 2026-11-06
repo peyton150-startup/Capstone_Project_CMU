@@ -114,10 +114,23 @@ class InvestigationDeps:
     # The manual step (`investigation.consult_manual`): search the machine
     # manual once on the anomaly before planning. Only with a manual offered.
     manual_step: bool = False
+    # The hypothesis reserve: research before the hypothesize question stops
+    # this many seconds early, so that question is still asked when research
+    # runs long. 0 (the default) keeps no reserve, as every run before it did.
+    # The trace audit of 2026-11-05 found 7 of 16 tree-less runs had spent all
+    # research time investigating and gone straight to the conclusion.
+    hypothesis_seconds: float = 0.0
+    # P2 (TOT_REINSTATE): right after tree-of-thought pruning, ask the critic
+    # whether one dropped candidate deserves a check (`investigation.reconsider`).
+    # It uses the critic's own window. Off: pruned candidates are only shown to
+    # the critique later, as before. Needs a critic.
+    critic_reinstate: bool = False
 
     def __post_init__(self) -> None:
         if self.step_questions not in (1, 2):
             raise ValueError("step_questions must be 1 or 2")
+        if self.hypothesis_seconds < 0:
+            raise ValueError("hypothesis_seconds cannot be negative")
         if self.step_questions == 1 and not callable(
             getattr(self.policy, "interpret_and_decide", None)
         ):
@@ -215,9 +228,13 @@ def check_termination(
     supported diagnosis beats a budget, so a loop that reaches its answer
     on its last allowed call reports success, not exhaustion. Research
     also stops while `followup_seconds` remain, so that the conclusion,
-    the proposal, the work and the check keep the time they need.
+    the proposal, the work and the check keep the time they need, and,
+    before the hypotheses, while `hypothesis_seconds` remain on top of that
+    (`held_for_hypotheses`), so the hypothesize question still gets asked.
     """
     # Variables:
+    #   phase: Which loop is asking; the hypothesis reserve is held only in
+    #     the stages before the hypotheses.
     #   phase_iterations: Turns this phase has already taken, used only for the verify
     #     limit.
     #   budgets: The limits for this run (time, calls, turns).
@@ -228,7 +245,10 @@ def check_termination(
         return TerminationReason.TIMEOUT
     if phase == "test" and diagnosis_supported(state, deps):
         return TerminationReason.DIAGNOSIS_SUPPORTED
-    if phase != "verify" and state.research_seconds(now) <= 0:
+    if (
+        phase != "verify"
+        and state.research_seconds(now) - held_for_hypotheses(state, deps) <= 0
+    ):
         return TerminationReason.TIMEOUT
     if state.unproductive_steps >= budgets.max_unproductive_steps:
         return TerminationReason.NO_USEFUL_ACTION
@@ -248,15 +268,40 @@ def check_termination(
     return None
 
 
+# The stages that run before the hypothesize question, and so keep the reserve.
+BEFORE_HYPOTHESES = frozenset({"observe", "plan", "investigate"})
+
+
+def held_for_hypotheses(state: InvestigationState, deps: InvestigationDeps) -> float:
+    """Seconds the current stage must leave for the hypothesize question.
+
+    The reserve (`deps.hypothesis_seconds`) is held only before that question:
+    from the hypothesize stage on it is part of research time again, so the
+    question and the tests after it can spend it.
+    """
+    # Variables:
+    #   state.stage: The stage now running; only the early ones keep the reserve.
+    #   deps.hypothesis_seconds: The reserve; 0 keeps none.
+    if state.stage in BEFORE_HYPOTHESES:
+        return deps.hypothesis_seconds
+    return 0.0
+
+
 def seconds_left(
     state: InvestigationState, deps: InvestigationDeps, *, research: bool
 ) -> float:
-    """The time a stage has left: research ends where the follow-up time begins."""
+    """The time a stage has left: research ends where the follow-up time begins.
+
+    Before the hypothesize question, research also stops short of the
+    hypothesis reserve (`held_for_hypotheses`), so that question keeps it.
+    """
     # Variables:
     #   research: True for research stages, which stop early to keep time for the
     #     follow-up.
     now = deps.clock()
-    return state.research_seconds(now) if research else state.remaining_seconds(now)
+    if not research:
+        return state.remaining_seconds(now)
+    return max(0.0, state.research_seconds(now) - held_for_hypotheses(state, deps))
 
 
 def ask_policy(

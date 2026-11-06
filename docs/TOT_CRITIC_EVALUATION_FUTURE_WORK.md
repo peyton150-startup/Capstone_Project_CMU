@@ -1,6 +1,6 @@
 # Future work: evidence-scored ToT and critic-controller evaluation
 
-**Status:** PLANNED / EVALUATION ONLY — not enabled, implemented, or approved for a runtime change by this document. Items already built are marked ✅ IMPLEMENTED (audit 2026-10-31, `main` at `af3b7bf`): P0, P2 (deterministic part) and cohorts A to D; P1 and P4 are partly built; P3 and P5 are not built.  
+**Status:** PLANNED / EVALUATION ONLY — not enabled, implemented, or approved for a runtime change by this document. Items already built are marked ✅ IMPLEMENTED (audit 2026-10-31, `main` at `af3b7bf`): P0, P2 (deterministic part) and cohorts A to D. **Update 2026-11-05 (PR 187, built ungated, not yet run live):** the rest of P1 to P5 is built behind settings that are all off by default (`TOT_RETAIN`, `TOT_RANK`, `TOT_ROTATE`, `TOT_REINSTATE`, `TOT_ADAPTIVE`, `TOT_REVALUE`, `VALUE_MODEL`), with the hypothesis-time reserve (`HYPOTHESIS_RESERVE_SECONDS`) and the reach report (`python -m capstone.tree_reach`). Whether any of them helps is still to be measured live.  
 **Priority:** After the ongoing experiment finishes; first prioritize pruning correctness and evaluator quality.  
 **Source:** CMU Module 4, Mini-Lesson 4.1, *Tree-of-Thought Accuracy and Structure in Multi-Agents*; [Tree of Thoughts (Yao et al., 2023)](https://arxiv.org/abs/2305.10601).  
 **Related:** [Review signal 2026-10-30](REVIEW_SIGNAL_2026-10-30.md) (verified findings from the ToT review and machining videos); [Run-2 findings](RUN2_FINDINGS_FUTURE_WORK.md) (2026-10-31: confident dismissal, follow-up starved of tool calls, job routes, the critic's verdict check). **Related roadmap:** [MVP Scope — GoT and multi-cause diagnosis](MVP_SCOPE.md#graph-of-thoughts-got-hypothesis-reasoning--medium-priority-evaluation-2026-10-29) and [Future Work 7](MVP_SCOPE.md#future-work-7--model-evaluation-execution-budgets-and-computed-evidence).
@@ -51,9 +51,9 @@ That value is used downstream:
 
 **Pass criteria:** The new tests pass; existing `test_tree_of_thought.py` tests are unchanged except where they assert the old ranking. No change to model-call count, so no latency impact.
 
-### P1 — Evidence-grounded pruning and deferred alternatives — 🟡 PARTLY IMPLEMENTED
+### P1 — Evidence-grounded pruning and deferred alternatives — ✅ IMPLEMENTED (opt-in, PR 187)
 
-✅ IMPLEMENTED: observable-only contradiction, `contradicted`/`deferred` status. ❌ NOT BUILT: keeping several independent causes, and the top-k vs evidence-aware comparison.
+✅ IMPLEMENTED: observable-only contradiction, `contradicted`/`deferred` status. ✅ BUILT in PR 187: `TOT_RETAIN=evidence` keeps up to two more candidates beyond the top three when they cite factory evidence the kept ones do not, or name a check nobody has run (`tree_of_thought.retain`), capped by the research calls left. The top-k vs evidence-aware comparison is a live run still to do.
 
 **Part built 2026-10-30 (PR #136):** only factory evidence (`origin ==
 "observable"`) can rule a candidate out, and each pruned branch carries a
@@ -67,9 +67,9 @@ the rest below are still to do.
 
 **Pass criteria:** Improve true-cause retention and multi-cause recall without unacceptable extra false positives, unsafe interventions, or latency. Include cases with misleading but real evidence IDs, correlated measurements, noisy/missing telemetry, and false alarms.
 
-### P2 — Critic review of possible false eliminations — ✅ IMPLEMENTED (deterministic part)
+### P2 — Critic review of possible false eliminations — ✅ IMPLEMENTED (opt-in reinstatement, PR 187)
 
-✅ IMPLEMENTED: the critic sees "RULED OUT BEFORE TESTING" (`critic.critique_view()`). ❌ NOT BUILT: the optional bounded pre-prune critic check that can reinstate a candidate.
+✅ IMPLEMENTED: the critic sees "RULED OUT BEFORE TESTING" (`critic.critique_view()`). ✅ BUILT in PR 187: `TOT_REINSTATE=true` asks the critic once, in its own time window, whether one dropped candidate should come back (`Critic.reconsider`, `investigation.reconsider`). A reinstated one starts no higher than the least believed kept hypothesis, and its check goes to the test stage.
 
 **Part built 2026-10-30 (PR #136):** the critic is shown the pruned
 candidates ("RULED OUT BEFORE TESTING"), with status and reason, and may argue
@@ -81,7 +81,9 @@ for one through an `alternative` objection and its check; it cannot favour one.
 
 **Pass criteria:** The critic detects and recovers more mistakenly discarded true causes, records its objections and the controller response, and does not merely increase model agreement or generate endless rechecks.
 
-### P3 — Adaptive branching and explicit controller limits — ❌ NOT BUILT
+### P3 — Adaptive branching and explicit controller limits — ✅ IMPLEMENTED (opt-in, PR 187)
+
+✅ BUILT in PR 187: `TOT_ADAPTIVE=true` reads the agent's current beliefs (`tree_of_thought.branching`). A clear case (a leader at 0.8 or more, 0.3 ahead, backed by two factory readings, nothing against it) skips the tree for the ordinary one-question step; an ambiguous one keeps one more candidate. The thresholds are first guesses to be checked against live runs.
 
 **Problem:** Current opt-in ToT has static candidate and survivor counts (defaults five and three), although easy single-fault investigations may need no branching and ambiguous cases may need an extra alternative.
 
@@ -89,9 +91,9 @@ for one through an `alternative` objection and its check; it cannot favour one.
 
 **Pass criteria:** Match or improve root-cause/action accuracy on difficult cases while reducing unnecessary model calls on simple cases and respecting deadlines.
 
-### P4 — Evaluate the evaluator, not just the generator — 🟡 PARTLY IMPLEMENTED
+### P4 — Evaluate the evaluator, not just the generator — ✅ IMPLEMENTED (opt-in, PR 187)
 
-✅ IMPLEMENTED: the critic measurements `critic_pick_correct` and `critic_verdict_mismatch` in `evals.py`. ❌ NOT BUILT: the evidence-strength rubric, candidate-order rotation, and the blind critic view.
+✅ IMPLEMENTED: the critic measurements `critic_pick_correct` and `critic_verdict_mismatch` in `evals.py`. ✅ BUILT: the blind critic view (`CRITIC_BLIND`, before PR 187); in PR 187 the evidence-strength rubric (`TOT_RANK=evidence`, `tree_of_thought.evidence_strength`), candidate-order rotation (`TOT_ROTATE=true`) and the position check (`python -m capstone.tree_reach --positions`).
 
 **Problem:** Current rankings rely on a model's self-reported confidence, with candidate order as a tie-breaker. Existence of a supporting citation is not proof of its strength. A critic can confidently prefer an unsupported explanation.
 
@@ -101,7 +103,9 @@ for one through an `alternative` objection and its check; it cannot favour one.
 
 **Pass criteria:** Better evidence attribution, stable rankings under reordering, improved calibration only if probability calibration is actually measured, and fewer confidently wrong diagnoses.
 
-### P5 — Bounded second depth through observation, not more model reasoning — ❌ NOT BUILT
+### P5 — Bounded second depth through observation, not more model reasoning — ✅ IMPLEMENTED (opt-in, PR 187)
+
+✅ BUILT in PR 187: `TOT_REVALUE=true` rates the kept hypotheses once more after the test stage (`TreeOfThoughtPolicy.revalue`, `investigation.revalue`), with no new candidates, skipped when no research time is left. The question goes to `VALUE_MODEL` when it is set; it is a separate client, not an eighth job, so the job table is unchanged.
 
 **Problem:** Current ToT is depth one: `hypothesize` generates, rates and prunes once, and the kept candidates' questions (T1, T2, ...) go to the existing test stage. There is no point where the tree is re-valued after the test stage gathers new evidence, so an early wrong ranking is only corrected by the ordinary loop.
 

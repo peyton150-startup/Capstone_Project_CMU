@@ -54,11 +54,16 @@ from time import monotonic
 from pydantic import BaseModel, ConfigDict, Field
 
 from capstone.agent.completion import AuditLog, complete
-from capstone.agent.critic import Critic, CritiqueRecord, RecheckRecord
+from capstone.agent.critic import (
+    Critic,
+    CritiqueRecord,
+    RecheckRecord,
+    ReinstatementRecord,
+)
 from capstone.agent.model_policy import ModelCall
 from capstone.agent.policy import ReasoningPolicy
 from capstone.agent.state import Budgets
-from capstone.agent.tree_of_thought import Thought
+from capstone.agent.tree_of_thought import RevaluationRecord, Thought, TreeOptions
 from capstone.console import safe_console
 from capstone.episode import (
     CHALLENGE,
@@ -324,6 +329,19 @@ class ExperimentRecord(BaseModel):
     # candidates, their ratings, which were kept and why the rest were dropped).
     # None: the run used the ordinary step (or predates this record).
     thoughts: list[Thought] | None = None
+    # The hypothesis reserve (HYPOTHESIS_RESERVE_SECONDS): True when it let
+    # the hypothesize question be asked after research ran out of time, False
+    # when it was kept but not needed. None: no reserve (and older records).
+    hypothesis_reserve_used: bool | None = None
+    # The tree-of-thought options the run's policy used (P1-P5 switches).
+    # None: the ordinary policy, or a record from before they were kept.
+    tree_options: TreeOptions | None = None
+    # P2 (TOT_REINSTATE): what the critic's reinstatement question did. None:
+    # it was off or had nothing to offer (and in older records).
+    reinstatement: ReinstatementRecord | None = None
+    # P5 (TOT_REVALUE): what the tree's second rating pass did. None: it was
+    # off, or an older record.
+    revaluation: RevaluationRecord | None = None
     # With triage on: the rapid triage that ran first. The fields above then
     # describe the deep run that followed, or the triage when none did.
     # None: triage was off (and in records from before it was kept).
@@ -431,6 +449,7 @@ def record_of(
     with_memory: bool = False,
     with_manual: bool = False,
     thoughts: Sequence[Thought] | None = None,
+    tree_options: TreeOptions | None = None,
 ) -> ExperimentRecord:
     """Save the episode and its completion/action audit without rerunning any reasoning."""
     # Variables:
@@ -506,6 +525,10 @@ def record_of(
             )
         ],
         thoughts=None if thoughts is None else list(thoughts),
+        hypothesis_reserve_used=state.hypothesis_reserve_used,
+        tree_options=tree_options,
+        reinstatement=state.reinstatement,
+        revaluation=state.revaluation,
         triage=triage_record(result),
     )
 
@@ -600,6 +623,8 @@ def run_experiment(
             with_memory=memory is not None,
             with_manual=manual is not None,
             thoughts=thoughts,
+            # Kept by TreeOfThoughtPolicy only, like its thoughts.
+            tree_options=getattr(policy, "options", None),
         )
         records.append(record)
         if on_record is not None:
@@ -1000,11 +1025,13 @@ def model_policy_factory(
     #   tree_of_thought: Use the policy that generates, rates and prunes explanations.
     #   with_manual: Offer the manual search tool.
     #   tools: The tools the policy may choose from.
-    #   kind: Which policy class to build.
+    #   options: The tree's switches from the TOT_* settings, read once so every
+    #     case of the experiment uses the same ones.
     from capstone.agent.model_policy import ModelPolicy
     from capstone.agent.tree_of_thought import TreeOfThoughtPolicy
     from capstone.providers.chat import clients_for_jobs
     from capstone.providers.factory import research_tools
+    from capstone.settings import get_settings
 
     tools = research_tools()
     if with_recall:
@@ -1015,8 +1042,34 @@ def model_policy_factory(
         from capstone.providers.manual import MANUAL_SPEC
 
         tools = (*tools, MANUAL_SPEC)
-    kind = TreeOfThoughtPolicy if tree_of_thought else ModelPolicy
-    return lambda: kind(clients_for_jobs(), tools)
+    if tree_of_thought:
+        options = tree_options_from(get_settings())
+        from capstone.providers.chat import value_client
+
+        def tree() -> TreeOfThoughtPolicy:
+            # Variables:
+            #   clients: The seven jobs' clients, plus `value` for P5 when
+            #     VALUE_MODEL names a model for the second rating.
+            #   second: That client, or None (the hypothesize client answers).
+            clients = clients_for_jobs()
+            second = value_client() if options.revalue else None
+            if second is not None:
+                clients["value"] = second  # VALUE_MODEL: the faster rating model
+            return TreeOfThoughtPolicy(clients, tools, options=options)
+
+        return tree
+    return lambda: ModelPolicy(clients_for_jobs(), tools)
+
+
+def tree_options_from(settings) -> TreeOptions:
+    """The tree's switches, read from the TOT_* settings (all off by default)."""
+    return TreeOptions(
+        revalue=settings.tot_revalue,
+        retain=settings.tot_retain,
+        rank=settings.tot_rank,
+        rotate=settings.tot_rotate,
+        adaptive=settings.tot_adaptive,
+    )
 
 
 def add_manual_options(parser: argparse.ArgumentParser) -> None:
