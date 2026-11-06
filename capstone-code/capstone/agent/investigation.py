@@ -53,6 +53,7 @@ from capstone.agent.artifacts import (
 )
 from capstone.agent.critic import shown_hypotheses, verdict_mismatch
 from capstone.agent.evidence_brief import verify_numeric_claims
+from capstone.agent.incident_context import assemble_incident_context
 from capstone.agent.loop import (
     POLICY_ERRORS,
     InvestigationDeps,
@@ -114,6 +115,8 @@ def observe(state: InvestigationState, deps: InvestigationDeps) -> None:
     """
     # Variables:
     #   step: The get_time call the loop makes itself, not one the policy chose.
+    #   state.line_context_enabled: Whether this comparison arm gathers the
+    #     bounded observable packet before the manual and plan stages.
     if state.started_at is None:
         state.started_at = deps.clock()
     step = CallTool(
@@ -124,6 +127,8 @@ def observe(state: InvestigationState, deps: InvestigationDeps) -> None:
     # That call was made before the tick was known. Note it under the tick
     # it reported too, so asking the time again straight away is a repeat.
     state.seen_calls.append(call_signature(step.request, state.last_tick))
+    if state.line_context_enabled:
+        assemble_incident_context(state, deps)
 
 
 # How many manual sections the manual step asks for.

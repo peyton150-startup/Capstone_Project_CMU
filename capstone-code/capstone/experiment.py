@@ -62,7 +62,12 @@ from capstone.agent.critic import (
 )
 from capstone.agent.model_policy import ModelCall
 from capstone.agent.policy import ReasoningPolicy
-from capstone.agent.state import BatchTrace, Budgets, ConclusionTrace
+from capstone.agent.state import (
+    BatchTrace,
+    Budgets,
+    ConclusionTrace,
+    IncidentContext,
+)
 from capstone.agent.tree_of_thought import RevaluationRecord, Thought, TreeOptions
 from capstone.console import safe_console
 from capstone.episode import (
@@ -324,6 +329,9 @@ class ExperimentRecord(BaseModel):
     state_action_bar: bool | None = None
     # None in records made before this setting was introduced.
     step_questions: int | None = Field(default=None, ge=1, le=2)
+    # None for older runs; the packet references observable evidence only.
+    line_context_enabled: bool | None = None
+    incident_context: IncidentContext | None = None
     # None in older records; specialists can identify themselves on each step.
     agent_steps: list[AgentStep] | None = None
     # What the critic said about the two leading hypotheses, or why it said
@@ -478,6 +486,8 @@ def record_of(
     #   concluded: The controller-checked belief, including unresolved gaps and next check.
     #   state: Includes the critic diagnostic-call count, distinct from verification calls.
     #   promotion, uses: Optional memory audit; never converted into present factory facts.
+    #   state.incident_context: The optional observable packet and its source IDs,
+    #     copied to the experiment record for the A/B comparison.
     state = result.state
     concluded = state.conclusion
     promotion, uses = memory_records(result) if with_memory else (None, None)
@@ -522,6 +532,8 @@ def record_of(
         factory_calls=count_factory_calls(state),
         state_action_bar=state.state_action_bar,
         step_questions=state.step_questions,
+        line_context_enabled=state.line_context_enabled,
+        incident_context=state.incident_context,
         decide_calls=state.decide_calls,
         decide_batches=state.decide_batches,
         critique=state.critique,

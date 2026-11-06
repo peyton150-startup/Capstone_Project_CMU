@@ -17,7 +17,47 @@
 > held-out normal/fault cases, false alarms, detection lead time and CPU costs.
 > This documents future work only: no detector, model, line-context adapter,
 > dependencies, or tests were implemented; understanding status unchanged.
+
+> **2026-11-05 — first line-wide incident-context increment (built for an opt-in comparison; live effect not measured):**
+> The developer passed the pre-build check: the alarm starts an investigation
+> but cannot limit its machines; observed measurements need source and time,
+> missing data cannot mean normal, and hidden simulator truth must stay out.
+> `agent/incident_context.py` adds `incident_sensor` (uses a sensor only when
+> the trigger explicitly names one), `context_call` (reads through the normal
+> provider while preserving at least half the research-call budget), and
+> `assemble_incident_context` (gathers current line status/jobs and settings,
+> recent unfiltered events and inspections, plus trigger/neighbor summaries).
+> `agent/state.py` adds `IncidentContext`, an index to the original observable
+> evidence and missing calls; `investigation.observe` runs it before manual
+> and planning only when `LINE_CONTEXT=on`. `model_policy.render` shows the
+> packet's coverage and warns when the current snapshot is later than the
+> alarm tick. `episode.py` wires the setting; `experiment.py` and
+> `agent/completion.py` retain the packet in experiment and audit records,
+> not shared memory. `.env.example` documents the opt-in arm.
+> Focused offline tests cover cutoff, provenance, call reserve, missing
+> coverage, no guessed sensor, record persistence and old-record loading.
+> The evaluation inventory lists the three new functions and five new tests;
+> their coverage classifications await a complete instrumented run.
+> The packet uses current observed settings/status, not a reconstructed
+> trigger-time snapshot; monitoring can discover an alarm inside a 10-tick
+> scan. It offers only nearby sensor summaries and leaves deeper line checks
+> to the Investigator. No live model comparison or accuracy gain is claimed.
+> **Understood (pre): yes. Pre-merge walkthrough (§11.6): done 2026-11-05, three
+> questions, understood after one correction (the triage interaction fix below).**
 >
+> **2026-11-06 — triage interaction fix and merge with `main` (fix built ungated,
+> developer to review; understood: no):** with `TRIAGE=on` and `LINE_CONTEXT=on`,
+> `episode.run_triage_then_deep` built the deep run's state without
+> `line_context_enabled`, so only the triage (capped at its few calls) got a
+> packet. The deep state now copies the flag, so the deep run gathers its own
+> packet with its own budget; nothing from the triage's packet is reused.
+> New test `test_triage.py::test_with_line_context_the_deep_run_gathers_its_own_packet`
+> fails without the fix. `main` (with PR 187) was merged in: the conflicts were
+> two import lines in `experiment.py`, this file and the generated inventory,
+> which was rebuilt from a full coverage run. The matched live runs
+> `linectx-on-1` and `linectx-off-1` (13 cases each) finished on 2026-11-05;
+> their results note is Codex's (AGENTS.md §12) and not written yet.
+
 > **2026-11-05 — rapid triage mode (taught and gated; walkthrough done):**
 > Merged before its walkthrough on the developer's instruction ("merge and we
 > will do the walkthrough later"). The walkthrough (AGENTS.md §11 step 6) was

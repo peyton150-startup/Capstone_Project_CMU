@@ -78,6 +78,7 @@ class Settings(BaseSettings):
     # guidance is there from the start. The `search_manual` tool stays. On by
     # default (developer, 2026-10-29); MANUAL_STEP=off turns only the step off.
     manual_step: bool = Field(default=True, validation_alias="MANUAL_STEP")
+    line_context: bool = Field(default=False, validation_alias="LINE_CONTEXT")
     # The model that turns memories and searches into vectors: "provider/model"
     # (NVIDIA only for now) or "local" for Chroma's bundled all-MiniLM-L6-v2.
     # Changing it means rebuilding the index: `python -m capstone.memory.backfill
