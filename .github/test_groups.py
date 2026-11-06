@@ -59,6 +59,7 @@ GROUPS: dict[str, list[str]] = {
         "factory_provider",
         "hazards",
         "chat_client",
+        "decide_reasoning_effort",
         "request_deadline",
         "console",
         "difficulty_tool_compatibility",
@@ -89,7 +90,13 @@ GROUPS: dict[str, list[str]] = {
     # Checkpoint 7: recalling memories, and the guards on what a memory may prove.
     "Recall": ["recall_tool", "manual"],
     # Checkpoint 8b-2: the model-backed policy, its prompts and answer types.
-    "Model policy": ["critic", "model_policy", "tree_of_thought", "reasoning_evidence"],
+    "Model policy": [
+        "critic",
+        "model_policy",
+        "tree_of_thought",
+        "tree_search",
+        "reasoning_evidence",
+    ],
     # Checkpoint 8c: each model measured alone, from real episodes.
     "Benchmark": ["benchmark"],
     "Memory": [

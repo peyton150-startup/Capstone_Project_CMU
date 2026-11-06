@@ -429,7 +429,8 @@ def run_header(
 
     Names the critic treatment (off, anchored or blind, and the follow-up),
     the manual (how it is searched and, for semantic search, the embedding
-    model), the manual step, tree-of-thought and hazards. Model names only:
+    model), the manual step, tree-of-thought, hazards and, when set, the
+    decide step's reasoning effort. Model names only:
     no key or other secret is read here.
     """
     # Variables:
@@ -441,6 +442,8 @@ def run_header(
     #   book: The manual setting in words.
     #   calls: DECIDE_CALLS; a third line names it only above 1, so the usual
     #     header is unchanged.
+    #   effort: DECIDE_REASONING_EFFORT, or None when it is not set; a third
+    #     line names it only when set, so the usual header is unchanged.
     if not settings.critic:
         critic = "critic off"
     else:
@@ -464,6 +467,9 @@ def run_header(
     calls = getattr(settings, "decide_calls", 1)
     if calls > 1:
         lines.append(f"RUN: up to {calls} tool calls per decide answer")
+    effort = getattr(settings, "decide_reasoning_effort", None)
+    if effort is not None:
+        lines.append(f"RUN: decide reasoning effort {effort} (NVIDIA models only)")
     return lines
 
 
