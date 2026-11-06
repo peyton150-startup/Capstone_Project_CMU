@@ -10,12 +10,12 @@
   "capstone-code/capstone/agent/completion.py": "05841833e196a9ac41144bce6fc95bcc8a6309ffefcc66a31996b28f030cc386",
   "capstone-code/capstone/agent/critic.py": "2b0f194847895514b9cb0a867b74749dd3fe2e35f886b63f5535d299361c2e8b",
   "capstone-code/capstone/agent/evidence_brief.py": "23f05f6b11a3f64ba96100edf1538142136bb98164e56ca9c68f10872f7986a8",
-  "capstone-code/capstone/agent/investigation.py": "442c24567b51d828ba4494836496e6c47b67e7ecff2d7acfcbfa8aeae3abde00",
+  "capstone-code/capstone/agent/investigation.py": "045b904415f2934febb9942bdababf56548514c95e5d08319d79d99d4bd76d9c",
   "capstone-code/capstone/agent/loop.py": "034c26e81f9269268ec7afed482691f139c59b8a233d59f4052aa09b28612a83",
   "capstone-code/capstone/agent/model_policy.py": "5cc12eecbc5e8b9fa5ade940f8e19ba987f1b7107211476558db0a80486ed450",
   "capstone-code/capstone/agent/monitor.py": "62c1eca74bc1a9b7a4454aed5dfe9c8baeadc868f42a147c8da5d9466da30ecc",
   "capstone-code/capstone/agent/policy.py": "f290fbaca353f8d28e4e5f293aaebbea14040396ef4d3f88caa6ed362cd85c35",
-  "capstone-code/capstone/agent/state.py": "43f709d762edf4287c7ccc418dadb2b756e2f5ddde9dae2b6a731ca721ea4e6b",
+  "capstone-code/capstone/agent/state.py": "4fa8eefb2971fb3dcc9ed0d3649bb1f3fb668ecae612e58383a7d27daf1d54bf",
   "capstone-code/capstone/agent/tree_of_thought.py": "5a6b65f7814612aa26fb738f9713f9ca8ef20018cf4d52386f222f1528126732",
   "capstone-code/capstone/baseline.py": "1acab63d6c15cf64edeaaf02e2b7598de7f71046ab52aaac02189834c37cebf0",
   "capstone-code/capstone/benchmark.py": "2638960900e86be5cbb3946b475a963da91817e18761b5f1e8764a06acdd2055",
@@ -34,12 +34,13 @@
   "capstone-code/capstone/evals.py": "452c4d3bae42427438ce74094765003a60f1ff2ac4614e1efdf3959e96c71991",
   "capstone-code/capstone/evaluation/__init__.py": "3cac2031f773e1ef3629ba6beec56ced3bd37131dae1b1ac8fc1e5e6a9124eb5",
   "capstone-code/capstone/evaluation/auto_label.py": "197794f3cab3ec7818f5786e9ccc11e6f3df9be6451c8772f1881ade7ca7d4a4",
+  "capstone-code/capstone/evaluation/gap_replay.py": "9450e9a102703b0c7fade4558fdd0efaaa18455884ee789eee67de0179a8f55d",
   "capstone-code/capstone/evaluation/known_answers.py": "f84d88fd300236ba685742664790dae801ad2d179c0b978de4826a0df34b4aee",
   "capstone-code/capstone/evaluation/labels.py": "10d964e91f657e447f9409c6929ac2c5de5ad35d0a057fb8201091acf8b0e1dd",
   "capstone-code/capstone/evaluation/manual.py": "0fa2b4a1b62c95b9ca85723a676a539d17b577a3ecbf4427e1e7364c5e9a44c2",
   "capstone-code/capstone/evaluation/memory.py": "80dfe928d4cfff99fc06b7c42ad01c5aeadab6470988a4a0292e2b923f4595c9",
   "capstone-code/capstone/evaluation/scoring.py": "c8c75691a07f58c0cf3394279f041218fc18267a511abdbbb259a261b46f39d7",
-  "capstone-code/capstone/experiment.py": "67e3aecdc798a172ddf8e65e6c77f00a55cba9c3d2c3efd27b72fff6ba45a60f",
+  "capstone-code/capstone/experiment.py": "353bbe84a843642696d65f031164dafc2e50773ee80c590e8358b2c07eb68c21",
   "capstone-code/capstone/faults.py": "f52fc70151782286d8ba7f22345df57d0d575e06c13b8b3076abde92718ee6ae",
   "capstone-code/capstone/ingestion/__init__.py": "3b889abd9612d202defed04198a7b6e6f1c8f87bc80a46b338407c1ac33f5a8d",
   "capstone-code/capstone/ingestion/__main__.py": "4098a5f47920d7a06ebaa8861b3d5a21f332f4c9c965ed43f725d2e058aa2363",
@@ -149,6 +150,7 @@
   "tests/test_false_alarm.py": "874f88e86e966938ce2094df580676347a6e464028d52e624cb172c9e41a993e",
   "tests/test_fault_packs.py": "8469925cad06684823639e91051caabb06c126fdbcf00300534a6a24b90fe85a",
   "tests/test_full_evaluation.py": "d850c2adc6a3bd2839f3e93a7d322f059408e1e93a0c43fefb6af697d20b6994",
+  "tests/test_gap_trace.py": "7168c538681bcae58abb343fe8cf6aac4aecca153e56a9c0eba40553d2871e57",
   "tests/test_generator.py": "c080082dd5a9a3aa81d684df7fc5f1960ea897d6e76c03597069711cd8b4bec4",
   "tests/test_ground_truth.py": "9ac9af3bf6af7306ffc7e918481030271a33b0cdedfb2a07d11d104d61b63ef2",
   "tests/test_hazards.py": "a4d11c20adc7915395468f7b19502af26b49103f160afdcbe911d623d94afb4a",
@@ -206,29 +208,29 @@
   "tests/test_wait_tool.py": "ccec624a885634bbfcf97c4b09e7fdf523097c9e468e5bc5f6d07d863179dc49",
   "tests/test_wrong_setting.py": "a7dcc4186bcee6a5980da4fc1f7a47c1b9210055618a88756e44a1991e39de47"
  },
- "coverage_sha256": "86a00940522da78815615bc0671bc669c43818f2a0b3ba32c17c6c5a58fc50f7",
- "junit_sha256": "4aa480523f9578d842ddcd7db0ebf8053ddd7d5306229266aeb4c06ed930b6f8",
+ "coverage_sha256": "999a09f799e3c502f67180778bf039e5f356cadc0d363c9a00198201fe6ba9be",
+ "junit_sha256": "b3669f072d369ba01c90e2c82026fead3eeb0d755b487fb6db429976fb706a62",
  "counts": {
-  "functions": 821,
+  "functions": 832,
   "classes_note": "classes are listed through their methods",
-  "tests": 1591,
+  "tests": 1606,
   "tools": 17,
   "functions_by_status": {
-   "INSUFFICIENT EVIDENCE": 320,
+   "INSUFFICIENT EVIDENCE": 330,
    "NOT APPLICABLE": 25,
    "NOT TESTED": 36,
-   "PARTIALLY VERIFIED": 395,
+   "PARTIALLY VERIFIED": 396,
    "VERIFIED": 45
   },
   "functions_by_coverage_class": {
-   "direct": 424,
+   "direct": 425,
    "import-only": 3,
-   "indirect": 333,
+   "indirect": 343,
    "no-statements": 25,
    "none": 36
   },
-  "functions_executed_in_tests": 757,
-  "functions_with_direct_tests": 424,
+  "functions_executed_in_tests": 768,
+  "functions_with_direct_tests": 425,
   "functions_never_executed": [
    "capstone.baseline:_seeds",
    "capstone.baseline:main",
@@ -310,6 +312,7 @@
    "evaluation.evaltools.run_packet:configuration_of (7/9)",
    "evaluation.evaltools.snap_request:DecisionQuestion.criteria_fit_type (5/9)",
    "evaluation.evaltools.snap_request:load_questions (7/9)",
+   "evaluation.evaltools.snap_request:test_source (5/7)",
    "evaluation.evaltools.snap_request:describe_failure (2/5)",
    "evaluation.evaltools.snap_request:already_answered (6/8)",
    "evaluation.evaltools.traced_run:main (18/42)"
@@ -317,7 +320,7 @@
   "stubs_or_protocols": 25,
   "tests_by_outcome": {
    "failed": 1,
-   "passed": 1590
+   "passed": 1605
   },
   "tests_with_no_assertion": [
    "tests/test_console.py::test_without_it_the_same_print_raised"
@@ -430,6 +433,7 @@
    "tests/test_fault_packs.py::test_agent_facing_code_never_reads_the_evaluator_side",
    "tests/test_full_evaluation.py::test_each_pair_is_compared_and_the_sample_rule_is_applied_in_code",
    "tests/test_full_evaluation.py::test_a_comparison_request_names_no_scenario_or_run_key",
+   "tests/test_gap_trace.py::test_the_results_file_keeps_the_trace_and_reads_older_results",
    "tests/test_ground_truth.py::test_ground_truth_is_immutable",
    "tests/test_ground_truth.py::test_evidence_records_have_no_field_that_could_carry_hidden_truth",
    "tests/test_hydraulics.py::test_the_pack_asks_for_the_hydraulic_repair_and_counts_as_a_cause",
@@ -493,9 +497,9 @@
    "direct": 1
   },
   "capstone.agent.investigation": {
-   "functions": 44,
-   "executed": 42,
-   "direct": 37
+   "functions": 46,
+   "executed": 44,
+   "direct": 38
   },
   "capstone.agent.loop": {
    "functions": 17,
@@ -581,6 +585,11 @@
    "functions": 11,
    "executed": 11,
    "direct": 11
+  },
+  "capstone.evaluation.gap_replay": {
+   "functions": 9,
+   "executed": 9,
+   "direct": 0
   },
   "capstone.evaluation.labels": {
    "functions": 4,
@@ -1412,7 +1421,7 @@
    ]
   },
   "capstone.agent.evidence_brief:observations": {
-   "count": 394,
+   "count": 400,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
@@ -1464,7 +1473,7 @@
    ]
   },
   "capstone.agent.evidence_brief:verify_numeric_claims": {
-   "count": 287,
+   "count": 293,
    "status": "VERIFIED",
    "direct": [],
    "indirect": [
@@ -1915,7 +1924,7 @@
    ]
   },
   "capstone.agent.investigation:why_not_acted": {
-   "count": 219,
+   "count": 221,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_agent_investigation.py::test_a_bad_decision_is_recorded_and_the_run_goes_on",
@@ -1946,8 +1955,40 @@
     "tests/test_agent_action.py::test_the_proposal_handed_to_the_human_cannot_be_used_to_approve"
    ]
   },
+  "capstone.agent.investigation:question_role": {
+   "count": 5,
+   "status": "PARTIALLY VERIFIED",
+   "direct": [
+    "tests/test_gap_trace.py::test_a_question_role_says_how_it_bears_on_the_chosen_cause"
+   ],
+   "indirect": [
+    "tests/test_gap_trace.py::test_each_gap_is_saved_with_its_kind_and_role",
+    "tests/test_gap_trace.py::test_the_plain_text_the_check_writes_is_unchanged",
+    "tests/test_reasoning_evidence.py::test_completion_cannot_claim_supported_with_unresolved_diagnostic_questions",
+    "tests/test_reasoning_evidence.py::test_completion_gap_is_recorded_as_the_reason_an_intervention_was_lowered"
+   ]
+  },
+  "capstone.agent.investigation:conclusion_gaps": {
+   "count": 27,
+   "status": "INSUFFICIENT EVIDENCE",
+   "direct": [],
+   "indirect": [
+    "tests/test_benchmark.py::test_each_episode_is_timed_and_handed_on_as_it_ends",
+    "tests/test_benchmark.py::test_episodes_are_run_and_recorded_for_each_fault_and_seed",
+    "tests/test_experiment.py::test_a_model_policy_run_keeps_its_call_summary_and_its_time",
+    "tests/test_experiment.py::test_critic_questions_follow_the_policy_s_own",
+    "tests/test_experiment.py::test_the_report_shows_the_model_questions",
+    "tests/test_gap_trace.py::test_each_gap_is_saved_with_its_kind_and_role",
+    "tests/test_gap_trace.py::test_grounding_gaps_are_saved_by_kind",
+    "tests/test_gap_trace.py::test_the_model_saying_unresolved_itself_is_told_apart_from_the_check",
+    "tests/test_gap_trace.py::test_the_plain_text_the_check_writes_is_unchanged",
+    "tests/test_gap_trace.py::test_the_wanted_fix_and_the_action_rules_verdict_are_saved",
+    "tests/test_model_policy.py::test_a_cut_off_interpretation_keeps_the_evidence_and_the_run_goes_on",
+    "tests/test_model_policy.py::test_a_whole_episode_runs_on_model_replies_alone"
+   ]
+  },
   "capstone.agent.investigation:check_conclusion": {
-   "count": 277,
+   "count": 283,
    "status": "VERIFIED",
    "direct": [
     "tests/test_agent_investigation.py::test_a_bad_decision_is_recorded_and_the_run_goes_on",
@@ -2703,7 +2744,7 @@
    ]
   },
   "capstone.agent.loop:InvestigationDeps.__post_init__": {
-   "count": 370,
+   "count": 376,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_agent_loop.py::test_a_cached_decision_cannot_run_after_the_combined_question_spends_the_time",
@@ -4058,7 +4099,7 @@
    "indirect": []
   },
   "capstone.agent.state:Budgets.research_gets_some_time": {
-   "count": 504,
+   "count": 510,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
@@ -5653,6 +5694,84 @@
     "tests/test_auto_label.py::test_the_command_writes_proposals_and_reports_agreement"
    ],
    "indirect": []
+  },
+  "capstone.evaluation.gap_replay:legacy_gap": {
+   "count": 2,
+   "status": "INSUFFICIENT EVIDENCE",
+   "direct": [],
+   "indirect": [
+    "tests/test_gap_trace.py::test_older_gaps_are_sorted_by_their_wording",
+    "tests/test_gap_trace.py::test_the_command_reads_traced_and_older_results_with_extra_fields"
+   ]
+  },
+  "capstone.evaluation.gap_replay:read_results": {
+   "count": 1,
+   "status": "INSUFFICIENT EVIDENCE",
+   "direct": [],
+   "indirect": [
+    "tests/test_gap_trace.py::test_the_command_reads_traced_and_older_results_with_extra_fields"
+   ]
+  },
+  "capstone.evaluation.gap_replay:case_of": {
+   "count": 2,
+   "status": "INSUFFICIENT EVIDENCE",
+   "direct": [],
+   "indirect": [
+    "tests/test_gap_trace.py::test_a_record_with_no_checked_answer_is_skipped",
+    "tests/test_gap_trace.py::test_the_command_reads_traced_and_older_results_with_extra_fields"
+   ]
+  },
+  "capstone.evaluation.gap_replay:final_recommendation": {
+   "count": 4,
+   "status": "INSUFFICIENT EVIDENCE",
+   "direct": [],
+   "indirect": [
+    "tests/test_gap_trace.py::test_a_rival_test_holds_it_open_until_rivals_stop_counting",
+    "tests/test_gap_trace.py::test_a_side_question_holds_the_case_open_only_under_todays_rule",
+    "tests/test_gap_trace.py::test_the_command_reads_traced_and_older_results_with_extra_fields",
+    "tests/test_gap_trace.py::test_the_models_own_unresolved_and_the_action_rules_always_hold"
+   ]
+  },
+  "capstone.evaluation.gap_replay:outcome": {
+   "count": 2,
+   "status": "INSUFFICIENT EVIDENCE",
+   "direct": [],
+   "indirect": [
+    "tests/test_gap_trace.py::test_an_ending_is_judged_against_what_the_faults_needed",
+    "tests/test_gap_trace.py::test_the_command_reads_traced_and_older_results_with_extra_fields"
+   ]
+  },
+  "capstone.evaluation.gap_replay:replay": {
+   "count": 1,
+   "status": "INSUFFICIENT EVIDENCE",
+   "direct": [],
+   "indirect": [
+    "tests/test_gap_trace.py::test_the_command_reads_traced_and_older_results_with_extra_fields"
+   ]
+  },
+  "capstone.evaluation.gap_replay:format_table": {
+   "count": 1,
+   "status": "INSUFFICIENT EVIDENCE",
+   "direct": [],
+   "indirect": [
+    "tests/test_gap_trace.py::test_the_command_reads_traced_and_older_results_with_extra_fields"
+   ]
+  },
+  "capstone.evaluation.gap_replay:case_lines": {
+   "count": 1,
+   "status": "INSUFFICIENT EVIDENCE",
+   "direct": [],
+   "indirect": [
+    "tests/test_gap_trace.py::test_the_command_reads_traced_and_older_results_with_extra_fields"
+   ]
+  },
+  "capstone.evaluation.gap_replay:main": {
+   "count": 1,
+   "status": "INSUFFICIENT EVIDENCE",
+   "direct": [],
+   "indirect": [
+    "tests/test_gap_trace.py::test_the_command_reads_traced_and_older_results_with_extra_fields"
+   ]
   },
   "capstone.evaluation.labels:LabelBook.__init__": {
    "count": 3,
@@ -21952,7 +22071,7 @@
    ]
   },
   "tests/test_benchmark.py::test_episodes_are_run_and_recorded_for_each_fault_and_seed": {
-   "count": 221,
+   "count": 222,
    "judgment": "NOT ASSESSED",
    "functions": [
     "capstone.agent.evidence_brief:evidence_brief",
@@ -22053,7 +22172,7 @@
    ]
   },
   "tests/test_benchmark.py::test_each_episode_is_timed_and_handed_on_as_it_ends": {
-   "count": 221,
+   "count": 222,
    "judgment": "NOT ASSESSED",
    "functions": [
     "capstone.agent.evidence_brief:evidence_brief",
@@ -28272,7 +28391,7 @@
    ]
   },
   "tests/test_experiment.py::test_a_model_policy_run_keeps_its_call_summary_and_its_time": {
-   "count": 225,
+   "count": 226,
    "judgment": "NOT ASSESSED",
    "functions": [
     "capstone.agent.evidence_brief:evidence_brief",
@@ -28308,7 +28427,7 @@
    "functions": []
   },
   "tests/test_experiment.py::test_the_report_shows_the_model_questions": {
-   "count": 245,
+   "count": 246,
    "judgment": "NOT ASSESSED",
    "functions": [
     "capstone.agent.evidence_brief:evidence_brief",
@@ -28922,7 +29041,7 @@
    ]
   },
   "tests/test_experiment.py::test_critic_questions_follow_the_policy_s_own": {
-   "count": 227,
+   "count": 228,
    "judgment": "NOT ASSESSED",
    "functions": [
     "capstone.agent.critic:shown_hypotheses",
@@ -30433,6 +30552,149 @@
     "evaluation.evaltools.build_inventory:function_kind",
     "evaluation.evaltools.build_inventory:is_stub",
     "evaluation.evaltools.build_inventory:leading_comment"
+   ]
+  },
+  "tests/test_gap_trace.py::test_each_gap_is_saved_with_its_kind_and_role": {
+   "count": 7,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.agent.evidence_brief:observations",
+    "capstone.agent.evidence_brief:verify_numeric_claims",
+    "capstone.agent.investigation:check_conclusion",
+    "capstone.agent.investigation:conclusion_gaps",
+    "capstone.agent.investigation:question_role",
+    "capstone.agent.loop:InvestigationDeps.__post_init__",
+    "capstone.agent.state:Budgets.research_gets_some_time"
+   ]
+  },
+  "tests/test_gap_trace.py::test_the_plain_text_the_check_writes_is_unchanged": {
+   "count": 7,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.agent.evidence_brief:observations",
+    "capstone.agent.evidence_brief:verify_numeric_claims",
+    "capstone.agent.investigation:check_conclusion",
+    "capstone.agent.investigation:conclusion_gaps",
+    "capstone.agent.investigation:question_role",
+    "capstone.agent.loop:InvestigationDeps.__post_init__",
+    "capstone.agent.state:Budgets.research_gets_some_time"
+   ]
+  },
+  "tests/test_gap_trace.py::test_the_model_saying_unresolved_itself_is_told_apart_from_the_check": {
+   "count": 6,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.agent.evidence_brief:observations",
+    "capstone.agent.evidence_brief:verify_numeric_claims",
+    "capstone.agent.investigation:check_conclusion",
+    "capstone.agent.investigation:conclusion_gaps",
+    "capstone.agent.loop:InvestigationDeps.__post_init__",
+    "capstone.agent.state:Budgets.research_gets_some_time"
+   ]
+  },
+  "tests/test_gap_trace.py::test_grounding_gaps_are_saved_by_kind": {
+   "count": 6,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.agent.evidence_brief:observations",
+    "capstone.agent.evidence_brief:verify_numeric_claims",
+    "capstone.agent.investigation:check_conclusion",
+    "capstone.agent.investigation:conclusion_gaps",
+    "capstone.agent.loop:InvestigationDeps.__post_init__",
+    "capstone.agent.state:Budgets.research_gets_some_time"
+   ]
+  },
+  "tests/test_gap_trace.py::test_the_wanted_fix_and_the_action_rules_verdict_are_saved": {
+   "count": 7,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.agent.evidence_brief:observations",
+    "capstone.agent.evidence_brief:verify_numeric_claims",
+    "capstone.agent.investigation:check_conclusion",
+    "capstone.agent.investigation:conclusion_gaps",
+    "capstone.agent.investigation:why_not_acted",
+    "capstone.agent.loop:InvestigationDeps.__post_init__",
+    "capstone.agent.state:Budgets.research_gets_some_time"
+   ]
+  },
+  "tests/test_gap_trace.py::test_an_answer_with_no_completion_claim_leaves_no_trace": {
+   "count": 5,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.agent.evidence_brief:observations",
+    "capstone.agent.evidence_brief:verify_numeric_claims",
+    "capstone.agent.investigation:check_conclusion",
+    "capstone.agent.loop:InvestigationDeps.__post_init__",
+    "capstone.agent.state:Budgets.research_gets_some_time"
+   ]
+  },
+  "tests/test_gap_trace.py::test_a_question_role_says_how_it_bears_on_the_chosen_cause": {
+   "count": 1,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.agent.investigation:question_role"
+   ]
+  },
+  "tests/test_gap_trace.py::test_the_results_file_keeps_the_trace_and_reads_older_results": {
+   "count": 0,
+   "judgment": "NOT ASSESSED",
+   "functions": []
+  },
+  "tests/test_gap_trace.py::test_a_side_question_holds_the_case_open_only_under_todays_rule": {
+   "count": 1,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.evaluation.gap_replay:final_recommendation"
+   ]
+  },
+  "tests/test_gap_trace.py::test_a_rival_test_holds_it_open_until_rivals_stop_counting": {
+   "count": 1,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.evaluation.gap_replay:final_recommendation"
+   ]
+  },
+  "tests/test_gap_trace.py::test_the_models_own_unresolved_and_the_action_rules_always_hold": {
+   "count": 1,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.evaluation.gap_replay:final_recommendation"
+   ]
+  },
+  "tests/test_gap_trace.py::test_an_ending_is_judged_against_what_the_faults_needed": {
+   "count": 1,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.evaluation.gap_replay:outcome"
+   ]
+  },
+  "tests/test_gap_trace.py::test_older_gaps_are_sorted_by_their_wording": {
+   "count": 1,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.evaluation.gap_replay:legacy_gap"
+   ]
+  },
+  "tests/test_gap_trace.py::test_a_record_with_no_checked_answer_is_skipped": {
+   "count": 1,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.evaluation.gap_replay:case_of"
+   ]
+  },
+  "tests/test_gap_trace.py::test_the_command_reads_traced_and_older_results_with_extra_fields": {
+   "count": 9,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.evaluation.gap_replay:case_lines",
+    "capstone.evaluation.gap_replay:case_of",
+    "capstone.evaluation.gap_replay:final_recommendation",
+    "capstone.evaluation.gap_replay:format_table",
+    "capstone.evaluation.gap_replay:legacy_gap",
+    "capstone.evaluation.gap_replay:main",
+    "capstone.evaluation.gap_replay:outcome",
+    "capstone.evaluation.gap_replay:read_results",
+    "capstone.evaluation.gap_replay:replay"
    ]
   },
   "tests/test_generator.py::test_one_fault_per_scenario_and_the_clock_not_yet_started": {
@@ -36454,7 +36716,7 @@
    ]
   },
   "tests/test_model_policy.py::test_a_whole_episode_runs_on_model_replies_alone": {
-   "count": 219,
+   "count": 220,
    "judgment": "ADEQUATE",
    "functions": [
     "capstone.agent.evidence_brief:evidence_brief",
@@ -36480,7 +36742,7 @@
    ]
   },
   "tests/test_model_policy.py::test_both_step_modes_finish_the_same_scripted_repair_and_record_the_mode": {
-   "count": 227,
+   "count": 228,
    "judgment": "NOT ASSESSED",
    "functions": [
     "capstone.agent.evidence_brief:evidence_brief",
@@ -36532,7 +36794,7 @@
    ]
   },
   "tests/test_model_policy.py::test_the_default_budget_fits_a_whole_episode_at_eight_seconds_an_answer": {
-   "count": 219,
+   "count": 220,
    "judgment": "NOT ASSESSED",
    "functions": [
     "capstone.agent.evidence_brief:evidence_brief",
@@ -36610,7 +36872,7 @@
    ]
   },
   "tests/test_model_policy.py::test_a_cut_off_interpretation_keeps_the_evidence_and_the_run_goes_on": {
-   "count": 220,
+   "count": 221,
    "judgment": "NOT ASSESSED",
    "functions": [
     "capstone.agent.evidence_brief:evidence_brief",
@@ -39369,23 +39631,26 @@
    ]
   },
   "tests/test_reasoning_evidence.py::test_completion_cannot_claim_supported_with_unresolved_diagnostic_questions": {
-   "count": 5,
+   "count": 7,
    "judgment": "NOT ASSESSED",
    "functions": [
     "capstone.agent.evidence_brief:observations",
     "capstone.agent.evidence_brief:verify_numeric_claims",
     "capstone.agent.investigation:check_conclusion",
+    "capstone.agent.investigation:conclusion_gaps",
+    "capstone.agent.investigation:question_role",
     "capstone.agent.loop:InvestigationDeps.__post_init__",
     "capstone.agent.state:Budgets.research_gets_some_time"
    ]
   },
   "tests/test_reasoning_evidence.py::test_no_available_repair_does_not_erase_the_diagnosis": {
-   "count": 5,
+   "count": 6,
    "judgment": "NOT ASSESSED",
    "functions": [
     "capstone.agent.evidence_brief:observations",
     "capstone.agent.evidence_brief:verify_numeric_claims",
     "capstone.agent.investigation:check_conclusion",
+    "capstone.agent.investigation:conclusion_gaps",
     "capstone.agent.loop:InvestigationDeps.__post_init__",
     "capstone.agent.state:Budgets.research_gets_some_time"
    ]
@@ -39500,13 +39765,16 @@
    ]
   },
   "tests/test_reasoning_evidence.py::test_completion_gap_is_recorded_as_the_reason_an_intervention_was_lowered": {
-   "count": 9,
+   "count": 12,
    "judgment": "NOT ASSESSED",
    "functions": [
     "capstone.agent.evidence_brief:observations",
     "capstone.agent.evidence_brief:verify_numeric_claims",
     "capstone.agent.investigation:check_conclusion",
     "capstone.agent.investigation:conclude",
+    "capstone.agent.investigation:conclusion_gaps",
+    "capstone.agent.investigation:question_role",
+    "capstone.agent.investigation:why_not_acted",
     "capstone.agent.loop:InvestigationDeps.__post_init__",
     "capstone.agent.loop:ask_policy",
     "capstone.agent.loop:record",
@@ -43282,7 +43550,7 @@
    ]
   },
   "tests/test_tree_of_thought.py::test_both_steps_run_the_same_case_and_the_tree_costs_one_more_question": {
-   "count": 233,
+   "count": 234,
    "judgment": "NOT ASSESSED",
    "functions": [
     "capstone.agent.evidence_brief:evidence_brief",
@@ -43308,7 +43576,7 @@
    ]
   },
   "tests/test_tree_of_thought.py::test_saved_tree_survives_the_results_file": {
-   "count": 234,
+   "count": 235,
    "judgment": "NOT ASSESSED",
    "functions": [
     "capstone.agent.evidence_brief:evidence_brief",
@@ -43417,7 +43685,7 @@
    ]
   },
   "tests/test_tree_of_thought.py::test_a_tree_run_writes_its_pruned_branches_to_the_audit_log": {
-   "count": 235,
+   "count": 236,
    "judgment": "NOT ASSESSED",
    "functions": [
     "capstone.agent.completion:AuditLog.__init__",
@@ -43650,7 +43918,7 @@
    ]
   },
   "tests/test_tree_search.py::test_the_report_puts_a_tree_run_in_the_tree_group": {
-   "count": 235,
+   "count": 236,
    "judgment": "NOT ASSESSED",
    "functions": [
     "capstone.agent.evidence_brief:evidence_brief",
@@ -43676,7 +43944,7 @@
    ]
   },
   "tests/test_tree_search.py::test_the_report_groups_a_run_that_ended_before_the_question_by_its_reason": {
-   "count": 226,
+   "count": 227,
    "judgment": "NOT ASSESSED",
    "functions": [
     "capstone.agent.evidence_brief:evidence_brief",
@@ -43859,7 +44127,7 @@
    ]
   },
   "tests/test_tree_search.py::test_a_tree_record_keeps_its_options": {
-   "count": 233,
+   "count": 234,
    "judgment": "NOT ASSESSED",
    "functions": [
     "capstone.agent.evidence_brief:evidence_brief",
@@ -43949,7 +44217,7 @@
    "functions": []
   },
   "tests/test_tree_search.py::test_the_position_check_pairs_each_listing_place_with_its_rating": {
-   "count": 235,
+   "count": 236,
    "judgment": "NOT ASSESSED",
    "functions": [
     "capstone.agent.evidence_brief:evidence_brief",
@@ -44182,7 +44450,7 @@
    ]
   },
   "tests/test_tree_search.py::test_the_reinstate_setting_reaches_the_run": {
-   "count": 228,
+   "count": 229,
    "judgment": "NOT ASSESSED",
    "functions": [
     "capstone.agent.critic:shown_hypotheses",
@@ -44346,7 +44614,7 @@
    ]
   },
   "tests/test_tree_search.py::test_the_report_groups_a_skipped_tree_apart": {
-   "count": 233,
+   "count": 234,
    "judgment": "NOT ASSESSED",
    "functions": [
     "capstone.agent.evidence_brief:evidence_brief",
@@ -44786,7 +45054,7 @@
    ]
   },
   "tests/test_triage.py::test_no_deep_run_when_the_triage_supports_that_nothing_is_needed": {
-   "count": 171,
+   "count": 172,
    "judgment": "NOT ASSESSED",
    "functions": [
     "capstone.agent.evidence_brief:observations",
@@ -44805,10 +45073,10 @@
     "capstone.agent.investigation:build_graph.<locals>.test_step",
     "capstone.agent.investigation:check_conclusion",
     "capstone.agent.investigation:conclude",
+    "capstone.agent.investigation:conclusion_gaps",
     "capstone.agent.investigation:consult_manual",
     "capstone.agent.investigation:critique",
-    "capstone.agent.investigation:gathered_in",
-    "capstone.agent.investigation:hypothesize"
+    "capstone.agent.investigation:gathered_in"
    ]
   },
   "tests/test_triage.py::test_triage_then_deep_off_stops_after_the_triage": {

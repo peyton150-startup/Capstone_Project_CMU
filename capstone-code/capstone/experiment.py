@@ -62,7 +62,7 @@ from capstone.agent.critic import (
 )
 from capstone.agent.model_policy import ModelCall
 from capstone.agent.policy import ReasoningPolicy
-from capstone.agent.state import BatchTrace, Budgets
+from capstone.agent.state import BatchTrace, Budgets, ConclusionTrace
 from capstone.agent.tree_of_thought import RevaluationRecord, Thought, TreeOptions
 from capstone.console import safe_console
 from capstone.episode import (
@@ -279,6 +279,9 @@ class ExperimentRecord(BaseModel):
     # Why the final answer was refused, so the conclusion fell back to
     # "undetermined". None when it was accepted, and in older results.
     conclusion_rejected: str | None = None
+    # The final check's gaps by kind, for replaying other gap rules offline
+    # (`python -m capstone.evaluation.gap_replay`). None in older results.
+    conclusion_trace: ConclusionTrace | None = None
     assessment: str | None = None
     unresolved_questions: tuple[str, ...] = ()
     next_check: str | None = None
@@ -489,6 +492,7 @@ def record_of(
         policy_recommendation=state.policy_recommendation,
         recommendation_lowered=state.recommendation_lowered,
         conclusion_rejected=state.conclusion_rejected,
+        conclusion_trace=state.conclusion_trace,
         assessment=None if concluded is None else concluded.assessment,
         unresolved_questions=()
         if concluded is None
