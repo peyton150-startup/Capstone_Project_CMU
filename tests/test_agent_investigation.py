@@ -13,6 +13,7 @@ from capstone.agent.investigation import (
     observe,
     recheck,
     recheck_trigger,
+    rejection_reason,
     run_investigation,
 )
 from capstone.agent.loop import InvestigationDeps
@@ -507,6 +508,40 @@ def test_an_unjustified_intervention_is_lowered_to_escalate(concluded):
 def test_the_reason_an_intervention_was_lowered_is_recorded(concluded, why):
     state, _ = investigate(wear_policy(conclude=lambda state: concluded))
     assert state.recommendation_lowered == why
+
+
+def test_a_refused_final_answer_records_why():
+    # Variables:
+    #   cites_ungathered: A final answer citing E99, which was never gathered,
+    #     so check_conclusion refuses it.
+    cites_ungathered = (conclusion(evidence=("E99",)), REPLACE)
+    state, _ = investigate(wear_policy(conclude=lambda state: cites_ungathered))
+    assert state.conclusion.diagnosis == "undetermined"
+    assert state.policy_recommendation is None
+    assert state.conclusion_rejected == (
+        "the conclusion cites evidence that was not gathered"
+    )
+    refused = [d for d in state.decisions if d.outcome == "invalid_decision"]
+    assert [d.phase for d in refused] == ["decide"]
+
+
+def test_an_error_raised_by_the_policy_itself_is_recorded_too():
+    def broken(state):
+        raise LookupError("no hypothesis H7")
+
+    state, _ = investigate(wear_policy(conclude=broken))
+    assert state.conclusion.diagnosis == "undetermined"
+    assert state.conclusion_rejected == "no hypothesis H7"
+
+
+def test_an_accepted_final_answer_records_no_refusal():
+    state, _ = investigate(wear_policy())
+    assert state.conclusion_rejected is None
+
+
+def test_the_refusal_reason_is_one_line_and_never_empty():
+    assert rejection_reason(ValueError("bad\n  answer")) == "bad answer"
+    assert rejection_reason(TypeError()) == "TypeError"
 
 
 def test_an_accepted_or_unchanged_recommendation_records_no_lowering():

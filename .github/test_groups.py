@@ -120,6 +120,7 @@ GROUPS: dict[str, list[str]] = {
     # Many episodes: the harness, hand labels and the known-answer cases.
     "Experiments": [
         "experiment",
+        "gap_trace",
         "evals",
         "known_answers",
         "baseline",

@@ -167,6 +167,54 @@ class Question(Contract):
     estimated_calls: int = Field(default=1, ge=1, le=3)
 
 
+GapKind = Literal[
+    "model_question",
+    "unanswered_question",
+    "no_observable_evidence",
+    "selected_has_conflict",
+    "unverified_number",
+]
+# How an open question bears on the chosen explanation: it tells the chosen
+# one from a rival, it only checks the chosen one, it names no explanation,
+# or (for the model's own wording) it matches no question the agent tracked.
+GapRole = Literal["rival_test", "selected_check", "side", "unlinked"]
+
+
+class GapRecord(Contract):
+    """One reason the final check found the diagnosis not yet settled."""
+
+    kind: GapKind
+    text: str
+    # For questions only: the tracked question it is (or matches) and how it
+    # bears on the chosen explanation. None for the other kinds.
+    question_id: str | None = None
+    role: GapRole | None = None
+
+
+class ConclusionTrace(Contract):
+    """What the final check saw and did, kept so other gap rules can be replayed.
+
+    Record only: nothing reads it to decide anything.
+    """
+
+    # The model's own completion claim and recommendation, before the check
+    # could change them.
+    model_assessment: Literal["supported", "unresolved"] | None
+    model_recommendation: str
+    # The fix the model asked for, as "action machine", and why the action
+    # rules alone (confidence, evidence, a named action) would refuse it,
+    # whatever the gaps. None when no fix was asked for or nothing refuses it.
+    wanted_action: str | None = None
+    action_blocked: str | None = None
+    selected_hypothesis_id: str | None = None
+    # The explanations still standing when the check ran.
+    current_hypothesis_ids: tuple[str, ...] = ()
+    gaps: tuple[GapRecord, ...] = ()
+    # True when the check made it "unresolved" although the model said
+    # "supported": the check, not the model, held the diagnosis open.
+    forced_unresolved: bool = False
+
+
 # The most tool calls one decide answer may list (DECIDE_CALLS).
 MAX_DECIDE_CALLS = 5
 
@@ -300,6 +348,13 @@ class InvestigationState(BaseModel):
     # "overruled" look the same in the conclusion alone.
     policy_recommendation: str | None = None
     recommendation_lowered: str | None = None
+    # Why the policy's final answer was refused (it broke a rule, for example
+    # cited evidence that was never gathered), so the conclusion fell back to
+    # "undetermined". None when an answer was accepted or none came.
+    conclusion_rejected: str | None = None
+    # The final check's gaps, each with its kind, for replaying other gap
+    # rules offline. None when the answer made no completion claim.
+    conclusion_trace: ConclusionTrace | None = None
     proposed_action: ProposalRecord | None = None
     # The tick at which the conclusion was reached.
     concluded_tick: int | None = Field(default=None, ge=0)

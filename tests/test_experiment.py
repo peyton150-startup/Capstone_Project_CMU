@@ -158,6 +158,25 @@ def test_the_report_shows_an_overruled_intervention_and_why(records):
     assert plain and "overruled=" not in report(plain, {})
 
 
+def test_the_report_shows_why_a_final_answer_was_refused(records):
+    refused = records[0].model_copy(
+        update={
+            "conclusion": "undetermined",
+            "conclusion_rejected": "the conclusion cites evidence that was not gathered",
+        }
+    )
+    line = "conclude_refused=(the conclusion cites evidence that was not gathered)"
+    assert line in report([refused], {})
+    plain = [r for r in records if r.conclusion_rejected is None]
+    assert plain and "conclude_refused=" not in report(plain, {})
+
+
+def test_results_from_before_refusals_were_recorded_still_read(records):
+    old = records[0].model_dump(mode="json")
+    del old["conclusion_rejected"]
+    assert ExperimentRecord.model_validate(old).conclusion_rejected is None
+
+
 def test_results_from_before_the_policy_recommendation_was_kept_still_read(records):
     old = records[0].model_dump(mode="json")
     del old["policy_recommendation"], old["recommendation_lowered"]
