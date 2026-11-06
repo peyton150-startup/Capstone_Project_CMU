@@ -64,7 +64,14 @@ from capstone.agent.loop import (
     run_inner_loop,
 )
 from capstone.agent.policy import ActionRequest, CallTool, Interpretation, Stop
-from capstone.agent.state import InvestigationState, Phase, Question
+from capstone.agent.state import (
+    ConclusionTrace,
+    GapRecord,
+    GapRole,
+    InvestigationState,
+    Phase,
+    Question,
+)
 from capstone.contracts.tools import ToolRequest
 from capstone.providers.chat import ModelError
 from capstone.providers.factory import research_tools
@@ -551,6 +558,96 @@ def why_not_acted(
     return None
 
 
+def question_role(
+    question: Question, selected: str | None, current: set[str]
+) -> GapRole:
+    """How an open question bears on the chosen explanation."""
+    # Variables:
+    #   named: The standing explanations the question is about, from its own
+    #     hypothesis and the ones it is meant to tell apart.
+    #   rivals: Those that are not the chosen explanation; any of them makes
+    #     the question a test against a rival.
+    named = {question.hypothesis_id, *question.distinguishes_hypothesis_ids} & current
+    rivals = named - {selected}
+    if rivals:
+        return "rival_test"
+    if named:
+        return "selected_check"
+    return "side"
+
+
+def conclusion_gaps(
+    state: InvestigationState,
+    conclusion: AgentConclusion,
+    unverified: tuple[str, ...],
+) -> list[GapRecord]:
+    """Every reason the final check finds the diagnosis not settled, by kind.
+
+    The order and wording are the ones the check has always used, so the
+    plain-text list it writes into the conclusion is unchanged.
+    """
+    # Variables:
+    #   current: The explanations still standing; only questions about them
+    #     count as open.
+    #   selected: The id of the explanation the conclusion chose, if any.
+    #   tracked: The agent's open questions, by id and by text, so a question
+    #     the model wrote in its own words can be matched to one of them.
+    #   observed: Evidence read from the current factory; a conclusion citing
+    #     none of it is a gap.
+    #   match: The tracked question a model-written gap names (by id or exact
+    #     wording), so its role can be judged; None leaves it "unlinked".
+    #   chosen: The chosen explanation itself, checked for conflicting or
+    #     unexplained evidence.
+    #   found: The gaps in the order the check has always listed them.
+    current = {h.id for h in state.hypotheses}
+    selected = conclusion.hypothesis_id
+    tracked = {}
+    for q in state.unanswered_questions:
+        tracked.setdefault(q.id.strip().casefold(), q)
+        tracked.setdefault(q.text.strip().casefold(), q)
+    found = []
+    for text in conclusion.unresolved_questions:
+        match = tracked.get(text.strip().casefold())
+        found.append(
+            GapRecord(
+                kind="model_question",
+                text=text,
+                question_id=match.id if match else None,
+                role=question_role(match, selected, current) if match else "unlinked",
+            )
+        )
+    observed = {p.evidence_id for p in state.provenance if p.origin == "observable"}
+    if not observed.intersection(conclusion.evidence_ids):
+        found.append(
+            GapRecord(
+                kind="no_observable_evidence",
+                text="No current observable evidence was cited for this diagnosis.",
+            )
+        )
+    found.extend(
+        GapRecord(
+            kind="unanswered_question",
+            text=q.text,
+            question_id=q.id,
+            role=question_role(q, selected, current),
+        )
+        for q in state.unanswered_questions
+        if q.hypothesis_id in current
+    )
+    chosen = next((h for h in state.hypotheses if h.id == selected), None)
+    if chosen and (
+        chosen.contradicting_evidence_ids or chosen.unexplained_evidence_ids
+    ):
+        found.append(
+            GapRecord(
+                kind="selected_has_conflict",
+                text="The selected hypothesis still has conflicting or unexplained evidence.",
+            )
+        )
+    found.extend(GapRecord(kind="unverified_number", text=t) for t in unverified)
+    return found
+
+
 def check_conclusion(
     state: InvestigationState,
     deps: InvestigationDeps,
@@ -570,9 +667,10 @@ def check_conclusion(
     #   request: The action the policy asked for with that answer, if any.
     #   known_hypotheses: Ids of the explanations the agent actually formed.
     #   unverified: Structured arithmetic that observable data cannot establish.
-    #   gaps: Declared/open diagnostic questions and explicit conflicts, kept for review.
-    #   selected: The explanation claimed by the conclusion, if one was named.
-    #   observed: Only current-factory evidence can support a declared completion.
+    #   found: Every gap the check found, each with its kind (see
+    #     conclusion_gaps); saved in state.conclusion_trace for offline replay.
+    #   gaps: The same gaps as plain text, in the same order as before; any
+    #     gap holds the diagnosis open and lowers the answer to "escalate".
     if not isinstance(conclusion, AgentConclusion):
         raise ValueError("a policy must return a conclusion")
     if request is not None and not isinstance(request, ActionRequest):
@@ -587,24 +685,22 @@ def check_conclusion(
         raise ValueError("the conclusion names a hypothesis that was never formed")
     unverified = verify_numeric_claims(state, conclusion.numeric_claims)
     if conclusion.assessment is not None:
-        current = {h.id for h in state.hypotheses}
-        gaps = list(conclusion.unresolved_questions)
-        observed = {p.evidence_id for p in state.provenance if p.origin == "observable"}
-        if not observed.intersection(conclusion.evidence_ids):
-            gaps.append("No current observable evidence was cited for this diagnosis.")
-        gaps.extend(
-            q.text for q in state.unanswered_questions if q.hypothesis_id in current
+        found = conclusion_gaps(state, conclusion, unverified)
+        gaps = [g.text for g in found]
+        state.conclusion_trace = ConclusionTrace(
+            model_assessment=conclusion.assessment,
+            model_recommendation=conclusion.recommendation,
+            wanted_action=None
+            if request is None
+            else f"{request.action} {request.machine_id}",
+            action_blocked=why_not_acted(deps, conclusion, request)
+            if conclusion.recommendation == "intervene"
+            else None,
+            selected_hypothesis_id=conclusion.hypothesis_id,
+            current_hypothesis_ids=tuple(h.id for h in state.hypotheses),
+            gaps=tuple(found),
+            forced_unresolved=bool(gaps) and conclusion.assessment == "supported",
         )
-        selected = next(
-            (h for h in state.hypotheses if h.id == conclusion.hypothesis_id), None
-        )
-        if selected and (
-            selected.contradicting_evidence_ids or selected.unexplained_evidence_ids
-        ):
-            gaps.append(
-                "The selected hypothesis still has conflicting or unexplained evidence."
-            )
-        gaps.extend(unverified)
         if gaps or conclusion.assessment == "unresolved":
             conclusion = conclusion.model_copy(
                 update={

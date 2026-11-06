@@ -57,7 +57,7 @@ from capstone.agent.completion import AuditLog, complete
 from capstone.agent.critic import Critic, CritiqueRecord, RecheckRecord
 from capstone.agent.model_policy import ModelCall
 from capstone.agent.policy import ReasoningPolicy
-from capstone.agent.state import Budgets
+from capstone.agent.state import Budgets, ConclusionTrace
 from capstone.agent.tree_of_thought import Thought
 from capstone.console import safe_console
 from capstone.episode import (
@@ -267,6 +267,9 @@ class ExperimentRecord(BaseModel):
     # intervention was lowered to escalate. None in older results.
     policy_recommendation: str | None = None
     recommendation_lowered: str | None = None
+    # The final check's gaps by kind, for replaying other gap rules offline
+    # (`python -m capstone.evaluation.gap_replay`). None in older results.
+    conclusion_trace: ConclusionTrace | None = None
     assessment: str | None = None
     unresolved_questions: tuple[str, ...] = ()
     next_check: str | None = None
@@ -450,6 +453,7 @@ def record_of(
         recommendation=None if concluded is None else concluded.recommendation,
         policy_recommendation=state.policy_recommendation,
         recommendation_lowered=state.recommendation_lowered,
+        conclusion_trace=state.conclusion_trace,
         assessment=None if concluded is None else concluded.assessment,
         unresolved_questions=()
         if concluded is None
