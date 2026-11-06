@@ -1086,6 +1086,8 @@ def item_findings(
     #   packets: Episode packets with truth-side results kept outside requests.
     #   findings: One row per family, item and provider, including skipped answers.
     #   question_types: The answer type needed to compare a reference correctly.
+    #   expected: An independent answer for this item and question, if reviewed.
+    #   values: Available RUN scores used for grounded and misleading flags.
     packets = {p.meta.episode_key: p for p in planned["packets"]}
     _, questions = snap_request.load_questions()
     question_types = {question.id: question.type for question in questions}
@@ -1177,6 +1179,7 @@ def report(
     # Variables:
     #   runs: Packets by (namespace, run name).
     #   statuses: Ledger rows counted by status.
+    #   reference: The reviewer's answers, joined to ledger rows in findings.
     runs: dict[tuple, list] = defaultdict(list)
     for packet in planned["packets"]:
         runs[(packet.meta.namespace, run_name(packet))].append(packet)
@@ -1289,6 +1292,8 @@ def markdown(result: dict) -> str:
     #     send; absent in an offline dry run.
     #   readiness: Per provider, whether its key is set and its live contract
     #     verified, so a dry run says whether `--send` could start.
+    #   grounded, misleading: Eligible RUN flags, excluding unknown outcomes.
+    #   disagreements: Answered questions that differ from the independent review.
     def fraction(r: dict) -> str:
         return f"{r['n']}/{r['of']}"
 
@@ -1480,6 +1485,9 @@ def main(argv=None) -> int:
     #   counts: New sends, cumulative reserved/settled cost and stop reason.
     #   ready: Per provider, whether its key is set and live sending is
     #     allowed; printed before planning and kept in the report.
+    #   reference: Imported independent answers, or None before human review.
+    #   args.require_full_traces: Refuses missing audits before any live send.
+    #   args.snap_full_context: Uses Snap's larger state budget for its solo pass.
     parser = argparse.ArgumentParser(prog="python -m evaltools.full_evaluation")
     parser.add_argument(
         "--commit", help="the commit being evaluated (must be checked out)"

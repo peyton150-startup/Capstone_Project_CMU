@@ -12,6 +12,8 @@ from pathlib import Path
 
 def review_id(item_id: str) -> str:
     """Give the reviewer an opaque stable ID instead of a fault-bearing run key."""
+    # Variables:
+    #   item_id: The evaluator's private key, hashed before the reviewer sees it.
     return hashlib.sha256(item_id.encode("utf-8")).hexdigest()[:16]
 
 
@@ -20,6 +22,7 @@ def export_requests(requests: Path, out: Path, limits: dict[str, int]) -> dict:
     # Variables:
     #   items: One state and its questions per internal item, across request chunks.
     #   chosen: The sampled items, selected by opaque ID within each family.
+    #   mapping: Private link from each blinded ID back to its evaluator item.
     if any(requests.glob("*.answers.json")):
         raise ValueError(
             "model answers already exist; prepare references before sending"
@@ -95,6 +98,7 @@ def import_review(review_dir: Path, answers_path: Path, out: Path) -> dict:
     # Variables:
     #   mapping: Private opaque-to-internal IDs kept away from the reviewer.
     #   answers: The reviewer's judgments keyed only by opaque ID.
+    #   reference: Checked judgments restored to evaluator item IDs for comparison.
     mapping = json.loads((review_dir / "private_mapping.json").read_text("utf-8"))
     answers = json.loads(answers_path.read_text("utf-8"))
     if not isinstance(answers, dict) or set(answers) - set(mapping):
@@ -130,6 +134,9 @@ def import_review(review_dir: Path, answers_path: Path, out: Path) -> dict:
 
 def main(argv=None) -> int:
     """Export blinded packets or import the independent answers."""
+    # Variables:
+    #   limits: Sample size per question family for the blind export.
+    #   result: Counts from the chosen action, printed for the operator.
     parser = argparse.ArgumentParser(prog="python -m evaltools.reference_review")
     actions = parser.add_subparsers(dest="action", required=True)
     export = actions.add_parser("export")

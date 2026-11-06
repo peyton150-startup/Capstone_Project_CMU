@@ -115,6 +115,7 @@ def main(argv=None) -> int:
     #   budgets: The per-investigation time limit when `--timeout-seconds` is
     #     given, split as `experiment run` splits it; None keeps the default.
     #   manual: The opened manual search, or None when not offered or scripted.
+    #   audit_path: A companion audit file by default, or None with --no-audit.
     parser = argparse.ArgumentParser(prog="python -m evaltools.traced_run")
     parser.add_argument(
         "--config", type=Path, default=REPO / "evals" / "scenarios.json"

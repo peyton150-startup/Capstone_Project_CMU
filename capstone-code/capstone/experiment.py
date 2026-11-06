@@ -1169,8 +1169,9 @@ def main(argv: Sequence[str] | None = None) -> int:
     #     --challenge or --seeds (with --faults).
     #   budgets: Time limits for each investigation; None keeps the defaults
     #     unless --timeout-seconds was given.
-    #   memory, manual, log: The optional memory store, operator manual and
-    #     audit log; each is None unless its option was given.
+    #   memory, manual: Optional memory store and operator manual.
+    #   audit_path, log: The chosen audit file and writer; new CLI runs use a
+    #     companion file unless --no-audit was given.
     #   args.triage: True with --triage, otherwise None so the TRIAGE setting
     #     decides; passed through to run_experiment.
     #   records: The finished results, saved as each case ends; for "label" and

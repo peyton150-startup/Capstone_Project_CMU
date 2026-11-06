@@ -339,6 +339,8 @@ def run_requests(
     #     appear in no state that is sent (see `judge_view`).
     #   chosen, skipped: The questions this packet can answer, and why the rest
     #     are not asked.
+    #   fitted_skips: Questions made unknown after the provider's evidence
+    #     budget shortened cited content or removed needed trace details.
     #   meta: Tags shared by every request built from this packet.
     #   unfittable: Why the state could not be fitted to the budget, or None.
     #   refusal: Why the packet's judge view was refused, or None.
