@@ -356,7 +356,15 @@ def run_episode(
         recheck_seconds=settings.critic_followup_seconds,
         # Only a run that offers the manual can search it.
         manual_step=settings.manual_step and manual is not None,
+        hypothesis_seconds=settings.hypothesis_reserve_seconds,
+        critic_reinstate=settings.tot_reinstate,
     )
+    research = state.budgets.timeout_seconds - state.budgets.followup_seconds
+    if deps.hypothesis_seconds >= research:
+        raise ValueError(
+            "HYPOTHESIS_RESERVE_SECONDS must leave some research time "
+            f"(research has {research:g} s)"
+        )
     triage_state, triage_seconds = None, None
     if settings.triage if triage is None else triage:
         triage_state, state, triage_seconds = run_triage_then_deep(
@@ -422,7 +430,12 @@ def run_triage_then_deep(
     first.mode = "triage"
     first.budgets = triage_budgets(settings.triage_seconds, settings.triage_tool_calls)
     started = deps.clock()
-    run_investigation(first, replace(deps, critic=None, critic_followup=False))
+    # The hypothesis reserve is for the deep run: the triage's short window
+    # would have little or no research time left with it.
+    run_investigation(
+        first,
+        replace(deps, critic=None, critic_followup=False, hypothesis_seconds=0.0),
+    )
     seconds = deps.clock() - started
     if log is not None and first.conclusion is not None and first.termination_reason:
         log.append(audit_record(first))

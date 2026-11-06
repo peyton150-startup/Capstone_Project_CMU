@@ -1,9 +1,38 @@
 # Progress Log
 
-> **2026-11-05 — rapid triage mode (taught and gated; closing walkthrough owed):**
+> **2026-11-06 — staged CPU anomaly detector promoted to HIGH-priority future work (documentation only):**
+> `docs/MVP_SCOPE.md` now lists a CPU-based statistical detector under
+> **Tooling and infrastructure** in both top-of-document future-work tables,
+> with a dedicated `fw-cpu-anomaly-detector` section. Stages are: (0) built-in
+> Python rolling-window/rate checks, (1) optional NumPy/SciPy robust statistical
+> features, (2) conditional scikit-learn batch anomaly learning, and
+> (3) optional River online learning if continuous telemetry justifies it.
+> The detector performs a bounded CPU screening pass on **every machine in
+> the line**, including machines without alarms, and returns read-only,
+> provenance-backed assessments into the existing line-wide incident context;
+> it never states the root cause.
+> Persistent deviations can trigger the existing bounded investigation while
+> the agent still chooses tests and the human retains action approval.
+> Follow the existing line-context baseline and compare each new stage with
+> held-out normal/fault cases, false alarms, detection lead time and CPU costs.
+> This documents future work only: no detector, model, line-context adapter,
+> dependencies, or tests were implemented; understanding status unchanged.
+>
+> **2026-11-05 — rapid triage mode (taught and gated; walkthrough done):**
 > Merged before its walkthrough on the developer's instruction ("merge and we
-> will do the walkthrough later"); the pre-merge walkthrough (AGENTS.md §11
-> step 6) for PR #184 is still owed (understood: no, until it is done).
+> will do the walkthrough later"). The walkthrough (AGENTS.md §11 step 6) was
+> done afterwards, with three questions. (1) Why a triage may skip `verify`:
+> the developer saw that nothing is proposed or executed, but not that
+> `verify` checks a "no action" claim; corrected. A supported "no action"
+> triage is the one case that ends unchecked (a known limit; a short
+> verification after such a triage is a candidate follow-up). (2) Why the deep
+> run gets `follows_triage` but not the triage's conclusion: understood
+> (independence, no anchoring; cost: repeated reads). (3) The slow-provider
+> path: outcome understood (timeout, deep run follows); corrected that the
+> conclusion is the fixed `UNDETERMINED` placeholder (escalate), not a model
+> guess, and that a deep run follows because no answer is not "nothing wrong".
+> Understood: yes, after correction. Open follow-ups: verify a confident triage
+> "no action"; hand-label triage conclusions apart from the deep run's.
 > Before the code, the developer answered the check question: the block on
 > proposing must be in code because a model can ignore a prompt, and a triage
 > without an answer still needs a deep run. Opt-in (`TRIAGE=on` or
@@ -23,7 +52,7 @@
 > sandbox uses Docker Desktop, after `docker info` succeeds. CLAUDE.md points to it.
 > The test suite does not need Docker.
 
-> **2026-11-04 — fixes from the live Snap run (built ungated, developer to review; understood: no):**
+> **2026-11-04 — fixes from the live Snap run (built ungated; walkthrough done 2026-11-05):**
 > Four findings from `docs/benchmarks/2026-11-04-snap-live-1/`, each checked by
 > reading the code.
 > (1) Nothing told a model the `wait` limit. The tool refused more than 480
@@ -41,7 +70,21 @@
 > `test_bearing_replacement.py`.
 > (4) `run_traced`'s docstring now says that it stops and saves the coverage
 > tracer.
-> Merged on the developer's instruction ("merge both") before the pre-merge walkthrough (AGENTS.md §11 step 6); the walkthrough is still owed.
+> Merged on the developer's instruction ("merge both") before the pre-merge walkthrough (AGENTS.md §11 step 6).
+> Walkthrough done afterwards (2026-11-05), three questions. (1) Why keep the
+> inner 480 check in `ActionTools.wait` when the schema in `run_tool` already
+> refuses: the developer saw that the provider path never reaches the tool;
+> added that the tool's `max_wait` is configurable and some callers skip the
+> provider, so the inner check enforces the real rule (defence in depth).
+> (2) Comparing live runs across #177: partly; the developer pointed to where
+> the error is raised; corrected that the main change is the tool text the
+> model reads, so runs before and after are not like-for-like even without
+> errors (check the commit, the `wait` usage, or compare on one commit).
+> (3) A test that cannot fail: understood why it is worse than none (false
+> confidence); taught how to find one (break the code on purpose, read the
+> assertion against the action, per-test coverage flags). Understood: yes,
+> after correction. Latent gap noted: a lower `max_wait` would bring back a
+> hidden limit, since the schema always says 480.
 
 > **2026-11-05 — PR descriptions state their trade-offs (documentation only; understanding unchanged):**
 > At the developer's request, AGENTS.md §11 step 4 now requires a
@@ -62,11 +105,22 @@
 > run, a semantic validation of contradictions, or an accuracy comparison.
 > Code, prompts, labels, scores, simulator and understanding status unchanged.
 
-> **2026-11-04 — PRs #172 and #174 merged before their walkthroughs (developer to review; understood: no):**
+> **2026-11-04 — PRs #172 and #174 merged before their walkthroughs (walkthrough done 2026-11-05):**
 > On the developer's instruction ("merge them now, I will do the walkthrough later"), #174 was
 > brought up to date with `main` and merged, which also landed #172's commits. The function, test
 > and verification inventories were rebuilt from a fresh full coverage run after the merge. The
-> pre-merge walkthroughs (AGENTS.md §11 step 6) for both PRs are still owed.
+> pre-merge walkthroughs (AGENTS.md §11 step 6) for both PRs were done afterwards, on
+> 2026-11-05, as one walkthrough with three questions. (1) Why `budgeted_send` writes the
+> reservation before posting: the developer saw that there is never a blank amount; corrected
+> that the point is the cap surviving a kill mid-post (an unrecorded in-flight charge could be
+> spent twice), that the reservation is the full-window upper bound and not an estimate, and
+> that it is settled per request, with missing usage stopping later sends. (2) A rerun case
+> with a different seed: the developer saw old position pairing compares different cases
+> unnoticed and that the case is left out; corrected that it is unpaired (`only_a`/`only_b`,
+> counted in `position_mismatches`), not "ambiguous" (no seed, or a repeated identity).
+> (3) `--env-file` key handling: the developer gave the secrecy reason; added least privilege
+> (only the selected providers' key names), environment-wins precedence, and why `readiness`
+> reports presence only. Understood: yes, after correction.
 
 > **2026-11-04 — first full live Snap evaluation (exploratory, uncalibrated):**
 > At the developer's direction in the session, Claude Code ran the Snap half of
@@ -630,6 +684,17 @@ alarm), then evaluation, then the agent itself.
 ## Session notes
 
 - **2026-11-05: AGENTS.md restates the variable-comment rule for every code PR (docs only).** At the developer's request, §7.1 now says plainly that it applies to every pull request that changes code, and that the `# Variables:` block at the top of each function names its highest-signal variables. §11 step 4 gains a "Variable comments" item: a code PR lists the functions whose block was added or updated. The rule itself dates from 2026-10-29; this only makes it explicit and checkable in the PR description.
+- **2026-11-05: tree-of-thought search improvements, part 1 (built ungated, developer to review; understood: no).** Branch `feature/tot-search-improvements`, work in progress, not merged. Three opt-in changes, all off by default so runs stay comparable with the archived ToT pairs:
+  - **Reachability (trace audit item 1):** `capstone/tree_reach.py` reports, from saved records alone, where each run lost its tree. On `2026-11-01-tot13-pairs` it gives the audit's counts: 33 trees, 3 unanswered, 9 model outages and 7 timeouts before the question. `HYPOTHESIS_RESERVE_SECONDS` (`InvestigationDeps.hypothesis_seconds`, `loop.held_for_hypotheses`) stops research before the hypothesize question that many seconds early, and `investigate` then goes on to hypothesize instead of the conclusion. The record's `hypothesis_reserve_used` says whether the reserve was needed. Outages are not addressed.
+  - **P1 (`TOT_RETAIN=evidence`):** `tree_of_thought.retain` keeps the top three and up to two more that are likely or sure, at 0.5 confidence or more, and either cite factory evidence no kept candidate cites or cite none and name a check. It keeps no more than the research calls left can test. `Thought.retained` says why.
+  - **P4 (`TOT_ROTATE`, `TOT_RANK=evidence`):** `rotated` lists candidates to the rating question in a per-run rotated order (`Thought.shown_order`), and `tree_reach --positions` reports ratings by listing position. On the unrotated archive, the first-listed candidate was kept in 33 of 33 trees, which can't yet be told apart from generation order. `evidence_strength` ranks by verdict, then factory evidence families (sensor views count once) less evidence against, then gaps, before confidence.
+  - Records gain `tree_options` and `hypothesis_reserve_used`.
+  - **Part 2, same day (also built ungated, developer to review; understood: no):**
+    - **P2 (`TOT_REINSTATE`):** after a tree prunes, `investigation.reconsider` asks the critic once (`Critic.reconsider`, its own time window) whether one dropped candidate should come back. A named one becomes the least believed hypothesis (`reinstated_confidence`: never above the kept ones, at most 0.5 if factory evidence was against it), its check goes to the test stage as question R1, and `state.reinstatement` records what happened. A refusal, no answer or "none" changes nothing.
+    - **P3 (`TOT_ADAPTIVE`):** `tree_of_thought.branching` reads the agent's beliefs. A clear case (leader at 0.8+, 0.3 ahead, two factory readings behind it, nothing against it) skips the tree for the ordinary one-question step; an ambiguous one (nothing held, leader under 0.5, runner-up within 0.15, or evidence against the leader) keeps one more candidate. `Thought.branching` says which; `tree_reach` counts skipped runs apart.
+    - **P5 (`TOT_REVALUE`, `VALUE_MODEL`):** `investigation.revalue` runs after the test stage: `TreeOfThoughtPolicy.revalue` rates the kept hypotheses again (no new candidates), a rated one takes its new confidence, only a factory contradiction removes one, an unrated one is left alone. Skipped with nothing new or no research time; `state.revaluation` records it. The question goes to a separate `value` client when `VALUE_MODEL` is set (`chat.value_client`), not an eighth job.
+    - `docs/TOT_CRITIC_EVALUATION_FUTURE_WORK.md` statuses updated; §7.1 comment pass done; inventory rebuilt from a full coverage run. Nothing was run against a real model: whether any switch helps is for a live run (Codex, §12).
+    - **Merge:** the developer directed on 2026-11-05 that PR 187 be merged once the live run `linectx-off-1` ended. It was merged at that direction, with CI green; the §11.6 pre-merge walkthrough was not given first and is still owed (understood: no).
 
 - **2026-11-03: variable comments for the functions in PRs #160 and #163 (comments only, built ungated, developer to review; understood: no).** Checked every function those PRs added or changed in `evaluation/evaltools/` against the latest `main` (PR #167 touches other modules, so adds nothing here). 17 of the 29 already had a `# Variables:` block (none stale); now 23 do. Added blocks to `git`, `tracked_python_files`, `has_functions`, `case_number`, `case_outcome` and `_bodiless` in `full_evaluation.py`; one-line helpers whose names say it all were skipped (`sha256_of`, `run_name`, `ratio`, `request_tokens_estimate`, nested `right` and `fraction`). No behaviour change. The evaluator inventories were not regenerated (they need a full coverage run) and still hold the old source text of these six.
 
