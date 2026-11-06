@@ -54,6 +54,8 @@ def test_review_packets_hide_run_identity_and_import_checked_answers(tmp_path):
 
 def test_review_export_refuses_a_request_folder_with_model_answers(tmp_path):
     """A reviewer sample must be frozen before the model has answered it."""
+    # Variables:
+    #   requests: A prepared folder already containing a model answer artifact.
     requests = tmp_path / "requests"
     requests.mkdir()
     (requests / "one.answers.json").write_text("{}")

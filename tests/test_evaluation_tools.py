@@ -207,6 +207,11 @@ def test_audited_import_rejects_missing_duplicate_and_orphan_traces(tmp_path):
 
 
 def test_the_traced_run_names_the_functions_each_case_executed(tmp_path):
+    """A scripted traced case saves function coverage and a full audit packet."""
+    # Variables:
+    #   completed: The isolated CLI run, whose exit status must be successful.
+    #   executed: Functions associated with the one case in the trace file.
+    #   packet: The record and default audit paired for trace completeness.
     config = tmp_path / "one.json"
     config.write_text(
         json.dumps(
@@ -876,6 +881,8 @@ def test_an_unfittable_function_state_is_skipped_not_fatal():
 
 def test_a_traced_run_refuses_to_append_to_earlier_records(tmp_path):
     """Appending would give two records the same run key."""
+    # Variables:
+    #   out: An existing record file that the traced runner must protect.
     from evaltools import traced_run
 
     out = tmp_path / "records.jsonl"

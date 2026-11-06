@@ -118,9 +118,13 @@ def test_run_command_audits_by_default_and_allows_explicit_opt_out(
     """A new run records the evidence needed for later reasoning judgments."""
     # Variables:
     #   options: The arguments passed to the run, including its audit writer.
+    #   base: One fresh run's CLI options, reused to compare audit settings.
     options = {}
 
     def fake_run(cases, make_policy, **kwargs):
+        """Capture the CLI's run options without starting an episode."""
+        # Variables:
+        #   kwargs: The audit option and other settings passed to the runner.
         options.update(kwargs)
         return []
 

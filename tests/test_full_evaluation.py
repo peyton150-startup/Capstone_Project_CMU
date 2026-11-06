@@ -76,6 +76,9 @@ def test_refused_episode_keeps_every_run_question_row(tmp_path, monkeypatch):
 
 def test_the_report_keeps_the_published_denominators(planned):
     """Correctness per arm is the published n/judged with the pending labels."""
+    # Variables:
+    #   rows: Planned judge rows settled without live model responses.
+    #   report: Deterministic run totals with their original denominators.
     _, result = planned
     rows = full_evaluation.settle(result["rows"], planned[0] / "requests")
     report = full_evaluation.report(
