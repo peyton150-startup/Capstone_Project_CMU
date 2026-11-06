@@ -330,7 +330,7 @@ This reorganizes the existing roadmap, not its implementation status or authorit
 | [Evaluation, benchmarking and reasoning](#future-work-evaluation) | HIGH | Line-wide investigation scope, live runs, critic, ToT/GoT, runtime reliability |
 | [Retrieval and memory](#future-work-retrieval-and-memory) | MEDIUM | Manual and episodic search, reranking, ingestion |
 | [Multi-agent roles and coordination](#future-work-multi-agent-roles) | MEDIUM | Specialists, contracts, handoffs and model budgets |
-| [Tooling and infrastructure](#future-work-tooling) | HIGH for manufacturer outreach; MEDIUM for implementation | Haas live pilot collection, simulated ingestion/replay, MCP, observability, audits |
+| [Tooling and infrastructure](#future-work-tooling) | HIGH | CPU-based statistical anomaly detection and manufacturer outreach; simulated ingestion/replay, MCP, observability and audits follow |
 | [Planning and automation](#future-work-planning-and-automation) | LOW | Controlled interventions and proactive monitoring |
 | [Frontend and operator experience](#future-work-frontend) | LOW | Difficulty recipes and safe configuration UI |
 | [Long-term portability and optional interfaces](#future-work-long-term) | LOW / FAR FUTURE | Cross-machine support, vision and voice |
@@ -343,6 +343,7 @@ This reorganizes the existing roadmap, not its implementation status or authorit
 | **HIGH** | Pilot readiness | [Degraded-data handling](#fw-degraded-data) | Set aside 2026-11-05: hazards will not be used. |
 | **HIGH** | Simulator | [Haas VF/NGC reference machine](#fw-haas-retrofit) | Ground the simulator in model-specific manuals and known supported telemetry. |
 | **HIGH — outreach plan only** | Tooling | [Haas live-telemetry pilot plan](#fw-haas-live-pilot) | Qualify one consenting shop and define safe read-only access, collection, storage, and shadow-mode deployment; build remains post-MVP. |
+| **HIGH** | Tooling | [CPU-based statistical anomaly detection](#fw-cpu-anomaly-detector) | Run lightweight trend/deviation checks on sensor windows; pass a provenance-backed assessment into line context and trigger bounded investigation without an always-on LLM. |
 | **HIGH** | Simulator | [Three-day bearing curve](#fw-bearing-progression) | Enable experiment selection and review wear curve with the manufacturing SME. |
 | **HIGH** | Simulator | [Power signal fidelity](#fw-power-validation) | Validate kW assumptions, relevant scoring and energy calculations. |
 | **HIGH** | Evaluation | [Line-wide investigation context](#fw-line-context) | Treat the alarmed machine as a starting point; check the relevant line before forming hypotheses. Buildable now. |
@@ -772,6 +773,14 @@ approval, mandatory verification and evaluator-only hidden causal truth.
      upstream/downstream neighbors. Preserve sample counts, time window,
      missing/stale/partial status and provenance. Do not dump all raw
      sensor readings across the factory into the model's prompt.
+   - **Optional CPU detector assessment (later HIGH-priority tooling increment):**
+     when the [statistical anomaly detector](#fw-cpu-anomaly-detector) is
+     enabled, include its per-machine, timestamp-bounded trend/deviation
+     status, data sufficiency, underlying measurement references and rule IDs.
+     This is **derived sensor evidence, not a cause diagnosis**; do not give
+     the investigator hidden truth or treat a score/label as a confirmed fault.
+     The baseline incident packet must remain available without a detector,
+     and its independent A/B comparison must precede this integration.
    - **Line record:** categorize each machine as abnormal, apparently
      unaffected or lacking reliable observations *for this window*,
      without treating incomplete evidence as proof of health. Keep this
@@ -2232,6 +2241,24 @@ Tested](https://www.requesty.ai/blog/structured-outputs-across-llm-providers-the
 ## Future work: Tooling and infrastructure
 
 <a id="future-work-tooling"></a>
+
+### CPU-based statistical anomaly detector and line-context assessment (HIGH; proposed 2026-11-06)
+
+<a id="fw-cpu-anomaly-detector"></a>
+
+**Category: Tooling and infrastructure. Priority: HIGH. Status: FUTURE WORK ONLY; not implemented by this roadmap update.** This is a **small CPU-only Python monitoring component**, not a separate LLM or a fine-tuned 0.8B model. It extends the existing read-only `ObservationTools.get_sensor_summary()`, `get_sensor_trend()`, raw readings and machine status, while preserving the existing simulator, `FactoryProvider`, Pydantic Graph, approval and verification boundaries.
+
+**First increment (no new infrastructure required):**
+
+1. Use bounded sliding windows of observable per-machine temperature, vibration, load and other available signals. Start with transparent, deterministic, configurable checks: rate-of-change/rolling trend, deviation from an eligible baseline, corroboration across signals, and sustained exceedance. Report both direction and magnitude, not a guessed root cause. Compare only compatible operating contexts (running vs idle; speed/load/job when observable); do not treat a normal warm-up, program change or job transition as degradation.
+2. Require minimum samples and adequate coverage; flag absent, stale, partial or unreliable windows as `insufficient_data` or `baseline_unavailable`, **not normal**. Use persistence windows, hysteresis, cooldowns and incident deduplication so transient sensor spikes do not repeatedly launch expensive investigations. Document the threshold choices and their units; calibrate with actual representative data later, not made-up certainty.
+3. Produce a bounded, structured, **derived monitoring assessment** per machine, intended for the [line-wide incident context](#fw-line-context). Include machine and sensor IDs, source tick/time cutoff, exact observation window, sample count/quality, baseline reference when valid, measured trend/delta/deviation and applicable rule IDs, state such as `normal_with_coverage` / `sustained_deviation` / `insufficient_data`, and links/identifiers for the supporting underlying observations. This is computed evidence, **not** the LLM's diagnosis; avoid cause names or invented confidence probabilities. Preserve the distinction between raw sensor measurements, derived features and agent hypotheses; correlated features are not independent corroboration.
+4. When enabled, attach the assessment as an **optional evidence section of the existing line context** for the triggering machine and relevant neighbors, before the investigator plans. The investigator can inspect the original readings and may disagree with the summary. The detector can also create a `DetectedAnomaly` when persistent abnormal behavior lacks a manufacturer threshold alarm, routed through the **existing** bounded triage/deep investigation entry point; never call an LLM on every sensor sample. Keep manufacturer/controller alarm and safety behavior independent and retain human approval for consequential actions.
+5. Keep the first version in-process on the CPU, offline, and deterministic under a fixed simulator seed: no GPU, training, persistent database, new agent or real-machine access. Later consider NumPy/SciPy for robust statistics, or scikit-learn/River anomaly models **only if** a tested statistical baseline fails and sufficient real, context-labeled data exists. The larger [telemetry ingestion and replay](#fw-telemetry-replay) work remains a separate MEDIUM-priority extension.
+
+**Sequencing:** First establish the baseline line-context packet and its matched-seed comparison **without** this feature; then add the CPU detector as a separately switchable treatment so any diagnostic improvement or bias can be attributed to it. Start with one sensor trend and one simulator scenario rather than implementing every possible anomaly rule at once.
+
+**Acceptance/evaluation:** On matched normal, progressive wear, speed/configuration change, isolated spike, missing-data, multi-machine and wrong-machine-trigger cases, compare threshold-only versus trend-based detection. Measure onset-to-detection lead time, false positives per simulated operating hour, missed incidents, duplicate launches, detector CPU time/memory, and incremental LLM requests. Separately A/B test line context **with versus without** derived assessments on the same observable histories, scoring correct machine/cause, unsupported inference, abstention, evidence provenance and tool use. Keep simulator ground truth exclusively evaluator-side, and do not claim real factory reliability from synthetic tests.
 
 ### Simulated telemetry ingestion, unified sensor history and replay (MEDIUM; proposed 2026-11-02)
 
