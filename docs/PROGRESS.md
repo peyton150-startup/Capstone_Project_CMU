@@ -44,6 +44,19 @@
 > to the Investigator. No live model comparison or accuracy gain is claimed.
 > **Understood (pre): yes. Pre-merge walkthrough (§11.6): done 2026-11-05, three
 > questions, understood after one correction (the triage interaction fix below).**
+>
+> **2026-11-06 — triage interaction fix and merge with `main` (fix built ungated,
+> developer to review; understood: no):** with `TRIAGE=on` and `LINE_CONTEXT=on`,
+> `episode.run_triage_then_deep` built the deep run's state without
+> `line_context_enabled`, so only the triage (capped at its few calls) got a
+> packet. The deep state now copies the flag, so the deep run gathers its own
+> packet with its own budget; nothing from the triage's packet is reused.
+> New test `test_triage.py::test_with_line_context_the_deep_run_gathers_its_own_packet`
+> fails without the fix. `main` (with PR 187) was merged in: the conflicts were
+> two import lines in `experiment.py`, this file and the generated inventory,
+> which was rebuilt from a full coverage run. The matched live runs
+> `linectx-on-1` and `linectx-off-1` (13 cases each) finished on 2026-11-05;
+> their results note is Codex's (AGENTS.md §12) and not written yet.
 
 > **2026-11-05 — rapid triage mode (taught and gated; walkthrough done):**
 > Merged before its walkthrough on the developer's instruction ("merge and we
