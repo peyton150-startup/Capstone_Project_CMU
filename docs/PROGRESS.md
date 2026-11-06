@@ -40,7 +40,47 @@
 > held-out normal/fault cases, false alarms, detection lead time and CPU costs.
 > This documents future work only: no detector, model, line-context adapter,
 > dependencies, or tests were implemented; understanding status unchanged.
+
+> **2026-11-05 — first line-wide incident-context increment (built for an opt-in comparison; live effect not measured):**
+> The developer passed the pre-build check: the alarm starts an investigation
+> but cannot limit its machines; observed measurements need source and time,
+> missing data cannot mean normal, and hidden simulator truth must stay out.
+> `agent/incident_context.py` adds `incident_sensor` (uses a sensor only when
+> the trigger explicitly names one), `context_call` (reads through the normal
+> provider while preserving at least half the research-call budget), and
+> `assemble_incident_context` (gathers current line status/jobs and settings,
+> recent unfiltered events and inspections, plus trigger/neighbor summaries).
+> `agent/state.py` adds `IncidentContext`, an index to the original observable
+> evidence and missing calls; `investigation.observe` runs it before manual
+> and planning only when `LINE_CONTEXT=on`. `model_policy.render` shows the
+> packet's coverage and warns when the current snapshot is later than the
+> alarm tick. `episode.py` wires the setting; `experiment.py` and
+> `agent/completion.py` retain the packet in experiment and audit records,
+> not shared memory. `.env.example` documents the opt-in arm.
+> Focused offline tests cover cutoff, provenance, call reserve, missing
+> coverage, no guessed sensor, record persistence and old-record loading.
+> The evaluation inventory lists the three new functions and five new tests;
+> their coverage classifications await a complete instrumented run.
+> The packet uses current observed settings/status, not a reconstructed
+> trigger-time snapshot; monitoring can discover an alarm inside a 10-tick
+> scan. It offers only nearby sensor summaries and leaves deeper line checks
+> to the Investigator. No live model comparison or accuracy gain is claimed.
+> **Understood (pre): yes. Pre-merge walkthrough (§11.6): done 2026-11-05, three
+> questions, understood after one correction (the triage interaction fix below).**
 >
+> **2026-11-06 — triage interaction fix and merge with `main` (fix built ungated,
+> developer to review; understood: no):** with `TRIAGE=on` and `LINE_CONTEXT=on`,
+> `episode.run_triage_then_deep` built the deep run's state without
+> `line_context_enabled`, so only the triage (capped at its few calls) got a
+> packet. The deep state now copies the flag, so the deep run gathers its own
+> packet with its own budget; nothing from the triage's packet is reused.
+> New test `test_triage.py::test_with_line_context_the_deep_run_gathers_its_own_packet`
+> fails without the fix. `main` (with PR 187) was merged in: the conflicts were
+> two import lines in `experiment.py`, this file and the generated inventory,
+> which was rebuilt from a full coverage run. The matched live runs
+> `linectx-on-1` and `linectx-off-1` (13 cases each) finished on 2026-11-05;
+> their results note is Codex's (AGENTS.md §12) and not written yet.
+
 > **2026-11-05 — rapid triage mode (taught and gated; walkthrough done):**
 > Merged before its walkthrough on the developer's instruction ("merge and we
 > will do the walkthrough later"). The walkthrough (AGENTS.md §11 step 6) was
@@ -706,6 +746,10 @@ alarm), then evaluation, then the agent itself.
 
 ## Session notes
 
+- **2026-11-06: merged at the developer's direction; section 11.6 walkthroughs owed.** The developer said to skip the pre-merge walkthroughs and record them as owed. Merged after green CI, each updated from `main` and with its evaluator inventory rebuilt from a full per-test coverage run: #189 (variable-comment rule, docs) and #190 (variable comments, comments only), which need no walkthrough; #191 (`DECIDE_REASONING_EFFORT`), #192 (`DECIDE_CALLS`), #193 (why a final answer was refused), #194 (gap trace and `gap_replay`) and #186 (Codex's line-wide incident context, handed over for merging; built on Codex's merge commit `f0fa4ac`), whose walkthroughs are owed. Conflict resolutions kept both sides; the one real code merge was #191's decide-only effort threaded through `main`'s new `chain_for` (`reasoning_effort` parameter). #196 is held at the developer's request. None of these has run live yet.
+- **2026-11-05: gap trace and offline gap-rule replay (built ungated at the developer's request, developer to review; understood: no).** The final check (`check_conclusion`) holds a diagnosis open whenever it finds any gap; in the line-context runs it held all 18 checked answers open, catching about 4 harmful "nothing needs doing" answers but also blocking about 5 right ones. To calibrate it without live runs, the check now saves `InvestigationState.conclusion_trace` (`ConclusionTrace`): the model's own completion claim and recommendation before the check, the fix it wanted and whether the action rules alone would refuse it, and every gap as a `GapRecord` with its kind (model question, unanswered question, no observable evidence, conflict with the chosen cause, unverified number) and, for questions, its role (`question_role`: rival test, chosen-cause check, side, or unlinked when the model's wording matches no tracked question). `conclusion_gaps` builds the list; the plain-text gaps and every decision are unchanged. The trace goes into the results file (`ExperimentRecord.conclusion_trace`). `python -m capstone.evaluation.gap_replay RESULTS.jsonl [--cases]` replays six rules (today's, down to none) on saved results with no model calls and counts right / harmful / held endings against what the true faults needed; older results replay roughly (gaps sorted by wording, questions unlinked). First replay of linectx-on-1 and the first 10 cases of linectx-off-1 (untraced): today 0 right / 0 harmful / 21 held; grounding only 2 / 2 / 17; none 5 / 4 / 9. Not run live.
+- **2026-11-05: save why a final answer was refused (built ungated at the developer's request, developer to review; understood: no).** In the line-context-on run, KA-01 and KA-03 ended "undetermined" although the model answered the conclude question: the answer broke a rule (`check_conclusion` or the policy raised), and `conclude` caught the error without keeping it. Now `conclude` saves the error's message in `InvestigationState.conclusion_rejected` (one line, via the new `rejection_reason`), the experiment record keeps it (`ExperimentRecord.conclusion_rejected`, None in older results), and the report's episode line adds `conclude_refused=(reason)`. Nothing the agent does changes; only the record. Not run live.
+- **2026-11-05: `DECIDE_CALLS`, several tool calls per decide answer (taught and gated; walkthrough owed).** Each tool call cost one model question (about 45 s); the tools themselves took 26 s across a whole 13-case run. With `DECIDE_CALLS` above 1 (1 to 5; default 1, which keeps every prompt and schema as before), one decide answer may list several calls. `batch_steps` cuts the list to the limit, at the first `wait` (a wait listed first runs alone; one listed after reads is dropped with everything after it, so the model sees the reads before letting time pass), and to the tool-call budget left. `run_batch` runs the rest in order through `gather`, and the loop then asks one question about all the new evidence (`interpret_and_decide_many`). Each call still counts against the budget; repeats are still skipped free. Trace: each call's record (and `AgentStep`) carries `batch` and `batch_position`, the live view shows `[batch 3.2]`, the record keeps `decide_calls` and a `BatchTrace` (answers, calls chosen and run, read together, cuts at a wait, over the limit, for budget), and the report adds a `decide batches:` line. The critic's recheck stays one reading (the first call of a list). Gate: the developer explained that reads are free and do not move the factory, while `wait` is the one call that moves time, and that a read cut at a wait loses nothing because the model can choose a better one once it sees the new tick (after re-teaching how the model reads past tick ranges). Closing question (step 18), answered: for `get_sensor_history`, `wait 10`, `get_alarms` with 4 calls left, the developer said the history runs and the wait is cut but thought `get_alarms` would still run; corrected (everything after the wait is dropped, so 1 call runs and the factory does not move). Asked why `get_alarms` cannot run after a first-listed wait in the same turn, the developer explained that the factory would have moved 10 ticks, so the call chosen before the wait would no longer match the time; added that its arguments may be stale. Understood. Not yet run live (Codex).
 - **2026-11-05: `DECIDE_REASONING_EFFORT`, lower reasoning on the decide question only (taught and gated; walkthrough owed).** Most of a case's time is NVIDIA's Nemotron reasoning about 45 s before each decide answer (77% of the line-context-on run). The new setting (`low`, `medium` or `high`; unset by default) adds NVIDIA's documented `"reasoning_effort"` field to the decide job's requests to NVIDIA only; every other job, and the Cohere fallback, is sent exactly what it was before. With `STEP_QUESTIONS=1` the decide question also interprets the last result, so that interpretation gets the lower effort too; `STEP_QUESTIONS=2` keeps interpretation at full effort. The run header names the setting when it is on. Gate: the developer explained that the fallback keeps its usual request and that the interpret question keeps full reasoning with `STEP_QUESTIONS=2` (after one correction: the second comparison is `STEP_QUESTIONS`, not tree-of-thought). Not yet checked live that NVIDIA's hosted API honours the field (Codex).
 - **2026-11-05: AGENTS.md restates the variable-comment rule for every code PR (docs only).** At the developer's request, §7.1 now says plainly that it applies to every pull request that changes code, and that the `# Variables:` block at the top of each function names its highest-signal variables. §11 step 4 gains a "Variable comments" item: a code PR lists the functions whose block was added or updated. The rule itself dates from 2026-10-29; this only makes it explicit and checkable in the PR description.
 - **2026-11-05: variable comments for the functions changed today in PRs #184 and #177 (comments only, built ungated, developer to review; understood: no).** Checked every function those PRs added or changed. Most already had a correct `# Variables:` block (`conclude`, `propose`, `triage_budgets`, `run_episode`, `run_triage_then_deep`, `triage_record`, `record_of`, `nearest_rank`, `format_triage`, `report`, `run_traced`). Added blocks to `needs_deep_run` (agent/investigation.py) and the command-line `main` (experiment.py); removed a duplicated `calls` line from `run_experiment`; and noted in `ActionTools.__init__` that a smaller `max_wait` is enforced but not shown in the wait tool's schema. No behaviour change.

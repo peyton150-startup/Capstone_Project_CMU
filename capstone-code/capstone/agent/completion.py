@@ -30,6 +30,7 @@ from capstone.agent.artifacts import (
 )
 from capstone.agent.state import (
     DecisionRecord,
+    IncidentContext,
     InvestigationState,
     PrunedCandidate,
     ReasoningMetrics,
@@ -139,10 +140,15 @@ class AuditRecord(Contract):
     # what the agent believed, never from branches it dropped. Empty without
     # tree-of-thought (and in older log lines).
     pruned_candidates: tuple[PrunedCandidate, ...] = ()
+    # The opt-in observed line packet; absent in older audit lines.
+    incident_context: IncidentContext | None = None
 
 
 def audit_record(state: InvestigationState) -> AuditRecord:
     """The shared record together with the runtime detail it leaves out."""
+    # Variables:
+    #   state.incident_context: Source IDs and missing coverage from the
+    #     opt-in packet; retained for audit, not promoted as a belief.
     return AuditRecord(
         completed=complete(state),
         provenance=tuple(state.provenance),
@@ -155,6 +161,7 @@ def audit_record(state: InvestigationState) -> AuditRecord:
         decisions=tuple(state.decisions),
         metrics=state.metrics(),
         pruned_candidates=tuple(state.pruned_candidates),
+        incident_context=state.incident_context,
     )
 
 

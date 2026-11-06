@@ -256,3 +256,19 @@ def test_nearest_rank_percentiles():
     assert nearest_rank(values, 0.5) == 5.0
     assert nearest_rank(values, 0.95) == 10.0
     assert nearest_rank([7.0], 0.95) == 7.0
+
+
+def test_with_line_context_the_deep_run_gathers_its_own_packet(monkeypatch):
+    """From PR 186's walkthrough: the deep state was built without the flag,
+    so with TRIAGE=on and LINE_CONTEXT=on only the triage got a packet."""
+    monkeypatch.setenv("LINE_CONTEXT", "on")
+    result = run(triage_then_deep("intervene"), monkeypatch, triage=True)
+    first, deep = result.triage, result.state
+    assert first.line_context_enabled and deep.line_context_enabled
+    assert first.incident_context is not None
+    assert deep.incident_context is not None
+    # Its own packet, gathered in the deep run, not the triage's carried over.
+    assert deep.incident_context is not first.incident_context
+    packet = deep.incident_context
+    cited = {*packet.evidence_by_tool.values(), *packet.summary_evidence.values()}
+    assert cited and cited <= {e.id for e in deep.evidence}

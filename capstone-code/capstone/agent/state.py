@@ -143,6 +143,19 @@ class PrunedCandidate(Contract):
     contradicting_evidence_ids: tuple[str, ...] = ()
 
 
+class IncidentContext(Contract):
+    """Observed line context and references to its original tool answers."""
+
+    trigger_tick: int = Field(ge=0)
+    as_of_tick: int | None = Field(default=None, ge=0)
+    from_tick: int = Field(ge=0)
+    machine_ids: tuple[str, ...] = ()
+    neighbor_ids: tuple[str, ...] = ()
+    evidence_by_tool: dict[str, str] = Field(default_factory=dict)
+    summary_evidence: dict[str, str] = Field(default_factory=dict)
+    unavailable: tuple[str, ...] = ()
+
+
 class Question(Contract):
     """One piece of information the agent still needs."""
 
@@ -152,6 +165,83 @@ class Question(Contract):
     distinguishes_hypothesis_ids: tuple[str, ...] = ()
     signal_reliability: Literal["direct", "indirect", "unknown"] = "unknown"
     estimated_calls: int = Field(default=1, ge=1, le=3)
+
+
+GapKind = Literal[
+    "model_question",
+    "unanswered_question",
+    "no_observable_evidence",
+    "selected_has_conflict",
+    "unverified_number",
+]
+# How an open question bears on the chosen explanation: it tells the chosen
+# one from a rival, it only checks the chosen one, it names no explanation,
+# or (for the model's own wording) it matches no question the agent tracked.
+GapRole = Literal["rival_test", "selected_check", "side", "unlinked"]
+
+
+class GapRecord(Contract):
+    """One reason the final check found the diagnosis not yet settled."""
+
+    kind: GapKind
+    text: str
+    # For questions only: the tracked question it is (or matches) and how it
+    # bears on the chosen explanation. None for the other kinds.
+    question_id: str | None = None
+    role: GapRole | None = None
+
+
+class ConclusionTrace(Contract):
+    """What the final check saw and did, kept so other gap rules can be replayed.
+
+    Record only: nothing reads it to decide anything.
+    """
+
+    # The model's own completion claim and recommendation, before the check
+    # could change them.
+    model_assessment: Literal["supported", "unresolved"] | None
+    model_recommendation: str
+    # The fix the model asked for, as "action machine", and why the action
+    # rules alone (confidence, evidence, a named action) would refuse it,
+    # whatever the gaps. None when no fix was asked for or nothing refuses it.
+    wanted_action: str | None = None
+    action_blocked: str | None = None
+    selected_hypothesis_id: str | None = None
+    # The explanations still standing when the check ran.
+    current_hypothesis_ids: tuple[str, ...] = ()
+    gaps: tuple[GapRecord, ...] = ()
+    # True when the check made it "unresolved" although the model said
+    # "supported": the check, not the model, held the diagnosis open.
+    forced_unresolved: bool = False
+
+
+# The most tool calls one decide answer may list (DECIDE_CALLS).
+MAX_DECIDE_CALLS = 5
+
+
+class BatchTrace(Contract):
+    """What batching did in one investigation (DECIDE_CALLS above 1).
+
+    Counts only, filled by the loop. Each call's own DecisionRecord also says
+    which answer chose it (`batch`) and its place in that answer.
+    """
+
+    # Decide answers that chose at least one tool call.
+    answers: int = Field(default=0, ge=0)
+    # Tool calls those answers listed, before any cut.
+    chosen: int = Field(default=0, ge=0)
+    # Tool calls the loop then ran (a repeat still counts as run; it is
+    # recorded as repeated_call and costs no call).
+    run: int = Field(default=0, ge=0)
+    # Calls dropped at a `wait`: a wait listed after reads and everything
+    # after it, or everything after a wait listed first (which runs alone).
+    cut_at_wait: int = Field(default=0, ge=0)
+    # Calls dropped because the answer listed more than DECIDE_CALLS.
+    cut_over_limit: int = Field(default=0, ge=0)
+    # Calls dropped because the tool-call budget had run out.
+    cut_for_budget: int = Field(default=0, ge=0)
+    # Answers whose results were read together in one question.
+    read_together: int = Field(default=0, ge=0)
 
 
 class DecisionRecord(Contract):
@@ -172,6 +262,10 @@ class DecisionRecord(Contract):
     termination_reason: TerminationReason | None = None
     # For a failed call: the tool's own account of what was wrong.
     error: ToolError | None = None
+    # With DECIDE_CALLS above 1: which decide answer chose this call (1, 2, ...)
+    # and its place in that answer's list (1 is first). None otherwise.
+    batch: int | None = Field(default=None, ge=1)
+    batch_position: int | None = Field(default=None, ge=1)
 
 
 class ReasoningMetrics(Contract):
@@ -207,6 +301,14 @@ class InvestigationState(BaseModel):
     state_action_bar: bool = True
     # The configured loop mode, kept for experiment records. The loop sets it.
     step_questions: int = Field(default=2, ge=1, le=2)
+    # Opt-in comparison arm: gather bounded line context before planning.
+    line_context_enabled: bool = False
+    incident_context: IncidentContext | None = None
+    # The most tool calls one decide answer may list (DECIDE_CALLS). The loop
+    # sets it; a policy reads it to know whether it may answer with a list.
+    decide_calls: int = Field(default=1, ge=1, le=MAX_DECIDE_CALLS)
+    # What batching did, for the record; None when decide_calls is 1.
+    decide_batches: BatchTrace | None = None
 
     evidence: list[Evidence] = Field(default_factory=list)
     # One label per evidence item, written by the loop when it arrived.
@@ -246,6 +348,13 @@ class InvestigationState(BaseModel):
     # "overruled" look the same in the conclusion alone.
     policy_recommendation: str | None = None
     recommendation_lowered: str | None = None
+    # Why the policy's final answer was refused (it broke a rule, for example
+    # cited evidence that was never gathered), so the conclusion fell back to
+    # "undetermined". None when an answer was accepted or none came.
+    conclusion_rejected: str | None = None
+    # The final check's gaps, each with its kind, for replaying other gap
+    # rules offline. None when the answer made no completion claim.
+    conclusion_trace: ConclusionTrace | None = None
     proposed_action: ProposalRecord | None = None
     # The tick at which the conclusion was reached.
     concluded_tick: int | None = Field(default=None, ge=0)

@@ -10,11 +10,14 @@ from capstone.agent.artifacts import (
 from capstone.agent.investigation import (
     INVESTIGATION_GRAPH,
     critique,
+    observe,
     recheck,
     recheck_trigger,
+    rejection_reason,
     run_investigation,
 )
 from capstone.agent.loop import InvestigationDeps
+from capstone.agent.model_policy import render
 from capstone.agent.policy import ActionRequest, Interpretation, Stop
 from capstone.agent.state import Question
 from capstone.contracts.hypotheses import Hypothesis
@@ -190,6 +193,125 @@ def test_an_investigation_survives_the_factory_not_telling_the_time():
     assert state.decisions[0].outcome == "tool_error"
     assert state.conclusion is not None
     assert "investigate" in stages(state)
+
+
+def test_incident_context_uses_bounded_observations_before_planning():
+    """The packet keeps source references and respects the trigger cutoff."""
+    # Variables:
+    #   machines: The ordered observable line used to choose nearby machines.
+    #   respond: Gives each allowed tool a deterministic observable answer.
+    #   context: The packet, whose IDs must point to the gathered evidence.
+    state = fresh_state()
+    state.line_context_enabled = True
+    machines = [
+        {
+            "machine_id": machine_id,
+            "status": "idle",
+            "job_id": None,
+            "hydraulics": False,
+        }
+        for machine_id in ("CNC-01", "CNC-02", "CNC-03")
+    ]
+
+    def respond(request):
+        """Return one tool's observable answer from this fixed test factory."""
+        # Variables:
+        #   request: The exact read-only call, including its machine and time window.
+        if request.name == "list_machines":
+            return machines
+        if request.name == "get_settings":
+            return [{"machine_id": "CNC-02", "speed_rpm": 1200.0}]
+        if request.name == "get_events":
+            return [
+                {
+                    "tick": 9,
+                    "machine_id": "CNC-03",
+                    "kind": "alarm",
+                    "message": "x",
+                    "job_id": None,
+                }
+            ]
+        if request.name == "get_inspections":
+            return [{"tick": 8, "job_id": 1, "batch_id": 1, "result": "failed"}]
+        if request.name == "get_sensor_summary":
+            return {
+                "machine_id": request.arguments["machine_id"],
+                "sensor": "vibration",
+                "sample_count": 10,
+                "unit": "mm/s",
+            }
+        return {"tick": 10}
+
+    provider = FakeProvider(respond, tick=12)
+    deps = InvestigationDeps(provider=provider, policy=wear_policy(), clock=lambda: 0.0)
+    observe(state, deps)
+    context = state.incident_context
+    assert context is not None
+    assert context.trigger_tick == 10 and context.as_of_tick == 12
+    assert context.machine_ids == ("CNC-01", "CNC-02", "CNC-03")
+    assert context.neighbor_ids == ("CNC-01", "CNC-02", "CNC-03")
+    assert [call.name for call in provider.calls] == [
+        "get_time",
+        "list_machines",
+        "get_settings",
+        "get_events",
+        "get_inspections",
+        "get_sensor_summary",
+        "get_sensor_summary",
+        "get_sensor_summary",
+    ]
+    assert all(
+        call.arguments["to_tick"] == state.anomaly.tick
+        for call in provider.calls
+        if call.name in {"get_events", "get_inspections", "get_sensor_summary"}
+    )
+    assert len(context.evidence_by_tool) == 4
+    assert len(context.summary_evidence) == 3
+    assert all(p.origin == "observable" for p in state.provenance)
+    assert "INCIDENT CONTEXT" in render(state)
+    assert "An unmeasured machine is not known to be healthy" in render(state)
+    assert "not a trigger-time snapshot" in render(state)
+
+
+def test_incident_context_marks_missing_calls_and_preserves_research_budget():
+    """A small call budget leaves research capacity and records skipped reads."""
+    # Variables:
+    #   state: A four-call investigation with line context enabled.
+    state = fresh_state(max_tool_calls=4)
+    state.line_context_enabled = True
+    provider = FakeProvider(
+        lambda request: [] if request.name == "list_machines" else {"tick": 10}
+    )
+    deps = InvestigationDeps(provider=provider, policy=wear_policy(), clock=lambda: 0.0)
+    observe(state, deps)
+    assert [call.name for call in provider.calls] == ["get_time", "list_machines"]
+    assert state.research_tool_calls == 2
+    assert state.incident_context is not None
+    assert set(state.incident_context.unavailable) == {
+        "get_settings: unavailable or budgeted out",
+        "get_events: unavailable or budgeted out",
+        "get_inspections: unavailable or budgeted out",
+        "nearby sensor summaries: trigger machine or line order unavailable",
+    }
+
+
+def test_incident_context_without_an_explicit_sensor_avoids_guessing_one():
+    """Inspection failures alone do not pick a sensor for nearby summaries."""
+    # Variables:
+    #   state: An inspection-triggered run whose description names no sensor.
+    state = fresh_state()
+    state.line_context_enabled = True
+    state.anomaly = state.anomaly.model_copy(
+        update={"description": "Inspection failures"}
+    )
+    provider = FakeProvider(
+        lambda request: [] if request.name == "list_machines" else {}
+    )
+    deps = InvestigationDeps(provider=provider, policy=wear_policy(), clock=lambda: 0.0)
+    observe(state, deps)
+    assert not any(call.name == "get_sensor_summary" for call in provider.calls)
+    assert state.incident_context is not None
+    assert state.incident_context.summary_evidence == {}
 
 
 # --- plan ------------------------------------------------------------------
@@ -386,6 +508,40 @@ def test_an_unjustified_intervention_is_lowered_to_escalate(concluded):
 def test_the_reason_an_intervention_was_lowered_is_recorded(concluded, why):
     state, _ = investigate(wear_policy(conclude=lambda state: concluded))
     assert state.recommendation_lowered == why
+
+
+def test_a_refused_final_answer_records_why():
+    # Variables:
+    #   cites_ungathered: A final answer citing E99, which was never gathered,
+    #     so check_conclusion refuses it.
+    cites_ungathered = (conclusion(evidence=("E99",)), REPLACE)
+    state, _ = investigate(wear_policy(conclude=lambda state: cites_ungathered))
+    assert state.conclusion.diagnosis == "undetermined"
+    assert state.policy_recommendation is None
+    assert state.conclusion_rejected == (
+        "the conclusion cites evidence that was not gathered"
+    )
+    refused = [d for d in state.decisions if d.outcome == "invalid_decision"]
+    assert [d.phase for d in refused] == ["decide"]
+
+
+def test_an_error_raised_by_the_policy_itself_is_recorded_too():
+    def broken(state):
+        raise LookupError("no hypothesis H7")
+
+    state, _ = investigate(wear_policy(conclude=broken))
+    assert state.conclusion.diagnosis == "undetermined"
+    assert state.conclusion_rejected == "no hypothesis H7"
+
+
+def test_an_accepted_final_answer_records_no_refusal():
+    state, _ = investigate(wear_policy())
+    assert state.conclusion_rejected is None
+
+
+def test_the_refusal_reason_is_one_line_and_never_empty():
+    assert rejection_reason(ValueError("bad\n  answer")) == "bad answer"
+    assert rejection_reason(TypeError()) == "TypeError"
 
 
 def test_an_accepted_or_unchanged_recommendation_records_no_lowering():

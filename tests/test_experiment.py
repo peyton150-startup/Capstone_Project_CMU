@@ -188,6 +188,25 @@ def test_the_report_shows_an_overruled_intervention_and_why(records):
     assert plain and "overruled=" not in report(plain, {})
 
 
+def test_the_report_shows_why_a_final_answer_was_refused(records):
+    refused = records[0].model_copy(
+        update={
+            "conclusion": "undetermined",
+            "conclusion_rejected": "the conclusion cites evidence that was not gathered",
+        }
+    )
+    line = "conclude_refused=(the conclusion cites evidence that was not gathered)"
+    assert line in report([refused], {})
+    plain = [r for r in records if r.conclusion_rejected is None]
+    assert plain and "conclude_refused=" not in report(plain, {})
+
+
+def test_results_from_before_refusals_were_recorded_still_read(records):
+    old = records[0].model_dump(mode="json")
+    del old["conclusion_rejected"]
+    assert ExperimentRecord.model_validate(old).conclusion_rejected is None
+
+
 def test_results_from_before_the_policy_recommendation_was_kept_still_read(records):
     old = records[0].model_dump(mode="json")
     del old["policy_recommendation"], old["recommendation_lowered"]
@@ -992,3 +1011,21 @@ def test_a_critique_from_before_after_stage_still_reads():
         "seconds": 1.0,
     }
     assert CritiqueRecord.model_validate(old).after_stage is None
+
+
+def test_line_context_setting_and_evidence_references_reach_the_record(monkeypatch):
+    """The opt-in packet is saved, and old experiment records still load."""
+    # Variables:
+    #   record: One scripted episode with the line packet enabled through settings.
+    #   old: Its fields before this addition, for backward-compatible loading.
+    monkeypatch.setenv("LINE_CONTEXT", "true")
+    (record,) = run_experiment([BEARING], stand_in, name="line-context")
+    assert record.line_context_enabled is True
+    assert record.incident_context is not None
+    assert record.incident_context.evidence_by_tool["list_machines"]
+    assert record.incident_context.trigger_tick < record.incident_context.as_of_tick
+    assert record.incident_context.evidence_by_tool["get_events"]
+    assert "bearing_health" not in record.incident_context.model_dump_json()
+    old = record.model_dump(exclude={"line_context_enabled", "incident_context"})
+    back = ExperimentRecord.model_validate(old)
+    assert back.line_context_enabled is None and back.incident_context is None

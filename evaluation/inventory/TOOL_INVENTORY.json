@@ -53,6 +53,7 @@
     "tests/test_agent_completion.py::test_the_action_cites_what_the_factory_reported_about_it",
     "tests/test_agent_completion.py::test_the_agent_has_no_tool_that_reads_the_log",
     "tests/test_agent_completion.py::test_the_audit_record_holds_what_the_shared_record_leaves_out",
+    "tests/test_agent_completion.py::test_the_audit_record_keeps_incident_context_without_promoting_it_to_memory",
     "tests/test_agent_completion.py::test_the_audit_record_keeps_what_tree_of_thought_ruled_out",
     "tests/test_agent_completion.py::test_the_log_is_only_ever_added_to",
     "tests/test_agent_completion.py::test_the_log_keeps_every_investigation_one_per_line",
@@ -98,10 +99,9 @@
     "tests/test_episode.py::test_a_model_policy_runs_one_question_per_step_by_default",
     "tests/test_episode.py::test_a_run_with_the_manual_gives_the_settings_critic_the_manual",
     "tests/test_episode.py::test_a_scripted_policy_without_the_combined_question_runs_in_two",
-    "tests/test_episode.py::test_a_verified_fix_is_audited_and_remembered",
-    "tests/test_episode.py::test_a_whole_episode_records_the_section_nine_fields"
+    "tests/test_episode.py::test_a_verified_fix_is_audited_and_remembered"
    ],
-   "test_count": 278,
+   "test_count": 281,
    "verification_status": "PARTIALLY VERIFIED",
    "snap_questions": [
     "TL-01",
@@ -132,6 +132,7 @@
     "tests/test_agent_investigation.py::test_research_through_the_real_provider_changes_nothing_in_the_factory",
     "tests/test_agent_loop.py::test_the_loop_gathers_evidence_through_the_real_provider_without_hidden_truth",
     "tests/test_build_line.py::test_the_agents_tools_work_on_the_standard_line",
+    "tests/test_experiment.py::test_line_context_setting_and_evidence_references_reach_the_record",
     "tests/test_factory_provider.py::test_adapter_logs_metadata_without_tool_payloads",
     "tests/test_factory_provider.py::test_all_read_tools_preserve_existing_observable_shapes",
     "tests/test_factory_provider.py::test_an_answer_that_breaks_its_contract_is_reported_without_its_content",
@@ -154,10 +155,11 @@
     "tests/test_simulator_challenge.py::test_different_seeds_change_observations_but_keep_the_same_challenge_logic",
     "tests/test_slow_when_worn.py::test_nothing_about_speed_or_progress_reaches_the_agent_directly",
     "tests/test_thermometer.py::test_the_machine_tool_cannot_return_the_thermometer",
+    "tests/test_triage.py::test_with_line_context_the_deep_run_gathers_its_own_packet",
     "tests/test_wait_tool.py::test_looking_is_free_however_often_the_agent_looks",
     "tests/test_wrong_setting.py::test_the_agent_can_read_each_machines_speed_but_not_what_it_should_be"
    ],
-   "test_count": 29,
+   "test_count": 31,
    "verification_status": "PARTIALLY VERIFIED",
    "snap_questions": [
     "TL-01",
@@ -184,6 +186,7 @@
    "simulator_access": "reads sim.readings / event_log / state through ObservationTools, or ActionTools for wait and the approval desk; never sim.ground_truth() or MachineCondition",
    "tests": [
     "tests/test_difficulty_tool_compatibility.py::test_compound_fault_repair_can_leave_a_symptom_through_unchanged_tools",
+    "tests/test_experiment.py::test_line_context_setting_and_evidence_references_reach_the_record",
     "tests/test_factory_provider.py::test_all_read_tools_preserve_existing_observable_shapes",
     "tests/test_false_alarm.py::test_the_ground_truth_names_a_false_alarm_and_the_tool_view_does_not",
     "tests/test_observation_tools.py::test_answers_are_plain_data",
@@ -193,9 +196,10 @@
     "tests/test_simulator_challenge.py::test_challenge_has_sparse_samples_and_self_ending_anomaly_alongside_real_faults",
     "tests/test_simulator_challenge.py::test_challenge_is_replayable_through_unchanged_tools_and_keeps_truth_hidden",
     "tests/test_simulator_challenge.py::test_different_seeds_change_observations_but_keep_the_same_challenge_logic",
+    "tests/test_triage.py::test_with_line_context_the_deep_run_gathers_its_own_packet",
     "tests/test_wrong_setting.py::test_the_agent_can_read_each_machines_speed_but_not_what_it_should_be"
    ],
-   "test_count": 11,
+   "test_count": 13,
    "verification_status": "INSUFFICIENT EVIDENCE",
    "snap_questions": [
     "TL-01",
@@ -287,6 +291,7 @@
     "tests/test_agent_completion.py::test_no_hidden_truth_is_written_to_the_log",
     "tests/test_agent_completion.py::test_the_action_cites_what_the_factory_reported_about_it",
     "tests/test_agent_completion.py::test_the_audit_record_holds_what_the_shared_record_leaves_out",
+    "tests/test_agent_completion.py::test_the_audit_record_keeps_incident_context_without_promoting_it_to_memory",
     "tests/test_agent_completion.py::test_the_audit_record_keeps_what_tree_of_thought_ruled_out",
     "tests/test_agent_completion.py::test_the_log_is_only_ever_added_to",
     "tests/test_agent_completion.py::test_the_log_keeps_every_investigation_one_per_line",
@@ -333,10 +338,9 @@
     "tests/test_episode.py::test_a_scripted_policy_without_the_combined_question_runs_in_two",
     "tests/test_episode.py::test_a_verified_fix_is_audited_and_remembered",
     "tests/test_episode.py::test_a_whole_episode_records_the_section_nine_fields",
-    "tests/test_episode.py::test_critic_blind_is_off_by_default_and_reaches_the_run",
-    "tests/test_episode.py::test_critic_followup_off_by_default"
+    "tests/test_episode.py::test_critic_blind_is_off_by_default_and_reaches_the_run"
    ],
-   "test_count": 256,
+   "test_count": 259,
    "verification_status": "VERIFIED",
    "snap_questions": [
     "TL-01",
@@ -440,6 +444,7 @@
     "tests/test_experiment.py::test_an_uncited_memory_is_unknown_not_unused",
     "tests/test_experiment.py::test_critic_questions_counted_and_tagged",
     "tests/test_experiment.py::test_critic_questions_follow_the_policy_s_own",
+    "tests/test_experiment.py::test_line_context_setting_and_evidence_references_reach_the_record",
     "tests/test_experiment.py::test_nothing_the_evaluator_knows_reaches_the_memory_store",
     "tests/test_experiment.py::test_old_records_without_blackout_fields_still_read",
     "tests/test_experiment.py::test_run_keys_are_unique_per_execution",
@@ -479,10 +484,9 @@
     "tests/test_model_policy.py::test_both_step_modes_finish_the_same_scripted_repair_and_record_the_mode",
     "tests/test_model_policy.py::test_the_default_budget_fits_a_whole_episode_at_eight_seconds_an_answer",
     "tests/test_observation_tools.py::test_answers_are_plain_data",
-    "tests/test_observation_tools.py::test_looking_does_not_advance_time_or_change_the_factory",
-    "tests/test_observation_tools.py::test_nothing_hidden_leaks_through_any_tool_over_a_full_run"
+    "tests/test_observation_tools.py::test_looking_does_not_advance_time_or_change_the_factory"
    ],
-   "test_count": 115,
+   "test_count": 117,
    "verification_status": "PARTIALLY VERIFIED",
    "snap_questions": [
     "TL-01",
@@ -651,6 +655,7 @@
     "tests/test_agent_completion.py::test_no_hidden_truth_is_written_to_the_log",
     "tests/test_agent_completion.py::test_the_action_cites_what_the_factory_reported_about_it",
     "tests/test_agent_completion.py::test_the_audit_record_holds_what_the_shared_record_leaves_out",
+    "tests/test_agent_completion.py::test_the_audit_record_keeps_incident_context_without_promoting_it_to_memory",
     "tests/test_agent_completion.py::test_the_audit_record_keeps_what_tree_of_thought_ruled_out",
     "tests/test_agent_completion.py::test_the_log_is_only_ever_added_to",
     "tests/test_agent_completion.py::test_the_log_keeps_every_investigation_one_per_line",
@@ -697,10 +702,9 @@
     "tests/test_episode.py::test_critic_off_by_default_keeps_results",
     "tests/test_episode.py::test_passed_critic_is_used",
     "tests/test_episode.py::test_the_agent_never_holds_the_answer_key",
-    "tests/test_episode.py::test_the_same_seed_gives_the_same_episode",
-    "tests/test_episode.py::test_without_a_judge_the_diagnosis_is_unjudged_but_the_action_is_scored"
+    "tests/test_episode.py::test_the_same_seed_gives_the_same_episode"
    ],
-   "test_count": 206,
+   "test_count": 209,
    "verification_status": "VERIFIED",
    "snap_questions": [
     "TL-01",
@@ -786,6 +790,7 @@
     "tests/test_agent_completion.py::test_no_hidden_truth_is_written_to_the_log",
     "tests/test_agent_completion.py::test_the_action_cites_what_the_factory_reported_about_it",
     "tests/test_agent_completion.py::test_the_audit_record_holds_what_the_shared_record_leaves_out",
+    "tests/test_agent_completion.py::test_the_audit_record_keeps_incident_context_without_promoting_it_to_memory",
     "tests/test_agent_completion.py::test_the_audit_record_keeps_what_tree_of_thought_ruled_out",
     "tests/test_agent_completion.py::test_the_log_is_only_ever_added_to",
     "tests/test_agent_completion.py::test_the_log_keeps_every_investigation_one_per_line",
@@ -832,10 +837,9 @@
     "tests/test_episode.py::test_a_verified_fix_is_audited_and_remembered",
     "tests/test_episode.py::test_a_whole_episode_records_the_section_nine_fields",
     "tests/test_episode.py::test_an_episode_on_the_challenge_is_scored_with_several_causes",
-    "tests/test_episode.py::test_critic_blind_is_off_by_default_and_reaches_the_run",
-    "tests/test_episode.py::test_critic_followup_off_by_default"
+    "tests/test_episode.py::test_critic_blind_is_off_by_default_and_reaches_the_run"
    ],
-   "test_count": 251,
+   "test_count": 254,
    "verification_status": "PARTIALLY VERIFIED",
    "snap_questions": [
     "TL-01",
@@ -1029,6 +1033,7 @@
     "tests/test_experiment.py::test_an_uncited_memory_is_unknown_not_unused",
     "tests/test_experiment.py::test_critic_questions_counted_and_tagged",
     "tests/test_experiment.py::test_critic_questions_follow_the_policy_s_own",
+    "tests/test_experiment.py::test_line_context_setting_and_evidence_references_reach_the_record",
     "tests/test_experiment.py::test_model_failures_survive_the_cli_file_and_report",
     "tests/test_experiment.py::test_nothing_the_evaluator_knows_reaches_the_memory_store",
     "tests/test_experiment.py::test_old_records_without_blackout_fields_still_read",
@@ -1059,10 +1064,9 @@
     "tests/test_memory_comparison.py::test_keyword_and_semantic_recall_differ_by_what_their_search_finds",
     "tests/test_memory_comparison.py::test_no_memory_offers_no_recall_and_keeps_no_memory_records",
     "tests/test_memory_comparison.py::test_outage_runs_are_counted_then_left_out_of_every_total",
-    "tests/test_memory_comparison.py::test_semantic_mode_asks_the_index",
-    "tests/test_memory_comparison.py::test_semantic_mode_never_runs_as_keyword_search_unseen"
+    "tests/test_memory_comparison.py::test_semantic_mode_asks_the_index"
    ],
-   "test_count": 140,
+   "test_count": 142,
    "verification_status": "PARTIALLY VERIFIED",
    "snap_questions": [
     "TL-01",
@@ -1191,7 +1195,7 @@
     "tests/test_evals.py::test_review_flag_excludes_provisional_label_from_accuracy",
     "tests/test_evals.py::test_run_cases_offers_the_manual_when_given"
    ],
-   "test_count": 237,
+   "test_count": 239,
    "verification_status": "VERIFIED",
    "snap_questions": [
     "TL-01",
@@ -1263,6 +1267,7 @@
     "tests/test_agent_completion.py::test_no_hidden_truth_is_written_to_the_log",
     "tests/test_agent_completion.py::test_the_action_cites_what_the_factory_reported_about_it",
     "tests/test_agent_completion.py::test_the_audit_record_holds_what_the_shared_record_leaves_out",
+    "tests/test_agent_completion.py::test_the_audit_record_keeps_incident_context_without_promoting_it_to_memory",
     "tests/test_agent_completion.py::test_the_audit_record_keeps_what_tree_of_thought_ruled_out",
     "tests/test_agent_completion.py::test_the_log_is_only_ever_added_to",
     "tests/test_agent_completion.py::test_the_log_keeps_every_investigation_one_per_line",
@@ -1313,10 +1318,9 @@
     "tests/test_episode.py::test_a_critic_does_not_change_the_episode",
     "tests/test_episode.py::test_a_human_who_refuses_leaves_the_fault_in_place",
     "tests/test_episode.py::test_a_label_added_afterwards_scores_the_same_run",
-    "tests/test_episode.py::test_a_run_with_the_manual_gives_the_settings_critic_the_manual",
-    "tests/test_episode.py::test_a_scripted_policy_without_the_combined_question_runs_in_two"
+    "tests/test_episode.py::test_a_run_with_the_manual_gives_the_settings_critic_the_manual"
    ],
-   "test_count": 220,
+   "test_count": 222,
    "verification_status": "VERIFIED",
    "snap_questions": [
     "TL-01",
@@ -1369,6 +1373,7 @@
     "tests/test_agent_completion.py::test_no_hidden_truth_is_written_to_the_log",
     "tests/test_agent_completion.py::test_the_action_cites_what_the_factory_reported_about_it",
     "tests/test_agent_completion.py::test_the_audit_record_holds_what_the_shared_record_leaves_out",
+    "tests/test_agent_completion.py::test_the_audit_record_keeps_incident_context_without_promoting_it_to_memory",
     "tests/test_agent_completion.py::test_the_audit_record_keeps_what_tree_of_thought_ruled_out",
     "tests/test_agent_completion.py::test_the_log_is_only_ever_added_to",
     "tests/test_agent_completion.py::test_the_log_keeps_every_investigation_one_per_line",
@@ -1420,10 +1425,9 @@
     "tests/test_episode.py::test_the_same_seed_gives_the_same_episode",
     "tests/test_episode.py::test_without_a_judge_the_diagnosis_is_unjudged_but_the_action_is_scored",
     "tests/test_episode.py::test_without_an_audit_log_nothing_is_learned",
-    "tests/test_evals.py::test_record_keeps_the_claim_the_critic_favoured",
-    "tests/test_experiment.py::test_a_model_policy_run_keeps_its_call_summary_and_its_time"
+    "tests/test_evals.py::test_record_keeps_the_claim_the_critic_favoured"
    ],
-   "test_count": 173,
+   "test_count": 175,
    "verification_status": "PARTIALLY VERIFIED",
    "snap_questions": [
     "TL-01",
@@ -1540,7 +1544,7 @@
     "tests/test_experiment.py::test_critic_questions_counted_and_tagged",
     "tests/test_experiment.py::test_critic_questions_follow_the_policy_s_own"
    ],
-   "test_count": 181,
+   "test_count": 182,
    "verification_status": "VERIFIED",
    "snap_questions": [
     "TL-01",

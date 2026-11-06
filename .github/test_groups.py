@@ -77,6 +77,7 @@ GROUPS: dict[str, list[str]] = {
     "Reasoning loop": [
         "agent_artifacts",
         "agent_loop",
+        "decide_calls",
         "agent_investigation",
         "agent_action",
     ],
@@ -120,6 +121,7 @@ GROUPS: dict[str, list[str]] = {
     # Many episodes: the harness, hand labels and the known-answer cases.
     "Experiments": [
         "experiment",
+        "gap_trace",
         "evals",
         "known_answers",
         "baseline",
