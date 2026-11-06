@@ -1,9 +1,20 @@
 # Progress Log
 
-> **2026-11-05 — rapid triage mode (taught and gated; closing walkthrough owed):**
+> **2026-11-05 — rapid triage mode (taught and gated; walkthrough done):**
 > Merged before its walkthrough on the developer's instruction ("merge and we
-> will do the walkthrough later"); the pre-merge walkthrough (AGENTS.md §11
-> step 6) for PR #184 is still owed (understood: no, until it is done).
+> will do the walkthrough later"). The walkthrough (AGENTS.md §11 step 6) was
+> done afterwards, with three questions. (1) Why a triage may skip `verify`:
+> the developer saw that nothing is proposed or executed, but not that
+> `verify` checks a "no action" claim; corrected. A supported "no action"
+> triage is the one case that ends unchecked (a known limit; a short
+> verification after such a triage is a candidate follow-up). (2) Why the deep
+> run gets `follows_triage` but not the triage's conclusion: understood
+> (independence, no anchoring; cost: repeated reads). (3) The slow-provider
+> path: outcome understood (timeout, deep run follows); corrected that the
+> conclusion is the fixed `UNDETERMINED` placeholder (escalate), not a model
+> guess, and that a deep run follows because no answer is not "nothing wrong".
+> Understood: yes, after correction. Open follow-ups: verify a confident triage
+> "no action"; hand-label triage conclusions apart from the deep run's.
 > Before the code, the developer answered the check question: the block on
 > proposing must be in code because a model can ignore a prompt, and a triage
 > without an answer still needs a deep run. Opt-in (`TRIAGE=on` or
@@ -23,7 +34,7 @@
 > sandbox uses Docker Desktop, after `docker info` succeeds. CLAUDE.md points to it.
 > The test suite does not need Docker.
 
-> **2026-11-04 — fixes from the live Snap run (built ungated, developer to review; understood: no):**
+> **2026-11-04 — fixes from the live Snap run (built ungated; walkthrough done 2026-11-05):**
 > Four findings from `docs/benchmarks/2026-11-04-snap-live-1/`, each checked by
 > reading the code.
 > (1) Nothing told a model the `wait` limit. The tool refused more than 480
@@ -41,7 +52,21 @@
 > `test_bearing_replacement.py`.
 > (4) `run_traced`'s docstring now says that it stops and saves the coverage
 > tracer.
-> Merged on the developer's instruction ("merge both") before the pre-merge walkthrough (AGENTS.md §11 step 6); the walkthrough is still owed.
+> Merged on the developer's instruction ("merge both") before the pre-merge walkthrough (AGENTS.md §11 step 6).
+> Walkthrough done afterwards (2026-11-05), three questions. (1) Why keep the
+> inner 480 check in `ActionTools.wait` when the schema in `run_tool` already
+> refuses: the developer saw that the provider path never reaches the tool;
+> added that the tool's `max_wait` is configurable and some callers skip the
+> provider, so the inner check enforces the real rule (defence in depth).
+> (2) Comparing live runs across #177: partly; the developer pointed to where
+> the error is raised; corrected that the main change is the tool text the
+> model reads, so runs before and after are not like-for-like even without
+> errors (check the commit, the `wait` usage, or compare on one commit).
+> (3) A test that cannot fail: understood why it is worse than none (false
+> confidence); taught how to find one (break the code on purpose, read the
+> assertion against the action, per-test coverage flags). Understood: yes,
+> after correction. Latent gap noted: a lower `max_wait` would bring back a
+> hidden limit, since the schema always says 480.
 
 > **2026-11-05 — PR descriptions state their trade-offs (documentation only; understanding unchanged):**
 > At the developer's request, AGENTS.md §11 step 4 now requires a
@@ -62,11 +87,22 @@
 > run, a semantic validation of contradictions, or an accuracy comparison.
 > Code, prompts, labels, scores, simulator and understanding status unchanged.
 
-> **2026-11-04 — PRs #172 and #174 merged before their walkthroughs (developer to review; understood: no):**
+> **2026-11-04 — PRs #172 and #174 merged before their walkthroughs (walkthrough done 2026-11-05):**
 > On the developer's instruction ("merge them now, I will do the walkthrough later"), #174 was
 > brought up to date with `main` and merged, which also landed #172's commits. The function, test
 > and verification inventories were rebuilt from a fresh full coverage run after the merge. The
-> pre-merge walkthroughs (AGENTS.md §11 step 6) for both PRs are still owed.
+> pre-merge walkthroughs (AGENTS.md §11 step 6) for both PRs were done afterwards, on
+> 2026-11-05, as one walkthrough with three questions. (1) Why `budgeted_send` writes the
+> reservation before posting: the developer saw that there is never a blank amount; corrected
+> that the point is the cap surviving a kill mid-post (an unrecorded in-flight charge could be
+> spent twice), that the reservation is the full-window upper bound and not an estimate, and
+> that it is settled per request, with missing usage stopping later sends. (2) A rerun case
+> with a different seed: the developer saw old position pairing compares different cases
+> unnoticed and that the case is left out; corrected that it is unpaired (`only_a`/`only_b`,
+> counted in `position_mismatches`), not "ambiguous" (no seed, or a repeated identity).
+> (3) `--env-file` key handling: the developer gave the secrecy reason; added least privilege
+> (only the selected providers' key names), environment-wins precedence, and why `readiness`
+> reports presence only. Understood: yes, after correction.
 
 > **2026-11-04 — first full live Snap evaluation (exploratory, uncalibrated):**
 > At the developer's direction in the session, Claude Code ran the Snap half of
