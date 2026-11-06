@@ -144,7 +144,9 @@ class ActionTools:
         #   desk: The human's approval desk; one is made if none is given. The agent is
         #     never given it.
         #   max_wait: The most ticks a single wait may skip: MAX_WAIT_TICKS, the
-        #     limit the model is shown, unless a test sets a smaller one.
+        #     limit the model is shown, unless a test sets a smaller one. A
+        #     smaller limit is enforced here but not shown: the tool's schema
+        #     always states MAX_WAIT_TICKS.
         self._sim = simulator
         self._desk = desk or ApprovalDesk(simulator)
         self.max_wait = max_wait

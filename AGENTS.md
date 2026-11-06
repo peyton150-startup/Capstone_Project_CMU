@@ -378,7 +378,11 @@ Bad increment: "implement the whole factory simulator."
 Do not create hundreds or thousands of lines in one step. Prefer the
 smallest implementation that proves the architectural idea.
 
-### 7.1 A separate pass for variable comments (rule set by the developer, 2026-10-29)
+### 7.1 A separate pass for variable comments (rule set by the developer, 2026-10-29; restated 2026-11-05)
+
+This applies to **every pull request that changes code**, however small. The
+point is that a reader can open any function and learn what its most important
+variables do from a description at the top, without tracing the code.
 
 After the code for a change is written and its tests pass, make one more,
 separate pass over every function the change created or changed, before the
@@ -396,7 +400,8 @@ def critique(state: InvestigationState, deps: InvestigationDeps) -> None:
     #     its time.
 ```
 
-- Name the variables that carry meaning: parameters whose role is not obvious
+- Name the highest-signal variables, the ones a reader most needs to
+  understand the function: parameters whose role is not obvious
   from their name, state it reads or changes, and values that steer the
   control flow. One sentence each, in plain English, saying what the variable
   is for, not its type.
@@ -532,6 +537,9 @@ documented on GitHub where the developer can read it.
      that was set aside and why. Include changes that affect what a model is
      shown or how runs compare. A trade-off a reviewer would only find by
      reading the diff belongs here.
+   - **Variable comments (§7.1):** for a code change, the functions whose
+     `# Variables:` block was added or updated. If a changed function needs
+     none, say why (for example, a test function).
    - **Not done / known limits.**
    - Any commit that reached `main` without a PR, listed so it is recorded.
 5. Wait for the PR's CI to finish (`gh pr checks <number> --watch`). Never

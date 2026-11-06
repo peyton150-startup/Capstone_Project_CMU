@@ -133,7 +133,8 @@ def call_lines(decision: DecisionRecord, state: InvestigationState) -> list[str]
     #   tick: The factory time of the step, if known.
     #   reason: Why the loop stopped, for a stop step.
     #   why: That reason in words.
-    #   head: The first line: the prefix and the tool call.
+    #   head: The first line: the prefix and the tool call, then the decide
+    #     answer it came from ("batch 3.2": answer 3, second call) when batching.
     #   contents: The text of each piece of evidence, by id.
     #   origins: Where each piece of evidence came from.
     #   lines: Every line for this step.
@@ -149,6 +150,8 @@ def call_lines(decision: DecisionRecord, state: InvestigationState) -> list[str]
     if decision.tool is None:
         return [f"{where} {decision.outcome}: {decision.information_needed}{tick}"]
     head = f"{where} {call_text(decision)}{tick}"
+    if decision.batch is not None:
+        head += f"  [batch {decision.batch}.{decision.batch_position}]"
     if decision.outcome == "repeated_call":
         return [f"{head}  -> skipped: already asked at this tick"]
     if decision.error is not None:
@@ -426,7 +429,8 @@ def run_header(
 
     Names the critic treatment (off, anchored or blind, and the follow-up),
     the manual (how it is searched and, for semantic search, the embedding
-    model), the manual step, tree-of-thought and hazards. Model names only:
+    model), the manual step, tree-of-thought, hazards and, when set, the
+    decide step's reasoning effort. Model names only:
     no key or other secret is read here.
     """
     # Variables:
@@ -436,6 +440,10 @@ def run_header(
     #   hazards: False, True / "standard", or "blackout".
     #   critic: The critic treatment in words.
     #   book: The manual setting in words.
+    #   calls: DECIDE_CALLS; a third line names it only above 1, so the usual
+    #     header is unchanged.
+    #   effort: DECIDE_REASONING_EFFORT, or None when it is not set; a third
+    #     line names it only when set, so the usual header is unchanged.
     if not settings.critic:
         critic = "critic off"
     else:
@@ -451,11 +459,18 @@ def run_header(
         book = f"manual by {manual}"
     if hazards is True:
         hazards = "standard"
-    return [
+    lines = [
         f"RUN: {critic}; {book}, manual step {'on' if settings.manual_step else 'off'}",
         f"RUN: tree-of-thought {'on' if tree_of_thought else 'off'}; "
         f"hazards {hazards or 'off'}",
     ]
+    calls = getattr(settings, "decide_calls", 1)
+    if calls > 1:
+        lines.append(f"RUN: up to {calls} tool calls per decide answer")
+    effort = getattr(settings, "decide_reasoning_effort", None)
+    if effort is not None:
+        lines.append(f"RUN: decide reasoning effort {effort} (NVIDIA models only)")
+    return lines
 
 
 def truth_lines(score: Score) -> list[str]:
