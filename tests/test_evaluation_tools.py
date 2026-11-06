@@ -243,6 +243,10 @@ def test_the_traced_run_names_the_functions_each_case_executed(tmp_path):
     assert key == "trace-check/1/KA-07-false-alarm"
     assert "capstone.agent.loop:run_inner_loop" in executed[key]
     assert "capstone.evaluation.scoring:evaluate" in executed[key]
+    audit = tmp_path / "records.audit.jsonl"
+    assert audit.exists()
+    packet = run_packet.build_all(tmp_path / "records.jsonl", audit_path=audit)[0]
+    assert packet.snap_view.trace.completeness == "full"
 
 
 def test_the_inventory_lists_every_function_and_every_curated_item_exists(tmp_path):
@@ -378,6 +382,16 @@ def test_function_questions_need_the_complete_test_evidence():
     assert truncated["tests_shown"].endswith(
         f"of {truncated['coverage']['test_count']} shown"
     )
+    snap_full = snap_request.function_state(
+        by_id["capstone.simulator.rng:RandomSource.__init__"],
+        tests,
+        complete=True,
+    )
+    assert len(snap_full["tests"]) == len(
+        by_id["capstone.simulator.rng:RandomSource.__init__"]["direct_tests"]
+    )
+    assert snap_full["tests_shown"] is None
+    assert snap_full["coverage"]["indirect_test_count"] > len(snap_full["tests"])
     _, questions = snap_request.load_questions()
     requests = snap_request.item_requests(
         [("complete", complete), ("truncated", truncated)],
@@ -871,6 +885,29 @@ def test_a_traced_run_refuses_to_append_to_earlier_records(tmp_path):
             ["--name", "x", "--out", str(out), "--trace", str(tmp_path / "t.json")]
         )
     assert stopped.value.code == 2
+
+
+def test_new_cohort_preflight_requires_matching_audit_evidence(master_packets):
+    """A missing audit or citation cannot be presented as a full trace."""
+    # Variables:
+    #   full: An archived episode with a real audit, used as the valid baseline.
+    #   broken: The same packet with a citation whose evidence is absent.
+    from evaltools.audit_preflight import require_full_traces, trace_issues
+
+    full = run_packet.build_archive(AUDITED_FIVE)[0]
+    assert trace_issues(full) == []
+    require_full_traces([full])
+    with pytest.raises(ValueError, match="audit log missing"):
+        require_full_traces([master_packets[0]])
+    conclusion = full.snap_view.trace.conclusion.model_copy(
+        update={"evidence_ids": ["missing-evidence"]}
+    )
+    trace = full.snap_view.trace.model_copy(update={"conclusion": conclusion})
+    broken = full.model_copy(
+        update={"snap_view": full.snap_view.model_copy(update={"trace": trace})}
+    )
+    with pytest.raises(ValueError, match="unknown cited evidence IDs"):
+        require_full_traces([broken])
 
 
 # --- evaluator readiness fixes (CRITERIA_FOR_EVALUATOR.md) ----------------------------

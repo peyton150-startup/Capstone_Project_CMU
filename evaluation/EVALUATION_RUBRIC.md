@@ -110,7 +110,7 @@ Derived flags (code, from code facts and judge answers together):
   RUN-01 mean < 2). Reported as a count; it is the single most important
   check that the accuracy figure is not flattering.
 - **evidence-grounded decision**: `fully_right = true` and RUN-08 mean ≥ 3
-  and RUN-12 ≤ 0.3.
+  and RUN-12 ≥ 0.7 (the `true` side: cited evidence matches its content).
 
 ## 6. Level 5: end-to-end (per batch)
 

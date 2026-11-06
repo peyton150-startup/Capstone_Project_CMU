@@ -11,9 +11,14 @@ from types import SimpleNamespace
 
 import pytest
 
-from evaltools import full_evaluation, snap_request
+from evaltools import full_evaluation, run_packet, snap_request
 from evaltools.decision_models import PROVIDERS
-from tests.test_evaluation_tools import PUBLISHED, TOT13_PAIRS, fake_transport
+from tests.test_evaluation_tools import (
+    AUDITED_FIVE,
+    PUBLISHED,
+    TOT13_PAIRS,
+    fake_transport,
+)
 
 JEV = [PROVIDERS["jev"]]
 
@@ -90,6 +95,37 @@ def test_the_report_keeps_the_published_denominators(planned):
     }
     assert found == PUBLISHED
     assert "score" not in json.dumps(report["correctness"]).lower()
+
+
+def test_per_item_findings_join_truth_judge_and_blinded_reference():
+    """A high RUN-12 true preference supports, rather than defeats, grounding."""
+    # Variables:
+    #   packet: A saved audited run; its truth stays in the local report.
+    #   rows: Normalized judge answers for the three grounding questions.
+    packet = run_packet.build_archive(AUDITED_FIVE)[0]
+    item_id = packet.meta.episode_key
+    rows = [
+        {
+            "family": "RUN",
+            "item_id": item_id,
+            "provider": "snap",
+            "question_id": q,
+            "status": "answered",
+            "value": value,
+        }
+        for q, value in (("RUN-01", 3.5), ("RUN-08", 3.5), ("RUN-12", 0.9))
+    ]
+    findings = full_evaluation.item_findings(
+        {"packets": [packet], "functions": {}, "tests": {}},
+        rows,
+        {item_id: {"RUN-12": True}},
+    )
+    (finding,) = findings
+    assert finding["trace_completeness"] == "full"
+    assert finding["fully_right"] == packet.evaluator_only.fully_right
+    assert finding["questions"]["RUN-12"]["agrees_with_reference"] is True
+    assert finding["evidence_grounded"] == bool(packet.evaluator_only.fully_right)
+    assert finding["misleading_success"] is False
 
 
 def test_each_pair_is_compared_and_the_sample_rule_is_applied_in_code(planned):

@@ -291,6 +291,33 @@ def applicable_run_questions(
     return chosen, skipped
 
 
+def fitted_trace_skips(view: dict) -> dict[str, str]:
+    """Refuse evidence judgments when the actual sent state lost needed facts."""
+    # Variables:
+    #   cited: Evidence the conclusion attributes its claim to.
+    #   cut: Cited evidence whose content was shortened in the sent state.
+    trace = view["trace"]
+    cited = set((trace.get("conclusion") or {}).get("evidence_ids") or [])
+    cut = any(
+        item["id"] in cited and item.get("truncated")
+        for item in trace.get("evidence", [])
+    )
+    skipped = {}
+    if cut:
+        for question_id in ("RUN-01", "RUN-05", "RUN-06", "RUN-08", "RUN-09", "RUN-12"):
+            skipped[question_id] = "unknown: cited evidence content was truncated"
+    if "decisions" not in trace:
+        for question_id in ("RUN-01", "RUN-02", "RUN-05", "RUN-07", "RUN-10"):
+            skipped[question_id] = (
+                "unknown: decisions were removed for the context budget"
+            )
+    if "manual_searches" not in trace or "recall_searches" not in trace:
+        skipped["RUN-04"] = (
+            "unknown: retrieval records were removed for the context budget"
+        )
+    return skipped
+
+
 def run_requests(
     packet_dir: Path,
     questions: list[DecisionQuestion],
@@ -343,12 +370,30 @@ def run_requests(
             unfittable = refusal
             if chosen:
                 try:
+                    fitted = (
+                        fit_state(view, state_tokens)[0]
+                        if state_tokens is not None
+                        else view
+                    )
+                    fitted_skips = fitted_trace_skips(fitted)
+                    provider_chosen = [q for q in chosen if q.id not in fitted_skips]
+                    provider_meta = {
+                        **meta,
+                        "skipped_questions": {
+                            **skipped,
+                            **{
+                                q: reason
+                                for q, reason in fitted_skips.items()
+                                if q in {question.id for question in chosen}
+                            },
+                        },
+                    }
                     requests = build_request(
                         view,
-                        chosen,
+                        provider_chosen,
                         model=provider.model,
                         item_id=item_id,
-                        meta=meta,
+                        meta=provider_meta,
                         provider=provider.name,
                         state_tokens=state_tokens,
                     )
@@ -362,7 +407,20 @@ def run_requests(
                         None,
                     )
                     if leaked is None:
-                        built.extend(requests)
+                        if requests:
+                            built.extend(requests)
+                        else:
+                            built.append(
+                                {
+                                    "tags": {
+                                        **provider_meta,
+                                        "provider": provider.name,
+                                        "item_id": item_id,
+                                        "question_ids": [],
+                                    },
+                                    "body": None,
+                                }
+                            )
                         continue
                     unfittable = f"refused: the request carries {leaked!r}"
                 except ValueError as error:
@@ -464,16 +522,25 @@ def shown(kept: int, total: int) -> str | None:
     return None if kept >= total else f"{kept} of {total} shown"
 
 
-def function_state(record: dict, tests_by_id: dict) -> dict:
+def function_state(record: dict, tests_by_id: dict, *, complete: bool = False) -> dict:
     # Variables:
-    #   tests: Every covering test found in the inventory, before the cap.
+    #   complete: Show all direct tests in full; incidental coverage is counted
+    #     but cannot replace a test that asserts this function's contract.
+    #   tests: The selected test sources, before the ordinary context cap.
     #   cut: Why a covering test's source was shortened, or None.
     tests = []
-    for test_id in record["direct_tests"] + record["indirect_tests"]:
+    selected = (
+        record["direct_tests"]
+        if complete
+        else record["direct_tests"] + record["indirect_tests"]
+    )
+    for test_id in selected:
         t = tests_by_id.get(test_id)
         if t is None:
             continue
-        source, cut = test_source(t, COVERING_TEST_SOURCE_CHARS)
+        source, cut = test_source(
+            t, 1_000_000 if complete else COVERING_TEST_SOURCE_CHARS
+        )
         tests.append(
             {
                 "id": t["id"],
@@ -504,9 +571,16 @@ def function_state(record: dict, tests_by_id: dict) -> dict:
             "class": record["coverage_class"],
             "statement_coverage": record["statement_coverage"],
             "test_count": record["test_count"],
+            "direct_test_count": len(record["direct_tests"]),
+            "indirect_test_count": record["indirect_test_count"],
         },
-        "tests": tests[:TESTS_PER_FUNCTION],
-        "tests_shown": shown(min(TESTS_PER_FUNCTION, len(tests)), record["test_count"]),
+        "tests": tests if complete else tests[:TESTS_PER_FUNCTION],
+        "tests_shown": (
+            shown(len(tests), len(record["direct_tests"]))
+            or ("no direct test evidence" if not tests else None)
+            if complete
+            else shown(min(TESTS_PER_FUNCTION, len(tests)), record["test_count"])
+        ),
     }
 
 

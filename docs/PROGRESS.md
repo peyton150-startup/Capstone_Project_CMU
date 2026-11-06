@@ -1,5 +1,22 @@
 # Progress Log
 
+> **2026-11-05 — evaluator access and default audits (PR pending):** Built
+> ungated at the developer's request; understood: no — developer to review.
+> New `capstone.experiment run` and `evaltools.traced_run` invocations write a
+> companion audit by default, with `--audit` override and `--no-audit` opt-out.
+> `evaltools.audit_preflight` checks trace completeness and citation linkage;
+> `full_evaluation --require-full-traces` applies that gate before sending.
+> The packet builder retains longer evidence; the request builder marks
+> content-dependent questions unknown when fitted evidence is truncated.
+> `--snap-full-context` offers Snap's larger state budget and direct test
+> sources. `reference_review` exports blinded, answer-free packets for the
+> developer and imports validated judgments; `full_evaluation --reference`
+> joins those with per-item outcomes and reports evidence-grounded and
+> misleading-success flags. Corrected RUN-12's direction in the rubric.
+> Two fresh 13-case master runs already in progress are not changed or rerun;
+> their independent reference review and calibration remain outstanding.
+> No live model or SNAP calls were made for this change.
+
 > **2026-11-05 — rapid triage mode (taught and gated; closing walkthrough owed):**
 > Merged before its walkthrough on the developer's instruction ("merge and we
 > will do the walkthrough later"); the pre-merge walkthrough (AGENTS.md §11

@@ -112,6 +112,32 @@ def test_hazards_are_off_unless_asked_for(tmp_path, monkeypatch):
     assert ran["hazards"] == "blackout"
 
 
+def test_run_command_audits_by_default_and_allows_explicit_opt_out(
+    tmp_path, monkeypatch
+):
+    """A new run records the evidence needed for later reasoning judgments."""
+    # Variables:
+    #   options: The arguments passed to the run, including its audit writer.
+    options = {}
+
+    def fake_run(cases, make_policy, **kwargs):
+        options.update(kwargs)
+        return []
+
+    monkeypatch.setattr(experiment, "run_experiment", fake_run)
+    monkeypatch.setattr(
+        experiment, "model_policy_factory", lambda with_recall, **_: None
+    )
+    out = tmp_path / "fresh.records.jsonl"
+    base = ["run", "--name", "fresh", "--known", "--out", str(out), "--quiet"]
+    assert main(base) == 0
+    assert options["log"].path == tmp_path / "fresh.audit.jsonl"
+    assert main([*base, "--audit", str(tmp_path / "other.audit.jsonl")]) == 0
+    assert options["log"].path == tmp_path / "other.audit.jsonl"
+    assert main([*base, "--no-audit"]) == 0
+    assert options["log"] is None
+
+
 def test_old_records_without_blackout_fields_still_read(records):
     old = records[0].model_dump(exclude={"hazards_blocked", "blackout_recovered"})
     back = ExperimentRecord.model_validate(old)

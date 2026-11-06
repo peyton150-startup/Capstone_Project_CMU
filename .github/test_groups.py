@@ -108,6 +108,7 @@ GROUPS: dict[str, list[str]] = {
         "fault_packs",
         "evaluation_tools",
         "full_evaluation",
+        "reference_review",
     ],
     # Many episodes: the harness, hand labels and the known-answer cases.
     "Experiments": [
