@@ -36017,7 +36017,7 @@
    "assert_forms": {
     "equality": 1
    },
-   "raises_checks": 2,
+   "raises_checks": 3,
    "uses": [],
    "quality_flags": [],
    "claims": "A missing audit or citation cannot be presented as a full trace.",
@@ -36062,7 +36062,7 @@
    "id": "tests/test_evaluation_tools.py::test_the_archive_imports_52_distinct_episodes",
    "file": "tests/test_evaluation_tools.py",
    "name": "test_the_archive_imports_52_distinct_episodes",
-   "line": 941,
+   "line": 945,
    "docstring": "EVAL-01 / T01: both pairs reuse every run key, and none is overwritten.",
    "parametrized": false,
    "fixtures": [
@@ -36110,7 +36110,7 @@
    "id": "tests/test_evaluation_tools.py::test_both_archives_import_57_episodes_with_five_real_traces",
    "file": "tests/test_evaluation_tools.py",
    "name": "test_both_archives_import_57_episodes_with_five_real_traces",
-   "line": 954,
+   "line": 958,
    "docstring": "",
    "parametrized": false,
    "fixtures": [
@@ -36166,7 +36166,7 @@
    "id": "tests/test_evaluation_tools.py::test_the_archive_keeps_the_published_denominators",
    "file": "tests/test_evaluation_tools.py",
    "name": "test_the_archive_keeps_the_published_denominators",
-   "line": 967,
+   "line": 971,
    "docstring": "EVAL-02 / T02: pending labels stay unjudged; the four arms match summary.json.",
    "parametrized": false,
    "fixtures": [
@@ -36200,7 +36200,7 @@
    "id": "tests/test_evaluation_tools.py::test_a_repeated_run_key_needs_a_namespace",
    "file": "tests/test_evaluation_tools.py",
    "name": "test_a_repeated_run_key_needs_a_namespace",
-   "line": 995,
+   "line": 999,
    "docstring": "EVAL-01 / T01: the same records under two names survive; unnamed, refused.",
    "parametrized": false,
    "fixtures": [
@@ -36239,7 +36239,7 @@
    "id": "tests/test_evaluation_tools.py::test_a_proposal_awaiting_review_is_kept_but_not_scored",
    "file": "tests/test_evaluation_tools.py",
    "name": "test_a_proposal_awaiting_review_is_kept_but_not_scored",
-   "line": 1015,
+   "line": 1019,
    "docstring": "EVAL-02: auto-label proposal files are read and `needs_review` is honoured.",
    "parametrized": false,
    "fixtures": [
@@ -36288,7 +36288,7 @@
    "id": "tests/test_evaluation_tools.py::test_a_review_report_that_disagrees_with_the_labels_is_refused",
    "file": "tests/test_evaluation_tools.py",
    "name": "test_a_review_report_that_disagrees_with_the_labels_is_refused",
-   "line": 1042,
+   "line": 1046,
    "docstring": "EVAL-02: a flag is never joined to a different label.",
    "parametrized": false,
    "fixtures": [
@@ -36318,7 +36318,7 @@
    "id": "tests/test_evaluation_tools.py::test_every_request_input_changes_the_fingerprint",
    "file": "tests/test_evaluation_tools.py",
    "name": "test_every_request_input_changes_the_fingerprint",
-   "line": 1077,
+   "line": 1081,
    "docstring": "EVAL-03 / T04: a saved answer is never reused for a changed request.",
    "parametrized": false,
    "fixtures": [],
@@ -36349,7 +36349,7 @@
    "id": "tests/test_evaluation_tools.py::test_reordered_items_keep_their_files_and_answers",
    "file": "tests/test_evaluation_tools.py",
    "name": "test_reordered_items_keep_their_files_and_answers",
-   "line": 1094,
+   "line": 1098,
    "docstring": "EVAL-03 / T03: names do not depend on order; a rerun re-sends nothing.",
    "parametrized": false,
    "fixtures": [
@@ -36390,7 +36390,7 @@
    "id": "tests/test_evaluation_tools.py::test_a_partial_answer_is_asked_again",
    "file": "tests/test_evaluation_tools.py",
    "name": "test_a_partial_answer_is_asked_again",
-   "line": 1108,
+   "line": 1112,
    "docstring": "EVAL-03 / T07: a reply missing an answer is not a completed judgment.",
    "parametrized": false,
    "fixtures": [
@@ -36431,7 +36431,7 @@
    "id": "tests/test_evaluation_tools.py::test_a_passing_outage_is_retried_and_a_lasting_one_recorded",
    "file": "tests/test_evaluation_tools.py",
    "name": "test_a_passing_outage_is_retried_and_a_lasting_one_recorded",
-   "line": 1120,
+   "line": 1124,
    "docstring": "EVAL-03: HTTP 429 and 5xx are tried again; the wait comes from `sleep`.",
    "parametrized": false,
    "fixtures": [
@@ -36473,7 +36473,7 @@
    "id": "tests/test_evaluation_tools.py::test_a_leaking_packet_on_disk_is_refused_before_any_request",
    "file": "tests/test_evaluation_tools.py",
    "name": "test_a_leaking_packet_on_disk_is_refused_before_any_request",
-   "line": 1173,
+   "line": 1177,
    "docstring": "EVAL-04 / T05: the last boundary re-checks what would be sent.",
    "parametrized": true,
    "fixtures": [
@@ -36508,7 +36508,7 @@
    "id": "tests/test_evaluation_tools.py::test_every_master_request_is_free_of_the_runs_own_ids",
    "file": "tests/test_evaluation_tools.py",
    "name": "test_every_master_request_is_free_of_the_runs_own_ids",
-   "line": 1189,
+   "line": 1193,
    "docstring": "EVAL-04 / T05: no sent body names its scenario, run key or episode key.",
    "parametrized": false,
    "fixtures": [
@@ -36542,7 +36542,7 @@
    "id": "tests/test_evaluation_tools.py::test_judge_requests_carry_the_project_user_agent_and_no_key",
    "file": "tests/test_evaluation_tools.py",
    "name": "test_judge_requests_carry_the_project_user_agent_and_no_key",
-   "line": 1212,
+   "line": 1216,
    "docstring": "EVAL-19 / T17: sent with post_json, as the project's model clients are.",
    "parametrized": false,
    "fixtures": [
@@ -36583,7 +36583,7 @@
    "id": "tests/test_evaluation_tools.py::test_an_impossible_answer_is_kept_unreadable",
    "file": "tests/test_evaluation_tools.py",
    "name": "test_an_impossible_answer_is_kept_unreadable",
-   "line": 1246,
+   "line": 1250,
    "docstring": "EVAL-19 / T18: refused as the live TypeSafe client refuses it.",
    "parametrized": true,
    "fixtures": [
@@ -36617,7 +36617,7 @@
    "id": "tests/test_evaluation_tools.py::test_states_show_each_test_whole_and_say_what_was_cut",
    "file": "tests/test_evaluation_tools.py",
    "name": "test_states_show_each_test_whole_and_say_what_was_cut",
-   "line": 1261,
+   "line": 1265,
    "docstring": "EVAL-20 / T19: no neighbouring test; every shortened list says so.",
    "parametrized": false,
    "fixtures": [],
@@ -36650,7 +36650,7 @@
    "id": "tests/test_evaluation_tools.py::test_the_stated_question_count_matches_the_question_file",
    "file": "tests/test_evaluation_tools.py",
    "name": "test_the_stated_question_count_matches_the_question_file",
-   "line": 1293,
+   "line": 1297,
    "docstring": "EVAL-21 / T20: the EVF note's count is the file's count.",
    "parametrized": false,
    "fixtures": [],
@@ -36681,7 +36681,7 @@
    "id": "tests/test_evaluation_tools.py::test_two_answers_to_one_question_are_refused_and_latency_is_per_request",
    "file": "tests/test_evaluation_tools.py",
    "name": "test_two_answers_to_one_question_are_refused_and_latency_is_per_request",
-   "line": 1311,
+   "line": 1315,
    "docstring": "EVAL-01 / EVAL-15: no silent overwrite; one latency figure per request.",
    "parametrized": false,
    "fixtures": [],
@@ -75919,9 +75919,9 @@
    "fixtures": [
     "tmp_path"
    ],
-   "assertions": 4,
+   "assertions": 5,
    "assert_forms": {
-    "equality": 3,
+    "equality": 4,
     "truthiness": 1
    },
    "raises_checks": 1,
@@ -75946,7 +75946,7 @@
    "id": "tests/test_reference_review.py::test_review_export_refuses_a_request_folder_with_model_answers",
    "file": "tests/test_reference_review.py",
    "name": "test_review_export_refuses_a_request_folder_with_model_answers",
-   "line": 55,
+   "line": 56,
    "docstring": "A reviewer sample must be frozen before the model has answered it.",
    "parametrized": false,
    "fixtures": [
@@ -75961,6 +75961,38 @@
    ],
    "claims": "A reviewer sample must be frozen before the model has answered it.",
    "execution_outcome": "passed",
+   "exercises": [],
+   "exercise_count": 0,
+   "modules_exercised": [],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_reference_review.py::test_function_sample_prefers_items_with_all_judgments",
+   "file": "tests/test_reference_review.py",
+   "name": "test_function_sample_prefers_items_with_all_judgments",
+   "line": 67,
+   "docstring": "The reference set includes functions whose test questions are answerable.",
+   "parametrized": false,
+   "fixtures": [
+    "tmp_path"
+   ],
+   "assertions": 1,
+   "assert_forms": {
+    "equality": 1
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [
+    "exercises_no_project_function"
+   ],
+   "claims": "The reference set includes functions whose test questions are answerable.",
+   "execution_outcome": "not_run",
    "exercises": [],
    "exercise_count": 0,
    "modules_exercised": [],

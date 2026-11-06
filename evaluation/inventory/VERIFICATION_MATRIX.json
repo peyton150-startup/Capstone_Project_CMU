@@ -103,12 +103,12 @@
   "capstone-code/capstone/watchdog/__main__.py": "529435a855a0a91eb63843edc8c529859e088bf881a15a3fe87656ad4e3d5163",
   "capstone-code/capstone/watchdog/watchdog.py": "1e4ca11bb08bebee2c9778c0126859bb2c58345b91e3ab456641367782eb50ec",
   "evaluation/evaltools/__init__.py": "4916bb1c8f29e498eb99d345befa0553a6d5528bbb5c2cfe519b555a2889e93d",
-  "evaluation/evaltools/audit_preflight.py": "d71f760fd25915b872f5887dc6da83ea37f2371c13ccddbb78894b6fc26f844b",
+  "evaluation/evaltools/audit_preflight.py": "f2ede5588a2c23c83ed6664bb9fd5d874909e592972d4386ff44957b762f5710",
   "evaluation/evaltools/build_inventory.py": "c0a26124cf401b0174e7b0c7da2e6d06ccc612d9e8cc420b8d8d77bd00d6128d",
   "evaluation/evaltools/compare_evaluators.py": "7d682c9747846be2dad59477005cc689dfe32c125358302d8d6f9d264da87d79",
   "evaluation/evaltools/decision_models.py": "49cabb0558bf05d6fd1326c0a96a16ecfe7cd2a0ea0bcaaad77310d984289391",
-  "evaluation/evaltools/full_evaluation.py": "bc2a5210d233d349fcd31e6e7206902f8ed5e1a0ca0740dcf664f6f82ae31c88",
-  "evaluation/evaltools/reference_review.py": "2216fa7f50bd2438c7897209681ebde82395b4eb39d742cbb8ed476197bf96c9",
+  "evaluation/evaltools/full_evaluation.py": "059dbb2e5956ede99f5f0ef17616c8f7fdaf8260b4589c1d72cb050045d5b31d",
+  "evaluation/evaltools/reference_review.py": "269d37d79966ee0187c5d636141826b7c0e3d662793d7de5d5db9ea8d3daeff8",
   "evaluation/evaltools/run_packet.py": "6ecba5a2242575a24ae99e4a366adaeffac7889820608e0d1cdd31b7df763e13",
   "evaluation/evaltools/snap_request.py": "ead89252028b85a9ce33225a64b8acc0fe86113106d8ec3a7ef1bbee6382450a",
   "evaluation/evaltools/traced_run.py": "f4d12fc58cae02b8bd985b7e07f0b1d937bbe9726e3b4e43178480168439f618",
@@ -142,7 +142,7 @@
   "tests/test_episode.py": "351a42c6a4718eb647b117f04b63f2636a8bd7e800db7ca11514323304b34fea",
   "tests/test_evals.py": "d19ca7b89a42c3246ec528a831e5464b0aed8c96fcba7ccf3bd29f137e46d1c6",
   "tests/test_evaluation.py": "8b9df54c4ca7789f99c111989ab520d7780c37777e7ccc4cdb21392ea752b833",
-  "tests/test_evaluation_tools.py": "988fea3203900e282407a8c50fb302ae8c4c95e28f509724dfa3dd74b286afa9",
+  "tests/test_evaluation_tools.py": "0aabd52504184f5806e6ba07fef653e676d72777309b42d90d8361d6c52988c1",
   "tests/test_events.py": "b82917a6735cb71ddb515fe0f9ed81e30d07d0e93ec867a8d11c33e611212dfc",
   "tests/test_experiment.py": "7ee6b082d775dbc7409765b081807109431e735bee9a3bc5ff37291b3074921f",
   "tests/test_factory_provider.py": "5f57eaa75e7bf11dcc45c87fc65a207578c492c1f3ceb0dc60ca7c5ae67bc77b",
@@ -181,7 +181,7 @@
   "tests/test_quality.py": "f1cd4e1f76b51a81021545cc96a8fb8e904af160d7c7d1240691d237d987bef8",
   "tests/test_reasoning_evidence.py": "0c3f2991005fb65bc0fa219910cce80227a888cfd4a36c1b1e523bdd38ad6344",
   "tests/test_recall_tool.py": "989ef1d04b4e92509de7a9786b520397f84b9ac879fd749d2b22a15d933ae13a",
-  "tests/test_reference_review.py": "fd9b7200d4f4e77e85ff345159022c3c77b291a4f6c98be40f0abed42afa53cc",
+  "tests/test_reference_review.py": "477561aa84860f7e75e3ae7ea89e1fbe4cae905deecbda4ccc9131db9ece004f",
   "tests/test_request_deadline.py": "58283f2181b15c9d8083f269223d862449cee80052cdee30c00f224d3ce0e725",
   "tests/test_rng.py": "619e27ea42d33fb58cc1109ee86bd69c0647b2610e274343280bfb5f8db32592",
   "tests/test_scenarios.py": "9a39ded7e295fcd622704845cfee84b2e23b18e43ac469ad3931e0a9d7cba6ac",
@@ -213,7 +213,7 @@
  "counts": {
   "functions": 817,
   "classes_note": "classes are listed through their methods",
-  "tests": 1567,
+  "tests": 1568,
   "tools": 17,
   "functions_by_status": {
    "INSUFFICIENT EVIDENCE": 235,
@@ -424,6 +424,7 @@
   ],
   "stubs_or_protocols": 24,
   "tests_by_outcome": {
+   "not_run": 1,
    "passed": 1567
   },
   "tests_with_no_assertion": [
@@ -615,6 +616,7 @@
    "tests/test_recall_tool.py::test_the_tool_description_states_the_limits",
    "tests/test_reference_review.py::test_review_packets_hide_run_identity_and_import_checked_answers",
    "tests/test_reference_review.py::test_review_export_refuses_a_request_folder_with_model_answers",
+   "tests/test_reference_review.py::test_function_sample_prefers_items_with_all_judgments",
    "tests/test_servo_drive.py::test_a_new_drive_is_healthy",
    "tests/test_servo_drive.py::test_the_pack_asks_for_the_drive_replacement_and_counts_as_a_cause",
    "tests/test_settings.py::test_env_and_index_live_at_the_repository_root",
@@ -37976,6 +37978,11 @@
    "functions": []
   },
   "tests/test_reference_review.py::test_review_export_refuses_a_request_folder_with_model_answers": {
+   "count": 0,
+   "judgment": "NOT ASSESSED",
+   "functions": []
+  },
+  "tests/test_reference_review.py::test_function_sample_prefers_items_with_all_judgments": {
    "count": 0,
    "judgment": "NOT ASSESSED",
    "functions": []
