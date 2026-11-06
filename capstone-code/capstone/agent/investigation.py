@@ -46,6 +46,8 @@ from capstone.agent.artifacts import (
     CritiqueRecord,
     ProposalRecord,
     RecheckRecord,
+    ReinstatementRecord,
+    RevaluationRecord,
     TerminationReason,
     VerificationCheck,
 )
@@ -63,15 +65,23 @@ from capstone.agent.loop import (
     record,
     run_inner_loop,
 )
-from capstone.agent.policy import ActionRequest, CallTool, Interpretation, Stop
+from capstone.agent.policy import (
+    ActionRequest,
+    CallTool,
+    CallTools,
+    Interpretation,
+    Stop,
+)
 from capstone.agent.state import (
     ConclusionTrace,
     GapRecord,
     GapRole,
     InvestigationState,
     Phase,
+    PrunedCandidate,
     Question,
 )
+from capstone.contracts.hypotheses import Hypothesis
 from capstone.contracts.tools import ToolRequest
 from capstone.providers.chat import ModelError
 from capstone.providers.factory import research_tools
@@ -193,13 +203,29 @@ def plan(state: InvestigationState, deps: InvestigationDeps) -> None:
 
 
 def investigate(state: InvestigationState, deps: InvestigationDeps) -> Route:
-    """Gather evidence. Go straight to the conclusion if there is nothing to explain."""
+    """Gather evidence. Go straight to the conclusion if there is nothing to explain.
+
+    Out of time also goes to the conclusion, unless a hypothesis reserve
+    (`deps.hypothesis_seconds`) was kept and is still there: then the
+    hypothesize question is asked in it, so the run still forms explanations.
+    """
     # Variables:
     #   reason: Why the inner loop stopped, also saved as the run's termination reason.
+    #   gathered: Whether this stage found anything to explain.
+    #   reserved: Whether research time remains once the reserve is let go,
+    #     i.e. the reserve is what stopped research, not the deadline itself.
     state.stage = "investigate"
     reason = run_inner_loop(state, deps, "investigate")
     state.termination_reason = reason
-    if reason is TerminationReason.TIMEOUT or not gathered_in(state, "investigate"):
+    gathered = bool(gathered_in(state, "investigate"))
+    if deps.hypothesis_seconds > 0:
+        reserved = state.research_seconds(deps.clock()) > 0
+        state.hypothesis_reserve_used = (
+            reason is TerminationReason.TIMEOUT and reserved and gathered
+        )
+        if state.hypothesis_reserve_used:
+            return "continue"
+    if reason is TerminationReason.TIMEOUT or not gathered:
         return "conclude"
     return "continue"
 
@@ -228,13 +254,159 @@ def hypothesize(state: InvestigationState, deps: InvestigationDeps) -> Route:
         information_needed="what could explain the evidence",
         termination_reason=reason,
     )
+    if outcome == "decided":
+        reconsider(state, deps)
     return "continue" if state.hypotheses else "conclude"
 
 
+# The question id a reinstated candidate's check is kept under.
+REINSTATED_QUESTION = "R1"
+
+
+def reinstated_confidence(candidate: PrunedCandidate, floor: float) -> float:
+    """The confidence a reinstated candidate starts at: never above the kept ones.
+
+    The critic's reason is a belief, not a reading, so the candidate starts no
+    higher than the least believed kept hypothesis (`floor`), and no higher than
+    its own rating. One rated "impossible" with factory evidence against it
+    starts at most at 0.5: that evidence still stands until a check says otherwise.
+    """
+    # Variables:
+    #   candidate: The dropped candidate the critic named.
+    #   floor: The confidence of the least believed kept hypothesis.
+    #   rated: Its own rated confidence, or 0.5 if it was never rated.
+    rated = 0.5 if candidate.confidence is None else candidate.confidence
+    if candidate.status == "contradicted":
+        rated = min(rated, 1 - rated, 0.5)
+    return round(min(rated, floor), 6)
+
+
+def reconsider(state: InvestigationState, deps: InvestigationDeps) -> None:
+    """Let the critic bring back one candidate pruning dropped, to be tested (P2).
+
+    Off unless `deps.critic_reinstate`, a critic and something pruned. The
+    critic is asked once, in its own window (the deadline moves back by the
+    seconds it used, as for the critique). If it names a dropped candidate,
+    that candidate becomes the least believed hypothesis, with its check as an
+    open question for the test stage, and leaves the pruned list. Whatever the
+    critic says or fails to say, the run goes on.
+    """
+    # Variables:
+    #   offered: The dropped candidate ids, in the order the critic saw them.
+    #   began, used: The clock when the question started, and the seconds it took.
+    #   answer: The critic's checked reply, or None if it gave no usable one.
+    #   outcome: What the record says happened.
+    #   chosen: The dropped candidate the critic named.
+    #   taken: Hypothesis ids already in use, so the new one gets a fresh id.
+    if not (deps.critic_reinstate and deps.critic is not None):
+        return
+    if not state.pruned_candidates or not state.hypotheses:
+        return
+    offered = tuple(p.id for p in state.pruned_candidates)
+    began = deps.clock()
+    answer, outcome = None, "declined"
+    try:
+        answer = deps.critic.reconsider(
+            state.model_copy(deep=True), max_seconds=deps.critic_seconds
+        )
+    except ModelError:
+        outcome = "no_answer"
+    except POLICY_ERRORS:
+        outcome = "invalid_reply"
+    used = max(0.0, deps.clock() - began)
+    if state.started_at is not None:
+        state.started_at += used
+    record_args = {"offered": offered, "seconds": used}
+    if answer is None or answer.candidate_id == "none":
+        state.reinstatement = ReinstatementRecord(
+            outcome=outcome, why=None if answer is None else answer.why, **record_args
+        )
+        return
+    chosen = next(p for p in state.pruned_candidates if p.id == answer.candidate_id)
+    taken = {h.id for h in state.hypotheses}
+    number = len(taken) + 1
+    while f"H{number}" in taken:
+        number += 1
+    confidence = reinstated_confidence(
+        chosen, min(h.confidence for h in state.hypotheses)
+    )
+    hypothesis = Hypothesis(
+        id=f"H{number}",
+        claim=chosen.claim,
+        confidence=confidence,
+        supporting_evidence_ids=chosen.supporting_evidence_ids,
+        contradicting_evidence_ids=chosen.contradicting_evidence_ids,
+        discriminating_check=answer.check,
+    )
+    check = (answer.check or answer.why or chosen.claim).strip()
+    apply_interpretation(
+        state,
+        Interpretation(
+            hypotheses=(*state.hypotheses, hypothesis),
+            new_questions=(
+                Question(
+                    id=REINSTATED_QUESTION, text=check, hypothesis_id=hypothesis.id
+                ),
+            ),
+        ),
+    )
+    state.pruned_candidates = [p for p in state.pruned_candidates if p.id != chosen.id]
+    state.reinstatement = ReinstatementRecord(
+        outcome="reinstated",
+        candidate_id=chosen.id,
+        hypothesis_id=hypothesis.id,
+        confidence=confidence,
+        why=answer.why,
+        **record_args,
+    )
+
+
 def test(state: InvestigationState, deps: InvestigationDeps) -> None:
-    """Gather evidence that tells the explanations apart."""
+    """Gather evidence that tells the explanations apart, then re-rate them (P5)."""
     state.stage = "test"
     state.termination_reason = run_inner_loop(state, deps, "test")
+    revalue(state, deps)
+
+
+def revalue(state: InvestigationState, deps: InvestigationDeps) -> None:
+    """Have the tree rate its kept explanations again with the test stage's evidence.
+
+    Only for a tree policy with TOT_REVALUE and hypotheses to rate. The question
+    draws on research time, so it is skipped when none is left and the
+    follow-up time stays whole. Whatever goes wrong (no answer, an unusable
+    reply), the hypotheses stay as they were and the run goes on.
+    """
+    # Variables:
+    #   ask: The policy's revalue method; only the tree policy has one.
+    #   began, used: The clock when the question started, and the seconds it took.
+    #   outcome: What the record says happened when the question gave nothing.
+    ask = getattr(deps.policy, "revalue", None)
+    options = getattr(deps.policy, "options", None)
+    if ask is None or not getattr(options, "revalue", False) or not state.hypotheses:
+        return
+    if not gathered_in(state, "test"):
+        state.revaluation = RevaluationRecord(outcome="nothing_new")
+        return
+    if state.started_at is not None and state.research_seconds(deps.clock()) <= 0:
+        state.revaluation = RevaluationRecord(outcome="no_time")
+        return
+    began = deps.clock()
+    outcome = None
+    try:
+        interpretation, answer = ask_policy(state, deps, ask, research=True)
+        apply_interpretation(state, interpretation)
+    except OutOfTime:
+        outcome = "no_time"
+        state.termination_reason = TerminationReason.TIMEOUT
+    except ModelError:
+        outcome = "no_answer"
+    except POLICY_ERRORS:
+        outcome = "invalid_reply"
+    used = max(0.0, deps.clock() - began)
+    if outcome is None:
+        state.revaluation = answer.model_copy(update={"seconds": used})
+    else:
+        state.revaluation = RevaluationRecord(outcome=outcome, seconds=used)
 
 
 def critique(state: InvestigationState, deps: InvestigationDeps) -> None:
@@ -376,6 +548,8 @@ def recheck(state: InvestigationState, deps: InvestigationDeps) -> None:
     #   began: The clock when the follow-up's window opened.
     #   started: The investigation's real start, restored (moved by the seconds
     #     used) when the window closes.
+    #   decision: The one reading to make: the critic's structured check, or
+    #     the policy's choice (only the first call if it listed several).
     if not deps.critic_followup or deps.critic is None or state.critique is None:
         return
     state.stage = "test"
@@ -456,6 +630,9 @@ def follow_up(state: InvestigationState, deps: InvestigationDeps, trigger: str) 
                 research=True,
             )
         )
+        # The recheck is one reading; from a list of calls, only the first runs.
+        if isinstance(decision, CallTools):
+            decision = decision.steps[0]
         if not isinstance(decision, CallTool | Stop):
             raise ValueError("a policy must return CallTool or Stop")
     except OutOfTime:
@@ -731,6 +908,9 @@ def conclude(state: InvestigationState, deps: InvestigationDeps) -> None:
     #     named. Always None in a triage, which proposes nothing.
     #   state.mode: "triage" keeps the answer but saves no change to propose,
     #     and sets `deep_recommended` from it by fixed rule.
+    #   error: The rule the answer broke, when the policy or the check refused
+    #     it; saved as state.conclusion_rejected so the record says why the
+    #     conclusion is "undetermined".
     state.stage = "decide"
     outcome = "decided"
     try:
@@ -748,7 +928,8 @@ def conclude(state: InvestigationState, deps: InvestigationDeps) -> None:
         #   policy_recommendation="escalate", lowered=None -> the model chose it
         #   policy_recommendation="intervene", lowered=<why> -> the check lowered it
         #   policy_recommendation=None -> these lines never ran: time ran out or
-        #     the reply was unusable, and UNDETERMINED (escalate) was used
+        #     the reply was unusable, and UNDETERMINED (escalate) was used;
+        #     conclusion_rejected then says why the reply was unusable
         #
         # The reason uses the raw `answer, wanted`: after the check `request`
         # is always None, so the checked pair would always say "no action named".
@@ -763,8 +944,9 @@ def conclude(state: InvestigationState, deps: InvestigationDeps) -> None:
     except OutOfTime:
         conclusion, request, outcome = UNDETERMINED, None, "stopped"
         state.termination_reason = TerminationReason.TIMEOUT
-    except POLICY_ERRORS:
+    except POLICY_ERRORS as error:
         conclusion, request, outcome = UNDETERMINED, None, "invalid_decision"
+        state.conclusion_rejected = rejection_reason(error)
     state.conclusion = conclusion
     state.concluded_tick = state.last_tick
     if state.mode == "triage":
@@ -793,6 +975,15 @@ def conclude(state: InvestigationState, deps: InvestigationDeps) -> None:
     )
 
 
+def rejection_reason(error: Exception) -> str:
+    """Why a final answer was refused, as one line for the record."""
+    # Variables:
+    #   text: The error's own message, which names the broken rule; the error's
+    #     type stands in when the message is empty.
+    text = " ".join(str(error).split())
+    return text or type(error).__name__
+
+
 def needs_deep_run(conclusion: AgentConclusion) -> bool:
     """Whether a triage's answer leaves work for a deep investigation.
 
@@ -802,6 +993,10 @@ def needs_deep_run(conclusion: AgentConclusion) -> bool:
     finding that nothing is wrong. A fixed rule, so the model cannot argue
     its way out of it.
     """
+    # Variables:
+    #   conclusion: The triage's answer. Its recommendation is the model's own,
+    #     and its assessment is "supported" only when the evidence backed it,
+    #     so a timeout (UNDETERMINED) never counts as "nothing wrong".
     return not (
         conclusion.recommendation == "no_action"
         and conclusion.assessment == "supported"

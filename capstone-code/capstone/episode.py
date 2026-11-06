@@ -262,6 +262,9 @@ def run_episode(
     #   settings: The project settings, read for the action bar and step mode.
     #   step_questions: The questions per tool result actually used: the
     #     setting, or 2 for a policy that cannot answer both in one.
+    #   decide_calls: The most tool calls one decide answer may list: the
+    #     DECIDE_CALLS setting, or 1 for a policy that cannot read several
+    #     results in one question.
     #   sim: The factory with its hidden fault; never given to the agent.
     #   desk: The human's approval desk; never given to the agent.
     #   look: The read-only tools.
@@ -327,6 +330,14 @@ def run_episode(
         if callable(getattr(policy, "interpret_and_decide", None))
         else 2
     )
+    # Several calls per answer need a policy that can read them together in
+    # one-question mode; any other policy keeps one call per answer.
+    decide_calls = (
+        settings.decide_calls
+        if step_questions == 2
+        or callable(getattr(policy, "interpret_and_decide_many", None))
+        else 1
+    )
     world = "challenge" if kind == CHALLENGE else f"fault-{fault or 'any'}"
     run_id = run_id_for(run_key or f"episode/seed-{seed}/{world}")
     state = InvestigationState(
@@ -350,13 +361,22 @@ def run_episode(
         min_action_confidence=settings.min_action_confidence,
         state_action_bar=settings.state_action_bar,
         step_questions=step_questions,
+        decide_calls=decide_calls,
         critic=critic,
         critic_seconds=settings.critic_seconds,
         critic_followup=settings.critic_followup,
         recheck_seconds=settings.critic_followup_seconds,
         # Only a run that offers the manual can search it.
         manual_step=settings.manual_step and manual is not None,
+        hypothesis_seconds=settings.hypothesis_reserve_seconds,
+        critic_reinstate=settings.tot_reinstate,
     )
+    research = state.budgets.timeout_seconds - state.budgets.followup_seconds
+    if deps.hypothesis_seconds >= research:
+        raise ValueError(
+            "HYPOTHESIS_RESERVE_SECONDS must leave some research time "
+            f"(research has {research:g} s)"
+        )
     triage_state, triage_seconds = None, None
     if settings.triage if triage is None else triage:
         triage_state, state, triage_seconds = run_triage_then_deep(
@@ -422,7 +442,12 @@ def run_triage_then_deep(
     first.mode = "triage"
     first.budgets = triage_budgets(settings.triage_seconds, settings.triage_tool_calls)
     started = deps.clock()
-    run_investigation(first, replace(deps, critic=None, critic_followup=False))
+    # The hypothesis reserve is for the deep run: the triage's short window
+    # would have little or no research time left with it.
+    run_investigation(
+        first,
+        replace(deps, critic=None, critic_followup=False, hypothesis_seconds=0.0),
+    )
     seconds = deps.clock() - started
     if log is not None and first.conclusion is not None and first.termination_reason:
         log.append(audit_record(first))

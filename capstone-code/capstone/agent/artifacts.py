@@ -190,6 +190,56 @@ class RecheckRecord(Contract):
     confidence_after: float | None = Field(default=None, ge=0, le=1)
 
 
+class Reinstatement(Contract):
+    """The critic's reply when asked whether a dropped candidate deserves testing (P2).
+
+    `candidate_id` names one candidate from the RULED OUT list, or "none".
+    The reply is a belief: code checks it, and only a factory reading made
+    afterwards can raise the reinstated candidate's confidence.
+    """
+
+    candidate_id: str = Field(min_length=1)
+    why: str = ""
+    # Evidence the critic rests its case on; only ids that were gathered.
+    evidence_ids: tuple[str, ...] = ()
+    # One read-only check that would test the candidate, in words.
+    check: str | None = None
+
+
+class ReinstatementRecord(Contract):
+    """What the reinstatement question did (TOT_REINSTATE), or why it did nothing."""
+
+    # reinstated: a dropped candidate became a hypothesis. declined: the critic
+    # said none. no_answer / invalid_reply: as for the critique.
+    outcome: Literal["reinstated", "declined", "no_answer", "invalid_reply"]
+    # The candidate ids the critic was offered, in the order shown.
+    offered: tuple[str, ...] = ()
+    candidate_id: str | None = None
+    # The hypothesis it became, and the confidence code gave it.
+    hypothesis_id: str | None = None
+    confidence: float | None = Field(default=None, ge=0, le=1)
+    why: str | None = None
+    seconds: float = Field(default=0.0, ge=0)
+
+
+class RevaluationRecord(Contract):
+    """What the tree's second rating pass did (TOT_REVALUE), or why it did nothing."""
+
+    # revalued: the kept explanations were rated again. nothing_new: the test
+    # stage gathered nothing, so there was nothing to rate them against.
+    # no_time: no research time was left. no_answer / invalid_reply: as for
+    # the critique; the hypotheses are left as they were.
+    outcome: Literal["revalued", "nothing_new", "no_time", "no_answer", "invalid_reply"]
+    # Hypothesis id -> confidence before and after; an unrated one keeps its own.
+    confidence_before: dict[str, float] = Field(default_factory=dict)
+    confidence_after: dict[str, float] = Field(default_factory=dict)
+    # Hypothesis id -> why it was removed: only a factory contradiction removes one.
+    dropped: dict[str, str] = Field(default_factory=dict)
+    # Hypotheses the reply did not rate, left unchanged.
+    unrated: tuple[str, ...] = ()
+    seconds: float = Field(default=0.0, ge=0)
+
+
 class CritiqueRecord(Contract):
     """What the critic stage produced for one investigation, or why it produced nothing."""
 

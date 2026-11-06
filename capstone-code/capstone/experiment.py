@@ -54,11 +54,16 @@ from time import monotonic
 from pydantic import BaseModel, ConfigDict, Field
 
 from capstone.agent.completion import AuditLog, complete
-from capstone.agent.critic import Critic, CritiqueRecord, RecheckRecord
+from capstone.agent.critic import (
+    Critic,
+    CritiqueRecord,
+    RecheckRecord,
+    ReinstatementRecord,
+)
 from capstone.agent.model_policy import ModelCall
 from capstone.agent.policy import ReasoningPolicy
-from capstone.agent.state import Budgets, ConclusionTrace
-from capstone.agent.tree_of_thought import Thought
+from capstone.agent.state import BatchTrace, Budgets, ConclusionTrace
+from capstone.agent.tree_of_thought import RevaluationRecord, Thought, TreeOptions
 from capstone.console import safe_console
 from capstone.episode import (
     CHALLENGE,
@@ -181,6 +186,10 @@ class AgentStep(BaseModel):
     phase: str
     outcome: str
     tool: str | None = None
+    # With DECIDE_CALLS above 1: which decide answer chose this call, and its
+    # place in that answer. None otherwise (and in older records).
+    batch: int | None = None
+    batch_position: int | None = None
 
 
 def summarize_calls(calls: Sequence[ModelCall]) -> CallSummary:
@@ -267,6 +276,9 @@ class ExperimentRecord(BaseModel):
     # intervention was lowered to escalate. None in older results.
     policy_recommendation: str | None = None
     recommendation_lowered: str | None = None
+    # Why the final answer was refused, so the conclusion fell back to
+    # "undetermined". None when it was accepted, and in older results.
+    conclusion_rejected: str | None = None
     # The final check's gaps by kind, for replaying other gap rules offline
     # (`python -m capstone.evaluation.gap_replay`). None in older results.
     conclusion_trace: ConclusionTrace | None = None
@@ -327,10 +339,28 @@ class ExperimentRecord(BaseModel):
     # candidates, their ratings, which were kept and why the rest were dropped).
     # None: the run used the ordinary step (or predates this record).
     thoughts: list[Thought] | None = None
+    # The hypothesis reserve (HYPOTHESIS_RESERVE_SECONDS): True when it let
+    # the hypothesize question be asked after research ran out of time, False
+    # when it was kept but not needed. None: no reserve (and older records).
+    hypothesis_reserve_used: bool | None = None
+    # The tree-of-thought options the run's policy used (P1-P5 switches).
+    # None: the ordinary policy, or a record from before they were kept.
+    tree_options: TreeOptions | None = None
+    # P2 (TOT_REINSTATE): what the critic's reinstatement question did. None:
+    # it was off or had nothing to offer (and in older records).
+    reinstatement: ReinstatementRecord | None = None
+    # P5 (TOT_REVALUE): what the tree's second rating pass did. None: it was
+    # off, or an older record.
+    revaluation: RevaluationRecord | None = None
     # With triage on: the rapid triage that ran first. The fields above then
     # describe the deep run that followed, or the triage when none did.
     # None: triage was off (and in records from before it was kept).
     triage: TriageRecord | None = None
+    # DECIDE_CALLS for this run, and what batching did (answers, calls chosen
+    # and run, and the cuts). None in records from before it was kept; the
+    # trace is also None when DECIDE_CALLS was 1.
+    decide_calls: int | None = Field(default=None, ge=1)
+    decide_batches: BatchTrace | None = None
 
 
 # Tools answered by something other than the factory.
@@ -388,6 +418,13 @@ def overruled_text(record: ExperimentRecord) -> str:
     return f" overruled=intervene->{record.recommendation} ({record.recommendation_lowered})"
 
 
+def rejected_text(record: ExperimentRecord) -> str:
+    """For the report: why the final answer was refused; else nothing."""
+    if record.conclusion_rejected is None:
+        return ""
+    return f" conclude_refused=({record.conclusion_rejected})"
+
+
 def favoured_claim(state) -> str | None:
     """The claim the critic favoured, as worded when it judged it; None if none.
 
@@ -434,6 +471,7 @@ def record_of(
     with_memory: bool = False,
     with_manual: bool = False,
     thoughts: Sequence[Thought] | None = None,
+    tree_options: TreeOptions | None = None,
 ) -> ExperimentRecord:
     """Save the episode and its completion/action audit without rerunning any reasoning."""
     # Variables:
@@ -453,6 +491,7 @@ def record_of(
         recommendation=None if concluded is None else concluded.recommendation,
         policy_recommendation=state.policy_recommendation,
         recommendation_lowered=state.recommendation_lowered,
+        conclusion_rejected=state.conclusion_rejected,
         conclusion_trace=state.conclusion_trace,
         assessment=None if concluded is None else concluded.assessment,
         unresolved_questions=()
@@ -483,6 +522,8 @@ def record_of(
         factory_calls=count_factory_calls(state),
         state_action_bar=state.state_action_bar,
         step_questions=state.step_questions,
+        decide_calls=state.decide_calls,
+        decide_batches=state.decide_batches,
         critique=state.critique,
         critic_favoured_claim=favoured_claim(state),
         recheck=state.recheck,
@@ -493,6 +534,8 @@ def record_of(
                 phase=decision.phase,
                 outcome=decision.outcome,
                 tool=decision.tool,
+                batch=decision.batch,
+                batch_position=decision.batch_position,
             )
             for decision in state.decisions
         ]
@@ -510,6 +553,10 @@ def record_of(
             )
         ],
         thoughts=None if thoughts is None else list(thoughts),
+        hypothesis_reserve_used=state.hypothesis_reserve_used,
+        tree_options=tree_options,
+        reinstatement=state.reinstatement,
+        revaluation=state.revaluation,
         triage=triage_record(result),
     )
 
@@ -565,7 +612,6 @@ def run_experiment(
     #   wall_seconds: How long the episode took on the wall clock.
     #   calls: The model questions asked; only model-backed policies keep them,
     #     followed by the critic's, if one ran.
-    #   calls: The model questions asked; only model-backed policies keep them.
     #   thoughts: The tree-of-thought trees; only the tree policy keeps them.
     #   record: The case's result for the experimenter.
     records = []
@@ -605,6 +651,8 @@ def run_experiment(
             with_memory=memory is not None,
             with_manual=manual is not None,
             thoughts=thoughts,
+            # Kept by TreeOfThoughtPolicy only, like its thoughts.
+            tree_options=getattr(policy, "options", None),
         )
         records.append(record)
         if on_record is not None:
@@ -711,6 +759,28 @@ def format_triage(records: Sequence[ExperimentRecord]) -> str | None:
         f"deep run asked for {sum(t.deep_recommended for t in kept)}, "
         f"ran {sum(t.deep_ran for t in kept)}; "
         f"{sum(t.tool_calls for t in kept)} triage tool calls"
+    )
+
+
+def format_batches(records: Sequence[ExperimentRecord]) -> str | None:
+    """One line on several tool calls per decide answer; None when no run batched."""
+    # Variables:
+    #   kept: The batch trace of each run that had DECIDE_CALLS above 1.
+    #   answers: Decide answers that chose at least one call, over those runs.
+    #   run: Tool calls the loop ran from those answers.
+    kept = [r.decide_batches for r in records if r.decide_batches is not None]
+    if not kept:
+        return None
+    answers = sum(t.answers for t in kept)
+    run = sum(t.run for t in kept)
+    per_answer = run / answers if answers else 0.0
+    return (
+        f"decide batches: {len(kept)} run(s), {answers} answers chose "
+        f"{sum(t.chosen for t in kept)} calls and ran {run} ({per_answer:.1f} per "
+        f"answer); {sum(t.read_together for t in kept)} read together; cut "
+        f"{sum(t.cut_at_wait for t in kept)} at a wait, "
+        f"{sum(t.cut_over_limit for t in kept)} over the limit, "
+        f"{sum(t.cut_for_budget for t in kept)} for budget"
     )
 
 
@@ -841,7 +911,7 @@ def _run_line(record: ExperimentRecord, score: Score) -> str:
         f"{len(score.relevant_evidence)} miss={score.miss_kind or '-'} "
         f"calls={score.tool_calls} "
         f"stop={score.termination_reason} {asked} s={seconds}{faults}{memory}"
-        f"{manual}{overruled_text(record)}"
+        f"{manual}{overruled_text(record)}{rejected_text(record)}"
     )
 
 
@@ -897,6 +967,7 @@ def report(records: Sequence[ExperimentRecord], labels: dict[str, Label]) -> str
     #   memory: The memory section, if any run used memory.
     #   manual: The manual section, if any run used the manual.
     #   triaged: The triage line, if any run had a rapid triage.
+    #   batched: The decide-batches line, if any run had DECIDE_CALLS above 1.
     scores = labelled(records, labels)
     held = sum(r.seed in HELD_OUT_SEEDS for r in records)
     pairs = list(zip(records, scores, strict=True))
@@ -918,7 +989,9 @@ def report(records: Sequence[ExperimentRecord], labels: dict[str, Label]) -> str
     manual = format_manual(records)
     lines += [] if manual is None else [manual]
     triaged = format_triage(records)
-    lines += ([] if triaged is None else [triaged]) + [""]
+    lines += [] if triaged is None else [triaged]
+    batched = format_batches(records)
+    lines += ([] if batched is None else [batched]) + [""]
 
     def lines_for(group):
         # Variables:
@@ -1005,11 +1078,13 @@ def model_policy_factory(
     #   tree_of_thought: Use the policy that generates, rates and prunes explanations.
     #   with_manual: Offer the manual search tool.
     #   tools: The tools the policy may choose from.
-    #   kind: Which policy class to build.
+    #   options: The tree's switches from the TOT_* settings, read once so every
+    #     case of the experiment uses the same ones.
     from capstone.agent.model_policy import ModelPolicy
     from capstone.agent.tree_of_thought import TreeOfThoughtPolicy
     from capstone.providers.chat import clients_for_jobs
     from capstone.providers.factory import research_tools
+    from capstone.settings import get_settings
 
     tools = research_tools()
     if with_recall:
@@ -1020,8 +1095,34 @@ def model_policy_factory(
         from capstone.providers.manual import MANUAL_SPEC
 
         tools = (*tools, MANUAL_SPEC)
-    kind = TreeOfThoughtPolicy if tree_of_thought else ModelPolicy
-    return lambda: kind(clients_for_jobs(), tools)
+    if tree_of_thought:
+        options = tree_options_from(get_settings())
+        from capstone.providers.chat import value_client
+
+        def tree() -> TreeOfThoughtPolicy:
+            # Variables:
+            #   clients: The seven jobs' clients, plus `value` for P5 when
+            #     VALUE_MODEL names a model for the second rating.
+            #   second: That client, or None (the hypothesize client answers).
+            clients = clients_for_jobs()
+            second = value_client() if options.revalue else None
+            if second is not None:
+                clients["value"] = second  # VALUE_MODEL: the faster rating model
+            return TreeOfThoughtPolicy(clients, tools, options=options)
+
+        return tree
+    return lambda: ModelPolicy(clients_for_jobs(), tools)
+
+
+def tree_options_from(settings) -> TreeOptions:
+    """The tree's switches, read from the TOT_* settings (all off by default)."""
+    return TreeOptions(
+        revalue=settings.tot_revalue,
+        retain=settings.tot_retain,
+        rank=settings.tot_rank,
+        rotate=settings.tot_rotate,
+        adaptive=settings.tot_adaptive,
+    )
 
 
 def add_manual_options(parser: argparse.ArgumentParser) -> None:
@@ -1098,6 +1199,24 @@ APPROVERS = {"all": approve_all, "none": reject_all, "console": ask_on_console}
 
 
 def main(argv: Sequence[str] | None = None) -> int:
+    """The command line: run cases, label their conclusions, or report them."""
+    # Variables:
+    #   argv: The command-line words; None reads the real command line, and
+    #     tests pass their own.
+    #   args.command: Which subcommand was chosen, "run", "label" or "report";
+    #     it decides which branch below runs.
+    #   cases: The cases to run, from exactly one of --known, --held-out,
+    #     --challenge or --seeds (with --faults).
+    #   budgets: Time limits for each investigation; None keeps the defaults
+    #     unless --timeout-seconds was given.
+    #   memory, manual, log: The optional memory store, operator manual and
+    #     audit log; each is None unless its option was given.
+    #   args.triage: True with --triage, otherwise None so the TRIAGE setting
+    #     decides; passed through to run_experiment.
+    #   records: The finished results, saved as each case ends; for "label" and
+    #     "report", the results read back from --results.
+    #   done: The run keys already labelled, so labelling skips them.
+    #   labels: Hand labels to score conclusions against; empty without --labels.
     safe_console()  # a conclusion with "→" must not stop the run
     parser = argparse.ArgumentParser(prog="python -m capstone.experiment")
     commands = parser.add_subparsers(dest="command", required=True)

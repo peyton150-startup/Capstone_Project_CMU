@@ -126,6 +126,9 @@ class Settings(BaseSettings):
     conclude_model: str | None = _optional("CONCLUDE_MODEL")
     judge_model: str | None = _optional("JUDGE_MODEL")
     lesson_model: str | None = _optional("LESSON_MODEL")
+    # P5: the model for the tree's second rating pass (TOT_REVALUE), ideally a
+    # faster one; unset, the pass uses the hypothesize model.
+    value_model: str | None = _optional("VALUE_MODEL")
     # Prompt visibility only: the confidence threshold is always enforced.
     state_action_bar: bool = Field(default=True, validation_alias="STATE_ACTION_BAR")
     # Questions per tool result. 1 (the default since 2026-10-30, developer's
@@ -135,6 +138,24 @@ class Settings(BaseSettings):
     # batch and setting case. STEP_QUESTIONS=2 asks them separately.
     step_questions: int = Field(
         default=1, ge=1, le=2, validation_alias="STEP_QUESTIONS"
+    )
+    # The most tool calls one decide answer may list (developer, 2026-11-05).
+    # 1, the default, is one call per answer, and the model's prompt and
+    # answer schema stay exactly as before. Above 1 the model may list several
+    # reads; the loop runs them in order, cuts the list at the first wait (time
+    # only moves on its own), and then asks one question about all the new
+    # evidence: fewer model questions per case. Each call still counts against
+    # the tool-call budget.
+    decide_calls: int = Field(default=1, ge=1, le=5, validation_alias="DECIDE_CALLS")
+    # How hard NVIDIA's thinking models reason on the decide question only
+    # (choosing the next tool; with STEP_QUESTIONS=1 it also interprets the
+    # last result). Sent as "reasoning_effort", which NVIDIA documents for
+    # Nemotron 3.5 Super: "low" and "medium" pick a shorter reasoning mode,
+    # "high" is full reasoning. None (the default) sends nothing, so requests
+    # stay as before and runs stay comparable. Other providers and every other
+    # question are never sent it (developer, 2026-11-05).
+    decide_reasoning_effort: Literal["low", "medium", "high"] | None = _optional(
+        "DECIDE_REASONING_EFFORT"
     )
     # Asked when a job's own model cannot be reached. None: no fallback.
     # Several models, separated by commas, are tried in order: the second
@@ -170,6 +191,42 @@ class Settings(BaseSettings):
         default=90.0, gt=0, validation_alias="CRITIC_FOLLOWUP_SECONDS"
     )
 
+    # Tree-of-thought and hypothesis options (TOT_CRITIC_EVALUATION_FUTURE_WORK.md).
+    # All off by default, so runs stay comparable with the archived ToT pairs.
+    # The hypothesis reserve: research before the hypothesize question stops
+    # this many seconds early, so a run that researches until its time is up
+    # still forms explanations. 0 keeps no reserve. A tree question pair took
+    # roughly 30-120 s live, so 120 is a reasonable trial value.
+    hypothesis_reserve_seconds: float = Field(
+        default=0.0, ge=0, validation_alias="HYPOTHESIS_RESERVE_SECONDS"
+    )
+    # P1, with --tree-of-thought only: top_k keeps the best three candidates;
+    # evidence also keeps up to two more that cite factory evidence no kept one
+    # cites, or that name a check for somewhere nobody has looked yet.
+    tot_retain: Literal["top_k", "evidence"] = Field(
+        default="top_k", validation_alias="TOT_RETAIN"
+    )
+    # P4: confidence ranks candidates by the model's confidence; evidence by
+    # a transparent rubric first (verdict, factory evidence families for less
+    # against, gaps), then confidence.
+    tot_rank: Literal["confidence", "evidence"] = Field(
+        default="confidence", validation_alias="TOT_RANK"
+    )
+    # P4: list the candidates to the rating question in an order rotated per
+    # run, so `python -m capstone.tree_reach --positions` can measure position bias.
+    tot_rotate: bool = Field(default=False, validation_alias="TOT_ROTATE")
+    # P2: right after pruning, ask the critic (one extra critic question, in
+    # its own window) whether one dropped candidate deserves a check; if so it
+    # becomes the least believed hypothesis. Needs CRITIC on and a tree run.
+    tot_reinstate: bool = Field(default=False, validation_alias="TOT_REINSTATE")
+    # P3: decide from the agent's current beliefs whether to branch. A clear
+    # case (one explanation at 0.8+, 0.3 ahead, two factory readings behind it)
+    # gets the ordinary one-question step; an ambiguous one keeps one more.
+    tot_adaptive: bool = Field(default=False, validation_alias="TOT_ADAPTIVE")
+    # P5: after the test stage, rate the kept explanations once more against
+    # the new evidence (one more question, skipped when no research time is
+    # left); only a factory contradiction removes one.
+    tot_revalue: bool = Field(default=False, validation_alias="TOT_REVALUE")
     # Rapid triage (MVP_SCOPE.md, "Split rapid triage from deep
     # investigation"): a short, read-only first look before the deep run.
     # Off by default (developer, 2026-11-05), so runs stay comparable with the
@@ -240,6 +297,7 @@ class Settings(BaseSettings):
         "conclude_model",
         "judge_model",
         "lesson_model",
+        "value_model",
         "fallback_model",
         "critic_model",
         "critic_fallback_model",

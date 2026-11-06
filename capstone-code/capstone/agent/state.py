@@ -21,6 +21,8 @@ from capstone.agent.artifacts import (
     DetectedAnomaly,
     ProposalRecord,
     RecheckRecord,
+    ReinstatementRecord,
+    RevaluationRecord,
     TerminationReason,
     VerificationCheck,
 )
@@ -200,6 +202,35 @@ class ConclusionTrace(Contract):
     forced_unresolved: bool = False
 
 
+# The most tool calls one decide answer may list (DECIDE_CALLS).
+MAX_DECIDE_CALLS = 5
+
+
+class BatchTrace(Contract):
+    """What batching did in one investigation (DECIDE_CALLS above 1).
+
+    Counts only, filled by the loop. Each call's own DecisionRecord also says
+    which answer chose it (`batch`) and its place in that answer.
+    """
+
+    # Decide answers that chose at least one tool call.
+    answers: int = Field(default=0, ge=0)
+    # Tool calls those answers listed, before any cut.
+    chosen: int = Field(default=0, ge=0)
+    # Tool calls the loop then ran (a repeat still counts as run; it is
+    # recorded as repeated_call and costs no call).
+    run: int = Field(default=0, ge=0)
+    # Calls dropped at a `wait`: a wait listed after reads and everything
+    # after it, or everything after a wait listed first (which runs alone).
+    cut_at_wait: int = Field(default=0, ge=0)
+    # Calls dropped because the answer listed more than DECIDE_CALLS.
+    cut_over_limit: int = Field(default=0, ge=0)
+    # Calls dropped because the tool-call budget had run out.
+    cut_for_budget: int = Field(default=0, ge=0)
+    # Answers whose results were read together in one question.
+    read_together: int = Field(default=0, ge=0)
+
+
 class DecisionRecord(Contract):
     """What the agent chose at one step and what happened. Not chain-of-thought."""
 
@@ -218,6 +249,10 @@ class DecisionRecord(Contract):
     termination_reason: TerminationReason | None = None
     # For a failed call: the tool's own account of what was wrong.
     error: ToolError | None = None
+    # With DECIDE_CALLS above 1: which decide answer chose this call (1, 2, ...)
+    # and its place in that answer's list (1 is first). None otherwise.
+    batch: int | None = Field(default=None, ge=1)
+    batch_position: int | None = Field(default=None, ge=1)
 
 
 class ReasoningMetrics(Contract):
@@ -253,6 +288,11 @@ class InvestigationState(BaseModel):
     state_action_bar: bool = True
     # The configured loop mode, kept for experiment records. The loop sets it.
     step_questions: int = Field(default=2, ge=1, le=2)
+    # The most tool calls one decide answer may list (DECIDE_CALLS). The loop
+    # sets it; a policy reads it to know whether it may answer with a list.
+    decide_calls: int = Field(default=1, ge=1, le=MAX_DECIDE_CALLS)
+    # What batching did, for the record; None when decide_calls is 1.
+    decide_batches: BatchTrace | None = None
 
     evidence: list[Evidence] = Field(default_factory=list)
     # One label per evidence item, written by the loop when it arrived.
@@ -292,6 +332,10 @@ class InvestigationState(BaseModel):
     # "overruled" look the same in the conclusion alone.
     policy_recommendation: str | None = None
     recommendation_lowered: str | None = None
+    # Why the policy's final answer was refused (it broke a rule, for example
+    # cited evidence that was never gathered), so the conclusion fell back to
+    # "undetermined". None when an answer was accepted or none came.
+    conclusion_rejected: str | None = None
     # The final check's gaps, each with its kind, for replaying other gap
     # rules offline. None when the answer made no completion claim.
     conclusion_trace: ConclusionTrace | None = None
@@ -317,6 +361,17 @@ class InvestigationState(BaseModel):
     # What the critic follow-up did (`investigation.recheck`), or why it did
     # nothing. None: the follow-up is off, or no critic ran.
     recheck: RecheckRecord | None = None
+    # The hypothesis reserve (`InvestigationDeps.hypothesis_seconds`): None
+    # when none was kept; True when research ran out of time and the reserve
+    # let the hypothesize question be asked anyway; False when it was kept
+    # but research ended for another reason.
+    hypothesis_reserve_used: bool | None = None
+    # P2 (TOT_REINSTATE): what the critic's reinstatement question did right
+    # after pruning. None: it was off, or there was nothing pruned to offer.
+    reinstatement: ReinstatementRecord | None = None
+    # P5 (TOT_REVALUE): what the tree's second rating pass, after the test
+    # stage, did. None: it was off, or the policy is not the tree.
+    revaluation: RevaluationRecord | None = None
     # Set by the loop only on the copy a policy is given: how long the policy
     # may take to answer, the time its stage has left. None on the loop's own
     # state, and outside a running investigation.
