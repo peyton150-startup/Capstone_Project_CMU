@@ -267,6 +267,9 @@ class ExperimentRecord(BaseModel):
     # intervention was lowered to escalate. None in older results.
     policy_recommendation: str | None = None
     recommendation_lowered: str | None = None
+    # Why the final answer was refused, so the conclusion fell back to
+    # "undetermined". None when it was accepted, and in older results.
+    conclusion_rejected: str | None = None
     assessment: str | None = None
     unresolved_questions: tuple[str, ...] = ()
     next_check: str | None = None
@@ -385,6 +388,13 @@ def overruled_text(record: ExperimentRecord) -> str:
     return f" overruled=intervene->{record.recommendation} ({record.recommendation_lowered})"
 
 
+def rejected_text(record: ExperimentRecord) -> str:
+    """For the report: why the final answer was refused; else nothing."""
+    if record.conclusion_rejected is None:
+        return ""
+    return f" conclude_refused=({record.conclusion_rejected})"
+
+
 def favoured_claim(state) -> str | None:
     """The claim the critic favoured, as worded when it judged it; None if none.
 
@@ -450,6 +460,7 @@ def record_of(
         recommendation=None if concluded is None else concluded.recommendation,
         policy_recommendation=state.policy_recommendation,
         recommendation_lowered=state.recommendation_lowered,
+        conclusion_rejected=state.conclusion_rejected,
         assessment=None if concluded is None else concluded.assessment,
         unresolved_questions=()
         if concluded is None
@@ -837,7 +848,7 @@ def _run_line(record: ExperimentRecord, score: Score) -> str:
         f"{len(score.relevant_evidence)} miss={score.miss_kind or '-'} "
         f"calls={score.tool_calls} "
         f"stop={score.termination_reason} {asked} s={seconds}{faults}{memory}"
-        f"{manual}{overruled_text(record)}"
+        f"{manual}{overruled_text(record)}{rejected_text(record)}"
     )
 
 

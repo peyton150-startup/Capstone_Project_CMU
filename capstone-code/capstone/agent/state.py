@@ -244,6 +244,10 @@ class InvestigationState(BaseModel):
     # "overruled" look the same in the conclusion alone.
     policy_recommendation: str | None = None
     recommendation_lowered: str | None = None
+    # Why the policy's final answer was refused (it broke a rule, for example
+    # cited evidence that was never gathered), so the conclusion fell back to
+    # "undetermined". None when an answer was accepted or none came.
+    conclusion_rejected: str | None = None
     proposed_action: ProposalRecord | None = None
     # The tick at which the conclusion was reached.
     concluded_tick: int | None = Field(default=None, ge=0)
