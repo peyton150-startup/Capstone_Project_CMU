@@ -497,8 +497,8 @@ def memory(tmp_path):
 
 
 def recalling(cite=True):
-    """The bearing policy, first asking memory; its conclusion cites E2 and E3,
-    so E3 (the recall) is cited unless `cite` is off."""
+    """The bearing policy, first asking memory; its conclusion cites E3 and E4,
+    so E4 (the recall) is cited unless `cite` is off."""
     policy = wear_policy()
     policy.decisions["test"].insert(
         0, ask("recall_memories", text="vibration bearing", limit=5)
@@ -508,7 +508,7 @@ def recalling(cite=True):
 
         def conclude(state):
             conclusion, action = concluded(state)
-            update = {"evidence_ids": ("E2", "E4")}
+            update = {"evidence_ids": ("E3", "E5")}
             return conclusion.model_copy(update=update), action
 
         policy._conclude = conclude
@@ -542,7 +542,7 @@ def test_a_recalled_memory_the_agent_cites_is_marked_used(memory, tmp_path):
     [use] = second.memory_uses
     assert use.memory_id == first.memory_promotion.memory_id
     assert (use.retrieved, use.used, use.effect) == (True, True, "unknown")
-    assert use.assessment_source == "evaluator" and use.evidence_ids == ("E3",)
+    assert use.assessment_source == "evaluator" and use.evidence_ids == ("E4",)
 
 
 def test_an_uncited_memory_is_unknown_not_unused(memory, tmp_path):
