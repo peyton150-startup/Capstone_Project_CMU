@@ -720,18 +720,48 @@ def clients_for_jobs(
     #   references: The models for one job: its own, then the shared fallbacks not
     #     already listed.
     settings = settings or get_settings()
-    clients = {}
-    for job in JOBS:
-        references = [getattr(settings, _JOB_SETTING[job]) or settings.default_model]
-        for reference in fallback_models(settings):
-            if reference not in references:
-                references.append(reference)
-        clients[job] = FallbackClient(
-            [client_for(r, settings, transport=transport) for r in references],
-            retries=settings.model_retries,
-            max_seconds=settings.model_question_seconds,
+    return {
+        job: chain_for(
+            getattr(settings, _JOB_SETTING[job]) or settings.default_model,
+            settings,
+            transport=transport,
         )
-    return clients
+        for job in JOBS
+    }
+
+
+def chain_for(
+    first: str, settings: Settings, *, transport: Transport = urllib_transport
+) -> FallbackClient:
+    """A client asking `first`, then each FALLBACK_MODEL model it does not repeat."""
+    # Variables:
+    #   references: The models in the order they are tried.
+    references = [first]
+    for reference in fallback_models(settings):
+        if reference not in references:
+            references.append(reference)
+    return FallbackClient(
+        [client_for(r, settings, transport=transport) for r in references],
+        retries=settings.model_retries,
+        max_seconds=settings.model_question_seconds,
+    )
+
+
+def value_client(
+    settings: Settings | None = None, *, transport: Transport = urllib_transport
+) -> FallbackClient | None:
+    """The client for the tree's second rating pass (P5), or None without VALUE_MODEL.
+
+    Not one of the seven jobs: only the tree policy asks it, and without its
+    own model the pass goes to the hypothesize client, as the first rating does.
+    """
+    # Variables:
+    #   settings.value_model: The model for the second rating; None means the
+    #     tree asks its hypothesize client instead.
+    settings = settings or get_settings()
+    if settings.value_model is None:
+        return None
+    return chain_for(settings.value_model, settings, transport=transport)
 
 
 def critic_client(
