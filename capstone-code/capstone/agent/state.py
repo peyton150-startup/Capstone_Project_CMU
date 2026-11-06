@@ -21,6 +21,8 @@ from capstone.agent.artifacts import (
     DetectedAnomaly,
     ProposalRecord,
     RecheckRecord,
+    ReinstatementRecord,
+    RevaluationRecord,
     TerminationReason,
     VerificationCheck,
 )
@@ -266,6 +268,17 @@ class InvestigationState(BaseModel):
     # What the critic follow-up did (`investigation.recheck`), or why it did
     # nothing. None: the follow-up is off, or no critic ran.
     recheck: RecheckRecord | None = None
+    # The hypothesis reserve (`InvestigationDeps.hypothesis_seconds`): None
+    # when none was kept; True when research ran out of time and the reserve
+    # let the hypothesize question be asked anyway; False when it was kept
+    # but research ended for another reason.
+    hypothesis_reserve_used: bool | None = None
+    # P2 (TOT_REINSTATE): what the critic's reinstatement question did right
+    # after pruning. None: it was off, or there was nothing pruned to offer.
+    reinstatement: ReinstatementRecord | None = None
+    # P5 (TOT_REVALUE): what the tree's second rating pass, after the test
+    # stage, did. None: it was off, or the policy is not the tree.
+    revaluation: RevaluationRecord | None = None
     # Set by the loop only on the copy a policy is given: how long the policy
     # may take to answer, the time its stage has left. None on the loop's own
     # state, and outside a running investigation.
