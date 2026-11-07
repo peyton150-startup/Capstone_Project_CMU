@@ -134,6 +134,7 @@ GROUPS: dict[str, list[str]] = {
         "telemetry_monitor",
         "collector_watchdog",
         "channel_map",
+        "visit_log",
     ],
 }
 
