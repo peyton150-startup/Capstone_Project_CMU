@@ -5,6 +5,7 @@ from statistics import fmean
 
 from capstone.simulator.simulator import Simulator
 from capstone.tools.errors import ToolInputError
+from capstone.tools.screening import compact, machine_readings, screen_line
 
 
 class ObservationTools:
@@ -179,6 +180,19 @@ class ObservationTools:
             rate_of_change=delta / elapsed if elapsed else None,
         )
         return summary
+
+    def get_line_screening(self) -> dict:
+        """Every machine's recent running readings, scored against a saved healthy line.
+
+        Built only from readings the other tools return, up to now. The saved
+        "before" file comes from a separate fault-free run, so it says nothing
+        about this factory's faults. Answered in the compact form, so the whole
+        line fits in what a prompt shows of one piece of evidence.
+        """
+        # Variables:
+        #   machine_ids: The line's machines in order, so every one gets an entry.
+        machine_ids = list(self._sim.state.machines)
+        return compact(screen_line(machine_ids, machine_readings(self._sim)))
 
     def get_events(
         self, from_tick: int, to_tick: int, machine_id: str | None = None

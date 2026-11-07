@@ -67,11 +67,11 @@ def mean(state, evidence_id):
 
 def compare(state):
     latest = state.evidence[-1].id
-    fell = mean(state, latest) < mean(state, "E2") - 0.5
+    fell = mean(state, latest) < mean(state, "E3") - 0.5
     return VerificationCheck(
         outcome="resolved" if fell else "not_resolved",
         prediction="x",
-        evidence_ids=("E2", latest),
+        evidence_ids=("E3", latest),
     )
 
 
@@ -91,7 +91,7 @@ def wear_policy(recommendation="intervene"):
     def interpret(state, step, evidence):
         if step.hypothesis_id is None:
             return Interpretation()
-        return believe(0.95, "E2", evidence.id)
+        return believe(0.95, "E3", evidence.id)
 
     def conclude(state):
         machine = state.anomaly.machine_id
@@ -100,7 +100,7 @@ def wear_policy(recommendation="intervene"):
             confidence=0.95,
             recommendation=recommendation,
             hypothesis_id="H1",
-            evidence_ids=("E2", "E3"),
+            evidence_ids=("E3", "E4"),
         )
         if recommendation != "intervene":
             return concluded, None
@@ -118,7 +118,7 @@ def wear_policy(recommendation="intervene"):
             "verify": [ask("wait", ticks=300), after],
         },
         interpret,
-        hypothesize=lambda state: believe(0.6, "E2"),
+        hypothesize=lambda state: believe(0.6, "E3"),
         conclude=conclude,
         judge=compare,
         lesson=lambda state: Lesson(text=ADVICE),
