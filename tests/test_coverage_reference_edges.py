@@ -132,23 +132,45 @@ def test_reference_cli_fails_before_exporting_negative_limits(tmp_path):
     requests, _ = prepared_requests(tmp_path)
     with pytest.raises(SystemExit) as stopped:
         reference_review.main(
-            ["export", "--requests", str(requests), "--out", str(tmp_path / "review"),
-             "--run", "-1"]
+            [
+                "export",
+                "--requests",
+                str(requests),
+                "--out",
+                str(tmp_path / "review"),
+                "--run",
+                "-1",
+            ]
         )
     assert stopped.value.code == 2
     assert not (tmp_path / "review").exists()
 
 
-def test_reference_cli_exports_and_imports_without_exposing_case_ids(
-    tmp_path, capsys
-):
+def test_reference_cli_exports_and_imports_without_exposing_case_ids(tmp_path, capsys):
     requests, _ = prepared_requests(tmp_path)
     review_dir = tmp_path / "review"
-    assert reference_review.main([
-        "export", "--requests", str(requests), "--out", str(review_dir),
-        "--run", "1", "--function", "0", "--test", "0",
-        "--tool", "0", "--batch", "0",
-    ]) == 0
+    assert (
+        reference_review.main(
+            [
+                "export",
+                "--requests",
+                str(requests),
+                "--out",
+                str(review_dir),
+                "--run",
+                "1",
+                "--function",
+                "0",
+                "--test",
+                "0",
+                "--tool",
+                "0",
+                "--batch",
+                "0",
+            ]
+        )
+        == 0
+    )
     mapping = json.loads((review_dir / "private_mapping.json").read_text())
     opaque = next(iter(mapping))
     answer_path = tmp_path / "answers.json"
@@ -156,10 +178,20 @@ def test_reference_cli_exports_and_imports_without_exposing_case_ids(
         json.dumps({opaque: {"RUN-01": 1, "RUN-02": "yes", "RUN-03": False}})
     )
     result_path = tmp_path / "mapped.json"
-    assert reference_review.main([
-        "import", "--review-dir", str(review_dir),
-        "--answers", str(answer_path), "--out", str(result_path),
-    ]) == 0
+    assert (
+        reference_review.main(
+            [
+                "import",
+                "--review-dir",
+                str(review_dir),
+                "--answers",
+                str(answer_path),
+                "--out",
+                str(result_path),
+            ]
+        )
+        == 0
+    )
     assert json.loads(result_path.read_text()) == {
         "test-case": {"RUN-01": 1, "RUN-02": "yes", "RUN-03": False}
     }

@@ -33,9 +33,7 @@ import pytest
         "evaltools.compare_evaluators",
     ],
 )
-def test_cli_module_help_is_offline_and_exits_cleanly(
-    monkeypatch, capsys, module
-):
+def test_cli_module_help_is_offline_and_exits_cleanly(monkeypatch, capsys, module):
     """Every public CLI must show help before reading files or calling models."""
     monkeypatch.setattr(sys, "argv", [module, "--help"])
     with warnings.catch_warnings():

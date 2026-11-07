@@ -50,8 +50,13 @@ def test_snap_request_cli_refuses_unknown_function_ids(tmp_path, capsys):
     with pytest.raises(SystemExit) as stopped:
         snap_request.main(
             [
-                "--out", str(tmp_path / "requests"),
-                "--inventory", str(inventory), "functions", "--ids", "missing",
+                "--out",
+                str(tmp_path / "requests"),
+                "--inventory",
+                str(inventory),
+                "functions",
+                "--ids",
+                "missing",
             ]
         )
     assert stopped.value.code == 2
@@ -69,8 +74,16 @@ def test_traced_run_refuses_records_audit_collision_before_tracing(
     path = tmp_path / "records.jsonl"
     with pytest.raises(SystemExit) as stopped:
         traced_run.main(
-            ["--name", "run", "--out", str(path), "--trace",
-             str(tmp_path / "trace.json"), "--audit", str(path)]
+            [
+                "--name",
+                "run",
+                "--out",
+                str(path),
+                "--trace",
+                str(tmp_path / "trace.json"),
+                "--audit",
+                str(path),
+            ]
         )
     assert stopped.value.code == 2
     assert "audit and records paths must differ" in capsys.readouterr().err
@@ -88,8 +101,15 @@ def test_traced_run_refuses_nonempty_record_file_before_tracing(
     path.write_text("previous result\n", encoding="utf-8")
     with pytest.raises(SystemExit) as stopped:
         traced_run.main(
-            ["--name", "run", "--out", str(path), "--trace",
-             str(tmp_path / "trace.json"), "--no-audit"]
+            [
+                "--name",
+                "run",
+                "--out",
+                str(path),
+                "--trace",
+                str(tmp_path / "trace.json"),
+                "--no-audit",
+            ]
         )
     assert stopped.value.code == 2
     assert "already has records" in capsys.readouterr().err
@@ -131,8 +151,13 @@ def test_run_packet_cli_refuses_ambiguous_archive_sources(
 ):
     with pytest.raises(SystemExit) as stopped:
         run_packet.main(
-            ["--archive", str(tmp_path / "archive"), "--out",
-             str(tmp_path / "out"), *extra]
+            [
+                "--archive",
+                str(tmp_path / "archive"),
+                "--out",
+                str(tmp_path / "out"),
+                *extra,
+            ]
         )
     assert stopped.value.code == 2
     assert message in capsys.readouterr().err
@@ -145,12 +170,22 @@ def test_run_packet_cli_outputs_empty_batch_summary_without_model(
     monkeypatch.setattr(run_packet, "batch_summary", lambda _: {"runs": 0})
     out = tmp_path / "packets"
     schema = tmp_path / "schema.json"
-    assert run_packet.main(
-        ["--records", str(tmp_path / "none.jsonl"), "--out", str(out),
-         "--write-schema", str(schema)]
-    ) == 0
+    assert (
+        run_packet.main(
+            [
+                "--records",
+                str(tmp_path / "none.jsonl"),
+                "--out",
+                str(out),
+                "--write-schema",
+                str(schema),
+            ]
+        )
+        == 0
+    )
     assert json.loads((out / "BATCH_SUMMARY.json").read_text()) == {
-        "runs": 0, "refused": []
+        "runs": 0,
+        "refused": [],
     }
     assert "properties" in json.loads(schema.read_text())
     assert '"runs": 0' in capsys.readouterr().out
@@ -166,9 +201,12 @@ def test_run_packet_cli_preserves_refused_packet_manifest(
     monkeypatch.setattr(run_packet, "build_all", fake_build)
     monkeypatch.setattr(run_packet, "batch_summary", lambda _: {"runs": 0})
     out = tmp_path / "packets"
-    assert run_packet.main(
-        ["--records", str(tmp_path / "records.jsonl"), "--out", str(out)]
-    ) == 0
+    assert (
+        run_packet.main(
+            ["--records", str(tmp_path / "records.jsonl"), "--out", str(out)]
+        )
+        == 0
+    )
     data = json.loads((out / "BATCH_SUMMARY.json").read_text())
     assert data["refused"] == [{"episode_key": "bad", "reason": "truth leak"}]
     assert "refused" in capsys.readouterr().err
@@ -206,16 +244,13 @@ def test_build_inventory_cli_prints_counts_without_building_the_world(
     assert build_inventory.main(["--out", str(path)]) == 0
     assert recorded == [(None, None, path)]
     assert json.loads(capsys.readouterr().out) == {
-        "functions": "3 items", "tests": "1 items"
+        "functions": "3 items",
+        "tests": "1 items",
     }
 
 
-def test_compare_evaluators_cli_saves_offline_agreement(
-    monkeypatch, tmp_path, capsys
-):
-    monkeypatch.setattr(
-        compare_evaluators, "load_answers", lambda _: []
-    )
+def test_compare_evaluators_cli_saves_offline_agreement(monkeypatch, tmp_path, capsys):
+    monkeypatch.setattr(compare_evaluators, "load_answers", lambda _: [])
     data = {
         "providers": [],
         "pairs_compared": 0,
@@ -230,10 +265,12 @@ def test_compare_evaluators_cli_saves_offline_agreement(
     reference = tmp_path / "reference.json"
     reference.write_text("{}")
     out = tmp_path / "report"
-    assert compare_evaluators.main(
-        ["--answers", str(source), "--reference", str(reference),
-         "--out", str(out)]
-    ) == 0
+    assert (
+        compare_evaluators.main(
+            ["--answers", str(source), "--reference", str(reference), "--out", str(out)]
+        )
+        == 0
+    )
     assert json.loads((out / "agreement.json").read_text()) == data
     assert (out / "agreement.md").read_text() == "# review\n"
     assert json.loads(capsys.readouterr().out)["pairs_compared"] == 0
