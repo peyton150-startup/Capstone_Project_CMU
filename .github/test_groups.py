@@ -133,6 +133,7 @@ GROUPS: dict[str, list[str]] = {
         "mtconnect_ingestion",
         "telemetry_monitor",
         "collector_watchdog",
+        "channel_map",
     ],
 }
 
