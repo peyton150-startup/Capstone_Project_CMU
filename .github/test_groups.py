@@ -128,6 +128,7 @@ GROUPS: dict[str, list[str]] = {
         "known_answers",
         "baseline",
         "memory_comparison",
+        "coverage_reporting_edges",
     ],
     # The runner: one seeded episode from fault to score, end to end.
     "Episode": ["episode", "progress_view", "triage"],
