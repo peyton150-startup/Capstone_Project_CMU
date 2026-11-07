@@ -297,3 +297,54 @@ def test_follower_reads_markers_and_observations(tmp_path):
     text = "".join(x.model_dump_json() + "\n" for x in lines)
     path.write_text(text, encoding="utf-8")
     assert JsonlFollower(path).read_new() == lines
+
+
+def test_a_gap_is_a_data_loss_warning_not_a_crash():
+    from capstone.ingestion.record import GapDetail
+
+    gap = CollectorMarker(
+        source="http://agent:8082",
+        event="gap",
+        at=T0 + timedelta(seconds=300),
+        gap=GapDetail(
+            cause="buffer_overrun", lost_from_sequence=120, lost_to_sequence=480
+        ),
+    )
+    alerts = run(
+        [
+            marker("started", 0),
+            rec("exec", "ACTIVE", seconds=1),
+            gap,
+            rec("exec", "ACTIVE", seconds=301),
+        ],
+        Monitor(stale_after=200),
+    )
+    # The silence was real, so it is reported; the gap warning then says why,
+    # and the collector is not taken to have crashed.
+    assert [(a.kind, a.severity) for a in alerts] == [
+        ("collector", "info"),
+        ("stale", "warning"),
+        ("collector", "warning"),
+        ("recovered", "info"),
+    ]
+    assert "sequences 120-480" in alerts[2].message
+    assert "crash" not in alerts[2].message
+
+
+def test_a_gap_with_unknown_bounds_says_only_what_is_known():
+    from capstone.ingestion.record import GapDetail
+
+    restart = CollectorMarker(
+        source="s", event="gap", at=T0, gap=GapDetail(cause="agent_restart")
+    )
+    overrange = CollectorMarker(
+        source="s",
+        event="gap",
+        at=T0,
+        gap=GapDetail(cause="out_of_range", lost_from_sequence=7),
+    )
+    first, second = run([restart, overrange])
+    assert first.message == "observations lost: the agent restarted"
+    assert second.message == (
+        "observations lost (from sequence 7): the agent no longer held them"
+    )
