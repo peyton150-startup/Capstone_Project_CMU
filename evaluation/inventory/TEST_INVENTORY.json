@@ -37809,10 +37809,117 @@
    ]
   },
   {
+   "id": "tests/test_evaluation_tools.py::test_preflight_validates_recheck_and_verification_evidence",
+   "file": "tests/test_evaluation_tools.py",
+   "name": "test_preflight_validates_recheck_and_verification_evidence",
+   "line": 924,
+   "docstring": "References from critic follow-up and post-action verification must exist.",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 2,
+   "assert_forms": {
+    "membership": 2
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "References from critic follow-up and post-action verification must exist.",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.agent.completion:AuditLog.__init__",
+    "capstone.agent.completion:AuditLog.read",
+    "capstone.contracts.completed_investigations:CompletedInvestigation.unique_evidence",
+    "capstone.contracts.hypotheses:NumericClaim.ordered_window",
+    "capstone.contracts.investigations:run_id_for",
+    "capstone.evaluation.labels:apply_label",
+    "capstone.evaluation.scoring:Cause.named_by",
+    "capstone.evaluation.scoring:Score.fully_right",
+    "capstone.evaluation.scoring:Score.miss_kind",
+    "capstone.evaluation.scoring:Score.model_unavailable",
+    "capstone.evaluation.scoring:Score.unnecessary_actions",
+    "capstone.evaluation.scoring:_closest",
+    "capstone.evaluation.scoring:_named",
+    "capstone.evaluation.scoring:judge",
+    "capstone.evaluation.scoring:judge_causes",
+    "capstone.experiment:read_records"
+   ],
+   "exercise_count": 16,
+   "modules_exercised": [
+    "capstone.agent.completion",
+    "capstone.contracts.completed_investigations",
+    "capstone.contracts.hypotheses",
+    "capstone.contracts.investigations",
+    "capstone.evaluation.labels",
+    "capstone.evaluation.scoring",
+    "capstone.experiment"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_evaluation_tools.py::test_preflight_refuses_corrupt_order_and_missing_provenance",
+   "file": "tests/test_evaluation_tools.py",
+   "name": "test_preflight_refuses_corrupt_order_and_missing_provenance",
+   "line": 959,
+   "docstring": "Audit evidence, decision identities and action timing must be defensible.",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 2,
+   "assert_forms": {
+    "equality": 1,
+    "membership": 1
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "Audit evidence, decision identities and action timing must be defensible.",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.agent.completion:AuditLog.__init__",
+    "capstone.agent.completion:AuditLog.read",
+    "capstone.contracts.completed_investigations:CompletedInvestigation.unique_evidence",
+    "capstone.contracts.hypotheses:NumericClaim.ordered_window",
+    "capstone.contracts.investigations:run_id_for",
+    "capstone.evaluation.labels:apply_label",
+    "capstone.evaluation.scoring:Cause.named_by",
+    "capstone.evaluation.scoring:Score.fully_right",
+    "capstone.evaluation.scoring:Score.miss_kind",
+    "capstone.evaluation.scoring:Score.model_unavailable",
+    "capstone.evaluation.scoring:Score.unnecessary_actions",
+    "capstone.evaluation.scoring:_closest",
+    "capstone.evaluation.scoring:_named",
+    "capstone.evaluation.scoring:judge",
+    "capstone.evaluation.scoring:judge_causes",
+    "capstone.experiment:read_records"
+   ],
+   "exercise_count": 16,
+   "modules_exercised": [
+    "capstone.agent.completion",
+    "capstone.contracts.completed_investigations",
+    "capstone.contracts.hypotheses",
+    "capstone.contracts.investigations",
+    "capstone.evaluation.labels",
+    "capstone.evaluation.scoring",
+    "capstone.experiment"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
    "id": "tests/test_evaluation_tools.py::test_the_archive_imports_52_distinct_episodes",
    "file": "tests/test_evaluation_tools.py",
    "name": "test_the_archive_imports_52_distinct_episodes",
-   "line": 945,
+   "line": 1041,
    "docstring": "EVAL-01 / T01: both pairs reuse every run key, and none is overwritten.",
    "parametrized": false,
    "fixtures": [
@@ -37860,7 +37967,7 @@
    "id": "tests/test_evaluation_tools.py::test_both_archives_import_57_episodes_with_five_real_traces",
    "file": "tests/test_evaluation_tools.py",
    "name": "test_both_archives_import_57_episodes_with_five_real_traces",
-   "line": 958,
+   "line": 1054,
    "docstring": "",
    "parametrized": false,
    "fixtures": [
@@ -37916,7 +38023,7 @@
    "id": "tests/test_evaluation_tools.py::test_the_archive_keeps_the_published_denominators",
    "file": "tests/test_evaluation_tools.py",
    "name": "test_the_archive_keeps_the_published_denominators",
-   "line": 971,
+   "line": 1067,
    "docstring": "EVAL-02 / T02: pending labels stay unjudged; the four arms match summary.json.",
    "parametrized": false,
    "fixtures": [
@@ -37950,7 +38057,7 @@
    "id": "tests/test_evaluation_tools.py::test_a_repeated_run_key_needs_a_namespace",
    "file": "tests/test_evaluation_tools.py",
    "name": "test_a_repeated_run_key_needs_a_namespace",
-   "line": 999,
+   "line": 1095,
    "docstring": "EVAL-01 / T01: the same records under two names survive; unnamed, refused.",
    "parametrized": false,
    "fixtures": [
@@ -37989,7 +38096,7 @@
    "id": "tests/test_evaluation_tools.py::test_a_proposal_awaiting_review_is_kept_but_not_scored",
    "file": "tests/test_evaluation_tools.py",
    "name": "test_a_proposal_awaiting_review_is_kept_but_not_scored",
-   "line": 1019,
+   "line": 1115,
    "docstring": "EVAL-02: auto-label proposal files are read and `needs_review` is honoured.",
    "parametrized": false,
    "fixtures": [
@@ -38038,7 +38145,7 @@
    "id": "tests/test_evaluation_tools.py::test_a_review_report_that_disagrees_with_the_labels_is_refused",
    "file": "tests/test_evaluation_tools.py",
    "name": "test_a_review_report_that_disagrees_with_the_labels_is_refused",
-   "line": 1046,
+   "line": 1142,
    "docstring": "EVAL-02: a flag is never joined to a different label.",
    "parametrized": false,
    "fixtures": [
@@ -38068,7 +38175,7 @@
    "id": "tests/test_evaluation_tools.py::test_every_request_input_changes_the_fingerprint",
    "file": "tests/test_evaluation_tools.py",
    "name": "test_every_request_input_changes_the_fingerprint",
-   "line": 1081,
+   "line": 1177,
    "docstring": "EVAL-03 / T04: a saved answer is never reused for a changed request.",
    "parametrized": false,
    "fixtures": [],
@@ -38099,7 +38206,7 @@
    "id": "tests/test_evaluation_tools.py::test_reordered_items_keep_their_files_and_answers",
    "file": "tests/test_evaluation_tools.py",
    "name": "test_reordered_items_keep_their_files_and_answers",
-   "line": 1098,
+   "line": 1194,
    "docstring": "EVAL-03 / T03: names do not depend on order; a rerun re-sends nothing.",
    "parametrized": false,
    "fixtures": [
@@ -38140,7 +38247,7 @@
    "id": "tests/test_evaluation_tools.py::test_a_partial_answer_is_asked_again",
    "file": "tests/test_evaluation_tools.py",
    "name": "test_a_partial_answer_is_asked_again",
-   "line": 1112,
+   "line": 1208,
    "docstring": "EVAL-03 / T07: a reply missing an answer is not a completed judgment.",
    "parametrized": false,
    "fixtures": [
@@ -38181,7 +38288,7 @@
    "id": "tests/test_evaluation_tools.py::test_a_passing_outage_is_retried_and_a_lasting_one_recorded",
    "file": "tests/test_evaluation_tools.py",
    "name": "test_a_passing_outage_is_retried_and_a_lasting_one_recorded",
-   "line": 1124,
+   "line": 1220,
    "docstring": "EVAL-03: HTTP 429 and 5xx are tried again; the wait comes from `sleep`.",
    "parametrized": false,
    "fixtures": [
@@ -38223,7 +38330,7 @@
    "id": "tests/test_evaluation_tools.py::test_a_leaking_packet_on_disk_is_refused_before_any_request",
    "file": "tests/test_evaluation_tools.py",
    "name": "test_a_leaking_packet_on_disk_is_refused_before_any_request",
-   "line": 1177,
+   "line": 1273,
    "docstring": "EVAL-04 / T05: the last boundary re-checks what would be sent.",
    "parametrized": true,
    "fixtures": [
@@ -38258,7 +38365,7 @@
    "id": "tests/test_evaluation_tools.py::test_every_master_request_is_free_of_the_runs_own_ids",
    "file": "tests/test_evaluation_tools.py",
    "name": "test_every_master_request_is_free_of_the_runs_own_ids",
-   "line": 1193,
+   "line": 1289,
    "docstring": "EVAL-04 / T05: no sent body names its scenario, run key or episode key.",
    "parametrized": false,
    "fixtures": [
@@ -38292,7 +38399,7 @@
    "id": "tests/test_evaluation_tools.py::test_judge_requests_carry_the_project_user_agent_and_no_key",
    "file": "tests/test_evaluation_tools.py",
    "name": "test_judge_requests_carry_the_project_user_agent_and_no_key",
-   "line": 1216,
+   "line": 1312,
    "docstring": "EVAL-19 / T17: sent with post_json, as the project's model clients are.",
    "parametrized": false,
    "fixtures": [
@@ -38333,7 +38440,7 @@
    "id": "tests/test_evaluation_tools.py::test_an_impossible_answer_is_kept_unreadable",
    "file": "tests/test_evaluation_tools.py",
    "name": "test_an_impossible_answer_is_kept_unreadable",
-   "line": 1250,
+   "line": 1346,
    "docstring": "EVAL-19 / T18: refused as the live TypeSafe client refuses it.",
    "parametrized": true,
    "fixtures": [
@@ -38367,7 +38474,7 @@
    "id": "tests/test_evaluation_tools.py::test_states_show_each_test_whole_and_say_what_was_cut",
    "file": "tests/test_evaluation_tools.py",
    "name": "test_states_show_each_test_whole_and_say_what_was_cut",
-   "line": 1265,
+   "line": 1361,
    "docstring": "EVAL-20 / T19: no neighbouring test; every shortened list says so.",
    "parametrized": false,
    "fixtures": [],
@@ -38400,7 +38507,7 @@
    "id": "tests/test_evaluation_tools.py::test_the_stated_question_count_matches_the_question_file",
    "file": "tests/test_evaluation_tools.py",
    "name": "test_the_stated_question_count_matches_the_question_file",
-   "line": 1297,
+   "line": 1393,
    "docstring": "EVAL-21 / T20: the EVF note's count is the file's count.",
    "parametrized": false,
    "fixtures": [],
@@ -38431,7 +38538,7 @@
    "id": "tests/test_evaluation_tools.py::test_two_answers_to_one_question_are_refused_and_latency_is_per_request",
    "file": "tests/test_evaluation_tools.py",
    "name": "test_two_answers_to_one_question_are_refused_and_latency_is_per_request",
-   "line": 1315,
+   "line": 1411,
    "docstring": "EVAL-01 / EVAL-15: no silent overwrite; one latency figure per request.",
    "parametrized": false,
    "fixtures": [],
@@ -78544,6 +78651,69 @@
     "exercises_no_project_function"
    ],
    "claims": "The reference set includes functions whose test questions are answerable.",
+   "execution_outcome": "passed",
+   "exercises": [],
+   "exercise_count": 0,
+   "modules_exercised": [],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_reference_review.py::test_run_strata_guarantees_blind_sound_and_misleading_cases",
+   "file": "tests/test_reference_review.py",
+   "name": "test_run_strata_guarantees_blind_sound_and_misleading_cases",
+   "line": 97,
+   "docstring": "A private curated map guarantees both kinds without showing their labels.",
+   "parametrized": false,
+   "fixtures": [
+    "tmp_path"
+   ],
+   "assertions": 5,
+   "assert_forms": {
+    "equality": 1,
+    "membership": 4
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [
+    "exercises_no_project_function"
+   ],
+   "claims": "A private curated map guarantees both kinds without showing their labels.",
+   "execution_outcome": "passed",
+   "exercises": [],
+   "exercise_count": 0,
+   "modules_exercised": [],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_reference_review.py::test_run_strata_fail_closed_when_balanced_review_is_impossible",
+   "file": "tests/test_reference_review.py",
+   "name": "test_run_strata_fail_closed_when_balanced_review_is_impossible",
+   "line": 146,
+   "docstring": "A missing negative example must not be presented as a calibrated sample.",
+   "parametrized": false,
+   "fixtures": [
+    "tmp_path"
+   ],
+   "assertions": 0,
+   "assert_forms": {},
+   "raises_checks": 1,
+   "uses": [],
+   "quality_flags": [
+    "exercises_no_project_function"
+   ],
+   "claims": "A missing negative example must not be presented as a calibrated sample.",
    "execution_outcome": "passed",
    "exercises": [],
    "exercise_count": 0,
