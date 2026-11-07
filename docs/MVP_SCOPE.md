@@ -325,25 +325,88 @@ This reorganizes the existing roadmap, not its implementation status or authorit
 
 | Category | Highest priority | Scope |
 |---|---|---|
-| [Pilot readiness and safety](#future-work-pilot-readiness) | HIGH | Rapid triage, reliable abstention |
+| [Pilot readiness and safety](#future-work-pilot-readiness) | HIGH | First shop visit checklist and technician event log (SM-4), rapid triage, reliable abstention |
 | [Simulator upgrades and machine fidelity](#future-work-simulator-upgrades) | HIGH | Haas fidelity, power/bearing validation, fault models |
-| [Evaluation, benchmarking and reasoning](#future-work-evaluation) | HIGH | Line-wide investigation scope, live runs, critic, ToT/GoT, runtime reliability |
+| [Evaluation, benchmarking and reasoning](#future-work-evaluation) | HIGH | Line-wide investigation scope, live runs, critic, ranked technician check list (SM-11), ToT/GoT, runtime reliability |
 | [Retrieval and memory](#future-work-retrieval-and-memory) | MEDIUM | Manual and episodic search, reranking, ingestion |
 | [Multi-agent roles and coordination](#future-work-multi-agent-roles) | MEDIUM | Specialists, contracts, handoffs and model budgets |
-| [Tooling and infrastructure](#future-work-tooling) | HIGH | Staged CPU anomaly detection (Python → NumPy/SciPy → optional ML), line-context assessment, manufacturer outreach; telemetry/replay, MCP and audits follow |
-| [Planning and automation](#future-work-planning-and-automation) | LOW | Controlled interventions and proactive monitoring |
+| [Tooling and infrastructure](#future-work-tooling) | HIGH | **Single-machine reading for the first real CNC (SM-1 to SM-10, current focus)**; staged CPU anomaly detection (Python → NumPy/SciPy → optional ML), line-context assessment, manufacturer outreach; telemetry/replay, MCP and audits follow |
+| [Planning and automation](#future-work-planning-and-automation) | LOW | Controlled interventions, controller servo diagnostic moves (SM-12) and proactive monitoring |
 | [Frontend and operator experience](#future-work-frontend) | LOW | Difficulty recipes and safe configuration UI |
-| [Long-term portability and optional interfaces](#future-work-long-term) | LOW / FAR FUTURE | Cross-machine support, vision and voice |
+| [Long-term portability and optional interfaces](#future-work-long-term) | LOW / FAR FUTURE | Cross-machine support, added vibration/acoustic sensing (SM-13), vision and voice |
+
+<a id="fw-sm-track"></a>
+
+### Single-machine reading track: current focus, highest to lowest priority (2026-11-07)
+
+**Why this comes first.** The next real test is one CNC machine at a shop visit. The developer's decision (2026-11-07): make the agent good at **reading one machine** before adding agents, reasoning complexity or fine-tuned models, and treat pinpointing the failed part as later work. One machine has no peers, so the useful comparison is the same machine doing comparable work today versus when it ran normally. SM numbers are the ranking (SM-1 highest); each item sits in its own category below and also appears in the full table. The machine, controller and exposed fields are not confirmed yet, so build only what the machine's saved `/probe` shows it supports.
+
+| Rank | Priority | Category | Item | When | Depends on |
+|---|---|---|---|---|---|
+| SM-1 | **HIGH** | Tooling | [Versioned channel map from `/probe`](#fw-sm-channel-map) | Before connecting | Saved `/probe` |
+| SM-2 | **HIGH** | Tooling | [Collection gaps and data quality in the telemetry file](#fw-sm-gap-events) | Before connecting | Existing collector |
+| SM-3 | **HIGH** | Tooling | [Read-only real-data provider over recorded JSONL](#fw-sm-real-provider) | Before connecting | SM-1, SM-2 |
+| SM-4 | **HIGH** | Pilot readiness | [Shop visit checklist and technician event log](#fw-sm-visit-log) | Before and during the visit | None |
+| SM-5 | **HIGH** | Tooling | [Time-aware statistics for unevenly sampled data](#fw-sm-time-stats) | Once readings exist (demo agent data is enough to start) | SM-3 |
+| SM-6 | **HIGH** | Tooling | [Operating-state segmentation](#fw-sm-state-segmentation) | Once readings exist | SM-1, SM-5 |
+| SM-7 | **HIGH** | Tooling | [Same-machine baseline from its own normal history](#fw-sm-own-baseline) | Once normal cycles are captured | SM-4, SM-6 |
+| SM-8 | **MEDIUM** | Tooling | [Richer trend features](#fw-sm-trend-features) | After SM-7 | SM-5, SM-7 |
+| SM-9 | **MEDIUM** | Tooling | [Cross-signal relationship checks](#fw-sm-cross-signal) | After SM-8 | SM-8 |
+| SM-10 | **MEDIUM (conditional)** | Tooling | [Cycle reference signatures](#fw-sm-cycle-signatures) | Only if program/operation IDs are exposed | SM-6, SM-7 |
+| SM-11 | **MEDIUM** | Evaluation and reasoning | [Ranked component check list for the technician](#fw-sm-check-ranking) | After SM-1 to SM-9 work on real data | SM-4, SM-9 |
+| SM-12 | **LOW** | Planning and automation | [Controller servo diagnostic moves](#fw-sm-servo-diagnostics) | Needs approval beyond read-only | SM-11 |
+| SM-13 | **FAR FUTURE** | Optional interfaces | [Added high-resolution vibration or acoustic sensing](#fw-sm-hires-sensing) | Only with shop approval for new sensors | SM-11 |
+
+```mermaid
+flowchart LR
+    subgraph A["Before connecting (HIGH)"]
+        SM1["SM-1 Channel map from /probe"]
+        SM2["SM-2 Gaps and data quality in file"]
+        SM3["SM-3 Real-data provider"]
+        SM4["SM-4 Visit checklist and event log"]
+    end
+    subgraph B["Once readings exist (HIGH)"]
+        SM5["SM-5 Time-aware statistics"]
+        SM6["SM-6 Operating-state segmentation"]
+        SM7["SM-7 Same-machine baseline"]
+    end
+    subgraph C["Then (MEDIUM)"]
+        SM8["SM-8 Richer trend features"]
+        SM9["SM-9 Cross-signal checks"]
+        SM10["SM-10 Cycle signatures (conditional)"]
+        SM11["SM-11 Ranked technician check list"]
+    end
+    subgraph D["Later (LOW / FAR FUTURE)"]
+        SM12["SM-12 Servo diagnostic moves"]
+        SM13["SM-13 Added vibration/acoustic sensing"]
+    end
+    SM1 --> SM3
+    SM2 --> SM3
+    SM3 --> SM5 --> SM6 --> SM7 --> SM8 --> SM9 --> SM11
+    SM4 --> SM7
+    SM4 --> SM11
+    SM6 --> SM10
+    SM7 --> SM10
+    SM11 --> SM12
+    SM11 --> SM13
+```
 
 ### All future-work entries — highest to lowest priority
 
 | Priority | Category | Item | Short summary |
 |---|---|---|---|
+| **HIGH** | Tooling | [SM-1 Versioned channel map from `/probe`](#fw-sm-channel-map) | Map every data item to its unit, meaning, tool sensor and availability; current focus. |
+| **HIGH** | Tooling | [SM-2 Collection gaps in the telemetry file](#fw-sm-gap-events) | Write lost-data, stale and UNAVAILABLE spans into the JSONL instead of stderr. |
+| **HIGH** | Tooling | [SM-3 Real-data provider](#fw-sm-real-provider) | Answer the existing observation tools from a recorded capture, read-only. |
+| **HIGH** | Pilot readiness | [SM-4 Shop visit checklist and technician event log](#fw-sm-visit-log) | Can we read it, interpret it, verify it; log program/tool changes and maintenance. |
+| **HIGH** | Tooling | [SM-5 Time-aware statistics](#fw-sm-time-stats) | Time-weighted means and slopes for uneven samples; never span a gap. |
+| **HIGH** | Tooling | [SM-6 Operating-state segmentation](#fw-sm-state-segmentation) | Idle, running, cutting and transitions from exposed fields only. |
+| **HIGH** | Tooling | [SM-7 Same-machine baseline](#fw-sm-own-baseline) | Compare the machine with its own confirmed-normal history per state. |
 | **HIGH** | Pilot readiness | [Fast read-only triage](#fw-rapid-triage) | Built 2026-11-05, opt-in; live latency target still to measure. |
 | **HIGH** | Pilot readiness | [Degraded-data handling](#fw-degraded-data) | Set aside 2026-11-05: hazards will not be used. |
 | **HIGH** | Simulator | [Haas VF/NGC reference machine](#fw-haas-retrofit) | Ground the simulator in model-specific manuals and known supported telemetry. |
 | **HIGH — outreach plan only** | Tooling | [Haas live-telemetry pilot plan](#fw-haas-live-pilot) | Qualify one consenting shop and define safe read-only access, collection, storage, and shadow-mode deployment; build remains post-MVP. |
-| **HIGH** | Tooling | [CPU-based statistical anomaly detection](#fw-cpu-anomaly-detector) | Staged CPU roadmap: built-in Python → NumPy/SciPy statistics → scikit-learn batch ML → River online ML (only if justified); send evidence-backed assessments into line context. |
+| **HIGH** | Tooling | [CPU-based statistical anomaly detection](#fw-cpu-anomaly-detector) | Staged CPU roadmap: built-in Python → NumPy/SciPy statistics (the target; an offline probe on 2026-11-06 found it catches every wear and leak case) → scikit-learn (optional, may be added later, not necessary) → River (skip for the capstone); send evidence-backed assessments into line context. |
 | **HIGH** | Simulator | [Three-day bearing curve](#fw-bearing-progression) | Enable experiment selection and review wear curve with the manufacturing SME. |
 | **HIGH** | Simulator | [Power signal fidelity](#fw-power-validation) | Validate kW assumptions, relevant scoring and energy calculations. |
 | **HIGH** | Evaluation | [Line-wide investigation context](#fw-line-context) | Treat the alarmed machine as a starting point; check the relevant line before forming hypotheses. Buildable now. |
@@ -353,6 +416,10 @@ This reorganizes the existing roadmap, not its implementation status or authorit
 | **HIGH** | Evaluation | [Critic follow-up effectiveness](#fw-critic-comparison) | Compare review-only with bounded critic-driven recheck. |
 | **HIGH** | Evaluation | [Degraded matrix on live models](#fw-degraded-comparison) | Run clean vs degraded scenarios and examine false-confidence cases. |
 | **HIGH** | Evaluation | [Pydantic AI reliability audit](#fw-runtime-audit) | Benchmark deadlines and typed runtime safety; do not migrate without evidence. |
+| **MEDIUM** | Tooling | [SM-8 Richer trend features](#fw-sm-trend-features) | Rolling variability, persistence, spikes and trend acceleration. |
+| **MEDIUM** | Tooling | [SM-9 Cross-signal relationship checks](#fw-sm-cross-signal) | Flag load and temperature rising at constant RPM as a discrepancy to explain. |
+| **MEDIUM (conditional)** | Tooling | [SM-10 Cycle reference signatures](#fw-sm-cycle-signatures) | Compare repeated programs stage by stage, only if the controller exposes them. |
+| **MEDIUM** | Evaluation | [SM-11 Ranked technician check list](#fw-sm-check-ranking) | Rank parts to check by likelihood divided by cost to check; update after each finding. |
 | **MEDIUM** | Simulator | [Electrical current in amps](#fw-current-draw) | Measure whether current adds distinct value beyond existing power readings. |
 | **MEDIUM** | Simulator | [More servo and hydraulic modes](#fw-additional-failures) | Evaluate encoder, pump, valve, lubricant and overlapping-failure scenarios. |
 | **MEDIUM** | Simulator | [Fault draw and pack selection](#fw-fault-packs) | Keep seeded draws invariant and choose fault packs by experiment. |
@@ -373,6 +440,7 @@ This reorganizes the existing roadmap, not its implementation status or authorit
 | **MEDIUM** | Tooling | [Read-only MCP boundary](#fw-mcp) | Introduce authenticated MCP capabilities only when core agent is ready. |
 | **MEDIUM** | Tooling | [Traces and response validation](#fw-response-check) | Observe agent/tool calls and verify schema, permissions and freshness. |
 | **MEDIUM** | Tooling | [SubQ full-repo audit](#fw-subq) | Examine cross-file integrity on a pinned snapshot before sweeping refactors. |
+| **LOW** | Planning | [SM-12 Controller servo diagnostic moves](#fw-sm-servo-diagnostics) | Approved test motions and servo frequency analysis to separate bearing, ball screw and guide. |
 | **LOW** | Evaluation | [Prompt and setting comparisons](#fw-prompt-settings) | Finish existing targeted live A/B tests. |
 | **LOW** | Evaluation | [Episodic memory live comparison](#fw-memory-comparison) | Compare no memory, keyword and semantic recall modes. |
 | **LOW** | Evaluation | [Memory experiment reporting](#fw-memory-reporting) | Add focused reruns, repeats and memory-store manifest. |
@@ -393,6 +461,7 @@ This reorganizes the existing roadmap, not its implementation status or authorit
 | **LOW** | Simulator | [Additional optional fault pack](#fw-next-pack) | Add a new causal fault only if benchmark coverage needs it. |
 | **LOW** | Frontend | [Difficulty modes and operator UI](#fw-frontend) | Offer 1/4/8-fault modes and safe configuration controls. |
 | **LOW** | Portability | [Equipment profiles and tenancy](#fw-portability) | Consider YAML, schemas and isolation only when actual needs appear. |
+| **FAR FUTURE** | Optional interfaces | [SM-13 Added vibration or acoustic sensing](#fw-sm-hires-sensing) | High-resolution sensors for part-level localization, with shop approval. |
 | **FAR FUTURE** | Optional interfaces | [Sensor-triggered visual inspections](#fw-vision) | Use bounded camera/model observations only with shop approval. |
 | **FAR FUTURE** | Optional interfaces | [Technician voice reports](#fw-voice) | Offer reviewed speech input only after demonstrated user value. |
 
@@ -404,6 +473,18 @@ This reorganizes the existing roadmap, not its implementation status or authorit
 ## Future work: Pilot readiness and safety
 
 <a id="future-work-pilot-readiness"></a>
+
+### Shop visit checklist and technician event log (HIGH; SM-4; proposed 2026-11-07)
+
+<a id="fw-sm-visit-log"></a>
+
+**Category: Pilot readiness and safety. Rank: SM-4 in the [single-machine track](#fw-sm-track). Status: FUTURE WORK ONLY.** The first session with a real machine should answer three questions. It stays local, read-only and independent of model inference, as the [pilot plan](#fw-haas-live-pilot) already requires. The machine may not be a Haas; do not assume its control, interface or fields.
+
+- **Can we read it?** Save `/probe` (to a folder outside the repository), identify fields and units for the [channel map](#fw-sm-channel-map), confirm shop-approved read-only access, and confirm recording while the machine runs has no measurable effect.
+- **Can we interpret it?** Capture several normal operating cycles, watch state transitions (idle, warm-up, cutting, tool and program changes), inspect timestamps and gaps, and decide whether spindle load, RPM, alarms and any other exposed signals are enough for useful analysis.
+- **Can we verify it?** Ask an operator or technician to log program changes, tool changes, warm-up, unusual events and maintenance during the capture: a timestamped file with event type, short note and who logged it, kept with the private pilot data, not in this repository. Also ask for past alarm and maintenance history and what technicians check first for common symptoms; these feed the [same-machine baseline](#fw-sm-own-baseline) and the later [ranked check list](#fw-sm-check-ranking). Without this context, abnormal readings cannot be interpreted reliably.
+
+**Accept:** a saved probe, a capture with at least several normal cycles, and an event log whose entries can be matched to the capture's timestamps.
 
 ### First increment — line-wide investigation before continuous monitoring (HIGH; proposed 2026-11-02)
 
@@ -773,9 +854,9 @@ approval, mandatory verification and evaluator-only hidden causal truth.
      upstream/downstream neighbors. Preserve sample counts, time window,
      missing/stale/partial status and provenance. Do not dump all raw
      sensor readings across the factory into the model's prompt.
-   - **Optional CPU detector assessment (later HIGH-priority tooling increment):**
-     when the [statistical anomaly detector](#fw-cpu-anomaly-detector) is
-     enabled, include a **bounded assessment for every machine in the line**,
+   - **CPU detector assessment (later HIGH-priority tooling increment):**
+     once the [statistical anomaly detector](#fw-cpu-anomaly-detector) is
+     built, always include a **bounded assessment for every machine in the line**,
      not only the machine that alarmed: timestamp-bounded trend/deviation
      status, data sufficiency, underlying measurement references and rule IDs.
      Use a compact whole-line screening pass and request detailed windows for
@@ -783,8 +864,9 @@ approval, mandatory verification and evaluator-only hidden causal truth.
      failure mode where the agent assumes the alarmed machine caused its own
      alarm. This is **derived sensor evidence, not a cause diagnosis**; do not give
      the investigator hidden truth or treat a score/label as a confirmed fault.
-     The baseline incident packet must remain available without a detector,
-     and its independent A/B comparison must precede this integration.
+     The detector is a normal part of the agent with **no setting to turn it
+     on or off** (developer's decision, 2026-11-06). Its effect is measured by
+     comparing runs before and after it is merged, not by a switch.
    - **Line record:** categorize each machine as abnormal, apparently
      unaffected or lacking reliable observations *for this window*,
      without treating incomplete evidence as proof of health. Keep this
@@ -883,6 +965,19 @@ Only then consider the
 [proactive dispatch lifecycle](#fw-proactive). Each implementation
 increment gets its own PR and tests. This documentation creates no new
 understanding/implementation completion claim.
+
+### Ranked component check list for the technician (MEDIUM; SM-11; proposed 2026-11-07)
+
+<a id="fw-sm-check-ranking"></a>
+
+**Category: Evaluation, benchmarking and reasoning. Rank: SM-11 in the [single-machine track](#fw-sm-track). Status: FUTURE WORK ONLY; deliberately after the reading work (developer's decision, 2026-11-07).** The project's end goal is to tell a technician which part to check first, then second. Controller telemetry usually narrows a problem to a subsystem (spindle, one axis, coolant, hydraulics) but often cannot separate parts inside it, such as a bearing from a ball screw on the same axis. So the output is a ranked check list, not a certain diagnosis.
+
+1. **Symptom map, built with technicians.** For each likely failed part, the signal pattern it would cause. Example: a worn ball screw raises that axis's servo load at the same commanded feed, and is a common cause of excess servo load that gets misread as an electrical fault.
+2. **Score each part** by how well the observed pattern from [SM-9](#fw-sm-cross-signal) fits, weighted by how often that part actually fails on this machine (from the [maintenance history](#fw-sm-visit-log)).
+3. **Order by probability divided by cost to check.** Decision-theoretic troubleshooting shows that, under its assumptions, checking components in decreasing probability-to-cost ratio gives the lowest expected cost ([Breese and Heckerman, 1996](https://arxiv.org/pdf/1302.3563); [Heckerman, Breese and Rommelse, CACM 1995](https://www.microsoft.com/en-us/research/publication/decision-theoretic-troubleshooting/)). A likely part that takes five minutes to inspect goes ahead of a slightly more likely part that needs a teardown.
+4. **Update after each finding.** When the technician reports a part is fine, rescore the rest and recommend the next check.
+
+Python computes the scores; the Investigator explains the evidence and walks the technician through the checks. Human approval and verification are unchanged. *Accept:* on technician-confirmed cases only, report the rank of the true part and the number of checks to find it; never report accuracy on unlabeled real data.
 
 ### Future Work 7 — model evaluation, execution budgets, and computed evidence
 
@@ -2246,6 +2341,53 @@ Tested](https://www.requesty.ai/blog/structured-outputs-across-llm-providers-the
 
 <a id="future-work-tooling"></a>
 
+### Single-machine reading for the first real CNC (HIGH; SM-1 to SM-10; proposed 2026-11-07)
+
+<a id="fw-single-machine"></a>
+
+**Category: Tooling and infrastructure. Rank: SM-1 to SM-3 and SM-5 to SM-10 in the [single-machine track](#fw-sm-track) (SM-4 is under Pilot readiness, SM-11 under Evaluation, SM-12 under Planning, SM-13 under Optional interfaces). Status: FUTURE WORK ONLY; nothing here is built.** These items move the project from reading individual sensor values to understanding how one machine behaves over time and under different operating conditions. They keep the Pydantic Graph architecture, `FactoryProvider`, human approval and evaluator-only truth unchanged, and add no new agent.
+
+**Why the simulator path cannot be reused as is (checked against `main` at `8969c5f`, 2026-11-07):**
+
+- `ObservationTools.get_sensor_summary()` (`tools/observation.py`) computes `rate_of_change` from the first and last readings only, and `mean` with `fmean` over readings. A signal that rises sharply, peaks and returns to its start reports zero change, and every reading counts equally however long it held.
+- `TelemetryRecord` (`ingestion/record.py`) stores the value as text with no engineering unit.
+- The collector (`ingestion/collector.py`) prints `gap: some observations were lost` to stderr; the JSONL file does not record where data was lost.
+- No provider reads collected JSONL, so the Investigator cannot use real data yet (the "main missing piece" in the [pilot plan](#fw-haas-live-pilot)).
+
+**Before connecting to the machine (HIGH):**
+
+- <a id="fw-sm-channel-map"></a> **SM-1: Versioned channel map from `/probe` (HIGH).** From the saved probe, record for each data item its id, category, type and subtype, units as the probe states them, what it measures physically, which tool sensor it feeds (or none), and whether the machine actually reports it. Tie the map to a hash of the probe so a controller update cannot silently change a channel's meaning. Units and meaning come from the probe, never from assumption. This is the mapping table the pilot plan defers until the probe exists. *Accept:* every observation in a capture maps to one channel entry or is reported as unmapped; no unit is guessed.
+- <a id="fw-sm-gap-events"></a> **SM-2: Collection gaps and data quality written into the telemetry file (HIGH).** When a poll reports a gap, a poll fails, or the agent restarts (`instance_id` changes), append a typed marker next to the existing `started`/`heartbeat`/`stopped` markers, with the time span and sequence range affected. Mark channels as stale when no update arrives within an agreed age. The MTConnect standard defines an `UNAVAILABLE` result as indeterminate, so it is a gap, not a value. Replay and the Investigator then know exactly where data was lost. *Accept:* replaying a capture with an injected gap reports the gap at the same place, and no statistic spans it.
+- <a id="fw-sm-real-provider"></a> **SM-3: Read-only real-data provider over recorded JSONL (HIGH).** A `FactoryProvider` implementation that answers the existing `ObservationTools` from a capture: map timestamps to the tools' time axis, map channels through SM-1, return unavailable for anything not collected, and never return readings after the replay cutoff. Collecting readings and making them usable for diagnosis are separate problems; this item is the bridge. Do not feed real observations into the simulator's tick-based arithmetic without SM-5. *Accept:* the existing tool contracts hold on a recorded fixture and simulator regressions stay green.
+
+**Once representative readings exist (HIGH):**
+
+- <a id="fw-sm-time-stats"></a> **SM-5: Time-aware statistics for unevenly sampled data (HIGH).** Controller data often arrives only when a value changes (confirm per data item from the capture), so readings are not evenly spaced. Example: spindle load at 10% for 90 s, then 90% for 10 s, averages to 50% over the two readings, but the time-weighted mean is 18%. For change-reported channels, keep how long each value held and compute time-weighted mean, time above a level, peak excursion and a time-aware slope. For regularly sampled channels, use the actual timestamps and allow uneven intervals. Never carry a value across a known gap or `UNAVAILABLE` interval as if it were measured. For the real-data path this replaces the endpoint-only `rate_of_change` and supersedes [deterministic sensor calculations](#fw-sensor-calculations). Can be built and tested against the public demo agent before the visit.
+- <a id="fw-sm-state-segmentation"></a> **SM-6: Operating-state segmentation (HIGH).** Label windows as idle, spindle running, cutting, tool or program change and warm-up, using only fields the controller exposes (for example execution state, spindle speed, load, program, tool number). If two states cannot be told apart, merge them rather than guess. The 2026-11-06 offline probe of the [CPU anomaly detector](#fw-cpu-anomaly-detector) found that comparing all readings flagged healthy machines on idle-to-cutting transitions, and running-only comparison fixed it. Tool-condition monitoring research also isolates actual cutting (removing air cutting) before extracting features ([Bombiński et al., 2016](https://doi.org/10.1016/j.procir.2016.03.203)), and spindle speed plus load from MTConnect alone can separate running, cutting and efficient cutting ([Parto et al., 2018](https://saemobilus-test.cld.sae.org/papers/machine-utilization-spindle-data-using-mtconnect-f-0074-2018-12800)). Start with running versus idle. *Accept:* on a captured session, segment boundaries match the [technician event log](#fw-sm-visit-log) within an agreed tolerance.
+- <a id="fw-sm-own-baseline"></a> **SM-7: Same-machine baseline from its own normal history (HIGH).** For each state from SM-6, save the machine's normal ranges (median, MAD, mean, standard deviation, count, with warm-up stages) from periods the technician confirms were normal. This is the real-machine version of the simulator's saved "before" file in the [CPU anomaly detector](#fw-cpu-anomaly-detector); here it cannot come from a fault-free simulator run. Compare heavy cutting with past heavy cutting at similar RPM and load, never with idle. Until enough normal data exists, report `baseline_unavailable`, never normal. The [Line Sentinel](#fw-line-sentinel) peer comparison does not apply to one machine. Same typed output contract as the detector.
+
+**Then (MEDIUM):**
+
+- <a id="fw-sm-trend-features"></a> **SM-8: Richer trend features (MEDIUM).** Add rolling variability, persistence (how long a deviation has lasted), spike counts and trend acceleration, so a summary captures spikes, sustained changes and speed-ups instead of averages and endpoints. These are the detector's stage-1 statistics computed on SM-5's time-aware windows within SM-6 states.
+- <a id="fw-sm-cross-signal"></a> **SM-9: Cross-signal relationship checks (MEDIUM).** Measure relationships, not just single signals: for example, a sustained rise in spindle load and temperature across comparable cutting cycles while RPM stays about constant. Report it as a structured observation, not a diagnosis, because the workload, tool, coolant or material may have changed. It gives the Investigator a specific discrepancy to explain. Correlated features are not independent corroboration. Illustrative shape (values made up):
+
+  ```json
+  {
+    "machine_id": "CNC-01",
+    "assessment": "sustained_deviation",
+    "operating_context": "comparable_cutting_cycles",
+    "load_change_percentage_points": 17,
+    "temperature_change_f": 13,
+    "rpm_change": 0,
+    "next_step": "investigate_cause"
+  }
+  ```
+
+  The real assessment also carries the time window, baseline ID, data quality and links to the source observations. Use units from SM-1, not assumed ones.
+- <a id="fw-sm-cycle-signatures"></a> **SM-10: Cycle reference signatures (MEDIUM, conditional).** If the machine repeats a program and the controller exposes program name, block or line, or part count, save a reference signature of normal cycles and compare later cycles at matching stages (time alignment such as dynamic time warping). Building envelopes from successful similar operations ([Cunha, UFSC](https://repositorio.ufsc.br/handle/123456789/263932)) and segmenting machine data with dynamic time warping ([MDPI, 2019](https://www.mdpi.com/2504-4494/3/4/97)) are established approaches. Build only if the first machine exposes these fields and runs repeated programs; a shop running mostly one-off jobs may give too few comparable cycles, in which case keep SM-7's per-state baselines keyed by program and tool.
+
+**Limit to keep in view.** Ordinary controller telemetry may show a developing abnormality without identifying the damaged part. NIST found that simple vibration-based metrics are, in many cases, insufficient to diagnose spindle condition ([Vogl and Donmez, 2015](https://pmc.ncbi.nlm.nih.gov/articles/PMC5217751)). Part-level localization is [SM-11](#fw-sm-check-ranking) and later.
+
 ### CPU-based statistical anomaly detector and line-context assessment (HIGH; proposed 2026-11-06)
 
 <a id="fw-cpu-anomaly-detector"></a>
@@ -2254,10 +2396,10 @@ Tested](https://www.requesty.ai/blog/structured-outputs-across-llm-providers-the
 
 **First increment (no new infrastructure required):**
 
-1. Use bounded sliding windows of observable per-machine temperature, vibration, load and other available signals. Start with transparent, deterministic, configurable checks: rate-of-change/rolling trend, deviation from an eligible baseline, corroboration across signals, and sustained exceedance. Report both direction and magnitude, not a guessed root cause. Compare only compatible operating contexts (running vs idle; speed/load/job when observable); do not treat a normal warm-up, program change or job transition as degradation.
+1. Use bounded sliding windows of observable per-machine temperature, vibration, load and other available signals, compared against the saved "before" reference (below), with warm-up ranges. Start with transparent, deterministic, configurable checks: rate-of-change/rolling trend, deviation from an eligible baseline, corroboration across signals, and sustained exceedance. Report both direction and magnitude, not a guessed root cause. Compare only compatible operating contexts (running vs idle; speed/load/job when observable); do not treat a normal warm-up, program change or job transition as degradation.
 2. Require minimum samples and adequate coverage; flag absent, stale, partial or unreliable windows as `insufficient_data` or `baseline_unavailable`, **not normal**. Use persistence windows, hysteresis, cooldowns and incident deduplication so transient sensor spikes do not repeatedly launch expensive investigations. Document the threshold choices and their units; calibrate with actual representative data later, not made-up certainty.
 3. Produce a bounded, structured, **derived monitoring assessment** per machine, intended for the [line-wide incident context](#fw-line-context). Include machine and sensor IDs, source tick/time cutoff, exact observation window, sample count/quality, baseline reference when valid, measured trend/delta/deviation and applicable rule IDs, state such as `normal_with_coverage` / `sustained_deviation` / `insufficient_data`, and links/identifiers for the supporting underlying observations. This is computed evidence, **not** the LLM's diagnosis; avoid cause names or invented confidence probabilities. Preserve the distinction between raw sensor measurements, derived features and agent hypotheses; correlated features are not independent corroboration.
-4. When enabled, attach a **compact assessment for every machine on the line** as an optional evidence section of the [existing line context](#fw-line-context), before the investigator plans, even when only one machine alarms. Flagged machines and relevant upstream/downstream neighbors get more detailed bounded sensor windows; no unbounded data dump. The investigator can inspect original readings and may disagree with the summary. The detector must not silently equate the alarm location with the root cause, or collapse unrelated faults into one cause. The detector can also create a `DetectedAnomaly` when persistent abnormal behavior lacks a manufacturer threshold alarm, routed through the **existing** bounded triage/deep investigation entry point; never call an LLM on every sensor sample. Keep manufacturer/controller alarm and safety behavior independent and retain human approval for consequential actions.
+4. Always attach a **compact assessment for every machine on the line** as an evidence section of the [existing line context](#fw-line-context), before the investigator plans, even when only one machine alarms. Flagged machines and relevant upstream/downstream neighbors get more detailed bounded sensor windows; no unbounded data dump. The investigator can inspect original readings and may disagree with the summary. The detector must not silently equate the alarm location with the root cause, or collapse unrelated faults into one cause. The detector can also create a `DetectedAnomaly` when persistent abnormal behavior lacks a manufacturer threshold alarm, routed through the **existing** bounded triage/deep investigation entry point; never call an LLM on every sensor sample. Keep manufacturer/controller alarm and safety behavior independent and retain human approval for consequential actions.
 5. Keep the first version in-process on the CPU, offline, and deterministic under a fixed simulator seed: no GPU, training, persistent database, new agent or real-machine access. The larger [telemetry ingestion and replay](#fw-telemetry-replay) work remains a separate MEDIUM-priority extension.
 
 **Staged implementation roadmap — advance only when the previous stage's metrics justify added complexity:**
@@ -2266,14 +2408,31 @@ Tested](https://www.requesty.ai/blog/structured-outputs-across-llm-providers-the
 |---|---|---|---|
 | **0 — transparent rule baseline (first build)** | Python standard library and existing `ObservationTools` | Rolling windows, observed delta/rate, sustained-change flags, missing-data checks, deduplication, and a typed derived assessment attached to the optional line-context section. No training or new database. | Document false alarms, missed progressive faults, onset-to-trigger delay, CPU time and whether derived context helps or biases the investigator. |
 | **1 — stronger statistical baseline (next candidate)** | NumPy; SciPy only where needed | Robust rolling statistics (for example median/MAD), baseline-normalized deviations, regression slopes and multi-window trend comparisons. Explicitly condition on running/idle and available load, speed and job context; handle missing samples without pretending they are zero. No neural network or fitted anomaly model required. | On the same held-out seeded cases, demonstrate better detection/false-positive trade-off than stage 0, with acceptable latency and explainable detector output. If not, keep stage 0. |
-| **2 — batch machine-learning experiment (conditional)** | scikit-learn, e.g. `IsolationForest` | Offline train/test pipeline using historical **feature windows** (not raw arbitrary sequences): rolling load, vibration, temperature, trend, variability and operating context. Train only on data available before each test window, keep machines/time periods separated when assessing generalization, and avoid using simulator hidden truth as features. Send flagged features and source readings to line context; never state an anomaly score is a diagnosed failure. | Require sufficient representative data and a measurable gain over stage 1 on held-out faults and normal operation, including stability across jobs and machines. Synthetic results are a proof-of-concept, **not** real-shop validation. |
+| **2 — batch machine-learning experiment (optional; may be added later, not necessary)** | scikit-learn, e.g. `IsolationForest` | Offline train/test pipeline using historical **feature windows** (not raw arbitrary sequences): rolling load, vibration, temperature, trend, variability and operating context. Train only on data available before each test window, keep machines/time periods separated when assessing generalization, and avoid using simulator hidden truth as features. Send flagged features and source readings to line context; never state an anomaly score is a diagnosed failure. | Require sufficient representative data and a measurable gain over stage 1 on held-out faults and normal operation, including stability across jobs and machines. Synthetic results are a proof-of-concept, **not** real-shop validation. |
 | **3 — streaming/online ML experiment (optional, later)** | River or another measured CPU-friendly online method | Incremental anomaly scoring as observations arrive, potentially adapting context-specific baselines without retraining from scratch. Preserve model/checkpoint versioning and freeze or guard updates during suspected faults so the system does not learn a degradation pattern as normal. | Only if continuous authorized telemetry and drift measurements show that a static stage-1/2 detector degrades. Validate replay parity, concept-drift behavior and recovery before enabling triggers. |
 
-**Shared output contract across all stages:** the investigator receives **the same typed, read-only assessment shape** in the [line-wide incident context](#fw-line-context): source/cutoff, machine, sensor window and operating mode, measured features, quality/coverage, rule or model version, alert state and links to supporting observations. A model's anomaly score may be included as a derived numerical signal but must not replace raw evidence or be converted into a fabricated probability of a root cause. Keep a stage selector/feature flag so the detector can be disabled and A/B tested. Each stage should operate on CPU at capstone scale; measured throughput and memory, not an assumption, decide production capacity.
+**Offline probe results (2026-11-06, no model calls, not yet built):** a throwaway script replayed all 13 known-answer cases to the tick monitoring raised its alarm and scored every machine on the line. For each machine and sensor it compared the last 60 readings with the first half of that machine's history using two scores: a robust z-score (median and MAD) and a plain z-score (mean and standard deviation). A machine was flagged only when both scores reached 3 or more.
 
-**Sequencing:** First establish the baseline line-context packet and its matched-seed comparison **without** this feature; then add the CPU detector as a separately switchable treatment so any diagnostic improvement or bias can be attributed to it. Start with one sensor trend and one simulator scenario rather than implementing every possible anomaly rule at once.
+- **Comparing every reading is noise.** Machines further down the line sit idle until parts reach them, so their load later jumps tenfold or more. On all readings, healthy machines outscored the faulty one, and in both false-alarm cases the top flag was a healthy machine. **Running-only comparison is required:** use only ticks where the machine's own `load` reading shows it was cutting (the probe used load above 15).
+- **With running-only comparison and the two-score rule:**
+  - Bearing, servo and hydraulic cases (KA-01, 02, 10 to 13): 6 of 6 flagged the faulty machine, through the expected sensor (vibration, following error, hydraulic pressure), with no healthy machine flagged.
+  - False alarms (KA-07, KA-08): the alarmed machine correctly looked normal. In KA-07, two healthy machines were flagged through `power`, the noisiest signal, which needs a stricter rule.
+  - Bad batch (KA-03, KA-04): nothing flagged, which is correct.
+  - Wrong setting (KA-05, KA-06): missed. This fault shows in inspections and settings, not in sensor trends, so the detector cannot replace those tools.
+  - Challenge (KA-09): the alarm fires at tick 71, too early for any machine to have enough running data. Scored again at tick 900, it flagged CNC-07 (the real bearing fault) and nothing else. **The assessment must be refreshed during the investigation, not computed only once at the alarm.**
+- **Decision on the stages.** Stage 0 together with the stage-1 statistics above is the target: deterministic, explainable, CPU-only, and it already finds every progressive machine fault in the known cases. **scikit-learn (stage 2) is optional: it may be added later if wanted, but it is not necessary.** On these cases it would not fix either weakness, since setting faults leave no sensor trend and KA-09's problem is timing, and a model trained on simulator data mostly learns the simulator's own noise. Revisit it only if real or richer data shows faults stage 1 misses. **River (stage 3) is skipped for the capstone:** it needs continuous live telemetry that drifts, which the project does not have, and it risks learning slow wear as normal.
+- **Saved "before" reference (developer's decision, 2026-11-06).** Instead of waiting for each machine to build up its own history, the detector compares against a **"before" file**: each machine's normal running range per sensor, saved from a fault-free run of the line.
+  - **How the file is made:** run the line with no fault injected and save, for each machine and sensor, the median, MAD, mean, standard deviation and sample count of its running readings (load above the running threshold). The file is generated deterministically by a script from a fixed seed, committed with the code, and loaded when the detector runs. It holds only observable readings a shop would have from a healthy period, never hidden truth.
+  - **Warm-up is saved too.** A machine that has just started cutting runs colder than a warmed-up one: in the probe, healthy CNC-04 was flagged "temperature low" after 19 running readings. So the file also keeps ranges by **running time since the machine started cutting** (for example, the first 50, 50 to 150, then steady), and a machine is compared with the range for its own stage of warm-up.
+  - **What still applies:** the detector needs a few readings from the machine itself (the probe used 20 for the recent window). A machine that has not started cutting reports "not running yet", never "normal". Its output always says which reference it used.
+  - **Offline probe of this design (2026-11-06, no model calls):** with a 1,000-tick fault-free "before" (taken both from the case's own seed and from a different one, with the same answers either way), the two-score rule found all 6 wear and leak faults and **flagged no healthy machine in any of the 13 cases**. That removed KA-07's `power` false flags. KA-08 scored 6 of 8 machines at its alarm instead of 4. Wrong-setting faults are still missed. At KA-09's tick-71 alarm, five of seven machines, including CNC-07, had not started cutting, so nothing could score them yet.
+- **Open question for the developer:** the course-notebook rule says tools return numbers, not labels ([A4](COURSE_NOTEBOOKS_FUTURE_WORK.md#a4-line-snapshot-at-the-start-of-the-investigation-medium-evidence)). The recommendation is to give the investigator the two scores, the window and the coverage, and not a "flagged" label, so the model still makes the call.
 
-**Acceptance/evaluation:** On matched normal, progressive wear, speed/configuration change, isolated spike, missing-data, multi-machine and wrong-machine-trigger cases, compare threshold-only versus trend-based detection. Measure onset-to-detection lead time, false positives per simulated operating hour, missed incidents, duplicate launches, detector CPU time/memory, and incremental LLM requests. Separately A/B test line context **with versus without** derived assessments on the same observable histories, scoring correct machine/cause, unsupported inference, abstention, evidence provenance and tool use. Keep simulator ground truth exclusively evaluator-side, and do not claim real factory reliability from synthetic tests.
+**Shared output contract across all stages:** the investigator receives **the same typed, read-only assessment shape** in the [line-wide incident context](#fw-line-context): source/cutoff, machine, sensor window and operating mode, measured features, quality/coverage, rule or model version, alert state and links to supporting observations. A model's anomaly score may be included as a derived numerical signal but must not replace raw evidence or be converted into a fabricated probability of a root cause. **No setting turns the detector on or off, and none selects a stage (developer's decision, 2026-11-06):** it is a normal implementation that always runs, and moving to a later stage replaces the earlier code rather than adding a switch. Each stage should operate on CPU at capstone scale; measured throughput and memory, not an assumption, decide production capacity.
+
+**Sequencing:** The line-context packet already exists (merged in #186). The detector is added to it as a normal, always-on part, with no on/off setting. To attribute any improvement or bias to it, compare matched-seed runs from the commit before it is merged with runs after; the archived line-context runs serve as the "before". Start with one sensor trend and one simulator scenario rather than implementing every possible anomaly rule at once.
+
+**Acceptance/evaluation:** On matched normal, progressive wear, speed/configuration change, isolated spike, missing-data, multi-machine and wrong-machine-trigger cases, compare threshold-only versus trend-based detection. Measure onset-to-detection lead time, false positives per simulated operating hour, missed incidents, duplicate launches, detector CPU time/memory, and incremental LLM requests. Compare line context **before versus after** the detector is merged (earlier commit against later, same seeds and settings) on the same observable histories, scoring correct machine/cause, unsupported inference, abstention, evidence provenance and tool use. Keep simulator ground truth exclusively evaluator-side, and do not claim real factory reliability from synthetic tests.
 
 ### Simulated telemetry ingestion, unified sensor history and replay (MEDIUM; proposed 2026-11-02)
 
@@ -3067,6 +3226,10 @@ DB worker or existing framework before selecting a broker/job framework.
 Redriving consequential work must recheck approval, safety and idempotency.
 
 
+<a id="fw-sm-servo-diagnostics"></a>
+
+**Controller servo diagnostic moves (LOW; SM-12 in the [single-machine track](#fw-sm-track); proposed 2026-11-07).** Machine builders diagnose feed-axis bearings, ball screws and linear guides without added sensors by running the axis through a set diagnostic motion and frequency-analysing the servo data ([US10760994](https://patents.google.com/patent/US10760994); [US10585416](https://patentimages.storage.googleapis.com/bd/9f/dd/c9ea54ab547f24/US10585416.pdf)). This could separate parts that [SM-11](#fw-sm-check-ranking) can only rank. It needs high-rate servo data the read-only interface may not expose, and it moves the machine, so it is a consequential action: shop and technician approval, the FW4 gates above and a new safety review are required. Out of scope for a read-only pilot.
+
 <a id="future-work-scenarios-and-a-frontend"></a>
 
 ## Future work: Frontend and operator experience
@@ -3259,6 +3422,12 @@ repetitive capability code; YAML requires an actual profile-authoring need.
 Multi-tenant isolation/RLS requires mutually untrusted owners sharing persistent
 infrastructure. None is a course MVP requirement. ADRs may document settled,
 costly-to-reverse decisions without turning candidates into accepted designs.
+
+### Added high-resolution vibration or acoustic sensing (FAR FUTURE; SM-13; proposed 2026-11-07)
+
+<a id="fw-sm-hires-sensing"></a>
+
+**Priority: FAR FUTURE. Rank: SM-13 in the [single-machine track](#fw-sm-track).** Precise spindle fault localization usually needs dedicated measurement, not aggregate controller signals: NIST's defect-driven method separates spindle dynamics from defect geometry with its own condition-estimation device ([Vogl and Donmez, 2015](https://pmc.ncbi.nlm.nih.gov/articles/PMC5217751)). Adding accelerometers or microphones is a separate capability that needs written shop approval for new hardware, its own data contract and its own evaluation. Consider it only after [SM-11](#fw-sm-check-ranking) shows which parts controller data cannot separate.
 
 ### Future Work 9 — sensor-triggered, on-demand machine vision (near-last priority)
 
