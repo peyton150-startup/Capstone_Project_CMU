@@ -137,8 +137,10 @@
   "tests/test_collector_watchdog.py": "448509006e430513390f47d79ec3c9e512d30dff7be1a68710cb2df38beb7c39",
   "tests/test_console.py": "15ebbbdb8927f37fd25f9d8f9676e412f8fb368766c0a2318aacff94c963d86b",
   "tests/test_contracts.py": "55497b4712a724e6e4e6b3aed0eb245fc1643147b961d62782b462882affe0b6",
-  "tests/test_coverage_eval_cli_edges.py": "2e27217200f6613f7fc063d4129bd96203f59eacb13b5b673c5cc8dc7fb4f5e9",
+  "tests/test_coverage_entrypoints.py": "17a468f6ecedf7aba4dfee56f907988cda14ab97cb568f2d7f85b0742b687bbd",
+  "tests/test_coverage_eval_cli_edges.py": "14b6e6adeae33374d5b2654218d751de587ef7f7e699d290d5bb9f8eda4eec69",
   "tests/test_coverage_index_edges.py": "8a8b9f32d3a2eba9a2ab36a7d2e7a291aed18990b24b7836e96cf1bc684bf266",
+  "tests/test_coverage_reference_edges.py": "44531ab3528ad991a1e3f17ae967389fed10247bf165f4de06e5140613dd9204",
   "tests/test_coverage_reporting_edges.py": "32ace3d1b667f60e48ef93e373dfa1ea29c1532dd48cf67cefbfa726907a1718",
   "tests/test_coverage_telemetry_edges.py": "9ffe9b21d4bed854f469aad35ff998a70317f324e8bf7de449fd27fa2adfcc9a",
   "tests/test_critic.py": "dbcab743bfe426a23622f103a94b4a5f5c7617c0c955a3adc46876efe896c40b",
@@ -220,52 +222,47 @@
   "tests/test_wait_tool.py": "b99a5fbf756a60176262417e54d8d1a0496f01126929a330492e7d24287b2d1e",
   "tests/test_wrong_setting.py": "aed1c646bffaf88ae25ed2156794dc57427e8a61bbe6b23a0c33f3c3e89c0da3"
  },
- "coverage_sha256": "b3a82a46f5b097e2aefe589e792c0c95bd9175592251ec1560381b82ffc122b2",
- "junit_sha256": "b260f4acd77e80c85c4cdbfa88c7596287bcc27249a6f92d78a3b0743d7fe9ed",
+ "coverage_sha256": "c028b915c3dfc14a360f1621d0f15c0db93a27a80547d7f793800e4ec97c20ba",
+ "junit_sha256": "b0e98db39bde7df9049f3b198564167ada818ec00f8a5c7a196ce18a3bca335e",
  "counts": {
   "functions": 877,
   "classes_note": "classes are listed through their methods",
-  "tests": 1711,
+  "tests": 1720,
   "tools": 18,
   "functions_by_status": {
-   "INSUFFICIENT EVIDENCE": 356,
+   "INSUFFICIENT EVIDENCE": 361,
    "NOT APPLICABLE": 25,
-   "NOT TESTED": 27,
+   "NOT TESTED": 22,
    "PARTIALLY VERIFIED": 424,
    "VERIFIED": 45
   },
   "functions_by_coverage_class": {
    "direct": 453,
    "import-only": 4,
-   "indirect": 368,
+   "indirect": 373,
    "no-statements": 25,
-   "none": 27
+   "none": 22
   },
-  "functions_executed_in_tests": 821,
+  "functions_executed_in_tests": 826,
   "functions_with_direct_tests": 453,
   "functions_never_executed": [
    "capstone.episode:ask_on_console",
-   "capstone.evals:main.<locals>.save_record",
    "capstone.evals:main.<locals>.show_progress",
    "capstone.ingestion.channel_map:ChannelMap.entry_for",
    "capstone.ingestion.collector:utc_now",
    "capstone.ingestion.collector:MTConnectCollector.probe",
+   "capstone.manual.index:ready_manual_index",
    "capstone.memory.semantic:default_embedder",
    "capstone.providers.chat:FallbackClient.__repr__",
    "capstone.simulator.clock:SimulationClock.tick_duration",
    "capstone.simulator.disturbances:_SensorDisturbance._effect",
    "capstone.simulator.rng:RandomSource.seed",
    "capstone.tools.screening:write_reference",
-   "evaluation.evaltools.build_inventory:main",
    "evaluation.evaltools.compare_evaluators:load_answers",
-   "evaluation.evaltools.compare_evaluators:main",
    "evaluation.evaltools.decision_models:DecisionProvider.state_chars",
    "evaluation.evaltools.decision_models:provider_table",
    "evaluation.evaltools.full_evaluation:sha256_of",
    "evaluation.evaltools.full_evaluation:_bodiless",
-   "evaluation.evaltools.reference_review:main",
-   "evaluation.evaltools.run_packet:main",
-   "evaluation.evaltools.snap_request:main",
    "evaluation.evaltools.traced_run:function_spans",
    "evaluation.evaltools.traced_run:functions_hit",
    "evaluation.evaltools.traced_run:start_tracer",
@@ -304,23 +301,27 @@
    "capstone.simulator.simulator:Simulator._apply_consequences (3/4)",
    "capstone.simulator.state:FactoryState.next_on_line (3/4)",
    "evaluation.evaltools.build_inventory:read_junit (2/19)",
+   "evaluation.evaltools.build_inventory:main (5/9)",
+   "evaluation.evaltools.compare_evaluators:main (5/12)",
    "evaluation.evaltools.full_evaluation:git (2/4)",
    "evaluation.evaltools.full_evaluation:provenance (8/16)",
    "evaluation.evaltools.full_evaluation:tracked_python_files (3/4)",
    "evaluation.evaltools.full_evaluation:run_settings (7/9)",
    "evaluation.evaltools.full_evaluation:budgeted_send (62/78)",
    "evaluation.evaltools.run_packet:configuration_of (7/9)",
+   "evaluation.evaltools.run_packet:main (13/31)",
    "evaluation.evaltools.snap_request:DecisionQuestion.criteria_fit_type (5/9)",
    "evaluation.evaltools.snap_request:load_questions (7/9)",
    "evaluation.evaltools.snap_request:fitted_trace_skips (8/13)",
    "evaluation.evaltools.snap_request:describe_failure (2/5)",
    "evaluation.evaltools.snap_request:already_answered (6/8)",
+   "evaluation.evaltools.snap_request:main (18/47)",
    "evaluation.evaltools.traced_run:main (25/50)"
   ],
   "stubs_or_protocols": 25,
   "tests_by_outcome": {
-   "failed": 5,
-   "passed": 1706
+   "failed": 1,
+   "passed": 1719
   },
   "tests_with_no_assertion": [
    "tests/test_console.py::test_without_it_the_same_print_raised"
@@ -584,7 +585,7 @@
   },
   "capstone.evals": {
    "functions": 16,
-   "executed": 14,
+   "executed": 15,
    "direct": 14
   },
   "capstone.evaluation.auto_label": {
@@ -664,7 +665,7 @@
   },
   "capstone.manual.index": {
    "functions": 13,
-   "executed": 13,
+   "executed": 12,
    "direct": 2
   },
   "capstone.manual.sections": {
@@ -889,12 +890,12 @@
   },
   "evaluation.evaltools.build_inventory": {
    "functions": 24,
-   "executed": 23,
+   "executed": 24,
    "direct": 0
   },
   "evaluation.evaltools.compare_evaluators": {
    "functions": 7,
-   "executed": 5,
+   "executed": 6,
    "direct": 0
   },
   "evaluation.evaltools.decision_models": {
@@ -909,17 +910,17 @@
   },
   "evaluation.evaltools.reference_review": {
    "functions": 4,
-   "executed": 3,
+   "executed": 4,
    "direct": 3
   },
   "evaluation.evaltools.run_packet": {
    "functions": 22,
-   "executed": 21,
+   "executed": 22,
    "direct": 0
   },
   "evaluation.evaltools.snap_request": {
    "functions": 29,
-   "executed": 28,
+   "executed": 29,
    "direct": 1
   },
   "evaluation.evaltools.traced_run": {
@@ -4942,10 +4943,11 @@
    ]
   },
   "capstone.baseline:main": {
-   "count": 1,
+   "count": 2,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
+    "tests/test_coverage_entrypoints.py::test_cli_module_help_is_offline_and_exits_cleanly",
     "tests/test_coverage_reporting_edges.py::test_baseline_cli_formats_known_and_explicit_cases"
    ]
   },
@@ -5061,7 +5063,7 @@
    "indirect": []
   },
   "capstone.console:safe_console": {
-   "count": 19,
+   "count": 20,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_console.py::test_a_stream_that_cannot_be_reconfigured_is_left_alone",
@@ -5069,6 +5071,7 @@
    ],
    "indirect": [
     "tests/test_benchmark.py::test_the_command_writes_the_table_and_the_raw_calls",
+    "tests/test_coverage_entrypoints.py::test_cli_module_help_is_offline_and_exits_cleanly",
     "tests/test_coverage_eval_cli_edges.py::test_experiment_cli_does_not_hide_provider_failures_and_interrupts",
     "tests/test_coverage_eval_cli_edges.py::test_experiment_cli_label_skips_missing_conclusions_and_existing_answers",
     "tests/test_coverage_eval_cli_edges.py::test_experiment_cli_prevents_audit_records_collision",
@@ -5078,8 +5081,7 @@
     "tests/test_experiment.py::test_the_command_line_runs_labels_and_reports",
     "tests/test_experiment.py::test_the_command_passes_the_manual_on",
     "tests/test_experiment.py::test_the_command_runs_the_challenge_on_the_given_seeds",
-    "tests/test_experiment.py::test_the_command_runs_the_held_out_set",
-    "tests/test_experiment.py::test_the_manual_is_on_by_default_by_meaning"
+    "tests/test_experiment.py::test_the_command_runs_the_held_out_set"
    ]
   },
   "capstone.contracts.completed_investigations:CompletedInvestigation.unique_evidence": {
@@ -5650,12 +5652,13 @@
    "indirect": []
   },
   "capstone.evals:main": {
-   "count": 8,
+   "count": 9,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_evals.py::test_rescoring_saved_records_never_opens_the_manual"
    ],
    "indirect": [
+    "tests/test_coverage_entrypoints.py::test_cli_module_help_is_offline_and_exits_cleanly",
     "tests/test_coverage_eval_cli_edges.py::test_evals_cli_raises_when_resumed_raw_file_is_absent",
     "tests/test_coverage_eval_cli_edges.py::test_evals_cli_refuses_a_corrupt_resumed_prefix",
     "tests/test_coverage_eval_cli_edges.py::test_evals_cli_refuses_incompatible_modes_before_loading_config",
@@ -5666,10 +5669,12 @@
    ]
   },
   "capstone.evals:main.<locals>.save_record": {
-   "count": 0,
-   "status": "NOT TESTED",
+   "count": 1,
+   "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
-   "indirect": []
+   "indirect": [
+    "tests/test_coverage_eval_cli_edges.py::test_evals_cli_saves_fresh_rows_and_uses_live_watch_hook"
+   ]
   },
   "capstone.evals:main.<locals>.show_progress": {
    "count": 0,
@@ -7139,7 +7144,7 @@
    ]
   },
   "capstone.experiment:add_manual_options": {
-   "count": 20,
+   "count": 21,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_experiment.py::test_hazards_are_off_unless_asked_for",
@@ -7153,6 +7158,7 @@
     "tests/test_experiment.py::test_the_run_command_watches_by_default_and_quiet_turns_it_off"
    ],
    "indirect": [
+    "tests/test_coverage_entrypoints.py::test_cli_module_help_is_offline_and_exits_cleanly",
     "tests/test_coverage_eval_cli_edges.py::test_evals_cli_raises_when_resumed_raw_file_is_absent",
     "tests/test_coverage_eval_cli_edges.py::test_evals_cli_refuses_a_corrupt_resumed_prefix",
     "tests/test_coverage_eval_cli_edges.py::test_evals_cli_refuses_incompatible_modes_before_loading_config",
@@ -7167,13 +7173,10 @@
    ]
   },
   "capstone.experiment:open_manual": {
-   "count": 4,
+   "count": 1,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
-    "tests/test_coverage_eval_cli_edges.py::test_evals_cli_saves_fresh_rows_and_uses_live_watch_hook",
-    "tests/test_coverage_eval_cli_edges.py::test_experiment_cli_does_not_hide_provider_failures_and_interrupts",
-    "tests/test_coverage_eval_cli_edges.py::test_experiment_cli_prevents_audit_records_collision",
     "tests/test_manual.py::test_a_semantic_run_says_when_it_rebuilt_the_index"
    ]
   },
@@ -7203,7 +7206,7 @@
    "indirect": []
   },
   "capstone.experiment:main": {
-   "count": 12,
+   "count": 13,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_experiment.py::test_hazards_are_off_unless_asked_for",
@@ -7217,6 +7220,7 @@
     "tests/test_experiment.py::test_the_run_command_watches_by_default_and_quiet_turns_it_off"
    ],
    "indirect": [
+    "tests/test_coverage_entrypoints.py::test_cli_module_help_is_offline_and_exits_cleanly",
     "tests/test_coverage_eval_cli_edges.py::test_experiment_cli_does_not_hide_provider_failures_and_interrupts",
     "tests/test_coverage_eval_cli_edges.py::test_experiment_cli_label_skips_missing_conclusions_and_existing_answers",
     "tests/test_coverage_eval_cli_edges.py::test_experiment_cli_prevents_audit_records_collision"
@@ -7427,18 +7431,21 @@
    ]
   },
   "capstone.faults:agent_side": {
-   "count": 1,
+   "count": 2,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_fault_packs.py::test_the_agent_side_holds_only_a_name_and_a_repair"
    ],
-   "indirect": []
+   "indirect": [
+    "tests/test_coverage_entrypoints.py::test_cli_module_help_is_offline_and_exits_cleanly"
+   ]
   },
   "capstone.ingestion.__main__:main": {
-   "count": 5,
+   "count": 6,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
+    "tests/test_coverage_entrypoints.py::test_cli_module_help_is_offline_and_exits_cleanly",
     "tests/test_coverage_telemetry_edges.py::test_collector_cli_checks_paths_before_opening_network",
     "tests/test_coverage_telemetry_edges.py::test_collector_cli_reports_success_or_graceful_interrupt",
     "tests/test_coverage_telemetry_edges.py::test_collector_cli_requires_output_in_normal_mode",
@@ -8147,13 +8154,10 @@
    ]
   },
   "capstone.manual.index:ready_index": {
-   "count": 10,
+   "count": 7,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
-    "tests/test_coverage_eval_cli_edges.py::test_evals_cli_saves_fresh_rows_and_uses_live_watch_hook",
-    "tests/test_coverage_eval_cli_edges.py::test_experiment_cli_does_not_hide_provider_failures_and_interrupts",
-    "tests/test_coverage_eval_cli_edges.py::test_experiment_cli_prevents_audit_records_collision",
     "tests/test_manual.py::test_a_removed_or_added_section_is_not_current",
     "tests/test_manual.py::test_an_edited_section_rebuilds_the_index_first",
     "tests/test_manual.py::test_an_empty_index_is_built_before_the_run",
@@ -8164,31 +8168,25 @@
    ]
   },
   "capstone.manual.index:ready_manual_index": {
-   "count": 3,
-   "status": "INSUFFICIENT EVIDENCE",
+   "count": 0,
+   "status": "NOT TESTED",
    "direct": [],
-   "indirect": [
-    "tests/test_coverage_eval_cli_edges.py::test_evals_cli_saves_fresh_rows_and_uses_live_watch_hook",
-    "tests/test_coverage_eval_cli_edges.py::test_experiment_cli_does_not_hide_provider_failures_and_interrupts",
-    "tests/test_coverage_eval_cli_edges.py::test_experiment_cli_prevents_audit_records_collision"
-   ]
+   "indirect": []
   },
   "capstone.manual.index:open_manual_index": {
-   "count": 4,
-   "status": "INSUFFICIENT EVIDENCE",
-   "direct": [],
-   "indirect": [
-    "tests/test_coverage_eval_cli_edges.py::test_evals_cli_saves_fresh_rows_and_uses_live_watch_hook",
-    "tests/test_coverage_eval_cli_edges.py::test_experiment_cli_does_not_hide_provider_failures_and_interrupts",
-    "tests/test_coverage_eval_cli_edges.py::test_experiment_cli_prevents_audit_records_collision",
-    "tests/test_coverage_index_edges.py::test_manual_open_index_supports_local_and_separate_query_embeddings"
-   ]
-  },
-  "capstone.manual.index:main": {
    "count": 1,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
+    "tests/test_coverage_index_edges.py::test_manual_open_index_supports_local_and_separate_query_embeddings"
+   ]
+  },
+  "capstone.manual.index:main": {
+   "count": 2,
+   "status": "INSUFFICIENT EVIDENCE",
+   "direct": [],
+   "indirect": [
+    "tests/test_coverage_entrypoints.py::test_cli_module_help_is_offline_and_exits_cleanly",
     "tests/test_coverage_index_edges.py::test_manual_cli_passes_rebuild_and_prints_indexed_count"
    ]
   },
@@ -8201,13 +8199,10 @@
    ]
   },
   "capstone.manual.sections:parse_manual": {
-   "count": 18,
+   "count": 15,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
-    "tests/test_coverage_eval_cli_edges.py::test_evals_cli_saves_fresh_rows_and_uses_live_watch_hook",
-    "tests/test_coverage_eval_cli_edges.py::test_experiment_cli_does_not_hide_provider_failures_and_interrupts",
-    "tests/test_coverage_eval_cli_edges.py::test_experiment_cli_prevents_audit_records_collision",
     "tests/test_critic.py::test_the_real_manual_shown_to_the_critic_names_no_hidden_truth",
     "tests/test_episode.py::test_a_run_with_the_manual_gives_the_settings_critic_the_manual",
     "tests/test_evals.py::test_run_cases_offers_the_manual_when_given",
@@ -8216,17 +8211,17 @@
     "tests/test_experiment.py::test_model_failures_survive_the_cli_file_and_report",
     "tests/test_experiment.py::test_run_command_audits_by_default_and_allows_explicit_opt_out",
     "tests/test_experiment.py::test_the_command_line_runs_labels_and_reports",
-    "tests/test_experiment.py::test_the_command_passes_the_manual_on"
+    "tests/test_experiment.py::test_the_command_passes_the_manual_on",
+    "tests/test_experiment.py::test_the_command_runs_the_challenge_on_the_given_seeds",
+    "tests/test_experiment.py::test_the_command_runs_the_held_out_set",
+    "tests/test_experiment.py::test_the_manual_is_on_by_default_by_meaning"
    ]
   },
   "capstone.manual.sections:check_no_leaks": {
-   "count": 18,
+   "count": 15,
    "status": "VERIFIED",
    "direct": [],
    "indirect": [
-    "tests/test_coverage_eval_cli_edges.py::test_evals_cli_saves_fresh_rows_and_uses_live_watch_hook",
-    "tests/test_coverage_eval_cli_edges.py::test_experiment_cli_does_not_hide_provider_failures_and_interrupts",
-    "tests/test_coverage_eval_cli_edges.py::test_experiment_cli_prevents_audit_records_collision",
     "tests/test_critic.py::test_the_real_manual_shown_to_the_critic_names_no_hidden_truth",
     "tests/test_episode.py::test_a_run_with_the_manual_gives_the_settings_critic_the_manual",
     "tests/test_evals.py::test_run_cases_offers_the_manual_when_given",
@@ -8235,17 +8230,17 @@
     "tests/test_experiment.py::test_model_failures_survive_the_cli_file_and_report",
     "tests/test_experiment.py::test_run_command_audits_by_default_and_allows_explicit_opt_out",
     "tests/test_experiment.py::test_the_command_line_runs_labels_and_reports",
-    "tests/test_experiment.py::test_the_command_passes_the_manual_on"
+    "tests/test_experiment.py::test_the_command_passes_the_manual_on",
+    "tests/test_experiment.py::test_the_command_runs_the_challenge_on_the_given_seeds",
+    "tests/test_experiment.py::test_the_command_runs_the_held_out_set",
+    "tests/test_experiment.py::test_the_manual_is_on_by_default_by_meaning"
    ]
   },
   "capstone.manual.sections:load_manual": {
-   "count": 17,
+   "count": 14,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
-    "tests/test_coverage_eval_cli_edges.py::test_evals_cli_saves_fresh_rows_and_uses_live_watch_hook",
-    "tests/test_coverage_eval_cli_edges.py::test_experiment_cli_does_not_hide_provider_failures_and_interrupts",
-    "tests/test_coverage_eval_cli_edges.py::test_experiment_cli_prevents_audit_records_collision",
     "tests/test_critic.py::test_the_real_manual_shown_to_the_critic_names_no_hidden_truth",
     "tests/test_episode.py::test_a_run_with_the_manual_gives_the_settings_critic_the_manual",
     "tests/test_evals.py::test_run_cases_offers_the_manual_when_given",
@@ -8254,7 +8249,10 @@
     "tests/test_experiment.py::test_model_failures_survive_the_cli_file_and_report",
     "tests/test_experiment.py::test_run_command_audits_by_default_and_allows_explicit_opt_out",
     "tests/test_experiment.py::test_the_command_line_runs_labels_and_reports",
-    "tests/test_experiment.py::test_the_command_passes_the_manual_on"
+    "tests/test_experiment.py::test_the_command_passes_the_manual_on",
+    "tests/test_experiment.py::test_the_command_runs_the_challenge_on_the_given_seeds",
+    "tests/test_experiment.py::test_the_command_runs_the_held_out_set",
+    "tests/test_experiment.py::test_the_manual_is_on_by_default_by_meaning"
    ]
   },
   "capstone.memory.backfill:backfill": {
@@ -8270,10 +8268,11 @@
    ]
   },
   "capstone.memory.backfill:main": {
-   "count": 3,
+   "count": 4,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
+    "tests/test_coverage_entrypoints.py::test_cli_module_help_is_offline_and_exits_cleanly",
     "tests/test_coverage_index_edges.py::test_memory_backfill_cli_reads_only_disposes_and_rebuilds",
     "tests/test_coverage_index_edges.py::test_memory_backfill_cli_requires_a_database_url",
     "tests/test_coverage_index_edges.py::test_memory_backfill_disposes_engine_after_read_failure"
@@ -8371,10 +8370,11 @@
    "indirect": []
   },
   "capstone.memory.duplicate_threshold:main": {
-   "count": 1,
+   "count": 2,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
+    "tests/test_coverage_entrypoints.py::test_cli_module_help_is_offline_and_exits_cleanly",
     "tests/test_coverage_index_edges.py::test_duplicate_measure_cli_chooses_offline_or_provider_embedder"
    ]
   },
@@ -9337,7 +9337,7 @@
    ]
   },
   "capstone.memory_comparison:main": {
-   "count": 6,
+   "count": 7,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_memory_comparison.py::test_a_mode_may_be_named_only_once",
@@ -9345,6 +9345,7 @@
     "tests/test_memory_comparison.py::test_the_command_reports_a_results_file"
    ],
    "indirect": [
+    "tests/test_coverage_entrypoints.py::test_cli_module_help_is_offline_and_exits_cleanly",
     "tests/test_coverage_reporting_edges.py::test_memory_comparison_cli_rejects_unrecognized_or_duplicate_modes",
     "tests/test_coverage_reporting_edges.py::test_memory_comparison_report_cli_reads_saved_records",
     "tests/test_coverage_reporting_edges.py::test_memory_comparison_run_cli_dispatches_without_models"
@@ -9361,10 +9362,11 @@
    ]
   },
   "capstone.monitoring.__main__:main": {
-   "count": 5,
+   "count": 6,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
+    "tests/test_coverage_entrypoints.py::test_cli_module_help_is_offline_and_exits_cleanly",
     "tests/test_coverage_telemetry_edges.py::test_monitor_cli_follow_loop_exits_cleanly_on_interrupt",
     "tests/test_coverage_telemetry_edges.py::test_monitor_cli_rejects_unsafe_alerts_before_reading",
     "tests/test_coverage_telemetry_edges.py::test_monitor_cli_replay_is_read_only_and_passes_thresholds",
@@ -10062,7 +10064,7 @@
    ]
   },
   "capstone.providers.chat:ModelError.__init__": {
-   "count": 65,
+   "count": 62,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
@@ -10521,7 +10523,7 @@
    "indirect": []
   },
   "capstone.providers.embeddings:embedders_for": {
-   "count": 8,
+   "count": 5,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_embeddings.py::test_a_missing_key_or_another_provider_is_named",
@@ -10529,9 +10531,6 @@
     "tests/test_embeddings.py::test_the_setting_gives_a_passage_and_a_query_embedder_of_one_model"
    ],
    "indirect": [
-    "tests/test_coverage_eval_cli_edges.py::test_evals_cli_saves_fresh_rows_and_uses_live_watch_hook",
-    "tests/test_coverage_eval_cli_edges.py::test_experiment_cli_does_not_hide_provider_failures_and_interrupts",
-    "tests/test_coverage_eval_cli_edges.py::test_experiment_cli_prevents_audit_records_collision",
     "tests/test_memory_semantic.py::test_build_recall_falls_back_when_chroma_cannot_open",
     "tests/test_memory_semantic.py::test_recall_uses_keyword_search_when_the_index_has_another_model"
    ]
@@ -11100,7 +11099,7 @@
    "indirect": []
   },
   "capstone.settings:Settings.blank_is_missing": {
-   "count": 218,
+   "count": 215,
    "status": "VERIFIED",
    "direct": [
     "tests/test_settings.py::test_blank_critic_fallback_is_unset",
@@ -11168,7 +11167,7 @@
    ]
   },
   "capstone.settings:get_settings": {
-   "count": 149,
+   "count": 146,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_settings.py::test_get_settings_reads_current_environment_without_stale_cache"
@@ -11182,10 +11181,10 @@
     "tests/test_benchmark.py::test_episodes_are_run_and_recorded_for_each_fault_and_seed",
     "tests/test_benchmark.py::test_every_job_gets_the_one_model_with_nothing_behind_it",
     "tests/test_benchmark.py::test_the_command_writes_the_table_and_the_raw_calls",
-    "tests/test_coverage_eval_cli_edges.py::test_evals_cli_saves_fresh_rows_and_uses_live_watch_hook",
-    "tests/test_coverage_eval_cli_edges.py::test_experiment_cli_does_not_hide_provider_failures_and_interrupts",
-    "tests/test_coverage_eval_cli_edges.py::test_experiment_cli_prevents_audit_records_collision",
-    "tests/test_database_connection.py::test_empty_url_fails_before_connecting"
+    "tests/test_database_connection.py::test_empty_url_fails_before_connecting",
+    "tests/test_database_connection.py::test_select_one_returns_true",
+    "tests/test_episode.py::test_a_bearing_fault_is_found_fixed_checked_and_scored_in_full",
+    "tests/test_episode.py::test_a_critic_does_not_change_the_episode"
    ]
   },
   "capstone.simulator.challenge:build_challenge": {
@@ -14598,10 +14597,11 @@
    ]
   },
   "capstone.tree_reach:main": {
-   "count": 1,
+   "count": 2,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
+    "tests/test_coverage_entrypoints.py::test_cli_module_help_is_offline_and_exits_cleanly",
     "tests/test_coverage_reporting_edges.py::test_tree_report_cli_text_and_json_paths"
    ]
   },
@@ -14956,10 +14956,12 @@
    ]
   },
   "evaluation.evaltools.build_inventory:main": {
-   "count": 0,
-   "status": "NOT TESTED",
+   "count": 1,
+   "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
-   "indirect": []
+   "indirect": [
+    "tests/test_coverage_entrypoints.py::test_cli_module_help_is_offline_and_exits_cleanly"
+   ]
   },
   "evaluation.evaltools.compare_evaluators:load_answers": {
    "count": 0,
@@ -15013,10 +15015,12 @@
    ]
   },
   "evaluation.evaltools.compare_evaluators:main": {
-   "count": 0,
-   "status": "NOT TESTED",
+   "count": 1,
+   "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
-   "indirect": []
+   "indirect": [
+    "tests/test_coverage_entrypoints.py::test_cli_module_help_is_offline_and_exits_cleanly"
+   ]
   },
   "evaluation.evaltools.decision_models:DecisionProvider.state_chars": {
    "count": 0,
@@ -15525,7 +15529,7 @@
    "indirect": []
   },
   "evaluation.evaltools.full_evaluation:main": {
-   "count": 5,
+   "count": 6,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_full_evaluation.py::test_a_dry_run_reports_whether_snap_could_be_sent",
@@ -15534,10 +15538,12 @@
     "tests/test_full_evaluation.py::test_full_command_uses_budgeted_sender",
     "tests/test_full_evaluation.py::test_sending_needs_both_limits"
    ],
-   "indirect": []
+   "indirect": [
+    "tests/test_coverage_entrypoints.py::test_cli_module_help_is_offline_and_exits_cleanly"
+   ]
   },
   "evaluation.evaltools.reference_review:review_id": {
-   "count": 4,
+   "count": 8,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_reference_review.py::test_function_sample_prefers_items_with_all_judgments",
@@ -15545,10 +15551,15 @@
     "tests/test_reference_review.py::test_run_strata_fail_closed_when_balanced_review_is_impossible",
     "tests/test_reference_review.py::test_run_strata_guarantees_blind_sound_and_misleading_cases"
    ],
-   "indirect": []
+   "indirect": [
+    "tests/test_coverage_reference_edges.py::test_reference_cli_exports_and_imports_without_exposing_case_ids",
+    "tests/test_coverage_reference_edges.py::test_reference_import_refuses_invalid_answers",
+    "tests/test_coverage_reference_edges.py::test_reference_import_rejects_unknown_blinded_identity",
+    "tests/test_coverage_reference_edges.py::test_review_requires_enough_slots_for_stratification"
+   ]
   },
   "evaluation.evaltools.reference_review:export_requests": {
-   "count": 5,
+   "count": 12,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_reference_review.py::test_function_sample_prefers_items_with_all_judgments",
@@ -15557,21 +15568,37 @@
     "tests/test_reference_review.py::test_run_strata_fail_closed_when_balanced_review_is_impossible",
     "tests/test_reference_review.py::test_run_strata_guarantees_blind_sound_and_misleading_cases"
    ],
-   "indirect": []
+   "indirect": [
+    "tests/test_coverage_reference_edges.py::test_reference_cli_exports_and_imports_without_exposing_case_ids",
+    "tests/test_coverage_reference_edges.py::test_reference_import_refuses_invalid_answers",
+    "tests/test_coverage_reference_edges.py::test_reference_import_rejects_unknown_blinded_identity",
+    "tests/test_coverage_reference_edges.py::test_review_does_not_silently_reuse_a_blinded_id",
+    "tests/test_coverage_reference_edges.py::test_review_refuses_conflicting_states_for_one_internal_item",
+    "tests/test_coverage_reference_edges.py::test_review_refuses_untrusted_strata_metadata",
+    "tests/test_coverage_reference_edges.py::test_review_requires_enough_slots_for_stratification"
+   ]
   },
   "evaluation.evaltools.reference_review:import_review": {
-   "count": 1,
+   "count": 4,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_reference_review.py::test_review_packets_hide_run_identity_and_import_checked_answers"
    ],
-   "indirect": []
+   "indirect": [
+    "tests/test_coverage_reference_edges.py::test_reference_cli_exports_and_imports_without_exposing_case_ids",
+    "tests/test_coverage_reference_edges.py::test_reference_import_refuses_invalid_answers",
+    "tests/test_coverage_reference_edges.py::test_reference_import_rejects_unknown_blinded_identity"
+   ]
   },
   "evaluation.evaltools.reference_review:main": {
-   "count": 0,
-   "status": "NOT TESTED",
+   "count": 3,
+   "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
-   "indirect": []
+   "indirect": [
+    "tests/test_coverage_entrypoints.py::test_cli_module_help_is_offline_and_exits_cleanly",
+    "tests/test_coverage_reference_edges.py::test_reference_cli_exports_and_imports_without_exposing_case_ids",
+    "tests/test_coverage_reference_edges.py::test_reference_cli_fails_before_exporting_negative_limits"
+   ]
   },
   "evaluation.evaltools.run_packet:configuration_of": {
    "count": 20,
@@ -15965,10 +15992,12 @@
    ]
   },
   "evaluation.evaltools.run_packet:main": {
-   "count": 0,
-   "status": "NOT TESTED",
+   "count": 1,
+   "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
-   "indirect": []
+   "indirect": [
+    "tests/test_coverage_entrypoints.py::test_cli_module_help_is_offline_and_exits_cleanly"
+   ]
   },
   "evaluation.evaltools.snap_request:DecisionQuestion.criteria_fit_type": {
    "count": 28,
@@ -16375,10 +16404,12 @@
    ]
   },
   "evaluation.evaltools.snap_request:main": {
-   "count": 0,
-   "status": "NOT TESTED",
+   "count": 1,
+   "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
-   "indirect": []
+   "indirect": [
+    "tests/test_coverage_entrypoints.py::test_cli_module_help_is_offline_and_exits_cleanly"
+   ]
   },
   "evaluation.evaltools.traced_run:function_spans": {
    "count": 0,
@@ -16405,10 +16436,11 @@
    "indirect": []
   },
   "evaluation.evaltools.traced_run:main": {
-   "count": 1,
+   "count": 2,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
+    "tests/test_coverage_entrypoints.py::test_cli_module_help_is_offline_and_exits_cleanly",
     "tests/test_evaluation_tools.py::test_a_traced_run_refuses_to_append_to_earlier_records"
    ]
   },
@@ -24698,6 +24730,32 @@
    "judgment": "NOT ASSESSED",
    "functions": []
   },
+  "tests/test_coverage_entrypoints.py::test_cli_module_help_is_offline_and_exits_cleanly": {
+   "count": 20,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.baseline:main",
+    "capstone.console:safe_console",
+    "capstone.evals:main",
+    "capstone.experiment:add_manual_options",
+    "capstone.experiment:main",
+    "capstone.faults:agent_side",
+    "capstone.ingestion.__main__:main",
+    "capstone.manual.index:main",
+    "capstone.memory.backfill:main",
+    "capstone.memory.duplicate_threshold:main",
+    "capstone.memory_comparison:main",
+    "capstone.monitoring.__main__:main",
+    "capstone.tree_reach:main",
+    "evaluation.evaltools.build_inventory:main",
+    "evaluation.evaltools.compare_evaluators:main",
+    "evaluation.evaltools.full_evaluation:main",
+    "evaluation.evaltools.reference_review:main",
+    "evaluation.evaltools.run_packet:main",
+    "evaluation.evaltools.snap_request:main",
+    "evaluation.evaltools.traced_run:main"
+   ]
+  },
   "tests/test_coverage_eval_cli_edges.py::test_evals_cli_refuses_incompatible_modes_before_loading_config": {
    "count": 2,
    "judgment": "NOT ASSESSED",
@@ -24758,25 +24816,15 @@
    ]
   },
   "tests/test_coverage_eval_cli_edges.py::test_evals_cli_saves_fresh_rows_and_uses_live_watch_hook": {
-   "count": 16,
+   "count": 6,
    "judgment": "NOT ASSESSED",
    "functions": [
     "capstone.evals:Scenario.valid_factory",
     "capstone.evals:ScenarioConfig.unique_ids",
     "capstone.evals:main",
+    "capstone.evals:main.<locals>.save_record",
     "capstone.evals:reserve_raw_output",
-    "capstone.experiment:add_manual_options",
-    "capstone.experiment:open_manual",
-    "capstone.manual.index:open_manual_index",
-    "capstone.manual.index:ready_index",
-    "capstone.manual.index:ready_manual_index",
-    "capstone.manual.sections:check_no_leaks",
-    "capstone.manual.sections:load_manual",
-    "capstone.manual.sections:parse_manual",
-    "capstone.providers.chat:ModelError.__init__",
-    "capstone.providers.embeddings:embedders_for",
-    "capstone.settings:Settings.blank_is_missing",
-    "capstone.settings:get_settings"
+    "capstone.experiment:add_manual_options"
    ]
   },
   "tests/test_coverage_eval_cli_edges.py::test_evals_automatic_labels_marks_undetermined_and_deferred_review": {
@@ -24801,45 +24849,23 @@
    ]
   },
   "tests/test_coverage_eval_cli_edges.py::test_experiment_cli_prevents_audit_records_collision": {
-   "count": 16,
+   "count": 5,
    "judgment": "NOT ASSESSED",
    "functions": [
     "capstone.console:safe_console",
     "capstone.experiment:add_manual_options",
     "capstone.experiment:grid",
     "capstone.experiment:main",
-    "capstone.experiment:open_manual",
-    "capstone.experiment:seeds_from",
-    "capstone.manual.index:open_manual_index",
-    "capstone.manual.index:ready_index",
-    "capstone.manual.index:ready_manual_index",
-    "capstone.manual.sections:check_no_leaks",
-    "capstone.manual.sections:load_manual",
-    "capstone.manual.sections:parse_manual",
-    "capstone.providers.chat:ModelError.__init__",
-    "capstone.providers.embeddings:embedders_for",
-    "capstone.settings:Settings.blank_is_missing",
-    "capstone.settings:get_settings"
+    "capstone.experiment:seeds_from"
    ]
   },
   "tests/test_coverage_eval_cli_edges.py::test_experiment_cli_does_not_hide_provider_failures_and_interrupts": {
-   "count": 14,
+   "count": 3,
    "judgment": "NOT ASSESSED",
    "functions": [
     "capstone.console:safe_console",
     "capstone.experiment:add_manual_options",
-    "capstone.experiment:main",
-    "capstone.experiment:open_manual",
-    "capstone.manual.index:open_manual_index",
-    "capstone.manual.index:ready_index",
-    "capstone.manual.index:ready_manual_index",
-    "capstone.manual.sections:check_no_leaks",
-    "capstone.manual.sections:load_manual",
-    "capstone.manual.sections:parse_manual",
-    "capstone.providers.chat:ModelError.__init__",
-    "capstone.providers.embeddings:embedders_for",
-    "capstone.settings:Settings.blank_is_missing",
-    "capstone.settings:get_settings"
+    "capstone.experiment:main"
    ]
   },
   "tests/test_coverage_eval_cli_edges.py::test_experiment_cli_label_skips_missing_conclusions_and_existing_answers": {
@@ -24945,6 +24971,70 @@
    "judgment": "NOT ASSESSED",
    "functions": [
     "capstone.manual.index:main"
+   ]
+  },
+  "tests/test_coverage_reference_edges.py::test_review_refuses_conflicting_states_for_one_internal_item": {
+   "count": 1,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "evaluation.evaltools.reference_review:export_requests"
+   ]
+  },
+  "tests/test_coverage_reference_edges.py::test_review_refuses_untrusted_strata_metadata": {
+   "count": 1,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "evaluation.evaltools.reference_review:export_requests"
+   ]
+  },
+  "tests/test_coverage_reference_edges.py::test_review_requires_enough_slots_for_stratification": {
+   "count": 2,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "evaluation.evaltools.reference_review:export_requests",
+    "evaluation.evaltools.reference_review:review_id"
+   ]
+  },
+  "tests/test_coverage_reference_edges.py::test_review_does_not_silently_reuse_a_blinded_id": {
+   "count": 1,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "evaluation.evaltools.reference_review:export_requests"
+   ]
+  },
+  "tests/test_coverage_reference_edges.py::test_reference_import_refuses_invalid_answers": {
+   "count": 3,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "evaluation.evaltools.reference_review:export_requests",
+    "evaluation.evaltools.reference_review:import_review",
+    "evaluation.evaltools.reference_review:review_id"
+   ]
+  },
+  "tests/test_coverage_reference_edges.py::test_reference_import_rejects_unknown_blinded_identity": {
+   "count": 3,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "evaluation.evaltools.reference_review:export_requests",
+    "evaluation.evaltools.reference_review:import_review",
+    "evaluation.evaltools.reference_review:review_id"
+   ]
+  },
+  "tests/test_coverage_reference_edges.py::test_reference_cli_fails_before_exporting_negative_limits": {
+   "count": 1,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "evaluation.evaltools.reference_review:main"
+   ]
+  },
+  "tests/test_coverage_reference_edges.py::test_reference_cli_exports_and_imports_without_exposing_case_ids": {
+   "count": 4,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "evaluation.evaltools.reference_review:export_requests",
+    "evaluation.evaltools.reference_review:import_review",
+    "evaluation.evaltools.reference_review:main",
+    "evaluation.evaltools.reference_review:review_id"
    ]
   },
   "tests/test_coverage_reporting_edges.py::test_reach_groups_cover_generated_skipped_unanswered_and_early_termination": {

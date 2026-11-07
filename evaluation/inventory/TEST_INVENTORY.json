@@ -25681,6 +25681,84 @@
    ]
   },
   {
+   "id": "tests/test_coverage_entrypoints.py::test_cli_module_help_is_offline_and_exits_cleanly",
+   "file": "tests/test_coverage_entrypoints.py",
+   "name": "test_cli_module_help_is_offline_and_exits_cleanly",
+   "line": 36,
+   "docstring": "Every public CLI must show help before reading files or calling models.",
+   "parametrized": true,
+   "fixtures": [
+    "monkeypatch",
+    "capsys",
+    "module"
+   ],
+   "assertions": 2,
+   "assert_forms": {
+    "equality": 1,
+    "membership": 1
+   },
+   "raises_checks": 1,
+   "uses": [
+    "monkeypatch"
+   ],
+   "quality_flags": [
+    "patches_dependencies"
+   ],
+   "claims": "Every public CLI must show help before reading files or calling models.",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.baseline:main",
+    "capstone.console:safe_console",
+    "capstone.evals:main",
+    "capstone.experiment:add_manual_options",
+    "capstone.experiment:main",
+    "capstone.faults:agent_side",
+    "capstone.ingestion.__main__:main",
+    "capstone.manual.index:main",
+    "capstone.memory.backfill:main",
+    "capstone.memory.duplicate_threshold:main",
+    "capstone.memory_comparison:main",
+    "capstone.monitoring.__main__:main",
+    "capstone.tree_reach:main",
+    "evaluation.evaltools.build_inventory:main",
+    "evaluation.evaltools.compare_evaluators:main",
+    "evaluation.evaltools.full_evaluation:main",
+    "evaluation.evaltools.reference_review:main",
+    "evaluation.evaltools.run_packet:main",
+    "evaluation.evaltools.snap_request:main",
+    "evaluation.evaltools.traced_run:main"
+   ],
+   "exercise_count": 20,
+   "modules_exercised": [
+    "capstone.baseline",
+    "capstone.console",
+    "capstone.evals",
+    "capstone.experiment",
+    "capstone.faults",
+    "capstone.ingestion.__main__",
+    "capstone.manual.index",
+    "capstone.memory.backfill",
+    "capstone.memory.duplicate_threshold",
+    "capstone.memory_comparison",
+    "capstone.monitoring.__main__",
+    "capstone.tree_reach",
+    "evaluation.evaltools.build_inventory",
+    "evaluation.evaltools.compare_evaluators",
+    "evaluation.evaltools.full_evaluation",
+    "evaluation.evaltools.reference_review",
+    "evaluation.evaltools.run_packet",
+    "evaluation.evaltools.snap_request",
+    "evaluation.evaltools.traced_run"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
    "id": "tests/test_coverage_eval_cli_edges.py::test_evals_cli_refuses_incompatible_modes_before_loading_config",
    "file": "tests/test_coverage_eval_cli_edges.py",
    "name": "test_evals_cli_refuses_incompatible_modes_before_loading_config",
@@ -25965,34 +26043,19 @@
     "patches_dependencies"
    ],
    "claims": "evals cli saves fresh rows and uses live watch hook",
-   "execution_outcome": "failed",
+   "execution_outcome": "passed",
    "exercises": [
     "capstone.evals:Scenario.valid_factory",
     "capstone.evals:ScenarioConfig.unique_ids",
     "capstone.evals:main",
+    "capstone.evals:main.<locals>.save_record",
     "capstone.evals:reserve_raw_output",
-    "capstone.experiment:add_manual_options",
-    "capstone.experiment:open_manual",
-    "capstone.manual.index:open_manual_index",
-    "capstone.manual.index:ready_index",
-    "capstone.manual.index:ready_manual_index",
-    "capstone.manual.sections:check_no_leaks",
-    "capstone.manual.sections:load_manual",
-    "capstone.manual.sections:parse_manual",
-    "capstone.providers.chat:ModelError.__init__",
-    "capstone.providers.embeddings:embedders_for",
-    "capstone.settings:Settings.blank_is_missing",
-    "capstone.settings:get_settings"
+    "capstone.experiment:add_manual_options"
    ],
-   "exercise_count": 16,
+   "exercise_count": 6,
    "modules_exercised": [
     "capstone.evals",
-    "capstone.experiment",
-    "capstone.manual.index",
-    "capstone.manual.sections",
-    "capstone.providers.chat",
-    "capstone.providers.embeddings",
-    "capstone.settings"
+    "capstone.experiment"
    ],
    "judgment": "NOT ASSESSED",
    "curated": {},
@@ -26006,7 +26069,7 @@
    "id": "tests/test_coverage_eval_cli_edges.py::test_evals_automatic_labels_marks_undetermined_and_deferred_review",
    "file": "tests/test_coverage_eval_cli_edges.py",
    "name": "test_evals_automatic_labels_marks_undetermined_and_deferred_review",
-   "line": 219,
+   "line": 220,
    "docstring": "",
    "parametrized": false,
    "fixtures": [
@@ -26044,7 +26107,7 @@
    "id": "tests/test_coverage_eval_cli_edges.py::test_experiment_open_memory_refuses_missing_database",
    "file": "tests/test_coverage_eval_cli_edges.py",
    "name": "test_experiment_open_memory_refuses_missing_database",
-   "line": 250,
+   "line": 251,
    "docstring": "",
    "parametrized": false,
    "fixtures": [
@@ -26080,7 +26143,7 @@
    "id": "tests/test_coverage_eval_cli_edges.py::test_experiment_open_memory_converts_postgres_driver_without_connecting",
    "file": "tests/test_coverage_eval_cli_edges.py",
    "name": "test_experiment_open_memory_converts_postgres_driver_without_connecting",
-   "line": 262,
+   "line": 263,
    "docstring": "",
    "parametrized": false,
    "fixtures": [
@@ -26119,12 +26182,13 @@
    "id": "tests/test_coverage_eval_cli_edges.py::test_experiment_cli_prevents_audit_records_collision",
    "file": "tests/test_coverage_eval_cli_edges.py",
    "name": "test_experiment_cli_prevents_audit_records_collision",
-   "line": 299,
+   "line": 300,
    "docstring": "",
    "parametrized": false,
    "fixtures": [
     "tmp_path",
-    "capsys"
+    "capsys",
+    "monkeypatch"
    ],
    "assertions": 2,
    "assert_forms": {
@@ -26132,37 +26196,25 @@
     "membership": 1
    },
    "raises_checks": 1,
-   "uses": [],
-   "quality_flags": [],
+   "uses": [
+    "monkeypatch"
+   ],
+   "quality_flags": [
+    "patches_dependencies"
+   ],
    "claims": "experiment cli prevents audit records collision",
-   "execution_outcome": "failed",
+   "execution_outcome": "passed",
    "exercises": [
     "capstone.console:safe_console",
     "capstone.experiment:add_manual_options",
     "capstone.experiment:grid",
     "capstone.experiment:main",
-    "capstone.experiment:open_manual",
-    "capstone.experiment:seeds_from",
-    "capstone.manual.index:open_manual_index",
-    "capstone.manual.index:ready_index",
-    "capstone.manual.index:ready_manual_index",
-    "capstone.manual.sections:check_no_leaks",
-    "capstone.manual.sections:load_manual",
-    "capstone.manual.sections:parse_manual",
-    "capstone.providers.chat:ModelError.__init__",
-    "capstone.providers.embeddings:embedders_for",
-    "capstone.settings:Settings.blank_is_missing",
-    "capstone.settings:get_settings"
+    "capstone.experiment:seeds_from"
    ],
-   "exercise_count": 16,
+   "exercise_count": 5,
    "modules_exercised": [
     "capstone.console",
-    "capstone.experiment",
-    "capstone.manual.index",
-    "capstone.manual.sections",
-    "capstone.providers.chat",
-    "capstone.providers.embeddings",
-    "capstone.settings"
+    "capstone.experiment"
    ],
    "judgment": "NOT ASSESSED",
    "curated": {},
@@ -26176,7 +26228,7 @@
    "id": "tests/test_coverage_eval_cli_edges.py::test_experiment_cli_does_not_hide_provider_failures_and_interrupts",
    "file": "tests/test_coverage_eval_cli_edges.py",
    "name": "test_experiment_cli_does_not_hide_provider_failures_and_interrupts",
-   "line": 325,
+   "line": 327,
    "docstring": "",
    "parametrized": true,
    "fixtures": [
@@ -26194,32 +26246,16 @@
     "patches_dependencies"
    ],
    "claims": "experiment cli does not hide provider failures and interrupts",
-   "execution_outcome": "failed",
+   "execution_outcome": "passed",
    "exercises": [
     "capstone.console:safe_console",
     "capstone.experiment:add_manual_options",
-    "capstone.experiment:main",
-    "capstone.experiment:open_manual",
-    "capstone.manual.index:open_manual_index",
-    "capstone.manual.index:ready_index",
-    "capstone.manual.index:ready_manual_index",
-    "capstone.manual.sections:check_no_leaks",
-    "capstone.manual.sections:load_manual",
-    "capstone.manual.sections:parse_manual",
-    "capstone.providers.chat:ModelError.__init__",
-    "capstone.providers.embeddings:embedders_for",
-    "capstone.settings:Settings.blank_is_missing",
-    "capstone.settings:get_settings"
+    "capstone.experiment:main"
    ],
-   "exercise_count": 14,
+   "exercise_count": 3,
    "modules_exercised": [
     "capstone.console",
-    "capstone.experiment",
-    "capstone.manual.index",
-    "capstone.manual.sections",
-    "capstone.providers.chat",
-    "capstone.providers.embeddings",
-    "capstone.settings"
+    "capstone.experiment"
    ],
    "judgment": "NOT ASSESSED",
    "curated": {},
@@ -26233,7 +26269,7 @@
    "id": "tests/test_coverage_eval_cli_edges.py::test_experiment_cli_label_skips_missing_conclusions_and_existing_answers",
    "file": "tests/test_coverage_eval_cli_edges.py",
    "name": "test_experiment_cli_label_skips_missing_conclusions_and_existing_answers",
-   "line": 358,
+   "line": 361,
    "docstring": "",
    "parametrized": false,
    "fixtures": [
@@ -26691,6 +26727,288 @@
    "exercise_count": 1,
    "modules_exercised": [
     "capstone.manual.index"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_coverage_reference_edges.py::test_review_refuses_conflicting_states_for_one_internal_item",
+   "file": "tests/test_coverage_reference_edges.py",
+   "name": "test_review_refuses_conflicting_states_for_one_internal_item",
+   "line": 48,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [
+    "tmp_path"
+   ],
+   "assertions": 0,
+   "assert_forms": {},
+   "raises_checks": 1,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "review refuses conflicting states for one internal item",
+   "execution_outcome": "passed",
+   "exercises": [
+    "evaluation.evaltools.reference_review:export_requests"
+   ],
+   "exercise_count": 1,
+   "modules_exercised": [
+    "evaluation.evaltools.reference_review"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_coverage_reference_edges.py::test_review_refuses_untrusted_strata_metadata",
+   "file": "tests/test_coverage_reference_edges.py",
+   "name": "test_review_refuses_untrusted_strata_metadata",
+   "line": 64,
+   "docstring": "",
+   "parametrized": true,
+   "fixtures": [
+    "tmp_path",
+    "strata",
+    "message"
+   ],
+   "assertions": 0,
+   "assert_forms": {},
+   "raises_checks": 1,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "review refuses untrusted strata metadata",
+   "execution_outcome": "passed",
+   "exercises": [
+    "evaluation.evaltools.reference_review:export_requests"
+   ],
+   "exercise_count": 1,
+   "modules_exercised": [
+    "evaluation.evaltools.reference_review"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_coverage_reference_edges.py::test_review_requires_enough_slots_for_stratification",
+   "file": "tests/test_coverage_reference_edges.py",
+   "name": "test_review_requires_enough_slots_for_stratification",
+   "line": 75,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [
+    "tmp_path"
+   ],
+   "assertions": 0,
+   "assert_forms": {},
+   "raises_checks": 1,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "review requires enough slots for stratification",
+   "execution_outcome": "passed",
+   "exercises": [
+    "evaluation.evaltools.reference_review:export_requests",
+    "evaluation.evaltools.reference_review:review_id"
+   ],
+   "exercise_count": 2,
+   "modules_exercised": [
+    "evaluation.evaltools.reference_review"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_coverage_reference_edges.py::test_review_does_not_silently_reuse_a_blinded_id",
+   "file": "tests/test_coverage_reference_edges.py",
+   "name": "test_review_does_not_silently_reuse_a_blinded_id",
+   "line": 86,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [
+    "tmp_path",
+    "monkeypatch"
+   ],
+   "assertions": 0,
+   "assert_forms": {},
+   "raises_checks": 1,
+   "uses": [
+    "monkeypatch"
+   ],
+   "quality_flags": [
+    "patches_dependencies"
+   ],
+   "claims": "review does not silently reuse a blinded id",
+   "execution_outcome": "passed",
+   "exercises": [
+    "evaluation.evaltools.reference_review:export_requests"
+   ],
+   "exercise_count": 1,
+   "modules_exercised": [
+    "evaluation.evaltools.reference_review"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_coverage_reference_edges.py::test_reference_import_refuses_invalid_answers",
+   "file": "tests/test_coverage_reference_edges.py",
+   "name": "test_reference_import_refuses_invalid_answers",
+   "line": 107,
+   "docstring": "",
+   "parametrized": true,
+   "fixtures": [
+    "tmp_path",
+    "answers",
+    "reason"
+   ],
+   "assertions": 1,
+   "assert_forms": {
+    "negation": 1
+   },
+   "raises_checks": 1,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "reference import refuses invalid answers",
+   "execution_outcome": "passed",
+   "exercises": [
+    "evaluation.evaltools.reference_review:export_requests",
+    "evaluation.evaltools.reference_review:import_review",
+    "evaluation.evaltools.reference_review:review_id"
+   ],
+   "exercise_count": 3,
+   "modules_exercised": [
+    "evaluation.evaltools.reference_review"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_coverage_reference_edges.py::test_reference_import_rejects_unknown_blinded_identity",
+   "file": "tests/test_coverage_reference_edges.py",
+   "name": "test_reference_import_rejects_unknown_blinded_identity",
+   "line": 121,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [
+    "tmp_path"
+   ],
+   "assertions": 0,
+   "assert_forms": {},
+   "raises_checks": 1,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "reference import rejects unknown blinded identity",
+   "execution_outcome": "passed",
+   "exercises": [
+    "evaluation.evaltools.reference_review:export_requests",
+    "evaluation.evaltools.reference_review:import_review",
+    "evaluation.evaltools.reference_review:review_id"
+   ],
+   "exercise_count": 3,
+   "modules_exercised": [
+    "evaluation.evaltools.reference_review"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_coverage_reference_edges.py::test_reference_cli_fails_before_exporting_negative_limits",
+   "file": "tests/test_coverage_reference_edges.py",
+   "name": "test_reference_cli_fails_before_exporting_negative_limits",
+   "line": 131,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [
+    "tmp_path"
+   ],
+   "assertions": 2,
+   "assert_forms": {
+    "equality": 1,
+    "negation": 1
+   },
+   "raises_checks": 1,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "reference cli fails before exporting negative limits",
+   "execution_outcome": "passed",
+   "exercises": [
+    "evaluation.evaltools.reference_review:main"
+   ],
+   "exercise_count": 1,
+   "modules_exercised": [
+    "evaluation.evaltools.reference_review"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_coverage_reference_edges.py::test_reference_cli_exports_and_imports_without_exposing_case_ids",
+   "file": "tests/test_coverage_reference_edges.py",
+   "name": "test_reference_cli_exports_and_imports_without_exposing_case_ids",
+   "line": 142,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [
+    "tmp_path",
+    "capsys"
+   ],
+   "assertions": 4,
+   "assert_forms": {
+    "equality": 3,
+    "membership": 1
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "reference cli exports and imports without exposing case ids",
+   "execution_outcome": "passed",
+   "exercises": [
+    "evaluation.evaltools.reference_review:export_requests",
+    "evaluation.evaltools.reference_review:import_review",
+    "evaluation.evaltools.reference_review:main",
+    "evaluation.evaltools.reference_review:review_id"
+   ],
+   "exercise_count": 4,
+   "modules_exercised": [
+    "evaluation.evaltools.reference_review"
    ],
    "judgment": "NOT ASSESSED",
    "curated": {},
@@ -39850,7 +40168,7 @@
     "may_skip"
    ],
    "claims": "Incomplete function packets keep FN-02/03 unknown, without a model call.",
-   "execution_outcome": "failed",
+   "execution_outcome": "passed",
    "exercises": [
     "evaluation.evaltools.decision_models:estimate_tokens",
     "evaluation.evaltools.snap_request:DecisionQuestion.criteria_fit_type",
