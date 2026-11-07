@@ -21809,12 +21809,14 @@
     "capstone.ingestion.channel_map:parse_probe",
     "capstone.ingestion.channel_map:probe_hash",
     "capstone.ingestion.mtconnect:_child",
-    "capstone.ingestion.mtconnect:_local"
+    "capstone.ingestion.mtconnect:_local",
+    "capstone.ingestion.record:CollectorMarker.gap_detail_only_on_a_gap"
    ],
-   "exercise_count": 11,
+   "exercise_count": 12,
    "modules_exercised": [
     "capstone.ingestion.channel_map",
-    "capstone.ingestion.mtconnect"
+    "capstone.ingestion.mtconnect",
+    "capstone.ingestion.record"
    ],
    "judgment": "NOT ASSESSED",
    "curated": {},
@@ -24975,12 +24977,14 @@
    "claims": "a clean stop is never called silent",
    "execution_outcome": "passed",
    "exercises": [
+    "capstone.ingestion.record:CollectorMarker.gap_detail_only_on_a_gap",
     "capstone.watchdog.watchdog:Watchdog.__init__",
     "capstone.watchdog.watchdog:Watchdog.check",
     "capstone.watchdog.watchdog:line_time"
    ],
-   "exercise_count": 3,
+   "exercise_count": 4,
    "modules_exercised": [
+    "capstone.ingestion.record",
     "capstone.watchdog.watchdog"
    ],
    "judgment": "NOT ASSESSED",
@@ -25011,13 +25015,15 @@
    "claims": "a stop after an alert closes it",
    "execution_outcome": "passed",
    "exercises": [
+    "capstone.ingestion.record:CollectorMarker.gap_detail_only_on_a_gap",
     "capstone.watchdog.watchdog:Watchdog.__init__",
     "capstone.watchdog.watchdog:Watchdog._alert",
     "capstone.watchdog.watchdog:Watchdog.check",
     "capstone.watchdog.watchdog:line_time"
    ],
-   "exercise_count": 4,
+   "exercise_count": 5,
    "modules_exercised": [
+    "capstone.ingestion.record",
     "capstone.watchdog.watchdog"
    ],
    "judgment": "NOT ASSESSED",
@@ -25048,12 +25054,14 @@
    "claims": "heartbeats keep a quiet machine from looking dead",
    "execution_outcome": "passed",
    "exercises": [
+    "capstone.ingestion.record:CollectorMarker.gap_detail_only_on_a_gap",
     "capstone.watchdog.watchdog:Watchdog.__init__",
     "capstone.watchdog.watchdog:Watchdog.check",
     "capstone.watchdog.watchdog:line_time"
    ],
-   "exercise_count": 3,
+   "exercise_count": 4,
    "modules_exercised": [
+    "capstone.ingestion.record",
     "capstone.watchdog.watchdog"
    ],
    "judgment": "NOT ASSESSED",
@@ -25159,6 +25167,7 @@
    "claims": "command line reports a dead collector",
    "execution_outcome": "passed",
    "exercises": [
+    "capstone.ingestion.record:CollectorMarker.gap_detail_only_on_a_gap",
     "capstone.ingestion.record:parse_line",
     "capstone.watchdog.__main__:main",
     "capstone.watchdog.__main__:report",
@@ -25168,7 +25177,7 @@
     "capstone.watchdog.watchdog:last_line",
     "capstone.watchdog.watchdog:line_time"
    ],
-   "exercise_count": 8,
+   "exercise_count": 9,
    "modules_exercised": [
     "capstone.ingestion.record",
     "capstone.watchdog.__main__",
@@ -25205,6 +25214,7 @@
     "capstone.ingestion.collector:MTConnectCollector.__init__",
     "capstone.ingestion.collector:MTConnectCollector._url",
     "capstone.ingestion.collector:MTConnectCollector.poll",
+    "capstone.ingestion.collector:PollResult.gap",
     "capstone.ingestion.collector:_marker",
     "capstone.ingestion.collector:append_jsonl",
     "capstone.ingestion.collector:run_collector",
@@ -25212,9 +25222,10 @@
     "capstone.ingestion.mtconnect:_local",
     "capstone.ingestion.mtconnect:parse_streams",
     "capstone.ingestion.mtconnect:raise_if_error",
+    "capstone.ingestion.record:CollectorMarker.gap_detail_only_on_a_gap",
     "capstone.ingestion.record:parse_line"
    ],
-   "exercise_count": 11,
+   "exercise_count": 13,
    "modules_exercised": [
     "capstone.ingestion.collector",
     "capstone.ingestion.mtconnect",
@@ -25256,9 +25267,10 @@
     "capstone.ingestion.collector:_marker",
     "capstone.ingestion.collector:append_jsonl",
     "capstone.ingestion.collector:run_collector",
+    "capstone.ingestion.record:CollectorMarker.gap_detail_only_on_a_gap",
     "capstone.ingestion.record:parse_line"
    ],
-   "exercise_count": 7,
+   "exercise_count": 8,
    "modules_exercised": [
     "capstone.ingestion.collector",
     "capstone.ingestion.record"
@@ -25289,6 +25301,7 @@
    "claims": "the monitor counts a heartbeat as contact",
    "execution_outcome": "passed",
    "exercises": [
+    "capstone.ingestion.record:CollectorMarker.gap_detail_only_on_a_gap",
     "capstone.ingestion.record:TelemetryRecord.number",
     "capstone.monitoring.monitor:Monitor.__init__",
     "capstone.monitoring.monitor:Monitor._availability",
@@ -25302,7 +25315,7 @@
     "capstone.monitoring.monitor:Monitor.observe_marker",
     "capstone.monitoring.runner:replay"
    ],
-   "exercise_count": 12,
+   "exercise_count": 13,
    "modules_exercised": [
     "capstone.ingestion.record",
     "capstone.monitoring.monitor",
@@ -70611,6 +70624,7 @@
     "capstone.ingestion.collector:MTConnectCollector.__init__",
     "capstone.ingestion.collector:MTConnectCollector._url",
     "capstone.ingestion.collector:MTConnectCollector.poll",
+    "capstone.ingestion.collector:PollResult.gap",
     "capstone.ingestion.mtconnect:_child",
     "capstone.ingestion.mtconnect:_local",
     "capstone.ingestion.mtconnect:_record",
@@ -70618,7 +70632,7 @@
     "capstone.ingestion.mtconnect:parse_streams",
     "capstone.ingestion.mtconnect:raise_if_error"
    ],
-   "exercise_count": 9,
+   "exercise_count": 10,
    "modules_exercised": [
     "capstone.ingestion.collector",
     "capstone.ingestion.mtconnect"
@@ -70653,13 +70667,14 @@
     "capstone.ingestion.collector:MTConnectCollector.__init__",
     "capstone.ingestion.collector:MTConnectCollector._url",
     "capstone.ingestion.collector:MTConnectCollector.poll",
+    "capstone.ingestion.collector:PollResult.gap",
     "capstone.ingestion.mtconnect:MTConnectError.__init__",
     "capstone.ingestion.mtconnect:_child",
     "capstone.ingestion.mtconnect:_local",
     "capstone.ingestion.mtconnect:parse_streams",
     "capstone.ingestion.mtconnect:raise_if_error"
    ],
-   "exercise_count": 8,
+   "exercise_count": 9,
    "modules_exercised": [
     "capstone.ingestion.collector",
     "capstone.ingestion.mtconnect"
@@ -70693,12 +70708,13 @@
     "capstone.ingestion.collector:MTConnectCollector.__init__",
     "capstone.ingestion.collector:MTConnectCollector._url",
     "capstone.ingestion.collector:MTConnectCollector.poll",
+    "capstone.ingestion.collector:PollResult.gap",
     "capstone.ingestion.mtconnect:_child",
     "capstone.ingestion.mtconnect:_local",
     "capstone.ingestion.mtconnect:parse_streams",
     "capstone.ingestion.mtconnect:raise_if_error"
    ],
-   "exercise_count": 7,
+   "exercise_count": 8,
    "modules_exercised": [
     "capstone.ingestion.collector",
     "capstone.ingestion.mtconnect"
@@ -70733,6 +70749,7 @@
     "capstone.ingestion.collector:MTConnectCollector.__init__",
     "capstone.ingestion.collector:MTConnectCollector._url",
     "capstone.ingestion.collector:MTConnectCollector.poll",
+    "capstone.ingestion.collector:PollResult.gap",
     "capstone.ingestion.mtconnect:_child",
     "capstone.ingestion.mtconnect:_local",
     "capstone.ingestion.mtconnect:_record",
@@ -70740,7 +70757,7 @@
     "capstone.ingestion.mtconnect:parse_streams",
     "capstone.ingestion.mtconnect:raise_if_error"
    ],
-   "exercise_count": 9,
+   "exercise_count": 10,
    "modules_exercised": [
     "capstone.ingestion.collector",
     "capstone.ingestion.mtconnect"
@@ -70815,6 +70832,7 @@
     "capstone.ingestion.collector:MTConnectCollector.__init__",
     "capstone.ingestion.collector:MTConnectCollector._url",
     "capstone.ingestion.collector:MTConnectCollector.poll",
+    "capstone.ingestion.collector:PollResult.gap",
     "capstone.ingestion.collector:_marker",
     "capstone.ingestion.collector:append_jsonl",
     "capstone.ingestion.collector:run_collector",
@@ -70824,9 +70842,10 @@
     "capstone.ingestion.mtconnect:_value",
     "capstone.ingestion.mtconnect:parse_streams",
     "capstone.ingestion.mtconnect:raise_if_error",
+    "capstone.ingestion.record:CollectorMarker.gap_detail_only_on_a_gap",
     "capstone.ingestion.record:parse_line"
    ],
-   "exercise_count": 13,
+   "exercise_count": 15,
    "modules_exercised": [
     "capstone.ingestion.collector",
     "capstone.ingestion.mtconnect",
@@ -70944,9 +70963,10 @@
     "capstone.ingestion.mtconnect:_value",
     "capstone.ingestion.mtconnect:parse_streams",
     "capstone.ingestion.mtconnect:raise_if_error",
+    "capstone.ingestion.record:CollectorMarker.gap_detail_only_on_a_gap",
     "capstone.ingestion.record:parse_line"
    ],
-   "exercise_count": 13,
+   "exercise_count": 14,
    "modules_exercised": [
     "capstone.ingestion.collector",
     "capstone.ingestion.mtconnect",
@@ -70986,9 +71006,10 @@
     "capstone.ingestion.collector:_marker",
     "capstone.ingestion.collector:append_jsonl",
     "capstone.ingestion.collector:run_collector",
+    "capstone.ingestion.record:CollectorMarker.gap_detail_only_on_a_gap",
     "capstone.ingestion.record:parse_line"
    ],
-   "exercise_count": 7,
+   "exercise_count": 8,
    "modules_exercised": [
     "capstone.ingestion.collector",
     "capstone.ingestion.record"
@@ -71183,6 +71204,337 @@
     "capstone.ingestion.privacy",
     "capstone.monitoring.__main__",
     "capstone.watchdog.__main__"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_mtconnect_ingestion.py::test_a_buffer_overrun_names_the_exact_sequences_lost",
+   "file": "tests/test_mtconnect_ingestion.py",
+   "name": "test_a_buffer_overrun_names_the_exact_sequences_lost",
+   "line": 406,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 4,
+   "assert_forms": {
+    "equality": 3,
+    "truthiness": 1
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "a buffer overrun names the exact sequences lost",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.ingestion.collector:MTConnectCollector.__init__",
+    "capstone.ingestion.collector:MTConnectCollector._url",
+    "capstone.ingestion.collector:MTConnectCollector.poll",
+    "capstone.ingestion.mtconnect:_child",
+    "capstone.ingestion.mtconnect:_local",
+    "capstone.ingestion.mtconnect:_record",
+    "capstone.ingestion.mtconnect:_value",
+    "capstone.ingestion.mtconnect:parse_streams",
+    "capstone.ingestion.mtconnect:raise_if_error"
+   ],
+   "exercise_count": 9,
+   "modules_exercised": [
+    "capstone.ingestion.collector",
+    "capstone.ingestion.mtconnect"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_mtconnect_ingestion.py::test_out_of_range_knows_where_the_loss_starts_but_not_where_it_ends",
+   "file": "tests/test_mtconnect_ingestion.py",
+   "name": "test_out_of_range_knows_where_the_loss_starts_but_not_where_it_ends",
+   "line": 421,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 3,
+   "assert_forms": {
+    "equality": 2,
+    "truthiness": 1
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "out of range knows where the loss starts but not where it ends",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.ingestion.collector:MTConnectCollector.__init__",
+    "capstone.ingestion.collector:MTConnectCollector._url",
+    "capstone.ingestion.collector:MTConnectCollector.poll",
+    "capstone.ingestion.mtconnect:MTConnectError.__init__",
+    "capstone.ingestion.mtconnect:_child",
+    "capstone.ingestion.mtconnect:_local",
+    "capstone.ingestion.mtconnect:_record",
+    "capstone.ingestion.mtconnect:_value",
+    "capstone.ingestion.mtconnect:parse_streams",
+    "capstone.ingestion.mtconnect:raise_if_error"
+   ],
+   "exercise_count": 10,
+   "modules_exercised": [
+    "capstone.ingestion.collector",
+    "capstone.ingestion.mtconnect"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_mtconnect_ingestion.py::test_an_agent_restart_names_both_runs_and_no_sequences",
+   "file": "tests/test_mtconnect_ingestion.py",
+   "name": "test_an_agent_restart_names_both_runs_and_no_sequences",
+   "line": 431,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 4,
+   "assert_forms": {
+    "equality": 2,
+    "is_none": 1,
+    "truthiness": 1
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "an agent restart names both runs and no sequences",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.ingestion.collector:MTConnectCollector.__init__",
+    "capstone.ingestion.collector:MTConnectCollector._url",
+    "capstone.ingestion.collector:MTConnectCollector.poll",
+    "capstone.ingestion.mtconnect:_child",
+    "capstone.ingestion.mtconnect:_local",
+    "capstone.ingestion.mtconnect:_record",
+    "capstone.ingestion.mtconnect:_value",
+    "capstone.ingestion.mtconnect:parse_streams",
+    "capstone.ingestion.mtconnect:raise_if_error"
+   ],
+   "exercise_count": 9,
+   "modules_exercised": [
+    "capstone.ingestion.collector",
+    "capstone.ingestion.mtconnect"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_mtconnect_ingestion.py::test_the_gap_marker_is_written_between_the_readings_it_separates",
+   "file": "tests/test_mtconnect_ingestion.py",
+   "name": "test_the_gap_marker_is_written_between_the_readings_it_separates",
+   "line": 445,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [
+    "tmp_path"
+   ],
+   "assertions": 3,
+   "assert_forms": {
+    "equality": 2,
+    "membership": 1
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "the gap marker is written between the readings it separates",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.ingestion.collector:MTConnectCollector.__init__",
+    "capstone.ingestion.collector:MTConnectCollector._url",
+    "capstone.ingestion.collector:MTConnectCollector.poll",
+    "capstone.ingestion.collector:_marker",
+    "capstone.ingestion.collector:append_jsonl",
+    "capstone.ingestion.collector:run_collector",
+    "capstone.ingestion.mtconnect:_child",
+    "capstone.ingestion.mtconnect:_local",
+    "capstone.ingestion.mtconnect:_record",
+    "capstone.ingestion.mtconnect:_value",
+    "capstone.ingestion.mtconnect:parse_streams",
+    "capstone.ingestion.mtconnect:raise_if_error",
+    "capstone.ingestion.record:CollectorMarker.gap_detail_only_on_a_gap",
+    "capstone.ingestion.record:parse_line"
+   ],
+   "exercise_count": 14,
+   "modules_exercised": [
+    "capstone.ingestion.collector",
+    "capstone.ingestion.mtconnect",
+    "capstone.ingestion.record"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_mtconnect_ingestion.py::test_a_failed_poll_alone_writes_no_gap",
+   "file": "tests/test_mtconnect_ingestion.py",
+   "name": "test_a_failed_poll_alone_writes_no_gap",
+   "line": 470,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [
+    "tmp_path"
+   ],
+   "assertions": 1,
+   "assert_forms": {
+    "equality": 1
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "a failed poll alone writes no gap",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.ingestion.collector:MTConnectCollector.__init__",
+    "capstone.ingestion.collector:MTConnectCollector._url",
+    "capstone.ingestion.collector:MTConnectCollector.poll",
+    "capstone.ingestion.collector:_marker",
+    "capstone.ingestion.collector:append_jsonl",
+    "capstone.ingestion.collector:run_collector",
+    "capstone.ingestion.mtconnect:_child",
+    "capstone.ingestion.mtconnect:_local",
+    "capstone.ingestion.mtconnect:_record",
+    "capstone.ingestion.mtconnect:_value",
+    "capstone.ingestion.mtconnect:parse_streams",
+    "capstone.ingestion.mtconnect:raise_if_error",
+    "capstone.ingestion.record:CollectorMarker.gap_detail_only_on_a_gap",
+    "capstone.ingestion.record:parse_line"
+   ],
+   "exercise_count": 14,
+   "modules_exercised": [
+    "capstone.ingestion.collector",
+    "capstone.ingestion.mtconnect",
+    "capstone.ingestion.record"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_mtconnect_ingestion.py::test_gap_detail_belongs_only_on_a_gap_marker",
+   "file": "tests/test_mtconnect_ingestion.py",
+   "name": "test_gap_detail_belongs_only_on_a_gap_marker",
+   "line": 488,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 0,
+   "assert_forms": {},
+   "raises_checks": 2,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "gap detail belongs only on a gap marker",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.ingestion.record:CollectorMarker.gap_detail_only_on_a_gap"
+   ],
+   "exercise_count": 1,
+   "modules_exercised": [
+    "capstone.ingestion.record"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_mtconnect_ingestion.py::test_version_1_markers_written_before_gaps_existed_still_read",
+   "file": "tests/test_mtconnect_ingestion.py",
+   "name": "test_version_1_markers_written_before_gaps_existed_still_read",
+   "line": 501,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 2,
+   "assert_forms": {
+    "call_truthiness": 1,
+    "equality": 1
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "version 1 markers written before gaps existed still read",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.ingestion.record:CollectorMarker.gap_detail_only_on_a_gap",
+    "capstone.ingestion.record:parse_line"
+   ],
+   "exercise_count": 2,
+   "modules_exercised": [
+    "capstone.ingestion.record"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_mtconnect_ingestion.py::test_gap_free_runs_never_join_readings_across_a_gap_or_a_restart",
+   "file": "tests/test_mtconnect_ingestion.py",
+   "name": "test_gap_free_runs_never_join_readings_across_a_gap_or_a_restart",
+   "line": 515,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 1,
+   "assert_forms": {
+    "equality": 1
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "gap free runs never join readings across a gap or a restart",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.ingestion.mtconnect:_child",
+    "capstone.ingestion.mtconnect:_local",
+    "capstone.ingestion.mtconnect:_record",
+    "capstone.ingestion.mtconnect:_value",
+    "capstone.ingestion.mtconnect:parse_streams",
+    "capstone.ingestion.mtconnect:raise_if_error",
+    "capstone.ingestion.record:CollectorMarker.gap_detail_only_on_a_gap",
+    "capstone.ingestion.record:gap_free_runs"
+   ],
+   "exercise_count": 8,
+   "modules_exercised": [
+    "capstone.ingestion.mtconnect",
+    "capstone.ingestion.record"
    ],
    "judgment": "NOT ASSESSED",
    "curated": {},
@@ -87695,6 +88047,7 @@
    "claims": "a clean stop and later start is not stale",
    "execution_outcome": "passed",
    "exercises": [
+    "capstone.ingestion.record:CollectorMarker.gap_detail_only_on_a_gap",
     "capstone.ingestion.record:TelemetryRecord.number",
     "capstone.monitoring.monitor:Monitor.__init__",
     "capstone.monitoring.monitor:Monitor._availability",
@@ -87708,7 +88061,7 @@
     "capstone.monitoring.monitor:Monitor.observe_marker",
     "capstone.monitoring.runner:replay"
    ],
-   "exercise_count": 12,
+   "exercise_count": 13,
    "modules_exercised": [
     "capstone.ingestion.record",
     "capstone.monitoring.monitor",
@@ -87741,6 +88094,7 @@
    "claims": "a start without a clean stop warns of a crash",
    "execution_outcome": "passed",
    "exercises": [
+    "capstone.ingestion.record:CollectorMarker.gap_detail_only_on_a_gap",
     "capstone.ingestion.record:TelemetryRecord.number",
     "capstone.monitoring.monitor:Monitor.__init__",
     "capstone.monitoring.monitor:Monitor._alert",
@@ -87756,7 +88110,7 @@
     "capstone.monitoring.monitor:Monitor.observe_marker",
     "capstone.monitoring.runner:replay"
    ],
-   "exercise_count": 14,
+   "exercise_count": 15,
    "modules_exercised": [
     "capstone.ingestion.record",
     "capstone.monitoring.monitor",
@@ -87788,6 +88142,7 @@
    "claims": "data without a start marker counts as a running collector",
    "execution_outcome": "passed",
    "exercises": [
+    "capstone.ingestion.record:CollectorMarker.gap_detail_only_on_a_gap",
     "capstone.ingestion.record:TelemetryRecord.number",
     "capstone.monitoring.monitor:Monitor.__init__",
     "capstone.monitoring.monitor:Monitor._availability",
@@ -87801,7 +88156,7 @@
     "capstone.monitoring.monitor:Monitor.observe_marker",
     "capstone.monitoring.runner:replay"
    ],
-   "exercise_count": 12,
+   "exercise_count": 13,
    "modules_exercised": [
     "capstone.ingestion.record",
     "capstone.monitoring.monitor",
@@ -87835,13 +88190,104 @@
    "claims": "follower reads markers and observations",
    "execution_outcome": "passed",
    "exercises": [
+    "capstone.ingestion.record:CollectorMarker.gap_detail_only_on_a_gap",
     "capstone.ingestion.record:parse_line",
     "capstone.monitoring.runner:JsonlFollower.__init__",
     "capstone.monitoring.runner:JsonlFollower.read_new"
    ],
-   "exercise_count": 3,
+   "exercise_count": 4,
    "modules_exercised": [
     "capstone.ingestion.record",
+    "capstone.monitoring.runner"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_telemetry_monitor.py::test_a_gap_is_a_data_loss_warning_not_a_crash",
+   "file": "tests/test_telemetry_monitor.py",
+   "name": "test_a_gap_is_a_data_loss_warning_not_a_crash",
+   "line": 302,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 3,
+   "assert_forms": {
+    "equality": 1,
+    "membership": 2
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "a gap is a data loss warning not a crash",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.ingestion.record:CollectorMarker.gap_detail_only_on_a_gap",
+    "capstone.ingestion.record:TelemetryRecord.number",
+    "capstone.monitoring.monitor:Monitor.__init__",
+    "capstone.monitoring.monitor:Monitor._alert",
+    "capstone.monitoring.monitor:Monitor._availability",
+    "capstone.monitoring.monitor:Monitor._collector",
+    "capstone.monitoring.monitor:Monitor._device_back",
+    "capstone.monitoring.monitor:Monitor._end",
+    "capstone.monitoring.monitor:Monitor._start",
+    "capstone.monitoring.monitor:Monitor._status",
+    "capstone.monitoring.monitor:Monitor._threshold",
+    "capstone.monitoring.monitor:Monitor.check_stale",
+    "capstone.monitoring.monitor:Monitor.observe",
+    "capstone.monitoring.monitor:Monitor.observe_marker",
+    "capstone.monitoring.monitor:_gap_message",
+    "capstone.monitoring.runner:replay"
+   ],
+   "exercise_count": 16,
+   "modules_exercised": [
+    "capstone.ingestion.record",
+    "capstone.monitoring.monitor",
+    "capstone.monitoring.runner"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_telemetry_monitor.py::test_a_gap_with_unknown_bounds_says_only_what_is_known",
+   "file": "tests/test_telemetry_monitor.py",
+   "name": "test_a_gap_with_unknown_bounds_says_only_what_is_known",
+   "line": 334,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 2,
+   "assert_forms": {
+    "equality": 2
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "a gap with unknown bounds says only what is known",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.ingestion.record:CollectorMarker.gap_detail_only_on_a_gap",
+    "capstone.monitoring.monitor:Monitor.__init__",
+    "capstone.monitoring.monitor:Monitor._collector",
+    "capstone.monitoring.monitor:Monitor.check_stale",
+    "capstone.monitoring.monitor:Monitor.observe_marker",
+    "capstone.monitoring.monitor:_gap_message",
+    "capstone.monitoring.runner:replay"
+   ],
+   "exercise_count": 7,
+   "modules_exercised": [
+    "capstone.ingestion.record",
+    "capstone.monitoring.monitor",
     "capstone.monitoring.runner"
    ],
    "judgment": "NOT ASSESSED",
@@ -96380,6 +96826,493 @@
     "capstone.providers.chat",
     "capstone.providers.typesafe",
     "capstone.settings"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_visit_log.py::test_a_log_is_read_in_time_order_with_a_blank_until_left_empty",
+   "file": "tests/test_visit_log.py",
+   "name": "test_a_log_is_read_in_time_order_with_a_blank_until_left_empty",
+   "line": 89,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [
+    "tmp_path"
+   ],
+   "assertions": 4,
+   "assert_forms": {
+    "equality": 3,
+    "is_none": 1
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "a log is read in time order with a blank until left empty",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.ingestion.visit_log:TechnicianEvent.ends_after_it_starts",
+    "capstone.ingestion.visit_log:TechnicianEvent.has_a_time_zone",
+    "capstone.ingestion.visit_log:load_event_log"
+   ],
+   "exercise_count": 3,
+   "modules_exercised": [
+    "capstone.ingestion.visit_log"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_visit_log.py::test_a_time_without_its_utc_offset_is_refused_not_guessed",
+   "file": "tests/test_visit_log.py",
+   "name": "test_a_time_without_its_utc_offset_is_refused_not_guessed",
+   "line": 99,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [
+    "tmp_path"
+   ],
+   "assertions": 0,
+   "assert_forms": {},
+   "raises_checks": 1,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "a time without its utc offset is refused not guessed",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.ingestion.visit_log:TechnicianEvent.has_a_time_zone",
+    "capstone.ingestion.visit_log:load_event_log"
+   ],
+   "exercise_count": 2,
+   "modules_exercised": [
+    "capstone.ingestion.visit_log"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_visit_log.py::test_a_bad_entry_is_refused_with_its_line_number",
+   "file": "tests/test_visit_log.py",
+   "name": "test_a_bad_entry_is_refused_with_its_line_number",
+   "line": 113,
+   "docstring": "",
+   "parametrized": true,
+   "fixtures": [
+    "tmp_path",
+    "row",
+    "problem"
+   ],
+   "assertions": 0,
+   "assert_forms": {},
+   "raises_checks": 1,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "a bad entry is refused with its line number",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.ingestion.visit_log:TechnicianEvent.ends_after_it_starts",
+    "capstone.ingestion.visit_log:TechnicianEvent.has_a_time_zone",
+    "capstone.ingestion.visit_log:load_event_log"
+   ],
+   "exercise_count": 3,
+   "modules_exercised": [
+    "capstone.ingestion.visit_log"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_visit_log.py::test_a_header_missing_a_column_is_refused",
+   "file": "tests/test_visit_log.py",
+   "name": "test_a_header_missing_a_column_is_refused",
+   "line": 119,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [
+    "tmp_path"
+   ],
+   "assertions": 0,
+   "assert_forms": {},
+   "raises_checks": 1,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "a header missing a column is refused",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.ingestion.visit_log:load_event_log"
+   ],
+   "exercise_count": 1,
+   "modules_exercised": [
+    "capstone.ingestion.visit_log"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_visit_log.py::test_each_entry_is_placed_in_collected_time_a_gap_or_outside",
+   "file": "tests/test_visit_log.py",
+   "name": "test_each_entry_is_placed_in_collected_time_a_gap_or_outside",
+   "line": 127,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 4,
+   "assert_forms": {
+    "equality": 4
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "each entry is placed in collected time a gap or outside",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.ingestion.record:CollectorMarker.gap_detail_only_on_a_gap",
+    "capstone.ingestion.record:gap_free_runs",
+    "capstone.ingestion.visit_log:TechnicianEvent.ends_after_it_starts",
+    "capstone.ingestion.visit_log:TechnicianEvent.has_a_time_zone",
+    "capstone.ingestion.visit_log:match_events"
+   ],
+   "exercise_count": 5,
+   "modules_exercised": [
+    "capstone.ingestion.record",
+    "capstone.ingestion.visit_log"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_visit_log.py::test_the_tolerance_allows_for_a_person_noting_the_time_late",
+   "file": "tests/test_visit_log.py",
+   "name": "test_the_tolerance_allows_for_a_person_noting_the_time_late",
+   "line": 143,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 2,
+   "assert_forms": {
+    "equality": 2
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "the tolerance allows for a person noting the time late",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.ingestion.record:CollectorMarker.gap_detail_only_on_a_gap",
+    "capstone.ingestion.record:gap_free_runs",
+    "capstone.ingestion.visit_log:TechnicianEvent.ends_after_it_starts",
+    "capstone.ingestion.visit_log:TechnicianEvent.has_a_time_zone",
+    "capstone.ingestion.visit_log:match_events"
+   ],
+   "exercise_count": 5,
+   "modules_exercised": [
+    "capstone.ingestion.record",
+    "capstone.ingestion.visit_log"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_visit_log.py::test_an_entry_against_an_empty_capture_is_outside",
+   "file": "tests/test_visit_log.py",
+   "name": "test_an_entry_against_an_empty_capture_is_outside",
+   "line": 150,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 2,
+   "assert_forms": {
+    "equality": 1,
+    "is_none": 1
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "an entry against an empty capture is outside",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.ingestion.record:CollectorMarker.gap_detail_only_on_a_gap",
+    "capstone.ingestion.record:gap_free_runs",
+    "capstone.ingestion.visit_log:TechnicianEvent.ends_after_it_starts",
+    "capstone.ingestion.visit_log:TechnicianEvent.has_a_time_zone",
+    "capstone.ingestion.visit_log:match_events"
+   ],
+   "exercise_count": 5,
+   "modules_exercised": [
+    "capstone.ingestion.record",
+    "capstone.ingestion.visit_log"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_visit_log.py::test_a_visit_with_probe_data_and_a_matched_log_is_ready",
+   "file": "tests/test_visit_log.py",
+   "name": "test_a_visit_with_probe_data_and_a_matched_log_is_ready",
+   "line": 159,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 6,
+   "assert_forms": {
+    "equality": 5,
+    "truthiness": 1
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "a visit with probe data and a matched log is ready",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.ingestion.channel_map:_devices",
+    "capstone.ingestion.channel_map:_walk",
+    "capstone.ingestion.channel_map:parse_probe",
+    "capstone.ingestion.mtconnect:_child",
+    "capstone.ingestion.mtconnect:_local",
+    "capstone.ingestion.record:CollectorMarker.gap_detail_only_on_a_gap",
+    "capstone.ingestion.record:gap_free_runs",
+    "capstone.ingestion.visit_log:TechnicianEvent.ends_after_it_starts",
+    "capstone.ingestion.visit_log:TechnicianEvent.has_a_time_zone",
+    "capstone.ingestion.visit_log:VisitCheck.ready",
+    "capstone.ingestion.visit_log:VisitCheck.unmatched",
+    "capstone.ingestion.visit_log:check_visit",
+    "capstone.ingestion.visit_log:match_events"
+   ],
+   "exercise_count": 13,
+   "modules_exercised": [
+    "capstone.ingestion.channel_map",
+    "capstone.ingestion.mtconnect",
+    "capstone.ingestion.record",
+    "capstone.ingestion.visit_log"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_visit_log.py::test_a_visit_is_not_ready_when_a_file_is_missing_or_an_entry_unmatched",
+   "file": "tests/test_visit_log.py",
+   "name": "test_a_visit_is_not_ready_when_a_file_is_missing_or_an_entry_unmatched",
+   "line": 178,
+   "docstring": "",
+   "parametrized": true,
+   "fixtures": [
+    "probe_xml",
+    "events",
+    "reason"
+   ],
+   "assertions": 1,
+   "assert_forms": {
+    "negation": 1
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "a visit is not ready when a file is missing or an entry unmatched",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.ingestion.channel_map:_devices",
+    "capstone.ingestion.channel_map:_walk",
+    "capstone.ingestion.channel_map:parse_probe",
+    "capstone.ingestion.mtconnect:_child",
+    "capstone.ingestion.mtconnect:_local",
+    "capstone.ingestion.record:CollectorMarker.gap_detail_only_on_a_gap",
+    "capstone.ingestion.record:gap_free_runs",
+    "capstone.ingestion.visit_log:TechnicianEvent.ends_after_it_starts",
+    "capstone.ingestion.visit_log:VisitCheck.ready",
+    "capstone.ingestion.visit_log:VisitCheck.unmatched",
+    "capstone.ingestion.visit_log:check_visit",
+    "capstone.ingestion.visit_log:match_events"
+   ],
+   "exercise_count": 12,
+   "modules_exercised": [
+    "capstone.ingestion.channel_map",
+    "capstone.ingestion.mtconnect",
+    "capstone.ingestion.record",
+    "capstone.ingestion.visit_log"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_visit_log.py::test_the_report_lists_unmatched_entries_and_the_items_to_confirm_by_hand",
+   "file": "tests/test_visit_log.py",
+   "name": "test_the_report_lists_unmatched_entries_and_the_items_to_confirm_by_hand",
+   "line": 184,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 4,
+   "assert_forms": {
+    "membership": 4
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "the report lists unmatched entries and the items to confirm by hand",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.ingestion.record:CollectorMarker.gap_detail_only_on_a_gap",
+    "capstone.ingestion.record:gap_free_runs",
+    "capstone.ingestion.visit_log:TechnicianEvent.ends_after_it_starts",
+    "capstone.ingestion.visit_log:TechnicianEvent.has_a_time_zone",
+    "capstone.ingestion.visit_log:VisitCheck.unmatched",
+    "capstone.ingestion.visit_log:check_visit",
+    "capstone.ingestion.visit_log:match_events",
+    "capstone.ingestion.visit_log:report_lines",
+    "capstone.ingestion.visit_log:report_lines.<locals>.mark"
+   ],
+   "exercise_count": 9,
+   "modules_exercised": [
+    "capstone.ingestion.record",
+    "capstone.ingestion.visit_log"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_visit_log.py::test_command_line_checks_a_visit",
+   "file": "tests/test_visit_log.py",
+   "name": "test_command_line_checks_a_visit",
+   "line": 197,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [
+    "tmp_path",
+    "capsys"
+   ],
+   "assertions": 5,
+   "assert_forms": {
+    "equality": 3,
+    "membership": 2
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "command line checks a visit",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.ingestion.channel_map:_devices",
+    "capstone.ingestion.channel_map:_walk",
+    "capstone.ingestion.channel_map:parse_probe",
+    "capstone.ingestion.channel_map:read_capture",
+    "capstone.ingestion.mtconnect:_child",
+    "capstone.ingestion.mtconnect:_local",
+    "capstone.ingestion.record:CollectorMarker.gap_detail_only_on_a_gap",
+    "capstone.ingestion.record:gap_free_runs",
+    "capstone.ingestion.record:parse_line",
+    "capstone.ingestion.visit_log:TechnicianEvent.ends_after_it_starts",
+    "capstone.ingestion.visit_log:TechnicianEvent.has_a_time_zone",
+    "capstone.ingestion.visit_log:VisitCheck.ready",
+    "capstone.ingestion.visit_log:VisitCheck.unmatched",
+    "capstone.ingestion.visit_log:check_visit",
+    "capstone.ingestion.visit_log:load_event_log",
+    "capstone.ingestion.visit_log:main",
+    "capstone.ingestion.visit_log:match_events",
+    "capstone.ingestion.visit_log:report_lines",
+    "capstone.ingestion.visit_log:report_lines.<locals>.mark"
+   ],
+   "exercise_count": 19,
+   "modules_exercised": [
+    "capstone.ingestion.channel_map",
+    "capstone.ingestion.mtconnect",
+    "capstone.ingestion.record",
+    "capstone.ingestion.visit_log"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_visit_log.py::test_command_line_writes_an_empty_log_outside_the_repository",
+   "file": "tests/test_visit_log.py",
+   "name": "test_command_line_writes_an_empty_log_outside_the_repository",
+   "line": 217,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [
+    "tmp_path",
+    "capsys"
+   ],
+   "assertions": 5,
+   "assert_forms": {
+    "equality": 3,
+    "membership": 1,
+    "negation": 1
+   },
+   "raises_checks": 2,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "command line writes an empty log outside the repository",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.ingestion.privacy:git_checkout_containing",
+    "capstone.ingestion.privacy:refusal",
+    "capstone.ingestion.visit_log:load_event_log",
+    "capstone.ingestion.visit_log:main"
+   ],
+   "exercise_count": 4,
+   "modules_exercised": [
+    "capstone.ingestion.privacy",
+    "capstone.ingestion.visit_log"
    ],
    "judgment": "NOT ASSESSED",
    "curated": {},
