@@ -39,10 +39,14 @@ def two_questions_per_step(monkeypatch):
 
 
 def slow_factory(now, seconds=40.0):
-    """A factory where every call takes `seconds` on the fake clock."""
+    """A factory where every call takes `seconds` on the fake clock.
+
+    The line screening is a local calculation, so it takes no time here.
+    """
 
     def respond(request):
-        now[0] += seconds
+        if request.name != "get_line_screening":
+            now[0] += seconds
         return {"ok": True}
 
     return respond

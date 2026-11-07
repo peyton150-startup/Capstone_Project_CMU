@@ -24,6 +24,7 @@ TOOLS = {
     "get_sensor_summary",
     "get_sensor_trend",
     "get_maintenance_history",
+    "get_line_screening",
 }
 HIDDEN_WORDS = (
     "bearing",
@@ -73,6 +74,7 @@ def everything(tools: ObservationTools, last_tick: int) -> dict:
         "get_maintenance_history": tools.get_maintenance_history(),
         "get_inspections": tools.get_inspections(0, last_tick),
         "get_settings": tools.get_settings(),
+        "get_line_screening": tools.get_line_screening(),
         "get_sensor_summary": [
             tools.get_sensor_summary(machine["machine_id"], sensor, 0, last_tick)
             for machine in tools.list_machines()
@@ -210,6 +212,9 @@ def test_nothing_hidden_leaks_through_any_tool_over_a_full_run():
         "mean",
         "delta",
         "rate_of_change",
+        # get_line_screening: scores or a reason per machine, never a label.
+        "reference",
+        "machines",
         "min",
         "max",
         "count",

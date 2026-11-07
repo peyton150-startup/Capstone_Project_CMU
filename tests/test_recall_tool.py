@@ -208,10 +208,10 @@ def test_a_memory_that_only_guided_where_to_look_is_allowed():
 
 def test_end_to_end_a_conclusion_citing_a_memory_is_not_remembered(memory, log):  # noqa: F811
     agent = policy()
-    agent.decisions["investigate"].append(RECALL)  # becomes E3, cited below
+    agent.decisions["investigate"].append(RECALL)  # becomes E4, cited below
     state = run_with(agent)
-    assert origins(state)["E3"] == "memory"
-    assert "E3" in state.conclusion.evidence_ids
+    assert origins(state)["E4"] == "memory"
+    assert "E4" in state.conclusion.evidence_ids
     outcome = learn_from(state, writer(), memory, log)
     assert state.verification.outcome == "resolved"
     assert not outcome.decision.accepted

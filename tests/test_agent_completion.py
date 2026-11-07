@@ -42,7 +42,7 @@ def failed_at_every_stage():
 ENDINGS = {
     "verified fix": lambda: investigate(policy())[0],
     "failed fix": lambda: investigate(policy(machine_id="CNC-01"))[0],
-    "inconclusive check": lambda: investigate(policy(judge=cite("E2")))[0],
+    "inconclusive check": lambda: investigate(policy(judge=cite("E3")))[0],
     "check not performed": lambda: investigate(policy(verify=()))[0],
     "rejected": lambda: investigate(policy(), "reject")[0],
     "no human answer": lambda: investigate(policy(), None)[0],
@@ -51,7 +51,7 @@ ENDINGS = {
     )[0],
     "escalated": lambda: investigate(policy(recommendation="escalate"))[0],
     "no action, checked": lambda: investigate(
-        policy(recommendation="no_action", judge=cite("E5", outcome="not_resolved"))
+        policy(recommendation="no_action", judge=cite("E6", outcome="not_resolved"))
     )[0],
     "failed at every stage": failed_at_every_stage,
 }
@@ -87,7 +87,7 @@ def test_a_verified_fix_becomes_a_complete_shared_record():
     assert record.conclusion.model_dump() == {
         "diagnosis": "wear on CNC-02",
         "confidence": 0.95,
-        "evidence_ids": ("E2", "E3"),
+        "evidence_ids": ("E3", "E4"),
     }
     assert (record.iterations_used, record.tool_calls_used) == (
         state.iteration_count,
@@ -101,7 +101,7 @@ def test_the_action_cites_what_the_factory_reported_about_it():
     action = record.proposed_action
     assert (action.action, action.machine_id) == ("replace_bearing", "CNC-02")
     assert action.reason == "vibration has climbed for hundreds of ticks"
-    assert action.evidence_ids[:2] == ("E2", "E3")  # why it was wanted
+    assert action.evidence_ids[:2] == ("E3", "E4")  # why it was wanted
     assert sources(record, action.evidence_ids[2:]) == [
         "propose_action",
         "get_proposals",

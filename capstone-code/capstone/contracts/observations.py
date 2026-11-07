@@ -3,7 +3,7 @@
 """Models for the existing tools' observable fields only."""
 
 from datetime import datetime
-from typing import Literal
+from typing import Annotated, Literal
 
 from pydantic import Field
 
@@ -48,6 +48,33 @@ class SensorSummaryObservation(Contract):
     mean: float | None = Field(allow_inf_nan=False)
     delta: float | None = Field(allow_inf_nan=False)
     rate_of_change: float | None = Field(allow_inf_nan=False)
+
+
+# Why a sensor, or a whole machine, has no score. feed_unavailable is set only
+# by the hazard provider, while a machine's sensor feed is down.
+ScreeningReason = Literal[
+    "not_running_yet", "too_few_running_readings", "no_reference", "feed_unavailable"
+]
+Score = Annotated[float, Field(allow_inf_nan=False)]
+# One sensor: [robust_score, plain_score], temperature adding its warm-up
+# stage, or why there is no score.
+SensorScreen = (
+    tuple[Score, Score]
+    | tuple[Score, Score, Literal["start", "warming", "steady"]]
+    | ScreeningReason
+)
+
+
+class LineScreeningObservation(Contract):
+    """Every machine's recent running readings against a saved healthy line.
+
+    Numbers and coverage only: no "abnormal" label and no cause. Scores are
+    in units of the healthy spread; how far is too far is for the reader.
+    A machine maps to its sensors, or to one reason when none has a score.
+    """
+
+    reference: str
+    machines: dict[str, dict[str, SensorScreen] | ScreeningReason]
 
 
 class SensorTrendObservation(Contract):

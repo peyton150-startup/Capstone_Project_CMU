@@ -284,7 +284,13 @@ def unproven_rating(rating: Rating) -> Rating:
 # values of one sensor are not three separate findings), so the evidence
 # rubric counts them as one family; every other tool is its own family.
 SENSOR_TOOLS = frozenset(
-    {"get_readings", "get_sensor_trend", "get_factory_readings", "get_sensor_summary"}
+    {
+        "get_readings",
+        "get_sensor_trend",
+        "get_factory_readings",
+        "get_sensor_summary",
+        "get_line_screening",
+    }
 )
 # The order of the verdicts in the evidence rubric: settled first.
 VERDICT_TIER = {"sure": 2, "likely": 1, "impossible": 0}

@@ -523,6 +523,7 @@ def collect_tools() -> list[dict]:
         "get_sensor_trend": observation + "get_sensor_trend",
         "get_factory_readings": observation + "get_factory_readings",
         "get_sensor_summary": observation + "get_sensor_summary",
+        "get_line_screening": observation + "get_line_screening",
         "get_events": observation + "get_events",
         "get_job_history": observation + "get_job_history",
         "get_maintenance_history": observation + "get_maintenance_history",
@@ -542,6 +543,7 @@ def collect_tools() -> list[dict]:
         "get_sensor_trend": "SensorTrendObservation[]",
         "get_factory_readings": "SensorObservation[]",
         "get_sensor_summary": "SensorSummaryObservation",
+        "get_line_screening": "LineScreeningObservation",
         "get_events": "EventObservation[]",
         "get_job_history": "EventObservation[]",
         "get_maintenance_history": "MaintenanceObservation[]",
@@ -563,7 +565,8 @@ def collect_tools() -> list[dict]:
                 "invoked_by": "loop procedure (propose/execute stages)"
                 if procedure
                 else "research_agent policy (decide), critic follow-up (read-only "
-                "research tools except wait), loop itself (get_time, wait in "
+                "research tools except wait), loop itself (get_time, "
+                "get_line_screening in observe, wait in "
                 "execute)",
                 "changes_factory": name in ("wait", "execute_action"),
                 "needs_human_approval": name == "execute_action",
