@@ -15,7 +15,10 @@ from capstone.memory import backfill as backfill_module
 from capstone.memory import duplicate_threshold as threshold
 
 
-@pytest.mark.parametrize("size, batches", [(0, []), (1, [1]), (100, [100]), (101, [100, 1]), (205, [100, 100, 5])])
+@pytest.mark.parametrize(
+    "size, batches",
+    [(0, []), (1, [1]), (100, [100]), (101, [100, 1]), (205, [100, 100, 5])],
+)
 def test_backfill_batches_are_bounded_and_preserve_every_record(size, batches):
     """A derived search index receives each row exactly once in bounded batches."""
     written = []
@@ -200,7 +203,9 @@ def test_duplicate_measure_cli_chooses_offline_or_provider_embedder(
 
 
 def test_manual_semantic_index_filters_removed_sections_and_empty_collections():
-    section = SimpleNamespace(section_id="1", title="Spindle", text="Bearing", revision="1")
+    section = SimpleNamespace(
+        section_id="1", title="Spindle", text="Bearing", revision="1"
+    )
     requested = []
 
     class Collection:
@@ -224,7 +229,9 @@ def test_manual_semantic_index_filters_removed_sections_and_empty_collections():
 
 
 def test_manual_semantic_index_builds_revision_fingerprints():
-    section = SimpleNamespace(section_id="1", title="Spindle", text="Bearing", revision="1")
+    section = SimpleNamespace(
+        section_id="1", title="Spindle", text="Bearing", revision="1"
+    )
     stored = []
 
     class Collection:
@@ -271,7 +278,9 @@ def test_manual_open_index_supports_local_and_separate_query_embeddings(
         "open_collection",
         lambda *args, **kwargs: (seen.append((args, kwargs)), object())[1],
     )
-    section = SimpleNamespace(section_id="1", title="Spindle", text="Bearing", revision="1")
+    section = SimpleNamespace(
+        section_id="1", title="Spindle", text="Bearing", revision="1"
+    )
     settings = SimpleNamespace(
         chroma_path="/tmp/unused",
         manual_collection="manual_test",

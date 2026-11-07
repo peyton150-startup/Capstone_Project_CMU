@@ -42,13 +42,14 @@ def test_collector_cli_saves_probe_without_polling(monkeypatch, tmp_path, capsys
         "run_collector",
         lambda *_args, **_kw: pytest.fail("probe should not start polling"),
     )
-    assert ingestion_cli.main(
-        ["--url", "http://synthetic:8082", "--save-probe", str(probe)]
-    ) == 0
+    assert (
+        ingestion_cli.main(
+            ["--url", "http://synthetic:8082", "--save-probe", str(probe)]
+        )
+        == 0
+    )
     assert probe.read_text() == "<Devices/>"
-    assert created == [
-        ("http://synthetic:8082", {"device": None, "count": 1000})
-    ]
+    assert created == [("http://synthetic:8082", {"device": None, "count": 1000})]
     assert "saved the machine" in capsys.readouterr().out
 
 
@@ -93,9 +94,7 @@ def test_collector_cli_reports_success_or_graceful_interrupt(
     collector = object()
     seen = []
     monkeypatch.setattr(ingestion_cli, "refusal", lambda *_: None)
-    monkeypatch.setattr(
-        ingestion_cli, "MTConnectCollector", lambda *a, **kw: collector
-    )
+    monkeypatch.setattr(ingestion_cli, "MTConnectCollector", lambda *a, **kw: collector)
 
     def fake_run(obj, path, *, interval, max_polls):
         assert obj is collector
@@ -107,9 +106,19 @@ def test_collector_cli_reports_success_or_graceful_interrupt(
     monkeypatch.setattr(ingestion_cli, "run_collector", fake_run)
     out = tmp_path / "telemetry.jsonl"
     args = [
-        "--url", "http://synthetic", "--device", "VMC",
-        "--count", "4", "--out", str(out), "--interval", "2",
-        "--polls", "3", "--allow-inside-repo",
+        "--url",
+        "http://synthetic",
+        "--device",
+        "VMC",
+        "--count",
+        "4",
+        "--out",
+        str(out),
+        "--interval",
+        "2",
+        "--polls",
+        "3",
+        "--allow-inside-repo",
     ]
     assert ingestion_cli.main(args) == 0
     assert seen == [(out, 2.0, 3)]
@@ -121,19 +130,21 @@ def test_collector_cli_reports_success_or_graceful_interrupt(
 
 
 def test_monitor_cli_rejects_unsafe_alerts_before_reading(monkeypatch, tmp_path):
-    monkeypatch.setattr(
-        monitoring_cli, "refusal", lambda *_: "protected source tree"
-    )
+    monkeypatch.setattr(monitoring_cli, "refusal", lambda *_: "protected source tree")
     monkeypatch.setattr(
         monitoring_cli,
         "JsonlFollower",
         lambda *_: pytest.fail("must refuse before opening the input"),
     )
     with pytest.raises(SystemExit) as stopped:
-        monitoring_cli.main([
-            "--input", str(tmp_path / "data.jsonl"),
-            "--alerts", str(tmp_path / "unsafe.jsonl"),
-        ])
+        monitoring_cli.main(
+            [
+                "--input",
+                str(tmp_path / "data.jsonl"),
+                "--alerts",
+                str(tmp_path / "unsafe.jsonl"),
+            ]
+        )
     assert stopped.value.code == 2
 
 
@@ -189,12 +200,14 @@ def test_monitor_cli_follow_loop_exits_cleanly_on_interrupt(
     monkeypatch.setattr(monitoring_cli, "refusal", lambda *_: None)
     monkeypatch.setattr(monitoring_cli, "Monitor", lambda **kw: object())
     monkeypatch.setattr(
-        monitoring_cli, "JsonlFollower",
+        monitoring_cli,
+        "JsonlFollower",
         lambda _path: SimpleNamespace(read_new=lambda: ["record"]),
     )
     monkeypatch.setattr(monitoring_cli, "replay", lambda rows, m: ["alert"])
     monkeypatch.setattr(
-        monitoring_cli, "append_alerts",
+        monitoring_cli,
+        "append_alerts",
         lambda path, rows: collected.append((path, rows)),
     )
     monkeypatch.setattr(
@@ -202,8 +215,17 @@ def test_monitor_cli_follow_loop_exits_cleanly_on_interrupt(
         "sleep",
         lambda _: (_ for _ in ()).throw(KeyboardInterrupt),
     )
-    assert monitoring_cli.main(
-        ["--input", str(tmp_path / "telemetry.jsonl"), "--follow", "--interval", "0.01"]
-    ) == 0
+    assert (
+        monitoring_cli.main(
+            [
+                "--input",
+                str(tmp_path / "telemetry.jsonl"),
+                "--follow",
+                "--interval",
+                "0.01",
+            ]
+        )
+        == 0
+    )
     assert len(collected) == 1
     assert "stopped" in capsys.readouterr().err

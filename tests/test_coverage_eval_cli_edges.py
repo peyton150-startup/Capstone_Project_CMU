@@ -34,21 +34,28 @@ def fake_report():
         ["--resume", "--records", "old.records.jsonl"],
     ],
 )
-def test_evals_cli_refuses_incompatible_modes_before_loading_config(
-    tmp_path, options
-):
+def test_evals_cli_refuses_incompatible_modes_before_loading_config(tmp_path, options):
     with pytest.raises(SystemExit) as stopped:
         evals.main(["--name", "trial", "--out", str(tmp_path / "out.json")] + options)
     assert stopped.value.code == 2
 
 
-def test_evals_cli_raises_when_resumed_raw_file_is_absent(monkeypatch, tmp_path, capsys):
+def test_evals_cli_raises_when_resumed_raw_file_is_absent(
+    monkeypatch, tmp_path, capsys
+):
     monkeypatch.setattr(evals, "load_scenarios", lambda _: one_scenario())
     with pytest.raises(SystemExit) as stopped:
-        evals.main([
-            "--name", "trial", "--out", str(tmp_path / "out.json"),
-            "--resume", "--raw-out", str(tmp_path / "missing.jsonl"),
-        ])
+        evals.main(
+            [
+                "--name",
+                "trial",
+                "--out",
+                str(tmp_path / "out.json"),
+                "--resume",
+                "--raw-out",
+                str(tmp_path / "missing.jsonl"),
+            ]
+        )
     assert stopped.value.code == 2
     assert "no raw result to resume" in capsys.readouterr().err
 
@@ -64,10 +71,17 @@ def test_evals_cli_refuses_a_corrupt_resumed_prefix(monkeypatch, tmp_path, capsy
         lambda *args: (_ for _ in ()).throw(ValueError("wrong scenario prefix")),
     )
     with pytest.raises(SystemExit) as stopped:
-        evals.main([
-            "--name", "trial", "--out", str(tmp_path / "out.json"),
-            "--resume", "--raw-out", str(existing),
-        ])
+        evals.main(
+            [
+                "--name",
+                "trial",
+                "--out",
+                str(tmp_path / "out.json"),
+                "--resume",
+                "--raw-out",
+                str(existing),
+            ]
+        )
     assert stopped.value.code == 2
     assert "wrong scenario prefix" in capsys.readouterr().err
 
@@ -79,10 +93,16 @@ def test_evals_cli_refuses_to_clobber_an_existing_raw_run(
     raw = tmp_path / "already.jsonl"
     raw.write_text("existing data")
     with pytest.raises(SystemExit) as stopped:
-        evals.main([
-            "--name", "trial", "--out", str(tmp_path / "out.json"),
-            "--raw-out", str(raw),
-        ])
+        evals.main(
+            [
+                "--name",
+                "trial",
+                "--out",
+                str(tmp_path / "out.json"),
+                "--raw-out",
+                str(raw),
+            ]
+        )
     assert stopped.value.code == 2
     assert raw.read_text() == "existing data"
     assert "raw result path already exists" in capsys.readouterr().err
@@ -91,14 +111,21 @@ def test_evals_cli_refuses_to_clobber_an_existing_raw_run(
 def test_evals_cli_saved_records_must_match_config_in_order(monkeypatch, tmp_path):
     monkeypatch.setattr(evals, "load_scenarios", lambda _: one_scenario())
     monkeypatch.setattr(
-        evals, "read_records",
+        evals,
+        "read_records",
         lambda _: [SimpleNamespace(scenario_id="different")],
     )
     with pytest.raises(SystemExit) as stopped:
-        evals.main([
-            "--name", "trial", "--out", str(tmp_path / "out.json"),
-            "--records", str(tmp_path / "records.jsonl"),
-        ])
+        evals.main(
+            [
+                "--name",
+                "trial",
+                "--out",
+                str(tmp_path / "out.json"),
+                "--records",
+                str(tmp_path / "records.jsonl"),
+            ]
+        )
     assert stopped.value.code == 2
 
 
@@ -129,11 +156,21 @@ def test_evals_cli_rescores_saved_records_and_writes_diff_without_model(
     old = tmp_path / "previous.json"
     old.write_text("{}")
     out = tmp_path / "report.json"
-    assert evals.main([
-        "--name", "trial", "--out", str(out),
-        "--records", str(tmp_path / "records.jsonl"),
-        "--compare-before", str(old),
-    ]) == 0
+    assert (
+        evals.main(
+            [
+                "--name",
+                "trial",
+                "--out",
+                str(out),
+                "--records",
+                str(tmp_path / "records.jsonl"),
+                "--compare-before",
+                str(old),
+            ]
+        )
+        == 0
+    )
     assert json.loads(out.read_text()) == {}
     assert json.loads(out.with_suffix(".comparison.json").read_text()) == {
         "before": True
@@ -141,40 +178,47 @@ def test_evals_cli_rescores_saved_records_and_writes_diff_without_model(
     assert '"cases": 1' in capsys.readouterr().out
 
 
-def test_evals_cli_saves_fresh_rows_and_uses_live_watch_hook(
-    monkeypatch, tmp_path
-):
+def test_evals_cli_saves_fresh_rows_and_uses_live_watch_hook(monkeypatch, tmp_path):
     monkeypatch.setattr(evals, "load_scenarios", lambda _: one_scenario())
     monkeypatch.setattr(evals, "report_of", lambda *a, **kw: fake_report())
     saved = []
     monkeypatch.setattr(
-        evals, "append_records",
+        evals,
+        "append_records",
         lambda path, rows: saved.append((path, list(rows))),
     )
     record = SimpleNamespace(scenario_id="one", run_key="trial/1")
+
     def fake_run(cases, *, name, on_record, watch, start, manual):
         assert name == "trial" and start == 1 and len(cases.cases) == 1
         assert callable(watch) and manual is None
         on_record(record)
         return [record]
+
     monkeypatch.setattr(evals, "run_cases", fake_run)
     out = tmp_path / "report.json"
     raw = tmp_path / "records.jsonl"
-    assert evals.main([
-        "--name", "trial", "--out", str(out),
-        "--raw-out", str(raw), "--watch",
-    ]) == 0
+    assert (
+        evals.main(
+            [
+                "--name",
+                "trial",
+                "--out",
+                str(out),
+                "--raw-out",
+                str(raw),
+                "--watch",
+            ]
+        )
+        == 0
+    )
     assert saved == [(raw, [record])]
     assert raw.exists() and out.exists()
 
 
-def test_evals_automatic_labels_marks_undetermined_and_deferred_review(
-    monkeypatch
-):
+def test_evals_automatic_labels_marks_undetermined_and_deferred_review(monkeypatch):
     records = [
-        SimpleNamespace(
-            run_key="none", conclusion=None, critic_favoured_claim=None
-        ),
+        SimpleNamespace(run_key="none", conclusion=None, critic_favoured_claim=None),
         SimpleNamespace(
             run_key="review", conclusion="bearing", critic_favoured_claim=None
         ),
@@ -187,9 +231,11 @@ def test_evals_automatic_labels_marks_undetermined_and_deferred_review(
     )
     calls = []
     monkeypatch.setattr(
-        evals, "propose",
+        evals,
+        "propose",
         lambda run_key, diagnosis, client: (
-            calls.append((run_key, diagnosis)), proposed
+            calls.append((run_key, diagnosis)),
+            proposed,
         )[1],
     )
     monkeypatch.setattr(evals, "critic_labels", lambda records, fn: {"picked": "ok"})
@@ -205,7 +251,8 @@ def test_experiment_open_memory_refuses_missing_database(monkeypatch):
     from capstone import settings
 
     monkeypatch.setattr(
-        settings, "get_settings",
+        settings,
+        "get_settings",
         lambda: SimpleNamespace(database_url=None),
     )
     with pytest.raises(SystemExit, match="DATABASE_URL"):
@@ -213,7 +260,7 @@ def test_experiment_open_memory_refuses_missing_database(monkeypatch):
 
 
 def test_experiment_open_memory_converts_postgres_driver_without_connecting(
-    monkeypatch
+    monkeypatch,
 ):
     import sqlalchemy
     from capstone import settings
@@ -224,7 +271,9 @@ def test_experiment_open_memory_converts_postgres_driver_without_connecting(
     monkeypatch.setattr(
         settings,
         "get_settings",
-        lambda: SimpleNamespace(database_url=SecretStr("postgresql://u:p@localhost/demo")),
+        lambda: SimpleNamespace(
+            database_url=SecretStr("postgresql://u:p@localhost/demo")
+        ),
     )
     monkeypatch.setattr(
         sqlalchemy,
@@ -249,15 +298,29 @@ def test_experiment_open_memory_converts_postgres_driver_without_connecting(
 def test_experiment_cli_prevents_audit_records_collision(tmp_path, capsys):
     out = tmp_path / "same.jsonl"
     with pytest.raises(SystemExit) as stopped:
-        experiment.main([
-            "run", "--name", "x", "--seeds", "1", "--faults", "any",
-            "--out", str(out), "--audit", str(out), "--quiet",
-        ])
+        experiment.main(
+            [
+                "run",
+                "--name",
+                "x",
+                "--seeds",
+                "1",
+                "--faults",
+                "any",
+                "--out",
+                str(out),
+                "--audit",
+                str(out),
+                "--quiet",
+            ]
+        )
     assert stopped.value.code == 2
     assert "audit and records paths must differ" in capsys.readouterr().err
 
 
-@pytest.mark.parametrize("failure", [RuntimeError("provider setup failed"), KeyboardInterrupt()])
+@pytest.mark.parametrize(
+    "failure", [RuntimeError("provider setup failed"), KeyboardInterrupt()]
+)
 def test_experiment_cli_does_not_hide_provider_failures_and_interrupts(
     monkeypatch, tmp_path, failure
 ):
@@ -277,11 +340,18 @@ def test_experiment_cli_does_not_hide_provider_failures_and_interrupts(
         lambda *a, **kw: (_ for _ in ()).throw(failure),
     )
     with pytest.raises(type(failure)):
-        experiment.main([
-            "run", "--name", "synthetic", "--known",
-            "--out", str(tmp_path / "record.jsonl"),
-            "--no-audit", "--quiet",
-        ])
+        experiment.main(
+            [
+                "run",
+                "--name",
+                "synthetic",
+                "--known",
+                "--out",
+                str(tmp_path / "record.jsonl"),
+                "--no-audit",
+                "--quiet",
+            ]
+        )
 
 
 def test_experiment_cli_label_skips_missing_conclusions_and_existing_answers(
@@ -307,8 +377,18 @@ def test_experiment_cli_label_skips_missing_conclusions_and_existing_answers(
         lambda _self, row: saved.append(row),
     )
     monkeypatch.setattr(experiment, "ask_label", lambda record: "skip")
-    assert experiment.main([
-        "label", "--results", str(tmp_path / "record.jsonl"),
-        "--labels", str(tmp_path / "labels.jsonl"), "--by", "reviewer",
-    ]) == 0
+    assert (
+        experiment.main(
+            [
+                "label",
+                "--results",
+                str(tmp_path / "record.jsonl"),
+                "--labels",
+                str(tmp_path / "labels.jsonl"),
+                "--by",
+                "reviewer",
+            ]
+        )
+        == 0
+    )
     assert saved == []

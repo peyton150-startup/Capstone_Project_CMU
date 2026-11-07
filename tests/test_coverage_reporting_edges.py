@@ -66,11 +66,15 @@ def test_reach_counts_attempt_failures_and_only_pre_tree_research_calls():
 
 def test_reach_summary_groups_time_failures_and_reserve_usage():
     first = tree_reach.Reach(
-        run_key="a", scenario_id="x", group="tree",
-        last_stage=None, termination_reason=None,
+        run_key="a",
+        scenario_id="x",
+        group="tree",
+        last_stage=None,
+        termination_reason=None,
         seconds_by_job={"observe": 1.2},
         failed_attempts_by_job={"observe": 1},
-        research_tool_calls=1, wall_seconds=3,
+        research_tool_calls=1,
+        wall_seconds=3,
         hypothesis_reserve_used=True,
     )
     second = first.model_copy(
@@ -186,7 +190,8 @@ def test_memory_comparison_semantic_mode_preserves_index(monkeypatch):
 
     store, index = object(), object()
     monkeypatch.setattr(
-        experiment, "open_memory",
+        experiment,
+        "open_memory",
         lambda: SimpleNamespace(repository=store),
     )
     monkeypatch.setattr(settings, "get_settings", lambda: SimpleNamespace())
@@ -201,8 +206,16 @@ def test_memory_comparison_cli_rejects_unrecognized_or_duplicate_modes(
     monkeypatch.setattr(memory_comparison, "safe_console", lambda: None)
     with pytest.raises(SystemExit) as stopped:
         memory_comparison.main(
-            ["run", "--name", "synthetic", "--known", "--out",
-             str(tmp_path / "out.jsonl"), "--modes", mode]
+            [
+                "run",
+                "--name",
+                "synthetic",
+                "--known",
+                "--out",
+                str(tmp_path / "out.jsonl"),
+                "--modes",
+                mode,
+            ]
         )
     assert stopped.value.code == 2
 
@@ -214,17 +227,21 @@ def test_memory_comparison_report_cli_reads_saved_records(
     monkeypatch.setattr(memory_comparison, "safe_console", lambda: None)
     monkeypatch.setattr(memory_comparison, "read_records", lambda _: ["saved"])
     monkeypatch.setattr(
-        memory_comparison, "compare_report",
+        memory_comparison,
+        "compare_report",
         lambda records, labels: f"comparison {len(records)} {len(labels)}",
     )
     if labelled:
         from capstone.evaluation import labels
+
         monkeypatch.setattr(labels.LabelBook, "read", lambda _self: {"case": object()})
     args = ["report", "--results", str(tmp_path / "results.jsonl")]
     if labelled:
         args += ["--labels", str(tmp_path / "labels.jsonl")]
     assert memory_comparison.main(args) == 0
-    assert ("comparison 1 1" if labelled else "comparison 1 0") in capsys.readouterr().out
+    assert (
+        "comparison 1 1" if labelled else "comparison 1 0"
+    ) in capsys.readouterr().out
 
 
 @pytest.mark.parametrize("selection", ["--known", "--held-out", "--seeds"])
@@ -241,7 +258,7 @@ def test_memory_comparison_run_cli_dispatches_without_models(
     monkeypatch.setattr(
         experiment,
         "model_policy_factory",
-        lambda *, with_recall: (lambda: f"policy-{with_recall}"),
+        lambda *, with_recall: lambda: f"policy-{with_recall}",
     )
     monkeypatch.setattr(
         memory_comparison,
@@ -260,6 +277,7 @@ def test_memory_comparison_run_cli_dispatches_without_models(
         lambda path, records: emitted.extend(records),
     )
     chosen = []
+
     def compare(cases, factory, *, name, repository, index, modes, on_record):
         chosen.extend(cases)
         assert factory("none") == "policy-False"
@@ -267,14 +285,22 @@ def test_memory_comparison_run_cli_dispatches_without_models(
         record = SimpleNamespace(run_key="sample", conclusion=None)
         on_record(record)
         return {"none": [record], "keyword": []}
+
     monkeypatch.setattr(memory_comparison, "compare_memory", compare)
     args = [
-        "run", "--name", "sample", "--out", str(tmp_path / "out.jsonl"),
-        "--modes", "none,keyword",
+        "run",
+        "--name",
+        "sample",
+        "--out",
+        str(tmp_path / "out.jsonl"),
+        "--modes",
+        "none,keyword",
     ]
     args += [selection, "10"] if selection == "--seeds" else [selection]
     assert memory_comparison.main(args) == 0
-    assert chosen == [{"--known": "known", "--held-out": "held", "--seeds": "seed"}[selection]]
+    assert chosen == [
+        {"--known": "known", "--held-out": "held", "--seeds": "seed"}[selection]
+    ]
     assert len(emitted) == 1
     assert "compared 1" in capsys.readouterr().out
 
@@ -285,9 +311,7 @@ def test_baseline_seed_ranges_and_lists(raw, expected):
 
 
 @pytest.mark.parametrize("known", [False, True])
-def test_baseline_cli_formats_known_and_explicit_cases(
-    monkeypatch, capsys, known
-):
+def test_baseline_cli_formats_known_and_explicit_cases(monkeypatch, capsys, known):
     monkeypatch.setattr(
         baseline,
         "KNOWN_CASES",
@@ -295,6 +319,7 @@ def test_baseline_cli_formats_known_and_explicit_cases(
     )
     monkeypatch.setattr(baseline, "FAULTS", ["false_alarm"])
     calls = []
+
     def run(seed, fault):
         calls.append((seed, fault))
         return SimpleNamespace(
@@ -304,12 +329,14 @@ def test_baseline_cli_formats_known_and_explicit_cases(
             resolved=True,
             miss_kind=None,
         )
+
     monkeypatch.setattr(baseline, "run_baseline", run)
     monkeypatch.setattr(baseline, "summarize", lambda items: len(items))
     monkeypatch.setattr(baseline, "format_summary", lambda items: f"total={items}")
     assert baseline.main(["--known"] if known else ["--seeds", "1-2"]) == 0
     assert calls == (
-        [(1, "bearing_degradation")] if known
+        [(1, "bearing_degradation")]
+        if known
         else [(1, "false_alarm"), (2, "false_alarm")]
     )
     assert "total=" in capsys.readouterr().out
@@ -317,14 +344,17 @@ def test_baseline_cli_formats_known_and_explicit_cases(
 
 @pytest.mark.parametrize(
     "before, alarm, after, expected",
-    [(2.0, 10.0, 1.0, "false_alarm"),
-     (2.0, 10.0, 9.0, "bearing_degradation"),
-     (None, 10.0, 1.0, "bearing_degradation")],
+    [
+        (2.0, 10.0, 1.0, "false_alarm"),
+        (2.0, 10.0, 9.0, "bearing_degradation"),
+        (None, 10.0, 1.0, "bearing_degradation"),
+    ],
 )
 def test_baseline_alarm_classifies_sustained_and_transient_signals(
     before, alarm, after, expected
 ):
     tick = [100]
+
     class Look:
         def get_time(self):
             return {"tick": tick[0]}
@@ -343,7 +373,8 @@ def test_baseline_alarm_classifies_sustained_and_transient_signals(
             tick[0] += ticks
 
     found = baseline.diagnose(
-        Look(), Act(),
+        Look(),
+        Act(),
         SimpleNamespace(kind="alarm", machine_id="CNC-1", tick=100),
     )
     assert found.diagnosis.fault == expected
@@ -366,6 +397,7 @@ def test_baseline_uses_inspections_when_job_times_do_not_identify_machine(
     inspections, expected
 ):
     tick = [1]
+
     class Look:
         def get_time(self):
             return {"tick": tick[0]}
@@ -381,7 +413,8 @@ def test_baseline_uses_inspections_when_job_times_do_not_identify_machine(
             tick[0] += ticks
 
     verdict = baseline.diagnose(
-        Look(), Act(),
+        Look(),
+        Act(),
         SimpleNamespace(kind="inspection", machine_id=None, tick=1),
     )
     assert verdict.diagnosis.fault == expected
@@ -390,7 +423,8 @@ def test_baseline_uses_inspections_when_job_times_do_not_identify_machine(
 
 def test_baseline_status_alarm_uses_only_the_observable_stop():
     result = baseline.diagnose(
-        object(), object(),
+        object(),
+        object(),
         SimpleNamespace(kind="status", machine_id="CNC-2", tick=12),
     )
     assert result.diagnosis.fault == "bearing_degradation"
