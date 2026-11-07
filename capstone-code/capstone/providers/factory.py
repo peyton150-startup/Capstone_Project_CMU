@@ -233,17 +233,17 @@ TOOL_DESCRIPTIONS: dict[str, str] = {
         "change from the first to the last reading, not a fitted trend."
     ),
     "get_line_screening": (
-        "Every machine on the line at once: for each sensor, its latest running "
-        f"readings (up to {load_reference()['settings']['recent_readings']}, only "
-        "ticks where the machine was cutting) compared "
-        "with a saved range from a separate baseline run of the line in normal "
-        "operation. "
-        "robust_score is the median and plain_score the mean of how many baseline "
-        "spreads the readings sit from the baseline level (positive is higher); "
-        "temperature is compared with the range for the machine's own warm-up "
-        "stage. Rows that cannot be scored say why (not_running_yet, "
-        "too_few_running_readings, no_reference). Scores are not a diagnosis: "
-        "check the readings themselves."
+        "Every machine on the line at once. For each sensor: [robust_score, "
+        "plain_score] for its latest running readings (up to "
+        f"{load_reference()['settings']['recent_readings']}, only ticks where the "
+        "machine was cutting) against a saved range from a separate baseline run "
+        "of the line in normal operation; temperature adds its warm-up stage "
+        "(start, warming, steady) and is compared with that stage's range. Each "
+        "score is how many baseline spreads the readings sit from the baseline "
+        "level (positive is higher): robust by medians, plain by means. A sensor "
+        "or machine without a score says why (not_running_yet, "
+        "too_few_running_readings, no_reference, feed_unavailable). Scores are "
+        "not a diagnosis: check the readings themselves."
     ),
     "get_events": (
         "Event log in a tick range: alarms, machine stops, job "
@@ -383,7 +383,7 @@ class SimulatorFactoryProvider:
                 NoArguments,
                 LineScreeningObservation,
                 observations.get_line_screening,
-                True,
+                False,
             ),
             "get_events": (
                 EventsArguments,

@@ -14,6 +14,7 @@ from capstone.tools.screening import (
     GENERATOR_SETTINGS,
     NO_WARMUP,
     REFERENCE_PATH,
+    compact,
     load_reference,
     make_reference,
     screen_line,
@@ -117,19 +118,16 @@ def test_a_wearing_bearing_scores_high_on_its_machine_only():
     from capstone.agent.monitor import detect_anomaly
 
     detect_anomaly(look, ActionTools(sim, None))
-    rows = look.get_line_screening()
+    machines = look.get_line_screening()["machines"]
     far = {
-        r["machine_id"]
-        for r in rows
-        if r["status"] == "scored"
-        and abs(r["robust_score"]) >= 3
-        and abs(r["plain_score"]) >= 3
+        machine_id
+        for machine_id, sensors in machines.items()
+        if isinstance(sensors, dict)
+        for scores in sensors.values()
+        if isinstance(scores, list) and abs(scores[0]) >= 3 and abs(scores[1]) >= 3
     }
     assert far == {"CNC-02"}
-    vibration = next(
-        r for r in rows if r["machine_id"] == "CNC-02" and r["sensor"] == "vibration"
-    )
-    assert vibration["robust_score"] > 3
+    assert machines["CNC-02"]["vibration"][0] > 3
 
 
 def test_the_same_seed_screens_the_same():
@@ -153,17 +151,102 @@ def test_the_tool_answer_carries_no_hidden_truth():
     for word in HIDDEN_WORDS:
         assert word not in text
     assert "truth" not in text
-    assert not any(isinstance(r.get("label"), str) for r in result.data)
+    assert set(result.data) == {"reference", "machines"}
 
 
-def test_every_machine_on_the_line_gets_rows():
+def test_every_machine_on_the_line_gets_an_entry_in_line_order():
     sim = build_world(6, fault="bearing_degradation")
     for _ in range(300):
         sim.step()
     look = ObservationTools(sim)
     machines = [m["machine_id"] for m in look.list_machines()]
-    rows = look.get_line_screening()
-    assert [m for m in machines if m in {r["machine_id"] for r in rows}] == machines
+    assert list(look.get_line_screening()["machines"]) == machines
+
+
+def compact_rows(machine_id: str, statuses: dict[str, str]) -> list[dict]:
+    """Full rows for one machine: a scored row where the status is "scored"."""
+    rows = []
+    for sensor, status in statuses.items():
+        row = {"machine_id": machine_id, "sensor": sensor, "status": status}
+        if status == "scored":
+            stage = "steady" if sensor == "temperature" else NO_WARMUP
+            row.update(robust_score=1.5, plain_score=2.0, warmup_stage=stage)
+        rows.append(row)
+    return rows
+
+
+def test_the_compact_form_keeps_scores_stages_and_reasons():
+    rows = compact_rows("CNC-01", {"vibration": "scored", "temperature": "scored"})
+    rows += compact_rows(
+        "CNC-02", {"vibration": "not_running_yet", "load": "not_running_yet"}
+    )
+    rows += compact_rows(
+        "CNC-03", {"vibration": "scored", "load": "too_few_running_readings"}
+    )
+    machines = compact(rows)["machines"]
+    assert machines["CNC-01"] == {
+        "vibration": [1.5, 2.0],
+        "temperature": [1.5, 2.0, "steady"],
+    }
+    # One reason for every sensor folds into that word.
+    assert machines["CNC-02"] == "not_running_yet"
+    # Mixed: the reason stays on its sensor.
+    assert machines["CNC-03"] == {
+        "vibration": [1.5, 2.0],
+        "load": "too_few_running_readings",
+    }
+
+
+@pytest.mark.parametrize(
+    "seed,fault",
+    [
+        (6, "bearing_degradation"),
+        (7, "bad_material_batch"),
+        (8, "wrong_setting"),
+        (5, "false_alarm"),
+        (9, "servo_drive_wear"),
+        (13, "hydraulic_leak"),
+    ],
+)
+def test_the_whole_line_fits_what_a_prompt_shows_of_one_evidence(seed, fault):
+    # The prompt cuts each piece of evidence at MAX_EVIDENCE_CHARS; the full
+    # rows (about 16,000 characters) lost every machine after the first two.
+    from capstone.agent.model_policy import MAX_EVIDENCE_CHARS
+
+    sim = build_world(seed, fault=fault)
+    look = ObservationTools(sim)
+    from capstone.agent.monitor import detect_anomaly
+
+    detect_anomaly(look, ActionTools(sim, None))
+    provider = SimulatorFactoryProvider(look, ActionTools(sim, None))
+    data = provider.call(ToolRequest(name="get_line_screening")).data
+    assert len(json.dumps(data, sort_keys=True)) <= MAX_EVIDENCE_CHARS
+    assert len(data["machines"]) == len(sim.state.machines)
+
+
+def test_a_blackout_takes_away_only_the_dead_machines_entry():
+    # Before: the screening showed CNC-02's scores while its feed was refused.
+    from capstone.agent.monitor import detect_anomaly
+    from capstone.providers.hazards import Blackout, UnreliableProvider
+
+    sim = build_world(6, fault="bearing_degradation")
+    look = ObservationTools(sim)
+    detect_anomaly(look, ActionTools(sim, None))
+    tick = look.get_time()["tick"]
+    inner = SimulatorFactoryProvider(look, ActionTools(sim, None))
+    honest = inner.call(ToolRequest(name="get_line_screening")).data["machines"]
+    provider = UnreliableProvider(inner, (Blackout("CNC-02", tick + 10),))
+    during = provider.call(ToolRequest(name="get_line_screening")).data["machines"]
+    assert during["CNC-02"] == "feed_unavailable"
+    assert {k: v for k, v in during.items() if k != "CNC-02"} == {
+        k: v for k, v in honest.items() if k != "CNC-02"
+    }
+    assert provider.report.fired == [f"blackout on CNC-02 until tick {tick + 10}"]
+    assert provider.report.blocked == 0  # not refused, so not counted as a refusal
+    for _ in range(10):
+        sim.step()
+    after = provider.call(ToolRequest(name="get_line_screening")).data["machines"]
+    assert isinstance(after["CNC-02"], dict)  # the feed is back
 
 
 @pytest.mark.parametrize("machine_ids", [[], ["CNC-01"]])

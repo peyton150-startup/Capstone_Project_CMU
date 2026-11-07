@@ -298,6 +298,48 @@ def screen_line(
     return rows
 
 
+# What a machine's entry says when its sensor feed is down (set by the hazard
+# provider, never by the screening itself).
+FEED_UNAVAILABLE = "feed_unavailable"
+
+
+def compact(rows: list[dict], reference: dict | None = None) -> dict:
+    """The screening as the agent receives it: short enough to be shown whole.
+
+    A prompt shows only the start of one piece of evidence
+    (`model_policy.MAX_EVIDENCE_CHARS`), and the full rows run far past it, so
+    most machines were never seen. Here each
+    machine maps each sensor to [robust_score, plain_score] (temperature adds
+    its warm-up stage), or to why it has no score. A machine whose sensors all
+    share one such reason maps straight to it. The window details are left
+    out: the readings themselves are one get_sensor_summary away.
+    """
+    # Variables:
+    #   rows: The full per-sensor rows from `screen_line`, in line order.
+    #   reference: The "before" file, for the one line naming where the
+    #     baseline came from; None reads the saved one.
+    #   machines: The answer, machine -> sensor -> scores or reason, in line order.
+    #   entry: One sensor's scores, with its warm-up stage when it has one, or
+    #     the reason it has none.
+    #   reasons: The set of values in one machine's entry, used to fold a
+    #     machine with a single reason for every sensor into that one word.
+    reference = reference or load_reference()
+    machines: dict[str, dict] = {}
+    for row in rows:
+        if row["status"] == "scored":
+            entry = [row["robust_score"], row["plain_score"]]
+            if row["warmup_stage"] != NO_WARMUP:
+                entry.append(row["warmup_stage"])
+        else:
+            entry = row["status"]
+        machines.setdefault(row["machine_id"], {})[row["sensor"]] = entry
+    for machine_id, sensors in machines.items():
+        reasons = set(map(str, sensors.values()))
+        if len(reasons) == 1 and all(isinstance(v, str) for v in sensors.values()):
+            machines[machine_id] = reasons.pop()
+    return {"reference": reference["settings"]["source"], "machines": machines}
+
+
 if __name__ == "__main__":
     write_reference()
     print(f"wrote {REFERENCE_PATH}")
