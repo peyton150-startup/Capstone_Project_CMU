@@ -103,6 +103,7 @@ GROUPS: dict[str, list[str]] = {
     "Memory": [
         "database_connection",
         "duplicate_threshold",
+        "coverage_index_edges",
         "memory_policy",
         "memory_recall",
         "memory_repository",
