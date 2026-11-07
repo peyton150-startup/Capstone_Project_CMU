@@ -567,7 +567,7 @@ def verify_look(prompt):
 def judge(prompt):
     return {
         "outcome": "resolved",
-        "evidence_ids": ["E2", f"E{latest_evidence(prompt)}"],
+        "evidence_ids": ["E3", f"E{latest_evidence(prompt)}"],
     }
 
 
@@ -612,11 +612,11 @@ def scripted_models():
         ],
         interpret=[
             {"hypotheses": None},
-            believe(0.95, "E2", "E3"),
+            believe(0.95, "E3", "E4"),
             {"hypotheses": None},
             {"hypotheses": None},
         ],
-        hypothesize=[believe(0.6, "E2")],
+        hypothesize=[believe(0.6, "E3")],
         conclude=[
             {
                 "conclusion": {
@@ -625,7 +625,7 @@ def scripted_models():
                     "confidence": 0.95,
                     "recommendation": "intervene",
                     "hypothesis_id": "H1",
-                    "evidence_ids": ["E2", "E3"],
+                    "evidence_ids": ["E3", "E4"],
                 },
                 "action": {
                     "machine_id": "CNC-02",
