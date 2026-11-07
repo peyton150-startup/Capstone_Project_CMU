@@ -85,6 +85,9 @@ class TechnicianEvent(BaseModel):
     @classmethod
     def has_a_time_zone(cls, value: datetime | None) -> datetime | None:
         """Refuse a clock time with no UTC offset instead of guessing one."""
+        # Variables:
+        #   value: The parsed `at` or `until`; it must say which zone its clock
+        #     was in, or it could be matched an hour off.
         if value is not None and value.utcoffset() is None:
             raise ValueError("give the time with its UTC offset, e.g. -05:00 or Z")
         return value
@@ -205,7 +208,11 @@ def match_events(
     #     small difference between the two clocks.
     #   spans: Each gap-free run's first and last machine time.
     #   times: Every observation's machine time, sorted, to find the nearest.
-    #   start, end: The whole capture's first and last observation times.
+    #   start, end: The whole capture's first and last observation times; an
+    #     entry between them that no stretch covers is in a gap.
+    #   nearest: The observation time closest to the entry, reported so a
+    #     person can see how far apart the log and the machine are.
+    #   placement: The verdict for the entry: covered, in_gap or outside.
     runs = gap_free_runs(lines)
     spans = [
         (min(r.source_timestamp for r in run), max(r.source_timestamp for r in run))
@@ -254,6 +261,7 @@ def check_visit(
     #   probe_xml: The saved /probe document, or None if none was saved yet.
     #   probe_items: Data items the probe describes; None when it is missing
     #     or unreadable, which keeps the check from reporting ready.
+    #   probe_problem: Why there is no item count, shown on the checklist.
     #   observations: The capture's observation lines, markers left out.
     probe_items: int | None = None
     probe_problem: str | None = None
@@ -286,9 +294,12 @@ def check_visit(
 
 def report_lines(check: VisitCheck) -> list[str]:
     """The visit check as the checklist a person reads, one line per item."""
-
     # Variables:
     #   mark: "[x]" when the files show an item, "[ ]" when they do not.
+    #   covered: How many log entries fall in collected time.
+    #   out: The checklist lines, grouped under SM-4's three questions and
+    #     ending with the items only a person can confirm.
+
     def mark(done: bool) -> str:
         return "[x]" if done else "[ ]"
 
