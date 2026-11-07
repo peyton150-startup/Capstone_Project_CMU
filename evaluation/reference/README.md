@@ -21,6 +21,16 @@ enlarge it, then freeze the exported folder. Check the sample includes both
 sound and deliberately broken evidence; a hash sample alone does not ensure
 that diversity.
 
+For a calibration set that **guarantees both sound and misleading reasoning**,
+prepare a private JSON file mapping exact RUN item IDs to `"sound"` or
+`"misleading"` based on an independent, pre-model review. Pass it to
+`export --run-strata reference/private-run-strata.json`. At least one complete
+RUN trace from each stratum is required; export fails if either is missing or
+the RUN sample has fewer than two slots. The two required examples are selected
+before the remaining RUN slots. Keep the mapping private: no stratum label is
+written to the blinded packets or reviewer-facing manifest. Without this
+option the sample is exploratory, **not guaranteed balanced**.
+
 Copy `answers.template.json` to a separate `answers.json`, then add judgments
 under each opaque ID, for example `{ "review_id": { "RUN-01": 3, "RUN-12": true } }`.
 Scores are integer rubric levels, choices are the exact named options, and

@@ -86,5 +86,17 @@ jobs:
         run: uv sync --locked --all-extras
       - name: Offline tests and informational coverage
         run: >-
-          uv run --locked --all-extras pytest --cov=capstone --cov-report=term-missing
+          uv run --locked --all-extras pytest --cov=capstone --cov-context=test
+          --junitxml=junit.xml --cov-report=term-missing
           --cov-report=markdown-append:"$GITHUB_STEP_SUMMARY"
+      - name: Rebuild evaluation inventories from full per-test coverage
+        run: cd evaluation && uv run --locked --all-extras python -m evaltools.build_inventory --coverage ../.coverage --junit ../junit.xml
+      - name: Upload regenerated inventories for review
+        uses: actions/upload-artifact@v4
+        with:
+          name: evaluator-inventory
+          path: |
+            evaluation/inventory/FUNCTION_INVENTORY.json
+            evaluation/inventory/TEST_INVENTORY.json
+            evaluation/inventory/TOOL_INVENTORY.json
+            evaluation/inventory/VERIFICATION_MATRIX.json

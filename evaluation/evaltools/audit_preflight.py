@@ -20,6 +20,14 @@ def trace_issues(packet: RunEvidencePacket) -> list[str]:
         issues.append("duplicate evidence IDs")
     if any(not item.content for item in trace.evidence):
         issues.append("empty evidence content")
+    if any(not item.origin for item in trace.evidence):
+        issues.append("evidence lacks provenance origin")
+    hypothesis_ids = [item.id for item in trace.hypotheses]
+    if len(hypothesis_ids) != len(set(hypothesis_ids)):
+        issues.append("duplicate hypothesis IDs")
+    decision_sequences = [item.sequence for item in trace.decisions]
+    if len(decision_sequences) != len(set(decision_sequences)):
+        issues.append("duplicate decision sequences")
     if any(
         decision.tick is None or decision.arguments is None
         for decision in trace.decisions
@@ -34,6 +42,23 @@ def trace_issues(packet: RunEvidencePacket) -> list[str]:
         cited.update(hypothesis.unexplained_evidence_ids)
     for decision in trace.decisions:
         cited.update(decision.evidence_ids)
+    if trace.recheck is not None and trace.recheck.evidence_id:
+        cited.add(trace.recheck.evidence_id)
+    if trace.verification is not None:
+        cited.update(trace.verification.evidence_ids)
+        verification = trace.verification
+        if (
+            verification.action_started_tick is not None
+            and verification.action_finish_tick is not None
+            and verification.action_finish_tick < verification.action_started_tick
+        ):
+            issues.append("action finish precedes start")
+        if (
+            verification.checked_tick is not None
+            and verification.action_finish_tick is not None
+            and verification.checked_tick < verification.action_finish_tick
+        ):
+            issues.append("verification precedes action finish")
     missing = cited - set(evidence_ids)
     if missing:
         issues.append(f"unknown cited evidence IDs: {sorted(missing)[:3]}")

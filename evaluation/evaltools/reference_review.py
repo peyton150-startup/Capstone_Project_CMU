@@ -17,8 +17,14 @@ def review_id(item_id: str) -> str:
     return hashlib.sha256(item_id.encode("utf-8")).hexdigest()[:16]
 
 
-def export_requests(requests: Path, out: Path, limits: dict[str, int]) -> dict:
-    """Write a deterministic, answer-free sample from prepared requests."""
+def export_requests(
+    requests: Path,
+    out: Path,
+    limits: dict[str, int],
+    *,
+    run_strata: dict[str, str] | None = None,
+) -> dict:
+    """Write blind packets; optionally require both sound and misleading RUNs."""
     # Variables:
     #   items: One state and its questions per internal item, across request chunks.
     #   chosen: The sampled items, preferring full RUN traces and function
@@ -43,6 +49,15 @@ def export_requests(requests: Path, out: Path, limits: dict[str, int]) -> dict:
             raise ValueError(f"two different states for {key[0]} item")
         for question in tags["questions"].values():
             item["questions"][question["id"]] = question
+    if run_strata is not None:
+        run_ids = {item_id for family, item_id in items if family == "RUN"}
+        if not isinstance(run_strata, dict) or any(
+            not isinstance(item_id, str) or label not in ("sound", "misleading")
+            for item_id, label in run_strata.items()
+        ):
+            raise ValueError("run strata must map RUN IDs to sound or misleading")
+        if set(run_strata) - run_ids:
+            raise ValueError("run strata include unknown RUN IDs")
     chosen = []
     for family, limit in limits.items():
         candidates = sorted(
@@ -59,7 +74,30 @@ def export_requests(requests: Path, out: Path, limits: dict[str, int]) -> dict:
                 review_id(pair[0]),
             ),
         )
-        chosen.extend((item_id, item) for item_id, item in candidates[:limit])
+        selected = candidates[:limit]
+        if family == "RUN" and run_strata is not None and limit:
+            if limit < 2:
+                raise ValueError("at least two RUN review slots are needed for both strata")
+            required = []
+            for label in ("sound", "misleading"):
+                match = next(
+                    (
+                        pair
+                        for pair in candidates
+                        if run_strata.get(pair[0]) == label
+                        and pair[1]["state"].get("trace", {}).get("completeness")
+                        == "full"
+                    ),
+                    None,
+                )
+                if match is None:
+                    raise ValueError(f"no full-trace RUN item in {label} stratum")
+                required.append(match)
+            selected_ids = {item_id for item_id, _ in required}
+            selected = required + [
+                pair for pair in candidates if pair[0] not in selected_ids
+            ][: limit - len(required)]
+        chosen.extend((item_id, item) for item_id, item in selected)
     out.mkdir(parents=True, exist_ok=False)
     blinded = out / "blinded"
     blinded.mkdir()
@@ -149,6 +187,11 @@ def main(argv=None) -> int:
     export.add_argument("--requests", type=Path, required=True)
     export.add_argument("--out", type=Path, required=True)
     export.add_argument("--run", type=int, default=8)
+    export.add_argument(
+        "--run-strata",
+        type=Path,
+        help="Private JSON map of RUN item IDs to sound/misleading; require both in the blind sample",
+    )
     export.add_argument("--function", type=int, default=8)
     export.add_argument("--test", type=int, default=8)
     export.add_argument("--tool", type=int, default=5)
@@ -168,7 +211,12 @@ def main(argv=None) -> int:
         }
         if any(limit < 0 for limit in limits.values()):
             parser.error("sample limits must be non-negative")
-        result = export_requests(args.requests, args.out, limits)
+        run_strata = (
+            json.loads(args.run_strata.read_text(encoding="utf-8"))
+            if args.run_strata is not None
+            else None
+        )
+        result = export_requests(args.requests, args.out, limits, run_strata=run_strata)
     else:
         result = import_review(args.review_dir, args.answers, args.out)
     print(json.dumps(result))

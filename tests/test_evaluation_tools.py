@@ -921,6 +921,79 @@ def test_new_cohort_preflight_requires_matching_audit_evidence(master_packets):
         )
 
 
+def test_preflight_validates_recheck_and_verification_evidence():
+    """References from critic follow-up and post-action verification must exist."""
+    # Variables:
+    #   full: A real audited packet, unchanged for the accepted baseline.
+    #   changed: The minimal trace fragment with a deliberately broken citation.
+    from evaltools.audit_preflight import trace_issues
+
+    full = run_packet.build_archive(AUDITED_FIVE)[0]
+    trace = full.snap_view.trace
+    recheck = run_packet.RecheckView(outcome="performed", evidence_id="missing-recheck")
+    changed = trace.model_copy(update={"recheck": recheck})
+    assert "unknown cited evidence IDs" in str(
+        trace_issues(full.model_copy(update={
+            "snap_view": full.snap_view.model_copy(update={"trace": changed})
+        }))
+    )
+    verification = trace.verification.model_copy(
+        update={"evidence_ids": ["missing-verification"]}
+    )
+    changed = trace.model_copy(update={"verification": verification})
+    assert "unknown cited evidence IDs" in str(
+        trace_issues(full.model_copy(update={
+            "snap_view": full.snap_view.model_copy(update={"trace": changed})
+        }))
+    )
+
+
+def test_preflight_refuses_corrupt_order_and_missing_provenance():
+    """Audit evidence, decision identities and action timing must be defensible."""
+    # Variables:
+    #   full: A previously accepted complete episode with known valid provenance.
+    #   changes: Separate corruptions that must each fail the strict cohort gate.
+    from evaltools.audit_preflight import trace_issues
+
+    full = run_packet.build_archive(AUDITED_FIVE)[0]
+    trace = full.snap_view.trace
+    assert trace_issues(full) == []
+    changed_evidence = trace.evidence[0].model_copy(update={"origin": ""})
+    changes = (
+        ({"evidence": [changed_evidence, *trace.evidence[1:]]}, "provenance origin"),
+        (
+            {"decisions": [trace.decisions[0], trace.decisions[0], *trace.decisions[1:]]},
+            "duplicate decision sequences",
+        ),
+        (
+            {"hypotheses": [trace.hypotheses[0], trace.hypotheses[0], *trace.hypotheses[1:]]},
+            "duplicate hypothesis IDs",
+        ),
+        (
+            {
+                "verification": trace.verification.model_copy(
+                    update={"action_started_tick": 9, "action_finish_tick": 8}
+                )
+            },
+            "action finish precedes start",
+        ),
+        (
+            {
+                "verification": trace.verification.model_copy(
+                    update={"action_finish_tick": 8, "checked_tick": 7}
+                )
+            },
+            "verification precedes action finish",
+        ),
+    )
+    for update, expected in changes:
+        changed = trace.model_copy(update=update)
+        packet = full.model_copy(
+            update={"snap_view": full.snap_view.model_copy(update={"trace": changed})}
+        )
+        assert expected in trace_issues(packet)
+
+
 # --- evaluator readiness fixes (CRITERIA_FOR_EVALUATOR.md) ----------------------------
 
 TOT13_PAIRS = BENCHMARKS / "2026-11-01-tot13-pairs"

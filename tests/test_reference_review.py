@@ -92,3 +92,66 @@ def test_function_sample_prefers_items_with_all_judgments(tmp_path):
     export_requests(requests, review, {"FN": 1})
     mapping = json.loads((review / "private_mapping.json").read_text())
     assert list(mapping.values()) == ["fn_full"]
+
+
+def test_run_strata_guarantees_blind_sound_and_misleading_cases(tmp_path):
+    """A private curated map guarantees both kinds without showing their labels."""
+    # Variables:
+    #   requests: A minimal unsent cohort containing one sound and two misleading runs.
+    #   mapping: The private opaque-to-internal identity lookup for the blind sample.
+    requests = tmp_path / "requests"
+    requests.mkdir()
+    for item_id in ("sound-case", "misleading-case", "spare-case"):
+        (requests / f"{item_id}.request.json").write_text(
+            json.dumps(
+                {
+                    "tags": {
+                        "family": "RUN",
+                        "item_id": item_id,
+                        "questions": {"quality": {"id": "RUN-01", "type": "score", "criteria": ["0", "1"]}},
+                    },
+                    "body": {"state": {"run_ref": "opaque", "trace": {"completeness": "full"}}},
+                }
+            ),
+            encoding="utf-8",
+        )
+    out = tmp_path / "blind"
+    export_requests(
+        requests,
+        out,
+        {"RUN": 2},
+        run_strata={"sound-case": "sound", "misleading-case": "misleading"},
+    )
+    mapping = json.loads((out / "private_mapping.json").read_text())
+    assert set(mapping.values()) == {"sound-case", "misleading-case"}
+    for opaque in mapping:
+        packet = (out / "blinded" / f"{opaque}.json").read_text()
+        assert "sound-case" not in packet
+        assert "misleading-case" not in packet
+        assert '"sound"' not in packet
+        assert '"misleading"' not in packet
+
+
+def test_run_strata_fail_closed_when_balanced_review_is_impossible(tmp_path):
+    """A missing negative example must not be presented as a calibrated sample."""
+    # Variables:
+    #   requests: A candidate with evidence sufficient for RUN review.
+    #   selected: A private stratum map missing a deliberately misleading case.
+    requests = tmp_path / "requests"
+    requests.mkdir()
+    (requests / "one.request.json").write_text(
+        json.dumps(
+            {
+                "tags": {"family": "RUN", "item_id": "only", "questions": {}},
+                "body": {"state": {"trace": {"completeness": "full"}}},
+            }
+        ),
+        encoding="utf-8",
+    )
+    with pytest.raises(ValueError, match="no full-trace RUN item in misleading stratum"):
+        export_requests(
+            requests,
+            tmp_path / "review",
+            {"RUN": 2},
+            run_strata={"only": "sound"},
+        )
