@@ -25681,6 +25681,2062 @@
    ]
   },
   {
+   "id": "tests/test_coverage_eval_cli_edges.py::test_evals_cli_refuses_incompatible_modes_before_loading_config",
+   "file": "tests/test_coverage_eval_cli_edges.py",
+   "name": "test_evals_cli_refuses_incompatible_modes_before_loading_config",
+   "line": 37,
+   "docstring": "",
+   "parametrized": true,
+   "fixtures": [
+    "tmp_path",
+    "options"
+   ],
+   "assertions": 1,
+   "assert_forms": {
+    "equality": 1
+   },
+   "raises_checks": 1,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "evals cli refuses incompatible modes before loading config",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.evals:main",
+    "capstone.experiment:add_manual_options"
+   ],
+   "exercise_count": 2,
+   "modules_exercised": [
+    "capstone.evals",
+    "capstone.experiment"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_coverage_eval_cli_edges.py::test_evals_cli_raises_when_resumed_raw_file_is_absent",
+   "file": "tests/test_coverage_eval_cli_edges.py",
+   "name": "test_evals_cli_raises_when_resumed_raw_file_is_absent",
+   "line": 43,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [
+    "monkeypatch",
+    "tmp_path",
+    "capsys"
+   ],
+   "assertions": 2,
+   "assert_forms": {
+    "equality": 1,
+    "membership": 1
+   },
+   "raises_checks": 1,
+   "uses": [
+    "monkeypatch"
+   ],
+   "quality_flags": [
+    "patches_dependencies"
+   ],
+   "claims": "evals cli raises when resumed raw file is absent",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.evals:Scenario.valid_factory",
+    "capstone.evals:ScenarioConfig.unique_ids",
+    "capstone.evals:main",
+    "capstone.experiment:add_manual_options"
+   ],
+   "exercise_count": 4,
+   "modules_exercised": [
+    "capstone.evals",
+    "capstone.experiment"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_coverage_eval_cli_edges.py::test_evals_cli_refuses_a_corrupt_resumed_prefix",
+   "file": "tests/test_coverage_eval_cli_edges.py",
+   "name": "test_evals_cli_refuses_a_corrupt_resumed_prefix",
+   "line": 63,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [
+    "monkeypatch",
+    "tmp_path",
+    "capsys"
+   ],
+   "assertions": 2,
+   "assert_forms": {
+    "equality": 1,
+    "membership": 1
+   },
+   "raises_checks": 1,
+   "uses": [
+    "monkeypatch"
+   ],
+   "quality_flags": [
+    "patches_dependencies"
+   ],
+   "claims": "evals cli refuses a corrupt resumed prefix",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.evals:Scenario.valid_factory",
+    "capstone.evals:ScenarioConfig.unique_ids",
+    "capstone.evals:main",
+    "capstone.experiment:add_manual_options"
+   ],
+   "exercise_count": 4,
+   "modules_exercised": [
+    "capstone.evals",
+    "capstone.experiment"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_coverage_eval_cli_edges.py::test_evals_cli_refuses_to_clobber_an_existing_raw_run",
+   "file": "tests/test_coverage_eval_cli_edges.py",
+   "name": "test_evals_cli_refuses_to_clobber_an_existing_raw_run",
+   "line": 89,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [
+    "monkeypatch",
+    "tmp_path",
+    "capsys"
+   ],
+   "assertions": 3,
+   "assert_forms": {
+    "equality": 2,
+    "membership": 1
+   },
+   "raises_checks": 1,
+   "uses": [
+    "monkeypatch"
+   ],
+   "quality_flags": [
+    "patches_dependencies"
+   ],
+   "claims": "evals cli refuses to clobber an existing raw run",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.evals:Scenario.valid_factory",
+    "capstone.evals:ScenarioConfig.unique_ids",
+    "capstone.evals:main",
+    "capstone.evals:reserve_raw_output",
+    "capstone.experiment:add_manual_options"
+   ],
+   "exercise_count": 5,
+   "modules_exercised": [
+    "capstone.evals",
+    "capstone.experiment"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_coverage_eval_cli_edges.py::test_evals_cli_saved_records_must_match_config_in_order",
+   "file": "tests/test_coverage_eval_cli_edges.py",
+   "name": "test_evals_cli_saved_records_must_match_config_in_order",
+   "line": 111,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [
+    "monkeypatch",
+    "tmp_path"
+   ],
+   "assertions": 1,
+   "assert_forms": {
+    "equality": 1
+   },
+   "raises_checks": 1,
+   "uses": [
+    "monkeypatch"
+   ],
+   "quality_flags": [
+    "patches_dependencies"
+   ],
+   "claims": "evals cli saved records must match config in order",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.evals:Scenario.valid_factory",
+    "capstone.evals:ScenarioConfig.unique_ids",
+    "capstone.evals:main",
+    "capstone.experiment:add_manual_options"
+   ],
+   "exercise_count": 4,
+   "modules_exercised": [
+    "capstone.evals",
+    "capstone.experiment"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_coverage_eval_cli_edges.py::test_evals_cli_rescores_saved_records_and_writes_diff_without_model",
+   "file": "tests/test_coverage_eval_cli_edges.py",
+   "name": "test_evals_cli_rescores_saved_records_and_writes_diff_without_model",
+   "line": 132,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [
+    "monkeypatch",
+    "tmp_path",
+    "capsys"
+   ],
+   "assertions": 4,
+   "assert_forms": {
+    "equality": 3,
+    "membership": 1
+   },
+   "raises_checks": 0,
+   "uses": [
+    "monkeypatch"
+   ],
+   "quality_flags": [
+    "patches_dependencies"
+   ],
+   "claims": "evals cli rescores saved records and writes diff without model",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.evals:Scenario.valid_factory",
+    "capstone.evals:ScenarioConfig.unique_ids",
+    "capstone.evals:main",
+    "capstone.experiment:add_manual_options"
+   ],
+   "exercise_count": 4,
+   "modules_exercised": [
+    "capstone.evals",
+    "capstone.experiment"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_coverage_eval_cli_edges.py::test_evals_cli_saves_fresh_rows_and_uses_live_watch_hook",
+   "file": "tests/test_coverage_eval_cli_edges.py",
+   "name": "test_evals_cli_saves_fresh_rows_and_uses_live_watch_hook",
+   "line": 181,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [
+    "monkeypatch",
+    "tmp_path"
+   ],
+   "assertions": 5,
+   "assert_forms": {
+    "equality": 2,
+    "truthiness": 3
+   },
+   "raises_checks": 0,
+   "uses": [
+    "monkeypatch"
+   ],
+   "quality_flags": [
+    "patches_dependencies"
+   ],
+   "claims": "evals cli saves fresh rows and uses live watch hook",
+   "execution_outcome": "failed",
+   "exercises": [
+    "capstone.evals:Scenario.valid_factory",
+    "capstone.evals:ScenarioConfig.unique_ids",
+    "capstone.evals:main",
+    "capstone.evals:reserve_raw_output",
+    "capstone.experiment:add_manual_options",
+    "capstone.experiment:open_manual",
+    "capstone.manual.index:open_manual_index",
+    "capstone.manual.index:ready_index",
+    "capstone.manual.index:ready_manual_index",
+    "capstone.manual.sections:check_no_leaks",
+    "capstone.manual.sections:load_manual",
+    "capstone.manual.sections:parse_manual",
+    "capstone.providers.chat:ModelError.__init__",
+    "capstone.providers.embeddings:embedders_for",
+    "capstone.settings:Settings.blank_is_missing",
+    "capstone.settings:get_settings"
+   ],
+   "exercise_count": 16,
+   "modules_exercised": [
+    "capstone.evals",
+    "capstone.experiment",
+    "capstone.manual.index",
+    "capstone.manual.sections",
+    "capstone.providers.chat",
+    "capstone.providers.embeddings",
+    "capstone.settings"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_coverage_eval_cli_edges.py::test_evals_automatic_labels_marks_undetermined_and_deferred_review",
+   "file": "tests/test_coverage_eval_cli_edges.py",
+   "name": "test_evals_automatic_labels_marks_undetermined_and_deferred_review",
+   "line": 219,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [
+    "monkeypatch"
+   ],
+   "assertions": 5,
+   "assert_forms": {
+    "equality": 5
+   },
+   "raises_checks": 0,
+   "uses": [
+    "monkeypatch"
+   ],
+   "quality_flags": [
+    "patches_dependencies"
+   ],
+   "claims": "evals automatic labels marks undetermined and deferred review",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.evals:automatic_labels"
+   ],
+   "exercise_count": 1,
+   "modules_exercised": [
+    "capstone.evals"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_coverage_eval_cli_edges.py::test_experiment_open_memory_refuses_missing_database",
+   "file": "tests/test_coverage_eval_cli_edges.py",
+   "name": "test_experiment_open_memory_refuses_missing_database",
+   "line": 250,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [
+    "monkeypatch"
+   ],
+   "assertions": 0,
+   "assert_forms": {},
+   "raises_checks": 1,
+   "uses": [
+    "monkeypatch"
+   ],
+   "quality_flags": [
+    "patches_dependencies"
+   ],
+   "claims": "experiment open memory refuses missing database",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.experiment:open_memory"
+   ],
+   "exercise_count": 1,
+   "modules_exercised": [
+    "capstone.experiment"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_coverage_eval_cli_edges.py::test_experiment_open_memory_converts_postgres_driver_without_connecting",
+   "file": "tests/test_coverage_eval_cli_edges.py",
+   "name": "test_experiment_open_memory_converts_postgres_driver_without_connecting",
+   "line": 262,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [
+    "monkeypatch"
+   ],
+   "assertions": 2,
+   "assert_forms": {
+    "equality": 1,
+    "identity": 1
+   },
+   "raises_checks": 0,
+   "uses": [
+    "monkeypatch"
+   ],
+   "quality_flags": [
+    "patches_dependencies"
+   ],
+   "claims": "experiment open memory converts postgres driver without connecting",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.experiment:open_memory"
+   ],
+   "exercise_count": 1,
+   "modules_exercised": [
+    "capstone.experiment"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_coverage_eval_cli_edges.py::test_experiment_cli_prevents_audit_records_collision",
+   "file": "tests/test_coverage_eval_cli_edges.py",
+   "name": "test_experiment_cli_prevents_audit_records_collision",
+   "line": 299,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [
+    "tmp_path",
+    "capsys"
+   ],
+   "assertions": 2,
+   "assert_forms": {
+    "equality": 1,
+    "membership": 1
+   },
+   "raises_checks": 1,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "experiment cli prevents audit records collision",
+   "execution_outcome": "failed",
+   "exercises": [
+    "capstone.console:safe_console",
+    "capstone.experiment:add_manual_options",
+    "capstone.experiment:grid",
+    "capstone.experiment:main",
+    "capstone.experiment:open_manual",
+    "capstone.experiment:seeds_from",
+    "capstone.manual.index:open_manual_index",
+    "capstone.manual.index:ready_index",
+    "capstone.manual.index:ready_manual_index",
+    "capstone.manual.sections:check_no_leaks",
+    "capstone.manual.sections:load_manual",
+    "capstone.manual.sections:parse_manual",
+    "capstone.providers.chat:ModelError.__init__",
+    "capstone.providers.embeddings:embedders_for",
+    "capstone.settings:Settings.blank_is_missing",
+    "capstone.settings:get_settings"
+   ],
+   "exercise_count": 16,
+   "modules_exercised": [
+    "capstone.console",
+    "capstone.experiment",
+    "capstone.manual.index",
+    "capstone.manual.sections",
+    "capstone.providers.chat",
+    "capstone.providers.embeddings",
+    "capstone.settings"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_coverage_eval_cli_edges.py::test_experiment_cli_does_not_hide_provider_failures_and_interrupts",
+   "file": "tests/test_coverage_eval_cli_edges.py",
+   "name": "test_experiment_cli_does_not_hide_provider_failures_and_interrupts",
+   "line": 325,
+   "docstring": "",
+   "parametrized": true,
+   "fixtures": [
+    "monkeypatch",
+    "tmp_path",
+    "failure"
+   ],
+   "assertions": 0,
+   "assert_forms": {},
+   "raises_checks": 1,
+   "uses": [
+    "monkeypatch"
+   ],
+   "quality_flags": [
+    "patches_dependencies"
+   ],
+   "claims": "experiment cli does not hide provider failures and interrupts",
+   "execution_outcome": "failed",
+   "exercises": [
+    "capstone.console:safe_console",
+    "capstone.experiment:add_manual_options",
+    "capstone.experiment:main",
+    "capstone.experiment:open_manual",
+    "capstone.manual.index:open_manual_index",
+    "capstone.manual.index:ready_index",
+    "capstone.manual.index:ready_manual_index",
+    "capstone.manual.sections:check_no_leaks",
+    "capstone.manual.sections:load_manual",
+    "capstone.manual.sections:parse_manual",
+    "capstone.providers.chat:ModelError.__init__",
+    "capstone.providers.embeddings:embedders_for",
+    "capstone.settings:Settings.blank_is_missing",
+    "capstone.settings:get_settings"
+   ],
+   "exercise_count": 14,
+   "modules_exercised": [
+    "capstone.console",
+    "capstone.experiment",
+    "capstone.manual.index",
+    "capstone.manual.sections",
+    "capstone.providers.chat",
+    "capstone.providers.embeddings",
+    "capstone.settings"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_coverage_eval_cli_edges.py::test_experiment_cli_label_skips_missing_conclusions_and_existing_answers",
+   "file": "tests/test_coverage_eval_cli_edges.py",
+   "name": "test_experiment_cli_label_skips_missing_conclusions_and_existing_answers",
+   "line": 358,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [
+    "monkeypatch",
+    "tmp_path"
+   ],
+   "assertions": 2,
+   "assert_forms": {
+    "equality": 2
+   },
+   "raises_checks": 0,
+   "uses": [
+    "monkeypatch"
+   ],
+   "quality_flags": [
+    "patches_dependencies",
+    "may_skip"
+   ],
+   "claims": "experiment cli label skips missing conclusions and existing answers",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.console:safe_console",
+    "capstone.evaluation.labels:LabelBook.__init__",
+    "capstone.experiment:add_manual_options",
+    "capstone.experiment:main"
+   ],
+   "exercise_count": 4,
+   "modules_exercised": [
+    "capstone.console",
+    "capstone.evaluation.labels",
+    "capstone.experiment"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_coverage_index_edges.py::test_backfill_batches_are_bounded_and_preserve_every_record",
+   "file": "tests/test_coverage_index_edges.py",
+   "name": "test_backfill_batches_are_bounded_and_preserve_every_record",
+   "line": 22,
+   "docstring": "A derived search index receives each row exactly once in bounded batches.",
+   "parametrized": true,
+   "fixtures": [
+    "size",
+    "batches"
+   ],
+   "assertions": 3,
+   "assert_forms": {
+    "equality": 3
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "A derived search index receives each row exactly once in bounded batches.",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.memory.backfill:backfill"
+   ],
+   "exercise_count": 1,
+   "modules_exercised": [
+    "capstone.memory.backfill"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_coverage_index_edges.py::test_memory_backfill_cli_requires_a_database_url",
+   "file": "tests/test_coverage_index_edges.py",
+   "name": "test_memory_backfill_cli_requires_a_database_url",
+   "line": 31,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [
+    "monkeypatch"
+   ],
+   "assertions": 0,
+   "assert_forms": {},
+   "raises_checks": 1,
+   "uses": [
+    "monkeypatch"
+   ],
+   "quality_flags": [
+    "patches_dependencies"
+   ],
+   "claims": "memory backfill cli requires a database url",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.memory.backfill:main"
+   ],
+   "exercise_count": 1,
+   "modules_exercised": [
+    "capstone.memory.backfill"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_coverage_index_edges.py::test_memory_backfill_cli_reads_only_disposes_and_rebuilds",
+   "file": "tests/test_coverage_index_edges.py",
+   "name": "test_memory_backfill_cli_reads_only_disposes_and_rebuilds",
+   "line": 50,
+   "docstring": "Database access ends before the derived Chroma index is touched.",
+   "parametrized": true,
+   "fixtures": [
+    "monkeypatch",
+    "capsys",
+    "url",
+    "driver",
+    "rebuild"
+   ],
+   "assertions": 3,
+   "assert_forms": {
+    "equality": 1,
+    "identity": 1,
+    "membership": 1
+   },
+   "raises_checks": 0,
+   "uses": [
+    "monkeypatch"
+   ],
+   "quality_flags": [
+    "patches_dependencies"
+   ],
+   "claims": "Database access ends before the derived Chroma index is touched.",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.memory.backfill:backfill",
+    "capstone.memory.backfill:main"
+   ],
+   "exercise_count": 2,
+   "modules_exercised": [
+    "capstone.memory.backfill"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_coverage_index_edges.py::test_memory_backfill_disposes_engine_after_read_failure",
+   "file": "tests/test_coverage_index_edges.py",
+   "name": "test_memory_backfill_disposes_engine_after_read_failure",
+   "line": 106,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [
+    "monkeypatch"
+   ],
+   "assertions": 1,
+   "assert_forms": {
+    "equality": 1
+   },
+   "raises_checks": 1,
+   "uses": [
+    "monkeypatch"
+   ],
+   "quality_flags": [
+    "patches_dependencies"
+   ],
+   "claims": "memory backfill disposes engine after read failure",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.memory.backfill:main"
+   ],
+   "exercise_count": 1,
+   "modules_exercised": [
+    "capstone.memory.backfill"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_coverage_index_edges.py::test_duplicate_similarity_rejects_mismatched_vectors_and_handles_no_negatives",
+   "file": "tests/test_coverage_index_edges.py",
+   "name": "test_duplicate_similarity_rejects_mismatched_vectors_and_handles_no_negatives",
+   "line": 134,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 2,
+   "assert_forms": {
+    "equality": 1,
+    "is_none": 1
+   },
+   "raises_checks": 1,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "duplicate similarity rejects mismatched vectors and handles no negatives",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.memory.duplicate_threshold:choose_threshold",
+    "capstone.memory.duplicate_threshold:cosine",
+    "capstone.memory.duplicate_threshold:evaluate"
+   ],
+   "exercise_count": 3,
+   "modules_exercised": [
+    "capstone.memory.duplicate_threshold"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_coverage_index_edges.py::test_duplicate_measure_refuses_to_invent_a_threshold_without_different_pairs",
+   "file": "tests/test_coverage_index_edges.py",
+   "name": "test_duplicate_measure_refuses_to_invent_a_threshold_without_different_pairs",
+   "line": 146,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 3,
+   "assert_forms": {
+    "equality": 1,
+    "is_none": 1,
+    "truthiness": 1
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "duplicate measure refuses to invent a threshold without different pairs",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.memory.duplicate_threshold:choose_threshold",
+    "capstone.memory.duplicate_threshold:cosine",
+    "capstone.memory.duplicate_threshold:measure",
+    "capstone.memory.duplicate_threshold:pair_text"
+   ],
+   "exercise_count": 4,
+   "modules_exercised": [
+    "capstone.memory.duplicate_threshold"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_coverage_index_edges.py::test_duplicate_measure_cli_chooses_offline_or_provider_embedder",
+   "file": "tests/test_coverage_index_edges.py",
+   "name": "test_duplicate_measure_cli_chooses_offline_or_provider_embedder",
+   "line": 163,
+   "docstring": "",
+   "parametrized": true,
+   "fixtures": [
+    "monkeypatch",
+    "tmp_path",
+    "capsys",
+    "use_provider"
+   ],
+   "assertions": 4,
+   "assert_forms": {
+    "equality": 3,
+    "identity": 1
+   },
+   "raises_checks": 0,
+   "uses": [
+    "monkeypatch"
+   ],
+   "quality_flags": [
+    "patches_dependencies"
+   ],
+   "claims": "duplicate measure cli chooses offline or provider embedder",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.memory.duplicate_threshold:choose_threshold",
+    "capstone.memory.duplicate_threshold:cosine",
+    "capstone.memory.duplicate_threshold:evaluate",
+    "capstone.memory.duplicate_threshold:main",
+    "capstone.memory.duplicate_threshold:measure",
+    "capstone.memory.duplicate_threshold:pair_text",
+    "capstone.memory.duplicate_threshold:read_pairs"
+   ],
+   "exercise_count": 7,
+   "modules_exercised": [
+    "capstone.memory.duplicate_threshold"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_coverage_index_edges.py::test_manual_semantic_index_filters_removed_sections_and_empty_collections",
+   "file": "tests/test_coverage_index_edges.py",
+   "name": "test_manual_semantic_index_filters_removed_sections_and_empty_collections",
+   "line": 210,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 3,
+   "assert_forms": {
+    "equality": 3
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "manual semantic index filters removed sections and empty collections",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.manual.index:ChromaManualIndex.__init__",
+    "capstone.manual.index:ChromaManualIndex.search"
+   ],
+   "exercise_count": 2,
+   "modules_exercised": [
+    "capstone.manual.index"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_coverage_index_edges.py::test_manual_semantic_index_builds_revision_fingerprints",
+   "file": "tests/test_coverage_index_edges.py",
+   "name": "test_manual_semantic_index_builds_revision_fingerprints",
+   "line": 236,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 4,
+   "assert_forms": {
+    "call_truthiness": 1,
+    "equality": 2,
+    "negation": 1
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "manual semantic index builds revision fingerprints",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.manual.index:ChromaManualIndex.__init__",
+    "capstone.manual.index:ChromaManualIndex.build",
+    "capstone.manual.index:ChromaManualIndex.is_current",
+    "capstone.manual.index:section_digest",
+    "capstone.manual.index:section_document"
+   ],
+   "exercise_count": 5,
+   "modules_exercised": [
+    "capstone.manual.index"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_coverage_index_edges.py::test_manual_open_index_supports_local_and_separate_query_embeddings",
+   "file": "tests/test_coverage_index_edges.py",
+   "name": "test_manual_open_index_supports_local_and_separate_query_embeddings",
+   "line": 260,
+   "docstring": "",
+   "parametrized": true,
+   "fixtures": [
+    "monkeypatch",
+    "provided"
+   ],
+   "assertions": 4,
+   "assert_forms": {
+    "identity": 3,
+    "identity_constant": 1
+   },
+   "raises_checks": 0,
+   "uses": [
+    "monkeypatch"
+   ],
+   "quality_flags": [
+    "patches_dependencies"
+   ],
+   "claims": "manual open index supports local and separate query embeddings",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.manual.index:ChromaManualIndex.__init__",
+    "capstone.manual.index:open_manual_index"
+   ],
+   "exercise_count": 2,
+   "modules_exercised": [
+    "capstone.manual.index"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_coverage_index_edges.py::test_manual_cli_passes_rebuild_and_prints_indexed_count",
+   "file": "tests/test_coverage_index_edges.py",
+   "name": "test_manual_cli_passes_rebuild_and_prints_indexed_count",
+   "line": 308,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [
+    "monkeypatch",
+    "capsys"
+   ],
+   "assertions": 3,
+   "assert_forms": {
+    "equality": 2,
+    "membership": 1
+   },
+   "raises_checks": 0,
+   "uses": [
+    "monkeypatch"
+   ],
+   "quality_flags": [
+    "patches_dependencies"
+   ],
+   "claims": "manual cli passes rebuild and prints indexed count",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.manual.index:main"
+   ],
+   "exercise_count": 1,
+   "modules_exercised": [
+    "capstone.manual.index"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_coverage_reporting_edges.py::test_reach_groups_cover_generated_skipped_unanswered_and_early_termination",
+   "file": "tests/test_coverage_reporting_edges.py",
+   "name": "test_reach_groups_cover_generated_skipped_unanswered_and_early_termination",
+   "line": 28,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 4,
+   "assert_forms": {
+    "equality": 4
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [
+    "may_skip"
+   ],
+   "claims": "reach groups cover generated skipped unanswered and early termination",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.tree_reach:group_of"
+   ],
+   "exercise_count": 1,
+   "modules_exercised": [
+    "capstone.tree_reach"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_coverage_reporting_edges.py::test_reach_counts_attempt_failures_and_only_pre_tree_research_calls",
+   "file": "tests/test_coverage_reporting_edges.py",
+   "name": "test_reach_counts_attempt_failures_and_only_pre_tree_research_calls",
+   "line": 39,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 5,
+   "assert_forms": {
+    "equality": 4,
+    "identity_constant": 1
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "reach counts attempt failures and only pre tree research calls",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.tree_reach:group_of",
+    "capstone.tree_reach:reach_of"
+   ],
+   "exercise_count": 2,
+   "modules_exercised": [
+    "capstone.tree_reach"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_coverage_reporting_edges.py::test_reach_summary_groups_time_failures_and_reserve_usage",
+   "file": "tests/test_coverage_reporting_edges.py",
+   "name": "test_reach_summary_groups_time_failures_and_reserve_usage",
+   "line": 67,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 3,
+   "assert_forms": {
+    "equality": 3
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "reach summary groups time failures and reserve usage",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.tree_reach:summarize"
+   ],
+   "exercise_count": 1,
+   "modules_exercised": [
+    "capstone.tree_reach"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_coverage_reporting_edges.py::test_tree_position_report_skips_unrated_candidates_and_counts_rotation",
+   "file": "tests/test_coverage_reporting_edges.py",
+   "name": "test_tree_position_report_skips_unrated_candidates_and_counts_rotation",
+   "line": 94,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 5,
+   "assert_forms": {
+    "equality": 4,
+    "membership": 1
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [
+    "may_skip"
+   ],
+   "claims": "tree position report skips unrated candidates and counts rotation",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.tree_reach:position_effect"
+   ],
+   "exercise_count": 1,
+   "modules_exercised": [
+    "capstone.tree_reach"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_coverage_reporting_edges.py::test_tree_position_report_ignores_runs_with_no_rating",
+   "file": "tests/test_coverage_reporting_edges.py",
+   "name": "test_tree_position_report_ignores_runs_with_no_rating",
+   "line": 114,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 1,
+   "assert_forms": {
+    "equality": 1
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "tree position report ignores runs with no rating",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.tree_reach:position_effect"
+   ],
+   "exercise_count": 1,
+   "modules_exercised": [
+    "capstone.tree_reach"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_coverage_reporting_edges.py::test_tree_report_cli_text_and_json_paths",
+   "file": "tests/test_coverage_reporting_edges.py",
+   "name": "test_tree_report_cli_text_and_json_paths",
+   "line": 126,
+   "docstring": "",
+   "parametrized": true,
+   "fixtures": [
+    "monkeypatch",
+    "tmp_path",
+    "capsys",
+    "json_mode"
+   ],
+   "assertions": 6,
+   "assert_forms": {
+    "equality": 4,
+    "membership": 2
+   },
+   "raises_checks": 0,
+   "uses": [
+    "monkeypatch"
+   ],
+   "quality_flags": [
+    "patches_dependencies"
+   ],
+   "claims": "tree report cli text and json paths",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.tree_reach:group_of",
+    "capstone.tree_reach:main",
+    "capstone.tree_reach:position_effect",
+    "capstone.tree_reach:reach_of",
+    "capstone.tree_reach:summarize"
+   ],
+   "exercise_count": 5,
+   "modules_exercised": [
+    "capstone.tree_reach"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_coverage_reporting_edges.py::test_tree_report_cli_loads_all_files_in_order",
+   "file": "tests/test_coverage_reporting_edges.py",
+   "name": "test_tree_report_cli_loads_all_files_in_order",
+   "line": 144,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [
+    "monkeypatch",
+    "tmp_path"
+   ],
+   "assertions": 2,
+   "assert_forms": {
+    "equality": 2
+   },
+   "raises_checks": 0,
+   "uses": [
+    "monkeypatch"
+   ],
+   "quality_flags": [
+    "patches_dependencies"
+   ],
+   "claims": "tree report cli loads all files in order",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.tree_reach:read_all"
+   ],
+   "exercise_count": 1,
+   "modules_exercised": [
+    "capstone.tree_reach"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_coverage_reporting_edges.py::test_memory_comparison_opens_sql_only_for_nonsemantic_modes",
+   "file": "tests/test_coverage_reporting_edges.py",
+   "name": "test_memory_comparison_opens_sql_only_for_nonsemantic_modes",
+   "line": 156,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [
+    "monkeypatch"
+   ],
+   "assertions": 1,
+   "assert_forms": {
+    "equality": 1
+   },
+   "raises_checks": 0,
+   "uses": [
+    "monkeypatch"
+   ],
+   "quality_flags": [
+    "patches_dependencies"
+   ],
+   "claims": "memory comparison opens sql only for nonsemantic modes",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.memory_comparison:open_store_and_index"
+   ],
+   "exercise_count": 1,
+   "modules_exercised": [
+    "capstone.memory_comparison"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_coverage_reporting_edges.py::test_memory_comparison_semantic_errors_never_fall_back_to_keyword",
+   "file": "tests/test_coverage_reporting_edges.py",
+   "name": "test_memory_comparison_semantic_errors_never_fall_back_to_keyword",
+   "line": 168,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [
+    "monkeypatch"
+   ],
+   "assertions": 0,
+   "assert_forms": {},
+   "raises_checks": 1,
+   "uses": [
+    "monkeypatch"
+   ],
+   "quality_flags": [
+    "patches_dependencies"
+   ],
+   "claims": "memory comparison semantic errors never fall back to keyword",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.memory_comparison:open_store_and_index"
+   ],
+   "exercise_count": 1,
+   "modules_exercised": [
+    "capstone.memory_comparison"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_coverage_reporting_edges.py::test_memory_comparison_semantic_mode_preserves_index",
+   "file": "tests/test_coverage_reporting_edges.py",
+   "name": "test_memory_comparison_semantic_mode_preserves_index",
+   "line": 187,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [
+    "monkeypatch"
+   ],
+   "assertions": 1,
+   "assert_forms": {
+    "equality": 1
+   },
+   "raises_checks": 0,
+   "uses": [
+    "monkeypatch"
+   ],
+   "quality_flags": [
+    "patches_dependencies"
+   ],
+   "claims": "memory comparison semantic mode preserves index",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.memory_comparison:open_store_and_index"
+   ],
+   "exercise_count": 1,
+   "modules_exercised": [
+    "capstone.memory_comparison"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_coverage_reporting_edges.py::test_memory_comparison_cli_rejects_unrecognized_or_duplicate_modes",
+   "file": "tests/test_coverage_reporting_edges.py",
+   "name": "test_memory_comparison_cli_rejects_unrecognized_or_duplicate_modes",
+   "line": 203,
+   "docstring": "",
+   "parametrized": true,
+   "fixtures": [
+    "monkeypatch",
+    "tmp_path",
+    "mode"
+   ],
+   "assertions": 1,
+   "assert_forms": {
+    "equality": 1
+   },
+   "raises_checks": 1,
+   "uses": [
+    "monkeypatch"
+   ],
+   "quality_flags": [
+    "patches_dependencies"
+   ],
+   "claims": "memory comparison cli rejects unrecognized or duplicate modes",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.memory_comparison:main"
+   ],
+   "exercise_count": 1,
+   "modules_exercised": [
+    "capstone.memory_comparison"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_coverage_reporting_edges.py::test_memory_comparison_report_cli_reads_saved_records",
+   "file": "tests/test_coverage_reporting_edges.py",
+   "name": "test_memory_comparison_report_cli_reads_saved_records",
+   "line": 224,
+   "docstring": "",
+   "parametrized": true,
+   "fixtures": [
+    "monkeypatch",
+    "tmp_path",
+    "capsys",
+    "labelled"
+   ],
+   "assertions": 2,
+   "assert_forms": {
+    "equality": 1,
+    "membership": 1
+   },
+   "raises_checks": 0,
+   "uses": [
+    "monkeypatch"
+   ],
+   "quality_flags": [
+    "patches_dependencies"
+   ],
+   "claims": "memory comparison report cli reads saved records",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.evaluation.labels:LabelBook.__init__",
+    "capstone.memory_comparison:main"
+   ],
+   "exercise_count": 2,
+   "modules_exercised": [
+    "capstone.evaluation.labels",
+    "capstone.memory_comparison"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_coverage_reporting_edges.py::test_memory_comparison_run_cli_dispatches_without_models",
+   "file": "tests/test_coverage_reporting_edges.py",
+   "name": "test_memory_comparison_run_cli_dispatches_without_models",
+   "line": 248,
+   "docstring": "",
+   "parametrized": true,
+   "fixtures": [
+    "monkeypatch",
+    "tmp_path",
+    "capsys",
+    "selection"
+   ],
+   "assertions": 6,
+   "assert_forms": {
+    "equality": 5,
+    "membership": 1
+   },
+   "raises_checks": 0,
+   "uses": [
+    "monkeypatch"
+   ],
+   "quality_flags": [
+    "patches_dependencies"
+   ],
+   "claims": "memory comparison run cli dispatches without models",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.memory_comparison:main"
+   ],
+   "exercise_count": 1,
+   "modules_exercised": [
+    "capstone.memory_comparison"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_coverage_reporting_edges.py::test_baseline_seed_ranges_and_lists",
+   "file": "tests/test_coverage_reporting_edges.py",
+   "name": "test_baseline_seed_ranges_and_lists",
+   "line": 309,
+   "docstring": "",
+   "parametrized": true,
+   "fixtures": [
+    "raw",
+    "expected"
+   ],
+   "assertions": 1,
+   "assert_forms": {
+    "equality": 1
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "baseline seed ranges and lists",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.baseline:_seeds"
+   ],
+   "exercise_count": 1,
+   "modules_exercised": [
+    "capstone.baseline"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_coverage_reporting_edges.py::test_baseline_cli_formats_known_and_explicit_cases",
+   "file": "tests/test_coverage_reporting_edges.py",
+   "name": "test_baseline_cli_formats_known_and_explicit_cases",
+   "line": 314,
+   "docstring": "",
+   "parametrized": true,
+   "fixtures": [
+    "monkeypatch",
+    "capsys",
+    "known"
+   ],
+   "assertions": 3,
+   "assert_forms": {
+    "equality": 2,
+    "membership": 1
+   },
+   "raises_checks": 0,
+   "uses": [
+    "monkeypatch"
+   ],
+   "quality_flags": [
+    "patches_dependencies"
+   ],
+   "claims": "baseline cli formats known and explicit cases",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.baseline:_seeds",
+    "capstone.baseline:main"
+   ],
+   "exercise_count": 2,
+   "modules_exercised": [
+    "capstone.baseline"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_coverage_reporting_edges.py::test_baseline_alarm_classifies_sustained_and_transient_signals",
+   "file": "tests/test_coverage_reporting_edges.py",
+   "name": "test_baseline_alarm_classifies_sustained_and_transient_signals",
+   "line": 353,
+   "docstring": "",
+   "parametrized": true,
+   "fixtures": [
+    "before",
+    "alarm",
+    "after",
+    "expected"
+   ],
+   "assertions": 2,
+   "assert_forms": {
+    "equality": 2
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "baseline alarm classifies sustained and transient signals",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.baseline:_Looker.__call__",
+    "capstone.baseline:_Looker.__init__",
+    "capstone.baseline:_Looker.now",
+    "capstone.baseline:_Looker.peak_vibration",
+    "capstone.baseline:diagnose",
+    "capstone.baseline:diagnose.<locals>.verdict"
+   ],
+   "exercise_count": 6,
+   "modules_exercised": [
+    "capstone.baseline"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_coverage_reporting_edges.py::test_baseline_uses_inspections_when_job_times_do_not_identify_machine",
+   "file": "tests/test_coverage_reporting_edges.py",
+   "name": "test_baseline_uses_inspections_when_job_times_do_not_identify_machine",
+   "line": 396,
+   "docstring": "",
+   "parametrized": true,
+   "fixtures": [
+    "inspections",
+    "expected"
+   ],
+   "assertions": 2,
+   "assert_forms": {
+    "equality": 1,
+    "membership": 1
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "baseline uses inspections when job times do not identify machine",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.baseline:_Looker.__call__",
+    "capstone.baseline:_Looker.__init__",
+    "capstone.baseline:_Looker.now",
+    "capstone.baseline:_job_time_changes",
+    "capstone.baseline:_standout_batch",
+    "capstone.baseline:diagnose",
+    "capstone.baseline:diagnose.<locals>.verdict"
+   ],
+   "exercise_count": 7,
+   "modules_exercised": [
+    "capstone.baseline"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_coverage_reporting_edges.py::test_baseline_status_alarm_uses_only_the_observable_stop",
+   "file": "tests/test_coverage_reporting_edges.py",
+   "name": "test_baseline_status_alarm_uses_only_the_observable_stop",
+   "line": 424,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 2,
+   "assert_forms": {
+    "equality": 2
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "baseline status alarm uses only the observable stop",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.baseline:_Looker.__init__",
+    "capstone.baseline:diagnose",
+    "capstone.baseline:diagnose.<locals>.verdict"
+   ],
+   "exercise_count": 3,
+   "modules_exercised": [
+    "capstone.baseline"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_coverage_telemetry_edges.py::test_monitor_threshold_rejects_invalid_ranges",
+   "file": "tests/test_coverage_telemetry_edges.py",
+   "name": "test_monitor_threshold_rejects_invalid_ranges",
+   "line": 16,
+   "docstring": "",
+   "parametrized": true,
+   "fixtures": [
+    "raw"
+   ],
+   "assertions": 0,
+   "assert_forms": {},
+   "raises_checks": 1,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "monitor threshold rejects invalid ranges",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.monitoring.__main__:parse_threshold"
+   ],
+   "exercise_count": 1,
+   "modules_exercised": [
+    "capstone.monitoring.__main__"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_coverage_telemetry_edges.py::test_monitor_threshold_accepts_floating_point_bounds",
+   "file": "tests/test_coverage_telemetry_edges.py",
+   "name": "test_monitor_threshold_accepts_floating_point_bounds",
+   "line": 21,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 3,
+   "assert_forms": {
+    "equality": 3
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "monitor threshold accepts floating point bounds",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.monitoring.__main__:parse_threshold"
+   ],
+   "exercise_count": 1,
+   "modules_exercised": [
+    "capstone.monitoring.__main__"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_coverage_telemetry_edges.py::test_collector_cli_saves_probe_without_polling",
+   "file": "tests/test_coverage_telemetry_edges.py",
+   "name": "test_collector_cli_saves_probe_without_polling",
+   "line": 28,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [
+    "monkeypatch",
+    "tmp_path",
+    "capsys"
+   ],
+   "assertions": 4,
+   "assert_forms": {
+    "equality": 3,
+    "membership": 1
+   },
+   "raises_checks": 0,
+   "uses": [
+    "monkeypatch"
+   ],
+   "quality_flags": [
+    "patches_dependencies"
+   ],
+   "claims": "collector cli saves probe without polling",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.ingestion.__main__:main"
+   ],
+   "exercise_count": 1,
+   "modules_exercised": [
+    "capstone.ingestion.__main__"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_coverage_telemetry_edges.py::test_collector_cli_requires_output_in_normal_mode",
+   "file": "tests/test_coverage_telemetry_edges.py",
+   "name": "test_collector_cli_requires_output_in_normal_mode",
+   "line": 56,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [
+    "monkeypatch",
+    "capsys"
+   ],
+   "assertions": 2,
+   "assert_forms": {
+    "equality": 1,
+    "membership": 1
+   },
+   "raises_checks": 1,
+   "uses": [
+    "monkeypatch"
+   ],
+   "quality_flags": [
+    "patches_dependencies"
+   ],
+   "claims": "collector cli requires output in normal mode",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.ingestion.__main__:main"
+   ],
+   "exercise_count": 1,
+   "modules_exercised": [
+    "capstone.ingestion.__main__"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_coverage_telemetry_edges.py::test_collector_cli_checks_paths_before_opening_network",
+   "file": "tests/test_coverage_telemetry_edges.py",
+   "name": "test_collector_cli_checks_paths_before_opening_network",
+   "line": 69,
+   "docstring": "",
+   "parametrized": true,
+   "fixtures": [
+    "monkeypatch",
+    "tmp_path",
+    "option",
+    "capsys"
+   ],
+   "assertions": 2,
+   "assert_forms": {
+    "equality": 1,
+    "membership": 1
+   },
+   "raises_checks": 1,
+   "uses": [
+    "monkeypatch"
+   ],
+   "quality_flags": [
+    "patches_dependencies"
+   ],
+   "claims": "collector cli checks paths before opening network",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.ingestion.__main__:main"
+   ],
+   "exercise_count": 1,
+   "modules_exercised": [
+    "capstone.ingestion.__main__"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_coverage_telemetry_edges.py::test_collector_cli_reports_success_or_graceful_interrupt",
+   "file": "tests/test_coverage_telemetry_edges.py",
+   "name": "test_collector_cli_reports_success_or_graceful_interrupt",
+   "line": 91,
+   "docstring": "",
+   "parametrized": true,
+   "fixtures": [
+    "monkeypatch",
+    "tmp_path",
+    "capsys",
+    "interrupt"
+   ],
+   "assertions": 5,
+   "assert_forms": {
+    "equality": 2,
+    "identity": 1,
+    "membership": 2
+   },
+   "raises_checks": 0,
+   "uses": [
+    "monkeypatch"
+   ],
+   "quality_flags": [
+    "patches_dependencies"
+   ],
+   "claims": "collector cli reports success or graceful interrupt",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.ingestion.__main__:main"
+   ],
+   "exercise_count": 1,
+   "modules_exercised": [
+    "capstone.ingestion.__main__"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_coverage_telemetry_edges.py::test_monitor_cli_rejects_unsafe_alerts_before_reading",
+   "file": "tests/test_coverage_telemetry_edges.py",
+   "name": "test_monitor_cli_rejects_unsafe_alerts_before_reading",
+   "line": 132,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [
+    "monkeypatch",
+    "tmp_path"
+   ],
+   "assertions": 1,
+   "assert_forms": {
+    "equality": 1
+   },
+   "raises_checks": 1,
+   "uses": [
+    "monkeypatch"
+   ],
+   "quality_flags": [
+    "patches_dependencies"
+   ],
+   "claims": "monitor cli rejects unsafe alerts before reading",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.monitoring.__main__:main"
+   ],
+   "exercise_count": 1,
+   "modules_exercised": [
+    "capstone.monitoring.__main__"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_coverage_telemetry_edges.py::test_monitor_cli_replay_is_read_only_and_passes_thresholds",
+   "file": "tests/test_coverage_telemetry_edges.py",
+   "name": "test_monitor_cli_replay_is_read_only_and_passes_thresholds",
+   "line": 152,
+   "docstring": "",
+   "parametrized": true,
+   "fixtures": [
+    "monkeypatch",
+    "tmp_path",
+    "has_alert_path"
+   ],
+   "assertions": 5,
+   "assert_forms": {
+    "equality": 5
+   },
+   "raises_checks": 0,
+   "uses": [
+    "monkeypatch"
+   ],
+   "quality_flags": [
+    "patches_dependencies"
+   ],
+   "claims": "monitor cli replay is read only and passes thresholds",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.monitoring.__main__:main",
+    "capstone.monitoring.__main__:parse_threshold"
+   ],
+   "exercise_count": 2,
+   "modules_exercised": [
+    "capstone.monitoring.__main__"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_coverage_telemetry_edges.py::test_monitor_cli_follow_loop_exits_cleanly_on_interrupt",
+   "file": "tests/test_coverage_telemetry_edges.py",
+   "name": "test_monitor_cli_follow_loop_exits_cleanly_on_interrupt",
+   "line": 196,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [
+    "monkeypatch",
+    "tmp_path",
+    "capsys"
+   ],
+   "assertions": 3,
+   "assert_forms": {
+    "equality": 2,
+    "membership": 1
+   },
+   "raises_checks": 0,
+   "uses": [
+    "monkeypatch"
+   ],
+   "quality_flags": [
+    "patches_dependencies"
+   ],
+   "claims": "monitor cli follow loop exits cleanly on interrupt",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.monitoring.__main__:main"
+   ],
+   "exercise_count": 1,
+   "modules_exercised": [
+    "capstone.monitoring.__main__"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
    "id": "tests/test_critic.py::test_shown_hypotheses_are_all_of_them_by_confidence_ties_keep_order",
    "file": "tests/test_critic.py",
    "name": "test_shown_hypotheses_are_all_of_them_by_confidence_ties_keep_order",
@@ -37347,6 +39403,7 @@
     "evaluation.evaltools.snap_request:applicable_run_questions",
     "evaluation.evaltools.snap_request:build_request",
     "evaluation.evaltools.snap_request:digest",
+    "evaluation.evaltools.snap_request:fitted_trace_skips",
     "evaluation.evaltools.snap_request:forbidden_for",
     "evaluation.evaltools.snap_request:judge_view",
     "evaluation.evaltools.snap_request:load_questions",
@@ -37354,7 +39411,7 @@
     "evaluation.evaltools.snap_request:request_fingerprint",
     "evaluation.evaltools.snap_request:run_requests"
    ],
-   "exercise_count": 15,
+   "exercise_count": 16,
    "modules_exercised": [
     "evaluation.evaltools.decision_models",
     "evaluation.evaltools.run_packet",
@@ -37578,26 +39635,54 @@
    "file": "tests/test_evaluation_tools.py",
    "name": "test_the_traced_run_names_the_functions_each_case_executed",
    "line": 210,
-   "docstring": "",
+   "docstring": "A scripted traced case saves function coverage and a full audit packet.",
    "parametrized": false,
    "fixtures": [
     "tmp_path"
    ],
-   "assertions": 4,
+   "assertions": 6,
    "assert_forms": {
-    "equality": 2,
+    "call_truthiness": 1,
+    "equality": 3,
     "membership": 2
    },
    "raises_checks": 0,
    "uses": [],
-   "quality_flags": [
-    "exercises_no_project_function"
-   ],
-   "claims": "the traced run names the functions each case executed",
+   "quality_flags": [],
+   "claims": "A scripted traced case saves function coverage and a full audit packet.",
    "execution_outcome": "passed",
-   "exercises": [],
-   "exercise_count": 0,
-   "modules_exercised": [],
+   "exercises": [
+    "capstone.agent.completion:AuditLog.__init__",
+    "capstone.agent.completion:AuditLog.read",
+    "capstone.contracts.completed_investigations:CompletedInvestigation.unique_evidence",
+    "capstone.contracts.investigations:run_id_for",
+    "capstone.evaluation.scoring:Score.model_unavailable",
+    "capstone.evaluation.scoring:Score.unnecessary_actions",
+    "capstone.experiment:read_records",
+    "evaluation.evaltools.run_packet:audit_by_run",
+    "evaluation.evaltools.run_packet:build_all",
+    "evaluation.evaltools.run_packet:build_packet",
+    "evaluation.evaltools.run_packet:calibration",
+    "evaluation.evaltools.run_packet:check_no_truth_in_view",
+    "evaluation.evaltools.run_packet:configuration_of",
+    "evaluation.evaltools.run_packet:episode_key",
+    "evaluation.evaltools.run_packet:evaluator_only_of",
+    "evaluation.evaltools.run_packet:facts_of",
+    "evaluation.evaltools.run_packet:forbidden_in_view",
+    "evaluation.evaltools.run_packet:leak_in",
+    "evaluation.evaltools.run_packet:read_labels",
+    "evaluation.evaltools.run_packet:run_ref",
+    "evaluation.evaltools.run_packet:trace_from_audit"
+   ],
+   "exercise_count": 21,
+   "modules_exercised": [
+    "capstone.agent.completion",
+    "capstone.contracts.completed_investigations",
+    "capstone.contracts.investigations",
+    "capstone.evaluation.scoring",
+    "capstone.experiment",
+    "evaluation.evaltools.run_packet"
+   ],
    "judgment": "NOT ASSESSED",
    "curated": {},
    "snap_questions": [
@@ -37610,7 +39695,7 @@
    "id": "tests/test_evaluation_tools.py::test_the_inventory_lists_every_function_and_every_curated_item_exists",
    "file": "tests/test_evaluation_tools.py",
    "name": "test_the_inventory_lists_every_function_and_every_curated_item_exists",
-   "line": 249,
+   "line": 258,
    "docstring": "",
    "parametrized": false,
    "fixtures": [
@@ -37667,7 +39752,7 @@
    "id": "tests/test_evaluation_tools.py::test_per_test_coverage_contexts_reach_the_inventory",
    "file": "tests/test_evaluation_tools.py",
    "name": "test_per_test_coverage_contexts_reach_the_inventory",
-   "line": 280,
+   "line": 289,
    "docstring": "A configured coverage run keeps both tests that call one function.",
    "parametrized": false,
    "fixtures": [
@@ -37704,7 +39789,7 @@
    "id": "tests/test_evaluation_tools.py::test_constructor_callers_are_matched_by_class_name",
    "file": "tests/test_evaluation_tools.py",
    "name": "test_constructor_callers_are_matched_by_class_name",
-   "line": 320,
+   "line": 329,
    "docstring": "An unrelated class constructor is not a caller of AuditLog.__init__.",
    "parametrized": false,
    "fixtures": [],
@@ -37747,16 +39832,17 @@
    "id": "tests/test_evaluation_tools.py::test_function_questions_need_the_complete_test_evidence",
    "file": "tests/test_evaluation_tools.py",
    "name": "test_function_questions_need_the_complete_test_evidence",
-   "line": 347,
+   "line": 356,
    "docstring": "Incomplete function packets keep FN-02/03 unknown, without a model call.",
    "parametrized": false,
    "fixtures": [],
-   "assertions": 9,
+   "assertions": 12,
    "assert_forms": {
     "call_truthiness": 2,
-    "equality": 5,
-    "is_none": 1,
-    "is_not_none": 1
+    "equality": 6,
+    "is_none": 2,
+    "is_not_none": 1,
+    "ordering": 1
    },
    "raises_checks": 0,
    "uses": [],
@@ -37764,7 +39850,7 @@
     "may_skip"
    ],
    "claims": "Incomplete function packets keep FN-02/03 unknown, without a model call.",
-   "execution_outcome": "passed",
+   "execution_outcome": "failed",
    "exercises": [
     "evaluation.evaltools.decision_models:estimate_tokens",
     "evaluation.evaltools.snap_request:DecisionQuestion.criteria_fit_type",
@@ -37798,7 +39884,7 @@
    "id": "tests/test_evaluation_tools.py::test_both_providers_get_the_same_fitted_state_and_questions",
    "file": "tests/test_evaluation_tools.py",
    "name": "test_both_providers_get_the_same_fitted_state_and_questions",
-   "line": 410,
+   "line": 429,
    "docstring": "",
    "parametrized": false,
    "fixtures": [
@@ -37842,7 +39928,7 @@
    "id": "tests/test_evaluation_tools.py::test_fitting_a_state_is_deterministic_and_keeps_the_conclusion",
    "file": "tests/test_evaluation_tools.py",
    "name": "test_fitting_a_state_is_deterministic_and_keeps_the_conclusion",
-   "line": 434,
+   "line": 453,
    "docstring": "",
    "parametrized": false,
    "fixtures": [],
@@ -37878,7 +39964,7 @@
    "id": "tests/test_evaluation_tools.py::test_answers_normalize_to_one_schema_and_compare_by_the_stated_rules",
    "file": "tests/test_evaluation_tools.py",
    "name": "test_answers_normalize_to_one_schema_and_compare_by_the_stated_rules",
-   "line": 458,
+   "line": 477,
    "docstring": "",
    "parametrized": false,
    "fixtures": [],
@@ -37914,7 +40000,7 @@
    "id": "tests/test_evaluation_tools.py::test_the_agreement_report_pairs_only_identical_states_and_flags_disagreements",
    "file": "tests/test_evaluation_tools.py",
    "name": "test_the_agreement_report_pairs_only_identical_states_and_flags_disagreements",
-   "line": 542,
+   "line": 561,
    "docstring": "",
    "parametrized": false,
    "fixtures": [
@@ -37956,7 +40042,7 @@
    "id": "tests/test_evaluation_tools.py::test_request_file_names_are_valid_on_every_operating_system",
    "file": "tests/test_evaluation_tools.py",
    "name": "test_request_file_names_are_valid_on_every_operating_system",
-   "line": 643,
+   "line": 662,
    "docstring": "A function id has a colon; Windows would write an empty file for it.",
    "parametrized": false,
    "fixtures": [
@@ -37994,7 +40080,7 @@
    "id": "tests/test_evaluation_tools.py::test_a_failed_request_is_recorded_and_a_rerun_sends_only_what_is_missing",
    "file": "tests/test_evaluation_tools.py",
    "name": "test_a_failed_request_is_recorded_and_a_rerun_sends_only_what_is_missing",
-   "line": 659,
+   "line": 678,
    "docstring": "",
    "parametrized": false,
    "fixtures": [
@@ -38048,7 +40134,7 @@
    "id": "tests/test_evaluation_tools.py::test_answers_name_the_model_requested_and_keep_unreadable_ones",
    "file": "tests/test_evaluation_tools.py",
    "name": "test_answers_name_the_model_requested_and_keep_unreadable_ones",
-   "line": 685,
+   "line": 704,
    "docstring": "",
    "parametrized": false,
    "fixtures": [
@@ -38088,7 +40174,7 @@
    "id": "tests/test_evaluation_tools.py::test_failed_requests_are_counted_apart_from_answered_ones",
    "file": "tests/test_evaluation_tools.py",
    "name": "test_failed_requests_are_counted_apart_from_answered_ones",
-   "line": 698,
+   "line": 717,
    "docstring": "",
    "parametrized": false,
    "fixtures": [],
@@ -38121,7 +40207,7 @@
    "id": "tests/test_evaluation_tools.py::test_a_refused_packet_is_left_out_and_named_not_fatal",
    "file": "tests/test_evaluation_tools.py",
    "name": "test_a_refused_packet_is_left_out_and_named_not_fatal",
-   "line": 713,
+   "line": 732,
    "docstring": "",
    "parametrized": false,
    "fixtures": [
@@ -38188,7 +40274,7 @@
    "id": "tests/test_evaluation_tools.py::test_the_judge_view_never_names_the_scenario",
    "file": "tests/test_evaluation_tools.py",
    "name": "test_the_judge_view_never_names_the_scenario",
-   "line": 727,
+   "line": 746,
    "docstring": "Scenario ids name the fault (KA-01-bearing), so they stay in meta.",
    "parametrized": false,
    "fixtures": [
@@ -38224,7 +40310,7 @@
    "id": "tests/test_evaluation_tools.py::test_a_recheck_record_reaches_the_packet_whole",
    "file": "tests/test_evaluation_tools.py",
    "name": "test_a_recheck_record_reaches_the_packet_whole",
-   "line": 750,
+   "line": 769,
    "docstring": "Every follow-up run failed here: the view lacked the record's `question`.",
    "parametrized": false,
    "fixtures": [],
@@ -38269,7 +40355,7 @@
    "id": "tests/test_evaluation_tools.py::test_outage_runs_are_out_of_the_reasoning_totals_and_asked_nothing",
    "file": "tests/test_evaluation_tools.py",
    "name": "test_outage_runs_are_out_of_the_reasoning_totals_and_asked_nothing",
-   "line": 779,
+   "line": 798,
    "docstring": "",
    "parametrized": false,
    "fixtures": [
@@ -38311,7 +40397,7 @@
    "id": "tests/test_evaluation_tools.py::test_a_run_without_a_critique_does_not_claim_the_critic_was_off",
    "file": "tests/test_evaluation_tools.py",
    "name": "test_a_run_without_a_critique_does_not_claim_the_critic_was_off",
-   "line": 808,
+   "line": 827,
    "docstring": "",
    "parametrized": false,
    "fixtures": [
@@ -38343,7 +40429,7 @@
    "id": "tests/test_evaluation_tools.py::test_packet_file_names_are_valid_on_every_operating_system",
    "file": "tests/test_evaluation_tools.py",
    "name": "test_packet_file_names_are_valid_on_every_operating_system",
-   "line": 814,
+   "line": 833,
    "docstring": "",
    "parametrized": false,
    "fixtures": [],
@@ -38375,7 +40461,7 @@
    "id": "tests/test_evaluation_tools.py::test_a_function_is_named_by_a_test_only_as_whole_words",
    "file": "tests/test_evaluation_tools.py",
    "name": "test_a_function_is_named_by_a_test_only_as_whole_words",
-   "line": 818,
+   "line": 837,
    "docstring": "",
    "parametrized": false,
    "fixtures": [],
@@ -38408,7 +40494,7 @@
    "id": "tests/test_evaluation_tools.py::test_run_09_is_not_asked_of_a_run_without_a_conclusion",
    "file": "tests/test_evaluation_tools.py",
    "name": "test_run_09_is_not_asked_of_a_run_without_a_conclusion",
-   "line": 827,
+   "line": 846,
    "docstring": "",
    "parametrized": false,
    "fixtures": [
@@ -38448,7 +40534,7 @@
    "id": "tests/test_evaluation_tools.py::test_a_noul_reference_written_as_text_is_read_as_a_boolean",
    "file": "tests/test_evaluation_tools.py",
    "name": "test_a_noul_reference_written_as_text_is_read_as_a_boolean",
-   "line": 837,
+   "line": 856,
    "docstring": "",
    "parametrized": false,
    "fixtures": [],
@@ -38480,7 +40566,7 @@
    "id": "tests/test_evaluation_tools.py::test_an_unfittable_function_state_is_skipped_not_fatal",
    "file": "tests/test_evaluation_tools.py",
    "name": "test_an_unfittable_function_state_is_skipped_not_fatal",
-   "line": 847,
+   "line": 866,
    "docstring": "",
    "parametrized": false,
    "fixtures": [],
@@ -38527,7 +40613,7 @@
    "id": "tests/test_evaluation_tools.py::test_a_traced_run_refuses_to_append_to_earlier_records",
    "file": "tests/test_evaluation_tools.py",
    "name": "test_a_traced_run_refuses_to_append_to_earlier_records",
-   "line": 864,
+   "line": 883,
    "docstring": "Appending would give two records the same run key.",
    "parametrized": false,
    "fixtures": [
@@ -38558,10 +40644,236 @@
    ]
   },
   {
+   "id": "tests/test_evaluation_tools.py::test_new_cohort_preflight_requires_matching_audit_evidence",
+   "file": "tests/test_evaluation_tools.py",
+   "name": "test_new_cohort_preflight_requires_matching_audit_evidence",
+   "line": 898,
+   "docstring": "A missing audit or citation cannot be presented as a full trace.",
+   "parametrized": false,
+   "fixtures": [
+    "master_packets"
+   ],
+   "assertions": 1,
+   "assert_forms": {
+    "equality": 1
+   },
+   "raises_checks": 3,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "A missing audit or citation cannot be presented as a full trace.",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.agent.completion:AuditLog.__init__",
+    "capstone.agent.completion:AuditLog.read",
+    "capstone.contracts.completed_investigations:CompletedInvestigation.unique_evidence",
+    "capstone.contracts.hypotheses:NumericClaim.ordered_window",
+    "capstone.contracts.investigations:run_id_for",
+    "capstone.evaluation.labels:apply_label",
+    "capstone.evaluation.scoring:Cause.named_by",
+    "capstone.evaluation.scoring:Score.fully_right",
+    "capstone.evaluation.scoring:Score.miss_kind",
+    "capstone.evaluation.scoring:Score.model_unavailable",
+    "capstone.evaluation.scoring:Score.unnecessary_actions",
+    "capstone.evaluation.scoring:_closest",
+    "capstone.evaluation.scoring:_named",
+    "capstone.evaluation.scoring:judge",
+    "capstone.evaluation.scoring:judge_causes",
+    "capstone.experiment:read_records",
+    "evaluation.evaltools.audit_preflight:require_full_traces",
+    "evaluation.evaltools.audit_preflight:trace_issues",
+    "evaluation.evaltools.run_packet:_sibling",
+    "evaluation.evaltools.run_packet:audit_by_run",
+    "evaluation.evaltools.run_packet:build_all",
+    "evaluation.evaltools.run_packet:build_archive",
+    "evaluation.evaltools.run_packet:build_packet",
+    "evaluation.evaltools.run_packet:calibration",
+    "evaluation.evaltools.run_packet:check_no_truth_in_view",
+    "evaluation.evaltools.run_packet:check_unique",
+    "evaluation.evaltools.run_packet:configuration_of",
+    "evaluation.evaltools.run_packet:episode_key",
+    "evaluation.evaltools.run_packet:evaluator_only_of",
+    "evaluation.evaltools.run_packet:facts_of",
+    "evaluation.evaltools.run_packet:forbidden_in_view",
+    "evaluation.evaltools.run_packet:leak_in",
+    "evaluation.evaltools.run_packet:read_labels",
+    "evaluation.evaltools.run_packet:review_flags",
+    "evaluation.evaltools.run_packet:run_ref",
+    "evaluation.evaltools.run_packet:trace_from_audit"
+   ],
+   "exercise_count": 36,
+   "modules_exercised": [
+    "capstone.agent.completion",
+    "capstone.contracts.completed_investigations",
+    "capstone.contracts.hypotheses",
+    "capstone.contracts.investigations",
+    "capstone.evaluation.labels",
+    "capstone.evaluation.scoring",
+    "capstone.experiment",
+    "evaluation.evaltools.audit_preflight",
+    "evaluation.evaltools.run_packet"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_evaluation_tools.py::test_preflight_validates_recheck_and_verification_evidence",
+   "file": "tests/test_evaluation_tools.py",
+   "name": "test_preflight_validates_recheck_and_verification_evidence",
+   "line": 925,
+   "docstring": "References from critic follow-up and post-action verification must exist.",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 2,
+   "assert_forms": {
+    "membership": 2
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "References from critic follow-up and post-action verification must exist.",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.agent.completion:AuditLog.__init__",
+    "capstone.agent.completion:AuditLog.read",
+    "capstone.contracts.completed_investigations:CompletedInvestigation.unique_evidence",
+    "capstone.contracts.hypotheses:NumericClaim.ordered_window",
+    "capstone.contracts.investigations:run_id_for",
+    "capstone.evaluation.labels:apply_label",
+    "capstone.evaluation.scoring:Cause.named_by",
+    "capstone.evaluation.scoring:Score.fully_right",
+    "capstone.evaluation.scoring:Score.miss_kind",
+    "capstone.evaluation.scoring:Score.model_unavailable",
+    "capstone.evaluation.scoring:Score.unnecessary_actions",
+    "capstone.evaluation.scoring:_closest",
+    "capstone.evaluation.scoring:_named",
+    "capstone.evaluation.scoring:judge",
+    "capstone.evaluation.scoring:judge_causes",
+    "capstone.experiment:read_records",
+    "evaluation.evaltools.audit_preflight:trace_issues",
+    "evaluation.evaltools.run_packet:_sibling",
+    "evaluation.evaltools.run_packet:audit_by_run",
+    "evaluation.evaltools.run_packet:build_all",
+    "evaluation.evaltools.run_packet:build_archive",
+    "evaluation.evaltools.run_packet:build_packet",
+    "evaluation.evaltools.run_packet:calibration",
+    "evaluation.evaltools.run_packet:check_no_truth_in_view",
+    "evaluation.evaltools.run_packet:check_unique",
+    "evaluation.evaltools.run_packet:configuration_of",
+    "evaluation.evaltools.run_packet:episode_key",
+    "evaluation.evaltools.run_packet:evaluator_only_of",
+    "evaluation.evaltools.run_packet:facts_of",
+    "evaluation.evaltools.run_packet:forbidden_in_view",
+    "evaluation.evaltools.run_packet:leak_in",
+    "evaluation.evaltools.run_packet:read_labels",
+    "evaluation.evaltools.run_packet:review_flags",
+    "evaluation.evaltools.run_packet:run_ref",
+    "evaluation.evaltools.run_packet:trace_from_audit"
+   ],
+   "exercise_count": 35,
+   "modules_exercised": [
+    "capstone.agent.completion",
+    "capstone.contracts.completed_investigations",
+    "capstone.contracts.hypotheses",
+    "capstone.contracts.investigations",
+    "capstone.evaluation.labels",
+    "capstone.evaluation.scoring",
+    "capstone.experiment",
+    "evaluation.evaltools.audit_preflight",
+    "evaluation.evaltools.run_packet"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_evaluation_tools.py::test_preflight_refuses_corrupt_order_and_missing_provenance",
+   "file": "tests/test_evaluation_tools.py",
+   "name": "test_preflight_refuses_corrupt_order_and_missing_provenance",
+   "line": 960,
+   "docstring": "Audit evidence, decision identities and action timing must be defensible.",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 2,
+   "assert_forms": {
+    "equality": 1,
+    "membership": 1
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "Audit evidence, decision identities and action timing must be defensible.",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.agent.completion:AuditLog.__init__",
+    "capstone.agent.completion:AuditLog.read",
+    "capstone.contracts.completed_investigations:CompletedInvestigation.unique_evidence",
+    "capstone.contracts.hypotheses:NumericClaim.ordered_window",
+    "capstone.contracts.investigations:run_id_for",
+    "capstone.evaluation.labels:apply_label",
+    "capstone.evaluation.scoring:Cause.named_by",
+    "capstone.evaluation.scoring:Score.fully_right",
+    "capstone.evaluation.scoring:Score.miss_kind",
+    "capstone.evaluation.scoring:Score.model_unavailable",
+    "capstone.evaluation.scoring:Score.unnecessary_actions",
+    "capstone.evaluation.scoring:_closest",
+    "capstone.evaluation.scoring:_named",
+    "capstone.evaluation.scoring:judge",
+    "capstone.evaluation.scoring:judge_causes",
+    "capstone.experiment:read_records",
+    "evaluation.evaltools.audit_preflight:trace_issues",
+    "evaluation.evaltools.run_packet:_sibling",
+    "evaluation.evaltools.run_packet:audit_by_run",
+    "evaluation.evaltools.run_packet:build_all",
+    "evaluation.evaltools.run_packet:build_archive",
+    "evaluation.evaltools.run_packet:build_packet",
+    "evaluation.evaltools.run_packet:calibration",
+    "evaluation.evaltools.run_packet:check_no_truth_in_view",
+    "evaluation.evaltools.run_packet:check_unique",
+    "evaluation.evaltools.run_packet:configuration_of",
+    "evaluation.evaltools.run_packet:episode_key",
+    "evaluation.evaltools.run_packet:evaluator_only_of",
+    "evaluation.evaltools.run_packet:facts_of",
+    "evaluation.evaltools.run_packet:forbidden_in_view",
+    "evaluation.evaltools.run_packet:leak_in",
+    "evaluation.evaltools.run_packet:read_labels",
+    "evaluation.evaltools.run_packet:review_flags",
+    "evaluation.evaltools.run_packet:run_ref",
+    "evaluation.evaltools.run_packet:trace_from_audit"
+   ],
+   "exercise_count": 35,
+   "modules_exercised": [
+    "capstone.agent.completion",
+    "capstone.contracts.completed_investigations",
+    "capstone.contracts.hypotheses",
+    "capstone.contracts.investigations",
+    "capstone.evaluation.labels",
+    "capstone.evaluation.scoring",
+    "capstone.experiment",
+    "evaluation.evaltools.audit_preflight",
+    "evaluation.evaltools.run_packet"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
    "id": "tests/test_evaluation_tools.py::test_the_archive_imports_52_distinct_episodes",
    "file": "tests/test_evaluation_tools.py",
    "name": "test_the_archive_imports_52_distinct_episodes",
-   "line": 898,
+   "line": 1051,
    "docstring": "EVAL-01 / T01: both pairs reuse every run key, and none is overwritten.",
    "parametrized": false,
    "fixtures": [
@@ -38629,7 +40941,7 @@
    "id": "tests/test_evaluation_tools.py::test_both_archives_import_57_episodes_with_five_real_traces",
    "file": "tests/test_evaluation_tools.py",
    "name": "test_both_archives_import_57_episodes_with_five_real_traces",
-   "line": 911,
+   "line": 1064,
    "docstring": "",
    "parametrized": false,
    "fixtures": [
@@ -38704,7 +41016,7 @@
    "id": "tests/test_evaluation_tools.py::test_the_archive_keeps_the_published_denominators",
    "file": "tests/test_evaluation_tools.py",
    "name": "test_the_archive_keeps_the_published_denominators",
-   "line": 924,
+   "line": 1077,
    "docstring": "EVAL-02 / T02: pending labels stay unjudged; the four arms match summary.json.",
    "parametrized": false,
    "fixtures": [
@@ -38740,7 +41052,7 @@
    "id": "tests/test_evaluation_tools.py::test_a_repeated_run_key_needs_a_namespace",
    "file": "tests/test_evaluation_tools.py",
    "name": "test_a_repeated_run_key_needs_a_namespace",
-   "line": 952,
+   "line": 1105,
    "docstring": "EVAL-01 / T01: the same records under two names survive; unnamed, refused.",
    "parametrized": false,
    "fixtures": [
@@ -38795,7 +41107,7 @@
    "id": "tests/test_evaluation_tools.py::test_a_proposal_awaiting_review_is_kept_but_not_scored",
    "file": "tests/test_evaluation_tools.py",
    "name": "test_a_proposal_awaiting_review_is_kept_but_not_scored",
-   "line": 972,
+   "line": 1125,
    "docstring": "EVAL-02: auto-label proposal files are read and `needs_review` is honoured.",
    "parametrized": false,
    "fixtures": [
@@ -38860,7 +41172,7 @@
    "id": "tests/test_evaluation_tools.py::test_a_review_report_that_disagrees_with_the_labels_is_refused",
    "file": "tests/test_evaluation_tools.py",
    "name": "test_a_review_report_that_disagrees_with_the_labels_is_refused",
-   "line": 999,
+   "line": 1152,
    "docstring": "EVAL-02: a flag is never joined to a different label.",
    "parametrized": false,
    "fixtures": [
@@ -38893,7 +41205,7 @@
    "id": "tests/test_evaluation_tools.py::test_every_request_input_changes_the_fingerprint",
    "file": "tests/test_evaluation_tools.py",
    "name": "test_every_request_input_changes_the_fingerprint",
-   "line": 1034,
+   "line": 1187,
    "docstring": "EVAL-03 / T04: a saved answer is never reused for a changed request.",
    "parametrized": false,
    "fixtures": [],
@@ -38934,7 +41246,7 @@
    "id": "tests/test_evaluation_tools.py::test_reordered_items_keep_their_files_and_answers",
    "file": "tests/test_evaluation_tools.py",
    "name": "test_reordered_items_keep_their_files_and_answers",
-   "line": 1051,
+   "line": 1204,
    "docstring": "EVAL-03 / T03: names do not depend on order; a rerun re-sends nothing.",
    "parametrized": false,
    "fixtures": [
@@ -38986,7 +41298,7 @@
    "id": "tests/test_evaluation_tools.py::test_a_partial_answer_is_asked_again",
    "file": "tests/test_evaluation_tools.py",
    "name": "test_a_partial_answer_is_asked_again",
-   "line": 1065,
+   "line": 1218,
    "docstring": "EVAL-03 / T07: a reply missing an answer is not a completed judgment.",
    "parametrized": false,
    "fixtures": [
@@ -39038,7 +41350,7 @@
    "id": "tests/test_evaluation_tools.py::test_a_passing_outage_is_retried_and_a_lasting_one_recorded",
    "file": "tests/test_evaluation_tools.py",
    "name": "test_a_passing_outage_is_retried_and_a_lasting_one_recorded",
-   "line": 1077,
+   "line": 1230,
    "docstring": "EVAL-03: HTTP 429 and 5xx are tried again; the wait comes from `sleep`.",
    "parametrized": false,
    "fixtures": [
@@ -39092,7 +41404,7 @@
    "id": "tests/test_evaluation_tools.py::test_a_leaking_packet_on_disk_is_refused_before_any_request",
    "file": "tests/test_evaluation_tools.py",
    "name": "test_a_leaking_packet_on_disk_is_refused_before_any_request",
-   "line": 1130,
+   "line": 1283,
    "docstring": "EVAL-04 / T05: the last boundary re-checks what would be sent.",
    "parametrized": true,
    "fixtures": [
@@ -39135,7 +41447,7 @@
    "id": "tests/test_evaluation_tools.py::test_every_master_request_is_free_of_the_runs_own_ids",
    "file": "tests/test_evaluation_tools.py",
    "name": "test_every_master_request_is_free_of_the_runs_own_ids",
-   "line": 1146,
+   "line": 1299,
    "docstring": "EVAL-04 / T05: no sent body names its scenario, run key or episode key.",
    "parametrized": false,
    "fixtures": [
@@ -39162,6 +41474,7 @@
     "evaluation.evaltools.snap_request:applicable_run_questions",
     "evaluation.evaltools.snap_request:build_request",
     "evaluation.evaltools.snap_request:digest",
+    "evaluation.evaltools.snap_request:fitted_trace_skips",
     "evaluation.evaltools.snap_request:forbidden_for",
     "evaluation.evaltools.snap_request:judge_view",
     "evaluation.evaltools.snap_request:load_questions",
@@ -39169,7 +41482,7 @@
     "evaluation.evaltools.snap_request:request_fingerprint",
     "evaluation.evaltools.snap_request:run_requests"
    ],
-   "exercise_count": 15,
+   "exercise_count": 16,
    "modules_exercised": [
     "evaluation.evaltools.decision_models",
     "evaluation.evaltools.run_packet",
@@ -39187,7 +41500,7 @@
    "id": "tests/test_evaluation_tools.py::test_judge_requests_carry_the_project_user_agent_and_no_key",
    "file": "tests/test_evaluation_tools.py",
    "name": "test_judge_requests_carry_the_project_user_agent_and_no_key",
-   "line": 1169,
+   "line": 1322,
    "docstring": "EVAL-19 / T17: sent with post_json, as the project's model clients are.",
    "parametrized": false,
    "fixtures": [
@@ -39231,7 +41544,7 @@
    "id": "tests/test_evaluation_tools.py::test_an_impossible_answer_is_kept_unreadable",
    "file": "tests/test_evaluation_tools.py",
    "name": "test_an_impossible_answer_is_kept_unreadable",
-   "line": 1203,
+   "line": 1356,
    "docstring": "EVAL-19 / T18: refused as the live TypeSafe client refuses it.",
    "parametrized": true,
    "fixtures": [
@@ -39271,7 +41584,7 @@
    "id": "tests/test_evaluation_tools.py::test_states_show_each_test_whole_and_say_what_was_cut",
    "file": "tests/test_evaluation_tools.py",
    "name": "test_states_show_each_test_whole_and_say_what_was_cut",
-   "line": 1218,
+   "line": 1371,
    "docstring": "EVAL-20 / T19: no neighbouring test; every shortened list says so.",
    "parametrized": false,
    "fixtures": [],
@@ -39312,7 +41625,7 @@
    "id": "tests/test_evaluation_tools.py::test_the_stated_question_count_matches_the_question_file",
    "file": "tests/test_evaluation_tools.py",
    "name": "test_the_stated_question_count_matches_the_question_file",
-   "line": 1250,
+   "line": 1403,
    "docstring": "EVAL-21 / T20: the EVF note's count is the file's count.",
    "parametrized": false,
    "fixtures": [],
@@ -39346,7 +41659,7 @@
    "id": "tests/test_evaluation_tools.py::test_two_answers_to_one_question_are_refused_and_latency_is_per_request",
    "file": "tests/test_evaluation_tools.py",
    "name": "test_two_answers_to_one_question_are_refused_and_latency_is_per_request",
-   "line": 1268,
+   "line": 1421,
    "docstring": "EVAL-01 / EVAL-15: no silent overwrite; one latency figure per request.",
    "parametrized": false,
    "fixtures": [],
@@ -39991,10 +42304,12 @@
    "claims": "hazards are off unless asked for",
    "execution_outcome": "passed",
    "exercises": [
+    "capstone.agent.completion:AuditLog.__init__",
     "capstone.console:safe_console",
     "capstone.evaluation.scoring:format_summary",
     "capstone.evaluation.scoring:summarize",
     "capstone.experiment:add_manual_options",
+    "capstone.experiment:default_audit_path",
     "capstone.experiment:format_batches",
     "capstone.experiment:format_manual",
     "capstone.experiment:format_memory",
@@ -40015,8 +42330,9 @@
     "capstone.settings:Settings.blank_is_missing",
     "capstone.settings:get_settings"
    ],
-   "exercise_count": 23,
+   "exercise_count": 25,
    "modules_exercised": [
+    "capstone.agent.completion",
     "capstone.console",
     "capstone.evaluation.scoring",
     "capstone.experiment",
@@ -40034,10 +42350,74 @@
    ]
   },
   {
+   "id": "tests/test_experiment.py::test_run_command_audits_by_default_and_allows_explicit_opt_out",
+   "file": "tests/test_experiment.py",
+   "name": "test_run_command_audits_by_default_and_allows_explicit_opt_out",
+   "line": 115,
+   "docstring": "A new run records the evidence needed for later reasoning judgments.",
+   "parametrized": false,
+   "fixtures": [
+    "tmp_path",
+    "monkeypatch"
+   ],
+   "assertions": 6,
+   "assert_forms": {
+    "equality": 5,
+    "is_none": 1
+   },
+   "raises_checks": 0,
+   "uses": [
+    "monkeypatch"
+   ],
+   "quality_flags": [
+    "patches_dependencies"
+   ],
+   "claims": "A new run records the evidence needed for later reasoning judgments.",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.agent.completion:AuditLog.__init__",
+    "capstone.console:safe_console",
+    "capstone.evaluation.scoring:format_summary",
+    "capstone.evaluation.scoring:summarize",
+    "capstone.experiment:add_manual_options",
+    "capstone.experiment:default_audit_path",
+    "capstone.experiment:format_batches",
+    "capstone.experiment:format_manual",
+    "capstone.experiment:format_memory",
+    "capstone.experiment:format_model_calls",
+    "capstone.experiment:format_triage",
+    "capstone.experiment:known_cases",
+    "capstone.experiment:labelled",
+    "capstone.experiment:main",
+    "capstone.experiment:report",
+    "capstone.experiment:report.<locals>.lines_for",
+    "capstone.manual.index:KeywordManualSearch.__init__",
+    "capstone.manual.sections:check_no_leaks",
+    "capstone.manual.sections:load_manual",
+    "capstone.manual.sections:parse_manual"
+   ],
+   "exercise_count": 20,
+   "modules_exercised": [
+    "capstone.agent.completion",
+    "capstone.console",
+    "capstone.evaluation.scoring",
+    "capstone.experiment",
+    "capstone.manual.index",
+    "capstone.manual.sections"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
    "id": "tests/test_experiment.py::test_old_records_without_blackout_fields_still_read",
    "file": "tests/test_experiment.py",
    "name": "test_old_records_without_blackout_fields_still_read",
-   "line": 115,
+   "line": 145,
    "docstring": "",
    "parametrized": false,
    "fixtures": [
@@ -40136,7 +42516,7 @@
    "id": "tests/test_experiment.py::test_the_run_command_watches_by_default_and_quiet_turns_it_off",
    "file": "tests/test_experiment.py",
    "name": "test_the_run_command_watches_by_default_and_quiet_turns_it_off",
-   "line": 121,
+   "line": 151,
    "docstring": "",
    "parametrized": false,
    "fixtures": [
@@ -40162,10 +42542,12 @@
    "claims": "the run command watches by default and quiet turns it off",
    "execution_outcome": "passed",
    "exercises": [
+    "capstone.agent.completion:AuditLog.__init__",
     "capstone.console:safe_console",
     "capstone.evaluation.scoring:format_summary",
     "capstone.evaluation.scoring:summarize",
     "capstone.experiment:add_manual_options",
+    "capstone.experiment:default_audit_path",
     "capstone.experiment:format_batches",
     "capstone.experiment:format_manual",
     "capstone.experiment:format_memory",
@@ -40186,8 +42568,9 @@
     "capstone.settings:Settings.blank_is_missing",
     "capstone.settings:get_settings"
    ],
-   "exercise_count": 23,
+   "exercise_count": 25,
    "modules_exercised": [
+    "capstone.agent.completion",
     "capstone.console",
     "capstone.evaluation.scoring",
     "capstone.experiment",
@@ -40208,7 +42591,7 @@
    "id": "tests/test_experiment.py::test_the_report_shows_an_overruled_intervention_and_why",
    "file": "tests/test_experiment.py",
    "name": "test_the_report_shows_an_overruled_intervention_and_why",
-   "line": 147,
+   "line": 177,
    "docstring": "",
    "parametrized": false,
    "fixtures": [
@@ -40263,7 +42646,7 @@
    "id": "tests/test_experiment.py::test_the_report_shows_why_a_final_answer_was_refused",
    "file": "tests/test_experiment.py",
    "name": "test_the_report_shows_why_a_final_answer_was_refused",
-   "line": 161,
+   "line": 191,
    "docstring": "",
    "parametrized": false,
    "fixtures": [
@@ -40318,7 +42701,7 @@
    "id": "tests/test_experiment.py::test_results_from_before_refusals_were_recorded_still_read",
    "file": "tests/test_experiment.py",
    "name": "test_results_from_before_refusals_were_recorded_still_read",
-   "line": 174,
+   "line": 204,
    "docstring": "",
    "parametrized": false,
    "fixtures": [
@@ -40350,7 +42733,7 @@
    "id": "tests/test_experiment.py::test_results_from_before_the_policy_recommendation_was_kept_still_read",
    "file": "tests/test_experiment.py",
    "name": "test_results_from_before_the_policy_recommendation_was_kept_still_read",
-   "line": 180,
+   "line": 210,
    "docstring": "",
    "parametrized": false,
    "fixtures": [
@@ -40385,7 +42768,7 @@
    "id": "tests/test_experiment.py::test_run_keys_are_unique_per_execution",
    "file": "tests/test_experiment.py",
    "name": "test_run_keys_are_unique_per_execution",
-   "line": 187,
+   "line": 217,
    "docstring": "",
    "parametrized": false,
    "fixtures": [
@@ -40485,7 +42868,7 @@
    "id": "tests/test_experiment.py::test_a_label_scores_the_root_cause_from_the_row_alone",
    "file": "tests/test_experiment.py",
    "name": "test_a_label_scores_the_root_cause_from_the_row_alone",
-   "line": 193,
+   "line": 223,
    "docstring": "",
    "parametrized": false,
    "fixtures": [
@@ -40527,7 +42910,7 @@
    "id": "tests/test_experiment.py::test_a_batch_label_is_judged_by_batch",
    "file": "tests/test_experiment.py",
    "name": "test_a_batch_label_is_judged_by_batch",
-   "line": 210,
+   "line": 240,
    "docstring": "",
    "parametrized": false,
    "fixtures": [
@@ -40568,7 +42951,7 @@
    "id": "tests/test_experiment.py::test_label_book_keeps_the_latest_label",
    "file": "tests/test_experiment.py",
    "name": "test_label_book_keeps_the_latest_label",
-   "line": 220,
+   "line": 250,
    "docstring": "",
    "parametrized": false,
    "fixtures": [
@@ -40604,7 +42987,7 @@
    "id": "tests/test_experiment.py::test_report_applies_labels",
    "file": "tests/test_experiment.py",
    "name": "test_report_applies_labels",
-   "line": 233,
+   "line": 263,
    "docstring": "",
    "parametrized": false,
    "fixtures": [
@@ -40666,7 +43049,7 @@
    "id": "tests/test_experiment.py::test_asking_for_a_label_at_the_console",
    "file": "tests/test_experiment.py",
    "name": "test_asking_for_a_label_at_the_console",
-   "line": 248,
+   "line": 278,
    "docstring": "",
    "parametrized": false,
    "fixtures": [
@@ -40703,7 +43086,7 @@
    "id": "tests/test_experiment.py::test_an_answer_that_is_not_a_choice_is_asked_again",
    "file": "tests/test_experiment.py",
    "name": "test_an_answer_that_is_not_a_choice_is_asked_again",
-   "line": 260,
+   "line": 290,
    "docstring": "Seen on 2026-10-21: pressing Enter with no answer stopped the command.",
    "parametrized": false,
    "fixtures": [
@@ -40739,7 +43122,7 @@
    "id": "tests/test_experiment.py::test_the_command_line_runs_labels_and_reports",
    "file": "tests/test_experiment.py",
    "name": "test_the_command_line_runs_labels_and_reports",
-   "line": 273,
+   "line": 303,
    "docstring": "",
    "parametrized": false,
    "fixtures": [
@@ -40762,6 +43145,11 @@
    "claims": "the command line runs labels and reports",
    "execution_outcome": "passed",
    "exercises": [
+    "capstone.agent.completion:AuditLog.__init__",
+    "capstone.agent.completion:AuditLog.append",
+    "capstone.agent.completion:audit_record",
+    "capstone.agent.completion:complete",
+    "capstone.agent.completion:shared_verification",
     "capstone.agent.evidence_brief:observations",
     "capstone.agent.evidence_brief:verify_numeric_claims",
     "capstone.agent.investigation:build_graph",
@@ -40796,21 +43184,18 @@
     "capstone.agent.loop:call_signature",
     "capstone.agent.loop:call_tool",
     "capstone.agent.loop:check_termination",
-    "capstone.agent.loop:gather",
-    "capstone.agent.loop:held_for_hypotheses",
-    "capstone.agent.loop:notify",
-    "capstone.agent.loop:record",
-    "capstone.agent.loop:run_batch",
-    "capstone.agent.loop:run_inner_loop"
+    "capstone.agent.loop:gather"
    ],
-   "exercise_count": 240,
+   "exercise_count": 248,
    "modules_exercised": [
+    "capstone.agent.completion",
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
     "capstone.agent.loop",
     "capstone.agent.monitor",
     "capstone.agent.state",
     "capstone.console",
+    "capstone.contracts.completed_investigations",
     "capstone.contracts.investigations",
     "capstone.contracts.tools",
     "capstone.episode",
@@ -40853,7 +43238,7 @@
    "id": "tests/test_experiment.py::test_invalid_replies_and_outages_are_counted_apart",
    "file": "tests/test_experiment.py",
    "name": "test_invalid_replies_and_outages_are_counted_apart",
-   "line": 316,
+   "line": 346,
    "docstring": "",
    "parametrized": false,
    "fixtures": [],
@@ -40887,7 +43272,7 @@
    "id": "tests/test_experiment.py::test_model_failures_survive_the_cli_file_and_report",
    "file": "tests/test_experiment.py",
    "name": "test_model_failures_survive_the_cli_file_and_report",
-   "line": 340,
+   "line": 370,
    "docstring": "",
    "parametrized": true,
    "fixtures": [
@@ -40912,6 +43297,11 @@
    "claims": "model failures survive the cli file and report",
    "execution_outcome": "passed",
    "exercises": [
+    "capstone.agent.completion:AuditLog.__init__",
+    "capstone.agent.completion:AuditLog.append",
+    "capstone.agent.completion:audit_record",
+    "capstone.agent.completion:complete",
+    "capstone.agent.completion:shared_verification",
     "capstone.agent.evidence_brief:evidence_brief",
     "capstone.agent.evidence_brief:measurement_groups",
     "capstone.agent.evidence_brief:observations",
@@ -40946,15 +43336,11 @@
     "capstone.agent.model_policy:ModelPolicy.__init__",
     "capstone.agent.model_policy:ModelPolicy._ask",
     "capstone.agent.model_policy:ModelPolicy._check_offered",
-    "capstone.agent.model_policy:ModelPolicy.decide",
-    "capstone.agent.model_policy:ModelPolicy.interpret",
-    "capstone.agent.model_policy:ModelPolicy.plan",
-    "capstone.agent.model_policy:NextStep.decision",
-    "capstone.agent.model_policy:NextStep.one_kind_of_step",
-    "capstone.agent.model_policy:cited_ids"
+    "capstone.agent.model_policy:ModelPolicy.decide"
    ],
-   "exercise_count": 253,
+   "exercise_count": 261,
    "modules_exercised": [
+    "capstone.agent.completion",
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
     "capstone.agent.loop",
@@ -40962,6 +43348,7 @@
     "capstone.agent.monitor",
     "capstone.agent.state",
     "capstone.console",
+    "capstone.contracts.completed_investigations",
     "capstone.contracts.investigations",
     "capstone.contracts.tools",
     "capstone.episode",
@@ -41004,7 +43391,7 @@
    "id": "tests/test_experiment.py::test_recovered_service_failures_keep_the_answering_fallback",
    "file": "tests/test_experiment.py",
    "name": "test_recovered_service_failures_keep_the_answering_fallback",
-   "line": 398,
+   "line": 428,
    "docstring": "",
    "parametrized": false,
    "fixtures": [
@@ -41062,7 +43449,7 @@
    "id": "tests/test_experiment.py::test_old_results_cannot_supply_missing_failure_details",
    "file": "tests/test_experiment.py",
    "name": "test_old_results_cannot_supply_missing_failure_details",
-   "line": 416,
+   "line": 446,
    "docstring": "",
    "parametrized": false,
    "fixtures": [
@@ -41117,7 +43504,7 @@
    "id": "tests/test_experiment.py::test_an_unanswered_question_with_no_attempt_does_not_invent_a_cause",
    "file": "tests/test_experiment.py",
    "name": "test_an_unanswered_question_with_no_attempt_does_not_invent_a_cause",
-   "line": 432,
+   "line": 462,
    "docstring": "",
    "parametrized": false,
    "fixtures": [
@@ -41172,7 +43559,7 @@
    "id": "tests/test_experiment.py::test_a_model_policy_run_keeps_its_call_summary_and_its_time",
    "file": "tests/test_experiment.py",
    "name": "test_a_model_policy_run_keeps_its_call_summary_and_its_time",
-   "line": 441,
+   "line": 471,
    "docstring": "",
    "parametrized": false,
    "fixtures": [],
@@ -41271,7 +43658,7 @@
    "id": "tests/test_experiment.py::test_a_policy_that_keeps_no_calls_records_none",
    "file": "tests/test_experiment.py",
    "name": "test_a_policy_that_keeps_no_calls_records_none",
-   "line": 453,
+   "line": 483,
    "docstring": "",
    "parametrized": false,
    "fixtures": [
@@ -41304,7 +43691,7 @@
    "id": "tests/test_experiment.py::test_a_results_line_from_before_still_reads",
    "file": "tests/test_experiment.py",
    "name": "test_a_results_line_from_before_still_reads",
-   "line": 458,
+   "line": 488,
    "docstring": "",
    "parametrized": false,
    "fixtures": [
@@ -41336,7 +43723,7 @@
    "id": "tests/test_experiment.py::test_the_report_shows_the_model_questions",
    "file": "tests/test_experiment.py",
    "name": "test_the_report_shows_the_model_questions",
-   "line": 464,
+   "line": 494,
    "docstring": "",
    "parametrized": false,
    "fixtures": [],
@@ -41435,7 +43822,7 @@
    "id": "tests/test_experiment.py::test_the_report_says_when_no_model_was_recorded",
    "file": "tests/test_experiment.py",
    "name": "test_the_report_says_when_no_model_was_recorded",
-   "line": 477,
+   "line": 507,
    "docstring": "",
    "parametrized": false,
    "fixtures": [
@@ -41490,7 +43877,7 @@
    "id": "tests/test_experiment.py::test_the_gate_decision_is_recorded_beside_the_run",
    "file": "tests/test_experiment.py",
    "name": "test_the_gate_decision_is_recorded_beside_the_run",
-   "line": 530,
+   "line": 560,
    "docstring": "",
    "parametrized": false,
    "fixtures": [
@@ -41603,7 +43990,7 @@
    "id": "tests/test_experiment.py::test_a_recalled_memory_the_agent_cites_is_marked_used",
    "file": "tests/test_experiment.py",
    "name": "test_a_recalled_memory_the_agent_cites_is_marked_used",
-   "line": 540,
+   "line": 570,
    "docstring": "",
    "parametrized": false,
    "fixtures": [
@@ -41715,7 +44102,7 @@
    "id": "tests/test_experiment.py::test_an_uncited_memory_is_unknown_not_unused",
    "file": "tests/test_experiment.py",
    "name": "test_an_uncited_memory_is_unknown_not_unused",
-   "line": 548,
+   "line": 578,
    "docstring": "",
    "parametrized": false,
    "fixtures": [
@@ -41826,7 +44213,7 @@
    "id": "tests/test_experiment.py::test_without_memory_there_are_no_memory_records",
    "file": "tests/test_experiment.py",
    "name": "test_without_memory_there_are_no_memory_records",
-   "line": 554,
+   "line": 584,
    "docstring": "",
    "parametrized": false,
    "fixtures": [
@@ -41858,7 +44245,7 @@
    "id": "tests/test_experiment.py::test_nothing_the_evaluator_knows_reaches_the_memory_store",
    "file": "tests/test_experiment.py",
    "name": "test_nothing_the_evaluator_knows_reaches_the_memory_store",
-   "line": 558,
+   "line": 588,
    "docstring": "",
    "parametrized": false,
    "fixtures": [
@@ -41969,7 +44356,7 @@
    "id": "tests/test_experiment.py::test_the_report_traces_a_recalled_lesson_to_a_wrong_diagnosis",
    "file": "tests/test_experiment.py",
    "name": "test_the_report_traces_a_recalled_lesson_to_a_wrong_diagnosis",
-   "line": 566,
+   "line": 596,
    "docstring": "",
    "parametrized": false,
    "fixtures": [
@@ -42083,7 +44470,7 @@
    "id": "tests/test_experiment.py::test_the_report_has_no_memory_line_without_memory",
    "file": "tests/test_experiment.py",
    "name": "test_the_report_has_no_memory_line_without_memory",
-   "line": 581,
+   "line": 611,
    "docstring": "",
    "parametrized": false,
    "fixtures": [
@@ -42137,7 +44524,7 @@
    "id": "tests/test_experiment.py::test_the_held_out_set_is_every_fault_on_ten_fixed_seeds",
    "file": "tests/test_experiment.py",
    "name": "test_the_held_out_set_is_every_fault_on_ten_fixed_seeds",
-   "line": 590,
+   "line": 620,
    "docstring": "",
    "parametrized": false,
    "fixtures": [],
@@ -42170,7 +44557,7 @@
    "id": "tests/test_experiment.py::test_no_seed_anyone_tuned_on_is_held_out",
    "file": "tests/test_experiment.py",
    "name": "test_no_seed_anyone_tuned_on_is_held_out",
-   "line": 599,
+   "line": 629,
    "docstring": "",
    "parametrized": false,
    "fixtures": [],
@@ -42200,7 +44587,7 @@
    "id": "tests/test_experiment.py::test_the_command_runs_the_held_out_set",
    "file": "tests/test_experiment.py",
    "name": "test_the_command_runs_the_held_out_set",
-   "line": 605,
+   "line": 635,
    "docstring": "",
    "parametrized": false,
    "fixtures": [
@@ -42221,10 +44608,12 @@
    "claims": "the command runs the held out set",
    "execution_outcome": "passed",
    "exercises": [
+    "capstone.agent.completion:AuditLog.__init__",
     "capstone.console:safe_console",
     "capstone.evaluation.scoring:format_summary",
     "capstone.evaluation.scoring:summarize",
     "capstone.experiment:add_manual_options",
+    "capstone.experiment:default_audit_path",
     "capstone.experiment:format_batches",
     "capstone.experiment:format_manual",
     "capstone.experiment:format_memory",
@@ -42246,8 +44635,9 @@
     "capstone.settings:Settings.blank_is_missing",
     "capstone.settings:get_settings"
    ],
-   "exercise_count": 24,
+   "exercise_count": 26,
    "modules_exercised": [
+    "capstone.agent.completion",
     "capstone.console",
     "capstone.evaluation.scoring",
     "capstone.experiment",
@@ -42268,7 +44658,7 @@
    "id": "tests/test_experiment.py::test_the_report_says_how_many_runs_were_held_out",
    "file": "tests/test_experiment.py",
    "name": "test_the_report_says_how_many_runs_were_held_out",
-   "line": 621,
+   "line": 651,
    "docstring": "",
    "parametrized": false,
    "fixtures": [
@@ -42322,7 +44712,7 @@
    "id": "tests/test_experiment.py::test_a_run_with_several_faults_shows_its_causes_found_and_fixed",
    "file": "tests/test_experiment.py",
    "name": "test_a_run_with_several_faults_shows_its_causes_found_and_fixed",
-   "line": 627,
+   "line": 657,
    "docstring": "",
    "parametrized": false,
    "fixtures": [
@@ -42409,7 +44799,7 @@
    "id": "tests/test_experiment.py::test_a_case_can_name_the_challenge",
    "file": "tests/test_experiment.py",
    "name": "test_a_case_can_name_the_challenge",
-   "line": 643,
+   "line": 673,
    "docstring": "",
    "parametrized": false,
    "fixtures": [],
@@ -42441,7 +44831,7 @@
    "id": "tests/test_experiment.py::test_the_command_runs_the_challenge_on_the_given_seeds",
    "file": "tests/test_experiment.py",
    "name": "test_the_command_runs_the_challenge_on_the_given_seeds",
-   "line": 651,
+   "line": 681,
    "docstring": "",
    "parametrized": false,
    "fixtures": [
@@ -42462,11 +44852,13 @@
    "claims": "the command runs the challenge on the given seeds",
    "execution_outcome": "passed",
    "exercises": [
+    "capstone.agent.completion:AuditLog.__init__",
     "capstone.console:safe_console",
     "capstone.evaluation.scoring:format_summary",
     "capstone.evaluation.scoring:summarize",
     "capstone.experiment:add_manual_options",
     "capstone.experiment:challenge_cases",
+    "capstone.experiment:default_audit_path",
     "capstone.experiment:format_batches",
     "capstone.experiment:format_manual",
     "capstone.experiment:format_memory",
@@ -42487,8 +44879,9 @@
     "capstone.settings:Settings.blank_is_missing",
     "capstone.settings:get_settings"
    ],
-   "exercise_count": 24,
+   "exercise_count": 26,
    "modules_exercised": [
+    "capstone.agent.completion",
     "capstone.console",
     "capstone.evaluation.scoring",
     "capstone.experiment",
@@ -42509,7 +44902,7 @@
    "id": "tests/test_experiment.py::test_a_challenge_run_is_built_and_scored_with_several_faults",
    "file": "tests/test_experiment.py",
    "name": "test_a_challenge_run_is_built_and_scored_with_several_faults",
-   "line": 675,
+   "line": 705,
    "docstring": "",
    "parametrized": false,
    "fixtures": [
@@ -42610,7 +45003,7 @@
    "id": "tests/test_experiment.py::test_the_report_totals_and_lists_one_and_several_fault_runs_apart",
    "file": "tests/test_experiment.py",
    "name": "test_the_report_totals_and_lists_one_and_several_fault_runs_apart",
-   "line": 683,
+   "line": 713,
    "docstring": "",
    "parametrized": false,
    "fixtures": [
@@ -42667,7 +45060,7 @@
    "id": "tests/test_experiment.py::test_a_report_of_one_kind_only_is_not_split",
    "file": "tests/test_experiment.py",
    "name": "test_a_report_of_one_kind_only_is_not_split",
-   "line": 699,
+   "line": 729,
    "docstring": "",
    "parametrized": false,
    "fixtures": [
@@ -42721,7 +45114,7 @@
    "id": "tests/test_experiment.py::test_the_report_says_why_attempts_failed",
    "file": "tests/test_experiment.py",
    "name": "test_the_report_says_why_attempts_failed",
-   "line": 704,
+   "line": 734,
    "docstring": "",
    "parametrized": false,
    "fixtures": [],
@@ -42820,7 +45213,7 @@
    "id": "tests/test_experiment.py::test_the_report_says_why_replies_were_invalid",
    "file": "tests/test_experiment.py",
    "name": "test_the_report_says_why_replies_were_invalid",
-   "line": 729,
+   "line": 759,
    "docstring": "",
    "parametrized": false,
    "fixtures": [],
@@ -42919,7 +45312,7 @@
    "id": "tests/test_experiment.py::test_a_run_with_the_manual_records_what_it_looked_up",
    "file": "tests/test_experiment.py",
    "name": "test_a_run_with_the_manual_records_what_it_looked_up",
-   "line": 782,
+   "line": 812,
    "docstring": "",
    "parametrized": false,
    "fixtures": [
@@ -43029,7 +45422,7 @@
    "id": "tests/test_experiment.py::test_a_run_without_the_manual_has_no_manual_records",
    "file": "tests/test_experiment.py",
    "name": "test_a_run_without_the_manual_has_no_manual_records",
-   "line": 804,
+   "line": 834,
    "docstring": "",
    "parametrized": false,
    "fixtures": [
@@ -43084,7 +45477,7 @@
    "id": "tests/test_experiment.py::test_the_manual_tool_is_offered_only_when_asked_for",
    "file": "tests/test_experiment.py",
    "name": "test_the_manual_tool_is_offered_only_when_asked_for",
-   "line": 811,
+   "line": 841,
    "docstring": "",
    "parametrized": false,
    "fixtures": [
@@ -43127,7 +45520,7 @@
    "id": "tests/test_experiment.py::test_the_command_passes_the_manual_on",
    "file": "tests/test_experiment.py",
    "name": "test_the_command_passes_the_manual_on",
-   "line": 829,
+   "line": 859,
    "docstring": "",
    "parametrized": false,
    "fixtures": [
@@ -43151,10 +45544,12 @@
    "claims": "the command passes the manual on",
    "execution_outcome": "passed",
    "exercises": [
+    "capstone.agent.completion:AuditLog.__init__",
     "capstone.console:safe_console",
     "capstone.evaluation.scoring:format_summary",
     "capstone.evaluation.scoring:summarize",
     "capstone.experiment:add_manual_options",
+    "capstone.experiment:default_audit_path",
     "capstone.experiment:format_batches",
     "capstone.experiment:format_manual",
     "capstone.experiment:format_memory",
@@ -43175,8 +45570,9 @@
     "capstone.settings:Settings.blank_is_missing",
     "capstone.settings:get_settings"
    ],
-   "exercise_count": 23,
+   "exercise_count": 25,
    "modules_exercised": [
+    "capstone.agent.completion",
     "capstone.console",
     "capstone.evaluation.scoring",
     "capstone.experiment",
@@ -43197,7 +45593,7 @@
    "id": "tests/test_experiment.py::test_the_manual_is_on_by_default_by_meaning",
    "file": "tests/test_experiment.py",
    "name": "test_the_manual_is_on_by_default_by_meaning",
-   "line": 855,
+   "line": 885,
    "docstring": "",
    "parametrized": false,
    "fixtures": [
@@ -43220,10 +45616,12 @@
    "claims": "the manual is on by default by meaning",
    "execution_outcome": "passed",
    "exercises": [
+    "capstone.agent.completion:AuditLog.__init__",
     "capstone.console:safe_console",
     "capstone.evaluation.scoring:format_summary",
     "capstone.evaluation.scoring:summarize",
     "capstone.experiment:add_manual_options",
+    "capstone.experiment:default_audit_path",
     "capstone.experiment:format_batches",
     "capstone.experiment:format_manual",
     "capstone.experiment:format_memory",
@@ -43244,8 +45642,9 @@
     "capstone.settings:Settings.blank_is_missing",
     "capstone.settings:get_settings"
    ],
-   "exercise_count": 23,
+   "exercise_count": 25,
    "modules_exercised": [
+    "capstone.agent.completion",
     "capstone.console",
     "capstone.evaluation.scoring",
     "capstone.experiment",
@@ -43266,7 +45665,7 @@
    "id": "tests/test_experiment.py::test_the_manual_step_is_on_by_default",
    "file": "tests/test_experiment.py",
    "name": "test_the_manual_step_is_on_by_default",
-   "line": 873,
+   "line": 903,
    "docstring": "",
    "parametrized": false,
    "fixtures": [
@@ -43304,7 +45703,7 @@
    "id": "tests/test_experiment.py::test_critic_questions_counted_and_tagged",
    "file": "tests/test_experiment.py",
    "name": "test_critic_questions_counted_and_tagged",
-   "line": 883,
+   "line": 913,
    "docstring": "",
    "parametrized": false,
    "fixtures": [
@@ -43409,7 +45808,7 @@
    "id": "tests/test_experiment.py::test_critic_questions_follow_the_policy_s_own",
    "file": "tests/test_experiment.py",
    "name": "test_critic_questions_follow_the_policy_s_own",
-   "line": 896,
+   "line": 926,
    "docstring": "",
    "parametrized": false,
    "fixtures": [
@@ -43514,7 +45913,7 @@
    "id": "tests/test_experiment.py::test_the_follow_up_is_kept_in_the_record",
    "file": "tests/test_experiment.py",
    "name": "test_the_follow_up_is_kept_in_the_record",
-   "line": 906,
+   "line": 936,
    "docstring": "",
    "parametrized": false,
    "fixtures": [
@@ -43619,7 +46018,7 @@
    "id": "tests/test_experiment.py::test_old_records_without_recheck_still_read",
    "file": "tests/test_experiment.py",
    "name": "test_old_records_without_recheck_still_read",
-   "line": 920,
+   "line": 950,
    "docstring": "",
    "parametrized": false,
    "fixtures": [
@@ -43651,7 +46050,7 @@
    "id": "tests/test_experiment.py::test_old_records_without_critique_still_read",
    "file": "tests/test_experiment.py",
    "name": "test_old_records_without_critique_still_read",
-   "line": 925,
+   "line": 955,
    "docstring": "",
    "parametrized": false,
    "fixtures": [
@@ -43683,7 +46082,7 @@
    "id": "tests/test_experiment.py::test_a_critique_from_before_answered_by_still_reads",
    "file": "tests/test_experiment.py",
    "name": "test_a_critique_from_before_answered_by_still_reads",
-   "line": 930,
+   "line": 960,
    "docstring": "",
    "parametrized": false,
    "fixtures": [],
@@ -43713,7 +46112,7 @@
    "id": "tests/test_experiment.py::test_favoured_claim_comes_from_the_critique_not_the_final_beliefs",
    "file": "tests/test_experiment.py",
    "name": "test_favoured_claim_comes_from_the_critique_not_the_final_beliefs",
-   "line": 942,
+   "line": 972,
    "docstring": "",
    "parametrized": false,
    "fixtures": [],
@@ -43747,7 +46146,7 @@
    "id": "tests/test_experiment.py::test_a_critique_from_before_favoured_claim_still_reads",
    "file": "tests/test_experiment.py",
    "name": "test_a_critique_from_before_favoured_claim_still_reads",
-   "line": 962,
+   "line": 992,
    "docstring": "",
    "parametrized": false,
    "fixtures": [],
@@ -43777,7 +46176,7 @@
    "id": "tests/test_experiment.py::test_a_critique_from_before_after_stage_still_reads",
    "file": "tests/test_experiment.py",
    "name": "test_a_critique_from_before_after_stage_still_reads",
-   "line": 974,
+   "line": 1004,
    "docstring": "",
    "parametrized": false,
    "fixtures": [],
@@ -43807,7 +46206,7 @@
    "id": "tests/test_experiment.py::test_line_context_setting_and_evidence_references_reach_the_record",
    "file": "tests/test_experiment.py",
    "name": "test_line_context_setting_and_evidence_references_reach_the_record",
-   "line": 986,
+   "line": 1016,
    "docstring": "The opt-in packet is saved, and old experiment records still load.",
    "parametrized": false,
    "fixtures": [
@@ -46854,7 +49253,7 @@
    "id": "tests/test_full_evaluation.py::test_every_episode_and_question_has_one_ledger_row",
    "file": "tests/test_full_evaluation.py",
    "name": "test_every_episode_and_question_has_one_ledger_row",
-   "line": 36,
+   "line": 41,
    "docstring": "52 episodes x 12 RUN questions, each once, each with a status.",
    "parametrized": false,
    "fixtures": [
@@ -46912,7 +49311,7 @@
     "evaluation.evaltools.run_packet:leak_in",
     "evaluation.evaltools.run_packet:packet_file_name"
    ],
-   "exercise_count": 55,
+   "exercise_count": 56,
    "modules_exercised": [
     "capstone.contracts.investigations",
     "capstone.evaluation.labels",
@@ -46935,7 +49334,7 @@
    "id": "tests/test_full_evaluation.py::test_refused_episode_keeps_every_run_question_row",
    "file": "tests/test_full_evaluation.py",
    "name": "test_refused_episode_keeps_every_run_question_row",
-   "line": 48,
+   "line": 53,
    "docstring": "An invalid episode is still counted in the RUN ledger.",
    "parametrized": false,
    "fixtures": [
@@ -46982,7 +49381,7 @@
    "id": "tests/test_full_evaluation.py::test_the_report_keeps_the_published_denominators",
    "file": "tests/test_full_evaluation.py",
    "name": "test_the_report_keeps_the_published_denominators",
-   "line": 72,
+   "line": 77,
    "docstring": "Correctness per arm is the published n/judged with the pending labels.",
    "parametrized": false,
    "fixtures": [
@@ -47001,18 +49400,102 @@
    "exercises": [
     "evaluation.evaltools.decision_models:estimate_tokens",
     "evaluation.evaltools.full_evaluation:budget",
+    "evaluation.evaltools.full_evaluation:item_findings",
     "evaluation.evaltools.full_evaluation:ratio",
     "evaluation.evaltools.full_evaluation:report",
     "evaluation.evaltools.full_evaluation:request_tokens_estimate",
     "evaluation.evaltools.full_evaluation:run_name",
     "evaluation.evaltools.full_evaluation:settle",
-    "evaluation.evaltools.run_packet:batch_summary"
+    "evaluation.evaltools.run_packet:batch_summary",
+    "evaluation.evaltools.snap_request:DecisionQuestion.criteria_fit_type",
+    "evaluation.evaltools.snap_request:load_questions"
    ],
-   "exercise_count": 8,
+   "exercise_count": 11,
    "modules_exercised": [
     "evaluation.evaltools.decision_models",
     "evaluation.evaltools.full_evaluation",
-    "evaluation.evaltools.run_packet"
+    "evaluation.evaltools.run_packet",
+    "evaluation.evaltools.snap_request"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_full_evaluation.py::test_per_item_findings_join_truth_judge_and_blinded_reference",
+   "file": "tests/test_full_evaluation.py",
+   "name": "test_per_item_findings_join_truth_judge_and_blinded_reference",
+   "line": 103,
+   "docstring": "A high RUN-12 true preference supports, rather than defeats, grounding.",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 5,
+   "assert_forms": {
+    "equality": 3,
+    "identity_constant": 2
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "A high RUN-12 true preference supports, rather than defeats, grounding.",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.agent.completion:AuditLog.__init__",
+    "capstone.agent.completion:AuditLog.read",
+    "capstone.contracts.completed_investigations:CompletedInvestigation.unique_evidence",
+    "capstone.contracts.hypotheses:NumericClaim.ordered_window",
+    "capstone.contracts.investigations:run_id_for",
+    "capstone.evaluation.labels:apply_label",
+    "capstone.evaluation.scoring:Cause.named_by",
+    "capstone.evaluation.scoring:Score.fully_right",
+    "capstone.evaluation.scoring:Score.miss_kind",
+    "capstone.evaluation.scoring:Score.model_unavailable",
+    "capstone.evaluation.scoring:Score.unnecessary_actions",
+    "capstone.evaluation.scoring:_closest",
+    "capstone.evaluation.scoring:_named",
+    "capstone.evaluation.scoring:judge",
+    "capstone.evaluation.scoring:judge_causes",
+    "capstone.experiment:read_records",
+    "evaluation.evaltools.decision_models:reference_match",
+    "evaluation.evaltools.full_evaluation:item_findings",
+    "evaluation.evaltools.run_packet:_sibling",
+    "evaluation.evaltools.run_packet:audit_by_run",
+    "evaluation.evaltools.run_packet:build_all",
+    "evaluation.evaltools.run_packet:build_archive",
+    "evaluation.evaltools.run_packet:build_packet",
+    "evaluation.evaltools.run_packet:calibration",
+    "evaluation.evaltools.run_packet:check_no_truth_in_view",
+    "evaluation.evaltools.run_packet:check_unique",
+    "evaluation.evaltools.run_packet:configuration_of",
+    "evaluation.evaltools.run_packet:episode_key",
+    "evaluation.evaltools.run_packet:evaluator_only_of",
+    "evaluation.evaltools.run_packet:facts_of",
+    "evaluation.evaltools.run_packet:forbidden_in_view",
+    "evaluation.evaltools.run_packet:leak_in",
+    "evaluation.evaltools.run_packet:read_labels",
+    "evaluation.evaltools.run_packet:review_flags",
+    "evaluation.evaltools.run_packet:run_ref",
+    "evaluation.evaltools.run_packet:trace_from_audit",
+    "evaluation.evaltools.snap_request:DecisionQuestion.criteria_fit_type",
+    "evaluation.evaltools.snap_request:load_questions"
+   ],
+   "exercise_count": 38,
+   "modules_exercised": [
+    "capstone.agent.completion",
+    "capstone.contracts.completed_investigations",
+    "capstone.contracts.hypotheses",
+    "capstone.contracts.investigations",
+    "capstone.evaluation.labels",
+    "capstone.evaluation.scoring",
+    "capstone.experiment",
+    "evaluation.evaltools.decision_models",
+    "evaluation.evaltools.full_evaluation",
+    "evaluation.evaltools.run_packet",
+    "evaluation.evaltools.snap_request"
    ],
    "judgment": "NOT ASSESSED",
    "curated": {},
@@ -47026,7 +49509,7 @@
    "id": "tests/test_full_evaluation.py::test_each_pair_is_compared_and_the_sample_rule_is_applied_in_code",
    "file": "tests/test_full_evaluation.py",
    "name": "test_each_pair_is_compared_and_the_sample_rule_is_applied_in_code",
-   "line": 95,
+   "line": 134,
    "docstring": "Two comparisons (one per pair); 11 matched cases is under the 13 needed.",
    "parametrized": false,
    "fixtures": [
@@ -47059,7 +49542,7 @@
    "id": "tests/test_full_evaluation.py::test_a_comparison_request_names_no_scenario_or_run_key",
    "file": "tests/test_full_evaluation.py",
    "name": "test_a_comparison_request_names_no_scenario_or_run_key",
-   "line": 108,
+   "line": 147,
    "docstring": "The BT state carries outcomes by case number, never the fault's name.",
    "parametrized": false,
    "fixtures": [
@@ -47092,7 +49575,7 @@
    "id": "tests/test_full_evaluation.py::test_the_sample_rule_is_met_with_enough_matched_cases",
    "file": "tests/test_full_evaluation.py",
    "name": "test_the_sample_rule_is_met_with_enough_matched_cases",
-   "line": 122,
+   "line": 161,
    "docstring": "",
    "parametrized": false,
    "fixtures": [
@@ -47134,7 +49617,7 @@
    "id": "tests/test_full_evaluation.py::test_answers_settle_the_ledger_by_fingerprint",
    "file": "tests/test_full_evaluation.py",
    "name": "test_answers_settle_the_ledger_by_fingerprint",
-   "line": 141,
+   "line": 180,
    "docstring": "Sent answers mark rows answered; a failed request marks them failed.",
    "parametrized": false,
    "fixtures": [
@@ -47188,7 +49671,7 @@
    "id": "tests/test_full_evaluation.py::test_an_answer_to_another_request_settles_nothing",
    "file": "tests/test_full_evaluation.py",
    "name": "test_an_answer_to_another_request_settles_nothing",
-   "line": 178,
+   "line": 217,
    "docstring": "",
    "parametrized": false,
    "fixtures": [
@@ -47223,7 +49706,7 @@
    "id": "tests/test_full_evaluation.py::test_small_batches_resume_without_resending_completed_requests",
    "file": "tests/test_full_evaluation.py",
    "name": "test_small_batches_resume_without_resending_completed_requests",
-   "line": 193,
+   "line": 232,
    "docstring": "A large plan can advance through saved answers one request at a time.",
    "parametrized": false,
    "fixtures": [
@@ -47275,7 +49758,7 @@
    "id": "tests/test_full_evaluation.py::test_budgeted_send_reserves_before_post_and_resumes_from_measured_usage",
    "file": "tests/test_full_evaluation.py",
    "name": "test_budgeted_send_reserves_before_post_and_resumes_from_measured_usage",
-   "line": 222,
+   "line": 261,
    "docstring": "A small slice cannot overspend or repay a completed request on resume.",
    "parametrized": false,
    "fixtures": [
@@ -47336,7 +49819,7 @@
    "id": "tests/test_full_evaluation.py::test_budgeted_send_keeps_uncertain_charge_reserved_and_stops",
    "file": "tests/test_full_evaluation.py",
    "name": "test_budgeted_send_keeps_uncertain_charge_reserved_and_stops",
-   "line": 274,
+   "line": 313,
    "docstring": "Missing usage leaves a charge reserved and prevents another paid post.",
    "parametrized": false,
    "fixtures": [
@@ -47396,7 +49879,7 @@
    "id": "tests/test_full_evaluation.py::test_budgeted_send_refuses_a_charge_larger_than_the_remaining_cap",
    "file": "tests/test_full_evaluation.py",
    "name": "test_budgeted_send_refuses_a_charge_larger_than_the_remaining_cap",
-   "line": 318,
+   "line": 357,
    "docstring": "The whole possible input charge is reserved before any paid post.",
    "parametrized": false,
    "fixtures": [
@@ -47447,7 +49930,7 @@
    "id": "tests/test_full_evaluation.py::test_budgeted_send_reserves_the_documented_binary_context_window",
    "file": "tests/test_full_evaluation.py",
    "name": "test_budgeted_send_reserves_the_documented_binary_context_window",
-   "line": 351,
+   "line": 390,
    "docstring": "Snap's 384K window is 393,216 tokens, not a decimal 384,000.",
    "parametrized": false,
    "fixtures": [
@@ -47497,7 +49980,7 @@
    "id": "tests/test_full_evaluation.py::test_budgeted_send_rejects_nonfinite_limits",
    "file": "tests/test_full_evaluation.py",
    "name": "test_budgeted_send_rejects_nonfinite_limits",
-   "line": 384,
+   "line": 423,
    "docstring": "NaN or infinity cannot turn the dollar or time guard off.",
    "parametrized": false,
    "fixtures": [
@@ -47529,7 +50012,7 @@
    "id": "tests/test_full_evaluation.py::test_unverified_provider_is_refused_before_a_mixed_batch_posts",
    "file": "tests/test_full_evaluation.py",
    "name": "test_unverified_provider_is_refused_before_a_mixed_batch_posts",
-   "line": 404,
+   "line": 443,
    "docstring": "A both-provider plan makes no paid call if either price is unknown.",
    "parametrized": false,
    "fixtures": [
@@ -47578,7 +50061,7 @@
    "id": "tests/test_full_evaluation.py::test_a_saved_reply_finishes_an_interrupted_reservation",
    "file": "tests/test_full_evaluation.py",
    "name": "test_a_saved_reply_finishes_an_interrupted_reservation",
-   "line": 439,
+   "line": 478,
    "docstring": "A crash after saving the reply can resume without another paid post.",
    "parametrized": false,
    "fixtures": [
@@ -47638,7 +50121,7 @@
    "id": "tests/test_full_evaluation.py::test_malformed_usage_stops_with_a_visible_reason",
    "file": "tests/test_full_evaluation.py",
    "name": "test_malformed_usage_stops_with_a_visible_reason",
-   "line": 489,
+   "line": 528,
    "docstring": "A malformed provider usage field is an unknown charge, not a crash.",
    "parametrized": false,
    "fixtures": [
@@ -47699,7 +50182,7 @@
    "id": "tests/test_full_evaluation.py::test_full_command_uses_budgeted_sender",
    "file": "tests/test_full_evaluation.py",
    "name": "test_full_command_uses_budgeted_sender",
-   "line": 521,
+   "line": 560,
    "docstring": "The full command applies its limits to new sends, not the whole plan.",
    "parametrized": false,
    "fixtures": [
@@ -47752,16 +50235,16 @@
     "evaluation.evaltools.full_evaluation:comparisons",
     "evaluation.evaltools.full_evaluation:git",
     "evaluation.evaltools.full_evaluation:has_functions",
+    "evaluation.evaltools.full_evaluation:item_findings",
     "evaluation.evaltools.full_evaluation:ledger_rows",
     "evaluation.evaltools.full_evaluation:main",
     "evaluation.evaltools.full_evaluation:markdown",
     "evaluation.evaltools.full_evaluation:markdown.<locals>.fraction",
     "evaluation.evaltools.full_evaluation:match_cases",
     "evaluation.evaltools.full_evaluation:plan",
-    "evaluation.evaltools.full_evaluation:ratio",
-    "evaluation.evaltools.full_evaluation:readiness"
+    "evaluation.evaltools.full_evaluation:ratio"
    ],
-   "exercise_count": 75,
+   "exercise_count": 76,
    "modules_exercised": [
     "capstone.contracts.investigations",
     "capstone.evaluation.labels",
@@ -47785,7 +50268,7 @@
    "id": "tests/test_full_evaluation.py::test_a_plan_over_budget_is_refused_before_sending",
    "file": "tests/test_full_evaluation.py",
    "name": "test_a_plan_over_budget_is_refused_before_sending",
-   "line": 566,
+   "line": 605,
    "docstring": "Nothing is written as answers, and no key is needed to be refused.",
    "parametrized": false,
    "fixtures": [
@@ -47840,15 +50323,15 @@
     "evaluation.evaltools.full_evaluation:comparisons",
     "evaluation.evaltools.full_evaluation:git",
     "evaluation.evaltools.full_evaluation:has_functions",
+    "evaluation.evaltools.full_evaluation:item_findings",
     "evaluation.evaltools.full_evaluation:ledger_rows",
     "evaluation.evaltools.full_evaluation:main",
     "evaluation.evaltools.full_evaluation:markdown",
     "evaluation.evaltools.full_evaluation:markdown.<locals>.fraction",
     "evaluation.evaltools.full_evaluation:match_cases",
-    "evaluation.evaltools.full_evaluation:plan",
-    "evaluation.evaltools.full_evaluation:ratio"
+    "evaluation.evaltools.full_evaluation:plan"
    ],
-   "exercise_count": 76,
+   "exercise_count": 77,
    "modules_exercised": [
     "capstone.contracts.investigations",
     "capstone.evaluation.labels",
@@ -47872,7 +50355,7 @@
    "id": "tests/test_full_evaluation.py::test_the_budget_counts_the_whole_request_with_a_margin",
    "file": "tests/test_full_evaluation.py",
    "name": "test_the_budget_counts_the_whole_request_with_a_margin",
-   "line": 602,
+   "line": 641,
    "docstring": "The questions are paid for too; the 2026-11-02 Jev pilot billed 1.2-1.4x\nthe four-characters-per-token estimate of the whole body.",
    "parametrized": false,
    "fixtures": [],
@@ -47907,7 +50390,7 @@
    "id": "tests/test_full_evaluation.py::test_sending_needs_both_limits",
    "file": "tests/test_full_evaluation.py",
    "name": "test_sending_needs_both_limits",
-   "line": 630,
+   "line": 669,
    "docstring": "",
    "parametrized": false,
    "fixtures": [
@@ -47939,7 +50422,7 @@
    "id": "tests/test_full_evaluation.py::test_a_dry_run_writes_the_ledger_and_report",
    "file": "tests/test_full_evaluation.py",
    "name": "test_a_dry_run_writes_the_ledger_and_report",
-   "line": 635,
+   "line": 674,
    "docstring": "",
    "parametrized": false,
    "fixtures": [
@@ -47994,16 +50477,16 @@
     "evaluation.evaltools.full_evaluation:comparisons",
     "evaluation.evaltools.full_evaluation:git",
     "evaluation.evaltools.full_evaluation:has_functions",
+    "evaluation.evaltools.full_evaluation:item_findings",
     "evaluation.evaltools.full_evaluation:ledger_rows",
     "evaluation.evaltools.full_evaluation:main",
     "evaluation.evaltools.full_evaluation:markdown",
     "evaluation.evaltools.full_evaluation:markdown.<locals>.fraction",
     "evaluation.evaltools.full_evaluation:match_cases",
     "evaluation.evaltools.full_evaluation:plan",
-    "evaluation.evaltools.full_evaluation:ratio",
-    "evaluation.evaltools.full_evaluation:readiness"
+    "evaluation.evaltools.full_evaluation:ratio"
    ],
-   "exercise_count": 78,
+   "exercise_count": 79,
    "modules_exercised": [
     "capstone.contracts.investigations",
     "capstone.evaluation.labels",
@@ -48027,7 +50510,7 @@
    "id": "tests/test_full_evaluation.py::test_a_pinned_commit_that_is_not_checked_out_is_refused",
    "file": "tests/test_full_evaluation.py",
    "name": "test_a_pinned_commit_that_is_not_checked_out_is_refused",
-   "line": 669,
+   "line": 708,
    "docstring": "",
    "parametrized": false,
    "fixtures": [],
@@ -48060,7 +50543,7 @@
    "id": "tests/test_full_evaluation.py::test_provenance_needs_an_explicit_clean_commit",
    "file": "tests/test_full_evaluation.py",
    "name": "test_provenance_needs_an_explicit_clean_commit",
-   "line": 676,
+   "line": 715,
    "docstring": "",
    "parametrized": false,
    "fixtures": [
@@ -48096,7 +50579,7 @@
    "id": "tests/test_full_evaluation.py::test_the_scope_manifest_classes_every_file",
    "file": "tests/test_full_evaluation.py",
    "name": "test_the_scope_manifest_classes_every_file",
-   "line": 689,
+   "line": 728,
    "docstring": "",
    "parametrized": false,
    "fixtures": [
@@ -48134,7 +50617,7 @@
    "id": "tests/test_full_evaluation.py::test_the_repository_has_no_unexplained_python_file",
    "file": "tests/test_full_evaluation.py",
    "name": "test_the_repository_has_no_unexplained_python_file",
-   "line": 722,
+   "line": 761,
    "docstring": "Every tracked Python file is inventoried, a test, excluded with a reason,\nor holds no function; a new module the inventory misses fails here.",
    "parametrized": false,
    "fixtures": [],
@@ -48181,7 +50664,7 @@
    "id": "tests/test_full_evaluation.py::test_a_new_evaluator_function_requires_inventory_regeneration",
    "file": "tests/test_full_evaluation.py",
    "name": "test_a_new_evaluator_function_requires_inventory_regeneration",
-   "line": 742,
+   "line": 781,
    "docstring": "",
    "parametrized": false,
    "fixtures": [
@@ -48219,7 +50702,7 @@
    "id": "tests/test_full_evaluation.py::test_archived_cases_pair_by_scenario_and_seed",
    "file": "tests/test_full_evaluation.py",
    "name": "test_archived_cases_pair_by_scenario_and_seed",
-   "line": 771,
+   "line": 810,
    "docstring": "Every archived packet carries its seed, and the two arms pair on it.",
    "parametrized": false,
    "fixtures": [
@@ -48257,7 +50740,7 @@
    "id": "tests/test_full_evaluation.py::test_reordered_cases_still_pair_and_the_reordering_is_flagged",
    "file": "tests/test_full_evaluation.py",
    "name": "test_reordered_cases_still_pair_and_the_reordering_is_flagged",
-   "line": 782,
+   "line": 821,
    "docstring": "Rotating B's case numbers changes no pairing, but is reported.",
    "parametrized": false,
    "fixtures": [
@@ -48294,7 +50777,7 @@
    "id": "tests/test_full_evaluation.py::test_a_differently_seeded_case_is_not_paired",
    "file": "tests/test_full_evaluation.py",
    "name": "test_a_differently_seeded_case_is_not_paired",
-   "line": 803,
+   "line": 842,
    "docstring": "Same slot and scenario but another seed is a different case.",
    "parametrized": false,
    "fixtures": [
@@ -48331,7 +50814,7 @@
    "id": "tests/test_full_evaluation.py::test_a_case_without_a_seed_or_with_a_repeated_one_is_ambiguous",
    "file": "tests/test_full_evaluation.py",
    "name": "test_a_case_without_a_seed_or_with_a_repeated_one_is_ambiguous",
-   "line": 816,
+   "line": 855,
    "docstring": "",
    "parametrized": false,
    "fixtures": [
@@ -48368,7 +50851,7 @@
    "id": "tests/test_full_evaluation.py::test_a_large_plan_finishes_through_small_resumed_slices",
    "file": "tests/test_full_evaluation.py",
    "name": "test_a_large_plan_finishes_through_small_resumed_slices",
-   "line": 871,
+   "line": 910,
    "docstring": "T24: many small slices finish the plan; no request is posted twice.",
    "parametrized": false,
    "fixtures": [
@@ -48432,7 +50915,7 @@
     "evaluation.evaltools.run_packet:check_unique",
     "evaluation.evaltools.run_packet:configuration_of"
    ],
-   "exercise_count": 72,
+   "exercise_count": 73,
    "modules_exercised": [
     "capstone.contracts.investigations",
     "capstone.evaluation.labels",
@@ -48456,7 +50939,7 @@
    "id": "tests/test_full_evaluation.py::test_cap_exhaustion_stops_safely_and_keeps_pending_rows",
    "file": "tests/test_full_evaluation.py",
    "name": "test_cap_exhaustion_stops_safely_and_keeps_pending_rows",
-   "line": 916,
+   "line": 955,
    "docstring": "The dollar cap is never passed, across resumes, and unsent rows stay planned.",
    "parametrized": false,
    "fixtures": [
@@ -48511,7 +50994,7 @@
    "id": "tests/test_full_evaluation.py::test_env_file_loads_only_the_provider_keys",
    "file": "tests/test_full_evaluation.py",
    "name": "test_env_file_loads_only_the_provider_keys",
-   "line": 951,
+   "line": 990,
    "docstring": "The key file sets the selected provider's key and nothing else.",
    "parametrized": false,
    "fixtures": [
@@ -48551,7 +51034,7 @@
    "id": "tests/test_full_evaluation.py::test_a_dry_run_reports_whether_snap_could_be_sent",
    "file": "tests/test_full_evaluation.py",
    "name": "test_a_dry_run_reports_whether_snap_could_be_sent",
-   "line": 968,
+   "line": 1007,
    "docstring": "The report says the key is set and Snap's contract is verified; no value leaks.",
    "parametrized": false,
    "fixtures": [
@@ -48605,16 +51088,16 @@
     "evaluation.evaltools.full_evaluation:comparisons",
     "evaluation.evaltools.full_evaluation:git",
     "evaluation.evaltools.full_evaluation:has_functions",
+    "evaluation.evaltools.full_evaluation:item_findings",
     "evaluation.evaltools.full_evaluation:ledger_rows",
     "evaluation.evaltools.full_evaluation:load_provider_keys",
     "evaluation.evaltools.full_evaluation:main",
     "evaluation.evaltools.full_evaluation:markdown",
     "evaluation.evaltools.full_evaluation:markdown.<locals>.fraction",
     "evaluation.evaltools.full_evaluation:match_cases",
-    "evaluation.evaltools.full_evaluation:plan",
-    "evaluation.evaltools.full_evaluation:ratio"
+    "evaluation.evaltools.full_evaluation:plan"
    ],
-   "exercise_count": 79,
+   "exercise_count": 80,
    "modules_exercised": [
     "capstone.contracts.investigations",
     "capstone.evaluation.labels",
@@ -81039,6 +83522,179 @@
     "capstone.tools.actions",
     "capstone.tools.observation",
     "capstone.tools.screening"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_reference_review.py::test_review_packets_hide_run_identity_and_import_checked_answers",
+   "file": "tests/test_reference_review.py",
+   "name": "test_review_packets_hide_run_identity_and_import_checked_answers",
+   "line": 10,
+   "docstring": "The reviewer sees only judge-side state, then answers map back privately.",
+   "parametrized": false,
+   "fixtures": [
+    "tmp_path"
+   ],
+   "assertions": 5,
+   "assert_forms": {
+    "equality": 4,
+    "truthiness": 1
+   },
+   "raises_checks": 1,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "The reviewer sees only judge-side state, then answers map back privately.",
+   "execution_outcome": "passed",
+   "exercises": [
+    "evaluation.evaltools.reference_review:export_requests",
+    "evaluation.evaltools.reference_review:import_review",
+    "evaluation.evaltools.reference_review:review_id"
+   ],
+   "exercise_count": 3,
+   "modules_exercised": [
+    "evaluation.evaltools.reference_review"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_reference_review.py::test_review_export_refuses_a_request_folder_with_model_answers",
+   "file": "tests/test_reference_review.py",
+   "name": "test_review_export_refuses_a_request_folder_with_model_answers",
+   "line": 56,
+   "docstring": "A reviewer sample must be frozen before the model has answered it.",
+   "parametrized": false,
+   "fixtures": [
+    "tmp_path"
+   ],
+   "assertions": 0,
+   "assert_forms": {},
+   "raises_checks": 1,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "A reviewer sample must be frozen before the model has answered it.",
+   "execution_outcome": "passed",
+   "exercises": [
+    "evaluation.evaltools.reference_review:export_requests"
+   ],
+   "exercise_count": 1,
+   "modules_exercised": [
+    "evaluation.evaltools.reference_review"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_reference_review.py::test_function_sample_prefers_items_with_all_judgments",
+   "file": "tests/test_reference_review.py",
+   "name": "test_function_sample_prefers_items_with_all_judgments",
+   "line": 67,
+   "docstring": "The reference set includes functions whose test questions are answerable.",
+   "parametrized": false,
+   "fixtures": [
+    "tmp_path"
+   ],
+   "assertions": 1,
+   "assert_forms": {
+    "equality": 1
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "The reference set includes functions whose test questions are answerable.",
+   "execution_outcome": "passed",
+   "exercises": [
+    "evaluation.evaltools.reference_review:export_requests",
+    "evaluation.evaltools.reference_review:review_id"
+   ],
+   "exercise_count": 2,
+   "modules_exercised": [
+    "evaluation.evaltools.reference_review"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_reference_review.py::test_run_strata_guarantees_blind_sound_and_misleading_cases",
+   "file": "tests/test_reference_review.py",
+   "name": "test_run_strata_guarantees_blind_sound_and_misleading_cases",
+   "line": 97,
+   "docstring": "A private curated map guarantees both kinds without showing their labels.",
+   "parametrized": false,
+   "fixtures": [
+    "tmp_path"
+   ],
+   "assertions": 5,
+   "assert_forms": {
+    "equality": 1,
+    "membership": 4
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "A private curated map guarantees both kinds without showing their labels.",
+   "execution_outcome": "passed",
+   "exercises": [
+    "evaluation.evaltools.reference_review:export_requests",
+    "evaluation.evaltools.reference_review:review_id"
+   ],
+   "exercise_count": 2,
+   "modules_exercised": [
+    "evaluation.evaltools.reference_review"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_reference_review.py::test_run_strata_fail_closed_when_balanced_review_is_impossible",
+   "file": "tests/test_reference_review.py",
+   "name": "test_run_strata_fail_closed_when_balanced_review_is_impossible",
+   "line": 146,
+   "docstring": "A missing negative example must not be presented as a calibrated sample.",
+   "parametrized": false,
+   "fixtures": [
+    "tmp_path"
+   ],
+   "assertions": 0,
+   "assert_forms": {},
+   "raises_checks": 1,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "A missing negative example must not be presented as a calibrated sample.",
+   "execution_outcome": "passed",
+   "exercises": [
+    "evaluation.evaltools.reference_review:export_requests",
+    "evaluation.evaltools.reference_review:review_id"
+   ],
+   "exercise_count": 2,
+   "modules_exercised": [
+    "evaluation.evaltools.reference_review"
    ],
    "judgment": "NOT ASSESSED",
    "curated": {},

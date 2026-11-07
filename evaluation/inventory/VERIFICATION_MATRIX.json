@@ -1,266 +1,261 @@
 {
  "inventory_version": "1.0.0",
- "coverage_file": "..\\.coverage",
+ "coverage_file": "../.coverage",
  "coverage_available": true,
  "junit_available": true,
  "source_sha256": {
-  "capstone-code/capstone/__init__.py": "1ae00da29b0773e3b186b4040967c5b9fbfa556efc440434df0f97f479635a02",
-  "capstone-code/capstone/agent/__init__.py": "87e28fd4a82f0c0022ddf37a6b714466cb5445c3ab2b94d3cab25a55f776b313",
-  "capstone-code/capstone/agent/artifacts.py": "29467ddbbebe593a2bd73c8894deec362c09dc2c04424eb4adfa1064dc922cc2",
-  "capstone-code/capstone/agent/completion.py": "2315b04a495f1916c4f417646a348f44e5ec23d5283ba6cae42d3a9955ed0503",
-  "capstone-code/capstone/agent/critic.py": "2b0f194847895514b9cb0a867b74749dd3fe2e35f886b63f5535d299361c2e8b",
-  "capstone-code/capstone/agent/evidence_brief.py": "23f05f6b11a3f64ba96100edf1538142136bb98164e56ca9c68f10872f7986a8",
-  "capstone-code/capstone/agent/incident_context.py": "6a957392a16c8d74240929fc8e53a86bd97929e67dc52b61a2c229c613258426",
-  "capstone-code/capstone/agent/investigation.py": "1c460a48e4aeb7f47e5843ff3dfd8266ce157e3f311bd6851ac7c9bb3b7dd9c1",
-  "capstone-code/capstone/agent/loop.py": "034c26e81f9269268ec7afed482691f139c59b8a233d59f4052aa09b28612a83",
-  "capstone-code/capstone/agent/model_policy.py": "7047ee355b720fc51335405fcf5007bd9e1627c382bcda58c0bb96569879b5ad",
-  "capstone-code/capstone/agent/monitor.py": "62c1eca74bc1a9b7a4454aed5dfe9c8baeadc868f42a147c8da5d9466da30ecc",
-  "capstone-code/capstone/agent/policy.py": "f290fbaca353f8d28e4e5f293aaebbea14040396ef4d3f88caa6ed362cd85c35",
-  "capstone-code/capstone/agent/state.py": "ebf87a5328f0e2c309c69f8fb17ee06c9ec40d9f7764574b82deb06c42fd0d28",
-  "capstone-code/capstone/agent/tree_of_thought.py": "bbeed07b5dbc0fd363d9093eed3d844507444abd5eebab5ff3f56e9f65b4481a",
-  "capstone-code/capstone/baseline.py": "1acab63d6c15cf64edeaaf02e2b7598de7f71046ab52aaac02189834c37cebf0",
-  "capstone-code/capstone/benchmark.py": "2638960900e86be5cbb3946b475a963da91817e18761b5f1e8764a06acdd2055",
-  "capstone-code/capstone/console.py": "ad94604fd645e6aacf92cf072aa9339adaf3b269299d70e12911062d470ef87f",
-  "capstone-code/capstone/contracts/__init__.py": "f9081c1e4ff5235386827d2fd85c9b0ba9071192cd27d2a7fc2acb0b7b907433",
-  "capstone-code/capstone/contracts/completed_investigations.py": "1dd73565034cf71d7f0e19c55c73eb5771bd571bee2cbe78f6223436b284d9af",
-  "capstone-code/capstone/contracts/evidence.py": "32662741a547cc152c6fbc3412818a646cc71ca7355590f42c9db308656aace7",
-  "capstone-code/capstone/contracts/hypotheses.py": "ec280f772077f932d79fe1b321125e7762f8b4dcba6838687748cc327629ed3f",
-  "capstone-code/capstone/contracts/investigations.py": "cb24d51c0bc994de4171b25e436d341b3802bc5e6407709dc417bd61d0b15825",
+  "capstone-code/capstone/__init__.py": "10c81c71eb0495f8552db12f6abb11eac1682d7def17d2d12d8b4ec6de6bda54",
+  "capstone-code/capstone/agent/__init__.py": "826d23a8356a7f0d264759d2fd7f2bbadd0005a6497cc345571f7aeb2e142434",
+  "capstone-code/capstone/agent/artifacts.py": "23a2b196066fdb85730ba5339de4f8d291c2629e80f23549c1002b86ccae9f77",
+  "capstone-code/capstone/agent/completion.py": "7f30120b7302ad89b0e7344ef096c82375117e5d13e8bf9974733c6817ee63c2",
+  "capstone-code/capstone/agent/critic.py": "fe0a50b30c5c49f97a7442009a0e899c1d9a2abdc95ec588ddf0117ca1b2e87b",
+  "capstone-code/capstone/agent/evidence_brief.py": "e3bfb8b1910cf0e21c1c55d3b7d66efe9d9d3fb6971776bf32ae01bba1f0cd04",
+  "capstone-code/capstone/agent/incident_context.py": "ddc8caecd198a3c97f11e31d21bfedc3e7b5abe5e25bedac627d47bc784106a2",
+  "capstone-code/capstone/agent/investigation.py": "4696aea413ec9478247d323f16fc4cc414591b24d3d02e569d9a0531aa83e51a",
+  "capstone-code/capstone/agent/loop.py": "3d77b4a58372d2596039d83df5b70051e254b7274503d99b3845b28d8d5803e3",
+  "capstone-code/capstone/agent/model_policy.py": "f17114dfc6a462cd36ce392e2ae6d0f02dd76e670d681e22457a8ae3a62f4b4b",
+  "capstone-code/capstone/agent/monitor.py": "c59916f5de91342ebf7bd2ade22133901618c9ed4b3f5ea5937e62a0360a7a52",
+  "capstone-code/capstone/agent/policy.py": "4e63fa1b8670bc5a57987c27d2c28846050c394f3c96bda3264a63a197d80228",
+  "capstone-code/capstone/agent/state.py": "b435d00d71bad29b785c03dfb8a925dfef3dd6f9d8d4877798e9246de6eb2347",
+  "capstone-code/capstone/agent/tree_of_thought.py": "5ec2d357e17ef981555088cce469802b283069ee1604a3a1a754c9956e6648db",
+  "capstone-code/capstone/baseline.py": "2f92230ce9cc26b04465f55bf04ef564f7e5f65dd392f644ee7183f5f1509bb4",
+  "capstone-code/capstone/benchmark.py": "f23f735b933ac4be159b498e08b265f17205d4e3905729551460b0857127de6e",
+  "capstone-code/capstone/console.py": "bded87a29a1781414d4486bf414a292dbbadcf1cae07125ea772cd511ccc7561",
+  "capstone-code/capstone/contracts/__init__.py": "da45a173448530ad05accb7df1e3ce7cafbbe08799944ea67eaa1954b0c60fbf",
+  "capstone-code/capstone/contracts/completed_investigations.py": "b27946b7d1031db2441517c7f80b9a3623e69df5283dae8b4e58b640caeb5f76",
+  "capstone-code/capstone/contracts/evidence.py": "617e1e15452fae83c6744f403eb7b903287722b808d07c727db7f35045b5f66d",
+  "capstone-code/capstone/contracts/hypotheses.py": "f90e9143d4508602d4c5834553e7a8b319585d1159377168f62127c4e447ac87",
+  "capstone-code/capstone/contracts/investigations.py": "a3be1d70277274d68e9a0a4781c1a0c8abcffcd2bda2b9f452a832b8e7d6c2b7",
   "capstone-code/capstone/contracts/observations.py": "749ccea92262f842df183eda594e9e287f1e7b5dfb81ecb8db5d7b3fdb0e553d",
-  "capstone-code/capstone/contracts/provenance.py": "9ac8196d389cc6b56ed64e7baca22604417907e5443d9a71ecdcdbcbe75339c6",
-  "capstone-code/capstone/contracts/tools.py": "86bd2e3106922fe6391d6c4250ec027aa92566b043859e1f3aa56d2626d874fb",
-  "capstone-code/capstone/database/__init__.py": "0281b49fc37eea352b748cadf095abe2d8ca2d3826538e529a86cbced008643f",
-  "capstone-code/capstone/database/connection.py": "3d38d7be208211265046340b4294bce3aadeb08f0cb81c691846c79daf76bd0c",
-  "capstone-code/capstone/episode.py": "031d88869108675766dbf813ffef0e962be05b61fe932444f680543829f06493",
-  "capstone-code/capstone/evals.py": "452c4d3bae42427438ce74094765003a60f1ff2ac4614e1efdf3959e96c71991",
-  "capstone-code/capstone/evaluation/__init__.py": "3cac2031f773e1ef3629ba6beec56ced3bd37131dae1b1ac8fc1e5e6a9124eb5",
-  "capstone-code/capstone/evaluation/auto_label.py": "197794f3cab3ec7818f5786e9ccc11e6f3df9be6451c8772f1881ade7ca7d4a4",
-  "capstone-code/capstone/evaluation/gap_replay.py": "9450e9a102703b0c7fade4558fdd0efaaa18455884ee789eee67de0179a8f55d",
-  "capstone-code/capstone/evaluation/known_answers.py": "f84d88fd300236ba685742664790dae801ad2d179c0b978de4826a0df34b4aee",
-  "capstone-code/capstone/evaluation/labels.py": "10d964e91f657e447f9409c6929ac2c5de5ad35d0a057fb8201091acf8b0e1dd",
-  "capstone-code/capstone/evaluation/manual.py": "0fa2b4a1b62c95b9ca85723a676a539d17b577a3ecbf4427e1e7364c5e9a44c2",
-  "capstone-code/capstone/evaluation/memory.py": "80dfe928d4cfff99fc06b7c42ad01c5aeadab6470988a4a0292e2b923f4595c9",
-  "capstone-code/capstone/evaluation/scoring.py": "c8c75691a07f58c0cf3394279f041218fc18267a511abdbbb259a261b46f39d7",
-  "capstone-code/capstone/experiment.py": "b900a6390e5b03eeda51a98faacfad0318da3d8cfda18be9e42fb360cdf49c13",
-  "capstone-code/capstone/faults.py": "f52fc70151782286d8ba7f22345df57d0d575e06c13b8b3076abde92718ee6ae",
-  "capstone-code/capstone/ingestion/__init__.py": "3b889abd9612d202defed04198a7b6e6f1c8f87bc80a46b338407c1ac33f5a8d",
-  "capstone-code/capstone/ingestion/__main__.py": "4098a5f47920d7a06ebaa8861b3d5a21f332f4c9c965ed43f725d2e058aa2363",
-  "capstone-code/capstone/ingestion/channel_map.py": "338757bc4f3cb2b6204850d33d76c331d4b9b61f06af2b6181d37bb51d9b031e",
-  "capstone-code/capstone/ingestion/collector.py": "ade893bf8fee6d9023b598caeb5301e564a829e41351029f9575166efcc4ba7d",
-  "capstone-code/capstone/ingestion/mtconnect.py": "8811611c2ab3d463de391296f0e91d1ed470b1756792a01d7980cb45cc112ddc",
-  "capstone-code/capstone/ingestion/privacy.py": "c8c219fe9496bd32c803c53713e713aee76754ff238b1a603beefdb4289f6ce3",
-  "capstone-code/capstone/ingestion/record.py": "eb25d503cf938783e0c0e565b94666c61a8da2d9d25011a4386dd7e47e066995",
-  "capstone-code/capstone/learning.py": "03e1d7083f21cb716e260befe2d8ad3b8b542f2d8a387e0e9f27155c2614ebf7",
-  "capstone-code/capstone/manual/__init__.py": "b4e075ea34226bd0df0c76941f4726945173a77db8282c492fd916f89d9c06a3",
-  "capstone-code/capstone/manual/index.py": "aa857f6ee0408f2a98d8acd599153153ee4b3c28c8507d04c79d67058573677f",
-  "capstone-code/capstone/manual/sections.py": "84ce76d85428caa13245925fbbaa1430c37180623a247cf95f4d1b712ed20e0b",
-  "capstone-code/capstone/memory/__init__.py": "5c78ba5ecfa6bc1813e4c7aa55b7bebe1b24bbd3b388b5ad0fc3279c62b74060",
-  "capstone-code/capstone/memory/backfill.py": "74a784548a9a2519b6838f34e9bebd2759eb664f486e8fd25f27b879f8371c96",
-  "capstone-code/capstone/memory/contracts.py": "c671b77d7720c5716fc1cafd72cab229b2c359eb27507d743bb4c4b7dad3bcf0",
-  "capstone-code/capstone/memory/duplicate_threshold.py": "b779120e9e7a97b656273e1aaac9902efcdb5fce2d2b19a813176420dd78d875",
-  "capstone-code/capstone/memory/policy.py": "228ebba48f6047be677ee7459266cd32edbce6501a9a86aa8744861a40a30a88",
-  "capstone-code/capstone/memory/recall.py": "0019c14085108fdc4496056c436b4824e31185d9afc7eba3605b0e3f4176d327",
-  "capstone-code/capstone/memory/reflection.py": "fc48bd0a0df23b93cba5992990a618deb29a6bfa79c0ddefe38d68b9805d242e",
-  "capstone-code/capstone/memory/repository.py": "eaf84248942aaf8403314c6a6dd654590a2691fee6b1b5885e3cb0b0777e67ad",
-  "capstone-code/capstone/memory/schema.py": "4d43317230a3e8c304e3fc9023332faf8ff77cb7954a692acedcce73d951a78e",
-  "capstone-code/capstone/memory/semantic.py": "807ef807fda49ca82a1ee3ca0bf06a26f544752fcaff5af06977d9f62178fe48",
-  "capstone-code/capstone/memory/service.py": "ed7a6d5466f9b993468829866dfd3a96919f0b4a5970adf82a6753f61fa3d378",
-  "capstone-code/capstone/memory_comparison.py": "49a3abaa768403fa21fecba981311b4c217a359aa3621a5e3310fc4565427acd",
-  "capstone-code/capstone/monitoring/__init__.py": "cf843cb64dde298146cf13ffe78da39710c6347b22a58fd316fbfbdd954b3233",
-  "capstone-code/capstone/monitoring/__main__.py": "8504a3f49cf54ffe06c53591454492b2a6943821063709a3ae0204346bd549c3",
-  "capstone-code/capstone/monitoring/monitor.py": "bb38672b4ccb1c2457165aaed5a1d89c5a231d82e8733c40d41b0eaf4ad38f35",
-  "capstone-code/capstone/monitoring/runner.py": "34affc88db9e78776d37edd753eddd108bfbdfa0e3fac7dfb1580dbc3ec09e2f",
-  "capstone-code/capstone/observability.py": "f766abea4f5fc94828c0778e182410d1ee3a65a16c54c111caa903436c36be71",
-  "capstone-code/capstone/progress.py": "4121a8beff726cc2b65a13ab8e556601d700a99e6809f78372ee90416e6cd965",
-  "capstone-code/capstone/providers/__init__.py": "3c5dc87099f8ec4ac1db4e949c0a54a0025df89af62e93f3e9cb147d5c380b58",
-  "capstone-code/capstone/providers/chat.py": "7d5e0f3e43fdb89454d42acb9b10eacdc0461559d192810b64e03ca8ef536ba9",
-  "capstone-code/capstone/providers/embeddings.py": "a16df4faf5e0bbc60e5fd67e2aaa2cc76f2c5dc218c635a828ee39639b5cdaa8",
-  "capstone-code/capstone/providers/factory.py": "bc6c5e7a7e2c5b54481117b166c396779bcfe3a74bd36af95e501333e4fcac73",
+  "capstone-code/capstone/contracts/provenance.py": "d253fe81e93ee908b9de8904a1021db1a5535d8617773251c2b58db8b91d729c",
+  "capstone-code/capstone/contracts/tools.py": "3f4285f114e611422fcbe0a97929007630fca6b97a3564bd4a5ae25d3b8aa340",
+  "capstone-code/capstone/database/__init__.py": "d09c50ecc772b0aabdc7cd067402da5c19c986616d912143f9d7c16ebf1d4fcc",
+  "capstone-code/capstone/database/connection.py": "8b8dd45a1128fe5e609170f7a5ff3ab116e037b9bc61c5570444893aaf50f963",
+  "capstone-code/capstone/episode.py": "b83116c58277c50d49a4b206104f0a36b338d1cf33003648cedfd82ea8013b9a",
+  "capstone-code/capstone/evals.py": "e1335239b98f322e87f97e4575ba3fb5580e4b785086a8912c66ae0906f5b5ca",
+  "capstone-code/capstone/evaluation/__init__.py": "749c414b3a2f64dc271263db077e2503ccf4946a0624361b4931aae65a5309ca",
+  "capstone-code/capstone/evaluation/auto_label.py": "b9e1f3f6a71f45377ef91deda4abfc2664562a7b94caafda6150d3ed6c4e54f0",
+  "capstone-code/capstone/evaluation/gap_replay.py": "cfa35f5f273e21002dca4cbb3192faa171243a6cff789e8b2080dd291e2e9581",
+  "capstone-code/capstone/evaluation/known_answers.py": "b60f2d952acbf4a6962c88856b00e9d8136e09970388110b3ab360b83171d131",
+  "capstone-code/capstone/evaluation/labels.py": "39dbc146c75b19ae9b3b8e9c1e210c9bd32bc267ea3e01cddea586132642b4d2",
+  "capstone-code/capstone/evaluation/manual.py": "fb9c5466bde3b3006e64bd8197a79e5c9a2ab9a957ac74594f41d94ca12d0dc2",
+  "capstone-code/capstone/evaluation/memory.py": "72e5486936c8c58886db3aa4da8f63e71ff786feb739abeedb9d092323037a13",
+  "capstone-code/capstone/evaluation/scoring.py": "38efa009eb966bb0bc7a7b90fe21d8f4db05301bdd19b1fc763537821f94c79e",
+  "capstone-code/capstone/experiment.py": "e2f306f9581315a9fa7f0ff172c18c94a18c25f1fd5790698d4c0575382b6d5e",
+  "capstone-code/capstone/faults.py": "cd9244c4538c2832dec05308d86972cba8b6f99c3d4591c8a3d573e116936786",
+  "capstone-code/capstone/ingestion/__init__.py": "9dbe794c13d208ba8f5df11e2b1c1c04e26d81c0697465fdd6ef9ee1bd154f17",
+  "capstone-code/capstone/ingestion/__main__.py": "8216845d0f896ce1a99865588a432d2ebe73cee9202508a3e3db190676544f47",
+  "capstone-code/capstone/ingestion/channel_map.py": "80906576c000581de6a8374a4ce874cc0c0cf47803ae10d33c3eea98ad55df5d",
+  "capstone-code/capstone/ingestion/collector.py": "3ecbc4ec68bc05284892d956046a2966e8086c1c12b19f441945342dd29ec7a9",
+  "capstone-code/capstone/ingestion/mtconnect.py": "ad303b033cf657d86b8be2ffe7047a3eb1fbbac414d2e74df917c2791e213521",
+  "capstone-code/capstone/ingestion/privacy.py": "6316dbd843a40da4360f1876dad35a01970efd66d4d595a9aad53ab40eec4904",
+  "capstone-code/capstone/ingestion/record.py": "f9e363c8fa11878b892b5ce2d1e00c6d7fee81e0905d61bc33c59e30e2bea2f3",
+  "capstone-code/capstone/learning.py": "4741af4b7f52b774554efce90730dc0e9e7f6f6f6ed632f62c77add33feec33c",
+  "capstone-code/capstone/manual/__init__.py": "cb282d0110e7312df5b76acfb94deb8f9c90adfaebab91146afb707dffa4ad0e",
+  "capstone-code/capstone/manual/index.py": "9428abe0e4369fcc01dd5a51a1f68d97d76492aa8f0a8df184e366c8b73db755",
+  "capstone-code/capstone/manual/sections.py": "5e9886bdc1eb4d74e9cbffd7567a7ea79fad0ca114a6f43c1a76d8a09b389f3a",
+  "capstone-code/capstone/memory/__init__.py": "74c659ce9a1995c84047e7c557647229e48d5e8cd1ce9434d232dda1e47a8d7e",
+  "capstone-code/capstone/memory/backfill.py": "53e38e5332e658f7c8ac520aacee6ada3e5682077fb031cfb0cf9dd242ca91ff",
+  "capstone-code/capstone/memory/contracts.py": "ab3edbac1bfb60150134746fef137565445c2374b5697fe12d847d2d645f4f2d",
+  "capstone-code/capstone/memory/duplicate_threshold.py": "220cf64e59a1a1178a78c67bab7e7835d5b1ff5469cb78081ca25ca127ec8305",
+  "capstone-code/capstone/memory/policy.py": "58e7adac947636306c93ba208bf0f6e42a434e3468bf56e4df9d39069658c2b4",
+  "capstone-code/capstone/memory/recall.py": "d30a7124d5cc0577f3ab47254e3fd891af10b4507d634cf8006e56818ca98ef6",
+  "capstone-code/capstone/memory/reflection.py": "22f592815e5d4ec779187d57aa6bad3e102eb8cbefd9422bbf45717aa39e59cf",
+  "capstone-code/capstone/memory/repository.py": "e60f584f1d67fb267e218b8cc2621b3a5286d64e17706ebed59baec3aab50e17",
+  "capstone-code/capstone/memory/schema.py": "c71c513745a103781066f095be6604a0dcd90ea3444e3df8609874d4aed90a61",
+  "capstone-code/capstone/memory/semantic.py": "4ad1d0944c295dcd3da28183af64f5511212439baf64156325a16e0bedcf2cac",
+  "capstone-code/capstone/memory/service.py": "5223b8c2674c395386e82d413878c8dab8d11c71c03d7f1dde81f3fe74deb0a3",
+  "capstone-code/capstone/memory_comparison.py": "04e2adf31754a69b04f38a7c20ebd5585be33eac6f1ac225314e466c8094fde9",
+  "capstone-code/capstone/monitoring/__init__.py": "2f28a9dec0fbc39d51602bfb0efb7f6088b46dc10eb2d787c223a5c85981a0bc",
+  "capstone-code/capstone/monitoring/__main__.py": "0a8c40fd6a181087a1faf872468033c658c62e2fe5dbd5a02d64f3494922bb3a",
+  "capstone-code/capstone/monitoring/monitor.py": "ec3960f528b6653bfe90ef7adb7c05b31e7a7bfd68a2d956c3ba80ebf3eb1ddb",
+  "capstone-code/capstone/monitoring/runner.py": "245aa7c1658c87ed7cfdf090192470b93e74d77307a4d0707f1e9ec9efc35e2f",
+  "capstone-code/capstone/observability.py": "e7ec12d38f4ee7559554fe8c544dba5ac65d61d898b4457dfcb848fc3c835265",
+  "capstone-code/capstone/progress.py": "404b5a21fa93b38d5ef769e02d270c106a22a52ed539bb9de3a66ea65aea938f",
+  "capstone-code/capstone/providers/__init__.py": "718f331830c4a46d2addd3f99b7ce7444d07d88db058a4972f56df4cc3e0f168",
+  "capstone-code/capstone/providers/chat.py": "8d663e2a2ff7dc870bfd6fdb7bfa2aca56c1b0dc09c4add2cc1709371921c08c",
+  "capstone-code/capstone/providers/embeddings.py": "85409f5b146755d751dcaf2223a53c72aa78a2f698458f1df2c430bb5eb8c4c9",
+  "capstone-code/capstone/providers/factory.py": "fb5bec4f4fa538bedf27be1e50a2dd51de6823e95f26a3b3e529f438ac3e1f73",
   "capstone-code/capstone/providers/hazards.py": "03190f546d3f2dd6869879e10e38556387aa3a256ed6ab7ca6a290692c8d4b60",
-  "capstone-code/capstone/providers/manual.py": "befcdb6fceb495a99c2fb32b9d075b0539b1d83c3629eb88a266daa437db7908",
-  "capstone-code/capstone/providers/recall.py": "8bbf12b6c65ae12e04916c1c160977968c955e044df670d7aa8ad3d91b7d94d5",
-  "capstone-code/capstone/providers/typesafe.py": "d8142540e5dc39b66393640512ca9d2f99ce4ccef22052166a9ce46d9657da50",
-  "capstone-code/capstone/settings.py": "8f8a5bb2110f8d555918e98aa3cc872c9df95036220b9d57101fe2fd98d9e306",
-  "capstone-code/capstone/simulator/__init__.py": "3f7a4fa529e19d54c1ee6ee16f5847c5d412119ef75a9f893a9634ac6e48375b",
-  "capstone-code/capstone/simulator/challenge.py": "9a05452e238b420320649ac0e6fee4131ff4e10666f6cd1220559a389063d250",
-  "capstone-code/capstone/simulator/clock.py": "e91bccc802f0d248b0901b24d9fbe56b7d41c10af25bbf92e6946b30da00967a",
-  "capstone-code/capstone/simulator/disturbances.py": "0314c1a9b2877e3f36eae64b67e1ce0b535e1395c7d31b4f91650f4e69a260ab",
-  "capstone-code/capstone/simulator/events.py": "b5b9f0050953b43071bd4aabbbe79dbed1c4b660a45eea3e0343571aa2c05694",
-  "capstone-code/capstone/simulator/generator.py": "c5bacadf8d713a9fee856b38e6ec2417767ba31754bf858923de94c884c3406f",
-  "capstone-code/capstone/simulator/ground_truth.py": "a1383a5fee7511eda37ce514c82ded3933b3495a8c7afcd265286ecc929c220e",
-  "capstone-code/capstone/simulator/line.py": "a4c173e6fab56435500db0c333b9c5af74ed2854cfab3eeadba84bd134ec21c0",
-  "capstone-code/capstone/simulator/maintenance.py": "ad4cd0a011ba3f90a4665e7f36ec295e32c21db9636c747060205bf0124ae8bd",
-  "capstone-code/capstone/simulator/rng.py": "2e4698809374ea175c150a8e25f519697428a679951e2b1d333b771abe1f6334",
-  "capstone-code/capstone/simulator/scenarios.py": "6449f1bd590f7d75320d7d98c2098244670c3344d434b8f071ec4f38ad96205a",
-  "capstone-code/capstone/simulator/sensors.py": "37bad3668c78798d3cf7ff5a2412104b203f9a79d31b97ec682fdb5ebe9dc494",
-  "capstone-code/capstone/simulator/simulator.py": "328d7240bfb95126e85254aebcdcea01406a158c601378336b7f8d3ccbee9402",
-  "capstone-code/capstone/simulator/state.py": "3581125a9982a05faa493c8a7f38c4e9f795e6ef4562c9cf3fc972f869eff55e",
-  "capstone-code/capstone/simulator/thermal.py": "dc6840e3cc72c5dfe52f7fab495a286ae3a5bf51d9c915a76feeda82443c20ed",
-  "capstone-code/capstone/tools/__init__.py": "8709d93809c99aa38ac86cff3b9b184577eb5364409fbb4947977a4925ea36cf",
-  "capstone-code/capstone/tools/actions.py": "e09c561004ebfa47ef2003d061361a6ca1939e237c5d9d8385c6126457f838fc",
-  "capstone-code/capstone/tools/diagnosis.py": "98ec3bf852d7db2a002c4d8c70f83cfa71ee66046baeea3d6d54f967f3543f55",
-  "capstone-code/capstone/tools/errors.py": "32cc03629449f2311ed055f6703988c93c7faf3b4a3e3a97fb578a3d27bb4603",
+  "capstone-code/capstone/providers/manual.py": "5e459640a8b2f6ab498ff619da3fdd8906ef31263c26d810bf5620e1f4f7c0b0",
+  "capstone-code/capstone/providers/recall.py": "177f2da0c829a96c8d89c6448ecba81fd2f6f6e3781d6330497fab145d7eccc7",
+  "capstone-code/capstone/providers/typesafe.py": "73b6cbde2515d5bde8a81fce3dd9fac71833385e75b619c266f6a751555b91e1",
+  "capstone-code/capstone/settings.py": "f28ff37cafbaea2fe47d4b4125ed1499457137321745847fdce96b0a47214392",
+  "capstone-code/capstone/simulator/__init__.py": "14ee6627f9e2984cfe3a4f530d8c5675864e4f3cda1b74e7bb27d846c3159e0f",
+  "capstone-code/capstone/simulator/challenge.py": "b6827cc2b7eaff3e8ac6c6b0a42a9e050844630b8bd76a6ea1651faefec6f04b",
+  "capstone-code/capstone/simulator/clock.py": "2d97f8630cb11056d56f385fbc5f4e6cae3e3d1da32941f64d74c26e27ce2af3",
+  "capstone-code/capstone/simulator/disturbances.py": "ae555bcdfaddd43889523e698c67a1a9f495ef0eb0f1f3c161a66e269f3670f7",
+  "capstone-code/capstone/simulator/events.py": "c0d539c5c31e271d37ecc265114412a798e5965e2879c0250fc2e39778d33c70",
+  "capstone-code/capstone/simulator/generator.py": "2fb70d18248ed9bb6ca25193983079f692067f53dc1f690b2484742a4dfca34d",
+  "capstone-code/capstone/simulator/ground_truth.py": "fc8c14876809c4a8ddff510cf32042e284d9c37bcf7a34a1ba62466c2dca9b04",
+  "capstone-code/capstone/simulator/line.py": "b4ede0e3099f1c716e432e5e4e3333352f31068deba13ecf374e05a230aafb52",
+  "capstone-code/capstone/simulator/maintenance.py": "9f0c860e0ef3e19c049a51e52111c0f0bf336ce87d25e6266cc560ea1eefc91b",
+  "capstone-code/capstone/simulator/rng.py": "b71366a616b23ea0db20f49385bc4d290fe2bfb72ea4903835cbf787e2f23e00",
+  "capstone-code/capstone/simulator/scenarios.py": "f8048ae114a3d61ad51b0e8729affc1cb718534a113f7eb4485fb8def88d85da",
+  "capstone-code/capstone/simulator/sensors.py": "a6b4d9fc2eb70a7653541c1d8d60e1560307f08e5ac1e78b49b863ce64f45454",
+  "capstone-code/capstone/simulator/simulator.py": "609fe962d5a603c739ad2a8d6dd546a678344270ff7e1205765cc305e15a1331",
+  "capstone-code/capstone/simulator/state.py": "42ed9bb93aa172444e184a2dc013bd19db5bb4f4757e9acd3bd7fc617f3ae83c",
+  "capstone-code/capstone/simulator/thermal.py": "9a878ea38d091d7cc7e11bf7867aac2b899724866cbb0783bb84442876d4e4ee",
+  "capstone-code/capstone/tools/__init__.py": "ce3b8b709609e12e7865e816071b2e2ad85bdb7b6faafd2d3b5c176aebc21d6d",
+  "capstone-code/capstone/tools/actions.py": "0e9f645e91f9e8d498af78d8988268b4ddfbac7ece350618e67b24d7a54c4d98",
+  "capstone-code/capstone/tools/diagnosis.py": "ef4b95df44088300d59a7e4f705286d4fa3912ab3540a9f7b0647b531ac8dd8d",
+  "capstone-code/capstone/tools/errors.py": "85139022dbe88cc0815526f72f38626b7754c944c2ff869d95d2a97144919b33",
   "capstone-code/capstone/tools/observation.py": "935fdb30de80a8fbeae0b8b979e15c902c7b16a2cdae7c06aa25c8ab6b4d3535",
-  "capstone-code/capstone/tools/screening.py": "7e71d66f024f59a8637a2f13a91facfd2ec5d5964225f739f7a9bb23caaefafd",
-  "capstone-code/capstone/tree_reach.py": "a2a5e2011d0b906a474787fa69af68e26c7f844f233f707952c97e8531315621",
-  "capstone-code/capstone/watchdog/__init__.py": "af50d413d5d91898422aba18497f6416d269b1be9067536b45c0117c57573b3a",
-  "capstone-code/capstone/watchdog/__main__.py": "529435a855a0a91eb63843edc8c529859e088bf881a15a3fe87656ad4e3d5163",
-  "capstone-code/capstone/watchdog/watchdog.py": "1e4ca11bb08bebee2c9778c0126859bb2c58345b91e3ab456641367782eb50ec",
-  "evaluation/evaltools/__init__.py": "4916bb1c8f29e498eb99d345befa0553a6d5528bbb5c2cfe519b555a2889e93d",
-  "evaluation/evaltools/build_inventory.py": "624161332380b505a5a4e00aaf78333b9d96e03b7a12a11eec8f07c9b84b7350",
-  "evaluation/evaltools/compare_evaluators.py": "7d682c9747846be2dad59477005cc689dfe32c125358302d8d6f9d264da87d79",
-  "evaluation/evaltools/decision_models.py": "49cabb0558bf05d6fd1326c0a96a16ecfe7cd2a0ea0bcaaad77310d984289391",
-  "evaluation/evaltools/full_evaluation.py": "8eb3b03ab980415301eac87578115d0f944ecfd3a7968cec521eac4df432fc4a",
-  "evaluation/evaltools/run_packet.py": "f023788dda9a1b521aad9e6df3e24e04500cf9a1afa61170afa1e453ca1a501f",
-  "evaluation/evaltools/snap_request.py": "47c47420e260e4d0d6bc95aa243ac89dcdfd4eb8cfcd88fec36138e365df3ecb",
-  "evaluation/evaltools/traced_run.py": "d53090114dead802f246586a60c5c51621b4246d9f6a5940319d59996146ac17",
-  "tests/test_agent_action.py": "6d566d1218056753733f66904bde72c360dcda4980d0f4a117a77750f1edb67e",
-  "tests/test_agent_artifacts.py": "948a3777fccc423a900cca3a27f13655d13ebdbd1fd3da154ddb53fa23d0545a",
-  "tests/test_agent_completion.py": "dec02f938e45448a1250ca6947de844b75e673b7fbdf5161ff85a90100608e80",
-  "tests/test_agent_investigation.py": "4cc516d69df563a01f55fcc338bb7a59ff4fe7471a35122b30450ce2ab560667",
-  "tests/test_agent_loop.py": "c127105429242023f81a2febe4b102691a3ebbeb13d68e6e7db26b58f6d6a900",
-  "tests/test_agent_provenance.py": "71c9e04b9c57578bd894017009c70391a0664cb6d7532aed720bc01ba87e1e7f",
-  "tests/test_agent_verification.py": "3d108fb08b87ecf9be4916f9e93942dde0b9ea028160871c6c475769c444b32c",
-  "tests/test_ambient.py": "11cbdf4734bf0c6c8ed76fa9c1c2ca3a222a635a113eb61b8b53e572f4f79edf",
-  "tests/test_approval.py": "a0c90760e310ed519881cdbd9cf501e483cc7c6fe1e98f4728da43136c2adcfc",
-  "tests/test_auto_label.py": "3c931f0c01d361c96f02769c4fd98f73a9378ac2962d654bc9531b1118da98ac",
-  "tests/test_baseline.py": "1c1da81abee863544010e6688d6d4b772b4523390f2e095917bedccaaa43b50a",
-  "tests/test_bearing_degradation.py": "eed3148b837bea8abb6c426621402741f3b3cc03c32ed410a58a5e19e0bcca82",
-  "tests/test_bearing_replacement.py": "0801156ab0d32dc4742d6bb6807eb53f8275489f349732825d65e9a9077328d5",
-  "tests/test_benchmark.py": "d75a695f83f30d1d347cfe63d6da62e91277811972158fd5f161dfe851b51cc8",
-  "tests/test_build_line.py": "6d7b84fffe9c760166de3c0c77e9f10b069fc7b2125fb34f1fa120536651e85d",
-  "tests/test_channel_map.py": "2daa6b7ca07c1f225fa64ab9713d821e852c693d3ed504524e8db45297649a20",
-  "tests/test_chat_client.py": "b33d5fe7dc40c4399b01b379abcc085ed9e5087f30278e0316b89774ade9e7d8",
-  "tests/test_clock.py": "39b154ee0e5451edd84b27d76d1871c9e4cc48a83acf27e522b8a915bef8e4e5",
-  "tests/test_collector_watchdog.py": "b4362e5f0c0a5816fbcf90414b40def086fdfc4199fcdf6e6cbf101ff5dc37e7",
-  "tests/test_console.py": "7961f89d846a105c98c9a01fb936c4233d4fe6bdc75ea5749b96d9b71cfe75d1",
-  "tests/test_contracts.py": "4475acc6ae588f691e3f747d8e039d61bec99c87b1dbb771ce2225199cbd8763",
-  "tests/test_critic.py": "2044f1f8f7b25fe8418ecdd528d7185ed1646fa06cdf38638f62fcb6354883e7",
-  "tests/test_database_connection.py": "042e6f1d226ce19f033107e70fab1924c4c353eb3641732ea9dec9623ec0bb83",
-  "tests/test_decide_calls.py": "d2aad3324cd94a3b8c18be313891469cdf07a86049dd0a0af8976c6faf17b7c1",
-  "tests/test_decide_reasoning_effort.py": "27dd511b672cea6d7bd4832fbd60cf444990740d60472921ef140f78c9e80158",
-  "tests/test_difficulty_tool_compatibility.py": "8d7a01acac90559a92bab3e92f002acc3c4a60f8ae654d4cf057bb10cbd6e18f",
-  "tests/test_duplicate_threshold.py": "8b7eb7d485182f9d8f70a915ff134cd6ad6ed448408c06e5a4ec8e981d6844de",
-  "tests/test_embeddings.py": "c012b45a1c3222153492e76f152afce3fbcb3bafc96ae59f409b023b26546716",
-  "tests/test_env_example.py": "c633780aa890db278910a1d50be27f1b3cf08e42e90ddf62f403c8628a1d1247",
-  "tests/test_episode.py": "c0ffe88f1317cebbb43b77759d0e9106b3dbb6fe1353d3992bb4294f8819dafa",
-  "tests/test_evals.py": "d19ca7b89a42c3246ec528a831e5464b0aed8c96fcba7ccf3bd29f137e46d1c6",
-  "tests/test_evaluation.py": "8b9df54c4ca7789f99c111989ab520d7780c37777e7ccc4cdb21392ea752b833",
-  "tests/test_evaluation_tools.py": "4293ea157e762f66ee3d4991ebb45a85fa692cd7868008dd24f9074381e57829",
-  "tests/test_events.py": "b82917a6735cb71ddb515fe0f9ed81e30d07d0e93ec867a8d11c33e611212dfc",
-  "tests/test_experiment.py": "4653cb8562ce3fce1997ec057389ade41d2dde300033ecc3d361e74194b81f43",
-  "tests/test_factory_provider.py": "5f57eaa75e7bf11dcc45c87fc65a207578c492c1f3ceb0dc60ca7c5ae67bc77b",
-  "tests/test_failure.py": "ecd776064fc155eba92530de63e68e3d9c375c2e9edac0fdff221f460de0be31",
-  "tests/test_false_alarm.py": "874f88e86e966938ce2094df580676347a6e464028d52e624cb172c9e41a993e",
-  "tests/test_fault_packs.py": "8469925cad06684823639e91051caabb06c126fdbcf00300534a6a24b90fe85a",
-  "tests/test_full_evaluation.py": "d850c2adc6a3bd2839f3e93a7d322f059408e1e93a0c43fefb6af697d20b6994",
-  "tests/test_gap_trace.py": "cf1a5cc2ef3216275c056e436a536092b57235a679ea2af73e9bffa77b11b2b0",
-  "tests/test_generator.py": "c080082dd5a9a3aa81d684df7fc5f1960ea897d6e76c03597069711cd8b4bec4",
-  "tests/test_ground_truth.py": "9ac9af3bf6af7306ffc7e918481030271a33b0cdedfb2a07d11d104d61b63ef2",
-  "tests/test_hazards.py": "a4d11c20adc7915395468f7b19502af26b49103f160afdcbe911d623d94afb4a",
-  "tests/test_hydraulics.py": "f85a8e793a1709620f25244f5df457889f062b3cf833be4e1ac95fac51ae4b10",
-  "tests/test_job_history.py": "1320b374409b889c7fa94cd9497c649b90f09d88e6abbccc728b36e6ff2f15bc",
-  "tests/test_known_answers.py": "09f17601ca08b4997ef461d291c631cd206a188fe3dc7e7ae7de776b5096ccbc",
-  "tests/test_learning.py": "733c16bee14cebe398a8dada590ca1f9f6996026e1b2f224770208c977998512",
+  "capstone-code/capstone/tools/screening.py": "a98a5e3ad0427f23dd11e7970aab9318af2dc61c59547b01366201a96105d89d",
+  "capstone-code/capstone/tree_reach.py": "7c89366848ce1bd03102a5c54443145750328a47fb7771b0d35c08b4522345e2",
+  "capstone-code/capstone/watchdog/__init__.py": "a7592a25ed10ebc39d2599441502de290bbc101e8fa297df16877d37f1c377c9",
+  "capstone-code/capstone/watchdog/__main__.py": "a8feeb4a5c08c1c881cc707f69764b76f1e1f740f88c172b3c497701a99e3aae",
+  "capstone-code/capstone/watchdog/watchdog.py": "c32c0f4b1caa40c190d9091997316df80b7aa579f29cbaff87e5bfa1806ee088",
+  "evaluation/evaltools/__init__.py": "5314d29d9291f89ed31ac9a6bcb41be257de9072f6da8f5ae9a40797d721660a",
+  "evaluation/evaltools/audit_preflight.py": "3141acb75de422953e52f0cd350f4d53240e2003fc6a82c692513af76a3aadb1",
+  "evaluation/evaltools/build_inventory.py": "ac8e0c6f3f92b79215d864344e0e5f40141b2c13e188cc2a5c3e0e79d869749f",
+  "evaluation/evaltools/compare_evaluators.py": "beba7da3d26680447f72ac88dd78a1ac9a34565ad611162fcd0e963a400988f6",
+  "evaluation/evaltools/decision_models.py": "f2b7500349b666883baca7a547c7616b2afb48d1c614de1f8b3f1201ba503e22",
+  "evaluation/evaltools/full_evaluation.py": "b5e8dcf276ee9842d0909a1356f0227b0f86f920ede337ae376931f191bc2713",
+  "evaluation/evaltools/reference_review.py": "d78515aa4823895f1920d07402ceaa735d0221b465e37619f7691a076012fe1d",
+  "evaluation/evaltools/run_packet.py": "56567092950e332fe420d57bb7a490a804ce06d883b225c8edbdec8f14ece7c6",
+  "evaluation/evaltools/snap_request.py": "88b27ba918652b325514acaeb26e78fa1299260591e71540d5011804176dba87",
+  "evaluation/evaltools/traced_run.py": "fabb743a17c9a944f5f7b841ad6a6645ffe8851a3518900bfc3f1a61aa00b4d0",
+  "tests/test_agent_action.py": "fc051dbfc3b53b3e725ffca08395f717d9a81c02ddd2900d2420fbbfa4ec3150",
+  "tests/test_agent_artifacts.py": "bdadb80b407cc9b09b96570258506786ac581aec1ca726401b5458c8a22f9967",
+  "tests/test_agent_completion.py": "12e6d97b5b855175769c00f9a472e714e5201d44186655683cf3c984d62c30b2",
+  "tests/test_agent_investigation.py": "13ceb13ef52c0df746c54d8612f1798e5fd6bc3aa0371e7d5c138959c94ca890",
+  "tests/test_agent_loop.py": "09e93a204e9e2f7867b3294cb38b3ce787b1a33fa9a18d20b3b995066b06d39d",
+  "tests/test_agent_provenance.py": "ccf432e9fc24b450c79353b4b303a361cdcaf85371e9787bfd517561a2b493e8",
+  "tests/test_agent_verification.py": "c31ce6efa097bf4ec8ed4367cb4329a28c49384ca386d297c42ca20c2b472dac",
+  "tests/test_ambient.py": "29198e815e73ab3d2c2b56a6076237f94be1b5f7e64baabff1e7d69af5c5f820",
+  "tests/test_approval.py": "45dafea880e723096054196f32b058b945862f51c0b155c144f7dadc6f06c618",
+  "tests/test_auto_label.py": "31684103d8922e1b20bdf1223e9d13509ae62cb4770ac0012e9a89f816561027",
+  "tests/test_baseline.py": "03ba7681200cf5f81b3fe4a0c1c636d5035bf7fc1184874cae4eeb2042253e6c",
+  "tests/test_bearing_degradation.py": "706ef6dea79ab7a6478159d8942e76231e8f2451e4b8652e05eb2426be15a8cb",
+  "tests/test_bearing_replacement.py": "899ee19fd453ac2d3ef3228ec422d6de06712e06d756299c0d2853112a70a84c",
+  "tests/test_benchmark.py": "1d1e9bd68a12873c277e004452726284b3065bb2246e7d29f3fdc5ac4a928efa",
+  "tests/test_build_line.py": "c651bda3af8032bdbdaaa2a4f199d424a11be2c1ec2ab65521efb376d36df520",
+  "tests/test_channel_map.py": "e2effde9a13f03c5ef2e3a4921ff6060737cd7e7ede7a65025b31d628e68a667",
+  "tests/test_chat_client.py": "1936f07f379ef50297fa001463d98a79fd422287af9650772240b8a1547fb541",
+  "tests/test_clock.py": "2d0e62071d5bec9da5ffce839fda122ab6b277c2d66d1cba3f071146da6c1e63",
+  "tests/test_collector_watchdog.py": "448509006e430513390f47d79ec3c9e512d30dff7be1a68710cb2df38beb7c39",
+  "tests/test_console.py": "15ebbbdb8927f37fd25f9d8f9676e412f8fb368766c0a2318aacff94c963d86b",
+  "tests/test_contracts.py": "55497b4712a724e6e4e6b3aed0eb245fc1643147b961d62782b462882affe0b6",
+  "tests/test_coverage_eval_cli_edges.py": "2e27217200f6613f7fc063d4129bd96203f59eacb13b5b673c5cc8dc7fb4f5e9",
+  "tests/test_coverage_index_edges.py": "8a8b9f32d3a2eba9a2ab36a7d2e7a291aed18990b24b7836e96cf1bc684bf266",
+  "tests/test_coverage_reporting_edges.py": "32ace3d1b667f60e48ef93e373dfa1ea29c1532dd48cf67cefbfa726907a1718",
+  "tests/test_coverage_telemetry_edges.py": "9ffe9b21d4bed854f469aad35ff998a70317f324e8bf7de449fd27fa2adfcc9a",
+  "tests/test_critic.py": "dbcab743bfe426a23622f103a94b4a5f5c7617c0c955a3adc46876efe896c40b",
+  "tests/test_database_connection.py": "9efb08efff306ff4c14c6c7b7dcd628de9bd201ab521fa68d11dc3138ff7e056",
+  "tests/test_decide_calls.py": "d99fb3d351bbeeb03b169ad070633274855c190e4ecaf6cae063b6242e92b60a",
+  "tests/test_decide_reasoning_effort.py": "c83066025e7c00bdfea49ee7ef307f719bcdece3e80b59f4c49b455d373d67bb",
+  "tests/test_difficulty_tool_compatibility.py": "8d1c9f4c32d4059e68ecd0cac8ce2ee97d22a0129658da07414361d71f5d0649",
+  "tests/test_duplicate_threshold.py": "1c5737e61effac3728dc7dbcc39da1ba40fc2b11781289dcc2375f3d36acfed9",
+  "tests/test_embeddings.py": "18c508503a9899fc6686887051ea3816dc7280041491d9cdcc9cdc22906163f0",
+  "tests/test_env_example.py": "0fd321850296158f38a6ed99f03655e348d6a43a7b92e6f434c6caf74a87ac57",
+  "tests/test_episode.py": "cfcb528183b137b0b09ccf84ccd91b9c62b14d61a09f05b30f333f44ec5e9156",
+  "tests/test_evals.py": "ef44090c1661e59f71aa5074bdffc444e9e4fb94d79a2eaadaaf053bfe63299f",
+  "tests/test_evaluation.py": "266f55c92d136073c876fb23b1a12f7aec51945804a9aee871fa0ab2ada33f72",
+  "tests/test_evaluation_tools.py": "5de0526381f9afea3abbf133b28a93c9a009ad933d9a796189936fd73a979248",
+  "tests/test_events.py": "150b22af293be3062b8ed66f053f598d432981e58db6bfd340027721c1be969e",
+  "tests/test_experiment.py": "3428ee3c1feb5f6510b80803bb3352453cf36fe163adfa0bc758aa0031f8aaf1",
+  "tests/test_factory_provider.py": "64dea43eebf1f219f836d44b678b4915e33089aa7781a1762a7205976b0e8748",
+  "tests/test_failure.py": "cc763e628d7077023396226f5f30543c14aafd217d9e01e028e78b41184d1f56",
+  "tests/test_false_alarm.py": "62545ff0ed79669d60810cade6f2cdb3ea209a579203e1d7c21618db2c364bd3",
+  "tests/test_fault_packs.py": "10822fefbfdc16826355e4927e4eece96dc4b0fe86083e806ba952200c069ec4",
+  "tests/test_full_evaluation.py": "4c47f53008c1ec3c7a1e75585e4e7d960b84a856bf429ebc59070637c040ca8c",
+  "tests/test_gap_trace.py": "7168c538681bcae58abb343fe8cf6aac4aecca153e56a9c0eba40553d2871e57",
+  "tests/test_generator.py": "bed58811be34af0866d8d3ab6e511823f5d000bea2e42f3076adcb9d22eec885",
+  "tests/test_ground_truth.py": "00defedf7c2df521d51af43e528e52e848cae4388114795751fc6f50fcc813fc",
+  "tests/test_hazards.py": "c97f7a7f5c3f0591ef1b0ee8475405e69413970e7d418baf47590b07415b6a0b",
+  "tests/test_hydraulics.py": "647413004b75bd348dc84b34bd1ec4ef269dcb1d72c2ed4082f05246ff206ceb",
+  "tests/test_job_history.py": "739a96c546efc383de834ba834f9844bbf31fae34bc49e3b0204739ea06d3d97",
+  "tests/test_known_answers.py": "20f350db974db8521eacf6c26d50d0089bc021567cc79616e5d98bafc71d7b50",
+  "tests/test_learning.py": "d6a2129697d512989e2d7d7aeff504acfd17c96230c9cb1c5f713eadbc491802",
   "tests/test_line_screening.py": "c7e28721eed99970808567643ef1b05a701efa3ba3150c5ef11cae95e280ee90",
-  "tests/test_load.py": "ab3e2dc315f2364924ee8f16189eb8414455bb05e77ba802faee48341fd22e58",
-  "tests/test_load_wear_coupling.py": "dd3af00a787087972a3b338894aa77ba291ff1c231270c090a57da304c76691e",
-  "tests/test_loading_door.py": "fef3b0704687b0a53b23dbde9eb9b7a76a579587a598d85174281d07f1fb5704",
-  "tests/test_maintenance_history.py": "df00c1cdd7c558e72c3af7d87b06908ae850e67a638aa541cc44ee6d30a63b3d",
-  "tests/test_manual.py": "17d45fd247b86f7b7a9b5391dfb9857a2314e235a9befa902d12febeeeb8834f",
-  "tests/test_material_batch.py": "16f45bd41b5d3781987e83a708d7a8fa8a21ebf7ed7192d20e6d4982f81a5b99",
-  "tests/test_memory_comparison.py": "4ce4995c0c19f6241bbaa230d8ffabf1364641ee122c7f1d0c0491bc7ee010ca",
-  "tests/test_memory_evaluation.py": "85262239ba9518cddc4b3e5980548c38eaca995525bcae9a3cd1a63f57a9a5e6",
-  "tests/test_memory_policy.py": "52566dc37c3432f8fa94156f2aaf4b5cc9ab4790708bb00c9c63f1e838f801f3",
-  "tests/test_memory_recall.py": "dcc5d69ea0311110a190123fc4e4a543675790b4ff1f30b1f4388b40118557ef",
-  "tests/test_memory_reflection.py": "6a0d292b2e8f6829fd3b4199bac6651e68ff89e859fb4fdabfe1301b247ab0a2",
-  "tests/test_memory_repository.py": "ba6dac15408488ff6b498bd58c83709123b7c6510388bec19f1b5040269bf0f8",
-  "tests/test_memory_semantic.py": "58b59bd4078c5d1c4e86a96a33a556e4c4e2e512bff945df2c817dfad59e5d1c",
-  "tests/test_migrations.py": "bf4a497093c603e26cb29f39147c135440be9b50514176afb806617863f8bca3",
-  "tests/test_model_policy.py": "39cf7f95670dcd6b92071e3e10b154d991fcdd43d63b0cf9504f266312540278",
-  "tests/test_mtconnect_ingestion.py": "66d78585a155aa075421138533d126d02e1d2a12f7a40c6357cc1327eb11b95a",
-  "tests/test_observability.py": "c3b06b5442c44756f9fa4d346829e8a8402c546568f122c855da479129307e47",
-  "tests/test_observation_tools.py": "b1442524078c9575516bb6a1252b868b6d8f686ba0afc57cd360945b81de2f8e",
-  "tests/test_power_sensor.py": "832bacdc2d89d300259bba28c086a69ac84fdd4330a84e231920a16d3da62e69",
-  "tests/test_production_line.py": "5bc1cd23a552aee9596f5502c24669103fb5ffbd5ff84c7cd81ececd51d868ad",
-  "tests/test_progress_view.py": "3cc3cfeac608bb32e6ddc082ee446e4e1bdec895403769c590cd393eb396711b",
-  "tests/test_quality.py": "f1cd4e1f76b51a81021545cc96a8fb8e904af160d7c7d1240691d237d987bef8",
-  "tests/test_reasoning_evidence.py": "0c3f2991005fb65bc0fa219910cce80227a888cfd4a36c1b1e523bdd38ad6344",
-  "tests/test_recall_tool.py": "30751afbdc69d4b00ff025795c45f0e51b78b6bf93587e432461d4aec6e74338",
-  "tests/test_request_deadline.py": "58283f2181b15c9d8083f269223d862449cee80052cdee30c00f224d3ce0e725",
-  "tests/test_rng.py": "619e27ea42d33fb58cc1109ee86bd69c0647b2610e274343280bfb5f8db32592",
-  "tests/test_scenarios.py": "9a39ded7e295fcd622704845cfee84b2e23b18e43ac469ad3931e0a9d7cba6ac",
-  "tests/test_scoring_integrity.py": "908e6d60210fe1d6ea012c13edbf3783ee8e440a224053d0987113d787b04464",
-  "tests/test_sensor_summary.py": "ac5f40a004fd7382d3661f95522390eab14dd94de51289a0c5c3ac27590af4f3",
-  "tests/test_sensors.py": "2275c594bbdf9287761939480ac79fa818696abcd759607e6f8d6c1b9d86fa15",
-  "tests/test_servo_drive.py": "87ed0a4cc941b2859ec0296b0a0f2c4b73dce0dc0afd9fa05c417ead41bc30a5",
-  "tests/test_setting_reset.py": "70de9d5abb5d1094a0b4efa169a69c7cdd78ab102468dcf25d0c3fbd8bf80c5b",
-  "tests/test_settings.py": "0900ad768a7120e871922436263d706045151a84b2daba51fa170292acdeff6b",
-  "tests/test_simulator.py": "5f3e8db8f0ba6509d09b9e706fe18dcd51c013ef5fed674b23f4d65408171d06",
-  "tests/test_simulator_challenge.py": "051970b2cfd888768a2aa94023fcde60e409025d49fed26d6e67b0f820dc120a",
-  "tests/test_simulator_disturbances.py": "c954ea0a72e017bae22eb3007e360260e4e84acc6e621c49224d2570fb0d77bb",
-  "tests/test_slow_when_worn.py": "bf11ea04d9852380e78a07b2a55e296f0f416019070a2af6caa711e92d7ddd98",
-  "tests/test_state.py": "741ae0454602e933120be27b061243220bf5922d22c34700addc42765cfc39c8",
-  "tests/test_telemetry_monitor.py": "689df98fd332a42b191bb73d5b55cded81b1dbb9bfdffe169362024278773b30",
-  "tests/test_temperature_sensor.py": "54f3c7bc53883ea0c86ec11b6cd8dbf372795a891a754db9f3e06389ef6400b7",
-  "tests/test_thermal_lag.py": "f7386763b100f75c82b6ff1ad34c630828ce2f2be55a1e10e633589dfeb117cb",
-  "tests/test_thermometer.py": "c13320d0e57285c4b4c55fefb000e4e8f8ed077033117949f02cd2da7aa7817c",
-  "tests/test_tree_of_thought.py": "1a2f3ff19f85333cbb53e040fa5bbb090cf8357ef74930c4e29e4734ec390305",
-  "tests/test_tree_search.py": "30c05751475d568b4c3a5230ceb909ba9f1436a2e1f4fbfeed5273b0a7b6d1c0",
-  "tests/test_triage.py": "55f9cf58784fb7e7db338624ff445c867c69720dabf4ea634dc8dda091fe981a",
-  "tests/test_two_lines.py": "0658dabf750de3b18111b9f30c19a2fc2a2a9582b37fc5edbde4733e5480c55e",
-  "tests/test_typesafe_client.py": "e9672498f96597ca062073a7a9f1cff64430bf5304a908f6fb959056a703e747",
-  "tests/test_wait_tool.py": "ccec624a885634bbfcf97c4b09e7fdf523097c9e468e5bc5f6d07d863179dc49",
-  "tests/test_wrong_setting.py": "a7dcc4186bcee6a5980da4fc1f7a47c1b9210055618a88756e44a1991e39de47"
+  "tests/test_load.py": "f2a4f14cb17432e25c94057aeb14938fa2329c1efa9b7b2316c517eee13d9640",
+  "tests/test_load_wear_coupling.py": "4e756a9673dc8eb28ce047b7c4067fd2af3469d10272fe8c1bc7463033af742a",
+  "tests/test_loading_door.py": "30b117998e3ed0fa0d1f9b61b0305c21cc8c828597e0d6c438ca0a3bb9c7824b",
+  "tests/test_maintenance_history.py": "597252a8b7824569d19cdce0ffda0807e4ca7f6fae764323b25a17b731754dcf",
+  "tests/test_manual.py": "3af98f08c31a5dd3a28d0555bf3e1ab21a5ed0858df3be14e70725fbd9a05fbf",
+  "tests/test_material_batch.py": "c4c05a44cb60ceef0ca18a7f55a8d08bb981c3fe968d847487bfc84d643e895b",
+  "tests/test_memory_comparison.py": "adda12206fd82de3700976d54f1c6d7e0bd00409184c1d042f1f7517df85d5aa",
+  "tests/test_memory_evaluation.py": "59d98d12a90650cf5a119e9e8f32dcfcfdc153fd146dc1a462b9b179ad06f689",
+  "tests/test_memory_policy.py": "48ff505817f7af0a5dd375813334e065b3ecf9d86986124edadfd3839318b9fe",
+  "tests/test_memory_recall.py": "5f9f832035e7ae7e41bf92547749aa20a265d2650c0a937a94042d8001c87403",
+  "tests/test_memory_reflection.py": "8f97f9973d180f004a4eeeffca2e040df04749337ce7cc1141502c0e455a8865",
+  "tests/test_memory_repository.py": "3d6cbe683167b1a86b94de7c9599fdf2030b8091f7a6e4259362e729c792ba14",
+  "tests/test_memory_semantic.py": "78d65b3470a53d3a99cdee8c3b45d9508dee24698fd5f24d46a9c04932ebe948",
+  "tests/test_migrations.py": "3ef94c61fcc36d62e762143b97869914420de025bf17b3dee69154c3b3ce4ee6",
+  "tests/test_model_policy.py": "2a6f5d4e4d84db893d7e0a674e7aea620b48318a1512dd8191609e482c8acef1",
+  "tests/test_mtconnect_ingestion.py": "40eb588374a74e1f37eb240694529fdffba0bb0651b9a73e1cc862617ce831ed",
+  "tests/test_observability.py": "e33c4b7c81fa2dde4d146ba555a0cefe8035d74de9ab908752d0b53079adeea0",
+  "tests/test_observation_tools.py": "b6520bbafecef51d1e40c481c5a81da1c3552ebe95987b9755e6a86de29a1825",
+  "tests/test_power_sensor.py": "a289d7b91fe1793799341927482d40080bcf934d5a8e760e563cfff17a1ace77",
+  "tests/test_production_line.py": "2a0ec5f665acec73cee477967f4701fdd0470da2c53b4bb7364b4feaa08a63df",
+  "tests/test_progress_view.py": "4b76697910b2898d95b9685e23b9b0541033b03043219f4a263adb7c06437573",
+  "tests/test_quality.py": "95705427326b5474aa5b485c1d11c150538adecd7b20c4c592e17c79270c92ff",
+  "tests/test_reasoning_evidence.py": "c72b04a9f538318baf4aa57c873b17d30e6c47c1f0600ab9981aebfccee551cb",
+  "tests/test_recall_tool.py": "5c32b0e324ca5e7b6032893f6ddce146adf4a78b3f88c0430a4764a45c505ecc",
+  "tests/test_reference_review.py": "d3957c70a28676d440a07c46fe3da5f9c2441e64574962cb0aeff577199f22a0",
+  "tests/test_request_deadline.py": "373b1d759e84c4e544ab92f00179243f9fc7805a96d96dacd8d35b06a23610c5",
+  "tests/test_rng.py": "e0515a3b1b93128ac6ee3538a07963f6e9f386c331c0053206f838cb3d23944f",
+  "tests/test_scenarios.py": "aecd0d96aa858481068df3ed803fbee1dd3e0bf3023673b5c3c558c8e73dbc7e",
+  "tests/test_scoring_integrity.py": "9bd546f2dc3d2bc03c9da3b3c78c1aa09c502e8054bd9bd7065f805ec9c82671",
+  "tests/test_sensor_summary.py": "e6268233f469428646200a5b5f05a44bd9a381f64d2fa47422f5ddf12d7d4e25",
+  "tests/test_sensors.py": "f678d1aa3437fd5562c4793529ebddbb1031b3a48f66badad170c70e7e373004",
+  "tests/test_servo_drive.py": "329e2ce6d593c8eae384d8532c7f00110923b3ba368f4a1c92a8cf3d2530dcaa",
+  "tests/test_setting_reset.py": "4fc7e4b1ff6c6cd6e9b5af57f7f3c9227622ece758341bb01232d34d48b63266",
+  "tests/test_settings.py": "d2edc5fe0dbe8f44e4f31dce36b2adf2457226cce8717a10de0c3e3d8320598e",
+  "tests/test_simulator.py": "787a86abe348bd0b65c47e56ac987687d026403629e9fade0b4f0ea8b3eab2f2",
+  "tests/test_simulator_challenge.py": "e1ce3bcfdc0d16f92acacc6a6328a30e7572b912a103d29b703554649cab671a",
+  "tests/test_simulator_disturbances.py": "bdf78ec52dbd466aac95fa2093d75e329bb456710d6f297b9e6c5e9fc8fbb0ee",
+  "tests/test_slow_when_worn.py": "f6a4af185ce0a7925b6ef50e1600984c628e4143f908f89c113dfc094cbd2ef0",
+  "tests/test_state.py": "91a2e61cb1d1a3129cff3609f8899e99835e7748c44fb6eb7f7be0babbdb0b49",
+  "tests/test_telemetry_monitor.py": "096648eccdbd4029da35bd7913842f866c94c72ba5f842b7a7a5480e3b02e3c7",
+  "tests/test_temperature_sensor.py": "759997ab28d7a4b14a497b1c737d50083f9f9d22ffb6cdc000ce2f41c58d24ea",
+  "tests/test_thermal_lag.py": "8fed4226a366fcebd1d2cedf309bd39da61f9b8b11ea7a3beb730cc35234dbf0",
+  "tests/test_thermometer.py": "2c4fa92b8335f7e5d83be5d196e2ff1964e262519eca4e937b325a8688e8857e",
+  "tests/test_tree_of_thought.py": "912f7380b3546457c2ebdf548c540100c7da66c8d36a209becb8dbe32fc4aa50",
+  "tests/test_tree_search.py": "493731290898d53ee29c0c471828be6a8236857508682503e2a534c7de635f7c",
+  "tests/test_triage.py": "ebb09eff3118c5cc0a5794eb796f47e6f9fc2433766033219eb6170e3ea57248",
+  "tests/test_two_lines.py": "03a86f7c3fc7a6ce9dcdd0dd6e436cced106818f67650cca4cfed4fc83bb7b48",
+  "tests/test_typesafe_client.py": "a20685eae1995d6a29e8a99a3717b148c1ad062844ec346299116c74ff8b4751",
+  "tests/test_wait_tool.py": "b99a5fbf756a60176262417e54d8d1a0496f01126929a330492e7d24287b2d1e",
+  "tests/test_wrong_setting.py": "aed1c646bffaf88ae25ed2156794dc57427e8a61bbe6b23a0c33f3c3e89c0da3"
  },
- "coverage_sha256": "4fc9cd73b27cc2fff6cd101f3334d9f6f3a69b0aba7098f708cfd0a4bd36daaa",
- "junit_sha256": "fb7384a641f080de581d7156c7e0be26b7ebcd0ef65fc2e834d2f5582ec6fa3a",
+ "coverage_sha256": "b3a82a46f5b097e2aefe589e792c0c95bd9175592251ec1560381b82ffc122b2",
+ "junit_sha256": "b260f4acd77e80c85c4cdbfa88c7596287bcc27249a6f92d78a3b0743d7fe9ed",
  "counts": {
-  "functions": 868,
+  "functions": 877,
   "classes_note": "classes are listed through their methods",
-  "tests": 1650,
+  "tests": 1711,
   "tools": 18,
   "functions_by_status": {
-   "INSUFFICIENT EVIDENCE": 343,
+   "INSUFFICIENT EVIDENCE": 356,
    "NOT APPLICABLE": 25,
-   "NOT TESTED": 38,
-   "PARTIALLY VERIFIED": 417,
+   "NOT TESTED": 27,
+   "PARTIALLY VERIFIED": 424,
    "VERIFIED": 45
   },
   "functions_by_coverage_class": {
-   "direct": 446,
+   "direct": 453,
    "import-only": 4,
-   "indirect": 355,
+   "indirect": 368,
    "no-statements": 25,
-   "none": 38
+   "none": 27
   },
-  "functions_executed_in_tests": 801,
-  "functions_with_direct_tests": 446,
+  "functions_executed_in_tests": 821,
+  "functions_with_direct_tests": 453,
   "functions_never_executed": [
-   "capstone.baseline:_seeds",
-   "capstone.baseline:main",
    "capstone.episode:ask_on_console",
-   "capstone.evals:automatic_labels",
    "capstone.evals:main.<locals>.save_record",
    "capstone.evals:main.<locals>.show_progress",
-   "capstone.experiment:open_memory",
    "capstone.ingestion.channel_map:ChannelMap.entry_for",
    "capstone.ingestion.collector:utc_now",
    "capstone.ingestion.collector:MTConnectCollector.probe",
-   "capstone.manual.index:ready_manual_index",
-   "capstone.manual.index:open_manual_index",
-   "capstone.manual.index:main",
-   "capstone.memory.backfill:main",
-   "capstone.memory.duplicate_threshold:main",
    "capstone.memory.semantic:default_embedder",
-   "capstone.memory_comparison:open_store_and_index",
-   "capstone.monitoring.__main__:parse_threshold",
    "capstone.providers.chat:FallbackClient.__repr__",
    "capstone.simulator.clock:SimulationClock.tick_duration",
    "capstone.simulator.disturbances:_SensorDisturbance._effect",
    "capstone.simulator.rng:RandomSource.seed",
    "capstone.tools.screening:write_reference",
-   "capstone.tree_reach:main",
    "evaluation.evaltools.build_inventory:main",
    "evaluation.evaltools.compare_evaluators:load_answers",
    "evaluation.evaltools.compare_evaluators:main",
@@ -268,6 +263,7 @@
    "evaluation.evaltools.decision_models:provider_table",
    "evaluation.evaltools.full_evaluation:sha256_of",
    "evaluation.evaltools.full_evaluation:_bodiless",
+   "evaluation.evaltools.reference_review:main",
    "evaluation.evaltools.run_packet:main",
    "evaluation.evaltools.snap_request:main",
    "evaluation.evaltools.traced_run:function_spans",
@@ -295,17 +291,13 @@
    "capstone.contracts.investigations:run_id_for (2/3)",
    "capstone.evals:Scenario.valid_factory (4/6)",
    "capstone.evals:check_resume (4/6)",
-   "capstone.evals:main (28/60)",
    "capstone.evaluation.memory:MemoryPromotionRecord.consistent_storage (3/5)",
    "capstone.evaluation.scoring:Score.unnecessary_actions (3/5)",
    "capstone.experiment:_right (2/3)",
-   "capstone.ingestion.__main__:main (14/28)",
    "capstone.ingestion.collector:http_get (7/9)",
    "capstone.ingestion.mtconnect:parse_streams (19/24)",
    "capstone.memory.contracts:PromotionDecision.consistent_decision (4/7)",
    "capstone.memory.semantic:ChromaMemoryIndex.search (3/4)",
-   "capstone.memory_comparison:main (25/37)",
-   "capstone.monitoring.__main__:main (17/24)",
    "capstone.progress:belief (2/3)",
    "capstone.progress:main (10/19)",
    "capstone.simulator.scenarios:HydraulicLeak.__init__ (7/9)",
@@ -320,14 +312,15 @@
    "evaluation.evaltools.run_packet:configuration_of (7/9)",
    "evaluation.evaltools.snap_request:DecisionQuestion.criteria_fit_type (5/9)",
    "evaluation.evaltools.snap_request:load_questions (7/9)",
+   "evaluation.evaltools.snap_request:fitted_trace_skips (8/13)",
    "evaluation.evaltools.snap_request:describe_failure (2/5)",
    "evaluation.evaltools.snap_request:already_answered (6/8)",
-   "evaluation.evaltools.traced_run:main (18/42)"
+   "evaluation.evaltools.traced_run:main (25/50)"
   ],
   "stubs_or_protocols": 25,
   "tests_by_outcome": {
-   "failed": 1,
-   "passed": 1649
+   "failed": 5,
+   "passed": 1706
   },
   "tests_with_no_assertion": [
    "tests/test_console.py::test_without_it_the_same_print_raised"
@@ -421,7 +414,6 @@
    "tests/test_env_example.py::test_every_setting_is_listed",
    "tests/test_env_example.py::test_nothing_is_listed_that_the_code_does_not_read",
    "tests/test_evaluation_tools.py::test_the_committed_schema_is_the_one_the_packet_model_generates",
-   "tests/test_evaluation_tools.py::test_the_traced_run_names_the_functions_each_case_executed",
    "tests/test_evaluation_tools.py::test_a_run_without_a_critique_does_not_claim_the_critic_was_off",
    "tests/test_events.py::test_event_is_immutable",
    "tests/test_experiment.py::test_results_from_before_refusals_were_recorded_still_read",
@@ -547,7 +539,7 @@
   },
   "capstone.baseline": {
    "functions": 11,
-   "executed": 9,
+   "executed": 11,
    "direct": 9
   },
   "capstone.benchmark": {
@@ -592,8 +584,8 @@
   },
   "capstone.evals": {
    "functions": 16,
-   "executed": 13,
-   "direct": 13
+   "executed": 14,
+   "direct": 14
   },
   "capstone.evaluation.auto_label": {
    "functions": 11,
@@ -626,9 +618,9 @@
    "direct": 5
   },
   "capstone.experiment": {
-   "functions": 41,
-   "executed": 40,
-   "direct": 38
+   "functions": 42,
+   "executed": 42,
+   "direct": 40
   },
   "capstone.faults": {
    "functions": 10,
@@ -672,7 +664,7 @@
   },
   "capstone.manual.index": {
    "functions": 13,
-   "executed": 10,
+   "executed": 13,
    "direct": 2
   },
   "capstone.manual.sections": {
@@ -682,7 +674,7 @@
   },
   "capstone.memory.backfill": {
    "functions": 2,
-   "executed": 1,
+   "executed": 2,
    "direct": 1
   },
   "capstone.memory.contracts": {
@@ -692,7 +684,7 @@
   },
   "capstone.memory.duplicate_threshold": {
    "functions": 7,
-   "executed": 6,
+   "executed": 7,
    "direct": 6
   },
   "capstone.memory.policy": {
@@ -727,12 +719,12 @@
   },
   "capstone.memory_comparison": {
    "functions": 13,
-   "executed": 12,
+   "executed": 13,
    "direct": 12
   },
   "capstone.monitoring.__main__": {
    "functions": 2,
-   "executed": 1,
+   "executed": 2,
    "direct": 0
   },
   "capstone.monitoring.monitor": {
@@ -877,7 +869,7 @@
   },
   "capstone.tree_reach": {
    "functions": 6,
-   "executed": 5,
+   "executed": 6,
    "direct": 0
   },
   "capstone.watchdog.__main__": {
@@ -889,6 +881,11 @@
    "functions": 5,
    "executed": 5,
    "direct": 2
+  },
+  "evaluation.evaltools.audit_preflight": {
+   "functions": 2,
+   "executed": 2,
+   "direct": 0
   },
   "evaluation.evaltools.build_inventory": {
    "functions": 24,
@@ -906,9 +903,14 @@
    "direct": 2
   },
   "evaluation.evaltools.full_evaluation": {
-   "functions": 30,
-   "executed": 28,
-   "direct": 28
+   "functions": 31,
+   "executed": 29,
+   "direct": 29
+  },
+  "evaluation.evaltools.reference_review": {
+   "functions": 4,
+   "executed": 3,
+   "direct": 3
   },
   "evaluation.evaltools.run_packet": {
    "functions": 22,
@@ -916,8 +918,8 @@
    "direct": 0
   },
   "evaluation.evaltools.snap_request": {
-   "functions": 28,
-   "executed": 27,
+   "functions": 29,
+   "executed": 28,
    "direct": 1
   },
   "evaluation.evaltools.traced_run": {
@@ -960,7 +962,7 @@
    ]
   },
   "capstone.agent.completion:shared_verification": {
-   "count": 66,
+   "count": 68,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_agent_completion.py::test_a_check_that_was_never_made_is_left_out",
@@ -982,17 +984,17 @@
     "tests/test_evaluation_tools.py::test_audited_import_rejects_missing_duplicate_and_orphan_traces",
     "tests/test_experiment.py::test_a_recalled_memory_the_agent_cites_is_marked_used",
     "tests/test_experiment.py::test_an_uncited_memory_is_unknown_not_unused",
+    "tests/test_experiment.py::test_model_failures_survive_the_cli_file_and_report",
     "tests/test_experiment.py::test_nothing_the_evaluator_knows_reaches_the_memory_store",
+    "tests/test_experiment.py::test_the_command_line_runs_labels_and_reports",
     "tests/test_experiment.py::test_the_gate_decision_is_recorded_beside_the_run",
     "tests/test_experiment.py::test_the_report_traces_a_recalled_lesson_to_a_wrong_diagnosis",
     "tests/test_learning.py::test_a_failed_fix_is_remembered_in_codes_words_without_asking",
-    "tests/test_learning.py::test_a_model_that_declines_leaves_no_memory",
-    "tests/test_learning.py::test_a_model_that_fails_leaves_no_memory",
-    "tests/test_learning.py::test_a_rejected_proposal_is_audited_but_not_remembered"
+    "tests/test_learning.py::test_a_model_that_declines_leaves_no_memory"
    ]
   },
   "capstone.agent.completion:complete": {
-   "count": 67,
+   "count": 69,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_agent_completion.py::test_a_check_that_was_never_made_is_left_out",
@@ -1014,17 +1016,17 @@
     "tests/test_evaluation_tools.py::test_audited_import_rejects_missing_duplicate_and_orphan_traces",
     "tests/test_experiment.py::test_a_recalled_memory_the_agent_cites_is_marked_used",
     "tests/test_experiment.py::test_an_uncited_memory_is_unknown_not_unused",
+    "tests/test_experiment.py::test_model_failures_survive_the_cli_file_and_report",
     "tests/test_experiment.py::test_nothing_the_evaluator_knows_reaches_the_memory_store",
+    "tests/test_experiment.py::test_the_command_line_runs_labels_and_reports",
     "tests/test_experiment.py::test_the_gate_decision_is_recorded_beside_the_run",
     "tests/test_experiment.py::test_the_report_traces_a_recalled_lesson_to_a_wrong_diagnosis",
     "tests/test_learning.py::test_a_failed_fix_is_remembered_in_codes_words_without_asking",
-    "tests/test_learning.py::test_a_model_that_declines_leaves_no_memory",
-    "tests/test_learning.py::test_a_model_that_fails_leaves_no_memory",
-    "tests/test_learning.py::test_a_rejected_proposal_is_audited_but_not_remembered"
+    "tests/test_learning.py::test_a_model_that_declines_leaves_no_memory"
    ]
   },
   "capstone.agent.completion:audit_record": {
-   "count": 43,
+   "count": 45,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_agent_completion.py::test_a_rejection_note_is_kept_in_the_log_in_words",
@@ -1042,16 +1044,41 @@
     "tests/test_evaluation_tools.py::test_audited_import_rejects_missing_duplicate_and_orphan_traces",
     "tests/test_experiment.py::test_a_recalled_memory_the_agent_cites_is_marked_used",
     "tests/test_experiment.py::test_an_uncited_memory_is_unknown_not_unused",
+    "tests/test_experiment.py::test_model_failures_survive_the_cli_file_and_report",
     "tests/test_experiment.py::test_nothing_the_evaluator_knows_reaches_the_memory_store",
+    "tests/test_experiment.py::test_the_command_line_runs_labels_and_reports",
     "tests/test_experiment.py::test_the_gate_decision_is_recorded_beside_the_run",
     "tests/test_experiment.py::test_the_report_traces_a_recalled_lesson_to_a_wrong_diagnosis",
     "tests/test_learning.py::test_a_failed_fix_is_remembered_in_codes_words_without_asking",
-    "tests/test_learning.py::test_a_model_that_declines_leaves_no_memory",
-    "tests/test_learning.py::test_a_model_that_fails_leaves_no_memory",
-    "tests/test_learning.py::test_a_rejected_proposal_is_audited_but_not_remembered"
+    "tests/test_learning.py::test_a_model_that_declines_leaves_no_memory"
    ]
   },
   "capstone.agent.completion:AuditLog.__init__": {
+   "count": 56,
+   "status": "PARTIALLY VERIFIED",
+   "direct": [
+    "tests/test_agent_completion.py::test_a_rejection_note_is_kept_in_the_log_in_words",
+    "tests/test_agent_completion.py::test_audit_without_memory_writes_the_record",
+    "tests/test_agent_completion.py::test_no_hidden_truth_is_written_to_the_log",
+    "tests/test_agent_completion.py::test_the_log_is_only_ever_added_to",
+    "tests/test_agent_completion.py::test_the_log_keeps_every_investigation_one_per_line"
+   ],
+   "indirect": [
+    "tests/test_episode.py::test_a_verified_fix_is_audited_and_remembered",
+    "tests/test_evaluation_tools.py::test_an_audit_log_gives_the_packet_a_full_trace",
+    "tests/test_evaluation_tools.py::test_audited_import_rejects_missing_duplicate_and_orphan_traces",
+    "tests/test_evaluation_tools.py::test_both_archives_import_57_episodes_with_five_real_traces",
+    "tests/test_evaluation_tools.py::test_new_cohort_preflight_requires_matching_audit_evidence",
+    "tests/test_evaluation_tools.py::test_preflight_refuses_corrupt_order_and_missing_provenance",
+    "tests/test_evaluation_tools.py::test_preflight_validates_recheck_and_verification_evidence",
+    "tests/test_evaluation_tools.py::test_the_traced_run_names_the_functions_each_case_executed",
+    "tests/test_experiment.py::test_a_recalled_memory_the_agent_cites_is_marked_used",
+    "tests/test_experiment.py::test_an_uncited_memory_is_unknown_not_unused",
+    "tests/test_experiment.py::test_hazards_are_off_unless_asked_for",
+    "tests/test_experiment.py::test_model_failures_survive_the_cli_file_and_report"
+   ]
+  },
+  "capstone.agent.completion:AuditLog.append": {
    "count": 42,
    "status": "PARTIALLY VERIFIED",
    "direct": [
@@ -1065,44 +1092,19 @@
     "tests/test_episode.py::test_a_verified_fix_is_audited_and_remembered",
     "tests/test_evaluation_tools.py::test_an_audit_log_gives_the_packet_a_full_trace",
     "tests/test_evaluation_tools.py::test_audited_import_rejects_missing_duplicate_and_orphan_traces",
-    "tests/test_evaluation_tools.py::test_both_archives_import_57_episodes_with_five_real_traces",
     "tests/test_experiment.py::test_a_recalled_memory_the_agent_cites_is_marked_used",
     "tests/test_experiment.py::test_an_uncited_memory_is_unknown_not_unused",
+    "tests/test_experiment.py::test_model_failures_survive_the_cli_file_and_report",
     "tests/test_experiment.py::test_nothing_the_evaluator_knows_reaches_the_memory_store",
+    "tests/test_experiment.py::test_the_command_line_runs_labels_and_reports",
     "tests/test_experiment.py::test_the_gate_decision_is_recorded_beside_the_run",
     "tests/test_experiment.py::test_the_report_traces_a_recalled_lesson_to_a_wrong_diagnosis",
     "tests/test_learning.py::test_a_failed_fix_is_remembered_in_codes_words_without_asking",
-    "tests/test_learning.py::test_a_model_that_declines_leaves_no_memory",
-    "tests/test_learning.py::test_a_model_that_fails_leaves_no_memory"
-   ]
-  },
-  "capstone.agent.completion:AuditLog.append": {
-   "count": 40,
-   "status": "PARTIALLY VERIFIED",
-   "direct": [
-    "tests/test_agent_completion.py::test_a_rejection_note_is_kept_in_the_log_in_words",
-    "tests/test_agent_completion.py::test_audit_without_memory_writes_the_record",
-    "tests/test_agent_completion.py::test_no_hidden_truth_is_written_to_the_log",
-    "tests/test_agent_completion.py::test_the_log_is_only_ever_added_to",
-    "tests/test_agent_completion.py::test_the_log_keeps_every_investigation_one_per_line"
-   ],
-   "indirect": [
-    "tests/test_episode.py::test_a_verified_fix_is_audited_and_remembered",
-    "tests/test_evaluation_tools.py::test_an_audit_log_gives_the_packet_a_full_trace",
-    "tests/test_evaluation_tools.py::test_audited_import_rejects_missing_duplicate_and_orphan_traces",
-    "tests/test_experiment.py::test_a_recalled_memory_the_agent_cites_is_marked_used",
-    "tests/test_experiment.py::test_an_uncited_memory_is_unknown_not_unused",
-    "tests/test_experiment.py::test_nothing_the_evaluator_knows_reaches_the_memory_store",
-    "tests/test_experiment.py::test_the_gate_decision_is_recorded_beside_the_run",
-    "tests/test_experiment.py::test_the_report_traces_a_recalled_lesson_to_a_wrong_diagnosis",
-    "tests/test_learning.py::test_a_failed_fix_is_remembered_in_codes_words_without_asking",
-    "tests/test_learning.py::test_a_model_that_declines_leaves_no_memory",
-    "tests/test_learning.py::test_a_model_that_fails_leaves_no_memory",
-    "tests/test_learning.py::test_a_rejected_proposal_is_audited_but_not_remembered"
+    "tests/test_learning.py::test_a_model_that_declines_leaves_no_memory"
    ]
   },
   "capstone.agent.completion:AuditLog.read": {
-   "count": 18,
+   "count": 23,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_agent_completion.py::test_audit_without_memory_writes_the_record",
@@ -1114,14 +1116,14 @@
     "tests/test_evaluation_tools.py::test_an_audit_log_gives_the_packet_a_full_trace",
     "tests/test_evaluation_tools.py::test_audited_import_rejects_missing_duplicate_and_orphan_traces",
     "tests/test_evaluation_tools.py::test_both_archives_import_57_episodes_with_five_real_traces",
+    "tests/test_evaluation_tools.py::test_new_cohort_preflight_requires_matching_audit_evidence",
+    "tests/test_evaluation_tools.py::test_preflight_refuses_corrupt_order_and_missing_provenance",
+    "tests/test_evaluation_tools.py::test_preflight_validates_recheck_and_verification_evidence",
+    "tests/test_evaluation_tools.py::test_the_traced_run_names_the_functions_each_case_executed",
+    "tests/test_full_evaluation.py::test_per_item_findings_join_truth_judge_and_blinded_reference",
     "tests/test_learning.py::test_a_failed_fix_is_remembered_in_codes_words_without_asking",
     "tests/test_learning.py::test_a_model_that_declines_leaves_no_memory",
-    "tests/test_learning.py::test_a_model_that_fails_leaves_no_memory",
-    "tests/test_learning.py::test_a_rejected_proposal_is_audited_but_not_remembered",
-    "tests/test_learning.py::test_a_resolved_no_action_watch_is_audited_but_never_asks_for_a_lesson",
-    "tests/test_learning.py::test_a_success_and_a_failure_live_side_by_side",
-    "tests/test_learning.py::test_a_verified_fix_is_audited_and_its_advice_remembered",
-    "tests/test_learning.py::test_an_unfinished_investigation_is_refused_and_nothing_written"
+    "tests/test_learning.py::test_a_model_that_fails_leaves_no_memory"
    ]
   },
   "capstone.agent.critic:reinstate_view": {
@@ -4417,7 +4419,7 @@
    ]
   },
   "capstone.agent.state:InvestigationState.metrics": {
-   "count": 44,
+   "count": 46,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
@@ -4818,84 +4820,108 @@
    ]
   },
   "capstone.baseline:_Looker.__init__": {
-   "count": 3,
+   "count": 6,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_baseline.py::test_known_cases_score_as_pinned_and_repeat_exactly",
     "tests/test_baseline.py::test_the_right_repair_is_carried_out_and_nothing_for_a_false_alarm",
     "tests/test_baseline.py::test_the_rules_use_only_the_agents_tools_and_ask_for_nothing_themselves"
    ],
-   "indirect": []
+   "indirect": [
+    "tests/test_coverage_reporting_edges.py::test_baseline_alarm_classifies_sustained_and_transient_signals",
+    "tests/test_coverage_reporting_edges.py::test_baseline_status_alarm_uses_only_the_observable_stop",
+    "tests/test_coverage_reporting_edges.py::test_baseline_uses_inspections_when_job_times_do_not_identify_machine"
+   ]
   },
   "capstone.baseline:_Looker.__call__": {
-   "count": 3,
+   "count": 5,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_baseline.py::test_known_cases_score_as_pinned_and_repeat_exactly",
     "tests/test_baseline.py::test_the_right_repair_is_carried_out_and_nothing_for_a_false_alarm",
     "tests/test_baseline.py::test_the_rules_use_only_the_agents_tools_and_ask_for_nothing_themselves"
    ],
-   "indirect": []
+   "indirect": [
+    "tests/test_coverage_reporting_edges.py::test_baseline_alarm_classifies_sustained_and_transient_signals",
+    "tests/test_coverage_reporting_edges.py::test_baseline_uses_inspections_when_job_times_do_not_identify_machine"
+   ]
   },
   "capstone.baseline:_Looker.now": {
-   "count": 3,
+   "count": 5,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_baseline.py::test_known_cases_score_as_pinned_and_repeat_exactly",
     "tests/test_baseline.py::test_the_right_repair_is_carried_out_and_nothing_for_a_false_alarm",
     "tests/test_baseline.py::test_the_rules_use_only_the_agents_tools_and_ask_for_nothing_themselves"
    ],
-   "indirect": []
+   "indirect": [
+    "tests/test_coverage_reporting_edges.py::test_baseline_alarm_classifies_sustained_and_transient_signals",
+    "tests/test_coverage_reporting_edges.py::test_baseline_uses_inspections_when_job_times_do_not_identify_machine"
+   ]
   },
   "capstone.baseline:_Looker.peak_vibration": {
-   "count": 3,
+   "count": 4,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_baseline.py::test_known_cases_score_as_pinned_and_repeat_exactly",
     "tests/test_baseline.py::test_the_right_repair_is_carried_out_and_nothing_for_a_false_alarm",
     "tests/test_baseline.py::test_the_rules_use_only_the_agents_tools_and_ask_for_nothing_themselves"
    ],
-   "indirect": []
+   "indirect": [
+    "tests/test_coverage_reporting_edges.py::test_baseline_alarm_classifies_sustained_and_transient_signals"
+   ]
   },
   "capstone.baseline:diagnose": {
-   "count": 3,
+   "count": 6,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_baseline.py::test_known_cases_score_as_pinned_and_repeat_exactly",
     "tests/test_baseline.py::test_the_right_repair_is_carried_out_and_nothing_for_a_false_alarm",
     "tests/test_baseline.py::test_the_rules_use_only_the_agents_tools_and_ask_for_nothing_themselves"
    ],
-   "indirect": []
+   "indirect": [
+    "tests/test_coverage_reporting_edges.py::test_baseline_alarm_classifies_sustained_and_transient_signals",
+    "tests/test_coverage_reporting_edges.py::test_baseline_status_alarm_uses_only_the_observable_stop",
+    "tests/test_coverage_reporting_edges.py::test_baseline_uses_inspections_when_job_times_do_not_identify_machine"
+   ]
   },
   "capstone.baseline:diagnose.<locals>.verdict": {
-   "count": 3,
+   "count": 6,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_baseline.py::test_known_cases_score_as_pinned_and_repeat_exactly",
     "tests/test_baseline.py::test_the_right_repair_is_carried_out_and_nothing_for_a_false_alarm",
     "tests/test_baseline.py::test_the_rules_use_only_the_agents_tools_and_ask_for_nothing_themselves"
    ],
-   "indirect": []
+   "indirect": [
+    "tests/test_coverage_reporting_edges.py::test_baseline_alarm_classifies_sustained_and_transient_signals",
+    "tests/test_coverage_reporting_edges.py::test_baseline_status_alarm_uses_only_the_observable_stop",
+    "tests/test_coverage_reporting_edges.py::test_baseline_uses_inspections_when_job_times_do_not_identify_machine"
+   ]
   },
   "capstone.baseline:_job_time_changes": {
-   "count": 3,
+   "count": 4,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_baseline.py::test_job_times_compare_the_last_jobs_with_the_first",
     "tests/test_baseline.py::test_known_cases_score_as_pinned_and_repeat_exactly",
     "tests/test_baseline.py::test_the_rules_use_only_the_agents_tools_and_ask_for_nothing_themselves"
    ],
-   "indirect": []
+   "indirect": [
+    "tests/test_coverage_reporting_edges.py::test_baseline_uses_inspections_when_job_times_do_not_identify_machine"
+   ]
   },
   "capstone.baseline:_standout_batch": {
-   "count": 3,
+   "count": 4,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_baseline.py::test_a_batch_must_stand_far_above_the_rest_of_the_line",
     "tests/test_baseline.py::test_known_cases_score_as_pinned_and_repeat_exactly",
     "tests/test_baseline.py::test_the_rules_use_only_the_agents_tools_and_ask_for_nothing_themselves"
    ],
-   "indirect": []
+   "indirect": [
+    "tests/test_coverage_reporting_edges.py::test_baseline_uses_inspections_when_job_times_do_not_identify_machine"
+   ]
   },
   "capstone.baseline:run_baseline": {
    "count": 2,
@@ -4907,16 +4933,21 @@
    "indirect": []
   },
   "capstone.baseline:_seeds": {
-   "count": 0,
-   "status": "NOT TESTED",
+   "count": 2,
+   "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
-   "indirect": []
+   "indirect": [
+    "tests/test_coverage_reporting_edges.py::test_baseline_cli_formats_known_and_explicit_cases",
+    "tests/test_coverage_reporting_edges.py::test_baseline_seed_ranges_and_lists"
+   ]
   },
   "capstone.baseline:main": {
-   "count": 0,
-   "status": "NOT TESTED",
+   "count": 1,
+   "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
-   "indirect": []
+   "indirect": [
+    "tests/test_coverage_reporting_edges.py::test_baseline_cli_formats_known_and_explicit_cases"
+   ]
   },
   "capstone.benchmark:single_model_clients": {
    "count": 3,
@@ -5030,7 +5061,7 @@
    "indirect": []
   },
   "capstone.console:safe_console": {
-   "count": 15,
+   "count": 19,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_console.py::test_a_stream_that_cannot_be_reconfigured_is_left_alone",
@@ -5038,21 +5069,21 @@
    ],
    "indirect": [
     "tests/test_benchmark.py::test_the_command_writes_the_table_and_the_raw_calls",
+    "tests/test_coverage_eval_cli_edges.py::test_experiment_cli_does_not_hide_provider_failures_and_interrupts",
+    "tests/test_coverage_eval_cli_edges.py::test_experiment_cli_label_skips_missing_conclusions_and_existing_answers",
+    "tests/test_coverage_eval_cli_edges.py::test_experiment_cli_prevents_audit_records_collision",
     "tests/test_experiment.py::test_hazards_are_off_unless_asked_for",
     "tests/test_experiment.py::test_model_failures_survive_the_cli_file_and_report",
+    "tests/test_experiment.py::test_run_command_audits_by_default_and_allows_explicit_opt_out",
     "tests/test_experiment.py::test_the_command_line_runs_labels_and_reports",
     "tests/test_experiment.py::test_the_command_passes_the_manual_on",
     "tests/test_experiment.py::test_the_command_runs_the_challenge_on_the_given_seeds",
     "tests/test_experiment.py::test_the_command_runs_the_held_out_set",
-    "tests/test_experiment.py::test_the_manual_is_on_by_default_by_meaning",
-    "tests/test_experiment.py::test_the_run_command_watches_by_default_and_quiet_turns_it_off",
-    "tests/test_memory_comparison.py::test_a_mode_may_be_named_only_once",
-    "tests/test_memory_comparison.py::test_the_command_refuses_an_unknown_mode",
-    "tests/test_memory_comparison.py::test_the_command_reports_a_results_file"
+    "tests/test_experiment.py::test_the_manual_is_on_by_default_by_meaning"
    ]
   },
   "capstone.contracts.completed_investigations:CompletedInvestigation.unique_evidence": {
-   "count": 116,
+   "count": 123,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
@@ -5071,11 +5102,15 @@
    ]
   },
   "capstone.contracts.hypotheses:NumericClaim.ordered_window": {
-   "count": 5,
+   "count": 9,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
     "tests/test_evaluation_tools.py::test_both_archives_import_57_episodes_with_five_real_traces",
+    "tests/test_evaluation_tools.py::test_new_cohort_preflight_requires_matching_audit_evidence",
+    "tests/test_evaluation_tools.py::test_preflight_refuses_corrupt_order_and_missing_provenance",
+    "tests/test_evaluation_tools.py::test_preflight_validates_recheck_and_verification_evidence",
+    "tests/test_full_evaluation.py::test_per_item_findings_join_truth_judge_and_blinded_reference",
     "tests/test_reasoning_evidence.py::test_manual_or_memory_cannot_create_machine_coverage_or_numeric_facts",
     "tests/test_reasoning_evidence.py::test_numeric_mismatch_cannot_be_applied_as_a_new_belief",
     "tests/test_reasoning_evidence.py::test_numeric_verifier_checks_values_units_and_windows_without_judging_causes",
@@ -5083,7 +5118,7 @@
    ]
   },
   "capstone.contracts.investigations:run_id_for": {
-   "count": 144,
+   "count": 149,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
@@ -5417,7 +5452,7 @@
    ]
   },
   "capstone.evals:Scenario.valid_factory": {
-   "count": 14,
+   "count": 20,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_evals.py::test_comparison_requires_same_cases_and_preserves_unknown_accuracy",
@@ -5433,7 +5468,14 @@
     "tests/test_evals.py::test_review_flag_excludes_provisional_label_from_accuracy",
     "tests/test_evals.py::test_run_cases_offers_the_manual_when_given"
    ],
-   "indirect": []
+   "indirect": [
+    "tests/test_coverage_eval_cli_edges.py::test_evals_cli_raises_when_resumed_raw_file_is_absent",
+    "tests/test_coverage_eval_cli_edges.py::test_evals_cli_refuses_a_corrupt_resumed_prefix",
+    "tests/test_coverage_eval_cli_edges.py::test_evals_cli_refuses_to_clobber_an_existing_raw_run",
+    "tests/test_coverage_eval_cli_edges.py::test_evals_cli_rescores_saved_records_and_writes_diff_without_model",
+    "tests/test_coverage_eval_cli_edges.py::test_evals_cli_saved_records_must_match_config_in_order",
+    "tests/test_coverage_eval_cli_edges.py::test_evals_cli_saves_fresh_rows_and_uses_live_watch_hook"
+   ]
   },
   "capstone.evals:Scenario.as_case": {
    "count": 13,
@@ -5455,7 +5497,7 @@
    "indirect": []
   },
   "capstone.evals:ScenarioConfig.unique_ids": {
-   "count": 14,
+   "count": 20,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_evals.py::test_comparison_requires_same_cases_and_preserves_unknown_accuracy",
@@ -5471,7 +5513,14 @@
     "tests/test_evals.py::test_review_flag_excludes_provisional_label_from_accuracy",
     "tests/test_evals.py::test_run_cases_offers_the_manual_when_given"
    ],
-   "indirect": []
+   "indirect": [
+    "tests/test_coverage_eval_cli_edges.py::test_evals_cli_raises_when_resumed_raw_file_is_absent",
+    "tests/test_coverage_eval_cli_edges.py::test_evals_cli_refuses_a_corrupt_resumed_prefix",
+    "tests/test_coverage_eval_cli_edges.py::test_evals_cli_refuses_to_clobber_an_existing_raw_run",
+    "tests/test_coverage_eval_cli_edges.py::test_evals_cli_rescores_saved_records_and_writes_diff_without_model",
+    "tests/test_coverage_eval_cli_edges.py::test_evals_cli_saved_records_must_match_config_in_order",
+    "tests/test_coverage_eval_cli_edges.py::test_evals_cli_saves_fresh_rows_and_uses_live_watch_hook"
+   ]
   },
   "capstone.evals:load_scenarios": {
    "count": 4,
@@ -5485,12 +5534,15 @@
    "indirect": []
   },
   "capstone.evals:reserve_raw_output": {
-   "count": 1,
+   "count": 3,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_evals.py::test_output_path_is_claimed_before_a_run_and_cannot_be_shared"
    ],
-   "indirect": []
+   "indirect": [
+    "tests/test_coverage_eval_cli_edges.py::test_evals_cli_refuses_to_clobber_an_existing_raw_run",
+    "tests/test_coverage_eval_cli_edges.py::test_evals_cli_saves_fresh_rows_and_uses_live_watch_hook"
+   ]
   },
   "capstone.evals:compare_reports": {
    "count": 1,
@@ -5590,18 +5642,28 @@
    "indirect": []
   },
   "capstone.evals:automatic_labels": {
-   "count": 0,
-   "status": "NOT TESTED",
-   "direct": [],
+   "count": 1,
+   "status": "PARTIALLY VERIFIED",
+   "direct": [
+    "tests/test_coverage_eval_cli_edges.py::test_evals_automatic_labels_marks_undetermined_and_deferred_review"
+   ],
    "indirect": []
   },
   "capstone.evals:main": {
-   "count": 1,
+   "count": 8,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_evals.py::test_rescoring_saved_records_never_opens_the_manual"
    ],
-   "indirect": []
+   "indirect": [
+    "tests/test_coverage_eval_cli_edges.py::test_evals_cli_raises_when_resumed_raw_file_is_absent",
+    "tests/test_coverage_eval_cli_edges.py::test_evals_cli_refuses_a_corrupt_resumed_prefix",
+    "tests/test_coverage_eval_cli_edges.py::test_evals_cli_refuses_incompatible_modes_before_loading_config",
+    "tests/test_coverage_eval_cli_edges.py::test_evals_cli_refuses_to_clobber_an_existing_raw_run",
+    "tests/test_coverage_eval_cli_edges.py::test_evals_cli_rescores_saved_records_and_writes_diff_without_model",
+    "tests/test_coverage_eval_cli_edges.py::test_evals_cli_saved_records_must_match_config_in_order",
+    "tests/test_coverage_eval_cli_edges.py::test_evals_cli_saves_fresh_rows_and_uses_live_watch_hook"
+   ]
   },
   "capstone.evals:main.<locals>.save_record": {
    "count": 0,
@@ -5839,11 +5901,13 @@
    ]
   },
   "capstone.evaluation.labels:LabelBook.__init__": {
-   "count": 3,
+   "count": 5,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
     "tests/test_auto_label.py::test_the_command_writes_proposals_and_reports_agreement",
+    "tests/test_coverage_eval_cli_edges.py::test_experiment_cli_label_skips_missing_conclusions_and_existing_answers",
+    "tests/test_coverage_reporting_edges.py::test_memory_comparison_report_cli_reads_saved_records",
     "tests/test_experiment.py::test_label_book_keeps_the_latest_label",
     "tests/test_experiment.py::test_the_command_line_runs_labels_and_reports"
    ]
@@ -5868,7 +5932,7 @@
    ]
   },
   "capstone.evaluation.labels:apply_label": {
-   "count": 27,
+   "count": 31,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
@@ -6097,7 +6161,7 @@
    ]
   },
   "capstone.evaluation.scoring:Cause.named_by": {
-   "count": 56,
+   "count": 60,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
@@ -6116,7 +6180,7 @@
    ]
   },
   "capstone.evaluation.scoring:judge_causes": {
-   "count": 71,
+   "count": 75,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
@@ -6135,7 +6199,7 @@
    ]
   },
   "capstone.evaluation.scoring:Score.fully_right": {
-   "count": 28,
+   "count": 32,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_evaluation.py::test_both_causes_named_and_fixed_is_fully_right",
@@ -6157,7 +6221,7 @@
    ]
   },
   "capstone.evaluation.scoring:Score.model_unavailable": {
-   "count": 53,
+   "count": 58,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
@@ -6176,7 +6240,7 @@
    ]
   },
   "capstone.evaluation.scoring:Score.miss_kind": {
-   "count": 41,
+   "count": 45,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_evaluation.py::test_a_right_unjudged_or_unanswered_run_has_no_miss_kind"
@@ -6197,7 +6261,7 @@
    ]
   },
   "capstone.evaluation.scoring:Score.unnecessary_actions": {
-   "count": 49,
+   "count": 54,
    "status": "VERIFIED",
    "direct": [],
    "indirect": [
@@ -6235,7 +6299,7 @@
    ]
   },
   "capstone.evaluation.scoring:_named": {
-   "count": 71,
+   "count": 75,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_evaluation.py::test_both_causes_named_and_fixed_is_fully_right",
@@ -6258,10 +6322,11 @@
    ]
   },
   "capstone.evaluation.scoring:judge": {
-   "count": 71,
+   "count": 75,
    "status": "VERIFIED",
    "direct": [
-    "tests/test_evaluation_tools.py::test_master_run_packets_keep_the_truth_out_of_the_judge_view"
+    "tests/test_evaluation_tools.py::test_master_run_packets_keep_the_truth_out_of_the_judge_view",
+    "tests/test_full_evaluation.py::test_per_item_findings_join_truth_judge_and_blinded_reference"
    ],
    "indirect": [
     "tests/test_baseline.py::test_known_cases_score_as_pinned_and_repeat_exactly",
@@ -6279,7 +6344,7 @@
    ]
   },
   "capstone.evaluation.scoring:_closest": {
-   "count": 64,
+   "count": 68,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
@@ -6320,7 +6385,7 @@
    ]
   },
   "capstone.evaluation.scoring:summarize": {
-   "count": 34,
+   "count": 35,
    "status": "PARTIALLY VERIFIED",
    "direct": [],
    "indirect": [
@@ -6377,7 +6442,7 @@
    ]
   },
   "capstone.evaluation.scoring:format_summary": {
-   "count": 32,
+   "count": 33,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
@@ -6396,10 +6461,11 @@
    ]
   },
   "capstone.experiment:known_cases": {
-   "count": 9,
+   "count": 10,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_experiment.py::test_hazards_are_off_unless_asked_for",
+    "tests/test_experiment.py::test_run_command_audits_by_default_and_allows_explicit_opt_out",
     "tests/test_experiment.py::test_the_command_passes_the_manual_on",
     "tests/test_experiment.py::test_the_manual_is_on_by_default_by_meaning",
     "tests/test_experiment.py::test_the_run_command_watches_by_default_and_quiet_turns_it_off"
@@ -6432,7 +6498,7 @@
    "indirect": []
   },
   "capstone.experiment:grid": {
-   "count": 5,
+   "count": 6,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_experiment.py::test_model_failures_survive_the_cli_file_and_report",
@@ -6441,7 +6507,9 @@
     "tests/test_experiment.py::test_the_command_runs_the_held_out_set",
     "tests/test_experiment.py::test_the_held_out_set_is_every_fault_on_ten_fixed_seeds"
    ],
-   "indirect": []
+   "indirect": [
+    "tests/test_coverage_eval_cli_edges.py::test_experiment_cli_prevents_audit_records_collision"
+   ]
   },
   "capstone.experiment:summarize_calls": {
    "count": 20,
@@ -6715,7 +6783,7 @@
    ]
   },
   "capstone.experiment:read_records": {
-   "count": 21,
+   "count": 26,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_experiment.py::test_model_failures_survive_the_cli_file_and_report",
@@ -6731,13 +6799,13 @@
     "tests/test_evaluation_tools.py::test_audited_import_rejects_missing_duplicate_and_orphan_traces",
     "tests/test_evaluation_tools.py::test_both_archives_import_57_episodes_with_five_real_traces",
     "tests/test_evaluation_tools.py::test_master_run_packets_keep_the_truth_out_of_the_judge_view",
-    "tests/test_evaluation_tools.py::test_the_archive_imports_52_distinct_episodes",
-    "tests/test_full_evaluation.py::test_a_dry_run_reports_whether_snap_could_be_sent",
-    "tests/test_full_evaluation.py::test_a_dry_run_writes_the_ledger_and_report"
+    "tests/test_evaluation_tools.py::test_new_cohort_preflight_requires_matching_audit_evidence",
+    "tests/test_evaluation_tools.py::test_preflight_refuses_corrupt_order_and_missing_provenance",
+    "tests/test_evaluation_tools.py::test_preflight_validates_recheck_and_verification_evidence"
    ]
   },
   "capstone.experiment:labelled": {
-   "count": 31,
+   "count": 32,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_experiment.py::test_a_report_of_one_kind_only_is_not_split",
@@ -6750,8 +6818,8 @@
     "tests/test_experiment.py::test_old_results_cannot_supply_missing_failure_details",
     "tests/test_experiment.py::test_recovered_service_failures_keep_the_answering_fallback",
     "tests/test_experiment.py::test_report_applies_labels",
-    "tests/test_experiment.py::test_the_command_line_runs_labels_and_reports",
-    "tests/test_experiment.py::test_the_command_passes_the_manual_on"
+    "tests/test_experiment.py::test_run_command_audits_by_default_and_allows_explicit_opt_out",
+    "tests/test_experiment.py::test_the_command_line_runs_labels_and_reports"
    ],
    "indirect": [
     "tests/test_memory_comparison.py::test_a_failed_semantic_search_is_reported_failed_not_answered_by_keyword",
@@ -6764,7 +6832,7 @@
    ]
   },
   "capstone.experiment:format_model_calls": {
-   "count": 27,
+   "count": 28,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_experiment.py::test_a_report_of_one_kind_only_is_not_split",
@@ -6777,8 +6845,8 @@
     "tests/test_experiment.py::test_old_results_cannot_supply_missing_failure_details",
     "tests/test_experiment.py::test_recovered_service_failures_keep_the_answering_fallback",
     "tests/test_experiment.py::test_report_applies_labels",
-    "tests/test_experiment.py::test_the_command_line_runs_labels_and_reports",
-    "tests/test_experiment.py::test_the_command_passes_the_manual_on"
+    "tests/test_experiment.py::test_run_command_audits_by_default_and_allows_explicit_opt_out",
+    "tests/test_experiment.py::test_the_command_line_runs_labels_and_reports"
    ],
    "indirect": [
     "tests/test_triage.py::test_an_experiment_records_and_reports_the_triage"
@@ -6795,7 +6863,7 @@
    ]
   },
   "capstone.experiment:format_triage": {
-   "count": 26,
+   "count": 27,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_experiment.py::test_a_report_of_one_kind_only_is_not_split",
@@ -6808,8 +6876,8 @@
     "tests/test_experiment.py::test_old_results_cannot_supply_missing_failure_details",
     "tests/test_experiment.py::test_recovered_service_failures_keep_the_answering_fallback",
     "tests/test_experiment.py::test_report_applies_labels",
-    "tests/test_experiment.py::test_the_command_line_runs_labels_and_reports",
-    "tests/test_experiment.py::test_the_command_passes_the_manual_on"
+    "tests/test_experiment.py::test_run_command_audits_by_default_and_allows_explicit_opt_out",
+    "tests/test_experiment.py::test_the_command_line_runs_labels_and_reports"
    ],
    "indirect": [
     "tests/test_triage.py::test_an_experiment_records_and_reports_the_triage",
@@ -6817,7 +6885,7 @@
    ]
   },
   "capstone.experiment:format_batches": {
-   "count": 26,
+   "count": 27,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_experiment.py::test_a_report_of_one_kind_only_is_not_split",
@@ -6830,8 +6898,8 @@
     "tests/test_experiment.py::test_old_results_cannot_supply_missing_failure_details",
     "tests/test_experiment.py::test_recovered_service_failures_keep_the_answering_fallback",
     "tests/test_experiment.py::test_report_applies_labels",
-    "tests/test_experiment.py::test_the_command_line_runs_labels_and_reports",
-    "tests/test_experiment.py::test_the_command_passes_the_manual_on"
+    "tests/test_experiment.py::test_run_command_audits_by_default_and_allows_explicit_opt_out",
+    "tests/test_experiment.py::test_the_command_line_runs_labels_and_reports"
    ],
    "indirect": [
     "tests/test_decide_calls.py::test_the_report_line_sums_the_batches",
@@ -6847,7 +6915,7 @@
    "indirect": []
   },
   "capstone.experiment:format_memory": {
-   "count": 25,
+   "count": 26,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_experiment.py::test_a_report_of_one_kind_only_is_not_split",
@@ -6860,8 +6928,8 @@
     "tests/test_experiment.py::test_old_results_cannot_supply_missing_failure_details",
     "tests/test_experiment.py::test_recovered_service_failures_keep_the_answering_fallback",
     "tests/test_experiment.py::test_report_applies_labels",
-    "tests/test_experiment.py::test_the_command_line_runs_labels_and_reports",
-    "tests/test_experiment.py::test_the_command_passes_the_manual_on"
+    "tests/test_experiment.py::test_run_command_audits_by_default_and_allows_explicit_opt_out",
+    "tests/test_experiment.py::test_the_command_line_runs_labels_and_reports"
    ],
    "indirect": [
     "tests/test_triage.py::test_an_experiment_records_and_reports_the_triage"
@@ -6876,7 +6944,7 @@
    "indirect": []
   },
   "capstone.experiment:format_manual": {
-   "count": 25,
+   "count": 26,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_experiment.py::test_a_report_of_one_kind_only_is_not_split",
@@ -6889,8 +6957,8 @@
     "tests/test_experiment.py::test_old_results_cannot_supply_missing_failure_details",
     "tests/test_experiment.py::test_recovered_service_failures_keep_the_answering_fallback",
     "tests/test_experiment.py::test_report_applies_labels",
-    "tests/test_experiment.py::test_the_command_line_runs_labels_and_reports",
-    "tests/test_experiment.py::test_the_command_passes_the_manual_on"
+    "tests/test_experiment.py::test_run_command_audits_by_default_and_allows_explicit_opt_out",
+    "tests/test_experiment.py::test_the_command_line_runs_labels_and_reports"
    ],
    "indirect": [
     "tests/test_triage.py::test_an_experiment_records_and_reports_the_triage"
@@ -6968,7 +7036,7 @@
    ]
   },
   "capstone.experiment:report": {
-   "count": 25,
+   "count": 26,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_experiment.py::test_a_report_of_one_kind_only_is_not_split",
@@ -6981,15 +7049,15 @@
     "tests/test_experiment.py::test_old_results_cannot_supply_missing_failure_details",
     "tests/test_experiment.py::test_recovered_service_failures_keep_the_answering_fallback",
     "tests/test_experiment.py::test_report_applies_labels",
-    "tests/test_experiment.py::test_the_command_line_runs_labels_and_reports",
-    "tests/test_experiment.py::test_the_command_passes_the_manual_on"
+    "tests/test_experiment.py::test_run_command_audits_by_default_and_allows_explicit_opt_out",
+    "tests/test_experiment.py::test_the_command_line_runs_labels_and_reports"
    ],
    "indirect": [
     "tests/test_triage.py::test_an_experiment_records_and_reports_the_triage"
    ]
   },
   "capstone.experiment:report.<locals>.lines_for": {
-   "count": 25,
+   "count": 26,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_experiment.py::test_a_report_of_one_kind_only_is_not_split",
@@ -7002,8 +7070,8 @@
     "tests/test_experiment.py::test_old_results_cannot_supply_missing_failure_details",
     "tests/test_experiment.py::test_recovered_service_failures_keep_the_answering_fallback",
     "tests/test_experiment.py::test_report_applies_labels",
-    "tests/test_experiment.py::test_the_command_line_runs_labels_and_reports",
-    "tests/test_experiment.py::test_the_command_passes_the_manual_on"
+    "tests/test_experiment.py::test_run_command_audits_by_default_and_allows_explicit_opt_out",
+    "tests/test_experiment.py::test_the_command_line_runs_labels_and_reports"
    ],
    "indirect": [
     "tests/test_triage.py::test_an_experiment_records_and_reports_the_triage"
@@ -7020,7 +7088,7 @@
    "indirect": []
   },
   "capstone.experiment:seeds_from": {
-   "count": 4,
+   "count": 5,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_experiment.py::test_model_failures_survive_the_cli_file_and_report",
@@ -7028,7 +7096,9 @@
     "tests/test_experiment.py::test_the_command_line_runs_labels_and_reports",
     "tests/test_experiment.py::test_the_command_runs_the_challenge_on_the_given_seeds"
    ],
-   "indirect": []
+   "indirect": [
+    "tests/test_coverage_eval_cli_edges.py::test_experiment_cli_prevents_audit_records_collision"
+   ]
   },
   "capstone.experiment:model_policy_factory": {
    "count": 6,
@@ -7069,11 +7139,60 @@
    ]
   },
   "capstone.experiment:add_manual_options": {
+   "count": 20,
+   "status": "PARTIALLY VERIFIED",
+   "direct": [
+    "tests/test_experiment.py::test_hazards_are_off_unless_asked_for",
+    "tests/test_experiment.py::test_model_failures_survive_the_cli_file_and_report",
+    "tests/test_experiment.py::test_run_command_audits_by_default_and_allows_explicit_opt_out",
+    "tests/test_experiment.py::test_the_command_line_runs_labels_and_reports",
+    "tests/test_experiment.py::test_the_command_passes_the_manual_on",
+    "tests/test_experiment.py::test_the_command_runs_the_challenge_on_the_given_seeds",
+    "tests/test_experiment.py::test_the_command_runs_the_held_out_set",
+    "tests/test_experiment.py::test_the_manual_is_on_by_default_by_meaning",
+    "tests/test_experiment.py::test_the_run_command_watches_by_default_and_quiet_turns_it_off"
+   ],
+   "indirect": [
+    "tests/test_coverage_eval_cli_edges.py::test_evals_cli_raises_when_resumed_raw_file_is_absent",
+    "tests/test_coverage_eval_cli_edges.py::test_evals_cli_refuses_a_corrupt_resumed_prefix",
+    "tests/test_coverage_eval_cli_edges.py::test_evals_cli_refuses_incompatible_modes_before_loading_config",
+    "tests/test_coverage_eval_cli_edges.py::test_evals_cli_refuses_to_clobber_an_existing_raw_run",
+    "tests/test_coverage_eval_cli_edges.py::test_evals_cli_rescores_saved_records_and_writes_diff_without_model",
+    "tests/test_coverage_eval_cli_edges.py::test_evals_cli_saved_records_must_match_config_in_order",
+    "tests/test_coverage_eval_cli_edges.py::test_evals_cli_saves_fresh_rows_and_uses_live_watch_hook",
+    "tests/test_coverage_eval_cli_edges.py::test_experiment_cli_does_not_hide_provider_failures_and_interrupts",
+    "tests/test_coverage_eval_cli_edges.py::test_experiment_cli_label_skips_missing_conclusions_and_existing_answers",
+    "tests/test_coverage_eval_cli_edges.py::test_experiment_cli_prevents_audit_records_collision",
+    "tests/test_evals.py::test_rescoring_saved_records_never_opens_the_manual"
+   ]
+  },
+  "capstone.experiment:open_manual": {
+   "count": 4,
+   "status": "INSUFFICIENT EVIDENCE",
+   "direct": [],
+   "indirect": [
+    "tests/test_coverage_eval_cli_edges.py::test_evals_cli_saves_fresh_rows_and_uses_live_watch_hook",
+    "tests/test_coverage_eval_cli_edges.py::test_experiment_cli_does_not_hide_provider_failures_and_interrupts",
+    "tests/test_coverage_eval_cli_edges.py::test_experiment_cli_prevents_audit_records_collision",
+    "tests/test_manual.py::test_a_semantic_run_says_when_it_rebuilt_the_index"
+   ]
+  },
+  "capstone.experiment:open_memory": {
+   "count": 2,
+   "status": "PARTIALLY VERIFIED",
+   "direct": [
+    "tests/test_coverage_eval_cli_edges.py::test_experiment_open_memory_converts_postgres_driver_without_connecting",
+    "tests/test_coverage_eval_cli_edges.py::test_experiment_open_memory_refuses_missing_database"
+   ],
+   "indirect": []
+  },
+  "capstone.experiment:default_audit_path": {
    "count": 9,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_experiment.py::test_hazards_are_off_unless_asked_for",
     "tests/test_experiment.py::test_model_failures_survive_the_cli_file_and_report",
+    "tests/test_experiment.py::test_run_command_audits_by_default_and_allows_explicit_opt_out",
     "tests/test_experiment.py::test_the_command_line_runs_labels_and_reports",
     "tests/test_experiment.py::test_the_command_passes_the_manual_on",
     "tests/test_experiment.py::test_the_command_runs_the_challenge_on_the_given_seeds",
@@ -7081,30 +7200,15 @@
     "tests/test_experiment.py::test_the_manual_is_on_by_default_by_meaning",
     "tests/test_experiment.py::test_the_run_command_watches_by_default_and_quiet_turns_it_off"
    ],
-   "indirect": [
-    "tests/test_evals.py::test_rescoring_saved_records_never_opens_the_manual"
-   ]
-  },
-  "capstone.experiment:open_manual": {
-   "count": 1,
-   "status": "INSUFFICIENT EVIDENCE",
-   "direct": [],
-   "indirect": [
-    "tests/test_manual.py::test_a_semantic_run_says_when_it_rebuilt_the_index"
-   ]
-  },
-  "capstone.experiment:open_memory": {
-   "count": 0,
-   "status": "NOT TESTED",
-   "direct": [],
    "indirect": []
   },
   "capstone.experiment:main": {
-   "count": 8,
+   "count": 12,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_experiment.py::test_hazards_are_off_unless_asked_for",
     "tests/test_experiment.py::test_model_failures_survive_the_cli_file_and_report",
+    "tests/test_experiment.py::test_run_command_audits_by_default_and_allows_explicit_opt_out",
     "tests/test_experiment.py::test_the_command_line_runs_labels_and_reports",
     "tests/test_experiment.py::test_the_command_passes_the_manual_on",
     "tests/test_experiment.py::test_the_command_runs_the_challenge_on_the_given_seeds",
@@ -7112,7 +7216,11 @@
     "tests/test_experiment.py::test_the_manual_is_on_by_default_by_meaning",
     "tests/test_experiment.py::test_the_run_command_watches_by_default_and_quiet_turns_it_off"
    ],
-   "indirect": []
+   "indirect": [
+    "tests/test_coverage_eval_cli_edges.py::test_experiment_cli_does_not_hide_provider_failures_and_interrupts",
+    "tests/test_coverage_eval_cli_edges.py::test_experiment_cli_label_skips_missing_conclusions_and_existing_answers",
+    "tests/test_coverage_eval_cli_edges.py::test_experiment_cli_prevents_audit_records_collision"
+   ]
   },
   "capstone.experiment:main.<locals>.live_line": {
    "count": 8,
@@ -7327,10 +7435,14 @@
    "indirect": []
   },
   "capstone.ingestion.__main__:main": {
-   "count": 1,
+   "count": 5,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
+    "tests/test_coverage_telemetry_edges.py::test_collector_cli_checks_paths_before_opening_network",
+    "tests/test_coverage_telemetry_edges.py::test_collector_cli_reports_success_or_graceful_interrupt",
+    "tests/test_coverage_telemetry_edges.py::test_collector_cli_requires_output_in_normal_mode",
+    "tests/test_coverage_telemetry_edges.py::test_collector_cli_saves_probe_without_polling",
     "tests/test_mtconnect_ingestion.py::test_the_collector_refuses_to_write_inside_the_repository"
    ]
   },
@@ -7884,10 +7996,11 @@
    ]
   },
   "capstone.manual.index:section_digest": {
-   "count": 8,
+   "count": 9,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
+    "tests/test_coverage_index_edges.py::test_manual_semantic_index_builds_revision_fingerprints",
     "tests/test_manual.py::test_a_removed_or_added_section_is_not_current",
     "tests/test_manual.py::test_an_edited_section_rebuilds_the_index_first",
     "tests/test_manual.py::test_an_empty_index_is_built_before_the_run",
@@ -7920,10 +8033,11 @@
    ]
   },
   "capstone.manual.index:section_document": {
-   "count": 8,
+   "count": 9,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
+    "tests/test_coverage_index_edges.py::test_manual_semantic_index_builds_revision_fingerprints",
     "tests/test_manual.py::test_a_removed_or_added_section_is_not_current",
     "tests/test_manual.py::test_an_edited_section_rebuilds_the_index_first",
     "tests/test_manual.py::test_an_empty_index_is_built_before_the_run",
@@ -7935,7 +8049,7 @@
    ]
   },
   "capstone.manual.index:KeywordManualSearch.__init__": {
-   "count": 27,
+   "count": 28,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
@@ -7945,12 +8059,12 @@
     "tests/test_experiment.py::test_a_run_with_the_manual_records_what_it_looked_up",
     "tests/test_experiment.py::test_hazards_are_off_unless_asked_for",
     "tests/test_experiment.py::test_model_failures_survive_the_cli_file_and_report",
+    "tests/test_experiment.py::test_run_command_audits_by_default_and_allows_explicit_opt_out",
     "tests/test_experiment.py::test_the_command_line_runs_labels_and_reports",
     "tests/test_experiment.py::test_the_command_passes_the_manual_on",
     "tests/test_experiment.py::test_the_command_runs_the_challenge_on_the_given_seeds",
     "tests/test_experiment.py::test_the_command_runs_the_held_out_set",
-    "tests/test_experiment.py::test_the_manual_is_on_by_default_by_meaning",
-    "tests/test_experiment.py::test_the_run_command_watches_by_default_and_quiet_turns_it_off"
+    "tests/test_experiment.py::test_the_manual_is_on_by_default_by_meaning"
    ]
   },
   "capstone.manual.index:KeywordManualSearch.search": {
@@ -7975,10 +8089,13 @@
    ]
   },
   "capstone.manual.index:ChromaManualIndex.__init__": {
-   "count": 8,
+   "count": 11,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
+    "tests/test_coverage_index_edges.py::test_manual_open_index_supports_local_and_separate_query_embeddings",
+    "tests/test_coverage_index_edges.py::test_manual_semantic_index_builds_revision_fingerprints",
+    "tests/test_coverage_index_edges.py::test_manual_semantic_index_filters_removed_sections_and_empty_collections",
     "tests/test_manual.py::test_a_removed_or_added_section_is_not_current",
     "tests/test_manual.py::test_an_edited_section_rebuilds_the_index_first",
     "tests/test_manual.py::test_an_empty_index_is_built_before_the_run",
@@ -7990,10 +8107,11 @@
    ]
   },
   "capstone.manual.index:ChromaManualIndex.build": {
-   "count": 8,
+   "count": 9,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
+    "tests/test_coverage_index_edges.py::test_manual_semantic_index_builds_revision_fingerprints",
     "tests/test_manual.py::test_a_removed_or_added_section_is_not_current",
     "tests/test_manual.py::test_an_edited_section_rebuilds_the_index_first",
     "tests/test_manual.py::test_an_empty_index_is_built_before_the_run",
@@ -8005,10 +8123,11 @@
    ]
   },
   "capstone.manual.index:ChromaManualIndex.is_current": {
-   "count": 7,
+   "count": 8,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
+    "tests/test_coverage_index_edges.py::test_manual_semantic_index_builds_revision_fingerprints",
     "tests/test_manual.py::test_a_removed_or_added_section_is_not_current",
     "tests/test_manual.py::test_an_edited_section_rebuilds_the_index_first",
     "tests/test_manual.py::test_an_empty_index_is_built_before_the_run",
@@ -8019,18 +8138,22 @@
    ]
   },
   "capstone.manual.index:ChromaManualIndex.search": {
-   "count": 1,
+   "count": 2,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
+    "tests/test_coverage_index_edges.py::test_manual_semantic_index_filters_removed_sections_and_empty_collections",
     "tests/test_manual.py::test_the_chroma_index_returns_only_sections_the_manual_has"
    ]
   },
   "capstone.manual.index:ready_index": {
-   "count": 7,
+   "count": 10,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
+    "tests/test_coverage_eval_cli_edges.py::test_evals_cli_saves_fresh_rows_and_uses_live_watch_hook",
+    "tests/test_coverage_eval_cli_edges.py::test_experiment_cli_does_not_hide_provider_failures_and_interrupts",
+    "tests/test_coverage_eval_cli_edges.py::test_experiment_cli_prevents_audit_records_collision",
     "tests/test_manual.py::test_a_removed_or_added_section_is_not_current",
     "tests/test_manual.py::test_an_edited_section_rebuilds_the_index_first",
     "tests/test_manual.py::test_an_empty_index_is_built_before_the_run",
@@ -8041,22 +8164,33 @@
    ]
   },
   "capstone.manual.index:ready_manual_index": {
-   "count": 0,
-   "status": "NOT TESTED",
+   "count": 3,
+   "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
-   "indirect": []
+   "indirect": [
+    "tests/test_coverage_eval_cli_edges.py::test_evals_cli_saves_fresh_rows_and_uses_live_watch_hook",
+    "tests/test_coverage_eval_cli_edges.py::test_experiment_cli_does_not_hide_provider_failures_and_interrupts",
+    "tests/test_coverage_eval_cli_edges.py::test_experiment_cli_prevents_audit_records_collision"
+   ]
   },
   "capstone.manual.index:open_manual_index": {
-   "count": 0,
-   "status": "NOT TESTED",
+   "count": 4,
+   "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
-   "indirect": []
+   "indirect": [
+    "tests/test_coverage_eval_cli_edges.py::test_evals_cli_saves_fresh_rows_and_uses_live_watch_hook",
+    "tests/test_coverage_eval_cli_edges.py::test_experiment_cli_does_not_hide_provider_failures_and_interrupts",
+    "tests/test_coverage_eval_cli_edges.py::test_experiment_cli_prevents_audit_records_collision",
+    "tests/test_coverage_index_edges.py::test_manual_open_index_supports_local_and_separate_query_embeddings"
+   ]
   },
   "capstone.manual.index:main": {
-   "count": 0,
-   "status": "NOT TESTED",
+   "count": 1,
+   "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
-   "indirect": []
+   "indirect": [
+    "tests/test_coverage_index_edges.py::test_manual_cli_passes_rebuild_and_prints_indexed_count"
+   ]
   },
   "capstone.manual.sections:ManualSection.citation": {
    "count": 1,
@@ -8067,66 +8201,68 @@
    ]
   },
   "capstone.manual.sections:parse_manual": {
-   "count": 14,
+   "count": 18,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
+    "tests/test_coverage_eval_cli_edges.py::test_evals_cli_saves_fresh_rows_and_uses_live_watch_hook",
+    "tests/test_coverage_eval_cli_edges.py::test_experiment_cli_does_not_hide_provider_failures_and_interrupts",
+    "tests/test_coverage_eval_cli_edges.py::test_experiment_cli_prevents_audit_records_collision",
     "tests/test_critic.py::test_the_real_manual_shown_to_the_critic_names_no_hidden_truth",
     "tests/test_episode.py::test_a_run_with_the_manual_gives_the_settings_critic_the_manual",
     "tests/test_evals.py::test_run_cases_offers_the_manual_when_given",
     "tests/test_experiment.py::test_a_run_with_the_manual_records_what_it_looked_up",
     "tests/test_experiment.py::test_hazards_are_off_unless_asked_for",
     "tests/test_experiment.py::test_model_failures_survive_the_cli_file_and_report",
+    "tests/test_experiment.py::test_run_command_audits_by_default_and_allows_explicit_opt_out",
     "tests/test_experiment.py::test_the_command_line_runs_labels_and_reports",
-    "tests/test_experiment.py::test_the_command_passes_the_manual_on",
-    "tests/test_experiment.py::test_the_command_runs_the_challenge_on_the_given_seeds",
-    "tests/test_experiment.py::test_the_command_runs_the_held_out_set",
-    "tests/test_experiment.py::test_the_manual_is_on_by_default_by_meaning",
-    "tests/test_experiment.py::test_the_run_command_watches_by_default_and_quiet_turns_it_off"
+    "tests/test_experiment.py::test_the_command_passes_the_manual_on"
    ]
   },
   "capstone.manual.sections:check_no_leaks": {
-   "count": 14,
+   "count": 18,
    "status": "VERIFIED",
    "direct": [],
    "indirect": [
+    "tests/test_coverage_eval_cli_edges.py::test_evals_cli_saves_fresh_rows_and_uses_live_watch_hook",
+    "tests/test_coverage_eval_cli_edges.py::test_experiment_cli_does_not_hide_provider_failures_and_interrupts",
+    "tests/test_coverage_eval_cli_edges.py::test_experiment_cli_prevents_audit_records_collision",
     "tests/test_critic.py::test_the_real_manual_shown_to_the_critic_names_no_hidden_truth",
     "tests/test_episode.py::test_a_run_with_the_manual_gives_the_settings_critic_the_manual",
     "tests/test_evals.py::test_run_cases_offers_the_manual_when_given",
     "tests/test_experiment.py::test_a_run_with_the_manual_records_what_it_looked_up",
     "tests/test_experiment.py::test_hazards_are_off_unless_asked_for",
     "tests/test_experiment.py::test_model_failures_survive_the_cli_file_and_report",
+    "tests/test_experiment.py::test_run_command_audits_by_default_and_allows_explicit_opt_out",
     "tests/test_experiment.py::test_the_command_line_runs_labels_and_reports",
-    "tests/test_experiment.py::test_the_command_passes_the_manual_on",
-    "tests/test_experiment.py::test_the_command_runs_the_challenge_on_the_given_seeds",
-    "tests/test_experiment.py::test_the_command_runs_the_held_out_set",
-    "tests/test_experiment.py::test_the_manual_is_on_by_default_by_meaning",
-    "tests/test_experiment.py::test_the_run_command_watches_by_default_and_quiet_turns_it_off"
+    "tests/test_experiment.py::test_the_command_passes_the_manual_on"
    ]
   },
   "capstone.manual.sections:load_manual": {
-   "count": 13,
+   "count": 17,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
+    "tests/test_coverage_eval_cli_edges.py::test_evals_cli_saves_fresh_rows_and_uses_live_watch_hook",
+    "tests/test_coverage_eval_cli_edges.py::test_experiment_cli_does_not_hide_provider_failures_and_interrupts",
+    "tests/test_coverage_eval_cli_edges.py::test_experiment_cli_prevents_audit_records_collision",
     "tests/test_critic.py::test_the_real_manual_shown_to_the_critic_names_no_hidden_truth",
     "tests/test_episode.py::test_a_run_with_the_manual_gives_the_settings_critic_the_manual",
     "tests/test_evals.py::test_run_cases_offers_the_manual_when_given",
     "tests/test_experiment.py::test_a_run_with_the_manual_records_what_it_looked_up",
     "tests/test_experiment.py::test_hazards_are_off_unless_asked_for",
     "tests/test_experiment.py::test_model_failures_survive_the_cli_file_and_report",
+    "tests/test_experiment.py::test_run_command_audits_by_default_and_allows_explicit_opt_out",
     "tests/test_experiment.py::test_the_command_line_runs_labels_and_reports",
-    "tests/test_experiment.py::test_the_command_passes_the_manual_on",
-    "tests/test_experiment.py::test_the_command_runs_the_challenge_on_the_given_seeds",
-    "tests/test_experiment.py::test_the_command_runs_the_held_out_set",
-    "tests/test_experiment.py::test_the_manual_is_on_by_default_by_meaning",
-    "tests/test_experiment.py::test_the_run_command_watches_by_default_and_quiet_turns_it_off"
+    "tests/test_experiment.py::test_the_command_passes_the_manual_on"
    ]
   },
   "capstone.memory.backfill:backfill": {
-   "count": 2,
+   "count": 4,
    "status": "PARTIALLY VERIFIED",
    "direct": [
+    "tests/test_coverage_index_edges.py::test_backfill_batches_are_bounded_and_preserve_every_record",
+    "tests/test_coverage_index_edges.py::test_memory_backfill_cli_reads_only_disposes_and_rebuilds",
     "tests/test_memory_semantic.py::test_backfill_indexes_existing_memories_idempotently"
    ],
    "indirect": [
@@ -8134,10 +8270,14 @@
    ]
   },
   "capstone.memory.backfill:main": {
-   "count": 0,
-   "status": "NOT TESTED",
+   "count": 3,
+   "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
-   "indirect": []
+   "indirect": [
+    "tests/test_coverage_index_edges.py::test_memory_backfill_cli_reads_only_disposes_and_rebuilds",
+    "tests/test_coverage_index_edges.py::test_memory_backfill_cli_requires_a_database_url",
+    "tests/test_coverage_index_edges.py::test_memory_backfill_disposes_engine_after_read_failure"
+   ]
   },
   "capstone.memory.contracts:PromotionDecision.consistent_decision": {
    "count": 93,
@@ -8159,64 +8299,84 @@
    ]
   },
   "capstone.memory.duplicate_threshold:pair_text": {
-   "count": 2,
+   "count": 4,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_duplicate_threshold.py::test_measure_chooses_on_training_pairs_and_checks_held_out",
     "tests/test_duplicate_threshold.py::test_pair_text_is_the_text_a_stored_memory_is_embedded_as"
    ],
-   "indirect": []
+   "indirect": [
+    "tests/test_coverage_index_edges.py::test_duplicate_measure_cli_chooses_offline_or_provider_embedder",
+    "tests/test_coverage_index_edges.py::test_duplicate_measure_refuses_to_invent_a_threshold_without_different_pairs"
+   ]
   },
   "capstone.memory.duplicate_threshold:cosine": {
-   "count": 2,
+   "count": 5,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_duplicate_threshold.py::test_cosine",
     "tests/test_duplicate_threshold.py::test_measure_chooses_on_training_pairs_and_checks_held_out"
    ],
-   "indirect": []
+   "indirect": [
+    "tests/test_coverage_index_edges.py::test_duplicate_measure_cli_chooses_offline_or_provider_embedder",
+    "tests/test_coverage_index_edges.py::test_duplicate_measure_refuses_to_invent_a_threshold_without_different_pairs",
+    "tests/test_coverage_index_edges.py::test_duplicate_similarity_rejects_mismatched_vectors_and_handles_no_negatives"
+   ]
   },
   "capstone.memory.duplicate_threshold:choose_threshold": {
-   "count": 3,
+   "count": 6,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_duplicate_threshold.py::test_measure_chooses_on_training_pairs_and_checks_held_out",
     "tests/test_duplicate_threshold.py::test_threshold_sits_just_above_every_different_pair",
     "tests/test_duplicate_threshold.py::test_unsure_and_same_pairs_never_set_the_threshold"
    ],
-   "indirect": []
+   "indirect": [
+    "tests/test_coverage_index_edges.py::test_duplicate_measure_cli_chooses_offline_or_provider_embedder",
+    "tests/test_coverage_index_edges.py::test_duplicate_measure_refuses_to_invent_a_threshold_without_different_pairs",
+    "tests/test_coverage_index_edges.py::test_duplicate_similarity_rejects_mismatched_vectors_and_handles_no_negatives"
+   ]
   },
   "capstone.memory.duplicate_threshold:evaluate": {
-   "count": 2,
+   "count": 4,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_duplicate_threshold.py::test_evaluate_counts_what_a_threshold_would_do",
     "tests/test_duplicate_threshold.py::test_measure_chooses_on_training_pairs_and_checks_held_out"
    ],
-   "indirect": []
+   "indirect": [
+    "tests/test_coverage_index_edges.py::test_duplicate_measure_cli_chooses_offline_or_provider_embedder",
+    "tests/test_coverage_index_edges.py::test_duplicate_similarity_rejects_mismatched_vectors_and_handles_no_negatives"
+   ]
   },
   "capstone.memory.duplicate_threshold:read_pairs": {
-   "count": 2,
+   "count": 3,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_duplicate_threshold.py::test_committed_pairs_are_labelled_and_could_pass_the_gate",
     "tests/test_duplicate_threshold.py::test_read_pairs_refuses_an_unlabelled_pair"
    ],
-   "indirect": []
+   "indirect": [
+    "tests/test_coverage_index_edges.py::test_duplicate_measure_cli_chooses_offline_or_provider_embedder"
+   ]
   },
   "capstone.memory.duplicate_threshold:measure": {
-   "count": 1,
+   "count": 3,
    "status": "PARTIALLY VERIFIED",
    "direct": [
+    "tests/test_coverage_index_edges.py::test_duplicate_measure_cli_chooses_offline_or_provider_embedder",
+    "tests/test_coverage_index_edges.py::test_duplicate_measure_refuses_to_invent_a_threshold_without_different_pairs",
     "tests/test_duplicate_threshold.py::test_measure_chooses_on_training_pairs_and_checks_held_out"
    ],
    "indirect": []
   },
   "capstone.memory.duplicate_threshold:main": {
-   "count": 0,
-   "status": "NOT TESTED",
+   "count": 1,
+   "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
-   "indirect": []
+   "indirect": [
+    "tests/test_coverage_index_edges.py::test_duplicate_measure_cli_chooses_offline_or_provider_embedder"
+   ]
   },
   "capstone.memory.policy:normalize": {
    "count": 127,
@@ -9167,32 +9327,47 @@
    "indirect": []
   },
   "capstone.memory_comparison:open_store_and_index": {
-   "count": 0,
-   "status": "NOT TESTED",
+   "count": 3,
+   "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
-   "indirect": []
+   "indirect": [
+    "tests/test_coverage_reporting_edges.py::test_memory_comparison_opens_sql_only_for_nonsemantic_modes",
+    "tests/test_coverage_reporting_edges.py::test_memory_comparison_semantic_errors_never_fall_back_to_keyword",
+    "tests/test_coverage_reporting_edges.py::test_memory_comparison_semantic_mode_preserves_index"
+   ]
   },
   "capstone.memory_comparison:main": {
-   "count": 3,
+   "count": 6,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_memory_comparison.py::test_a_mode_may_be_named_only_once",
     "tests/test_memory_comparison.py::test_the_command_refuses_an_unknown_mode",
     "tests/test_memory_comparison.py::test_the_command_reports_a_results_file"
    ],
-   "indirect": []
+   "indirect": [
+    "tests/test_coverage_reporting_edges.py::test_memory_comparison_cli_rejects_unrecognized_or_duplicate_modes",
+    "tests/test_coverage_reporting_edges.py::test_memory_comparison_report_cli_reads_saved_records",
+    "tests/test_coverage_reporting_edges.py::test_memory_comparison_run_cli_dispatches_without_models"
+   ]
   },
   "capstone.monitoring.__main__:parse_threshold": {
-   "count": 0,
-   "status": "NOT TESTED",
-   "direct": [],
-   "indirect": []
-  },
-  "capstone.monitoring.__main__:main": {
-   "count": 2,
+   "count": 3,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
+    "tests/test_coverage_telemetry_edges.py::test_monitor_cli_replay_is_read_only_and_passes_thresholds",
+    "tests/test_coverage_telemetry_edges.py::test_monitor_threshold_accepts_floating_point_bounds",
+    "tests/test_coverage_telemetry_edges.py::test_monitor_threshold_rejects_invalid_ranges"
+   ]
+  },
+  "capstone.monitoring.__main__:main": {
+   "count": 5,
+   "status": "INSUFFICIENT EVIDENCE",
+   "direct": [],
+   "indirect": [
+    "tests/test_coverage_telemetry_edges.py::test_monitor_cli_follow_loop_exits_cleanly_on_interrupt",
+    "tests/test_coverage_telemetry_edges.py::test_monitor_cli_rejects_unsafe_alerts_before_reading",
+    "tests/test_coverage_telemetry_edges.py::test_monitor_cli_replay_is_read_only_and_passes_thresholds",
     "tests/test_mtconnect_ingestion.py::test_monitor_and_watchdog_refuse_alerts_inside_the_repository",
     "tests/test_telemetry_monitor.py::test_command_line_replay_writes_alerts"
    ]
@@ -9887,7 +10062,7 @@
    ]
   },
   "capstone.providers.chat:ModelError.__init__": {
-   "count": 62,
+   "count": 65,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
@@ -10346,7 +10521,7 @@
    "indirect": []
   },
   "capstone.providers.embeddings:embedders_for": {
-   "count": 5,
+   "count": 8,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_embeddings.py::test_a_missing_key_or_another_provider_is_named",
@@ -10354,6 +10529,9 @@
     "tests/test_embeddings.py::test_the_setting_gives_a_passage_and_a_query_embedder_of_one_model"
    ],
    "indirect": [
+    "tests/test_coverage_eval_cli_edges.py::test_evals_cli_saves_fresh_rows_and_uses_live_watch_hook",
+    "tests/test_coverage_eval_cli_edges.py::test_experiment_cli_does_not_hide_provider_failures_and_interrupts",
+    "tests/test_coverage_eval_cli_edges.py::test_experiment_cli_prevents_audit_records_collision",
     "tests/test_memory_semantic.py::test_build_recall_falls_back_when_chroma_cannot_open",
     "tests/test_memory_semantic.py::test_recall_uses_keyword_search_when_the_index_has_another_model"
    ]
@@ -10922,7 +11100,7 @@
    "indirect": []
   },
   "capstone.settings:Settings.blank_is_missing": {
-   "count": 215,
+   "count": 218,
    "status": "VERIFIED",
    "direct": [
     "tests/test_settings.py::test_blank_critic_fallback_is_unset",
@@ -10990,7 +11168,7 @@
    ]
   },
   "capstone.settings:get_settings": {
-   "count": 146,
+   "count": 149,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_settings.py::test_get_settings_reads_current_environment_without_stale_cache"
@@ -11004,10 +11182,10 @@
     "tests/test_benchmark.py::test_episodes_are_run_and_recorded_for_each_fault_and_seed",
     "tests/test_benchmark.py::test_every_job_gets_the_one_model_with_nothing_behind_it",
     "tests/test_benchmark.py::test_the_command_writes_the_table_and_the_raw_calls",
-    "tests/test_database_connection.py::test_empty_url_fails_before_connecting",
-    "tests/test_database_connection.py::test_select_one_returns_true",
-    "tests/test_episode.py::test_a_bearing_fault_is_found_fixed_checked_and_scored_in_full",
-    "tests/test_episode.py::test_a_critic_does_not_change_the_episode"
+    "tests/test_coverage_eval_cli_edges.py::test_evals_cli_saves_fresh_rows_and_uses_live_watch_hook",
+    "tests/test_coverage_eval_cli_edges.py::test_experiment_cli_does_not_hide_provider_failures_and_interrupts",
+    "tests/test_coverage_eval_cli_edges.py::test_experiment_cli_prevents_audit_records_collision",
+    "tests/test_database_connection.py::test_empty_url_fails_before_connecting"
    ]
   },
   "capstone.simulator.challenge:build_challenge": {
@@ -14364,10 +14542,13 @@
    ]
   },
   "capstone.tree_reach:group_of": {
-   "count": 4,
+   "count": 7,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
+    "tests/test_coverage_reporting_edges.py::test_reach_counts_attempt_failures_and_only_pre_tree_research_calls",
+    "tests/test_coverage_reporting_edges.py::test_reach_groups_cover_generated_skipped_unanswered_and_early_termination",
+    "tests/test_coverage_reporting_edges.py::test_tree_report_cli_text_and_json_paths",
     "tests/test_tree_search.py::test_the_report_groups_a_run_that_ended_before_the_question_by_its_reason",
     "tests/test_tree_search.py::test_the_report_groups_a_skipped_tree_apart",
     "tests/test_tree_search.py::test_the_report_puts_a_tree_run_in_the_tree_group",
@@ -14375,44 +14556,54 @@
    ]
   },
   "capstone.tree_reach:reach_of": {
-   "count": 2,
+   "count": 4,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
+    "tests/test_coverage_reporting_edges.py::test_reach_counts_attempt_failures_and_only_pre_tree_research_calls",
+    "tests/test_coverage_reporting_edges.py::test_tree_report_cli_text_and_json_paths",
     "tests/test_tree_search.py::test_the_report_puts_a_tree_run_in_the_tree_group",
     "tests/test_tree_search.py::test_the_report_reads_the_archived_pairs_as_the_audit_counted_them"
    ]
   },
   "capstone.tree_reach:summarize": {
-   "count": 2,
+   "count": 4,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
+    "tests/test_coverage_reporting_edges.py::test_reach_summary_groups_time_failures_and_reserve_usage",
+    "tests/test_coverage_reporting_edges.py::test_tree_report_cli_text_and_json_paths",
     "tests/test_tree_search.py::test_the_report_puts_a_tree_run_in_the_tree_group",
     "tests/test_tree_search.py::test_the_report_reads_the_archived_pairs_as_the_audit_counted_them"
    ]
   },
   "capstone.tree_reach:position_effect": {
-   "count": 1,
+   "count": 4,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
+    "tests/test_coverage_reporting_edges.py::test_tree_position_report_ignores_runs_with_no_rating",
+    "tests/test_coverage_reporting_edges.py::test_tree_position_report_skips_unrated_candidates_and_counts_rotation",
+    "tests/test_coverage_reporting_edges.py::test_tree_report_cli_text_and_json_paths",
     "tests/test_tree_search.py::test_the_position_check_pairs_each_listing_place_with_its_rating"
    ]
   },
   "capstone.tree_reach:read_all": {
-   "count": 1,
+   "count": 2,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
+    "tests/test_coverage_reporting_edges.py::test_tree_report_cli_loads_all_files_in_order",
     "tests/test_tree_search.py::test_the_report_reads_the_archived_pairs_as_the_audit_counted_them"
    ]
   },
   "capstone.tree_reach:main": {
-   "count": 0,
-   "status": "NOT TESTED",
+   "count": 1,
+   "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
-   "indirect": []
+   "indirect": [
+    "tests/test_coverage_reporting_edges.py::test_tree_report_cli_text_and_json_paths"
+   ]
   },
   "capstone.watchdog.__main__:report": {
    "count": 1,
@@ -14491,6 +14682,24 @@
    "indirect": [
     "tests/test_collector_watchdog.py::test_command_line_reports_a_dead_collector",
     "tests/test_collector_watchdog.py::test_silence_without_a_clean_stop_alerts_once_then_recovers"
+   ]
+  },
+  "evaluation.evaltools.audit_preflight:trace_issues": {
+   "count": 3,
+   "status": "INSUFFICIENT EVIDENCE",
+   "direct": [],
+   "indirect": [
+    "tests/test_evaluation_tools.py::test_new_cohort_preflight_requires_matching_audit_evidence",
+    "tests/test_evaluation_tools.py::test_preflight_refuses_corrupt_order_and_missing_provenance",
+    "tests/test_evaluation_tools.py::test_preflight_validates_recheck_and_verification_evidence"
+   ]
+  },
+  "evaluation.evaltools.audit_preflight:require_full_traces": {
+   "count": 1,
+   "status": "INSUFFICIENT EVIDENCE",
+   "direct": [],
+   "indirect": [
+    "tests/test_evaluation_tools.py::test_new_cohort_preflight_requires_matching_audit_evidence"
    ]
   },
   "evaluation.evaltools.build_inventory:rel": {
@@ -14914,13 +15123,14 @@
    ]
   },
   "evaluation.evaltools.decision_models:reference_match": {
-   "count": 3,
+   "count": 4,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
     "tests/test_evaluation_tools.py::test_a_noul_reference_written_as_text_is_read_as_a_boolean",
     "tests/test_evaluation_tools.py::test_answers_normalize_to_one_schema_and_compare_by_the_stated_rules",
-    "tests/test_evaluation_tools.py::test_the_agreement_report_pairs_only_identical_states_and_flags_disagreements"
+    "tests/test_evaluation_tools.py::test_the_agreement_report_pairs_only_identical_states_and_flags_disagreements",
+    "tests/test_full_evaluation.py::test_per_item_findings_join_truth_judge_and_blinded_reference"
    ]
   },
   "evaluation.evaltools.decision_models:provider_table": {
@@ -15247,6 +15457,19 @@
    ],
    "indirect": []
   },
+  "evaluation.evaltools.full_evaluation:item_findings": {
+   "count": 6,
+   "status": "PARTIALLY VERIFIED",
+   "direct": [
+    "tests/test_full_evaluation.py::test_a_dry_run_reports_whether_snap_could_be_sent",
+    "tests/test_full_evaluation.py::test_a_dry_run_writes_the_ledger_and_report",
+    "tests/test_full_evaluation.py::test_a_plan_over_budget_is_refused_before_sending",
+    "tests/test_full_evaluation.py::test_full_command_uses_budgeted_sender",
+    "tests/test_full_evaluation.py::test_per_item_findings_join_truth_judge_and_blinded_reference",
+    "tests/test_full_evaluation.py::test_the_report_keeps_the_published_denominators"
+   ],
+   "indirect": []
+  },
   "evaluation.evaltools.full_evaluation:report": {
    "count": 5,
    "status": "PARTIALLY VERIFIED",
@@ -15313,8 +15536,45 @@
    ],
    "indirect": []
   },
+  "evaluation.evaltools.reference_review:review_id": {
+   "count": 4,
+   "status": "PARTIALLY VERIFIED",
+   "direct": [
+    "tests/test_reference_review.py::test_function_sample_prefers_items_with_all_judgments",
+    "tests/test_reference_review.py::test_review_packets_hide_run_identity_and_import_checked_answers",
+    "tests/test_reference_review.py::test_run_strata_fail_closed_when_balanced_review_is_impossible",
+    "tests/test_reference_review.py::test_run_strata_guarantees_blind_sound_and_misleading_cases"
+   ],
+   "indirect": []
+  },
+  "evaluation.evaltools.reference_review:export_requests": {
+   "count": 5,
+   "status": "PARTIALLY VERIFIED",
+   "direct": [
+    "tests/test_reference_review.py::test_function_sample_prefers_items_with_all_judgments",
+    "tests/test_reference_review.py::test_review_export_refuses_a_request_folder_with_model_answers",
+    "tests/test_reference_review.py::test_review_packets_hide_run_identity_and_import_checked_answers",
+    "tests/test_reference_review.py::test_run_strata_fail_closed_when_balanced_review_is_impossible",
+    "tests/test_reference_review.py::test_run_strata_guarantees_blind_sound_and_misleading_cases"
+   ],
+   "indirect": []
+  },
+  "evaluation.evaltools.reference_review:import_review": {
+   "count": 1,
+   "status": "PARTIALLY VERIFIED",
+   "direct": [
+    "tests/test_reference_review.py::test_review_packets_hide_run_identity_and_import_checked_answers"
+   ],
+   "indirect": []
+  },
+  "evaluation.evaltools.reference_review:main": {
+   "count": 0,
+   "status": "NOT TESTED",
+   "direct": [],
+   "indirect": []
+  },
   "evaluation.evaltools.run_packet:configuration_of": {
-   "count": 15,
+   "count": 20,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
@@ -15326,20 +15586,25 @@
     "tests/test_evaluation_tools.py::test_audited_import_rejects_missing_duplicate_and_orphan_traces",
     "tests/test_evaluation_tools.py::test_both_archives_import_57_episodes_with_five_real_traces",
     "tests/test_evaluation_tools.py::test_master_run_packets_keep_the_truth_out_of_the_judge_view",
-    "tests/test_evaluation_tools.py::test_the_archive_imports_52_distinct_episodes",
-    "tests/test_full_evaluation.py::test_a_dry_run_reports_whether_snap_could_be_sent",
-    "tests/test_full_evaluation.py::test_a_dry_run_writes_the_ledger_and_report",
-    "tests/test_full_evaluation.py::test_a_large_plan_finishes_through_small_resumed_slices"
+    "tests/test_evaluation_tools.py::test_new_cohort_preflight_requires_matching_audit_evidence",
+    "tests/test_evaluation_tools.py::test_preflight_refuses_corrupt_order_and_missing_provenance",
+    "tests/test_evaluation_tools.py::test_preflight_validates_recheck_and_verification_evidence",
+    "tests/test_evaluation_tools.py::test_the_archive_imports_52_distinct_episodes"
    ]
   },
   "evaluation.evaltools.run_packet:trace_from_audit": {
-   "count": 3,
+   "count": 8,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
     "tests/test_evaluation_tools.py::test_an_audit_log_gives_the_packet_a_full_trace",
     "tests/test_evaluation_tools.py::test_audited_import_rejects_missing_duplicate_and_orphan_traces",
-    "tests/test_evaluation_tools.py::test_both_archives_import_57_episodes_with_five_real_traces"
+    "tests/test_evaluation_tools.py::test_both_archives_import_57_episodes_with_five_real_traces",
+    "tests/test_evaluation_tools.py::test_new_cohort_preflight_requires_matching_audit_evidence",
+    "tests/test_evaluation_tools.py::test_preflight_refuses_corrupt_order_and_missing_provenance",
+    "tests/test_evaluation_tools.py::test_preflight_validates_recheck_and_verification_evidence",
+    "tests/test_evaluation_tools.py::test_the_traced_run_names_the_functions_each_case_executed",
+    "tests/test_full_evaluation.py::test_per_item_findings_join_truth_judge_and_blinded_reference"
    ]
   },
   "evaluation.evaltools.run_packet:trace_from_record": {
@@ -15362,7 +15627,7 @@
    ]
   },
   "evaluation.evaltools.run_packet:facts_of": {
-   "count": 15,
+   "count": 20,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
@@ -15374,14 +15639,14 @@
     "tests/test_evaluation_tools.py::test_audited_import_rejects_missing_duplicate_and_orphan_traces",
     "tests/test_evaluation_tools.py::test_both_archives_import_57_episodes_with_five_real_traces",
     "tests/test_evaluation_tools.py::test_master_run_packets_keep_the_truth_out_of_the_judge_view",
-    "tests/test_evaluation_tools.py::test_the_archive_imports_52_distinct_episodes",
-    "tests/test_full_evaluation.py::test_a_dry_run_reports_whether_snap_could_be_sent",
-    "tests/test_full_evaluation.py::test_a_dry_run_writes_the_ledger_and_report",
-    "tests/test_full_evaluation.py::test_a_large_plan_finishes_through_small_resumed_slices"
+    "tests/test_evaluation_tools.py::test_new_cohort_preflight_requires_matching_audit_evidence",
+    "tests/test_evaluation_tools.py::test_preflight_refuses_corrupt_order_and_missing_provenance",
+    "tests/test_evaluation_tools.py::test_preflight_validates_recheck_and_verification_evidence",
+    "tests/test_evaluation_tools.py::test_the_archive_imports_52_distinct_episodes"
    ]
   },
   "evaluation.evaltools.run_packet:calibration": {
-   "count": 15,
+   "count": 20,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
@@ -15393,14 +15658,14 @@
     "tests/test_evaluation_tools.py::test_audited_import_rejects_missing_duplicate_and_orphan_traces",
     "tests/test_evaluation_tools.py::test_both_archives_import_57_episodes_with_five_real_traces",
     "tests/test_evaluation_tools.py::test_master_run_packets_keep_the_truth_out_of_the_judge_view",
-    "tests/test_evaluation_tools.py::test_the_archive_imports_52_distinct_episodes",
-    "tests/test_full_evaluation.py::test_a_dry_run_reports_whether_snap_could_be_sent",
-    "tests/test_full_evaluation.py::test_a_dry_run_writes_the_ledger_and_report",
-    "tests/test_full_evaluation.py::test_a_large_plan_finishes_through_small_resumed_slices"
+    "tests/test_evaluation_tools.py::test_new_cohort_preflight_requires_matching_audit_evidence",
+    "tests/test_evaluation_tools.py::test_preflight_refuses_corrupt_order_and_missing_provenance",
+    "tests/test_evaluation_tools.py::test_preflight_validates_recheck_and_verification_evidence",
+    "tests/test_evaluation_tools.py::test_the_archive_imports_52_distinct_episodes"
    ]
   },
   "evaluation.evaltools.run_packet:evaluator_only_of": {
-   "count": 15,
+   "count": 20,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
@@ -15412,14 +15677,14 @@
     "tests/test_evaluation_tools.py::test_audited_import_rejects_missing_duplicate_and_orphan_traces",
     "tests/test_evaluation_tools.py::test_both_archives_import_57_episodes_with_five_real_traces",
     "tests/test_evaluation_tools.py::test_master_run_packets_keep_the_truth_out_of_the_judge_view",
-    "tests/test_evaluation_tools.py::test_the_archive_imports_52_distinct_episodes",
-    "tests/test_full_evaluation.py::test_a_dry_run_reports_whether_snap_could_be_sent",
-    "tests/test_full_evaluation.py::test_a_dry_run_writes_the_ledger_and_report",
-    "tests/test_full_evaluation.py::test_a_large_plan_finishes_through_small_resumed_slices"
+    "tests/test_evaluation_tools.py::test_new_cohort_preflight_requires_matching_audit_evidence",
+    "tests/test_evaluation_tools.py::test_preflight_refuses_corrupt_order_and_missing_provenance",
+    "tests/test_evaluation_tools.py::test_preflight_validates_recheck_and_verification_evidence",
+    "tests/test_evaluation_tools.py::test_the_archive_imports_52_distinct_episodes"
    ]
   },
   "evaluation.evaltools.run_packet:audit_by_run": {
-   "count": 14,
+   "count": 19,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
@@ -15430,15 +15695,15 @@
     "tests/test_evaluation_tools.py::test_audited_import_rejects_missing_duplicate_and_orphan_traces",
     "tests/test_evaluation_tools.py::test_both_archives_import_57_episodes_with_five_real_traces",
     "tests/test_evaluation_tools.py::test_master_run_packets_keep_the_truth_out_of_the_judge_view",
+    "tests/test_evaluation_tools.py::test_new_cohort_preflight_requires_matching_audit_evidence",
+    "tests/test_evaluation_tools.py::test_preflight_refuses_corrupt_order_and_missing_provenance",
+    "tests/test_evaluation_tools.py::test_preflight_validates_recheck_and_verification_evidence",
     "tests/test_evaluation_tools.py::test_the_archive_imports_52_distinct_episodes",
-    "tests/test_full_evaluation.py::test_a_dry_run_reports_whether_snap_could_be_sent",
-    "tests/test_full_evaluation.py::test_a_dry_run_writes_the_ledger_and_report",
-    "tests/test_full_evaluation.py::test_a_large_plan_finishes_through_small_resumed_slices",
-    "tests/test_full_evaluation.py::test_a_plan_over_budget_is_refused_before_sending"
+    "tests/test_evaluation_tools.py::test_the_traced_run_names_the_functions_each_case_executed"
    ]
   },
   "evaluation.evaltools.run_packet:build_packet": {
-   "count": 15,
+   "count": 20,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
@@ -15450,14 +15715,14 @@
     "tests/test_evaluation_tools.py::test_audited_import_rejects_missing_duplicate_and_orphan_traces",
     "tests/test_evaluation_tools.py::test_both_archives_import_57_episodes_with_five_real_traces",
     "tests/test_evaluation_tools.py::test_master_run_packets_keep_the_truth_out_of_the_judge_view",
-    "tests/test_evaluation_tools.py::test_the_archive_imports_52_distinct_episodes",
-    "tests/test_full_evaluation.py::test_a_dry_run_reports_whether_snap_could_be_sent",
-    "tests/test_full_evaluation.py::test_a_dry_run_writes_the_ledger_and_report",
-    "tests/test_full_evaluation.py::test_a_large_plan_finishes_through_small_resumed_slices"
+    "tests/test_evaluation_tools.py::test_new_cohort_preflight_requires_matching_audit_evidence",
+    "tests/test_evaluation_tools.py::test_preflight_refuses_corrupt_order_and_missing_provenance",
+    "tests/test_evaluation_tools.py::test_preflight_validates_recheck_and_verification_evidence",
+    "tests/test_evaluation_tools.py::test_the_archive_imports_52_distinct_episodes"
    ]
   },
   "evaluation.evaltools.run_packet:episode_key": {
-   "count": 15,
+   "count": 20,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
@@ -15469,14 +15734,14 @@
     "tests/test_evaluation_tools.py::test_audited_import_rejects_missing_duplicate_and_orphan_traces",
     "tests/test_evaluation_tools.py::test_both_archives_import_57_episodes_with_five_real_traces",
     "tests/test_evaluation_tools.py::test_master_run_packets_keep_the_truth_out_of_the_judge_view",
-    "tests/test_evaluation_tools.py::test_the_archive_imports_52_distinct_episodes",
-    "tests/test_full_evaluation.py::test_a_dry_run_reports_whether_snap_could_be_sent",
-    "tests/test_full_evaluation.py::test_a_dry_run_writes_the_ledger_and_report",
-    "tests/test_full_evaluation.py::test_a_large_plan_finishes_through_small_resumed_slices"
+    "tests/test_evaluation_tools.py::test_new_cohort_preflight_requires_matching_audit_evidence",
+    "tests/test_evaluation_tools.py::test_preflight_refuses_corrupt_order_and_missing_provenance",
+    "tests/test_evaluation_tools.py::test_preflight_validates_recheck_and_verification_evidence",
+    "tests/test_evaluation_tools.py::test_the_archive_imports_52_distinct_episodes"
    ]
   },
   "evaluation.evaltools.run_packet:run_ref": {
-   "count": 16,
+   "count": 21,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
@@ -15488,14 +15753,14 @@
     "tests/test_evaluation_tools.py::test_audited_import_rejects_missing_duplicate_and_orphan_traces",
     "tests/test_evaluation_tools.py::test_both_archives_import_57_episodes_with_five_real_traces",
     "tests/test_evaluation_tools.py::test_master_run_packets_keep_the_truth_out_of_the_judge_view",
-    "tests/test_evaluation_tools.py::test_the_archive_imports_52_distinct_episodes",
-    "tests/test_evaluation_tools.py::test_the_judge_view_never_names_the_scenario",
-    "tests/test_full_evaluation.py::test_a_dry_run_reports_whether_snap_could_be_sent",
-    "tests/test_full_evaluation.py::test_a_dry_run_writes_the_ledger_and_report"
+    "tests/test_evaluation_tools.py::test_new_cohort_preflight_requires_matching_audit_evidence",
+    "tests/test_evaluation_tools.py::test_preflight_refuses_corrupt_order_and_missing_provenance",
+    "tests/test_evaluation_tools.py::test_preflight_validates_recheck_and_verification_evidence",
+    "tests/test_evaluation_tools.py::test_the_archive_imports_52_distinct_episodes"
    ]
   },
   "evaluation.evaltools.run_packet:forbidden_in_view": {
-   "count": 15,
+   "count": 20,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
@@ -15506,15 +15771,15 @@
     "tests/test_evaluation_tools.py::test_audited_import_rejects_missing_duplicate_and_orphan_traces",
     "tests/test_evaluation_tools.py::test_both_archives_import_57_episodes_with_five_real_traces",
     "tests/test_evaluation_tools.py::test_master_run_packets_keep_the_truth_out_of_the_judge_view",
+    "tests/test_evaluation_tools.py::test_new_cohort_preflight_requires_matching_audit_evidence",
+    "tests/test_evaluation_tools.py::test_preflight_refuses_corrupt_order_and_missing_provenance",
+    "tests/test_evaluation_tools.py::test_preflight_validates_recheck_and_verification_evidence",
     "tests/test_evaluation_tools.py::test_the_archive_imports_52_distinct_episodes",
-    "tests/test_evaluation_tools.py::test_the_truth_guard_catches_a_hidden_field_in_any_letter_case",
-    "tests/test_full_evaluation.py::test_a_dry_run_reports_whether_snap_could_be_sent",
-    "tests/test_full_evaluation.py::test_a_dry_run_writes_the_ledger_and_report",
-    "tests/test_full_evaluation.py::test_a_large_plan_finishes_through_small_resumed_slices"
+    "tests/test_evaluation_tools.py::test_the_traced_run_names_the_functions_each_case_executed"
    ]
   },
   "evaluation.evaltools.run_packet:leak_in": {
-   "count": 18,
+   "count": 23,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
@@ -15528,12 +15793,12 @@
     "tests/test_evaluation_tools.py::test_both_archives_import_57_episodes_with_five_real_traces",
     "tests/test_evaluation_tools.py::test_every_master_request_is_free_of_the_runs_own_ids",
     "tests/test_evaluation_tools.py::test_master_run_packets_keep_the_truth_out_of_the_judge_view",
-    "tests/test_evaluation_tools.py::test_the_archive_imports_52_distinct_episodes",
-    "tests/test_evaluation_tools.py::test_the_truth_guard_catches_a_hidden_field_in_any_letter_case"
+    "tests/test_evaluation_tools.py::test_new_cohort_preflight_requires_matching_audit_evidence",
+    "tests/test_evaluation_tools.py::test_preflight_refuses_corrupt_order_and_missing_provenance"
    ]
   },
   "evaluation.evaltools.run_packet:check_no_truth_in_view": {
-   "count": 16,
+   "count": 21,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
@@ -15544,15 +15809,15 @@
     "tests/test_evaluation_tools.py::test_audited_import_rejects_missing_duplicate_and_orphan_traces",
     "tests/test_evaluation_tools.py::test_both_archives_import_57_episodes_with_five_real_traces",
     "tests/test_evaluation_tools.py::test_master_run_packets_keep_the_truth_out_of_the_judge_view",
+    "tests/test_evaluation_tools.py::test_new_cohort_preflight_requires_matching_audit_evidence",
+    "tests/test_evaluation_tools.py::test_preflight_refuses_corrupt_order_and_missing_provenance",
+    "tests/test_evaluation_tools.py::test_preflight_validates_recheck_and_verification_evidence",
     "tests/test_evaluation_tools.py::test_the_archive_imports_52_distinct_episodes",
-    "tests/test_evaluation_tools.py::test_the_judge_view_never_names_the_scenario",
-    "tests/test_evaluation_tools.py::test_the_truth_guard_catches_a_hidden_field_in_any_letter_case",
-    "tests/test_full_evaluation.py::test_a_dry_run_reports_whether_snap_could_be_sent",
-    "tests/test_full_evaluation.py::test_a_dry_run_writes_the_ledger_and_report"
+    "tests/test_evaluation_tools.py::test_the_judge_view_never_names_the_scenario"
    ]
   },
   "evaluation.evaltools.run_packet:read_labels": {
-   "count": 15,
+   "count": 20,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
@@ -15564,19 +15829,22 @@
     "tests/test_evaluation_tools.py::test_audited_import_rejects_missing_duplicate_and_orphan_traces",
     "tests/test_evaluation_tools.py::test_both_archives_import_57_episodes_with_five_real_traces",
     "tests/test_evaluation_tools.py::test_master_run_packets_keep_the_truth_out_of_the_judge_view",
-    "tests/test_evaluation_tools.py::test_the_archive_imports_52_distinct_episodes",
-    "tests/test_full_evaluation.py::test_a_dry_run_reports_whether_snap_could_be_sent",
-    "tests/test_full_evaluation.py::test_a_dry_run_writes_the_ledger_and_report",
-    "tests/test_full_evaluation.py::test_a_large_plan_finishes_through_small_resumed_slices"
+    "tests/test_evaluation_tools.py::test_new_cohort_preflight_requires_matching_audit_evidence",
+    "tests/test_evaluation_tools.py::test_preflight_refuses_corrupt_order_and_missing_provenance",
+    "tests/test_evaluation_tools.py::test_preflight_validates_recheck_and_verification_evidence",
+    "tests/test_evaluation_tools.py::test_the_archive_imports_52_distinct_episodes"
    ]
   },
   "evaluation.evaltools.run_packet:review_flags": {
-   "count": 9,
+   "count": 13,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
     "tests/test_evaluation_tools.py::test_a_review_report_that_disagrees_with_the_labels_is_refused",
     "tests/test_evaluation_tools.py::test_both_archives_import_57_episodes_with_five_real_traces",
+    "tests/test_evaluation_tools.py::test_new_cohort_preflight_requires_matching_audit_evidence",
+    "tests/test_evaluation_tools.py::test_preflight_refuses_corrupt_order_and_missing_provenance",
+    "tests/test_evaluation_tools.py::test_preflight_validates_recheck_and_verification_evidence",
     "tests/test_evaluation_tools.py::test_the_archive_imports_52_distinct_episodes",
     "tests/test_full_evaluation.py::test_a_dry_run_reports_whether_snap_could_be_sent",
     "tests/test_full_evaluation.py::test_a_dry_run_writes_the_ledger_and_report",
@@ -15587,7 +15855,7 @@
    ]
   },
   "evaluation.evaltools.run_packet:build_all": {
-   "count": 14,
+   "count": 19,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
@@ -15598,20 +15866,41 @@
     "tests/test_evaluation_tools.py::test_audited_import_rejects_missing_duplicate_and_orphan_traces",
     "tests/test_evaluation_tools.py::test_both_archives_import_57_episodes_with_five_real_traces",
     "tests/test_evaluation_tools.py::test_master_run_packets_keep_the_truth_out_of_the_judge_view",
+    "tests/test_evaluation_tools.py::test_new_cohort_preflight_requires_matching_audit_evidence",
+    "tests/test_evaluation_tools.py::test_preflight_refuses_corrupt_order_and_missing_provenance",
+    "tests/test_evaluation_tools.py::test_preflight_validates_recheck_and_verification_evidence",
     "tests/test_evaluation_tools.py::test_the_archive_imports_52_distinct_episodes",
-    "tests/test_full_evaluation.py::test_a_dry_run_reports_whether_snap_could_be_sent",
-    "tests/test_full_evaluation.py::test_a_dry_run_writes_the_ledger_and_report",
-    "tests/test_full_evaluation.py::test_a_large_plan_finishes_through_small_resumed_slices",
-    "tests/test_full_evaluation.py::test_a_plan_over_budget_is_refused_before_sending"
+    "tests/test_evaluation_tools.py::test_the_traced_run_names_the_functions_each_case_executed"
    ]
   },
   "evaluation.evaltools.run_packet:check_unique": {
-   "count": 10,
+   "count": 14,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
     "tests/test_evaluation_tools.py::test_a_repeated_run_key_needs_a_namespace",
     "tests/test_evaluation_tools.py::test_both_archives_import_57_episodes_with_five_real_traces",
+    "tests/test_evaluation_tools.py::test_new_cohort_preflight_requires_matching_audit_evidence",
+    "tests/test_evaluation_tools.py::test_preflight_refuses_corrupt_order_and_missing_provenance",
+    "tests/test_evaluation_tools.py::test_preflight_validates_recheck_and_verification_evidence",
+    "tests/test_evaluation_tools.py::test_the_archive_imports_52_distinct_episodes",
+    "tests/test_full_evaluation.py::test_a_dry_run_reports_whether_snap_could_be_sent",
+    "tests/test_full_evaluation.py::test_a_dry_run_writes_the_ledger_and_report",
+    "tests/test_full_evaluation.py::test_a_large_plan_finishes_through_small_resumed_slices",
+    "tests/test_full_evaluation.py::test_a_plan_over_budget_is_refused_before_sending",
+    "tests/test_full_evaluation.py::test_every_episode_and_question_has_one_ledger_row",
+    "tests/test_full_evaluation.py::test_full_command_uses_budgeted_sender"
+   ]
+  },
+  "evaluation.evaltools.run_packet:build_archive": {
+   "count": 12,
+   "status": "INSUFFICIENT EVIDENCE",
+   "direct": [],
+   "indirect": [
+    "tests/test_evaluation_tools.py::test_both_archives_import_57_episodes_with_five_real_traces",
+    "tests/test_evaluation_tools.py::test_new_cohort_preflight_requires_matching_audit_evidence",
+    "tests/test_evaluation_tools.py::test_preflight_refuses_corrupt_order_and_missing_provenance",
+    "tests/test_evaluation_tools.py::test_preflight_validates_recheck_and_verification_evidence",
     "tests/test_evaluation_tools.py::test_the_archive_imports_52_distinct_episodes",
     "tests/test_full_evaluation.py::test_a_dry_run_reports_whether_snap_could_be_sent",
     "tests/test_full_evaluation.py::test_a_dry_run_writes_the_ledger_and_report",
@@ -15619,37 +15908,26 @@
     "tests/test_full_evaluation.py::test_a_plan_over_budget_is_refused_before_sending",
     "tests/test_full_evaluation.py::test_every_episode_and_question_has_one_ledger_row",
     "tests/test_full_evaluation.py::test_full_command_uses_budgeted_sender",
-    "tests/test_full_evaluation.py::test_refused_episode_keeps_every_run_question_row"
-   ]
-  },
-  "evaluation.evaltools.run_packet:build_archive": {
-   "count": 8,
-   "status": "INSUFFICIENT EVIDENCE",
-   "direct": [],
-   "indirect": [
-    "tests/test_evaluation_tools.py::test_both_archives_import_57_episodes_with_five_real_traces",
-    "tests/test_evaluation_tools.py::test_the_archive_imports_52_distinct_episodes",
-    "tests/test_full_evaluation.py::test_a_dry_run_reports_whether_snap_could_be_sent",
-    "tests/test_full_evaluation.py::test_a_dry_run_writes_the_ledger_and_report",
-    "tests/test_full_evaluation.py::test_a_large_plan_finishes_through_small_resumed_slices",
-    "tests/test_full_evaluation.py::test_a_plan_over_budget_is_refused_before_sending",
-    "tests/test_full_evaluation.py::test_every_episode_and_question_has_one_ledger_row",
-    "tests/test_full_evaluation.py::test_full_command_uses_budgeted_sender"
+    "tests/test_full_evaluation.py::test_per_item_findings_join_truth_judge_and_blinded_reference"
    ]
   },
   "evaluation.evaltools.run_packet:_sibling": {
-   "count": 8,
+   "count": 12,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
     "tests/test_evaluation_tools.py::test_both_archives_import_57_episodes_with_five_real_traces",
+    "tests/test_evaluation_tools.py::test_new_cohort_preflight_requires_matching_audit_evidence",
+    "tests/test_evaluation_tools.py::test_preflight_refuses_corrupt_order_and_missing_provenance",
+    "tests/test_evaluation_tools.py::test_preflight_validates_recheck_and_verification_evidence",
     "tests/test_evaluation_tools.py::test_the_archive_imports_52_distinct_episodes",
     "tests/test_full_evaluation.py::test_a_dry_run_reports_whether_snap_could_be_sent",
     "tests/test_full_evaluation.py::test_a_dry_run_writes_the_ledger_and_report",
     "tests/test_full_evaluation.py::test_a_large_plan_finishes_through_small_resumed_slices",
     "tests/test_full_evaluation.py::test_a_plan_over_budget_is_refused_before_sending",
     "tests/test_full_evaluation.py::test_every_episode_and_question_has_one_ledger_row",
-    "tests/test_full_evaluation.py::test_full_command_uses_budgeted_sender"
+    "tests/test_full_evaluation.py::test_full_command_uses_budgeted_sender",
+    "tests/test_full_evaluation.py::test_per_item_findings_join_truth_judge_and_blinded_reference"
    ]
   },
   "evaluation.evaltools.run_packet:packet_file_name": {
@@ -15693,7 +15971,7 @@
    "indirect": []
   },
   "evaluation.evaltools.snap_request:DecisionQuestion.criteria_fit_type": {
-   "count": 26,
+   "count": 28,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
@@ -15731,7 +16009,7 @@
    ]
   },
   "evaluation.evaltools.snap_request:load_questions": {
-   "count": 26,
+   "count": 28,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
@@ -15835,6 +16113,17 @@
     "tests/test_evaluation_tools.py::test_outage_runs_are_out_of_the_reasoning_totals_and_asked_nothing",
     "tests/test_evaluation_tools.py::test_record_only_packets_skip_the_questions_that_need_a_trace",
     "tests/test_evaluation_tools.py::test_run_09_is_not_asked_of_a_run_without_a_conclusion",
+    "tests/test_full_evaluation.py::test_a_large_plan_finishes_through_small_resumed_slices",
+    "tests/test_full_evaluation.py::test_every_episode_and_question_has_one_ledger_row"
+   ]
+  },
+  "evaluation.evaltools.snap_request:fitted_trace_skips": {
+   "count": 4,
+   "status": "INSUFFICIENT EVIDENCE",
+   "direct": [],
+   "indirect": [
+    "tests/test_evaluation_tools.py::test_an_unfittable_packet_is_recorded_as_skipped_not_fatal",
+    "tests/test_evaluation_tools.py::test_every_master_request_is_free_of_the_runs_own_ids",
     "tests/test_full_evaluation.py::test_a_large_plan_finishes_through_small_resumed_slices",
     "tests/test_full_evaluation.py::test_every_episode_and_question_has_one_ledger_row"
    ]
@@ -24409,6 +24698,465 @@
    "judgment": "NOT ASSESSED",
    "functions": []
   },
+  "tests/test_coverage_eval_cli_edges.py::test_evals_cli_refuses_incompatible_modes_before_loading_config": {
+   "count": 2,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.evals:main",
+    "capstone.experiment:add_manual_options"
+   ]
+  },
+  "tests/test_coverage_eval_cli_edges.py::test_evals_cli_raises_when_resumed_raw_file_is_absent": {
+   "count": 4,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.evals:Scenario.valid_factory",
+    "capstone.evals:ScenarioConfig.unique_ids",
+    "capstone.evals:main",
+    "capstone.experiment:add_manual_options"
+   ]
+  },
+  "tests/test_coverage_eval_cli_edges.py::test_evals_cli_refuses_a_corrupt_resumed_prefix": {
+   "count": 4,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.evals:Scenario.valid_factory",
+    "capstone.evals:ScenarioConfig.unique_ids",
+    "capstone.evals:main",
+    "capstone.experiment:add_manual_options"
+   ]
+  },
+  "tests/test_coverage_eval_cli_edges.py::test_evals_cli_refuses_to_clobber_an_existing_raw_run": {
+   "count": 5,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.evals:Scenario.valid_factory",
+    "capstone.evals:ScenarioConfig.unique_ids",
+    "capstone.evals:main",
+    "capstone.evals:reserve_raw_output",
+    "capstone.experiment:add_manual_options"
+   ]
+  },
+  "tests/test_coverage_eval_cli_edges.py::test_evals_cli_saved_records_must_match_config_in_order": {
+   "count": 4,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.evals:Scenario.valid_factory",
+    "capstone.evals:ScenarioConfig.unique_ids",
+    "capstone.evals:main",
+    "capstone.experiment:add_manual_options"
+   ]
+  },
+  "tests/test_coverage_eval_cli_edges.py::test_evals_cli_rescores_saved_records_and_writes_diff_without_model": {
+   "count": 4,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.evals:Scenario.valid_factory",
+    "capstone.evals:ScenarioConfig.unique_ids",
+    "capstone.evals:main",
+    "capstone.experiment:add_manual_options"
+   ]
+  },
+  "tests/test_coverage_eval_cli_edges.py::test_evals_cli_saves_fresh_rows_and_uses_live_watch_hook": {
+   "count": 16,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.evals:Scenario.valid_factory",
+    "capstone.evals:ScenarioConfig.unique_ids",
+    "capstone.evals:main",
+    "capstone.evals:reserve_raw_output",
+    "capstone.experiment:add_manual_options",
+    "capstone.experiment:open_manual",
+    "capstone.manual.index:open_manual_index",
+    "capstone.manual.index:ready_index",
+    "capstone.manual.index:ready_manual_index",
+    "capstone.manual.sections:check_no_leaks",
+    "capstone.manual.sections:load_manual",
+    "capstone.manual.sections:parse_manual",
+    "capstone.providers.chat:ModelError.__init__",
+    "capstone.providers.embeddings:embedders_for",
+    "capstone.settings:Settings.blank_is_missing",
+    "capstone.settings:get_settings"
+   ]
+  },
+  "tests/test_coverage_eval_cli_edges.py::test_evals_automatic_labels_marks_undetermined_and_deferred_review": {
+   "count": 1,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.evals:automatic_labels"
+   ]
+  },
+  "tests/test_coverage_eval_cli_edges.py::test_experiment_open_memory_refuses_missing_database": {
+   "count": 1,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.experiment:open_memory"
+   ]
+  },
+  "tests/test_coverage_eval_cli_edges.py::test_experiment_open_memory_converts_postgres_driver_without_connecting": {
+   "count": 1,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.experiment:open_memory"
+   ]
+  },
+  "tests/test_coverage_eval_cli_edges.py::test_experiment_cli_prevents_audit_records_collision": {
+   "count": 16,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.console:safe_console",
+    "capstone.experiment:add_manual_options",
+    "capstone.experiment:grid",
+    "capstone.experiment:main",
+    "capstone.experiment:open_manual",
+    "capstone.experiment:seeds_from",
+    "capstone.manual.index:open_manual_index",
+    "capstone.manual.index:ready_index",
+    "capstone.manual.index:ready_manual_index",
+    "capstone.manual.sections:check_no_leaks",
+    "capstone.manual.sections:load_manual",
+    "capstone.manual.sections:parse_manual",
+    "capstone.providers.chat:ModelError.__init__",
+    "capstone.providers.embeddings:embedders_for",
+    "capstone.settings:Settings.blank_is_missing",
+    "capstone.settings:get_settings"
+   ]
+  },
+  "tests/test_coverage_eval_cli_edges.py::test_experiment_cli_does_not_hide_provider_failures_and_interrupts": {
+   "count": 14,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.console:safe_console",
+    "capstone.experiment:add_manual_options",
+    "capstone.experiment:main",
+    "capstone.experiment:open_manual",
+    "capstone.manual.index:open_manual_index",
+    "capstone.manual.index:ready_index",
+    "capstone.manual.index:ready_manual_index",
+    "capstone.manual.sections:check_no_leaks",
+    "capstone.manual.sections:load_manual",
+    "capstone.manual.sections:parse_manual",
+    "capstone.providers.chat:ModelError.__init__",
+    "capstone.providers.embeddings:embedders_for",
+    "capstone.settings:Settings.blank_is_missing",
+    "capstone.settings:get_settings"
+   ]
+  },
+  "tests/test_coverage_eval_cli_edges.py::test_experiment_cli_label_skips_missing_conclusions_and_existing_answers": {
+   "count": 4,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.console:safe_console",
+    "capstone.evaluation.labels:LabelBook.__init__",
+    "capstone.experiment:add_manual_options",
+    "capstone.experiment:main"
+   ]
+  },
+  "tests/test_coverage_index_edges.py::test_backfill_batches_are_bounded_and_preserve_every_record": {
+   "count": 1,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.memory.backfill:backfill"
+   ]
+  },
+  "tests/test_coverage_index_edges.py::test_memory_backfill_cli_requires_a_database_url": {
+   "count": 1,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.memory.backfill:main"
+   ]
+  },
+  "tests/test_coverage_index_edges.py::test_memory_backfill_cli_reads_only_disposes_and_rebuilds": {
+   "count": 2,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.memory.backfill:backfill",
+    "capstone.memory.backfill:main"
+   ]
+  },
+  "tests/test_coverage_index_edges.py::test_memory_backfill_disposes_engine_after_read_failure": {
+   "count": 1,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.memory.backfill:main"
+   ]
+  },
+  "tests/test_coverage_index_edges.py::test_duplicate_similarity_rejects_mismatched_vectors_and_handles_no_negatives": {
+   "count": 3,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.memory.duplicate_threshold:choose_threshold",
+    "capstone.memory.duplicate_threshold:cosine",
+    "capstone.memory.duplicate_threshold:evaluate"
+   ]
+  },
+  "tests/test_coverage_index_edges.py::test_duplicate_measure_refuses_to_invent_a_threshold_without_different_pairs": {
+   "count": 4,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.memory.duplicate_threshold:choose_threshold",
+    "capstone.memory.duplicate_threshold:cosine",
+    "capstone.memory.duplicate_threshold:measure",
+    "capstone.memory.duplicate_threshold:pair_text"
+   ]
+  },
+  "tests/test_coverage_index_edges.py::test_duplicate_measure_cli_chooses_offline_or_provider_embedder": {
+   "count": 7,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.memory.duplicate_threshold:choose_threshold",
+    "capstone.memory.duplicate_threshold:cosine",
+    "capstone.memory.duplicate_threshold:evaluate",
+    "capstone.memory.duplicate_threshold:main",
+    "capstone.memory.duplicate_threshold:measure",
+    "capstone.memory.duplicate_threshold:pair_text",
+    "capstone.memory.duplicate_threshold:read_pairs"
+   ]
+  },
+  "tests/test_coverage_index_edges.py::test_manual_semantic_index_filters_removed_sections_and_empty_collections": {
+   "count": 2,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.manual.index:ChromaManualIndex.__init__",
+    "capstone.manual.index:ChromaManualIndex.search"
+   ]
+  },
+  "tests/test_coverage_index_edges.py::test_manual_semantic_index_builds_revision_fingerprints": {
+   "count": 5,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.manual.index:ChromaManualIndex.__init__",
+    "capstone.manual.index:ChromaManualIndex.build",
+    "capstone.manual.index:ChromaManualIndex.is_current",
+    "capstone.manual.index:section_digest",
+    "capstone.manual.index:section_document"
+   ]
+  },
+  "tests/test_coverage_index_edges.py::test_manual_open_index_supports_local_and_separate_query_embeddings": {
+   "count": 2,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.manual.index:ChromaManualIndex.__init__",
+    "capstone.manual.index:open_manual_index"
+   ]
+  },
+  "tests/test_coverage_index_edges.py::test_manual_cli_passes_rebuild_and_prints_indexed_count": {
+   "count": 1,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.manual.index:main"
+   ]
+  },
+  "tests/test_coverage_reporting_edges.py::test_reach_groups_cover_generated_skipped_unanswered_and_early_termination": {
+   "count": 1,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.tree_reach:group_of"
+   ]
+  },
+  "tests/test_coverage_reporting_edges.py::test_reach_counts_attempt_failures_and_only_pre_tree_research_calls": {
+   "count": 2,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.tree_reach:group_of",
+    "capstone.tree_reach:reach_of"
+   ]
+  },
+  "tests/test_coverage_reporting_edges.py::test_reach_summary_groups_time_failures_and_reserve_usage": {
+   "count": 1,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.tree_reach:summarize"
+   ]
+  },
+  "tests/test_coverage_reporting_edges.py::test_tree_position_report_skips_unrated_candidates_and_counts_rotation": {
+   "count": 1,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.tree_reach:position_effect"
+   ]
+  },
+  "tests/test_coverage_reporting_edges.py::test_tree_position_report_ignores_runs_with_no_rating": {
+   "count": 1,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.tree_reach:position_effect"
+   ]
+  },
+  "tests/test_coverage_reporting_edges.py::test_tree_report_cli_text_and_json_paths": {
+   "count": 5,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.tree_reach:group_of",
+    "capstone.tree_reach:main",
+    "capstone.tree_reach:position_effect",
+    "capstone.tree_reach:reach_of",
+    "capstone.tree_reach:summarize"
+   ]
+  },
+  "tests/test_coverage_reporting_edges.py::test_tree_report_cli_loads_all_files_in_order": {
+   "count": 1,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.tree_reach:read_all"
+   ]
+  },
+  "tests/test_coverage_reporting_edges.py::test_memory_comparison_opens_sql_only_for_nonsemantic_modes": {
+   "count": 1,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.memory_comparison:open_store_and_index"
+   ]
+  },
+  "tests/test_coverage_reporting_edges.py::test_memory_comparison_semantic_errors_never_fall_back_to_keyword": {
+   "count": 1,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.memory_comparison:open_store_and_index"
+   ]
+  },
+  "tests/test_coverage_reporting_edges.py::test_memory_comparison_semantic_mode_preserves_index": {
+   "count": 1,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.memory_comparison:open_store_and_index"
+   ]
+  },
+  "tests/test_coverage_reporting_edges.py::test_memory_comparison_cli_rejects_unrecognized_or_duplicate_modes": {
+   "count": 1,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.memory_comparison:main"
+   ]
+  },
+  "tests/test_coverage_reporting_edges.py::test_memory_comparison_report_cli_reads_saved_records": {
+   "count": 2,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.evaluation.labels:LabelBook.__init__",
+    "capstone.memory_comparison:main"
+   ]
+  },
+  "tests/test_coverage_reporting_edges.py::test_memory_comparison_run_cli_dispatches_without_models": {
+   "count": 1,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.memory_comparison:main"
+   ]
+  },
+  "tests/test_coverage_reporting_edges.py::test_baseline_seed_ranges_and_lists": {
+   "count": 1,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.baseline:_seeds"
+   ]
+  },
+  "tests/test_coverage_reporting_edges.py::test_baseline_cli_formats_known_and_explicit_cases": {
+   "count": 2,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.baseline:_seeds",
+    "capstone.baseline:main"
+   ]
+  },
+  "tests/test_coverage_reporting_edges.py::test_baseline_alarm_classifies_sustained_and_transient_signals": {
+   "count": 6,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.baseline:_Looker.__call__",
+    "capstone.baseline:_Looker.__init__",
+    "capstone.baseline:_Looker.now",
+    "capstone.baseline:_Looker.peak_vibration",
+    "capstone.baseline:diagnose",
+    "capstone.baseline:diagnose.<locals>.verdict"
+   ]
+  },
+  "tests/test_coverage_reporting_edges.py::test_baseline_uses_inspections_when_job_times_do_not_identify_machine": {
+   "count": 7,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.baseline:_Looker.__call__",
+    "capstone.baseline:_Looker.__init__",
+    "capstone.baseline:_Looker.now",
+    "capstone.baseline:_job_time_changes",
+    "capstone.baseline:_standout_batch",
+    "capstone.baseline:diagnose",
+    "capstone.baseline:diagnose.<locals>.verdict"
+   ]
+  },
+  "tests/test_coverage_reporting_edges.py::test_baseline_status_alarm_uses_only_the_observable_stop": {
+   "count": 3,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.baseline:_Looker.__init__",
+    "capstone.baseline:diagnose",
+    "capstone.baseline:diagnose.<locals>.verdict"
+   ]
+  },
+  "tests/test_coverage_telemetry_edges.py::test_monitor_threshold_rejects_invalid_ranges": {
+   "count": 1,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.monitoring.__main__:parse_threshold"
+   ]
+  },
+  "tests/test_coverage_telemetry_edges.py::test_monitor_threshold_accepts_floating_point_bounds": {
+   "count": 1,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.monitoring.__main__:parse_threshold"
+   ]
+  },
+  "tests/test_coverage_telemetry_edges.py::test_collector_cli_saves_probe_without_polling": {
+   "count": 1,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.ingestion.__main__:main"
+   ]
+  },
+  "tests/test_coverage_telemetry_edges.py::test_collector_cli_requires_output_in_normal_mode": {
+   "count": 1,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.ingestion.__main__:main"
+   ]
+  },
+  "tests/test_coverage_telemetry_edges.py::test_collector_cli_checks_paths_before_opening_network": {
+   "count": 1,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.ingestion.__main__:main"
+   ]
+  },
+  "tests/test_coverage_telemetry_edges.py::test_collector_cli_reports_success_or_graceful_interrupt": {
+   "count": 1,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.ingestion.__main__:main"
+   ]
+  },
+  "tests/test_coverage_telemetry_edges.py::test_monitor_cli_rejects_unsafe_alerts_before_reading": {
+   "count": 1,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.monitoring.__main__:main"
+   ]
+  },
+  "tests/test_coverage_telemetry_edges.py::test_monitor_cli_replay_is_read_only_and_passes_thresholds": {
+   "count": 2,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.monitoring.__main__:main",
+    "capstone.monitoring.__main__:parse_threshold"
+   ]
+  },
+  "tests/test_coverage_telemetry_edges.py::test_monitor_cli_follow_loop_exits_cleanly_on_interrupt": {
+   "count": 1,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.monitoring.__main__:main"
+   ]
+  },
   "tests/test_critic.py::test_shown_hypotheses_are_all_of_them_by_confidence_ties_keep_order": {
    "count": 2,
    "judgment": "NOT ASSESSED",
@@ -27995,7 +28743,7 @@
    ]
   },
   "tests/test_evaluation_tools.py::test_an_unfittable_packet_is_recorded_as_skipped_not_fatal": {
-   "count": 15,
+   "count": 16,
    "judgment": "NOT ASSESSED",
    "functions": [
     "evaluation.evaltools.decision_models:_truncate_evidence",
@@ -28007,6 +28755,7 @@
     "evaluation.evaltools.snap_request:applicable_run_questions",
     "evaluation.evaltools.snap_request:build_request",
     "evaluation.evaltools.snap_request:digest",
+    "evaluation.evaltools.snap_request:fitted_trace_skips",
     "evaluation.evaltools.snap_request:forbidden_for",
     "evaluation.evaltools.snap_request:judge_view",
     "evaluation.evaltools.snap_request:load_questions",
@@ -28068,9 +28817,30 @@
    ]
   },
   "tests/test_evaluation_tools.py::test_the_traced_run_names_the_functions_each_case_executed": {
-   "count": 0,
+   "count": 21,
    "judgment": "NOT ASSESSED",
-   "functions": []
+   "functions": [
+    "capstone.agent.completion:AuditLog.__init__",
+    "capstone.agent.completion:AuditLog.read",
+    "capstone.contracts.completed_investigations:CompletedInvestigation.unique_evidence",
+    "capstone.contracts.investigations:run_id_for",
+    "capstone.evaluation.scoring:Score.model_unavailable",
+    "capstone.evaluation.scoring:Score.unnecessary_actions",
+    "capstone.experiment:read_records",
+    "evaluation.evaltools.run_packet:audit_by_run",
+    "evaluation.evaltools.run_packet:build_all",
+    "evaluation.evaltools.run_packet:build_packet",
+    "evaluation.evaltools.run_packet:calibration",
+    "evaluation.evaltools.run_packet:check_no_truth_in_view",
+    "evaluation.evaltools.run_packet:configuration_of",
+    "evaluation.evaltools.run_packet:episode_key",
+    "evaluation.evaltools.run_packet:evaluator_only_of",
+    "evaluation.evaltools.run_packet:facts_of",
+    "evaluation.evaltools.run_packet:forbidden_in_view",
+    "evaluation.evaltools.run_packet:leak_in",
+    "evaluation.evaltools.run_packet:read_labels",
+    "evaluation.evaltools.run_packet:run_ref"
+   ]
   },
   "tests/test_evaluation_tools.py::test_the_inventory_lists_every_function_and_every_curated_item_exists": {
    "count": 21,
@@ -28359,6 +29129,84 @@
     "evaluation.evaltools.traced_run:main"
    ]
   },
+  "tests/test_evaluation_tools.py::test_new_cohort_preflight_requires_matching_audit_evidence": {
+   "count": 36,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.agent.completion:AuditLog.__init__",
+    "capstone.agent.completion:AuditLog.read",
+    "capstone.contracts.completed_investigations:CompletedInvestigation.unique_evidence",
+    "capstone.contracts.hypotheses:NumericClaim.ordered_window",
+    "capstone.contracts.investigations:run_id_for",
+    "capstone.evaluation.labels:apply_label",
+    "capstone.evaluation.scoring:Cause.named_by",
+    "capstone.evaluation.scoring:Score.fully_right",
+    "capstone.evaluation.scoring:Score.miss_kind",
+    "capstone.evaluation.scoring:Score.model_unavailable",
+    "capstone.evaluation.scoring:Score.unnecessary_actions",
+    "capstone.evaluation.scoring:_closest",
+    "capstone.evaluation.scoring:_named",
+    "capstone.evaluation.scoring:judge",
+    "capstone.evaluation.scoring:judge_causes",
+    "capstone.experiment:read_records",
+    "evaluation.evaltools.audit_preflight:require_full_traces",
+    "evaluation.evaltools.audit_preflight:trace_issues",
+    "evaluation.evaltools.run_packet:_sibling",
+    "evaluation.evaltools.run_packet:audit_by_run"
+   ]
+  },
+  "tests/test_evaluation_tools.py::test_preflight_validates_recheck_and_verification_evidence": {
+   "count": 35,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.agent.completion:AuditLog.__init__",
+    "capstone.agent.completion:AuditLog.read",
+    "capstone.contracts.completed_investigations:CompletedInvestigation.unique_evidence",
+    "capstone.contracts.hypotheses:NumericClaim.ordered_window",
+    "capstone.contracts.investigations:run_id_for",
+    "capstone.evaluation.labels:apply_label",
+    "capstone.evaluation.scoring:Cause.named_by",
+    "capstone.evaluation.scoring:Score.fully_right",
+    "capstone.evaluation.scoring:Score.miss_kind",
+    "capstone.evaluation.scoring:Score.model_unavailable",
+    "capstone.evaluation.scoring:Score.unnecessary_actions",
+    "capstone.evaluation.scoring:_closest",
+    "capstone.evaluation.scoring:_named",
+    "capstone.evaluation.scoring:judge",
+    "capstone.evaluation.scoring:judge_causes",
+    "capstone.experiment:read_records",
+    "evaluation.evaltools.audit_preflight:trace_issues",
+    "evaluation.evaltools.run_packet:_sibling",
+    "evaluation.evaltools.run_packet:audit_by_run",
+    "evaluation.evaltools.run_packet:build_all"
+   ]
+  },
+  "tests/test_evaluation_tools.py::test_preflight_refuses_corrupt_order_and_missing_provenance": {
+   "count": 35,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.agent.completion:AuditLog.__init__",
+    "capstone.agent.completion:AuditLog.read",
+    "capstone.contracts.completed_investigations:CompletedInvestigation.unique_evidence",
+    "capstone.contracts.hypotheses:NumericClaim.ordered_window",
+    "capstone.contracts.investigations:run_id_for",
+    "capstone.evaluation.labels:apply_label",
+    "capstone.evaluation.scoring:Cause.named_by",
+    "capstone.evaluation.scoring:Score.fully_right",
+    "capstone.evaluation.scoring:Score.miss_kind",
+    "capstone.evaluation.scoring:Score.model_unavailable",
+    "capstone.evaluation.scoring:Score.unnecessary_actions",
+    "capstone.evaluation.scoring:_closest",
+    "capstone.evaluation.scoring:_named",
+    "capstone.evaluation.scoring:judge",
+    "capstone.evaluation.scoring:judge_causes",
+    "capstone.experiment:read_records",
+    "evaluation.evaltools.audit_preflight:trace_issues",
+    "evaluation.evaltools.run_packet:_sibling",
+    "evaluation.evaltools.run_packet:audit_by_run",
+    "evaluation.evaltools.run_packet:build_all"
+   ]
+  },
   "tests/test_evaluation_tools.py::test_the_archive_imports_52_distinct_episodes": {
    "count": 31,
    "judgment": "NOT ASSESSED",
@@ -28554,7 +29402,7 @@
    ]
   },
   "tests/test_evaluation_tools.py::test_every_master_request_is_free_of_the_runs_own_ids": {
-   "count": 15,
+   "count": 16,
    "judgment": "NOT ASSESSED",
    "functions": [
     "evaluation.evaltools.decision_models:estimate_tokens",
@@ -28566,6 +29414,7 @@
     "evaluation.evaltools.snap_request:applicable_run_questions",
     "evaluation.evaltools.snap_request:build_request",
     "evaluation.evaltools.snap_request:digest",
+    "evaluation.evaltools.snap_request:fitted_trace_skips",
     "evaluation.evaltools.snap_request:forbidden_for",
     "evaluation.evaltools.snap_request:judge_view",
     "evaluation.evaltools.snap_request:load_questions",
@@ -28802,13 +29651,15 @@
    ]
   },
   "tests/test_experiment.py::test_hazards_are_off_unless_asked_for": {
-   "count": 23,
+   "count": 25,
    "judgment": "NOT ASSESSED",
    "functions": [
+    "capstone.agent.completion:AuditLog.__init__",
     "capstone.console:safe_console",
     "capstone.evaluation.scoring:format_summary",
     "capstone.evaluation.scoring:summarize",
     "capstone.experiment:add_manual_options",
+    "capstone.experiment:default_audit_path",
     "capstone.experiment:format_batches",
     "capstone.experiment:format_manual",
     "capstone.experiment:format_memory",
@@ -28822,9 +29673,33 @@
     "capstone.experiment:report.<locals>.lines_for",
     "capstone.manual.index:KeywordManualSearch.__init__",
     "capstone.manual.sections:check_no_leaks",
+    "capstone.manual.sections:load_manual"
+   ]
+  },
+  "tests/test_experiment.py::test_run_command_audits_by_default_and_allows_explicit_opt_out": {
+   "count": 20,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.agent.completion:AuditLog.__init__",
+    "capstone.console:safe_console",
+    "capstone.evaluation.scoring:format_summary",
+    "capstone.evaluation.scoring:summarize",
+    "capstone.experiment:add_manual_options",
+    "capstone.experiment:default_audit_path",
+    "capstone.experiment:format_batches",
+    "capstone.experiment:format_manual",
+    "capstone.experiment:format_memory",
+    "capstone.experiment:format_model_calls",
+    "capstone.experiment:format_triage",
+    "capstone.experiment:known_cases",
+    "capstone.experiment:labelled",
+    "capstone.experiment:main",
+    "capstone.experiment:report",
+    "capstone.experiment:report.<locals>.lines_for",
+    "capstone.manual.index:KeywordManualSearch.__init__",
+    "capstone.manual.sections:check_no_leaks",
     "capstone.manual.sections:load_manual",
-    "capstone.manual.sections:parse_manual",
-    "capstone.progress:print_progress"
+    "capstone.manual.sections:parse_manual"
    ]
   },
   "tests/test_experiment.py::test_old_records_without_blackout_fields_still_read": {
@@ -28854,13 +29729,15 @@
    ]
   },
   "tests/test_experiment.py::test_the_run_command_watches_by_default_and_quiet_turns_it_off": {
-   "count": 23,
+   "count": 25,
    "judgment": "NOT ASSESSED",
    "functions": [
+    "capstone.agent.completion:AuditLog.__init__",
     "capstone.console:safe_console",
     "capstone.evaluation.scoring:format_summary",
     "capstone.evaluation.scoring:summarize",
     "capstone.experiment:add_manual_options",
+    "capstone.experiment:default_audit_path",
     "capstone.experiment:format_batches",
     "capstone.experiment:format_manual",
     "capstone.experiment:format_memory",
@@ -28874,9 +29751,7 @@
     "capstone.experiment:report.<locals>.lines_for",
     "capstone.manual.index:KeywordManualSearch.__init__",
     "capstone.manual.sections:check_no_leaks",
-    "capstone.manual.sections:load_manual",
-    "capstone.manual.sections:parse_manual",
-    "capstone.progress:print_progress"
+    "capstone.manual.sections:load_manual"
    ]
   },
   "tests/test_experiment.py::test_the_report_shows_an_overruled_intervention_and_why": {
@@ -29041,9 +29916,14 @@
    ]
   },
   "tests/test_experiment.py::test_the_command_line_runs_labels_and_reports": {
-   "count": 240,
+   "count": 248,
    "judgment": "NOT ASSESSED",
    "functions": [
+    "capstone.agent.completion:AuditLog.__init__",
+    "capstone.agent.completion:AuditLog.append",
+    "capstone.agent.completion:audit_record",
+    "capstone.agent.completion:complete",
+    "capstone.agent.completion:shared_verification",
     "capstone.agent.evidence_brief:observations",
     "capstone.agent.evidence_brief:verify_numeric_claims",
     "capstone.agent.investigation:build_graph",
@@ -29058,12 +29938,7 @@
     "capstone.agent.investigation:build_graph.<locals>.recheck_step",
     "capstone.agent.investigation:build_graph.<locals>.staged",
     "capstone.agent.investigation:check_conclusion",
-    "capstone.agent.investigation:conclude",
-    "capstone.agent.investigation:consult_manual",
-    "capstone.agent.investigation:critique",
-    "capstone.agent.investigation:gathered_in",
-    "capstone.agent.investigation:hypothesize",
-    "capstone.agent.investigation:investigate"
+    "capstone.agent.investigation:conclude"
    ]
   },
   "tests/test_experiment.py::test_invalid_replies_and_outages_are_counted_apart": {
@@ -29075,9 +29950,14 @@
    ]
   },
   "tests/test_experiment.py::test_model_failures_survive_the_cli_file_and_report": {
-   "count": 253,
+   "count": 261,
    "judgment": "NOT ASSESSED",
    "functions": [
+    "capstone.agent.completion:AuditLog.__init__",
+    "capstone.agent.completion:AuditLog.append",
+    "capstone.agent.completion:audit_record",
+    "capstone.agent.completion:complete",
+    "capstone.agent.completion:shared_verification",
     "capstone.agent.evidence_brief:evidence_brief",
     "capstone.agent.evidence_brief:measurement_groups",
     "capstone.agent.evidence_brief:observations",
@@ -29092,12 +29972,7 @@
     "capstone.agent.investigation:investigate",
     "capstone.agent.investigation:manual_query",
     "capstone.agent.investigation:observe",
-    "capstone.agent.investigation:plan",
-    "capstone.agent.investigation:run_investigation",
-    "capstone.agent.investigation:stop_without_a_model",
-    "capstone.agent.loop:InvestigationDeps.__post_init__",
-    "capstone.agent.loop:apply_interpretation",
-    "capstone.agent.loop:ask_policy"
+    "capstone.agent.investigation:plan"
    ]
   },
   "tests/test_experiment.py::test_recovered_service_failures_keep_the_answering_fallback": {
@@ -29441,13 +30316,15 @@
    "functions": []
   },
   "tests/test_experiment.py::test_the_command_runs_the_held_out_set": {
-   "count": 24,
+   "count": 26,
    "judgment": "NOT ASSESSED",
    "functions": [
+    "capstone.agent.completion:AuditLog.__init__",
     "capstone.console:safe_console",
     "capstone.evaluation.scoring:format_summary",
     "capstone.evaluation.scoring:summarize",
     "capstone.experiment:add_manual_options",
+    "capstone.experiment:default_audit_path",
     "capstone.experiment:format_batches",
     "capstone.experiment:format_manual",
     "capstone.experiment:format_memory",
@@ -29461,9 +30338,7 @@
     "capstone.experiment:report",
     "capstone.experiment:report.<locals>.lines_for",
     "capstone.manual.index:KeywordManualSearch.__init__",
-    "capstone.manual.sections:check_no_leaks",
-    "capstone.manual.sections:load_manual",
-    "capstone.manual.sections:parse_manual"
+    "capstone.manual.sections:check_no_leaks"
    ]
   },
   "tests/test_experiment.py::test_the_report_says_how_many_runs_were_held_out": {
@@ -29526,14 +30401,16 @@
    ]
   },
   "tests/test_experiment.py::test_the_command_runs_the_challenge_on_the_given_seeds": {
-   "count": 24,
+   "count": 26,
    "judgment": "NOT ASSESSED",
    "functions": [
+    "capstone.agent.completion:AuditLog.__init__",
     "capstone.console:safe_console",
     "capstone.evaluation.scoring:format_summary",
     "capstone.evaluation.scoring:summarize",
     "capstone.experiment:add_manual_options",
     "capstone.experiment:challenge_cases",
+    "capstone.experiment:default_audit_path",
     "capstone.experiment:format_batches",
     "capstone.experiment:format_manual",
     "capstone.experiment:format_memory",
@@ -29546,9 +30423,7 @@
     "capstone.experiment:report.<locals>.lines_for",
     "capstone.experiment:seeds_from",
     "capstone.manual.index:KeywordManualSearch.__init__",
-    "capstone.manual.sections:check_no_leaks",
-    "capstone.manual.sections:load_manual",
-    "capstone.manual.sections:parse_manual"
+    "capstone.manual.sections:check_no_leaks"
    ]
   },
   "tests/test_experiment.py::test_a_challenge_run_is_built_and_scored_with_several_faults": {
@@ -29744,13 +30619,15 @@
    ]
   },
   "tests/test_experiment.py::test_the_command_passes_the_manual_on": {
-   "count": 23,
+   "count": 25,
    "judgment": "NOT ASSESSED",
    "functions": [
+    "capstone.agent.completion:AuditLog.__init__",
     "capstone.console:safe_console",
     "capstone.evaluation.scoring:format_summary",
     "capstone.evaluation.scoring:summarize",
     "capstone.experiment:add_manual_options",
+    "capstone.experiment:default_audit_path",
     "capstone.experiment:format_batches",
     "capstone.experiment:format_manual",
     "capstone.experiment:format_memory",
@@ -29764,19 +30641,19 @@
     "capstone.experiment:report.<locals>.lines_for",
     "capstone.manual.index:KeywordManualSearch.__init__",
     "capstone.manual.sections:check_no_leaks",
-    "capstone.manual.sections:load_manual",
-    "capstone.manual.sections:parse_manual",
-    "capstone.progress:print_progress"
+    "capstone.manual.sections:load_manual"
    ]
   },
   "tests/test_experiment.py::test_the_manual_is_on_by_default_by_meaning": {
-   "count": 23,
+   "count": 25,
    "judgment": "NOT ASSESSED",
    "functions": [
+    "capstone.agent.completion:AuditLog.__init__",
     "capstone.console:safe_console",
     "capstone.evaluation.scoring:format_summary",
     "capstone.evaluation.scoring:summarize",
     "capstone.experiment:add_manual_options",
+    "capstone.experiment:default_audit_path",
     "capstone.experiment:format_batches",
     "capstone.experiment:format_manual",
     "capstone.experiment:format_memory",
@@ -29790,9 +30667,7 @@
     "capstone.experiment:report.<locals>.lines_for",
     "capstone.manual.index:KeywordManualSearch.__init__",
     "capstone.manual.sections:check_no_leaks",
-    "capstone.manual.sections:load_manual",
-    "capstone.manual.sections:parse_manual",
-    "capstone.progress:print_progress"
+    "capstone.manual.sections:load_manual"
    ]
   },
   "tests/test_experiment.py::test_the_manual_step_is_on_by_default": {
@@ -30842,7 +31717,7 @@
    ]
   },
   "tests/test_full_evaluation.py::test_every_episode_and_question_has_one_ledger_row": {
-   "count": 55,
+   "count": 56,
    "judgment": "NOT ASSESSED",
    "functions": [
     "capstone.contracts.investigations:run_id_for",
@@ -30881,17 +31756,46 @@
    ]
   },
   "tests/test_full_evaluation.py::test_the_report_keeps_the_published_denominators": {
-   "count": 8,
+   "count": 11,
    "judgment": "NOT ASSESSED",
    "functions": [
     "evaluation.evaltools.decision_models:estimate_tokens",
     "evaluation.evaltools.full_evaluation:budget",
+    "evaluation.evaltools.full_evaluation:item_findings",
     "evaluation.evaltools.full_evaluation:ratio",
     "evaluation.evaltools.full_evaluation:report",
     "evaluation.evaltools.full_evaluation:request_tokens_estimate",
     "evaluation.evaltools.full_evaluation:run_name",
     "evaluation.evaltools.full_evaluation:settle",
-    "evaluation.evaltools.run_packet:batch_summary"
+    "evaluation.evaltools.run_packet:batch_summary",
+    "evaluation.evaltools.snap_request:DecisionQuestion.criteria_fit_type",
+    "evaluation.evaltools.snap_request:load_questions"
+   ]
+  },
+  "tests/test_full_evaluation.py::test_per_item_findings_join_truth_judge_and_blinded_reference": {
+   "count": 38,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.agent.completion:AuditLog.__init__",
+    "capstone.agent.completion:AuditLog.read",
+    "capstone.contracts.completed_investigations:CompletedInvestigation.unique_evidence",
+    "capstone.contracts.hypotheses:NumericClaim.ordered_window",
+    "capstone.contracts.investigations:run_id_for",
+    "capstone.evaluation.labels:apply_label",
+    "capstone.evaluation.scoring:Cause.named_by",
+    "capstone.evaluation.scoring:Score.fully_right",
+    "capstone.evaluation.scoring:Score.miss_kind",
+    "capstone.evaluation.scoring:Score.model_unavailable",
+    "capstone.evaluation.scoring:Score.unnecessary_actions",
+    "capstone.evaluation.scoring:_closest",
+    "capstone.evaluation.scoring:_named",
+    "capstone.evaluation.scoring:judge",
+    "capstone.evaluation.scoring:judge_causes",
+    "capstone.experiment:read_records",
+    "evaluation.evaltools.decision_models:reference_match",
+    "evaluation.evaltools.full_evaluation:item_findings",
+    "evaluation.evaltools.run_packet:_sibling",
+    "evaluation.evaltools.run_packet:audit_by_run"
    ]
   },
   "tests/test_full_evaluation.py::test_each_pair_is_compared_and_the_sample_rule_is_applied_in_code": {
@@ -31108,7 +32012,7 @@
    ]
   },
   "tests/test_full_evaluation.py::test_full_command_uses_budgeted_sender": {
-   "count": 75,
+   "count": 76,
    "judgment": "NOT ASSESSED",
    "functions": [
     "capstone.contracts.investigations:run_id_for",
@@ -31134,7 +32038,7 @@
    ]
   },
   "tests/test_full_evaluation.py::test_a_plan_over_budget_is_refused_before_sending": {
-   "count": 76,
+   "count": 77,
    "judgment": "NOT ASSESSED",
    "functions": [
     "capstone.contracts.investigations:run_id_for",
@@ -31176,7 +32080,7 @@
    ]
   },
   "tests/test_full_evaluation.py::test_a_dry_run_writes_the_ledger_and_report": {
-   "count": 78,
+   "count": 79,
    "judgment": "NOT ASSESSED",
    "functions": [
     "capstone.contracts.investigations:run_id_for",
@@ -31292,7 +32196,7 @@
    ]
   },
   "tests/test_full_evaluation.py::test_a_large_plan_finishes_through_small_resumed_slices": {
-   "count": 72,
+   "count": 73,
    "judgment": "NOT ASSESSED",
    "functions": [
     "capstone.contracts.investigations:run_id_for",
@@ -31343,7 +32247,7 @@
    ]
   },
   "tests/test_full_evaluation.py::test_a_dry_run_reports_whether_snap_could_be_sent": {
-   "count": 79,
+   "count": 80,
    "judgment": "NOT ASSESSED",
    "functions": [
     "capstone.contracts.investigations:run_id_for",
@@ -41393,6 +42297,46 @@
     "capstone.agent.investigation:conclude",
     "capstone.agent.investigation:consult_manual",
     "capstone.agent.investigation:critique"
+   ]
+  },
+  "tests/test_reference_review.py::test_review_packets_hide_run_identity_and_import_checked_answers": {
+   "count": 3,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "evaluation.evaltools.reference_review:export_requests",
+    "evaluation.evaltools.reference_review:import_review",
+    "evaluation.evaltools.reference_review:review_id"
+   ]
+  },
+  "tests/test_reference_review.py::test_review_export_refuses_a_request_folder_with_model_answers": {
+   "count": 1,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "evaluation.evaltools.reference_review:export_requests"
+   ]
+  },
+  "tests/test_reference_review.py::test_function_sample_prefers_items_with_all_judgments": {
+   "count": 2,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "evaluation.evaltools.reference_review:export_requests",
+    "evaluation.evaltools.reference_review:review_id"
+   ]
+  },
+  "tests/test_reference_review.py::test_run_strata_guarantees_blind_sound_and_misleading_cases": {
+   "count": 2,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "evaluation.evaltools.reference_review:export_requests",
+    "evaluation.evaltools.reference_review:review_id"
+   ]
+  },
+  "tests/test_reference_review.py::test_run_strata_fail_closed_when_balanced_review_is_impossible": {
+   "count": 2,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "evaluation.evaltools.reference_review:export_requests",
+    "evaluation.evaltools.reference_review:review_id"
    ]
   },
   "tests/test_request_deadline.py::test_work_finished_in_time_gives_its_result": {
