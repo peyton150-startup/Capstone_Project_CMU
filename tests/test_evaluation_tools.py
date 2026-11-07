@@ -974,6 +974,15 @@ def test_preflight_refuses_corrupt_order_and_missing_provenance():
         ),
         (
             {
+                "evidence": [
+                    trace.evidence[0].model_copy(update={"origin": "unknown"}),
+                    *trace.evidence[1:],
+                ]
+            },
+            "evidence lacks provenance origin",
+        ),
+        (
+            {
                 "decisions": [
                     trace.decisions[0],
                     trace.decisions[0],

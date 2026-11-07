@@ -20,7 +20,7 @@ def trace_issues(packet: RunEvidencePacket) -> list[str]:
         issues.append("duplicate evidence IDs")
     if any(not item.content for item in trace.evidence):
         issues.append("empty evidence content")
-    if any(not item.origin for item in trace.evidence):
+    if any(not item.origin or item.origin == "unknown" for item in trace.evidence):
         issues.append("evidence lacks provenance origin")
     hypothesis_ids = [item.id for item in trace.hypotheses]
     if len(hypothesis_ids) != len(set(hypothesis_ids)):
