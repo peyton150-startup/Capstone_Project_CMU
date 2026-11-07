@@ -12,6 +12,10 @@ Recovery:
 - OUT_OF_RANGE (we asked for data the agent no longer holds) or a changed
   instanceId (the agent restarted and its sequences started again): go back
   to step 1 and report a gap. Data lost in between is not invented.
+- A buffer overrun (the agent's oldest held sequence is past where we asked to
+  start) is also a gap, and its lost sequence range is exact.
+- Every gap is written to the file as a `gap` marker, before the records that
+  follow it, saying what was lost as far as it is known.
 - Network or parse failure: report it and try again on the next poll.
 
 Only HTTP GET is ever sent. The collector does not choose what the machine
@@ -30,7 +34,12 @@ from pathlib import Path
 from typing import Literal, TextIO
 
 from capstone.ingestion.mtconnect import MTConnectError, parse_streams
-from capstone.ingestion.record import CollectorMarker, Line, TelemetryRecord
+from capstone.ingestion.record import (
+    CollectorMarker,
+    GapDetail,
+    Line,
+    TelemetryRecord,
+)
 
 # The fastest a collector may poll. Real machines are shared production
 # equipment; agree the actual rate with the shop before running.
@@ -82,12 +91,18 @@ class PollResult:
 
     # Variables:
     #   records: New observations, in sequence order, never repeated.
-    #   gap: True when data may have been lost (buffer overrun or agent restart).
+    #   gap_detail: What was lost before `records`, and why; None when nothing
+    #     was lost.
     #   more_waiting: True when the agent holds more than one request returned,
     #     so the caller should poll again without waiting.
     records: list[TelemetryRecord] = field(default_factory=list)
-    gap: bool = False
+    gap_detail: GapDetail | None = None
     more_waiting: bool = False
+
+    @property
+    def gap(self) -> bool:
+        """True when data was lost (buffer overrun, OUT_OF_RANGE or restart)."""
+        return self.gap_detail is not None
 
 
 class MTConnectCollector:
@@ -113,6 +128,8 @@ class MTConnectCollector:
         #   _next: The sequence the next /sample starts from; None means "start
         #     again from /current".
         #   _instance_id: The agent run we are following; a change means restart.
+        #   _last_received_at: When the newest observation this collector
+        #     returned was received; a gap marker uses it as the gap's start.
         if count < 1:
             raise ValueError("count must be at least 1")
         self.base_url = base_url.rstrip("/")
@@ -122,6 +139,7 @@ class MTConnectCollector:
         self.now = now
         self._next: int | None = None
         self._instance_id: str | None = None
+        self._last_received_at: datetime | None = None
 
     def _url(self, request: str) -> str:
         """The URL for a request, scoped to the device if one was chosen."""
@@ -148,9 +166,12 @@ class MTConnectCollector:
         #   document: The parsed reply: its header numbers and its records.
         #   restarted: True when the agent's instanceId changed since the last
         #     poll, meaning its sequence numbers started again.
+        #   previous_instance: The agent run followed before this reply, kept
+        #     so a restart's gap can name both runs.
         #   records: The reply's records, minus any already written.
-        #   gap: True when data may have been lost: a restart, or the agent's
-        #     oldest held sequence is past where we asked to start.
+        #   gap_detail: What was lost before `records`: a restart, or a buffer
+        #     overrun (the agent's oldest held sequence is past where we asked
+        #     to start); None if nothing was.
         starting = self._next is None
         requested_from = self._next
         url = (
@@ -165,28 +186,52 @@ class MTConnectCollector:
         except MTConnectError as error:
             if "OUT_OF_RANGE" in error.codes:
                 self._next = None
-                return PollResult(gap=True)
+                # The agent no longer holds requested_from; where the loss
+                # ends is only learned from the next /current, so it stays None.
+                return PollResult(
+                    gap_detail=GapDetail(
+                        cause="out_of_range",
+                        lost_from_sequence=requested_from,
+                        last_received_at=self._last_received_at,
+                    )
+                )
             raise
 
+        previous_instance = self._instance_id
         restarted = (
-            self._instance_id is not None and document.instance_id != self._instance_id
+            previous_instance is not None and document.instance_id != previous_instance
         )
         self._instance_id = document.instance_id
-        if restarted and not starting:
-            # Sequences from the old run mean nothing in the new one.
-            self._next = None
-            return PollResult(gap=True)
+        gap_detail: GapDetail | None = None
+        if restarted:
+            # Sequences from the old run mean nothing in the new one, so only
+            # the time span of the loss is known.
+            gap_detail = GapDetail(
+                cause="agent_restart",
+                last_received_at=self._last_received_at,
+                instance_id_before=previous_instance,
+                instance_id_after=document.instance_id,
+            )
+            if not starting:
+                self._next = None
+                return PollResult(gap_detail=gap_detail)
 
         self._next = document.next_sequence
         records = document.records
         if not starting:
             records = [r for r in records if r.sequence >= (requested_from or 0)]
-        gap = restarted or (
-            not starting and (requested_from or 0) < document.first_sequence
-        )
+            if (requested_from or 0) < document.first_sequence:
+                gap_detail = GapDetail(
+                    cause="buffer_overrun",
+                    lost_from_sequence=requested_from,
+                    lost_to_sequence=document.first_sequence - 1,
+                    last_received_at=self._last_received_at,
+                )
+        if records:
+            self._last_received_at = max(r.received_at for r in records)
         return PollResult(
             records=records,
-            gap=gap,
+            gap_detail=gap_detail,
             more_waiting=not starting
             and document.next_sequence <= document.last_sequence,
         )
@@ -231,7 +276,8 @@ def run_collector(
     #   sleep: Waits between polls; replaced by a fake clock in tests.
     #   log: Where failures and gaps are reported; None means standard error.
     #   polls: Polls made so far, compared with max_polls.
-    #   result: One poll's records and its gap and more_waiting flags.
+    #   result: One poll's records, what was lost before them (if anything),
+    #     and whether more is waiting.
     #   written: Records appended so far, returned for the caller's summary.
     #   reason: Why collection ended on purpose, written into the stop marker.
     #   heartbeat_every: Seconds without a written line after which a
@@ -256,20 +302,23 @@ def run_collector(
                 )
                 sleep(interval)
                 continue
+            if result.gap_detail is not None:
+                # Before the records: the loss happened before they were sent.
+                append_jsonl(out, [_marker(collector, "gap", gap=result.gap_detail)])
+                print(
+                    f"gap ({result.gap_detail.cause}): some observations were "
+                    "lost; restarted from /current",
+                    file=log or sys.stderr,
+                )
             append_jsonl(out, result.records)
             written += len(result.records)
             # now: The collector's clock after this poll, compared with last_write.
             now = collector.now()
-            if result.records:
+            if result.records or result.gap:
                 last_write = now
             elif (now - last_write).total_seconds() >= heartbeat_every:
                 append_jsonl(out, [_marker(collector, "heartbeat")])
                 last_write = now
-            if result.gap:
-                print(
-                    "gap: some observations were lost; restarted from /current",
-                    file=log or sys.stderr,
-                )
             if not result.more_waiting:
                 sleep(interval)
         reason = "poll limit reached"
@@ -281,13 +330,20 @@ def run_collector(
 
 def _marker(
     collector: MTConnectCollector,
-    event: Literal["started", "heartbeat", "stopped"],
+    event: Literal["started", "heartbeat", "stopped", "gap"],
     reason: str | None = None,
+    gap: GapDetail | None = None,
 ) -> CollectorMarker:
-    """A start, heartbeat or stop marker for this collector, timed on its clock."""
+    """A start, heartbeat, stop or gap marker for this collector, on its clock."""
     # Variables:
-    #   event: "started", "heartbeat" (alive, nothing new to write) or "stopped".
-    #   reason: Why it stopped (e.g. "interrupted"); None for a start.
+    #   event: "started", "heartbeat" (alive, nothing new to write), "stopped"
+    #     or "gap" (observations were lost just before this point).
+    #   reason: Why it stopped (e.g. "interrupted"); None otherwise.
+    #   gap: For a gap marker only: what was lost and why.
     return CollectorMarker(
-        source=collector.base_url, event=event, at=collector.now(), reason=reason
+        source=collector.base_url,
+        event=event,
+        at=collector.now(),
+        reason=reason,
+        gap=gap,
     )

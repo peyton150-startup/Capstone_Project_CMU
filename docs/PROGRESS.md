@@ -1,5 +1,48 @@
 # Progress Log
 
+> **2026-11-07 — SM-1 versioned channel map from `/probe` (built ungated at the developer's direction; pre-check, closing questions and pre-merge walkthrough owed; understood: no):**
+> New module `ingestion/channel_map.py`. `parse_probe` reads every DataItem of a saved MTConnectDevices document into a
+> `ChannelEntry`: device name and uuid, enclosing component and its kind, id, name, category, type, subtype, and units,
+> native units and native scale exactly as the probe states them (None when it states none). `build_channel_map` adds a
+> person's assignment file (`Assignment`: what the item `measures` physically, and which agent `tool_sensor` it feeds,
+> limited to the observation tools' sensor names); nothing is inferred from item names, and an assignment for an id the
+> probe lacks is refused. `ChannelMap` stores `probe_sha256`, a hash of the probe's `<Devices>` section in canonical XML
+> (the header is left out because its creation time and instance id change on every request), and `verify_probe` refuses
+> a probe whose channels differ. `check_capture` maps every observation of a capture to one entry (by device name or
+> uuid) or lists it as `Unmapped`, counts available values per channel, and reports a record whose category or type
+> disagrees with its entry; `with_reported` records which channels the machine actually reported. Command line:
+> `python -m capstone.ingestion.channel_map build|check`, which refuses output inside a git checkout like the collector.
+> Not done: no real machine probe yet (tests use a synthetic probe shaped like demo.mtconnect.org); the map is not yet
+> used by a provider (SM-3) or by per-channel staleness (SM-2's remainder). PR #206. Owed questions: pre-check, "why is
+> the probe's header left out of the hash, and what would go wrong if it were included?"; closing, "a capture holds a
+> `PathFeedrate` record whose id is not in the map: what does `check_capture` report, and why is it not matched to the
+> nearest similar channel?"
+
+> **2026-11-07 — SM-2 gap markers in the telemetry file (built ungated at the developer's direction; pre-check, closing questions and pre-merge walkthrough owed; understood: no):**
+> When the collector loses observations, it now writes a `gap` line into the
+> JSONL file, before the readings that follow the loss, instead of only
+> printing to stderr. `ingestion/record.py` adds `GapDetail` (the cause:
+> `buffer_overrun`, `out_of_range` or `agent_restart`; the lost sequence range
+> as far as it is known; when the last reading before the gap was received;
+> both agent run ids for a restart), the `gap` event on `CollectorMarker`
+> (schema version 2; version 1 lines still read) and `gap_free_runs`, which
+> splits a file's readings at every gap and collector start so no later
+> statistic joins values across a hole. `ingestion/collector.py`: `poll()`
+> returns a `GapDetail` (`PollResult.gap` is now derived from it) and tracks
+> the last reading's receive time; `run_collector` writes the marker.
+> `monitoring/monitor.py` turns a gap into a data-loss warning with the
+> sequence range, counts it as contact, and no longer mistakes it for a
+> collector restart. Not done here, by design: a failed poll writes no gap
+> (the agent buffers, and a real loss shows as an overrun or OUT_OF_RANGE on
+> the next poll); per-channel staleness waits for SM-1's channel map, and
+> UNAVAILABLE spans for SM-5. Owed questions: pre-check, "the network drops
+> for five minutes and the agent's buffer holds three minutes of data: what
+> does the file show, and which bounds of the loss are known?"; closing,
+> "why is the gap marker written before that poll's readings, and what would
+> `gap_free_runs` get wrong if it were written after?"
+> The developer said on 2026-11-07 to skip the AGENTS.md §11.6 walkthrough for now and owe it, so this PR was
+> merged on green CI without it.
+
 > **2026-11-06 — staged CPU anomaly detector promoted to HIGH-priority future work (documentation only):**
 > `docs/MVP_SCOPE.md` now lists a CPU-based statistical detector under
 > **Tooling and infrastructure** in both top-of-document future-work tables,
