@@ -1,5 +1,23 @@
 # Progress Log
 
+> **2026-11-07 — SM-1 versioned channel map from `/probe` (built ungated at the developer's direction; pre-check, closing questions and pre-merge walkthrough owed; understood: no):**
+> New module `ingestion/channel_map.py`. `parse_probe` reads every DataItem of a saved MTConnectDevices document into a
+> `ChannelEntry`: device name and uuid, enclosing component and its kind, id, name, category, type, subtype, and units,
+> native units and native scale exactly as the probe states them (None when it states none). `build_channel_map` adds a
+> person's assignment file (`Assignment`: what the item `measures` physically, and which agent `tool_sensor` it feeds,
+> limited to the observation tools' sensor names); nothing is inferred from item names, and an assignment for an id the
+> probe lacks is refused. `ChannelMap` stores `probe_sha256`, a hash of the probe's `<Devices>` section in canonical XML
+> (the header is left out because its creation time and instance id change on every request), and `verify_probe` refuses
+> a probe whose channels differ. `check_capture` maps every observation of a capture to one entry (by device name or
+> uuid) or lists it as `Unmapped`, counts available values per channel, and reports a record whose category or type
+> disagrees with its entry; `with_reported` records which channels the machine actually reported. Command line:
+> `python -m capstone.ingestion.channel_map build|check`, which refuses output inside a git checkout like the collector.
+> Not done: no real machine probe yet (tests use a synthetic probe shaped like demo.mtconnect.org); the map is not yet
+> used by a provider (SM-3) or by per-channel staleness (SM-2's remainder). PR #206. Owed questions: pre-check, "why is
+> the probe's header left out of the hash, and what would go wrong if it were included?"; closing, "a capture holds a
+> `PathFeedrate` record whose id is not in the map: what does `check_capture` report, and why is it not matched to the
+> nearest similar channel?"
+
 > **2026-11-07 — SM-2 gap markers in the telemetry file (built ungated at the developer's direction; pre-check, closing questions and pre-merge walkthrough owed; understood: no):**
 > When the collector loses observations, it now writes a `gap` line into the
 > JSONL file, before the readings that follow the loss, instead of only
