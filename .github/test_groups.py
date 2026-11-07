@@ -125,6 +125,7 @@ GROUPS: dict[str, list[str]] = {
         "experiment",
         "gap_trace",
         "evals",
+        "coverage_eval_cli_edges",
         "known_answers",
         "baseline",
         "memory_comparison",
