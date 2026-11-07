@@ -170,7 +170,8 @@ def test_an_audit_log_gives_the_packet_a_full_trace(tmp_path):
     )
     trace = packet.snap_view.trace
     assert trace.completeness == "full"
-    assert [e.origin for e in trace.evidence] == ["observable", "observable"]
+    # The time, the loop's line screening, then the stand-in's reading.
+    assert [e.origin for e in trace.evidence] == ["observable"] * 3
     assert packet.snap_view.facts.machines_examined == ["CNC-02"]
     assert packet.evaluator_only.verification_calibration == "no_verdict"
     # Unjudged until a label exists; never counted as wrong.

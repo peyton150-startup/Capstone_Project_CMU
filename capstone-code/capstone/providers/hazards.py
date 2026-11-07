@@ -50,12 +50,16 @@ from pydantic import JsonValue
 
 from capstone.contracts.tools import ToolError, ToolRequest, ToolResult
 from capstone.providers.factory import FactoryProvider
+from capstone.tools.screening import FEED_UNAVAILABLE
 
 TIMEOUT_MESSAGE = "The tool timed out. It may answer if asked again."
 # Says the feed is down, never for how long: the agent is not told when it ends.
 BLACKOUT_MESSAGE = "The sensor feed for {machine_id} is not responding."
 # The sensor tools a dead feed takes down, for the one machine.
 BLACKOUT_TOOLS = ("get_readings", "get_sensor_trend", "get_sensor_summary")
+# The whole-line screening answers for every machine at once, so a blackout
+# does not refuse it: it takes away only the dead machine's entry.
+SCREENING_TOOL = "get_line_screening"
 # How long the feed stays down, in ticks from the start of the run; the
 # length is drawn from the seeded stream named here. Chosen by the developer
 # (2026-10-29): short enough that one small wait clears it.
@@ -245,6 +249,9 @@ class UnreliableProvider:
             self._waiting.remove(name)
             self.report.retried += 1
 
+        if name == SCREENING_TOOL:
+            result = self._screen_without_dead_feeds(result)
+
         gap = self._find(Gap, name, nth)
         if gap is not None and isinstance(result.data, list):
             self._fire(gap)
@@ -278,6 +285,36 @@ class UnreliableProvider:
             ):
                 return hazard
         return None
+
+    def _screen_without_dead_feeds(
+        self, result: ToolResult[JsonValue]
+    ) -> ToolResult[JsonValue]:
+        """The line screening with each blacked-out machine's scores taken away.
+
+        The screening is built from the same sensor feed the blackout takes
+        down, so while a machine's feed is down its entry says only that.
+        Other machines are untouched, and nothing says when the feed returns.
+        """
+        # Variables:
+        #   result: The real screening answer, at the tick it was asked.
+        #   dead: The machines whose feed is down at that tick.
+        #   machines: The answer's per-machine entries, with the dead ones replaced.
+        dead = [
+            hazard
+            for hazard in self._hazards
+            if isinstance(hazard, Blackout)
+            and result.tick is not None
+            and result.tick < hazard.until_tick
+        ]
+        if not dead or not isinstance(result.data, dict):
+            return result
+        machines = dict(result.data.get("machines", {}))
+        for hazard in dead:
+            if hazard.machine_id in machines:
+                machines[hazard.machine_id] = FEED_UNAVAILABLE
+                if hazard.describe() not in self.report.fired:
+                    self.report.fired.append(hazard.describe())
+        return result.model_copy(update={"data": {**result.data, "machines": machines}})
 
     def _find(self, kind, tool: str, nth: int):
         for hazard in self._hazards:

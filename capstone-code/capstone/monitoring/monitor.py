@@ -17,7 +17,10 @@ Rules, all edge-triggered (an alert fires when a state starts, and a
                  a start not preceded by a stop is a warning that the previous
                  run ended without a clean stop (it may have crashed); a
                  heartbeat counts as contact with that agent's devices, so a
-                 quiet machine is not called stale.
+                 quiet machine is not called stale. A gap marker is a
+                 warning that observations were lost (with the sequence range
+                 when it is known); it also counts as contact, because the
+                 collector heard from the agent to notice it.
 
 This is plain code: no model or agent monitors, and nothing here reads a
 clock, the network or a random source. The monitor is a pure function of
@@ -30,7 +33,7 @@ from typing import Literal
 
 from pydantic import BaseModel, ConfigDict
 
-from capstone.ingestion.record import CollectorMarker, TelemetryRecord
+from capstone.ingestion.record import CollectorMarker, GapDetail, TelemetryRecord
 
 AlertKind = Literal[
     "condition",
@@ -138,17 +141,22 @@ class Monitor:
         return alerts
 
     def observe_marker(self, marker: CollectorMarker) -> list[Alert]:
-        """Note a collector start or clean stop and return the alerts it causes."""
+        """Note a collector start, stop, heartbeat or gap; return its alerts."""
         # Variables:
         #   was_running: True if this source's collector had started (or sent
         #     data) and never wrote a clean stop; a new start then means the
         #     previous run ended some other way.
+        #   marker.gap: Set only on a gap marker; what was lost, which becomes
+        #     the warning's message. A heartbeat and a gap both count as
+        #     contact, since the collector heard from the agent to write them.
         was_running = marker.source in self._running
-        if marker.event == "heartbeat":
+        if marker.event in ("heartbeat", "gap"):
             self._running.add(marker.source)
             for device in self._devices.get(marker.source, set()):
                 self._last_seen[device] = marker.at
-            return []
+            if marker.gap is None:
+                return []
+            return [self._collector(marker, "warning", _gap_message(marker.gap))]
         if marker.event == "stopped":
             self._running.discard(marker.source)
             for device in self._devices.get(marker.source, set()):
@@ -343,3 +351,22 @@ class Monitor:
                 self._alert(record, "recovered", "info", f"{record.type} back in range")
             ]
         return []
+
+
+def _gap_message(gap: GapDetail) -> str:
+    """A plain-English description of what a gap lost."""
+    # Variables:
+    #   causes: Each gap cause in words a technician can read.
+    #   lost: The lost sequence numbers as far as they are known, e.g.
+    #     "sequences 120-480" or "from sequence 120"; empty for a restart.
+    causes = {
+        "buffer_overrun": "the agent overwrote them before they were read",
+        "out_of_range": "the agent no longer held them",
+        "agent_restart": "the agent restarted",
+    }
+    lost = ""
+    if gap.lost_from_sequence is not None and gap.lost_to_sequence is not None:
+        lost = f" (sequences {gap.lost_from_sequence}-{gap.lost_to_sequence})"
+    elif gap.lost_from_sequence is not None:
+        lost = f" (from sequence {gap.lost_from_sequence})"
+    return f"observations lost{lost}: {causes[gap.cause]}"
