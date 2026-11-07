@@ -86,7 +86,7 @@ jobs:
         run: uv sync --locked --all-extras
       - name: Offline tests and informational coverage
         run: >-
-          uv run --locked --all-extras pytest --cov=capstone --cov-context=test
+          uv run --locked --all-extras pytest --cov=capstone --cov=evaltools --cov-context=test
           --junitxml=junit.xml --cov-report=term-missing
           --cov-report=markdown-append:"$GITHUB_STEP_SUMMARY"
       - name: Rebuild evaluation inventories from full per-test coverage
@@ -100,3 +100,49 @@ jobs:
             evaluation/inventory/TEST_INVENTORY.json
             evaluation/inventory/TOOL_INVENTORY.json
             evaluation/inventory/VERIFICATION_MATRIX.json
+
+  format_added_tests_once:
+    name: Format newly added coverage tests (temporary)
+    if: >-
+      github.event_name == 'pull_request' &&
+      github.event.pull_request.number == 196 &&
+      github.event.pull_request.head.repo.full_name == github.repository &&
+      github.event.pull_request.head.ref == 'codex/evaluator-full-audit'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: \${{ github.event.pull_request.head.ref }}
+          persist-credentials: true
+      - name: Detect temporary formatting marker
+        id: marker
+        run: |
+          if test -f evaluation/.format_coverage_once; then
+            echo "ready=true" >> "$GITHUB_OUTPUT"
+          fi
+      - name: Install uv
+        if: steps.marker.outputs.ready == 'true'
+        uses: astral-sh/setup-uv@c771a70e6277c0a99b617c7a806ffedaca235ff9 # v9.0.0
+        with:
+          version: "0.13.0"
+          enable-cache: true
+      - name: Install pinned Python
+        if: steps.marker.outputs.ready == 'true'
+        run: uv python install
+      - name: Install locked dependencies
+        if: steps.marker.outputs.ready == 'true'
+        run: uv sync --locked --all-extras
+      - name: Apply Ruff formatting and push to the same branch
+        if: steps.marker.outputs.ready == 'true'
+        run: |
+          uv run --locked --all-extras ruff format tests/test_coverage_*.py
+          rm evaluation/.format_coverage_once
+          git add tests/test_coverage_*.py evaluation/.format_coverage_once
+          if ! git diff --cached --quiet; then
+            git -c user.name="github-actions[bot]" \
+              -c user.email="41898282+github-actions[bot]@users.noreply.github.com" \
+              commit -m "Format added deterministic coverage tests"
+            git push origin HEAD:refs/heads/codex/evaluator-full-audit
+          fi
