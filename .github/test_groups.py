@@ -119,6 +119,8 @@ GROUPS: dict[str, list[str]] = {
         "evaluation_tools",
         "full_evaluation",
         "reference_review",
+        "coverage_reference_edges",
+        "coverage_entrypoints",
     ],
     # Many episodes: the harness, hand labels and the known-answer cases.
     "Experiments": [
