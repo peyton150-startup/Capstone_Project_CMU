@@ -180,6 +180,7 @@ def test_evals_cli_rescores_saved_records_and_writes_diff_without_model(
 
 def test_evals_cli_saves_fresh_rows_and_uses_live_watch_hook(monkeypatch, tmp_path):
     monkeypatch.setattr(evals, "load_scenarios", lambda _: one_scenario())
+    monkeypatch.setattr(evals, "open_manual", lambda _: None)
     monkeypatch.setattr(evals, "report_of", lambda *a, **kw: fake_report())
     saved = []
     monkeypatch.setattr(
@@ -296,8 +297,9 @@ def test_experiment_open_memory_converts_postgres_driver_without_connecting(
     assert result[0] is engine
 
 
-def test_experiment_cli_prevents_audit_records_collision(tmp_path, capsys):
+def test_experiment_cli_prevents_audit_records_collision(tmp_path, capsys, monkeypatch):
     out = tmp_path / "same.jsonl"
+    monkeypatch.setattr(experiment, "open_manual", lambda _: None)
     with pytest.raises(SystemExit) as stopped:
         experiment.main(
             [
@@ -326,6 +328,7 @@ def test_experiment_cli_does_not_hide_provider_failures_and_interrupts(
     monkeypatch, tmp_path, failure
 ):
     monkeypatch.setattr(experiment, "known_cases", lambda: [])
+    monkeypatch.setattr(experiment, "open_manual", lambda _: None)
     monkeypatch.setattr(
         experiment,
         "model_policy_factory",
