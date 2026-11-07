@@ -77,7 +77,9 @@ def export_requests(
         selected = candidates[:limit]
         if family == "RUN" and run_strata is not None and limit:
             if limit < 2:
-                raise ValueError("at least two RUN review slots are needed for both strata")
+                raise ValueError(
+                    "at least two RUN review slots are needed for both strata"
+                )
             required = []
             for label in ("sound", "misleading"):
                 match = next(
@@ -94,9 +96,12 @@ def export_requests(
                     raise ValueError(f"no full-trace RUN item in {label} stratum")
                 required.append(match)
             selected_ids = {item_id for item_id, _ in required}
-            selected = required + [
-                pair for pair in candidates if pair[0] not in selected_ids
-            ][: limit - len(required)]
+            selected = (
+                required
+                + [pair for pair in candidates if pair[0] not in selected_ids][
+                    : limit - len(required)
+                ]
+            )
         chosen.extend((item_id, item) for item_id, item in selected)
     out.mkdir(parents=True, exist_ok=False)
     blinded = out / "blinded"

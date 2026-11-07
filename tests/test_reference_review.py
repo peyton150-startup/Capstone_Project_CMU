@@ -108,9 +108,20 @@ def test_run_strata_guarantees_blind_sound_and_misleading_cases(tmp_path):
                     "tags": {
                         "family": "RUN",
                         "item_id": item_id,
-                        "questions": {"quality": {"id": "RUN-01", "type": "score", "criteria": ["0", "1"]}},
+                        "questions": {
+                            "quality": {
+                                "id": "RUN-01",
+                                "type": "score",
+                                "criteria": ["0", "1"],
+                            }
+                        },
                     },
-                    "body": {"state": {"run_ref": "opaque", "trace": {"completeness": "full"}}},
+                    "body": {
+                        "state": {
+                            "run_ref": "opaque",
+                            "trace": {"completeness": "full"},
+                        }
+                    },
                 }
             ),
             encoding="utf-8",
@@ -148,7 +159,9 @@ def test_run_strata_fail_closed_when_balanced_review_is_impossible(tmp_path):
         ),
         encoding="utf-8",
     )
-    with pytest.raises(ValueError, match="no full-trace RUN item in misleading stratum"):
+    with pytest.raises(
+        ValueError, match="no full-trace RUN item in misleading stratum"
+    ):
         export_requests(
             requests,
             tmp_path / "review",

@@ -933,18 +933,26 @@ def test_preflight_validates_recheck_and_verification_evidence():
     recheck = run_packet.RecheckView(outcome="performed", evidence_id="missing-recheck")
     changed = trace.model_copy(update={"recheck": recheck})
     assert "unknown cited evidence IDs" in str(
-        trace_issues(full.model_copy(update={
-            "snap_view": full.snap_view.model_copy(update={"trace": changed})
-        }))
+        trace_issues(
+            full.model_copy(
+                update={
+                    "snap_view": full.snap_view.model_copy(update={"trace": changed})
+                }
+            )
+        )
     )
     verification = trace.verification.model_copy(
         update={"evidence_ids": ["missing-verification"]}
     )
     changed = trace.model_copy(update={"verification": verification})
     assert "unknown cited evidence IDs" in str(
-        trace_issues(full.model_copy(update={
-            "snap_view": full.snap_view.model_copy(update={"trace": changed})
-        }))
+        trace_issues(
+            full.model_copy(
+                update={
+                    "snap_view": full.snap_view.model_copy(update={"trace": changed})
+                }
+            )
+        )
     )
 
 
@@ -962,11 +970,23 @@ def test_preflight_refuses_corrupt_order_and_missing_provenance():
     changes = (
         ({"evidence": [changed_evidence, *trace.evidence[1:]]}, "provenance origin"),
         (
-            {"decisions": [trace.decisions[0], trace.decisions[0], *trace.decisions[1:]]},
+            {
+                "decisions": [
+                    trace.decisions[0],
+                    trace.decisions[0],
+                    *trace.decisions[1:],
+                ]
+            },
             "duplicate decision sequences",
         ),
         (
-            {"hypotheses": [trace.hypotheses[0], trace.hypotheses[0], *trace.hypotheses[1:]]},
+            {
+                "hypotheses": [
+                    trace.hypotheses[0],
+                    trace.hypotheses[0],
+                    *trace.hypotheses[1:],
+                ]
+            },
             "duplicate hypothesis IDs",
         ),
         (
