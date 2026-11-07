@@ -263,6 +263,7 @@ def test_experiment_open_memory_converts_postgres_driver_without_connecting(
     monkeypatch,
 ):
     import sqlalchemy
+
     from capstone import settings
     from capstone.memory import repository, service
 

@@ -52,6 +52,7 @@ def test_memory_backfill_cli_reads_only_disposes_and_rebuilds(
 ):
     """Database access ends before the derived Chroma index is touched."""
     import sqlalchemy
+
     from capstone import settings
     from capstone.memory import repository, semantic
 
@@ -104,6 +105,7 @@ def test_memory_backfill_cli_reads_only_disposes_and_rebuilds(
 
 def test_memory_backfill_disposes_engine_after_read_failure(monkeypatch):
     import sqlalchemy
+
     from capstone import settings
     from capstone.memory import repository
 
@@ -166,7 +168,8 @@ def test_duplicate_measure_cli_chooses_offline_or_provider_embedder(
     from capstone.providers import embeddings
 
     calls = []
-    embed = lambda texts: [[1.0, 0.0] for _ in texts]
+    def embed(texts):
+        return [[1.0, 0.0] for _ in texts]
     monkeypatch.setattr(
         settings,
         "get_settings",
@@ -259,9 +262,12 @@ def test_manual_open_index_supports_local_and_separate_query_embeddings(
     from capstone.providers import embeddings
 
     local_calls = []
-    local_embed = lambda texts: [[1.0] for _ in texts]
-    passage = lambda texts: [[2.0] for _ in texts]
-    query = lambda texts: [[3.0] for _ in texts]
+    def local_embed(texts):
+        return [[1.0] for _ in texts]
+    def passage(texts):
+        return [[2.0] for _ in texts]
+    def query(texts):
+        return [[3.0] for _ in texts]
     monkeypatch.setattr(
         semantic,
         "default_embedder",
