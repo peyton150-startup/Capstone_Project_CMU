@@ -343,8 +343,8 @@ This reorganizes the existing roadmap, not its implementation status or authorit
 
 | Rank | Priority | Category | Item | When | Depends on |
 |---|---|---|---|---|---|
-| SM-1 | **HIGH** | Tooling | [Versioned channel map from `/probe`](#fw-sm-channel-map) | Before connecting | Saved `/probe` |
-| SM-2 | **HIGH** | Tooling | [Collection gaps and data quality in the telemetry file](#fw-sm-gap-events) | Before connecting | Existing collector |
+| SM-1 | **HIGH** | Tooling | [Versioned channel map from `/probe`](#fw-sm-channel-map) (**built, PR #206**; awaits a real probe) | Before connecting | Saved `/probe` |
+| SM-2 | **HIGH** | Tooling | [Collection gaps and data quality in the telemetry file](#fw-sm-gap-events) (**gap markers built, PR #204**; staleness and UNAVAILABLE spans not yet) | Before connecting | Existing collector |
 | SM-3 | **HIGH** | Tooling | [Read-only real-data provider over recorded JSONL](#fw-sm-real-provider) | Before connecting | SM-1, SM-2 |
 | SM-4 | **HIGH** | Pilot readiness | [Shop visit checklist and technician event log](#fw-sm-visit-log) | Before and during the visit | None |
 | SM-5 | **HIGH** | Tooling | [Time-aware statistics for unevenly sampled data](#fw-sm-time-stats) | Once readings exist (demo agent data is enough to start) | SM-3 |
@@ -395,8 +395,8 @@ flowchart LR
 
 | Priority | Category | Item | Short summary |
 |---|---|---|---|
-| **HIGH** | Tooling | [SM-1 Versioned channel map from `/probe`](#fw-sm-channel-map) | Map every data item to its unit, meaning, tool sensor and availability; current focus. |
-| **HIGH** | Tooling | [SM-2 Collection gaps in the telemetry file](#fw-sm-gap-events) | Write lost-data, stale and UNAVAILABLE spans into the JSONL instead of stderr. |
+| **HIGH** | Tooling | [SM-1 Versioned channel map from `/probe`](#fw-sm-channel-map) | Map every data item to its unit, meaning, tool sensor and availability; current focus. Built (PR #206); awaits the machine's real probe. |
+| **HIGH** | Tooling | [SM-2 Collection gaps in the telemetry file](#fw-sm-gap-events) | Write lost-data, stale and UNAVAILABLE spans into the JSONL instead of stderr. Lost-data gap markers built (PR #204); stale and UNAVAILABLE spans not yet. |
 | **HIGH** | Tooling | [SM-3 Real-data provider](#fw-sm-real-provider) | Answer the existing observation tools from a recorded capture, read-only. |
 | **HIGH** | Pilot readiness | [SM-4 Shop visit checklist and technician event log](#fw-sm-visit-log) | Can we read it, interpret it, verify it; log program/tool changes and maintenance. |
 | **HIGH** | Tooling | [SM-5 Time-aware statistics](#fw-sm-time-stats) | Time-weighted means and slopes for uneven samples; never span a gap. |
@@ -2357,7 +2357,19 @@ Tested](https://www.requesty.ai/blog/structured-outputs-across-llm-providers-the
 **Before connecting to the machine (HIGH):**
 
 - <a id="fw-sm-channel-map"></a> **SM-1: Versioned channel map from `/probe` (HIGH).** From the saved probe, record for each data item its id, category, type and subtype, units as the probe states them, what it measures physically, which tool sensor it feeds (or none), and whether the machine actually reports it. Tie the map to a hash of the probe so a controller update cannot silently change a channel's meaning. Units and meaning come from the probe, never from assumption. This is the mapping table the pilot plan defers until the probe exists. *Accept:* every observation in a capture maps to one channel entry or is reported as unmapped; no unit is guessed.
+  **Status (2026-11-07): built, PR #206 (built ungated at the developer's direction; questions and walkthrough owed; understood: no).**
+  - *Built:* `capstone/ingestion/channel_map.py` reads every DataItem of a saved probe with its units exactly as stated. A person's assignment file adds what each item measures and which agent sensor it feeds; nothing is inferred from names.
+  - *Built:* the map holds a hash of the probe's device description, so a changed controller layout is refused. `check_capture` maps each observation to one entry or lists it as unmapped, flags category/type disagreements, and records which channels reported a value.
+  - *Built:* command line `python -m capstone.ingestion.channel_map build|check`, which refuses to write inside a git checkout.
+  - *Acceptance:* tested on a synthetic probe shaped like demo.mtconnect.org. Not yet run on the real machine's probe, which does not exist yet.
+  - *Not built:* use of the map by the real-data provider (SM-3) and by per-channel staleness (SM-2's remainder).
 - <a id="fw-sm-gap-events"></a> **SM-2: Collection gaps and data quality written into the telemetry file (HIGH).** When a poll reports a gap, a poll fails, or the agent restarts (`instance_id` changes), append a typed marker next to the existing `started`/`heartbeat`/`stopped` markers, with the time span and sequence range affected. Mark channels as stale when no update arrives within an agreed age. The MTConnect standard defines an `UNAVAILABLE` result as indeterminate, so it is a gap, not a value. Replay and the Investigator then know exactly where data was lost. *Accept:* replaying a capture with an injected gap reports the gap at the same place, and no statistic spans it.
+  **Status (2026-11-07): partly built, PR #204 (built ungated at the developer's direction; questions owed; understood: no).**
+  - *Built:* the collector writes a `gap` marker (`CollectorMarker` event `gap`, schema version 2) before the readings that follow a loss. It says the cause (`buffer_overrun`, `out_of_range` or `agent_restart`), the lost sequence range as far as it is known, the last reading's receive time, and both agent run ids on a restart.
+  - *Built:* `gap_free_runs` splits readings at every gap and collector start, so a statistic can stay within one run. The monitor reports a gap as a data-loss warning, not a crash.
+  - *Acceptance:* tested with a scripted agent. An injected overrun appears between the readings it separates, with the exact range. Not yet run against a real capture.
+  - *Deliberately not marked:* a failed poll on its own. The agent buffers, so a real loss shows as an overrun or OUT_OF_RANGE on the next successful poll.
+  - *Not built:* per-channel staleness (needs SM-1's channel map, because change-reported channels stay silent when unchanged), and UNAVAILABLE spans written as gaps (with SM-5; readings already carry `available=False`). No replay or provider uses the markers yet (SM-3 will).
 - <a id="fw-sm-real-provider"></a> **SM-3: Read-only real-data provider over recorded JSONL (HIGH).** A `FactoryProvider` implementation that answers the existing `ObservationTools` from a capture: map timestamps to the tools' time axis, map channels through SM-1, return unavailable for anything not collected, and never return readings after the replay cutoff. Collecting readings and making them usable for diagnosis are separate problems; this item is the bridge. Do not feed real observations into the simulator's tick-based arithmetic without SM-5. *Accept:* the existing tool contracts hold on a recorded fixture and simulator regressions stay green.
 
 **Once representative readings exist (HIGH):**
@@ -2392,7 +2404,7 @@ Tested](https://www.requesty.ai/blog/structured-outputs-across-llm-providers-the
 
 <a id="fw-cpu-anomaly-detector"></a>
 
-**Category: Tooling and infrastructure. Priority: HIGH. Status: FUTURE WORK ONLY; not implemented by this roadmap update.** This is a **small CPU-only Python monitoring component**, not a separate LLM or a fine-tuned 0.8B model. It extends the existing read-only `ObservationTools.get_sensor_summary()`, `get_sensor_trend()`, raw readings and machine status, while preserving the existing simulator, `FactoryProvider`, Pydantic Graph, approval and verification boundaries.
+**Category: Tooling and infrastructure. Priority: HIGH. Status: stage 0/1 BUILT 2026-11-06** as the always-on `get_line_screening` tool (`capstone/tools/screening.py`, saved file `capstone/tools/healthy_reference.json`), called by the loop at the start of every investigation on its own allowance. Not yet run live. The roadmap below is kept as written. This is a **small CPU-only Python monitoring component**, not a separate LLM or a fine-tuned 0.8B model. It extends the existing read-only `ObservationTools.get_sensor_summary()`, `get_sensor_trend()`, raw readings and machine status, while preserving the existing simulator, `FactoryProvider`, Pydantic Graph, approval and verification boundaries.
 
 **First increment (no new infrastructure required):**
 
@@ -2426,7 +2438,15 @@ Tested](https://www.requesty.ai/blog/structured-outputs-across-llm-providers-the
   - **Warm-up is saved too.** A machine that has just started cutting runs colder than a warmed-up one: in the probe, healthy CNC-04 was flagged "temperature low" after 19 running readings. So the file also keeps ranges by **running time since the machine started cutting** (for example, the first 50, 50 to 150, then steady), and a machine is compared with the range for its own stage of warm-up.
   - **What still applies:** the detector needs a few readings from the machine itself (the probe used 20 for the recent window). A machine that has not started cutting reports "not running yet", never "normal". Its output always says which reference it used.
   - **Offline probe of this design (2026-11-06, no model calls):** with a 1,000-tick fault-free "before" (taken both from the case's own seed and from a different one, with the same answers either way), the two-score rule found all 6 wear and leak faults and **flagged no healthy machine in any of the 13 cases**. That removed KA-07's `power` false flags. KA-08 scored 6 of 8 machines at its alarm instead of 4. Wrong-setting faults are still missed. At KA-09's tick-71 alarm, five of seven machines, including CNC-07, had not started cutting, so nothing could score them yet.
-- **Open question for the developer:** the course-notebook rule says tools return numbers, not labels ([A4](COURSE_NOTEBOOKS_FUTURE_WORK.md#a4-line-snapshot-at-the-start-of-the-investigation-medium-evidence)). The recommendation is to give the investigator the two scores, the window and the coverage, and not a "flagged" label, so the model still makes the call.
+- **As built (2026-11-06):**
+  - The file records two days (2,880 ticks), so the daily swing in factory air temperature and several material batches are inside the range.
+  - Only temperature has warm-up stages. Load and power depend on the material batch, so a warm-up stage holding one batch was far too narrow and flagged healthy machines.
+  - Across the 13 known cases at their alarm ticks, a two-score rule (both at least 3) still finds all 6 wear and leak faults and flags no healthy machine.
+  - **Compact answer (2026-11-07):** the agent receives, for each machine, each sensor's `[robust_score, plain_score]`, with temperature adding its warm-up stage, or the reason there is no score. The full per-sensor rows (window, medians) stay inside `screening.py`. The full rows were about 16,000 characters, against the 2,000 a prompt shows of one piece of evidence, so most machines never reached the model.
+  - **Blackout:** while a machine's sensor feed is down (`--hazards blackout`), its entry reads `feed_unavailable`, matching the refused sensor tools.
+- **One place for every setting (developer's rule, 2026-11-06):** the seed, length, running threshold, window sizes, warm-up boundaries and warm-up sensors live in the file's `settings`. The screening and the tool description read them from there. A test checks that regenerating gives the committed file, so a value cannot be copied elsewhere and drift.
+- **Real data needs a new "before" file (developer's note, 2026-11-06):** the committed file describes the simulator only. Before the screening is used on a real machine, record a new file from a confirmed healthy period of that machine, such as right after maintenance. Never use the simulator's file against real readings.
+, not labels ([A4](COURSE_NOTEBOOKS_FUTURE_WORK.md#a4-line-snapshot-at-the-start-of-the-investigation-medium-evidence)). The recommendation is to give the investigator the two scores, the window and the coverage, and not a "flagged" label, so the model still makes the call.
 
 **Shared output contract across all stages:** the investigator receives **the same typed, read-only assessment shape** in the [line-wide incident context](#fw-line-context): source/cutoff, machine, sensor window and operating mode, measured features, quality/coverage, rule or model version, alert state and links to supporting observations. A model's anomaly score may be included as a derived numerical signal but must not replace raw evidence or be converted into a fabricated probability of a root cause. **No setting turns the detector on or off, and none selects a stage (developer's decision, 2026-11-06):** it is a normal implementation that always runs, and moving to a later stage replaces the earlier code rather than adding a switch. Each stage should operate on CPU at capstone scale; measured throughput and memory, not an assumption, decide production capacity.
 
@@ -2548,7 +2568,8 @@ equipment into the current MVP.
 tested only against the public `demo.mtconnect.org` agent, never a Haas:
 the read-only MTConnect collector (`capstone/ingestion/`: GET only, minimum
 1 s and default 5 s poll interval, 10 s timeout, 20 MB response cap,
-`started`/`heartbeat`/`stopped` markers, 60 s heartbeat, `--save-probe`), the
+`started`/`heartbeat`/`stopped` markers, 60 s heartbeat, `--save-probe`;
+`gap` markers for lost data added by SM-2, PR #204), the
 deterministic monitor (`capstone/monitoring/`) and the collector watchdog
 (`capstone/watchdog/`), PRs #165–#167. The output-path guard (collector,
 monitor and watchdog refuse to write inside a git checkout) is in its own

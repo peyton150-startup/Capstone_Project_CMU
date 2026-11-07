@@ -69,10 +69,10 @@ def interpret_tests_only(state, step, evidence):
     """Beliefs change only when an answer was gathered to test a hypothesis."""
     if step.hypothesis_id is None:
         return Interpretation()
-    return Interpretation(hypotheses=(wear(0.92, "E2", evidence.id),))
+    return Interpretation(hypotheses=(wear(0.92, "E3", evidence.id),))
 
 
-def conclusion(recommendation="intervene", confidence=0.92, evidence=("E2", "E4")):
+def conclusion(recommendation="intervene", confidence=0.92, evidence=("E3", "E5")):
     return AgentConclusion(
         diagnosis="wear on CNC-02",
         confidence=confidence,
@@ -94,7 +94,7 @@ def wear_policy(conclude=None, **overrides):
         },
         "interpret": interpret_tests_only,
         "questions": QUESTIONS,
-        "hypothesize": lambda state: Interpretation(hypotheses=(wear(0.6, "E2"),)),
+        "hypothesize": lambda state: Interpretation(hypotheses=(wear(0.6, "E3"),)),
         "conclude": conclude or (lambda state: (conclusion(), REPLACE)),
     }
     settings.update(overrides)
@@ -134,22 +134,23 @@ def test_an_investigation_goes_through_the_stages_in_order():
     ]
     assert [r.name for r in provider.calls] == [
         "get_time",
+        "get_line_screening",
         "get_sensor_summary",
         "list_machines",
         "get_readings",
         "propose_action",
     ]
-    assert [e.id for e in state.evidence] == ["E1", "E2", "E3", "E4", "E5"]
+    assert [e.id for e in state.evidence] == ["E1", "E2", "E3", "E4", "E5", "E6"]
     assert state.termination_reason is TerminationReason.DIAGNOSIS_SUPPORTED
     assert state.conclusion == conclusion()
-    assert state.answers == {"Q1": ["E2"], "Q2": ["E3"]}
+    assert state.answers == {"Q1": ["E3"], "Q2": ["E4"]}
 
 
 def test_the_conclusion_s_record_carries_its_evidence_and_the_final_stop_reason():
     state, _ = investigate(wear_policy())
     [decided] = [d for d in state.decisions if d.phase == "decide"]
     assert (decided.outcome, decided.tool) == ("decided", None)
-    assert decided.evidence_ids == ("E2", "E4")
+    assert decided.evidence_ids == ("E3", "E5")
     assert decided.termination_reason is TerminationReason.DIAGNOSIS_SUPPORTED
     assert [d.sequence for d in state.decisions] == list(
         range(1, len(state.decisions) + 1)
@@ -177,11 +178,15 @@ def test_a_repeat_is_caught_from_the_policy_s_very_first_question():
     same = ask("get_events", from_tick=0, to_tick=10)
     policy = wear_policy(
         decisions={"investigate": [ask("get_time"), same, same]},
-        conclude=lambda state: (conclusion("no_action", 0.5, ("E2",)), None),
+        conclude=lambda state: (conclusion("no_action", 0.5, ("E3",)), None),
         hypothesize=None,
     )
     state, provider = investigate(policy)
-    assert [r.name for r in provider.calls] == ["get_time", "get_events"]
+    assert [r.name for r in provider.calls] == [
+        "get_time",
+        "get_line_screening",
+        "get_events",
+    ]
     assert state.repeated_calls == 2  # the time again, then the same events again
 
 
@@ -252,6 +257,7 @@ def test_incident_context_uses_bounded_observations_before_planning():
     assert context.neighbor_ids == ("CNC-01", "CNC-02", "CNC-03")
     assert [call.name for call in provider.calls] == [
         "get_time",
+        "get_line_screening",
         "list_machines",
         "get_settings",
         "get_events",
@@ -284,7 +290,11 @@ def test_incident_context_marks_missing_calls_and_preserves_research_budget():
     )
     deps = InvestigationDeps(provider=provider, policy=wear_policy(), clock=lambda: 0.0)
     observe(state, deps)
-    assert [call.name for call in provider.calls] == ["get_time", "list_machines"]
+    assert [call.name for call in provider.calls] == [
+        "get_time",
+        "get_line_screening",
+        "list_machines",
+    ]
     assert state.research_tool_calls == 2
     assert state.incident_context is not None
     assert set(state.incident_context.unavailable) == {
@@ -321,8 +331,8 @@ def test_the_plan_becomes_the_open_questions():
     policy = wear_policy(decisions={})
     state, _ = investigate(policy)
     assert state.unanswered_questions == list(QUESTIONS)
-    assert state.decisions[1].phase == "plan"
-    assert state.decisions[1].outcome == "decided"
+    assert state.decisions[2].phase == "plan"
+    assert state.decisions[2].outcome == "decided"
 
 
 def failing_plan(state):
@@ -336,8 +346,8 @@ def failing_plan(state):
 )
 def test_a_bad_plan_is_recorded_and_the_investigation_carries_on(questions):
     state, _ = investigate(wear_policy(questions=questions))
-    assert state.decisions[1].phase == "plan"
-    assert state.decisions[1].outcome == "invalid_decision"
+    assert state.decisions[2].phase == "plan"
+    assert state.decisions[2].outcome == "invalid_decision"
     assert state.unanswered_questions == []
     assert state.conclusion == conclusion()  # the rest still ran
 
@@ -350,8 +360,8 @@ def test_with_nothing_gathered_it_goes_straight_to_the_conclusion():
     state, provider = investigate(policy)
     assert stages(state) == ["observe", "plan", "investigate", "decide"]
     assert policy.asked == ["plan", "conclude"]  # no explanations were asked for
-    assert [r.name for r in provider.calls] == ["get_time"]
-    assert state.conclusion.diagnosis == "undetermined"  # it cited E2 and E4
+    assert [r.name for r in provider.calls] == ["get_time", "get_line_screening"]
+    assert state.conclusion.diagnosis == "undetermined"  # it cited E3 and E5
 
 
 def test_a_timeout_while_investigating_goes_straight_to_the_conclusion():
@@ -421,7 +431,7 @@ def test_a_conclusion_citing_evidence_that_was_never_gathered_is_refused():
 def test_a_conclusion_resting_on_misleading_but_real_evidence_is_accepted():
     state, _ = investigate(wear_policy())
     # Both items exist. Whether E4 misleads is the policy's to weigh.
-    assert state.conclusion.evidence_ids == ("E2", "E4")
+    assert state.conclusion.evidence_ids == ("E3", "E5")
     [decided] = [d for d in state.decisions if d.phase == "decide"]
     assert decided.outcome == "decided"
 
@@ -622,12 +632,12 @@ def test_the_final_stop_reason_is_the_last_research_loop_s():
 def test_running_out_of_calls_is_reported_as_the_reason():
     policy = wear_policy(
         decisions={"investigate": [ask(name) for name in "abcdef"]},
-        hypothesize=lambda state: Interpretation(hypotheses=(wear(0.5, "E2"),)),
-        conclude=lambda state: (conclusion("escalate", 0.5, ("E2",)), None),
+        hypothesize=lambda state: Interpretation(hypotheses=(wear(0.5, "E3"),)),
+        conclude=lambda state: (conclusion("escalate", 0.5, ("E3",)), None),
     )
     state, provider = investigate(policy, state=fresh_state(max_tool_calls=4))
     assert state.termination_reason is TerminationReason.MAX_TOOL_CALLS
-    assert len(provider.calls) == 4  # the time, then three look-ups
+    assert len(provider.calls) == 5  # the time, the screening, then three look-ups
     assert state.conclusion.recommendation == "escalate"
 
 
@@ -717,6 +727,7 @@ def test_research_through_the_real_provider_changes_nothing_in_the_factory():
     assert state.last_tick == 600
     assert [e.source_id for e in state.evidence] == [
         "simulator:get_time",
+        "simulator:get_line_screening",
         "simulator:get_sensor_summary",
         "simulator:list_machines",
         "simulator:get_events",

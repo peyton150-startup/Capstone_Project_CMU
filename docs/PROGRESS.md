@@ -23,6 +23,49 @@
 > five of five audited episodes and zero unexplained files. No live model or
 > SNAP calls were made. The developer paused before the fresh full run.
 
+> **2026-11-07 — SM-1 versioned channel map from `/probe` (built ungated at the developer's direction; pre-check, closing questions and pre-merge walkthrough owed; understood: no):**
+> New module `ingestion/channel_map.py`. `parse_probe` reads every DataItem of a saved MTConnectDevices document into a
+> `ChannelEntry`: device name and uuid, enclosing component and its kind, id, name, category, type, subtype, and units,
+> native units and native scale exactly as the probe states them (None when it states none). `build_channel_map` adds a
+> person's assignment file (`Assignment`: what the item `measures` physically, and which agent `tool_sensor` it feeds,
+> limited to the observation tools' sensor names); nothing is inferred from item names, and an assignment for an id the
+> probe lacks is refused. `ChannelMap` stores `probe_sha256`, a hash of the probe's `<Devices>` section in canonical XML
+> (the header is left out because its creation time and instance id change on every request), and `verify_probe` refuses
+> a probe whose channels differ. `check_capture` maps every observation of a capture to one entry (by device name or
+> uuid) or lists it as `Unmapped`, counts available values per channel, and reports a record whose category or type
+> disagrees with its entry; `with_reported` records which channels the machine actually reported. Command line:
+> `python -m capstone.ingestion.channel_map build|check`, which refuses output inside a git checkout like the collector.
+> Not done: no real machine probe yet (tests use a synthetic probe shaped like demo.mtconnect.org); the map is not yet
+> used by a provider (SM-3) or by per-channel staleness (SM-2's remainder). PR #206. Owed questions: pre-check, "why is
+> the probe's header left out of the hash, and what would go wrong if it were included?"; closing, "a capture holds a
+> `PathFeedrate` record whose id is not in the map: what does `check_capture` report, and why is it not matched to the
+> nearest similar channel?"
+
+> **2026-11-07 — SM-2 gap markers in the telemetry file (built ungated at the developer's direction; pre-check, closing questions and pre-merge walkthrough owed; understood: no):**
+> When the collector loses observations, it now writes a `gap` line into the
+> JSONL file, before the readings that follow the loss, instead of only
+> printing to stderr. `ingestion/record.py` adds `GapDetail` (the cause:
+> `buffer_overrun`, `out_of_range` or `agent_restart`; the lost sequence range
+> as far as it is known; when the last reading before the gap was received;
+> both agent run ids for a restart), the `gap` event on `CollectorMarker`
+> (schema version 2; version 1 lines still read) and `gap_free_runs`, which
+> splits a file's readings at every gap and collector start so no later
+> statistic joins values across a hole. `ingestion/collector.py`: `poll()`
+> returns a `GapDetail` (`PollResult.gap` is now derived from it) and tracks
+> the last reading's receive time; `run_collector` writes the marker.
+> `monitoring/monitor.py` turns a gap into a data-loss warning with the
+> sequence range, counts it as contact, and no longer mistakes it for a
+> collector restart. Not done here, by design: a failed poll writes no gap
+> (the agent buffers, and a real loss shows as an overrun or OUT_OF_RANGE on
+> the next poll); per-channel staleness waits for SM-1's channel map, and
+> UNAVAILABLE spans for SM-5. Owed questions: pre-check, "the network drops
+> for five minutes and the agent's buffer holds three minutes of data: what
+> does the file show, and which bounds of the loss are known?"; closing,
+> "why is the gap marker written before that poll's readings, and what would
+> `gap_free_runs` get wrong if it were written after?"
+> The developer said on 2026-11-07 to skip the AGENTS.md §11.6 walkthrough for now and owe it, so this PR was
+> merged on green CI without it.
+
 > **2026-11-06 — staged CPU anomaly detector promoted to HIGH-priority future work (documentation only):**
 > `docs/MVP_SCOPE.md` now lists a CPU-based statistical detector under
 > **Tooling and infrastructure** in both top-of-document future-work tables,
@@ -747,6 +790,21 @@ alarm), then evaluation, then the agent itself.
 ## Session notes
 
 - **2026-11-07: single-machine reading track added to Future Work (docs only, nothing built).** For the first real CNC at a shop visit, the developer decided to focus on reading one machine well before adding agents or pinpointing the failed part. `MVP_SCOPE.md` now ranks 13 items, SM-1 (highest) to SM-13 (lowest), in their categories, the full priority table and a new track table and chart (`fw-sm-track`): channel map from `/probe`, gap markers in the telemetry file, a real-data provider, the visit checklist and technician event log, time-aware statistics, operating-state segmentation and a same-machine baseline (HIGH); richer trend features, cross-signal checks, conditional cycle signatures and a ranked technician check list (MEDIUM); controller servo diagnostic moves (LOW); added vibration or acoustic sensing (FAR FUTURE). The code gaps cited (endpoint-only `rate_of_change`, no unit on `TelemetryRecord`, gaps printed to stderr) were checked against `main` at `8969c5f`.
+- **2026-11-06: line screening against a saved "before" file (taught and gated; merged on green CI at the developer's direction, with the closing question and the §11.6 walkthrough still owed).**
+  - **What it is:** `get_line_screening` (in `ObservationTools`, behind the provider like every other tool) scores every machine's latest running readings, up to 60 ticks where it was cutting, against a saved fault-free run of the line.
+  - **What it returns:** for each machine, each sensor's `[robust_score, plain_score]` (by medians and by means), with temperature adding its warm-up stage, plus one line naming the reference. A sensor or machine without a score says why (`not_running_yet`, `too_few_running_readings`, `no_reference`, or `feed_unavailable` during a blackout). It gives no labels and names no causes.
+  - **Warm-up:** temperature is compared with the range for the machine's own warm-up stage.
+  - **The "before" file:** `capstone/tools/healthy_reference.json`, written by `python -m capstone.tools.screening`. It holds every setting.
+  - **How it runs:** `observe` calls the tool after `get_time` in every investigation, with no setting. Its call goes to its own allowance (`InvestigationState.screening_tool_calls_used`), so research loses no calls. Tree-of-thought counts it in the sensor evidence family, since it uses the same readings.
+  - **Not done:** the evaluator's relevant-evidence lists (`faults.py`) do not credit it, so a run is not credited for having looked at a machine's sensors just because the screening ran.
+  - **Gate:** the developer explained that the file holds only readings, so it can't leak the fault. Corrected: the protection comes from the file's contents, not from the agent being unable to read it. A file recorded during wear would make wear look normal and miss it. They then told a leak (a fault name in the output), a miss (a worn baseline) and neither (not running yet) apart correctly.
+  - **Tests:** `tests/test_line_screening.py`. The 53 existing tests that pinned the old call order or evidence numbering are updated in this PR (the screening is now evidence E2, so later ids shift by one). The separate draft PR "Testing the detector" is an extra layer of checks and is never merged.
+  - Not run live.
+  - **Fixes from the pre-merge side-effect review (2026-11-07, at the developer's request; built after the gate, developer to review):**
+    - *Blackout leak:* under `--hazards blackout`, the screening showed the blacked-out machine's scores while its sensor tools were refused. `UnreliableProvider` now replaces that machine's entry with `feed_unavailable` until the feed returns. Other machines are unchanged, and it is not counted as a refused call.
+    - *Most of the screening never reached the model:* a prompt shows at most 2,000 characters of one piece of evidence (`MAX_EVIDENCE_CHARS`), and the per-row answer ran to about 16,000, so only about 6 of 43 rows (CNC-01 and part of CNC-02) were shown. The tool now answers in a compact per-machine form (`screening.compact`), about 1,500 characters for 8 machines. A test checks every fault kind fits. The window ticks and medians were dropped from the answer; the readings are one `get_sensor_summary` away.
+    - *Test fix:* `test_model_policy.py`'s scripted replies cited `E2`/`E3` and now cite `E3`/`E4`, like the other 53 updated tests. On `main` the budget test passed because its conclusion cited `E3` before `E3` existed, so it was refused. With the screening as `E2`, the citation became valid.
+    - *Known effects, not bugs:* every run's total tool-call count is 1 higher, so compare before/after runs with that in mind. The screening is also offered to the model as a tool. `get_factory_readings` was already outside the blackout before this PR.
 - **2026-11-06: the anomaly detector will compare against a saved "before" file (docs only).** At the developer's suggestion, an offline probe compared each machine with a saved fault-free run instead of its own history. It found all 6 wear and leak faults and flagged no healthy machine in any of the 13 cases, removing KA-07's `power` false flags. The developer decided to keep warm-up ranges in the file too, because a machine that has just started looked colder than the warmed-up reference. Recorded in `MVP_SCOPE.md` (`fw-cpu-anomaly-detector`). Next: build the detector, through the gated loop.
 - **2026-11-06: the CPU anomaly detector will have no on/off setting (docs only).** The developer decided it is a normal implementation that always runs once built, with no feature flag and no stage selector. `MVP_SCOPE.md` (`fw-line-context` and `fw-cpu-anomaly-detector`) now says so. Its effect is to be measured by comparing matched-seed runs from before and after the merge, instead of a with/without switch.
 - **2026-11-06: offline probe of the planned CPU anomaly detector (docs only, nothing built).** At the developer's request, a throwaway script replayed the 13 known cases and scored every machine with the stage-0/1 statistics planned in [`fw-cpu-anomaly-detector`](MVP_SCOPE.md#fw-cpu-anomaly-detector). Comparing all readings is noise, because idle-then-running machines downstream look abnormal. Comparing running readings only, and flagging when a robust and a plain z-score both reach 3, found 6 of 6 wear and leak faults with no healthy machine flagged, plus CNC-07 in KA-09 once scored at tick 900 rather than at the tick-71 alarm. It missed both wrong-setting cases and flagged two healthy machines through `power` in KA-07. Recorded in `MVP_SCOPE.md`: NumPy/SciPy statistics are the target; scikit-learn may be added later but is not necessary; River is skipped for the capstone. The probe script was not committed.

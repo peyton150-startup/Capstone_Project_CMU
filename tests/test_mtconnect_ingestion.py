@@ -388,3 +388,151 @@ def test_monitor_and_watchdog_refuse_alerts_inside_the_repository(
         main(["--input", str(source), "--alerts", str(tmp_path / "a.jsonl")])
     assert stop.value.code == 2
     assert "inside the git checkout" in capsys.readouterr().err
+
+
+# --- gap markers (SM-2) ------------------------------------------------------
+
+
+def execution_at(sequence: int, value: str = "ACTIVE") -> str:
+    """One Execution observation at the given sequence, as a ComponentStream."""
+    return (
+        '<ComponentStream component="Path" name="path" componentId="p1"><Events>'
+        f'<Execution dataItemId="exec" sequence="{sequence}" '
+        f'timestamp="2026-11-03T11:59:57Z">{value}</Execution>'
+        "</Events></ComponentStream>"
+    )
+
+
+def test_a_buffer_overrun_names_the_exact_sequences_lost():
+    agent = FakeAgent(
+        streams(SPINDLE, nxt=15, last=14),
+        streams(execution_at(20), nxt=21, first=20, last=20),
+    )
+    c = collector(agent)
+    c.poll()
+    result = c.poll()
+    gap = result.gap_detail
+    assert gap is not None and gap.cause == "buffer_overrun"
+    assert (gap.lost_from_sequence, gap.lost_to_sequence) == (15, 19)
+    assert gap.last_received_at == NOW
+    assert [r.sequence for r in result.records] == [20]
+
+
+def test_out_of_range_knows_where_the_loss_starts_but_not_where_it_ends():
+    agent = FakeAgent(streams(SPINDLE, nxt=15, last=14), OUT_OF_RANGE_2X)
+    c = collector(agent)
+    c.poll()
+    gap = c.poll().gap_detail
+    assert gap is not None and gap.cause == "out_of_range"
+    assert (gap.lost_from_sequence, gap.lost_to_sequence) == (15, None)
+    assert gap.last_received_at == NOW
+
+
+def test_an_agent_restart_names_both_runs_and_no_sequences():
+    agent = FakeAgent(
+        streams("", instance="100", nxt=500, last=499),
+        streams(SPINDLE, instance="200", nxt=15, last=14),
+    )
+    c = collector(agent)
+    c.poll()
+    gap = c.poll().gap_detail
+    assert gap is not None and gap.cause == "agent_restart"
+    assert (gap.instance_id_before, gap.instance_id_after) == ("100", "200")
+    assert (gap.lost_from_sequence, gap.lost_to_sequence) == (None, None)
+    assert gap.last_received_at is None  # nothing had been received yet
+
+
+def test_the_gap_marker_is_written_between_the_readings_it_separates(tmp_path):
+    out = tmp_path / "telemetry.jsonl"
+    agent = FakeAgent(
+        streams(execution_at(10, "ACTIVE"), nxt=11, last=10),
+        streams(execution_at(40, "READY"), nxt=41, first=40, last=40),
+    )
+    log = io.StringIO()
+    run_collector(
+        collector(agent), out, interval=1, max_polls=2, sleep=lambda _: None, log=log
+    )
+    lines = [parse_line(t) for t in out.read_text(encoding="utf-8").splitlines()]
+    shape = [
+        line.event if isinstance(line, CollectorMarker) else line.sequence
+        for line in lines
+    ]
+    assert shape == ["started", 10, "gap", 40, "stopped"]
+    gap = lines[2].gap
+    assert (gap.cause, gap.lost_from_sequence, gap.lost_to_sequence) == (
+        "buffer_overrun",
+        11,
+        39,
+    )
+    assert "gap (buffer_overrun)" in log.getvalue()
+
+
+def test_a_failed_poll_alone_writes_no_gap(tmp_path):
+    out = tmp_path / "telemetry.jsonl"
+    agent = FakeAgent(
+        streams(execution_at(10), nxt=11, last=10),
+        OSError("network down"),
+        streams(execution_at(11), nxt=12, first=1, last=11),
+    )
+    run_collector(
+        collector(agent),
+        out,
+        interval=1,
+        max_polls=3,
+        sleep=lambda _: None,
+        log=io.StringIO(),
+    )
+    assert [m.event for m in markers(out)] == ["started", "stopped"]
+
+
+def test_gap_detail_belongs_only_on_a_gap_marker():
+    from pydantic import ValidationError
+
+    from capstone.ingestion.record import GapDetail
+
+    with pytest.raises(ValidationError):
+        CollectorMarker(source="s", event="gap", at=NOW)
+    with pytest.raises(ValidationError):
+        CollectorMarker(
+            source="s", event="heartbeat", at=NOW, gap=GapDetail(cause="out_of_range")
+        )
+
+
+def test_version_1_markers_written_before_gaps_existed_still_read():
+    old = {
+        "record_type": "collector",
+        "schema_version": 1,
+        "source": "http://agent:8082",
+        "event": "started",
+        "at": NOW.isoformat(),
+        "reason": None,
+    }
+    marker = parse_line(json.dumps(old))
+    assert isinstance(marker, CollectorMarker)
+    assert (marker.schema_version, marker.gap) == (1, None)
+
+
+def test_gap_free_runs_never_join_readings_across_a_gap_or_a_restart():
+    from capstone.ingestion.record import GapDetail, gap_free_runs
+
+    def obs(sequence):
+        return parse(streams(execution_at(sequence))).records[0]
+
+    def mark(event, **kwargs):
+        return CollectorMarker(source="s", event=event, at=NOW, **kwargs)
+
+    lines = [
+        mark("started"),
+        obs(1),
+        obs(2),
+        mark("heartbeat"),
+        obs(3),
+        mark("gap", gap=GapDetail(cause="buffer_overrun")),
+        obs(9),
+        mark("stopped"),
+        mark("started"),
+        obs(20),
+        mark("gap", gap=GapDetail(cause="agent_restart")),
+    ]
+    runs = gap_free_runs(lines)
+    assert [[r.sequence for r in run] for run in runs] == [[1, 2, 3], [9], [20]]

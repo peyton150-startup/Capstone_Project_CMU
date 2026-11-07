@@ -323,6 +323,8 @@ class InvestigationState(BaseModel):
     tool_call_count: int = Field(default=0, ge=0)
     followup_tool_calls_used: int = Field(default=0, ge=0)
     critic_tool_calls_used: int = Field(default=0, ge=0)
+    # The loop's own line screening at the start; never charged to research.
+    screening_tool_calls_used: int = Field(default=0, ge=0)
     repeated_calls: int = Field(default=0, ge=0)
     failed_tool_calls: int = Field(default=0, ge=0)
     malformed_results: int = Field(default=0, ge=0)
@@ -416,13 +418,15 @@ class InvestigationState(BaseModel):
 
     @property
     def research_tool_calls(self) -> int:
-        """Calls charged to research, excluding the two separate checking allowances."""
+        """Calls charged to research: all but the checking allowances and the line screening."""
         # Variables:
-        #   tool_call_count: Every real call, including verification and critic reads.
+        #   tool_call_count: Every real call, including verification, critic reads
+        #     and the loop's own line screening, none of which research pays for.
         return (
             self.tool_call_count
             - self.followup_tool_calls_used
             - self.critic_tool_calls_used
+            - self.screening_tool_calls_used
         )
 
     @property

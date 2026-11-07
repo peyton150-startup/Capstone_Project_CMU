@@ -230,7 +230,7 @@ def test_a_label_cannot_be_edited_after_it_is_written():
 def test_labels_match_the_evidence_one_to_one_through_a_whole_investigation():
     state = whole_investigation()
     assert state.verification.outcome == "resolved"  # every stage ran
-    assert len(state.evidence) == len(state.provenance) == 9
+    assert len(state.evidence) == len(state.provenance) == 10
     for evidence, label in zip(state.evidence, state.provenance, strict=True):
         assert (
             label.evidence_id,

@@ -67,6 +67,7 @@ GROUPS: dict[str, list[str]] = {
         "job_history",
         "observability",
         "observation_tools",
+        "line_screening",
         "sensor_summary",
         "settings",
         "env_example",
@@ -132,6 +133,7 @@ GROUPS: dict[str, list[str]] = {
     # Real-machine telemetry: the read-only MTConnect collector and its monitor.
     "Live telemetry": [
         "mtconnect_ingestion",
+        "channel_map",
         "telemetry_monitor",
         "collector_watchdog",
     ],

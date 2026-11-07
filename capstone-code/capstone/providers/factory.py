@@ -13,6 +13,7 @@ from capstone.contracts.observations import (
     EventObservation,
     ExecutionObservation,
     InspectionObservation,
+    LineScreeningObservation,
     MachineObservation,
     MaintenanceObservation,
     ProposalObservation,
@@ -31,6 +32,7 @@ from capstone.contracts.tools import (
 from capstone.tools.actions import MAX_WAIT_TICKS, ActionTools
 from capstone.tools.errors import ToolInputError
 from capstone.tools.observation import ObservationTools
+from capstone.tools.screening import load_reference
 
 if TYPE_CHECKING:
     from capstone.observability import EventLogger
@@ -230,6 +232,19 @@ TOOL_DESCRIPTIONS: dict[str, str] = {
         "tick range. Use machine_id null for air_temperature. The rate is the "
         "change from the first to the last reading, not a fitted trend."
     ),
+    "get_line_screening": (
+        "Every machine on the line at once. For each sensor: [robust_score, "
+        "plain_score] for its latest running readings (up to "
+        f"{load_reference()['settings']['recent_readings']}, only ticks where the "
+        "machine was cutting) against a saved range from a separate baseline run "
+        "of the line in normal operation; temperature adds its warm-up stage "
+        "(start, warming, steady) and is compared with that stage's range. Each "
+        "score is how many baseline spreads the readings sit from the baseline "
+        "level (positive is higher): robust by medians, plain by means. A sensor "
+        "or machine without a score says why (not_running_yet, "
+        "too_few_running_readings, no_reference, feed_unavailable). Scores are "
+        "not a diagnosis: check the readings themselves."
+    ),
     "get_events": (
         "Event log in a tick range: alarms, machine stops, job "
         "started/finished/blocked, inspections, material batches, loading door, "
@@ -275,6 +290,7 @@ TOOL_ARGUMENTS: dict[str, type[Contract]] = {
     "get_sensor_trend": TrendArguments,
     "get_factory_readings": FactoryReadingsArguments,
     "get_sensor_summary": SensorSummaryArguments,
+    "get_line_screening": NoArguments,
     "get_events": EventsArguments,
     "get_job_history": JobArguments,
     "get_maintenance_history": MaintenanceArguments,
@@ -361,6 +377,12 @@ class SimulatorFactoryProvider:
                 SensorSummaryArguments,
                 SensorSummaryObservation,
                 observations.get_sensor_summary,
+                False,
+            ),
+            "get_line_screening": (
+                NoArguments,
+                LineScreeningObservation,
+                observations.get_line_screening,
                 False,
             ),
             "get_events": (
