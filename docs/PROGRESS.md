@@ -1,6 +1,6 @@
 # Progress Log
 
-> **2026-11-07 — SM-2 gap markers in the telemetry file (built ungated at the developer's direction; pre-check and closing questions owed; understood: no):**
+> **2026-11-07 — SM-2 gap markers in the telemetry file (built ungated at the developer's direction; pre-check, closing questions and pre-merge walkthrough owed; understood: no):**
 > When the collector loses observations, it now writes a `gap` line into the
 > JSONL file, before the readings that follow the loss, instead of only
 > printing to stderr. `ingestion/record.py` adds `GapDetail` (the cause:
@@ -22,6 +22,8 @@
 > does the file show, and which bounds of the loss are known?"; closing,
 > "why is the gap marker written before that poll's readings, and what would
 > `gap_free_runs` get wrong if it were written after?"
+> The developer said on 2026-11-07 to skip the AGENTS.md §11.6 walkthrough for now and owe it, so this PR was
+> merged on green CI without it.
 
 > **2026-11-06 — staged CPU anomaly detector promoted to HIGH-priority future work (documentation only):**
 > `docs/MVP_SCOPE.md` now lists a CPU-based statistical detector under
