@@ -168,8 +168,10 @@ def test_duplicate_measure_cli_chooses_offline_or_provider_embedder(
     from capstone.providers import embeddings
 
     calls = []
+
     def embed(texts):
         return [[1.0, 0.0] for _ in texts]
+
     monkeypatch.setattr(
         settings,
         "get_settings",
@@ -262,12 +264,16 @@ def test_manual_open_index_supports_local_and_separate_query_embeddings(
     from capstone.providers import embeddings
 
     local_calls = []
+
     def local_embed(texts):
         return [[1.0] for _ in texts]
+
     def passage(texts):
         return [[2.0] for _ in texts]
+
     def query(texts):
         return [[3.0] for _ in texts]
+
     monkeypatch.setattr(
         semantic,
         "default_embedder",
