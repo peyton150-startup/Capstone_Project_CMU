@@ -342,3 +342,57 @@ def test_ready_manual_index_reuses_a_current_index_without_rebuilding(monkeypatc
     assert actual is index
     assert reason is None
     assert calls == [(settings, [], False)]
+
+
+def test_semantic_memory_index_empty_upsert_and_search_are_side_effect_free():
+    from capstone.memory import semantic
+
+    calls = []
+    collection = SimpleNamespace(
+        count=lambda: 0,
+        upsert=lambda **kw: calls.append(kw),
+        query=lambda **kw: pytest.fail("empty collection must not be queried"),
+    )
+    index = semantic.ChromaMemoryIndex(
+        collection, lambda texts: pytest.fail("empty input must not be embedded")
+    )
+    assert index.upsert(()) == 0
+    assert index.search("spindle", 5) == ()
+    assert calls == []
+
+
+@pytest.mark.parametrize("provider_embeddings", [False, True])
+def test_configured_memory_index_forwards_provider_or_local_embedding_choice(
+    monkeypatch, provider_embeddings
+):
+    from capstone.memory import semantic
+    from capstone.providers import embeddings
+
+    def passage(texts):
+        return [[1.0] for _ in texts]
+
+    def query(texts):
+        return [[2.0] for _ in texts]
+
+    captured = []
+    monkeypatch.setattr(
+        embeddings,
+        "embedders_for",
+        lambda config: (passage, query) if provider_embeddings else None,
+    )
+    monkeypatch.setattr(
+        semantic,
+        "open_chroma_index",
+        lambda *args, **kwargs: (captured.append((args, kwargs)), object())[1],
+    )
+    config = SimpleNamespace(
+        chroma_path="/unused", chroma_collection="memories", embedding_model="offline"
+    )
+    semantic.open_configured_index(config, rebuild=True)
+    assert captured[0][0] == ("/unused", "memories")
+    assert captured[0][1] == {
+        "embed": passage if provider_embeddings else None,
+        "embed_query": query if provider_embeddings else None,
+        "model": "offline",
+        "rebuild": True,
+    }
