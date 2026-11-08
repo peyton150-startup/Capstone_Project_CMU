@@ -453,3 +453,107 @@ def test_evaluator_refuses_resume_beyond_scenario_count():
     config = one_scenario()
     with pytest.raises(ValueError, match="more saved episodes"):
         evals.check_resume(config, "trial", [object(), object()])
+
+
+@pytest.mark.parametrize("automatic", [False, True])
+def test_eval_cli_rescores_with_hand_or_automatic_labels_offline(
+    monkeypatch, tmp_path, automatic
+):
+    """Both label sources must reach the report without rerunning an episode."""
+    from capstone.evaluation import labels as label_module
+
+    record = SimpleNamespace(scenario_id="one", run_key="trial/1/one")
+    monkeypatch.setattr(
+        evals, "load_scenarios", lambda _: SimpleNamespace(cases=[SimpleNamespace(id="one")])
+    )
+    monkeypatch.setattr(evals, "read_records", lambda _: [record])
+    monkeypatch.setattr(
+        evals, "run_cases", lambda *args, **kwargs: pytest.fail("rescore must not run")
+    )
+    hand = {"trial/1/one": "human"}
+    auto = {"trial/1/one": "machine"}
+    monkeypatch.setattr(label_module.LabelBook, "read", lambda _: hand)
+    monkeypatch.setattr(
+        evals, "automatic_labels", lambda _: (auto, {"trial/1/one"}, {"critic": "pick"})
+    )
+    seen = []
+    report = SimpleNamespace(
+        model_dump_json=lambda **_: '{"cases":[]}',
+        cases=[],
+        judged=0,
+        overall_accuracy=None,
+        accuracy_by_fault={},
+        steps_by_agent={},
+        abstention=None,
+    )
+
+    def fake_report(name, rows, chosen, *, needs_review, critic_labels):
+        seen.append((name, rows, chosen, needs_review, critic_labels))
+        return report
+
+    monkeypatch.setattr(evals, "report_of", fake_report)
+    out = tmp_path / "report.json"
+    args = [
+        "--name", "trial", "--out", str(out),
+        "--records", str(tmp_path / "saved.jsonl"),
+    ]
+    args += ["--auto-label"] if automatic else ["--labels", str(tmp_path / "labels.jsonl")]
+    assert evals.main(args) == 0
+    assert out.exists()
+    assert seen == [
+        (
+            "trial", [record], auto if automatic else hand,
+            {"trial/1/one"} if automatic else set(),
+            {"critic": "pick"} if automatic else {},
+        )
+    ]
+
+
+def test_experiment_cli_all_faults_and_explicit_timeout_are_forwarded(
+    monkeypatch, tmp_path
+):
+    """An explicit time budget and all-fault grid reach the harness unchanged."""
+    from capstone import experiment as experiment_module
+
+    seen = {}
+    monkeypatch.setattr(
+        experiment_module, "grid",
+        lambda seeds, faults: (seen.update(seeds=seeds, faults=faults), [object()])[1],
+    )
+    monkeypatch.setattr(
+        experiment_module, "model_policy_factory",
+        lambda **kwargs: (lambda: None),
+    )
+    monkeypatch.setattr(
+        experiment_module, "run_experiment",
+        lambda cases, factory, **kwargs: (
+            seen.update(cases=cases, budget=kwargs["budgets"]), []
+        )[1],
+    )
+    monkeypatch.setattr(experiment_module, "report", lambda *_: "offline report")
+    assert experiment_module.main(
+        [
+            "run", "--name", "offline", "--seeds", "1", "--faults", "all",
+            "--timeout-seconds", "12", "--no-audit", "--quiet",
+            "--out", str(tmp_path / "out.jsonl"),
+        ]
+    ) == 0
+    assert seen["seeds"] == [1]
+    assert seen["faults"] == list(experiment_module.FAULTS)
+    assert len(seen["cases"]) == 1
+    assert seen["budget"].timeout_seconds == 12
+    assert seen["budget"].followup_seconds == 4
+
+
+def test_experiment_unjudged_and_absent_memory_fields_do_not_invent_evidence():
+    from capstone import experiment as experiment_module
+
+    assert experiment_module._right(SimpleNamespace(fault_correct=None)) is None
+    row = SimpleNamespace(memory_promotion=None, recall_searches=None)
+    assert experiment_module._lesson(row) == "-"
+    assert experiment_module._searches(row) == ""
+    result = SimpleNamespace(
+        state=SimpleNamespace(conclusion=None, termination_reason=None),
+        learning=None,
+    )
+    assert experiment_module.memory_records(result) == (None, [])
