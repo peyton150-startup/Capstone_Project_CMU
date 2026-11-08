@@ -26311,6 +26311,136 @@
    ]
   },
   {
+   "id": "tests/test_coverage_eval_cli_edges.py::test_scenario_config_rejects_incompatible_faults",
+   "file": "tests/test_coverage_eval_cli_edges.py",
+   "name": "test_scenario_config_rejects_incompatible_faults",
+   "line": 409,
+   "docstring": "",
+   "parametrized": true,
+   "fixtures": [
+    "options",
+    "expected"
+   ],
+   "assertions": 0,
+   "assert_forms": {},
+   "raises_checks": 1,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "scenario config rejects incompatible faults",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.evals:Scenario.valid_factory"
+   ],
+   "exercise_count": 1,
+   "modules_exercised": [
+    "capstone.evals"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_coverage_eval_cli_edges.py::test_report_comparison_rejects_incompatible_experiments",
+   "file": "tests/test_coverage_eval_cli_edges.py",
+   "name": "test_report_comparison_rejects_incompatible_experiments",
+   "line": 422,
+   "docstring": "",
+   "parametrized": true,
+   "fixtures": [
+    "difference",
+    "expected"
+   ],
+   "assertions": 0,
+   "assert_forms": {},
+   "raises_checks": 1,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "report comparison rejects incompatible experiments",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.evals:compare_reports"
+   ],
+   "exercise_count": 1,
+   "modules_exercised": [
+    "capstone.evals"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_coverage_eval_cli_edges.py::test_evaluator_names_compound_diagnoses_and_none",
+   "file": "tests/test_coverage_eval_cli_edges.py",
+   "name": "test_evaluator_names_compound_diagnoses_and_none",
+   "line": 442,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 2,
+   "assert_forms": {
+    "equality": 2
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "evaluator names compound diagnoses and none",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.evals:names"
+   ],
+   "exercise_count": 1,
+   "modules_exercised": [
+    "capstone.evals"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_coverage_eval_cli_edges.py::test_evaluator_refuses_resume_beyond_scenario_count",
+   "file": "tests/test_coverage_eval_cli_edges.py",
+   "name": "test_evaluator_refuses_resume_beyond_scenario_count",
+   "line": 452,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 0,
+   "assert_forms": {},
+   "raises_checks": 1,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "evaluator refuses resume beyond scenario count",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.evals:Scenario.valid_factory",
+    "capstone.evals:ScenarioConfig.unique_ids",
+    "capstone.evals:check_resume"
+   ],
+   "exercise_count": 3,
+   "modules_exercised": [
+    "capstone.evals"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
    "id": "tests/test_coverage_eval_dispatch.py::test_request_cli_dispatches_each_family_offline",
    "file": "tests/test_coverage_eval_dispatch.py",
    "name": "test_request_cli_dispatches_each_family_offline",
@@ -26883,7 +27013,7 @@
    "id": "tests/test_coverage_full_eval_paths.py::test_provenance_verifies_clean_commit_and_source_hashes",
    "file": "tests/test_coverage_full_eval_paths.py",
    "name": "test_provenance_verifies_clean_commit_and_source_hashes",
-   "line": 14,
+   "line": 16,
    "docstring": "",
    "parametrized": false,
    "fixtures": [
@@ -26925,7 +27055,7 @@
    "id": "tests/test_coverage_full_eval_paths.py::test_provenance_refuses_missing_or_dirty_commits",
    "file": "tests/test_coverage_full_eval_paths.py",
    "name": "test_provenance_refuses_missing_or_dirty_commits",
-   "line": 56,
+   "line": 58,
    "docstring": "",
    "parametrized": true,
    "fixtures": [
@@ -26965,7 +27095,7 @@
    "id": "tests/test_coverage_full_eval_paths.py::test_tracked_files_falls_back_to_filesystem_when_git_unavailable",
    "file": "tests/test_coverage_full_eval_paths.py",
    "name": "test_tracked_files_falls_back_to_filesystem_when_git_unavailable",
-   "line": 68,
+   "line": 70,
    "docstring": "",
    "parametrized": false,
    "fixtures": [
@@ -26980,14 +27110,17 @@
     "monkeypatch"
    ],
    "quality_flags": [
-    "patches_dependencies",
-    "exercises_no_project_function"
+    "patches_dependencies"
    ],
    "claims": "tracked files falls back to filesystem when git unavailable",
-   "execution_outcome": "failed",
-   "exercises": [],
-   "exercise_count": 0,
-   "modules_exercised": [],
+   "execution_outcome": "passed",
+   "exercises": [
+    "evaluation.evaltools.full_evaluation:tracked_python_files"
+   ],
+   "exercise_count": 1,
+   "modules_exercised": [
+    "evaluation.evaltools.full_evaluation"
+   ],
    "judgment": "NOT ASSESSED",
    "curated": {},
    "snap_questions": [
@@ -27000,7 +27133,7 @@
    "id": "tests/test_coverage_full_eval_paths.py::test_plan_records_functions_that_do_not_have_snap_questions",
    "file": "tests/test_coverage_full_eval_paths.py",
    "name": "test_plan_records_functions_that_do_not_have_snap_questions",
-   "line": 82,
+   "line": 84,
    "docstring": "",
    "parametrized": false,
    "fixtures": [
@@ -27049,7 +27182,7 @@
    "id": "tests/test_coverage_full_eval_paths.py::test_settle_preserves_failed_unreadable_and_answered_outcomes",
    "file": "tests/test_coverage_full_eval_paths.py",
    "name": "test_settle_preserves_failed_unreadable_and_answered_outcomes",
-   "line": 141,
+   "line": 143,
    "docstring": "",
    "parametrized": true,
    "fixtures": [
@@ -27085,7 +27218,7 @@
    "id": "tests/test_coverage_full_eval_paths.py::test_budgeted_send_blocks_unknown_provider_without_network",
    "file": "tests/test_coverage_full_eval_paths.py",
    "name": "test_budgeted_send_blocks_unknown_provider_without_network",
-   "line": 160,
+   "line": 162,
    "docstring": "",
    "parametrized": false,
    "fixtures": [
@@ -27119,7 +27252,7 @@
    "id": "tests/test_coverage_full_eval_paths.py::test_budgeted_send_rejects_invalid_request_limits",
    "file": "tests/test_coverage_full_eval_paths.py",
    "name": "test_budgeted_send_rejects_invalid_request_limits",
-   "line": 180,
+   "line": 182,
    "docstring": "",
    "parametrized": true,
    "fixtures": [
@@ -27152,7 +27285,7 @@
    "id": "tests/test_coverage_full_eval_paths.py::test_full_evaluation_cli_offline_report_and_reference_checksum",
    "file": "tests/test_coverage_full_eval_paths.py",
    "name": "test_full_evaluation_cli_offline_report_and_reference_checksum",
-   "line": 241,
+   "line": 243,
    "docstring": "",
    "parametrized": false,
    "fixtures": [
@@ -27192,7 +27325,7 @@
    "id": "tests/test_coverage_full_eval_paths.py::test_full_evaluation_cli_reports_incomplete_live_answers_as_failure",
    "file": "tests/test_coverage_full_eval_paths.py",
    "name": "test_full_evaluation_cli_reports_incomplete_live_answers_as_failure",
-   "line": 276,
+   "line": 278,
    "docstring": "",
    "parametrized": false,
    "fixtures": [
@@ -27231,7 +27364,7 @@
    "id": "tests/test_coverage_full_eval_paths.py::test_full_evaluation_cli_requires_full_audit_before_dispatch",
    "file": "tests/test_coverage_full_eval_paths.py",
    "name": "test_full_evaluation_cli_requires_full_audit_before_dispatch",
-   "line": 313,
+   "line": 315,
    "docstring": "",
    "parametrized": false,
    "fixtures": [
@@ -27683,6 +27816,47 @@
     "capstone.manual.index:main"
    ],
    "exercise_count": 1,
+   "modules_exercised": [
+    "capstone.manual.index"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_coverage_index_edges.py::test_ready_manual_index_reuses_a_current_index_without_rebuilding",
+   "file": "tests/test_coverage_index_edges.py",
+   "name": "test_ready_manual_index_reuses_a_current_index_without_rebuilding",
+   "line": 328,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [
+    "monkeypatch"
+   ],
+   "assertions": 3,
+   "assert_forms": {
+    "equality": 1,
+    "identity": 1,
+    "is_none": 1
+   },
+   "raises_checks": 0,
+   "uses": [
+    "monkeypatch"
+   ],
+   "quality_flags": [
+    "patches_dependencies"
+   ],
+   "claims": "ready manual index reuses a current index without rebuilding",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.manual.index:ready_index",
+    "capstone.manual.index:ready_manual_index"
+   ],
+   "exercise_count": 2,
    "modules_exercised": [
     "capstone.manual.index"
    ],
@@ -28662,6 +28836,48 @@
    ]
   },
   {
+   "id": "tests/test_coverage_reporting_edges.py::test_tree_reach_text_report_prints_each_rating_position",
+   "file": "tests/test_coverage_reporting_edges.py",
+   "name": "test_tree_reach_text_report_prints_each_rating_position",
+   "line": 434,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [
+    "monkeypatch",
+    "tmp_path",
+    "capsys"
+   ],
+   "assertions": 3,
+   "assert_forms": {
+    "equality": 1,
+    "membership": 2
+   },
+   "raises_checks": 0,
+   "uses": [
+    "monkeypatch"
+   ],
+   "quality_flags": [
+    "patches_dependencies"
+   ],
+   "claims": "tree reach text report prints each rating position",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.tree_reach:main",
+    "capstone.tree_reach:summarize"
+   ],
+   "exercise_count": 2,
+   "modules_exercised": [
+    "capstone.tree_reach"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
    "id": "tests/test_coverage_telemetry_edges.py::test_monitor_threshold_rejects_invalid_ranges",
    "file": "tests/test_coverage_telemetry_edges.py",
    "name": "test_monitor_threshold_rejects_invalid_ranges",
@@ -28996,6 +29212,47 @@
     "patches_dependencies"
    ],
    "claims": "monitor cli follow loop exits cleanly on interrupt",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.monitoring.__main__:main"
+   ],
+   "exercise_count": 1,
+   "modules_exercised": [
+    "capstone.monitoring.__main__"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_coverage_telemetry_edges.py::test_monitor_follow_processes_another_batch_before_interrupt",
+   "file": "tests/test_coverage_telemetry_edges.py",
+   "name": "test_monitor_follow_processes_another_batch_before_interrupt",
+   "line": 234,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [
+    "monkeypatch",
+    "tmp_path",
+    "capsys"
+   ],
+   "assertions": 4,
+   "assert_forms": {
+    "equality": 3,
+    "membership": 1
+   },
+   "raises_checks": 0,
+   "uses": [
+    "monkeypatch"
+   ],
+   "quality_flags": [
+    "patches_dependencies"
+   ],
+   "claims": "monitor follow processes another batch before interrupt",
    "execution_outcome": "passed",
    "exercises": [
     "capstone.monitoring.__main__:main"
@@ -52110,7 +52367,7 @@
    "uses": [],
    "quality_flags": [],
    "claims": "Every tracked Python file is inventoried, a test, excluded with a reason,",
-   "execution_outcome": "failed",
+   "execution_outcome": "passed",
    "exercises": [
     "evaluation.evaltools.build_inventory:call_name",
     "evaluation.evaltools.build_inventory:collect_functions",

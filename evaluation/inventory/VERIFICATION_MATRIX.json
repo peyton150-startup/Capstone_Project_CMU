@@ -138,14 +138,14 @@
   "tests/test_console.py": "15ebbbdb8927f37fd25f9d8f9676e412f8fb368766c0a2318aacff94c963d86b",
   "tests/test_contracts.py": "55497b4712a724e6e4e6b3aed0eb245fc1643147b961d62782b462882affe0b6",
   "tests/test_coverage_entrypoints.py": "399a323da457b2c871e18d1bdf1c8a47c6bf3761d83a2fc280cfc9fa58f84eda",
-  "tests/test_coverage_eval_cli_edges.py": "14b6e6adeae33374d5b2654218d751de587ef7f7e699d290d5bb9f8eda4eec69",
+  "tests/test_coverage_eval_cli_edges.py": "d5223744da6ffafc130b00bfde2e3635b20d6cba5cd66794806ea6c9cf647aa6",
   "tests/test_coverage_eval_dispatch.py": "6dca80782042b7e523adaa44f11f1c0eaf2109cd615db6cb3ac8aa073b57e0b7",
   "tests/test_coverage_evaluator_commands.py": "61525dfea146b71b09719d5252ce5da3b5ab3318a34e2ec09b3ef135c48ce53f",
-  "tests/test_coverage_full_eval_paths.py": "4ac863eedd4cd7c127482cc0ff1c5f1b04135a04cf8d14f9c15a27c99350cd41",
-  "tests/test_coverage_index_edges.py": "8a8b9f32d3a2eba9a2ab36a7d2e7a291aed18990b24b7836e96cf1bc684bf266",
+  "tests/test_coverage_full_eval_paths.py": "cf37bcbcaed8dffee327c3ab6193fca890296834363ba98112781bcd2eab6849",
+  "tests/test_coverage_index_edges.py": "a63aee7eefcfe509da0eab18cc063ef8351be5e916b294bddd8040b3d2f5d714",
   "tests/test_coverage_reference_edges.py": "a3854e25260f4f0c50a9110897aa5cb1b1fb1f687a02abb7b386e3a22bf4caac",
-  "tests/test_coverage_reporting_edges.py": "32ace3d1b667f60e48ef93e373dfa1ea29c1532dd48cf67cefbfa726907a1718",
-  "tests/test_coverage_telemetry_edges.py": "9ffe9b21d4bed854f469aad35ff998a70317f324e8bf7de449fd27fa2adfcc9a",
+  "tests/test_coverage_reporting_edges.py": "d42589ed3be5ab6220cdf90bf085fab4f27edf48a2516b7ef853bc147ad9a11c",
+  "tests/test_coverage_telemetry_edges.py": "f471bd45c88f3cc4966a4cdb13e3e1b559dbc3aef8c032c02bd6af1cb9669360",
   "tests/test_coverage_tracing_deep.py": "2ace1452c786cd66e5ef6e354ef8e9687e8b7528b04fae02820514a20c7cd827",
   "tests/test_critic.py": "dbcab743bfe426a23622f103a94b4a5f5c7617c0c955a3adc46876efe896c40b",
   "tests/test_database_connection.py": "9efb08efff306ff4c14c6c7b7dcd628de9bd201ab521fa68d11dc3138ff7e056",
@@ -226,36 +226,35 @@
   "tests/test_wait_tool.py": "b99a5fbf756a60176262417e54d8d1a0496f01126929a330492e7d24287b2d1e",
   "tests/test_wrong_setting.py": "aed1c646bffaf88ae25ed2156794dc57427e8a61bbe6b23a0c33f3c3e89c0da3"
  },
- "coverage_sha256": "d78f0fa9f237fc89b82499d05672007f1ac2f7e18f3812bc4c3443ae2c30aa12",
- "junit_sha256": "bf89f14acef6b6addac35ecd052f2d53cd6702fac3c2306aaa3c5e8d7d8d70eb",
+ "coverage_sha256": "2a0d3392e3e24051dda7407b3adb91b95744291fb86551cde6334a08602d6ed6",
+ "junit_sha256": "707ab86c7b2f0e71652b4d633e2b8fb0b8b4be80bbb6272a98c46bdb884752b7",
  "counts": {
   "functions": 877,
   "classes_note": "classes are listed through their methods",
-  "tests": 1749,
+  "tests": 1756,
   "tools": 18,
   "functions_by_status": {
    "INSUFFICIENT EVIDENCE": 364,
    "NOT APPLICABLE": 25,
-   "NOT TESTED": 15,
-   "PARTIALLY VERIFIED": 428,
+   "NOT TESTED": 14,
+   "PARTIALLY VERIFIED": 429,
    "VERIFIED": 45
   },
   "functions_by_coverage_class": {
-   "direct": 457,
+   "direct": 458,
    "import-only": 4,
    "indirect": 376,
    "no-statements": 25,
-   "none": 15
+   "none": 14
   },
-  "functions_executed_in_tests": 833,
-  "functions_with_direct_tests": 457,
+  "functions_executed_in_tests": 834,
+  "functions_with_direct_tests": 458,
   "functions_never_executed": [
    "capstone.episode:ask_on_console",
    "capstone.evals:main.<locals>.show_progress",
    "capstone.ingestion.channel_map:ChannelMap.entry_for",
    "capstone.ingestion.collector:utc_now",
    "capstone.ingestion.collector:MTConnectCollector.probe",
-   "capstone.manual.index:ready_manual_index",
    "capstone.memory.semantic:default_embedder",
    "capstone.providers.chat:FallbackClient.__repr__",
    "capstone.simulator.clock:SimulationClock.tick_duration",
@@ -283,8 +282,6 @@
    "capstone.agent.tree_of_thought:TreeOptions.breadth_fits (2/3)",
    "capstone.contracts.hypotheses:NumericClaim.ordered_window (3/4)",
    "capstone.contracts.investigations:run_id_for (2/3)",
-   "capstone.evals:Scenario.valid_factory (4/6)",
-   "capstone.evals:check_resume (4/6)",
    "capstone.evaluation.memory:MemoryPromotionRecord.consistent_storage (3/5)",
    "capstone.evaluation.scoring:Score.unnecessary_actions (3/5)",
    "capstone.experiment:_right (2/3)",
@@ -299,7 +296,6 @@
    "capstone.simulator.state:FactoryState.next_on_line (3/4)",
    "evaluation.evaltools.build_inventory:read_junit (2/19)",
    "evaluation.evaltools.full_evaluation:git (2/4)",
-   "evaluation.evaltools.full_evaluation:tracked_python_files (3/4)",
    "evaluation.evaltools.full_evaluation:run_settings (7/9)",
    "evaluation.evaltools.full_evaluation:budgeted_send (62/78)",
    "evaluation.evaltools.run_packet:configuration_of (7/9)",
@@ -311,8 +307,7 @@
   ],
   "stubs_or_protocols": 25,
   "tests_by_outcome": {
-   "failed": 2,
-   "passed": 1747
+   "passed": 1756
   },
   "tests_with_no_assertion": [
    "tests/test_console.py::test_without_it_the_same_print_raised"
@@ -397,7 +392,6 @@
    "tests/test_console.py::test_without_it_the_same_print_raised",
    "tests/test_contracts.py::test_observation_rejects_hidden_or_unknown_fields",
    "tests/test_contracts.py::test_hypothesis_confidence_must_be_finite_and_in_range",
-   "tests/test_coverage_full_eval_paths.py::test_tracked_files_falls_back_to_filesystem_when_git_unavailable",
    "tests/test_critic.py::test_system_prompt_names_no_fault",
    "tests/test_critic.py::test_schema_fields_are_all_described",
    "tests/test_critic.py::test_the_prompt_says_manual_sections_are_guidance_not_evidence",
@@ -657,8 +651,8 @@
   },
   "capstone.manual.index": {
    "functions": 13,
-   "executed": 12,
-   "direct": 2
+   "executed": 13,
+   "direct": 3
   },
   "capstone.manual.sections": {
    "functions": 4,
@@ -5446,7 +5440,7 @@
    ]
   },
   "capstone.evals:Scenario.valid_factory": {
-   "count": 20,
+   "count": 22,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_evals.py::test_comparison_requires_same_cases_and_preserves_unknown_accuracy",
@@ -5468,7 +5462,9 @@
     "tests/test_coverage_eval_cli_edges.py::test_evals_cli_refuses_to_clobber_an_existing_raw_run",
     "tests/test_coverage_eval_cli_edges.py::test_evals_cli_rescores_saved_records_and_writes_diff_without_model",
     "tests/test_coverage_eval_cli_edges.py::test_evals_cli_saved_records_must_match_config_in_order",
-    "tests/test_coverage_eval_cli_edges.py::test_evals_cli_saves_fresh_rows_and_uses_live_watch_hook"
+    "tests/test_coverage_eval_cli_edges.py::test_evals_cli_saves_fresh_rows_and_uses_live_watch_hook",
+    "tests/test_coverage_eval_cli_edges.py::test_evaluator_refuses_resume_beyond_scenario_count",
+    "tests/test_coverage_eval_cli_edges.py::test_scenario_config_rejects_incompatible_faults"
    ]
   },
   "capstone.evals:Scenario.as_case": {
@@ -5491,7 +5487,7 @@
    "indirect": []
   },
   "capstone.evals:ScenarioConfig.unique_ids": {
-   "count": 20,
+   "count": 21,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_evals.py::test_comparison_requires_same_cases_and_preserves_unknown_accuracy",
@@ -5513,7 +5509,8 @@
     "tests/test_coverage_eval_cli_edges.py::test_evals_cli_refuses_to_clobber_an_existing_raw_run",
     "tests/test_coverage_eval_cli_edges.py::test_evals_cli_rescores_saved_records_and_writes_diff_without_model",
     "tests/test_coverage_eval_cli_edges.py::test_evals_cli_saved_records_must_match_config_in_order",
-    "tests/test_coverage_eval_cli_edges.py::test_evals_cli_saves_fresh_rows_and_uses_live_watch_hook"
+    "tests/test_coverage_eval_cli_edges.py::test_evals_cli_saves_fresh_rows_and_uses_live_watch_hook",
+    "tests/test_coverage_eval_cli_edges.py::test_evaluator_refuses_resume_beyond_scenario_count"
    ]
   },
   "capstone.evals:load_scenarios": {
@@ -5539,17 +5536,20 @@
    ]
   },
   "capstone.evals:compare_reports": {
-   "count": 1,
+   "count": 2,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_evals.py::test_comparison_requires_same_cases_and_preserves_unknown_accuracy"
    ],
-   "indirect": []
+   "indirect": [
+    "tests/test_coverage_eval_cli_edges.py::test_report_comparison_rejects_incompatible_experiments"
+   ]
   },
   "capstone.evals:names": {
-   "count": 7,
+   "count": 8,
    "status": "PARTIALLY VERIFIED",
    "direct": [
+    "tests/test_coverage_eval_cli_edges.py::test_evaluator_names_compound_diagnoses_and_none",
     "tests/test_evals.py::test_comparison_requires_same_cases_and_preserves_unknown_accuracy",
     "tests/test_evals.py::test_confidence_below_the_line_is_wrong_but_not_confident",
     "tests/test_evals.py::test_confident_no_fault_and_honest_abstention_score_apart",
@@ -5617,13 +5617,15 @@
    "indirect": []
   },
   "capstone.evals:check_resume": {
-   "count": 2,
+   "count": 3,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_evals.py::test_each_case_runs_with_its_own_hazards",
     "tests/test_evals.py::test_resume_accepts_only_the_saved_prefix_and_keeps_run_numbers"
    ],
-   "indirect": []
+   "indirect": [
+    "tests/test_coverage_eval_cli_edges.py::test_evaluator_refuses_resume_beyond_scenario_count"
+   ]
   },
   "capstone.evals:critic_labels": {
    "count": 3,
@@ -8146,10 +8148,11 @@
    ]
   },
   "capstone.manual.index:ready_index": {
-   "count": 7,
+   "count": 8,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
+    "tests/test_coverage_index_edges.py::test_ready_manual_index_reuses_a_current_index_without_rebuilding",
     "tests/test_manual.py::test_a_removed_or_added_section_is_not_current",
     "tests/test_manual.py::test_an_edited_section_rebuilds_the_index_first",
     "tests/test_manual.py::test_an_empty_index_is_built_before_the_run",
@@ -8160,9 +8163,11 @@
    ]
   },
   "capstone.manual.index:ready_manual_index": {
-   "count": 0,
-   "status": "NOT TESTED",
-   "direct": [],
+   "count": 1,
+   "status": "PARTIALLY VERIFIED",
+   "direct": [
+    "tests/test_coverage_index_edges.py::test_ready_manual_index_reuses_a_current_index_without_rebuilding"
+   ],
    "indirect": []
   },
   "capstone.manual.index:open_manual_index": {
@@ -9354,7 +9359,7 @@
    ]
   },
   "capstone.monitoring.__main__:main": {
-   "count": 6,
+   "count": 7,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
@@ -9362,6 +9367,7 @@
     "tests/test_coverage_telemetry_edges.py::test_monitor_cli_follow_loop_exits_cleanly_on_interrupt",
     "tests/test_coverage_telemetry_edges.py::test_monitor_cli_rejects_unsafe_alerts_before_reading",
     "tests/test_coverage_telemetry_edges.py::test_monitor_cli_replay_is_read_only_and_passes_thresholds",
+    "tests/test_coverage_telemetry_edges.py::test_monitor_follow_processes_another_batch_before_interrupt",
     "tests/test_mtconnect_ingestion.py::test_monitor_and_watchdog_refuse_alerts_inside_the_repository",
     "tests/test_telemetry_monitor.py::test_command_line_replay_writes_alerts"
    ]
@@ -14558,11 +14564,12 @@
    ]
   },
   "capstone.tree_reach:summarize": {
-   "count": 4,
+   "count": 5,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
     "tests/test_coverage_reporting_edges.py::test_reach_summary_groups_time_failures_and_reserve_usage",
+    "tests/test_coverage_reporting_edges.py::test_tree_reach_text_report_prints_each_rating_position",
     "tests/test_coverage_reporting_edges.py::test_tree_report_cli_text_and_json_paths",
     "tests/test_tree_search.py::test_the_report_puts_a_tree_run_in_the_tree_group",
     "tests/test_tree_search.py::test_the_report_reads_the_archived_pairs_as_the_audit_counted_them"
@@ -14589,11 +14596,12 @@
    ]
   },
   "capstone.tree_reach:main": {
-   "count": 2,
+   "count": 3,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
     "tests/test_coverage_entrypoints.py::test_cli_module_help_is_offline_and_exits_cleanly",
+    "tests/test_coverage_reporting_edges.py::test_tree_reach_text_report_prints_each_rating_position",
     "tests/test_coverage_reporting_edges.py::test_tree_report_cli_text_and_json_paths"
    ]
   },
@@ -15170,7 +15178,7 @@
    "indirect": []
   },
   "evaluation.evaltools.full_evaluation:tracked_python_files": {
-   "count": 5,
+   "count": 6,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_full_evaluation.py::test_a_dry_run_reports_whether_snap_could_be_sent",
@@ -15179,7 +15187,9 @@
     "tests/test_full_evaluation.py::test_full_command_uses_budgeted_sender",
     "tests/test_full_evaluation.py::test_the_repository_has_no_unexplained_python_file"
    ],
-   "indirect": []
+   "indirect": [
+    "tests/test_coverage_full_eval_paths.py::test_tracked_files_falls_back_to_filesystem_when_git_unavailable"
+   ]
   },
   "evaluation.evaltools.full_evaluation:has_functions": {
    "count": 5,
@@ -24913,6 +24923,36 @@
     "capstone.experiment:main"
    ]
   },
+  "tests/test_coverage_eval_cli_edges.py::test_scenario_config_rejects_incompatible_faults": {
+   "count": 1,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.evals:Scenario.valid_factory"
+   ]
+  },
+  "tests/test_coverage_eval_cli_edges.py::test_report_comparison_rejects_incompatible_experiments": {
+   "count": 1,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.evals:compare_reports"
+   ]
+  },
+  "tests/test_coverage_eval_cli_edges.py::test_evaluator_names_compound_diagnoses_and_none": {
+   "count": 1,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.evals:names"
+   ]
+  },
+  "tests/test_coverage_eval_cli_edges.py::test_evaluator_refuses_resume_beyond_scenario_count": {
+   "count": 3,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.evals:Scenario.valid_factory",
+    "capstone.evals:ScenarioConfig.unique_ids",
+    "capstone.evals:check_resume"
+   ]
+  },
   "tests/test_coverage_eval_dispatch.py::test_request_cli_dispatches_each_family_offline": {
    "count": 1,
    "judgment": "NOT ASSESSED",
@@ -25035,9 +25075,11 @@
    ]
   },
   "tests/test_coverage_full_eval_paths.py::test_tracked_files_falls_back_to_filesystem_when_git_unavailable": {
-   "count": 0,
+   "count": 1,
    "judgment": "NOT ASSESSED",
-   "functions": []
+   "functions": [
+    "evaluation.evaltools.full_evaluation:tracked_python_files"
+   ]
   },
   "tests/test_coverage_full_eval_paths.py::test_plan_records_functions_that_do_not_have_snap_questions": {
    "count": 7,
@@ -25187,6 +25229,14 @@
    "judgment": "NOT ASSESSED",
    "functions": [
     "capstone.manual.index:main"
+   ]
+  },
+  "tests/test_coverage_index_edges.py::test_ready_manual_index_reuses_a_current_index_without_rebuilding": {
+   "count": 2,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.manual.index:ready_index",
+    "capstone.manual.index:ready_manual_index"
    ]
   },
   "tests/test_coverage_reference_edges.py::test_review_refuses_conflicting_states_for_one_internal_item": {
@@ -25399,6 +25449,14 @@
     "capstone.baseline:diagnose.<locals>.verdict"
    ]
   },
+  "tests/test_coverage_reporting_edges.py::test_tree_reach_text_report_prints_each_rating_position": {
+   "count": 2,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.tree_reach:main",
+    "capstone.tree_reach:summarize"
+   ]
+  },
   "tests/test_coverage_telemetry_edges.py::test_monitor_threshold_rejects_invalid_ranges": {
    "count": 1,
    "judgment": "NOT ASSESSED",
@@ -25457,6 +25515,13 @@
    ]
   },
   "tests/test_coverage_telemetry_edges.py::test_monitor_cli_follow_loop_exits_cleanly_on_interrupt": {
+   "count": 1,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.monitoring.__main__:main"
+   ]
+  },
+  "tests/test_coverage_telemetry_edges.py::test_monitor_follow_processes_another_batch_before_interrupt": {
    "count": 1,
    "judgment": "NOT ASSESSED",
    "functions": [
