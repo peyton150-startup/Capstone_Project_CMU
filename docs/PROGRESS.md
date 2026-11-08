@@ -16,7 +16,7 @@
 > logged at 14:15 and the capture has a gap marker covering 14:10-14:20: what does the check report, and why does that
 > keep the visit from being ready?"
 
-> **2026-11-08 — request-size logging and stage views (STAGE_CONTEXT) (built ungated at the developer's request; developer to review; understood: no; pre-check, closing question and §11.6 walkthrough owed; not merged):**
+> **2026-11-08 — request-size logging and stage views (STAGE_CONTEXT) (built ungated at the developer's request; developer to review; understood: no; pre-check, closing question and §11.6 walkthrough owed; PR #209 merged on green CI at the developer's direction on 2026-11-08, before the walkthrough):**
 > From a review of a progressive-disclosure proposal against the code, the developer asked for its narrowed version:
 > measure first, then give two questions their own views. **Logging:** every `Attempt` now records the tokens the service
 > reported (`input_tokens`, `output_tokens`, failed and fallback attempts included, refused replies too), the characters
