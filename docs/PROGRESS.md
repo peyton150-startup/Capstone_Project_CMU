@@ -1,5 +1,19 @@
 # Progress Log
 
+> **2026-11-08 — SM-3 read-only replay provider over a recorded capture (built ungated at the developer's direction; pre-check, closing questions and pre-merge walkthrough owed; understood: no; not merged, at the developer's request; stacked on SM-5, PR #212):**
+> New module `providers/replay.py`. `RecordedObservationTools` answers the existing observation tools from a capture:
+> tick 0 is the first observation and one tick is 60 s of machine time; the replay stands at a cutoff `now` and no
+> answer includes a reading after it. Only channels a person assigned a `tool_sensor` in the SM-1 channel map are
+> visible; each such device is a machine. `get_readings` returns the channel's numeric readings with the probe's own
+> units (UNAVAILABLE is never a reading); `get_sensor_trend` and the summary's mean use SM-5's holds, so they are
+> time-weighted and never span a gap; the summary's rate stays endpoint change per tick, as the tool's description says.
+> `list_machines` reads running/idle from the last Execution value and refuses rather than guess when there is none.
+> Events, maintenance, inspections, settings, jobs and line screening refuse ("a machine capture does not record ...").
+> `RecordedActionTools`: `wait` moves the cutoff (never past the capture's end); proposing and executing are refused.
+> `replay_provider` wires them into `SimulatorFactoryProvider`, which gains a `source` label ("replay"). PR #213. Owed
+> questions: pre-check, "why does get_events refuse instead of returning an empty list?"; closing, "a capture has a gap
+> between two readings of 10 and 40 in one trend block; what does the block's mean count, and what does it leave out?"
+
 > **2026-11-08 — SM-5 core: time-aware statistics for unevenly timed readings (built ungated at the developer's direction; pre-check, closing questions and pre-merge walkthrough owed; understood: no; not merged, at the developer's request):**
 > New module `ingestion/time_stats.py`. `holds_in_run` turns one channel's numeric readings inside one gap-free run into
 > `Hold`s: each value stands from its own time until the channel's next record, or until the run's last collected
