@@ -170,3 +170,16 @@ def test_function_test_context_and_tool_test_context_are_visible():
         state_tokens=None,
     )
     assert built[0]["tags"]["skipped_questions"]["TL-03"].startswith("unknown:")
+
+
+def test_blind_review_rejects_mismatched_question_ids(tmp_path):
+    """An altered private ID cannot reassign an actual judge question."""
+    # Variables:
+    #   item: A judge request whose metadata ID no longer matches the request.
+    item, question = judge_request()
+    item["tags"]["questions"][question.name]["id"] = "RUN-99"
+    requests = tmp_path / "requests"
+    requests.mkdir()
+    (requests / "tampered.request.json").write_text(json.dumps(item))
+    with pytest.raises(ValueError, match="question IDs differ"):
+        reference_review.export_requests(requests, tmp_path / "blind", {"RUN": 1})
