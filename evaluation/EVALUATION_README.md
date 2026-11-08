@@ -172,9 +172,11 @@ disagreement for review, latency, tokens and cost per provider (tokens and
 cost counted once per request, since the services report usage per
 request, not per question), and each provider's agreement with the
 reviewer's answers.
-Answers are written beside the requests as `*.answers.json`. Before the
-first live request confirm the question shape against docs.subq.ai (the
-score-level key is unconfirmed; see `SNAP_QUESTIONS.json` `api`).
+Answers are written beside the requests as `*.answers.json`. The official SubQ [Decisions API](https://docs.subq.ai/endpoints/decisions-api/)
+confirms `criteria` as the ordered array for score questions and confirms
+`answers.<name>.score` and `usage.input_tokens` in replies. These published
+contract details were checked on November 8, 2026; **live, authenticated
+contract testing and reference calibration are still pending**.
 
 ## 4a. The whole project in one command
 
