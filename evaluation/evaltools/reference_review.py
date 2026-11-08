@@ -165,6 +165,7 @@ def import_review(review_dir: Path, answers_path: Path, out: Path) -> dict:
     #   mapping: Private opaque-to-internal IDs kept away from the reviewer.
     #   answers: The reviewer's judgments keyed only by opaque ID.
     #   reference: Checked judgments restored to evaluator item IDs for comparison.
+    #   mapping: A hashed relation checked against the blind packet before restoring IDs.
     mapping = json.loads((review_dir / "private_mapping.json").read_text("utf-8"))
     answers = json.loads(answers_path.read_text("utf-8"))
     if not isinstance(answers, dict) or set(answers) - set(mapping):
@@ -174,6 +175,8 @@ def import_review(review_dir: Path, answers_path: Path, out: Path) -> dict:
         packet = json.loads(
             (review_dir / "blinded" / f"{opaque}.json").read_text("utf-8")
         )
+        if review_id(mapping[opaque]) != opaque or packet.get("review_id") != opaque:
+            raise ValueError(f"{opaque}: private review mapping does not match packet")
         if not isinstance(judgments, dict) or set(judgments) - set(packet["questions"]):
             raise ValueError(f"{opaque}: unknown question ID")
         for question_id, value in judgments.items():
