@@ -121,6 +121,7 @@ GROUPS: dict[str, list[str]] = {
         "reference_review",
         "coverage_reference_edges",
         "coverage_evaluator_commands",
+        "coverage_tracing_deep",
         "coverage_entrypoints",
     ],
     # Many episodes: the harness, hand labels and the known-answer cases.
