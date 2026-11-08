@@ -1239,6 +1239,19 @@ def open_memory() -> MemoryService:
 APPROVERS = {"all": approve_all, "none": reject_all, "console": ask_on_console}
 
 
+def default_audit_path(out: Path) -> Path:
+    """Place a run's audit beside its records with the archive's expected name."""
+    # Variables:
+    #   stem: The shared run name used to pair records and audits on import.
+    name = out.name
+    stem = (
+        name.removesuffix(".records.jsonl")
+        if name.endswith(".records.jsonl")
+        else name.removesuffix(".jsonl")
+    )
+    return out.with_name(f"{stem}.audit.jsonl")
+
+
 def main(argv: Sequence[str] | None = None) -> int:
     """The command line: run cases, label their conclusions, or report them."""
     # Variables:
@@ -1250,8 +1263,9 @@ def main(argv: Sequence[str] | None = None) -> int:
     #     --challenge or --seeds (with --faults).
     #   budgets: Time limits for each investigation; None keeps the defaults
     #     unless --timeout-seconds was given.
-    #   memory, manual, log: The optional memory store, operator manual and
-    #     audit log; each is None unless its option was given.
+    #   memory, manual: Optional memory store and operator manual.
+    #   audit_path, log: The chosen audit file and writer; new CLI runs use a
+    #     companion file unless --no-audit was given.
     #   args.triage: True with --triage, otherwise None so the TRIAGE setting
     #     decides; passed through to run_experiment.
     #   records: The finished results, saved as each case ends; for "label" and
@@ -1284,7 +1298,11 @@ def main(argv: Sequence[str] | None = None) -> int:
     run.add_argument("--approve", choices=sorted(APPROVERS), default="all")
     run.add_argument("--memory", action="store_true", help="recall and learn")
     add_manual_options(run)
-    run.add_argument("--audit", type=Path, help="audit log (needed to learn)")
+    audit = run.add_mutually_exclusive_group()
+    audit.add_argument(
+        "--audit", type=Path, help="audit log path (default: beside --out)"
+    )
+    audit.add_argument("--no-audit", action="store_true", help="omit the audit log")
     run.add_argument("--timeout-seconds", type=float, help="per investigation")
     run.add_argument(
         "--hazards",
@@ -1352,7 +1370,12 @@ def main(argv: Sequence[str] | None = None) -> int:
             )
         memory = open_memory() if args.memory else None
         manual = open_manual(args.manual) if args.manual else None
-        log = AuditLog(args.audit) if args.audit else None
+        audit_path = (
+            None if args.no_audit else (args.audit or default_audit_path(args.out))
+        )
+        if audit_path == args.out:
+            parser.error("audit and records paths must differ")
+        log = AuditLog(audit_path) if audit_path else None
 
         def live_line(line: str) -> None:
             # Variables:

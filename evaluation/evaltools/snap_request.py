@@ -261,10 +261,10 @@ def applicable_run_questions(
     #     the evidence, hypotheses and decision arguments.
     #   conclusion: The conclusion view, or {} when the run reached none.
     #   outage: True when no model answered; such a run is asked nothing.
-    #   named: True when the conclusion names a cause: the label says so
-    #     (facts.committed) or, for an unlabelled run, it recommends anything but
-    #     escalate. A check that lowered the recommendation to escalate does not
-    #     hide a named cause from RUN-09.
+    #   named: Whether the conclusion names a cause, taking a reviewer label
+    #     when present and otherwise using the conclusion rather than its action.
+    #   diagnosis: The unlabelled conclusion text, which can name a hypothesis
+    #     even when the final action was changed to escalate.
     #   skipped: Question id to the reason it is not asked of this packet.
     #   chosen: The questions this packet can answer, in file order.
     view = packet["snap_view"]
@@ -272,10 +272,23 @@ def applicable_run_questions(
     full = trace["completeness"] == "full"
     conclusion = trace.get("conclusion") or {}
     committed = view["facts"].get("committed")
+    diagnosis = str(conclusion.get("diagnosis") or "").strip().casefold()
     named = bool(conclusion) and (
-        committed
+        bool(committed)
         if committed is not None
-        else conclusion.get("recommendation") not in (None, "escalate")
+        else bool(
+            conclusion.get("hypothesis_id")
+            or diagnosis
+            and diagnosis
+            not in {
+                "unknown",
+                "undetermined",
+                "inconclusive",
+                "none",
+                "no diagnosis",
+                "no cause identified",
+            }
+        )
     )
     skipped: dict[str, str] = {}
     chosen = []
@@ -308,6 +321,33 @@ def applicable_run_questions(
     return chosen, skipped
 
 
+def fitted_trace_skips(view: dict) -> dict[str, str]:
+    """Refuse evidence judgments when the actual sent state lost needed facts."""
+    # Variables:
+    #   cited: Evidence the conclusion attributes its claim to.
+    #   cut: Cited evidence whose content was shortened in the sent state.
+    trace = view["trace"]
+    cited = set((trace.get("conclusion") or {}).get("evidence_ids") or [])
+    cut = any(
+        item["id"] in cited and item.get("truncated")
+        for item in trace.get("evidence", [])
+    )
+    skipped = {}
+    if cut:
+        for question_id in ("RUN-01", "RUN-05", "RUN-06", "RUN-08", "RUN-09", "RUN-12"):
+            skipped[question_id] = "unknown: cited evidence content was truncated"
+    if "decisions" not in trace:
+        for question_id in ("RUN-01", "RUN-02", "RUN-05", "RUN-07", "RUN-10"):
+            skipped[question_id] = (
+                "unknown: decisions were removed for the context budget"
+            )
+    if "manual_searches" not in trace or "recall_searches" not in trace:
+        skipped["RUN-04"] = (
+            "unknown: retrieval records were removed for the context budget"
+        )
+    return skipped
+
+
 def run_requests(
     packet_dir: Path,
     questions: list[DecisionQuestion],
@@ -329,6 +369,8 @@ def run_requests(
     #     appear in no state that is sent (see `judge_view`).
     #   chosen, skipped: The questions this packet can answer, and why the rest
     #     are not asked.
+    #   fitted_skips: Questions made unknown after the provider's evidence
+    #     budget shortened cited content or removed needed trace details.
     #   meta: Tags shared by every request built from this packet.
     #   unfittable: Why the state could not be fitted to the budget, or None.
     #   refusal: Why the packet's judge view was refused, or None.
@@ -360,12 +402,30 @@ def run_requests(
             unfittable = refusal
             if chosen:
                 try:
+                    fitted = (
+                        fit_state(view, state_tokens)[0]
+                        if state_tokens is not None
+                        else view
+                    )
+                    fitted_skips = fitted_trace_skips(fitted)
+                    provider_chosen = [q for q in chosen if q.id not in fitted_skips]
+                    provider_meta = {
+                        **meta,
+                        "skipped_questions": {
+                            **skipped,
+                            **{
+                                q: reason
+                                for q, reason in fitted_skips.items()
+                                if q in {question.id for question in chosen}
+                            },
+                        },
+                    }
                     requests = build_request(
                         view,
-                        chosen,
+                        provider_chosen,
                         model=provider.model,
                         item_id=item_id,
-                        meta=meta,
+                        meta=provider_meta,
                         provider=provider.name,
                         state_tokens=state_tokens,
                     )
@@ -379,7 +439,20 @@ def run_requests(
                         None,
                     )
                     if leaked is None:
-                        built.extend(requests)
+                        if requests:
+                            built.extend(requests)
+                        else:
+                            built.append(
+                                {
+                                    "tags": {
+                                        **provider_meta,
+                                        "provider": provider.name,
+                                        "item_id": item_id,
+                                        "question_ids": [],
+                                    },
+                                    "body": None,
+                                }
+                            )
                         continue
                     unfittable = f"refused: the request carries {leaked!r}"
                 except ValueError as error:
@@ -481,16 +554,26 @@ def shown(kept: int, total: int) -> str | None:
     return None if kept >= total else f"{kept} of {total} shown"
 
 
-def function_state(record: dict, tests_by_id: dict) -> dict:
+def function_state(record: dict, tests_by_id: dict, *, complete: bool = False) -> dict:
     # Variables:
-    #   tests: Every covering test found in the inventory, before the cap.
+    #   complete: Show all direct tests in full; incidental coverage is counted
+    #     but cannot replace a test that asserts this function's contract.
+    #   tests: The selected test sources, before the ordinary context cap.
     #   cut: Why a covering test's source was shortened, or None.
+    #   test_context: Decorators and same-file fixtures/helpers needed to understand the test.
     tests = []
-    for test_id in record["direct_tests"] + record["indirect_tests"]:
+    selected = (
+        record["direct_tests"]
+        if complete
+        else record["direct_tests"] + record["indirect_tests"]
+    )
+    for test_id in selected:
         t = tests_by_id.get(test_id)
         if t is None:
             continue
-        source, cut = test_source(t, COVERING_TEST_SOURCE_CHARS)
+        source, cut = test_source(
+            t, 1_000_000 if complete else COVERING_TEST_SOURCE_CHARS
+        )
         tests.append(
             {
                 "id": t["id"],
@@ -500,6 +583,7 @@ def function_state(record: dict, tests_by_id: dict) -> dict:
                 "raises_checks": t["raises_checks"],
                 "execution_outcome": t["execution_outcome"],
                 "source": source,
+                **test_context(t),
                 **({"source_cut": cut} if cut else {}),
             }
         )
@@ -521,9 +605,16 @@ def function_state(record: dict, tests_by_id: dict) -> dict:
             "class": record["coverage_class"],
             "statement_coverage": record["statement_coverage"],
             "test_count": record["test_count"],
+            "direct_test_count": len(record["direct_tests"]),
+            "indirect_test_count": record["indirect_test_count"],
         },
-        "tests": tests[:TESTS_PER_FUNCTION],
-        "tests_shown": shown(min(TESTS_PER_FUNCTION, len(tests)), record["test_count"]),
+        "tests": tests if complete else tests[:TESTS_PER_FUNCTION],
+        "tests_shown": (
+            shown(len(tests), len(record["direct_tests"]))
+            or ("no direct test evidence" if not tests else None)
+            if complete
+            else shown(min(TESTS_PER_FUNCTION, len(tests)), record["test_count"])
+        ),
     }
 
 
@@ -695,12 +786,48 @@ def wiring_lines(tool: str, files: list[str], after: int = 4) -> str | None:
     return "\n".join(parts) if parts else None
 
 
-def tool_state(tool: dict, functions_by_id: dict) -> dict:
+def tool_state(
+    tool: dict, functions_by_id: dict, tests_by_id: dict | None = None
+) -> dict:
     """What a judge reads about one agent tool: contract, code, wiring, tests."""
     # Variables:
     #   impl: The inventory entry of the function that implements the tool, or
     #     None; its file is also searched for the tool's wiring.
+    #   tests: Relevant test sources, assertions, decorators and local helper context.
+    #   cut: Why a test source was shortened, or None when the whole source fits.
+    #   incomplete: True when the judge cannot inspect the tool's test evidence.
     impl = functions_by_id.get(tool["implementation"])
+    tests = []
+    incomplete = tests_by_id is not None and not tool["tests"]
+    for test_id in tool["tests"][:TESTS_PER_TOOL]:
+        candidate = (tests_by_id or {}).get(test_id)
+        if tests_by_id is None:
+            tests.append(test_id)  # Compatibility with callers needing only IDs.
+            continue
+        if candidate is None:
+            tests.append({"id": test_id, "source_unavailable": "not in inventory"})
+            incomplete = True
+            continue
+        source, cut = test_source(candidate, COVERING_TEST_SOURCE_CHARS)
+        context = test_context(candidate)
+        incomplete |= bool(
+            cut
+            or context.get("decorators_cut")
+            or context.get("module_helpers_shown")
+            or any("source_cut" in helper for helper in context["module_helpers"])
+        )
+        tests.append(
+            {
+                "id": test_id,
+                "source": source,
+                "assertions": candidate["assertions"],
+                "raises_checks": candidate["raises_checks"],
+                **context,
+                **({"source_cut": cut} if cut else {}),
+            }
+        )
+    if len(tool["tests"]) > TESTS_PER_TOOL:
+        incomplete = True
     return {
         "tool": tool["name"],
         "description_shown_to_model": tool["description"],
@@ -720,8 +847,9 @@ def tool_state(tool: dict, functions_by_id: dict) -> dict:
             tool["name"],
             [FACTORY] + ([impl["file"]] if impl and impl["file"] != FACTORY else []),
         ),
-        "tests": tool["tests"][:TESTS_PER_TOOL],
+        "tests": tests,
         "tests_shown": shown(TESTS_PER_TOOL, len(tool["tests"])),
+        "test_evidence_incomplete": incomplete,
         "hazards_note": "Scheduled faults in capstone/providers/hazards.py can time "
         "out, drop the middle third of ticked rows, add a stale maintenance "
         "record or black out one machine's sensor tools; these are designed "
@@ -747,26 +875,42 @@ def item_requests(
     #   unfittable: Why `fit_state` could not fit this state to the budget.
     #   incomplete_tests: Function test evidence was omitted or shortened, so
     #     the failure-path and sufficiency questions cannot be judged.
+    #   tool_incomplete: Tool boundary tests are missing or cut, so TL-03 is unknown.
     #   chosen, skipped: Questions sent to the judge and questions kept as
     #     explicit unknowns in the evaluation ledger.
     built = []
     for item_id, state in items:
         incomplete_tests = meta.get("family") == "FN" and (
             state.get("tests_shown") is not None
-            or any("source_cut" in test for test in state.get("tests", ()))
+            or any(
+                "source_cut" in test
+                or "decorators_cut" in test
+                or test.get("module_helpers_shown") is not None
+                or any(
+                    "source_cut" in helper for helper in test.get("module_helpers", ())
+                )
+                for test in state.get("tests", ())
+            )
         )
-        chosen = (
-            [q for q in questions if q.id == "FN-01"] if incomplete_tests else questions
+        tool_incomplete = meta.get("family") == "TL" and state.get(
+            "test_evidence_incomplete"
         )
-        skipped = (
-            {
-                q.id: "unknown: function test evidence is incomplete"
-                for q in questions
-                if q.id in ("FN-02", "FN-03")
-            }
-            if incomplete_tests
-            else {}
-        )
+        chosen = [
+            q
+            for q in questions
+            if not (incomplete_tests and q.id in ("FN-02", "FN-03"))
+            and not (tool_incomplete and q.id == "TL-03")
+        ]
+        skipped = {
+            q.id: (
+                "unknown: tool test evidence is incomplete"
+                if q.id == "TL-03"
+                else "unknown: function test evidence is incomplete"
+            )
+            for q in questions
+            if (incomplete_tests and q.id in ("FN-02", "FN-03"))
+            or (tool_incomplete and q.id == "TL-03")
+        }
         for provider in providers:
             try:
                 built += build_request(
@@ -1142,7 +1286,9 @@ def main(argv=None) -> int:
         elif family == "TS":
             items = [(i, test_state(known[i], functions_by_id)) for i in wanted]
         else:
-            items = [(n, tool_state(known[n], functions_by_id)) for n in wanted]
+            items = [
+                (n, tool_state(known[n], functions_by_id, tests_by_id)) for n in wanted
+            ]
         built = item_requests(
             items,
             questions_for(family, questions),

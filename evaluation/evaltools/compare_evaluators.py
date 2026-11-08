@@ -118,6 +118,11 @@ def build_report(files: list[dict], reference: dict | None) -> dict:
     #   usage: Request counts, tokens and cost per provider, counted once per request.
     #   reference: The reviewer's expected answers, {item: {question: expected}}, or
     #     None when none were given.
+    #   versions: Recorded question-rubric versions; unknown provenance cannot
+    #     be combined with another answer file as though scoring rules matched.
+    versions = {file["tags"].get("rubric_version") for file in files}
+    if len(versions) > 1 or (None in versions and len(files) > 1):
+        raise ValueError("cannot combine missing or different rubric versions")
     answers = index_answers(files)
     usage = request_usage(files)
     providers = sorted({key[0] for key in answers})
