@@ -396,3 +396,59 @@ def test_experiment_cli_label_skips_missing_conclusions_and_existing_answers(
         == 0
     )
     assert saved == []
+
+@pytest.mark.parametrize(
+    "options, expected",
+    [
+        ({"kind": "challenge", "fault": "bearing_degradation"}, "own faults"),
+        ({"kind": "standard", "fault": None}, "supported fault"),
+        ({"kind": "invalid", "fault": "bearing_degradation"}, "supported fault"),
+    ],
+)
+def test_scenario_config_rejects_incompatible_faults(options, expected):
+    with pytest.raises(ValueError, match=expected):
+        evals.Scenario(id="invalid", seed=1, **options)
+
+
+@pytest.mark.parametrize(
+    "difference, expected",
+    [
+        ("duplicate", "duplicate scenarios"),
+        ("scenario", "same scenarios"),
+        ("truth", "expected faults changed"),
+    ],
+)
+def test_report_comparison_rejects_incompatible_experiments(
+    difference, expected
+):
+    old = SimpleNamespace(
+        scenario_id="one",
+        expected_faults=("bearing_degradation",),
+        correct=True,
+    )
+    if difference == "scenario":
+        new = SimpleNamespace(scenario_id="another", expected_faults=old.expected_faults)
+    elif difference == "truth":
+        new = SimpleNamespace(scenario_id="one", expected_faults=("false_alarm",))
+    else:
+        new = old
+    before = SimpleNamespace(cases=[old, old] if difference == "duplicate" else [old])
+    after = SimpleNamespace(cases=[new])
+    with pytest.raises(ValueError, match=expected):
+        evals.compare_reports(before, after)
+
+
+def test_evaluator_names_compound_diagnoses_and_none():
+    assert evals.names(None) == set()
+    assert evals.names(
+        [
+            SimpleNamespace(fault="false_alarm"),
+            SimpleNamespace(fault="bearing_degradation"),
+        ]
+    ) == {"false_alarm", "bearing_degradation"}
+
+
+def test_evaluator_refuses_resume_beyond_scenario_count():
+    config = one_scenario()
+    with pytest.raises(ValueError, match="more saved episodes"):
+        evals.check_resume(config, "trial", [object(), object()])

@@ -323,3 +323,21 @@ def test_manual_cli_passes_rebuild_and_prints_indexed_count(monkeypatch, capsys)
     assert manual.main(["--rebuild"]) == 0
     assert calls == [True]
     assert "indexed 3 sections" in capsys.readouterr().out
+
+def test_ready_manual_index_reuses_a_current_index_without_rebuilding(monkeypatch):
+    calls = []
+    index = SimpleNamespace(
+        collection=SimpleNamespace(count=lambda: 2),
+        is_current=lambda: True,
+    )
+
+    def open_index(settings, *, sections=None, rebuild=False):
+        calls.append((settings, sections, rebuild))
+        return index
+
+    monkeypatch.setattr(manual, "open_manual_index", open_index)
+    settings = object()
+    actual, reason = manual.ready_manual_index(settings, sections=[])
+    assert actual is index
+    assert reason is None
+    assert calls == [(settings, [], False)]

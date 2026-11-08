@@ -429,3 +429,25 @@ def test_baseline_status_alarm_uses_only_the_observable_stop():
     )
     assert result.diagnosis.fault == "bearing_degradation"
     assert result.diagnosis.machine_id == "CNC-2"
+
+def test_tree_reach_text_report_prints_each_rating_position(
+    monkeypatch, tmp_path, capsys
+):
+    monkeypatch.setattr(tree_reach, "read_all", lambda paths: [])
+    monkeypatch.setattr(
+        tree_reach,
+        "position_effect",
+        lambda records: {
+            "trees": 1,
+            "rotated_trees": 1,
+            "by_position": {
+                1: {"ratings": 2, "mean_confidence": 0.5, "kept_rate": 1.0}
+            },
+        },
+    )
+    assert tree_reach.main(
+        [str(tmp_path / "records.jsonl"), "--positions"]
+    ) == 0
+    output = capsys.readouterr().out
+    assert "shown 1: 2 rating(s)" in output
+    assert "kept 100%" in output
