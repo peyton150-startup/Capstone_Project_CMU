@@ -559,6 +559,7 @@ def test_experiment_cli_all_faults_and_explicit_timeout_are_forwarded(
                 "12",
                 "--no-audit",
                 "--quiet",
+                "--no-manual",
                 "--out",
                 str(tmp_path / "out.jsonl"),
             ]
