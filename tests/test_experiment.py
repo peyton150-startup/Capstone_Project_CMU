@@ -999,3 +999,44 @@ def test_line_context_setting_and_evidence_references_reach_the_record(monkeypat
     old = record.model_dump(exclude={"line_context_enabled", "incident_context"})
     back = ExperimentRecord.model_validate(old)
     assert back.line_context_enabled is None and back.incident_context is None
+
+
+def test_request_sizes_are_totalled_by_job_over_every_attempt():
+    """Failed and fallback attempts count: they were sent, and mostly paid for."""
+    calls = [
+        ModelCall(
+            job="decide",
+            outcome="answered",
+            answered_by="fallback",
+            attempts=(
+                Attempt(model="primary", outcome="the model service timed out",
+                        prompt_chars=4000),
+                Attempt(model="fallback", outcome="answered", input_tokens=1100,
+                        output_tokens=60, prompt_chars=4000),
+            ),
+        ),
+        ModelCall(
+            job="decide",
+            outcome="invalid_reply",
+            attempts=(
+                Attempt(model="primary", outcome="invalid reply: not valid JSON",
+                        input_tokens=1200, output_tokens=30, prompt_chars=4400),
+            ),
+        ),
+        ModelCall(
+            job="plan",
+            outcome="answered",
+            attempts=(Attempt(model="primary", outcome="answered", prompt_chars=900),),
+        ),
+    ]  # fmt: skip
+    summary = summarize_calls(calls)
+    assert summary.input_tokens_by_job == {"decide": 2300}
+    assert summary.output_tokens_by_job == {"decide": 90}
+    assert summary.prompt_chars_by_job == {"decide": 12400, "plan": 900}
+
+
+def test_older_summaries_without_request_sizes_still_load():
+    old = summarize_calls([]).model_dump()
+    for field in ("input_tokens_by_job", "output_tokens_by_job", "prompt_chars_by_job"):
+        del old[field]
+    assert CallSummary.model_validate(old).input_tokens_by_job == {}

@@ -180,6 +180,13 @@ class CallSummary(BaseModel):
     # Ordered questions and their safe attempt outcomes. None in older files;
     # no prompts, response bodies or credentials are stored here.
     details: tuple[ModelCall, ...] | None = None
+    # Per question (job), summed over every attempt, failed and fallback ones
+    # included: the tokens the services reported and the characters sent.
+    # Tokens are a lower bound when some service reports none. Empty in
+    # results from before 2026-11-08.
+    input_tokens_by_job: dict[str, int] = {}
+    output_tokens_by_job: dict[str, int] = {}
+    prompt_chars_by_job: dict[str, int] = {}
 
 
 class AgentStep(BaseModel):
@@ -197,6 +204,10 @@ class AgentStep(BaseModel):
     batch_position: int | None = None
 
 
+# The request sizes an attempt records, totalled by job in `CallSummary`.
+REQUEST_SIZES = ("input_tokens", "output_tokens", "prompt_chars")
+
+
 def summarize_calls(calls: Sequence[ModelCall]) -> CallSummary:
     # Variables:
     #   calls: Every model question the run asked, with how each ended.
@@ -207,6 +218,8 @@ def summarize_calls(calls: Sequence[ModelCall]) -> CallSummary:
     #   reasons: Why requests failed for a service reason, such as a timeout or HTTP
     #     429.
     #   refused: Why replies were refused, such as cut off or not JSON.
+    #   sizes: For each recorded request size (input tokens, output tokens,
+    #     characters sent), its total by job over every attempt that reported it.
     answered = [call for call in calls if call.outcome == "answered"]
     invalid = Counter(call.job for call in calls if call.outcome == "invalid_reply")
     by_model = Counter(call.answered_by or "unknown" for call in answered)
@@ -222,6 +235,13 @@ def summarize_calls(calls: Sequence[ModelCall]) -> CallSummary:
         for attempt in call.attempts
         if attempt.outcome.split(":", 1)[0] == INVALID_REPLY
     )
+    sizes = {field: Counter() for field in REQUEST_SIZES}
+    for call in calls:
+        for attempt in call.attempts:
+            for field, totals in sizes.items():
+                value = getattr(attempt, field)
+                if value is not None:
+                    totals[call.job] += value
     return CallSummary(
         questions=len(calls),
         answered=len(answered),
@@ -238,6 +258,9 @@ def summarize_calls(calls: Sequence[ModelCall]) -> CallSummary:
         invalid_reasons=dict(sorted(refused.items())),
         answered_by=dict(sorted(by_model.items())),
         details=tuple(calls),
+        input_tokens_by_job=dict(sorted(sizes["input_tokens"].items())),
+        output_tokens_by_job=dict(sorted(sizes["output_tokens"].items())),
+        prompt_chars_by_job=dict(sorted(sizes["prompt_chars"].items())),
     )
 
 
@@ -369,6 +392,9 @@ class ExperimentRecord(BaseModel):
     # trace is also None when DECIDE_CALLS was 1.
     decide_calls: int | None = Field(default=None, ge=1)
     decide_batches: BatchTrace | None = None
+    # STAGE_CONTEXT for this run: whether judge_verification and write_lesson
+    # had their own views. None in records from before it was kept.
+    stage_context: bool | None = None
 
 
 # Tools answered by something other than the factory.
@@ -488,6 +514,8 @@ def record_of(
     #   promotion, uses: Optional memory audit; never converted into present factory facts.
     #   state.incident_context: The optional observable packet and its source IDs,
     #     copied to the experiment record for the A/B comparison.
+    #   state.stage_context: Whether the stage views were on, kept so runs with
+    #     and without them can be compared.
     state = result.state
     concluded = state.conclusion
     promotion, uses = memory_records(result) if with_memory else (None, None)
@@ -536,6 +564,7 @@ def record_of(
         incident_context=state.incident_context,
         decide_calls=state.decide_calls,
         decide_batches=state.decide_batches,
+        stage_context=state.stage_context,
         critique=state.critique,
         critic_favoured_claim=favoured_claim(state),
         recheck=state.recheck,
