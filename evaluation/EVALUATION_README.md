@@ -12,6 +12,13 @@ Paths are relative to the repository top. Commands use `uv run`; a plain
 `.venv/bin/python` works the same. Run the `evaltools` modules from the
 `evaluation/` folder or with `PYTHONPATH=evaluation`.
 
+## Run the complete SNAP evaluation later
+
+See [SNAP_EVALUATION_RUNBOOK.md](SNAP_EVALUATION_RUNBOOK.md) for the
+SNAP-only, full-project dry-run, the CI readiness check, the archived cohorts,
+the independent blinded-review prerequisite, and a bounded live pilot you can
+start yourself at a later date. **No model requests are sent by CI.**
+
 ## What is in this folder
 
 | File | Purpose |
