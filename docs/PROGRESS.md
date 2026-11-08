@@ -1,5 +1,21 @@
 # Progress Log
 
+> **2026-11-07 — SM-4 shop visit checklist and technician event log (built ungated at the developer's direction; pre-check, closing questions and pre-merge walkthrough owed; understood: no):**
+> New module `ingestion/visit_log.py`. `load_event_log` reads the CSV log a person fills in during a capture
+> (`at,event_type,note,logged_by,until`; event types `program_change`, `tool_change`, `warm_up`, `maintenance`, `unusual`,
+> `other`) into `TechnicianEvent`s, refusing a bad entry with its line number and a time with no UTC offset rather than
+> guessing a zone. `match_events` places each entry against the capture: `covered` (inside a gap-free stretch from
+> SM-2's `gap_free_runs`, widened by a 60 s tolerance), `in_gap` or `outside`, with the nearest observation time and the
+> offset to it. `check_visit` adds the saved probe's item count and the capture's shape (observations, channels with
+> values, stretches, gap markers, time span) into a `VisitCheck`, ready when there is a probe, data and a fully matched
+> log; `report_lines` prints it under SM-4's three questions plus the items only a person can confirm. Command line:
+> `python -m capstone.ingestion.visit_log template|check`; `template` refuses a path inside a git checkout and never
+> overwrites. Not done: no clock-agreement check between the log and the controller (needs the real probe's fields; SM-6),
+> "several normal cycles" stays a confirm-by-hand item, and nothing has run on real visit data. PR #207. Owed questions:
+> pre-check, "why is a log time without a UTC offset refused instead of read as local time?"; closing, "a tool change is
+> logged at 14:15 and the capture has a gap marker covering 14:10-14:20: what does the check report, and why does that
+> keep the visit from being ready?"
+
 > **2026-11-07 — SM-1 versioned channel map from `/probe` (built ungated at the developer's direction; pre-check, closing questions and pre-merge walkthrough owed; understood: no):**
 > New module `ingestion/channel_map.py`. `parse_probe` reads every DataItem of a saved MTConnectDevices document into a
 > `ChannelEntry`: device name and uuid, enclosing component and its kind, id, name, category, type, subtype, and units,
