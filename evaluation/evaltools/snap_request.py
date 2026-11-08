@@ -547,6 +547,7 @@ def function_state(record: dict, tests_by_id: dict, *, complete: bool = False) -
     #     but cannot replace a test that asserts this function's contract.
     #   tests: The selected test sources, before the ordinary context cap.
     #   cut: Why a covering test's source was shortened, or None.
+    #   test_context: Decorators and same-file fixtures/helpers needed to understand the test.
     tests = []
     selected = (
         record["direct_tests"]
@@ -569,6 +570,7 @@ def function_state(record: dict, tests_by_id: dict, *, complete: bool = False) -
                 "raises_checks": t["raises_checks"],
                 "execution_outcome": t["execution_outcome"],
                 "source": source,
+                **test_context(t),
                 **({"source_cut": cut} if cut else {}),
             }
         )
@@ -771,12 +773,48 @@ def wiring_lines(tool: str, files: list[str], after: int = 4) -> str | None:
     return "\n".join(parts) if parts else None
 
 
-def tool_state(tool: dict, functions_by_id: dict) -> dict:
+def tool_state(
+    tool: dict, functions_by_id: dict, tests_by_id: dict | None = None
+) -> dict:
     """What a judge reads about one agent tool: contract, code, wiring, tests."""
     # Variables:
     #   impl: The inventory entry of the function that implements the tool, or
     #     None; its file is also searched for the tool's wiring.
+    #   tests: Relevant test sources, assertions, decorators and local helper context.
+    #   cut: Why a test source was shortened, or None when the whole source fits.
+    #   incomplete: True when the judge cannot inspect the tool's test evidence.
     impl = functions_by_id.get(tool["implementation"])
+    tests = []
+    incomplete = tests_by_id is not None and not tool["tests"]
+    for test_id in tool["tests"][:TESTS_PER_TOOL]:
+        candidate = (tests_by_id or {}).get(test_id)
+        if tests_by_id is None:
+            tests.append(test_id)  # Compatibility with callers needing only IDs.
+            continue
+        if candidate is None:
+            tests.append({"id": test_id, "source_unavailable": "not in inventory"})
+            incomplete = True
+            continue
+        source, cut = test_source(candidate, COVERING_TEST_SOURCE_CHARS)
+        context = test_context(candidate)
+        incomplete |= bool(
+            cut
+            or context.get("decorators_cut")
+            or context.get("module_helpers_shown")
+            or any("source_cut" in helper for helper in context["module_helpers"])
+        )
+        tests.append(
+            {
+                "id": test_id,
+                "source": source,
+                "assertions": candidate["assertions"],
+                "raises_checks": candidate["raises_checks"],
+                **context,
+                **({"source_cut": cut} if cut else {}),
+            }
+        )
+    if len(tool["tests"]) > TESTS_PER_TOOL:
+        incomplete = True
     return {
         "tool": tool["name"],
         "description_shown_to_model": tool["description"],
@@ -796,8 +834,9 @@ def tool_state(tool: dict, functions_by_id: dict) -> dict:
             tool["name"],
             [FACTORY] + ([impl["file"]] if impl and impl["file"] != FACTORY else []),
         ),
-        "tests": tool["tests"][:TESTS_PER_TOOL],
+        "tests": tests,
         "tests_shown": shown(TESTS_PER_TOOL, len(tool["tests"])),
+        "test_evidence_incomplete": incomplete,
         "hazards_note": "Scheduled faults in capstone/providers/hazards.py can time "
         "out, drop the middle third of ticked rows, add a stale maintenance "
         "record or black out one machine's sensor tools; these are designed "
@@ -823,26 +862,43 @@ def item_requests(
     #   unfittable: Why `fit_state` could not fit this state to the budget.
     #   incomplete_tests: Function test evidence was omitted or shortened, so
     #     the failure-path and sufficiency questions cannot be judged.
+    #   tool_incomplete: Tool boundary tests are missing or cut, so TL-03 is unknown.
     #   chosen, skipped: Questions sent to the judge and questions kept as
     #     explicit unknowns in the evaluation ledger.
     built = []
     for item_id, state in items:
         incomplete_tests = meta.get("family") == "FN" and (
             state.get("tests_shown") is not None
-            or any("source_cut" in test for test in state.get("tests", ()))
+            or any(
+                "source_cut" in test
+                or "decorators_cut" in test
+                or test.get("module_helpers_shown") is not None
+                or any(
+                    "source_cut" in helper
+                    for helper in test.get("module_helpers", ())
+                )
+                for test in state.get("tests", ())
+            )
         )
-        chosen = (
-            [q for q in questions if q.id == "FN-01"] if incomplete_tests else questions
+        tool_incomplete = (
+            meta.get("family") == "TL" and state.get("test_evidence_incomplete")
         )
-        skipped = (
-            {
-                q.id: "unknown: function test evidence is incomplete"
-                for q in questions
-                if q.id in ("FN-02", "FN-03")
-            }
-            if incomplete_tests
-            else {}
-        )
+        chosen = [
+            q
+            for q in questions
+            if not (incomplete_tests and q.id in ("FN-02", "FN-03"))
+            and not (tool_incomplete and q.id == "TL-03")
+        ]
+        skipped = {
+            q.id: (
+                "unknown: tool test evidence is incomplete"
+                if q.id == "TL-03"
+                else "unknown: function test evidence is incomplete"
+            )
+            for q in questions
+            if (incomplete_tests and q.id in ("FN-02", "FN-03"))
+            or (tool_incomplete and q.id == "TL-03")
+        }
         for provider in providers:
             try:
                 built += build_request(
