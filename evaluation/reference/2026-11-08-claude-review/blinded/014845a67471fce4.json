@@ -48,7 +48,7 @@
    "family": "FN",
    "name": "implementation_matches_contract",
    "type": "noul",
-   "instructions": "Read the function's source and its stated contract (docstring and `# Variables:` block). Does the implementation do what the contract says, for every branch, including error paths?",
+   "instructions": "Read the function's source and its stated contract: the docstring and `# Variables:` block, and for a command-line `main` also its argparse description and help texts. Does the implementation do what the contract says, for every branch, including error paths? A return value, exit code or early exit the contract does not mention counts as undocumented behaviour a caller would need to know.",
    "criteria": {
     "true": "Every statement in the contract is implemented and no branch does something the contract does not describe.",
     "false": "A documented behaviour is missing, a branch does something undocumented that a caller would need to know, or the contract is absent so nothing can be matched."
@@ -69,10 +69,10 @@
    "type": "choice",
    "instructions": "Compare the function's branches, raises and except clauses with the tests listed as executing it. Are the failure and boundary paths exercised by a test that asserts on their outcome?",
    "criteria": {
-    "covered": "Every raise, except clause and boundary condition visible in the source is reached by a listed test that asserts on the result.",
-    "partly": "The happy path and some failure paths are asserted; at least one raise, except clause or boundary is not.",
+    "covered": "Every raise, except clause, error exit or return code, and boundary branch (an optional argument absent, an empty collection) visible in the source is reached by a listed test that asserts on its outcome.",
+    "partly": "The happy path and at least one of those are asserted; at least one is not.",
     "uncovered": "Only the happy path is asserted, or the listed tests execute the function without asserting on its result.",
-    "not_applicable": "The function has no failure path (pure data access, a property)."
+    "not_applicable": "The function has no failure or boundary branch (pure data access, a property)."
    },
    "required_evidence": [
     "source",
@@ -90,8 +90,8 @@
    "type": "choice",
    "instructions": "Given the tests that execute this function, their assertions and their outcomes, is the available evidence sufficient to call the function correct against its contract?",
    "criteria": {
-    "sufficient": "Direct tests assert the contract's behaviour on realistic inputs including failure paths, and all passed.",
-    "insufficient": "The function is executed only incidentally by other tests, assertions are weak, failure paths are untested, or a test failed or was skipped.",
+    "sufficient": "Direct tests assert the contract's behaviour on realistic inputs, including failure paths and every outcome the contract states, and all passed.",
+    "insufficient": "The function is executed only incidentally by other tests, assertions are weak, a failure path or an outcome the contract states is untested, or a test failed or was skipped.",
     "not_applicable": "A stub, a protocol method or a one-line accessor whose correctness is established by its type alone."
    },
    "required_evidence": [

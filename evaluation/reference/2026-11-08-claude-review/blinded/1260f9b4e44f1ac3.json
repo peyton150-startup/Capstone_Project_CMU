@@ -51,7 +51,7 @@
    "type": "noul",
    "instructions": "Read the tool's implementation and the provider's wiring. Can the tool return anything the agent must not see (hidden condition, ground truth, approval powers, raw errors with secrets), or change the factory without the intended authorization?",
    "criteria": {
-    "true": "Every field returned is rebuilt from an output contract, no hidden field or secret can pass, and any factory change goes through the approval desk or the wait tool as designed.",
+    "true": "Every field returned is rebuilt from an output contract, no hidden field or secret can pass, and any factory change goes through the approval desk or the wait tool as designed. A note that reports what a person would observe by design (a technician's finding on a removed part) is evidence, not hidden state.",
     "false": "A code path can return hidden state, a raw exception, or change the factory without approval."
    },
    "required_evidence": [
@@ -68,7 +68,7 @@
    "family": "TL",
    "name": "description_matches_behaviour",
    "type": "noul",
-   "instructions": "Compare the tool description a model is shown with what the implementation does and refuses. Would a model that trusts the description be misled?",
+   "instructions": "Compare the tool description a model is shown with what the implementation does and refuses. Would a model that trusts the description be misled? A limit counts against the description only if a normal call can reach it.",
    "criteria": {
     "true": "The description states the arguments, limits and meaning of the answer as implemented.",
     "false": "The description promises something the implementation does not do, omits a limit the implementation enforces (rows, ranges, sensors), or describes the answer's meaning wrongly."
@@ -87,12 +87,12 @@
    "family": "TL",
    "name": "silent_failure_risk",
    "type": "score",
-   "instructions": "How likely is this tool to return a value that is wrong or incomplete without signalling failure (success=true with misleading data)?",
+   "instructions": "How likely is this tool to return a value that is wrong or incomplete without signalling failure (success=true with misleading data)? Designed degradations (the hazards in `hazards_note`, which runs report) do not count; judge undesigned ways the answer could be wrong or incomplete.",
    "criteria": [
     "0: Cannot: the answer is a direct projection of recorded data with no filtering that could drop rows.",
     "1: Unlikely: filtering or arithmetic exists but is simple and tested on boundaries.",
     "2: Possible: windows, units or ordering could silently exclude or distort data and the tests do not cover that case.",
-    "3: Likely: the answer depends on state the agent cannot see (an injected hazard, a stale record) and nothing marks the answer as degraded."
+    "3: Likely: outside the designed hazards, the answer depends on state the agent cannot see (an unsynchronised cache, a source that may be incomplete) and nothing marks the answer as degraded."
    ],
    "required_evidence": [
     "implementation",

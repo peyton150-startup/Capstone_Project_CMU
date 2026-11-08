@@ -1,0 +1,67 @@
+{
+ "230bb91f581d295e": {
+  "RUN-01": 3,
+  "RUN-02": 4,
+  "RUN-03": "ineffective",
+  "RUN-04": "unnecessary",
+  "RUN-05": "not_applicable",
+  "RUN-06": "inappropriate",
+  "RUN-07": "reasoning",
+  "RUN-08": 2,
+  "RUN-11": "used",
+  "RUN-12": false
+ },
+ "c552284a9d4329d3": {
+  "RUN-01": 3,
+  "RUN-02": 3,
+  "RUN-03": "ineffective",
+  "RUN-04": "useful",
+  "RUN-05": "not_applicable",
+  "RUN-06": "appropriate",
+  "RUN-07": "reasoning",
+  "RUN-08": 2,
+  "RUN-11": "used",
+  "RUN-12": false
+ },
+ "26b1f92dbf2b1844": {
+  "RUN-01": 2,
+  "RUN-02": 2,
+  "RUN-03": "unknown",
+  "RUN-04": "misleading",
+  "RUN-05": "not_applicable",
+  "RUN-06": "appropriate",
+  "RUN-07": "reasoning",
+  "RUN-08": 2,
+  "RUN-11": "no_feedback",
+  "RUN-12": true
+ },
+ "1260f9b4e44f1ac3": {
+  "TL-01": true,
+  "TL-02": true,
+  "TL-03": 0
+ },
+ "012cf733fced8b7d": {
+  "FN-01": false,
+  "FN-02": "partly",
+  "FN-03": "insufficient"
+ },
+ "014845a67471fce4": {
+  "FN-01": false,
+  "FN-02": "uncovered",
+  "FN-03": "insufficient"
+ },
+ "000105d208db21de": {
+  "TS-01": true,
+  "TS-02": true,
+  "TS-03": 3
+ },
+ "000a7e2d5a39a74a": {
+  "TS-01": true,
+  "TS-02": true,
+  "TS-03": 3
+ },
+ "124952c4943081f1": {
+  "BT-01": "valid",
+  "BT-02": "insufficient_sample"
+ }
+}

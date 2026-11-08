@@ -7,6 +7,11 @@
   "docstring": "",
   "source": "def test_bearing_health_outside_unit_interval_is_rejected_on_assignment(bad):\n    m = MachineState(id=\"CNC-04\")\n    with pytest.raises(ValidationError):\n        m.condition.bearing_health = bad\n    assert m.condition.bearing_health == 1.0",
   "source_cut": null,
+  "decorators": [
+   "@pytest.mark.parametrize(\"bad\", [-0.01, 1.01])"
+  ],
+  "module_helpers": [],
+  "module_helpers_shown": null,
   "assertions": 1,
   "assert_forms": {
    "equality": 1
@@ -26,16 +31,18 @@
    "family": "TS",
    "name": "test_proves_its_claim",
    "type": "noul",
-   "instructions": "The test's name and docstring make a claim. Do its assertions establish that claim about the functions it exercises?",
+   "instructions": "The test's name and docstring make a claim. Do its assertions establish that claim about the project code it exercises? `decorators` holds the test's decorators (for example its parametrize values) and `module_helpers` the source of helper functions from the test's module that it calls or takes as fixtures.",
    "criteria": {
     "true": "The assertions check the specific behaviour the name claims, on inputs that exercise it.",
-    "false": "The assertions check something weaker or different from the claim (only that no error occurred, only a type, only a field exists), or the claim is not about the project code the test exercises."
+    "false": "The assertions check something weaker or different from the claim (only that no error occurred, only a type, only a field exists), or the claim is not about project code."
    },
    "required_evidence": [
     "test_source",
+    "decorators",
+    "module_helpers",
     "exercises"
    ],
-   "missing_evidence": "No exercised project function (coverage absent): unknown.",
+   "missing_evidence": "If no project function is listed as exercised, judge the project classes or modules the test constructs, calls or imports (validation declared on a project model counts as project code); answer false only if it exercises no project code at all.",
    "applies_to": "one test evidence packet (test source, docstring, functions exercised, outcome)",
    "deterministic_precedence": "assertion counts and forms are code facts."
   },
@@ -44,14 +51,15 @@
    "family": "TS",
    "name": "would_fail_if_broken",
    "type": "noul",
-   "instructions": "Imagine the behaviour the test claims to verify were broken in the implementation (the wrong branch taken, the check removed, the value off by one). Would this test fail?",
+   "instructions": "Imagine the behaviour the test claims to verify were broken in the implementation (the wrong branch taken, the check removed, the value off by one). Would this test fail? `module_helpers` shows what the helpers it uses do.",
    "criteria": {
     "true": "A plausible breakage of the claimed behaviour changes an asserted value.",
     "false": "The test could still pass because its inputs come from a stub that fixes the outcome, the assertion is on a mocked return, or the assertion is too loose to notice."
    },
    "required_evidence": [
     "test_source",
-    "helpers used"
+    "decorators",
+    "module_helpers"
    ],
    "missing_evidence": "none",
    "applies_to": "one test evidence packet",

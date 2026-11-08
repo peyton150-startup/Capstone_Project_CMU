@@ -515,9 +515,9 @@
    "type": "choice",
    "instructions": "Two batches are compared. From their configurations, commits, scenario sets, models, retrieval settings, rubric versions and label sources, is a like-for-like comparison valid?",
    "criteria": {
-    "valid": "Same scenarios and seeds, same label rule and rubric version, one configuration difference (the treatment), models and settings otherwise identical, no resumed mixed-configuration runs.",
-    "partially_valid": "Same scenarios but more than one difference, or a resumed run with a settings change inside it, so a difference can be reported but not attributed.",
-    "invalid": "Different scenarios, different label rules, or results of unknown configuration."
+    "valid": "Same scenarios and seeds (or the same case hash), the same commit, label sources and rubric version, and exactly one configuration setting differs (the treatment); no run was resumed with different settings. Which model answered, outages and timing are outcomes, not configuration differences.",
+    "partially_valid": "Same scenarios, but more than one configuration setting differs, or a resumed run changed settings partway, so a difference can be reported but not attributed.",
+    "invalid": "Different scenarios, different label rules or rubric versions, or results of unknown configuration."
    },
    "required_evidence": [
     "batch configurations",
@@ -533,12 +533,12 @@
    "family": "BT",
    "name": "improvement_supported",
    "type": "choice",
-   "instructions": "Given the per-case results and the number of cases, does the evidence support a claim that the treatment improved root-cause accuracy and evidence-grounded decisions without more unsupported conclusions, more tool calls or more failures?",
+   "instructions": "Given the per-case results and the number of cases, does the evidence support a claim that the treatment improved root-cause accuracy and evidence-grounded decisions without more unsupported conclusions, more tool calls or more failures? A matched case is one judged in both batches; `sample_rule_in_code.matched_judged` counts them and `sample_rule_in_code.rule` applies the sample condition.",
    "criteria": {
     "improvement": "More cases right, no more confident-wrong, no more false interventions, and tool calls or latency not materially higher, over at least two repeats per case or 13 or more matched cases.",
     "regression": "Fewer right, or more confident-wrong or false interventions, with the same sample conditions.",
     "no_difference": "Differences within one case either way with the sample conditions met.",
-    "insufficient_sample": "One run per case, fewer than the matched cases above, or outages removed cases from one side."
+    "insufficient_sample": "The sample conditions are not met: one run per case and fewer than 13 matched cases, or an outage hit a matched case on one side only."
    },
    "required_evidence": [
     "batch summaries",
