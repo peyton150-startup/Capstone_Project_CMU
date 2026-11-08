@@ -101,7 +101,7 @@
     "tests/test_episode.py::test_a_scripted_policy_without_the_combined_question_runs_in_two",
     "tests/test_episode.py::test_a_verified_fix_is_audited_and_remembered"
    ],
-   "test_count": 285,
+   "test_count": 288,
    "verification_status": "PARTIALLY VERIFIED",
    "snap_questions": [
     "TL-01",
@@ -341,7 +341,7 @@
     "tests/test_episode.py::test_a_whole_episode_records_the_section_nine_fields",
     "tests/test_episode.py::test_critic_blind_is_off_by_default_and_reaches_the_run"
    ],
-   "test_count": 259,
+   "test_count": 262,
    "verification_status": "VERIFIED",
    "snap_questions": [
     "TL-01",
@@ -449,7 +449,9 @@
     "tests/test_experiment.py::test_nothing_the_evaluator_knows_reaches_the_memory_store",
     "tests/test_experiment.py::test_old_records_without_blackout_fields_still_read",
     "tests/test_experiment.py::test_run_keys_are_unique_per_execution",
+    "tests/test_experiment.py::test_the_command_fails_loudly_if_the_setting_did_not_take",
     "tests/test_experiment.py::test_the_command_line_runs_labels_and_reports",
+    "tests/test_experiment.py::test_the_flag_beats_the_environment_in_both_directions",
     "tests/test_experiment.py::test_the_follow_up_is_kept_in_the_record",
     "tests/test_experiment.py::test_the_gate_decision_is_recorded_beside_the_run",
     "tests/test_experiment.py::test_the_report_says_why_attempts_failed",
@@ -482,12 +484,10 @@
     "tests/test_memory_comparison.py::test_the_runs_are_interleaved_case_by_case",
     "tests/test_model_policy.py::test_a_cut_off_interpretation_keeps_the_evidence_and_the_run_goes_on",
     "tests/test_model_policy.py::test_a_whole_episode_runs_on_model_replies_alone",
-    "tests/test_model_policy.py::test_both_step_modes_finish_the_same_scripted_repair_and_record_the_mode",
-    "tests/test_model_policy.py::test_the_default_budget_fits_a_whole_episode_at_eight_seconds_an_answer",
-    "tests/test_observation_tools.py::test_answers_are_plain_data",
-    "tests/test_observation_tools.py::test_looking_does_not_advance_time_or_change_the_factory"
+    "tests/test_model_policy.py::test_an_episode_records_whether_the_stage_views_were_on",
+    "tests/test_model_policy.py::test_both_step_modes_finish_the_same_scripted_repair_and_record_the_mode"
    ],
-   "test_count": 117,
+   "test_count": 120,
    "verification_status": "PARTIALLY VERIFIED",
    "snap_questions": [
     "TL-01",
@@ -705,7 +705,7 @@
     "tests/test_episode.py::test_the_agent_never_holds_the_answer_key",
     "tests/test_episode.py::test_the_same_seed_gives_the_same_episode"
    ],
-   "test_count": 209,
+   "test_count": 210,
    "verification_status": "VERIFIED",
    "snap_questions": [
     "TL-01",
@@ -818,7 +818,7 @@
     "tests/test_episode.py::test_passed_critic_is_used",
     "tests/test_episode.py::test_the_agent_never_holds_the_answer_key"
    ],
-   "test_count": 226,
+   "test_count": 229,
    "verification_status": "PARTIALLY VERIFIED",
    "snap_questions": [
     "TL-01",
@@ -953,7 +953,7 @@
     "tests/test_episode.py::test_an_episode_on_the_challenge_is_scored_with_several_causes",
     "tests/test_episode.py::test_critic_blind_is_off_by_default_and_reaches_the_run"
    ],
-   "test_count": 257,
+   "test_count": 260,
    "verification_status": "PARTIALLY VERIFIED",
    "snap_questions": [
     "TL-01",
@@ -1152,7 +1152,9 @@
     "tests/test_experiment.py::test_nothing_the_evaluator_knows_reaches_the_memory_store",
     "tests/test_experiment.py::test_old_records_without_blackout_fields_still_read",
     "tests/test_experiment.py::test_run_keys_are_unique_per_execution",
+    "tests/test_experiment.py::test_the_command_fails_loudly_if_the_setting_did_not_take",
     "tests/test_experiment.py::test_the_command_line_runs_labels_and_reports",
+    "tests/test_experiment.py::test_the_flag_beats_the_environment_in_both_directions",
     "tests/test_experiment.py::test_the_follow_up_is_kept_in_the_record",
     "tests/test_experiment.py::test_the_gate_decision_is_recorded_beside_the_run",
     "tests/test_experiment.py::test_the_report_says_why_attempts_failed",
@@ -1176,11 +1178,9 @@
     "tests/test_memory_comparison.py::test_a_failed_semantic_search_is_reported_failed_not_answered_by_keyword",
     "tests/test_memory_comparison.py::test_a_mode_may_be_named_only_once",
     "tests/test_memory_comparison.py::test_a_refused_repeat_counts_as_a_call_but_a_skipped_one_does_not",
-    "tests/test_memory_comparison.py::test_every_mode_runs_the_same_cases_and_keeps_its_mode",
-    "tests/test_memory_comparison.py::test_factory_calls_leave_memory_searches_out",
-    "tests/test_memory_comparison.py::test_keyword_and_semantic_recall_differ_by_what_their_search_finds"
+    "tests/test_memory_comparison.py::test_every_mode_runs_the_same_cases_and_keeps_its_mode"
    ],
-   "test_count": 145,
+   "test_count": 148,
    "verification_status": "PARTIALLY VERIFIED",
    "snap_questions": [
     "TL-01",
@@ -1309,7 +1309,7 @@
     "tests/test_evals.py::test_review_flag_excludes_provisional_label_from_accuracy",
     "tests/test_evals.py::test_run_cases_offers_the_manual_when_given"
    ],
-   "test_count": 242,
+   "test_count": 245,
    "verification_status": "VERIFIED",
    "snap_questions": [
     "TL-01",
@@ -1434,7 +1434,7 @@
     "tests/test_episode.py::test_a_label_added_afterwards_scores_the_same_run",
     "tests/test_episode.py::test_a_run_with_the_manual_gives_the_settings_critic_the_manual"
    ],
-   "test_count": 222,
+   "test_count": 223,
    "verification_status": "VERIFIED",
    "snap_questions": [
     "TL-01",
@@ -1541,7 +1541,7 @@
     "tests/test_episode.py::test_without_an_audit_log_nothing_is_learned",
     "tests/test_evals.py::test_record_keeps_the_claim_the_critic_favoured"
    ],
-   "test_count": 175,
+   "test_count": 176,
    "verification_status": "PARTIALLY VERIFIED",
    "snap_questions": [
     "TL-01",
@@ -1658,7 +1658,7 @@
     "tests/test_experiment.py::test_critic_questions_counted_and_tagged",
     "tests/test_experiment.py::test_critic_questions_follow_the_policy_s_own"
    ],
-   "test_count": 182,
+   "test_count": 183,
    "verification_status": "VERIFIED",
    "snap_questions": [
     "TL-01",
