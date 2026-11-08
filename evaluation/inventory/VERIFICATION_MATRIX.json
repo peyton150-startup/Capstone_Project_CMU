@@ -139,7 +139,7 @@
   "tests/test_console.py": "15ebbbdb8927f37fd25f9d8f9676e412f8fb368766c0a2318aacff94c963d86b",
   "tests/test_contracts.py": "55497b4712a724e6e4e6b3aed0eb245fc1643147b961d62782b462882affe0b6",
   "tests/test_coverage_entrypoints.py": "399a323da457b2c871e18d1bdf1c8a47c6bf3761d83a2fc280cfc9fa58f84eda",
-  "tests/test_coverage_eval_cli_edges.py": "0216077c4e44fcd88ef9c00ee15180896bbbf2c6ba2112463be14b02e27cb4bc",
+  "tests/test_coverage_eval_cli_edges.py": "4c03563299f3420673170dd190557ea1c4d93bee8e1e9ec101b2763b099b320e",
   "tests/test_coverage_eval_dispatch.py": "6dca80782042b7e523adaa44f11f1c0eaf2109cd615db6cb3ac8aa073b57e0b7",
   "tests/test_coverage_evaluator_commands.py": "62a800fcba4518e41fb749dc7976bf3fc15cc99f5f987b30e41648687fec54b4",
   "tests/test_coverage_full_eval_paths.py": "cf37bcbcaed8dffee327c3ab6193fca890296834363ba98112781bcd2eab6849",
@@ -228,8 +228,8 @@
   "tests/test_wait_tool.py": "b99a5fbf756a60176262417e54d8d1a0496f01126929a330492e7d24287b2d1e",
   "tests/test_wrong_setting.py": "aed1c646bffaf88ae25ed2156794dc57427e8a61bbe6b23a0c33f3c3e89c0da3"
  },
- "coverage_sha256": "f1114783c738db242b4b32a614c52db83e167ae8c99131125562f70ff0fbf5ea",
- "junit_sha256": "683a610796878d5751e268418e0f74c8436d629d0a56638e23800be510e862cd",
+ "coverage_sha256": "3d85b6fd6e81bc7fc019ebb0e71c2f487b989ec51aed318987f94e05cb78a43b",
+ "junit_sha256": "594b35c0e0f7ee447c0d56a8fcd0f610e7ce7b01ee159eeec394062d0993dd0f",
  "counts": {
   "functions": 889,
   "classes_note": "classes are listed through their methods",
@@ -306,8 +306,7 @@
   ],
   "stubs_or_protocols": 25,
   "tests_by_outcome": {
-   "failed": 3,
-   "passed": 1776
+   "passed": 1779
   },
   "tests_with_no_assertion": [
    "tests/test_console.py::test_without_it_the_same_print_raised"
@@ -7181,11 +7180,10 @@
    ]
   },
   "capstone.experiment:open_manual": {
-   "count": 2,
+   "count": 1,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
-    "tests/test_coverage_eval_cli_edges.py::test_experiment_cli_all_faults_and_explicit_timeout_are_forwarded",
     "tests/test_manual.py::test_a_semantic_run_says_when_it_rebuilt_the_index"
    ]
   },
@@ -8306,11 +8304,10 @@
    ]
   },
   "capstone.manual.index:ready_index": {
-   "count": 9,
+   "count": 8,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
-    "tests/test_coverage_eval_cli_edges.py::test_experiment_cli_all_faults_and_explicit_timeout_are_forwarded",
     "tests/test_coverage_index_edges.py::test_ready_manual_index_reuses_a_current_index_without_rebuilding",
     "tests/test_manual.py::test_a_removed_or_added_section_is_not_current",
     "tests/test_manual.py::test_an_edited_section_rebuilds_the_index_first",
@@ -8322,21 +8319,18 @@
    ]
   },
   "capstone.manual.index:ready_manual_index": {
-   "count": 2,
+   "count": 1,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_coverage_index_edges.py::test_ready_manual_index_reuses_a_current_index_without_rebuilding"
    ],
-   "indirect": [
-    "tests/test_coverage_eval_cli_edges.py::test_experiment_cli_all_faults_and_explicit_timeout_are_forwarded"
-   ]
+   "indirect": []
   },
   "capstone.manual.index:open_manual_index": {
-   "count": 2,
+   "count": 1,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
-    "tests/test_coverage_eval_cli_edges.py::test_experiment_cli_all_faults_and_explicit_timeout_are_forwarded",
     "tests/test_coverage_index_edges.py::test_manual_open_index_supports_local_and_separate_query_embeddings"
    ]
   },
@@ -8358,49 +8352,10 @@
    ]
   },
   "capstone.manual.sections:parse_manual": {
-   "count": 16,
-   "status": "INSUFFICIENT EVIDENCE",
-   "direct": [],
-   "indirect": [
-    "tests/test_coverage_eval_cli_edges.py::test_experiment_cli_all_faults_and_explicit_timeout_are_forwarded",
-    "tests/test_critic.py::test_the_real_manual_shown_to_the_critic_names_no_hidden_truth",
-    "tests/test_episode.py::test_a_run_with_the_manual_gives_the_settings_critic_the_manual",
-    "tests/test_evals.py::test_run_cases_offers_the_manual_when_given",
-    "tests/test_experiment.py::test_a_run_with_the_manual_records_what_it_looked_up",
-    "tests/test_experiment.py::test_hazards_are_off_unless_asked_for",
-    "tests/test_experiment.py::test_model_failures_survive_the_cli_file_and_report",
-    "tests/test_experiment.py::test_run_command_audits_by_default_and_allows_explicit_opt_out",
-    "tests/test_experiment.py::test_the_command_line_runs_labels_and_reports",
-    "tests/test_experiment.py::test_the_command_passes_the_manual_on",
-    "tests/test_experiment.py::test_the_command_runs_the_challenge_on_the_given_seeds",
-    "tests/test_experiment.py::test_the_command_runs_the_held_out_set"
-   ]
-  },
-  "capstone.manual.sections:check_no_leaks": {
-   "count": 16,
-   "status": "VERIFIED",
-   "direct": [],
-   "indirect": [
-    "tests/test_coverage_eval_cli_edges.py::test_experiment_cli_all_faults_and_explicit_timeout_are_forwarded",
-    "tests/test_critic.py::test_the_real_manual_shown_to_the_critic_names_no_hidden_truth",
-    "tests/test_episode.py::test_a_run_with_the_manual_gives_the_settings_critic_the_manual",
-    "tests/test_evals.py::test_run_cases_offers_the_manual_when_given",
-    "tests/test_experiment.py::test_a_run_with_the_manual_records_what_it_looked_up",
-    "tests/test_experiment.py::test_hazards_are_off_unless_asked_for",
-    "tests/test_experiment.py::test_model_failures_survive_the_cli_file_and_report",
-    "tests/test_experiment.py::test_run_command_audits_by_default_and_allows_explicit_opt_out",
-    "tests/test_experiment.py::test_the_command_line_runs_labels_and_reports",
-    "tests/test_experiment.py::test_the_command_passes_the_manual_on",
-    "tests/test_experiment.py::test_the_command_runs_the_challenge_on_the_given_seeds",
-    "tests/test_experiment.py::test_the_command_runs_the_held_out_set"
-   ]
-  },
-  "capstone.manual.sections:load_manual": {
    "count": 15,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
-    "tests/test_coverage_eval_cli_edges.py::test_experiment_cli_all_faults_and_explicit_timeout_are_forwarded",
     "tests/test_critic.py::test_the_real_manual_shown_to_the_critic_names_no_hidden_truth",
     "tests/test_episode.py::test_a_run_with_the_manual_gives_the_settings_critic_the_manual",
     "tests/test_evals.py::test_run_cases_offers_the_manual_when_given",
@@ -8411,7 +8366,46 @@
     "tests/test_experiment.py::test_the_command_line_runs_labels_and_reports",
     "tests/test_experiment.py::test_the_command_passes_the_manual_on",
     "tests/test_experiment.py::test_the_command_runs_the_challenge_on_the_given_seeds",
-    "tests/test_experiment.py::test_the_command_runs_the_held_out_set"
+    "tests/test_experiment.py::test_the_command_runs_the_held_out_set",
+    "tests/test_experiment.py::test_the_manual_is_on_by_default_by_meaning"
+   ]
+  },
+  "capstone.manual.sections:check_no_leaks": {
+   "count": 15,
+   "status": "VERIFIED",
+   "direct": [],
+   "indirect": [
+    "tests/test_critic.py::test_the_real_manual_shown_to_the_critic_names_no_hidden_truth",
+    "tests/test_episode.py::test_a_run_with_the_manual_gives_the_settings_critic_the_manual",
+    "tests/test_evals.py::test_run_cases_offers_the_manual_when_given",
+    "tests/test_experiment.py::test_a_run_with_the_manual_records_what_it_looked_up",
+    "tests/test_experiment.py::test_hazards_are_off_unless_asked_for",
+    "tests/test_experiment.py::test_model_failures_survive_the_cli_file_and_report",
+    "tests/test_experiment.py::test_run_command_audits_by_default_and_allows_explicit_opt_out",
+    "tests/test_experiment.py::test_the_command_line_runs_labels_and_reports",
+    "tests/test_experiment.py::test_the_command_passes_the_manual_on",
+    "tests/test_experiment.py::test_the_command_runs_the_challenge_on_the_given_seeds",
+    "tests/test_experiment.py::test_the_command_runs_the_held_out_set",
+    "tests/test_experiment.py::test_the_manual_is_on_by_default_by_meaning"
+   ]
+  },
+  "capstone.manual.sections:load_manual": {
+   "count": 14,
+   "status": "INSUFFICIENT EVIDENCE",
+   "direct": [],
+   "indirect": [
+    "tests/test_critic.py::test_the_real_manual_shown_to_the_critic_names_no_hidden_truth",
+    "tests/test_episode.py::test_a_run_with_the_manual_gives_the_settings_critic_the_manual",
+    "tests/test_evals.py::test_run_cases_offers_the_manual_when_given",
+    "tests/test_experiment.py::test_a_run_with_the_manual_records_what_it_looked_up",
+    "tests/test_experiment.py::test_hazards_are_off_unless_asked_for",
+    "tests/test_experiment.py::test_model_failures_survive_the_cli_file_and_report",
+    "tests/test_experiment.py::test_run_command_audits_by_default_and_allows_explicit_opt_out",
+    "tests/test_experiment.py::test_the_command_line_runs_labels_and_reports",
+    "tests/test_experiment.py::test_the_command_passes_the_manual_on",
+    "tests/test_experiment.py::test_the_command_runs_the_challenge_on_the_given_seeds",
+    "tests/test_experiment.py::test_the_command_runs_the_held_out_set",
+    "tests/test_experiment.py::test_the_manual_is_on_by_default_by_meaning"
    ]
   },
   "capstone.memory.backfill:backfill": {
@@ -10229,7 +10223,7 @@
    ]
   },
   "capstone.providers.chat:ModelError.__init__": {
-   "count": 63,
+   "count": 62,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
@@ -10688,7 +10682,7 @@
    "indirect": []
   },
   "capstone.providers.embeddings:embedders_for": {
-   "count": 6,
+   "count": 5,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_embeddings.py::test_a_missing_key_or_another_provider_is_named",
@@ -10696,7 +10690,6 @@
     "tests/test_embeddings.py::test_the_setting_gives_a_passage_and_a_query_embedder_of_one_model"
    ],
    "indirect": [
-    "tests/test_coverage_eval_cli_edges.py::test_experiment_cli_all_faults_and_explicit_timeout_are_forwarded",
     "tests/test_memory_semantic.py::test_build_recall_falls_back_when_chroma_cannot_open",
     "tests/test_memory_semantic.py::test_recall_uses_keyword_search_when_the_index_has_another_model"
    ]
@@ -11265,7 +11258,7 @@
    "indirect": []
   },
   "capstone.settings:Settings.blank_is_missing": {
-   "count": 216,
+   "count": 215,
    "status": "VERIFIED",
    "direct": [
     "tests/test_settings.py::test_blank_critic_fallback_is_unset",
@@ -11333,7 +11326,7 @@
    ]
   },
   "capstone.settings:get_settings": {
-   "count": 147,
+   "count": 146,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_settings.py::test_get_settings_reads_current_environment_without_stale_cache"
@@ -11347,10 +11340,10 @@
     "tests/test_benchmark.py::test_episodes_are_run_and_recorded_for_each_fault_and_seed",
     "tests/test_benchmark.py::test_every_job_gets_the_one_model_with_nothing_behind_it",
     "tests/test_benchmark.py::test_the_command_writes_the_table_and_the_raw_calls",
-    "tests/test_coverage_eval_cli_edges.py::test_experiment_cli_all_faults_and_explicit_timeout_are_forwarded",
     "tests/test_database_connection.py::test_empty_url_fails_before_connecting",
     "tests/test_database_connection.py::test_select_one_returns_true",
-    "tests/test_episode.py::test_a_bearing_fault_is_found_fixed_checked_and_scored_in_full"
+    "tests/test_episode.py::test_a_bearing_fault_is_found_fixed_checked_and_scored_in_full",
+    "tests/test_episode.py::test_a_critic_does_not_change_the_episode"
    ]
   },
   "capstone.simulator.challenge:build_challenge": {
@@ -25156,25 +25149,14 @@
    ]
   },
   "tests/test_coverage_eval_cli_edges.py::test_experiment_cli_all_faults_and_explicit_timeout_are_forwarded": {
-   "count": 16,
+   "count": 5,
    "judgment": "NOT ASSESSED",
    "functions": [
     "capstone.agent.state:Budgets.research_gets_some_time",
     "capstone.console:safe_console",
     "capstone.experiment:add_manual_options",
     "capstone.experiment:main",
-    "capstone.experiment:open_manual",
-    "capstone.experiment:seeds_from",
-    "capstone.manual.index:open_manual_index",
-    "capstone.manual.index:ready_index",
-    "capstone.manual.index:ready_manual_index",
-    "capstone.manual.sections:check_no_leaks",
-    "capstone.manual.sections:load_manual",
-    "capstone.manual.sections:parse_manual",
-    "capstone.providers.chat:ModelError.__init__",
-    "capstone.providers.embeddings:embedders_for",
-    "capstone.settings:Settings.blank_is_missing",
-    "capstone.settings:get_settings"
+    "capstone.experiment:seeds_from"
    ]
   },
   "tests/test_coverage_eval_cli_edges.py::test_experiment_unjudged_and_absent_memory_fields_do_not_invent_evidence": {

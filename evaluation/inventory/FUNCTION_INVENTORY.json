@@ -30118,13 +30118,12 @@
    "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
    "contract_specified": true,
    "executed_in_tests": true,
-   "test_count": 2,
+   "test_count": 1,
    "direct_tests": [],
    "indirect_tests": [
-    "tests/test_coverage_eval_cli_edges.py::test_experiment_cli_all_faults_and_explicit_timeout_are_forwarded",
     "tests/test_manual.py::test_a_semantic_run_says_when_it_rebuilt_the_index"
    ],
-   "indirect_test_count": 2,
+   "indirect_test_count": 1,
    "statements_executed": 9,
    "statements_in_body": 10,
    "statement_coverage": 0.9,
@@ -35016,10 +35015,9 @@
    "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
    "contract_specified": true,
    "executed_in_tests": true,
-   "test_count": 9,
+   "test_count": 8,
    "direct_tests": [],
    "indirect_tests": [
-    "tests/test_coverage_eval_cli_edges.py::test_experiment_cli_all_faults_and_explicit_timeout_are_forwarded",
     "tests/test_coverage_index_edges.py::test_ready_manual_index_reuses_a_current_index_without_rebuilding",
     "tests/test_manual.py::test_a_removed_or_added_section_is_not_current",
     "tests/test_manual.py::test_an_edited_section_rebuilds_the_index_first",
@@ -35029,7 +35027,7 @@
     "tests/test_manual.py::test_another_embedding_model_rebuilds_the_index",
     "tests/test_manual.py::test_the_manual_changed_reason_and_rebuild"
    ],
-   "indirect_test_count": 9,
+   "indirect_test_count": 8,
    "statements_executed": 12,
    "statements_in_body": 12,
    "statement_coverage": 1.0,
@@ -35073,14 +35071,12 @@
    "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
    "contract_specified": true,
    "executed_in_tests": true,
-   "test_count": 2,
+   "test_count": 1,
    "direct_tests": [
     "tests/test_coverage_index_edges.py::test_ready_manual_index_reuses_a_current_index_without_rebuilding"
    ],
-   "indirect_tests": [
-    "tests/test_coverage_eval_cli_edges.py::test_experiment_cli_all_faults_and_explicit_timeout_are_forwarded"
-   ],
-   "indirect_test_count": 1,
+   "indirect_tests": [],
+   "indirect_test_count": 0,
    "statements_executed": 1,
    "statements_in_body": 1,
    "statement_coverage": 1.0,
@@ -35128,13 +35124,12 @@
    "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
    "contract_specified": true,
    "executed_in_tests": true,
-   "test_count": 2,
+   "test_count": 1,
    "direct_tests": [],
    "indirect_tests": [
-    "tests/test_coverage_eval_cli_edges.py::test_experiment_cli_all_faults_and_explicit_timeout_are_forwarded",
     "tests/test_coverage_index_edges.py::test_manual_open_index_supports_local_and_separate_query_embeddings"
    ],
-   "indirect_test_count": 2,
+   "indirect_test_count": 1,
    "statements_executed": 6,
    "statements_in_body": 6,
    "statement_coverage": 1.0,
@@ -35289,10 +35284,9 @@
    "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
    "contract_specified": true,
    "executed_in_tests": true,
-   "test_count": 16,
+   "test_count": 15,
    "direct_tests": [],
    "indirect_tests": [
-    "tests/test_coverage_eval_cli_edges.py::test_experiment_cli_all_faults_and_explicit_timeout_are_forwarded",
     "tests/test_critic.py::test_the_real_manual_shown_to_the_critic_names_no_hidden_truth",
     "tests/test_episode.py::test_a_run_with_the_manual_gives_the_settings_critic_the_manual",
     "tests/test_evals.py::test_run_cases_offers_the_manual_when_given",
@@ -35309,7 +35303,7 @@
     "tests/test_manual.py::test_a_section_that_names_hidden_truth_is_refused",
     "tests/test_manual.py::test_a_semantic_run_says_when_it_rebuilt_the_index"
    ],
-   "indirect_test_count": 16,
+   "indirect_test_count": 15,
    "statements_executed": 8,
    "statements_in_body": 8,
    "statement_coverage": 1.0,
@@ -35357,10 +35351,9 @@
    "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
    "contract_specified": true,
    "executed_in_tests": true,
-   "test_count": 16,
+   "test_count": 15,
    "direct_tests": [],
    "indirect_tests": [
-    "tests/test_coverage_eval_cli_edges.py::test_experiment_cli_all_faults_and_explicit_timeout_are_forwarded",
     "tests/test_critic.py::test_the_real_manual_shown_to_the_critic_names_no_hidden_truth",
     "tests/test_episode.py::test_a_run_with_the_manual_gives_the_settings_critic_the_manual",
     "tests/test_evals.py::test_run_cases_offers_the_manual_when_given",
@@ -35377,7 +35370,7 @@
     "tests/test_manual.py::test_a_section_that_names_hidden_truth_is_refused",
     "tests/test_manual.py::test_a_semantic_run_says_when_it_rebuilt_the_index"
    ],
-   "indirect_test_count": 16,
+   "indirect_test_count": 15,
    "statements_executed": 3,
    "statements_in_body": 3,
    "statement_coverage": 1.0,
@@ -35435,10 +35428,9 @@
    "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
    "contract_specified": true,
    "executed_in_tests": true,
-   "test_count": 15,
+   "test_count": 14,
    "direct_tests": [],
    "indirect_tests": [
-    "tests/test_coverage_eval_cli_edges.py::test_experiment_cli_all_faults_and_explicit_timeout_are_forwarded",
     "tests/test_critic.py::test_the_real_manual_shown_to_the_critic_names_no_hidden_truth",
     "tests/test_episode.py::test_a_run_with_the_manual_gives_the_settings_critic_the_manual",
     "tests/test_evals.py::test_run_cases_offers_the_manual_when_given",
@@ -35454,7 +35446,7 @@
     "tests/test_experiment.py::test_the_run_command_watches_by_default_and_quiet_turns_it_off",
     "tests/test_manual.py::test_a_semantic_run_says_when_it_rebuilt_the_index"
    ],
-   "indirect_test_count": 15,
+   "indirect_test_count": 14,
    "statements_executed": 4,
    "statements_in_body": 5,
    "statement_coverage": 0.8,
@@ -43055,7 +43047,7 @@
    "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
    "contract_specified": false,
    "executed_in_tests": true,
-   "test_count": 63,
+   "test_count": 62,
    "direct_tests": [],
    "indirect_tests": [
     "tests/test_agent_investigation.py::test_a_follow_up_slower_than_its_window_stops_on_time",
@@ -43096,7 +43088,6 @@
     "tests/test_chat_client.py::test_running_out_of_the_questions_own_limit_is_an_outage",
     "tests/test_chat_client.py::test_when_no_model_answers_the_error_names_each_failure_but_no_key",
     "tests/test_chat_client.py::test_when_the_first_fallback_is_out_of_quota_the_second_answers",
-    "tests/test_coverage_eval_cli_edges.py::test_experiment_cli_all_faults_and_explicit_timeout_are_forwarded",
     "tests/test_critic.py::test_review_lets_model_error_up",
     "tests/test_decide_reasoning_effort.py::test_the_fallback_model_is_not_sent_the_field",
     "tests/test_embeddings.py::test_a_missing_key_or_another_provider_is_named",
@@ -43122,7 +43113,7 @@
     "tests/test_typesafe_client.py::test_service_failures_are_model_errors_without_the_key",
     "tests/test_typesafe_client.py::test_the_configured_client_needs_the_key"
    ],
-   "indirect_test_count": 63,
+   "indirect_test_count": 62,
    "statements_executed": 3,
    "statements_in_body": 3,
    "statement_coverage": 1.0,
@@ -45241,18 +45232,17 @@
    "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
    "contract_specified": true,
    "executed_in_tests": true,
-   "test_count": 6,
+   "test_count": 5,
    "direct_tests": [
     "tests/test_embeddings.py::test_a_missing_key_or_another_provider_is_named",
     "tests/test_embeddings.py::test_local_means_chromas_own_model",
     "tests/test_embeddings.py::test_the_setting_gives_a_passage_and_a_query_embedder_of_one_model"
    ],
    "indirect_tests": [
-    "tests/test_coverage_eval_cli_edges.py::test_experiment_cli_all_faults_and_explicit_timeout_are_forwarded",
     "tests/test_memory_semantic.py::test_build_recall_falls_back_when_chroma_cannot_open",
     "tests/test_memory_semantic.py::test_recall_uses_keyword_search_when_the_index_has_another_model"
    ],
-   "indirect_test_count": 3,
+   "indirect_test_count": 2,
    "statements_executed": 11,
    "statements_in_body": 11,
    "statement_coverage": 1.0,
@@ -48106,7 +48096,7 @@
    "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
    "contract_specified": true,
    "executed_in_tests": true,
-   "test_count": 216,
+   "test_count": 215,
    "direct_tests": [
     "tests/test_settings.py::test_blank_critic_fallback_is_unset",
     "tests/test_settings.py::test_blank_critic_model_is_unset",
@@ -48164,7 +48154,6 @@
     "tests/test_chat_client.py::test_several_fallback_models_are_tried_in_the_order_given",
     "tests/test_chat_client.py::test_the_limits_come_from_settings",
     "tests/test_chat_client.py::test_the_model_id_keeps_everything_after_the_provider",
-    "tests/test_coverage_eval_cli_edges.py::test_experiment_cli_all_faults_and_explicit_timeout_are_forwarded",
     "tests/test_database_connection.py::test_empty_url_fails_before_connecting",
     "tests/test_database_connection.py::test_select_one_returns_true",
     "tests/test_decide_calls.py::test_decide_calls_is_limited_to_the_documented_range",
@@ -48209,9 +48198,10 @@
     "tests/test_evals.py::test_rescoring_saved_records_never_opens_the_manual",
     "tests/test_evals.py::test_resume_accepts_only_the_saved_prefix_and_keeps_run_numbers",
     "tests/test_evals.py::test_review_flag_excludes_provisional_label_from_accuracy",
-    "tests/test_evals.py::test_run_cases_offers_the_manual_when_given"
+    "tests/test_evals.py::test_run_cases_offers_the_manual_when_given",
+    "tests/test_evaluation_tools.py::test_an_audit_log_gives_the_packet_a_full_trace"
    ],
-   "indirect_test_count": 196,
+   "indirect_test_count": 195,
    "statements_executed": 3,
    "statements_in_body": 3,
    "statement_coverage": 1.0,
@@ -48402,7 +48392,7 @@
    "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
    "contract_specified": true,
    "executed_in_tests": true,
-   "test_count": 147,
+   "test_count": 146,
    "direct_tests": [
     "tests/test_settings.py::test_get_settings_reads_current_environment_without_stale_cache"
    ],
@@ -48415,7 +48405,6 @@
     "tests/test_benchmark.py::test_episodes_are_run_and_recorded_for_each_fault_and_seed",
     "tests/test_benchmark.py::test_every_job_gets_the_one_model_with_nothing_behind_it",
     "tests/test_benchmark.py::test_the_command_writes_the_table_and_the_raw_calls",
-    "tests/test_coverage_eval_cli_edges.py::test_experiment_cli_all_faults_and_explicit_timeout_are_forwarded",
     "tests/test_database_connection.py::test_empty_url_fails_before_connecting",
     "tests/test_database_connection.py::test_select_one_returns_true",
     "tests/test_episode.py::test_a_bearing_fault_is_found_fixed_checked_and_scored_in_full",
@@ -48486,9 +48475,10 @@
     "tests/test_manual.py::test_a_semantic_run_says_when_it_rebuilt_the_index",
     "tests/test_manual.py::test_an_episode_runs_the_step_only_when_it_offers_a_manual",
     "tests/test_memory_comparison.py::test_a_failed_semantic_search_is_reported_failed_not_answered_by_keyword",
-    "tests/test_memory_comparison.py::test_a_mode_may_be_named_only_once"
+    "tests/test_memory_comparison.py::test_a_mode_may_be_named_only_once",
+    "tests/test_memory_comparison.py::test_a_refused_repeat_counts_as_a_call_but_a_skipped_one_does_not"
    ],
-   "indirect_test_count": 146,
+   "indirect_test_count": 145,
    "statements_executed": 1,
    "statements_in_body": 1,
    "statement_coverage": 1.0,
@@ -70448,9 +70438,9 @@
    ],
    "indirect_tests": [],
    "indirect_test_count": 0,
-   "statements_executed": 30,
+   "statements_executed": 29,
    "statements_in_body": 30,
-   "statement_coverage": 1.0,
+   "statement_coverage": 0.967,
    "coverage_class": "direct",
    "verification_status": "PARTIALLY VERIFIED",
    "status_source": "derived",

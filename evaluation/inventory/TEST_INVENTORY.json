@@ -26489,7 +26489,7 @@
    "id": "tests/test_coverage_eval_cli_edges.py::test_experiment_cli_all_faults_and_explicit_timeout_are_forwarded",
    "file": "tests/test_coverage_eval_cli_edges.py",
    "name": "test_experiment_cli_all_faults_and_explicit_timeout_are_forwarded",
-   "line": 518,
+   "line": 522,
    "docstring": "An explicit time budget and all-fault grid reach the harness unchanged.",
    "parametrized": false,
    "fixtures": [
@@ -26508,35 +26508,19 @@
     "patches_dependencies"
    ],
    "claims": "An explicit time budget and all-fault grid reach the harness unchanged.",
-   "execution_outcome": "failed",
+   "execution_outcome": "passed",
    "exercises": [
     "capstone.agent.state:Budgets.research_gets_some_time",
     "capstone.console:safe_console",
     "capstone.experiment:add_manual_options",
     "capstone.experiment:main",
-    "capstone.experiment:open_manual",
-    "capstone.experiment:seeds_from",
-    "capstone.manual.index:open_manual_index",
-    "capstone.manual.index:ready_index",
-    "capstone.manual.index:ready_manual_index",
-    "capstone.manual.sections:check_no_leaks",
-    "capstone.manual.sections:load_manual",
-    "capstone.manual.sections:parse_manual",
-    "capstone.providers.chat:ModelError.__init__",
-    "capstone.providers.embeddings:embedders_for",
-    "capstone.settings:Settings.blank_is_missing",
-    "capstone.settings:get_settings"
+    "capstone.experiment:seeds_from"
    ],
-   "exercise_count": 16,
+   "exercise_count": 5,
    "modules_exercised": [
     "capstone.agent.state",
     "capstone.console",
-    "capstone.experiment",
-    "capstone.manual.index",
-    "capstone.manual.sections",
-    "capstone.providers.chat",
-    "capstone.providers.embeddings",
-    "capstone.settings"
+    "capstone.experiment"
    ],
    "judgment": "NOT ASSESSED",
    "curated": {},
@@ -26550,7 +26534,7 @@
    "id": "tests/test_coverage_eval_cli_edges.py::test_experiment_unjudged_and_absent_memory_fields_do_not_invent_evidence",
    "file": "tests/test_coverage_eval_cli_edges.py",
    "name": "test_experiment_unjudged_and_absent_memory_fields_do_not_invent_evidence",
-   "line": 554,
+   "line": 576,
    "docstring": "",
    "parametrized": false,
    "fixtures": [],
@@ -41906,7 +41890,7 @@
     "may_skip"
    ],
    "claims": "Incomplete function packets keep FN-02/03 unknown, without a model call.",
-   "execution_outcome": "failed",
+   "execution_outcome": "passed",
    "exercises": [
     "evaluation.evaltools.decision_models:estimate_tokens",
     "evaluation.evaltools.snap_request:DecisionQuestion.criteria_fit_type",
@@ -52805,7 +52789,7 @@
    "uses": [],
    "quality_flags": [],
    "claims": "Every tracked Python file is inventoried, a test, excluded with a reason,",
-   "execution_outcome": "failed",
+   "execution_outcome": "passed",
    "exercises": [
     "evaluation.evaltools.build_inventory:call_name",
     "evaluation.evaltools.build_inventory:collect_functions",
