@@ -464,7 +464,9 @@ def test_eval_cli_rescores_with_hand_or_automatic_labels_offline(
 
     record = SimpleNamespace(scenario_id="one", run_key="trial/1/one")
     monkeypatch.setattr(
-        evals, "load_scenarios", lambda _: SimpleNamespace(cases=[SimpleNamespace(id="one")])
+        evals,
+        "load_scenarios",
+        lambda _: SimpleNamespace(cases=[SimpleNamespace(id="one")]),
     )
     monkeypatch.setattr(evals, "read_records", lambda _: [record])
     monkeypatch.setattr(
@@ -497,7 +499,11 @@ def test_eval_cli_rescores_with_hand_or_automatic_labels_offline(
         "--name", "trial", "--out", str(out),
         "--records", str(tmp_path / "saved.jsonl"),
     ]
-    args += ["--auto-label"] if automatic else ["--labels", str(tmp_path / "labels.jsonl")]
+    args += (
+        ["--auto-label"]
+        if automatic
+        else ["--labels", str(tmp_path / "labels.jsonl")]
+    )
     assert evals.main(args) == 0
     assert out.exists()
     assert seen == [
