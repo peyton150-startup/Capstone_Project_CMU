@@ -616,6 +616,9 @@
     "capstone.ingestion.mtconnect:parse_streams",
     "capstone.ingestion.mtconnect:raise_if_error",
     "capstone.ingestion.record:gap_free_runs",
+    "capstone.ingestion.visit_log:load_event_log",
+    "capstone.ingestion.visit_log:match_events",
+    "capstone.ingestion.visit_log:report_lines",
     "capstone.learning:learn_from",
     "capstone.manual.index:KeywordManualSearch.search",
     "capstone.manual.sections:parse_manual",
@@ -640,10 +643,7 @@
     "capstone.settings:critic_models",
     "capstone.settings:fallback_models",
     "capstone.simulator.events:EventLog.record",
-    "capstone.simulator.maintenance:past_maintenance",
-    "capstone.simulator.scenarios:ProductionLine._move_jobs",
-    "capstone.simulator.simulator:Simulator.add_alarm",
-    "capstone.simulator.simulator:Simulator.add_factory_sensor"
+    "capstone.simulator.maintenance:past_maintenance"
    ],
    "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
    "contract_specified": false,
@@ -31367,12 +31367,13 @@
    "is_stub": false,
    "mutates_parameters": [],
    "static_callers": [
-    "capstone.ingestion.channel_map:build_channel_map"
+    "capstone.ingestion.channel_map:build_channel_map",
+    "capstone.ingestion.visit_log:check_visit"
    ],
    "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
    "contract_specified": true,
    "executed_in_tests": true,
-   "test_count": 9,
+   "test_count": 12,
    "direct_tests": [
     "tests/test_channel_map.py::test_a_map_refuses_a_probe_from_a_changed_controller",
     "tests/test_channel_map.py::test_a_record_that_disagrees_with_its_entry_is_reported",
@@ -31384,8 +31385,12 @@
     "tests/test_channel_map.py::test_meaning_and_tool_sensor_stay_empty_until_a_person_assigns_them",
     "tests/test_channel_map.py::test_reported_records_which_channels_held_a_value"
    ],
-   "indirect_tests": [],
-   "indirect_test_count": 0,
+   "indirect_tests": [
+    "tests/test_visit_log.py::test_a_visit_is_not_ready_when_a_file_is_missing_or_an_entry_unmatched",
+    "tests/test_visit_log.py::test_a_visit_with_probe_data_and_a_matched_log_is_ready",
+    "tests/test_visit_log.py::test_command_line_checks_a_visit"
+   ],
+   "indirect_test_count": 3,
    "statements_executed": 6,
    "statements_in_body": 7,
    "statement_coverage": 0.857,
@@ -31556,7 +31561,7 @@
    "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
    "contract_specified": true,
    "executed_in_tests": true,
-   "test_count": 10,
+   "test_count": 13,
    "direct_tests": [
     "tests/test_channel_map.py::test_a_map_refuses_a_probe_from_a_changed_controller",
     "tests/test_channel_map.py::test_a_record_that_disagrees_with_its_entry_is_reported",
@@ -31569,8 +31574,12 @@
     "tests/test_channel_map.py::test_reported_records_which_channels_held_a_value",
     "tests/test_channel_map.py::test_the_hash_ignores_the_header_and_formatting_but_not_a_channel_change"
    ],
-   "indirect_tests": [],
-   "indirect_test_count": 0,
+   "indirect_tests": [
+    "tests/test_visit_log.py::test_a_visit_is_not_ready_when_a_file_is_missing_or_an_entry_unmatched",
+    "tests/test_visit_log.py::test_a_visit_with_probe_data_and_a_matched_log_is_ready",
+    "tests/test_visit_log.py::test_command_line_checks_a_visit"
+   ],
+   "indirect_test_count": 3,
    "statements_executed": 5,
    "statements_in_body": 6,
    "statement_coverage": 0.833,
@@ -31623,7 +31632,7 @@
    "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
    "contract_specified": true,
    "executed_in_tests": true,
-   "test_count": 8,
+   "test_count": 11,
    "direct_tests": [
     "tests/test_channel_map.py::test_a_map_refuses_a_probe_from_a_changed_controller",
     "tests/test_channel_map.py::test_a_record_that_disagrees_with_its_entry_is_reported",
@@ -31634,8 +31643,12 @@
     "tests/test_channel_map.py::test_meaning_and_tool_sensor_stay_empty_until_a_person_assigns_them",
     "tests/test_channel_map.py::test_reported_records_which_channels_held_a_value"
    ],
-   "indirect_tests": [],
-   "indirect_test_count": 0,
+   "indirect_tests": [
+    "tests/test_visit_log.py::test_a_visit_is_not_ready_when_a_file_is_missing_or_an_entry_unmatched",
+    "tests/test_visit_log.py::test_a_visit_with_probe_data_and_a_matched_log_is_ready",
+    "tests/test_visit_log.py::test_command_line_checks_a_visit"
+   ],
+   "indirect_test_count": 3,
    "statements_executed": 9,
    "statements_in_body": 11,
    "statement_coverage": 0.818,
@@ -31838,17 +31851,20 @@
    "is_stub": false,
    "mutates_parameters": [],
    "static_callers": [
-    "capstone.ingestion.channel_map:main"
+    "capstone.ingestion.channel_map:main",
+    "capstone.ingestion.visit_log:main"
    ],
    "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
    "contract_specified": true,
    "executed_in_tests": true,
-   "test_count": 1,
+   "test_count": 2,
    "direct_tests": [
     "tests/test_channel_map.py::test_command_line_builds_checks_and_records_reported_channels"
    ],
-   "indirect_tests": [],
-   "indirect_test_count": 0,
+   "indirect_tests": [
+    "tests/test_visit_log.py::test_command_line_checks_a_visit"
+   ],
+   "indirect_test_count": 1,
    "statements_executed": 2,
    "statements_in_body": 2,
    "statement_coverage": 1.0,
@@ -32608,7 +32624,7 @@
    "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
    "contract_specified": true,
    "executed_in_tests": true,
-   "test_count": 34,
+   "test_count": 37,
    "direct_tests": [],
    "indirect_tests": [
     "tests/test_channel_map.py::test_a_map_refuses_a_probe_from_a_changed_controller",
@@ -32644,9 +32660,12 @@
     "tests/test_mtconnect_ingestion.py::test_run_collector_writes_jsonl_and_survives_failures",
     "tests/test_mtconnect_ingestion.py::test_sample_drops_records_already_seen",
     "tests/test_mtconnect_ingestion.py::test_the_gap_marker_is_written_between_the_readings_it_separates",
-    "tests/test_mtconnect_ingestion.py::test_unavailable_stays_missing_and_is_never_zero"
+    "tests/test_mtconnect_ingestion.py::test_unavailable_stays_missing_and_is_never_zero",
+    "tests/test_visit_log.py::test_a_visit_is_not_ready_when_a_file_is_missing_or_an_entry_unmatched",
+    "tests/test_visit_log.py::test_a_visit_with_probe_data_and_a_matched_log_is_ready",
+    "tests/test_visit_log.py::test_command_line_checks_a_visit"
    ],
-   "indirect_test_count": 34,
+   "indirect_test_count": 37,
    "statements_executed": 1,
    "statements_in_body": 1,
    "statement_coverage": 1.0,
@@ -32692,7 +32711,7 @@
    "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
    "contract_specified": true,
    "executed_in_tests": true,
-   "test_count": 33,
+   "test_count": 36,
    "direct_tests": [],
    "indirect_tests": [
     "tests/test_channel_map.py::test_a_map_refuses_a_probe_from_a_changed_controller",
@@ -32727,9 +32746,12 @@
     "tests/test_mtconnect_ingestion.py::test_run_collector_writes_jsonl_and_survives_failures",
     "tests/test_mtconnect_ingestion.py::test_sample_drops_records_already_seen",
     "tests/test_mtconnect_ingestion.py::test_the_gap_marker_is_written_between_the_readings_it_separates",
-    "tests/test_mtconnect_ingestion.py::test_unavailable_stays_missing_and_is_never_zero"
+    "tests/test_mtconnect_ingestion.py::test_unavailable_stays_missing_and_is_never_zero",
+    "tests/test_visit_log.py::test_a_visit_is_not_ready_when_a_file_is_missing_or_an_entry_unmatched",
+    "tests/test_visit_log.py::test_a_visit_with_probe_data_and_a_matched_log_is_ready",
+    "tests/test_visit_log.py::test_command_line_checks_a_visit"
    ],
-   "indirect_test_count": 33,
+   "indirect_test_count": 36,
    "statements_executed": 4,
    "statements_in_body": 4,
    "statement_coverage": 1.0,
@@ -33076,16 +33098,17 @@
    "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
    "contract_specified": true,
    "executed_in_tests": true,
-   "test_count": 5,
+   "test_count": 6,
    "direct_tests": [],
    "indirect_tests": [
     "tests/test_channel_map.py::test_command_line_refuses_to_write_a_map_inside_the_repository",
     "tests/test_mtconnect_ingestion.py::test_a_checkout_is_found_from_a_git_folder_or_a_worktree_git_file",
     "tests/test_mtconnect_ingestion.py::test_a_path_outside_every_checkout_is_allowed",
     "tests/test_mtconnect_ingestion.py::test_monitor_and_watchdog_refuse_alerts_inside_the_repository",
-    "tests/test_mtconnect_ingestion.py::test_the_collector_refuses_to_write_inside_the_repository"
+    "tests/test_mtconnect_ingestion.py::test_the_collector_refuses_to_write_inside_the_repository",
+    "tests/test_visit_log.py::test_command_line_writes_an_empty_log_outside_the_repository"
    ],
-   "indirect_test_count": 5,
+   "indirect_test_count": 6,
    "statements_executed": 4,
    "statements_in_body": 4,
    "statement_coverage": 1.0,
@@ -33125,21 +33148,23 @@
    "static_callers": [
     "capstone.ingestion.__main__:main",
     "capstone.ingestion.channel_map:main",
+    "capstone.ingestion.visit_log:main",
     "capstone.monitoring.__main__:main",
     "capstone.watchdog.__main__:main"
    ],
    "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
    "contract_specified": true,
    "executed_in_tests": true,
-   "test_count": 4,
+   "test_count": 5,
    "direct_tests": [],
    "indirect_tests": [
     "tests/test_channel_map.py::test_command_line_refuses_to_write_a_map_inside_the_repository",
     "tests/test_mtconnect_ingestion.py::test_a_path_outside_every_checkout_is_allowed",
     "tests/test_mtconnect_ingestion.py::test_monitor_and_watchdog_refuse_alerts_inside_the_repository",
-    "tests/test_mtconnect_ingestion.py::test_the_collector_refuses_to_write_inside_the_repository"
+    "tests/test_mtconnect_ingestion.py::test_the_collector_refuses_to_write_inside_the_repository",
+    "tests/test_visit_log.py::test_command_line_writes_an_empty_log_outside_the_repository"
    ],
-   "indirect_test_count": 4,
+   "indirect_test_count": 5,
    "statements_executed": 4,
    "statements_in_body": 4,
    "statement_coverage": 1.0,
@@ -33252,7 +33277,7 @@
    "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
    "contract_specified": true,
    "executed_in_tests": true,
-   "test_count": 22,
+   "test_count": 29,
    "direct_tests": [],
    "indirect_tests": [
     "tests/test_channel_map.py::test_every_observation_maps_to_one_entry_or_is_reported_unmapped",
@@ -33276,9 +33301,16 @@
     "tests/test_telemetry_monitor.py::test_a_gap_with_unknown_bounds_says_only_what_is_known",
     "tests/test_telemetry_monitor.py::test_a_start_without_a_clean_stop_warns_of_a_crash",
     "tests/test_telemetry_monitor.py::test_data_without_a_start_marker_counts_as_a_running_collector",
-    "tests/test_telemetry_monitor.py::test_follower_reads_markers_and_observations"
+    "tests/test_telemetry_monitor.py::test_follower_reads_markers_and_observations",
+    "tests/test_visit_log.py::test_a_visit_is_not_ready_when_a_file_is_missing_or_an_entry_unmatched",
+    "tests/test_visit_log.py::test_a_visit_with_probe_data_and_a_matched_log_is_ready",
+    "tests/test_visit_log.py::test_an_entry_against_an_empty_capture_is_outside",
+    "tests/test_visit_log.py::test_command_line_checks_a_visit",
+    "tests/test_visit_log.py::test_each_entry_is_placed_in_collected_time_a_gap_or_outside",
+    "tests/test_visit_log.py::test_the_report_lists_unmatched_entries_and_the_items_to_confirm_by_hand",
+    "tests/test_visit_log.py::test_the_tolerance_allows_for_a_person_noting_the_time_late"
    ],
-   "indirect_test_count": 22,
+   "indirect_test_count": 29,
    "statements_executed": 3,
    "statements_in_body": 3,
    "statement_coverage": 1.0,
@@ -33326,7 +33358,7 @@
    "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
    "contract_specified": true,
    "executed_in_tests": true,
-   "test_count": 16,
+   "test_count": 17,
    "direct_tests": [],
    "indirect_tests": [
     "tests/test_channel_map.py::test_command_line_builds_checks_and_records_reported_channels",
@@ -33344,9 +33376,10 @@
     "tests/test_telemetry_monitor.py::test_command_line_replay_writes_alerts",
     "tests/test_telemetry_monitor.py::test_follower_reads_markers_and_observations",
     "tests/test_telemetry_monitor.py::test_follower_reads_only_complete_lines_and_skips_bad_ones",
-    "tests/test_telemetry_monitor.py::test_following_a_file_in_pieces_gives_the_same_alerts_as_replaying_it"
+    "tests/test_telemetry_monitor.py::test_following_a_file_in_pieces_gives_the_same_alerts_as_replaying_it",
+    "tests/test_visit_log.py::test_command_line_checks_a_visit"
    ],
-   "indirect_test_count": 16,
+   "indirect_test_count": 17,
    "statements_executed": 5,
    "statements_in_body": 5,
    "statement_coverage": 1.0,
@@ -33384,19 +33417,611 @@
    "statements": 13,
    "is_stub": false,
    "mutates_parameters": [],
+   "static_callers": [
+    "capstone.ingestion.visit_log:check_visit",
+    "capstone.ingestion.visit_log:match_events"
+   ],
+   "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
+   "contract_specified": true,
+   "executed_in_tests": true,
+   "test_count": 8,
+   "direct_tests": [
+    "tests/test_mtconnect_ingestion.py::test_gap_free_runs_never_join_readings_across_a_gap_or_a_restart"
+   ],
+   "indirect_tests": [
+    "tests/test_visit_log.py::test_a_visit_is_not_ready_when_a_file_is_missing_or_an_entry_unmatched",
+    "tests/test_visit_log.py::test_a_visit_with_probe_data_and_a_matched_log_is_ready",
+    "tests/test_visit_log.py::test_an_entry_against_an_empty_capture_is_outside",
+    "tests/test_visit_log.py::test_command_line_checks_a_visit",
+    "tests/test_visit_log.py::test_each_entry_is_placed_in_collected_time_a_gap_or_outside",
+    "tests/test_visit_log.py::test_the_report_lists_unmatched_entries_and_the_items_to_confirm_by_hand",
+    "tests/test_visit_log.py::test_the_tolerance_allows_for_a_person_noting_the_time_late"
+   ],
+   "indirect_test_count": 7,
+   "statements_executed": 12,
+   "statements_in_body": 12,
+   "statement_coverage": 1.0,
+   "coverage_class": "direct",
+   "verification_status": "PARTIALLY VERIFIED",
+   "status_source": "derived",
+   "curated": {},
+   "snap_questions": [
+    "FN-01",
+    "FN-02",
+    "FN-03"
+   ]
+  },
+  {
+   "id": "capstone.ingestion.visit_log:TechnicianEvent.has_a_time_zone",
+   "module": "capstone.ingestion.visit_log",
+   "file": "capstone-code/capstone/ingestion/visit_log.py",
+   "line": 86,
+   "end_line": 93,
+   "name": "has_a_time_zone",
+   "qualname": "TechnicianEvent.has_a_time_zone",
+   "kind": "classmethod",
+   "signature": "cls, value: datetime | None -> datetime | None",
+   "purpose": "Refuse a clock time with no UTC offset instead of guessing one.",
+   "docstring": "Refuse a clock time with no UTC offset instead of guessing one.",
+   "has_variable_block": true,
+   "decorators": [
+    "field_validator('at', 'until')",
+    "classmethod"
+   ],
+   "raises": [
+    "ValueError"
+   ],
+   "catches": [],
+   "calls": [
+    "ValueError",
+    "field_validator",
+    "utcoffset"
+   ],
+   "side_effect_hints": [],
+   "statements": 4,
+   "is_stub": false,
+   "mutates_parameters": [],
    "static_callers": [],
    "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
    "contract_specified": true,
    "executed_in_tests": true,
-   "test_count": 1,
+   "test_count": 9,
    "direct_tests": [
-    "tests/test_mtconnect_ingestion.py::test_gap_free_runs_never_join_readings_across_a_gap_or_a_restart"
+    "tests/test_visit_log.py::test_a_bad_entry_is_refused_with_its_line_number",
+    "tests/test_visit_log.py::test_a_log_is_read_in_time_order_with_a_blank_until_left_empty",
+    "tests/test_visit_log.py::test_a_time_without_its_utc_offset_is_refused_not_guessed",
+    "tests/test_visit_log.py::test_a_visit_with_probe_data_and_a_matched_log_is_ready",
+    "tests/test_visit_log.py::test_an_entry_against_an_empty_capture_is_outside",
+    "tests/test_visit_log.py::test_command_line_checks_a_visit",
+    "tests/test_visit_log.py::test_each_entry_is_placed_in_collected_time_a_gap_or_outside",
+    "tests/test_visit_log.py::test_the_report_lists_unmatched_entries_and_the_items_to_confirm_by_hand",
+    "tests/test_visit_log.py::test_the_tolerance_allows_for_a_person_noting_the_time_late"
    ],
    "indirect_tests": [],
    "indirect_test_count": 0,
-   "statements_executed": 11,
-   "statements_in_body": 12,
-   "statement_coverage": 0.917,
+   "statements_executed": 3,
+   "statements_in_body": 3,
+   "statement_coverage": 1.0,
+   "coverage_class": "direct",
+   "verification_status": "PARTIALLY VERIFIED",
+   "status_source": "derived",
+   "curated": {},
+   "snap_questions": [
+    "FN-01",
+    "FN-02",
+    "FN-03"
+   ]
+  },
+  {
+   "id": "capstone.ingestion.visit_log:TechnicianEvent.ends_after_it_starts",
+   "module": "capstone.ingestion.visit_log",
+   "file": "capstone-code/capstone/ingestion/visit_log.py",
+   "line": 96,
+   "end_line": 100,
+   "name": "ends_after_it_starts",
+   "qualname": "TechnicianEvent.ends_after_it_starts",
+   "kind": "method",
+   "signature": "self",
+   "purpose": "Refuse an entry whose end comes before its start.",
+   "docstring": "Refuse an entry whose end comes before its start.",
+   "has_variable_block": false,
+   "decorators": [
+    "model_validator(mode='after')"
+   ],
+   "raises": [
+    "ValueError"
+   ],
+   "catches": [],
+   "calls": [
+    "ValueError",
+    "model_validator"
+   ],
+   "side_effect_hints": [],
+   "statements": 4,
+   "is_stub": false,
+   "mutates_parameters": [],
+   "static_callers": [],
+   "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
+   "contract_specified": true,
+   "executed_in_tests": true,
+   "test_count": 9,
+   "direct_tests": [
+    "tests/test_visit_log.py::test_a_bad_entry_is_refused_with_its_line_number",
+    "tests/test_visit_log.py::test_a_log_is_read_in_time_order_with_a_blank_until_left_empty",
+    "tests/test_visit_log.py::test_a_visit_is_not_ready_when_a_file_is_missing_or_an_entry_unmatched",
+    "tests/test_visit_log.py::test_a_visit_with_probe_data_and_a_matched_log_is_ready",
+    "tests/test_visit_log.py::test_an_entry_against_an_empty_capture_is_outside",
+    "tests/test_visit_log.py::test_command_line_checks_a_visit",
+    "tests/test_visit_log.py::test_each_entry_is_placed_in_collected_time_a_gap_or_outside",
+    "tests/test_visit_log.py::test_the_report_lists_unmatched_entries_and_the_items_to_confirm_by_hand",
+    "tests/test_visit_log.py::test_the_tolerance_allows_for_a_person_noting_the_time_late"
+   ],
+   "indirect_tests": [],
+   "indirect_test_count": 0,
+   "statements_executed": 3,
+   "statements_in_body": 3,
+   "statement_coverage": 1.0,
+   "coverage_class": "direct",
+   "verification_status": "PARTIALLY VERIFIED",
+   "status_source": "derived",
+   "curated": {},
+   "snap_questions": [
+    "FN-01",
+    "FN-02",
+    "FN-03"
+   ]
+  },
+  {
+   "id": "capstone.ingestion.visit_log:VisitCheck.unmatched",
+   "module": "capstone.ingestion.visit_log",
+   "file": "capstone-code/capstone/ingestion/visit_log.py",
+   "line": 150,
+   "end_line": 152,
+   "name": "unmatched",
+   "qualname": "VisitCheck.unmatched",
+   "kind": "property",
+   "signature": "self -> list[EventMatch]",
+   "purpose": "The entries that fall where nothing was collected.",
+   "docstring": "The entries that fall where nothing was collected.",
+   "has_variable_block": false,
+   "decorators": [
+    "property"
+   ],
+   "raises": [],
+   "catches": [],
+   "calls": [],
+   "side_effect_hints": [],
+   "statements": 2,
+   "is_stub": false,
+   "mutates_parameters": [],
+   "static_callers": [],
+   "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
+   "contract_specified": true,
+   "executed_in_tests": true,
+   "test_count": 4,
+   "direct_tests": [
+    "tests/test_visit_log.py::test_a_visit_is_not_ready_when_a_file_is_missing_or_an_entry_unmatched",
+    "tests/test_visit_log.py::test_a_visit_with_probe_data_and_a_matched_log_is_ready",
+    "tests/test_visit_log.py::test_command_line_checks_a_visit",
+    "tests/test_visit_log.py::test_the_report_lists_unmatched_entries_and_the_items_to_confirm_by_hand"
+   ],
+   "indirect_tests": [],
+   "indirect_test_count": 0,
+   "statements_executed": 1,
+   "statements_in_body": 1,
+   "statement_coverage": 1.0,
+   "coverage_class": "direct",
+   "verification_status": "PARTIALLY VERIFIED",
+   "status_source": "derived",
+   "curated": {},
+   "snap_questions": [
+    "FN-01",
+    "FN-02",
+    "FN-03"
+   ]
+  },
+  {
+   "id": "capstone.ingestion.visit_log:VisitCheck.ready",
+   "module": "capstone.ingestion.visit_log",
+   "file": "capstone-code/capstone/ingestion/visit_log.py",
+   "line": 155,
+   "end_line": 162,
+   "name": "ready",
+   "qualname": "VisitCheck.ready",
+   "kind": "property",
+   "signature": "self -> bool",
+   "purpose": "The files answer what files can: a probe, data, and a matched log.",
+   "docstring": "The files answer what files can: a probe, data, and a matched log.",
+   "has_variable_block": false,
+   "decorators": [
+    "property"
+   ],
+   "raises": [],
+   "catches": [],
+   "calls": [
+    "bool"
+   ],
+   "side_effect_hints": [],
+   "statements": 2,
+   "is_stub": false,
+   "mutates_parameters": [],
+   "static_callers": [],
+   "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
+   "contract_specified": true,
+   "executed_in_tests": true,
+   "test_count": 3,
+   "direct_tests": [
+    "tests/test_visit_log.py::test_a_visit_is_not_ready_when_a_file_is_missing_or_an_entry_unmatched",
+    "tests/test_visit_log.py::test_a_visit_with_probe_data_and_a_matched_log_is_ready",
+    "tests/test_visit_log.py::test_command_line_checks_a_visit"
+   ],
+   "indirect_tests": [],
+   "indirect_test_count": 0,
+   "statements_executed": 1,
+   "statements_in_body": 1,
+   "statement_coverage": 1.0,
+   "coverage_class": "direct",
+   "verification_status": "PARTIALLY VERIFIED",
+   "status_source": "derived",
+   "curated": {},
+   "snap_questions": [
+    "FN-01",
+    "FN-02",
+    "FN-03"
+   ]
+  },
+  {
+   "id": "capstone.ingestion.visit_log:load_event_log",
+   "module": "capstone.ingestion.visit_log",
+   "file": "capstone-code/capstone/ingestion/visit_log.py",
+   "line": 165,
+   "end_line": 190,
+   "name": "load_event_log",
+   "qualname": "load_event_log",
+   "kind": "function",
+   "signature": "path: Path -> list[TechnicianEvent]",
+   "purpose": "Read a technician's CSV event log, oldest entry first.",
+   "docstring": "Read a technician's CSV event log, oldest entry first.\n\nRaises ValueError naming the line of the first entry that cannot be read,\nso the person who wrote it can fix that line.",
+   "has_variable_block": true,
+   "decorators": [],
+   "raises": [
+    "ValueError"
+   ],
+   "catches": [
+    "ValueError"
+   ],
+   "calls": [
+    "DictReader",
+    "ValueError",
+    "append",
+    "enumerate",
+    "items",
+    "join",
+    "model_validate",
+    "open",
+    "sorted",
+    "strip"
+   ],
+   "side_effect_hints": [
+    "writes_file"
+   ],
+   "statements": 15,
+   "is_stub": false,
+   "mutates_parameters": [],
+   "static_callers": [
+    "capstone.ingestion.visit_log:main"
+   ],
+   "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
+   "contract_specified": true,
+   "executed_in_tests": true,
+   "test_count": 6,
+   "direct_tests": [
+    "tests/test_visit_log.py::test_a_bad_entry_is_refused_with_its_line_number",
+    "tests/test_visit_log.py::test_a_header_missing_a_column_is_refused",
+    "tests/test_visit_log.py::test_a_log_is_read_in_time_order_with_a_blank_until_left_empty",
+    "tests/test_visit_log.py::test_a_time_without_its_utc_offset_is_refused_not_guessed",
+    "tests/test_visit_log.py::test_command_line_checks_a_visit",
+    "tests/test_visit_log.py::test_command_line_writes_an_empty_log_outside_the_repository"
+   ],
+   "indirect_tests": [],
+   "indirect_test_count": 0,
+   "statements_executed": 14,
+   "statements_in_body": 15,
+   "statement_coverage": 0.933,
+   "coverage_class": "direct",
+   "verification_status": "PARTIALLY VERIFIED",
+   "status_source": "derived",
+   "curated": {},
+   "snap_questions": [
+    "FN-01",
+    "FN-02",
+    "FN-03"
+   ]
+  },
+  {
+   "id": "capstone.ingestion.visit_log:match_events",
+   "module": "capstone.ingestion.visit_log",
+   "file": "capstone-code/capstone/ingestion/visit_log.py",
+   "line": 193,
+   "end_line": 250,
+   "name": "match_events",
+   "qualname": "match_events",
+   "kind": "function",
+   "signature": "events: Iterable[TechnicianEvent], lines: Iterable[Line], tolerance: timedelta=DEFAULT_TOLERANCE -> list[EventMatch]",
+   "purpose": "Place each log entry against the capture's collected time.",
+   "docstring": "Place each log entry against the capture's collected time.\n\nA collected stretch runs from its first to its last observation's machine\ntime, widened by `tolerance` on each side, because a person writing down\na tool change notes the time a little before or after the machine does.",
+   "has_variable_block": true,
+   "decorators": [],
+   "raises": [],
+   "catches": [],
+   "calls": [
+    "EventMatch",
+    "abs",
+    "any",
+    "append",
+    "gap_free_runs",
+    "max",
+    "min",
+    "sorted",
+    "total_seconds"
+   ],
+   "side_effect_hints": [],
+   "statements": 18,
+   "is_stub": false,
+   "mutates_parameters": [],
+   "static_callers": [
+    "capstone.ingestion.visit_log:check_visit"
+   ],
+   "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
+   "contract_specified": true,
+   "executed_in_tests": true,
+   "test_count": 7,
+   "direct_tests": [
+    "tests/test_visit_log.py::test_a_visit_is_not_ready_when_a_file_is_missing_or_an_entry_unmatched",
+    "tests/test_visit_log.py::test_a_visit_with_probe_data_and_a_matched_log_is_ready",
+    "tests/test_visit_log.py::test_an_entry_against_an_empty_capture_is_outside",
+    "tests/test_visit_log.py::test_command_line_checks_a_visit",
+    "tests/test_visit_log.py::test_each_entry_is_placed_in_collected_time_a_gap_or_outside",
+    "tests/test_visit_log.py::test_the_report_lists_unmatched_entries_and_the_items_to_confirm_by_hand",
+    "tests/test_visit_log.py::test_the_tolerance_allows_for_a_person_noting_the_time_late"
+   ],
+   "indirect_tests": [],
+   "indirect_test_count": 0,
+   "statements_executed": 17,
+   "statements_in_body": 17,
+   "statement_coverage": 1.0,
+   "coverage_class": "direct",
+   "verification_status": "PARTIALLY VERIFIED",
+   "status_source": "derived",
+   "curated": {},
+   "snap_questions": [
+    "FN-01",
+    "FN-02",
+    "FN-03"
+   ]
+  },
+  {
+   "id": "capstone.ingestion.visit_log:check_visit",
+   "module": "capstone.ingestion.visit_log",
+   "file": "capstone-code/capstone/ingestion/visit_log.py",
+   "line": 253,
+   "end_line": 292,
+   "name": "check_visit",
+   "qualname": "check_visit",
+   "kind": "function",
+   "signature": "probe_xml: str | None, lines: Sequence[Line], events: Sequence[TechnicianEvent], tolerance: timedelta=DEFAULT_TOLERANCE -> VisitCheck",
+   "purpose": "Report what the saved probe, the capture and the event log show.",
+   "docstring": "Report what the saved probe, the capture and the event log show.",
+   "has_variable_block": true,
+   "decorators": [],
+   "raises": [],
+   "catches": [
+    "ValueError, ParseError"
+   ],
+   "calls": [
+    "VisitCheck",
+    "gap_free_runs",
+    "isinstance",
+    "len",
+    "match_events",
+    "max",
+    "min",
+    "parse_probe",
+    "str",
+    "sum"
+   ],
+   "side_effect_hints": [],
+   "statements": 10,
+   "is_stub": false,
+   "mutates_parameters": [],
+   "static_callers": [
+    "capstone.ingestion.visit_log:main"
+   ],
+   "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
+   "contract_specified": true,
+   "executed_in_tests": true,
+   "test_count": 4,
+   "direct_tests": [
+    "tests/test_visit_log.py::test_a_visit_is_not_ready_when_a_file_is_missing_or_an_entry_unmatched",
+    "tests/test_visit_log.py::test_a_visit_with_probe_data_and_a_matched_log_is_ready",
+    "tests/test_visit_log.py::test_command_line_checks_a_visit",
+    "tests/test_visit_log.py::test_the_report_lists_unmatched_entries_and_the_items_to_confirm_by_hand"
+   ],
+   "indirect_tests": [],
+   "indirect_test_count": 0,
+   "statements_executed": 10,
+   "statements_in_body": 10,
+   "statement_coverage": 1.0,
+   "coverage_class": "direct",
+   "verification_status": "PARTIALLY VERIFIED",
+   "status_source": "derived",
+   "curated": {},
+   "snap_questions": [
+    "FN-01",
+    "FN-02",
+    "FN-03"
+   ]
+  },
+  {
+   "id": "capstone.ingestion.visit_log:report_lines",
+   "module": "capstone.ingestion.visit_log",
+   "file": "capstone-code/capstone/ingestion/visit_log.py",
+   "line": 295,
+   "end_line": 335,
+   "name": "report_lines",
+   "qualname": "report_lines",
+   "kind": "function",
+   "signature": "check: VisitCheck -> list[str]",
+   "purpose": "The visit check as the checklist a person reads, one line per item.",
+   "docstring": "The visit check as the checklist a person reads, one line per item.",
+   "has_variable_block": true,
+   "decorators": [],
+   "raises": [],
+   "catches": [],
+   "calls": [
+    "append",
+    "bool",
+    "extend",
+    "isoformat",
+    "len",
+    "mark"
+   ],
+   "side_effect_hints": [],
+   "statements": 21,
+   "is_stub": false,
+   "mutates_parameters": [],
+   "static_callers": [
+    "capstone.ingestion.visit_log:main"
+   ],
+   "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
+   "contract_specified": true,
+   "executed_in_tests": true,
+   "test_count": 2,
+   "direct_tests": [
+    "tests/test_visit_log.py::test_command_line_checks_a_visit",
+    "tests/test_visit_log.py::test_the_report_lists_unmatched_entries_and_the_items_to_confirm_by_hand"
+   ],
+   "indirect_tests": [],
+   "indirect_test_count": 0,
+   "statements_executed": 20,
+   "statements_in_body": 20,
+   "statement_coverage": 1.0,
+   "coverage_class": "direct",
+   "verification_status": "PARTIALLY VERIFIED",
+   "status_source": "derived",
+   "curated": {},
+   "snap_questions": [
+    "FN-01",
+    "FN-02",
+    "FN-03"
+   ]
+  },
+  {
+   "id": "capstone.ingestion.visit_log:report_lines.<locals>.mark",
+   "module": "capstone.ingestion.visit_log",
+   "file": "capstone-code/capstone/ingestion/visit_log.py",
+   "line": 303,
+   "end_line": 304,
+   "name": "mark",
+   "qualname": "report_lines.<locals>.mark",
+   "kind": "nested_function",
+   "signature": "done: bool -> str",
+   "purpose": "",
+   "docstring": "",
+   "has_variable_block": false,
+   "decorators": [],
+   "raises": [],
+   "catches": [],
+   "calls": [],
+   "side_effect_hints": [],
+   "statements": 1,
+   "is_stub": false,
+   "mutates_parameters": [],
+   "static_callers": [
+    "capstone.ingestion.visit_log:report_lines"
+   ],
+   "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
+   "contract_specified": false,
+   "executed_in_tests": true,
+   "test_count": 2,
+   "direct_tests": [
+    "tests/test_visit_log.py::test_command_line_checks_a_visit",
+    "tests/test_visit_log.py::test_the_report_lists_unmatched_entries_and_the_items_to_confirm_by_hand"
+   ],
+   "indirect_tests": [],
+   "indirect_test_count": 0,
+   "statements_executed": 1,
+   "statements_in_body": 1,
+   "statement_coverage": 1.0,
+   "coverage_class": "direct",
+   "verification_status": "PARTIALLY VERIFIED",
+   "status_source": "derived",
+   "curated": {},
+   "snap_questions": [
+    "FN-01",
+    "FN-02",
+    "FN-03"
+   ]
+  },
+  {
+   "id": "capstone.ingestion.visit_log:main",
+   "module": "capstone.ingestion.visit_log",
+   "file": "capstone-code/capstone/ingestion/visit_log.py",
+   "line": 338,
+   "end_line": 385,
+   "name": "main",
+   "qualname": "main",
+   "kind": "function",
+   "signature": "argv: Sequence[str] | None=None -> int",
+   "purpose": "Write an empty event log, or check a visit's probe, capture and log.",
+   "docstring": "Write an empty event log, or check a visit's probe, capture and log.",
+   "has_variable_block": true,
+   "decorators": [],
+   "raises": [],
+   "catches": [
+    "ValueError"
+   ],
+   "calls": [
+    "ArgumentParser",
+    "add_argument",
+    "add_parser",
+    "add_subparsers",
+    "check_visit",
+    "error",
+    "exists",
+    "join",
+    "load_event_log",
+    "parse_args",
+    "print",
+    "read_capture",
+    "read_text",
+    "refusal",
+    "report_lines",
+    "timedelta",
+    "total_seconds",
+    "write_text"
+   ],
+   "side_effect_hints": [
+    "writes_file",
+    "prints"
+   ],
+   "statements": 28,
+   "is_stub": false,
+   "mutates_parameters": [],
+   "static_callers": [],
+   "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
+   "contract_specified": true,
+   "executed_in_tests": true,
+   "test_count": 2,
+   "direct_tests": [
+    "tests/test_visit_log.py::test_command_line_checks_a_visit",
+    "tests/test_visit_log.py::test_command_line_writes_an_empty_log_outside_the_repository"
+   ],
+   "indirect_tests": [],
+   "indirect_test_count": 0,
+   "statements_executed": 28,
+   "statements_in_body": 28,
+   "statement_coverage": 1.0,
    "coverage_class": "direct",
    "verification_status": "PARTIALLY VERIFIED",
    "status_source": "derived",
@@ -73171,9 +73796,9 @@
     "tests/test_evaluation_tools.py::test_states_show_each_test_whole_and_say_what_was_cut"
    ],
    "indirect_test_count": 2,
-   "statements_executed": 6,
+   "statements_executed": 5,
    "statements_in_body": 7,
-   "statement_coverage": 0.857,
+   "statement_coverage": 0.714,
    "coverage_class": "indirect",
    "verification_status": "INSUFFICIENT EVIDENCE",
    "status_source": "derived",

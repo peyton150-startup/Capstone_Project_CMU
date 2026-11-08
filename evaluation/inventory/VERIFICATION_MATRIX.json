@@ -26,7 +26,7 @@
   "capstone-code/capstone/contracts/evidence.py": "32662741a547cc152c6fbc3412818a646cc71ca7355590f42c9db308656aace7",
   "capstone-code/capstone/contracts/hypotheses.py": "ec280f772077f932d79fe1b321125e7762f8b4dcba6838687748cc327629ed3f",
   "capstone-code/capstone/contracts/investigations.py": "cb24d51c0bc994de4171b25e436d341b3802bc5e6407709dc417bd61d0b15825",
-  "capstone-code/capstone/contracts/observations.py": "749ccea92262f842df183eda594e9e287f1e7b5dfb81ecb8db5d7b3fdb0e553d",
+  "capstone-code/capstone/contracts/observations.py": "faf711225adbf48fd361ae8e70ff18229348e21f71cd5afec9631f3be0d5fba4",
   "capstone-code/capstone/contracts/provenance.py": "9ac8196d389cc6b56ed64e7baca22604417907e5443d9a71ecdcdbcbe75339c6",
   "capstone-code/capstone/contracts/tools.py": "86bd2e3106922fe6391d6c4250ec027aa92566b043859e1f3aa56d2626d874fb",
   "capstone-code/capstone/database/__init__.py": "0281b49fc37eea352b748cadf095abe2d8ca2d3826538e529a86cbced008643f",
@@ -50,6 +50,7 @@
   "capstone-code/capstone/ingestion/mtconnect.py": "8811611c2ab3d463de391296f0e91d1ed470b1756792a01d7980cb45cc112ddc",
   "capstone-code/capstone/ingestion/privacy.py": "c8c219fe9496bd32c803c53713e713aee76754ff238b1a603beefdb4289f6ce3",
   "capstone-code/capstone/ingestion/record.py": "eb25d503cf938783e0c0e565b94666c61a8da2d9d25011a4386dd7e47e066995",
+  "capstone-code/capstone/ingestion/visit_log.py": "6ef61c29672d6c8ccf3c49d04809ff469ed02598f4609b9f5f177816b2eec5c6",
   "capstone-code/capstone/learning.py": "03e1d7083f21cb716e260befe2d8ad3b8b542f2d8a387e0e9f27155c2614ebf7",
   "capstone-code/capstone/manual/__init__.py": "b4e075ea34226bd0df0c76941f4726945173a77db8282c492fd916f89d9c06a3",
   "capstone-code/capstone/manual/index.py": "aa857f6ee0408f2a98d8acd599153153ee4b3c28c8507d04c79d67058573677f",
@@ -76,7 +77,7 @@
   "capstone-code/capstone/providers/chat.py": "7d5e0f3e43fdb89454d42acb9b10eacdc0461559d192810b64e03ca8ef536ba9",
   "capstone-code/capstone/providers/embeddings.py": "a16df4faf5e0bbc60e5fd67e2aaa2cc76f2c5dc218c635a828ee39639b5cdaa8",
   "capstone-code/capstone/providers/factory.py": "bc6c5e7a7e2c5b54481117b166c396779bcfe3a74bd36af95e501333e4fcac73",
-  "capstone-code/capstone/providers/hazards.py": "03190f546d3f2dd6869879e10e38556387aa3a256ed6ab7ca6a290692c8d4b60",
+  "capstone-code/capstone/providers/hazards.py": "9f7c9a5038c3da075f6fc7fcabfbc2af87cf8fa28f34b47b8fe4f3459bcaae26",
   "capstone-code/capstone/providers/manual.py": "befcdb6fceb495a99c2fb32b9d075b0539b1d83c3629eb88a266daa437db7908",
   "capstone-code/capstone/providers/recall.py": "8bbf12b6c65ae12e04916c1c160977968c955e044df670d7aa8ad3d91b7d94d5",
   "capstone-code/capstone/providers/typesafe.py": "d8142540e5dc39b66393640512ca9d2f99ce4ccef22052166a9ce46d9657da50",
@@ -100,7 +101,7 @@
   "capstone-code/capstone/tools/actions.py": "e09c561004ebfa47ef2003d061361a6ca1939e237c5d9d8385c6126457f838fc",
   "capstone-code/capstone/tools/diagnosis.py": "98ec3bf852d7db2a002c4d8c70f83cfa71ee66046baeea3d6d54f967f3543f55",
   "capstone-code/capstone/tools/errors.py": "32cc03629449f2311ed055f6703988c93c7faf3b4a3e3a97fb578a3d27bb4603",
-  "capstone-code/capstone/tools/observation.py": "935fdb30de80a8fbeae0b8b979e15c902c7b16a2cdae7c06aa25c8ab6b4d3535",
+  "capstone-code/capstone/tools/observation.py": "05a85bcbf84eacfaab39ff300330b844825e0257e48575ac71e7aff80c5c7c61",
   "capstone-code/capstone/tools/screening.py": "7e71d66f024f59a8637a2f13a91facfd2ec5d5964225f739f7a9bb23caaefafd",
   "capstone-code/capstone/tree_reach.py": "a2a5e2011d0b906a474787fa69af68e26c7f844f233f707952c97e8531315621",
   "capstone-code/capstone/watchdog/__init__.py": "af50d413d5d91898422aba18497f6416d269b1be9067536b45c0117c57573b3a",
@@ -162,7 +163,7 @@
   "tests/test_job_history.py": "1320b374409b889c7fa94cd9497c649b90f09d88e6abbccc728b36e6ff2f15bc",
   "tests/test_known_answers.py": "09f17601ca08b4997ef461d291c631cd206a188fe3dc7e7ae7de776b5096ccbc",
   "tests/test_learning.py": "733c16bee14cebe398a8dada590ca1f9f6996026e1b2f224770208c977998512",
-  "tests/test_line_screening.py": "c7e28721eed99970808567643ef1b05a701efa3ba3150c5ef11cae95e280ee90",
+  "tests/test_line_screening.py": "a2d1b9f069ddb4ecc5afffbdab785aadc527b25645fc07518fc58c371985d1ad",
   "tests/test_load.py": "ab3e2dc315f2364924ee8f16189eb8414455bb05e77ba802faee48341fd22e58",
   "tests/test_load_wear_coupling.py": "dd3af00a787087972a3b338894aa77ba291ff1c231270c090a57da304c76691e",
   "tests/test_loading_door.py": "fef3b0704687b0a53b23dbde9eb9b7a76a579587a598d85174281d07f1fb5704",
@@ -210,32 +211,33 @@
   "tests/test_triage.py": "55f9cf58784fb7e7db338624ff445c867c69720dabf4ea634dc8dda091fe981a",
   "tests/test_two_lines.py": "0658dabf750de3b18111b9f30c19a2fc2a2a9582b37fc5edbde4733e5480c55e",
   "tests/test_typesafe_client.py": "e9672498f96597ca062073a7a9f1cff64430bf5304a908f6fb959056a703e747",
+  "tests/test_visit_log.py": "2cb36dac7d49da2bd96ad4a51697afd37ea4a73764a565bb19e3fbbc8a2a692e",
   "tests/test_wait_tool.py": "ccec624a885634bbfcf97c4b09e7fdf523097c9e468e5bc5f6d07d863179dc49",
   "tests/test_wrong_setting.py": "a7dcc4186bcee6a5980da4fc1f7a47c1b9210055618a88756e44a1991e39de47"
  },
- "coverage_sha256": "4fc9cd73b27cc2fff6cd101f3334d9f6f3a69b0aba7098f708cfd0a4bd36daaa",
- "junit_sha256": "fb7384a641f080de581d7156c7e0be26b7ebcd0ef65fc2e834d2f5582ec6fa3a",
+ "coverage_sha256": "d95a1dad01173e4c162ae990f3712d29d26b1373f022387cb9789a5e0df010d8",
+ "junit_sha256": "eefddc848c15c5a388041a5726579c23fc772ca9683050fbcbae22b5f538244f",
  "counts": {
-  "functions": 868,
+  "functions": 878,
   "classes_note": "classes are listed through their methods",
-  "tests": 1650,
+  "tests": 1662,
   "tools": 18,
   "functions_by_status": {
    "INSUFFICIENT EVIDENCE": 343,
    "NOT APPLICABLE": 25,
    "NOT TESTED": 38,
-   "PARTIALLY VERIFIED": 417,
+   "PARTIALLY VERIFIED": 427,
    "VERIFIED": 45
   },
   "functions_by_coverage_class": {
-   "direct": 446,
+   "direct": 456,
    "import-only": 4,
    "indirect": 355,
    "no-statements": 25,
    "none": 38
   },
-  "functions_executed_in_tests": 801,
-  "functions_with_direct_tests": 446,
+  "functions_executed_in_tests": 811,
+  "functions_with_direct_tests": 456,
   "functions_never_executed": [
    "capstone.baseline:_seeds",
    "capstone.baseline:main",
@@ -320,14 +322,14 @@
    "evaluation.evaltools.run_packet:configuration_of (7/9)",
    "evaluation.evaltools.snap_request:DecisionQuestion.criteria_fit_type (5/9)",
    "evaluation.evaltools.snap_request:load_questions (7/9)",
+   "evaluation.evaltools.snap_request:test_source (5/7)",
    "evaluation.evaltools.snap_request:describe_failure (2/5)",
    "evaluation.evaltools.snap_request:already_answered (6/8)",
    "evaluation.evaltools.traced_run:main (18/42)"
   ],
   "stubs_or_protocols": 25,
   "tests_by_outcome": {
-   "failed": 1,
-   "passed": 1649
+   "passed": 1662
   },
   "tests_with_no_assertion": [
    "tests/test_console.py::test_without_it_the_same_print_raised"
@@ -664,6 +666,11 @@
    "functions": 4,
    "executed": 4,
    "direct": 1
+  },
+  "capstone.ingestion.visit_log": {
+   "functions": 10,
+   "executed": 10,
+   "direct": 10
   },
   "capstone.learning": {
    "functions": 1,
@@ -7383,7 +7390,7 @@
    "indirect": []
   },
   "capstone.ingestion.channel_map:parse_probe": {
-   "count": 9,
+   "count": 12,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_channel_map.py::test_a_map_refuses_a_probe_from_a_changed_controller",
@@ -7396,7 +7403,11 @@
     "tests/test_channel_map.py::test_meaning_and_tool_sensor_stay_empty_until_a_person_assigns_them",
     "tests/test_channel_map.py::test_reported_records_which_channels_held_a_value"
    ],
-   "indirect": []
+   "indirect": [
+    "tests/test_visit_log.py::test_a_visit_is_not_ready_when_a_file_is_missing_or_an_entry_unmatched",
+    "tests/test_visit_log.py::test_a_visit_with_probe_data_and_a_matched_log_is_ready",
+    "tests/test_visit_log.py::test_command_line_checks_a_visit"
+   ]
   },
   "capstone.ingestion.channel_map:build_channel_map": {
    "count": 7,
@@ -7424,7 +7435,7 @@
    "indirect": []
   },
   "capstone.ingestion.channel_map:_devices": {
-   "count": 10,
+   "count": 13,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_channel_map.py::test_a_map_refuses_a_probe_from_a_changed_controller",
@@ -7438,10 +7449,14 @@
     "tests/test_channel_map.py::test_reported_records_which_channels_held_a_value",
     "tests/test_channel_map.py::test_the_hash_ignores_the_header_and_formatting_but_not_a_channel_change"
    ],
-   "indirect": []
+   "indirect": [
+    "tests/test_visit_log.py::test_a_visit_is_not_ready_when_a_file_is_missing_or_an_entry_unmatched",
+    "tests/test_visit_log.py::test_a_visit_with_probe_data_and_a_matched_log_is_ready",
+    "tests/test_visit_log.py::test_command_line_checks_a_visit"
+   ]
   },
   "capstone.ingestion.channel_map:_walk": {
-   "count": 8,
+   "count": 11,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_channel_map.py::test_a_map_refuses_a_probe_from_a_changed_controller",
@@ -7453,7 +7468,11 @@
     "tests/test_channel_map.py::test_meaning_and_tool_sensor_stay_empty_until_a_person_assigns_them",
     "tests/test_channel_map.py::test_reported_records_which_channels_held_a_value"
    ],
-   "indirect": []
+   "indirect": [
+    "tests/test_visit_log.py::test_a_visit_is_not_ready_when_a_file_is_missing_or_an_entry_unmatched",
+    "tests/test_visit_log.py::test_a_visit_with_probe_data_and_a_matched_log_is_ready",
+    "tests/test_visit_log.py::test_command_line_checks_a_visit"
+   ]
   },
   "capstone.ingestion.channel_map:_probe_type": {
    "count": 4,
@@ -7486,12 +7505,14 @@
    "indirect": []
   },
   "capstone.ingestion.channel_map:read_capture": {
-   "count": 1,
+   "count": 2,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_channel_map.py::test_command_line_builds_checks_and_records_reported_channels"
    ],
-   "indirect": []
+   "indirect": [
+    "tests/test_visit_log.py::test_command_line_checks_a_visit"
+   ]
   },
   "capstone.ingestion.channel_map:main": {
    "count": 2,
@@ -7651,7 +7672,7 @@
    ]
   },
   "capstone.ingestion.mtconnect:_local": {
-   "count": 34,
+   "count": 37,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
@@ -7670,7 +7691,7 @@
    ]
   },
   "capstone.ingestion.mtconnect:_child": {
-   "count": 33,
+   "count": 36,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
@@ -7765,7 +7786,7 @@
    ]
   },
   "capstone.ingestion.privacy:git_checkout_containing": {
-   "count": 5,
+   "count": 6,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
@@ -7773,18 +7794,20 @@
     "tests/test_mtconnect_ingestion.py::test_a_checkout_is_found_from_a_git_folder_or_a_worktree_git_file",
     "tests/test_mtconnect_ingestion.py::test_a_path_outside_every_checkout_is_allowed",
     "tests/test_mtconnect_ingestion.py::test_monitor_and_watchdog_refuse_alerts_inside_the_repository",
-    "tests/test_mtconnect_ingestion.py::test_the_collector_refuses_to_write_inside_the_repository"
+    "tests/test_mtconnect_ingestion.py::test_the_collector_refuses_to_write_inside_the_repository",
+    "tests/test_visit_log.py::test_command_line_writes_an_empty_log_outside_the_repository"
    ]
   },
   "capstone.ingestion.privacy:refusal": {
-   "count": 4,
+   "count": 5,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
     "tests/test_channel_map.py::test_command_line_refuses_to_write_a_map_inside_the_repository",
     "tests/test_mtconnect_ingestion.py::test_a_path_outside_every_checkout_is_allowed",
     "tests/test_mtconnect_ingestion.py::test_monitor_and_watchdog_refuse_alerts_inside_the_repository",
-    "tests/test_mtconnect_ingestion.py::test_the_collector_refuses_to_write_inside_the_repository"
+    "tests/test_mtconnect_ingestion.py::test_the_collector_refuses_to_write_inside_the_repository",
+    "tests/test_visit_log.py::test_command_line_writes_an_empty_log_outside_the_repository"
    ]
   },
   "capstone.ingestion.record:TelemetryRecord.number": {
@@ -7807,7 +7830,7 @@
    ]
   },
   "capstone.ingestion.record:CollectorMarker.gap_detail_only_on_a_gap": {
-   "count": 22,
+   "count": 29,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
@@ -7826,7 +7849,7 @@
    ]
   },
   "capstone.ingestion.record:parse_line": {
-   "count": 16,
+   "count": 17,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
@@ -7845,10 +7868,136 @@
    ]
   },
   "capstone.ingestion.record:gap_free_runs": {
-   "count": 1,
+   "count": 8,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_mtconnect_ingestion.py::test_gap_free_runs_never_join_readings_across_a_gap_or_a_restart"
+   ],
+   "indirect": [
+    "tests/test_visit_log.py::test_a_visit_is_not_ready_when_a_file_is_missing_or_an_entry_unmatched",
+    "tests/test_visit_log.py::test_a_visit_with_probe_data_and_a_matched_log_is_ready",
+    "tests/test_visit_log.py::test_an_entry_against_an_empty_capture_is_outside",
+    "tests/test_visit_log.py::test_command_line_checks_a_visit",
+    "tests/test_visit_log.py::test_each_entry_is_placed_in_collected_time_a_gap_or_outside",
+    "tests/test_visit_log.py::test_the_report_lists_unmatched_entries_and_the_items_to_confirm_by_hand",
+    "tests/test_visit_log.py::test_the_tolerance_allows_for_a_person_noting_the_time_late"
+   ]
+  },
+  "capstone.ingestion.visit_log:TechnicianEvent.has_a_time_zone": {
+   "count": 9,
+   "status": "PARTIALLY VERIFIED",
+   "direct": [
+    "tests/test_visit_log.py::test_a_bad_entry_is_refused_with_its_line_number",
+    "tests/test_visit_log.py::test_a_log_is_read_in_time_order_with_a_blank_until_left_empty",
+    "tests/test_visit_log.py::test_a_time_without_its_utc_offset_is_refused_not_guessed",
+    "tests/test_visit_log.py::test_a_visit_with_probe_data_and_a_matched_log_is_ready",
+    "tests/test_visit_log.py::test_an_entry_against_an_empty_capture_is_outside",
+    "tests/test_visit_log.py::test_command_line_checks_a_visit",
+    "tests/test_visit_log.py::test_each_entry_is_placed_in_collected_time_a_gap_or_outside",
+    "tests/test_visit_log.py::test_the_report_lists_unmatched_entries_and_the_items_to_confirm_by_hand",
+    "tests/test_visit_log.py::test_the_tolerance_allows_for_a_person_noting_the_time_late"
+   ],
+   "indirect": []
+  },
+  "capstone.ingestion.visit_log:TechnicianEvent.ends_after_it_starts": {
+   "count": 9,
+   "status": "PARTIALLY VERIFIED",
+   "direct": [
+    "tests/test_visit_log.py::test_a_bad_entry_is_refused_with_its_line_number",
+    "tests/test_visit_log.py::test_a_log_is_read_in_time_order_with_a_blank_until_left_empty",
+    "tests/test_visit_log.py::test_a_visit_is_not_ready_when_a_file_is_missing_or_an_entry_unmatched",
+    "tests/test_visit_log.py::test_a_visit_with_probe_data_and_a_matched_log_is_ready",
+    "tests/test_visit_log.py::test_an_entry_against_an_empty_capture_is_outside",
+    "tests/test_visit_log.py::test_command_line_checks_a_visit",
+    "tests/test_visit_log.py::test_each_entry_is_placed_in_collected_time_a_gap_or_outside",
+    "tests/test_visit_log.py::test_the_report_lists_unmatched_entries_and_the_items_to_confirm_by_hand",
+    "tests/test_visit_log.py::test_the_tolerance_allows_for_a_person_noting_the_time_late"
+   ],
+   "indirect": []
+  },
+  "capstone.ingestion.visit_log:VisitCheck.unmatched": {
+   "count": 4,
+   "status": "PARTIALLY VERIFIED",
+   "direct": [
+    "tests/test_visit_log.py::test_a_visit_is_not_ready_when_a_file_is_missing_or_an_entry_unmatched",
+    "tests/test_visit_log.py::test_a_visit_with_probe_data_and_a_matched_log_is_ready",
+    "tests/test_visit_log.py::test_command_line_checks_a_visit",
+    "tests/test_visit_log.py::test_the_report_lists_unmatched_entries_and_the_items_to_confirm_by_hand"
+   ],
+   "indirect": []
+  },
+  "capstone.ingestion.visit_log:VisitCheck.ready": {
+   "count": 3,
+   "status": "PARTIALLY VERIFIED",
+   "direct": [
+    "tests/test_visit_log.py::test_a_visit_is_not_ready_when_a_file_is_missing_or_an_entry_unmatched",
+    "tests/test_visit_log.py::test_a_visit_with_probe_data_and_a_matched_log_is_ready",
+    "tests/test_visit_log.py::test_command_line_checks_a_visit"
+   ],
+   "indirect": []
+  },
+  "capstone.ingestion.visit_log:load_event_log": {
+   "count": 6,
+   "status": "PARTIALLY VERIFIED",
+   "direct": [
+    "tests/test_visit_log.py::test_a_bad_entry_is_refused_with_its_line_number",
+    "tests/test_visit_log.py::test_a_header_missing_a_column_is_refused",
+    "tests/test_visit_log.py::test_a_log_is_read_in_time_order_with_a_blank_until_left_empty",
+    "tests/test_visit_log.py::test_a_time_without_its_utc_offset_is_refused_not_guessed",
+    "tests/test_visit_log.py::test_command_line_checks_a_visit",
+    "tests/test_visit_log.py::test_command_line_writes_an_empty_log_outside_the_repository"
+   ],
+   "indirect": []
+  },
+  "capstone.ingestion.visit_log:match_events": {
+   "count": 7,
+   "status": "PARTIALLY VERIFIED",
+   "direct": [
+    "tests/test_visit_log.py::test_a_visit_is_not_ready_when_a_file_is_missing_or_an_entry_unmatched",
+    "tests/test_visit_log.py::test_a_visit_with_probe_data_and_a_matched_log_is_ready",
+    "tests/test_visit_log.py::test_an_entry_against_an_empty_capture_is_outside",
+    "tests/test_visit_log.py::test_command_line_checks_a_visit",
+    "tests/test_visit_log.py::test_each_entry_is_placed_in_collected_time_a_gap_or_outside",
+    "tests/test_visit_log.py::test_the_report_lists_unmatched_entries_and_the_items_to_confirm_by_hand",
+    "tests/test_visit_log.py::test_the_tolerance_allows_for_a_person_noting_the_time_late"
+   ],
+   "indirect": []
+  },
+  "capstone.ingestion.visit_log:check_visit": {
+   "count": 4,
+   "status": "PARTIALLY VERIFIED",
+   "direct": [
+    "tests/test_visit_log.py::test_a_visit_is_not_ready_when_a_file_is_missing_or_an_entry_unmatched",
+    "tests/test_visit_log.py::test_a_visit_with_probe_data_and_a_matched_log_is_ready",
+    "tests/test_visit_log.py::test_command_line_checks_a_visit",
+    "tests/test_visit_log.py::test_the_report_lists_unmatched_entries_and_the_items_to_confirm_by_hand"
+   ],
+   "indirect": []
+  },
+  "capstone.ingestion.visit_log:report_lines": {
+   "count": 2,
+   "status": "PARTIALLY VERIFIED",
+   "direct": [
+    "tests/test_visit_log.py::test_command_line_checks_a_visit",
+    "tests/test_visit_log.py::test_the_report_lists_unmatched_entries_and_the_items_to_confirm_by_hand"
+   ],
+   "indirect": []
+  },
+  "capstone.ingestion.visit_log:report_lines.<locals>.mark": {
+   "count": 2,
+   "status": "PARTIALLY VERIFIED",
+   "direct": [
+    "tests/test_visit_log.py::test_command_line_checks_a_visit",
+    "tests/test_visit_log.py::test_the_report_lists_unmatched_entries_and_the_items_to_confirm_by_hand"
+   ],
+   "indirect": []
+  },
+  "capstone.ingestion.visit_log:main": {
+   "count": 2,
+   "status": "PARTIALLY VERIFIED",
+   "direct": [
+    "tests/test_visit_log.py::test_command_line_checks_a_visit",
+    "tests/test_visit_log.py::test_command_line_writes_an_empty_log_outside_the_repository"
    ],
    "indirect": []
   },
@@ -46719,6 +46868,159 @@
     "capstone.providers.typesafe:JudgmentClient.__init__",
     "capstone.providers.typesafe:judgment_client",
     "capstone.settings:Settings.blank_is_missing"
+   ]
+  },
+  "tests/test_visit_log.py::test_a_log_is_read_in_time_order_with_a_blank_until_left_empty": {
+   "count": 3,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.ingestion.visit_log:TechnicianEvent.ends_after_it_starts",
+    "capstone.ingestion.visit_log:TechnicianEvent.has_a_time_zone",
+    "capstone.ingestion.visit_log:load_event_log"
+   ]
+  },
+  "tests/test_visit_log.py::test_a_time_without_its_utc_offset_is_refused_not_guessed": {
+   "count": 2,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.ingestion.visit_log:TechnicianEvent.has_a_time_zone",
+    "capstone.ingestion.visit_log:load_event_log"
+   ]
+  },
+  "tests/test_visit_log.py::test_a_bad_entry_is_refused_with_its_line_number": {
+   "count": 3,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.ingestion.visit_log:TechnicianEvent.ends_after_it_starts",
+    "capstone.ingestion.visit_log:TechnicianEvent.has_a_time_zone",
+    "capstone.ingestion.visit_log:load_event_log"
+   ]
+  },
+  "tests/test_visit_log.py::test_a_header_missing_a_column_is_refused": {
+   "count": 1,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.ingestion.visit_log:load_event_log"
+   ]
+  },
+  "tests/test_visit_log.py::test_each_entry_is_placed_in_collected_time_a_gap_or_outside": {
+   "count": 5,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.ingestion.record:CollectorMarker.gap_detail_only_on_a_gap",
+    "capstone.ingestion.record:gap_free_runs",
+    "capstone.ingestion.visit_log:TechnicianEvent.ends_after_it_starts",
+    "capstone.ingestion.visit_log:TechnicianEvent.has_a_time_zone",
+    "capstone.ingestion.visit_log:match_events"
+   ]
+  },
+  "tests/test_visit_log.py::test_the_tolerance_allows_for_a_person_noting_the_time_late": {
+   "count": 5,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.ingestion.record:CollectorMarker.gap_detail_only_on_a_gap",
+    "capstone.ingestion.record:gap_free_runs",
+    "capstone.ingestion.visit_log:TechnicianEvent.ends_after_it_starts",
+    "capstone.ingestion.visit_log:TechnicianEvent.has_a_time_zone",
+    "capstone.ingestion.visit_log:match_events"
+   ]
+  },
+  "tests/test_visit_log.py::test_an_entry_against_an_empty_capture_is_outside": {
+   "count": 5,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.ingestion.record:CollectorMarker.gap_detail_only_on_a_gap",
+    "capstone.ingestion.record:gap_free_runs",
+    "capstone.ingestion.visit_log:TechnicianEvent.ends_after_it_starts",
+    "capstone.ingestion.visit_log:TechnicianEvent.has_a_time_zone",
+    "capstone.ingestion.visit_log:match_events"
+   ]
+  },
+  "tests/test_visit_log.py::test_a_visit_with_probe_data_and_a_matched_log_is_ready": {
+   "count": 13,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.ingestion.channel_map:_devices",
+    "capstone.ingestion.channel_map:_walk",
+    "capstone.ingestion.channel_map:parse_probe",
+    "capstone.ingestion.mtconnect:_child",
+    "capstone.ingestion.mtconnect:_local",
+    "capstone.ingestion.record:CollectorMarker.gap_detail_only_on_a_gap",
+    "capstone.ingestion.record:gap_free_runs",
+    "capstone.ingestion.visit_log:TechnicianEvent.ends_after_it_starts",
+    "capstone.ingestion.visit_log:TechnicianEvent.has_a_time_zone",
+    "capstone.ingestion.visit_log:VisitCheck.ready",
+    "capstone.ingestion.visit_log:VisitCheck.unmatched",
+    "capstone.ingestion.visit_log:check_visit",
+    "capstone.ingestion.visit_log:match_events"
+   ]
+  },
+  "tests/test_visit_log.py::test_a_visit_is_not_ready_when_a_file_is_missing_or_an_entry_unmatched": {
+   "count": 12,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.ingestion.channel_map:_devices",
+    "capstone.ingestion.channel_map:_walk",
+    "capstone.ingestion.channel_map:parse_probe",
+    "capstone.ingestion.mtconnect:_child",
+    "capstone.ingestion.mtconnect:_local",
+    "capstone.ingestion.record:CollectorMarker.gap_detail_only_on_a_gap",
+    "capstone.ingestion.record:gap_free_runs",
+    "capstone.ingestion.visit_log:TechnicianEvent.ends_after_it_starts",
+    "capstone.ingestion.visit_log:VisitCheck.ready",
+    "capstone.ingestion.visit_log:VisitCheck.unmatched",
+    "capstone.ingestion.visit_log:check_visit",
+    "capstone.ingestion.visit_log:match_events"
+   ]
+  },
+  "tests/test_visit_log.py::test_the_report_lists_unmatched_entries_and_the_items_to_confirm_by_hand": {
+   "count": 9,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.ingestion.record:CollectorMarker.gap_detail_only_on_a_gap",
+    "capstone.ingestion.record:gap_free_runs",
+    "capstone.ingestion.visit_log:TechnicianEvent.ends_after_it_starts",
+    "capstone.ingestion.visit_log:TechnicianEvent.has_a_time_zone",
+    "capstone.ingestion.visit_log:VisitCheck.unmatched",
+    "capstone.ingestion.visit_log:check_visit",
+    "capstone.ingestion.visit_log:match_events",
+    "capstone.ingestion.visit_log:report_lines",
+    "capstone.ingestion.visit_log:report_lines.<locals>.mark"
+   ]
+  },
+  "tests/test_visit_log.py::test_command_line_checks_a_visit": {
+   "count": 19,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.ingestion.channel_map:_devices",
+    "capstone.ingestion.channel_map:_walk",
+    "capstone.ingestion.channel_map:parse_probe",
+    "capstone.ingestion.channel_map:read_capture",
+    "capstone.ingestion.mtconnect:_child",
+    "capstone.ingestion.mtconnect:_local",
+    "capstone.ingestion.record:CollectorMarker.gap_detail_only_on_a_gap",
+    "capstone.ingestion.record:gap_free_runs",
+    "capstone.ingestion.record:parse_line",
+    "capstone.ingestion.visit_log:TechnicianEvent.ends_after_it_starts",
+    "capstone.ingestion.visit_log:TechnicianEvent.has_a_time_zone",
+    "capstone.ingestion.visit_log:VisitCheck.ready",
+    "capstone.ingestion.visit_log:VisitCheck.unmatched",
+    "capstone.ingestion.visit_log:check_visit",
+    "capstone.ingestion.visit_log:load_event_log",
+    "capstone.ingestion.visit_log:main",
+    "capstone.ingestion.visit_log:match_events",
+    "capstone.ingestion.visit_log:report_lines",
+    "capstone.ingestion.visit_log:report_lines.<locals>.mark"
+   ]
+  },
+  "tests/test_visit_log.py::test_command_line_writes_an_empty_log_outside_the_repository": {
+   "count": 4,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.ingestion.privacy:git_checkout_containing",
+    "capstone.ingestion.privacy:refusal",
+    "capstone.ingestion.visit_log:load_event_log",
+    "capstone.ingestion.visit_log:main"
    ]
   },
   "tests/test_wait_tool.py::test_wait_is_one_of_the_agents_action_tools": {
