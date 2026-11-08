@@ -51,9 +51,7 @@ def verify(out: Path, expected_episodes: int, commit: str) -> dict:
     families = Counter()
     statuses = Counter()
     for row in rows:
-        identity = (
-            row["family"], row["item_id"], row["provider"], row["question_id"]
-        )
+        identity = (row["family"], row["item_id"], row["provider"], row["question_id"])
         if identity in seen:
             raise ValueError(f"duplicate question ledger row: {identity}")
         seen.add(identity)
@@ -62,7 +60,9 @@ def verify(out: Path, expected_episodes: int, commit: str) -> dict:
         if row["provider"] != "snap":
             raise ValueError("SNAP-only smoke test included another provider")
     if set(families) != FAMILIES:
-        raise ValueError(f"missing question families: {sorted(FAMILIES - set(families))}")
+        raise ValueError(
+            f"missing question families: {sorted(FAMILIES - set(families))}"
+        )
     if dict(statuses) != report["judging"]["by_status"]:
         raise ValueError("judging status counts do not reconcile")
     if statuses.get("answered", 0):
