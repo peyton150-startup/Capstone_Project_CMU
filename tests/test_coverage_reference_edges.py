@@ -39,6 +39,14 @@ def prepared_requests(root, *, family="RUN", identifier="test-case"):
             }
         },
     }
+    request["body"]["questions"] = {
+        name: {
+            "type": question["type"],
+            "instructions": f"Judge {name} against the evidence.",
+            "criteria": question["criteria"],
+        }
+        for name, question in request["tags"]["questions"].items()
+    }
     (directory / f"{identifier}.request.json").write_text(
         json.dumps(request), encoding="utf-8"
     )
