@@ -57,7 +57,7 @@ from capstone.experiment import ExperimentRecord, read_records  # noqa: E402
 # 1.3.0: `meta.seed`, so two runs are paired by scenario and seed rather than
 # by their position in the run key (CRITERIA F06).
 PACKET_SCHEMA_VERSION = "1.3.0"
-RUBRIC_VERSION = "1.0.0"
+RUBRIC_VERSION = "1.1.0"
 
 # A committed answer at least this sure that is wrong is "confident and
 # wrong" (the same line `capstone.evals.CONFIDENT` draws).

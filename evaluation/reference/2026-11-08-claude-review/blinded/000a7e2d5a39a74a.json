@@ -1,0 +1,170 @@
+{
+ "review_id": "000a7e2d5a39a74a",
+ "family": "TS",
+ "state": {
+  "test_id": "tests/test_failure.py::test_same_seed_fails_at_the_same_tick",
+  "claims": "same seed fails at the same tick",
+  "docstring": "",
+  "source": "def test_same_seed_fails_at_the_same_tick():\n    assert stops(degrading(42)) == stops(degrading(42))\n    assert stops(degrading(42))[0].tick != stops(degrading(7))[0].tick",
+  "source_cut": null,
+  "decorators": [],
+  "module_helpers": [
+   {
+    "name": "stops",
+    "source": "def stops(sim: Simulator) -> list:\n    return [e for e in sim.event_log.events if e.kind == \"status\"]"
+   },
+   {
+    "name": "degrading",
+    "source": "def degrading(seed: int = 42) -> Simulator:\n    sim = Simulator(seed, START)\n    for machine_id in (\"CNC-01\", \"CNC-04\"):\n        sim.add_machine(MachineState(id=machine_id))\n        sim.add_sensor(VibrationSensor(machine_id, sim.rng))\n    sim.add_alarm(ThresholdAlarm(\"vibration\", 4.5))\n    sim.add_scenario(\n        BearingDegradation(\n            \"bearing\", sim.rng, machine_id=\"CNC-04\", start_tick=100, rate=0.001\n        )\n    )\n    for _ in range(1200):\n        sim.step()\n    return sim"
+   }
+  ],
+  "module_helpers_shown": null,
+  "assertions": 2,
+  "assert_forms": {
+   "equality": 1,
+   "inequality": 1
+  },
+  "raises_checks": 0,
+  "helpers_used": [],
+  "quality_flags": [],
+  "execution_outcome": "passed",
+  "exercises": [
+   {
+    "id": "capstone.simulator.clock:SimulationClock.__init__",
+    "purpose": "",
+    "file": "capstone-code/capstone/simulator/clock.py"
+   },
+   {
+    "id": "capstone.simulator.clock:SimulationClock.advance",
+    "purpose": "",
+    "file": "capstone-code/capstone/simulator/clock.py"
+   },
+   {
+    "id": "capstone.simulator.events:EventLog.__init__",
+    "purpose": "",
+    "file": "capstone-code/capstone/simulator/events.py"
+   },
+   {
+    "id": "capstone.simulator.events:EventLog.events",
+    "purpose": "Every event so far, oldest first.",
+    "file": "capstone-code/capstone/simulator/events.py"
+   },
+   {
+    "id": "capstone.simulator.events:EventLog.record",
+    "purpose": "",
+    "file": "capstone-code/capstone/simulator/events.py"
+   },
+   {
+    "id": "capstone.simulator.events:ThresholdAlarm.__init__",
+    "purpose": "",
+    "file": "capstone-code/capstone/simulator/events.py"
+   },
+   {
+    "id": "capstone.simulator.events:ThresholdAlarm.check",
+    "purpose": "",
+    "file": "capstone-code/capstone/simulator/events.py"
+   },
+   {
+    "id": "capstone.simulator.rng:RandomSource.__init__",
+    "purpose": "",
+    "file": "capstone-code/capstone/simulator/rng.py"
+   },
+   {
+    "id": "capstone.simulator.rng:RandomSource._derive_seed",
+    "purpose": "",
+    "file": "capstone-code/capstone/simulator/rng.py"
+   },
+   {
+    "id": "capstone.simulator.rng:RandomSource.stream",
+    "purpose": "",
+    "file": "capstone-code/capstone/simulator/rng.py"
+   },
+   {
+    "id": "capstone.simulator.scenarios:BearingDegradation.__init__",
+    "purpose": "",
+    "file": "capstone-code/capstone/simulator/scenarios.py"
+   },
+   {
+    "id": "capstone.simulator.scenarios:BearingDegradation.apply",
+    "purpose": "",
+    "file": "capstone-code/capstone/simulator/scenarios.py"
+   },
+   {
+    "id": "capstone.simulator.scenarios:Scenario.__init__",
+    "purpose": "",
+    "file": "capstone-code/capstone/simulator/scenarios.py"
+   },
+   {
+    "id": "capstone.simulator.sensors:Sensor.__init__",
+    "purpose": "",
+    "file": "capstone-code/capstone/simulator/sensors.py"
+   },
+   {
+    "id": "capstone.simulator.sensors:Sensor.available",
+    "purpose": "Whether the instrument transmits this tick; no RNG is consumed here.",
+    "file": "capstone-code/capstone/simulator/sensors.py"
+   }
+  ],
+  "exercises_shown": "15 of 40 shown"
+ },
+ "questions": {
+  "TS-01": {
+   "id": "TS-01",
+   "family": "TS",
+   "name": "test_proves_its_claim",
+   "type": "noul",
+   "instructions": "The test's name and docstring make a claim. Do its assertions establish that claim about the project code it exercises? `decorators` holds the test's decorators (for example its parametrize values) and `module_helpers` the source of helper functions from the test's module that it calls or takes as fixtures.",
+   "criteria": {
+    "true": "The assertions check the specific behaviour the name claims, on inputs that exercise it.",
+    "false": "The assertions check something weaker or different from the claim (only that no error occurred, only a type, only a field exists), or the claim is not about project code."
+   },
+   "required_evidence": [
+    "test_source",
+    "decorators",
+    "module_helpers",
+    "exercises"
+   ],
+   "missing_evidence": "If no project function is listed as exercised, judge the project classes or modules the test constructs, calls or imports (validation declared on a project model counts as project code); answer false only if it exercises no project code at all.",
+   "applies_to": "one test evidence packet (test source, docstring, functions exercised, outcome)",
+   "deterministic_precedence": "assertion counts and forms are code facts."
+  },
+  "TS-02": {
+   "id": "TS-02",
+   "family": "TS",
+   "name": "would_fail_if_broken",
+   "type": "noul",
+   "instructions": "Imagine the behaviour the test claims to verify were broken in the implementation (the wrong branch taken, the check removed, the value off by one). Would this test fail? `module_helpers` shows what the helpers it uses do.",
+   "criteria": {
+    "true": "A plausible breakage of the claimed behaviour changes an asserted value.",
+    "false": "The test could still pass because its inputs come from a stub that fixes the outcome, the assertion is on a mocked return, or the assertion is too loose to notice."
+   },
+   "required_evidence": [
+    "test_source",
+    "decorators",
+    "module_helpers"
+   ],
+   "missing_evidence": "none",
+   "applies_to": "one test evidence packet",
+   "deterministic_precedence": "A mutation-testing result, where available, takes precedence over this judgement."
+  },
+  "TS-03": {
+   "id": "TS-03",
+   "family": "TS",
+   "name": "assertion_strength",
+   "type": "score",
+   "instructions": "Rate the specificity of the test's assertions relative to the behaviour it claims.",
+   "criteria": [
+    "0: No assertion, or only that no exception was raised.",
+    "1: Truthiness or not-None checks only.",
+    "2: Specific values or types asserted on part of the outcome; side effects or state transitions not checked where they matter.",
+    "3: Specific values asserted on the whole relevant outcome, including state changes or raised errors where the claim needs them."
+   ],
+   "required_evidence": [
+    "test_source"
+   ],
+   "missing_evidence": "none",
+   "applies_to": "one test evidence packet",
+   "deterministic_precedence": "quality_flags no_assertion and weak_assertions_only are code facts and fix the score at 0 or 1 without asking."
+  }
+ }
+}
