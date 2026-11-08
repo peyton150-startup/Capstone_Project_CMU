@@ -1,0 +1,121 @@
+{
+ "review_id": "012cf733fced8b7d",
+ "family": "FN",
+ "state": {
+  "function_id": "capstone.ingestion.channel_map:main",
+  "file": "capstone-code/capstone/ingestion/channel_map.py",
+  "signature": "argv: Sequence[str] | None=None -> int",
+  "contract": {
+   "docstring": "Build a channel map from a probe, or check a capture against one.",
+   "has_variable_block": true,
+   "purpose": "Build a channel map from a probe, or check a capture against one."
+  },
+  "source": "def main(argv: Sequence[str] | None = None) -> int:\n    \"\"\"Build a channel map from a probe, or check a capture against one.\"\"\"\n    # Variables:\n    #   argv: Command-line arguments; None means the real ones.\n    #   args: The chosen command and its files.\n    #   channel_map: The map built from --probe, or read from --map.\n    #   check: The capture compared with the map, printed as a report.\n    #   outcome: 0 when every observation maps cleanly, 1 when some are\n    #     unmapped or disagree with their entry, so a script can stop on it.\n    parser = argparse.ArgumentParser(prog=\"python -m capstone.ingestion.channel_map\")\n    commands = parser.add_subparsers(dest=\"command\", required=True)\n    build = commands.add_parser(\"build\", help=\"build a channel map from a probe\")\n    build.add_argument(\"--probe\", type=Path, required=True)\n    build.add_argument(\"--assign\", type=Path, help=\"JSON assignment file\")\n    build.add_argument(\"--out\", type=Path, required=True)\n    build.add_argument(ALLOW_FLAG, action=\"store_true\", help=ALLOW_HELP)\n    check_cmd = commands.add_parser(\"check\", help=\"check a capture against a map\")\n    check_cmd.add_argument(\"--map\", type=Path, required=True)\n    check_cmd.add_argument(\"--capture\", type=Path, required=True)\n    check_cmd.add_argument(\"--probe\", type=Path, help=\"refuse if it is not the map's\")\n    check_cmd.add_argument(\n        \"--update-reported\",\n        action=\"store_true\",\n        help=\"write which channels the capture reported back into the map\",\n    )\n    check_cmd.add_argument(ALLOW_FLAG, action=\"store_true\", help=ALLOW_HELP)\n    args = parser.parse_args(argv)\n\n    if args.command == \"build\":\n        problem = not args.allow_inside_repo and refusal(args.out, \"--out\")\n        if problem:\n            parser.error(problem)\n        channel_map = build_channel_map(\n            args.probe.read_text(encoding=\"utf-8\"),\n            load_assignments(args.assign) if args.assign else None,\n        )\n        args.out.write_text(channel_map.model_dump_json(indent=2), encoding=\"utf-8\")\n        print(f\"wrote {len(channel_map.entries)} channels to {args.out}\")\n        return 0\n\n    problem = (\n        args.update_reported\n        and not args.allow_inside_repo\n        and refusal(args.map, \"--map\")\n    )\n    if problem:\n        parser.error(problem)\n    channel_map = ChannelMap.model_validate_json(args.map.read_text(encoding=\"utf-8\"))\n    if args.probe:\n        try:\n            channel_map.verify_probe(args.probe.read_text(encoding=\"utf-8\"))\n        except ChannelMapMismatch as error:\n            print(f\"refused: {error}\", file=sys.stderr)\n            return 2\n    check = check_capture(channel_map, read_capture(args.capture))\n    silent = [u.data_item_id for u in check.uses if u.available == 0]\n    print(f\"{len(check.uses) - len(silent)} of {len(check.uses)} channels reported\")\n    if silent:\n        print(\"never reported a value: \" + \", \".join(silent))\n    for item in check.unmapped:\n        print(f\"unmapped: {item.device}/{item.data_item_id} ({item.observations})\")\n    for line in check.mismatched:\n        print(f\"mismatch: {line}\")\n    if args.update_reported:\n        updated = channel_map.with_reported(check)\n        args.map.write_text(updated.model_dump_json(indent=2), encoding=\"utf-8\")\n        print(f\"recorded reported channels in {args.map}\")\n    return 0 if check.clean else 1",
+  "raises": [],
+  "catches": [
+   "ChannelMapMismatch"
+  ],
+  "side_effect_hints": [
+   "writes_file",
+   "prints"
+  ],
+  "static_callers": [],
+  "coverage": {
+   "class": "direct",
+   "statement_coverage": 0.935,
+   "test_count": 2,
+   "direct_test_count": 2,
+   "indirect_test_count": 0
+  },
+  "tests": [
+   {
+    "id": "tests/test_channel_map.py::test_command_line_builds_checks_and_records_reported_channels",
+    "claims": "command line builds checks and records reported channels",
+    "assertions": 7,
+    "assert_forms": {
+     "equality": 4,
+     "membership": 2,
+     "truthiness": 1
+    },
+    "raises_checks": 0,
+    "execution_outcome": "passed",
+    "source": "def test_command_line_builds_checks_and_records_reported_channels(tmp_path, capsys):\n    probe_file, assign, out, capture = (\n        tmp_path / \"probe.xml\",\n        tmp_path / \"assign.json\",\n        tmp_path / \"map.json\",\n        tmp_path / \"telemetry.jsonl\",\n    )\n    probe_file.write_text(probe(), encoding=\"utf-8\")\n    assign.write_text(json.dumps({\"S1load\": {\"tool_sensor\": \"load\"}}), encoding=\"utf-8\")\n    capture.write_text(\n        record(\"S1speed\", \"SAMPLE\", \"RotaryVelocity\").model_dump_json() + \"\\n\\n\",\n        encoding=\"utf-8\",\n    )\n    allow = \"--allow-inside-repo\"\n    build = [\n        \"build\",\n        \"--probe\",\n        str(probe_file),\n        \"--assign\",\n        str(assign),\n        \"--out\",\n        str(out),\n    ]\n    assert main([*build, allow]) == 0\n    assert \"wrote 7 channels\" in capsys.readouterr().out\n    check = [\n        \"check\",\n        \"--map\",\n        str(out),\n        \"--capture\",\n        str(capture),\n        \"--probe\",\n        str(probe_file),\n    ]\n    assert main([*check, \"--update-reported\", allow]) == 0\n    report = capsys.readouterr().out\n    assert \"1 of 7 channels reported\" in report and \"never reported a value\" in report\n    saved = json.loads(out.read_text(encoding=\"utf-8\"))\n    assert [e[\"reported\"] for e in saved[\"entries\"]].count(True) == 1\n    probe_file.write_text(probe(load_units=\"WATT\"), encoding=\"utf-8\")\n    assert main(check) == 2\n    assert \"refused\" in capsys.readouterr().err"
+   },
+   {
+    "id": "tests/test_channel_map.py::test_command_line_refuses_to_write_a_map_inside_the_repository",
+    "claims": "command line refuses to write a map inside the repository",
+    "assertions": 2,
+    "assert_forms": {
+     "equality": 1,
+     "membership": 1
+    },
+    "raises_checks": 1,
+    "execution_outcome": "passed",
+    "source": "def test_command_line_refuses_to_write_a_map_inside_the_repository(tmp_path, capsys):\n    probe_file = tmp_path / \"probe.xml\"\n    probe_file.write_text(probe(), encoding=\"utf-8\")\n    with pytest.raises(SystemExit) as stop:\n        main([\"build\", \"--probe\", str(probe_file), \"--out\", str(tmp_path / \"m.json\")])\n    assert stop.value.code == 2\n    assert \"inside the git checkout\" in capsys.readouterr().err"
+   }
+  ],
+  "tests_shown": null
+ },
+ "questions": {
+  "FN-01": {
+   "id": "FN-01",
+   "family": "FN",
+   "name": "implementation_matches_contract",
+   "type": "noul",
+   "instructions": "Read the function's source and its stated contract (docstring and `# Variables:` block). Does the implementation do what the contract says, for every branch, including error paths?",
+   "criteria": {
+    "true": "Every statement in the contract is implemented and no branch does something the contract does not describe.",
+    "false": "A documented behaviour is missing, a branch does something undocumented that a caller would need to know, or the contract is absent so nothing can be matched."
+   },
+   "required_evidence": [
+    "source",
+    "docstring",
+    "callers"
+   ],
+   "missing_evidence": "No docstring and no variable block: answer false and flag 'contract unspecified'.",
+   "applies_to": "one function evidence packet (source, docstring, variable block, tests)",
+   "deterministic_precedence": "Test outcomes (passed/failed) are code facts from the junit report."
+  },
+  "FN-02": {
+   "id": "FN-02",
+   "family": "FN",
+   "name": "failure_paths_covered",
+   "type": "choice",
+   "instructions": "Compare the function's branches, raises and except clauses with the tests listed as executing it. Are the failure and boundary paths exercised by a test that asserts on their outcome?",
+   "criteria": {
+    "covered": "Every raise, except clause and boundary condition visible in the source is reached by a listed test that asserts on the result.",
+    "partly": "The happy path and some failure paths are asserted; at least one raise, except clause or boundary is not.",
+    "uncovered": "Only the happy path is asserted, or the listed tests execute the function without asserting on its result.",
+    "not_applicable": "The function has no failure path (pure data access, a property)."
+   },
+   "required_evidence": [
+    "source",
+    "tests",
+    "coverage"
+   ],
+   "missing_evidence": "No executing tests: answer uncovered.",
+   "applies_to": "one function evidence packet",
+   "deterministic_precedence": "Line coverage and the test list are code facts from the verification matrix; the judge rates the assertions."
+  },
+  "FN-03": {
+   "id": "FN-03",
+   "family": "FN",
+   "name": "evidence_sufficient_for_correctness",
+   "type": "choice",
+   "instructions": "Given the tests that execute this function, their assertions and their outcomes, is the available evidence sufficient to call the function correct against its contract?",
+   "criteria": {
+    "sufficient": "Direct tests assert the contract's behaviour on realistic inputs including failure paths, and all passed.",
+    "insufficient": "The function is executed only incidentally by other tests, assertions are weak, failure paths are untested, or a test failed or was skipped.",
+    "not_applicable": "A stub, a protocol method or a one-line accessor whose correctness is established by its type alone."
+   },
+   "required_evidence": [
+    "tests",
+    "coverage",
+    "outcomes"
+   ],
+   "missing_evidence": "No tests: insufficient.",
+   "applies_to": "one function evidence packet",
+   "deterministic_precedence": "The verification matrix's coverage_class is the starting point; the judge may lower but never raise a FAILED or NOT TESTED status."
+  }
+ }
+}

@@ -1,0 +1,107 @@
+{
+ "review_id": "1260f9b4e44f1ac3",
+ "family": "TL",
+ "state": {
+  "tool": "get_maintenance_history",
+  "description_shown_to_model": "Service records for one machine or all (machine_id null), oldest first: visits from the months before the run (a date, tick null) and maintenance during it (with its tick). What a technician did and wrote, not a cause.",
+  "argument_schema": {
+   "additionalProperties": false,
+   "properties": {
+    "machine_id": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "default": null,
+     "title": "Machine Id"
+    }
+   },
+   "title": "MaintenanceArguments",
+   "type": "object"
+  },
+  "output_contract": "MaintenanceObservation[]",
+  "offered_to_policy": true,
+  "changes_factory": false,
+  "needs_human_approval": false,
+  "boundary": "capstone.providers.factory:SimulatorFactoryProvider.call -> run_tool (argument model, output model rebuild, MAX_ROWS=300, errors without detail)",
+  "simulator_access": "reads sim.readings / event_log / state through ObservationTools, or ActionTools for wait and the approval desk; never sim.ground_truth() or MachineCondition",
+  "implementation_source": "    def get_maintenance_history(self, machine_id: str | None = None) -> list[dict]:\n        \"\"\"Service records, oldest first: from before the run, then this run's.\n\n        Past records have a date and no tick (they happened before tick 0);\n        this run's maintenance events have both.\n        \"\"\"\n        # Variables:\n        #   rows: Past records from before the run, then this run's maintenance events.\n        self._check(machine_id, 0, 0)\n        rows = [\n            {\n                \"machine_id\": r.machine_id,\n                \"performed_at\": r.performed_at.isoformat(),\n                \"tick\": None,\n                \"kind\": r.kind,\n                \"note\": r.note,\n            }\n            for r in self._sim.state.maintenance_history\n            if machine_id in (None, r.machine_id)\n        ]\n        clock = self._sim.clock\n        rows += [\n            {\n                \"machine_id\": e.machine_id,\n                \"performed_at\": clock.time_at(e.tick).isoformat(),\n                \"tick\": e.tick,\n                \"kind\": \"maintenance\",\n                \"note\": e.message,\n            }\n            for e in self._sim.event_log.events\n            if e.kind == \"maintenance\" and machine_id in (None, e.machine_id)\n        ]\n        return rows",
+  "provider_wiring_source": "# capstone-code/capstone/providers/factory.py\n254:     \"get_maintenance_history\": (\n255:         \"Service records for one machine or all (machine_id null), oldest first: \"\n256:         \"visits from the months before the run (a date, tick null) and maintenance \"\n257:         \"during it (with its tick). What a technician did and wrote, not a cause.\"\n258:     ),\n...\n296:     \"get_maintenance_history\": MaintenanceArguments,\n297:     \"get_inspections\": TickRange,\n298:     \"wait\": WaitArguments,\n299:     \"propose_action\": ProposalArguments,\n300:     \"get_proposals\": NoArguments,\n...\n394:             \"get_maintenance_history\": (\n395:                 MaintenanceArguments,\n396:                 MaintenanceObservation,\n397:                 observations.get_maintenance_history,\n398:                 True,",
+  "tests": [
+   "tests/test_maintenance_history.py::test_the_provider_offers_it_with_checked_arguments",
+   "tests/test_maintenance_history.py::test_the_tool_shows_past_records_then_this_runs_maintenance",
+   "tests/test_factory_provider.py::test_all_read_tools_preserve_existing_observable_shapes",
+   "tests/test_hazards.py::test_a_stale_record_joins_the_history_of_its_machine_in_date_order",
+   "tests/test_observation_tools.py::test_answers_are_plain_data",
+   "tests/test_observation_tools.py::test_looking_does_not_advance_time_or_change_the_factory",
+   "tests/test_observation_tools.py::test_nothing_hidden_leaks_through_any_tool_over_a_full_run"
+  ],
+  "tests_shown": null,
+  "hazards_note": "Scheduled faults in capstone/providers/hazards.py can time out, drop the middle third of ticked rows, add a stale maintenance record or black out one machine's sensor tools; these are designed degradations, reported in the run record."
+ },
+ "questions": {
+  "TL-01": {
+   "id": "TL-01",
+   "family": "TL",
+   "name": "boundary_enforced",
+   "type": "noul",
+   "instructions": "Read the tool's implementation and the provider's wiring. Can the tool return anything the agent must not see (hidden condition, ground truth, approval powers, raw errors with secrets), or change the factory without the intended authorization?",
+   "criteria": {
+    "true": "Every field returned is rebuilt from an output contract, no hidden field or secret can pass, and any factory change goes through the approval desk or the wait tool as designed.",
+    "false": "A code path can return hidden state, a raw exception, or change the factory without approval."
+   },
+   "required_evidence": [
+    "implementation",
+    "boundary",
+    "tests"
+   ],
+   "missing_evidence": "none",
+   "applies_to": "one tool evidence packet (schema, implementation, provider wiring, tests)",
+   "deterministic_precedence": "tests/test_observation_tools.py::test_nothing_hidden_leaks_through_any_tool_over_a_full_run and tests/test_factory_provider.py are the deterministic checks; this question looks for paths those tests do not reach."
+  },
+  "TL-02": {
+   "id": "TL-02",
+   "family": "TL",
+   "name": "description_matches_behaviour",
+   "type": "noul",
+   "instructions": "Compare the tool description a model is shown with what the implementation does and refuses. Would a model that trusts the description be misled?",
+   "criteria": {
+    "true": "The description states the arguments, limits and meaning of the answer as implemented.",
+    "false": "The description promises something the implementation does not do, omits a limit the implementation enforces (rows, ranges, sensors), or describes the answer's meaning wrongly."
+   },
+   "required_evidence": [
+    "description",
+    "argument_schema",
+    "implementation"
+   ],
+   "missing_evidence": "none",
+   "applies_to": "one tool evidence packet",
+   "deterministic_precedence": "tests/test_factory_provider.py::test_every_tool_is_described_and_no_description_names_a_missing_tool checks presence, not accuracy."
+  },
+  "TL-03": {
+   "id": "TL-03",
+   "family": "TL",
+   "name": "silent_failure_risk",
+   "type": "score",
+   "instructions": "How likely is this tool to return a value that is wrong or incomplete without signalling failure (success=true with misleading data)?",
+   "criteria": [
+    "0: Cannot: the answer is a direct projection of recorded data with no filtering that could drop rows.",
+    "1: Unlikely: filtering or arithmetic exists but is simple and tested on boundaries.",
+    "2: Possible: windows, units or ordering could silently exclude or distort data and the tests do not cover that case.",
+    "3: Likely: the answer depends on state the agent cannot see (an injected hazard, a stale record) and nothing marks the answer as degraded."
+   ],
+   "required_evidence": [
+    "implementation",
+    "tests",
+    "hazards"
+   ],
+   "missing_evidence": "none",
+   "applies_to": "one tool evidence packet",
+   "deterministic_precedence": "The hazard tests pin the designed degradations; this question looks for undesigned ones."
+  }
+ }
+}

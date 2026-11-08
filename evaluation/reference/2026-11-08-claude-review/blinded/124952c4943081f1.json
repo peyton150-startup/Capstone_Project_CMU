@@ -1,0 +1,552 @@
+{
+ "review_id": "124952c4943081f1",
+ "family": "BT",
+ "state": {
+  "comparison": "master-tot13-anchored vs master-tot13-blind",
+  "batches": [
+   {
+    "label": "A",
+    "run": "master-tot13-anchored",
+    "configuration": {
+     "step_questions": 1,
+     "state_action_bar": true,
+     "critic": "anchored",
+     "critic_followup_on": true,
+     "manual_offered": true,
+     "manual_step": true,
+     "memory_offered": false,
+     "tree_of_thought": true,
+     "hazards": null,
+     "models_answering": {
+      "ministral-14b-2512": 1,
+      "nvidia/nemotron-3.5-super-vl-120b-a12b": 20
+     }
+    },
+    "saved_settings": {
+     "commit": "e59208d584938ed96a606bc317354882fcc8e01c",
+     "cases_sha256": "2e0570d1bc6c79ccb267ffc49a50aae3647568d1aa32c7f61e59c2bee662b025",
+     "variant": "anchored",
+     "settings": {
+      "CHROMA_COLLECTION": "episodic_memories",
+      "CONCLUDE_MODEL": null,
+      "CRITIC": true,
+      "CRITIC_BLIND": false,
+      "CRITIC_FALLBACK_MODEL": "cohere/command-a-03-2025",
+      "CRITIC_FOLLOWUP": true,
+      "CRITIC_FOLLOWUP_SECONDS": 90.0,
+      "CRITIC_MODEL": "mistral/ministral-14b-2512",
+      "CRITIC_SECONDS": 40.0,
+      "DECIDE_MODEL": null,
+      "DEFAULT_MODEL": "nvidia/nvidia/nemotron-3.5-super-vl-120b-a12b",
+      "EMBEDDING_MODEL": "nvidia/nvidia/nemotron-3-embed-1b",
+      "FALLBACK_MODEL": "cohere/command-a-03-2025",
+      "HYPOTHESIZE_MODEL": null,
+      "INTERPRET_MODEL": null,
+      "JUDGE_MODEL": null,
+      "LESSON_MODEL": null,
+      "MANUAL_COLLECTION": "cnc_machine_manual_v1",
+      "MANUAL_STEP": true,
+      "MEMORY_RETRIEVAL_MODE": "none",
+      "MIN_ACTION_CONFIDENCE": 0.9,
+      "MODEL_QUESTION_SECONDS": 240.0,
+      "MODEL_REQUEST_SECONDS": 120.0,
+      "MODEL_RETRIES": 3,
+      "MODEL_SAMPLING": {
+       "cohere/command-a-03-2025": {
+        "temperature": 0.3,
+        "top_p": 0.75
+       },
+       "mistral/ministral-14b-2512": {
+        "temperature": 0.0,
+        "top_p": null
+       },
+       "nvidia/nvidia/nemotron-3.5-super-vl-120b-a12b": {
+        "temperature": 1.0,
+        "top_p": 0.95
+       }
+      },
+      "PLAN_MODEL": null,
+      "PROVIDER_SAMPLING": {},
+      "STATE_ACTION_BAR": true,
+      "STEP_QUESTIONS": 1,
+      "TYPESAFE_MODEL": "jev-latest"
+     }
+    },
+    "label_sources": [
+     "typesafe/jev-1.14.0",
+     "typesafe/jev-latest"
+    ],
+    "summary": {
+     "runs": 13,
+     "model_unavailable": 4,
+     "judged": 8,
+     "pending_review": 1,
+     "evals_judged": 12,
+     "evals_correct": 3,
+     "evals_pending_review": 1,
+     "root_cause_correct": 3,
+     "accuracy_when_committed": 0.6,
+     "abstained": 3,
+     "confident_wrong": 2,
+     "recommendation_correct": 2,
+     "action_correct": 2,
+     "resolved": 1,
+     "false_interventions": 0,
+     "evidence_available": 27,
+     "evidence_collected": 25,
+     "evidence_share": 0.9259259259259259,
+     "evidence_share_runs": 9,
+     "evidence_share_mean": 0.925925925925926,
+     "miss_kinds": {
+      "reasoning_miss": 5
+     },
+     "verification_calibration": {
+      "no_verdict": 9
+     },
+     "timeouts": 4,
+     "mean_tool_calls": 16.555555555555557,
+     "timed_runs": 9,
+     "mean_wall_seconds": 771.117309066661,
+     "traces_complete": 0
+    }
+   },
+   {
+    "label": "B",
+    "run": "master-tot13-blind",
+    "configuration": {
+     "step_questions": 1,
+     "state_action_bar": true,
+     "critic": "blind",
+     "critic_followup_on": true,
+     "manual_offered": true,
+     "manual_step": true,
+     "memory_offered": false,
+     "tree_of_thought": true,
+     "hazards": null,
+     "models_answering": {
+      "ministral-14b-2512": 1,
+      "nvidia/nemotron-3.5-super-vl-120b-a12b": 22
+     }
+    },
+    "saved_settings": {
+     "commit": "e59208d584938ed96a606bc317354882fcc8e01c",
+     "cases_sha256": "2e0570d1bc6c79ccb267ffc49a50aae3647568d1aa32c7f61e59c2bee662b025",
+     "variant": "blind",
+     "settings": {
+      "CHROMA_COLLECTION": "episodic_memories",
+      "CONCLUDE_MODEL": null,
+      "CRITIC": true,
+      "CRITIC_BLIND": true,
+      "CRITIC_FALLBACK_MODEL": "cohere/command-a-03-2025",
+      "CRITIC_FOLLOWUP": true,
+      "CRITIC_FOLLOWUP_SECONDS": 90.0,
+      "CRITIC_MODEL": "mistral/ministral-14b-2512",
+      "CRITIC_SECONDS": 40.0,
+      "DECIDE_MODEL": null,
+      "DEFAULT_MODEL": "nvidia/nvidia/nemotron-3.5-super-vl-120b-a12b",
+      "EMBEDDING_MODEL": "nvidia/nvidia/nemotron-3-embed-1b",
+      "FALLBACK_MODEL": "cohere/command-a-03-2025",
+      "HYPOTHESIZE_MODEL": null,
+      "INTERPRET_MODEL": null,
+      "JUDGE_MODEL": null,
+      "LESSON_MODEL": null,
+      "MANUAL_COLLECTION": "cnc_machine_manual_v1",
+      "MANUAL_STEP": true,
+      "MEMORY_RETRIEVAL_MODE": "none",
+      "MIN_ACTION_CONFIDENCE": 0.9,
+      "MODEL_QUESTION_SECONDS": 240.0,
+      "MODEL_REQUEST_SECONDS": 120.0,
+      "MODEL_RETRIES": 3,
+      "MODEL_SAMPLING": {
+       "cohere/command-a-03-2025": {
+        "temperature": 0.3,
+        "top_p": 0.75
+       },
+       "mistral/ministral-14b-2512": {
+        "temperature": 0.0,
+        "top_p": null
+       },
+       "nvidia/nvidia/nemotron-3.5-super-vl-120b-a12b": {
+        "temperature": 1.0,
+        "top_p": 0.95
+       }
+      },
+      "PLAN_MODEL": null,
+      "PROVIDER_SAMPLING": {},
+      "STATE_ACTION_BAR": true,
+      "STEP_QUESTIONS": 1,
+      "TYPESAFE_MODEL": "jev-latest"
+     }
+    },
+    "label_sources": [
+     "typesafe/jev-1.14.0",
+     "typesafe/jev-latest"
+    ],
+    "summary": {
+     "runs": 13,
+     "model_unavailable": 3,
+     "judged": 9,
+     "pending_review": 1,
+     "evals_judged": 12,
+     "evals_correct": 3,
+     "evals_pending_review": 1,
+     "root_cause_correct": 3,
+     "accuracy_when_committed": 0.75,
+     "abstained": 5,
+     "confident_wrong": 1,
+     "recommendation_correct": 3,
+     "action_correct": 3,
+     "resolved": 2,
+     "false_interventions": 0,
+     "evidence_available": 30,
+     "evidence_collected": 21,
+     "evidence_share": 0.7,
+     "evidence_share_runs": 10,
+     "evidence_share_mean": 0.7666666666666666,
+     "miss_kinds": {
+      "evidence_miss": 4,
+      "reasoning_miss": 2
+     },
+     "verification_calibration": {
+      "no_verdict": 10
+     },
+     "timeouts": 4,
+     "mean_tool_calls": 14.7,
+     "timed_runs": 10,
+     "mean_wall_seconds": 758.9656709299773,
+     "traces_complete": 0
+    }
+   }
+  ],
+  "per_case": [
+   {
+    "case": "1",
+    "A": {
+     "label_status": "judged",
+     "right": true,
+     "abstained": false,
+     "confident_wrong": false,
+     "false_intervention": false,
+     "model_unavailable": false,
+     "tool_calls": 15
+    },
+    "B": {
+     "label_status": "judged",
+     "right": false,
+     "abstained": true,
+     "confident_wrong": false,
+     "false_intervention": false,
+     "model_unavailable": false,
+     "tool_calls": 17
+    }
+   },
+   {
+    "case": "2",
+    "A": {
+     "label_status": "judged",
+     "right": false,
+     "abstained": true,
+     "confident_wrong": false,
+     "false_intervention": false,
+     "model_unavailable": false,
+     "tool_calls": 21
+    },
+    "B": {
+     "label_status": "judged",
+     "right": false,
+     "abstained": true,
+     "confident_wrong": false,
+     "false_intervention": false,
+     "model_unavailable": true,
+     "tool_calls": 5
+    }
+   },
+   {
+    "case": "3",
+    "A": {
+     "label_status": "judged",
+     "right": false,
+     "abstained": true,
+     "confident_wrong": false,
+     "false_intervention": false,
+     "model_unavailable": false,
+     "tool_calls": 19
+    },
+    "B": {
+     "label_status": "judged",
+     "right": false,
+     "abstained": true,
+     "confident_wrong": false,
+     "false_intervention": false,
+     "model_unavailable": true,
+     "tool_calls": 2
+    }
+   },
+   {
+    "case": "4",
+    "A": {
+     "label_status": "judged",
+     "right": true,
+     "abstained": false,
+     "confident_wrong": false,
+     "false_intervention": false,
+     "model_unavailable": false,
+     "tool_calls": 16
+    },
+    "B": {
+     "label_status": "judged",
+     "right": false,
+     "abstained": true,
+     "confident_wrong": false,
+     "false_intervention": false,
+     "model_unavailable": false,
+     "tool_calls": 15
+    }
+   },
+   {
+    "case": "5",
+    "A": {
+     "label_status": "pending_review",
+     "right": null,
+     "abstained": null,
+     "confident_wrong": null,
+     "false_intervention": false,
+     "model_unavailable": false,
+     "tool_calls": 19
+    },
+    "B": {
+     "label_status": "judged",
+     "right": false,
+     "abstained": true,
+     "confident_wrong": false,
+     "false_intervention": false,
+     "model_unavailable": true,
+     "tool_calls": 17
+    }
+   },
+   {
+    "case": "6",
+    "A": {
+     "label_status": "judged",
+     "right": false,
+     "abstained": false,
+     "confident_wrong": true,
+     "false_intervention": false,
+     "model_unavailable": false,
+     "tool_calls": 18
+    },
+    "B": {
+     "label_status": "judged",
+     "right": false,
+     "abstained": true,
+     "confident_wrong": false,
+     "false_intervention": false,
+     "model_unavailable": false,
+     "tool_calls": 16
+    }
+   },
+   {
+    "case": "7",
+    "A": {
+     "label_status": "judged",
+     "right": false,
+     "abstained": true,
+     "confident_wrong": false,
+     "false_intervention": false,
+     "model_unavailable": true,
+     "tool_calls": 6
+    },
+    "B": {
+     "label_status": "pending_review",
+     "right": null,
+     "abstained": null,
+     "confident_wrong": null,
+     "false_intervention": false,
+     "model_unavailable": false,
+     "tool_calls": 13
+    }
+   },
+   {
+    "case": "8",
+    "A": {
+     "label_status": "judged",
+     "right": false,
+     "abstained": true,
+     "confident_wrong": false,
+     "false_intervention": false,
+     "model_unavailable": true,
+     "tool_calls": 2
+    },
+    "B": {
+     "label_status": "judged",
+     "right": false,
+     "abstained": true,
+     "confident_wrong": false,
+     "false_intervention": false,
+     "model_unavailable": false,
+     "tool_calls": 19
+    }
+   },
+   {
+    "case": "9",
+    "A": {
+     "label_status": "judged",
+     "right": false,
+     "abstained": true,
+     "confident_wrong": false,
+     "false_intervention": false,
+     "model_unavailable": true,
+     "tool_calls": 11
+    },
+    "B": {
+     "label_status": "judged",
+     "right": false,
+     "abstained": false,
+     "confident_wrong": true,
+     "false_intervention": false,
+     "model_unavailable": false,
+     "tool_calls": 14
+    }
+   },
+   {
+    "case": "10",
+    "A": {
+     "label_status": "judged",
+     "right": false,
+     "abstained": true,
+     "confident_wrong": false,
+     "false_intervention": false,
+     "model_unavailable": true,
+     "tool_calls": 2
+    },
+    "B": {
+     "label_status": "judged",
+     "right": true,
+     "abstained": false,
+     "confident_wrong": false,
+     "false_intervention": false,
+     "model_unavailable": false,
+     "tool_calls": 14
+    }
+   },
+   {
+    "case": "11",
+    "A": {
+     "label_status": "judged",
+     "right": false,
+     "abstained": false,
+     "confident_wrong": true,
+     "false_intervention": false,
+     "model_unavailable": false,
+     "tool_calls": 12
+    },
+    "B": {
+     "label_status": "judged",
+     "right": true,
+     "abstained": false,
+     "confident_wrong": false,
+     "false_intervention": false,
+     "model_unavailable": false,
+     "tool_calls": 18
+    }
+   },
+   {
+    "case": "12",
+    "A": {
+     "label_status": "judged",
+     "right": true,
+     "abstained": false,
+     "confident_wrong": false,
+     "false_intervention": false,
+     "model_unavailable": false,
+     "tool_calls": 9
+    },
+    "B": {
+     "label_status": "judged",
+     "right": true,
+     "abstained": false,
+     "confident_wrong": false,
+     "false_intervention": false,
+     "model_unavailable": false,
+     "tool_calls": 7
+    }
+   },
+   {
+    "case": "13",
+    "A": {
+     "label_status": "judged",
+     "right": false,
+     "abstained": true,
+     "confident_wrong": false,
+     "false_intervention": false,
+     "model_unavailable": false,
+     "tool_calls": 20
+    },
+    "B": {
+     "label_status": "judged",
+     "right": false,
+     "abstained": true,
+     "confident_wrong": false,
+     "false_intervention": false,
+     "model_unavailable": false,
+     "tool_calls": 14
+    }
+   }
+  ],
+  "sample_rule_in_code": {
+   "cases_a": 13,
+   "cases_b": 13,
+   "paired_by_scenario_and_seed": 13,
+   "unpaired_a": 0,
+   "unpaired_b": 0,
+   "ambiguous": 0,
+   "position_mismatches": 0,
+   "matched_judged": 11,
+   "right_on_matched_a": 3,
+   "right_on_matched_b": 3,
+   "rule": "insufficient_sample"
+  }
+ },
+ "questions": {
+  "BT-01": {
+   "id": "BT-01",
+   "family": "BT",
+   "name": "comparison_valid",
+   "type": "choice",
+   "instructions": "Two batches are compared. From their configurations, commits, scenario sets, models, retrieval settings, rubric versions and label sources, is a like-for-like comparison valid?",
+   "criteria": {
+    "valid": "Same scenarios and seeds, same label rule and rubric version, one configuration difference (the treatment), models and settings otherwise identical, no resumed mixed-configuration runs.",
+    "partially_valid": "Same scenarios but more than one difference, or a resumed run with a settings change inside it, so a difference can be reported but not attributed.",
+    "invalid": "Different scenarios, different label rules, or results of unknown configuration."
+   },
+   "required_evidence": [
+    "batch configurations",
+    "commits",
+    "label files"
+   ],
+   "missing_evidence": "Unknown configuration: invalid.",
+   "applies_to": "one experiment comparison packet (two batch summaries with their configurations)",
+   "deterministic_precedence": "`capstone.evals.compare_reports` refuses different scenario sets; the rest is interpretation."
+  },
+  "BT-02": {
+   "id": "BT-02",
+   "family": "BT",
+   "name": "improvement_supported",
+   "type": "choice",
+   "instructions": "Given the per-case results and the number of cases, does the evidence support a claim that the treatment improved root-cause accuracy and evidence-grounded decisions without more unsupported conclusions, more tool calls or more failures?",
+   "criteria": {
+    "improvement": "More cases right, no more confident-wrong, no more false interventions, and tool calls or latency not materially higher, over at least two repeats per case or 13 or more matched cases.",
+    "regression": "Fewer right, or more confident-wrong or false interventions, with the same sample conditions.",
+    "no_difference": "Differences within one case either way with the sample conditions met.",
+    "insufficient_sample": "One run per case, fewer than the matched cases above, or outages removed cases from one side."
+   },
+   "required_evidence": [
+    "batch summaries",
+    "per-case differences"
+   ],
+   "missing_evidence": "none",
+   "applies_to": "one experiment comparison packet",
+   "deterministic_precedence": "All counts come from BATCH_SUMMARY.json; the judge applies the sample rule, which the report also applies in code."
+  }
+ }
+}
