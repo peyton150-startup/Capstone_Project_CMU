@@ -5,6 +5,8 @@ No test here submits a judge request or starts an agent.
 
 import hashlib
 import json
+import tempfile
+from pathlib import Path
 
 import pytest
 
