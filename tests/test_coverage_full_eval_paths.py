@@ -65,17 +65,18 @@ def test_provenance_refuses_missing_or_dirty_commits(
         full_evaluation.provenance("abc123", tmp_path, "v1")
 
 
-def test_tracked_files_falls_back_to_filesystem_when_git_unavailable(
-    tmp_path, monkeypatch
-):
-    (tmp_path / "good.py").write_text("x=1")
-    for ignored in (".venv", ".pytest-tmp"):
-        folder = tmp_path / ignored
-        folder.mkdir()
-        (folder / "ignored.py").write_text("x=0")
-    monkeypatch.setattr(full_evaluation, "REPO", tmp_path)
-    monkeypatch.setattr(full_evaluation, "git", lambda *args: None)
-    assert full_evaluation.tracked_python_files() == ["good.py"]
+def test_tracked_files_falls_back_to_filesystem_when_git_unavailable(monkeypatch):
+    # pytest's tmp_path itself sits below .pytest-tmp and is deliberately excluded.
+    with tempfile.TemporaryDirectory(prefix="scope-scan-") as temporary:
+        root = Path(temporary)
+        (root / "good.py").write_text("x=1")
+        for ignored in (".venv", ".pytest-tmp"):
+            folder = root / ignored
+            folder.mkdir()
+            (folder / "ignored.py").write_text("x=0")
+        monkeypatch.setattr(full_evaluation, "REPO", root)
+        monkeypatch.setattr(full_evaluation, "git", lambda *args: None)
+        assert full_evaluation.tracked_python_files() == ["good.py"]
 
 
 def test_plan_records_functions_that_do_not_have_snap_questions(tmp_path, monkeypatch):
