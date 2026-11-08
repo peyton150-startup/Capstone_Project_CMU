@@ -39289,14 +39289,134 @@
    "execution_outcome": "passed",
    "exercises": [
     "evaluation.evaltools.snap_request:definition_ends",
+    "evaluation.evaltools.snap_request:module_tree",
     "evaluation.evaltools.snap_request:shown",
     "evaluation.evaltools.snap_request:source_lines",
+    "evaluation.evaltools.snap_request:test_context",
     "evaluation.evaltools.snap_request:test_source",
     "evaluation.evaltools.snap_request:test_state",
     "evaluation.evaltools.snap_request:tool_state",
     "evaluation.evaltools.snap_request:wiring_lines"
    ],
-   "exercise_count": 7,
+   "exercise_count": 9,
+   "modules_exercised": [
+    "evaluation.evaltools.snap_request"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_evaluation_tools.py::test_the_judge_reads_the_missing_evidence_rule_the_reviewer_reads",
+   "file": "tests/test_evaluation_tools.py",
+   "name": "test_the_judge_reads_the_missing_evidence_rule_the_reviewer_reads",
+   "line": 1250,
+   "docstring": "Rubric 1.1.0: a rule a blinded reviewer sees is in the judge's text too,\nand the newest changelog entry names the current rubric version.",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 4,
+   "assert_forms": {
+    "call_truthiness": 2,
+    "equality": 1,
+    "membership": 1
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "Rubric 1.1.0: a rule a blinded reviewer sees is in the judge's text too,",
+   "execution_outcome": "passed",
+   "exercises": [
+    "evaluation.evaltools.snap_request:DecisionQuestion.criteria_fit_type",
+    "evaluation.evaltools.snap_request:DecisionQuestion.to_request",
+    "evaluation.evaltools.snap_request:load_questions"
+   ],
+   "exercise_count": 3,
+   "modules_exercised": [
+    "evaluation.evaltools.snap_request"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_evaluation_tools.py::test_run_09_is_asked_whenever_the_conclusion_names_a_cause",
+   "file": "tests/test_evaluation_tools.py",
+   "name": "test_run_09_is_asked_whenever_the_conclusion_names_a_cause",
+   "line": 1264,
+   "docstring": "A cause named at high confidence is judged even when the final check\nlowered the recommendation to escalate; a conclusion naming none is not.",
+   "parametrized": false,
+   "fixtures": [
+    "master_packets"
+   ],
+   "assertions": 5,
+   "assert_forms": {
+    "equality": 2,
+    "identity_constant": 3
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [
+    "may_skip"
+   ],
+   "claims": "A cause named at high confidence is judged even when the final check",
+   "execution_outcome": "passed",
+   "exercises": [
+    "evaluation.evaltools.snap_request:DecisionQuestion.criteria_fit_type",
+    "evaluation.evaltools.snap_request:applicable_run_questions",
+    "evaluation.evaltools.snap_request:load_questions",
+    "evaluation.evaltools.snap_request:questions_for"
+   ],
+   "exercise_count": 4,
+   "modules_exercised": [
+    "evaluation.evaltools.snap_request"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_evaluation_tools.py::test_a_test_state_shows_the_decorators_and_module_helpers_the_test_needs",
+   "file": "tests/test_evaluation_tools.py",
+   "name": "test_a_test_state_shows_the_decorators_and_module_helpers_the_test_needs",
+   "line": 1291,
+   "docstring": "A test's parametrize values and the helpers or fixtures it uses from its\nown module are shown, in first-use order, each capped and marked if cut.",
+   "parametrized": false,
+   "fixtures": [
+    "monkeypatch"
+   ],
+   "assertions": 10,
+   "assert_forms": {
+    "call_truthiness": 3,
+    "equality": 5,
+    "truthiness": 2
+   },
+   "raises_checks": 0,
+   "uses": [
+    "monkeypatch"
+   ],
+   "quality_flags": [
+    "patches_dependencies",
+    "may_skip"
+   ],
+   "claims": "A test's parametrize values and the helpers or fixtures it uses from its",
+   "execution_outcome": "passed",
+   "exercises": [
+    "evaluation.evaltools.snap_request:shown",
+    "evaluation.evaltools.snap_request:test_context"
+   ],
+   "exercise_count": 2,
    "modules_exercised": [
     "evaluation.evaltools.snap_request"
    ],
@@ -39312,7 +39432,7 @@
    "id": "tests/test_evaluation_tools.py::test_the_stated_question_count_matches_the_question_file",
    "file": "tests/test_evaluation_tools.py",
    "name": "test_the_stated_question_count_matches_the_question_file",
-   "line": 1250,
+   "line": 1344,
    "docstring": "EVAL-21 / T20: the EVF note's count is the file's count.",
    "parametrized": false,
    "fixtures": [],
@@ -39346,7 +39466,7 @@
    "id": "tests/test_evaluation_tools.py::test_two_answers_to_one_question_are_refused_and_latency_is_per_request",
    "file": "tests/test_evaluation_tools.py",
    "name": "test_two_answers_to_one_question_are_refused_and_latency_is_per_request",
-   "line": 1268,
+   "line": 1362,
    "docstring": "EVAL-01 / EVAL-15: no silent overwrite; one latency figure per request.",
    "parametrized": false,
    "fixtures": [],
@@ -48146,7 +48266,7 @@
    "uses": [],
    "quality_flags": [],
    "claims": "Every tracked Python file is inventoried, a test, excluded with a reason,",
-   "execution_outcome": "failed",
+   "execution_outcome": "passed",
    "exercises": [
     "evaluation.evaltools.build_inventory:call_name",
     "evaluation.evaltools.build_inventory:collect_functions",
