@@ -324,6 +324,7 @@ def test_manual_cli_passes_rebuild_and_prints_indexed_count(monkeypatch, capsys)
     assert calls == [True]
     assert "indexed 3 sections" in capsys.readouterr().out
 
+
 def test_ready_manual_index_reuses_a_current_index_without_rebuilding(monkeypatch):
     calls = []
     index = SimpleNamespace(

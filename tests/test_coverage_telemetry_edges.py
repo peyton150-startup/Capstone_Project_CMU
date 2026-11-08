@@ -230,6 +230,7 @@ def test_monitor_cli_follow_loop_exits_cleanly_on_interrupt(
     assert len(collected) == 1
     assert "stopped" in capsys.readouterr().err
 
+
 def test_monitor_follow_processes_another_batch_before_interrupt(
     monkeypatch, tmp_path, capsys
 ):
@@ -241,9 +242,7 @@ def test_monitor_follow_processes_another_batch_before_interrupt(
         "JsonlFollower",
         lambda path: SimpleNamespace(read_new=lambda: ["reading"]),
     )
-    monkeypatch.setattr(
-        monitoring_cli, "replay", lambda readings, monitor: ["alert"]
-    )
+    monkeypatch.setattr(monitoring_cli, "replay", lambda readings, monitor: ["alert"])
     monkeypatch.setattr(
         monitoring_cli,
         "append_alerts",
@@ -257,12 +256,18 @@ def test_monitor_follow_processes_another_batch_before_interrupt(
             raise KeyboardInterrupt
 
     monkeypatch.setattr(monitoring_cli.time, "sleep", fake_sleep)
-    assert monitoring_cli.main(
-        [
-            "--input", str(tmp_path / "readings.jsonl"),
-            "--follow", "--interval", "0.01",
-        ]
-    ) == 0
+    assert (
+        monitoring_cli.main(
+            [
+                "--input",
+                str(tmp_path / "readings.jsonl"),
+                "--follow",
+                "--interval",
+                "0.01",
+            ]
+        )
+        == 0
+    )
     assert len(batches) == 2
     assert sleeps == [0.01, 0.01]
     assert "stopped" in capsys.readouterr().err

@@ -397,6 +397,7 @@ def test_experiment_cli_label_skips_missing_conclusions_and_existing_answers(
     )
     assert saved == []
 
+
 @pytest.mark.parametrize(
     "options, expected",
     [
@@ -418,16 +419,16 @@ def test_scenario_config_rejects_incompatible_faults(options, expected):
         ("truth", "expected faults changed"),
     ],
 )
-def test_report_comparison_rejects_incompatible_experiments(
-    difference, expected
-):
+def test_report_comparison_rejects_incompatible_experiments(difference, expected):
     old = SimpleNamespace(
         scenario_id="one",
         expected_faults=("bearing_degradation",),
         correct=True,
     )
     if difference == "scenario":
-        new = SimpleNamespace(scenario_id="another", expected_faults=old.expected_faults)
+        new = SimpleNamespace(
+            scenario_id="another", expected_faults=old.expected_faults
+        )
     elif difference == "truth":
         new = SimpleNamespace(scenario_id="one", expected_faults=("false_alarm",))
     else:
