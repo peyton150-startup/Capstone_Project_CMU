@@ -215,6 +215,7 @@ def run_episode(
     watch: Callable[[InvestigationState], None] | None = None,
     critic: Critic | None = None,
     triage: bool | None = None,
+    stage_context: bool | None = None,
 ) -> EpisodeResult:
     """Run one seeded episode from the fault's start to its score.
 
@@ -257,10 +258,14 @@ def run_episode(
     #   critic: Reviews the two leading hypotheses; None builds one from settings
     #     when CRITIC is on, and otherwise runs without one.
     #   triage: Run a rapid triage first; None reads TRIAGE from settings.
+    #   stage_context: True or False forces the stage views on or off for this
+    #     episode; None reads STAGE_CONTEXT from settings.
     #   triage_state: The triage investigation, when triage was on.
     #   triage_seconds: How long the triage took on `clock`.
     #   settings: The project settings, read for the action bar and step mode.
     #   settings.line_context: Enables the bounded observable incident packet.
+    #   settings.stage_context: Gives judge_verification and write_lesson their
+    #     own views (STAGE_CONTEXT), copied onto the state and any deep run.
     #   step_questions: The questions per tool result actually used: the
     #     setting, or 2 for a policy that cannot answer both in one.
     #   decide_calls: The most tool calls one decide answer may list: the
@@ -349,6 +354,9 @@ def run_episode(
         state_action_bar=settings.state_action_bar,
         step_questions=step_questions,
         line_context_enabled=settings.line_context,
+        stage_context=(
+            settings.stage_context if stage_context is None else stage_context
+        ),
     )
     if memory is not None:
         provider = RecallingProvider(provider, memory)
@@ -443,6 +451,7 @@ def run_triage_then_deep(
     #   deep: The deep investigation that follows, if the triage asked for one.
     #   first.line_context_enabled: Copied to the deep run, which builds a fresh
     #     line-wide packet rather than reusing the triage's.
+    #   first.stage_context: Copied to the deep run, so both use the same views.
     first.mode = "triage"
     first.budgets = triage_budgets(settings.triage_seconds, settings.triage_tool_calls)
     started = deps.clock()
@@ -468,6 +477,7 @@ def run_triage_then_deep(
         # LINE_CONTEXT: the deep run gathers its own packet, with its own
         # budget; the triage's packet was capped by the triage's few calls.
         line_context_enabled=first.line_context_enabled,
+        stage_context=first.stage_context,
     )
     run_investigation(deep, deps)
     return first, deep, seconds

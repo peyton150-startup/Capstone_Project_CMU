@@ -983,3 +983,115 @@ def test_critic_client_uses_only_its_chain(monkeypatch):
 def test_critic_client_needs_a_model():
     with pytest.raises(ModelError, match="CRITIC_MODEL"):
         critic_client(settings(), transport=FakeTransport())
+
+
+# --- what each request cost (tokens, size, prompt version) --------------------------
+
+
+def chat_with_usage(content, prompt_tokens, completion_tokens):
+    """A chat-completions reply that also reports its token usage."""
+    return json.dumps(
+        {
+            "choices": [{"message": {"role": "assistant", "content": content}}],
+            "usage": {
+                "prompt_tokens": prompt_tokens,
+                "completion_tokens": completion_tokens,
+            },
+        }
+    ).encode()
+
+
+def test_each_attempt_records_the_tokens_the_service_reported():
+    primary, _ = client(chat_with_usage('{"text": "advice"}', 812, 40), model="a")
+    ask, _ = fallback(primary)
+    ask.ask("system words", "prompt words", Lesson)
+    [attempt] = ask.attempts
+    assert (attempt.input_tokens, attempt.output_tokens) == (812, 40)
+
+
+def test_a_refused_reply_still_records_the_tokens_it_cost():
+    primary, _ = client(chat_with_usage("not json", 500, 9), model="a")
+    ask, _ = fallback(primary)
+    with pytest.raises(ValueError):
+        ask.ask("s", "p", Lesson)
+    [attempt] = ask.attempts
+    assert attempt.outcome.startswith("invalid reply")
+    assert (attempt.input_tokens, attempt.output_tokens) == (500, 9)
+
+
+def test_an_outage_records_the_size_sent_but_no_tokens():
+    primary, _ = client(UNREACHABLE, model="a")
+    ask, _ = fallback(primary, retries=0)
+    with pytest.raises(ModelError):
+        ask.ask("s", "p", Lesson)
+    [attempt] = ask.attempts
+    assert attempt.input_tokens is None and attempt.output_tokens is None
+    assert attempt.prompt_chars > len("s") + len("p")  # the schema is sent too
+
+
+def test_a_service_that_reports_no_usage_leaves_tokens_unknown():
+    primary, _ = client(chat('{"text": "advice"}'), model="a")
+    ask, _ = fallback(primary)
+    ask.ask("s", "p", Lesson)
+    [attempt] = ask.attempts
+    assert attempt.input_tokens is None and attempt.output_tokens is None
+    assert attempt.prompt_chars is not None
+
+
+@pytest.mark.parametrize(
+    "usage",
+    [None, "lots", {"prompt_tokens": -1, "completion_tokens": True}, {}],
+)
+def test_malformed_usage_is_ignored_not_trusted(usage):
+    body = {"choices": [{"message": {"content": '{"text": "advice"}'}}]}
+    if usage is not None:
+        body["usage"] = usage
+    primary, _ = client(json.dumps(body).encode(), model="a")
+    ask, _ = fallback(primary)
+    ask.ask("s", "p", Lesson)
+    [attempt] = ask.attempts
+    assert attempt.input_tokens is None and attempt.output_tokens is None
+
+
+def test_the_prompt_version_follows_the_instructions_not_the_working_memory():
+    primary, _ = client(
+        chat('{"text": "a"}'), chat('{"text": "b"}'), chat('{"text": "c"}'), model="a"
+    )
+    ask, _ = fallback(primary)
+    ask.ask("instructions", "state one", Lesson)
+    first = ask.attempts[0]
+    ask.ask("instructions", "a longer state two", Lesson)
+    same_job = ask.attempts[0]
+    ask.ask("other instructions", "state one", Lesson)
+    other_job = ask.attempts[0]
+    assert first.prompt_version == same_job.prompt_version
+    assert first.prompt_version != other_job.prompt_version
+    assert len(first.prompt_version) == 12
+    assert same_job.prompt_chars - first.prompt_chars == len(
+        "a longer state two"
+    ) - len("state one")
+
+
+def test_a_retry_records_its_own_request_not_the_one_before():
+    primary, _ = client(
+        chat_with_usage('{"text": "a"}', 100, 5), UNREACHABLE, chat('{"text": "b"}')
+    )
+    ask, _ = fallback(primary)
+    ask.ask("s", "p", Lesson)
+    ask.ask("s", "p", Lesson)
+    # The outage and the answer that followed it reported no tokens; neither
+    # shows the 100 from the earlier question.
+    assert [a.input_tokens for a in ask.attempts] == [None, None]
+
+
+def test_a_client_without_a_request_record_still_gets_attempts():
+    class Bare:
+        model = "bare"
+
+        def ask(self, system, prompt, answer_type, *, timeout=None):
+            return answer_type(text="advice")
+
+    ask = FallbackClient([Bare()], sleep=lambda _: None)
+    ask.ask("s", "p", Lesson)
+    [attempt] = ask.attempts
+    assert attempt.outcome == "answered" and attempt.prompt_chars is None
