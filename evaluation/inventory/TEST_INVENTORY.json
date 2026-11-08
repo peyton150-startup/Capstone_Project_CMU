@@ -26311,6 +26311,964 @@
    ]
   },
   {
+   "id": "tests/test_coverage_eval_dispatch.py::test_request_cli_dispatches_each_family_offline",
+   "file": "tests/test_coverage_eval_dispatch.py",
+   "name": "test_request_cli_dispatches_each_family_offline",
+   "line": 20,
+   "docstring": "",
+   "parametrized": true,
+   "fixtures": [
+    "tmp_path",
+    "monkeypatch",
+    "capsys",
+    "family",
+    "identifier"
+   ],
+   "assertions": 5,
+   "assert_forms": {
+    "call_truthiness": 1,
+    "equality": 2,
+    "membership": 2
+   },
+   "raises_checks": 0,
+   "uses": [
+    "monkeypatch"
+   ],
+   "quality_flags": [
+    "patches_dependencies"
+   ],
+   "claims": "request cli dispatches each family offline",
+   "execution_outcome": "passed",
+   "exercises": [
+    "evaluation.evaltools.snap_request:main"
+   ],
+   "exercise_count": 1,
+   "modules_exercised": [
+    "evaluation.evaltools.snap_request"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_coverage_eval_dispatch.py::test_request_cli_returns_failure_when_a_mocked_send_fails",
+   "file": "tests/test_coverage_eval_dispatch.py",
+   "name": "test_request_cli_returns_failure_when_a_mocked_send_fails",
+   "line": 106,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [
+    "tmp_path",
+    "monkeypatch"
+   ],
+   "assertions": 1,
+   "assert_forms": {
+    "equality": 1
+   },
+   "raises_checks": 0,
+   "uses": [
+    "mock",
+    "monkeypatch"
+   ],
+   "quality_flags": [
+    "patches_dependencies"
+   ],
+   "claims": "request cli returns failure when a mocked send fails",
+   "execution_outcome": "passed",
+   "exercises": [
+    "evaluation.evaltools.snap_request:main"
+   ],
+   "exercise_count": 1,
+   "modules_exercised": [
+    "evaluation.evaltools.snap_request"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_coverage_eval_dispatch.py::test_plan_covers_archived_packets_and_refused_or_unfittable_comparisons",
+   "file": "tests/test_coverage_eval_dispatch.py",
+   "name": "test_plan_covers_archived_packets_and_refused_or_unfittable_comparisons",
+   "line": 143,
+   "docstring": "",
+   "parametrized": true,
+   "fixtures": [
+    "tmp_path",
+    "monkeypatch",
+    "failure"
+   ],
+   "assertions": 7,
+   "assert_forms": {
+    "call_truthiness": 2,
+    "equality": 3,
+    "is_none": 1,
+    "membership": 1
+   },
+   "raises_checks": 0,
+   "uses": [
+    "monkeypatch"
+   ],
+   "quality_flags": [
+    "patches_dependencies"
+   ],
+   "claims": "plan covers archived packets and refused or unfittable comparisons",
+   "execution_outcome": "passed",
+   "exercises": [
+    "evaluation.evaltools.full_evaluation:_bodiless",
+    "evaluation.evaltools.full_evaluation:ledger_rows",
+    "evaluation.evaltools.full_evaluation:plan",
+    "evaluation.evaltools.run_packet:packet_file_name",
+    "evaluation.evaltools.snap_request:DecisionQuestion.criteria_fit_type",
+    "evaluation.evaltools.snap_request:load_questions",
+    "evaluation.evaltools.snap_request:questions_for"
+   ],
+   "exercise_count": 7,
+   "modules_exercised": [
+    "evaluation.evaltools.full_evaluation",
+    "evaluation.evaltools.run_packet",
+    "evaluation.evaltools.snap_request"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_coverage_evaluator_commands.py::test_snap_request_cli_rejects_unmatched_model_options",
+   "file": "tests/test_coverage_evaluator_commands.py",
+   "name": "test_snap_request_cli_rejects_unmatched_model_options",
+   "line": 31,
+   "docstring": "",
+   "parametrized": true,
+   "fixtures": [
+    "tmp_path",
+    "capsys",
+    "options",
+    "message"
+   ],
+   "assertions": 2,
+   "assert_forms": {
+    "equality": 1,
+    "membership": 1
+   },
+   "raises_checks": 1,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "snap request cli rejects unmatched model options",
+   "execution_outcome": "passed",
+   "exercises": [
+    "evaluation.evaltools.snap_request:main"
+   ],
+   "exercise_count": 1,
+   "modules_exercised": [
+    "evaluation.evaltools.snap_request"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_coverage_evaluator_commands.py::test_snap_request_cli_refuses_unknown_function_ids",
+   "file": "tests/test_coverage_evaluator_commands.py",
+   "name": "test_snap_request_cli_refuses_unknown_function_ids",
+   "line": 41,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [
+    "tmp_path",
+    "capsys"
+   ],
+   "assertions": 2,
+   "assert_forms": {
+    "equality": 1,
+    "membership": 1
+   },
+   "raises_checks": 1,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "snap request cli refuses unknown function ids",
+   "execution_outcome": "passed",
+   "exercises": [
+    "evaluation.evaltools.snap_request:DecisionQuestion.criteria_fit_type",
+    "evaluation.evaltools.snap_request:load_questions",
+    "evaluation.evaltools.snap_request:main"
+   ],
+   "exercise_count": 3,
+   "modules_exercised": [
+    "evaluation.evaltools.snap_request"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_coverage_evaluator_commands.py::test_traced_run_refuses_records_audit_collision_before_tracing",
+   "file": "tests/test_coverage_evaluator_commands.py",
+   "name": "test_traced_run_refuses_records_audit_collision_before_tracing",
+   "line": 66,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [
+    "tmp_path",
+    "monkeypatch",
+    "capsys"
+   ],
+   "assertions": 2,
+   "assert_forms": {
+    "equality": 1,
+    "membership": 1
+   },
+   "raises_checks": 1,
+   "uses": [
+    "monkeypatch"
+   ],
+   "quality_flags": [
+    "patches_dependencies"
+   ],
+   "claims": "traced run refuses records audit collision before tracing",
+   "execution_outcome": "passed",
+   "exercises": [
+    "evaluation.evaltools.traced_run:main"
+   ],
+   "exercise_count": 1,
+   "modules_exercised": [
+    "evaluation.evaltools.traced_run"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_coverage_evaluator_commands.py::test_traced_run_refuses_nonempty_record_file_before_tracing",
+   "file": "tests/test_coverage_evaluator_commands.py",
+   "name": "test_traced_run_refuses_nonempty_record_file_before_tracing",
+   "line": 92,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [
+    "tmp_path",
+    "monkeypatch",
+    "capsys"
+   ],
+   "assertions": 2,
+   "assert_forms": {
+    "equality": 1,
+    "membership": 1
+   },
+   "raises_checks": 1,
+   "uses": [
+    "monkeypatch"
+   ],
+   "quality_flags": [
+    "patches_dependencies"
+   ],
+   "claims": "traced run refuses nonempty record file before tracing",
+   "execution_outcome": "passed",
+   "exercises": [
+    "evaluation.evaltools.traced_run:main"
+   ],
+   "exercise_count": 1,
+   "modules_exercised": [
+    "evaluation.evaltools.traced_run"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_coverage_evaluator_commands.py::test_traced_run_stops_and_saves_trace_when_episode_raises",
+   "file": "tests/test_coverage_evaluator_commands.py",
+   "name": "test_traced_run_stops_and_saves_trace_when_episode_raises",
+   "line": 118,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [
+    "monkeypatch"
+   ],
+   "assertions": 1,
+   "assert_forms": {
+    "equality": 1
+   },
+   "raises_checks": 1,
+   "uses": [
+    "monkeypatch"
+   ],
+   "quality_flags": [
+    "patches_dependencies"
+   ],
+   "claims": "traced run stops and saves trace when episode raises",
+   "execution_outcome": "passed",
+   "exercises": [
+    "evaluation.evaltools.traced_run:run_traced"
+   ],
+   "exercise_count": 1,
+   "modules_exercised": [
+    "evaluation.evaltools.traced_run"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_coverage_evaluator_commands.py::test_run_packet_cli_refuses_ambiguous_archive_sources",
+   "file": "tests/test_coverage_evaluator_commands.py",
+   "name": "test_run_packet_cli_refuses_ambiguous_archive_sources",
+   "line": 149,
+   "docstring": "",
+   "parametrized": true,
+   "fixtures": [
+    "tmp_path",
+    "capsys",
+    "extra",
+    "message"
+   ],
+   "assertions": 2,
+   "assert_forms": {
+    "equality": 1,
+    "membership": 1
+   },
+   "raises_checks": 1,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "run packet cli refuses ambiguous archive sources",
+   "execution_outcome": "passed",
+   "exercises": [
+    "evaluation.evaltools.run_packet:main"
+   ],
+   "exercise_count": 1,
+   "modules_exercised": [
+    "evaluation.evaltools.run_packet"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_coverage_evaluator_commands.py::test_run_packet_cli_outputs_empty_batch_summary_without_model",
+   "file": "tests/test_coverage_evaluator_commands.py",
+   "name": "test_run_packet_cli_outputs_empty_batch_summary_without_model",
+   "line": 166,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [
+    "tmp_path",
+    "monkeypatch",
+    "capsys"
+   ],
+   "assertions": 4,
+   "assert_forms": {
+    "equality": 2,
+    "membership": 2
+   },
+   "raises_checks": 0,
+   "uses": [
+    "monkeypatch"
+   ],
+   "quality_flags": [
+    "patches_dependencies"
+   ],
+   "claims": "run packet cli outputs empty batch summary without model",
+   "execution_outcome": "passed",
+   "exercises": [
+    "evaluation.evaltools.run_packet:main"
+   ],
+   "exercise_count": 1,
+   "modules_exercised": [
+    "evaluation.evaltools.run_packet"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_coverage_evaluator_commands.py::test_run_packet_cli_preserves_refused_packet_manifest",
+   "file": "tests/test_coverage_evaluator_commands.py",
+   "name": "test_run_packet_cli_preserves_refused_packet_manifest",
+   "line": 194,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [
+    "tmp_path",
+    "monkeypatch",
+    "capsys"
+   ],
+   "assertions": 3,
+   "assert_forms": {
+    "equality": 2,
+    "membership": 1
+   },
+   "raises_checks": 0,
+   "uses": [
+    "monkeypatch"
+   ],
+   "quality_flags": [
+    "patches_dependencies"
+   ],
+   "claims": "run packet cli preserves refused packet manifest",
+   "execution_outcome": "passed",
+   "exercises": [
+    "evaluation.evaltools.run_packet:main"
+   ],
+   "exercise_count": 1,
+   "modules_exercised": [
+    "evaluation.evaltools.run_packet"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_coverage_evaluator_commands.py::test_full_evaluation_cli_refuses_invalid_or_unsafe_options",
+   "file": "tests/test_coverage_evaluator_commands.py",
+   "name": "test_full_evaluation_cli_refuses_invalid_or_unsafe_options",
+   "line": 224,
+   "docstring": "",
+   "parametrized": true,
+   "fixtures": [
+    "tmp_path",
+    "capsys",
+    "options",
+    "message"
+   ],
+   "assertions": 2,
+   "assert_forms": {
+    "equality": 1,
+    "membership": 1
+   },
+   "raises_checks": 1,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "full evaluation cli refuses invalid or unsafe options",
+   "execution_outcome": "passed",
+   "exercises": [
+    "evaluation.evaltools.full_evaluation:main"
+   ],
+   "exercise_count": 1,
+   "modules_exercised": [
+    "evaluation.evaltools.full_evaluation"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_coverage_evaluator_commands.py::test_build_inventory_cli_prints_counts_without_building_the_world",
+   "file": "tests/test_coverage_evaluator_commands.py",
+   "name": "test_build_inventory_cli_prints_counts_without_building_the_world",
+   "line": 233,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [
+    "monkeypatch",
+    "tmp_path",
+    "capsys"
+   ],
+   "assertions": 3,
+   "assert_forms": {
+    "equality": 3
+   },
+   "raises_checks": 0,
+   "uses": [
+    "monkeypatch"
+   ],
+   "quality_flags": [
+    "patches_dependencies"
+   ],
+   "claims": "build inventory cli prints counts without building the world",
+   "execution_outcome": "passed",
+   "exercises": [
+    "evaluation.evaltools.build_inventory:main"
+   ],
+   "exercise_count": 1,
+   "modules_exercised": [
+    "evaluation.evaltools.build_inventory"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_coverage_evaluator_commands.py::test_compare_evaluators_cli_saves_offline_agreement",
+   "file": "tests/test_coverage_evaluator_commands.py",
+   "name": "test_compare_evaluators_cli_saves_offline_agreement",
+   "line": 252,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [
+    "monkeypatch",
+    "tmp_path",
+    "capsys"
+   ],
+   "assertions": 4,
+   "assert_forms": {
+    "equality": 4
+   },
+   "raises_checks": 0,
+   "uses": [
+    "monkeypatch"
+   ],
+   "quality_flags": [
+    "patches_dependencies"
+   ],
+   "claims": "compare evaluators cli saves offline agreement",
+   "execution_outcome": "passed",
+   "exercises": [
+    "evaluation.evaltools.compare_evaluators:main"
+   ],
+   "exercise_count": 1,
+   "modules_exercised": [
+    "evaluation.evaltools.compare_evaluators"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_coverage_full_eval_paths.py::test_provenance_verifies_clean_commit_and_source_hashes",
+   "file": "tests/test_coverage_full_eval_paths.py",
+   "name": "test_provenance_verifies_clean_commit_and_source_hashes",
+   "line": 14,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [
+    "tmp_path",
+    "monkeypatch"
+   ],
+   "assertions": 4,
+   "assert_forms": {
+    "equality": 2,
+    "identity_constant": 1,
+    "membership": 1
+   },
+   "raises_checks": 1,
+   "uses": [
+    "monkeypatch"
+   ],
+   "quality_flags": [
+    "patches_dependencies"
+   ],
+   "claims": "provenance verifies clean commit and source hashes",
+   "execution_outcome": "passed",
+   "exercises": [
+    "evaluation.evaltools.full_evaluation:provenance",
+    "evaluation.evaltools.full_evaluation:sha256_of"
+   ],
+   "exercise_count": 2,
+   "modules_exercised": [
+    "evaluation.evaltools.full_evaluation"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_coverage_full_eval_paths.py::test_provenance_refuses_missing_or_dirty_commits",
+   "file": "tests/test_coverage_full_eval_paths.py",
+   "name": "test_provenance_refuses_missing_or_dirty_commits",
+   "line": 56,
+   "docstring": "",
+   "parametrized": true,
+   "fixtures": [
+    "tmp_path",
+    "monkeypatch",
+    "head",
+    "dirty",
+    "issue"
+   ],
+   "assertions": 0,
+   "assert_forms": {},
+   "raises_checks": 1,
+   "uses": [
+    "monkeypatch"
+   ],
+   "quality_flags": [
+    "patches_dependencies"
+   ],
+   "claims": "provenance refuses missing or dirty commits",
+   "execution_outcome": "passed",
+   "exercises": [
+    "evaluation.evaltools.full_evaluation:provenance"
+   ],
+   "exercise_count": 1,
+   "modules_exercised": [
+    "evaluation.evaltools.full_evaluation"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_coverage_full_eval_paths.py::test_tracked_files_falls_back_to_filesystem_when_git_unavailable",
+   "file": "tests/test_coverage_full_eval_paths.py",
+   "name": "test_tracked_files_falls_back_to_filesystem_when_git_unavailable",
+   "line": 68,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [
+    "monkeypatch"
+   ],
+   "assertions": 1,
+   "assert_forms": {
+    "equality": 1
+   },
+   "raises_checks": 0,
+   "uses": [
+    "monkeypatch"
+   ],
+   "quality_flags": [
+    "patches_dependencies",
+    "exercises_no_project_function"
+   ],
+   "claims": "tracked files falls back to filesystem when git unavailable",
+   "execution_outcome": "failed",
+   "exercises": [],
+   "exercise_count": 0,
+   "modules_exercised": [],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_coverage_full_eval_paths.py::test_plan_records_functions_that_do_not_have_snap_questions",
+   "file": "tests/test_coverage_full_eval_paths.py",
+   "name": "test_plan_records_functions_that_do_not_have_snap_questions",
+   "line": 82,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [
+    "tmp_path",
+    "monkeypatch"
+   ],
+   "assertions": 5,
+   "assert_forms": {
+    "call_truthiness": 1,
+    "equality": 3,
+    "truthiness": 1
+   },
+   "raises_checks": 0,
+   "uses": [
+    "monkeypatch"
+   ],
+   "quality_flags": [
+    "patches_dependencies"
+   ],
+   "claims": "plan records functions that do not have snap questions",
+   "execution_outcome": "passed",
+   "exercises": [
+    "evaluation.evaltools.full_evaluation:ledger_rows",
+    "evaluation.evaltools.full_evaluation:plan",
+    "evaluation.evaltools.run_packet:check_unique",
+    "evaluation.evaltools.snap_request:DecisionQuestion.criteria_fit_type",
+    "evaluation.evaltools.snap_request:item_requests",
+    "evaluation.evaltools.snap_request:load_questions",
+    "evaluation.evaltools.snap_request:questions_for"
+   ],
+   "exercise_count": 7,
+   "modules_exercised": [
+    "evaluation.evaltools.full_evaluation",
+    "evaluation.evaltools.run_packet",
+    "evaluation.evaltools.snap_request"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_coverage_full_eval_paths.py::test_settle_preserves_failed_unreadable_and_answered_outcomes",
+   "file": "tests/test_coverage_full_eval_paths.py",
+   "name": "test_settle_preserves_failed_unreadable_and_answered_outcomes",
+   "line": 141,
+   "docstring": "",
+   "parametrized": true,
+   "fixtures": [
+    "tmp_path",
+    "answer",
+    "expected_status"
+   ],
+   "assertions": 3,
+   "assert_forms": {
+    "equality": 3
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "settle preserves failed unreadable and answered outcomes",
+   "execution_outcome": "passed",
+   "exercises": [
+    "evaluation.evaltools.full_evaluation:settle"
+   ],
+   "exercise_count": 1,
+   "modules_exercised": [
+    "evaluation.evaltools.full_evaluation"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_coverage_full_eval_paths.py::test_budgeted_send_blocks_unknown_provider_without_network",
+   "file": "tests/test_coverage_full_eval_paths.py",
+   "name": "test_budgeted_send_blocks_unknown_provider_without_network",
+   "line": 160,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [
+    "tmp_path"
+   ],
+   "assertions": 2,
+   "assert_forms": {
+    "equality": 2
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "budgeted send blocks unknown provider without network",
+   "execution_outcome": "passed",
+   "exercises": [
+    "evaluation.evaltools.full_evaluation:budgeted_send"
+   ],
+   "exercise_count": 1,
+   "modules_exercised": [
+    "evaluation.evaltools.full_evaluation"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_coverage_full_eval_paths.py::test_budgeted_send_rejects_invalid_request_limits",
+   "file": "tests/test_coverage_full_eval_paths.py",
+   "name": "test_budgeted_send_rejects_invalid_request_limits",
+   "line": 180,
+   "docstring": "",
+   "parametrized": true,
+   "fixtures": [
+    "tmp_path",
+    "maximum"
+   ],
+   "assertions": 0,
+   "assert_forms": {},
+   "raises_checks": 1,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "budgeted send rejects invalid request limits",
+   "execution_outcome": "passed",
+   "exercises": [
+    "evaluation.evaltools.full_evaluation:budgeted_send"
+   ],
+   "exercise_count": 1,
+   "modules_exercised": [
+    "evaluation.evaltools.full_evaluation"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_coverage_full_eval_paths.py::test_full_evaluation_cli_offline_report_and_reference_checksum",
+   "file": "tests/test_coverage_full_eval_paths.py",
+   "name": "test_full_evaluation_cli_offline_report_and_reference_checksum",
+   "line": 241,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [
+    "tmp_path",
+    "monkeypatch"
+   ],
+   "assertions": 6,
+   "assert_forms": {
+    "call_truthiness": 1,
+    "equality": 5
+   },
+   "raises_checks": 0,
+   "uses": [
+    "monkeypatch"
+   ],
+   "quality_flags": [
+    "patches_dependencies"
+   ],
+   "claims": "full evaluation cli offline report and reference checksum",
+   "execution_outcome": "passed",
+   "exercises": [
+    "evaluation.evaltools.full_evaluation:main"
+   ],
+   "exercise_count": 1,
+   "modules_exercised": [
+    "evaluation.evaltools.full_evaluation"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_coverage_full_eval_paths.py::test_full_evaluation_cli_reports_incomplete_live_answers_as_failure",
+   "file": "tests/test_coverage_full_eval_paths.py",
+   "name": "test_full_evaluation_cli_reports_incomplete_live_answers_as_failure",
+   "line": 276,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [
+    "tmp_path",
+    "monkeypatch"
+   ],
+   "assertions": 2,
+   "assert_forms": {
+    "equality": 2
+   },
+   "raises_checks": 0,
+   "uses": [
+    "monkeypatch"
+   ],
+   "quality_flags": [
+    "patches_dependencies"
+   ],
+   "claims": "full evaluation cli reports incomplete live answers as failure",
+   "execution_outcome": "passed",
+   "exercises": [
+    "evaluation.evaltools.full_evaluation:main"
+   ],
+   "exercise_count": 1,
+   "modules_exercised": [
+    "evaluation.evaltools.full_evaluation"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_coverage_full_eval_paths.py::test_full_evaluation_cli_requires_full_audit_before_dispatch",
+   "file": "tests/test_coverage_full_eval_paths.py",
+   "name": "test_full_evaluation_cli_requires_full_audit_before_dispatch",
+   "line": 313,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [
+    "tmp_path",
+    "monkeypatch",
+    "capsys"
+   ],
+   "assertions": 2,
+   "assert_forms": {
+    "equality": 1,
+    "membership": 1
+   },
+   "raises_checks": 1,
+   "uses": [
+    "monkeypatch"
+   ],
+   "quality_flags": [
+    "patches_dependencies"
+   ],
+   "claims": "full evaluation cli requires full audit before dispatch",
+   "execution_outcome": "passed",
+   "exercises": [
+    "evaluation.evaltools.full_evaluation:main"
+   ],
+   "exercise_count": 1,
+   "modules_exercised": [
+    "evaluation.evaltools.full_evaluation"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
    "id": "tests/test_coverage_index_edges.py::test_backfill_batches_are_bounded_and_preserve_every_record",
    "file": "tests/test_coverage_index_edges.py",
    "name": "test_backfill_batches_are_bounded_and_preserve_every_record",
@@ -26983,7 +27941,7 @@
    "id": "tests/test_coverage_reference_edges.py::test_reference_cli_exports_and_imports_without_exposing_case_ids",
    "file": "tests/test_coverage_reference_edges.py",
    "name": "test_reference_cli_exports_and_imports_without_exposing_case_ids",
-   "line": 142,
+   "line": 149,
    "docstring": "",
    "parametrized": false,
    "fixtures": [
@@ -28045,6 +29003,211 @@
    "exercise_count": 1,
    "modules_exercised": [
     "capstone.monitoring.__main__"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_coverage_tracing_deep.py::test_function_spans_reads_function_boundaries",
+   "file": "tests/test_coverage_tracing_deep.py",
+   "name": "test_function_spans_reads_function_boundaries",
+   "line": 12,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [
+    "tmp_path",
+    "monkeypatch"
+   ],
+   "assertions": 2,
+   "assert_forms": {
+    "equality": 2
+   },
+   "raises_checks": 0,
+   "uses": [
+    "monkeypatch"
+   ],
+   "quality_flags": [
+    "patches_dependencies"
+   ],
+   "claims": "function spans reads function boundaries",
+   "execution_outcome": "passed",
+   "exercises": [
+    "evaluation.evaltools.traced_run:function_spans"
+   ],
+   "exercise_count": 1,
+   "modules_exercised": [
+    "evaluation.evaltools.traced_run"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_coverage_tracing_deep.py::test_functions_hit_joins_coverage_contexts_to_function_ids",
+   "file": "tests/test_coverage_tracing_deep.py",
+   "name": "test_functions_hit_joins_coverage_contexts_to_function_ids",
+   "line": 30,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [
+    "tmp_path",
+    "monkeypatch"
+   ],
+   "assertions": 3,
+   "assert_forms": {
+    "equality": 3
+   },
+   "raises_checks": 0,
+   "uses": [
+    "monkeypatch"
+   ],
+   "quality_flags": [
+    "patches_dependencies"
+   ],
+   "claims": "functions hit joins coverage contexts to function ids",
+   "execution_outcome": "passed",
+   "exercises": [
+    "evaluation.evaltools.traced_run:functions_hit"
+   ],
+   "exercise_count": 1,
+   "modules_exercised": [
+    "evaluation.evaltools.traced_run"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_coverage_tracing_deep.py::test_start_tracer_erases_then_starts_and_limits_scope",
+   "file": "tests/test_coverage_tracing_deep.py",
+   "name": "test_start_tracer_erases_then_starts_and_limits_scope",
+   "line": 66,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [
+    "monkeypatch",
+    "tmp_path"
+   ],
+   "assertions": 2,
+   "assert_forms": {
+    "call_truthiness": 1,
+    "equality": 1
+   },
+   "raises_checks": 0,
+   "uses": [
+    "monkeypatch"
+   ],
+   "quality_flags": [
+    "patches_dependencies"
+   ],
+   "claims": "start tracer erases then starts and limits scope",
+   "execution_outcome": "passed",
+   "exercises": [
+    "evaluation.evaltools.traced_run:start_tracer"
+   ],
+   "exercise_count": 1,
+   "modules_exercised": [
+    "evaluation.evaltools.traced_run"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_coverage_tracing_deep.py::test_run_traced_keeps_case_contexts_and_saves_on_success",
+   "file": "tests/test_coverage_tracing_deep.py",
+   "name": "test_run_traced_keeps_case_contexts_and_saves_on_success",
+   "line": 93,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [
+    "monkeypatch"
+   ],
+   "assertions": 5,
+   "assert_forms": {
+    "equality": 3,
+    "is_none": 1,
+    "truthiness": 1
+   },
+   "raises_checks": 0,
+   "uses": [
+    "monkeypatch"
+   ],
+   "quality_flags": [
+    "patches_dependencies"
+   ],
+   "claims": "run traced keeps case contexts and saves on success",
+   "execution_outcome": "passed",
+   "exercises": [
+    "evaluation.evaltools.traced_run:run_traced"
+   ],
+   "exercise_count": 1,
+   "modules_exercised": [
+    "evaluation.evaltools.traced_run"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_coverage_tracing_deep.py::test_traced_cli_saves_a_deterministic_trace_without_model_calls",
+   "file": "tests/test_coverage_tracing_deep.py",
+   "name": "test_traced_cli_saves_a_deterministic_trace_without_model_calls",
+   "line": 135,
+   "docstring": "",
+   "parametrized": true,
+   "fixtures": [
+    "tmp_path",
+    "monkeypatch",
+    "capsys",
+    "scripted"
+   ],
+   "assertions": 10,
+   "assert_forms": {
+    "equality": 7,
+    "identity": 1,
+    "is_none": 1,
+    "membership": 1
+   },
+   "raises_checks": 0,
+   "uses": [
+    "monkeypatch"
+   ],
+   "quality_flags": [
+    "patches_dependencies"
+   ],
+   "claims": "traced cli saves a deterministic trace without model calls",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.agent.state:Budgets.research_gets_some_time",
+    "evaluation.evaltools.traced_run:main",
+    "evaluation.evaltools.traced_run:main.<locals>.save"
+   ],
+   "exercise_count": 3,
+   "modules_exercised": [
+    "capstone.agent.state",
+    "evaluation.evaltools.traced_run"
    ],
    "judgment": "NOT ASSESSED",
    "curated": {},
