@@ -98094,6 +98094,493 @@
    ]
   },
   {
+   "id": "tests/test_visit_log.py::test_a_log_is_read_in_time_order_with_a_blank_until_left_empty",
+   "file": "tests/test_visit_log.py",
+   "name": "test_a_log_is_read_in_time_order_with_a_blank_until_left_empty",
+   "line": 89,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [
+    "tmp_path"
+   ],
+   "assertions": 4,
+   "assert_forms": {
+    "equality": 3,
+    "is_none": 1
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "a log is read in time order with a blank until left empty",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.ingestion.visit_log:TechnicianEvent.ends_after_it_starts",
+    "capstone.ingestion.visit_log:TechnicianEvent.has_a_time_zone",
+    "capstone.ingestion.visit_log:load_event_log"
+   ],
+   "exercise_count": 3,
+   "modules_exercised": [
+    "capstone.ingestion.visit_log"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_visit_log.py::test_a_time_without_its_utc_offset_is_refused_not_guessed",
+   "file": "tests/test_visit_log.py",
+   "name": "test_a_time_without_its_utc_offset_is_refused_not_guessed",
+   "line": 99,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [
+    "tmp_path"
+   ],
+   "assertions": 0,
+   "assert_forms": {},
+   "raises_checks": 1,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "a time without its utc offset is refused not guessed",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.ingestion.visit_log:TechnicianEvent.has_a_time_zone",
+    "capstone.ingestion.visit_log:load_event_log"
+   ],
+   "exercise_count": 2,
+   "modules_exercised": [
+    "capstone.ingestion.visit_log"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_visit_log.py::test_a_bad_entry_is_refused_with_its_line_number",
+   "file": "tests/test_visit_log.py",
+   "name": "test_a_bad_entry_is_refused_with_its_line_number",
+   "line": 113,
+   "docstring": "",
+   "parametrized": true,
+   "fixtures": [
+    "tmp_path",
+    "row",
+    "problem"
+   ],
+   "assertions": 0,
+   "assert_forms": {},
+   "raises_checks": 1,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "a bad entry is refused with its line number",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.ingestion.visit_log:TechnicianEvent.ends_after_it_starts",
+    "capstone.ingestion.visit_log:TechnicianEvent.has_a_time_zone",
+    "capstone.ingestion.visit_log:load_event_log"
+   ],
+   "exercise_count": 3,
+   "modules_exercised": [
+    "capstone.ingestion.visit_log"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_visit_log.py::test_a_header_missing_a_column_is_refused",
+   "file": "tests/test_visit_log.py",
+   "name": "test_a_header_missing_a_column_is_refused",
+   "line": 119,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [
+    "tmp_path"
+   ],
+   "assertions": 0,
+   "assert_forms": {},
+   "raises_checks": 1,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "a header missing a column is refused",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.ingestion.visit_log:load_event_log"
+   ],
+   "exercise_count": 1,
+   "modules_exercised": [
+    "capstone.ingestion.visit_log"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_visit_log.py::test_each_entry_is_placed_in_collected_time_a_gap_or_outside",
+   "file": "tests/test_visit_log.py",
+   "name": "test_each_entry_is_placed_in_collected_time_a_gap_or_outside",
+   "line": 127,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 4,
+   "assert_forms": {
+    "equality": 4
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "each entry is placed in collected time a gap or outside",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.ingestion.record:CollectorMarker.gap_detail_only_on_a_gap",
+    "capstone.ingestion.record:gap_free_runs",
+    "capstone.ingestion.visit_log:TechnicianEvent.ends_after_it_starts",
+    "capstone.ingestion.visit_log:TechnicianEvent.has_a_time_zone",
+    "capstone.ingestion.visit_log:match_events"
+   ],
+   "exercise_count": 5,
+   "modules_exercised": [
+    "capstone.ingestion.record",
+    "capstone.ingestion.visit_log"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_visit_log.py::test_the_tolerance_allows_for_a_person_noting_the_time_late",
+   "file": "tests/test_visit_log.py",
+   "name": "test_the_tolerance_allows_for_a_person_noting_the_time_late",
+   "line": 143,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 2,
+   "assert_forms": {
+    "equality": 2
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "the tolerance allows for a person noting the time late",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.ingestion.record:CollectorMarker.gap_detail_only_on_a_gap",
+    "capstone.ingestion.record:gap_free_runs",
+    "capstone.ingestion.visit_log:TechnicianEvent.ends_after_it_starts",
+    "capstone.ingestion.visit_log:TechnicianEvent.has_a_time_zone",
+    "capstone.ingestion.visit_log:match_events"
+   ],
+   "exercise_count": 5,
+   "modules_exercised": [
+    "capstone.ingestion.record",
+    "capstone.ingestion.visit_log"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_visit_log.py::test_an_entry_against_an_empty_capture_is_outside",
+   "file": "tests/test_visit_log.py",
+   "name": "test_an_entry_against_an_empty_capture_is_outside",
+   "line": 150,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 2,
+   "assert_forms": {
+    "equality": 1,
+    "is_none": 1
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "an entry against an empty capture is outside",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.ingestion.record:CollectorMarker.gap_detail_only_on_a_gap",
+    "capstone.ingestion.record:gap_free_runs",
+    "capstone.ingestion.visit_log:TechnicianEvent.ends_after_it_starts",
+    "capstone.ingestion.visit_log:TechnicianEvent.has_a_time_zone",
+    "capstone.ingestion.visit_log:match_events"
+   ],
+   "exercise_count": 5,
+   "modules_exercised": [
+    "capstone.ingestion.record",
+    "capstone.ingestion.visit_log"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_visit_log.py::test_a_visit_with_probe_data_and_a_matched_log_is_ready",
+   "file": "tests/test_visit_log.py",
+   "name": "test_a_visit_with_probe_data_and_a_matched_log_is_ready",
+   "line": 159,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 6,
+   "assert_forms": {
+    "equality": 5,
+    "truthiness": 1
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "a visit with probe data and a matched log is ready",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.ingestion.channel_map:_devices",
+    "capstone.ingestion.channel_map:_walk",
+    "capstone.ingestion.channel_map:parse_probe",
+    "capstone.ingestion.mtconnect:_child",
+    "capstone.ingestion.mtconnect:_local",
+    "capstone.ingestion.record:CollectorMarker.gap_detail_only_on_a_gap",
+    "capstone.ingestion.record:gap_free_runs",
+    "capstone.ingestion.visit_log:TechnicianEvent.ends_after_it_starts",
+    "capstone.ingestion.visit_log:TechnicianEvent.has_a_time_zone",
+    "capstone.ingestion.visit_log:VisitCheck.ready",
+    "capstone.ingestion.visit_log:VisitCheck.unmatched",
+    "capstone.ingestion.visit_log:check_visit",
+    "capstone.ingestion.visit_log:match_events"
+   ],
+   "exercise_count": 13,
+   "modules_exercised": [
+    "capstone.ingestion.channel_map",
+    "capstone.ingestion.mtconnect",
+    "capstone.ingestion.record",
+    "capstone.ingestion.visit_log"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_visit_log.py::test_a_visit_is_not_ready_when_a_file_is_missing_or_an_entry_unmatched",
+   "file": "tests/test_visit_log.py",
+   "name": "test_a_visit_is_not_ready_when_a_file_is_missing_or_an_entry_unmatched",
+   "line": 178,
+   "docstring": "",
+   "parametrized": true,
+   "fixtures": [
+    "probe_xml",
+    "events",
+    "reason"
+   ],
+   "assertions": 1,
+   "assert_forms": {
+    "negation": 1
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "a visit is not ready when a file is missing or an entry unmatched",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.ingestion.channel_map:_devices",
+    "capstone.ingestion.channel_map:_walk",
+    "capstone.ingestion.channel_map:parse_probe",
+    "capstone.ingestion.mtconnect:_child",
+    "capstone.ingestion.mtconnect:_local",
+    "capstone.ingestion.record:CollectorMarker.gap_detail_only_on_a_gap",
+    "capstone.ingestion.record:gap_free_runs",
+    "capstone.ingestion.visit_log:TechnicianEvent.ends_after_it_starts",
+    "capstone.ingestion.visit_log:VisitCheck.ready",
+    "capstone.ingestion.visit_log:VisitCheck.unmatched",
+    "capstone.ingestion.visit_log:check_visit",
+    "capstone.ingestion.visit_log:match_events"
+   ],
+   "exercise_count": 12,
+   "modules_exercised": [
+    "capstone.ingestion.channel_map",
+    "capstone.ingestion.mtconnect",
+    "capstone.ingestion.record",
+    "capstone.ingestion.visit_log"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_visit_log.py::test_the_report_lists_unmatched_entries_and_the_items_to_confirm_by_hand",
+   "file": "tests/test_visit_log.py",
+   "name": "test_the_report_lists_unmatched_entries_and_the_items_to_confirm_by_hand",
+   "line": 184,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 4,
+   "assert_forms": {
+    "membership": 4
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "the report lists unmatched entries and the items to confirm by hand",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.ingestion.record:CollectorMarker.gap_detail_only_on_a_gap",
+    "capstone.ingestion.record:gap_free_runs",
+    "capstone.ingestion.visit_log:TechnicianEvent.ends_after_it_starts",
+    "capstone.ingestion.visit_log:TechnicianEvent.has_a_time_zone",
+    "capstone.ingestion.visit_log:VisitCheck.unmatched",
+    "capstone.ingestion.visit_log:check_visit",
+    "capstone.ingestion.visit_log:match_events",
+    "capstone.ingestion.visit_log:report_lines",
+    "capstone.ingestion.visit_log:report_lines.<locals>.mark"
+   ],
+   "exercise_count": 9,
+   "modules_exercised": [
+    "capstone.ingestion.record",
+    "capstone.ingestion.visit_log"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_visit_log.py::test_command_line_checks_a_visit",
+   "file": "tests/test_visit_log.py",
+   "name": "test_command_line_checks_a_visit",
+   "line": 197,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [
+    "tmp_path",
+    "capsys"
+   ],
+   "assertions": 5,
+   "assert_forms": {
+    "equality": 3,
+    "membership": 2
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "command line checks a visit",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.ingestion.channel_map:_devices",
+    "capstone.ingestion.channel_map:_walk",
+    "capstone.ingestion.channel_map:parse_probe",
+    "capstone.ingestion.channel_map:read_capture",
+    "capstone.ingestion.mtconnect:_child",
+    "capstone.ingestion.mtconnect:_local",
+    "capstone.ingestion.record:CollectorMarker.gap_detail_only_on_a_gap",
+    "capstone.ingestion.record:gap_free_runs",
+    "capstone.ingestion.record:parse_line",
+    "capstone.ingestion.visit_log:TechnicianEvent.ends_after_it_starts",
+    "capstone.ingestion.visit_log:TechnicianEvent.has_a_time_zone",
+    "capstone.ingestion.visit_log:VisitCheck.ready",
+    "capstone.ingestion.visit_log:VisitCheck.unmatched",
+    "capstone.ingestion.visit_log:check_visit",
+    "capstone.ingestion.visit_log:load_event_log",
+    "capstone.ingestion.visit_log:main",
+    "capstone.ingestion.visit_log:match_events",
+    "capstone.ingestion.visit_log:report_lines",
+    "capstone.ingestion.visit_log:report_lines.<locals>.mark"
+   ],
+   "exercise_count": 19,
+   "modules_exercised": [
+    "capstone.ingestion.channel_map",
+    "capstone.ingestion.mtconnect",
+    "capstone.ingestion.record",
+    "capstone.ingestion.visit_log"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_visit_log.py::test_command_line_writes_an_empty_log_outside_the_repository",
+   "file": "tests/test_visit_log.py",
+   "name": "test_command_line_writes_an_empty_log_outside_the_repository",
+   "line": 217,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [
+    "tmp_path",
+    "capsys"
+   ],
+   "assertions": 5,
+   "assert_forms": {
+    "equality": 3,
+    "membership": 1,
+    "negation": 1
+   },
+   "raises_checks": 2,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "command line writes an empty log outside the repository",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.ingestion.privacy:git_checkout_containing",
+    "capstone.ingestion.privacy:refusal",
+    "capstone.ingestion.visit_log:load_event_log",
+    "capstone.ingestion.visit_log:main"
+   ],
+   "exercise_count": 4,
+   "modules_exercised": [
+    "capstone.ingestion.privacy",
+    "capstone.ingestion.visit_log"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
    "id": "tests/test_wait_tool.py::test_wait_is_one_of_the_agents_action_tools",
    "file": "tests/test_wait_tool.py",
    "name": "test_wait_is_one_of_the_agents_action_tools",
