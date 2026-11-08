@@ -406,7 +406,7 @@ def test_function_questions_need_the_complete_test_evidence():
         meta={"family": "FN", "rubric_version": "1.0.0"},
         state_tokens=None,
     )
-    assert requests[0]["tags"]["question_ids"] == ["FN-01"]
+    assert requests[0]["tags"]["question_ids"] == ["FN-01", "FN-02", "FN-03"]
     assert requests[1]["tags"]["question_ids"] == ["FN-01"]
     assert requests[1]["tags"]["skipped_questions"] == {
         "FN-02": "unknown: function test evidence is incomplete",

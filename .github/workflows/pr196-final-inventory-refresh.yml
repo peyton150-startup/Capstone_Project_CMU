@@ -20,11 +20,26 @@ jobs:
           enable-cache: true
       - run: uv python install
       - run: uv sync --locked --all-extras
-      - run: >-
+      # The source inventory is deliberately stale when a new evaluator test
+      # lands. Capture that first full coverage run even if the scope guard
+      # reports the missing entry, rebuild, and rerun the full suite on the
+      # refreshed inventory before committing a passing-run snapshot.
+      - name: Capture full coverage to bootstrap inventories
+        id: bootstrap
+        continue-on-error: true
+        run: >-
           uv run --locked --all-extras pytest
           --cov=capstone --cov=evaltools --cov-context=test
           --junitxml=junit.xml --cov-report=term-missing
-      - run: cd evaluation && uv run --locked --all-extras python -m evaltools.build_inventory --coverage ../.coverage --junit ../junit.xml
+      - name: Bootstrap inventories from captured coverage
+        run: cd evaluation && uv run --locked --all-extras python -m evaltools.build_inventory --coverage ../.coverage --junit ../junit.xml
+      - name: Verify complete test suite against refreshed inventory
+        run: >-
+          uv run --locked --all-extras pytest
+          --cov=capstone --cov=evaltools --cov-context=test
+          --junitxml=junit.xml --cov-report=term-missing
+      - name: Rebuild final inventories from passing coverage and JUnit
+        run: cd evaluation && uv run --locked --all-extras python -m evaltools.build_inventory --coverage ../.coverage --junit ../junit.xml
       - name: Commit rebuilt inventories
         run: |
           git config user.name "github-actions[bot]"
