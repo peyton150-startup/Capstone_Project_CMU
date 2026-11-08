@@ -274,3 +274,75 @@ def test_compare_evaluators_cli_saves_offline_agreement(monkeypatch, tmp_path, c
     assert json.loads((out / "agreement.json").read_text()) == data
     assert (out / "agreement.md").read_text() == "# review\n"
     assert json.loads(capsys.readouterr().out)["pairs_compared"] == 0
+
+
+def test_audit_preflight_catches_duplicate_and_missing_evidence_provenance():
+    """The trace gate must refuse internally inconsistent citations and sources."""
+    from evaltools import audit_preflight
+
+    trace = SimpleNamespace(
+        completeness="full",
+        evidence=[
+            SimpleNamespace(id="e1", content="reading", origin="unknown"),
+            SimpleNamespace(id="e1", content="", origin="sensor"),
+        ],
+        hypotheses=[],
+        decisions=[],
+        conclusion=SimpleNamespace(evidence_ids=["not-recorded"]),
+        recheck=None,
+        verification=None,
+    )
+    packet = SimpleNamespace(
+        meta=SimpleNamespace(episode_key="trial/1", audit_file="audit.jsonl"),
+        snap_view=SimpleNamespace(trace=trace),
+    )
+    issues = audit_preflight.trace_issues(packet)
+    assert "duplicate evidence IDs" in issues
+    assert "empty evidence content" in issues
+    assert "evidence lacks provenance origin" in issues
+    assert any("not-recorded" in issue for issue in issues)
+    with pytest.raises(ValueError, match="trial/1"):
+        audit_preflight.require_full_traces([packet])
+
+
+def test_audit_preflight_refuses_unrecorded_decision_arguments():
+    from evaltools import audit_preflight
+
+    trace = SimpleNamespace(
+        completeness="full",
+        evidence=[],
+        hypotheses=[],
+        decisions=[
+            SimpleNamespace(sequence=1, tick=None, arguments=None, evidence_ids=[]),
+            SimpleNamespace(sequence=1, tick=2, arguments={}, evidence_ids=[]),
+        ],
+        conclusion=None,
+        recheck=None,
+        verification=None,
+    )
+    packet = SimpleNamespace(
+        meta=SimpleNamespace(episode_key="trial/2", audit_file="audit.jsonl"),
+        snap_view=SimpleNamespace(trace=trace),
+    )
+    issues = audit_preflight.trace_issues(packet)
+    assert "duplicate decision sequences" in issues
+    assert "decision lacks time or arguments" in issues
+
+
+def test_evaluator_comparison_ignores_unknown_answers_and_reads_sorted_files(tmp_path):
+    """Unknown judgments must not be counted as answers or override real results."""
+    first = {
+        "tags": {"provider": "snap", "item_id": "FN-1"},
+        "answers": [{"question_id": "FN-02", "value": None}],
+    }
+    second = {
+        "tags": {"provider": "snap", "item_id": "FN-2"},
+        "answers": [{"question_id": "FN-02", "value": True}],
+    }
+    (tmp_path / "b.answers.json").write_text(json.dumps(second), encoding="utf-8")
+    (tmp_path / "a.answers.json").write_text(json.dumps(first), encoding="utf-8")
+    rows = compare_evaluators.load_answers(tmp_path)
+    assert rows == [first, second]
+    indexed = compare_evaluators.index_answers(rows)
+    assert ("snap", "FN-1", "FN-02") not in indexed
+    assert indexed[("snap", "FN-2", "FN-02")][0]["value"] is True
