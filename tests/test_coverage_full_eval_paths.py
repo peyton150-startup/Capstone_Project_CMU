@@ -5,16 +5,13 @@ No test here submits a judge request or starts an agent.
 
 import hashlib
 import json
-from types import SimpleNamespace
 
 import pytest
 
 from evaltools import full_evaluation, snap_request
 
 
-def test_provenance_verifies_clean_commit_and_source_hashes(
-    tmp_path, monkeypatch
-):
+def test_provenance_verifies_clean_commit_and_source_hashes(tmp_path, monkeypatch):
     content = tmp_path / "source.py"
     content.write_text("print('synthetic')\n", encoding="utf-8")
     inventory = tmp_path / "inventory"
@@ -81,9 +78,7 @@ def test_tracked_files_falls_back_to_filesystem_when_git_unavailable(
     assert full_evaluation.tracked_python_files() == ["good.py"]
 
 
-def test_plan_records_functions_that_do_not_have_snap_questions(
-    tmp_path, monkeypatch
-):
+def test_plan_records_functions_that_do_not_have_snap_questions(tmp_path, monkeypatch):
     inventory = tmp_path / "inventory"
     inventory.mkdir()
     for name, payload in (
@@ -146,9 +141,7 @@ def test_settle_preserves_failed_unreadable_and_answered_outcomes(
     tmp_path, answer, expected_status
 ):
     stored = {"tags": {"request_fingerprint": "fingerprint"}, **answer}
-    (tmp_path / "item.answers.json").write_text(
-        json.dumps(stored), encoding="utf-8"
-    )
+    (tmp_path / "item.answers.json").write_text(json.dumps(stored), encoding="utf-8")
     row = {
         "family": "FN",
         "status": "planned",
@@ -198,7 +191,8 @@ def prepare_cli_stubs(monkeypatch, events):
     """Isolate the reporting CLI from provenance and external services."""
     monkeypatch.setattr(full_evaluation, "readiness", lambda providers: {})
     monkeypatch.setattr(
-        snap_request, "load_questions",
+        snap_request,
+        "load_questions",
         lambda *args: ({"rubric_version": "v1"}, []),
     )
     monkeypatch.setattr(
@@ -251,16 +245,24 @@ def test_full_evaluation_cli_offline_report_and_reference_checksum(
     reference = tmp_path / "human.json"
     reference.write_text("{}\n", encoding="utf-8")
     out = tmp_path / "report"
-    assert full_evaluation.main(
-        [
-            "--commit", "abc123",
-            "--provider", "snap",
-            "--snap-full-context",
-            "--out", str(out),
-            "--reference", str(reference),
-            "--families", "FN",
-        ]
-    ) == 0
+    assert (
+        full_evaluation.main(
+            [
+                "--commit",
+                "abc123",
+                "--provider",
+                "snap",
+                "--snap-full-context",
+                "--out",
+                str(out),
+                "--reference",
+                str(reference),
+                "--families",
+                "FN",
+            ]
+        )
+        == 0
+    )
     assert json.loads((out / "report.json").read_text())["reference_sha256"] == (
         hashlib.sha256(reference.read_bytes()).hexdigest()
     )
@@ -285,15 +287,26 @@ def test_full_evaluation_cli_reports_incomplete_live_answers_as_failure(
         },
     )
     out = tmp_path / "attempt"
-    assert full_evaluation.main(
-        [
-            "--provider", "snap", "--out", str(out),
-            "--send", "--max-requests", "1", "--max-usd", "1.0",
-        ]
-    ) == 2
-    assert json.loads((out / "report.json").read_text())["live_budget"][
-        "stop_reason"
-    ] == "incomplete_answer"
+    assert (
+        full_evaluation.main(
+            [
+                "--provider",
+                "snap",
+                "--out",
+                str(out),
+                "--send",
+                "--max-requests",
+                "1",
+                "--max-usd",
+                "1.0",
+            ]
+        )
+        == 2
+    )
+    assert (
+        json.loads((out / "report.json").read_text())["live_budget"]["stop_reason"]
+        == "incomplete_answer"
+    )
 
 
 def test_full_evaluation_cli_requires_full_audit_before_dispatch(
@@ -305,14 +318,14 @@ def test_full_evaluation_cli_requires_full_audit_before_dispatch(
     def broken(*args, **kwargs):
         raise ValueError("no full traces")
 
-    monkeypatch.setattr(
-        full_evaluation.audit_preflight, "require_full_traces", broken
-    )
+    monkeypatch.setattr(full_evaluation.audit_preflight, "require_full_traces", broken)
     with pytest.raises(SystemExit) as stopped:
         full_evaluation.main(
             [
-                "--out", str(tmp_path / "report"),
-                "--provider", "snap",
+                "--out",
+                str(tmp_path / "report"),
+                "--provider",
+                "snap",
                 "--require-full-traces",
             ]
         )

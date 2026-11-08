@@ -27,9 +27,7 @@ def test_function_spans_reads_function_boundaries(tmp_path, monkeypatch):
     assert result == {str(package / "sample.py"): [("module:f", 1, 2)]}
 
 
-def test_functions_hit_joins_coverage_contexts_to_function_ids(
-    tmp_path, monkeypatch
-):
+def test_functions_hit_joins_coverage_contexts_to_function_ids(tmp_path, monkeypatch):
     events = []
 
     class FakeData:
@@ -65,9 +63,7 @@ def test_functions_hit_joins_coverage_contexts_to_function_ids(
     assert events == [("open", str(path)), ("read",)]
 
 
-def test_start_tracer_erases_then_starts_and_limits_scope(
-    monkeypatch, tmp_path
-):
+def test_start_tracer_erases_then_starts_and_limits_scope(monkeypatch, tmp_path):
     events = []
 
     class FakeCoverage:
@@ -145,9 +141,7 @@ def test_traced_cli_saves_a_deterministic_trace_without_model_calls(
     monkeypatch.setattr(
         evals,
         "load_scenarios",
-        lambda _: SimpleNamespace(
-            cases=[SimpleNamespace(as_case=lambda: case)]
-        ),
+        lambda _: SimpleNamespace(cases=[SimpleNamespace(as_case=lambda: case)]),
     )
     tracer = object()
     monkeypatch.setattr(traced_run, "start_tracer", lambda _: tracer)
@@ -158,7 +152,8 @@ def test_traced_cli_saves_a_deterministic_trace_without_model_calls(
     )
     saved = []
     monkeypatch.setattr(
-        experiment, "append_records",
+        experiment,
+        "append_records",
         lambda path, rows: saved.extend(rows),
     )
     policies = []
@@ -183,13 +178,20 @@ def test_traced_cli_saves_a_deterministic_trace_without_model_calls(
     out = tmp_path / "records.jsonl"
     trace = tmp_path / "trace.json"
     args = [
-        "--name", "try",
-        "--out", str(out),
-        "--trace", str(trace),
-        "--coverage-file", str(tmp_path / ".coverage.trace"),
-        "--no-audit", "--no-manual",
-        "--timeout-seconds", "21",
-        "--hazards", "blackout",
+        "--name",
+        "try",
+        "--out",
+        str(out),
+        "--trace",
+        str(trace),
+        "--coverage-file",
+        str(tmp_path / ".coverage.trace"),
+        "--no-audit",
+        "--no-manual",
+        "--timeout-seconds",
+        "21",
+        "--hazards",
+        "blackout",
         "--tree-of-thought",
     ]
     if scripted:
@@ -199,5 +201,5 @@ def test_traced_cli_saves_a_deterministic_trace_without_model_calls(
     assert json.loads(trace.read_text()) == {
         "try/1/offline": ["capstone.tools.observation:read"]
     }
-    assert ("completed offline" in capsys.readouterr().out)
+    assert "completed offline" in capsys.readouterr().out
     assert policies == ([] if scripted else [(False, True, False)])

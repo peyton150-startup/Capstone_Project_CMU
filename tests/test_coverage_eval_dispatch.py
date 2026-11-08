@@ -36,9 +36,7 @@ def test_request_cli_dispatches_each_family_offline(
         "load_questions",
         lambda *args: ({"rubric_version": "synthetic"}, []),
     )
-    monkeypatch.setattr(
-        snap_request, "questions_for", lambda *args: []
-    )
+    monkeypatch.setattr(snap_request, "questions_for", lambda *args: [])
     events = []
     monkeypatch.setattr(
         snap_request,
@@ -80,10 +78,14 @@ def test_request_cli_dispatches_each_family_offline(
         )[1],
     )
     args = [
-        "--out", str(tmp_path / "requests"),
-        "--inventory", str(inventory),
-        "--provider", "snap",
-        "--model", "offline-override",
+        "--out",
+        str(tmp_path / "requests"),
+        "--inventory",
+        str(inventory),
+        "--provider",
+        "snap",
+        "--model",
+        "offline-override",
         "--send",
     ]
     option = {
@@ -101,9 +103,7 @@ def test_request_cli_dispatches_each_family_offline(
         assert ("items", [identifier]) in events
 
 
-def test_request_cli_returns_failure_when_a_mocked_send_fails(
-    tmp_path, monkeypatch
-):
+def test_request_cli_returns_failure_when_a_mocked_send_fails(tmp_path, monkeypatch):
     monkeypatch.setattr(
         snap_request,
         "load_questions",
@@ -121,15 +121,22 @@ def test_request_cli_returns_failure_when_a_mocked_send_fails(
             "already_answered": 0,
         },
     )
-    assert snap_request.main(
-        [
-            "--out", str(tmp_path / "requests"),
-            "--provider", "snap",
-            "--full-context",
-            "--send",
-            "runs", "--packets", str(tmp_path / "archive"),
-        ]
-    ) == 1
+    assert (
+        snap_request.main(
+            [
+                "--out",
+                str(tmp_path / "requests"),
+                "--provider",
+                "snap",
+                "--full-context",
+                "--send",
+                "runs",
+                "--packets",
+                str(tmp_path / "archive"),
+            ]
+        )
+        == 1
+    )
 
 
 @pytest.mark.parametrize("failure", [True, False])
@@ -157,12 +164,8 @@ def test_plan_covers_archived_packets_and_refused_or_unfittable_comparisons(
         (inventory / filename).write_text(json.dumps(payload))
     for key in ("function_state", "test_state", "tool_state"):
         monkeypatch.setattr(snap_request, key, lambda *args, **kwargs: {})
-    monkeypatch.setattr(
-        snap_request, "item_requests", lambda *args, **kwargs: []
-    )
-    monkeypatch.setattr(
-        snap_request, "run_requests", lambda *args, **kwargs: []
-    )
+    monkeypatch.setattr(snap_request, "item_requests", lambda *args, **kwargs: [])
+    monkeypatch.setattr(snap_request, "run_requests", lambda *args, **kwargs: [])
     packet = SimpleNamespace(
         meta=SimpleNamespace(episode_key="offline/1"),
         model_dump_json=lambda indent: "{}",
