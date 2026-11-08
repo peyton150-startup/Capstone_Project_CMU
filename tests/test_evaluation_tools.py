@@ -208,6 +208,11 @@ def test_audited_import_rejects_missing_duplicate_and_orphan_traces(tmp_path):
 
 
 def test_the_traced_run_names_the_functions_each_case_executed(tmp_path):
+    """A scripted traced case saves function coverage and a full audit packet."""
+    # Variables:
+    #   completed: The isolated CLI run, whose exit status must be successful.
+    #   executed: Functions associated with the one case in the trace file.
+    #   packet: The record and default audit paired for trace completeness.
     config = tmp_path / "one.json"
     config.write_text(
         json.dumps(
@@ -244,6 +249,10 @@ def test_the_traced_run_names_the_functions_each_case_executed(tmp_path):
     assert key == "trace-check/1/KA-07-false-alarm"
     assert "capstone.agent.loop:run_inner_loop" in executed[key]
     assert "capstone.evaluation.scoring:evaluate" in executed[key]
+    audit = tmp_path / "records.audit.jsonl"
+    assert audit.exists()
+    packet = run_packet.build_all(tmp_path / "records.jsonl", audit_path=audit)[0]
+    assert packet.snap_view.trace.completeness == "full"
 
 
 def test_the_inventory_lists_every_function_and_every_curated_item_exists(tmp_path):
@@ -379,6 +388,16 @@ def test_function_questions_need_the_complete_test_evidence():
     assert truncated["tests_shown"].endswith(
         f"of {truncated['coverage']['test_count']} shown"
     )
+    snap_full = snap_request.function_state(
+        by_id["capstone.simulator.rng:RandomSource.__init__"],
+        tests,
+        complete=True,
+    )
+    assert len(snap_full["tests"]) == len(
+        by_id["capstone.simulator.rng:RandomSource.__init__"]["direct_tests"]
+    )
+    assert snap_full["tests_shown"] is None
+    assert snap_full["coverage"]["indirect_test_count"] > len(snap_full["tests"])
     _, questions = snap_request.load_questions()
     requests = snap_request.item_requests(
         [("complete", complete), ("truncated", truncated)],
@@ -863,6 +882,8 @@ def test_an_unfittable_function_state_is_skipped_not_fatal():
 
 def test_a_traced_run_refuses_to_append_to_earlier_records(tmp_path):
     """Appending would give two records the same run key."""
+    # Variables:
+    #   out: An existing record file that the traced runner must protect.
     from evaltools import traced_run
 
     out = tmp_path / "records.jsonl"
@@ -872,6 +893,138 @@ def test_a_traced_run_refuses_to_append_to_earlier_records(tmp_path):
             ["--name", "x", "--out", str(out), "--trace", str(tmp_path / "t.json")]
         )
     assert stopped.value.code == 2
+
+
+def test_new_cohort_preflight_requires_matching_audit_evidence(master_packets):
+    """A missing audit or citation cannot be presented as a full trace."""
+    # Variables:
+    #   full: An archived episode with a real audit, used as the valid baseline.
+    #   broken: The same packet with a citation whose evidence is absent.
+    from evaltools.audit_preflight import require_full_traces, trace_issues
+
+    full = run_packet.build_archive(AUDITED_FIVE)[0]
+    assert trace_issues(full) == []
+    require_full_traces([full])
+    with pytest.raises(ValueError, match="audit log missing"):
+        require_full_traces([master_packets[0]])
+    conclusion = full.snap_view.trace.conclusion.model_copy(
+        update={"evidence_ids": ["missing-evidence"]}
+    )
+    trace = full.snap_view.trace.model_copy(update={"conclusion": conclusion})
+    broken = full.model_copy(
+        update={"snap_view": full.snap_view.model_copy(update={"trace": trace})}
+    )
+    with pytest.raises(ValueError, match="unknown cited evidence IDs"):
+        require_full_traces([broken])
+    with pytest.raises(ValueError, match="refused packet"):
+        require_full_traces(
+            [full], refused=[{"episode_key": "blocked-case", "reason": "truth leak"}]
+        )
+
+
+def test_preflight_validates_recheck_and_verification_evidence():
+    """References from critic follow-up and post-action verification must exist."""
+    # Variables:
+    #   full: A real audited packet, unchanged for the accepted baseline.
+    #   changed: The minimal trace fragment with a deliberately broken citation.
+    from evaltools.audit_preflight import trace_issues
+
+    full = run_packet.build_archive(AUDITED_FIVE)[0]
+    trace = full.snap_view.trace
+    recheck = run_packet.RecheckView(outcome="performed", evidence_id="missing-recheck")
+    changed = trace.model_copy(update={"recheck": recheck})
+    assert "unknown cited evidence IDs" in str(
+        trace_issues(
+            full.model_copy(
+                update={
+                    "snap_view": full.snap_view.model_copy(update={"trace": changed})
+                }
+            )
+        )
+    )
+    verification = trace.verification.model_copy(
+        update={"evidence_ids": ["missing-verification"]}
+    )
+    changed = trace.model_copy(update={"verification": verification})
+    assert "unknown cited evidence IDs" in str(
+        trace_issues(
+            full.model_copy(
+                update={
+                    "snap_view": full.snap_view.model_copy(update={"trace": changed})
+                }
+            )
+        )
+    )
+
+
+def test_preflight_refuses_corrupt_order_and_missing_provenance():
+    """Audit evidence, decision identities and action timing must be defensible."""
+    # Variables:
+    #   full: A previously accepted complete episode with known valid provenance.
+    #   changes: Separate corruptions that must each fail the strict cohort gate.
+    from evaltools.audit_preflight import trace_issues
+
+    full = run_packet.build_archive(AUDITED_FIVE)[0]
+    trace = full.snap_view.trace
+    assert trace_issues(full) == []
+    changed_evidence = trace.evidence[0].model_copy(update={"origin": ""})
+    changes = (
+        (
+            {"evidence": [changed_evidence, *trace.evidence[1:]]},
+            "evidence lacks provenance origin",
+        ),
+        (
+            {
+                "evidence": [
+                    trace.evidence[0].model_copy(update={"origin": "unknown"}),
+                    *trace.evidence[1:],
+                ]
+            },
+            "evidence lacks provenance origin",
+        ),
+        (
+            {
+                "decisions": [
+                    trace.decisions[0],
+                    trace.decisions[0],
+                    *trace.decisions[1:],
+                ]
+            },
+            "duplicate decision sequences",
+        ),
+        (
+            {
+                "hypotheses": [
+                    trace.hypotheses[0],
+                    trace.hypotheses[0],
+                    *trace.hypotheses[1:],
+                ]
+            },
+            "duplicate hypothesis IDs",
+        ),
+        (
+            {
+                "verification": trace.verification.model_copy(
+                    update={"action_started_tick": 9, "action_finish_tick": 8}
+                )
+            },
+            "action finish precedes start",
+        ),
+        (
+            {
+                "verification": trace.verification.model_copy(
+                    update={"action_finish_tick": 8, "checked_tick": 7}
+                )
+            },
+            "verification precedes action finish",
+        ),
+    )
+    for update, expected in changes:
+        changed = trace.model_copy(update=update)
+        packet = full.model_copy(
+            update={"snap_view": full.snap_view.model_copy(update={"trace": changed})}
+        )
+        assert expected in trace_issues(packet)
 
 
 # --- evaluator readiness fixes (CRITERIA_FOR_EVALUATOR.md) ----------------------------

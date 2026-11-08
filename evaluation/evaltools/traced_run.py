@@ -115,13 +115,18 @@ def main(argv=None) -> int:
     #   budgets: The per-investigation time limit when `--timeout-seconds` is
     #     given, split as `experiment run` splits it; None keeps the default.
     #   manual: The opened manual search, or None when not offered or scripted.
+    #   audit_path: A companion audit file by default, or None with --no-audit.
     parser = argparse.ArgumentParser(prog="python -m evaltools.traced_run")
     parser.add_argument(
         "--config", type=Path, default=REPO / "evals" / "scenarios.json"
     )
     parser.add_argument("--name", required=True)
     parser.add_argument("--out", type=Path, required=True, help="records JSONL")
-    parser.add_argument("--audit", type=Path, help="audit log (recommended)")
+    audit = parser.add_mutually_exclusive_group()
+    audit.add_argument(
+        "--audit", type=Path, help="audit log path (default: beside --out)"
+    )
+    audit.add_argument("--no-audit", action="store_true", help="omit the audit log")
     parser.add_argument("--trace", type=Path, required=True, help="function trace")
     parser.add_argument("--coverage-file", type=Path, default=Path(".coverage.trace"))
     parser.add_argument("--scripted", action="store_true", help="offline stand-in")
@@ -147,8 +152,20 @@ def main(argv=None) -> int:
     parser.add_argument("--tree-of-thought", action="store_true")
     parser.add_argument("--timeout-seconds", type=float)
     args = parser.parse_args(argv)
+    # Keep this path rule local: importing capstone before start_tracer would
+    # make the coverage trace miss its import-time code.
+    stem = args.out.name.removesuffix(".records.jsonl")
+    if stem == args.out.name:
+        stem = stem.removesuffix(".jsonl")
+    audit_path = (
+        None
+        if args.no_audit
+        else (args.audit or args.out.with_name(f"{stem}.audit.jsonl"))
+    )
+    if audit_path == args.out:
+        parser.error("audit and records paths must differ")
     # Appending to an earlier file would give two records the same run key.
-    for path in (args.out, args.audit):
+    for path in (args.out, audit_path):
         if path is not None and path.exists() and path.stat().st_size:
             parser.error(f"{path} already has records; choose a new file")
 
@@ -190,7 +207,7 @@ def main(argv=None) -> int:
         name=args.name,
         cov=cov,
         on_record=save,
-        log=AuditLog(args.audit) if args.audit else None,
+        log=AuditLog(audit_path) if audit_path else None,
         manual=manual,
         budgets=budgets,
         hazards=args.hazards,

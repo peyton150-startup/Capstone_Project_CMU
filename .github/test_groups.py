@@ -103,6 +103,7 @@ GROUPS: dict[str, list[str]] = {
     "Memory": [
         "database_connection",
         "duplicate_threshold",
+        "coverage_index_edges",
         "memory_policy",
         "memory_recall",
         "memory_repository",
@@ -117,24 +118,34 @@ GROUPS: dict[str, list[str]] = {
         "fault_packs",
         "evaluation_tools",
         "full_evaluation",
+        "reference_review",
+        "coverage_reference_edges",
+        "coverage_evaluator_commands",
+        "coverage_tracing_deep",
+        "coverage_full_eval_paths",
+        "coverage_eval_dispatch",
+        "coverage_entrypoints",
     ],
     # Many episodes: the harness, hand labels and the known-answer cases.
     "Experiments": [
         "experiment",
         "gap_trace",
         "evals",
+        "coverage_eval_cli_edges",
         "known_answers",
         "baseline",
         "memory_comparison",
+        "coverage_reporting_edges",
     ],
     # The runner: one seeded episode from fault to score, end to end.
     "Episode": ["episode", "progress_view", "triage"],
     # Real-machine telemetry: the read-only MTConnect collector and its monitor.
     "Live telemetry": [
         "mtconnect_ingestion",
-        "telemetry_monitor",
-        "collector_watchdog",
         "channel_map",
+        "telemetry_monitor",
+        "coverage_telemetry_edges",
+        "collector_watchdog",
         "visit_log",
     ],
 }
