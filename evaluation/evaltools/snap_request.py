@@ -1274,7 +1274,7 @@ def main(argv=None) -> int:
         elif family == "TS":
             items = [(i, test_state(known[i], functions_by_id)) for i in wanted]
         else:
-            items = [(n, tool_state(known[n], functions_by_id)) for n in wanted]
+            items = [(n, tool_state(known[n], functions_by_id, tests_by_id)) for n in wanted]
         built = item_requests(
             items,
             questions_for(family, questions),
