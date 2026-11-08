@@ -261,10 +261,10 @@ def applicable_run_questions(
     #     the evidence, hypotheses and decision arguments.
     #   conclusion: The conclusion view, or {} when the run reached none.
     #   outage: True when no model answered; such a run is asked nothing.
-    #   named: True when the conclusion names a cause: the label says so
-    #     (facts.committed) or, for an unlabelled run, it recommends anything but
-    #     escalate. A check that lowered the recommendation to escalate does not
-    #     hide a named cause from RUN-09.
+    #   named: Whether the conclusion names a cause, taking a reviewer label
+    #     when present and otherwise using the conclusion rather than its action.
+    #   diagnosis: The unlabelled conclusion text, which can name a hypothesis
+    #     even when the final action was changed to escalate.
     #   skipped: Question id to the reason it is not asked of this packet.
     #   chosen: The questions this packet can answer, in file order.
     view = packet["snap_view"]
@@ -272,10 +272,22 @@ def applicable_run_questions(
     full = trace["completeness"] == "full"
     conclusion = trace.get("conclusion") or {}
     committed = view["facts"].get("committed")
+    diagnosis = str(conclusion.get("diagnosis") or "").strip().casefold()
     named = bool(conclusion) and (
-        committed
+        bool(committed)
         if committed is not None
-        else conclusion.get("recommendation") not in (None, "escalate")
+        else bool(
+            conclusion.get("hypothesis_id")
+            or diagnosis
+            and diagnosis not in {
+                "unknown",
+                "undetermined",
+                "inconclusive",
+                "none",
+                "no diagnosis",
+                "no cause identified",
+            }
+        )
     )
     skipped: dict[str, str] = {}
     chosen = []
