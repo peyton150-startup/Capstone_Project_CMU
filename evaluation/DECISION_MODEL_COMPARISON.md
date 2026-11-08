@@ -4,7 +4,8 @@ Design for running two independent decision models over the same evidence
 with semantically identical questions, normalizing their answers into one
 schema, measuring where they agree, and deciding whether keeping both is
 worth it. Proposed and scaffolded; no request has been sent. Version 1.0.0,
-2026-11-01, pairs with rubric 1.0.0 and `SNAP_QUESTIONS.json` 1.0.0.
+2026-11-01, pairs with rubric 1.1.0 and `SNAP_QUESTIONS.json` 1.1.0 (1.1.0
+changed question wording only; the comparison design is unchanged).
 
 ## 1. What is known about the two services, and how well
 
