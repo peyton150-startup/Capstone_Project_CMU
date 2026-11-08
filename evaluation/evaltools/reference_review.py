@@ -30,6 +30,8 @@ def export_requests(
     #   chosen: The sampled items, preferring full RUN traces and function
     #     states with all three questions before opaque-ID ordering.
     #   mapping: Private link from each blinded ID back to its evaluator item.
+    #   visible: The judge's exact question body, with only the private question ID added.
+    #   defined: The tagged definition, checked against the judge's actual question.
     if any(requests.glob("*.answers.json")):
         raise ValueError(
             "model answers already exist; prepare references before sending"
@@ -47,8 +49,23 @@ def export_requests(
         )
         if item["state"] != body["state"]:
             raise ValueError(f"two different states for {key[0]} item")
-        for question in tags["questions"].values():
-            item["questions"][question["id"]] = question
+        sent = body.get("questions", {})
+        defined = tags.get("questions", {})
+        if not isinstance(sent, dict) or set(sent) != set(defined):
+            raise ValueError("review questions differ from the judge request")
+        for name, question in sent.items():
+            tagged = defined[name]
+            if (
+                not isinstance(question, dict)
+                or question.get("type") != tagged.get("type")
+                or question.get("criteria") != tagged.get("criteria")
+            ):
+                raise ValueError("review question criteria differ from the judge request")
+            visible = {"id": tagged["id"], **question}
+            prior = item["questions"].get(tagged["id"])
+            if prior is not None and prior != visible:
+                raise ValueError("same review question has different judge instructions")
+            item["questions"][tagged["id"]] = visible
     if run_strata is not None:
         run_ids = {item_id for family, item_id in items if family == "RUN"}
         if not isinstance(run_strata, dict) or any(
