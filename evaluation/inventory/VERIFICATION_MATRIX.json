@@ -110,12 +110,12 @@
   "evaluation/evaltools/__init__.py": "4916bb1c8f29e498eb99d345befa0553a6d5528bbb5c2cfe519b555a2889e93d",
   "evaluation/evaltools/audit_preflight.py": "2e93187a4922bc50dfbf77302a37ba4f5f29a553e0c8d2cab310bfa052aa4578",
   "evaluation/evaltools/build_inventory.py": "624161332380b505a5a4e00aaf78333b9d96e03b7a12a11eec8f07c9b84b7350",
-  "evaluation/evaltools/compare_evaluators.py": "7d682c9747846be2dad59477005cc689dfe32c125358302d8d6f9d264da87d79",
+  "evaluation/evaltools/compare_evaluators.py": "c204af22477034a361d66649171bf51d881793b53dc7840ad69a45f607dbef7a",
   "evaluation/evaltools/decision_models.py": "49cabb0558bf05d6fd1326c0a96a16ecfe7cd2a0ea0bcaaad77310d984289391",
-  "evaluation/evaltools/full_evaluation.py": "059dbb2e5956ede99f5f0ef17616c8f7fdaf8260b4589c1d72cb050045d5b31d",
-  "evaluation/evaltools/reference_review.py": "075abb7142f3787df6037cc079266ebe504f92c6b52a4424a5a40eb899a60a34",
+  "evaluation/evaltools/full_evaluation.py": "6786801410b296a2130d6713efd6ffd6550f304c2c73774e29da22aeceee2c41",
+  "evaluation/evaltools/reference_review.py": "b78cda7f6b36fa7cf13c6cf32519185bed22aa25a72023c1e8b7c4d0c2a5fe6b",
   "evaluation/evaltools/run_packet.py": "041dc2f7bbc220d696d55660bb1e8bbd425013c91d9d59fea5229828eaa900fe",
-  "evaluation/evaltools/snap_request.py": "5a4095dad5f4881f8b5c5cb6da3e0c48be3a90a46e6acd980149526cfe67ab31",
+  "evaluation/evaltools/snap_request.py": "4b428a1b9ef46df67d7bff5e458ede487ba7d4adf73d5811913a2d70c3121b55",
   "evaluation/evaltools/traced_run.py": "f4d12fc58cae02b8bd985b7e07f0b1d937bbe9726e3b4e43178480168439f618",
   "tests/test_agent_action.py": "6d566d1218056753733f66904bde72c360dcda4980d0f4a117a77750f1edb67e",
   "tests/test_agent_artifacts.py": "948a3777fccc423a900cca3a27f13655d13ebdbd1fd3da154ddb53fa23d0545a",
@@ -140,11 +140,11 @@
   "tests/test_contracts.py": "4475acc6ae588f691e3f747d8e039d61bec99c87b1dbb771ce2225199cbd8763",
   "tests/test_coverage_entrypoints.py": "1d438d57a3712e484a04c8a35059fcd206b1abe2e8983e5fcfe4254dfb8c8aab",
   "tests/test_coverage_eval_cli_edges.py": "873b967351092440ce5bdc4ceb8a11ec92f252c6f547c410282a001b0798ce10",
-  "tests/test_coverage_eval_dispatch.py": "012bfa1bb6649efb69e00d3f905da56691dbf7e7618b4723dda9474941a5be65",
+  "tests/test_coverage_eval_dispatch.py": "dc3081375eb4e8c6cb5730ca8791aacc549c61f25adb5f2d4026c6ba12d0052b",
   "tests/test_coverage_evaluator_commands.py": "b6fc591bfcd52c9644a4826209ada45d61e1e54e6dafe3a965b172b181e38ac2",
   "tests/test_coverage_full_eval_paths.py": "d170c5888adab5e98d6cbef00a20966a162b9a95e2205d6ce66293a422789d6e",
   "tests/test_coverage_index_edges.py": "59a8c5bace0eb8af00b33cb8d93b56b67d5422ae89a04e7bb3c8c02e5ad0ebe2",
-  "tests/test_coverage_reference_edges.py": "20b8acf07dd9df3b5517decb544bee474eece2b2d91182198e0b17e59a14b721",
+  "tests/test_coverage_reference_edges.py": "0ef50dd2a61c270559a2511124270c00339ae3018fb933ba0a088cc0c1ff8cf5",
   "tests/test_coverage_reporting_edges.py": "6aa95b058e2c596f17b6d06bc4ca6a24641a4946de0d3be628fceda2cbf99a5f",
   "tests/test_coverage_telemetry_edges.py": "9d19f17cd8f8c63208358f1fb76a0f462443b487870c9e76644564b2977dcead",
   "tests/test_coverage_tracing_deep.py": "aeab80895310e8c1544750d461ced2d8881ea089be10619cab30c79a4c25c49e",
@@ -160,7 +160,8 @@
   "tests/test_episode.py": "c0ffe88f1317cebbb43b77759d0e9106b3dbb6fe1353d3992bb4294f8819dafa",
   "tests/test_evals.py": "d19ca7b89a42c3246ec528a831e5464b0aed8c96fcba7ccf3bd29f137e46d1c6",
   "tests/test_evaluation.py": "8b9df54c4ca7789f99c111989ab520d7780c37777e7ccc4cdb21392ea752b833",
-  "tests/test_evaluation_tools.py": "0f89215fd2550f457065411b24dc184594123a746722f1585b965581f76d6a17",
+  "tests/test_evaluation_tools.py": "3a60d2d7f96df409a7dacce807b3c2d4d41dfb3247601c132bc083febae1787b",
+  "tests/test_evaluator_integrity.py": "1681ea5aa4cb3857f73e4e7a0221e81bd21d13659b04e9d87d5a5e8c4144898a",
   "tests/test_events.py": "b82917a6735cb71ddb515fe0f9ed81e30d07d0e93ec867a8d11c33e611212dfc",
   "tests/test_experiment.py": "35782477778edb5011bda9b5e951b7d71dfa2719dfd79e984b28134d324ca152",
   "tests/test_factory_provider.py": "5f57eaa75e7bf11dcc45c87fc65a207578c492c1f3ceb0dc60ca7c5ae67bc77b",
@@ -201,7 +202,7 @@
   "tests/test_quality.py": "f1cd4e1f76b51a81021545cc96a8fb8e904af160d7c7d1240691d237d987bef8",
   "tests/test_reasoning_evidence.py": "0c3f2991005fb65bc0fa219910cce80227a888cfd4a36c1b1e523bdd38ad6344",
   "tests/test_recall_tool.py": "30751afbdc69d4b00ff025795c45f0e51b78b6bf93587e432461d4aec6e74338",
-  "tests/test_reference_review.py": "43a5fcc0096f901e20d80e5eb0f68abf6a0597dab78998e5ab72da74afeab473",
+  "tests/test_reference_review.py": "8a4155d7b090cedbe0a325957fc8ef5448229152167638f7ca8fc0bec35135a7",
   "tests/test_request_deadline.py": "58283f2181b15c9d8083f269223d862449cee80052cdee30c00f224d3ce0e725",
   "tests/test_rng.py": "619e27ea42d33fb58cc1109ee86bd69c0647b2610e274343280bfb5f8db32592",
   "tests/test_scenarios.py": "9a39ded7e295fcd622704845cfee84b2e23b18e43ac469ad3931e0a9d7cba6ac",
@@ -229,29 +230,29 @@
   "tests/test_wait_tool.py": "ccec624a885634bbfcf97c4b09e7fdf523097c9e468e5bc5f6d07d863179dc49",
   "tests/test_wrong_setting.py": "a7dcc4186bcee6a5980da4fc1f7a47c1b9210055618a88756e44a1991e39de47"
  },
- "coverage_sha256": "ba72dde84a090a692d1c15f5ecb2ca87cbbd462dad36589989d3c06d09da4cf5",
- "junit_sha256": "21321841dd4087190baa8b2102a932fed376f662c7e70e3fa5860d98c26923bc",
+ "coverage_sha256": "a45abd916c7c6ddbacc421ce8895f545bef3b69f8e21163b9036e65a5e1372d9",
+ "junit_sha256": "3e8a0f3116eb293508e1d1f8ba5d61f23f36b00b6da13b1f2f67bb2b6ab425e6",
  "counts": {
   "functions": 889,
   "classes_note": "classes are listed through their methods",
-  "tests": 1794,
+  "tests": 1801,
   "tools": 18,
   "functions_by_status": {
-   "INSUFFICIENT EVIDENCE": 367,
+   "INSUFFICIENT EVIDENCE": 366,
    "NOT APPLICABLE": 25,
    "NOT TESTED": 13,
-   "PARTIALLY VERIFIED": 439,
+   "PARTIALLY VERIFIED": 440,
    "VERIFIED": 45
   },
   "functions_by_coverage_class": {
-   "direct": 468,
+   "direct": 469,
    "import-only": 4,
-   "indirect": 379,
+   "indirect": 378,
    "no-statements": 25,
    "none": 13
   },
   "functions_executed_in_tests": 847,
-  "functions_with_direct_tests": 468,
+  "functions_with_direct_tests": 469,
   "functions_never_executed": [
    "capstone.episode:ask_on_console",
    "capstone.evals:main.<locals>.show_progress",
@@ -308,8 +309,7 @@
   ],
   "stubs_or_protocols": 25,
   "tests_by_outcome": {
-   "failed": 1,
-   "passed": 1793
+   "passed": 1801
   },
   "tests_with_no_assertion": [
    "tests/test_console.py::test_without_it_the_same_print_raised"
@@ -915,7 +915,7 @@
   "evaluation.evaltools.snap_request": {
    "functions": 31,
    "executed": 31,
-   "direct": 1
+   "direct": 2
   },
   "evaluation.evaltools.traced_run": {
    "functions": 6,
@@ -14873,7 +14873,7 @@
    ]
   },
   "evaluation.evaltools.audit_preflight:trace_issues": {
-   "count": 5,
+   "count": 6,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
@@ -14881,16 +14881,18 @@
     "tests/test_coverage_evaluator_commands.py::test_audit_preflight_refuses_unrecorded_decision_arguments",
     "tests/test_evaluation_tools.py::test_new_cohort_preflight_requires_matching_audit_evidence",
     "tests/test_evaluation_tools.py::test_preflight_refuses_corrupt_order_and_missing_provenance",
-    "tests/test_evaluation_tools.py::test_preflight_validates_recheck_and_verification_evidence"
+    "tests/test_evaluation_tools.py::test_preflight_validates_recheck_and_verification_evidence",
+    "tests/test_evaluator_integrity.py::test_trace_preflight_fails_on_unknown_citations"
    ]
   },
   "evaluation.evaltools.audit_preflight:require_full_traces": {
-   "count": 2,
+   "count": 3,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
     "tests/test_coverage_evaluator_commands.py::test_audit_preflight_catches_duplicate_and_missing_evidence_provenance",
-    "tests/test_evaluation_tools.py::test_new_cohort_preflight_requires_matching_audit_evidence"
+    "tests/test_evaluation_tools.py::test_new_cohort_preflight_requires_matching_audit_evidence",
+    "tests/test_evaluator_integrity.py::test_trace_preflight_fails_on_unknown_citations"
    ]
   },
   "evaluation.evaltools.build_inventory:rel": {
@@ -15184,12 +15186,13 @@
    ]
   },
   "evaluation.evaltools.compare_evaluators:build_report": {
-   "count": 2,
+   "count": 3,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
     "tests/test_evaluation_tools.py::test_the_agreement_report_pairs_only_identical_states_and_flags_disagreements",
-    "tests/test_evaluation_tools.py::test_two_answers_to_one_question_are_refused_and_latency_is_per_request"
+    "tests/test_evaluation_tools.py::test_two_answers_to_one_question_are_refused_and_latency_is_per_request",
+    "tests/test_evaluator_integrity.py::test_comparison_rejects_mixed_or_unversioned_batches"
    ]
   },
   "evaluation.evaltools.compare_evaluators:build_report.<locals>.rate": {
@@ -15225,7 +15228,7 @@
    "indirect": []
   },
   "evaluation.evaltools.decision_models:estimate_tokens": {
-   "count": 23,
+   "count": 28,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
@@ -15237,10 +15240,10 @@
     "tests/test_evaluation_tools.py::test_fitting_a_state_is_deterministic_and_keeps_the_conclusion",
     "tests/test_evaluation_tools.py::test_function_questions_need_the_complete_test_evidence",
     "tests/test_evaluation_tools.py::test_snap_questions_are_well_formed_and_batch_at_the_api_limit",
-    "tests/test_full_evaluation.py::test_a_dry_run_reports_whether_snap_could_be_sent",
-    "tests/test_full_evaluation.py::test_a_dry_run_writes_the_ledger_and_report",
-    "tests/test_full_evaluation.py::test_a_large_plan_finishes_through_small_resumed_slices",
-    "tests/test_full_evaluation.py::test_a_plan_over_budget_is_refused_before_sending"
+    "tests/test_evaluator_integrity.py::test_blind_review_rejects_changed_judge_criteria",
+    "tests/test_evaluator_integrity.py::test_blind_review_rejects_mismatched_question_ids",
+    "tests/test_evaluator_integrity.py::test_blind_review_shows_exactly_the_question_sent_to_snap",
+    "tests/test_evaluator_integrity.py::test_function_test_context_and_tool_test_context_are_visible"
    ]
   },
   "evaluation.evaltools.decision_models:_truncate_evidence": {
@@ -15758,7 +15761,7 @@
    ]
   },
   "evaluation.evaltools.reference_review:review_id": {
-   "count": 8,
+   "count": 10,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_reference_review.py::test_function_sample_prefers_items_with_all_judgments",
@@ -15770,11 +15773,13 @@
     "tests/test_coverage_reference_edges.py::test_reference_cli_exports_and_imports_without_exposing_case_ids",
     "tests/test_coverage_reference_edges.py::test_reference_import_refuses_invalid_answers",
     "tests/test_coverage_reference_edges.py::test_reference_import_rejects_unknown_blinded_identity",
-    "tests/test_coverage_reference_edges.py::test_review_requires_enough_slots_for_stratification"
+    "tests/test_coverage_reference_edges.py::test_review_requires_enough_slots_for_stratification",
+    "tests/test_evaluator_integrity.py::test_blind_review_shows_exactly_the_question_sent_to_snap",
+    "tests/test_evaluator_integrity.py::test_reference_import_refuses_changed_private_mapping"
    ]
   },
   "evaluation.evaltools.reference_review:export_requests": {
-   "count": 12,
+   "count": 16,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_reference_review.py::test_function_sample_prefers_items_with_all_judgments",
@@ -15790,11 +15795,15 @@
     "tests/test_coverage_reference_edges.py::test_review_does_not_silently_reuse_a_blinded_id",
     "tests/test_coverage_reference_edges.py::test_review_refuses_conflicting_states_for_one_internal_item",
     "tests/test_coverage_reference_edges.py::test_review_refuses_untrusted_strata_metadata",
-    "tests/test_coverage_reference_edges.py::test_review_requires_enough_slots_for_stratification"
+    "tests/test_coverage_reference_edges.py::test_review_requires_enough_slots_for_stratification",
+    "tests/test_evaluator_integrity.py::test_blind_review_rejects_changed_judge_criteria",
+    "tests/test_evaluator_integrity.py::test_blind_review_rejects_mismatched_question_ids",
+    "tests/test_evaluator_integrity.py::test_blind_review_shows_exactly_the_question_sent_to_snap",
+    "tests/test_evaluator_integrity.py::test_reference_import_refuses_changed_private_mapping"
    ]
   },
   "evaluation.evaltools.reference_review:import_review": {
-   "count": 4,
+   "count": 5,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_reference_review.py::test_review_packets_hide_run_identity_and_import_checked_answers"
@@ -15802,7 +15811,8 @@
    "indirect": [
     "tests/test_coverage_reference_edges.py::test_reference_cli_exports_and_imports_without_exposing_case_ids",
     "tests/test_coverage_reference_edges.py::test_reference_import_refuses_invalid_answers",
-    "tests/test_coverage_reference_edges.py::test_reference_import_rejects_unknown_blinded_identity"
+    "tests/test_coverage_reference_edges.py::test_reference_import_rejects_unknown_blinded_identity",
+    "tests/test_evaluator_integrity.py::test_reference_import_refuses_changed_private_mapping"
    ]
   },
   "evaluation.evaltools.reference_review:main": {
@@ -16219,7 +16229,7 @@
    ]
   },
   "evaluation.evaltools.snap_request:DecisionQuestion.criteria_fit_type": {
-   "count": 33,
+   "count": 38,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
@@ -16238,7 +16248,7 @@
    ]
   },
   "evaluation.evaltools.snap_request:DecisionQuestion.to_request": {
-   "count": 21,
+   "count": 26,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
@@ -16250,14 +16260,14 @@
     "tests/test_evaluation_tools.py::test_function_questions_need_the_complete_test_evidence",
     "tests/test_evaluation_tools.py::test_snap_questions_are_well_formed_and_batch_at_the_api_limit",
     "tests/test_evaluation_tools.py::test_the_judge_reads_the_missing_evidence_rule_the_reviewer_reads",
-    "tests/test_full_evaluation.py::test_a_dry_run_reports_whether_snap_could_be_sent",
-    "tests/test_full_evaluation.py::test_a_dry_run_writes_the_ledger_and_report",
-    "tests/test_full_evaluation.py::test_a_large_plan_finishes_through_small_resumed_slices",
-    "tests/test_full_evaluation.py::test_a_plan_over_budget_is_refused_before_sending"
+    "tests/test_evaluator_integrity.py::test_blind_review_rejects_changed_judge_criteria",
+    "tests/test_evaluator_integrity.py::test_blind_review_rejects_mismatched_question_ids",
+    "tests/test_evaluator_integrity.py::test_blind_review_shows_exactly_the_question_sent_to_snap",
+    "tests/test_evaluator_integrity.py::test_function_test_context_and_tool_test_context_are_visible"
    ]
   },
   "evaluation.evaltools.snap_request:load_questions": {
-   "count": 33,
+   "count": 38,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
@@ -16295,7 +16305,7 @@
    ]
   },
   "evaluation.evaltools.snap_request:digest": {
-   "count": 20,
+   "count": 25,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
@@ -16306,15 +16316,15 @@
     "tests/test_evaluation_tools.py::test_every_request_input_changes_the_fingerprint",
     "tests/test_evaluation_tools.py::test_function_questions_need_the_complete_test_evidence",
     "tests/test_evaluation_tools.py::test_snap_questions_are_well_formed_and_batch_at_the_api_limit",
-    "tests/test_full_evaluation.py::test_a_dry_run_reports_whether_snap_could_be_sent",
-    "tests/test_full_evaluation.py::test_a_dry_run_writes_the_ledger_and_report",
-    "tests/test_full_evaluation.py::test_a_large_plan_finishes_through_small_resumed_slices",
-    "tests/test_full_evaluation.py::test_a_plan_over_budget_is_refused_before_sending",
-    "tests/test_full_evaluation.py::test_a_saved_reply_finishes_an_interrupted_reservation"
+    "tests/test_evaluator_integrity.py::test_blind_review_rejects_changed_judge_criteria",
+    "tests/test_evaluator_integrity.py::test_blind_review_rejects_mismatched_question_ids",
+    "tests/test_evaluator_integrity.py::test_blind_review_shows_exactly_the_question_sent_to_snap",
+    "tests/test_evaluator_integrity.py::test_function_test_context_and_tool_test_context_are_visible",
+    "tests/test_evaluator_integrity.py::test_reference_import_refuses_changed_private_mapping"
    ]
   },
   "evaluation.evaltools.snap_request:request_fingerprint": {
-   "count": 27,
+   "count": 32,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
@@ -16333,7 +16343,7 @@
    ]
   },
   "evaluation.evaltools.snap_request:build_request": {
-   "count": 20,
+   "count": 25,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
@@ -16344,11 +16354,11 @@
     "tests/test_evaluation_tools.py::test_every_request_input_changes_the_fingerprint",
     "tests/test_evaluation_tools.py::test_function_questions_need_the_complete_test_evidence",
     "tests/test_evaluation_tools.py::test_snap_questions_are_well_formed_and_batch_at_the_api_limit",
-    "tests/test_full_evaluation.py::test_a_dry_run_reports_whether_snap_could_be_sent",
-    "tests/test_full_evaluation.py::test_a_dry_run_writes_the_ledger_and_report",
-    "tests/test_full_evaluation.py::test_a_large_plan_finishes_through_small_resumed_slices",
-    "tests/test_full_evaluation.py::test_a_plan_over_budget_is_refused_before_sending",
-    "tests/test_full_evaluation.py::test_a_saved_reply_finishes_an_interrupted_reservation"
+    "tests/test_evaluator_integrity.py::test_blind_review_rejects_changed_judge_criteria",
+    "tests/test_evaluator_integrity.py::test_blind_review_rejects_mismatched_question_ids",
+    "tests/test_evaluator_integrity.py::test_blind_review_shows_exactly_the_question_sent_to_snap",
+    "tests/test_evaluator_integrity.py::test_function_test_context_and_tool_test_context_are_visible",
+    "tests/test_evaluator_integrity.py::test_reference_import_refuses_changed_private_mapping"
    ]
   },
   "evaluation.evaltools.snap_request:applicable_run_questions": {
@@ -16415,12 +16425,13 @@
    ]
   },
   "evaluation.evaltools.snap_request:source_lines": {
-   "count": 3,
+   "count": 4,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
     "tests/test_evaluation_tools.py::test_function_questions_need_the_complete_test_evidence",
     "tests/test_evaluation_tools.py::test_states_show_each_test_whole_and_say_what_was_cut",
+    "tests/test_evaluator_integrity.py::test_function_test_context_and_tool_test_context_are_visible",
     "tests/test_full_evaluation.py::test_a_large_plan_finishes_through_small_resumed_slices"
    ]
   },
@@ -16434,31 +16445,35 @@
    ]
   },
   "evaluation.evaltools.snap_request:test_source": {
-   "count": 2,
+   "count": 4,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
     "tests/test_evaluation_tools.py::test_function_questions_need_the_complete_test_evidence",
-    "tests/test_evaluation_tools.py::test_states_show_each_test_whole_and_say_what_was_cut"
+    "tests/test_evaluation_tools.py::test_states_show_each_test_whole_and_say_what_was_cut",
+    "tests/test_evaluator_integrity.py::test_function_test_context_and_tool_test_context_are_visible",
+    "tests/test_full_evaluation.py::test_a_large_plan_finishes_through_small_resumed_slices"
    ]
   },
   "evaluation.evaltools.snap_request:shown": {
-   "count": 4,
+   "count": 5,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
     "tests/test_evaluation_tools.py::test_a_test_state_shows_the_decorators_and_module_helpers_the_test_needs",
     "tests/test_evaluation_tools.py::test_function_questions_need_the_complete_test_evidence",
     "tests/test_evaluation_tools.py::test_states_show_each_test_whole_and_say_what_was_cut",
+    "tests/test_evaluator_integrity.py::test_function_test_context_and_tool_test_context_are_visible",
     "tests/test_full_evaluation.py::test_a_large_plan_finishes_through_small_resumed_slices"
    ]
   },
   "evaluation.evaltools.snap_request:function_state": {
-   "count": 1,
+   "count": 2,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
-    "tests/test_evaluation_tools.py::test_function_questions_need_the_complete_test_evidence"
+    "tests/test_evaluation_tools.py::test_function_questions_need_the_complete_test_evidence",
+    "tests/test_evaluator_integrity.py::test_function_test_context_and_tool_test_context_are_visible"
    ]
   },
   "evaluation.evaltools.snap_request:test_state": {
@@ -16470,48 +16485,56 @@
    ]
   },
   "evaluation.evaltools.snap_request:module_tree": {
-   "count": 1,
+   "count": 2,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
+    "tests/test_evaluation_tools.py::test_function_questions_need_the_complete_test_evidence",
     "tests/test_evaluation_tools.py::test_states_show_each_test_whole_and_say_what_was_cut"
    ]
   },
   "evaluation.evaltools.snap_request:test_context": {
-   "count": 2,
-   "status": "INSUFFICIENT EVIDENCE",
-   "direct": [],
+   "count": 5,
+   "status": "PARTIALLY VERIFIED",
+   "direct": [
+    "tests/test_evaluator_integrity.py::test_function_test_context_and_tool_test_context_are_visible"
+   ],
    "indirect": [
     "tests/test_evaluation_tools.py::test_a_test_state_shows_the_decorators_and_module_helpers_the_test_needs",
-    "tests/test_evaluation_tools.py::test_states_show_each_test_whole_and_say_what_was_cut"
+    "tests/test_evaluation_tools.py::test_function_questions_need_the_complete_test_evidence",
+    "tests/test_evaluation_tools.py::test_states_show_each_test_whole_and_say_what_was_cut",
+    "tests/test_full_evaluation.py::test_a_large_plan_finishes_through_small_resumed_slices"
    ]
   },
   "evaluation.evaltools.snap_request:wiring_lines": {
-   "count": 2,
+   "count": 3,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
     "tests/test_evaluation_tools.py::test_states_show_each_test_whole_and_say_what_was_cut",
+    "tests/test_evaluator_integrity.py::test_function_test_context_and_tool_test_context_are_visible",
     "tests/test_full_evaluation.py::test_a_large_plan_finishes_through_small_resumed_slices"
    ]
   },
   "evaluation.evaltools.snap_request:tool_state": {
-   "count": 2,
+   "count": 3,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
     "tests/test_evaluation_tools.py::test_states_show_each_test_whole_and_say_what_was_cut",
+    "tests/test_evaluator_integrity.py::test_function_test_context_and_tool_test_context_are_visible",
     "tests/test_full_evaluation.py::test_a_large_plan_finishes_through_small_resumed_slices"
    ]
   },
   "evaluation.evaltools.snap_request:item_requests": {
-   "count": 4,
+   "count": 5,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
     "tests/test_coverage_full_eval_paths.py::test_plan_records_functions_that_do_not_have_snap_questions",
     "tests/test_evaluation_tools.py::test_an_unfittable_function_state_is_skipped_not_fatal",
     "tests/test_evaluation_tools.py::test_function_questions_need_the_complete_test_evidence",
+    "tests/test_evaluator_integrity.py::test_function_test_context_and_tool_test_context_are_visible",
     "tests/test_full_evaluation.py::test_a_large_plan_finishes_through_small_resumed_slices"
    ]
   },
@@ -29923,7 +29946,7 @@
    ]
   },
   "tests/test_evaluation_tools.py::test_function_questions_need_the_complete_test_evidence": {
-   "count": 14,
+   "count": 16,
    "judgment": "NOT ASSESSED",
    "functions": [
     "evaluation.evaltools.decision_models:estimate_tokens",
@@ -29935,10 +29958,12 @@
     "evaluation.evaltools.snap_request:function_state",
     "evaluation.evaltools.snap_request:item_requests",
     "evaluation.evaltools.snap_request:load_questions",
+    "evaluation.evaltools.snap_request:module_tree",
     "evaluation.evaltools.snap_request:questions_for",
     "evaluation.evaltools.snap_request:request_fingerprint",
     "evaluation.evaltools.snap_request:shown",
     "evaluation.evaltools.snap_request:source_lines",
+    "evaluation.evaltools.snap_request:test_context",
     "evaluation.evaltools.snap_request:test_source"
    ]
   },
@@ -30528,6 +30553,101 @@
     "evaluation.evaltools.compare_evaluators:build_report.<locals>.rate",
     "evaluation.evaltools.compare_evaluators:index_answers",
     "evaluation.evaltools.compare_evaluators:request_usage"
+   ]
+  },
+  "tests/test_evaluator_integrity.py::test_blind_review_shows_exactly_the_question_sent_to_snap": {
+   "count": 9,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "evaluation.evaltools.decision_models:estimate_tokens",
+    "evaluation.evaltools.reference_review:export_requests",
+    "evaluation.evaltools.reference_review:review_id",
+    "evaluation.evaltools.snap_request:DecisionQuestion.criteria_fit_type",
+    "evaluation.evaltools.snap_request:DecisionQuestion.to_request",
+    "evaluation.evaltools.snap_request:build_request",
+    "evaluation.evaltools.snap_request:digest",
+    "evaluation.evaltools.snap_request:load_questions",
+    "evaluation.evaltools.snap_request:request_fingerprint"
+   ]
+  },
+  "tests/test_evaluator_integrity.py::test_blind_review_rejects_changed_judge_criteria": {
+   "count": 8,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "evaluation.evaltools.decision_models:estimate_tokens",
+    "evaluation.evaltools.reference_review:export_requests",
+    "evaluation.evaltools.snap_request:DecisionQuestion.criteria_fit_type",
+    "evaluation.evaltools.snap_request:DecisionQuestion.to_request",
+    "evaluation.evaltools.snap_request:build_request",
+    "evaluation.evaltools.snap_request:digest",
+    "evaluation.evaltools.snap_request:load_questions",
+    "evaluation.evaltools.snap_request:request_fingerprint"
+   ]
+  },
+  "tests/test_evaluator_integrity.py::test_reference_import_refuses_changed_private_mapping": {
+   "count": 10,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "evaluation.evaltools.decision_models:estimate_tokens",
+    "evaluation.evaltools.reference_review:export_requests",
+    "evaluation.evaltools.reference_review:import_review",
+    "evaluation.evaltools.reference_review:review_id",
+    "evaluation.evaltools.snap_request:DecisionQuestion.criteria_fit_type",
+    "evaluation.evaltools.snap_request:DecisionQuestion.to_request",
+    "evaluation.evaltools.snap_request:build_request",
+    "evaluation.evaltools.snap_request:digest",
+    "evaluation.evaltools.snap_request:load_questions",
+    "evaluation.evaltools.snap_request:request_fingerprint"
+   ]
+  },
+  "tests/test_evaluator_integrity.py::test_comparison_rejects_mixed_or_unversioned_batches": {
+   "count": 1,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "evaluation.evaltools.compare_evaluators:build_report"
+   ]
+  },
+  "tests/test_evaluator_integrity.py::test_trace_preflight_fails_on_unknown_citations": {
+   "count": 2,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "evaluation.evaltools.audit_preflight:require_full_traces",
+    "evaluation.evaltools.audit_preflight:trace_issues"
+   ]
+  },
+  "tests/test_evaluator_integrity.py::test_function_test_context_and_tool_test_context_are_visible": {
+   "count": 15,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "evaluation.evaltools.decision_models:estimate_tokens",
+    "evaluation.evaltools.snap_request:DecisionQuestion.criteria_fit_type",
+    "evaluation.evaltools.snap_request:DecisionQuestion.to_request",
+    "evaluation.evaltools.snap_request:build_request",
+    "evaluation.evaltools.snap_request:digest",
+    "evaluation.evaltools.snap_request:function_state",
+    "evaluation.evaltools.snap_request:item_requests",
+    "evaluation.evaltools.snap_request:load_questions",
+    "evaluation.evaltools.snap_request:request_fingerprint",
+    "evaluation.evaltools.snap_request:shown",
+    "evaluation.evaltools.snap_request:source_lines",
+    "evaluation.evaltools.snap_request:test_context",
+    "evaluation.evaltools.snap_request:test_source",
+    "evaluation.evaltools.snap_request:tool_state",
+    "evaluation.evaltools.snap_request:wiring_lines"
+   ]
+  },
+  "tests/test_evaluator_integrity.py::test_blind_review_rejects_mismatched_question_ids": {
+   "count": 8,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "evaluation.evaltools.decision_models:estimate_tokens",
+    "evaluation.evaltools.reference_review:export_requests",
+    "evaluation.evaltools.snap_request:DecisionQuestion.criteria_fit_type",
+    "evaluation.evaltools.snap_request:DecisionQuestion.to_request",
+    "evaluation.evaltools.snap_request:build_request",
+    "evaluation.evaltools.snap_request:digest",
+    "evaluation.evaltools.snap_request:load_questions",
+    "evaluation.evaltools.snap_request:request_fingerprint"
    ]
   },
   "tests/test_events.py::test_event_is_immutable": {
@@ -33252,7 +33372,7 @@
    ]
   },
   "tests/test_full_evaluation.py::test_a_large_plan_finishes_through_small_resumed_slices": {
-   "count": 73,
+   "count": 75,
    "judgment": "NOT ASSESSED",
    "functions": [
     "capstone.contracts.investigations:run_id_for",
