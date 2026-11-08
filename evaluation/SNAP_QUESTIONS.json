@@ -75,7 +75,7 @@
       "criteria": [
         "0: One hypothesis only, or several that are rewordings of the same cause.",
         "1: Distinct hypotheses were listed, but no reading anywhere in the trace was aimed at telling them apart.",
-        "2: Distinct hypotheses and at least one reading that bears on a rival, but the confidences do not follow the readings: a confidence moved without a reading that bears on it, or the leading hypothesis kept its confidence after a reading that contradicts it.",
+        "2: Distinct hypotheses and at least one reading that bears on a rival, but the confidences do not follow the readings: a hypothesis gained or lost confidence on a reading that cannot tell it from its rivals, or the leading hypothesis kept its confidence after a reading that contradicts it.",
         "3: Distinct hypotheses, readings that tell them apart and confidences that follow those readings, but the set missed a plausible cause: a kind of cause the retrieved manual names for this symptom, or any cause that needs no repair.",
         "4: As 3, and the set covered the plausible causes: it held at least one cause that needs no repair, and every kind of cause the retrieved manual names for this symptom was listed or set aside with a stated reason."
       ],
@@ -93,7 +93,7 @@
       "name": "critic_effectiveness",
       "applies_to": "one master-run packet with trace.critique present",
       "type": "choice",
-      "instructions": "Read `trace.critique`, `trace.recheck`, the hypotheses and the conclusion. Did the critic identify an important weakness (a contradiction, a missing check, a better alternative) and did a useful follow-up happen when one was warranted? If the critic names a real weakness but its check tests something else, the answer is ineffective.",
+      "instructions": "Read `trace.critique`, `trace.recheck`, the hypotheses and the conclusion. Did the critic identify an important weakness (a contradiction, a missing check, a better alternative) and did a useful follow-up happen when one was warranted? If the critic names a real weakness but its check tests something else, the answer is ineffective. A plausible rival is another cause the agent listed or the retrieved manual names for this symptom.",
       "criteria": {
         "effective": "The critic named a real weakness or the best-supported alternative, and its check (or the conclusion) addresses that weakness.",
         "ineffective": "The critic missed an evident weakness, objected without substance, named a check that cannot test its own point (one that repeats readings already in hand, or a window that ends after the current tick), or its point was ignored (recheck skipped, policy_stopped, or the conclusion unchanged despite a contradicting reading).",
@@ -160,7 +160,7 @@
       "name": "abstention_appropriate",
       "applies_to": "one master-run packet",
       "type": "choice",
-      "instructions": "Read the conclusion, its assessment and recommendation, the hypotheses and the evidence. Decide whether the agent named a single cause, and whether the cited evidence justified that decision. A conclusion that names one cause counts as committed even when a later check lowered its recommendation to escalate; one that keeps two or more causes open, or names none, counts as declined. Judge the decision, not the confidence figure (RUN-09 judges the figure).",
+      "instructions": "Read the conclusion, its assessment and recommendation, the hypotheses and the evidence. Decide whether the agent named a single cause, and whether the cited evidence justified that decision. A conclusion that names one cause counts as committed even when a later check lowered its recommendation to escalate; one that keeps two or more causes open, or names none, counts as declined. Judge the decision, not the confidence figure (RUN-09 judges the figure). A plausible rival is another cause the agent listed or the retrieved manual names for this symptom.",
       "criteria": {
         "appropriate": "Declined when the cited evidence left two or more causes open, or committed when cited readings separate the named cause from every plausible rival.",
         "inappropriate": "Declined although cited readings separate one cause from every plausible rival, or committed while a plausible rival was untested or a contradiction stood.",
