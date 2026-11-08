@@ -32,6 +32,7 @@ def export_requests(
     #   mapping: Private link from each blinded ID back to its evaluator item.
     #   visible: The judge's exact question body, with only the private question ID added.
     #   defined: The tagged definition, checked against the judge's actual question.
+    #   question_ids: IDs used for import, checked against the request's own ID list.
     if any(requests.glob("*.answers.json")):
         raise ValueError(
             "model answers already exist; prepare references before sending"
@@ -53,6 +54,11 @@ def export_requests(
         defined = tags.get("questions", {})
         if not isinstance(sent, dict) or set(sent) != set(defined):
             raise ValueError("review questions differ from the judge request")
+        question_ids = [question["id"] for question in defined.values()]
+        if len(question_ids) != len(set(question_ids)) or (
+            "question_ids" in tags and set(question_ids) != set(tags["question_ids"])
+        ):
+            raise ValueError("review question IDs differ from the judge request")
         for name, question in sent.items():
             tagged = defined[name]
             if (
