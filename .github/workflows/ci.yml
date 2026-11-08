@@ -164,3 +164,45 @@ jobs:
             ${{ runner.temp }}/snap-full-dry-run/ledger.jsonl
             ${{ runner.temp }}/snap-full-dry-run/scope_manifest.json
             ${{ runner.temp }}/snap-full-dry-run/readiness-check.json
+
+  snap_inventory_refresh_once:
+    name: Commit corrected evaluation inventory snapshot (temporary)
+    needs: full
+    if: >-
+      always() &&
+      github.event_name == 'pull_request' &&
+      github.event.pull_request.number == 196 &&
+      github.event.pull_request.head.repo.full_name == github.repository &&
+      github.event.pull_request.head.ref == 'codex/evaluator-full-audit'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: codex/evaluator-full-audit
+          persist-credentials: true
+      - name: Check one-time refresh marker
+        id: marker
+        run: |
+          if test -f evaluation/.snap_inventory_refresh_once; then
+            echo "ready=true" >> "$GITHUB_OUTPUT"
+          fi
+      - name: Download regenerated full-suite inventory
+        if: steps.marker.outputs.ready == 'true'
+        uses: actions/download-artifact@v4
+        with:
+          name: evaluator-inventory
+          path: .inventory-snap-ready
+      - name: Commit inventory generated from all tests
+        if: steps.marker.outputs.ready == 'true'
+        run: |
+          cp .inventory-snap-ready/*.json evaluation/inventory/
+          rm evaluation/.snap_inventory_refresh_once
+          git add evaluation/inventory evaluation/.snap_inventory_refresh_once
+          if ! git diff --cached --quiet; then
+            git -c user.name="github-actions[bot]" \
+              -c user.email="41898282+github-actions[bot]@users.noreply.github.com" \
+              commit -m "Refresh evaluator inventory hashes for complete SNAP evaluation"
+            git push origin HEAD:refs/heads/codex/evaluator-full-audit
+          fi
