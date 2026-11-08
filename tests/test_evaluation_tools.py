@@ -1247,6 +1247,100 @@ def test_states_show_each_test_whole_and_say_what_was_cut():
         assert f'"{tool["name"]}"' in text
 
 
+def test_the_judge_reads_the_missing_evidence_rule_the_reviewer_reads():
+    """Rubric 1.1.0: a rule a blinded reviewer sees is in the judge's text too,
+    and the newest changelog entry names the current rubric version."""
+    raw, questions = snap_request.load_questions()
+    for question in questions:
+        sent = question.to_request()["instructions"]
+        assert sent.startswith(question.instructions)
+        if question.missing_evidence.strip().lower() == "none":
+            assert sent == question.instructions
+        else:
+            assert question.missing_evidence in sent
+    assert raw["changelog"][-1].startswith(raw["rubric_version"] + " ")
+
+
+def test_run_09_is_asked_whenever_the_conclusion_names_a_cause(master_packets):
+    """A cause named at high confidence is judged even when the final check
+    lowered the recommendation to escalate; a conclusion naming none is not."""
+    _, questions = snap_request.load_questions()
+
+    def asked(committed, recommendation):
+        packet = json.loads(master_packets[0].model_dump_json())
+        packet["snap_view"]["trace"]["completeness"] = "full"
+        packet["snap_view"]["trace"]["conclusion"] = {
+            "diagnosis": "bearing wear on CNC-02",
+            "confidence": 0.92,
+            "recommendation": recommendation,
+        }
+        packet["snap_view"]["facts"]["committed"] = committed
+        chosen, skipped = snap_request.applicable_run_questions(packet, questions)
+        return "RUN-09" in {q.id for q in chosen}, skipped.get("RUN-09")
+
+    assert asked(True, "escalate") == (True, None)
+    assert asked(False, "replace_bearing")[0] is False
+    assert asked(False, "escalate")[1] == (
+        "not_applicable: the conclusion names no cause"
+    )
+    # Unlabelled: fall back to the recommendation.
+    assert asked(None, "escalate")[0] is False
+    assert asked(None, "replace_bearing")[0] is True
+
+
+def test_a_test_state_shows_the_decorators_and_module_helpers_the_test_needs(
+    monkeypatch,
+):
+    """A test's parametrize values and the helpers or fixtures it uses from its
+    own module are shown, in first-use order, each capped and marked if cut."""
+
+    def record(file, name):
+        tree = ast.parse((REPO / file).read_text(encoding="utf-8"))
+        line = next(
+            n.lineno
+            for n in ast.walk(tree)
+            if isinstance(n, ast.FunctionDef) and n.name == name
+        )
+        return {"file": file, "name": name, "line": line}
+
+    bounds = snap_request.test_context(
+        record(
+            "tests/test_state.py",
+            "test_bearing_health_outside_unit_interval_is_rejected_on_assignment",
+        )
+    )
+    assert bounds["decorators"] == ['@pytest.mark.parametrize("bad", [-0.01, 1.01])']
+    assert bounds["module_helpers"] == [] and bounds["module_helpers_shown"] is None
+
+    seeds = record("tests/test_failure.py", "test_same_seed_fails_at_the_same_tick")
+    helpers = snap_request.test_context(seeds)["module_helpers"]
+    assert [h["name"] for h in helpers] == ["stops", "degrading"]
+    assert helpers[0]["source"].startswith("def stops(")
+    assert all("source_cut" not in h for h in helpers)
+
+    fixture = snap_request.test_context(
+        record(
+            "tests/test_evaluation_tools.py",
+            "test_record_only_packets_skip_the_questions_that_need_a_trace",
+        )
+    )["module_helpers"]
+    assert [h["name"] for h in fixture] == ["master_packets"]
+    assert fixture[0]["source"].startswith('@pytest.fixture(scope="module")')
+
+    monkeypatch.setattr(snap_request, "HELPERS_PER_TEST", 1)
+    monkeypatch.setattr(snap_request, "HELPER_SOURCE_CHARS", 10)
+    capped = snap_request.test_context(seeds)
+    assert capped["module_helpers_shown"] == "1 of 2 shown"
+    (only,) = capped["module_helpers"]
+    assert len(only["source"]) == 10 and only["source_cut"].startswith("cut to 10")
+    missing = snap_request.test_context({**seeds, "line": seeds["line"] + 1})
+    assert missing == {
+        "decorators": [],
+        "module_helpers": [],
+        "module_helpers_shown": None,
+    }
+
+
 def test_the_stated_question_count_matches_the_question_file():
     """EVAL-21 / T20: the EVF note's count is the file's count."""
     import re

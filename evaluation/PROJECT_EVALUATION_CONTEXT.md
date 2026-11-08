@@ -8,7 +8,8 @@ architecture changes, add a dated entry under "Change log" and bump
 can still be read against the context it was made in.
 
 - context_version: 1.0.0
-- rubric_version it pairs with: 1.0.0 (`EVALUATION_RUBRIC.md`)
+- rubric_version it pairs with: 1.1.0 (`EVALUATION_RUBRIC.md`; 1.1.0 changed
+  judge question wording only)
 - inventory_version: 1.0.0 (`inventory/*.json`)
 - packet_schema_version: 1.1.0 (`RUN_EVIDENCE_SCHEMA.json`)
 

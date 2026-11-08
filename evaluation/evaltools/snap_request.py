@@ -116,8 +116,18 @@ class DecisionQuestion(BaseModel):
         return self
 
     def to_request(self) -> dict:
-        """The question in the System One shape both services share."""
-        body: dict[str, Any] = {"type": self.type, "instructions": self.instructions}
+        """The question in the System One shape both services share.
+
+        The missing-evidence rule goes to the judge with the instructions, so a
+        judge and a person reviewing the blinded packet answer under one rule.
+        """
+        # Variables:
+        #   instructions: What the judge is asked, with the rule for missing
+        #     evidence appended unless that rule is "none".
+        instructions = self.instructions
+        if self.missing_evidence.strip().lower() not in ("", "none"):
+            instructions += f"\n\nIf evidence is missing: {self.missing_evidence}"
+        body: dict[str, Any] = {"type": self.type, "instructions": instructions}
         if self.type == "score":
             # SECOND-HAND: confirm against each service's documentation whether
             # ordered levels go under "criteria" or "levels".
@@ -251,12 +261,22 @@ def applicable_run_questions(
     #     the evidence, hypotheses and decision arguments.
     #   conclusion: The conclusion view, or {} when the run reached none.
     #   outage: True when no model answered; such a run is asked nothing.
+    #   named: True when the conclusion names a cause: the label says so
+    #     (facts.committed) or, for an unlabelled run, it recommends anything but
+    #     escalate. A check that lowered the recommendation to escalate does not
+    #     hide a named cause from RUN-09.
     #   skipped: Question id to the reason it is not asked of this packet.
     #   chosen: The questions this packet can answer, in file order.
     view = packet["snap_view"]
     trace = view["trace"]
     full = trace["completeness"] == "full"
     conclusion = trace.get("conclusion") or {}
+    committed = view["facts"].get("committed")
+    named = bool(conclusion) and (
+        committed
+        if committed is not None
+        else conclusion.get("recommendation") not in (None, "escalate")
+    )
     skipped: dict[str, str] = {}
     chosen = []
     outage = view["facts"].get("termination_reason") == "model_unavailable"
@@ -277,11 +297,8 @@ def applicable_run_questions(
             or view["configuration"].get("memory_offered")
         ):
             reason = "not_offered: neither the manual nor memory was offered"
-        elif q.id == "RUN-09" and conclusion.get("recommendation") in (
-            None,
-            "escalate",
-        ):
-            reason = "not_applicable: the agent did not commit"
+        elif q.id == "RUN-09" and not named:
+            reason = "not_applicable: the conclusion names no cause"
         elif q.id == "RUN-10" and conclusion.get("recommendation") != "no_action":
             reason = "not_applicable: the recommendation was not no_action"
         if reason is None:
@@ -514,14 +531,18 @@ def test_state(record: dict, functions_by_id: dict) -> dict:
     # Variables:
     #   exercised: The functions the test runs that the inventory knows.
     #   cut: Why the test's source was shortened, or None.
+    #   context: The test's decorators and the module helpers it uses, which its
+    #     own source (from its def line on) leaves out.
     exercised = [f for f in record["exercises"] if f in functions_by_id]
     source, cut = test_source(record, TEST_SOURCE_CHARS)
+    context = test_context(record)
     return {
         "test_id": record["id"],
         "claims": record["claims"],
         "docstring": record["docstring"],
         "source": source,
         "source_cut": cut,
+        **context,
         "assertions": record["assertions"],
         "assert_forms": record["assert_forms"],
         "raises_checks": record["raises_checks"],
@@ -537,6 +558,109 @@ def test_state(record: dict, functions_by_id: dict) -> dict:
             for f in exercised[:FUNCTIONS_PER_TEST]
         ],
         "exercises_shown": shown(FUNCTIONS_PER_TEST, len(exercised)),
+    }
+
+
+# How much of a test's surroundings a test state shows: its decorators, and the
+# module helpers it calls or takes as fixtures (with their own decorators).
+DECORATOR_CHARS = 1000
+HELPERS_PER_TEST = 4
+HELPER_SOURCE_CHARS = 2000
+
+
+@functools.cache
+def module_tree(file: str) -> tuple[str, ast.Module]:
+    """A file's text and syntax tree, read once per file."""
+    # Variables:
+    #   file: A path relative to the repository top, as the inventory records it.
+    text = (REPO / file).read_text(encoding="utf-8")
+    return text, ast.parse(text)
+
+
+def test_context(record: dict) -> dict:
+    """A test's decorators and the module helpers it uses, for judging the test.
+
+    A test's own source starts at its `def` line, so its decorators (such as
+    `parametrize` values) are not in it, and a helper defined higher up in the
+    same file is elsewhere. Both decide what the test proves. Helpers are the
+    file's module-level functions that are not tests, in the order the test
+    first takes them as a fixture or calls them.
+    """
+    # Variables:
+    #   node: The test's definition in the file's syntax tree, or None when no
+    #     function of that name starts on the recorded line.
+    #   written: Each decorator as written in the file; `cut` names any that
+    #     were shortened to DECORATOR_CHARS.
+    #   helpers: The file's module-level functions that are not tests, by name.
+    #   calls: Every plain-name call in the test, in source order, so helpers
+    #     are listed in the order the test first uses them.
+    #   used: Helper names the test takes as fixtures or calls, first use first.
+    #   first: A helper's first line, counting its decorators (a fixture's
+    #     @pytest.fixture line is part of what it is).
+    #   chosen: The helpers shown, each with its decorators and a note if cut.
+    text, tree = module_tree(record["file"])
+    lines = text.splitlines()
+    node = next(
+        (
+            n
+            for n in ast.walk(tree)
+            if isinstance(n, (ast.FunctionDef, ast.AsyncFunctionDef))
+            and n.name == record["name"]
+            and n.lineno == record["line"]
+        ),
+        None,
+    )
+    if node is None:
+        return {"decorators": [], "module_helpers": [], "module_helpers_shown": None}
+    written = [
+        "@" + (ast.get_source_segment(text, d) or ast.unparse(d))
+        for d in node.decorator_list
+    ]
+    decorators = [d[:DECORATOR_CHARS] for d in written]
+    cut = [
+        f"decorator {i + 1} cut to {DECORATOR_CHARS} of {len(d)} characters"
+        for i, d in enumerate(written)
+        if len(d) > DECORATOR_CHARS
+    ]
+    helpers = {
+        n.name: n
+        for n in tree.body
+        if isinstance(n, (ast.FunctionDef, ast.AsyncFunctionDef))
+        and not n.name.startswith("test_")
+    }
+    calls = sorted(
+        (n.lineno, n.col_offset, n.func.id)
+        for n in ast.walk(node)
+        if isinstance(n, ast.Call) and isinstance(n.func, ast.Name)
+    )
+    used: list[str] = []
+    for name in [a.arg for a in node.args.args] + [name for *_, name in calls]:
+        if name in helpers and name not in used:
+            used.append(name)
+    chosen = []
+    for name in used[:HELPERS_PER_TEST]:
+        helper = helpers[name]
+        first = min([d.lineno for d in helper.decorator_list] + [helper.lineno])
+        source = "\n".join(lines[first - 1 : helper.end_lineno])
+        chosen.append(
+            {
+                "name": name,
+                "source": source[:HELPER_SOURCE_CHARS],
+                **(
+                    {
+                        "source_cut": f"cut to {HELPER_SOURCE_CHARS} of "
+                        f"{len(source)} characters"
+                    }
+                    if len(source) > HELPER_SOURCE_CHARS
+                    else {}
+                ),
+            }
+        )
+    return {
+        "decorators": decorators,
+        **({"decorators_cut": "; ".join(cut)} if cut else {}),
+        "module_helpers": chosen,
+        "module_helpers_shown": shown(len(chosen), len(used)),
     }
 
 
