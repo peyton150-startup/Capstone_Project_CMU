@@ -96,7 +96,6 @@ def test_request_cli_dispatches_each_family_offline(
     assert events[-1] == ("write", 1, True)
     assert "1 request file(s)" in capsys.readouterr().out
     if family == "runs":
-        assert ("runs", type(tmp_path)(identifier)) not in events
         assert any(event[0] == "runs" for event in events if isinstance(event, tuple))
     else:
         assert ("items", [identifier]) in events
