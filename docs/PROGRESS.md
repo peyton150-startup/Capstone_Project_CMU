@@ -28,7 +28,12 @@
 > after the work whose data is from before it is a baseline, not a result. Its "after" group is never wider than what
 > `investigation.verify`'s own check counts, and that check is unchanged. `lesson_view` gives write_lesson the
 > conclusion, action, verification outcome, calls made and the factual brief instead of raw evidence. `plan` is
-> unchanged: at plan time there is little to remove. Recorded on `ExperimentRecord.stage_context`. Scripted (offline)
+> unchanged: at plan time there is little to remove. Recorded on `ExperimentRecord.stage_context`.
+> **On/off setting (added the same day, at the developer's request):** `python -m capstone.experiment run ... --stage-context
+> on|off` forces the views on or off for every case and beats `STAGE_CONTEXT` in `.env`; left out, `.env` decides (off if
+> unset). `run_episode` and `run_experiment` take `stage_context`. The run header prints `RUN: stage views on|off`, the
+> report prints `stage views: N on, N off, N not recorded` (counted from the records, not from what was asked), and the
+> command exits 1 if any record disagrees with the flag. The list of live checks is `docs/TESTS_TO_RUN.md`. Scripted (offline)
 > episode: judge prompt 7,191 → 5,112 characters, lesson 7,156 → 2,909. Not run live; that is Codex's job (§12), as an
 > A/B with the same cases, models and budgets. Owed questions: pre-check, "a trend is retrieved at tick 200 for ticks
 > 50-90 and the work finished at 160: which group is it in, and why?"; closing, "why must the view's 'after' group
