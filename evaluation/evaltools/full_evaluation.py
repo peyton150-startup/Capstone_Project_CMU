@@ -658,7 +658,9 @@ def plan(
             state_tokens=state_tokens,
         )
     if "TL" in families:
-        items = [(n, snap_request.tool_state(t, functions, tests)) for n, t in tools.items()]
+        items = [
+            (n, snap_request.tool_state(t, functions, tests)) for n, t in tools.items()
+        ]
         built += snap_request.item_requests(
             items,
             snap_request.questions_for("TL", questions),

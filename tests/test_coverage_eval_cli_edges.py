@@ -496,19 +496,23 @@ def test_eval_cli_rescores_with_hand_or_automatic_labels_offline(
     monkeypatch.setattr(evals, "report_of", fake_report)
     out = tmp_path / "report.json"
     args = [
-        "--name", "trial", "--out", str(out),
-        "--records", str(tmp_path / "saved.jsonl"),
+        "--name",
+        "trial",
+        "--out",
+        str(out),
+        "--records",
+        str(tmp_path / "saved.jsonl"),
     ]
     args += (
-        ["--auto-label"]
-        if automatic
-        else ["--labels", str(tmp_path / "labels.jsonl")]
+        ["--auto-label"] if automatic else ["--labels", str(tmp_path / "labels.jsonl")]
     )
     assert evals.main(args) == 0
     assert out.exists()
     assert seen == [
         (
-            "trial", [record], auto if automatic else hand,
+            "trial",
+            [record],
+            auto if automatic else hand,
             {"trial/1/one"} if automatic else set(),
             {"critic": "pick"} if automatic else {},
         )
@@ -523,27 +527,44 @@ def test_experiment_cli_all_faults_and_explicit_timeout_are_forwarded(
 
     seen = {}
     monkeypatch.setattr(
-        experiment_module, "grid",
+        experiment_module,
+        "grid",
         lambda seeds, faults: (seen.update(seeds=seeds, faults=faults), [object()])[1],
     )
     monkeypatch.setattr(
-        experiment_module, "model_policy_factory",
-        lambda **kwargs: (lambda: None),
+        experiment_module,
+        "model_policy_factory",
+        lambda **kwargs: lambda: None,
     )
     monkeypatch.setattr(
-        experiment_module, "run_experiment",
+        experiment_module,
+        "run_experiment",
         lambda cases, factory, **kwargs: (
-            seen.update(cases=cases, budget=kwargs["budgets"]), []
+            seen.update(cases=cases, budget=kwargs["budgets"]),
+            [],
         )[1],
     )
     monkeypatch.setattr(experiment_module, "report", lambda *_: "offline report")
-    assert experiment_module.main(
-        [
-            "run", "--name", "offline", "--seeds", "1", "--faults", "all",
-            "--timeout-seconds", "12", "--no-audit", "--quiet",
-            "--out", str(tmp_path / "out.jsonl"),
-        ]
-    ) == 0
+    assert (
+        experiment_module.main(
+            [
+                "run",
+                "--name",
+                "offline",
+                "--seeds",
+                "1",
+                "--faults",
+                "all",
+                "--timeout-seconds",
+                "12",
+                "--no-audit",
+                "--quiet",
+                "--out",
+                str(tmp_path / "out.jsonl"),
+            ]
+        )
+        == 0
+    )
     assert seen["seeds"] == [1]
     assert seen["faults"] == list(experiment_module.FAULTS)
     assert len(seen["cases"]) == 1

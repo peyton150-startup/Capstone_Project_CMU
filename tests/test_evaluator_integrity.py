@@ -21,9 +21,7 @@ def judge_request():
     """Build a real unsent request with the current rubric and one RUN question."""
     # Variables:
     #   question: A validated current rubric question with its missing-evidence rule.
-    question = next(
-        q for q in snap_request.load_questions()[1] if q.id == "RUN-01"
-    )
+    question = next(q for q in snap_request.load_questions()[1] if q.id == "RUN-01")
     built = snap_request.build_request(
         {"trace": {"completeness": "full"}},
         [question],
@@ -142,8 +140,10 @@ def test_function_test_context_and_tool_test_context_are_visible():
     by_test = {t["id"]: t for t in tests}
     by_function = {f["id"]: f for f in functions}
     case = next(
-        t for t in tests
-        if t["name"] == "test_bearing_health_outside_unit_interval_is_rejected_on_assignment"
+        t
+        for t in tests
+        if t["name"]
+        == "test_bearing_health_outside_unit_interval_is_rejected_on_assignment"
     )
     function = next(f for f in functions if f["direct_tests"])
     function = {
@@ -157,14 +157,11 @@ def test_function_test_context_and_tool_test_context_are_visible():
     tool = next(t for t in tools if t["tests"])
     tool_state = snap_request.tool_state(tool, by_function, by_test)
     assert any(
-        isinstance(test, dict) and test.get("source")
-        for test in tool_state["tests"]
+        isinstance(test, dict) and test.get("source") for test in tool_state["tests"]
     )
     missing_state = snap_request.tool_state(tool, by_function, {})
     assert missing_state["test_evidence_incomplete"]
-    questions = [
-        q for q in snap_request.load_questions()[1] if q.family == "TL"
-    ]
+    questions = [q for q in snap_request.load_questions()[1] if q.family == "TL"]
     built = snap_request.item_requests(
         [(tool["name"], missing_state)],
         questions,

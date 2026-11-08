@@ -279,7 +279,8 @@ def applicable_run_questions(
         else bool(
             conclusion.get("hypothesis_id")
             or diagnosis
-            and diagnosis not in {
+            and diagnosis
+            not in {
                 "unknown",
                 "undetermined",
                 "inconclusive",
@@ -886,14 +887,13 @@ def item_requests(
                 or "decorators_cut" in test
                 or test.get("module_helpers_shown") is not None
                 or any(
-                    "source_cut" in helper
-                    for helper in test.get("module_helpers", ())
+                    "source_cut" in helper for helper in test.get("module_helpers", ())
                 )
                 for test in state.get("tests", ())
             )
         )
-        tool_incomplete = (
-            meta.get("family") == "TL" and state.get("test_evidence_incomplete")
+        tool_incomplete = meta.get("family") == "TL" and state.get(
+            "test_evidence_incomplete"
         )
         chosen = [
             q
@@ -1286,7 +1286,9 @@ def main(argv=None) -> int:
         elif family == "TS":
             items = [(i, test_state(known[i], functions_by_id)) for i in wanted]
         else:
-            items = [(n, tool_state(known[n], functions_by_id, tests_by_id)) for n in wanted]
+            items = [
+                (n, tool_state(known[n], functions_by_id, tests_by_id)) for n in wanted
+            ]
         built = item_requests(
             items,
             questions_for(family, questions),

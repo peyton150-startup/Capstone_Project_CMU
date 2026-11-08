@@ -101,7 +101,11 @@ def test_function_sample_prefers_items_with_all_judgments(tmp_path):
             json.dumps(
                 with_judge_questions(
                     {
-                        "tags": {"family": "FN", "item_id": item_id, "questions": selected},
+                        "tags": {
+                            "family": "FN",
+                            "item_id": item_id,
+                            "questions": selected,
+                        },
                         "body": {"state": {"function_id": item_id}},
                     }
                 )
@@ -124,25 +128,27 @@ def test_run_strata_guarantees_blind_sound_and_misleading_cases(tmp_path):
     for item_id in ("sound-case", "misleading-case", "spare-case"):
         (requests / f"{item_id}.request.json").write_text(
             json.dumps(
-                with_judge_questions({
-                    "tags": {
-                        "family": "RUN",
-                        "item_id": item_id,
-                        "questions": {
-                            "quality": {
-                                "id": "RUN-01",
-                                "type": "score",
-                                "criteria": ["0", "1"],
+                with_judge_questions(
+                    {
+                        "tags": {
+                            "family": "RUN",
+                            "item_id": item_id,
+                            "questions": {
+                                "quality": {
+                                    "id": "RUN-01",
+                                    "type": "score",
+                                    "criteria": ["0", "1"],
+                                }
+                            },
+                        },
+                        "body": {
+                            "state": {
+                                "run_ref": "opaque",
+                                "trace": {"completeness": "full"},
                             }
                         },
-                    },
-                    "body": {
-                        "state": {
-                            "run_ref": "opaque",
-                            "trace": {"completeness": "full"},
-                        }
-                    },
-                })
+                    }
+                )
             ),
             encoding="utf-8",
         )

@@ -60,11 +60,15 @@ def export_requests(
                 or question.get("type") != tagged.get("type")
                 or question.get("criteria") != tagged.get("criteria")
             ):
-                raise ValueError("review question criteria differ from the judge request")
+                raise ValueError(
+                    "review question criteria differ from the judge request"
+                )
             visible = {"id": tagged["id"], **question}
             prior = item["questions"].get(tagged["id"])
             if prior is not None and prior != visible:
-                raise ValueError("same review question has different judge instructions")
+                raise ValueError(
+                    "same review question has different judge instructions"
+                )
             item["questions"][tagged["id"]] = visible
     if run_strata is not None:
         run_ids = {item_id for family, item_id in items if family == "RUN"}
