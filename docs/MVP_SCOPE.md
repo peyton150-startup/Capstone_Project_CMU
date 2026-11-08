@@ -346,7 +346,7 @@ This reorganizes the existing roadmap, not its implementation status or authorit
 | SM-1 | **HIGH** | Tooling | [Versioned channel map from `/probe`](#fw-sm-channel-map) (**built, PR #206**; awaits a real probe) | Before connecting | Saved `/probe` |
 | SM-2 | **HIGH** | Tooling | [Collection gaps and data quality in the telemetry file](#fw-sm-gap-events) (**gap markers built, PR #204**; staleness and UNAVAILABLE spans not yet) | Before connecting | Existing collector |
 | SM-3 | **HIGH** | Tooling | [Read-only real-data provider over recorded JSONL](#fw-sm-real-provider) | Before connecting | SM-1, SM-2 |
-| SM-4 | **HIGH** | Pilot readiness | [Shop visit checklist and technician event log](#fw-sm-visit-log) | Before and during the visit | None |
+| SM-4 | **HIGH** | Pilot readiness | [Shop visit checklist and technician event log](#fw-sm-visit-log) (**built, PR #207**; awaits the visit) | Before and during the visit | None |
 | SM-5 | **HIGH** | Tooling | [Time-aware statistics for unevenly sampled data](#fw-sm-time-stats) | Once readings exist (demo agent data is enough to start) | SM-3 |
 | SM-6 | **HIGH** | Tooling | [Operating-state segmentation](#fw-sm-state-segmentation) | Once readings exist | SM-1, SM-5 |
 | SM-7 | **HIGH** | Tooling | [Same-machine baseline from its own normal history](#fw-sm-own-baseline) | Once normal cycles are captured | SM-4, SM-6 |
@@ -398,7 +398,7 @@ flowchart LR
 | **HIGH** | Tooling | [SM-1 Versioned channel map from `/probe`](#fw-sm-channel-map) | Map every data item to its unit, meaning, tool sensor and availability; current focus. Built (PR #206); awaits the machine's real probe. |
 | **HIGH** | Tooling | [SM-2 Collection gaps in the telemetry file](#fw-sm-gap-events) | Write lost-data, stale and UNAVAILABLE spans into the JSONL instead of stderr. Lost-data gap markers built (PR #204); stale and UNAVAILABLE spans not yet. |
 | **HIGH** | Tooling | [SM-3 Real-data provider](#fw-sm-real-provider) | Answer the existing observation tools from a recorded capture, read-only. |
-| **HIGH** | Pilot readiness | [SM-4 Shop visit checklist and technician event log](#fw-sm-visit-log) | Can we read it, interpret it, verify it; log program/tool changes and maintenance. |
+| **HIGH** | Pilot readiness | [SM-4 Shop visit checklist and technician event log](#fw-sm-visit-log) | Can we read it, interpret it, verify it; log program/tool changes and maintenance. Built (PR #207); awaits the visit. |
 | **HIGH** | Tooling | [SM-5 Time-aware statistics](#fw-sm-time-stats) | Time-weighted means and slopes for uneven samples; never span a gap. |
 | **HIGH** | Tooling | [SM-6 Operating-state segmentation](#fw-sm-state-segmentation) | Idle, running, cutting and transitions from exposed fields only. |
 | **HIGH** | Tooling | [SM-7 Same-machine baseline](#fw-sm-own-baseline) | Compare the machine with its own confirmed-normal history per state. |
@@ -485,6 +485,13 @@ flowchart LR
 - **Can we verify it?** Ask an operator or technician to log program changes, tool changes, warm-up, unusual events and maintenance during the capture: a timestamped file with event type, short note and who logged it, kept with the private pilot data, not in this repository. Also ask for past alarm and maintenance history and what technicians check first for common symptoms; these feed the [same-machine baseline](#fw-sm-own-baseline) and the later [ranked check list](#fw-sm-check-ranking). Without this context, abnormal readings cannot be interpreted reliably.
 
 **Accept:** a saved probe, a capture with at least several normal cycles, and an event log whose entries can be matched to the capture's timestamps.
+
+**Status (2026-11-07): tooling built, PR #207 (built ungated at the developer's direction; questions and walkthrough owed; understood: no).**
+- *Built:* `capstone/ingestion/visit_log.py` reads the technician's CSV log (`at,event_type,note,logged_by,until`), refusing a bad line by number and a time with no UTC offset.
+- *Built:* each entry is placed against the capture as covered (inside a gap-free stretch, 60 s tolerance), in a gap, or outside, with the offset to the nearest observation.
+- *Built:* `python -m capstone.ingestion.visit_log check --probe --capture --events` prints the checklist under the three questions, plus the items only a person can confirm; `template --out` writes an empty log outside the repository.
+- *Not built:* a check that the log's clock agrees with the controller's (needs the real probe's fields; SM-6 uses it). Counting normal cycles needs SM-6, so it stays a confirm-by-hand item.
+- *Acceptance:* tested on synthetic files only. The visit itself, and so the acceptance check, has not happened yet.
 
 ### First increment — line-wide investigation before continuous monitoring (HIGH; proposed 2026-11-02)
 

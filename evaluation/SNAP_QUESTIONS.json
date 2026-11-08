@@ -1,6 +1,6 @@
 {
   "title": "Provider-neutral decision questions for SubQ Snap 1.1 and TypeSafe Jev 1.14",
-  "rubric_version": "1.0.0",
+  "rubric_version": "1.1.0",
   "api": {
     "endpoint": "POST https://api.subq.ai/v1/systemone",
     "model": "subq-snap-1.1",
@@ -34,7 +34,11 @@
     "Snap judges the quality of the investigation, never whether the answer matches ground truth; the judge's state never carries the true fault.",
     "Every question has a missing-evidence rule. A packet with trace.completeness = record_only cannot answer RUN-01, RUN-02, RUN-05, RUN-06, RUN-08, RUN-09, RUN-10 or RUN-12 (evaltools.snap_request.NEEDS_FULL_TRACE); those are recorded as 'unknown' without a request.",
     "A probability from a noul question is a model's preference, not a calibrated correctness probability. Thresholds below are decision rules for the report, not claims about calibration.",
-    "Scores are reported per item and per batch with their denominators; nothing is folded into one overall percentage."
+    "Scores are reported per item and per batch with their denominators; nothing is folded into one overall percentage.",
+    "The judge sees each question's type, instructions and criteria, with its missing-evidence rule appended to the instructions (DecisionQuestion.to_request). Fields such as applies_to, deterministic_precedence, scoring_note and decision_rule are for the evaluator and reviewers; nothing a judge needs in order to answer may live only there.",
+    "Score levels are exclusive: each level says what separates it from the next, so one trace fits one level. Choice options are exclusive; where two could apply, the instructions say which one wins.",
+    "A reading counts wherever it appears in a trace. Phase names (observe, investigate, test) are the loop's bookkeeping, not part of what a reading shows.",
+    "Designed degradations (the hazards a run reports) are measured by the deterministic hazard checks, not by the judge; judge questions look for undesigned failures."
   ],
   "questions": [
     {
@@ -43,13 +47,13 @@
       "name": "evidence_quality",
       "applies_to": "one master-run packet (snap_view)",
       "type": "score",
-      "instructions": "Read `trace`. Judge whether the final `conclusion.diagnosis` is supported by relevant evidence the factory itself returned (origin 'observable'), rather than by assumptions, manual guidance or memory alone. Consider only evidence ids the conclusion or the selected hypothesis cites and what those items actually contain.",
+      "instructions": "Read `trace`. Judge whether the final `conclusion.diagnosis` is supported by relevant evidence the factory itself returned (origin 'observable'), rather than by assumptions, manual guidance or memory alone. Consider only evidence ids the conclusion or the selected hypothesis cites and what those items actually contain. A rival is any other cause the agent listed (hypotheses and pruned candidates) or the retrieved manual names for this symptom; a discriminating reading is one whose result would differ depending on which of the two is true. Readings count in any phase. When the conclusion names no single cause, judge the support for the causes it keeps open and the ones it rules out.",
       "criteria": [
-        "0: The conclusion cites no observable evidence, or the cited evidence does not bear on the claim.",
-        "1: One cited observable item loosely relates to the claim; key symptoms the claim depends on were never read.",
-        "2: Cited observable evidence shows the symptom the claim names, but a plausible alternative explanation of the same evidence was not examined.",
-        "3: Cited observable evidence shows the symptom and at least one discriminating reading was made that separates the claim from an alternative.",
-        "4: Cited observable evidence shows the symptom, discriminating readings separate it from the alternatives, and other machines or batches were checked before the conclusion."
+        "0: The conclusion cites no observable evidence, or nothing it cites bears on the claim.",
+        "1: Cited observable evidence relates to the claim only loosely: a symptom the claim depends on was never read.",
+        "2: Cited observable evidence shows the symptom, but no reading separates the claim from any rival.",
+        "3: At least one discriminating reading separates the claim from a rival, but at least one rival is left unseparated.",
+        "4: Discriminating readings separate the claim from every rival, and other machines or batches were checked before the conclusion."
       ],
       "required_evidence": [
         "trace.evidence",
@@ -67,13 +71,13 @@
       "name": "hypothesis_reasoning",
       "applies_to": "one master-run packet (snap_view)",
       "type": "score",
-      "instructions": "Read `trace.hypotheses`, `trace.pruned_candidates` and the decisions in phase 'test'. Judge whether the investigator considered competing plausible causes for the anomaly and tested them against each other, rather than pursuing one explanation from the start.",
+      "instructions": "Read `trace.hypotheses`, `trace.pruned_candidates` and every decision, in any phase. Judge whether the investigator considered competing plausible causes and tested them against each other, rather than pursuing one explanation from the start. A cause that needs no repair is a transient, a material batch, a setting, an instrument fault or normal operation. The kinds of cause the retrieved manual names for this symptom (for example operating change, transient, instrument, equipment, material) set what a complete set covers. Readings count in any phase.",
       "criteria": [
-        "0: One hypothesis only, or several hypotheses that are rewordings of the same cause.",
-        "1: Several distinct hypotheses were listed but no decision in the test phase was aimed at telling them apart.",
-        "2: Distinct hypotheses and at least one test-phase reading that bears on a rival, but confidences moved without the cited evidence changing.",
-        "3: Distinct hypotheses, discriminating readings, and confidences revised in a way the cited evidence explains.",
-        "4: As 3, and a hypothesis that needs no change to the factory (a transient, a batch, a setting) was held and tested, not only mechanical faults."
+        "0: One hypothesis only, or several that are rewordings of the same cause.",
+        "1: Distinct hypotheses were listed, but no reading anywhere in the trace was aimed at telling them apart.",
+        "2: Distinct hypotheses and at least one reading that bears on a rival, but the confidences do not follow the readings: a hypothesis gained or lost confidence on a reading that cannot tell it from its rivals, or the leading hypothesis kept its confidence after a reading that contradicts it.",
+        "3: Distinct hypotheses, readings that tell them apart and confidences that follow those readings, but the set missed a plausible cause: a kind of cause the retrieved manual names for this symptom, or any cause that needs no repair.",
+        "4: As 3, and the set covered the plausible causes: it held at least one cause that needs no repair, and every kind of cause the retrieved manual names for this symptom was listed or set aside with a stated reason."
       ],
       "required_evidence": [
         "trace.hypotheses",
@@ -81,7 +85,7 @@
         "trace.evidence"
       ],
       "missing_evidence": "record_only packets: unknown.",
-      "deterministic_precedence": "none; this is interpretation."
+      "deterministic_precedence": "none; this is interpretation. Testing done in the investigate phase counts the same as in the test phase."
     },
     {
       "id": "RUN-03",
@@ -89,11 +93,11 @@
       "name": "critic_effectiveness",
       "applies_to": "one master-run packet with trace.critique present",
       "type": "choice",
-      "instructions": "Read `trace.critique`, `trace.recheck`, the hypotheses and the conclusion. Did the critic identify an important weakness (a contradiction, a missing check, a better alternative) and did a useful follow-up happen when one was warranted?",
+      "instructions": "Read `trace.critique`, `trace.recheck`, the hypotheses and the conclusion. Did the critic identify an important weakness (a contradiction, a missing check, a better alternative) and did a useful follow-up happen when one was warranted? If the critic names a real weakness but its check tests something else, the answer is ineffective. A plausible rival is another cause the agent listed or the retrieved manual names for this symptom.",
       "criteria": {
-        "effective": "The critic named a real weakness or the best-supported alternative, and the follow-up reading (or the conclusion) reflects it.",
-        "ineffective": "The critic missed an evident weakness, objected without substance, or its point was available and ignored (recheck skipped, policy_stopped, or the conclusion unchanged despite a contradicting reading).",
-        "not_required": "The leading hypothesis was already well supported and the critic's agreement was reasonable; no follow-up was needed.",
+        "effective": "The critic named a real weakness or the best-supported alternative, and its check (or the conclusion) addresses that weakness.",
+        "ineffective": "The critic missed an evident weakness, objected without substance, named a check that cannot test its own point (one that repeats readings already in hand, or a window that ends after the current tick), or its point was ignored (recheck skipped, policy_stopped, or the conclusion unchanged despite a contradicting reading).",
+        "not_required": "The leading hypothesis was already separated from every plausible rival and the critic's agreement was reasonable; no follow-up was needed.",
         "unknown": "No usable critique (outcome no_answer or invalid_reply), or the trace is incomplete."
       },
       "required_evidence": [
@@ -111,11 +115,12 @@
       "name": "retrieval_quality",
       "applies_to": "one master-run packet with manual or memory offered",
       "type": "choice",
-      "instructions": "Read `trace.manual_searches`, `trace.recall_searches`, the evidence items whose origin is 'manual' or 'memory', and where those ids are cited. Did the retrieved passages or memories materially support the investigation?",
+      "instructions": "Read `trace.manual_searches`, `trace.recall_searches`, the evidence items whose origin is 'manual' or 'memory', and the hypotheses, decisions and conclusion. Did the retrieved passages or memories materially support the investigation? Use counts whether or not the item is cited by id. If more than one option applies, choose in this order: misleading, ignored, useful.",
       "criteria": {
-        "useful": "A retrieved section or memory is cited by a hypothesis, a decision or the conclusion, and the reasoning that cites it is consistent with its content.",
-        "unnecessary": "Retrieval happened but nothing retrieved was cited or acted on; the investigation would read the same without it.",
-        "misleading": "A retrieved item was cited in support of a claim it does not support, or steered a reading away from the symptom.",
+        "useful": "A retrieved passage shaped the investigation: it is cited by id, or a hypothesis, a decision or the conclusion uses a check, cause or caution that appears in the passage and not in the anomaly text, consistently with what the passage says.",
+        "ignored": "The conclusion goes against a caution a retrieved passage states for this symptom, or skips the check a passage recommends for telling apart the causes the conclusion weighs, without saying why.",
+        "misleading": "A retrieved passage was cited or followed in support of a claim it does not support, or steered a reading away from the symptom.",
+        "unnecessary": "Retrieval answered, nothing retrieved was used, and nothing retrieved bore on the conclusion.",
         "not_retrieved": "The tool was offered but never answered a search (no search, or every search refused or failed).",
         "unknown": "The trace is incomplete."
       },
@@ -155,10 +160,10 @@
       "name": "abstention_appropriate",
       "applies_to": "one master-run packet",
       "type": "choice",
-      "instructions": "Read the conclusion, its confidence and assessment, and the evidence. If the agent declined to name a cause (escalate / unresolved) was the evidence in fact insufficient? If it named a cause with high confidence, was the evidence sufficient for that confidence?",
+      "instructions": "Read the conclusion, its assessment and recommendation, the hypotheses and the evidence. Decide whether the agent named a single cause, and whether the cited evidence justified that decision. A conclusion that names one cause counts as committed even when a later check lowered its recommendation to escalate; one that keeps two or more causes open, or names none, counts as declined. Judge the decision, not the confidence figure (RUN-09 judges the figure). A plausible rival is another cause the agent listed or the retrieved manual names for this symptom.",
       "criteria": {
-        "appropriate": "Declined when the evidence left two or more causes open, or committed when the cited evidence settles the cause.",
-        "inappropriate": "Declined although the cited evidence settled the cause, or committed with confidence 0.8 or more while a rival cause was untested or a contradiction stood.",
+        "appropriate": "Declined when the cited evidence left two or more causes open, or committed when cited readings separate the named cause from every plausible rival.",
+        "inappropriate": "Declined although cited readings separate one cause from every plausible rival, or committed while a plausible rival was untested or a contradiction stood.",
         "not_applicable": "The run never reached a reasoned conclusion (model unavailable, undetermined by timeout)."
       },
       "required_evidence": [
@@ -175,13 +180,14 @@
       "name": "failure_classification",
       "applies_to": "one master-run packet; asked of every run, with none_observed for one that reads as sound, so the judge never learns from the question which runs were wrong",
       "type": "choice",
-      "instructions": "Read the whole trace. What most seriously undermined this investigation? Choose the single earliest cause that, had it gone right, would most likely have changed the outcome.",
+      "instructions": "Read the whole trace. What most seriously undermined this investigation? Choose the single earliest cause that, had it gone right, would most likely have changed the outcome. If the run reads as sound, choose none_observed.",
       "criteria": {
-        "reasoning": "The relevant readings were in hand and misread: the hypotheses or confidences do not follow from the cited evidence.",
+        "reasoning": "The readings needed were in hand and were misread: the hypotheses, confidences or conclusion do not follow from the cited evidence.",
+        "evidence_gathering": "The agent stopped or concluded before making a reading that its own hypotheses or the retrieved manual called for, with no tool failure or budget forcing it.",
         "retrieval": "A manual or memory answer was absent, unhelpful or misleading at the point it mattered.",
         "critic": "The critic missed or misdirected, or its correct point was dropped.",
-        "tooling": "Tool errors, refused calls, repeated calls, a blackout or a gap left the needed reading unavailable, or the budget ran out before it could be made.",
-        "verification": "The diagnosis and action were right but the post-action check was missing or wrong.",
+        "tooling": "Tool errors, refused calls, repeated calls, a blackout or a gap left the needed reading unavailable, or the time or call budget ran out while the agent was still collecting it.",
+        "verification": "The diagnosis and action are supported by the trace, but the post-action check was missing or wrong.",
         "none_observed": "Nothing undermined it: the investigation reads as sound.",
         "unknown": "The trace is incomplete."
       },
@@ -189,7 +195,7 @@
         "trace"
       ],
       "missing_evidence": "record_only packets: the judge may use tools_used, decisions outcomes and termination_reason only; answer unknown unless a tooling or timeout cause is evident from them.",
-      "deterministic_precedence": "evaluator_only.miss_kind (evidence_miss vs reasoning_miss) and facts.termination_reason are code facts reported beside this answer."
+      "deterministic_precedence": "evaluator_only.miss_kind (evidence_miss vs reasoning_miss) and facts.termination_reason are code facts reported beside this answer; evidence_gathering and reasoning are the judge's view of the same split."
     },
     {
       "id": "RUN-08",
@@ -197,13 +203,13 @@
       "name": "conclusion_support",
       "applies_to": "one master-run packet",
       "type": "score",
-      "instructions": "Independently of whether the diagnosis is true, how well does the trace support the final conclusion as stated? Consider the cited evidence, the unexplained and contradicting evidence the hypotheses list, open questions, and whether the stated confidence matches.",
+      "instructions": "Independently of whether the diagnosis is true, how well does the trace support the final conclusion as stated? Consider every claim the conclusion states as settled, the unexplained and contradicting evidence the hypotheses list, the open questions, and whether the stated confidence matches. For a conclusion that keeps causes open, its claim is the set it keeps open and the set it rules out; open questions it states as open lower the score only when they undermine something it states as settled.",
       "criteria": [
-        "0: The conclusion is not supported: cited evidence is absent, irrelevant or contradicts it.",
-        "1: Weakly supported: one consistent reading, with alternatives or contradictions left open.",
-        "2: Partly supported: the symptom is shown, but at least one listed contradiction, unexplained item or open question remains.",
-        "3: Well supported: the cited evidence shows the symptom and separates the cause from the alternatives the agent considered.",
-        "4: Fully supported: as 3, with the confidence stated proportionate and nothing material left open."
+        "0: Not supported: the cited evidence is absent, irrelevant or contradicts the conclusion.",
+        "1: Weakly supported: one consistent reading, with the alternatives or contradictions left open.",
+        "2: Partly supported: the symptom is shown, but a claim the conclusion states as settled is not supported by the cited evidence, or an open question it lists undermines one of its own settled claims.",
+        "3: Well supported: every claim stated as settled is supported by the cited evidence and the named cause (or the causes kept open) is separated from the alternatives the agent considered, but the stated confidence is out of proportion or something material is left open.",
+        "4: Fully supported: as 3, with the confidence proportionate and nothing material left open."
       ],
       "required_evidence": [
         "trace.conclusion",
@@ -217,12 +223,12 @@
       "id": "RUN-09",
       "family": "RUN",
       "name": "unsupported_confidence",
-      "applies_to": "one master-run packet with a committed conclusion",
+      "applies_to": "one master-run packet whose conclusion names a cause (facts.committed), whatever its final recommendation",
       "type": "noul",
-      "instructions": "Is the confidence stated in `trace.conclusion.confidence` higher than the cited evidence allows?",
+      "instructions": "Is the confidence in `trace.conclusion.confidence` higher than the cited evidence allows? This applies to any conclusion that names a cause, even when a later check lowered its recommendation to escalate. A rival is any other cause the agent listed (hypotheses and pruned candidates) or the retrieved manual names for this symptom; a discriminating reading is one whose result would differ depending on which of the two is true. Readings count in any phase.",
       "criteria": {
-        "true": "A rival hypothesis with cited support was never tested, a contradiction or unexplained item is listed for the selected hypothesis, or the cited evidence is a single reading, yet confidence is 0.8 or more.",
-        "false": "The stated confidence is proportionate: discriminating readings were made and nothing material is left open, or the confidence is already low."
+        "true": "Confidence is 0.8 or more while a rival was never separated by a reading, a contradiction or unexplained item is listed for the selected hypothesis, the conclusion's own unresolved questions leave the named cause open, or the cited evidence is a single reading.",
+        "false": "Confidence is below 0.8, or it is 0.8 or more with every rival separated and nothing material left open."
       },
       "required_evidence": [
         "trace.conclusion",
@@ -258,9 +264,9 @@
       "type": "choice",
       "instructions": "Read `trace.critique` (the check it named), `trace.recheck` and the hypotheses before and after. Did the investigator use the critic's feedback?",
       "criteria": {
-        "used": "The follow-up reading was made where the critic pointed, and the leading hypothesis or its confidence changed in the direction the reading supports (or stayed when the reading confirmed it).",
-        "ignored": "A usable critique named a check and the follow-up was skipped, stopped by the policy, refused, or made but the beliefs did not respond to what it showed.",
-        "no_feedback": "The critic gave no usable check (no_answer, invalid_reply, or an empty discriminating_check).",
+        "used": "The follow-up reading was made where the critic pointed, and the leading hypothesis or its confidence changed in the direction the reading supports, or stayed when the reading confirmed it.",
+        "ignored": "A usable check was named and the follow-up was skipped, stopped by the policy or refused, or it was made but the beliefs did not respond to what it showed.",
+        "no_feedback": "The critic gave no usable check: no_answer, invalid_reply, an empty discriminating_check, or a check that could not be carried out when it was given (for example a window that ends after the current tick).",
         "unknown": "The trace is incomplete."
       },
       "required_evidence": [
@@ -277,10 +283,10 @@
       "name": "evidence_cited_matches_content",
       "applies_to": "one master-run packet",
       "type": "noul",
-      "instructions": "For each evidence id the conclusion cites, read that item's content. Does every cited item actually show what the conclusion says it shows?",
+      "instructions": "For each evidence id the conclusion cites, read that item's content. Does every cited item actually show what the conclusion says it shows? Judge what each item contains, not whether the conclusion's inference from it is sound (RUN-08 judges that). A figure counts as shown when it matches the item to the precision the conclusion states.",
       "criteria": {
         "true": "Every cited item contains the reading, event or result the conclusion attributes to it.",
-        "false": "At least one cited item does not contain what is attributed to it (wrong machine, wrong sensor, a value not present, an event not there), or the conclusion cites nothing."
+        "false": "At least one cited item does not contain what is attributed to it (wrong machine, wrong sensor, a value not present, an event not there, a time window that does not match), or the conclusion cites nothing."
       },
       "required_evidence": [
         "trace.conclusion",
@@ -295,7 +301,7 @@
       "name": "implementation_matches_contract",
       "applies_to": "one function evidence packet (source, docstring, variable block, tests)",
       "type": "noul",
-      "instructions": "Read the function's source and its stated contract (docstring and `# Variables:` block). Does the implementation do what the contract says, for every branch, including error paths?",
+      "instructions": "Read the function's source and its stated contract: the docstring and `# Variables:` block, and for a command-line `main` also its argparse description and help texts. Does the implementation do what the contract says, for every branch, including error paths? A return value, exit code or early exit the contract does not mention counts as undocumented behaviour a caller would need to know.",
       "criteria": {
         "true": "Every statement in the contract is implemented and no branch does something the contract does not describe.",
         "false": "A documented behaviour is missing, a branch does something undocumented that a caller would need to know, or the contract is absent so nothing can be matched."
@@ -316,10 +322,10 @@
       "type": "choice",
       "instructions": "Compare the function's branches, raises and except clauses with the tests listed as executing it. Are the failure and boundary paths exercised by a test that asserts on their outcome?",
       "criteria": {
-        "covered": "Every raise, except clause and boundary condition visible in the source is reached by a listed test that asserts on the result.",
-        "partly": "The happy path and some failure paths are asserted; at least one raise, except clause or boundary is not.",
+        "covered": "Every raise, except clause, error exit or return code, and boundary branch (an optional argument absent, an empty collection) visible in the source is reached by a listed test that asserts on its outcome.",
+        "partly": "The happy path and at least one of those are asserted; at least one is not.",
         "uncovered": "Only the happy path is asserted, or the listed tests execute the function without asserting on its result.",
-        "not_applicable": "The function has no failure path (pure data access, a property)."
+        "not_applicable": "The function has no failure or boundary branch (pure data access, a property)."
       },
       "required_evidence": [
         "source",
@@ -337,8 +343,8 @@
       "type": "choice",
       "instructions": "Given the tests that execute this function, their assertions and their outcomes, is the available evidence sufficient to call the function correct against its contract?",
       "criteria": {
-        "sufficient": "Direct tests assert the contract's behaviour on realistic inputs including failure paths, and all passed.",
-        "insufficient": "The function is executed only incidentally by other tests, assertions are weak, failure paths are untested, or a test failed or was skipped.",
+        "sufficient": "Direct tests assert the contract's behaviour on realistic inputs, including failure paths and every outcome the contract states, and all passed.",
+        "insufficient": "The function is executed only incidentally by other tests, assertions are weak, a failure path or an outcome the contract states is untested, or a test failed or was skipped.",
         "not_applicable": "A stub, a protocol method or a one-line accessor whose correctness is established by its type alone."
       },
       "required_evidence": [
@@ -355,16 +361,18 @@
       "name": "test_proves_its_claim",
       "applies_to": "one test evidence packet (test source, docstring, functions exercised, outcome)",
       "type": "noul",
-      "instructions": "The test's name and docstring make a claim. Do its assertions establish that claim about the functions it exercises?",
+      "instructions": "The test's name and docstring make a claim. Do its assertions establish that claim about the project code it exercises? `decorators` holds the test's decorators (for example its parametrize values) and `module_helpers` the source of helper functions from the test's module that it calls or takes as fixtures.",
       "criteria": {
         "true": "The assertions check the specific behaviour the name claims, on inputs that exercise it.",
-        "false": "The assertions check something weaker or different from the claim (only that no error occurred, only a type, only a field exists), or the claim is not about the project code the test exercises."
+        "false": "The assertions check something weaker or different from the claim (only that no error occurred, only a type, only a field exists), or the claim is not about project code."
       },
       "required_evidence": [
         "test_source",
+        "decorators",
+        "module_helpers",
         "exercises"
       ],
-      "missing_evidence": "No exercised project function (coverage absent): unknown.",
+      "missing_evidence": "If no project function is listed as exercised, judge the project classes or modules the test constructs, calls or imports (validation declared on a project model counts as project code); answer false only if it exercises no project code at all.",
       "deterministic_precedence": "assertion counts and forms are code facts."
     },
     {
@@ -373,14 +381,15 @@
       "name": "would_fail_if_broken",
       "applies_to": "one test evidence packet",
       "type": "noul",
-      "instructions": "Imagine the behaviour the test claims to verify were broken in the implementation (the wrong branch taken, the check removed, the value off by one). Would this test fail?",
+      "instructions": "Imagine the behaviour the test claims to verify were broken in the implementation (the wrong branch taken, the check removed, the value off by one). Would this test fail? `module_helpers` shows what the helpers it uses do.",
       "criteria": {
         "true": "A plausible breakage of the claimed behaviour changes an asserted value.",
         "false": "The test could still pass because its inputs come from a stub that fixes the outcome, the assertion is on a mocked return, or the assertion is too loose to notice."
       },
       "required_evidence": [
         "test_source",
-        "helpers used"
+        "decorators",
+        "module_helpers"
       ],
       "missing_evidence": "none",
       "deterministic_precedence": "A mutation-testing result, where available, takes precedence over this judgement."
@@ -412,7 +421,7 @@
       "type": "noul",
       "instructions": "Read the tool's implementation and the provider's wiring. Can the tool return anything the agent must not see (hidden condition, ground truth, approval powers, raw errors with secrets), or change the factory without the intended authorization?",
       "criteria": {
-        "true": "Every field returned is rebuilt from an output contract, no hidden field or secret can pass, and any factory change goes through the approval desk or the wait tool as designed.",
+        "true": "Every field returned is rebuilt from an output contract, no hidden field or secret can pass, and any factory change goes through the approval desk or the wait tool as designed. A note that reports what a person would observe by design (a technician's finding on a removed part) is evidence, not hidden state.",
         "false": "A code path can return hidden state, a raw exception, or change the factory without approval."
       },
       "required_evidence": [
@@ -429,7 +438,7 @@
       "name": "description_matches_behaviour",
       "applies_to": "one tool evidence packet",
       "type": "noul",
-      "instructions": "Compare the tool description a model is shown with what the implementation does and refuses. Would a model that trusts the description be misled?",
+      "instructions": "Compare the tool description a model is shown with what the implementation does and refuses. Would a model that trusts the description be misled? A limit counts against the description only if a normal call can reach it.",
       "criteria": {
         "true": "The description states the arguments, limits and meaning of the answer as implemented.",
         "false": "The description promises something the implementation does not do, omits a limit the implementation enforces (rows, ranges, sensors), or describes the answer's meaning wrongly."
@@ -448,12 +457,12 @@
       "name": "silent_failure_risk",
       "applies_to": "one tool evidence packet",
       "type": "score",
-      "instructions": "How likely is this tool to return a value that is wrong or incomplete without signalling failure (success=true with misleading data)?",
+      "instructions": "How likely is this tool to return a value that is wrong or incomplete without signalling failure (success=true with misleading data)? Designed degradations (the hazards in `hazards_note`, which runs report) do not count; judge undesigned ways the answer could be wrong or incomplete.",
       "criteria": [
         "0: Cannot: the answer is a direct projection of recorded data with no filtering that could drop rows.",
         "1: Unlikely: filtering or arithmetic exists but is simple and tested on boundaries.",
         "2: Possible: windows, units or ordering could silently exclude or distort data and the tests do not cover that case.",
-        "3: Likely: the answer depends on state the agent cannot see (an injected hazard, a stale record) and nothing marks the answer as degraded."
+        "3: Likely: outside the designed hazards, the answer depends on state the agent cannot see (an unsynchronised cache, a source that may be incomplete) and nothing marks the answer as degraded."
       ],
       "required_evidence": [
         "implementation",
@@ -471,9 +480,9 @@
       "type": "choice",
       "instructions": "Two batches are compared. From their configurations, commits, scenario sets, models, retrieval settings, rubric versions and label sources, is a like-for-like comparison valid?",
       "criteria": {
-        "valid": "Same scenarios and seeds, same label rule and rubric version, one configuration difference (the treatment), models and settings otherwise identical, no resumed mixed-configuration runs.",
-        "partially_valid": "Same scenarios but more than one difference, or a resumed run with a settings change inside it, so a difference can be reported but not attributed.",
-        "invalid": "Different scenarios, different label rules, or results of unknown configuration."
+        "valid": "Same scenarios and seeds (or the same case hash), the same commit, label sources and rubric version, and exactly one configuration setting differs (the treatment); no run was resumed with different settings. Which model answered, outages and timing are outcomes, not configuration differences.",
+        "partially_valid": "Same scenarios, but more than one configuration setting differs, or a resumed run changed settings partway, so a difference can be reported but not attributed.",
+        "invalid": "Different scenarios, different label rules or rubric versions, or results of unknown configuration."
       },
       "required_evidence": [
         "batch configurations",
@@ -489,12 +498,12 @@
       "name": "improvement_supported",
       "applies_to": "one experiment comparison packet",
       "type": "choice",
-      "instructions": "Given the per-case results and the number of cases, does the evidence support a claim that the treatment improved root-cause accuracy and evidence-grounded decisions without more unsupported conclusions, more tool calls or more failures?",
+      "instructions": "Given the per-case results and the number of cases, does the evidence support a claim that the treatment improved root-cause accuracy and evidence-grounded decisions without more unsupported conclusions, more tool calls or more failures? A matched case is one judged in both batches; `sample_rule_in_code.matched_judged` counts them and `sample_rule_in_code.rule` applies the sample condition.",
       "criteria": {
         "improvement": "More cases right, no more confident-wrong, no more false interventions, and tool calls or latency not materially higher, over at least two repeats per case or 13 or more matched cases.",
         "regression": "Fewer right, or more confident-wrong or false interventions, with the same sample conditions.",
         "no_difference": "Differences within one case either way with the sample conditions met.",
-        "insufficient_sample": "One run per case, fewer than the matched cases above, or outages removed cases from one side."
+        "insufficient_sample": "The sample conditions are not met: one run per case and fewer than 13 matched cases, or an outage hit a matched case on one side only."
       },
       "required_evidence": [
         "batch summaries",
@@ -503,5 +512,9 @@
       "missing_evidence": "none",
       "deterministic_precedence": "All counts come from BATCH_SUMMARY.json; the judge applies the sample rule, which the report also applies in code."
     }
+  ],
+  "changelog": [
+    "1.0.0 (2026-11-01): first version.",
+    "1.1.0 (2026-11-08): calibration round 1 found answers that depended on wording rather than evidence. Changed in meaning: RUN-01, RUN-02 and RUN-08 (exclusive levels), RUN-04 (new option ignored), RUN-06 (no confidence threshold; a check-lowered escalate still counts as committed), RUN-07 (new option evidence_gathering), RUN-09 (asked of every conclusion that names a cause; rivals and open questions spelled out), RUN-11 (a check that cannot be carried out is no_feedback), TS-01 (declarative project code counts), TL-03 (designed hazards excluded). Clarified without a change of meaning: RUN-03, RUN-12, FN-01, FN-02, FN-03, TS-02, TL-01, TL-02, BT-01, BT-02. Answers given under 1.0.0 are not comparable for the changed questions."
   ]
 }

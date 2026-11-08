@@ -1,0 +1,107 @@
+{
+ "review_id": "014845a67471fce4",
+ "family": "FN",
+ "state": {
+  "function_id": "capstone.evaluation.auto_label:main",
+  "file": "capstone-code/capstone/evaluation/auto_label.py",
+  "signature": "argv: Sequence[str] | None=None -> int",
+  "contract": {
+   "docstring": "",
+   "has_variable_block": false,
+   "purpose": ""
+  },
+  "source": "def main(argv: Sequence[str] | None = None) -> int:\n    parser = argparse.ArgumentParser(\n        prog=\"python -m capstone.evaluation.auto_label\",\n        description=\"Propose diagnosis labels with TypeSafe's Jev and compare \"\n        \"them with hand labels. Needs TYPESAFE_API_KEY.\",\n    )\n    parser.add_argument(\"results\", nargs=\"+\", type=Path, help=\"experiment results\")\n    parser.add_argument(\"--out\", type=Path, required=True, help=\"proposals file\")\n    parser.add_argument(\"--hand\", type=Path, help=\"hand labels to compare with\")\n    args = parser.parse_args(argv)\n\n    client = judgment_client(get_settings())\n    proposals = []\n    with args.out.open(\"a\", encoding=\"utf-8\", newline=\"\\n\") as out:\n        for run_key, conclusion in conclusions(args.results).items():\n            proposal = propose(run_key, conclusion, client)\n            proposals.append(proposal)\n            out.write(proposal.model_dump_json() + \"\\n\")\n            flag = \"  REVIEW: \" + \"; \".join(proposal.review_reasons)\n            print(\n                f\"{run_key}: {_describe(proposal.label.diagnosis)}\"\n                + (flag if proposal.needs_review else \"\")\n            )\n    print(f\"{len(proposals)} proposals written to {args.out}\")\n    if args.hand is not None:\n        result = agreement(proposals, LabelBook(args.hand).read())\n        print(\n            f\"agree with hand labels: {result.agreed} of {result.compared} \"\n            f\"({result.unreviewed_agreed} of {result.unreviewed_compared} \"\n            \"among those not marked for review)\"\n        )\n        for key, (proposed, by_hand) in result.disagreements.items():\n            print(f\"  {key}: proposed {proposed!r}, by hand {by_hand!r}\")\n    return 0",
+  "raises": [],
+  "catches": [],
+  "side_effect_hints": [
+   "writes_file",
+   "prints"
+  ],
+  "static_callers": [],
+  "coverage": {
+   "class": "direct",
+   "statement_coverage": 0.952,
+   "test_count": 1,
+   "direct_test_count": 1,
+   "indirect_test_count": 0
+  },
+  "tests": [
+   {
+    "id": "tests/test_auto_label.py::test_the_command_writes_proposals_and_reports_agreement",
+    "claims": "the command writes proposals and reports agreement",
+    "assertions": 3,
+    "assert_forms": {
+     "equality": 1,
+     "is_none": 1,
+     "membership": 1
+    },
+    "raises_checks": 0,
+    "execution_outcome": "passed",
+    "source": "def test_the_command_writes_proposals_and_reports_agreement(\n    tmp_path, monkeypatch, capsys\n):\n    results = tmp_path / \"results.jsonl\"\n    results.write_text(\n        json.dumps({\"run_key\": \"a\", \"conclusion\": \"undetermined\"}) + \"\\n\",\n        encoding=\"utf-8\",\n    )\n    hand = tmp_path / \"hand.jsonl\"\n    hand.write_text(\n        Label(run_key=\"a\", diagnosis=None, labelled_by=\"dev\").model_dump_json() + \"\\n\",\n        encoding=\"utf-8\",\n    )\n    out = tmp_path / \"proposals.jsonl\"\n    monkeypatch.setattr(auto_label, \"judgment_client\", lambda settings: FakeClient())\n\n    assert auto_label.main([str(results), \"--out\", str(out), \"--hand\", str(hand)]) == 0\n    (line,) = out.read_text(encoding=\"utf-8\").splitlines()\n    assert Proposal.model_validate_json(line).label.diagnosis is None\n    assert \"agree with hand labels: 1 of 1\" in capsys.readouterr().out"
+   }
+  ],
+  "tests_shown": null
+ },
+ "questions": {
+  "FN-01": {
+   "id": "FN-01",
+   "family": "FN",
+   "name": "implementation_matches_contract",
+   "type": "noul",
+   "instructions": "Read the function's source and its stated contract: the docstring and `# Variables:` block, and for a command-line `main` also its argparse description and help texts. Does the implementation do what the contract says, for every branch, including error paths? A return value, exit code or early exit the contract does not mention counts as undocumented behaviour a caller would need to know.",
+   "criteria": {
+    "true": "Every statement in the contract is implemented and no branch does something the contract does not describe.",
+    "false": "A documented behaviour is missing, a branch does something undocumented that a caller would need to know, or the contract is absent so nothing can be matched."
+   },
+   "required_evidence": [
+    "source",
+    "docstring",
+    "callers"
+   ],
+   "missing_evidence": "No docstring and no variable block: answer false and flag 'contract unspecified'.",
+   "applies_to": "one function evidence packet (source, docstring, variable block, tests)",
+   "deterministic_precedence": "Test outcomes (passed/failed) are code facts from the junit report."
+  },
+  "FN-02": {
+   "id": "FN-02",
+   "family": "FN",
+   "name": "failure_paths_covered",
+   "type": "choice",
+   "instructions": "Compare the function's branches, raises and except clauses with the tests listed as executing it. Are the failure and boundary paths exercised by a test that asserts on their outcome?",
+   "criteria": {
+    "covered": "Every raise, except clause, error exit or return code, and boundary branch (an optional argument absent, an empty collection) visible in the source is reached by a listed test that asserts on its outcome.",
+    "partly": "The happy path and at least one of those are asserted; at least one is not.",
+    "uncovered": "Only the happy path is asserted, or the listed tests execute the function without asserting on its result.",
+    "not_applicable": "The function has no failure or boundary branch (pure data access, a property)."
+   },
+   "required_evidence": [
+    "source",
+    "tests",
+    "coverage"
+   ],
+   "missing_evidence": "No executing tests: answer uncovered.",
+   "applies_to": "one function evidence packet",
+   "deterministic_precedence": "Line coverage and the test list are code facts from the verification matrix; the judge rates the assertions."
+  },
+  "FN-03": {
+   "id": "FN-03",
+   "family": "FN",
+   "name": "evidence_sufficient_for_correctness",
+   "type": "choice",
+   "instructions": "Given the tests that execute this function, their assertions and their outcomes, is the available evidence sufficient to call the function correct against its contract?",
+   "criteria": {
+    "sufficient": "Direct tests assert the contract's behaviour on realistic inputs, including failure paths and every outcome the contract states, and all passed.",
+    "insufficient": "The function is executed only incidentally by other tests, assertions are weak, a failure path or an outcome the contract states is untested, or a test failed or was skipped.",
+    "not_applicable": "A stub, a protocol method or a one-line accessor whose correctness is established by its type alone."
+   },
+   "required_evidence": [
+    "tests",
+    "coverage",
+    "outcomes"
+   ],
+   "missing_evidence": "No tests: insufficient.",
+   "applies_to": "one function evidence packet",
+   "deterministic_precedence": "The verification matrix's coverage_class is the starting point; the judge may lower but never raise a FAILED or NOT TESTED status."
+  }
+ }
+}
