@@ -125,7 +125,7 @@ runs are not comparable.
 |---|---|
 | root-cause accuracy with the "misleading success" count beside it (fully_right; RUN-08 < 2 on right runs) | the headline, guarded |
 | confident-wrong and false-intervention counts | the two ways an agent harms a factory |
-| evidence-grounded decisions (right, RUN-08 ≥ 3, RUN-12 ≤ 0.3) | accuracy that is earned |
+| evidence-grounded decisions (right, RUN-08 ≥ 3, RUN-12 ≥ 0.7) | accuracy that is earned |
 | verification calibration distribution | whether "it worked" means it worked |
 | timeouts and mean wall seconds per case, with tool calls | the cost of the above |
 

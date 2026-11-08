@@ -45,13 +45,14 @@ from collections import Counter, defaultdict
 from collections.abc import Callable
 from pathlib import Path
 
-from evaltools import build_inventory, run_packet, snap_request
+from evaltools import audit_preflight, build_inventory, run_packet, snap_request
 from evaltools.decision_models import (
     MATCHED_STATE_TOKENS,
     NORMALIZE_VERSION,
     PROVIDERS,
     DecisionProvider,
     estimate_tokens,
+    reference_match,
 )
 
 REPO = snap_request.REPO
@@ -628,7 +629,15 @@ def plan(
     built: list = []
     if "FN" in families:
         items = [
-            (i, snap_request.function_state(f, tests))
+            (
+                i,
+                snap_request.function_state(
+                    f,
+                    tests,
+                    complete=state_tokens is not None
+                    and state_tokens > MATCHED_STATE_TOKENS,
+                ),
+            )
             for i, f in functions.items()
             if f["snap_questions"]
         ]
@@ -1069,8 +1078,92 @@ def ratio(numerator: int, denominator: int) -> dict:
     }
 
 
+def item_findings(
+    planned: dict, rows: list[dict], reference: dict | None
+) -> list[dict]:
+    """Join each item's code facts, judge answers and independent review."""
+    # Variables:
+    #   packets: Episode packets with truth-side results kept outside requests.
+    #   findings: One row per family, item and provider, including skipped answers.
+    #   question_types: The answer type needed to compare a reference correctly.
+    #   expected: An independent answer for this item and question, if reviewed.
+    #   values: Available RUN scores used for grounded and misleading flags.
+    packets = {p.meta.episode_key: p for p in planned["packets"]}
+    _, questions = snap_request.load_questions()
+    question_types = {question.id: question.type for question in questions}
+    findings: dict[tuple[str, str, str], dict] = {}
+    for row in rows:
+        family, item_id, provider = row["family"], row["item_id"], row["provider"]
+        key = (family, item_id, provider)
+        finding = findings.setdefault(
+            key,
+            {
+                "family": family,
+                "item_id": item_id,
+                "provider": provider,
+                "questions": {},
+            },
+        )
+        answer = {"status": row["status"]}
+        if row["status"] == "answered":
+            answer["value"] = row["value"]
+        elif row.get("reason"):
+            answer["reason"] = row["reason"]
+        expected = (reference or {}).get(item_id, {}).get(row["question_id"])
+        if expected is not None:
+            answer["reference"] = expected
+            answer["agrees_with_reference"] = (
+                reference_match(
+                    {"type": question_types[row["question_id"]], "value": row["value"]},
+                    expected,
+                )
+                if row["status"] == "answered"
+                else None
+            )
+        finding["questions"][row["question_id"]] = answer
+    for finding in findings.values():
+        family, item_id = finding["family"], finding["item_id"]
+        if family == "FN":
+            finding["verification_status"] = planned["functions"][item_id][
+                "verification_status"
+            ]
+        elif family == "TS":
+            finding["execution_outcome"] = planned["tests"][item_id][
+                "execution_outcome"
+            ]
+        elif family == "RUN" and item_id in packets:
+            packet = packets[item_id]
+            finding["source_commit"] = packet.meta.commit_sha
+            finding["trace_completeness"] = packet.snap_view.trace.completeness
+            finding["label_status"] = packet.evaluator_only.label_status
+            finding["fully_right"] = packet.evaluator_only.fully_right
+            questions_here = finding["questions"]
+            values = {
+                question: questions_here[question]["value"]
+                for question in ("RUN-01", "RUN-08", "RUN-12")
+                if questions_here.get(question, {}).get("status") == "answered"
+            }
+            right = packet.evaluator_only.fully_right
+            finding["misleading_success"] = (
+                bool(right and any(values.get(q, 4) < 2 for q in ("RUN-01", "RUN-08")))
+                if right is not None and any(q in values for q in ("RUN-01", "RUN-08"))
+                else None
+            )
+            finding["evidence_grounded"] = (
+                bool(right and values["RUN-08"] >= 3 and values["RUN-12"] >= 0.7)
+                if right is not None and {"RUN-08", "RUN-12"} <= values.keys()
+                else None
+            )
+    return [findings[key] for key in sorted(findings)]
+
+
 def report(
-    planned: dict, rows: list[dict], scope: dict, prov: dict, spend: dict
+    planned: dict,
+    rows: list[dict],
+    scope: dict,
+    prov: dict,
+    spend: dict,
+    reference: dict | None = None,
 ) -> dict:
     """The consolidated result: kinds of result kept apart, each with its denominator.
 
@@ -1086,6 +1179,7 @@ def report(
     # Variables:
     #   runs: Packets by (namespace, run name).
     #   statuses: Ledger rows counted by status.
+    #   reference: The reviewer's answers, joined to ledger rows in findings.
     runs: dict[tuple, list] = defaultdict(list)
     for packet in planned["packets"]:
         runs[(packet.meta.namespace, run_name(packet))].append(packet)
@@ -1181,6 +1275,8 @@ def report(
                 q: dict(sorted(c.items())) for q, c in sorted(by_question.items())
             },
         },
+        "findings": item_findings(planned, rows, reference),
+        "reference_items": 0 if reference is None else len(reference),
         "missingness": {
             status: n for status, n in sorted(statuses.items()) if status != "answered"
         },
@@ -1196,6 +1292,8 @@ def markdown(result: dict) -> str:
     #     send; absent in an offline dry run.
     #   readiness: Per provider, whether its key is set and its live contract
     #     verified, so a dry run says whether `--send` could start.
+    #   grounded, misleading: Eligible RUN flags, excluding unknown outcomes.
+    #   disagreements: Answered questions that differ from the independent review.
     def fraction(r: dict) -> str:
         return f"{r['n']}/{r['of']}"
 
@@ -1273,6 +1371,31 @@ def markdown(result: dict) -> str:
     ]
     for family, counts in result["judging"]["by_family"].items():
         lines.append(f"| {family} | {counts} |")
+    run_findings = [f for f in result["findings"] if f["family"] == "RUN"]
+    grounded = [
+        f["evidence_grounded"]
+        for f in run_findings
+        if f.get("evidence_grounded") is not None
+    ]
+    misleading = [
+        f["misleading_success"]
+        for f in run_findings
+        if f.get("misleading_success") is not None
+    ]
+    disagreements = sum(
+        answer.get("agrees_with_reference") is False
+        for finding in result["findings"]
+        for answer in finding["questions"].values()
+    )
+    lines += [
+        "",
+        f"Per-item findings: {len(result['findings'])} in `report.json`; "
+        f"independent reference items: {result['reference_items']}; "
+        f"judge/reference disagreements: {disagreements}.",
+        f"Evidence-grounded decisions: {sum(grounded)}/{len(grounded)} eligible; "
+        f"misleading successes: {sum(misleading)}/{len(misleading)} eligible. "
+        "Missing trace or answers remain unknown.",
+    ]
     spend = result["budget"]
     lines += [
         "",
@@ -1362,6 +1485,9 @@ def main(argv=None) -> int:
     #   counts: New sends, cumulative reserved/settled cost and stop reason.
     #   ready: Per provider, whether its key is set and live sending is
     #     allowed; printed before planning and kept in the report.
+    #   reference: Imported independent answers, or None before human review.
+    #   args.require_full_traces: Refuses missing audits before any live send.
+    #   args.snap_full_context: Uses Snap's larger state budget for its solo pass.
     parser = argparse.ArgumentParser(prog="python -m evaltools.full_evaluation")
     parser.add_argument(
         "--commit", help="the commit being evaluated (must be checked out)"
@@ -1376,11 +1502,26 @@ def main(argv=None) -> int:
     )
     parser.add_argument("--provider", choices=(*PROVIDERS, "both"), default="both")
     parser.add_argument(
+        "--snap-full-context",
+        action="store_true",
+        help="use Snap's larger state budget; requires --provider snap",
+    )
+    parser.add_argument(
         "--families",
         default="FN,TS,TL,RUN,BT",
         help="comma-separated question families to plan",
     )
     parser.add_argument("--out", type=Path, required=True)
+    parser.add_argument(
+        "--reference",
+        type=Path,
+        help="independently reviewed {item_id: {question_id: expected}} JSON",
+    )
+    parser.add_argument(
+        "--require-full-traces",
+        action="store_true",
+        help="refuse record-only or inconsistent episodes before sending",
+    )
     parser.add_argument("--send", action="store_true", help="post the requests")
     parser.add_argument("--max-requests", type=int, help="refuse to send more")
     parser.add_argument("--max-usd", type=float, help="refuse to send above this")
@@ -1405,6 +1546,8 @@ def main(argv=None) -> int:
     unknown = set(families) - {"FN", "TS", "TL", "RUN", "BT"}
     if unknown:
         parser.error(f"unknown families: {sorted(unknown)}")
+    if args.snap_full_context and args.provider != "snap":
+        parser.error("--snap-full-context requires --provider snap")
     if args.send and (args.max_requests is None or args.max_usd is None):
         parser.error("--send needs --max-requests and --max-usd")
     providers = (
@@ -1436,8 +1579,20 @@ def main(argv=None) -> int:
         providers=providers,
         out=args.out,
         commit=args.commit,
+        state_tokens=(
+            PROVIDERS["snap"].state_tokens
+            if args.snap_full_context
+            else MATCHED_STATE_TOKENS
+        ),
         families=families,
     )
+    if args.require_full_traces:
+        try:
+            audit_preflight.require_full_traces(
+                planned["packets"], refused=planned["refused_packets"]
+            )
+        except ValueError as error:
+            parser.error(str(error))
     spend = budget(planned["built"])
     print(
         f"{spend['requests']} request(s) planned, about "
@@ -1460,7 +1615,16 @@ def main(argv=None) -> int:
         )
     rows = settle(planned["rows"], requests_dir)
     scope = scope_manifest(planned["functions"], planned["tests"])
-    result = report(planned, rows, scope, prov, spend)
+    reference = (
+        json.loads(args.reference.read_text(encoding="utf-8"))
+        if args.reference is not None
+        else None
+    )
+    result = report(planned, rows, scope, prov, spend, reference)
+    if args.reference is not None:
+        result["reference_sha256"] = hashlib.sha256(
+            args.reference.read_bytes()
+        ).hexdigest()
     result["readiness"] = ready
     if args.send:
         result["live_budget"] = counts

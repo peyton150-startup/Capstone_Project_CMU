@@ -85,6 +85,83 @@ jobs:
       - name: Install locked dependencies
         run: uv sync --locked --all-extras
       - name: Offline tests and informational coverage
+        id: coverage_tests
+        continue-on-error: true
         run: >-
-          uv run --locked --all-extras pytest --cov=capstone --cov-report=term-missing
+          uv run --locked --all-extras pytest --cov=capstone --cov=evaltools --cov-context=test
+          --junitxml=junit.xml --cov-report=term-missing
           --cov-report=markdown-append:"$GITHUB_STEP_SUMMARY"
+          --cov-report=xml:coverage.xml --cov-report=html:htmlcov
+      - name: Rebuild evaluation inventories from full per-test coverage
+        run: cd evaluation && uv run --locked --all-extras python -m evaltools.build_inventory --coverage ../.coverage --junit ../junit.xml
+      - name: Upload regenerated inventories for review
+        uses: actions/upload-artifact@v4
+        with:
+          name: evaluator-inventory
+          path: |
+            evaluation/inventory/FUNCTION_INVENTORY.json
+            evaluation/inventory/TEST_INVENTORY.json
+            evaluation/inventory/TOOL_INVENTORY.json
+            evaluation/inventory/VERIFICATION_MATRIX.json
+      - name: Upload HTML/XML coverage and JUnit evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: line-coverage-report
+          path: |
+            coverage.xml
+            htmlcov/
+            junit.xml
+      - name: Fail after preserving inventory when tests failed
+        if: steps.coverage_tests.outcome == 'failure'
+        run: exit 1
+
+
+
+  snap_full_dry_run:
+    name: Full SNAP project evaluation (offline, no API calls)
+    needs: lint
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Install uv
+        uses: astral-sh/setup-uv@c771a70e6277c0a99b617c7a806ffedaca235ff9 # v9.0.0
+        with:
+          version: "0.13.0"
+          enable-cache: true
+      - name: Install pinned Python
+        run: uv python install
+      - name: Install locked dependencies
+        run: uv sync --locked --all-extras
+      - name: Prepare full-project SNAP evaluation without sending requests
+        env:
+          SUBQ_API_KEY: ""
+        run: |
+          cd evaluation
+          uv run --locked --all-extras python -m evaltools.full_evaluation \
+            --commit "$GITHUB_SHA" \
+            --provider snap --snap-full-context \
+            --archive ../docs/benchmarks/2026-11-01-tot13-pairs \
+            --archive ../docs/benchmarks/2026-11-02-audited-known-cases \
+            --out "$RUNNER_TEMP/snap-full-dry-run"
+      - name: Verify coverage of all five question families and report integrity
+        run: |
+          uv run --locked --all-extras python .github/verify_snap_dry_run.py \
+            --out "$RUNNER_TEMP/snap-full-dry-run" \
+            --expected-episodes 57 --commit "$GITHUB_SHA"
+      - name: Upload offline plan and readiness summary
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: snap-full-dry-run
+          if-no-files-found: warn
+          path: |
+            ${{ runner.temp }}/snap-full-dry-run/report.json
+            ${{ runner.temp }}/snap-full-dry-run/report.md
+            ${{ runner.temp }}/snap-full-dry-run/ledger.jsonl
+            ${{ runner.temp }}/snap-full-dry-run/scope_manifest.json
+            ${{ runner.temp }}/snap-full-dry-run/readiness-check.json
+

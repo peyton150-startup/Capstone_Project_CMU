@@ -56,15 +56,15 @@ from capstone.experiment import ExperimentRecord, read_records  # noqa: E402
 # is kept but not scored).
 # 1.3.0: `meta.seed`, so two runs are paired by scenario and seed rather than
 # by their position in the run key (CRITERIA F06).
-PACKET_SCHEMA_VERSION = "1.3.0"
+PACKET_SCHEMA_VERSION = "1.4.0"
 RUBRIC_VERSION = "1.1.0"
 
 # A committed answer at least this sure that is wrong is "confident and
 # wrong" (the same line `capstone.evals.CONFIDENT` draws).
 CONFIDENT = 0.8
-# How much of each evidence item's content a packet keeps. The full audit
-# record stays on disk; the packet is what a judge reads.
-EVIDENCE_CHARS = 1500
+# Preserve enough content for the judge to inspect cited evidence. Larger
+# states are fitted to the selected provider's budget at the request boundary.
+EVIDENCE_CHARS = 50_000
 
 
 class Strict(BaseModel):

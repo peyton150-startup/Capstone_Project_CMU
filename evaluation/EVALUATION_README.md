@@ -12,6 +12,13 @@ Paths are relative to the repository top. Commands use `uv run`; a plain
 `.venv/bin/python` works the same. Run the `evaltools` modules from the
 `evaluation/` folder or with `PYTHONPATH=evaluation`.
 
+## Run the complete SNAP evaluation later
+
+See [SNAP_EVALUATION_RUNBOOK.md](SNAP_EVALUATION_RUNBOOK.md) for the
+SNAP-only, full-project dry-run, the CI readiness check, the archived cohorts,
+the independent blinded-review prerequisite, and a bounded live pilot you can
+start yourself at a later date. **No model requests are sent by CI.**
+
 ## What is in this folder
 
 | File | Purpose |
@@ -37,21 +44,24 @@ Live runs are Codex's job (AGENTS.md section 12). Whoever runs one should:
 1. Record the commit (`git rev-parse HEAD`), the `.env` settings that
    matter (`STEP_QUESTIONS`, `CRITIC*`, `MANUAL_STEP`, models, fallback
    chain), the manual revision and the budgets, in the run's notes.
-2. Run with the audit log, so the packet has the full trace:
+2. New CLI runs write an audit beside the records by default, so the packet
+   has the full trace (`<run>.records.jsonl` pairs with `<run>.audit.jsonl`):
 
    ```sh
-   uv run python -m capstone.experiment run --name <run> --known --out <run>.jsonl --audit <run>.audit.jsonl
+   uv run python -m capstone.experiment run --name <run> --known --out <run>.records.jsonl
    ```
 
    or, to also record which functions each case executed:
 
    ```sh
    cd evaluation && uv run python -m evaltools.traced_run --config ../evals/scenarios.json \
-       --name <run> --out <run>.jsonl --audit <run>.audit.jsonl --trace <run>.trace.json
+       --name <run> --out <run>.records.jsonl --trace <run>.trace.json
    ```
 
    The traced runner wraps `capstone.experiment.run_experiment` one case
    at a time under the coverage tracer; the run itself is unchanged.
+   `--audit <path>` overrides the companion path; `--no-audit` explicitly
+   opts out. Runs already in progress keep the options they started with.
 3. Label the conclusions before looking at any comparison:
    `python -m capstone.experiment label --results <run>.jsonl --labels <run>.labels.jsonl --by <name>`.
    Labels are read from the conclusion's words; the labeller should not
@@ -162,9 +172,11 @@ disagreement for review, latency, tokens and cost per provider (tokens and
 cost counted once per request, since the services report usage per
 request, not per question), and each provider's agreement with the
 reviewer's answers.
-Answers are written beside the requests as `*.answers.json`. Before the
-first live request confirm the question shape against docs.subq.ai (the
-score-level key is unconfirmed; see `SNAP_QUESTIONS.json` `api`).
+Answers are written beside the requests as `*.answers.json`. The official SubQ [Decisions API](https://docs.subq.ai/endpoints/decisions-api/)
+confirms `criteria` as the ordered array for score questions and confirms
+`answers.<name>.score` and `usage.input_tokens` in replies. These published
+contract details were checked on November 8, 2026; **live, authenticated
+contract testing and reference calibration are still pending**.
 
 ## 4a. The whole project in one command
 
@@ -198,6 +210,15 @@ reason. Jev/mixed live slices currently stop before posting: Jev's request
 window and usage contract still need the small live calibration in Gate C.
 Dry runs for either provider still work. The separate `snap_request --send`
 command retains its own retry behavior and is not covered by this budget guard.
+For a new cohort, use `--require-full-traces` to refuse missing or inconsistent
+audits before sending. `--snap-full-context` requires `--provider snap` and
+uses Snap's larger 300,000-token state budget; the default 28,000-token budget
+is retained for matched Snap/Jev comparisons. The larger budget sends all
+available direct-test sources for function judgments and preserves more audit
+evidence. Questions whose cited content or decisions are still cut are
+recorded as unknown. `report.json` joins each item's code facts, answers and
+optional reviewer references; `--reference <file>` reads a frozen reference
+mapping and records its SHA-256.
 Snap's [model page](https://docs.subq.ai/using-the-api/models/) lists the
 input price and free output; its [Decisions API](https://docs.subq.ai/endpoints/decisions-api/)
 states the 393,216-token context limit and usage fields.
@@ -230,7 +251,7 @@ are compared case by case on scenario and seed, never by slot number.
 - A noul probability is a preference, not calibration: 0.7 / 0.3 are the
   decision lines used for the report, as in `capstone.evaluation.auto_label`.
 - Compute the derived flags: misleading success (right and RUN-08 < 2),
-  evidence-grounded decision (right and RUN-08 ≥ 3 and RUN-12 ≤ 0.3).
+  evidence-grounded decision (right and RUN-08 ≥ 3 and RUN-12 ≥ 0.7).
 - Validate the judge on the reference set first (rubric section 8). Until
   agreement is recorded, treat judge answers as proposals for review.
 
