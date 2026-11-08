@@ -51,7 +51,9 @@ def test_request_cli_dispatches_each_family_offline(
     monkeypatch.setattr(
         snap_request,
         "tool_state",
-        lambda item, functions: (events.append("TL"), {"id": item["name"]})[1],
+        lambda item, functions, tests=None: (events.append("TL"), {"id": item["name"]})[
+            1
+        ],
     )
     monkeypatch.setattr(
         snap_request,

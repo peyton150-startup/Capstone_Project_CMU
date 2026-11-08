@@ -125,6 +125,7 @@ GROUPS: dict[str, list[str]] = {
         "coverage_full_eval_paths",
         "coverage_eval_dispatch",
         "coverage_entrypoints",
+        "evaluator_integrity",
     ],
     # Many episodes: the harness, hand labels and the known-answer cases.
     "Experiments": [
