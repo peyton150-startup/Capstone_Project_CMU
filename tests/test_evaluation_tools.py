@@ -571,6 +571,7 @@ def test_the_agreement_report_pairs_only_identical_states_and_flags_disagreement
                 "provider": provider,
                 "item_id": item,
                 "state_digest": digest,
+                "rubric_version": "1.1.0",
                 "questions": {"q": question},
             },
             "answers": [
@@ -1522,6 +1523,7 @@ def test_two_answers_to_one_question_are_refused_and_latency_is_per_request():
                 "provider": "snap",
                 "item_id": item,
                 "request_fingerprint": fingerprint,
+                "rubric_version": "1.1.0",
                 "state_digest": "d",
                 "model_requested": "m",
             },
