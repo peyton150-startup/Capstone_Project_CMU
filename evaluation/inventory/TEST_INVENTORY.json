@@ -34409,11 +34409,12 @@
    "exercises": [
     "capstone.agent.model_policy:cited_ids",
     "capstone.agent.model_policy:compact",
+    "capstone.agent.model_policy:evidence_lines",
     "capstone.agent.model_policy:evidence_section",
     "capstone.agent.model_policy:shortened_note",
     "capstone.agent.model_policy:shown"
    ],
-   "exercise_count": 5,
+   "exercise_count": 6,
    "modules_exercised": [
     "capstone.agent.model_policy"
    ],
@@ -34484,7 +34485,7 @@
     "capstone.agent.loop:run_inner_loop",
     "capstone.agent.loop:seconds_left"
    ],
-   "exercise_count": 175,
+   "exercise_count": 176,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -34582,7 +34583,7 @@
     "capstone.agent.loop:run_inner_loop",
     "capstone.agent.loop:seconds_left"
    ],
-   "exercise_count": 175,
+   "exercise_count": 176,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
