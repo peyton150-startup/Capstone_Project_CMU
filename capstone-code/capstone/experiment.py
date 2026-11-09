@@ -180,6 +180,13 @@ class CallSummary(BaseModel):
     # Ordered questions and their safe attempt outcomes. None in older files;
     # no prompts, response bodies or credentials are stored here.
     details: tuple[ModelCall, ...] | None = None
+    # Per question (job), summed over every attempt, failed and fallback ones
+    # included: the tokens the services reported and the characters sent.
+    # Tokens are a lower bound when some service reports none. Empty in
+    # results from before 2026-11-08.
+    input_tokens_by_job: dict[str, int] = {}
+    output_tokens_by_job: dict[str, int] = {}
+    prompt_chars_by_job: dict[str, int] = {}
 
 
 class AgentStep(BaseModel):
@@ -197,6 +204,10 @@ class AgentStep(BaseModel):
     batch_position: int | None = None
 
 
+# The request sizes an attempt records, totalled by job in `CallSummary`.
+REQUEST_SIZES = ("input_tokens", "output_tokens", "prompt_chars")
+
+
 def summarize_calls(calls: Sequence[ModelCall]) -> CallSummary:
     # Variables:
     #   calls: Every model question the run asked, with how each ended.
@@ -207,6 +218,8 @@ def summarize_calls(calls: Sequence[ModelCall]) -> CallSummary:
     #   reasons: Why requests failed for a service reason, such as a timeout or HTTP
     #     429.
     #   refused: Why replies were refused, such as cut off or not JSON.
+    #   sizes: For each recorded request size (input tokens, output tokens,
+    #     characters sent), its total by job over every attempt that reported it.
     answered = [call for call in calls if call.outcome == "answered"]
     invalid = Counter(call.job for call in calls if call.outcome == "invalid_reply")
     by_model = Counter(call.answered_by or "unknown" for call in answered)
@@ -222,6 +235,13 @@ def summarize_calls(calls: Sequence[ModelCall]) -> CallSummary:
         for attempt in call.attempts
         if attempt.outcome.split(":", 1)[0] == INVALID_REPLY
     )
+    sizes = {field: Counter() for field in REQUEST_SIZES}
+    for call in calls:
+        for attempt in call.attempts:
+            for field, totals in sizes.items():
+                value = getattr(attempt, field)
+                if value is not None:
+                    totals[call.job] += value
     return CallSummary(
         questions=len(calls),
         answered=len(answered),
@@ -238,6 +258,9 @@ def summarize_calls(calls: Sequence[ModelCall]) -> CallSummary:
         invalid_reasons=dict(sorted(refused.items())),
         answered_by=dict(sorted(by_model.items())),
         details=tuple(calls),
+        input_tokens_by_job=dict(sorted(sizes["input_tokens"].items())),
+        output_tokens_by_job=dict(sorted(sizes["output_tokens"].items())),
+        prompt_chars_by_job=dict(sorted(sizes["prompt_chars"].items())),
     )
 
 
@@ -369,6 +392,9 @@ class ExperimentRecord(BaseModel):
     # trace is also None when DECIDE_CALLS was 1.
     decide_calls: int | None = Field(default=None, ge=1)
     decide_batches: BatchTrace | None = None
+    # STAGE_CONTEXT for this run: whether judge_verification and write_lesson
+    # had their own views. None in records from before it was kept.
+    stage_context: bool | None = None
 
 
 # Tools answered by something other than the factory.
@@ -488,6 +514,8 @@ def record_of(
     #   promotion, uses: Optional memory audit; never converted into present factory facts.
     #   state.incident_context: The optional observable packet and its source IDs,
     #     copied to the experiment record for the A/B comparison.
+    #   state.stage_context: Whether the stage views were on, kept so runs with
+    #     and without them can be compared.
     state = result.state
     concluded = state.conclusion
     promotion, uses = memory_records(result) if with_memory else (None, None)
@@ -536,6 +564,7 @@ def record_of(
         incident_context=state.incident_context,
         decide_calls=state.decide_calls,
         decide_batches=state.decide_batches,
+        stage_context=state.stage_context,
         critique=state.critique,
         critic_favoured_claim=favoured_claim(state),
         recheck=state.recheck,
@@ -590,6 +619,7 @@ def run_experiment(
     watch: Callable[[str], None] | None = None,
     make_critic: Callable[[], Critic] | None = None,
     triage: bool | None = None,
+    stage_context: bool | None = None,
 ) -> list[ExperimentRecord]:
     """Run each case once with a fresh policy. `name` makes every run key unique.
 
@@ -616,6 +646,8 @@ def run_experiment(
     #   watch: Prints a live view of each case; the hidden truth is never printed.
     #   make_critic: Builds a fresh critic for each case; None leaves it to settings.
     #   triage: Run a rapid triage before each deep run; None leaves it to settings.
+    #   stage_context: Force the stage views on or off for every case; None leaves
+    #     it to STAGE_CONTEXT in settings.
     #   records: One record per case, in order.
     #   run_key: A unique name for this case's run.
     #   policy: A fresh decision-maker, so no case learns from another's state.
@@ -648,6 +680,7 @@ def run_experiment(
             watch=None if watch is None else ProgressView(watch),
             critic=None if make_critic is None else make_critic(),
             triage=triage,
+            stage_context=stage_context,
         )
         wall_seconds = clock() - started
         calls = getattr(policy, "calls", None)  # kept by ModelPolicy only
@@ -745,6 +778,42 @@ def nearest_rank(values: Sequence[float], share: float) -> float:
     ordered = sorted(values)
     rank = max(1, -(-int(share * 100) * len(ordered) // 100))
     return ordered[min(rank, len(ordered)) - 1]
+
+
+def format_stage_context(records: Sequence[ExperimentRecord]) -> str:
+    """One line saying whether the stage views were on, counted from the records.
+
+    Counts what each run recorded rather than what was asked for, so a run
+    that did not get the setting shows here. Runs from before the setting was
+    kept say "not recorded".
+    """
+    # Variables:
+    #   on, off, unknown: How many runs recorded the views as on, off, or nothing.
+    on = sum(1 for r in records if r.stage_context is True)
+    off = sum(1 for r in records if r.stage_context is False)
+    unknown = len(records) - on - off
+    parts = [
+        f"{count} {name}"
+        for count, name in ((on, "on"), (off, "off"), (unknown, "not recorded"))
+        if count
+    ]
+    return "stage views: " + (", ".join(parts) if parts else "no runs")
+
+
+def stage_context_mismatches(
+    records: Sequence[ExperimentRecord], wanted: bool | None
+) -> list[str]:
+    """Run keys whose recorded stage views differ from what the run asked for.
+
+    The check that a run set to on really ran on, and off really ran off.
+    Nothing was asked for (None): nothing can differ.
+    """
+    # Variables:
+    #   wanted: True (on) or False (off) as set on the command line; None when
+    #     the run left it to STAGE_CONTEXT in the environment.
+    if wanted is None:
+        return []
+    return [r.run_key for r in records if r.stage_context is not wanted]
 
 
 def format_triage(records: Sequence[ExperimentRecord]) -> str | None:
@@ -1002,6 +1071,7 @@ def report(records: Sequence[ExperimentRecord], labels: dict[str, Label]) -> str
     lines += [] if manual is None else [manual]
     triaged = format_triage(records)
     lines += [] if triaged is None else [triaged]
+    lines.append(format_stage_context(records))
     batched = format_batches(records)
     lines += ([] if batched is None else [batched]) + [""]
 
@@ -1239,6 +1309,10 @@ def main(argv: Sequence[str] | None = None) -> int:
     #     companion file unless --no-audit was given.
     #   args.triage: True with --triage, otherwise None so the TRIAGE setting
     #     decides; passed through to run_experiment.
+    #   wanted: The stage views asked for with --stage-context: True (on), False
+    #     (off), or None when left out and STAGE_CONTEXT in the environment decides.
+    #   wrong: Run keys whose recorded stage views differ from `wanted`; any makes
+    #     the command exit 1.
     #   records: The finished results, saved as each case ends; for "label" and
     #     "report", the results read back from --results.
     #   done: The run keys already labelled, so labelling skips them.
@@ -1302,6 +1376,16 @@ def main(argv: Sequence[str] | None = None) -> int:
         ),
     )
     run.add_argument(
+        "--stage-context",
+        choices=("on", "off"),
+        default=None,
+        help=(
+            "on: judge_verification and write_lesson get their own views; "
+            "off: every question sees the shared view. Overrides STAGE_CONTEXT in "
+            ".env for this run. Left out, the .env value is used (off if unset)."
+        ),
+    )
+    run.add_argument(
         "--quiet",
         action="store_true",
         help="no live progress view: one line per finished case (the view is on by default)",
@@ -1359,6 +1443,7 @@ def main(argv: Sequence[str] | None = None) -> int:
             for line in format_call_failures(record):
                 print(line, flush=True)
 
+        wanted = None if args.stage_context is None else args.stage_context == "on"
         if not args.quiet:
             from capstone.settings import get_settings
 
@@ -1367,6 +1452,9 @@ def main(argv: Sequence[str] | None = None) -> int:
                 manual=args.manual,
                 tree_of_thought=args.tree_of_thought,
                 hazards=args.hazards,
+                stage_context=(
+                    get_settings().stage_context if wanted is None else wanted
+                ),
             ):
                 live_line(line)
 
@@ -1387,8 +1475,17 @@ def main(argv: Sequence[str] | None = None) -> int:
             on_record=save_record,
             watch=None if args.quiet else live_line,
             triage=args.triage,
+            stage_context=wanted,
         )
         print(report(records, {}))
+        wrong = stage_context_mismatches(records, wanted)
+        if wrong:
+            print(
+                f"ERROR: --stage-context {args.stage_context} was asked for but "
+                f"{len(wrong)} run(s) recorded otherwise: {', '.join(wrong)}",
+                flush=True,
+            )
+            return 1
         return 0
 
     records = read_records(args.results)

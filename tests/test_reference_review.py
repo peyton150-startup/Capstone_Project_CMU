@@ -7,6 +7,22 @@ import pytest
 from evaltools.reference_review import export_requests, import_review
 
 
+def with_judge_questions(request):
+    """Populate a synthetic request with exactly the questions sent to SNAP."""
+    # Variables:
+    #   definitions: Question IDs and criteria kept as request metadata.
+    definitions = request["tags"]["questions"]
+    request["body"]["questions"] = {
+        name: {
+            "type": question["type"],
+            "instructions": f"Assess {name} from the evidence.",
+            "criteria": question["criteria"],
+        }
+        for name, question in definitions.items()
+    }
+    return request
+
+
 def test_review_packets_hide_run_identity_and_import_checked_answers(tmp_path):
     """The reviewer sees only judge-side state, then answers map back privately."""
     # Variables:
@@ -34,7 +50,9 @@ def test_review_packets_hide_run_identity_and_import_checked_answers(tmp_path):
         },
         "body": {"state": {"run_ref": "opaque", "trace": {"completeness": "full"}}},
     }
-    (requests / "one.request.json").write_text(json.dumps(request), encoding="utf-8")
+    (requests / "one.request.json").write_text(
+        json.dumps(with_judge_questions(request)), encoding="utf-8"
+    )
     review = tmp_path / "review"
     assert export_requests(requests, review, {"RUN": 1})["items"] == 1
     (opaque,) = json.loads((review / "private_mapping.json").read_text())
@@ -81,10 +99,16 @@ def test_function_sample_prefers_items_with_all_judgments(tmp_path):
     ):
         (requests / f"{item_id}.request.json").write_text(
             json.dumps(
-                {
-                    "tags": {"family": "FN", "item_id": item_id, "questions": selected},
-                    "body": {"state": {"function_id": item_id}},
-                }
+                with_judge_questions(
+                    {
+                        "tags": {
+                            "family": "FN",
+                            "item_id": item_id,
+                            "questions": selected,
+                        },
+                        "body": {"state": {"function_id": item_id}},
+                    }
+                )
             ),
             encoding="utf-8",
         )
@@ -104,25 +128,27 @@ def test_run_strata_guarantees_blind_sound_and_misleading_cases(tmp_path):
     for item_id in ("sound-case", "misleading-case", "spare-case"):
         (requests / f"{item_id}.request.json").write_text(
             json.dumps(
-                {
-                    "tags": {
-                        "family": "RUN",
-                        "item_id": item_id,
-                        "questions": {
-                            "quality": {
-                                "id": "RUN-01",
-                                "type": "score",
-                                "criteria": ["0", "1"],
+                with_judge_questions(
+                    {
+                        "tags": {
+                            "family": "RUN",
+                            "item_id": item_id,
+                            "questions": {
+                                "quality": {
+                                    "id": "RUN-01",
+                                    "type": "score",
+                                    "criteria": ["0", "1"],
+                                }
+                            },
+                        },
+                        "body": {
+                            "state": {
+                                "run_ref": "opaque",
+                                "trace": {"completeness": "full"},
                             }
                         },
-                    },
-                    "body": {
-                        "state": {
-                            "run_ref": "opaque",
-                            "trace": {"completeness": "full"},
-                        }
-                    },
-                }
+                    }
+                )
             ),
             encoding="utf-8",
         )

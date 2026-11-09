@@ -85,6 +85,27 @@ are unchanged; for a new evaluation cohort, use a new output folder.
 5. Store the key in the git-ignored root `.env`, e.g.
    `SUBQ_API_KEY=...`, and verify this is not staged in Git.
 
+## Independent calibration gate (rubric 1.1.0)
+
+The next calibration sample should be **30–50 questions answered by the
+developer**, blinded to SNAP and to Claude's earlier answers. Freeze the
+selection and your answers before making any paid requests. Use a fresh sample
+rather than the nine-item Claude review from 2026-11-08. That review is
+model-generated diagnostic feedback, **not human ground truth**.
+
+The blind export now presents exactly the provider-visible instructions and
+criteria, with the question ID added only for answer mapping. Its private
+mapping is checked again on import. A FN or TL question whose test source,
+decorator, or local helper context is incomplete must explicitly remain
+unknown instead of receiving an invented judgment. Comparisons refuse answers
+with different rubric versions or missing version provenance: answers under
+1.0.0 are **not** pooled with 1.1.0.
+
+After the developer submits the independent answers, run SNAP on precisely the
+same versioned request bodies. Report agreement per question family, missing
+or unanswerable questions, and disagreements for review; do not turn agreement
+with Claude's earlier answers into an independent calibration statistic.
+
 ## Optional small live SNAP pilot — only when you choose to run it
 
 From `evaluation/`, use the **same output directory** used to prepare

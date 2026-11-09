@@ -423,7 +423,12 @@ def calls_line(state: InvestigationState) -> str:
 
 
 def run_header(
-    settings, *, manual: str | None, tree_of_thought: bool = False, hazards=False
+    settings,
+    *,
+    manual: str | None,
+    tree_of_thought: bool = False,
+    hazards=False,
+    stage_context: bool | None = None,
 ) -> list[str]:
     """What this run is set to, printed once before the first case.
 
@@ -438,6 +443,8 @@ def run_header(
     #   manual: semantic, keyword, or None for no manual.
     #   tree_of_thought: Whether the hypothesize step branches and prunes.
     #   hazards: False, True / "standard", or "blackout".
+    #   stage_context: Whether the run uses the stage views; None leaves the line
+    #     out, so a caller that does not know prints the usual header.
     #   critic: The critic treatment in words.
     #   book: The manual setting in words.
     #   calls: DECIDE_CALLS; a third line names it only above 1, so the usual
@@ -464,6 +471,8 @@ def run_header(
         f"RUN: tree-of-thought {'on' if tree_of_thought else 'off'}; "
         f"hazards {hazards or 'off'}",
     ]
+    if stage_context is not None:
+        lines.append(f"RUN: stage views {'on' if stage_context else 'off'}")
     calls = getattr(settings, "decide_calls", 1)
     if calls > 1:
         lines.append(f"RUN: up to {calls} tool calls per decide answer")
