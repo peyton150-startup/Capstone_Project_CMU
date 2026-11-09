@@ -1,8 +1,9 @@
-"""LATE_MODEL: decide and conclude go to another model late in a run.
+"""LATE_MODEL: decide goes to another model at the end of the decide phase.
 
-Late means a decide question with less than LATE_MODEL_SECONDS left, or the
-conclusion after research stopped because its time ran out. Every other
-question keeps its own model. No test touches the network or a real key.
+Late means a decide question with less than LATE_MODEL_SECONDS left. Every
+other question, the conclusion included, keeps its own model. The late model's
+thinking is off by default (NVIDIA only). No test touches the network or a
+real key.
 """
 
 import json
@@ -11,16 +12,22 @@ import pytest
 from pydantic import ValidationError
 
 from capstone.agent.artifacts import TerminationReason
-from capstone.agent.model_policy import ModelPolicy
+from capstone.agent.model_policy import Judgement, ModelPolicy
 from capstone.progress import run_header
-from capstone.providers.chat import JOBS, LATE_JOBS, late_clients, late_key
+from capstone.providers.chat import (
+    JOBS,
+    LATE_JOBS,
+    late_clients,
+    late_key,
+    late_thinking_fields,
+)
 from capstone.providers.factory import research_tools
 from capstone.settings import Settings
 from tests.helpers import new_state
 
 KEY = "test-key-not-real"
 SUPER = "nvidia/nvidia/nemotron-3.5-super-vl-120b-a12b"
-INSTRUCT = "nvidia/nvidia/llama-3.1-nemotron-70b-instruct"
+LIGHTNING = "nvidia/nvidia/nemotron-3.5-lightning-30b-a3b"
 COHERE = "cohere/command-a-03-2025"
 CLEARED = (
     "NVIDIA_API_KEY",
@@ -32,6 +39,8 @@ CLEARED = (
     "DECIDE_REASONING_EFFORT",
     "LATE_MODEL",
     "LATE_MODEL_SECONDS",
+    "LATE_MODEL_REASONING_BUDGET",
+    "LATE_MODEL_THINKING",
     "PROVIDER_SAMPLING",
     "MODEL_SAMPLING",
 )
@@ -100,17 +109,19 @@ def test_the_threshold_must_be_positive():
 
 
 def test_late_clients_ask_the_late_model_then_the_shared_fallback():
-    clients = late_clients(settings(LATE_MODEL=INSTRUCT))
-    assert set(clients) == {"decide@late", "conclude@late"}
+    clients = late_clients(settings(LATE_MODEL=LIGHTNING))
+    assert set(clients) == {"decide@late"}
     for client in clients.values():
         assert [c.model for c in client.clients] == [
-            "nvidia/llama-3.1-nemotron-70b-instruct",
+            "nvidia/nemotron-3.5-lightning-30b-a3b",
             "command-a-03-2025",
         ]
 
 
 def test_the_late_model_is_never_sent_the_decide_reasoning_effort():
-    clients = late_clients(settings(LATE_MODEL=INSTRUCT, DECIDE_REASONING_EFFORT="low"))
+    clients = late_clients(
+        settings(LATE_MODEL=LIGHTNING, DECIDE_REASONING_EFFORT="low")
+    )
     assert all(c.reasoning_effort is None for c in clients["decide@late"].clients)
 
 
@@ -129,24 +140,10 @@ def test_the_threshold_comes_from_the_setting():
     assert p.client_for("decide", state(left=29.0)) is p.clients["decide@late"]
 
 
-@pytest.mark.parametrize(
-    ("reason", "late"),
-    [
-        (TerminationReason.TIMEOUT, True),
-        (TerminationReason.EVIDENCE_SUFFICIENT, False),
-        (TerminationReason.MAX_TOOL_CALLS, False),
-        (None, False),
-    ],
-)
-def test_conclude_switches_only_after_research_ran_out_of_time(reason, late):
+def test_the_conclusion_never_switches_even_after_a_timeout():
     p = policy()
-    chosen = p.client_for("conclude", state(left=500.0, reason=reason))
-    assert chosen is p.clients["conclude@late" if late else "conclude"]
-
-
-def test_conclude_ignores_the_time_left():
-    p = policy()
-    assert p.client_for("conclude", state(left=5.0)) is p.clients["conclude"]
+    late_state = state(left=5.0, reason=TerminationReason.TIMEOUT)
+    assert p.client_for("conclude", late_state) is p.clients["conclude"]
 
 
 @pytest.mark.parametrize("job", [j for j in JOBS if j not in LATE_JOBS])
@@ -180,9 +177,76 @@ def test_an_early_decide_still_asks_its_own_model():
 
 def test_the_run_header_names_the_late_model_only_when_set():
     assert not any("late-run" in line for line in run_header(settings(), manual=None))
-    lines = run_header(settings(LATE_MODEL=INSTRUCT), manual=None)
+    lines = run_header(settings(LATE_MODEL=LIGHTNING), manual=None)
     assert any(
-        "late-run model nvidia/nvidia/llama-3.1-nemotron-70b-instruct" in line
+        "late-run model nvidia/nvidia/nemotron-3.5-lightning-30b-a3b" in line
         and "under 60 s" in line
+        and "thinking off" in line
         for line in lines
     )
+    budget = settings(
+        LATE_MODEL=LIGHTNING,
+        LATE_MODEL_THINKING="true",
+        LATE_MODEL_REASONING_BUDGET=512,
+    )
+    assert any(
+        "thinking on, budget 512 tokens" in line
+        for line in run_header(budget, manual=None)
+    )
+
+
+def test_thinking_is_off_by_default_and_sent_to_nvidia_only():
+    late = late_clients(settings(LATE_MODEL=LIGHTNING))["decide@late"]
+    lightning, cohere = late.clients
+    assert lightning.thinking_fields == {
+        "chat_template_kwargs": {"enable_thinking": False}
+    }
+    assert cohere.thinking_fields is None
+
+
+def test_thinking_on_with_a_budget():
+    configured = settings(
+        LATE_MODEL=LIGHTNING,
+        LATE_MODEL_THINKING="true",
+        LATE_MODEL_REASONING_BUDGET=512,
+    )
+    assert late_thinking_fields(configured) == {
+        "chat_template_kwargs": {"enable_thinking": True},
+        "reasoning_budget": 512,
+    }
+    assert late_thinking_fields(settings(LATE_MODEL_THINKING="true")) == {
+        "chat_template_kwargs": {"enable_thinking": True}
+    }
+
+
+def test_the_budget_must_be_positive():
+    with pytest.raises(ValidationError):
+        settings(LATE_MODEL_REASONING_BUDGET=0)
+
+
+def test_the_request_body_carries_the_thinking_switch():
+    sent = []
+
+    def transport(url, headers, body, timeout):
+        sent.append(json.loads(body))
+        reply = {"outcome": "resolved", "evidence_ids": ["E1"]}
+        return json.dumps(
+            {
+                "choices": [
+                    {"message": {"role": "assistant", "content": json.dumps(reply)}}
+                ]
+            }
+        ).encode()
+
+    late = late_clients(settings(LATE_MODEL=LIGHTNING), transport=transport)
+    late["decide@late"].ask("system", "prompt", Judgement)
+    assert sent[0]["model"] == "nvidia/nemotron-3.5-lightning-30b-a3b"
+    assert sent[0]["chat_template_kwargs"] == {"enable_thinking": False}
+    assert "reasoning_budget" not in sent[0]
+
+
+def test_the_own_decide_client_is_never_sent_the_thinking_switch():
+    from capstone.providers.chat import clients_for_jobs
+
+    own = clients_for_jobs(settings(LATE_MODEL=LIGHTNING))["decide"]
+    assert all(c.thinking_fields is None for c in own.clients)

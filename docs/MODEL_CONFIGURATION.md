@@ -75,30 +75,43 @@ not a primary model. `CRITIC=on` is required to enable the settings-built critic
 ## Late-run model (`LATE_MODEL`)
 
 ```dotenv
-LATE_MODEL=nvidia/nvidia/llama-3.1-nemotron-70b-instruct
+LATE_MODEL=nvidia/nvidia/nemotron-3.5-lightning-30b-a3b
 LATE_MODEL_SECONDS=60
+# Optional: let it think, with a cap on thinking tokens.
+# LATE_MODEL_THINKING=true
+# LATE_MODEL_REASONING_BUDGET=1024
 ```
 
-Unset by default: every question keeps its own model. When set, two questions
-go to `LATE_MODEL` (then the shared `FALLBACK_MODEL` chain) instead of their own
-model, and nothing else changes:
+Unset by default: every question keeps its own model. When set, only one kind
+of question changes: a **decide** question with less than `LATE_MODEL_SECONDS`
+left, at the end of the decide phase, goes to `LATE_MODEL` (then the shared
+`FALLBACK_MODEL` chain). The investigator's model gets half of a question's
+time (the other half is kept for the fallback), so at 60 s Super 120B would
+have under 30 s, and it answered a decide question within 30 s only 55% of
+the time (499 calls, 2026-10-31 to 2026-11-09). The conclusion and every other
+question keep their own model.
 
-- a **decide** question with less than `LATE_MODEL_SECONDS` left. The
-  investigator's model gets half of a question's time (the other half is kept
-  for the fallback), so at 60 s it would have under 30 s, and Super 120B
-  answered a decide question within 30 s only 55% of the time (499 calls,
-  2026-10-31 to 2026-11-09);
-- the **conclusion**, when research stopped because its time ran out (6 of
-  Super's 8 conclusion timeouts in the same runs came after one).
+**Thinking.** Off by default: NVIDIA is sent
+`"chat_template_kwargs": {"enable_thinking": false}`. With
+`LATE_MODEL_THINKING=true` it is sent `true`, plus `"reasoning_budget"` when
+`LATE_MODEL_REASONING_BUDGET` is set. Both fields come from NVIDIA's sample
+request for Nemotron 3.5 Lightning on build.nvidia.com (2026-11-09). They go to
+NVIDIA models only, never to the fallback, and only on late decide questions.
+`DECIDE_REASONING_EFFORT` is never sent to the late model. The run header names
+the model, the threshold and the thinking setting.
 
-The late model is never sent `DECIDE_REASONING_EFFORT`, and gets the default
-sampling of a model with no entry here (temperature 0). The run header names
-it. Records show which model answered each question, as before.
+**Model.** The developer's choice (2026-11-09) is Nemotron 3.5 Lightning 30B
+(3B active). On 2026-10-20, with thinking on and the old 2,048-token and 15 s
+limits, it gave mostly invalid replies; it has not been tried with thinking off
+or the current limits, nor checked with NVIDIA's structured output. The first
+choice, `nvidia/nvidia/llama-3.1-nemotron-70b-instruct`, is still listed by the
+API but answered HTTP 404 "Not found for account" on 2026-11-09. Lightning
+gets the default sampling of a model with no entry here (temperature 0).
 
-Rate limit: every model on NVIDIA's API shares the key's limit. The late model
-replaces Super on those questions rather than adding calls, so the request
-count stays the same (developer, 2026-11-09, lifting for this setting the
-earlier "only Super on NVIDIA's API" rule).
+**Rate limit.** Every model on NVIDIA's API shares the key's limit. The late
+model replaces Super on those questions rather than adding calls (developer,
+2026-11-09, lifting for this setting the earlier "only Super on NVIDIA's API"
+rule).
 
 ## Evaluation
 

@@ -1121,8 +1121,8 @@ class ModelPolicy:
     ):
         # Variables:
         #   clients: One client per job, plus optional extras: "value" for the
-        #     tree's second rating and "decide@late" / "conclude@late" for
-        #     LATE_MODEL (`late_clients`).
+        #     tree's second rating and "decide@late" for LATE_MODEL
+        #     (`late_clients`).
         #   late_seconds: A decide question with less time than this goes to
         #     the late client, when there is one (LATE_MODEL_SECONDS).
         missing = [job for job in JOBS if job not in clients]
@@ -1134,11 +1134,10 @@ class ModelPolicy:
         self.calls: list[ModelCall] = []
 
     def client_for(self, job: str, state: InvestigationState) -> Client:
-        """The client to ask: the late-run one late in a run, else the job's own.
+        """The client to ask: the late-run one at the end of decide, else the job's own.
 
-        Late means a decide question with less than `late_seconds` left, or
-        the conclusion after research stopped because its time ran out. A job
-        with no late client, and every other job, always gets its own client.
+        Late means a decide question with less than `late_seconds` left. Every
+        other question, the conclusion included, always gets its own client.
         """
         # Variables:
         #   late: The job's late-run client, or None when LATE_MODEL is unset.
@@ -1148,8 +1147,6 @@ class ModelPolicy:
             return self.clients[job]
         left = state.seconds_for_question
         if job == "decide" and left is not None and left < self.late_seconds:
-            return late
-        if job == "conclude" and state.termination_reason is TerminationReason.TIMEOUT:
             return late
         return self.clients[job]
 

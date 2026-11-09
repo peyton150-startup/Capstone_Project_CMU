@@ -422,6 +422,14 @@ def calls_line(state: InvestigationState) -> str:
     )
 
 
+def late_thinking_words(settings) -> str:
+    """The late model's thinking in words: off, on, or on with a token budget."""
+    if not settings.late_model_thinking:
+        return "off"
+    budget = settings.late_model_reasoning_budget
+    return "on" if budget is None else f"on, budget {budget} tokens"
+
+
 def run_header(
     settings,
     *,
@@ -451,8 +459,9 @@ def run_header(
     #     header is unchanged.
     #   effort: DECIDE_REASONING_EFFORT, or None when it is not set; a third
     #     line names it only when set, so the usual header is unchanged.
-    #   late: LATE_MODEL, or None when it is not set; a line names it and its
-    #     threshold only when set, so the usual header is unchanged.
+    #   late: LATE_MODEL, or None when it is not set; a line names it, its
+    #     threshold and its thinking only when set, so the usual header is
+    #     unchanged.
     if not settings.critic:
         critic = "critic off"
     else:
@@ -485,7 +494,8 @@ def run_header(
     if late is not None:
         lines.append(
             f"RUN: late-run model {late} (decide with under "
-            f"{settings.late_model_seconds:g} s left; conclude after a timeout)"
+            f"{settings.late_model_seconds:g} s left; thinking "
+            f"{late_thinking_words(settings)})"
         )
     return lines
 
