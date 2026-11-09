@@ -1029,3 +1029,138 @@ def test_line_context_setting_and_evidence_references_reach_the_record(monkeypat
     old = record.model_dump(exclude={"line_context_enabled", "incident_context"})
     back = ExperimentRecord.model_validate(old)
     assert back.line_context_enabled is None and back.incident_context is None
+
+
+def test_request_sizes_are_totalled_by_job_over_every_attempt():
+    """Failed and fallback attempts count: they were sent, and mostly paid for."""
+    calls = [
+        ModelCall(
+            job="decide",
+            outcome="answered",
+            answered_by="fallback",
+            attempts=(
+                Attempt(model="primary", outcome="the model service timed out",
+                        prompt_chars=4000),
+                Attempt(model="fallback", outcome="answered", input_tokens=1100,
+                        output_tokens=60, prompt_chars=4000),
+            ),
+        ),
+        ModelCall(
+            job="decide",
+            outcome="invalid_reply",
+            attempts=(
+                Attempt(model="primary", outcome="invalid reply: not valid JSON",
+                        input_tokens=1200, output_tokens=30, prompt_chars=4400),
+            ),
+        ),
+        ModelCall(
+            job="plan",
+            outcome="answered",
+            attempts=(Attempt(model="primary", outcome="answered", prompt_chars=900),),
+        ),
+    ]  # fmt: skip
+    summary = summarize_calls(calls)
+    assert summary.input_tokens_by_job == {"decide": 2300}
+    assert summary.output_tokens_by_job == {"decide": 90}
+    assert summary.prompt_chars_by_job == {"decide": 12400, "plan": 900}
+
+
+def test_older_summaries_without_request_sizes_still_load():
+    old = summarize_calls([]).model_dump()
+    for field in ("input_tokens_by_job", "output_tokens_by_job", "prompt_chars_by_job"):
+        del old[field]
+    assert CallSummary.model_validate(old).input_tokens_by_job == {}
+
+
+# --- the on/off setting for the stage views (--stage-context) ------------------------
+
+
+def test_stage_context_flag_reaches_every_case_and_is_none_when_left_out(
+    tmp_path, monkeypatch
+):
+    ran = {}
+
+    def fake_run(cases, make_policy, **options):
+        ran.update(options)
+        return []
+
+    monkeypatch.setattr(experiment, "run_experiment", fake_run)
+    monkeypatch.setattr(
+        experiment, "model_policy_factory", lambda with_recall, **_: None
+    )
+    out = str(tmp_path / "r.jsonl")
+    base = ["run", "--name", "a", "--known", "--out", out, "--quiet"]
+    assert main(base) == 0
+    assert ran["stage_context"] is None  # left to STAGE_CONTEXT in .env
+    assert main([*base, "--stage-context", "on"]) == 0
+    assert ran["stage_context"] is True
+    assert main([*base, "--stage-context", "off"]) == 0
+    assert ran["stage_context"] is False
+    with pytest.raises(SystemExit):
+        main([*base, "--stage-context", "maybe"])
+
+
+def test_the_flag_beats_the_environment_in_both_directions(monkeypatch):
+    monkeypatch.setenv("STAGE_CONTEXT", "on")
+    (forced_off,) = run_experiment([BEARING], stand_in, name="off", stage_context=False)
+    assert forced_off.stage_context is False
+    monkeypatch.setenv("STAGE_CONTEXT", "off")
+    (forced_on,) = run_experiment([BEARING], stand_in, name="on", stage_context=True)
+    assert forced_on.stage_context is True
+    (from_env,) = run_experiment([BEARING], stand_in, name="env")
+    assert from_env.stage_context is False  # nothing forced: .env decides
+
+
+def test_the_report_says_how_many_runs_had_the_views_on(records):
+    from capstone.experiment import format_stage_context
+
+    assert format_stage_context(records) == "stage views: 2 off"
+    mixed = [
+        records[0].model_copy(update={"stage_context": True}),
+        records[1],
+        records[1].model_copy(update={"stage_context": None}),
+    ]
+    assert format_stage_context(mixed) == "stage views: 1 on, 1 off, 1 not recorded"
+    assert format_stage_context([]) == "stage views: no runs"
+    assert "stage views: 2 off" in report(records, {})
+
+
+def test_a_run_that_did_not_get_the_requested_setting_is_named(records):
+    from capstone.experiment import stage_context_mismatches
+
+    assert stage_context_mismatches(records, False) == []
+    assert stage_context_mismatches(records, True) == [r.run_key for r in records]
+    assert stage_context_mismatches(records, None) == []  # nothing was asked for
+    older = records[0].model_copy(update={"stage_context": None})
+    assert stage_context_mismatches([older], False) == [older.run_key]
+
+
+def test_the_command_fails_loudly_if_the_setting_did_not_take(
+    tmp_path, monkeypatch, capsys
+):
+    """A run asked for on whose records say off must not pass quietly."""
+    ignores_the_flag = run_experiment(
+        [BEARING], stand_in, name="x", stage_context=False
+    )
+    monkeypatch.setattr(experiment, "run_experiment", lambda *a, **k: ignores_the_flag)
+    monkeypatch.setattr(
+        experiment, "model_policy_factory", lambda with_recall, **_: None
+    )
+    argv = ["run", "--name", "x", "--known", "--out", str(tmp_path / "r.jsonl")]
+    assert main([*argv, "--quiet", "--stage-context", "on"]) == 1
+    assert "ERROR: --stage-context on was asked for" in capsys.readouterr().out
+    assert main([*argv, "--quiet", "--stage-context", "off"]) == 0
+
+
+def test_the_header_names_the_setting_only_when_it_is_known():
+    from capstone.progress import run_header
+    from capstone.settings import Settings
+
+    usual = run_header(Settings(), manual=None)
+    assert not any("stage views" in line for line in usual)
+    assert "RUN: stage views on" in run_header(
+        Settings(), manual=None, stage_context=True
+    )
+    assert "RUN: stage views off" in run_header(
+        Settings(), manual=None, stage_context=False
+    )

@@ -5,7 +5,9 @@
     policy = ModelPolicy(clients_for_jobs(), research_tools())
     policy = ModelPolicy(clients, (*research_tools(), RECALL_SPEC))  # with recall
 
-Every question is shown the same view of working memory, `render(state)`:
+Every question is shown the same view of working memory, `render(state)`
+(with STAGE_CONTEXT on, judge_verification and write_lesson get views made
+for them instead: `verification_view` and `lesson_view`):
 the anomaly, the time and budget left, the open questions, the evidence
 with the IDs the loop gave it, the hypotheses with their confidence and the
 IDs they cite, and, once they exist, the conclusion and the action. It
@@ -35,6 +37,7 @@ whether that was the clock or an outage.
 """
 
 import json
+from collections import defaultdict
 from collections.abc import Mapping, Sequence
 from typing import Literal, Protocol, TypeVar
 
@@ -45,7 +48,12 @@ from capstone.agent.artifacts import (
     TerminationReason,
     VerificationCheck,
 )
-from capstone.agent.evidence_brief import evidence_brief
+from capstone.agent.evidence_brief import (
+    evidence_brief,
+    measurement_groups,
+    observations,
+    statistics,
+)
 from capstone.agent.policy import (
     ActionRequest,
     CallTool,
@@ -360,33 +368,16 @@ def shortened_note(ids: Sequence[str]) -> str:
     )
 
 
-def evidence_section(state: InvestigationState) -> list[str]:
-    """The evidence lines, within MAX_EVIDENCE_SECTION_CHARS where that can be.
-
-    Each piece starts as one short line (ID, call, tick) and is shown whole,
-    in this order, while the section stays under the limit: the newest
-    piece (always), the pieces a belief cites, then the rest, newest first.
-    Lines keep the order the evidence arrived in. Only IDs that exist are
-    written, so a model cannot be shown an ID to cite that was never given.
-    """
+def evidence_lines(state: InvestigationState) -> tuple[dict[str, str], dict[str, str]]:
+    """Each piece of evidence as a prompt line: whole, and short (ID and call only)."""
     # Variables:
     #   asked: Which tool call and arguments produced each piece of evidence, from the
     #     loop's own records.
     #   origins: Where each piece came from (observable, memory or manual), so it can be
     #     labelled.
+    #   head: The start every line shares: ID, call, tick and any origin label.
     #   full: Each piece's line with its whole content (cut at MAX_EVIDENCE_CHARS).
-    #   short: Each piece's line with only its id and call, used when the section is
-    #     full.
-    #   newest: The latest evidence id, always shown whole.
-    #   cited: Ids that a hypothesis, the conclusion or the check cites.
-    #   priority: The order in which pieces earn a whole line: newest, then cited, then
-    #     the rest newest first.
-    #   size: Characters used so far; starts at the short version of everything.
-    #   whole: Ids that fit within MAX_EVIDENCE_SECTION_CHARS and are shown in full.
-    #   left_out: Ids shown short, listed in a closing note.
-    if not state.evidence:
-        return [EVIDENCE_HEADER, "(none)"]
-    # Which call produced each piece of evidence, from the loop's own records.
+    #   short: Each piece's line with only its head, for when a section is full.
     asked: dict[str, tuple[str, dict]] = {}
     for decision in state.decisions:
         if decision.tool is not None:
@@ -406,7 +397,33 @@ def evidence_section(state: InvestigationState) -> list[str]:
         short[evidence.id] = (
             head + f"[{len(evidence.content)} characters, not shown here]"
         )
+    return full, short
 
+
+def evidence_section(state: InvestigationState) -> list[str]:
+    """The evidence lines, within MAX_EVIDENCE_SECTION_CHARS where that can be.
+
+    Each piece starts as one short line (ID, call, tick) and is shown whole,
+    in this order, while the section stays under the limit: the newest
+    piece (always), the pieces a belief cites, then the rest, newest first.
+    Lines keep the order the evidence arrived in. Only IDs that exist are
+    written, so a model cannot be shown an ID to cite that was never given.
+    """
+    # Variables:
+    #   full: Each piece's line with its whole content (cut at MAX_EVIDENCE_CHARS),
+    #     from `evidence_lines`.
+    #   short: Each piece's line with only its id and call, used when the section is
+    #     full.
+    #   newest: The latest evidence id, always shown whole.
+    #   cited: Ids that a hypothesis, the conclusion or the check cites.
+    #   priority: The order in which pieces earn a whole line: newest, then cited, then
+    #     the rest newest first.
+    #   size: Characters used so far; starts at the short version of everything.
+    #   whole: Ids that fit within MAX_EVIDENCE_SECTION_CHARS and are shown in full.
+    #   left_out: Ids shown short, listed in a closing note.
+    if not state.evidence:
+        return [EVIDENCE_HEADER, "(none)"]
+    full, short = evidence_lines(state)
     ids = [e.id for e in state.evidence]
     newest, cited = ids[-1], cited_ids(state)
     older = list(reversed(ids[:-1]))
@@ -581,6 +598,332 @@ def render(state: InvestigationState) -> str:
             lines.append(
                 f"- {d.tool} {compact(d.arguments)}: {d.error.code}: {d.error.message}"
             )
+    return "\n".join(lines)
+
+
+# --- stage views (STAGE_CONTEXT) ------------------------------------------------
+# With STAGE_CONTEXT on, two questions get a view made for them instead of
+# `render(state)`: judge_verification sees evidence sorted by when its
+# measurements were taken relative to the work, and write_lesson sees what
+# the investigation found rather than every raw answer. Off (the default),
+# every question gets `render(state)` exactly as before.
+
+DATA_TICK_FIELDS = ("tick", "from_tick", "to_tick")
+
+
+def data_window(rows: list[dict], arguments: dict) -> tuple[int, int] | None:
+    """The first and last tick a tool answer's data covers; None if it says none.
+
+    A row's own ticks come first: they are when the measurements were taken.
+    Only when no row has one are the requested from_tick/to_tick used.
+    """
+    # Variables:
+    #   ticks: Every data tick the rows carry, or failing that the requested range.
+    ticks = [
+        row[field]
+        for row in rows
+        for field in DATA_TICK_FIELDS
+        if isinstance(row.get(field), int) and not isinstance(row.get(field), bool)
+    ]
+    if not ticks:
+        ticks = [
+            arguments[field]
+            for field in ("from_tick", "to_tick")
+            if isinstance(arguments.get(field), int)
+            and not isinstance(arguments.get(field), bool)
+        ]
+    return (min(ticks), max(ticks)) if ticks else None
+
+
+def verification_groups(state: InvestigationState) -> dict[str, list[str]]:
+    """Evidence IDs by when their data was taken: before, after or spanning the work.
+
+    "after" uses the same rule as the loop's own check (`investigation.verify`)
+    and is stricter: a look made after the work, asked for a range starting
+    after it, whose data ticks (where it has them) all fall after it. Memory
+    and manual evidence are "not_factory": they cannot show a result. The
+    groups only order what the model is shown; the loop's check still
+    decides which citations count.
+    """
+    # Variables:
+    #   since: The tick after which data counts: when the work finished, or the
+    #     conclusion when nothing was done (as in `investigation.verify`).
+    #   start: When the work started; data up to here is a baseline. The
+    #     conclusion's tick when nothing was done.
+    #   origins: Where each piece came from (observable, memory or manual).
+    #   starts: The from_tick each look asked for, from the loop's own records.
+    #   windows: The data ticks each observable answer covers, where it has any.
+    #   groups: The result: IDs under before, after, spans or not_factory, each in
+    #     the order the evidence arrived.
+    #   look: The tick the evidence was gathered (retrieval, not measurement).
+    #   window: The evidence's first and last data tick, or None.
+    #   asked_after: True when the look, and any range it asked for, start after
+    #     `since`, which the loop's check requires.
+    since = (
+        state.action_finish_tick if state.action_carried_out else state.concluded_tick
+    )
+    start = state.action_started_tick if state.action_carried_out else since
+    origins = {p.evidence_id: p.origin for p in state.provenance}
+    starts = {
+        evidence_id: decision.arguments["from_tick"]
+        for decision in state.decisions
+        if isinstance(decision.arguments.get("from_tick"), int)
+        for evidence_id in decision.evidence_ids
+    }
+    windows = {
+        evidence.id: data_window(rows, arguments)
+        for evidence, _, rows, arguments in observations(state)
+    }
+    groups: dict[str, list[str]] = {
+        "before": [],
+        "after": [],
+        "spans": [],
+        "not_factory": [],
+    }
+    for evidence in state.evidence:
+        if origins.get(evidence.id) != "observable":
+            groups["not_factory"].append(evidence.id)
+            continue
+        look, window = evidence.observed_tick, windows.get(evidence.id)
+        if since is None or look is None:
+            groups["before"].append(evidence.id)
+            continue
+        asked_after = look > since and starts.get(evidence.id, look) > since
+        if asked_after and (window is None or window[0] > since):
+            groups["after"].append(evidence.id)
+        elif window is not None and window[1] <= start:
+            groups["before"].append(evidence.id)
+        elif window is None and not asked_after:
+            groups["before"].append(evidence.id)
+        else:
+            groups["spans"].append(evidence.id)
+    return groups
+
+
+def verification_comparison(
+    state: InvestigationState, groups: dict[str, list[str]]
+) -> tuple[list[str], list[str]]:
+    """Same-signal numbers before and after the work, and the signals not re-measured.
+
+    Arithmetic only, in data-tick order (`evidence_brief.statistics`): it says
+    what the numbers are, not whether the work succeeded. Samples taken while
+    the work was under way are on neither side.
+    """
+    # Variables:
+    #   since, start: As in `verification_groups`: after `since` is after the
+    #     work, up to `start` is before it.
+    #   before, after: For each machine, sensor and unit, the deduplicated
+    #     samples on each side and the evidence IDs they came from. The after
+    #     side takes samples only from evidence in the "after" group, so every
+    #     ID it names is one the loop's check accepts.
+    #   lines: One comparison line per signal measured on both sides.
+    #   missing: Signals measured before the work but not after it.
+    since = (
+        state.action_finish_tick if state.action_carried_out else state.concluded_tick
+    )
+    start = state.action_started_tick if state.action_carried_out else since
+    if since is None:
+        return [], []
+    before: dict[tuple, tuple[dict, set]] = defaultdict(lambda: ({}, set()))
+    after: dict[tuple, tuple[dict, set]] = defaultdict(lambda: ({}, set()))
+    after_ids = set(groups["after"])
+    for evidence, _, rows, arguments in observations(state):
+        for key, samples in measurement_groups(rows, arguments).items():
+            for tick, value in samples:
+                if start is not None and tick <= start:
+                    before[key][0][(tick, value)] = value
+                    before[key][1].add(evidence.id)
+                elif tick > since and evidence.id in after_ids:
+                    after[key][0][(tick, value)] = value
+                    after[key][1].add(evidence.id)
+    lines, missing = [], []
+
+    def side(name: str, samples: dict, ids: set) -> str:
+        # Variables:
+        #   numbers: Count, range of ticks and mean of this side's samples.
+        numbers = statistics(samples)
+        return (
+            f"{name} ticks {numbers['from_tick']}-{numbers['to_tick']} mean "
+            f"{numbers['mean']:.3g} over {numbers['sample_count']} samples "
+            f"({', '.join(sorted(ids))})"
+        )
+
+    for key in sorted(before, key=str):
+        machine, sensor, unit = key
+        label = f"{machine} {sensor}" + (f" ({unit})" if unit else "")
+        if key in after:
+            lines.append(
+                f"- {label}: {side('before', *before[key])}; "
+                f"{side('after', *after[key])}"
+            )
+        else:
+            missing.append(label)
+    return lines, missing
+
+
+def whole_ids(
+    priority: Sequence[str], full: dict[str, str], short: dict[str, str], limit: int
+) -> set[str]:
+    """Which IDs get a whole line, in `priority` order, so all lines fit in `limit`.
+
+    Every piece starts short (its ID and call are always listed); a piece is
+    then shown whole while the extra characters still fit, as in
+    `evidence_section`.
+    """
+    # Variables:
+    #   size: Characters used so far; starts at the short line of every piece.
+    #   extra: What showing this piece whole adds over its short line.
+    #   whole: The IDs shown whole.
+    size = sum(len(short[i]) for i in priority)
+    whole = set()
+    for evidence_id in priority:
+        extra = len(full[evidence_id]) - len(short[evidence_id])
+        if size + extra <= limit:
+            whole.add(evidence_id)
+            size += extra
+    return whole
+
+
+def verification_view(state: InvestigationState) -> str:
+    """Working memory for judge_verification, set out around the work's time.
+
+    The work, then evidence whose data is from before it, from after it, and
+    spanning it, then same-signal numbers and the gaps. After-work evidence
+    is shown whole first; before-work evidence follows, newest first, while
+    there is room in MAX_EVIDENCE_SECTION_CHARS.
+    """
+    # Variables:
+    #   groups: Evidence IDs by when their data was taken (`verification_groups`).
+    #   full, short: Each piece of evidence as a whole line and as its head only.
+    #   sections: The three evidence groups shown, with the heading that tells the
+    #     model what each can and cannot show.
+    #   priority: The order pieces earn a whole line: results, spanning evidence,
+    #     then the baseline newest first.
+    #   whole: The IDs shown whole within MAX_EVIDENCE_SECTION_CHARS.
+    #   comparison: Same-signal before/after numbers, with the IDs behind them.
+    #   missing: Signals measured before the work and never after it.
+    #   gaps: What the comparison cannot rest on, stated so the model does not
+    #     read silence as success.
+    anomaly = state.anomaly
+    where = f" on {anomaly.machine_id}" if anomaly.machine_id else ""
+    now = "unknown" if state.last_tick is None else str(state.last_tick)
+    lines = [
+        f"ANOMALY ({anomaly.kind}{where}, tick {anomaly.tick}): {anomaly.description}",
+        f"NOW: tick {now}",
+        "",
+        "INTERVENTION:",
+    ]
+    if state.conclusion is not None:
+        c = state.conclusion
+        lines.append(
+            f"Conclusion (tick {state.concluded_tick}): {c.diagnosis} "
+            f"(recommendation {c.recommendation}, citing "
+            f"{', '.join(c.evidence_ids) or 'nothing'})"
+        )
+    if state.proposed_action is not None:
+        p = state.proposed_action
+        lines.append(f"Action: {p.action} on {p.machine_id}, {p.status}.")
+    if state.action_carried_out:
+        lines.append(
+            f"Work: started at tick {state.action_started_tick}, finished at tick "
+            f"{state.action_finish_tick}. Data after tick {state.action_finish_tick} "
+            "shows the result."
+        )
+    else:
+        lines.append(
+            f"No work was carried out. Data after tick {state.concluded_tick} "
+            "shows whether the conclusion held."
+        )
+    lines.append(f"Predicted: {state.predicted_effect or 'no prediction recorded'}")
+
+    groups = verification_groups(state)
+    full, short = evidence_lines(state)
+    sections = (
+        (
+            "after",
+            "AFTER THE WORK (data taken after it finished; these can show the result):",
+        ),
+        (
+            "spans",
+            "SPANS THE WORK (data from both sides, or asked from before it ended; "
+            "only the part after the work says anything about it):",
+        ),
+        ("before", "BEFORE THE WORK (the baseline; cannot show the result):"),
+    )
+    # Results first, then spanning evidence, then the newest baseline.
+    priority = [*groups["after"], *groups["spans"], *reversed(groups["before"])]
+    priority += groups["not_factory"]
+    whole = whole_ids(priority, full, short, MAX_EVIDENCE_SECTION_CHARS)
+    for name, title in sections:
+        rows = [full[i] if i in whole else short[i] for i in groups[name]]
+        lines += ["", title, *(rows or ["(none)"])]
+
+    comparison, missing = verification_comparison(state, groups)
+    lines += ["", "SAME SIGNAL BEFORE AND AFTER (arithmetic only, not a verdict):"]
+    lines += comparison or ["(no signal measured on both sides)"]
+
+    gaps = []
+    if not groups["after"]:
+        gaps.append("No evidence whose data was taken after the work.")
+    if missing:
+        gaps.append(
+            "Measured before the work but not after: " + "; ".join(missing) + "."
+        )
+    if groups["not_factory"]:
+        gaps.append(
+            "Not a look at the factory (memory or manual), cannot show the result: "
+            + ", ".join(groups["not_factory"])
+            + "."
+        )
+    if set(priority) - whole:
+        gaps.append(
+            "Some evidence is shown by ID only, for room; its content is unknown here."
+        )
+    lines += [
+        "",
+        "VERIFICATION GAPS:",
+        *(f"- {gap}" for gap in gaps or ["none recorded"]),
+    ]
+    return "\n".join(lines)
+
+
+def lesson_view(state: InvestigationState) -> str:
+    """Working memory for write_lesson: what was found, checked and done.
+
+    The calls made and the factual brief replace the raw evidence section:
+    the lesson names what to look at and what it showed, not evidence IDs.
+    """
+    # Variables:
+    #   calls: Each tool call that produced evidence, in order, with its arguments.
+    #   outcome: What the verification check decided.
+    anomaly = state.anomaly
+    where = f" on {anomaly.machine_id}" if anomaly.machine_id else ""
+    lines = [
+        f"ANOMALY ({anomaly.kind}{where}, tick {anomaly.tick}): {anomaly.description}",
+    ]
+    if state.conclusion is not None:
+        c = state.conclusion
+        lines.append(
+            f"CONCLUSION: {c.diagnosis} (confidence {c.confidence:.2f}, "
+            f"recommendation {c.recommendation})"
+        )
+    if state.proposed_action is not None:
+        p = state.proposed_action
+        lines.append(f"ACTION: {p.action} on {p.machine_id}, {p.status}.")
+    if state.predicted_effect is not None:
+        lines.append(f"PREDICTED: {state.predicted_effect}")
+    outcome = state.verification.outcome if state.verification else "not recorded"
+    lines.append(f"VERIFICATION: {outcome}")
+    lines += ["", "HYPOTHESES CONSIDERED:"]
+    lines += [f"- {h.claim} (confidence {h.confidence:.2f})" for h in state.hypotheses]
+    lines += [] if state.hypotheses else ["(none)"]
+    calls = [
+        f"- {d.tool} {compact(d.arguments)}" if d.arguments else f"- {d.tool}"
+        for d in state.decisions
+        if d.tool is not None and d.evidence_ids
+    ]
+    lines += ["", "CALLS MADE, IN ORDER:", *(calls or ["(none)"])]
+    lines += ["", evidence_brief(state)]
     return "\n".join(lines)
 
 
@@ -996,7 +1339,13 @@ class ModelPolicy:
         return conclusion, answer.action
 
     def judge_verification(self, state: InvestigationState) -> VerificationCheck:
-        verdict = self._ask("judge_verification", state, render(state), Judgement)
+        # Variables:
+        #   view: What the model is shown: the verification view with
+        #     STAGE_CONTEXT on, otherwise the shared `render(state)`.
+        #   verdict: The model's judgement, turned into the loop's check type.
+        # STAGE_CONTEXT: evidence set out around the work's time; off, as before.
+        view = verification_view(state) if state.stage_context else render(state)
+        verdict = self._ask("judge_verification", state, view, Judgement)
         return VerificationCheck(
             outcome=verdict.outcome,
             prediction=state.predicted_effect or "no prediction was recorded",
@@ -1004,5 +1353,11 @@ class ModelPolicy:
         )
 
     def write_lesson(self, state: InvestigationState) -> Lesson | None:
-        text = self._ask("write_lesson", state, render(state), LessonAnswer).lesson
+        # Variables:
+        #   view: What the model is shown: the lesson view with STAGE_CONTEXT
+        #     on, otherwise the shared `render(state)`.
+        #   text: The model's one sentence, or None when nothing is worth keeping.
+        # STAGE_CONTEXT: what was found and done, not every raw answer.
+        view = lesson_view(state) if state.stage_context else render(state)
+        text = self._ask("write_lesson", state, view, LessonAnswer).lesson
         return Lesson(text=text.strip()) if text and text.strip() else None

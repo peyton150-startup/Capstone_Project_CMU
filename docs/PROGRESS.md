@@ -28,6 +28,29 @@
 > logged at 14:15 and the capture has a gap marker covering 14:10-14:20: what does the check report, and why does that
 > keep the visit from being ready?"
 
+> **2026-11-08 — request-size logging and stage views (STAGE_CONTEXT) (built ungated at the developer's request; developer to review; understood: no; pre-check, closing question and §11.6 walkthrough owed; PR #209 merged on green CI at the developer's direction on 2026-11-08, before the walkthrough):**
+> From a review of a progressive-disclosure proposal against the code, the developer asked for its narrowed version:
+> measure first, then give two questions their own views. **Logging:** every `Attempt` now records the tokens the service
+> reported (`input_tokens`, `output_tokens`, failed and fallback attempts included, refused replies too), the characters
+> sent (`prompt_chars`, system message with answer schema plus prompt) and `prompt_version`, a 12-character hash of the
+> system message. `CallSummary` totals each by job. Before this the main models' requests had no size on record.
+> **Stage views, behind `STAGE_CONTEXT` (off by default, so the shared `render(state)` is the A/B baseline):**
+> `verification_view` gives judge_verification the work, then evidence grouped by when its *data* was taken (before,
+> after, spanning the work; memory and manual apart), same-signal before/after numbers and the gaps. A look retrieved
+> after the work whose data is from before it is a baseline, not a result. Its "after" group is never wider than what
+> `investigation.verify`'s own check counts, and that check is unchanged. `lesson_view` gives write_lesson the
+> conclusion, action, verification outcome, calls made and the factual brief instead of raw evidence. `plan` is
+> unchanged: at plan time there is little to remove. Recorded on `ExperimentRecord.stage_context`.
+> **On/off setting (added the same day, at the developer's request):** `python -m capstone.experiment run ... --stage-context
+> on|off` forces the views on or off for every case and beats `STAGE_CONTEXT` in `.env`; left out, `.env` decides (off if
+> unset). `run_episode` and `run_experiment` take `stage_context`. The run header prints `RUN: stage views on|off`, the
+> report prints `stage views: N on, N off, N not recorded` (counted from the records, not from what was asked), and the
+> command exits 1 if any record disagrees with the flag. The list of live checks is `docs/TESTS_TO_RUN.md`. Scripted (offline)
+> episode: judge prompt 7,191 → 5,112 characters, lesson 7,156 → 2,909. Not run live; that is Codex's job (§12), as an
+> A/B with the same cases, models and budgets. Owed questions: pre-check, "a trend is retrieved at tick 200 for ticks
+> 50-90 and the work finished at 160: which group is it in, and why?"; closing, "why must the view's 'after' group
+> never be wider than the loop's own check?"
+
 > **2026-11-07 — SM-1 versioned channel map from `/probe` (built ungated at the developer's direction; pre-check, closing questions and pre-merge walkthrough owed; understood: no):**
 > New module `ingestion/channel_map.py`. `parse_probe` reads every DataItem of a saved MTConnectDevices document into a
 > `ChannelEntry`: device name and uuid, enclosing component and its kind, id, name, category, type, subtype, and units,

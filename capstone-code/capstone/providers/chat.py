@@ -31,6 +31,7 @@ still asked; a caller can shorten that for one question, never lengthen it. A se
 reported as timed out, not as unreachable.
 """
 
+import hashlib
 import json
 import queue
 import re
@@ -42,7 +43,7 @@ from collections.abc import Callable, Sequence
 from dataclasses import dataclass
 from typing import TypeVar
 
-from pydantic import BaseModel, ValidationError
+from pydantic import BaseModel, Field, ValidationError
 
 from capstone.contracts import Contract
 from capstone.settings import (
@@ -139,6 +140,50 @@ class Attempt(Contract):
     # How long the request took, on the client's clock. The pause before a
     # retry is not included: it is the client waiting, not the model.
     seconds: float | None = None
+    # Tokens the service reported for this request ("usage"), when it sent
+    # them: refused replies count too, since they were still paid for. None:
+    # no reply, a service that reports none, or a record from before
+    # 2026-11-08.
+    input_tokens: int | None = Field(default=None, ge=0)
+    output_tokens: int | None = Field(default=None, ge=0)
+    # Characters sent (system message, answer schema included, plus prompt),
+    # known even when the service reports no tokens.
+    prompt_chars: int | None = Field(default=None, ge=0)
+    # A short hash of the system message: the job's instructions and answer
+    # schema. Equal hashes mean the same instructions, so runs can be grouped
+    # by prompt version. The working-memory view is not in it: STAGE_CONTEXT
+    # is recorded on the run.
+    prompt_version: str | None = None
+
+
+@dataclass(frozen=True)
+class RequestRecord:
+    """What one ChatClient request sent and what the service said it cost."""
+
+    prompt_chars: int
+    prompt_version: str
+    input_tokens: int | None = None
+    output_tokens: int | None = None
+
+
+def reported_usage(body: bytes) -> tuple[int | None, int | None]:
+    """Input and output tokens from a chat-completions reply; None where absent."""
+    # Variables:
+    #   usage: The reply's "usage" object, if the service sent one.
+    #   counts: The two counts, each kept only if it is a whole, non-negative
+    #     number.
+    try:
+        usage = json.loads(body).get("usage")
+    except (ValueError, AttributeError):
+        return None, None
+    if not isinstance(usage, dict):
+        return None, None
+    counts = []
+    for key in ("prompt_tokens", "completion_tokens"):
+        value = usage.get(key)
+        ok = isinstance(value, int) and not isinstance(value, bool) and value >= 0
+        counts.append(value if ok else None)
+    return counts[0], counts[1]
 
 
 # Model-specific defaults: NVIDIA's text recommendation, Cohere's documented
@@ -398,6 +443,8 @@ class ChatClient:
         #   reasoning_effort: How hard a thinking model reasons ("low", "medium"
         #     or "high"), sent as "reasoning_effort"; None sends no such field.
         #   sampling: Checked numeric values, including values supplied directly.
+        #   self.last_request: The latest request's size, prompt version and reported
+        #     tokens, read by `FallbackClient` for each attempt; None until a request.
         if max_output_tokens is not None and max_output_tokens < 1:
             raise ValueError("max_output_tokens must be at least 1")
         self.url = url
@@ -416,6 +463,9 @@ class ChatClient:
         self.temperature = sampling.temperature
         self.top_p = sampling.top_p
         self.reasoning_effort = reasoning_effort
+        # The latest request's size, prompt version and reported tokens; None
+        # until a request is made. `FallbackClient` copies it onto the attempt.
+        self.last_request: RequestRecord | None = None
 
     def __repr__(self) -> str:
         return f"ChatClient(url={self.url!r}, model={self.model!r})"
@@ -448,17 +498,29 @@ class ChatClient:
         #     checks the answer's shape.
         #   raw: The service's reply bytes, before the text and JSON are pulled out and
         #     checked.
+        #   instructions: The whole system message: the job's instructions and the
+        #     answer schema; its hash is the prompt version.
+        #   sent: This request's size and prompt version, kept as `last_request`;
+        #     the reported tokens are added once the reply arrives, before it is
+        #     checked, so a refused reply's tokens are still recorded.
+        #   input_tokens, output_tokens: What the service reported for this request
+        #     (`reported_usage`); None where it reported nothing usable.
         limit = min(x for x in (self.timeout, timeout, max_seconds) if x is not None)
         schema = json.dumps(answer_type.model_json_schema())
+        instructions = (
+            f"{system}\n\nReply with exactly one JSON object "
+            f"and nothing else. It must match this JSON schema:\n{schema}"
+        )
+        sent = RequestRecord(
+            prompt_chars=len(instructions) + len(prompt),
+            prompt_version=hashlib.sha256(instructions.encode()).hexdigest()[:12],
+        )
+        self.last_request = sent
         body = {
             "model": self.model,
             "temperature": self.temperature,
             "messages": [
-                {
-                    "role": "system",
-                    "content": f"{system}\n\nReply with exactly one JSON object "
-                    f"and nothing else. It must match this JSON schema:\n{schema}",
-                },
+                {"role": "system", "content": instructions},
                 {"role": "user", "content": prompt},
             ],
         }
@@ -480,6 +542,13 @@ class ChatClient:
         elif self.json_output:
             body["response_format"] = {"type": "json_object"}
         raw = post_json(self._transport, self.url, self._api_key, body, limit)
+        input_tokens, output_tokens = reported_usage(raw)
+        self.last_request = RequestRecord(
+            prompt_chars=sent.prompt_chars,
+            prompt_version=sent.prompt_version,
+            input_tokens=input_tokens,
+            output_tokens=output_tokens,
+        )
         return answer_type.model_validate_json(answer_json(reply_text(raw)))
 
 
@@ -568,6 +637,8 @@ class FallbackClient:
         #   pause: How long to wait before this retry.
         #   left: The time this attempt may take after the pause.
         #   started: The clock reading when the attempt began, to time it.
+        #   client.last_request: Cleared before each attempt and read after it, so
+        #     each attempt records its own request's size, version and tokens.
         self.answered_by = None
         attempts: list[Attempt] = []
         failures = []
@@ -614,12 +685,23 @@ class FallbackClient:
                     started = self._clock()
 
                     def tried(outcome: str) -> Attempt:
+                        # Variables:
+                        #   sent: What the client says this request sent and cost;
+                        #     None for a client that keeps no such record.
+                        sent = getattr(client, "last_request", None)
                         return Attempt(
                             model=client.model,
                             outcome=outcome,
                             seconds=round(self._clock() - started, 3),
+                            input_tokens=getattr(sent, "input_tokens", None),
+                            output_tokens=getattr(sent, "output_tokens", None),
+                            prompt_chars=getattr(sent, "prompt_chars", None),
+                            prompt_version=getattr(sent, "prompt_version", None),
                         )
 
+                    if hasattr(client, "last_request"):
+                        # An earlier request's record must not be read as this one's.
+                        client.last_request = None
                     try:
                         answer = client.ask(system, prompt, answer_type, timeout=left)
                     except ModelError as error:

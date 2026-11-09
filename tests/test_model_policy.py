@@ -10,8 +10,9 @@ import re
 
 import pytest
 
-from capstone.agent.artifacts import AgentConclusion, ProposalRecord
+from capstone.agent.artifacts import AgentConclusion, ProposalRecord, VerificationCheck
 from capstone.agent.model_policy import (
+    EVIDENCE_HEADER,
     MAX_EVIDENCE_CHARS,
     MAX_EVIDENCE_SECTION_CHARS,
     SYSTEM,
@@ -22,7 +23,10 @@ from capstone.agent.model_policy import (
     NextStep,
     PlanAnswer,
     action_bar_note,
+    lesson_view,
     render,
+    verification_groups,
+    verification_view,
 )
 from capstone.agent.policy import CallTool, Interpretation, Stop
 from capstone.agent.state import DecisionRecord, Question
@@ -1187,3 +1191,279 @@ def test_the_scan_rule_names_only_tools_the_agent_has():
     names = {spec.name for spec in research_tools()}
     assert "list_machines" in names
     assert "list_machines" in SYSTEM["decide"]
+
+
+# --- stage views (STAGE_CONTEXT) -------------------------------------------------
+
+
+def observed(evidence_id, tool, content, tick, **arguments):
+    """One factory answer: its evidence, its observable label and the call that made it."""
+    evidence = Evidence(
+        id=evidence_id,
+        source_id=f"simulator:{tool}",
+        source_type="tool_result",
+        content=json.dumps(content),
+        observed_tick=tick,
+    )
+    label = ProvenanceReference(
+        evidence_id=evidence_id,
+        source_id=evidence.source_id,
+        source_type="tool_result",
+        origin="observable",
+        observed_tick=tick,
+    )
+    decision = DecisionRecord(
+        sequence=int(evidence_id[1:]),
+        phase="verify",
+        information_needed=tool,
+        tool=tool,
+        arguments=arguments,
+        outcome="observed",
+        evidence_ids=(evidence_id,),
+        confidence=0.0,
+    )
+    return evidence, label, decision
+
+
+def trend(ticks, value):
+    return [
+        {
+            "machine_id": "CNC-02",
+            "sensor": "vibration",
+            "unit": "mm/s",
+            "tick": t,
+            "value": value,
+        }
+        for t in ticks
+    ]
+
+
+def repaired_state():
+    """Work on CNC-02 ran from tick 100 to 160. Four looks, each a different case:
+
+    E1 a baseline trend before the work; E2 a trend retrieved after the work
+    whose data is from before it; E3 a trend whose data is all after the work;
+    E4 a memory, which cannot show a result.
+    """
+    state = new_state()
+    state.last_tick = 220
+    state.concluded_tick = 90
+    state.action_started_tick, state.action_finish_tick = 100, 160
+    state.predicted_effect = "vibration on CNC-02 falls below 3 mm/s"
+    pieces = [
+        observed(
+            "E1",
+            "get_sensor_trend",
+            trend([60, 70, 80], 6.0),
+            90,
+            machine_id="CNC-02",
+            from_tick=60,
+            to_tick=80,
+        ),
+        observed(
+            "E2",
+            "get_sensor_trend",
+            trend([50, 90], 6.2),
+            200,
+            machine_id="CNC-02",
+            from_tick=50,
+            to_tick=90,
+        ),
+        observed(
+            "E3",
+            "get_sensor_trend",
+            trend([180, 190, 200], 2.0),
+            210,
+            machine_id="CNC-02",
+            from_tick=170,
+            to_tick=200,
+        ),
+    ]
+    state.evidence = [e for e, _, _ in pieces]
+    state.provenance = [p for _, p, _ in pieces]
+    state.decisions = [d for _, _, d in pieces]
+    state.evidence.append(
+        Evidence(
+            id="E4",
+            source_id="memory:recall_memories",
+            source_type="tool_result",
+            content='[{"lesson": "a new bearing fixed this last time"}]',
+            observed_tick=215,
+        )
+    )
+    state.provenance.append(
+        ProvenanceReference(
+            evidence_id="E4",
+            source_id="memory:recall_memories",
+            source_type="tool_result",
+            origin="memory",
+            observed_tick=215,
+        )
+    )
+    return state
+
+
+def section_of(view, title):
+    """The lines under one heading of a view, up to the next blank line."""
+    lines = view.splitlines()
+    start = next(i for i, line in enumerate(lines) if line.startswith(title))
+    body = []
+    for line in lines[start + 1 :]:
+        if not line:
+            break
+        body.append(line)
+    return "\n".join(body)
+
+
+def test_off_by_default_every_question_sees_the_shared_view():
+    state = repaired_state()
+    assert state.stage_context is False
+    agent = policy(
+        judge_verification=[{"outcome": "resolved", "evidence_ids": ["E3"]}],
+        write_lesson=[{"lesson": "check the trend after the work"}],
+    )
+    agent.judge_verification(state)
+    agent.write_lesson(state)
+    assert agent.clients["judge_verification"].asked[0][1] == render(state)
+    assert agent.clients["write_lesson"].asked[0][1] == render(state)
+
+
+def test_verification_sorts_evidence_by_when_its_data_was_taken_not_retrieved():
+    state = repaired_state()
+    groups = verification_groups(state)
+    # E2 was retrieved at tick 200, after the work, but its data is from
+    # before it: it is a baseline, not a result.
+    assert groups == {
+        "before": ["E1", "E2"],
+        "after": ["E3"],
+        "spans": [],
+        "not_factory": ["E4"],
+    }
+
+
+def test_every_after_look_is_one_the_loops_own_check_would_count():
+    """The view never offers as a result what `investigation.verify` refuses."""
+    state = repaired_state()
+    since = state.action_finish_tick
+    starts = {d.evidence_ids[0]: d.arguments.get("from_tick") for d in state.decisions}
+    for evidence_id in verification_groups(state)["after"]:
+        evidence = next(e for e in state.evidence if e.id == evidence_id)
+        assert evidence.observed_tick > since
+        assert starts.get(evidence_id, evidence.observed_tick) > since
+
+
+def test_data_on_both_sides_of_the_work_is_shown_as_spanning_it():
+    state = repaired_state()
+    e5, label, decision = observed(
+        "E5",
+        "get_sensor_trend",
+        trend([90, 120, 170], 4.0),
+        215,
+        machine_id="CNC-02",
+        from_tick=90,
+        to_tick=170,
+    )
+    state.evidence.append(e5)
+    state.provenance.append(label)
+    state.decisions.append(decision)
+    assert verification_groups(state)["spans"] == ["E5"]
+
+
+def test_an_answer_with_no_data_ticks_is_placed_by_when_it_was_asked():
+    state = repaired_state()
+    e5, label, decision = observed(
+        "E5", "get_settings", {"feed": 0.2}, 205, machine_id="CNC-02"
+    )
+    state.evidence.append(e5)
+    state.provenance.append(label)
+    state.decisions.append(decision)
+    assert "E5" in verification_groups(state)["after"]
+
+
+def test_the_verification_view_sets_out_the_work_both_sides_and_the_gaps():
+    state = repaired_state()
+    state.stage_context = True
+    agent = policy(judge_verification=[{"outcome": "resolved", "evidence_ids": ["E3"]}])
+    agent.judge_verification(state)
+    view = agent.clients["judge_verification"].asked[0][1]
+    assert view == verification_view(state)
+    assert "finished at tick 160" in view
+    assert "vibration on CNC-02 falls below 3 mm/s" in view
+    assert "- E3 " in section_of(view, "AFTER THE WORK")
+    assert "- E2 " in section_of(view, "BEFORE THE WORK")
+    comparison = section_of(view, "SAME SIGNAL BEFORE AND AFTER")
+    assert "CNC-02 vibration (mm/s): before ticks 50-90" in comparison
+    assert "after ticks 180-200 mean 2 over 3 samples (E3)" in comparison
+    gaps = section_of(view, "VERIFICATION GAPS")
+    assert "E4" in gaps  # the memory cannot show the result
+
+
+def test_a_signal_measured_before_but_never_after_is_named_as_a_gap():
+    state = repaired_state()
+    state.evidence = [e for e in state.evidence if e.id != "E3"]
+    gaps = section_of(verification_view(state), "VERIFICATION GAPS")
+    assert "No evidence whose data was taken after the work." in gaps
+    assert "Measured before the work but not after: CNC-02 vibration (mm/s)." in gaps
+
+
+def test_with_no_work_done_the_conclusion_tick_is_the_boundary():
+    state = repaired_state()
+    state.action_started_tick = state.action_finish_tick = None
+    state.concluded_tick = 100
+    groups = verification_groups(state)
+    # E2's data (ticks 50-90) is still from before the conclusion at 100.
+    assert (groups["before"], groups["after"]) == (["E1", "E2"], ["E3"])
+    assert "No work was carried out." in verification_view(state)
+
+
+def test_the_verification_view_stays_within_the_evidence_limit():
+    state = repaired_state()
+    for index in range(5, 25):
+        piece = observed(
+            f"E{index}",
+            "get_sensor_trend",
+            trend(range(index, index + 40), 5.0),
+            95,
+            machine_id="CNC-02",
+            from_tick=index,
+            to_tick=index + 40,
+        )
+        state.evidence.append(piece[0])
+        state.provenance.append(piece[1])
+        state.decisions.append(piece[2])
+    view = verification_view(state)
+    evidence_chars = sum(
+        len(line) for line in view.splitlines() if re.match(r"- E\d+ ", line)
+    )
+    assert evidence_chars <= MAX_EVIDENCE_SECTION_CHARS
+    # The one result is shown whole however much baseline there is.
+    assert '"tick": 200' in section_of(view, "AFTER THE WORK")
+    assert "shown by ID only" in section_of(view, "VERIFICATION GAPS")
+
+
+def test_the_lesson_view_shows_what_was_found_not_every_raw_answer():
+    state = repaired_state()
+    state.stage_context = True
+    state.verification = VerificationCheck(
+        outcome="resolved", prediction=state.predicted_effect, evidence_ids=("E3",)
+    )
+    agent = policy(write_lesson=[{"lesson": "check the trend after the work"}])
+    lesson = agent.write_lesson(state)
+    view = agent.clients["write_lesson"].asked[0][1]
+    assert lesson.text == "check the trend after the work"
+    assert view == lesson_view(state)
+    assert "VERIFICATION: resolved" in view
+    assert "get_sensor_trend" in section_of(view, "CALLS MADE, IN ORDER")
+    assert EVIDENCE_HEADER not in view  # no raw evidence section
+    assert len(view) < len(render(state))
+
+
+def test_an_episode_records_whether_the_stage_views_were_on(monkeypatch):
+    monkeypatch.setenv("STAGE_CONTEXT", "on")
+    agent = scripted_models()
+    result = run_episode(6, agent, fault="bearing_degradation", clock=lambda: 0.0)
+    assert result.state.stage_context is True
+    check_prompt = agent.clients["judge_verification"].asked[0][1]
+    assert check_prompt.startswith("ANOMALY")
+    assert "AFTER THE WORK" in check_prompt
+    assert result.state.verification.outcome == "resolved"
