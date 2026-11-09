@@ -81,6 +81,7 @@ GROUPS: dict[str, list[str]] = {
         "decide_calls",
         "agent_investigation",
         "agent_action",
+        "review_packet",
     ],
     # Checkpoint 4: looking again and judging whether the fix worked.
     "Verification": ["agent_verification"],

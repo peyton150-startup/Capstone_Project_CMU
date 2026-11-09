@@ -72,6 +72,23 @@ class ProposalRecord(Contract):
     status: Literal["pending", "approved", "rejected", "not_submitted"]
 
 
+class ReviewPacket(ProposalRecord):
+    """What the human reviewer is shown with a proposal, so they can judge it.
+
+    A ProposalRecord, so every reviewer that reads a proposal still works.
+    Built by code from the finished conclusion, never written by a model.
+    Display only: nothing here changes what the agent does.
+    """
+
+    diagnosis: str | None = None
+    confidence: float | None = Field(default=None, ge=0, le=1)
+    predicted_effect: str | None = None
+    # Each cited piece of evidence as one short line: "E3 get_readings: ...".
+    evidence: tuple[str, ...] = ()
+    # The critic's view in one line, or None when no critic answered.
+    critic_view: str | None = None
+
+
 class VerificationCheck(Contract):
     """Whether the factory changed the way the agent predicted after the action."""
 
