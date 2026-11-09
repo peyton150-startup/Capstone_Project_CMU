@@ -4359,11 +4359,10 @@
     "capstone.agent.state:InvestigationState.remaining_tool_calls",
     "capstone.agent.state:InvestigationState.research_seconds",
     "capstone.agent.state:InvestigationState.research_tool_calls",
-    "capstone.agent.untrusted:looks_like_instruction",
     "capstone.contracts.tools:ToolResult.consistent_outcome",
     "capstone.contracts.tools:TraceContext.consistent_context"
    ],
-   "exercise_count": 32,
+   "exercise_count": 31,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.incident_context",
@@ -4371,7 +4370,6 @@
     "capstone.agent.loop",
     "capstone.agent.model_policy",
     "capstone.agent.state",
-    "capstone.agent.untrusted",
     "capstone.contracts.tools"
    ],
    "judgment": "NOT ASSESSED",
@@ -20068,7 +20066,7 @@
     "capstone.agent.investigation:verify",
     "capstone.agent.investigation:verify.<locals>.later"
    ],
-   "exercise_count": 232,
+   "exercise_count": 233,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -20076,13 +20074,13 @@
     "capstone.agent.model_policy",
     "capstone.agent.monitor",
     "capstone.agent.state",
-    "capstone.agent.untrusted",
     "capstone.benchmark",
     "capstone.contracts.investigations",
     "capstone.contracts.tools",
     "capstone.episode",
     "capstone.evaluation.scoring",
     "capstone.faults",
+    "capstone.providers.chat",
     "capstone.providers.factory",
     "capstone.settings",
     "capstone.simulator.clock",
@@ -20153,6 +20151,7 @@
     "capstone.agent.loop:seconds_left",
     "capstone.agent.model_policy:ModelPolicy.__init__",
     "capstone.agent.model_policy:ModelPolicy._ask",
+    "capstone.agent.model_policy:ModelPolicy.client_for",
     "capstone.agent.model_policy:ModelPolicy.plan",
     "capstone.agent.model_policy:cited_ids",
     "capstone.agent.model_policy:evidence_lines",
@@ -20166,10 +20165,9 @@
     "capstone.agent.state:InvestigationState.remaining_critic_tool_calls",
     "capstone.agent.state:InvestigationState.remaining_followup_tool_calls",
     "capstone.agent.state:InvestigationState.remaining_iterations",
-    "capstone.agent.state:InvestigationState.remaining_seconds",
-    "capstone.agent.state:InvestigationState.remaining_tool_calls"
+    "capstone.agent.state:InvestigationState.remaining_seconds"
    ],
-   "exercise_count": 176,
+   "exercise_count": 177,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -20177,7 +20175,6 @@
     "capstone.agent.model_policy",
     "capstone.agent.monitor",
     "capstone.agent.state",
-    "capstone.agent.untrusted",
     "capstone.benchmark",
     "capstone.contracts.investigations",
     "capstone.contracts.tools",
@@ -20262,6 +20259,7 @@
     "capstone.agent.loop:seconds_left",
     "capstone.agent.model_policy:ModelPolicy.__init__",
     "capstone.agent.model_policy:ModelPolicy._ask",
+    "capstone.agent.model_policy:ModelPolicy.client_for",
     "capstone.agent.model_policy:ModelPolicy.plan",
     "capstone.agent.model_policy:cited_ids",
     "capstone.agent.model_policy:evidence_lines",
@@ -20275,10 +20273,9 @@
     "capstone.agent.state:InvestigationState.remaining_critic_tool_calls",
     "capstone.agent.state:InvestigationState.remaining_followup_tool_calls",
     "capstone.agent.state:InvestigationState.remaining_iterations",
-    "capstone.agent.state:InvestigationState.remaining_seconds",
-    "capstone.agent.state:InvestigationState.remaining_tool_calls"
+    "capstone.agent.state:InvestigationState.remaining_seconds"
    ],
-   "exercise_count": 183,
+   "exercise_count": 184,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -20286,7 +20283,6 @@
     "capstone.agent.model_policy",
     "capstone.agent.monitor",
     "capstone.agent.state",
-    "capstone.agent.untrusted",
     "capstone.benchmark",
     "capstone.console",
     "capstone.contracts.investigations",
@@ -20462,7 +20458,7 @@
     "capstone.agent.investigation:verify",
     "capstone.agent.investigation:verify.<locals>.later"
    ],
-   "exercise_count": 232,
+   "exercise_count": 233,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -20470,13 +20466,13 @@
     "capstone.agent.model_policy",
     "capstone.agent.monitor",
     "capstone.agent.state",
-    "capstone.agent.untrusted",
     "capstone.benchmark",
     "capstone.contracts.investigations",
     "capstone.contracts.tools",
     "capstone.episode",
     "capstone.evaluation.scoring",
     "capstone.faults",
+    "capstone.providers.chat",
     "capstone.providers.factory",
     "capstone.settings",
     "capstone.simulator.clock",
@@ -30625,17 +30621,15 @@
     "capstone.agent.model_policy:tool_list",
     "capstone.agent.model_policy:without_titles",
     "capstone.agent.state:Budgets.research_gets_some_time",
-    "capstone.agent.untrusted:looks_like_instruction",
     "capstone.providers.factory:research_tools",
     "capstone.providers.factory:tool_spec"
    ],
-   "exercise_count": 17,
+   "exercise_count": 16,
    "modules_exercised": [
     "capstone.agent.critic",
     "capstone.agent.evidence_brief",
     "capstone.agent.model_policy",
     "capstone.agent.state",
-    "capstone.agent.untrusted",
     "capstone.providers.factory"
    ],
    "judgment": "NOT ASSESSED",
@@ -30679,17 +30673,15 @@
     "capstone.agent.model_policy:tool_list",
     "capstone.agent.model_policy:without_titles",
     "capstone.agent.state:Budgets.research_gets_some_time",
-    "capstone.agent.untrusted:looks_like_instruction",
     "capstone.providers.factory:research_tools",
     "capstone.providers.factory:tool_spec"
    ],
-   "exercise_count": 17,
+   "exercise_count": 16,
    "modules_exercised": [
     "capstone.agent.critic",
     "capstone.agent.evidence_brief",
     "capstone.agent.model_policy",
     "capstone.agent.state",
-    "capstone.agent.untrusted",
     "capstone.providers.factory"
    ],
    "judgment": "NOT ASSESSED",
@@ -30800,17 +30792,15 @@
     "capstone.agent.model_policy:tool_list",
     "capstone.agent.model_policy:without_titles",
     "capstone.agent.state:Budgets.research_gets_some_time",
-    "capstone.agent.untrusted:looks_like_instruction",
     "capstone.providers.factory:research_tools",
     "capstone.providers.factory:tool_spec"
    ],
-   "exercise_count": 22,
+   "exercise_count": 21,
    "modules_exercised": [
     "capstone.agent.critic",
     "capstone.agent.evidence_brief",
     "capstone.agent.model_policy",
     "capstone.agent.state",
-    "capstone.agent.untrusted",
     "capstone.providers.factory"
    ],
    "judgment": "NOT ASSESSED",
@@ -30858,17 +30848,15 @@
     "capstone.agent.model_policy:tool_list",
     "capstone.agent.model_policy:without_titles",
     "capstone.agent.state:Budgets.research_gets_some_time",
-    "capstone.agent.untrusted:looks_like_instruction",
     "capstone.providers.factory:research_tools",
     "capstone.providers.factory:tool_spec"
    ],
-   "exercise_count": 22,
+   "exercise_count": 21,
    "modules_exercised": [
     "capstone.agent.critic",
     "capstone.agent.evidence_brief",
     "capstone.agent.model_policy",
     "capstone.agent.state",
-    "capstone.agent.untrusted",
     "capstone.providers.factory"
    ],
    "judgment": "NOT ASSESSED",
@@ -30918,18 +30906,16 @@
     "capstone.agent.model_policy:tool_list",
     "capstone.agent.model_policy:without_titles",
     "capstone.agent.state:Budgets.research_gets_some_time",
-    "capstone.agent.untrusted:looks_like_instruction",
     "capstone.providers.chat:invalid_outcome",
     "capstone.providers.factory:research_tools",
     "capstone.providers.factory:tool_spec"
    ],
-   "exercise_count": 24,
+   "exercise_count": 23,
    "modules_exercised": [
     "capstone.agent.critic",
     "capstone.agent.evidence_brief",
     "capstone.agent.model_policy",
     "capstone.agent.state",
-    "capstone.agent.untrusted",
     "capstone.providers.chat",
     "capstone.providers.factory"
    ],
@@ -30978,17 +30964,15 @@
     "capstone.agent.model_policy:tool_list",
     "capstone.agent.model_policy:without_titles",
     "capstone.agent.state:Budgets.research_gets_some_time",
-    "capstone.agent.untrusted:looks_like_instruction",
     "capstone.providers.factory:research_tools",
     "capstone.providers.factory:tool_spec"
    ],
-   "exercise_count": 22,
+   "exercise_count": 21,
    "modules_exercised": [
     "capstone.agent.critic",
     "capstone.agent.evidence_brief",
     "capstone.agent.model_policy",
     "capstone.agent.state",
-    "capstone.agent.untrusted",
     "capstone.providers.factory"
    ],
    "judgment": "NOT ASSESSED",
@@ -31037,18 +31021,16 @@
     "capstone.agent.model_policy:tool_list",
     "capstone.agent.model_policy:without_titles",
     "capstone.agent.state:Budgets.research_gets_some_time",
-    "capstone.agent.untrusted:looks_like_instruction",
     "capstone.providers.chat:invalid_outcome",
     "capstone.providers.factory:research_tools",
     "capstone.providers.factory:tool_spec"
    ],
-   "exercise_count": 24,
+   "exercise_count": 23,
    "modules_exercised": [
     "capstone.agent.critic",
     "capstone.agent.evidence_brief",
     "capstone.agent.model_policy",
     "capstone.agent.state",
-    "capstone.agent.untrusted",
     "capstone.providers.chat",
     "capstone.providers.factory"
    ],
@@ -31098,18 +31080,16 @@
     "capstone.agent.model_policy:tool_list",
     "capstone.agent.model_policy:without_titles",
     "capstone.agent.state:Budgets.research_gets_some_time",
-    "capstone.agent.untrusted:looks_like_instruction",
     "capstone.providers.chat:invalid_outcome",
     "capstone.providers.factory:research_tools",
     "capstone.providers.factory:tool_spec"
    ],
-   "exercise_count": 24,
+   "exercise_count": 23,
    "modules_exercised": [
     "capstone.agent.critic",
     "capstone.agent.evidence_brief",
     "capstone.agent.model_policy",
     "capstone.agent.state",
-    "capstone.agent.untrusted",
     "capstone.providers.chat",
     "capstone.providers.factory"
    ],
@@ -31158,18 +31138,16 @@
     "capstone.agent.model_policy:tool_list",
     "capstone.agent.model_policy:without_titles",
     "capstone.agent.state:Budgets.research_gets_some_time",
-    "capstone.agent.untrusted:looks_like_instruction",
     "capstone.providers.chat:ModelError.__init__",
     "capstone.providers.factory:research_tools",
     "capstone.providers.factory:tool_spec"
    ],
-   "exercise_count": 22,
+   "exercise_count": 21,
    "modules_exercised": [
     "capstone.agent.critic",
     "capstone.agent.evidence_brief",
     "capstone.agent.model_policy",
     "capstone.agent.state",
-    "capstone.agent.untrusted",
     "capstone.providers.chat",
     "capstone.providers.factory"
    ],
@@ -31218,17 +31196,15 @@
     "capstone.agent.model_policy:tool_list",
     "capstone.agent.model_policy:without_titles",
     "capstone.agent.state:Budgets.research_gets_some_time",
-    "capstone.agent.untrusted:looks_like_instruction",
     "capstone.providers.factory:research_tools",
     "capstone.providers.factory:tool_spec"
    ],
-   "exercise_count": 22,
+   "exercise_count": 21,
    "modules_exercised": [
     "capstone.agent.critic",
     "capstone.agent.evidence_brief",
     "capstone.agent.model_policy",
     "capstone.agent.state",
-    "capstone.agent.untrusted",
     "capstone.providers.factory"
    ],
    "judgment": "STRONG",
@@ -31279,17 +31255,15 @@
     "capstone.agent.model_policy:tool_list",
     "capstone.agent.model_policy:without_titles",
     "capstone.agent.state:Budgets.research_gets_some_time",
-    "capstone.agent.untrusted:looks_like_instruction",
     "capstone.providers.factory:research_tools",
     "capstone.providers.factory:tool_spec"
    ],
-   "exercise_count": 22,
+   "exercise_count": 21,
    "modules_exercised": [
     "capstone.agent.critic",
     "capstone.agent.evidence_brief",
     "capstone.agent.model_policy",
     "capstone.agent.state",
-    "capstone.agent.untrusted",
     "capstone.providers.factory"
    ],
    "judgment": "NOT ASSESSED",
@@ -31339,17 +31313,15 @@
     "capstone.agent.model_policy:tool_list",
     "capstone.agent.model_policy:without_titles",
     "capstone.agent.state:Budgets.research_gets_some_time",
-    "capstone.agent.untrusted:looks_like_instruction",
     "capstone.providers.factory:research_tools",
     "capstone.providers.factory:tool_spec"
    ],
-   "exercise_count": 22,
+   "exercise_count": 21,
    "modules_exercised": [
     "capstone.agent.critic",
     "capstone.agent.evidence_brief",
     "capstone.agent.model_policy",
     "capstone.agent.state",
-    "capstone.agent.untrusted",
     "capstone.providers.factory"
    ],
    "judgment": "NOT ASSESSED",
@@ -31398,17 +31370,15 @@
     "capstone.agent.model_policy:tool_list",
     "capstone.agent.model_policy:without_titles",
     "capstone.agent.state:Budgets.research_gets_some_time",
-    "capstone.agent.untrusted:looks_like_instruction",
     "capstone.providers.factory:research_tools",
     "capstone.providers.factory:tool_spec"
    ],
-   "exercise_count": 22,
+   "exercise_count": 21,
    "modules_exercised": [
     "capstone.agent.critic",
     "capstone.agent.evidence_brief",
     "capstone.agent.model_policy",
     "capstone.agent.state",
-    "capstone.agent.untrusted",
     "capstone.providers.factory"
    ],
    "judgment": "NOT ASSESSED",
@@ -31456,17 +31426,15 @@
     "capstone.agent.model_policy:tool_list",
     "capstone.agent.model_policy:without_titles",
     "capstone.agent.state:Budgets.research_gets_some_time",
-    "capstone.agent.untrusted:looks_like_instruction",
     "capstone.providers.factory:research_tools",
     "capstone.providers.factory:tool_spec"
    ],
-   "exercise_count": 22,
+   "exercise_count": 21,
    "modules_exercised": [
     "capstone.agent.critic",
     "capstone.agent.evidence_brief",
     "capstone.agent.model_policy",
     "capstone.agent.state",
-    "capstone.agent.untrusted",
     "capstone.providers.factory"
    ],
    "judgment": "NOT ASSESSED",
@@ -31515,18 +31483,16 @@
     "capstone.agent.model_policy:tool_list",
     "capstone.agent.model_policy:without_titles",
     "capstone.agent.state:Budgets.research_gets_some_time",
-    "capstone.agent.untrusted:looks_like_instruction",
     "capstone.providers.chat:invalid_outcome",
     "capstone.providers.factory:research_tools",
     "capstone.providers.factory:tool_spec"
    ],
-   "exercise_count": 24,
+   "exercise_count": 23,
    "modules_exercised": [
     "capstone.agent.critic",
     "capstone.agent.evidence_brief",
     "capstone.agent.model_policy",
     "capstone.agent.state",
-    "capstone.agent.untrusted",
     "capstone.providers.chat",
     "capstone.providers.factory"
    ],
@@ -31607,7 +31573,6 @@
     "capstone.agent.model_policy:tool_list",
     "capstone.agent.model_policy:without_titles",
     "capstone.agent.state:Budgets.research_gets_some_time",
-    "capstone.agent.untrusted:looks_like_instruction",
     "capstone.manual.index:KeywordManualSearch.__init__",
     "capstone.manual.index:KeywordManualSearch.search",
     "capstone.manual.index:_words",
@@ -31617,13 +31582,12 @@
     "capstone.providers.factory:research_tools",
     "capstone.providers.factory:tool_spec"
    ],
-   "exercise_count": 28,
+   "exercise_count": 27,
    "modules_exercised": [
     "capstone.agent.critic",
     "capstone.agent.evidence_brief",
     "capstone.agent.model_policy",
     "capstone.agent.state",
-    "capstone.agent.untrusted",
     "capstone.manual.index",
     "capstone.manual.sections",
     "capstone.providers.factory"
@@ -31669,17 +31633,15 @@
     "capstone.agent.model_policy:tool_list",
     "capstone.agent.model_policy:without_titles",
     "capstone.agent.state:Budgets.research_gets_some_time",
-    "capstone.agent.untrusted:looks_like_instruction",
     "capstone.providers.factory:research_tools",
     "capstone.providers.factory:tool_spec"
    ],
-   "exercise_count": 17,
+   "exercise_count": 16,
    "modules_exercised": [
     "capstone.agent.critic",
     "capstone.agent.evidence_brief",
     "capstone.agent.model_policy",
     "capstone.agent.state",
-    "capstone.agent.untrusted",
     "capstone.providers.factory"
    ],
    "judgment": "NOT ASSESSED",
@@ -31722,17 +31684,15 @@
     "capstone.agent.model_policy:tool_list",
     "capstone.agent.model_policy:without_titles",
     "capstone.agent.state:Budgets.research_gets_some_time",
-    "capstone.agent.untrusted:looks_like_instruction",
     "capstone.providers.factory:research_tools",
     "capstone.providers.factory:tool_spec"
    ],
-   "exercise_count": 17,
+   "exercise_count": 16,
    "modules_exercised": [
     "capstone.agent.critic",
     "capstone.agent.evidence_brief",
     "capstone.agent.model_policy",
     "capstone.agent.state",
-    "capstone.agent.untrusted",
     "capstone.providers.factory"
    ],
    "judgment": "NOT ASSESSED",
@@ -31779,18 +31739,16 @@
     "capstone.agent.model_policy:tool_list",
     "capstone.agent.model_policy:without_titles",
     "capstone.agent.state:Budgets.research_gets_some_time",
-    "capstone.agent.untrusted:looks_like_instruction",
     "capstone.providers.chat:invalid_outcome",
     "capstone.providers.factory:research_tools",
     "capstone.providers.factory:tool_spec"
    ],
-   "exercise_count": 24,
+   "exercise_count": 23,
    "modules_exercised": [
     "capstone.agent.critic",
     "capstone.agent.evidence_brief",
     "capstone.agent.model_policy",
     "capstone.agent.state",
-    "capstone.agent.untrusted",
     "capstone.providers.chat",
     "capstone.providers.factory"
    ],
@@ -31965,17 +31923,15 @@
     "capstone.agent.model_policy:tool_list",
     "capstone.agent.model_policy:without_titles",
     "capstone.agent.state:Budgets.research_gets_some_time",
-    "capstone.agent.untrusted:looks_like_instruction",
     "capstone.providers.factory:research_tools",
     "capstone.providers.factory:tool_spec"
    ],
-   "exercise_count": 20,
+   "exercise_count": 19,
    "modules_exercised": [
     "capstone.agent.critic",
     "capstone.agent.evidence_brief",
     "capstone.agent.model_policy",
     "capstone.agent.state",
-    "capstone.agent.untrusted",
     "capstone.providers.factory"
    ],
    "judgment": "NOT ASSESSED",
@@ -32184,17 +32140,15 @@
     "capstone.agent.model_policy:tool_list",
     "capstone.agent.model_policy:without_titles",
     "capstone.agent.state:Budgets.research_gets_some_time",
-    "capstone.agent.untrusted:looks_like_instruction",
     "capstone.providers.factory:research_tools",
     "capstone.providers.factory:tool_spec"
    ],
-   "exercise_count": 27,
+   "exercise_count": 26,
    "modules_exercised": [
     "capstone.agent.critic",
     "capstone.agent.evidence_brief",
     "capstone.agent.model_policy",
     "capstone.agent.state",
-    "capstone.agent.untrusted",
     "capstone.providers.factory"
    ],
    "judgment": "NOT ASSESSED",
@@ -32251,17 +32205,15 @@
     "capstone.agent.model_policy:tool_list",
     "capstone.agent.model_policy:without_titles",
     "capstone.agent.state:Budgets.research_gets_some_time",
-    "capstone.agent.untrusted:looks_like_instruction",
     "capstone.providers.factory:research_tools",
     "capstone.providers.factory:tool_spec"
    ],
-   "exercise_count": 27,
+   "exercise_count": 26,
    "modules_exercised": [
     "capstone.agent.critic",
     "capstone.agent.evidence_brief",
     "capstone.agent.model_policy",
     "capstone.agent.state",
-    "capstone.agent.untrusted",
     "capstone.providers.factory"
    ],
    "judgment": "NOT ASSESSED",
@@ -32314,17 +32266,15 @@
     "capstone.agent.model_policy:tool_list",
     "capstone.agent.model_policy:without_titles",
     "capstone.agent.state:Budgets.research_gets_some_time",
-    "capstone.agent.untrusted:looks_like_instruction",
     "capstone.providers.factory:research_tools",
     "capstone.providers.factory:tool_spec"
    ],
-   "exercise_count": 27,
+   "exercise_count": 26,
    "modules_exercised": [
     "capstone.agent.critic",
     "capstone.agent.evidence_brief",
     "capstone.agent.model_policy",
     "capstone.agent.state",
-    "capstone.agent.untrusted",
     "capstone.providers.factory"
    ],
    "judgment": "NOT ASSESSED",
@@ -32375,18 +32325,16 @@
     "capstone.agent.model_policy:tool_list",
     "capstone.agent.model_policy:without_titles",
     "capstone.agent.state:Budgets.research_gets_some_time",
-    "capstone.agent.untrusted:looks_like_instruction",
     "capstone.providers.chat:invalid_outcome",
     "capstone.providers.factory:research_tools",
     "capstone.providers.factory:tool_spec"
    ],
-   "exercise_count": 26,
+   "exercise_count": 25,
    "modules_exercised": [
     "capstone.agent.critic",
     "capstone.agent.evidence_brief",
     "capstone.agent.model_policy",
     "capstone.agent.state",
-    "capstone.agent.untrusted",
     "capstone.providers.chat",
     "capstone.providers.factory"
    ],
@@ -32438,18 +32386,16 @@
     "capstone.agent.model_policy:tool_list",
     "capstone.agent.model_policy:without_titles",
     "capstone.agent.state:Budgets.research_gets_some_time",
-    "capstone.agent.untrusted:looks_like_instruction",
     "capstone.providers.chat:invalid_outcome",
     "capstone.providers.factory:research_tools",
     "capstone.providers.factory:tool_spec"
    ],
-   "exercise_count": 26,
+   "exercise_count": 25,
    "modules_exercised": [
     "capstone.agent.critic",
     "capstone.agent.evidence_brief",
     "capstone.agent.model_policy",
     "capstone.agent.state",
-    "capstone.agent.untrusted",
     "capstone.providers.chat",
     "capstone.providers.factory"
    ],
@@ -32499,17 +32445,15 @@
     "capstone.agent.model_policy:tool_list",
     "capstone.agent.model_policy:without_titles",
     "capstone.agent.state:Budgets.research_gets_some_time",
-    "capstone.agent.untrusted:looks_like_instruction",
     "capstone.providers.factory:research_tools",
     "capstone.providers.factory:tool_spec"
    ],
-   "exercise_count": 22,
+   "exercise_count": 21,
    "modules_exercised": [
     "capstone.agent.critic",
     "capstone.agent.evidence_brief",
     "capstone.agent.model_policy",
     "capstone.agent.state",
-    "capstone.agent.untrusted",
     "capstone.providers.factory"
    ],
    "judgment": "NOT ASSESSED",
@@ -33225,6 +33169,7 @@
     "capstone.agent.model_policy:ModelPolicy.__init__",
     "capstone.agent.model_policy:ModelPolicy._ask",
     "capstone.agent.model_policy:ModelPolicy._check_offered",
+    "capstone.agent.model_policy:ModelPolicy.client_for",
     "capstone.agent.model_policy:ModelPolicy.decide",
     "capstone.agent.model_policy:NextStep.decision",
     "capstone.agent.model_policy:NextStep.one_kind_of_step",
@@ -33240,14 +33185,16 @@
     "capstone.agent.state:InvestigationState.remaining_iterations",
     "capstone.agent.state:InvestigationState.remaining_tool_calls",
     "capstone.agent.state:InvestigationState.research_tool_calls",
+    "capstone.providers.chat:late_key",
     "capstone.providers.factory:research_tools",
     "capstone.providers.factory:tool_spec"
    ],
-   "exercise_count": 23,
+   "exercise_count": 25,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.model_policy",
     "capstone.agent.state",
+    "capstone.providers.chat",
     "capstone.providers.factory"
    ],
    "judgment": "NOT ASSESSED",
@@ -33285,6 +33232,7 @@
     "capstone.agent.model_policy:ModelPolicy.__init__",
     "capstone.agent.model_policy:ModelPolicy._ask",
     "capstone.agent.model_policy:ModelPolicy._check_offered",
+    "capstone.agent.model_policy:ModelPolicy.client_for",
     "capstone.agent.model_policy:ModelPolicy.decide",
     "capstone.agent.model_policy:NextSteps.decision",
     "capstone.agent.model_policy:NextSteps.one_kind_of_step",
@@ -33301,14 +33249,16 @@
     "capstone.agent.state:InvestigationState.remaining_iterations",
     "capstone.agent.state:InvestigationState.remaining_tool_calls",
     "capstone.agent.state:InvestigationState.research_tool_calls",
+    "capstone.providers.chat:late_key",
     "capstone.providers.factory:research_tools",
     "capstone.providers.factory:tool_spec"
    ],
-   "exercise_count": 24,
+   "exercise_count": 26,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.model_policy",
     "capstone.agent.state",
+    "capstone.providers.chat",
     "capstone.providers.factory"
    ],
    "judgment": "NOT ASSESSED",
@@ -33343,6 +33293,7 @@
     "capstone.agent.model_policy:ModelPolicy.__init__",
     "capstone.agent.model_policy:ModelPolicy._ask",
     "capstone.agent.model_policy:ModelPolicy._check_offered",
+    "capstone.agent.model_policy:ModelPolicy.client_for",
     "capstone.agent.model_policy:ModelPolicy.decide",
     "capstone.agent.model_policy:NextSteps.decision",
     "capstone.agent.model_policy:NextSteps.one_kind_of_step",
@@ -33359,14 +33310,16 @@
     "capstone.agent.state:InvestigationState.remaining_iterations",
     "capstone.agent.state:InvestigationState.remaining_tool_calls",
     "capstone.agent.state:InvestigationState.research_tool_calls",
+    "capstone.providers.chat:late_key",
     "capstone.providers.factory:research_tools",
     "capstone.providers.factory:tool_spec"
    ],
-   "exercise_count": 24,
+   "exercise_count": 26,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.model_policy",
     "capstone.agent.state",
+    "capstone.providers.chat",
     "capstone.providers.factory"
    ],
    "judgment": "NOT ASSESSED",
@@ -33400,6 +33353,7 @@
     "capstone.agent.model_policy:ModelPolicy._ask",
     "capstone.agent.model_policy:ModelPolicy._check_offered",
     "capstone.agent.model_policy:ModelPolicy._refuse",
+    "capstone.agent.model_policy:ModelPolicy.client_for",
     "capstone.agent.model_policy:ModelPolicy.decide",
     "capstone.agent.model_policy:NextSteps.decision",
     "capstone.agent.model_policy:NextSteps.one_kind_of_step",
@@ -33416,14 +33370,16 @@
     "capstone.agent.state:InvestigationState.remaining_iterations",
     "capstone.agent.state:InvestigationState.remaining_tool_calls",
     "capstone.agent.state:InvestigationState.research_tool_calls",
+    "capstone.providers.chat:late_key",
     "capstone.providers.factory:research_tools",
     "capstone.providers.factory:tool_spec"
    ],
-   "exercise_count": 25,
+   "exercise_count": 27,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.model_policy",
     "capstone.agent.state",
+    "capstone.providers.chat",
     "capstone.providers.factory"
    ],
    "judgment": "NOT ASSESSED",
@@ -33491,6 +33447,7 @@
     "capstone.agent.model_policy:ModelPolicy._ask",
     "capstone.agent.model_policy:ModelPolicy._check_offered",
     "capstone.agent.model_policy:ModelPolicy._read_and_decide",
+    "capstone.agent.model_policy:ModelPolicy.client_for",
     "capstone.agent.model_policy:ModelPolicy.interpret_and_decide_many",
     "capstone.agent.model_policy:NextSteps.decision",
     "capstone.agent.model_policy:NextSteps.one_kind_of_step",
@@ -33511,16 +33468,16 @@
     "capstone.agent.state:InvestigationState.remaining_iterations",
     "capstone.agent.state:InvestigationState.remaining_tool_calls",
     "capstone.agent.state:InvestigationState.research_tool_calls",
-    "capstone.agent.untrusted:looks_like_instruction",
+    "capstone.providers.chat:late_key",
     "capstone.providers.factory:research_tools",
     "capstone.providers.factory:tool_spec"
    ],
-   "exercise_count": 30,
+   "exercise_count": 31,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.model_policy",
     "capstone.agent.state",
-    "capstone.agent.untrusted",
+    "capstone.providers.chat",
     "capstone.providers.factory"
    ],
    "judgment": "NOT ASSESSED",
@@ -33557,6 +33514,7 @@
     "capstone.agent.model_policy:ModelPolicy._ask",
     "capstone.agent.model_policy:ModelPolicy._check_offered",
     "capstone.agent.model_policy:ModelPolicy._read_and_decide",
+    "capstone.agent.model_policy:ModelPolicy.client_for",
     "capstone.agent.model_policy:ModelPolicy.interpret_and_decide",
     "capstone.agent.model_policy:NextStep.decision",
     "capstone.agent.model_policy:NextStep.one_kind_of_step",
@@ -33576,16 +33534,16 @@
     "capstone.agent.state:InvestigationState.remaining_iterations",
     "capstone.agent.state:InvestigationState.remaining_tool_calls",
     "capstone.agent.state:InvestigationState.research_tool_calls",
-    "capstone.agent.untrusted:looks_like_instruction",
+    "capstone.providers.chat:late_key",
     "capstone.providers.factory:research_tools",
     "capstone.providers.factory:tool_spec"
    ],
-   "exercise_count": 29,
+   "exercise_count": 30,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.model_policy",
     "capstone.agent.state",
-    "capstone.agent.untrusted",
+    "capstone.providers.chat",
     "capstone.providers.factory"
    ],
    "judgment": "NOT ASSESSED",
@@ -34853,13 +34811,11 @@
     "capstone.agent.model_policy:evidence_lines",
     "capstone.agent.model_policy:evidence_section",
     "capstone.agent.model_policy:shortened_note",
-    "capstone.agent.model_policy:shown",
-    "capstone.agent.untrusted:looks_like_instruction"
+    "capstone.agent.model_policy:shown"
    ],
-   "exercise_count": 7,
+   "exercise_count": 6,
    "modules_exercised": [
-    "capstone.agent.model_policy",
-    "capstone.agent.untrusted"
+    "capstone.agent.model_policy"
    ],
    "judgment": "NOT ASSESSED",
    "curated": {},
@@ -34928,7 +34884,7 @@
     "capstone.agent.loop:run_inner_loop",
     "capstone.agent.loop:seconds_left"
    ],
-   "exercise_count": 177,
+   "exercise_count": 176,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -34936,7 +34892,6 @@
     "capstone.agent.model_policy",
     "capstone.agent.monitor",
     "capstone.agent.state",
-    "capstone.agent.untrusted",
     "capstone.contracts.investigations",
     "capstone.contracts.tools",
     "capstone.episode",
@@ -35027,7 +34982,7 @@
     "capstone.agent.loop:run_inner_loop",
     "capstone.agent.loop:seconds_left"
    ],
-   "exercise_count": 177,
+   "exercise_count": 176,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -35035,7 +34990,6 @@
     "capstone.agent.model_policy",
     "capstone.agent.monitor",
     "capstone.agent.state",
-    "capstone.agent.untrusted",
     "capstone.contracts.investigations",
     "capstone.contracts.tools",
     "capstone.episode",
@@ -38227,7 +38181,7 @@
     "capstone.agent.investigation:observe",
     "capstone.agent.investigation:plan"
    ],
-   "exercise_count": 233,
+   "exercise_count": 232,
    "modules_exercised": [
     "capstone.agent.critic",
     "capstone.agent.evidence_brief",
@@ -38236,7 +38190,6 @@
     "capstone.agent.model_policy",
     "capstone.agent.monitor",
     "capstone.agent.state",
-    "capstone.agent.untrusted",
     "capstone.contracts.investigations",
     "capstone.contracts.tools",
     "capstone.episode",
@@ -38338,7 +38291,7 @@
     "capstone.agent.investigation:followup_call",
     "capstone.agent.investigation:gathered_in"
    ],
-   "exercise_count": 227,
+   "exercise_count": 226,
    "modules_exercised": [
     "capstone.agent.critic",
     "capstone.agent.evidence_brief",
@@ -38347,7 +38300,6 @@
     "capstone.agent.model_policy",
     "capstone.agent.monitor",
     "capstone.agent.state",
-    "capstone.agent.untrusted",
     "capstone.contracts.investigations",
     "capstone.contracts.tools",
     "capstone.episode",
@@ -47944,9 +47896,9 @@
     "capstone.agent.model_policy:ModelPolicy.__init__",
     "capstone.agent.model_policy:ModelPolicy._ask",
     "capstone.agent.model_policy:ModelPolicy._check_offered",
-    "capstone.agent.model_policy:ModelPolicy.decide"
+    "capstone.agent.model_policy:ModelPolicy.client_for"
    ],
-   "exercise_count": 265,
+   "exercise_count": 266,
    "modules_exercised": [
     "capstone.agent.completion",
     "capstone.agent.evidence_brief",
@@ -47955,7 +47907,6 @@
     "capstone.agent.model_policy",
     "capstone.agent.monitor",
     "capstone.agent.state",
-    "capstone.agent.untrusted",
     "capstone.console",
     "capstone.contracts.completed_investigations",
     "capstone.contracts.investigations",
@@ -48227,7 +48178,7 @@
     "capstone.agent.investigation:verify",
     "capstone.agent.investigation:verify.<locals>.later"
    ],
-   "exercise_count": 236,
+   "exercise_count": 237,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -48235,13 +48186,13 @@
     "capstone.agent.model_policy",
     "capstone.agent.monitor",
     "capstone.agent.state",
-    "capstone.agent.untrusted",
     "capstone.contracts.investigations",
     "capstone.contracts.tools",
     "capstone.episode",
     "capstone.evaluation.scoring",
     "capstone.experiment",
     "capstone.faults",
+    "capstone.providers.chat",
     "capstone.providers.factory",
     "capstone.settings",
     "capstone.simulator.clock",
@@ -48392,7 +48343,7 @@
     "capstone.agent.investigation:verify",
     "capstone.agent.investigation:verify.<locals>.later"
    ],
-   "exercise_count": 257,
+   "exercise_count": 258,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -48400,13 +48351,13 @@
     "capstone.agent.model_policy",
     "capstone.agent.monitor",
     "capstone.agent.state",
-    "capstone.agent.untrusted",
     "capstone.contracts.investigations",
     "capstone.contracts.tools",
     "capstone.episode",
     "capstone.evaluation.scoring",
     "capstone.experiment",
     "capstone.faults",
+    "capstone.providers.chat",
     "capstone.providers.factory",
     "capstone.settings",
     "capstone.simulator.clock",
@@ -50123,14 +50074,19 @@
    "exercises": [
     "capstone.agent.model_policy:ModelPolicy.__init__",
     "capstone.experiment:model_policy_factory",
+    "capstone.providers.chat:late_clients",
     "capstone.providers.factory:research_tools",
-    "capstone.providers.factory:tool_spec"
+    "capstone.providers.factory:tool_spec",
+    "capstone.settings:Settings.blank_is_missing",
+    "capstone.settings:get_settings"
    ],
-   "exercise_count": 4,
+   "exercise_count": 7,
    "modules_exercised": [
     "capstone.agent.model_policy",
     "capstone.experiment",
-    "capstone.providers.factory"
+    "capstone.providers.chat",
+    "capstone.providers.factory",
+    "capstone.settings"
    ],
    "judgment": "NOT ASSESSED",
    "curated": {},
@@ -50497,7 +50453,7 @@
     "capstone.agent.investigation:run_investigation",
     "capstone.agent.investigation:test"
    ],
-   "exercise_count": 238,
+   "exercise_count": 239,
    "modules_exercised": [
     "capstone.agent.critic",
     "capstone.agent.evidence_brief",
@@ -50506,13 +50462,13 @@
     "capstone.agent.model_policy",
     "capstone.agent.monitor",
     "capstone.agent.state",
-    "capstone.agent.untrusted",
     "capstone.contracts.investigations",
     "capstone.contracts.tools",
     "capstone.episode",
     "capstone.evaluation.scoring",
     "capstone.experiment",
     "capstone.faults",
+    "capstone.providers.chat",
     "capstone.providers.factory",
     "capstone.settings",
     "capstone.simulator.clock",
@@ -61706,6 +61662,713 @@
    ]
   },
   {
+   "id": "tests/test_late_model.py::test_the_switch_is_off_by_default",
+   "file": "tests/test_late_model.py",
+   "name": "test_the_switch_is_off_by_default",
+   "line": 99,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 3,
+   "assert_forms": {
+    "equality": 2,
+    "is_none": 1
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "the switch is off by default",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.providers.chat:late_clients",
+    "capstone.settings:Settings.blank_is_missing"
+   ],
+   "exercise_count": 2,
+   "modules_exercised": [
+    "capstone.providers.chat",
+    "capstone.settings"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_late_model.py::test_the_threshold_must_be_positive",
+   "file": "tests/test_late_model.py",
+   "name": "test_the_threshold_must_be_positive",
+   "line": 106,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 0,
+   "assert_forms": {},
+   "raises_checks": 1,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "the threshold must be positive",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.settings:Settings.blank_is_missing"
+   ],
+   "exercise_count": 1,
+   "modules_exercised": [
+    "capstone.settings"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_late_model.py::test_late_clients_ask_the_late_model_then_the_shared_fallback",
+   "file": "tests/test_late_model.py",
+   "name": "test_late_clients_ask_the_late_model_then_the_shared_fallback",
+   "line": 111,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 2,
+   "assert_forms": {
+    "equality": 2
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "late clients ask the late model then the shared fallback",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.providers.chat:ChatClient.__init__",
+    "capstone.providers.chat:FallbackClient.__init__",
+    "capstone.providers.chat:_capped",
+    "capstone.providers.chat:chain_for",
+    "capstone.providers.chat:client_for",
+    "capstone.providers.chat:late_clients",
+    "capstone.providers.chat:late_key",
+    "capstone.providers.chat:late_thinking_fields",
+    "capstone.settings:Settings.blank_is_missing",
+    "capstone.settings:fallback_models"
+   ],
+   "exercise_count": 10,
+   "modules_exercised": [
+    "capstone.providers.chat",
+    "capstone.settings"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_late_model.py::test_the_late_model_is_never_sent_the_decide_reasoning_effort",
+   "file": "tests/test_late_model.py",
+   "name": "test_the_late_model_is_never_sent_the_decide_reasoning_effort",
+   "line": 121,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 1,
+   "assert_forms": {
+    "call_truthiness": 1
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "the late model is never sent the decide reasoning effort",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.providers.chat:ChatClient.__init__",
+    "capstone.providers.chat:FallbackClient.__init__",
+    "capstone.providers.chat:_capped",
+    "capstone.providers.chat:chain_for",
+    "capstone.providers.chat:client_for",
+    "capstone.providers.chat:late_clients",
+    "capstone.providers.chat:late_key",
+    "capstone.providers.chat:late_thinking_fields",
+    "capstone.settings:Settings.blank_is_missing",
+    "capstone.settings:fallback_models"
+   ],
+   "exercise_count": 10,
+   "modules_exercised": [
+    "capstone.providers.chat",
+    "capstone.settings"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_late_model.py::test_decide_switches_only_with_less_time_than_the_threshold",
+   "file": "tests/test_late_model.py",
+   "name": "test_decide_switches_only_with_less_time_than_the_threshold",
+   "line": 131,
+   "docstring": "",
+   "parametrized": true,
+   "fixtures": [
+    "left",
+    "late"
+   ],
+   "assertions": 1,
+   "assert_forms": {
+    "identity": 1
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "decide switches only with less time than the threshold",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.agent.model_policy:ModelPolicy.__init__",
+    "capstone.agent.model_policy:ModelPolicy.client_for",
+    "capstone.agent.state:Budgets.research_gets_some_time",
+    "capstone.providers.chat:late_key",
+    "capstone.providers.factory:research_tools",
+    "capstone.providers.factory:tool_spec"
+   ],
+   "exercise_count": 6,
+   "modules_exercised": [
+    "capstone.agent.model_policy",
+    "capstone.agent.state",
+    "capstone.providers.chat",
+    "capstone.providers.factory"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_late_model.py::test_the_threshold_comes_from_the_setting",
+   "file": "tests/test_late_model.py",
+   "name": "test_the_threshold_comes_from_the_setting",
+   "line": 137,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 2,
+   "assert_forms": {
+    "identity": 2
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "the threshold comes from the setting",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.agent.model_policy:ModelPolicy.__init__",
+    "capstone.agent.model_policy:ModelPolicy.client_for",
+    "capstone.agent.state:Budgets.research_gets_some_time",
+    "capstone.providers.chat:late_key",
+    "capstone.providers.factory:research_tools",
+    "capstone.providers.factory:tool_spec"
+   ],
+   "exercise_count": 6,
+   "modules_exercised": [
+    "capstone.agent.model_policy",
+    "capstone.agent.state",
+    "capstone.providers.chat",
+    "capstone.providers.factory"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_late_model.py::test_the_conclusion_never_switches_even_after_a_timeout",
+   "file": "tests/test_late_model.py",
+   "name": "test_the_conclusion_never_switches_even_after_a_timeout",
+   "line": 143,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 1,
+   "assert_forms": {
+    "identity": 1
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "the conclusion never switches even after a timeout",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.agent.model_policy:ModelPolicy.__init__",
+    "capstone.agent.model_policy:ModelPolicy.client_for",
+    "capstone.agent.state:Budgets.research_gets_some_time",
+    "capstone.providers.chat:late_key",
+    "capstone.providers.factory:research_tools",
+    "capstone.providers.factory:tool_spec"
+   ],
+   "exercise_count": 6,
+   "modules_exercised": [
+    "capstone.agent.model_policy",
+    "capstone.agent.state",
+    "capstone.providers.chat",
+    "capstone.providers.factory"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_late_model.py::test_every_other_question_keeps_its_own_model",
+   "file": "tests/test_late_model.py",
+   "name": "test_every_other_question_keeps_its_own_model",
+   "line": 150,
+   "docstring": "",
+   "parametrized": true,
+   "fixtures": [
+    "job"
+   ],
+   "assertions": 1,
+   "assert_forms": {
+    "identity": 1
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "every other question keeps its own model",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.agent.model_policy:ModelPolicy.__init__",
+    "capstone.agent.model_policy:ModelPolicy.client_for",
+    "capstone.agent.state:Budgets.research_gets_some_time",
+    "capstone.providers.chat:late_key",
+    "capstone.providers.factory:research_tools",
+    "capstone.providers.factory:tool_spec"
+   ],
+   "exercise_count": 6,
+   "modules_exercised": [
+    "capstone.agent.model_policy",
+    "capstone.agent.state",
+    "capstone.providers.chat",
+    "capstone.providers.factory"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_late_model.py::test_without_late_clients_nothing_switches",
+   "file": "tests/test_late_model.py",
+   "name": "test_without_late_clients_nothing_switches",
+   "line": 156,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 1,
+   "assert_forms": {
+    "identity": 1
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "without late clients nothing switches",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.agent.model_policy:ModelPolicy.__init__",
+    "capstone.agent.model_policy:ModelPolicy.client_for",
+    "capstone.agent.state:Budgets.research_gets_some_time",
+    "capstone.providers.chat:late_key",
+    "capstone.providers.factory:research_tools",
+    "capstone.providers.factory:tool_spec"
+   ],
+   "exercise_count": 6,
+   "modules_exercised": [
+    "capstone.agent.model_policy",
+    "capstone.agent.state",
+    "capstone.providers.chat",
+    "capstone.providers.factory"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_late_model.py::test_a_late_decide_is_asked_and_recorded_as_the_late_model",
+   "file": "tests/test_late_model.py",
+   "name": "test_a_late_decide_is_asked_and_recorded_as_the_late_model",
+   "line": 163,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 3,
+   "assert_forms": {
+    "equality": 3
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "a late decide is asked and recorded as the late model",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.agent.evidence_brief:evidence_brief",
+    "capstone.agent.evidence_brief:observations",
+    "capstone.agent.evidence_brief:section",
+    "capstone.agent.model_policy:ModelPolicy.__init__",
+    "capstone.agent.model_policy:ModelPolicy._ask",
+    "capstone.agent.model_policy:ModelPolicy._check_offered",
+    "capstone.agent.model_policy:ModelPolicy.client_for",
+    "capstone.agent.model_policy:ModelPolicy.decide",
+    "capstone.agent.model_policy:NextStep.decision",
+    "capstone.agent.model_policy:NextStep.one_kind_of_step",
+    "capstone.agent.model_policy:compact",
+    "capstone.agent.model_policy:evidence_section",
+    "capstone.agent.model_policy:manual_use_note",
+    "capstone.agent.model_policy:render",
+    "capstone.agent.model_policy:tool_list",
+    "capstone.agent.model_policy:without_titles",
+    "capstone.agent.state:Budgets.research_gets_some_time",
+    "capstone.agent.state:InvestigationState.remaining_critic_tool_calls",
+    "capstone.agent.state:InvestigationState.remaining_followup_tool_calls",
+    "capstone.agent.state:InvestigationState.remaining_iterations",
+    "capstone.agent.state:InvestigationState.remaining_tool_calls",
+    "capstone.agent.state:InvestigationState.research_tool_calls",
+    "capstone.providers.chat:late_key",
+    "capstone.providers.factory:research_tools",
+    "capstone.providers.factory:tool_spec"
+   ],
+   "exercise_count": 25,
+   "modules_exercised": [
+    "capstone.agent.evidence_brief",
+    "capstone.agent.model_policy",
+    "capstone.agent.state",
+    "capstone.providers.chat",
+    "capstone.providers.factory"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_late_model.py::test_an_early_decide_still_asks_its_own_model",
+   "file": "tests/test_late_model.py",
+   "name": "test_an_early_decide_still_asks_its_own_model",
+   "line": 171,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 2,
+   "assert_forms": {
+    "equality": 2
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "an early decide still asks its own model",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.agent.evidence_brief:evidence_brief",
+    "capstone.agent.evidence_brief:observations",
+    "capstone.agent.evidence_brief:section",
+    "capstone.agent.model_policy:ModelPolicy.__init__",
+    "capstone.agent.model_policy:ModelPolicy._ask",
+    "capstone.agent.model_policy:ModelPolicy._check_offered",
+    "capstone.agent.model_policy:ModelPolicy.client_for",
+    "capstone.agent.model_policy:ModelPolicy.decide",
+    "capstone.agent.model_policy:NextStep.decision",
+    "capstone.agent.model_policy:NextStep.one_kind_of_step",
+    "capstone.agent.model_policy:compact",
+    "capstone.agent.model_policy:evidence_section",
+    "capstone.agent.model_policy:manual_use_note",
+    "capstone.agent.model_policy:render",
+    "capstone.agent.model_policy:tool_list",
+    "capstone.agent.model_policy:without_titles",
+    "capstone.agent.state:Budgets.research_gets_some_time",
+    "capstone.agent.state:InvestigationState.remaining_critic_tool_calls",
+    "capstone.agent.state:InvestigationState.remaining_followup_tool_calls",
+    "capstone.agent.state:InvestigationState.remaining_iterations",
+    "capstone.agent.state:InvestigationState.remaining_tool_calls",
+    "capstone.agent.state:InvestigationState.research_tool_calls",
+    "capstone.providers.chat:late_key",
+    "capstone.providers.factory:research_tools",
+    "capstone.providers.factory:tool_spec"
+   ],
+   "exercise_count": 25,
+   "modules_exercised": [
+    "capstone.agent.evidence_brief",
+    "capstone.agent.model_policy",
+    "capstone.agent.state",
+    "capstone.providers.chat",
+    "capstone.providers.factory"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_late_model.py::test_the_run_header_names_the_late_model_only_when_set",
+   "file": "tests/test_late_model.py",
+   "name": "test_the_run_header_names_the_late_model_only_when_set",
+   "line": 178,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 3,
+   "assert_forms": {
+    "call_truthiness": 2,
+    "negation": 1
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "the run header names the late model only when set",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.progress:late_thinking_words",
+    "capstone.progress:run_header",
+    "capstone.settings:Settings.blank_is_missing"
+   ],
+   "exercise_count": 3,
+   "modules_exercised": [
+    "capstone.progress",
+    "capstone.settings"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_late_model.py::test_thinking_is_off_by_default_and_sent_to_nvidia_only",
+   "file": "tests/test_late_model.py",
+   "name": "test_thinking_is_off_by_default_and_sent_to_nvidia_only",
+   "line": 198,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 2,
+   "assert_forms": {
+    "equality": 1,
+    "is_none": 1
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "thinking is off by default and sent to nvidia only",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.providers.chat:ChatClient.__init__",
+    "capstone.providers.chat:FallbackClient.__init__",
+    "capstone.providers.chat:_capped",
+    "capstone.providers.chat:chain_for",
+    "capstone.providers.chat:client_for",
+    "capstone.providers.chat:late_clients",
+    "capstone.providers.chat:late_key",
+    "capstone.providers.chat:late_thinking_fields",
+    "capstone.settings:Settings.blank_is_missing",
+    "capstone.settings:fallback_models"
+   ],
+   "exercise_count": 10,
+   "modules_exercised": [
+    "capstone.providers.chat",
+    "capstone.settings"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_late_model.py::test_thinking_on_with_a_budget",
+   "file": "tests/test_late_model.py",
+   "name": "test_thinking_on_with_a_budget",
+   "line": 207,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 2,
+   "assert_forms": {
+    "equality": 2
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "thinking on with a budget",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.providers.chat:late_thinking_fields",
+    "capstone.settings:Settings.blank_is_missing"
+   ],
+   "exercise_count": 2,
+   "modules_exercised": [
+    "capstone.providers.chat",
+    "capstone.settings"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_late_model.py::test_the_budget_must_be_positive",
+   "file": "tests/test_late_model.py",
+   "name": "test_the_budget_must_be_positive",
+   "line": 222,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 0,
+   "assert_forms": {},
+   "raises_checks": 1,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "the budget must be positive",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.settings:Settings.blank_is_missing"
+   ],
+   "exercise_count": 1,
+   "modules_exercised": [
+    "capstone.settings"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_late_model.py::test_the_request_body_carries_the_thinking_switch",
+   "file": "tests/test_late_model.py",
+   "name": "test_the_request_body_carries_the_thinking_switch",
+   "line": 227,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 3,
+   "assert_forms": {
+    "equality": 2,
+    "membership": 1
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "the request body carries the thinking switch",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.providers.chat:ChatClient.__init__",
+    "capstone.providers.chat:ChatClient.ask",
+    "capstone.providers.chat:FallbackClient.__init__",
+    "capstone.providers.chat:FallbackClient.ask",
+    "capstone.providers.chat:FallbackClient.ask.<locals>.tried",
+    "capstone.providers.chat:_capped",
+    "capstone.providers.chat:answer_json",
+    "capstone.providers.chat:chain_for",
+    "capstone.providers.chat:client_for",
+    "capstone.providers.chat:late_clients",
+    "capstone.providers.chat:late_key",
+    "capstone.providers.chat:late_thinking_fields",
+    "capstone.providers.chat:post_json",
+    "capstone.providers.chat:reply_text",
+    "capstone.providers.chat:reported_usage",
+    "capstone.settings:Settings.blank_is_missing",
+    "capstone.settings:fallback_models"
+   ],
+   "exercise_count": 17,
+   "modules_exercised": [
+    "capstone.providers.chat",
+    "capstone.settings"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_late_model.py::test_the_own_decide_client_is_never_sent_the_thinking_switch",
+   "file": "tests/test_late_model.py",
+   "name": "test_the_own_decide_client_is_never_sent_the_thinking_switch",
+   "line": 248,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 1,
+   "assert_forms": {
+    "call_truthiness": 1
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "the own decide client is never sent the thinking switch",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.providers.chat:ChatClient.__init__",
+    "capstone.providers.chat:FallbackClient.__init__",
+    "capstone.providers.chat:_capped",
+    "capstone.providers.chat:chain_for",
+    "capstone.providers.chat:client_for",
+    "capstone.providers.chat:clients_for_jobs",
+    "capstone.settings:Settings.blank_is_missing",
+    "capstone.settings:fallback_models"
+   ],
+   "exercise_count": 8,
+   "modules_exercised": [
+    "capstone.providers.chat",
+    "capstone.settings"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
    "id": "tests/test_learning.py::test_a_verified_fix_is_audited_and_its_advice_remembered",
    "file": "tests/test_learning.py",
    "name": "test_a_verified_fix_is_audited_and_its_advice_remembered",
@@ -66757,14 +67420,13 @@
     "capstone.agent.investigation:verify.<locals>.later",
     "capstone.agent.investigation:why_not_acted"
    ],
-   "exercise_count": 196,
+   "exercise_count": 195,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
     "capstone.agent.loop",
     "capstone.agent.model_policy",
     "capstone.agent.state",
-    "capstone.agent.untrusted",
     "capstone.contracts.tools",
     "capstone.evaluation.manual",
     "capstone.manual.index",
@@ -75446,6 +76108,7 @@
     "capstone.agent.model_policy:ModelPolicy._ask",
     "capstone.agent.model_policy:ModelPolicy._check_offered",
     "capstone.agent.model_policy:ModelPolicy._read_and_decide",
+    "capstone.agent.model_policy:ModelPolicy.client_for",
     "capstone.agent.model_policy:ModelPolicy.interpret_and_decide",
     "capstone.agent.model_policy:NextStep.decision",
     "capstone.agent.model_policy:NextStep.one_kind_of_step",
@@ -75466,16 +76129,16 @@
     "capstone.agent.state:InvestigationState.remaining_iterations",
     "capstone.agent.state:InvestigationState.remaining_tool_calls",
     "capstone.agent.state:InvestigationState.research_tool_calls",
-    "capstone.agent.untrusted:looks_like_instruction",
+    "capstone.providers.chat:late_key",
     "capstone.providers.factory:research_tools",
     "capstone.providers.factory:tool_spec"
    ],
-   "exercise_count": 31,
+   "exercise_count": 32,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.model_policy",
     "capstone.agent.state",
-    "capstone.agent.untrusted",
+    "capstone.providers.chat",
     "capstone.providers.factory"
    ],
    "judgment": "NOT ASSESSED",
@@ -75515,6 +76178,7 @@
     "capstone.agent.model_policy:ModelPolicy._check_offered",
     "capstone.agent.model_policy:ModelPolicy._read_and_decide",
     "capstone.agent.model_policy:ModelPolicy._refuse",
+    "capstone.agent.model_policy:ModelPolicy.client_for",
     "capstone.agent.model_policy:ModelPolicy.interpret_and_decide",
     "capstone.agent.model_policy:NextStep.decision",
     "capstone.agent.model_policy:NextStep.one_kind_of_step",
@@ -75534,16 +76198,16 @@
     "capstone.agent.state:InvestigationState.remaining_iterations",
     "capstone.agent.state:InvestigationState.remaining_tool_calls",
     "capstone.agent.state:InvestigationState.research_tool_calls",
-    "capstone.agent.untrusted:looks_like_instruction",
+    "capstone.providers.chat:late_key",
     "capstone.providers.factory:research_tools",
     "capstone.providers.factory:tool_spec"
    ],
-   "exercise_count": 31,
+   "exercise_count": 32,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.model_policy",
     "capstone.agent.state",
-    "capstone.agent.untrusted",
+    "capstone.providers.chat",
     "capstone.providers.factory"
    ],
    "judgment": "NOT ASSESSED",
@@ -75588,15 +76252,13 @@
     "capstone.agent.state:InvestigationState.remaining_followup_tool_calls",
     "capstone.agent.state:InvestigationState.remaining_iterations",
     "capstone.agent.state:InvestigationState.remaining_tool_calls",
-    "capstone.agent.state:InvestigationState.research_tool_calls",
-    "capstone.agent.untrusted:looks_like_instruction"
+    "capstone.agent.state:InvestigationState.research_tool_calls"
    ],
-   "exercise_count": 18,
+   "exercise_count": 17,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.model_policy",
-    "capstone.agent.state",
-    "capstone.agent.untrusted"
+    "capstone.agent.state"
    ],
    "judgment": "NOT ASSESSED",
    "curated": {},
@@ -75642,15 +76304,13 @@
     "capstone.agent.state:InvestigationState.remaining_followup_tool_calls",
     "capstone.agent.state:InvestigationState.remaining_iterations",
     "capstone.agent.state:InvestigationState.remaining_tool_calls",
-    "capstone.agent.state:InvestigationState.research_tool_calls",
-    "capstone.agent.untrusted:looks_like_instruction"
+    "capstone.agent.state:InvestigationState.research_tool_calls"
    ],
-   "exercise_count": 18,
+   "exercise_count": 17,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.model_policy",
-    "capstone.agent.state",
-    "capstone.agent.untrusted"
+    "capstone.agent.state"
    ],
    "judgment": "NOT ASSESSED",
    "curated": {},
@@ -75694,15 +76354,13 @@
     "capstone.agent.state:InvestigationState.remaining_followup_tool_calls",
     "capstone.agent.state:InvestigationState.remaining_iterations",
     "capstone.agent.state:InvestigationState.remaining_tool_calls",
-    "capstone.agent.state:InvestigationState.research_tool_calls",
-    "capstone.agent.untrusted:looks_like_instruction"
+    "capstone.agent.state:InvestigationState.research_tool_calls"
    ],
-   "exercise_count": 18,
+   "exercise_count": 17,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.model_policy",
-    "capstone.agent.state",
-    "capstone.agent.untrusted"
+    "capstone.agent.state"
    ],
    "judgment": "NOT ASSESSED",
    "curated": {},
@@ -75746,15 +76404,13 @@
     "capstone.agent.state:InvestigationState.remaining_followup_tool_calls",
     "capstone.agent.state:InvestigationState.remaining_iterations",
     "capstone.agent.state:InvestigationState.remaining_tool_calls",
-    "capstone.agent.state:InvestigationState.research_tool_calls",
-    "capstone.agent.untrusted:looks_like_instruction"
+    "capstone.agent.state:InvestigationState.research_tool_calls"
    ],
-   "exercise_count": 18,
+   "exercise_count": 17,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.model_policy",
-    "capstone.agent.state",
-    "capstone.agent.untrusted"
+    "capstone.agent.state"
    ],
    "judgment": "NOT ASSESSED",
    "curated": {},
@@ -75797,15 +76453,13 @@
     "capstone.agent.state:InvestigationState.remaining_followup_tool_calls",
     "capstone.agent.state:InvestigationState.remaining_iterations",
     "capstone.agent.state:InvestigationState.remaining_tool_calls",
-    "capstone.agent.state:InvestigationState.research_tool_calls",
-    "capstone.agent.untrusted:looks_like_instruction"
+    "capstone.agent.state:InvestigationState.research_tool_calls"
    ],
-   "exercise_count": 17,
+   "exercise_count": 16,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.model_policy",
-    "capstone.agent.state",
-    "capstone.agent.untrusted"
+    "capstone.agent.state"
    ],
    "judgment": "NOT ASSESSED",
    "curated": {},
@@ -75848,15 +76502,13 @@
     "capstone.agent.state:InvestigationState.remaining_followup_tool_calls",
     "capstone.agent.state:InvestigationState.remaining_iterations",
     "capstone.agent.state:InvestigationState.remaining_tool_calls",
-    "capstone.agent.state:InvestigationState.research_tool_calls",
-    "capstone.agent.untrusted:looks_like_instruction"
+    "capstone.agent.state:InvestigationState.research_tool_calls"
    ],
-   "exercise_count": 17,
+   "exercise_count": 16,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.model_policy",
-    "capstone.agent.state",
-    "capstone.agent.untrusted"
+    "capstone.agent.state"
    ],
    "judgment": "NOT ASSESSED",
    "curated": {},
@@ -75899,15 +76551,13 @@
     "capstone.agent.state:InvestigationState.remaining_followup_tool_calls",
     "capstone.agent.state:InvestigationState.remaining_iterations",
     "capstone.agent.state:InvestigationState.remaining_tool_calls",
-    "capstone.agent.state:InvestigationState.research_tool_calls",
-    "capstone.agent.untrusted:looks_like_instruction"
+    "capstone.agent.state:InvestigationState.research_tool_calls"
    ],
-   "exercise_count": 17,
+   "exercise_count": 16,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.model_policy",
-    "capstone.agent.state",
-    "capstone.agent.untrusted"
+    "capstone.agent.state"
    ],
    "judgment": "NOT ASSESSED",
    "curated": {},
@@ -75951,15 +76601,13 @@
     "capstone.agent.state:InvestigationState.remaining_followup_tool_calls",
     "capstone.agent.state:InvestigationState.remaining_iterations",
     "capstone.agent.state:InvestigationState.remaining_tool_calls",
-    "capstone.agent.state:InvestigationState.research_tool_calls",
-    "capstone.agent.untrusted:looks_like_instruction"
+    "capstone.agent.state:InvestigationState.research_tool_calls"
    ],
-   "exercise_count": 17,
+   "exercise_count": 16,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.model_policy",
-    "capstone.agent.state",
-    "capstone.agent.untrusted"
+    "capstone.agent.state"
    ],
    "judgment": "NOT ASSESSED",
    "curated": {},
@@ -76004,15 +76652,13 @@
     "capstone.agent.state:InvestigationState.remaining_followup_tool_calls",
     "capstone.agent.state:InvestigationState.remaining_iterations",
     "capstone.agent.state:InvestigationState.remaining_tool_calls",
-    "capstone.agent.state:InvestigationState.research_tool_calls",
-    "capstone.agent.untrusted:looks_like_instruction"
+    "capstone.agent.state:InvestigationState.research_tool_calls"
    ],
-   "exercise_count": 17,
+   "exercise_count": 16,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.model_policy",
-    "capstone.agent.state",
-    "capstone.agent.untrusted"
+    "capstone.agent.state"
    ],
    "judgment": "NOT ASSESSED",
    "curated": {},
@@ -76055,15 +76701,13 @@
     "capstone.agent.state:InvestigationState.remaining_followup_tool_calls",
     "capstone.agent.state:InvestigationState.remaining_iterations",
     "capstone.agent.state:InvestigationState.remaining_tool_calls",
-    "capstone.agent.state:InvestigationState.research_tool_calls",
-    "capstone.agent.untrusted:looks_like_instruction"
+    "capstone.agent.state:InvestigationState.research_tool_calls"
    ],
-   "exercise_count": 17,
+   "exercise_count": 16,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.model_policy",
-    "capstone.agent.state",
-    "capstone.agent.untrusted"
+    "capstone.agent.state"
    ],
    "judgment": "NOT ASSESSED",
    "curated": {},
@@ -76108,15 +76752,13 @@
     "capstone.agent.state:InvestigationState.remaining_followup_tool_calls",
     "capstone.agent.state:InvestigationState.remaining_iterations",
     "capstone.agent.state:InvestigationState.remaining_tool_calls",
-    "capstone.agent.state:InvestigationState.research_tool_calls",
-    "capstone.agent.untrusted:looks_like_instruction"
+    "capstone.agent.state:InvestigationState.research_tool_calls"
    ],
-   "exercise_count": 17,
+   "exercise_count": 16,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.model_policy",
-    "capstone.agent.state",
-    "capstone.agent.untrusted"
+    "capstone.agent.state"
    ],
    "judgment": "NOT ASSESSED",
    "curated": {},
@@ -76160,15 +76802,13 @@
     "capstone.agent.state:InvestigationState.remaining_followup_tool_calls",
     "capstone.agent.state:InvestigationState.remaining_iterations",
     "capstone.agent.state:InvestigationState.remaining_tool_calls",
-    "capstone.agent.state:InvestigationState.research_tool_calls",
-    "capstone.agent.untrusted:looks_like_instruction"
+    "capstone.agent.state:InvestigationState.research_tool_calls"
    ],
-   "exercise_count": 18,
+   "exercise_count": 17,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.model_policy",
-    "capstone.agent.state",
-    "capstone.agent.untrusted"
+    "capstone.agent.state"
    ],
    "judgment": "NOT ASSESSED",
    "curated": {},
@@ -76213,16 +76853,14 @@
     "capstone.agent.state:InvestigationState.remaining_iterations",
     "capstone.agent.state:InvestigationState.remaining_tool_calls",
     "capstone.agent.state:InvestigationState.research_tool_calls",
-    "capstone.agent.untrusted:looks_like_instruction",
     "capstone.providers.factory:research_tools",
     "capstone.providers.factory:tool_spec"
    ],
-   "exercise_count": 20,
+   "exercise_count": 19,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.model_policy",
     "capstone.agent.state",
-    "capstone.agent.untrusted",
     "capstone.providers.factory"
    ],
    "judgment": "STRONG",
@@ -76259,6 +76897,7 @@
     "capstone.agent.evidence_brief:section",
     "capstone.agent.model_policy:ModelPolicy.__init__",
     "capstone.agent.model_policy:ModelPolicy._ask",
+    "capstone.agent.model_policy:ModelPolicy.client_for",
     "capstone.agent.model_policy:ModelPolicy.plan",
     "capstone.agent.model_policy:evidence_section",
     "capstone.agent.model_policy:render",
@@ -76271,13 +76910,14 @@
     "capstone.providers.chat:ChatClient.__init__",
     "capstone.providers.chat:ChatClient.ask",
     "capstone.providers.chat:answer_json",
+    "capstone.providers.chat:late_key",
     "capstone.providers.chat:post_json",
     "capstone.providers.chat:reply_text",
     "capstone.providers.chat:reported_usage",
     "capstone.providers.factory:research_tools",
     "capstone.providers.factory:tool_spec"
    ],
-   "exercise_count": 22,
+   "exercise_count": 24,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.model_policy",
@@ -76316,6 +76956,7 @@
     "capstone.agent.evidence_brief:section",
     "capstone.agent.model_policy:ModelPolicy.__init__",
     "capstone.agent.model_policy:ModelPolicy._ask",
+    "capstone.agent.model_policy:ModelPolicy.client_for",
     "capstone.agent.model_policy:ModelPolicy.plan",
     "capstone.agent.model_policy:evidence_section",
     "capstone.agent.model_policy:render",
@@ -76325,14 +76966,16 @@
     "capstone.agent.state:InvestigationState.remaining_iterations",
     "capstone.agent.state:InvestigationState.remaining_tool_calls",
     "capstone.agent.state:InvestigationState.research_tool_calls",
+    "capstone.providers.chat:late_key",
     "capstone.providers.factory:research_tools",
     "capstone.providers.factory:tool_spec"
    ],
-   "exercise_count": 16,
+   "exercise_count": 18,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.model_policy",
     "capstone.agent.state",
+    "capstone.providers.chat",
     "capstone.providers.factory"
    ],
    "judgment": "NOT ASSESSED",
@@ -76368,6 +77011,7 @@
     "capstone.agent.model_policy:ModelPolicy.__init__",
     "capstone.agent.model_policy:ModelPolicy._ask",
     "capstone.agent.model_policy:ModelPolicy._check_offered",
+    "capstone.agent.model_policy:ModelPolicy.client_for",
     "capstone.agent.model_policy:ModelPolicy.decide",
     "capstone.agent.model_policy:NextStep.decision",
     "capstone.agent.model_policy:NextStep.one_kind_of_step",
@@ -76383,14 +77027,16 @@
     "capstone.agent.state:InvestigationState.remaining_iterations",
     "capstone.agent.state:InvestigationState.remaining_tool_calls",
     "capstone.agent.state:InvestigationState.research_tool_calls",
+    "capstone.providers.chat:late_key",
     "capstone.providers.factory:research_tools",
     "capstone.providers.factory:tool_spec"
    ],
-   "exercise_count": 23,
+   "exercise_count": 25,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.model_policy",
     "capstone.agent.state",
+    "capstone.providers.chat",
     "capstone.providers.factory"
    ],
    "judgment": "NOT ASSESSED",
@@ -76426,6 +77072,7 @@
     "capstone.agent.model_policy:ModelPolicy.__init__",
     "capstone.agent.model_policy:ModelPolicy._ask",
     "capstone.agent.model_policy:ModelPolicy._check_offered",
+    "capstone.agent.model_policy:ModelPolicy.client_for",
     "capstone.agent.model_policy:ModelPolicy.decide",
     "capstone.agent.model_policy:NextStep.decision",
     "capstone.agent.model_policy:NextStep.one_kind_of_step",
@@ -76441,14 +77088,16 @@
     "capstone.agent.state:InvestigationState.remaining_iterations",
     "capstone.agent.state:InvestigationState.remaining_tool_calls",
     "capstone.agent.state:InvestigationState.research_tool_calls",
+    "capstone.providers.chat:late_key",
     "capstone.providers.factory:research_tools",
     "capstone.providers.factory:tool_spec"
    ],
-   "exercise_count": 23,
+   "exercise_count": 25,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.model_policy",
     "capstone.agent.state",
+    "capstone.providers.chat",
     "capstone.providers.factory"
    ],
    "judgment": "NOT ASSESSED",
@@ -76484,6 +77133,7 @@
     "capstone.agent.model_policy:ModelPolicy.__init__",
     "capstone.agent.model_policy:ModelPolicy._ask",
     "capstone.agent.model_policy:ModelPolicy._check_offered",
+    "capstone.agent.model_policy:ModelPolicy.client_for",
     "capstone.agent.model_policy:ModelPolicy.decide",
     "capstone.agent.model_policy:NextStep.decision",
     "capstone.agent.model_policy:NextStep.one_kind_of_step",
@@ -76499,14 +77149,16 @@
     "capstone.agent.state:InvestigationState.remaining_iterations",
     "capstone.agent.state:InvestigationState.remaining_tool_calls",
     "capstone.agent.state:InvestigationState.research_tool_calls",
+    "capstone.providers.chat:late_key",
     "capstone.providers.factory:research_tools",
     "capstone.providers.factory:tool_spec"
    ],
-   "exercise_count": 23,
+   "exercise_count": 25,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.model_policy",
     "capstone.agent.state",
+    "capstone.providers.chat",
     "capstone.providers.factory"
    ],
    "judgment": "NOT ASSESSED",
@@ -76544,6 +77196,7 @@
     "capstone.agent.model_policy:ModelPolicy._ask",
     "capstone.agent.model_policy:ModelPolicy._check_offered",
     "capstone.agent.model_policy:ModelPolicy._refuse",
+    "capstone.agent.model_policy:ModelPolicy.client_for",
     "capstone.agent.model_policy:ModelPolicy.decide",
     "capstone.agent.model_policy:NextStep.decision",
     "capstone.agent.model_policy:NextStep.one_kind_of_step",
@@ -76559,14 +77212,16 @@
     "capstone.agent.state:InvestigationState.remaining_iterations",
     "capstone.agent.state:InvestigationState.remaining_tool_calls",
     "capstone.agent.state:InvestigationState.research_tool_calls",
+    "capstone.providers.chat:late_key",
     "capstone.providers.factory:research_tools",
     "capstone.providers.factory:tool_spec"
    ],
-   "exercise_count": 24,
+   "exercise_count": 26,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.model_policy",
     "capstone.agent.state",
+    "capstone.providers.chat",
     "capstone.providers.factory"
    ],
    "judgment": "NOT ASSESSED",
@@ -76600,6 +77255,7 @@
     "capstone.agent.evidence_brief:section",
     "capstone.agent.model_policy:ModelPolicy.__init__",
     "capstone.agent.model_policy:ModelPolicy._ask",
+    "capstone.agent.model_policy:ModelPolicy.client_for",
     "capstone.agent.model_policy:ModelPolicy.decide",
     "capstone.agent.model_policy:compact",
     "capstone.agent.model_policy:evidence_section",
@@ -76613,14 +77269,16 @@
     "capstone.agent.state:InvestigationState.remaining_iterations",
     "capstone.agent.state:InvestigationState.remaining_tool_calls",
     "capstone.agent.state:InvestigationState.research_tool_calls",
+    "capstone.providers.chat:late_key",
     "capstone.providers.factory:research_tools",
     "capstone.providers.factory:tool_spec"
    ],
-   "exercise_count": 20,
+   "exercise_count": 22,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.model_policy",
     "capstone.agent.state",
+    "capstone.providers.chat",
     "capstone.providers.factory"
    ],
    "judgment": "NOT ASSESSED",
@@ -76657,6 +77315,7 @@
     "capstone.agent.evidence_brief:section",
     "capstone.agent.model_policy:ModelPolicy.__init__",
     "capstone.agent.model_policy:ModelPolicy._ask",
+    "capstone.agent.model_policy:ModelPolicy.client_for",
     "capstone.agent.model_policy:ModelPolicy.interpret",
     "capstone.agent.model_policy:cited_ids",
     "capstone.agent.model_policy:compact",
@@ -76671,16 +77330,16 @@
     "capstone.agent.state:InvestigationState.remaining_iterations",
     "capstone.agent.state:InvestigationState.remaining_tool_calls",
     "capstone.agent.state:InvestigationState.research_tool_calls",
-    "capstone.agent.untrusted:looks_like_instruction",
+    "capstone.providers.chat:late_key",
     "capstone.providers.factory:research_tools",
     "capstone.providers.factory:tool_spec"
    ],
-   "exercise_count": 23,
+   "exercise_count": 24,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.model_policy",
     "capstone.agent.state",
-    "capstone.agent.untrusted",
+    "capstone.providers.chat",
     "capstone.providers.factory"
    ],
    "judgment": "NOT ASSESSED",
@@ -76716,6 +77375,7 @@
     "capstone.agent.evidence_brief:section",
     "capstone.agent.model_policy:ModelPolicy.__init__",
     "capstone.agent.model_policy:ModelPolicy._ask",
+    "capstone.agent.model_policy:ModelPolicy.client_for",
     "capstone.agent.model_policy:ModelPolicy.conclude",
     "capstone.agent.model_policy:action_bar_note",
     "capstone.agent.model_policy:cited_ids",
@@ -76731,16 +77391,16 @@
     "capstone.agent.state:InvestigationState.remaining_iterations",
     "capstone.agent.state:InvestigationState.remaining_tool_calls",
     "capstone.agent.state:InvestigationState.research_tool_calls",
-    "capstone.agent.untrusted:looks_like_instruction",
+    "capstone.providers.chat:late_key",
     "capstone.providers.factory:research_tools",
     "capstone.providers.factory:tool_spec"
    ],
-   "exercise_count": 24,
+   "exercise_count": 25,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.model_policy",
     "capstone.agent.state",
-    "capstone.agent.untrusted",
+    "capstone.providers.chat",
     "capstone.providers.factory"
    ],
    "judgment": "NOT ASSESSED",
@@ -76776,6 +77436,7 @@
     "capstone.agent.evidence_brief:section",
     "capstone.agent.model_policy:ModelPolicy.__init__",
     "capstone.agent.model_policy:ModelPolicy._ask",
+    "capstone.agent.model_policy:ModelPolicy.client_for",
     "capstone.agent.model_policy:ModelPolicy.conclude",
     "capstone.agent.model_policy:action_bar_note",
     "capstone.agent.model_policy:cited_ids",
@@ -76791,16 +77452,16 @@
     "capstone.agent.state:InvestigationState.remaining_iterations",
     "capstone.agent.state:InvestigationState.remaining_tool_calls",
     "capstone.agent.state:InvestigationState.research_tool_calls",
-    "capstone.agent.untrusted:looks_like_instruction",
+    "capstone.providers.chat:late_key",
     "capstone.providers.factory:research_tools",
     "capstone.providers.factory:tool_spec"
    ],
-   "exercise_count": 24,
+   "exercise_count": 25,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.model_policy",
     "capstone.agent.state",
-    "capstone.agent.untrusted",
+    "capstone.providers.chat",
     "capstone.providers.factory"
    ],
    "judgment": "NOT ASSESSED",
@@ -76835,6 +77496,7 @@
     "capstone.agent.evidence_brief:section",
     "capstone.agent.model_policy:ModelPolicy.__init__",
     "capstone.agent.model_policy:ModelPolicy._ask",
+    "capstone.agent.model_policy:ModelPolicy.client_for",
     "capstone.agent.model_policy:ModelPolicy.judge_verification",
     "capstone.agent.model_policy:cited_ids",
     "capstone.agent.model_policy:compact",
@@ -76849,16 +77511,16 @@
     "capstone.agent.state:InvestigationState.remaining_iterations",
     "capstone.agent.state:InvestigationState.remaining_tool_calls",
     "capstone.agent.state:InvestigationState.research_tool_calls",
-    "capstone.agent.untrusted:looks_like_instruction",
+    "capstone.providers.chat:late_key",
     "capstone.providers.factory:research_tools",
     "capstone.providers.factory:tool_spec"
    ],
-   "exercise_count": 23,
+   "exercise_count": 24,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.model_policy",
     "capstone.agent.state",
-    "capstone.agent.untrusted",
+    "capstone.providers.chat",
     "capstone.providers.factory"
    ],
    "judgment": "NOT ASSESSED",
@@ -76894,6 +77556,7 @@
     "capstone.agent.evidence_brief:section",
     "capstone.agent.model_policy:ModelPolicy.__init__",
     "capstone.agent.model_policy:ModelPolicy._ask",
+    "capstone.agent.model_policy:ModelPolicy.client_for",
     "capstone.agent.model_policy:ModelPolicy.write_lesson",
     "capstone.agent.model_policy:evidence_section",
     "capstone.agent.model_policy:render",
@@ -76903,14 +77566,16 @@
     "capstone.agent.state:InvestigationState.remaining_iterations",
     "capstone.agent.state:InvestigationState.remaining_tool_calls",
     "capstone.agent.state:InvestigationState.research_tool_calls",
+    "capstone.providers.chat:late_key",
     "capstone.providers.factory:research_tools",
     "capstone.providers.factory:tool_spec"
    ],
-   "exercise_count": 16,
+   "exercise_count": 18,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.model_policy",
     "capstone.agent.state",
+    "capstone.providers.chat",
     "capstone.providers.factory"
    ],
    "judgment": "NOT ASSESSED",
@@ -76945,6 +77610,7 @@
     "capstone.agent.evidence_brief:section",
     "capstone.agent.model_policy:ModelPolicy.__init__",
     "capstone.agent.model_policy:ModelPolicy._ask",
+    "capstone.agent.model_policy:ModelPolicy.client_for",
     "capstone.agent.model_policy:ModelPolicy.hypothesize",
     "capstone.agent.model_policy:ModelPolicy.plan",
     "capstone.agent.model_policy:ModelPolicy.write_lesson",
@@ -76961,16 +77627,16 @@
     "capstone.agent.state:InvestigationState.remaining_iterations",
     "capstone.agent.state:InvestigationState.remaining_tool_calls",
     "capstone.agent.state:InvestigationState.research_tool_calls",
-    "capstone.agent.untrusted:looks_like_instruction",
+    "capstone.providers.chat:late_key",
     "capstone.providers.factory:research_tools",
     "capstone.providers.factory:tool_spec"
    ],
-   "exercise_count": 25,
+   "exercise_count": 26,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.model_policy",
     "capstone.agent.state",
-    "capstone.agent.untrusted",
+    "capstone.providers.chat",
     "capstone.providers.factory"
    ],
    "judgment": "NOT ASSESSED",
@@ -77034,6 +77700,7 @@
     "capstone.agent.evidence_brief:section",
     "capstone.agent.model_policy:ModelPolicy.__init__",
     "capstone.agent.model_policy:ModelPolicy._ask",
+    "capstone.agent.model_policy:ModelPolicy.client_for",
     "capstone.agent.model_policy:ModelPolicy.plan",
     "capstone.agent.model_policy:evidence_section",
     "capstone.agent.model_policy:render",
@@ -77050,11 +77717,12 @@
     "capstone.providers.chat:FallbackClient.ask.<locals>.tried",
     "capstone.providers.chat:ModelError.__init__",
     "capstone.providers.chat:answer_json",
+    "capstone.providers.chat:late_key",
     "capstone.providers.chat:post_json",
     "capstone.providers.chat:reply_text",
     "capstone.providers.chat:reported_usage"
    ],
-   "exercise_count": 24,
+   "exercise_count": 26,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.model_policy",
@@ -77131,7 +77799,7 @@
     "capstone.agent.investigation:verify",
     "capstone.agent.investigation:verify.<locals>.later"
    ],
-   "exercise_count": 230,
+   "exercise_count": 231,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -77139,12 +77807,12 @@
     "capstone.agent.model_policy",
     "capstone.agent.monitor",
     "capstone.agent.state",
-    "capstone.agent.untrusted",
     "capstone.contracts.investigations",
     "capstone.contracts.tools",
     "capstone.episode",
     "capstone.evaluation.scoring",
     "capstone.faults",
+    "capstone.providers.chat",
     "capstone.providers.factory",
     "capstone.settings",
     "capstone.simulator.clock",
@@ -77243,7 +77911,7 @@
     "capstone.agent.investigation:verify",
     "capstone.agent.investigation:verify.<locals>.later"
    ],
-   "exercise_count": 238,
+   "exercise_count": 239,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -77251,13 +77919,13 @@
     "capstone.agent.model_policy",
     "capstone.agent.monitor",
     "capstone.agent.state",
-    "capstone.agent.untrusted",
     "capstone.contracts.investigations",
     "capstone.contracts.tools",
     "capstone.episode",
     "capstone.evaluation.scoring",
     "capstone.experiment",
     "capstone.faults",
+    "capstone.providers.chat",
     "capstone.providers.factory",
     "capstone.settings",
     "capstone.simulator.clock",
@@ -77333,6 +78001,7 @@
     "capstone.agent.loop:seconds_left",
     "capstone.agent.model_policy:ModelPolicy.__init__",
     "capstone.agent.model_policy:ModelPolicy._ask",
+    "capstone.agent.model_policy:ModelPolicy.client_for",
     "capstone.agent.model_policy:ModelPolicy.plan",
     "capstone.agent.model_policy:cited_ids",
     "capstone.agent.model_policy:evidence_lines",
@@ -77346,10 +78015,9 @@
     "capstone.agent.state:InvestigationState.remaining_critic_tool_calls",
     "capstone.agent.state:InvestigationState.remaining_followup_tool_calls",
     "capstone.agent.state:InvestigationState.remaining_iterations",
-    "capstone.agent.state:InvestigationState.remaining_seconds",
-    "capstone.agent.state:InvestigationState.remaining_tool_calls"
+    "capstone.agent.state:InvestigationState.remaining_seconds"
    ],
-   "exercise_count": 163,
+   "exercise_count": 164,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -77357,7 +78025,6 @@
     "capstone.agent.model_policy",
     "capstone.agent.monitor",
     "capstone.agent.state",
-    "capstone.agent.untrusted",
     "capstone.contracts.investigations",
     "capstone.contracts.tools",
     "capstone.episode",
@@ -77450,7 +78117,7 @@
     "capstone.agent.investigation:verify",
     "capstone.agent.investigation:verify.<locals>.later"
    ],
-   "exercise_count": 230,
+   "exercise_count": 231,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -77458,12 +78125,12 @@
     "capstone.agent.model_policy",
     "capstone.agent.monitor",
     "capstone.agent.state",
-    "capstone.agent.untrusted",
     "capstone.contracts.investigations",
     "capstone.contracts.tools",
     "capstone.episode",
     "capstone.evaluation.scoring",
     "capstone.faults",
+    "capstone.providers.chat",
     "capstone.providers.factory",
     "capstone.settings",
     "capstone.simulator.clock",
@@ -77549,7 +78216,7 @@
     "capstone.agent.loop:call_tool",
     "capstone.agent.loop:check_termination"
    ],
-   "exercise_count": 204,
+   "exercise_count": 205,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -77557,12 +78224,12 @@
     "capstone.agent.model_policy",
     "capstone.agent.monitor",
     "capstone.agent.state",
-    "capstone.agent.untrusted",
     "capstone.contracts.investigations",
     "capstone.contracts.tools",
     "capstone.episode",
     "capstone.evaluation.scoring",
     "capstone.faults",
+    "capstone.providers.chat",
     "capstone.providers.factory",
     "capstone.settings",
     "capstone.simulator.clock",
@@ -77648,7 +78315,7 @@
     "capstone.agent.loop:call_tool",
     "capstone.agent.loop:check_termination"
    ],
-   "exercise_count": 206,
+   "exercise_count": 207,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -77656,7 +78323,6 @@
     "capstone.agent.model_policy",
     "capstone.agent.monitor",
     "capstone.agent.state",
-    "capstone.agent.untrusted",
     "capstone.contracts.investigations",
     "capstone.contracts.tools",
     "capstone.episode",
@@ -77748,7 +78414,7 @@
     "capstone.agent.investigation:verify",
     "capstone.agent.investigation:verify.<locals>.later"
    ],
-   "exercise_count": 231,
+   "exercise_count": 232,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -77756,7 +78422,6 @@
     "capstone.agent.model_policy",
     "capstone.agent.monitor",
     "capstone.agent.state",
-    "capstone.agent.untrusted",
     "capstone.contracts.investigations",
     "capstone.contracts.tools",
     "capstone.episode",
@@ -77848,7 +78513,7 @@
     "capstone.agent.loop:call_tool",
     "capstone.agent.loop:check_termination"
    ],
-   "exercise_count": 206,
+   "exercise_count": 207,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -77856,7 +78521,6 @@
     "capstone.agent.model_policy",
     "capstone.agent.monitor",
     "capstone.agent.state",
-    "capstone.agent.untrusted",
     "capstone.contracts.investigations",
     "capstone.contracts.tools",
     "capstone.episode",
@@ -77947,7 +78611,7 @@
     "capstone.agent.loop:seconds_left",
     "capstone.agent.model_policy:ModelPolicy.__init__"
    ],
-   "exercise_count": 194,
+   "exercise_count": 195,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -77955,7 +78619,6 @@
     "capstone.agent.model_policy",
     "capstone.agent.monitor",
     "capstone.agent.state",
-    "capstone.agent.untrusted",
     "capstone.contracts.investigations",
     "capstone.contracts.tools",
     "capstone.episode",
@@ -78010,6 +78673,7 @@
     "capstone.agent.evidence_brief:section",
     "capstone.agent.model_policy:ModelPolicy.__init__",
     "capstone.agent.model_policy:ModelPolicy._ask",
+    "capstone.agent.model_policy:ModelPolicy.client_for",
     "capstone.agent.model_policy:ModelPolicy.write_lesson",
     "capstone.agent.model_policy:evidence_section",
     "capstone.agent.model_policy:render",
@@ -78019,14 +78683,16 @@
     "capstone.agent.state:InvestigationState.remaining_iterations",
     "capstone.agent.state:InvestigationState.remaining_tool_calls",
     "capstone.agent.state:InvestigationState.research_tool_calls",
+    "capstone.providers.chat:late_key",
     "capstone.providers.factory:research_tools",
     "capstone.providers.factory:tool_spec"
    ],
-   "exercise_count": 16,
+   "exercise_count": 18,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.model_policy",
     "capstone.agent.state",
+    "capstone.providers.chat",
     "capstone.providers.factory"
    ],
    "judgment": "NOT ASSESSED",
@@ -78060,6 +78726,7 @@
     "capstone.agent.evidence_brief:section",
     "capstone.agent.model_policy:ModelPolicy.__init__",
     "capstone.agent.model_policy:ModelPolicy._ask",
+    "capstone.agent.model_policy:ModelPolicy.client_for",
     "capstone.agent.model_policy:ModelPolicy.decide",
     "capstone.agent.model_policy:compact",
     "capstone.agent.model_policy:evidence_section",
@@ -78073,14 +78740,16 @@
     "capstone.agent.state:InvestigationState.remaining_iterations",
     "capstone.agent.state:InvestigationState.remaining_tool_calls",
     "capstone.agent.state:InvestigationState.research_tool_calls",
+    "capstone.providers.chat:late_key",
     "capstone.providers.factory:research_tools",
     "capstone.providers.factory:tool_spec"
    ],
-   "exercise_count": 20,
+   "exercise_count": 22,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.model_policy",
     "capstone.agent.state",
+    "capstone.providers.chat",
     "capstone.providers.factory"
    ],
    "judgment": "NOT ASSESSED",
@@ -78115,6 +78784,7 @@
     "capstone.agent.model_policy:ModelPolicy.__init__",
     "capstone.agent.model_policy:ModelPolicy._ask",
     "capstone.agent.model_policy:ModelPolicy._check_offered",
+    "capstone.agent.model_policy:ModelPolicy.client_for",
     "capstone.agent.model_policy:ModelPolicy.decide",
     "capstone.agent.model_policy:NextStep.decision",
     "capstone.agent.model_policy:NextStep.one_kind_of_step",
@@ -78130,14 +78800,16 @@
     "capstone.agent.state:InvestigationState.remaining_iterations",
     "capstone.agent.state:InvestigationState.remaining_tool_calls",
     "capstone.agent.state:InvestigationState.research_tool_calls",
+    "capstone.providers.chat:late_key",
     "capstone.providers.factory:research_tools",
     "capstone.providers.factory:tool_spec"
    ],
-   "exercise_count": 23,
+   "exercise_count": 25,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.model_policy",
     "capstone.agent.state",
+    "capstone.providers.chat",
     "capstone.providers.factory"
    ],
    "judgment": "NOT ASSESSED",
@@ -78174,6 +78846,7 @@
     "capstone.agent.evidence_brief:section",
     "capstone.agent.model_policy:ModelPolicy.__init__",
     "capstone.agent.model_policy:ModelPolicy._ask",
+    "capstone.agent.model_policy:ModelPolicy.client_for",
     "capstone.agent.model_policy:ModelPolicy.decide",
     "capstone.agent.model_policy:NextStep.one_kind_of_step",
     "capstone.agent.model_policy:compact",
@@ -78188,14 +78861,16 @@
     "capstone.agent.state:InvestigationState.remaining_iterations",
     "capstone.agent.state:InvestigationState.remaining_tool_calls",
     "capstone.agent.state:InvestigationState.research_tool_calls",
+    "capstone.providers.chat:late_key",
     "capstone.providers.factory:research_tools",
     "capstone.providers.factory:tool_spec"
    ],
-   "exercise_count": 21,
+   "exercise_count": 23,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.model_policy",
     "capstone.agent.state",
+    "capstone.providers.chat",
     "capstone.providers.factory"
    ],
    "judgment": "NOT ASSESSED",
@@ -78382,6 +79057,7 @@
     "capstone.agent.model_policy:ModelPolicy._ask",
     "capstone.agent.model_policy:ModelPolicy._check_offered",
     "capstone.agent.model_policy:ModelPolicy._refuse",
+    "capstone.agent.model_policy:ModelPolicy.client_for",
     "capstone.agent.model_policy:ModelPolicy.decide",
     "capstone.agent.model_policy:NextStep.decision",
     "capstone.agent.model_policy:NextStep.one_kind_of_step",
@@ -78398,10 +79074,11 @@
     "capstone.agent.state:InvestigationState.remaining_tool_calls",
     "capstone.agent.state:InvestigationState.research_tool_calls",
     "capstone.providers.chat:invalid_outcome",
+    "capstone.providers.chat:late_key",
     "capstone.providers.factory:research_tools",
     "capstone.providers.factory:tool_spec"
    ],
-   "exercise_count": 25,
+   "exercise_count": 27,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.model_policy",
@@ -78484,6 +79161,7 @@
     "capstone.agent.model_policy:ModelPolicy._ask",
     "capstone.agent.model_policy:ModelPolicy._check_offered",
     "capstone.agent.model_policy:ModelPolicy._read_and_decide",
+    "capstone.agent.model_policy:ModelPolicy.client_for",
     "capstone.agent.model_policy:ModelPolicy.decide",
     "capstone.agent.model_policy:ModelPolicy.interpret_and_decide",
     "capstone.agent.model_policy:NextStep.decision",
@@ -78504,16 +79182,16 @@
     "capstone.agent.state:InvestigationState.remaining_iterations",
     "capstone.agent.state:InvestigationState.remaining_tool_calls",
     "capstone.agent.state:InvestigationState.research_tool_calls",
-    "capstone.agent.untrusted:looks_like_instruction",
+    "capstone.providers.chat:late_key",
     "capstone.providers.factory:research_tools",
     "capstone.providers.factory:tool_spec"
    ],
-   "exercise_count": 31,
+   "exercise_count": 32,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.model_policy",
     "capstone.agent.state",
-    "capstone.agent.untrusted",
+    "capstone.providers.chat",
     "capstone.providers.factory"
    ],
    "judgment": "NOT ASSESSED",
@@ -78553,6 +79231,7 @@
     "capstone.agent.model_policy:ModelPolicy._ask",
     "capstone.agent.model_policy:ModelPolicy._check_offered",
     "capstone.agent.model_policy:ModelPolicy._read_and_decide",
+    "capstone.agent.model_policy:ModelPolicy.client_for",
     "capstone.agent.model_policy:ModelPolicy.decide",
     "capstone.agent.model_policy:ModelPolicy.interpret_and_decide",
     "capstone.agent.model_policy:NextStep.decision",
@@ -78573,16 +79252,16 @@
     "capstone.agent.state:InvestigationState.remaining_iterations",
     "capstone.agent.state:InvestigationState.remaining_tool_calls",
     "capstone.agent.state:InvestigationState.research_tool_calls",
-    "capstone.agent.untrusted:looks_like_instruction",
+    "capstone.providers.chat:late_key",
     "capstone.providers.factory:research_tools",
     "capstone.providers.factory:tool_spec"
    ],
-   "exercise_count": 31,
+   "exercise_count": 32,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.model_policy",
     "capstone.agent.state",
-    "capstone.agent.untrusted",
+    "capstone.providers.chat",
     "capstone.providers.factory"
    ],
    "judgment": "NOT ASSESSED",
@@ -78617,6 +79296,7 @@
     "capstone.agent.evidence_brief:section",
     "capstone.agent.model_policy:ModelPolicy.__init__",
     "capstone.agent.model_policy:ModelPolicy._ask",
+    "capstone.agent.model_policy:ModelPolicy.client_for",
     "capstone.agent.model_policy:ModelPolicy.conclude",
     "capstone.agent.model_policy:action_bar_note",
     "capstone.agent.model_policy:cited_ids",
@@ -78632,16 +79312,16 @@
     "capstone.agent.state:InvestigationState.remaining_iterations",
     "capstone.agent.state:InvestigationState.remaining_tool_calls",
     "capstone.agent.state:InvestigationState.research_tool_calls",
-    "capstone.agent.untrusted:looks_like_instruction",
+    "capstone.providers.chat:late_key",
     "capstone.providers.factory:research_tools",
     "capstone.providers.factory:tool_spec"
    ],
-   "exercise_count": 24,
+   "exercise_count": 25,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.model_policy",
     "capstone.agent.state",
-    "capstone.agent.untrusted",
+    "capstone.providers.chat",
     "capstone.providers.factory"
    ],
    "judgment": "NOT ASSESSED",
@@ -78702,6 +79382,7 @@
     "capstone.agent.loop:seconds_left",
     "capstone.agent.model_policy:ModelPolicy.__init__",
     "capstone.agent.model_policy:ModelPolicy._ask",
+    "capstone.agent.model_policy:ModelPolicy.client_for",
     "capstone.agent.model_policy:ModelPolicy.plan",
     "capstone.agent.model_policy:cited_ids",
     "capstone.agent.model_policy:evidence_lines",
@@ -78715,10 +79396,9 @@
     "capstone.agent.state:InvestigationState.remaining_critic_tool_calls",
     "capstone.agent.state:InvestigationState.remaining_followup_tool_calls",
     "capstone.agent.state:InvestigationState.remaining_iterations",
-    "capstone.agent.state:InvestigationState.remaining_seconds",
-    "capstone.agent.state:InvestigationState.remaining_tool_calls"
+    "capstone.agent.state:InvestigationState.remaining_seconds"
    ],
-   "exercise_count": 167,
+   "exercise_count": 168,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -78726,7 +79406,6 @@
     "capstone.agent.model_policy",
     "capstone.agent.monitor",
     "capstone.agent.state",
-    "capstone.agent.untrusted",
     "capstone.contracts.investigations",
     "capstone.contracts.tools",
     "capstone.episode",
@@ -78815,6 +79494,7 @@
     "capstone.agent.model_policy:ModelPolicy._ask",
     "capstone.agent.model_policy:ModelPolicy._check_offered",
     "capstone.agent.model_policy:ModelPolicy._read_and_decide",
+    "capstone.agent.model_policy:ModelPolicy.client_for",
     "capstone.agent.model_policy:ModelPolicy.interpret_and_decide",
     "capstone.agent.model_policy:NextStep.decision",
     "capstone.agent.model_policy:NextStep.one_kind_of_step",
@@ -78834,16 +79514,16 @@
     "capstone.agent.state:InvestigationState.remaining_iterations",
     "capstone.agent.state:InvestigationState.remaining_tool_calls",
     "capstone.agent.state:InvestigationState.research_tool_calls",
-    "capstone.agent.untrusted:looks_like_instruction",
+    "capstone.providers.chat:late_key",
     "capstone.providers.factory:research_tools",
     "capstone.providers.factory:tool_spec"
    ],
-   "exercise_count": 30,
+   "exercise_count": 31,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.model_policy",
     "capstone.agent.state",
-    "capstone.agent.untrusted",
+    "capstone.providers.chat",
     "capstone.providers.factory"
    ],
    "judgment": "NOT ASSESSED",
@@ -79042,6 +79722,7 @@
     "capstone.agent.evidence_brief:statistics",
     "capstone.agent.model_policy:ModelPolicy.__init__",
     "capstone.agent.model_policy:ModelPolicy._ask",
+    "capstone.agent.model_policy:ModelPolicy.client_for",
     "capstone.agent.model_policy:ModelPolicy.judge_verification",
     "capstone.agent.model_policy:ModelPolicy.write_lesson",
     "capstone.agent.model_policy:cited_ids",
@@ -79057,16 +79738,16 @@
     "capstone.agent.state:InvestigationState.remaining_iterations",
     "capstone.agent.state:InvestigationState.remaining_tool_calls",
     "capstone.agent.state:InvestigationState.research_tool_calls",
-    "capstone.agent.untrusted:looks_like_instruction",
+    "capstone.providers.chat:late_key",
     "capstone.providers.factory:research_tools",
     "capstone.providers.factory:tool_spec"
    ],
-   "exercise_count": 25,
+   "exercise_count": 26,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.model_policy",
     "capstone.agent.state",
-    "capstone.agent.untrusted",
+    "capstone.providers.chat",
     "capstone.providers.factory"
    ],
    "judgment": "NOT ASSESSED",
@@ -79253,6 +79934,7 @@
     "capstone.agent.evidence_brief:statistics",
     "capstone.agent.model_policy:ModelPolicy.__init__",
     "capstone.agent.model_policy:ModelPolicy._ask",
+    "capstone.agent.model_policy:ModelPolicy.client_for",
     "capstone.agent.model_policy:ModelPolicy.judge_verification",
     "capstone.agent.model_policy:compact",
     "capstone.agent.model_policy:data_window",
@@ -79265,16 +79947,16 @@
     "capstone.agent.model_policy:whole_ids",
     "capstone.agent.state:Budgets.research_gets_some_time",
     "capstone.agent.state:InvestigationState.action_carried_out",
-    "capstone.agent.untrusted:looks_like_instruction",
+    "capstone.providers.chat:late_key",
     "capstone.providers.factory:research_tools",
     "capstone.providers.factory:tool_spec"
    ],
-   "exercise_count": 20,
+   "exercise_count": 21,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.model_policy",
     "capstone.agent.state",
-    "capstone.agent.untrusted",
+    "capstone.providers.chat",
     "capstone.providers.factory"
    ],
    "judgment": "NOT ASSESSED",
@@ -79314,15 +79996,13 @@
     "capstone.agent.model_policy:verification_view",
     "capstone.agent.model_policy:whole_ids",
     "capstone.agent.state:Budgets.research_gets_some_time",
-    "capstone.agent.state:InvestigationState.action_carried_out",
-    "capstone.agent.untrusted:looks_like_instruction"
+    "capstone.agent.state:InvestigationState.action_carried_out"
    ],
-   "exercise_count": 13,
+   "exercise_count": 12,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.model_policy",
-    "capstone.agent.state",
-    "capstone.agent.untrusted"
+    "capstone.agent.state"
    ],
    "judgment": "NOT ASSESSED",
    "curated": {},
@@ -79364,15 +80044,13 @@
     "capstone.agent.model_policy:verification_view",
     "capstone.agent.model_policy:whole_ids",
     "capstone.agent.state:Budgets.research_gets_some_time",
-    "capstone.agent.state:InvestigationState.action_carried_out",
-    "capstone.agent.untrusted:looks_like_instruction"
+    "capstone.agent.state:InvestigationState.action_carried_out"
    ],
-   "exercise_count": 15,
+   "exercise_count": 14,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.model_policy",
-    "capstone.agent.state",
-    "capstone.agent.untrusted"
+    "capstone.agent.state"
    ],
    "judgment": "NOT ASSESSED",
    "curated": {},
@@ -79414,15 +80092,13 @@
     "capstone.agent.model_policy:verification_view",
     "capstone.agent.model_policy:whole_ids",
     "capstone.agent.state:Budgets.research_gets_some_time",
-    "capstone.agent.state:InvestigationState.action_carried_out",
-    "capstone.agent.untrusted:looks_like_instruction"
+    "capstone.agent.state:InvestigationState.action_carried_out"
    ],
-   "exercise_count": 15,
+   "exercise_count": 14,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.model_policy",
-    "capstone.agent.state",
-    "capstone.agent.untrusted"
+    "capstone.agent.state"
    ],
    "judgment": "NOT ASSESSED",
    "curated": {},
@@ -79459,6 +80135,7 @@
     "capstone.agent.evidence_brief:statistics",
     "capstone.agent.model_policy:ModelPolicy.__init__",
     "capstone.agent.model_policy:ModelPolicy._ask",
+    "capstone.agent.model_policy:ModelPolicy.client_for",
     "capstone.agent.model_policy:ModelPolicy.write_lesson",
     "capstone.agent.model_policy:cited_ids",
     "capstone.agent.model_policy:compact",
@@ -79474,16 +80151,16 @@
     "capstone.agent.state:InvestigationState.remaining_iterations",
     "capstone.agent.state:InvestigationState.remaining_tool_calls",
     "capstone.agent.state:InvestigationState.research_tool_calls",
-    "capstone.agent.untrusted:looks_like_instruction",
+    "capstone.providers.chat:late_key",
     "capstone.providers.factory:research_tools",
     "capstone.providers.factory:tool_spec"
    ],
-   "exercise_count": 25,
+   "exercise_count": 26,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.model_policy",
     "capstone.agent.state",
-    "capstone.agent.untrusted",
+    "capstone.providers.chat",
     "capstone.providers.factory"
    ],
    "judgment": "NOT ASSESSED",
@@ -79562,7 +80239,7 @@
     "capstone.agent.investigation:verify",
     "capstone.agent.investigation:verify.<locals>.later"
    ],
-   "exercise_count": 235,
+   "exercise_count": 236,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -79570,12 +80247,12 @@
     "capstone.agent.model_policy",
     "capstone.agent.monitor",
     "capstone.agent.state",
-    "capstone.agent.untrusted",
     "capstone.contracts.investigations",
     "capstone.contracts.tools",
     "capstone.episode",
     "capstone.evaluation.scoring",
     "capstone.faults",
+    "capstone.providers.chat",
     "capstone.providers.factory",
     "capstone.settings",
     "capstone.simulator.clock",
@@ -87138,15 +87815,13 @@
     "capstone.agent.state:InvestigationState.remaining_followup_tool_calls",
     "capstone.agent.state:InvestigationState.remaining_iterations",
     "capstone.agent.state:InvestigationState.remaining_tool_calls",
-    "capstone.agent.state:InvestigationState.research_tool_calls",
-    "capstone.agent.untrusted:looks_like_instruction"
+    "capstone.agent.state:InvestigationState.research_tool_calls"
    ],
-   "exercise_count": 18,
+   "exercise_count": 17,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.model_policy",
-    "capstone.agent.state",
-    "capstone.agent.untrusted"
+    "capstone.agent.state"
    ],
    "judgment": "NOT ASSESSED",
    "curated": {},
@@ -87347,16 +88022,14 @@
     "capstone.agent.state:InvestigationState.remaining_followup_tool_calls",
     "capstone.agent.state:InvestigationState.remaining_iterations",
     "capstone.agent.state:InvestigationState.remaining_tool_calls",
-    "capstone.agent.state:InvestigationState.research_tool_calls",
-    "capstone.agent.untrusted:looks_like_instruction"
+    "capstone.agent.state:InvestigationState.research_tool_calls"
    ],
-   "exercise_count": 19,
+   "exercise_count": 18,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.loop",
     "capstone.agent.model_policy",
-    "capstone.agent.state",
-    "capstone.agent.untrusted"
+    "capstone.agent.state"
    ],
    "judgment": "NOT ASSESSED",
    "curated": {},
@@ -100770,6 +101443,7 @@
     "capstone.agent.evidence_brief:section",
     "capstone.agent.model_policy:ModelPolicy.__init__",
     "capstone.agent.model_policy:ModelPolicy._ask",
+    "capstone.agent.model_policy:ModelPolicy.client_for",
     "capstone.agent.model_policy:cited_ids",
     "capstone.agent.model_policy:evidence_lines",
     "capstone.agent.model_policy:evidence_section",
@@ -100790,17 +101464,17 @@
     "capstone.agent.tree_of_thought:evidence_family",
     "capstone.agent.tree_of_thought:pruned_trace",
     "capstone.agent.tree_of_thought:rank_candidates",
-    "capstone.agent.untrusted:looks_like_instruction",
+    "capstone.providers.chat:late_key",
     "capstone.providers.factory:research_tools",
     "capstone.providers.factory:tool_spec"
    ],
-   "exercise_count": 29,
+   "exercise_count": 30,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.model_policy",
     "capstone.agent.state",
     "capstone.agent.tree_of_thought",
-    "capstone.agent.untrusted",
+    "capstone.providers.chat",
     "capstone.providers.factory"
    ],
    "judgment": "NOT ASSESSED",
@@ -100837,6 +101511,7 @@
     "capstone.agent.evidence_brief:section",
     "capstone.agent.model_policy:ModelPolicy.__init__",
     "capstone.agent.model_policy:ModelPolicy._ask",
+    "capstone.agent.model_policy:ModelPolicy.client_for",
     "capstone.agent.model_policy:cited_ids",
     "capstone.agent.model_policy:evidence_lines",
     "capstone.agent.model_policy:evidence_section",
@@ -100857,17 +101532,17 @@
     "capstone.agent.tree_of_thought:evidence_family",
     "capstone.agent.tree_of_thought:pruned_trace",
     "capstone.agent.tree_of_thought:rank_candidates",
-    "capstone.agent.untrusted:looks_like_instruction",
+    "capstone.providers.chat:late_key",
     "capstone.providers.factory:research_tools",
     "capstone.providers.factory:tool_spec"
    ],
-   "exercise_count": 29,
+   "exercise_count": 30,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.model_policy",
     "capstone.agent.state",
     "capstone.agent.tree_of_thought",
-    "capstone.agent.untrusted",
+    "capstone.providers.chat",
     "capstone.providers.factory"
    ],
    "judgment": "NOT ASSESSED",
@@ -100903,6 +101578,7 @@
     "capstone.agent.evidence_brief:section",
     "capstone.agent.model_policy:ModelPolicy.__init__",
     "capstone.agent.model_policy:ModelPolicy._ask",
+    "capstone.agent.model_policy:ModelPolicy.client_for",
     "capstone.agent.model_policy:cited_ids",
     "capstone.agent.model_policy:evidence_lines",
     "capstone.agent.model_policy:evidence_section",
@@ -100918,17 +101594,17 @@
     "capstone.agent.tree_of_thought:TreeOfThoughtPolicy.__init__",
     "capstone.agent.tree_of_thought:TreeOfThoughtPolicy.hypothesize",
     "capstone.agent.tree_of_thought:TreeOptions.breadth_fits",
-    "capstone.agent.untrusted:looks_like_instruction",
+    "capstone.providers.chat:late_key",
     "capstone.providers.factory:research_tools",
     "capstone.providers.factory:tool_spec"
    ],
-   "exercise_count": 24,
+   "exercise_count": 25,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.model_policy",
     "capstone.agent.state",
     "capstone.agent.tree_of_thought",
-    "capstone.agent.untrusted",
+    "capstone.providers.chat",
     "capstone.providers.factory"
    ],
    "judgment": "NOT ASSESSED",
@@ -100964,6 +101640,7 @@
     "capstone.agent.evidence_brief:section",
     "capstone.agent.model_policy:ModelPolicy.__init__",
     "capstone.agent.model_policy:ModelPolicy._ask",
+    "capstone.agent.model_policy:ModelPolicy.client_for",
     "capstone.agent.model_policy:cited_ids",
     "capstone.agent.model_policy:evidence_lines",
     "capstone.agent.model_policy:evidence_section",
@@ -100984,17 +101661,17 @@
     "capstone.agent.tree_of_thought:evidence_family",
     "capstone.agent.tree_of_thought:pruned_trace",
     "capstone.agent.tree_of_thought:rank_candidates",
-    "capstone.agent.untrusted:looks_like_instruction",
+    "capstone.providers.chat:late_key",
     "capstone.providers.factory:research_tools",
     "capstone.providers.factory:tool_spec"
    ],
-   "exercise_count": 29,
+   "exercise_count": 30,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.model_policy",
     "capstone.agent.state",
     "capstone.agent.tree_of_thought",
-    "capstone.agent.untrusted",
+    "capstone.providers.chat",
     "capstone.providers.factory"
    ],
    "judgment": "NOT ASSESSED",
@@ -101029,6 +101706,7 @@
     "capstone.agent.evidence_brief:section",
     "capstone.agent.model_policy:ModelPolicy.__init__",
     "capstone.agent.model_policy:ModelPolicy._ask",
+    "capstone.agent.model_policy:ModelPolicy.client_for",
     "capstone.agent.model_policy:cited_ids",
     "capstone.agent.model_policy:evidence_lines",
     "capstone.agent.model_policy:evidence_section",
@@ -101045,17 +101723,17 @@
     "capstone.agent.tree_of_thought:TreeOfThoughtPolicy.hypothesize",
     "capstone.agent.tree_of_thought:TreeOptions.breadth_fits",
     "capstone.agent.tree_of_thought:candidate_lines",
-    "capstone.agent.untrusted:looks_like_instruction",
+    "capstone.providers.chat:late_key",
     "capstone.providers.factory:research_tools",
     "capstone.providers.factory:tool_spec"
    ],
-   "exercise_count": 25,
+   "exercise_count": 26,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.model_policy",
     "capstone.agent.state",
     "capstone.agent.tree_of_thought",
-    "capstone.agent.untrusted",
+    "capstone.providers.chat",
     "capstone.providers.factory"
    ],
    "judgment": "NOT ASSESSED",
@@ -101123,6 +101801,7 @@
     "capstone.agent.evidence_brief:section",
     "capstone.agent.model_policy:ModelPolicy.__init__",
     "capstone.agent.model_policy:ModelPolicy._ask",
+    "capstone.agent.model_policy:ModelPolicy.client_for",
     "capstone.agent.model_policy:ModelPolicy.hypothesize",
     "capstone.agent.model_policy:cited_ids",
     "capstone.agent.model_policy:evidence_lines",
@@ -101136,16 +101815,16 @@
     "capstone.agent.state:InvestigationState.remaining_iterations",
     "capstone.agent.state:InvestigationState.remaining_tool_calls",
     "capstone.agent.state:InvestigationState.research_tool_calls",
-    "capstone.agent.untrusted:looks_like_instruction",
+    "capstone.providers.chat:late_key",
     "capstone.providers.factory:research_tools",
     "capstone.providers.factory:tool_spec"
    ],
-   "exercise_count": 22,
+   "exercise_count": 23,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.model_policy",
     "capstone.agent.state",
-    "capstone.agent.untrusted",
+    "capstone.providers.chat",
     "capstone.providers.factory"
    ],
    "judgment": "NOT ASSESSED",
@@ -101217,7 +101896,7 @@
     "capstone.agent.investigation:verify",
     "capstone.agent.investigation:verify.<locals>.later"
    ],
-   "exercise_count": 244,
+   "exercise_count": 245,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -101226,13 +101905,13 @@
     "capstone.agent.monitor",
     "capstone.agent.state",
     "capstone.agent.tree_of_thought",
-    "capstone.agent.untrusted",
     "capstone.contracts.investigations",
     "capstone.contracts.tools",
     "capstone.episode",
     "capstone.evaluation.scoring",
     "capstone.experiment",
     "capstone.faults",
+    "capstone.providers.chat",
     "capstone.providers.factory",
     "capstone.settings",
     "capstone.simulator.clock",
@@ -101319,7 +101998,7 @@
     "capstone.agent.investigation:verify",
     "capstone.agent.investigation:verify.<locals>.later"
    ],
-   "exercise_count": 245,
+   "exercise_count": 246,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -101328,13 +102007,13 @@
     "capstone.agent.monitor",
     "capstone.agent.state",
     "capstone.agent.tree_of_thought",
-    "capstone.agent.untrusted",
     "capstone.contracts.investigations",
     "capstone.contracts.tools",
     "capstone.episode",
     "capstone.evaluation.scoring",
     "capstone.experiment",
     "capstone.faults",
+    "capstone.providers.chat",
     "capstone.providers.factory",
     "capstone.settings",
     "capstone.simulator.clock",
@@ -101391,16 +102070,18 @@
     "capstone.experiment:model_policy_factory",
     "capstone.experiment:model_policy_factory.<locals>.tree",
     "capstone.experiment:tree_options_from",
+    "capstone.providers.chat:late_clients",
     "capstone.providers.factory:research_tools",
     "capstone.providers.factory:tool_spec",
     "capstone.settings:Settings.blank_is_missing",
     "capstone.settings:get_settings"
    ],
-   "exercise_count": 10,
+   "exercise_count": 11,
    "modules_exercised": [
     "capstone.agent.model_policy",
     "capstone.agent.tree_of_thought",
     "capstone.experiment",
+    "capstone.providers.chat",
     "capstone.providers.factory",
     "capstone.settings"
    ],
@@ -101472,6 +102153,7 @@
     "capstone.agent.evidence_brief:section",
     "capstone.agent.model_policy:ModelPolicy.__init__",
     "capstone.agent.model_policy:ModelPolicy._ask",
+    "capstone.agent.model_policy:ModelPolicy.client_for",
     "capstone.agent.model_policy:cited_ids",
     "capstone.agent.model_policy:evidence_lines",
     "capstone.agent.model_policy:evidence_section",
@@ -101492,17 +102174,17 @@
     "capstone.agent.tree_of_thought:evidence_family",
     "capstone.agent.tree_of_thought:pruned_trace",
     "capstone.agent.tree_of_thought:rank_candidates",
-    "capstone.agent.untrusted:looks_like_instruction",
+    "capstone.providers.chat:late_key",
     "capstone.providers.factory:research_tools",
     "capstone.providers.factory:tool_spec"
    ],
-   "exercise_count": 29,
+   "exercise_count": 30,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.model_policy",
     "capstone.agent.state",
     "capstone.agent.tree_of_thought",
-    "capstone.agent.untrusted",
+    "capstone.providers.chat",
     "capstone.providers.factory"
    ],
    "judgment": "NOT ASSESSED",
@@ -101569,6 +102251,7 @@
     "capstone.agent.loop:apply_interpretation",
     "capstone.agent.model_policy:ModelPolicy.__init__",
     "capstone.agent.model_policy:ModelPolicy._ask",
+    "capstone.agent.model_policy:ModelPolicy.client_for",
     "capstone.agent.model_policy:cited_ids",
     "capstone.agent.model_policy:evidence_lines",
     "capstone.agent.model_policy:evidence_section",
@@ -101589,18 +102272,18 @@
     "capstone.agent.tree_of_thought:evidence_family",
     "capstone.agent.tree_of_thought:pruned_trace",
     "capstone.agent.tree_of_thought:rank_candidates",
-    "capstone.agent.untrusted:looks_like_instruction",
+    "capstone.providers.chat:late_key",
     "capstone.providers.factory:research_tools",
     "capstone.providers.factory:tool_spec"
    ],
-   "exercise_count": 31,
+   "exercise_count": 32,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.loop",
     "capstone.agent.model_policy",
     "capstone.agent.state",
     "capstone.agent.tree_of_thought",
-    "capstone.agent.untrusted",
+    "capstone.providers.chat",
     "capstone.providers.factory"
    ],
    "judgment": "NOT ASSESSED",
@@ -101673,7 +102356,7 @@
     "capstone.agent.investigation:plan",
     "capstone.agent.investigation:propose"
    ],
-   "exercise_count": 246,
+   "exercise_count": 247,
    "modules_exercised": [
     "capstone.agent.completion",
     "capstone.agent.evidence_brief",
@@ -101683,13 +102366,13 @@
     "capstone.agent.monitor",
     "capstone.agent.state",
     "capstone.agent.tree_of_thought",
-    "capstone.agent.untrusted",
     "capstone.contracts.completed_investigations",
     "capstone.contracts.investigations",
     "capstone.contracts.tools",
     "capstone.episode",
     "capstone.evaluation.scoring",
     "capstone.faults",
+    "capstone.providers.chat",
     "capstone.providers.factory",
     "capstone.settings",
     "capstone.simulator.clock",
@@ -101811,6 +102494,7 @@
     "capstone.agent.evidence_brief:section",
     "capstone.agent.model_policy:ModelPolicy.__init__",
     "capstone.agent.model_policy:ModelPolicy._ask",
+    "capstone.agent.model_policy:ModelPolicy.client_for",
     "capstone.agent.model_policy:cited_ids",
     "capstone.agent.model_policy:evidence_lines",
     "capstone.agent.model_policy:evidence_section",
@@ -101833,17 +102517,17 @@
     "capstone.agent.tree_of_thought:rank_candidates",
     "capstone.agent.tree_of_thought:unproven_confidence",
     "capstone.agent.tree_of_thought:unproven_rating",
-    "capstone.agent.untrusted:looks_like_instruction",
+    "capstone.providers.chat:late_key",
     "capstone.providers.factory:research_tools",
     "capstone.providers.factory:tool_spec"
    ],
-   "exercise_count": 31,
+   "exercise_count": 32,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.model_policy",
     "capstone.agent.state",
     "capstone.agent.tree_of_thought",
-    "capstone.agent.untrusted",
+    "capstone.providers.chat",
     "capstone.providers.factory"
    ],
    "judgment": "NOT ASSESSED",
@@ -101878,6 +102562,7 @@
     "capstone.agent.evidence_brief:section",
     "capstone.agent.model_policy:ModelPolicy.__init__",
     "capstone.agent.model_policy:ModelPolicy._ask",
+    "capstone.agent.model_policy:ModelPolicy.client_for",
     "capstone.agent.model_policy:cited_ids",
     "capstone.agent.model_policy:evidence_lines",
     "capstone.agent.model_policy:evidence_section",
@@ -101898,17 +102583,17 @@
     "capstone.agent.tree_of_thought:evidence_family",
     "capstone.agent.tree_of_thought:pruned_trace",
     "capstone.agent.tree_of_thought:rank_candidates",
-    "capstone.agent.untrusted:looks_like_instruction",
+    "capstone.providers.chat:late_key",
     "capstone.providers.factory:research_tools",
     "capstone.providers.factory:tool_spec"
    ],
-   "exercise_count": 29,
+   "exercise_count": 30,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.model_policy",
     "capstone.agent.state",
     "capstone.agent.tree_of_thought",
-    "capstone.agent.untrusted",
+    "capstone.providers.chat",
     "capstone.providers.factory"
    ],
    "judgment": "NOT ASSESSED",
@@ -102435,7 +103120,7 @@
     "capstone.agent.investigation:verify",
     "capstone.agent.investigation:verify.<locals>.later"
    ],
-   "exercise_count": 246,
+   "exercise_count": 247,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -102444,13 +103129,13 @@
     "capstone.agent.monitor",
     "capstone.agent.state",
     "capstone.agent.tree_of_thought",
-    "capstone.agent.untrusted",
     "capstone.contracts.investigations",
     "capstone.contracts.tools",
     "capstone.episode",
     "capstone.evaluation.scoring",
     "capstone.experiment",
     "capstone.faults",
+    "capstone.providers.chat",
     "capstone.providers.factory",
     "capstone.settings",
     "capstone.simulator.clock",
@@ -102536,7 +103221,7 @@
     "capstone.agent.investigation:verify",
     "capstone.agent.investigation:verify.<locals>.later"
    ],
-   "exercise_count": 237,
+   "exercise_count": 238,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -102544,13 +103229,13 @@
     "capstone.agent.model_policy",
     "capstone.agent.monitor",
     "capstone.agent.state",
-    "capstone.agent.untrusted",
     "capstone.contracts.investigations",
     "capstone.contracts.tools",
     "capstone.episode",
     "capstone.evaluation.scoring",
     "capstone.experiment",
     "capstone.faults",
+    "capstone.providers.chat",
     "capstone.providers.factory",
     "capstone.settings",
     "capstone.simulator.clock",
@@ -102888,6 +103573,7 @@
     "capstone.agent.evidence_brief:section",
     "capstone.agent.model_policy:ModelPolicy.__init__",
     "capstone.agent.model_policy:ModelPolicy._ask",
+    "capstone.agent.model_policy:ModelPolicy.client_for",
     "capstone.agent.model_policy:cited_ids",
     "capstone.agent.model_policy:evidence_lines",
     "capstone.agent.model_policy:evidence_section",
@@ -102910,17 +103596,17 @@
     "capstone.agent.tree_of_thought:rank_candidates",
     "capstone.agent.tree_of_thought:retain",
     "capstone.agent.tree_of_thought:retention_reason",
-    "capstone.agent.untrusted:looks_like_instruction",
+    "capstone.providers.chat:late_key",
     "capstone.providers.factory:research_tools",
     "capstone.providers.factory:tool_spec"
    ],
-   "exercise_count": 31,
+   "exercise_count": 32,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.model_policy",
     "capstone.agent.state",
     "capstone.agent.tree_of_thought",
-    "capstone.agent.untrusted",
+    "capstone.providers.chat",
     "capstone.providers.factory"
    ],
    "judgment": "NOT ASSESSED",
@@ -102955,6 +103641,7 @@
     "capstone.agent.evidence_brief:section",
     "capstone.agent.model_policy:ModelPolicy.__init__",
     "capstone.agent.model_policy:ModelPolicy._ask",
+    "capstone.agent.model_policy:ModelPolicy.client_for",
     "capstone.agent.model_policy:cited_ids",
     "capstone.agent.model_policy:evidence_lines",
     "capstone.agent.model_policy:evidence_section",
@@ -102976,17 +103663,17 @@
     "capstone.agent.tree_of_thought:pruned_trace",
     "capstone.agent.tree_of_thought:rank_candidates",
     "capstone.agent.tree_of_thought:ranked_out",
-    "capstone.agent.untrusted:looks_like_instruction",
+    "capstone.providers.chat:late_key",
     "capstone.providers.factory:research_tools",
     "capstone.providers.factory:tool_spec"
    ],
-   "exercise_count": 30,
+   "exercise_count": 31,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.model_policy",
     "capstone.agent.state",
     "capstone.agent.tree_of_thought",
-    "capstone.agent.untrusted",
+    "capstone.providers.chat",
     "capstone.providers.factory"
    ],
    "judgment": "NOT ASSESSED",
@@ -103057,16 +103744,18 @@
     "capstone.experiment:model_policy_factory",
     "capstone.experiment:model_policy_factory.<locals>.tree",
     "capstone.experiment:tree_options_from",
+    "capstone.providers.chat:late_clients",
     "capstone.providers.factory:research_tools",
     "capstone.providers.factory:tool_spec",
     "capstone.settings:Settings.blank_is_missing",
     "capstone.settings:get_settings"
    ],
-   "exercise_count": 10,
+   "exercise_count": 11,
    "modules_exercised": [
     "capstone.agent.model_policy",
     "capstone.agent.tree_of_thought",
     "capstone.experiment",
+    "capstone.providers.chat",
     "capstone.providers.factory",
     "capstone.settings"
    ],
@@ -103138,7 +103827,7 @@
     "capstone.agent.investigation:verify",
     "capstone.agent.investigation:verify.<locals>.later"
    ],
-   "exercise_count": 244,
+   "exercise_count": 245,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -103147,13 +103836,13 @@
     "capstone.agent.monitor",
     "capstone.agent.state",
     "capstone.agent.tree_of_thought",
-    "capstone.agent.untrusted",
     "capstone.contracts.investigations",
     "capstone.contracts.tools",
     "capstone.episode",
     "capstone.evaluation.scoring",
     "capstone.experiment",
     "capstone.faults",
+    "capstone.providers.chat",
     "capstone.providers.factory",
     "capstone.settings",
     "capstone.simulator.clock",
@@ -103235,6 +103924,7 @@
     "capstone.agent.evidence_brief:section",
     "capstone.agent.model_policy:ModelPolicy.__init__",
     "capstone.agent.model_policy:ModelPolicy._ask",
+    "capstone.agent.model_policy:ModelPolicy.client_for",
     "capstone.agent.model_policy:cited_ids",
     "capstone.agent.model_policy:evidence_lines",
     "capstone.agent.model_policy:evidence_section",
@@ -103257,17 +103947,17 @@
     "capstone.agent.tree_of_thought:rank_candidates",
     "capstone.agent.tree_of_thought:ranked_out",
     "capstone.agent.tree_of_thought:rotated",
-    "capstone.agent.untrusted:looks_like_instruction",
+    "capstone.providers.chat:late_key",
     "capstone.providers.factory:research_tools",
     "capstone.providers.factory:tool_spec"
    ],
-   "exercise_count": 31,
+   "exercise_count": 32,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.model_policy",
     "capstone.agent.state",
     "capstone.agent.tree_of_thought",
-    "capstone.agent.untrusted",
+    "capstone.providers.chat",
     "capstone.providers.factory"
    ],
    "judgment": "NOT ASSESSED",
@@ -103302,6 +103992,7 @@
     "capstone.agent.evidence_brief:section",
     "capstone.agent.model_policy:ModelPolicy.__init__",
     "capstone.agent.model_policy:ModelPolicy._ask",
+    "capstone.agent.model_policy:ModelPolicy.client_for",
     "capstone.agent.model_policy:cited_ids",
     "capstone.agent.model_policy:evidence_lines",
     "capstone.agent.model_policy:evidence_section",
@@ -103323,17 +104014,17 @@
     "capstone.agent.tree_of_thought:pruned_trace",
     "capstone.agent.tree_of_thought:rank_candidates",
     "capstone.agent.tree_of_thought:ranked_out",
-    "capstone.agent.untrusted:looks_like_instruction",
+    "capstone.providers.chat:late_key",
     "capstone.providers.factory:research_tools",
     "capstone.providers.factory:tool_spec"
    ],
-   "exercise_count": 30,
+   "exercise_count": 31,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.model_policy",
     "capstone.agent.state",
     "capstone.agent.tree_of_thought",
-    "capstone.agent.untrusted",
+    "capstone.providers.chat",
     "capstone.providers.factory"
    ],
    "judgment": "NOT ASSESSED",
@@ -103433,7 +104124,7 @@
     "capstone.agent.investigation:verify",
     "capstone.agent.investigation:verify.<locals>.later"
    ],
-   "exercise_count": 246,
+   "exercise_count": 247,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -103442,13 +104133,13 @@
     "capstone.agent.monitor",
     "capstone.agent.state",
     "capstone.agent.tree_of_thought",
-    "capstone.agent.untrusted",
     "capstone.contracts.investigations",
     "capstone.contracts.tools",
     "capstone.episode",
     "capstone.evaluation.scoring",
     "capstone.experiment",
     "capstone.faults",
+    "capstone.providers.chat",
     "capstone.providers.factory",
     "capstone.settings",
     "capstone.simulator.clock",
@@ -103499,6 +104190,7 @@
     "capstone.agent.evidence_brief:section",
     "capstone.agent.model_policy:ModelPolicy.__init__",
     "capstone.agent.model_policy:ModelPolicy._ask",
+    "capstone.agent.model_policy:ModelPolicy.client_for",
     "capstone.agent.model_policy:cited_ids",
     "capstone.agent.model_policy:evidence_lines",
     "capstone.agent.model_policy:evidence_section",
@@ -103521,17 +104213,17 @@
     "capstone.agent.tree_of_thought:pruned_trace",
     "capstone.agent.tree_of_thought:rank_candidates",
     "capstone.agent.tree_of_thought:ranked_out",
-    "capstone.agent.untrusted:looks_like_instruction",
+    "capstone.providers.chat:late_key",
     "capstone.providers.factory:research_tools",
     "capstone.providers.factory:tool_spec"
    ],
-   "exercise_count": 31,
+   "exercise_count": 32,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.model_policy",
     "capstone.agent.state",
     "capstone.agent.tree_of_thought",
-    "capstone.agent.untrusted",
+    "capstone.providers.chat",
     "capstone.providers.factory"
    ],
    "judgment": "NOT ASSESSED",
@@ -103604,16 +104296,18 @@
     "capstone.experiment:model_policy_factory",
     "capstone.experiment:model_policy_factory.<locals>.tree",
     "capstone.experiment:tree_options_from",
+    "capstone.providers.chat:late_clients",
     "capstone.providers.factory:research_tools",
     "capstone.providers.factory:tool_spec",
     "capstone.settings:Settings.blank_is_missing",
     "capstone.settings:get_settings"
    ],
-   "exercise_count": 10,
+   "exercise_count": 11,
    "modules_exercised": [
     "capstone.agent.model_policy",
     "capstone.agent.tree_of_thought",
     "capstone.experiment",
+    "capstone.providers.chat",
     "capstone.providers.factory",
     "capstone.settings"
    ],
@@ -103659,17 +104353,15 @@
     "capstone.agent.model_policy:tool_list",
     "capstone.agent.model_policy:without_titles",
     "capstone.agent.state:Budgets.research_gets_some_time",
-    "capstone.agent.untrusted:looks_like_instruction",
     "capstone.providers.factory:research_tools",
     "capstone.providers.factory:tool_spec"
    ],
-   "exercise_count": 18,
+   "exercise_count": 17,
    "modules_exercised": [
     "capstone.agent.critic",
     "capstone.agent.evidence_brief",
     "capstone.agent.model_policy",
     "capstone.agent.state",
-    "capstone.agent.untrusted",
     "capstone.providers.factory"
    ],
    "judgment": "NOT ASSESSED",
@@ -103717,17 +104409,15 @@
     "capstone.agent.model_policy:tool_list",
     "capstone.agent.model_policy:without_titles",
     "capstone.agent.state:Budgets.research_gets_some_time",
-    "capstone.agent.untrusted:looks_like_instruction",
     "capstone.providers.factory:research_tools",
     "capstone.providers.factory:tool_spec"
    ],
-   "exercise_count": 21,
+   "exercise_count": 20,
    "modules_exercised": [
     "capstone.agent.critic",
     "capstone.agent.evidence_brief",
     "capstone.agent.model_policy",
     "capstone.agent.state",
-    "capstone.agent.untrusted",
     "capstone.providers.factory"
    ],
    "judgment": "NOT ASSESSED",
@@ -103777,17 +104467,15 @@
     "capstone.agent.model_policy:tool_list",
     "capstone.agent.model_policy:without_titles",
     "capstone.agent.state:Budgets.research_gets_some_time",
-    "capstone.agent.untrusted:looks_like_instruction",
     "capstone.providers.factory:research_tools",
     "capstone.providers.factory:tool_spec"
    ],
-   "exercise_count": 22,
+   "exercise_count": 21,
    "modules_exercised": [
     "capstone.agent.critic",
     "capstone.agent.evidence_brief",
     "capstone.agent.model_policy",
     "capstone.agent.state",
-    "capstone.agent.untrusted",
     "capstone.providers.factory"
    ],
    "judgment": "NOT ASSESSED",
@@ -104130,7 +104818,7 @@
     "capstone.agent.investigation:run_investigation",
     "capstone.agent.investigation:test"
    ],
-   "exercise_count": 239,
+   "exercise_count": 240,
    "modules_exercised": [
     "capstone.agent.critic",
     "capstone.agent.evidence_brief",
@@ -104140,12 +104828,12 @@
     "capstone.agent.monitor",
     "capstone.agent.state",
     "capstone.agent.tree_of_thought",
-    "capstone.agent.untrusted",
     "capstone.contracts.investigations",
     "capstone.contracts.tools",
     "capstone.episode",
     "capstone.evaluation.scoring",
     "capstone.faults",
+    "capstone.providers.chat",
     "capstone.providers.factory",
     "capstone.settings",
     "capstone.simulator.clock",
@@ -104271,6 +104959,7 @@
     "capstone.agent.evidence_brief:section",
     "capstone.agent.model_policy:ModelPolicy.__init__",
     "capstone.agent.model_policy:ModelPolicy._ask",
+    "capstone.agent.model_policy:ModelPolicy.client_for",
     "capstone.agent.model_policy:ModelPolicy.hypothesize",
     "capstone.agent.model_policy:cited_ids",
     "capstone.agent.model_policy:evidence_lines",
@@ -104288,17 +104977,17 @@
     "capstone.agent.tree_of_thought:TreeOfThoughtPolicy.hypothesize",
     "capstone.agent.tree_of_thought:TreeOptions.breadth_fits",
     "capstone.agent.tree_of_thought:branching",
-    "capstone.agent.untrusted:looks_like_instruction",
+    "capstone.providers.chat:late_key",
     "capstone.providers.factory:research_tools",
     "capstone.providers.factory:tool_spec"
    ],
-   "exercise_count": 26,
+   "exercise_count": 27,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.model_policy",
     "capstone.agent.state",
     "capstone.agent.tree_of_thought",
-    "capstone.agent.untrusted",
+    "capstone.providers.chat",
     "capstone.providers.factory"
    ],
    "judgment": "NOT ASSESSED",
@@ -104334,6 +105023,7 @@
     "capstone.agent.evidence_brief:section",
     "capstone.agent.model_policy:ModelPolicy.__init__",
     "capstone.agent.model_policy:ModelPolicy._ask",
+    "capstone.agent.model_policy:ModelPolicy.client_for",
     "capstone.agent.model_policy:cited_ids",
     "capstone.agent.model_policy:evidence_lines",
     "capstone.agent.model_policy:evidence_section",
@@ -104355,17 +105045,17 @@
     "capstone.agent.tree_of_thought:evidence_family",
     "capstone.agent.tree_of_thought:pruned_trace",
     "capstone.agent.tree_of_thought:rank_candidates",
-    "capstone.agent.untrusted:looks_like_instruction",
+    "capstone.providers.chat:late_key",
     "capstone.providers.factory:research_tools",
     "capstone.providers.factory:tool_spec"
    ],
-   "exercise_count": 30,
+   "exercise_count": 31,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.model_policy",
     "capstone.agent.state",
     "capstone.agent.tree_of_thought",
-    "capstone.agent.untrusted",
+    "capstone.providers.chat",
     "capstone.providers.factory"
    ],
    "judgment": "NOT ASSESSED",
@@ -104400,6 +105090,7 @@
     "capstone.agent.evidence_brief:section",
     "capstone.agent.model_policy:ModelPolicy.__init__",
     "capstone.agent.model_policy:ModelPolicy._ask",
+    "capstone.agent.model_policy:ModelPolicy.client_for",
     "capstone.agent.model_policy:cited_ids",
     "capstone.agent.model_policy:evidence_lines",
     "capstone.agent.model_policy:evidence_section",
@@ -104422,17 +105113,17 @@
     "capstone.agent.tree_of_thought:pruned_trace",
     "capstone.agent.tree_of_thought:rank_candidates",
     "capstone.agent.tree_of_thought:ranked_out",
-    "capstone.agent.untrusted:looks_like_instruction",
+    "capstone.providers.chat:late_key",
     "capstone.providers.factory:research_tools",
     "capstone.providers.factory:tool_spec"
    ],
-   "exercise_count": 31,
+   "exercise_count": 32,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.model_policy",
     "capstone.agent.state",
     "capstone.agent.tree_of_thought",
-    "capstone.agent.untrusted",
+    "capstone.providers.chat",
     "capstone.providers.factory"
    ],
    "judgment": "NOT ASSESSED",
@@ -104467,6 +105158,7 @@
     "capstone.agent.evidence_brief:section",
     "capstone.agent.model_policy:ModelPolicy.__init__",
     "capstone.agent.model_policy:ModelPolicy._ask",
+    "capstone.agent.model_policy:ModelPolicy.client_for",
     "capstone.agent.model_policy:cited_ids",
     "capstone.agent.model_policy:evidence_lines",
     "capstone.agent.model_policy:evidence_section",
@@ -104488,17 +105180,17 @@
     "capstone.agent.tree_of_thought:pruned_trace",
     "capstone.agent.tree_of_thought:rank_candidates",
     "capstone.agent.tree_of_thought:ranked_out",
-    "capstone.agent.untrusted:looks_like_instruction",
+    "capstone.providers.chat:late_key",
     "capstone.providers.factory:research_tools",
     "capstone.providers.factory:tool_spec"
    ],
-   "exercise_count": 30,
+   "exercise_count": 31,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.model_policy",
     "capstone.agent.state",
     "capstone.agent.tree_of_thought",
-    "capstone.agent.untrusted",
+    "capstone.providers.chat",
     "capstone.providers.factory"
    ],
    "judgment": "NOT ASSESSED",
@@ -104540,16 +105232,18 @@
     "capstone.experiment:model_policy_factory",
     "capstone.experiment:model_policy_factory.<locals>.tree",
     "capstone.experiment:tree_options_from",
+    "capstone.providers.chat:late_clients",
     "capstone.providers.factory:research_tools",
     "capstone.providers.factory:tool_spec",
     "capstone.settings:Settings.blank_is_missing",
     "capstone.settings:get_settings"
    ],
-   "exercise_count": 10,
+   "exercise_count": 11,
    "modules_exercised": [
     "capstone.agent.model_policy",
     "capstone.agent.tree_of_thought",
     "capstone.experiment",
+    "capstone.providers.chat",
     "capstone.providers.factory",
     "capstone.settings"
    ],
@@ -104622,7 +105316,7 @@
     "capstone.agent.investigation:verify",
     "capstone.agent.investigation:verify.<locals>.later"
    ],
-   "exercise_count": 244,
+   "exercise_count": 245,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -104631,13 +105325,13 @@
     "capstone.agent.monitor",
     "capstone.agent.state",
     "capstone.agent.tree_of_thought",
-    "capstone.agent.untrusted",
     "capstone.contracts.investigations",
     "capstone.contracts.tools",
     "capstone.episode",
     "capstone.evaluation.scoring",
     "capstone.experiment",
     "capstone.faults",
+    "capstone.providers.chat",
     "capstone.providers.factory",
     "capstone.settings",
     "capstone.simulator.clock",
@@ -104689,6 +105383,7 @@
     "capstone.agent.evidence_brief:section",
     "capstone.agent.model_policy:ModelPolicy.__init__",
     "capstone.agent.model_policy:ModelPolicy._ask",
+    "capstone.agent.model_policy:ModelPolicy.client_for",
     "capstone.agent.model_policy:cited_ids",
     "capstone.agent.model_policy:evidence_lines",
     "capstone.agent.model_policy:evidence_section",
@@ -104705,17 +105400,17 @@
     "capstone.agent.tree_of_thought:TreeOfThoughtPolicy.revalue",
     "capstone.agent.tree_of_thought:TreeOptions.breadth_fits",
     "capstone.agent.tree_of_thought:candidate_lines",
-    "capstone.agent.untrusted:looks_like_instruction",
+    "capstone.providers.chat:late_key",
     "capstone.providers.factory:research_tools",
     "capstone.providers.factory:tool_spec"
    ],
-   "exercise_count": 25,
+   "exercise_count": 26,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.model_policy",
     "capstone.agent.state",
     "capstone.agent.tree_of_thought",
-    "capstone.agent.untrusted",
+    "capstone.providers.chat",
     "capstone.providers.factory"
    ],
    "judgment": "NOT ASSESSED",
@@ -104749,6 +105444,7 @@
     "capstone.agent.evidence_brief:section",
     "capstone.agent.model_policy:ModelPolicy.__init__",
     "capstone.agent.model_policy:ModelPolicy._ask",
+    "capstone.agent.model_policy:ModelPolicy.client_for",
     "capstone.agent.model_policy:cited_ids",
     "capstone.agent.model_policy:evidence_lines",
     "capstone.agent.model_policy:evidence_section",
@@ -104765,17 +105461,17 @@
     "capstone.agent.tree_of_thought:TreeOfThoughtPolicy.revalue",
     "capstone.agent.tree_of_thought:TreeOptions.breadth_fits",
     "capstone.agent.tree_of_thought:candidate_lines",
-    "capstone.agent.untrusted:looks_like_instruction",
+    "capstone.providers.chat:late_key",
     "capstone.providers.factory:research_tools",
     "capstone.providers.factory:tool_spec"
    ],
-   "exercise_count": 24,
+   "exercise_count": 25,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.model_policy",
     "capstone.agent.state",
     "capstone.agent.tree_of_thought",
-    "capstone.agent.untrusted",
+    "capstone.providers.chat",
     "capstone.providers.factory"
    ],
    "judgment": "NOT ASSESSED",
@@ -104810,6 +105506,7 @@
     "capstone.agent.evidence_brief:section",
     "capstone.agent.model_policy:ModelPolicy.__init__",
     "capstone.agent.model_policy:ModelPolicy._ask",
+    "capstone.agent.model_policy:ModelPolicy.client_for",
     "capstone.agent.model_policy:cited_ids",
     "capstone.agent.model_policy:evidence_lines",
     "capstone.agent.model_policy:evidence_section",
@@ -104826,17 +105523,17 @@
     "capstone.agent.tree_of_thought:TreeOfThoughtPolicy.revalue",
     "capstone.agent.tree_of_thought:TreeOptions.breadth_fits",
     "capstone.agent.tree_of_thought:candidate_lines",
-    "capstone.agent.untrusted:looks_like_instruction",
+    "capstone.providers.chat:late_key",
     "capstone.providers.factory:research_tools",
     "capstone.providers.factory:tool_spec"
    ],
-   "exercise_count": 25,
+   "exercise_count": 26,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.model_policy",
     "capstone.agent.state",
     "capstone.agent.tree_of_thought",
-    "capstone.agent.untrusted",
+    "capstone.providers.chat",
     "capstone.providers.factory"
    ],
    "judgment": "NOT ASSESSED",
@@ -105276,6 +105973,7 @@
     "capstone.providers.chat:_capped",
     "capstone.providers.chat:chain_for",
     "capstone.providers.chat:client_for",
+    "capstone.providers.chat:late_clients",
     "capstone.providers.chat:value_client",
     "capstone.providers.factory:research_tools",
     "capstone.providers.factory:tool_spec",
@@ -105283,7 +105981,7 @@
     "capstone.settings:fallback_models",
     "capstone.settings:get_settings"
    ],
-   "exercise_count": 18,
+   "exercise_count": 19,
    "modules_exercised": [
     "capstone.agent.model_policy",
     "capstone.agent.tree_of_thought",
@@ -107534,245 +108232,6 @@
     "capstone.providers.chat",
     "capstone.providers.typesafe",
     "capstone.settings"
-   ],
-   "judgment": "NOT ASSESSED",
-   "curated": {},
-   "snap_questions": [
-    "TS-01",
-    "TS-02",
-    "TS-03"
-   ]
-  },
-  {
-   "id": "tests/test_untrusted_text.py::test_instruction_like_wording_is_flagged",
-   "file": "tests/test_untrusted_text.py",
-   "name": "test_instruction_like_wording_is_flagged",
-   "line": 23,
-   "docstring": "",
-   "parametrized": true,
-   "fixtures": [
-    "text"
-   ],
-   "assertions": 1,
-   "assert_forms": {
-    "call_truthiness": 1
-   },
-   "raises_checks": 0,
-   "uses": [],
-   "quality_flags": [],
-   "claims": "instruction like wording is flagged",
-   "execution_outcome": "passed",
-   "exercises": [
-    "capstone.agent.untrusted:looks_like_instruction"
-   ],
-   "exercise_count": 1,
-   "modules_exercised": [
-    "capstone.agent.untrusted"
-   ],
-   "judgment": "NOT ASSESSED",
-   "curated": {},
-   "snap_questions": [
-    "TS-01",
-    "TS-02",
-    "TS-03"
-   ]
-  },
-  {
-   "id": "tests/test_untrusted_text.py::test_ordinary_shop_text_is_not_flagged",
-   "file": "tests/test_untrusted_text.py",
-   "name": "test_ordinary_shop_text_is_not_flagged",
-   "line": 37,
-   "docstring": "",
-   "parametrized": true,
-   "fixtures": [
-    "text"
-   ],
-   "assertions": 1,
-   "assert_forms": {
-    "negation": 1
-   },
-   "raises_checks": 0,
-   "uses": [],
-   "quality_flags": [],
-   "claims": "ordinary shop text is not flagged",
-   "execution_outcome": "passed",
-   "exercises": [
-    "capstone.agent.untrusted:looks_like_instruction"
-   ],
-   "exercise_count": 1,
-   "modules_exercised": [
-    "capstone.agent.untrusted"
-   ],
-   "judgment": "NOT ASSESSED",
-   "curated": {},
-   "snap_questions": [
-    "TS-01",
-    "TS-02",
-    "TS-03"
-   ]
-  },
-  {
-   "id": "tests/test_untrusted_text.py::test_a_flagged_result_carries_the_note_and_keeps_its_text",
-   "file": "tests/test_untrusted_text.py",
-   "name": "test_a_flagged_result_carries_the_note_and_keeps_its_text",
-   "line": 55,
-   "docstring": "",
-   "parametrized": false,
-   "fixtures": [],
-   "assertions": 2,
-   "assert_forms": {
-    "call_truthiness": 1,
-    "membership": 1
-   },
-   "raises_checks": 0,
-   "uses": [],
-   "quality_flags": [],
-   "claims": "a flagged result carries the note and keeps its text",
-   "execution_outcome": "passed",
-   "exercises": [
-    "capstone.agent.model_policy:cited_ids",
-    "capstone.agent.model_policy:evidence_lines",
-    "capstone.agent.model_policy:evidence_section",
-    "capstone.agent.model_policy:shortened_note",
-    "capstone.agent.model_policy:shown",
-    "capstone.agent.state:Budgets.research_gets_some_time",
-    "capstone.agent.untrusted:looks_like_instruction"
-   ],
-   "exercise_count": 7,
-   "modules_exercised": [
-    "capstone.agent.model_policy",
-    "capstone.agent.state",
-    "capstone.agent.untrusted"
-   ],
-   "judgment": "NOT ASSESSED",
-   "curated": {},
-   "snap_questions": [
-    "TS-01",
-    "TS-02",
-    "TS-03"
-   ]
-  },
-  {
-   "id": "tests/test_untrusted_text.py::test_an_ordinary_result_has_no_note",
-   "file": "tests/test_untrusted_text.py",
-   "name": "test_an_ordinary_result_has_no_note",
-   "line": 63,
-   "docstring": "",
-   "parametrized": false,
-   "fixtures": [],
-   "assertions": 1,
-   "assert_forms": {
-    "negation": 1
-   },
-   "raises_checks": 0,
-   "uses": [],
-   "quality_flags": [],
-   "claims": "an ordinary result has no note",
-   "execution_outcome": "passed",
-   "exercises": [
-    "capstone.agent.model_policy:cited_ids",
-    "capstone.agent.model_policy:evidence_lines",
-    "capstone.agent.model_policy:evidence_section",
-    "capstone.agent.model_policy:shortened_note",
-    "capstone.agent.model_policy:shown",
-    "capstone.agent.state:Budgets.research_gets_some_time",
-    "capstone.agent.untrusted:looks_like_instruction"
-   ],
-   "exercise_count": 7,
-   "modules_exercised": [
-    "capstone.agent.model_policy",
-    "capstone.agent.state",
-    "capstone.agent.untrusted"
-   ],
-   "judgment": "NOT ASSESSED",
-   "curated": {},
-   "snap_questions": [
-    "TS-01",
-    "TS-02",
-    "TS-03"
-   ]
-  },
-  {
-   "id": "tests/test_untrusted_text.py::test_the_note_never_changes_the_stored_evidence",
-   "file": "tests/test_untrusted_text.py",
-   "name": "test_the_note_never_changes_the_stored_evidence",
-   "line": 68,
-   "docstring": "",
-   "parametrized": false,
-   "fixtures": [],
-   "assertions": 1,
-   "assert_forms": {
-    "equality": 1
-   },
-   "raises_checks": 0,
-   "uses": [],
-   "quality_flags": [],
-   "claims": "the note never changes the stored evidence",
-   "execution_outcome": "passed",
-   "exercises": [
-    "capstone.agent.model_policy:cited_ids",
-    "capstone.agent.model_policy:evidence_lines",
-    "capstone.agent.model_policy:evidence_section",
-    "capstone.agent.model_policy:shortened_note",
-    "capstone.agent.model_policy:shown",
-    "capstone.agent.state:Budgets.research_gets_some_time",
-    "capstone.agent.untrusted:looks_like_instruction"
-   ],
-   "exercise_count": 7,
-   "modules_exercised": [
-    "capstone.agent.model_policy",
-    "capstone.agent.state",
-    "capstone.agent.untrusted"
-   ],
-   "judgment": "NOT ASSESSED",
-   "curated": {},
-   "snap_questions": [
-    "TS-01",
-    "TS-02",
-    "TS-03"
-   ]
-  },
-  {
-   "id": "tests/test_untrusted_text.py::test_every_prompt_says_evidence_is_data",
-   "file": "tests/test_untrusted_text.py",
-   "name": "test_every_prompt_says_evidence_is_data",
-   "line": 74,
-   "docstring": "",
-   "parametrized": false,
-   "fixtures": [],
-   "assertions": 2,
-   "assert_forms": {
-    "membership": 2
-   },
-   "raises_checks": 0,
-   "uses": [],
-   "quality_flags": [],
-   "claims": "every prompt says evidence is data",
-   "execution_outcome": "passed",
-   "exercises": [
-    "capstone.agent.evidence_brief:evidence_brief",
-    "capstone.agent.evidence_brief:observations",
-    "capstone.agent.evidence_brief:section",
-    "capstone.agent.model_policy:cited_ids",
-    "capstone.agent.model_policy:evidence_lines",
-    "capstone.agent.model_policy:evidence_section",
-    "capstone.agent.model_policy:render",
-    "capstone.agent.model_policy:shortened_note",
-    "capstone.agent.model_policy:shown",
-    "capstone.agent.state:Budgets.research_gets_some_time",
-    "capstone.agent.state:InvestigationState.remaining_critic_tool_calls",
-    "capstone.agent.state:InvestigationState.remaining_followup_tool_calls",
-    "capstone.agent.state:InvestigationState.remaining_iterations",
-    "capstone.agent.state:InvestigationState.remaining_tool_calls",
-    "capstone.agent.state:InvestigationState.research_tool_calls",
-    "capstone.agent.untrusted:looks_like_instruction"
-   ],
-   "exercise_count": 16,
-   "modules_exercised": [
-    "capstone.agent.evidence_brief",
-    "capstone.agent.model_policy",
-    "capstone.agent.state",
-    "capstone.agent.untrusted"
    ],
    "judgment": "NOT ASSESSED",
    "curated": {},
