@@ -309,6 +309,9 @@ class InvestigationState(BaseModel):
     decide_calls: int = Field(default=1, ge=1, le=MAX_DECIDE_CALLS)
     # What batching did, for the record; None when decide_calls is 1.
     decide_batches: BatchTrace | None = None
+    # STAGE_CONTEXT: judge_verification and write_lesson get views made for
+    # them instead of the shared one. Set when the run starts; a policy reads it.
+    stage_context: bool = False
 
     evidence: list[Evidence] = Field(default_factory=list)
     # One label per evidence item, written by the loop when it arrived.
