@@ -614,16 +614,19 @@ class TreeOfThoughtPolicy(ModelPolicy):
         candidates: int = DEFAULT_CANDIDATES,
         breadth: int = DEFAULT_BREADTH,
         options: TreeOptions | None = None,
+        late_seconds: float = 60.0,
     ):
         # Variables:
         #   candidates, breadth: The tree's size; ignored when `options` is given,
         #     which carries its own.
         #   options: Every switch of the tree, kept for the experiment record.
+        #   late_seconds: Passed to ModelPolicy: a decide question with less
+        #     time than this goes to LATE_MODEL, when one is set.
         if options is None:
             if not 1 <= breadth <= candidates:
                 raise ValueError("breadth must be between 1 and the candidate count")
             options = TreeOptions(candidates=candidates, breadth=breadth)
-        super().__init__(clients, tools)
+        super().__init__(clients, tools, late_seconds=late_seconds)
         self.options = options
         self.candidates = options.candidates
         self.breadth = options.breadth
