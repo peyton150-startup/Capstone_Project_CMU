@@ -1160,14 +1160,17 @@ def model_policy_factory(
     #   tree_of_thought: Use the policy that generates, rates and prunes explanations.
     #   with_manual: Offer the manual search tool.
     #   tools: The tools the policy may choose from.
+    #   late_seconds: LATE_MODEL_SECONDS: a decide question with less time than
+    #     this goes to LATE_MODEL, when one is set (`ModelPolicy.client_for`).
     #   options: The tree's switches from the TOT_* settings, read once so every
     #     case of the experiment uses the same ones.
     from capstone.agent.model_policy import ModelPolicy
     from capstone.agent.tree_of_thought import TreeOfThoughtPolicy
-    from capstone.providers.chat import clients_for_jobs
+    from capstone.providers.chat import clients_for_jobs, late_clients
     from capstone.providers.factory import research_tools
     from capstone.settings import get_settings
 
+    late_seconds = get_settings().late_model_seconds
     tools = research_tools()
     if with_recall:
         from capstone.providers.recall import RECALL_SPEC
@@ -1186,14 +1189,18 @@ def model_policy_factory(
             #   clients: The seven jobs' clients, plus `value` for P5 when
             #     VALUE_MODEL names a model for the second rating.
             #   second: That client, or None (the hypothesize client answers).
-            clients = clients_for_jobs()
+            clients = {**clients_for_jobs(), **late_clients()}
             second = value_client() if options.revalue else None
             if second is not None:
                 clients["value"] = second  # VALUE_MODEL: the faster rating model
-            return TreeOfThoughtPolicy(clients, tools, options=options)
+            return TreeOfThoughtPolicy(
+                clients, tools, options=options, late_seconds=late_seconds
+            )
 
         return tree
-    return lambda: ModelPolicy(clients_for_jobs(), tools)
+    return lambda: ModelPolicy(
+        {**clients_for_jobs(), **late_clients()}, tools, late_seconds=late_seconds
+    )
 
 
 def tree_options_from(settings) -> TreeOptions:
