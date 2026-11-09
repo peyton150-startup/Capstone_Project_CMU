@@ -98068,6 +98068,394 @@
    ]
   },
   {
+   "id": "tests/test_time_stats.py::test_the_mean_is_weighted_by_how_long_each_value_held",
+   "file": "tests/test_time_stats.py",
+   "name": "test_the_mean_is_weighted_by_how_long_each_value_held",
+   "line": 54,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 3,
+   "assert_forms": {
+    "equality": 3
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "the mean is weighted by how long each value held",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.ingestion.record:TelemetryRecord.number",
+    "capstone.ingestion.record:gap_free_runs",
+    "capstone.ingestion.time_stats:Hold.seconds",
+    "capstone.ingestion.time_stats:_flat",
+    "capstone.ingestion.time_stats:channel_holds",
+    "capstone.ingestion.time_stats:holds_in_run",
+    "capstone.ingestion.time_stats:time_weighted_mean"
+   ],
+   "exercise_count": 7,
+   "modules_exercised": [
+    "capstone.ingestion.record",
+    "capstone.ingestion.time_stats"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_time_stats.py::test_the_last_value_holds_only_until_the_last_collected_reading",
+   "file": "tests/test_time_stats.py",
+   "name": "test_the_last_value_holds_only_until_the_last_collected_reading",
+   "line": 63,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 1,
+   "assert_forms": {
+    "equality": 1
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "the last value holds only until the last collected reading",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.ingestion.record:TelemetryRecord.number",
+    "capstone.ingestion.record:gap_free_runs",
+    "capstone.ingestion.time_stats:Hold.seconds",
+    "capstone.ingestion.time_stats:channel_holds",
+    "capstone.ingestion.time_stats:holds_in_run"
+   ],
+   "exercise_count": 5,
+   "modules_exercised": [
+    "capstone.ingestion.record",
+    "capstone.ingestion.time_stats"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_time_stats.py::test_no_value_is_carried_across_a_gap",
+   "file": "tests/test_time_stats.py",
+   "name": "test_no_value_is_carried_across_a_gap",
+   "line": 69,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 2,
+   "assert_forms": {
+    "equality": 2
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "no value is carried across a gap",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.ingestion.record:CollectorMarker.gap_detail_only_on_a_gap",
+    "capstone.ingestion.record:TelemetryRecord.number",
+    "capstone.ingestion.record:gap_free_runs",
+    "capstone.ingestion.time_stats:Hold.seconds",
+    "capstone.ingestion.time_stats:_flat",
+    "capstone.ingestion.time_stats:channel_holds",
+    "capstone.ingestion.time_stats:holds_in_run",
+    "capstone.ingestion.time_stats:time_weighted_mean"
+   ],
+   "exercise_count": 8,
+   "modules_exercised": [
+    "capstone.ingestion.record",
+    "capstone.ingestion.time_stats"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_time_stats.py::test_unavailable_cuts_the_previous_value_off_and_is_never_filled",
+   "file": "tests/test_time_stats.py",
+   "name": "test_unavailable_cuts_the_previous_value_off_and_is_never_filled",
+   "line": 86,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 1,
+   "assert_forms": {
+    "equality": 1
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "unavailable cuts the previous value off and is never filled",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.ingestion.record:TelemetryRecord.number",
+    "capstone.ingestion.record:gap_free_runs",
+    "capstone.ingestion.time_stats:Hold.seconds",
+    "capstone.ingestion.time_stats:channel_holds",
+    "capstone.ingestion.time_stats:holds_in_run"
+   ],
+   "exercise_count": 5,
+   "modules_exercised": [
+    "capstone.ingestion.record",
+    "capstone.ingestion.time_stats"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_time_stats.py::test_event_words_are_not_numbers",
+   "file": "tests/test_time_stats.py",
+   "name": "test_event_words_are_not_numbers",
+   "line": 92,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 1,
+   "assert_forms": {
+    "equality": 1
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "event words are not numbers",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.ingestion.record:TelemetryRecord.number",
+    "capstone.ingestion.record:gap_free_runs",
+    "capstone.ingestion.time_stats:Hold.seconds",
+    "capstone.ingestion.time_stats:channel_holds",
+    "capstone.ingestion.time_stats:holds_in_run"
+   ],
+   "exercise_count": 5,
+   "modules_exercised": [
+    "capstone.ingestion.record",
+    "capstone.ingestion.time_stats"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_time_stats.py::test_time_above_a_level_and_the_peak_excursion",
+   "file": "tests/test_time_stats.py",
+   "name": "test_time_above_a_level_and_the_peak_excursion",
+   "line": 98,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 4,
+   "assert_forms": {
+    "equality": 3,
+    "is_none": 1
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "time above a level and the peak excursion",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.ingestion.record:TelemetryRecord.number",
+    "capstone.ingestion.record:gap_free_runs",
+    "capstone.ingestion.time_stats:Hold.seconds",
+    "capstone.ingestion.time_stats:_flat",
+    "capstone.ingestion.time_stats:channel_holds",
+    "capstone.ingestion.time_stats:holds_in_run",
+    "capstone.ingestion.time_stats:peak_excursion",
+    "capstone.ingestion.time_stats:seconds_above"
+   ],
+   "exercise_count": 8,
+   "modules_exercised": [
+    "capstone.ingestion.record",
+    "capstone.ingestion.time_stats"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_time_stats.py::test_the_slope_uses_real_times_not_reading_order",
+   "file": "tests/test_time_stats.py",
+   "name": "test_the_slope_uses_real_times_not_reading_order",
+   "line": 108,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 2,
+   "assert_forms": {
+    "equality": 1,
+    "inequality": 1
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "the slope uses real times not reading order",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.ingestion.record:TelemetryRecord.number",
+    "capstone.ingestion.record:gap_free_runs",
+    "capstone.ingestion.time_stats:channel_holds",
+    "capstone.ingestion.time_stats:holds_in_run",
+    "capstone.ingestion.time_stats:slope_per_second"
+   ],
+   "exercise_count": 5,
+   "modules_exercised": [
+    "capstone.ingestion.record",
+    "capstone.ingestion.time_stats"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_time_stats.py::test_a_step_between_two_runs_is_not_a_trend",
+   "file": "tests/test_time_stats.py",
+   "name": "test_a_step_between_two_runs_is_not_a_trend",
+   "line": 116,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 1,
+   "assert_forms": {
+    "equality": 1
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "a step between two runs is not a trend",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.ingestion.record:CollectorMarker.gap_detail_only_on_a_gap",
+    "capstone.ingestion.record:TelemetryRecord.number",
+    "capstone.ingestion.record:gap_free_runs",
+    "capstone.ingestion.time_stats:channel_holds",
+    "capstone.ingestion.time_stats:holds_in_run",
+    "capstone.ingestion.time_stats:slope_per_second"
+   ],
+   "exercise_count": 6,
+   "modules_exercised": [
+    "capstone.ingestion.record",
+    "capstone.ingestion.time_stats"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_time_stats.py::test_too_few_readings_give_no_slope_or_mean",
+   "file": "tests/test_time_stats.py",
+   "name": "test_too_few_readings_give_no_slope_or_mean",
+   "line": 124,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 2,
+   "assert_forms": {
+    "is_none": 2
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "too few readings give no slope or mean",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.ingestion.record:TelemetryRecord.number",
+    "capstone.ingestion.record:gap_free_runs",
+    "capstone.ingestion.time_stats:_flat",
+    "capstone.ingestion.time_stats:channel_holds",
+    "capstone.ingestion.time_stats:holds_in_run",
+    "capstone.ingestion.time_stats:slope_per_second",
+    "capstone.ingestion.time_stats:time_weighted_mean"
+   ],
+   "exercise_count": 7,
+   "modules_exercised": [
+    "capstone.ingestion.record",
+    "capstone.ingestion.time_stats"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_time_stats.py::test_the_summary_brings_it_together",
+   "file": "tests/test_time_stats.py",
+   "name": "test_the_summary_brings_it_together",
+   "line": 129,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 4,
+   "assert_forms": {
+    "equality": 4
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "the summary brings it together",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.ingestion.record:TelemetryRecord.number",
+    "capstone.ingestion.record:gap_free_runs",
+    "capstone.ingestion.time_stats:Hold.seconds",
+    "capstone.ingestion.time_stats:_flat",
+    "capstone.ingestion.time_stats:channel_holds",
+    "capstone.ingestion.time_stats:holds_in_run",
+    "capstone.ingestion.time_stats:seconds_above",
+    "capstone.ingestion.time_stats:slope_per_second",
+    "capstone.ingestion.time_stats:summarize",
+    "capstone.ingestion.time_stats:time_weighted_mean"
+   ],
+   "exercise_count": 10,
+   "modules_exercised": [
+    "capstone.ingestion.record",
+    "capstone.ingestion.time_stats"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
    "id": "tests/test_tree_of_thought.py::test_pruning_keeps_the_best_rated_and_says_why_the_rest_went",
    "file": "tests/test_tree_of_thought.py",
    "name": "test_pruning_keeps_the_best_rated_and_says_why_the_rest_went",
