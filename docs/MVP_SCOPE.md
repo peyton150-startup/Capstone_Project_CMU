@@ -395,6 +395,7 @@ flowchart LR
 
 | Priority | Category | Item | Short summary |
 |---|---|---|---|
+| **HIGH** | Evaluation | [Investigation latency review: signal vs noise](#fw-latency-review) | Verified findings from the 2026-11-09 review: where time goes, gate calibration, triage/deep search bug, pilot tool list, baseline arms. Planned only. |
 | **HIGH** | Tooling | [SM-1 Versioned channel map from `/probe`](#fw-sm-channel-map) | Map every data item to its unit, meaning, tool sensor and availability; current focus. Built (PR #206); awaits the machine's real probe. |
 | **HIGH** | Tooling | [SM-2 Collection gaps in the telemetry file](#fw-sm-gap-events) | Write lost-data, stale and UNAVAILABLE spans into the JSONL instead of stderr. Lost-data gap markers built (PR #204); stale and UNAVAILABLE spans built (PR #211). |
 | **HIGH** | Tooling | [SM-3 Real-data provider](#fw-sm-real-provider) | Answer the existing observation tools from a recorded capture, read-only. Built (PR #213); awaits a real capture. |
@@ -772,6 +773,85 @@ agent-side and evaluator-side halves of each pack are kept apart. Left:
 ## Future work: Evaluation, benchmarking and reasoning
 
 <a id="future-work-evaluation"></a>
+
+### Investigation latency review: signal vs noise (HIGH; reviewed 2026-11-09)
+
+<a id="fw-latency-review"></a>
+
+**Status: PLANNED / FUTURE WORK ONLY. Nothing here is built by this entry.** In production there will not be 1,200 seconds to diagnose a problem, so the team drafted a plan to compress the investigation (a two-call fast path, then a Mixture-of-Experts style "activate only what is needed" design). Three outside reviews followed. Claude Code checked every claim from the draft, the MoE notes and all three reviews against the code at `main` `bd01f88` (PR #215 merged) and the archived runs, and sorted them into signal and noise. Code references are to that commit. No live run was made for this review.
+
+**Evidence base.** The 52 episodes in [`2026-11-01-tot13-pairs`](benchmarks/2026-11-01-tot13-pairs/README.md), the October 30 to 31 [master runs](benchmarks/2026-10-31-master-results/README.md), and the session notes in `PROGRESS.md` (2026-11-05 line-context runs; 2026-11-09 `LATE_MODEL`).
+
+**Corrections to earlier claims in the review discussion.**
+
+- `LINE_CONTEXT` has run live (line-context on and off runs, 2026-11-05). What has never run live: `DECIDE_CALLS`, `DECIDE_REASONING_EFFORT`, `LATE_MODEL`.
+- The critic's follow-up does make tool calls: in the 52 episodes the recheck observed new evidence 29 times and reused existing evidence 8 times. Its effect on accuracy is unknown (blind and anchored arms tied).
+- Wrong-setting cases: 0 correct of 8, but 7 of the 8 committed no diagnosis (`diagnosis: null` in the Jev labels) and 1 named the wrong fault. The failure is mostly not finishing, not reasoning to a wrong cause. The records' `fault_correct` field is null for all 52 episodes; correctness lives in the Jev label files.
+
+#### Signal (verified in code or data)
+
+**Latency**
+
+1. Model time is 33,183 s of 33,682 s wall time across the 52 episodes. By job: decide 707 calls, 72.8% of model time, median 26.1 s; hypothesize 11.9%, median 44.4 s; conclude 6.0%, median 38.1 s; interpret 5.4%; plan 2.9%, median 16.4 s; critique 1.0%, median 7.9 s. Tools took about 26 s across a whole 13-case run.
+2. Super timed out on 93 of 552 decide questions (30 got no answer from any model). 49 were asked with too little time left, because each question's time is split in half between Super and its fallback. Super answered a decide question within 30 s only 55% of the time (`PROGRESS.md`, 2026-11-09). The deadline split is itself a cause of timeouts.
+3. Hypotheses are formed only after `investigate` ends, and the `DIAGNOSIS_SUPPORTED` stop is checked only in the test phase (`agent/loop.py:268`). Most reads therefore target no hypothesis: KA-05 spent 18 of its 20 calls in investigate and never tested.
+4. With `STEP_QUESTIONS=1` (the default, `settings.py:141`) the decide question also interprets the last result and updates hypotheses (`loop.py` `run_inner_loop`). Routing decide to a smaller model also downgrades hypothesis updating.
+5. `LATE_MODEL` switches on time left, not difficulty (`ModelPolicy.client_for`). Lightning gave mostly invalid replies on 2026-10-20 with thinking on and is untested with thinking off (`MODEL_CONFIGURATION.md`).
+6. Critic and recheck time is outside the 1,200 s budget: `started_at` is moved forward by the seconds they use (`agent/investigation.py:480`, `:593`). Triage (90 s) plus deep run (1,200 s) also has no single deadline. There is no true end-to-end deadline.
+7. The critic costs about 8 s: 1% of today's runs, but a large share of any 60 s target.
+
+**Evidence and completion gates**
+
+8. `diagnosis_supported` counts observable evidence ids, not independent sources (`loop.py:207`). `evidence_brief.py` already flags repeated exact measurements; the gate does not use that.
+9. Bug: `conclusion_gaps` keeps an unanswered question only when `q.hypothesis_id` is a current hypothesis (`investigation.py:831`). It ignores `distinguishes_hypothesis_ids`, which `question_role` reads (`:766`), so some rival-test questions are dropped from the gaps.
+10. The stop check (`diagnosis_supported`) and the final check (`check_conclusion`) apply different rules: the final check has no confidence bar and no minimum count of supporting evidence.
+11. Most important, and missed by all three reviews: in practice the final gate is too strict, not too loose. In the 2026-11-05 line-context run it held all 18 checked answers open, catching about 4 harmful "nothing needs doing" answers but blocking about 5 right ones. `gap_replay` of today's rule: 0 right, 0 harmful, 21 held. "Strengthen the gate" should mean unify and calibrate it with `gap_replay`, not tighten it.
+12. Triage closes a case on a supported `no_action` (`needs_deep_run`, `investigation.py:1006`). Given item 11, this path needs a test against missed faults.
+
+**Triage to deep handoff**
+
+13. The deep run starts from a fresh `InvestigationState` and gathers its own packet (`episode.py`, after `run_investigation(first, ...)`). This is deliberate, to avoid anchoring on triage's guess; reuse should carry observations only, never hypotheses.
+14. Bug, more serious than the review stated: `ManualProvider.searched` and `RecallingProvider.searched` are per instance and never reset (`providers/manual.py:107`, `providers/recall.py:106`), and triage and the deep run share the same provider objects. The deep run's automatic manual step repeats triage's exact query and limit (`manual_query`, `MANUAL_STEP_LIMIT`), so it should be refused as a repeated search, leaving the deep run without manual sections. Needs a test to confirm.
+
+**Real-machine pilot**
+
+15. The recorded-data provider refuses `get_settings`, `get_line_screening`, `get_events`, `get_job_history`, `get_maintenance_history` and `get_inspections` (`providers/replay.py:272-292`). The tool list offered to the model is fixed (`research_tools()`, `providers/factory.py:318`), and `replay_provider` is used only in tests, not by any investigation entry point. A capability-aware tool list is P0 for the pilot. The automatic line-screening call itself costs almost nothing (no model question, its own allowance); the real cost is decide turns (about 26 s each) spent on refused tools.
+16. The line screening's healthy reference comes from the simulator; `tools/screening.py` says to record one from a confirmed healthy period before using real data.
+17. `monitoring/` never starts an investigation: there is no live alert-to-diagnosis path yet.
+18. `run_with_deadline` returns on timeout but leaves its daemon thread running (`providers/chat.py:295-316`). Matters for a continuously running service, not experiments.
+19. Latent bug: `chain_for` passes `thinking_fields` and `reasoning_effort` to every client in the fallback chain, and `client_for` gates them by provider (NVIDIA), not by model (`chat.py:811-812`, `:853-884`). No effect today (the fallback is Cohere), but an NVIDIA fallback would receive Lightning's or Super's fields.
+
+**Other**
+
+20. `STAGE_CONTEXT` covers only verification and lessons (`agent/model_policy.py:1378`, `:1392`) and is off by default; plan, decide, hypothesize and conclude use `render()`.
+21. `assemble_incident_context` fetches sensor summaries only when the trigger names a single sensor, for the alarmed machine and its neighbors, and may use up to half the research call budget (`agent/incident_context.py`).
+22. `DECIDE_CALLS` runs its reads in order through `gather` in a custom loop (`loop.py` `run_batch`), not through Pydantic AI's concurrent tool calls. Fine for now: tools are cheap.
+23. The evaluation design is right: change one setting per arm, and report three latencies separately (time to first trustworthy response, time to a supported diagnosis or honest unresolved, time to full resolution through approval and verification). A 60 s target fits the first, not the third.
+
+#### True but mis-weighted
+
+- **Merge plan into hypothesize:** about 3% of latency. The value is moving hypotheses earlier (item 3).
+- **"The line-screening request is CRITICAL":** the refused call is harmless; the static tool list is the critical part (item 15).
+- **"Wrong-setting cases are unjudged":** the Jev labels judge them; 0 correct. See the correction above.
+- **Prompt caching:** the system/user split exists (`chat.py:528`), but whether NVIDIA caches is unverified. Defer.
+- **16,384-token output ceiling (`MODEL_MAX_OUTPUT_TOKENS`):** confirmed, but reasoning effort is the bigger lever on output length.
+- **Repeated scans in the recorded-data provider:** confirmed linear scans over the capture (`replay.py`); cost unmeasured. Defer until multi-day captures exist.
+
+#### Noise
+
+- A two-call agent as the whole architecture (all later reviews also dropped it).
+- A 60 s diagnosis on current Nemotron Super (medians: decide 26 s, hypothesize 44 s, conclude 38 s).
+- Gating the critic to save time in today's 10-minute runs.
+- Running tool calls in parallel now (tools about 26 s per 13-case run). Revisit after measuring real MTConnect latency.
+- A routing LLM, a new framework, more agents, or a tool-discovery service.
+
+#### Recommended order
+
+1. **Pilot:** connect the recorded-data provider to investigations with a tool list filtered to what the machine supports (item 15); fix and test the triage/deep shared search state (item 14).
+2. **Baseline, one setting per arm, at least 2 repeats each:** A current `main` defaults; B `DECIDE_CALLS`; C plus `DECIDE_REASONING_EFFORT=low`; D plus the chosen `LINE_CONTEXT` setting; E plus `LATE_MODEL`; F the compact loop (step 4). Report `timeout` and `model_unavailable` endings separately, plus correct cause, false `no_action`, unsupported intervention and escalation quality. Codex runs these (AGENTS.md §12).
+3. **Gates:** one shared sufficiency policy for the stop check and the final check; fix item 9; count independent sources (item 8); calibrate with `gap_replay` (item 11).
+4. **Loop and deadline:** form hypotheses right after the evidence packet; allow a supported stop in any research phase; one end-to-end deadline that includes critic and recheck; revisit the Super/fallback time split (item 2).
+5. **Then:** a deterministic complexity router (escalate-only, measured by how often a case should have escalated but did not), a critic ablation, stage-specific views for decide and conclude, then parallel reads and caching if measurements justify them.
 
 ### Live runs and follow-ups still owed
 
