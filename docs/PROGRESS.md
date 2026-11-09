@@ -1,5 +1,15 @@
 # Progress Log
 
+> **2026-11-09 — "Testing the detector" (PR #202) merged at the developer's request (test-only).**
+> `tests/test_detector_side_effects.py` holds 67 offline checks that the line screening (#201) changes nothing else.
+> Each compares a run with the screening against the same run with only the screening's call skipped. The checks cover:
+> the factory and monitoring, budgets and stop reasons, hazards including blackout, what the prompt shows, scoring, and
+> the detector's own results on the 13 known cases (it singles out only the faulty machine and leaks no hidden truth).
+> Two behaviours are pinned as they are today, for the developer to decide on: a failed screening counts as one failed
+> tool call, and in long runs the screening is the first evidence shortened in the prompt. The PR was first meant to
+> stay unmerged; the developer reversed that on 2026-11-09. New CI group "Detector side effects". No code changed, so no
+> walkthrough is due; the #201 walkthrough is still owed (understood: no).
+
 > **2026-11-09 — SM-2 remainder, SM-5 core and SM-3 merged in order (PRs #211, #212, #213) at the developer's request.**
 > Each was first opened and left unmerged, then merged in dependency order on green CI after a full local coverage run
 > and an evaluation inventory rebuild. Inventory source hashes were recomputed with LF line endings, because the new

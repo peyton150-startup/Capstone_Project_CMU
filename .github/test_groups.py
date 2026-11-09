@@ -140,6 +140,8 @@ GROUPS: dict[str, list[str]] = {
     ],
     # The runner: one seeded episode from fault to score, end to end.
     "Episode": ["episode", "progress_view", "triage"],
+    # The line screening against everything around it (PR 202, not merged).
+    "Detector side effects": ["detector_side_effects"],
     # Real-machine telemetry: the read-only MTConnect collector and its monitor.
     "Live telemetry": [
         "mtconnect_ingestion",
