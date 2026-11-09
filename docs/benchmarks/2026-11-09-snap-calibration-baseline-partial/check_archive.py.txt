@@ -1,0 +1,45 @@
+"""Verify the archived ten-case baseline offline; does not contact SNAP."""
+import hashlib
+import json
+import sys
+from pathlib import Path
+from uuid import NAMESPACE_URL, uuid5
+
+def read_jsonl(path):
+    lines = path.read_text(encoding="utf-8").splitlines()
+    assert lines and all(line.strip() for line in lines), f"blank JSONL line in {path}"
+    return [json.loads(line) for line in lines]
+
+def main():
+    archive = Path(sys.argv[1]) if len(sys.argv) > 1 else Path(__file__).resolve().parent
+    manifest = json.loads((archive / "manifest.json").read_text(encoding="utf-8"))
+    summary = json.loads((archive / "summary.json").read_text(encoding="utf-8"))
+    status = json.loads((archive / "case_status.json").read_text(encoding="utf-8"))
+    for f in manifest["files"]:
+        path = archive / f["file"]
+        assert path.stat().st_size == f["bytes"], f"byte count: {path}"
+        assert hashlib.sha256(path.read_bytes()).hexdigest() == f["sha256"], f"digest: {path}"
+    records = read_jsonl(archive / "pair-01" / "baseline.records.jsonl")
+    audits = read_jsonl(archive / "pair-01" / "baseline.audit.jsonl")
+    assert len(records) == len(audits) == len(status["cases"]) == summary["archived_cases"] == 10
+    assert [r["scenario_id"] for r in records] == status["case_order"]
+    assert len({r["run_key"] for r in records}) == 10
+    assert {a["completed"]["run_id"] for a in audits} == {
+        str(uuid5(NAMESPACE_URL, "capstone/run/" + r["run_key"])) for r in records
+    }, "record/audit run identity mismatch"
+    by_id = {entry["scenario_id"]: entry for entry in status["cases"]}
+    for r in records:
+        case = by_id[r["scenario_id"]]
+        assert case["outage_attempts"] == r["model_calls"]["outage_attempts"]
+        assert case["unanswered_questions"] == r["model_calls"]["unanswered"]
+        assert case["termination_reason"] == r["score"]["termination_reason"]
+        assert case["recommendation"] == r["recommendation"]
+        assert case["stage_context"] == r["stage_context"]
+        assert case["confidence"] == r["confidence"]
+    assert sum(x["outage_attempts"] for x in status["cases"]) == 36
+    assert sum(x["unanswered_questions"] for x in status["cases"]) == 7
+    print("PASS: ten raw records, ten audits, digests and per-case counters verified")
+    print("This does not replace evaltools.audit_preflight or adjudicate diagnosis quality.")
+
+if __name__ == "__main__":
+    main()

@@ -83,11 +83,38 @@ def reject_all(proposal) -> tuple[bool, str]:
     return False, "rejected"
 
 
+def review_text(proposal) -> str:
+    """What the console shows a reviewer: the request, then why the agent wants it.
+
+    Reads the extra fields of a ReviewPacket when they are there, so a plain
+    proposal still prints its first two lines.
+    """
+    # Variables:
+    #   lines: The text, one line each: the request and reason, then the belief,
+    #     the prediction, the critic's view and the cited evidence when given.
+    #   confidence: The agent's confidence in its diagnosis, if the packet has one.
+    lines = [
+        f"Proposal {proposal.proposal_id}: {proposal.action} on {proposal.machine_id}",
+        f"  Reason: {proposal.reason}",
+    ]
+    diagnosis = getattr(proposal, "diagnosis", None)
+    confidence = getattr(proposal, "confidence", None)
+    if diagnosis:
+        shown = f" (confidence {confidence:.2f})" if confidence is not None else ""
+        lines.append(f"  Diagnosis{shown}: {diagnosis}")
+    if getattr(proposal, "predicted_effect", None):
+        lines.append(f"  Expected afterwards: {proposal.predicted_effect}")
+    if getattr(proposal, "critic_view", None):
+        lines.append(f"  Critic {proposal.critic_view}")
+    evidence = getattr(proposal, "evidence", ())
+    if evidence:
+        lines.append("  Evidence cited:")
+        lines += [f"    {line}" for line in evidence]
+    return "\n".join(lines)
+
+
 def ask_on_console(proposal) -> tuple[bool, str]:
-    print(
-        f"\nProposal {proposal.proposal_id}: {proposal.action} on "
-        f"{proposal.machine_id}\n  {proposal.reason}"
-    )
+    print("\n" + review_text(proposal))
     yes = input("Approve? [y/N] ").strip().lower().startswith("y")
     return yes, "approved at console" if yes else "rejected at console"
 

@@ -1,6 +1,6 @@
 # Progress Log
 
-> **2026-11-09 — Module 6.1 gap #5: guardrail drift tracking across batches of runs (built ungated at the developer's request; pre-merge walkthrough owed; understood: no; left unmerged during a live run, at the developer's request):**
+> **2026-11-09 — Module 6.1 gap #5: guardrail drift tracking across batches of runs (built ungated at the developer's request; walkthrough waived for tonight; understood: no; PR #218):**
 > New module `evaluation/drift.py`, read-only over saved results files. `batch_rates` gives each batch's
 > `intervene_rate`, `lowered_rate` (intervene requests the final check lowered to escalate), `rejection_rate` (decided
 > proposals the human rejected), `timeout_rate`, `mean_confidence` and `calibration_gap` (mean confidence minus share
@@ -9,6 +9,25 @@
 > `python -m capstone.evaluation.drift BASELINE.jsonl LATER.jsonl [...] [--threshold T] [--json]`, exit 1 on drift.
 > Tests: `tests/test_drift.py` (CI group with the evaluation tests). **Drop rule (developer, 2026-11-09): if this breaks
 > anything, revert it rather than fixing forward.**
+
+> **2026-11-09 — Module 6.1 guardrail #6: text from outside the agent is data, never instructions (built ungated at the developer's request; walkthrough waived for tonight; understood: no; PR #217 merged at the developer's request):**
+> New module `agent/untrusted.py`: `looks_like_instruction` is a plain regex check for wording aimed at a model
+> ("ignore previous instructions", "you are now", "system:", "recommend no_action"), and `UNTRUSTED_NOTE` is the note
+> shown beside a flagged line. `evidence_lines` in `agent/model_policy.py` appends the note to any flagged evidence
+> line; the evidence itself is never rewritten. `COMMON` (every model prompt, the critic's included) gains one sentence
+> saying evidence content is data and must not be followed. **This changes what every model is shown, so runs before
+> and after it are not strictly comparable.** Tests: `tests/test_untrusted_text.py` (CI group with the model policy
+> tests). **Drop rule (developer, 2026-11-09): if this breaks anything, in tests or in a live run, revert it rather
+> than fixing forward.**
+
+> **2026-11-09 — Module 6.1 guardrail #2: the human reviewer sees the evidence behind a proposal (built ungated at the developer's request; walkthrough owed; understood: no; PR #216 merged at the developer's request after the live run):**
+> New `ReviewPacket` in `agent/artifacts.py`, a subclass of `ProposalRecord` with the diagnosis, confidence, predicted
+> effect, the cited evidence (one short line each, cut to 160 characters) and the critic's view. `propose` in
+> `agent/investigation.py` builds it with `review_packet` and `critic_view` and hands it to `human_review`; the run's
+> own record still keeps a plain `ProposalRecord`, so nothing the agent does or records changes. `episode.review_text`
+> prints the extra lines on the console approver and still prints a plain proposal as before. Tests:
+> `tests/test_review_packet.py` (CI group with the agent action tests). **Drop rule (developer, 2026-11-09): if this
+> breaks anything, in tests or in a live run, revert it rather than fixing forward.**
 
 > **2026-11-09 — "Testing the detector" (PR #202) merged at the developer's request (test-only).**
 > `tests/test_detector_side_effects.py` holds 67 offline checks that the line screening (#201) changes nothing else.
@@ -869,6 +888,7 @@ alarm), then evaluation, then the agent itself.
 
 ## Session notes
 
+- **2026-11-09: investigation latency review, signal vs noise (docs only).** At the developer's request, Claude Code checked the team's compression draft, the MoE notes and three outside reviews against `main` `bd01f88` and the archived runs, and recorded the verified findings in `MVP_SCOPE.md` ([Investigation latency review](MVP_SCOPE.md#fw-latency-review)). Headlines: decide is 73% of model time; Super timed out on 93 of 552 decide questions; the final gate is over-strict in practice (gap replay 0 right, 0 harmful, 21 held); triage and the deep run share manual and memory search state, so the deep run's automatic manual search is refused as a repeat (confirmed with an offline scripted triage-then-deep run); the recorded-data provider is not connected to investigations and the tool list is fixed. No code changed and nothing ran live.
 - **2026-11-09: `LATE_MODEL`, a different model for decide questions at the end of the decide phase (built ungated, developer to review; understood: no; §11.6 walkthrough owed).** The developer asked why Super 120B times out so often. Across the runs of 2026-10-31 to 2026-11-09 it timed out on 93 of 552 decide questions (30 got no answer from any model) and 8 of 41 conclusions. Two causes: 49 decide timeouts were Super asked with too little time left, near the end of research (half of a question's time goes to Super, the other half to the fallback); the rest were Super thinking past its 120 s share (KA-03 batch: 50% of its decide calls). The developer chose a smaller NVIDIA model with its thinking off or lowered, only at the end of the decide phase, Super staying the default everywhere else (the conclusion included), and kept the NVIDIA endpoint (lifting the "only Super on NVIDIA's API" rule for this). Settings: `LATE_MODEL` (unset: off), `LATE_MODEL_SECONDS` (60, from Super answering a decide question within 30 s only 55% of the time), `LATE_MODEL_THINKING` (off: NVIDIA is sent `chat_template_kwargs.enable_thinking=false`) and `LATE_MODEL_REASONING_BUDGET` (the cap when thinking is on). `late_clients` and `late_thinking_fields` (`providers/chat.py`) build the late client; `ModelPolicy.client_for` picks it for a decide question with less time than the threshold. Model: the developer first chose Nemotron 70B instruct, but NVIDIA answered HTTP 404 "Not found for account" for it (Super answered on the same key), so the developer chose `nvidia/nvidia/nemotron-3.5-lightning-30b-a3b`. Tests: `tests/test_late_model.py` (25). Not yet run live: Codex to compare `LATE_MODEL=nvidia/nvidia/nemotron-3.5-lightning-30b-a3b` against the current baseline, and check that NVIDIA honours `enable_thinking=false` and its structured output for that model.
 - **2026-11-08: SNAP calibration round 1 and rubric 1.1.0 (built ungated at the developer's request; developer to review; understood: no; pre-check, closing question and §11.6 walkthrough owed; merged at the developer's direction).**
   - **Calibration answers.** At the developer's request, Claude Code exported a blinded sample with PR #196's `reference_review` from an offline dry run, with nothing sent, and answered every question. The sample has 9 items: 3 full-trace investigations with sound/misleading strata, 2 functions, 2 tests, 1 tool and 1 batch comparison.
