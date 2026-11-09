@@ -1,0 +1,15 @@
+{
+  "description": "SHA-256 hashes of unmodified uploaded raw evidence files; metadata files are protected by the Git commit.",
+  "files": [
+    {
+      "file": "pair-01/baseline.records.jsonl",
+      "bytes": 165440,
+      "sha256": "01cd36cb4bb9d756a0243605fdc6f7c705ba8ea953577d3a22dc44396a4f2c8b"
+    },
+    {
+      "file": "pair-01/baseline.audit.jsonl",
+      "bytes": 545637,
+      "sha256": "ee07dce5d6febce4de25e4ab7743f7f47614cd87faab893ed9a4ff3587541dda"
+    }
+  ]
+}

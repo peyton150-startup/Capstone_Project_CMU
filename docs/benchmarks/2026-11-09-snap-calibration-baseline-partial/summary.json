@@ -1,0 +1,36 @@
+{
+  "scope": "First 10 of 13 ordered known-answer scenarios; baseline arm only; interrupted during case 11; no resumptions or matched treatment arm included.",
+  "reference_commit": "c49fdd60884d874a6d7877590d2be9ab1b7eb70e",
+  "rubric_version_at_source": "1.1.1",
+  "human_reviewed_labels": 0,
+  "accuracy_or_comparison_claim": false,
+  "calibration_ready": false,
+  "planned_cases": 13,
+  "archived_cases": 10,
+  "incomplete_case_in_archive": false,
+  "unrun_cases": [
+    "KA-11-servo",
+    "KA-12-hydraulic",
+    "KA-13-hydraulic"
+  ],
+  "runs": [
+    {
+      "pair": "pair-01",
+      "name": "baseline",
+      "commit": "c49fdd60884d874a6d7877590d2be9ab1b7eb70e",
+      "cases": 10,
+      "audit_records": 10,
+      "judged": 0,
+      "model_unavailable": 1,
+      "manual": "keyword",
+      "stage_context": false,
+      "tree_of_thought": false,
+      "hazards": false,
+      "critic": "blind",
+      "critic_followup": true,
+      "decide_calls": 3,
+      "decide_reasoning_effort": "low (NVIDIA only; operator output)",
+      "interrupted": true
+    }
+  ]
+}
