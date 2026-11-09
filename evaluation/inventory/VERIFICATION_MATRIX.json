@@ -1,6 +1,6 @@
 {
  "inventory_version": "1.0.0",
- "coverage_file": "..\\.coverage",
+ "coverage_file": "../.coverage",
  "coverage_available": true,
  "junit_available": true,
  "source_sha256": {
@@ -35,6 +35,7 @@
   "capstone-code/capstone/evals.py": "e1335239b98f322e87f97e4575ba3fb5580e4b785086a8912c66ae0906f5b5ca",
   "capstone-code/capstone/evaluation/__init__.py": "749c414b3a2f64dc271263db077e2503ccf4946a0624361b4931aae65a5309ca",
   "capstone-code/capstone/evaluation/auto_label.py": "b9e1f3f6a71f45377ef91deda4abfc2664562a7b94caafda6150d3ed6c4e54f0",
+  "capstone-code/capstone/evaluation/drift.py": "9bd1804e1600d78bb6d1f7e06a5b3481bf19f1edf4a81b24284e2f551a81eeb0",
   "capstone-code/capstone/evaluation/gap_replay.py": "cfa35f5f273e21002dca4cbb3192faa171243a6cff789e8b2080dd291e2e9581",
   "capstone-code/capstone/evaluation/known_answers.py": "b60f2d952acbf4a6962c88856b00e9d8136e09970388110b3ab360b83171d131",
   "capstone-code/capstone/evaluation/labels.py": "39dbc146c75b19ae9b3b8e9c1e210c9bd32bc267ea3e01cddea586132642b4d2",
@@ -158,6 +159,7 @@
   "tests/test_decide_reasoning_effort.py": "c83066025e7c00bdfea49ee7ef307f719bcdece3e80b59f4c49b455d373d67bb",
   "tests/test_detector_side_effects.py": "c8d92ea8251a11c9fde3426560c7b02ee72a1ec07feb427f283512d86771feb3",
   "tests/test_difficulty_tool_compatibility.py": "8d1c9f4c32d4059e68ecd0cac8ce2ee97d22a0129658da07414361d71f5d0649",
+  "tests/test_drift.py": "a50725465f35454e002a015fc472ca1b3587991587caeaf5a9cb2b9f8fe27059",
   "tests/test_duplicate_threshold.py": "1c5737e61effac3728dc7dbcc39da1ba40fc2b11781289dcc2375f3d36acfed9",
   "tests/test_embeddings.py": "18c508503a9899fc6686887051ea3816dc7280041491d9cdcc9cdc22906163f0",
   "tests/test_env_example.py": "0fd321850296158f38a6ed99f03655e348d6a43a7b92e6f434c6caf74a87ac57",
@@ -237,29 +239,29 @@
   "tests/test_wait_tool.py": "b99a5fbf756a60176262417e54d8d1a0496f01126929a330492e7d24287b2d1e",
   "tests/test_wrong_setting.py": "aed1c646bffaf88ae25ed2156794dc57427e8a61bbe6b23a0c33f3c3e89c0da3"
  },
- "coverage_sha256": "454abfc0b5fe2dea36edf5ca5fa6a5aaa4cbcd4929c541413a8053bbf1c4f33e",
- "junit_sha256": "e4c6136ab8fea1193e9efff1135c9cf2a96cdce5a3fe3ce2a32bc6f13527b111",
+ "coverage_sha256": "de4e1fa93fd3175fada5af5c1ef79c9101d5966ba4f5961874472e6db709341d",
+ "junit_sha256": "7fa8835d1557ee5f88b1ecca62ac7949277b37cad05acdff29b0904ec0589814",
  "counts": {
-  "functions": 954,
+  "functions": 961,
   "classes_note": "classes are listed through their methods",
-  "tests": 1877,
+  "tests": 1885,
   "tools": 18,
   "functions_by_status": {
    "INSUFFICIENT EVIDENCE": 404,
    "NOT APPLICABLE": 25,
    "NOT TESTED": 13,
-   "PARTIALLY VERIFIED": 467,
+   "PARTIALLY VERIFIED": 474,
    "VERIFIED": 45
   },
   "functions_by_coverage_class": {
-   "direct": 496,
+   "direct": 503,
    "import-only": 4,
    "indirect": 416,
    "no-statements": 25,
    "none": 13
   },
-  "functions_executed_in_tests": 912,
-  "functions_with_direct_tests": 496,
+  "functions_executed_in_tests": 919,
+  "functions_with_direct_tests": 503,
   "functions_never_executed": [
    "capstone.episode:ask_on_console",
    "capstone.evals:main.<locals>.show_progress",
@@ -319,7 +321,7 @@
   ],
   "stubs_or_protocols": 25,
   "tests_by_outcome": {
-   "passed": 1877
+   "passed": 1885
   },
   "tests_with_no_assertion": [
    "tests/test_console.py::test_without_it_the_same_print_raised"
@@ -339,6 +341,7 @@
    "tests/test_chat_client.py::test_malformed_usage_is_ignored_not_trusted",
    "tests/test_chat_client.py::test_a_client_without_a_request_record_still_gets_attempts",
    "tests/test_critic.py::test_schema_fields_are_all_described",
+   "tests/test_drift.py::test_runs_with_no_model_are_left_out",
    "tests/test_embeddings.py::test_no_texts_make_no_request",
    "tests/test_episode.py::test_critic_followup_setting_reaches_the_run",
    "tests/test_evaluation.py::test_a_reset_resolves_a_wrong_setting",
@@ -595,6 +598,11 @@
    "functions": 11,
    "executed": 11,
    "direct": 11
+  },
+  "capstone.evaluation.drift": {
+   "functions": 7,
+   "executed": 7,
+   "direct": 7
   },
   "capstone.evaluation.gap_replay": {
    "functions": 9,
@@ -6023,6 +6031,85 @@
    ],
    "indirect": []
   },
+  "capstone.evaluation.drift:Shift.change": {
+   "count": 3,
+   "status": "PARTIALLY VERIFIED",
+   "direct": [
+    "tests/test_drift.py::test_the_command_can_print_json",
+    "tests/test_drift.py::test_the_command_reads_files_and_exits_1_on_drift",
+    "tests/test_drift.py::test_the_report_names_each_drift"
+   ],
+   "indirect": []
+  },
+  "capstone.evaluation.drift:share": {
+   "count": 8,
+   "status": "PARTIALLY VERIFIED",
+   "direct": [
+    "tests/test_drift.py::test_a_rate_missing_on_one_side_is_never_flagged",
+    "tests/test_drift.py::test_a_rate_with_nothing_to_count_is_none_not_zero",
+    "tests/test_drift.py::test_only_moves_past_the_threshold_are_flagged",
+    "tests/test_drift.py::test_rates_count_the_right_runs",
+    "tests/test_drift.py::test_runs_with_no_model_are_left_out",
+    "tests/test_drift.py::test_the_command_can_print_json",
+    "tests/test_drift.py::test_the_command_reads_files_and_exits_1_on_drift",
+    "tests/test_drift.py::test_the_report_names_each_drift"
+   ],
+   "indirect": []
+  },
+  "capstone.evaluation.drift:batch_rates": {
+   "count": 8,
+   "status": "PARTIALLY VERIFIED",
+   "direct": [
+    "tests/test_drift.py::test_a_rate_missing_on_one_side_is_never_flagged",
+    "tests/test_drift.py::test_a_rate_with_nothing_to_count_is_none_not_zero",
+    "tests/test_drift.py::test_only_moves_past_the_threshold_are_flagged",
+    "tests/test_drift.py::test_rates_count_the_right_runs",
+    "tests/test_drift.py::test_runs_with_no_model_are_left_out",
+    "tests/test_drift.py::test_the_command_can_print_json",
+    "tests/test_drift.py::test_the_command_reads_files_and_exits_1_on_drift",
+    "tests/test_drift.py::test_the_report_names_each_drift"
+   ],
+   "indirect": []
+  },
+  "capstone.evaluation.drift:shifts": {
+   "count": 5,
+   "status": "PARTIALLY VERIFIED",
+   "direct": [
+    "tests/test_drift.py::test_a_rate_missing_on_one_side_is_never_flagged",
+    "tests/test_drift.py::test_only_moves_past_the_threshold_are_flagged",
+    "tests/test_drift.py::test_the_command_can_print_json",
+    "tests/test_drift.py::test_the_command_reads_files_and_exits_1_on_drift",
+    "tests/test_drift.py::test_the_report_names_each_drift"
+   ],
+   "indirect": []
+  },
+  "capstone.evaluation.drift:shown": {
+   "count": 2,
+   "status": "PARTIALLY VERIFIED",
+   "direct": [
+    "tests/test_drift.py::test_the_command_reads_files_and_exits_1_on_drift",
+    "tests/test_drift.py::test_the_report_names_each_drift"
+   ],
+   "indirect": []
+  },
+  "capstone.evaluation.drift:format_report": {
+   "count": 2,
+   "status": "PARTIALLY VERIFIED",
+   "direct": [
+    "tests/test_drift.py::test_the_command_reads_files_and_exits_1_on_drift",
+    "tests/test_drift.py::test_the_report_names_each_drift"
+   ],
+   "indirect": []
+  },
+  "capstone.evaluation.drift:main": {
+   "count": 2,
+   "status": "PARTIALLY VERIFIED",
+   "direct": [
+    "tests/test_drift.py::test_the_command_can_print_json",
+    "tests/test_drift.py::test_the_command_reads_files_and_exits_1_on_drift"
+   ],
+   "indirect": []
+  },
   "capstone.evaluation.gap_replay:legacy_gap": {
    "count": 2,
    "status": "INSUFFICIENT EVIDENCE",
@@ -6988,13 +7075,15 @@
    ]
   },
   "capstone.experiment:read_records": {
-   "count": 26,
+   "count": 28,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_experiment.py::test_model_failures_survive_the_cli_file_and_report",
     "tests/test_experiment.py::test_the_command_line_runs_labels_and_reports"
    ],
    "indirect": [
+    "tests/test_drift.py::test_the_command_can_print_json",
+    "tests/test_drift.py::test_the_command_reads_files_and_exits_1_on_drift",
     "tests/test_evals.py::test_rescoring_saved_records_never_opens_the_manual",
     "tests/test_evaluation_tools.py::test_a_proposal_awaiting_review_is_kept_but_not_scored",
     "tests/test_evaluation_tools.py::test_a_recheck_record_reaches_the_packet_whole",
@@ -7004,9 +7093,7 @@
     "tests/test_evaluation_tools.py::test_audited_import_rejects_missing_duplicate_and_orphan_traces",
     "tests/test_evaluation_tools.py::test_both_archives_import_57_episodes_with_five_real_traces",
     "tests/test_evaluation_tools.py::test_master_run_packets_keep_the_truth_out_of_the_judge_view",
-    "tests/test_evaluation_tools.py::test_new_cohort_preflight_requires_matching_audit_evidence",
-    "tests/test_evaluation_tools.py::test_preflight_refuses_corrupt_order_and_missing_provenance",
-    "tests/test_evaluation_tools.py::test_preflight_validates_recheck_and_verification_evidence"
+    "tests/test_evaluation_tools.py::test_new_cohort_preflight_requires_matching_audit_evidence"
    ]
   },
   "capstone.experiment:labelled": {
@@ -28825,6 +28912,86 @@
     "capstone.simulator.state:FactoryState.air_temperature",
     "capstone.simulator.state:MachineState.speed",
     "capstone.simulator.state:MachineState.speed_ratio"
+   ]
+  },
+  "tests/test_drift.py::test_rates_count_the_right_runs": {
+   "count": 2,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.evaluation.drift:batch_rates",
+    "capstone.evaluation.drift:share"
+   ]
+  },
+  "tests/test_drift.py::test_runs_with_no_model_are_left_out": {
+   "count": 2,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.evaluation.drift:batch_rates",
+    "capstone.evaluation.drift:share"
+   ]
+  },
+  "tests/test_drift.py::test_a_rate_with_nothing_to_count_is_none_not_zero": {
+   "count": 2,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.evaluation.drift:batch_rates",
+    "capstone.evaluation.drift:share"
+   ]
+  },
+  "tests/test_drift.py::test_only_moves_past_the_threshold_are_flagged": {
+   "count": 3,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.evaluation.drift:batch_rates",
+    "capstone.evaluation.drift:share",
+    "capstone.evaluation.drift:shifts"
+   ]
+  },
+  "tests/test_drift.py::test_a_rate_missing_on_one_side_is_never_flagged": {
+   "count": 3,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.evaluation.drift:batch_rates",
+    "capstone.evaluation.drift:share",
+    "capstone.evaluation.drift:shifts"
+   ]
+  },
+  "tests/test_drift.py::test_the_report_names_each_drift": {
+   "count": 6,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.evaluation.drift:Shift.change",
+    "capstone.evaluation.drift:batch_rates",
+    "capstone.evaluation.drift:format_report",
+    "capstone.evaluation.drift:share",
+    "capstone.evaluation.drift:shifts",
+    "capstone.evaluation.drift:shown"
+   ]
+  },
+  "tests/test_drift.py::test_the_command_reads_files_and_exits_1_on_drift": {
+   "count": 8,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.evaluation.drift:Shift.change",
+    "capstone.evaluation.drift:batch_rates",
+    "capstone.evaluation.drift:format_report",
+    "capstone.evaluation.drift:main",
+    "capstone.evaluation.drift:share",
+    "capstone.evaluation.drift:shifts",
+    "capstone.evaluation.drift:shown",
+    "capstone.experiment:read_records"
+   ]
+  },
+  "tests/test_drift.py::test_the_command_can_print_json": {
+   "count": 6,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.evaluation.drift:Shift.change",
+    "capstone.evaluation.drift:batch_rates",
+    "capstone.evaluation.drift:main",
+    "capstone.evaluation.drift:share",
+    "capstone.evaluation.drift:shifts",
+    "capstone.experiment:read_records"
    ]
   },
   "tests/test_duplicate_threshold.py::test_pair_text_is_the_text_a_stored_memory_is_embedded_as": {
