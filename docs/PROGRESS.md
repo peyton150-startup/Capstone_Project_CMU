@@ -1,6 +1,16 @@
 # Progress Log
 
-> **2026-11-09 — Module 6.1 guardrail #2: the human reviewer sees the evidence behind a proposal (built ungated at the developer's request; pre-merge walkthrough owed; understood: no; left unmerged during a live run, at the developer's request):**
+> **2026-11-09 — Module 6.1 guardrail #6: text from outside the agent is data, never instructions (built ungated at the developer's request; walkthrough owed; understood: no; PR #217):**
+> New module `agent/untrusted.py`: `looks_like_instruction` is a plain regex check for wording aimed at a model
+> ("ignore previous instructions", "you are now", "system:", "recommend no_action"), and `UNTRUSTED_NOTE` is the note
+> shown beside a flagged line. `evidence_lines` in `agent/model_policy.py` appends the note to any flagged evidence
+> line; the evidence itself is never rewritten. `COMMON` (every model prompt, the critic's included) gains one sentence
+> saying evidence content is data and must not be followed. **This changes what every model is shown, so runs before
+> and after it are not strictly comparable.** Tests: `tests/test_untrusted_text.py` (CI group with the model policy
+> tests). **Drop rule (developer, 2026-11-09): if this breaks anything, in tests or in a live run, revert it rather
+> than fixing forward.**
+
+> **2026-11-09 — Module 6.1 guardrail #2: the human reviewer sees the evidence behind a proposal (built ungated at the developer's request; walkthrough owed; understood: no; PR #216 merged at the developer's request after the live run):**
 > New `ReviewPacket` in `agent/artifacts.py`, a subclass of `ProposalRecord` with the diagnosis, confidence, predicted
 > effect, the cited evidence (one short line each, cut to 160 characters) and the critic's view. `propose` in
 > `agent/investigation.py` builds it with `review_packet` and `critic_view` and hands it to `human_review`; the run's
