@@ -1,0 +1,292 @@
+{
+  "readme": "Private calibration outcome/strata labels are intentionally not included; this file contains neutral observed counts and screening flags only.",
+  "case_order": [
+    "KA-01-bearing",
+    "KA-02-bearing",
+    "KA-03-batch",
+    "KA-04-batch",
+    "KA-05-setting",
+    "KA-06-setting",
+    "KA-07-false-alarm",
+    "KA-08-false-alarm",
+    "KA-09-challenge",
+    "KA-10-servo"
+  ],
+  "screening_note": "conclusion_final is a conservative mechanical screening flag, NOT a rubric adjudication of RUN-08/RUN-09 eligibility or diagnostic quality. The score.termination_reason is copied from original records.",
+  "model_provenance": "Per-case model names are actual model attempts recorded in model_calls.details, not a claimed complete configuration snapshot.",
+  "totals": {
+    "outage_attempts": 36,
+    "unanswered_questions": 7,
+    "total_cases": 10,
+    "final_conclusions": 4,
+    "interrupted_timeout": 3,
+    "model_unavailable": 1
+  },
+  "cases": [
+    {
+      "case_number": 1,
+      "scenario_id": "KA-01-bearing",
+      "run_key": "baseline/1/KA-01-bearing",
+      "termination_reason": "timeout",
+      "stage_context": false,
+      "recommendation": "no_action",
+      "confidence": 0.75,
+      "conclusion_final": false,
+      "conclusion_status": "interrupted_with_saved_conclusion",
+      "conclusion_final_rule": "false for timeout/model_unavailable, an undetermined/unknown/inconclusive conclusion, or an explicit in-progress conclusion; otherwise a saved terminal conclusion, not a correctness judgment",
+      "unanswered_questions": 1,
+      "outage_attempts": 7,
+      "outage_reasons": {
+        "the model service timed out": 7
+      },
+      "decide_models_attempted": [
+        "command-a-03-2025",
+        "nvidia/nemotron-3.5-super-vl-120b-a12b"
+      ],
+      "critic_models_attempted": [
+        "ministral-14b-2512"
+      ],
+      "model_questions": 17,
+      "model_questions_answered": 15,
+      "model_replies_invalid": 1
+    },
+    {
+      "case_number": 2,
+      "scenario_id": "KA-02-bearing",
+      "run_key": "baseline/2/KA-02-bearing",
+      "termination_reason": "evidence_sufficient",
+      "stage_context": false,
+      "recommendation": "escalate",
+      "confidence": 0.87,
+      "conclusion_final": true,
+      "conclusion_status": "saved_conclusion",
+      "conclusion_final_rule": "false for timeout/model_unavailable, an undetermined/unknown/inconclusive conclusion, or an explicit in-progress conclusion; otherwise a saved terminal conclusion, not a correctness judgment",
+      "unanswered_questions": 0,
+      "outage_attempts": 1,
+      "outage_reasons": {
+        "the model service timed out": 1
+      },
+      "decide_models_attempted": [
+        "nvidia/nemotron-3.5-super-vl-120b-a12b"
+      ],
+      "critic_models_attempted": [
+        "ministral-14b-2512"
+      ],
+      "model_questions": 13,
+      "model_questions_answered": 13,
+      "model_replies_invalid": 0
+    },
+    {
+      "case_number": 3,
+      "scenario_id": "KA-03-batch",
+      "run_key": "baseline/3/KA-03-batch",
+      "termination_reason": "no_useful_action",
+      "stage_context": false,
+      "recommendation": "escalate",
+      "confidence": 0.75,
+      "conclusion_final": true,
+      "conclusion_status": "saved_conclusion",
+      "conclusion_final_rule": "false for timeout/model_unavailable, an undetermined/unknown/inconclusive conclusion, or an explicit in-progress conclusion; otherwise a saved terminal conclusion, not a correctness judgment",
+      "unanswered_questions": 0,
+      "outage_attempts": 4,
+      "outage_reasons": {
+        "the model service timed out": 4
+      },
+      "decide_models_attempted": [
+        "command-a-03-2025",
+        "nvidia/nemotron-3.5-super-vl-120b-a12b"
+      ],
+      "critic_models_attempted": [
+        "ministral-14b-2512"
+      ],
+      "model_questions": 13,
+      "model_questions_answered": 13,
+      "model_replies_invalid": 0
+    },
+    {
+      "case_number": 4,
+      "scenario_id": "KA-04-batch",
+      "run_key": "baseline/4/KA-04-batch",
+      "termination_reason": "model_unavailable",
+      "stage_context": false,
+      "recommendation": "escalate",
+      "confidence": 0,
+      "conclusion_final": false,
+      "conclusion_status": "undetermined",
+      "conclusion_final_rule": "false for timeout/model_unavailable, an undetermined/unknown/inconclusive conclusion, or an explicit in-progress conclusion; otherwise a saved terminal conclusion, not a correctness judgment",
+      "unanswered_questions": 1,
+      "outage_attempts": 3,
+      "outage_reasons": {
+        "the model service timed out": 3
+      },
+      "decide_models_attempted": [
+        "command-a-03-2025",
+        "nvidia/nemotron-3.5-super-vl-120b-a12b"
+      ],
+      "critic_models_attempted": [],
+      "model_questions": 7,
+      "model_questions_answered": 6,
+      "model_replies_invalid": 0
+    },
+    {
+      "case_number": 5,
+      "scenario_id": "KA-05-setting",
+      "run_key": "baseline/5/KA-05-setting",
+      "termination_reason": "no_useful_action",
+      "stage_context": false,
+      "recommendation": "escalate",
+      "confidence": 0.4,
+      "conclusion_final": false,
+      "conclusion_status": "explicitly_in_progress",
+      "conclusion_final_rule": "false for timeout/model_unavailable, an undetermined/unknown/inconclusive conclusion, or an explicit in-progress conclusion; otherwise a saved terminal conclusion, not a correctness judgment",
+      "unanswered_questions": 1,
+      "outage_attempts": 5,
+      "outage_reasons": {
+        "the model service timed out": 5
+      },
+      "decide_models_attempted": [
+        "command-a-03-2025",
+        "nvidia/nemotron-3.5-super-vl-120b-a12b"
+      ],
+      "critic_models_attempted": [
+        "ministral-14b-2512"
+      ],
+      "model_questions": 12,
+      "model_questions_answered": 11,
+      "model_replies_invalid": 0
+    },
+    {
+      "case_number": 6,
+      "scenario_id": "KA-06-setting",
+      "run_key": "baseline/6/KA-06-setting",
+      "termination_reason": "timeout",
+      "stage_context": false,
+      "recommendation": "escalate",
+      "confidence": 0.7,
+      "conclusion_final": false,
+      "conclusion_status": "interrupted_with_saved_conclusion",
+      "conclusion_final_rule": "false for timeout/model_unavailable, an undetermined/unknown/inconclusive conclusion, or an explicit in-progress conclusion; otherwise a saved terminal conclusion, not a correctness judgment",
+      "unanswered_questions": 2,
+      "outage_attempts": 8,
+      "outage_reasons": {
+        "the model service timed out": 8
+      },
+      "decide_models_attempted": [
+        "command-a-03-2025",
+        "nvidia/nemotron-3.5-super-vl-120b-a12b"
+      ],
+      "critic_models_attempted": [
+        "ministral-14b-2512"
+      ],
+      "model_questions": 13,
+      "model_questions_answered": 11,
+      "model_replies_invalid": 0
+    },
+    {
+      "case_number": 7,
+      "scenario_id": "KA-07-false-alarm",
+      "run_key": "baseline/7/KA-07-false-alarm",
+      "termination_reason": "evidence_sufficient",
+      "stage_context": false,
+      "recommendation": "escalate",
+      "confidence": 0.95,
+      "conclusion_final": true,
+      "conclusion_status": "saved_conclusion",
+      "conclusion_final_rule": "false for timeout/model_unavailable, an undetermined/unknown/inconclusive conclusion, or an explicit in-progress conclusion; otherwise a saved terminal conclusion, not a correctness judgment",
+      "unanswered_questions": 0,
+      "outage_attempts": 1,
+      "outage_reasons": {
+        "the model service timed out": 1
+      },
+      "decide_models_attempted": [
+        "nvidia/nemotron-3.5-super-vl-120b-a12b"
+      ],
+      "critic_models_attempted": [
+        "ministral-14b-2512"
+      ],
+      "model_questions": 15,
+      "model_questions_answered": 15,
+      "model_replies_invalid": 0
+    },
+    {
+      "case_number": 8,
+      "scenario_id": "KA-08-false-alarm",
+      "run_key": "baseline/8/KA-08-false-alarm",
+      "termination_reason": "evidence_sufficient",
+      "stage_context": false,
+      "recommendation": "escalate",
+      "confidence": 0.92,
+      "conclusion_final": true,
+      "conclusion_status": "saved_conclusion",
+      "conclusion_final_rule": "false for timeout/model_unavailable, an undetermined/unknown/inconclusive conclusion, or an explicit in-progress conclusion; otherwise a saved terminal conclusion, not a correctness judgment",
+      "unanswered_questions": 0,
+      "outage_attempts": 1,
+      "outage_reasons": {
+        "the model service timed out": 1
+      },
+      "decide_models_attempted": [
+        "command-a-03-2025",
+        "nvidia/nemotron-3.5-super-vl-120b-a12b"
+      ],
+      "critic_models_attempted": [
+        "ministral-14b-2512"
+      ],
+      "model_questions": 13,
+      "model_questions_answered": 12,
+      "model_replies_invalid": 1
+    },
+    {
+      "case_number": 9,
+      "scenario_id": "KA-09-challenge",
+      "run_key": "baseline/9/KA-09-challenge",
+      "termination_reason": "evidence_sufficient",
+      "stage_context": false,
+      "recommendation": "escalate",
+      "confidence": 0,
+      "conclusion_final": false,
+      "conclusion_status": "undetermined",
+      "conclusion_final_rule": "false for timeout/model_unavailable, an undetermined/unknown/inconclusive conclusion, or an explicit in-progress conclusion; otherwise a saved terminal conclusion, not a correctness judgment",
+      "unanswered_questions": 1,
+      "outage_attempts": 2,
+      "outage_reasons": {
+        "the model service timed out": 2
+      },
+      "decide_models_attempted": [
+        "nvidia/nemotron-3.5-super-vl-120b-a12b"
+      ],
+      "critic_models_attempted": [
+        "ministral-14b-2512"
+      ],
+      "model_questions": 11,
+      "model_questions_answered": 10,
+      "model_replies_invalid": 0
+    },
+    {
+      "case_number": 10,
+      "scenario_id": "KA-10-servo",
+      "run_key": "baseline/10/KA-10-servo",
+      "termination_reason": "timeout",
+      "stage_context": false,
+      "recommendation": "escalate",
+      "confidence": 0.92,
+      "conclusion_final": false,
+      "conclusion_status": "interrupted_with_saved_conclusion",
+      "conclusion_final_rule": "false for timeout/model_unavailable, an undetermined/unknown/inconclusive conclusion, or an explicit in-progress conclusion; otherwise a saved terminal conclusion, not a correctness judgment",
+      "unanswered_questions": 1,
+      "outage_attempts": 4,
+      "outage_reasons": {
+        "the model service timed out": 4
+      },
+      "decide_models_attempted": [
+        "command-a-03-2025",
+        "nvidia/nemotron-3.5-super-vl-120b-a12b"
+      ],
+      "critic_models_attempted": [
+        "ministral-14b-2512"
+      ],
+      "model_questions": 15,
+      "model_questions_answered": 14,
+      "model_replies_invalid": 0
+    }
+  ]
+}
