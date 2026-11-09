@@ -1,6 +1,6 @@
 # Progress Log
 
-> **2026-11-09 — Module 6.1 guardrail #6: text from outside the agent is data, never instructions (built ungated at the developer's request; pre-merge walkthrough owed; understood: no; left unmerged during a live run, at the developer's request):**
+> **2026-11-09 — Module 6.1 guardrail #6: text from outside the agent is data, never instructions (built ungated at the developer's request; walkthrough owed; understood: no; PR #217):**
 > New module `agent/untrusted.py`: `looks_like_instruction` is a plain regex check for wording aimed at a model
 > ("ignore previous instructions", "you are now", "system:", "recommend no_action"), and `UNTRUSTED_NOTE` is the note
 > shown beside a flagged line. `evidence_lines` in `agent/model_policy.py` appends the note to any flagged evidence
@@ -9,6 +9,15 @@
 > and after it are not strictly comparable.** Tests: `tests/test_untrusted_text.py` (CI group with the model policy
 > tests). **Drop rule (developer, 2026-11-09): if this breaks anything, in tests or in a live run, revert it rather
 > than fixing forward.**
+
+> **2026-11-09 — Module 6.1 guardrail #2: the human reviewer sees the evidence behind a proposal (built ungated at the developer's request; walkthrough owed; understood: no; PR #216 merged at the developer's request after the live run):**
+> New `ReviewPacket` in `agent/artifacts.py`, a subclass of `ProposalRecord` with the diagnosis, confidence, predicted
+> effect, the cited evidence (one short line each, cut to 160 characters) and the critic's view. `propose` in
+> `agent/investigation.py` builds it with `review_packet` and `critic_view` and hands it to `human_review`; the run's
+> own record still keeps a plain `ProposalRecord`, so nothing the agent does or records changes. `episode.review_text`
+> prints the extra lines on the console approver and still prints a plain proposal as before. Tests:
+> `tests/test_review_packet.py` (CI group with the agent action tests). **Drop rule (developer, 2026-11-09): if this
+> breaks anything, in tests or in a live run, revert it rather than fixing forward.**
 
 > **2026-11-09 — "Testing the detector" (PR #202) merged at the developer's request (test-only).**
 > `tests/test_detector_side_effects.py` holds 67 offline checks that the line screening (#201) changes nothing else.

@@ -48,6 +48,7 @@ from capstone.agent.artifacts import (
     RecheckRecord,
     ReinstatementRecord,
     RevaluationRecord,
+    ReviewPacket,
     TerminationReason,
     VerificationCheck,
 )
@@ -1074,6 +1075,53 @@ def factory_changed(state: InvestigationState) -> None:
     state.seen_calls.clear()
 
 
+# How much of each cited piece of evidence the reviewer is shown.
+REVIEW_EVIDENCE_CHARS = 160
+
+
+def critic_view(state: InvestigationState) -> str | None:
+    """The critic's answer in one line for the reviewer, or None if it gave none."""
+    # Variables:
+    #   result: The critic's checked reply; absent when it was not asked or failed.
+    #   chosen: The hypothesis the agent concluded with, to say whether the critic agrees.
+    result = state.critique.result if state.critique is not None else None
+    if result is None:
+        return None
+    chosen = state.conclusion.hypothesis_id if state.conclusion else None
+    agreed = "agrees" if result.favoured == chosen else "disagrees"
+    return f"{agreed}: favours {result.favoured}. {result.why}"
+
+
+def review_packet(state: InvestigationState, proposal: ProposalRecord) -> ReviewPacket:
+    """The proposal with what a human needs to judge it: belief, evidence, critic.
+
+    Built by code from the state, so the reviewer sees what the agent
+    actually concluded and cited, not a model's summary of it.
+    """
+    # Variables:
+    #   conclusion: The agent's final belief; its cited ids pick the evidence shown.
+    #   shown: Each piece of evidence by id as "E3 get_readings: <text>", the
+    #     text cut to REVIEW_EVIDENCE_CHARS.
+    #   evidence: One line per cited id that exists, in the order it was cited.
+    conclusion = state.conclusion
+    shown = {
+        e.id: f"{e.id} {e.source_id.split(':')[-1]}: "
+        + e.content[:REVIEW_EVIDENCE_CHARS]
+        + ("..." if len(e.content) > REVIEW_EVIDENCE_CHARS else "")
+        for e in state.evidence
+    }
+    cited = conclusion.evidence_ids if conclusion else ()
+    evidence = tuple(shown[i] for i in cited if i in shown)
+    return ReviewPacket(
+        **proposal.model_dump(),
+        diagnosis=conclusion.diagnosis if conclusion else None,
+        confidence=conclusion.confidence if conclusion else None,
+        predicted_effect=state.predicted_effect,
+        evidence=evidence,
+        critic_view=critic_view(state),
+    )
+
+
 def propose(state: InvestigationState, deps: InvestigationDeps) -> ActionRoute:
     """Ask a human for the change, let them decide, and read their decision back.
 
@@ -1121,7 +1169,8 @@ def propose(state: InvestigationState, deps: InvestigationDeps) -> ActionRoute:
     state.proposed_action = submitted
     if deps.human_review is not None:
         notify(state, deps)  # the watcher sees the proposal before the human decides
-        deps.human_review(submitted)
+        # The reviewer sees the proposal with the evidence behind it (Module 6).
+        deps.human_review(review_packet(state, submitted))
         factory_changed(state)
     proposals = followup_call(
         state, deps, "propose", "get_proposals", "the human's decision on the proposal"
