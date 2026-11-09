@@ -1,5 +1,15 @@
 # Progress Log
 
+> **2026-11-09 — Module 6.1 gap #5: guardrail drift tracking across batches of runs (built ungated at the developer's request; pre-merge walkthrough owed; understood: no; left unmerged during a live run, at the developer's request):**
+> New module `evaluation/drift.py`, read-only over saved results files. `batch_rates` gives each batch's
+> `intervene_rate`, `lowered_rate` (intervene requests the final check lowered to escalate), `rejection_rate` (decided
+> proposals the human rejected), `timeout_rate`, `mean_confidence` and `calibration_gap` (mean confidence minus share
+> diagnosed right, judged runs only); runs with no model answer are left out, and a rate with nothing to count is None,
+> never zero. `shifts` flags any rate that moved more than a threshold (default 0.15) from the first file. Command line
+> `python -m capstone.evaluation.drift BASELINE.jsonl LATER.jsonl [...] [--threshold T] [--json]`, exit 1 on drift.
+> Tests: `tests/test_drift.py` (CI group with the evaluation tests). **Drop rule (developer, 2026-11-09): if this breaks
+> anything, revert it rather than fixing forward.**
+
 > **2026-11-09 — "Testing the detector" (PR #202) merged at the developer's request (test-only).**
 > `tests/test_detector_side_effects.py` holds 67 offline checks that the line screening (#201) changes nothing else.
 > Each compares a run with the screening against the same run with only the screening's call skipped. The checks cover:
