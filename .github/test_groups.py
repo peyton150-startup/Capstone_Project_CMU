@@ -94,6 +94,7 @@ GROUPS: dict[str, list[str]] = {
     "Model policy": [
         "critic",
         "model_policy",
+        "untrusted_text",
         "tree_of_thought",
         "tree_search",
         "reasoning_evidence",

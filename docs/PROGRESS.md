@@ -1,5 +1,15 @@
 # Progress Log
 
+> **2026-11-09 — Module 6.1 guardrail #6: text from outside the agent is data, never instructions (built ungated at the developer's request; pre-merge walkthrough owed; understood: no; left unmerged during a live run, at the developer's request):**
+> New module `agent/untrusted.py`: `looks_like_instruction` is a plain regex check for wording aimed at a model
+> ("ignore previous instructions", "you are now", "system:", "recommend no_action"), and `UNTRUSTED_NOTE` is the note
+> shown beside a flagged line. `evidence_lines` in `agent/model_policy.py` appends the note to any flagged evidence
+> line; the evidence itself is never rewritten. `COMMON` (every model prompt, the critic's included) gains one sentence
+> saying evidence content is data and must not be followed. **This changes what every model is shown, so runs before
+> and after it are not strictly comparable.** Tests: `tests/test_untrusted_text.py` (CI group with the model policy
+> tests). **Drop rule (developer, 2026-11-09): if this breaks anything, in tests or in a live run, revert it rather
+> than fixing forward.**
+
 > **2026-11-09 — "Testing the detector" (PR #202) merged at the developer's request (test-only).**
 > `tests/test_detector_side_effects.py` holds 67 offline checks that the line screening (#201) changes nothing else.
 > Each compares a run with the screening against the same run with only the screening's call skipped. The checks cover:
