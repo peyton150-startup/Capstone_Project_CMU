@@ -11,5 +11,8 @@
       "bytes": 545637,
       "sha256": "ee07dce5d6febce4de25e4ab7743f7f47614cd87faab893ed9a4ff3587541dda"
     }
-  ]
+  ],
+  "commit_source": "operator-attested; source commit SHA not stored inside JSONL records",
+  "source_commit": "c49fdd60884d874a6d7877590d2be9ab1b7eb70e",
+  "privacy_note": "Raw records contain simulator hidden truth; PR branch is public even when draft."
 }

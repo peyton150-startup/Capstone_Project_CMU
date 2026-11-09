@@ -1,11 +1,16 @@
 {
-  "description": "Preserved observed results of the original run and its local validation; not a rerun or new judge inference.",
-  "source_files": [
-    "pair-01/baseline.records.jsonl",
-    "pair-01/baseline.audit.jsonl"
-  ],
-  "packet_generator": "python -m evaltools.run_packet",
-  "packet_generator_report": {
+  "description": "Summarizes original operator reports and independently verified counts from archived model_calls; no new diagnosis labels or live SNAP judgments.",
+  "raw_file_integrity": {
+    "records": {
+      "bytes": 165440,
+      "sha256": "01cd36cb4bb9d756a0243605fdc6f7c705ba8ea953577d3a22dc44396a4f2c8b"
+    },
+    "audit": {
+      "bytes": 545637,
+      "sha256": "ee07dce5d6febce4de25e4ab7743f7f47614cd87faab893ed9a4ff3587541dda"
+    }
+  },
+  "operator_run_packet_report": {
     "runs": 10,
     "model_unavailable": 1,
     "judged": 0,
@@ -38,32 +43,20 @@
     "traces_complete": 10,
     "refused": []
   },
+  "result_note": "judged: 0 means no human root-cause labels were supplied. recommendation_correct: 3 is simulator-grounded deterministic comparison to known scenario outcomes, not human-reviewed diagnostic correctness.",
   "audit_preflight": {
-    "command": "require_full_traces(packets)",
     "outcome": "PASS: 10 audited packets",
     "reported_by": "operator",
-    "note": "This verifies trace integrity, not correctness of a diagnosis or suitability of all calibration question slots."
+    "verified_locally": "not rerun by this PR",
+    "note": "require_full_traces validates structural trace evidence, not correctness or eligibility for each question."
   },
-  "raw_file_integrity": {
-    "records": {
-      "jsonl_records": 10,
-      "sha256": "01cd36cb4bb9d756a0243605fdc6f7c705ba8ea953577d3a22dc44396a4f2c8b"
-    },
-    "audit": {
-      "jsonl_records": 10,
-      "sha256": "ee07dce5d6febce4de25e4ab7743f7f47614cd87faab893ed9a4ff3587541dda"
-    }
+  "model_statistics": {
+    "outage_attempts": 36,
+    "unanswered_questions": 7,
+    "total_cases": 10,
+    "final_conclusions": 4,
+    "interrupted_timeout": 3,
+    "model_unavailable": 1
   },
-  "case_inventory": [
-    "KA-01-bearing",
-    "KA-02-bearing",
-    "KA-03-batch",
-    "KA-04-batch",
-    "KA-05-setting",
-    "KA-06-setting",
-    "KA-07-false-alarm",
-    "KA-08-false-alarm",
-    "KA-09-challenge",
-    "KA-10-servo"
-  ]
+  "per_case_details": "see case_status.json"
 }
