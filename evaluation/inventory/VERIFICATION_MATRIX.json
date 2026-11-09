@@ -1,6 +1,6 @@
 {
  "inventory_version": "1.0.0",
- "coverage_file": "../.coverage",
+ "coverage_file": "..\\.coverage",
  "coverage_available": true,
  "junit_available": true,
  "source_sha256": {
@@ -49,6 +49,7 @@
   "capstone-code/capstone/ingestion/collector.py": "3ecbc4ec68bc05284892d956046a2966e8086c1c12b19f441945342dd29ec7a9",
   "capstone-code/capstone/ingestion/mtconnect.py": "ad303b033cf657d86b8be2ffe7047a3eb1fbbac414d2e74df917c2791e213521",
   "capstone-code/capstone/ingestion/privacy.py": "6316dbd843a40da4360f1876dad35a01970efd66d4d595a9aad53ab40eec4904",
+  "capstone-code/capstone/ingestion/quality.py": "609b2571b21e20ab3ff3114be40cb63b7770f5754cf7af677173efe36ef95ff0",
   "capstone-code/capstone/ingestion/record.py": "f9e363c8fa11878b892b5ce2d1e00c6d7fee81e0905d61bc33c59e30e2bea2f3",
   "capstone-code/capstone/ingestion/visit_log.py": "4b1d8c9c257a770312fdf783c3a2f0705bec9f2331da6d14d99442bfac4eed1c",
   "capstone-code/capstone/learning.py": "4741af4b7f52b774554efce90730dc0e9e7f6f6f6ed632f62c77add33feec33c",
@@ -133,6 +134,7 @@
   "tests/test_benchmark.py": "1d1e9bd68a12873c277e004452726284b3065bb2246e7d29f3fdc5ac4a928efa",
   "tests/test_build_line.py": "c651bda3af8032bdbdaaa2a4f199d424a11be2c1ec2ab65521efb376d36df520",
   "tests/test_channel_map.py": "e2effde9a13f03c5ef2e3a4921ff6060737cd7e7ede7a65025b31d628e68a667",
+  "tests/test_channel_quality.py": "bce144414c7c8b3b23b8788e9ed331373ad1a1dbc2f9127c2d0145b5f81da591",
   "tests/test_chat_client.py": "e5e125dd5c8781cbc4d2999e5ec4500f60da2810d3b82b7974625f51e39af15b",
   "tests/test_clock.py": "2d0e62071d5bec9da5ffce839fda122ab6b277c2d66d1cba3f071146da6c1e63",
   "tests/test_collector_watchdog.py": "448509006e430513390f47d79ec3c9e512d30dff7be1a68710cb2df38beb7c39",
@@ -229,29 +231,29 @@
   "tests/test_wait_tool.py": "b99a5fbf756a60176262417e54d8d1a0496f01126929a330492e7d24287b2d1e",
   "tests/test_wrong_setting.py": "aed1c646bffaf88ae25ed2156794dc57427e8a61bbe6b23a0c33f3c3e89c0da3"
  },
- "coverage_sha256": "969a3dece8f3b357c274f70ddfd2680c76c97978f648814262ffd17b880aac72",
- "junit_sha256": "ca75120c71cd02b0f486ae40e01a6e26e05c52ded62fb7abda1fb0b9a9db92df",
+ "coverage_sha256": "fe7aacc375e81bc7d9fe8b6000bef0fb3c6bf942f77f6201db394f771eb5985b",
+ "junit_sha256": "ee646602c17e3cdabb2e0aa750c65e83ec68eeb8c389ae3f4a11671e5ca7d1e1",
  "counts": {
-  "functions": 900,
+  "functions": 910,
   "classes_note": "classes are listed through their methods",
-  "tests": 1813,
+  "tests": 1823,
   "tools": 18,
   "functions_by_status": {
-   "INSUFFICIENT EVIDENCE": 367,
+   "INSUFFICIENT EVIDENCE": 374,
    "NOT APPLICABLE": 25,
    "NOT TESTED": 13,
-   "PARTIALLY VERIFIED": 450,
+   "PARTIALLY VERIFIED": 453,
    "VERIFIED": 45
   },
   "functions_by_coverage_class": {
-   "direct": 479,
+   "direct": 482,
    "import-only": 4,
-   "indirect": 379,
+   "indirect": 386,
    "no-statements": 25,
    "none": 13
   },
-  "functions_executed_in_tests": 858,
-  "functions_with_direct_tests": 479,
+  "functions_executed_in_tests": 868,
+  "functions_with_direct_tests": 482,
   "functions_never_executed": [
    "capstone.episode:ask_on_console",
    "capstone.evals:main.<locals>.show_progress",
@@ -302,12 +304,13 @@
    "evaluation.evaltools.snap_request:DecisionQuestion.criteria_fit_type (5/9)",
    "evaluation.evaltools.snap_request:load_questions (7/9)",
    "evaluation.evaltools.snap_request:fitted_trace_skips (8/13)",
+   "evaluation.evaltools.snap_request:test_source (5/7)",
    "evaluation.evaltools.snap_request:describe_failure (2/5)",
    "evaluation.evaltools.snap_request:already_answered (6/8)"
   ],
   "stubs_or_protocols": 25,
   "tests_by_outcome": {
-   "passed": 1813
+   "passed": 1823
   },
   "tests_with_no_assertion": [
    "tests/test_console.py::test_without_it_the_same_print_raised"
@@ -322,6 +325,7 @@
    "tests/test_baseline.py::test_the_right_repair_is_carried_out_and_nothing_for_a_false_alarm",
    "tests/test_bearing_degradation.py::test_the_default_phases_change_nothing",
    "tests/test_bearing_degradation.py::test_after_onset_the_bearing_wears_at_the_full_rate",
+   "tests/test_channel_quality.py::test_silence_after_a_break_is_marked_as_possibly_the_collectors",
    "tests/test_chat_client.py::test_a_service_that_reports_no_usage_leaves_tokens_unknown",
    "tests/test_chat_client.py::test_malformed_usage_is_ignored_not_trusted",
    "tests/test_chat_client.py::test_a_client_without_a_request_record_still_gets_attempts",
@@ -641,6 +645,11 @@
    "functions": 2,
    "executed": 2,
    "direct": 0
+  },
+  "capstone.ingestion.quality": {
+   "functions": 10,
+   "executed": 10,
+   "direct": 3
   },
   "capstone.ingestion.record": {
    "functions": 4,
@@ -7812,12 +7821,13 @@
    "indirect": []
   },
   "capstone.ingestion.channel_map:read_capture": {
-   "count": 2,
+   "count": 3,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_channel_map.py::test_command_line_builds_checks_and_records_reported_channels"
    ],
    "indirect": [
+    "tests/test_channel_quality.py::test_command_line_reports_stretches_and_stale_channels",
     "tests/test_visit_log.py::test_command_line_checks_a_visit"
    ]
   },
@@ -8117,6 +8127,121 @@
     "tests/test_visit_log.py::test_command_line_writes_an_empty_log_outside_the_repository"
    ]
   },
+  "capstone.ingestion.quality:UnavailableSpan.seconds": {
+   "count": 2,
+   "status": "INSUFFICIENT EVIDENCE",
+   "direct": [],
+   "indirect": [
+    "tests/test_channel_quality.py::test_a_stretch_runs_from_unavailable_to_the_next_real_value",
+    "tests/test_channel_quality.py::test_command_line_reports_stretches_and_stale_channels"
+   ]
+  },
+  "capstone.ingestion.quality:ChannelAge.stale": {
+   "count": 4,
+   "status": "PARTIALLY VERIFIED",
+   "direct": [
+    "tests/test_channel_quality.py::test_command_line_reports_stretches_and_stale_channels",
+    "tests/test_channel_quality.py::test_only_channels_given_a_limit_can_be_stale"
+   ],
+   "indirect": [
+    "tests/test_channel_quality.py::test_silence_after_a_break_is_marked_as_possibly_the_collectors",
+    "tests/test_channel_quality.py::test_the_check_time_can_be_given"
+   ]
+  },
+  "capstone.ingestion.quality:_channel": {
+   "count": 8,
+   "status": "PARTIALLY VERIFIED",
+   "direct": [
+    "tests/test_channel_quality.py::test_a_channel_that_always_had_a_value_has_no_stretch",
+    "tests/test_channel_quality.py::test_a_stretch_open_at_a_gap_closes_at_the_last_collected_reading",
+    "tests/test_channel_quality.py::test_a_stretch_open_at_the_end_closes_with_the_capture",
+    "tests/test_channel_quality.py::test_a_stretch_runs_from_unavailable_to_the_next_real_value",
+    "tests/test_channel_quality.py::test_command_line_reports_stretches_and_stale_channels",
+    "tests/test_channel_quality.py::test_only_channels_given_a_limit_can_be_stale",
+    "tests/test_channel_quality.py::test_silence_after_a_break_is_marked_as_possibly_the_collectors",
+    "tests/test_channel_quality.py::test_the_check_time_can_be_given"
+   ],
+   "indirect": []
+  },
+  "capstone.ingestion.quality:_breaks": {
+   "count": 7,
+   "status": "INSUFFICIENT EVIDENCE",
+   "direct": [],
+   "indirect": [
+    "tests/test_channel_quality.py::test_a_stretch_open_at_a_gap_closes_at_the_last_collected_reading",
+    "tests/test_channel_quality.py::test_a_stretch_runs_from_unavailable_to_the_next_real_value",
+    "tests/test_channel_quality.py::test_an_empty_capture_has_no_ages",
+    "tests/test_channel_quality.py::test_command_line_reports_stretches_and_stale_channels",
+    "tests/test_channel_quality.py::test_only_channels_given_a_limit_can_be_stale",
+    "tests/test_channel_quality.py::test_silence_after_a_break_is_marked_as_possibly_the_collectors",
+    "tests/test_channel_quality.py::test_the_check_time_can_be_given"
+   ]
+  },
+  "capstone.ingestion.quality:unavailable_spans": {
+   "count": 5,
+   "status": "INSUFFICIENT EVIDENCE",
+   "direct": [],
+   "indirect": [
+    "tests/test_channel_quality.py::test_a_channel_that_always_had_a_value_has_no_stretch",
+    "tests/test_channel_quality.py::test_a_stretch_open_at_a_gap_closes_at_the_last_collected_reading",
+    "tests/test_channel_quality.py::test_a_stretch_open_at_the_end_closes_with_the_capture",
+    "tests/test_channel_quality.py::test_a_stretch_runs_from_unavailable_to_the_next_real_value",
+    "tests/test_channel_quality.py::test_command_line_reports_stretches_and_stale_channels"
+   ]
+  },
+  "capstone.ingestion.quality:unavailable_spans.<locals>.close_all": {
+   "count": 5,
+   "status": "INSUFFICIENT EVIDENCE",
+   "direct": [],
+   "indirect": [
+    "tests/test_channel_quality.py::test_a_channel_that_always_had_a_value_has_no_stretch",
+    "tests/test_channel_quality.py::test_a_stretch_open_at_a_gap_closes_at_the_last_collected_reading",
+    "tests/test_channel_quality.py::test_a_stretch_open_at_the_end_closes_with_the_capture",
+    "tests/test_channel_quality.py::test_a_stretch_runs_from_unavailable_to_the_next_real_value",
+    "tests/test_channel_quality.py::test_command_line_reports_stretches_and_stale_channels"
+   ]
+  },
+  "capstone.ingestion.quality:channel_ages": {
+   "count": 5,
+   "status": "INSUFFICIENT EVIDENCE",
+   "direct": [],
+   "indirect": [
+    "tests/test_channel_quality.py::test_an_empty_capture_has_no_ages",
+    "tests/test_channel_quality.py::test_command_line_reports_stretches_and_stale_channels",
+    "tests/test_channel_quality.py::test_only_channels_given_a_limit_can_be_stale",
+    "tests/test_channel_quality.py::test_silence_after_a_break_is_marked_as_possibly_the_collectors",
+    "tests/test_channel_quality.py::test_the_check_time_can_be_given"
+   ]
+  },
+  "capstone.ingestion.quality:stale_channels": {
+   "count": 4,
+   "status": "PARTIALLY VERIFIED",
+   "direct": [
+    "tests/test_channel_quality.py::test_command_line_reports_stretches_and_stale_channels"
+   ],
+   "indirect": [
+    "tests/test_channel_quality.py::test_only_channels_given_a_limit_can_be_stale",
+    "tests/test_channel_quality.py::test_silence_after_a_break_is_marked_as_possibly_the_collectors",
+    "tests/test_channel_quality.py::test_the_check_time_can_be_given"
+   ]
+  },
+  "capstone.ingestion.quality:load_limits": {
+   "count": 2,
+   "status": "INSUFFICIENT EVIDENCE",
+   "direct": [],
+   "indirect": [
+    "tests/test_channel_quality.py::test_a_bad_limits_file_is_refused",
+    "tests/test_channel_quality.py::test_command_line_reports_stretches_and_stale_channels"
+   ]
+  },
+  "capstone.ingestion.quality:main": {
+   "count": 1,
+   "status": "INSUFFICIENT EVIDENCE",
+   "direct": [],
+   "indirect": [
+    "tests/test_channel_quality.py::test_command_line_reports_stretches_and_stale_channels"
+   ]
+  },
   "capstone.ingestion.record:TelemetryRecord.number": {
    "count": 18,
    "status": "INSUFFICIENT EVIDENCE",
@@ -8137,30 +8262,31 @@
    ]
   },
   "capstone.ingestion.record:CollectorMarker.gap_detail_only_on_a_gap": {
-   "count": 29,
+   "count": 36,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
     "tests/test_channel_map.py::test_every_observation_maps_to_one_entry_or_is_reported_unmapped",
+    "tests/test_channel_quality.py::test_a_stretch_open_at_a_gap_closes_at_the_last_collected_reading",
+    "tests/test_channel_quality.py::test_a_stretch_runs_from_unavailable_to_the_next_real_value",
+    "tests/test_channel_quality.py::test_an_empty_capture_has_no_ages",
+    "tests/test_channel_quality.py::test_command_line_reports_stretches_and_stale_channels",
+    "tests/test_channel_quality.py::test_only_channels_given_a_limit_can_be_stale",
+    "tests/test_channel_quality.py::test_silence_after_a_break_is_marked_as_possibly_the_collectors",
+    "tests/test_channel_quality.py::test_the_check_time_can_be_given",
     "tests/test_collector_watchdog.py::test_a_clean_stop_is_never_called_silent",
     "tests/test_collector_watchdog.py::test_a_quiet_machine_gets_a_heartbeat_every_minute",
     "tests/test_collector_watchdog.py::test_a_stop_after_an_alert_closes_it",
-    "tests/test_collector_watchdog.py::test_command_line_reports_a_dead_collector",
-    "tests/test_collector_watchdog.py::test_failed_polls_never_write_a_heartbeat",
-    "tests/test_collector_watchdog.py::test_heartbeats_keep_a_quiet_machine_from_looking_dead",
-    "tests/test_collector_watchdog.py::test_the_monitor_counts_a_heartbeat_as_contact",
-    "tests/test_mtconnect_ingestion.py::test_a_crash_writes_no_stop_marker",
-    "tests/test_mtconnect_ingestion.py::test_a_failed_poll_alone_writes_no_gap",
-    "tests/test_mtconnect_ingestion.py::test_ctrl_c_writes_a_clean_stop_and_keeps_the_count",
-    "tests/test_mtconnect_ingestion.py::test_gap_detail_belongs_only_on_a_gap_marker"
+    "tests/test_collector_watchdog.py::test_command_line_reports_a_dead_collector"
    ]
   },
   "capstone.ingestion.record:parse_line": {
-   "count": 17,
+   "count": 18,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
     "tests/test_channel_map.py::test_command_line_builds_checks_and_records_reported_channels",
+    "tests/test_channel_quality.py::test_command_line_reports_stretches_and_stale_channels",
     "tests/test_collector_watchdog.py::test_a_quiet_machine_gets_a_heartbeat_every_minute",
     "tests/test_collector_watchdog.py::test_command_line_reports_a_dead_collector",
     "tests/test_collector_watchdog.py::test_failed_polls_never_write_a_heartbeat",
@@ -8170,8 +8296,7 @@
     "tests/test_mtconnect_ingestion.py::test_ctrl_c_writes_a_clean_stop_and_keeps_the_count",
     "tests/test_mtconnect_ingestion.py::test_lines_written_before_markers_existed_still_read_as_observations",
     "tests/test_mtconnect_ingestion.py::test_run_collector_writes_jsonl_and_survives_failures",
-    "tests/test_mtconnect_ingestion.py::test_the_gap_marker_is_written_between_the_readings_it_separates",
-    "tests/test_mtconnect_ingestion.py::test_version_1_markers_written_before_gaps_existed_still_read"
+    "tests/test_mtconnect_ingestion.py::test_the_gap_marker_is_written_between_the_readings_it_separates"
    ]
   },
   "capstone.ingestion.record:gap_free_runs": {
@@ -24107,6 +24232,118 @@
     "capstone.ingestion.channel_map:main",
     "capstone.ingestion.privacy:git_checkout_containing",
     "capstone.ingestion.privacy:refusal"
+   ]
+  },
+  "tests/test_channel_quality.py::test_a_stretch_runs_from_unavailable_to_the_next_real_value": {
+   "count": 6,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.ingestion.quality:UnavailableSpan.seconds",
+    "capstone.ingestion.quality:_breaks",
+    "capstone.ingestion.quality:_channel",
+    "capstone.ingestion.quality:unavailable_spans",
+    "capstone.ingestion.quality:unavailable_spans.<locals>.close_all",
+    "capstone.ingestion.record:CollectorMarker.gap_detail_only_on_a_gap"
+   ]
+  },
+  "tests/test_channel_quality.py::test_a_stretch_open_at_a_gap_closes_at_the_last_collected_reading": {
+   "count": 5,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.ingestion.quality:_breaks",
+    "capstone.ingestion.quality:_channel",
+    "capstone.ingestion.quality:unavailable_spans",
+    "capstone.ingestion.quality:unavailable_spans.<locals>.close_all",
+    "capstone.ingestion.record:CollectorMarker.gap_detail_only_on_a_gap"
+   ]
+  },
+  "tests/test_channel_quality.py::test_a_stretch_open_at_the_end_closes_with_the_capture": {
+   "count": 3,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.ingestion.quality:_channel",
+    "capstone.ingestion.quality:unavailable_spans",
+    "capstone.ingestion.quality:unavailable_spans.<locals>.close_all"
+   ]
+  },
+  "tests/test_channel_quality.py::test_a_channel_that_always_had_a_value_has_no_stretch": {
+   "count": 3,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.ingestion.quality:_channel",
+    "capstone.ingestion.quality:unavailable_spans",
+    "capstone.ingestion.quality:unavailable_spans.<locals>.close_all"
+   ]
+  },
+  "tests/test_channel_quality.py::test_only_channels_given_a_limit_can_be_stale": {
+   "count": 6,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.ingestion.quality:ChannelAge.stale",
+    "capstone.ingestion.quality:_breaks",
+    "capstone.ingestion.quality:_channel",
+    "capstone.ingestion.quality:channel_ages",
+    "capstone.ingestion.quality:stale_channels",
+    "capstone.ingestion.record:CollectorMarker.gap_detail_only_on_a_gap"
+   ]
+  },
+  "tests/test_channel_quality.py::test_the_check_time_can_be_given": {
+   "count": 6,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.ingestion.quality:ChannelAge.stale",
+    "capstone.ingestion.quality:_breaks",
+    "capstone.ingestion.quality:_channel",
+    "capstone.ingestion.quality:channel_ages",
+    "capstone.ingestion.quality:stale_channels",
+    "capstone.ingestion.record:CollectorMarker.gap_detail_only_on_a_gap"
+   ]
+  },
+  "tests/test_channel_quality.py::test_silence_after_a_break_is_marked_as_possibly_the_collectors": {
+   "count": 6,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.ingestion.quality:ChannelAge.stale",
+    "capstone.ingestion.quality:_breaks",
+    "capstone.ingestion.quality:_channel",
+    "capstone.ingestion.quality:channel_ages",
+    "capstone.ingestion.quality:stale_channels",
+    "capstone.ingestion.record:CollectorMarker.gap_detail_only_on_a_gap"
+   ]
+  },
+  "tests/test_channel_quality.py::test_an_empty_capture_has_no_ages": {
+   "count": 3,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.ingestion.quality:_breaks",
+    "capstone.ingestion.quality:channel_ages",
+    "capstone.ingestion.record:CollectorMarker.gap_detail_only_on_a_gap"
+   ]
+  },
+  "tests/test_channel_quality.py::test_a_bad_limits_file_is_refused": {
+   "count": 1,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.ingestion.quality:load_limits"
+   ]
+  },
+  "tests/test_channel_quality.py::test_command_line_reports_stretches_and_stale_channels": {
+   "count": 13,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.ingestion.channel_map:read_capture",
+    "capstone.ingestion.quality:ChannelAge.stale",
+    "capstone.ingestion.quality:UnavailableSpan.seconds",
+    "capstone.ingestion.quality:_breaks",
+    "capstone.ingestion.quality:_channel",
+    "capstone.ingestion.quality:channel_ages",
+    "capstone.ingestion.quality:load_limits",
+    "capstone.ingestion.quality:main",
+    "capstone.ingestion.quality:stale_channels",
+    "capstone.ingestion.quality:unavailable_spans",
+    "capstone.ingestion.quality:unavailable_spans.<locals>.close_all",
+    "capstone.ingestion.record:CollectorMarker.gap_detail_only_on_a_gap",
+    "capstone.ingestion.record:parse_line"
    ]
   },
   "tests/test_chat_client.py::test_one_request_carries_the_model_the_prompt_and_the_answer_shape": {

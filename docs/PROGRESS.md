@@ -1,5 +1,17 @@
 # Progress Log
 
+> **2026-11-08 — SM-2 remainder: per-channel UNAVAILABLE stretches and staleness (built ungated at the developer's direction; pre-check, closing questions and pre-merge walkthrough owed; understood: no; not merged, at the developer's request):**
+> New module `ingestion/quality.py`. `unavailable_spans` lists each stretch in which one channel reported UNAVAILABLE,
+> from that record to the channel's next real value (`available_again`); a stretch still open when collection breaks (a
+> gap or started marker) or ends closes at the last collected reading (`collection_broke` / `capture_end`), because
+> nothing after it was seen. `channel_ages` gives each channel's last report time and age on the capture's own clock
+> (or a given `at`); `stale_channels` reports the channels older than an age limit a person gave them, since
+> change-reported channels can be silent for hours with nothing wrong. `broke_since` marks silence that began before a
+> collection break. Command line `python -m capstone.ingestion.quality --capture C [--limits L.json] [--at T]`. Computed
+> from the file rather than written into it as new markers (see the PR's trade-offs). PR #211. Owed questions:
+> pre-check, "why is a channel with no age limit never called stale?"; closing, "a channel goes UNAVAILABLE at 09:00:10
+> and a gap marker follows at 09:05; when does its stretch end, and why not at the first reading after the gap?"
+
 > **2026-11-07 — SM-4 shop visit checklist and technician event log (built ungated at the developer's direction; pre-check, closing questions and pre-merge walkthrough owed; understood: no):**
 > New module `ingestion/visit_log.py`. `load_event_log` reads the CSV log a person fills in during a capture
 > (`at,event_type,note,logged_by,until`; event types `program_change`, `tool_change`, `warm_up`, `maintenance`, `unusual`,

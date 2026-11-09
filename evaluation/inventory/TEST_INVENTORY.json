@@ -22073,6 +22073,385 @@
    ]
   },
   {
+   "id": "tests/test_channel_quality.py::test_a_stretch_runs_from_unavailable_to_the_next_real_value",
+   "file": "tests/test_channel_quality.py",
+   "name": "test_a_stretch_runs_from_unavailable_to_the_next_real_value",
+   "line": 57,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 3,
+   "assert_forms": {
+    "equality": 3
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "a stretch runs from unavailable to the next real value",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.ingestion.quality:UnavailableSpan.seconds",
+    "capstone.ingestion.quality:_breaks",
+    "capstone.ingestion.quality:_channel",
+    "capstone.ingestion.quality:unavailable_spans",
+    "capstone.ingestion.quality:unavailable_spans.<locals>.close_all",
+    "capstone.ingestion.record:CollectorMarker.gap_detail_only_on_a_gap"
+   ],
+   "exercise_count": 6,
+   "modules_exercised": [
+    "capstone.ingestion.quality",
+    "capstone.ingestion.record"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_channel_quality.py::test_a_stretch_open_at_a_gap_closes_at_the_last_collected_reading",
+   "file": "tests/test_channel_quality.py",
+   "name": "test_a_stretch_open_at_a_gap_closes_at_the_last_collected_reading",
+   "line": 72,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 1,
+   "assert_forms": {
+    "equality": 1
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "a stretch open at a gap closes at the last collected reading",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.ingestion.quality:_breaks",
+    "capstone.ingestion.quality:_channel",
+    "capstone.ingestion.quality:unavailable_spans",
+    "capstone.ingestion.quality:unavailable_spans.<locals>.close_all",
+    "capstone.ingestion.record:CollectorMarker.gap_detail_only_on_a_gap"
+   ],
+   "exercise_count": 5,
+   "modules_exercised": [
+    "capstone.ingestion.quality",
+    "capstone.ingestion.record"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_channel_quality.py::test_a_stretch_open_at_the_end_closes_with_the_capture",
+   "file": "tests/test_channel_quality.py",
+   "name": "test_a_stretch_open_at_the_end_closes_with_the_capture",
+   "line": 84,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 1,
+   "assert_forms": {
+    "equality": 1
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "a stretch open at the end closes with the capture",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.ingestion.quality:_channel",
+    "capstone.ingestion.quality:unavailable_spans",
+    "capstone.ingestion.quality:unavailable_spans.<locals>.close_all"
+   ],
+   "exercise_count": 3,
+   "modules_exercised": [
+    "capstone.ingestion.quality"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_channel_quality.py::test_a_channel_that_always_had_a_value_has_no_stretch",
+   "file": "tests/test_channel_quality.py",
+   "name": "test_a_channel_that_always_had_a_value_has_no_stretch",
+   "line": 90,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 1,
+   "assert_forms": {
+    "equality": 1
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "a channel that always had a value has no stretch",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.ingestion.quality:_channel",
+    "capstone.ingestion.quality:unavailable_spans",
+    "capstone.ingestion.quality:unavailable_spans.<locals>.close_all"
+   ],
+   "exercise_count": 3,
+   "modules_exercised": [
+    "capstone.ingestion.quality"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_channel_quality.py::test_only_channels_given_a_limit_can_be_stale",
+   "file": "tests/test_channel_quality.py",
+   "name": "test_only_channels_given_a_limit_can_be_stale",
+   "line": 108,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 5,
+   "assert_forms": {
+    "equality": 3,
+    "negation": 2
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "only channels given a limit can be stale",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.ingestion.quality:ChannelAge.stale",
+    "capstone.ingestion.quality:_breaks",
+    "capstone.ingestion.quality:_channel",
+    "capstone.ingestion.quality:channel_ages",
+    "capstone.ingestion.quality:stale_channels",
+    "capstone.ingestion.record:CollectorMarker.gap_detail_only_on_a_gap"
+   ],
+   "exercise_count": 6,
+   "modules_exercised": [
+    "capstone.ingestion.quality",
+    "capstone.ingestion.record"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_channel_quality.py::test_the_check_time_can_be_given",
+   "file": "tests/test_channel_quality.py",
+   "name": "test_the_check_time_can_be_given",
+   "line": 118,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 1,
+   "assert_forms": {
+    "equality": 1
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "the check time can be given",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.ingestion.quality:ChannelAge.stale",
+    "capstone.ingestion.quality:_breaks",
+    "capstone.ingestion.quality:_channel",
+    "capstone.ingestion.quality:channel_ages",
+    "capstone.ingestion.quality:stale_channels",
+    "capstone.ingestion.record:CollectorMarker.gap_detail_only_on_a_gap"
+   ],
+   "exercise_count": 6,
+   "modules_exercised": [
+    "capstone.ingestion.quality",
+    "capstone.ingestion.record"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_channel_quality.py::test_silence_after_a_break_is_marked_as_possibly_the_collectors",
+   "file": "tests/test_channel_quality.py",
+   "name": "test_silence_after_a_break_is_marked_as_possibly_the_collectors",
+   "line": 123,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 1,
+   "assert_forms": {
+    "truthiness": 1
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [
+    "weak_assertions_only"
+   ],
+   "claims": "silence after a break is marked as possibly the collectors",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.ingestion.quality:ChannelAge.stale",
+    "capstone.ingestion.quality:_breaks",
+    "capstone.ingestion.quality:_channel",
+    "capstone.ingestion.quality:channel_ages",
+    "capstone.ingestion.quality:stale_channels",
+    "capstone.ingestion.record:CollectorMarker.gap_detail_only_on_a_gap"
+   ],
+   "exercise_count": 6,
+   "modules_exercised": [
+    "capstone.ingestion.quality",
+    "capstone.ingestion.record"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_channel_quality.py::test_an_empty_capture_has_no_ages",
+   "file": "tests/test_channel_quality.py",
+   "name": "test_an_empty_capture_has_no_ages",
+   "line": 129,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 1,
+   "assert_forms": {
+    "equality": 1
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "an empty capture has no ages",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.ingestion.quality:_breaks",
+    "capstone.ingestion.quality:channel_ages",
+    "capstone.ingestion.record:CollectorMarker.gap_detail_only_on_a_gap"
+   ],
+   "exercise_count": 3,
+   "modules_exercised": [
+    "capstone.ingestion.quality",
+    "capstone.ingestion.record"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_channel_quality.py::test_a_bad_limits_file_is_refused",
+   "file": "tests/test_channel_quality.py",
+   "name": "test_a_bad_limits_file_is_refused",
+   "line": 142,
+   "docstring": "",
+   "parametrized": true,
+   "fixtures": [
+    "tmp_path",
+    "content",
+    "problem"
+   ],
+   "assertions": 0,
+   "assert_forms": {},
+   "raises_checks": 1,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "a bad limits file is refused",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.ingestion.quality:load_limits"
+   ],
+   "exercise_count": 1,
+   "modules_exercised": [
+    "capstone.ingestion.quality"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_channel_quality.py::test_command_line_reports_stretches_and_stale_channels",
+   "file": "tests/test_channel_quality.py",
+   "name": "test_command_line_reports_stretches_and_stale_channels",
+   "line": 152,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [
+    "tmp_path",
+    "capsys"
+   ],
+   "assertions": 6,
+   "assert_forms": {
+    "equality": 3,
+    "membership": 3
+   },
+   "raises_checks": 1,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "command line reports stretches and stale channels",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.ingestion.channel_map:read_capture",
+    "capstone.ingestion.quality:ChannelAge.stale",
+    "capstone.ingestion.quality:UnavailableSpan.seconds",
+    "capstone.ingestion.quality:_breaks",
+    "capstone.ingestion.quality:_channel",
+    "capstone.ingestion.quality:channel_ages",
+    "capstone.ingestion.quality:load_limits",
+    "capstone.ingestion.quality:main",
+    "capstone.ingestion.quality:stale_channels",
+    "capstone.ingestion.quality:unavailable_spans",
+    "capstone.ingestion.quality:unavailable_spans.<locals>.close_all",
+    "capstone.ingestion.record:CollectorMarker.gap_detail_only_on_a_gap",
+    "capstone.ingestion.record:parse_line"
+   ],
+   "exercise_count": 13,
+   "modules_exercised": [
+    "capstone.ingestion.channel_map",
+    "capstone.ingestion.quality",
+    "capstone.ingestion.record"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
    "id": "tests/test_chat_client.py::test_one_request_carries_the_model_the_prompt_and_the_answer_shape",
    "file": "tests/test_chat_client.py",
    "name": "test_one_request_carries_the_model_the_prompt_and_the_answer_shape",
