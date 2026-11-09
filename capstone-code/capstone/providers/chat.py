@@ -884,6 +884,37 @@ def value_client(
     return chain_for(settings.value_model, settings, transport=transport)
 
 
+# The questions that can go to LATE_MODEL, and the key each late client is
+# kept under beside the seven jobs' clients.
+LATE_JOBS = ("decide", "conclude")
+
+
+def late_key(job: str) -> str:
+    """The clients-mapping key of `job`'s late-run client, e.g. "decide@late"."""
+    return f"{job}@late"
+
+
+def late_clients(
+    settings: Settings | None = None, *, transport: Transport = urllib_transport
+) -> dict[str, FallbackClient]:
+    """Late-run clients for decide and conclude, or {} without LATE_MODEL.
+
+    Each asks LATE_MODEL first, then the shared FALLBACK_MODEL chain, as a
+    job's own client does. No reasoning effort is sent: the late model is
+    meant to answer without long thinking, and the setting is Super's.
+    """
+    # Variables:
+    #   settings.late_model: The model for late questions; None turns the
+    #     switch off, so every question keeps its own model.
+    settings = settings or get_settings()
+    if settings.late_model is None:
+        return {}
+    return {
+        late_key(job): chain_for(settings.late_model, settings, transport=transport)
+        for job in LATE_JOBS
+    }
+
+
 def critic_client(
     settings: Settings | None = None, *, transport: Transport = urllib_transport
 ) -> FallbackClient:

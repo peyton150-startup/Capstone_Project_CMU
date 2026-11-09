@@ -165,6 +165,18 @@ class Settings(BaseSettings):
     decide_reasoning_effort: Literal["low", "medium", "high"] | None = _optional(
         "DECIDE_REASONING_EFFORT"
     )
+    # The late-run model (developer, 2026-11-09). Super 120B thinks at length,
+    # and in the runs of 2026-10-31 to 2026-11-09 it timed out on 93 of 552
+    # decide questions and 8 of 41 conclusions, mostly late in a run. With
+    # LATE_MODEL set, two questions go to it instead of their own model:
+    # a decide question with less than LATE_MODEL_SECONDS left (Super, given
+    # half of that time, answered in 30 s only 55% of the time), and the
+    # conclusion when research ended because its time ran out. Every other
+    # question keeps its own model. None (the default) switches nothing.
+    late_model: str | None = _optional("LATE_MODEL")
+    late_model_seconds: float = Field(
+        default=60.0, gt=0, validation_alias="LATE_MODEL_SECONDS"
+    )
     # Asked when a job's own model cannot be reached. None: no fallback.
     # Several models, separated by commas, are tried in order: the second
     # when the first is out too (for example its daily quota is spent).
@@ -306,6 +318,7 @@ class Settings(BaseSettings):
         "judge_model",
         "lesson_model",
         "value_model",
+        "late_model",
         "fallback_model",
         "critic_model",
         "critic_fallback_model",

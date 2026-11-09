@@ -72,6 +72,34 @@ list is appended after that list, with duplicates removed in first-seen order.
 An empty `CRITIC_MODEL` still disables construction of a chain: a backup alone is
 not a primary model. `CRITIC=on` is required to enable the settings-built critic.
 
+## Late-run model (`LATE_MODEL`)
+
+```dotenv
+LATE_MODEL=nvidia/nvidia/llama-3.1-nemotron-70b-instruct
+LATE_MODEL_SECONDS=60
+```
+
+Unset by default: every question keeps its own model. When set, two questions
+go to `LATE_MODEL` (then the shared `FALLBACK_MODEL` chain) instead of their own
+model, and nothing else changes:
+
+- a **decide** question with less than `LATE_MODEL_SECONDS` left. The
+  investigator's model gets half of a question's time (the other half is kept
+  for the fallback), so at 60 s it would have under 30 s, and Super 120B
+  answered a decide question within 30 s only 55% of the time (499 calls,
+  2026-10-31 to 2026-11-09);
+- the **conclusion**, when research stopped because its time ran out (6 of
+  Super's 8 conclusion timeouts in the same runs came after one).
+
+The late model is never sent `DECIDE_REASONING_EFFORT`, and gets the default
+sampling of a model with no entry here (temperature 0). The run header names
+it. Records show which model answered each question, as before.
+
+Rate limit: every model on NVIDIA's API shares the key's limit. The late model
+replaces Super on those questions rather than adding calls, so the request
+count stays the same (developer, 2026-11-09, lifting for this setting the
+earlier "only Super on NVIDIA's API" rule).
+
 ## Evaluation
 
 These sampling changes have offline regression coverage, but have not been
