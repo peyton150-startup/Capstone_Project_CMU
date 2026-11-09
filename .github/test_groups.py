@@ -148,6 +148,8 @@ GROUPS: dict[str, list[str]] = {
         "coverage_telemetry_edges",
         "collector_watchdog",
         "visit_log",
+        "channel_quality",
+        "time_stats",
     ],
 }
 
