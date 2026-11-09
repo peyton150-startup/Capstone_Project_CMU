@@ -78,10 +78,11 @@
   "capstone-code/capstone/providers/__init__.py": "718f331830c4a46d2addd3f99b7ce7444d07d88db058a4972f56df4cc3e0f168",
   "capstone-code/capstone/providers/chat.py": "461026f919f6bcc11ef947786d84aff4792c2ec3de9d0b281e1fc7325b690887",
   "capstone-code/capstone/providers/embeddings.py": "85409f5b146755d751dcaf2223a53c72aa78a2f698458f1df2c430bb5eb8c4c9",
-  "capstone-code/capstone/providers/factory.py": "fb5bec4f4fa538bedf27be1e50a2dd51de6823e95f26a3b3e529f438ac3e1f73",
+  "capstone-code/capstone/providers/factory.py": "37fd157d523dad2cb26efda558ece320ce1cb900a6ca412a9128502310ad954d",
   "capstone-code/capstone/providers/hazards.py": "03190f546d3f2dd6869879e10e38556387aa3a256ed6ab7ca6a290692c8d4b60",
   "capstone-code/capstone/providers/manual.py": "5e459640a8b2f6ab498ff619da3fdd8906ef31263c26d810bf5620e1f4f7c0b0",
   "capstone-code/capstone/providers/recall.py": "177f2da0c829a96c8d89c6448ecba81fd2f6f6e3781d6330497fab145d7eccc7",
+  "capstone-code/capstone/providers/replay.py": "3c6c233eab60b06b6503f31525c636c332f912e717681d9e5203130999c0eec2",
   "capstone-code/capstone/providers/typesafe.py": "73b6cbde2515d5bde8a81fce3dd9fac71833385e75b619c266f6a751555b91e1",
   "capstone-code/capstone/settings.py": "82a419d37b8a94dbf6b783a96dfe51c03ea07aefa5b891d05302202c3d1777ec",
   "capstone-code/capstone/simulator/__init__.py": "14ee6627f9e2984cfe3a4f530d8c5675864e4f3cda1b74e7bb27d846c3159e0f",
@@ -205,6 +206,7 @@
   "tests/test_reasoning_evidence.py": "c72b04a9f538318baf4aa57c873b17d30e6c47c1f0600ab9981aebfccee551cb",
   "tests/test_recall_tool.py": "5c32b0e324ca5e7b6032893f6ddce146adf4a78b3f88c0430a4764a45c505ecc",
   "tests/test_reference_review.py": "28e451a63d25c6537e4bdfd7da11db6eb5109aba408c0ff72ec2f330a37fac36",
+  "tests/test_replay_provider.py": "5c8ca8df315b1af256f110cefa44f281049007553bb39f895db39a96037f1b75",
   "tests/test_request_deadline.py": "373b1d759e84c4e544ab92f00179243f9fc7805a96d96dacd8d35b06a23610c5",
   "tests/test_rng.py": "e0515a3b1b93128ac6ee3538a07963f6e9f386c331c0053206f838cb3d23944f",
   "tests/test_scenarios.py": "aecd0d96aa858481068df3ed803fbee1dd3e0bf3023673b5c3c558c8e73dbc7e",
@@ -233,29 +235,29 @@
   "tests/test_wait_tool.py": "b99a5fbf756a60176262417e54d8d1a0496f01126929a330492e7d24287b2d1e",
   "tests/test_wrong_setting.py": "aed1c646bffaf88ae25ed2156794dc57427e8a61bbe6b23a0c33f3c3e89c0da3"
  },
- "coverage_sha256": "c7e241fa425a5bdcc6a7f467a5a0f3b0999dc343d2bd8b6a7ee196bd0c7f9a0d",
- "junit_sha256": "f0e4d2296594199e9bb796919e91db43d41be01ec5435e389610270cd5babcd1",
+ "coverage_sha256": "16a817926df56328625d69d6ce3cd6eab3d76f28c3f3709c6a21f275460f25f7",
+ "junit_sha256": "f2d310f78983f08ab53d547395f1ffdb36cedea868b9b3b38e0b2858226bfa4a",
  "counts": {
-  "functions": 919,
+  "functions": 949,
   "classes_note": "classes are listed through their methods",
-  "tests": 1833,
+  "tests": 1844,
   "tools": 18,
   "functions_by_status": {
-   "INSUFFICIENT EVIDENCE": 374,
+   "INSUFFICIENT EVIDENCE": 401,
    "NOT APPLICABLE": 25,
    "NOT TESTED": 13,
-   "PARTIALLY VERIFIED": 462,
+   "PARTIALLY VERIFIED": 465,
    "VERIFIED": 45
   },
   "functions_by_coverage_class": {
-   "direct": 491,
+   "direct": 494,
    "import-only": 4,
-   "indirect": 386,
+   "indirect": 413,
    "no-statements": 25,
    "none": 13
   },
-  "functions_executed_in_tests": 877,
-  "functions_with_direct_tests": 491,
+  "functions_executed_in_tests": 907,
+  "functions_with_direct_tests": 494,
   "functions_never_executed": [
    "capstone.episode:ask_on_console",
    "capstone.evals:main.<locals>.show_progress",
@@ -295,6 +297,9 @@
    "capstone.memory.contracts:PromotionDecision.consistent_decision (4/7)",
    "capstone.progress:belief (2/3)",
    "capstone.progress:main (10/19)",
+   "capstone.providers.replay:RecordedObservationTools.get_factory_readings (2/3)",
+   "capstone.providers.replay:RecordedActionTools.wait (3/4)",
+   "capstone.providers.replay:_weighted (3/4)",
    "capstone.simulator.scenarios:HydraulicLeak.__init__ (7/9)",
    "capstone.simulator.simulator:Simulator._apply_consequences (3/4)",
    "capstone.simulator.state:FactoryState.next_on_line (3/4)",
@@ -312,7 +317,7 @@
   ],
   "stubs_or_protocols": 25,
   "tests_by_outcome": {
-   "passed": 1833
+   "passed": 1844
   },
   "tests_with_no_assertion": [
    "tests/test_console.py::test_without_it_the_same_print_raised"
@@ -787,6 +792,11 @@
    "functions": 3,
    "executed": 2,
    "direct": 1
+  },
+  "capstone.providers.replay": {
+   "functions": 30,
+   "executed": 30,
+   "direct": 3
   },
   "capstone.providers.typesafe": {
    "functions": 7,
@@ -5300,7 +5310,7 @@
    ]
   },
   "capstone.contracts.tools:TraceContext.consistent_context": {
-   "count": 409,
+   "count": 419,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
@@ -5319,7 +5329,7 @@
    ]
   },
   "capstone.contracts.tools:ToolResult.consistent_outcome": {
-   "count": 408,
+   "count": 418,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
@@ -7698,7 +7708,7 @@
    "indirect": []
   },
   "capstone.ingestion.channel_map:probe_hash": {
-   "count": 8,
+   "count": 19,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_channel_map.py::test_a_map_refuses_a_probe_from_a_changed_controller",
@@ -7710,10 +7720,22 @@
     "tests/test_channel_map.py::test_reported_records_which_channels_held_a_value",
     "tests/test_channel_map.py::test_the_hash_ignores_the_header_and_formatting_but_not_a_channel_change"
    ],
-   "indirect": []
+   "indirect": [
+    "tests/test_replay_provider.py::test_a_bad_setup_is_refused",
+    "tests/test_replay_provider.py::test_a_machine_without_an_execution_value_is_not_guessed",
+    "tests/test_replay_provider.py::test_an_unmapped_sensor_or_machine_is_refused_not_answered_empty",
+    "tests/test_replay_provider.py::test_every_tool_answers_inside_its_contract_or_refuses_cleanly",
+    "tests/test_replay_provider.py::test_machine_status_follows_the_last_execution_value",
+    "tests/test_replay_provider.py::test_nothing_after_the_cutoff_is_shown_and_wait_moves_it",
+    "tests/test_replay_provider.py::test_readings_come_from_the_mapped_channel_with_the_probes_units",
+    "tests/test_replay_provider.py::test_records_named_by_device_uuid_are_read_too",
+    "tests/test_replay_provider.py::test_the_summary_mean_is_time_weighted_and_the_rate_is_endpoint",
+    "tests/test_replay_provider.py::test_the_trend_is_time_weighted_and_never_spans_the_gap",
+    "tests/test_replay_provider.py::test_time_runs_from_the_first_observation_in_one_minute_ticks"
+   ]
   },
   "capstone.ingestion.channel_map:parse_probe": {
-   "count": 12,
+   "count": 23,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_channel_map.py::test_a_map_refuses_a_probe_from_a_changed_controller",
@@ -7727,13 +7749,22 @@
     "tests/test_channel_map.py::test_reported_records_which_channels_held_a_value"
    ],
    "indirect": [
-    "tests/test_visit_log.py::test_a_visit_is_not_ready_when_a_file_is_missing_or_an_entry_unmatched",
-    "tests/test_visit_log.py::test_a_visit_with_probe_data_and_a_matched_log_is_ready",
-    "tests/test_visit_log.py::test_command_line_checks_a_visit"
+    "tests/test_replay_provider.py::test_a_bad_setup_is_refused",
+    "tests/test_replay_provider.py::test_a_machine_without_an_execution_value_is_not_guessed",
+    "tests/test_replay_provider.py::test_an_unmapped_sensor_or_machine_is_refused_not_answered_empty",
+    "tests/test_replay_provider.py::test_every_tool_answers_inside_its_contract_or_refuses_cleanly",
+    "tests/test_replay_provider.py::test_machine_status_follows_the_last_execution_value",
+    "tests/test_replay_provider.py::test_nothing_after_the_cutoff_is_shown_and_wait_moves_it",
+    "tests/test_replay_provider.py::test_readings_come_from_the_mapped_channel_with_the_probes_units",
+    "tests/test_replay_provider.py::test_records_named_by_device_uuid_are_read_too",
+    "tests/test_replay_provider.py::test_the_summary_mean_is_time_weighted_and_the_rate_is_endpoint",
+    "tests/test_replay_provider.py::test_the_trend_is_time_weighted_and_never_spans_the_gap",
+    "tests/test_replay_provider.py::test_time_runs_from_the_first_observation_in_one_minute_ticks",
+    "tests/test_visit_log.py::test_a_visit_is_not_ready_when_a_file_is_missing_or_an_entry_unmatched"
    ]
   },
   "capstone.ingestion.channel_map:build_channel_map": {
-   "count": 7,
+   "count": 18,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_channel_map.py::test_a_map_refuses_a_probe_from_a_changed_controller",
@@ -7744,7 +7775,19 @@
     "tests/test_channel_map.py::test_meaning_and_tool_sensor_stay_empty_until_a_person_assigns_them",
     "tests/test_channel_map.py::test_reported_records_which_channels_held_a_value"
    ],
-   "indirect": []
+   "indirect": [
+    "tests/test_replay_provider.py::test_a_bad_setup_is_refused",
+    "tests/test_replay_provider.py::test_a_machine_without_an_execution_value_is_not_guessed",
+    "tests/test_replay_provider.py::test_an_unmapped_sensor_or_machine_is_refused_not_answered_empty",
+    "tests/test_replay_provider.py::test_every_tool_answers_inside_its_contract_or_refuses_cleanly",
+    "tests/test_replay_provider.py::test_machine_status_follows_the_last_execution_value",
+    "tests/test_replay_provider.py::test_nothing_after_the_cutoff_is_shown_and_wait_moves_it",
+    "tests/test_replay_provider.py::test_readings_come_from_the_mapped_channel_with_the_probes_units",
+    "tests/test_replay_provider.py::test_records_named_by_device_uuid_are_read_too",
+    "tests/test_replay_provider.py::test_the_summary_mean_is_time_weighted_and_the_rate_is_endpoint",
+    "tests/test_replay_provider.py::test_the_trend_is_time_weighted_and_never_spans_the_gap",
+    "tests/test_replay_provider.py::test_time_runs_from_the_first_observation_in_one_minute_ticks"
+   ]
   },
   "capstone.ingestion.channel_map:check_capture": {
    "count": 4,
@@ -7758,7 +7801,7 @@
    "indirect": []
   },
   "capstone.ingestion.channel_map:_devices": {
-   "count": 13,
+   "count": 24,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_channel_map.py::test_a_map_refuses_a_probe_from_a_changed_controller",
@@ -7773,13 +7816,22 @@
     "tests/test_channel_map.py::test_the_hash_ignores_the_header_and_formatting_but_not_a_channel_change"
    ],
    "indirect": [
-    "tests/test_visit_log.py::test_a_visit_is_not_ready_when_a_file_is_missing_or_an_entry_unmatched",
-    "tests/test_visit_log.py::test_a_visit_with_probe_data_and_a_matched_log_is_ready",
-    "tests/test_visit_log.py::test_command_line_checks_a_visit"
+    "tests/test_replay_provider.py::test_a_bad_setup_is_refused",
+    "tests/test_replay_provider.py::test_a_machine_without_an_execution_value_is_not_guessed",
+    "tests/test_replay_provider.py::test_an_unmapped_sensor_or_machine_is_refused_not_answered_empty",
+    "tests/test_replay_provider.py::test_every_tool_answers_inside_its_contract_or_refuses_cleanly",
+    "tests/test_replay_provider.py::test_machine_status_follows_the_last_execution_value",
+    "tests/test_replay_provider.py::test_nothing_after_the_cutoff_is_shown_and_wait_moves_it",
+    "tests/test_replay_provider.py::test_readings_come_from_the_mapped_channel_with_the_probes_units",
+    "tests/test_replay_provider.py::test_records_named_by_device_uuid_are_read_too",
+    "tests/test_replay_provider.py::test_the_summary_mean_is_time_weighted_and_the_rate_is_endpoint",
+    "tests/test_replay_provider.py::test_the_trend_is_time_weighted_and_never_spans_the_gap",
+    "tests/test_replay_provider.py::test_time_runs_from_the_first_observation_in_one_minute_ticks",
+    "tests/test_visit_log.py::test_a_visit_is_not_ready_when_a_file_is_missing_or_an_entry_unmatched"
    ]
   },
   "capstone.ingestion.channel_map:_walk": {
-   "count": 11,
+   "count": 22,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_channel_map.py::test_a_map_refuses_a_probe_from_a_changed_controller",
@@ -7792,9 +7844,18 @@
     "tests/test_channel_map.py::test_reported_records_which_channels_held_a_value"
    ],
    "indirect": [
-    "tests/test_visit_log.py::test_a_visit_is_not_ready_when_a_file_is_missing_or_an_entry_unmatched",
-    "tests/test_visit_log.py::test_a_visit_with_probe_data_and_a_matched_log_is_ready",
-    "tests/test_visit_log.py::test_command_line_checks_a_visit"
+    "tests/test_replay_provider.py::test_a_bad_setup_is_refused",
+    "tests/test_replay_provider.py::test_a_machine_without_an_execution_value_is_not_guessed",
+    "tests/test_replay_provider.py::test_an_unmapped_sensor_or_machine_is_refused_not_answered_empty",
+    "tests/test_replay_provider.py::test_every_tool_answers_inside_its_contract_or_refuses_cleanly",
+    "tests/test_replay_provider.py::test_machine_status_follows_the_last_execution_value",
+    "tests/test_replay_provider.py::test_nothing_after_the_cutoff_is_shown_and_wait_moves_it",
+    "tests/test_replay_provider.py::test_readings_come_from_the_mapped_channel_with_the_probes_units",
+    "tests/test_replay_provider.py::test_records_named_by_device_uuid_are_read_too",
+    "tests/test_replay_provider.py::test_the_summary_mean_is_time_weighted_and_the_rate_is_endpoint",
+    "tests/test_replay_provider.py::test_the_trend_is_time_weighted_and_never_spans_the_gap",
+    "tests/test_replay_provider.py::test_time_runs_from_the_first_observation_in_one_minute_ticks",
+    "tests/test_visit_log.py::test_a_visit_is_not_ready_when_a_file_is_missing_or_an_entry_unmatched"
    ]
   },
   "capstone.ingestion.channel_map:_probe_type": {
@@ -7996,7 +8057,7 @@
    ]
   },
   "capstone.ingestion.mtconnect:_local": {
-   "count": 37,
+   "count": 48,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
@@ -8015,7 +8076,7 @@
    ]
   },
   "capstone.ingestion.mtconnect:_child": {
-   "count": 36,
+   "count": 47,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
@@ -8250,26 +8311,26 @@
    ]
   },
   "capstone.ingestion.record:TelemetryRecord.number": {
-   "count": 28,
+   "count": 34,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
     "tests/test_collector_watchdog.py::test_the_monitor_counts_a_heartbeat_as_contact",
     "tests/test_mtconnect_ingestion.py::test_parse_maps_samples_events_and_conditions",
     "tests/test_mtconnect_ingestion.py::test_unavailable_stays_missing_and_is_never_zero",
+    "tests/test_replay_provider.py::test_every_tool_answers_inside_its_contract_or_refuses_cleanly",
+    "tests/test_replay_provider.py::test_nothing_after_the_cutoff_is_shown_and_wait_moves_it",
+    "tests/test_replay_provider.py::test_readings_come_from_the_mapped_channel_with_the_probes_units",
+    "tests/test_replay_provider.py::test_records_named_by_device_uuid_are_read_too",
+    "tests/test_replay_provider.py::test_the_summary_mean_is_time_weighted_and_the_rate_is_endpoint",
+    "tests/test_replay_provider.py::test_the_trend_is_time_weighted_and_never_spans_the_gap",
     "tests/test_telemetry_monitor.py::test_a_clean_stop_and_later_start_is_not_stale",
     "tests/test_telemetry_monitor.py::test_a_gap_is_a_data_loss_warning_not_a_crash",
-    "tests/test_telemetry_monitor.py::test_a_start_without_a_clean_stop_warns_of_a_crash",
-    "tests/test_telemetry_monitor.py::test_channel_going_unavailable_alerts_and_recovers",
-    "tests/test_telemetry_monitor.py::test_command_line_replay_writes_alerts",
-    "tests/test_telemetry_monitor.py::test_condition_alerts_once_escalates_and_recovers",
-    "tests/test_telemetry_monitor.py::test_data_without_a_start_marker_counts_as_a_running_collector",
-    "tests/test_telemetry_monitor.py::test_emergency_stop_triggered_is_a_fault",
-    "tests/test_telemetry_monitor.py::test_following_a_file_in_pieces_gives_the_same_alerts_as_replaying_it"
+    "tests/test_telemetry_monitor.py::test_a_start_without_a_clean_stop_warns_of_a_crash"
    ]
   },
   "capstone.ingestion.record:CollectorMarker.gap_detail_only_on_a_gap": {
-   "count": 38,
+   "count": 47,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
@@ -8307,12 +8368,15 @@
    ]
   },
   "capstone.ingestion.record:gap_free_runs": {
-   "count": 18,
+   "count": 21,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_mtconnect_ingestion.py::test_gap_free_runs_never_join_readings_across_a_gap_or_a_restart"
    ],
    "indirect": [
+    "tests/test_replay_provider.py::test_every_tool_answers_inside_its_contract_or_refuses_cleanly",
+    "tests/test_replay_provider.py::test_the_summary_mean_is_time_weighted_and_the_rate_is_endpoint",
+    "tests/test_replay_provider.py::test_the_trend_is_time_weighted_and_never_spans_the_gap",
     "tests/test_time_stats.py::test_a_step_between_two_runs_is_not_a_trend",
     "tests/test_time_stats.py::test_event_words_are_not_numbers",
     "tests/test_time_stats.py::test_no_value_is_carried_across_a_gap",
@@ -8321,14 +8385,11 @@
     "tests/test_time_stats.py::test_the_slope_uses_real_times_not_reading_order",
     "tests/test_time_stats.py::test_the_summary_brings_it_together",
     "tests/test_time_stats.py::test_time_above_a_level_and_the_peak_excursion",
-    "tests/test_time_stats.py::test_too_few_readings_give_no_slope_or_mean",
-    "tests/test_time_stats.py::test_unavailable_cuts_the_previous_value_off_and_is_never_filled",
-    "tests/test_visit_log.py::test_a_visit_is_not_ready_when_a_file_is_missing_or_an_entry_unmatched",
-    "tests/test_visit_log.py::test_a_visit_with_probe_data_and_a_matched_log_is_ready"
+    "tests/test_time_stats.py::test_too_few_readings_give_no_slope_or_mean"
    ]
   },
   "capstone.ingestion.time_stats:Hold.seconds": {
-   "count": 7,
+   "count": 10,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_time_stats.py::test_event_words_are_not_numbers",
@@ -8339,10 +8400,14 @@
     "tests/test_time_stats.py::test_time_above_a_level_and_the_peak_excursion",
     "tests/test_time_stats.py::test_unavailable_cuts_the_previous_value_off_and_is_never_filled"
    ],
-   "indirect": []
+   "indirect": [
+    "tests/test_replay_provider.py::test_every_tool_answers_inside_its_contract_or_refuses_cleanly",
+    "tests/test_replay_provider.py::test_the_summary_mean_is_time_weighted_and_the_rate_is_endpoint",
+    "tests/test_replay_provider.py::test_the_trend_is_time_weighted_and_never_spans_the_gap"
+   ]
   },
   "capstone.ingestion.time_stats:holds_in_run": {
-   "count": 10,
+   "count": 13,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_time_stats.py::test_a_step_between_two_runs_is_not_a_trend",
@@ -8356,10 +8421,14 @@
     "tests/test_time_stats.py::test_too_few_readings_give_no_slope_or_mean",
     "tests/test_time_stats.py::test_unavailable_cuts_the_previous_value_off_and_is_never_filled"
    ],
-   "indirect": []
+   "indirect": [
+    "tests/test_replay_provider.py::test_every_tool_answers_inside_its_contract_or_refuses_cleanly",
+    "tests/test_replay_provider.py::test_the_summary_mean_is_time_weighted_and_the_rate_is_endpoint",
+    "tests/test_replay_provider.py::test_the_trend_is_time_weighted_and_never_spans_the_gap"
+   ]
   },
   "capstone.ingestion.time_stats:channel_holds": {
-   "count": 10,
+   "count": 13,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_time_stats.py::test_a_step_between_two_runs_is_not_a_trend",
@@ -8373,7 +8442,11 @@
     "tests/test_time_stats.py::test_too_few_readings_give_no_slope_or_mean",
     "tests/test_time_stats.py::test_unavailable_cuts_the_previous_value_off_and_is_never_filled"
    ],
-   "indirect": []
+   "indirect": [
+    "tests/test_replay_provider.py::test_every_tool_answers_inside_its_contract_or_refuses_cleanly",
+    "tests/test_replay_provider.py::test_the_summary_mean_is_time_weighted_and_the_rate_is_endpoint",
+    "tests/test_replay_provider.py::test_the_trend_is_time_weighted_and_never_spans_the_gap"
+   ]
   },
   "capstone.ingestion.time_stats:_flat": {
    "count": 5,
@@ -11161,7 +11234,7 @@
    ]
   },
   "capstone.providers.factory:run_tool": {
-   "count": 271,
+   "count": 281,
    "status": "VERIFIED",
    "direct": [],
    "indirect": [
@@ -11186,7 +11259,7 @@
    "indirect": []
   },
   "capstone.providers.factory:TickRange.ordered_range": {
-   "count": 234,
+   "count": 241,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
@@ -11205,7 +11278,7 @@
    ]
   },
   "capstone.providers.factory:SensorSummaryArguments.sensor_belongs_to_target": {
-   "count": 198,
+   "count": 200,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
@@ -11264,7 +11337,7 @@
    ]
   },
   "capstone.providers.factory:SimulatorFactoryProvider.__init__": {
-   "count": 281,
+   "count": 291,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
@@ -11283,7 +11356,7 @@
    ]
   },
   "capstone.providers.factory:SimulatorFactoryProvider.call": {
-   "count": 275,
+   "count": 285,
    "status": "VERIFIED",
    "direct": [
     "tests/test_experiment.py::test_a_model_policy_run_keeps_its_call_summary_and_its_time",
@@ -11626,6 +11699,334 @@
     "tests/test_memory_comparison.py::test_every_mode_runs_the_same_cases_and_keeps_its_mode",
     "tests/test_memory_comparison.py::test_factory_calls_leave_memory_searches_out",
     "tests/test_memory_comparison.py::test_keyword_and_semantic_recall_differ_by_what_their_search_finds"
+   ]
+  },
+  "capstone.providers.replay:RecordedObservationTools.__init__": {
+   "count": 11,
+   "status": "INSUFFICIENT EVIDENCE",
+   "direct": [],
+   "indirect": [
+    "tests/test_replay_provider.py::test_a_bad_setup_is_refused",
+    "tests/test_replay_provider.py::test_a_machine_without_an_execution_value_is_not_guessed",
+    "tests/test_replay_provider.py::test_an_unmapped_sensor_or_machine_is_refused_not_answered_empty",
+    "tests/test_replay_provider.py::test_every_tool_answers_inside_its_contract_or_refuses_cleanly",
+    "tests/test_replay_provider.py::test_machine_status_follows_the_last_execution_value",
+    "tests/test_replay_provider.py::test_nothing_after_the_cutoff_is_shown_and_wait_moves_it",
+    "tests/test_replay_provider.py::test_readings_come_from_the_mapped_channel_with_the_probes_units",
+    "tests/test_replay_provider.py::test_records_named_by_device_uuid_are_read_too",
+    "tests/test_replay_provider.py::test_the_summary_mean_is_time_weighted_and_the_rate_is_endpoint",
+    "tests/test_replay_provider.py::test_the_trend_is_time_weighted_and_never_spans_the_gap",
+    "tests/test_replay_provider.py::test_time_runs_from_the_first_observation_in_one_minute_ticks"
+   ]
+  },
+  "capstone.providers.replay:RecordedObservationTools.tick_of": {
+   "count": 10,
+   "status": "INSUFFICIENT EVIDENCE",
+   "direct": [],
+   "indirect": [
+    "tests/test_replay_provider.py::test_a_machine_without_an_execution_value_is_not_guessed",
+    "tests/test_replay_provider.py::test_an_unmapped_sensor_or_machine_is_refused_not_answered_empty",
+    "tests/test_replay_provider.py::test_every_tool_answers_inside_its_contract_or_refuses_cleanly",
+    "tests/test_replay_provider.py::test_machine_status_follows_the_last_execution_value",
+    "tests/test_replay_provider.py::test_nothing_after_the_cutoff_is_shown_and_wait_moves_it",
+    "tests/test_replay_provider.py::test_readings_come_from_the_mapped_channel_with_the_probes_units",
+    "tests/test_replay_provider.py::test_records_named_by_device_uuid_are_read_too",
+    "tests/test_replay_provider.py::test_the_summary_mean_is_time_weighted_and_the_rate_is_endpoint",
+    "tests/test_replay_provider.py::test_the_trend_is_time_weighted_and_never_spans_the_gap",
+    "tests/test_replay_provider.py::test_time_runs_from_the_first_observation_in_one_minute_ticks"
+   ]
+  },
+  "capstone.providers.replay:RecordedObservationTools.time_of": {
+   "count": 3,
+   "status": "INSUFFICIENT EVIDENCE",
+   "direct": [],
+   "indirect": [
+    "tests/test_replay_provider.py::test_every_tool_answers_inside_its_contract_or_refuses_cleanly",
+    "tests/test_replay_provider.py::test_the_summary_mean_is_time_weighted_and_the_rate_is_endpoint",
+    "tests/test_replay_provider.py::test_the_trend_is_time_weighted_and_never_spans_the_gap"
+   ]
+  },
+  "capstone.providers.replay:RecordedObservationTools.advance": {
+   "count": 2,
+   "status": "INSUFFICIENT EVIDENCE",
+   "direct": [],
+   "indirect": [
+    "tests/test_replay_provider.py::test_every_tool_answers_inside_its_contract_or_refuses_cleanly",
+    "tests/test_replay_provider.py::test_nothing_after_the_cutoff_is_shown_and_wait_moves_it"
+   ]
+  },
+  "capstone.providers.replay:RecordedObservationTools._visible": {
+   "count": 8,
+   "status": "INSUFFICIENT EVIDENCE",
+   "direct": [],
+   "indirect": [
+    "tests/test_replay_provider.py::test_a_machine_without_an_execution_value_is_not_guessed",
+    "tests/test_replay_provider.py::test_every_tool_answers_inside_its_contract_or_refuses_cleanly",
+    "tests/test_replay_provider.py::test_machine_status_follows_the_last_execution_value",
+    "tests/test_replay_provider.py::test_nothing_after_the_cutoff_is_shown_and_wait_moves_it",
+    "tests/test_replay_provider.py::test_readings_come_from_the_mapped_channel_with_the_probes_units",
+    "tests/test_replay_provider.py::test_records_named_by_device_uuid_are_read_too",
+    "tests/test_replay_provider.py::test_the_summary_mean_is_time_weighted_and_the_rate_is_endpoint",
+    "tests/test_replay_provider.py::test_the_trend_is_time_weighted_and_never_spans_the_gap"
+   ]
+  },
+  "capstone.providers.replay:RecordedObservationTools.get_time": {
+   "count": 10,
+   "status": "INSUFFICIENT EVIDENCE",
+   "direct": [],
+   "indirect": [
+    "tests/test_replay_provider.py::test_a_machine_without_an_execution_value_is_not_guessed",
+    "tests/test_replay_provider.py::test_an_unmapped_sensor_or_machine_is_refused_not_answered_empty",
+    "tests/test_replay_provider.py::test_every_tool_answers_inside_its_contract_or_refuses_cleanly",
+    "tests/test_replay_provider.py::test_machine_status_follows_the_last_execution_value",
+    "tests/test_replay_provider.py::test_nothing_after_the_cutoff_is_shown_and_wait_moves_it",
+    "tests/test_replay_provider.py::test_readings_come_from_the_mapped_channel_with_the_probes_units",
+    "tests/test_replay_provider.py::test_records_named_by_device_uuid_are_read_too",
+    "tests/test_replay_provider.py::test_the_summary_mean_is_time_weighted_and_the_rate_is_endpoint",
+    "tests/test_replay_provider.py::test_the_trend_is_time_weighted_and_never_spans_the_gap",
+    "tests/test_replay_provider.py::test_time_runs_from_the_first_observation_in_one_minute_ticks"
+   ]
+  },
+  "capstone.providers.replay:RecordedObservationTools.list_machines": {
+   "count": 3,
+   "status": "INSUFFICIENT EVIDENCE",
+   "direct": [],
+   "indirect": [
+    "tests/test_replay_provider.py::test_a_machine_without_an_execution_value_is_not_guessed",
+    "tests/test_replay_provider.py::test_every_tool_answers_inside_its_contract_or_refuses_cleanly",
+    "tests/test_replay_provider.py::test_machine_status_follows_the_last_execution_value"
+   ]
+  },
+  "capstone.providers.replay:RecordedObservationTools.get_readings": {
+   "count": 5,
+   "status": "INSUFFICIENT EVIDENCE",
+   "direct": [],
+   "indirect": [
+    "tests/test_replay_provider.py::test_an_unmapped_sensor_or_machine_is_refused_not_answered_empty",
+    "tests/test_replay_provider.py::test_every_tool_answers_inside_its_contract_or_refuses_cleanly",
+    "tests/test_replay_provider.py::test_nothing_after_the_cutoff_is_shown_and_wait_moves_it",
+    "tests/test_replay_provider.py::test_readings_come_from_the_mapped_channel_with_the_probes_units",
+    "tests/test_replay_provider.py::test_records_named_by_device_uuid_are_read_too"
+   ]
+  },
+  "capstone.providers.replay:RecordedObservationTools.get_factory_readings": {
+   "count": 1,
+   "status": "INSUFFICIENT EVIDENCE",
+   "direct": [],
+   "indirect": [
+    "tests/test_replay_provider.py::test_every_tool_answers_inside_its_contract_or_refuses_cleanly"
+   ]
+  },
+  "capstone.providers.replay:RecordedObservationTools.get_sensor_trend": {
+   "count": 2,
+   "status": "INSUFFICIENT EVIDENCE",
+   "direct": [],
+   "indirect": [
+    "tests/test_replay_provider.py::test_every_tool_answers_inside_its_contract_or_refuses_cleanly",
+    "tests/test_replay_provider.py::test_the_trend_is_time_weighted_and_never_spans_the_gap"
+   ]
+  },
+  "capstone.providers.replay:RecordedObservationTools.get_sensor_summary": {
+   "count": 2,
+   "status": "INSUFFICIENT EVIDENCE",
+   "direct": [],
+   "indirect": [
+    "tests/test_replay_provider.py::test_every_tool_answers_inside_its_contract_or_refuses_cleanly",
+    "tests/test_replay_provider.py::test_the_summary_mean_is_time_weighted_and_the_rate_is_endpoint"
+   ]
+  },
+  "capstone.providers.replay:RecordedObservationTools._not_recorded": {
+   "count": 1,
+   "status": "INSUFFICIENT EVIDENCE",
+   "direct": [],
+   "indirect": [
+    "tests/test_replay_provider.py::test_every_tool_answers_inside_its_contract_or_refuses_cleanly"
+   ]
+  },
+  "capstone.providers.replay:RecordedObservationTools.get_settings": {
+   "count": 1,
+   "status": "INSUFFICIENT EVIDENCE",
+   "direct": [],
+   "indirect": [
+    "tests/test_replay_provider.py::test_every_tool_answers_inside_its_contract_or_refuses_cleanly"
+   ]
+  },
+  "capstone.providers.replay:RecordedObservationTools.get_line_screening": {
+   "count": 1,
+   "status": "INSUFFICIENT EVIDENCE",
+   "direct": [],
+   "indirect": [
+    "tests/test_replay_provider.py::test_every_tool_answers_inside_its_contract_or_refuses_cleanly"
+   ]
+  },
+  "capstone.providers.replay:RecordedObservationTools.get_events": {
+   "count": 1,
+   "status": "INSUFFICIENT EVIDENCE",
+   "direct": [],
+   "indirect": [
+    "tests/test_replay_provider.py::test_every_tool_answers_inside_its_contract_or_refuses_cleanly"
+   ]
+  },
+  "capstone.providers.replay:RecordedObservationTools.get_job_history": {
+   "count": 1,
+   "status": "INSUFFICIENT EVIDENCE",
+   "direct": [],
+   "indirect": [
+    "tests/test_replay_provider.py::test_every_tool_answers_inside_its_contract_or_refuses_cleanly"
+   ]
+  },
+  "capstone.providers.replay:RecordedObservationTools.get_maintenance_history": {
+   "count": 1,
+   "status": "INSUFFICIENT EVIDENCE",
+   "direct": [],
+   "indirect": [
+    "tests/test_replay_provider.py::test_every_tool_answers_inside_its_contract_or_refuses_cleanly"
+   ]
+  },
+  "capstone.providers.replay:RecordedObservationTools.get_inspections": {
+   "count": 1,
+   "status": "INSUFFICIENT EVIDENCE",
+   "direct": [],
+   "indirect": [
+    "tests/test_replay_provider.py::test_every_tool_answers_inside_its_contract_or_refuses_cleanly"
+   ]
+  },
+  "capstone.providers.replay:RecordedObservationTools._entry": {
+   "count": 7,
+   "status": "INSUFFICIENT EVIDENCE",
+   "direct": [],
+   "indirect": [
+    "tests/test_replay_provider.py::test_an_unmapped_sensor_or_machine_is_refused_not_answered_empty",
+    "tests/test_replay_provider.py::test_every_tool_answers_inside_its_contract_or_refuses_cleanly",
+    "tests/test_replay_provider.py::test_nothing_after_the_cutoff_is_shown_and_wait_moves_it",
+    "tests/test_replay_provider.py::test_readings_come_from_the_mapped_channel_with_the_probes_units",
+    "tests/test_replay_provider.py::test_records_named_by_device_uuid_are_read_too",
+    "tests/test_replay_provider.py::test_the_summary_mean_is_time_weighted_and_the_rate_is_endpoint",
+    "tests/test_replay_provider.py::test_the_trend_is_time_weighted_and_never_spans_the_gap"
+   ]
+  },
+  "capstone.providers.replay:RecordedObservationTools._rows": {
+   "count": 5,
+   "status": "INSUFFICIENT EVIDENCE",
+   "direct": [],
+   "indirect": [
+    "tests/test_replay_provider.py::test_every_tool_answers_inside_its_contract_or_refuses_cleanly",
+    "tests/test_replay_provider.py::test_nothing_after_the_cutoff_is_shown_and_wait_moves_it",
+    "tests/test_replay_provider.py::test_readings_come_from_the_mapped_channel_with_the_probes_units",
+    "tests/test_replay_provider.py::test_records_named_by_device_uuid_are_read_too",
+    "tests/test_replay_provider.py::test_the_summary_mean_is_time_weighted_and_the_rate_is_endpoint"
+   ]
+  },
+  "capstone.providers.replay:RecordedObservationTools._holds": {
+   "count": 3,
+   "status": "INSUFFICIENT EVIDENCE",
+   "direct": [],
+   "indirect": [
+    "tests/test_replay_provider.py::test_every_tool_answers_inside_its_contract_or_refuses_cleanly",
+    "tests/test_replay_provider.py::test_the_summary_mean_is_time_weighted_and_the_rate_is_endpoint",
+    "tests/test_replay_provider.py::test_the_trend_is_time_weighted_and_never_spans_the_gap"
+   ]
+  },
+  "capstone.providers.replay:RecordedActionTools.__init__": {
+   "count": 10,
+   "status": "INSUFFICIENT EVIDENCE",
+   "direct": [],
+   "indirect": [
+    "tests/test_replay_provider.py::test_a_machine_without_an_execution_value_is_not_guessed",
+    "tests/test_replay_provider.py::test_an_unmapped_sensor_or_machine_is_refused_not_answered_empty",
+    "tests/test_replay_provider.py::test_every_tool_answers_inside_its_contract_or_refuses_cleanly",
+    "tests/test_replay_provider.py::test_machine_status_follows_the_last_execution_value",
+    "tests/test_replay_provider.py::test_nothing_after_the_cutoff_is_shown_and_wait_moves_it",
+    "tests/test_replay_provider.py::test_readings_come_from_the_mapped_channel_with_the_probes_units",
+    "tests/test_replay_provider.py::test_records_named_by_device_uuid_are_read_too",
+    "tests/test_replay_provider.py::test_the_summary_mean_is_time_weighted_and_the_rate_is_endpoint",
+    "tests/test_replay_provider.py::test_the_trend_is_time_weighted_and_never_spans_the_gap",
+    "tests/test_replay_provider.py::test_time_runs_from_the_first_observation_in_one_minute_ticks"
+   ]
+  },
+  "capstone.providers.replay:RecordedActionTools.wait": {
+   "count": 2,
+   "status": "PARTIALLY VERIFIED",
+   "direct": [
+    "tests/test_replay_provider.py::test_nothing_after_the_cutoff_is_shown_and_wait_moves_it"
+   ],
+   "indirect": [
+    "tests/test_replay_provider.py::test_every_tool_answers_inside_its_contract_or_refuses_cleanly"
+   ]
+  },
+  "capstone.providers.replay:RecordedActionTools.propose_action": {
+   "count": 1,
+   "status": "INSUFFICIENT EVIDENCE",
+   "direct": [],
+   "indirect": [
+    "tests/test_replay_provider.py::test_every_tool_answers_inside_its_contract_or_refuses_cleanly"
+   ]
+  },
+  "capstone.providers.replay:RecordedActionTools.get_proposals": {
+   "count": 1,
+   "status": "INSUFFICIENT EVIDENCE",
+   "direct": [],
+   "indirect": [
+    "tests/test_replay_provider.py::test_every_tool_answers_inside_its_contract_or_refuses_cleanly"
+   ]
+  },
+  "capstone.providers.replay:RecordedActionTools.execute_action": {
+   "count": 1,
+   "status": "INSUFFICIENT EVIDENCE",
+   "direct": [],
+   "indirect": [
+    "tests/test_replay_provider.py::test_every_tool_answers_inside_its_contract_or_refuses_cleanly"
+   ]
+  },
+  "capstone.providers.replay:replay_provider": {
+   "count": 10,
+   "status": "PARTIALLY VERIFIED",
+   "direct": [
+    "tests/test_replay_provider.py::test_a_machine_without_an_execution_value_is_not_guessed",
+    "tests/test_replay_provider.py::test_an_unmapped_sensor_or_machine_is_refused_not_answered_empty",
+    "tests/test_replay_provider.py::test_every_tool_answers_inside_its_contract_or_refuses_cleanly",
+    "tests/test_replay_provider.py::test_machine_status_follows_the_last_execution_value",
+    "tests/test_replay_provider.py::test_nothing_after_the_cutoff_is_shown_and_wait_moves_it",
+    "tests/test_replay_provider.py::test_readings_come_from_the_mapped_channel_with_the_probes_units",
+    "tests/test_replay_provider.py::test_records_named_by_device_uuid_are_read_too",
+    "tests/test_replay_provider.py::test_the_summary_mean_is_time_weighted_and_the_rate_is_endpoint",
+    "tests/test_replay_provider.py::test_the_trend_is_time_weighted_and_never_spans_the_gap",
+    "tests/test_replay_provider.py::test_time_runs_from_the_first_observation_in_one_minute_ticks"
+   ],
+   "indirect": []
+  },
+  "capstone.providers.replay:_is": {
+   "count": 6,
+   "status": "INSUFFICIENT EVIDENCE",
+   "direct": [],
+   "indirect": [
+    "tests/test_replay_provider.py::test_every_tool_answers_inside_its_contract_or_refuses_cleanly",
+    "tests/test_replay_provider.py::test_nothing_after_the_cutoff_is_shown_and_wait_moves_it",
+    "tests/test_replay_provider.py::test_readings_come_from_the_mapped_channel_with_the_probes_units",
+    "tests/test_replay_provider.py::test_records_named_by_device_uuid_are_read_too",
+    "tests/test_replay_provider.py::test_the_summary_mean_is_time_weighted_and_the_rate_is_endpoint",
+    "tests/test_replay_provider.py::test_the_trend_is_time_weighted_and_never_spans_the_gap"
+   ]
+  },
+  "capstone.providers.replay:_clip": {
+   "count": 3,
+   "status": "INSUFFICIENT EVIDENCE",
+   "direct": [],
+   "indirect": [
+    "tests/test_replay_provider.py::test_every_tool_answers_inside_its_contract_or_refuses_cleanly",
+    "tests/test_replay_provider.py::test_the_summary_mean_is_time_weighted_and_the_rate_is_endpoint",
+    "tests/test_replay_provider.py::test_the_trend_is_time_weighted_and_never_spans_the_gap"
+   ]
+  },
+  "capstone.providers.replay:_weighted": {
+   "count": 3,
+   "status": "PARTIALLY VERIFIED",
+   "direct": [
+    "tests/test_replay_provider.py::test_the_summary_mean_is_time_weighted_and_the_rate_is_endpoint",
+    "tests/test_replay_provider.py::test_the_trend_is_time_weighted_and_never_spans_the_gap"
+   ],
+   "indirect": [
+    "tests/test_replay_provider.py::test_every_tool_answers_inside_its_contract_or_refuses_cleanly"
    ]
   },
   "capstone.providers.typesafe:Noul.request": {
@@ -44227,6 +44628,278 @@
    "functions": [
     "evaluation.evaltools.reference_review:export_requests",
     "evaluation.evaltools.reference_review:review_id"
+   ]
+  },
+  "tests/test_replay_provider.py::test_every_tool_answers_inside_its_contract_or_refuses_cleanly": {
+   "count": 50,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.contracts.tools:ToolResult.consistent_outcome",
+    "capstone.contracts.tools:TraceContext.consistent_context",
+    "capstone.ingestion.channel_map:_devices",
+    "capstone.ingestion.channel_map:_walk",
+    "capstone.ingestion.channel_map:build_channel_map",
+    "capstone.ingestion.channel_map:parse_probe",
+    "capstone.ingestion.channel_map:probe_hash",
+    "capstone.ingestion.mtconnect:_child",
+    "capstone.ingestion.mtconnect:_local",
+    "capstone.ingestion.record:CollectorMarker.gap_detail_only_on_a_gap",
+    "capstone.ingestion.record:TelemetryRecord.number",
+    "capstone.ingestion.record:gap_free_runs",
+    "capstone.ingestion.time_stats:Hold.seconds",
+    "capstone.ingestion.time_stats:channel_holds",
+    "capstone.ingestion.time_stats:holds_in_run",
+    "capstone.providers.factory:SensorSummaryArguments.sensor_belongs_to_target",
+    "capstone.providers.factory:SimulatorFactoryProvider.__init__",
+    "capstone.providers.factory:SimulatorFactoryProvider.call",
+    "capstone.providers.factory:TickRange.ordered_range",
+    "capstone.providers.factory:run_tool"
+   ]
+  },
+  "tests/test_replay_provider.py::test_time_runs_from_the_first_observation_in_one_minute_ticks": {
+   "count": 18,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.contracts.tools:ToolResult.consistent_outcome",
+    "capstone.contracts.tools:TraceContext.consistent_context",
+    "capstone.ingestion.channel_map:_devices",
+    "capstone.ingestion.channel_map:_walk",
+    "capstone.ingestion.channel_map:build_channel_map",
+    "capstone.ingestion.channel_map:parse_probe",
+    "capstone.ingestion.channel_map:probe_hash",
+    "capstone.ingestion.mtconnect:_child",
+    "capstone.ingestion.mtconnect:_local",
+    "capstone.ingestion.record:CollectorMarker.gap_detail_only_on_a_gap",
+    "capstone.providers.factory:SimulatorFactoryProvider.__init__",
+    "capstone.providers.factory:SimulatorFactoryProvider.call",
+    "capstone.providers.factory:run_tool",
+    "capstone.providers.replay:RecordedActionTools.__init__",
+    "capstone.providers.replay:RecordedObservationTools.__init__",
+    "capstone.providers.replay:RecordedObservationTools.get_time",
+    "capstone.providers.replay:RecordedObservationTools.tick_of",
+    "capstone.providers.replay:replay_provider"
+   ]
+  },
+  "tests/test_replay_provider.py::test_readings_come_from_the_mapped_channel_with_the_probes_units": {
+   "count": 25,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.contracts.tools:ToolResult.consistent_outcome",
+    "capstone.contracts.tools:TraceContext.consistent_context",
+    "capstone.ingestion.channel_map:_devices",
+    "capstone.ingestion.channel_map:_walk",
+    "capstone.ingestion.channel_map:build_channel_map",
+    "capstone.ingestion.channel_map:parse_probe",
+    "capstone.ingestion.channel_map:probe_hash",
+    "capstone.ingestion.mtconnect:_child",
+    "capstone.ingestion.mtconnect:_local",
+    "capstone.ingestion.record:CollectorMarker.gap_detail_only_on_a_gap",
+    "capstone.ingestion.record:TelemetryRecord.number",
+    "capstone.providers.factory:SimulatorFactoryProvider.__init__",
+    "capstone.providers.factory:SimulatorFactoryProvider.call",
+    "capstone.providers.factory:TickRange.ordered_range",
+    "capstone.providers.factory:run_tool",
+    "capstone.providers.replay:RecordedActionTools.__init__",
+    "capstone.providers.replay:RecordedObservationTools.__init__",
+    "capstone.providers.replay:RecordedObservationTools._entry",
+    "capstone.providers.replay:RecordedObservationTools._rows",
+    "capstone.providers.replay:RecordedObservationTools._visible"
+   ]
+  },
+  "tests/test_replay_provider.py::test_nothing_after_the_cutoff_is_shown_and_wait_moves_it": {
+   "count": 27,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.contracts.tools:ToolResult.consistent_outcome",
+    "capstone.contracts.tools:TraceContext.consistent_context",
+    "capstone.ingestion.channel_map:_devices",
+    "capstone.ingestion.channel_map:_walk",
+    "capstone.ingestion.channel_map:build_channel_map",
+    "capstone.ingestion.channel_map:parse_probe",
+    "capstone.ingestion.channel_map:probe_hash",
+    "capstone.ingestion.mtconnect:_child",
+    "capstone.ingestion.mtconnect:_local",
+    "capstone.ingestion.record:CollectorMarker.gap_detail_only_on_a_gap",
+    "capstone.ingestion.record:TelemetryRecord.number",
+    "capstone.providers.factory:SimulatorFactoryProvider.__init__",
+    "capstone.providers.factory:SimulatorFactoryProvider.call",
+    "capstone.providers.factory:TickRange.ordered_range",
+    "capstone.providers.factory:run_tool",
+    "capstone.providers.replay:RecordedActionTools.__init__",
+    "capstone.providers.replay:RecordedActionTools.wait",
+    "capstone.providers.replay:RecordedObservationTools.__init__",
+    "capstone.providers.replay:RecordedObservationTools._entry",
+    "capstone.providers.replay:RecordedObservationTools._rows"
+   ]
+  },
+  "tests/test_replay_provider.py::test_an_unmapped_sensor_or_machine_is_refused_not_answered_empty": {
+   "count": 21,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.contracts.tools:ToolResult.consistent_outcome",
+    "capstone.contracts.tools:TraceContext.consistent_context",
+    "capstone.ingestion.channel_map:_devices",
+    "capstone.ingestion.channel_map:_walk",
+    "capstone.ingestion.channel_map:build_channel_map",
+    "capstone.ingestion.channel_map:parse_probe",
+    "capstone.ingestion.channel_map:probe_hash",
+    "capstone.ingestion.mtconnect:_child",
+    "capstone.ingestion.mtconnect:_local",
+    "capstone.ingestion.record:CollectorMarker.gap_detail_only_on_a_gap",
+    "capstone.providers.factory:SimulatorFactoryProvider.__init__",
+    "capstone.providers.factory:SimulatorFactoryProvider.call",
+    "capstone.providers.factory:TickRange.ordered_range",
+    "capstone.providers.factory:run_tool",
+    "capstone.providers.replay:RecordedActionTools.__init__",
+    "capstone.providers.replay:RecordedObservationTools.__init__",
+    "capstone.providers.replay:RecordedObservationTools._entry",
+    "capstone.providers.replay:RecordedObservationTools.get_readings",
+    "capstone.providers.replay:RecordedObservationTools.get_time",
+    "capstone.providers.replay:RecordedObservationTools.tick_of"
+   ]
+  },
+  "tests/test_replay_provider.py::test_records_named_by_device_uuid_are_read_too": {
+   "count": 24,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.contracts.tools:ToolResult.consistent_outcome",
+    "capstone.contracts.tools:TraceContext.consistent_context",
+    "capstone.ingestion.channel_map:_devices",
+    "capstone.ingestion.channel_map:_walk",
+    "capstone.ingestion.channel_map:build_channel_map",
+    "capstone.ingestion.channel_map:parse_probe",
+    "capstone.ingestion.channel_map:probe_hash",
+    "capstone.ingestion.mtconnect:_child",
+    "capstone.ingestion.mtconnect:_local",
+    "capstone.ingestion.record:TelemetryRecord.number",
+    "capstone.providers.factory:SimulatorFactoryProvider.__init__",
+    "capstone.providers.factory:SimulatorFactoryProvider.call",
+    "capstone.providers.factory:TickRange.ordered_range",
+    "capstone.providers.factory:run_tool",
+    "capstone.providers.replay:RecordedActionTools.__init__",
+    "capstone.providers.replay:RecordedObservationTools.__init__",
+    "capstone.providers.replay:RecordedObservationTools._entry",
+    "capstone.providers.replay:RecordedObservationTools._rows",
+    "capstone.providers.replay:RecordedObservationTools._visible",
+    "capstone.providers.replay:RecordedObservationTools.get_readings"
+   ]
+  },
+  "tests/test_replay_provider.py::test_the_trend_is_time_weighted_and_never_spans_the_gap": {
+   "count": 32,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.contracts.tools:ToolResult.consistent_outcome",
+    "capstone.contracts.tools:TraceContext.consistent_context",
+    "capstone.ingestion.channel_map:_devices",
+    "capstone.ingestion.channel_map:_walk",
+    "capstone.ingestion.channel_map:build_channel_map",
+    "capstone.ingestion.channel_map:parse_probe",
+    "capstone.ingestion.channel_map:probe_hash",
+    "capstone.ingestion.mtconnect:_child",
+    "capstone.ingestion.mtconnect:_local",
+    "capstone.ingestion.record:CollectorMarker.gap_detail_only_on_a_gap",
+    "capstone.ingestion.record:TelemetryRecord.number",
+    "capstone.ingestion.record:gap_free_runs",
+    "capstone.ingestion.time_stats:Hold.seconds",
+    "capstone.ingestion.time_stats:channel_holds",
+    "capstone.ingestion.time_stats:holds_in_run",
+    "capstone.providers.factory:SimulatorFactoryProvider.__init__",
+    "capstone.providers.factory:SimulatorFactoryProvider.call",
+    "capstone.providers.factory:TickRange.ordered_range",
+    "capstone.providers.factory:run_tool",
+    "capstone.providers.replay:RecordedActionTools.__init__"
+   ]
+  },
+  "tests/test_replay_provider.py::test_the_summary_mean_is_time_weighted_and_the_rate_is_endpoint": {
+   "count": 34,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.contracts.tools:ToolResult.consistent_outcome",
+    "capstone.contracts.tools:TraceContext.consistent_context",
+    "capstone.ingestion.channel_map:_devices",
+    "capstone.ingestion.channel_map:_walk",
+    "capstone.ingestion.channel_map:build_channel_map",
+    "capstone.ingestion.channel_map:parse_probe",
+    "capstone.ingestion.channel_map:probe_hash",
+    "capstone.ingestion.mtconnect:_child",
+    "capstone.ingestion.mtconnect:_local",
+    "capstone.ingestion.record:CollectorMarker.gap_detail_only_on_a_gap",
+    "capstone.ingestion.record:TelemetryRecord.number",
+    "capstone.ingestion.record:gap_free_runs",
+    "capstone.ingestion.time_stats:Hold.seconds",
+    "capstone.ingestion.time_stats:channel_holds",
+    "capstone.ingestion.time_stats:holds_in_run",
+    "capstone.providers.factory:SensorSummaryArguments.sensor_belongs_to_target",
+    "capstone.providers.factory:SimulatorFactoryProvider.__init__",
+    "capstone.providers.factory:SimulatorFactoryProvider.call",
+    "capstone.providers.factory:TickRange.ordered_range",
+    "capstone.providers.factory:run_tool"
+   ]
+  },
+  "tests/test_replay_provider.py::test_machine_status_follows_the_last_execution_value": {
+   "count": 20,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.contracts.tools:ToolResult.consistent_outcome",
+    "capstone.contracts.tools:TraceContext.consistent_context",
+    "capstone.ingestion.channel_map:_devices",
+    "capstone.ingestion.channel_map:_walk",
+    "capstone.ingestion.channel_map:build_channel_map",
+    "capstone.ingestion.channel_map:parse_probe",
+    "capstone.ingestion.channel_map:probe_hash",
+    "capstone.ingestion.mtconnect:_child",
+    "capstone.ingestion.mtconnect:_local",
+    "capstone.ingestion.record:CollectorMarker.gap_detail_only_on_a_gap",
+    "capstone.providers.factory:SimulatorFactoryProvider.__init__",
+    "capstone.providers.factory:SimulatorFactoryProvider.call",
+    "capstone.providers.factory:run_tool",
+    "capstone.providers.replay:RecordedActionTools.__init__",
+    "capstone.providers.replay:RecordedObservationTools.__init__",
+    "capstone.providers.replay:RecordedObservationTools._visible",
+    "capstone.providers.replay:RecordedObservationTools.get_time",
+    "capstone.providers.replay:RecordedObservationTools.list_machines",
+    "capstone.providers.replay:RecordedObservationTools.tick_of",
+    "capstone.providers.replay:replay_provider"
+   ]
+  },
+  "tests/test_replay_provider.py::test_a_machine_without_an_execution_value_is_not_guessed": {
+   "count": 19,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.contracts.tools:ToolResult.consistent_outcome",
+    "capstone.contracts.tools:TraceContext.consistent_context",
+    "capstone.ingestion.channel_map:_devices",
+    "capstone.ingestion.channel_map:_walk",
+    "capstone.ingestion.channel_map:build_channel_map",
+    "capstone.ingestion.channel_map:parse_probe",
+    "capstone.ingestion.channel_map:probe_hash",
+    "capstone.ingestion.mtconnect:_child",
+    "capstone.ingestion.mtconnect:_local",
+    "capstone.providers.factory:SimulatorFactoryProvider.__init__",
+    "capstone.providers.factory:SimulatorFactoryProvider.call",
+    "capstone.providers.factory:run_tool",
+    "capstone.providers.replay:RecordedActionTools.__init__",
+    "capstone.providers.replay:RecordedObservationTools.__init__",
+    "capstone.providers.replay:RecordedObservationTools._visible",
+    "capstone.providers.replay:RecordedObservationTools.get_time",
+    "capstone.providers.replay:RecordedObservationTools.list_machines",
+    "capstone.providers.replay:RecordedObservationTools.tick_of",
+    "capstone.providers.replay:replay_provider"
+   ]
+  },
+  "tests/test_replay_provider.py::test_a_bad_setup_is_refused": {
+   "count": 9,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.ingestion.channel_map:_devices",
+    "capstone.ingestion.channel_map:_walk",
+    "capstone.ingestion.channel_map:build_channel_map",
+    "capstone.ingestion.channel_map:parse_probe",
+    "capstone.ingestion.channel_map:probe_hash",
+    "capstone.ingestion.mtconnect:_child",
+    "capstone.ingestion.mtconnect:_local",
+    "capstone.ingestion.record:CollectorMarker.gap_detail_only_on_a_gap",
+    "capstone.providers.replay:RecordedObservationTools.__init__"
    ]
   },
   "tests/test_request_deadline.py::test_work_finished_in_time_gives_its_result": {
