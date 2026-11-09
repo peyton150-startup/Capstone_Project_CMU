@@ -1,5 +1,17 @@
 # Progress Log
 
+> **2026-11-08 — SM-5 core: time-aware statistics for unevenly timed readings (built ungated at the developer's direction; pre-check, closing questions and pre-merge walkthrough owed; understood: no; not merged, at the developer's request):**
+> New module `ingestion/time_stats.py`. `holds_in_run` turns one channel's numeric readings inside one gap-free run into
+> `Hold`s: each value stands from its own time until the channel's next record, or until the run's last collected
+> reading, never into a gap. An UNAVAILABLE record or an event word ends the previous hold and starts none.
+> `channel_holds` does this for every run of `gap_free_runs`. From holds: `time_weighted_mean` (the MVP_SCOPE example,
+> 10% for 90 s then 90% for 10 s, gives 18%, not 50%), `seconds_above`, `peak_excursion` (furthest value from a
+> reference, with when it began and how long it held) and `slope_per_second` (least squares on real times, each run
+> centred on its own means and the sums pooled, so a level step between runs is not a trend). `summarize` returns a
+> `ChannelStats`. Not wired to any tool yet (SM-3 would use it). PR #212. Owed questions: pre-check, "why does a plain
+> average of the readings give 50% in the MVP_SCOPE example, and what does the time-weighted mean count instead?";
+> closing, "a channel reads 10 before a gap and 90 after it; why does `slope_per_second` report no upward trend?"
+
 > **2026-11-08 — SM-2 remainder: per-channel UNAVAILABLE stretches and staleness (built ungated at the developer's direction; pre-check, closing questions and pre-merge walkthrough owed; understood: no; not merged, at the developer's request):**
 > New module `ingestion/quality.py`. `unavailable_spans` lists each stretch in which one channel reported UNAVAILABLE,
 > from that record to the channel's next real value (`available_again`); a stretch still open when collection breaks (a

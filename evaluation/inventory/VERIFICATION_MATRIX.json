@@ -51,6 +51,7 @@
   "capstone-code/capstone/ingestion/privacy.py": "6316dbd843a40da4360f1876dad35a01970efd66d4d595a9aad53ab40eec4904",
   "capstone-code/capstone/ingestion/quality.py": "609b2571b21e20ab3ff3114be40cb63b7770f5754cf7af677173efe36ef95ff0",
   "capstone-code/capstone/ingestion/record.py": "f9e363c8fa11878b892b5ce2d1e00c6d7fee81e0905d61bc33c59e30e2bea2f3",
+  "capstone-code/capstone/ingestion/time_stats.py": "2530ca938fa5bea4f2611d7c91277652d8d7fc0b7ff2c35ca3e27648864833ef",
   "capstone-code/capstone/ingestion/visit_log.py": "4b1d8c9c257a770312fdf783c3a2f0705bec9f2331da6d14d99442bfac4eed1c",
   "capstone-code/capstone/learning.py": "4741af4b7f52b774554efce90730dc0e9e7f6f6f6ed632f62c77add33feec33c",
   "capstone-code/capstone/manual/__init__.py": "cb282d0110e7312df5b76acfb94deb8f9c90adfaebab91146afb707dffa4ad0e",
@@ -222,6 +223,7 @@
   "tests/test_temperature_sensor.py": "759997ab28d7a4b14a497b1c737d50083f9f9d22ffb6cdc000ce2f41c58d24ea",
   "tests/test_thermal_lag.py": "8fed4226a366fcebd1d2cedf309bd39da61f9b8b11ea7a3beb730cc35234dbf0",
   "tests/test_thermometer.py": "2c4fa92b8335f7e5d83be5d196e2ff1964e262519eca4e937b325a8688e8857e",
+  "tests/test_time_stats.py": "e1226a2497b41b362682962204e30848f460ed96001920402fdcf8f6ce5eb0c6",
   "tests/test_tree_of_thought.py": "912f7380b3546457c2ebdf548c540100c7da66c8d36a209becb8dbe32fc4aa50",
   "tests/test_tree_search.py": "493731290898d53ee29c0c471828be6a8236857508682503e2a534c7de635f7c",
   "tests/test_triage.py": "ebb09eff3118c5cc0a5794eb796f47e6f9fc2433766033219eb6170e3ea57248",
@@ -231,29 +233,29 @@
   "tests/test_wait_tool.py": "b99a5fbf756a60176262417e54d8d1a0496f01126929a330492e7d24287b2d1e",
   "tests/test_wrong_setting.py": "aed1c646bffaf88ae25ed2156794dc57427e8a61bbe6b23a0c33f3c3e89c0da3"
  },
- "coverage_sha256": "fe7aacc375e81bc7d9fe8b6000bef0fb3c6bf942f77f6201db394f771eb5985b",
- "junit_sha256": "ee646602c17e3cdabb2e0aa750c65e83ec68eeb8c389ae3f4a11671e5ca7d1e1",
+ "coverage_sha256": "c7e241fa425a5bdcc6a7f467a5a0f3b0999dc343d2bd8b6a7ee196bd0c7f9a0d",
+ "junit_sha256": "f0e4d2296594199e9bb796919e91db43d41be01ec5435e389610270cd5babcd1",
  "counts": {
-  "functions": 910,
+  "functions": 919,
   "classes_note": "classes are listed through their methods",
-  "tests": 1823,
+  "tests": 1833,
   "tools": 18,
   "functions_by_status": {
    "INSUFFICIENT EVIDENCE": 374,
    "NOT APPLICABLE": 25,
    "NOT TESTED": 13,
-   "PARTIALLY VERIFIED": 453,
+   "PARTIALLY VERIFIED": 462,
    "VERIFIED": 45
   },
   "functions_by_coverage_class": {
-   "direct": 482,
+   "direct": 491,
    "import-only": 4,
    "indirect": 386,
    "no-statements": 25,
    "none": 13
   },
-  "functions_executed_in_tests": 868,
-  "functions_with_direct_tests": 482,
+  "functions_executed_in_tests": 877,
+  "functions_with_direct_tests": 491,
   "functions_never_executed": [
    "capstone.episode:ask_on_console",
    "capstone.evals:main.<locals>.show_progress",
@@ -310,7 +312,7 @@
   ],
   "stubs_or_protocols": 25,
   "tests_by_outcome": {
-   "passed": 1823
+   "passed": 1833
   },
   "tests_with_no_assertion": [
    "tests/test_console.py::test_without_it_the_same_print_raised"
@@ -655,6 +657,11 @@
    "functions": 4,
    "executed": 4,
    "direct": 1
+  },
+  "capstone.ingestion.time_stats": {
+   "functions": 9,
+   "executed": 9,
+   "direct": 9
   },
   "capstone.ingestion.visit_log": {
    "functions": 10,
@@ -8243,7 +8250,7 @@
    ]
   },
   "capstone.ingestion.record:TelemetryRecord.number": {
-   "count": 18,
+   "count": 28,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
@@ -8262,7 +8269,7 @@
    ]
   },
   "capstone.ingestion.record:CollectorMarker.gap_detail_only_on_a_gap": {
-   "count": 36,
+   "count": 38,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
@@ -8300,20 +8307,132 @@
    ]
   },
   "capstone.ingestion.record:gap_free_runs": {
-   "count": 8,
+   "count": 18,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_mtconnect_ingestion.py::test_gap_free_runs_never_join_readings_across_a_gap_or_a_restart"
    ],
    "indirect": [
+    "tests/test_time_stats.py::test_a_step_between_two_runs_is_not_a_trend",
+    "tests/test_time_stats.py::test_event_words_are_not_numbers",
+    "tests/test_time_stats.py::test_no_value_is_carried_across_a_gap",
+    "tests/test_time_stats.py::test_the_last_value_holds_only_until_the_last_collected_reading",
+    "tests/test_time_stats.py::test_the_mean_is_weighted_by_how_long_each_value_held",
+    "tests/test_time_stats.py::test_the_slope_uses_real_times_not_reading_order",
+    "tests/test_time_stats.py::test_the_summary_brings_it_together",
+    "tests/test_time_stats.py::test_time_above_a_level_and_the_peak_excursion",
+    "tests/test_time_stats.py::test_too_few_readings_give_no_slope_or_mean",
+    "tests/test_time_stats.py::test_unavailable_cuts_the_previous_value_off_and_is_never_filled",
     "tests/test_visit_log.py::test_a_visit_is_not_ready_when_a_file_is_missing_or_an_entry_unmatched",
-    "tests/test_visit_log.py::test_a_visit_with_probe_data_and_a_matched_log_is_ready",
-    "tests/test_visit_log.py::test_an_entry_against_an_empty_capture_is_outside",
-    "tests/test_visit_log.py::test_command_line_checks_a_visit",
-    "tests/test_visit_log.py::test_each_entry_is_placed_in_collected_time_a_gap_or_outside",
-    "tests/test_visit_log.py::test_the_report_lists_unmatched_entries_and_the_items_to_confirm_by_hand",
-    "tests/test_visit_log.py::test_the_tolerance_allows_for_a_person_noting_the_time_late"
+    "tests/test_visit_log.py::test_a_visit_with_probe_data_and_a_matched_log_is_ready"
    ]
+  },
+  "capstone.ingestion.time_stats:Hold.seconds": {
+   "count": 7,
+   "status": "PARTIALLY VERIFIED",
+   "direct": [
+    "tests/test_time_stats.py::test_event_words_are_not_numbers",
+    "tests/test_time_stats.py::test_no_value_is_carried_across_a_gap",
+    "tests/test_time_stats.py::test_the_last_value_holds_only_until_the_last_collected_reading",
+    "tests/test_time_stats.py::test_the_mean_is_weighted_by_how_long_each_value_held",
+    "tests/test_time_stats.py::test_the_summary_brings_it_together",
+    "tests/test_time_stats.py::test_time_above_a_level_and_the_peak_excursion",
+    "tests/test_time_stats.py::test_unavailable_cuts_the_previous_value_off_and_is_never_filled"
+   ],
+   "indirect": []
+  },
+  "capstone.ingestion.time_stats:holds_in_run": {
+   "count": 10,
+   "status": "PARTIALLY VERIFIED",
+   "direct": [
+    "tests/test_time_stats.py::test_a_step_between_two_runs_is_not_a_trend",
+    "tests/test_time_stats.py::test_event_words_are_not_numbers",
+    "tests/test_time_stats.py::test_no_value_is_carried_across_a_gap",
+    "tests/test_time_stats.py::test_the_last_value_holds_only_until_the_last_collected_reading",
+    "tests/test_time_stats.py::test_the_mean_is_weighted_by_how_long_each_value_held",
+    "tests/test_time_stats.py::test_the_slope_uses_real_times_not_reading_order",
+    "tests/test_time_stats.py::test_the_summary_brings_it_together",
+    "tests/test_time_stats.py::test_time_above_a_level_and_the_peak_excursion",
+    "tests/test_time_stats.py::test_too_few_readings_give_no_slope_or_mean",
+    "tests/test_time_stats.py::test_unavailable_cuts_the_previous_value_off_and_is_never_filled"
+   ],
+   "indirect": []
+  },
+  "capstone.ingestion.time_stats:channel_holds": {
+   "count": 10,
+   "status": "PARTIALLY VERIFIED",
+   "direct": [
+    "tests/test_time_stats.py::test_a_step_between_two_runs_is_not_a_trend",
+    "tests/test_time_stats.py::test_event_words_are_not_numbers",
+    "tests/test_time_stats.py::test_no_value_is_carried_across_a_gap",
+    "tests/test_time_stats.py::test_the_last_value_holds_only_until_the_last_collected_reading",
+    "tests/test_time_stats.py::test_the_mean_is_weighted_by_how_long_each_value_held",
+    "tests/test_time_stats.py::test_the_slope_uses_real_times_not_reading_order",
+    "tests/test_time_stats.py::test_the_summary_brings_it_together",
+    "tests/test_time_stats.py::test_time_above_a_level_and_the_peak_excursion",
+    "tests/test_time_stats.py::test_too_few_readings_give_no_slope_or_mean",
+    "tests/test_time_stats.py::test_unavailable_cuts_the_previous_value_off_and_is_never_filled"
+   ],
+   "indirect": []
+  },
+  "capstone.ingestion.time_stats:_flat": {
+   "count": 5,
+   "status": "PARTIALLY VERIFIED",
+   "direct": [
+    "tests/test_time_stats.py::test_no_value_is_carried_across_a_gap",
+    "tests/test_time_stats.py::test_the_mean_is_weighted_by_how_long_each_value_held",
+    "tests/test_time_stats.py::test_the_summary_brings_it_together",
+    "tests/test_time_stats.py::test_time_above_a_level_and_the_peak_excursion",
+    "tests/test_time_stats.py::test_too_few_readings_give_no_slope_or_mean"
+   ],
+   "indirect": []
+  },
+  "capstone.ingestion.time_stats:time_weighted_mean": {
+   "count": 4,
+   "status": "PARTIALLY VERIFIED",
+   "direct": [
+    "tests/test_time_stats.py::test_no_value_is_carried_across_a_gap",
+    "tests/test_time_stats.py::test_the_mean_is_weighted_by_how_long_each_value_held",
+    "tests/test_time_stats.py::test_the_summary_brings_it_together",
+    "tests/test_time_stats.py::test_too_few_readings_give_no_slope_or_mean"
+   ],
+   "indirect": []
+  },
+  "capstone.ingestion.time_stats:seconds_above": {
+   "count": 2,
+   "status": "PARTIALLY VERIFIED",
+   "direct": [
+    "tests/test_time_stats.py::test_the_summary_brings_it_together",
+    "tests/test_time_stats.py::test_time_above_a_level_and_the_peak_excursion"
+   ],
+   "indirect": []
+  },
+  "capstone.ingestion.time_stats:peak_excursion": {
+   "count": 1,
+   "status": "PARTIALLY VERIFIED",
+   "direct": [
+    "tests/test_time_stats.py::test_time_above_a_level_and_the_peak_excursion"
+   ],
+   "indirect": []
+  },
+  "capstone.ingestion.time_stats:slope_per_second": {
+   "count": 4,
+   "status": "PARTIALLY VERIFIED",
+   "direct": [
+    "tests/test_time_stats.py::test_a_step_between_two_runs_is_not_a_trend",
+    "tests/test_time_stats.py::test_the_slope_uses_real_times_not_reading_order",
+    "tests/test_time_stats.py::test_the_summary_brings_it_together",
+    "tests/test_time_stats.py::test_too_few_readings_give_no_slope_or_mean"
+   ],
+   "indirect": []
+  },
+  "capstone.ingestion.time_stats:summarize": {
+   "count": 1,
+   "status": "PARTIALLY VERIFIED",
+   "direct": [
+    "tests/test_time_stats.py::test_the_summary_brings_it_together"
+   ],
+   "indirect": []
   },
   "capstone.ingestion.visit_log:TechnicianEvent.has_a_time_zone": {
    "count": 9,
@@ -47288,6 +47407,132 @@
     "capstone.simulator.sensors:Sensor.available",
     "capstone.simulator.sensors:Sensor.read",
     "capstone.simulator.sensors:TemperatureSensor.__init__"
+   ]
+  },
+  "tests/test_time_stats.py::test_the_mean_is_weighted_by_how_long_each_value_held": {
+   "count": 7,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.ingestion.record:TelemetryRecord.number",
+    "capstone.ingestion.record:gap_free_runs",
+    "capstone.ingestion.time_stats:Hold.seconds",
+    "capstone.ingestion.time_stats:_flat",
+    "capstone.ingestion.time_stats:channel_holds",
+    "capstone.ingestion.time_stats:holds_in_run",
+    "capstone.ingestion.time_stats:time_weighted_mean"
+   ]
+  },
+  "tests/test_time_stats.py::test_the_last_value_holds_only_until_the_last_collected_reading": {
+   "count": 5,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.ingestion.record:TelemetryRecord.number",
+    "capstone.ingestion.record:gap_free_runs",
+    "capstone.ingestion.time_stats:Hold.seconds",
+    "capstone.ingestion.time_stats:channel_holds",
+    "capstone.ingestion.time_stats:holds_in_run"
+   ]
+  },
+  "tests/test_time_stats.py::test_no_value_is_carried_across_a_gap": {
+   "count": 8,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.ingestion.record:CollectorMarker.gap_detail_only_on_a_gap",
+    "capstone.ingestion.record:TelemetryRecord.number",
+    "capstone.ingestion.record:gap_free_runs",
+    "capstone.ingestion.time_stats:Hold.seconds",
+    "capstone.ingestion.time_stats:_flat",
+    "capstone.ingestion.time_stats:channel_holds",
+    "capstone.ingestion.time_stats:holds_in_run",
+    "capstone.ingestion.time_stats:time_weighted_mean"
+   ]
+  },
+  "tests/test_time_stats.py::test_unavailable_cuts_the_previous_value_off_and_is_never_filled": {
+   "count": 5,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.ingestion.record:TelemetryRecord.number",
+    "capstone.ingestion.record:gap_free_runs",
+    "capstone.ingestion.time_stats:Hold.seconds",
+    "capstone.ingestion.time_stats:channel_holds",
+    "capstone.ingestion.time_stats:holds_in_run"
+   ]
+  },
+  "tests/test_time_stats.py::test_event_words_are_not_numbers": {
+   "count": 5,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.ingestion.record:TelemetryRecord.number",
+    "capstone.ingestion.record:gap_free_runs",
+    "capstone.ingestion.time_stats:Hold.seconds",
+    "capstone.ingestion.time_stats:channel_holds",
+    "capstone.ingestion.time_stats:holds_in_run"
+   ]
+  },
+  "tests/test_time_stats.py::test_time_above_a_level_and_the_peak_excursion": {
+   "count": 8,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.ingestion.record:TelemetryRecord.number",
+    "capstone.ingestion.record:gap_free_runs",
+    "capstone.ingestion.time_stats:Hold.seconds",
+    "capstone.ingestion.time_stats:_flat",
+    "capstone.ingestion.time_stats:channel_holds",
+    "capstone.ingestion.time_stats:holds_in_run",
+    "capstone.ingestion.time_stats:peak_excursion",
+    "capstone.ingestion.time_stats:seconds_above"
+   ]
+  },
+  "tests/test_time_stats.py::test_the_slope_uses_real_times_not_reading_order": {
+   "count": 5,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.ingestion.record:TelemetryRecord.number",
+    "capstone.ingestion.record:gap_free_runs",
+    "capstone.ingestion.time_stats:channel_holds",
+    "capstone.ingestion.time_stats:holds_in_run",
+    "capstone.ingestion.time_stats:slope_per_second"
+   ]
+  },
+  "tests/test_time_stats.py::test_a_step_between_two_runs_is_not_a_trend": {
+   "count": 6,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.ingestion.record:CollectorMarker.gap_detail_only_on_a_gap",
+    "capstone.ingestion.record:TelemetryRecord.number",
+    "capstone.ingestion.record:gap_free_runs",
+    "capstone.ingestion.time_stats:channel_holds",
+    "capstone.ingestion.time_stats:holds_in_run",
+    "capstone.ingestion.time_stats:slope_per_second"
+   ]
+  },
+  "tests/test_time_stats.py::test_too_few_readings_give_no_slope_or_mean": {
+   "count": 7,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.ingestion.record:TelemetryRecord.number",
+    "capstone.ingestion.record:gap_free_runs",
+    "capstone.ingestion.time_stats:_flat",
+    "capstone.ingestion.time_stats:channel_holds",
+    "capstone.ingestion.time_stats:holds_in_run",
+    "capstone.ingestion.time_stats:slope_per_second",
+    "capstone.ingestion.time_stats:time_weighted_mean"
+   ]
+  },
+  "tests/test_time_stats.py::test_the_summary_brings_it_together": {
+   "count": 10,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.ingestion.record:TelemetryRecord.number",
+    "capstone.ingestion.record:gap_free_runs",
+    "capstone.ingestion.time_stats:Hold.seconds",
+    "capstone.ingestion.time_stats:_flat",
+    "capstone.ingestion.time_stats:channel_holds",
+    "capstone.ingestion.time_stats:holds_in_run",
+    "capstone.ingestion.time_stats:seconds_above",
+    "capstone.ingestion.time_stats:slope_per_second",
+    "capstone.ingestion.time_stats:summarize",
+    "capstone.ingestion.time_stats:time_weighted_mean"
    ]
   },
   "tests/test_tree_of_thought.py::test_pruning_keeps_the_best_rated_and_says_why_the_rest_went": {

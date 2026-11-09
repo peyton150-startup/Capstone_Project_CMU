@@ -149,6 +149,7 @@ GROUPS: dict[str, list[str]] = {
         "collector_watchdog",
         "visit_log",
         "channel_quality",
+        "time_stats",
     ],
 }
 
