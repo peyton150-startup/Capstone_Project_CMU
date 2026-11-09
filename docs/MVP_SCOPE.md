@@ -802,7 +802,7 @@ agent-side and evaluator-side halves of each pack are kept apart. Left:
 
 **Evidence and completion gates**
 
-8. `diagnosis_supported` counts observable evidence ids, not independent sources (`loop.py:207`). `evidence_brief.py` already flags repeated exact measurements; the gate does not use that.
+8. `diagnosis_supported` counts observable evidence ids, not independent sources (`loop.py:206-209`). `evidence_brief.py` already flags repeated exact measurements; the gate does not use that.
 9. Bug: `conclusion_gaps` keeps an unanswered question only when `q.hypothesis_id` is a current hypothesis (`investigation.py:831`). It ignores `distinguishes_hypothesis_ids`, which `question_role` reads (`:766`), so some rival-test questions are dropped from the gaps.
 10. The stop check (`diagnosis_supported`) and the final check (`check_conclusion`) apply different rules: the final check has no confidence bar and no minimum count of supporting evidence.
 11. Most important, and missed by all three reviews: in practice the final gate is too strict, not too loose. In the 2026-11-05 line-context run it held all 18 checked answers open, catching about 4 harmful "nothing needs doing" answers but blocking about 5 right ones. `gap_replay` of today's rule: 0 right, 0 harmful, 21 held. "Strengthen the gate" should mean unify and calibrate it with `gap_replay`, not tighten it.
@@ -811,11 +811,11 @@ agent-side and evaluator-side halves of each pack are kept apart. Left:
 **Triage to deep handoff**
 
 13. The deep run starts from a fresh `InvestigationState` and gathers its own packet (`episode.py`, after `run_investigation(first, ...)`). This is deliberate, to avoid anchoring on triage's guess; reuse should carry observations only, never hypotheses.
-14. Bug, more serious than the review stated: `ManualProvider.searched` and `RecallingProvider.searched` are per instance and never reset (`providers/manual.py:107`, `providers/recall.py:106`), and triage and the deep run share the same provider objects. The deep run's automatic manual step repeats triage's exact query and limit (`manual_query`, `MANUAL_STEP_LIMIT`), so it should be refused as a repeated search, leaving the deep run without manual sections. Needs a test to confirm.
+14. Bug, confirmed offline, more serious than the review stated: `ManualProvider.searched` and `RecallingProvider.searched` are per instance and never reset (`providers/manual.py:107`, `providers/recall.py:106`), and triage and the deep run share the same provider objects (`episode.py` passes the same `deps` provider to both). The deep run's automatic manual step repeats triage's exact query and limit (`manual_query`, `MANUAL_STEP_LIMIT`), so it is refused as a repeated search. A scripted run (`TRIAGE=on`, `MANUAL_STEP=on`, the `tests/test_triage.py` harness with `tests/test_critic.py`'s `FakeManual`) showed the manual index searched once, the triage's `search_manual` `observed`, and the deep run's `search_manual` a `tool_error`: the deep run gets no manual sections. A regression test belongs with the fix. Memory recall has the same per-instance counter, so triage also spends the deep run's recall searches.
 
 **Real-machine pilot**
 
-15. The recorded-data provider refuses `get_settings`, `get_line_screening`, `get_events`, `get_job_history`, `get_maintenance_history` and `get_inspections` (`providers/replay.py:272-292`). The tool list offered to the model is fixed (`research_tools()`, `providers/factory.py:318`), and `replay_provider` is used only in tests, not by any investigation entry point. A capability-aware tool list is P0 for the pilot. The automatic line-screening call itself costs almost nothing (no model question, its own allowance); the real cost is decide turns (about 26 s each) spent on refused tools.
+15. The recorded-data provider refuses `get_settings`, `get_line_screening`, `get_events`, `get_job_history`, `get_maintenance_history` and `get_inspections` (`providers/replay.py:272-291`). The tool list offered to the model is fixed (`research_tools()`, `providers/factory.py:318`), and `replay_provider` is used only in tests, not by any investigation entry point. A capability-aware tool list is P0 for the pilot. The automatic line-screening call itself costs almost nothing (no model question, its own allowance); the real cost is decide turns (about 26 s each) spent on refused tools.
 16. The line screening's healthy reference comes from the simulator; `tools/screening.py` says to record one from a confirmed healthy period before using real data.
 17. `monitoring/` never starts an investigation: there is no live alert-to-diagnosis path yet.
 18. `run_with_deadline` returns on timeout but leaves its daemon thread running (`providers/chat.py:295-316`). Matters for a continuously running service, not experiments.
@@ -828,13 +828,37 @@ agent-side and evaluator-side halves of each pack are kept apart. Left:
 22. `DECIDE_CALLS` runs its reads in order through `gather` in a custom loop (`loop.py` `run_batch`), not through Pydantic AI's concurrent tool calls. Fine for now: tools are cheap.
 23. The evaluation design is right: change one setting per arm, and report three latencies separately (time to first trustworthy response, time to a supported diagnosis or honest unresolved, time to full resolution through approval and verification). A 60 s target fits the first, not the third.
 
+**Critic and reasoning options**
+
+24. The critic's answer never reaches the investigator's prompts or the conclusion: `model_policy.py` does not render `state.critique`, and `critique()` says "Nothing in the run reads the answer". Only `recheck` uses it, to make at most one read. An objection with no executable check is recorded and then has no effect. A targeted critic should either gather the evidence it names or force escalation.
+25. `TOT_ADAPTIVE` decides only inside the tree's hypothesize step (`agent/tree_of_thought.py:703`): it can skip the tree for one clear explanation and fall back to the plain step. It is a seed for routing, not a general investigation router.
+26. The archived runs sampled the investigator (Nemotron Super) at temperature 1.0, top_p 0.95, with `MODEL_QUESTION_SECONDS=240` and `MODEL_REQUEST_SECONDS=120` (`2026-11-01-tot13-pairs/*/master-tot13-anchored.config.json`). The 120 s per request is the half split behind item 2. Temperature is a variable to hold fixed, and worth testing, in the baseline arms.
+
+**From the team's draft and MoE notes (design guidance, consistent with the code above)**
+
+27. Pydantic Graph is not the bottleneck: wall time is almost all model time (item 1). Keep the graph, typed contracts, provenance, budgets, approval and verification.
+28. Capabilities are activated selectively; safeguards always run (evidence validation, time budgets, audit trail, approval). The safeguards cost almost no time.
+29. Route by staged escalation, not up-front classification: conflicting readings or multiple causes are only visible after evidence is read, so every case starts on the cheap path and escalates on triggers (a contradiction, rival hypotheses too close, low evidence quality, unknown channels).
+30. Misrouting is asymmetric: a hard case kept on the simple path is worse than the reverse. Measure how often a case should have escalated but did not, against the full pipeline.
+31. Episodic memory can anchor on a past diagnosis. A recalled lesson is one hypothesis to test, not a shortcut. The gate already refuses memory and manual evidence as support (`diagnosis_supported` counts observable provenance only); keep that rule on any fast path.
+32. Every path ends at the same conclusion check and gate; approval, execution and verification are a downstream workflow after any diagnosis, not a route.
+33. Objective: minimize p95 time to the first trustworthy response, subject to accuracy within a set margin of the full pipeline, a confidently wrong rate at or below baseline, and zero approval bypasses.
+34. In the 6 appended October 31 cases, time to the conclusion question was 464 s to 850 s. "Time to first useful finding" is not recorded today and should become a reported metric.
+
+**Pilot operations**
+
+35. The first real-machine pilot stays strictly read-only. The simulator experiments approve every proposal by default (`approve_all`, `experiment.py:610`), so their execute and verify results are not evidence that real interventions are safe.
+36. Before continuous operation, incidents need an explicit lifecycle (detected, triaging, investigating, awaiting review, resolved or inconclusive) with deduplication, so repeated readings of one fault update one incident, and a stalled model call never blocks new alerts (item 17).
+37. For the real machine, extend the incident packet into an anomaly-specific bundle (for vibration: vibration, load and power over the same window, operating state, alarms, measurement quality, missing channels). Python prepares evidence only; the model still names causes and may request more reads.
+38. Correctness scores come from an uncalibrated evaluator (Snap is exploratory; Jev labels are provisional). Technician-confirmed cases from the real machine will matter more than simulator accuracy.
+
 #### True but mis-weighted
 
 - **Merge plan into hypothesize:** about 3% of latency. The value is moving hypotheses earlier (item 3).
 - **"The line-screening request is CRITICAL":** the refused call is harmless; the static tool list is the critical part (item 15).
 - **"Wrong-setting cases are unjudged":** the Jev labels judge them; 0 correct. See the correction above.
 - **Prompt caching:** the system/user split exists (`chat.py:528`), but whether NVIDIA caches is unverified. Defer.
-- **16,384-token output ceiling (`MODEL_MAX_OUTPUT_TOKENS`):** confirmed, but reasoning effort is the bigger lever on output length.
+- **16,384-token output ceiling (`MODEL_MAX_OUTPUT_TOKENS`, `settings.py:281`):** confirmed, but reasoning effort is the bigger lever on output length. Smaller per-job output schemas are worth testing after call counts fall.
 - **Repeated scans in the recorded-data provider:** confirmed linear scans over the capture (`replay.py`); cost unmeasured. Defer until multi-day captures exist.
 
 #### Noise
@@ -847,11 +871,11 @@ agent-side and evaluator-side halves of each pack are kept apart. Left:
 
 #### Recommended order
 
-1. **Pilot:** connect the recorded-data provider to investigations with a tool list filtered to what the machine supports (item 15); fix and test the triage/deep shared search state (item 14).
+1. **Pilot:** connect the recorded-data provider to investigations with a tool list filtered to what the machine supports (item 15); fix the triage/deep shared search state with a regression test (item 14); keep the pilot read-only (item 35).
 2. **Baseline, one setting per arm, at least 2 repeats each:** A current `main` defaults; B `DECIDE_CALLS`; C plus `DECIDE_REASONING_EFFORT=low`; D plus the chosen `LINE_CONTEXT` setting; E plus `LATE_MODEL`; F the compact loop (step 4). Report `timeout` and `model_unavailable` endings separately, plus correct cause, false `no_action`, unsupported intervention and escalation quality. Codex runs these (AGENTS.md §12).
 3. **Gates:** one shared sufficiency policy for the stop check and the final check; fix item 9; count independent sources (item 8); calibrate with `gap_replay` (item 11).
 4. **Loop and deadline:** form hypotheses right after the evidence packet; allow a supported stop in any research phase; one end-to-end deadline that includes critic and recheck; revisit the Super/fallback time split (item 2).
-5. **Then:** a deterministic complexity router (escalate-only, measured by how often a case should have escalated but did not), a critic ablation, stage-specific views for decide and conclude, then parallel reads and caching if measurements justify them.
+5. **Then:** a deterministic complexity router (escalate-only, items 29 to 30), a critic ablation and a targeted critic that gathers or escalates (item 24), stage-specific views for decide and conclude, then parallel reads and caching if measurements justify them.
 
 ### Live runs and follow-ups still owed
 
