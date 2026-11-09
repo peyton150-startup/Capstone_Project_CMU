@@ -571,6 +571,7 @@ def test_the_agreement_report_pairs_only_identical_states_and_flags_disagreement
                 "provider": provider,
                 "item_id": item,
                 "state_digest": digest,
+                "rubric_version": "1.1.0",
                 "questions": {"q": question},
             },
             "answers": [
@@ -1419,11 +1420,11 @@ def test_run_09_is_asked_whenever_the_conclusion_names_a_cause(master_packets):
     lowered the recommendation to escalate; a conclusion naming none is not."""
     _, questions = snap_request.load_questions()
 
-    def asked(committed, recommendation):
+    def asked(committed, recommendation, diagnosis="bearing wear on CNC-02"):
         packet = json.loads(master_packets[0].model_dump_json())
         packet["snap_view"]["trace"]["completeness"] = "full"
         packet["snap_view"]["trace"]["conclusion"] = {
-            "diagnosis": "bearing wear on CNC-02",
+            "diagnosis": diagnosis,
             "confidence": 0.92,
             "recommendation": recommendation,
         }
@@ -1436,9 +1437,10 @@ def test_run_09_is_asked_whenever_the_conclusion_names_a_cause(master_packets):
     assert asked(False, "escalate")[1] == (
         "not_applicable: the conclusion names no cause"
     )
-    # Unlabelled: fall back to the recommendation.
-    assert asked(None, "escalate")[0] is False
+    # Unlabelled: a named diagnosis still deserves scrutiny after escalation.
+    assert asked(None, "escalate")[0] is True
     assert asked(None, "replace_bearing")[0] is True
+    assert asked(None, "escalate", diagnosis="no cause identified")[0] is False
 
 
 def test_a_test_state_shows_the_decorators_and_module_helpers_the_test_needs(
@@ -1522,6 +1524,7 @@ def test_two_answers_to_one_question_are_refused_and_latency_is_per_request():
                 "provider": "snap",
                 "item_id": item,
                 "request_fingerprint": fingerprint,
+                "rubric_version": "1.1.0",
                 "state_digest": "d",
                 "model_requested": "m",
             },

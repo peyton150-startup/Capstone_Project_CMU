@@ -148,6 +148,13 @@ class Settings(BaseSettings):
     # evidence: fewer model questions per case. Each call still counts against
     # the tool-call budget.
     decide_calls: int = Field(default=1, ge=1, le=5, validation_alias="DECIDE_CALLS")
+    # Stage views (developer, 2026-11-08): judge_verification is shown evidence
+    # set out by when its data was taken relative to the work, with
+    # same-signal before/after numbers and the gaps; write_lesson is shown the
+    # conclusion, calls made and the factual brief instead of raw evidence.
+    # Off by default, so every question sees the shared view and runs stay
+    # comparable with the baseline.
+    stage_context: bool = Field(default=False, validation_alias="STAGE_CONTEXT")
     # How hard NVIDIA's thinking models reason on the decide question only
     # (choosing the next tool; with STEP_QUESTIONS=1 it also interprets the
     # last result). Sent as "reasoning_effort", which NVIDIA documents for
