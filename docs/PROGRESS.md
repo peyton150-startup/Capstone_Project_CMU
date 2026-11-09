@@ -1,5 +1,11 @@
 # Progress Log
 
+> **2026-11-09 — SM-2 remainder, SM-5 core and SM-3 merged in order (PRs #211, #212, #213) at the developer's request.**
+> Each was first opened and left unmerged, then merged in dependency order on green CI after a full local coverage run
+> and an evaluation inventory rebuild. Inventory source hashes were recomputed with LF line endings, because the new
+> offline SNAP evaluation step on CI checks them against a Linux checkout while the rebuild ran on Windows (CRLF).
+> Questions and pre-merge walkthroughs for all three remain owed; understood: no.
+
 > **2026-11-08 — SM-3 read-only replay provider over a recorded capture (built ungated at the developer's direction; pre-check, closing questions and pre-merge walkthrough owed; understood: no; not merged, at the developer's request; stacked on SM-5, PR #212):**
 > New module `providers/replay.py`. `RecordedObservationTools` answers the existing observation tools from a capture:
 > tick 0 is the first observation and one tick is 60 s of machine time; the replay stands at a cutoff `now` and no
