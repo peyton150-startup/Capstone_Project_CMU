@@ -114,7 +114,7 @@
   "evaluation/evaltools/decision_models.py": "f2b7500349b666883baca7a547c7616b2afb48d1c614de1f8b3f1201ba503e22",
   "evaluation/evaltools/full_evaluation.py": "a2c1ca33219dba720358392fc66a2320f84994b0a492966d0dceb53bebca183e",
   "evaluation/evaltools/reference_review.py": "ab13df3677933c531af0e24964636c3461ac83fff4b11465bf19c064a9008f9c",
-  "evaluation/evaltools/run_packet.py": "8a4d79a59262ac0b6ff89e35cc650aa961fcc674ecf2f97c258728c0bcee4d0f",
+  "evaluation/evaltools/run_packet.py": "a86c711533ebe2c01cfb9b2745c6ff165b98e792235563a7798b5c578236733c",
   "evaluation/evaltools/snap_request.py": "0f8ba7b6da311df489f9980b080f27bd59ad6a266b408fc9345d2a308acef500",
   "evaluation/evaltools/traced_run.py": "fabb743a17c9a944f5f7b841ad6a6645ffe8851a3518900bfc3f1a61aa00b4d0",
   "tests/test_agent_action.py": "fc051dbfc3b53b3e725ffca08395f717d9a81c02ddd2900d2420fbbfa4ec3150",
@@ -160,7 +160,7 @@
   "tests/test_evals.py": "ef44090c1661e59f71aa5074bdffc444e9e4fb94d79a2eaadaaf053bfe63299f",
   "tests/test_evaluation.py": "266f55c92d136073c876fb23b1a12f7aec51945804a9aee871fa0ab2ada33f72",
   "tests/test_evaluation_tools.py": "bd60811148214715cc0894b0cd3e06062072695545913fa0fbe8202177330513",
-  "tests/test_evaluator_integrity.py": "4583048fad6be917e67c4a7afa1285730b1934228400269b959468ad6df47f14",
+  "tests/test_evaluator_integrity.py": "55533011833aff7b9547fa0d4e16e4428aa2cce5852be3cd08d3983c6a9d5848",
   "tests/test_events.py": "150b22af293be3062b8ed66f053f598d432981e58db6bfd340027721c1be969e",
   "tests/test_experiment.py": "59e921d85d4245515c17c7301a1d03bc6bef975642bba73a0aeee1ce3636aae9",
   "tests/test_factory_provider.py": "64dea43eebf1f219f836d44b678b4915e33089aa7781a1762a7205976b0e8748",
@@ -229,12 +229,12 @@
   "tests/test_wait_tool.py": "b99a5fbf756a60176262417e54d8d1a0496f01126929a330492e7d24287b2d1e",
   "tests/test_wrong_setting.py": "aed1c646bffaf88ae25ed2156794dc57427e8a61bbe6b23a0c33f3c3e89c0da3"
  },
- "coverage_sha256": "969a3dece8f3b357c274f70ddfd2680c76c97978f648814262ffd17b880aac72",
- "junit_sha256": "ca75120c71cd02b0f486ae40e01a6e26e05c52ded62fb7abda1fb0b9a9db92df",
+ "coverage_sha256": "c6ef12d30ed34a11da2203ed7420e05ab8f8857180b9ead8d81bdd73d09a5bc5",
+ "junit_sha256": "9e1a20ce2459abba61851dd306fd79ecea2fc82ca38536ea3dbe388cac7948f0",
  "counts": {
   "functions": 900,
   "classes_note": "classes are listed through their methods",
-  "tests": 1813,
+  "tests": 1814,
   "tools": 18,
   "functions_by_status": {
    "INSUFFICIENT EVIDENCE": 367,
@@ -302,12 +302,13 @@
    "evaluation.evaltools.snap_request:DecisionQuestion.criteria_fit_type (5/9)",
    "evaluation.evaltools.snap_request:load_questions (7/9)",
    "evaluation.evaltools.snap_request:fitted_trace_skips (8/13)",
+   "evaluation.evaltools.snap_request:test_source (5/7)",
    "evaluation.evaltools.snap_request:describe_failure (2/5)",
    "evaluation.evaltools.snap_request:already_answered (6/8)"
   ],
   "stubs_or_protocols": 25,
   "tests_by_outcome": {
-   "passed": 1813
+   "passed": 1814
   },
   "tests_with_no_assertion": [
    "tests/test_console.py::test_without_it_the_same_print_raised"
@@ -16411,7 +16412,7 @@
    ]
   },
   "evaluation.evaltools.snap_request:DecisionQuestion.criteria_fit_type": {
-   "count": 38,
+   "count": 39,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
@@ -16430,7 +16431,7 @@
    ]
   },
   "evaluation.evaltools.snap_request:DecisionQuestion.to_request": {
-   "count": 26,
+   "count": 27,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
@@ -16449,7 +16450,7 @@
    ]
   },
   "evaluation.evaltools.snap_request:load_questions": {
-   "count": 38,
+   "count": 39,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
@@ -30652,6 +30653,15 @@
     "evaluation.evaltools.snap_request:digest",
     "evaluation.evaltools.snap_request:load_questions",
     "evaluation.evaltools.snap_request:request_fingerprint"
+   ]
+  },
+  "tests/test_evaluator_integrity.py::test_tl01_question_and_boolean_criteria_have_matching_polarity": {
+   "count": 3,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "evaluation.evaltools.snap_request:DecisionQuestion.criteria_fit_type",
+    "evaluation.evaltools.snap_request:DecisionQuestion.to_request",
+    "evaluation.evaltools.snap_request:load_questions"
    ]
   },
   "tests/test_events.py::test_event_is_immutable": {

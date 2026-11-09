@@ -44251,7 +44251,7 @@
    "id": "tests/test_evaluator_integrity.py::test_blind_review_shows_exactly_the_question_sent_to_snap",
    "file": "tests/test_evaluator_integrity.py",
    "name": "test_blind_review_shows_exactly_the_question_sent_to_snap",
-   "line": 36,
+   "line": 37,
    "docstring": "Reviewer-only notes cannot alter the question the human evaluates.",
    "parametrized": false,
    "fixtures": [
@@ -44296,7 +44296,7 @@
    "id": "tests/test_evaluator_integrity.py::test_blind_review_rejects_changed_judge_criteria",
    "file": "tests/test_evaluator_integrity.py",
    "name": "test_blind_review_rejects_changed_judge_criteria",
-   "line": 59,
+   "line": 60,
    "docstring": "Tagged questions cannot silently override the actual judge request.",
    "parametrized": false,
    "fixtures": [
@@ -44337,7 +44337,7 @@
    "id": "tests/test_evaluator_integrity.py::test_reference_import_refuses_changed_private_mapping",
    "file": "tests/test_evaluator_integrity.py",
    "name": "test_reference_import_refuses_changed_private_mapping",
-   "line": 72,
+   "line": 73,
    "docstring": "A valid blind answer cannot be reassigned to a different real run.",
    "parametrized": false,
    "fixtures": [
@@ -44382,7 +44382,7 @@
    "id": "tests/test_evaluator_integrity.py::test_comparison_rejects_mixed_or_unversioned_batches",
    "file": "tests/test_evaluator_integrity.py",
    "name": "test_comparison_rejects_mixed_or_unversioned_batches",
-   "line": 99,
+   "line": 100,
    "docstring": "Scores are not comparable without the same identifiable rubric.",
    "parametrized": true,
    "fixtures": [
@@ -44414,7 +44414,7 @@
    "id": "tests/test_evaluator_integrity.py::test_trace_preflight_fails_on_unknown_citations",
    "file": "tests/test_evaluator_integrity.py",
    "name": "test_trace_preflight_fails_on_unknown_citations",
-   "line": 111,
+   "line": 112,
    "docstring": "A false evidence ID must never enter the scored RUN cohort.",
    "parametrized": false,
    "fixtures": [],
@@ -44445,7 +44445,7 @@
    "id": "tests/test_evaluator_integrity.py::test_function_test_context_and_tool_test_context_are_visible",
    "file": "tests/test_evaluator_integrity.py",
    "name": "test_function_test_context_and_tool_test_context_are_visible",
-   "line": 132,
+   "line": 133,
    "docstring": "FN and TL judgments receive the same local test context as TS judgments.",
    "parametrized": false,
    "fixtures": [],
@@ -44496,7 +44496,7 @@
    "id": "tests/test_evaluator_integrity.py::test_blind_review_rejects_mismatched_question_ids",
    "file": "tests/test_evaluator_integrity.py",
    "name": "test_blind_review_rejects_mismatched_question_ids",
-   "line": 175,
+   "line": 176,
    "docstring": "An altered private ID cannot reassign an actual judge question.",
    "parametrized": false,
    "fixtures": [
@@ -44523,6 +44523,41 @@
    "modules_exercised": [
     "evaluation.evaltools.decision_models",
     "evaluation.evaltools.reference_review",
+    "evaluation.evaltools.snap_request"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_evaluator_integrity.py::test_tl01_question_and_boolean_criteria_have_matching_polarity",
+   "file": "tests/test_evaluator_integrity.py",
+   "name": "test_tl01_question_and_boolean_criteria_have_matching_polarity",
+   "line": 189,
+   "docstring": "TL-01 must ask if the boundary is enforced, not if a leak is possible.",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 6,
+   "assert_forms": {
+    "equality": 2,
+    "membership": 4
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "TL-01 must ask if the boundary is enforced, not if a leak is possible.",
+   "execution_outcome": "passed",
+   "exercises": [
+    "evaluation.evaltools.snap_request:DecisionQuestion.criteria_fit_type",
+    "evaluation.evaltools.snap_request:DecisionQuestion.to_request",
+    "evaluation.evaltools.snap_request:load_questions"
+   ],
+   "exercise_count": 3,
+   "modules_exercised": [
     "evaluation.evaltools.snap_request"
    ],
    "judgment": "NOT ASSESSED",
