@@ -331,15 +331,19 @@ class SimulatorFactoryProvider:
         actions: ActionTools,
         *,
         logger: "EventLogger | None" = None,
+        source: str = "simulator",
     ):
         # Variables:
         #   observations: The read-only tools.
         #   actions: The tools that act, such as wait and the approval requests.
         #   logger: Optional place to record each call.
+        #   source: What answered, stamped on every result: "simulator", or
+        #     "replay" for a recorded capture (SM-3).
         #   _tools: For each tool name: its arguments model, output model, function and
         #     whether it returns a list.
         self._observations = observations
         self._logger = logger
+        self._source = source
         # Each entry names arguments, output fields, callable, and whether a list.
         self._tools = {
             "get_time": (NoArguments, ClockObservation, observations.get_time, False),
@@ -454,7 +458,7 @@ class SimulatorFactoryProvider:
         result = ToolResult[JsonValue](
             success=error is None,
             tool=request.name,
-            source="simulator",
+            source=self._source,
             tick=clock.tick,
             timestamp=clock.time,
             run_id=context.run_id,

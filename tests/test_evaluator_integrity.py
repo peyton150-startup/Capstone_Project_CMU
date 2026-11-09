@@ -13,6 +13,7 @@ from evaltools import (
     compare_evaluators,
     decision_models,
     reference_review,
+    run_packet,
     snap_request,
 )
 
@@ -183,3 +184,17 @@ def test_blind_review_rejects_mismatched_question_ids(tmp_path):
     (requests / "tampered.request.json").write_text(json.dumps(item))
     with pytest.raises(ValueError, match="question IDs differ"):
         reference_review.export_requests(requests, tmp_path / "blind", {"RUN": 1})
+
+
+def test_tl01_question_and_boolean_criteria_have_matching_polarity():
+    """TL-01 must ask if the boundary is enforced, not if a leak is possible."""
+    # Variables:
+    #   question: The current model-visible TL-01 definition.
+    raw, questions = snap_request.load_questions()
+    question = next(item for item in questions if item.id == "TL-01")
+    assert raw["rubric_version"] == run_packet.RUBRIC_VERSION == "1.1.1"
+    assert question.type == "noul"
+    assert "Is the access boundary enforced" in question.to_request()["instructions"]
+    assert "Can the tool return" not in question.instructions
+    assert "no hidden field or secret can pass" in question.criteria["true"]
+    assert "A code path can return hidden state" in question.criteria["false"]

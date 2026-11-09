@@ -1,5 +1,49 @@
 # Progress Log
 
+> **2026-11-09 — SM-2 remainder, SM-5 core and SM-3 merged in order (PRs #211, #212, #213) at the developer's request.**
+> Each was first opened and left unmerged, then merged in dependency order on green CI after a full local coverage run
+> and an evaluation inventory rebuild. Inventory source hashes were recomputed with LF line endings, because the new
+> offline SNAP evaluation step on CI checks them against a Linux checkout while the rebuild ran on Windows (CRLF).
+> Questions and pre-merge walkthroughs for all three remain owed; understood: no.
+
+> **2026-11-08 — SM-3 read-only replay provider over a recorded capture (built ungated at the developer's direction; pre-check, closing questions and pre-merge walkthrough owed; understood: no; not merged, at the developer's request; stacked on SM-5, PR #212):**
+> New module `providers/replay.py`. `RecordedObservationTools` answers the existing observation tools from a capture:
+> tick 0 is the first observation and one tick is 60 s of machine time; the replay stands at a cutoff `now` and no
+> answer includes a reading after it. Only channels a person assigned a `tool_sensor` in the SM-1 channel map are
+> visible; each such device is a machine. `get_readings` returns the channel's numeric readings with the probe's own
+> units (UNAVAILABLE is never a reading); `get_sensor_trend` and the summary's mean use SM-5's holds, so they are
+> time-weighted and never span a gap; the summary's rate stays endpoint change per tick, as the tool's description says.
+> `list_machines` reads running/idle from the last Execution value and refuses rather than guess when there is none.
+> Events, maintenance, inspections, settings, jobs and line screening refuse ("a machine capture does not record ...").
+> `RecordedActionTools`: `wait` moves the cutoff (never past the capture's end); proposing and executing are refused.
+> `replay_provider` wires them into `SimulatorFactoryProvider`, which gains a `source` label ("replay"). PR #213. Owed
+> questions: pre-check, "why does get_events refuse instead of returning an empty list?"; closing, "a capture has a gap
+> between two readings of 10 and 40 in one trend block; what does the block's mean count, and what does it leave out?"
+
+> **2026-11-08 — SM-5 core: time-aware statistics for unevenly timed readings (built ungated at the developer's direction; pre-check, closing questions and pre-merge walkthrough owed; understood: no; not merged, at the developer's request):**
+> New module `ingestion/time_stats.py`. `holds_in_run` turns one channel's numeric readings inside one gap-free run into
+> `Hold`s: each value stands from its own time until the channel's next record, or until the run's last collected
+> reading, never into a gap. An UNAVAILABLE record or an event word ends the previous hold and starts none.
+> `channel_holds` does this for every run of `gap_free_runs`. From holds: `time_weighted_mean` (the MVP_SCOPE example,
+> 10% for 90 s then 90% for 10 s, gives 18%, not 50%), `seconds_above`, `peak_excursion` (furthest value from a
+> reference, with when it began and how long it held) and `slope_per_second` (least squares on real times, each run
+> centred on its own means and the sums pooled, so a level step between runs is not a trend). `summarize` returns a
+> `ChannelStats`. Not wired to any tool yet (SM-3 would use it). PR #212. Owed questions: pre-check, "why does a plain
+> average of the readings give 50% in the MVP_SCOPE example, and what does the time-weighted mean count instead?";
+> closing, "a channel reads 10 before a gap and 90 after it; why does `slope_per_second` report no upward trend?"
+
+> **2026-11-08 — SM-2 remainder: per-channel UNAVAILABLE stretches and staleness (built ungated at the developer's direction; pre-check, closing questions and pre-merge walkthrough owed; understood: no; not merged, at the developer's request):**
+> New module `ingestion/quality.py`. `unavailable_spans` lists each stretch in which one channel reported UNAVAILABLE,
+> from that record to the channel's next real value (`available_again`); a stretch still open when collection breaks (a
+> gap or started marker) or ends closes at the last collected reading (`collection_broke` / `capture_end`), because
+> nothing after it was seen. `channel_ages` gives each channel's last report time and age on the capture's own clock
+> (or a given `at`); `stale_channels` reports the channels older than an age limit a person gave them, since
+> change-reported channels can be silent for hours with nothing wrong. `broke_since` marks silence that began before a
+> collection break. Command line `python -m capstone.ingestion.quality --capture C [--limits L.json] [--at T]`. Computed
+> from the file rather than written into it as new markers (see the PR's trade-offs). PR #211. Owed questions:
+> pre-check, "why is a channel with no age limit never called stale?"; closing, "a channel goes UNAVAILABLE at 09:00:10
+> and a gap marker follows at 09:05; when does its stretch end, and why not at the first reading after the gap?"
+
 > **2026-11-07 — SM-4 shop visit checklist and technician event log (built ungated at the developer's direction; pre-check, closing questions and pre-merge walkthrough owed; understood: no):**
 > New module `ingestion/visit_log.py`. `load_event_log` reads the CSV log a person fills in during a capture
 > (`at,event_type,note,logged_by,until`; event types `program_change`, `tool_change`, `warm_up`, `maintenance`, `unusual`,
