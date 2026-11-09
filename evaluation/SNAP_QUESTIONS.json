@@ -1,6 +1,6 @@
 {
   "title": "Provider-neutral decision questions for SubQ Snap 1.1 and TypeSafe Jev 1.14",
-  "rubric_version": "1.1.0",
+  "rubric_version": "1.1.1",
   "api": {
     "endpoint": "POST https://api.subq.ai/v1/systemone",
     "model": "subq-snap-1.1",
@@ -419,7 +419,7 @@
       "name": "boundary_enforced",
       "applies_to": "one tool evidence packet (schema, implementation, provider wiring, tests)",
       "type": "noul",
-      "instructions": "Read the tool's implementation and the provider's wiring. Can the tool return anything the agent must not see (hidden condition, ground truth, approval powers, raw errors with secrets), or change the factory without the intended authorization?",
+      "instructions": "Read the tool's implementation and the provider's wiring. Is the access boundary enforced: are hidden conditions, ground truth, approval powers and raw errors with secrets prevented from reaching the agent, and are factory changes restricted to their intended authorization path?",
       "criteria": {
         "true": "Every field returned is rebuilt from an output contract, no hidden field or secret can pass, and any factory change goes through the approval desk or the wait tool as designed. A note that reports what a person would observe by design (a technician's finding on a removed part) is evidence, not hidden state.",
         "false": "A code path can return hidden state, a raw exception, or change the factory without approval."
@@ -515,6 +515,7 @@
   ],
   "changelog": [
     "1.0.0 (2026-11-01): first version.",
-    "1.1.0 (2026-11-08): calibration round 1 found answers that depended on wording rather than evidence. Changed in meaning: RUN-01, RUN-02 and RUN-08 (exclusive levels), RUN-04 (new option ignored), RUN-06 (no confidence threshold; a check-lowered escalate still counts as committed), RUN-07 (new option evidence_gathering), RUN-09 (asked of every conclusion that names a cause; rivals and open questions spelled out), RUN-11 (a check that cannot be carried out is no_feedback), TS-01 (declarative project code counts), TL-03 (designed hazards excluded). Clarified without a change of meaning: RUN-03, RUN-12, FN-01, FN-02, FN-03, TS-02, TL-01, TL-02, BT-01, BT-02. Answers given under 1.0.0 are not comparable for the changed questions."
+    "1.1.0 (2026-11-08): calibration round 1 found answers that depended on wording rather than evidence. Changed in meaning: RUN-01, RUN-02 and RUN-08 (exclusive levels), RUN-04 (new option ignored), RUN-06 (no confidence threshold; a check-lowered escalate still counts as committed), RUN-07 (new option evidence_gathering), RUN-09 (asked of every conclusion that names a cause; rivals and open questions spelled out), RUN-11 (a check that cannot be carried out is no_feedback), TS-01 (declarative project code counts), TL-03 (designed hazards excluded). Clarified without a change of meaning: RUN-03, RUN-12, FN-01, FN-02, FN-03, TS-02, TL-01, TL-02, BT-01, BT-02. Answers given under 1.0.0 are not comparable for the changed questions.",
+    "1.1.1 (2026-11-08): corrected TL-01's noul question polarity. Its instructions now ask whether the boundary is enforced, matching the existing true=enforced / false=leakage criteria. Answers to TL-01 under 1.1.0 must not be compared with or reused as 1.1.1 answers."
   ]
 }

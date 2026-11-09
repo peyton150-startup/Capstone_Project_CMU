@@ -1,8 +1,12 @@
 # Evaluation rubric
 
-- rubric_version: 1.1.0 (2026-11-08). Changing a definition, a denominator
+- rubric_version: 1.1.1 (2026-11-08). Changing a definition, a denominator
   or a threshold is a new version; results carry the version they were
   scored under and are never rescored silently.
+- 1.1.1 corrects TL-01's inverted boolean question: `true` means the access
+  boundary is enforced, exactly as its criteria already specified. TL-01
+  judgments made under 1.1.0 must be reviewed again; do not silently relabel
+  them as 1.1.1. This is a wording/semantics fix, not a code correctness result.
 - 1.1.0 rewrote the judge questions whose answer depended on their wording
   rather than on the evidence (calibration round 1,
   `reference/2026-11-08-claude-review/`); the `changelog` in
@@ -10,7 +14,7 @@
   comparable for the changed questions. The definitions, denominators and
   thresholds in this file are unchanged.
 - Pairs with `PROJECT_EVALUATION_CONTEXT.md` 1.0.0, `SNAP_QUESTIONS.json`
-  1.1.0 and `RUN_EVIDENCE_SCHEMA.json` 1.1.0.
+  1.1.1 and `RUN_EVIDENCE_SCHEMA.json` 1.1.0.
 
 ## 0. Two scores, never one percentage
 
