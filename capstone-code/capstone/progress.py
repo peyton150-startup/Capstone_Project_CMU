@@ -422,6 +422,14 @@ def calls_line(state: InvestigationState) -> str:
     )
 
 
+def late_thinking_words(settings) -> str:
+    """The late model's thinking in words: off, on, or on with a token budget."""
+    if not settings.late_model_thinking:
+        return "off"
+    budget = settings.late_model_reasoning_budget
+    return "on" if budget is None else f"on, budget {budget} tokens"
+
+
 def run_header(
     settings,
     *,
@@ -435,7 +443,7 @@ def run_header(
     Names the critic treatment (off, anchored or blind, and the follow-up),
     the manual (how it is searched and, for semantic search, the embedding
     model), the manual step, tree-of-thought, hazards and, when set, the
-    decide step's reasoning effort. Model names only:
+    decide step's reasoning effort and the late-run model. Model names only:
     no key or other secret is read here.
     """
     # Variables:
@@ -451,6 +459,9 @@ def run_header(
     #     header is unchanged.
     #   effort: DECIDE_REASONING_EFFORT, or None when it is not set; a third
     #     line names it only when set, so the usual header is unchanged.
+    #   late: LATE_MODEL, or None when it is not set; a line names it, its
+    #     threshold and its thinking only when set, so the usual header is
+    #     unchanged.
     if not settings.critic:
         critic = "critic off"
     else:
@@ -479,6 +490,13 @@ def run_header(
     effort = getattr(settings, "decide_reasoning_effort", None)
     if effort is not None:
         lines.append(f"RUN: decide reasoning effort {effort} (NVIDIA models only)")
+    late = getattr(settings, "late_model", None)
+    if late is not None:
+        lines.append(
+            f"RUN: late-run model {late} (decide with under "
+            f"{settings.late_model_seconds:g} s left; thinking "
+            f"{late_thinking_words(settings)})"
+        )
     return lines
 
 

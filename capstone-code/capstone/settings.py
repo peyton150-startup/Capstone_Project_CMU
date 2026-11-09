@@ -165,6 +165,28 @@ class Settings(BaseSettings):
     decide_reasoning_effort: Literal["low", "medium", "high"] | None = _optional(
         "DECIDE_REASONING_EFFORT"
     )
+    # The late-run model (developer, 2026-11-09). Super 120B thinks at length,
+    # and in the runs of 2026-10-31 to 2026-11-09 it timed out on 93 of 552
+    # decide questions, mostly near the end of research. With LATE_MODEL set,
+    # a decide question with less than LATE_MODEL_SECONDS left goes to it
+    # instead (Super, given half of that time, answered in 30 s only 55% of
+    # the time). Every other question, the conclusion included, keeps its own
+    # model. None (the default) switches nothing.
+    late_model: str | None = _optional("LATE_MODEL")
+    late_model_seconds: float = Field(
+        default=60.0, gt=0, validation_alias="LATE_MODEL_SECONDS"
+    )
+    # The late model's thinking (developer, 2026-11-09: turn it off or lower
+    # it). Off by default: NVIDIA is sent chat_template_kwargs.enable_thinking
+    # false. On, LATE_MODEL_REASONING_BUDGET caps the thinking tokens
+    # (`reasoning_budget`); unset leaves the cap to NVIDIA. Sent to NVIDIA
+    # models only, never to the fallback, and only on late decide questions.
+    late_model_thinking: bool = Field(
+        default=False, validation_alias="LATE_MODEL_THINKING"
+    )
+    late_model_reasoning_budget: int | None = Field(
+        default=None, ge=1, validation_alias="LATE_MODEL_REASONING_BUDGET"
+    )
     # Asked when a job's own model cannot be reached. None: no fallback.
     # Several models, separated by commas, are tried in order: the second
     # when the first is out too (for example its daily quota is spent).
@@ -306,6 +328,7 @@ class Settings(BaseSettings):
         "judge_model",
         "lesson_model",
         "value_model",
+        "late_model",
         "fallback_model",
         "critic_model",
         "critic_fallback_model",

@@ -425,6 +425,7 @@ class ChatClient:
         temperature: float = 0.0,
         top_p: float | None = None,
         reasoning_effort: str | None = None,
+        thinking_fields: dict | None = None,
     ):
         # Variables:
         #   url: The chat-completions address of the provider.
@@ -442,6 +443,9 @@ class ChatClient:
         #   top_p: Nucleus-sampling limit; None leaves it to the service.
         #   reasoning_effort: How hard a thinking model reasons ("low", "medium"
         #     or "high"), sent as "reasoning_effort"; None sends no such field.
+        #   thinking_fields: Extra top-level request fields that switch a thinking
+        #     model's reasoning off or cap it (`late_thinking_fields`); None sends
+        #     none.
         #   sampling: Checked numeric values, including values supplied directly.
         #   self.last_request: The latest request's size, prompt version and reported
         #     tokens, read by `FallbackClient` for each attempt; None until a request.
@@ -463,6 +467,7 @@ class ChatClient:
         self.temperature = sampling.temperature
         self.top_p = sampling.top_p
         self.reasoning_effort = reasoning_effort
+        self.thinking_fields = thinking_fields
         # The latest request's size, prompt version and reported tokens; None
         # until a request is made. `FallbackClient` copies it onto the attempt.
         self.last_request: RequestRecord | None = None
@@ -530,6 +535,8 @@ class ChatClient:
             body["max_tokens"] = self.max_output_tokens
         if self.reasoning_effort is not None:
             body["reasoning_effort"] = self.reasoning_effort
+        if self.thinking_fields:
+            body.update(json.loads(json.dumps(self.thinking_fields)))
         if self.structured_output:
             body["response_format"] = {
                 "type": "json_schema",
@@ -738,12 +745,13 @@ def client_for(
     *,
     transport: Transport = urllib_transport,
     reasoning_effort: str | None = None,
+    thinking_fields: dict | None = None,
 ) -> ChatClient:
     """A client for "provider/model". ModelError names any missing setting.
 
-    `reasoning_effort` is passed on only when the provider accepts it; for
-    any other provider it is dropped, so a fallback model's request is
-    unchanged.
+    `reasoning_effort` and `thinking_fields` are passed on only when the
+    provider accepts NVIDIA's reasoning fields; for any other provider they
+    are dropped, so a fallback model's request is unchanged.
     """
     # Variables:
     #   reference: A model written as provider/model, e.g. nvidia/model-name.
@@ -757,6 +765,8 @@ def client_for(
     #   override: One layer of sampling settings; null top_p clears an earlier limit.
     #   reasoning_effort: The reasoning level the caller wants for this job's
     #     requests, or None; kept only if the provider accepts the field.
+    #   thinking_fields: Fields that switch thinking off or cap it, or None;
+    #     kept only if the provider accepts NVIDIA's reasoning fields.
     settings = settings or get_settings()
     name, _, model = reference.partition("/")
     if name not in PROVIDERS or not model:
@@ -799,6 +809,7 @@ def client_for(
         temperature=sampling.temperature,
         top_p=sampling.top_p,
         reasoning_effort=reasoning_effort if provider.reasoning_effort else None,
+        thinking_fields=thinking_fields if provider.reasoning_effort else None,
     )
 
 
@@ -845,12 +856,15 @@ def chain_for(
     *,
     transport: Transport = urllib_transport,
     reasoning_effort: str | None = None,
+    thinking_fields: dict | None = None,
 ) -> FallbackClient:
     """A client asking `first`, then each FALLBACK_MODEL model it does not repeat."""
     # Variables:
     #   references: The models in the order they are tried.
     #   reasoning_effort: The effort to ask NVIDIA models for; None leaves every
     #     request unchanged (only the decide job sets it).
+    #   thinking_fields: Fields that switch an NVIDIA model's thinking off or
+    #     cap it; None leaves every request unchanged (only LATE_MODEL sets it).
     references = [first]
     for reference in fallback_models(settings):
         if reference not in references:
@@ -858,7 +872,11 @@ def chain_for(
     return FallbackClient(
         [
             client_for(
-                r, settings, transport=transport, reasoning_effort=reasoning_effort
+                r,
+                settings,
+                transport=transport,
+                reasoning_effort=reasoning_effort,
+                thinking_fields=thinking_fields,
             )
             for r in references
         ],
@@ -882,6 +900,65 @@ def value_client(
     if settings.value_model is None:
         return None
     return chain_for(settings.value_model, settings, transport=transport)
+
+
+# The questions that can go to LATE_MODEL, and the key each late client is
+# kept under beside the seven jobs' clients. Only decide: the developer
+# (2026-11-09) wants the switch only at the end of the decide phase, where
+# most timeouts are; the conclusion stays with its own model.
+LATE_JOBS = ("decide",)
+
+
+def late_key(job: str) -> str:
+    """The clients-mapping key of `job`'s late-run client, e.g. "decide@late"."""
+    return f"{job}@late"
+
+
+def late_clients(
+    settings: Settings | None = None, *, transport: Transport = urllib_transport
+) -> dict[str, FallbackClient]:
+    """The late-run decide client, or {} without LATE_MODEL.
+
+    It asks LATE_MODEL first, then the shared FALLBACK_MODEL chain, as a
+    job's own client does. DECIDE_REASONING_EFFORT is never sent (it is
+    Super's); the late model's thinking is set by `late_thinking_fields`,
+    and only NVIDIA models are sent those fields.
+    """
+    # Variables:
+    #   settings.late_model: The model for late questions; None turns the
+    #     switch off, so every question keeps its own model.
+    #   fields: The thinking switch sent with every late request to NVIDIA.
+    settings = settings or get_settings()
+    if settings.late_model is None:
+        return {}
+    fields = late_thinking_fields(settings)
+    return {
+        late_key(job): chain_for(
+            settings.late_model, settings, transport=transport, thinking_fields=fields
+        )
+        for job in LATE_JOBS
+    }
+
+
+def late_thinking_fields(settings: Settings) -> dict:
+    """The request fields that switch the late model's thinking off or cap it.
+
+    NVIDIA's sample request for Nemotron 3.5 Lightning (build.nvidia.com,
+    2026-11-09) sends `chat_template_kwargs: {"enable_thinking": ...}` and a
+    `reasoning_budget` in tokens. LATE_MODEL_THINKING off (the default) sends
+    enable_thinking false; on sends true, with LATE_MODEL_REASONING_BUDGET as
+    the budget when it is set.
+    """
+    # Variables:
+    #   settings.late_model_thinking: Whether the late model may think at all.
+    #   settings.late_model_reasoning_budget: The most thinking tokens when it
+    #     may; None leaves the budget to the service.
+    if not settings.late_model_thinking:
+        return {"chat_template_kwargs": {"enable_thinking": False}}
+    fields: dict = {"chat_template_kwargs": {"enable_thinking": True}}
+    if settings.late_model_reasoning_budget is not None:
+        fields["reasoning_budget"] = settings.late_model_reasoning_budget
+    return fields
 
 
 def critic_client(

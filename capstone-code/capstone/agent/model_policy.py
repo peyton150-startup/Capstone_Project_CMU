@@ -69,7 +69,7 @@ from capstone.agent.state import InvestigationState, Question
 from capstone.contracts import Contract
 from capstone.contracts.evidence import Evidence
 from capstone.contracts.tools import ToolRequest, ToolSpec
-from capstone.providers.chat import JOBS, Attempt, invalid_outcome
+from capstone.providers.chat import JOBS, Attempt, invalid_outcome, late_key
 from capstone.providers.factory import TOOL_DESCRIPTIONS
 from capstone.providers.manual import MANUAL_TOOL
 
@@ -1112,13 +1112,43 @@ def calls_note(state: InvestigationState) -> str:
 class ModelPolicy:
     """The seven policy questions, each put to its own model client."""
 
-    def __init__(self, clients: Mapping[str, Client], tools: Sequence[ToolSpec]):
+    def __init__(
+        self,
+        clients: Mapping[str, Client],
+        tools: Sequence[ToolSpec],
+        *,
+        late_seconds: float = 60.0,
+    ):
+        # Variables:
+        #   clients: One client per job, plus optional extras: "value" for the
+        #     tree's second rating and "decide@late" for LATE_MODEL
+        #     (`late_clients`).
+        #   late_seconds: A decide question with less time than this goes to
+        #     the late client, when there is one (LATE_MODEL_SECONDS).
         missing = [job for job in JOBS if job not in clients]
         if missing:
             raise ValueError(f"no model client for {', '.join(missing)}")
         self.clients = dict(clients)
         self.tools = tuple(tools)
+        self.late_seconds = late_seconds
         self.calls: list[ModelCall] = []
+
+    def client_for(self, job: str, state: InvestigationState) -> Client:
+        """The client to ask: the late-run one at the end of decide, else the job's own.
+
+        Late means a decide question with less than `late_seconds` left. Every
+        other question, the conclusion included, always gets its own client.
+        """
+        # Variables:
+        #   late: The job's late-run client, or None when LATE_MODEL is unset.
+        #   left: The seconds this question may take; None means no limit.
+        late = self.clients.get(late_key(job))
+        if late is None:
+            return self.clients[job]
+        left = state.seconds_for_question
+        if job == "decide" and left is not None and left < self.late_seconds:
+            return late
+        return self.clients[job]
 
     def _ask(
         self,
@@ -1138,10 +1168,11 @@ class ModelPolicy:
         #   job: Which of the seven questions this is; it picks the client and system
         #     prompt.
         #   answer_type: The shape the reply must match; a mismatch is refused.
-        #   client: The model client assigned to this job.
+        #   client: The model client asked: the job's own, or the late-run one
+        #     late in a run (`client_for`).
         #   outcome: answered, invalid_reply or no_answer, written to the call record
         #     either way.
-        client = self.clients[job]
+        client = self.client_for(job, state)
         outcome = "no_answer"
         try:
             answer = client.ask(
