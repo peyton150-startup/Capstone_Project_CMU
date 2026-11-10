@@ -13,6 +13,9 @@ inventories and two archived cohorts:
   (record-only traces; evidence-dependent questions stay **unknown**).
 - `docs/benchmarks/2026-11-02-audited-known-cases`: 5 archived episodes
   with audit files, not a complete 13-case study.
+- `docs/benchmarks/2026-11-10-snap-calibration-pair`: 23 episodes with full
+  audits (10 baseline, 13 treatment), but no independently reviewed
+  diagnosis labels or saved complete arm configurations. Only 10 cases pair.
 
 It prepares SNAP-only questions for **FN, TS, TL, RUN and BT**, writes the
 request files, `ledger.jsonl`, `scope_manifest.json`, `report.json` and
@@ -42,11 +45,12 @@ uv run --locked --all-extras python -m evaltools.full_evaluation `
   --provider snap --snap-full-context `
   --archive ../docs/benchmarks/2026-11-01-tot13-pairs `
   --archive ../docs/benchmarks/2026-11-02-audited-known-cases `
+  --archive ../docs/benchmarks/2026-11-10-snap-calibration-pair `
   --out full-eval/snap-full-dry-run
 cd ..
 uv run --locked --all-extras python .github/verify_snap_dry_run.py `
   --out evaluation/full-eval/snap-full-dry-run `
-  --expected-episodes 57 --commit $commit
+  --expected-episodes 80 --commit $commit
 ```
 
 **No API key is needed** for these commands; do **not** add `--send`.
@@ -106,6 +110,12 @@ unknown instead of receiving an invented judgment. Comparisons refuse answers
 with different rubric versions or missing version provenance: answers under
 1.0.0 and 1.1.0 are **not** pooled with 1.1.1.
 
+The developer endorsed all 44 selections in the 2026-11-10 reviewer PDF as
+final independent answers before any SNAP responses were viewed. The private
+reference and PDF are held outside Git. Its two RUN cases both raise
+reasoning concerns; it does not by itself calibrate sound versus misleading
+RUN judgments or verify a repair.
+
 After the developer submits the independent answers, run SNAP on precisely the
 same versioned request bodies. Report agreement per question family, missing
 or unanswerable questions, and disagreements for review; do not turn agreement
@@ -124,6 +134,7 @@ uv run --locked --all-extras python -m evaltools.full_evaluation `
   --env-file ../.env `
   --archive ../docs/benchmarks/2026-11-01-tot13-pairs `
   --archive ../docs/benchmarks/2026-11-02-audited-known-cases `
+  --archive ../docs/benchmarks/2026-11-10-snap-calibration-pair `
   --out full-eval/snap-full-dry-run `
   --send --max-requests 5 --batch-size 5 --max-usd 0.10 --max-seconds 600
 ```

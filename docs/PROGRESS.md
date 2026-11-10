@@ -1,5 +1,19 @@
 # Progress Log
 
+> **2026-11-10 — SNAP calibration pair archived for full-project offline scope (docs/evidence only):**
+> The new treatment master run finished with 13 records and matching audits;
+> its paired baseline has 10. All 23 packets validate, with no refusals, but
+> only 10 cases are paired and neither arm has independent diagnosis labels
+> or a saved complete configuration. The treatment escalated all 13 cases and
+> performed no repair. The archive records source hashes and the historical
+> `c49fdd6` checkout provenance with its stated limits. CI's offline SNAP
+> plan now includes these 23 full traces alongside 52 record-only and five
+> older audited episodes (80 total), without sending model requests. A fresh
+> 44-question rubric 1.1.1 reviewer PDF was supplied and all selections were
+> endorsed by the developer before any SNAP responses were viewed. The private
+> reference remains outside Git. No agent or
+> evaluator behavior changed; implementation understanding is unchanged.
+
 > **2026-11-10 — evaluation inventory reconciliation (docs/data only; developer review pending):**
 > The merged recorded-investigation and Prestige pilot files were absent from
 > the committed evaluation inventories, so the full-suite inventory assertion

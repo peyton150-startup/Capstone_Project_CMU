@@ -1,0 +1,24 @@
+{
+  "scope": "One interrupted 10-case baseline and one complete 13-case treatment; compare only matched scenario and seed pairs.",
+  "reference_commit": "c49fdd60884d874a6d7877590d2be9ab1b7eb70e",
+  "commit_source": "Baseline operator-attested in prior archive; treatment inferred from unchanged frozen checkout HEAD after run completion, not encoded in record.",
+  "rubric_version_at_source": "1.1.1",
+  "human_reviewed_labels": 0,
+  "accuracy_or_comparison_claim": false,
+  "runs": [
+    {
+      "pair": "pair-01",
+      "name": "baseline",
+      "commit": "c49fdd60884d874a6d7877590d2be9ab1b7eb70e",
+      "cases": 10,
+      "audit_records": 10
+    },
+    {
+      "pair": "pair-01",
+      "name": "treatment",
+      "commit": "c49fdd60884d874a6d7877590d2be9ab1b7eb70e",
+      "cases": 13,
+      "audit_records": 13
+    }
+  ]
+}
