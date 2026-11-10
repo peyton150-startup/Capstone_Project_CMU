@@ -81,7 +81,9 @@ def test_authorized_capture_is_only_ready_when_probe_map_and_events_match():
     assert result.observations == 3
     assert result.mapped_channels > 0
     assert result.operator_events_matched == 1
-    assert any("does not establish access permission" in line for line in result.warnings)
+    assert any(
+        "does not establish access permission" in line for line in result.warnings
+    )
 
 
 def test_manager_or_it_approval_missing_blocks_even_a_good_capture():
