@@ -7,9 +7,8 @@ from datetime import timedelta
 
 import pytest
 
-from capstone.agent.artifacts import AgentConclusion
+from capstone.agent.artifacts import AgentConclusion, TerminationReason
 from capstone.agent.policy import Stop
-from capstone.agent.artifacts import TerminationReason
 from capstone.recorded_investigation import (
     main,
     replay_tool_specs,
