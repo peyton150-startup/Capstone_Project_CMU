@@ -359,36 +359,26 @@ stay even though the sections are now grouped by topic, with items sorted from h
 
 ```mermaid
 flowchart LR
-    subgraph A["Before connecting (HIGH)"]
-        SM1["SM-1 Channel map from /probe"]
-        SM2["SM-2 Gaps and data quality in file"]
-        SM3["SM-3 Real-data provider"]
-        SM4["SM-4 Visit checklist and event log"]
-    end
-    subgraph B["Once readings exist (HIGH)"]
-        SM5["SM-5 Time-aware statistics"]
-        SM6["SM-6 Operating-state segmentation"]
-        SM7["SM-7 Same-machine baseline"]
-    end
-    subgraph C["Then (MEDIUM)"]
-        SM8["SM-8 Richer trend features"]
-        SM9["SM-9 Cross-signal checks"]
-        SM10["SM-10 Cycle signatures (conditional)"]
-        SM11["SM-11 Ranked technician check list"]
-    end
-    subgraph D["Later (LOW / FAR FUTURE)"]
-        SM12["SM-12 Servo diagnostic moves"]
-        SM13["SM-13 Added vibration/acoustic sensing"]
-    end
-    SM1 --> SM3
-    SM2 --> SM3
-    SM3 --> SM5 --> SM6 --> SM7 --> SM8 --> SM9 --> SM11
-    SM4 --> SM7
-    SM4 --> SM11
-    SM6 --> SM10
-    SM7 --> SM10
-    SM11 --> SM12
-    SM11 --> SM13
+  subgraph Built["Merged and fixture-tested"]
+    SM1["SM-1 channel map #206"]
+    SM2["SM-2 gaps/quality #204/#211"]
+    SM3["SM-3 replay provider #213"]
+    SM4["SM-4 shop visit log #207"]
+    SM5["SM-5 time statistics #212"]
+  end
+  subgraph Pending["Awaiting approved machine data"]
+    Visit["Controller + consent + recorded normal cycles"]
+    SM6["SM-6 operating-state segmentation"]
+    SM7["SM-7 real healthy baseline"]
+    SM89["SM-8/9 richer trends + cross-signal"]
+    SM1011["SM-10/11 conditional checks"]
+  end
+  SM1 --> SM3
+  SM2 --> SM3
+  SM5 --> SM3
+  SM3 --> Visit
+  SM4 --> Visit
+  Visit --> SM6 --> SM7 --> SM89 --> SM1011
 ```
 
 ### Completed or set-aside items (not active future work)
@@ -484,7 +474,7 @@ Completed standalone work is removed. Links state the deliverable in more detail
 
 <a id="fw-sm-visit-log"></a>
 
-**Category: Pilot readiness and safety. Rank: SM-4 in the [single-machine track](#fw-sm-track). Status: FUTURE WORK ONLY.** The first session with a real machine should answer three questions. It stays local, read-only and independent of model inference, as the [pilot plan](#fw-haas-live-pilot) already requires. The machine may not be a Haas; do not assume its control, interface or fields.
+**Category: Pilot readiness and safety. Rank: SM-4 in the [single-machine track](#fw-sm-track). Status: IMPLEMENTED (#207), awaiting actual on-site acceptance.** The first session with a real machine should answer three questions. It stays local, read-only and independent of model inference, as the [pilot plan](#fw-haas-live-pilot) already requires. The machine may not be a Haas; do not assume its control, interface or fields.
 
 - **Can we read it?** Save `/probe` (to a folder outside the repository), identify fields and units for the [channel map](#fw-sm-channel-map), confirm shop-approved read-only access, and confirm recording while the machine runs has no measurable effect.
 - **Can we interpret it?** Capture several normal operating cycles, watch state transitions (idle, warm-up, cutting, tool and program changes), inspect timestamps and gaps, and decide whether spindle load, RPM, alarms and any other exposed signals are enough for useful analysis.
@@ -503,7 +493,7 @@ Completed standalone work is removed. Links state the deliverable in more detail
 
 <a id="fw-incident-context"></a>
 
-**Status: FUTURE WORK, not implemented.** The immediate pilot-readiness
+**Status: LINE_CONTEXT BUILT (#186) and run live in on/off comparisons (2026-11-05); critic coverage and matched causal evaluation still future work.** The remaining pilot-readiness
 improvement is the [incident-first, line-wide investigation scope](#fw-line-scope)
 under Evaluation. A bounded incident packet gives the existing investigator
 the trigger, line snapshot, cross-machine events and neighbor trends before
@@ -517,7 +507,7 @@ post-intervention verification boundaries.
 
 ### High-priority future work — pilot-readiness: fast triage and the rest of abstention (updated 2026-10-30)
 
-**Status: rapid triage is not built; the degraded-data work is mostly built. Priority:
+**Status: rapid triage BUILT opt-in (#184), live p95 not measured; degraded/hazards matrix set aside by developer. Priority:
 HIGH, before a customer pilot and before expanding reasoning complexity.** These
 are small, measurable changes to the existing simulator/agent workflow, not a new
 agent framework or permission to connect to real machinery. Implement each item
@@ -2461,14 +2451,14 @@ Tested](https://www.requesty.ai/blog/structured-outputs-across-llm-providers-the
 
 <a id="fw-single-machine"></a>
 
-**Category: Tooling and infrastructure. Rank: SM-1 to SM-3 and SM-5 to SM-10 in the [single-machine track](#fw-sm-track) (SM-4 is under Pilot readiness, SM-11 under Evaluation, SM-12 under Planning, SM-13 under Optional interfaces). Status: FUTURE WORK ONLY; nothing here is built.** These items move the project from reading individual sensor values to understanding how one machine behaves over time and under different operating conditions. They keep the Pydantic Graph architecture, `FactoryProvider`, human approval and evaluator-only truth unchanged, and add no new agent.
+**Category: Tooling and infrastructure. Rank: SM-1 to SM-3 and SM-5 to SM-10 in the [single-machine track](#fw-sm-track) (SM-4 is under Pilot readiness, SM-11 under Evaluation, SM-12 under Planning, SM-13 under Optional interfaces). Status: SM-1/2/3/5 core BUILT (#204, #206, #211–213), SM-6–10 NOT BUILT, and real validation pending.** These items move the project from reading individual sensor values to understanding how one machine behaves over time and under different operating conditions. They keep the Pydantic Graph architecture, `FactoryProvider`, human approval and evaluator-only truth unchanged, and add no new agent.
 
 **Why the simulator path cannot be reused as is (checked against `main` at `8969c5f`, 2026-11-07):**
 
 - `ObservationTools.get_sensor_summary()` (`tools/observation.py`) computes `rate_of_change` from the first and last readings only, and `mean` with `fmean` over readings. A signal that rises sharply, peaks and returns to its start reports zero change, and every reading counts equally however long it held.
 - `TelemetryRecord` (`ingestion/record.py`) stores the value as text with no engineering unit.
 - The collector (`ingestion/collector.py`) prints `gap: some observations were lost` to stderr; the JSONL file does not record where data was lost.
-- No provider reads collected JSONL, so the Investigator cannot use real data yet (the "main missing piece" in the [pilot plan](#fw-haas-live-pilot)).
+- The recorded provider reads JSONL (#213), but the regular investigation entry point still needs capability-aware wiring ([draft #221](https://github.com/peyton150-startup/Capstone_Project_CMU/pull/221)); neither path is validated on real data.
 
 **Before connecting to the machine (HIGH):**
 
@@ -2478,7 +2468,7 @@ Tested](https://www.requesty.ai/blog/structured-outputs-across-llm-providers-the
   - *Built:* the map holds a hash of the probe's device description, so a changed controller layout is refused. `check_capture` maps each observation to one entry or lists it as unmapped, flags category/type disagreements, and records which channels reported a value.
   - *Built:* command line `python -m capstone.ingestion.channel_map build|check`, which refuses to write inside a git checkout.
   - *Acceptance:* tested on a synthetic probe shaped like demo.mtconnect.org. Not yet run on the real machine's probe, which does not exist yet.
-  - *Not built:* use of the map by the real-data provider (SM-3) and by per-channel staleness (SM-2's remainder).
+  - *Corrected 2026-11-10:* the channel map is used by the recorded provider (#213); the quality module calculates staleness (#211). Site-specific age limits and operator confirmation still depend on the real probe and capture.
 - <a id="fw-sm-gap-events"></a> **SM-2: Collection gaps and data quality written into the telemetry file (HIGH).** When a poll reports a gap, a poll fails, or the agent restarts (`instance_id` changes), append a typed marker next to the existing `started`/`heartbeat`/`stopped` markers, with the time span and sequence range affected. Mark channels as stale when no update arrives within an agreed age. The MTConnect standard defines an `UNAVAILABLE` result as indeterminate, so it is a gap, not a value. Replay and the Investigator then know exactly where data was lost. *Accept:* replaying a capture with an injected gap reports the gap at the same place, and no statistic spans it.
   **Status (2026-11-07): partly built, PR #204 (built ungated at the developer's direction; questions owed; understood: no).**
   - *Built:* the collector writes a `gap` marker (`CollectorMarker` event `gap`, schema version 2) before the readings that follow a loss. It says the cause (`buffer_overrun`, `out_of_range` or `agent_restart`), the lost sequence range as far as it is known, the last reading's receive time, and both agent run ids on a restart.
@@ -2486,13 +2476,13 @@ Tested](https://www.requesty.ai/blog/structured-outputs-across-llm-providers-the
   - *Acceptance:* tested with a scripted agent. An injected overrun appears between the readings it separates, with the exact range. Not yet run against a real capture.
   - *Deliberately not marked:* a failed poll on its own. The agent buffers, so a real loss shows as an overrun or OUT_OF_RANGE on the next successful poll.
   - *Built in PR #211 (2026-11-08; merged 2026-11-09):* `capstone/ingestion/quality.py`. `unavailable_spans` lists each channel's UNAVAILABLE stretches, closed at its next real value or, when collection broke or ended first, at the last collected reading. `stale_channels` reports channels older than an age limit a person gave them (only those; change-reported channels can be silent with nothing wrong), on the capture's own clock, and marks silence that began before a collection break. Both are computed from the file, not written into it as new markers.
-  - *Not built:* no replay or provider uses the markers or stretches yet (SM-3 will). Age limits for the real machine's channels wait for its probe and capture.
+  - *Corrected 2026-11-10:* replay statistics honor gap boundaries (#212/#213); UNAVAILABLE and stale spans are calculated in #211. Real age limits still await the controller probe and approved data.
 - <a id="fw-sm-real-provider"></a> **SM-3: Read-only real-data provider over recorded JSONL (HIGH).** A `FactoryProvider` implementation that answers the existing `ObservationTools` from a capture: map timestamps to the tools' time axis, map channels through SM-1, return unavailable for anything not collected, and never return readings after the replay cutoff. Collecting readings and making them usable for diagnosis are separate problems; this item is the bridge. Do not feed real observations into the simulator's tick-based arithmetic without SM-5. *Accept:* the existing tool contracts hold on a recorded fixture and simulator regressions stay green.
   **Status (2026-11-09): built, PR #213, merged after SM-5 (PR #212) (built ungated; questions and walkthrough owed; understood: no).**
   - *Built:* `capstone/providers/replay.py`. `replay_provider(lines, channel_map)` returns a `FactoryProvider` with the same tools and contracts, stamped `source="replay"`. Tick 0 is the first observation; 60 s per tick; nothing after the cutoff is shown, and `wait` moves the cutoff up to the capture's end.
   - *Built:* readings come only from channels assigned a tool sensor in the SM-1 map, with the probe's units; trends and summary means are SM-5 time-weighted holds that never span a gap. `list_machines` uses the last Execution value and refuses without one.
   - *Refused, not faked:* events, maintenance, inspections, settings, jobs and line screening, which a machine capture does not hold; proposing or executing a change.
-  - *Acceptance:* every tool answers inside its contract or refuses, on a synthetic recorded fixture. Not yet run with the agent loop or on a real capture. The tool descriptions a model reads still describe the simulator (for example, "one tick is one minute", "vibration mm/s").
+  - *Acceptance:* every tool answers inside its contract or refuses, on a synthetic recorded fixture. Not yet run on a real capture; the investigation entry point/tool filtering is separately proposed in [draft PR #221](https://github.com/peyton150-startup/Capstone_Project_CMU/pull/221), not counted as merged. The tool descriptions a model reads still describe the simulator (for example, "one tick is one minute", "vibration mm/s").
 
 **Once representative readings exist (HIGH):**
 
@@ -2500,7 +2490,7 @@ Tested](https://www.requesty.ai/blog/structured-outputs-across-llm-providers-the
   **Status (2026-11-09): core built, PR #212, merged after the PRs were first left open at the developer's request (built ungated; questions and walkthrough owed; understood: no).**
   - *Built:* `capstone/ingestion/time_stats.py`. Each numeric reading is a hold that lasts until the channel's next record or the run's last collected reading, never across a gap marker; UNAVAILABLE and event words end a hold and start none.
   - *Built:* time-weighted mean (the 10%/90% example gives 18%), time above a level, peak excursion from a reference, and a least-squares slope on real times fitted within each run and pooled, plus a `summarize` per channel.
-  - *Not built:* use by a tool or provider (SM-3), so the endpoint-only `rate_of_change` is not yet replaced on the real-data path. Which channels report on change and which are sampled is not detected; both are handled as holds.
+  - *Corrected 2026-11-10:* SM-3 replay tools use SM-5 time-weighted windows (#213). Endpoint rate remains endpoint-based by its existing contract. Source sampling versus change-reporting needs real-machine confirmation; current values are treated as holds.
   - *Acceptance:* tested on synthetic records only; not yet run on demo-agent or machine captures.
 - <a id="fw-sm-state-segmentation"></a> **SM-6: Operating-state segmentation (HIGH).** Label windows as idle, spindle running, cutting, tool or program change and warm-up, using only fields the controller exposes (for example execution state, spindle speed, load, program, tool number). If two states cannot be told apart, merge them rather than guess. The 2026-11-06 offline probe of the [CPU anomaly detector](#fw-cpu-anomaly-detector) found that comparing all readings flagged healthy machines on idle-to-cutting transitions, and running-only comparison fixed it. Tool-condition monitoring research also isolates actual cutting (removing air cutting) before extracting features ([Bombiński et al., 2016](https://doi.org/10.1016/j.procir.2016.03.203)), and spindle speed plus load from MTConnect alone can separate running, cutting and efficient cutting ([Parto et al., 2018](https://saemobilus-test.cld.sae.org/papers/machine-utilization-spindle-data-using-mtconnect-f-0074-2018-12800)). Start with running versus idle. *Accept:* on a captured session, segment boundaries match the [technician event log](#fw-sm-visit-log) within an agreed tolerance.
 - <a id="fw-sm-own-baseline"></a> **SM-7: Same-machine baseline from its own normal history (HIGH).** For each state from SM-6, save the machine's normal ranges (median, MAD, mean, standard deviation, count, with warm-up stages) from periods the technician confirms were normal. This is the real-machine version of the simulator's saved "before" file in the [CPU anomaly detector](#fw-cpu-anomaly-detector); here it cannot come from a fault-free simulator run. Compare heavy cutting with past heavy cutting at similar RPM and load, never with idle. Until enough normal data exists, report `baseline_unavailable`, never normal. The [Line Sentinel](#fw-line-sentinel) peer comparison does not apply to one machine. Same typed output contract as the detector.
@@ -2531,7 +2521,10 @@ Tested](https://www.requesty.ai/blog/structured-outputs-across-llm-providers-the
 
 <a id="fw-cpu-anomaly-detector"></a>
 
-**Category: Tooling and infrastructure. Priority: HIGH. Status: stage 0/1 BUILT 2026-11-06** as the always-on `get_line_screening` tool (`capstone/tools/screening.py`, saved file `capstone/tools/healthy_reference.json`), called by the loop at the start of every investigation on its own allowance. Not yet run live. The roadmap below is kept as written. This is a **small CPU-only Python monitoring component**, not a separate LLM or a fine-tuned 0.8B model. It extends the existing read-only `ObservationTools.get_sensor_summary()`, `get_sensor_trend()`, raw readings and machine status, while preserving the existing simulator, `FactoryProvider`, Pydantic Graph, approval and verification boundaries.
+**Category: Tooling and infrastructure. Priority: HIGH. Status: SIMULATOR STAGE 0/1 BUILT; REAL-WORLD APPLICATION UNFINISHED (2026-11-10)** as the always-on `get_line_screening` tool (`capstone/tools/screening.py`, saved file `capstone/tools/healthy_reference.json`),
+
+**Real-world completion blocker (Prestige, 2026-11-10).** Stage 0/1 uses a synthetic simulator healthy-reference file and is NOT a real-machine anomaly detector. After Naseem confirms the visit, controllers and permitted fields, collect technician-confirmed healthy data, segment operating states (SM-6), build a separate versioned real baseline (SM-7), apply data-gap and stale-channel rules, calibrate alert thresholds against real events and validate a read-only alert lifecycle. Do not reuse simulator thresholds or claim live reliability. Without the approved capture and operator labels, this item remains **UNFINISHED**.
+ called by the loop at the start of every investigation on its own allowance. Not yet run live. The roadmap below is kept as written. This is a **small CPU-only Python monitoring component**, not a separate LLM or a fine-tuned 0.8B model. It extends the existing read-only `ObservationTools.get_sensor_summary()`, `get_sensor_trend()`, raw readings and machine status, while preserving the existing simulator, `FactoryProvider`, Pydantic Graph, approval and verification boundaries.
 
 **First increment (no new infrastructure required):**
 
@@ -2679,8 +2672,7 @@ multi-agent monitor or high-frequency infrastructure.
 
 <a id="fw-haas-live-pilot"></a>
 
-**Status: DOCUMENTED PLAN ONLY (2026-11-03).** The developer intends to
-contact manufacturers about a small, read-only Haas pilot. This is a
+**Status 2026-11-10: ONE-MACHINE VISIT DISCOVERY PENDING; controller-agnostic, no permission to connect yet.** The existing collector, monitor, watchdog, channel mapping and recorded provider are fixture-tested; the onsite data path has not been exercised. Haas is an illustrative vendor-specific option only. We must ask Naseem for the machine/controller details once the visit date is agreed, then choose a read-only supported collection or approved export method. This is a
 **module within the existing capstone repository**, not a separate GitHub
 product. The collector, deterministic monitor and research agent must be
 **separately runnable processes** so a model timeout or deployment restart
@@ -2700,9 +2692,7 @@ the read-only MTConnect collector (`capstone/ingestion/`: GET only, minimum
 deterministic monitor (`capstone/monitoring/`) and the collector watchdog
 (`capstone/watchdog/`), PRs #165–#167. The output-path guard (collector,
 monitor and watchdog refuse to write inside a git checkout) is in its own
-pull request. **Not built:** the on-site spool and outbound upload, any
-hosted ingestion API, a provider that lets the agent read collected data,
-alert delivery to a person, and file rotation.
+pull request. **Not built:** on-site spool/outbound upload, hosted ingestion API, live alerts to a person, rotation and factory-validated investigations. The recorded-data provider IS built (#213), but it is not wired to the normal investigator on main as of this audit (separate [draft PR #221](https://github.com/peyton150-startup/Capstone_Project_CMU/pull/221)).
 
 #### What to offer a manufacturer
 
@@ -2776,7 +2766,7 @@ Proposed additions under `capstone-code/capstone/` (names are provisional):
 
 - `ingestion/` (**collector built**): still to add an optional CHC
   adapter, the edge spool and idempotent batch upload.
-- **A real-data provider (the main missing piece).** `FactoryProvider` in
+- **A real-data provider (core built #213; investigation workflow wiring proposed in draft #221).** `FactoryProvider` in
   `providers/factory.py` is already the plug-in point (the hazards wrapper
   uses it). A new provider must read collected JSONL and answer the
   existing tools: map wall-clock timestamps to ticks, map each Haas data
