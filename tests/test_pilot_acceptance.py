@@ -49,7 +49,8 @@ def evidence():
     #   records: The replay test capture, correcting Xpos to its probe-defined type.
     #   events: Operator note attached to one time covered by the capture.
     records = [
-        obs(599, "Xpos", "1.5", type_="Position") if getattr(row, "data_item_id", None) == "Xpos"
+        obs(599, "Xpos", "1.5", type_="Position")
+        if getattr(row, "data_item_id", None) == "Xpos"
         else row
         for row in capture()
     ]
@@ -102,7 +103,9 @@ def test_gaps_must_be_reviewed():
 
 
 def test_a_non_mtconnect_controller_is_not_faked_as_supported():
-    manifest = approved().model_copy(update={"access_method": "approved_offline_export"})
+    manifest = approved().model_copy(
+        update={"access_method": "approved_offline_export"}
+    )
     report = assess_pilot(manifest, **evidence())
     assert report.status == "pending_capture"
     assert any("adapter" in reason for reason in report.blockers)
@@ -121,9 +124,7 @@ def test_cli_reports_blockers_without_live_network_or_a_model(tmp_path):
     manifest = tmp_path / "manifest.json"
     output = tmp_path / "acceptance.json"
     manifest.write_text(PilotManifest().model_dump_json())
-    assert main(
-        ["check", "--manifest", str(manifest), "--out", str(output)]
-    ) == 1
+    assert main(["check", "--manifest", str(manifest), "--out", str(output)]) == 1
     assert '"status": "blocked"' in output.read_text()
 
 
