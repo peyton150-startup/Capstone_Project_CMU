@@ -1,6 +1,8 @@
 """Pilot acceptance is conservative; all test probes and captures are synthetic."""
 
 from datetime import timedelta
+from pathlib import Path
+from tempfile import TemporaryDirectory
 
 import pytest
 
@@ -111,21 +113,26 @@ def test_a_non_mtconnect_controller_is_not_faked_as_supported():
     assert any("adapter" in reason for reason in report.blockers)
 
 
-def test_cli_private_template_has_no_pretend_authorization(tmp_path):
-    path = tmp_path / "manifest.json"
-    assert main(["template", "--out", str(path)]) == 0
-    plan = PilotManifest.model_validate_json(path.read_text())
-    assert plan.controller is None
-    assert plan.owner_approved is False
-    assert plan.continued_collection_approved is False
+def test_cli_private_template_has_no_pretend_authorization():
+    # Use an OS temporary directory, since the CLI correctly rejects outputs
+    # beneath this repository's git checkout, including pytest's base temp.
+    with TemporaryDirectory() as folder:
+        path = Path(folder) / "manifest.json"
+        assert main(["template", "--out", str(path)]) == 0
+        plan = PilotManifest.model_validate_json(path.read_text())
+        assert plan.controller is None
+        assert plan.owner_approved is False
+        assert plan.continued_collection_approved is False
 
 
-def test_cli_reports_blockers_without_live_network_or_a_model(tmp_path):
-    manifest = tmp_path / "manifest.json"
-    output = tmp_path / "acceptance.json"
-    manifest.write_text(PilotManifest().model_dump_json())
-    assert main(["check", "--manifest", str(manifest), "--out", str(output)]) == 1
-    assert '"status": "blocked"' in output.read_text()
+def test_cli_reports_blockers_without_live_network_or_a_model():
+    # The real-data privacy guard stays enabled, even in automated tests.
+    with TemporaryDirectory() as folder:
+        manifest = Path(folder) / "manifest.json"
+        output = Path(folder) / "acceptance.json"
+        manifest.write_text(PilotManifest().model_dump_json())
+        assert main(["check", "--manifest", str(manifest), "--out", str(output)]) == 1
+        assert '"status": "blocked"' in output.read_text()
 
 
 def test_cli_refuses_an_output_inside_a_git_checkout(tmp_path, capsys):
