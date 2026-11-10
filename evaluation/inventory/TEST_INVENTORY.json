@@ -35601,6 +35601,297 @@
    ]
   },
   {
+   "id": "tests/test_drift.py::test_rates_count_the_right_runs",
+   "file": "tests/test_drift.py",
+   "name": "test_rates_count_the_right_runs",
+   "line": 55,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 7,
+   "assert_forms": {
+    "equality": 7
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "rates count the right runs",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.evaluation.drift:batch_rates",
+    "capstone.evaluation.drift:share"
+   ],
+   "exercise_count": 2,
+   "modules_exercised": [
+    "capstone.evaluation.drift"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_drift.py::test_runs_with_no_model_are_left_out",
+   "file": "tests/test_drift.py",
+   "name": "test_runs_with_no_model_are_left_out",
+   "line": 75,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 1,
+   "assert_forms": {
+    "truthiness": 1
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [
+    "weak_assertions_only"
+   ],
+   "claims": "runs with no model are left out",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.evaluation.drift:batch_rates",
+    "capstone.evaluation.drift:share"
+   ],
+   "exercise_count": 2,
+   "modules_exercised": [
+    "capstone.evaluation.drift"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_drift.py::test_a_rate_with_nothing_to_count_is_none_not_zero",
+   "file": "tests/test_drift.py",
+   "name": "test_a_rate_with_nothing_to_count_is_none_not_zero",
+   "line": 80,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 3,
+   "assert_forms": {
+    "is_none": 3
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "a rate with nothing to count is none not zero",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.evaluation.drift:batch_rates",
+    "capstone.evaluation.drift:share"
+   ],
+   "exercise_count": 2,
+   "modules_exercised": [
+    "capstone.evaluation.drift"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_drift.py::test_only_moves_past_the_threshold_are_flagged",
+   "file": "tests/test_drift.py",
+   "name": "test_only_moves_past_the_threshold_are_flagged",
+   "line": 87,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 2,
+   "assert_forms": {
+    "equality": 2
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "only moves past the threshold are flagged",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.evaluation.drift:batch_rates",
+    "capstone.evaluation.drift:share",
+    "capstone.evaluation.drift:shifts"
+   ],
+   "exercise_count": 3,
+   "modules_exercised": [
+    "capstone.evaluation.drift"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_drift.py::test_a_rate_missing_on_one_side_is_never_flagged",
+   "file": "tests/test_drift.py",
+   "name": "test_a_rate_missing_on_one_side_is_never_flagged",
+   "line": 99,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 1,
+   "assert_forms": {
+    "call_truthiness": 1
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "a rate missing on one side is never flagged",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.evaluation.drift:batch_rates",
+    "capstone.evaluation.drift:share",
+    "capstone.evaluation.drift:shifts"
+   ],
+   "exercise_count": 3,
+   "modules_exercised": [
+    "capstone.evaluation.drift"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_drift.py::test_the_report_names_each_drift",
+   "file": "tests/test_drift.py",
+   "name": "test_the_report_names_each_drift",
+   "line": 105,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 2,
+   "assert_forms": {
+    "membership": 2
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "the report names each drift",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.evaluation.drift:Shift.change",
+    "capstone.evaluation.drift:batch_rates",
+    "capstone.evaluation.drift:format_report",
+    "capstone.evaluation.drift:share",
+    "capstone.evaluation.drift:shifts",
+    "capstone.evaluation.drift:shown"
+   ],
+   "exercise_count": 6,
+   "modules_exercised": [
+    "capstone.evaluation.drift"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_drift.py::test_the_command_reads_files_and_exits_1_on_drift",
+   "file": "tests/test_drift.py",
+   "name": "test_the_command_reads_files_and_exits_1_on_drift",
+   "line": 118,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [
+    "tmp_path",
+    "capsys"
+   ],
+   "assertions": 3,
+   "assert_forms": {
+    "equality": 2,
+    "membership": 1
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "the command reads files and exits 1 on drift",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.evaluation.drift:Shift.change",
+    "capstone.evaluation.drift:batch_rates",
+    "capstone.evaluation.drift:format_report",
+    "capstone.evaluation.drift:main",
+    "capstone.evaluation.drift:share",
+    "capstone.evaluation.drift:shifts",
+    "capstone.evaluation.drift:shown",
+    "capstone.experiment:read_records"
+   ],
+   "exercise_count": 8,
+   "modules_exercised": [
+    "capstone.evaluation.drift",
+    "capstone.experiment"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_drift.py::test_the_command_can_print_json",
+   "file": "tests/test_drift.py",
+   "name": "test_the_command_can_print_json",
+   "line": 126,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [
+    "tmp_path",
+    "capsys"
+   ],
+   "assertions": 2,
+   "assert_forms": {
+    "equality": 2
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "the command can print json",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.evaluation.drift:Shift.change",
+    "capstone.evaluation.drift:batch_rates",
+    "capstone.evaluation.drift:main",
+    "capstone.evaluation.drift:share",
+    "capstone.evaluation.drift:shifts",
+    "capstone.experiment:read_records"
+   ],
+   "exercise_count": 6,
+   "modules_exercised": [
+    "capstone.evaluation.drift",
+    "capstone.experiment"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
    "id": "tests/test_duplicate_threshold.py::test_pair_text_is_the_text_a_stored_memory_is_embedded_as",
    "file": "tests/test_duplicate_threshold.py",
    "name": "test_pair_text_is_the_text_a_stored_memory_is_embedded_as",

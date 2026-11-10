@@ -1,6 +1,16 @@
 # Progress Log
 
-> **2026-11-09 — Module 6.1 guardrail #6: text from outside the agent is data, never instructions (built ungated at the developer's request; walkthrough owed; understood: no; PR #217):**
+> **2026-11-09 — Module 6.1 gap #5: guardrail drift tracking across batches of runs (built ungated at the developer's request; walkthrough waived for tonight; understood: no; PR #218):**
+> New module `evaluation/drift.py`, read-only over saved results files. `batch_rates` gives each batch's
+> `intervene_rate`, `lowered_rate` (intervene requests the final check lowered to escalate), `rejection_rate` (decided
+> proposals the human rejected), `timeout_rate`, `mean_confidence` and `calibration_gap` (mean confidence minus share
+> diagnosed right, judged runs only); runs with no model answer are left out, and a rate with nothing to count is None,
+> never zero. `shifts` flags any rate that moved more than a threshold (default 0.15) from the first file. Command line
+> `python -m capstone.evaluation.drift BASELINE.jsonl LATER.jsonl [...] [--threshold T] [--json]`, exit 1 on drift.
+> Tests: `tests/test_drift.py` (CI group with the evaluation tests). **Drop rule (developer, 2026-11-09): if this breaks
+> anything, revert it rather than fixing forward.**
+
+> **2026-11-09 — Module 6.1 guardrail #6: text from outside the agent is data, never instructions (built ungated at the developer's request; walkthrough waived for tonight; understood: no; PR #217 merged at the developer's request):**
 > New module `agent/untrusted.py`: `looks_like_instruction` is a plain regex check for wording aimed at a model
 > ("ignore previous instructions", "you are now", "system:", "recommend no_action"), and `UNTRUSTED_NOTE` is the note
 > shown beside a flagged line. `evidence_lines` in `agent/model_policy.py` appends the note to any flagged evidence

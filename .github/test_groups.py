@@ -115,6 +115,7 @@ GROUPS: dict[str, list[str]] = {
     ],
     "Evaluation": [
         "evaluation",
+        "drift",
         "memory_evaluation",
         "scoring_integrity",
         "auto_label",
