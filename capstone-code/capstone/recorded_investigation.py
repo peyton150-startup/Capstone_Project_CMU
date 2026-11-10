@@ -66,9 +66,7 @@ def replay_tool_specs(
     machines: dict[str, set[str]] = {}
     factory = False
     execution = {
-        row.device
-        for row in visible
-        if row.type == "Execution" and row.available
+        row.device for row in visible if row.type == "Execution" and row.available
     }
     for entry in channel_map.entries:
         if entry.tool_sensor is None:
@@ -100,7 +98,9 @@ def replay_tool_specs(
     for spec in research_tools():
         name = spec.name
         if name == "get_time":
-            detail = f"Recorded machine time. One replay tick is {tick_seconds} seconds."
+            detail = (
+                f"Recorded machine time. One replay tick is {tick_seconds} seconds."
+            )
         elif name == "list_machines":
             if not machines or not all(device in execution for device in machines):
                 continue
@@ -129,7 +129,9 @@ def replay_tool_specs(
             continue
         schema = copy.deepcopy(spec.arguments)
         if name in {"get_readings", "get_sensor_trend", "get_sensor_summary"}:
-            options = sorted({sensor for sensors in machines.values() for sensor in sensors})
+            options = sorted(
+                {sensor for sensors in machines.values() for sensor in sensors}
+            )
             if name == "get_sensor_summary" and factory:
                 options.append("air_temperature")
             if "sensor" in schema.get("properties", {}):
@@ -160,16 +162,15 @@ def run_recorded_investigation(
     #   deps: Graph dependencies with line screening disabled; no simulator truth.
     if not description.strip():
         raise ValueError("a nonempty operator observation is required")
-    provider = replay_provider(
-        lines, channel_map, tick_seconds=tick_seconds, now=now
-    )
+    provider = replay_provider(lines, channel_map, tick_seconds=tick_seconds, now=now)
     look = provider._observations
     available = replay_tool_specs(
         lines, channel_map, now=look.now, tick_seconds=tick_seconds
     )
     listed = " ".join(tool.description for tool in available)
     if not any(
-        entry.device == machine_id and entry.tool_sensor not in (None, "air_temperature")
+        entry.device == machine_id
+        and entry.tool_sensor not in (None, "air_temperature")
         for entry in channel_map.entries
     ):
         raise ValueError("machine has no manually mapped observation channels")
@@ -180,9 +181,7 @@ def run_recorded_investigation(
             raise ValueError("model policy exposes tools this capture cannot answer")
 
     settings = get_settings()
-    run_id = run_id_for(
-        f"replay/{machine_id}/{look.now.isoformat()}/{description}"
-    )
+    run_id = run_id_for(f"replay/{machine_id}/{look.now.isoformat()}/{description}")
     state = InvestigationState(
         run_id=run_id,
         investigation_id=investigation_id_for(run_id, 1),
@@ -236,7 +235,9 @@ def main(argv: Sequence[str] | None = None) -> int:
     parser.add_argument("--probe", required=True, type=Path)
     parser.add_argument("--machine", required=True)
     parser.add_argument("--description", required=True)
-    parser.add_argument("--at", help="ISO source timestamp with UTC offset; default last")
+    parser.add_argument(
+        "--at", help="ISO source timestamp with UTC offset; default last"
+    )
     parser.add_argument("--out", required=True, type=Path)
     parser.add_argument(
         "--approved-remote-model",
@@ -271,9 +272,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         if at is not None and at.utcoffset() is None:
             raise ValueError("--at requires a UTC offset")
         cutoff = at or max(
-            row.source_timestamp
-            for row in captured
-            if isinstance(row, TelemetryRecord)
+            row.source_timestamp for row in captured if isinstance(row, TelemetryRecord)
         )
         tool_specs = replay_tool_specs(captured, channel_map, now=cutoff)
         if len(tool_specs) <= 1:
