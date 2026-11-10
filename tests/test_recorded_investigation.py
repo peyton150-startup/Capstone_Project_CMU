@@ -46,7 +46,9 @@ def test_cutoff_controls_which_mapped_channels_the_policy_can_see():
     earlier = recorded_tool_specs(
         capture(), channel_map(), cutoff=T0 + timedelta(seconds=100)
     )
-    description = next(tool.description for tool in earlier if tool.name == "get_readings")
+    description = next(
+        tool.description for tool in earlier if tool.name == "get_readings"
+    )
     assert "load (PERCENT)" in description
     assert "following_error" not in description
     with pytest.raises(ValueError, match="no numeric machine sensors"):
@@ -97,7 +99,9 @@ def test_recorded_capture_uses_the_existing_graph_without_screening_or_actions()
     assert state.action_started_tick is None
     assert state.verification is None
     assert state.deep_recommended
-    assert any(d.tool == "get_readings" and d.outcome == "observed" for d in state.decisions)
+    assert any(
+        d.tool == "get_readings" and d.outcome == "observed" for d in state.decisions
+    )
     assert not any(
         d.tool in {"get_line_screening", "propose_action", "execute_action", "wait"}
         for d in state.decisions
