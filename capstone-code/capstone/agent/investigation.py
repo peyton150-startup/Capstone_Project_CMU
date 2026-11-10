@@ -135,13 +135,14 @@ def observe(state: InvestigationState, deps: InvestigationDeps) -> None:
     # That call was made before the tick was known. Note it under the tick
     # it reported too, so asking the time again straight away is a repeat.
     state.seen_calls.append(call_signature(step.request, state.last_tick))
-    screen = CallTool(
-        information_needed="every machine's recent running readings against a healthy line",
-        request=ToolRequest(name="get_line_screening"),
-    )
-    calls_before = state.tool_call_count
-    gather(state, deps, "observe", screen, interpret=False)
-    state.screening_tool_calls_used += state.tool_call_count - calls_before
+    if deps.screening_enabled:
+        screen = CallTool(
+            information_needed="every machine's recent running readings against a healthy line",
+            request=ToolRequest(name="get_line_screening"),
+        )
+        calls_before = state.tool_call_count
+        gather(state, deps, "observe", screen, interpret=False)
+        state.screening_tool_calls_used += state.tool_call_count - calls_before
     if state.line_context_enabled:
         assemble_incident_context(state, deps)
 
