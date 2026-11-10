@@ -225,8 +225,15 @@ def main(argv: Sequence[str] | None = None) -> int:
     parser.add_argument("--symptom", required=True, help="operator-observed issue, not a diagnosis")
     parser.add_argument("--cutoff", help="ISO 8601 date with timezone; default last observation")
     parser.add_argument("--timeout-seconds", type=float, default=90.0)
+    parser.add_argument(
+        "--authorize-llm-transfer",
+        action="store_true",
+        help="confirm authorized telemetry may be sent to the configured model provider",
+    )
     parser.add_argument("--out", type=Path, help="private output JSON, outside the repository")
     args = parser.parse_args(argv)
+    if not args.authorize_llm_transfer:
+        parser.error("recorded telemetry requires explicit --authorize-llm-transfer; obtain shop permission first")
     if args.out and refusal(args.out, "--out"):
         parser.error("private investigation reports must stay outside the git checkout")
     channel_map = ChannelMap.model_validate_json(args.map.read_text(encoding="utf-8"))
