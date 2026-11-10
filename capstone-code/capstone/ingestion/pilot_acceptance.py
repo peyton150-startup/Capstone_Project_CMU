@@ -151,6 +151,16 @@ def assess_pilot(
         observations = sum(
             isinstance(row, TelemetryRecord) for row in capture
         )
+        observed_ids = {
+            row.data_item_id
+            for row in capture
+            if isinstance(row, TelemetryRecord)
+        }
+        if observed_ids - set(manifest.approved_channels):
+            blockers.append(
+                "capture contains channels outside the approved field list; "
+                "stop and review the collection scope"
+            )
         if not uses:
             blockers.append("no mapped channels supplied usable observations")
         visit = check_visit(probe, capture, events)
