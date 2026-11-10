@@ -1,5 +1,7 @@
 # Progress Log
 
+> **2026-11-10 — Roadmap reconciliation (docs-only PR, understood: review pending):** Compared merged PRs and current module implementations to `docs/MVP_SCOPE.md`. Reorganized active future work by pilot phase and owner category, updated the single-machine dependency diagram and detailed hyperlinks, and separated completed foundations from unfinished physical-shop acceptance. SM-1/2/3/4/5 and opt-in triage are built but not yet verified on real controller data. The simulator CPU anomaly detector is **unfinished** for Prestige until Naseem confirms machine access and an approved real capture supplies a machine-specific healthy reference. No production connectivity or benchmark run was claimed. Tests: docs-only, not executed. Trade-off: historical narrative is retained under the detailed sections, with the new active register controlling priority.
+
 > **2026-11-09 — Module 6.1 gap #5: guardrail drift tracking across batches of runs (built ungated at the developer's request; walkthrough waived for tonight; understood: no; PR #218):**
 > New module `evaluation/drift.py`, read-only over saved results files. `batch_rates` gives each batch's
 > `intervene_rate`, `lowered_rate` (intervene requests the final check lowered to escalate), `rejection_rate` (decided
