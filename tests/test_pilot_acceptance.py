@@ -135,3 +135,9 @@ def test_cli_refuses_an_output_inside_a_git_checkout(tmp_path, capsys):
         main(["template", "--out", str(repo / "pilot.json")])
     assert error.value.code == 2
     assert "inside the git checkout" in capsys.readouterr().err
+
+def test_an_extra_unapproved_channel_blocks_acceptance():
+    plan = approved().model_copy(update={"approved_channels": ["S1load"]})
+    report = assess_pilot(plan, **evidence())
+    assert report.status == "pending_capture"
+    assert any("outside the approved field list" in x for x in report.blockers)
