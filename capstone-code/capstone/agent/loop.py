@@ -85,6 +85,9 @@ class InvestigationDeps:
 
     provider: FactoryProvider
     policy: ReasoningPolicy
+    # A recorded machine has no simulator healthy-line screening tool.
+    # Keep this True for all existing simulator investigations.
+    screening_available: bool = True
     # Seconds that only move forward. Injected so that tests control time.
     clock: Callable[[], float] = monotonic
     # The best explanation must be at least this sure, with this much

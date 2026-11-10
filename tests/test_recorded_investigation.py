@@ -98,13 +98,9 @@ def test_recorded_data_runs_through_the_existing_graph_without_actions(monkeypat
     assert state.mode == "triage"
     assert state.anomaly.machine_id == "VF2"
     assert state.anomaly.kind == "operator_review"
-    # The unchanged simulator graph attempts one screening call. The replay
-    # provider explicitly refuses it; no unsupported tool is offered to the model.
-    assert state.screening_tool_calls_used == 1
-    assert any(
-        d.tool == "get_line_screening" and d.outcome == "tool_error"
-        for d in state.decisions
-    )
+    # Recorded captures have no simulator baseline: screening is not invoked.
+    assert state.screening_tool_calls_used == 0
+    assert not any(d.tool == "get_line_screening" for d in state.decisions)
     assert state.proposed_action is None
     assert state.action_started_tick is None
     assert state.verification is None

@@ -206,6 +206,7 @@ def run_recorded_investigation(
         provider=provider,
         policy=policy,
         clock=clock,
+        screening_available=False,
         step_questions=step_questions,
         decide_calls=decide_calls,
         min_action_confidence=settings.min_action_confidence,

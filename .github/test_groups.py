@@ -158,6 +158,8 @@ GROUPS: dict[str, list[str]] = {
         "time_stats",
         "replay_provider",
         "recorded_investigation",
+        "replay_investigation",
+        "pilot_preflight",
     ],
 }
 
