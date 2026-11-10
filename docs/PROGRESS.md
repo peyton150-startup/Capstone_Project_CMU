@@ -6,9 +6,11 @@
 > on `main` failed despite the rest of the CI test groups passing. This PR
 > copies the four generated inventory files from the `evaluator-inventory`
 > artifact of `main` CI run 42882815254 at commit `66349d3` (full per-test
-> coverage and JUnit evidence on Linux). It changes no evaluator logic,
-> simulator, agent, tests or rubric. The offline SNAP dry run and PR CI must
-> still pass before a live full-project run. The rubric currently in source
+> coverage and JUnit evidence on Linux), then refreshes the generated evidence
+> from passing PR #227 CI run 42891714850 (1,926 test definitions passed).
+> It changes no evaluator logic, simulator, agent, tests or rubric. The offline
+> SNAP dry run and PR CI must pass on the final commit before a live run.
+> The rubric currently in source
 > is 1.1.1; the earlier 49-answer 1.1.0 review is not a 1.1.1 reference.
 
 > **2026-11-10 — Prestige controller-agnostic readiness and acceptance gate (new feature, walkthrough owed; understood: no):** Added `docs/PRESTIGE_PILOT_RUNBOOK.md` and `capstone/ingestion/pilot_acceptance.py` with a private manifest template and offline `check` command. Unknown controller defaults to blocked, not assumed Haas/MTConnect. The gate cross-checks the saved probe and mapped capture, approved field IDs, time-aligned operator log, self-reported normal-cycle observation, owner+IT/OT authorization, rate/storage/retention, shutdown contact and explicit continuation permission. It writes an evidence report with documented blockers when validation cannot complete. No machine, network or LLM is contacted. `tests/test_pilot_acceptance.py` adds synthetic approval/denial, matching-data, gap, privacy and unknown-controller tests. **Real-site acceptance is still pending Naseem's confirmed date, controller, owner and IT/OT permissions.** Human attestations are not machine-verifiable; no physical reliability or signed approval is claimed. Automated tests pending CI; no local environment used. Trade-off: MTConnect records have an automated check today; any other approved export needs a dedicated validated adapter, rather than pretending MTConnect support.
