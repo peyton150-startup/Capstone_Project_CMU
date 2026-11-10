@@ -83052,6 +83052,460 @@
    ]
   },
   {
+   "id": "tests/test_pilot_acceptance.py::test_an_unknown_controller_is_a_blocker_not_a_default_to_haas",
+   "file": "tests/test_pilot_acceptance.py",
+   "name": "test_an_unknown_controller_is_a_blocker_not_a_default_to_haas",
+   "line": 70,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 3,
+   "assert_forms": {
+    "call_truthiness": 2,
+    "equality": 1
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "an unknown controller is a blocker not a default to haas",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.ingestion.pilot_acceptance:assess_pilot"
+   ],
+   "exercise_count": 1,
+   "modules_exercised": [
+    "capstone.ingestion.pilot_acceptance"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_pilot_acceptance.py::test_missing_capture_does_not_become_a_verified_visit",
+   "file": "tests/test_pilot_acceptance.py",
+   "name": "test_missing_capture_does_not_become_a_verified_visit",
+   "line": 77,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 2,
+   "assert_forms": {
+    "equality": 1,
+    "membership": 1
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "missing capture does not become a verified visit",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.ingestion.pilot_acceptance:assess_pilot"
+   ],
+   "exercise_count": 1,
+   "modules_exercised": [
+    "capstone.ingestion.pilot_acceptance"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_pilot_acceptance.py::test_validated_probe_map_capture_operator_note_and_permission_are_required",
+   "file": "tests/test_pilot_acceptance.py",
+   "name": "test_validated_probe_map_capture_operator_note_and_permission_are_required",
+   "line": 83,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 6,
+   "assert_forms": {
+    "equality": 4,
+    "ordering": 2
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "validated probe map capture operator note and permission are required",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.ingestion.channel_map:CaptureCheck.clean",
+    "capstone.ingestion.channel_map:ChannelMap.verify_probe",
+    "capstone.ingestion.channel_map:_devices",
+    "capstone.ingestion.channel_map:_disagreement",
+    "capstone.ingestion.channel_map:_probe_type",
+    "capstone.ingestion.channel_map:_walk",
+    "capstone.ingestion.channel_map:build_channel_map",
+    "capstone.ingestion.channel_map:check_capture",
+    "capstone.ingestion.channel_map:parse_probe",
+    "capstone.ingestion.channel_map:probe_hash",
+    "capstone.ingestion.mtconnect:_child",
+    "capstone.ingestion.mtconnect:_local",
+    "capstone.ingestion.pilot_acceptance:assess_pilot",
+    "capstone.ingestion.record:CollectorMarker.gap_detail_only_on_a_gap",
+    "capstone.ingestion.record:gap_free_runs",
+    "capstone.ingestion.visit_log:TechnicianEvent.ends_after_it_starts",
+    "capstone.ingestion.visit_log:TechnicianEvent.has_a_time_zone",
+    "capstone.ingestion.visit_log:VisitCheck.ready",
+    "capstone.ingestion.visit_log:VisitCheck.unmatched",
+    "capstone.ingestion.visit_log:check_visit",
+    "capstone.ingestion.visit_log:match_events"
+   ],
+   "exercise_count": 21,
+   "modules_exercised": [
+    "capstone.ingestion.channel_map",
+    "capstone.ingestion.mtconnect",
+    "capstone.ingestion.pilot_acceptance",
+    "capstone.ingestion.record",
+    "capstone.ingestion.visit_log"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_pilot_acceptance.py::test_no_future_collection_permission_is_not_accepted",
+   "file": "tests/test_pilot_acceptance.py",
+   "name": "test_no_future_collection_permission_is_not_accepted",
+   "line": 93,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 2,
+   "assert_forms": {
+    "call_truthiness": 1,
+    "equality": 1
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "no future collection permission is not accepted",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.ingestion.channel_map:CaptureCheck.clean",
+    "capstone.ingestion.channel_map:ChannelMap.verify_probe",
+    "capstone.ingestion.channel_map:_devices",
+    "capstone.ingestion.channel_map:_disagreement",
+    "capstone.ingestion.channel_map:_probe_type",
+    "capstone.ingestion.channel_map:_walk",
+    "capstone.ingestion.channel_map:build_channel_map",
+    "capstone.ingestion.channel_map:check_capture",
+    "capstone.ingestion.channel_map:parse_probe",
+    "capstone.ingestion.channel_map:probe_hash",
+    "capstone.ingestion.mtconnect:_child",
+    "capstone.ingestion.mtconnect:_local",
+    "capstone.ingestion.pilot_acceptance:assess_pilot",
+    "capstone.ingestion.record:CollectorMarker.gap_detail_only_on_a_gap",
+    "capstone.ingestion.record:gap_free_runs",
+    "capstone.ingestion.visit_log:TechnicianEvent.ends_after_it_starts",
+    "capstone.ingestion.visit_log:TechnicianEvent.has_a_time_zone",
+    "capstone.ingestion.visit_log:VisitCheck.ready",
+    "capstone.ingestion.visit_log:VisitCheck.unmatched",
+    "capstone.ingestion.visit_log:check_visit",
+    "capstone.ingestion.visit_log:match_events"
+   ],
+   "exercise_count": 21,
+   "modules_exercised": [
+    "capstone.ingestion.channel_map",
+    "capstone.ingestion.mtconnect",
+    "capstone.ingestion.pilot_acceptance",
+    "capstone.ingestion.record",
+    "capstone.ingestion.visit_log"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_pilot_acceptance.py::test_gaps_must_be_reviewed",
+   "file": "tests/test_pilot_acceptance.py",
+   "name": "test_gaps_must_be_reviewed",
+   "line": 100,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 2,
+   "assert_forms": {
+    "call_truthiness": 1,
+    "equality": 1
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "gaps must be reviewed",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.ingestion.channel_map:CaptureCheck.clean",
+    "capstone.ingestion.channel_map:ChannelMap.verify_probe",
+    "capstone.ingestion.channel_map:_devices",
+    "capstone.ingestion.channel_map:_disagreement",
+    "capstone.ingestion.channel_map:_probe_type",
+    "capstone.ingestion.channel_map:_walk",
+    "capstone.ingestion.channel_map:build_channel_map",
+    "capstone.ingestion.channel_map:check_capture",
+    "capstone.ingestion.channel_map:parse_probe",
+    "capstone.ingestion.channel_map:probe_hash",
+    "capstone.ingestion.mtconnect:_child",
+    "capstone.ingestion.mtconnect:_local",
+    "capstone.ingestion.pilot_acceptance:assess_pilot",
+    "capstone.ingestion.record:CollectorMarker.gap_detail_only_on_a_gap",
+    "capstone.ingestion.record:gap_free_runs",
+    "capstone.ingestion.visit_log:TechnicianEvent.ends_after_it_starts",
+    "capstone.ingestion.visit_log:TechnicianEvent.has_a_time_zone",
+    "capstone.ingestion.visit_log:VisitCheck.ready",
+    "capstone.ingestion.visit_log:VisitCheck.unmatched",
+    "capstone.ingestion.visit_log:check_visit",
+    "capstone.ingestion.visit_log:match_events"
+   ],
+   "exercise_count": 21,
+   "modules_exercised": [
+    "capstone.ingestion.channel_map",
+    "capstone.ingestion.mtconnect",
+    "capstone.ingestion.pilot_acceptance",
+    "capstone.ingestion.record",
+    "capstone.ingestion.visit_log"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_pilot_acceptance.py::test_a_non_mtconnect_controller_is_not_faked_as_supported",
+   "file": "tests/test_pilot_acceptance.py",
+   "name": "test_a_non_mtconnect_controller_is_not_faked_as_supported",
+   "line": 107,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 2,
+   "assert_forms": {
+    "call_truthiness": 1,
+    "equality": 1
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "a non mtconnect controller is not faked as supported",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.ingestion.channel_map:_devices",
+    "capstone.ingestion.channel_map:_walk",
+    "capstone.ingestion.channel_map:build_channel_map",
+    "capstone.ingestion.channel_map:parse_probe",
+    "capstone.ingestion.channel_map:probe_hash",
+    "capstone.ingestion.mtconnect:_child",
+    "capstone.ingestion.mtconnect:_local",
+    "capstone.ingestion.pilot_acceptance:assess_pilot",
+    "capstone.ingestion.record:CollectorMarker.gap_detail_only_on_a_gap",
+    "capstone.ingestion.visit_log:TechnicianEvent.ends_after_it_starts",
+    "capstone.ingestion.visit_log:TechnicianEvent.has_a_time_zone"
+   ],
+   "exercise_count": 11,
+   "modules_exercised": [
+    "capstone.ingestion.channel_map",
+    "capstone.ingestion.mtconnect",
+    "capstone.ingestion.pilot_acceptance",
+    "capstone.ingestion.record",
+    "capstone.ingestion.visit_log"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_pilot_acceptance.py::test_cli_private_template_has_no_pretend_authorization",
+   "file": "tests/test_pilot_acceptance.py",
+   "name": "test_cli_private_template_has_no_pretend_authorization",
+   "line": 116,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 4,
+   "assert_forms": {
+    "equality": 1,
+    "identity_constant": 2,
+    "is_none": 1
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "cli private template has no pretend authorization",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.ingestion.pilot_acceptance:main",
+    "capstone.ingestion.privacy:git_checkout_containing",
+    "capstone.ingestion.privacy:refusal"
+   ],
+   "exercise_count": 3,
+   "modules_exercised": [
+    "capstone.ingestion.pilot_acceptance",
+    "capstone.ingestion.privacy"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_pilot_acceptance.py::test_cli_reports_blockers_without_live_network_or_a_model",
+   "file": "tests/test_pilot_acceptance.py",
+   "name": "test_cli_reports_blockers_without_live_network_or_a_model",
+   "line": 128,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 2,
+   "assert_forms": {
+    "equality": 1,
+    "membership": 1
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "cli reports blockers without live network or a model",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.ingestion.pilot_acceptance:assess_pilot",
+    "capstone.ingestion.pilot_acceptance:main",
+    "capstone.ingestion.privacy:git_checkout_containing",
+    "capstone.ingestion.privacy:refusal"
+   ],
+   "exercise_count": 4,
+   "modules_exercised": [
+    "capstone.ingestion.pilot_acceptance",
+    "capstone.ingestion.privacy"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_pilot_acceptance.py::test_cli_refuses_an_output_inside_a_git_checkout",
+   "file": "tests/test_pilot_acceptance.py",
+   "name": "test_cli_refuses_an_output_inside_a_git_checkout",
+   "line": 138,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [
+    "tmp_path",
+    "capsys"
+   ],
+   "assertions": 2,
+   "assert_forms": {
+    "equality": 1,
+    "membership": 1
+   },
+   "raises_checks": 1,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "cli refuses an output inside a git checkout",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.ingestion.pilot_acceptance:main",
+    "capstone.ingestion.privacy:git_checkout_containing",
+    "capstone.ingestion.privacy:refusal"
+   ],
+   "exercise_count": 3,
+   "modules_exercised": [
+    "capstone.ingestion.pilot_acceptance",
+    "capstone.ingestion.privacy"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_pilot_acceptance.py::test_an_extra_unapproved_channel_blocks_acceptance",
+   "file": "tests/test_pilot_acceptance.py",
+   "name": "test_an_extra_unapproved_channel_blocks_acceptance",
+   "line": 148,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 2,
+   "assert_forms": {
+    "call_truthiness": 1,
+    "equality": 1
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "an extra unapproved channel blocks acceptance",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.ingestion.channel_map:CaptureCheck.clean",
+    "capstone.ingestion.channel_map:ChannelMap.verify_probe",
+    "capstone.ingestion.channel_map:_devices",
+    "capstone.ingestion.channel_map:_disagreement",
+    "capstone.ingestion.channel_map:_probe_type",
+    "capstone.ingestion.channel_map:_walk",
+    "capstone.ingestion.channel_map:build_channel_map",
+    "capstone.ingestion.channel_map:check_capture",
+    "capstone.ingestion.channel_map:parse_probe",
+    "capstone.ingestion.channel_map:probe_hash",
+    "capstone.ingestion.mtconnect:_child",
+    "capstone.ingestion.mtconnect:_local",
+    "capstone.ingestion.pilot_acceptance:assess_pilot",
+    "capstone.ingestion.record:CollectorMarker.gap_detail_only_on_a_gap",
+    "capstone.ingestion.record:gap_free_runs",
+    "capstone.ingestion.visit_log:TechnicianEvent.ends_after_it_starts",
+    "capstone.ingestion.visit_log:TechnicianEvent.has_a_time_zone",
+    "capstone.ingestion.visit_log:VisitCheck.ready",
+    "capstone.ingestion.visit_log:VisitCheck.unmatched",
+    "capstone.ingestion.visit_log:check_visit",
+    "capstone.ingestion.visit_log:match_events"
+   ],
+   "exercise_count": 21,
+   "modules_exercised": [
+    "capstone.ingestion.channel_map",
+    "capstone.ingestion.mtconnect",
+    "capstone.ingestion.pilot_acceptance",
+    "capstone.ingestion.record",
+    "capstone.ingestion.visit_log"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
    "id": "tests/test_power_sensor.py::test_a_stopped_machine_draws_nothing",
    "file": "tests/test_power_sensor.py",
    "name": "test_a_stopped_machine_draws_nothing",
@@ -90393,365 +90847,6 @@
     "capstone.tools.actions",
     "capstone.tools.observation",
     "capstone.tools.screening"
-   ],
-   "judgment": "NOT ASSESSED",
-   "curated": {},
-   "snap_questions": [
-    "TS-01",
-    "TS-02",
-    "TS-03"
-   ]
-  },
-  {
-   "id": "tests/test_recorded_investigation.py::test_offered_tools_match_real_observed_channels_and_no_simulator_tools",
-   "file": "tests/test_recorded_investigation.py",
-   "name": "test_offered_tools_match_real_observed_channels_and_no_simulator_tools",
-   "line": 49,
-   "docstring": "",
-   "parametrized": false,
-   "fixtures": [],
-   "assertions": 11,
-   "assert_forms": {
-    "equality": 1,
-    "membership": 9,
-    "ordering": 1
-   },
-   "raises_checks": 0,
-   "uses": [],
-   "quality_flags": [],
-   "claims": "offered tools match real observed channels and no simulator tools",
-   "execution_outcome": "passed",
-   "exercises": [
-    "capstone.ingestion.channel_map:_devices",
-    "capstone.ingestion.channel_map:_walk",
-    "capstone.ingestion.channel_map:build_channel_map",
-    "capstone.ingestion.channel_map:parse_probe",
-    "capstone.ingestion.channel_map:probe_hash",
-    "capstone.ingestion.mtconnect:_child",
-    "capstone.ingestion.mtconnect:_local",
-    "capstone.ingestion.record:CollectorMarker.gap_detail_only_on_a_gap",
-    "capstone.ingestion.record:TelemetryRecord.number",
-    "capstone.providers.factory:research_tools",
-    "capstone.providers.factory:tool_spec",
-    "capstone.recorded_investigation:replay_tool_specs"
-   ],
-   "exercise_count": 12,
-   "modules_exercised": [
-    "capstone.ingestion.channel_map",
-    "capstone.ingestion.mtconnect",
-    "capstone.ingestion.record",
-    "capstone.providers.factory",
-    "capstone.recorded_investigation"
-   ],
-   "judgment": "NOT ASSESSED",
-   "curated": {},
-   "snap_questions": [
-    "TS-01",
-    "TS-02",
-    "TS-03"
-   ]
-  },
-  {
-   "id": "tests/test_recorded_investigation.py::test_future_channel_not_offered_until_its_actual_observation",
-   "file": "tests/test_recorded_investigation.py",
-   "name": "test_future_channel_not_offered_until_its_actual_observation",
-   "line": 71,
-   "docstring": "",
-   "parametrized": false,
-   "fixtures": [],
-   "assertions": 4,
-   "assert_forms": {
-    "equality": 2,
-    "membership": 2
-   },
-   "raises_checks": 0,
-   "uses": [],
-   "quality_flags": [],
-   "claims": "future channel not offered until its actual observation",
-   "execution_outcome": "passed",
-   "exercises": [
-    "capstone.ingestion.channel_map:_devices",
-    "capstone.ingestion.channel_map:_walk",
-    "capstone.ingestion.channel_map:build_channel_map",
-    "capstone.ingestion.channel_map:parse_probe",
-    "capstone.ingestion.channel_map:probe_hash",
-    "capstone.ingestion.mtconnect:_child",
-    "capstone.ingestion.mtconnect:_local",
-    "capstone.ingestion.record:CollectorMarker.gap_detail_only_on_a_gap",
-    "capstone.ingestion.record:TelemetryRecord.number",
-    "capstone.providers.factory:research_tools",
-    "capstone.providers.factory:tool_spec",
-    "capstone.recorded_investigation:replay_tool_specs"
-   ],
-   "exercise_count": 12,
-   "modules_exercised": [
-    "capstone.ingestion.channel_map",
-    "capstone.ingestion.mtconnect",
-    "capstone.ingestion.record",
-    "capstone.providers.factory",
-    "capstone.recorded_investigation"
-   ],
-   "judgment": "NOT ASSESSED",
-   "curated": {},
-   "snap_questions": [
-    "TS-01",
-    "TS-02",
-    "TS-03"
-   ]
-  },
-  {
-   "id": "tests/test_recorded_investigation.py::test_recorded_data_runs_through_the_existing_graph_without_actions",
-   "file": "tests/test_recorded_investigation.py",
-   "name": "test_recorded_data_runs_through_the_existing_graph_without_actions",
-   "line": 87,
-   "docstring": "",
-   "parametrized": false,
-   "fixtures": [
-    "monkeypatch"
-   ],
-   "assertions": 13,
-   "assert_forms": {
-    "call_truthiness": 2,
-    "equality": 4,
-    "identity_constant": 1,
-    "is_none": 3,
-    "membership": 2,
-    "negation": 1
-   },
-   "raises_checks": 0,
-   "uses": [
-    "monkeypatch"
-   ],
-   "quality_flags": [
-    "patches_dependencies"
-   ],
-   "claims": "recorded data runs through the existing graph without actions",
-   "execution_outcome": "passed",
-   "exercises": [
-    "capstone.agent.evidence_brief:observations",
-    "capstone.agent.evidence_brief:verify_numeric_claims",
-    "capstone.agent.investigation:build_graph",
-    "capstone.agent.investigation:build_graph.<locals>.conclude_step",
-    "capstone.agent.investigation:build_graph.<locals>.critique_step",
-    "capstone.agent.investigation:build_graph.<locals>.hypothesize_step",
-    "capstone.agent.investigation:build_graph.<locals>.investigate_step",
-    "capstone.agent.investigation:build_graph.<locals>.manual_step",
-    "capstone.agent.investigation:build_graph.<locals>.observe_step",
-    "capstone.agent.investigation:build_graph.<locals>.plan_step",
-    "capstone.agent.investigation:build_graph.<locals>.propose_step",
-    "capstone.agent.investigation:build_graph.<locals>.recheck_step",
-    "capstone.agent.investigation:build_graph.<locals>.staged",
-    "capstone.agent.investigation:check_conclusion",
-    "capstone.agent.investigation:conclude",
-    "capstone.agent.investigation:conclusion_gaps",
-    "capstone.agent.investigation:consult_manual",
-    "capstone.agent.investigation:critique",
-    "capstone.agent.investigation:gathered_in",
-    "capstone.agent.investigation:hypothesize",
-    "capstone.agent.investigation:investigate",
-    "capstone.agent.investigation:needs_deep_run",
-    "capstone.agent.investigation:observe",
-    "capstone.agent.investigation:plan",
-    "capstone.agent.investigation:propose",
-    "capstone.agent.investigation:recheck",
-    "capstone.agent.investigation:reconsider",
-    "capstone.agent.investigation:run_investigation",
-    "capstone.agent.loop:InvestigationDeps.__post_init__",
-    "capstone.agent.loop:apply_interpretation",
-    "capstone.agent.loop:ask_policy",
-    "capstone.agent.loop:batch_steps",
-    "capstone.agent.loop:call_signature",
-    "capstone.agent.loop:call_tool",
-    "capstone.agent.loop:check_termination",
-    "capstone.agent.loop:gather",
-    "capstone.agent.loop:held_for_hypotheses",
-    "capstone.agent.loop:notify",
-    "capstone.agent.loop:record",
-    "capstone.agent.loop:run_batch"
-   ],
-   "exercise_count": 95,
-   "modules_exercised": [
-    "capstone.agent.evidence_brief",
-    "capstone.agent.investigation",
-    "capstone.agent.loop",
-    "capstone.agent.recorded_state",
-    "capstone.agent.state",
-    "capstone.contracts.investigations",
-    "capstone.contracts.tools",
-    "capstone.ingestion.channel_map",
-    "capstone.ingestion.mtconnect",
-    "capstone.ingestion.record",
-    "capstone.ingestion.time_stats",
-    "capstone.providers.factory",
-    "capstone.providers.replay",
-    "capstone.recorded_investigation",
-    "capstone.settings"
-   ],
-   "judgment": "NOT ASSESSED",
-   "curated": {},
-   "snap_questions": [
-    "TS-01",
-    "TS-02",
-    "TS-03"
-   ]
-  },
-  {
-   "id": "tests/test_recorded_investigation.py::test_replay_rejects_unknown_or_unmapped_machine",
-   "file": "tests/test_recorded_investigation.py",
-   "name": "test_replay_rejects_unknown_or_unmapped_machine",
-   "line": 123,
-   "docstring": "",
-   "parametrized": false,
-   "fixtures": [],
-   "assertions": 0,
-   "assert_forms": {},
-   "raises_checks": 1,
-   "uses": [],
-   "quality_flags": [],
-   "claims": "replay rejects unknown or unmapped machine",
-   "execution_outcome": "passed",
-   "exercises": [
-    "capstone.ingestion.channel_map:_devices",
-    "capstone.ingestion.channel_map:_walk",
-    "capstone.ingestion.channel_map:build_channel_map",
-    "capstone.ingestion.channel_map:parse_probe",
-    "capstone.ingestion.channel_map:probe_hash",
-    "capstone.ingestion.mtconnect:_child",
-    "capstone.ingestion.mtconnect:_local",
-    "capstone.ingestion.record:CollectorMarker.gap_detail_only_on_a_gap",
-    "capstone.ingestion.record:TelemetryRecord.number",
-    "capstone.providers.factory:SimulatorFactoryProvider.__init__",
-    "capstone.providers.factory:research_tools",
-    "capstone.providers.factory:tool_spec",
-    "capstone.providers.replay:RecordedActionTools.__init__",
-    "capstone.providers.replay:RecordedObservationTools.__init__",
-    "capstone.providers.replay:replay_provider",
-    "capstone.recorded_investigation:replay_tool_specs",
-    "capstone.recorded_investigation:run_recorded_investigation"
-   ],
-   "exercise_count": 17,
-   "modules_exercised": [
-    "capstone.ingestion.channel_map",
-    "capstone.ingestion.mtconnect",
-    "capstone.ingestion.record",
-    "capstone.providers.factory",
-    "capstone.providers.replay",
-    "capstone.recorded_investigation"
-   ],
-   "judgment": "NOT ASSESSED",
-   "curated": {},
-   "snap_questions": [
-    "TS-01",
-    "TS-02",
-    "TS-03"
-   ]
-  },
-  {
-   "id": "tests/test_recorded_investigation.py::test_replay_rejects_an_empty_review_request",
-   "file": "tests/test_recorded_investigation.py",
-   "name": "test_replay_rejects_an_empty_review_request",
-   "line": 134,
-   "docstring": "",
-   "parametrized": false,
-   "fixtures": [],
-   "assertions": 0,
-   "assert_forms": {},
-   "raises_checks": 1,
-   "uses": [],
-   "quality_flags": [],
-   "claims": "replay rejects an empty review request",
-   "execution_outcome": "passed",
-   "exercises": [
-    "capstone.ingestion.channel_map:_devices",
-    "capstone.ingestion.channel_map:_walk",
-    "capstone.ingestion.channel_map:build_channel_map",
-    "capstone.ingestion.channel_map:parse_probe",
-    "capstone.ingestion.channel_map:probe_hash",
-    "capstone.ingestion.mtconnect:_child",
-    "capstone.ingestion.mtconnect:_local",
-    "capstone.ingestion.record:CollectorMarker.gap_detail_only_on_a_gap",
-    "capstone.recorded_investigation:run_recorded_investigation"
-   ],
-   "exercise_count": 9,
-   "modules_exercised": [
-    "capstone.ingestion.channel_map",
-    "capstone.ingestion.mtconnect",
-    "capstone.ingestion.record",
-    "capstone.recorded_investigation"
-   ],
-   "judgment": "NOT ASSESSED",
-   "curated": {},
-   "snap_questions": [
-    "TS-01",
-    "TS-02",
-    "TS-03"
-   ]
-  },
-  {
-   "id": "tests/test_recorded_investigation.py::test_cli_requires_explicit_authorization_before_reading_any_capture",
-   "file": "tests/test_recorded_investigation.py",
-   "name": "test_cli_requires_explicit_authorization_before_reading_any_capture",
-   "line": 145,
-   "docstring": "",
-   "parametrized": false,
-   "fixtures": [
-    "capsys"
-   ],
-   "assertions": 2,
-   "assert_forms": {
-    "equality": 1,
-    "membership": 1
-   },
-   "raises_checks": 1,
-   "uses": [],
-   "quality_flags": [],
-   "claims": "cli requires explicit authorization before reading any capture",
-   "execution_outcome": "passed",
-   "exercises": [
-    "capstone.recorded_investigation:main"
-   ],
-   "exercise_count": 1,
-   "modules_exercised": [
-    "capstone.recorded_investigation"
-   ],
-   "judgment": "NOT ASSESSED",
-   "curated": {},
-   "snap_questions": [
-    "TS-01",
-    "TS-02",
-    "TS-03"
-   ]
-  },
-  {
-   "id": "tests/test_recorded_investigation.py::test_cli_refuses_to_write_confidential_review_inside_a_checkout",
-   "file": "tests/test_recorded_investigation.py",
-   "name": "test_cli_refuses_to_write_confidential_review_inside_a_checkout",
-   "line": 167,
-   "docstring": "",
-   "parametrized": false,
-   "fixtures": [
-    "tmp_path",
-    "capsys"
-   ],
-   "assertions": 2,
-   "assert_forms": {
-    "equality": 1,
-    "membership": 1
-   },
-   "raises_checks": 1,
-   "uses": [],
-   "quality_flags": [],
-   "claims": "cli refuses to write confidential review inside a checkout",
-   "execution_outcome": "passed",
-   "exercises": [
-    "capstone.ingestion.privacy:git_checkout_containing",
-    "capstone.ingestion.privacy:refusal",
-    "capstone.recorded_investigation:main"
-   ],
-   "exercise_count": 3,
-   "modules_exercised": [
-    "capstone.ingestion.privacy",
-    "capstone.recorded_investigation"
    ],
    "judgment": "NOT ASSESSED",
    "curated": {},

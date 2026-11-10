@@ -160,6 +160,7 @@ GROUPS: dict[str, list[str]] = {
         "recorded_investigation",
         "replay_investigation",
         "pilot_preflight",
+        "pilot_acceptance",
     ],
 }
 
