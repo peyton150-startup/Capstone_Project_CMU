@@ -27,13 +27,13 @@ from datetime import datetime
 from pathlib import Path
 from time import monotonic
 
-from capstone.agent.artifacts import DetectedAnomaly
 from capstone.agent.investigation import run_investigation
+from capstone.agent.recorded_state import make_recorded_state
 from capstone.agent.loop import InvestigationDeps
 from capstone.agent.model_policy import ModelPolicy
 from capstone.agent.policy import ReasoningPolicy
-from capstone.agent.state import Budgets, InvestigationState, triage_budgets
-from capstone.contracts.investigations import investigation_id_for, run_id_for
+from capstone.agent.state import Budgets, InvestigationState
+from capstone.contracts.investigations import run_id_for
 from capstone.contracts.tools import ToolSpec
 from capstone.ingestion.channel_map import ChannelMap, check_capture, read_capture
 from capstone.ingestion.privacy import refusal
@@ -159,7 +159,7 @@ def run_recorded_investigation(
     #   provider: The real-data FactoryProvider; all action methods refuse changes.
     #   look: Its recorded observations, which own the replay cutoff and time axis.
     #   state: A fresh TRIAGE investigation, so no proposal or execution stage runs.
-    #   deps: Graph dependencies with line screening disabled; no simulator truth.
+    #   deps: Graph dependencies with no live controller or simulator truth.
     if not description.strip():
         raise ValueError("a nonempty operator observation is required")
     provider = replay_provider(lines, channel_map, tick_seconds=tick_seconds, now=now)
@@ -182,18 +182,12 @@ def run_recorded_investigation(
 
     settings = get_settings()
     run_id = run_id_for(f"replay/{machine_id}/{look.now.isoformat()}/{description}")
-    state = InvestigationState(
-        run_id=run_id,
-        investigation_id=investigation_id_for(run_id, 1),
-        anomaly=DetectedAnomaly(
-            tick=look.tick_of(look.now),
-            machine_id=machine_id,
-            kind="operator_review",
-            description=description,
-        ),
-        budgets=budgets or triage_budgets(),
-        mode="triage",
-        line_context_enabled=False,
+    state = make_recorded_state(
+        run_id,
+        machine_id=machine_id,
+        description=description,
+        tick=look.tick_of(look.now),
+        budgets=budgets,
         stage_context=settings.stage_context,
         state_action_bar=settings.state_action_bar,
     )
@@ -216,7 +210,6 @@ def run_recorded_investigation(
         decide_calls=decide_calls,
         min_action_confidence=settings.min_action_confidence,
         state_action_bar=settings.state_action_bar,
-        screening_enabled=False,
     )
     return run_investigation(state, deps)
 
