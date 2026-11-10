@@ -162,7 +162,7 @@ def run_recorded_investigation(
         raise ValueError("a confirmed machine and an operator symptom are required")
     provider = replay_provider(lines, channel_map, now=cutoff)
     now = provider._observations.now
-    tools = recorded_tool_specs(lines, channel_map, cutoff=now)
+    recorded_tool_specs(lines, channel_map, cutoff=now)
     mapped = {
         entry.device
         for entry in channel_map.entries
