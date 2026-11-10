@@ -107,6 +107,12 @@ def assess_pilot(
         blockers.append("approve a field list and data-use boundary")
     if manifest.access_method == "mtconnect" and manifest.approved_poll_seconds is None:
         blockers.append("approve controller-safe poll rate with IT/OT")
+    if (
+        manifest.access_method == "mtconnect"
+        and manifest.approved_poll_seconds is not None
+        and manifest.approved_poll_seconds < 1
+    ):
+        blockers.append("collector rejects rates faster than one second")
     if not manifest.data_storage_location or not manifest.retention_days:
         blockers.append("agree on local storage and retention/deletion policy")
     if not manifest.revocation_contact:
