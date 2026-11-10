@@ -68,10 +68,14 @@ class Shift:
 
     @property
     def change(self) -> float:
+        """The signed movement from the baseline rate to this batch's rate."""
         return self.now - self.baseline
 
 
 def share(part: int, whole: int) -> float | None:
+    """Return a proportion, or None when no observations define it."""
+    # Variables:
+    #   whole: The eligible observations; zero means the rate is unavailable.
     return part / whole if whole else None
 
 
@@ -80,10 +84,13 @@ def batch_rates(name: str, records: Sequence) -> BatchRates:
     # Variables:
     #   runs: The records where a model answered; the others are left out.
     #   asked: Runs where the model's own recommendation was "intervene".
+    #   lowered: Intervention requests changed to escalation by the final check.
     #   decided: Every approved or rejected proposal status across the runs.
     #   confident: The stated confidences, from runs that gave one.
     #   judged: Runs whose diagnosis has been labelled and that gave a confidence,
     #     the only ones calibration can be measured on.
+    #   calibration: Mean stated confidence minus the correct-diagnosis share;
+    #     absent when no run has both a label and a confidence.
     runs = [r for r in records if r.score.termination_reason != MODEL_UNAVAILABLE]
     asked = [r for r in runs if r.policy_recommendation == "intervene"]
     lowered = sum(r.recommendation_lowered is not None for r in asked)
@@ -126,6 +133,8 @@ def shifts(
     # Variables:
     #   before, now: One rate in the baseline and in the later batch; a rate
     #     either batch could not compute is skipped, never treated as zero.
+    #   threshold: The largest absolute rate change that is not flagged.
+    #   found: The shifts exceeding that threshold, returned for reporting.
     found = []
     for batch in later:
         for metric in METRICS:
@@ -138,6 +147,7 @@ def shifts(
 
 
 def shown(value: float | None) -> str:
+    """Format a rate for the table, using a dash when it is unavailable."""
     return "-" if value is None else f"{value:+.2f}" if value < 0 else f"{value:.2f}"
 
 
@@ -147,6 +157,8 @@ def format_report(
     """A table of every batch's rates, then the flagged shifts."""
     # Variables:
     #   width: The widest batch name, so the columns line up.
+    #   lines: The table and any drift findings, returned as one report.
+    #   found: Only shifts exceeding the threshold; an empty list gets a quiet summary.
     width = max(len("batch"), *(len(b.name) for b in batches))
     lines = [
         f"{'batch':<{width}}  runs  " + "  ".join(METRICS),
@@ -168,6 +180,7 @@ def format_report(
 def main(argv: Sequence[str] | None = None) -> int:
     """Read the results files, print the rates and the shifts. Exit 1 if any drifted."""
     # Variables:
+    #   args: The selected files, threshold and output format from the command line.
     #   batches: The rates for each file, the first being the baseline.
     #   found: The rates that moved more than the threshold.
     from capstone.experiment import read_records  # heavy; only the CLI needs it
