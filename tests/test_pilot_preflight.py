@@ -19,6 +19,7 @@ def approved_plan(**changes):
         controller_model="Fixture controller",
         controller_software="Fixture revision",
         read_only_method="approved offline MTConnect fixture export",
+        collection_scope="approved_pre_filtered_export",
         manager_approver="authorized manager",
         it_ot_approver="authorized OT contact",
         written_approval_reference="private signed-document location",
