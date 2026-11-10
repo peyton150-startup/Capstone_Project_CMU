@@ -1,5 +1,18 @@
 # Progress Log
 
+> **2026-11-10 — full-project live SNAP pass (evaluation evidence only; developer review pending):**
+> On clean `main` commit `345f9d3`, Codex completed the full 2,965-request
+> SNAP plan across all five rubric families and three historical archives.
+> The 9,726 ledger rows are 8,126 answered, 258 not applicable and 1,342
+> unknown. All charge reservations settled; measured cost was $0.28799644
+> under a $2 cap. The developer-endorsed 44-answer independent reference
+> agreed on 27 and disagreed on 17, including 13 RUN disagreements across
+> two reviewed traces. Results are **exploratory and uncalibrated**; this
+> does not validate a treatment effect or real-machine readiness. The
+> aggregate report, ledger, scope and limitations are in
+> `docs/benchmarks/2026-11-10-snap-full-main/`. No evaluator or agent code
+> changed; implementation understanding is unchanged.
+
 > **2026-11-10 — SNAP calibration pair archived for full-project offline scope (docs/evidence only):**
 > The new treatment master run finished with 13 records and matching audits;
 > its paired baseline has 10. All 23 packets validate, with no refusals, but

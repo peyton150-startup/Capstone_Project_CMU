@@ -162,5 +162,9 @@ It will **not** establish comprehensive functional correctness, live
 machine reliability, model calibration, causal improvement, or 100%
 statement/branch coverage. Keep those evidence categories separate.
 
-**Status:** offline pipeline validation is enforced by CI; the paid SNAP
-run and independent reference calibration are deliberately left for later.
+**Status:** the full paid SNAP pass completed on `main` commit `345f9d3`
+with an independently frozen 44-answer reference. See
+`docs/benchmarks/2026-11-10-snap-full-main/`. The 27/44 agreement leaves
+the judge **uncalibrated**; investigate the 17 disagreements before using
+its judgments as an acceptance gate. CI continues to enforce the offline
+pipeline.
