@@ -1,6 +1,8 @@
 """Pilot preflight acceptance on synthetic fixtures, never a real shop controller."""
 
 from datetime import timedelta
+from pathlib import Path
+from tempfile import TemporaryDirectory
 
 from capstone.ingestion.pilot_preflight import PilotPlan, check_pilot, main
 from capstone.ingestion.visit_log import TechnicianEvent
@@ -154,9 +156,12 @@ def test_seven_day_work_needs_distinct_permission_and_operational_plan():
     assert any("NOT seven days of observed uptime" in item for item in report.warnings)
 
 
-def test_private_template_starts_unapproved_and_does_not_overwrite(tmp_path):
-    path = tmp_path / "private-plan.json"
-    assert main(["template", "--out", str(path)]) == 0
-    plan = PilotPlan.model_validate_json(path.read_text(encoding="utf-8"))
-    assert not plan.capture_authorized
-    assert not plan.seven_day_capture_authorized
+def test_private_template_starts_unapproved_and_does_not_overwrite():
+    # The repository intentionally keeps pytest's tmp_path inside its checkout.
+    # A real private plan must be created outside that checkout instead.
+    with TemporaryDirectory() as directory:
+        path = Path(directory) / "private-plan.json"
+        assert main(["template", "--out", str(path)]) == 0
+        plan = PilotPlan.model_validate_json(path.read_text(encoding="utf-8"))
+        assert not plan.capture_authorized
+        assert not plan.seven_day_capture_authorized
