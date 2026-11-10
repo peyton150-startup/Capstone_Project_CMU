@@ -596,3 +596,22 @@ repository, with separate jobs:
 
 Everything else in this file applies to both: one live run at a time, every
 change through a pull request (§11), and the developer's gates (§1).
+
+---
+
+## 13. Watchdogs for long-running processes
+
+**Rule set by the developer, 2026-11-10.** For any process expected to run
+longer than five minutes, assign a watchdog before starting it. This applies
+to live evaluations, CI, test suites, data processing and other long jobs.
+The watchdog monitors the process and reports completion, failure or a
+decision that needs the developer; the main agent should not repeatedly
+poll or spend usage while the process is unchanged.
+
+Use bounded runs or smaller batches when the tool supports them, especially
+for paid requests. Save progress and costs so an interrupted run can resume
+without repeating completed work. Check status at sensible intervals and
+send the developer updates only for meaningful progress or a required action.
+Keep the one-live-run-at-a-time rule in §12. A watchdog does not authorize
+retrying an uncertain charge, bypassing a failure, or merging before CI is
+green.
