@@ -644,6 +644,7 @@
     "capstone.ingestion.channel_map:_walk",
     "capstone.ingestion.mtconnect:parse_streams",
     "capstone.ingestion.mtconnect:raise_if_error",
+    "capstone.ingestion.pilot_acceptance:assess_pilot",
     "capstone.ingestion.quality:unavailable_spans",
     "capstone.ingestion.quality:unavailable_spans.<locals>.close_all",
     "capstone.ingestion.record:gap_free_runs",
@@ -664,8 +665,7 @@
     "capstone.progress:call_lines",
     "capstone.progress:run_header",
     "capstone.progress:step_line",
-    "capstone.providers.chat:FallbackClient.ask",
-    "capstone.providers.chat:chain_for"
+    "capstone.providers.chat:FallbackClient.ask"
    ],
    "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
    "contract_specified": false,
@@ -33293,18 +33293,24 @@
    "is_stub": false,
    "mutates_parameters": [],
    "static_callers": [
-    "capstone.ingestion.channel_map:main"
+    "capstone.ingestion.channel_map:main",
+    "capstone.ingestion.pilot_acceptance:assess_pilot"
    ],
    "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
    "contract_specified": true,
    "executed_in_tests": true,
-   "test_count": 2,
+   "test_count": 6,
    "direct_tests": [
     "tests/test_channel_map.py::test_a_map_refuses_a_probe_from_a_changed_controller",
     "tests/test_channel_map.py::test_command_line_builds_checks_and_records_reported_channels"
    ],
-   "indirect_tests": [],
-   "indirect_test_count": 0,
+   "indirect_tests": [
+    "tests/test_pilot_acceptance.py::test_an_extra_unapproved_channel_blocks_acceptance",
+    "tests/test_pilot_acceptance.py::test_gaps_must_be_reviewed",
+    "tests/test_pilot_acceptance.py::test_no_future_collection_permission_is_not_accepted",
+    "tests/test_pilot_acceptance.py::test_validated_probe_map_capture_operator_note_and_permission_are_required"
+   ],
+   "indirect_test_count": 4,
    "statements_executed": 3,
    "statements_in_body": 3,
    "statement_coverage": 1.0,
@@ -33437,13 +33443,18 @@
    "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
    "contract_specified": true,
    "executed_in_tests": true,
-   "test_count": 2,
+   "test_count": 6,
    "direct_tests": [
     "tests/test_channel_map.py::test_command_line_builds_checks_and_records_reported_channels",
     "tests/test_channel_map.py::test_every_observation_maps_to_one_entry_or_is_reported_unmapped"
    ],
-   "indirect_tests": [],
-   "indirect_test_count": 0,
+   "indirect_tests": [
+    "tests/test_pilot_acceptance.py::test_an_extra_unapproved_channel_blocks_acceptance",
+    "tests/test_pilot_acceptance.py::test_gaps_must_be_reviewed",
+    "tests/test_pilot_acceptance.py::test_no_future_collection_permission_is_not_accepted",
+    "tests/test_pilot_acceptance.py::test_validated_probe_map_capture_operator_note_and_permission_are_required"
+   ],
+   "indirect_test_count": 4,
    "statements_executed": 1,
    "statements_in_body": 1,
    "statement_coverage": 1.0,
@@ -33493,7 +33504,7 @@
    "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
    "contract_specified": true,
    "executed_in_tests": true,
-   "test_count": 19,
+   "test_count": 24,
    "direct_tests": [
     "tests/test_channel_map.py::test_a_map_refuses_a_probe_from_a_changed_controller",
     "tests/test_channel_map.py::test_a_record_that_disagrees_with_its_entry_is_reported",
@@ -33505,6 +33516,11 @@
     "tests/test_channel_map.py::test_the_hash_ignores_the_header_and_formatting_but_not_a_channel_change"
    ],
    "indirect_tests": [
+    "tests/test_pilot_acceptance.py::test_a_non_mtconnect_controller_is_not_faked_as_supported",
+    "tests/test_pilot_acceptance.py::test_an_extra_unapproved_channel_blocks_acceptance",
+    "tests/test_pilot_acceptance.py::test_gaps_must_be_reviewed",
+    "tests/test_pilot_acceptance.py::test_no_future_collection_permission_is_not_accepted",
+    "tests/test_pilot_acceptance.py::test_validated_probe_map_capture_operator_note_and_permission_are_required",
     "tests/test_replay_provider.py::test_a_bad_setup_is_refused",
     "tests/test_replay_provider.py::test_a_machine_without_an_execution_value_is_not_guessed",
     "tests/test_replay_provider.py::test_an_unmapped_sensor_or_machine_is_refused_not_answered_empty",
@@ -33517,7 +33533,7 @@
     "tests/test_replay_provider.py::test_the_trend_is_time_weighted_and_never_spans_the_gap",
     "tests/test_replay_provider.py::test_time_runs_from_the_first_observation_in_one_minute_ticks"
    ],
-   "indirect_test_count": 11,
+   "indirect_test_count": 16,
    "statements_executed": 4,
    "statements_in_body": 4,
    "statement_coverage": 1.0,
@@ -33565,7 +33581,7 @@
    "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
    "contract_specified": true,
    "executed_in_tests": true,
-   "test_count": 23,
+   "test_count": 28,
    "direct_tests": [
     "tests/test_channel_map.py::test_a_map_refuses_a_probe_from_a_changed_controller",
     "tests/test_channel_map.py::test_a_record_that_disagrees_with_its_entry_is_reported",
@@ -33578,6 +33594,11 @@
     "tests/test_channel_map.py::test_reported_records_which_channels_held_a_value"
    ],
    "indirect_tests": [
+    "tests/test_pilot_acceptance.py::test_a_non_mtconnect_controller_is_not_faked_as_supported",
+    "tests/test_pilot_acceptance.py::test_an_extra_unapproved_channel_blocks_acceptance",
+    "tests/test_pilot_acceptance.py::test_gaps_must_be_reviewed",
+    "tests/test_pilot_acceptance.py::test_no_future_collection_permission_is_not_accepted",
+    "tests/test_pilot_acceptance.py::test_validated_probe_map_capture_operator_note_and_permission_are_required",
     "tests/test_replay_provider.py::test_a_bad_setup_is_refused",
     "tests/test_replay_provider.py::test_a_machine_without_an_execution_value_is_not_guessed",
     "tests/test_replay_provider.py::test_an_unmapped_sensor_or_machine_is_refused_not_answered_empty",
@@ -33593,7 +33614,7 @@
     "tests/test_visit_log.py::test_a_visit_with_probe_data_and_a_matched_log_is_ready",
     "tests/test_visit_log.py::test_command_line_checks_a_visit"
    ],
-   "indirect_test_count": 14,
+   "indirect_test_count": 19,
    "statements_executed": 6,
    "statements_in_body": 7,
    "statement_coverage": 0.857,
@@ -33645,7 +33666,7 @@
    "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
    "contract_specified": true,
    "executed_in_tests": true,
-   "test_count": 18,
+   "test_count": 23,
    "direct_tests": [
     "tests/test_channel_map.py::test_a_map_refuses_a_probe_from_a_changed_controller",
     "tests/test_channel_map.py::test_a_record_that_disagrees_with_its_entry_is_reported",
@@ -33656,6 +33677,11 @@
     "tests/test_channel_map.py::test_reported_records_which_channels_held_a_value"
    ],
    "indirect_tests": [
+    "tests/test_pilot_acceptance.py::test_a_non_mtconnect_controller_is_not_faked_as_supported",
+    "tests/test_pilot_acceptance.py::test_an_extra_unapproved_channel_blocks_acceptance",
+    "tests/test_pilot_acceptance.py::test_gaps_must_be_reviewed",
+    "tests/test_pilot_acceptance.py::test_no_future_collection_permission_is_not_accepted",
+    "tests/test_pilot_acceptance.py::test_validated_probe_map_capture_operator_note_and_permission_are_required",
     "tests/test_replay_provider.py::test_a_bad_setup_is_refused",
     "tests/test_replay_provider.py::test_a_machine_without_an_execution_value_is_not_guessed",
     "tests/test_replay_provider.py::test_an_unmapped_sensor_or_machine_is_refused_not_answered_empty",
@@ -33668,7 +33694,7 @@
     "tests/test_replay_provider.py::test_the_trend_is_time_weighted_and_never_spans_the_gap",
     "tests/test_replay_provider.py::test_time_runs_from_the_first_observation_in_one_minute_ticks"
    ],
-   "indirect_test_count": 11,
+   "indirect_test_count": 16,
    "statements_executed": 6,
    "statements_in_body": 6,
    "statement_coverage": 1.0,
@@ -33715,20 +33741,26 @@
    "is_stub": false,
    "mutates_parameters": [],
    "static_callers": [
-    "capstone.ingestion.channel_map:main"
+    "capstone.ingestion.channel_map:main",
+    "capstone.ingestion.pilot_acceptance:assess_pilot"
    ],
    "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
    "contract_specified": true,
    "executed_in_tests": true,
-   "test_count": 4,
+   "test_count": 8,
    "direct_tests": [
     "tests/test_channel_map.py::test_a_record_that_disagrees_with_its_entry_is_reported",
     "tests/test_channel_map.py::test_command_line_builds_checks_and_records_reported_channels",
     "tests/test_channel_map.py::test_every_observation_maps_to_one_entry_or_is_reported_unmapped",
     "tests/test_channel_map.py::test_reported_records_which_channels_held_a_value"
    ],
-   "indirect_tests": [],
-   "indirect_test_count": 0,
+   "indirect_tests": [
+    "tests/test_pilot_acceptance.py::test_an_extra_unapproved_channel_blocks_acceptance",
+    "tests/test_pilot_acceptance.py::test_gaps_must_be_reviewed",
+    "tests/test_pilot_acceptance.py::test_no_future_collection_permission_is_not_accepted",
+    "tests/test_pilot_acceptance.py::test_validated_probe_map_capture_operator_note_and_permission_are_required"
+   ],
+   "indirect_test_count": 4,
    "statements_executed": 22,
    "statements_in_body": 22,
    "statement_coverage": 1.0,
@@ -33776,7 +33808,7 @@
    "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
    "contract_specified": true,
    "executed_in_tests": true,
-   "test_count": 24,
+   "test_count": 29,
    "direct_tests": [
     "tests/test_channel_map.py::test_a_map_refuses_a_probe_from_a_changed_controller",
     "tests/test_channel_map.py::test_a_record_that_disagrees_with_its_entry_is_reported",
@@ -33790,6 +33822,11 @@
     "tests/test_channel_map.py::test_the_hash_ignores_the_header_and_formatting_but_not_a_channel_change"
    ],
    "indirect_tests": [
+    "tests/test_pilot_acceptance.py::test_a_non_mtconnect_controller_is_not_faked_as_supported",
+    "tests/test_pilot_acceptance.py::test_an_extra_unapproved_channel_blocks_acceptance",
+    "tests/test_pilot_acceptance.py::test_gaps_must_be_reviewed",
+    "tests/test_pilot_acceptance.py::test_no_future_collection_permission_is_not_accepted",
+    "tests/test_pilot_acceptance.py::test_validated_probe_map_capture_operator_note_and_permission_are_required",
     "tests/test_replay_provider.py::test_a_bad_setup_is_refused",
     "tests/test_replay_provider.py::test_a_machine_without_an_execution_value_is_not_guessed",
     "tests/test_replay_provider.py::test_an_unmapped_sensor_or_machine_is_refused_not_answered_empty",
@@ -33805,7 +33842,7 @@
     "tests/test_visit_log.py::test_a_visit_with_probe_data_and_a_matched_log_is_ready",
     "tests/test_visit_log.py::test_command_line_checks_a_visit"
    ],
-   "indirect_test_count": 14,
+   "indirect_test_count": 19,
    "statements_executed": 5,
    "statements_in_body": 6,
    "statement_coverage": 0.833,
@@ -33858,7 +33895,7 @@
    "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
    "contract_specified": true,
    "executed_in_tests": true,
-   "test_count": 22,
+   "test_count": 27,
    "direct_tests": [
     "tests/test_channel_map.py::test_a_map_refuses_a_probe_from_a_changed_controller",
     "tests/test_channel_map.py::test_a_record_that_disagrees_with_its_entry_is_reported",
@@ -33870,6 +33907,11 @@
     "tests/test_channel_map.py::test_reported_records_which_channels_held_a_value"
    ],
    "indirect_tests": [
+    "tests/test_pilot_acceptance.py::test_a_non_mtconnect_controller_is_not_faked_as_supported",
+    "tests/test_pilot_acceptance.py::test_an_extra_unapproved_channel_blocks_acceptance",
+    "tests/test_pilot_acceptance.py::test_gaps_must_be_reviewed",
+    "tests/test_pilot_acceptance.py::test_no_future_collection_permission_is_not_accepted",
+    "tests/test_pilot_acceptance.py::test_validated_probe_map_capture_operator_note_and_permission_are_required",
     "tests/test_replay_provider.py::test_a_bad_setup_is_refused",
     "tests/test_replay_provider.py::test_a_machine_without_an_execution_value_is_not_guessed",
     "tests/test_replay_provider.py::test_an_unmapped_sensor_or_machine_is_refused_not_answered_empty",
@@ -33885,7 +33927,7 @@
     "tests/test_visit_log.py::test_a_visit_with_probe_data_and_a_matched_log_is_ready",
     "tests/test_visit_log.py::test_command_line_checks_a_visit"
    ],
-   "indirect_test_count": 14,
+   "indirect_test_count": 19,
    "statements_executed": 9,
    "statements_in_body": 11,
    "statement_coverage": 0.818,
@@ -33936,15 +33978,20 @@
    "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
    "contract_specified": true,
    "executed_in_tests": true,
-   "test_count": 4,
+   "test_count": 8,
    "direct_tests": [
     "tests/test_channel_map.py::test_a_record_that_disagrees_with_its_entry_is_reported",
     "tests/test_channel_map.py::test_command_line_builds_checks_and_records_reported_channels",
     "tests/test_channel_map.py::test_every_observation_maps_to_one_entry_or_is_reported_unmapped",
     "tests/test_channel_map.py::test_reported_records_which_channels_held_a_value"
    ],
-   "indirect_tests": [],
-   "indirect_test_count": 0,
+   "indirect_tests": [
+    "tests/test_pilot_acceptance.py::test_an_extra_unapproved_channel_blocks_acceptance",
+    "tests/test_pilot_acceptance.py::test_gaps_must_be_reviewed",
+    "tests/test_pilot_acceptance.py::test_no_future_collection_permission_is_not_accepted",
+    "tests/test_pilot_acceptance.py::test_validated_probe_map_capture_operator_note_and_permission_are_required"
+   ],
+   "indirect_test_count": 4,
    "statements_executed": 12,
    "statements_in_body": 12,
    "statement_coverage": 1.0,
@@ -33987,15 +34034,20 @@
    "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
    "contract_specified": true,
    "executed_in_tests": true,
-   "test_count": 4,
+   "test_count": 8,
    "direct_tests": [
     "tests/test_channel_map.py::test_a_record_that_disagrees_with_its_entry_is_reported",
     "tests/test_channel_map.py::test_command_line_builds_checks_and_records_reported_channels",
     "tests/test_channel_map.py::test_every_observation_maps_to_one_entry_or_is_reported_unmapped",
     "tests/test_channel_map.py::test_reported_records_which_channels_held_a_value"
    ],
-   "indirect_tests": [],
-   "indirect_test_count": 0,
+   "indirect_tests": [
+    "tests/test_pilot_acceptance.py::test_an_extra_unapproved_channel_blocks_acceptance",
+    "tests/test_pilot_acceptance.py::test_gaps_must_be_reviewed",
+    "tests/test_pilot_acceptance.py::test_no_future_collection_permission_is_not_accepted",
+    "tests/test_pilot_acceptance.py::test_validated_probe_map_capture_operator_note_and_permission_are_required"
+   ],
+   "indirect_test_count": 4,
    "statements_executed": 6,
    "statements_in_body": 6,
    "statement_coverage": 1.0,
@@ -34089,6 +34141,7 @@
    "mutates_parameters": [],
    "static_callers": [
     "capstone.ingestion.channel_map:main",
+    "capstone.ingestion.pilot_acceptance:main",
     "capstone.ingestion.quality:main",
     "capstone.ingestion.visit_log:main"
    ],
@@ -34863,7 +34916,7 @@
    "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
    "contract_specified": true,
    "executed_in_tests": true,
-   "test_count": 48,
+   "test_count": 53,
    "direct_tests": [],
    "indirect_tests": [
     "tests/test_channel_map.py::test_a_map_refuses_a_probe_from_a_changed_controller",
@@ -34900,6 +34953,11 @@
     "tests/test_mtconnect_ingestion.py::test_sample_drops_records_already_seen",
     "tests/test_mtconnect_ingestion.py::test_the_gap_marker_is_written_between_the_readings_it_separates",
     "tests/test_mtconnect_ingestion.py::test_unavailable_stays_missing_and_is_never_zero",
+    "tests/test_pilot_acceptance.py::test_a_non_mtconnect_controller_is_not_faked_as_supported",
+    "tests/test_pilot_acceptance.py::test_an_extra_unapproved_channel_blocks_acceptance",
+    "tests/test_pilot_acceptance.py::test_gaps_must_be_reviewed",
+    "tests/test_pilot_acceptance.py::test_no_future_collection_permission_is_not_accepted",
+    "tests/test_pilot_acceptance.py::test_validated_probe_map_capture_operator_note_and_permission_are_required",
     "tests/test_replay_provider.py::test_a_bad_setup_is_refused",
     "tests/test_replay_provider.py::test_a_machine_without_an_execution_value_is_not_guessed",
     "tests/test_replay_provider.py::test_an_unmapped_sensor_or_machine_is_refused_not_answered_empty",
@@ -34915,7 +34973,7 @@
     "tests/test_visit_log.py::test_a_visit_with_probe_data_and_a_matched_log_is_ready",
     "tests/test_visit_log.py::test_command_line_checks_a_visit"
    ],
-   "indirect_test_count": 48,
+   "indirect_test_count": 53,
    "statements_executed": 1,
    "statements_in_body": 1,
    "statement_coverage": 1.0,
@@ -34961,7 +35019,7 @@
    "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
    "contract_specified": true,
    "executed_in_tests": true,
-   "test_count": 47,
+   "test_count": 52,
    "direct_tests": [],
    "indirect_tests": [
     "tests/test_channel_map.py::test_a_map_refuses_a_probe_from_a_changed_controller",
@@ -34997,6 +35055,11 @@
     "tests/test_mtconnect_ingestion.py::test_sample_drops_records_already_seen",
     "tests/test_mtconnect_ingestion.py::test_the_gap_marker_is_written_between_the_readings_it_separates",
     "tests/test_mtconnect_ingestion.py::test_unavailable_stays_missing_and_is_never_zero",
+    "tests/test_pilot_acceptance.py::test_a_non_mtconnect_controller_is_not_faked_as_supported",
+    "tests/test_pilot_acceptance.py::test_an_extra_unapproved_channel_blocks_acceptance",
+    "tests/test_pilot_acceptance.py::test_gaps_must_be_reviewed",
+    "tests/test_pilot_acceptance.py::test_no_future_collection_permission_is_not_accepted",
+    "tests/test_pilot_acceptance.py::test_validated_probe_map_capture_operator_note_and_permission_are_required",
     "tests/test_replay_provider.py::test_a_bad_setup_is_refused",
     "tests/test_replay_provider.py::test_a_machine_without_an_execution_value_is_not_guessed",
     "tests/test_replay_provider.py::test_an_unmapped_sensor_or_machine_is_refused_not_answered_empty",
@@ -35012,7 +35075,7 @@
     "tests/test_visit_log.py::test_a_visit_with_probe_data_and_a_matched_log_is_ready",
     "tests/test_visit_log.py::test_command_line_checks_a_visit"
    ],
-   "indirect_test_count": 47,
+   "indirect_test_count": 52,
    "statements_executed": 4,
    "statements_in_body": 4,
    "statement_coverage": 1.0,
@@ -35330,6 +35393,141 @@
    ]
   },
   {
+   "id": "capstone.ingestion.pilot_acceptance:assess_pilot",
+   "module": "capstone.ingestion.pilot_acceptance",
+   "file": "capstone-code/capstone/ingestion/pilot_acceptance.py",
+   "line": 76,
+   "end_line": 203,
+   "name": "assess_pilot",
+   "qualname": "assess_pilot",
+   "kind": "function",
+   "signature": "manifest: PilotManifest, *, probe: str | None=None, mapping: ChannelMap | None=None, capture: Sequence[Line] | None=None, events: Sequence[TechnicianEvent] | None=None -> PilotAcceptance",
+   "purpose": "Check site prerequisites and evidence; never infer an unknown controller.",
+   "docstring": "Check site prerequisites and evidence; never infer an unknown controller.",
+   "has_variable_block": true,
+   "decorators": [],
+   "raises": [],
+   "catches": [
+    "ValueError"
+   ],
+   "calls": [
+    "PilotAcceptance",
+    "append",
+    "check_capture",
+    "check_visit",
+    "isinstance",
+    "len",
+    "set",
+    "sum",
+    "verify_probe"
+   ],
+   "side_effect_hints": [],
+   "statements": 66,
+   "is_stub": false,
+   "mutates_parameters": [],
+   "static_callers": [
+    "capstone.ingestion.pilot_acceptance:main"
+   ],
+   "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
+   "contract_specified": true,
+   "executed_in_tests": true,
+   "test_count": 8,
+   "direct_tests": [
+    "tests/test_pilot_acceptance.py::test_a_non_mtconnect_controller_is_not_faked_as_supported",
+    "tests/test_pilot_acceptance.py::test_an_extra_unapproved_channel_blocks_acceptance",
+    "tests/test_pilot_acceptance.py::test_an_unknown_controller_is_a_blocker_not_a_default_to_haas",
+    "tests/test_pilot_acceptance.py::test_cli_reports_blockers_without_live_network_or_a_model",
+    "tests/test_pilot_acceptance.py::test_gaps_must_be_reviewed",
+    "tests/test_pilot_acceptance.py::test_missing_capture_does_not_become_a_verified_visit",
+    "tests/test_pilot_acceptance.py::test_no_future_collection_permission_is_not_accepted",
+    "tests/test_pilot_acceptance.py::test_validated_probe_map_capture_operator_note_and_permission_are_required"
+   ],
+   "indirect_tests": [],
+   "indirect_test_count": 0,
+   "statements_executed": 56,
+   "statements_in_body": 66,
+   "statement_coverage": 0.848,
+   "coverage_class": "direct",
+   "verification_status": "PARTIALLY VERIFIED",
+   "status_source": "derived",
+   "curated": {},
+   "snap_questions": [
+    "FN-01",
+    "FN-02",
+    "FN-03"
+   ]
+  },
+  {
+   "id": "capstone.ingestion.pilot_acceptance:main",
+   "module": "capstone.ingestion.pilot_acceptance",
+   "file": "capstone-code/capstone/ingestion/pilot_acceptance.py",
+   "line": 206,
+   "end_line": 257,
+   "name": "main",
+   "qualname": "main",
+   "kind": "function",
+   "signature": "argv: Sequence[str] | None=None -> int",
+   "purpose": "Write a private manifest template or an evidence-based acceptance report.",
+   "docstring": "Write a private manifest template or an evidence-based acceptance report.",
+   "has_variable_block": true,
+   "decorators": [],
+   "raises": [],
+   "catches": [
+    "OSError, ValueError"
+   ],
+   "calls": [
+    "ArgumentParser",
+    "PilotManifest",
+    "add_argument",
+    "add_parser",
+    "add_subparsers",
+    "assess_pilot",
+    "error",
+    "exists",
+    "len",
+    "load_event_log",
+    "model_dump_json",
+    "model_validate_json",
+    "parse_args",
+    "print",
+    "read_capture",
+    "read_text",
+    "refusal",
+    "write_text"
+   ],
+   "side_effect_hints": [
+    "writes_file",
+    "prints"
+   ],
+   "statements": 34,
+   "is_stub": false,
+   "mutates_parameters": [],
+   "static_callers": [],
+   "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
+   "contract_specified": true,
+   "executed_in_tests": true,
+   "test_count": 3,
+   "direct_tests": [
+    "tests/test_pilot_acceptance.py::test_cli_private_template_has_no_pretend_authorization",
+    "tests/test_pilot_acceptance.py::test_cli_refuses_an_output_inside_a_git_checkout",
+    "tests/test_pilot_acceptance.py::test_cli_reports_blockers_without_live_network_or_a_model"
+   ],
+   "indirect_tests": [],
+   "indirect_test_count": 0,
+   "statements_executed": 29,
+   "statements_in_body": 34,
+   "statement_coverage": 0.853,
+   "coverage_class": "direct",
+   "verification_status": "PARTIALLY VERIFIED",
+   "status_source": "derived",
+   "curated": {},
+   "snap_questions": [
+    "FN-01",
+    "FN-02",
+    "FN-03"
+   ]
+  },
+  {
    "id": "capstone.ingestion.privacy:git_checkout_containing",
    "module": "capstone.ingestion.privacy",
    "file": "capstone-code/capstone/ingestion/privacy.py",
@@ -35359,7 +35557,7 @@
    "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
    "contract_specified": true,
    "executed_in_tests": true,
-   "test_count": 6,
+   "test_count": 9,
    "direct_tests": [],
    "indirect_tests": [
     "tests/test_channel_map.py::test_command_line_refuses_to_write_a_map_inside_the_repository",
@@ -35367,9 +35565,12 @@
     "tests/test_mtconnect_ingestion.py::test_a_path_outside_every_checkout_is_allowed",
     "tests/test_mtconnect_ingestion.py::test_monitor_and_watchdog_refuse_alerts_inside_the_repository",
     "tests/test_mtconnect_ingestion.py::test_the_collector_refuses_to_write_inside_the_repository",
+    "tests/test_pilot_acceptance.py::test_cli_private_template_has_no_pretend_authorization",
+    "tests/test_pilot_acceptance.py::test_cli_refuses_an_output_inside_a_git_checkout",
+    "tests/test_pilot_acceptance.py::test_cli_reports_blockers_without_live_network_or_a_model",
     "tests/test_visit_log.py::test_command_line_writes_an_empty_log_outside_the_repository"
    ],
-   "indirect_test_count": 6,
+   "indirect_test_count": 9,
    "statements_executed": 4,
    "statements_in_body": 4,
    "statement_coverage": 1.0,
@@ -35409,6 +35610,7 @@
    "static_callers": [
     "capstone.ingestion.__main__:main",
     "capstone.ingestion.channel_map:main",
+    "capstone.ingestion.pilot_acceptance:main",
     "capstone.ingestion.visit_log:main",
     "capstone.monitoring.__main__:main",
     "capstone.watchdog.__main__:main"
@@ -35416,16 +35618,19 @@
    "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
    "contract_specified": true,
    "executed_in_tests": true,
-   "test_count": 5,
+   "test_count": 8,
    "direct_tests": [],
    "indirect_tests": [
     "tests/test_channel_map.py::test_command_line_refuses_to_write_a_map_inside_the_repository",
     "tests/test_mtconnect_ingestion.py::test_a_path_outside_every_checkout_is_allowed",
     "tests/test_mtconnect_ingestion.py::test_monitor_and_watchdog_refuse_alerts_inside_the_repository",
     "tests/test_mtconnect_ingestion.py::test_the_collector_refuses_to_write_inside_the_repository",
+    "tests/test_pilot_acceptance.py::test_cli_private_template_has_no_pretend_authorization",
+    "tests/test_pilot_acceptance.py::test_cli_refuses_an_output_inside_a_git_checkout",
+    "tests/test_pilot_acceptance.py::test_cli_reports_blockers_without_live_network_or_a_model",
     "tests/test_visit_log.py::test_command_line_writes_an_empty_log_outside_the_repository"
    ],
-   "indirect_test_count": 5,
+   "indirect_test_count": 8,
    "statements_executed": 4,
    "statements_in_body": 4,
    "statement_coverage": 1.0,
@@ -36116,7 +36321,7 @@
    "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
    "contract_specified": true,
    "executed_in_tests": true,
-   "test_count": 47,
+   "test_count": 52,
    "direct_tests": [],
    "indirect_tests": [
     "tests/test_channel_map.py::test_every_observation_maps_to_one_entry_or_is_reported_unmapped",
@@ -36142,6 +36347,11 @@
     "tests/test_mtconnect_ingestion.py::test_run_collector_writes_jsonl_and_survives_failures",
     "tests/test_mtconnect_ingestion.py::test_the_gap_marker_is_written_between_the_readings_it_separates",
     "tests/test_mtconnect_ingestion.py::test_version_1_markers_written_before_gaps_existed_still_read",
+    "tests/test_pilot_acceptance.py::test_a_non_mtconnect_controller_is_not_faked_as_supported",
+    "tests/test_pilot_acceptance.py::test_an_extra_unapproved_channel_blocks_acceptance",
+    "tests/test_pilot_acceptance.py::test_gaps_must_be_reviewed",
+    "tests/test_pilot_acceptance.py::test_no_future_collection_permission_is_not_accepted",
+    "tests/test_pilot_acceptance.py::test_validated_probe_map_capture_operator_note_and_permission_are_required",
     "tests/test_replay_provider.py::test_a_bad_setup_is_refused",
     "tests/test_replay_provider.py::test_an_unmapped_sensor_or_machine_is_refused_not_answered_empty",
     "tests/test_replay_provider.py::test_every_tool_answers_inside_its_contract_or_refuses_cleanly",
@@ -36167,7 +36377,7 @@
     "tests/test_visit_log.py::test_the_report_lists_unmatched_entries_and_the_items_to_confirm_by_hand",
     "tests/test_visit_log.py::test_the_tolerance_allows_for_a_person_noting_the_time_late"
    ],
-   "indirect_test_count": 47,
+   "indirect_test_count": 52,
    "statements_executed": 3,
    "statements_in_body": 3,
    "statement_coverage": 1.0,
@@ -36283,11 +36493,15 @@
    "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
    "contract_specified": true,
    "executed_in_tests": true,
-   "test_count": 21,
+   "test_count": 25,
    "direct_tests": [
     "tests/test_mtconnect_ingestion.py::test_gap_free_runs_never_join_readings_across_a_gap_or_a_restart"
    ],
    "indirect_tests": [
+    "tests/test_pilot_acceptance.py::test_an_extra_unapproved_channel_blocks_acceptance",
+    "tests/test_pilot_acceptance.py::test_gaps_must_be_reviewed",
+    "tests/test_pilot_acceptance.py::test_no_future_collection_permission_is_not_accepted",
+    "tests/test_pilot_acceptance.py::test_validated_probe_map_capture_operator_note_and_permission_are_required",
     "tests/test_replay_provider.py::test_every_tool_answers_inside_its_contract_or_refuses_cleanly",
     "tests/test_replay_provider.py::test_the_summary_mean_is_time_weighted_and_the_rate_is_endpoint",
     "tests/test_replay_provider.py::test_the_trend_is_time_weighted_and_never_spans_the_gap",
@@ -36309,7 +36523,7 @@
     "tests/test_visit_log.py::test_the_report_lists_unmatched_entries_and_the_items_to_confirm_by_hand",
     "tests/test_visit_log.py::test_the_tolerance_allows_for_a_person_noting_the_time_late"
    ],
-   "indirect_test_count": 20,
+   "indirect_test_count": 24,
    "statements_executed": 12,
    "statements_in_body": 12,
    "statement_coverage": 1.0,
@@ -36866,7 +37080,7 @@
    "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
    "contract_specified": true,
    "executed_in_tests": true,
-   "test_count": 9,
+   "test_count": 14,
    "direct_tests": [
     "tests/test_visit_log.py::test_a_bad_entry_is_refused_with_its_line_number",
     "tests/test_visit_log.py::test_a_log_is_read_in_time_order_with_a_blank_until_left_empty",
@@ -36878,8 +37092,14 @@
     "tests/test_visit_log.py::test_the_report_lists_unmatched_entries_and_the_items_to_confirm_by_hand",
     "tests/test_visit_log.py::test_the_tolerance_allows_for_a_person_noting_the_time_late"
    ],
-   "indirect_tests": [],
-   "indirect_test_count": 0,
+   "indirect_tests": [
+    "tests/test_pilot_acceptance.py::test_a_non_mtconnect_controller_is_not_faked_as_supported",
+    "tests/test_pilot_acceptance.py::test_an_extra_unapproved_channel_blocks_acceptance",
+    "tests/test_pilot_acceptance.py::test_gaps_must_be_reviewed",
+    "tests/test_pilot_acceptance.py::test_no_future_collection_permission_is_not_accepted",
+    "tests/test_pilot_acceptance.py::test_validated_probe_map_capture_operator_note_and_permission_are_required"
+   ],
+   "indirect_test_count": 5,
    "statements_executed": 3,
    "statements_in_body": 3,
    "statement_coverage": 1.0,
@@ -36925,7 +37145,7 @@
    "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
    "contract_specified": true,
    "executed_in_tests": true,
-   "test_count": 9,
+   "test_count": 14,
    "direct_tests": [
     "tests/test_visit_log.py::test_a_bad_entry_is_refused_with_its_line_number",
     "tests/test_visit_log.py::test_a_log_is_read_in_time_order_with_a_blank_until_left_empty",
@@ -36937,8 +37157,14 @@
     "tests/test_visit_log.py::test_the_report_lists_unmatched_entries_and_the_items_to_confirm_by_hand",
     "tests/test_visit_log.py::test_the_tolerance_allows_for_a_person_noting_the_time_late"
    ],
-   "indirect_tests": [],
-   "indirect_test_count": 0,
+   "indirect_tests": [
+    "tests/test_pilot_acceptance.py::test_a_non_mtconnect_controller_is_not_faked_as_supported",
+    "tests/test_pilot_acceptance.py::test_an_extra_unapproved_channel_blocks_acceptance",
+    "tests/test_pilot_acceptance.py::test_gaps_must_be_reviewed",
+    "tests/test_pilot_acceptance.py::test_no_future_collection_permission_is_not_accepted",
+    "tests/test_pilot_acceptance.py::test_validated_probe_map_capture_operator_note_and_permission_are_required"
+   ],
+   "indirect_test_count": 5,
    "statements_executed": 3,
    "statements_in_body": 3,
    "statement_coverage": 1.0,
@@ -36979,15 +37205,20 @@
    "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
    "contract_specified": true,
    "executed_in_tests": true,
-   "test_count": 4,
+   "test_count": 8,
    "direct_tests": [
     "tests/test_visit_log.py::test_a_visit_is_not_ready_when_a_file_is_missing_or_an_entry_unmatched",
     "tests/test_visit_log.py::test_a_visit_with_probe_data_and_a_matched_log_is_ready",
     "tests/test_visit_log.py::test_command_line_checks_a_visit",
     "tests/test_visit_log.py::test_the_report_lists_unmatched_entries_and_the_items_to_confirm_by_hand"
    ],
-   "indirect_tests": [],
-   "indirect_test_count": 0,
+   "indirect_tests": [
+    "tests/test_pilot_acceptance.py::test_an_extra_unapproved_channel_blocks_acceptance",
+    "tests/test_pilot_acceptance.py::test_gaps_must_be_reviewed",
+    "tests/test_pilot_acceptance.py::test_no_future_collection_permission_is_not_accepted",
+    "tests/test_pilot_acceptance.py::test_validated_probe_map_capture_operator_note_and_permission_are_required"
+   ],
+   "indirect_test_count": 4,
    "statements_executed": 1,
    "statements_in_body": 1,
    "statement_coverage": 1.0,
@@ -37030,14 +37261,19 @@
    "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
    "contract_specified": true,
    "executed_in_tests": true,
-   "test_count": 3,
+   "test_count": 7,
    "direct_tests": [
     "tests/test_visit_log.py::test_a_visit_is_not_ready_when_a_file_is_missing_or_an_entry_unmatched",
     "tests/test_visit_log.py::test_a_visit_with_probe_data_and_a_matched_log_is_ready",
     "tests/test_visit_log.py::test_command_line_checks_a_visit"
    ],
-   "indirect_tests": [],
-   "indirect_test_count": 0,
+   "indirect_tests": [
+    "tests/test_pilot_acceptance.py::test_an_extra_unapproved_channel_blocks_acceptance",
+    "tests/test_pilot_acceptance.py::test_gaps_must_be_reviewed",
+    "tests/test_pilot_acceptance.py::test_no_future_collection_permission_is_not_accepted",
+    "tests/test_pilot_acceptance.py::test_validated_probe_map_capture_operator_note_and_permission_are_required"
+   ],
+   "indirect_test_count": 4,
    "statements_executed": 1,
    "statements_in_body": 1,
    "statement_coverage": 1.0,
@@ -37090,6 +37326,7 @@
    "is_stub": false,
    "mutates_parameters": [],
    "static_callers": [
+    "capstone.ingestion.pilot_acceptance:main",
     "capstone.ingestion.visit_log:main"
    ],
    "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
@@ -37156,7 +37393,7 @@
    "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
    "contract_specified": true,
    "executed_in_tests": true,
-   "test_count": 7,
+   "test_count": 11,
    "direct_tests": [
     "tests/test_visit_log.py::test_a_visit_is_not_ready_when_a_file_is_missing_or_an_entry_unmatched",
     "tests/test_visit_log.py::test_a_visit_with_probe_data_and_a_matched_log_is_ready",
@@ -37166,8 +37403,13 @@
     "tests/test_visit_log.py::test_the_report_lists_unmatched_entries_and_the_items_to_confirm_by_hand",
     "tests/test_visit_log.py::test_the_tolerance_allows_for_a_person_noting_the_time_late"
    ],
-   "indirect_tests": [],
-   "indirect_test_count": 0,
+   "indirect_tests": [
+    "tests/test_pilot_acceptance.py::test_an_extra_unapproved_channel_blocks_acceptance",
+    "tests/test_pilot_acceptance.py::test_gaps_must_be_reviewed",
+    "tests/test_pilot_acceptance.py::test_no_future_collection_permission_is_not_accepted",
+    "tests/test_pilot_acceptance.py::test_validated_probe_map_capture_operator_note_and_permission_are_required"
+   ],
+   "indirect_test_count": 4,
    "statements_executed": 17,
    "statements_in_body": 17,
    "statement_coverage": 1.0,
@@ -37216,20 +37458,26 @@
    "is_stub": false,
    "mutates_parameters": [],
    "static_callers": [
+    "capstone.ingestion.pilot_acceptance:assess_pilot",
     "capstone.ingestion.visit_log:main"
    ],
    "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
    "contract_specified": true,
    "executed_in_tests": true,
-   "test_count": 4,
+   "test_count": 8,
    "direct_tests": [
     "tests/test_visit_log.py::test_a_visit_is_not_ready_when_a_file_is_missing_or_an_entry_unmatched",
     "tests/test_visit_log.py::test_a_visit_with_probe_data_and_a_matched_log_is_ready",
     "tests/test_visit_log.py::test_command_line_checks_a_visit",
     "tests/test_visit_log.py::test_the_report_lists_unmatched_entries_and_the_items_to_confirm_by_hand"
    ],
-   "indirect_tests": [],
-   "indirect_test_count": 0,
+   "indirect_tests": [
+    "tests/test_pilot_acceptance.py::test_an_extra_unapproved_channel_blocks_acceptance",
+    "tests/test_pilot_acceptance.py::test_gaps_must_be_reviewed",
+    "tests/test_pilot_acceptance.py::test_no_future_collection_permission_is_not_accepted",
+    "tests/test_pilot_acceptance.py::test_validated_probe_map_capture_operator_note_and_permission_are_required"
+   ],
+   "indirect_test_count": 4,
    "statements_executed": 10,
    "statements_in_body": 10,
    "statement_coverage": 1.0,
@@ -73173,7 +73421,7 @@
    "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
    "contract_specified": false,
    "executed_in_tests": true,
-   "test_count": 8,
+   "test_count": 7,
    "direct_tests": [],
    "indirect_tests": [
     "tests/test_evaluation_tools.py::test_constructor_callers_are_matched_by_class_name",
@@ -73182,10 +73430,9 @@
     "tests/test_full_evaluation.py::test_a_dry_run_reports_whether_snap_could_be_sent",
     "tests/test_full_evaluation.py::test_a_dry_run_writes_the_ledger_and_report",
     "tests/test_full_evaluation.py::test_a_plan_over_budget_is_refused_before_sending",
-    "tests/test_full_evaluation.py::test_full_command_uses_budgeted_sender",
-    "tests/test_full_evaluation.py::test_the_repository_has_no_unexplained_python_file"
+    "tests/test_full_evaluation.py::test_full_command_uses_budgeted_sender"
    ],
-   "indirect_test_count": 8,
+   "indirect_test_count": 7,
    "statements_executed": 1,
    "statements_in_body": 1,
    "statement_coverage": 1.0,
@@ -73231,7 +73478,7 @@
    "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
    "contract_specified": false,
    "executed_in_tests": true,
-   "test_count": 7,
+   "test_count": 6,
    "direct_tests": [],
    "indirect_tests": [
     "tests/test_evaluation_tools.py::test_constructor_callers_are_matched_by_class_name",
@@ -73239,10 +73486,9 @@
     "tests/test_full_evaluation.py::test_a_dry_run_reports_whether_snap_could_be_sent",
     "tests/test_full_evaluation.py::test_a_dry_run_writes_the_ledger_and_report",
     "tests/test_full_evaluation.py::test_a_plan_over_budget_is_refused_before_sending",
-    "tests/test_full_evaluation.py::test_full_command_uses_budgeted_sender",
-    "tests/test_full_evaluation.py::test_the_repository_has_no_unexplained_python_file"
+    "tests/test_full_evaluation.py::test_full_command_uses_budgeted_sender"
    ],
-   "indirect_test_count": 7,
+   "indirect_test_count": 6,
    "statements_executed": 6,
    "statements_in_body": 6,
    "statement_coverage": 1.0,
@@ -73292,7 +73538,7 @@
    "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
    "contract_specified": true,
    "executed_in_tests": true,
-   "test_count": 7,
+   "test_count": 6,
    "direct_tests": [],
    "indirect_tests": [
     "tests/test_evaluation_tools.py::test_constructor_callers_are_matched_by_class_name",
@@ -73300,10 +73546,9 @@
     "tests/test_full_evaluation.py::test_a_dry_run_reports_whether_snap_could_be_sent",
     "tests/test_full_evaluation.py::test_a_dry_run_writes_the_ledger_and_report",
     "tests/test_full_evaluation.py::test_a_plan_over_budget_is_refused_before_sending",
-    "tests/test_full_evaluation.py::test_full_command_uses_budgeted_sender",
-    "tests/test_full_evaluation.py::test_the_repository_has_no_unexplained_python_file"
+    "tests/test_full_evaluation.py::test_full_command_uses_budgeted_sender"
    ],
-   "indirect_test_count": 7,
+   "indirect_test_count": 6,
    "statements_executed": 11,
    "statements_in_body": 11,
    "statement_coverage": 1.0,
@@ -73350,7 +73595,7 @@
    "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
    "contract_specified": false,
    "executed_in_tests": true,
-   "test_count": 7,
+   "test_count": 6,
    "direct_tests": [],
    "indirect_tests": [
     "tests/test_evaluation_tools.py::test_constructor_callers_are_matched_by_class_name",
@@ -73358,10 +73603,9 @@
     "tests/test_full_evaluation.py::test_a_dry_run_reports_whether_snap_could_be_sent",
     "tests/test_full_evaluation.py::test_a_dry_run_writes_the_ledger_and_report",
     "tests/test_full_evaluation.py::test_a_plan_over_budget_is_refused_before_sending",
-    "tests/test_full_evaluation.py::test_full_command_uses_budgeted_sender",
-    "tests/test_full_evaluation.py::test_the_repository_has_no_unexplained_python_file"
+    "tests/test_full_evaluation.py::test_full_command_uses_budgeted_sender"
    ],
-   "indirect_test_count": 7,
+   "indirect_test_count": 6,
    "statements_executed": 10,
    "statements_in_body": 11,
    "statement_coverage": 0.909,
@@ -73405,7 +73649,7 @@
    "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
    "contract_specified": false,
    "executed_in_tests": true,
-   "test_count": 7,
+   "test_count": 6,
    "direct_tests": [],
    "indirect_tests": [
     "tests/test_evaluation_tools.py::test_constructor_callers_are_matched_by_class_name",
@@ -73413,10 +73657,9 @@
     "tests/test_full_evaluation.py::test_a_dry_run_reports_whether_snap_could_be_sent",
     "tests/test_full_evaluation.py::test_a_dry_run_writes_the_ledger_and_report",
     "tests/test_full_evaluation.py::test_a_plan_over_budget_is_refused_before_sending",
-    "tests/test_full_evaluation.py::test_full_command_uses_budgeted_sender",
-    "tests/test_full_evaluation.py::test_the_repository_has_no_unexplained_python_file"
+    "tests/test_full_evaluation.py::test_full_command_uses_budgeted_sender"
    ],
-   "indirect_test_count": 7,
+   "indirect_test_count": 6,
    "statements_executed": 6,
    "statements_in_body": 6,
    "statement_coverage": 1.0,
@@ -73462,7 +73705,7 @@
    "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
    "contract_specified": false,
    "executed_in_tests": true,
-   "test_count": 7,
+   "test_count": 6,
    "direct_tests": [],
    "indirect_tests": [
     "tests/test_evaluation_tools.py::test_constructor_callers_are_matched_by_class_name",
@@ -73470,10 +73713,9 @@
     "tests/test_full_evaluation.py::test_a_dry_run_reports_whether_snap_could_be_sent",
     "tests/test_full_evaluation.py::test_a_dry_run_writes_the_ledger_and_report",
     "tests/test_full_evaluation.py::test_a_plan_over_budget_is_refused_before_sending",
-    "tests/test_full_evaluation.py::test_full_command_uses_budgeted_sender",
-    "tests/test_full_evaluation.py::test_the_repository_has_no_unexplained_python_file"
+    "tests/test_full_evaluation.py::test_full_command_uses_budgeted_sender"
    ],
-   "indirect_test_count": 7,
+   "indirect_test_count": 6,
    "statements_executed": 1,
    "statements_in_body": 1,
    "statement_coverage": 1.0,
@@ -73520,7 +73762,7 @@
    "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
    "contract_specified": false,
    "executed_in_tests": true,
-   "test_count": 7,
+   "test_count": 6,
    "direct_tests": [],
    "indirect_tests": [
     "tests/test_evaluation_tools.py::test_constructor_callers_are_matched_by_class_name",
@@ -73528,10 +73770,9 @@
     "tests/test_full_evaluation.py::test_a_dry_run_reports_whether_snap_could_be_sent",
     "tests/test_full_evaluation.py::test_a_dry_run_writes_the_ledger_and_report",
     "tests/test_full_evaluation.py::test_a_plan_over_budget_is_refused_before_sending",
-    "tests/test_full_evaluation.py::test_full_command_uses_budgeted_sender",
-    "tests/test_full_evaluation.py::test_the_repository_has_no_unexplained_python_file"
+    "tests/test_full_evaluation.py::test_full_command_uses_budgeted_sender"
    ],
-   "indirect_test_count": 7,
+   "indirect_test_count": 6,
    "statements_executed": 5,
    "statements_in_body": 6,
    "statement_coverage": 0.833,
@@ -73577,7 +73818,7 @@
    "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
    "contract_specified": false,
    "executed_in_tests": true,
-   "test_count": 7,
+   "test_count": 6,
    "direct_tests": [],
    "indirect_tests": [
     "tests/test_evaluation_tools.py::test_constructor_callers_are_matched_by_class_name",
@@ -73585,10 +73826,9 @@
     "tests/test_full_evaluation.py::test_a_dry_run_reports_whether_snap_could_be_sent",
     "tests/test_full_evaluation.py::test_a_dry_run_writes_the_ledger_and_report",
     "tests/test_full_evaluation.py::test_a_plan_over_budget_is_refused_before_sending",
-    "tests/test_full_evaluation.py::test_full_command_uses_budgeted_sender",
-    "tests/test_full_evaluation.py::test_the_repository_has_no_unexplained_python_file"
+    "tests/test_full_evaluation.py::test_full_command_uses_budgeted_sender"
    ],
-   "indirect_test_count": 7,
+   "indirect_test_count": 6,
    "statements_executed": 13,
    "statements_in_body": 13,
    "statement_coverage": 1.0,
@@ -73637,7 +73877,7 @@
    "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
    "contract_specified": true,
    "executed_in_tests": true,
-   "test_count": 7,
+   "test_count": 6,
    "direct_tests": [],
    "indirect_tests": [
     "tests/test_evaluation_tools.py::test_constructor_callers_are_matched_by_class_name",
@@ -73645,10 +73885,9 @@
     "tests/test_full_evaluation.py::test_a_dry_run_reports_whether_snap_could_be_sent",
     "tests/test_full_evaluation.py::test_a_dry_run_writes_the_ledger_and_report",
     "tests/test_full_evaluation.py::test_a_plan_over_budget_is_refused_before_sending",
-    "tests/test_full_evaluation.py::test_full_command_uses_budgeted_sender",
-    "tests/test_full_evaluation.py::test_the_repository_has_no_unexplained_python_file"
+    "tests/test_full_evaluation.py::test_full_command_uses_budgeted_sender"
    ],
-   "indirect_test_count": 7,
+   "indirect_test_count": 6,
    "statements_executed": 22,
    "statements_in_body": 22,
    "statement_coverage": 1.0,
@@ -73717,7 +73956,7 @@
    "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
    "contract_specified": true,
    "executed_in_tests": true,
-   "test_count": 7,
+   "test_count": 6,
    "direct_tests": [],
    "indirect_tests": [
     "tests/test_evaluation_tools.py::test_constructor_callers_are_matched_by_class_name",
@@ -73725,10 +73964,9 @@
     "tests/test_full_evaluation.py::test_a_dry_run_reports_whether_snap_could_be_sent",
     "tests/test_full_evaluation.py::test_a_dry_run_writes_the_ledger_and_report",
     "tests/test_full_evaluation.py::test_a_plan_over_budget_is_refused_before_sending",
-    "tests/test_full_evaluation.py::test_full_command_uses_budgeted_sender",
-    "tests/test_full_evaluation.py::test_the_repository_has_no_unexplained_python_file"
+    "tests/test_full_evaluation.py::test_full_command_uses_budgeted_sender"
    ],
-   "indirect_test_count": 7,
+   "indirect_test_count": 6,
    "statements_executed": 21,
    "statements_in_body": 21,
    "statement_coverage": 1.0,
@@ -73792,7 +74030,7 @@
    "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
    "contract_specified": true,
    "executed_in_tests": true,
-   "test_count": 7,
+   "test_count": 6,
    "direct_tests": [],
    "indirect_tests": [
     "tests/test_evaluation_tools.py::test_constructor_callers_are_matched_by_class_name",
@@ -73800,10 +74038,9 @@
     "tests/test_full_evaluation.py::test_a_dry_run_reports_whether_snap_could_be_sent",
     "tests/test_full_evaluation.py::test_a_dry_run_writes_the_ledger_and_report",
     "tests/test_full_evaluation.py::test_a_plan_over_budget_is_refused_before_sending",
-    "tests/test_full_evaluation.py::test_full_command_uses_budgeted_sender",
-    "tests/test_full_evaluation.py::test_the_repository_has_no_unexplained_python_file"
+    "tests/test_full_evaluation.py::test_full_command_uses_budgeted_sender"
    ],
-   "indirect_test_count": 7,
+   "indirect_test_count": 6,
    "statements_executed": 13,
    "statements_in_body": 13,
    "statement_coverage": 1.0,
@@ -75537,14 +75774,13 @@
    "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
    "contract_specified": true,
    "executed_in_tests": true,
-   "test_count": 6,
+   "test_count": 5,
    "direct_tests": [
     "tests/test_full_evaluation.py::test_a_dry_run_reports_whether_snap_could_be_sent",
     "tests/test_full_evaluation.py::test_a_dry_run_writes_the_ledger_and_report",
     "tests/test_full_evaluation.py::test_a_pinned_commit_that_is_not_checked_out_is_refused",
     "tests/test_full_evaluation.py::test_a_plan_over_budget_is_refused_before_sending",
-    "tests/test_full_evaluation.py::test_full_command_uses_budgeted_sender",
-    "tests/test_full_evaluation.py::test_the_repository_has_no_unexplained_python_file"
+    "tests/test_full_evaluation.py::test_full_command_uses_budgeted_sender"
    ],
    "indirect_tests": [],
    "indirect_test_count": 0,
@@ -75709,13 +75945,12 @@
    "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
    "contract_specified": true,
    "executed_in_tests": true,
-   "test_count": 6,
+   "test_count": 5,
    "direct_tests": [
     "tests/test_full_evaluation.py::test_a_dry_run_reports_whether_snap_could_be_sent",
     "tests/test_full_evaluation.py::test_a_dry_run_writes_the_ledger_and_report",
     "tests/test_full_evaluation.py::test_a_plan_over_budget_is_refused_before_sending",
-    "tests/test_full_evaluation.py::test_full_command_uses_budgeted_sender",
-    "tests/test_full_evaluation.py::test_the_repository_has_no_unexplained_python_file"
+    "tests/test_full_evaluation.py::test_full_command_uses_budgeted_sender"
    ],
    "indirect_tests": [
     "tests/test_coverage_full_eval_paths.py::test_tracked_files_falls_back_to_filesystem_when_git_unavailable"
@@ -75767,13 +76002,12 @@
    "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
    "contract_specified": true,
    "executed_in_tests": true,
-   "test_count": 5,
+   "test_count": 4,
    "direct_tests": [
     "tests/test_full_evaluation.py::test_a_dry_run_reports_whether_snap_could_be_sent",
     "tests/test_full_evaluation.py::test_a_dry_run_writes_the_ledger_and_report",
     "tests/test_full_evaluation.py::test_a_plan_over_budget_is_refused_before_sending",
-    "tests/test_full_evaluation.py::test_full_command_uses_budgeted_sender",
-    "tests/test_full_evaluation.py::test_the_repository_has_no_unexplained_python_file"
+    "tests/test_full_evaluation.py::test_full_command_uses_budgeted_sender"
    ],
    "indirect_tests": [],
    "indirect_test_count": 0,
@@ -75832,21 +76066,20 @@
    "static_call_graph_note": "approximate: by simple name, dynamic dispatch and graph steps are not resolved",
    "contract_specified": true,
    "executed_in_tests": true,
-   "test_count": 7,
+   "test_count": 6,
    "direct_tests": [
     "tests/test_full_evaluation.py::test_a_dry_run_reports_whether_snap_could_be_sent",
     "tests/test_full_evaluation.py::test_a_dry_run_writes_the_ledger_and_report",
     "tests/test_full_evaluation.py::test_a_new_evaluator_function_requires_inventory_regeneration",
     "tests/test_full_evaluation.py::test_a_plan_over_budget_is_refused_before_sending",
     "tests/test_full_evaluation.py::test_full_command_uses_budgeted_sender",
-    "tests/test_full_evaluation.py::test_the_repository_has_no_unexplained_python_file",
     "tests/test_full_evaluation.py::test_the_scope_manifest_classes_every_file"
    ],
    "indirect_tests": [],
    "indirect_test_count": 0,
-   "statements_executed": 29,
+   "statements_executed": 30,
    "statements_in_body": 30,
-   "statement_coverage": 0.967,
+   "statement_coverage": 1.0,
    "coverage_class": "direct",
    "verification_status": "PARTIALLY VERIFIED",
    "status_source": "derived",
