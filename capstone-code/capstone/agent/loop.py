@@ -125,6 +125,9 @@ class InvestigationDeps:
     # The manual step (`investigation.consult_manual`): search the machine
     # manual once on the anomaly before planning. Only with a manual offered.
     manual_step: bool = False
+    # A real-machine replay has no simulator healthy-line reference; do not
+    # request its unavailable screening tool before the investigation starts.
+    screening_enabled: bool = True
     # The hypothesis reserve: research before the hypothesize question stops
     # this many seconds early, so that question is still asked when research
     # runs long. 0 (the default) keeps no reserve, as every run before it did.
