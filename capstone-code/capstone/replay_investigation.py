@@ -26,7 +26,6 @@ from pathlib import Path
 from time import monotonic
 from uuid import uuid4
 
-from capstone.agent.artifacts import DetectedAnomaly
 from capstone.agent.investigation import run_investigation
 from capstone.agent.loop import InvestigationDeps
 from capstone.agent.policy import ReasoningPolicy
@@ -97,7 +96,8 @@ def recorded_tool_specs(
         )
     factory = any("air_temperature" in values for values in signals.values())
     available = "; ".join(
-        f"{device}: " + ", ".join(f"{sensor} ({unit})" for sensor, unit in sorted(values.items()))
+        f"{device}: "
+        + ", ".join(f"{sensor} ({unit})" for sensor, unit in sorted(values.items()))
         for device, values in sorted(machine.items())
     )
     common = (
@@ -187,12 +187,12 @@ def run_recorded_investigation(
     state = InvestigationState(
         run_id=run_id,
         investigation_id=investigation_id_for(run_id, 1),
-        anomaly=DetectedAnomaly(
-            tick=provider._observations.tick_of(now),
-            machine_id=machine_id,
-            kind="operator_observation",
-            description=symptom,
-        ),
+        anomaly={
+            "tick": provider._observations.tick_of(now),
+            "machine_id": machine_id,
+            "kind": "operator_observation",
+            "description": symptom,
+        },
         mode="triage",
         budgets=triage_budgets(seconds=timeout_seconds),
         line_context_enabled=False,
@@ -220,20 +220,32 @@ def main(argv: Sequence[str] | None = None) -> int:
     parser = argparse.ArgumentParser(prog="python -m capstone.replay_investigation")
     parser.add_argument("--capture", type=Path, required=True)
     parser.add_argument("--map", type=Path, required=True)
-    parser.add_argument("--probe", type=Path, required=True, help="saved /probe, to verify the map")
-    parser.add_argument("--machine", required=True, help="operator-confirmed controller device name")
-    parser.add_argument("--symptom", required=True, help="operator-observed issue, not a diagnosis")
-    parser.add_argument("--cutoff", help="ISO 8601 date with timezone; default last observation")
+    parser.add_argument(
+        "--probe", type=Path, required=True, help="saved /probe, to verify the map"
+    )
+    parser.add_argument(
+        "--machine", required=True, help="operator-confirmed controller device name"
+    )
+    parser.add_argument(
+        "--symptom", required=True, help="operator-observed issue, not a diagnosis"
+    )
+    parser.add_argument(
+        "--cutoff", help="ISO 8601 date with timezone; default last observation"
+    )
     parser.add_argument("--timeout-seconds", type=float, default=90.0)
     parser.add_argument(
         "--authorize-llm-transfer",
         action="store_true",
         help="confirm authorized telemetry may be sent to the configured model provider",
     )
-    parser.add_argument("--out", type=Path, help="private output JSON, outside the repository")
+    parser.add_argument(
+        "--out", type=Path, help="private output JSON, outside the repository"
+    )
     args = parser.parse_args(argv)
     if not args.authorize_llm_transfer:
-        parser.error("recorded telemetry requires explicit --authorize-llm-transfer; obtain shop permission first")
+        parser.error(
+            "recorded telemetry requires explicit --authorize-llm-transfer; obtain shop permission first"
+        )
     if args.out and refusal(args.out, "--out"):
         parser.error("private investigation reports must stay outside the git checkout")
     channel_map = ChannelMap.model_validate_json(args.map.read_text(encoding="utf-8"))
@@ -270,7 +282,9 @@ def main(argv: Sequence[str] | None = None) -> int:
         "read_only": True,
         "run_id": str(state.run_id),
         "machine_id": args.machine,
-        "conclusion": state.conclusion.model_dump(mode="json") if state.conclusion else None,
+        "conclusion": state.conclusion.model_dump(mode="json")
+        if state.conclusion
+        else None,
         "termination_reason": state.termination_reason,
         "tool_calls": state.tool_call_count,
         "failed_tool_calls": state.failed_tool_calls,
