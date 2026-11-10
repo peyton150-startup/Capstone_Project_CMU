@@ -304,6 +304,8 @@ Deferred, not abandoned — these are extensions of a proven architecture:
 
 **Roadmap reconciliation (2026-11-10):** "Status" annotations originally written 2026-10-18 through 2026-11-09 may describe the state at that date; [the active register](#active-future-work-register--grouped-by-priority-and-correct-owner-category-2026-11-10) and [completed foundations](#completed-foundations-and-remaining-acceptance-gates) govern current priorities. Do not interpret an older `Status: FUTURE WORK ONLY` line as overriding a later verified merged PR. Implementation does not imply site validation.
 
+**Implementation audit (#222, reconciled after #221):** This audit cross-checked the stable SM-1–SM-13 requirement links and the completed-versus-field-validated distinction. Read-only replay investigation wiring now exists in [PR #221](https://github.com/peyton150-startup/Capstone_Project_CMU/pull/221), but has only synthetic test coverage; controller access, approved captures, healthy-cycle evidence and technician validation are still outstanding. The [active register](#active-future-work-register--grouped-by-priority-and-correct-owner-category-2026-11-10) remains authoritative.
+
 
 **MVP** — single research agent + small factory simulator + anomaly
 investigation + hypothesis testing + HITL intervention + verification.
@@ -329,7 +331,7 @@ stay even though the sections are now grouped by topic, with items sorted from h
 | Priority | Category / detailed requirements | Highest-value unfinished work | Existing foundation / decision gate |
 |---|---|---|---|
 | **P0 — next visit** | [Pilot readiness, permissions, field notebook and acceptance](#future-work-pilot-readiness) | Confirm the machine/controller, IT/OT read-only authorization, normal-cycle capture, operator-aligned event timestamps, and data-handling terms | [SM-4 checklist and event log](#fw-sm-visit-log) built; no shop data received |
-| **P0 — first capture** | [Real-machine integration, channel mapping and data quality](#fw-single-machine) | Connect replay to an actual investigation with capability-aware tools; implement SM-6 state segmentation and SM-7 own-machine baseline | SM-1, SM-2, SM-3 and SM-5 implemented and fixture-tested; no Prestige validation |
+| **P0 — first capture** | [Real-machine integration, channel mapping and data quality](#fw-single-machine) | Field-validate replay-to-investigation wiring on an authorized capture; implement SM-6 state segmentation and SM-7 own-machine baseline | SM-1, SM-2, SM-3 and SM-5 implemented and fixture-tested; no Prestige validation |
 | **P0 — after data** | [Real-world anomaly assessment and monitor integration](#fw-cpu-anomaly-detector) | Transfer the Python statistical detector to recorded **real** data, without simulator reference files or unverified cause claims; test monitor → incident lifecycle | Simulator detector built; **real-world implementation unfinished and blocked on data from Naseem** |
 | **HIGH** | [Investigation latency, response quality and evaluation](#future-work-evaluation) | Run baseline settings, correct triage/deep handoff, calibrate conclusion gates, measure time to first trustworthy answer and false reassurance | Opt-in triage and some line context built; live evidence does not prove pilot speed |
 | **HIGH / contingent** | [Machine-specific simulator realism](#future-work-simulator-upgrades) | Adapt machine/control assumptions to the discovered equipment; defer Haas-only retrofit unless confirmed | Seeded simulator exists; physical controller unknown |
