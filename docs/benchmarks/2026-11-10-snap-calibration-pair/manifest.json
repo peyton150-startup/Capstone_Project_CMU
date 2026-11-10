@@ -1,0 +1,12 @@
+{
+  "source": "operator-local calibration-cohort/pair-01",
+  "source_commit": "c49fdd60884d874a6d7877590d2be9ab1b7eb70e",
+  "source_commit_basis": "Baseline operator-attested in the prior archive; treatment inferred from frozen checkout HEAD after completion, not embedded in records",
+  "rubric_version": "1.1.1",
+  "files_sha256": {
+    "baseline.records.jsonl": "01cd36cb4bb9d756a0243605fdc6f7c705ba8ea953577d3a22dc44396a4f2c8b",
+    "baseline.audit.jsonl": "ee07dce5d6febce4de25e4ab7743f7f47614cd87faab893ed9a4ff3587541dda",
+    "treatment.records.jsonl": "8d9e0d39b1e82f307f97b253a54a6f30a34ce23aff148921a8c28fc74bfa1fc7",
+    "treatment.audit.jsonl": "84356f4947c966cb90e189e95c1bb321118c128943a191b3f85f5becb8a0e80e"
+  }
+}

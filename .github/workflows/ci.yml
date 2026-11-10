@@ -146,12 +146,13 @@ jobs:
             --provider snap --snap-full-context \
             --archive ../docs/benchmarks/2026-11-01-tot13-pairs \
             --archive ../docs/benchmarks/2026-11-02-audited-known-cases \
+            --archive ../docs/benchmarks/2026-11-10-snap-calibration-pair \
             --out "$RUNNER_TEMP/snap-full-dry-run"
       - name: Verify coverage of all five question families and report integrity
         run: |
           uv run --locked --all-extras python .github/verify_snap_dry_run.py \
             --out "$RUNNER_TEMP/snap-full-dry-run" \
-            --expected-episodes 57 --commit "$GITHUB_SHA"
+            --expected-episodes 80 --commit "$GITHUB_SHA"
       - name: Upload offline plan and readiness summary
         if: always()
         uses: actions/upload-artifact@v4
