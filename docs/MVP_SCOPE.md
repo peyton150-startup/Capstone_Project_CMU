@@ -338,6 +338,7 @@ stay even though the sections are now grouped by topic, with items sorted from h
 | **MEDIUM** | [Manual retrieval, episodic memory and reranking](#future-work-retrieval-and-memory) | Use authorized real manuals and labelled cases before comparing reranking strategies | Baseline retrieval present; no Naseem source material |
 | **MEDIUM** | [Multi-agent roles, typed handoffs and benchmarks](#future-work-multi-agent-roles) | Only add a specialist when one-machine investigations show an empirically valuable gap | Investigator and critic exist; no need for a third agent on visit day |
 | **MEDIUM** | [Telemetry storage, traceability, MCP and operational tooling](#future-work-tooling) | Design rotation, export/revocation, audit and observability after safe offline capture | Local MTConnect collector, monitor and watchdog built |
+| **MEDIUM** | [Security and authorization](#future-work-security-and-authorization) | Consolidate the recorded-data security boundary; enforce permitted tools, destinations, data transfer and auditable access; evaluate stronger sandboxing only when deployment warrants it | GET-only collector, replay triage, pilot preflight and opt-in event logger built; no independently enforced agent sandbox or universal authorization gate |
 | **LOW** | [Planning and approved intervention experiments](#future-work-planning-and-automation) | Human-reviewed experiments only after new safety/authorization gate | First pilot strictly read-only |
 | **LOW** | [Operator screen, configuration and review UX](#future-work-frontend) | Build only from technician feedback | Existing command-line visit check sufficient |
 | **LOW / FAR FUTURE** | [Portability, additional audio/video sensing and voice interfaces](#future-work-long-term) | Revisit if controller telemetry and technician validation prove insufficient | No extra sensors authorized |
@@ -353,7 +354,7 @@ The rows below leave the active backlog **without claiming real-shop acceptance*
 | Pilot readiness | [SM-4 Visit checklist and technician event log](#fw-sm-visit-log) | [PR #207](https://github.com/peyton150-startup/Capstone_Project_CMU/pull/207) | Built on synthetic fixtures; actual visit and clock validation outstanding |
 | Real-machine tooling | [SM-1 Probe-derived channel mapping](#fw-sm-channel-map) | [PR #206](https://github.com/peyton150-startup/Capstone_Project_CMU/pull/206) | Built; must generate and verify the map on Naseem's actual controller |
 | Real-machine tooling | [SM-2 Gap markers, staleness and UNAVAILABLE spans](#fw-sm-gap-events) | [PR #204](https://github.com/peyton150-startup/Capstone_Project_CMU/pull/204), [PR #211](https://github.com/peyton150-startup/Capstone_Project_CMU/pull/211) | Built; threshold calibration and real-machine validation outstanding |
-| Real-machine tooling | [SM-3 JSONL read-only recorded-data provider](#fw-sm-real-provider) | [PR #213](https://github.com/peyton150-startup/Capstone_Project_CMU/pull/213) | Built; investigator entry point and capability-aware tools remain unfinished |
+| Real-machine tooling | [SM-3 JSONL read-only recorded-data provider](#fw-sm-real-provider) | [PR #213](https://github.com/peyton150-startup/Capstone_Project_CMU/pull/213), [PR #221](https://github.com/peyton150-startup/Capstone_Project_CMU/pull/221) | Recorded-data provider and replay-to-investigator paths built on synthetic fixtures; duplicate entry points need consolidation and real-controller acceptance remains outstanding |
 | Real-machine tooling | [SM-5 Time-aware statistics](#fw-sm-time-stats) | [PR #212](https://github.com/peyton150-startup/Capstone_Project_CMU/pull/212) | Built; core synthetic checks passed, real capture semantics unverified |
 | Agent workflow | [Opt-in fast triage](#fw-rapid-triage) | [PR #184](https://github.com/peyton150-startup/Capstone_Project_CMU/pull/184) | Built; live latency and triage/deep comparisons outstanding |
 | Agent workflow | [Opt-in line-context packet](#fw-line-context) | [PR #186](https://github.com/peyton150-startup/Capstone_Project_CMU/pull/186) | Built foundation; line-wide causality and critic comparisons outstanding |
@@ -372,7 +373,7 @@ The rows below leave the active backlog **without claiming real-shop acceptance*
 | Order | Priority | Category | Open requirement and detailed link | Trigger / acceptance |
 |---|---|---|---|---|
 | 0 | **P0** | Pilot readiness | [Validate SM-1 to SM-5 together on a consented physical capture](#fw-sm-visit-log) | Site approval; capture + map + time-aligned operator events + gap report; no write commands |
-| 1 | **P0** | Tooling | [Connect SM-3 recorded-data provider to the real investigator with truthful capability-filtered tools](#fw-sm-real-provider) | Replay-only test, same graph, no fake simulator history, no maintenance actions, no future samples |
+| 1 | **P0** | Tooling | [Field-validate the built SM-3 replay-to-investigator path and capability-filtered tools](#fw-sm-real-provider) | Synthetic replay wiring exists; on an authorized capture verify no fake simulator history, no physical actions, no future samples and truthful available-tool scope |
 | SM-6 | **HIGH** | Tooling | [Segment idle/running/cutting/warm-up without fabricating unavailable states](#fw-sm-state-segmentation) | A real probe and operator-timestamped cycles; compare transitions by hand |
 | SM-7 | **HIGH** | Tooling | [Build a machine-specific healthy reference from technician-confirmed normal work](#fw-sm-own-baseline) | Enough comparable cycles after SM-6; return baseline_unavailable until then |
 | A | **HIGH / data-blocked** | Monitoring | [Port the CPU-based statistical anomaly detector to real captured channels](#fw-cpu-anomaly-detector) | Wait for permitted data from Naseem, establish state-conditioned thresholds and false-alarm review |
@@ -406,7 +407,7 @@ Every row links to its **specific requirements, implementation status and accept
 | **HIGH** | Evaluation, benchmarking and reasoning | [**Critic follow-up effectiveness** — Compare review-only with bounded critic-driven recheck.](#fw-critic-comparison) | Mechanism built; measured improvement pending |
 | **HIGH** | Evaluation, benchmarking and reasoning | [**Current live run comparisons** — Compare prompts, settings, manual, memory, and scorer outcomes on matched cases.](#fw-live-runs) | Some experiments archived; comparison owed |
 | **HIGH** | Evaluation, benchmarking and reasoning | [**Degraded matrix on live models** — Run clean vs degraded scenarios and examine false-confidence cases.](#fw-degraded-comparison) | Not implemented / evaluation owed |
-| **HIGH** | Evaluation, benchmarking and reasoning | [**Line-wide investigation context** — Treat the alarmed machine as a starting point; check the relevant line before forming hypotheses. Buildab](#fw-line-context) | Opt-in packet built; full causal evaluation pending |
+| **HIGH** | Evaluation, benchmarking and reasoning | [**Line-wide investigation context** — Treat the alarmed machine as a starting point; check the relevant line before forming hypotheses.](#fw-line-context) | Opt-in packet built; full causal evaluation pending |
 | **HIGH** | Evaluation, benchmarking and reasoning | [**Pydantic AI reliability audit** — Benchmark deadlines and typed runtime safety; do not migrate without evidence.](#fw-runtime-audit) | Not implemented / evaluation owed |
 | **HIGH — outreach plan only** | Pilot readiness / manufacturing outreach | [**Haas live-telemetry pilot plan** — Qualify one consenting shop and define safe read-only access, collection, storage, and shadow-mode deploy](#fw-haas-live-pilot) | Plan documented; controller and authorization unknown |
 | **HIGH** | Simulator upgrades and fidelity | [**Haas VF/NGC reference machine** — Ground the simulator in model-specific manuals and known supported telemetry.](#fw-haas-retrofit) | Not implemented / evaluation owed |
@@ -414,7 +415,7 @@ Every row links to its **specific requirements, implementation status and accept
 | **HIGH** | Simulator upgrades and fidelity | [**Three-day bearing curve** — Enable experiment selection and review wear curve with the manufacturing SME.](#fw-bearing-progression) | Not implemented / evaluation owed |
 | **HIGH** | Tooling and infrastructure | [**SM-6 Operating-state segmentation** — Idle, running, cutting and transitions from exposed fields only.](#fw-sm-state-segmentation) | Not implemented / evaluation owed |
 | **HIGH** | Tooling and infrastructure | [**SM-7 Same-machine baseline** — Compare the machine with its own confirmed-normal history per state.](#fw-sm-own-baseline) | Not implemented / evaluation owed |
-| **HIGH** | Tooling and infrastructure / real-world monitoring | [**CPU-based statistical anomaly detection** — Staged CPU roadmap: built-in Python → NumPy/SciPy statistics (the target; an offline probe on 2026-11-06 ](#fw-cpu-anomaly-detector) | Simulator built; real-machine application unfinished, awaiting Naseem's permitted data |
+| **HIGH** | Tooling and infrastructure / real-world monitoring | [**CPU-based statistical anomaly detection** — Transfer the simulator-tested statistical monitor to state-labelled real-machine data, then evaluate false alarms and incident handoff.](#fw-cpu-anomaly-detector) | Simulator built; real-machine application unfinished, awaiting Naseem's permitted data |
 | **MEDIUM** | Evaluation, benchmarking and reasoning | [**Bounded Graph of Thoughts** — Test graph hypothesis merges only if matched tests justify the overhead.](#fw-got-prototype) | Not implemented / evaluation owed |
 | **MEDIUM** | Evaluation, benchmarking and reasoning | [**Concurrent-fault evidence scoring** — Support multiple evidence-backed causes rather than arbitrary top-k pruning.](#fw-multicause) | Not implemented / evaluation owed |
 | **MEDIUM** | Evaluation, benchmarking and reasoning | [**Model-response evaluation cache** — Use opt-in SQLite for repeat judgments without caching production investigations.](#fw-eval-cache) | Not implemented / evaluation owed |
@@ -422,13 +423,19 @@ Every row links to its **specific requirements, implementation status and accept
 | **MEDIUM** | Evaluation, benchmarking and reasoning | [**Role-specific model benchmarks** — Measure specialist task quality, latency, cost and schema failures.](#fw-role-benchmarks) | Not implemented / evaluation owed |
 | **MEDIUM** | Evaluation, benchmarking and reasoning | [**SM-11 Ranked technician check list** — Rank parts to check by likelihood divided by cost to check; update after each finding.](#fw-sm-check-ranking) | Not implemented / evaluation owed |
 | **MEDIUM** | Evaluation, benchmarking and reasoning | [**ToT + critic ablations** — Evaluate pruning, deferral, earlier critic checks and adaptive search.](#fw-tot-ablation) | Not implemented / evaluation owed |
-| **MEDIUM** | Multi-agent roles | [**Line Sentinel (third agent)** — Decide where and when to investigate, and whether that data can be trusted, after the line-wide packet; n](#fw-line-sentinel) | Not implemented / evaluation owed |
+| **MEDIUM** | Multi-agent roles | [**Line Sentinel (third agent)** — Evaluate a bounded role for investigation triggering, scope and data trust after the line-wide packet.](#fw-line-sentinel) | Not implemented / evaluation owed |
 | **MEDIUM** | Multi-agent roles | [**Per-role execution budgets** — Bound output, retries, tool calls and time across all agents.](#fw-agent-budgets) | Not implemented / evaluation owed |
 | **MEDIUM** | Multi-agent roles | [**Planner / researcher / analyst roles** — Add bounded specialist stages after demonstrated gains.](#fw-specialist-roles) | Not implemented / evaluation owed |
 | **MEDIUM** | Multi-agent roles | [**Typed handoffs and contracts** — Define evidence-only, full and challenge handoffs with shared provenance.](#fw-handoffs) | Not implemented / evaluation owed |
 | **MEDIUM** | Retrieval and memory | [**Jev for recall or routing** — Test model-driven recall rerank and routing if baseline errors warrant it.](#fw-jev-recall) | Not implemented / evaluation owed |
 | **MEDIUM** | Retrieval and memory | [**MMR episodic search** — Test diversity of historical investigations against similarity retrieval.](#fw-mmr) | Not implemented / evaluation owed |
 | **MEDIUM** | Retrieval and memory | [**Voyage manual reranking** — Benchmark only the manual/SOP retrieval path.](#fw-voyage) | Not implemented / evaluation owed |
+| **MEDIUM** | Security and authorization | [**SEC-1 Investigator isolation** — Separate the agent runtime from controller connectivity and collector permissions.](#fw-sec-isolation) | Planned; triage and replay are read-only in code but lack an independently enforced process/network boundary |
+| **MEDIUM** | Security and authorization | [**SEC-2 Default-deny network and collection access** — Permit only approved controller endpoints, methods, rates and channels; block redirects and unauthorized destinations.](#fw-sec-network) | Planned; collector uses GET and preflight lists permitted fields, but network/field access is not independently enforced |
+| **MEDIUM** | Security and authorization | [**SEC-3 Capability-authorized replay** — Unify duplicate recorded-investigation entry points and enforce the offered tool set at dispatch.](#fw-sec-capabilities) | Partly built; two replay CLIs/tool lists and simulated prompts still differ; no universal provider-side capability gate |
+| **MEDIUM** | Security and authorization | [**SEC-4 Model egress and credentials** — Verify data-transfer authorization for every active provider, fallback and retrieval route before external calls.](#fw-sec-egress) | Partly built; typed secrets and CLI acknowledgement exist, but consent is not enforced by every transport |
+| **MEDIUM** | Security and authorization | [**SEC-5 Security decision auditing** — Record allow/deny decisions and policy versions without exposing shop telemetry or secrets.](#fw-sec-audit) | Partly built; opt-in metadata EventLogger exists; security-policy decisions are not yet traced |
+| **MEDIUM (conditional)** | Security and authorization | [**SEC-6 Human-reviewed capability changes and OpenShell evaluation** — Require external approval; assess sandbox infrastructure only when deployment complexity justifies it.](#fw-sec-approval) | Planned and deferred; simulator repair approval is not production permission administration |
 | **MEDIUM** | Simulator upgrades and fidelity | [**Electrical current in amps** — Measure whether current adds distinct value beyond existing power readings.](#fw-current-draw) | Not implemented / evaluation owed |
 | **MEDIUM** | Simulator upgrades and fidelity | [**Fault draw and pack selection** — Keep seeded draws invariant and choose fault packs by experiment.](#fw-fault-packs) | Not implemented / evaluation owed |
 | **MEDIUM** | Simulator upgrades and fidelity | [**More servo and hydraulic modes** — Evaluate encoder, pump, valve, lubricant and overlapping-failure scenarios.](#fw-additional-failures) | Not implemented / evaluation owed |
@@ -2577,100 +2584,6 @@ Tested](https://www.requesty.ai/blog/structured-outputs-across-llm-providers-the
 
 **Acceptance/evaluation:** On matched normal, progressive wear, speed/configuration change, isolated spike, missing-data, multi-machine and wrong-machine-trigger cases, compare threshold-only versus trend-based detection. Measure onset-to-detection lead time, false positives per simulated operating hour, missed incidents, duplicate launches, detector CPU time/memory, and incremental LLM requests. Compare line context **before versus after** the detector is merged (earlier commit against later, same seeds and settings) on the same observable histories, scoring correct machine/cause, unsupported inference, abstention, evidence provenance and tool use. Keep simulator ground truth exclusively evaluator-side, and do not claim real factory reliability from synthetic tests.
 
-### Simulated telemetry ingestion, unified sensor history and replay (MEDIUM; proposed 2026-11-02)
-
-<a id="fw-telemetry-replay"></a>
-
-**Status: PARTIALLY IMPLEMENTED — the read-only collector, deterministic monitor and watchdog exist; online ingestion and active agent triggering are unfinished.** First prove the separate
-[incident-first, line-wide context increment](#fw-incident-context) without
-requiring a new database or continuous monitor. Prioritize the
-simulated-stream proof after that comparison and the existing single-agent
-investigation baseline are stable; do not claim a live
-collector, persistent sensor database, real-machine access, or a completed
-replay test today. This is a data-acquisition and evidence-availability layer,
-not a new LLM "live mode" or a replacement for the existing reasoning graph.
-
-**Stage A — capstone-scale simulated stream and historical queries:**
-
-1. Make the existing seeded simulator a **timed telemetry producer** through a
-   small, replaceable producer/ingestion interface. It must still support
-   deterministic offline tests without a database, wall-clock sleep, an LLM or
-   proprietary factory data. Persist observations to one logical time-series
-   reading store (PostgreSQL; TimescaleDB is optional after measured volume
-   warrants it), separate from Chroma manuals and episodic memories. Keep
-   observable events/alarms and job/status transitions correlated by timestamps
-   and identifiers, whether in a companion event table or typed record stream.
-2. Specify a common reading contract before choosing transport: source and
-   sample identifiers, run/line/machine identity (nullable for factory ambient
-   readings), channel, value, unit, **observed timestamp or simulation tick**,
-   ingestion timestamp, quality/freshness flags and provenance. Capture
-   operating context **at the reading's time**: machine status/mode, spindle
-   RPM, measured load if available, active job/operation and applicable
-   settings. Distinguish absent data from a measured zero; do not fabricate
-   sensors or context. Preserve source clock offsets, gaps, duplicates,
-   out-of-order arrival and ingestion lag, and make replay writes idempotent.
-3. Make the agent's read-only `FactoryProvider` observation surface return
-   **windowed readings, trends, events and summaries** from this store.
-   "Live" means a sufficiently fresh recent window (for example last N
-   seconds); "historical" means an older bounded window of **the same stored
-   measurements**. Both need explicit source time, as-of cutoffs, completeness
-   and freshness; a recent query is not proof that the physical machine is
-   currently healthy. Preserve existing tool contracts where practical, using
-   a separate provider implementation rather than rewriting investigator,
-   critic, manual RAG or memory logic.
-4. Run a **deterministic, always-on monitoring service**, not an LLM polling
-   sensor rows. Begin with documented fixed/manufacturer thresholds,
-   sustained-change/rate-of-change rules and missing/stale-data detection;
-   add context-matched baselines only when representative observations exist.
-   Compare like operating conditions (RPM, load, mode and job), with
-   hysteresis, deduplication and clear alert provenance. Cold-start status
-   must be `baseline_unavailable` or equivalent, never "normal by default".
-5. **Decouple alarm location from investigation scope.** A machine alarm is
-   one symptom, not a root-cause label. The near-term agent-side
-   [line-wide context, coverage critic and matched comparison](#fw-line-scope)
-   are separately buildable now and do **not** depend on this store.
-   Here the deterministic monitor adds triggers: silent degradation,
-   cross-machine flow changes, routine health checks and data-quality
-   incidents can initiate triage. Correlate upstream/downstream machines using
-   a bounded line-wide status/event summary before targeted deep research.
-   Group likely cascading alarms into an incident, but preserve distinct
-   independent faults; never assume one shared cause. Existing safety and
-   controller alarm handling remain independent of the LLM.
-
-**Replay acceptance gate:** Capture one seeded stream with known fault truth
-kept evaluator-only, then supply the **same timestamped observation windows**
-from (a) the advancing simulated stream and (b) replay of stored records.
-Verify equal available observations, context, event ordering, freshness/gap
-semantics and deterministic monitor decisions. With pinned prompts/model
-settings, compare root-cause/affected-machine conclusions, cited evidence,
-abstention and tool usage; do not require byte-identical free-text output
-from a nondeterministic model. Test an alarm on the wrong machine, an
-alarm-free progressive fault, a cascading line effect, independent concurrent
-faults, cold start, dropped/stale/late/duplicated readings and a normal run.
-Report detection delay, false/missed triggers, data completeness, diagnostic
-accuracy, budget use and replay parity. Do not confuse tape replay with
-counterfactual post-intervention verification.
-
-**Stage B — real equipment is deferred and conditional.** The concrete shop-facing [Haas live-telemetry pilot plan](#fw-haas-live-pilot) below is ready for outreach, but does not authorize implementation or machine access. Only with a willing
-shop, authorized read-only access and a verified machine capability matrix
-should an MTConnect/OPC UA or approved MQTT/external-sensor adapter replace the
-simulator producer. The *same* ingestion contract and agent-facing read tools
-should work; OT security, edge buffering, clock synchronization, shadow mode
-and shop-floor validation are separate pilot gates, not Stage A deliverables.
-No assumption that a physical machine is available for the capstone.
-
-**Dependencies and boundaries:** Preserve seeded determinism, hidden-truth
-isolation, human approval and verification. This follows the
-[incident-first context and matched-seed evaluation](#fw-incident-context),
-which can use simulator-held data before any database. Coordinate with
-[rapid triage](#fw-rapid-triage), [degraded data](#fw-degraded-data),
-[Haas reference-machine capabilities](#fw-haas-retrofit) and
-[Future Work 5 monitoring/dispatch](#fw-proactive). The present
-`ObservationTools` read simulator-held observations; this proposal does
-**not** assert that a PostgreSQL time-series pipeline already exists. Build
-and compare the simplest measured slice before introducing a broker, new
-multi-agent monitor or high-frequency infrastructure.
-
 ### Haas live-telemetry collection and manufacturer pilot (HIGH for outreach planning; post-MVP implementation)
 
 <a id="fw-haas-live-pilot"></a>
@@ -2915,6 +2828,100 @@ poll rate, retention and hosting; secure network design; edge/API
 credentials and revocation; documented rollback/stop; and a shop-approved
 low-impact connection test. If any is missing, use synthetic or explicitly
 permitted recorded data instead.
+
+### Simulated telemetry ingestion, unified sensor history and replay (MEDIUM; proposed 2026-11-02)
+
+<a id="fw-telemetry-replay"></a>
+
+**Status: PARTIALLY IMPLEMENTED — the read-only collector, deterministic monitor and watchdog exist; online ingestion and active agent triggering are unfinished.** First prove the separate
+[incident-first, line-wide context increment](#fw-incident-context) without
+requiring a new database or continuous monitor. Prioritize the
+simulated-stream proof after that comparison and the existing single-agent
+investigation baseline are stable; do not claim a live
+collector, persistent sensor database, real-machine access, or a completed
+replay test today. This is a data-acquisition and evidence-availability layer,
+not a new LLM "live mode" or a replacement for the existing reasoning graph.
+
+**Stage A — capstone-scale simulated stream and historical queries:**
+
+1. Make the existing seeded simulator a **timed telemetry producer** through a
+   small, replaceable producer/ingestion interface. It must still support
+   deterministic offline tests without a database, wall-clock sleep, an LLM or
+   proprietary factory data. Persist observations to one logical time-series
+   reading store (PostgreSQL; TimescaleDB is optional after measured volume
+   warrants it), separate from Chroma manuals and episodic memories. Keep
+   observable events/alarms and job/status transitions correlated by timestamps
+   and identifiers, whether in a companion event table or typed record stream.
+2. Specify a common reading contract before choosing transport: source and
+   sample identifiers, run/line/machine identity (nullable for factory ambient
+   readings), channel, value, unit, **observed timestamp or simulation tick**,
+   ingestion timestamp, quality/freshness flags and provenance. Capture
+   operating context **at the reading's time**: machine status/mode, spindle
+   RPM, measured load if available, active job/operation and applicable
+   settings. Distinguish absent data from a measured zero; do not fabricate
+   sensors or context. Preserve source clock offsets, gaps, duplicates,
+   out-of-order arrival and ingestion lag, and make replay writes idempotent.
+3. Make the agent's read-only `FactoryProvider` observation surface return
+   **windowed readings, trends, events and summaries** from this store.
+   "Live" means a sufficiently fresh recent window (for example last N
+   seconds); "historical" means an older bounded window of **the same stored
+   measurements**. Both need explicit source time, as-of cutoffs, completeness
+   and freshness; a recent query is not proof that the physical machine is
+   currently healthy. Preserve existing tool contracts where practical, using
+   a separate provider implementation rather than rewriting investigator,
+   critic, manual RAG or memory logic.
+4. Run a **deterministic, always-on monitoring service**, not an LLM polling
+   sensor rows. Begin with documented fixed/manufacturer thresholds,
+   sustained-change/rate-of-change rules and missing/stale-data detection;
+   add context-matched baselines only when representative observations exist.
+   Compare like operating conditions (RPM, load, mode and job), with
+   hysteresis, deduplication and clear alert provenance. Cold-start status
+   must be `baseline_unavailable` or equivalent, never "normal by default".
+5. **Decouple alarm location from investigation scope.** A machine alarm is
+   one symptom, not a root-cause label. The near-term agent-side
+   [line-wide context, coverage critic and matched comparison](#fw-line-scope)
+   are separately buildable now and do **not** depend on this store.
+   Here the deterministic monitor adds triggers: silent degradation,
+   cross-machine flow changes, routine health checks and data-quality
+   incidents can initiate triage. Correlate upstream/downstream machines using
+   a bounded line-wide status/event summary before targeted deep research.
+   Group likely cascading alarms into an incident, but preserve distinct
+   independent faults; never assume one shared cause. Existing safety and
+   controller alarm handling remain independent of the LLM.
+
+**Replay acceptance gate:** Capture one seeded stream with known fault truth
+kept evaluator-only, then supply the **same timestamped observation windows**
+from (a) the advancing simulated stream and (b) replay of stored records.
+Verify equal available observations, context, event ordering, freshness/gap
+semantics and deterministic monitor decisions. With pinned prompts/model
+settings, compare root-cause/affected-machine conclusions, cited evidence,
+abstention and tool usage; do not require byte-identical free-text output
+from a nondeterministic model. Test an alarm on the wrong machine, an
+alarm-free progressive fault, a cascading line effect, independent concurrent
+faults, cold start, dropped/stale/late/duplicated readings and a normal run.
+Report detection delay, false/missed triggers, data completeness, diagnostic
+accuracy, budget use and replay parity. Do not confuse tape replay with
+counterfactual post-intervention verification.
+
+**Stage B — real equipment is deferred and conditional.** The concrete shop-facing [Haas live-telemetry pilot plan](#fw-haas-live-pilot) above is ready for outreach, but does not authorize implementation or machine access. Only with a willing
+shop, authorized read-only access and a verified machine capability matrix
+should an MTConnect/OPC UA or approved MQTT/external-sensor adapter replace the
+simulator producer. The *same* ingestion contract and agent-facing read tools
+should work; OT security, edge buffering, clock synchronization, shadow mode
+and shop-floor validation are separate pilot gates, not Stage A deliverables.
+No assumption that a physical machine is available for the capstone.
+
+**Dependencies and boundaries:** Preserve seeded determinism, hidden-truth
+isolation, human approval and verification. This follows the
+[incident-first context and matched-seed evaluation](#fw-incident-context),
+which can use simulator-held data before any database. Coordinate with
+[rapid triage](#fw-rapid-triage), [degraded data](#fw-degraded-data),
+[Haas reference-machine capabilities](#fw-haas-retrofit) and
+[Future Work 5 monitoring/dispatch](#fw-proactive). The present
+`ObservationTools` read simulator-held observations; this proposal does
+**not** assert that a PostgreSQL time-series pipeline already exists. Build
+and compare the simplest measured slice before introducing a broker, new
+multi-agent monitor or high-frequency infrastructure.
 
 ### Future Work 2 — MCP architecture, observability, and response verification
 
@@ -3325,6 +3332,71 @@ no fixes or ignores were added. The baseline has seven diagnostic types:
 three invalid-assignment, and one each call-non-callable, invalid-return-type,
 and unknown-argument.
 
+
+
+<a id="future-work-security-and-authorization"></a>
+
+## Future work: Security and authorization
+
+**Priority: MEDIUM for SEC-1–SEC-6; planned / conditional, not a new MVP dependency (2026-11-10).** This is the security-hardening backlog derived from the OpenShift Commons / NVIDIA OpenShell presentation and a review of the existing capstone paths. Keep the **existing P0 shop consent, IT/OT permission, approved read-only connection, source filtering, data handling and first-capture gates** in [pilot readiness](#future-work-pilot-readiness). Assigning this *additional* work MEDIUM does not relax any of those gates. The first real-machine pilot remains discovery and/or explicitly authorized read-only capture; no machine writes or autonomous interventions.
+
+**Design constraint:** Preserve the Pydantic Graph, typed `FactoryProvider` contract, deterministic collector, local replay and simulator tests. Treat a prompt instruction, application-level validation, an OS/network policy and a shop's written approval as **different** controls. OpenShell is an optional deployment mechanism, not a replacement framework or a prerequisite to the visit. Implement the smallest independently testable boundary and do not claim a real CNC, factory network or protected sandbox has been validated.
+
+<a id="fw-sec-isolation"></a>
+
+### SEC-1 — Independent investigator isolation (MEDIUM; deployment-dependent)
+
+- **Existing foundation:** `capstone/ingestion/collector.py` collects independently of LLM calls; `capstone/providers/replay.py` reads an offline capture, and the graph's triage path ends before proposing or executing an action. These are useful *application* boundaries, not OS isolation.
+- **Proposed change:** Run the approved collector and the investigator with separate process identities, filesystem privileges and network rules. The collector alone may reach the shop-approved read-only endpoint; the investigator reads only approved evidence or a restricted evidence API, cannot reach the CNC network, and cannot mutate the capture or policy. An optional sandbox/container can enforce this in a later persistent deployment.
+- **Acceptance:** From the investigator process, direct controller access, an unapproved file read and a machine-control attempt fail even when application checks are bypassed; the collector still operates independently when a model times out. Prove this on a safe test environment before making deployment claims.
+- **Trigger:** Deployment beyond an offline replay, particularly persistent/multi-site operation. No new sandbox is required for an initial consented capture.
+
+<a id="fw-sec-network"></a>
+
+### SEC-2 — Default-deny network and collector access (MEDIUM; pilot hardening)
+
+- **Existing foundation:** The MTConnect collector constructs GET requests with bounded polling/response size; `capstone/ingestion/pilot_preflight.py` records approvals and a channel allowlist. The collector CLI accepts a base URL, however, and neither GET-only code nor a completed preflight file independently restricts network destinations. The raw MTConnect stream is not filtered by data-item before acquisition.
+- **Proposed change:** Bind collector deployment to an IT/OT-approved hostname/IP, port, read interface and rate; reject unexpected redirects or target changes and deny other egress in the host/network configuration. For partial channel approval, use a shop-filtered export or approved upstream filter **before** the collector reads any disallowed field. Preserve no-scanning/no-controller-writes rules and do not assume MTConnect exists on the actual machine.
+- **Acceptance:** Wrong host/port, redirect, over-rate request, unapproved method and unapproved channel acquisition fail closed in tests; an approved local sample continues to work without adverse machine impact. Document any source-specific limitation instead of pretending per-item filtering exists.
+- **Trigger:** Any authorized real endpoint. The baseline permission to connect stays P0 in the pilot runbook, regardless of this backlog's MEDIUM rank.
+
+<a id="fw-sec-capabilities"></a>
+
+### SEC-3 — One capability-authorized recorded-investigation path (MEDIUM; code consolidation)
+
+- **Existing foundation:** Both `capstone/replay_investigation.py` and `capstone/recorded_investigation.py` connect captures to the existing Pydantic Graph with different CLI flags and tool-selection behavior. The latter filters sensor schemas; the former excludes the replay `wait` operation. `ModelPolicy._check_offered()` rejects unoffered tool names, but `FactoryProvider.call()` still dispatches its full registered catalog, and critic checks separately use `research_tools()`.
+- **Proposed change:** Choose one canonical replay entry point after preserving existing tests and CLI compatibility where needed. Compute one validated per-run allowed-capability set from the actual capture, time cutoff, channel map and consent; enforce it at the provider dispatch boundary for model, scripted, batched and critic-driven calls. Do not expose physical actions or simulation-only settings/maintenance history. Keep future observations unavailable at every cutoff. Use a recorded-machine-specific model context, not the generic simulated-line prompt.
+- **Acceptance:** One consistent set of permitted tools appears in prompts and is enforced by the provider; unsupported tool requests and historical look-ahead are refused, including when bypassing the `ModelPolicy` check. Simulator behavior and synthetic replay tests remain unchanged.
+- **Trigger:** Before treating the replay path as a reliable real-data diagnostic interface. This is consolidation of partly built work, **not** a new agent architecture.
+
+<a id="fw-sec-egress"></a>
+
+### SEC-4 — Provider egress permissions and protected credentials (MEDIUM)
+
+- **Existing foundation:** `capstone/settings.py` uses typed secret values; `capstone/providers/chat.py` constructs outgoing requests with bearer credentials. The two recorded-investigation CLIs require different explicit remote-model acknowledgement flags. Those flags do not themselves verify the shop's written authorization or constrain a configured fallback.
+- **Proposed change:** Validate a private, versioned permission record before transmitting shop-derived evidence. Allow only the approved provider/model destination and data classes, including fallbacks, critic requests, embeddings and any remote retrieval path; refuse an unapproved fallback rather than silently transferring telemetry. Keep secrets out of prompts, traces and reports. Consider brokered credentials only if deployment needs justify replacing the current in-process key handling.
+- **Acceptance:** Missing/expired consent, unapproved provider, fallback, embedding request or telemetry class prevents transmission **before** any outbound request. Synthetic tests with injected transports confirm approved routes still work. Recording permission is never treated as permission to send data to an external LLM.
+- **Trigger:** Before external model inference using any actual manufacturer information.
+
+<a id="fw-sec-audit"></a>
+
+### SEC-5 — Security-policy decision tracing (MEDIUM)
+
+- **Existing foundation:** `capstone/observability.py` provides an opt-in metadata-only `EventLogger`, and `FactoryProvider` can log tool outcomes. Those records do not currently constitute an independent runtime authorization audit.
+- **Proposed change:** Record allow/deny decisions at the boundary where they are enforced: policy version, operation, bounded resource identifier, caller role, timestamp, safe reason code and run correlation ID. Distinguish denied access from unavailable data and provider failure. Keep raw telemetry, source program names, unrestricted exception strings and API keys out of security events; use private storage and bounded retention. Keep investigation evidence/provenance separate.
+- **Acceptance:** Allowed and blocked tool, network and model-transfer attempts produce attributable, non-sensitive records; denied operations have no side effects. Verify redaction and retention in tests.
+- **Trigger:** When a shared authorization layer exists; do not add broad logging just to increase trace volume.
+
+<a id="fw-sec-approval"></a>
+
+### SEC-6 — Human-reviewed permission expansion and optional OpenShell evaluation (MEDIUM; deferred)
+
+- **Existing foundation:** `capstone/tools/actions.py` has a human approval desk for **simulated repairs**. It is not an authorization system for real machine connections, network privileges, provider transfers or security-policy edits.
+- **Proposed change:** For future production deployments, require a separate owner/IT/OT-authorized change request with explicit scope, approver, policy version, expiry and revocation for every new capability. An agent may propose but must never self-grant. Evaluate OpenShell's sandbox and policy-supervisor model against simpler process/container isolation only when agents have persistent execution privileges, many external integrations or multiple factory tenants. Do not adopt Kubernetes, MCP or OpenShell solely to implement the first pilot.
+- **Acceptance:** Unapproved, expired and revoked changes remain blocked; a reviewed policy change grants only its intended capability and leaves an audit record. Record measured operational benefit and deployment compatibility before choosing OpenShell.
+- **Trigger:** A demonstrated need for changing permissions during operation or central control across sites. Static allowlists are preferred while the system is single-machine and read-only.
+
+**Evaluation gate for the category:** Add deterministic negative tests for unauthorized controller access, redirected egress, forbidden sensor fields, a scripted/critic tool bypass, disallowed fallback/provider transfer and privacy-safe audit events. An architecture review or passing simulator tests alone do not certify real IT/OT safety. Preserve existing [MCP least-privilege planning](#fw-mcp), [pilot authorization](#future-work-pilot-readiness) and [first-machine acceptance](#fw-sm-track) as separate source-of-truth gates.
 
 ## Future work: Planning and automation
 
