@@ -45,7 +45,9 @@ class PilotPlan(BaseModel):
     read_only_method: str | None = None
     # The collector requests the full source response; a filtered export must
     # already have been filtered by the authorized shop before this program.
-    collection_scope: Literal["full_agent_stream", "approved_pre_filtered_export"] | None = None
+    collection_scope: (
+        Literal["full_agent_stream", "approved_pre_filtered_export"] | None
+    ) = None
     manager_approver: str | None = None
     it_ot_approver: str | None = None
     written_approval_reference: str | None = None
@@ -120,7 +122,10 @@ def check_pilot(
             ("it_ot_approver", "named IT/OT technical approver"),
             ("written_approval_reference", "private reference to written permission"),
             ("private_storage_location", "approved private data storage"),
-            ("stop_and_delete_procedure", "documented stop/revocation and deletion steps"),
+            (
+                "stop_and_delete_procedure",
+                "documented stop/revocation and deletion steps",
+            ),
             ("event_log_owner", "operator/technician responsible for event notes"),
         ):
             if not getattr(plan, key):
@@ -130,11 +135,10 @@ def check_pilot(
         if not plan.approved_data_item_ids:
             blocked.append("no explicit per-channel data-field allowlist")
         if plan.collection_scope is None:
-            blocked.append("collection scope unknown: full agent stream versus pre-filtered export")
-        if (
-            plan.approved_poll_seconds is None
-            or plan.approved_poll_seconds < 1
-        ):
+            blocked.append(
+                "collection scope unknown: full agent stream versus pre-filtered export"
+            )
+        if plan.approved_poll_seconds is None or plan.approved_poll_seconds < 1:
             blocked.append("no approved collection interval of at least one second")
         if plan.retention_days is None or plan.retention_days < 1:
             blocked.append("no approved positive retention period")
@@ -190,9 +194,14 @@ def check_pilot(
             if not mapped:
                 blocked.append("selected machine does not appear in the saved probe")
             names = {n for entry in mapped for n in (entry.device, entry.device_uuid)}
-            other_machines = {line.device for line in samples if line.device not in names}
+            other_machines = {
+                line.device for line in samples if line.device not in names
+            }
             if other_machines:
-                blocked.append("recorded data includes a different machine: " + ", ".join(sorted(other_machines)))
+                blocked.append(
+                    "recorded data includes a different machine: "
+                    + ", ".join(sorted(other_machines))
+                )
             mapped_numeric = {
                 (entry.device, entry.data_item_id)
                 for entry in mapped
@@ -227,7 +236,9 @@ def check_pilot(
             warnings.append("External model transfer is NOT authorized by this plan.")
     if stage == "week":
         if not plan.seven_day_capture_authorized:
-            blocked.append("seven-day collection requires separate explicit authorization")
+            blocked.append(
+                "seven-day collection requires separate explicit authorization"
+            )
         if not plan.named_collector_restart_contact:
             blocked.append("no named contact to restart/stop the collector")
         if not plan.disk_and_rotation_plan:
@@ -252,13 +263,17 @@ def main(argv: Sequence[str] | None = None) -> int:
     #   args: The requested operation and private input/output paths.
     #   plan: Explicit, human-filled facts; every omitted field remains unknown.
     #   report: Offline assessment; never proof of the signed approval itself.
-    parser = argparse.ArgumentParser(prog="python -m capstone.ingestion.pilot_preflight")
+    parser = argparse.ArgumentParser(
+        prog="python -m capstone.ingestion.pilot_preflight"
+    )
     commands = parser.add_subparsers(dest="command", required=True)
     template = commands.add_parser("template", help="write a blank private plan")
     template.add_argument("--out", type=Path, required=True)
     check = commands.add_parser("check", help="audit a private plan and evidence")
     check.add_argument("--plan", type=Path, required=True)
-    check.add_argument("--stage", choices=("discovery", "capture", "week"), default="discovery")
+    check.add_argument(
+        "--stage", choices=("discovery", "capture", "week"), default="discovery"
+    )
     for arg in ("probe", "map", "capture", "events", "out"):
         check.add_argument("--" + arg, type=Path)
     args = parser.parse_args(argv)
@@ -267,7 +282,9 @@ def main(argv: Sequence[str] | None = None) -> int:
             parser.error("private plan must be outside a git checkout")
         if args.out.exists():
             parser.error("refusing to overwrite an existing private plan")
-        args.out.write_text(PilotPlan().model_dump_json(indent=2) + "\n", encoding="utf-8")
+        args.out.write_text(
+            PilotPlan().model_dump_json(indent=2) + "\n", encoding="utf-8"
+        )
         print(f"wrote blank private plan to {args.out}")
         return 0
     if args.out and refusal(args.out, "--out"):
