@@ -14,6 +14,9 @@ later, an AI research agent that investigates it through tools.
   OpenTelemetry/LangSmith, and response verification, with a readiness checklist.
 - `docs/PROGRESS.md` — which components are implemented and which are
   understood (tracked separately).
+- [Prestige pilot runbook](docs/PRESTIGE_PILOT_RUNBOOK.md) — controller-agnostic
+  visit discovery, permission checks, source/time/channel validation and a
+  private, offline acceptance gate; no controller type or visit date is known.
 - [Future Work reevaluation register](docs/FUTURE_WORK_REEVALUATION.md) —
   reviewed implementation conditions, adoption checks and reasons to defer or
   reject candidates, including the Datum/Ratchet prompt evaluation.
