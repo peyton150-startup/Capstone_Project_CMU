@@ -91,9 +91,13 @@ def assess_pilot(
     if not manifest.machine_label or not manifest.manufacturer:
         blockers.append("identify the particular machine and manufacturer")
     if not manifest.machine_model or not manifest.controller:
-        blockers.append("record machine model and controller before choosing an adapter")
+        blockers.append(
+            "record machine model and controller before choosing an adapter"
+        )
     if manifest.access_method == "unknown":
-        blockers.append("controller access method is unknown; no protocol may be assumed")
+        blockers.append(
+            "controller access method is unknown; no protocol may be assumed"
+        )
     elif manifest.access_method != "mtconnect":
         blockers.append(
             "this access method needs its own validated, approved capture adapter; "
@@ -118,14 +122,19 @@ def assess_pilot(
     if not manifest.revocation_contact:
         blockers.append("name the shop contact who can stop collection immediately")
     if not manifest.no_production_impact_confirmed:
-        blockers.append("confirm the approved test caused no observed production impact")
+        blockers.append(
+            "confirm the approved test caused no observed production impact"
+        )
     if not manifest.clock_alignment_confirmed:
         blockers.append("compare controller/source clock against operator event times")
     if manifest.normal_cycles_confirmed < 3:
         blockers.append("have the technician confirm at least three normal cycles")
     if not manifest.continued_collection_approved:
         blockers.append("obtain explicit permission before leaving a collector running")
-    if manifest.continued_collection_approved and not manifest.continued_collection_until:
+    if (
+        manifest.continued_collection_approved
+        and not manifest.continued_collection_until
+    ):
         blockers.append("record when authorization to continue collection expires")
 
     observations = 0
@@ -148,13 +157,9 @@ def assess_pilot(
             blockers.append("captured data is unmapped or disagrees with the probe")
         uses = [row for row in channel_check.uses if row.available > 0]
         mapped = len(uses)
-        observations = sum(
-            isinstance(row, TelemetryRecord) for row in capture
-        )
+        observations = sum(isinstance(row, TelemetryRecord) for row in capture)
         observed_ids = {
-            row.data_item_id
-            for row in capture
-            if isinstance(row, TelemetryRecord)
+            row.data_item_id for row in capture if isinstance(row, TelemetryRecord)
         }
         if observed_ids - set(manifest.approved_channels):
             blockers.append(
@@ -167,7 +172,9 @@ def assess_pilot(
         gaps = visit.gaps
         covered = sum(match.placement == "covered" for match in visit.matches)
         if not visit.ready:
-            blockers.append("probe, observations and matching technician events incomplete")
+            blockers.append(
+                "probe, observations and matching technician events incomplete"
+            )
         if gaps and not manifest.collection_gaps_reviewed:
             blockers.append("review and explain data gaps before declaring acceptance")
     else:
@@ -175,11 +182,15 @@ def assess_pilot(
             "approved, replayable probe/map/capture/technician-event evidence not yet verified"
         )
     if blockers:
-        status = "blocked" if (
-            not manifest.owner_approved
-            or not manifest.it_ot_approved
-            or manifest.access_method == "unknown"
-        ) else "pending_capture"
+        status = (
+            "blocked"
+            if (
+                not manifest.owner_approved
+                or not manifest.it_ot_approved
+                or manifest.access_method == "unknown"
+            )
+            else "pending_capture"
+        )
     else:
         status = "capture_verified"
     return PilotAcceptance(
@@ -198,7 +209,9 @@ def main(argv: Sequence[str] | None = None) -> int:
     #   args: Commands and private paths chosen by the user.
     #   manifest: Site-specific observations and approvals, not a generated guess.
     #   report: Explicit blockers or verified capture counts, never an invented pass.
-    parser = argparse.ArgumentParser(prog="python -m capstone.ingestion.pilot_acceptance")
+    parser = argparse.ArgumentParser(
+        prog="python -m capstone.ingestion.pilot_acceptance"
+    )
     actions = parser.add_subparsers(dest="command", required=True)
     template = actions.add_parser("template")
     template.add_argument("--out", required=True, type=Path)
@@ -228,9 +241,9 @@ def main(argv: Sequence[str] | None = None) -> int:
         report = assess_pilot(
             manifest,
             probe=args.probe.read_text(encoding="utf-8") if args.probe else None,
-            mapping=ChannelMap.model_validate_json(
-                args.map.read_text(encoding="utf-8")
-            ) if args.map else None,
+            mapping=ChannelMap.model_validate_json(args.map.read_text(encoding="utf-8"))
+            if args.map
+            else None,
             capture=read_capture(args.capture) if args.capture else None,
             events=load_event_log(args.events) if args.events else None,
         )
