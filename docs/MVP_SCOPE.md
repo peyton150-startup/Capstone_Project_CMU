@@ -319,24 +319,24 @@ built. What is built is recorded, with its pull request, in
 them are fixed IDs that code comments, tests and other documents cite, so they
 stay even though the sections are now grouped by topic, with items sorted from higher to lower priority within each category.
 
-## Future work index: categories and priorities
+## Future work index: audited implementation and dependencies (2026-11-10)
 
-This reorganizes the existing roadmap, not its implementation status or authority to build. Explicit priorities are preserved; items previously unranked are assigned **LOW** for navigation unless their described dependencies indicate greater urgency. FAR FUTURE retains the project's near-last and absolute-last ordering. Each item links to the original detailed requirements below.
+**Source of truth:** merged code/PRs, not old proposal wording. Built means fixture- or simulator-tested, NOT verified on Prestige equipment. The controller, date, permitted fields, and access method are not known yet. Do not assume Haas or MTConnect. Unmerged PRs are not counted as complete.
 
-| Category | Highest priority | Scope |
+| Category / home section | Implemented (links to detail) | Remaining work and acceptance gate |
 |---|---|---|
-| [Pilot readiness and safety](#future-work-pilot-readiness) | HIGH | First shop visit checklist and technician event log (SM-4), rapid triage, reliable abstention |
-| [Simulator upgrades and machine fidelity](#future-work-simulator-upgrades) | HIGH | Haas fidelity, power/bearing validation, fault models |
-| [Evaluation, benchmarking and reasoning](#future-work-evaluation) | HIGH | Line-wide investigation scope, live runs, critic, ranked technician check list (SM-11), ToT/GoT, runtime reliability |
-| [Retrieval and memory](#future-work-retrieval-and-memory) | MEDIUM | Manual and episodic search, reranking, ingestion |
-| [Multi-agent roles and coordination](#future-work-multi-agent-roles) | MEDIUM | Specialists, contracts, handoffs and model budgets |
-| [Tooling and infrastructure](#future-work-tooling) | HIGH | **Single-machine reading for the first real CNC (SM-1 to SM-10, current focus)**; staged CPU anomaly detection (Python → NumPy/SciPy → optional ML), line-context assessment, manufacturer outreach; telemetry/replay, MCP and audits follow |
-| [Planning and automation](#future-work-planning-and-automation) | LOW | Controlled interventions, controller servo diagnostic moves (SM-12) and proactive monitoring |
-| [Frontend and operator experience](#future-work-frontend) | LOW | Difficulty recipes and safe configuration UI |
-| [Long-term portability and optional interfaces](#future-work-long-term) | LOW / FAR FUTURE | Cross-machine support, added vibration/acoustic sensing (SM-13), vision and voice |
+| [Pilot readiness & safety](#future-work-pilot-readiness) | [SM-4 visit log](#fw-sm-visit-log) [#207](https://github.com/peyton150-startup/Capstone_Project_CMU/pull/207); [rapid triage](#fw-rapid-triage) #184 | [Approved one-machine, read-only pilot](#fw-haas-live-pilot); match operator events to an actual capture and confirm data rights |
+| [Tooling: real-machine acquisition](#future-work-tooling) | [SM-1 channel map](#fw-sm-channel-map) #206; [SM-2 quality](#fw-sm-gap-events) #204/#211; [SM-3 replay provider](#fw-sm-real-provider) #213; [SM-5 time statistics](#fw-sm-time-stats) #212 | [SM-6 operating states](#fw-sm-state-segmentation), [SM-7 same-machine baseline](#fw-sm-own-baseline), [replay investigation wiring](#fw-latency-review), [ingestion lifecycle](#fw-telemetry-replay) |
+| [CPU anomaly detection (tooling)](#fw-cpu-anomaly-detector) | Simulator-only Python screening and healthy reference (#201/#202) | **REAL-WORLD APPLICATION UNFINISHED**; approved Naseem data, real normal baseline, state segmentation, calibration and validation |
+| [Simulator fidelity](#future-work-simulator-upgrades) | Seeded causal simulator | [Specific CNC reference model only after controller discovery](#fw-haas-retrofit), [bearing curve](#fw-bearing-progression), [power units](#fw-power-validation) |
+| [Evaluation, latency & reasoning](#future-work-evaluation) | [Line-wide packet](#fw-line-context) #186, critic/recheck, gap replay | [Live ablations and sufficiency-gate calibration](#fw-latency-review), [ranked technician check list](#fw-sm-check-ranking) after labels |
+| [Retrieval & memory](#future-work-retrieval-and-memory) | Manual/episodic retrieval exists | [MMR](#fw-mmr), [manual reranking](#fw-voyage), [real documents](#fw-docling) |
+| [Multi-agent coordination](#future-work-multi-agent-roles) | Investigator and Critic roles exist | [Line Sentinel](#fw-line-sentinel), [specialists](#fw-specialist-roles), [handoffs](#fw-handoffs) only if justified by benchmarks |
+| [Planning & automation](#future-work-planning-and-automation) | Simulator approval and verification | [Approved field experiments](#fw-experiments), [incident lifecycle](#fw-proactive), [servo moves](#fw-sm-servo-diagnostics) only after separate approval |
+| [Frontend/operator experience](#future-work-frontend) | Human reviewer evidence packet #216 | [Operator screen and safe configuration](#fw-frontend) |
+| [Portability & optional interfaces](#future-work-long-term) | No real-world camera/audio integrations | [Profiles](#fw-portability), [acoustic/vibration sensors](#fw-sm-hires-sensing), [vision](#fw-vision), [voice](#fw-voice) are deferred |
 
 <a id="fw-sm-track"></a>
-
 ### Single-machine reading track: current focus, highest to lowest priority (2026-11-07)
 
 **Why this comes first.** The next real test is one CNC machine at a shop visit. The developer's decision (2026-11-07): make the agent good at **reading one machine** before adding agents, reasoning complexity or fine-tuned models, and treat pinpointing the failed part as later work. One machine has no peers, so the useful comparison is the same machine doing comparable work today versus when it ran normally. SM numbers are the ranking (SM-1 highest); each item sits in its own category below and also appears in the full table. The machine, controller and exposed fields are not confirmed yet, so build only what the machine's saved `/probe` shows it supports.
@@ -391,81 +391,86 @@ flowchart LR
     SM11 --> SM13
 ```
 
-### All future-work entries — highest to lowest priority
+### Completed or set-aside items (not active future work)
 
-| Priority | Category | Item | Short summary |
-|---|---|---|---|
-| **HIGH** | Evaluation | [Investigation latency review: signal vs noise](#fw-latency-review) | Verified findings from the 2026-11-09 review: where time goes, gate calibration, triage/deep search bug, pilot tool list, baseline arms. Planned only. |
-| **HIGH** | Tooling | [SM-1 Versioned channel map from `/probe`](#fw-sm-channel-map) | Map every data item to its unit, meaning, tool sensor and availability; current focus. Built (PR #206); awaits the machine's real probe. |
-| **HIGH** | Tooling | [SM-2 Collection gaps in the telemetry file](#fw-sm-gap-events) | Write lost-data, stale and UNAVAILABLE spans into the JSONL instead of stderr. Lost-data gap markers built (PR #204); stale and UNAVAILABLE spans built (PR #211). |
-| **HIGH** | Tooling | [SM-3 Real-data provider](#fw-sm-real-provider) | Answer the existing observation tools from a recorded capture, read-only. Built (PR #213); awaits a real capture. |
-| **HIGH** | Pilot readiness | [SM-4 Shop visit checklist and technician event log](#fw-sm-visit-log) | Can we read it, interpret it, verify it; log program/tool changes and maintenance. Built (PR #207); awaits the visit. |
-| **HIGH** | Tooling | [SM-5 Time-aware statistics](#fw-sm-time-stats) | Time-weighted means and slopes for uneven samples; never span a gap. Core built (PR #212). |
-| **HIGH** | Tooling | [SM-6 Operating-state segmentation](#fw-sm-state-segmentation) | Idle, running, cutting and transitions from exposed fields only. |
-| **HIGH** | Tooling | [SM-7 Same-machine baseline](#fw-sm-own-baseline) | Compare the machine with its own confirmed-normal history per state. |
-| **HIGH** | Pilot readiness | [Fast read-only triage](#fw-rapid-triage) | Built 2026-11-05, opt-in; live latency target still to measure. |
-| **HIGH** | Pilot readiness | [Degraded-data handling](#fw-degraded-data) | Set aside 2026-11-05: hazards will not be used. |
-| **HIGH** | Simulator | [Haas VF/NGC reference machine](#fw-haas-retrofit) | Ground the simulator in model-specific manuals and known supported telemetry. |
-| **HIGH — outreach plan only** | Tooling | [Haas live-telemetry pilot plan](#fw-haas-live-pilot) | Qualify one consenting shop and define safe read-only access, collection, storage, and shadow-mode deployment; build remains post-MVP. |
-| **HIGH** | Tooling | [CPU-based statistical anomaly detection](#fw-cpu-anomaly-detector) | Staged CPU roadmap: built-in Python → NumPy/SciPy statistics (the target; an offline probe on 2026-11-06 found it catches every wear and leak case) → scikit-learn (optional, may be added later, not necessary) → River (skip for the capstone); send evidence-backed assessments into line context. |
-| **HIGH** | Simulator | [Three-day bearing curve](#fw-bearing-progression) | Enable experiment selection and review wear curve with the manufacturing SME. |
-| **HIGH** | Simulator | [Power signal fidelity](#fw-power-validation) | Validate kW assumptions, relevant scoring and energy calculations. |
-| **HIGH** | Evaluation | [Line-wide investigation context](#fw-line-context) | Treat the alarmed machine as a starting point; check the relevant line before forming hypotheses. Buildable now. |
-| **HIGH** | Evaluation | [Critic coverage check](#fw-critic-coverage) | Opt-in critic challenges both missing cross-machine checks and unsupported neighbor attribution. |
-| **HIGH** | Evaluation | [Alarm-centered vs line-wide comparison](#fw-scope-comparison) | Match seeds and settings; wrong-machine, silent, cascading, independent and normal cases. |
-| **HIGH** | Evaluation | [Current live run comparisons](#fw-live-runs) | Compare prompts, settings, manual, memory, and scorer outcomes on matched cases. |
-| **HIGH** | Evaluation | [Critic follow-up effectiveness](#fw-critic-comparison) | Compare review-only with bounded critic-driven recheck. |
-| **HIGH** | Evaluation | [Degraded matrix on live models](#fw-degraded-comparison) | Run clean vs degraded scenarios and examine false-confidence cases. |
-| **HIGH** | Evaluation | [Pydantic AI reliability audit](#fw-runtime-audit) | Benchmark deadlines and typed runtime safety; do not migrate without evidence. |
-| **MEDIUM** | Tooling | [SM-8 Richer trend features](#fw-sm-trend-features) | Rolling variability, persistence, spikes and trend acceleration. |
-| **MEDIUM** | Tooling | [SM-9 Cross-signal relationship checks](#fw-sm-cross-signal) | Flag load and temperature rising at constant RPM as a discrepancy to explain. |
-| **MEDIUM (conditional)** | Tooling | [SM-10 Cycle reference signatures](#fw-sm-cycle-signatures) | Compare repeated programs stage by stage, only if the controller exposes them. |
-| **MEDIUM** | Evaluation | [SM-11 Ranked technician check list](#fw-sm-check-ranking) | Rank parts to check by likelihood divided by cost to check; update after each finding. |
-| **MEDIUM** | Simulator | [Electrical current in amps](#fw-current-draw) | Measure whether current adds distinct value beyond existing power readings. |
-| **MEDIUM** | Simulator | [More servo and hydraulic modes](#fw-additional-failures) | Evaluate encoder, pump, valve, lubricant and overlapping-failure scenarios. |
-| **MEDIUM** | Simulator | [Fault draw and pack selection](#fw-fault-packs) | Keep seeded draws invariant and choose fault packs by experiment. |
-| **MEDIUM** | Evaluation | [ToT + critic ablations](#fw-tot-ablation) | Evaluate pruning, deferral, earlier critic checks and adaptive search. |
-| **MEDIUM** | Evaluation | [Concurrent-fault evidence scoring](#fw-multicause) | Support multiple evidence-backed causes rather than arbitrary top-k pruning. |
-| **MEDIUM** | Evaluation | [Position-bias / logprob check](#fw-position-bias) | Compare score stability under order changes and optional token likelihood. |
-| **MEDIUM** | Evaluation | [Bounded Graph of Thoughts](#fw-got-prototype) | Test graph hypothesis merges only if matched tests justify the overhead. |
-| **MEDIUM** | Evaluation | [Model-response evaluation cache](#fw-eval-cache) | Use opt-in SQLite for repeat judgments without caching production investigations. |
-| **MEDIUM** | Evaluation | [Role-specific model benchmarks](#fw-role-benchmarks) | Measure specialist task quality, latency, cost and schema failures. |
-| **MEDIUM** | Retrieval | [MMR episodic search](#fw-mmr) | Test diversity of historical investigations against similarity retrieval. |
-| **MEDIUM** | Retrieval | [Voyage manual reranking](#fw-voyage) | Benchmark only the manual/SOP retrieval path. |
-| **MEDIUM** | Retrieval | [Jev for recall or routing](#fw-jev-recall) | Test model-driven recall rerank and routing if baseline errors warrant it. |
-| **MEDIUM** | Multi-agent | [Line Sentinel (third agent)](#fw-line-sentinel) | Decide where and when to investigate, and whether that data can be trusted, after the line-wide packet; never names a cause. |
-| **MEDIUM** | Multi-agent | [Planner / researcher / analyst roles](#fw-specialist-roles) | Add bounded specialist stages after demonstrated gains. |
-| **MEDIUM** | Multi-agent | [Typed handoffs and contracts](#fw-handoffs) | Define evidence-only, full and challenge handoffs with shared provenance. |
-| **MEDIUM** | Multi-agent | [Per-role execution budgets](#fw-agent-budgets) | Bound output, retries, tool calls and time across all agents. |
-| **MEDIUM** | Tooling | [Simulated telemetry stream and replay](#fw-telemetry-replay) | Store context-rich readings once; query recent/history windows and compare replay with monitoring. |
-| **MEDIUM** | Tooling | [Read-only MCP boundary](#fw-mcp) | Introduce authenticated MCP capabilities only when core agent is ready. |
-| **MEDIUM** | Tooling | [Traces and response validation](#fw-response-check) | Observe agent/tool calls and verify schema, permissions and freshness. |
-| **MEDIUM** | Tooling | [SubQ full-repo audit](#fw-subq) | Examine cross-file integrity on a pinned snapshot before sweeping refactors. |
-| **LOW** | Planning | [SM-12 Controller servo diagnostic moves](#fw-sm-servo-diagnostics) | Approved test motions and servo frequency analysis to separate bearing, ball screw and guide. |
-| **LOW** | Evaluation | [Prompt and setting comparisons](#fw-prompt-settings) | Finish existing targeted live A/B tests. |
-| **LOW** | Evaluation | [Episodic memory live comparison](#fw-memory-comparison) | Compare no memory, keyword and semantic recall modes. |
-| **LOW** | Evaluation | [Memory experiment reporting](#fw-memory-reporting) | Add focused reruns, repeats and memory-store manifest. |
-| **LOW** | Evaluation | [Keyword / semantic parity](#fw-recall-parity) | Align indexed fields and introduce semantic relevance cutoff. |
-| **LOW** | Evaluation | [Jev auto-label agreement](#fw-jev-labels) | Measure against hand labels before using predictions for scoring. |
-| **LOW** | Evaluation | [Regression-case expansion](#fw-regression-cases) | Extend known-answer suite when causal simulator support exists. |
-| **LOW** | Evaluation | [Deterministic sensor calculations](#fw-sensor-calculations) | Add window comparisons when justified by observed diagnostic need. |
-| **LOW** | Evaluation | [Pydantic Evals framework](#fw-pydantic-evals) | Consider framework substitution only after measured reporting pain. |
-| **LOW** | Retrieval | [Agent-directed RAG refinements](#fw-rag) | Improve remaining retrieval orchestration without redundant queries. |
-| **LOW** | Retrieval | [Near-duplicate memory filter](#fw-near-duplicate) | Test write-time semantic duplication threshold. |
-| **LOW** | Retrieval | [Docling / HybridChunker](#fw-docling) | Evaluate parsing of real PDFs and maintenance documents. |
-| **LOW** | Multi-agent | [Role compatibility probes](#fw-role-compatibility) | Check structured outputs, fallback and budget behavior per provider. |
-| **LOW** | Multi-agent | [Cohere Rerank](#fw-cohere-rerank) | Use retrieval-only reranking when justified; not a chat agent. |
-| **LOW** | Multi-agent | [Requesty strict JSON](#fw-requesty-json) | Test gateway JSON schema translation by actual provider/model. |
-| **LOW** | Tooling | [uv, ty, Dependabot, Hypothesis, xdist](#fw-tooling) | Conditionally improve testing and dependency hygiene. |
-| **LOW** | Planning | [Controlled process experiments](#fw-experiments) | Plan and verify small approved machine-setting trials. |
-| **LOW** | Planning | [Automatic monitoring triggers](#fw-proactive) | Start investigations proactively only after lifecycle safety is mature. |
-| **LOW** | Simulator | [Additional optional fault pack](#fw-next-pack) | Add a new causal fault only if benchmark coverage needs it. |
-| **LOW** | Frontend | [Difficulty modes and operator UI](#fw-frontend) | Offer 1/4/8-fault modes and safe configuration controls. |
-| **LOW** | Portability | [Equipment profiles and tenancy](#fw-portability) | Consider YAML, schemas and isolation only when actual needs appear. |
-| **FAR FUTURE** | Optional interfaces | [SM-13 Added vibration or acoustic sensing](#fw-sm-hires-sensing) | High-resolution sensors for part-level localization, with shop approval. |
-| **FAR FUTURE** | Optional interfaces | [Sensor-triggered visual inspections](#fw-vision) | Use bounded camera/model observations only with shop approval. |
-| **FAR FUTURE** | Optional interfaces | [Technician voice reports](#fw-voice) | Offer reviewed speech input only after demonstrated user value. |
+| Classification | Former future-work item | Verified code or reason for deferral |
+|---|---|---|
+| BUILT, not site-validated | [SM-1 channel map](#fw-sm-channel-map), [SM-2 gap/stale/UNAVAILABLE checks](#fw-sm-gap-events), [SM-3 recorded provider](#fw-sm-real-provider), [SM-4 visit log](#fw-sm-visit-log), [SM-5 time statistics](#fw-sm-time-stats) | Merged [#204](https://github.com/peyton150-startup/Capstone_Project_CMU/pull/204), [#206](https://github.com/peyton150-startup/Capstone_Project_CMU/pull/206), [#207](https://github.com/peyton150-startup/Capstone_Project_CMU/pull/207), [#211](https://github.com/peyton150-startup/Capstone_Project_CMU/pull/211), [#212](https://github.com/peyton150-startup/Capstone_Project_CMU/pull/212), [#213](https://github.com/peyton150-startup/Capstone_Project_CMU/pull/213) |
+| BUILT, live performance unmeasured | [Rapid triage](#fw-rapid-triage) | #184 opt-in; 90-second p95 is not a demonstrated SLA |
+| BUILT, further causal eval open | [Line-wide incident context](#fw-line-context) | [#186](https://github.com/peyton150-startup/Capstone_Project_CMU/pull/186), live on/off runs 2026-11-05 |
+| SET ASIDE by developer | [Live hazards/degraded matrix](#fw-degraded-data) | Code remains; removed from planned pilot tasks 2026-11-05 |
+| BUILT supporting safeguards | Reviewer evidence, untrusted text and guardrail drift | [#216](https://github.com/peyton150-startup/Capstone_Project_CMU/pull/216), [#217](https://github.com/peyton150-startup/Capstone_Project_CMU/pull/217), [#218](https://github.com/peyton150-startup/Capstone_Project_CMU/pull/218); these do not authorize live machine access |
 
+### Active future-work entries — prioritized, linked to detailed requirements
+
+Completed standalone work is removed. Links state the deliverable in more detail; categories link to the owning section. A PR in draft does not count as built.
+
+| Priority | Owning category | Detailed deliverable | Status | Remaining work / acceptance gate |
+|---|---|---|---|---|
+| **HIGH** | [Evaluation](#future-work-evaluation) | [Investigation latency review: signal vs noise — Pilot recorded-data tool filtering proposed in draft PR #221 (n](#fw-latency-review) | PLANNED | Pilot recorded-data tool filtering proposed in draft PR #221 (not merged). Measure time-to-useful-answer and fix final gates. |
+| **HIGH** | [Tooling](#future-work-tooling) | [SM-6 Operating-state segmentation — Requires operator-matched machine capture; never infer cutting ](#fw-sm-state-segmentation) | PLANNED | Requires operator-matched machine capture; never infer cutting from unsupported channels. |
+| **HIGH** | [Tooling](#future-work-tooling) | [SM-7 Same-machine baseline — Must use technician-confirmed real normal cycles, not synthetic](#fw-sm-own-baseline) | PLANNED | Must use technician-confirmed real normal cycles, not synthetic reference. |
+| **HIGH** | [Simulator](#future-work-simulator-upgrades) | [Haas VF/NGC reference machine — Conditional: do not retrofit to Haas without the actual control](#fw-haas-retrofit) | CONDITIONAL | Conditional: do not retrofit to Haas without the actual controller inventory. |
+| **HIGH — outreach plan only** | [Tooling](#future-work-tooling) | [Haas live-telemetry pilot plan — Controller-agnostic discovery first; the shop has not confirmed](#fw-haas-live-pilot) | DISCOVERY | Controller-agnostic discovery first; the shop has not confirmed machines, interface or permission to capture. |
+| **HIGH** | [Tooling](#future-work-tooling) | [CPU-based statistical anomaly detection — SIMULATOR detector built (#201/#202). Real-machine deployment U](#fw-cpu-anomaly-detector) | PARTIAL | SIMULATOR detector built (#201/#202). Real-machine deployment UNFINISHED: get authorized data from Naseem, segment operating modes, establish a separate healthy reference and validate thresholds. |
+| **HIGH** | [Simulator](#future-work-simulator-upgrades) | [Three-day bearing curve — Enable experiment selection and review wear curve with the manu](#fw-bearing-progression) | PLANNED | Enable experiment selection and review wear curve with the manufacturing SME. |
+| **HIGH** | [Simulator](#future-work-simulator-upgrades) | [Power signal fidelity — Validate kW assumptions, relevant scoring and energy calculatio](#fw-power-validation) | PLANNED | Validate kW assumptions, relevant scoring and energy calculations. |
+| **HIGH** | [Evaluation](#future-work-evaluation) | [Critic coverage check — Opt-in critic challenges both missing cross-machine checks and ](#fw-critic-coverage) | PLANNED | Opt-in critic challenges both missing cross-machine checks and unsupported neighbor attribution. |
+| **HIGH** | [Evaluation](#future-work-evaluation) | [Alarm-centered vs line-wide comparison — Match seeds and settings; wrong-machine, silent, cascading, ind](#fw-scope-comparison) | PLANNED | Match seeds and settings; wrong-machine, silent, cascading, independent and normal cases. |
+| **HIGH** | [Evaluation](#future-work-evaluation) | [Current live run comparisons — Compare prompts, settings, manual, memory, and scorer outcomes ](#fw-live-runs) | PARTIAL | Compare prompts, settings, manual, memory, and scorer outcomes on matched cases. |
+| **HIGH** | [Evaluation](#future-work-evaluation) | [Critic follow-up effectiveness — Compare review-only with bounded critic-driven recheck](#fw-critic-comparison) | PLANNED | Compare review-only with bounded critic-driven recheck. |
+| **HIGH** | [Evaluation](#future-work-evaluation) | [Degraded matrix on live models — Run clean vs degraded scenarios and examine false-confidence ca](#fw-degraded-comparison) | PLANNED | Run clean vs degraded scenarios and examine false-confidence cases. |
+| **HIGH** | [Evaluation](#future-work-evaluation) | [Pydantic AI reliability audit — Benchmark deadlines and typed runtime safety; do not migrate wi](#fw-runtime-audit) | PLANNED | Benchmark deadlines and typed runtime safety; do not migrate without evidence. |
+| **MEDIUM** | [Tooling](#future-work-tooling) | [SM-8 Richer trend features — Rolling variability, persistence, spikes and trend acceleration](#fw-sm-trend-features) | PLANNED | Rolling variability, persistence, spikes and trend acceleration. |
+| **MEDIUM** | [Tooling](#future-work-tooling) | [SM-9 Cross-signal relationship checks — Flag load and temperature rising at constant RPM as a discrepan](#fw-sm-cross-signal) | PLANNED | Flag load and temperature rising at constant RPM as a discrepancy to explain. |
+| **MEDIUM (conditional)** | [Tooling](#future-work-tooling) | [SM-10 Cycle reference signatures — Compare repeated programs stage by stage, only if the controlle](#fw-sm-cycle-signatures) | PLANNED | Compare repeated programs stage by stage, only if the controller exposes them. |
+| **MEDIUM** | [Evaluation](#future-work-evaluation) | [SM-11 Ranked technician check list — Rank parts to check by likelihood divided by cost to check; upd](#fw-sm-check-ranking) | PLANNED | Rank parts to check by likelihood divided by cost to check; update after each finding. |
+| **MEDIUM** | [Simulator](#future-work-simulator-upgrades) | [Electrical current in amps — Measure whether current adds distinct value beyond existing pow](#fw-current-draw) | PLANNED | Measure whether current adds distinct value beyond existing power readings. |
+| **MEDIUM** | [Simulator](#future-work-simulator-upgrades) | [More servo and hydraulic modes — Evaluate encoder, pump, valve, lubricant and overlapping-failur](#fw-additional-failures) | PLANNED | Evaluate encoder, pump, valve, lubricant and overlapping-failure scenarios. |
+| **MEDIUM** | [Simulator](#future-work-simulator-upgrades) | [Fault draw and pack selection — Keep seeded draws invariant and choose fault packs by experimen](#fw-fault-packs) | PLANNED | Keep seeded draws invariant and choose fault packs by experiment. |
+| **MEDIUM** | [Evaluation](#future-work-evaluation) | [ToT + critic ablations — Evaluate pruning, deferral, earlier critic checks and adaptive ](#fw-tot-ablation) | PARTIAL | Evaluate pruning, deferral, earlier critic checks and adaptive search. |
+| **MEDIUM** | [Evaluation](#future-work-evaluation) | [Concurrent-fault evidence scoring — Support multiple evidence-backed causes rather than arbitrary t](#fw-multicause) | PLANNED | Support multiple evidence-backed causes rather than arbitrary top-k pruning. |
+| **MEDIUM** | [Evaluation](#future-work-evaluation) | [Position-bias / logprob check — Compare score stability under order changes and optional token ](#fw-position-bias) | PLANNED | Compare score stability under order changes and optional token likelihood. |
+| **MEDIUM** | [Evaluation](#future-work-evaluation) | [Bounded Graph of Thoughts — Test graph hypothesis merges only if matched tests justify the ](#fw-got-prototype) | PLANNED | Test graph hypothesis merges only if matched tests justify the overhead. |
+| **MEDIUM** | [Evaluation](#future-work-evaluation) | [Model-response evaluation cache — Use opt-in SQLite for repeat judgments without caching producti](#fw-eval-cache) | PLANNED | Use opt-in SQLite for repeat judgments without caching production investigations. |
+| **MEDIUM** | [Evaluation](#future-work-evaluation) | [Role-specific model benchmarks — Measure specialist task quality, latency, cost and schema failu](#fw-role-benchmarks) | PLANNED | Measure specialist task quality, latency, cost and schema failures. |
+| **MEDIUM** | [Retrieval](#future-work-retrieval-and-memory) | [MMR episodic search — Test diversity of historical investigations against similarity ](#fw-mmr) | PLANNED | Test diversity of historical investigations against similarity retrieval. |
+| **MEDIUM** | [Retrieval](#future-work-retrieval-and-memory) | [Voyage manual reranking — Benchmark only the manual/SOP retrieval path](#fw-voyage) | PLANNED | Benchmark only the manual/SOP retrieval path. |
+| **MEDIUM** | [Retrieval](#future-work-retrieval-and-memory) | [Jev for recall or routing — Test model-driven recall rerank and routing if baseline errors ](#fw-jev-recall) | PLANNED | Test model-driven recall rerank and routing if baseline errors warrant it. |
+| **MEDIUM** | [Multi-agent](#future-work-multi-agent-roles) | [Line Sentinel (third agent) — Decide where and when to investigate, and whether that data can](#fw-line-sentinel) | PLANNED | Decide where and when to investigate, and whether that data can be trusted, after the line-wide packet; never names a cause. |
+| **MEDIUM** | [Multi-agent](#future-work-multi-agent-roles) | [Planner / researcher / analyst roles — Add bounded specialist stages after demonstrated gains](#fw-specialist-roles) | PLANNED | Add bounded specialist stages after demonstrated gains. |
+| **MEDIUM** | [Multi-agent](#future-work-multi-agent-roles) | [Typed handoffs and contracts — Define evidence-only, full and challenge handoffs with shared p](#fw-handoffs) | PLANNED | Define evidence-only, full and challenge handoffs with shared provenance. |
+| **MEDIUM** | [Multi-agent](#future-work-multi-agent-roles) | [Per-role execution budgets — Bound output, retries, tool calls and time across all agents](#fw-agent-budgets) | PLANNED | Bound output, retries, tool calls and time across all agents. |
+| **MEDIUM** | [Tooling](#future-work-tooling) | [Simulated telemetry stream and replay — Collector/monitor/watchdog/provider built; full live ingestion ](#fw-telemetry-replay) | PARTIAL | Collector/monitor/watchdog/provider built; full live ingestion lifecycle not built. |
+| **MEDIUM** | [Tooling](#future-work-tooling) | [Read-only MCP boundary — Introduce authenticated MCP capabilities only when core agent i](#fw-mcp) | PLANNED | Introduce authenticated MCP capabilities only when core agent is ready. |
+| **MEDIUM** | [Tooling](#future-work-tooling) | [Traces and response validation — Observe agent/tool calls and verify schema, permissions and fre](#fw-response-check) | PARTIAL | Observe agent/tool calls and verify schema, permissions and freshness. |
+| **MEDIUM** | [Tooling](#future-work-tooling) | [SubQ full-repo audit — Examine cross-file integrity on a pinned snapshot before sweepi](#fw-subq) | PLANNED | Examine cross-file integrity on a pinned snapshot before sweeping refactors. |
+| **LOW** | [Planning](#future-work-planning-and-automation) | [SM-12 Controller servo diagnostic moves — Approved test motions and servo frequency analysis to separate ](#fw-sm-servo-diagnostics) | PLANNED | Approved test motions and servo frequency analysis to separate bearing, ball screw and guide. |
+| **LOW** | [Evaluation](#future-work-evaluation) | [Prompt and setting comparisons — Finish existing targeted live A/B tests](#fw-prompt-settings) | PLANNED | Finish existing targeted live A/B tests. |
+| **LOW** | [Evaluation](#future-work-evaluation) | [Episodic memory live comparison — Compare no memory, keyword and semantic recall modes](#fw-memory-comparison) | PLANNED | Compare no memory, keyword and semantic recall modes. |
+| **LOW** | [Evaluation](#future-work-evaluation) | [Memory experiment reporting — Add focused reruns, repeats and memory-store manifest](#fw-memory-reporting) | PLANNED | Add focused reruns, repeats and memory-store manifest. |
+| **LOW** | [Evaluation](#future-work-evaluation) | [Keyword / semantic parity — Align indexed fields and introduce semantic relevance cutoff](#fw-recall-parity) | PLANNED | Align indexed fields and introduce semantic relevance cutoff. |
+| **LOW** | [Evaluation](#future-work-evaluation) | [Jev auto-label agreement — Measure against hand labels before using predictions for scorin](#fw-jev-labels) | PLANNED | Measure against hand labels before using predictions for scoring. |
+| **LOW** | [Evaluation](#future-work-evaluation) | [Regression-case expansion — Extend known-answer suite when causal simulator support exists](#fw-regression-cases) | PLANNED | Extend known-answer suite when causal simulator support exists. |
+| **LOW** | [Evaluation](#future-work-evaluation) | [Deterministic sensor calculations — Add window comparisons when justified by observed diagnostic ne](#fw-sensor-calculations) | PLANNED | Add window comparisons when justified by observed diagnostic need. |
+| **LOW** | [Evaluation](#future-work-evaluation) | [Pydantic Evals framework — Consider framework substitution only after measured reporting p](#fw-pydantic-evals) | PLANNED | Consider framework substitution only after measured reporting pain. |
+| **LOW** | [Retrieval](#future-work-retrieval-and-memory) | [Agent-directed RAG refinements — Improve remaining retrieval orchestration without redundant que](#fw-rag) | PLANNED | Improve remaining retrieval orchestration without redundant queries. |
+| **LOW** | [Retrieval](#future-work-retrieval-and-memory) | [Near-duplicate memory filter — Test write-time semantic duplication threshold](#fw-near-duplicate) | PLANNED | Test write-time semantic duplication threshold. |
+| **LOW** | [Retrieval](#future-work-retrieval-and-memory) | [Docling / HybridChunker — Evaluate parsing of real PDFs and maintenance documents](#fw-docling) | PLANNED | Evaluate parsing of real PDFs and maintenance documents. |
+| **LOW** | [Multi-agent](#future-work-multi-agent-roles) | [Role compatibility probes — Check structured outputs, fallback and budget behavior per prov](#fw-role-compatibility) | PLANNED | Check structured outputs, fallback and budget behavior per provider. |
+| **LOW** | [Multi-agent](#future-work-multi-agent-roles) | [Cohere Rerank — Use retrieval-only reranking when justified; not a chat agent](#fw-cohere-rerank) | PLANNED | Use retrieval-only reranking when justified; not a chat agent. |
+| **LOW** | [Multi-agent](#future-work-multi-agent-roles) | [Requesty strict JSON — Test gateway JSON schema translation by actual provider/model](#fw-requesty-json) | PLANNED | Test gateway JSON schema translation by actual provider/model. |
+| **LOW** | [Tooling](#future-work-tooling) | [uv, ty, Dependabot, Hypothesis, xdist — Conditionally improve testing and dependency hygiene](#fw-tooling) | PLANNED | Conditionally improve testing and dependency hygiene. |
+| **LOW** | [Planning](#future-work-planning-and-automation) | [Controlled process experiments — Plan and verify small approved machine-setting trials](#fw-experiments) | PLANNED | Plan and verify small approved machine-setting trials. |
+| **LOW** | [Planning](#future-work-planning-and-automation) | [Automatic monitoring triggers — Start investigations proactively only after lifecycle safety is](#fw-proactive) | PLANNED | Start investigations proactively only after lifecycle safety is mature. |
+| **LOW** | [Simulator](#future-work-simulator-upgrades) | [Additional optional fault pack — Add a new causal fault only if benchmark coverage needs it](#fw-next-pack) | PLANNED | Add a new causal fault only if benchmark coverage needs it. |
+| **LOW** | [Frontend](#future-work-frontend) | [Difficulty modes and operator UI — Offer 1/4/8-fault modes and safe configuration controls](#fw-frontend) | PLANNED | Offer 1/4/8-fault modes and safe configuration controls. |
+| **LOW** | [Portability](#future-work-long-term) | [Equipment profiles and tenancy — Consider YAML, schemas and isolation only when actual needs app](#fw-portability) | PLANNED | Consider YAML, schemas and isolation only when actual needs appear. |
+| **FAR FUTURE** | [Optional interfaces](#future-work-long-term) | [SM-13 Added vibration or acoustic sensing — High-resolution sensors for part-level localization, with shop ](#fw-sm-hires-sensing) | PLANNED | High-resolution sensors for part-level localization, with shop approval. |
+| **FAR FUTURE** | [Optional interfaces](#future-work-long-term) | [Sensor-triggered visual inspections — Use bounded camera/model observations only with shop approval](#fw-vision) | PLANNED | Use bounded camera/model observations only with shop approval. |
+| **FAR FUTURE** | [Optional interfaces](#future-work-long-term) | [Technician voice reports — Offer reviewed speech input only after demonstrated user value](#fw-voice) | PLANNED | Offer reviewed speech input only after demonstrated user value. |
+
+**Future-work hygiene:** after a PR merges, move finished capabilities to the completed ledger and leave real-world validation as a distinct outstanding step. Preserve the stable section IDs and code references.
 **Organization:** Detailed sections are grouped by category and arranged HIGH → MEDIUM → LOW → FAR FUTURE within each group, while technical explanations and dependency notes remain with the relevant work. Future Work IDs are unchanged; FW7's specialist benchmarking and budgets appear under Multi-agent Roles. No implementation check or new feature development was performed.
 
 
