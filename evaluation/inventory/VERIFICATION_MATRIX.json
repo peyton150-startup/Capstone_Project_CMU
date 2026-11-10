@@ -242,8 +242,8 @@
   "tests/test_wait_tool.py": "b99a5fbf756a60176262417e54d8d1a0496f01126929a330492e7d24287b2d1e",
   "tests/test_wrong_setting.py": "aed1c646bffaf88ae25ed2156794dc57427e8a61bbe6b23a0c33f3c3e89c0da3"
  },
- "coverage_sha256": "025bece7e8b90ef6dee0d1290fd50db0343bcd808accd062b8aab55d8e9b7cf3",
- "junit_sha256": "164b07d596b77115fe0fd2033aa9e983d5c848144ac8e07a4538101acd109e98",
+ "coverage_sha256": "8653fa438f20c47f88109140fb0e3b633bd82c114be7021fb8b3a3b15b7f642f",
+ "junit_sha256": "b7a5a76ca28f8ee217d6409e142746674a93138e1180495bc4811702971ed768",
  "counts": {
   "functions": 965,
   "classes_note": "classes are listed through their methods",
@@ -324,8 +324,7 @@
   ],
   "stubs_or_protocols": 25,
   "tests_by_outcome": {
-   "failed": 1,
-   "passed": 1896
+   "passed": 1897
   },
   "tests_with_no_assertion": [
    "tests/test_console.py::test_without_it_the_same_print_raised"
