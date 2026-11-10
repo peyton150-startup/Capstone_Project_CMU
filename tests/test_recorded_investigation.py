@@ -49,7 +49,12 @@ def unresolved_policy():
 def test_offered_tools_match_real_observed_channels_and_no_simulator_tools():
     tools = replay_tool_specs(capture(), channel_map(), now=T0 + timedelta(seconds=300))
     names = {tool.name for tool in tools}
-    assert {"get_time", "get_readings", "get_sensor_trend", "get_sensor_summary"} <= names
+    assert {
+        "get_time",
+        "get_readings",
+        "get_sensor_trend",
+        "get_sensor_summary",
+    } <= names
     assert "get_factory_readings" not in names
     assert "get_line_screening" not in names
     assert "get_settings" not in names
@@ -67,9 +72,7 @@ def test_future_channel_not_offered_until_its_actual_observation():
     earlier = replay_tool_specs(
         capture(), channel_map(), now=T0 + timedelta(seconds=300)
     )
-    later = replay_tool_specs(
-        capture(), channel_map(), now=T0 + timedelta(seconds=599)
-    )
+    later = replay_tool_specs(capture(), channel_map(), now=T0 + timedelta(seconds=599))
     old = next(tool for tool in earlier if tool.name == "get_readings")
     new = next(tool for tool in later if tool.name == "get_readings")
     assert old.arguments["properties"]["sensor"]["enum"] == ["load"]
@@ -156,9 +159,7 @@ def test_cli_requires_explicit_authorization_before_reading_any_capture(capsys):
     assert "--approved-remote-model" in capsys.readouterr().err
 
 
-def test_cli_refuses_to_write_confidential_review_inside_a_checkout(
-    tmp_path, capsys
-):
+def test_cli_refuses_to_write_confidential_review_inside_a_checkout(tmp_path, capsys):
     checkout = tmp_path / "repo"
     checkout.mkdir()
     (checkout / ".git").mkdir()
