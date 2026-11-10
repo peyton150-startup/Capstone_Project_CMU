@@ -28,10 +28,10 @@ from pathlib import Path
 from time import monotonic
 
 from capstone.agent.investigation import run_investigation
-from capstone.agent.recorded_state import make_recorded_state
 from capstone.agent.loop import InvestigationDeps
 from capstone.agent.model_policy import ModelPolicy
 from capstone.agent.policy import ReasoningPolicy
+from capstone.agent.recorded_state import make_recorded_state
 from capstone.agent.state import Budgets, InvestigationState
 from capstone.contracts.investigations import run_id_for
 from capstone.contracts.tools import ToolSpec
