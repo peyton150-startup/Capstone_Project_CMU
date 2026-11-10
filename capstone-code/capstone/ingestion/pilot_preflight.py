@@ -43,6 +43,9 @@ class PilotPlan(BaseModel):
     controller_model: str | None = None
     controller_software: str | None = None
     read_only_method: str | None = None
+    # The collector requests the full source response; a filtered export must
+    # already have been filtered by the authorized shop before this program.
+    collection_scope: Literal["full_agent_stream", "approved_pre_filtered_export"] | None = None
     manager_approver: str | None = None
     it_ot_approver: str | None = None
     written_approval_reference: str | None = None
@@ -126,6 +129,8 @@ def check_pilot(
             blocked.append("read-only collection has not been explicitly authorized")
         if not plan.approved_data_item_ids:
             blocked.append("no explicit per-channel data-field allowlist")
+        if plan.collection_scope is None:
+            blocked.append("collection scope unknown: full agent stream versus pre-filtered export")
         if (
             plan.approved_poll_seconds is None
             or plan.approved_poll_seconds < 1
@@ -148,6 +153,20 @@ def check_pilot(
                 )
             allowed = set(plan.approved_data_item_ids)
             probe_ids = {entry.data_item_id for entry in channel_map.entries}
+            # The collector does NOT filter individual data items when reading
+            # a full MTConnect response. If only a subset was authorized,
+            # use an export filtered by the shop before acquisition.
+            if plan.collection_scope == "full_agent_stream":
+                target_ids = {
+                    entry.data_item_id
+                    for entry in channel_map.entries
+                    if plan.machine_id in (entry.device, entry.device_uuid)
+                }
+                if target_ids - allowed:
+                    blocked.append(
+                        "full agent stream can include unapproved probe fields: "
+                        + ", ".join(sorted(target_ids - allowed))
+                    )
             unknown_permission = allowed - probe_ids
             if unknown_permission:
                 blocked.append(
