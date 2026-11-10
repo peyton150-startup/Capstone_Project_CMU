@@ -114,8 +114,7 @@ def test_recorded_data_runs_through_the_existing_graph_without_actions(monkeypat
         for d in state.decisions
     )
     assert not any(
-        d.tool in {"propose_action", "execute_action"}
-        for d in state.decisions
+        d.tool in {"propose_action", "execute_action"} for d in state.decisions
     )
     assert "plan" in policy.asked
     assert "conclude" in policy.asked
