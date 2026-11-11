@@ -1,5 +1,17 @@
 # Progress Log
 
+> **2026-11-10 — second full SNAP pass and comparison (evaluation evidence only; developer review pending):**
+> Codex repeated all 2,965 requests on clean `main` commit `0b089d8` with a
+> fresh output folder, the same source inventory/rubric/archives/reference,
+> and no reused answers. All requests completed and settled for $0.28799644.
+> Compared with the first pass, all 9,726 ledger keys, statuses and values
+> match; all 2,965 raw SNAP replies match. Human-reference agreement stays
+> 27/44. This demonstrates repeatability of the saved service replies but
+> does not distinguish deterministic responses from caching or calibrate
+> the judge. The repeat and comparison are archived together in
+> `docs/benchmarks/2026-11-10-snap-repeat-comparison/`. No evaluator or agent
+> code changed; implementation understanding is unchanged.
+
 > **2026-11-10 — long-process watchdog rule (process documentation only):**
 > At the developer's request, `AGENTS.md` now requires a watchdog for any
 > process expected to exceed five minutes, with bounded work when supported,

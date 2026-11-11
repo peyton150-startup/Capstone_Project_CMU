@@ -167,4 +167,7 @@ with an independently frozen 44-answer reference. See
 `docs/benchmarks/2026-11-10-snap-full-main/`. The 27/44 agreement leaves
 the judge **uncalibrated**; investigate the 17 disagreements before using
 its judgments as an acceptance gate. CI continues to enforce the offline
-pipeline.
+pipeline. A second independent send on `0b089d8` produced identical
+normalized rows and raw replies; see
+`docs/benchmarks/2026-11-10-snap-repeat-comparison/`. This repeatability
+does not establish judge accuracy.
