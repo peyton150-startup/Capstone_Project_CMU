@@ -1,5 +1,19 @@
 # Progress Log
 
+> **2026-11-11 — Siemens agent-tool/evidence decision ranking (documentation only; NOT implemented):**
+> Added a seven-item signal-ranked refinement to `docs/MVP_SCOPE.md` and its
+> active register, with detailed acceptance and code crosswalk in
+> `docs/SIEMENS_AGENT_EVIDENCE_AND_TOOL_PRIORITY_20261111.md`.
+> Exactly two HIGH (independent Siemens read-only enforcement; source-qualified
+> dual-cutoff evidence) and five MEDIUM (physical-source lineage, capability
+> parity, targeted existing-tool controls, passive latency/context audit and
+> GR-2 offline experiment). This is **relative ranking**, not a change to
+> existing P0 SDC/RMI shop or diagnostic release gates. Generic new guardrail
+> frameworks and unconditional GR-2 are excluded as noise. #235 is documentation
+> merged previously; #236/#237 are pending at review. No code, settings,
+> dependencies, tests, CI configuration, model calls or shop interaction changed.
+> Docs-only: technical feature walkthrough not applicable.
+
 > **2026-11-11 — decision-theory future-work triage (documentation only; NOT implemented):**
 > At the developer's request, added seven high/medium-signal diagnostic
 > candidates to docs/MVP_SCOPE.md and mapped each to its appropriate roadmap
@@ -19,10 +33,10 @@
 
 > **2026-11-11 — signal-ranked implementation queue (documentation only; NOT implemented; PR #235):**
 > Added `docs/SIGNAL_PRIORITY_IMPLEMENTATION_ROADMAP_20261111.md` and a
-> matching table in `docs/MVP_SCOPE.md`: 33 proposed work items, two HIGH
+> matching table in `docs/MVP_SCOPE.md`: 36 proposed work items, two HIGH
 > (#1 qualify the installed Siemens/DMG MORI controller, software, licenses
 > and capabilities; #2 enforce a strict read-only CNC, network and
-> model-egress boundary) and 31 MEDIUM. The ranking applies inside this queue
+> model-egress boundary) and 34 MEDIUM. The ranking applies inside this queue
 > only and does not lower any P0 gate in SDC-01–20 or RMI-01–07. Developer
 > decisions recorded with it the same day: the pilot uses Siemens adapters
 > only (MTConnect is not being pursued for now), #2 is the acceptance
