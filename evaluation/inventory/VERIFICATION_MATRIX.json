@@ -1,6 +1,6 @@
 {
  "inventory_version": "1.0.0",
- "coverage_file": "../.coverage",
+ "coverage_file": "..\\.coverage",
  "coverage_available": true,
  "junit_available": true,
  "source_sha256": {
@@ -56,6 +56,7 @@
   "capstone-code/capstone/ingestion/privacy.py": "6316dbd843a40da4360f1876dad35a01970efd66d4d595a9aad53ab40eec4904",
   "capstone-code/capstone/ingestion/quality.py": "609b2571b21e20ab3ff3114be40cb63b7770f5754cf7af677173efe36ef95ff0",
   "capstone-code/capstone/ingestion/record.py": "f9e363c8fa11878b892b5ce2d1e00c6d7fee81e0905d61bc33c59e30e2bea2f3",
+  "capstone-code/capstone/ingestion/siemens_opcua_record.py": "df5bf8aa2e05e45054746d616cb647270eacb11e8667307f6562077f9c3546aa",
   "capstone-code/capstone/ingestion/time_stats.py": "2530ca938fa5bea4f2611d7c91277652d8d7fc0b7ff2c35ca3e27648864833ef",
   "capstone-code/capstone/ingestion/visit_log.py": "4b1d8c9c257a770312fdf783c3a2f0705bec9f2331da6d14d99442bfac4eed1c",
   "capstone-code/capstone/learning.py": "4741af4b7f52b774554efce90730dc0e9e7f6f6f6ed632f62c77add33feec33c",
@@ -231,6 +232,7 @@
   "tests/test_servo_drive.py": "329e2ce6d593c8eae384d8532c7f00110923b3ba368f4a1c92a8cf3d2530dcaa",
   "tests/test_setting_reset.py": "4fc7e4b1ff6c6cd6e9b5af57f7f3c9227622ece758341bb01232d34d48b63266",
   "tests/test_settings.py": "d2edc5fe0dbe8f44e4f31dce36b2adf2457226cce8717a10de0c3e3d8320598e",
+  "tests/test_siemens_opcua_record.py": "1e8dd97546cce259682d207a7f25546591a31f7da7e88aa8ea80e3b8aaa9512a",
   "tests/test_simulator.py": "787a86abe348bd0b65c47e56ac987687d026403629e9fade0b4f0ea8b3eab2f2",
   "tests/test_simulator_challenge.py": "e1ce3bcfdc0d16f92acacc6a6328a30e7572b912a103d29b703554649cab671a",
   "tests/test_simulator_disturbances.py": "bdf78ec52dbd466aac95fa2093d75e329bb456710d6f297b9e6c5e9fc8fbb0ee",
@@ -251,29 +253,29 @@
   "tests/test_wait_tool.py": "b99a5fbf756a60176262417e54d8d1a0496f01126929a330492e7d24287b2d1e",
   "tests/test_wrong_setting.py": "aed1c646bffaf88ae25ed2156794dc57427e8a61bbe6b23a0c33f3c3e89c0da3"
  },
- "coverage_sha256": "c3adaaeb7e989fa81084c0e7a0681556996a61641cae40f686a1a7270604319b",
- "junit_sha256": "8b947e2bc8e518f06bd80e11c876de02eb1481a0cf26a3593faf44db83c91bc1",
+ "coverage_sha256": "a0732b29b23bab6890ea4dd72b909dfa3198777defec751ccb7cac315c640ac8",
+ "junit_sha256": "33c81edb23ceb3c5f870a095bab15770ad84c7cc41ee97f59c4bbf421b0ea5c3",
  "counts": {
-  "functions": 976,
+  "functions": 988,
   "classes_note": "classes are listed through their methods",
-  "tests": 1926,
+  "tests": 1945,
   "tools": 18,
   "functions_by_status": {
    "INSUFFICIENT EVIDENCE": 408,
    "NOT APPLICABLE": 25,
    "NOT TESTED": 14,
-   "PARTIALLY VERIFIED": 484,
+   "PARTIALLY VERIFIED": 496,
    "VERIFIED": 45
   },
   "functions_by_coverage_class": {
-   "direct": 513,
+   "direct": 525,
    "import-only": 4,
    "indirect": 420,
    "no-statements": 25,
    "none": 14
   },
-  "functions_executed_in_tests": 933,
-  "functions_with_direct_tests": 513,
+  "functions_executed_in_tests": 945,
+  "functions_with_direct_tests": 525,
   "functions_never_executed": [
    "capstone.episode:ask_on_console",
    "capstone.evals:main.<locals>.show_progress",
@@ -337,7 +339,8 @@
   ],
   "stubs_or_protocols": 25,
   "tests_by_outcome": {
-   "passed": 1926
+   "failed": 1,
+   "passed": 1944
   },
   "tests_with_no_assertion": [
    "tests/test_console.py::test_without_it_the_same_print_raised"
@@ -396,6 +399,8 @@
    "tests/test_recall_tool.py::test_nothing_found_is_an_empty_answer_not_an_error",
    "tests/test_recall_tool.py::test_a_memory_that_only_guided_where_to_look_is_allowed",
    "tests/test_servo_drive.py::test_the_controller_alarms_on_a_worn_axis_and_not_on_healthy_ones",
+   "tests/test_siemens_opcua_record.py::test_a_whole_number_sent_as_a_double_is_stored_as_a_float",
+   "tests/test_siemens_opcua_record.py::test_a_missing_timestamp_stays_missing",
    "tests/test_slow_when_worn.py::test_the_standard_line_has_natural_variation_switched_on",
    "tests/test_tree_search.py::test_the_adaptive_setting_reaches_the_tree",
    "tests/test_triage.py::test_the_triage_setting_turns_it_on",
@@ -709,6 +714,11 @@
    "functions": 4,
    "executed": 4,
    "direct": 1
+  },
+  "capstone.ingestion.siemens_opcua_record": {
+   "functions": 12,
+   "executed": 12,
+   "direct": 12
   },
   "capstone.ingestion.time_stats": {
    "functions": 9,
@@ -8742,6 +8752,170 @@
     "tests/test_replay_provider.py::test_every_tool_answers_inside_its_contract_or_refuses_cleanly",
     "tests/test_replay_provider.py::test_the_summary_mean_is_time_weighted_and_the_rate_is_endpoint"
    ]
+  },
+  "capstone.ingestion.siemens_opcua_record:severity_of": {
+   "count": 17,
+   "status": "PARTIALLY VERIFIED",
+   "direct": [
+    "tests/test_siemens_opcua_record.py::test_a_bad_value_is_kept_but_is_never_a_number",
+    "tests/test_siemens_opcua_record.py::test_a_good_value_keeps_its_type_and_three_clocks",
+    "tests/test_siemens_opcua_record.py::test_a_missing_timestamp_stays_missing",
+    "tests/test_siemens_opcua_record.py::test_a_severity_that_disagrees_with_the_code_is_refused",
+    "tests/test_siemens_opcua_record.py::test_a_timestamp_keeps_its_own_offset",
+    "tests/test_siemens_opcua_record.py::test_a_timestamp_without_a_timezone_is_refused",
+    "tests/test_siemens_opcua_record.py::test_a_value_that_does_not_fit_its_type_is_refused",
+    "tests/test_siemens_opcua_record.py::test_a_whole_number_sent_as_a_double_is_stored_as_a_float",
+    "tests/test_siemens_opcua_record.py::test_an_uncertain_value_is_a_number_only_when_asked_for",
+    "tests/test_siemens_opcua_record.py::test_lines_round_trip_and_version_1_lines_are_refused",
+    "tests/test_siemens_opcua_record.py::test_nan_and_infinity_are_set_aside_not_stored_as_numbers",
+    "tests/test_siemens_opcua_record.py::test_overflow_is_read_from_the_info_bits"
+   ],
+   "indirect": []
+  },
+  "capstone.ingestion.siemens_opcua_record:StatusInfo.severity_matches_code": {
+   "count": 16,
+   "status": "PARTIALLY VERIFIED",
+   "direct": [
+    "tests/test_siemens_opcua_record.py::test_a_bad_value_is_kept_but_is_never_a_number",
+    "tests/test_siemens_opcua_record.py::test_a_good_value_keeps_its_type_and_three_clocks",
+    "tests/test_siemens_opcua_record.py::test_a_missing_timestamp_stays_missing",
+    "tests/test_siemens_opcua_record.py::test_a_severity_that_disagrees_with_the_code_is_refused",
+    "tests/test_siemens_opcua_record.py::test_a_timestamp_keeps_its_own_offset",
+    "tests/test_siemens_opcua_record.py::test_a_timestamp_without_a_timezone_is_refused",
+    "tests/test_siemens_opcua_record.py::test_a_value_that_does_not_fit_its_type_is_refused",
+    "tests/test_siemens_opcua_record.py::test_a_whole_number_sent_as_a_double_is_stored_as_a_float",
+    "tests/test_siemens_opcua_record.py::test_an_uncertain_value_is_a_number_only_when_asked_for",
+    "tests/test_siemens_opcua_record.py::test_lines_round_trip_and_version_1_lines_are_refused",
+    "tests/test_siemens_opcua_record.py::test_nan_and_infinity_are_set_aside_not_stored_as_numbers",
+    "tests/test_siemens_opcua_record.py::test_overflow_is_read_from_the_info_bits"
+   ],
+   "indirect": []
+  },
+  "capstone.ingestion.siemens_opcua_record:StatusInfo.overflow": {
+   "count": 1,
+   "status": "PARTIALLY VERIFIED",
+   "direct": [
+    "tests/test_siemens_opcua_record.py::test_overflow_is_read_from_the_info_bits"
+   ],
+   "indirect": []
+  },
+  "capstone.ingestion.siemens_opcua_record:status_from_code": {
+   "count": 15,
+   "status": "PARTIALLY VERIFIED",
+   "direct": [
+    "tests/test_siemens_opcua_record.py::test_a_bad_value_is_kept_but_is_never_a_number",
+    "tests/test_siemens_opcua_record.py::test_a_good_value_keeps_its_type_and_three_clocks",
+    "tests/test_siemens_opcua_record.py::test_a_missing_timestamp_stays_missing",
+    "tests/test_siemens_opcua_record.py::test_a_timestamp_keeps_its_own_offset",
+    "tests/test_siemens_opcua_record.py::test_a_timestamp_without_a_timezone_is_refused",
+    "tests/test_siemens_opcua_record.py::test_a_value_that_does_not_fit_its_type_is_refused",
+    "tests/test_siemens_opcua_record.py::test_a_whole_number_sent_as_a_double_is_stored_as_a_float",
+    "tests/test_siemens_opcua_record.py::test_an_uncertain_value_is_a_number_only_when_asked_for",
+    "tests/test_siemens_opcua_record.py::test_lines_round_trip_and_version_1_lines_are_refused",
+    "tests/test_siemens_opcua_record.py::test_nan_and_infinity_are_set_aside_not_stored_as_numbers",
+    "tests/test_siemens_opcua_record.py::test_overflow_is_read_from_the_info_bits",
+    "tests/test_siemens_opcua_record.py::test_runs_split_at_gaps_and_reconnects_but_not_at_heartbeats"
+   ],
+   "indirect": []
+  },
+  "capstone.ingestion.siemens_opcua_record:NodeRef.key": {
+   "count": 1,
+   "status": "PARTIALLY VERIFIED",
+   "direct": [
+    "tests/test_siemens_opcua_record.py::test_a_node_is_keyed_by_namespace_uri_not_index"
+   ],
+   "indirect": []
+  },
+  "capstone.ingestion.siemens_opcua_record:OpcUaDataChange.value_fits_its_type": {
+   "count": 13,
+   "status": "PARTIALLY VERIFIED",
+   "direct": [
+    "tests/test_siemens_opcua_record.py::test_a_bad_value_is_kept_but_is_never_a_number",
+    "tests/test_siemens_opcua_record.py::test_a_good_value_keeps_its_type_and_three_clocks",
+    "tests/test_siemens_opcua_record.py::test_a_missing_timestamp_stays_missing",
+    "tests/test_siemens_opcua_record.py::test_a_timestamp_keeps_its_own_offset",
+    "tests/test_siemens_opcua_record.py::test_a_value_that_does_not_fit_its_type_is_refused",
+    "tests/test_siemens_opcua_record.py::test_a_whole_number_sent_as_a_double_is_stored_as_a_float",
+    "tests/test_siemens_opcua_record.py::test_an_uncertain_value_is_a_number_only_when_asked_for",
+    "tests/test_siemens_opcua_record.py::test_lines_round_trip_and_version_1_lines_are_refused",
+    "tests/test_siemens_opcua_record.py::test_nan_and_infinity_are_set_aside_not_stored_as_numbers",
+    "tests/test_siemens_opcua_record.py::test_runs_split_at_gaps_and_reconnects_but_not_at_heartbeats",
+    "tests/test_siemens_opcua_record.py::test_runs_split_on_a_new_epoch_even_without_a_marker",
+    "tests/test_siemens_opcua_record.py::test_the_record_has_no_mtconnect_sequence_or_instance_id"
+   ],
+   "indirect": []
+  },
+  "capstone.ingestion.siemens_opcua_record:OpcUaDataChange.number": {
+   "count": 5,
+   "status": "PARTIALLY VERIFIED",
+   "direct": [
+    "tests/test_siemens_opcua_record.py::test_a_bad_value_is_kept_but_is_never_a_number",
+    "tests/test_siemens_opcua_record.py::test_a_good_value_keeps_its_type_and_three_clocks",
+    "tests/test_siemens_opcua_record.py::test_an_uncertain_value_is_a_number_only_when_asked_for",
+    "tests/test_siemens_opcua_record.py::test_nan_and_infinity_are_set_aside_not_stored_as_numbers",
+    "tests/test_siemens_opcua_record.py::test_words_and_flags_are_not_numbers"
+   ],
+   "indirect": []
+  },
+  "capstone.ingestion.siemens_opcua_record:data_change": {
+   "count": 14,
+   "status": "PARTIALLY VERIFIED",
+   "direct": [
+    "tests/test_siemens_opcua_record.py::test_a_bad_value_is_kept_but_is_never_a_number",
+    "tests/test_siemens_opcua_record.py::test_a_good_value_keeps_its_type_and_three_clocks",
+    "tests/test_siemens_opcua_record.py::test_a_missing_timestamp_stays_missing",
+    "tests/test_siemens_opcua_record.py::test_a_timestamp_keeps_its_own_offset",
+    "tests/test_siemens_opcua_record.py::test_a_timestamp_without_a_timezone_is_refused",
+    "tests/test_siemens_opcua_record.py::test_a_value_that_does_not_fit_its_type_is_refused",
+    "tests/test_siemens_opcua_record.py::test_a_whole_number_sent_as_a_double_is_stored_as_a_float",
+    "tests/test_siemens_opcua_record.py::test_an_uncertain_value_is_a_number_only_when_asked_for",
+    "tests/test_siemens_opcua_record.py::test_lines_round_trip_and_version_1_lines_are_refused",
+    "tests/test_siemens_opcua_record.py::test_nan_and_infinity_are_set_aside_not_stored_as_numbers",
+    "tests/test_siemens_opcua_record.py::test_runs_split_at_gaps_and_reconnects_but_not_at_heartbeats",
+    "tests/test_siemens_opcua_record.py::test_runs_split_on_a_new_epoch_even_without_a_marker"
+   ],
+   "indirect": []
+  },
+  "capstone.ingestion.siemens_opcua_record:OpcUaSessionMarker.gap_detail_only_on_a_gap": {
+   "count": 3,
+   "status": "PARTIALLY VERIFIED",
+   "direct": [
+    "tests/test_siemens_opcua_record.py::test_gap_detail_goes_with_a_gap_marker_and_no_other",
+    "tests/test_siemens_opcua_record.py::test_lines_round_trip_and_version_1_lines_are_refused",
+    "tests/test_siemens_opcua_record.py::test_runs_split_at_gaps_and_reconnects_but_not_at_heartbeats"
+   ],
+   "indirect": []
+  },
+  "capstone.ingestion.siemens_opcua_record:parse_opcua_line": {
+   "count": 3,
+   "status": "PARTIALLY VERIFIED",
+   "direct": [
+    "tests/test_siemens_opcua_record.py::test_a_timestamp_keeps_its_own_offset",
+    "tests/test_siemens_opcua_record.py::test_lines_round_trip_and_version_1_lines_are_refused",
+    "tests/test_siemens_opcua_record.py::test_nan_and_infinity_are_set_aside_not_stored_as_numbers"
+   ],
+   "indirect": []
+  },
+  "capstone.ingestion.siemens_opcua_record:to_json_line": {
+   "count": 5,
+   "status": "PARTIALLY VERIFIED",
+   "direct": [
+    "tests/test_siemens_opcua_record.py::test_a_missing_timestamp_stays_missing",
+    "tests/test_siemens_opcua_record.py::test_a_timestamp_keeps_its_own_offset",
+    "tests/test_siemens_opcua_record.py::test_lines_round_trip_and_version_1_lines_are_refused",
+    "tests/test_siemens_opcua_record.py::test_nan_and_infinity_are_set_aside_not_stored_as_numbers",
+    "tests/test_siemens_opcua_record.py::test_the_record_has_no_mtconnect_sequence_or_instance_id"
+   ],
+   "indirect": []
+  },
+  "capstone.ingestion.siemens_opcua_record:continuous_runs": {
+   "count": 2,
+   "status": "PARTIALLY VERIFIED",
+   "direct": [
+    "tests/test_siemens_opcua_record.py::test_runs_split_at_gaps_and_reconnects_but_not_at_heartbeats",
+    "tests/test_siemens_opcua_record.py::test_runs_split_on_a_new_epoch_even_without_a_marker"
+   ],
+   "indirect": []
   },
   "capstone.ingestion.time_stats:Hold.seconds": {
    "count": 11,
@@ -48288,6 +48462,215 @@
    "judgment": "NOT ASSESSED",
    "functions": [
     "capstone.settings:Settings.blank_is_missing"
+   ]
+  },
+  "tests/test_siemens_opcua_record.py::test_severity_comes_from_the_two_highest_bits": {
+   "count": 1,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.ingestion.siemens_opcua_record:severity_of"
+   ]
+  },
+  "tests/test_siemens_opcua_record.py::test_a_severity_that_disagrees_with_the_code_is_refused": {
+   "count": 2,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.ingestion.siemens_opcua_record:StatusInfo.severity_matches_code",
+    "capstone.ingestion.siemens_opcua_record:severity_of"
+   ]
+  },
+  "tests/test_siemens_opcua_record.py::test_overflow_is_read_from_the_info_bits": {
+   "count": 4,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.ingestion.siemens_opcua_record:StatusInfo.overflow",
+    "capstone.ingestion.siemens_opcua_record:StatusInfo.severity_matches_code",
+    "capstone.ingestion.siemens_opcua_record:severity_of",
+    "capstone.ingestion.siemens_opcua_record:status_from_code"
+   ]
+  },
+  "tests/test_siemens_opcua_record.py::test_a_good_value_keeps_its_type_and_three_clocks": {
+   "count": 6,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.ingestion.siemens_opcua_record:OpcUaDataChange.number",
+    "capstone.ingestion.siemens_opcua_record:OpcUaDataChange.value_fits_its_type",
+    "capstone.ingestion.siemens_opcua_record:StatusInfo.severity_matches_code",
+    "capstone.ingestion.siemens_opcua_record:data_change",
+    "capstone.ingestion.siemens_opcua_record:severity_of",
+    "capstone.ingestion.siemens_opcua_record:status_from_code"
+   ]
+  },
+  "tests/test_siemens_opcua_record.py::test_a_bad_value_is_kept_but_is_never_a_number": {
+   "count": 6,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.ingestion.siemens_opcua_record:OpcUaDataChange.number",
+    "capstone.ingestion.siemens_opcua_record:OpcUaDataChange.value_fits_its_type",
+    "capstone.ingestion.siemens_opcua_record:StatusInfo.severity_matches_code",
+    "capstone.ingestion.siemens_opcua_record:data_change",
+    "capstone.ingestion.siemens_opcua_record:severity_of",
+    "capstone.ingestion.siemens_opcua_record:status_from_code"
+   ]
+  },
+  "tests/test_siemens_opcua_record.py::test_an_uncertain_value_is_a_number_only_when_asked_for": {
+   "count": 6,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.ingestion.siemens_opcua_record:OpcUaDataChange.number",
+    "capstone.ingestion.siemens_opcua_record:OpcUaDataChange.value_fits_its_type",
+    "capstone.ingestion.siemens_opcua_record:StatusInfo.severity_matches_code",
+    "capstone.ingestion.siemens_opcua_record:data_change",
+    "capstone.ingestion.siemens_opcua_record:severity_of",
+    "capstone.ingestion.siemens_opcua_record:status_from_code"
+   ]
+  },
+  "tests/test_siemens_opcua_record.py::test_nan_and_infinity_are_set_aside_not_stored_as_numbers": {
+   "count": 8,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.ingestion.siemens_opcua_record:OpcUaDataChange.number",
+    "capstone.ingestion.siemens_opcua_record:OpcUaDataChange.value_fits_its_type",
+    "capstone.ingestion.siemens_opcua_record:StatusInfo.severity_matches_code",
+    "capstone.ingestion.siemens_opcua_record:data_change",
+    "capstone.ingestion.siemens_opcua_record:parse_opcua_line",
+    "capstone.ingestion.siemens_opcua_record:severity_of",
+    "capstone.ingestion.siemens_opcua_record:status_from_code",
+    "capstone.ingestion.siemens_opcua_record:to_json_line"
+   ]
+  },
+  "tests/test_siemens_opcua_record.py::test_words_and_flags_are_not_numbers": {
+   "count": 6,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.ingestion.siemens_opcua_record:OpcUaDataChange.number",
+    "capstone.ingestion.siemens_opcua_record:OpcUaDataChange.value_fits_its_type",
+    "capstone.ingestion.siemens_opcua_record:StatusInfo.severity_matches_code",
+    "capstone.ingestion.siemens_opcua_record:data_change",
+    "capstone.ingestion.siemens_opcua_record:severity_of",
+    "capstone.ingestion.siemens_opcua_record:status_from_code"
+   ]
+  },
+  "tests/test_siemens_opcua_record.py::test_a_whole_number_sent_as_a_double_is_stored_as_a_float": {
+   "count": 5,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.ingestion.siemens_opcua_record:OpcUaDataChange.value_fits_its_type",
+    "capstone.ingestion.siemens_opcua_record:StatusInfo.severity_matches_code",
+    "capstone.ingestion.siemens_opcua_record:data_change",
+    "capstone.ingestion.siemens_opcua_record:severity_of",
+    "capstone.ingestion.siemens_opcua_record:status_from_code"
+   ]
+  },
+  "tests/test_siemens_opcua_record.py::test_a_value_that_does_not_fit_its_type_is_refused": {
+   "count": 5,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.ingestion.siemens_opcua_record:OpcUaDataChange.value_fits_its_type",
+    "capstone.ingestion.siemens_opcua_record:StatusInfo.severity_matches_code",
+    "capstone.ingestion.siemens_opcua_record:data_change",
+    "capstone.ingestion.siemens_opcua_record:severity_of",
+    "capstone.ingestion.siemens_opcua_record:status_from_code"
+   ]
+  },
+  "tests/test_siemens_opcua_record.py::test_a_timestamp_without_a_timezone_is_refused": {
+   "count": 4,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.ingestion.siemens_opcua_record:StatusInfo.severity_matches_code",
+    "capstone.ingestion.siemens_opcua_record:data_change",
+    "capstone.ingestion.siemens_opcua_record:severity_of",
+    "capstone.ingestion.siemens_opcua_record:status_from_code"
+   ]
+  },
+  "tests/test_siemens_opcua_record.py::test_a_timestamp_keeps_its_own_offset": {
+   "count": 7,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.ingestion.siemens_opcua_record:OpcUaDataChange.value_fits_its_type",
+    "capstone.ingestion.siemens_opcua_record:StatusInfo.severity_matches_code",
+    "capstone.ingestion.siemens_opcua_record:data_change",
+    "capstone.ingestion.siemens_opcua_record:parse_opcua_line",
+    "capstone.ingestion.siemens_opcua_record:severity_of",
+    "capstone.ingestion.siemens_opcua_record:status_from_code",
+    "capstone.ingestion.siemens_opcua_record:to_json_line"
+   ]
+  },
+  "tests/test_siemens_opcua_record.py::test_a_missing_timestamp_stays_missing": {
+   "count": 6,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.ingestion.siemens_opcua_record:OpcUaDataChange.value_fits_its_type",
+    "capstone.ingestion.siemens_opcua_record:StatusInfo.severity_matches_code",
+    "capstone.ingestion.siemens_opcua_record:data_change",
+    "capstone.ingestion.siemens_opcua_record:severity_of",
+    "capstone.ingestion.siemens_opcua_record:status_from_code",
+    "capstone.ingestion.siemens_opcua_record:to_json_line"
+   ]
+  },
+  "tests/test_siemens_opcua_record.py::test_the_record_has_no_mtconnect_sequence_or_instance_id": {
+   "count": 6,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.ingestion.siemens_opcua_record:OpcUaDataChange.value_fits_its_type",
+    "capstone.ingestion.siemens_opcua_record:StatusInfo.severity_matches_code",
+    "capstone.ingestion.siemens_opcua_record:data_change",
+    "capstone.ingestion.siemens_opcua_record:severity_of",
+    "capstone.ingestion.siemens_opcua_record:status_from_code",
+    "capstone.ingestion.siemens_opcua_record:to_json_line"
+   ]
+  },
+  "tests/test_siemens_opcua_record.py::test_a_node_is_keyed_by_namespace_uri_not_index": {
+   "count": 1,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.ingestion.siemens_opcua_record:NodeRef.key"
+   ]
+  },
+  "tests/test_siemens_opcua_record.py::test_lines_round_trip_and_version_1_lines_are_refused": {
+   "count": 8,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.ingestion.siemens_opcua_record:OpcUaDataChange.value_fits_its_type",
+    "capstone.ingestion.siemens_opcua_record:OpcUaSessionMarker.gap_detail_only_on_a_gap",
+    "capstone.ingestion.siemens_opcua_record:StatusInfo.severity_matches_code",
+    "capstone.ingestion.siemens_opcua_record:data_change",
+    "capstone.ingestion.siemens_opcua_record:parse_opcua_line",
+    "capstone.ingestion.siemens_opcua_record:severity_of",
+    "capstone.ingestion.siemens_opcua_record:status_from_code",
+    "capstone.ingestion.siemens_opcua_record:to_json_line"
+   ]
+  },
+  "tests/test_siemens_opcua_record.py::test_gap_detail_goes_with_a_gap_marker_and_no_other": {
+   "count": 1,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.ingestion.siemens_opcua_record:OpcUaSessionMarker.gap_detail_only_on_a_gap"
+   ]
+  },
+  "tests/test_siemens_opcua_record.py::test_runs_split_at_gaps_and_reconnects_but_not_at_heartbeats": {
+   "count": 7,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.ingestion.siemens_opcua_record:OpcUaDataChange.value_fits_its_type",
+    "capstone.ingestion.siemens_opcua_record:OpcUaSessionMarker.gap_detail_only_on_a_gap",
+    "capstone.ingestion.siemens_opcua_record:StatusInfo.severity_matches_code",
+    "capstone.ingestion.siemens_opcua_record:continuous_runs",
+    "capstone.ingestion.siemens_opcua_record:data_change",
+    "capstone.ingestion.siemens_opcua_record:severity_of",
+    "capstone.ingestion.siemens_opcua_record:status_from_code"
+   ]
+  },
+  "tests/test_siemens_opcua_record.py::test_runs_split_on_a_new_epoch_even_without_a_marker": {
+   "count": 6,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.ingestion.siemens_opcua_record:OpcUaDataChange.value_fits_its_type",
+    "capstone.ingestion.siemens_opcua_record:StatusInfo.severity_matches_code",
+    "capstone.ingestion.siemens_opcua_record:continuous_runs",
+    "capstone.ingestion.siemens_opcua_record:data_change",
+    "capstone.ingestion.siemens_opcua_record:severity_of",
+    "capstone.ingestion.siemens_opcua_record:status_from_code"
    ]
   },
   "tests/test_simulator.py::test_factory_state_rejects_duplicate_machine": {
