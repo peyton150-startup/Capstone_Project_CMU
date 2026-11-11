@@ -24,7 +24,9 @@
 > of correct `no_action` answers seen in the same runs. Gate: taught first;
 > the developer answered the pre-check (KA-12 → 0.70, escalate,
 > model_confidence 0.90, no factory change) without stating why the factory
-> is unaffected; closing question and pre-merge walkthrough still owed.
+> is unaffected; closing question still owed. The developer asked to merge
+> on green CI and take the §11 step 6 walkthrough later (2026-11-11), so the
+> walkthrough is owed after merge, not before.
 > Understood: partly. Not yet run live (Codex runs live, §12).
 
 > **2026-11-11 — Siemens agent-tool/evidence decision ranking (documentation only; NOT implemented):**
