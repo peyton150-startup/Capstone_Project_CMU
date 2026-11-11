@@ -1,5 +1,40 @@
 # Progress Log
 
+> **2026-11-11 — S-0 step 2: read-only Siemens OPC UA collector (code; built ungated; mock server only):**
+> New module `capstone/ingestion/siemens_opcua_adapter.py` and a new optional
+> dependency group `siemens` (`asyncua>=2.1,<3`; 1.1.8 does not run on the
+> pinned Python 3.14). `SiemensOpcUaConfig` is the approved scope: endpoint,
+> the server's expected application URI, the approved nodes, certificates
+> (`SecuritySettings`, sign-and-encrypt only) and the names of the
+> environment variables holding the read-only account. `SiemensOpcUaCollector`
+> checks the server's URI, opens one session, reads the namespace table,
+> subscribes to the approved nodes and writes version 2 lines to a sink:
+> `on_value` (one record per delivered value; a queue-overflow status writes a
+> gap for that node first), `on_message` / `missed_counters` (a skipped
+> notification counter writes a gap), `watch` (heartbeats, connection
+> checks), `session` and `run` (a lost connection writes a `session_lost` gap
+> and `disconnected`, then reconnects under the next session epoch).
+> `SiemensOpcUaRefused` stops collection before any value when the endpoint is
+> unencrypted and not an allowed loopback test server, the server's URI is not
+> the approved one, a namespace is missing, the server will not monitor an
+> approved node, or the account variables are unset. The module has no code
+> path that writes, calls a method, browses, reads an unapproved node or
+> transfers a file; `test_the_adapter_source_has_no_write_call_browse_or_direct_read`
+> fails if one appears. Also `load_config`, `file_sink`, `main`
+> (`python -m capstone.ingestion.siemens_opcua_adapter --config ... --out ...`).
+> Tests: `tests/test_siemens_opcua_adapter.py` (20), in the "Live telemetry"
+> CI group, against asyncua's own server on a loopback port. **Not verified:**
+> nothing ran against a SINUMERIK control, and the encrypted-connection and
+> account paths are configured but not exercised by a test. This covers item
+> #2 of the signal-ranked queue (PR #235) for the OPC UA side only.
+> **Understood: no — built ungated at the developer's direction; pre-check,
+> closing question and pre-merge walkthrough owed.** Owed questions: (1) the
+> library can write to the control, so what makes this collector read-only,
+> and what does the test that guards it check and not check? (2) why does the
+> collector refuse to start when one approved node cannot be monitored,
+> instead of collecting the rest? (3) after a reconnect, why may a mean not be
+> computed across the two session epochs?
+>
 > **2026-11-11 — S-0 step 1: Siemens OPC UA record format, version 2 (code; built ungated):**
 > The developer decided the pilot uses Siemens adapters only (no MTConnect for
 > now) and that the record format is based on OPC UA, with more value types and

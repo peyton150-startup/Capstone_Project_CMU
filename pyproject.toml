@@ -26,6 +26,10 @@ agent = [
 semantic = [
     "chromadb>=1,<2",
 ]
+# The read-only Siemens OPC UA collector (S-0). Only this extra talks OPC UA.
+siemens = [
+    "asyncua>=2.1,<3",
+]
 
 [dependency-groups]
 dev = [
