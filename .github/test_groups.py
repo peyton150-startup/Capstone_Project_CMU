@@ -150,6 +150,7 @@ GROUPS: dict[str, list[str]] = {
     "Live telemetry": [
         "mtconnect_ingestion",
         "siemens_opcua_record",
+        "siemens_opcua_adapter",
         "channel_map",
         "telemetry_monitor",
         "coverage_telemetry_edges",
