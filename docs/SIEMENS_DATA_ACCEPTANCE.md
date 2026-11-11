@@ -6,6 +6,8 @@
 
 **Product focus:** identify **developing abnormalities** under comparable production conditions and investigate defensible causes. Siemens/DMG MORI tool-breakage, machine-protection, collision, alarm and pallet controls remain independent; use their permitted read-only observations for context and comparison, **never** recreate, reset, bypass, command or acknowledge them.
 
+**Mandatory downstream companion:** [**RMI-01–07 Real-Machine Intelligence Acceptance Contract**](REAL_MACHINE_INTELLIGENCE_ACCEPTANCE.md) converts SDC-eligible Siemens data into correctly indexed multi-axis signals, quality-gated real-world features, durable anomaly incidents, real-only AI evidence, independent physical-source confirmation, technician-verified learning, and field evaluation. These downstream gates are mandatory for **claims about diagnoses or early warning**, but do not loosen acquisition restrictions or delay a separately approved initial passive recording.
+
 ## Non-negotiable three-decision rule
 
 1. **Collected / acquisition-qualified?** Machine + Siemens source identity, exact installed generation/version/option, server trust, live permission, exact approved NodeId/attribute/event, read-only request type and scope verified. If not, **do not request or persist** the data.
