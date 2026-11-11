@@ -1,5 +1,33 @@
 # Progress Log
 
+> **2026-11-11 — S-0 step 1: Siemens OPC UA record format, version 2 (code; built ungated):**
+> The developer decided the pilot uses Siemens adapters only (no MTConnect for
+> now) and that the record format is based on OPC UA, with more value types and
+> units added later if another source needs them. New module
+> `capstone/ingestion/siemens_opcua_record.py` (every Siemens OPC UA module
+> carries "siemens" in its name, at the developer's request):
+> `OpcUaDataChange` (one value as the server's DataValue gave it: typed value,
+> StatusCode, source and server timestamps, plus the collector's receive time,
+> session epoch, subscription id and notification counter), `StatusInfo` /
+> `severity_of` / `status_from_code` (severity from the code's top two bits;
+> queue overflow from its info bits), `NodeRef` (namespace URI, never the
+> index), `data_change` (builder; NaN and infinity are set aside as
+> `non_finite`), `OpcUaSessionMarker` / `OpcUaGap` (connected, heartbeat,
+> disconnected, stopped, gap), `parse_opcua_line`, `to_json_line`,
+> `continuous_runs`. `number()` returns a value only for a Good status (or
+> Uncertain when asked) and a finite number. The MTConnect version 1 record is
+> unchanged. No network code, no `asyncua` dependency yet, no machine
+> contacted. Tests: `tests/test_siemens_opcua_record.py` (28), in the "Live
+> telemetry" CI group. **Understood: no — built ungated at the developer's
+> direction (2026-11-11, same as the SM track); pre-check, closing question and
+> pre-merge walkthrough owed.** Owed pre-check question: a notification
+> arrives with value 0.0, StatusCode Bad_NoCommunication and no source
+> timestamp. What does the record store for value, status and
+> source_timestamp, what does `number()` return, and why does that matter to
+> the anomaly detector and the agent? Next: the read-only Siemens OPC UA
+> adapter against an offline mock server, alarm-event records, the Siemens
+> channel map, replay over version 2, and Siemens preflight.
+>
 > **2026-11-11 — decision-theory future-work triage (documentation only; NOT implemented):**
 > At the developer's request, added seven high/medium-signal diagnostic
 > candidates to docs/MVP_SCOPE.md and mapped each to its appropriate roadmap
