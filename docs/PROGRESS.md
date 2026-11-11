@@ -1,5 +1,22 @@
 # Progress Log
 
+> **2026-11-11 — decision-theory future-work triage (documentation only; NOT implemented):**
+> At the developer's request, added seven high/medium-signal diagnostic
+> candidates to docs/MVP_SCOPE.md and mapped each to its appropriate roadmap
+> owner and active priority table. HIGH: value of information / optimal
+> research stopping, Bayesian technician component-check ordering (existing
+> SM-11 raised MEDIUM to HIGH), asymmetric-loss/minimax-regret escalation,
+> and proper-scoring-rule calibration. MEDIUM: repeated-case first-read
+> bandits, bounded Shapley-style tool-evidence ablations, and an
+> evidence-seeking falsification objective for the existing Critic.
+> The low/noise category had no accepted entries; excluded concepts
+> were not added. Updated the high-level category index, single-machine
+> dependency table and active work register, with detailed acceptance and
+> deferral conditions. This is planning only, does not change code, tests,
+> approvals, safety gates or existing implementation/understanding status.
+> PR remains unmerged for review.
+
+
 > **2026-11-10 — second full SNAP pass and comparison (evaluation evidence only; developer review pending):**
 > Codex repeated all 2,965 requests on clean `main` commit `0b089d8` with a
 > fresh output folder, the same source inventory/rubric/archives/reference,

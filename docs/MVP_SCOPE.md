@@ -333,10 +333,10 @@ stay even though the sections are now grouped by topic, with items sorted from h
 | **P0 — next visit** | [Pilot readiness, permissions, field notebook and acceptance](#future-work-pilot-readiness) | Confirm the machine/controller, IT/OT read-only authorization, normal-cycle capture, operator-aligned event timestamps, and data-handling terms | [SM-4 checklist and event log](#fw-sm-visit-log) built; no shop data received |
 | **P0 — first capture** | [Real-machine integration, channel mapping and data quality](#fw-single-machine) | Field-validate replay-to-investigation wiring on an authorized capture; implement SM-6 state segmentation and SM-7 own-machine baseline | SM-1, SM-2, SM-3 and SM-5 implemented and fixture-tested; no Prestige validation |
 | **P0 — after data** | [Real-world anomaly assessment and monitor integration](#fw-cpu-anomaly-detector) | Transfer the Python statistical detector to recorded **real** data, without simulator reference files or unverified cause claims; test monitor → incident lifecycle | Simulator detector built; **real-world implementation unfinished and blocked on data from Naseem** |
-| **HIGH** | [Investigation latency, response quality and evaluation](#future-work-evaluation) | Run baseline settings, correct triage/deep handoff, calibrate conclusion gates, measure time to first trustworthy answer and false reassurance | Opt-in triage and some line context built; live evidence does not prove pilot speed |
+| **HIGH** | [Investigation latency, response quality and evaluation](#future-work-evaluation) | Benchmark information-value routing, optimal research stopping, severity-aware escalation and calibrated confidences; measure time to first trustworthy answer | Triage and some line context built; decision-theory extensions unimplemented and pilot speed unverified |
 | **HIGH / contingent** | [Machine-specific simulator realism](#future-work-simulator-upgrades) | Adapt machine/control assumptions to the discovered equipment; defer Haas-only retrofit unless confirmed | Seeded simulator exists; physical controller unknown |
 | **MEDIUM** | [Manual retrieval, episodic memory and reranking](#future-work-retrieval-and-memory) | Use authorized real manuals and labelled cases before comparing reranking strategies | Baseline retrieval present; no Naseem source material |
-| **MEDIUM** | [Multi-agent roles, typed handoffs and benchmarks](#future-work-multi-agent-roles) | Only add a specialist when one-machine investigations show an empirically valuable gap | Investigator and critic exist; no need for a third agent on visit day |
+| **MEDIUM** | [Multi-agent roles, typed handoffs and benchmarks](#future-work-multi-agent-roles) | Test falsification-oriented objectives for the existing critic; only add specialist roles on evidence of benefit | Investigator and critic exist; no need for a third agent on visit day |
 | **MEDIUM** | [Telemetry storage, traceability, MCP and operational tooling](#future-work-tooling) | Design rotation, export/revocation, audit and observability after safe offline capture | Local MTConnect collector, monitor and watchdog built |
 | **MEDIUM** | [Security and authorization](#future-work-security-and-authorization) | Consolidate the recorded-data security boundary; enforce permitted tools, destinations, data transfer and auditable access; evaluate stronger sandboxing only when deployment warrants it | GET-only collector, replay triage, pilot preflight and opt-in event logger built; no independently enforced agent sandbox or universal authorization gate |
 | **LOW** | [Planning and approved intervention experiments](#future-work-planning-and-automation) | Human-reviewed experiments only after new safety/authorization gate | First pilot strictly read-only |
@@ -380,7 +380,7 @@ The rows below leave the active backlog **without claiming real-shop acceptance*
 | SM-8 | MEDIUM | Tooling | [Time-aware variability, persistence, spikes and acceleration](#fw-sm-trend-features) | Only if SM-7 misses useful patterns |
 | SM-9 | MEDIUM | Tooling | [Cross-channel discrepancies with units and provenance](#fw-sm-cross-signal) | Comparable states, confirmed exposed channels, no automatic part-level diagnosis |
 | SM-10 | MEDIUM / conditional | Tooling | [Repeatable program/cycle reference signatures](#fw-sm-cycle-signatures) | Only if controller exposes stage/program identifiers and cycles repeat |
-| SM-11 | MEDIUM | Evaluation | [Technician-ranked component check list, verified on labelled cases](#fw-sm-check-ranking) | After good signal features and confirmed failures |
+| SM-11 | **HIGH** | Evaluation, benchmarking and reasoning | [Bayesian technician-ranked component checks, verified on labelled cases](#fw-sm-check-ranking) | After reliable signals and technician-confirmed failure labels; no autonomous inspection |
 | SM-12 | LOW | Planning | [Controller-specific servo tests](#fw-sm-servo-diagnostics) | Explicit additional authorization; never in first read-only pilot |
 | SM-13 | FAR FUTURE | Optional sensing | [New vibration or acoustic transducers](#fw-sm-hires-sensing) | Technician evidence that existing telemetry cannot resolve the question |
 
@@ -402,6 +402,10 @@ Every row links to its **specific requirements, implementation status and accept
 
 | Priority | Owner category | Detailed work item and outcome | Current implementation / verification state |
 |---|---|---|---|
+| **HIGH** | Evaluation, benchmarking and reasoning | [**Value of information and optimal stopping** — Rank available questions by expected information gain per total elapsed second; stop research when further reads do not justify their cost.](#fw-voi-stop) | Not implemented; requires reliable likelihood/latency estimates |
+| **HIGH** | Evaluation, benchmarking and reasoning | [**Asymmetric loss and minimax regret** — Compare false alarm, missed serious fault, escalation and intervention outcomes by severity.](#fw-asymmetric-loss) | Not implemented; stakeholder-reviewed loss model required |
+| **HIGH** | Evaluation, benchmarking and reasoning | [**Proper scoring and calibration** — Score frozen confidence predictions with Brier/log loss against independent labels.](#fw-proper-scoring) | Not implemented; existing hypothesis confidence is uncalibrated |
+| **HIGH** | Evaluation, benchmarking and reasoning | [**SM-11 Bayesian technician check order** — Rank component checks by likelihood and inspection cost; update beliefs after results.](#fw-sm-check-ranking) | Design exists; no technician-validated ranked checks |
 | **HIGH** | Evaluation, benchmarking and reasoning | [**Alarm-centered vs line-wide comparison** — Match seeds and settings; wrong-machine, silent, cascading, independent and normal cases.](#fw-scope-comparison) | Not implemented / evaluation owed |
 | **HIGH** | Evaluation, benchmarking and reasoning | [**Critic coverage check** — Opt-in critic challenges both missing cross-machine checks and unsupported neighbor attribution.](#fw-critic-coverage) | Not implemented / evaluation owed |
 | **HIGH** | Evaluation, benchmarking and reasoning | [**Critic follow-up effectiveness** — Compare review-only with bounded critic-driven recheck.](#fw-critic-comparison) | Mechanism built; measured improvement pending |
@@ -416,13 +420,15 @@ Every row links to its **specific requirements, implementation status and accept
 | **HIGH** | Tooling and infrastructure | [**SM-6 Operating-state segmentation** — Idle, running, cutting and transitions from exposed fields only.](#fw-sm-state-segmentation) | Not implemented / evaluation owed |
 | **HIGH** | Tooling and infrastructure | [**SM-7 Same-machine baseline** — Compare the machine with its own confirmed-normal history per state.](#fw-sm-own-baseline) | Not implemented / evaluation owed |
 | **HIGH** | Tooling and infrastructure / real-world monitoring | [**CPU-based statistical anomaly detection** — Transfer the simulator-tested statistical monitor to state-labelled real-machine data, then evaluate false alarms and incident handoff.](#fw-cpu-anomaly-detector) | Simulator built; real-machine application unfinished, awaiting Naseem's permitted data |
+| **MEDIUM** | Evaluation, benchmarking and reasoning | [**Bandits for first-read selection** — Evaluate symptom-conditioned UCB/Thompson policies to save repeated low-value opening reads.](#fw-opening-bandits) | Not implemented; historical labels and safe offline policy evaluation required |
+| **MEDIUM** | Evaluation, benchmarking and reasoning | [**Shapley-style evidence attribution** — Use bounded replay ablations to identify diagnostically redundant tool calls.](#fw-evidence-shapley) | Not implemented; attribution cost and confounding require validation |
 | **MEDIUM** | Evaluation, benchmarking and reasoning | [**Bounded Graph of Thoughts** — Test graph hypothesis merges only if matched tests justify the overhead.](#fw-got-prototype) | Not implemented / evaluation owed |
 | **MEDIUM** | Evaluation, benchmarking and reasoning | [**Concurrent-fault evidence scoring** — Support multiple evidence-backed causes rather than arbitrary top-k pruning.](#fw-multicause) | Not implemented / evaluation owed |
 | **MEDIUM** | Evaluation, benchmarking and reasoning | [**Model-response evaluation cache** — Use opt-in SQLite for repeat judgments without caching production investigations.](#fw-eval-cache) | Not implemented / evaluation owed |
 | **MEDIUM** | Evaluation, benchmarking and reasoning | [**Position-bias / logprob check** — Compare score stability under order changes and optional token likelihood.](#fw-position-bias) | Not implemented / evaluation owed |
 | **MEDIUM** | Evaluation, benchmarking and reasoning | [**Role-specific model benchmarks** — Measure specialist task quality, latency, cost and schema failures.](#fw-role-benchmarks) | Not implemented / evaluation owed |
-| **MEDIUM** | Evaluation, benchmarking and reasoning | [**SM-11 Ranked technician check list** — Rank parts to check by likelihood divided by cost to check; update after each finding.](#fw-sm-check-ranking) | Not implemented / evaluation owed |
 | **MEDIUM** | Evaluation, benchmarking and reasoning | [**ToT + critic ablations** — Evaluate pruning, deferral, earlier critic checks and adaptive search.](#fw-tot-ablation) | Not implemented / evaluation owed |
+| **MEDIUM** | Multi-agent roles | [**Evidence-seeking adversarial critic** — Challenge supported conclusions with specific counterevidence, not automatic disagreement.](#fw-critic-falsification) | Blind critic and one recheck exist; new objective/ablation not implemented |
 | **MEDIUM** | Multi-agent roles | [**Line Sentinel (third agent)** — Evaluate a bounded role for investigation triggering, scope and data trust after the line-wide packet.](#fw-line-sentinel) | Not implemented / evaluation owed |
 | **MEDIUM** | Multi-agent roles | [**Per-role execution budgets** — Bound output, retries, tool calls and time across all agents.](#fw-agent-budgets) | Not implemented / evaluation owed |
 | **MEDIUM** | Multi-agent roles | [**Planner / researcher / analyst roles** — Add bounded specialist stages after demonstrated gains.](#fw-specialist-roles) | Not implemented / evaluation owed |
@@ -779,6 +785,36 @@ agent-side and evaluator-side halves of each pack are kept apart. Left:
 
 <a id="future-work-evaluation"></a>
 
+### Value of information and optimal stopping (HIGH; proposed 2026-11-11)
+
+<a id="fw-voi-stop"></a>
+
+**Owner: Evaluation, benchmarking and reasoning. Status: PLANNED, NOT BUILT. Highest signal for cutting investigation time.**
+
+- **Question ranking:** Replace the current rank_questions heuristic (hypotheses distinguished, signal, call cost) with estimated expected posterior information gain **per total wall second**. Include model decision/interpretation time, tool time, retries and provider failures, not just tool-call count. Estimate observation likelihoods from held-out known-answer cases; missing or unreliable probabilities fall back to conservative deterministic ranking rather than invented numbers.
+- **Stopping:** Stop gathering new research evidence when the best available permitted read has no positive *net* decision value. Preserve hard budgets, independent-observation requirements, the shared final sufficiency gate, honest unresolved/escalate, human approval and mandatory verification. No valuable remaining read never means the machine is healthy or the action succeeded. Serious low-probability hazards use the separate [loss-aware escalation rule](#fw-asymmetric-loss), not entropy alone.
+- **Acceptance:** Run a paired, frozen-baseline comparison against the current selector on known-answer normal, single-fault, misleading, missing-data and multiple-fault cases. Track p50/p95 to first trustworthy response, supported diagnosis vs safe unresolved, false no_action, wrong action recommendation, model/tool calls and total wall time. Reject speed gains caused by confident false reassurance or bypassed safety checks.
+
+### Asymmetric loss and minimax-regret escalation (HIGH; proposed 2026-11-11)
+
+<a id="fw-asymmetric-loss"></a>
+
+**Owner: Evaluation, benchmarking and reasoning. Status: PLANNED, NOT BUILT.** Existing fixed min_action_confidence and check_conclusion gates are safeguards, not an empirically validated loss function. Construct a versioned, stakeholder-reviewed loss matrix by severity for missed fault (especially serious bearing failure), false alarm, wrong part, unnecessary reading, unresolved/escalate and consequential intervention.
+
+- When justified posterior probabilities and loss weights exist, compare *expected loss*; when probabilities/relative costs are uncertain, compare worst-case regret over a defensible documented range and escalate rather than fabricate precision. Avoid inventing real-shop dollar losses.
+- Keep action authorization, read-only pilot boundaries, source-trust gates and post-action verification independent. A favorable risk score is **not** permission to lower physical-intervention safeguards or to treat an unresolved fault as safe.
+- **Acceptance:** Use held-out severity-labelled cases, plausible-loss sensitivity sweeps and independently judged escalation utility. Report missed severe faults, false clearances, unnecessary escalations, error cost assumptions, and latency relative to fixed confidence gates.
+
+### Proper scoring and calibration of diagnosis probability (HIGH; proposed 2026-11-11)
+
+<a id="fw-proper-scoring"></a>
+
+**Owner: Evaluation, benchmarking and reasoning. Status: PLANNED, NOT BUILT.** Current hypothesis confidence and unproven_confidence discounts are not calibrated probabilities. Freeze predictions **before** independent ground-truth labels are revealed and evaluate explicit events (e.g., named fault correct, no-fault, or multiple faults) with Brier score; optionally use log loss with a documented clip bound.
+
+- Preserve diagnostic discrimination and abstention scoring in addition to proper probability scores; do not assume separate hypothesis-confidence values sum to one. Compare raw, discounted and calibrated predictions on separate train/calibration/test partitions and report reliability by confidence bucket only where sample sizes permit.
+- The present limited labelled cases and uncalibrated external evaluators cannot establish probability quality for a real CNC. Do not use numerical probabilities as authoritative inputs to [value-of-information](#fw-voi-stop), [loss decisions](#fw-asymmetric-loss) or [SM-11](#fw-sm-check-ranking) until validated for the relevant failure classes.
+- **Acceptance:** Improved held-out Brier score and reliability without worse severe-fault recall, wrong-action rate, honest abstention or significant added inference latency. Ground truth remains evaluator-only.
+
 ### Investigation latency review: signal vs noise (HIGH; reviewed 2026-11-09)
 
 <a id="fw-latency-review"></a>
@@ -1082,18 +1118,40 @@ Only then consider the
 increment gets its own PR and tests. This documentation creates no new
 understanding/implementation completion claim.
 
-### Ranked component check list for the technician (MEDIUM; SM-11; proposed 2026-11-07)
+### Ranked component check list for the technician (HIGH; SM-11; reprioritized 2026-11-11)
 
 <a id="fw-sm-check-ranking"></a>
 
-**Category: Evaluation, benchmarking and reasoning. Rank: SM-11 in the [single-machine track](#fw-sm-track). Status: NOT BUILT; deliberately after the reading work (developer's decision, 2026-11-07).** The project's end goal is to tell a technician which part to check first, then second. Controller telemetry usually narrows a problem to a subsystem (spindle, one axis, coolant, hydraulics) but often cannot separate parts inside it, such as a bearing from a ball screw on the same axis. So the output is a ranked check list, not a certain diagnosis.
+**Category: Evaluation, benchmarking and reasoning. Priority: HIGH (re-ranked 2026-11-11). Rank: SM-11 in the [single-machine track](#fw-sm-track). Status: NOT BUILT; remains dependent on reliable sensor features and technician-confirmed failures (developer's dependency decision, 2026-11-07).** The project's end goal is to tell a technician which part to check first, then second. Controller telemetry usually narrows a problem to a subsystem (spindle, one axis, coolant, hydraulics) but often cannot separate parts inside it, such as a bearing from a ball screw on the same axis. So the output is a ranked check list, not a certain diagnosis.
 
 1. **Symptom map, built with technicians.** For each likely failed part, the signal pattern it would cause. Example: a worn ball screw raises that axis's servo load at the same commanded feed, and is a common cause of excess servo load that gets misread as an electrical fault.
 2. **Score each part** by how well the observed pattern from [SM-9](#fw-sm-cross-signal) fits, weighted by how often that part actually fails on this machine (from the [maintenance history](#fw-sm-visit-log)).
 3. **Order by probability divided by cost to check.** Decision-theoretic troubleshooting shows that, under its assumptions, checking components in decreasing probability-to-cost ratio gives the lowest expected cost ([Breese and Heckerman, 1996](https://arxiv.org/pdf/1302.3563); [Heckerman, Breese and Rommelse, CACM 1995](https://www.microsoft.com/en-us/research/publication/decision-theoretic-troubleshooting/)). A likely part that takes five minutes to inspect goes ahead of a slightly more likely part that needs a teardown.
 4. **Update after each finding.** When the technician reports a part is fine, rescore the rest and recommend the next check.
 
+**Bayesian search qualification:** The probability/check-cost ordering is optimal only under restrictive assumptions such as one failed part, dependable tests and separable inspection costs. Use technician-validated prior fault rates and conditional test likelihoods; include none-of-the-above and concurrent failures. When tests share teardown steps, faults correlate or values are missing, rank by conditional expected inspection effort instead of assuming the ratio is universally optimal. The agent never inspects or moves the machine itself; preserve [severity-based escalation](#fw-asymmetric-loss).
+
 Python computes the scores; the Investigator explains the evidence and walks the technician through the checks. Human approval and verification are unchanged. *Accept:* on technician-confirmed cases only, report the rank of the true part and the number of checks to find it; never report accuracy on unlabeled real data.
+
+### Bandits across repeated opening tool choices (MEDIUM; proposed 2026-11-11)
+
+<a id="fw-opening-bandits"></a>
+
+**Owner: Evaluation, benchmarking and reasoning, using episodic investigation outcomes. Status: PLANNED, NOT BUILT.** After collecting enough *independently labelled* episodes per symptom/operating-state class, compare contextual UCB or Thompson sampling with the deterministic first-call strategy. Reward discriminating evidence leading to a correct or safely unresolved outcome **per wall second**, not response count.
+
+- Begin with simulator or previously recorded, permissible replay; split episodes by machine/time/incident to prevent leakage. Include available channels and telemetry quality in context; unknown or rare classes fall back to current deterministic policy.
+- Exploration is restricted to approved **read-only** observations, never physical machine tests. Do not enable learning on the first production pilot without independent validation and technician review.
+- **Acceptance:** Lower held-out time to useful evidence and p95 diagnosis time without additional dangerous misses, false no_action or uncertainty misreporting. Version the policy, count samples and test symptom drift; defer if evidence is too sparse.
+
+### Bounded Shapley-style attribution for evidence calls (MEDIUM; proposed 2026-11-11)
+
+<a id="fw-evidence-shapley"></a>
+
+**Owner: Evaluation, benchmarking and reasoning. Status: PLANNED, NOT BUILT.** Extend replay evaluation *alongside*, not inside the semantics of, evaluation/gap_replay.py. Use bounded leave-one-bundle-out and sampled-permutation ablations to estimate how much each tool-call evidence bundle changes a supported decision or honest unresolved result.
+
+- Exact Shapley computation is exponential; observational replay does not prove causal contribution. Set a strict compute cap, report attribution uncertainty, and account for repeated/correlated measurements by grouping by source and window. If an ablation needs a new model request, count its time and cost rather than claiming it is free.
+- Preserve provenance, mandatory safety checks, ordering and time availability; ablation must not smuggle future evidence into earlier decisions.
+- **Acceptance:** Proposed deletions maintain correctness, false-alarm/missed-fault rates, uncertainty handling and auditability on held-out labelled cases while lowering p95 elapsed time; otherwise do not prune.
 
 ### Future Work 7 — model evaluation, execution budgets, and computed evidence
 
@@ -1763,6 +1821,16 @@ dependency is added now.
 ## Future work: Multi-agent roles and coordination
 
 <a id="future-work-multi-agent-roles"></a>
+
+### Evidence-seeking adversarial Critic (MEDIUM; proposed 2026-11-11)
+
+<a id="fw-critic-falsification"></a>
+
+**Owner: Multi-agent roles and coordination. Status: NEW OBJECTIVE NOT BUILT; blind hypothesis ordering and one structured critic check_request already exist.** Treat the critic as an adversarial *falsification test*, not a literal zero-sum training game. Its objective is to find specific, evidence-backed contradictions or missing discriminating readings, and it may report no substantive objection.
+
+- Require a citeable observation, a feasible permitted read-only test or explicit inability to resolve a material alternative. Never reward reflexive objections or turn model opinion into source evidence. Do not add a new agent, multi-round debate or unbounded follow-up.
+- **Acceptance:** On matched labelled cases, compare the current blind/recheck baseline with the falsification rubric for errors actually uncovered, useful checks, spurious objections on correct investigations, latency and supported escalation. Reject objective changes that increase objection rate without reducing unsafe conclusions.
+- Keep existing tool budgets, conservative conclusion policy and human authorization. An unresolved critical objection should be surfaced to the technician, not silently treated as support.
 
 ### Future Work 3 — multi-agent research
 
