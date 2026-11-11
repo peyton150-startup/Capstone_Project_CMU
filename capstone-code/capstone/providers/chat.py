@@ -903,9 +903,8 @@ def value_client(
 
 
 # The questions that can go to LATE_MODEL, and the key each late client is
-# kept under beside the seven jobs' clients. Only decide: the developer
-# (2026-11-09) wants the switch only at the end of the decide phase, where
-# most timeouts are; the conclusion stays with its own model.
+# kept under beside the seven jobs' clients. Decide is the original route;
+# conclude is added only when LATE_CONCLUDE opts it in.
 LATE_JOBS = ("decide",)
 
 
@@ -917,26 +916,31 @@ def late_key(job: str) -> str:
 def late_clients(
     settings: Settings | None = None, *, transport: Transport = urllib_transport
 ) -> dict[str, FallbackClient]:
-    """The late-run decide client, or {} without LATE_MODEL.
+    """Late decide and optional conclude clients, or {} without LATE_MODEL.
 
     It asks LATE_MODEL first, then the shared FALLBACK_MODEL chain, as a
-    job's own client does. DECIDE_REASONING_EFFORT is never sent (it is
-    Super's); the late model's thinking is set by `late_thinking_fields`,
-    and only NVIDIA models are sent those fields.
+    job's own client does. LATE_CONCLUDE needs LATE_MODEL and routes only
+    conclude; decide keeps its existing route. DECIDE_REASONING_EFFORT is
+    never sent (it is Super's); the late model's thinking is set by
+    `late_thinking_fields`, and only NVIDIA models are sent those fields.
     """
     # Variables:
     #   settings.late_model: The model for late questions; None turns the
     #     switch off, so every question keeps its own model.
+    #   jobs: Decide, plus conclude when separately opted in.
     #   fields: The thinking switch sent with every late request to NVIDIA.
     settings = settings or get_settings()
+    if settings.late_conclude and settings.late_model is None:
+        raise ValueError("LATE_CONCLUDE requires LATE_MODEL")
     if settings.late_model is None:
         return {}
+    jobs = LATE_JOBS + (("conclude",) if settings.late_conclude else ())
     fields = late_thinking_fields(settings)
     return {
         late_key(job): chain_for(
             settings.late_model, settings, transport=transport, thinking_fields=fields
         )
-        for job in LATE_JOBS
+        for job in jobs
     }
 
 

@@ -170,17 +170,20 @@ class Settings(BaseSettings):
     # decide questions, mostly near the end of research. With LATE_MODEL set,
     # a decide question with less than LATE_MODEL_SECONDS left goes to it
     # instead (Super, given half of that time, answered in 30 s only 55% of
-    # the time). Every other question, the conclusion included, keeps its own
-    # model. None (the default) switches nothing.
+    # the time). LATE_CONCLUDE independently opts the conclusion into the
+    # same model and threshold. None (the default) switches nothing.
     late_model: str | None = _optional("LATE_MODEL")
     late_model_seconds: float = Field(
         default=60.0, gt=0, validation_alias="LATE_MODEL_SECONDS"
     )
+    # Off by default; when on, a late conclude question also uses LATE_MODEL.
+    # Its own CONCLUDE_MODEL still handles an early conclusion.
+    late_conclude: bool = Field(default=False, validation_alias="LATE_CONCLUDE")
     # The late model's thinking (developer, 2026-11-09: turn it off or lower
     # it). Off by default: NVIDIA is sent chat_template_kwargs.enable_thinking
     # false. On, LATE_MODEL_REASONING_BUDGET caps the thinking tokens
     # (`reasoning_budget`); unset leaves the cap to NVIDIA. Sent to NVIDIA
-    # models only, never to the fallback, and only on late decide questions.
+    # models only, never to the fallback, and only on routed late questions.
     late_model_thinking: bool = Field(
         default=False, validation_alias="LATE_MODEL_THINKING"
     )

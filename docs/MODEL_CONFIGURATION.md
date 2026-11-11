@@ -77,28 +77,36 @@ not a primary model. `CRITIC=on` is required to enable the settings-built critic
 ```dotenv
 LATE_MODEL=nvidia/nvidia/nemotron-3.5-lightning-30b-a3b
 LATE_MODEL_SECONDS=60
+# Optional: route a late conclude question to the same model.
+# LATE_CONCLUDE=on
 # Optional: let it think, with a cap on thinking tokens.
 # LATE_MODEL_THINKING=true
 # LATE_MODEL_REASONING_BUDGET=1024
 ```
 
-Unset by default: every question keeps its own model. When set, only one kind
-of question changes: a **decide** question with less than `LATE_MODEL_SECONDS`
-left, at the end of the decide phase, goes to `LATE_MODEL` (then the shared
-`FALLBACK_MODEL` chain). The investigator's model gets half of a question's
-time (the other half is kept for the fallback), so at 60 s Super 120B would
-have under 30 s, and it answered a decide question within 30 s only 55% of
-the time (499 calls, 2026-10-31 to 2026-11-09). The conclusion and every other
-question keep their own model.
+Unset by default: every question keeps its own model. When `LATE_MODEL` is
+set, a **decide** question with less than `LATE_MODEL_SECONDS` left goes to it
+(then the shared `FALLBACK_MODEL` chain). The investigator's model gets half
+of a question's time (the other half is kept for the fallback), so at 60 s
+Super 120B would have under 30 s, and it answered a decide question within
+30 s only 55% of the time (499 calls, 2026-10-31 to 2026-11-09).
+
+`LATE_CONCLUDE=on` separately opts in the **conclude** question when less
+than the same threshold remains. It requires `LATE_MODEL` and uses the same
+model, fallback chain and thinking settings. An earlier conclusion still
+uses `CONCLUDE_MODEL` or `DEFAULT_MODEL`. All other question types keep their
+own model; the original late decide behavior is unchanged when the conclude
+option is off. This changes model behavior and must be recorded with a live
+run's configuration before comparing its results with an earlier run.
 
 **Thinking.** Off by default: NVIDIA is sent
 `"chat_template_kwargs": {"enable_thinking": false}`. With
 `LATE_MODEL_THINKING=true` it is sent `true`, plus `"reasoning_budget"` when
 `LATE_MODEL_REASONING_BUDGET` is set. Both fields come from NVIDIA's sample
 request for Nemotron 3.5 Lightning on build.nvidia.com (2026-11-09). They go to
-NVIDIA models only, never to the fallback, and only on late decide questions.
+NVIDIA models only, never to the fallback, and only on routed late questions.
 `DECIDE_REASONING_EFFORT` is never sent to the late model. The run header names
-the model, the threshold and the thinking setting.
+the model, the threshold and the thinking setting for each enabled route.
 
 **Model.** The developer's choice (2026-11-09) is Nemotron 3.5 Lightning 30B
 (3B active). On 2026-10-20, with thinking on and the old 2,048-token and 15 s

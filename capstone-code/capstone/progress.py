@@ -462,6 +462,8 @@ def run_header(
     #   late: LATE_MODEL, or None when it is not set; a line names it, its
     #     threshold and its thinking only when set, so the usual header is
     #     unchanged.
+    #   settings.late_conclude: Adds the conclusion route to the header only
+    #     when it is enabled alongside LATE_MODEL.
     if not settings.critic:
         critic = "critic off"
     else:
@@ -497,6 +499,12 @@ def run_header(
             f"{settings.late_model_seconds:g} s left; thinking "
             f"{late_thinking_words(settings)})"
         )
+        if settings.late_conclude:
+            lines.append(
+                f"RUN: late conclude model {late} (under "
+                f"{settings.late_model_seconds:g} s left; thinking "
+                f"{late_thinking_words(settings)})"
+            )
     return lines
 
 

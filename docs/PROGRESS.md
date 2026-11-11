@@ -1,5 +1,19 @@
 # Progress Log
 
+> **2026-11-11 — opt-in late conclusion model (feature branch; built ungated at developer request; understood: no, walkthrough owed):**
+> `LATE_CONCLUDE=on` now routes a conclude question with less than
+> `LATE_MODEL_SECONDS` left to the configured `LATE_MODEL`, using its existing
+> fallback and thinking settings. Early conclusions and every other job keep
+> their own model; decide's existing late route is unchanged. The option is
+> off by default and requires `LATE_MODEL`. The run header and model
+> configuration docs describe the switch. Focused offline tests cover routing,
+> fallback, request settings and recorded model identity; no live model run
+> was made for this change. The discarded partial triage run was not used as
+> evidence. For a future simulator triage run, `LINE_CONTEXT=on` adds a wider
+> observable packet; the built-in Python line screening already runs
+> independently of that flag. Real recorded-data triage still skips screening
+> until a healthy reference is validated.
+
 > **2026-11-11 — decision-theory future-work triage (documentation only; NOT implemented):**
 > At the developer's request, added seven high/medium-signal diagnostic
 > candidates to docs/MVP_SCOPE.md and mapped each to its appropriate roadmap
