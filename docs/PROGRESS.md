@@ -17,6 +17,19 @@
 > PR remains unmerged for review.
 
 
+> **2026-11-11 — signal-ranked implementation queue (documentation only; NOT implemented; PR #235):**
+> Added `docs/SIGNAL_PRIORITY_IMPLEMENTATION_ROADMAP_20261111.md` and a
+> matching table in `docs/MVP_SCOPE.md`: 33 proposed work items, two HIGH
+> (#1 qualify the installed Siemens/DMG MORI controller, software, licenses
+> and capabilities; #2 enforce a strict read-only CNC, network and
+> model-egress boundary) and 31 MEDIUM. The ranking applies inside this queue
+> only and does not lower any P0 gate in SDC-01–20 or RMI-01–07. Developer
+> decisions recorded with it the same day: the pilot uses Siemens adapters
+> only (MTConnect is not being pursued for now), #2 is the acceptance
+> checklist for the read-only Siemens OPC UA adapter, and #29 (Kubernetes or
+> a service mesh) is not active under `AGENTS.md` section 4.5. No code,
+> dependencies or tests changed; understanding status is unchanged.
+
 > **2026-11-10 — second full SNAP pass and comparison (evaluation evidence only; developer review pending):**
 > Codex repeated all 2,965 requests on clean `main` commit `0b089d8` with a
 > fresh output folder, the same source inventory/rubric/archives/reference,
