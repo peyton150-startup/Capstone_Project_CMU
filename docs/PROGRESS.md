@@ -29,6 +29,72 @@
 > walkthrough is owed after merge, not before.
 > Understood: partly. Not yet run live (Codex runs live, §12).
 
+
+> **2026-11-11 — S-0 step 2 fixes: stop on a rejected login or certificate, audit trail, fast tests (code; built ungated):**
+> Found in the Opus review of step 2: a wrong password, a rejected
+> certificate or a missing certificate file was retried forever, with no
+> reason recorded and exit code 0. Now `refusal_for` turns the server's
+> login answers (`LOGIN_REFUSALS`, such as BadUserAccessDenied) and
+> certificate/security answers (`SECURITY_REFUSALS`, such as
+> BadCertificateUntrusted) into `SiemensOpcUaRefused`, so collection stops
+> after one attempt (a retried wrong password can lock the account);
+> `configure` refuses a missing certificate file by name and one that cannot
+> be loaded. Every attempt now writes a `SiemensOpcUaAuditEntry` to an audit
+> trail (`audit_file`, `read_audit`; `main --audit PATH`, default
+> `<capture>.audit.jsonl`): epoch, stage reached, outcome (connected, closed,
+> lost, failed, refused, error, stopped) and reason (`failure_reason`: a
+> status name or exception class, with the account's values blanked). It never
+> holds the user name, password or a certificate's contents. A bug in the
+> collector now writes `stopped` with `error: <class>` before it propagates;
+> `main` returns 2 on a refusal or an unreadable config. The collector takes
+> `client_factory` and `subscription_factory`, so
+> `tests/test_siemens_opcua_adapter.py` (36 tests) runs on an
+> in-memory fake client instead of a mock server, and now covers the
+> encrypted-connection and login paths: the policy, certificates and
+> sign-and-encrypt mode handed to the client; the account read from the
+> environment; a wrong password and an untrusted certificate stopping after
+> one attempt; and no secret in any line or audit entry. **Not verified:**
+> no test now runs asyncua on the wire (only the CLI test uses the real
+> client, against a closed port), and nothing has run against a SINUMERIK.
+> **Understood: no — built ungated; added to the step 2 walkthrough.** Owed
+> question: (4) why does a rejected password stop the collector while a
+> refused TCP connection is retried?
+>
+> **2026-11-11 — S-0 step 2: read-only Siemens OPC UA collector (code; built ungated; mock server only):**
+> New module `capstone/ingestion/siemens_opcua_adapter.py` and a new optional
+> dependency group `siemens` (`asyncua>=2.1,<3`; 1.1.8 does not run on the
+> pinned Python 3.14). `SiemensOpcUaConfig` is the approved scope: endpoint,
+> the server's expected application URI, the approved nodes, certificates
+> (`SecuritySettings`, sign-and-encrypt only) and the names of the
+> environment variables holding the read-only account. `SiemensOpcUaCollector`
+> checks the server's URI, opens one session, reads the namespace table,
+> subscribes to the approved nodes and writes version 2 lines to a sink:
+> `on_value` (one record per delivered value; a queue-overflow status writes a
+> gap for that node first), `on_message` / `missed_counters` (a skipped
+> notification counter writes a gap), `watch` (heartbeats, connection
+> checks), `session` and `run` (a lost connection writes a `session_lost` gap
+> and `disconnected`, then reconnects under the next session epoch).
+> `SiemensOpcUaRefused` stops collection before any value when the endpoint is
+> unencrypted and not an allowed loopback test server, the server's URI is not
+> the approved one, a namespace is missing, the server will not monitor an
+> approved node, or the account variables are unset. The module has no code
+> path that writes, calls a method, browses, reads an unapproved node or
+> transfers a file; `test_the_adapter_source_has_no_write_call_browse_or_direct_read`
+> fails if one appears. Also `load_config`, `file_sink`, `main`
+> (`python -m capstone.ingestion.siemens_opcua_adapter --config ... --out ...`).
+> Tests: `tests/test_siemens_opcua_adapter.py` (20), in the "Live telemetry"
+> CI group, against asyncua's own server on a loopback port. **Not verified:**
+> nothing ran against a SINUMERIK control, and the encrypted-connection and
+> account paths are configured but not exercised by a test. This covers item
+> #2 of the signal-ranked queue (PR #235) for the OPC UA side only.
+> **Understood: no — built ungated at the developer's direction; pre-check,
+> closing question and pre-merge walkthrough owed.** Owed questions: (1) the
+> library can write to the control, so what makes this collector read-only,
+> and what does the test that guards it check and not check? (2) why does the
+> collector refuse to start when one approved node cannot be monitored,
+> instead of collecting the rest? (3) after a reconnect, why may a mean not be
+> computed across the two session epochs?
+>
 > **2026-11-11 — Siemens agent-tool/evidence decision ranking (documentation only; NOT implemented):**
 > Added a seven-item signal-ranked refinement to `docs/MVP_SCOPE.md` and its
 > active register, with detailed acceptance and code crosswalk in
@@ -43,6 +109,34 @@
 > dependencies, tests, CI configuration, model calls or shop interaction changed.
 > Docs-only: technical feature walkthrough not applicable.
 
+> **2026-11-11 — S-0 step 1: Siemens OPC UA record format, version 2 (code; built ungated):**
+> The developer decided the pilot uses Siemens adapters only (no MTConnect for
+> now) and that the record format is based on OPC UA, with more value types and
+> units added later if another source needs them. New module
+> `capstone/ingestion/siemens_opcua_record.py` (every Siemens OPC UA module
+> carries "siemens" in its name, at the developer's request):
+> `OpcUaDataChange` (one value as the server's DataValue gave it: typed value,
+> StatusCode, source and server timestamps, plus the collector's receive time,
+> session epoch, subscription id and notification counter), `StatusInfo` /
+> `severity_of` / `status_from_code` (severity from the code's top two bits;
+> queue overflow from its info bits), `NodeRef` (namespace URI, never the
+> index), `data_change` (builder; NaN and infinity are set aside as
+> `non_finite`), `OpcUaSessionMarker` / `OpcUaGap` (connected, heartbeat,
+> disconnected, stopped, gap), `parse_opcua_line`, `to_json_line`,
+> `continuous_runs`. `number()` returns a value only for a Good status (or
+> Uncertain when asked) and a finite number. The MTConnect version 1 record is
+> unchanged. No network code, no `asyncua` dependency yet, no machine
+> contacted. Tests: `tests/test_siemens_opcua_record.py` (28), in the "Live
+> telemetry" CI group. **Understood: no — built ungated at the developer's
+> direction (2026-11-11, same as the SM track); pre-check, closing question and
+> pre-merge walkthrough owed.** Owed pre-check question: a notification
+> arrives with value 0.0, StatusCode Bad_NoCommunication and no source
+> timestamp. What does the record store for value, status and
+> source_timestamp, what does `number()` return, and why does that matter to
+> the anomaly detector and the agent? Next: the read-only Siemens OPC UA
+> adapter against an offline mock server, alarm-event records, the Siemens
+> channel map, replay over version 2, and Siemens preflight.
+>
 > **2026-11-11 — decision-theory future-work triage (documentation only; NOT implemented):**
 > At the developer's request, added seven high/medium-signal diagnostic
 > candidates to docs/MVP_SCOPE.md and mapped each to its appropriate roadmap
