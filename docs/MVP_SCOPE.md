@@ -658,6 +658,7 @@ The rows below leave the active backlog **without claiming real-shop acceptance*
 | Order | Priority | Category | Open requirement and detailed link | Trigger / acceptance |
 |---|---|---|---|---|
 | S-0 | **P0 — highest** | Controller/data integration | [Siemens SINUMERIK full read-only capability audit and adapter specification](#fw-sinumerik-readonly) | Exact controller/OPC UA or MTConnect availability, shop authorization and complete supported-field matrix; NO implementation yet |
+| S-0/E2E | **P0 — cross-cutting** | Full real-data intelligence | [Capture → normalize → features → anomaly → evidence → agent → verified learning](#fw-real-data-e2e) | Source-to-sink contract E0–E11 and acceptance tests; implement stage-by-stage after its prerequisites; do not treat receipt of data as diagnosis capability |
 | 0 | **P0** | Pilot readiness | [Validate SM-1 to SM-5 together on a consented physical capture](#fw-sm-visit-log) | Site approval; capture + map + time-aligned operator events + gap report; no write commands |
 | 1 | **P0** | Tooling | [Field-validate the built SM-3 replay-to-investigator path and capability-filtered tools](#fw-sm-real-provider) | Synthetic replay wiring exists; on an authorized capture verify no fake simulator history, no physical actions, no future samples and truthful available-tool scope |
 | SM-6 | **HIGH** | Tooling | [Segment idle/running/cutting/warm-up without fabricating unavailable states](#fw-sm-state-segmentation) | A real probe and operator-timestamped cycles; compare transitions by hand |
