@@ -1,5 +1,35 @@
 # Progress Log
 
+> **2026-11-11 — S-0 step 2 fixes: stop on a rejected login or certificate, audit trail, fast tests (code; built ungated):**
+> Found in the Opus review of step 2: a wrong password, a rejected
+> certificate or a missing certificate file was retried forever, with no
+> reason recorded and exit code 0. Now `refusal_for` turns the server's
+> login answers (`LOGIN_REFUSALS`, such as BadUserAccessDenied) and
+> certificate/security answers (`SECURITY_REFUSALS`, such as
+> BadCertificateUntrusted) into `SiemensOpcUaRefused`, so collection stops
+> after one attempt (a retried wrong password can lock the account);
+> `configure` refuses a missing certificate file by name and one that cannot
+> be loaded. Every attempt now writes a `SiemensOpcUaAuditEntry` to an audit
+> trail (`audit_file`, `read_audit`; `main --audit PATH`, default
+> `<capture>.audit.jsonl`): epoch, stage reached, outcome (connected, closed,
+> lost, failed, refused, error, stopped) and reason (`failure_reason`: a
+> status name or exception class, with the account's values blanked). It never
+> holds the user name, password or a certificate's contents. A bug in the
+> collector now writes `stopped` with `error: <class>` before it propagates;
+> `main` returns 2 on a refusal or an unreadable config. The collector takes
+> `client_factory` and `subscription_factory`, so
+> `tests/test_siemens_opcua_adapter.py` (36 tests) runs on an
+> in-memory fake client instead of a mock server, and now covers the
+> encrypted-connection and login paths: the policy, certificates and
+> sign-and-encrypt mode handed to the client; the account read from the
+> environment; a wrong password and an untrusted certificate stopping after
+> one attempt; and no secret in any line or audit entry. **Not verified:**
+> no test now runs asyncua on the wire (only the CLI test uses the real
+> client, against a closed port), and nothing has run against a SINUMERIK.
+> **Understood: no — built ungated; added to the step 2 walkthrough.** Owed
+> question: (4) why does a rejected password stop the collector while a
+> refused TCP connection is retried?
+>
 > **2026-11-11 — S-0 step 2: read-only Siemens OPC UA collector (code; built ungated; mock server only):**
 > New module `capstone/ingestion/siemens_opcua_adapter.py` and a new optional
 > dependency group `siemens` (`asyncua>=2.1,<3`; 1.1.8 does not run on the

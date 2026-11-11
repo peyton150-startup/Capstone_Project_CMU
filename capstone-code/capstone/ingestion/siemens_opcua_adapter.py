@@ -18,10 +18,16 @@ node that is not on the approved list, or transfers a file. The OPC UA
 library can do all of those; this module does not use those calls, and a
 test fails if one appears here.
 
-It refuses to start (SiemensOpcUaRefused, nothing collected) when:
+It refuses to start, or stops (SiemensOpcUaRefused, nothing more collected),
+when:
 
 - the endpoint is not encrypted, unless it is a loopback address and the
   config says a local test server is allowed;
+- a certificate file is missing or cannot be loaded;
+- the account's environment variables are not set;
+- the server rejects the login (wrong user name or password) or the
+  certificates (untrusted, expired, wrong policy). Trying again cannot fix
+  these, and retrying a wrong password can lock the account;
 - the server's application URI is not the approved one;
 - an approved node's namespace is not on the server;
 - the server will not monitor an approved node.
@@ -30,8 +36,13 @@ A dropped connection is not a refusal: the collector writes a gap and a
 `disconnected` marker, waits, and connects again under the next session
 epoch. No value is carried across that break.
 
+Every connection attempt also goes to an audit trail
+(`SiemensOpcUaAuditEntry`): when, which epoch, how far it got, how it ended
+and why. The trail never holds the user name, the password or a
+certificate's contents.
+
 This module needs the `siemens` extra (asyncua). Nothing here has been run
-against a SINUMERIK control; the tests use a local mock server.
+against a SINUMERIK control; the tests use a fake client.
 """
 
 import argparse
@@ -48,7 +59,7 @@ from urllib.parse import urlsplit
 from asyncua import Client, ua
 from asyncua.common.subscription import Subscription
 from asyncua.crypto import security_policies
-from pydantic import BaseModel, ConfigDict, Field, model_validator
+from pydantic import AwareDatetime, BaseModel, ConfigDict, Field, model_validator
 
 from capstone.ingestion.siemens_opcua_record import (
     NodeRef,
@@ -99,9 +110,91 @@ SEQUENCE_MAX = 2**32 - 1
 # What a broken connection can raise; anything else is a bug and propagates.
 CONNECTION_ERRORS = (OSError, asyncio.TimeoutError, ua.UaError, ConnectionError)
 
+# Server answers that mean the account was rejected. Retrying cannot fix
+# them, and repeated wrong passwords can lock the account, so they stop
+# collection.
+LOGIN_REFUSALS = frozenset(
+    {
+        "BadUserAccessDenied",
+        "BadIdentityTokenInvalid",
+        "BadIdentityTokenRejected",
+        "BadUserSignatureInvalid",
+    }
+)
+
+# Server answers that mean the certificates or security settings were
+# rejected. These also stop collection: a person has to fix them.
+SECURITY_REFUSALS = frozenset(
+    {
+        "BadApplicationSignatureInvalid",
+        "BadCertificateChainIncomplete",
+        "BadCertificateHostNameInvalid",
+        "BadCertificateInvalid",
+        "BadCertificateIssuerRevocationUnknown",
+        "BadCertificateIssuerRevoked",
+        "BadCertificateIssuerTimeInvalid",
+        "BadCertificateIssuerUseNotAllowed",
+        "BadCertificatePolicyCheckFailed",
+        "BadCertificateRevocationUnknown",
+        "BadCertificateRevoked",
+        "BadCertificateTimeInvalid",
+        "BadCertificateUntrusted",
+        "BadCertificateUriInvalid",
+        "BadCertificateUseNotAllowed",
+        "BadNoValidCertificates",
+        "BadNonceInvalid",
+        "BadSecurityChecksFailed",
+        "BadSecurityModeInsufficient",
+        "BadSecurityModeRejected",
+        "BadSecurityPolicyRejected",
+    }
+)
+
+# How far a connection attempt got, for the audit trail.
+Stage = Literal[
+    "configure", "check_server", "connect", "resolve_nodes", "subscribe", "watch"
+]
+
+# How an attempt, or the whole collection, ended, for the audit trail.
+Outcome = Literal[
+    "connected", "closed", "lost", "failed", "refused", "error", "stopped"
+]
+
 
 class SiemensOpcUaRefused(Exception):
     """The collector will not collect from this server as configured."""
+
+
+class SiemensOpcUaAuditEntry(BaseModel):
+    """One entry in the collector's audit trail: an attempt and how it ended."""
+
+    model_config = ConfigDict(frozen=True, extra="forbid")
+
+    # Variables:
+    #   at: When this happened, by the collector's clock.
+    #   session_epoch: The connection attempt's number (0 before the first).
+    #   endpoint: The server's host and port only, never a user name.
+    #   server_uri: The approved server's application URI.
+    #   security_policy: The encryption policy, or "none" for a local test.
+    #   login: "account" if a user name and password were configured, else
+    #     "anonymous". Never the user name or password themselves.
+    #   stage: How far the attempt got before it ended; None on the final
+    #     `stopped` entry.
+    #   outcome: connected (session open), closed (ended on request), lost
+    #     (dropped after connecting; will retry), failed (could not connect;
+    #     will retry), refused (will not retry), error (a bug in the
+    #     collector), stopped (collection ended).
+    #   reason: Why, in words or as the server's status name. Holds no secret.
+    record_type: Literal["siemens_opcua_audit"] = "siemens_opcua_audit"
+    at: AwareDatetime
+    session_epoch: int = Field(ge=0)
+    endpoint: str
+    server_uri: str
+    security_policy: str
+    login: Literal["account", "anonymous"]
+    stage: Stage | None = None
+    outcome: Outcome
+    reason: str | None = None
 
 
 class SecuritySettings(BaseModel):
@@ -139,7 +232,7 @@ class SiemensOpcUaConfig(BaseModel):
     #   username_env, password_env: Names of environment variables holding
     #     the read-only account; the values are never in this file or a log.
     #   allow_insecure_loopback: True to allow an unencrypted connection to
-    #     this computer itself, for the mock server in tests.
+    #     this computer itself, for a local test server.
     #   heartbeat_seconds: Write a heartbeat after this long with no value.
     #   watch_seconds: How often the connection is checked.
     #   reconnect_seconds: How long to wait before connecting again.
@@ -223,6 +316,45 @@ def missed_counters(previous: int | None, current: int) -> tuple[int, int] | Non
     return (expected, SEQUENCE_MAX if current == 1 else current - 1)
 
 
+def status_name(code: int) -> str:
+    """The OPC UA name of a status code, such as BadUserAccessDenied."""
+    return ua.StatusCode(code).name
+
+
+def refusal_for(error: BaseException) -> SiemensOpcUaRefused | None:
+    """A refusal if the server rejected the login or certificates, else None."""
+    # Variables:
+    #   name: The status the server answered with, by name; it decides
+    #     whether this is a refusal (stop) or a failure (retry).
+    if not isinstance(error, ua.UaStatusCodeError):
+        return None
+    name = status_name(error.code)
+    if name in LOGIN_REFUSALS:
+        return SiemensOpcUaRefused(f"the server rejected the login ({name})")
+    if name in SECURITY_REFUSALS:
+        return SiemensOpcUaRefused(
+            f"the server rejected the certificates or security settings ({name})"
+        )
+    return None
+
+
+def failure_reason(error: BaseException) -> str:
+    """Why a connection attempt failed, in words that hold no secret."""
+    # Variables:
+    #   kind: The exception's class name, the fallback when nothing more
+    #     specific and safe is known.
+    kind = type(error).__name__
+    if isinstance(error, ua.UaStatusCodeError):
+        return status_name(error.code)
+    if isinstance(error, SiemensOpcUaRefused):
+        return str(error)
+    if isinstance(error, OSError) and error.strerror:
+        return f"{kind}: {error.strerror}"
+    if isinstance(error, ConnectionError) and error.args:
+        return f"{kind}: {error.args[0]}"
+    return kind
+
+
 def stored_value(variant) -> tuple[bool | int | float | str | None, str | None]:
     """A delivered value and its type name, or (None, None) if not stored."""
     # Variables:
@@ -269,6 +401,11 @@ class _CountingSubscription(Subscription):
         await super().publish_callback(publish_result)
 
 
+def counting_subscription(client: Client, params, handler) -> Subscription:
+    """The real subscription, which reports each message's counter first."""
+    return _CountingSubscription(client.uaclient, params, handler)
+
+
 class SiemensOpcUaCollector:
     """Monitors the approved nodes and writes version 2 lines to a sink."""
 
@@ -277,11 +414,21 @@ class SiemensOpcUaCollector:
         config: SiemensOpcUaConfig,
         sink: Callable[[OpcUaLine], None],
         clock: Callable[[], datetime] = utc_now,
+        audit: Callable[[SiemensOpcUaAuditEntry], None] | None = None,
+        client_factory: Callable[[str], Client] = Client,
+        subscription_factory: Callable[..., Subscription] = counting_subscription,
     ) -> None:
         # Variables:
         #   sink: Called with each line, in order; it stores the line.
         #   clock: The collector's clock; tests pass a fixed one.
+        #   audit: Called with each audit entry; None keeps no trail.
+        #   client_factory: Makes the OPC UA client for one connection; tests
+        #     pass a fake so no server is needed.
+        #   subscription_factory: Makes the subscription on a client; tests
+        #     pass a fake.
         #   epoch: The current connection's number, from 1.
+        #   stage: How far the current attempt has got, for the audit trail.
+        #   connected: True once the current session wrote `connected`.
         #   refs: This session's (namespace index, identifier) to approved
         #     node; a notification for anything else is dropped and counted.
         #   subscription_id, last_seq: The subscription and the counter of
@@ -294,7 +441,12 @@ class SiemensOpcUaCollector:
         self.config = config
         self.sink = sink
         self.clock = clock
+        self.audit = audit
+        self.client_factory = client_factory
+        self.subscription_factory = subscription_factory
         self.epoch = 0
+        self.stage: Stage | None = None
+        self.connected = False
         self.refs: dict[tuple[int, object], NodeRef] = {}
         self.subscription_id: int | None = None
         self.last_seq: int | None = None
@@ -304,7 +456,7 @@ class SiemensOpcUaCollector:
         self.dropped = 0
         self.unsupported = 0
 
-    # --- writing lines ------------------------------------------------------
+    # --- writing lines and the audit trail -------------------------------------
 
     def write(self, line: OpcUaLine) -> None:
         """Send one line to the sink and note when."""
@@ -323,6 +475,43 @@ class SiemensOpcUaCollector:
                 gap=gap,
             )
         )
+
+    def trail(self, outcome: Outcome, reason: str | None = None) -> None:
+        """Add one entry to the audit trail, with any secret blanked out."""
+        # Variables:
+        #   secrets: The account's current values, if set, removed from the
+        #     reason in case a library ever echoes them.
+        #   parts: The endpoint split up, so only host and port are kept.
+        if self.audit is None:
+            return
+        secrets = [
+            os.environ.get(name) or ""
+            for name in (self.config.username_env, self.config.password_env)
+            if name
+        ]
+        for secret in secrets:
+            if reason and secret:
+                reason = reason.replace(secret, "[REDACTED]")
+        parts = urlsplit(self.config.endpoint_url)
+        security = self.config.security
+        self.audit(
+            SiemensOpcUaAuditEntry(
+                at=self.clock(),
+                session_epoch=self.epoch,
+                endpoint=f"{parts.hostname}:{parts.port or 4840}",
+                server_uri=self.config.expected_server_uri,
+                security_policy="none" if security is None else security.policy,
+                login="account" if self.config.username_env else "anonymous",
+                stage=None if outcome == "stopped" else self.stage,
+                outcome=outcome,
+                reason=reason,
+            )
+        )
+
+    def stopped(self, reason: str) -> None:
+        """Write the final `stopped` marker and its audit entry."""
+        self.mark("stopped", reason=reason)
+        self.trail("stopped", reason)
 
     # --- callbacks from the subscription -------------------------------------
 
@@ -396,7 +585,12 @@ class SiemensOpcUaCollector:
 
     def on_subscription_status(self, status) -> None:
         """Remember that the server ended or changed the subscription."""
-        self.lost = f"subscription status {getattr(status, 'Status', status)}"
+        # Variables:
+        #   code: The status the server gave, named (such as BadTimeout) so
+        #     the `disconnected` marker and audit trail can say why.
+        code = getattr(status, "Status", None)
+        name = code.name if isinstance(code, ua.StatusCode) else str(status)
+        self.lost = f"subscription status {name}"
 
     # --- one session -----------------------------------------------------------
 
@@ -404,17 +598,34 @@ class SiemensOpcUaCollector:
         """Set the client's encryption and account from the config."""
         # Variables:
         #   security: The certificates; None only for an allowed local server.
+        #   files: Each certificate file and what it is, checked before the
+        #     client sees them so a missing one gives a clear refusal.
         #   user, password: The read-only account, read from the environment
         #     at this moment and passed straight to the client.
         security = self.config.security
         if security is not None:
-            await client.set_security(
-                POLICIES[security.policy],
-                security.client_certificate,
-                security.client_private_key,
-                server_certificate=str(security.server_certificate),
-                mode=ua.MessageSecurityMode.SignAndEncrypt,
+            files = (
+                ("client certificate", security.client_certificate),
+                ("client private key", security.client_private_key),
+                ("server certificate", security.server_certificate),
             )
+            for label, path in files:
+                if not path.is_file():
+                    raise SiemensOpcUaRefused(
+                        f"the {label} file {path.name} is missing"
+                    )
+            try:
+                await client.set_security(
+                    POLICIES[security.policy],
+                    str(security.client_certificate),
+                    str(security.client_private_key),
+                    server_certificate=str(security.server_certificate),
+                    mode=ua.MessageSecurityMode.SignAndEncrypt,
+                )
+            except (OSError, ValueError, TypeError) as error:
+                raise SiemensOpcUaRefused(
+                    f"the certificates could not be loaded ({type(error).__name__})"
+                ) from error
         if self.config.username_env:
             user = os.environ.get(self.config.username_env)
             password = os.environ.get(self.config.password_env)
@@ -470,7 +681,7 @@ class SiemensOpcUaCollector:
         params.MaxNotificationsPerPublish = 10000
         params.PublishingEnabled = True
         params.Priority = 0
-        subscription = _CountingSubscription(client.uaclient, params, _Handler(self))
+        subscription = self.subscription_factory(client, params, _Handler(self))
         await subscription.init()
         handles = await subscription.subscribe_data_change(
             nodes, queuesize=self.config.queue_size
@@ -506,24 +717,41 @@ class SiemensOpcUaCollector:
         """One connection: check, connect, subscribe, watch, close."""
         # Variables:
         #   client: The OPC UA client for this connection only.
-        #   connected: True once the `connected` marker is written, so a
+        #   opened: True once client.connect() succeeded, so the session is
+        #     closed at the end; a failed connect leaves nothing to close.
+        #   self.stage: How far this attempt got, for the audit trail.
+        #   self.connected: True once the `connected` marker is written, so a
         #     later failure is recorded as a loss of collected time.
-        client = Client(self.config.endpoint_url)
+        #   refusal: Set when the server rejected the login or certificates;
+        #     raised in place of the server's error so collection stops.
+        client = self.client_factory(self.config.endpoint_url)
         self.subscription_id = None
         self.last_seq = None
         self.lost = None
-        connected = False
-        await self.configure(client)
-        await self.check_server(client)
-        await client.connect()
+        self.connected = False
+        opened = False
         try:
+            self.stage = "configure"
+            await self.configure(client)
+            self.stage = "check_server"
+            await self.check_server(client)
+            self.stage = "connect"
+            await client.connect()
+            opened = True
+            self.stage = "resolve_nodes"
             nodes = await self.resolve_nodes(client)
             self.mark("connected")
-            connected = True
+            self.connected = True
+            self.trail("connected")
+            self.stage = "subscribe"
             await self.subscribe(client, nodes)
+            self.stage = "watch"
             await self.watch(client, stop)
         except CONNECTION_ERRORS as error:
-            if connected:
+            refusal = refusal_for(error)
+            if refusal is not None:
+                raise refusal from error
+            if self.connected:
                 self.mark(
                     "gap",
                     gap=OpcUaGap(
@@ -532,29 +760,42 @@ class SiemensOpcUaCollector:
                         last_received_at=self.last_received_at,
                     ),
                 )
-                self.mark("disconnected", reason=type(error).__name__)
+                self.mark("disconnected", reason=failure_reason(error))
             raise
         finally:
-            try:
-                await client.disconnect()
-            except CONNECTION_ERRORS:
-                pass
+            if opened:
+                try:
+                    await client.disconnect()
+                except CONNECTION_ERRORS:
+                    pass
 
     async def run(self, stop: asyncio.Event) -> None:
         """Collect until asked to stop, reconnecting after a lost connection."""
         # Variables:
         #   stop: Set by the caller to end collection cleanly.
-        #   reason: Why collection ended, written on the `stopped` marker.
+        #   reason: Why collection ended, on the `stopped` marker and in the
+        #     audit trail.
+        #   self.connected: Read after a failed session, to tell a lost
+        #     connection (it had connected) from a failed attempt.
         reason = "stop requested"
         while not stop.is_set():
             self.epoch += 1
+            self.stage = None
             try:
                 await self.session(stop)
             except SiemensOpcUaRefused as error:
-                self.mark("stopped", reason=f"refused: {error}")
+                self.trail("refused", str(error))
+                self.stopped(f"refused: {error}")
                 raise
-            except CONNECTION_ERRORS:
-                pass
+            except CONNECTION_ERRORS as error:
+                outcome = "lost" if self.connected else "failed"
+                self.trail(outcome, failure_reason(error))
+            except Exception as error:
+                self.trail("error", type(error).__name__)
+                self.stopped(f"error: {type(error).__name__}")
+                raise
+            else:
+                self.trail("closed", "stop requested")
             if stop.is_set():
                 break
             if self.config.max_sessions and self.epoch >= self.config.max_sessions:
@@ -564,7 +805,7 @@ class SiemensOpcUaCollector:
                 await asyncio.wait_for(stop.wait(), self.config.reconnect_seconds)
             except asyncio.TimeoutError:
                 pass
-        self.mark("stopped", reason=reason)
+        self.stopped(reason)
 
 
 def session_node_id(ref: NodeRef, index: int):
@@ -597,18 +838,51 @@ def file_sink(path: Path) -> Callable[[OpcUaLine], None]:
     return write
 
 
+def audit_file(path: Path) -> Callable[[SiemensOpcUaAuditEntry], None]:
+    """An audit trail that appends each entry to a JSONL file and flushes it."""
+
+    def write(entry: SiemensOpcUaAuditEntry) -> None:
+        with path.open("a", encoding="utf-8") as out:
+            out.write(entry.model_dump_json() + "\n")
+            out.flush()
+
+    return write
+
+
+def read_audit(path: Path) -> list[SiemensOpcUaAuditEntry]:
+    """The audit trail from a file, oldest first."""
+    return [
+        SiemensOpcUaAuditEntry.model_validate_json(text)
+        for text in path.read_text(encoding="utf-8").splitlines()
+        if text
+    ]
+
+
 def main(argv: list[str] | None = None) -> int:
     """Collect from the configured server into a JSONL file until Ctrl+C."""
     # Variables:
     #   args.config: The approved scope (server, nodes, certificates).
     #   args.out: The capture file; lines are appended, never overwritten.
+    #   trail: The audit file: --audit, or the capture file's name ending in
+    #     .audit.jsonl, so every run leaves a trail.
+    #   Exit code: 0 when collection ended normally; 2 when the config is
+    #     unreadable or the collector refused, since a person must fix it.
     parser = argparse.ArgumentParser(
         prog="python -m capstone.ingestion.siemens_opcua_adapter"
     )
     parser.add_argument("--config", type=Path, required=True)
     parser.add_argument("--out", type=Path, required=True)
+    parser.add_argument("--audit", type=Path, default=None)
     args = parser.parse_args(argv)
-    collector = SiemensOpcUaCollector(load_config(args.config), file_sink(args.out))
+    trail = args.audit or args.out.with_name(args.out.stem + ".audit.jsonl")
+    try:
+        config = load_config(args.config)
+    except (OSError, ValueError) as error:
+        print(f"config: {type(error).__name__}: {error}", file=sys.stderr)
+        return 2
+    collector = SiemensOpcUaCollector(
+        config, file_sink(args.out), audit=audit_file(trail)
+    )
 
     async def collect() -> None:
         await collector.run(asyncio.Event())
@@ -619,7 +893,7 @@ def main(argv: list[str] | None = None) -> int:
         print(f"refused: {error}", file=sys.stderr)
         return 2
     except KeyboardInterrupt:
-        collector.mark("stopped", reason="interrupted")
+        collector.stopped("interrupted")
     return 0
 
 
