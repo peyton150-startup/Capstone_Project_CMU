@@ -1,5 +1,12 @@
 # Progress Log
 
+> **2026-11-10 — long-process watchdog rule (process documentation only):**
+> At the developer's request, `AGENTS.md` now requires a watchdog for any
+> process expected to exceed five minutes, with bounded work when supported,
+> saved progress/costs and sparse status checks. It retains the one-live-run
+> limit and existing stop rules. No product or evaluator behavior changed;
+> implementation understanding is unchanged.
+
 > **2026-11-10 — full-project live SNAP pass (evaluation evidence only; developer review pending):**
 > On clean `main` commit `345f9d3`, Codex completed the full 2,965-request
 > SNAP plan across all five rubric families and three historical archives.
