@@ -65,6 +65,20 @@
 > instead of collecting the rest? (3) after a reconnect, why may a mean not be
 > computed across the two session epochs?
 >
+> **2026-11-11 — Siemens agent-tool/evidence decision ranking (documentation only; NOT implemented):**
+> Added a seven-item signal-ranked refinement to `docs/MVP_SCOPE.md` and its
+> active register, with detailed acceptance and code crosswalk in
+> `docs/SIEMENS_AGENT_EVIDENCE_AND_TOOL_PRIORITY_20261111.md`.
+> Exactly two HIGH (independent Siemens read-only enforcement; source-qualified
+> dual-cutoff evidence) and five MEDIUM (physical-source lineage, capability
+> parity, targeted existing-tool controls, passive latency/context audit and
+> GR-2 offline experiment). This is **relative ranking**, not a change to
+> existing P0 SDC/RMI shop or diagnostic release gates. Generic new guardrail
+> frameworks and unconditional GR-2 are excluded as noise. #235 is documentation
+> merged previously; #236/#237 are pending at review. No code, settings,
+> dependencies, tests, CI configuration, model calls or shop interaction changed.
+> Docs-only: technical feature walkthrough not applicable.
+
 > **2026-11-11 — S-0 step 1: Siemens OPC UA record format, version 2 (code; built ungated):**
 > The developer decided the pilot uses Siemens adapters only (no MTConnect for
 > now) and that the record format is based on OPC UA, with more value types and
@@ -109,6 +123,19 @@
 > approvals, safety gates or existing implementation/understanding status.
 > PR remains unmerged for review.
 
+
+> **2026-11-11 — signal-ranked implementation queue (documentation only; NOT implemented; PR #235):**
+> Added `docs/SIGNAL_PRIORITY_IMPLEMENTATION_ROADMAP_20261111.md` and a
+> matching table in `docs/MVP_SCOPE.md`: 36 proposed work items, two HIGH
+> (#1 qualify the installed Siemens/DMG MORI controller, software, licenses
+> and capabilities; #2 enforce a strict read-only CNC, network and
+> model-egress boundary) and 34 MEDIUM. The ranking applies inside this queue
+> only and does not lower any P0 gate in SDC-01–20 or RMI-01–07. Developer
+> decisions recorded with it the same day: the pilot uses Siemens adapters
+> only (MTConnect is not being pursued for now), #2 is the acceptance
+> checklist for the read-only Siemens OPC UA adapter, and #29 (Kubernetes or
+> a service mesh) is not active under `AGENTS.md` section 4.5. No code,
+> dependencies or tests changed; understanding status is unchanged.
 
 > **2026-11-10 — second full SNAP pass and comparison (evaluation evidence only; developer review pending):**
 > Codex repeated all 2,965 requests on clean `main` commit `0b089d8` with a

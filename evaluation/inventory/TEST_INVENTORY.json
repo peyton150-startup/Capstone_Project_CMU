@@ -56048,7 +56048,7 @@
    "uses": [],
    "quality_flags": [],
    "claims": "Every tracked Python file is inventoried, a test, excluded with a reason,",
-   "execution_outcome": "passed",
+   "execution_outcome": "failed",
    "exercises": [
     "evaluation.evaltools.build_inventory:call_name",
     "evaluation.evaltools.build_inventory:collect_functions",
@@ -98035,6 +98035,700 @@
    "exercise_count": 1,
    "modules_exercised": [
     "capstone.settings"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_siemens_opcua_record.py::test_severity_comes_from_the_two_highest_bits",
+   "file": "tests/test_siemens_opcua_record.py",
+   "name": "test_severity_comes_from_the_two_highest_bits",
+   "line": 57,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 5,
+   "assert_forms": {
+    "equality": 5
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "severity comes from the two highest bits",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.ingestion.siemens_opcua_record:severity_of"
+   ],
+   "exercise_count": 1,
+   "modules_exercised": [
+    "capstone.ingestion.siemens_opcua_record"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_siemens_opcua_record.py::test_a_severity_that_disagrees_with_the_code_is_refused",
+   "file": "tests/test_siemens_opcua_record.py",
+   "name": "test_a_severity_that_disagrees_with_the_code_is_refused",
+   "line": 65,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 0,
+   "assert_forms": {},
+   "raises_checks": 1,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "a severity that disagrees with the code is refused",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.ingestion.siemens_opcua_record:StatusInfo.severity_matches_code",
+    "capstone.ingestion.siemens_opcua_record:severity_of"
+   ],
+   "exercise_count": 2,
+   "modules_exercised": [
+    "capstone.ingestion.siemens_opcua_record"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_siemens_opcua_record.py::test_overflow_is_read_from_the_info_bits",
+   "file": "tests/test_siemens_opcua_record.py",
+   "name": "test_overflow_is_read_from_the_info_bits",
+   "line": 70,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 3,
+   "assert_forms": {
+    "identity_constant": 3
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "overflow is read from the info bits",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.ingestion.siemens_opcua_record:StatusInfo.overflow",
+    "capstone.ingestion.siemens_opcua_record:StatusInfo.severity_matches_code",
+    "capstone.ingestion.siemens_opcua_record:severity_of",
+    "capstone.ingestion.siemens_opcua_record:status_from_code"
+   ],
+   "exercise_count": 4,
+   "modules_exercised": [
+    "capstone.ingestion.siemens_opcua_record"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_siemens_opcua_record.py::test_a_good_value_keeps_its_type_and_three_clocks",
+   "file": "tests/test_siemens_opcua_record.py",
+   "name": "test_a_good_value_keeps_its_type_and_three_clocks",
+   "line": 77,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 4,
+   "assert_forms": {
+    "equality": 2,
+    "ordering": 1,
+    "truthiness": 1
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "a good value keeps its type and three clocks",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.ingestion.siemens_opcua_record:OpcUaDataChange.number",
+    "capstone.ingestion.siemens_opcua_record:OpcUaDataChange.value_fits_its_type",
+    "capstone.ingestion.siemens_opcua_record:StatusInfo.severity_matches_code",
+    "capstone.ingestion.siemens_opcua_record:data_change",
+    "capstone.ingestion.siemens_opcua_record:severity_of",
+    "capstone.ingestion.siemens_opcua_record:status_from_code"
+   ],
+   "exercise_count": 6,
+   "modules_exercised": [
+    "capstone.ingestion.siemens_opcua_record"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_siemens_opcua_record.py::test_a_bad_value_is_kept_but_is_never_a_number",
+   "file": "tests/test_siemens_opcua_record.py",
+   "name": "test_a_bad_value_is_kept_but_is_never_a_number",
+   "line": 85,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 5,
+   "assert_forms": {
+    "equality": 2,
+    "is_none": 3
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "a bad value is kept but is never a number",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.ingestion.siemens_opcua_record:OpcUaDataChange.number",
+    "capstone.ingestion.siemens_opcua_record:OpcUaDataChange.value_fits_its_type",
+    "capstone.ingestion.siemens_opcua_record:StatusInfo.severity_matches_code",
+    "capstone.ingestion.siemens_opcua_record:data_change",
+    "capstone.ingestion.siemens_opcua_record:severity_of",
+    "capstone.ingestion.siemens_opcua_record:status_from_code"
+   ],
+   "exercise_count": 6,
+   "modules_exercised": [
+    "capstone.ingestion.siemens_opcua_record"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_siemens_opcua_record.py::test_an_uncertain_value_is_a_number_only_when_asked_for",
+   "file": "tests/test_siemens_opcua_record.py",
+   "name": "test_an_uncertain_value_is_a_number_only_when_asked_for",
+   "line": 99,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 2,
+   "assert_forms": {
+    "equality": 1,
+    "is_none": 1
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "an uncertain value is a number only when asked for",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.ingestion.siemens_opcua_record:OpcUaDataChange.number",
+    "capstone.ingestion.siemens_opcua_record:OpcUaDataChange.value_fits_its_type",
+    "capstone.ingestion.siemens_opcua_record:StatusInfo.severity_matches_code",
+    "capstone.ingestion.siemens_opcua_record:data_change",
+    "capstone.ingestion.siemens_opcua_record:severity_of",
+    "capstone.ingestion.siemens_opcua_record:status_from_code"
+   ],
+   "exercise_count": 6,
+   "modules_exercised": [
+    "capstone.ingestion.siemens_opcua_record"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_siemens_opcua_record.py::test_nan_and_infinity_are_set_aside_not_stored_as_numbers",
+   "file": "tests/test_siemens_opcua_record.py",
+   "name": "test_nan_and_infinity_are_set_aside_not_stored_as_numbers",
+   "line": 109,
+   "docstring": "",
+   "parametrized": true,
+   "fixtures": [
+    "value",
+    "kind"
+   ],
+   "assertions": 3,
+   "assert_forms": {
+    "equality": 1,
+    "is_none": 1,
+    "truthiness": 1
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "nan and infinity are set aside not stored as numbers",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.ingestion.siemens_opcua_record:OpcUaDataChange.number",
+    "capstone.ingestion.siemens_opcua_record:OpcUaDataChange.value_fits_its_type",
+    "capstone.ingestion.siemens_opcua_record:StatusInfo.severity_matches_code",
+    "capstone.ingestion.siemens_opcua_record:data_change",
+    "capstone.ingestion.siemens_opcua_record:parse_opcua_line",
+    "capstone.ingestion.siemens_opcua_record:severity_of",
+    "capstone.ingestion.siemens_opcua_record:status_from_code",
+    "capstone.ingestion.siemens_opcua_record:to_json_line"
+   ],
+   "exercise_count": 8,
+   "modules_exercised": [
+    "capstone.ingestion.siemens_opcua_record"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_siemens_opcua_record.py::test_words_and_flags_are_not_numbers",
+   "file": "tests/test_siemens_opcua_record.py",
+   "name": "test_words_and_flags_are_not_numbers",
+   "line": 116,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 3,
+   "assert_forms": {
+    "equality": 1,
+    "is_none": 2
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "words and flags are not numbers",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.ingestion.siemens_opcua_record:OpcUaDataChange.number",
+    "capstone.ingestion.siemens_opcua_record:OpcUaDataChange.value_fits_its_type",
+    "capstone.ingestion.siemens_opcua_record:StatusInfo.severity_matches_code",
+    "capstone.ingestion.siemens_opcua_record:data_change",
+    "capstone.ingestion.siemens_opcua_record:severity_of",
+    "capstone.ingestion.siemens_opcua_record:status_from_code"
+   ],
+   "exercise_count": 6,
+   "modules_exercised": [
+    "capstone.ingestion.siemens_opcua_record"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_siemens_opcua_record.py::test_a_whole_number_sent_as_a_double_is_stored_as_a_float",
+   "file": "tests/test_siemens_opcua_record.py",
+   "name": "test_a_whole_number_sent_as_a_double_is_stored_as_a_float",
+   "line": 122,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 1,
+   "assert_forms": {
+    "truthiness": 1
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [
+    "weak_assertions_only"
+   ],
+   "claims": "a whole number sent as a double is stored as a float",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.ingestion.siemens_opcua_record:OpcUaDataChange.value_fits_its_type",
+    "capstone.ingestion.siemens_opcua_record:StatusInfo.severity_matches_code",
+    "capstone.ingestion.siemens_opcua_record:data_change",
+    "capstone.ingestion.siemens_opcua_record:severity_of",
+    "capstone.ingestion.siemens_opcua_record:status_from_code"
+   ],
+   "exercise_count": 5,
+   "modules_exercised": [
+    "capstone.ingestion.siemens_opcua_record"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_siemens_opcua_record.py::test_a_value_that_does_not_fit_its_type_is_refused",
+   "file": "tests/test_siemens_opcua_record.py",
+   "name": "test_a_value_that_does_not_fit_its_type_is_refused",
+   "line": 140,
+   "docstring": "",
+   "parametrized": true,
+   "fixtures": [
+    "value",
+    "value_type"
+   ],
+   "assertions": 0,
+   "assert_forms": {},
+   "raises_checks": 1,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "a value that does not fit its type is refused",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.ingestion.siemens_opcua_record:OpcUaDataChange.value_fits_its_type",
+    "capstone.ingestion.siemens_opcua_record:StatusInfo.severity_matches_code",
+    "capstone.ingestion.siemens_opcua_record:data_change",
+    "capstone.ingestion.siemens_opcua_record:severity_of",
+    "capstone.ingestion.siemens_opcua_record:status_from_code"
+   ],
+   "exercise_count": 5,
+   "modules_exercised": [
+    "capstone.ingestion.siemens_opcua_record"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_siemens_opcua_record.py::test_a_timestamp_without_a_timezone_is_refused",
+   "file": "tests/test_siemens_opcua_record.py",
+   "name": "test_a_timestamp_without_a_timezone_is_refused",
+   "line": 145,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 0,
+   "assert_forms": {},
+   "raises_checks": 1,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "a timestamp without a timezone is refused",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.ingestion.siemens_opcua_record:StatusInfo.severity_matches_code",
+    "capstone.ingestion.siemens_opcua_record:data_change",
+    "capstone.ingestion.siemens_opcua_record:severity_of",
+    "capstone.ingestion.siemens_opcua_record:status_from_code"
+   ],
+   "exercise_count": 4,
+   "modules_exercised": [
+    "capstone.ingestion.siemens_opcua_record"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_siemens_opcua_record.py::test_a_timestamp_keeps_its_own_offset",
+   "file": "tests/test_siemens_opcua_record.py",
+   "name": "test_a_timestamp_keeps_its_own_offset",
+   "line": 152,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 2,
+   "assert_forms": {
+    "equality": 2
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "a timestamp keeps its own offset",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.ingestion.siemens_opcua_record:OpcUaDataChange.value_fits_its_type",
+    "capstone.ingestion.siemens_opcua_record:StatusInfo.severity_matches_code",
+    "capstone.ingestion.siemens_opcua_record:data_change",
+    "capstone.ingestion.siemens_opcua_record:parse_opcua_line",
+    "capstone.ingestion.siemens_opcua_record:severity_of",
+    "capstone.ingestion.siemens_opcua_record:status_from_code",
+    "capstone.ingestion.siemens_opcua_record:to_json_line"
+   ],
+   "exercise_count": 7,
+   "modules_exercised": [
+    "capstone.ingestion.siemens_opcua_record"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_siemens_opcua_record.py::test_a_missing_timestamp_stays_missing",
+   "file": "tests/test_siemens_opcua_record.py",
+   "name": "test_a_missing_timestamp_stays_missing",
+   "line": 159,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 1,
+   "assert_forms": {
+    "truthiness": 1
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [
+    "weak_assertions_only"
+   ],
+   "claims": "a missing timestamp stays missing",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.ingestion.siemens_opcua_record:OpcUaDataChange.value_fits_its_type",
+    "capstone.ingestion.siemens_opcua_record:StatusInfo.severity_matches_code",
+    "capstone.ingestion.siemens_opcua_record:data_change",
+    "capstone.ingestion.siemens_opcua_record:severity_of",
+    "capstone.ingestion.siemens_opcua_record:status_from_code",
+    "capstone.ingestion.siemens_opcua_record:to_json_line"
+   ],
+   "exercise_count": 6,
+   "modules_exercised": [
+    "capstone.ingestion.siemens_opcua_record"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_siemens_opcua_record.py::test_the_record_has_no_mtconnect_sequence_or_instance_id",
+   "file": "tests/test_siemens_opcua_record.py",
+   "name": "test_the_record_has_no_mtconnect_sequence_or_instance_id",
+   "line": 165,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 2,
+   "assert_forms": {
+    "truthiness": 2
+   },
+   "raises_checks": 1,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "the record has no mtconnect sequence or instance id",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.ingestion.siemens_opcua_record:OpcUaDataChange.value_fits_its_type",
+    "capstone.ingestion.siemens_opcua_record:StatusInfo.severity_matches_code",
+    "capstone.ingestion.siemens_opcua_record:data_change",
+    "capstone.ingestion.siemens_opcua_record:severity_of",
+    "capstone.ingestion.siemens_opcua_record:status_from_code",
+    "capstone.ingestion.siemens_opcua_record:to_json_line"
+   ],
+   "exercise_count": 6,
+   "modules_exercised": [
+    "capstone.ingestion.siemens_opcua_record"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_siemens_opcua_record.py::test_a_node_is_keyed_by_namespace_uri_not_index",
+   "file": "tests/test_siemens_opcua_record.py",
+   "name": "test_a_node_is_keyed_by_namespace_uri_not_index",
+   "line": 173,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 2,
+   "assert_forms": {
+    "inequality": 1,
+    "membership": 1
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "a node is keyed by namespace uri not index",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.ingestion.siemens_opcua_record:NodeRef.key"
+   ],
+   "exercise_count": 1,
+   "modules_exercised": [
+    "capstone.ingestion.siemens_opcua_record"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_siemens_opcua_record.py::test_lines_round_trip_and_version_1_lines_are_refused",
+   "file": "tests/test_siemens_opcua_record.py",
+   "name": "test_lines_round_trip_and_version_1_lines_are_refused",
+   "line": 181,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 1,
+   "assert_forms": {
+    "equality": 1
+   },
+   "raises_checks": 2,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "lines round trip and version 1 lines are refused",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.ingestion.siemens_opcua_record:OpcUaDataChange.value_fits_its_type",
+    "capstone.ingestion.siemens_opcua_record:OpcUaSessionMarker.gap_detail_only_on_a_gap",
+    "capstone.ingestion.siemens_opcua_record:StatusInfo.severity_matches_code",
+    "capstone.ingestion.siemens_opcua_record:data_change",
+    "capstone.ingestion.siemens_opcua_record:parse_opcua_line",
+    "capstone.ingestion.siemens_opcua_record:severity_of",
+    "capstone.ingestion.siemens_opcua_record:status_from_code",
+    "capstone.ingestion.siemens_opcua_record:to_json_line"
+   ],
+   "exercise_count": 8,
+   "modules_exercised": [
+    "capstone.ingestion.siemens_opcua_record"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_siemens_opcua_record.py::test_gap_detail_goes_with_a_gap_marker_and_no_other",
+   "file": "tests/test_siemens_opcua_record.py",
+   "name": "test_gap_detail_goes_with_a_gap_marker_and_no_other",
+   "line": 194,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 0,
+   "assert_forms": {},
+   "raises_checks": 2,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "gap detail goes with a gap marker and no other",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.ingestion.siemens_opcua_record:OpcUaSessionMarker.gap_detail_only_on_a_gap"
+   ],
+   "exercise_count": 1,
+   "modules_exercised": [
+    "capstone.ingestion.siemens_opcua_record"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_siemens_opcua_record.py::test_runs_split_at_gaps_and_reconnects_but_not_at_heartbeats",
+   "file": "tests/test_siemens_opcua_record.py",
+   "name": "test_runs_split_at_gaps_and_reconnects_but_not_at_heartbeats",
+   "line": 201,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 1,
+   "assert_forms": {
+    "equality": 1
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "runs split at gaps and reconnects but not at heartbeats",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.ingestion.siemens_opcua_record:OpcUaDataChange.value_fits_its_type",
+    "capstone.ingestion.siemens_opcua_record:OpcUaSessionMarker.gap_detail_only_on_a_gap",
+    "capstone.ingestion.siemens_opcua_record:StatusInfo.severity_matches_code",
+    "capstone.ingestion.siemens_opcua_record:continuous_runs",
+    "capstone.ingestion.siemens_opcua_record:data_change",
+    "capstone.ingestion.siemens_opcua_record:severity_of",
+    "capstone.ingestion.siemens_opcua_record:status_from_code"
+   ],
+   "exercise_count": 7,
+   "modules_exercised": [
+    "capstone.ingestion.siemens_opcua_record"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_siemens_opcua_record.py::test_runs_split_on_a_new_epoch_even_without_a_marker",
+   "file": "tests/test_siemens_opcua_record.py",
+   "name": "test_runs_split_on_a_new_epoch_even_without_a_marker",
+   "line": 220,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 1,
+   "assert_forms": {
+    "equality": 1
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "runs split on a new epoch even without a marker",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.ingestion.siemens_opcua_record:OpcUaDataChange.value_fits_its_type",
+    "capstone.ingestion.siemens_opcua_record:StatusInfo.severity_matches_code",
+    "capstone.ingestion.siemens_opcua_record:continuous_runs",
+    "capstone.ingestion.siemens_opcua_record:data_change",
+    "capstone.ingestion.siemens_opcua_record:severity_of",
+    "capstone.ingestion.siemens_opcua_record:status_from_code"
+   ],
+   "exercise_count": 6,
+   "modules_exercised": [
+    "capstone.ingestion.siemens_opcua_record"
    ],
    "judgment": "NOT ASSESSED",
    "curated": {},
