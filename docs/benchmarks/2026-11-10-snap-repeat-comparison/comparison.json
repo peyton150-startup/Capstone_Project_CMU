@@ -1,0 +1,64 @@
+{
+  "first_commit": "345f9d3bf298b63207f2564e8124ba5abd397f87",
+  "repeat_commit": "0b089d83065eaa0eea8cb0928d895e75ba6994a7",
+  "same_inventory_hashes": true,
+  "same_coverage_hash": true,
+  "same_reference_sha256": true,
+  "reference_sha256": "02b8a23c6984df9b6d8059a664ba1f99edd381791a1d9751cba259426226f8cb",
+  "ledger_keys_each": 9726,
+  "ledger_status_changes": 0,
+  "ledger_value_changes": 0,
+  "raw_replies_compared": 2965,
+  "raw_reply_changes": 0,
+  "first_answered_at_utc": [
+    "2026-11-10T22:30:22.920912+00:00",
+    "2026-11-10T22:46:57.518717+00:00"
+  ],
+  "repeat_answered_at_utc": [
+    "2026-11-10T23:54:08.860573+00:00",
+    "2026-11-11T00:15:36.157536+00:00"
+  ],
+  "first_new_requests_sent": 2963,
+  "repeat_new_requests_sent": 2965,
+  "requests_each": 2965,
+  "first_cost_usd": 0.28799644,
+  "repeat_cost_usd": 0.28799644,
+  "first_reference": {
+    "agree": {
+      "BT": 2,
+      "FN": 6,
+      "RUN": 9,
+      "TL": 2,
+      "TS": 8
+    },
+    "disagree": {
+      "FN": 3,
+      "RUN": 13,
+      "TS": 1
+    }
+  },
+  "repeat_reference": {
+    "agree": {
+      "BT": 2,
+      "FN": 6,
+      "RUN": 9,
+      "TL": 2,
+      "TS": 8
+    },
+    "disagree": {
+      "FN": 3,
+      "RUN": 13,
+      "TS": 1
+    }
+  },
+  "first_status_counts": {
+    "answered": 8126,
+    "not_applicable": 258,
+    "unknown": 1342
+  },
+  "repeat_status_counts": {
+    "answered": 8126,
+    "not_applicable": 258,
+    "unknown": 1342
+  }
+}
