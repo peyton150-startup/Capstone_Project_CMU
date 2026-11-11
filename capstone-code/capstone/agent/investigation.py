@@ -102,6 +102,12 @@ UNDETERMINED = AgentConclusion(
     diagnosis="undetermined", confidence=0.0, recommendation="escalate"
 )
 
+# The most confidence an unresolved answer may state. Just under the 0.8 line
+# the SNAP rubric (RUN-09) and the memory policy treat as "confident": an answer
+# the check holds open cannot also claim to be sure. The model is never shown
+# this number; its own figure is kept in ConclusionTrace.model_confidence.
+UNRESOLVED_MAX_CONFIDENCE = 0.7
+
 
 def gathered_in(state: InvestigationState, phase: Phase) -> int:
     """How many pieces of evidence a stage added."""
@@ -848,6 +854,26 @@ def conclusion_gaps(
     return found
 
 
+def unresolved_confidence(
+    state: InvestigationState, conclusion: AgentConclusion
+) -> float:
+    """The confidence an answer held open may state: the lowest of three."""
+    # Variables:
+    #   conclusion: The model's answer before the check; its confidence is the
+    #     model's own figure.
+    #   chosen: The explanation the answer selected, if it names one; the
+    #     answer may not claim more than the agent's own belief in it.
+    #   limits: The model's figure, the chosen explanation's (when there is
+    #     one) and UNRESOLVED_MAX_CONFIDENCE; the lowest is stated.
+    chosen = next(
+        (h for h in state.hypotheses if h.id == conclusion.hypothesis_id), None
+    )
+    limits = [conclusion.confidence, UNRESOLVED_MAX_CONFIDENCE]
+    if chosen is not None:
+        limits.append(chosen.confidence)
+    return min(limits)
+
+
 def check_conclusion(
     state: InvestigationState,
     deps: InvestigationDeps,
@@ -860,10 +886,13 @@ def check_conclusion(
     never gathered or a hypothesis which was never formed. A
     recommendation to intervene that is not confident enough, cites
     nothing, or names no action is lowered to "escalate": a human
-    should look, but the agent may not ask for a change.
+    should look, but the agent may not ask for a change. An answer held
+    open ("unresolved") also has its stated confidence lowered (see
+    unresolved_confidence); the model's own figure stays in the trace.
     """
     # Variables:
-    #   conclusion: The policy's raw answer, before this check can lower it.
+    #   conclusion: The policy's raw answer, before this check can lower it;
+    #     its confidence is saved as conclusion_trace.model_confidence.
     #   request: The action the policy asked for with that answer, if any.
     #   known_hypotheses: Ids of the explanations the agent actually formed.
     #   unverified: Structured arithmetic that observable data cannot establish.
@@ -890,6 +919,7 @@ def check_conclusion(
         state.conclusion_trace = ConclusionTrace(
             model_assessment=conclusion.assessment,
             model_recommendation=conclusion.recommendation,
+            model_confidence=conclusion.confidence,
             wanted_action=None
             if request is None
             else f"{request.action} {request.machine_id}",
@@ -906,6 +936,7 @@ def check_conclusion(
                 update={
                     "assessment": "unresolved",
                     "recommendation": "escalate",
+                    "confidence": unresolved_confidence(state, conclusion),
                     "unresolved_questions": tuple(dict.fromkeys(gaps)),
                     "next_check": conclusion.next_check
                     or (

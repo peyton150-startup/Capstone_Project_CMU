@@ -56048,7 +56048,7 @@
    "uses": [],
    "quality_flags": [],
    "claims": "Every tracked Python file is inventoried, a test, excluded with a reason,",
-   "execution_outcome": "failed",
+   "execution_outcome": "passed",
    "exercises": [
     "evaluation.evaltools.build_inventory:call_name",
     "evaluation.evaltools.build_inventory:collect_functions",
@@ -56540,7 +56540,7 @@
    "id": "tests/test_gap_trace.py::test_each_gap_is_saved_with_its_kind_and_role",
    "file": "tests/test_gap_trace.py",
    "name": "test_each_gap_is_saved_with_its_kind_and_role",
-   "line": 93,
+   "line": 97,
    "docstring": "",
    "parametrized": false,
    "fixtures": [],
@@ -56561,10 +56561,11 @@
     "capstone.agent.investigation:check_conclusion",
     "capstone.agent.investigation:conclusion_gaps",
     "capstone.agent.investigation:question_role",
+    "capstone.agent.investigation:unresolved_confidence",
     "capstone.agent.loop:InvestigationDeps.__post_init__",
     "capstone.agent.state:Budgets.research_gets_some_time"
    ],
-   "exercise_count": 7,
+   "exercise_count": 8,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -56583,7 +56584,7 @@
    "id": "tests/test_gap_trace.py::test_the_plain_text_the_check_writes_is_unchanged",
    "file": "tests/test_gap_trace.py",
    "name": "test_the_plain_text_the_check_writes_is_unchanged",
-   "line": 110,
+   "line": 114,
    "docstring": "",
    "parametrized": false,
    "fixtures": [],
@@ -56603,6 +56604,49 @@
     "capstone.agent.investigation:check_conclusion",
     "capstone.agent.investigation:conclusion_gaps",
     "capstone.agent.investigation:question_role",
+    "capstone.agent.investigation:unresolved_confidence",
+    "capstone.agent.loop:InvestigationDeps.__post_init__",
+    "capstone.agent.state:Budgets.research_gets_some_time"
+   ],
+   "exercise_count": 8,
+   "modules_exercised": [
+    "capstone.agent.evidence_brief",
+    "capstone.agent.investigation",
+    "capstone.agent.loop",
+    "capstone.agent.state"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_gap_trace.py::test_the_model_saying_unresolved_itself_is_told_apart_from_the_check",
+   "file": "tests/test_gap_trace.py",
+   "name": "test_the_model_saying_unresolved_itself_is_told_apart_from_the_check",
+   "line": 125,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 2,
+   "assert_forms": {
+    "equality": 1,
+    "truthiness": 1
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "the model saying unresolved itself is told apart from the check",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.agent.evidence_brief:observations",
+    "capstone.agent.evidence_brief:verify_numeric_claims",
+    "capstone.agent.investigation:check_conclusion",
+    "capstone.agent.investigation:conclusion_gaps",
+    "capstone.agent.investigation:unresolved_confidence",
     "capstone.agent.loop:InvestigationDeps.__post_init__",
     "capstone.agent.state:Budgets.research_gets_some_time"
    ],
@@ -56622,51 +56666,10 @@
    ]
   },
   {
-   "id": "tests/test_gap_trace.py::test_the_model_saying_unresolved_itself_is_told_apart_from_the_check",
-   "file": "tests/test_gap_trace.py",
-   "name": "test_the_model_saying_unresolved_itself_is_told_apart_from_the_check",
-   "line": 121,
-   "docstring": "",
-   "parametrized": false,
-   "fixtures": [],
-   "assertions": 2,
-   "assert_forms": {
-    "equality": 1,
-    "truthiness": 1
-   },
-   "raises_checks": 0,
-   "uses": [],
-   "quality_flags": [],
-   "claims": "the model saying unresolved itself is told apart from the check",
-   "execution_outcome": "passed",
-   "exercises": [
-    "capstone.agent.evidence_brief:observations",
-    "capstone.agent.evidence_brief:verify_numeric_claims",
-    "capstone.agent.investigation:check_conclusion",
-    "capstone.agent.investigation:conclusion_gaps",
-    "capstone.agent.loop:InvestigationDeps.__post_init__",
-    "capstone.agent.state:Budgets.research_gets_some_time"
-   ],
-   "exercise_count": 6,
-   "modules_exercised": [
-    "capstone.agent.evidence_brief",
-    "capstone.agent.investigation",
-    "capstone.agent.loop",
-    "capstone.agent.state"
-   ],
-   "judgment": "NOT ASSESSED",
-   "curated": {},
-   "snap_questions": [
-    "TS-01",
-    "TS-02",
-    "TS-03"
-   ]
-  },
-  {
    "id": "tests/test_gap_trace.py::test_grounding_gaps_are_saved_by_kind",
    "file": "tests/test_gap_trace.py",
    "name": "test_grounding_gaps_are_saved_by_kind",
-   "line": 131,
+   "line": 135,
    "docstring": "",
    "parametrized": false,
    "fixtures": [],
@@ -56684,10 +56687,11 @@
     "capstone.agent.evidence_brief:verify_numeric_claims",
     "capstone.agent.investigation:check_conclusion",
     "capstone.agent.investigation:conclusion_gaps",
+    "capstone.agent.investigation:unresolved_confidence",
     "capstone.agent.loop:InvestigationDeps.__post_init__",
     "capstone.agent.state:Budgets.research_gets_some_time"
    ],
-   "exercise_count": 6,
+   "exercise_count": 7,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -56706,7 +56710,7 @@
    "id": "tests/test_gap_trace.py::test_the_wanted_fix_and_the_action_rules_verdict_are_saved",
    "file": "tests/test_gap_trace.py",
    "name": "test_the_wanted_fix_and_the_action_rules_verdict_are_saved",
-   "line": 143,
+   "line": 147,
    "docstring": "",
    "parametrized": false,
    "fixtures": [],
@@ -56744,10 +56748,248 @@
    ]
   },
   {
+   "id": "tests/test_gap_trace.py::test_an_answer_held_open_states_no_more_than_the_ceiling",
+   "file": "tests/test_gap_trace.py",
+   "name": "test_an_answer_held_open_states_no_more_than_the_ceiling",
+   "line": 166,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 3,
+   "assert_forms": {
+    "equality": 3
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "an answer held open states no more than the ceiling",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.agent.evidence_brief:observations",
+    "capstone.agent.evidence_brief:verify_numeric_claims",
+    "capstone.agent.investigation:check_conclusion",
+    "capstone.agent.investigation:conclusion_gaps",
+    "capstone.agent.investigation:question_role",
+    "capstone.agent.investigation:unresolved_confidence",
+    "capstone.agent.loop:InvestigationDeps.__post_init__",
+    "capstone.agent.state:Budgets.research_gets_some_time"
+   ],
+   "exercise_count": 8,
+   "modules_exercised": [
+    "capstone.agent.evidence_brief",
+    "capstone.agent.investigation",
+    "capstone.agent.loop",
+    "capstone.agent.state"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_gap_trace.py::test_an_answer_held_open_states_no_more_than_its_chosen_cause",
+   "file": "tests/test_gap_trace.py",
+   "name": "test_an_answer_held_open_states_no_more_than_its_chosen_cause",
+   "line": 176,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 1,
+   "assert_forms": {
+    "equality": 1
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "an answer held open states no more than its chosen cause",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.agent.evidence_brief:observations",
+    "capstone.agent.evidence_brief:verify_numeric_claims",
+    "capstone.agent.investigation:check_conclusion",
+    "capstone.agent.investigation:conclusion_gaps",
+    "capstone.agent.investigation:question_role",
+    "capstone.agent.investigation:unresolved_confidence",
+    "capstone.agent.loop:InvestigationDeps.__post_init__",
+    "capstone.agent.state:Budgets.research_gets_some_time"
+   ],
+   "exercise_count": 8,
+   "modules_exercised": [
+    "capstone.agent.evidence_brief",
+    "capstone.agent.investigation",
+    "capstone.agent.loop",
+    "capstone.agent.state"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_gap_trace.py::test_a_lower_number_from_the_model_is_kept",
+   "file": "tests/test_gap_trace.py",
+   "name": "test_a_lower_number_from_the_model_is_kept",
+   "line": 183,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 2,
+   "assert_forms": {
+    "equality": 2
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "a lower number from the model is kept",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.agent.evidence_brief:observations",
+    "capstone.agent.evidence_brief:verify_numeric_claims",
+    "capstone.agent.investigation:check_conclusion",
+    "capstone.agent.investigation:conclusion_gaps",
+    "capstone.agent.investigation:question_role",
+    "capstone.agent.investigation:unresolved_confidence",
+    "capstone.agent.loop:InvestigationDeps.__post_init__",
+    "capstone.agent.state:Budgets.research_gets_some_time"
+   ],
+   "exercise_count": 8,
+   "modules_exercised": [
+    "capstone.agent.evidence_brief",
+    "capstone.agent.investigation",
+    "capstone.agent.loop",
+    "capstone.agent.state"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_gap_trace.py::test_the_models_own_unresolved_answer_is_capped_too",
+   "file": "tests/test_gap_trace.py",
+   "name": "test_the_models_own_unresolved_answer_is_capped_too",
+   "line": 190,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 2,
+   "assert_forms": {
+    "equality": 2
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "the models own unresolved answer is capped too",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.agent.evidence_brief:observations",
+    "capstone.agent.evidence_brief:verify_numeric_claims",
+    "capstone.agent.investigation:check_conclusion",
+    "capstone.agent.investigation:conclusion_gaps",
+    "capstone.agent.investigation:unresolved_confidence",
+    "capstone.agent.loop:InvestigationDeps.__post_init__",
+    "capstone.agent.state:Budgets.research_gets_some_time"
+   ],
+   "exercise_count": 7,
+   "modules_exercised": [
+    "capstone.agent.evidence_brief",
+    "capstone.agent.investigation",
+    "capstone.agent.loop",
+    "capstone.agent.state"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_gap_trace.py::test_a_supported_answer_keeps_the_models_confidence",
+   "file": "tests/test_gap_trace.py",
+   "name": "test_a_supported_answer_keeps_the_models_confidence",
+   "line": 199,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 2,
+   "assert_forms": {
+    "equality": 1,
+    "truthiness": 1
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "a supported answer keeps the models confidence",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.agent.evidence_brief:observations",
+    "capstone.agent.evidence_brief:verify_numeric_claims",
+    "capstone.agent.investigation:check_conclusion",
+    "capstone.agent.investigation:conclusion_gaps",
+    "capstone.agent.loop:InvestigationDeps.__post_init__",
+    "capstone.agent.state:Budgets.research_gets_some_time"
+   ],
+   "exercise_count": 6,
+   "modules_exercised": [
+    "capstone.agent.evidence_brief",
+    "capstone.agent.investigation",
+    "capstone.agent.loop",
+    "capstone.agent.state"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_gap_trace.py::test_a_trace_saved_before_model_confidence_still_loads",
+   "file": "tests/test_gap_trace.py",
+   "name": "test_a_trace_saved_before_model_confidence_still_loads",
+   "line": 207,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 1,
+   "assert_forms": {
+    "is_none": 1
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [
+    "exercises_no_project_function"
+   ],
+   "claims": "a trace saved before model confidence still loads",
+   "execution_outcome": "passed",
+   "exercises": [],
+   "exercise_count": 0,
+   "modules_exercised": [],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
    "id": "tests/test_gap_trace.py::test_an_answer_with_no_completion_claim_leaves_no_trace",
    "file": "tests/test_gap_trace.py",
    "name": "test_an_answer_with_no_completion_claim_leaves_no_trace",
-   "line": 159,
+   "line": 214,
    "docstring": "",
    "parametrized": false,
    "fixtures": [],
@@ -56786,7 +57028,7 @@
    "id": "tests/test_gap_trace.py::test_a_question_role_says_how_it_bears_on_the_chosen_cause",
    "file": "tests/test_gap_trace.py",
    "name": "test_a_question_role_says_how_it_bears_on_the_chosen_cause",
-   "line": 179,
+   "line": 234,
    "docstring": "",
    "parametrized": true,
    "fixtures": [
@@ -56821,7 +57063,7 @@
    "id": "tests/test_gap_trace.py::test_the_results_file_keeps_the_trace_and_reads_older_results",
    "file": "tests/test_gap_trace.py",
    "name": "test_the_results_file_keeps_the_trace_and_reads_older_results",
-   "line": 183,
+   "line": 238,
    "docstring": "",
    "parametrized": false,
    "fixtures": [],
@@ -56852,7 +57094,7 @@
    "id": "tests/test_gap_trace.py::test_a_side_question_holds_the_case_open_only_under_todays_rule",
    "file": "tests/test_gap_trace.py",
    "name": "test_a_side_question_holds_the_case_open_only_under_todays_rule",
-   "line": 213,
+   "line": 268,
    "docstring": "",
    "parametrized": false,
    "fixtures": [],
@@ -56884,7 +57126,7 @@
    "id": "tests/test_gap_trace.py::test_a_rival_test_holds_it_open_until_rivals_stop_counting",
    "file": "tests/test_gap_trace.py",
    "name": "test_a_rival_test_holds_it_open_until_rivals_stop_counting",
-   "line": 219,
+   "line": 274,
    "docstring": "",
    "parametrized": false,
    "fixtures": [],
@@ -56916,7 +57158,7 @@
    "id": "tests/test_gap_trace.py::test_the_models_own_unresolved_and_the_action_rules_always_hold",
    "file": "tests/test_gap_trace.py",
    "name": "test_the_models_own_unresolved_and_the_action_rules_always_hold",
-   "line": 225,
+   "line": 280,
    "docstring": "",
    "parametrized": false,
    "fixtures": [],
@@ -56948,7 +57190,7 @@
    "id": "tests/test_gap_trace.py::test_an_ending_is_judged_against_what_the_faults_needed",
    "file": "tests/test_gap_trace.py",
    "name": "test_an_ending_is_judged_against_what_the_faults_needed",
-   "line": 251,
+   "line": 306,
    "docstring": "",
    "parametrized": true,
    "fixtures": [
@@ -56985,7 +57227,7 @@
    "id": "tests/test_gap_trace.py::test_older_gaps_are_sorted_by_their_wording",
    "file": "tests/test_gap_trace.py",
    "name": "test_older_gaps_are_sorted_by_their_wording",
-   "line": 257,
+   "line": 312,
    "docstring": "",
    "parametrized": false,
    "fixtures": [],
@@ -57017,7 +57259,7 @@
    "id": "tests/test_gap_trace.py::test_a_record_with_no_checked_answer_is_skipped",
    "file": "tests/test_gap_trace.py",
    "name": "test_a_record_with_no_checked_answer_is_skipped",
-   "line": 265,
+   "line": 320,
    "docstring": "",
    "parametrized": false,
    "fixtures": [],
@@ -57051,7 +57293,7 @@
    "id": "tests/test_gap_trace.py::test_the_command_reads_traced_and_older_results_with_extra_fields",
    "file": "tests/test_gap_trace.py",
    "name": "test_the_command_reads_traced_and_older_results_with_extra_fields",
-   "line": 269,
+   "line": 324,
    "docstring": "",
    "parametrized": false,
    "fixtures": [
@@ -89316,10 +89558,11 @@
     "capstone.agent.investigation:check_conclusion",
     "capstone.agent.investigation:conclusion_gaps",
     "capstone.agent.investigation:question_role",
+    "capstone.agent.investigation:unresolved_confidence",
     "capstone.agent.loop:InvestigationDeps.__post_init__",
     "capstone.agent.state:Budgets.research_gets_some_time"
    ],
-   "exercise_count": 7,
+   "exercise_count": 8,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -89723,6 +89966,7 @@
     "capstone.agent.investigation:conclude",
     "capstone.agent.investigation:conclusion_gaps",
     "capstone.agent.investigation:question_role",
+    "capstone.agent.investigation:unresolved_confidence",
     "capstone.agent.investigation:why_not_acted",
     "capstone.agent.loop:InvestigationDeps.__post_init__",
     "capstone.agent.loop:ask_policy",
@@ -89730,7 +89974,7 @@
     "capstone.agent.state:Budgets.research_gets_some_time",
     "capstone.agent.state:InvestigationState.confidence"
    ],
-   "exercise_count": 12,
+   "exercise_count": 13,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -91383,6 +91627,7 @@
     "capstone.agent.investigation:recheck",
     "capstone.agent.investigation:reconsider",
     "capstone.agent.investigation:run_investigation",
+    "capstone.agent.investigation:unresolved_confidence",
     "capstone.agent.loop:InvestigationDeps.__post_init__",
     "capstone.agent.loop:apply_interpretation",
     "capstone.agent.loop:ask_policy",
@@ -91393,10 +91638,9 @@
     "capstone.agent.loop:gather",
     "capstone.agent.loop:held_for_hypotheses",
     "capstone.agent.loop:notify",
-    "capstone.agent.loop:record",
-    "capstone.agent.loop:run_batch"
+    "capstone.agent.loop:record"
    ],
-   "exercise_count": 93,
+   "exercise_count": 94,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -91953,6 +92197,7 @@
     "capstone.agent.investigation:recheck",
     "capstone.agent.investigation:reconsider",
     "capstone.agent.investigation:run_investigation",
+    "capstone.agent.investigation:unresolved_confidence",
     "capstone.agent.loop:InvestigationDeps.__post_init__",
     "capstone.agent.loop:apply_interpretation",
     "capstone.agent.loop:ask_policy",
@@ -91963,10 +92208,9 @@
     "capstone.agent.loop:gather",
     "capstone.agent.loop:held_for_hypotheses",
     "capstone.agent.loop:notify",
-    "capstone.agent.loop:record",
-    "capstone.agent.loop:run_batch"
+    "capstone.agent.loop:record"
    ],
-   "exercise_count": 80,
+   "exercise_count": 81,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",

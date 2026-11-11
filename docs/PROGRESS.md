@@ -1,5 +1,35 @@
 # Progress Log
 
+> **2026-11-11 — an unresolved conclusion no longer states high confidence (agent code; taught, understood in part; closing question owed):**
+> Source: the two 2026-11-10 SNAP passes. RUN-09 called about 9 of 24
+> committed conclusions overconfident. In all 10 overconfident full traces
+> checked (pair-01 baseline KA-08, KA-10; treatment KA-01, KA-07, KA-08,
+> KA-11, KA-12, KA-13; audited KA-03, KA-04), `check_conclusion` had
+> already forced `assessment="unresolved"` and `escalate`, so no fix was
+> proposed, but it left the model's 0.80–0.92 confidence in place. In three
+> runs the stated figure was also above the agent's own confidence in the
+> chosen hypothesis (KA-12: 0.75 vs 0.90). Change: on the unresolved path,
+> `check_conclusion` now states `unresolved_confidence`, the lowest of the
+> model's figure, the chosen hypothesis's confidence and
+> `UNRESOLVED_MAX_CONFIDENCE = 0.7`. The model's own figure is kept as
+> `ConclusionTrace.model_confidence` (None in older traces). The model is not
+> shown the ceiling, so the 2026-10-27 rule that confidence is an honest
+> estimate still holds. What the agent does in the factory is unchanged,
+> because an unresolved answer was already never acted on. Measurement
+> change: `confident_wrong` in `evals.py` and SNAP RUN-09 read the stated
+> figure, so new runs are not directly comparable with older ones on those
+> two measures without `model_confidence`. Not changed: supported
+> conclusions whose figure exceeds the chosen hypothesis's (clamping those
+> would move the 0.9 action bar; developer's call), and the over-escalation
+> of correct `no_action` answers seen in the same runs. Gate: taught first;
+> the developer answered the pre-check (KA-12 → 0.70, escalate,
+> model_confidence 0.90, no factory change) without stating why the factory
+> is unaffected; closing question still owed. The developer asked to merge
+> on green CI and take the §11 step 6 walkthrough later (2026-11-11), so the
+> walkthrough is owed after merge, not before.
+> Understood: partly. Not yet run live (Codex runs live, §12).
+
+
 > **2026-11-11 — S-0 step 2 fixes: stop on a rejected login or certificate, audit trail, fast tests (code; built ungated):**
 > Found in the Opus review of step 2: a wrong password, a rejected
 > certificate or a missing certificate file was retried forever, with no
