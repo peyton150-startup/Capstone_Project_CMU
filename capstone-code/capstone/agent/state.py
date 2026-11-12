@@ -201,6 +201,9 @@ class ConclusionTrace(Contract):
     # could change them.
     model_assessment: Literal["supported", "unresolved"] | None
     model_recommendation: str
+    # The model's own confidence, before an unresolved answer was capped
+    # (UNRESOLVED_MAX_CONFIDENCE). None in traces saved before it was kept.
+    model_confidence: float | None = Field(default=None, ge=0.0, le=1.0)
     # The fix the model asked for, as "action machine", and why the action
     # rules alone (confidence, evidence, a named action) would refuse it,
     # whatever the gaps. None when no fix was asked for or nothing refuses it.

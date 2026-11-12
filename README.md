@@ -344,6 +344,17 @@ through manufacturing feedback.
 Parts of this work were based on these papers. Each line names the change
 and the paper it came from.
 
+- **Research plan only, not implemented:** simulator-first deterministic evidence
+  gathering and fault-discriminating selection
+  (`docs/DETERMINISTIC_TRIAGE_EVIDENCE_RESEARCH_20261111.md`), drawing on
+  [sequential information-gain inspection in multistage manufacturing](https://doi.org/10.3390/s21227524)
+  (Moliner-Heredia et al., 2021),
+  [fault isolability from symptom relations](https://doi.org/10.1515/amcs-2016-0058)
+  (Kościelny et al., 2016), and
+  [mRMR feature selection](https://doi.org/10.1109/TPAMI.2005.159)
+  (Peng et al., 2005). This adds documentation to the future-work list,
+  **not** a new detector, optional triage setting or empirically verified benefit.
+
 - The opt-in blind critic, which judges the agent's hypotheses without its
   ranking, confidence or leading mark (`CRITIC_BLIND`, `capstone/agent/critic.py`):
   from the error-propagation concern in

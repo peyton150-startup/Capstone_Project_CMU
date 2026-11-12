@@ -14,6 +14,105 @@
 > independently of that flag. Real recorded-data triage still skips screening
 > until a healthy reference is validated.
 
+> **2026-11-11 — deterministic simulator triage evidence research ranked (DOCS ONLY; NOT IMPLEMENTED):**
+> Reviewed the healthy 8-machine simulator reference and existing `screen_line` / `get_line_screening` / `detect_anomaly`: baseline comparison happens after simulator-event triggering, and it does not yet drive statistical incidents. Added `docs/DETERMINISTIC_TRIAGE_EVIDENCE_RESEARCH_20261111.md` with 19 signal-ranked candidates, 13 linked research papers and 6 explicit noise exclusions; linked it from both indices and the Evaluation/Reasoning owner category of `docs/MVP_SCOPE.md`. The highest-signal simulator-only sequence is a reproducible, cutoff-aware evidence packet, then fault-signature isolability, then manufacturing-specific sequential expected information gain; keep `TRIAGE_SECONDS=90`, iterative control and deep investigation unchanged. `TRIAGE_STRATEGY=evidence_first` is only proposed. No Python module, setting, actual detector trigger, Siemens connection, real model evaluation or simulation test was changed/run. **Developer gate:** research discussion/choice on 2026-11-12, then a separate taught and tested implementation PR. Understood: not yet verified.
+>
+
+> **2026-11-11 — an unresolved conclusion no longer states high confidence (agent code; taught, understood in part; closing question owed):**
+> Source: the two 2026-11-10 SNAP passes. RUN-09 called about 9 of 24
+> committed conclusions overconfident. In all 10 overconfident full traces
+> checked (pair-01 baseline KA-08, KA-10; treatment KA-01, KA-07, KA-08,
+> KA-11, KA-12, KA-13; audited KA-03, KA-04), `check_conclusion` had
+> already forced `assessment="unresolved"` and `escalate`, so no fix was
+> proposed, but it left the model's 0.80–0.92 confidence in place. In three
+> runs the stated figure was also above the agent's own confidence in the
+> chosen hypothesis (KA-12: 0.75 vs 0.90). Change: on the unresolved path,
+> `check_conclusion` now states `unresolved_confidence`, the lowest of the
+> model's figure, the chosen hypothesis's confidence and
+> `UNRESOLVED_MAX_CONFIDENCE = 0.7`. The model's own figure is kept as
+> `ConclusionTrace.model_confidence` (None in older traces). The model is not
+> shown the ceiling, so the 2026-10-27 rule that confidence is an honest
+> estimate still holds. What the agent does in the factory is unchanged,
+> because an unresolved answer was already never acted on. Measurement
+> change: `confident_wrong` in `evals.py` and SNAP RUN-09 read the stated
+> figure, so new runs are not directly comparable with older ones on those
+> two measures without `model_confidence`. Not changed: supported
+> conclusions whose figure exceeds the chosen hypothesis's (clamping those
+> would move the 0.9 action bar; developer's call), and the over-escalation
+> of correct `no_action` answers seen in the same runs. Gate: taught first;
+> the developer answered the pre-check (KA-12 → 0.70, escalate,
+> model_confidence 0.90, no factory change) without stating why the factory
+> is unaffected; closing question still owed. The developer asked to merge
+> on green CI and take the §11 step 6 walkthrough later (2026-11-11), so the
+> walkthrough is owed after merge, not before.
+> Understood: partly. Not yet run live (Codex runs live, §12).
+
+
+> **2026-11-11 — S-0 step 2 fixes: stop on a rejected login or certificate, audit trail, fast tests (code; built ungated):**
+> Found in the Opus review of step 2: a wrong password, a rejected
+> certificate or a missing certificate file was retried forever, with no
+> reason recorded and exit code 0. Now `refusal_for` turns the server's
+> login answers (`LOGIN_REFUSALS`, such as BadUserAccessDenied) and
+> certificate/security answers (`SECURITY_REFUSALS`, such as
+> BadCertificateUntrusted) into `SiemensOpcUaRefused`, so collection stops
+> after one attempt (a retried wrong password can lock the account);
+> `configure` refuses a missing certificate file by name and one that cannot
+> be loaded. Every attempt now writes a `SiemensOpcUaAuditEntry` to an audit
+> trail (`audit_file`, `read_audit`; `main --audit PATH`, default
+> `<capture>.audit.jsonl`): epoch, stage reached, outcome (connected, closed,
+> lost, failed, refused, error, stopped) and reason (`failure_reason`: a
+> status name or exception class, with the account's values blanked). It never
+> holds the user name, password or a certificate's contents. A bug in the
+> collector now writes `stopped` with `error: <class>` before it propagates;
+> `main` returns 2 on a refusal or an unreadable config. The collector takes
+> `client_factory` and `subscription_factory`, so
+> `tests/test_siemens_opcua_adapter.py` (36 tests) runs on an
+> in-memory fake client instead of a mock server, and now covers the
+> encrypted-connection and login paths: the policy, certificates and
+> sign-and-encrypt mode handed to the client; the account read from the
+> environment; a wrong password and an untrusted certificate stopping after
+> one attempt; and no secret in any line or audit entry. **Not verified:**
+> no test now runs asyncua on the wire (only the CLI test uses the real
+> client, against a closed port), and nothing has run against a SINUMERIK.
+> **Understood: no — built ungated; added to the step 2 walkthrough.** Owed
+> question: (4) why does a rejected password stop the collector while a
+> refused TCP connection is retried?
+>
+> **2026-11-11 — S-0 step 2: read-only Siemens OPC UA collector (code; built ungated; mock server only):**
+> New module `capstone/ingestion/siemens_opcua_adapter.py` and a new optional
+> dependency group `siemens` (`asyncua>=2.1,<3`; 1.1.8 does not run on the
+> pinned Python 3.14). `SiemensOpcUaConfig` is the approved scope: endpoint,
+> the server's expected application URI, the approved nodes, certificates
+> (`SecuritySettings`, sign-and-encrypt only) and the names of the
+> environment variables holding the read-only account. `SiemensOpcUaCollector`
+> checks the server's URI, opens one session, reads the namespace table,
+> subscribes to the approved nodes and writes version 2 lines to a sink:
+> `on_value` (one record per delivered value; a queue-overflow status writes a
+> gap for that node first), `on_message` / `missed_counters` (a skipped
+> notification counter writes a gap), `watch` (heartbeats, connection
+> checks), `session` and `run` (a lost connection writes a `session_lost` gap
+> and `disconnected`, then reconnects under the next session epoch).
+> `SiemensOpcUaRefused` stops collection before any value when the endpoint is
+> unencrypted and not an allowed loopback test server, the server's URI is not
+> the approved one, a namespace is missing, the server will not monitor an
+> approved node, or the account variables are unset. The module has no code
+> path that writes, calls a method, browses, reads an unapproved node or
+> transfers a file; `test_the_adapter_source_has_no_write_call_browse_or_direct_read`
+> fails if one appears. Also `load_config`, `file_sink`, `main`
+> (`python -m capstone.ingestion.siemens_opcua_adapter --config ... --out ...`).
+> Tests: `tests/test_siemens_opcua_adapter.py` (20), in the "Live telemetry"
+> CI group, against asyncua's own server on a loopback port. **Not verified:**
+> nothing ran against a SINUMERIK control, and the encrypted-connection and
+> account paths are configured but not exercised by a test. This covers item
+> #2 of the signal-ranked queue (PR #235) for the OPC UA side only.
+> **Understood: no — built ungated at the developer's direction; pre-check,
+> closing question and pre-merge walkthrough owed.** Owed questions: (1) the
+> library can write to the control, so what makes this collector read-only,
+> and what does the test that guards it check and not check? (2) why does the
+> collector refuse to start when one approved node cannot be monitored,
+> instead of collecting the rest? (3) after a reconnect, why may a mean not be
+> computed across the two session epochs?
+>
 > **2026-11-11 — Siemens agent-tool/evidence decision ranking (documentation only; NOT implemented):**
 > Added a seven-item signal-ranked refinement to `docs/MVP_SCOPE.md` and its
 > active register, with detailed acceptance and code crosswalk in
@@ -28,6 +127,34 @@
 > dependencies, tests, CI configuration, model calls or shop interaction changed.
 > Docs-only: technical feature walkthrough not applicable.
 
+> **2026-11-11 — S-0 step 1: Siemens OPC UA record format, version 2 (code; built ungated):**
+> The developer decided the pilot uses Siemens adapters only (no MTConnect for
+> now) and that the record format is based on OPC UA, with more value types and
+> units added later if another source needs them. New module
+> `capstone/ingestion/siemens_opcua_record.py` (every Siemens OPC UA module
+> carries "siemens" in its name, at the developer's request):
+> `OpcUaDataChange` (one value as the server's DataValue gave it: typed value,
+> StatusCode, source and server timestamps, plus the collector's receive time,
+> session epoch, subscription id and notification counter), `StatusInfo` /
+> `severity_of` / `status_from_code` (severity from the code's top two bits;
+> queue overflow from its info bits), `NodeRef` (namespace URI, never the
+> index), `data_change` (builder; NaN and infinity are set aside as
+> `non_finite`), `OpcUaSessionMarker` / `OpcUaGap` (connected, heartbeat,
+> disconnected, stopped, gap), `parse_opcua_line`, `to_json_line`,
+> `continuous_runs`. `number()` returns a value only for a Good status (or
+> Uncertain when asked) and a finite number. The MTConnect version 1 record is
+> unchanged. No network code, no `asyncua` dependency yet, no machine
+> contacted. Tests: `tests/test_siemens_opcua_record.py` (28), in the "Live
+> telemetry" CI group. **Understood: no — built ungated at the developer's
+> direction (2026-11-11, same as the SM track); pre-check, closing question and
+> pre-merge walkthrough owed.** Owed pre-check question: a notification
+> arrives with value 0.0, StatusCode Bad_NoCommunication and no source
+> timestamp. What does the record store for value, status and
+> source_timestamp, what does `number()` return, and why does that matter to
+> the anomaly detector and the agent? Next: the read-only Siemens OPC UA
+> adapter against an offline mock server, alarm-event records, the Siemens
+> channel map, replay over version 2, and Siemens preflight.
+>
 > **2026-11-11 — decision-theory future-work triage (documentation only; NOT implemented):**
 > At the developer's request, added seven high/medium-signal diagnostic
 > candidates to docs/MVP_SCOPE.md and mapped each to its appropriate roadmap

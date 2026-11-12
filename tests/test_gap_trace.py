@@ -5,7 +5,11 @@ import json
 import pytest
 
 from capstone.agent.artifacts import AgentConclusion
-from capstone.agent.investigation import check_conclusion, question_role
+from capstone.agent.investigation import (
+    UNRESOLVED_MAX_CONFIDENCE,
+    check_conclusion,
+    question_role,
+)
 from capstone.agent.loop import InvestigationDeps
 from capstone.agent.policy import ActionRequest
 from capstone.agent.state import ConclusionTrace, GapRecord, Question
@@ -154,6 +158,57 @@ def test_the_wanted_fix_and_the_action_rules_verdict_are_saved():
     assert trace.model_recommendation == "intervene"
     assert trace.wanted_action == "replace_bearing CNC-02"
     assert trace.action_blocked == "confidence 0.50 below 0.90"
+
+
+# --- the confidence an unresolved answer may state ---------------------------
+
+
+def test_an_answer_held_open_states_no_more_than_the_ceiling():
+    # Like treatment KA-12 on 2026-11-10: the model said 0.90, the check found
+    # open questions, and the record still said 0.90 beside "unresolved".
+    state = state_with_two_explanations()
+    checked, _ = check(state, answer(confidence=0.90))
+    assert checked.assessment == "unresolved"
+    assert checked.confidence == UNRESOLVED_MAX_CONFIDENCE == 0.7
+    assert state.conclusion_trace.model_confidence == 0.90
+
+
+def test_an_answer_held_open_states_no_more_than_its_chosen_cause():
+    state = state_with_two_explanations()
+    state.hypotheses[0] = state.hypotheses[0].model_copy(update={"confidence": 0.6})
+    checked, _ = check(state, answer(confidence=0.90))
+    assert checked.confidence == 0.6
+
+
+def test_a_lower_number_from_the_model_is_kept():
+    state = state_with_two_explanations()
+    checked, _ = check(state, answer(confidence=0.4))
+    assert checked.confidence == 0.4
+    assert state.conclusion_trace.model_confidence == 0.4
+
+
+def test_the_models_own_unresolved_answer_is_capped_too():
+    state = new_state()
+    state.evidence.extend(state_with_two_explanations().evidence)
+    state.provenance.extend(state_with_two_explanations().provenance)
+    checked, _ = check(state, answer(assessment="unresolved", hypothesis_id=None))
+    assert checked.confidence == UNRESOLVED_MAX_CONFIDENCE
+    assert state.conclusion_trace.model_confidence == 0.95
+
+
+def test_a_supported_answer_keeps_the_models_confidence():
+    state = state_with_two_explanations()
+    state.unanswered_questions = []
+    checked, _ = check(state, answer(confidence=0.95))
+    assert checked.assessment == "supported" and checked.confidence == 0.95
+    assert state.conclusion_trace.model_confidence == 0.95
+
+
+def test_a_trace_saved_before_model_confidence_still_loads():
+    trace = ConclusionTrace.model_validate(
+        {"model_assessment": "supported", "model_recommendation": "no_action"}
+    )
+    assert trace.model_confidence is None
 
 
 def test_an_answer_with_no_completion_claim_leaves_no_trace():
