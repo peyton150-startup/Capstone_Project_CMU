@@ -1,5 +1,9 @@
 # Progress Log
 
+> **2026-11-11 — deterministic simulator triage evidence research ranked (DOCS ONLY; NOT IMPLEMENTED):**
+> Reviewed the healthy 8-machine simulator reference and existing `screen_line` / `get_line_screening` / `detect_anomaly`: baseline comparison happens after simulator-event triggering, and it does not yet drive statistical incidents. Added `docs/DETERMINISTIC_TRIAGE_EVIDENCE_RESEARCH_20261111.md` with 19 signal-ranked candidates, 13 linked research papers and 6 explicit noise exclusions; linked it from both indices and the Evaluation/Reasoning owner category of `docs/MVP_SCOPE.md`. The highest-signal simulator-only sequence is a reproducible, cutoff-aware evidence packet, then fault-signature isolability, then manufacturing-specific sequential expected information gain; keep `TRIAGE_SECONDS=90`, iterative control and deep investigation unchanged. `TRIAGE_STRATEGY=evidence_first` is only proposed. No Python module, setting, actual detector trigger, Siemens connection, real model evaluation or simulation test was changed/run. **Developer gate:** research discussion/choice on 2026-11-12, then a separate taught and tested implementation PR. Understood: not yet verified.
+>
+
 > **2026-11-11 — an unresolved conclusion no longer states high confidence (agent code; taught, understood in part; closing question owed):**
 > Source: the two 2026-11-10 SNAP passes. RUN-09 called about 9 of 24
 > committed conclusions overconfident. In all 10 overconfident full traces
