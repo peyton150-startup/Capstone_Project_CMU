@@ -2,6 +2,8 @@
 
 **Status:** Documentation only; proposed backlog, 2026-11-12. No runtime behavior, settings, Python functions or tests were changed by this PR.
 
+**New measured evidence (2026-11-12):** [A0 live-model baseline: 26 cases, latency/coverage, unsafe KA-09 no-action](benchmarks/2026-11-12-triage-a0.md). This is experimental evidence and does not implement any proposed TRI item.
+
 **Merge preparation:** Reconciled with current `main` documentation on 2026-11-12, retaining subsequent progress entries; runtime code remains untouched.
 
 ## Hard scope boundary
@@ -63,6 +65,8 @@
 **Priority:** High / measure first. **Triage-only proposal:** Run `TRIAGE_THEN_DEEP=off` on fixed known-answer and recorded-path scenarios; log planning, decision, interpretation and conclusion latency, interpreted versus uninterpreted reads, p50/p95, timeouts, false no-action, missed severe faults.
 
 **Acceptance / rejection test:** Reject timing claims inferred only from deep-run medians; freeze controls and record spread across seeds.
+
+**Measured A0 (2026-11-12):** [Both 13-case repetitions documented here](benchmarks/2026-11-12-triage-a0.md): p50 87 s in each, p95 89/90 s, 25/26 timeouts, 6/26 entering `hypothesize`, 2/26 entering `test`, zero new test-stage readings, one unsafe `supported/no_action` on KA-09. The baseline is measured; other triage improvements remain proposals. Root-cause correctness was not judged; stage visits are not hypothesis counts.
 
 <a id="tri-02"></a>
 
