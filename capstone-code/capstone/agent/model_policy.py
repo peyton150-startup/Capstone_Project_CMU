@@ -70,7 +70,13 @@ from capstone.agent.untrusted import UNTRUSTED_NOTE, looks_like_instruction
 from capstone.contracts import Contract
 from capstone.contracts.evidence import Evidence
 from capstone.contracts.tools import ToolRequest, ToolSpec
-from capstone.providers.chat import JOBS, Attempt, invalid_outcome, late_key
+from capstone.providers.chat import (
+    JOBS,
+    Attempt,
+    FallbackClient,
+    invalid_outcome,
+    late_key,
+)
 from capstone.providers.factory import TOOL_DESCRIPTIONS
 from capstone.providers.manual import MANUAL_TOOL
 
@@ -1179,14 +1185,23 @@ class ModelPolicy:
         #     late in a run (`client_for`).
         #   outcome: answered, invalid_reply or no_answer, written to the call record
         #     either way.
+        #   triage: Extra keyword for a triage question, sent only to a
+        #     FallbackClient (other clients, such as test fakes, do not take
+        #     it); empty in a deep run, so its requests are unchanged.
         client = self.client_for(job, state)
         outcome = "no_answer"
+        triage = (
+            {"triage": True}
+            if state.mode == "triage" and isinstance(client, FallbackClient)
+            else {}
+        )
         try:
             answer = client.ask(
                 SYSTEM[job] if system is None else system,
                 prompt,
                 answer_type,
                 max_seconds=state.seconds_for_question,
+                **triage,
             )
             outcome = "answered"
             return answer
