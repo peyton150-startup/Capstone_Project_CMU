@@ -290,3 +290,8 @@ class CritiqueRecord(Contract):
     # Blind only: the hypothesis ids in the order the critic saw them, so
     # position effects can be checked. None when not blind.
     shown_order: tuple[str, ...] | None = None
+    # Why the first reply was refused for its form ("invalid reply: wrong
+    # shape: ..."), when the critic was asked once more (`Critic._ask`); the
+    # outcome says how that repair ask ended. None: no repair ask, or an older
+    # record.
+    repaired: str | None = None

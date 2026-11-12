@@ -822,6 +822,19 @@ def test_invalid_critique_does_not_end_the_run():
     assert state.conclusion == conclusion()
 
 
+def test_a_repaired_critique_says_so_in_the_record():
+    critic = FakeCritic(critique_result("object"))
+    critic.last_repair = "invalid reply: wrong shape: x: Extra inputs are not permitted"
+    state, _ = investigate(wear_policy(), critic=critic)
+    assert state.critique.outcome == "answered"
+    assert state.critique.repaired == critic.last_repair
+
+
+def test_a_critique_with_no_repair_records_none():
+    state, _ = investigate(wear_policy(), critic=FakeCritic(critique_result("object")))
+    assert state.critique.repaired is None
+
+
 def test_critic_time_does_not_shorten_the_investigation():
     now = [0.0]
     remaining = []

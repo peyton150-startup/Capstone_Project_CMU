@@ -20,7 +20,7 @@ from capstone.agent.critic import (
 from capstone.contracts.evidence import Evidence
 from capstone.contracts.hypotheses import Hypothesis
 from capstone.faults import FAULT_KINDS
-from capstone.providers.chat import Attempt, ModelError
+from capstone.providers.chat import Attempt, ModelError, invalid_outcome
 from capstone.providers.factory import research_tools
 from tests.helpers import INVESTIGATION, RUN, new_state
 
@@ -191,6 +191,119 @@ def test_review_refuses_ungathered_evidence():
     with pytest.raises(ValueError):
         critic.review(state_with_hypotheses(), max_seconds=5)
     assert critic.calls[-1].outcome == "invalid_reply"
+
+
+# --- one repair ask after a reply of the wrong shape --------------------------
+
+
+SHAPE_ERROR = ValueError("model reply has the wrong shape")
+
+
+class ScriptedClient(FakeClient):
+    """Gives each prepared reply in turn; an exception is raised, not returned."""
+
+    def __init__(self, *replies):
+        super().__init__(None)
+        self.replies = list(replies)
+
+    def ask(self, system, prompt, answer_type, *, max_seconds=None):
+        self.reply = self.replies.pop(0)
+        return super().ask(system, prompt, answer_type, max_seconds=max_seconds)
+
+
+class Clock:
+    """A clock that moves forward a fixed step each time it is read."""
+
+    def __init__(self, step=0.0):
+        self.now = 0.0
+        self.step = step
+
+    def __call__(self):
+        self.now += self.step
+        return self.now
+
+
+def repairing_critic(*replies, step=0.0):
+    client = ScriptedClient(*replies)
+    return Critic(client, research_tools(), clock=Clock(step)), client
+
+
+def test_a_reply_of_the_wrong_shape_is_asked_once_more_with_the_reason():
+    critic, client = repairing_critic(SHAPE_ERROR, result())
+    answer = critic.review(state_with_hypotheses(), max_seconds=40)
+    assert answer.favoured == "H2"
+    assert [(c.job, c.outcome) for c in critic.calls] == [
+        ("critique", "invalid_reply"),
+        ("critique_repair", "answered"),
+    ]
+    assert critic.last_repair == invalid_outcome(SHAPE_ERROR)
+    first, second = client.asked[0][1], client.asked[1][1]
+    assert second.startswith(first)
+    assert invalid_outcome(SHAPE_ERROR) in second[len(first) :]
+
+
+def test_the_repair_ask_gets_only_the_time_left():
+    critic, client = repairing_critic(SHAPE_ERROR, result(), step=4.0)
+    critic.review(state_with_hypotheses(), max_seconds=40)
+    assert client.asked[1][3] < 40
+
+
+def test_no_repair_ask_when_the_window_is_spent():
+    # The first ask uses 39 of the 40 seconds: 1 left is below REPAIR_MIN_SECONDS.
+    critic, client = repairing_critic(SHAPE_ERROR, result(), step=39.0)
+    with pytest.raises(ValueError):
+        critic.review(state_with_hypotheses(), max_seconds=40)
+    assert len(client.asked) == 1
+    assert critic.last_repair is None
+
+
+def test_a_second_bad_shape_is_final():
+    critic, client = repairing_critic(SHAPE_ERROR, SHAPE_ERROR)
+    with pytest.raises(ValueError):
+        critic.review(state_with_hypotheses(), max_seconds=40)
+    assert len(client.asked) == 2
+    assert [c.outcome for c in critic.calls] == ["invalid_reply", "invalid_reply"]
+    assert critic.last_repair == invalid_outcome(SHAPE_ERROR)
+
+
+def test_the_repaired_reply_passes_the_same_checks():
+    bad = Objection(kind="contradiction", text="see it", evidence_ids=("E99",))
+    critic, _ = repairing_critic(SHAPE_ERROR, result(objections=(bad,)))
+    with pytest.raises(ValueError, match="E99"):
+        critic.review(state_with_hypotheses(), max_seconds=40)
+    assert critic.calls[-1].outcome == "invalid_reply"
+
+
+def test_a_judgement_error_is_never_asked_again():
+    # Well-formed, but cites evidence never gathered: refused, no second ask.
+    bad = Objection(kind="contradiction", text="see it", evidence_ids=("E99",))
+    critic, client = repairing_critic(result(objections=(bad,)), result())
+    with pytest.raises(ValueError):
+        critic.review(state_with_hypotheses(), max_seconds=40)
+    assert len(client.asked) == 1
+    assert critic.last_repair is None
+
+
+def test_a_blind_label_it_was_not_shown_is_never_asked_again():
+    client = ScriptedClient(result(favoured="H7"), result())
+    critic = Critic(client, research_tools(), blind=True, clock=Clock())
+    with pytest.raises(ValueError):
+        critic.review(state_with_hypotheses(), max_seconds=40)
+    assert len(client.asked) == 1
+
+
+def test_a_repair_ask_with_no_answer_passes_the_model_error_up():
+    critic, _ = repairing_critic(SHAPE_ERROR, ModelError("no model answered"))
+    with pytest.raises(ModelError):
+        critic.review(state_with_hypotheses(), max_seconds=40)
+    assert [c.outcome for c in critic.calls] == ["invalid_reply", "no_answer"]
+
+
+def test_each_review_starts_with_no_repair_recorded():
+    critic, _ = repairing_critic(SHAPE_ERROR, result(), result())
+    critic.review(state_with_hypotheses(), max_seconds=40)
+    critic.review(state_with_hypotheses(), max_seconds=40)
+    assert critic.last_repair is None
 
 
 def test_review_lets_model_error_up():

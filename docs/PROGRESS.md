@@ -1,5 +1,29 @@
 # Progress Log
 
+> **2026-11-12 — one repair ask after a critic reply of the wrong form (agent code; taught and understood; closing question owed):**
+> Source: the 2026-11-10 SNAP traces. 6 of 26 critiques (23%) were refused
+> as `invalid_reply`, all from `ministral-14b-2512` (the only critic model
+> ever tried) and all for one habit: it added a key beside
+> `discriminating_check` (`_explanation`, `_expected_outcome(s)`), which
+> `CritiqueResult` forbids. The stage then had no critique and skipped the
+> recheck (SNAP RUN-07 "critic"). Change: `Critic._ask` records the first
+> refusal as today and, if the window has at least `REPAIR_MIN_SECONDS` (2 s)
+> left, asks the same model once more with `repair_note(reason)` appended
+> (the reason names only the form fault, never the reply's content). That ask
+> gets only the time left, is recorded as job `critique_repair`, and its reply
+> passes every existing check. A second form fault is final. A reply of the
+> right form that cites what it was not shown (unshown label, made-up
+> evidence) is a judgement fault and is never asked again. New
+> `CritiqueRecord.repaired` keeps the first refusal's reason. Unchanged:
+> `FallbackClient` (no model switch), the investigation's time (the critic's
+> time is already added back), every other job. Measurement: critic outcomes
+> are not comparable with earlier runs without splitting on `repaired`. Gate:
+> taught first; the developer answered the pre-check (outcome/repaired
+> recording; judgement errors not re-asked) and a follow-up (an unshown label
+> in a parsed reply is a judgement error, so no re-ask) correctly. Closing
+> question owed after merge, with the PR 240 walkthrough. Understood: yes
+> (pre-check). Not yet run live (Codex, §12).
+
 > **2026-11-11 — an unresolved conclusion no longer states high confidence (agent code; taught, understood in part; closing question owed):**
 > Source: the two 2026-11-10 SNAP passes. RUN-09 called about 9 of 24
 > committed conclusions overconfident. In all 10 overconfident full traces
