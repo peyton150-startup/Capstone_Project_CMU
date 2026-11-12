@@ -827,16 +827,20 @@ def format_triage(records: Sequence[ExperimentRecord]) -> str | None:
     #   seconds: How long each triage took on the wall clock.
     #   answered: Triages that ended with a supported conclusion.
     #   timed_out: Triages stopped by their deadline.
+    #   unavailable: Triages whose conclusion no model answered although
+    #     models were asked; scoring leaves these out.
     kept = [r.triage for r in records if r.triage is not None]
     if not kept:
         return None
     seconds = [t.seconds for t in kept]
     answered = sum(t.assessment == "supported" for t in kept)
     timed_out = sum(t.termination_reason == "timeout" for t in kept)
+    unavailable = sum(t.termination_reason == "model_unavailable" for t in kept)
     return (
         f"triage: {len(kept)} run(s), p50 {nearest_rank(seconds, 0.5):.0f} s, "
         f"p95 {nearest_rank(seconds, 0.95):.0f} s; {answered} supported, "
-        f"{len(kept) - answered} not ({timed_out} timed out); "
+        f"{len(kept) - answered} not ({timed_out} timed out, "
+        f"{unavailable} no model answered); "
         f"deep run asked for {sum(t.deep_recommended for t in kept)}, "
         f"ran {sum(t.deep_ran for t in kept)}; "
         f"{sum(t.tool_calls for t in kept)} triage tool calls"
@@ -1203,6 +1207,23 @@ def model_policy_factory(
     )
 
 
+def preflight_models(print_line: Callable[[str], None] = print) -> bool:
+    """Before a triage run, ask each model one tiny question; False if none answers.
+
+    Models that do not answer are set aside for a while (`ModelHealth`), so
+    the first triage questions skip them instead of waiting on them.
+    """
+    # Variables:
+    #   print_line: Where each model's result is shown.
+    #   results: Each distinct model and what came of its check.
+    from capstone.providers.chat import check_models, clients_for_jobs, late_clients
+
+    results = check_models(list({**clients_for_jobs(), **late_clients()}.values()))
+    for model, outcome in results:
+        print_line(f"model check: {model}: {outcome}")
+    return any(outcome == "answered" for _, outcome in results)
+
+
 def tree_options_from(settings) -> TreeOptions:
     """The tree's switches, read from the TOT_* settings (all off by default)."""
     return TreeOptions(
@@ -1316,6 +1337,9 @@ def main(argv: Sequence[str] | None = None) -> int:
     #     companion file unless --no-audit was given.
     #   args.triage: True with --triage, otherwise None so the TRIAGE setting
     #     decides; passed through to run_experiment.
+    #   triage_on: Whether this run triages; if so, every model is checked
+    #     first (`preflight_models`) and the run does not start when none
+    #     answers.
     #   wanted: The stage views asked for with --stage-context: True (on), False
     #     (off), or None when left out and STAGE_CONTEXT in the environment decides.
     #   wrong: Run keys whose recorded stage views differ from `wanted`; any makes
@@ -1451,6 +1475,12 @@ def main(argv: Sequence[str] | None = None) -> int:
                 print(line, flush=True)
 
         wanted = None if args.stage_context is None else args.stage_context == "on"
+        from capstone.settings import get_settings
+
+        triage_on = get_settings().triage if args.triage is None else args.triage
+        if triage_on and not preflight_models():
+            print("ERROR: no model answered the check; the run was not started")
+            return 1
         if not args.quiet:
             from capstone.settings import get_settings
 
