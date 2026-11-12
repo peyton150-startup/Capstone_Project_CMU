@@ -76,7 +76,15 @@ class OutOfTime(Exception):
     Neither the policy's mistake nor an outage: the clock ran out. Research
     then stops with TIMEOUT and the investigation goes on to its conclusion
     in the time kept for it.
+
+    `asked` is True when at least one request went out and none answered,
+    False when the time was gone before any model could be asked. A triage
+    conclusion uses it to tell a dead service from a slow agent.
     """
+
+    def __init__(self, *, asked: bool = False):
+        super().__init__()
+        self.asked = asked
 
 
 @dataclass
@@ -352,6 +360,8 @@ def ask_policy(
     #     remaining time.
     #   view: A deep copy of the state; the policy sees it, but changing it changes
     #     nothing real.
+    #   error.attempts: Requests the client really sent before it gave up;
+    #     passed on as OutOfTime's `asked`.
     view = state.model_copy(deep=True)
     view.state_action_bar = deps.state_action_bar
     view.action_confidence_needed = None
@@ -366,7 +376,7 @@ def ask_policy(
             getattr(error, "out_of_time", False)
             or seconds_left(state, deps, research=research) <= 0
         ):
-            raise OutOfTime() from None
+            raise OutOfTime(asked=getattr(error, "attempts", 0) > 0) from None
         raise
 
 

@@ -75,14 +75,34 @@ class ModelError(RuntimeError):
     `out_of_time` is True when no answer came because the time the caller
     allowed ran out (less than a retry pause was left), not the question's
     own limit: the caller's clock, not the service, is why.
+
+    `attempts` is how many requests were really sent before a
+    `FallbackClient` gave up (0: none was).
     """
 
     def __init__(
-        self, message: str, *, transient: bool = False, out_of_time: bool = False
+        self,
+        message: str,
+        *,
+        transient: bool = False,
+        out_of_time: bool = False,
+        attempts: int = 0,
     ):
         super().__init__(message)
         self.transient = transient
         self.out_of_time = out_of_time
+        self.attempts = attempts
+
+
+# A request that got no reply within the time it was given.
+TIMED_OUT = "the model service timed out"
+# The label a triage question records instead, when that time was shorter
+# than the client's own limit: the question's time ran out, not the
+# service's patience. Fixed text, without the seconds, so the records'
+# reasons group under one label. A deep run keeps TIMED_OUT.
+CUT_OFF = "out of time: cut off by the question's time limit"
+# A model left out of a triage question because it failed just before.
+SKIPPED = "skipped: refused recently"
 
 
 # The start of every invalid reply's outcome; the reason follows after ": ".
@@ -374,7 +394,7 @@ def post_json(
         ) from None
     except TimeoutError:
         # Reached, but no answer in time: a slow model, not a missing one.
-        raise ModelError("the model service timed out", transient=True) from None
+        raise ModelError(TIMED_OUT, transient=True) from None
     except (urllib.error.URLError, OSError):
         raise ModelError(
             "the model service could not be reached", transient=True
@@ -559,6 +579,76 @@ class ChatClient:
         return answer_type.model_validate_json(answer_json(reply_text(raw)))
 
 
+# In a triage question, the share of the time left that the model being
+# asked gets while other models still follow (the rest is theirs). The
+# triage run of 2026-11-11 saw Nemotron 3.5 Lightning answer in 4-13.5 s but
+# get only half of a 20 s conclusion, so most of its timeouts were our split.
+TRIAGE_FIRST_SHARE = 2 / 3
+
+
+class ModelHealth:
+    """Which models just refused, so a triage question can skip them for a while.
+
+    After `failures_to_skip` service failures in a row (an HTTP error, no
+    connection, or the service's own timeout, never a cut-off by our clock),
+    a model is skipped for `skip_seconds`. Any reply, valid or not, clears
+    its count. Only triage questions read or change it; a deep run asks
+    every model as before. It outlives one case on purpose: clients are
+    rebuilt per case, and the 503s of 2026-11-11 lasted across cases.
+    """
+
+    def __init__(
+        self,
+        *,
+        failures_to_skip: int = 2,
+        skip_seconds: float = 120.0,
+        clock: Callable[[], float] = time.monotonic,
+    ):
+        # Variables:
+        #   failures_to_skip: Service failures in a row that put a model aside.
+        #   skip_seconds: How long it is then left out of triage questions.
+        #   clock: Seconds that only move forward; replaced in tests.
+        #   _failures: Each model's service failures in a row so far.
+        #   _skip_until: The clock reading until which each model is skipped.
+        self.failures_to_skip = failures_to_skip
+        self.skip_seconds = skip_seconds
+        self._clock = clock
+        self._failures: dict[str, int] = {}
+        self._skip_until: dict[str, float] = {}
+
+    def failed(self, model: str) -> None:
+        """Count one service failure; enough in a row put the model aside."""
+        # Variables:
+        #   count: The model's failures in a row, this one included.
+        count = self._failures.get(model, 0) + 1
+        self._failures[model] = count
+        if count >= self.failures_to_skip:
+            self.mark_down(model)
+
+    def mark_down(self, model: str) -> None:
+        """Skip `model` in triage questions for `skip_seconds` from now."""
+        self._skip_until[model] = self._clock() + self.skip_seconds
+        self._failures[model] = 0
+
+    def answered(self, model: str) -> None:
+        """The model replied: it is up, whatever it said."""
+        self._failures.pop(model, None)
+        self._skip_until.pop(model, None)
+
+    def skipping(self, model: str) -> bool:
+        """True while `model` is set aside."""
+        return self._clock() < self._skip_until.get(model, float("-inf"))
+
+    def reset(self) -> None:
+        """Forget every model's record (tests, and a fresh run)."""
+        self._failures.clear()
+        self._skip_until.clear()
+
+
+# One record for the whole process, read only by triage questions.
+MODEL_HEALTH = ModelHealth()
+
+
 class FallbackClient:
     """One job's models in order. An outage moves on; a bad reply does not.
 
@@ -574,6 +664,10 @@ class FallbackClient:
     retries included, gets an equal share of the time left with the models
     still to ask: a model that keeps timing out moves on to the fallback
     while there is time to ask it.
+
+    A triage question (`triage=True`) differs in two ways: the model asked
+    gets `TRIAGE_FIRST_SHARE` of the time left while others follow, and a
+    model `ModelHealth` has set aside is skipped, unless every model is.
     """
 
     def __init__(
@@ -585,8 +679,11 @@ class FallbackClient:
         sleep: Callable[[float], None] = time.sleep,
         max_seconds: float = 20.0,
         clock: Callable[[], float] = time.monotonic,
+        health: ModelHealth | None = None,
     ):
         # Variables:
+        #   health: Which models just refused, read and updated by triage
+        #     questions only; None uses the process-wide MODEL_HEALTH.
         #   clients: The models for one job, in the order they are tried.
         #   retries: How many more times to ask a model after a temporary failure.
         #   retry_delay: Seconds paused before the first retry; each later pause
@@ -603,6 +700,7 @@ class FallbackClient:
         self._sleep = sleep
         self.max_seconds = max_seconds
         self._clock = clock
+        self._health = health
         # The model that gave the latest answer, so a record can name it.
         self.answered_by: str | None = None
         # Every model asked in the latest question, in order, and its outcome.
@@ -627,9 +725,21 @@ class FallbackClient:
         answer_type: type[Answer],
         *,
         max_seconds: float | None = None,
+        triage: bool = False,
     ) -> Answer:
-        """One question within its time. `max_seconds` can only shorten it."""
+        """One question within its time. `max_seconds` can only shorten it.
+
+        `triage` gives the first model a bigger share of the time and skips
+        models that just refused (see the class docstring).
+        """
         # Variables:
+        #   triage: True for a triage question; False leaves the deep run's
+        #     behaviour exactly as before.
+        #   health: The record of which models just refused (triage only).
+        #   order: The models to ask, in order: all of them, or in triage the
+        #     ones not set aside, unless that would leave none.
+        #   skipped: How many models were left out, so they are not counted
+        #     as requests sent.
         #   attempts: Every model asked for this question and what came of each, kept
         #     for the record.
         #   failures: A short reason for each model that gave no answer.
@@ -639,11 +749,14 @@ class FallbackClient:
         #   caller_bound: True if it is the caller's time that is running out, not this
         #     client's own limit.
         #   share: An equal slice of the time left for this model and the ones still to
-        #     ask.
+        #     ask; in triage, TRIAGE_FIRST_SHARE of it while others follow.
         #   own_deadline: When this model's slice ends.
         #   pause: How long to wait before this retry.
         #   left: The time this attempt may take after the pause.
         #   started: The clock reading when the attempt began, to time it.
+        #   cut_off: True when a timed-out request had less time than the
+        #     client's own limit; triage records it as CUT_OFF and does not
+        #     count it against the model's health.
         #   client.last_request: Cleared before each attempt and read after it, so
         #     each attempt records its own request's size, version and tokens.
         self.answered_by = None
@@ -658,18 +771,41 @@ class FallbackClient:
         # The caller's time is what runs out, not this question's own limit.
         caller_bound = max_seconds is not None and max_seconds <= self.max_seconds
 
+        health = self._health or MODEL_HEALTH
+        order = list(self.clients)
+        if triage:
+            up = [c for c in order if not health.skipping(c.model)]
+            if up:  # never skip every model: then all are asked as usual
+                for client in order:
+                    if client not in up:
+                        failures.append(f"{client.model}: {SKIPPED}")
+                        attempts.append(
+                            Attempt(model=client.model, outcome=SKIPPED, seconds=0.0)
+                        )
+                order = up
+        skipped = len(attempts)
+
         def given_up() -> ModelError:
             # Variables:
             #   spent: True if no time is left for another try.
+            #   sent: Requests that really went out, skipped models left out.
             spent = deadline - self._clock() <= self.retry_delay
-            return no_answer(failures, out_of_time=caller_bound and spent)
+            sent = len(attempts) - skipped
+            return no_answer(
+                failures, out_of_time=caller_bound and spent, attempts=sent
+            )
 
         try:
-            for index, client in enumerate(self.clients):
+            for index, client in enumerate(order):
                 # This model and its retries get an equal share of the time
                 # left with the models still to ask, so a slow model cannot
                 # use up the fallback's time. The last model gets all of it.
-                share = (deadline - self._clock()) / (len(self.clients) - index)
+                # In triage the first gets more: a fast model cut off at half
+                # the time was most of the 2026-11-11 run's failures.
+                still = len(order) - index
+                share = (deadline - self._clock()) / still
+                if triage and still > 1:
+                    share = (deadline - self._clock()) * TRIAGE_FIRST_SHARE
                 own_deadline = self._clock() + share
                 for attempt in range(1 + self.retries):
                     # The pause doubles each retry (2, 4, 8 s by default):
@@ -712,15 +848,28 @@ class FallbackClient:
                     try:
                         answer = client.ask(system, prompt, answer_type, timeout=left)
                     except ModelError as error:
-                        failures.append(f"{client.model}: {error}")
-                        attempts.append(tried(str(error)))
+                        # Cut off: the request got less time than the
+                        # client's own limit and used it all, so our clock
+                        # stopped it; that says nothing of the service.
+                        cut_off = str(error) == TIMED_OUT and left < getattr(
+                            client, "timeout", float("inf")
+                        )
+                        label = CUT_OFF if triage and cut_off else str(error)
+                        failures.append(f"{client.model}: {label}")
+                        attempts.append(tried(label))
+                        if triage and not cut_off:
+                            health.failed(client.model)
                         if not error.transient:
                             break
                         continue
                     except ValueError as error:
                         attempts.append(tried(invalid_outcome(error)))
+                        if triage:
+                            health.answered(client.model)
                         raise
                     attempts.append(tried("answered"))
+                    if triage:
+                        health.answered(client.model)
                     self.answered_by = client.model
                     return answer
             raise given_up()
@@ -728,14 +877,76 @@ class FallbackClient:
             self.attempts = tuple(attempts)
 
 
-def no_answer(failures: list[str], *, out_of_time: bool = False) -> ModelError:
+class Ping(Contract):
+    """The answer to the check before a run: any valid reply means the model is up."""
+
+    ok: bool
+
+
+# How long the check before a triage run waits for each model.
+CHECK_SECONDS = 15.0
+
+
+def check_models(
+    clients: Sequence[FallbackClient],
+    *,
+    timeout: float = CHECK_SECONDS,
+    health: ModelHealth | None = None,
+) -> list[tuple[str, str]]:
+    """Ask every distinct model one tiny question before a triage run.
+
+    Returns (model, outcome) for each, in the order first met: "answered"
+    for any reply (a malformed one still shows the service is up), else the
+    reason. A model that gives no reply is set aside in `health` (default
+    MODEL_HEALTH), so the first triage questions skip it.
+    """
+    # Variables:
+    #   clients: The run's job clients; each model is asked once, however
+    #     many jobs share it.
+    #   health: Where a model that failed the check is marked down.
+    #   seen: The (address, model) pairs already asked.
+    #   results: Each model and what came of its check, for the console.
+    health = health or MODEL_HEALTH
+    seen: set[tuple[str, str]] = set()
+    results: list[tuple[str, str]] = []
+    for chain in clients:
+        for client in chain.clients:
+            key = (client.url, client.model)
+            if key in seen:
+                continue
+            seen.add(key)
+            try:
+                client.ask(
+                    "You check that a service is up.",
+                    'Reply {"ok": true}.',
+                    Ping,
+                    timeout=timeout,
+                )
+                outcome = "answered"
+            except ValueError:
+                outcome = "answered"  # it replied, if badly: the service is up
+            except ModelError as error:
+                outcome = str(error)
+            if outcome == "answered":
+                health.answered(client.model)
+            else:
+                health.mark_down(client.model)
+            results.append((client.model, outcome))
+    return results
+
+
+def no_answer(
+    failures: list[str], *, out_of_time: bool = False, attempts: int = 0
+) -> ModelError:
     """The error for a question no model answered, naming each failure."""
     # Variables:
     #   failures: A reason from each model that did not answer.
     #   out_of_time: True if the clock ran out, not the services.
+    #   attempts: Requests that really went out; 0 when no model was asked.
     return ModelError(
         "no model service answered (" + "; ".join(failures) + ")",
         out_of_time=out_of_time,
+        attempts=attempts,
     )
 
 

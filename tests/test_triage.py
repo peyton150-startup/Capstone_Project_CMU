@@ -22,6 +22,7 @@ from capstone.experiment import (
     report,
     run_experiment,
 )
+from capstone.providers.chat import ModelError
 from tests.helpers import FakeCritic
 from tests.test_episode import MACHINE, SEED, wear_policy
 
@@ -272,3 +273,104 @@ def test_with_line_context_the_deep_run_gathers_its_own_packet(monkeypatch):
     packet = deep.incident_context
     cited = {*packet.evidence_by_tool.values(), *packet.summary_evidence.values()}
     assert cited and cited <= {e.id for e in deep.evidence}
+
+
+# --- a triage no model answered ---------------------------------------------------
+
+
+class NoConclusion:
+    """A scripted policy whose conclusion no model answers, after `attempts` requests."""
+
+    def __init__(self, inner, attempts):
+        self.inner, self.attempts = inner, attempts
+
+    def __getattr__(self, name):
+        return getattr(self.inner, name)
+
+    def conclude(self, state, *args, **kwargs):
+        raise ModelError(
+            "no model service answered (m: out of time)",
+            out_of_time=True,
+            attempts=self.attempts,
+        )
+
+
+def test_a_triage_conclusion_no_model_answered_is_model_unavailable(monkeypatch):
+    policy = ByMode(NoConclusion(wear_policy("intervene"), 2), wear_policy())
+    result = run(policy, monkeypatch, then_deep=False, triage=True)
+    assert result.triage.termination_reason == "model_unavailable"
+    assert result.triage.conclusion.recommendation == "escalate"
+    assert result.triage.deep_recommended is True
+
+
+def test_a_triage_with_no_time_to_ask_any_model_is_still_a_timeout(monkeypatch):
+    policy = ByMode(NoConclusion(wear_policy("intervene"), 0), wear_policy())
+    result = run(policy, monkeypatch, then_deep=False, triage=True)
+    assert result.triage.termination_reason == "timeout"
+
+
+def test_a_deep_conclusion_no_model_answered_is_still_a_timeout(monkeypatch):
+    monkeypatch.delenv("TRIAGE", raising=False)
+    result = run(NoConclusion(wear_policy(), 2), monkeypatch)
+    assert result.state.mode == "deep"
+    assert result.state.termination_reason == "timeout"  # deep runs unchanged
+
+
+def test_the_triage_line_counts_triages_no_model_answered(monkeypatch):
+    monkeypatch.setenv("CRITIC", "off")
+    monkeypatch.setenv("TRIAGE_THEN_DEEP", "off")
+    case = Case("bearing-6", SEED, "bearing_degradation")
+    (record,) = run_experiment(
+        [case],
+        lambda: ByMode(NoConclusion(wear_policy("intervene"), 1), wear_policy()),
+        name="unserved",
+        triage=True,
+    )
+    assert record.triage.termination_reason == "model_unavailable"
+    assert record.score.model_unavailable  # left out of every total
+    assert "(0 timed out, 1 no model answered)" in format_triage([record])
+
+
+# --- the check before a triage run ------------------------------------------------
+
+
+def test_a_triage_run_does_not_start_when_no_model_answers_the_check(
+    monkeypatch, tmp_path
+):
+    import capstone.experiment as experiment
+
+    asked = []
+    monkeypatch.setattr(experiment, "preflight_models", lambda: asked.append(1))
+    monkeypatch.setattr(
+        experiment,
+        "run_experiment",
+        lambda *a, **k: pytest.fail("the run must not start"),
+    )
+    monkeypatch.setattr(experiment, "model_policy_factory", lambda *a, **k: None)
+    out = tmp_path / "records.jsonl"
+    code = experiment.main(
+        ["run", "--name", "x", "--known", "--out", str(out), "--triage"]
+        + ["--quiet", "--no-manual", "--no-audit"]
+    )
+    assert code == 1 and asked == [1] and not out.exists()
+
+
+def test_a_deep_only_run_skips_the_check(monkeypatch, tmp_path):
+    import capstone.experiment as experiment
+
+    monkeypatch.delenv("TRIAGE", raising=False)
+    monkeypatch.setattr(
+        experiment,
+        "preflight_models",
+        lambda: pytest.fail("a deep-only run asks no model before it starts"),
+    )
+    monkeypatch.setattr(experiment, "run_experiment", lambda *a, **k: [])
+    monkeypatch.setattr(experiment, "model_policy_factory", lambda *a, **k: None)
+    out = tmp_path / "records.jsonl"
+    assert (
+        experiment.main(
+            ["run", "--name", "x", "--known", "--out", str(out), "--quiet"]
+            + ["--no-manual", "--no-audit"]
+        )
+        == 0
+    )

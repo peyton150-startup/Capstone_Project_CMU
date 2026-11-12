@@ -1467,3 +1467,19 @@ def test_an_episode_records_whether_the_stage_views_were_on(monkeypatch):
     assert check_prompt.startswith("ANOMALY")
     assert "AFTER THE WORK" in check_prompt
     assert result.state.verification.outcome == "resolved"
+
+
+@pytest.mark.parametrize(("mode", "skipped"), [("triage", True), ("deep", False)])
+def test_only_a_triage_question_updates_and_reads_model_health(mode, skipped):
+    from capstone.providers.chat import ModelHealth
+    from tests.test_chat_client import UNREACHABLE, chat, client
+
+    health = ModelHealth()
+    groq, _ = client(UNREACHABLE, UNREACHABLE, model="groq")
+    mistral, _ = client(chat('{"questions": []}'), model="mistral")
+    fallback = FallbackClient([groq, mistral], sleep=lambda s: None, health=health)
+    agent = ModelPolicy({job: FakeModel() for job in JOBS} | {"plan": fallback}, ())
+    state = new_state()
+    state.mode = mode
+    agent.plan(state)
+    assert health.skipping("groq") is skipped
