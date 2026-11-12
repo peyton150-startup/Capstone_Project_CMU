@@ -4,7 +4,7 @@
 
 **New measured evidence (2026-11-12):** [A0 live-model baseline: 26 cases, latency/coverage, unsafe KA-09 no-action](benchmarks/2026-11-12-triage-a0.md). This is experimental evidence and does not implement any proposed TRI item.
 
-**Algorithm-first LLM replacement research (2026-11-12):** [Code-audited, source-cited ranked synthesis of all five research passes](TRIAGE_ALGORITHM_FIRST_RESEARCH_20261112.md). Its 36 ranked methods/alternatives are **not 36 new backlog items**. The 31 active IDs, exactly three MEDIUM, three-stage Siemens boundaries, frozen A0 and existing A1–A4 ablations remain authoritative. [PR #246](https://github.com/peyton150-startup/Capstone_Project_CMU/pull/246) is reviewed as a separate **open/unmerged code PR** at this source-audit point; do not mark its clearance fixes implemented on main.
+**Algorithm-first LLM replacement research (2026-11-12):** [Code-audited, source-cited ranked synthesis of all five research passes](TRIAGE_ALGORITHM_FIRST_RESEARCH_20261112.md). Its 36 ranked methods/alternatives are **not 36 new backlog items**. The 31 active IDs, exactly three MEDIUM, independent Siemens SDC/RMI acceptance gates, frozen A0 and existing A1–A4 ablations remain authoritative. [PR #246](https://github.com/peyton150-startup/Capstone_Project_CMU/pull/246) is reviewed as a separate **open/unmerged code PR** at this source-audit point; do not mark its clearance fixes implemented on main.
 
 **Merge preparation:** Reconciled with current `main` documentation on 2026-11-12, retaining subsequent progress entries; runtime code remains untouched.
 
