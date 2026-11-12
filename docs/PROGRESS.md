@@ -14,6 +14,30 @@
 > independently of that flag. Real recorded-data triage still skips screening
 > until a healthy reference is validated.
 
+> **2026-11-12 — one repair ask after a critic reply of the wrong form (agent code; taught and understood; closing question owed):**
+> Source: the 2026-11-10 SNAP traces. 6 of 26 critiques (23%) were refused
+> as `invalid_reply`, all from `ministral-14b-2512` (the only critic model
+> ever tried) and all for one habit: it added a key beside
+> `discriminating_check` (`_explanation`, `_expected_outcome(s)`), which
+> `CritiqueResult` forbids. The stage then had no critique and skipped the
+> recheck (SNAP RUN-07 "critic"). Change: `Critic._ask` records the first
+> refusal as today and, if the window has at least `REPAIR_MIN_SECONDS` (2 s)
+> left, asks the same model once more with `repair_note(reason)` appended
+> (the reason names only the form fault, never the reply's content). That ask
+> gets only the time left, is recorded as job `critique_repair`, and its reply
+> passes every existing check. A second form fault is final. A reply of the
+> right form that cites what it was not shown (unshown label, made-up
+> evidence) is a judgement fault and is never asked again. New
+> `CritiqueRecord.repaired` keeps the first refusal's reason. Unchanged:
+> `FallbackClient` (no model switch), the investigation's time (the critic's
+> time is already added back), every other job. Measurement: critic outcomes
+> are not comparable with earlier runs without splitting on `repaired`. Gate:
+> taught first; the developer answered the pre-check (outcome/repaired
+> recording; judgement errors not re-asked) and a follow-up (an unshown label
+> in a parsed reply is a judgement error, so no re-ask) correctly. Closing
+> question owed after merge, with the PR 240 walkthrough. Understood: yes
+> (pre-check). Not yet run live (Codex, §12).
+
 > **2026-11-11 — deterministic simulator triage evidence research ranked (DOCS ONLY; NOT IMPLEMENTED):**
 > Reviewed the healthy 8-machine simulator reference and existing `screen_line` / `get_line_screening` / `detect_anomaly`: baseline comparison happens after simulator-event triggering, and it does not yet drive statistical incidents. Added `docs/DETERMINISTIC_TRIAGE_EVIDENCE_RESEARCH_20261111.md` with 19 signal-ranked candidates, 13 linked research papers and 6 explicit noise exclusions; linked it from both indices and the Evaluation/Reasoning owner category of `docs/MVP_SCOPE.md`. The highest-signal simulator-only sequence is a reproducible, cutoff-aware evidence packet, then fault-signature isolability, then manufacturing-specific sequential expected information gain; keep `TRIAGE_SECONDS=90`, iterative control and deep investigation unchanged. `TRIAGE_STRATEGY=evidence_first` is only proposed. No Python module, setting, actual detector trigger, Siemens connection, real model evaluation or simulation test was changed/run. **Developer gate:** research discussion/choice on 2026-11-12, then a separate taught and tested implementation PR. Understood: not yet verified.
 >

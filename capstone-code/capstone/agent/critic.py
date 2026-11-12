@@ -27,7 +27,8 @@ from `agent.artifacts` (the rule `test_agent_artifacts` keeps).
 import hashlib
 import random
 import re
-from collections.abc import Sequence
+import time
+from collections.abc import Callable, Sequence
 from typing import TYPE_CHECKING
 
 from capstone.agent.artifacts import (
@@ -460,6 +461,25 @@ def critique_view(
     return "\n".join(lines)
 
 
+# The least time, in seconds, worth spending on a repair ask; with less left in
+# the critic's window the first refusal stands.
+REPAIR_MIN_SECONDS = 2.0
+
+
+def repair_note(reason: str) -> str:
+    """The line added to the critique question when its reply had the wrong form.
+
+    It names only the form fault ("wrong shape: <field>: ...", never the reply's
+    content), so it cannot steer what the critic judges.
+    """
+    # Variables:
+    #   reason: The first reply's refusal, from `invalid_outcome`.
+    return (
+        "\n\nYOUR PREVIOUS REPLY WAS REFUSED: "
+        f"{reason}. Reply again with exactly the fields asked for and no others."
+    )
+
+
 class Critic:
     """Asks the one critique question and keeps its own record of each ask."""
 
@@ -470,6 +490,7 @@ class Critic:
         *,
         manual: "ManualSearch | None" = None,
         blind: bool = False,
+        clock: Callable[[], float] = time.monotonic,
     ):
         # Variables:
         #   client: Asks the critic's model chain one typed question; a fake in tests.
@@ -484,13 +505,19 @@ class Critic:
         #     review, for the record; None without a manual.
         #   last_order: The hypothesis ids in the order the blind critic saw them
         #     at the latest review, for the record; None when not blind.
+        #   clock: Seconds that only move forward, to know how much of the
+        #     review's window a repair ask may use; replaced in tests.
+        #   last_repair: Why the latest review's first reply was refused when a
+        #     repair ask followed it; None when no repair ask was made.
         self.client = client
         self.tools = tuple(tools)
         self.manual = manual
         self.blind = blind
+        self.clock = clock
         self.calls: list[ModelCall] = []
         self.last_sections: tuple[str, ...] | None = None
         self.last_order: tuple[str, ...] | None = None
+        self.last_repair: str | None = None
 
     def review(
         self, state: InvestigationState, *, max_seconds: float
@@ -498,12 +525,15 @@ class Critic:
         """Judge the agent's hypotheses within `max_seconds`.
 
         A `ModelError` (no answer in time) passes up, recorded as `no_answer`.
-        A reply that breaks the type, or cites what it was not shown, raises
-        `ValueError`, recorded as `invalid_reply`.
+        A reply that breaks the type is asked for once more, with the reason,
+        if the window leaves time (`_ask`); a second one raises `ValueError`.
+        A reply of the right form that cites what it was not shown is a fault
+        of judgement: refused at once, never asked again. Every refusal is
+        recorded as `invalid_reply`.
         """
         # Variables:
-        #   max_seconds: The most this one question may take, retries and fallback
-        #     included; past it the client gives up and raises ModelError.
+        #   max_seconds: The most this review may take, a repair ask included;
+        #     past it the client gives up and raises ModelError.
         #   shown: The ids of the hypotheses the critic was shown, so a reply naming
         #     any other can be refused.
         #   answer: The critic's typed reply, kept only if it passes `_problem`.
@@ -524,20 +554,11 @@ class Critic:
             order = blind_order(state)
             labels = blind_labels(order)
             self.last_order = tuple(h.id for h in order)
-        try:
-            answer = self.client.ask(
-                CRITIC_BLIND_SYSTEM if self.blind else CRITIC_SYSTEM,
-                critique_view(state, self.tools, sections, blind=self.blind),
-                CritiqueResult,
-                max_seconds=max_seconds,
-            )
-        except ValueError:
-            self._record("invalid_reply")
-            raise
-        except BaseException:
-            self._record("no_answer")
-            raise
-        self._record("answered")
+        answer = self._ask(
+            CRITIC_BLIND_SYSTEM if self.blind else CRITIC_SYSTEM,
+            critique_view(state, self.tools, sections, blind=self.blind),
+            max_seconds,
+        )
         if self.blind:
             # Checked before mapping back: the blind critic saw only labels, so a
             # real id (say "H1") in its pick is a guess it was never shown, even
@@ -548,6 +569,51 @@ class Critic:
         reason = self._problem(answer, shown, state)
         if reason is not None:
             self._refuse(reason)
+        return answer
+
+    def _ask(self, system: str, view: str, max_seconds: float) -> CritiqueResult:
+        """Ask the critique question; after a reply of the wrong form, once more.
+
+        Only a reply the client cannot read as a `CritiqueResult` (wrong shape,
+        not JSON, cut off) earns the repair ask: that is a fault of form, not of
+        judgement. The repair ask gets only the window's time left, and none at
+        all when less than REPAIR_MIN_SECONDS is left.
+        """
+        # Variables:
+        #   started: The clock when the review began, to work out the time left.
+        #   reason: Why the first reply was refused, in the record's words; shown
+        #     to the model in the repair ask and kept as `last_repair`.
+        #   left: The window's time after the first ask, all the repair ask gets.
+        self.last_repair = None
+        started = self.clock()
+        try:
+            answer = self.client.ask(
+                system, view, CritiqueResult, max_seconds=max_seconds
+            )
+        except ValueError as error:
+            self._record("invalid_reply")
+            reason = invalid_outcome(error)
+            left = max_seconds - (self.clock() - started)
+            if left < REPAIR_MIN_SECONDS:
+                raise
+        except BaseException:
+            self._record("no_answer")
+            raise
+        else:
+            self._record("answered")
+            return answer
+        self.last_repair = reason
+        try:
+            answer = self.client.ask(
+                system, view + repair_note(reason), CritiqueResult, max_seconds=left
+            )
+        except ValueError:
+            self._record("invalid_reply", job="critique_repair")
+            raise
+        except BaseException:
+            self._record("no_answer", job="critique_repair")
+            raise
+        self._record("answered", job="critique_repair")
         return answer
 
     def reconsider(
