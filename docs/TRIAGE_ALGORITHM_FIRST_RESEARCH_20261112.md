@@ -22,6 +22,25 @@ The goal is a **Python-first, measurement-driven rapid triage** in which models 
 | Observed monitoring is not integrated statistical onset → triage | Simulator `detect_anomaly` reads events/status/inspections; recorded `Monitor` manages availability/threshold/state. Neither proves statistical scores launch triage. | [agent/monitor.py L20–68](../capstone-code/capstone/agent/monitor.py), [monitoring/monitor.py L82–142](../capstone-code/capstone/monitoring/monitor.py) |
 | Recorded single-machine capability | `run_recorded_investigation` checks mapped channels and skips simulator screening; prompts still inherit line-oriented assumptions | [recorded_investigation.py L145–217](../capstone-code/capstone/recorded_investigation.py), [model_policy.py L978–1115](../capstone-code/capstone/agent/model_policy.py) |
 
+## Stage-by-stage placement in the existing triage graph
+
+**Authoritative ownership:** [Stage-split TRI index and complete requirements](TRIAGE_FUTURE_WORK_20261112.md#architecture-stage-index--all-31-active-tri-items); [MVP Triage category](MVP_SCOPE.md#future-work-triage). Keep the signal-first rank below **inside** the corresponding stage, rather than presenting the 36 research alternatives as additional TRI tickets.
+
+| Actual graph stage / boundary | Algorithmic goal | Primary TRI owners | Model-call displacement |
+|---|---|---|---|
+| Before graph: Monitor / trigger | Calibrate statistical persistence and deduplicated incident creation | TRI-27 | Avoid needless investigations, not a replacement for an existing triage model call |
+| **Observe** | Source/quality/roster-qualified packet, screening metadata, valid comparable sensor windows, budget-aware read order | TRI-05/06/07/17/21/31/33/25/26 | Prepare evidence so later model questions can be skipped; preserve unknowns |
+| **Manual** | Query current OEM procedures only for unresolved eligible questions | TRI-12 | Avoid routine semantic-search calls |
+| **Plan** | Question templates and executable temporal requirements, single-machine prompt parity and conditional branches | TRI-09/13/14 | Replace routine `ModelPolicy.plan()` |
+| **Investigate** | Constraint-aware read selection, conditional branching, numeric interpretation, falsification, selective batch/quality checks | TRI-15/16/19/20/23/34/35 | Replace many routine `decide()`, `interpret()`, `interpret_and_decide()` model calls |
+| **Hypothesize** | Candidate support/conflict matrix, calibrated fault signatures, bounded MIT consistency-based diagnosis, retain unknown + multi-fault | TRI-18/22 | Potential partial replacement for `hypothesize()`, **offline until validated** |
+| **Test** | Validate rival-separating observations and physically independent evidence before hypothesis support | TRI-03/04 | Eliminate routine numerical checks; retain causal LLM where rivals remain |
+| **Critique / Recheck** | Existing graph nodes, **no separate critic** in rapid triage | No additional TRI owners | Keep deep critic/recheck outside this PR |
+| **Conclude** | Provenance/negative-evidence clearance gates, typed supported/insufficient/escalate report | TRI-02/10 | Potentially replace routine formatting and some `conclude()`; never auto-clear from an ML score |
+| Across stages | 90-second limits, call accounting, measured evaluation | TRI-01/08/11/32 | Quantify model-call savings and regressions per stage |
+
+**Control flow note:** The graph can bypass Hypothesize/Test when it routes directly from Investigate to Critique. In triage, Critique/Recheck are no-ops because the critic is disabled; triage stops before any intervention. Do not add model calls just to populate every named stage. The stage split is a **documentation/navigation structure**, not a new graph or a mandate that every stage executes in every run.
+
 ## Ranked, actionable highest-signal improvements
 
 **Ranking = observed correctness exposure + concrete model-call displacement + available code foundation + testability; not measured effect size.** Use existing TRI IDs and keep 31 active items (28 HIGH/P0-dependent, three MEDIUM). Some direct Python substitutions are new *specific experiments inside existing IDs*.
