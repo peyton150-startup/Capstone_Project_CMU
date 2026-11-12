@@ -31,7 +31,13 @@ SELECTED_CONFLICT = (
     "The selected hypothesis still has conflicting or unexplained evidence."
 )
 UNVERIFIED = re.compile(r"^E\d+: unverified$")
-GROUNDING = {"no_observable_evidence", "selected_has_conflict", "unverified_number"}
+GROUNDING = {
+    "no_observable_evidence",
+    "selected_has_conflict",
+    "unverified_number",
+    "triage_no_hypothesis",
+    "triage_screening_gap",
+}
 QUESTIONS = {"model_question", "unanswered_question", "question"}
 
 

@@ -857,6 +857,107 @@ def conclusion_gaps(
     return found
 
 
+SCREENING_TOOL = "get_line_screening"
+
+
+def triage_clearance_gaps(
+    state: InvestigationState,
+    deps: InvestigationDeps,
+    conclusion: AgentConclusion,
+) -> list[GapRecord]:
+    """Why a triage may not yet say "supported, nothing needs doing".
+
+    A triage that clears an alarm closes the case: no deep run follows
+    (`needs_deep_run`). So it must have formed at least one explanation, and,
+    where the simulator's line screening exists, the screening must have
+    scored every machine; an unscored machine is a place a fault could hide.
+    Any other answer is left alone: escalating or wanting a fix already sends
+    the case on. Deep runs never call this.
+    """
+    # Variables:
+    #   clearing: True only for the answer that would close the case.
+    #   found: The clearance gaps, in a fixed order: no explanation first,
+    #     then screening coverage.
+    #   deps.screening_available: False for a recorded real machine, which
+    #     has no simulator screening; only the explanation rule applies there.
+    #   screening: The newest line screening gathered, or None.
+    #   unscored: Machines the screening could not score at all, plus the
+    #     alarmed machine when any of its sensors has no score: not evidence
+    #     of health, only of coverage missing.
+    clearing = (
+        conclusion.recommendation == "no_action"
+        and conclusion.assessment == "supported"
+    )
+    if not clearing:
+        return []
+    found = []
+    if not state.hypotheses:
+        found.append(
+            GapRecord(
+                kind="triage_no_hypothesis",
+                text="Triage formed no explanation to test, so it cannot rule "
+                "out a fault.",
+            )
+        )
+    if deps.screening_available:
+        screening = latest_screening(state)
+        unscored = None if screening is None else unscored_machines(state, screening)
+        if screening is None:
+            found.append(
+                GapRecord(
+                    kind="triage_screening_gap",
+                    text="No line screening was gathered, so a fault elsewhere "
+                    "on the line cannot be ruled out.",
+                )
+            )
+        elif unscored:
+            found.append(
+                GapRecord(
+                    kind="triage_screening_gap",
+                    text="The line screening could not score "
+                    + ", ".join(unscored)
+                    + ", so a fault there cannot be ruled out.",
+                )
+            )
+    return found
+
+
+def latest_screening(state: InvestigationState) -> dict | None:
+    """The machines of the newest line screening gathered, or None."""
+    # Variables:
+    #   data: One screening's answer as the tool gave it.
+    for evidence in reversed(state.evidence):
+        if evidence.source_id.endswith(":" + SCREENING_TOOL):
+            try:
+                data = json.loads(evidence.content)
+            except ValueError:
+                continue
+            if isinstance(data, dict) and isinstance(data.get("machines"), dict):
+                return data["machines"]
+    return None
+
+
+def unscored_machines(state: InvestigationState, machines: dict) -> list[str]:
+    """Machines a screening left without a score, in the screening's order."""
+    # Variables:
+    #   alarmed: The machine monitoring flagged; for it, one unscored sensor
+    #     is enough, since that is the machine the triage is clearing.
+    #   row: One machine's screening: per-sensor scores, or a reason string
+    #     when the whole machine has none (such as "not_running_yet").
+    alarmed = state.anomaly.machine_id
+    unscored = []
+    for machine_id, row in machines.items():
+        if not isinstance(row, dict) or not row:
+            unscored.append(machine_id)
+        elif machine_id == alarmed and any(
+            isinstance(value, str) for value in row.values()
+        ):
+            unscored.append(machine_id)
+    if alarmed is not None and alarmed not in machines:
+        unscored.append(alarmed)
+    return unscored
+
+
 def unresolved_confidence(
     state: InvestigationState, conclusion: AgentConclusion
 ) -> float:
@@ -901,6 +1002,10 @@ def check_conclusion(
     #   unverified: Structured arithmetic that observable data cannot establish.
     #   found: Every gap the check found, each with its kind (see
     #     conclusion_gaps); saved in state.conclusion_trace for offline replay.
+    #     In a triage it also holds why a "nothing needs doing" answer may not
+    #     close the case yet (triage_clearance_gaps).
+    #   state.mode: "triage" adds the clearance gaps; a deep run's check is
+    #     unchanged.
     #   gaps: The same gaps as plain text, in the same order as before; any
     #     gap holds the diagnosis open and lowers the answer to "escalate".
     if not isinstance(conclusion, AgentConclusion):
@@ -918,6 +1023,8 @@ def check_conclusion(
     unverified = verify_numeric_claims(state, conclusion.numeric_claims)
     if conclusion.assessment is not None:
         found = conclusion_gaps(state, conclusion, unverified)
+        if state.mode == "triage":
+            found += triage_clearance_gaps(state, deps, conclusion)
         gaps = [g.text for g in found]
         state.conclusion_trace = ConclusionTrace(
             model_assessment=conclusion.assessment,

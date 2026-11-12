@@ -9,11 +9,17 @@ deadline holds even when every answer is slow; and experiment records
 report the triage's timing and outcome.
 """
 
+import json
+
 import pytest
 
 from capstone.agent.artifacts import AgentConclusion
-from capstone.agent.investigation import needs_deep_run
+from capstone.agent.investigation import check_conclusion, needs_deep_run
+from capstone.agent.loop import InvestigationDeps
 from capstone.agent.state import TRIAGE_CONCLUDE_SECONDS, triage_budgets
+from capstone.contracts.evidence import Evidence
+from capstone.contracts.hypotheses import Hypothesis
+from capstone.contracts.provenance import ProvenanceReference
 from capstone.episode import run_episode
 from capstone.experiment import (
     Case,
@@ -23,7 +29,7 @@ from capstone.experiment import (
     run_experiment,
 )
 from capstone.providers.chat import ModelError
-from tests.helpers import FakeCritic
+from tests.helpers import START, FakeCritic, FakeProvider, ScriptedPolicy, new_state
 from tests.test_episode import MACHINE, SEED, wear_policy
 
 
@@ -374,3 +380,158 @@ def test_a_deep_only_run_skips_the_check(monkeypatch, tmp_path):
         )
         == 0
     )
+
+
+# --- a triage may not clear an alarm it never checked (TRI-02/TRI-33) -------
+#
+# A0 run 2, KA-09 (2026-11-12): the alarm was on CNC-03 at tick 80, the true
+# faults were on CNC-07, the screening had scored almost no machine yet, and
+# the triage formed no explanation; it still answered "supported, no action"
+# and the case closed without a deep run. These tests hold that answer open.
+
+
+def clearance_state(*, hypotheses=True, screening="full"):
+    """A triage about CNC-02 with one observation and, optionally, a screening.
+
+    `screening` is "full" (every machine scored), "alarmed_unscored" (the
+    alarmed machine's sensors have no score yet), "machine_unscored" (another
+    machine has no score at all) or None (no screening was gathered).
+    """
+    # Variables:
+    #   machines: The screening's per-machine rows, as get_line_screening
+    #     returns them: [robust, plain] scores or a reason there is none.
+    state = new_state()
+    state.mode = "triage"
+    add_evidence(state, "E1", "simulator:get_time", {"tick": 10})
+    if screening is not None:
+        machines = {
+            "CNC-01": {"vibration": [0.1, 0.2]},
+            "CNC-02": {"vibration": [0.3, 0.2], "temperature": [0.1, 0.0, "steady"]},
+        }
+        if screening == "alarmed_unscored":
+            machines["CNC-02"] = {"vibration": "not_running_yet"}
+        if screening == "machine_unscored":
+            machines["CNC-01"] = "not_running_yet"
+        add_evidence(
+            state,
+            "E2",
+            "simulator:get_line_screening",
+            {"machines": machines, "reference": "healthy line"},
+        )
+    if hypotheses:
+        state.hypotheses = [
+            Hypothesis(id="H1", claim="a transient spike", confidence=0.9)
+        ]
+    return state
+
+
+def add_evidence(state, evidence_id, source_id, content):
+    state.evidence.append(
+        Evidence(
+            id=evidence_id,
+            source_id=source_id,
+            source_type="tool_result",
+            content=json.dumps(content),
+            observed_tick=10,
+            observed_at=START,
+        )
+    )
+    state.provenance.append(
+        ProvenanceReference(
+            evidence_id=evidence_id,
+            source_id=source_id,
+            source_type="tool_result",
+            origin="observable",
+            observed_tick=10,
+        )
+    )
+
+
+def clear(state, *, screening_available=True, **changes):
+    """Run the final check on a supported "nothing needs doing" answer."""
+    values = {
+        "diagnosis": "a transient spike that has passed",
+        "confidence": 0.85,
+        "recommendation": "no_action",
+        "assessment": "supported",
+        "hypothesis_id": "H1" if state.hypotheses else None,
+        "evidence_ids": ("E1",),
+    }
+    values.update(changes)
+    deps = InvestigationDeps(
+        provider=FakeProvider(),
+        policy=ScriptedPolicy(),
+        screening_available=screening_available,
+    )
+    checked, _ = check_conclusion(state, deps, AgentConclusion(**values), None)
+    return checked
+
+
+def gap_kinds(state):
+    return [g.kind for g in state.conclusion_trace.gaps]
+
+
+def test_a_triage_with_no_explanation_cannot_clear_the_alarm():
+    state = clearance_state(hypotheses=False)
+    checked = clear(state)
+    assert checked.assessment == "unresolved"
+    assert checked.recommendation == "escalate"
+    assert needs_deep_run(checked) is True
+    assert gap_kinds(state) == ["triage_no_hypothesis"]
+
+
+def test_a_triage_cannot_clear_an_alarmed_machine_the_screening_did_not_score():
+    state = clearance_state(screening="alarmed_unscored")
+    checked = clear(state)
+    assert checked.recommendation == "escalate" and needs_deep_run(checked)
+    assert gap_kinds(state) == ["triage_screening_gap"]
+    assert "CNC-02" in checked.unresolved_questions[0]
+
+
+def test_a_triage_cannot_clear_while_another_machine_is_unscored():
+    state = clearance_state(screening="machine_unscored")
+    checked = clear(state)
+    assert gap_kinds(state) == ["triage_screening_gap"]
+    assert "CNC-01" in checked.unresolved_questions[0]
+
+
+def test_a_triage_whose_screening_never_arrived_cannot_clear():
+    state = clearance_state(screening=None)
+    checked = clear(state)
+    assert gap_kinds(state) == ["triage_screening_gap"]
+    assert needs_deep_run(checked)
+
+
+def test_both_reasons_are_kept_when_both_hold():
+    state = clearance_state(hypotheses=False, screening=None)
+    clear(state)
+    assert gap_kinds(state) == ["triage_no_hypothesis", "triage_screening_gap"]
+
+
+def test_a_triage_with_an_explanation_and_a_full_screening_may_still_clear():
+    state = clearance_state()
+    checked = clear(state)
+    assert checked.assessment == "supported"
+    assert checked.recommendation == "no_action"
+    assert needs_deep_run(checked) is False
+
+
+def test_a_recorded_machine_without_screening_needs_only_an_explanation():
+    state = clearance_state(screening=None)
+    checked = clear(state, screening_available=False)
+    assert checked.recommendation == "no_action" and not needs_deep_run(checked)
+
+
+@pytest.mark.parametrize("recommendation", ["escalate", "intervene"])
+def test_answers_that_clear_nothing_get_no_clearance_gaps(recommendation):
+    state = clearance_state(hypotheses=False, screening=None)
+    clear(state, recommendation=recommendation)
+    assert gap_kinds(state) == []
+
+
+def test_a_deep_run_is_not_held_to_the_triage_clearance_rule():
+    state = clearance_state(hypotheses=False, screening=None)
+    state.mode = "deep"
+    checked = clear(state)
+    assert checked.assessment == "supported" and checked.recommendation == "no_action"
+    assert gap_kinds(state) == []

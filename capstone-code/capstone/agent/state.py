@@ -173,6 +173,10 @@ GapKind = Literal[
     "no_observable_evidence",
     "selected_has_conflict",
     "unverified_number",
+    # Triage only, and only for a supported "nothing needs doing": no
+    # explanation was formed, or the line screening left a machine unscored.
+    "triage_no_hypothesis",
+    "triage_screening_gap",
 ]
 # How an open question bears on the chosen explanation: it tells the chosen
 # one from a rival, it only checks the chosen one, it names no explanation,
