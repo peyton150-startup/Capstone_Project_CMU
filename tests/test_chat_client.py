@@ -10,12 +10,17 @@ import pytest
 
 from capstone.agent.policy import Lesson
 from capstone.providers.chat import (
+    CUT_OFF,
     JOBS,
     PROVIDERS,
+    SKIPPED,
+    TIMED_OUT,
     USER_AGENT,
     ChatClient,
     FallbackClient,
     ModelError,
+    ModelHealth,
+    check_models,
     client_for,
     clients_for_jobs,
     critic_client,
@@ -1095,3 +1100,146 @@ def test_a_client_without_a_request_record_still_gets_attempts():
     ask.ask("s", "p", Lesson)
     [attempt] = ask.attempts
     assert attempt.outcome == "answered" and attempt.prompt_chars is None
+
+
+# --- triage questions: time share, cut-off label, skipping refusing models ---
+
+
+def triage_pair(clock, *, question=30.0, primary_timeout=60.0):
+    """A silent first model and an answering backup, with their own health record."""
+    primary, given = silent(clock, "a")
+    primary.timeout = primary_timeout
+    backup, _ = client(chat('{"text": "ok"}'), model="b")
+    health = ModelHealth(clock=clock)
+    ask = FallbackClient(
+        [primary, backup],
+        sleep=clock.sleep,
+        clock=clock,
+        max_seconds=question,
+        health=health,
+    )
+    return ask, given, health
+
+
+def test_a_triage_question_gives_the_first_model_two_thirds_of_its_time():
+    clock = Clock()
+    ask, given, _ = triage_pair(clock)
+    assert ask.ask("s", "p", Lesson, triage=True).text == "ok"
+    assert given == [20.0]  # 2/3 of 30 s; the backup still had 10 s
+    assert ask.answered_by == "b"
+
+
+def test_a_deep_question_still_splits_its_time_equally():
+    clock = Clock()
+    ask, given, _ = triage_pair(clock)
+    assert ask.ask("s", "p", Lesson).text == "ok"
+    assert given == [15.0]  # unchanged: half of 30 s each
+
+
+def test_a_triage_cut_off_is_labelled_out_of_time_and_a_deep_one_is_not():
+    clock = Clock()
+    ask, _, _ = triage_pair(clock)
+    ask.ask("s", "p", Lesson, triage=True)
+    assert ask.attempts[0].outcome == CUT_OFF
+    assert not any(c.isdigit() for c in CUT_OFF)  # no seconds: one label
+
+    clock.now = 0.0
+    deep, _, _ = triage_pair(clock)
+    deep.ask("s", "p", Lesson)
+    assert deep.attempts[0].outcome == TIMED_OUT  # deep records are unchanged
+
+
+def test_a_cut_off_does_not_count_against_the_model():
+    clock = Clock()
+    ask, _, health = triage_pair(clock)
+    for _ in range(3):
+        ask.clients[1]._transport.replies.append(chat('{"text": "ok"}'))
+        ask.ask("s", "p", Lesson, triage=True)
+    assert not health.skipping("a")
+
+
+def test_the_services_own_timeout_counts_against_the_model():
+    clock = Clock()
+    # The request's own 15 s limit ran out inside a 60 s question: not our clock.
+    ask, _, health = triage_pair(clock, question=90.0, primary_timeout=15.0)
+    ask.ask("s", "p", Lesson, triage=True)
+    assert ask.attempts[0].outcome == TIMED_OUT
+    assert health.skipping("a")  # two timeouts in a row: the try and its retry
+
+
+def test_a_model_that_refused_twice_is_skipped_in_triage_for_a_while():
+    clock = Clock()
+    health = ModelHealth(clock=clock)
+    down, down_sent = client(http_error(503), http_error(503), model="a")
+    up, _ = client(*(chat('{"text": "ok"}') for _ in range(3)), model="b")
+    ask = FallbackClient([down, up], sleep=clock.sleep, clock=clock, health=health)
+
+    ask.ask("s", "p", Lesson, triage=True)
+    assert health.skipping("a") and len(down_sent.requests) == 2
+
+    ask.ask("s", "p", Lesson, triage=True)
+    assert len(down_sent.requests) == 2  # not asked again
+    assert [(a.model, a.outcome) for a in ask.attempts] == [
+        ("a", SKIPPED),
+        ("b", "answered"),
+    ]
+
+    clock.now += 121.0
+    down_sent.replies.append(chat('{"text": "back"}'))
+    assert ask.ask("s", "p", Lesson, triage=True).text == "back"
+    assert not health.skipping("a")  # its reply cleared the record
+
+
+def test_a_deep_question_never_skips_a_model():
+    clock = Clock()
+    health = ModelHealth(clock=clock)
+    health.mark_down("a")
+    first, sent = client(chat('{"text": "deep"}'), model="a")
+    second, _ = client(model="b")
+    ask = FallbackClient([first, second], sleep=clock.sleep, clock=clock, health=health)
+    assert ask.ask("s", "p", Lesson).text == "deep"
+    assert len(sent.requests) == 1
+
+
+def test_triage_never_skips_every_model():
+    clock = Clock()
+    health = ModelHealth(clock=clock)
+    health.mark_down("a")
+    health.mark_down("b")
+    first, _ = client(chat('{"text": "ok"}'), model="a")
+    second, _ = client(model="b")
+    ask = FallbackClient([first, second], sleep=clock.sleep, clock=clock, health=health)
+    assert ask.ask("s", "p", Lesson, triage=True).text == "ok"
+    assert [a.outcome for a in ask.attempts] == ["answered"]
+
+
+def test_the_error_counts_the_requests_that_really_went_out():
+    clock = Clock()
+    failing, _ = client(http_error(503), http_error(503), model="a")
+    ask = FallbackClient([failing], sleep=clock.sleep, clock=clock)
+    with pytest.raises(ModelError) as raised:
+        ask.ask("s", "p", Lesson)
+    assert raised.value.attempts == 2
+
+    with pytest.raises(ModelError) as raised:
+        ask.ask("s", "p", Lesson, max_seconds=0.0)
+    assert raised.value.attempts == 0  # no time: no model was asked
+
+
+def test_the_check_before_a_run_asks_each_model_once_and_sets_aside_the_silent():
+    health = ModelHealth()
+    shared, shared_sent = client(chat('{"ok": true}'), model="a")
+    broken, _ = client(http_error(503), model="b")
+    one = FallbackClient([shared, broken], sleep=lambda _: None)
+    two = FallbackClient([shared], sleep=lambda _: None)
+    results = check_models([one, two], health=health)
+    assert results == [("a", "answered"), ("b", "the model service answered HTTP 503")]
+    assert len(shared_sent.requests) == 1  # shared by two jobs, asked once
+    assert health.skipping("b") and not health.skipping("a")
+
+
+def test_a_malformed_reply_to_the_check_still_shows_the_service_is_up():
+    health = ModelHealth()
+    odd, _ = client(chat("not json"), model="a")
+    results = check_models([FallbackClient([odd], sleep=lambda _: None)], health=health)
+    assert results == [("a", "answered")] and not health.skipping("a")
