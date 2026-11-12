@@ -968,6 +968,8 @@ def conclude(state: InvestigationState, deps: InvestigationDeps) -> None:
     #   error: The rule the answer broke, when the policy or the check refused
     #     it; saved as state.conclusion_rejected so the record says why the
     #     conclusion is "undetermined".
+    #   stop.asked: True when models were asked for the conclusion and none
+    #     answered; in a triage that ends the run as MODEL_UNAVAILABLE.
     state.stage = "decide"
     outcome = "decided"
     try:
@@ -998,9 +1000,14 @@ def conclude(state: InvestigationState, deps: InvestigationDeps) -> None:
                 if conclusion.assessment == "unresolved"
                 else why_not_acted(deps, answer, wanted)
             )
-    except OutOfTime:
+    except OutOfTime as stop:
         conclusion, request, outcome = UNDETERMINED, None, "stopped"
         state.termination_reason = TerminationReason.TIMEOUT
+        if state.mode == "triage" and stop.asked:
+            # Models were asked for the conclusion and none answered: the
+            # services, not the agent's reasoning, decided this triage, so
+            # scoring leaves it out (as for any run no model served).
+            state.termination_reason = TerminationReason.MODEL_UNAVAILABLE
     except POLICY_ERRORS as error:
         conclusion, request, outcome = UNDETERMINED, None, "invalid_decision"
         state.conclusion_rejected = rejection_reason(error)
