@@ -20,43 +20,131 @@
 
 **Evidence-audit mapping, all 12 former HIGH findings covered:** H1→TRI-17; H2→TRI-31; H3→TRI-06/21; H4→TRI-32; H5→TRI-22; H6→TRI-34; H7→TRI-33; H8→TRI-04; H9→TRI-22; H10→TRI-18; H11→TRI-27; H12→TRI-19. Cross-cutting requirements remain in TRI-01–23; the new high entries are only gaps, not duplicate tickets. Statistical-trigger handoff TRI-27 is promoted to HIGH; TRI-25, TRI-26 and new TRI-35 are the **only three MEDIUM** candidates. TRI-24, TRI-28, TRI-29 and TRI-30 are removed from the active register with their still-useful acceptance criteria consolidated elsewhere.
 
-## Priority map — active items only, signal-first within triage
+## Architecture-stage index — all 31 active TRI items
 
-**28 HIGH/P0-dependent and exactly 3 MEDIUM, no active LOW.** These are options to validate, not a mandate to implement all before the factory visit. IDs remain stable.
+**Architecture-first navigation:** The stage below is the **primary owner** of each work item; related work in other stages is cross-referenced rather than duplicated. Stage order comes from [`agent/investigation.py` → `build_graph()`](../capstone-code/capstone/agent/investigation.py). **Rank within a stage is not a claim of measured performance.** This reorganization preserves 28 HIGH/P0-dependent and three MEDIUM items, all IDs/anchors and the A0/A1–A4 experimental labels.
 
-| ID | Priority | Triage-only work item |
+`Monitor/trigger` → `Observe` → `Manual` → `Plan` → `Investigate` → `Hypothesize` → `Test` → `Critique / Recheck` (no critic in triage) → `Conclude` → **finish or recommend deep run**. The graph can route from `Investigate`/`Hypothesize` directly to `Critique` when evidence or time does not warrant later stages. Triage never proposes, executes or verifies actions.
+
+### 0. Monitoring / incident trigger (before the graph)
+
+`agent/monitor.py` creates a `DetectedAnomaly`; the statistical-score-to-trigger handoff is proposed, not running today. No routine LLM call is replaced in this phase.
+
+**Python/ML opportunity:** Future statistical onset/persistence detector, calibrated severity and deduplicated handoff (shadow mode).
+
+| Item | Priority | Stage-owned future work |
 |---|---|---|
-| [TRI-01](#tri-01) | High / measure first | Measure actual 90-second A0 triage baseline |
-| [TRI-02](#tri-02) | High / correctness | Block unsupported no-action and false clearance |
-| [TRI-03](#tri-03) | High / correctness | Fix rival-separating unanswered question logic |
-| [TRI-04](#tri-04) | High / correctness | Count independent physical supporting sources |
+| [TRI-27](#tri-27) | High / detection | Calibrate persistent statistical onset and incident handoff |
+
+### 1. Observe — trusted evidence intake
+
+`investigation.observe()` reads time and available simulator screening; optional `assemble_incident_context()` collects more data. Recorded-data triage has no trusted simulator screening. This stage owns evidence qualification, roster, baselines and initial packet construction.
+
+**Python/ML opportunity:** Python packet builder, quality/time/source gates, read order, screening feature reuse. Medium features are conditional.
+
+| Item | Priority | Stage-owned future work |
+|---|---|---|
 | [TRI-05](#tri-05) | P0-dependent / triage consumer | Bridge approved Siemens OPC UA records into triage |
 | [TRI-06](#tri-06) | P0-dependent / triage consumer | Apply qualified data and dual-cutoff gates |
 | [TRI-07](#tri-07) | High / correctness | Match advertised capabilities to permitted triage tools |
-| [TRI-08](#tri-08) | High / reliability | Enforce full triage runtime deadline |
-| [TRI-09](#tri-09) | High / correctness | Use recorded single-machine triage prompts |
-| [TRI-10](#tri-10) | High / product | Build standalone triage report |
-| [TRI-11](#tri-11) | High / measurement | Expose honest diagnostic-read budget accounting |
-| [TRI-12](#tri-12) | High / efficiency | Gate manual retrieval during short triage |
-| [TRI-13](#tri-13) | High / experiment | Generate tentative hypotheses in first question |
-| [TRI-14](#tri-14) | High / dependent experiment | Route hypotheses-first triage through graph |
-| [TRI-15](#tri-15) | High / experiment | Ablate bounded batch sizes |
-| [TRI-16](#tri-16) | High / experiment | Reduce collected but uninterpreted reads |
 | [TRI-17](#tri-17) | High / evidence | Reproducible source-linked triage evidence packet |
-| [TRI-18](#tri-18) | High / discrimination | Offline fault signatures and pairwise isolability |
-| [TRI-19](#tri-19) | High / selection experiment | Deterministic diagnostic-value prioritization of optional reads |
-| [TRI-20](#tri-20) | High / dependent experiment | Structured provisional expectations |
 | [TRI-21](#tri-21) | High / evidence validity | Window-, quality-, source- and cutoff-aware read coverage |
-| [TRI-22](#tri-22) | High / false-negative control | No-fault, unknown, wrong-machine and multi-fault coverage |
-| [TRI-23](#tri-23) | High / prompt validity | Audit actual model visibility of selected evidence |
-| [TRI-27](#tri-27) | High / detection | Calibrate persistent statistical onset and incident handoff |
 | [TRI-31](#tri-31) | High / collection efficiency | Fix evidence-call budget and fixed-order starvation |
-| [TRI-32](#tri-32) | High / evaluation integrity | Score actual returned relevant evidence rather than requested tool name |
 | [TRI-33](#tri-33) | High / screening fidelity | Preserve screening window/count/reference/coverage metadata |
-| [TRI-34](#tri-34) | High / falsification | Select counterevidence that distinguishes competing faults |
 | [TRI-25](#tri-25) | Medium / conditional | Aligned multi-window cross-sensor and temporal features |
 | [TRI-26](#tri-26) | Medium / conditional | Comparable own-machine operating reference windows |
+
+### 2. Manual — conditional retrieval
+
+`consult_manual()` currently performs the optional first semantic manual search automatically; this remains guidance, not physical evidence.
+
+**Python/ML opportunity:** Python eligibility/need gate, exact model/version procedure lookup; LLM only for genuinely unresolved manual interpretation.
+
+| Item | Priority | Stage-owned future work |
+|---|---|---|
+| [TRI-12](#tri-12) | High / efficiency | Gate manual retrieval during short triage |
+
+### 3. Plan — compile diagnostic questions
+
+`plan()` calls the model-backed `ReasoningPolicy.plan`. Recorded single-machine prompts should not demand nonexistent line equipment. Hypotheses-first A1 and Python question-template replacement are different experimental arms.
+
+**Python/ML opportunity:** Typed diagnostic question templates and contingent branches for known symptoms; preserve unknown-symptom model fallback.
+
+| Item | Priority | Stage-owned future work |
+|---|---|---|
+| [TRI-09](#tri-09) | High / correctness | Use recorded single-machine triage prompts |
+| [TRI-13](#tri-13) | High / experiment | Generate tentative hypotheses in first question |
+| [TRI-14](#tri-14) | High / dependent experiment | Route hypotheses-first triage through graph |
+
+### 4. Investigate — select, read and interpret
+
+`run_inner_loop()` repeatedly invokes `decide()` or `interpret_and_decide()` while gathering tools; some batches already exist. Python can rank qualified, falsifying checks and interpret routine numerical readings.
+
+**Python/ML opportunity:** Constraint-aware scheduler; STL-inspired question evaluation (linked under Observe TRI-21); Python numerical feature engine; conditional batches; prompt-visible provenance.
+
+| Item | Priority | Stage-owned future work |
+|---|---|---|
+| [TRI-15](#tri-15) | High / experiment | Ablate bounded batch sizes |
+| [TRI-16](#tri-16) | High / experiment | Reduce collected but uninterpreted reads |
+| [TRI-19](#tri-19) | High / selection experiment | Deterministic diagnostic-value prioritization of optional reads |
+| [TRI-20](#tri-20) | High / dependent experiment | Structured provisional expectations |
+| [TRI-23](#tri-23) | High / prompt validity | Audit actual model visibility of selected evidence |
+| [TRI-34](#tri-34) | High / falsification | Select counterevidence that distinguishes competing faults |
 | [TRI-35](#tri-35) | Medium / conditional | Selective batch, job-route and quality context |
+
+### 5. Hypothesize — candidate explanations and uncertainty
+
+`hypothesize()` remains model-backed; `tree_of_thought.py` ranks model-supplied candidates but does not compute model-based physical conflicts. Include unknown and concurrent faults.
+
+**Python/ML opportunity:** Offline validated fault signatures and bounded MIT-style consistency/hitting-set candidates; optional trees or kNN only after reliable labels.
+
+| Item | Priority | Stage-owned future work |
+|---|---|---|
+| [TRI-18](#tri-18) | High / discrimination | Offline fault signatures and pairwise isolability |
+| [TRI-22](#tri-22) | High / false-negative control | No-fault, unknown, wrong-machine and multi-fault coverage |
+
+### 6. Test — distinguish, falsify and update
+
+The existing `test()` uses the same bounded investigate/test loop. It must preserve unresolved rival-separating questions and avoid counting derived views of one physical channel as independent corroboration. Counterevidence selection TRI-34 is owned by Investigate but consumed here.
+
+**Python/ML opportunity:** Deterministic rival-question gates, physical-source lineage, explicit negative/unknown/contradictory outcomes.
+
+| Item | Priority | Stage-owned future work |
+|---|---|---|
+| [TRI-03](#tri-03) | High / correctness | Fix rival-separating unanswered question logic |
+| [TRI-04](#tri-04) | High / correctness | Count independent physical supporting sources |
+
+### 7. Critique / Recheck — triage no-op boundary
+
+The graph contains these nodes, but `run_triage_then_deep()` disables its critic and critic follow-up. They must not be turned into new triage model calls by this research.
+
+**Python/ML opportunity:** No new TRI items or replacement work; deep-mode critique and recheck remain out of scope.
+
+**No additional active TRI items.**
+
+### 8. Conclude — validated triage disposition
+
+`conclude()` currently asks the model; `check_conclusion()` and `needs_deep_run()` enforce some deterministic gates. Open PR #246 separately proposes extra `no_action` rules; it is not part of audited main.
+
+**Python/ML opportunity:** Python evidence sufficiency/coverage/no-action safety gates and a typed report; model only for unresolved causal synthesis.
+
+| Item | Priority | Stage-owned future work |
+|---|---|---|
+| [TRI-02](#tri-02) | High / correctness | Block unsupported no-action and false clearance |
+| [TRI-10](#tri-10) | High / product | Build standalone triage report |
+
+### Cross-stage budgets, safety and evaluation (not a graph node)
+
+These requirements apply to every phase. A0 is already measured and documented; full runtime limits, truthful call accounting and evaluator-only scoring remain cross-stage responsibilities.
+
+**Python/ML opportunity:** Preserve 90 s and six-call default in matched experiments; collect by-stage model/call/valid-evidence counts, test latency, accuracy and severe misses.
+
+| Item | Priority | Stage-owned future work |
+|---|---|---|
+| [TRI-01](#tri-01) | High / measure first | Measure actual 90-second A0 triage baseline |
+| [TRI-08](#tri-08) | High / reliability | Enforce full triage runtime deadline |
+| [TRI-11](#tri-11) | High / measurement | Expose honest diagnostic-read budget accounting |
+| [TRI-32](#tri-32) | High / evaluation integrity | Score actual returned relevant evidence rather than requested tool name |
 
 ## Algorithm-first triage: highest-signal replacement tracks (no new TRI IDs)
 
@@ -74,46 +162,23 @@ The [research appendix](TRIAGE_ALGORITHM_FIRST_RESEARCH_20261112.md) code-audits
 
 ## Detailed implementation and adoption requirements
 
-<a id="tri-01"></a>
+**Stage-owned descriptions below are reordered to match the live graph.** Anchor IDs and all existing requirements are preserved; references to other stages identify dependencies, not duplicate owners.
 
-### TRI-01 — Measure actual 90-second A0 triage baseline
+### 0. Monitoring / incident trigger (before the graph)
 
-**Priority:** High / measure first. **Triage-only proposal:** Run `TRIAGE_THEN_DEEP=off` on fixed known-answer and recorded-path scenarios; log planning, decision, interpretation and conclusion latency, interpreted versus uninterpreted reads, p50/p95, timeouts, false no-action, missed severe faults.
+`agent/monitor.py` creates a `DetectedAnomaly`; the statistical-score-to-trigger handoff is proposed, not running today. No routine LLM call is replaced in this phase.
 
-**Acceptance / rejection test:** Reject timing claims inferred only from deep-run medians; freeze controls and record spread across seeds.
+<a id="tri-27"></a>
 
-**Measured A0 (2026-11-12):** [Both 13-case repetitions documented here](benchmarks/2026-11-12-triage-a0.md): p50 87 s in each, p95 89/90 s, 25/26 timeouts, 6/26 entering `hypothesize`, 2/26 entering `test`, zero new test-stage readings, one unsafe `supported/no_action` on KA-09. The baseline is measured; other triage improvements remain proposals. Root-cause correctness was not judged; stage visits are not hypothesis counts.
+### TRI-27 — Hand persistent deterministic anomalies to triage
 
-<a id="tri-02"></a>
+**Priority:** High / detection/onset. **Triage-only proposal:** In the simulator, calibrate statistical score/persistence thresholds on separate healthy and fault runs and begin with shadow-mode scoring alongside native alarm/status/inspection triggers. `agent/monitor.py:detect_anomaly` currently scans every 10 ticks and does not use `screen_line` scores; distinguish alert onset delay from the 90-second investigation clock. Then  Connect qualified threshold or statistical alert candidates to one idempotent read-only triage incident with stable ID, as-known cutoff, severity and evidence source; do not build a new monitoring platform here.
 
-### TRI-02 — Block unsupported `no_action` and false clearance
+**Acceptance / rejection test:** Track sensitivity, false alerts per eligible operating window, detection-to-triage delay, duplicate incidents and missed weak/compound faults; preserve independent alarm paths.  A persistent anomaly launches one triage; transient spikes, duplicate OEM alarms and replayed messages do not multiply LLM calls.
 
-**Priority:** High / correctness. **Triage-only proposal:** In triage completion, require qualified relevant normal-operation evidence before supported `no_action`. An incidental `get_time` or citation alone is not proof of health.
+### 1. Observe — trusted evidence intake
 
-**Acceptance / rejection test:** Block timestamp-only supported no-action; allow genuinely supported healthy observations, even with no generated fault hypotheses.
-
-
-**Algorithm-first cross-reference (2026-11-12):** [PR #246](https://github.com/peyton150-startup/Capstone_Project_CMU/pull/246) is an OPEN/UNMERGED triage-only fix for no-hypothesis and simulator screening coverage. Review its exact safety behavior rather than build a competing guard. An omitted **non-alarmed** machine is not necessarily identified from the returned screening map: require comparison with a validated independent expected-machine roster, plus quality/cutoff and unanswered rival checks. Reconcile legitimate benign `no_action` cases with the PR's more conservative no-hypothesis rule before adoption. See [source-audited research](TRIAGE_ALGORITHM_FIRST_RESEARCH_20261112.md).
-
-<a id="tri-03"></a>
-
-### TRI-03 — Fix rival-separating unanswered question logic
-
-**Priority:** High / correctness. **Triage-only proposal:** Triage checks in `diagnosis_supported` and `conclusion_gaps` must consider `hypothesis_id` AND `distinguishes_hypothesis_ids`; gate changes to triage or separately test shared fix against deep mode.
-
-**Acceptance / rejection test:** A question about H1 versus H2 with no primary hypothesis remains open and prevents false supported closure.
-
-**Code audit reinforcement:** `agent/loop.py:diagnosis_supported` currently checks whether any unanswered question's primary `hypothesis_id` is active; it does not check the question's `distinguishes_hypothesis_ids`. Triage-specific negative tests must keep H1-versus-H2 discrimination open even when the primary ID is null. Do not silently alter deep semantics.
-
-<a id="tri-04"></a>
-
-### TRI-04 — Count independent physical supporting sources
-
-**Priority:** High / correctness. **Triage-only proposal:** Group triage evidence by actual controller/machine/spindle/axis/native-channel source roots; a raw reading, computed summary and derived OEM alarm do not count as independent sources.
-
-**Acceptance / rejection test:** A repeated physical source never satisfies the two-supporter bar by itself; preserve SDC/RMI source lineage.
-
-**Code audit reinforcement:** `agent/loop.py:diagnosis_supported` counts distinct observable evidence IDs, not distinct underlying physical sensors; derived load score + load summary + load alarm is one root family. This scope is triage only; the pre-existing RMI-07 field safety requirement remains mandatory independently.
+`investigation.observe()` reads time and available simulator screening; optional `assemble_incident_context()` collects more data. Recorded-data triage has no trusted simulator screening. This stage owns evidence qualification, roster, baselines and initial packet construction.
 
 <a id="tri-05"></a>
 
@@ -141,37 +206,67 @@ The [research appendix](TRIAGE_ALGORITHM_FIRST_RESEARCH_20261112.md) code-audits
 
 **Acceptance / rejection test:** One old valid sample does not imply a currently usable channel; unknown tools or revoked channels fail closed.
 
-<a id="tri-08"></a>
+<a id="tri-17"></a>
 
-### TRI-08 — Enforce the full triage runtime deadline
+### TRI-17 — Build an opt-in compact triage evidence packet
 
-**Priority:** High / reliability. **Triage-only proposal:** Bound provider calls and batches as well as model questions; preserve safe unresolved reporting if any component is blocked or exceeds its allowance.
+**Priority:** High / experiment. **Triage-only proposal:** Assemble qualified trigger/cutoff, target history, operating context, cross-checks, counterevidence and missing coverage without relying on opt-in line context or simulator-only tools.
 
-**Acceptance / rejection test:** Clock-controlled tests include slow tools/models; deep-mode budgets and execution are unchanged.
+**Acceptance / rejection test:** Compare compact/fixed/adaptive packets at equal budgets; no ground-truth leaks or unmeasured-machine-as-normal.
 
-<a id="tri-09"></a>
+**Code audit reinforcement:** Reuse `agent/investigation.py:observe`, which already collects `get_time` and simulator `get_line_screening` automatically; use `gather(..., interpret=False)` to preserve evidence/provenance without extra model interpretations. `LINE_CONTEXT` is optional and, with its current fixed order, is not a complete mandatory diagnostic packet. The selector must never import `faults.py` evaluator labels at runtime.
 
-### TRI-09 — Use recorded single-machine triage prompts
+<a id="tri-21"></a>
 
-**Priority:** High / correctness. **Triage-only proposal:** Replace simulated-line terminology and mandatory neighbor/inspection instructions with mode-specific, capability-aware real-CNC guidance, including same-machine historical comparisons.
+### TRI-21 — Make prior read coverage window- and quality-aware
 
-**Acceptance / rejection test:** Single-machine recorded triage never invents unavailable machines, inspections, simulator ticks or machine actions.
+**Priority:** High / dependent experiment. **Triage-only proposal:** Track machine/channel, source epoch, time interval, receipt cutoff, sensor state and quality; do not skip a new relevant read because a channel was previously queried.
 
-<a id="tri-10"></a>
+**Acceptance / rejection test:** Fresh/repaired/expanded or changed-state windows remain eligible; stale or failed tool calls confer no coverage.
 
-### TRI-10 — Build a standalone triage report
+**Code audit reinforcement:** The existing `IncidentContext` stores one ID per tool and summary IDs keyed only by machine; a selector reading several sensors/windows on one machine needs `(machine, sensor, physical_root, window, cutoff)` keys or it will collapse distinct observations. The first `get_time` and `get_line_screening` readings and later snapshots are not automatically the same as trigger-time data.
 
-**Priority:** High / product. **Triage-only proposal:** Emit typed triage-only `supported`, `unresolved`, or `insufficient_evidence` with tentative cause ranking, support, contradictory evidence, unknowns, unavailable channels and ordered technician checks.
 
-**Acceptance / rejection test:** No model and timeout paths produce conservative useful reports; do not assume a deeper investigation will run.
+**Algorithm-first cross-reference (2026-11-12):** Add an executable **temporal question-satisfaction evaluator** (Berkeley STL-inspired): a successful `gather(question_id)` response currently removes the question even if its measurements cannot answer it. Track `answered_true/answered_false/insufficient/unavailable/stale`, with valid sensor state, minimum sample coverage, time/data-cutoff, expected machine/source and persistence. Do **not** treat missing samples as false or normal. References: [Berkeley partial-trace monitoring](https://escholarship.org/uc/item/5dw5k0xp), [EECS149 STL lecture](https://ptolemy.berkeley.edu/projects/chess/eecs149/lectures/RuntimeMonitoring_STL.pdf). See [source-audited research](TRIAGE_ALGORITHM_FIRST_RESEARCH_20261112.md).
 
-<a id="tri-11"></a>
+<a id="tri-31"></a>
 
-### TRI-11 — Expose honest diagnostic-read budget accounting
+### TRI-31 — Fix triage evidence-call budget and fixed-order starvation
 
-**Priority:** High / measurement. **Triage-only proposal:** Separately record mandatory `get_time`, screening, optional manual reads, other research tools and model questions. Six research calls can mean five after time and four after simulator manual retrieval.
+**Priority:** High / collection efficiency. **Triage-only proposal:** `agent/incident_context.py:assemble_incident_context` currently tries `list_machines`, `get_settings`, events, inspections and then named sensor summaries under half the research-call allowance. Under default six total research calls and a counted `get_time`, this commonly means just two pre-plan context calls: events and fault-specific histories may not be fetched. Reorder eligible, read-only optional calls by observed trigger and machine/sensor relevance while retaining a small mandatory screening/coverage core and the overall triage budget. Measure before changing global call budgets; no use of hidden fault labels.
 
-**Acceptance / rejection test:** Do not hide `get_time` in line-screening counters; any changed allowance must be explicit, measured and triage-only.
+**Acceptance / rejection test:** On KA-01–13 and held-out faults, collect required vibration/temperature, following error, hydraulic pressure, settings or inspections within the same read allowance earlier than fixed order, with explicit skipped/retrieval-failed reasons. `LINE_CONTEXT` default and deep behavior unchanged.
+
+<a id="tri-33"></a>
+
+### TRI-33 — Preserve bounded screening metadata in Python triage packet
+
+**Priority:** High / screening fidelity. **Triage-only proposal:** `tools/screening.py:screen_machine` already computes `window_readings`, window start/end, `reference_median`, warm-up stage and both scores, but `compact()` drops most of that metadata for the LLM. Provide a bounded internal detailed-screening view to the selector without changing the current compact tool output by default; preserve physical root, baseline identity and `not_running_yet`, `too_few_running_readings`, `no_reference` or `feed_unavailable` rather than declaring a machine normal.
+
+**Acceptance / rejection test:** Selector sees what period and eligible operating condition the deviation covers; LLM gets only concise source-cited results without prompt explosion. Existing compact-screening regression tests remain unchanged; no hidden truth.
+
+
+**Algorithm-first cross-reference (2026-11-12):** A richer internal screening packet must also compare the **returned** machine set against an **independently validated expected roster** before any claim of complete line coverage. Avoid relying solely on keys returned by `get_line_screening`; this remains an incremental acceptance finding relative to open PR #246, not a claimed test failure. See [source-audited research](TRIAGE_ALGORITHM_FIRST_RESEARCH_20261112.md).
+
+<a id="tri-25"></a>
+
+### TRI-25 — Add aligned cross-sensor and temporal features
+
+**Priority:** Medium / conditional. **Triage-only proposal:** Summarize overlapping quality-qualified load/RPM/temperature/ambient history and temporal order; handle raw readings, `get_sensor_trend` and summary results separately.
+
+**Acceptance / rejection test:** State, frequency, clock and unit limitations are explicit; derived prose does not create new supporting evidence IDs or causal claims.
+
+<a id="tri-26"></a>
+
+### TRI-26 — Use comparable own-machine normal operating windows
+
+**Priority:** Medium / prerequisite. **Triage-only proposal:** When approved signals permit, condition triage comparisons on cutting/idle/warmup/tool change, program, load and RPM; otherwise mark the baseline unavailable.
+
+**Acceptance / rejection test:** Intentional operating changes and absent qualified baselines do not become faults or claims of normality; shared baseline development stays under RMI.
+
+### 2. Manual — conditional retrieval
+
+`consult_manual()` currently performs the optional first semantic manual search automatically; this remains guidance, not physical evidence.
 
 <a id="tri-12"></a>
 
@@ -180,6 +275,18 @@ The [research appendix](TRIAGE_ALGORITHM_FIRST_RESEARCH_20261112.md) code-audits
 **Priority:** High / efficiency. **Triage-only proposal:** Use manual search only for specific worthwhile triage questions and remaining budget; real-machine references must match the actual licensed machine/version.
 
 **Acceptance / rejection test:** Compare manual-on/off triage without sacrificing critical readings; no simulator manual passed off as OEM evidence.
+
+### 3. Plan — compile diagnostic questions
+
+`plan()` calls the model-backed `ReasoningPolicy.plan`. Recorded single-machine prompts should not demand nonexistent line equipment. Hypotheses-first A1 and Python question-template replacement are different experimental arms.
+
+<a id="tri-09"></a>
+
+### TRI-09 — Use recorded single-machine triage prompts
+
+**Priority:** High / correctness. **Triage-only proposal:** Replace simulated-line terminology and mandatory neighbor/inspection instructions with mode-specific, capability-aware real-CNC guidance, including same-machine historical comparisons.
+
+**Acceptance / rejection test:** Single-machine recorded triage never invents unavailable machines, inspections, simulator ticks or machine actions.
 
 <a id="tri-13"></a>
 
@@ -200,6 +307,10 @@ The [research appendix](TRIAGE_ALGORITHM_FIRST_RESEARCH_20261112.md) code-audits
 
 **Acceptance / rejection test:** Graph tests show valid triage branches, no-evidence fallbacks, and bit-for-bit deep-mode control-flow compatibility.
 
+### 4. Investigate — select, read and interpret
+
+`run_inner_loop()` repeatedly invokes `decide()` or `interpret_and_decide()` while gathering tools; some batches already exist. Python can rank qualified, falsifying checks and interpret routine numerical readings.
+
 <a id="tri-15"></a>
 
 ### TRI-15 — Ablate bounded batch sizes instead of forcing five reads
@@ -218,29 +329,6 @@ The [research appendix](TRIAGE_ALGORITHM_FIRST_RESEARCH_20261112.md) code-audits
 
 
 **Algorithm-first cross-reference (2026-11-12):** Add a **typed, numerical/temporal `interpret()` reduction experiment**: compute window features and question true/false/insufficient/unavailable in Python, retain model for unresolved causality, log which model `interpret_and_decide` calls were avoided and every retained evidence ID. Do not count fewer calls as success if evidence understanding or correct diagnoses degrade. See [source-audited research](TRIAGE_ALGORITHM_FIRST_RESEARCH_20261112.md).
-
-<a id="tri-17"></a>
-
-### TRI-17 — Build an opt-in compact triage evidence packet
-
-**Priority:** High / experiment. **Triage-only proposal:** Assemble qualified trigger/cutoff, target history, operating context, cross-checks, counterevidence and missing coverage without relying on opt-in line context or simulator-only tools.
-
-**Acceptance / rejection test:** Compare compact/fixed/adaptive packets at equal budgets; no ground-truth leaks or unmeasured-machine-as-normal.
-
-**Code audit reinforcement:** Reuse `agent/investigation.py:observe`, which already collects `get_time` and simulator `get_line_screening` automatically; use `gather(..., interpret=False)` to preserve evidence/provenance without extra model interpretations. `LINE_CONTEXT` is optional and, with its current fixed order, is not a complete mandatory diagnostic packet. The selector must never import `faults.py` evaluator labels at runtime.
-
-<a id="tri-18"></a>
-
-### TRI-18 — Build offline fault signatures and pairwise isolability
-
-**Priority:** High / experiment. **Triage-only proposal:** On separate training seeds, measure which authorized observations distinguish normal changes, bearing, servo, hydraulic, wrong-setting and compound scenarios; truth labels remain evaluator-side.
-
-**Acceptance / rejection test:** Held-out seeds evaluate distinguishing evidence recall, decoys and multi-fault cases; reject overfitted signatures.
-
-**Code audit reinforcement:** `capstone/faults.py` defines evaluator-only relevant evidence for bearing (vibration/temperature/events), wrong setting (settings/inspections/vibration), bad batch (inspections/events/job route), servo (following error/events/inspections) and hydraulic (pressure/events/inspections); those definitions are testing oracle data, not allowed live selector lookups. Build signatures from disjoint training outcomes, not these hard-coded answers; include never-seen fault pair as unknown.
-
-
-**Algorithm-first cross-reference (2026-11-12):** Evaluate **MIT consistency/conflict-directed diagnosis** *offline* over validated physical constraints and bounded 0/1/2-fault candidates, alongside signature/pairwise isolability. Existing ToT ranks model-proposed candidates; it is not a physical consistency solver. Require unknown-fault state and held-out multi-fault/decoy tests; do not discard candidates when the model is incomplete. Reference: [MIT model-based diagnosis](https://web.mit.edu/16.410/www/lectures_fall04/L21_model-based_diagnosis.pdf). See [source-audited research](TRIAGE_ALGORITHM_FIRST_RESEARCH_20261112.md).
 
 <a id="tri-19"></a>
 
@@ -263,29 +351,6 @@ The [research appendix](TRIAGE_ALGORITHM_FIRST_RESEARCH_20261112.md) code-audits
 
 **Acceptance / rejection test:** New fields backward compatible and opt-in; LLM-predicted direction never treated as verified sensor physics.
 
-<a id="tri-21"></a>
-
-### TRI-21 — Make prior read coverage window- and quality-aware
-
-**Priority:** High / dependent experiment. **Triage-only proposal:** Track machine/channel, source epoch, time interval, receipt cutoff, sensor state and quality; do not skip a new relevant read because a channel was previously queried.
-
-**Acceptance / rejection test:** Fresh/repaired/expanded or changed-state windows remain eligible; stale or failed tool calls confer no coverage.
-
-**Code audit reinforcement:** The existing `IncidentContext` stores one ID per tool and summary IDs keyed only by machine; a selector reading several sensors/windows on one machine needs `(machine, sensor, physical_root, window, cutoff)` keys or it will collapse distinct observations. The first `get_time` and `get_line_screening` readings and later snapshots are not automatically the same as trigger-time data.
-
-
-**Algorithm-first cross-reference (2026-11-12):** Add an executable **temporal question-satisfaction evaluator** (Berkeley STL-inspired): a successful `gather(question_id)` response currently removes the question even if its measurements cannot answer it. Track `answered_true/answered_false/insufficient/unavailable/stale`, with valid sensor state, minimum sample coverage, time/data-cutoff, expected machine/source and persistence. Do **not** treat missing samples as false or normal. References: [Berkeley partial-trace monitoring](https://escholarship.org/uc/item/5dw5k0xp), [EECS149 STL lecture](https://ptolemy.berkeley.edu/projects/chess/eecs149/lectures/RuntimeMonitoring_STL.pdf). See [source-audited research](TRIAGE_ALGORITHM_FIRST_RESEARCH_20261112.md).
-
-<a id="tri-22"></a>
-
-### TRI-22 — Preserve competing and simultaneous faults in triage
-
-**Priority:** High / evaluation. **Triage-only proposal:** Maintain bounded line- or machine-context coverage for decoy alarms and independent coexisting causes; retain alternative explanations rather than assuming top-1 fault.
-
-**Acceptance / rejection test:** No new wrong-machine or missed second-fault regression in matched simulator compound cases.
-
-**Code audit reinforcement:** `agent/monitor.py` selects the first alarm/status event or inspection threshold, which does not identify the true fault machine. `get_line_screening()` already covers the whole simulated line, but `incident_context.py` restricts detailed summaries to the trigger and immediate neighbors; include independently abnormal machines outside those neighbors when budgets permit. Test known-answer KA-09, not only the alarmed target.
-
 <a id="tri-23"></a>
 
 ### TRI-23 — Audit prompt visibility of selected evidence
@@ -295,57 +360,6 @@ The [research appendix](TRIAGE_ALGORITHM_FIRST_RESEARCH_20261112.md) code-audits
 **Acceptance / rejection test:** Long evidence packets do not conceal decisive information behind unsupported summary statements.
 
 **Code audit reinforcement:** `model_policy.py` limits each evidence item to 2,000 characters and all evidence to 12,000, favoring newest and previously cited items. Thus a retrieved relevant read is not necessarily *visible* to the LLM; evaluate both packet availability and prompt-visible distinguishing/counterevidence.
-
-<a id="tri-25"></a>
-
-### TRI-25 — Add aligned cross-sensor and temporal features
-
-**Priority:** Medium / conditional. **Triage-only proposal:** Summarize overlapping quality-qualified load/RPM/temperature/ambient history and temporal order; handle raw readings, `get_sensor_trend` and summary results separately.
-
-**Acceptance / rejection test:** State, frequency, clock and unit limitations are explicit; derived prose does not create new supporting evidence IDs or causal claims.
-
-<a id="tri-26"></a>
-
-### TRI-26 — Use comparable own-machine normal operating windows
-
-**Priority:** Medium / prerequisite. **Triage-only proposal:** When approved signals permit, condition triage comparisons on cutting/idle/warmup/tool change, program, load and RPM; otherwise mark the baseline unavailable.
-
-**Acceptance / rejection test:** Intentional operating changes and absent qualified baselines do not become faults or claims of normality; shared baseline development stays under RMI.
-
-<a id="tri-27"></a>
-
-### TRI-27 — Hand persistent deterministic anomalies to triage
-
-**Priority:** High / detection/onset. **Triage-only proposal:** In the simulator, calibrate statistical score/persistence thresholds on separate healthy and fault runs and begin with shadow-mode scoring alongside native alarm/status/inspection triggers. `agent/monitor.py:detect_anomaly` currently scans every 10 ticks and does not use `screen_line` scores; distinguish alert onset delay from the 90-second investigation clock. Then  Connect qualified threshold or statistical alert candidates to one idempotent read-only triage incident with stable ID, as-known cutoff, severity and evidence source; do not build a new monitoring platform here.
-
-**Acceptance / rejection test:** Track sensitivity, false alerts per eligible operating window, detection-to-triage delay, duplicate incidents and missed weak/compound faults; preserve independent alarm paths.  A persistent anomaly launches one triage; transient spikes, duplicate OEM alarms and replayed messages do not multiply LLM calls.
-
-<a id="tri-31"></a>
-
-### TRI-31 — Fix triage evidence-call budget and fixed-order starvation
-
-**Priority:** High / collection efficiency. **Triage-only proposal:** `agent/incident_context.py:assemble_incident_context` currently tries `list_machines`, `get_settings`, events, inspections and then named sensor summaries under half the research-call allowance. Under default six total research calls and a counted `get_time`, this commonly means just two pre-plan context calls: events and fault-specific histories may not be fetched. Reorder eligible, read-only optional calls by observed trigger and machine/sensor relevance while retaining a small mandatory screening/coverage core and the overall triage budget. Measure before changing global call budgets; no use of hidden fault labels.
-
-**Acceptance / rejection test:** On KA-01–13 and held-out faults, collect required vibration/temperature, following error, hydraulic pressure, settings or inspections within the same read allowance earlier than fixed order, with explicit skipped/retrieval-failed reasons. `LINE_CONTEXT` default and deep behavior unchanged.
-
-<a id="tri-32"></a>
-
-### TRI-32 — Score actual diagnostic evidence rather than tool-call names
-
-**Priority:** High / evaluation integrity. **Triage-only proposal:** `evaluation/scoring.py` currently uses evaluator-only `Relevant.met_by(tool,args,machine)` and thus counts a matching read request as relevant evidence even when its result was empty, outside the onset window, unqualified, unavailable, duplicate or invisible to the model. Add evaluator-only packet scoring based on returned observation IDs, actual sensor/coverage/time validity, independent source families and contrasting observations; separate evidence misses, ambiguity and reasoning misses. Keep hidden truth out of runtime providers.
-
-**Acceptance / rejection test:** Empty/out-of-time windows and duplicate representations never earn independent evidence credit; source-linked, prompt-visible distinguishing samples do. Pair initial 13 known-answer cases with separate held-out normal, decoy, wrong-machine, missing/blackout and compound variants; retain old scoreboard compatibility.
-
-<a id="tri-33"></a>
-
-### TRI-33 — Preserve bounded screening metadata in Python triage packet
-
-**Priority:** High / screening fidelity. **Triage-only proposal:** `tools/screening.py:screen_machine` already computes `window_readings`, window start/end, `reference_median`, warm-up stage and both scores, but `compact()` drops most of that metadata for the LLM. Provide a bounded internal detailed-screening view to the selector without changing the current compact tool output by default; preserve physical root, baseline identity and `not_running_yet`, `too_few_running_readings`, `no_reference` or `feed_unavailable` rather than declaring a machine normal.
-
-**Acceptance / rejection test:** Selector sees what period and eligible operating condition the deviation covers; LLM gets only concise source-cited results without prompt explosion. Existing compact-screening regression tests remain unchanged; no hidden truth.
-
-
-**Algorithm-first cross-reference (2026-11-12):** A richer internal screening packet must also compare the **returned** machine set against an **independently validated expected roster** before any claim of complete line coverage. Avoid relying solely on keys returned by `get_line_screening`; this remains an incremental acceptance finding relative to open PR #246, not a claimed test failure. See [source-audited research](TRIAGE_ALGORITHM_FIRST_RESEARCH_20261112.md).
 
 <a id="tri-34"></a>
 
@@ -362,6 +376,124 @@ The [research appendix](TRIAGE_ALGORITHM_FIRST_RESEARCH_20261112.md) code-audits
 **Priority:** Medium / conditional. **Triage-only proposal:** When observed trigger is rejected workpieces or related quality events, prioritize bounded `get_inspections`, `get_events` and selected `get_job_history` over low-value sensor repetitions, preserving observed batch IDs, machine visits, time and source. Never infer a batch cause from inspection failure alone.
 
 **Acceptance / rejection test:** Test held-out bad-material, wrong-setting, servo-drive and hydraulic reject cases; route context should distinguish causes at acceptable budget/latency while leaving sensor-based mechanical checks available.
+
+### 5. Hypothesize — candidate explanations and uncertainty
+
+`hypothesize()` remains model-backed; `tree_of_thought.py` ranks model-supplied candidates but does not compute model-based physical conflicts. Include unknown and concurrent faults.
+
+<a id="tri-18"></a>
+
+### TRI-18 — Build offline fault signatures and pairwise isolability
+
+**Priority:** High / experiment. **Triage-only proposal:** On separate training seeds, measure which authorized observations distinguish normal changes, bearing, servo, hydraulic, wrong-setting and compound scenarios; truth labels remain evaluator-side.
+
+**Acceptance / rejection test:** Held-out seeds evaluate distinguishing evidence recall, decoys and multi-fault cases; reject overfitted signatures.
+
+**Code audit reinforcement:** `capstone/faults.py` defines evaluator-only relevant evidence for bearing (vibration/temperature/events), wrong setting (settings/inspections/vibration), bad batch (inspections/events/job route), servo (following error/events/inspections) and hydraulic (pressure/events/inspections); those definitions are testing oracle data, not allowed live selector lookups. Build signatures from disjoint training outcomes, not these hard-coded answers; include never-seen fault pair as unknown.
+
+
+**Algorithm-first cross-reference (2026-11-12):** Evaluate **MIT consistency/conflict-directed diagnosis** *offline* over validated physical constraints and bounded 0/1/2-fault candidates, alongside signature/pairwise isolability. Existing ToT ranks model-proposed candidates; it is not a physical consistency solver. Require unknown-fault state and held-out multi-fault/decoy tests; do not discard candidates when the model is incomplete. Reference: [MIT model-based diagnosis](https://web.mit.edu/16.410/www/lectures_fall04/L21_model-based_diagnosis.pdf). See [source-audited research](TRIAGE_ALGORITHM_FIRST_RESEARCH_20261112.md).
+
+<a id="tri-22"></a>
+
+### TRI-22 — Preserve competing and simultaneous faults in triage
+
+**Priority:** High / evaluation. **Triage-only proposal:** Maintain bounded line- or machine-context coverage for decoy alarms and independent coexisting causes; retain alternative explanations rather than assuming top-1 fault.
+
+**Acceptance / rejection test:** No new wrong-machine or missed second-fault regression in matched simulator compound cases.
+
+**Code audit reinforcement:** `agent/monitor.py` selects the first alarm/status event or inspection threshold, which does not identify the true fault machine. `get_line_screening()` already covers the whole simulated line, but `incident_context.py` restricts detailed summaries to the trigger and immediate neighbors; include independently abnormal machines outside those neighbors when budgets permit. Test known-answer KA-09, not only the alarmed target.
+
+### 6. Test — distinguish, falsify and update
+
+The existing `test()` uses the same bounded investigate/test loop. It must preserve unresolved rival-separating questions and avoid counting derived views of one physical channel as independent corroboration. Counterevidence selection TRI-34 is owned by Investigate but consumed here.
+
+<a id="tri-03"></a>
+
+### TRI-03 — Fix rival-separating unanswered question logic
+
+**Priority:** High / correctness. **Triage-only proposal:** Triage checks in `diagnosis_supported` and `conclusion_gaps` must consider `hypothesis_id` AND `distinguishes_hypothesis_ids`; gate changes to triage or separately test shared fix against deep mode.
+
+**Acceptance / rejection test:** A question about H1 versus H2 with no primary hypothesis remains open and prevents false supported closure.
+
+**Code audit reinforcement:** `agent/loop.py:diagnosis_supported` currently checks whether any unanswered question's primary `hypothesis_id` is active; it does not check the question's `distinguishes_hypothesis_ids`. Triage-specific negative tests must keep H1-versus-H2 discrimination open even when the primary ID is null. Do not silently alter deep semantics.
+
+<a id="tri-04"></a>
+
+### TRI-04 — Count independent physical supporting sources
+
+**Priority:** High / correctness. **Triage-only proposal:** Group triage evidence by actual controller/machine/spindle/axis/native-channel source roots; a raw reading, computed summary and derived OEM alarm do not count as independent sources.
+
+**Acceptance / rejection test:** A repeated physical source never satisfies the two-supporter bar by itself; preserve SDC/RMI source lineage.
+
+**Code audit reinforcement:** `agent/loop.py:diagnosis_supported` counts distinct observable evidence IDs, not distinct underlying physical sensors; derived load score + load summary + load alarm is one root family. This scope is triage only; the pre-existing RMI-07 field safety requirement remains mandatory independently.
+
+### 7. Critique / Recheck — triage no-op boundary
+
+The graph contains these nodes, but `run_triage_then_deep()` disables its critic and critic follow-up. They must not be turned into new triage model calls by this research.
+
+No additional triage items. Existing critic/recheck logic belongs to deep investigation.
+
+### 8. Conclude — validated triage disposition
+
+`conclude()` currently asks the model; `check_conclusion()` and `needs_deep_run()` enforce some deterministic gates. Open PR #246 separately proposes extra `no_action` rules; it is not part of audited main.
+
+<a id="tri-02"></a>
+
+### TRI-02 — Block unsupported `no_action` and false clearance
+
+**Priority:** High / correctness. **Triage-only proposal:** In triage completion, require qualified relevant normal-operation evidence before supported `no_action`. An incidental `get_time` or citation alone is not proof of health.
+
+**Acceptance / rejection test:** Block timestamp-only supported no-action; allow genuinely supported healthy observations, even with no generated fault hypotheses.
+
+
+**Algorithm-first cross-reference (2026-11-12):** [PR #246](https://github.com/peyton150-startup/Capstone_Project_CMU/pull/246) is an OPEN/UNMERGED triage-only fix for no-hypothesis and simulator screening coverage. Review its exact safety behavior rather than build a competing guard. An omitted **non-alarmed** machine is not necessarily identified from the returned screening map: require comparison with a validated independent expected-machine roster, plus quality/cutoff and unanswered rival checks. Reconcile legitimate benign `no_action` cases with the PR's more conservative no-hypothesis rule before adoption. See [source-audited research](TRIAGE_ALGORITHM_FIRST_RESEARCH_20261112.md).
+
+<a id="tri-10"></a>
+
+### TRI-10 — Build a standalone triage report
+
+**Priority:** High / product. **Triage-only proposal:** Emit typed triage-only `supported`, `unresolved`, or `insufficient_evidence` with tentative cause ranking, support, contradictory evidence, unknowns, unavailable channels and ordered technician checks.
+
+**Acceptance / rejection test:** No model and timeout paths produce conservative useful reports; do not assume a deeper investigation will run.
+
+### Cross-stage budgets, safety and evaluation (not a graph node)
+
+These requirements apply to every phase. A0 is already measured and documented; full runtime limits, truthful call accounting and evaluator-only scoring remain cross-stage responsibilities.
+
+<a id="tri-01"></a>
+
+### TRI-01 — Measure actual 90-second A0 triage baseline
+
+**Priority:** High / measure first. **Triage-only proposal:** Run `TRIAGE_THEN_DEEP=off` on fixed known-answer and recorded-path scenarios; log planning, decision, interpretation and conclusion latency, interpreted versus uninterpreted reads, p50/p95, timeouts, false no-action, missed severe faults.
+
+**Acceptance / rejection test:** Reject timing claims inferred only from deep-run medians; freeze controls and record spread across seeds.
+
+**Measured A0 (2026-11-12):** [Both 13-case repetitions documented here](benchmarks/2026-11-12-triage-a0.md): p50 87 s in each, p95 89/90 s, 25/26 timeouts, 6/26 entering `hypothesize`, 2/26 entering `test`, zero new test-stage readings, one unsafe `supported/no_action` on KA-09. The baseline is measured; other triage improvements remain proposals. Root-cause correctness was not judged; stage visits are not hypothesis counts.
+
+<a id="tri-08"></a>
+
+### TRI-08 — Enforce the full triage runtime deadline
+
+**Priority:** High / reliability. **Triage-only proposal:** Bound provider calls and batches as well as model questions; preserve safe unresolved reporting if any component is blocked or exceeds its allowance.
+
+**Acceptance / rejection test:** Clock-controlled tests include slow tools/models; deep-mode budgets and execution are unchanged.
+
+<a id="tri-11"></a>
+
+### TRI-11 — Expose honest diagnostic-read budget accounting
+
+**Priority:** High / measurement. **Triage-only proposal:** Separately record mandatory `get_time`, screening, optional manual reads, other research tools and model questions. Six research calls can mean five after time and four after simulator manual retrieval.
+
+**Acceptance / rejection test:** Do not hide `get_time` in line-screening counters; any changed allowance must be explicit, measured and triage-only.
+
+<a id="tri-32"></a>
+
+### TRI-32 — Score actual diagnostic evidence rather than tool-call names
+
+**Priority:** High / evaluation integrity. **Triage-only proposal:** `evaluation/scoring.py` currently uses evaluator-only `Relevant.met_by(tool,args,machine)` and thus counts a matching read request as relevant evidence even when its result was empty, outside the onset window, unqualified, unavailable, duplicate or invisible to the model. Add evaluator-only packet scoring based on returned observation IDs, actual sensor/coverage/time validity, independent source families and contrasting observations; separate evidence misses, ambiguity and reasoning misses. Keep hidden truth out of runtime providers.
+
+**Acceptance / rejection test:** Empty/out-of-time windows and duplicate representations never earn independent evidence credit; source-linked, prompt-visible distinguishing samples do. Pair initial 13 known-answer cases with separate held-out normal, decoy, wrong-machine, missing/blackout and compound variants; retain old scoreboard compatibility.
 
 ## Sequencing and mandatory acceptance
 
