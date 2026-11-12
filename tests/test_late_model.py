@@ -1,9 +1,9 @@
-"""LATE_MODEL: decide goes to another model at the end of the decide phase.
+"""LATE_MODEL: opt-in late routing for decide and conclude.
 
-Late means a decide question with less than LATE_MODEL_SECONDS left. Every
-other question, the conclusion included, keeps its own model. The late model's
-thinking is off by default (NVIDIA only). No test touches the network or a
-real key.
+Late means a question with less than LATE_MODEL_SECONDS left. Decide can
+switch when LATE_MODEL is set; conclude switches only with LATE_CONCLUDE on.
+The late model's thinking is off by default (NVIDIA only). No test touches
+the network or a real key.
 """
 
 import json
@@ -38,6 +38,7 @@ CLEARED = (
     "FALLBACK_MODEL",
     "DECIDE_REASONING_EFFORT",
     "LATE_MODEL",
+    "LATE_CONCLUDE",
     "LATE_MODEL_SECONDS",
     "LATE_MODEL_REASONING_BUDGET",
     "LATE_MODEL_THINKING",
@@ -80,12 +81,24 @@ STOP = {
     "stop_reason": "evidence_sufficient",
     "information_needed": "x",
 }
+CONCLUDED = {
+    "conclusion": {
+        "diagnosis": "the cause remains uncertain",
+        "confidence": 0.4,
+        "recommendation": "escalate",
+        "assessment": "unresolved",
+    }
+}
 
 
-def policy(late=True, seconds=60.0):
-    clients = {job: FakeModel("own", STOP) for job in JOBS}
+def policy(late=True, seconds=60.0, conclude_late=False):
+    clients = {
+        job: FakeModel("own", CONCLUDED if job == "conclude" else STOP) for job in JOBS
+    }
     if late:
         clients |= {late_key(job): FakeModel("late", STOP) for job in LATE_JOBS}
+    if conclude_late:
+        clients[late_key("conclude")] = FakeModel("late", CONCLUDED)
     return ModelPolicy(clients, research_tools(), late_seconds=seconds)
 
 
@@ -99,6 +112,7 @@ def state(left=None, reason=None):
 def test_the_switch_is_off_by_default():
     configured = settings()
     assert configured.late_model is None
+    assert configured.late_conclude is False
     assert configured.late_model_seconds == 60.0
     assert late_clients(configured) == {}
 
@@ -116,6 +130,25 @@ def test_late_clients_ask_the_late_model_then_the_shared_fallback():
             "nvidia/nemotron-3.5-lightning-30b-a3b",
             "command-a-03-2025",
         ]
+
+
+def test_late_conclusion_uses_the_same_model_fallback_and_thinking():
+    clients = late_clients(settings(LATE_MODEL=LIGHTNING, LATE_CONCLUDE="on"))
+    assert set(clients) == {"decide@late", "conclude@late"}
+    for client in clients.values():
+        assert [c.model for c in client.clients] == [
+            "nvidia/nemotron-3.5-lightning-30b-a3b",
+            "command-a-03-2025",
+        ]
+        assert client.clients[0].thinking_fields == {
+            "chat_template_kwargs": {"enable_thinking": False}
+        }
+        assert client.clients[1].thinking_fields is None
+
+
+def test_late_conclusion_requires_a_configured_late_model():
+    with pytest.raises(ValueError, match="LATE_CONCLUDE requires LATE_MODEL"):
+        late_clients(settings(LATE_CONCLUDE="on"))
 
 
 def test_the_late_model_is_never_sent_the_decide_reasoning_effort():
@@ -144,6 +177,15 @@ def test_the_conclusion_never_switches_even_after_a_timeout():
     p = policy()
     late_state = state(left=5.0, reason=TerminationReason.TIMEOUT)
     assert p.client_for("conclude", late_state) is p.clients["conclude"]
+
+
+@pytest.mark.parametrize(
+    ("left", "late"), [(59.9, True), (5.0, True), (60.0, False), (None, False)]
+)
+def test_conclusion_switches_only_when_enabled_and_under_threshold(left, late):
+    p = policy(conclude_late=True)
+    chosen = p.client_for("conclude", state(left=left))
+    assert chosen is p.clients["conclude@late" if late else "conclude"]
 
 
 @pytest.mark.parametrize("job", [j for j in JOBS if j not in LATE_JOBS])
@@ -175,6 +217,17 @@ def test_an_early_decide_still_asks_its_own_model():
     assert p.clients["decide@late"].asked == 0
 
 
+def test_late_conclusion_is_asked_and_recorded_as_the_late_model():
+    p = policy(conclude_late=True)
+    conclusion, action = p.conclude(state(left=20.0))
+    assert conclusion.diagnosis == "the cause remains uncertain"
+    assert action is None
+    assert p.clients["conclude@late"].asked == 1
+    assert p.clients["conclude"].asked == 0
+    assert p.calls[-1].job == "conclude"
+    assert p.calls[-1].answered_by == "late"
+
+
 def test_the_run_header_names_the_late_model_only_when_set():
     assert not any("late-run" in line for line in run_header(settings(), manual=None))
     lines = run_header(settings(LATE_MODEL=LIGHTNING), manual=None)
@@ -193,6 +246,8 @@ def test_the_run_header_names_the_late_model_only_when_set():
         "thinking on, budget 512 tokens" in line
         for line in run_header(budget, manual=None)
     )
+    lines = run_header(settings(LATE_MODEL=LIGHTNING, LATE_CONCLUDE="on"), manual=None)
+    assert any("late conclude" in line and "under 60 s" in line for line in lines)
 
 
 def test_thinking_is_off_by_default_and_sent_to_nvidia_only():
