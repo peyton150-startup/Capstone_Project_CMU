@@ -4,6 +4,8 @@
 
 **New measured evidence (2026-11-12):** [A0 live-model baseline: 26 cases, latency/coverage, unsafe KA-09 no-action](benchmarks/2026-11-12-triage-a0.md). This is experimental evidence and does not implement any proposed TRI item.
 
+**Algorithm-first LLM replacement research (2026-11-12):** [Code-audited, source-cited ranked synthesis of all five research passes](TRIAGE_ALGORITHM_FIRST_RESEARCH_20261112.md). Its 36 ranked methods/alternatives are **not 36 new backlog items**. The 31 active IDs, exactly three MEDIUM, three-stage Siemens boundaries, frozen A0 and existing A1–A4 ablations remain authoritative. [PR #246](https://github.com/peyton150-startup/Capstone_Project_CMU/pull/246) is reviewed as a separate **open/unmerged code PR** at this source-audit point; do not mark its clearance fixes implemented on main.
+
 **Merge preparation:** Reconciled with current `main` documentation on 2026-11-12, retaining subsequent progress entries; runtime code remains untouched.
 
 ## Hard scope boundary
@@ -56,6 +58,20 @@
 | [TRI-26](#tri-26) | Medium / conditional | Comparable own-machine operating reference windows |
 | [TRI-35](#tri-35) | Medium / conditional | Selective batch, job-route and quality context |
 
+## Algorithm-first triage: highest-signal replacement tracks (no new TRI IDs)
+
+The [research appendix](TRIAGE_ALGORITHM_FIRST_RESEARCH_20261112.md) code-audits `ModelPolicy.plan/decide/interpret/interpret_and_decide/hypothesize/conclude`, `ReasoningPolicy`, `run_inner_loop`, `gather`, screening, recorded-data capabilities, the A0 trace and **open PR #246**. It links primary MIT, Berkeley, Stanford, CMU, Cornell, UCR, TRACTIAN and manufacturing-inspection sources, with assumption and data-fidelity cautions.
+
+| Sequence | Algorithmic ownership goal | Existing active work item | Decision and gate |
+|---|---|---|---|
+| **0 — correctness** | Executable question satisfaction; relevant physical source roots and unresolved rival checks; independent expected-machine roster for supported `no_action` | TRI-02/03/04/21/22/33 | **Before** performance claims; augment PR #246 acceptance rather than duplicate its implementation |
+| **1 — quality** | Typed qualified incident packet + valid, constrained tool arguments + true returned/visible-evidence scoring | TRI-05/06/07/08/11/17/23/31/32/33 | Existing budget, hidden-truth firewall, simulator and recorded-machine separate gates |
+| **2 — model call removal** | Python-generated standard `plan`, typed temporal `interpret`, contingent Python `decide` and bounded fallback to original LLM | TRI-13/14/16/19/20/21/34 | Separate **B** experiment arms; **not** a silent replacement for existing A1 hypotheses-first or A2 batching |
+| **3 — optional causal engines** | Validated fault signatures, support/conflict matrix and bounded MIT-style consistency-based candidate generation for single and simultaneous faults | TRI-04/18/20/22/34 | **Offline first**, unknown fault retained; not full model-based physics diagnosis without validated system constraints |
+| **4 — data-dependent ML** | Tree, logistic/forest, numeric kNN or detector alternatives only after representative labeled or well-sampled telemetry | TRI-18/19/25/26/27/35 (conditional) | Beat transparent Python baseline on held-out seeds, unseen machines, decoys, missing/compound faults; no blanket neural-network upgrade |
+
+**Scope/priority preservation:** This table refines existing items; it does **not** activate retired TRI-24/28/29/30 or create additional MEDIUM items. Monitor/anomaly score integration (TRI-27) remains a separately measured **shadow-mode** experiment. Do not copy TRACTIAN's proprietary/large distributed inference infrastructure or claim its self-reported JANUS five-case benchmark validates this capstone.
+
 ## Detailed implementation and adoption requirements
 
 <a id="tri-01"></a>
@@ -75,6 +91,9 @@
 **Priority:** High / correctness. **Triage-only proposal:** In triage completion, require qualified relevant normal-operation evidence before supported `no_action`. An incidental `get_time` or citation alone is not proof of health.
 
 **Acceptance / rejection test:** Block timestamp-only supported no-action; allow genuinely supported healthy observations, even with no generated fault hypotheses.
+
+
+**Algorithm-first cross-reference (2026-11-12):** [PR #246](https://github.com/peyton150-startup/Capstone_Project_CMU/pull/246) is an OPEN/UNMERGED triage-only fix for no-hypothesis and simulator screening coverage. Review its exact safety behavior rather than build a competing guard. An omitted **non-alarmed** machine is not necessarily identified from the returned screening map: require comparison with a validated independent expected-machine roster, plus quality/cutoff and unanswered rival checks. Reconcile legitimate benign `no_action` cases with the PR's more conservative no-hypothesis rule before adoption. See [source-audited research](TRIAGE_ALGORITHM_FIRST_RESEARCH_20261112.md).
 
 <a id="tri-03"></a>
 
@@ -170,6 +189,9 @@
 
 **Acceptance / rejection test:** A1 versus unchanged A0 improves hypothesis coverage and safe diagnostic utility without raising p95 or false no-action.
 
+
+**Algorithm-first cross-reference (2026-11-12):** Add a separate **Python question-template `plan()` replacement experiment** for known triage symptoms (with unknown/novel fallback). This is **not** the existing model hypotheses-first A1; do not compare them as one variable or change the deep graph. Generate questions containing required observable channel/state/window and explicit `unknown`. See [source-audited research](TRIAGE_ALGORITHM_FIRST_RESEARCH_20261112.md).
+
 <a id="tri-14"></a>
 
 ### TRI-14 — Route hypotheses-first triage through the graph
@@ -194,6 +216,9 @@
 
 **Acceptance / rejection test:** Increase fraction of relevant read results understood within deadline, not merely number of calls completed.
 
+
+**Algorithm-first cross-reference (2026-11-12):** Add a **typed, numerical/temporal `interpret()` reduction experiment**: compute window features and question true/false/insufficient/unavailable in Python, retain model for unresolved causality, log which model `interpret_and_decide` calls were avoided and every retained evidence ID. Do not count fewer calls as success if evidence understanding or correct diagnoses degrade. See [source-audited research](TRIAGE_ALGORITHM_FIRST_RESEARCH_20261112.md).
+
 <a id="tri-17"></a>
 
 ### TRI-17 — Build an opt-in compact triage evidence packet
@@ -214,6 +239,9 @@
 
 **Code audit reinforcement:** `capstone/faults.py` defines evaluator-only relevant evidence for bearing (vibration/temperature/events), wrong setting (settings/inspections/vibration), bad batch (inspections/events/job route), servo (following error/events/inspections) and hydraulic (pressure/events/inspections); those definitions are testing oracle data, not allowed live selector lookups. Build signatures from disjoint training outcomes, not these hard-coded answers; include never-seen fault pair as unknown.
 
+
+**Algorithm-first cross-reference (2026-11-12):** Evaluate **MIT consistency/conflict-directed diagnosis** *offline* over validated physical constraints and bounded 0/1/2-fault candidates, alongside signature/pairwise isolability. Existing ToT ranks model-proposed candidates; it is not a physical consistency solver. Require unknown-fault state and held-out multi-fault/decoy tests; do not discard candidates when the model is incomplete. Reference: [MIT model-based diagnosis](https://web.mit.edu/16.410/www/lectures_fall04/L21_model-based_diagnosis.pdf). See [source-audited research](TRIAGE_ALGORITHM_FIRST_RESEARCH_20261112.md).
+
 <a id="tri-19"></a>
 
 ### TRI-19 — Rank eligible reads by deterministic diagnostic value
@@ -223,6 +251,9 @@
 **Acceptance / rejection test:** A3/A4 must beat A2, not just A0; no fabricated information gain probabilities; stable deterministic ties incl. `None` machine IDs.
 
 **Code audit reinforcement:** `agent/model_policy.py:render` already sorts open questions by number of current hypotheses distinguished, signal reliability and estimated calls, but those questions are model generated **after** early collection. For opt-in Python triage selection, use earlier observable scores and qualified fixed heuristics before any LLM question. Initially compare with fixed order; expected information gain requires measured probabilities and remains out of this active plan.
+
+
+**Algorithm-first cross-reference (2026-11-12):** Prototype **Stanford-style constraint-aware request templates** and **MIT-style contingent conditional checks** before any general solver or learned policy. An executable selector should rank *eligible* read calls against competing candidates and validate schema, capability, row limits, source quality and budget. Use a separate Python-first B-arm after A3 advisory/A4 executive; no fake information-gain probabilities. References: [Stanford CS221 CSP](https://stanford.edu/~shervine/teaching/cs-221/cheatsheet-variables-models/), [MIT planning](https://ocw.mit.edu/courses/16-410-principles-of-autonomy-and-decision-making-fall-2010/pages/lecture-notes/), [sequential manufacturing inspection](https://doi.org/10.3390/s21227524). See [source-audited research](TRIAGE_ALGORITHM_FIRST_RESEARCH_20261112.md).
 
 <a id="tri-20"></a>
 
@@ -241,6 +272,9 @@
 **Acceptance / rejection test:** Fresh/repaired/expanded or changed-state windows remain eligible; stale or failed tool calls confer no coverage.
 
 **Code audit reinforcement:** The existing `IncidentContext` stores one ID per tool and summary IDs keyed only by machine; a selector reading several sensors/windows on one machine needs `(machine, sensor, physical_root, window, cutoff)` keys or it will collapse distinct observations. The first `get_time` and `get_line_screening` readings and later snapshots are not automatically the same as trigger-time data.
+
+
+**Algorithm-first cross-reference (2026-11-12):** Add an executable **temporal question-satisfaction evaluator** (Berkeley STL-inspired): a successful `gather(question_id)` response currently removes the question even if its measurements cannot answer it. Track `answered_true/answered_false/insufficient/unavailable/stale`, with valid sensor state, minimum sample coverage, time/data-cutoff, expected machine/source and persistence. Do **not** treat missing samples as false or normal. References: [Berkeley partial-trace monitoring](https://escholarship.org/uc/item/5dw5k0xp), [EECS149 STL lecture](https://ptolemy.berkeley.edu/projects/chess/eecs149/lectures/RuntimeMonitoring_STL.pdf). See [source-audited research](TRIAGE_ALGORITHM_FIRST_RESEARCH_20261112.md).
 
 <a id="tri-22"></a>
 
@@ -309,6 +343,9 @@
 **Priority:** High / screening fidelity. **Triage-only proposal:** `tools/screening.py:screen_machine` already computes `window_readings`, window start/end, `reference_median`, warm-up stage and both scores, but `compact()` drops most of that metadata for the LLM. Provide a bounded internal detailed-screening view to the selector without changing the current compact tool output by default; preserve physical root, baseline identity and `not_running_yet`, `too_few_running_readings`, `no_reference` or `feed_unavailable` rather than declaring a machine normal.
 
 **Acceptance / rejection test:** Selector sees what period and eligible operating condition the deviation covers; LLM gets only concise source-cited results without prompt explosion. Existing compact-screening regression tests remain unchanged; no hidden truth.
+
+
+**Algorithm-first cross-reference (2026-11-12):** A richer internal screening packet must also compare the **returned** machine set against an **independently validated expected roster** before any claim of complete line coverage. Avoid relying solely on keys returned by `get_line_screening`; this remains an incremental acceptance finding relative to open PR #246, not a claimed test failure. See [source-audited research](TRIAGE_ALGORITHM_FIRST_RESEARCH_20261112.md).
 
 <a id="tri-34"></a>
 
