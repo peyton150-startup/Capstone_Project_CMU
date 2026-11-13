@@ -56,10 +56,6 @@ def is_cleared(conclusion):
 # --- Conclusion: when may a triage say "supported, nothing needs doing"? -----
 
 
-@pytest.mark.xfail(
-    strict=True,
-    reason=f"TRI-02: a timestamp is not proof of health; fix in {CONCLUDE_BRANCH}",
-)
 def test_a_triage_cannot_clear_on_a_timestamp_alone():
     # E1 is `get_time`: observable, so today's "cites no observable
     # evidence" gap does not fire, and the alarm is cleared on a clock read.
@@ -76,10 +72,6 @@ def test_a_triage_citing_a_full_screening_may_still_clear():
     assert is_cleared(checked)
 
 
-@pytest.mark.xfail(
-    strict=True,
-    reason=f"TRI-22/TRI-33: screening checked against no roster; fix in {CONCLUDE_BRANCH}",
-)
 def test_a_triage_cannot_clear_when_the_screening_omits_a_machine_on_the_roster():
     # The line has three machines (`list_machines`), the screening lists two.
     # `unscored_machines` only sees machines the screening itself names, so a
@@ -95,10 +87,6 @@ def test_a_triage_cannot_clear_when_the_screening_omits_a_machine_on_the_roster(
     assert not is_cleared(checked)
 
 
-@pytest.mark.xfail(
-    strict=True,
-    reason=f"TRI-21/TRI-33: screening age is not checked; fix in {CONCLUDE_BRANCH}",
-)
 def test_a_triage_cannot_clear_on_a_screening_read_before_the_alarm():
     # The screening (E2) was read at tick 10; the alarm being cleared fired at
     # tick 200. A screening from before the alarm cannot show the line after it.
@@ -136,7 +124,7 @@ def ka09_like_state():
 
 @pytest.mark.xfail(
     strict=True,
-    reason=f"TRI-02/TRI-03 KA-09: open rival question ignored; fix in {CONCLUDE_BRANCH}",
+    reason=f"TRI-02/TRI-03 KA-09: open rival question ignored; fix in {TEST_BRANCH}",
 )
 def test_a_triage_cannot_clear_while_a_rival_separating_question_is_open():
     state = ka09_like_state()
