@@ -18,6 +18,7 @@ def make_recorded_state(
     budgets: Budgets | None,
     stage_context: bool,
     state_action_bar: bool,
+    triage_packet: bool = False,
 ) -> InvestigationState:
     """Make a triage-only state for evidence review, never a repair workflow."""
     # Variables:
@@ -25,6 +26,8 @@ def make_recorded_state(
     #   tick: The recorded cutoff on the replay provider's time axis.
     #   budgets: The operator's finite review budget or a short triage default.
     #   stage_context: Whether the policy uses the project's stage-specific views.
+    #   triage_packet: TRIAGE_PACKET; the packet then records the screening as
+    #     missing (no verified healthy reference), never as normal.
     return InvestigationState(
         run_id=run_id,
         investigation_id=investigation_id_for(run_id, 1),
@@ -37,6 +40,7 @@ def make_recorded_state(
         budgets=budgets or triage_budgets(),
         mode="triage",
         line_context_enabled=False,
+        triage_packet_enabled=triage_packet,
         stage_context=stage_context,
         state_action_bar=state_action_bar,
     )

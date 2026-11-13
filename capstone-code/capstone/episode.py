@@ -479,7 +479,10 @@ def run_triage_then_deep(
     #   first.line_context_enabled: Copied to the deep run, which builds a fresh
     #     line-wide packet rather than reusing the triage's.
     #   first.stage_context: Copied to the deep run, so both use the same views.
+    #   first.triage_packet_enabled: TRIAGE_PACKET, set on the triage only; the
+    #     deep run is made without it and never builds a packet.
     first.mode = "triage"
+    first.triage_packet_enabled = settings.triage_packet
     first.budgets = triage_budgets(settings.triage_seconds, settings.triage_tool_calls)
     started = deps.clock()
     # The hypothesis reserve is for the deep run: the triage's short window

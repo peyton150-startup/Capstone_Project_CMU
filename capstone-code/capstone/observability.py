@@ -10,6 +10,7 @@ from the API. Event names and IDs must be identifiers, never free-form text.
 import json
 import logging
 import re
+from collections.abc import Mapping
 from typing import TextIO
 
 _IDENTIFIER = re.compile(r"[A-Za-z0-9][A-Za-z0-9_.:-]{0,127}\Z")
@@ -48,6 +49,7 @@ class EventLogger:
         tick: int | None = None,
         tool: str | None = None,
         success: bool | None = None,
+        counts: Mapping[str, int] | None = None,
     ) -> None:
         """Emit one event; omitted context stays absent and no clock is inferred.
 
@@ -58,7 +60,10 @@ class EventLogger:
         #   event: A short identifier naming what happened, never free text.
         #   metadata: The only fields that are logged, each checked as an identifier or
         #     number.
-        metadata: dict[str, str | int | bool] = {
+        #   counts: Optional named tallies (for example how many calls failed); each
+        #     key is checked as an identifier and each value as a nonnegative integer,
+        #     so no evidence text can be logged through it.
+        metadata: dict[str, str | int | bool | dict[str, int]] = {
             "event": _safe_identifier(event, "event")
         }
         for field, value in (
@@ -76,6 +81,13 @@ class EventLogger:
             if type(success) is not bool:
                 raise ValueError("success must be a boolean")
             metadata["success"] = success
+        if counts is not None:
+            checked: dict[str, int] = {}
+            for key, value in counts.items():
+                if type(value) is not int or value < 0:
+                    raise ValueError("counts must be nonnegative integers")
+                checked[_safe_identifier(key, "counts key")] = value
+            metadata["counts"] = checked
         self._logger.info(json.dumps(metadata, separators=(",", ":")))
 
 

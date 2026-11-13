@@ -190,6 +190,7 @@ def run_recorded_investigation(
         budgets=budgets,
         stage_context=settings.stage_context,
         state_action_bar=settings.state_action_bar,
+        triage_packet=settings.triage_packet,
     )
     step_questions = (
         settings.step_questions

@@ -54,6 +54,7 @@ from capstone.contracts.provenance import (
     ProvenanceReference,
 )
 from capstone.contracts.tools import ToolError, ToolRequest, ToolResult
+from capstone.observability import EventLogger
 from capstone.providers.chat import ModelError
 from capstone.providers.factory import FactoryProvider
 
@@ -147,6 +148,10 @@ class InvestigationDeps:
     # It uses the critic's own window. Off: pruned candidates are only shown to
     # the critique later, as before. Needs a critic.
     critic_reinstate: bool = False
+    # Opt-in structured logging (`capstone.observability`): identifiers and
+    # counts only, never evidence text. Used by the triage evidence packet.
+    # None: nothing is logged.
+    event_logger: EventLogger | None = None
 
     def __post_init__(self) -> None:
         if self.step_questions not in (1, 2):

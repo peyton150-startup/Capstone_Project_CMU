@@ -83,6 +83,7 @@ from capstone.agent.state import (
     PrunedCandidate,
     Question,
 )
+from capstone.agent.triage_packet import build_triage_packet, log_packet
 from capstone.contracts.hypotheses import Hypothesis
 from capstone.contracts.tools import ToolRequest
 from capstone.providers.chat import ModelError
@@ -131,27 +132,38 @@ def observe(state: InvestigationState, deps: InvestigationDeps) -> None:
     #     screening's call goes to its own allowance and not to research.
     #   state.line_context_enabled: Whether this comparison arm gathers the
     #     bounded observable packet before the manual and plan stages.
+    #   packet: True only in a triage with TRIAGE_PACKET on; then the qualified
+    #     evidence packet replaces the line context. Always False on a deep run.
+    #   time_evidence, screening_evidence: The two mandatory answers, kept so
+    #     the packet can qualify them without asking again.
     if state.started_at is None:
         state.started_at = deps.clock()
     step = CallTool(
         information_needed="the current factory time",
         request=ToolRequest(name="get_time"),
     )
-    gather(state, deps, "observe", step, interpret=False)
+    time_evidence = gather(state, deps, "observe", step, interpret=False)
     # That call was made before the tick was known. Note it under the tick
     # it reported too, so asking the time again straight away is a repeat.
     state.seen_calls.append(call_signature(step.request, state.last_tick))
     # A real capture has no verified healthy-line reference. Skip screening
     # entirely; offering a simulator score here would invent real evidence.
+    screening_evidence = None
     if deps.screening_available:
         screen = CallTool(
             information_needed="every machine's recent running readings against a healthy line",
             request=ToolRequest(name="get_line_screening"),
         )
         calls_before = state.tool_call_count
-        gather(state, deps, "observe", screen, interpret=False)
+        screening_evidence = gather(state, deps, "observe", screen, interpret=False)
         state.screening_tool_calls_used += state.tool_call_count - calls_before
-    if state.line_context_enabled:
+    packet = state.mode == "triage" and state.triage_packet_enabled
+    if packet:
+        state.triage_packet = build_triage_packet(
+            state, deps, time_evidence, screening_evidence
+        )
+        log_packet(state, deps, state.triage_packet)
+    elif state.line_context_enabled:
         assemble_incident_context(state, deps)
 
 
