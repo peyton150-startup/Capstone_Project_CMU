@@ -149,6 +149,7 @@ GROUPS: dict[str, list[str]] = {
         "triage",
         "triage_evidence_packet",
         "triage_safety_baseline",
+        "triage_evidence_tests",
     ],
     # The line screening against everything around it (PR 202, not merged).
     "Detector side effects": ["detector_side_effects"],

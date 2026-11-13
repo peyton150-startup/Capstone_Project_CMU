@@ -26,7 +26,7 @@ from collections.abc import Callable, Sequence
 
 from capstone.agent.evidence_packet import EvidencePacket
 from capstone.agent.policy import ReasoningPolicy
-from capstone.agent.state import DecisionRecord, InvestigationState
+from capstone.agent.state import DecisionRecord, InvestigationState, TriageTestRecord
 from capstone.console import safe_console
 from capstone.episode import (
     SCENARIO_KINDS,
@@ -52,6 +52,24 @@ TOP_BELIEFS = 3
 
 # The most missing items the packet line names; the rest are counted.
 MAX_PACKET_MISSING = 8
+
+
+def evidence_test_line(record: TriageTestRecord) -> str:
+    """One TRIAGE_EVIDENCE_TESTS record as a line: what the triage rule did."""
+    # Variables:
+    #   parts: The record's kind, then whichever of its fields are set.
+    parts = [f"EVIDENCE TEST {record.kind}"]
+    if record.hypothesis_id:
+        parts.append(f"hypothesis {record.hypothesis_id}")
+    if record.question_ids:
+        parts.append(f"question {', '.join(record.question_ids)}")
+    if record.roots:
+        parts.append(f"sources {', '.join(record.roots)}")
+    if record.verdict:
+        parts.append(f"verdict {record.verdict}")
+    if record.reason:
+        parts.append(shorten(record.reason, 120))
+    return "; ".join(parts)
 
 
 def print_progress(line: str) -> None:
@@ -197,6 +215,8 @@ class ProgressView:
         #   critique: The critic's record last printed.
         #   recheck: The critic follow-up's record last printed.
         #   packet_shown: Whether the triage evidence packet has been printed.
+        #   tests_shown: How many TRIAGE_EVIDENCE_TESTS records were printed,
+        #     so each is shown once.
         self.write = write
         self.started = False
         self.decisions_shown = 0
@@ -208,6 +228,7 @@ class ProgressView:
         self.critique = None
         self.recheck = None
         self.packet_shown = False
+        self.tests_shown = 0
 
     def __call__(self, state: InvestigationState) -> None:
         # Variables:
@@ -230,6 +251,9 @@ class ProgressView:
             self.packet_shown = True
             for line in packet_lines(state.triage_packet):
                 self.write(line)
+        for record in state.triage_test_records[self.tests_shown :]:
+            self.write(evidence_test_line(record))
+        self.tests_shown = len(state.triage_test_records)
         self._beliefs(state)
         self._pruned(state)
         self._critique(state)

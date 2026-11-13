@@ -30,6 +30,12 @@ from typing import TypeVar
 from capstone.agent.artifacts import ProposalRecord, TerminationReason
 from capstone.agent.critic import Critic
 from capstone.agent.evidence_brief import verify_numeric_claims
+from capstone.agent.evidence_tests import (
+    evaluate,
+    note,
+    open_rival_questions,
+    source_roots,
+)
 from capstone.agent.policy import (
     CallTool,
     CallTools,
@@ -46,6 +52,7 @@ from capstone.agent.state import (
     InvestigationState,
     Phase,
     StepOutcome,
+    TriageTestRecord,
 )
 from capstone.contracts.evidence import Evidence
 from capstone.contracts.provenance import (
@@ -152,6 +159,12 @@ class InvestigationDeps:
     # counts only, never evidence text. Used by the triage evidence packet.
     # None: nothing is logged.
     event_logger: EventLogger | None = None
+    # Block 3 (TRIAGE_EVIDENCE_TESTS), triage only, on by default: support is
+    # counted by physical sensor, an open rival question keeps a diagnosis
+    # unsupported, and a question with a predicate closes only on a measured
+    # verdict (`agent.evidence_tests`). Never read on a deep run. False gives
+    # the old triage rules, for comparison.
+    triage_evidence_tests: bool = True
 
     def __post_init__(self) -> None:
         if self.step_questions not in (1, 2):
@@ -217,13 +230,18 @@ def diagnosis_supported(state: InvestigationState, deps: InvestigationDeps) -> b
     #     still tests one.
     #   observed: Ids of evidence the factory answered, from the loop's provenance.
     #   backed: How many of the leading explanation's supporters are observed.
+    #   supported: Today's rule, which a deep run and an old-rules triage return.
+    #   rivals: Triage only: open questions with no live primary hypothesis
+    #     that still separate live explanations (TRI-03).
+    #   roots: Triage only: the independent sources behind the observed
+    #     supporters; two views of one sensor are one source (TRI-04).
     leading = state.leading_hypothesis
     current = {h.id for h in state.hypotheses}
     observed = {p.evidence_id for p in state.provenance if p.origin == "observable"}
     backed = (
         0 if leading is None else len(set(leading.supporting_evidence_ids) & observed)
     )
-    return (
+    supported = (
         leading is not None
         and leading.confidence >= deps.min_diagnosis_confidence
         and backed >= deps.min_supporting_evidence
@@ -232,6 +250,42 @@ def diagnosis_supported(state: InvestigationState, deps: InvestigationDeps) -> b
         and not verify_numeric_claims(state, leading.numeric_claims)
         and not any(q.hypothesis_id in current for q in state.unanswered_questions)
     )
+    if not supported or state.mode != "triage" or not deps.triage_evidence_tests:
+        return supported
+    # Triage only (TRI-03, TRI-04): the old rule said supported; check the two
+    # ways it can be fooled, and record each time one withholds support.
+    rivals = open_rival_questions(state, current)
+    if rivals:
+        note(
+            state,
+            TriageTestRecord(
+                kind="support_withheld_rival_question",
+                stage=state.stage,
+                tick=state.last_tick,
+                hypothesis_id=leading.id,
+                question_ids=tuple(q.id for q in rivals),
+                reason="an open question still separates live explanations",
+            ),
+        )
+        return False
+    roots = source_roots(state, set(leading.supporting_evidence_ids) & observed)
+    if len(roots) < deps.min_supporting_evidence:
+        note(
+            state,
+            TriageTestRecord(
+                kind="support_withheld_shared_root",
+                stage=state.stage,
+                tick=state.last_tick,
+                hypothesis_id=leading.id,
+                roots=roots,
+                evidence_ids=tuple(
+                    sorted(set(leading.supporting_evidence_ids) & observed)
+                ),
+                reason=f"{backed} supporters from {len(roots)} independent source(s)",
+            ),
+        )
+        return False
+    return True
 
 
 def confidence_stalled(state: InvestigationState, deps: InvestigationDeps) -> bool:
@@ -521,6 +575,41 @@ def call_signature(request: ToolRequest, tick: int | None) -> str:
     )
 
 
+def question_held_open(
+    state: InvestigationState, deps: InvestigationDeps, question_id: str
+) -> bool:
+    """Triage only: True when a question's predicate is not settled by the evidence.
+
+    A question without a predicate, a deep run, or the old triage rules close
+    the question on any successful answer, as before. With a predicate, only
+    a "true" or "false" verdict closes it; insufficient, stale or unavailable
+    data keeps it open. Either way the verdict is recorded for tracing.
+    """
+    # Variables:
+    #   predicate: The measurable condition a planner attached to the question.
+    #   result: The evaluator's verdict on everything observed so far.
+    #   settled: Whether the verdict is a measured true or false.
+    predicate = state.question_predicates.get(question_id)
+    if predicate is None or state.mode != "triage" or not deps.triage_evidence_tests:
+        return False
+    result = evaluate(predicate, state)
+    settled = result.verdict in ("true", "false")
+    note(
+        state,
+        TriageTestRecord(
+            kind="question_closed" if settled else "question_kept_open",
+            stage=state.stage,
+            tick=state.last_tick,
+            question_ids=(question_id,),
+            roots=(f"{predicate.machine_id}:{predicate.sensor}",),
+            verdict=result.verdict,
+            reason=result.reason,
+            evidence_ids=result.evidence_ids,
+        ),
+    )
+    return not settled
+
+
 def gather(
     state: InvestigationState,
     deps: InvestigationDeps,
@@ -545,6 +634,8 @@ def gather(
     #   evidence: The answer saved as a new piece of evidence, numbered E1, E2 and so
     #     on.
     #   critic_check: The controller's bounded read, excluded from research call usage.
+    #   question_held_open: Triage only; True keeps an answered question open
+    #     because its predicate's verdict is not a measured true or false.
     signature = call_signature(step.request, state.last_tick)
     if signature in state.seen_calls:
         # Looking is free in the simulator, so the same question at the same
@@ -609,9 +700,10 @@ def gather(
     )
     if step.question_id is not None:
         state.answers.setdefault(step.question_id, []).append(evidence.id)
-        state.unanswered_questions = [
-            q for q in state.unanswered_questions if q.id != step.question_id
-        ]
+        if not question_held_open(state, deps, step.question_id):
+            state.unanswered_questions = [
+                q for q in state.unanswered_questions if q.id != step.question_id
+            ]
     if interpret:
         try:
             apply_interpretation(

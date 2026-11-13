@@ -34,7 +34,8 @@ from tests.test_episode import SEED, wear_policy
 from tests.test_triage import add_evidence, clear, clearance_state, gap_kinds
 
 CONCLUDE_BRANCH = "feature/triage-conclusion-gates"
-TEST_BRANCH = "feature/triage-evidence-tests"
+# feature/triage-evidence-tests (Block 3) fixed TRI-03, TRI-04 and the KA-09
+# rival-question clearance; their marks were removed there.
 
 
 def deps(**changes):
@@ -134,10 +135,6 @@ def ka09_like_state():
     return state
 
 
-@pytest.mark.xfail(
-    strict=True,
-    reason=f"TRI-02/TRI-03 KA-09: open rival question ignored; fix in {CONCLUDE_BRANCH}",
-)
 def test_a_triage_cannot_clear_while_a_rival_separating_question_is_open():
     state = ka09_like_state()
     checked = clear(state, evidence_ids=("E2",))
@@ -203,19 +200,11 @@ def test_two_different_sensors_support_a_triage_diagnosis():
     assert diagnosis_supported(state, deps()) is True
 
 
-@pytest.mark.xfail(
-    strict=True,
-    reason=f"TRI-03: rival question with null hypothesis_id ignored; fix in {TEST_BRANCH}",
-)
 def test_an_open_rival_question_keeps_a_triage_diagnosis_unsupported():
     state = supported_state("triage", second=OTHER_SENSOR, question=RIVAL_QUESTION)
     assert diagnosis_supported(state, deps()) is False
 
 
-@pytest.mark.xfail(
-    strict=True,
-    reason=f"TRI-04: two views of one sensor counted twice; fix in {TEST_BRANCH}",
-)
 def test_two_views_of_one_sensor_do_not_support_a_triage_diagnosis():
     # E2 summarises CNC-02 vibration and E3 is its raw readings: one physical
     # source, which today counts as the two supporters the bar asks for.
