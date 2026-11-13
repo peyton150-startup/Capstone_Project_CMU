@@ -60,6 +60,7 @@ from capstone.agent.critic import (
     RecheckRecord,
     ReinstatementRecord,
 )
+from capstone.agent.evidence_packet import EvidencePacket
 from capstone.agent.model_policy import ModelCall
 from capstone.agent.policy import ReasoningPolicy
 from capstone.agent.state import (
@@ -93,6 +94,7 @@ from capstone.evaluation.memory import (
 )
 from capstone.evaluation.scoring import COMPOUND, Score, format_summary, summarize
 from capstone.memory.service import MemoryService
+from capstone.observability import EventLogger, create_event_logger
 from capstone.progress import ProgressView, print_progress, run_header
 from capstone.providers.chat import INVALID_REPLY, is_model_outcome
 from capstone.providers.hazards import HazardProfile
@@ -282,6 +284,10 @@ class TriageRecord(BaseModel):
     assessment: str | None = None
     termination_reason: str | None = None
     tool_calls: int = 0
+    # The triage evidence packet (TRIAGE_PACKET): every item, missing reason
+    # and call outcome Observe recorded. None: no packet was built (and in
+    # records from before it was kept).
+    packet: EvidencePacket | None = None
     # Set by code from the conclusion: whether a deep run should follow, and
     # whether one did (TRIAGE_THEN_DEEP=off stops after the triage).
     deep_recommended: bool
@@ -475,6 +481,7 @@ def triage_record(result: EpisodeResult) -> TriageRecord | None:
     # Variables:
     #   first: The triage investigation.
     #   concluded: The triage's checked conclusion, if it reached one.
+    #   first.triage_packet: The Observe packet, kept whole for tracing.
     first = result.triage
     if first is None or result.triage_seconds is None:
         return None
@@ -490,6 +497,7 @@ def triage_record(result: EpisodeResult) -> TriageRecord | None:
             None if first.termination_reason is None else first.termination_reason.value
         ),
         tool_calls=first.tool_call_count,
+        packet=first.triage_packet,
         deep_recommended=bool(first.deep_recommended),
         deep_ran=result.state is not first,
     )
@@ -620,6 +628,7 @@ def run_experiment(
     make_critic: Callable[[], Critic] | None = None,
     triage: bool | None = None,
     stage_context: bool | None = None,
+    event_logger: EventLogger | None = None,
 ) -> list[ExperimentRecord]:
     """Run each case once with a fresh policy. `name` makes every run key unique.
 
@@ -648,6 +657,8 @@ def run_experiment(
     #   triage: Run a rapid triage before each deep run; None leaves it to settings.
     #   stage_context: Force the stage views on or off for every case; None leaves
     #     it to STAGE_CONTEXT in settings.
+    #   event_logger: Optional JSON-line trace shared by every case; each event
+    #     carries its run and investigation id, so cases can be told apart.
     #   records: One record per case, in order.
     #   run_key: A unique name for this case's run.
     #   policy: A fresh decision-maker, so no case learns from another's state.
@@ -681,6 +692,7 @@ def run_experiment(
             critic=None if make_critic is None else make_critic(),
             triage=triage,
             stage_context=stage_context,
+            event_logger=event_logger,
         )
         wall_seconds = clock() - started
         calls = getattr(policy, "calls", None)  # kept by ModelPolicy only
@@ -1337,6 +1349,9 @@ def main(argv: Sequence[str] | None = None) -> int:
     #     companion file unless --no-audit was given.
     #   args.triage: True with --triage, otherwise None so the TRIAGE setting
     #     decides; passed through to run_experiment.
+    #   packet_log, packet_logger: With --packet-log, the open trace file and the
+    #     JSON-line logger writing to it; each triage's evidence packet logs its
+    #     calls, missing items and counts there. None without the flag.
     #   triage_on: Whether this run triages; if so, every model is checked
     #     first (`preflight_models`) and the run does not start when none
     #     answers.
@@ -1407,6 +1422,15 @@ def main(argv: Sequence[str] | None = None) -> int:
         ),
     )
     run.add_argument(
+        "--packet-log",
+        type=Path,
+        default=None,
+        help=(
+            "append a JSON-line trace of each triage evidence packet (its calls, "
+            "missing items and counts; identifiers only, never evidence text)"
+        ),
+    )
+    run.add_argument(
         "--stage-context",
         choices=("on", "off"),
         default=None,
@@ -1462,6 +1486,12 @@ def main(argv: Sequence[str] | None = None) -> int:
         if audit_path == args.out:
             parser.error("audit and records paths must differ")
         log = AuditLog(audit_path) if audit_path else None
+        packet_log = (
+            None
+            if args.packet_log is None
+            else args.packet_log.open("a", encoding="utf-8")
+        )
+        packet_logger = None if packet_log is None else create_event_logger(packet_log)
 
         def live_line(line: str) -> None:
             # Variables:
@@ -1513,7 +1543,10 @@ def main(argv: Sequence[str] | None = None) -> int:
             watch=None if args.quiet else live_line,
             triage=args.triage,
             stage_context=wanted,
+            event_logger=packet_logger,
         )
+        if packet_log is not None:
+            packet_log.close()
         print(report(records, {}))
         wrong = stage_context_mismatches(records, wanted)
         if wrong:

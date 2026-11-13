@@ -272,7 +272,9 @@ def test_with_line_context_the_deep_run_gathers_its_own_packet(monkeypatch):
     result = run(triage_then_deep("intervene"), monkeypatch, triage=True)
     first, deep = result.triage, result.state
     assert first.line_context_enabled and deep.line_context_enabled
-    assert first.incident_context is not None
+    # The triage's evidence packet wins over line context (2026-11-13), so the
+    # triage builds its own packet and no line-context one.
+    assert first.triage_packet is not None and first.incident_context is None
     assert deep.incident_context is not None
     # Its own packet, gathered in the deep run, not the triage's carried over.
     assert deep.incident_context is not first.incident_context

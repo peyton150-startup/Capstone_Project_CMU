@@ -26,6 +26,7 @@ from capstone.agent.artifacts import (
     TerminationReason,
     VerificationCheck,
 )
+from capstone.agent.evidence_packet import EvidencePacket
 from capstone.contracts import Contract
 from capstone.contracts.evidence import Evidence
 from capstone.contracts.hypotheses import Hypothesis
@@ -311,6 +312,15 @@ class InvestigationState(BaseModel):
     # Opt-in comparison arm: gather bounded line context before planning.
     line_context_enabled: bool = False
     incident_context: IncidentContext | None = None
+    # TRIAGE_PACKET: in a triage only, Observe builds the qualified evidence
+    # packet (`agent.triage_packet`) instead of the line context. Ignored on a
+    # deep run, which never builds one. False here; the TRIAGE_PACKET setting
+    # (on by default) sets it on each triage.
+    triage_packet_enabled: bool = False
+    triage_packet: EvidencePacket | None = None
+    # TRIAGE_PACKET_PROMPT: show the packet's coverage in the triage's prompts.
+    # Set on each triage from the setting; a deep run never has a packet.
+    triage_packet_prompt: bool = False
     # The most tool calls one decide answer may list (DECIDE_CALLS). The loop
     # sets it; a policy reads it to know whether it may answer with a list.
     decide_calls: int = Field(default=1, ge=1, le=MAX_DECIDE_CALLS)
