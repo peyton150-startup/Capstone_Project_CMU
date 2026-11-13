@@ -440,7 +440,6 @@ def count_factory_calls(state) -> int:
         and d.tool not in NOT_FACTORY
         and d.outcome != "repeated_call"
         for d in state.decisions
-        report=first.triage_report,
     )
 
 
@@ -534,6 +533,7 @@ def triage_record(
         ),
         tool_calls=first.tool_call_count,
         packet=first.triage_packet,
+        report=first.triage_report,
         research_tool_calls=first.research_tool_calls,
         investigate_advice=list(first.investigate_advice),
         evidence_tests=evidence_tests,
