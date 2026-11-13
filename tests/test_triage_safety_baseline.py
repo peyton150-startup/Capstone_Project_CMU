@@ -22,8 +22,6 @@ Frozen baseline: main `0b0d3c4` (2026-11-13). See
 `docs/benchmarks/2026-11-13-triage-block0-freeze.md`.
 """
 
-import pytest
-
 from capstone.agent.investigation import needs_deep_run
 from capstone.agent.loop import InvestigationDeps, diagnosis_supported
 from capstone.agent.state import Question
