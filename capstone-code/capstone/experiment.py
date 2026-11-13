@@ -95,6 +95,7 @@ from capstone.evaluation.memory import (
     build_use_records,
 )
 from capstone.evaluation.scoring import COMPOUND, Score, format_summary, summarize
+from capstone.evaluation.triage_metrics import TriageMetrics, triage_metrics
 from capstone.memory.service import MemoryService
 from capstone.observability import EventLogger, create_event_logger
 from capstone.progress import ProgressView, print_progress, run_header
@@ -306,6 +307,9 @@ class TriageRecord(BaseModel):
     # whether one did (TRIAGE_THEN_DEEP=off stops after the triage).
     deep_recommended: bool
     deep_ran: bool
+    # Where the triage spent its model questions and what it gathered
+    # (`evaluation/triage_metrics.py`). None in records from before 2026-11-13.
+    metrics: TriageMetrics | None = None
 
 
 class ExperimentRecord(BaseModel):
@@ -490,11 +494,15 @@ def favoured_claim(state) -> str | None:
     return None if state.critique is None else state.critique.favoured_claim
 
 
-def triage_record(result: EpisodeResult) -> TriageRecord | None:
-    """The triage's answer and timing; None when triage was off."""
+def triage_record(
+    result: EpisodeResult, calls: Sequence[ModelCall] = ()
+) -> TriageRecord | None:
+    """The triage's answer, timing and stage metrics; None when triage was off."""
     # Variables:
     #   first: The triage investigation.
     #   concluded: The triage's checked conclusion, if it reached one.
+    #   calls: Every model question of the episode, triage and deep run;
+    #     `triage_metrics` keeps the triage's own by their recorded mode.
     #   first.triage_packet: The Observe packet, kept whole for tracing.
     #   first.research_tool_calls: Calls charged to research, without the
     #     screening's own call, beside tool_calls.
@@ -526,6 +534,7 @@ def triage_record(result: EpisodeResult) -> TriageRecord | None:
         test_records=list(first.triage_test_records),
         deep_recommended=bool(first.deep_recommended),
         deep_ran=result.state is not first,
+        metrics=triage_metrics(first, calls),
     )
 
 
@@ -632,7 +641,12 @@ def record_of(
         tree_options=tree_options,
         reinstatement=state.reinstatement,
         revaluation=state.revaluation,
-        triage=triage_record(result),
+        triage=triage_record(
+            result,
+            ()
+            if model_calls is None or model_calls.details is None
+            else model_calls.details,
+        ),
     )
 
 
@@ -957,6 +971,48 @@ def format_triage(records: Sequence[ExperimentRecord]) -> str | None:
     )
 
 
+def format_triage_stages(records: Sequence[ExperimentRecord]) -> str | None:
+    """One line on where the triages spent their model time; None without metrics.
+
+    Totals over all triages, so two runs with the same cases compare directly:
+    the model questions and request seconds of each stage, how soon a first
+    hypothesis appeared, and how much of what was read was used.
+    """
+    # Variables:
+    #   kept: The stage metrics of each triage that recorded them.
+    #   calls: Model questions per stage, summed over the triages.
+    #   seconds: Request seconds per stage, summed over the triages.
+    #   firsts: Seconds to the first hypothesis, for triages that formed one.
+    kept = [
+        r.triage.metrics
+        for r in records
+        if r.triage is not None and r.triage.metrics is not None
+    ]
+    if not kept:
+        return None
+    calls: Counter = Counter()
+    seconds: Counter = Counter()
+    for m in kept:
+        calls.update(m.calls_by_stage)
+        seconds.update(m.model_seconds_by_stage)
+    stages = ", ".join(
+        f"{stage} {calls[stage]} ({seconds[stage]:.0f} s)" for stage in sorted(calls)
+    )
+    firsts = [m.first_hypothesis_seconds for m in kept]
+    formed = [f for f in firsts if f is not None]
+    first = f"p50 {nearest_rank(formed, 0.5):.0f} s" if formed else "none formed"
+    return (
+        f"triage stages: model questions {stages or 'none'}; "
+        f"{sum(m.fallback_answers for m in kept)} answered by a fallback; "
+        f"first hypothesis in {len(formed)}/{len(kept)} ({first}); "
+        f"rival tested in {sum(m.rival_tested for m in kept)}; reads "
+        f"{sum(m.reads_observed for m in kept)} observed, "
+        f"{sum(m.reads_uninterpreted for m in kept)} uninterpreted, "
+        f"{sum(m.reads_failed for m in kept)} failed, "
+        f"{sum(m.reads_repeated for m in kept)} repeated"
+    )
+
+
 def format_batches(records: Sequence[ExperimentRecord]) -> str | None:
     """One line on several tool calls per decide answer; None when no run batched."""
     # Variables:
@@ -1185,6 +1241,8 @@ def report(records: Sequence[ExperimentRecord], labels: dict[str, Label]) -> str
     lines += [] if manual is None else [manual]
     triaged = format_triage(records)
     lines += [] if triaged is None else [triaged]
+    stages = format_triage_stages(records)
+    lines += [] if stages is None else [stages]
     advised = format_investigate(records)
     lines += [] if advised is None else [advised]
     tested = format_evidence_tests(records)

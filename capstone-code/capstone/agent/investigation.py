@@ -285,7 +285,9 @@ def hypothesize(state: InvestigationState, deps: InvestigationDeps) -> Route:
     outcome, reason = "decided", None
     try:
         apply_interpretation(
-            state, ask_policy(state, deps, deps.policy.hypothesize, research=True)
+            state,
+            ask_policy(state, deps, deps.policy.hypothesize, research=True),
+            now=deps.clock(),
         )
     except OutOfTime:
         outcome, reason = "stopped", TerminationReason.TIMEOUT
@@ -439,7 +441,7 @@ def revalue(state: InvestigationState, deps: InvestigationDeps) -> None:
     outcome = None
     try:
         interpretation, answer = ask_policy(state, deps, ask, research=True)
-        apply_interpretation(state, interpretation)
+        apply_interpretation(state, interpretation, now=deps.clock())
     except OutOfTime:
         outcome = "no_time"
         state.termination_reason = TerminationReason.TIMEOUT
