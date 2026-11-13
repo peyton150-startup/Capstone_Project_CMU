@@ -26,8 +26,8 @@ from capstone.agent.artifacts import (
     TerminationReason,
     VerificationCheck,
 )
-from capstone.agent.triage_report import TriageReport
 from capstone.agent.evidence_packet import EvidencePacket
+from capstone.agent.triage_report import TriageReport
 from capstone.contracts import Contract
 from capstone.contracts.evidence import Evidence
 from capstone.contracts.hypotheses import Hypothesis
