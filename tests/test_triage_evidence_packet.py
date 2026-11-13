@@ -504,8 +504,18 @@ def test_an_identifier_the_logger_refuses_drops_one_event_not_the_triage():
     )
 
 
-def test_line_context_on_keeps_its_own_arm_in_a_triage():
+def test_the_packet_wins_over_line_context_in_a_triage():
+    # Developer's decision, 2026-11-13: in a triage the packet replaces the
+    # line-context packet, so LINE_CONTEXT=on does not switch the packet off.
     state = triage_state()
+    state.line_context_enabled = True
+    observe(state, deps_for(factory()))
+    assert state.triage_packet is not None and state.incident_context is None
+
+
+def test_line_context_still_runs_in_a_triage_with_the_packet_off():
+    state = triage_state()
+    state.triage_packet_enabled = False
     state.line_context_enabled = True
     observe(state, deps_for(factory()))
     assert state.triage_packet is None and state.incident_context is not None
