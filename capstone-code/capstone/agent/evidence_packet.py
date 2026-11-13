@@ -13,6 +13,9 @@ from pydantic import Field
 
 from capstone.contracts import Contract
 
+# The most unscored items a TRIAGE COVERAGE section names; the rest are counted.
+MAX_COVERAGE_MISSING = 8
+
 SourceType = Literal[
     "live_sensor",  # readings or a summary of readings from one sensor
     "derived_screening",  # a score computed from readings against a reference
@@ -122,3 +125,102 @@ class EvidencePacket(Contract):
             }
         )
         return counts
+
+
+def coverage_lines(packet: EvidencePacket) -> list[str]:
+    """The packet's coverage as a short prompt section (TRIAGE_PACKET_PROMPT).
+
+    Says what was observed and what was not, each with its evidence ID or
+    reason, so the model knows what is missing even when old evidence is shown
+    only as a stub. Built from identifiers, counts and reasons only: no scores,
+    no record text, and no word about what is wrong.
+    """
+    # Variables:
+    #   screening: The screening's ledger entry; its evidence ID and outcome.
+    #   unscored: Screening items with no score, as where (reason).
+    #   window: The alarmed sensor's window item, qualified or missing.
+    #   skipped: Calls that were not answered: failed, repeated or skipped.
+    #   roster: How the screening compares with the roster, or that the roster
+    #     was not read.
+    #   down: Roster machines whose reported status is not "running".
+    screening = next((c for c in packet.calls if c.tool == "get_line_screening"), None)
+    unscored = [
+        f"{i.physical_root or i.machine_id or '?'} ({i.missing_reason})"
+        for i in packet.items
+        if i.source_type == "derived_screening"
+        and i.status == "missing"
+        and i.missing_reason != "absent_from_screening"
+    ]
+    window = next(
+        (
+            i
+            for i in packet.items
+            if i.source_type == "live_sensor" and i.machine_id == packet.machine_id
+        ),
+        None,
+    )
+    skipped = [
+        f"{c.tool} ({c.outcome}{': ' + c.reason if c.reason else ''})"
+        for c in packet.calls
+        if c.outcome != "observed"
+    ]
+    as_of = packet.observation_tick
+    lines = [
+        "TRIAGE COVERAGE (what was and was not observed; not a diagnosis):",
+        f"Trigger tick {packet.trigger_tick}; observed as of tick "
+        f"{as_of if as_of is not None else 'unknown'}.",
+    ]
+    if screening is not None and screening.qualified:
+        reference = (
+            f", reference {packet.screening_reference}"
+            if packet.screening_reference
+            else ""
+        )
+        lines.append(
+            f"Line screening {screening.evidence_id}{reference}: "
+            f"{len(packet.screened_machines)} machine(s) returned."
+        )
+    else:
+        reason = screening.reason if screening and screening.reason else "unavailable"
+        lines.append(f"Line screening: none usable ({reason}).")
+    if packet.roster_verified:
+        roster = f"Roster: {len(packet.roster)} machine(s)"
+        if packet.absent_from_screening:
+            roster += "; absent from screening: " + ", ".join(
+                packet.absent_from_screening
+            )
+        if packet.unexpected_in_screening:
+            roster += "; screened but not on the roster: " + ", ".join(
+                packet.unexpected_in_screening
+            )
+        down = [f"{m} {s}" for m, s in packet.machine_status.items() if s != "running"]
+        if down:
+            roster += "; not running: " + ", ".join(down)
+        lines.append(roster + ".")
+    else:
+        lines.append("Roster: not read, so screening coverage is not verified.")
+    shown = unscored[:MAX_COVERAGE_MISSING]
+    more = len(unscored) - len(shown)
+    lines.append(
+        "Not scored by the screening: "
+        + (", ".join(shown) if shown else "none")
+        + (f" (+{more} more)" if more > 0 else "")
+        + "."
+    )
+    if window is None:
+        lines.append("Alarmed sensor window: not read.")
+    elif window.status == "qualified":
+        lines.append(
+            f"Alarmed sensor window: {window.physical_root} ticks "
+            f"{window.window_from_tick}-{window.window_to_tick}, "
+            f"{window.sample_count} samples ({window.evidence_id})."
+        )
+    else:
+        where = window.physical_root or window.machine_id or "?"
+        lines.append(
+            f"Alarmed sensor window: {where} missing ({window.missing_reason})."
+        )
+    if skipped:
+        lines.append("Not answered: " + ", ".join(skipped) + ".")
+    lines.append("A machine or sensor not observed here is not known to be healthy.")
+    return lines

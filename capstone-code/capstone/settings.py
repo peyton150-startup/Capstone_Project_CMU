@@ -278,6 +278,14 @@ class Settings(BaseSettings):
     # off-by-default rule overridden); TRIAGE_PACKET=off restores the old
     # Observe. A deep run never builds one.
     triage_packet: bool = Field(default=True, validation_alias="TRIAGE_PACKET")
+    # TRIAGE_PACKET_PROMPT: show the packet's coverage (what was and was not
+    # observed, with reasons) as a short TRIAGE COVERAGE section in every
+    # triage prompt, so it is never cut from view like old evidence can be.
+    # Needs TRIAGE_PACKET. On by default (developer, 2026-11-13); off keeps the
+    # packet out of the model's view, for comparing runs. Never in a deep run.
+    triage_packet_prompt: bool = Field(
+        default=True, validation_alias="TRIAGE_PACKET_PROMPT"
+    )
 
     # Limits on every model question (MVP_SCOPE.md section 3). The loop's own
     # limits (iterations, tool calls, time per investigation) are in Budgets.

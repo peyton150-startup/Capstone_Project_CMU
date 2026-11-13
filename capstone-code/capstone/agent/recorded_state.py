@@ -19,6 +19,7 @@ def make_recorded_state(
     stage_context: bool,
     state_action_bar: bool,
     triage_packet: bool = False,
+    triage_packet_prompt: bool = False,
 ) -> InvestigationState:
     """Make a triage-only state for evidence review, never a repair workflow."""
     # Variables:
@@ -28,6 +29,8 @@ def make_recorded_state(
     #   stage_context: Whether the policy uses the project's stage-specific views.
     #   triage_packet: TRIAGE_PACKET; the packet then records the screening as
     #     missing (no verified healthy reference), never as normal.
+    #   triage_packet_prompt: TRIAGE_PACKET_PROMPT; the prompts then show the
+    #     packet's coverage, including that missing screening.
     return InvestigationState(
         run_id=run_id,
         investigation_id=investigation_id_for(run_id, 1),
@@ -41,6 +44,7 @@ def make_recorded_state(
         mode="triage",
         line_context_enabled=False,
         triage_packet_enabled=triage_packet,
+        triage_packet_prompt=triage_packet_prompt,
         stage_context=stage_context,
         state_action_bar=state_action_bar,
     )

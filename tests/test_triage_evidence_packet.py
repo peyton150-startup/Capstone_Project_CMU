@@ -94,6 +94,25 @@ def names(provider):
     return [call.name for call in provider.calls]
 
 
+def coverage_of(state):
+    """Return the triage coverage section rendered for the model."""
+    from capstone.agent.model_policy import render
+
+    lines = render(state).splitlines()
+    start = next((i for i, line in enumerate(lines) if "TRIAGE COVERAGE" in line), None)
+    if start is None:
+        return []
+    end = lines.index("OPEN QUESTIONS:", start) - 1
+    return lines[start:end]
+
+
+def prompted_triage(**budgets):
+    """Make a triage state with packet prompting enabled."""
+    state = triage_state(**budgets)
+    state.triage_packet_prompt = True
+    return state
+
+
 # --- off unless asked for, and never on a deep run ---------------------------
 
 
@@ -597,3 +616,95 @@ def test_a_triage_experiment_records_and_logs_the_packet(monkeypatch):
     events = [json.loads(line)["event"] for line in stream.getvalue().splitlines()]
     assert events[-1] == "triage_packet_built"
     assert "triage_packet_call_observed" in events
+
+
+def test_prompt_setting_defaults_on_and_can_be_disabled(monkeypatch):
+    monkeypatch.delenv("TRIAGE_PACKET_PROMPT", raising=False)
+    assert Settings(_env_file=None).triage_packet_prompt is True
+    monkeypatch.setenv("TRIAGE_PACKET_PROMPT", "off")
+    assert Settings(_env_file=None).triage_packet_prompt is False
+
+
+def test_prompt_coverage_names_observed_and_missing_without_scores():
+    state = prompted_triage()
+    observe(state, deps_for(factory()))
+    section = "\n".join(coverage_of(state))
+    assert section.startswith("TRIAGE COVERAGE (what was and was not observed")
+    assert "Trigger tick 10; observed as of tick 12." in section
+    assert "Line screening E2, reference separate baseline run: 3 machine(s)" in section
+    assert "absent from screening: CNC-03" in section
+    assert "not running: CNC-04 idle" in section
+    assert "CNC-04 (not_running_yet)" in section
+    assert "CNC-02:load (too_few_running_readings)" in section
+    assert "Alarmed sensor window: CNC-02:vibration" in section
+    assert "not known to be healthy" in section
+    assert "3.1" not in section and "2.9" not in section
+    assert "bearing" not in section.lower()
+
+
+def test_prompt_coverage_reports_budget_and_unavailable_screening():
+    small = prompted_triage(max_tool_calls=4)
+    observe(small, deps_for(factory()))
+    section = "\n".join(coverage_of(small))
+    assert "Roster: not read, so screening coverage is not verified." in section
+    assert "list_machines (skipped_budget: budgeted_out)" in section
+
+    recorded = prompted_triage()
+    observe(recorded, deps_for(factory(), screening_available=False))
+    assert "Line screening: none usable (no_verified_healthy_reference)." in "\n".join(
+        coverage_of(recorded)
+    )
+
+
+def test_prompt_coverage_survives_evidence_truncation_and_can_be_turned_off(
+    monkeypatch,
+):
+    import capstone.agent.model_policy as model_policy
+
+    monkeypatch.setattr(model_policy, "MAX_EVIDENCE_SECTION_CHARS", 10)
+    state = prompted_triage()
+    observe(state, deps_for(factory()))
+    prompt = model_policy.render(state)
+    assert "E2 get_line_screening at tick 12: [" in prompt
+    assert "Line screening E2" in prompt
+    state.triage_packet_prompt = False
+    assert coverage_of(state) == []
+
+
+def test_deep_prompt_never_shows_coverage():
+    state = new_state()
+    state.triage_packet_enabled = True
+    state.triage_packet_prompt = True
+    observe(state, deps_for(factory()))
+    assert state.triage_packet is None and coverage_of(state) == []
+
+
+def test_triage_episode_prompts_coverage_but_deep_episode_does_not(monkeypatch):
+    from capstone.episode import run_episode
+    from tests.test_episode import SEED, wear_policy
+    from tests.test_triage import triage_then_deep
+
+    monkeypatch.setenv("CRITIC", "off")
+    monkeypatch.setenv("TRIAGE", "on")
+    monkeypatch.setenv("TRIAGE_THEN_DEEP", "on")
+    monkeypatch.delenv("TRIAGE_PACKET_PROMPT", raising=False)
+    result = run_episode(
+        SEED,
+        triage_then_deep("intervene"),
+        fault="bearing_degradation",
+        clock=lambda: 0.0,
+    )
+    assert result.triage.triage_packet_prompt is True
+    assert coverage_of(result.triage)
+    assert result.state.mode == "deep" and not result.state.triage_packet_prompt
+    assert coverage_of(result.state) == []
+
+    monkeypatch.delenv("TRIAGE", raising=False)
+    off = run_episode(
+        SEED, wear_policy(), fault="bearing_degradation", clock=lambda: 0.0
+    )
+    monkeypatch.setenv("TRIAGE_PACKET_PROMPT", "off")
+    disabled = run_episode(
+        SEED, wear_policy(), fault="bearing_degradation", clock=lambda: 0.0
+    )
+    assert off.state.model_dump() == disabled.state.model_dump()

@@ -318,6 +318,9 @@ class InvestigationState(BaseModel):
     # (on by default) sets it on each triage.
     triage_packet_enabled: bool = False
     triage_packet: EvidencePacket | None = None
+    # TRIAGE_PACKET_PROMPT: show the packet's coverage in the triage's prompts.
+    # Set on each triage from the setting; a deep run never has a packet.
+    triage_packet_prompt: bool = False
     # The most tool calls one decide answer may list (DECIDE_CALLS). The loop
     # sets it; a policy reads it to know whether it may answer with a list.
     decide_calls: int = Field(default=1, ge=1, le=MAX_DECIDE_CALLS)

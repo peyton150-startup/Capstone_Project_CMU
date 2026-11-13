@@ -1,5 +1,20 @@
 # Progress Log
 
+> **2026-11-13 — Block 2 follow-up, prompt coverage (`TRIAGE_PACKET_PROMPT`):**
+> Built ungated at the developer's request (understood: no; walkthrough owed).
+> The setting defaults on and can be turned off independently of packet
+> collection. `EvidencePacket.coverage_lines` presents the trigger and observation
+> ticks, screening reference and coverage, unscored reasons, roster gaps, the
+> alarmed sensor window, and unanswered calls as a short TRIAGE COVERAGE section.
+> `model_policy.render` inserts it outside the size-limited evidence section in
+> triage only, so older screening evidence becoming a stub cannot hide what was
+> and was not observed. It reports no scores or diagnosis. `settings.py`,
+> `state.py`, `episode.py`, `recorded_state.py`, `recorded_investigation.py` and
+> `.env.example` carry the setting to simulator and recorded triage; a deep run
+> has no packet and no coverage section. `tests/test_triage_evidence_packet.py`
+> tests the setting, content, budget and unavailable-screening cases, truncation,
+> and triage/deep isolation. No live model run.
+
 > **2026-11-13 — Block 2 (Observe): opt-in triage evidence packet, `TRIAGE_PACKET` (TRI-17/21/31/33 + SHADE item 1; agent code; built ungated at the developer's request; understood: no; walkthrough owed):**
 > On branch `feature/triage-evidence-packet`, PR into `integration/triage-deterministic-20261113` (not main, not auto-merged). In a triage with `TRIAGE_PACKET=on`, `observe()` builds a Python `EvidencePacket` instead of the line context: incident cutoff vs observation tick, the alarmed sensor's 60-tick window up to the trigger, then the `list_machines` roster and statuses, all within half the research calls (get_time included), so the six-call default keeps three for research. Screening rows keep their score or reason (`not_running_yet`, `too_few_running_readings`, `feed_unavailable`, ...); roster machines missing from the screening are `absent_from_screening`; every item carries a physical root (`machine:sensor`) and a source type (live sensor, derived screening, status, record text, manual, memory). Text items carry no values. A recorded machine's screening is `missing: no_verified_healthy_reference`. A call ledger separates mandatory/optional and observed/failed/repeated/skipped/qualified. Opt-in `EventLogger` events carry identifiers and counts only (`log_event` gained a checked `counts` field). Deep mode never builds a packet; tests prove deep observe and a whole deep episode are identical with the flag on or off. The packet is not yet shown to the model (later blocks consume it); the compact screening tool is unchanged, so exact screening window ticks are recorded as the published rule, not per-window ticks. No live run.
 > **Follow-up the same day (developer's choices):** `TRIAGE_PACKET` is now **on by default** (the developer chose this over the schedule's off-by-default rule; `TRIAGE_PACKET=off` restores the old Observe, and `.env.example` lists it as `on`). An explicit `LINE_CONTEXT=on` keeps its own packet in a triage, so that comparison arm still works. At the developer's request, every triage run can be traced: `TriageRecord.packet` keeps the whole packet in the experiment records; the live progress view prints a `PACKET` line (cutoff, qualified roots, roster coverage, each call's role/outcome, missing items as "unknown, not normal"); and `python -m capstone.experiment run ... --packet-log PATH` appends JSON-line events (one per call, one per missing item, one summary with counts per status and source). Identifiers only; an identifier the logger refuses drops that event, never the triage.

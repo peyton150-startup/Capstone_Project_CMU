@@ -54,6 +54,7 @@ from capstone.agent.evidence_brief import (
     observations,
     statistics,
 )
+from capstone.agent.evidence_packet import coverage_lines
 from capstone.agent.policy import (
     ActionRequest,
     CallTool,
@@ -487,6 +488,9 @@ def render(state: InvestigationState) -> str:
     #   context: The opt-in incident packet's evidence references and coverage,
     #     shown without turning an alarm location into a root-cause claim.
     #   sources, summaries: Compact references to the original tool answers.
+    #   state.triage_packet_prompt: TRIAGE_PACKET_PROMPT; with a triage packet,
+    #     its coverage is shown here, outside the evidence section, so it is
+    #     never cut to a stub. A deep run never has a packet.
     anomaly = state.anomaly
     where = f" on {anomaly.machine_id}" if anomaly.machine_id else ""
     now = "unknown" if state.last_tick is None else str(state.last_tick)
@@ -538,6 +542,12 @@ def render(state: InvestigationState) -> str:
                 "The current machine/settings snapshot is not a trigger-time snapshot; "
                 "do not assume those values held at the trigger tick."
             )
+    if (
+        state.mode == "triage"
+        and state.triage_packet_prompt
+        and state.triage_packet is not None
+    ):
+        lines += coverage_lines(state.triage_packet)
     lines += ["", "OPEN QUESTIONS:"]
     current_ids = {h.id for h in state.hypotheses}
     questions = sorted(
