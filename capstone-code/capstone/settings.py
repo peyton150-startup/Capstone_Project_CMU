@@ -272,6 +272,37 @@ class Settings(BaseSettings):
         default=6, ge=1, validation_alias="TRIAGE_TOOL_CALLS"
     )
     triage_then_deep: bool = Field(default=True, validation_alias="TRIAGE_THEN_DEEP")
+    # TRIAGE_PACKET (Block 2, Observe): in a triage only, build the qualified,
+    # source-linked evidence packet (`agent.triage_packet`) in place of the
+    # line context. On by default (developer, 2026-11-13; the schedule's
+    # off-by-default rule overridden); TRIAGE_PACKET=off restores the old
+    # Observe. A deep run never builds one.
+    triage_packet: bool = Field(default=True, validation_alias="TRIAGE_PACKET")
+    # TRIAGE_PACKET_PROMPT: show the packet's coverage (what was and was not
+    # observed, with reasons) as a short TRIAGE COVERAGE section in every
+    # triage prompt, so it is never cut from view like old evidence can be.
+    # Needs TRIAGE_PACKET. On by default (developer, 2026-11-13); off keeps the
+    # packet out of the model's view, for comparing runs. Never in a deep run.
+    triage_packet_prompt: bool = Field(
+        default=True, validation_alias="TRIAGE_PACKET_PROMPT"
+    )
+    # TRIAGE_INVESTIGATE (Block 4, Investigate), triage only: "advisory" (the
+    # default) ranks the reads the open questions allow and records them
+    # beside the model's own decide choice, changing nothing the run does;
+    # "on" makes the best compiled read instead of asking a standalone decide
+    # question, asking the model only when nothing compiles; "off" skips the
+    # compiler. A deep run never uses it.
+    triage_investigate: Literal["off", "advisory", "on"] = Field(
+        default="advisory", validation_alias="TRIAGE_INVESTIGATE"
+    )
+    # TRIAGE_EVIDENCE_TESTS (Block 3, Test): in a triage only, count support by
+    # physical sensor, hold a diagnosis open while a rival-separating question
+    # is open, and close a question with a predicate only on a measured
+    # verdict. On by default (developer, 2026-11-13); off gives the old triage
+    # rules for comparison. A deep run never uses it.
+    triage_evidence_tests: bool = Field(
+        default=True, validation_alias="TRIAGE_EVIDENCE_TESTS"
+    )
 
     # Limits on every model question (MVP_SCOPE.md section 3). The loop's own
     # limits (iterations, tool calls, time per investigation) are in Budgets.

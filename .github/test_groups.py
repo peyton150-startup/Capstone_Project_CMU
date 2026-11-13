@@ -115,6 +115,7 @@ GROUPS: dict[str, list[str]] = {
     ],
     "Evaluation": [
         "evaluation",
+        "triage_metrics",
         "drift",
         "memory_evaluation",
         "scoring_integrity",
@@ -143,7 +144,17 @@ GROUPS: dict[str, list[str]] = {
         "coverage_reporting_edges",
     ],
     # The runner: one seeded episode from fault to score, end to end.
-    "Episode": ["episode", "progress_view", "triage"],
+    "Episode": [
+        "episode",
+        "progress_view",
+        "triage",
+        "triage_evidence_packet",
+        "triage_investigate",
+        "triage_safety_baseline",
+        "triage_clearance_gates",
+        "triage_report",
+        "triage_evidence_tests",
+    ],
     # The line screening against everything around it (PR 202, not merged).
     "Detector side effects": ["detector_side_effects"],
     # Real-machine telemetry: the read-only MTConnect collector and its monitor.

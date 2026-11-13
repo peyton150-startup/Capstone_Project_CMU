@@ -54,6 +54,7 @@ from capstone.agent.evidence_brief import (
     observations,
     statistics,
 )
+from capstone.agent.evidence_packet import coverage_lines
 from capstone.agent.policy import (
     ActionRequest,
     CallTool,
@@ -330,6 +331,11 @@ class ModelCall(Contract):
     outcome: Literal["answered", "invalid_reply", "no_answer"]
     answered_by: str | None = None
     attempts: tuple[Attempt, ...] = ()
+    # The stage running when the question was asked ("decide" is the
+    # conclusion), and whether the run was a triage or a deep investigation.
+    # None in records from before 2026-11-13. For measurement only.
+    stage: str | None = None
+    mode: str | None = None
 
 
 # --- what every question is shown ----------------------------------------------
@@ -487,6 +493,9 @@ def render(state: InvestigationState) -> str:
     #   context: The opt-in incident packet's evidence references and coverage,
     #     shown without turning an alarm location into a root-cause claim.
     #   sources, summaries: Compact references to the original tool answers.
+    #   state.triage_packet_prompt: TRIAGE_PACKET_PROMPT; with a triage packet,
+    #     its coverage is shown here, outside the evidence section, so it is
+    #     never cut to a stub. A deep run never has a packet.
     anomaly = state.anomaly
     where = f" on {anomaly.machine_id}" if anomaly.machine_id else ""
     now = "unknown" if state.last_tick is None else str(state.last_tick)
@@ -538,6 +547,12 @@ def render(state: InvestigationState) -> str:
                 "The current machine/settings snapshot is not a trigger-time snapshot; "
                 "do not assume those values held at the trigger tick."
             )
+    if (
+        state.mode == "triage"
+        and state.triage_packet_prompt
+        and state.triage_packet is not None
+    ):
+        lines += coverage_lines(state.triage_packet)
     lines += ["", "OPEN QUESTIONS:"]
     current_ids = {h.id for h in state.hypotheses}
     questions = sorted(
@@ -1184,7 +1199,8 @@ class ModelPolicy:
         #   client: The model client asked: the job's own, or the late-run one
         #     late in a run (`client_for`).
         #   outcome: answered, invalid_reply or no_answer, written to the call record
-        #     either way.
+        #     either way, with state.stage and state.mode so a triage's model time
+        #     can be split by stage (`evaluation/triage_metrics.py`).
         #   triage: Extra keyword for a triage question, sent only to a
         #     FallbackClient (other clients, such as test fakes, do not take
         #     it); empty in a deep run, so its requests are unchanged.
@@ -1217,6 +1233,8 @@ class ModelPolicy:
                     if outcome == "answered"
                     else None,
                     attempts=tuple(getattr(client, "attempts", ())),
+                    stage=state.stage,
+                    mode=state.mode,
                 )
             )
 

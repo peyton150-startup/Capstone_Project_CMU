@@ -60,6 +60,7 @@ from capstone.agent.critic import (
     RecheckRecord,
     ReinstatementRecord,
 )
+from capstone.agent.evidence_packet import EvidencePacket
 from capstone.agent.model_policy import ModelCall
 from capstone.agent.policy import ReasoningPolicy
 from capstone.agent.state import (
@@ -67,8 +68,11 @@ from capstone.agent.state import (
     Budgets,
     ConclusionTrace,
     IncidentContext,
+    InvestigateAdvice,
+    TriageTestRecord,
 )
 from capstone.agent.tree_of_thought import RevaluationRecord, Thought, TreeOptions
+from capstone.agent.triage_report import TriageReport
 from capstone.console import safe_console
 from capstone.episode import (
     CHALLENGE,
@@ -92,7 +96,9 @@ from capstone.evaluation.memory import (
     build_use_records,
 )
 from capstone.evaluation.scoring import COMPOUND, Score, format_summary, summarize
+from capstone.evaluation.triage_metrics import TriageMetrics, triage_metrics
 from capstone.memory.service import MemoryService
+from capstone.observability import EventLogger, create_event_logger
 from capstone.progress import ProgressView, print_progress, run_header
 from capstone.providers.chat import INVALID_REPLY, is_model_outcome
 from capstone.providers.hazards import HazardProfile
@@ -282,10 +288,32 @@ class TriageRecord(BaseModel):
     assessment: str | None = None
     termination_reason: str | None = None
     tool_calls: int = 0
+    # Calls charged to the research budget: tool_calls less the line
+    # screening (its own allowance), so 7 tool calls can be 6 research.
+    # None in records from before it was kept.
+    research_tool_calls: int | None = None
+    # TRIAGE_INVESTIGATE: each turn the request compiler ran, with the
+    # model's choice beside it. None in records from before it was kept.
+    investigate_advice: list[InvestigateAdvice] | None = None
+    # The triage evidence packet (TRIAGE_PACKET): every item, missing reason
+    # and call outcome Observe recorded. None: no packet was built (and in
+    # records from before it was kept).
+    packet: EvidencePacket | None = None
+    # TRIAGE_EVIDENCE_TESTS: whether the triage used the Block 3 rules, and
+    # each time they withheld support, held a conclusion open or judged a
+    # question. None in records from before they were kept.
+    evidence_tests: bool | None = None
+    test_records: list[TriageTestRecord] | None = None
     # Set by code from the conclusion: whether a deep run should follow, and
     # whether one did (TRIAGE_THEN_DEEP=off stops after the triage).
     deep_recommended: bool
     deep_ran: bool
+    # The read-only triage report (`agent.triage_report`). None in records
+    # from before it was kept.
+    report: TriageReport | None = None
+    # Where the triage spent its model questions and what it gathered
+    # (`evaluation/triage_metrics.py`). None in records from before 2026-11-13.
+    metrics: TriageMetrics | None = None
 
 
 class ExperimentRecord(BaseModel):
@@ -470,14 +498,28 @@ def favoured_claim(state) -> str | None:
     return None if state.critique is None else state.critique.favoured_claim
 
 
-def triage_record(result: EpisodeResult) -> TriageRecord | None:
-    """The triage's answer and timing; None when triage was off."""
+def triage_record(
+    result: EpisodeResult, calls: Sequence[ModelCall] = ()
+) -> TriageRecord | None:
+    """The triage's answer, timing and stage metrics; None when triage was off."""
     # Variables:
     #   first: The triage investigation.
     #   concluded: The triage's checked conclusion, if it reached one.
+    #   first.triage_report: The triage's read-only report, kept whole.
+    #   calls: Every model question of the episode, triage and deep run;
+    #     `triage_metrics` keeps the triage's own by their recorded mode.
+    #   first.triage_packet: The Observe packet, kept whole for tracing.
+    #   first.research_tool_calls: Calls charged to research, without the
+    #     screening's own call, beside tool_calls.
+    #   first.investigate_advice: Each turn the request compiler ran.
+    #   evidence_tests: The TRIAGE_EVIDENCE_TESTS setting the run used.
+    #   first.triage_test_records: What those rules changed, kept for tracing.
     first = result.triage
     if first is None or result.triage_seconds is None:
         return None
+    from capstone.settings import get_settings
+
+    evidence_tests = get_settings().triage_evidence_tests
     concluded = first.conclusion
     return TriageRecord(
         seconds=result.triage_seconds,
@@ -490,8 +532,15 @@ def triage_record(result: EpisodeResult) -> TriageRecord | None:
             None if first.termination_reason is None else first.termination_reason.value
         ),
         tool_calls=first.tool_call_count,
+        packet=first.triage_packet,
+        report=first.triage_report,
+        research_tool_calls=first.research_tool_calls,
+        investigate_advice=list(first.investigate_advice),
+        evidence_tests=evidence_tests,
+        test_records=list(first.triage_test_records),
         deep_recommended=bool(first.deep_recommended),
         deep_ran=result.state is not first,
+        metrics=triage_metrics(first, calls),
     )
 
 
@@ -598,7 +647,12 @@ def record_of(
         tree_options=tree_options,
         reinstatement=state.reinstatement,
         revaluation=state.revaluation,
-        triage=triage_record(result),
+        triage=triage_record(
+            result,
+            ()
+            if model_calls is None or model_calls.details is None
+            else model_calls.details,
+        ),
     )
 
 
@@ -620,6 +674,7 @@ def run_experiment(
     make_critic: Callable[[], Critic] | None = None,
     triage: bool | None = None,
     stage_context: bool | None = None,
+    event_logger: EventLogger | None = None,
 ) -> list[ExperimentRecord]:
     """Run each case once with a fresh policy. `name` makes every run key unique.
 
@@ -648,6 +703,8 @@ def run_experiment(
     #   triage: Run a rapid triage before each deep run; None leaves it to settings.
     #   stage_context: Force the stage views on or off for every case; None leaves
     #     it to STAGE_CONTEXT in settings.
+    #   event_logger: Optional JSON-line trace shared by every case; each event
+    #     carries its run and investigation id, so cases can be told apart.
     #   records: One record per case, in order.
     #   run_key: A unique name for this case's run.
     #   policy: A fresh decision-maker, so no case learns from another's state.
@@ -681,6 +738,7 @@ def run_experiment(
             critic=None if make_critic is None else make_critic(),
             triage=triage,
             stage_context=stage_context,
+            event_logger=event_logger,
         )
         wall_seconds = clock() - started
         calls = getattr(policy, "calls", None)  # kept by ModelPolicy only
@@ -816,6 +874,78 @@ def stage_context_mismatches(
     return [r.run_key for r in records if r.stage_context is not wanted]
 
 
+def format_investigate(records: Sequence[ExperimentRecord]) -> str | None:
+    """One line on the request compiler (TRIAGE_INVESTIGATE); None if it never ran.
+
+    Counts each outcome over every triage, so an advisory run shows how often
+    the model agreed with the compiled read, and an "on" run shows how many
+    decide questions the compiler replaced and how often the model was still
+    needed.
+    """
+    # Variables:
+    #   advice: Every turn the compiler ran, over all triages.
+    #   outcomes: How many turns ended each way.
+    #   compared: Turns where both had a choice to compare.
+    #   agreed: Of those, where the model chose the same sensor read.
+    advice = [
+        a
+        for r in records
+        if r.triage is not None
+        for a in r.triage.investigate_advice or ()
+    ]
+    if not advice:
+        return None
+    outcomes = Counter(a.outcome for a in advice)
+    compared = sum(
+        outcomes[k]
+        for k in ("same_request", "same_target", "different", "model_stopped")
+    )
+    agreed = outcomes["same_request"] + outcomes["same_target"]
+    modes = "/".join(sorted({a.mode for a in advice}))
+    return (
+        f"investigate compiler ({modes}): {len(advice)} turn(s); decide "
+        f"replaced {outcomes['compiled']}; model agreed {agreed} of {compared} "
+        f"compared ({outcomes['same_request']} same read, "
+        f"{outcomes['same_target']} same sensor); different "
+        f"{outcomes['different']}, model stopped {outcomes['model_stopped']}, "
+        f"model failed {outcomes['model_failed']}; no candidate "
+        f"{outcomes['no_candidate']}"
+    )
+
+
+def format_evidence_tests(records: Sequence[ExperimentRecord]) -> str | None:
+    """One line on what TRIAGE_EVIDENCE_TESTS changed; None when no triage kept it.
+
+    Counts each kind of record, so a run with the setting on can be compared
+    with one where it is off: how often support was withheld, conclusions
+    held open, and questions kept open or closed by a measured verdict.
+    """
+    # Variables:
+    #   kept: Triages that recorded whether the rules were on.
+    #   on: Those that ran with the rules on.
+    #   kinds: How many records of each kind the triages left.
+    #   changed: Triages where the rules changed at least one outcome.
+    kept = [
+        r.triage for r in records if r.triage and r.triage.evidence_tests is not None
+    ]
+    if not kept:
+        return None
+    on = [t for t in kept if t.evidence_tests]
+    kinds = Counter(rec.kind for t in on for rec in t.test_records or ())
+    changed = sum(
+        any(rec.kind != "question_closed" for rec in t.test_records or ()) for t in on
+    )
+    return (
+        f"evidence tests: on in {len(on)} of {len(kept)} triage(s), changed an "
+        f"outcome in {changed}; support withheld "
+        f"{kinds['support_withheld_rival_question']} (open rival question), "
+        f"{kinds['support_withheld_shared_root']} (one sensor counted twice); "
+        f"conclusions held open by a rival question {kinds['rival_question_gap']}; "
+        f"questions kept open {kinds['question_kept_open']}, closed by a measured "
+        f"verdict {kinds['question_closed']}"
+    )
+
+
 def format_triage(records: Sequence[ExperimentRecord]) -> str | None:
     """One line on the rapid triages; None when no run had one.
 
@@ -844,6 +974,48 @@ def format_triage(records: Sequence[ExperimentRecord]) -> str | None:
         f"deep run asked for {sum(t.deep_recommended for t in kept)}, "
         f"ran {sum(t.deep_ran for t in kept)}; "
         f"{sum(t.tool_calls for t in kept)} triage tool calls"
+    )
+
+
+def format_triage_stages(records: Sequence[ExperimentRecord]) -> str | None:
+    """One line on where the triages spent their model time; None without metrics.
+
+    Totals over all triages, so two runs with the same cases compare directly:
+    the model questions and request seconds of each stage, how soon a first
+    hypothesis appeared, and how much of what was read was used.
+    """
+    # Variables:
+    #   kept: The stage metrics of each triage that recorded them.
+    #   calls: Model questions per stage, summed over the triages.
+    #   seconds: Request seconds per stage, summed over the triages.
+    #   firsts: Seconds to the first hypothesis, for triages that formed one.
+    kept = [
+        r.triage.metrics
+        for r in records
+        if r.triage is not None and r.triage.metrics is not None
+    ]
+    if not kept:
+        return None
+    calls: Counter = Counter()
+    seconds: Counter = Counter()
+    for m in kept:
+        calls.update(m.calls_by_stage)
+        seconds.update(m.model_seconds_by_stage)
+    stages = ", ".join(
+        f"{stage} {calls[stage]} ({seconds[stage]:.0f} s)" for stage in sorted(calls)
+    )
+    firsts = [m.first_hypothesis_seconds for m in kept]
+    formed = [f for f in firsts if f is not None]
+    first = f"p50 {nearest_rank(formed, 0.5):.0f} s" if formed else "none formed"
+    return (
+        f"triage stages: model questions {stages or 'none'}; "
+        f"{sum(m.fallback_answers for m in kept)} answered by a fallback; "
+        f"first hypothesis in {len(formed)}/{len(kept)} ({first}); "
+        f"rival tested in {sum(m.rival_tested for m in kept)}; reads "
+        f"{sum(m.reads_observed for m in kept)} observed, "
+        f"{sum(m.reads_uninterpreted for m in kept)} uninterpreted, "
+        f"{sum(m.reads_failed for m in kept)} failed, "
+        f"{sum(m.reads_repeated for m in kept)} repeated"
     )
 
 
@@ -1075,6 +1247,12 @@ def report(records: Sequence[ExperimentRecord], labels: dict[str, Label]) -> str
     lines += [] if manual is None else [manual]
     triaged = format_triage(records)
     lines += [] if triaged is None else [triaged]
+    stages = format_triage_stages(records)
+    lines += [] if stages is None else [stages]
+    advised = format_investigate(records)
+    lines += [] if advised is None else [advised]
+    tested = format_evidence_tests(records)
+    lines += [] if tested is None else [tested]
     lines.append(format_stage_context(records))
     batched = format_batches(records)
     lines += ([] if batched is None else [batched]) + [""]
@@ -1337,6 +1515,9 @@ def main(argv: Sequence[str] | None = None) -> int:
     #     companion file unless --no-audit was given.
     #   args.triage: True with --triage, otherwise None so the TRIAGE setting
     #     decides; passed through to run_experiment.
+    #   packet_log, packet_logger: With --packet-log, the open trace file and the
+    #     JSON-line logger writing to it; each triage's evidence packet logs its
+    #     calls, missing items and counts there. None without the flag.
     #   triage_on: Whether this run triages; if so, every model is checked
     #     first (`preflight_models`) and the run does not start when none
     #     answers.
@@ -1407,6 +1588,15 @@ def main(argv: Sequence[str] | None = None) -> int:
         ),
     )
     run.add_argument(
+        "--packet-log",
+        type=Path,
+        default=None,
+        help=(
+            "append a JSON-line trace of each triage evidence packet (its calls, "
+            "missing items and counts; identifiers only, never evidence text)"
+        ),
+    )
+    run.add_argument(
         "--stage-context",
         choices=("on", "off"),
         default=None,
@@ -1462,6 +1652,12 @@ def main(argv: Sequence[str] | None = None) -> int:
         if audit_path == args.out:
             parser.error("audit and records paths must differ")
         log = AuditLog(audit_path) if audit_path else None
+        packet_log = (
+            None
+            if args.packet_log is None
+            else args.packet_log.open("a", encoding="utf-8")
+        )
+        packet_logger = None if packet_log is None else create_event_logger(packet_log)
 
         def live_line(line: str) -> None:
             # Variables:
@@ -1513,7 +1709,10 @@ def main(argv: Sequence[str] | None = None) -> int:
             watch=None if args.quiet else live_line,
             triage=args.triage,
             stage_context=wanted,
+            event_logger=packet_logger,
         )
+        if packet_log is not None:
+            packet_log.close()
         print(report(records, {}))
         wrong = stage_context_mismatches(records, wanted)
         if wrong:

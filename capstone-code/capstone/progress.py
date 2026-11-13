@@ -24,8 +24,14 @@ import re
 import sys
 from collections.abc import Callable, Sequence
 
+from capstone.agent.evidence_packet import EvidencePacket
 from capstone.agent.policy import ReasoningPolicy
-from capstone.agent.state import DecisionRecord, InvestigationState
+from capstone.agent.state import (
+    DecisionRecord,
+    InvestigateAdvice,
+    InvestigationState,
+    TriageTestRecord,
+)
 from capstone.console import safe_console
 from capstone.episode import (
     SCENARIO_KINDS,
@@ -47,6 +53,28 @@ Write = Callable[[str], None]
 # How much of an evidence item or an argument list fits on one line.
 CONTENT_WIDTH = 90
 TOP_BELIEFS = 3
+
+
+# The most missing items the packet line names; the rest are counted.
+MAX_PACKET_MISSING = 8
+
+
+def evidence_test_line(record: TriageTestRecord) -> str:
+    """One TRIAGE_EVIDENCE_TESTS record as a line: what the triage rule did."""
+    # Variables:
+    #   parts: The record's kind, then whichever of its fields are set.
+    parts = [f"EVIDENCE TEST {record.kind}"]
+    if record.hypothesis_id:
+        parts.append(f"hypothesis {record.hypothesis_id}")
+    if record.question_ids:
+        parts.append(f"question {', '.join(record.question_ids)}")
+    if record.roots:
+        parts.append(f"sources {', '.join(record.roots)}")
+    if record.verdict:
+        parts.append(f"verdict {record.verdict}")
+    if record.reason:
+        parts.append(shorten(record.reason, 120))
+    return "; ".join(parts)
 
 
 def print_progress(line: str) -> None:
@@ -191,6 +219,11 @@ class ProgressView:
         #   verification: The check last printed.
         #   critique: The critic's record last printed.
         #   recheck: The critic follow-up's record last printed.
+        #   packet_shown: Whether the triage evidence packet has been printed.
+        #   advice_shown: How many TRIAGE_INVESTIGATE records were printed, so
+        #     each is shown once.
+        #   tests_shown: How many TRIAGE_EVIDENCE_TESTS records were printed,
+        #     so each is shown once.
         self.write = write
         self.started = False
         self.decisions_shown = 0
@@ -201,6 +234,9 @@ class ProgressView:
         self.verification = None
         self.critique = None
         self.recheck = None
+        self.packet_shown = False
+        self.advice_shown = 0
+        self.tests_shown = 0
 
     def __call__(self, state: InvestigationState) -> None:
         # Variables:
@@ -219,6 +255,16 @@ class ProgressView:
             for line in step_line(decision, state):
                 self.write(line)
         self.decisions_shown = len(state.decisions)
+        if state.triage_packet is not None and not self.packet_shown:
+            self.packet_shown = True
+            for line in packet_lines(state.triage_packet):
+                self.write(line)
+        for advice in state.investigate_advice[self.advice_shown :]:
+            self.write(advice_line(advice))
+        self.advice_shown = len(state.investigate_advice)
+        for record in state.triage_test_records[self.tests_shown :]:
+            self.write(evidence_test_line(record))
+        self.tests_shown = len(state.triage_test_records)
         self._beliefs(state)
         self._pruned(state)
         self._critique(state)
@@ -403,6 +449,66 @@ def assessment_lines(conclusion) -> list[str]:
     if conclusion.next_check:
         lines.append(f"  next check: {shorten(conclusion.next_check, 120)}")
     return lines
+
+
+def advice_line(advice: InvestigateAdvice) -> str:
+    """One TRIAGE_INVESTIGATE record: the compiled read and what the model did."""
+    # Variables:
+    #   chose: The compiled read, or why there was none.
+    #   model: What the model asked for, when it was asked.
+    if advice.root is not None:
+        chose = (
+            f"{advice.tool} {advice.root} t={advice.from_tick}-{advice.to_tick} "
+            f"for {advice.question_id}"
+        )
+    else:
+        chose = f"none ({advice.reason})"
+    model = (
+        ""
+        if advice.outcome == "compiled"
+        else f"; model {advice.model_tool or '-'} {advice.model_root or ''}".rstrip()
+    )
+    return (
+        f"INVESTIGATE {advice.mode} {advice.phase} ({advice.source}): "
+        f"{advice.candidates} candidate(s); compiled {chose}{model}; {advice.outcome}"
+    )
+
+
+def packet_lines(packet: EvidencePacket) -> list[str]:
+    """The triage evidence packet in a few lines: calls, coverage, what is missing."""
+    # Variables:
+    #   calls: Each call as tool:role:outcome, with "+q" when its answer qualified.
+    #   missing: Each missing item as where:reason, at most MAX_PACKET_MISSING.
+    #   roster: Whether the expected-machine roster was read, and what it lacked.
+    calls = ", ".join(
+        f"{c.tool}:{c.role}:{c.outcome}{'+q' if c.qualified else ''}"
+        for c in packet.calls
+    )
+    missing = [
+        f"{i.physical_root or i.machine_id or '?'}:{i.missing_reason}"
+        for i in packet.items
+        if i.status == "missing"
+    ]
+    shown = missing[:MAX_PACKET_MISSING]
+    more = len(missing) - len(shown)
+    roster = (
+        f"roster {len(packet.roster)} machine(s)"
+        + (
+            f", absent from screening: {', '.join(packet.absent_from_screening)}"
+            if packet.absent_from_screening
+            else ""
+        )
+        if packet.roster_verified
+        else "roster not verified"
+    )
+    return [
+        f"PACKET t={packet.trigger_tick} cutoff, as of t={packet.observation_tick}; "
+        f"{len(packet.qualified_roots)} qualified sensor root(s); {roster}",
+        f"  calls: {calls}",
+        "  missing (unknown, not normal): "
+        + (", ".join(shown) if shown else "none")
+        + (f" (+{more} more)" if more > 0 else ""),
+    ]
 
 
 def calls_line(state: InvestigationState) -> str:

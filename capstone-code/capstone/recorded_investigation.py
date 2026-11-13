@@ -190,6 +190,8 @@ def run_recorded_investigation(
         budgets=budgets,
         stage_context=settings.stage_context,
         state_action_bar=settings.state_action_bar,
+        triage_packet=settings.triage_packet,
+        triage_packet_prompt=settings.triage_packet_prompt,
     )
     step_questions = (
         settings.step_questions
@@ -207,6 +209,8 @@ def run_recorded_investigation(
         policy=policy,
         clock=clock,
         screening_available=False,
+        triage_investigate=settings.triage_investigate,
+        triage_evidence_tests=settings.triage_evidence_tests,
         step_questions=step_questions,
         decide_calls=decide_calls,
         min_action_confidence=settings.min_action_confidence,

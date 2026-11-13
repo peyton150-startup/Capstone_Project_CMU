@@ -272,7 +272,9 @@ def test_with_line_context_the_deep_run_gathers_its_own_packet(monkeypatch):
     result = run(triage_then_deep("intervene"), monkeypatch, triage=True)
     first, deep = result.triage, result.state
     assert first.line_context_enabled and deep.line_context_enabled
-    assert first.incident_context is not None
+    # The triage's evidence packet wins over line context (2026-11-13), so the
+    # triage builds its own packet and no line-context one.
+    assert first.triage_packet is not None and first.incident_context is None
     assert deep.incident_context is not None
     # Its own packet, gathered in the deep run, not the triage's carried over.
     assert deep.incident_context is not first.incident_context
@@ -403,6 +405,14 @@ def clearance_state(*, hypotheses=True, screening="full"):
     state = new_state()
     state.mode = "triage"
     add_evidence(state, "E1", "simulator:get_time", {"tick": 10})
+    # A reading of the alarmed machine, so a clearance can cite a measurement
+    # (a clock read alone may not clear an alarm: triage_no_measurement).
+    add_evidence(
+        state,
+        "E3",
+        "simulator:get_sensor_summary",
+        {"machine_id": "CNC-02", "sensor": "vibration", "mean": 4.4},
+    )
     if screening is not None:
         machines = {
             "CNC-01": {"vibration": [0.1, 0.2]},
@@ -455,7 +465,7 @@ def clear(state, *, screening_available=True, **changes):
         "recommendation": "no_action",
         "assessment": "supported",
         "hypothesis_id": "H1" if state.hypotheses else None,
-        "evidence_ids": ("E1",),
+        "evidence_ids": ("E1", "E3"),
     }
     values.update(changes)
     deps = InvestigationDeps(

@@ -26,6 +26,8 @@ from capstone.agent.artifacts import (
     TerminationReason,
     VerificationCheck,
 )
+from capstone.agent.evidence_packet import EvidencePacket
+from capstone.agent.triage_report import TriageReport
 from capstone.contracts import Contract
 from capstone.contracts.evidence import Evidence
 from capstone.contracts.hypotheses import Hypothesis
@@ -167,6 +169,110 @@ class Question(Contract):
     estimated_calls: int = Field(default=1, ge=1, le=3)
 
 
+# TRIAGE_INVESTIGATE (Block 4): how the request compiler's choice compared
+# with the model's, or why the model was asked anyway.
+InvestigateMode = Literal["off", "advisory", "on"]
+AdviceOutcome = Literal[
+    "same_request",  # the model asked for exactly the compiled read
+    "same_target",  # same tool, machine and sensor; another window
+    "different",  # the model asked for another read
+    "model_stopped",  # the model chose to stop instead
+    "model_failed",  # the model gave no usable decision
+    "compiled",  # "on": the compiled read was made and the model not asked
+    "no_candidate",  # nothing compiled: the model decided (the escape hatch)
+]
+
+
+class InvestigateAdvice(Contract):
+    """One turn where the request compiler ran in a triage (TRIAGE_INVESTIGATE).
+
+    Identifiers and counts only, so runs can be compared: how often the
+    compiler had a read to offer, how often the model agreed, and how many
+    model decide questions the "on" arm saved.
+    """
+
+    mode: Literal["advisory", "on"]
+    phase: str
+    iteration: int = Field(ge=0)
+    # "decide": a standalone decide question; "interpret_and_decide": the next
+    # step that came with a reading (advisory only).
+    source: Literal["decide", "interpret_and_decide"] = "decide"
+    candidates: int = Field(ge=0)
+    question_id: str | None = None
+    tool: str | None = None
+    root: str | None = None
+    from_tick: int | None = None
+    to_tick: int | None = None
+    # The ranking signals of the chosen read, in ranking order.
+    signals: dict[str, int] = Field(default_factory=dict)
+    model_tool: str | None = None
+    model_root: str | None = None
+    outcome: AdviceOutcome
+    reason: str | None = None
+
+
+Verdict = Literal["true", "false", "insufficient", "stale", "unavailable"]
+
+
+class Predicate(Contract):
+    """A measurable condition that can settle one diagnostic question (triage).
+
+    Read as: over ticks [from_tick, to_tick], the `statistic` of `sensor` on
+    `machine_id` is `comparison` the `threshold`, from at least `min_samples`
+    readings. Written by a planner, never by the evaluator.
+    """
+
+    machine_id: str = Field(min_length=1)
+    sensor: str = Field(min_length=1)
+    from_tick: int = Field(ge=0)
+    to_tick: int = Field(ge=0)
+    statistic: Literal["mean", "minimum", "maximum", "end_value"]
+    comparison: Literal["above", "below"]
+    threshold: float
+    min_samples: int = Field(default=10, ge=1)
+
+
+class PredicateResult(Contract):
+    """What the evaluator found for one predicate: a verdict and why."""
+
+    verdict: Verdict
+    reason: str
+    value: float | None = None
+    sample_count: int = Field(default=0, ge=0)
+    evidence_ids: tuple[str, ...] = ()
+
+
+TriageTestKind = Literal[
+    # diagnosis_supported: the old rule said supported, the triage rule did not.
+    "support_withheld_rival_question",
+    "support_withheld_shared_root",
+    # check_conclusion: a rival question with no primary hypothesis held it open.
+    "rival_question_gap",
+    # gather: a predicate's verdict kept a question open or closed it.
+    "question_kept_open",
+    "question_closed",
+]
+
+
+class TriageTestRecord(Contract):
+    """One time TRIAGE_EVIDENCE_TESTS changed, or settled, an outcome. For tracing.
+
+    Each record says what the triage rule did that the old rule would not have
+    (or, for a question, what the predicate's verdict was), so a run with the
+    setting on can be compared with one where it is off.
+    """
+
+    kind: TriageTestKind
+    stage: str | None = None
+    tick: int | None = Field(default=None, ge=0)
+    hypothesis_id: str | None = None
+    question_ids: tuple[str, ...] = ()
+    roots: tuple[str, ...] = ()
+    verdict: Verdict | None = None
+    reason: str | None = None
+    evidence_ids: tuple[str, ...] = ()
+
+
 GapKind = Literal[
     "model_question",
     "unanswered_question",
@@ -174,9 +280,13 @@ GapKind = Literal[
     "selected_has_conflict",
     "unverified_number",
     # Triage only, and only for a supported "nothing needs doing": no
-    # explanation was formed, or the line screening left a machine unscored.
+    # explanation was formed, the line screening left a machine unscored (or
+    # missed one on the machine list), the screening was read before the
+    # alarm, or the answer cites no measurement at all (a clock read is none).
     "triage_no_hypothesis",
     "triage_screening_gap",
+    "triage_screening_stale",
+    "triage_no_measurement",
 ]
 # How an open question bears on the chosen explanation: it tells the chosen
 # one from a rival, it only checks the chosen one, it names no explanation,
@@ -311,6 +421,26 @@ class InvestigationState(BaseModel):
     # Opt-in comparison arm: gather bounded line context before planning.
     line_context_enabled: bool = False
     incident_context: IncidentContext | None = None
+    # TRIAGE_PACKET: in a triage only, Observe builds the qualified evidence
+    # packet (`agent.triage_packet`) instead of the line context. Ignored on a
+    # deep run, which never builds one. False here; the TRIAGE_PACKET setting
+    # (on by default) sets it on each triage.
+    triage_packet_enabled: bool = False
+    triage_packet: EvidencePacket | None = None
+    # TRIAGE_PACKET_PROMPT: show the packet's coverage in the triage's prompts.
+    # Set on each triage from the setting; a deep run never has a packet.
+    triage_packet_prompt: bool = False
+    # TRIAGE_INVESTIGATE: each turn the request compiler ran in a triage,
+    # with the model's choice beside it (`agent.investigate_compiler`).
+    investigate_advice: list[InvestigateAdvice] = Field(default_factory=list)
+    # Block 3 (TRIAGE_EVIDENCE_TESTS), triage only. A predicate a planner
+    # attached to a question, by question id: with one, a successful call
+    # closes the question only on a "true" or "false" verdict. Empty: every
+    # question closes as before.
+    question_predicates: dict[str, Predicate] = Field(default_factory=dict)
+    # Every time the triage evidence tests withheld support, held a conclusion
+    # open, or judged a question, for tracing whether the setting helps.
+    triage_test_records: list[TriageTestRecord] = Field(default_factory=list)
     # The most tool calls one decide answer may list (DECIDE_CALLS). The loop
     # sets it; a policy reads it to know whether it may answer with a list.
     decide_calls: int = Field(default=1, ge=1, le=MAX_DECIDE_CALLS)
@@ -347,6 +477,10 @@ class InvestigationState(BaseModel):
     # The latest simulation tick any tool result reported.
     last_tick: int | None = Field(default=None, ge=0)
     started_at: float | None = None  # seconds on the injected monotonic clock
+    # Seconds from started_at until the run first held any hypothesis, on the
+    # same injected clock; None until then. For measurement only: nothing the
+    # loop decides reads it.
+    first_hypothesis_seconds: float | None = Field(default=None, ge=0)
     # Calls already made, as "tool|arguments|tick", to spot repeats.
     seen_calls: list[str] = Field(default_factory=list)
 
@@ -368,6 +502,10 @@ class InvestigationState(BaseModel):
     # rules offline. None when the answer made no completion claim.
     conclusion_trace: ConclusionTrace | None = None
     proposed_action: ProposalRecord | None = None
+    # Triage only: the read-only report built from the checked conclusion
+    # (`agent.triage_report`). Without a model conclusion it names no cause.
+    # None on a deep run, and before the conclusion stage.
+    triage_report: TriageReport | None = None
     # The tick at which the conclusion was reached.
     concluded_tick: int | None = Field(default=None, ge=0)
     # What should change in the factory if the diagnosis is right.
