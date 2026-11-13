@@ -1,5 +1,9 @@
 # Progress Log
 
+> **2026-11-13 — triage stage metrics in the run records (agent + evaluation code; built ungated at the developer's request; understood: no; walkthrough owed):**
+> The A0 baseline could not say which triage stage used its model time: a model question was recorded only by its job, and "decide" is asked in both investigate and test. Each `ModelCall` now also records the `stage` and `mode` it was asked in; `InvestigationState.first_hypothesis_seconds` records when the run first held a hypothesis (set in `apply_interpretation` from the caller's clock); and new `evaluation/triage_metrics.py` (`TriageMetrics`, `triage_metrics`) sums a finished triage's questions and request seconds by stage, fallback answers, first-hypothesis time, hypotheses formed and tested, whether a rival was tested, reads observed/uninterpreted/failed/repeated and the unknowns reported. `TriageRecord.metrics` carries them and the experiment report adds a "triage stages" line. Measurement only: nothing the agent sees or decides reads these fields, and deep runs differ only in the two extra fields on their model calls. Old records load with the new fields empty; A0 cannot be backfilled. Offline tests only; no live run.
+>
+
 > **2026-11-12 — rapid Triage future work regrouped by actual architecture stages (DOCS ONLY, source-audited, no runtime change):**
 > Organized the existing 31 TRI proposals into *Monitor/trigger → Observe → Manual → Plan → Investigate → Hypothesize → Test → Critique/Recheck (no triage critic) → Conclude*, plus cross-stage budgets/evaluation.
 > Added [stage-owned register](TRIAGE_FUTURE_WORK_20261112.md) and [algorithm-first research appendix](TRIAGE_ALGORITHM_FIRST_RESEARCH_20261112.md), with 16 highest-signal replacements and 20 optional/deferred algorithm/ML alternatives, code anchors, primary research citations, and separated B-arm tests.

@@ -347,6 +347,10 @@ class InvestigationState(BaseModel):
     # The latest simulation tick any tool result reported.
     last_tick: int | None = Field(default=None, ge=0)
     started_at: float | None = None  # seconds on the injected monotonic clock
+    # Seconds from started_at until the run first held any hypothesis, on the
+    # same injected clock; None until then. For measurement only: nothing the
+    # loop decides reads it.
+    first_hypothesis_seconds: float | None = Field(default=None, ge=0)
     # Calls already made, as "tool|arguments|tick", to spot repeats.
     seen_calls: list[str] = Field(default_factory=list)
 

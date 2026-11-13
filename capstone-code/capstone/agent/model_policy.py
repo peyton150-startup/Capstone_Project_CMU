@@ -330,6 +330,11 @@ class ModelCall(Contract):
     outcome: Literal["answered", "invalid_reply", "no_answer"]
     answered_by: str | None = None
     attempts: tuple[Attempt, ...] = ()
+    # The stage running when the question was asked ("decide" is the
+    # conclusion), and whether the run was a triage or a deep investigation.
+    # None in records from before 2026-11-13. For measurement only.
+    stage: str | None = None
+    mode: str | None = None
 
 
 # --- what every question is shown ----------------------------------------------
@@ -1184,7 +1189,8 @@ class ModelPolicy:
         #   client: The model client asked: the job's own, or the late-run one
         #     late in a run (`client_for`).
         #   outcome: answered, invalid_reply or no_answer, written to the call record
-        #     either way.
+        #     either way, with state.stage and state.mode so a triage's model time
+        #     can be split by stage (`evaluation/triage_metrics.py`).
         #   triage: Extra keyword for a triage question, sent only to a
         #     FallbackClient (other clients, such as test fakes, do not take
         #     it); empty in a deep run, so its requests are unchanged.
@@ -1217,6 +1223,8 @@ class ModelPolicy:
                     if outcome == "answered"
                     else None,
                     attempts=tuple(getattr(client, "attempts", ())),
+                    stage=state.stage,
+                    mode=state.mode,
                 )
             )
 

@@ -424,7 +424,10 @@ def call_tool(
 
 
 def apply_interpretation(
-    state: InvestigationState, interpretation: Interpretation
+    state: InvestigationState,
+    interpretation: Interpretation,
+    *,
+    now: float | None = None,
 ) -> None:
     """Check a policy's revised beliefs, then make them the state's beliefs.
 
@@ -443,6 +446,9 @@ def apply_interpretation(
     #   interpretation.pruned: Only on tree-of-thought's hypothesize answer: the
     #     candidates it ruled out, kept in the state's trace for the critic.
     #   hypothesis.numeric_claims: Arithmetic checked before any revised belief is applied.
+    #   now: The caller's clock reading after the model answered; when the run
+    #     holds its first hypotheses, the time since it started is recorded in
+    #     state.first_hypothesis_seconds. None records nothing.
     if not isinstance(interpretation, Interpretation):
         raise ValueError("a policy must return an Interpretation")
     revised = interpretation.hypotheses
@@ -467,6 +473,14 @@ def apply_interpretation(
             state.hypothesis_revisions += sum(
                 before.get(key) != after.get(key) for key in before.keys() | after
             )
+        if (
+            revised
+            and not state.hypotheses
+            and state.first_hypothesis_seconds is None
+            and now is not None
+            and state.started_at is not None
+        ):
+            state.first_hypothesis_seconds = max(0.0, now - state.started_at)
         state.hypotheses = list(revised)
     # What tree-of-thought ruled out goes into the trace as it is; `prune`
     # already dropped any candidate that cited evidence never gathered.
@@ -617,6 +631,7 @@ def gather(
                     lambda view: deps.policy.interpret(view, step, evidence),
                     research=phase != "verify",
                 ),
+                now=deps.clock(),
             )
         except OutOfTime:
             # The evidence stays and no belief changes. Not the policy's
@@ -891,7 +906,7 @@ def run_inner_loop(
                         )
                 if not isinstance(reply, InterpretedStep):
                     raise ValueError("a combined reply must be an InterpretedStep")
-                apply_interpretation(state, reply.interpretation)
+                apply_interpretation(state, reply.interpretation, now=deps.clock())
                 pending_decision = reply.decision
             except OutOfTime:
                 mark_read(state, read, {"outcome": "uninterpreted"})
