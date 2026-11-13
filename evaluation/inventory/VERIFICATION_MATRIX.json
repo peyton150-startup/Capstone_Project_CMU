@@ -11,13 +11,13 @@
   "capstone-code/capstone/agent/critic.py": "e3a2948240b933e97a0d46e3ecf1160932a5e7a92859b085e0d6f40940d9b81c",
   "capstone-code/capstone/agent/evidence_brief.py": "e3bfb8b1910cf0e21c1c55d3b7d66efe9d9d3fb6971776bf32ae01bba1f0cd04",
   "capstone-code/capstone/agent/incident_context.py": "ddc8caecd198a3c97f11e31d21bfedc3e7b5abe5e25bedac627d47bc784106a2",
-  "capstone-code/capstone/agent/investigation.py": "955b870a5ce9a206ada418879629549522fb842ba499a0bd3fcb10808f3996f8",
+  "capstone-code/capstone/agent/investigation.py": "c77944f9b9f1cc2448e1244c3ccdac54b42e98abb616438e7f60b4f9de885a0a",
   "capstone-code/capstone/agent/loop.py": "f50ba332d3a0574111c2cfc71e181a15024f736f0bb1492d54823a1fdc6ecaf4",
   "capstone-code/capstone/agent/model_policy.py": "542bfb0b1bc73621e0ac265c1e07b84e27651bf28d399dc0f3c64459f025344d",
   "capstone-code/capstone/agent/monitor.py": "c59916f5de91342ebf7bd2ade22133901618c9ed4b3f5ea5937e62a0360a7a52",
   "capstone-code/capstone/agent/policy.py": "4e63fa1b8670bc5a57987c27d2c28846050c394f3c96bda3264a63a197d80228",
   "capstone-code/capstone/agent/recorded_state.py": "f7cc4d13364bb1cddd4920c5e6857f481a9b234aae8a17613b5fd572124dd59f",
-  "capstone-code/capstone/agent/state.py": "86abdff86bc42573cd8a7c31192fc7f5b866db19737f284cf9d0644a15d700e3",
+  "capstone-code/capstone/agent/state.py": "70a173d1d9f47e85f0e876fc6c5744ce3b05f1fa56b274c26f3285431f5bce77",
   "capstone-code/capstone/agent/tree_of_thought.py": "c6c64fc2d6288a5bf44e638b9c2bc959213b2aa313552b3a0adce883cafcc705",
   "capstone-code/capstone/agent/untrusted.py": "52df6f8d3c1df4b56d114ca2301dc914d1162ea4e803805afaa4aaa1c5775eaa",
   "capstone-code/capstone/baseline.py": "2f92230ce9cc26b04465f55bf04ef564f7e5f65dd392f644ee7183f5f1509bb4",
@@ -247,8 +247,9 @@
   "tests/test_time_stats.py": "e1226a2497b41b362682962204e30848f460ed96001920402fdcf8f6ce5eb0c6",
   "tests/test_tree_of_thought.py": "912f7380b3546457c2ebdf548c540100c7da66c8d36a209becb8dbe32fc4aa50",
   "tests/test_tree_search.py": "493731290898d53ee29c0c471828be6a8236857508682503e2a534c7de635f7c",
-  "tests/test_triage.py": "a28945a1b78287730f1f4d0268a1711ce2afba13be02005d4783550841982cfb",
-  "tests/test_triage_safety_baseline.py": "6eb9ae68a4cb3dc861cf701c2d6b26eb87a5e0d0ce7274a7f0348278006604e9",
+  "tests/test_triage.py": "3a35c93100d1ec4f1bb875a7381fed027d303b0a6c76c1acfb9790144b1d0b45",
+  "tests/test_triage_clearance_gates.py": "8912a02421a298cea6bf75c566d76e47e6aaaab6e9e7a9387c292144a5f9c3fb",
+  "tests/test_triage_safety_baseline.py": "1543d6a1c39afaa25bb1bc2cd2226b1eb827155740b53d1f869b69b5a224d5ac",
   "tests/test_two_lines.py": "03a86f7c3fc7a6ce9dcdd0dd6e436cced106818f67650cca4cfed4fc83bb7b48",
   "tests/test_typesafe_client.py": "a20685eae1995d6a29e8a99a3717b148c1ad062844ec346299116c74ff8b4751",
   "tests/test_untrusted_text.py": "cb17a2e154f3adca010fecd881298ed0801103fb48914a2a0aba6bca5117d9e7",
@@ -256,15 +257,15 @@
   "tests/test_wait_tool.py": "b99a5fbf756a60176262417e54d8d1a0496f01126929a330492e7d24287b2d1e",
   "tests/test_wrong_setting.py": "aed1c646bffaf88ae25ed2156794dc57427e8a61bbe6b23a0c33f3c3e89c0da3"
  },
- "coverage_sha256": "47bdf0f4a7e6fd2569d1b1f66a4966a73754a1796660195dc33bbc7db6623904",
- "junit_sha256": "e870b2070ef51bd26979e768e516e579e8b11196f8fea1cec6a8f1b4541ebeed",
+ "coverage_sha256": "fd276cdccae7819fcb0d3467151b8fcf76690774e9a726dbf2644c4b7fdd95a9",
+ "junit_sha256": "f1938da1f12f0c30b2db8117a694cd18ee053570213a628d5b6c400ffe485ca4",
  "counts": {
-  "functions": 1041,
+  "functions": 1044,
   "classes_note": "classes are listed through their methods",
-  "tests": 2041,
+  "tests": 2054,
   "tools": 18,
   "functions_by_status": {
-   "INSUFFICIENT EVIDENCE": 418,
+   "INSUFFICIENT EVIDENCE": 421,
    "NOT APPLICABLE": 25,
    "NOT TESTED": 17,
    "PARTIALLY VERIFIED": 536,
@@ -273,11 +274,11 @@
   "functions_by_coverage_class": {
    "direct": 565,
    "import-only": 4,
-   "indirect": 430,
+   "indirect": 433,
    "no-statements": 25,
    "none": 17
   },
-  "functions_executed_in_tests": 995,
+  "functions_executed_in_tests": 998,
   "functions_with_direct_tests": 565,
   "functions_never_executed": [
    "capstone.episode:ask_on_console",
@@ -307,6 +308,7 @@
   "functions_with_partial_statement_coverage": [
    "capstone.agent.critic:_rename (3/4)",
    "capstone.agent.critic:Critic.reconsider (11/17)",
+   "capstone.agent.investigation:latest_roster (7/9)",
    "capstone.agent.investigation:latest_screening (7/9)",
    "capstone.agent.loop:InvestigationDeps.__post_init__ (6/10)",
    "capstone.agent.model_policy:NextSteps.one_kind_of_step (7/10)",
@@ -349,8 +351,8 @@
   "stubs_or_protocols": 25,
   "tests_by_outcome": {
    "failed": 1,
-   "passed": 2034,
-   "skipped": 6
+   "passed": 2050,
+   "skipped": 3
   },
   "tests_with_no_assertion": [
    "tests/test_console.py::test_without_it_the_same_print_raised"
@@ -552,8 +554,8 @@
    "direct": 0
   },
   "capstone.agent.investigation": {
-   "functions": 52,
-   "executed": 50,
+   "functions": 55,
+   "executed": 53,
    "direct": 39
   },
   "capstone.agent.loop": {
@@ -1603,7 +1605,7 @@
    ]
   },
   "capstone.agent.evidence_brief:observations": {
-   "count": 478,
+   "count": 489,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_agent_investigation.py::test_incident_context_uses_bounded_observations_before_planning"
@@ -1662,7 +1664,7 @@
    ]
   },
   "capstone.agent.evidence_brief:verify_numeric_claims": {
-   "count": 346,
+   "count": 357,
    "status": "VERIFIED",
    "direct": [],
    "indirect": [
@@ -2197,7 +2199,7 @@
    ]
   },
   "capstone.agent.investigation:conclusion_gaps": {
-   "count": 50,
+   "count": 61,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
@@ -2216,7 +2218,7 @@
    ]
   },
   "capstone.agent.investigation:triage_clearance_gaps": {
-   "count": 16,
+   "count": 26,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
@@ -2231,11 +2233,30 @@
     "tests/test_triage.py::test_answers_that_clear_nothing_get_no_clearance_gaps",
     "tests/test_triage.py::test_both_reasons_are_kept_when_both_hold",
     "tests/test_triage.py::test_no_deep_run_when_the_triage_supports_that_nothing_is_needed",
-    "tests/test_triage_safety_baseline.py::test_a_triage_cannot_clear_on_a_screening_read_before_the_alarm"
+    "tests/test_triage_clearance_gates.py::test_a_machine_list_that_matches_the_screening_adds_no_gap"
    ]
   },
-  "capstone.agent.investigation:latest_screening": {
-   "count": 12,
+  "capstone.agent.investigation:cites_measurement": {
+   "count": 22,
+   "status": "INSUFFICIENT EVIDENCE",
+   "direct": [],
+   "indirect": [
+    "tests/test_triage.py::test_a_recorded_machine_without_screening_needs_only_an_explanation",
+    "tests/test_triage.py::test_a_triage_cannot_clear_an_alarmed_machine_the_screening_did_not_score",
+    "tests/test_triage.py::test_a_triage_cannot_clear_while_another_machine_is_unscored",
+    "tests/test_triage.py::test_a_triage_whose_screening_never_arrived_cannot_clear",
+    "tests/test_triage.py::test_a_triage_with_an_explanation_and_a_full_screening_may_still_clear",
+    "tests/test_triage.py::test_a_triage_with_no_explanation_cannot_clear_the_alarm",
+    "tests/test_triage.py::test_both_reasons_are_kept_when_both_hold",
+    "tests/test_triage.py::test_no_deep_run_when_the_triage_supports_that_nothing_is_needed",
+    "tests/test_triage_clearance_gates.py::test_a_machine_list_that_matches_the_screening_adds_no_gap",
+    "tests/test_triage_clearance_gates.py::test_a_reading_that_is_not_from_the_factory_does_not_count",
+    "tests/test_triage_clearance_gates.py::test_a_recorded_machine_has_no_screening_so_no_stale_or_roster_gap",
+    "tests/test_triage_clearance_gates.py::test_a_screening_read_at_the_alarms_tick_is_fresh_enough"
+   ]
+  },
+  "capstone.agent.investigation:screening_tick": {
+   "count": 20,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
@@ -2246,15 +2267,15 @@
     "tests/test_triage.py::test_a_triage_with_no_explanation_cannot_clear_the_alarm",
     "tests/test_triage.py::test_both_reasons_are_kept_when_both_hold",
     "tests/test_triage.py::test_no_deep_run_when_the_triage_supports_that_nothing_is_needed",
-    "tests/test_triage_safety_baseline.py::test_a_triage_cannot_clear_on_a_screening_read_before_the_alarm",
-    "tests/test_triage_safety_baseline.py::test_a_triage_cannot_clear_on_a_timestamp_alone",
-    "tests/test_triage_safety_baseline.py::test_a_triage_cannot_clear_when_the_screening_omits_a_machine_on_the_roster",
-    "tests/test_triage_safety_baseline.py::test_a_triage_cannot_clear_while_a_rival_separating_question_is_open",
-    "tests/test_triage_safety_baseline.py::test_a_triage_citing_a_full_screening_may_still_clear"
+    "tests/test_triage_clearance_gates.py::test_a_machine_list_that_matches_the_screening_adds_no_gap",
+    "tests/test_triage_clearance_gates.py::test_a_reading_that_is_not_from_the_factory_does_not_count",
+    "tests/test_triage_clearance_gates.py::test_a_screening_read_at_the_alarms_tick_is_fresh_enough",
+    "tests/test_triage_clearance_gates.py::test_a_stale_screening_names_both_ticks",
+    "tests/test_triage_clearance_gates.py::test_citing_only_the_machine_list_is_not_a_measurement"
    ]
   },
-  "capstone.agent.investigation:unscored_machines": {
-   "count": 10,
+  "capstone.agent.investigation:latest_roster": {
+   "count": 19,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
@@ -2263,15 +2284,55 @@
     "tests/test_triage.py::test_a_triage_with_an_explanation_and_a_full_screening_may_still_clear",
     "tests/test_triage.py::test_a_triage_with_no_explanation_cannot_clear_the_alarm",
     "tests/test_triage.py::test_no_deep_run_when_the_triage_supports_that_nothing_is_needed",
-    "tests/test_triage_safety_baseline.py::test_a_triage_cannot_clear_on_a_screening_read_before_the_alarm",
-    "tests/test_triage_safety_baseline.py::test_a_triage_cannot_clear_on_a_timestamp_alone",
-    "tests/test_triage_safety_baseline.py::test_a_triage_cannot_clear_when_the_screening_omits_a_machine_on_the_roster",
-    "tests/test_triage_safety_baseline.py::test_a_triage_cannot_clear_while_a_rival_separating_question_is_open",
-    "tests/test_triage_safety_baseline.py::test_a_triage_citing_a_full_screening_may_still_clear"
+    "tests/test_triage_clearance_gates.py::test_a_machine_list_that_matches_the_screening_adds_no_gap",
+    "tests/test_triage_clearance_gates.py::test_a_reading_that_is_not_from_the_factory_does_not_count",
+    "tests/test_triage_clearance_gates.py::test_a_screening_read_at_the_alarms_tick_is_fresh_enough",
+    "tests/test_triage_clearance_gates.py::test_a_stale_screening_names_both_ticks",
+    "tests/test_triage_clearance_gates.py::test_citing_only_the_machine_list_is_not_a_measurement",
+    "tests/test_triage_clearance_gates.py::test_citing_the_screening_counts_as_a_measurement",
+    "tests/test_triage_clearance_gates.py::test_the_gap_names_the_machine_the_screening_missed"
+   ]
+  },
+  "capstone.agent.investigation:latest_screening": {
+   "count": 20,
+   "status": "INSUFFICIENT EVIDENCE",
+   "direct": [],
+   "indirect": [
+    "tests/test_triage.py::test_a_triage_cannot_clear_an_alarmed_machine_the_screening_did_not_score",
+    "tests/test_triage.py::test_a_triage_cannot_clear_while_another_machine_is_unscored",
+    "tests/test_triage.py::test_a_triage_whose_screening_never_arrived_cannot_clear",
+    "tests/test_triage.py::test_a_triage_with_an_explanation_and_a_full_screening_may_still_clear",
+    "tests/test_triage.py::test_a_triage_with_no_explanation_cannot_clear_the_alarm",
+    "tests/test_triage.py::test_both_reasons_are_kept_when_both_hold",
+    "tests/test_triage.py::test_no_deep_run_when_the_triage_supports_that_nothing_is_needed",
+    "tests/test_triage_clearance_gates.py::test_a_machine_list_that_matches_the_screening_adds_no_gap",
+    "tests/test_triage_clearance_gates.py::test_a_reading_that_is_not_from_the_factory_does_not_count",
+    "tests/test_triage_clearance_gates.py::test_a_screening_read_at_the_alarms_tick_is_fresh_enough",
+    "tests/test_triage_clearance_gates.py::test_a_stale_screening_names_both_ticks",
+    "tests/test_triage_clearance_gates.py::test_citing_only_the_machine_list_is_not_a_measurement"
+   ]
+  },
+  "capstone.agent.investigation:unscored_machines": {
+   "count": 19,
+   "status": "INSUFFICIENT EVIDENCE",
+   "direct": [],
+   "indirect": [
+    "tests/test_triage.py::test_a_triage_cannot_clear_an_alarmed_machine_the_screening_did_not_score",
+    "tests/test_triage.py::test_a_triage_cannot_clear_while_another_machine_is_unscored",
+    "tests/test_triage.py::test_a_triage_with_an_explanation_and_a_full_screening_may_still_clear",
+    "tests/test_triage.py::test_a_triage_with_no_explanation_cannot_clear_the_alarm",
+    "tests/test_triage.py::test_no_deep_run_when_the_triage_supports_that_nothing_is_needed",
+    "tests/test_triage_clearance_gates.py::test_a_machine_list_that_matches_the_screening_adds_no_gap",
+    "tests/test_triage_clearance_gates.py::test_a_reading_that_is_not_from_the_factory_does_not_count",
+    "tests/test_triage_clearance_gates.py::test_a_screening_read_at_the_alarms_tick_is_fresh_enough",
+    "tests/test_triage_clearance_gates.py::test_a_stale_screening_names_both_ticks",
+    "tests/test_triage_clearance_gates.py::test_citing_only_the_machine_list_is_not_a_measurement",
+    "tests/test_triage_clearance_gates.py::test_citing_the_screening_counts_as_a_measurement",
+    "tests/test_triage_clearance_gates.py::test_missing_machines_follow_the_screenings_own_unscored_ones_without_repeats"
    ]
   },
   "capstone.agent.investigation:unresolved_confidence": {
-   "count": 17,
+   "count": 24,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
@@ -2290,7 +2351,7 @@
    ]
   },
   "capstone.agent.investigation:check_conclusion": {
-   "count": 327,
+   "count": 338,
    "status": "VERIFIED",
    "direct": [
     "tests/test_agent_investigation.py::test_a_bad_decision_is_recorded_and_the_run_goes_on",
@@ -2386,7 +2447,7 @@
    ]
   },
   "capstone.agent.investigation:needs_deep_run": {
-   "count": 30,
+   "count": 27,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
@@ -3107,7 +3168,7 @@
    ]
   },
   "capstone.agent.loop:InvestigationDeps.__post_init__": {
-   "count": 432,
+   "count": 443,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_agent_loop.py::test_a_cached_decision_cannot_run_after_the_combined_question_spends_the_time",
@@ -4629,7 +4690,7 @@
    ]
   },
   "capstone.agent.state:Budgets.research_gets_some_time": {
-   "count": 601,
+   "count": 614,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
@@ -54456,7 +54517,7 @@
    ]
   },
   "tests/test_triage.py::test_no_deep_run_when_the_triage_supports_that_nothing_is_needed": {
-   "count": 183,
+   "count": 186,
    "judgment": "NOT ASSESSED",
    "functions": [
     "capstone.agent.evidence_brief:observations",
@@ -54474,11 +54535,11 @@
     "capstone.agent.investigation:build_graph.<locals>.staged",
     "capstone.agent.investigation:build_graph.<locals>.test_step",
     "capstone.agent.investigation:check_conclusion",
+    "capstone.agent.investigation:cites_measurement",
     "capstone.agent.investigation:conclude",
     "capstone.agent.investigation:conclusion_gaps",
     "capstone.agent.investigation:consult_manual",
-    "capstone.agent.investigation:critique",
-    "capstone.agent.investigation:gathered_in"
+    "capstone.agent.investigation:critique"
    ]
   },
   "tests/test_triage.py::test_triage_then_deep_off_stops_after_the_triage": {
@@ -54798,15 +54859,18 @@
    ]
   },
   "tests/test_triage.py::test_a_triage_with_no_explanation_cannot_clear_the_alarm": {
-   "count": 11,
+   "count": 14,
    "judgment": "NOT ASSESSED",
    "functions": [
     "capstone.agent.evidence_brief:observations",
     "capstone.agent.evidence_brief:verify_numeric_claims",
     "capstone.agent.investigation:check_conclusion",
+    "capstone.agent.investigation:cites_measurement",
     "capstone.agent.investigation:conclusion_gaps",
+    "capstone.agent.investigation:latest_roster",
     "capstone.agent.investigation:latest_screening",
     "capstone.agent.investigation:needs_deep_run",
+    "capstone.agent.investigation:screening_tick",
     "capstone.agent.investigation:triage_clearance_gaps",
     "capstone.agent.investigation:unresolved_confidence",
     "capstone.agent.investigation:unscored_machines",
@@ -54815,15 +54879,18 @@
    ]
   },
   "tests/test_triage.py::test_a_triage_cannot_clear_an_alarmed_machine_the_screening_did_not_score": {
-   "count": 11,
+   "count": 14,
    "judgment": "NOT ASSESSED",
    "functions": [
     "capstone.agent.evidence_brief:observations",
     "capstone.agent.evidence_brief:verify_numeric_claims",
     "capstone.agent.investigation:check_conclusion",
+    "capstone.agent.investigation:cites_measurement",
     "capstone.agent.investigation:conclusion_gaps",
+    "capstone.agent.investigation:latest_roster",
     "capstone.agent.investigation:latest_screening",
     "capstone.agent.investigation:needs_deep_run",
+    "capstone.agent.investigation:screening_tick",
     "capstone.agent.investigation:triage_clearance_gaps",
     "capstone.agent.investigation:unresolved_confidence",
     "capstone.agent.investigation:unscored_machines",
@@ -54832,14 +54899,17 @@
    ]
   },
   "tests/test_triage.py::test_a_triage_cannot_clear_while_another_machine_is_unscored": {
-   "count": 10,
+   "count": 13,
    "judgment": "NOT ASSESSED",
    "functions": [
     "capstone.agent.evidence_brief:observations",
     "capstone.agent.evidence_brief:verify_numeric_claims",
     "capstone.agent.investigation:check_conclusion",
+    "capstone.agent.investigation:cites_measurement",
     "capstone.agent.investigation:conclusion_gaps",
+    "capstone.agent.investigation:latest_roster",
     "capstone.agent.investigation:latest_screening",
+    "capstone.agent.investigation:screening_tick",
     "capstone.agent.investigation:triage_clearance_gaps",
     "capstone.agent.investigation:unresolved_confidence",
     "capstone.agent.investigation:unscored_machines",
@@ -54848,15 +54918,17 @@
    ]
   },
   "tests/test_triage.py::test_a_triage_whose_screening_never_arrived_cannot_clear": {
-   "count": 10,
+   "count": 12,
    "judgment": "NOT ASSESSED",
    "functions": [
     "capstone.agent.evidence_brief:observations",
     "capstone.agent.evidence_brief:verify_numeric_claims",
     "capstone.agent.investigation:check_conclusion",
+    "capstone.agent.investigation:cites_measurement",
     "capstone.agent.investigation:conclusion_gaps",
     "capstone.agent.investigation:latest_screening",
     "capstone.agent.investigation:needs_deep_run",
+    "capstone.agent.investigation:screening_tick",
     "capstone.agent.investigation:triage_clearance_gaps",
     "capstone.agent.investigation:unresolved_confidence",
     "capstone.agent.loop:InvestigationDeps.__post_init__",
@@ -54864,14 +54936,16 @@
    ]
   },
   "tests/test_triage.py::test_both_reasons_are_kept_when_both_hold": {
-   "count": 9,
+   "count": 11,
    "judgment": "NOT ASSESSED",
    "functions": [
     "capstone.agent.evidence_brief:observations",
     "capstone.agent.evidence_brief:verify_numeric_claims",
     "capstone.agent.investigation:check_conclusion",
+    "capstone.agent.investigation:cites_measurement",
     "capstone.agent.investigation:conclusion_gaps",
     "capstone.agent.investigation:latest_screening",
+    "capstone.agent.investigation:screening_tick",
     "capstone.agent.investigation:triage_clearance_gaps",
     "capstone.agent.investigation:unresolved_confidence",
     "capstone.agent.loop:InvestigationDeps.__post_init__",
@@ -54879,15 +54953,18 @@
    ]
   },
   "tests/test_triage.py::test_a_triage_with_an_explanation_and_a_full_screening_may_still_clear": {
-   "count": 10,
+   "count": 13,
    "judgment": "NOT ASSESSED",
    "functions": [
     "capstone.agent.evidence_brief:observations",
     "capstone.agent.evidence_brief:verify_numeric_claims",
     "capstone.agent.investigation:check_conclusion",
+    "capstone.agent.investigation:cites_measurement",
     "capstone.agent.investigation:conclusion_gaps",
+    "capstone.agent.investigation:latest_roster",
     "capstone.agent.investigation:latest_screening",
     "capstone.agent.investigation:needs_deep_run",
+    "capstone.agent.investigation:screening_tick",
     "capstone.agent.investigation:triage_clearance_gaps",
     "capstone.agent.investigation:unscored_machines",
     "capstone.agent.loop:InvestigationDeps.__post_init__",
@@ -54895,12 +54972,13 @@
    ]
   },
   "tests/test_triage.py::test_a_recorded_machine_without_screening_needs_only_an_explanation": {
-   "count": 8,
+   "count": 9,
    "judgment": "NOT ASSESSED",
    "functions": [
     "capstone.agent.evidence_brief:observations",
     "capstone.agent.evidence_brief:verify_numeric_claims",
     "capstone.agent.investigation:check_conclusion",
+    "capstone.agent.investigation:cites_measurement",
     "capstone.agent.investigation:conclusion_gaps",
     "capstone.agent.investigation:needs_deep_run",
     "capstone.agent.investigation:triage_clearance_gaps",
@@ -54934,32 +55012,241 @@
     "capstone.agent.state:Budgets.research_gets_some_time"
    ]
   },
-  "tests/test_triage_safety_baseline.py::test_a_triage_cannot_clear_on_a_timestamp_alone": {
-   "count": 10,
+  "tests/test_triage_clearance_gates.py::test_citing_the_screening_counts_as_a_measurement": {
+   "count": 12,
    "judgment": "NOT ASSESSED",
    "functions": [
     "capstone.agent.evidence_brief:observations",
     "capstone.agent.evidence_brief:verify_numeric_claims",
     "capstone.agent.investigation:check_conclusion",
+    "capstone.agent.investigation:cites_measurement",
     "capstone.agent.investigation:conclusion_gaps",
+    "capstone.agent.investigation:latest_roster",
     "capstone.agent.investigation:latest_screening",
-    "capstone.agent.investigation:needs_deep_run",
+    "capstone.agent.investigation:screening_tick",
     "capstone.agent.investigation:triage_clearance_gaps",
     "capstone.agent.investigation:unscored_machines",
     "capstone.agent.loop:InvestigationDeps.__post_init__",
     "capstone.agent.state:Budgets.research_gets_some_time"
    ]
   },
-  "tests/test_triage_safety_baseline.py::test_a_triage_citing_a_full_screening_may_still_clear": {
-   "count": 10,
+  "tests/test_triage_clearance_gates.py::test_citing_only_the_machine_list_is_not_a_measurement": {
+   "count": 13,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.agent.evidence_brief:observations",
+    "capstone.agent.evidence_brief:verify_numeric_claims",
+    "capstone.agent.investigation:check_conclusion",
+    "capstone.agent.investigation:cites_measurement",
+    "capstone.agent.investigation:conclusion_gaps",
+    "capstone.agent.investigation:latest_roster",
+    "capstone.agent.investigation:latest_screening",
+    "capstone.agent.investigation:screening_tick",
+    "capstone.agent.investigation:triage_clearance_gaps",
+    "capstone.agent.investigation:unresolved_confidence",
+    "capstone.agent.investigation:unscored_machines",
+    "capstone.agent.loop:InvestigationDeps.__post_init__",
+    "capstone.agent.state:Budgets.research_gets_some_time"
+   ]
+  },
+  "tests/test_triage_clearance_gates.py::test_a_reading_that_is_not_from_the_factory_does_not_count": {
+   "count": 13,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.agent.evidence_brief:observations",
+    "capstone.agent.evidence_brief:verify_numeric_claims",
+    "capstone.agent.investigation:check_conclusion",
+    "capstone.agent.investigation:cites_measurement",
+    "capstone.agent.investigation:conclusion_gaps",
+    "capstone.agent.investigation:latest_roster",
+    "capstone.agent.investigation:latest_screening",
+    "capstone.agent.investigation:screening_tick",
+    "capstone.agent.investigation:triage_clearance_gaps",
+    "capstone.agent.investigation:unresolved_confidence",
+    "capstone.agent.investigation:unscored_machines",
+    "capstone.agent.loop:InvestigationDeps.__post_init__",
+    "capstone.agent.state:Budgets.research_gets_some_time"
+   ]
+  },
+  "tests/test_triage_clearance_gates.py::test_a_machine_list_that_matches_the_screening_adds_no_gap": {
+   "count": 12,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.agent.evidence_brief:observations",
+    "capstone.agent.evidence_brief:verify_numeric_claims",
+    "capstone.agent.investigation:check_conclusion",
+    "capstone.agent.investigation:cites_measurement",
+    "capstone.agent.investigation:conclusion_gaps",
+    "capstone.agent.investigation:latest_roster",
+    "capstone.agent.investigation:latest_screening",
+    "capstone.agent.investigation:screening_tick",
+    "capstone.agent.investigation:triage_clearance_gaps",
+    "capstone.agent.investigation:unscored_machines",
+    "capstone.agent.loop:InvestigationDeps.__post_init__",
+    "capstone.agent.state:Budgets.research_gets_some_time"
+   ]
+  },
+  "tests/test_triage_clearance_gates.py::test_without_a_machine_list_only_the_screenings_own_machines_are_checked": {
+   "count": 12,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.agent.evidence_brief:observations",
+    "capstone.agent.evidence_brief:verify_numeric_claims",
+    "capstone.agent.investigation:check_conclusion",
+    "capstone.agent.investigation:cites_measurement",
+    "capstone.agent.investigation:conclusion_gaps",
+    "capstone.agent.investigation:latest_roster",
+    "capstone.agent.investigation:latest_screening",
+    "capstone.agent.investigation:screening_tick",
+    "capstone.agent.investigation:triage_clearance_gaps",
+    "capstone.agent.investigation:unscored_machines",
+    "capstone.agent.loop:InvestigationDeps.__post_init__",
+    "capstone.agent.state:Budgets.research_gets_some_time"
+   ]
+  },
+  "tests/test_triage_clearance_gates.py::test_the_newest_machine_list_is_the_one_used": {
+   "count": 2,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.agent.investigation:latest_roster",
+    "capstone.agent.state:Budgets.research_gets_some_time"
+   ]
+  },
+  "tests/test_triage_clearance_gates.py::test_missing_machines_follow_the_screenings_own_unscored_ones_without_repeats": {
+   "count": 2,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.agent.investigation:unscored_machines",
+    "capstone.agent.state:Budgets.research_gets_some_time"
+   ]
+  },
+  "tests/test_triage_clearance_gates.py::test_the_gap_names_the_machine_the_screening_missed": {
+   "count": 13,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.agent.evidence_brief:observations",
+    "capstone.agent.evidence_brief:verify_numeric_claims",
+    "capstone.agent.investigation:check_conclusion",
+    "capstone.agent.investigation:cites_measurement",
+    "capstone.agent.investigation:conclusion_gaps",
+    "capstone.agent.investigation:latest_roster",
+    "capstone.agent.investigation:latest_screening",
+    "capstone.agent.investigation:screening_tick",
+    "capstone.agent.investigation:triage_clearance_gaps",
+    "capstone.agent.investigation:unresolved_confidence",
+    "capstone.agent.investigation:unscored_machines",
+    "capstone.agent.loop:InvestigationDeps.__post_init__",
+    "capstone.agent.state:Budgets.research_gets_some_time"
+   ]
+  },
+  "tests/test_triage_clearance_gates.py::test_a_screening_read_at_the_alarms_tick_is_fresh_enough": {
+   "count": 12,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.agent.evidence_brief:observations",
+    "capstone.agent.evidence_brief:verify_numeric_claims",
+    "capstone.agent.investigation:check_conclusion",
+    "capstone.agent.investigation:cites_measurement",
+    "capstone.agent.investigation:conclusion_gaps",
+    "capstone.agent.investigation:latest_roster",
+    "capstone.agent.investigation:latest_screening",
+    "capstone.agent.investigation:screening_tick",
+    "capstone.agent.investigation:triage_clearance_gaps",
+    "capstone.agent.investigation:unscored_machines",
+    "capstone.agent.loop:InvestigationDeps.__post_init__",
+    "capstone.agent.state:Budgets.research_gets_some_time"
+   ]
+  },
+  "tests/test_triage_clearance_gates.py::test_a_stale_screening_names_both_ticks": {
+   "count": 13,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.agent.evidence_brief:observations",
+    "capstone.agent.evidence_brief:verify_numeric_claims",
+    "capstone.agent.investigation:check_conclusion",
+    "capstone.agent.investigation:cites_measurement",
+    "capstone.agent.investigation:conclusion_gaps",
+    "capstone.agent.investigation:latest_roster",
+    "capstone.agent.investigation:latest_screening",
+    "capstone.agent.investigation:screening_tick",
+    "capstone.agent.investigation:triage_clearance_gaps",
+    "capstone.agent.investigation:unresolved_confidence",
+    "capstone.agent.investigation:unscored_machines",
+    "capstone.agent.loop:InvestigationDeps.__post_init__",
+    "capstone.agent.state:Budgets.research_gets_some_time"
+   ]
+  },
+  "tests/test_triage_clearance_gates.py::test_a_recorded_machine_has_no_screening_so_no_stale_or_roster_gap": {
+   "count": 8,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.agent.evidence_brief:observations",
+    "capstone.agent.evidence_brief:verify_numeric_claims",
+    "capstone.agent.investigation:check_conclusion",
+    "capstone.agent.investigation:cites_measurement",
+    "capstone.agent.investigation:conclusion_gaps",
+    "capstone.agent.investigation:triage_clearance_gaps",
+    "capstone.agent.loop:InvestigationDeps.__post_init__",
+    "capstone.agent.state:Budgets.research_gets_some_time"
+   ]
+  },
+  "tests/test_triage_clearance_gates.py::test_answers_that_clear_nothing_get_none_of_the_new_gaps": {
+   "count": 7,
    "judgment": "NOT ASSESSED",
    "functions": [
     "capstone.agent.evidence_brief:observations",
     "capstone.agent.evidence_brief:verify_numeric_claims",
     "capstone.agent.investigation:check_conclusion",
     "capstone.agent.investigation:conclusion_gaps",
+    "capstone.agent.investigation:triage_clearance_gaps",
+    "capstone.agent.loop:InvestigationDeps.__post_init__",
+    "capstone.agent.state:Budgets.research_gets_some_time"
+   ]
+  },
+  "tests/test_triage_clearance_gates.py::test_a_deep_run_gets_none_of_the_new_gaps": {
+   "count": 6,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.agent.evidence_brief:observations",
+    "capstone.agent.evidence_brief:verify_numeric_claims",
+    "capstone.agent.investigation:check_conclusion",
+    "capstone.agent.investigation:conclusion_gaps",
+    "capstone.agent.loop:InvestigationDeps.__post_init__",
+    "capstone.agent.state:Budgets.research_gets_some_time"
+   ]
+  },
+  "tests/test_triage_safety_baseline.py::test_a_triage_cannot_clear_on_a_timestamp_alone": {
+   "count": 13,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.agent.evidence_brief:observations",
+    "capstone.agent.evidence_brief:verify_numeric_claims",
+    "capstone.agent.investigation:check_conclusion",
+    "capstone.agent.investigation:cites_measurement",
+    "capstone.agent.investigation:conclusion_gaps",
+    "capstone.agent.investigation:latest_roster",
+    "capstone.agent.investigation:latest_screening",
+    "capstone.agent.investigation:screening_tick",
+    "capstone.agent.investigation:triage_clearance_gaps",
+    "capstone.agent.investigation:unresolved_confidence",
+    "capstone.agent.investigation:unscored_machines",
+    "capstone.agent.loop:InvestigationDeps.__post_init__",
+    "capstone.agent.state:Budgets.research_gets_some_time"
+   ]
+  },
+  "tests/test_triage_safety_baseline.py::test_a_triage_citing_a_full_screening_may_still_clear": {
+   "count": 13,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.agent.evidence_brief:observations",
+    "capstone.agent.evidence_brief:verify_numeric_claims",
+    "capstone.agent.investigation:check_conclusion",
+    "capstone.agent.investigation:cites_measurement",
+    "capstone.agent.investigation:conclusion_gaps",
+    "capstone.agent.investigation:latest_roster",
     "capstone.agent.investigation:latest_screening",
     "capstone.agent.investigation:needs_deep_run",
+    "capstone.agent.investigation:screening_tick",
     "capstone.agent.investigation:triage_clearance_gaps",
     "capstone.agent.investigation:unscored_machines",
     "capstone.agent.loop:InvestigationDeps.__post_init__",
@@ -54967,47 +55254,56 @@
    ]
   },
   "tests/test_triage_safety_baseline.py::test_a_triage_cannot_clear_when_the_screening_omits_a_machine_on_the_roster": {
-   "count": 10,
+   "count": 13,
    "judgment": "NOT ASSESSED",
    "functions": [
     "capstone.agent.evidence_brief:observations",
     "capstone.agent.evidence_brief:verify_numeric_claims",
     "capstone.agent.investigation:check_conclusion",
+    "capstone.agent.investigation:cites_measurement",
     "capstone.agent.investigation:conclusion_gaps",
+    "capstone.agent.investigation:latest_roster",
     "capstone.agent.investigation:latest_screening",
-    "capstone.agent.investigation:needs_deep_run",
+    "capstone.agent.investigation:screening_tick",
     "capstone.agent.investigation:triage_clearance_gaps",
+    "capstone.agent.investigation:unresolved_confidence",
     "capstone.agent.investigation:unscored_machines",
     "capstone.agent.loop:InvestigationDeps.__post_init__",
     "capstone.agent.state:Budgets.research_gets_some_time"
    ]
   },
   "tests/test_triage_safety_baseline.py::test_a_triage_cannot_clear_on_a_screening_read_before_the_alarm": {
-   "count": 10,
+   "count": 13,
    "judgment": "NOT ASSESSED",
    "functions": [
     "capstone.agent.evidence_brief:observations",
     "capstone.agent.evidence_brief:verify_numeric_claims",
     "capstone.agent.investigation:check_conclusion",
+    "capstone.agent.investigation:cites_measurement",
     "capstone.agent.investigation:conclusion_gaps",
+    "capstone.agent.investigation:latest_roster",
     "capstone.agent.investigation:latest_screening",
-    "capstone.agent.investigation:needs_deep_run",
+    "capstone.agent.investigation:screening_tick",
     "capstone.agent.investigation:triage_clearance_gaps",
+    "capstone.agent.investigation:unresolved_confidence",
     "capstone.agent.investigation:unscored_machines",
     "capstone.agent.loop:InvestigationDeps.__post_init__",
     "capstone.agent.state:Budgets.research_gets_some_time"
    ]
   },
   "tests/test_triage_safety_baseline.py::test_a_triage_cannot_clear_while_a_rival_separating_question_is_open": {
-   "count": 10,
+   "count": 13,
    "judgment": "NOT ASSESSED",
    "functions": [
     "capstone.agent.evidence_brief:observations",
     "capstone.agent.evidence_brief:verify_numeric_claims",
     "capstone.agent.investigation:check_conclusion",
+    "capstone.agent.investigation:cites_measurement",
     "capstone.agent.investigation:conclusion_gaps",
+    "capstone.agent.investigation:latest_roster",
     "capstone.agent.investigation:latest_screening",
     "capstone.agent.investigation:needs_deep_run",
+    "capstone.agent.investigation:screening_tick",
     "capstone.agent.investigation:triage_clearance_gaps",
     "capstone.agent.investigation:unscored_machines",
     "capstone.agent.loop:InvestigationDeps.__post_init__",
