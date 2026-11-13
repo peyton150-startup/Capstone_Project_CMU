@@ -33,7 +33,10 @@ jobs:
       - name: Fetch the generated inventories
         env:
           GH_TOKEN: ${{ github.token }}
-        run: gh run download 43529406282 --name evaluator-inventory --dir evaluation/inventory
+        run: |
+          mkdir -p "$RUNNER_TEMP/inventory-sync"
+          gh run download 43529406282 --name evaluator-inventory --dir "$RUNNER_TEMP/inventory-sync"
+          cp -f "$RUNNER_TEMP/inventory-sync/"*.json evaluation/inventory/
       - name: Commit inventories and remove this temporary workflow
         run: |
           git config user.name "github-actions[bot]"
