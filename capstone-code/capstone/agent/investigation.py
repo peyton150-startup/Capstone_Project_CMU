@@ -83,6 +83,7 @@ from capstone.agent.state import (
     PrunedCandidate,
     Question,
 )
+from capstone.agent.triage_report import build_triage_report
 from capstone.contracts.hypotheses import Hypothesis
 from capstone.contracts.tools import ToolRequest
 from capstone.providers.chat import ModelError
@@ -1163,6 +1164,8 @@ def conclude(state: InvestigationState, deps: InvestigationDeps) -> None:
     #     conclusion is "undetermined".
     #   stop.asked: True when models were asked for the conclusion and none
     #     answered; in a triage that ends the run as MODEL_UNAVAILABLE.
+    #   state.triage_report: In a triage, the read-only report built last,
+    #     from what the checks left; it names a cause only if the model gave one.
     state.stage = "decide"
     outcome = "decided"
     try:
@@ -1211,6 +1214,7 @@ def conclude(state: InvestigationState, deps: InvestigationDeps) -> None:
         # `policy_recommendation`, but no change is saved to propose.
         request = None
         state.deep_recommended = needs_deep_run(conclusion)
+        state.triage_report = build_triage_report(state)
     if conclusion.recommendation == "no_action":
         state.predicted_effect = NO_ACTION_PREDICTION
     if request is not None:

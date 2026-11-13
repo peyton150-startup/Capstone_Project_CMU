@@ -26,6 +26,7 @@ from capstone.agent.artifacts import (
     TerminationReason,
     VerificationCheck,
 )
+from capstone.agent.triage_report import TriageReport
 from capstone.contracts import Contract
 from capstone.contracts.evidence import Evidence
 from capstone.contracts.hypotheses import Hypothesis
@@ -372,6 +373,10 @@ class InvestigationState(BaseModel):
     # rules offline. None when the answer made no completion claim.
     conclusion_trace: ConclusionTrace | None = None
     proposed_action: ProposalRecord | None = None
+    # Triage only: the read-only report built from the checked conclusion
+    # (`agent.triage_report`). Without a model conclusion it names no cause.
+    # None on a deep run, and before the conclusion stage.
+    triage_report: TriageReport | None = None
     # The tick at which the conclusion was reached.
     concluded_tick: int | None = Field(default=None, ge=0)
     # What should change in the factory if the diagnosis is right.

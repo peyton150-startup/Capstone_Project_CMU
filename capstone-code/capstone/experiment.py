@@ -69,6 +69,7 @@ from capstone.agent.state import (
     IncidentContext,
 )
 from capstone.agent.tree_of_thought import RevaluationRecord, Thought, TreeOptions
+from capstone.agent.triage_report import TriageReport
 from capstone.console import safe_console
 from capstone.episode import (
     CHALLENGE,
@@ -286,6 +287,9 @@ class TriageRecord(BaseModel):
     # whether one did (TRIAGE_THEN_DEEP=off stops after the triage).
     deep_recommended: bool
     deep_ran: bool
+    # The read-only triage report (`agent.triage_report`). None in records
+    # from before it was kept.
+    report: TriageReport | None = None
 
 
 class ExperimentRecord(BaseModel):
@@ -475,6 +479,7 @@ def triage_record(result: EpisodeResult) -> TriageRecord | None:
     # Variables:
     #   first: The triage investigation.
     #   concluded: The triage's checked conclusion, if it reached one.
+    #   first.triage_report: The triage's read-only report, kept whole.
     first = result.triage
     if first is None or result.triage_seconds is None:
         return None
@@ -492,6 +497,7 @@ def triage_record(result: EpisodeResult) -> TriageRecord | None:
         tool_calls=first.tool_call_count,
         deep_recommended=bool(first.deep_recommended),
         deep_ran=result.state is not first,
+        report=first.triage_report,
     )
 
 
