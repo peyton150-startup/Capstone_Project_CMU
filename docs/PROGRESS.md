@@ -1,5 +1,9 @@
 # Progress Log
 
+> **2026-11-13 — triage Block 0: frozen control and safety tests (tests and docs only; built ungated, developer to review; understood: no):**
+> Block 0 of [the 2026-11-13 schedule](2026-11-13-schedule.md). Records the frozen control (main `0b0d3c4`, 90 s / 6 calls, settings, models, the 13 known-answer seeds) and the A0 comparators in [the Block 0 freeze note](benchmarks/2026-11-13-triage-block0-freeze.md). Adds `tests/test_triage_safety_baseline.py`: six strict-xfail triage safety expectations main does not meet yet (timestamp-only clearance, roster-omitted machine, screening read before the alarm, KA-09-shape open rival question at conclusion, null-primary rival question and two views of one sensor in `diagnosis_supported`), two over-blocking controls, and four deep-mode pins including one scripted deep episode's exact path. No runtime code changed; no live model run. Open: held-out seeds are the developer's choice; per-stage model calls, time to first valid hypothesis and qualified evidence were never recorded, and the A0 raw records were not found, so those comparators are missing.
+>
+
 > **2026-11-12 — rapid Triage future work regrouped by actual architecture stages (DOCS ONLY, source-audited, no runtime change):**
 > Organized the existing 31 TRI proposals into *Monitor/trigger → Observe → Manual → Plan → Investigate → Hypothesize → Test → Critique/Recheck (no triage critic) → Conclude*, plus cross-stage budgets/evaluation.
 > Added [stage-owned register](TRIAGE_FUTURE_WORK_20261112.md) and [algorithm-first research appendix](TRIAGE_ALGORITHM_FIRST_RESEARCH_20261112.md), with 16 highest-signal replacements and 20 optional/deferred algorithm/ML alternatives, code anchors, primary research citations, and separated B-arm tests.

@@ -9300,6 +9300,7 @@
     "capstone.agent.investigation:recheck",
     "capstone.agent.investigation:recheck_trigger",
     "capstone.agent.loop:InvestigationDeps.__post_init__",
+    "capstone.agent.loop:OutOfTime.__init__",
     "capstone.agent.loop:ask_policy",
     "capstone.agent.loop:held_for_hypotheses",
     "capstone.agent.loop:record",
@@ -9312,7 +9313,7 @@
     "capstone.agent.state:InvestigationState.research_seconds",
     "capstone.providers.chat:ModelError.__init__"
    ],
-   "exercise_count": 15,
+   "exercise_count": 16,
    "modules_exercised": [
     "capstone.agent.investigation",
     "capstone.agent.loop",
@@ -9784,6 +9785,7 @@
    "execution_outcome": "passed",
    "exercises": [
     "capstone.agent.loop:InvestigationDeps.__post_init__",
+    "capstone.agent.loop:OutOfTime.__init__",
     "capstone.agent.loop:ask_policy",
     "capstone.agent.loop:batch_steps",
     "capstone.agent.loop:call_signature",
@@ -9808,7 +9810,7 @@
     "capstone.contracts.tools:TraceContext.consistent_context",
     "capstone.providers.chat:ModelError.__init__"
    ],
-   "exercise_count": 24,
+   "exercise_count": 25,
    "modules_exercised": [
     "capstone.agent.loop",
     "capstone.agent.state",
@@ -22615,7 +22617,7 @@
    "id": "tests/test_chat_client.py::test_one_request_carries_the_model_the_prompt_and_the_answer_shape",
    "file": "tests/test_chat_client.py",
    "name": "test_one_request_carries_the_model_the_prompt_and_the_answer_shape",
-   "line": 99,
+   "line": 104,
    "docstring": "",
    "parametrized": false,
    "fixtures": [],
@@ -22656,7 +22658,7 @@
    "id": "tests/test_chat_client.py::test_a_valid_reply_becomes_the_typed_answer",
    "file": "tests/test_chat_client.py",
    "name": "test_a_valid_reply_becomes_the_typed_answer",
-   "line": 131,
+   "line": 136,
    "docstring": "",
    "parametrized": true,
    "fixtures": [
@@ -22695,7 +22697,7 @@
    "id": "tests/test_chat_client.py::test_an_invalid_reply_is_refused_not_repaired",
    "file": "tests/test_chat_client.py",
    "name": "test_an_invalid_reply_is_refused_not_repaired",
-   "line": 145,
+   "line": 150,
    "docstring": "",
    "parametrized": true,
    "fixtures": [
@@ -22732,7 +22734,7 @@
    "id": "tests/test_chat_client.py::test_a_malformed_service_reply_is_refused",
    "file": "tests/test_chat_client.py",
    "name": "test_a_malformed_service_reply_is_refused",
-   "line": 154,
+   "line": 159,
    "docstring": "",
    "parametrized": true,
    "fixtures": [
@@ -22768,7 +22770,7 @@
    "id": "tests/test_chat_client.py::test_an_http_error_reports_only_its_status",
    "file": "tests/test_chat_client.py",
    "name": "test_an_http_error_reports_only_its_status",
-   "line": 163,
+   "line": 168,
    "docstring": "",
    "parametrized": false,
    "fixtures": [],
@@ -22803,7 +22805,7 @@
    "id": "tests/test_chat_client.py::test_an_unreachable_service_is_a_model_error",
    "file": "tests/test_chat_client.py",
    "name": "test_an_unreachable_service_is_a_model_error",
-   "line": 177,
+   "line": 182,
    "docstring": "",
    "parametrized": true,
    "fixtures": [
@@ -22838,7 +22840,7 @@
    "id": "tests/test_chat_client.py::test_the_key_never_appears_in_the_client_representation",
    "file": "tests/test_chat_client.py",
    "name": "test_the_key_never_appears_in_the_client_representation",
-   "line": 183,
+   "line": 188,
    "docstring": "",
    "parametrized": false,
    "fixtures": [],
@@ -22871,7 +22873,7 @@
    "id": "tests/test_chat_client.py::test_the_providers_in_scope_and_no_others",
    "file": "tests/test_chat_client.py",
    "name": "test_the_providers_in_scope_and_no_others",
-   "line": 191,
+   "line": 196,
    "docstring": "",
    "parametrized": false,
    "fixtures": [],
@@ -22902,7 +22904,7 @@
    "id": "tests/test_chat_client.py::test_each_provider_gets_its_own_address_and_key",
    "file": "tests/test_chat_client.py",
    "name": "test_each_provider_gets_its_own_address_and_key",
-   "line": 243,
+   "line": 248,
    "docstring": "",
    "parametrized": true,
    "fixtures": [
@@ -22952,7 +22954,7 @@
    "id": "tests/test_chat_client.py::test_cloudflare_needs_the_account_id",
    "file": "tests/test_chat_client.py",
    "name": "test_cloudflare_needs_the_account_id",
-   "line": 256,
+   "line": 261,
    "docstring": "",
    "parametrized": false,
    "fixtures": [
@@ -23000,7 +23002,7 @@
    "id": "tests/test_chat_client.py::test_the_model_id_keeps_everything_after_the_provider",
    "file": "tests/test_chat_client.py",
    "name": "test_the_model_id_keeps_everything_after_the_provider",
-   "line": 272,
+   "line": 277,
    "docstring": "",
    "parametrized": false,
    "fixtures": [
@@ -23042,7 +23044,7 @@
    "id": "tests/test_chat_client.py::test_an_unknown_provider_or_bad_reference_is_refused",
    "file": "tests/test_chat_client.py",
    "name": "test_an_unknown_provider_or_bad_reference_is_refused",
-   "line": 281,
+   "line": 286,
    "docstring": "",
    "parametrized": true,
    "fixtures": [
@@ -23082,7 +23084,7 @@
    "id": "tests/test_chat_client.py::test_a_missing_key_names_the_setting_not_the_value",
    "file": "tests/test_chat_client.py",
    "name": "test_a_missing_key_names_the_setting_not_the_value",
-   "line": 288,
+   "line": 293,
    "docstring": "",
    "parametrized": false,
    "fixtures": [],
@@ -23115,7 +23117,7 @@
    "id": "tests/test_chat_client.py::test_the_jobs_are_the_seven_policy_questions",
    "file": "tests/test_chat_client.py",
    "name": "test_the_jobs_are_the_seven_policy_questions",
-   "line": 296,
+   "line": 301,
    "docstring": "",
    "parametrized": false,
    "fixtures": [],
@@ -23145,7 +23147,7 @@
    "id": "tests/test_chat_client.py::test_every_job_uses_the_default_model_unless_named",
    "file": "tests/test_chat_client.py",
    "name": "test_every_job_uses_the_default_model_unless_named",
-   "line": 308,
+   "line": 313,
    "docstring": "",
    "parametrized": false,
    "fixtures": [
@@ -23192,7 +23194,7 @@
    "id": "tests/test_chat_client.py::test_any_job_can_be_given_to_any_provider",
    "file": "tests/test_chat_client.py",
    "name": "test_any_job_can_be_given_to_any_provider",
-   "line": 316,
+   "line": 321,
    "docstring": "",
    "parametrized": false,
    "fixtures": [
@@ -23241,7 +23243,7 @@
    "id": "tests/test_chat_client.py::test_only_providers_in_use_need_a_key",
    "file": "tests/test_chat_client.py",
    "name": "test_only_providers_in_use_need_a_key",
-   "line": 329,
+   "line": 334,
    "docstring": "",
    "parametrized": false,
    "fixtures": [
@@ -23288,7 +23290,7 @@
    "id": "tests/test_chat_client.py::test_keys_are_masked_in_settings",
    "file": "tests/test_chat_client.py",
    "name": "test_keys_are_masked_in_settings",
-   "line": 337,
+   "line": 342,
    "docstring": "",
    "parametrized": false,
    "fixtures": [
@@ -23326,7 +23328,7 @@
    "id": "tests/test_chat_client.py::test_a_blank_key_is_treated_as_missing",
    "file": "tests/test_chat_client.py",
    "name": "test_a_blank_key_is_treated_as_missing",
-   "line": 347,
+   "line": 352,
    "docstring": "",
    "parametrized": true,
    "fixtures": [
@@ -23365,7 +23367,7 @@
    "id": "tests/test_chat_client.py::test_only_an_outage_is_marked_worth_retrying",
    "file": "tests/test_chat_client.py",
    "name": "test_only_an_outage_is_marked_worth_retrying",
-   "line": 377,
+   "line": 382,
    "docstring": "",
    "parametrized": true,
    "fixtures": [
@@ -23403,7 +23405,7 @@
    "id": "tests/test_chat_client.py::test_an_outage_is_retried_once_on_the_same_model",
    "file": "tests/test_chat_client.py",
    "name": "test_an_outage_is_retried_once_on_the_same_model",
-   "line": 384,
+   "line": 389,
    "docstring": "",
    "parametrized": false,
    "fixtures": [],
@@ -23444,7 +23446,7 @@
    "id": "tests/test_chat_client.py::test_a_refused_reply_is_not_retried_or_handed_on",
    "file": "tests/test_chat_client.py",
    "name": "test_a_refused_reply_is_not_retried_or_handed_on",
-   "line": 393,
+   "line": 398,
    "docstring": "",
    "parametrized": false,
    "fixtures": [],
@@ -23486,7 +23488,7 @@
    "id": "tests/test_chat_client.py::test_after_the_retry_fails_the_fallback_model_answers",
    "file": "tests/test_chat_client.py",
    "name": "test_after_the_retry_fails_the_fallback_model_answers",
-   "line": 404,
+   "line": 409,
    "docstring": "",
    "parametrized": false,
    "fixtures": [],
@@ -23527,7 +23529,7 @@
    "id": "tests/test_chat_client.py::test_a_rejected_key_skips_the_retry_and_goes_to_the_fallback",
    "file": "tests/test_chat_client.py",
    "name": "test_a_rejected_key_skips_the_retry_and_goes_to_the_fallback",
-   "line": 414,
+   "line": 419,
    "docstring": "",
    "parametrized": false,
    "fixtures": [],
@@ -23570,7 +23572,7 @@
    "id": "tests/test_chat_client.py::test_when_no_model_answers_the_error_names_each_failure_but_no_key",
    "file": "tests/test_chat_client.py",
    "name": "test_when_no_model_answers_the_error_names_each_failure_but_no_key",
-   "line": 423,
+   "line": 428,
    "docstring": "",
    "parametrized": false,
    "fixtures": [],
@@ -23611,7 +23613,7 @@
    "id": "tests/test_chat_client.py::test_every_model_tried_is_recorded_even_when_a_later_one_answers",
    "file": "tests/test_chat_client.py",
    "name": "test_every_model_tried_is_recorded_even_when_a_later_one_answers",
-   "line": 439,
+   "line": 444,
    "docstring": "",
    "parametrized": false,
    "fixtures": [],
@@ -23652,7 +23654,7 @@
    "id": "tests/test_chat_client.py::test_an_invalid_reply_is_recorded_against_the_model_that_sent_it",
    "file": "tests/test_chat_client.py",
    "name": "test_an_invalid_reply_is_recorded_against_the_model_that_sent_it",
-   "line": 451,
+   "line": 456,
    "docstring": "Groq times out twice, then Mistral answers with an invalid reply: the\ntimeouts are uptime, the invalid reply is Mistral's reasoning.",
    "parametrized": false,
    "fixtures": [],
@@ -23695,7 +23697,7 @@
    "id": "tests/test_chat_client.py::test_each_question_starts_a_fresh_record",
    "file": "tests/test_chat_client.py",
    "name": "test_each_question_starts_a_fresh_record",
-   "line": 467,
+   "line": 472,
    "docstring": "",
    "parametrized": false,
    "fixtures": [],
@@ -23736,7 +23738,7 @@
    "id": "tests/test_chat_client.py::test_a_service_that_answers_too_late_is_reported_as_timed_out",
    "file": "tests/test_chat_client.py",
    "name": "test_a_service_that_answers_too_late_is_reported_as_timed_out",
-   "line": 503,
+   "line": 508,
    "docstring": "",
    "parametrized": false,
    "fixtures": [],
@@ -23771,7 +23773,7 @@
    "id": "tests/test_chat_client.py::test_one_question_gets_twenty_seconds_retries_and_fallback_included",
    "file": "tests/test_chat_client.py",
    "name": "test_one_question_gets_twenty_seconds_retries_and_fallback_included",
-   "line": 510,
+   "line": 515,
    "docstring": "",
    "parametrized": false,
    "fixtures": [],
@@ -23812,7 +23814,7 @@
    "id": "tests/test_chat_client.py::test_a_slow_first_model_leaves_the_fallback_its_share_of_the_question",
    "file": "tests/test_chat_client.py",
    "name": "test_a_slow_first_model_leaves_the_fallback_its_share_of_the_question",
-   "line": 524,
+   "line": 529,
    "docstring": "",
    "parametrized": false,
    "fixtures": [],
@@ -23853,7 +23855,7 @@
    "id": "tests/test_chat_client.py::test_a_caller_can_shorten_a_question_but_never_lengthen_it",
    "file": "tests/test_chat_client.py",
    "name": "test_a_caller_can_shorten_a_question_but_never_lengthen_it",
-   "line": 541,
+   "line": 546,
    "docstring": "",
    "parametrized": false,
    "fixtures": [],
@@ -23894,7 +23896,7 @@
    "id": "tests/test_chat_client.py::test_a_question_with_no_time_left_asks_no_model",
    "file": "tests/test_chat_client.py",
    "name": "test_a_question_with_no_time_left_asks_no_model",
-   "line": 555,
+   "line": 560,
    "docstring": "",
    "parametrized": false,
    "fixtures": [],
@@ -23931,7 +23933,7 @@
    "id": "tests/test_chat_client.py::test_one_request_is_held_to_the_question_limit_too",
    "file": "tests/test_chat_client.py",
    "name": "test_one_request_is_held_to_the_question_limit_too",
-   "line": 564,
+   "line": 569,
    "docstring": "",
    "parametrized": false,
    "fixtures": [],
@@ -23968,7 +23970,7 @@
    "id": "tests/test_chat_client.py::test_each_attempt_records_how_long_the_model_took_but_not_the_pause",
    "file": "tests/test_chat_client.py",
    "name": "test_each_attempt_records_how_long_the_model_took_but_not_the_pause",
-   "line": 571,
+   "line": 576,
    "docstring": "",
    "parametrized": false,
    "fixtures": [],
@@ -24009,7 +24011,7 @@
    "id": "tests/test_chat_client.py::test_a_request_never_waits_longer_than_its_client_allows",
    "file": "tests/test_chat_client.py",
    "name": "test_a_request_never_waits_longer_than_its_client_allows",
-   "line": 592,
+   "line": 597,
    "docstring": "",
    "parametrized": false,
    "fixtures": [],
@@ -24046,7 +24048,7 @@
    "id": "tests/test_chat_client.py::test_a_job_falls_back_to_the_fallback_model_when_one_is_set",
    "file": "tests/test_chat_client.py",
    "name": "test_a_job_falls_back_to_the_fallback_model_when_one_is_set",
-   "line": 599,
+   "line": 604,
    "docstring": "",
    "parametrized": false,
    "fixtures": [
@@ -24092,7 +24094,7 @@
    "id": "tests/test_chat_client.py::test_several_fallback_models_are_tried_in_the_order_given",
    "file": "tests/test_chat_client.py",
    "name": "test_several_fallback_models_are_tried_in_the_order_given",
-   "line": 616,
+   "line": 621,
    "docstring": "",
    "parametrized": false,
    "fixtures": [
@@ -24138,7 +24140,7 @@
    "id": "tests/test_chat_client.py::test_cohere_is_never_asked_for_more_output_than_it_accepts",
    "file": "tests/test_chat_client.py",
    "name": "test_cohere_is_never_asked_for_more_output_than_it_accepts",
-   "line": 631,
+   "line": 636,
    "docstring": "",
    "parametrized": false,
    "fixtures": [
@@ -24180,7 +24182,7 @@
    "id": "tests/test_chat_client.py::test_model_sampling_reaches_the_outgoing_request",
    "file": "tests/test_chat_client.py",
    "name": "test_model_sampling_reaches_the_outgoing_request",
-   "line": 652,
+   "line": 657,
    "docstring": "",
    "parametrized": true,
    "fixtures": [
@@ -24231,7 +24233,7 @@
    "id": "tests/test_chat_client.py::test_fallback_uses_its_own_model_sampling",
    "file": "tests/test_chat_client.py",
    "name": "test_fallback_uses_its_own_model_sampling",
-   "line": 670,
+   "line": 675,
    "docstring": "",
    "parametrized": true,
    "fixtures": [
@@ -24288,7 +24290,7 @@
    "id": "tests/test_chat_client.py::test_model_sampling_overrides_provider_and_inherits_omitted_fields",
    "file": "tests/test_chat_client.py",
    "name": "test_model_sampling_overrides_provider_and_inherits_omitted_fields",
-   "line": 696,
+   "line": 701,
    "docstring": "",
    "parametrized": false,
    "fixtures": [
@@ -24335,7 +24337,7 @@
    "id": "tests/test_chat_client.py::test_null_top_p_uses_service_default",
    "file": "tests/test_chat_client.py",
    "name": "test_null_top_p_uses_service_default",
-   "line": 714,
+   "line": 719,
    "docstring": "",
    "parametrized": false,
    "fixtures": [
@@ -24383,7 +24385,7 @@
    "id": "tests/test_chat_client.py::test_when_the_first_fallback_is_out_of_quota_the_second_answers",
    "file": "tests/test_chat_client.py",
    "name": "test_when_the_first_fallback_is_out_of_quota_the_second_answers",
-   "line": 728,
+   "line": 733,
    "docstring": "",
    "parametrized": false,
    "fixtures": [],
@@ -24424,7 +24426,7 @@
    "id": "tests/test_chat_client.py::test_the_output_token_limit_is_sent_with_each_request",
    "file": "tests/test_chat_client.py",
    "name": "test_the_output_token_limit_is_sent_with_each_request",
-   "line": 743,
+   "line": 748,
    "docstring": "",
    "parametrized": false,
    "fixtures": [],
@@ -24462,7 +24464,7 @@
    "id": "tests/test_chat_client.py::test_a_reply_cut_off_at_the_limit_is_refused_and_says_so",
    "file": "tests/test_chat_client.py",
    "name": "test_a_reply_cut_off_at_the_limit_is_refused_and_says_so",
-   "line": 755,
+   "line": 760,
    "docstring": "",
    "parametrized": false,
    "fixtures": [],
@@ -24496,7 +24498,7 @@
    "id": "tests/test_chat_client.py::test_the_limits_come_from_settings",
    "file": "tests/test_chat_client.py",
    "name": "test_the_limits_come_from_settings",
-   "line": 771,
+   "line": 776,
    "docstring": "",
    "parametrized": false,
    "fixtures": [
@@ -24542,7 +24544,7 @@
    "id": "tests/test_chat_client.py::test_giving_up_because_the_callers_time_ran_out_says_so",
    "file": "tests/test_chat_client.py",
    "name": "test_giving_up_because_the_callers_time_ran_out_says_so",
-   "line": 794,
+   "line": 799,
    "docstring": "",
    "parametrized": false,
    "fixtures": [],
@@ -24582,7 +24584,7 @@
    "id": "tests/test_chat_client.py::test_running_out_of_the_questions_own_limit_is_an_outage",
    "file": "tests/test_chat_client.py",
    "name": "test_running_out_of_the_questions_own_limit_is_an_outage",
-   "line": 803,
+   "line": 808,
    "docstring": "",
    "parametrized": false,
    "fixtures": [],
@@ -24622,7 +24624,7 @@
    "id": "tests/test_chat_client.py::test_a_refusal_with_time_left_is_not_out_of_time",
    "file": "tests/test_chat_client.py",
    "name": "test_a_refusal_with_time_left_is_not_out_of_time",
-   "line": 815,
+   "line": 820,
    "docstring": "",
    "parametrized": false,
    "fixtures": [],
@@ -24662,7 +24664,7 @@
    "id": "tests/test_chat_client.py::test_retries_wait_longer_each_time_while_the_time_lasts",
    "file": "tests/test_chat_client.py",
    "name": "test_retries_wait_longer_each_time_while_the_time_lasts",
-   "line": 823,
+   "line": 828,
    "docstring": "",
    "parametrized": false,
    "fixtures": [],
@@ -24703,7 +24705,7 @@
    "id": "tests/test_chat_client.py::test_a_long_pause_that_no_longer_fits_becomes_the_shortest",
    "file": "tests/test_chat_client.py",
    "name": "test_a_long_pause_that_no_longer_fits_becomes_the_shortest",
-   "line": 838,
+   "line": 843,
    "docstring": "",
    "parametrized": false,
    "fixtures": [],
@@ -24744,7 +24746,7 @@
    "id": "tests/test_chat_client.py::test_a_router_passes_the_whole_model_name_on",
    "file": "tests/test_chat_client.py",
    "name": "test_a_router_passes_the_whole_model_name_on",
-   "line": 853,
+   "line": 858,
    "docstring": "",
    "parametrized": false,
    "fixtures": [
@@ -24791,7 +24793,7 @@
    "id": "tests/test_chat_client.py::test_an_invalid_reply_records_why_it_was_refused",
    "file": "tests/test_chat_client.py",
    "name": "test_an_invalid_reply_records_why_it_was_refused",
-   "line": 879,
+   "line": 884,
    "docstring": "",
    "parametrized": true,
    "fixtures": [
@@ -24836,7 +24838,7 @@
    "id": "tests/test_chat_client.py::test_the_reason_names_the_field_and_never_the_reply",
    "file": "tests/test_chat_client.py",
    "name": "test_the_reason_names_the_field_and_never_the_reply",
-   "line": 888,
+   "line": 893,
    "docstring": "",
    "parametrized": false,
    "fixtures": [],
@@ -24878,7 +24880,7 @@
    "id": "tests/test_chat_client.py::test_old_and_new_invalid_outcomes_are_the_models_own_doing",
    "file": "tests/test_chat_client.py",
    "name": "test_old_and_new_invalid_outcomes_are_the_models_own_doing",
-   "line": 899,
+   "line": 904,
    "docstring": "",
    "parametrized": false,
    "fixtures": [],
@@ -24911,7 +24913,7 @@
    "id": "tests/test_chat_client.py::test_nvidia_is_asked_to_keep_to_the_answer_types_schema",
    "file": "tests/test_chat_client.py",
    "name": "test_nvidia_is_asked_to_keep_to_the_answer_types_schema",
-   "line": 910,
+   "line": 915,
    "docstring": "",
    "parametrized": false,
    "fixtures": [
@@ -24958,7 +24960,7 @@
    "id": "tests/test_chat_client.py::test_providers_not_checked_send_no_response_format",
    "file": "tests/test_chat_client.py",
    "name": "test_providers_not_checked_send_no_response_format",
-   "line": 926,
+   "line": 931,
    "docstring": "",
    "parametrized": false,
    "fixtures": [
@@ -25005,7 +25007,7 @@
    "id": "tests/test_chat_client.py::test_cohere_requests_json_objects_and_keeps_the_schema_in_the_prompt",
    "file": "tests/test_chat_client.py",
    "name": "test_cohere_requests_json_objects_and_keeps_the_schema_in_the_prompt",
-   "line": 937,
+   "line": 942,
    "docstring": "",
    "parametrized": false,
    "fixtures": [
@@ -25053,7 +25055,7 @@
    "id": "tests/test_chat_client.py::test_a_structured_reply_is_still_checked_against_the_type",
    "file": "tests/test_chat_client.py",
    "name": "test_a_structured_reply_is_still_checked_against_the_type",
-   "line": 952,
+   "line": 957,
    "docstring": "The service promising the shape is not trusted: the reply is validated.",
    "parametrized": true,
    "fixtures": [
@@ -25099,7 +25101,7 @@
    "id": "tests/test_chat_client.py::test_critic_client_uses_only_its_chain",
    "file": "tests/test_chat_client.py",
    "name": "test_critic_client_uses_only_its_chain",
-   "line": 966,
+   "line": 971,
    "docstring": "",
    "parametrized": false,
    "fixtures": [
@@ -25144,7 +25146,7 @@
    "id": "tests/test_chat_client.py::test_critic_client_needs_a_model",
    "file": "tests/test_chat_client.py",
    "name": "test_critic_client_needs_a_model",
-   "line": 983,
+   "line": 988,
    "docstring": "",
    "parametrized": false,
    "fixtures": [],
@@ -25178,7 +25180,7 @@
    "id": "tests/test_chat_client.py::test_each_attempt_records_the_tokens_the_service_reported",
    "file": "tests/test_chat_client.py",
    "name": "test_each_attempt_records_the_tokens_the_service_reported",
-   "line": 1004,
+   "line": 1009,
    "docstring": "",
    "parametrized": false,
    "fixtures": [],
@@ -25218,7 +25220,7 @@
    "id": "tests/test_chat_client.py::test_a_refused_reply_still_records_the_tokens_it_cost",
    "file": "tests/test_chat_client.py",
    "name": "test_a_refused_reply_still_records_the_tokens_it_cost",
-   "line": 1012,
+   "line": 1017,
    "docstring": "",
    "parametrized": false,
    "fixtures": [],
@@ -25260,7 +25262,7 @@
    "id": "tests/test_chat_client.py::test_an_outage_records_the_size_sent_but_no_tokens",
    "file": "tests/test_chat_client.py",
    "name": "test_an_outage_records_the_size_sent_but_no_tokens",
-   "line": 1022,
+   "line": 1027,
    "docstring": "",
    "parametrized": false,
    "fixtures": [],
@@ -25301,7 +25303,7 @@
    "id": "tests/test_chat_client.py::test_a_service_that_reports_no_usage_leaves_tokens_unknown",
    "file": "tests/test_chat_client.py",
    "name": "test_a_service_that_reports_no_usage_leaves_tokens_unknown",
-   "line": 1032,
+   "line": 1037,
    "docstring": "",
    "parametrized": false,
    "fixtures": [],
@@ -25344,7 +25346,7 @@
    "id": "tests/test_chat_client.py::test_malformed_usage_is_ignored_not_trusted",
    "file": "tests/test_chat_client.py",
    "name": "test_malformed_usage_is_ignored_not_trusted",
-   "line": 1045,
+   "line": 1050,
    "docstring": "",
    "parametrized": true,
    "fixtures": [
@@ -25388,7 +25390,7 @@
    "id": "tests/test_chat_client.py::test_the_prompt_version_follows_the_instructions_not_the_working_memory",
    "file": "tests/test_chat_client.py",
    "name": "test_the_prompt_version_follows_the_instructions_not_the_working_memory",
-   "line": 1056,
+   "line": 1061,
    "docstring": "",
    "parametrized": false,
    "fixtures": [],
@@ -25429,7 +25431,7 @@
    "id": "tests/test_chat_client.py::test_a_retry_records_its_own_request_not_the_one_before",
    "file": "tests/test_chat_client.py",
    "name": "test_a_retry_records_its_own_request_not_the_one_before",
-   "line": 1075,
+   "line": 1080,
    "docstring": "",
    "parametrized": false,
    "fixtures": [],
@@ -25470,7 +25472,7 @@
    "id": "tests/test_chat_client.py::test_a_client_without_a_request_record_still_gets_attempts",
    "file": "tests/test_chat_client.py",
    "name": "test_a_client_without_a_request_record_still_gets_attempts",
-   "line": 1087,
+   "line": 1092,
    "docstring": "",
    "parametrized": false,
    "fixtures": [],
@@ -25491,6 +25493,504 @@
     "capstone.providers.chat:FallbackClient.ask.<locals>.tried"
    ],
    "exercise_count": 3,
+   "modules_exercised": [
+    "capstone.providers.chat"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_chat_client.py::test_a_triage_question_gives_the_first_model_two_thirds_of_its_time",
+   "file": "tests/test_chat_client.py",
+   "name": "test_a_triage_question_gives_the_first_model_two_thirds_of_its_time",
+   "line": 1124,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 3,
+   "assert_forms": {
+    "equality": 3
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "a triage question gives the first model two thirds of its time",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.providers.chat:ChatClient.__init__",
+    "capstone.providers.chat:ChatClient.ask",
+    "capstone.providers.chat:FallbackClient.__init__",
+    "capstone.providers.chat:FallbackClient.ask",
+    "capstone.providers.chat:FallbackClient.ask.<locals>.tried",
+    "capstone.providers.chat:ModelError.__init__",
+    "capstone.providers.chat:ModelHealth.__init__",
+    "capstone.providers.chat:ModelHealth.answered",
+    "capstone.providers.chat:ModelHealth.skipping",
+    "capstone.providers.chat:answer_json",
+    "capstone.providers.chat:post_json",
+    "capstone.providers.chat:reply_text",
+    "capstone.providers.chat:reported_usage"
+   ],
+   "exercise_count": 13,
+   "modules_exercised": [
+    "capstone.providers.chat"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_chat_client.py::test_a_deep_question_still_splits_its_time_equally",
+   "file": "tests/test_chat_client.py",
+   "name": "test_a_deep_question_still_splits_its_time_equally",
+   "line": 1132,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 2,
+   "assert_forms": {
+    "equality": 2
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "a deep question still splits its time equally",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.providers.chat:ChatClient.__init__",
+    "capstone.providers.chat:ChatClient.ask",
+    "capstone.providers.chat:FallbackClient.__init__",
+    "capstone.providers.chat:FallbackClient.ask",
+    "capstone.providers.chat:FallbackClient.ask.<locals>.tried",
+    "capstone.providers.chat:ModelError.__init__",
+    "capstone.providers.chat:ModelHealth.__init__",
+    "capstone.providers.chat:answer_json",
+    "capstone.providers.chat:post_json",
+    "capstone.providers.chat:reply_text",
+    "capstone.providers.chat:reported_usage"
+   ],
+   "exercise_count": 11,
+   "modules_exercised": [
+    "capstone.providers.chat"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_chat_client.py::test_a_triage_cut_off_is_labelled_out_of_time_and_a_deep_one_is_not",
+   "file": "tests/test_chat_client.py",
+   "name": "test_a_triage_cut_off_is_labelled_out_of_time_and_a_deep_one_is_not",
+   "line": 1139,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 3,
+   "assert_forms": {
+    "equality": 2,
+    "negation": 1
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "a triage cut off is labelled out of time and a deep one is not",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.providers.chat:ChatClient.__init__",
+    "capstone.providers.chat:ChatClient.ask",
+    "capstone.providers.chat:FallbackClient.__init__",
+    "capstone.providers.chat:FallbackClient.ask",
+    "capstone.providers.chat:FallbackClient.ask.<locals>.tried",
+    "capstone.providers.chat:ModelError.__init__",
+    "capstone.providers.chat:ModelHealth.__init__",
+    "capstone.providers.chat:ModelHealth.answered",
+    "capstone.providers.chat:ModelHealth.skipping",
+    "capstone.providers.chat:answer_json",
+    "capstone.providers.chat:post_json",
+    "capstone.providers.chat:reply_text",
+    "capstone.providers.chat:reported_usage"
+   ],
+   "exercise_count": 13,
+   "modules_exercised": [
+    "capstone.providers.chat"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_chat_client.py::test_a_cut_off_does_not_count_against_the_model",
+   "file": "tests/test_chat_client.py",
+   "name": "test_a_cut_off_does_not_count_against_the_model",
+   "line": 1152,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 1,
+   "assert_forms": {
+    "negation": 1
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [
+    "may_skip"
+   ],
+   "claims": "a cut off does not count against the model",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.providers.chat:ChatClient.__init__",
+    "capstone.providers.chat:ChatClient.ask",
+    "capstone.providers.chat:FallbackClient.__init__",
+    "capstone.providers.chat:FallbackClient.ask",
+    "capstone.providers.chat:FallbackClient.ask.<locals>.tried",
+    "capstone.providers.chat:ModelError.__init__",
+    "capstone.providers.chat:ModelHealth.__init__",
+    "capstone.providers.chat:ModelHealth.answered",
+    "capstone.providers.chat:ModelHealth.skipping",
+    "capstone.providers.chat:answer_json",
+    "capstone.providers.chat:post_json",
+    "capstone.providers.chat:reply_text",
+    "capstone.providers.chat:reported_usage"
+   ],
+   "exercise_count": 13,
+   "modules_exercised": [
+    "capstone.providers.chat"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_chat_client.py::test_the_services_own_timeout_counts_against_the_model",
+   "file": "tests/test_chat_client.py",
+   "name": "test_the_services_own_timeout_counts_against_the_model",
+   "line": 1161,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 2,
+   "assert_forms": {
+    "call_truthiness": 1,
+    "equality": 1
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [
+    "may_skip"
+   ],
+   "claims": "the services own timeout counts against the model",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.providers.chat:ChatClient.__init__",
+    "capstone.providers.chat:ChatClient.ask",
+    "capstone.providers.chat:FallbackClient.__init__",
+    "capstone.providers.chat:FallbackClient.ask",
+    "capstone.providers.chat:FallbackClient.ask.<locals>.tried",
+    "capstone.providers.chat:ModelError.__init__",
+    "capstone.providers.chat:ModelHealth.__init__",
+    "capstone.providers.chat:ModelHealth.answered",
+    "capstone.providers.chat:ModelHealth.failed",
+    "capstone.providers.chat:ModelHealth.mark_down",
+    "capstone.providers.chat:ModelHealth.skipping",
+    "capstone.providers.chat:answer_json",
+    "capstone.providers.chat:post_json",
+    "capstone.providers.chat:reply_text",
+    "capstone.providers.chat:reported_usage"
+   ],
+   "exercise_count": 15,
+   "modules_exercised": [
+    "capstone.providers.chat"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_chat_client.py::test_a_model_that_refused_twice_is_skipped_in_triage_for_a_while",
+   "file": "tests/test_chat_client.py",
+   "name": "test_a_model_that_refused_twice_is_skipped_in_triage_for_a_while",
+   "line": 1170,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 5,
+   "assert_forms": {
+    "equality": 3,
+    "negation": 1,
+    "truthiness": 1
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [
+    "may_skip"
+   ],
+   "claims": "a model that refused twice is skipped in triage for a while",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.providers.chat:ChatClient.__init__",
+    "capstone.providers.chat:ChatClient.ask",
+    "capstone.providers.chat:FallbackClient.__init__",
+    "capstone.providers.chat:FallbackClient.ask",
+    "capstone.providers.chat:FallbackClient.ask.<locals>.tried",
+    "capstone.providers.chat:ModelError.__init__",
+    "capstone.providers.chat:ModelHealth.__init__",
+    "capstone.providers.chat:ModelHealth.answered",
+    "capstone.providers.chat:ModelHealth.failed",
+    "capstone.providers.chat:ModelHealth.mark_down",
+    "capstone.providers.chat:ModelHealth.skipping",
+    "capstone.providers.chat:answer_json",
+    "capstone.providers.chat:post_json",
+    "capstone.providers.chat:reply_text",
+    "capstone.providers.chat:reported_usage"
+   ],
+   "exercise_count": 15,
+   "modules_exercised": [
+    "capstone.providers.chat"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_chat_client.py::test_a_deep_question_never_skips_a_model",
+   "file": "tests/test_chat_client.py",
+   "name": "test_a_deep_question_never_skips_a_model",
+   "line": 1193,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 2,
+   "assert_forms": {
+    "equality": 2
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [
+    "may_skip"
+   ],
+   "claims": "a deep question never skips a model",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.providers.chat:ChatClient.__init__",
+    "capstone.providers.chat:ChatClient.ask",
+    "capstone.providers.chat:FallbackClient.__init__",
+    "capstone.providers.chat:FallbackClient.ask",
+    "capstone.providers.chat:FallbackClient.ask.<locals>.tried",
+    "capstone.providers.chat:ModelHealth.__init__",
+    "capstone.providers.chat:ModelHealth.mark_down",
+    "capstone.providers.chat:answer_json",
+    "capstone.providers.chat:post_json",
+    "capstone.providers.chat:reply_text",
+    "capstone.providers.chat:reported_usage"
+   ],
+   "exercise_count": 11,
+   "modules_exercised": [
+    "capstone.providers.chat"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_chat_client.py::test_triage_never_skips_every_model",
+   "file": "tests/test_chat_client.py",
+   "name": "test_triage_never_skips_every_model",
+   "line": 1204,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 2,
+   "assert_forms": {
+    "equality": 2
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [
+    "may_skip"
+   ],
+   "claims": "triage never skips every model",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.providers.chat:ChatClient.__init__",
+    "capstone.providers.chat:ChatClient.ask",
+    "capstone.providers.chat:FallbackClient.__init__",
+    "capstone.providers.chat:FallbackClient.ask",
+    "capstone.providers.chat:FallbackClient.ask.<locals>.tried",
+    "capstone.providers.chat:ModelHealth.__init__",
+    "capstone.providers.chat:ModelHealth.answered",
+    "capstone.providers.chat:ModelHealth.mark_down",
+    "capstone.providers.chat:ModelHealth.skipping",
+    "capstone.providers.chat:answer_json",
+    "capstone.providers.chat:post_json",
+    "capstone.providers.chat:reply_text",
+    "capstone.providers.chat:reported_usage"
+   ],
+   "exercise_count": 13,
+   "modules_exercised": [
+    "capstone.providers.chat"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_chat_client.py::test_the_error_counts_the_requests_that_really_went_out",
+   "file": "tests/test_chat_client.py",
+   "name": "test_the_error_counts_the_requests_that_really_went_out",
+   "line": 1216,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 2,
+   "assert_forms": {
+    "equality": 2
+   },
+   "raises_checks": 2,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "the error counts the requests that really went out",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.providers.chat:ChatClient.__init__",
+    "capstone.providers.chat:ChatClient.ask",
+    "capstone.providers.chat:FallbackClient.__init__",
+    "capstone.providers.chat:FallbackClient.ask",
+    "capstone.providers.chat:FallbackClient.ask.<locals>.given_up",
+    "capstone.providers.chat:FallbackClient.ask.<locals>.tried",
+    "capstone.providers.chat:ModelError.__init__",
+    "capstone.providers.chat:no_answer",
+    "capstone.providers.chat:post_json"
+   ],
+   "exercise_count": 9,
+   "modules_exercised": [
+    "capstone.providers.chat"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_chat_client.py::test_the_check_before_a_run_asks_each_model_once_and_sets_aside_the_silent",
+   "file": "tests/test_chat_client.py",
+   "name": "test_the_check_before_a_run_asks_each_model_once_and_sets_aside_the_silent",
+   "line": 1229,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 3,
+   "assert_forms": {
+    "equality": 2,
+    "truthiness": 1
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [
+    "may_skip"
+   ],
+   "claims": "the check before a run asks each model once and sets aside the silent",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.providers.chat:ChatClient.__init__",
+    "capstone.providers.chat:ChatClient.ask",
+    "capstone.providers.chat:FallbackClient.__init__",
+    "capstone.providers.chat:ModelError.__init__",
+    "capstone.providers.chat:ModelHealth.__init__",
+    "capstone.providers.chat:ModelHealth.answered",
+    "capstone.providers.chat:ModelHealth.mark_down",
+    "capstone.providers.chat:ModelHealth.skipping",
+    "capstone.providers.chat:answer_json",
+    "capstone.providers.chat:check_models",
+    "capstone.providers.chat:post_json",
+    "capstone.providers.chat:reply_text",
+    "capstone.providers.chat:reported_usage"
+   ],
+   "exercise_count": 13,
+   "modules_exercised": [
+    "capstone.providers.chat"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_chat_client.py::test_a_malformed_reply_to_the_check_still_shows_the_service_is_up",
+   "file": "tests/test_chat_client.py",
+   "name": "test_a_malformed_reply_to_the_check_still_shows_the_service_is_up",
+   "line": 1241,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 1,
+   "assert_forms": {
+    "truthiness": 1
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [
+    "weak_assertions_only",
+    "may_skip"
+   ],
+   "claims": "a malformed reply to the check still shows the service is up",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.providers.chat:ChatClient.__init__",
+    "capstone.providers.chat:ChatClient.ask",
+    "capstone.providers.chat:FallbackClient.__init__",
+    "capstone.providers.chat:ModelHealth.__init__",
+    "capstone.providers.chat:ModelHealth.answered",
+    "capstone.providers.chat:ModelHealth.skipping",
+    "capstone.providers.chat:answer_json",
+    "capstone.providers.chat:check_models",
+    "capstone.providers.chat:post_json",
+    "capstone.providers.chat:reply_text",
+    "capstone.providers.chat:reported_usage"
+   ],
+   "exercise_count": 11,
    "modules_exercised": [
     "capstone.providers.chat"
    ],
@@ -27151,12 +27651,15 @@
    "exercises": [
     "capstone.console:safe_console",
     "capstone.experiment:add_manual_options",
-    "capstone.experiment:main"
+    "capstone.experiment:main",
+    "capstone.settings:Settings.blank_is_missing",
+    "capstone.settings:get_settings"
    ],
-   "exercise_count": 3,
+   "exercise_count": 5,
    "modules_exercised": [
     "capstone.console",
-    "capstone.experiment"
+    "capstone.experiment",
+    "capstone.settings"
    ],
    "judgment": "NOT ASSESSED",
    "curated": {},
@@ -27416,13 +27919,16 @@
     "capstone.experiment:add_manual_options",
     "capstone.experiment:main",
     "capstone.experiment:seeds_from",
-    "capstone.experiment:stage_context_mismatches"
+    "capstone.experiment:stage_context_mismatches",
+    "capstone.settings:Settings.blank_is_missing",
+    "capstone.settings:get_settings"
    ],
-   "exercise_count": 6,
+   "exercise_count": 8,
    "modules_exercised": [
     "capstone.agent.state",
     "capstone.console",
-    "capstone.experiment"
+    "capstone.experiment",
+    "capstone.settings"
    ],
    "judgment": "NOT ASSESSED",
    "curated": {},
@@ -48043,16 +48549,19 @@
     "capstone.manual.index:KeywordManualSearch.__init__",
     "capstone.manual.sections:check_no_leaks",
     "capstone.manual.sections:load_manual",
-    "capstone.manual.sections:parse_manual"
+    "capstone.manual.sections:parse_manual",
+    "capstone.settings:Settings.blank_is_missing",
+    "capstone.settings:get_settings"
    ],
-   "exercise_count": 22,
+   "exercise_count": 24,
    "modules_exercised": [
     "capstone.agent.completion",
     "capstone.console",
     "capstone.evaluation.scoring",
     "capstone.experiment",
     "capstone.manual.index",
-    "capstone.manual.sections"
+    "capstone.manual.sections",
+    "capstone.settings"
    ],
    "judgment": "NOT ASSESSED",
    "curated": {},
@@ -52107,16 +52616,19 @@
     "capstone.manual.index:KeywordManualSearch.__init__",
     "capstone.manual.sections:check_no_leaks",
     "capstone.manual.sections:load_manual",
-    "capstone.manual.sections:parse_manual"
+    "capstone.manual.sections:parse_manual",
+    "capstone.settings:Settings.blank_is_missing",
+    "capstone.settings:get_settings"
    ],
-   "exercise_count": 22,
+   "exercise_count": 24,
    "modules_exercised": [
     "capstone.agent.completion",
     "capstone.console",
     "capstone.evaluation.scoring",
     "capstone.experiment",
     "capstone.manual.index",
-    "capstone.manual.sections"
+    "capstone.manual.sections",
+    "capstone.settings"
    ],
    "judgment": "NOT ASSESSED",
    "curated": {},
@@ -56783,7 +57295,7 @@
    "uses": [],
    "quality_flags": [],
    "claims": "Every tracked Python file is inventoried, a test, excluded with a reason,",
-   "execution_outcome": "passed",
+   "execution_outcome": "failed",
    "exercises": [
     "evaluation.evaltools.build_inventory:call_name",
     "evaluation.evaltools.build_inventory:collect_functions",
@@ -63005,13 +63517,14 @@
    "id": "tests/test_late_model.py::test_the_switch_is_off_by_default",
    "file": "tests/test_late_model.py",
    "name": "test_the_switch_is_off_by_default",
-   "line": 99,
+   "line": 112,
    "docstring": "",
    "parametrized": false,
    "fixtures": [],
-   "assertions": 3,
+   "assertions": 4,
    "assert_forms": {
     "equality": 2,
+    "identity_constant": 1,
     "is_none": 1
    },
    "raises_checks": 0,
@@ -63040,7 +63553,7 @@
    "id": "tests/test_late_model.py::test_the_threshold_must_be_positive",
    "file": "tests/test_late_model.py",
    "name": "test_the_threshold_must_be_positive",
-   "line": 106,
+   "line": 120,
    "docstring": "",
    "parametrized": false,
    "fixtures": [],
@@ -63070,7 +63583,7 @@
    "id": "tests/test_late_model.py::test_late_clients_ask_the_late_model_then_the_shared_fallback",
    "file": "tests/test_late_model.py",
    "name": "test_late_clients_ask_the_late_model_then_the_shared_fallback",
-   "line": 111,
+   "line": 125,
    "docstring": "",
    "parametrized": false,
    "fixtures": [],
@@ -63109,10 +63622,85 @@
    ]
   },
   {
+   "id": "tests/test_late_model.py::test_late_conclusion_uses_the_same_model_fallback_and_thinking",
+   "file": "tests/test_late_model.py",
+   "name": "test_late_conclusion_uses_the_same_model_fallback_and_thinking",
+   "line": 135,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 4,
+   "assert_forms": {
+    "equality": 3,
+    "is_none": 1
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "late conclusion uses the same model fallback and thinking",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.providers.chat:ChatClient.__init__",
+    "capstone.providers.chat:FallbackClient.__init__",
+    "capstone.providers.chat:_capped",
+    "capstone.providers.chat:chain_for",
+    "capstone.providers.chat:client_for",
+    "capstone.providers.chat:late_clients",
+    "capstone.providers.chat:late_key",
+    "capstone.providers.chat:late_thinking_fields",
+    "capstone.settings:Settings.blank_is_missing",
+    "capstone.settings:fallback_models"
+   ],
+   "exercise_count": 10,
+   "modules_exercised": [
+    "capstone.providers.chat",
+    "capstone.settings"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_late_model.py::test_late_conclusion_requires_a_configured_late_model",
+   "file": "tests/test_late_model.py",
+   "name": "test_late_conclusion_requires_a_configured_late_model",
+   "line": 149,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 0,
+   "assert_forms": {},
+   "raises_checks": 1,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "late conclusion requires a configured late model",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.providers.chat:late_clients",
+    "capstone.settings:Settings.blank_is_missing"
+   ],
+   "exercise_count": 2,
+   "modules_exercised": [
+    "capstone.providers.chat",
+    "capstone.settings"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
    "id": "tests/test_late_model.py::test_the_late_model_is_never_sent_the_decide_reasoning_effort",
    "file": "tests/test_late_model.py",
    "name": "test_the_late_model_is_never_sent_the_decide_reasoning_effort",
-   "line": 121,
+   "line": 154,
    "docstring": "",
    "parametrized": false,
    "fixtures": [],
@@ -63154,7 +63742,7 @@
    "id": "tests/test_late_model.py::test_decide_switches_only_with_less_time_than_the_threshold",
    "file": "tests/test_late_model.py",
    "name": "test_decide_switches_only_with_less_time_than_the_threshold",
-   "line": 131,
+   "line": 164,
    "docstring": "",
    "parametrized": true,
    "fixtures": [
@@ -63197,7 +63785,7 @@
    "id": "tests/test_late_model.py::test_the_threshold_comes_from_the_setting",
    "file": "tests/test_late_model.py",
    "name": "test_the_threshold_comes_from_the_setting",
-   "line": 137,
+   "line": 170,
    "docstring": "",
    "parametrized": false,
    "fixtures": [],
@@ -63237,7 +63825,7 @@
    "id": "tests/test_late_model.py::test_the_conclusion_never_switches_even_after_a_timeout",
    "file": "tests/test_late_model.py",
    "name": "test_the_conclusion_never_switches_even_after_a_timeout",
-   "line": 143,
+   "line": 176,
    "docstring": "",
    "parametrized": false,
    "fixtures": [],
@@ -63274,10 +63862,53 @@
    ]
   },
   {
+   "id": "tests/test_late_model.py::test_conclusion_switches_only_when_enabled_and_under_threshold",
+   "file": "tests/test_late_model.py",
+   "name": "test_conclusion_switches_only_when_enabled_and_under_threshold",
+   "line": 185,
+   "docstring": "",
+   "parametrized": true,
+   "fixtures": [
+    "left",
+    "late"
+   ],
+   "assertions": 1,
+   "assert_forms": {
+    "identity": 1
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "conclusion switches only when enabled and under threshold",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.agent.model_policy:ModelPolicy.__init__",
+    "capstone.agent.model_policy:ModelPolicy.client_for",
+    "capstone.agent.state:Budgets.research_gets_some_time",
+    "capstone.providers.chat:late_key",
+    "capstone.providers.factory:research_tools",
+    "capstone.providers.factory:tool_spec"
+   ],
+   "exercise_count": 6,
+   "modules_exercised": [
+    "capstone.agent.model_policy",
+    "capstone.agent.state",
+    "capstone.providers.chat",
+    "capstone.providers.factory"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
    "id": "tests/test_late_model.py::test_every_other_question_keeps_its_own_model",
    "file": "tests/test_late_model.py",
    "name": "test_every_other_question_keeps_its_own_model",
-   "line": 150,
+   "line": 192,
    "docstring": "",
    "parametrized": true,
    "fixtures": [
@@ -63319,7 +63950,7 @@
    "id": "tests/test_late_model.py::test_without_late_clients_nothing_switches",
    "file": "tests/test_late_model.py",
    "name": "test_without_late_clients_nothing_switches",
-   "line": 156,
+   "line": 198,
    "docstring": "",
    "parametrized": false,
    "fixtures": [],
@@ -63359,7 +63990,7 @@
    "id": "tests/test_late_model.py::test_a_late_decide_is_asked_and_recorded_as_the_late_model",
    "file": "tests/test_late_model.py",
    "name": "test_a_late_decide_is_asked_and_recorded_as_the_late_model",
-   "line": 163,
+   "line": 205,
    "docstring": "",
    "parametrized": false,
    "fixtures": [],
@@ -63419,7 +64050,7 @@
    "id": "tests/test_late_model.py::test_an_early_decide_still_asks_its_own_model",
    "file": "tests/test_late_model.py",
    "name": "test_an_early_decide_still_asks_its_own_model",
-   "line": 171,
+   "line": 213,
    "docstring": "",
    "parametrized": false,
    "fixtures": [],
@@ -63476,16 +64107,71 @@
    ]
   },
   {
-   "id": "tests/test_late_model.py::test_the_run_header_names_the_late_model_only_when_set",
+   "id": "tests/test_late_model.py::test_late_conclusion_is_asked_and_recorded_as_the_late_model",
    "file": "tests/test_late_model.py",
-   "name": "test_the_run_header_names_the_late_model_only_when_set",
-   "line": 178,
+   "name": "test_late_conclusion_is_asked_and_recorded_as_the_late_model",
+   "line": 220,
    "docstring": "",
    "parametrized": false,
    "fixtures": [],
-   "assertions": 3,
+   "assertions": 6,
    "assert_forms": {
-    "call_truthiness": 2,
+    "equality": 5,
+    "is_none": 1
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "late conclusion is asked and recorded as the late model",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.agent.evidence_brief:evidence_brief",
+    "capstone.agent.evidence_brief:observations",
+    "capstone.agent.evidence_brief:section",
+    "capstone.agent.model_policy:ModelPolicy.__init__",
+    "capstone.agent.model_policy:ModelPolicy._ask",
+    "capstone.agent.model_policy:ModelPolicy.client_for",
+    "capstone.agent.model_policy:ModelPolicy.conclude",
+    "capstone.agent.model_policy:action_bar_note",
+    "capstone.agent.model_policy:evidence_section",
+    "capstone.agent.model_policy:render",
+    "capstone.agent.state:Budgets.research_gets_some_time",
+    "capstone.agent.state:InvestigationState.remaining_critic_tool_calls",
+    "capstone.agent.state:InvestigationState.remaining_followup_tool_calls",
+    "capstone.agent.state:InvestigationState.remaining_iterations",
+    "capstone.agent.state:InvestigationState.remaining_tool_calls",
+    "capstone.agent.state:InvestigationState.research_tool_calls",
+    "capstone.providers.chat:late_key",
+    "capstone.providers.factory:research_tools",
+    "capstone.providers.factory:tool_spec"
+   ],
+   "exercise_count": 19,
+   "modules_exercised": [
+    "capstone.agent.evidence_brief",
+    "capstone.agent.model_policy",
+    "capstone.agent.state",
+    "capstone.providers.chat",
+    "capstone.providers.factory"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_late_model.py::test_the_run_header_names_the_late_model_only_when_set",
+   "file": "tests/test_late_model.py",
+   "name": "test_the_run_header_names_the_late_model_only_when_set",
+   "line": 231,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 4,
+   "assert_forms": {
+    "call_truthiness": 3,
     "negation": 1
    },
    "raises_checks": 0,
@@ -63515,7 +64201,7 @@
    "id": "tests/test_late_model.py::test_thinking_is_off_by_default_and_sent_to_nvidia_only",
    "file": "tests/test_late_model.py",
    "name": "test_thinking_is_off_by_default_and_sent_to_nvidia_only",
-   "line": 198,
+   "line": 253,
    "docstring": "",
    "parametrized": false,
    "fixtures": [],
@@ -63558,7 +64244,7 @@
    "id": "tests/test_late_model.py::test_thinking_on_with_a_budget",
    "file": "tests/test_late_model.py",
    "name": "test_thinking_on_with_a_budget",
-   "line": 207,
+   "line": 262,
    "docstring": "",
    "parametrized": false,
    "fixtures": [],
@@ -63592,7 +64278,7 @@
    "id": "tests/test_late_model.py::test_the_budget_must_be_positive",
    "file": "tests/test_late_model.py",
    "name": "test_the_budget_must_be_positive",
-   "line": 222,
+   "line": 277,
    "docstring": "",
    "parametrized": false,
    "fixtures": [],
@@ -63622,7 +64308,7 @@
    "id": "tests/test_late_model.py::test_the_request_body_carries_the_thinking_switch",
    "file": "tests/test_late_model.py",
    "name": "test_the_request_body_carries_the_thinking_switch",
-   "line": 227,
+   "line": 282,
    "docstring": "",
    "parametrized": false,
    "fixtures": [],
@@ -63672,7 +64358,7 @@
    "id": "tests/test_late_model.py::test_the_own_decide_client_is_never_sent_the_thinking_switch",
    "file": "tests/test_late_model.py",
    "name": "test_the_own_decide_client_is_never_sent_the_thinking_switch",
-   "line": 248,
+   "line": 303,
    "docstring": "",
    "parametrized": false,
    "fixtures": [],
@@ -79694,14 +80380,14 @@
     "capstone.agent.investigation:run_investigation",
     "capstone.agent.investigation:test",
     "capstone.agent.loop:InvestigationDeps.__post_init__",
+    "capstone.agent.loop:OutOfTime.__init__",
     "capstone.agent.loop:apply_interpretation",
     "capstone.agent.loop:ask_policy",
     "capstone.agent.loop:batch_steps",
     "capstone.agent.loop:call_signature",
-    "capstone.agent.loop:call_tool",
-    "capstone.agent.loop:check_termination"
+    "capstone.agent.loop:call_tool"
    ],
-   "exercise_count": 208,
+   "exercise_count": 209,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -79801,7 +80487,7 @@
     "capstone.agent.investigation:run_investigation",
     "capstone.agent.investigation:test"
    ],
-   "exercise_count": 235,
+   "exercise_count": 236,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -79894,14 +80580,14 @@
     "capstone.agent.investigation:run_investigation",
     "capstone.agent.investigation:test",
     "capstone.agent.loop:InvestigationDeps.__post_init__",
+    "capstone.agent.loop:OutOfTime.__init__",
     "capstone.agent.loop:apply_interpretation",
     "capstone.agent.loop:ask_policy",
     "capstone.agent.loop:batch_steps",
     "capstone.agent.loop:call_signature",
-    "capstone.agent.loop:call_tool",
-    "capstone.agent.loop:check_termination"
+    "capstone.agent.loop:call_tool"
    ],
-   "exercise_count": 208,
+   "exercise_count": 209,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -81681,6 +82367,76 @@
     "capstone.tools.actions",
     "capstone.tools.observation",
     "capstone.tools.screening"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_model_policy.py::test_only_a_triage_question_updates_and_reads_model_health",
+   "file": "tests/test_model_policy.py",
+   "name": "test_only_a_triage_question_updates_and_reads_model_health",
+   "line": 1473,
+   "docstring": "",
+   "parametrized": true,
+   "fixtures": [
+    "mode",
+    "skipped"
+   ],
+   "assertions": 1,
+   "assert_forms": {
+    "identity": 1
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [
+    "may_skip"
+   ],
+   "claims": "only a triage question updates and reads model health",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.agent.evidence_brief:evidence_brief",
+    "capstone.agent.evidence_brief:observations",
+    "capstone.agent.evidence_brief:section",
+    "capstone.agent.model_policy:ModelPolicy.__init__",
+    "capstone.agent.model_policy:ModelPolicy._ask",
+    "capstone.agent.model_policy:ModelPolicy.client_for",
+    "capstone.agent.model_policy:ModelPolicy.plan",
+    "capstone.agent.model_policy:evidence_section",
+    "capstone.agent.model_policy:render",
+    "capstone.agent.state:Budgets.research_gets_some_time",
+    "capstone.agent.state:InvestigationState.remaining_critic_tool_calls",
+    "capstone.agent.state:InvestigationState.remaining_followup_tool_calls",
+    "capstone.agent.state:InvestigationState.remaining_iterations",
+    "capstone.agent.state:InvestigationState.remaining_tool_calls",
+    "capstone.agent.state:InvestigationState.research_tool_calls",
+    "capstone.providers.chat:ChatClient.__init__",
+    "capstone.providers.chat:ChatClient.ask",
+    "capstone.providers.chat:FallbackClient.__init__",
+    "capstone.providers.chat:FallbackClient.ask",
+    "capstone.providers.chat:FallbackClient.ask.<locals>.tried",
+    "capstone.providers.chat:ModelError.__init__",
+    "capstone.providers.chat:ModelHealth.__init__",
+    "capstone.providers.chat:ModelHealth.answered",
+    "capstone.providers.chat:ModelHealth.failed",
+    "capstone.providers.chat:ModelHealth.mark_down",
+    "capstone.providers.chat:ModelHealth.skipping",
+    "capstone.providers.chat:answer_json",
+    "capstone.providers.chat:late_key",
+    "capstone.providers.chat:post_json",
+    "capstone.providers.chat:reply_text",
+    "capstone.providers.chat:reported_usage"
+   ],
+   "exercise_count": 31,
+   "modules_exercised": [
+    "capstone.agent.evidence_brief",
+    "capstone.agent.model_policy",
+    "capstone.agent.state",
+    "capstone.providers.chat"
    ],
    "judgment": "NOT ASSESSED",
    "curated": {},
@@ -92362,6 +93118,7 @@
     "capstone.agent.investigation:recheck",
     "capstone.agent.investigation:reconsider",
     "capstone.agent.investigation:run_investigation",
+    "capstone.agent.investigation:triage_clearance_gaps",
     "capstone.agent.investigation:unresolved_confidence",
     "capstone.agent.loop:InvestigationDeps.__post_init__",
     "capstone.agent.loop:apply_interpretation",
@@ -92372,10 +93129,9 @@
     "capstone.agent.loop:check_termination",
     "capstone.agent.loop:gather",
     "capstone.agent.loop:held_for_hypotheses",
-    "capstone.agent.loop:notify",
-    "capstone.agent.loop:record"
+    "capstone.agent.loop:notify"
    ],
-   "exercise_count": 94,
+   "exercise_count": 95,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -92932,6 +93688,7 @@
     "capstone.agent.investigation:recheck",
     "capstone.agent.investigation:reconsider",
     "capstone.agent.investigation:run_investigation",
+    "capstone.agent.investigation:triage_clearance_gaps",
     "capstone.agent.investigation:unresolved_confidence",
     "capstone.agent.loop:InvestigationDeps.__post_init__",
     "capstone.agent.loop:apply_interpretation",
@@ -92942,10 +93699,9 @@
     "capstone.agent.loop:check_termination",
     "capstone.agent.loop:gather",
     "capstone.agent.loop:held_for_hypotheses",
-    "capstone.agent.loop:notify",
-    "capstone.agent.loop:record"
+    "capstone.agent.loop:notify"
    ],
-   "exercise_count": 81,
+   "exercise_count": 82,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -111599,15 +112355,15 @@
     "capstone.agent.investigation:test",
     "capstone.agent.investigation:why_not_acted",
     "capstone.agent.loop:InvestigationDeps.__post_init__",
+    "capstone.agent.loop:OutOfTime.__init__",
     "capstone.agent.loop:apply_interpretation",
     "capstone.agent.loop:ask_policy",
     "capstone.agent.loop:batch_steps",
     "capstone.agent.loop:call_signature",
     "capstone.agent.loop:call_tool",
-    "capstone.agent.loop:check_termination",
-    "capstone.agent.loop:confidence_stalled"
+    "capstone.agent.loop:check_termination"
    ],
-   "exercise_count": 61,
+   "exercise_count": 62,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -111770,7 +112526,7 @@
    "id": "tests/test_triage.py::test_triage_is_off_by_default",
    "file": "tests/test_triage.py",
    "name": "test_triage_is_off_by_default",
-   "line": 69,
+   "line": 76,
    "docstring": "",
    "parametrized": false,
    "fixtures": [
@@ -111873,7 +112629,7 @@
    "id": "tests/test_triage.py::test_the_triage_setting_turns_it_on",
    "file": "tests/test_triage.py",
    "name": "test_the_triage_setting_turns_it_on",
-   "line": 77,
+   "line": 84,
    "docstring": "",
    "parametrized": false,
    "fixtures": [
@@ -111976,7 +112732,7 @@
    "id": "tests/test_triage.py::test_a_triage_that_wants_a_fix_proposes_nothing",
    "file": "tests/test_triage.py",
    "name": "test_a_triage_that_wants_a_fix_proposes_nothing",
-   "line": 86,
+   "line": 93,
    "docstring": "",
    "parametrized": false,
    "fixtures": [
@@ -112083,7 +112839,7 @@
    "id": "tests/test_triage.py::test_a_triage_never_verifies_even_when_nothing_needs_doing",
    "file": "tests/test_triage.py",
    "name": "test_a_triage_never_verifies_even_when_nothing_needs_doing",
-   "line": 102,
+   "line": 109,
    "docstring": "",
    "parametrized": false,
    "fixtures": [
@@ -112186,7 +112942,7 @@
    "id": "tests/test_triage.py::test_a_deep_run_follows_with_its_own_id_and_keeps_approval_and_verification",
    "file": "tests/test_triage.py",
    "name": "test_a_deep_run_follows_with_its_own_id_and_keeps_approval_and_verification",
-   "line": 113,
+   "line": 120,
    "docstring": "",
    "parametrized": false,
    "fixtures": [
@@ -112290,7 +113046,7 @@
    "id": "tests/test_triage.py::test_the_deep_run_is_not_shown_the_triage_conclusion",
    "file": "tests/test_triage.py",
    "name": "test_the_deep_run_is_not_shown_the_triage_conclusion",
-   "line": 127,
+   "line": 134,
    "docstring": "",
    "parametrized": false,
    "fixtures": [
@@ -112393,7 +113149,7 @@
    "id": "tests/test_triage.py::test_a_rejected_deep_proposal_is_still_a_human_decision",
    "file": "tests/test_triage.py",
    "name": "test_a_rejected_deep_proposal_is_still_a_human_decision",
-   "line": 135,
+   "line": 142,
    "docstring": "",
    "parametrized": false,
    "fixtures": [
@@ -112495,7 +113251,7 @@
    "id": "tests/test_triage.py::test_no_deep_run_when_the_triage_supports_that_nothing_is_needed",
    "file": "tests/test_triage.py",
    "name": "test_no_deep_run_when_the_triage_supports_that_nothing_is_needed",
-   "line": 143,
+   "line": 150,
    "docstring": "",
    "parametrized": false,
    "fixtures": [
@@ -112538,6 +113294,7 @@
     "capstone.agent.investigation:gathered_in",
     "capstone.agent.investigation:hypothesize",
     "capstone.agent.investigation:investigate",
+    "capstone.agent.investigation:latest_screening",
     "capstone.agent.investigation:needs_deep_run",
     "capstone.agent.investigation:observe",
     "capstone.agent.investigation:plan",
@@ -112547,17 +113304,16 @@
     "capstone.agent.investigation:revalue",
     "capstone.agent.investigation:run_investigation",
     "capstone.agent.investigation:test",
+    "capstone.agent.investigation:triage_clearance_gaps",
+    "capstone.agent.investigation:unscored_machines",
     "capstone.agent.loop:InvestigationDeps.__post_init__",
     "capstone.agent.loop:apply_interpretation",
     "capstone.agent.loop:ask_policy",
     "capstone.agent.loop:batch_steps",
     "capstone.agent.loop:call_signature",
-    "capstone.agent.loop:call_tool",
-    "capstone.agent.loop:check_termination",
-    "capstone.agent.loop:confidence_stalled",
-    "capstone.agent.loop:diagnosis_supported"
+    "capstone.agent.loop:call_tool"
    ],
-   "exercise_count": 180,
+   "exercise_count": 183,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -112598,7 +113354,7 @@
    "id": "tests/test_triage.py::test_triage_then_deep_off_stops_after_the_triage",
    "file": "tests/test_triage.py",
    "name": "test_triage_then_deep_off_stops_after_the_triage",
-   "line": 159,
+   "line": 166,
    "docstring": "",
    "parametrized": false,
    "fixtures": [
@@ -112701,7 +113457,7 @@
    "id": "tests/test_triage.py::test_the_triage_runs_without_the_critic",
    "file": "tests/test_triage.py",
    "name": "test_the_triage_runs_without_the_critic",
-   "line": 165,
+   "line": 172,
    "docstring": "",
    "parametrized": false,
    "fixtures": [
@@ -112806,7 +113562,7 @@
    "id": "tests/test_triage.py::test_a_slow_triage_stops_at_its_deadline_and_asks_for_a_deep_run",
    "file": "tests/test_triage.py",
    "name": "test_a_slow_triage_stops_at_its_deadline_and_asks_for_a_deep_run",
-   "line": 176,
+   "line": 183,
    "docstring": "",
    "parametrized": false,
    "fixtures": [
@@ -112909,7 +113665,7 @@
    "id": "tests/test_triage.py::test_only_a_supported_no_action_closes_the_case",
    "file": "tests/test_triage.py",
    "name": "test_only_a_supported_no_action_closes_the_case",
-   "line": 209,
+   "line": 216,
    "docstring": "",
    "parametrized": true,
    "fixtures": [
@@ -112945,7 +113701,7 @@
    "id": "tests/test_triage.py::test_triage_budgets_keep_nothing_for_a_fix_and_time_for_the_conclusion",
    "file": "tests/test_triage.py",
    "name": "test_triage_budgets_keep_nothing_for_a_fix_and_time_for_the_conclusion",
-   "line": 219,
+   "line": 226,
    "docstring": "",
    "parametrized": false,
    "fixtures": [],
@@ -112979,7 +113735,7 @@
    "id": "tests/test_triage.py::test_an_experiment_records_and_reports_the_triage",
    "file": "tests/test_triage.py",
    "name": "test_an_experiment_records_and_reports_the_triage",
-   "line": 230,
+   "line": 237,
    "docstring": "",
    "parametrized": false,
    "fixtures": [
@@ -113086,7 +113842,7 @@
    "id": "tests/test_triage.py::test_an_experiment_without_triage_has_no_triage_line",
    "file": "tests/test_triage.py",
    "name": "test_an_experiment_without_triage_has_no_triage_line",
-   "line": 246,
+   "line": 253,
    "docstring": "",
    "parametrized": false,
    "fixtures": [
@@ -113190,7 +113946,7 @@
    "id": "tests/test_triage.py::test_nearest_rank_percentiles",
    "file": "tests/test_triage.py",
    "name": "test_nearest_rank_percentiles",
-   "line": 254,
+   "line": 261,
    "docstring": "",
    "parametrized": false,
    "fixtures": [],
@@ -113222,7 +113978,7 @@
    "id": "tests/test_triage.py::test_with_line_context_the_deep_run_gathers_its_own_packet",
    "file": "tests/test_triage.py",
    "name": "test_with_line_context_the_deep_run_gathers_its_own_packet",
-   "line": 261,
+   "line": 268,
    "docstring": "From PR 186's walkthrough: the deep state was built without the flag,\nso with TRIAGE=on and LINE_CONTEXT=on only the triage got a packet.",
    "parametrized": false,
    "fixtures": [
@@ -113289,6 +114045,1480 @@
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.incident_context",
+    "capstone.agent.investigation",
+    "capstone.agent.loop",
+    "capstone.agent.monitor",
+    "capstone.agent.state",
+    "capstone.contracts.investigations",
+    "capstone.contracts.tools",
+    "capstone.episode",
+    "capstone.evaluation.scoring",
+    "capstone.faults",
+    "capstone.providers.factory",
+    "capstone.settings",
+    "capstone.simulator.clock",
+    "capstone.simulator.events",
+    "capstone.simulator.generator",
+    "capstone.simulator.line",
+    "capstone.simulator.maintenance",
+    "capstone.simulator.rng",
+    "capstone.simulator.scenarios",
+    "capstone.simulator.sensors",
+    "capstone.simulator.simulator",
+    "capstone.simulator.state",
+    "capstone.simulator.thermal",
+    "capstone.tools.actions",
+    "capstone.tools.observation",
+    "capstone.tools.screening"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_triage.py::test_a_triage_conclusion_no_model_answered_is_model_unavailable",
+   "file": "tests/test_triage.py",
+   "name": "test_a_triage_conclusion_no_model_answered_is_model_unavailable",
+   "line": 304,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [
+    "monkeypatch"
+   ],
+   "assertions": 3,
+   "assert_forms": {
+    "equality": 2,
+    "identity_constant": 1
+   },
+   "raises_checks": 0,
+   "uses": [
+    "monkeypatch"
+   ],
+   "quality_flags": [
+    "patches_dependencies"
+   ],
+   "claims": "a triage conclusion no model answered is model unavailable",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.agent.evidence_brief:observations",
+    "capstone.agent.evidence_brief:verify_numeric_claims",
+    "capstone.agent.investigation:build_graph",
+    "capstone.agent.investigation:build_graph.<locals>.conclude_step",
+    "capstone.agent.investigation:build_graph.<locals>.critique_step",
+    "capstone.agent.investigation:build_graph.<locals>.hypothesize_step",
+    "capstone.agent.investigation:build_graph.<locals>.investigate_step",
+    "capstone.agent.investigation:build_graph.<locals>.manual_step",
+    "capstone.agent.investigation:build_graph.<locals>.observe_step",
+    "capstone.agent.investigation:build_graph.<locals>.plan_step",
+    "capstone.agent.investigation:build_graph.<locals>.propose_step",
+    "capstone.agent.investigation:build_graph.<locals>.recheck_step",
+    "capstone.agent.investigation:build_graph.<locals>.staged",
+    "capstone.agent.investigation:build_graph.<locals>.test_step",
+    "capstone.agent.investigation:conclude",
+    "capstone.agent.investigation:consult_manual",
+    "capstone.agent.investigation:critique",
+    "capstone.agent.investigation:gathered_in",
+    "capstone.agent.investigation:hypothesize",
+    "capstone.agent.investigation:investigate",
+    "capstone.agent.investigation:needs_deep_run",
+    "capstone.agent.investigation:observe",
+    "capstone.agent.investigation:plan",
+    "capstone.agent.investigation:propose",
+    "capstone.agent.investigation:recheck",
+    "capstone.agent.investigation:reconsider",
+    "capstone.agent.investigation:revalue",
+    "capstone.agent.investigation:run_investigation",
+    "capstone.agent.investigation:test",
+    "capstone.agent.loop:InvestigationDeps.__post_init__",
+    "capstone.agent.loop:OutOfTime.__init__",
+    "capstone.agent.loop:apply_interpretation",
+    "capstone.agent.loop:ask_policy",
+    "capstone.agent.loop:batch_steps",
+    "capstone.agent.loop:call_signature",
+    "capstone.agent.loop:call_tool",
+    "capstone.agent.loop:check_termination",
+    "capstone.agent.loop:confidence_stalled",
+    "capstone.agent.loop:diagnosis_supported",
+    "capstone.agent.loop:gather"
+   ],
+   "exercise_count": 180,
+   "modules_exercised": [
+    "capstone.agent.evidence_brief",
+    "capstone.agent.investigation",
+    "capstone.agent.loop",
+    "capstone.agent.monitor",
+    "capstone.agent.state",
+    "capstone.contracts.investigations",
+    "capstone.contracts.tools",
+    "capstone.episode",
+    "capstone.evaluation.scoring",
+    "capstone.faults",
+    "capstone.providers.chat",
+    "capstone.providers.factory",
+    "capstone.settings",
+    "capstone.simulator.clock",
+    "capstone.simulator.events",
+    "capstone.simulator.generator",
+    "capstone.simulator.line",
+    "capstone.simulator.maintenance",
+    "capstone.simulator.rng",
+    "capstone.simulator.scenarios",
+    "capstone.simulator.sensors",
+    "capstone.simulator.simulator",
+    "capstone.simulator.state",
+    "capstone.simulator.thermal",
+    "capstone.tools.actions",
+    "capstone.tools.observation",
+    "capstone.tools.screening"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_triage.py::test_a_triage_with_no_time_to_ask_any_model_is_still_a_timeout",
+   "file": "tests/test_triage.py",
+   "name": "test_a_triage_with_no_time_to_ask_any_model_is_still_a_timeout",
+   "line": 312,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [
+    "monkeypatch"
+   ],
+   "assertions": 1,
+   "assert_forms": {
+    "equality": 1
+   },
+   "raises_checks": 0,
+   "uses": [
+    "monkeypatch"
+   ],
+   "quality_flags": [
+    "patches_dependencies"
+   ],
+   "claims": "a triage with no time to ask any model is still a timeout",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.agent.evidence_brief:observations",
+    "capstone.agent.evidence_brief:verify_numeric_claims",
+    "capstone.agent.investigation:build_graph",
+    "capstone.agent.investigation:build_graph.<locals>.conclude_step",
+    "capstone.agent.investigation:build_graph.<locals>.critique_step",
+    "capstone.agent.investigation:build_graph.<locals>.hypothesize_step",
+    "capstone.agent.investigation:build_graph.<locals>.investigate_step",
+    "capstone.agent.investigation:build_graph.<locals>.manual_step",
+    "capstone.agent.investigation:build_graph.<locals>.observe_step",
+    "capstone.agent.investigation:build_graph.<locals>.plan_step",
+    "capstone.agent.investigation:build_graph.<locals>.propose_step",
+    "capstone.agent.investigation:build_graph.<locals>.recheck_step",
+    "capstone.agent.investigation:build_graph.<locals>.staged",
+    "capstone.agent.investigation:build_graph.<locals>.test_step",
+    "capstone.agent.investigation:conclude",
+    "capstone.agent.investigation:consult_manual",
+    "capstone.agent.investigation:critique",
+    "capstone.agent.investigation:gathered_in",
+    "capstone.agent.investigation:hypothesize",
+    "capstone.agent.investigation:investigate",
+    "capstone.agent.investigation:needs_deep_run",
+    "capstone.agent.investigation:observe",
+    "capstone.agent.investigation:plan",
+    "capstone.agent.investigation:propose",
+    "capstone.agent.investigation:recheck",
+    "capstone.agent.investigation:reconsider",
+    "capstone.agent.investigation:revalue",
+    "capstone.agent.investigation:run_investigation",
+    "capstone.agent.investigation:test",
+    "capstone.agent.loop:InvestigationDeps.__post_init__",
+    "capstone.agent.loop:OutOfTime.__init__",
+    "capstone.agent.loop:apply_interpretation",
+    "capstone.agent.loop:ask_policy",
+    "capstone.agent.loop:batch_steps",
+    "capstone.agent.loop:call_signature",
+    "capstone.agent.loop:call_tool",
+    "capstone.agent.loop:check_termination",
+    "capstone.agent.loop:confidence_stalled",
+    "capstone.agent.loop:diagnosis_supported",
+    "capstone.agent.loop:gather"
+   ],
+   "exercise_count": 180,
+   "modules_exercised": [
+    "capstone.agent.evidence_brief",
+    "capstone.agent.investigation",
+    "capstone.agent.loop",
+    "capstone.agent.monitor",
+    "capstone.agent.state",
+    "capstone.contracts.investigations",
+    "capstone.contracts.tools",
+    "capstone.episode",
+    "capstone.evaluation.scoring",
+    "capstone.faults",
+    "capstone.providers.chat",
+    "capstone.providers.factory",
+    "capstone.settings",
+    "capstone.simulator.clock",
+    "capstone.simulator.events",
+    "capstone.simulator.generator",
+    "capstone.simulator.line",
+    "capstone.simulator.maintenance",
+    "capstone.simulator.rng",
+    "capstone.simulator.scenarios",
+    "capstone.simulator.sensors",
+    "capstone.simulator.simulator",
+    "capstone.simulator.state",
+    "capstone.simulator.thermal",
+    "capstone.tools.actions",
+    "capstone.tools.observation",
+    "capstone.tools.screening"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_triage.py::test_a_deep_conclusion_no_model_answered_is_still_a_timeout",
+   "file": "tests/test_triage.py",
+   "name": "test_a_deep_conclusion_no_model_answered_is_still_a_timeout",
+   "line": 318,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [
+    "monkeypatch"
+   ],
+   "assertions": 2,
+   "assert_forms": {
+    "equality": 2
+   },
+   "raises_checks": 0,
+   "uses": [
+    "monkeypatch"
+   ],
+   "quality_flags": [
+    "patches_dependencies"
+   ],
+   "claims": "a deep conclusion no model answered is still a timeout",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.agent.evidence_brief:observations",
+    "capstone.agent.evidence_brief:verify_numeric_claims",
+    "capstone.agent.investigation:build_graph",
+    "capstone.agent.investigation:build_graph.<locals>.conclude_step",
+    "capstone.agent.investigation:build_graph.<locals>.critique_step",
+    "capstone.agent.investigation:build_graph.<locals>.hypothesize_step",
+    "capstone.agent.investigation:build_graph.<locals>.investigate_step",
+    "capstone.agent.investigation:build_graph.<locals>.manual_step",
+    "capstone.agent.investigation:build_graph.<locals>.observe_step",
+    "capstone.agent.investigation:build_graph.<locals>.plan_step",
+    "capstone.agent.investigation:build_graph.<locals>.propose_step",
+    "capstone.agent.investigation:build_graph.<locals>.recheck_step",
+    "capstone.agent.investigation:build_graph.<locals>.staged",
+    "capstone.agent.investigation:build_graph.<locals>.test_step",
+    "capstone.agent.investigation:conclude",
+    "capstone.agent.investigation:consult_manual",
+    "capstone.agent.investigation:critique",
+    "capstone.agent.investigation:gathered_in",
+    "capstone.agent.investigation:hypothesize",
+    "capstone.agent.investigation:investigate",
+    "capstone.agent.investigation:observe",
+    "capstone.agent.investigation:plan",
+    "capstone.agent.investigation:propose",
+    "capstone.agent.investigation:recheck",
+    "capstone.agent.investigation:reconsider",
+    "capstone.agent.investigation:revalue",
+    "capstone.agent.investigation:run_investigation",
+    "capstone.agent.investigation:test",
+    "capstone.agent.loop:InvestigationDeps.__post_init__",
+    "capstone.agent.loop:OutOfTime.__init__",
+    "capstone.agent.loop:apply_interpretation",
+    "capstone.agent.loop:ask_policy",
+    "capstone.agent.loop:batch_steps",
+    "capstone.agent.loop:call_signature",
+    "capstone.agent.loop:call_tool",
+    "capstone.agent.loop:check_termination",
+    "capstone.agent.loop:confidence_stalled",
+    "capstone.agent.loop:diagnosis_supported",
+    "capstone.agent.loop:gather",
+    "capstone.agent.loop:held_for_hypotheses"
+   ],
+   "exercise_count": 177,
+   "modules_exercised": [
+    "capstone.agent.evidence_brief",
+    "capstone.agent.investigation",
+    "capstone.agent.loop",
+    "capstone.agent.monitor",
+    "capstone.agent.state",
+    "capstone.contracts.investigations",
+    "capstone.contracts.tools",
+    "capstone.episode",
+    "capstone.evaluation.scoring",
+    "capstone.faults",
+    "capstone.providers.chat",
+    "capstone.providers.factory",
+    "capstone.settings",
+    "capstone.simulator.clock",
+    "capstone.simulator.events",
+    "capstone.simulator.generator",
+    "capstone.simulator.line",
+    "capstone.simulator.maintenance",
+    "capstone.simulator.rng",
+    "capstone.simulator.scenarios",
+    "capstone.simulator.sensors",
+    "capstone.simulator.simulator",
+    "capstone.simulator.state",
+    "capstone.simulator.thermal",
+    "capstone.tools.actions",
+    "capstone.tools.observation",
+    "capstone.tools.screening"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_triage.py::test_the_triage_line_counts_triages_no_model_answered",
+   "file": "tests/test_triage.py",
+   "name": "test_the_triage_line_counts_triages_no_model_answered",
+   "line": 325,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [
+    "monkeypatch"
+   ],
+   "assertions": 3,
+   "assert_forms": {
+    "equality": 1,
+    "membership": 1,
+    "truthiness": 1
+   },
+   "raises_checks": 0,
+   "uses": [
+    "monkeypatch"
+   ],
+   "quality_flags": [
+    "patches_dependencies"
+   ],
+   "claims": "the triage line counts triages no model answered",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.agent.evidence_brief:observations",
+    "capstone.agent.evidence_brief:verify_numeric_claims",
+    "capstone.agent.investigation:build_graph",
+    "capstone.agent.investigation:build_graph.<locals>.conclude_step",
+    "capstone.agent.investigation:build_graph.<locals>.critique_step",
+    "capstone.agent.investigation:build_graph.<locals>.hypothesize_step",
+    "capstone.agent.investigation:build_graph.<locals>.investigate_step",
+    "capstone.agent.investigation:build_graph.<locals>.manual_step",
+    "capstone.agent.investigation:build_graph.<locals>.observe_step",
+    "capstone.agent.investigation:build_graph.<locals>.plan_step",
+    "capstone.agent.investigation:build_graph.<locals>.propose_step",
+    "capstone.agent.investigation:build_graph.<locals>.recheck_step",
+    "capstone.agent.investigation:build_graph.<locals>.staged",
+    "capstone.agent.investigation:build_graph.<locals>.test_step",
+    "capstone.agent.investigation:conclude",
+    "capstone.agent.investigation:consult_manual",
+    "capstone.agent.investigation:critique",
+    "capstone.agent.investigation:gathered_in",
+    "capstone.agent.investigation:hypothesize",
+    "capstone.agent.investigation:investigate",
+    "capstone.agent.investigation:needs_deep_run",
+    "capstone.agent.investigation:observe",
+    "capstone.agent.investigation:plan",
+    "capstone.agent.investigation:propose",
+    "capstone.agent.investigation:recheck",
+    "capstone.agent.investigation:reconsider",
+    "capstone.agent.investigation:revalue",
+    "capstone.agent.investigation:run_investigation",
+    "capstone.agent.investigation:test",
+    "capstone.agent.loop:InvestigationDeps.__post_init__",
+    "capstone.agent.loop:OutOfTime.__init__",
+    "capstone.agent.loop:apply_interpretation",
+    "capstone.agent.loop:ask_policy",
+    "capstone.agent.loop:batch_steps",
+    "capstone.agent.loop:call_signature",
+    "capstone.agent.loop:call_tool",
+    "capstone.agent.loop:check_termination",
+    "capstone.agent.loop:confidence_stalled",
+    "capstone.agent.loop:diagnosis_supported",
+    "capstone.agent.loop:gather"
+   ],
+   "exercise_count": 188,
+   "modules_exercised": [
+    "capstone.agent.evidence_brief",
+    "capstone.agent.investigation",
+    "capstone.agent.loop",
+    "capstone.agent.monitor",
+    "capstone.agent.state",
+    "capstone.contracts.investigations",
+    "capstone.contracts.tools",
+    "capstone.episode",
+    "capstone.evaluation.scoring",
+    "capstone.experiment",
+    "capstone.faults",
+    "capstone.providers.chat",
+    "capstone.providers.factory",
+    "capstone.settings",
+    "capstone.simulator.clock",
+    "capstone.simulator.events",
+    "capstone.simulator.generator",
+    "capstone.simulator.line",
+    "capstone.simulator.maintenance",
+    "capstone.simulator.rng",
+    "capstone.simulator.scenarios",
+    "capstone.simulator.sensors",
+    "capstone.simulator.simulator",
+    "capstone.simulator.state",
+    "capstone.simulator.thermal",
+    "capstone.tools.actions",
+    "capstone.tools.observation",
+    "capstone.tools.screening"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_triage.py::test_a_triage_run_does_not_start_when_no_model_answers_the_check",
+   "file": "tests/test_triage.py",
+   "name": "test_a_triage_run_does_not_start_when_no_model_answers_the_check",
+   "line": 343,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [
+    "monkeypatch",
+    "tmp_path"
+   ],
+   "assertions": 1,
+   "assert_forms": {
+    "truthiness": 1
+   },
+   "raises_checks": 0,
+   "uses": [
+    "monkeypatch"
+   ],
+   "quality_flags": [
+    "weak_assertions_only",
+    "patches_dependencies"
+   ],
+   "claims": "a triage run does not start when no model answers the check",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.console:safe_console",
+    "capstone.experiment:add_manual_options",
+    "capstone.experiment:known_cases",
+    "capstone.experiment:main"
+   ],
+   "exercise_count": 4,
+   "modules_exercised": [
+    "capstone.console",
+    "capstone.experiment"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_triage.py::test_a_deep_only_run_skips_the_check",
+   "file": "tests/test_triage.py",
+   "name": "test_a_deep_only_run_skips_the_check",
+   "line": 364,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [
+    "monkeypatch",
+    "tmp_path"
+   ],
+   "assertions": 1,
+   "assert_forms": {
+    "equality": 1
+   },
+   "raises_checks": 0,
+   "uses": [
+    "monkeypatch"
+   ],
+   "quality_flags": [
+    "patches_dependencies",
+    "may_skip"
+   ],
+   "claims": "a deep only run skips the check",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.console:safe_console",
+    "capstone.evaluation.scoring:format_summary",
+    "capstone.evaluation.scoring:summarize",
+    "capstone.experiment:add_manual_options",
+    "capstone.experiment:format_batches",
+    "capstone.experiment:format_manual",
+    "capstone.experiment:format_memory",
+    "capstone.experiment:format_model_calls",
+    "capstone.experiment:format_stage_context",
+    "capstone.experiment:format_triage",
+    "capstone.experiment:known_cases",
+    "capstone.experiment:labelled",
+    "capstone.experiment:main",
+    "capstone.experiment:report",
+    "capstone.experiment:report.<locals>.lines_for",
+    "capstone.experiment:stage_context_mismatches",
+    "capstone.settings:Settings.blank_is_missing",
+    "capstone.settings:get_settings"
+   ],
+   "exercise_count": 18,
+   "modules_exercised": [
+    "capstone.console",
+    "capstone.evaluation.scoring",
+    "capstone.experiment",
+    "capstone.settings"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_triage.py::test_a_triage_with_no_explanation_cannot_clear_the_alarm",
+   "file": "tests/test_triage.py",
+   "name": "test_a_triage_with_no_explanation_cannot_clear_the_alarm",
+   "line": 474,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 4,
+   "assert_forms": {
+    "equality": 3,
+    "identity_constant": 1
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "a triage with no explanation cannot clear the alarm",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.agent.evidence_brief:observations",
+    "capstone.agent.evidence_brief:verify_numeric_claims",
+    "capstone.agent.investigation:check_conclusion",
+    "capstone.agent.investigation:conclusion_gaps",
+    "capstone.agent.investigation:latest_screening",
+    "capstone.agent.investigation:needs_deep_run",
+    "capstone.agent.investigation:triage_clearance_gaps",
+    "capstone.agent.investigation:unresolved_confidence",
+    "capstone.agent.investigation:unscored_machines",
+    "capstone.agent.loop:InvestigationDeps.__post_init__",
+    "capstone.agent.state:Budgets.research_gets_some_time"
+   ],
+   "exercise_count": 11,
+   "modules_exercised": [
+    "capstone.agent.evidence_brief",
+    "capstone.agent.investigation",
+    "capstone.agent.loop",
+    "capstone.agent.state"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_triage.py::test_a_triage_cannot_clear_an_alarmed_machine_the_screening_did_not_score",
+   "file": "tests/test_triage.py",
+   "name": "test_a_triage_cannot_clear_an_alarmed_machine_the_screening_did_not_score",
+   "line": 483,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 3,
+   "assert_forms": {
+    "equality": 1,
+    "membership": 1,
+    "truthiness": 1
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "a triage cannot clear an alarmed machine the screening did not score",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.agent.evidence_brief:observations",
+    "capstone.agent.evidence_brief:verify_numeric_claims",
+    "capstone.agent.investigation:check_conclusion",
+    "capstone.agent.investigation:conclusion_gaps",
+    "capstone.agent.investigation:latest_screening",
+    "capstone.agent.investigation:needs_deep_run",
+    "capstone.agent.investigation:triage_clearance_gaps",
+    "capstone.agent.investigation:unresolved_confidence",
+    "capstone.agent.investigation:unscored_machines",
+    "capstone.agent.loop:InvestigationDeps.__post_init__",
+    "capstone.agent.state:Budgets.research_gets_some_time"
+   ],
+   "exercise_count": 11,
+   "modules_exercised": [
+    "capstone.agent.evidence_brief",
+    "capstone.agent.investigation",
+    "capstone.agent.loop",
+    "capstone.agent.state"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_triage.py::test_a_triage_cannot_clear_while_another_machine_is_unscored",
+   "file": "tests/test_triage.py",
+   "name": "test_a_triage_cannot_clear_while_another_machine_is_unscored",
+   "line": 491,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 2,
+   "assert_forms": {
+    "equality": 1,
+    "membership": 1
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "a triage cannot clear while another machine is unscored",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.agent.evidence_brief:observations",
+    "capstone.agent.evidence_brief:verify_numeric_claims",
+    "capstone.agent.investigation:check_conclusion",
+    "capstone.agent.investigation:conclusion_gaps",
+    "capstone.agent.investigation:latest_screening",
+    "capstone.agent.investigation:triage_clearance_gaps",
+    "capstone.agent.investigation:unresolved_confidence",
+    "capstone.agent.investigation:unscored_machines",
+    "capstone.agent.loop:InvestigationDeps.__post_init__",
+    "capstone.agent.state:Budgets.research_gets_some_time"
+   ],
+   "exercise_count": 10,
+   "modules_exercised": [
+    "capstone.agent.evidence_brief",
+    "capstone.agent.investigation",
+    "capstone.agent.loop",
+    "capstone.agent.state"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_triage.py::test_a_triage_whose_screening_never_arrived_cannot_clear",
+   "file": "tests/test_triage.py",
+   "name": "test_a_triage_whose_screening_never_arrived_cannot_clear",
+   "line": 498,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 2,
+   "assert_forms": {
+    "call_truthiness": 1,
+    "equality": 1
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "a triage whose screening never arrived cannot clear",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.agent.evidence_brief:observations",
+    "capstone.agent.evidence_brief:verify_numeric_claims",
+    "capstone.agent.investigation:check_conclusion",
+    "capstone.agent.investigation:conclusion_gaps",
+    "capstone.agent.investigation:latest_screening",
+    "capstone.agent.investigation:needs_deep_run",
+    "capstone.agent.investigation:triage_clearance_gaps",
+    "capstone.agent.investigation:unresolved_confidence",
+    "capstone.agent.loop:InvestigationDeps.__post_init__",
+    "capstone.agent.state:Budgets.research_gets_some_time"
+   ],
+   "exercise_count": 10,
+   "modules_exercised": [
+    "capstone.agent.evidence_brief",
+    "capstone.agent.investigation",
+    "capstone.agent.loop",
+    "capstone.agent.state"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_triage.py::test_both_reasons_are_kept_when_both_hold",
+   "file": "tests/test_triage.py",
+   "name": "test_both_reasons_are_kept_when_both_hold",
+   "line": 505,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 1,
+   "assert_forms": {
+    "equality": 1
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "both reasons are kept when both hold",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.agent.evidence_brief:observations",
+    "capstone.agent.evidence_brief:verify_numeric_claims",
+    "capstone.agent.investigation:check_conclusion",
+    "capstone.agent.investigation:conclusion_gaps",
+    "capstone.agent.investigation:latest_screening",
+    "capstone.agent.investigation:triage_clearance_gaps",
+    "capstone.agent.investigation:unresolved_confidence",
+    "capstone.agent.loop:InvestigationDeps.__post_init__",
+    "capstone.agent.state:Budgets.research_gets_some_time"
+   ],
+   "exercise_count": 9,
+   "modules_exercised": [
+    "capstone.agent.evidence_brief",
+    "capstone.agent.investigation",
+    "capstone.agent.loop",
+    "capstone.agent.state"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_triage.py::test_a_triage_with_an_explanation_and_a_full_screening_may_still_clear",
+   "file": "tests/test_triage.py",
+   "name": "test_a_triage_with_an_explanation_and_a_full_screening_may_still_clear",
+   "line": 511,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 3,
+   "assert_forms": {
+    "equality": 2,
+    "identity_constant": 1
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "a triage with an explanation and a full screening may still clear",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.agent.evidence_brief:observations",
+    "capstone.agent.evidence_brief:verify_numeric_claims",
+    "capstone.agent.investigation:check_conclusion",
+    "capstone.agent.investigation:conclusion_gaps",
+    "capstone.agent.investigation:latest_screening",
+    "capstone.agent.investigation:needs_deep_run",
+    "capstone.agent.investigation:triage_clearance_gaps",
+    "capstone.agent.investigation:unscored_machines",
+    "capstone.agent.loop:InvestigationDeps.__post_init__",
+    "capstone.agent.state:Budgets.research_gets_some_time"
+   ],
+   "exercise_count": 10,
+   "modules_exercised": [
+    "capstone.agent.evidence_brief",
+    "capstone.agent.investigation",
+    "capstone.agent.loop",
+    "capstone.agent.state"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_triage.py::test_a_recorded_machine_without_screening_needs_only_an_explanation",
+   "file": "tests/test_triage.py",
+   "name": "test_a_recorded_machine_without_screening_needs_only_an_explanation",
+   "line": 519,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 1,
+   "assert_forms": {
+    "truthiness": 1
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [
+    "weak_assertions_only"
+   ],
+   "claims": "a recorded machine without screening needs only an explanation",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.agent.evidence_brief:observations",
+    "capstone.agent.evidence_brief:verify_numeric_claims",
+    "capstone.agent.investigation:check_conclusion",
+    "capstone.agent.investigation:conclusion_gaps",
+    "capstone.agent.investigation:needs_deep_run",
+    "capstone.agent.investigation:triage_clearance_gaps",
+    "capstone.agent.loop:InvestigationDeps.__post_init__",
+    "capstone.agent.state:Budgets.research_gets_some_time"
+   ],
+   "exercise_count": 8,
+   "modules_exercised": [
+    "capstone.agent.evidence_brief",
+    "capstone.agent.investigation",
+    "capstone.agent.loop",
+    "capstone.agent.state"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_triage.py::test_answers_that_clear_nothing_get_no_clearance_gaps",
+   "file": "tests/test_triage.py",
+   "name": "test_answers_that_clear_nothing_get_no_clearance_gaps",
+   "line": 526,
+   "docstring": "",
+   "parametrized": true,
+   "fixtures": [
+    "recommendation"
+   ],
+   "assertions": 1,
+   "assert_forms": {
+    "equality": 1
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "answers that clear nothing get no clearance gaps",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.agent.evidence_brief:observations",
+    "capstone.agent.evidence_brief:verify_numeric_claims",
+    "capstone.agent.investigation:check_conclusion",
+    "capstone.agent.investigation:conclusion_gaps",
+    "capstone.agent.investigation:triage_clearance_gaps",
+    "capstone.agent.investigation:why_not_acted",
+    "capstone.agent.loop:InvestigationDeps.__post_init__",
+    "capstone.agent.state:Budgets.research_gets_some_time"
+   ],
+   "exercise_count": 8,
+   "modules_exercised": [
+    "capstone.agent.evidence_brief",
+    "capstone.agent.investigation",
+    "capstone.agent.loop",
+    "capstone.agent.state"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_triage.py::test_a_deep_run_is_not_held_to_the_triage_clearance_rule",
+   "file": "tests/test_triage.py",
+   "name": "test_a_deep_run_is_not_held_to_the_triage_clearance_rule",
+   "line": 532,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 2,
+   "assert_forms": {
+    "equality": 1,
+    "truthiness": 1
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "a deep run is not held to the triage clearance rule",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.agent.evidence_brief:observations",
+    "capstone.agent.evidence_brief:verify_numeric_claims",
+    "capstone.agent.investigation:check_conclusion",
+    "capstone.agent.investigation:conclusion_gaps",
+    "capstone.agent.loop:InvestigationDeps.__post_init__",
+    "capstone.agent.state:Budgets.research_gets_some_time"
+   ],
+   "exercise_count": 6,
+   "modules_exercised": [
+    "capstone.agent.evidence_brief",
+    "capstone.agent.investigation",
+    "capstone.agent.loop",
+    "capstone.agent.state"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_triage_safety_baseline.py::test_a_triage_cannot_clear_on_a_timestamp_alone",
+   "file": "tests/test_triage_safety_baseline.py",
+   "name": "test_a_triage_cannot_clear_on_a_timestamp_alone",
+   "line": 63,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 1,
+   "assert_forms": {
+    "negation": 1
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "a triage cannot clear on a timestamp alone",
+   "execution_outcome": "skipped",
+   "exercises": [
+    "capstone.agent.evidence_brief:observations",
+    "capstone.agent.evidence_brief:verify_numeric_claims",
+    "capstone.agent.investigation:check_conclusion",
+    "capstone.agent.investigation:conclusion_gaps",
+    "capstone.agent.investigation:latest_screening",
+    "capstone.agent.investigation:needs_deep_run",
+    "capstone.agent.investigation:triage_clearance_gaps",
+    "capstone.agent.investigation:unscored_machines",
+    "capstone.agent.loop:InvestigationDeps.__post_init__",
+    "capstone.agent.state:Budgets.research_gets_some_time"
+   ],
+   "exercise_count": 10,
+   "modules_exercised": [
+    "capstone.agent.evidence_brief",
+    "capstone.agent.investigation",
+    "capstone.agent.loop",
+    "capstone.agent.state"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_triage_safety_baseline.py::test_a_triage_citing_a_full_screening_may_still_clear",
+   "file": "tests/test_triage_safety_baseline.py",
+   "name": "test_a_triage_citing_a_full_screening_may_still_clear",
+   "line": 71,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 1,
+   "assert_forms": {
+    "call_truthiness": 1
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "a triage citing a full screening may still clear",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.agent.evidence_brief:observations",
+    "capstone.agent.evidence_brief:verify_numeric_claims",
+    "capstone.agent.investigation:check_conclusion",
+    "capstone.agent.investigation:conclusion_gaps",
+    "capstone.agent.investigation:latest_screening",
+    "capstone.agent.investigation:needs_deep_run",
+    "capstone.agent.investigation:triage_clearance_gaps",
+    "capstone.agent.investigation:unscored_machines",
+    "capstone.agent.loop:InvestigationDeps.__post_init__",
+    "capstone.agent.state:Budgets.research_gets_some_time"
+   ],
+   "exercise_count": 10,
+   "modules_exercised": [
+    "capstone.agent.evidence_brief",
+    "capstone.agent.investigation",
+    "capstone.agent.loop",
+    "capstone.agent.state"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_triage_safety_baseline.py::test_a_triage_cannot_clear_when_the_screening_omits_a_machine_on_the_roster",
+   "file": "tests/test_triage_safety_baseline.py",
+   "name": "test_a_triage_cannot_clear_when_the_screening_omits_a_machine_on_the_roster",
+   "line": 83,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 1,
+   "assert_forms": {
+    "negation": 1
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "a triage cannot clear when the screening omits a machine on the roster",
+   "execution_outcome": "skipped",
+   "exercises": [
+    "capstone.agent.evidence_brief:observations",
+    "capstone.agent.evidence_brief:verify_numeric_claims",
+    "capstone.agent.investigation:check_conclusion",
+    "capstone.agent.investigation:conclusion_gaps",
+    "capstone.agent.investigation:latest_screening",
+    "capstone.agent.investigation:needs_deep_run",
+    "capstone.agent.investigation:triage_clearance_gaps",
+    "capstone.agent.investigation:unscored_machines",
+    "capstone.agent.loop:InvestigationDeps.__post_init__",
+    "capstone.agent.state:Budgets.research_gets_some_time"
+   ],
+   "exercise_count": 10,
+   "modules_exercised": [
+    "capstone.agent.evidence_brief",
+    "capstone.agent.investigation",
+    "capstone.agent.loop",
+    "capstone.agent.state"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_triage_safety_baseline.py::test_a_triage_cannot_clear_on_a_screening_read_before_the_alarm",
+   "file": "tests/test_triage_safety_baseline.py",
+   "name": "test_a_triage_cannot_clear_on_a_screening_read_before_the_alarm",
+   "line": 102,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 1,
+   "assert_forms": {
+    "negation": 1
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "a triage cannot clear on a screening read before the alarm",
+   "execution_outcome": "skipped",
+   "exercises": [
+    "capstone.agent.evidence_brief:observations",
+    "capstone.agent.evidence_brief:verify_numeric_claims",
+    "capstone.agent.investigation:check_conclusion",
+    "capstone.agent.investigation:conclusion_gaps",
+    "capstone.agent.investigation:latest_screening",
+    "capstone.agent.investigation:needs_deep_run",
+    "capstone.agent.investigation:triage_clearance_gaps",
+    "capstone.agent.investigation:unscored_machines",
+    "capstone.agent.loop:InvestigationDeps.__post_init__",
+    "capstone.agent.state:Budgets.research_gets_some_time"
+   ],
+   "exercise_count": 10,
+   "modules_exercised": [
+    "capstone.agent.evidence_brief",
+    "capstone.agent.investigation",
+    "capstone.agent.loop",
+    "capstone.agent.state"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_triage_safety_baseline.py::test_a_triage_cannot_clear_while_a_rival_separating_question_is_open",
+   "file": "tests/test_triage_safety_baseline.py",
+   "name": "test_a_triage_cannot_clear_while_a_rival_separating_question_is_open",
+   "line": 141,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 1,
+   "assert_forms": {
+    "negation": 1
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "a triage cannot clear while a rival separating question is open",
+   "execution_outcome": "skipped",
+   "exercises": [
+    "capstone.agent.evidence_brief:observations",
+    "capstone.agent.evidence_brief:verify_numeric_claims",
+    "capstone.agent.investigation:check_conclusion",
+    "capstone.agent.investigation:conclusion_gaps",
+    "capstone.agent.investigation:latest_screening",
+    "capstone.agent.investigation:needs_deep_run",
+    "capstone.agent.investigation:triage_clearance_gaps",
+    "capstone.agent.investigation:unscored_machines",
+    "capstone.agent.loop:InvestigationDeps.__post_init__",
+    "capstone.agent.state:Budgets.research_gets_some_time"
+   ],
+   "exercise_count": 10,
+   "modules_exercised": [
+    "capstone.agent.evidence_brief",
+    "capstone.agent.investigation",
+    "capstone.agent.loop",
+    "capstone.agent.state"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_triage_safety_baseline.py::test_two_different_sensors_support_a_triage_diagnosis",
+   "file": "tests/test_triage_safety_baseline.py",
+   "name": "test_two_different_sensors_support_a_triage_diagnosis",
+   "line": 199,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 1,
+   "assert_forms": {
+    "identity_constant": 1
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "two different sensors support a triage diagnosis",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.agent.evidence_brief:observations",
+    "capstone.agent.evidence_brief:verify_numeric_claims",
+    "capstone.agent.loop:InvestigationDeps.__post_init__",
+    "capstone.agent.loop:diagnosis_supported",
+    "capstone.agent.state:Budgets.research_gets_some_time",
+    "capstone.agent.state:InvestigationState.leading_hypothesis"
+   ],
+   "exercise_count": 6,
+   "modules_exercised": [
+    "capstone.agent.evidence_brief",
+    "capstone.agent.loop",
+    "capstone.agent.state"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_triage_safety_baseline.py::test_an_open_rival_question_keeps_a_triage_diagnosis_unsupported",
+   "file": "tests/test_triage_safety_baseline.py",
+   "name": "test_an_open_rival_question_keeps_a_triage_diagnosis_unsupported",
+   "line": 210,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 1,
+   "assert_forms": {
+    "identity_constant": 1
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "an open rival question keeps a triage diagnosis unsupported",
+   "execution_outcome": "skipped",
+   "exercises": [
+    "capstone.agent.evidence_brief:observations",
+    "capstone.agent.evidence_brief:verify_numeric_claims",
+    "capstone.agent.loop:InvestigationDeps.__post_init__",
+    "capstone.agent.loop:diagnosis_supported",
+    "capstone.agent.state:Budgets.research_gets_some_time",
+    "capstone.agent.state:InvestigationState.leading_hypothesis"
+   ],
+   "exercise_count": 6,
+   "modules_exercised": [
+    "capstone.agent.evidence_brief",
+    "capstone.agent.loop",
+    "capstone.agent.state"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_triage_safety_baseline.py::test_two_views_of_one_sensor_do_not_support_a_triage_diagnosis",
+   "file": "tests/test_triage_safety_baseline.py",
+   "name": "test_two_views_of_one_sensor_do_not_support_a_triage_diagnosis",
+   "line": 219,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 1,
+   "assert_forms": {
+    "identity_constant": 1
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "two views of one sensor do not support a triage diagnosis",
+   "execution_outcome": "skipped",
+   "exercises": [
+    "capstone.agent.evidence_brief:observations",
+    "capstone.agent.evidence_brief:verify_numeric_claims",
+    "capstone.agent.loop:InvestigationDeps.__post_init__",
+    "capstone.agent.loop:diagnosis_supported",
+    "capstone.agent.state:Budgets.research_gets_some_time",
+    "capstone.agent.state:InvestigationState.leading_hypothesis"
+   ],
+   "exercise_count": 6,
+   "modules_exercised": [
+    "capstone.agent.evidence_brief",
+    "capstone.agent.loop",
+    "capstone.agent.state"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_triage_safety_baseline.py::test_deep_mode_still_counts_an_open_rival_question_as_today",
+   "file": "tests/test_triage_safety_baseline.py",
+   "name": "test_deep_mode_still_counts_an_open_rival_question_as_today",
+   "line": 229,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 1,
+   "assert_forms": {
+    "identity_constant": 1
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "deep mode still counts an open rival question as today",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.agent.evidence_brief:observations",
+    "capstone.agent.evidence_brief:verify_numeric_claims",
+    "capstone.agent.loop:InvestigationDeps.__post_init__",
+    "capstone.agent.loop:diagnosis_supported",
+    "capstone.agent.state:Budgets.research_gets_some_time",
+    "capstone.agent.state:InvestigationState.leading_hypothesis"
+   ],
+   "exercise_count": 6,
+   "modules_exercised": [
+    "capstone.agent.evidence_brief",
+    "capstone.agent.loop",
+    "capstone.agent.state"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_triage_safety_baseline.py::test_deep_mode_still_counts_two_views_of_one_sensor_as_today",
+   "file": "tests/test_triage_safety_baseline.py",
+   "name": "test_deep_mode_still_counts_two_views_of_one_sensor_as_today",
+   "line": 237,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 1,
+   "assert_forms": {
+    "identity_constant": 1
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "deep mode still counts two views of one sensor as today",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.agent.evidence_brief:observations",
+    "capstone.agent.evidence_brief:verify_numeric_claims",
+    "capstone.agent.loop:InvestigationDeps.__post_init__",
+    "capstone.agent.loop:diagnosis_supported",
+    "capstone.agent.state:Budgets.research_gets_some_time",
+    "capstone.agent.state:InvestigationState.leading_hypothesis"
+   ],
+   "exercise_count": 6,
+   "modules_exercised": [
+    "capstone.agent.evidence_brief",
+    "capstone.agent.loop",
+    "capstone.agent.state"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_triage_safety_baseline.py::test_deep_mode_conclusion_check_is_unchanged_for_the_ka09_shape",
+   "file": "tests/test_triage_safety_baseline.py",
+   "name": "test_deep_mode_conclusion_check_is_unchanged_for_the_ka09_shape",
+   "line": 242,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 2,
+   "assert_forms": {
+    "call_truthiness": 1,
+    "equality": 1
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "deep mode conclusion check is unchanged for the ka09 shape",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.agent.evidence_brief:observations",
+    "capstone.agent.evidence_brief:verify_numeric_claims",
+    "capstone.agent.investigation:check_conclusion",
+    "capstone.agent.investigation:conclusion_gaps",
+    "capstone.agent.investigation:needs_deep_run",
+    "capstone.agent.loop:InvestigationDeps.__post_init__",
+    "capstone.agent.state:Budgets.research_gets_some_time"
+   ],
+   "exercise_count": 7,
+   "modules_exercised": [
+    "capstone.agent.evidence_brief",
+    "capstone.agent.investigation",
+    "capstone.agent.loop",
+    "capstone.agent.state"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_triage_safety_baseline.py::test_a_scripted_deep_episode_takes_the_same_path_as_on_the_frozen_main",
+   "file": "tests/test_triage_safety_baseline.py",
+   "name": "test_a_scripted_deep_episode_takes_the_same_path_as_on_the_frozen_main",
+   "line": 274,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 8,
+   "assert_forms": {
+    "equality": 7,
+    "identity_constant": 1
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "a scripted deep episode takes the same path as on the frozen main",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.agent.evidence_brief:observations",
+    "capstone.agent.evidence_brief:verify_numeric_claims",
+    "capstone.agent.investigation:build_graph",
+    "capstone.agent.investigation:build_graph.<locals>.conclude_step",
+    "capstone.agent.investigation:build_graph.<locals>.critique_step",
+    "capstone.agent.investigation:build_graph.<locals>.execute_step",
+    "capstone.agent.investigation:build_graph.<locals>.hypothesize_step",
+    "capstone.agent.investigation:build_graph.<locals>.investigate_step",
+    "capstone.agent.investigation:build_graph.<locals>.manual_step",
+    "capstone.agent.investigation:build_graph.<locals>.observe_step",
+    "capstone.agent.investigation:build_graph.<locals>.plan_step",
+    "capstone.agent.investigation:build_graph.<locals>.propose_step",
+    "capstone.agent.investigation:build_graph.<locals>.recheck_step",
+    "capstone.agent.investigation:build_graph.<locals>.staged",
+    "capstone.agent.investigation:build_graph.<locals>.test_step",
+    "capstone.agent.investigation:build_graph.<locals>.verify_step",
+    "capstone.agent.investigation:check_conclusion",
+    "capstone.agent.investigation:conclude",
+    "capstone.agent.investigation:consult_manual",
+    "capstone.agent.investigation:critic_view",
+    "capstone.agent.investigation:critique",
+    "capstone.agent.investigation:execute",
+    "capstone.agent.investigation:factory_changed",
+    "capstone.agent.investigation:followup_call",
+    "capstone.agent.investigation:gathered_in",
+    "capstone.agent.investigation:hypothesize",
+    "capstone.agent.investigation:investigate",
+    "capstone.agent.investigation:observe",
+    "capstone.agent.investigation:plan",
+    "capstone.agent.investigation:propose",
+    "capstone.agent.investigation:recheck",
+    "capstone.agent.investigation:reconsider",
+    "capstone.agent.investigation:revalue",
+    "capstone.agent.investigation:review_packet",
+    "capstone.agent.investigation:run_investigation",
+    "capstone.agent.investigation:test",
+    "capstone.agent.investigation:verify",
+    "capstone.agent.investigation:verify.<locals>.later",
+    "capstone.agent.investigation:why_not_acted",
+    "capstone.agent.loop:InvestigationDeps.__post_init__"
+   ],
+   "exercise_count": 202,
+   "modules_exercised": [
+    "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
     "capstone.agent.loop",
     "capstone.agent.monitor",
