@@ -30,9 +30,24 @@ from typing import TypeVar
 from capstone.agent.artifacts import ProposalRecord, TerminationReason
 from capstone.agent.critic import Critic
 from capstone.agent.evidence_brief import verify_numeric_claims
+from capstone.agent.evidence_tests import (
+    evaluate,
+    note,
+    open_rival_questions,
+    source_roots,
+)
+from capstone.agent.investigate_compiler import (
+    SUMMARY_TOOL,
+    Candidate,
+    agreement,
+    compile_requests,
+    escape_reason,
+    model_target,
+)
 from capstone.agent.policy import (
     CallTool,
     CallTools,
+    Decision,
     Interpretation,
     InterpretedStep,
     LoopPhase,
@@ -43,9 +58,12 @@ from capstone.agent.state import (
     MAX_DECIDE_CALLS,
     BatchTrace,
     DecisionRecord,
+    InvestigateAdvice,
+    InvestigateMode,
     InvestigationState,
     Phase,
     StepOutcome,
+    TriageTestRecord,
 )
 from capstone.contracts.evidence import Evidence
 from capstone.contracts.provenance import (
@@ -148,10 +166,22 @@ class InvestigationDeps:
     # It uses the critic's own window. Off: pruned candidates are only shown to
     # the critique later, as before. Needs a critic.
     critic_reinstate: bool = False
+    # Block 4 (TRIAGE_INVESTIGATE), triage only: "advisory" ranks the reads
+    # the open questions allow and records them beside the model's own
+    # choice; "on" makes the best compiled read instead of asking the model
+    # a standalone decide question, and asks the model only when nothing
+    # compiles (`agent.investigate_compiler`). Never read on a deep run.
+    triage_investigate: InvestigateMode = "off"
     # Opt-in structured logging (`capstone.observability`): identifiers and
     # counts only, never evidence text. Used by the triage evidence packet.
     # None: nothing is logged.
     event_logger: EventLogger | None = None
+    # Block 3 (TRIAGE_EVIDENCE_TESTS), triage only, on by default: support is
+    # counted by physical sensor, an open rival question keeps a diagnosis
+    # unsupported, and a question with a predicate closes only on a measured
+    # verdict (`agent.evidence_tests`). Never read on a deep run. False gives
+    # the old triage rules, for comparison.
+    triage_evidence_tests: bool = True
 
     def __post_init__(self) -> None:
         if self.step_questions not in (1, 2):
@@ -217,13 +247,18 @@ def diagnosis_supported(state: InvestigationState, deps: InvestigationDeps) -> b
     #     still tests one.
     #   observed: Ids of evidence the factory answered, from the loop's provenance.
     #   backed: How many of the leading explanation's supporters are observed.
+    #   supported: Today's rule, which a deep run and an old-rules triage return.
+    #   rivals: Triage only: open questions with no live primary hypothesis
+    #     that still separate live explanations (TRI-03).
+    #   roots: Triage only: the independent sources behind the observed
+    #     supporters; two views of one sensor are one source (TRI-04).
     leading = state.leading_hypothesis
     current = {h.id for h in state.hypotheses}
     observed = {p.evidence_id for p in state.provenance if p.origin == "observable"}
     backed = (
         0 if leading is None else len(set(leading.supporting_evidence_ids) & observed)
     )
-    return (
+    supported = (
         leading is not None
         and leading.confidence >= deps.min_diagnosis_confidence
         and backed >= deps.min_supporting_evidence
@@ -232,6 +267,42 @@ def diagnosis_supported(state: InvestigationState, deps: InvestigationDeps) -> b
         and not verify_numeric_claims(state, leading.numeric_claims)
         and not any(q.hypothesis_id in current for q in state.unanswered_questions)
     )
+    if not supported or state.mode != "triage" or not deps.triage_evidence_tests:
+        return supported
+    # Triage only (TRI-03, TRI-04): the old rule said supported; check the two
+    # ways it can be fooled, and record each time one withholds support.
+    rivals = open_rival_questions(state, current)
+    if rivals:
+        note(
+            state,
+            TriageTestRecord(
+                kind="support_withheld_rival_question",
+                stage=state.stage,
+                tick=state.last_tick,
+                hypothesis_id=leading.id,
+                question_ids=tuple(q.id for q in rivals),
+                reason="an open question still separates live explanations",
+            ),
+        )
+        return False
+    roots = source_roots(state, set(leading.supporting_evidence_ids) & observed)
+    if len(roots) < deps.min_supporting_evidence:
+        note(
+            state,
+            TriageTestRecord(
+                kind="support_withheld_shared_root",
+                stage=state.stage,
+                tick=state.last_tick,
+                hypothesis_id=leading.id,
+                roots=roots,
+                evidence_ids=tuple(
+                    sorted(set(leading.supporting_evidence_ids) & observed)
+                ),
+                reason=f"{backed} supporters from {len(roots)} independent source(s)",
+            ),
+        )
+        return False
+    return True
 
 
 def confidence_stalled(state: InvestigationState, deps: InvestigationDeps) -> bool:
@@ -521,6 +592,41 @@ def call_signature(request: ToolRequest, tick: int | None) -> str:
     )
 
 
+def question_held_open(
+    state: InvestigationState, deps: InvestigationDeps, question_id: str
+) -> bool:
+    """Triage only: True when a question's predicate is not settled by the evidence.
+
+    A question without a predicate, a deep run, or the old triage rules close
+    the question on any successful answer, as before. With a predicate, only
+    a "true" or "false" verdict closes it; insufficient, stale or unavailable
+    data keeps it open. Either way the verdict is recorded for tracing.
+    """
+    # Variables:
+    #   predicate: The measurable condition a planner attached to the question.
+    #   result: The evaluator's verdict on everything observed so far.
+    #   settled: Whether the verdict is a measured true or false.
+    predicate = state.question_predicates.get(question_id)
+    if predicate is None or state.mode != "triage" or not deps.triage_evidence_tests:
+        return False
+    result = evaluate(predicate, state)
+    settled = result.verdict in ("true", "false")
+    note(
+        state,
+        TriageTestRecord(
+            kind="question_closed" if settled else "question_kept_open",
+            stage=state.stage,
+            tick=state.last_tick,
+            question_ids=(question_id,),
+            roots=(f"{predicate.machine_id}:{predicate.sensor}",),
+            verdict=result.verdict,
+            reason=result.reason,
+            evidence_ids=result.evidence_ids,
+        ),
+    )
+    return not settled
+
+
 def gather(
     state: InvestigationState,
     deps: InvestigationDeps,
@@ -545,6 +651,8 @@ def gather(
     #   evidence: The answer saved as a new piece of evidence, numbered E1, E2 and so
     #     on.
     #   critic_check: The controller's bounded read, excluded from research call usage.
+    #   question_held_open: Triage only; True keeps an answered question open
+    #     because its predicate's verdict is not a measured true or false.
     signature = call_signature(step.request, state.last_tick)
     if signature in state.seen_calls:
         # Looking is free in the simulator, so the same question at the same
@@ -609,9 +717,10 @@ def gather(
     )
     if step.question_id is not None:
         state.answers.setdefault(step.question_id, []).append(evidence.id)
-        state.unanswered_questions = [
-            q for q in state.unanswered_questions if q.id != step.question_id
-        ]
+        if not question_held_open(state, deps, step.question_id):
+            state.unanswered_questions = [
+                q for q in state.unanswered_questions if q.id != step.question_id
+            ]
     if interpret:
         try:
             apply_interpretation(
@@ -768,6 +877,77 @@ def mark_read(
         state.decisions[index] = state.decisions[index].model_copy(update=update)
 
 
+# The triage phases whose reads the request compiler may choose.
+COMPILED_PHASES = ("investigate", "test")
+
+
+def compiler_turn(
+    state: InvestigationState, deps: InvestigationDeps, phase: LoopPhase
+) -> tuple[list[Candidate], str | None] | None:
+    """Triage only (TRIAGE_INVESTIGATE): the ranked reads and any escape reason.
+
+    None when the compiler does not run: a deep run, the setting off, or a
+    phase other than investigate and test.
+    """
+    # Variables:
+    #   ranked: Allowed reads for the open questions, best first.
+    #   escape: Why the model must decide anyway, or None.
+    if (
+        state.mode != "triage"
+        or deps.triage_investigate == "off"
+        or phase not in COMPILED_PHASES
+    ):
+        return None
+    ranked = compile_requests(state)
+    return ranked, escape_reason(state, ranked)
+
+
+def note_advice(
+    state: InvestigationState,
+    deps: InvestigationDeps,
+    phase: LoopPhase,
+    plan: tuple[list[Candidate], str | None],
+    decision: Decision | None,
+    *,
+    source: str = "decide",
+    compiled: bool = False,
+) -> None:
+    """Keep one InvestigateAdvice: the compiled read beside the model's choice."""
+    # Variables:
+    #   ranked, escape: The compiler's reads and why it stood aside, if it did.
+    #   choice: The best compiled read, when there is one.
+    #   model_tool, model_root: What the model asked for, if anything.
+    #   outcome: How the two compare, or "compiled" / "no_candidate".
+    ranked, escape = plan
+    choice = ranked[0] if ranked and escape is None else None
+    model_tool, model_root, _ = model_target(decision)
+    if compiled:
+        outcome = "compiled"
+    elif choice is None:
+        outcome = "no_candidate"
+    else:
+        outcome = agreement(choice, decision)
+    state.investigate_advice.append(
+        InvestigateAdvice(
+            mode=deps.triage_investigate,
+            phase=phase,
+            iteration=state.iteration_count,
+            source=source,
+            candidates=len(ranked),
+            question_id=choice.question_id if choice else None,
+            tool=SUMMARY_TOOL if choice else None,
+            root=choice.root if choice else None,
+            from_tick=choice.from_tick if choice else None,
+            to_tick=choice.to_tick if choice else None,
+            signals=choice.signals() if choice else {},
+            model_tool=None if compiled else model_tool,
+            model_root=None if compiled else model_root,
+            outcome=outcome,
+            reason=escape,
+        )
+    )
+
+
 def run_inner_loop(
     state: InvestigationState, deps: InvestigationDeps, phase: LoopPhase
 ) -> TerminationReason:
@@ -791,6 +971,10 @@ def run_inner_loop(
     #   pairs: With several results, each call and its evidence, read together
     #     in one question.
     #   reply: In one-question mode, the combined reading and next decision.
+    #   plan: Triage only (TRIAGE_INVESTIGATE): the compiler's ranked reads and
+    #     why it stood aside, or None when it does not run. In "on" its best
+    #     read replaces a standalone decide question; either way each turn's
+    #     comparison is kept in state.investigate_advice.
     if state.started_at is None:
         # The deadline covers the whole investigation, so only the first loop
         # starts the timer. Without this the timeout could never fire.
@@ -817,16 +1001,37 @@ def run_inner_loop(
             return reason
         state.iteration_count += 1
         phase_iterations += 1
+        plan = compiler_turn(state, deps, phase)
         try:
             decision = pending_decision
             pending_decision = None
-            if decision is None:
+            if decision is not None:
+                # The next step came with the reading (STEP_QUESTIONS=1): kept
+                # as it is, and only compared with the compiled read.
+                if plan is not None:
+                    note_advice(
+                        state,
+                        deps,
+                        phase,
+                        plan,
+                        decision,
+                        source="interpret_and_decide",
+                    )
+            elif (
+                plan is not None and deps.triage_investigate == "on" and plan[1] is None
+            ):
+                # The "on" arm: the best compiled read replaces the decide question.
+                decision = plan[0][0].step()
+                note_advice(state, deps, phase, plan, decision, compiled=True)
+            else:
                 decision = ask_policy(
                     state,
                     deps,
                     lambda view: deps.policy.decide(view, phase),
                     research=phase != "verify",
                 )
+                if plan is not None:
+                    note_advice(state, deps, phase, plan, decision)
             if not isinstance(decision, CallTool | CallTools | Stop):
                 raise ValueError("a policy must return CallTool, CallTools or Stop")
         except OutOfTime:
@@ -839,6 +1044,8 @@ def run_inner_loop(
             )
             return TerminationReason.TIMEOUT
         except POLICY_ERRORS:
+            if plan is not None:
+                note_advice(state, deps, phase, plan, None)
             state.unproductive_steps += 1
             record(
                 state,
