@@ -67,6 +67,7 @@ from capstone.agent.state import (
     Budgets,
     ConclusionTrace,
     IncidentContext,
+    TriageTestRecord,
 )
 from capstone.agent.tree_of_thought import RevaluationRecord, Thought, TreeOptions
 from capstone.console import safe_console
@@ -282,6 +283,11 @@ class TriageRecord(BaseModel):
     assessment: str | None = None
     termination_reason: str | None = None
     tool_calls: int = 0
+    # TRIAGE_EVIDENCE_TESTS: whether the triage used the Block 3 rules, and
+    # each time they withheld support, held a conclusion open or judged a
+    # question. None in records from before they were kept.
+    evidence_tests: bool | None = None
+    test_records: list[TriageTestRecord] | None = None
     # Set by code from the conclusion: whether a deep run should follow, and
     # whether one did (TRIAGE_THEN_DEEP=off stops after the triage).
     deep_recommended: bool
@@ -475,9 +481,14 @@ def triage_record(result: EpisodeResult) -> TriageRecord | None:
     # Variables:
     #   first: The triage investigation.
     #   concluded: The triage's checked conclusion, if it reached one.
+    #   evidence_tests: The TRIAGE_EVIDENCE_TESTS setting the run used.
+    #   first.triage_test_records: What those rules changed, kept for tracing.
     first = result.triage
     if first is None or result.triage_seconds is None:
         return None
+    from capstone.settings import get_settings
+
+    evidence_tests = get_settings().triage_evidence_tests
     concluded = first.conclusion
     return TriageRecord(
         seconds=result.triage_seconds,
@@ -490,6 +501,8 @@ def triage_record(result: EpisodeResult) -> TriageRecord | None:
             None if first.termination_reason is None else first.termination_reason.value
         ),
         tool_calls=first.tool_call_count,
+        evidence_tests=evidence_tests,
+        test_records=list(first.triage_test_records),
         deep_recommended=bool(first.deep_recommended),
         deep_ran=result.state is not first,
     )
@@ -816,6 +829,39 @@ def stage_context_mismatches(
     return [r.run_key for r in records if r.stage_context is not wanted]
 
 
+def format_evidence_tests(records: Sequence[ExperimentRecord]) -> str | None:
+    """One line on what TRIAGE_EVIDENCE_TESTS changed; None when no triage kept it.
+
+    Counts each kind of record, so a run with the setting on can be compared
+    with one where it is off: how often support was withheld, conclusions
+    held open, and questions kept open or closed by a measured verdict.
+    """
+    # Variables:
+    #   kept: Triages that recorded whether the rules were on.
+    #   on: Those that ran with the rules on.
+    #   kinds: How many records of each kind the triages left.
+    #   changed: Triages where the rules changed at least one outcome.
+    kept = [
+        r.triage for r in records if r.triage and r.triage.evidence_tests is not None
+    ]
+    if not kept:
+        return None
+    on = [t for t in kept if t.evidence_tests]
+    kinds = Counter(rec.kind for t in on for rec in t.test_records or ())
+    changed = sum(
+        any(rec.kind != "question_closed" for rec in t.test_records or ()) for t in on
+    )
+    return (
+        f"evidence tests: on in {len(on)} of {len(kept)} triage(s), changed an "
+        f"outcome in {changed}; support withheld "
+        f"{kinds['support_withheld_rival_question']} (open rival question), "
+        f"{kinds['support_withheld_shared_root']} (one sensor counted twice); "
+        f"conclusions held open by a rival question {kinds['rival_question_gap']}; "
+        f"questions kept open {kinds['question_kept_open']}, closed by a measured "
+        f"verdict {kinds['question_closed']}"
+    )
+
+
 def format_triage(records: Sequence[ExperimentRecord]) -> str | None:
     """One line on the rapid triages; None when no run had one.
 
@@ -1075,6 +1121,8 @@ def report(records: Sequence[ExperimentRecord], labels: dict[str, Label]) -> str
     lines += [] if manual is None else [manual]
     triaged = format_triage(records)
     lines += [] if triaged is None else [triaged]
+    tested = format_evidence_tests(records)
+    lines += [] if tested is None else [tested]
     lines.append(format_stage_context(records))
     batched = format_batches(records)
     lines += ([] if batched is None else [batched]) + [""]

@@ -167,6 +167,68 @@ class Question(Contract):
     estimated_calls: int = Field(default=1, ge=1, le=3)
 
 
+Verdict = Literal["true", "false", "insufficient", "stale", "unavailable"]
+
+
+class Predicate(Contract):
+    """A measurable condition that can settle one diagnostic question (triage).
+
+    Read as: over ticks [from_tick, to_tick], the `statistic` of `sensor` on
+    `machine_id` is `comparison` the `threshold`, from at least `min_samples`
+    readings. Written by a planner, never by the evaluator.
+    """
+
+    machine_id: str = Field(min_length=1)
+    sensor: str = Field(min_length=1)
+    from_tick: int = Field(ge=0)
+    to_tick: int = Field(ge=0)
+    statistic: Literal["mean", "minimum", "maximum", "end_value"]
+    comparison: Literal["above", "below"]
+    threshold: float
+    min_samples: int = Field(default=10, ge=1)
+
+
+class PredicateResult(Contract):
+    """What the evaluator found for one predicate: a verdict and why."""
+
+    verdict: Verdict
+    reason: str
+    value: float | None = None
+    sample_count: int = Field(default=0, ge=0)
+    evidence_ids: tuple[str, ...] = ()
+
+
+TriageTestKind = Literal[
+    # diagnosis_supported: the old rule said supported, the triage rule did not.
+    "support_withheld_rival_question",
+    "support_withheld_shared_root",
+    # check_conclusion: a rival question with no primary hypothesis held it open.
+    "rival_question_gap",
+    # gather: a predicate's verdict kept a question open or closed it.
+    "question_kept_open",
+    "question_closed",
+]
+
+
+class TriageTestRecord(Contract):
+    """One time TRIAGE_EVIDENCE_TESTS changed, or settled, an outcome. For tracing.
+
+    Each record says what the triage rule did that the old rule would not have
+    (or, for a question, what the predicate's verdict was), so a run with the
+    setting on can be compared with one where it is off.
+    """
+
+    kind: TriageTestKind
+    stage: str | None = None
+    tick: int | None = Field(default=None, ge=0)
+    hypothesis_id: str | None = None
+    question_ids: tuple[str, ...] = ()
+    roots: tuple[str, ...] = ()
+    verdict: Verdict | None = None
+    reason: str | None = None
+    evidence_ids: tuple[str, ...] = ()
+
+
 GapKind = Literal[
     "model_question",
     "unanswered_question",
@@ -311,6 +373,14 @@ class InvestigationState(BaseModel):
     # Opt-in comparison arm: gather bounded line context before planning.
     line_context_enabled: bool = False
     incident_context: IncidentContext | None = None
+    # Block 3 (TRIAGE_EVIDENCE_TESTS), triage only. A predicate a planner
+    # attached to a question, by question id: with one, a successful call
+    # closes the question only on a "true" or "false" verdict. Empty: every
+    # question closes as before.
+    question_predicates: dict[str, Predicate] = Field(default_factory=dict)
+    # Every time the triage evidence tests withheld support, held a conclusion
+    # open, or judged a question, for tracing whether the setting helps.
+    triage_test_records: list[TriageTestRecord] = Field(default_factory=list)
     # The most tool calls one decide answer may list (DECIDE_CALLS). The loop
     # sets it; a policy reads it to know whether it may answer with a list.
     decide_calls: int = Field(default=1, ge=1, le=MAX_DECIDE_CALLS)

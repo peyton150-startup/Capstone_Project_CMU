@@ -272,6 +272,14 @@ class Settings(BaseSettings):
         default=6, ge=1, validation_alias="TRIAGE_TOOL_CALLS"
     )
     triage_then_deep: bool = Field(default=True, validation_alias="TRIAGE_THEN_DEEP")
+    # TRIAGE_EVIDENCE_TESTS (Block 3, Test): in a triage only, count support by
+    # physical sensor, hold a diagnosis open while a rival-separating question
+    # is open, and close a question with a predicate only on a measured
+    # verdict. On by default (developer, 2026-11-13); off gives the old triage
+    # rules for comparison. A deep run never uses it.
+    triage_evidence_tests: bool = Field(
+        default=True, validation_alias="TRIAGE_EVIDENCE_TESTS"
+    )
 
     # Limits on every model question (MVP_SCOPE.md section 3). The loop's own
     # limits (iterations, tool calls, time per investigation) are in Budgets.

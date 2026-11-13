@@ -25,7 +25,7 @@ import sys
 from collections.abc import Callable, Sequence
 
 from capstone.agent.policy import ReasoningPolicy
-from capstone.agent.state import DecisionRecord, InvestigationState
+from capstone.agent.state import DecisionRecord, InvestigationState, TriageTestRecord
 from capstone.console import safe_console
 from capstone.episode import (
     SCENARIO_KINDS,
@@ -47,6 +47,24 @@ Write = Callable[[str], None]
 # How much of an evidence item or an argument list fits on one line.
 CONTENT_WIDTH = 90
 TOP_BELIEFS = 3
+
+
+def evidence_test_line(record: TriageTestRecord) -> str:
+    """One TRIAGE_EVIDENCE_TESTS record as a line: what the triage rule did."""
+    # Variables:
+    #   parts: The record's kind, then whichever of its fields are set.
+    parts = [f"EVIDENCE TEST {record.kind}"]
+    if record.hypothesis_id:
+        parts.append(f"hypothesis {record.hypothesis_id}")
+    if record.question_ids:
+        parts.append(f"question {', '.join(record.question_ids)}")
+    if record.roots:
+        parts.append(f"sources {', '.join(record.roots)}")
+    if record.verdict:
+        parts.append(f"verdict {record.verdict}")
+    if record.reason:
+        parts.append(shorten(record.reason, 120))
+    return "; ".join(parts)
 
 
 def print_progress(line: str) -> None:
@@ -191,6 +209,8 @@ class ProgressView:
         #   verification: The check last printed.
         #   critique: The critic's record last printed.
         #   recheck: The critic follow-up's record last printed.
+        #   tests_shown: How many TRIAGE_EVIDENCE_TESTS records were printed,
+        #     so each is shown once.
         self.write = write
         self.started = False
         self.decisions_shown = 0
@@ -201,6 +221,7 @@ class ProgressView:
         self.verification = None
         self.critique = None
         self.recheck = None
+        self.tests_shown = 0
 
     def __call__(self, state: InvestigationState) -> None:
         # Variables:
@@ -219,6 +240,9 @@ class ProgressView:
             for line in step_line(decision, state):
                 self.write(line)
         self.decisions_shown = len(state.decisions)
+        for record in state.triage_test_records[self.tests_shown :]:
+            self.write(evidence_test_line(record))
+        self.tests_shown = len(state.triage_test_records)
         self._beliefs(state)
         self._pruned(state)
         self._critique(state)

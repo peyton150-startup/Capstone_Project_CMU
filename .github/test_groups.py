@@ -143,7 +143,13 @@ GROUPS: dict[str, list[str]] = {
         "coverage_reporting_edges",
     ],
     # The runner: one seeded episode from fault to score, end to end.
-    "Episode": ["episode", "progress_view", "triage", "triage_safety_baseline"],
+    "Episode": [
+        "episode",
+        "progress_view",
+        "triage",
+        "triage_safety_baseline",
+        "triage_evidence_tests",
+    ],
     # The line screening against everything around it (PR 202, not merged).
     "Detector side effects": ["detector_side_effects"],
     # Real-machine telemetry: the read-only MTConnect collector and its monitor.
