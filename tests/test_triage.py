@@ -405,6 +405,14 @@ def clearance_state(*, hypotheses=True, screening="full"):
     state = new_state()
     state.mode = "triage"
     add_evidence(state, "E1", "simulator:get_time", {"tick": 10})
+    # A reading of the alarmed machine, so a clearance can cite a measurement
+    # (a clock read alone may not clear an alarm: triage_no_measurement).
+    add_evidence(
+        state,
+        "E3",
+        "simulator:get_sensor_summary",
+        {"machine_id": "CNC-02", "sensor": "vibration", "mean": 4.4},
+    )
     if screening is not None:
         machines = {
             "CNC-01": {"vibration": [0.1, 0.2]},
@@ -457,7 +465,7 @@ def clear(state, *, screening_available=True, **changes):
         "recommendation": "no_action",
         "assessment": "supported",
         "hypothesis_id": "H1" if state.hypotheses else None,
-        "evidence_ids": ("E1",),
+        "evidence_ids": ("E1", "E3"),
     }
     values.update(changes)
     deps = InvestigationDeps(

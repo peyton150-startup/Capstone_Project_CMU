@@ -72,6 +72,7 @@ from capstone.agent.state import (
     TriageTestRecord,
 )
 from capstone.agent.tree_of_thought import RevaluationRecord, Thought, TreeOptions
+from capstone.agent.triage_report import TriageReport
 from capstone.console import safe_console
 from capstone.episode import (
     CHALLENGE,
@@ -307,6 +308,9 @@ class TriageRecord(BaseModel):
     # whether one did (TRIAGE_THEN_DEEP=off stops after the triage).
     deep_recommended: bool
     deep_ran: bool
+    # The read-only triage report (`agent.triage_report`). None in records
+    # from before it was kept.
+    report: TriageReport | None = None
     # Where the triage spent its model questions and what it gathered
     # (`evaluation/triage_metrics.py`). None in records from before 2026-11-13.
     metrics: TriageMetrics | None = None
@@ -436,6 +440,7 @@ def count_factory_calls(state) -> int:
         and d.tool not in NOT_FACTORY
         and d.outcome != "repeated_call"
         for d in state.decisions
+        report=first.triage_report,
     )
 
 
@@ -501,6 +506,7 @@ def triage_record(
     # Variables:
     #   first: The triage investigation.
     #   concluded: The triage's checked conclusion, if it reached one.
+    #   first.triage_report: The triage's read-only report, kept whole.
     #   calls: Every model question of the episode, triage and deep run;
     #     `triage_metrics` keeps the triage's own by their recorded mode.
     #   first.triage_packet: The Observe packet, kept whole for tracing.

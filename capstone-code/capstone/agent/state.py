@@ -26,6 +26,7 @@ from capstone.agent.artifacts import (
     TerminationReason,
     VerificationCheck,
 )
+from capstone.agent.triage_report import TriageReport
 from capstone.agent.evidence_packet import EvidencePacket
 from capstone.contracts import Contract
 from capstone.contracts.evidence import Evidence
@@ -279,9 +280,13 @@ GapKind = Literal[
     "selected_has_conflict",
     "unverified_number",
     # Triage only, and only for a supported "nothing needs doing": no
-    # explanation was formed, or the line screening left a machine unscored.
+    # explanation was formed, the line screening left a machine unscored (or
+    # missed one on the machine list), the screening was read before the
+    # alarm, or the answer cites no measurement at all (a clock read is none).
     "triage_no_hypothesis",
     "triage_screening_gap",
+    "triage_screening_stale",
+    "triage_no_measurement",
 ]
 # How an open question bears on the chosen explanation: it tells the chosen
 # one from a rival, it only checks the chosen one, it names no explanation,
@@ -497,6 +502,10 @@ class InvestigationState(BaseModel):
     # rules offline. None when the answer made no completion claim.
     conclusion_trace: ConclusionTrace | None = None
     proposed_action: ProposalRecord | None = None
+    # Triage only: the read-only report built from the checked conclusion
+    # (`agent.triage_report`). Without a model conclusion it names no cause.
+    # None on a deep run, and before the conclusion stage.
+    triage_report: TriageReport | None = None
     # The tick at which the conclusion was reached.
     concluded_tick: int | None = Field(default=None, ge=0)
     # What should change in the factory if the diagnosis is right.

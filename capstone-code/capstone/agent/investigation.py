@@ -86,6 +86,7 @@ from capstone.agent.state import (
     TriageTestRecord,
 )
 from capstone.agent.triage_packet import build_triage_packet, log_packet
+from capstone.agent.triage_report import build_triage_report
 from capstone.contracts.hypotheses import Hypothesis
 from capstone.contracts.tools import ToolRequest
 from capstone.providers.chat import ModelError
@@ -876,6 +877,10 @@ def conclusion_gaps(
 
 
 SCREENING_TOOL = "get_line_screening"
+ROSTER_TOOL = "list_machines"
+# Tools whose answer says nothing about how a machine is running: a supported
+# "nothing needs doing" must cite at least one answer from another tool.
+NOT_MEASUREMENTS = frozenset({"get_time", ROSTER_TOOL})
 
 
 def triage_rival_gaps(
@@ -931,6 +936,10 @@ def triage_clearance_gaps(
     (`needs_deep_run`). So it must have formed at least one explanation, and,
     where the simulator's line screening exists, the screening must have
     scored every machine; an unscored machine is a place a fault could hide.
+    It must also cite at least one measurement: a clock read or the machine
+    list says nothing about a machine's health. The screening must be read
+    after the alarm, not before it, and when the machine list was gathered,
+    every machine on it must have a screening entry.
     Any other answer is left alone: escalating or wanting a fix already sends
     the case on. Deep runs never call this.
     """
@@ -942,8 +951,11 @@ def triage_clearance_gaps(
     #     has no simulator screening; only the explanation rule applies there.
     #   screening: The newest line screening gathered, or None.
     #   unscored: Machines the screening could not score at all, plus the
-    #     alarmed machine when any of its sensors has no score: not evidence
+    #     alarmed machine when any of its sensors has no score, plus machines
+    #     on the machine list the screening has no entry for: not evidence
     #     of health, only of coverage missing.
+    #   read_at: The tick the newest screening was read; before the alarm's
+    #     tick, it cannot show the line after the alarm.
     clearing = (
         conclusion.recommendation == "no_action"
         and conclusion.assessment == "supported"
@@ -959,9 +971,22 @@ def triage_clearance_gaps(
                 "out a fault.",
             )
         )
+    if not cites_measurement(state, conclusion):
+        found.append(
+            GapRecord(
+                kind="triage_no_measurement",
+                text="The answer cites no reading of the machines, only a "
+                "clock or the machine list, so it shows nothing about their health.",
+            )
+        )
     if deps.screening_available:
         screening = latest_screening(state)
-        unscored = None if screening is None else unscored_machines(state, screening)
+        unscored = (
+            None
+            if screening is None
+            else unscored_machines(state, screening, latest_roster(state))
+        )
+        read_at = screening_tick(state)
         if screening is None:
             found.append(
                 GapRecord(
@@ -979,7 +1004,58 @@ def triage_clearance_gaps(
                     + ", so a fault there cannot be ruled out.",
                 )
             )
+        if read_at is not None and read_at < state.anomaly.tick:
+            found.append(
+                GapRecord(
+                    kind="triage_screening_stale",
+                    text=f"The line screening was read at tick {read_at}, before "
+                    f"the alarm at tick {state.anomaly.tick}, so it cannot show "
+                    "the line since.",
+                )
+            )
     return found
+
+
+def cites_measurement(state: InvestigationState, conclusion: AgentConclusion) -> bool:
+    """Whether the answer cites a factory reading other than a clock or machine list."""
+    # Variables:
+    #   observed: Evidence ids the factory itself answered (not a memory or
+    #     the manual).
+    #   cited: The cited evidence the factory answered.
+    observed = {p.evidence_id for p in state.provenance if p.origin == "observable"}
+    cited = [
+        e
+        for e in state.evidence
+        if e.id in conclusion.evidence_ids and e.id in observed
+    ]
+    return any(e.source_id.rsplit(":", 1)[-1] not in NOT_MEASUREMENTS for e in cited)
+
+
+def screening_tick(state: InvestigationState) -> int | None:
+    """The tick the newest line screening was read at, or None without one."""
+    for evidence in reversed(state.evidence):
+        if evidence.source_id.endswith(":" + SCREENING_TOOL):
+            return evidence.observed_tick
+    return None
+
+
+def latest_roster(state: InvestigationState) -> list[str] | None:
+    """Machine ids from the newest machine list gathered, or None without one."""
+    # Variables:
+    #   rows: One machine list as the tool gave it, a row per machine.
+    for evidence in reversed(state.evidence):
+        if evidence.source_id.endswith(":" + ROSTER_TOOL):
+            try:
+                rows = json.loads(evidence.content)
+            except ValueError:
+                continue
+            if isinstance(rows, list):
+                return [
+                    row["machine_id"]
+                    for row in rows
+                    if isinstance(row, dict) and isinstance(row.get("machine_id"), str)
+                ]
+    return None
 
 
 def latest_screening(state: InvestigationState) -> dict | None:
@@ -997,9 +1073,17 @@ def latest_screening(state: InvestigationState) -> dict | None:
     return None
 
 
-def unscored_machines(state: InvestigationState, machines: dict) -> list[str]:
-    """Machines a screening left without a score, in the screening's order."""
+def unscored_machines(
+    state: InvestigationState, machines: dict, roster: list[str] | None = None
+) -> list[str]:
+    """Machines a screening left without a score, in the screening's order.
+
+    With a machine list (`roster`), machines on it that the screening has no
+    entry for at all follow, in the list's order.
+    """
     # Variables:
+    #   roster: The machine list the triage gathered, or None when it gathered
+    #     none; then only the machines the screening names are checked.
     #   alarmed: The machine monitoring flagged; for it, one unscored sensor
     #     is enough, since that is the machine the triage is clearing.
     #   row: One machine's screening: per-sensor scores, or a reason string
@@ -1015,6 +1099,9 @@ def unscored_machines(state: InvestigationState, machines: dict) -> list[str]:
             unscored.append(machine_id)
     if alarmed is not None and alarmed not in machines:
         unscored.append(alarmed)
+    for machine_id in roster or ():
+        if machine_id not in machines and machine_id not in unscored:
+            unscored.append(machine_id)
     return unscored
 
 
@@ -1138,6 +1225,8 @@ def conclude(state: InvestigationState, deps: InvestigationDeps) -> None:
     #     conclusion is "undetermined".
     #   stop.asked: True when models were asked for the conclusion and none
     #     answered; in a triage that ends the run as MODEL_UNAVAILABLE.
+    #   state.triage_report: In a triage, the read-only report built last,
+    #     from what the checks left; it names a cause only if the model gave one.
     state.stage = "decide"
     outcome = "decided"
     try:
@@ -1186,6 +1275,7 @@ def conclude(state: InvestigationState, deps: InvestigationDeps) -> None:
         # `policy_recommendation`, but no change is saved to propose.
         request = None
         state.deep_recommended = needs_deep_run(conclusion)
+        state.triage_report = build_triage_report(state)
     if conclusion.recommendation == "no_action":
         state.predicted_effect = NO_ACTION_PREDICTION
     if request is not None:
