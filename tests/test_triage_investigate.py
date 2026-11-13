@@ -32,7 +32,12 @@ from capstone.agent.investigate_compiler import (
 )
 from capstone.agent.loop import InvestigationDeps, run_inner_loop
 from capstone.agent.policy import Stop
-from capstone.agent.state import DecisionRecord, InvestigateAdvice, Question
+from capstone.agent.state import (
+    DecisionRecord,
+    InvestigateAdvice,
+    Predicate,
+    Question,
+)
 from capstone.contracts.hypotheses import Hypothesis
 from capstone.progress import ProgressView, advice_line
 from capstone.settings import Settings
@@ -124,6 +129,36 @@ def test_a_partial_id_is_not_a_machine():
 )
 def test_ambiguous_or_unsure_questions_compile_nothing(text):
     assert compile_requests(triage(question("Q1", text))) == []
+
+
+def predicate(machine, sensor="temperature"):
+    return Predicate(
+        machine_id=machine,
+        sensor=sensor,
+        from_tick=20,
+        to_tick=40,
+        statistic="mean",
+        comparison="above",
+        threshold=60.0,
+    )
+
+
+def test_a_measured_predicate_names_its_own_target_and_window():
+    # The words name no sensor; the PR 253 predicate wins over them.
+    state = triage(question("Q1", "Did anything change?"))
+    state.question_predicates["Q1"] = predicate("CNC-03")
+    (candidate,) = compile_requests(state)
+    assert (candidate.root, candidate.from_tick, candidate.to_tick) == (
+        "CNC-03:temperature",
+        20,
+        40,
+    )
+
+
+def test_a_predicate_on_an_unknown_machine_compiles_nothing():
+    state = triage(question("Q1", "Is temperature high on CNC-02?"))
+    state.question_predicates["Q1"] = predicate("CNC-09")
+    assert compile_requests(state) == []
 
 
 def test_nothing_is_offered_once_the_research_calls_are_spent():

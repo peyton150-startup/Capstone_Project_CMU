@@ -181,7 +181,7 @@ def targets(
     # Variables:
     #   predicate: The measured condition a planner attached, when there is one.
     #   start, end: The default window: before the alarm up to the latest tick.
-    predicate = getattr(state, "question_predicates", {}).get(question.id)
+    predicate = state.question_predicates.get(question.id)
     if predicate is not None:
         if predicate.machine_id not in machines:
             return []

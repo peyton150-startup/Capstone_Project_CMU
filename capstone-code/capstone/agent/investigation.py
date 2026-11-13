@@ -54,6 +54,7 @@ from capstone.agent.artifacts import (
 )
 from capstone.agent.critic import shown_hypotheses, verdict_mismatch
 from capstone.agent.evidence_brief import verify_numeric_claims
+from capstone.agent.evidence_tests import note, open_rival_questions
 from capstone.agent.incident_context import assemble_incident_context
 from capstone.agent.loop import (
     POLICY_ERRORS,
@@ -82,6 +83,7 @@ from capstone.agent.state import (
     Phase,
     PrunedCandidate,
     Question,
+    TriageTestRecord,
 )
 from capstone.agent.triage_packet import build_triage_packet, log_packet
 from capstone.contracts.hypotheses import Hypothesis
@@ -874,6 +876,48 @@ def conclusion_gaps(
 SCREENING_TOOL = "get_line_screening"
 
 
+def triage_rival_gaps(
+    state: InvestigationState,
+    deps: InvestigationDeps,
+    conclusion: AgentConclusion,
+) -> list[GapRecord]:
+    """Triage only (TRI-03): open questions that separate live rivals but name no
+    live primary hypothesis, which `conclusion_gaps` does not count.
+
+    Each becomes an unanswered-question gap, so any answer is held open while
+    one stands. Off with the old triage rules (TRIAGE_EVIDENCE_TESTS=off).
+    Each one found is recorded for tracing.
+    """
+    # Variables:
+    #   current: The explanations still standing.
+    #   rivals: The open rival-separating questions conclusion_gaps skipped.
+    if not deps.triage_evidence_tests:
+        return []
+    current = {h.id for h in state.hypotheses}
+    rivals = open_rival_questions(state, current)
+    if rivals:
+        note(
+            state,
+            TriageTestRecord(
+                kind="rival_question_gap",
+                stage=state.stage,
+                tick=state.last_tick,
+                hypothesis_id=conclusion.hypothesis_id,
+                question_ids=tuple(q.id for q in rivals),
+                reason="a rival-separating question is still open at the conclusion",
+            ),
+        )
+    return [
+        GapRecord(
+            kind="unanswered_question",
+            text=q.text,
+            question_id=q.id,
+            role=question_role(q, conclusion.hypothesis_id, current),
+        )
+        for q in rivals
+    ]
+
+
 def triage_clearance_gaps(
     state: InvestigationState,
     deps: InvestigationDeps,
@@ -1018,8 +1062,8 @@ def check_conclusion(
     #     conclusion_gaps); saved in state.conclusion_trace for offline replay.
     #     In a triage it also holds why a "nothing needs doing" answer may not
     #     close the case yet (triage_clearance_gaps).
-    #   state.mode: "triage" adds the clearance gaps; a deep run's check is
-    #     unchanged.
+    #   state.mode: "triage" adds the rival-question and clearance gaps; a deep
+    #     run's check is unchanged.
     #   gaps: The same gaps as plain text, in the same order as before; any
     #     gap holds the diagnosis open and lowers the answer to "escalate".
     if not isinstance(conclusion, AgentConclusion):
@@ -1038,6 +1082,7 @@ def check_conclusion(
     if conclusion.assessment is not None:
         found = conclusion_gaps(state, conclusion, unverified)
         if state.mode == "triage":
+            found += triage_rival_gaps(state, deps, conclusion)
             found += triage_clearance_gaps(state, deps, conclusion)
         gaps = [g.text for g in found]
         state.conclusion_trace = ConclusionTrace(
