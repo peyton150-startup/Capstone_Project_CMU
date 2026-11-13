@@ -1,5 +1,13 @@
 # Progress Log
 
+> **2026-11-12 — rapid Triage future work regrouped by actual architecture stages (DOCS ONLY, source-audited, no runtime change):**
+> Organized the existing 31 TRI proposals into *Monitor/trigger → Observe → Manual → Plan → Investigate → Hypothesize → Test → Critique/Recheck (no triage critic) → Conclude*, plus cross-stage budgets/evaluation.
+> Added [stage-owned register](TRIAGE_FUTURE_WORK_20261112.md) and [algorithm-first research appendix](TRIAGE_ALGORITHM_FIRST_RESEARCH_20261112.md), with 16 highest-signal replacements and 20 optional/deferred algorithm/ML alternatives, code anchors, primary research citations, and separated B-arm tests.
+> Updated [MVP_SCOPE](MVP_SCOPE.md#future-work-triage) to show the same stage-based categories. Every TRI ID has one primary stage; still 28 HIGH/P0-dependent and only TRI-25/26/35 MEDIUM. Deep investigation, critic, controller permissions, SDC/RMI and intervention workflow are unchanged.
+> PR #246 **merged during the research work**: its triage no-action guard is present on main; incremental validation of missing non-alarmed machines against an independent expected roster remains proposed under TRI-02/22/33.
+> Verification: links and 31 unique anchors reviewed; **no tests, CI, live-model runs or performance benchmark executed**, no Python code edited and no change in runtime behavior. This documentation PR is open for review, not automatically merged.
+>
+
 > **2026-11-12 — triage may not clear an alarm it never checked (TRI-02 with TRI-33; agent code; built ungated, developer to review; understood: no; walkthrough owed):**
 > The false-clearance regression the A0 baseline called mandatory before A1. In A0 run 2, `KA-09-challenge` (alarm on CNC-03 at tick 80; true faults on CNC-07) answered `supported/no_action` at 0.85 with no hypothesis formed while the line screening had scored almost no machine, and `needs_deep_run` closed the case. `check_conclusion` now calls a new `triage_clearance_gaps` in triage mode only. A supported `no_action` is held open as `unresolved/escalate` (so a deep run follows) when triage formed no explanation (`triage_no_hypothesis`), or, where the simulator screening exists, when no screening was gathered, a machine has no score at all, or the alarmed machine has any unscored sensor (`triage_screening_gap`). A recorded real machine (no screening) needs only the explanation. Escalate/intervene answers and every deep-run check are unchanged. Both new gap kinds count as grounding in `gap_replay`. Offline tests only (10 new cases in `tests/test_triage.py`); no live model run. Not done: whether this blocks correct false-alarm clearances is unmeasured until the next live triage run.
 >

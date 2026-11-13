@@ -330,7 +330,7 @@ stay even though the sections are now grouped by topic, with items sorted from h
 
 | Priority | Category / detailed requirements | Highest-value unfinished work | Existing foundation / decision gate |
 |---|---|---|---|
-| **HIGH — TRIAGE ONLY (updated 2026-11-12)** | [**Triage — 31 active items (28 HIGH/P0-dependent; 3 MEDIUM)**](#future-work-triage) · [Detailed register](TRIAGE_FUTURE_WORK_20261112.md) · [**Measured A0 baseline (2026-11-12)**](benchmarks/2026-11-12-triage-a0.md) | Simulator-first deterministic packets, budget-aware selection, counterevidence, fault isolability, quality/scoring integrity, safety, and measured independent reasoning experiments | **Proposed only**; no active LOW; retired IDs not reused; deep mode unchanged; Siemens P0 gates remain separate |
+| **HIGH — TRIAGE ONLY (updated 2026-11-12)** | [**Triage — 31 active items (28 HIGH/P0-dependent; 3 MEDIUM)**](#future-work-triage) · [Detailed register](TRIAGE_FUTURE_WORK_20261112.md) · [**Algorithm-first research and sources**](TRIAGE_ALGORITHM_FIRST_RESEARCH_20261112.md) · [**Measured A0 baseline (2026-11-12)**](benchmarks/2026-11-12-triage-a0.md) | Simulator-first deterministic packets, budget-aware selection, counterevidence, fault isolability, quality/scoring integrity, safety, and measured independent reasoning experiments | **Proposed only**; no active LOW; retired IDs not reused; deep mode unchanged; Siemens P0 gates remain separate |
 | **P0 — HIGHEST (S-0)** | [**Siemens SINUMERIK adapter, controller capability audit and mandatory SDC-01–20 data acceptance**](#fw-sinumerik-readonly) · [**SDC data acceptance**](SIEMENS_DATA_ACCEPTANCE.md) · [**RMI downstream intelligence**](REAL_MACHINE_INTELLIGENCE_ACCEPTANCE.md) | Confirm model/software/license/interface, source authorization, per-value quality and end-to-end eligibility; enforce Data Gates A–H before machine use | Siemens/model/access still unverified; **specification only**, no Siemens adapter built |
 | **P0 — END-TO-END (S-0/E2E)** | [**Real-machine data utilization: ingestion → features → anomaly → investigation → validated learning**](#fw-real-data-e2e) · [**RMI-01–07 acceptance contract**](REAL_MACHINE_INTELLIGENCE_ACCEPTANCE.md) | Make *all approved, physically exposed* machine/cell data useful and traceable, without loading it indiscriminately into the LLM; build real-world ground truth and evaluation | MTConnect + monitor + replay + simulator agent/memory/evaluation partly built, but no complete approved real-machine intelligence workflow |
 | **P0 — next visit** | [Pilot readiness, permissions, field notebook and acceptance](#future-work-pilot-readiness) | Confirm the machine/controller, IT/OT read-only authorization, normal-cycle capture, operator-aligned event timestamps, and data-handling terms | [SM-4 checklist and event log](#fw-sm-visit-log) built; no shop data received |
@@ -880,45 +880,113 @@ Every row links to its **specific requirements, implementation status and accept
 
 **Triage-only (2026-11-12; DOCS ONLY; NOT IMPLEMENTED): 31 active items = 28 HIGH/P0-dependent + exactly 3 MEDIUM.** This is a deliberately pruned list. All items apply only to `InvestigationState.mode="triage"` or an authorized recorded/real-machine read-only triage entry point. **They do not authorize changes to deep investigation, critic, human intervention, verification, long-term memory, deep prompts or budgets.** Future code changes must be gated, separately tested and default OFF; shared helper/contract edits require deep-mode regression proof.
 
-**Full requirements and code crosswalk:** [Triage-only 31-item future-work register](TRIAGE_FUTURE_WORK_20261112.md). The original 12 HIGH evidence findings were audited against `screening.py`, `monitor.py`, `incident_context.py`, `model_policy.py`, `loop.py`, `faults.py` evaluator-only labels and `evaluation/scoring.py`; already covered proposals are reinforced rather than duplicated. Four missing high-signal requirements were added as TRI-31–TRI-34, and statistical anomaly-to-triage triggering TRI-27 was promoted to HIGH. **Retired** TRI-24, TRI-28, TRI-29 and TRI-30 are not active or renumbered; their useful tests are integrated into related higher-signal acceptance gates. Only TRI-25, TRI-26 and TRI-35 remain MEDIUM.
+**Full requirements and code crosswalk:** [Triage-only 31-item future-work register](TRIAGE_FUTURE_WORK_20261112.md). **Algorithmic triage study:** [Ranked Python/ML model-call replacements, MIT/Berkeley/Stanford/CMU/TRACTIAN citations, code audit, PR #246 limitations, and B-arm adoption gates](TRIAGE_ALGORITHM_FIRST_RESEARCH_20261112.md) (DOCS ONLY; no new TRI IDs). The original 12 HIGH evidence findings were audited against `screening.py`, `monitor.py`, `incident_context.py`, `model_policy.py`, `loop.py`, `faults.py` evaluator-only labels and `evaluation/scoring.py`; already covered proposals are reinforced rather than duplicated. Four missing high-signal requirements were added as TRI-31–TRI-34, and statistical anomaly-to-triage triggering TRI-27 was promoted to HIGH. **Retired** TRI-24, TRI-28, TRI-29 and TRI-30 are not active or renumbered; their useful tests are integrated into related higher-signal acceptance gates. Only TRI-25, TRI-26 and TRI-35 remain MEDIUM.
 
 **Build sequence:** first measure A0; then fix triage-only context retrieval priority and scarce budget, produce a source/time/quality-linked deterministic evidence packet with counterevidence and full-line coverage, verify actual returned relevant samples rather than mere tool calls, and **only after that** benchmark offline fault isolability, advisory/executive deterministic read ranking and model reasoning changes independently. Detector onset/persistence is a separate opt-in shadow experiment, not a precondition to the first packet. The 90-second limit remains; deep mode is unchanged. Evidence-first and Bayesian expected information gain are **not implemented**.
 
 **Siemens boundary:** Existing controller permissions, OPC UA capability/data quality, SDC-01–20, RMI-01–07 and site approvals remain separately mandatory P0 requirements in their current owner categories. Simulator evidence selection must be validated before adapting to Siemens; these triage items cover only approved data consumption and evaluation, never shared collector redesign or permission bypass.
 
-| ID | Relative priority | Active triage-only work item |
+**Stage-by-stage architecture:** [Detailed stage-owned requirements](TRIAGE_FUTURE_WORK_20261112.md#architecture-stage-index--all-31-active-tri-items) · [Algorithm-first research and primary sources](TRIAGE_ALGORITHM_FIRST_RESEARCH_20261112.md). The stages follow the existing Pydantic Graph; Monitoring is the pre-trigger, and cross-stage safeguards are not graph nodes. Each of the 31 active TRI items has exactly one primary stage owner. Related stages may refer to it without duplicating or renumbering it.
+
+### 0. Monitoring / event trigger
+
+Statistical anomaly-to-incident handoff; outside the investigation graph.
+
+| ID | Priority | Work item |
 |---|---|---|
-| [TRI-01](TRIAGE_FUTURE_WORK_20261112.md#tri-01) | High / measure first | Measure actual 90-second A0 triage baseline |
-| [TRI-02](TRIAGE_FUTURE_WORK_20261112.md#tri-02) | High / correctness | Block unsupported no-action and false clearance |
-| [TRI-03](TRIAGE_FUTURE_WORK_20261112.md#tri-03) | High / correctness | Fix rival-separating unanswered question logic |
-| [TRI-04](TRIAGE_FUTURE_WORK_20261112.md#tri-04) | High / correctness | Count independent physical supporting sources |
+| [TRI-27](TRIAGE_FUTURE_WORK_20261112.md#tri-27) | High / detection | Calibrate persistent statistical onset and incident handoff |
+
+### 1. Observe
+
+Build a qualified evidence packet: permitted telemetry, completeness, physical source, sample windows and comparable operating context.
+
+| ID | Priority | Work item |
+|---|---|---|
 | [TRI-05](TRIAGE_FUTURE_WORK_20261112.md#tri-05) | P0-dependent / triage consumer | Bridge approved Siemens OPC UA records into triage |
 | [TRI-06](TRIAGE_FUTURE_WORK_20261112.md#tri-06) | P0-dependent / triage consumer | Apply qualified data and dual-cutoff gates |
 | [TRI-07](TRIAGE_FUTURE_WORK_20261112.md#tri-07) | High / correctness | Match advertised capabilities to permitted triage tools |
-| [TRI-08](TRIAGE_FUTURE_WORK_20261112.md#tri-08) | High / reliability | Enforce full triage runtime deadline |
-| [TRI-09](TRIAGE_FUTURE_WORK_20261112.md#tri-09) | High / correctness | Use recorded single-machine triage prompts |
-| [TRI-10](TRIAGE_FUTURE_WORK_20261112.md#tri-10) | High / product | Build standalone triage report |
-| [TRI-11](TRIAGE_FUTURE_WORK_20261112.md#tri-11) | High / measurement | Expose honest diagnostic-read budget accounting |
-| [TRI-12](TRIAGE_FUTURE_WORK_20261112.md#tri-12) | High / efficiency | Gate manual retrieval during short triage |
-| [TRI-13](TRIAGE_FUTURE_WORK_20261112.md#tri-13) | High / experiment | Generate tentative hypotheses in first question |
-| [TRI-14](TRIAGE_FUTURE_WORK_20261112.md#tri-14) | High / dependent experiment | Route hypotheses-first triage through graph |
-| [TRI-15](TRIAGE_FUTURE_WORK_20261112.md#tri-15) | High / experiment | Ablate bounded batch sizes |
-| [TRI-16](TRIAGE_FUTURE_WORK_20261112.md#tri-16) | High / experiment | Reduce collected but uninterpreted reads |
 | [TRI-17](TRIAGE_FUTURE_WORK_20261112.md#tri-17) | High / evidence | Reproducible source-linked triage evidence packet |
-| [TRI-18](TRIAGE_FUTURE_WORK_20261112.md#tri-18) | High / discrimination | Offline fault signatures and pairwise isolability |
-| [TRI-19](TRIAGE_FUTURE_WORK_20261112.md#tri-19) | High / selection experiment | Deterministic diagnostic-value prioritization of optional reads |
-| [TRI-20](TRIAGE_FUTURE_WORK_20261112.md#tri-20) | High / dependent experiment | Structured provisional expectations |
 | [TRI-21](TRIAGE_FUTURE_WORK_20261112.md#tri-21) | High / evidence validity | Window-, quality-, source- and cutoff-aware read coverage |
-| [TRI-22](TRIAGE_FUTURE_WORK_20261112.md#tri-22) | High / false-negative control | No-fault, unknown, wrong-machine and multi-fault coverage |
-| [TRI-23](TRIAGE_FUTURE_WORK_20261112.md#tri-23) | High / prompt validity | Audit actual model visibility of selected evidence |
-| [TRI-27](TRIAGE_FUTURE_WORK_20261112.md#tri-27) | High / detection | Calibrate persistent statistical onset and incident handoff |
 | [TRI-31](TRIAGE_FUTURE_WORK_20261112.md#tri-31) | High / collection efficiency | Fix evidence-call budget and fixed-order starvation |
-| [TRI-32](TRIAGE_FUTURE_WORK_20261112.md#tri-32) | High / evaluation integrity | Score actual returned relevant evidence rather than requested tool name |
 | [TRI-33](TRIAGE_FUTURE_WORK_20261112.md#tri-33) | High / screening fidelity | Preserve screening window/count/reference/coverage metadata |
-| [TRI-34](TRIAGE_FUTURE_WORK_20261112.md#tri-34) | High / falsification | Select counterevidence that distinguishes competing faults |
 | [TRI-25](TRIAGE_FUTURE_WORK_20261112.md#tri-25) | Medium / conditional | Aligned multi-window cross-sensor and temporal features |
 | [TRI-26](TRIAGE_FUTURE_WORK_20261112.md#tri-26) | Medium / conditional | Comparable own-machine operating reference windows |
+
+### 2. Manual
+
+Search technical manuals only when an eligible question warrants it.
+
+| ID | Priority | Work item |
+|---|---|---|
+| [TRI-12](TRIAGE_FUTURE_WORK_20261112.md#tri-12) | High / efficiency | Gate manual retrieval during short triage |
+
+### 3. Plan
+
+Generate recognized diagnostic questions with Python templates; keep novel-cause reasoning available to the LLM.
+
+| ID | Priority | Work item |
+|---|---|---|
+| [TRI-09](TRIAGE_FUTURE_WORK_20261112.md#tri-09) | High / correctness | Use recorded single-machine triage prompts |
+| [TRI-13](TRIAGE_FUTURE_WORK_20261112.md#tri-13) | High / experiment | Generate tentative hypotheses in first question |
+| [TRI-14](TRIAGE_FUTURE_WORK_20261112.md#tri-14) | High / dependent experiment | Route hypotheses-first triage through graph |
+
+### 4. Investigate
+
+Use a constrained, contingent Python read scheduler and typed numerical/temporal interpretation to minimize routine LLM decisions.
+
+| ID | Priority | Work item |
+|---|---|---|
+| [TRI-15](TRIAGE_FUTURE_WORK_20261112.md#tri-15) | High / experiment | Ablate bounded batch sizes |
+| [TRI-16](TRIAGE_FUTURE_WORK_20261112.md#tri-16) | High / experiment | Reduce collected but uninterpreted reads |
+| [TRI-19](TRIAGE_FUTURE_WORK_20261112.md#tri-19) | High / selection experiment | Deterministic diagnostic-value prioritization of optional reads |
+| [TRI-20](TRIAGE_FUTURE_WORK_20261112.md#tri-20) | High / dependent experiment | Structured provisional expectations |
+| [TRI-23](TRIAGE_FUTURE_WORK_20261112.md#tri-23) | High / prompt validity | Audit actual model visibility of selected evidence |
+| [TRI-34](TRIAGE_FUTURE_WORK_20261112.md#tri-34) | High / falsification | Select counterevidence that distinguishes competing faults |
 | [TRI-35](TRIAGE_FUTURE_WORK_20261112.md#tri-35) | Medium / conditional | Selective batch, job-route and quality context |
+
+### 5. Hypothesize
+
+Test offline signature and consistency-based candidates including competing, unknown and multiple faults.
+
+| ID | Priority | Work item |
+|---|---|---|
+| [TRI-18](TRIAGE_FUTURE_WORK_20261112.md#tri-18) | High / discrimination | Offline fault signatures and pairwise isolability |
+| [TRI-22](TRIAGE_FUTURE_WORK_20261112.md#tri-22) | High / false-negative control | No-fault, unknown, wrong-machine and multi-fault coverage |
+
+### 6. Test
+
+Validate rival-distinguishing checks and physical-source independence before closing a diagnosis.
+
+| ID | Priority | Work item |
+|---|---|---|
+| [TRI-03](TRIAGE_FUTURE_WORK_20261112.md#tri-03) | High / correctness | Fix rival-separating unanswered question logic |
+| [TRI-04](TRIAGE_FUTURE_WORK_20261112.md#tri-04) | High / correctness | Count independent physical supporting sources |
+
+### 7. Critique / Recheck (not active for rapid triage)
+
+These graph nodes do not introduce extra critic calls in triage; keep the deep critic outside this category.
+
+No new triage work assigned.
+
+### 8. Conclude
+
+Validate no-action and escalation, then produce a typed, source-linked report.
+
+| ID | Priority | Work item |
+|---|---|---|
+| [TRI-02](TRIAGE_FUTURE_WORK_20261112.md#tri-02) | High / correctness | Block unsupported no-action and false clearance |
+| [TRI-10](TRIAGE_FUTURE_WORK_20261112.md#tri-10) | High / product | Build standalone triage report |
+
+### Cross-stage safeguards and evaluation
+
+Preserve complete deadlines, honest budget counters and evaluator-only scoring in all stages.
+
+| ID | Priority | Work item |
+|---|---|---|
+| [TRI-01](TRIAGE_FUTURE_WORK_20261112.md#tri-01) | High / measure first | Measure actual 90-second A0 triage baseline |
+| [TRI-08](TRIAGE_FUTURE_WORK_20261112.md#tri-08) | High / reliability | Enforce full triage runtime deadline |
+| [TRI-11](TRIAGE_FUTURE_WORK_20261112.md#tri-11) | High / measurement | Expose honest diagnostic-read budget accounting |
+| [TRI-32](TRIAGE_FUTURE_WORK_20261112.md#tri-32) | High / evaluation integrity | Score actual returned relevant evidence rather than requested tool name |
 
 **Acceptance:** no hidden-truth leakage, no write operations, truthful missing/unavailable evidence, correct observation/receipt times, no increased dangerous false clearances or missed faults, independent source families, reproducible held-out comparisons and p50/p95 diagnostic-evidence utility per elapsed second. All changes here are proposals only.
 
