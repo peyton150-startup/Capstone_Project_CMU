@@ -488,11 +488,14 @@ def run_triage_then_deep(
     #   first.stage_context: Copied to the deep run, so both use the same views.
     #   first.triage_packet_enabled: TRIAGE_PACKET, set on the triage only; the
     #     deep run is made without it and never builds a packet.
+    #   first.triage_fixed_plan: TRIAGE_PLAN=fixed, set on the triage only, so
+    #     the deep run that may follow always asks the model to plan.
     #   first.triage_packet_prompt: TRIAGE_PACKET_PROMPT, set on the triage
     #     only, so the triage's prompts show the packet's coverage.
     first.mode = "triage"
     first.triage_packet_enabled = settings.triage_packet
     first.triage_packet_prompt = settings.triage_packet_prompt
+    first.triage_fixed_plan = settings.triage_plan == "fixed"
     first.budgets = triage_budgets(settings.triage_seconds, settings.triage_tool_calls)
     started = deps.clock()
     # The hypothesis reserve is for the deep run: the triage's short window

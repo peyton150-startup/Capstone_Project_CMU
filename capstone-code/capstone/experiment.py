@@ -294,6 +294,9 @@ class TriageRecord(BaseModel):
     # question. None in records from before they were kept.
     evidence_tests: bool | None = None
     test_records: list[TriageTestRecord] | None = None
+    # TRIAGE_PLAN=fixed (Block 1): whether the triage took its first questions
+    # from the fixed table instead of a model. False in older records.
+    fixed_plan: bool = False
     # Set by code from the conclusion: whether a deep run should follow, and
     # whether one did (TRIAGE_THEN_DEEP=off stops after the triage).
     deep_recommended: bool
@@ -490,6 +493,7 @@ def triage_record(result: EpisodeResult) -> TriageRecord | None:
     #   first.triage_packet: The Observe packet, kept whole for tracing.
     #   evidence_tests: The TRIAGE_EVIDENCE_TESTS setting the run used.
     #   first.triage_test_records: What those rules changed, kept for tracing.
+    #   first.fixed_plan_used: Whether the triage planned from the fixed table.
     first = result.triage
     if first is None or result.triage_seconds is None:
         return None
@@ -511,6 +515,7 @@ def triage_record(result: EpisodeResult) -> TriageRecord | None:
         packet=first.triage_packet,
         evidence_tests=evidence_tests,
         test_records=list(first.triage_test_records),
+        fixed_plan=first.fixed_plan_used,
         deep_recommended=bool(first.deep_recommended),
         deep_ran=result.state is not first,
     )

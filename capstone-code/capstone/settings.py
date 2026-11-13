@@ -294,6 +294,14 @@ class Settings(BaseSettings):
     triage_evidence_tests: bool = Field(
         default=True, validation_alias="TRIAGE_EVIDENCE_TESTS"
     )
+    # TRIAGE_PLAN (Block 1, Plan): where a triage's first questions come from.
+    # "model" (the default) asks the plan question, as a deep run does;
+    # "fixed" takes them, with measured predicates where one fits, from a
+    # table keyed on the anomaly (`agent.triage_plan`), with no model call.
+    # Plan averaged 37 s a triage in the 2026-11-13 PR 251 runs.
+    triage_plan: Literal["model", "fixed"] = Field(
+        default="model", validation_alias="TRIAGE_PLAN"
+    )
 
     # Limits on every model question (MVP_SCOPE.md section 3). The loop's own
     # limits (iterations, tool calls, time per investigation) are in Budgets.

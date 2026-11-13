@@ -388,6 +388,11 @@ class InvestigationState(BaseModel):
     # closes the question only on a "true" or "false" verdict. Empty: every
     # question closes as before.
     question_predicates: dict[str, Predicate] = Field(default_factory=dict)
+    # TRIAGE_PLAN=fixed (Block 1): a triage plans from the table in
+    # `agent.triage_plan`, with no model question. Set on a triage only; a deep
+    # run always asks. `fixed_plan_used` records that it happened.
+    triage_fixed_plan: bool = False
+    fixed_plan_used: bool = False
     # Every time the triage evidence tests withheld support, held a conclusion
     # open, or judged a question, for tracing whether the setting helps.
     triage_test_records: list[TriageTestRecord] = Field(default_factory=list)

@@ -86,6 +86,7 @@ from capstone.agent.state import (
     TriageTestRecord,
 )
 from capstone.agent.triage_packet import build_triage_packet, log_packet
+from capstone.agent.triage_plan import fixed_plan, fixed_predicates
 from capstone.contracts.hypotheses import Hypothesis
 from capstone.contracts.tools import ToolRequest
 from capstone.providers.chat import ModelError
@@ -215,11 +216,32 @@ def consult_manual(state: InvestigationState, deps: InvestigationDeps) -> None:
 
 
 def plan(state: InvestigationState, deps: InvestigationDeps) -> None:
-    """Ask the policy what is worth finding out first, and keep its questions open."""
+    """Ask the policy what is worth finding out first, and keep its questions open.
+
+    A triage with TRIAGE_PLAN=fixed asks no model: its questions, and the
+    measured predicates that settle some of them, come from the table for its
+    anomaly (`agent.triage_plan`). A deep run always asks.
+    """
     # Variables:
     #   questions: What the policy says is worth finding out first, kept open until
     #     answered.
+    #   state.triage_fixed_plan: TRIAGE_PLAN=fixed, set on a triage only.
+    #   state.fixed_plan_used: Set when the table's questions were used, so
+    #     the records can tell them from a model's plan.
     state.stage = "plan"
+    if state.mode == "triage" and state.triage_fixed_plan:
+        apply_interpretation(
+            state, Interpretation(new_questions=fixed_plan(state.anomaly))
+        )
+        state.question_predicates.update(fixed_predicates(state.anomaly))
+        state.fixed_plan_used = True
+        record(
+            state,
+            "plan",
+            "decided",
+            information_needed="what to find out first (fixed triage plan)",
+        )
+        return
     try:
         questions = tuple(ask_policy(state, deps, deps.policy.plan, research=True))
         if not all(isinstance(q, Question) for q in questions):
