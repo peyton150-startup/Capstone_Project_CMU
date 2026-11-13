@@ -30,9 +30,18 @@ from typing import TypeVar
 from capstone.agent.artifacts import ProposalRecord, TerminationReason
 from capstone.agent.critic import Critic
 from capstone.agent.evidence_brief import verify_numeric_claims
+from capstone.agent.investigate_compiler import (
+    SUMMARY_TOOL,
+    Candidate,
+    agreement,
+    compile_requests,
+    escape_reason,
+    model_target,
+)
 from capstone.agent.policy import (
     CallTool,
     CallTools,
+    Decision,
     Interpretation,
     InterpretedStep,
     LoopPhase,
@@ -43,6 +52,8 @@ from capstone.agent.state import (
     MAX_DECIDE_CALLS,
     BatchTrace,
     DecisionRecord,
+    InvestigateAdvice,
+    InvestigateMode,
     InvestigationState,
     Phase,
     StepOutcome,
@@ -148,6 +159,12 @@ class InvestigationDeps:
     # It uses the critic's own window. Off: pruned candidates are only shown to
     # the critique later, as before. Needs a critic.
     critic_reinstate: bool = False
+    # Block 4 (TRIAGE_INVESTIGATE), triage only: "advisory" ranks the reads
+    # the open questions allow and records them beside the model's own
+    # choice; "on" makes the best compiled read instead of asking the model
+    # a standalone decide question, and asks the model only when nothing
+    # compiles (`agent.investigate_compiler`). Never read on a deep run.
+    triage_investigate: InvestigateMode = "off"
     # Opt-in structured logging (`capstone.observability`): identifiers and
     # counts only, never evidence text. Used by the triage evidence packet.
     # None: nothing is logged.
@@ -768,6 +785,77 @@ def mark_read(
         state.decisions[index] = state.decisions[index].model_copy(update=update)
 
 
+# The triage phases whose reads the request compiler may choose.
+COMPILED_PHASES = ("investigate", "test")
+
+
+def compiler_turn(
+    state: InvestigationState, deps: InvestigationDeps, phase: LoopPhase
+) -> tuple[list[Candidate], str | None] | None:
+    """Triage only (TRIAGE_INVESTIGATE): the ranked reads and any escape reason.
+
+    None when the compiler does not run: a deep run, the setting off, or a
+    phase other than investigate and test.
+    """
+    # Variables:
+    #   ranked: Allowed reads for the open questions, best first.
+    #   escape: Why the model must decide anyway, or None.
+    if (
+        state.mode != "triage"
+        or deps.triage_investigate == "off"
+        or phase not in COMPILED_PHASES
+    ):
+        return None
+    ranked = compile_requests(state)
+    return ranked, escape_reason(state, ranked)
+
+
+def note_advice(
+    state: InvestigationState,
+    deps: InvestigationDeps,
+    phase: LoopPhase,
+    plan: tuple[list[Candidate], str | None],
+    decision: Decision | None,
+    *,
+    source: str = "decide",
+    compiled: bool = False,
+) -> None:
+    """Keep one InvestigateAdvice: the compiled read beside the model's choice."""
+    # Variables:
+    #   ranked, escape: The compiler's reads and why it stood aside, if it did.
+    #   choice: The best compiled read, when there is one.
+    #   model_tool, model_root: What the model asked for, if anything.
+    #   outcome: How the two compare, or "compiled" / "no_candidate".
+    ranked, escape = plan
+    choice = ranked[0] if ranked and escape is None else None
+    model_tool, model_root, _ = model_target(decision)
+    if compiled:
+        outcome = "compiled"
+    elif choice is None:
+        outcome = "no_candidate"
+    else:
+        outcome = agreement(choice, decision)
+    state.investigate_advice.append(
+        InvestigateAdvice(
+            mode=deps.triage_investigate,
+            phase=phase,
+            iteration=state.iteration_count,
+            source=source,
+            candidates=len(ranked),
+            question_id=choice.question_id if choice else None,
+            tool=SUMMARY_TOOL if choice else None,
+            root=choice.root if choice else None,
+            from_tick=choice.from_tick if choice else None,
+            to_tick=choice.to_tick if choice else None,
+            signals=choice.signals() if choice else {},
+            model_tool=None if compiled else model_tool,
+            model_root=None if compiled else model_root,
+            outcome=outcome,
+            reason=escape,
+        )
+    )
+
+
 def run_inner_loop(
     state: InvestigationState, deps: InvestigationDeps, phase: LoopPhase
 ) -> TerminationReason:
@@ -791,6 +879,10 @@ def run_inner_loop(
     #   pairs: With several results, each call and its evidence, read together
     #     in one question.
     #   reply: In one-question mode, the combined reading and next decision.
+    #   plan: Triage only (TRIAGE_INVESTIGATE): the compiler's ranked reads and
+    #     why it stood aside, or None when it does not run. In "on" its best
+    #     read replaces a standalone decide question; either way each turn's
+    #     comparison is kept in state.investigate_advice.
     if state.started_at is None:
         # The deadline covers the whole investigation, so only the first loop
         # starts the timer. Without this the timeout could never fire.
@@ -817,16 +909,29 @@ def run_inner_loop(
             return reason
         state.iteration_count += 1
         phase_iterations += 1
+        plan = compiler_turn(state, deps, phase)
         try:
             decision = pending_decision
             pending_decision = None
-            if decision is None:
+            if decision is not None and plan is not None:
+                note_advice(
+                    state, deps, phase, plan, decision, source="interpret_and_decide"
+                )
+            elif (
+                plan is not None and deps.triage_investigate == "on" and plan[1] is None
+            ):
+                # The "on" arm: the best compiled read replaces the decide question.
+                decision = plan[0][0].step()
+                note_advice(state, deps, phase, plan, decision, compiled=True)
+            else:
                 decision = ask_policy(
                     state,
                     deps,
                     lambda view: deps.policy.decide(view, phase),
                     research=phase != "verify",
                 )
+                if plan is not None:
+                    note_advice(state, deps, phase, plan, decision)
             if not isinstance(decision, CallTool | CallTools | Stop):
                 raise ValueError("a policy must return CallTool, CallTools or Stop")
         except OutOfTime:
@@ -839,6 +944,8 @@ def run_inner_loop(
             )
             return TerminationReason.TIMEOUT
         except POLICY_ERRORS:
+            if plan is not None:
+                note_advice(state, deps, phase, plan, None)
             state.unproductive_steps += 1
             record(
                 state,

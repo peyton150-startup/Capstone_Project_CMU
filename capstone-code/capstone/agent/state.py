@@ -168,6 +168,48 @@ class Question(Contract):
     estimated_calls: int = Field(default=1, ge=1, le=3)
 
 
+# TRIAGE_INVESTIGATE (Block 4): how the request compiler's choice compared
+# with the model's, or why the model was asked anyway.
+InvestigateMode = Literal["off", "advisory", "on"]
+AdviceOutcome = Literal[
+    "same_request",  # the model asked for exactly the compiled read
+    "same_target",  # same tool, machine and sensor; another window
+    "different",  # the model asked for another read
+    "model_stopped",  # the model chose to stop instead
+    "model_failed",  # the model gave no usable decision
+    "compiled",  # "on": the compiled read was made and the model not asked
+    "no_candidate",  # nothing compiled: the model decided (the escape hatch)
+]
+
+
+class InvestigateAdvice(Contract):
+    """One turn where the request compiler ran in a triage (TRIAGE_INVESTIGATE).
+
+    Identifiers and counts only, so runs can be compared: how often the
+    compiler had a read to offer, how often the model agreed, and how many
+    model decide questions the "on" arm saved.
+    """
+
+    mode: Literal["advisory", "on"]
+    phase: str
+    iteration: int = Field(ge=0)
+    # "decide": a standalone decide question; "interpret_and_decide": the next
+    # step that came with a reading (advisory only).
+    source: Literal["decide", "interpret_and_decide"] = "decide"
+    candidates: int = Field(ge=0)
+    question_id: str | None = None
+    tool: str | None = None
+    root: str | None = None
+    from_tick: int | None = None
+    to_tick: int | None = None
+    # The ranking signals of the chosen read, in ranking order.
+    signals: dict[str, int] = Field(default_factory=dict)
+    model_tool: str | None = None
+    model_root: str | None = None
+    outcome: AdviceOutcome
+    reason: str | None = None
+
+
 GapKind = Literal[
     "model_question",
     "unanswered_question",
@@ -321,6 +363,9 @@ class InvestigationState(BaseModel):
     # TRIAGE_PACKET_PROMPT: show the packet's coverage in the triage's prompts.
     # Set on each triage from the setting; a deep run never has a packet.
     triage_packet_prompt: bool = False
+    # TRIAGE_INVESTIGATE: each turn the request compiler ran in a triage,
+    # with the model's choice beside it (`agent.investigate_compiler`).
+    investigate_advice: list[InvestigateAdvice] = Field(default_factory=list)
     # The most tool calls one decide answer may list (DECIDE_CALLS). The loop
     # sets it; a policy reads it to know whether it may answer with a list.
     decide_calls: int = Field(default=1, ge=1, le=MAX_DECIDE_CALLS)

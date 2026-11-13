@@ -68,6 +68,7 @@ from capstone.agent.state import (
     Budgets,
     ConclusionTrace,
     IncidentContext,
+    InvestigateAdvice,
 )
 from capstone.agent.tree_of_thought import RevaluationRecord, Thought, TreeOptions
 from capstone.console import safe_console
@@ -284,6 +285,13 @@ class TriageRecord(BaseModel):
     assessment: str | None = None
     termination_reason: str | None = None
     tool_calls: int = 0
+    # Calls charged to the research budget: tool_calls less the line
+    # screening (its own allowance), so 7 tool calls can be 6 research.
+    # None in records from before it was kept.
+    research_tool_calls: int | None = None
+    # TRIAGE_INVESTIGATE: each turn the request compiler ran, with the
+    # model's choice beside it. None in records from before it was kept.
+    investigate_advice: list[InvestigateAdvice] | None = None
     # The triage evidence packet (TRIAGE_PACKET): every item, missing reason
     # and call outcome Observe recorded. None: no packet was built (and in
     # records from before it was kept).
@@ -482,6 +490,9 @@ def triage_record(result: EpisodeResult) -> TriageRecord | None:
     #   first: The triage investigation.
     #   concluded: The triage's checked conclusion, if it reached one.
     #   first.triage_packet: The Observe packet, kept whole for tracing.
+    #   first.research_tool_calls: Calls charged to research, without the
+    #     screening's own call, beside tool_calls.
+    #   first.investigate_advice: Each turn the request compiler ran.
     first = result.triage
     if first is None or result.triage_seconds is None:
         return None
@@ -498,6 +509,8 @@ def triage_record(result: EpisodeResult) -> TriageRecord | None:
         ),
         tool_calls=first.tool_call_count,
         packet=first.triage_packet,
+        research_tool_calls=first.research_tool_calls,
+        investigate_advice=list(first.investigate_advice),
         deep_recommended=bool(first.deep_recommended),
         deep_ran=result.state is not first,
     )
@@ -828,6 +841,45 @@ def stage_context_mismatches(
     return [r.run_key for r in records if r.stage_context is not wanted]
 
 
+def format_investigate(records: Sequence[ExperimentRecord]) -> str | None:
+    """One line on the request compiler (TRIAGE_INVESTIGATE); None if it never ran.
+
+    Counts each outcome over every triage, so an advisory run shows how often
+    the model agreed with the compiled read, and an "on" run shows how many
+    decide questions the compiler replaced and how often the model was still
+    needed.
+    """
+    # Variables:
+    #   advice: Every turn the compiler ran, over all triages.
+    #   outcomes: How many turns ended each way.
+    #   compared: Turns where both had a choice to compare.
+    #   agreed: Of those, where the model chose the same sensor read.
+    advice = [
+        a
+        for r in records
+        if r.triage is not None
+        for a in r.triage.investigate_advice or ()
+    ]
+    if not advice:
+        return None
+    outcomes = Counter(a.outcome for a in advice)
+    compared = sum(
+        outcomes[k]
+        for k in ("same_request", "same_target", "different", "model_stopped")
+    )
+    agreed = outcomes["same_request"] + outcomes["same_target"]
+    modes = "/".join(sorted({a.mode for a in advice}))
+    return (
+        f"investigate compiler ({modes}): {len(advice)} turn(s); decide "
+        f"replaced {outcomes['compiled']}; model agreed {agreed} of {compared} "
+        f"compared ({outcomes['same_request']} same read, "
+        f"{outcomes['same_target']} same sensor); different "
+        f"{outcomes['different']}, model stopped {outcomes['model_stopped']}, "
+        f"model failed {outcomes['model_failed']}; no candidate "
+        f"{outcomes['no_candidate']}"
+    )
+
+
 def format_triage(records: Sequence[ExperimentRecord]) -> str | None:
     """One line on the rapid triages; None when no run had one.
 
@@ -1087,6 +1139,8 @@ def report(records: Sequence[ExperimentRecord], labels: dict[str, Label]) -> str
     lines += [] if manual is None else [manual]
     triaged = format_triage(records)
     lines += [] if triaged is None else [triaged]
+    advised = format_investigate(records)
+    lines += [] if advised is None else [advised]
     lines.append(format_stage_context(records))
     batched = format_batches(records)
     lines += ([] if batched is None else [batched]) + [""]

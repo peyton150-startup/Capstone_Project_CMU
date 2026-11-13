@@ -412,6 +412,8 @@ def run_episode(
         hypothesis_seconds=settings.hypothesis_reserve_seconds,
         critic_reinstate=settings.tot_reinstate,
         event_logger=event_logger,
+        # Triage only; a deep run never reads it.
+        triage_investigate=settings.triage_investigate,
     )
     research = state.budgets.timeout_seconds - state.budgets.followup_seconds
     if deps.hypothesis_seconds >= research:

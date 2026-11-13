@@ -286,6 +286,15 @@ class Settings(BaseSettings):
     triage_packet_prompt: bool = Field(
         default=True, validation_alias="TRIAGE_PACKET_PROMPT"
     )
+    # TRIAGE_INVESTIGATE (Block 4, Investigate), triage only: "advisory" (the
+    # default) ranks the reads the open questions allow and records them
+    # beside the model's own decide choice, changing nothing the run does;
+    # "on" makes the best compiled read instead of asking a standalone decide
+    # question, asking the model only when nothing compiles; "off" skips the
+    # compiler. A deep run never uses it.
+    triage_investigate: Literal["off", "advisory", "on"] = Field(
+        default="advisory", validation_alias="TRIAGE_INVESTIGATE"
+    )
 
     # Limits on every model question (MVP_SCOPE.md section 3). The loop's own
     # limits (iterations, tool calls, time per investigation) are in Budgets.

@@ -209,6 +209,7 @@ def run_recorded_investigation(
         policy=policy,
         clock=clock,
         screening_available=False,
+        triage_investigate=settings.triage_investigate,
         step_questions=step_questions,
         decide_calls=decide_calls,
         min_action_confidence=settings.min_action_confidence,

@@ -26,7 +26,11 @@ from collections.abc import Callable, Sequence
 
 from capstone.agent.evidence_packet import EvidencePacket
 from capstone.agent.policy import ReasoningPolicy
-from capstone.agent.state import DecisionRecord, InvestigationState
+from capstone.agent.state import (
+    DecisionRecord,
+    InvestigateAdvice,
+    InvestigationState,
+)
 from capstone.console import safe_console
 from capstone.episode import (
     SCENARIO_KINDS,
@@ -197,6 +201,8 @@ class ProgressView:
         #   critique: The critic's record last printed.
         #   recheck: The critic follow-up's record last printed.
         #   packet_shown: Whether the triage evidence packet has been printed.
+        #   advice_shown: How many TRIAGE_INVESTIGATE records were printed, so
+        #     each is shown once.
         self.write = write
         self.started = False
         self.decisions_shown = 0
@@ -208,6 +214,7 @@ class ProgressView:
         self.critique = None
         self.recheck = None
         self.packet_shown = False
+        self.advice_shown = 0
 
     def __call__(self, state: InvestigationState) -> None:
         # Variables:
@@ -230,6 +237,9 @@ class ProgressView:
             self.packet_shown = True
             for line in packet_lines(state.triage_packet):
                 self.write(line)
+        for advice in state.investigate_advice[self.advice_shown :]:
+            self.write(advice_line(advice))
+        self.advice_shown = len(state.investigate_advice)
         self._beliefs(state)
         self._pruned(state)
         self._critique(state)
@@ -414,6 +424,29 @@ def assessment_lines(conclusion) -> list[str]:
     if conclusion.next_check:
         lines.append(f"  next check: {shorten(conclusion.next_check, 120)}")
     return lines
+
+
+def advice_line(advice: InvestigateAdvice) -> str:
+    """One TRIAGE_INVESTIGATE record: the compiled read and what the model did."""
+    # Variables:
+    #   chose: The compiled read, or why there was none.
+    #   model: What the model asked for, when it was asked.
+    if advice.root is not None:
+        chose = (
+            f"{advice.tool} {advice.root} t={advice.from_tick}-{advice.to_tick} "
+            f"for {advice.question_id}"
+        )
+    else:
+        chose = f"none ({advice.reason})"
+    model = (
+        ""
+        if advice.outcome == "compiled"
+        else f"; model {advice.model_tool or '-'} {advice.model_root or ''}".rstrip()
+    )
+    return (
+        f"INVESTIGATE {advice.mode} {advice.phase} ({advice.source}): "
+        f"{advice.candidates} candidate(s); compiled {chose}{model}; {advice.outcome}"
+    )
 
 
 def packet_lines(packet: EvidencePacket) -> list[str]:
