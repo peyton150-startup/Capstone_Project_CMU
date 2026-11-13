@@ -314,7 +314,8 @@ class InvestigationState(BaseModel):
     incident_context: IncidentContext | None = None
     # TRIAGE_PACKET: in a triage only, Observe builds the qualified evidence
     # packet (`agent.triage_packet`) instead of the line context. Ignored on a
-    # deep run, which never builds one. Off by default.
+    # deep run, which never builds one. False here; the TRIAGE_PACKET setting
+    # (on by default) sets it on each triage.
     triage_packet_enabled: bool = False
     triage_packet: EvidencePacket | None = None
     # The most tool calls one decide answer may list (DECIDE_CALLS). The loop

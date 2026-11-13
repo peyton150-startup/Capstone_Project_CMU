@@ -274,8 +274,10 @@ class Settings(BaseSettings):
     triage_then_deep: bool = Field(default=True, validation_alias="TRIAGE_THEN_DEEP")
     # TRIAGE_PACKET (Block 2, Observe): in a triage only, build the qualified,
     # source-linked evidence packet (`agent.triage_packet`) in place of the
-    # line context. Off by default; a deep run never builds one.
-    triage_packet: bool = Field(default=False, validation_alias="TRIAGE_PACKET")
+    # line context. On by default (developer, 2026-11-13; the schedule's
+    # off-by-default rule overridden); TRIAGE_PACKET=off restores the old
+    # Observe. A deep run never builds one.
+    triage_packet: bool = Field(default=True, validation_alias="TRIAGE_PACKET")
 
     # Limits on every model question (MVP_SCOPE.md section 3). The loop's own
     # limits (iterations, tool calls, time per investigation) are in Budgets.

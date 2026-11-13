@@ -99,9 +99,12 @@ class EvidencePacket(Contract):
         #   outcomes: How many calls ended each way.
         #   statuses: How many items were qualified, missing or text context.
         #   sources: How many items came from each source type.
+        #   by_source: Items per (status, source type), such as missing_live_sensor:
+        #     what was qualified or missing from each kind of source.
         outcomes = Counter(call.outcome for call in self.calls)
         statuses = Counter(item.status for item in self.items)
         sources = Counter(item.source_type for item in self.items)
+        by_source = Counter((item.status, item.source_type) for item in self.items)
         counts = {
             "calls_mandatory": sum(c.role == "mandatory" for c in self.calls),
             "calls_optional": sum(c.role == "optional" for c in self.calls),
@@ -112,4 +115,10 @@ class EvidencePacket(Contract):
         counts.update({f"calls_{k}": v for k, v in sorted(outcomes.items())})
         counts.update({f"items_{k}": v for k, v in sorted(statuses.items())})
         counts.update({f"source_{k}": v for k, v in sorted(sources.items())})
+        counts.update(
+            {
+                f"{status}_{source}": n
+                for (status, source), n in sorted(by_source.items())
+            }
+        )
         return counts

@@ -24,6 +24,7 @@ import re
 import sys
 from collections.abc import Callable, Sequence
 
+from capstone.agent.evidence_packet import EvidencePacket
 from capstone.agent.policy import ReasoningPolicy
 from capstone.agent.state import DecisionRecord, InvestigationState
 from capstone.console import safe_console
@@ -47,6 +48,10 @@ Write = Callable[[str], None]
 # How much of an evidence item or an argument list fits on one line.
 CONTENT_WIDTH = 90
 TOP_BELIEFS = 3
+
+
+# The most missing items the packet line names; the rest are counted.
+MAX_PACKET_MISSING = 8
 
 
 def print_progress(line: str) -> None:
@@ -191,6 +196,7 @@ class ProgressView:
         #   verification: The check last printed.
         #   critique: The critic's record last printed.
         #   recheck: The critic follow-up's record last printed.
+        #   packet_shown: Whether the triage evidence packet has been printed.
         self.write = write
         self.started = False
         self.decisions_shown = 0
@@ -201,6 +207,7 @@ class ProgressView:
         self.verification = None
         self.critique = None
         self.recheck = None
+        self.packet_shown = False
 
     def __call__(self, state: InvestigationState) -> None:
         # Variables:
@@ -219,6 +226,10 @@ class ProgressView:
             for line in step_line(decision, state):
                 self.write(line)
         self.decisions_shown = len(state.decisions)
+        if state.triage_packet is not None and not self.packet_shown:
+            self.packet_shown = True
+            for line in packet_lines(state.triage_packet):
+                self.write(line)
         self._beliefs(state)
         self._pruned(state)
         self._critique(state)
@@ -403,6 +414,43 @@ def assessment_lines(conclusion) -> list[str]:
     if conclusion.next_check:
         lines.append(f"  next check: {shorten(conclusion.next_check, 120)}")
     return lines
+
+
+def packet_lines(packet: EvidencePacket) -> list[str]:
+    """The triage evidence packet in a few lines: calls, coverage, what is missing."""
+    # Variables:
+    #   calls: Each call as tool:role:outcome, with "+q" when its answer qualified.
+    #   missing: Each missing item as where:reason, at most MAX_PACKET_MISSING.
+    #   roster: Whether the expected-machine roster was read, and what it lacked.
+    calls = ", ".join(
+        f"{c.tool}:{c.role}:{c.outcome}{'+q' if c.qualified else ''}"
+        for c in packet.calls
+    )
+    missing = [
+        f"{i.physical_root or i.machine_id or '?'}:{i.missing_reason}"
+        for i in packet.items
+        if i.status == "missing"
+    ]
+    shown = missing[:MAX_PACKET_MISSING]
+    more = len(missing) - len(shown)
+    roster = (
+        f"roster {len(packet.roster)} machine(s)"
+        + (
+            f", absent from screening: {', '.join(packet.absent_from_screening)}"
+            if packet.absent_from_screening
+            else ""
+        )
+        if packet.roster_verified
+        else "roster not verified"
+    )
+    return [
+        f"PACKET t={packet.trigger_tick} cutoff, as of t={packet.observation_tick}; "
+        f"{len(packet.qualified_roots)} qualified sensor root(s); {roster}",
+        f"  calls: {calls}",
+        "  missing (unknown, not normal): "
+        + (", ".join(shown) if shown else "none")
+        + (f" (+{more} more)" if more > 0 else ""),
+    ]
 
 
 def calls_line(state: InvestigationState) -> str:

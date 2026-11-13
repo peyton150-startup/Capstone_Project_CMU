@@ -1,14 +1,16 @@
 """The triage evidence packet (Block 2, Observe), built ungated.
 
-What these tests prove, with a fake factory and no model: the packet is off by
-default and never built on a deep run (deep calls and results are identical
+What these tests prove, with a fake factory and no model: the setting is on by
+default and can be turned off; the packet is never built on a deep run (deep calls and results are identical
 with TRIAGE_PACKET on or off); in a triage it keeps the six-call default by
 using at most half the research calls; it records mandatory, optional, failed,
 repeated and skipped calls separately; screening rows keep their reason
 instead of becoming "normal"; a machine on the roster but missing from the
 screening is named; two views of one sensor count as one physical root; a
 recorded machine gets no pretend healthy baseline; text never becomes a
-measurement; and its logging carries identifiers and counts, never evidence.
+measurement; and a triage run can be traced: the record keeps the packet,
+the progress view prints it, and the JSON-line log carries each call, each
+missing item and the counts, as identifiers, never evidence.
 """
 
 import io
@@ -95,9 +97,11 @@ def names(provider):
 # --- off unless asked for, and never on a deep run ---------------------------
 
 
-def test_the_setting_is_off_by_default(monkeypatch):
+def test_the_setting_is_on_by_default_and_can_be_turned_off(monkeypatch):
     monkeypatch.delenv("TRIAGE_PACKET", raising=False)
-    assert Settings().triage_packet is False
+    assert Settings(_env_file=None).triage_packet is True
+    monkeypatch.setenv("TRIAGE_PACKET", "off")
+    assert Settings(_env_file=None).triage_packet is False
 
 
 def test_a_triage_without_the_flag_observes_exactly_as_before():
@@ -454,7 +458,7 @@ def test_counts_separate_each_kind_of_call():
     assert counts["items_missing"] >= 2
 
 
-def test_logging_carries_counts_and_identifiers_never_evidence():
+def test_logging_traces_calls_missing_items_and_counts_never_evidence():
     stream = io.StringIO()
     state = triage_state()
     observe(
@@ -462,19 +466,66 @@ def test_logging_carries_counts_and_identifiers_never_evidence():
         deps_for(factory(), event_logger=EventLogger(stream, name="packet-test")),
     )
     lines = [json.loads(line) for line in stream.getvalue().splitlines()]
-    assert [line["event"] for line in lines] == [
-        "triage_packet_call_observed",
-        "triage_packet_call_observed",
-        "triage_packet_call_observed",
-        "triage_packet_call_observed",
-        "triage_packet_built",
+    assert [(line["event"], line.get("tool")) for line in lines] == [
+        ("triage_packet_call_observed", "get_time"),
+        ("triage_packet_call_observed", "get_line_screening"),
+        ("triage_packet_call_observed", "get_sensor_summary"),
+        ("triage_packet_call_observed", "list_machines"),
+        ("triage_packet_missing_too_few_running_readings", "CNC-02:load"),
+        ("triage_packet_missing_not_running_yet", "CNC-04"),
+        ("triage_packet_missing_absent_from_screening", "CNC-03"),
+        ("triage_packet_built", None),
     ]
+    assert all(
+        line["investigation_id"] == str(state.investigation_id) for line in lines
+    )
     built = lines[-1]
     assert built["counts"] == state.triage_packet.counts()
+    assert built["counts"]["missing_derived_screening"] == 3
+    assert built["counts"]["qualified_live_sensor"] == 1
     assert built["tick"] == 12
     text = stream.getvalue()
-    for leaked in ("separate baseline run", "too_few_running_readings", "running"):
+    # Evidence values and text never reach the log: no scores, no reference words.
+    for leaked in ("separate baseline run", "3.1", "2.9", "steady", 'running"'):
         assert leaked not in text
+
+
+def test_an_identifier_the_logger_refuses_drops_one_event_not_the_triage():
+    stream = io.StringIO()
+    state = triage_state()
+    state.anomaly = state.anomaly.model_copy(update={"machine_id": "odd id/with space"})
+    observe(
+        state,
+        deps_for(factory(), event_logger=EventLogger(stream, name="odd-test")),
+    )
+    assert state.triage_packet is not None
+    assert (
+        stream.getvalue().splitlines()[-1].startswith('{"event":"triage_packet_built"')
+    )
+
+
+def test_line_context_on_keeps_its_own_arm_in_a_triage():
+    state = triage_state()
+    state.line_context_enabled = True
+    observe(state, deps_for(factory()))
+    assert state.triage_packet is None and state.incident_context is not None
+
+
+def test_the_progress_view_prints_the_packet_once():
+    from capstone.progress import ProgressView
+
+    lines = []
+    view = ProgressView(lines.append)
+    state = triage_state()
+    observe(state, deps_for(factory()))
+    view(state)
+    view(state)
+    packet = [line for line in lines if line.startswith("PACKET")]
+    assert len(packet) == 1
+    assert "absent from screening: CNC-03" in packet[0]
+    joined = "\n".join(lines)
+    assert "get_sensor_summary:optional:observed+q" in joined
+    assert "CNC-04:not_running_yet" in joined and "unknown, not normal" in joined
 
 
 def test_no_logger_logs_nothing_and_the_packet_still_builds():
@@ -513,3 +564,26 @@ def test_a_triage_episode_builds_the_packet_without_hidden_truth(monkeypatch):
     assert result.triage.research_tool_calls <= result.triage.budgets.max_tool_calls
     dumped = packet.model_dump_json()
     assert "bearing" not in dumped and "degradation" not in dumped
+
+
+def test_a_triage_experiment_records_and_logs_the_packet(monkeypatch):
+    """A triage run keeps the whole packet in its record and traces it."""
+    from capstone.experiment import Case, run_experiment
+    from tests.test_episode import SEED, wear_policy
+
+    monkeypatch.setenv("CRITIC", "off")
+    monkeypatch.setenv("TRIAGE_THEN_DEEP", "off")
+    monkeypatch.delenv("TRIAGE_PACKET", raising=False)  # on by default
+    stream = io.StringIO()
+    (record,) = run_experiment(
+        [Case(scenario_id="packet", seed=SEED, fault="bearing_degradation")],
+        lambda: wear_policy("escalate"),
+        name="packet-trace",
+        clock=lambda: 0.0,
+        triage=True,
+        event_logger=EventLogger(stream, name="experiment-test"),
+    )
+    assert record.triage is not None and record.triage.packet is not None
+    events = [json.loads(line)["event"] for line in stream.getvalue().splitlines()]
+    assert events[-1] == "triage_packet_built"
+    assert "triage_packet_call_observed" in events

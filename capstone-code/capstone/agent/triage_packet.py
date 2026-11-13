@@ -4,7 +4,9 @@
 
 Built in Python by `investigation.observe` only when the investigation is a
 triage (`mode == "triage"`) and `triage_packet_enabled` is set (TRIAGE_PACKET,
-off by default). A deep run never builds one.
+on by default since the developer's choice of 2026-11-13; TRIAGE_PACKET=off
+restores the old Observe). An explicit LINE_CONTEXT=on arm keeps its own
+packet instead. A deep run never builds one.
 
 The packet does not decide anything. It records, for later Python stages:
 
@@ -544,23 +546,47 @@ def ledger_entry_for_mandatory(
 def log_packet(
     state: InvestigationState, deps: InvestigationDeps, packet: EvidencePacket
 ) -> None:
-    """Emit opt-in structured events for the packet: identifiers and counts only."""
+    """Emit structured events for the packet: identifiers and counts only.
+
+    One event per call (its outcome, tool and whether it qualified), one per
+    missing item (its reason, and its physical root or machine), and one
+    summary with the packet's counts. A value the logger refuses as an
+    identifier (an unusual real machine id, say) drops that one event; logging
+    never stops a triage.
+    """
     # Variables:
     #   logger: The run's opt-in EventLogger; None logs nothing.
     #   run_id, investigation_id: Correlation ids, as text.
+    #   events: Every event to emit, as (name, tool or None, success or None).
     logger = deps.event_logger
     if logger is None:
         return
     run_id, investigation_id = str(state.run_id), str(state.investigation_id)
-    for call in packet.calls:
-        logger.log_event(
-            f"triage_packet_call_{call.outcome}",
-            run_id=run_id,
-            investigation_id=investigation_id,
-            tick=packet.observation_tick,
-            tool=call.tool,
-            success=call.qualified,
+    events: list[tuple[str, str | None, bool | None]] = [
+        (f"triage_packet_call_{call.outcome}", call.tool, call.qualified)
+        for call in packet.calls
+    ]
+    events += [
+        (
+            f"triage_packet_missing_{item.missing_reason or 'unknown'}",
+            item.physical_root or item.machine_id,
+            None,
         )
+        for item in packet.items
+        if item.status == "missing"
+    ]
+    for name, tool, success in events:
+        try:
+            logger.log_event(
+                name,
+                run_id=run_id,
+                investigation_id=investigation_id,
+                tick=packet.observation_tick,
+                tool=tool,
+                success=success,
+            )
+        except ValueError:
+            continue
     logger.log_event(
         "triage_packet_built",
         run_id=run_id,

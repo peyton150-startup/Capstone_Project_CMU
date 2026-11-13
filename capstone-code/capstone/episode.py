@@ -38,6 +38,7 @@ from capstone.contracts.investigations import investigation_id_for, run_id_for
 from capstone.evaluation.scoring import Score, evaluate
 from capstone.learning import LearningOutcome, learn_from
 from capstone.memory.service import MemoryService
+from capstone.observability import EventLogger
 from capstone.providers.chat import critic_client
 from capstone.providers.factory import SimulatorFactoryProvider, research_tools
 from capstone.providers.hazards import (
@@ -243,6 +244,7 @@ def run_episode(
     critic: Critic | None = None,
     triage: bool | None = None,
     stage_context: bool | None = None,
+    event_logger: EventLogger | None = None,
 ) -> EpisodeResult:
     """Run one seeded episode from the fault's start to its score.
 
@@ -287,6 +289,8 @@ def run_episode(
     #   triage: Run a rapid triage first; None reads TRIAGE from settings.
     #   stage_context: True or False forces the stage views on or off for this
     #     episode; None reads STAGE_CONTEXT from settings.
+    #   event_logger: Optional JSON-line trace (`capstone.observability`); the
+    #     triage evidence packet logs its calls, missing items and counts there.
     #   triage_state: The triage investigation, when triage was on.
     #   triage_seconds: How long the triage took on `clock`.
     #   settings: The project settings, read for the action bar and step mode.
@@ -407,6 +411,7 @@ def run_episode(
         manual_step=settings.manual_step and manual is not None,
         hypothesis_seconds=settings.hypothesis_reserve_seconds,
         critic_reinstate=settings.tot_reinstate,
+        event_logger=event_logger,
     )
     research = state.budgets.timeout_seconds - state.budgets.followup_seconds
     if deps.hypothesis_seconds >= research:

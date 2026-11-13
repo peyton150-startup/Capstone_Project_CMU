@@ -132,8 +132,9 @@ def observe(state: InvestigationState, deps: InvestigationDeps) -> None:
     #     screening's call goes to its own allowance and not to research.
     #   state.line_context_enabled: Whether this comparison arm gathers the
     #     bounded observable packet before the manual and plan stages.
-    #   packet: True only in a triage with TRIAGE_PACKET on; then the qualified
-    #     evidence packet replaces the line context. Always False on a deep run.
+    #   packet: True only in a triage with TRIAGE_PACKET on and LINE_CONTEXT
+    #     off; the explicit LINE_CONTEXT comparison arm keeps its own packet.
+    #     Always False on a deep run.
     #   time_evidence, screening_evidence: The two mandatory answers, kept so
     #     the packet can qualify them without asking again.
     if state.started_at is None:
@@ -157,7 +158,11 @@ def observe(state: InvestigationState, deps: InvestigationDeps) -> None:
         calls_before = state.tool_call_count
         screening_evidence = gather(state, deps, "observe", screen, interpret=False)
         state.screening_tool_calls_used += state.tool_call_count - calls_before
-    packet = state.mode == "triage" and state.triage_packet_enabled
+    packet = (
+        state.mode == "triage"
+        and state.triage_packet_enabled
+        and not state.line_context_enabled
+    )
     if packet:
         state.triage_packet = build_triage_packet(
             state, deps, time_evidence, screening_evidence
