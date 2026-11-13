@@ -1005,10 +1005,18 @@ def run_inner_loop(
         try:
             decision = pending_decision
             pending_decision = None
-            if decision is not None and plan is not None:
-                note_advice(
-                    state, deps, phase, plan, decision, source="interpret_and_decide"
-                )
+            if decision is not None:
+                # The next step came with the reading (STEP_QUESTIONS=1): kept
+                # as it is, and only compared with the compiled read.
+                if plan is not None:
+                    note_advice(
+                        state,
+                        deps,
+                        phase,
+                        plan,
+                        decision,
+                        source="interpret_and_decide",
+                    )
             elif (
                 plan is not None and deps.triage_investigate == "on" and plan[1] is None
             ):
