@@ -115859,6 +115859,666 @@
    ]
   },
   {
+   "id": "tests/test_triage_compare.py::test_each_arm_is_a_column_with_its_counts",
+   "file": "tests/test_triage_compare.py",
+   "name": "test_each_arm_is_a_column_with_its_counts",
+   "line": 89,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [
+    "triaged"
+   ],
+   "assertions": 5,
+   "assert_forms": {
+    "equality": 5
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "each arm is a column with its counts",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.agent.evidence_brief:observations",
+    "capstone.agent.evidence_brief:verify_numeric_claims",
+    "capstone.agent.evidence_tests:note",
+    "capstone.agent.evidence_tests:open_rival_questions",
+    "capstone.agent.evidence_tests:physical_root",
+    "capstone.agent.evidence_tests:root_of",
+    "capstone.agent.evidence_tests:source_roots",
+    "capstone.agent.investigate_compiler:compile_requests",
+    "capstone.agent.investigate_compiler:escape_reason",
+    "capstone.agent.investigate_compiler:known_machines",
+    "capstone.agent.investigate_compiler:model_target",
+    "capstone.agent.investigate_compiler:observed_windows",
+    "capstone.agent.investigation:build_graph",
+    "capstone.agent.investigation:build_graph.<locals>.conclude_step",
+    "capstone.agent.investigation:build_graph.<locals>.critique_step",
+    "capstone.agent.investigation:build_graph.<locals>.execute_step",
+    "capstone.agent.investigation:build_graph.<locals>.hypothesize_step",
+    "capstone.agent.investigation:build_graph.<locals>.investigate_step",
+    "capstone.agent.investigation:build_graph.<locals>.manual_step",
+    "capstone.agent.investigation:build_graph.<locals>.observe_step",
+    "capstone.agent.investigation:build_graph.<locals>.plan_step",
+    "capstone.agent.investigation:build_graph.<locals>.propose_step",
+    "capstone.agent.investigation:build_graph.<locals>.recheck_step",
+    "capstone.agent.investigation:build_graph.<locals>.staged",
+    "capstone.agent.investigation:build_graph.<locals>.test_step",
+    "capstone.agent.investigation:build_graph.<locals>.verify_step",
+    "capstone.agent.investigation:check_conclusion",
+    "capstone.agent.investigation:conclude",
+    "capstone.agent.investigation:consult_manual",
+    "capstone.agent.investigation:critic_view",
+    "capstone.agent.investigation:critique",
+    "capstone.agent.investigation:execute",
+    "capstone.agent.investigation:factory_changed",
+    "capstone.agent.investigation:followup_call",
+    "capstone.agent.investigation:gathered_in",
+    "capstone.agent.investigation:hypothesize",
+    "capstone.agent.investigation:investigate",
+    "capstone.agent.investigation:needs_deep_run",
+    "capstone.agent.investigation:observe",
+    "capstone.agent.investigation:plan"
+   ],
+   "exercise_count": 253,
+   "modules_exercised": [
+    "capstone.agent.evidence_brief",
+    "capstone.agent.evidence_tests",
+    "capstone.agent.investigate_compiler",
+    "capstone.agent.investigation",
+    "capstone.agent.loop",
+    "capstone.agent.monitor",
+    "capstone.agent.state",
+    "capstone.agent.triage_packet",
+    "capstone.agent.triage_report",
+    "capstone.contracts.investigations",
+    "capstone.contracts.tools",
+    "capstone.episode",
+    "capstone.evaluation.scoring",
+    "capstone.evaluation.triage_metrics",
+    "capstone.experiment",
+    "capstone.faults",
+    "capstone.providers.factory",
+    "capstone.settings",
+    "capstone.simulator.clock",
+    "capstone.simulator.events",
+    "capstone.simulator.generator",
+    "capstone.simulator.line",
+    "capstone.simulator.maintenance",
+    "capstone.simulator.rng",
+    "capstone.simulator.scenarios",
+    "capstone.simulator.sensors",
+    "capstone.simulator.simulator",
+    "capstone.simulator.state",
+    "capstone.simulator.thermal",
+    "capstone.tools.actions",
+    "capstone.tools.observation",
+    "capstone.tools.screening",
+    "capstone.triage_compare"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_triage_compare.py::test_seconds_are_nearest_rank_percentiles",
+   "file": "tests/test_triage_compare.py",
+   "name": "test_seconds_are_nearest_rank_percentiles",
+   "line": 107,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [
+    "triaged"
+   ],
+   "assertions": 2,
+   "assert_forms": {
+    "equality": 2
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "seconds are nearest rank percentiles",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.experiment:nearest_rank",
+    "capstone.triage_compare:Arm.triage_scores",
+    "capstone.triage_compare:Arm.triages",
+    "capstone.triage_compare:cleared_without_model",
+    "capstone.triage_compare:count",
+    "capstone.triage_compare:evidence_tests",
+    "capstone.triage_compare:held_open",
+    "capstone.triage_compare:investigate",
+    "capstone.triage_compare:plans",
+    "capstone.triage_compare:report_count",
+    "capstone.triage_compare:root_causes",
+    "capstone.triage_compare:rows",
+    "capstone.triage_compare:seconds_at",
+    "capstone.triage_compare:stages_of",
+    "capstone.triage_compare:unsafe_clearances",
+    "capstone.triage_compare:wrong_machine"
+   ],
+   "exercise_count": 16,
+   "modules_exercised": [
+    "capstone.experiment",
+    "capstone.triage_compare"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_triage_compare.py::test_report_outcomes_and_checks_are_counted",
+   "file": "tests/test_triage_compare.py",
+   "name": "test_report_outcomes_and_checks_are_counted",
+   "line": 117,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [
+    "triaged"
+   ],
+   "assertions": 4,
+   "assert_forms": {
+    "equality": 4
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "report outcomes and checks are counted",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.experiment:nearest_rank",
+    "capstone.triage_compare:Arm.triage_scores",
+    "capstone.triage_compare:Arm.triages",
+    "capstone.triage_compare:cleared_without_model",
+    "capstone.triage_compare:count",
+    "capstone.triage_compare:evidence_tests",
+    "capstone.triage_compare:held_open",
+    "capstone.triage_compare:investigate",
+    "capstone.triage_compare:plans",
+    "capstone.triage_compare:report_count",
+    "capstone.triage_compare:root_causes",
+    "capstone.triage_compare:rows",
+    "capstone.triage_compare:seconds_at",
+    "capstone.triage_compare:stages_of",
+    "capstone.triage_compare:unsafe_clearances",
+    "capstone.triage_compare:wrong_machine"
+   ],
+   "exercise_count": 16,
+   "modules_exercised": [
+    "capstone.experiment",
+    "capstone.triage_compare"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_triage_compare.py::test_a_python_only_clearance_is_counted_so_it_can_be_caught",
+   "file": "tests/test_triage_compare.py",
+   "name": "test_a_python_only_clearance_is_counted_so_it_can_be_caught",
+   "line": 137,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [
+    "triaged"
+   ],
+   "assertions": 1,
+   "assert_forms": {
+    "equality": 1
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "a python only clearance is counted so it can be caught",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.experiment:nearest_rank",
+    "capstone.triage_compare:Arm.triage_scores",
+    "capstone.triage_compare:Arm.triages",
+    "capstone.triage_compare:cleared_without_model",
+    "capstone.triage_compare:count",
+    "capstone.triage_compare:evidence_tests",
+    "capstone.triage_compare:held_open",
+    "capstone.triage_compare:investigate",
+    "capstone.triage_compare:plans",
+    "capstone.triage_compare:report_count",
+    "capstone.triage_compare:root_causes",
+    "capstone.triage_compare:rows",
+    "capstone.triage_compare:seconds_at",
+    "capstone.triage_compare:stages_of",
+    "capstone.triage_compare:unsafe_clearances",
+    "capstone.triage_compare:wrong_machine"
+   ],
+   "exercise_count": 16,
+   "modules_exercised": [
+    "capstone.experiment",
+    "capstone.triage_compare"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_triage_compare.py::test_unsafe_clearance_is_a_cleared_faulty_case_not_a_cleared_false_alarm",
+   "file": "tests/test_triage_compare.py",
+   "name": "test_unsafe_clearance_is_a_cleared_faulty_case_not_a_cleared_false_alarm",
+   "line": 147,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [
+    "triaged"
+   ],
+   "assertions": 3,
+   "assert_forms": {
+    "equality": 2,
+    "inequality": 1
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "unsafe clearance is a cleared faulty case not a cleared false alarm",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.triage_compare:Arm.triage_scores",
+    "capstone.triage_compare:unsafe_clearances"
+   ],
+   "exercise_count": 2,
+   "modules_exercised": [
+    "capstone.triage_compare"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_triage_compare.py::test_wrong_machine_counts_answers_naming_another_machine",
+   "file": "tests/test_triage_compare.py",
+   "name": "test_wrong_machine_counts_answers_naming_another_machine",
+   "line": 160,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [
+    "triaged"
+   ],
+   "assertions": 1,
+   "assert_forms": {
+    "equality": 1
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "wrong machine counts answers naming another machine",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.triage_compare:wrong_machine"
+   ],
+   "exercise_count": 1,
+   "modules_exercised": [
+    "capstone.triage_compare"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_triage_compare.py::test_unlabelled_root_causes_are_not_judged_and_a_label_judges_them",
+   "file": "tests/test_triage_compare.py",
+   "name": "test_unlabelled_root_causes_are_not_judged_and_a_label_judges_them",
+   "line": 168,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [
+    "triaged",
+    "tmp_path"
+   ],
+   "assertions": 2,
+   "assert_forms": {
+    "equality": 1,
+    "membership": 1
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "unlabelled root causes are not judged and a label judges them",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.evaluation.labels:apply_label",
+    "capstone.evaluation.scoring:Cause.named_by",
+    "capstone.evaluation.scoring:_closest",
+    "capstone.evaluation.scoring:_named",
+    "capstone.evaluation.scoring:judge",
+    "capstone.evaluation.scoring:judge_causes",
+    "capstone.experiment:append_records",
+    "capstone.experiment:labelled",
+    "capstone.experiment:nearest_rank",
+    "capstone.experiment:read_records",
+    "capstone.triage_compare:Arm.triage_scores",
+    "capstone.triage_compare:Arm.triages",
+    "capstone.triage_compare:cleared_without_model",
+    "capstone.triage_compare:count",
+    "capstone.triage_compare:evidence_tests",
+    "capstone.triage_compare:held_open",
+    "capstone.triage_compare:investigate",
+    "capstone.triage_compare:load_arms",
+    "capstone.triage_compare:plans",
+    "capstone.triage_compare:records_in",
+    "capstone.triage_compare:report_count",
+    "capstone.triage_compare:root_causes",
+    "capstone.triage_compare:rows",
+    "capstone.triage_compare:seconds_at",
+    "capstone.triage_compare:stages_of",
+    "capstone.triage_compare:unsafe_clearances",
+    "capstone.triage_compare:wrong_machine"
+   ],
+   "exercise_count": 27,
+   "modules_exercised": [
+    "capstone.evaluation.labels",
+    "capstone.evaluation.scoring",
+    "capstone.experiment",
+    "capstone.triage_compare"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_triage_compare.py::test_plan_investigate_and_evidence_test_rows",
+   "file": "tests/test_triage_compare.py",
+   "name": "test_plan_investigate_and_evidence_test_rows",
+   "line": 183,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [
+    "triaged"
+   ],
+   "assertions": 3,
+   "assert_forms": {
+    "call_truthiness": 2,
+    "equality": 1
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "plan investigate and evidence test rows",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.experiment:nearest_rank",
+    "capstone.triage_compare:Arm.triage_scores",
+    "capstone.triage_compare:Arm.triages",
+    "capstone.triage_compare:cleared_without_model",
+    "capstone.triage_compare:count",
+    "capstone.triage_compare:evidence_tests",
+    "capstone.triage_compare:held_open",
+    "capstone.triage_compare:investigate",
+    "capstone.triage_compare:plans",
+    "capstone.triage_compare:report_count",
+    "capstone.triage_compare:root_causes",
+    "capstone.triage_compare:rows",
+    "capstone.triage_compare:seconds_at",
+    "capstone.triage_compare:stages_of",
+    "capstone.triage_compare:unsafe_clearances",
+    "capstone.triage_compare:wrong_machine"
+   ],
+   "exercise_count": 16,
+   "modules_exercised": [
+    "capstone.experiment",
+    "capstone.triage_compare"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_triage_compare.py::test_older_records_show_missing_fields_as_unknown",
+   "file": "tests/test_triage_compare.py",
+   "name": "test_older_records_show_missing_fields_as_unknown",
+   "line": 191,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [
+    "triaged",
+    "tmp_path"
+   ],
+   "assertions": 7,
+   "assert_forms": {
+    "equality": 5,
+    "negation": 1,
+    "truthiness": 1
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "older records show missing fields as unknown",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.experiment:nearest_rank",
+    "capstone.triage_compare:Arm.triage_scores",
+    "capstone.triage_compare:Arm.triages",
+    "capstone.triage_compare:cleared_without_model",
+    "capstone.triage_compare:count",
+    "capstone.triage_compare:evidence_tests",
+    "capstone.triage_compare:held_open",
+    "capstone.triage_compare:investigate",
+    "capstone.triage_compare:plans",
+    "capstone.triage_compare:report_count",
+    "capstone.triage_compare:root_causes",
+    "capstone.triage_compare:rows",
+    "capstone.triage_compare:seconds_at",
+    "capstone.triage_compare:stages_of",
+    "capstone.triage_compare:unsafe_clearances",
+    "capstone.triage_compare:wrong_machine"
+   ],
+   "exercise_count": 16,
+   "modules_exercised": [
+    "capstone.experiment",
+    "capstone.triage_compare"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_triage_compare.py::test_the_compare_command_prints_one_column_per_arm",
+   "file": "tests/test_triage_compare.py",
+   "name": "test_the_compare_command_prints_one_column_per_arm",
+   "line": 216,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [
+    "triaged",
+    "tmp_path",
+    "capsys"
+   ],
+   "assertions": 4,
+   "assert_forms": {
+    "equality": 1,
+    "membership": 2,
+    "truthiness": 1
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "the compare command prints one column per arm",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.console:safe_console",
+    "capstone.evaluation.labels:LabelBook.__init__",
+    "capstone.evaluation.labels:LabelBook.add",
+    "capstone.evaluation.labels:LabelBook.read",
+    "capstone.evaluation.labels:apply_label",
+    "capstone.evaluation.scoring:Cause.named_by",
+    "capstone.evaluation.scoring:_closest",
+    "capstone.evaluation.scoring:_named",
+    "capstone.evaluation.scoring:judge",
+    "capstone.evaluation.scoring:judge_causes",
+    "capstone.experiment:add_manual_options",
+    "capstone.experiment:append_records",
+    "capstone.experiment:labelled",
+    "capstone.experiment:main",
+    "capstone.experiment:nearest_rank",
+    "capstone.experiment:read_records",
+    "capstone.triage_compare:Arm.triage_scores",
+    "capstone.triage_compare:Arm.triages",
+    "capstone.triage_compare:cleared_without_model",
+    "capstone.triage_compare:compare",
+    "capstone.triage_compare:count",
+    "capstone.triage_compare:evidence_tests",
+    "capstone.triage_compare:held_open",
+    "capstone.triage_compare:investigate",
+    "capstone.triage_compare:load_arms",
+    "capstone.triage_compare:plans",
+    "capstone.triage_compare:records_in",
+    "capstone.triage_compare:report_count",
+    "capstone.triage_compare:root_causes",
+    "capstone.triage_compare:rows",
+    "capstone.triage_compare:seconds_at",
+    "capstone.triage_compare:stages_of",
+    "capstone.triage_compare:unsafe_clearances",
+    "capstone.triage_compare:wrong_machine"
+   ],
+   "exercise_count": 34,
+   "modules_exercised": [
+    "capstone.console",
+    "capstone.evaluation.labels",
+    "capstone.evaluation.scoring",
+    "capstone.experiment",
+    "capstone.triage_compare"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_triage_compare.py::test_the_compare_command_refuses_mismatched_labels_and_empty_folders",
+   "file": "tests/test_triage_compare.py",
+   "name": "test_the_compare_command_refuses_mismatched_labels_and_empty_folders",
+   "line": 247,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [
+    "triaged",
+    "tmp_path"
+   ],
+   "assertions": 0,
+   "assert_forms": {},
+   "raises_checks": 2,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "the compare command refuses mismatched labels and empty folders",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.console:safe_console",
+    "capstone.experiment:add_manual_options",
+    "capstone.experiment:append_records",
+    "capstone.experiment:main",
+    "capstone.triage_compare:load_arms",
+    "capstone.triage_compare:records_in"
+   ],
+   "exercise_count": 6,
+   "modules_exercised": [
+    "capstone.console",
+    "capstone.experiment",
+    "capstone.triage_compare"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_triage_compare.py::test_the_table_is_aligned",
+   "file": "tests/test_triage_compare.py",
+   "name": "test_the_table_is_aligned",
+   "line": 260,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [
+    "triaged"
+   ],
+   "assertions": 1,
+   "assert_forms": {
+    "equality": 1
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "the table is aligned",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.experiment:nearest_rank",
+    "capstone.triage_compare:Arm.triage_scores",
+    "capstone.triage_compare:Arm.triages",
+    "capstone.triage_compare:cleared_without_model",
+    "capstone.triage_compare:compare",
+    "capstone.triage_compare:count",
+    "capstone.triage_compare:evidence_tests",
+    "capstone.triage_compare:held_open",
+    "capstone.triage_compare:investigate",
+    "capstone.triage_compare:plans",
+    "capstone.triage_compare:report_count",
+    "capstone.triage_compare:root_causes",
+    "capstone.triage_compare:rows",
+    "capstone.triage_compare:seconds_at",
+    "capstone.triage_compare:stages_of",
+    "capstone.triage_compare:unsafe_clearances",
+    "capstone.triage_compare:wrong_machine"
+   ],
+   "exercise_count": 17,
+   "modules_exercised": [
+    "capstone.experiment",
+    "capstone.triage_compare"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
    "id": "tests/test_triage_evidence_packet.py::test_the_setting_is_on_by_default_and_can_be_turned_off",
    "file": "tests/test_triage_evidence_packet.py",
    "name": "test_the_setting_is_on_by_default_and_can_be_turned_off",
