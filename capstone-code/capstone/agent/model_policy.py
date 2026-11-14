@@ -92,6 +92,12 @@ MAX_EVIDENCE_CHARS = 2000
 MAX_EVIDENCE_SECTION_CHARS = 12_000
 # How many of the latest failed calls a prompt shows, so they can be corrected.
 RECENT_FAILURES = 3
+# Added to the conclusion prompt when no hypothesis was formed (2026-11-14:
+# a triage conclusion named a hypothesis id that did not exist and was refused).
+NO_HYPOTHESES_NOTE = (
+    "\n\nNO HYPOTHESES WERE FORMED in this investigation: leave hypothesis_id "
+    "empty. A hypothesis id that was never formed makes the answer invalid."
+)
 # At or below this many research calls left, the prompt adds LOW_BUDGET_NOTE.
 LOW_CALLS = 2
 LOW_BUDGET_NOTE = (
@@ -1413,11 +1419,15 @@ class ModelPolicy:
         #   answer.action: A proposed repair, independently checked by the controller.
         #   prompt: The shared view, then (triage with TRIAGE_CONCLUDE_BRIEF only)
         #     the conclusion brief of what was tested, measured and missing,
-        #     then the action-bar note. A deep run's prompt is unchanged.
+        #     then the action-bar note, then, when no hypothesis was formed,
+        #     NO_HYPOTHESES_NOTE so the answer does not name one (a named
+        #     hypothesis that was never formed is refused).
         prompt = render(state)
         if state.mode == "triage" and state.triage_conclude_brief:
             prompt += "\n" + "\n".join(["", *brief_lines(state)])
         prompt += action_bar_note(state)
+        if not state.hypotheses:
+            prompt += NO_HYPOTHESES_NOTE
         answer = self._ask("conclude", state, prompt, ConcludeAnswer)
         conclusion = answer.conclusion
         if conclusion.assessment is None:

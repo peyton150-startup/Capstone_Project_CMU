@@ -100,6 +100,7 @@ GROUPS: dict[str, list[str]] = {
         "tree_of_thought",
         "tree_search",
         "reasoning_evidence",
+        "conclude_no_hypotheses",
         "refused_repeats",
         "numeric_claim_metrics",
     ],
