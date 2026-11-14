@@ -101,6 +101,7 @@ GROUPS: dict[str, list[str]] = {
         "tree_search",
         "reasoning_evidence",
         "conclude_no_hypotheses",
+        "refused_repeats",
         "numeric_claim_metrics",
     ],
     # Checkpoint 8c: each model measured alone, from real episodes.
