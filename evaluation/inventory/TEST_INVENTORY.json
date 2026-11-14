@@ -121742,6 +121742,844 @@
    ]
   },
   {
+   "id": "tests/test_triage_plan.py::test_a_vibration_alarm_gets_five_questions_on_its_own_machine_and_sensor",
+   "file": "tests/test_triage_plan.py",
+   "name": "test_a_vibration_alarm_gets_five_questions_on_its_own_machine_and_sensor",
+   "line": 37,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 7,
+   "assert_forms": {
+    "call_truthiness": 1,
+    "equality": 2,
+    "membership": 4
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "a vibration alarm gets five questions on its own machine and sensor",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.agent.triage_plan:fixed_plan"
+   ],
+   "exercise_count": 1,
+   "modules_exercised": [
+    "capstone.agent.triage_plan"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_triage_plan.py::test_each_alarm_sensor_gets_its_own_follow_up",
+   "file": "tests/test_triage_plan.py",
+   "name": "test_each_alarm_sensor_gets_its_own_follow_up",
+   "line": 62,
+   "docstring": "",
+   "parametrized": true,
+   "fixtures": [
+    "sensor",
+    "side",
+    "follow_up"
+   ],
+   "assertions": 2,
+   "assert_forms": {
+    "membership": 2
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "each alarm sensor gets its own follow up",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.agent.triage_plan:fixed_plan"
+   ],
+   "exercise_count": 1,
+   "modules_exercised": [
+    "capstone.agent.triage_plan"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_triage_plan.py::test_failed_inspections_and_a_stopped_machine_get_their_own_lists",
+   "file": "tests/test_triage_plan.py",
+   "name": "test_failed_inspections_and_a_stopped_machine_get_their_own_lists",
+   "line": 69,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 4,
+   "assert_forms": {
+    "membership": 4
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "failed inspections and a stopped machine get their own lists",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.agent.triage_plan:fixed_plan"
+   ],
+   "exercise_count": 1,
+   "modules_exercised": [
+    "capstone.agent.triage_plan"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_triage_plan.py::test_anything_else_gets_the_generic_list",
+   "file": "tests/test_triage_plan.py",
+   "name": "test_anything_else_gets_the_generic_list",
+   "line": 84,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 2,
+   "assert_forms": {
+    "equality": 1,
+    "membership": 1
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "anything else gets the generic list",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.agent.triage_plan:fixed_plan"
+   ],
+   "exercise_count": 1,
+   "modules_exercised": [
+    "capstone.agent.triage_plan"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_triage_plan.py::test_the_fixed_questions_name_no_cause_and_never_change",
+   "file": "tests/test_triage_plan.py",
+   "name": "test_the_fixed_questions_name_no_cause_and_never_change",
+   "line": 94,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 2,
+   "assert_forms": {
+    "equality": 1,
+    "negation": 1
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "the fixed questions name no cause and never change",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.agent.triage_plan:fixed_plan"
+   ],
+   "exercise_count": 1,
+   "modules_exercised": [
+    "capstone.agent.triage_plan"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_triage_plan.py::test_an_alarm_first_question_carries_a_sustained_reading_predicate",
+   "file": "tests/test_triage_plan.py",
+   "name": "test_an_alarm_first_question_carries_a_sustained_reading_predicate",
+   "line": 111,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 9,
+   "assert_forms": {
+    "equality": 9
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "an alarm first question carries a sustained reading predicate",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.agent.triage_plan:fixed_predicates"
+   ],
+   "exercise_count": 1,
+   "modules_exercised": [
+    "capstone.agent.triage_plan"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_triage_plan.py::test_a_low_side_alarm_compares_below_and_an_early_alarm_starts_at_zero",
+   "file": "tests/test_triage_plan.py",
+   "name": "test_a_low_side_alarm_compares_below_and_an_early_alarm_starts_at_zero",
+   "line": 124,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 2,
+   "assert_forms": {
+    "equality": 1,
+    "truthiness": 1
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "a low side alarm compares below and an early alarm starts at zero",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.agent.triage_plan:fixed_predicates"
+   ],
+   "exercise_count": 1,
+   "modules_exercised": [
+    "capstone.agent.triage_plan"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_triage_plan.py::test_only_a_readable_alarm_on_a_named_machine_gets_a_predicate",
+   "file": "tests/test_triage_plan.py",
+   "name": "test_only_a_readable_alarm_on_a_named_machine_gets_a_predicate",
+   "line": 141,
+   "docstring": "",
+   "parametrized": true,
+   "fixtures": [
+    "odd"
+   ],
+   "assertions": 1,
+   "assert_forms": {
+    "equality": 1
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "only a readable alarm on a named machine gets a predicate",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.agent.triage_plan:fixed_predicates"
+   ],
+   "exercise_count": 1,
+   "modules_exercised": [
+    "capstone.agent.triage_plan"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_triage_plan.py::test_a_fixed_plan_triage_asks_no_plan_question",
+   "file": "tests/test_triage_plan.py",
+   "name": "test_a_fixed_plan_triage_asks_no_plan_question",
+   "line": 174,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [
+    "monkeypatch"
+   ],
+   "assertions": 8,
+   "assert_forms": {
+    "equality": 4,
+    "identity_constant": 3,
+    "membership": 1
+   },
+   "raises_checks": 0,
+   "uses": [
+    "monkeypatch"
+   ],
+   "quality_flags": [
+    "patches_dependencies"
+   ],
+   "claims": "a fixed plan triage asks no plan question",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.agent.evidence_brief:observations",
+    "capstone.agent.evidence_brief:verify_numeric_claims",
+    "capstone.agent.evidence_tests:note",
+    "capstone.agent.evidence_tests:open_rival_questions",
+    "capstone.agent.evidence_tests:physical_root",
+    "capstone.agent.evidence_tests:root_of",
+    "capstone.agent.evidence_tests:source_roots",
+    "capstone.agent.investigate_compiler:Candidate.key",
+    "capstone.agent.investigate_compiler:Candidate.root",
+    "capstone.agent.investigate_compiler:Candidate.signals",
+    "capstone.agent.investigate_compiler:agreement",
+    "capstone.agent.investigate_compiler:compile_requests",
+    "capstone.agent.investigate_compiler:escape_reason",
+    "capstone.agent.investigate_compiler:known_machines",
+    "capstone.agent.investigate_compiler:machines_named",
+    "capstone.agent.investigate_compiler:model_target",
+    "capstone.agent.investigate_compiler:observed_windows",
+    "capstone.agent.investigate_compiler:sensors_named",
+    "capstone.agent.investigate_compiler:targets",
+    "capstone.agent.investigation:build_graph",
+    "capstone.agent.investigation:build_graph.<locals>.conclude_step",
+    "capstone.agent.investigation:build_graph.<locals>.critique_step",
+    "capstone.agent.investigation:build_graph.<locals>.execute_step",
+    "capstone.agent.investigation:build_graph.<locals>.hypothesize_step",
+    "capstone.agent.investigation:build_graph.<locals>.investigate_step",
+    "capstone.agent.investigation:build_graph.<locals>.manual_step",
+    "capstone.agent.investigation:build_graph.<locals>.observe_step",
+    "capstone.agent.investigation:build_graph.<locals>.plan_step",
+    "capstone.agent.investigation:build_graph.<locals>.propose_step",
+    "capstone.agent.investigation:build_graph.<locals>.recheck_step",
+    "capstone.agent.investigation:build_graph.<locals>.staged",
+    "capstone.agent.investigation:build_graph.<locals>.test_step",
+    "capstone.agent.investigation:build_graph.<locals>.verify_step",
+    "capstone.agent.investigation:check_conclusion",
+    "capstone.agent.investigation:conclude",
+    "capstone.agent.investigation:consult_manual",
+    "capstone.agent.investigation:critic_view",
+    "capstone.agent.investigation:critique",
+    "capstone.agent.investigation:execute",
+    "capstone.agent.investigation:factory_changed"
+   ],
+   "exercise_count": 239,
+   "modules_exercised": [
+    "capstone.agent.evidence_brief",
+    "capstone.agent.evidence_tests",
+    "capstone.agent.investigate_compiler",
+    "capstone.agent.investigation",
+    "capstone.agent.loop",
+    "capstone.agent.monitor",
+    "capstone.agent.state",
+    "capstone.agent.triage_packet",
+    "capstone.agent.triage_plan",
+    "capstone.agent.triage_report",
+    "capstone.contracts.investigations",
+    "capstone.contracts.tools",
+    "capstone.episode",
+    "capstone.evaluation.scoring",
+    "capstone.faults",
+    "capstone.providers.factory",
+    "capstone.settings",
+    "capstone.simulator.clock",
+    "capstone.simulator.events",
+    "capstone.simulator.generator",
+    "capstone.simulator.line",
+    "capstone.simulator.maintenance",
+    "capstone.simulator.rng",
+    "capstone.simulator.scenarios",
+    "capstone.simulator.sensors",
+    "capstone.simulator.simulator",
+    "capstone.simulator.state",
+    "capstone.simulator.thermal",
+    "capstone.tools.actions",
+    "capstone.tools.observation",
+    "capstone.tools.screening"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_triage_plan.py::test_by_default_the_triage_still_asks_the_model_to_plan",
+   "file": "tests/test_triage_plan.py",
+   "name": "test_by_default_the_triage_still_asks_the_model_to_plan",
+   "line": 188,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [
+    "monkeypatch"
+   ],
+   "assertions": 3,
+   "assert_forms": {
+    "equality": 2,
+    "identity_constant": 1
+   },
+   "raises_checks": 0,
+   "uses": [
+    "monkeypatch"
+   ],
+   "quality_flags": [
+    "patches_dependencies"
+   ],
+   "claims": "by default the triage still asks the model to plan",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.agent.evidence_brief:observations",
+    "capstone.agent.evidence_brief:verify_numeric_claims",
+    "capstone.agent.evidence_tests:note",
+    "capstone.agent.evidence_tests:open_rival_questions",
+    "capstone.agent.evidence_tests:physical_root",
+    "capstone.agent.evidence_tests:root_of",
+    "capstone.agent.evidence_tests:source_roots",
+    "capstone.agent.investigate_compiler:compile_requests",
+    "capstone.agent.investigate_compiler:escape_reason",
+    "capstone.agent.investigate_compiler:known_machines",
+    "capstone.agent.investigate_compiler:model_target",
+    "capstone.agent.investigate_compiler:observed_windows",
+    "capstone.agent.investigation:build_graph",
+    "capstone.agent.investigation:build_graph.<locals>.conclude_step",
+    "capstone.agent.investigation:build_graph.<locals>.critique_step",
+    "capstone.agent.investigation:build_graph.<locals>.hypothesize_step",
+    "capstone.agent.investigation:build_graph.<locals>.investigate_step",
+    "capstone.agent.investigation:build_graph.<locals>.manual_step",
+    "capstone.agent.investigation:build_graph.<locals>.observe_step",
+    "capstone.agent.investigation:build_graph.<locals>.plan_step",
+    "capstone.agent.investigation:build_graph.<locals>.propose_step",
+    "capstone.agent.investigation:build_graph.<locals>.recheck_step",
+    "capstone.agent.investigation:build_graph.<locals>.staged",
+    "capstone.agent.investigation:build_graph.<locals>.test_step",
+    "capstone.agent.investigation:check_conclusion",
+    "capstone.agent.investigation:conclude",
+    "capstone.agent.investigation:consult_manual",
+    "capstone.agent.investigation:critique",
+    "capstone.agent.investigation:gathered_in",
+    "capstone.agent.investigation:hypothesize",
+    "capstone.agent.investigation:investigate",
+    "capstone.agent.investigation:needs_deep_run",
+    "capstone.agent.investigation:observe",
+    "capstone.agent.investigation:plan",
+    "capstone.agent.investigation:propose",
+    "capstone.agent.investigation:recheck",
+    "capstone.agent.investigation:reconsider",
+    "capstone.agent.investigation:revalue",
+    "capstone.agent.investigation:run_investigation",
+    "capstone.agent.investigation:test"
+   ],
+   "exercise_count": 205,
+   "modules_exercised": [
+    "capstone.agent.evidence_brief",
+    "capstone.agent.evidence_tests",
+    "capstone.agent.investigate_compiler",
+    "capstone.agent.investigation",
+    "capstone.agent.loop",
+    "capstone.agent.monitor",
+    "capstone.agent.state",
+    "capstone.agent.triage_packet",
+    "capstone.agent.triage_report",
+    "capstone.contracts.investigations",
+    "capstone.contracts.tools",
+    "capstone.episode",
+    "capstone.evaluation.scoring",
+    "capstone.faults",
+    "capstone.providers.factory",
+    "capstone.settings",
+    "capstone.simulator.clock",
+    "capstone.simulator.events",
+    "capstone.simulator.generator",
+    "capstone.simulator.line",
+    "capstone.simulator.maintenance",
+    "capstone.simulator.rng",
+    "capstone.simulator.scenarios",
+    "capstone.simulator.sensors",
+    "capstone.simulator.simulator",
+    "capstone.simulator.state",
+    "capstone.simulator.thermal",
+    "capstone.tools.actions",
+    "capstone.tools.observation",
+    "capstone.tools.screening"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_triage_plan.py::test_a_deep_only_run_ignores_the_fixed_plan_setting",
+   "file": "tests/test_triage_plan.py",
+   "name": "test_a_deep_only_run_ignores_the_fixed_plan_setting",
+   "line": 199,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [
+    "monkeypatch"
+   ],
+   "assertions": 2,
+   "assert_forms": {
+    "is_none": 1,
+    "truthiness": 1
+   },
+   "raises_checks": 0,
+   "uses": [
+    "monkeypatch"
+   ],
+   "quality_flags": [
+    "patches_dependencies"
+   ],
+   "claims": "a deep only run ignores the fixed plan setting",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.agent.evidence_brief:observations",
+    "capstone.agent.evidence_brief:verify_numeric_claims",
+    "capstone.agent.investigation:build_graph",
+    "capstone.agent.investigation:build_graph.<locals>.conclude_step",
+    "capstone.agent.investigation:build_graph.<locals>.critique_step",
+    "capstone.agent.investigation:build_graph.<locals>.execute_step",
+    "capstone.agent.investigation:build_graph.<locals>.hypothesize_step",
+    "capstone.agent.investigation:build_graph.<locals>.investigate_step",
+    "capstone.agent.investigation:build_graph.<locals>.manual_step",
+    "capstone.agent.investigation:build_graph.<locals>.observe_step",
+    "capstone.agent.investigation:build_graph.<locals>.plan_step",
+    "capstone.agent.investigation:build_graph.<locals>.propose_step",
+    "capstone.agent.investigation:build_graph.<locals>.recheck_step",
+    "capstone.agent.investigation:build_graph.<locals>.staged",
+    "capstone.agent.investigation:build_graph.<locals>.test_step",
+    "capstone.agent.investigation:build_graph.<locals>.verify_step",
+    "capstone.agent.investigation:check_conclusion",
+    "capstone.agent.investigation:conclude",
+    "capstone.agent.investigation:consult_manual",
+    "capstone.agent.investigation:critic_view",
+    "capstone.agent.investigation:critique",
+    "capstone.agent.investigation:execute",
+    "capstone.agent.investigation:factory_changed",
+    "capstone.agent.investigation:followup_call",
+    "capstone.agent.investigation:gathered_in",
+    "capstone.agent.investigation:hypothesize",
+    "capstone.agent.investigation:investigate",
+    "capstone.agent.investigation:observe",
+    "capstone.agent.investigation:plan",
+    "capstone.agent.investigation:propose",
+    "capstone.agent.investigation:recheck",
+    "capstone.agent.investigation:reconsider",
+    "capstone.agent.investigation:revalue",
+    "capstone.agent.investigation:review_packet",
+    "capstone.agent.investigation:run_investigation",
+    "capstone.agent.investigation:test",
+    "capstone.agent.investigation:verify",
+    "capstone.agent.investigation:verify.<locals>.later",
+    "capstone.agent.investigation:why_not_acted",
+    "capstone.agent.loop:InvestigationDeps.__post_init__"
+   ],
+   "exercise_count": 203,
+   "modules_exercised": [
+    "capstone.agent.evidence_brief",
+    "capstone.agent.investigation",
+    "capstone.agent.loop",
+    "capstone.agent.monitor",
+    "capstone.agent.state",
+    "capstone.contracts.investigations",
+    "capstone.contracts.tools",
+    "capstone.episode",
+    "capstone.evaluation.scoring",
+    "capstone.faults",
+    "capstone.providers.factory",
+    "capstone.settings",
+    "capstone.simulator.clock",
+    "capstone.simulator.events",
+    "capstone.simulator.generator",
+    "capstone.simulator.line",
+    "capstone.simulator.maintenance",
+    "capstone.simulator.rng",
+    "capstone.simulator.scenarios",
+    "capstone.simulator.sensors",
+    "capstone.simulator.simulator",
+    "capstone.simulator.state",
+    "capstone.simulator.thermal",
+    "capstone.tools.actions",
+    "capstone.tools.observation",
+    "capstone.tools.screening"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_triage_plan.py::test_the_same_seed_gives_the_same_fixed_plan_triage",
+   "file": "tests/test_triage_plan.py",
+   "name": "test_the_same_seed_gives_the_same_fixed_plan_triage",
+   "line": 208,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [
+    "monkeypatch"
+   ],
+   "assertions": 1,
+   "assert_forms": {
+    "equality": 1
+   },
+   "raises_checks": 0,
+   "uses": [
+    "monkeypatch"
+   ],
+   "quality_flags": [
+    "patches_dependencies"
+   ],
+   "claims": "the same seed gives the same fixed plan triage",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.agent.evidence_brief:observations",
+    "capstone.agent.evidence_brief:verify_numeric_claims",
+    "capstone.agent.evidence_tests:note",
+    "capstone.agent.evidence_tests:open_rival_questions",
+    "capstone.agent.evidence_tests:physical_root",
+    "capstone.agent.evidence_tests:root_of",
+    "capstone.agent.evidence_tests:source_roots",
+    "capstone.agent.investigate_compiler:Candidate.key",
+    "capstone.agent.investigate_compiler:Candidate.root",
+    "capstone.agent.investigate_compiler:Candidate.signals",
+    "capstone.agent.investigate_compiler:agreement",
+    "capstone.agent.investigate_compiler:compile_requests",
+    "capstone.agent.investigate_compiler:escape_reason",
+    "capstone.agent.investigate_compiler:known_machines",
+    "capstone.agent.investigate_compiler:machines_named",
+    "capstone.agent.investigate_compiler:model_target",
+    "capstone.agent.investigate_compiler:observed_windows",
+    "capstone.agent.investigate_compiler:sensors_named",
+    "capstone.agent.investigate_compiler:targets",
+    "capstone.agent.investigation:build_graph",
+    "capstone.agent.investigation:build_graph.<locals>.conclude_step",
+    "capstone.agent.investigation:build_graph.<locals>.critique_step",
+    "capstone.agent.investigation:build_graph.<locals>.hypothesize_step",
+    "capstone.agent.investigation:build_graph.<locals>.investigate_step",
+    "capstone.agent.investigation:build_graph.<locals>.manual_step",
+    "capstone.agent.investigation:build_graph.<locals>.observe_step",
+    "capstone.agent.investigation:build_graph.<locals>.plan_step",
+    "capstone.agent.investigation:build_graph.<locals>.propose_step",
+    "capstone.agent.investigation:build_graph.<locals>.recheck_step",
+    "capstone.agent.investigation:build_graph.<locals>.staged",
+    "capstone.agent.investigation:build_graph.<locals>.test_step",
+    "capstone.agent.investigation:check_conclusion",
+    "capstone.agent.investigation:conclude",
+    "capstone.agent.investigation:consult_manual",
+    "capstone.agent.investigation:critique",
+    "capstone.agent.investigation:gathered_in",
+    "capstone.agent.investigation:hypothesize",
+    "capstone.agent.investigation:investigate",
+    "capstone.agent.investigation:needs_deep_run",
+    "capstone.agent.investigation:observe"
+   ],
+   "exercise_count": 214,
+   "modules_exercised": [
+    "capstone.agent.evidence_brief",
+    "capstone.agent.evidence_tests",
+    "capstone.agent.investigate_compiler",
+    "capstone.agent.investigation",
+    "capstone.agent.loop",
+    "capstone.agent.monitor",
+    "capstone.agent.state",
+    "capstone.agent.triage_packet",
+    "capstone.agent.triage_plan",
+    "capstone.agent.triage_report",
+    "capstone.contracts.investigations",
+    "capstone.contracts.tools",
+    "capstone.episode",
+    "capstone.evaluation.scoring",
+    "capstone.faults",
+    "capstone.providers.factory",
+    "capstone.settings",
+    "capstone.simulator.clock",
+    "capstone.simulator.events",
+    "capstone.simulator.generator",
+    "capstone.simulator.line",
+    "capstone.simulator.maintenance",
+    "capstone.simulator.rng",
+    "capstone.simulator.scenarios",
+    "capstone.simulator.sensors",
+    "capstone.simulator.simulator",
+    "capstone.simulator.state",
+    "capstone.simulator.thermal",
+    "capstone.tools.actions",
+    "capstone.tools.observation",
+    "capstone.tools.screening"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_triage_plan.py::test_the_triage_record_says_the_plan_was_fixed",
+   "file": "tests/test_triage_plan.py",
+   "name": "test_the_triage_record_says_the_plan_was_fixed",
+   "line": 219,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [
+    "monkeypatch"
+   ],
+   "assertions": 1,
+   "assert_forms": {
+    "identity_constant": 1
+   },
+   "raises_checks": 0,
+   "uses": [
+    "monkeypatch"
+   ],
+   "quality_flags": [
+    "patches_dependencies"
+   ],
+   "claims": "the triage record says the plan was fixed",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.agent.evidence_brief:observations",
+    "capstone.agent.evidence_brief:verify_numeric_claims",
+    "capstone.agent.evidence_tests:note",
+    "capstone.agent.evidence_tests:open_rival_questions",
+    "capstone.agent.evidence_tests:physical_root",
+    "capstone.agent.evidence_tests:root_of",
+    "capstone.agent.evidence_tests:source_roots",
+    "capstone.agent.investigate_compiler:Candidate.key",
+    "capstone.agent.investigate_compiler:Candidate.root",
+    "capstone.agent.investigate_compiler:Candidate.signals",
+    "capstone.agent.investigate_compiler:agreement",
+    "capstone.agent.investigate_compiler:compile_requests",
+    "capstone.agent.investigate_compiler:escape_reason",
+    "capstone.agent.investigate_compiler:known_machines",
+    "capstone.agent.investigate_compiler:machines_named",
+    "capstone.agent.investigate_compiler:model_target",
+    "capstone.agent.investigate_compiler:observed_windows",
+    "capstone.agent.investigate_compiler:sensors_named",
+    "capstone.agent.investigate_compiler:targets",
+    "capstone.agent.investigation:build_graph",
+    "capstone.agent.investigation:build_graph.<locals>.conclude_step",
+    "capstone.agent.investigation:build_graph.<locals>.critique_step",
+    "capstone.agent.investigation:build_graph.<locals>.hypothesize_step",
+    "capstone.agent.investigation:build_graph.<locals>.investigate_step",
+    "capstone.agent.investigation:build_graph.<locals>.manual_step",
+    "capstone.agent.investigation:build_graph.<locals>.observe_step",
+    "capstone.agent.investigation:build_graph.<locals>.plan_step",
+    "capstone.agent.investigation:build_graph.<locals>.propose_step",
+    "capstone.agent.investigation:build_graph.<locals>.recheck_step",
+    "capstone.agent.investigation:build_graph.<locals>.staged",
+    "capstone.agent.investigation:build_graph.<locals>.test_step",
+    "capstone.agent.investigation:check_conclusion",
+    "capstone.agent.investigation:conclude",
+    "capstone.agent.investigation:consult_manual",
+    "capstone.agent.investigation:critique",
+    "capstone.agent.investigation:gathered_in",
+    "capstone.agent.investigation:hypothesize",
+    "capstone.agent.investigation:investigate",
+    "capstone.agent.investigation:needs_deep_run",
+    "capstone.agent.investigation:observe"
+   ],
+   "exercise_count": 220,
+   "modules_exercised": [
+    "capstone.agent.evidence_brief",
+    "capstone.agent.evidence_tests",
+    "capstone.agent.investigate_compiler",
+    "capstone.agent.investigation",
+    "capstone.agent.loop",
+    "capstone.agent.monitor",
+    "capstone.agent.state",
+    "capstone.agent.triage_packet",
+    "capstone.agent.triage_plan",
+    "capstone.agent.triage_report",
+    "capstone.contracts.investigations",
+    "capstone.contracts.tools",
+    "capstone.episode",
+    "capstone.evaluation.scoring",
+    "capstone.evaluation.triage_metrics",
+    "capstone.experiment",
+    "capstone.faults",
+    "capstone.providers.factory",
+    "capstone.settings",
+    "capstone.simulator.clock",
+    "capstone.simulator.events",
+    "capstone.simulator.generator",
+    "capstone.simulator.line",
+    "capstone.simulator.maintenance",
+    "capstone.simulator.rng",
+    "capstone.simulator.scenarios",
+    "capstone.simulator.sensors",
+    "capstone.simulator.simulator",
+    "capstone.simulator.state",
+    "capstone.simulator.thermal",
+    "capstone.tools.actions",
+    "capstone.tools.observation",
+    "capstone.tools.screening"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_triage_plan.py::test_an_unknown_plan_setting_is_refused",
+   "file": "tests/test_triage_plan.py",
+   "name": "test_an_unknown_plan_setting_is_refused",
+   "line": 228,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [
+    "monkeypatch"
+   ],
+   "assertions": 0,
+   "assert_forms": {},
+   "raises_checks": 1,
+   "uses": [
+    "monkeypatch"
+   ],
+   "quality_flags": [
+    "patches_dependencies"
+   ],
+   "claims": "an unknown plan setting is refused",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.settings:Settings.blank_is_missing"
+   ],
+   "exercise_count": 1,
+   "modules_exercised": [
+    "capstone.settings"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
    "id": "tests/test_triage_report.py::test_a_triage_the_model_concluded_reports_its_checked_diagnosis",
    "file": "tests/test_triage_report.py",
    "name": "test_a_triage_the_model_concluded_reports_its_checked_diagnosis",
