@@ -403,13 +403,21 @@ def seconds_left(
 
     Before the hypothesize question, research also stops short of the
     hypothesis reserve (`held_for_hypotheses`), so that question keeps it.
+    A capped triage conclusion (`state.conclusion_deadline`) also stops at its
+    own deadline.
     """
     # Variables:
     #   research: True for research stages, which stop early to keep time for the
     #     follow-up.
+    #   state.conclusion_deadline: When set, the clock reading the conclusion
+    #     question must be over by (TRIAGE_CONCLUDE_CAP), so a stage that is
+    #     not research gets no more than that.
     now = deps.clock()
     if not research:
-        return state.remaining_seconds(now)
+        left = state.remaining_seconds(now)
+        if state.conclusion_deadline is not None:
+            left = min(left, max(0.0, state.conclusion_deadline - now))
+        return left
     return max(0.0, state.research_seconds(now) - held_for_hypotheses(state, deps))
 
 

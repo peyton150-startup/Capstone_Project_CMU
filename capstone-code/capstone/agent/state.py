@@ -453,6 +453,13 @@ class InvestigationState(BaseModel):
     # (`agent.conclude_brief`). Set on each triage from the setting; a deep run
     # never shows it.
     triage_conclude_brief: bool = False
+    # TRIAGE_CONCLUDE_CAP: hold the conclusion question to the triage's
+    # conclusion window (`budgets.followup_seconds`) even when research ended
+    # early. Set on each triage from the setting; a deep run never uses it.
+    triage_conclude_cap: bool = False
+    # The clock reading the capped conclusion question must be over by; None
+    # when no cap applies. Set by `conclude`, read by `loop.seconds_left`.
+    conclusion_deadline: float | None = None
     # TRIAGE_INVESTIGATE: each turn the request compiler ran in a triage,
     # with the model's choice beside it (`agent.investigate_compiler`).
     investigate_advice: list[InvestigateAdvice] = Field(default_factory=list)

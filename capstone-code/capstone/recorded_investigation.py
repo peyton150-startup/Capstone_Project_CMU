@@ -159,6 +159,8 @@ def run_recorded_investigation(
     #   provider: The real-data FactoryProvider; all action methods refuse changes.
     #   look: Its recorded observations, which own the replay cutoff and time axis.
     #   state: A fresh TRIAGE investigation, so no proposal or execution stage runs.
+    #     It takes the triage settings, including TRIAGE_CONCLUDE_CAP, which
+    #     holds its conclusion question to the conclusion window.
     #   deps: Graph dependencies with no live controller or simulator truth.
     if not description.strip():
         raise ValueError("a nonempty operator observation is required")
@@ -193,6 +195,7 @@ def run_recorded_investigation(
         triage_packet=settings.triage_packet,
         triage_packet_prompt=settings.triage_packet_prompt,
         triage_conclude_brief=settings.triage_conclude_brief,
+        triage_conclude_cap=settings.triage_conclude_cap,
     )
     step_questions = (
         settings.step_questions

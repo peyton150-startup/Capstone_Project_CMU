@@ -305,6 +305,16 @@ class Settings(BaseSettings):
     triage_conclude_brief: bool = Field(
         default=True, validation_alias="TRIAGE_CONCLUDE_BRIEF"
     )
+    # TRIAGE_CONCLUDE_CAP (2026-11-14), triage only: the conclusion question
+    # gets at most the triage's conclusion window (TRIAGE_CONCLUDE_SECONDS),
+    # even when research ended early. In the 2026-11-14 afternoon runs an early
+    # end handed it ~86 s; Super 120B thought for ~58 s of that, was cut off,
+    # and the fallback answered (conclude up to 64.5 s). On by default; off
+    # gives the conclusion all the time left, as before. A deep run never
+    # uses it.
+    triage_conclude_cap: bool = Field(
+        default=True, validation_alias="TRIAGE_CONCLUDE_CAP"
+    )
     # TRIAGE_INVESTIGATE (Block 4, Investigate), triage only: "advisory" (the
     # default) ranks the reads the open questions allow and records them
     # beside the model's own decide choice, changing nothing the run does;

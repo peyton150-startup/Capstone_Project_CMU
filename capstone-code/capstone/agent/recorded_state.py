@@ -21,6 +21,7 @@ def make_recorded_state(
     triage_packet: bool = False,
     triage_packet_prompt: bool = False,
     triage_conclude_brief: bool = False,
+    triage_conclude_cap: bool = False,
 ) -> InvestigationState:
     """Make a triage-only state for evidence review, never a repair workflow."""
     # Variables:
@@ -34,6 +35,8 @@ def make_recorded_state(
     #     packet's coverage, including that missing screening.
     #   triage_conclude_brief: TRIAGE_CONCLUDE_BRIEF; the conclusion question
     #     then shows what was tested, measured and missing.
+    #   triage_conclude_cap: TRIAGE_CONCLUDE_CAP; the conclusion question then
+    #     keeps to the triage's conclusion window.
     return InvestigationState(
         run_id=run_id,
         investigation_id=investigation_id_for(run_id, 1),
@@ -49,6 +52,7 @@ def make_recorded_state(
         triage_packet_enabled=triage_packet,
         triage_packet_prompt=triage_packet_prompt,
         triage_conclude_brief=triage_conclude_brief,
+        triage_conclude_cap=triage_conclude_cap,
         stage_context=stage_context,
         state_action_bar=state_action_bar,
     )

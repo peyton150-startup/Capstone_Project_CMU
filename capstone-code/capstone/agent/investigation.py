@@ -1308,10 +1308,20 @@ def conclude(state: InvestigationState, deps: InvestigationDeps) -> None:
     #   checking: Python validation seconds so far; the triage's verdict rule
     #     and report add theirs below.
     #   started: When the triage's verdict rule and report began, on deps.clock.
+    #   state.conclusion_deadline: With TRIAGE_CONCLUDE_CAP in a triage, the
+    #     conclusion window (`budgets.followup_seconds`) from when the question
+    #     is asked, so an early end of research does not hand it all the time
+    #     left; `loop.seconds_left` holds the question to it.
     state.stage = "decide"
     outcome = "decided"
     asked_at = deps.clock()
     checking = 0.0
+    if (
+        state.mode == "triage"
+        and state.triage_conclude_cap
+        and state.started_at is not None
+    ):
+        state.conclusion_deadline = asked_at + state.budgets.followup_seconds
     try:
         try:
             answer, wanted = ask_policy(
