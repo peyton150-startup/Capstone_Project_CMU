@@ -1549,8 +1549,9 @@ def main(argv: Sequence[str] | None = None) -> int:
     # Variables:
     #   argv: The command-line words; None reads the real command line, and
     #     tests pass their own.
-    #   args.command: Which subcommand was chosen, "run", "label" or "report";
-    #     it decides which branch below runs.
+    #   args.command: Which subcommand was chosen, "run", "label", "report" or
+    #     "compare"; it decides which branch below runs.
+    #   book: For "compare", the hand labels from --label-book, by run key.
     #   cases: The cases to run, from exactly one of --known, --held-out,
     #     --challenge or --seeds (with --faults).
     #   budgets: Time limits for each investigation; None keeps the defaults
@@ -1666,7 +1667,36 @@ def main(argv: Sequence[str] | None = None) -> int:
     rep.add_argument("--results", type=Path, required=True)
     rep.add_argument("--labels", type=Path)
 
+    cmp = commands.add_parser(
+        "compare",
+        help="triage runs side by side, one column per arm (Block 6, not A1-A4)",
+    )
+    cmp.add_argument(
+        "--results",
+        type=Path,
+        nargs="+",
+        required=True,
+        help="one records file, or run folder of *.records.jsonl, per arm",
+    )
+    cmp.add_argument(
+        "--labels",
+        nargs="+",
+        help="a column name per --results path (default: each path's name)",
+    )
+    cmp.add_argument(
+        "--label-book",
+        type=Path,
+        help="hand root-cause labels; runs without one are counted not judged",
+    )
+
     args = parser.parse_args(argv)
+
+    if args.command == "compare":
+        from capstone.triage_compare import compare, load_arms
+
+        book = LabelBook(args.label_book).read() if args.label_book else {}
+        print(compare(load_arms(args.results, args.labels, book)))
+        return 0
 
     if args.command == "run":
         if args.known:
