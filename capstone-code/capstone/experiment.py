@@ -326,6 +326,11 @@ class TriageRecord(BaseModel):
     # TRIAGE_CONCLUDE_BRIEF: whether the conclusion question showed the brief.
     # None in records from before it was kept.
     conclude_brief: bool | None = None
+    # TRIAGE_HYPOTHESIS_SECONDS: the reserve the triage kept for hypothesize,
+    # and whether it was what stopped research (so hypothesize was still
+    # asked). None in older records.
+    hypothesis_reserve_seconds: float | None = None
+    hypothesis_reserve_used: bool | None = None
 
 
 class ExperimentRecord(BaseModel):
@@ -530,6 +535,8 @@ def triage_record(
     #   first.conclude_model_seconds, first.conclude_check_seconds: The
     #     conclusion model's time and the Python validation time, apart.
     #   first.triage_conclude_brief: Whether the conclusion saw the brief.
+    #   first.triage_hypothesis_seconds, first.hypothesis_reserve_used: The
+    #     triage's hypothesis reserve and whether it stopped research.
     first = result.triage
     if first is None or result.triage_seconds is None:
         return None
@@ -561,6 +568,8 @@ def triage_record(
         conclude_model_seconds=first.conclude_model_seconds,
         conclude_check_seconds=first.conclude_check_seconds,
         conclude_brief=first.triage_conclude_brief,
+        hypothesis_reserve_seconds=first.triage_hypothesis_seconds,
+        hypothesis_reserve_used=first.hypothesis_reserve_used,
     )
 
 
