@@ -120,6 +120,9 @@ def test_with_the_reserve_off_research_keeps_all_its_time(monkeypatch):
 
 
 def test_the_conclusion_keeps_its_own_time(monkeypatch):
+    # With TRIAGE_CONCLUDE_CAP off, the conclusion gets all the time left; the
+    # reserve takes none of it.
+    monkeypatch.setenv("TRIAGE_CONCLUDE_CAP", "off")
     _, given = limits(monkeypatch, "25")
     (conclude,) = [s for name, s in given if name == "conclude"]
     assert conclude == TRIAGE_SECONDS
