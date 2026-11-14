@@ -997,6 +997,44 @@ def format_triage(records: Sequence[ExperimentRecord]) -> str | None:
     )
 
 
+def format_triage_outcomes(records: Sequence[ExperimentRecord]) -> str | None:
+    """One line on where triage plans came from and how the reports ended.
+
+    None when no run had a triage. Runs recorded before the report was kept
+    are counted as having no report, not left out.
+    """
+    # Variables:
+    #   kept: The triage of each run that had one.
+    #   reports: The read-only reports those triages kept (none in older records).
+    #   fixed: Triages that planned from the TRIAGE_PLAN=fixed table.
+    #   outcomes: How many reports ended each way, in a fixed order.
+    #   held: Reports the Python checks held open with at least one reason.
+    #   unsafe: Reports that cleared ("no_action") without a model conclusion;
+    #     this must stay 0, since Python never clears on its own.
+    kept = [r.triage for r in records if r.triage is not None]
+    if not kept:
+        return None
+    reports = [t.report for t in kept if t.report is not None]
+    outcomes = {
+        name: sum(r.outcome == name for r in reports)
+        for name in ("model_conclusion", "model_answer_refused", "no_model_answer")
+    }
+    held = sum(bool(r.held_open_because) for r in reports)
+    unsafe = sum(
+        r.recommendation == "no_action" and r.outcome != "model_conclusion"
+        for r in reports
+    )
+    fixed = sum(t.fixed_plan for t in kept)
+    return (
+        f"triage plan: {fixed} fixed table, {len(kept) - fixed} model; "
+        f"reports: {outcomes['model_conclusion']} model conclusion, "
+        f"{outcomes['model_answer_refused']} refused, "
+        f"{outcomes['no_model_answer']} no model answer, "
+        f"{len(kept) - len(reports)} none; {held} held open by checks; "
+        f"{unsafe} cleared without a model conclusion"
+    )
+
+
 def format_triage_stages(records: Sequence[ExperimentRecord]) -> str | None:
     """One line on where the triages spent their model time; None without metrics.
 
@@ -1267,6 +1305,8 @@ def report(records: Sequence[ExperimentRecord], labels: dict[str, Label]) -> str
     lines += [] if manual is None else [manual]
     triaged = format_triage(records)
     lines += [] if triaged is None else [triaged]
+    outcomes = format_triage_outcomes(records)
+    lines += [] if outcomes is None else [outcomes]
     stages = format_triage_stages(records)
     lines += [] if stages is None else [stages]
     advised = format_investigate(records)
