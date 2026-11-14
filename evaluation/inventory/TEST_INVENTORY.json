@@ -122968,6 +122968,7 @@
     "capstone.agent.investigate_compiler:Candidate.root",
     "capstone.agent.investigate_compiler:Candidate.step",
     "capstone.agent.investigate_compiler:compile_requests",
+    "capstone.agent.investigate_compiler:from_fixed_plan",
     "capstone.agent.investigate_compiler:known_machines",
     "capstone.agent.investigate_compiler:machines_named",
     "capstone.agent.investigate_compiler:observed_windows",
@@ -122978,7 +122979,7 @@
     "capstone.agent.state:InvestigationState.remaining_tool_calls",
     "capstone.agent.state:InvestigationState.research_tool_calls"
    ],
-   "exercise_count": 13,
+   "exercise_count": 14,
    "modules_exercised": [
     "capstone.agent.investigate_compiler",
     "capstone.agent.state"
@@ -123012,6 +123013,7 @@
     "capstone.agent.investigate_compiler:Candidate.key",
     "capstone.agent.investigate_compiler:Candidate.root",
     "capstone.agent.investigate_compiler:compile_requests",
+    "capstone.agent.investigate_compiler:from_fixed_plan",
     "capstone.agent.investigate_compiler:known_machines",
     "capstone.agent.investigate_compiler:machines_named",
     "capstone.agent.investigate_compiler:observed_windows",
@@ -123022,7 +123024,7 @@
     "capstone.agent.state:InvestigationState.remaining_tool_calls",
     "capstone.agent.state:InvestigationState.research_tool_calls"
    ],
-   "exercise_count": 12,
+   "exercise_count": 13,
    "modules_exercised": [
     "capstone.agent.investigate_compiler",
     "capstone.agent.state"
@@ -123056,6 +123058,7 @@
     "capstone.agent.investigate_compiler:Candidate.key",
     "capstone.agent.investigate_compiler:Candidate.root",
     "capstone.agent.investigate_compiler:compile_requests",
+    "capstone.agent.investigate_compiler:from_fixed_plan",
     "capstone.agent.investigate_compiler:known_machines",
     "capstone.agent.investigate_compiler:machines_named",
     "capstone.agent.investigate_compiler:observed_windows",
@@ -123066,7 +123069,7 @@
     "capstone.agent.state:InvestigationState.remaining_tool_calls",
     "capstone.agent.state:InvestigationState.research_tool_calls"
    ],
-   "exercise_count": 12,
+   "exercise_count": 13,
    "modules_exercised": [
     "capstone.agent.investigate_compiler",
     "capstone.agent.state"
@@ -123098,6 +123101,7 @@
    "execution_outcome": "passed",
    "exercises": [
     "capstone.agent.investigate_compiler:compile_requests",
+    "capstone.agent.investigate_compiler:from_fixed_plan",
     "capstone.agent.investigate_compiler:known_machines",
     "capstone.agent.investigate_compiler:machines_named",
     "capstone.agent.investigate_compiler:observed_windows",
@@ -123108,7 +123112,7 @@
     "capstone.agent.state:InvestigationState.remaining_tool_calls",
     "capstone.agent.state:InvestigationState.research_tool_calls"
    ],
-   "exercise_count": 10,
+   "exercise_count": 11,
    "modules_exercised": [
     "capstone.agent.investigate_compiler",
     "capstone.agent.state"
@@ -123142,6 +123146,7 @@
    "execution_outcome": "passed",
    "exercises": [
     "capstone.agent.investigate_compiler:compile_requests",
+    "capstone.agent.investigate_compiler:from_fixed_plan",
     "capstone.agent.investigate_compiler:known_machines",
     "capstone.agent.investigate_compiler:machines_named",
     "capstone.agent.investigate_compiler:observed_windows",
@@ -123152,7 +123157,7 @@
     "capstone.agent.state:InvestigationState.remaining_tool_calls",
     "capstone.agent.state:InvestigationState.research_tool_calls"
    ],
-   "exercise_count": 10,
+   "exercise_count": 11,
    "modules_exercised": [
     "capstone.agent.investigate_compiler",
     "capstone.agent.state"
@@ -123302,6 +123307,7 @@
    "execution_outcome": "passed",
    "exercises": [
     "capstone.agent.investigate_compiler:compile_requests",
+    "capstone.agent.investigate_compiler:from_fixed_plan",
     "capstone.agent.investigate_compiler:known_machines",
     "capstone.agent.investigate_compiler:machines_named",
     "capstone.agent.investigate_compiler:observed_windows",
@@ -123312,7 +123318,7 @@
     "capstone.agent.state:InvestigationState.remaining_tool_calls",
     "capstone.agent.state:InvestigationState.research_tool_calls"
    ],
-   "exercise_count": 10,
+   "exercise_count": 11,
    "modules_exercised": [
     "capstone.agent.investigate_compiler",
     "capstone.agent.state"
@@ -123346,6 +123352,7 @@
     "capstone.agent.investigate_compiler:Candidate.key",
     "capstone.agent.investigate_compiler:Candidate.root",
     "capstone.agent.investigate_compiler:compile_requests",
+    "capstone.agent.investigate_compiler:from_fixed_plan",
     "capstone.agent.investigate_compiler:known_machines",
     "capstone.agent.investigate_compiler:machines_named",
     "capstone.agent.investigate_compiler:observed_windows",
@@ -123356,7 +123363,7 @@
     "capstone.agent.state:InvestigationState.remaining_tool_calls",
     "capstone.agent.state:InvestigationState.research_tool_calls"
    ],
-   "exercise_count": 12,
+   "exercise_count": 13,
    "modules_exercised": [
     "capstone.agent.investigate_compiler",
     "capstone.agent.state"
@@ -123390,6 +123397,7 @@
     "capstone.agent.investigate_compiler:Candidate.key",
     "capstone.agent.investigate_compiler:Candidate.root",
     "capstone.agent.investigate_compiler:compile_requests",
+    "capstone.agent.investigate_compiler:from_fixed_plan",
     "capstone.agent.investigate_compiler:known_machines",
     "capstone.agent.investigate_compiler:machines_named",
     "capstone.agent.investigate_compiler:observed_windows",
@@ -123400,7 +123408,7 @@
     "capstone.agent.state:InvestigationState.remaining_tool_calls",
     "capstone.agent.state:InvestigationState.research_tool_calls"
    ],
-   "exercise_count": 12,
+   "exercise_count": 13,
    "modules_exercised": [
     "capstone.agent.investigate_compiler",
     "capstone.agent.state"
@@ -123434,6 +123442,7 @@
     "capstone.agent.investigate_compiler:Candidate.key",
     "capstone.agent.investigate_compiler:Candidate.root",
     "capstone.agent.investigate_compiler:compile_requests",
+    "capstone.agent.investigate_compiler:from_fixed_plan",
     "capstone.agent.investigate_compiler:known_machines",
     "capstone.agent.investigate_compiler:machines_named",
     "capstone.agent.investigate_compiler:observed_windows",
@@ -123444,7 +123453,7 @@
     "capstone.agent.state:InvestigationState.remaining_tool_calls",
     "capstone.agent.state:InvestigationState.research_tool_calls"
    ],
-   "exercise_count": 12,
+   "exercise_count": 13,
    "modules_exercised": [
     "capstone.agent.investigate_compiler",
     "capstone.agent.state"
@@ -123478,6 +123487,7 @@
     "capstone.agent.investigate_compiler:Candidate.key",
     "capstone.agent.investigate_compiler:Candidate.root",
     "capstone.agent.investigate_compiler:compile_requests",
+    "capstone.agent.investigate_compiler:from_fixed_plan",
     "capstone.agent.investigate_compiler:known_machines",
     "capstone.agent.investigate_compiler:machines_named",
     "capstone.agent.investigate_compiler:observed_windows",
@@ -123488,7 +123498,7 @@
     "capstone.agent.state:InvestigationState.remaining_tool_calls",
     "capstone.agent.state:InvestigationState.research_tool_calls"
    ],
-   "exercise_count": 12,
+   "exercise_count": 13,
    "modules_exercised": [
     "capstone.agent.investigate_compiler",
     "capstone.agent.state"
@@ -123522,6 +123532,7 @@
     "capstone.agent.investigate_compiler:Candidate.key",
     "capstone.agent.investigate_compiler:Candidate.root",
     "capstone.agent.investigate_compiler:compile_requests",
+    "capstone.agent.investigate_compiler:from_fixed_plan",
     "capstone.agent.investigate_compiler:known_machines",
     "capstone.agent.investigate_compiler:machines_named",
     "capstone.agent.investigate_compiler:observed_windows",
@@ -123532,7 +123543,7 @@
     "capstone.agent.state:InvestigationState.remaining_tool_calls",
     "capstone.agent.state:InvestigationState.research_tool_calls"
    ],
-   "exercise_count": 12,
+   "exercise_count": 13,
    "modules_exercised": [
     "capstone.agent.investigate_compiler",
     "capstone.agent.state"
@@ -123567,6 +123578,7 @@
     "capstone.agent.investigate_compiler:Candidate.key",
     "capstone.agent.investigate_compiler:Candidate.root",
     "capstone.agent.investigate_compiler:compile_requests",
+    "capstone.agent.investigate_compiler:from_fixed_plan",
     "capstone.agent.investigate_compiler:known_machines",
     "capstone.agent.investigate_compiler:machines_named",
     "capstone.agent.investigate_compiler:observed_windows",
@@ -123577,7 +123589,7 @@
     "capstone.agent.state:InvestigationState.remaining_tool_calls",
     "capstone.agent.state:InvestigationState.research_tool_calls"
    ],
-   "exercise_count": 12,
+   "exercise_count": 13,
    "modules_exercised": [
     "capstone.agent.investigate_compiler",
     "capstone.agent.state"
@@ -123613,6 +123625,7 @@
     "capstone.agent.investigate_compiler:Candidate.root",
     "capstone.agent.investigate_compiler:compile_requests",
     "capstone.agent.investigate_compiler:escape_reason",
+    "capstone.agent.investigate_compiler:from_fixed_plan",
     "capstone.agent.investigate_compiler:known_machines",
     "capstone.agent.investigate_compiler:machines_named",
     "capstone.agent.investigate_compiler:observed_windows",
@@ -123623,7 +123636,7 @@
     "capstone.agent.state:InvestigationState.remaining_tool_calls",
     "capstone.agent.state:InvestigationState.research_tool_calls"
    ],
-   "exercise_count": 13,
+   "exercise_count": 14,
    "modules_exercised": [
     "capstone.agent.investigate_compiler",
     "capstone.agent.state"
@@ -123659,6 +123672,7 @@
     "capstone.agent.investigate_compiler:Candidate.step",
     "capstone.agent.investigate_compiler:agreement",
     "capstone.agent.investigate_compiler:compile_requests",
+    "capstone.agent.investigate_compiler:from_fixed_plan",
     "capstone.agent.investigate_compiler:known_machines",
     "capstone.agent.investigate_compiler:machines_named",
     "capstone.agent.investigate_compiler:model_target",
@@ -123670,7 +123684,7 @@
     "capstone.agent.state:InvestigationState.remaining_tool_calls",
     "capstone.agent.state:InvestigationState.research_tool_calls"
    ],
-   "exercise_count": 15,
+   "exercise_count": 16,
    "modules_exercised": [
     "capstone.agent.investigate_compiler",
     "capstone.agent.state"
@@ -123708,6 +123722,7 @@
     "capstone.agent.investigate_compiler:agreement",
     "capstone.agent.investigate_compiler:compile_requests",
     "capstone.agent.investigate_compiler:escape_reason",
+    "capstone.agent.investigate_compiler:from_fixed_plan",
     "capstone.agent.investigate_compiler:known_machines",
     "capstone.agent.investigate_compiler:machines_named",
     "capstone.agent.investigate_compiler:model_target",
@@ -123741,7 +123756,7 @@
     "capstone.contracts.tools:ToolResult.consistent_outcome",
     "capstone.contracts.tools:TraceContext.consistent_context"
    ],
-   "exercise_count": 38,
+   "exercise_count": 39,
    "modules_exercised": [
     "capstone.agent.investigate_compiler",
     "capstone.agent.loop",
@@ -123781,6 +123796,7 @@
     "capstone.agent.investigate_compiler:Candidate.step",
     "capstone.agent.investigate_compiler:compile_requests",
     "capstone.agent.investigate_compiler:escape_reason",
+    "capstone.agent.investigate_compiler:from_fixed_plan",
     "capstone.agent.investigate_compiler:known_machines",
     "capstone.agent.investigate_compiler:machines_named",
     "capstone.agent.investigate_compiler:model_target",
@@ -123815,7 +123831,7 @@
     "capstone.contracts.tools:ToolResult.consistent_outcome",
     "capstone.contracts.tools:TraceContext.consistent_context"
    ],
-   "exercise_count": 39,
+   "exercise_count": 40,
    "modules_exercised": [
     "capstone.agent.investigate_compiler",
     "capstone.agent.loop",
@@ -123850,6 +123866,7 @@
    "exercises": [
     "capstone.agent.investigate_compiler:compile_requests",
     "capstone.agent.investigate_compiler:escape_reason",
+    "capstone.agent.investigate_compiler:from_fixed_plan",
     "capstone.agent.investigate_compiler:known_machines",
     "capstone.agent.investigate_compiler:model_target",
     "capstone.agent.investigate_compiler:observed_windows",
@@ -123882,7 +123899,7 @@
     "capstone.contracts.tools:ToolResult.consistent_outcome",
     "capstone.contracts.tools:TraceContext.consistent_context"
    ],
-   "exercise_count": 33,
+   "exercise_count": 34,
    "modules_exercised": [
     "capstone.agent.investigate_compiler",
     "capstone.agent.loop",
@@ -123921,6 +123938,7 @@
     "capstone.agent.investigate_compiler:agreement",
     "capstone.agent.investigate_compiler:compile_requests",
     "capstone.agent.investigate_compiler:escape_reason",
+    "capstone.agent.investigate_compiler:from_fixed_plan",
     "capstone.agent.investigate_compiler:known_machines",
     "capstone.agent.investigate_compiler:machines_named",
     "capstone.agent.investigate_compiler:model_target",
@@ -123946,7 +123964,7 @@
     "capstone.agent.state:InvestigationState.research_seconds",
     "capstone.agent.state:InvestigationState.research_tool_calls"
    ],
-   "exercise_count": 30,
+   "exercise_count": 31,
    "modules_exercised": [
     "capstone.agent.investigate_compiler",
     "capstone.agent.loop",
@@ -124354,6 +124372,359 @@
    ]
   },
   {
+   "id": "tests/test_triage_investigate_plan.py::test_only_an_alarms_measured_question_compiles",
+   "file": "tests/test_triage_investigate_plan.py",
+   "name": "test_only_an_alarms_measured_question_compiles",
+   "line": 91,
+   "docstring": "",
+   "parametrized": true,
+   "fixtures": [
+    "name",
+    "explained"
+   ],
+   "assertions": 4,
+   "assert_forms": {
+    "equality": 3,
+    "is_none": 1
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "only an alarms measured question compiles",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.agent.investigate_compiler:Candidate.key",
+    "capstone.agent.investigate_compiler:Candidate.root",
+    "capstone.agent.investigate_compiler:compile_requests",
+    "capstone.agent.investigate_compiler:escape_reason",
+    "capstone.agent.investigate_compiler:from_fixed_plan",
+    "capstone.agent.investigate_compiler:known_machines",
+    "capstone.agent.investigate_compiler:observed_windows",
+    "capstone.agent.investigate_compiler:targets",
+    "capstone.agent.state:Budgets.research_gets_some_time",
+    "capstone.agent.state:InvestigationState.leading_hypothesis",
+    "capstone.agent.state:InvestigationState.remaining_tool_calls",
+    "capstone.agent.state:InvestigationState.research_tool_calls",
+    "capstone.agent.triage_plan:fixed_plan",
+    "capstone.agent.triage_plan:fixed_predicates"
+   ],
+   "exercise_count": 14,
+   "modules_exercised": [
+    "capstone.agent.investigate_compiler",
+    "capstone.agent.state",
+    "capstone.agent.triage_plan"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_triage_investigate_plan.py::test_the_compiled_read_is_the_predicates_window",
+   "file": "tests/test_triage_investigate_plan.py",
+   "name": "test_the_compiled_read_is_the_predicates_window",
+   "line": 107,
+   "docstring": "",
+   "parametrized": true,
+   "fixtures": [
+    "name"
+   ],
+   "assertions": 2,
+   "assert_forms": {
+    "equality": 2
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "the compiled read is the predicates window",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.agent.investigate_compiler:Candidate.key",
+    "capstone.agent.investigate_compiler:Candidate.root",
+    "capstone.agent.investigate_compiler:Candidate.signals",
+    "capstone.agent.investigate_compiler:Candidate.step",
+    "capstone.agent.investigate_compiler:compile_requests",
+    "capstone.agent.investigate_compiler:from_fixed_plan",
+    "capstone.agent.investigate_compiler:known_machines",
+    "capstone.agent.investigate_compiler:observed_windows",
+    "capstone.agent.investigate_compiler:targets",
+    "capstone.agent.state:Budgets.research_gets_some_time",
+    "capstone.agent.state:InvestigationState.leading_hypothesis",
+    "capstone.agent.state:InvestigationState.remaining_tool_calls",
+    "capstone.agent.state:InvestigationState.research_tool_calls",
+    "capstone.agent.triage_plan:fixed_plan",
+    "capstone.agent.triage_plan:fixed_predicates"
+   ],
+   "exercise_count": 15,
+   "modules_exercised": [
+    "capstone.agent.investigate_compiler",
+    "capstone.agent.state",
+    "capstone.agent.triage_plan"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_triage_investigate_plan.py::test_a_settled_predicate_is_not_read_again",
+   "file": "tests/test_triage_investigate_plan.py",
+   "name": "test_a_settled_predicate_is_not_read_again",
+   "line": 120,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 2,
+   "assert_forms": {
+    "equality": 2
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "a settled predicate is not read again",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.agent.evidence_tests:evaluate",
+    "capstone.agent.evidence_tests:judge",
+    "capstone.agent.evidence_tests:note",
+    "capstone.agent.evidence_tests:physical_root",
+    "capstone.agent.evidence_tests:reading_rows",
+    "capstone.agent.evidence_tests:root_of",
+    "capstone.agent.investigate_compiler:Candidate.key",
+    "capstone.agent.investigate_compiler:Candidate.root",
+    "capstone.agent.investigate_compiler:Candidate.signals",
+    "capstone.agent.investigate_compiler:Candidate.step",
+    "capstone.agent.investigate_compiler:compile_requests",
+    "capstone.agent.investigate_compiler:escape_reason",
+    "capstone.agent.investigate_compiler:from_fixed_plan",
+    "capstone.agent.investigate_compiler:known_machines",
+    "capstone.agent.investigate_compiler:model_target",
+    "capstone.agent.investigate_compiler:observed_windows",
+    "capstone.agent.investigate_compiler:targets",
+    "capstone.agent.loop:InvestigationDeps.__post_init__",
+    "capstone.agent.loop:apply_interpretation",
+    "capstone.agent.loop:ask_policy",
+    "capstone.agent.loop:batch_steps",
+    "capstone.agent.loop:call_signature",
+    "capstone.agent.loop:call_tool",
+    "capstone.agent.loop:check_termination",
+    "capstone.agent.loop:compiler_turn",
+    "capstone.agent.loop:gather",
+    "capstone.agent.loop:held_for_hypotheses",
+    "capstone.agent.loop:note_advice",
+    "capstone.agent.loop:notify",
+    "capstone.agent.loop:question_held_open",
+    "capstone.agent.loop:record",
+    "capstone.agent.loop:run_batch",
+    "capstone.agent.loop:run_inner_loop",
+    "capstone.agent.loop:seconds_left",
+    "capstone.agent.state:Budgets.research_gets_some_time",
+    "capstone.agent.state:InvestigationState.confidence",
+    "capstone.agent.state:InvestigationState.leading_hypothesis",
+    "capstone.agent.state:InvestigationState.remaining_iterations",
+    "capstone.agent.state:InvestigationState.remaining_seconds",
+    "capstone.agent.state:InvestigationState.remaining_tool_calls"
+   ],
+   "exercise_count": 46,
+   "modules_exercised": [
+    "capstone.agent.evidence_tests",
+    "capstone.agent.investigate_compiler",
+    "capstone.agent.loop",
+    "capstone.agent.state",
+    "capstone.agent.triage_plan",
+    "capstone.contracts.tools"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_triage_investigate_plan.py::test_a_models_question_is_still_compiled_from_its_words",
+   "file": "tests/test_triage_investigate_plan.py",
+   "name": "test_a_models_question_is_still_compiled_from_its_words",
+   "line": 129,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 1,
+   "assert_forms": {
+    "equality": 1
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "a models question is still compiled from its words",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.agent.investigate_compiler:Candidate.key",
+    "capstone.agent.investigate_compiler:Candidate.root",
+    "capstone.agent.investigate_compiler:compile_requests",
+    "capstone.agent.investigate_compiler:from_fixed_plan",
+    "capstone.agent.investigate_compiler:known_machines",
+    "capstone.agent.investigate_compiler:machines_named",
+    "capstone.agent.investigate_compiler:observed_windows",
+    "capstone.agent.investigate_compiler:sensors_named",
+    "capstone.agent.investigate_compiler:targets",
+    "capstone.agent.state:Budgets.research_gets_some_time",
+    "capstone.agent.state:InvestigationState.leading_hypothesis",
+    "capstone.agent.state:InvestigationState.remaining_tool_calls",
+    "capstone.agent.state:InvestigationState.research_tool_calls",
+    "capstone.agent.triage_plan:fixed_plan",
+    "capstone.agent.triage_plan:fixed_predicates"
+   ],
+   "exercise_count": 15,
+   "modules_exercised": [
+    "capstone.agent.investigate_compiler",
+    "capstone.agent.state",
+    "capstone.agent.triage_plan"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_triage_investigate_plan.py::test_a_fixed_question_reworded_by_a_model_is_parsed_again",
+   "file": "tests/test_triage_investigate_plan.py",
+   "name": "test_a_fixed_question_reworded_by_a_model_is_parsed_again",
+   "line": 137,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 1,
+   "assert_forms": {
+    "equality": 1
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "a fixed question reworded by a model is parsed again",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.agent.investigate_compiler:Candidate.key",
+    "capstone.agent.investigate_compiler:Candidate.root",
+    "capstone.agent.investigate_compiler:compile_requests",
+    "capstone.agent.investigate_compiler:from_fixed_plan",
+    "capstone.agent.investigate_compiler:known_machines",
+    "capstone.agent.investigate_compiler:machines_named",
+    "capstone.agent.investigate_compiler:observed_windows",
+    "capstone.agent.investigate_compiler:sensors_named",
+    "capstone.agent.investigate_compiler:targets",
+    "capstone.agent.state:Budgets.research_gets_some_time",
+    "capstone.agent.state:InvestigationState.leading_hypothesis",
+    "capstone.agent.state:InvestigationState.remaining_tool_calls",
+    "capstone.agent.state:InvestigationState.research_tool_calls",
+    "capstone.agent.triage_plan:fixed_plan",
+    "capstone.agent.triage_plan:fixed_predicates"
+   ],
+   "exercise_count": 15,
+   "modules_exercised": [
+    "capstone.agent.investigate_compiler",
+    "capstone.agent.state",
+    "capstone.agent.triage_plan"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_triage_investigate_plan.py::test_on_reads_q1_without_a_model_and_its_predicate_settles_it",
+   "file": "tests/test_triage_investigate_plan.py",
+   "name": "test_on_reads_q1_without_a_model_and_its_predicate_settles_it",
+   "line": 161,
+   "docstring": "",
+   "parametrized": true,
+   "fixtures": [
+    "mean",
+    "verdict"
+   ],
+   "assertions": 8,
+   "assert_forms": {
+    "equality": 7,
+    "membership": 1
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "on reads q1 without a model and its predicate settles it",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.agent.evidence_tests:evaluate",
+    "capstone.agent.evidence_tests:judge",
+    "capstone.agent.evidence_tests:note",
+    "capstone.agent.evidence_tests:physical_root",
+    "capstone.agent.evidence_tests:reading_rows",
+    "capstone.agent.evidence_tests:root_of",
+    "capstone.agent.investigate_compiler:Candidate.key",
+    "capstone.agent.investigate_compiler:Candidate.root",
+    "capstone.agent.investigate_compiler:Candidate.signals",
+    "capstone.agent.investigate_compiler:Candidate.step",
+    "capstone.agent.investigate_compiler:compile_requests",
+    "capstone.agent.investigate_compiler:escape_reason",
+    "capstone.agent.investigate_compiler:from_fixed_plan",
+    "capstone.agent.investigate_compiler:known_machines",
+    "capstone.agent.investigate_compiler:model_target",
+    "capstone.agent.investigate_compiler:observed_windows",
+    "capstone.agent.investigate_compiler:targets",
+    "capstone.agent.loop:InvestigationDeps.__post_init__",
+    "capstone.agent.loop:apply_interpretation",
+    "capstone.agent.loop:ask_policy",
+    "capstone.agent.loop:batch_steps",
+    "capstone.agent.loop:call_signature",
+    "capstone.agent.loop:call_tool",
+    "capstone.agent.loop:check_termination",
+    "capstone.agent.loop:compiler_turn",
+    "capstone.agent.loop:gather",
+    "capstone.agent.loop:held_for_hypotheses",
+    "capstone.agent.loop:note_advice",
+    "capstone.agent.loop:notify",
+    "capstone.agent.loop:question_held_open",
+    "capstone.agent.loop:record",
+    "capstone.agent.loop:run_batch",
+    "capstone.agent.loop:run_inner_loop",
+    "capstone.agent.loop:seconds_left",
+    "capstone.agent.state:Budgets.research_gets_some_time",
+    "capstone.agent.state:InvestigationState.confidence",
+    "capstone.agent.state:InvestigationState.leading_hypothesis",
+    "capstone.agent.state:InvestigationState.remaining_iterations",
+    "capstone.agent.state:InvestigationState.remaining_seconds",
+    "capstone.agent.state:InvestigationState.remaining_tool_calls"
+   ],
+   "exercise_count": 46,
+   "modules_exercised": [
+    "capstone.agent.evidence_tests",
+    "capstone.agent.investigate_compiler",
+    "capstone.agent.loop",
+    "capstone.agent.state",
+    "capstone.agent.triage_plan",
+    "capstone.contracts.tools"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
    "id": "tests/test_triage_logging.py::test_a_fixed_plan_is_printed_once_with_its_predicate",
    "file": "tests/test_triage_logging.py",
    "name": "test_a_fixed_plan_is_printed_once_with_its_predicate",
@@ -124392,10 +124763,10 @@
     "capstone.agent.investigate_compiler:agreement",
     "capstone.agent.investigate_compiler:compile_requests",
     "capstone.agent.investigate_compiler:escape_reason",
+    "capstone.agent.investigate_compiler:from_fixed_plan",
     "capstone.agent.investigate_compiler:known_machines",
     "capstone.agent.investigate_compiler:model_target",
     "capstone.agent.investigate_compiler:observed_windows",
-    "capstone.agent.investigate_compiler:sensors_named",
     "capstone.agent.investigate_compiler:targets",
     "capstone.agent.investigation:build_graph",
     "capstone.agent.investigation:build_graph.<locals>.conclude_step",
@@ -124957,10 +125328,10 @@
     "capstone.agent.investigate_compiler:agreement",
     "capstone.agent.investigate_compiler:compile_requests",
     "capstone.agent.investigate_compiler:escape_reason",
+    "capstone.agent.investigate_compiler:from_fixed_plan",
     "capstone.agent.investigate_compiler:known_machines",
     "capstone.agent.investigate_compiler:model_target",
     "capstone.agent.investigate_compiler:observed_windows",
-    "capstone.agent.investigate_compiler:sensors_named",
     "capstone.agent.investigate_compiler:targets",
     "capstone.agent.investigation:build_graph",
     "capstone.agent.investigation:build_graph.<locals>.conclude_step",
@@ -126094,10 +126465,10 @@
     "capstone.agent.investigate_compiler:agreement",
     "capstone.agent.investigate_compiler:compile_requests",
     "capstone.agent.investigate_compiler:escape_reason",
+    "capstone.agent.investigate_compiler:from_fixed_plan",
     "capstone.agent.investigate_compiler:known_machines",
     "capstone.agent.investigate_compiler:model_target",
     "capstone.agent.investigate_compiler:observed_windows",
-    "capstone.agent.investigate_compiler:sensors_named",
     "capstone.agent.investigate_compiler:targets",
     "capstone.agent.investigation:build_graph",
     "capstone.agent.investigation:build_graph.<locals>.conclude_step",
@@ -126411,10 +126782,10 @@
     "capstone.agent.investigate_compiler:agreement",
     "capstone.agent.investigate_compiler:compile_requests",
     "capstone.agent.investigate_compiler:escape_reason",
+    "capstone.agent.investigate_compiler:from_fixed_plan",
     "capstone.agent.investigate_compiler:known_machines",
     "capstone.agent.investigate_compiler:model_target",
     "capstone.agent.investigate_compiler:observed_windows",
-    "capstone.agent.investigate_compiler:sensors_named",
     "capstone.agent.investigate_compiler:targets",
     "capstone.agent.investigation:build_graph",
     "capstone.agent.investigation:build_graph.<locals>.conclude_step",
@@ -126518,10 +126889,10 @@
     "capstone.agent.investigate_compiler:agreement",
     "capstone.agent.investigate_compiler:compile_requests",
     "capstone.agent.investigate_compiler:escape_reason",
+    "capstone.agent.investigate_compiler:from_fixed_plan",
     "capstone.agent.investigate_compiler:known_machines",
     "capstone.agent.investigate_compiler:model_target",
     "capstone.agent.investigate_compiler:observed_windows",
-    "capstone.agent.investigate_compiler:sensors_named",
     "capstone.agent.investigate_compiler:targets",
     "capstone.agent.investigation:build_graph",
     "capstone.agent.investigation:build_graph.<locals>.conclude_step",
@@ -128724,10 +129095,10 @@
     "capstone.agent.investigate_compiler:agreement",
     "capstone.agent.investigate_compiler:compile_requests",
     "capstone.agent.investigate_compiler:escape_reason",
+    "capstone.agent.investigate_compiler:from_fixed_plan",
     "capstone.agent.investigate_compiler:known_machines",
     "capstone.agent.investigate_compiler:model_target",
     "capstone.agent.investigate_compiler:observed_windows",
-    "capstone.agent.investigate_compiler:sensors_named",
     "capstone.agent.investigate_compiler:targets",
     "capstone.agent.investigation:build_graph",
     "capstone.agent.investigation:build_graph.<locals>.conclude_step",
@@ -128832,10 +129203,10 @@
     "capstone.agent.investigate_compiler:agreement",
     "capstone.agent.investigate_compiler:compile_requests",
     "capstone.agent.investigate_compiler:escape_reason",
+    "capstone.agent.investigate_compiler:from_fixed_plan",
     "capstone.agent.investigate_compiler:known_machines",
     "capstone.agent.investigate_compiler:model_target",
     "capstone.agent.investigate_compiler:observed_windows",
-    "capstone.agent.investigate_compiler:sensors_named",
     "capstone.agent.investigate_compiler:targets",
     "capstone.agent.investigation:build_graph",
     "capstone.agent.investigation:build_graph.<locals>.conclude_step",
@@ -128939,10 +129310,10 @@
     "capstone.agent.investigate_compiler:agreement",
     "capstone.agent.investigate_compiler:compile_requests",
     "capstone.agent.investigate_compiler:escape_reason",
+    "capstone.agent.investigate_compiler:from_fixed_plan",
     "capstone.agent.investigate_compiler:known_machines",
     "capstone.agent.investigate_compiler:model_target",
     "capstone.agent.investigate_compiler:observed_windows",
-    "capstone.agent.investigate_compiler:sensors_named",
     "capstone.agent.investigate_compiler:targets",
     "capstone.agent.investigation:build_graph",
     "capstone.agent.investigation:build_graph.<locals>.conclude_step",
@@ -129036,13 +129407,14 @@
    "exercises": [
     "capstone.agent.investigate_compiler:Candidate.key",
     "capstone.agent.investigate_compiler:Candidate.root",
+    "capstone.agent.investigate_compiler:Candidate.signals",
+    "capstone.agent.investigate_compiler:agreement",
     "capstone.agent.investigate_compiler:compile_requests",
     "capstone.agent.investigate_compiler:escape_reason",
+    "capstone.agent.investigate_compiler:from_fixed_plan",
     "capstone.agent.investigate_compiler:known_machines",
-    "capstone.agent.investigate_compiler:machines_named",
     "capstone.agent.investigate_compiler:model_target",
     "capstone.agent.investigate_compiler:observed_windows",
-    "capstone.agent.investigate_compiler:sensors_named",
     "capstone.agent.investigate_compiler:targets",
     "capstone.agent.investigation:build_graph",
     "capstone.agent.investigation:build_graph.<locals>.conclude_step",
@@ -129072,10 +129444,9 @@
     "capstone.agent.loop:apply_interpretation",
     "capstone.agent.loop:ask_policy",
     "capstone.agent.loop:batch_steps",
-    "capstone.agent.loop:call_signature",
-    "capstone.agent.loop:call_tool"
+    "capstone.agent.loop:call_signature"
    ],
-   "exercise_count": 185,
+   "exercise_count": 186,
    "modules_exercised": [
     "capstone.agent.investigate_compiler",
     "capstone.agent.investigation",
@@ -129152,10 +129523,10 @@
     "capstone.agent.investigate_compiler:agreement",
     "capstone.agent.investigate_compiler:compile_requests",
     "capstone.agent.investigate_compiler:escape_reason",
+    "capstone.agent.investigate_compiler:from_fixed_plan",
     "capstone.agent.investigate_compiler:known_machines",
     "capstone.agent.investigate_compiler:model_target",
     "capstone.agent.investigate_compiler:observed_windows",
-    "capstone.agent.investigate_compiler:sensors_named",
     "capstone.agent.investigate_compiler:targets",
     "capstone.agent.investigation:build_graph",
     "capstone.agent.investigation:build_graph.<locals>.conclude_step",
