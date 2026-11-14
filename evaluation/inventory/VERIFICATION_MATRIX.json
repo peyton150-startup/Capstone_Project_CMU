@@ -17,7 +17,7 @@
   "capstone-code/capstone/agent/investigate_compiler.py": "bf3145bcddbebbce84cfdd17c9e62d45e1d58b0e4abcb6177a142ee259406dd3",
   "capstone-code/capstone/agent/investigation.py": "dcbee8bee7f829af712d92274a58e22f3d44571b71a6205e4f07a41dac56bab7",
   "capstone-code/capstone/agent/loop.py": "660791055caf27e4c69365ab0c97735a35363b366dce9611aaeeb6aad7e7454e",
-  "capstone-code/capstone/agent/model_policy.py": "f19a856c2779f412fc247db139b3ee8fc13d512f55dafa0aa2f52330fbe9367e",
+  "capstone-code/capstone/agent/model_policy.py": "5c88d5341d17aab170fa1ca886db7ac82c58f294390165c0b4658979762a7f57",
   "capstone-code/capstone/agent/monitor.py": "c59916f5de91342ebf7bd2ade22133901618c9ed4b3f5ea5937e62a0360a7a52",
   "capstone-code/capstone/agent/policy.py": "4e63fa1b8670bc5a57987c27d2c28846050c394f3c96bda3264a63a197d80228",
   "capstone-code/capstone/agent/recorded_state.py": "823abc0db5b777b687b063c2e3530c909320e1839348e450ac7f177ad504f53d",
@@ -158,6 +158,7 @@
   "tests/test_chat_client.py": "8bc5eb6db1894663c41eec90320af4af9c42a0219a388aaa42bf92c25f814919",
   "tests/test_clock.py": "2d0e62071d5bec9da5ffce839fda122ab6b277c2d66d1cba3f071146da6c1e63",
   "tests/test_collector_watchdog.py": "448509006e430513390f47d79ec3c9e512d30dff7be1a68710cb2df38beb7c39",
+  "tests/test_conclude_no_hypotheses.py": "3c361a494138e255edfa0ab19eed54b4dcc16e2e6feec60128667c81566bf8d3",
   "tests/test_console.py": "15ebbbdb8927f37fd25f9d8f9676e412f8fb368766c0a2318aacff94c963d86b",
   "tests/test_contracts.py": "55497b4712a724e6e4e6b3aed0eb245fc1643147b961d62782b462882affe0b6",
   "tests/test_coverage_entrypoints.py": "399a323da457b2c871e18d1bdf1c8a47c6bf3761d83a2fc280cfc9fa58f84eda",
@@ -278,12 +279,12 @@
   "tests/test_wait_tool.py": "b99a5fbf756a60176262417e54d8d1a0496f01126929a330492e7d24287b2d1e",
   "tests/test_wrong_setting.py": "aed1c646bffaf88ae25ed2156794dc57427e8a61bbe6b23a0c33f3c3e89c0da3"
  },
- "coverage_sha256": "aca990fcd203da9e2691fa254b71e5d2d8e951454ea509f2ac773b5206cebe7c",
- "junit_sha256": "972ca977361b6a79d706862c85ec0b18f20800ecc353f9ca2b4a7e95df10c42e",
+ "coverage_sha256": "7551ccef2a6dbda0683052e42ea9d015e19208a568f04e7dd799cff30bc19182",
+ "junit_sha256": "8186cc206665a6b4a0643376c9f3033282b268753e990c7d4cd2e4f32602fc18",
  "counts": {
   "functions": 1126,
   "classes_note": "classes are listed through their methods",
-  "tests": 2253,
+  "tests": 2256,
   "tools": 18,
   "functions_by_status": {
    "INSUFFICIENT EVIDENCE": 465,
@@ -376,7 +377,7 @@
   "stubs_or_protocols": 25,
   "tests_by_outcome": {
    "failed": 1,
-   "passed": 2252
+   "passed": 2255
   },
   "tests_with_no_assertion": [
    "tests/test_console.py::test_without_it_the_same_print_raised"
@@ -1728,7 +1729,7 @@
    ]
   },
   "capstone.agent.evidence_brief:section": {
-   "count": 168,
+   "count": 171,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_critic.py::test_a_manual_section_cannot_be_cited_as_evidence",
@@ -1742,17 +1743,17 @@
     "tests/test_benchmark.py::test_each_episode_is_timed_and_handed_on_as_it_ends",
     "tests/test_benchmark.py::test_episodes_are_run_and_recorded_for_each_fault_and_seed",
     "tests/test_benchmark.py::test_the_command_writes_the_table_and_the_raw_calls",
+    "tests/test_conclude_no_hypotheses.py::test_a_made_up_hypothesis_is_still_refused",
+    "tests/test_conclude_no_hypotheses.py::test_with_a_hypothesis_the_prompt_is_unchanged",
+    "tests/test_conclude_no_hypotheses.py::test_without_hypotheses_the_conclusion_is_told_to_name_none",
     "tests/test_critic.py::test_a_blind_label_it_was_not_shown_is_never_asked_again",
     "tests/test_critic.py::test_a_failed_search_leaves_the_critic_to_judge_without_it",
     "tests/test_critic.py::test_a_judgement_error_is_never_asked_again",
-    "tests/test_critic.py::test_a_repair_ask_with_no_answer_passes_the_model_error_up",
-    "tests/test_critic.py::test_a_reply_of_the_wrong_shape_is_asked_once_more_with_the_reason",
-    "tests/test_critic.py::test_a_second_bad_shape_is_final",
-    "tests/test_critic.py::test_anchored_critic_is_unchanged_by_default"
+    "tests/test_critic.py::test_a_repair_ask_with_no_answer_passes_the_model_error_up"
    ]
   },
   "capstone.agent.evidence_brief:observations": {
-   "count": 564,
+   "count": 567,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_agent_investigation.py::test_incident_context_uses_bounded_observations_before_planning"
@@ -1773,7 +1774,7 @@
    ]
   },
   "capstone.agent.evidence_brief:measurement_groups": {
-   "count": 100,
+   "count": 103,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
@@ -1782,13 +1783,13 @@
     "tests/test_benchmark.py::test_each_episode_is_timed_and_handed_on_as_it_ends",
     "tests/test_benchmark.py::test_episodes_are_run_and_recorded_for_each_fault_and_seed",
     "tests/test_benchmark.py::test_the_command_writes_the_table_and_the_raw_calls",
+    "tests/test_conclude_no_hypotheses.py::test_a_made_up_hypothesis_is_still_refused",
+    "tests/test_conclude_no_hypotheses.py::test_with_a_hypothesis_the_prompt_is_unchanged",
+    "tests/test_conclude_no_hypotheses.py::test_without_hypotheses_the_conclusion_is_told_to_name_none",
     "tests/test_episode.py::test_a_run_with_the_manual_gives_the_settings_critic_the_manual",
     "tests/test_episode.py::test_critic_blind_is_off_by_default_and_reaches_the_run",
     "tests/test_experiment.py::test_a_model_policy_run_keeps_its_call_summary_and_its_time",
-    "tests/test_experiment.py::test_critic_questions_follow_the_policy_s_own",
-    "tests/test_experiment.py::test_model_failures_survive_the_cli_file_and_report",
-    "tests/test_experiment.py::test_the_report_shows_the_model_questions",
-    "tests/test_manual.py::test_manual_evidence_is_labelled_manual_and_marked_in_every_prompt"
+    "tests/test_experiment.py::test_critic_questions_follow_the_policy_s_own"
    ]
   },
   "capstone.agent.evidence_brief:statistics": {
@@ -1830,7 +1831,7 @@
    ]
   },
   "capstone.agent.evidence_brief:evidence_brief": {
-   "count": 168,
+   "count": 171,
    "status": "PARTIALLY VERIFIED",
    "direct": [],
    "indirect": [
@@ -1839,13 +1840,13 @@
     "tests/test_benchmark.py::test_each_episode_is_timed_and_handed_on_as_it_ends",
     "tests/test_benchmark.py::test_episodes_are_run_and_recorded_for_each_fault_and_seed",
     "tests/test_benchmark.py::test_the_command_writes_the_table_and_the_raw_calls",
+    "tests/test_conclude_no_hypotheses.py::test_a_made_up_hypothesis_is_still_refused",
+    "tests/test_conclude_no_hypotheses.py::test_with_a_hypothesis_the_prompt_is_unchanged",
+    "tests/test_conclude_no_hypotheses.py::test_without_hypotheses_the_conclusion_is_told_to_name_none",
     "tests/test_critic.py::test_a_blind_label_it_was_not_shown_is_never_asked_again",
     "tests/test_critic.py::test_a_failed_search_leaves_the_critic_to_judge_without_it",
     "tests/test_critic.py::test_a_judgement_error_is_never_asked_again",
-    "tests/test_critic.py::test_a_manual_section_cannot_be_cited_as_evidence",
-    "tests/test_critic.py::test_a_manual_that_finds_nothing_shows_no_section_but_says_it_was_offered",
-    "tests/test_critic.py::test_a_repair_ask_with_no_answer_passes_the_model_error_up",
-    "tests/test_critic.py::test_a_reply_of_the_wrong_shape_is_asked_once_more_with_the_reason"
+    "tests/test_critic.py::test_a_manual_section_cannot_be_cited_as_evidence"
    ]
   },
   "capstone.agent.evidence_packet:EvidencePacket.qualified_roots": {
@@ -2964,7 +2965,7 @@
    ]
   },
   "capstone.agent.investigation:check_conclusion": {
-   "count": 383,
+   "count": 384,
    "status": "VERIFIED",
    "direct": [
     "tests/test_agent_investigation.py::test_a_bad_decision_is_recorded_and_the_run_goes_on",
@@ -4478,7 +4479,7 @@
    ]
   },
   "capstone.agent.model_policy:compact": {
-   "count": 125,
+   "count": 128,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_model_policy.py::test_a_call_to_a_tool_not_offered_is_refused_and_counted_against_the_model",
@@ -4498,19 +4499,19 @@
     "tests/test_agent_investigation.py::test_incident_context_uses_bounded_observations_before_planning",
     "tests/test_benchmark.py::test_each_episode_is_timed_and_handed_on_as_it_ends",
     "tests/test_benchmark.py::test_episodes_are_run_and_recorded_for_each_fault_and_seed",
+    "tests/test_conclude_no_hypotheses.py::test_a_made_up_hypothesis_is_still_refused",
+    "tests/test_conclude_no_hypotheses.py::test_with_a_hypothesis_the_prompt_is_unchanged",
+    "tests/test_conclude_no_hypotheses.py::test_without_hypotheses_the_conclusion_is_told_to_name_none",
     "tests/test_critic.py::test_a_blind_label_it_was_not_shown_is_never_asked_again",
     "tests/test_critic.py::test_a_failed_search_leaves_the_critic_to_judge_without_it",
     "tests/test_critic.py::test_a_judgement_error_is_never_asked_again",
     "tests/test_critic.py::test_a_manual_section_cannot_be_cited_as_evidence",
     "tests/test_critic.py::test_a_manual_that_finds_nothing_shows_no_section_but_says_it_was_offered",
-    "tests/test_critic.py::test_a_repair_ask_with_no_answer_passes_the_model_error_up",
-    "tests/test_critic.py::test_a_reply_of_the_wrong_shape_is_asked_once_more_with_the_reason",
-    "tests/test_critic.py::test_a_second_bad_shape_is_final",
-    "tests/test_critic.py::test_anchored_critic_is_unchanged_by_default"
+    "tests/test_critic.py::test_a_repair_ask_with_no_answer_passes_the_model_error_up"
    ]
   },
   "capstone.agent.model_policy:shown": {
-   "count": 141,
+   "count": 144,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_critic.py::test_a_blind_label_it_was_not_shown_is_never_asked_again",
@@ -4532,17 +4533,17 @@
     "tests/test_benchmark.py::test_each_episode_is_timed_and_handed_on_as_it_ends",
     "tests/test_benchmark.py::test_episodes_are_run_and_recorded_for_each_fault_and_seed",
     "tests/test_benchmark.py::test_the_command_writes_the_table_and_the_raw_calls",
+    "tests/test_conclude_no_hypotheses.py::test_a_made_up_hypothesis_is_still_refused",
+    "tests/test_conclude_no_hypotheses.py::test_with_a_hypothesis_the_prompt_is_unchanged",
+    "tests/test_conclude_no_hypotheses.py::test_without_hypotheses_the_conclusion_is_told_to_name_none",
     "tests/test_critic.py::test_a_failed_search_leaves_the_critic_to_judge_without_it",
     "tests/test_critic.py::test_a_judgement_error_is_never_asked_again",
     "tests/test_critic.py::test_a_manual_section_cannot_be_cited_as_evidence",
-    "tests/test_critic.py::test_a_manual_that_finds_nothing_shows_no_section_but_says_it_was_offered",
-    "tests/test_critic.py::test_a_repair_ask_with_no_answer_passes_the_model_error_up",
-    "tests/test_critic.py::test_a_reply_of_the_wrong_shape_is_asked_once_more_with_the_reason",
-    "tests/test_critic.py::test_a_second_bad_shape_is_final"
+    "tests/test_critic.py::test_a_manual_that_finds_nothing_shows_no_section_but_says_it_was_offered"
    ]
   },
   "capstone.agent.model_policy:cited_ids": {
-   "count": 137,
+   "count": 140,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_model_policy.py::test_a_conclusion_comes_with_an_action_or_none",
@@ -4564,17 +4565,17 @@
     "tests/test_benchmark.py::test_each_episode_is_timed_and_handed_on_as_it_ends",
     "tests/test_benchmark.py::test_episodes_are_run_and_recorded_for_each_fault_and_seed",
     "tests/test_benchmark.py::test_the_command_writes_the_table_and_the_raw_calls",
+    "tests/test_conclude_no_hypotheses.py::test_a_made_up_hypothesis_is_still_refused",
+    "tests/test_conclude_no_hypotheses.py::test_with_a_hypothesis_the_prompt_is_unchanged",
+    "tests/test_conclude_no_hypotheses.py::test_without_hypotheses_the_conclusion_is_told_to_name_none",
     "tests/test_critic.py::test_a_blind_label_it_was_not_shown_is_never_asked_again",
     "tests/test_critic.py::test_a_failed_search_leaves_the_critic_to_judge_without_it",
     "tests/test_critic.py::test_a_judgement_error_is_never_asked_again",
-    "tests/test_critic.py::test_a_manual_section_cannot_be_cited_as_evidence",
-    "tests/test_critic.py::test_a_manual_that_finds_nothing_shows_no_section_but_says_it_was_offered",
-    "tests/test_critic.py::test_a_repair_ask_with_no_answer_passes_the_model_error_up",
-    "tests/test_critic.py::test_a_reply_of_the_wrong_shape_is_asked_once_more_with_the_reason"
+    "tests/test_critic.py::test_a_manual_section_cannot_be_cited_as_evidence"
    ]
   },
   "capstone.agent.model_policy:shortened_note": {
-   "count": 137,
+   "count": 140,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_model_policy.py::test_a_conclusion_comes_with_an_action_or_none",
@@ -4596,17 +4597,17 @@
     "tests/test_benchmark.py::test_each_episode_is_timed_and_handed_on_as_it_ends",
     "tests/test_benchmark.py::test_episodes_are_run_and_recorded_for_each_fault_and_seed",
     "tests/test_benchmark.py::test_the_command_writes_the_table_and_the_raw_calls",
+    "tests/test_conclude_no_hypotheses.py::test_a_made_up_hypothesis_is_still_refused",
+    "tests/test_conclude_no_hypotheses.py::test_with_a_hypothesis_the_prompt_is_unchanged",
+    "tests/test_conclude_no_hypotheses.py::test_without_hypotheses_the_conclusion_is_told_to_name_none",
     "tests/test_critic.py::test_a_blind_label_it_was_not_shown_is_never_asked_again",
     "tests/test_critic.py::test_a_failed_search_leaves_the_critic_to_judge_without_it",
     "tests/test_critic.py::test_a_judgement_error_is_never_asked_again",
-    "tests/test_critic.py::test_a_manual_section_cannot_be_cited_as_evidence",
-    "tests/test_critic.py::test_a_manual_that_finds_nothing_shows_no_section_but_says_it_was_offered",
-    "tests/test_critic.py::test_a_repair_ask_with_no_answer_passes_the_model_error_up",
-    "tests/test_critic.py::test_a_reply_of_the_wrong_shape_is_asked_once_more_with_the_reason"
+    "tests/test_critic.py::test_a_manual_section_cannot_be_cited_as_evidence"
    ]
   },
   "capstone.agent.model_policy:evidence_lines": {
-   "count": 141,
+   "count": 144,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_model_policy.py::test_a_conclusion_comes_with_an_action_or_none",
@@ -4628,17 +4629,17 @@
     "tests/test_benchmark.py::test_each_episode_is_timed_and_handed_on_as_it_ends",
     "tests/test_benchmark.py::test_episodes_are_run_and_recorded_for_each_fault_and_seed",
     "tests/test_benchmark.py::test_the_command_writes_the_table_and_the_raw_calls",
+    "tests/test_conclude_no_hypotheses.py::test_a_made_up_hypothesis_is_still_refused",
+    "tests/test_conclude_no_hypotheses.py::test_with_a_hypothesis_the_prompt_is_unchanged",
+    "tests/test_conclude_no_hypotheses.py::test_without_hypotheses_the_conclusion_is_told_to_name_none",
     "tests/test_critic.py::test_a_blind_label_it_was_not_shown_is_never_asked_again",
     "tests/test_critic.py::test_a_failed_search_leaves_the_critic_to_judge_without_it",
     "tests/test_critic.py::test_a_judgement_error_is_never_asked_again",
-    "tests/test_critic.py::test_a_manual_section_cannot_be_cited_as_evidence",
-    "tests/test_critic.py::test_a_manual_that_finds_nothing_shows_no_section_but_says_it_was_offered",
-    "tests/test_critic.py::test_a_repair_ask_with_no_answer_passes_the_model_error_up",
-    "tests/test_critic.py::test_a_reply_of_the_wrong_shape_is_asked_once_more_with_the_reason"
+    "tests/test_critic.py::test_a_manual_section_cannot_be_cited_as_evidence"
    ]
   },
   "capstone.agent.model_policy:evidence_section": {
-   "count": 169,
+   "count": 172,
    "status": "VERIFIED",
    "direct": [
     "tests/test_model_policy.py::test_a_call_to_a_tool_not_offered_is_refused_and_counted_against_the_model",
@@ -4660,17 +4661,17 @@
     "tests/test_benchmark.py::test_each_episode_is_timed_and_handed_on_as_it_ends",
     "tests/test_benchmark.py::test_episodes_are_run_and_recorded_for_each_fault_and_seed",
     "tests/test_benchmark.py::test_the_command_writes_the_table_and_the_raw_calls",
+    "tests/test_conclude_no_hypotheses.py::test_a_made_up_hypothesis_is_still_refused",
+    "tests/test_conclude_no_hypotheses.py::test_with_a_hypothesis_the_prompt_is_unchanged",
+    "tests/test_conclude_no_hypotheses.py::test_without_hypotheses_the_conclusion_is_told_to_name_none",
     "tests/test_critic.py::test_a_blind_label_it_was_not_shown_is_never_asked_again",
     "tests/test_critic.py::test_a_failed_search_leaves_the_critic_to_judge_without_it",
     "tests/test_critic.py::test_a_judgement_error_is_never_asked_again",
-    "tests/test_critic.py::test_a_manual_section_cannot_be_cited_as_evidence",
-    "tests/test_critic.py::test_a_manual_that_finds_nothing_shows_no_section_but_says_it_was_offered",
-    "tests/test_critic.py::test_a_repair_ask_with_no_answer_passes_the_model_error_up",
-    "tests/test_critic.py::test_a_reply_of_the_wrong_shape_is_asked_once_more_with_the_reason"
+    "tests/test_critic.py::test_a_manual_section_cannot_be_cited_as_evidence"
    ]
   },
   "capstone.agent.model_policy:action_bar_note": {
-   "count": 30,
+   "count": 33,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_model_policy.py::test_a_conclusion_comes_with_an_action_or_none",
@@ -4689,20 +4690,20 @@
    "indirect": [
     "tests/test_benchmark.py::test_each_episode_is_timed_and_handed_on_as_it_ends",
     "tests/test_benchmark.py::test_episodes_are_run_and_recorded_for_each_fault_and_seed",
+    "tests/test_conclude_no_hypotheses.py::test_a_made_up_hypothesis_is_still_refused",
+    "tests/test_conclude_no_hypotheses.py::test_with_a_hypothesis_the_prompt_is_unchanged",
+    "tests/test_conclude_no_hypotheses.py::test_without_hypotheses_the_conclusion_is_told_to_name_none",
     "tests/test_experiment.py::test_a_model_policy_run_keeps_its_call_summary_and_its_time",
     "tests/test_experiment.py::test_critic_questions_follow_the_policy_s_own",
     "tests/test_experiment.py::test_the_report_shows_the_model_questions",
     "tests/test_late_model.py::test_late_conclusion_is_asked_and_recorded_as_the_late_model",
     "tests/test_tree_of_thought.py::test_a_tree_run_writes_its_pruned_branches_to_the_audit_log",
     "tests/test_tree_of_thought.py::test_both_steps_run_the_same_case_and_the_tree_costs_one_more_question",
-    "tests/test_tree_of_thought.py::test_saved_tree_survives_the_results_file",
-    "tests/test_tree_search.py::test_a_tree_record_keeps_its_options",
-    "tests/test_tree_search.py::test_the_position_check_pairs_each_listing_place_with_its_rating",
-    "tests/test_tree_search.py::test_the_reinstate_setting_reaches_the_run"
+    "tests/test_tree_of_thought.py::test_saved_tree_survives_the_results_file"
    ]
   },
   "capstone.agent.model_policy:render": {
-   "count": 123,
+   "count": 126,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_model_policy.py::test_a_call_to_a_tool_not_offered_is_refused_and_counted_against_the_model",
@@ -4724,13 +4725,13 @@
     "tests/test_benchmark.py::test_each_episode_is_timed_and_handed_on_as_it_ends",
     "tests/test_benchmark.py::test_episodes_are_run_and_recorded_for_each_fault_and_seed",
     "tests/test_benchmark.py::test_the_command_writes_the_table_and_the_raw_calls",
+    "tests/test_conclude_no_hypotheses.py::test_a_made_up_hypothesis_is_still_refused",
+    "tests/test_conclude_no_hypotheses.py::test_with_a_hypothesis_the_prompt_is_unchanged",
+    "tests/test_conclude_no_hypotheses.py::test_without_hypotheses_the_conclusion_is_told_to_name_none",
     "tests/test_decide_calls.py::test_a_list_naming_a_tool_not_offered_is_refused",
     "tests/test_decide_calls.py::test_a_list_of_one_becomes_a_single_call",
     "tests/test_decide_calls.py::test_above_one_the_model_may_list_calls_and_is_told_the_limit",
-    "tests/test_decide_calls.py::test_several_results_are_named_in_one_numbered_question",
-    "tests/test_decide_calls.py::test_the_single_combined_question_is_unchanged_with_the_default",
-    "tests/test_decide_calls.py::test_with_one_call_per_answer_the_question_is_exactly_as_before",
-    "tests/test_experiment.py::test_a_model_policy_run_keeps_its_call_summary_and_its_time"
+    "tests/test_decide_calls.py::test_several_results_are_named_in_one_numbered_question"
    ]
   },
   "capstone.agent.model_policy:data_window": {
@@ -4927,7 +4928,7 @@
    ]
   },
   "capstone.agent.model_policy:ModelPolicy.__init__": {
-   "count": 106,
+   "count": 109,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_model_policy.py::test_a_call_to_a_tool_not_offered_is_refused_and_counted_against_the_model",
@@ -4948,18 +4949,18 @@
     "tests/test_benchmark.py::test_each_episode_is_timed_and_handed_on_as_it_ends",
     "tests/test_benchmark.py::test_episodes_are_run_and_recorded_for_each_fault_and_seed",
     "tests/test_benchmark.py::test_the_command_writes_the_table_and_the_raw_calls",
+    "tests/test_conclude_no_hypotheses.py::test_a_made_up_hypothesis_is_still_refused",
+    "tests/test_conclude_no_hypotheses.py::test_with_a_hypothesis_the_prompt_is_unchanged",
+    "tests/test_conclude_no_hypotheses.py::test_without_hypotheses_the_conclusion_is_told_to_name_none",
     "tests/test_decide_calls.py::test_a_list_naming_a_tool_not_offered_is_refused",
     "tests/test_decide_calls.py::test_a_list_of_one_becomes_a_single_call",
     "tests/test_decide_calls.py::test_above_one_the_model_may_list_calls_and_is_told_the_limit",
     "tests/test_decide_calls.py::test_several_results_are_named_in_one_numbered_question",
-    "tests/test_decide_calls.py::test_the_single_combined_question_is_unchanged_with_the_default",
-    "tests/test_decide_calls.py::test_with_one_call_per_answer_the_question_is_exactly_as_before",
-    "tests/test_episode.py::test_a_model_policy_runs_one_question_per_step_by_default",
-    "tests/test_experiment.py::test_a_model_policy_run_keeps_its_call_summary_and_its_time"
+    "tests/test_decide_calls.py::test_the_single_combined_question_is_unchanged_with_the_default"
    ]
   },
   "capstone.agent.model_policy:ModelPolicy.client_for": {
-   "count": 98,
+   "count": 101,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_model_policy.py::test_a_call_to_a_tool_not_offered_is_refused_and_counted_against_the_model",
@@ -4980,18 +4981,18 @@
     "tests/test_benchmark.py::test_each_episode_is_timed_and_handed_on_as_it_ends",
     "tests/test_benchmark.py::test_episodes_are_run_and_recorded_for_each_fault_and_seed",
     "tests/test_benchmark.py::test_the_command_writes_the_table_and_the_raw_calls",
+    "tests/test_conclude_no_hypotheses.py::test_a_made_up_hypothesis_is_still_refused",
+    "tests/test_conclude_no_hypotheses.py::test_with_a_hypothesis_the_prompt_is_unchanged",
+    "tests/test_conclude_no_hypotheses.py::test_without_hypotheses_the_conclusion_is_told_to_name_none",
     "tests/test_decide_calls.py::test_a_list_naming_a_tool_not_offered_is_refused",
     "tests/test_decide_calls.py::test_a_list_of_one_becomes_a_single_call",
     "tests/test_decide_calls.py::test_above_one_the_model_may_list_calls_and_is_told_the_limit",
     "tests/test_decide_calls.py::test_several_results_are_named_in_one_numbered_question",
-    "tests/test_decide_calls.py::test_the_single_combined_question_is_unchanged_with_the_default",
-    "tests/test_decide_calls.py::test_with_one_call_per_answer_the_question_is_exactly_as_before",
-    "tests/test_experiment.py::test_a_model_policy_run_keeps_its_call_summary_and_its_time",
-    "tests/test_experiment.py::test_critic_questions_follow_the_policy_s_own"
+    "tests/test_decide_calls.py::test_the_single_combined_question_is_unchanged_with_the_default"
    ]
   },
   "capstone.agent.model_policy:ModelPolicy._ask": {
-   "count": 92,
+   "count": 95,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_model_policy.py::test_a_call_to_a_tool_not_offered_is_refused_and_counted_against_the_model",
@@ -5012,14 +5013,14 @@
     "tests/test_benchmark.py::test_each_episode_is_timed_and_handed_on_as_it_ends",
     "tests/test_benchmark.py::test_episodes_are_run_and_recorded_for_each_fault_and_seed",
     "tests/test_benchmark.py::test_the_command_writes_the_table_and_the_raw_calls",
+    "tests/test_conclude_no_hypotheses.py::test_a_made_up_hypothesis_is_still_refused",
+    "tests/test_conclude_no_hypotheses.py::test_with_a_hypothesis_the_prompt_is_unchanged",
+    "tests/test_conclude_no_hypotheses.py::test_without_hypotheses_the_conclusion_is_told_to_name_none",
     "tests/test_decide_calls.py::test_a_list_naming_a_tool_not_offered_is_refused",
     "tests/test_decide_calls.py::test_a_list_of_one_becomes_a_single_call",
     "tests/test_decide_calls.py::test_above_one_the_model_may_list_calls_and_is_told_the_limit",
     "tests/test_decide_calls.py::test_several_results_are_named_in_one_numbered_question",
-    "tests/test_decide_calls.py::test_the_single_combined_question_is_unchanged_with_the_default",
-    "tests/test_decide_calls.py::test_with_one_call_per_answer_the_question_is_exactly_as_before",
-    "tests/test_experiment.py::test_a_model_policy_run_keeps_its_call_summary_and_its_time",
-    "tests/test_experiment.py::test_critic_questions_follow_the_policy_s_own"
+    "tests/test_decide_calls.py::test_the_single_combined_question_is_unchanged_with_the_default"
    ]
   },
   "capstone.agent.model_policy:ModelPolicy._refuse": {
@@ -5228,9 +5229,12 @@
    ]
   },
   "capstone.agent.model_policy:ModelPolicy.conclude": {
-   "count": 29,
+   "count": 32,
    "status": "VERIFIED",
    "direct": [
+    "tests/test_conclude_no_hypotheses.py::test_a_made_up_hypothesis_is_still_refused",
+    "tests/test_conclude_no_hypotheses.py::test_with_a_hypothesis_the_prompt_is_unchanged",
+    "tests/test_conclude_no_hypotheses.py::test_without_hypotheses_the_conclusion_is_told_to_name_none",
     "tests/test_model_policy.py::test_a_conclusion_comes_with_an_action_or_none",
     "tests/test_model_policy.py::test_a_cut_off_interpretation_keeps_the_evidence_and_the_run_goes_on",
     "tests/test_model_policy.py::test_a_question_may_use_only_the_research_time_left",
@@ -5239,10 +5243,7 @@
     "tests/test_model_policy.py::test_both_step_modes_finish_the_same_scripted_repair_and_record_the_mode",
     "tests/test_model_policy.py::test_giving_up_just_before_the_deadline_is_a_timeout_not_an_outage",
     "tests/test_model_policy.py::test_hidden_bar_is_omitted_from_the_actual_conclusion_prompt",
-    "tests/test_model_policy.py::test_missing_model_completion_assessment_is_unresolved_not_a_silent_success",
-    "tests/test_model_policy.py::test_the_default_budget_fits_a_whole_episode_at_eight_seconds_an_answer",
-    "tests/test_model_policy.py::test_the_old_sixty_second_budget_did_not",
-    "tests/test_triage_conclude_brief.py::test_a_deep_conclusion_prompt_is_unchanged_by_the_setting"
+    "tests/test_model_policy.py::test_missing_model_completion_assessment_is_unresolved_not_a_silent_success"
    ],
    "indirect": [
     "tests/test_benchmark.py::test_each_episode_is_timed_and_handed_on_as_it_ends",
@@ -5382,7 +5383,7 @@
    ]
   },
   "capstone.agent.state:Budgets.research_gets_some_time": {
-   "count": 776,
+   "count": 779,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
@@ -5515,7 +5516,7 @@
    ]
   },
   "capstone.agent.state:InvestigationState.research_tool_calls": {
-   "count": 553,
+   "count": 556,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
@@ -5534,7 +5535,7 @@
    ]
   },
   "capstone.agent.state:InvestigationState.remaining_critic_tool_calls": {
-   "count": 143,
+   "count": 146,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
@@ -5553,7 +5554,7 @@
    ]
   },
   "capstone.agent.state:InvestigationState.remaining_iterations": {
-   "count": 510,
+   "count": 513,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
@@ -5572,7 +5573,7 @@
    ]
   },
   "capstone.agent.state:InvestigationState.remaining_tool_calls": {
-   "count": 527,
+   "count": 530,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
@@ -5591,7 +5592,7 @@
    ]
   },
   "capstone.agent.state:InvestigationState.remaining_followup_tool_calls": {
-   "count": 348,
+   "count": 351,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
@@ -6401,7 +6402,7 @@
    ]
   },
   "capstone.agent.untrusted:looks_like_instruction": {
-   "count": 146,
+   "count": 149,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
@@ -6410,13 +6411,13 @@
     "tests/test_benchmark.py::test_each_episode_is_timed_and_handed_on_as_it_ends",
     "tests/test_benchmark.py::test_episodes_are_run_and_recorded_for_each_fault_and_seed",
     "tests/test_benchmark.py::test_the_command_writes_the_table_and_the_raw_calls",
+    "tests/test_conclude_no_hypotheses.py::test_a_made_up_hypothesis_is_still_refused",
+    "tests/test_conclude_no_hypotheses.py::test_with_a_hypothesis_the_prompt_is_unchanged",
+    "tests/test_conclude_no_hypotheses.py::test_without_hypotheses_the_conclusion_is_told_to_name_none",
     "tests/test_critic.py::test_a_blind_label_it_was_not_shown_is_never_asked_again",
     "tests/test_critic.py::test_a_failed_search_leaves_the_critic_to_judge_without_it",
     "tests/test_critic.py::test_a_judgement_error_is_never_asked_again",
-    "tests/test_critic.py::test_a_manual_section_cannot_be_cited_as_evidence",
-    "tests/test_critic.py::test_a_manual_that_finds_nothing_shows_no_section_but_says_it_was_offered",
-    "tests/test_critic.py::test_a_repair_ask_with_no_answer_passes_the_model_error_up",
-    "tests/test_critic.py::test_a_reply_of_the_wrong_shape_is_asked_once_more_with_the_reason"
+    "tests/test_critic.py::test_a_manual_section_cannot_be_cited_as_evidence"
    ]
   },
   "capstone.baseline:_Looker.__init__": {
@@ -14073,7 +14074,7 @@
    ]
   },
   "capstone.providers.chat:late_key": {
-   "count": 103,
+   "count": 106,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
@@ -14081,14 +14082,14 @@
     "tests/test_benchmark.py::test_each_episode_is_timed_and_handed_on_as_it_ends",
     "tests/test_benchmark.py::test_episodes_are_run_and_recorded_for_each_fault_and_seed",
     "tests/test_benchmark.py::test_the_command_writes_the_table_and_the_raw_calls",
+    "tests/test_conclude_no_hypotheses.py::test_a_made_up_hypothesis_is_still_refused",
+    "tests/test_conclude_no_hypotheses.py::test_with_a_hypothesis_the_prompt_is_unchanged",
+    "tests/test_conclude_no_hypotheses.py::test_without_hypotheses_the_conclusion_is_told_to_name_none",
     "tests/test_decide_calls.py::test_a_list_naming_a_tool_not_offered_is_refused",
     "tests/test_decide_calls.py::test_a_list_of_one_becomes_a_single_call",
     "tests/test_decide_calls.py::test_above_one_the_model_may_list_calls_and_is_told_the_limit",
     "tests/test_decide_calls.py::test_several_results_are_named_in_one_numbered_question",
-    "tests/test_decide_calls.py::test_the_single_combined_question_is_unchanged_with_the_default",
-    "tests/test_decide_calls.py::test_with_one_call_per_answer_the_question_is_exactly_as_before",
-    "tests/test_experiment.py::test_a_model_policy_run_keeps_its_call_summary_and_its_time",
-    "tests/test_experiment.py::test_critic_questions_follow_the_policy_s_own"
+    "tests/test_decide_calls.py::test_the_single_combined_question_is_unchanged_with_the_default"
    ]
   },
   "capstone.providers.chat:late_clients": {
@@ -14266,7 +14267,7 @@
    ]
   },
   "capstone.providers.factory:tool_spec": {
-   "count": 166,
+   "count": 169,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
@@ -14280,12 +14281,12 @@
     "tests/test_benchmark.py::test_each_episode_is_timed_and_handed_on_as_it_ends",
     "tests/test_benchmark.py::test_episodes_are_run_and_recorded_for_each_fault_and_seed",
     "tests/test_benchmark.py::test_the_command_writes_the_table_and_the_raw_calls",
-    "tests/test_critic.py::test_a_blind_label_it_was_not_shown_is_never_asked_again",
-    "tests/test_critic.py::test_a_failed_search_leaves_the_critic_to_judge_without_it"
+    "tests/test_conclude_no_hypotheses.py::test_a_made_up_hypothesis_is_still_refused",
+    "tests/test_conclude_no_hypotheses.py::test_with_a_hypothesis_the_prompt_is_unchanged"
    ]
   },
   "capstone.providers.factory:research_tools": {
-   "count": 160,
+   "count": 163,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_factory_provider.py::test_a_policy_is_offered_research_tools_but_never_the_fixed_procedure"
@@ -14301,8 +14302,8 @@
     "tests/test_benchmark.py::test_each_episode_is_timed_and_handed_on_as_it_ends",
     "tests/test_benchmark.py::test_episodes_are_run_and_recorded_for_each_fault_and_seed",
     "tests/test_benchmark.py::test_the_command_writes_the_table_and_the_raw_calls",
-    "tests/test_critic.py::test_a_blind_label_it_was_not_shown_is_never_asked_again",
-    "tests/test_critic.py::test_a_failed_search_leaves_the_critic_to_judge_without_it"
+    "tests/test_conclude_no_hypotheses.py::test_a_made_up_hypothesis_is_still_refused",
+    "tests/test_conclude_no_hypotheses.py::test_with_a_hypothesis_the_prompt_is_unchanged"
    ]
   },
   "capstone.providers.factory:SimulatorFactoryProvider.__init__": {
@@ -29653,6 +29654,84 @@
     "capstone.monitoring.monitor:Monitor.observe",
     "capstone.monitoring.monitor:Monitor.observe_marker",
     "capstone.monitoring.runner:replay"
+   ]
+  },
+  "tests/test_conclude_no_hypotheses.py::test_without_hypotheses_the_conclusion_is_told_to_name_none": {
+   "count": 26,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.agent.evidence_brief:evidence_brief",
+    "capstone.agent.evidence_brief:measurement_groups",
+    "capstone.agent.evidence_brief:observations",
+    "capstone.agent.evidence_brief:section",
+    "capstone.agent.model_policy:ModelPolicy.__init__",
+    "capstone.agent.model_policy:ModelPolicy._ask",
+    "capstone.agent.model_policy:ModelPolicy.client_for",
+    "capstone.agent.model_policy:ModelPolicy.conclude",
+    "capstone.agent.model_policy:action_bar_note",
+    "capstone.agent.model_policy:cited_ids",
+    "capstone.agent.model_policy:compact",
+    "capstone.agent.model_policy:evidence_lines",
+    "capstone.agent.model_policy:evidence_section",
+    "capstone.agent.model_policy:render",
+    "capstone.agent.model_policy:shortened_note",
+    "capstone.agent.model_policy:shown",
+    "capstone.agent.state:Budgets.research_gets_some_time",
+    "capstone.agent.state:InvestigationState.remaining_critic_tool_calls",
+    "capstone.agent.state:InvestigationState.remaining_followup_tool_calls",
+    "capstone.agent.state:InvestigationState.remaining_iterations"
+   ]
+  },
+  "tests/test_conclude_no_hypotheses.py::test_with_a_hypothesis_the_prompt_is_unchanged": {
+   "count": 26,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.agent.evidence_brief:evidence_brief",
+    "capstone.agent.evidence_brief:measurement_groups",
+    "capstone.agent.evidence_brief:observations",
+    "capstone.agent.evidence_brief:section",
+    "capstone.agent.model_policy:ModelPolicy.__init__",
+    "capstone.agent.model_policy:ModelPolicy._ask",
+    "capstone.agent.model_policy:ModelPolicy.client_for",
+    "capstone.agent.model_policy:ModelPolicy.conclude",
+    "capstone.agent.model_policy:action_bar_note",
+    "capstone.agent.model_policy:cited_ids",
+    "capstone.agent.model_policy:compact",
+    "capstone.agent.model_policy:evidence_lines",
+    "capstone.agent.model_policy:evidence_section",
+    "capstone.agent.model_policy:render",
+    "capstone.agent.model_policy:shortened_note",
+    "capstone.agent.model_policy:shown",
+    "capstone.agent.state:Budgets.research_gets_some_time",
+    "capstone.agent.state:InvestigationState.remaining_critic_tool_calls",
+    "capstone.agent.state:InvestigationState.remaining_followup_tool_calls",
+    "capstone.agent.state:InvestigationState.remaining_iterations"
+   ]
+  },
+  "tests/test_conclude_no_hypotheses.py::test_a_made_up_hypothesis_is_still_refused": {
+   "count": 27,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.agent.evidence_brief:evidence_brief",
+    "capstone.agent.evidence_brief:measurement_groups",
+    "capstone.agent.evidence_brief:observations",
+    "capstone.agent.evidence_brief:section",
+    "capstone.agent.investigation:check_conclusion",
+    "capstone.agent.model_policy:ModelPolicy.__init__",
+    "capstone.agent.model_policy:ModelPolicy._ask",
+    "capstone.agent.model_policy:ModelPolicy.client_for",
+    "capstone.agent.model_policy:ModelPolicy.conclude",
+    "capstone.agent.model_policy:action_bar_note",
+    "capstone.agent.model_policy:cited_ids",
+    "capstone.agent.model_policy:compact",
+    "capstone.agent.model_policy:evidence_lines",
+    "capstone.agent.model_policy:evidence_section",
+    "capstone.agent.model_policy:render",
+    "capstone.agent.model_policy:shortened_note",
+    "capstone.agent.model_policy:shown",
+    "capstone.agent.state:Budgets.research_gets_some_time",
+    "capstone.agent.state:InvestigationState.remaining_critic_tool_calls",
+    "capstone.agent.state:InvestigationState.remaining_followup_tool_calls"
    ]
   },
   "tests/test_console.py::test_an_unencodable_character_is_escaped_not_fatal": {
