@@ -264,6 +264,8 @@ TriageTestKind = Literal[
     # check_conclusion: a rival question with no primary hypothesis held it open.
     "rival_question_gap",
     # gather: a predicate's verdict kept a question open or closed it.
+    # plan: the packet's screening answered the fixed plan's screening
+    # question, or could not (a roster machine unscored).
     "question_kept_open",
     "question_closed",
 ]

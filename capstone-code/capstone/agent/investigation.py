@@ -86,7 +86,12 @@ from capstone.agent.state import (
     TriageTestRecord,
 )
 from capstone.agent.triage_packet import build_triage_packet, log_packet
-from capstone.agent.triage_plan import fixed_plan, fixed_predicates
+from capstone.agent.triage_plan import (
+    fixed_plan,
+    fixed_predicates,
+    is_screening_question,
+    screening_answer,
+)
 from capstone.agent.triage_report import build_triage_report
 from capstone.contracts.hypotheses import Hypothesis
 from capstone.contracts.tools import ToolRequest
@@ -216,17 +221,64 @@ def consult_manual(state: InvestigationState, deps: InvestigationDeps) -> None:
     gather(state, deps, "observe", step, interpret=False)
 
 
+def close_screening_questions(state: InvestigationState) -> None:
+    """Answer the fixed plan's screening questions with the screening already read.
+
+    Triage with an Observe packet only: the packet's screening answers them
+    when it scored every roster machine (`triage_plan.screening_answer`), so
+    research does not ask for the same read again. Otherwise they stay open.
+    Either way a `TriageTestRecord` says what was decided and why.
+    """
+    # Variables:
+    #   state.triage_packet: The Observe packet; None on a deep run, or in a
+    #     triage with TRIAGE_PACKET off, and then nothing changes here.
+    #   asked: The open screening questions the fixed plan just added.
+    #   ids: Those questions' ids, written into the answers and the record.
+    #   evidence_id: The screening read that answers them, or None to keep
+    #     them open.
+    #   reason: Why: every roster machine scored, or which machines were not
+    #     (or that there was no screening or roster to judge by).
+    if state.triage_packet is None:
+        return
+    asked = [q for q in state.unanswered_questions if is_screening_question(q)]
+    if not asked:
+        return
+    evidence_id, reason = screening_answer(state.triage_packet)
+    ids = tuple(q.id for q in asked)
+    if evidence_id is not None:
+        for question_id in ids:
+            state.answers.setdefault(question_id, []).append(evidence_id)
+        state.unanswered_questions = [
+            q for q in state.unanswered_questions if q.id not in ids
+        ]
+    note(
+        state,
+        TriageTestRecord(
+            kind="question_closed" if evidence_id else "question_kept_open",
+            stage=state.stage,
+            tick=state.last_tick,
+            question_ids=ids,
+            reason=reason,
+            evidence_ids=(evidence_id,) if evidence_id else (),
+        ),
+    )
+
+
 def plan(state: InvestigationState, deps: InvestigationDeps) -> None:
     """Ask the policy what is worth finding out first, and keep its questions open.
 
     A triage with TRIAGE_PLAN=fixed asks no model: its questions, and the
     measured predicates that settle some of them, come from the table for its
-    anomaly (`agent.triage_plan`). A deep run always asks.
+    anomaly (`agent.triage_plan`); its screening question is then answered
+    from the Observe packet's screening when that covers the whole roster
+    (`close_screening_questions`). A deep run always asks.
     """
     # Variables:
     #   questions: What the policy says is worth finding out first, kept open until
     #     answered.
     #   state.triage_fixed_plan: TRIAGE_PLAN=fixed, set on a triage only.
+    #   state.triage_packet: Observe's packet, read when closing the fixed
+    #     plan's screening questions; None leaves them open.
     #   state.fixed_plan_used: Set when the table's questions were used, so
     #     the records can tell them from a model's plan.
     state.stage = "plan"
@@ -236,6 +288,7 @@ def plan(state: InvestigationState, deps: InvestigationDeps) -> None:
         )
         state.question_predicates.update(fixed_predicates(state.anomaly))
         state.fixed_plan_used = True
+        close_screening_questions(state)
         record(
             state,
             "plan",

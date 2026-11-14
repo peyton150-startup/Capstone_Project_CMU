@@ -19,11 +19,18 @@ Where a question can be settled by a measurement, it carries a `Predicate`
 (Block 3): an alarm's first question asks whether the alarmed sensor stayed
 past its limit around the alarm, and closes only on a measured "true"
 (sustained) or "false" (a spike), never just because a tool answered.
+
+Every list also asks what the line screening shows. With the evidence packet
+on, Observe has read the screening before the plan exists, so the plan stage
+answers that question with the screening already held (`screening_answer`),
+but only when the screening scored every machine on the roster. A machine
+that is missing or unscored leaves the question open: unknown, never normal.
 """
 
 import re
 
 from capstone.agent.artifacts import DetectedAnomaly
+from capstone.agent.evidence_packet import EvidencePacket
 from capstone.agent.state import Predicate, Question
 
 # "alarm on CNC-02: vibration 4.58 mm/s above 4.50", from
@@ -31,6 +38,10 @@ from capstone.agent.state import Predicate, Question
 ALARM = re.compile(
     r"^alarm on \S+: (?P<sensor>\w+) \S+ \S+ (?P<side>above|below) (?P<limit>\S+)$"
 )
+
+# The words every fixed list's screening question carries, and only that one.
+SCREENING_WORDS = "line screening"
+SCREENING_TOOL = "get_line_screening"
 
 # The ticks either side of the alarm the first question's predicate looks at,
 # and the readings it needs before it gives a verdict.
@@ -151,3 +162,49 @@ def fixed_predicates(anomaly: DetectedAnomaly) -> dict[str, Predicate]:
             min_samples=SUSTAIN_SAMPLES,
         )
     }
+
+
+def is_screening_question(question: Question) -> bool:
+    """Whether a question asks what the line screening shows."""
+    # Variables:
+    #   question.text: The question's wording; the fixed lists name the line
+    #     screening in exactly one question each.
+    return SCREENING_WORDS in question.text.lower()
+
+
+def screening_answer(packet: EvidencePacket | None) -> tuple[str | None, str]:
+    """The evidence that answers a screening question, or None, with the reason.
+
+    The screening read in Observe answers "does the line screening show any
+    machine with unusual readings?" only when it scored every machine on the
+    verified roster: each one has at least one scored sensor and none left
+    unscored. Otherwise the answer is None and the question stays open, so a
+    missing or unscored machine is never read as normal.
+    """
+    # Variables:
+    #   packet: The triage's Observe packet; None when it was not built.
+    #   screening: The packet's ledger entry for the mandatory screening read;
+    #     its evidence id is the answer when the read qualified.
+    #   scored: Roster machines with at least one scored screening sensor.
+    #   unscored: Roster machines with any screening item left missing, or with
+    #     no scored sensor at all; any one keeps the question open.
+    if packet is None:
+        return None, "no_packet"
+    screening = next(
+        (c for c in packet.calls if c.tool == SCREENING_TOOL and c.qualified), None
+    )
+    if screening is None or screening.evidence_id is None:
+        return None, "no_screening"
+    if not packet.roster_verified or not packet.roster:
+        return None, "roster_unverified"
+    items = [i for i in packet.items if i.source_type == "derived_screening"]
+    scored = {i.machine_id for i in items if i.status == "qualified"}
+    missing = {i.machine_id for i in items if i.status == "missing"}
+    unscored = [
+        m
+        for m in packet.roster
+        if m not in scored or m in missing or m in packet.absent_from_screening
+    ]
+    if unscored:
+        return None, "unscored: " + ", ".join(unscored)
+    return screening.evidence_id, "every roster machine scored"

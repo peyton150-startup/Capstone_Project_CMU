@@ -80,9 +80,16 @@ def predicate_text(predicate: Predicate) -> str:
 def fixed_plan_lines(state: InvestigationState) -> list[str]:
     """TRIAGE_PLAN=fixed: the table's questions and their predicates, no model."""
     # Variables:
-    #   ids: The open questions the table gave, in order.
+    #   screening: The plan stage's records of the screening questions:
+    #     answered from the packet's screening, or kept open and why.
+    #   ids: Every question the table gave, in order, open or already answered.
     #   predicates: The measured conditions that settle some of them, by id.
-    ids = [q.id for q in state.unanswered_questions]
+    screening = [r for r in state.triage_test_records if r.stage == "plan"]
+    ids = sorted(
+        {q.id for q in state.unanswered_questions}
+        | {qid for r in screening for qid in r.question_ids},
+        key=lambda qid: (len(qid), qid),
+    )
     predicates = state.question_predicates
     lines = [
         f"PLAN fixed table (no model call): {len(ids)} question(s) "
@@ -90,6 +97,13 @@ def fixed_plan_lines(state: InvestigationState) -> list[str]:
     ]
     for qid, predicate in predicates.items():
         lines.append(f"  predicate {qid}: {predicate_text(predicate)}")
+    for r in screening:
+        done = (
+            f"answered by {', '.join(r.evidence_ids)}"
+            if r.kind == "question_closed"
+            else "kept open"
+        )
+        lines.append(f"  screening {', '.join(r.question_ids)}: {done} ({r.reason})")
     return lines
 
 
