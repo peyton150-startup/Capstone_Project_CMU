@@ -286,6 +286,14 @@ class Settings(BaseSettings):
     triage_packet_prompt: bool = Field(
         default=True, validation_alias="TRIAGE_PACKET_PROMPT"
     )
+    # TRIAGE_CONCLUDE_BRIEF (Block 5, Conclude): in a triage only, show the
+    # concluding question a short TRIAGE CONCLUSION BRIEF: which explanations
+    # were tested and which were not, each question predicate's verdict, and
+    # the packet's missing channels, never presented as normal. On by default;
+    # off restores the old conclusion prompt. A deep run never shows it.
+    triage_conclude_brief: bool = Field(
+        default=True, validation_alias="TRIAGE_CONCLUDE_BRIEF"
+    )
     # TRIAGE_INVESTIGATE (Block 4, Investigate), triage only: "advisory" (the
     # default) ranks the reads the open questions allow and records them
     # beside the model's own decide choice, changing nothing the run does;

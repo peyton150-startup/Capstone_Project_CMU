@@ -430,6 +430,11 @@ class InvestigationState(BaseModel):
     # TRIAGE_PACKET_PROMPT: show the packet's coverage in the triage's prompts.
     # Set on each triage from the setting; a deep run never has a packet.
     triage_packet_prompt: bool = False
+    # TRIAGE_CONCLUDE_BRIEF (Block 5): show the concluding question what was
+    # tested, each predicate's verdict and the missing channels
+    # (`agent.conclude_brief`). Set on each triage from the setting; a deep run
+    # never shows it.
+    triage_conclude_brief: bool = False
     # TRIAGE_INVESTIGATE: each turn the request compiler ran in a triage,
     # with the model's choice beside it (`agent.investigate_compiler`).
     investigate_advice: list[InvestigateAdvice] = Field(default_factory=list)
@@ -486,6 +491,12 @@ class InvestigationState(BaseModel):
     # same injected clock; None until then. For measurement only: nothing the
     # loop decides reads it.
     first_hypothesis_seconds: float | None = Field(default=None, ge=0)
+    # The conclude stage, split on the same clock (Block 5): seconds waiting
+    # for the conclusion model, and seconds of Python validation after it
+    # (check_conclusion with triage_clearance_gaps, needs_deep_run and the
+    # triage report). None until the stage runs. For measurement only.
+    conclude_model_seconds: float | None = Field(default=None, ge=0)
+    conclude_check_seconds: float | None = Field(default=None, ge=0)
     # Calls already made, as "tool|arguments|tick", to spot repeats.
     seen_calls: list[str] = Field(default_factory=list)
 

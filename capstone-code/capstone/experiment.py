@@ -317,6 +317,15 @@ class TriageRecord(BaseModel):
     # Where the triage spent its model questions and what it gathered
     # (`evaluation/triage_metrics.py`). None in records from before 2026-11-13.
     metrics: TriageMetrics | None = None
+    # The conclude stage on the run's clock: the conclusion model's seconds,
+    # and the Python validation seconds after it (check_conclusion with
+    # triage_clearance_gaps, needs_deep_run, the triage report). None when the
+    # stage never ran, and in records from before they were kept.
+    conclude_model_seconds: float | None = None
+    conclude_check_seconds: float | None = None
+    # TRIAGE_CONCLUDE_BRIEF: whether the conclusion question showed the brief.
+    # None in records from before it was kept.
+    conclude_brief: bool | None = None
 
 
 class ExperimentRecord(BaseModel):
@@ -518,6 +527,9 @@ def triage_record(
     #   evidence_tests: The TRIAGE_EVIDENCE_TESTS setting the run used.
     #   first.triage_test_records: What those rules changed, kept for tracing.
     #   first.fixed_plan_used: Whether the triage planned from the fixed table.
+    #   first.conclude_model_seconds, first.conclude_check_seconds: The
+    #     conclusion model's time and the Python validation time, apart.
+    #   first.triage_conclude_brief: Whether the conclusion saw the brief.
     first = result.triage
     if first is None or result.triage_seconds is None:
         return None
@@ -546,6 +558,9 @@ def triage_record(
         deep_recommended=bool(first.deep_recommended),
         deep_ran=result.state is not first,
         metrics=triage_metrics(first, calls),
+        conclude_model_seconds=first.conclude_model_seconds,
+        conclude_check_seconds=first.conclude_check_seconds,
+        conclude_brief=first.triage_conclude_brief,
     )
 
 
