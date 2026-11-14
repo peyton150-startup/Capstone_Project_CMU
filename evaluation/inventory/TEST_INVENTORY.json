@@ -38049,7 +38049,7 @@
     "exercises_no_project_function"
    ],
    "claims": "every setting is listed",
-   "execution_outcome": "failed",
+   "execution_outcome": "passed",
    "exercises": [],
    "exercise_count": 0,
    "modules_exercised": [],
@@ -57633,7 +57633,7 @@
    "uses": [],
    "quality_flags": [],
    "claims": "Every tracked Python file is inventoried, a test, excluded with a reason,",
-   "execution_outcome": "failed",
+   "execution_outcome": "passed",
    "exercises": [
     "evaluation.evaltools.build_inventory:call_name",
     "evaluation.evaltools.build_inventory:collect_functions",
