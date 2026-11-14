@@ -218,7 +218,8 @@ class InvestigateAdvice(Contract):
     root: str | None = None
     from_tick: int | None = None
     to_tick: int | None = None
-    # The ranking signals of the chosen read, in ranking order.
+    # The ranking signals of the chosen read, in ranking order, then
+    # "measured": 1 when a predicate gave its target and window.
     signals: dict[str, int] = Field(default_factory=dict)
     model_tool: str | None = None
     model_root: str | None = None
@@ -264,6 +265,8 @@ TriageTestKind = Literal[
     # check_conclusion: a rival question with no primary hypothesis held it open.
     "rival_question_gap",
     # gather: a predicate's verdict kept a question open or closed it.
+    # plan: the packet's screening answered the fixed plan's screening
+    # question, or could not (a roster machine unscored).
     "question_kept_open",
     "question_closed",
 ]

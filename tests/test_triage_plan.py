@@ -177,7 +177,10 @@ def test_a_fixed_plan_triage_asks_no_plan_question(monkeypatch):
     result = run(ByMode(triage, deep), monkeypatch, triage=True)
     assert triage.planned == 0  # the table answered for the triage
     assert result.triage.fixed_plan_used is True
-    assert [qid for qid, _ in triage.first_seen] == ["Q1", "Q2", "Q3", "Q4", "Q5"]
+    # Q2 asks what the line screening shows; the packet (on by default) has
+    # already read it, so it is answered before research starts.
+    assert [qid for qid, _ in triage.first_seen] == ["Q1", "Q3", "Q4", "Q5"]
+    assert "Q2" in result.triage.answers
     assert "vibration still above" in triage.first_seen[0][1]
     assert set(result.triage.question_predicates) == {"Q1"}
     assert deep.planned == 1  # the deep run still asks its own plan

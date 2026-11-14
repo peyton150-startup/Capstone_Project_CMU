@@ -177,11 +177,6 @@
     "tests/test_triage_compare.py::test_each_arm_is_a_column_with_its_counts",
     "tests/test_triage_conclude_brief.py::test_a_triage_episode_sets_the_brief_but_its_deep_run_does_not",
     "tests/test_triage_conclude_brief.py::test_the_triage_record_keeps_both_times",
-    "tests/test_triage_conclude_cap.py::test_a_capped_conclusion_gets_only_the_conclusion_window",
-    "tests/test_triage_conclude_cap.py::test_the_capped_window_runs_down_from_when_the_question_was_asked",
-    "tests/test_triage_conclude_cap.py::test_the_deep_run_is_never_capped",
-    "tests/test_triage_conclude_cap.py::test_the_triage_record_keeps_the_cap",
-    "tests/test_triage_conclude_cap.py::test_without_the_cap_the_conclusion_gets_all_the_time_left",
     "tests/test_triage_evidence_packet.py::test_a_triage_episode_builds_the_packet_without_hidden_truth",
     "tests/test_triage_evidence_packet.py::test_a_triage_experiment_records_and_logs_the_packet",
     "tests/test_triage_evidence_packet.py::test_triage_episode_prompts_coverage_but_deep_episode_does_not",
@@ -208,9 +203,14 @@
     "tests/test_triage_plan.py::test_by_default_the_triage_still_asks_the_model_to_plan",
     "tests/test_triage_plan.py::test_the_same_seed_gives_the_same_fixed_plan_triage",
     "tests/test_triage_plan.py::test_the_triage_record_says_the_plan_was_fixed",
-    "tests/test_triage_report.py::test_a_triage_out_of_time_before_any_model_is_asked_is_reported_as_such"
+    "tests/test_triage_report.py::test_a_triage_out_of_time_before_any_model_is_asked_is_reported_as_such",
+    "tests/test_triage_report.py::test_a_triage_the_model_concluded_reports_its_checked_diagnosis",
+    "tests/test_triage_report.py::test_every_finding_links_to_the_reading_it_came_from",
+    "tests/test_triage_report.py::test_no_model_answer_gives_no_cause_and_clears_nothing",
+    "tests/test_triage_report.py::test_the_deep_run_after_a_triage_builds_no_report_of_its_own",
+    "tests/test_triage_report.py::test_the_experiment_record_keeps_the_report"
    ],
-   "test_count": 91,
+   "test_count": 90,
    "verification_status": "PARTIALLY VERIFIED",
    "snap_questions": [
     "TL-01",
@@ -393,7 +393,7 @@
     "tests/test_episode.py::test_a_critic_does_not_change_the_episode",
     "tests/test_episode.py::test_a_human_who_refuses_leaves_the_fault_in_place"
    ],
-   "test_count": 325,
+   "test_count": 324,
    "verification_status": "VERIFIED",
    "snap_questions": [
     "TL-01",
@@ -539,7 +539,7 @@
     "tests/test_memory_comparison.py::test_the_report_warns_when_the_modes_ran_different_cases",
     "tests/test_memory_comparison.py::test_the_runs_are_interleaved_case_by_case"
    ],
-   "test_count": 174,
+   "test_count": 173,
    "verification_status": "PARTIALLY VERIFIED",
    "snap_questions": [
     "TL-01",
@@ -757,7 +757,7 @@
     "tests/test_episode.py::test_passed_critic_is_used",
     "tests/test_episode.py::test_the_agent_never_holds_the_answer_key"
    ],
-   "test_count": 268,
+   "test_count": 267,
    "verification_status": "VERIFIED",
    "snap_questions": [
     "TL-01",
