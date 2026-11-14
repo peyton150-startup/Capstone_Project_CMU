@@ -57,6 +57,9 @@ def test_a_fixed_plan_is_printed_once_with_its_predicate(monkeypatch):
     ]
     (predicate,) = [line for line in lines if line.startswith("  predicate Q1:")]
     assert "vibration on CNC-02" in predicate and "above" in predicate
+    # TRIAGE_PACKET is on by default, so the screening question is answered.
+    (screening,) = [line for line in lines if line.startswith("  screening Q2:")]
+    assert "answered by E" in screening and "every roster machine" in screening
 
 
 def test_a_model_plan_prints_no_fixed_plan_line(monkeypatch):
