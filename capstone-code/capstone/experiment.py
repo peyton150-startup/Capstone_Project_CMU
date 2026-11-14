@@ -317,6 +317,20 @@ class TriageRecord(BaseModel):
     # Where the triage spent its model questions and what it gathered
     # (`evaluation/triage_metrics.py`). None in records from before 2026-11-13.
     metrics: TriageMetrics | None = None
+    # The conclude stage on the run's clock: the conclusion model's seconds,
+    # and the Python validation seconds after it (check_conclusion with
+    # triage_clearance_gaps, needs_deep_run, the triage report). None when the
+    # stage never ran, and in records from before they were kept.
+    conclude_model_seconds: float | None = None
+    conclude_check_seconds: float | None = None
+    # TRIAGE_CONCLUDE_BRIEF: whether the conclusion question showed the brief.
+    # None in records from before it was kept.
+    conclude_brief: bool | None = None
+    # TRIAGE_HYPOTHESIS_SECONDS: the reserve the triage kept for hypothesize,
+    # and whether it was what stopped research (so hypothesize was still
+    # asked). None in older records.
+    hypothesis_reserve_seconds: float | None = None
+    hypothesis_reserve_used: bool | None = None
 
 
 class ExperimentRecord(BaseModel):
@@ -518,6 +532,11 @@ def triage_record(
     #   evidence_tests: The TRIAGE_EVIDENCE_TESTS setting the run used.
     #   first.triage_test_records: What those rules changed, kept for tracing.
     #   first.fixed_plan_used: Whether the triage planned from the fixed table.
+    #   first.conclude_model_seconds, first.conclude_check_seconds: The
+    #     conclusion model's time and the Python validation time, apart.
+    #   first.triage_conclude_brief: Whether the conclusion saw the brief.
+    #   first.triage_hypothesis_seconds, first.hypothesis_reserve_used: The
+    #     triage's hypothesis reserve and whether it stopped research.
     first = result.triage
     if first is None or result.triage_seconds is None:
         return None
@@ -546,6 +565,11 @@ def triage_record(
         deep_recommended=bool(first.deep_recommended),
         deep_ran=result.state is not first,
         metrics=triage_metrics(first, calls),
+        conclude_model_seconds=first.conclude_model_seconds,
+        conclude_check_seconds=first.conclude_check_seconds,
+        conclude_brief=first.triage_conclude_brief,
+        hypothesis_reserve_seconds=first.triage_hypothesis_seconds,
+        hypothesis_reserve_used=first.hypothesis_reserve_used,
     )
 
 
@@ -1549,8 +1573,9 @@ def main(argv: Sequence[str] | None = None) -> int:
     # Variables:
     #   argv: The command-line words; None reads the real command line, and
     #     tests pass their own.
-    #   args.command: Which subcommand was chosen, "run", "label" or "report";
-    #     it decides which branch below runs.
+    #   args.command: Which subcommand was chosen, "run", "label", "report" or
+    #     "compare"; it decides which branch below runs.
+    #   book: For "compare", the hand labels from --label-book, by run key.
     #   cases: The cases to run, from exactly one of --known, --held-out,
     #     --challenge or --seeds (with --faults).
     #   budgets: Time limits for each investigation; None keeps the defaults
@@ -1666,7 +1691,36 @@ def main(argv: Sequence[str] | None = None) -> int:
     rep.add_argument("--results", type=Path, required=True)
     rep.add_argument("--labels", type=Path)
 
+    cmp = commands.add_parser(
+        "compare",
+        help="triage runs side by side, one column per arm (Block 6, not A1-A4)",
+    )
+    cmp.add_argument(
+        "--results",
+        type=Path,
+        nargs="+",
+        required=True,
+        help="one records file, or run folder of *.records.jsonl, per arm",
+    )
+    cmp.add_argument(
+        "--labels",
+        nargs="+",
+        help="a column name per --results path (default: each path's name)",
+    )
+    cmp.add_argument(
+        "--label-book",
+        type=Path,
+        help="hand root-cause labels; runs without one are counted not judged",
+    )
+
     args = parser.parse_args(argv)
+
+    if args.command == "compare":
+        from capstone.triage_compare import compare, load_arms
+
+        book = LabelBook(args.label_book).read() if args.label_book else {}
+        print(compare(load_arms(args.results, args.labels, book)))
+        return 0
 
     if args.command == "run":
         if args.known:

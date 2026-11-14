@@ -33,7 +33,12 @@ from capstone.agent.loop import InvestigationDeps
 from capstone.agent.model_policy import ModelCall
 from capstone.agent.monitor import detect_anomaly
 from capstone.agent.policy import ReasoningPolicy
-from capstone.agent.state import Budgets, InvestigationState, triage_budgets
+from capstone.agent.state import (
+    Budgets,
+    InvestigationState,
+    triage_budgets,
+    triage_hypothesis_reserve,
+)
 from capstone.contracts.investigations import investigation_id_for, run_id_for
 from capstone.evaluation.scoring import Score, evaluate
 from capstone.learning import LearningOutcome, learn_from
@@ -494,17 +499,32 @@ def run_triage_then_deep(
     #     the deep run that may follow always asks the model to plan.
     #   first.triage_packet_prompt: TRIAGE_PACKET_PROMPT, set on the triage
     #     only, so the triage's prompts show the packet's coverage.
+    #   first.triage_conclude_brief: TRIAGE_CONCLUDE_BRIEF, set on the triage
+    #     only, so its conclusion question shows what was tested and missing.
+    #   first.triage_hypothesis_seconds: The triage's hypothesis reserve
+    #     (TRIAGE_HYPOTHESIS_SECONDS, capped to its window), passed to its
+    #     research as deps.hypothesis_seconds; the deep run keeps its own.
     first.mode = "triage"
     first.triage_packet_enabled = settings.triage_packet
     first.triage_packet_prompt = settings.triage_packet_prompt
+    first.triage_conclude_brief = settings.triage_conclude_brief
     first.triage_fixed_plan = settings.triage_plan == "fixed"
     first.budgets = triage_budgets(settings.triage_seconds, settings.triage_tool_calls)
+    first.triage_hypothesis_seconds = triage_hypothesis_reserve(
+        settings.triage_hypothesis_seconds, first.budgets
+    )
     started = deps.clock()
-    # The hypothesis reserve is for the deep run: the triage's short window
-    # would have little or no research time left with it.
+    # The triage keeps its own hypothesis reserve (TRIAGE_HYPOTHESIS_SECONDS,
+    # capped to fit its short window); HYPOTHESIS_RESERVE_SECONDS is the deep
+    # run's.
     run_investigation(
         first,
-        replace(deps, critic=None, critic_followup=False, hypothesis_seconds=0.0),
+        replace(
+            deps,
+            critic=None,
+            critic_followup=False,
+            hypothesis_seconds=first.triage_hypothesis_seconds,
+        ),
     )
     seconds = deps.clock() - started
     if log is not None and first.conclusion is not None and first.termination_reason:
