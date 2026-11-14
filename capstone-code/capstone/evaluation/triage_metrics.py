@@ -49,6 +49,11 @@ class TriageMetrics(BaseModel):
     reads_repeated: int
     # Open questions the checked conclusion reported; 0 with no conclusion.
     unknowns_reported: int
+    # The conclude stage split on the run's clock (Block 5): seconds waiting
+    # for the conclusion model, and seconds of Python validation after it.
+    # None when the stage never ran (and in records from before they were kept).
+    conclude_model_seconds: float | None = None
+    conclude_check_seconds: float | None = None
 
 
 def triage_metrics(
@@ -71,6 +76,9 @@ def triage_metrics(
     #   concluded_on: The hypothesis the conclusion chose; a read testing any
     #     other hypothesis tested a rival. None: no rival can be named.
     #   outcomes: How many tool reads ended each way, from the decision trace.
+    #   state.conclude_model_seconds, state.conclude_check_seconds: The
+    #     conclusion model's wait and the Python validation after it, kept
+    #     apart so one is never mistaken for the other.
     if any(c.mode is not None for c in calls):
         ours = [c for c in calls if c.mode == "triage"]
     else:
@@ -108,4 +116,6 @@ def triage_metrics(
         unknowns_reported=0
         if state.conclusion is None
         else len(state.conclusion.unresolved_questions),
+        conclude_model_seconds=state.conclude_model_seconds,
+        conclude_check_seconds=state.conclude_check_seconds,
     )

@@ -1249,11 +1249,28 @@ def conclude(state: InvestigationState, deps: InvestigationDeps) -> None:
     #     answered; in a triage that ends the run as MODEL_UNAVAILABLE.
     #   state.triage_report: In a triage, the read-only report built last,
     #     from what the checks left; it names a cause only if the model gave one.
+    #   asked_at, checked_at: Clock readings when the model was asked and when
+    #     its answer came back, so state.conclude_model_seconds and
+    #     state.conclude_check_seconds split the stage's time on deps.clock.
+    #   checking: Python validation seconds so far; the triage's verdict rule
+    #     and report add theirs below.
+    #   started: When the triage's verdict rule and report began, on deps.clock.
     state.stage = "decide"
     outcome = "decided"
+    asked_at = deps.clock()
+    checking = 0.0
     try:
-        answer, wanted = ask_policy(state, deps, deps.policy.conclude, research=False)
-        conclusion, request = check_conclusion(state, deps, answer, wanted)
+        try:
+            answer, wanted = ask_policy(
+                state, deps, deps.policy.conclude, research=False
+            )
+        finally:
+            checked_at = deps.clock()
+            state.conclude_model_seconds = max(0.0, checked_at - asked_at)
+        try:
+            conclusion, request = check_conclusion(state, deps, answer, wanted)
+        finally:
+            checking = max(0.0, deps.clock() - checked_at)
         # For the record only; nothing below changes what the agent does.
         # `answer, wanted` is the model's raw reply; `conclusion, request` is
         # what survived check_conclusion.
@@ -1296,8 +1313,11 @@ def conclude(state: InvestigationState, deps: InvestigationDeps) -> None:
         # Triage is read-only: what the model wanted stays in
         # `policy_recommendation`, but no change is saved to propose.
         request = None
+        started = deps.clock()
         state.deep_recommended = needs_deep_run(conclusion)
         state.triage_report = build_triage_report(state)
+        checking += max(0.0, deps.clock() - started)
+    state.conclude_check_seconds = checking
     if conclusion.recommendation == "no_action":
         state.predicted_effect = NO_ACTION_PREDICTION
     if request is not None:

@@ -494,9 +494,12 @@ def run_triage_then_deep(
     #     the deep run that may follow always asks the model to plan.
     #   first.triage_packet_prompt: TRIAGE_PACKET_PROMPT, set on the triage
     #     only, so the triage's prompts show the packet's coverage.
+    #   first.triage_conclude_brief: TRIAGE_CONCLUDE_BRIEF, set on the triage
+    #     only, so its conclusion question shows what was tested and missing.
     first.mode = "triage"
     first.triage_packet_enabled = settings.triage_packet
     first.triage_packet_prompt = settings.triage_packet_prompt
+    first.triage_conclude_brief = settings.triage_conclude_brief
     first.triage_fixed_plan = settings.triage_plan == "fixed"
     first.budgets = triage_budgets(settings.triage_seconds, settings.triage_tool_calls)
     started = deps.clock()

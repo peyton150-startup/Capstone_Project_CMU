@@ -48,6 +48,7 @@ from capstone.agent.artifacts import (
     TerminationReason,
     VerificationCheck,
 )
+from capstone.agent.conclude_brief import brief_lines
 from capstone.agent.evidence_brief import (
     evidence_brief,
     measurement_groups,
@@ -1394,7 +1395,13 @@ class ModelPolicy:
         # Variables:
         #   conclusion: The typed model belief; its diagnosis survives an unresolved status.
         #   answer.action: A proposed repair, independently checked by the controller.
-        prompt = render(state) + action_bar_note(state)
+        #   prompt: The shared view, then (triage with TRIAGE_CONCLUDE_BRIEF only)
+        #     the conclusion brief of what was tested, measured and missing,
+        #     then the action-bar note. A deep run's prompt is unchanged.
+        prompt = render(state)
+        if state.mode == "triage" and state.triage_conclude_brief:
+            prompt += "\n" + "\n".join(["", *brief_lines(state)])
+        prompt += action_bar_note(state)
         answer = self._ask("conclude", state, prompt, ConcludeAnswer)
         conclusion = answer.conclusion
         if conclusion.assessment is None:
