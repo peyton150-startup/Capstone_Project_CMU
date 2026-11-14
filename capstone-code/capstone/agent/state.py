@@ -218,7 +218,8 @@ class InvestigateAdvice(Contract):
     root: str | None = None
     from_tick: int | None = None
     to_tick: int | None = None
-    # The ranking signals of the chosen read, in ranking order.
+    # The ranking signals of the chosen read, in ranking order, then
+    # "measured": 1 when a predicate gave its target and window.
     signals: dict[str, int] = Field(default_factory=dict)
     model_tool: str | None = None
     model_root: str | None = None
