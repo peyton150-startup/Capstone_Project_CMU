@@ -489,6 +489,8 @@ def render(state: InvestigationState) -> str:
     #     remaining.
     #   lines: The prompt, built up section by section and joined at the end.
     #   failed: The latest failed tool calls, shown so the model can correct them.
+    #   refused: Calls refused as repeats (same call, same tick), latest last,
+    #     each named once, so the model stops asking for an answer it holds.
     #   current_ids: Limits discrimination credit to hypotheses actually in play.
     #   questions: A stable discrimination/reliability/cost ordering, not probabilities.
     #   context: The opt-in incident packet's evidence references and coverage,
@@ -623,6 +625,20 @@ def render(state: InvestigationState) -> str:
             lines.append(
                 f"- {d.tool} {compact(d.arguments)}: {d.error.code}: {d.error.message}"
             )
+
+    refused: dict[str, str] = {}
+    for d in state.decisions:
+        if d.outcome == "repeated_call" and d.tool:
+            call = f"{d.tool} {compact(d.arguments)}"
+            refused.pop(call, None)
+            refused[call] = f"- {call} at tick {d.tick}"
+    if refused:
+        lines += [
+            "",
+            "REFUSED AS REPEATS (the same call at the same tick; its answer is "
+            "already in the evidence above, so ask something else or stop):",
+            *list(refused.values())[-RECENT_FAILURES:],
+        ]
     return "\n".join(lines)
 
 

@@ -17,7 +17,7 @@
   "capstone-code/capstone/agent/investigate_compiler.py": "bf3145bcddbebbce84cfdd17c9e62d45e1d58b0e4abcb6177a142ee259406dd3",
   "capstone-code/capstone/agent/investigation.py": "dcbee8bee7f829af712d92274a58e22f3d44571b71a6205e4f07a41dac56bab7",
   "capstone-code/capstone/agent/loop.py": "660791055caf27e4c69365ab0c97735a35363b366dce9611aaeeb6aad7e7454e",
-  "capstone-code/capstone/agent/model_policy.py": "4aa40a8c09f19b4b3c238cfad7bf799454128099b6f23ac4be26ba7a77ee4617",
+  "capstone-code/capstone/agent/model_policy.py": "f19a856c2779f412fc247db139b3ee8fc13d512f55dafa0aa2f52330fbe9367e",
   "capstone-code/capstone/agent/monitor.py": "c59916f5de91342ebf7bd2ade22133901618c9ed4b3f5ea5937e62a0360a7a52",
   "capstone-code/capstone/agent/policy.py": "4e63fa1b8670bc5a57987c27d2c28846050c394f3c96bda3264a63a197d80228",
   "capstone-code/capstone/agent/recorded_state.py": "823abc0db5b777b687b063c2e3530c909320e1839348e450ac7f177ad504f53d",
@@ -231,6 +231,7 @@
   "tests/test_recall_tool.py": "5c32b0e324ca5e7b6032893f6ddce146adf4a78b3f88c0430a4764a45c505ecc",
   "tests/test_recorded_investigation.py": "dbbbfc5de66398a4f881d7f4c42a82c430f82d6ad5fe1cd335b89c5e0b2dea69",
   "tests/test_reference_review.py": "28e451a63d25c6537e4bdfd7da11db6eb5109aba408c0ff72ec2f330a37fac36",
+  "tests/test_refused_repeats.py": "ac69c0d71a7910a48d0d22e448d4980a0df3d94b6fab82f0024e6e03b56678a4",
   "tests/test_replay_investigation.py": "6bfcae5e278ce8d3f91b94561e2a4a6e3b06bef83fc565a84121dcc0c85e4b94",
   "tests/test_replay_provider.py": "5c8ca8df315b1af256f110cefa44f281049007553bb39f895db39a96037f1b75",
   "tests/test_request_deadline.py": "373b1d759e84c4e544ab92f00179243f9fc7805a96d96dacd8d35b06a23610c5",
@@ -277,12 +278,12 @@
   "tests/test_wait_tool.py": "b99a5fbf756a60176262417e54d8d1a0496f01126929a330492e7d24287b2d1e",
   "tests/test_wrong_setting.py": "aed1c646bffaf88ae25ed2156794dc57427e8a61bbe6b23a0c33f3c3e89c0da3"
  },
- "coverage_sha256": "ba30419d171ddeed4b17fd106ffb8266ed00918b3c67947fb45ff0e102d33ba9",
- "junit_sha256": "5ce25be3ab0d16f8816cc5bd45cb2ec983a63bcf059e1d0b484fa96b8e548e34",
+ "coverage_sha256": "aca990fcd203da9e2691fa254b71e5d2d8e951454ea509f2ac773b5206cebe7c",
+ "junit_sha256": "972ca977361b6a79d706862c85ec0b18f20800ecc353f9ca2b4a7e95df10c42e",
  "counts": {
   "functions": 1126,
   "classes_note": "classes are listed through their methods",
-  "tests": 2248,
+  "tests": 2253,
   "tools": 18,
   "functions_by_status": {
    "INSUFFICIENT EVIDENCE": 465,
@@ -375,7 +376,7 @@
   "stubs_or_protocols": 25,
   "tests_by_outcome": {
    "failed": 1,
-   "passed": 2247
+   "passed": 2252
   },
   "tests_with_no_assertion": [
    "tests/test_console.py::test_without_it_the_same_print_raised"
@@ -1727,7 +1728,7 @@
    ]
   },
   "capstone.agent.evidence_brief:section": {
-   "count": 163,
+   "count": 168,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_critic.py::test_a_manual_section_cannot_be_cited_as_evidence",
@@ -1751,7 +1752,7 @@
    ]
   },
   "capstone.agent.evidence_brief:observations": {
-   "count": 559,
+   "count": 564,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_agent_investigation.py::test_incident_context_uses_bounded_observations_before_planning"
@@ -1829,7 +1830,7 @@
    ]
   },
   "capstone.agent.evidence_brief:evidence_brief": {
-   "count": 163,
+   "count": 168,
    "status": "PARTIALLY VERIFIED",
    "direct": [],
    "indirect": [
@@ -4095,7 +4096,7 @@
    ]
   },
   "capstone.agent.loop:record": {
-   "count": 462,
+   "count": 466,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_agent_completion.py::test_a_failed_investigation_still_leaves_an_honest_record",
@@ -4127,7 +4128,7 @@
    ]
   },
   "capstone.agent.loop:call_signature": {
-   "count": 451,
+   "count": 452,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_agent_loop.py::test_a_cached_decision_cannot_run_after_the_combined_question_spends_the_time",
@@ -4182,7 +4183,7 @@
    ]
   },
   "capstone.agent.loop:gather": {
-   "count": 451,
+   "count": 452,
    "status": "VERIFIED",
    "direct": [
     "tests/test_agent_loop.py::test_a_cached_decision_cannot_run_after_the_combined_question_spends_the_time",
@@ -4477,7 +4478,7 @@
    ]
   },
   "capstone.agent.model_policy:compact": {
-   "count": 121,
+   "count": 125,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_model_policy.py::test_a_call_to_a_tool_not_offered_is_refused_and_counted_against_the_model",
@@ -4637,7 +4638,7 @@
    ]
   },
   "capstone.agent.model_policy:evidence_section": {
-   "count": 164,
+   "count": 169,
    "status": "VERIFIED",
    "direct": [
     "tests/test_model_policy.py::test_a_call_to_a_tool_not_offered_is_refused_and_counted_against_the_model",
@@ -4701,7 +4702,7 @@
    ]
   },
   "capstone.agent.model_policy:render": {
-   "count": 118,
+   "count": 123,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_model_policy.py::test_a_call_to_a_tool_not_offered_is_refused_and_counted_against_the_model",
@@ -5381,7 +5382,7 @@
    ]
   },
   "capstone.agent.state:Budgets.research_gets_some_time": {
-   "count": 771,
+   "count": 776,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
@@ -5450,7 +5451,7 @@
    ]
   },
   "capstone.agent.state:InvestigationState.confidence": {
-   "count": 463,
+   "count": 467,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_agent_investigation.py::test_the_confidence_needed_to_act_is_a_setting",
@@ -5514,7 +5515,7 @@
    ]
   },
   "capstone.agent.state:InvestigationState.research_tool_calls": {
-   "count": 548,
+   "count": 553,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
@@ -5533,7 +5534,7 @@
    ]
   },
   "capstone.agent.state:InvestigationState.remaining_critic_tool_calls": {
-   "count": 138,
+   "count": 143,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
@@ -5552,7 +5553,7 @@
    ]
   },
   "capstone.agent.state:InvestigationState.remaining_iterations": {
-   "count": 505,
+   "count": 510,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
@@ -5571,7 +5572,7 @@
    ]
   },
   "capstone.agent.state:InvestigationState.remaining_tool_calls": {
-   "count": 522,
+   "count": 527,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
@@ -5590,7 +5591,7 @@
    ]
   },
   "capstone.agent.state:InvestigationState.remaining_followup_tool_calls": {
-   "count": 343,
+   "count": 348,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
@@ -49817,6 +49818,105 @@
    "functions": [
     "evaluation.evaltools.reference_review:export_requests",
     "evaluation.evaltools.reference_review:review_id"
+   ]
+  },
+  "tests/test_refused_repeats.py::test_nothing_is_shown_before_a_repeat": {
+   "count": 11,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.agent.evidence_brief:evidence_brief",
+    "capstone.agent.evidence_brief:observations",
+    "capstone.agent.evidence_brief:section",
+    "capstone.agent.model_policy:evidence_section",
+    "capstone.agent.model_policy:render",
+    "capstone.agent.state:Budgets.research_gets_some_time",
+    "capstone.agent.state:InvestigationState.remaining_critic_tool_calls",
+    "capstone.agent.state:InvestigationState.remaining_followup_tool_calls",
+    "capstone.agent.state:InvestigationState.remaining_iterations",
+    "capstone.agent.state:InvestigationState.remaining_tool_calls",
+    "capstone.agent.state:InvestigationState.research_tool_calls"
+   ]
+  },
+  "tests/test_refused_repeats.py::test_a_refused_repeat_is_named_with_its_tick": {
+   "count": 14,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.agent.evidence_brief:evidence_brief",
+    "capstone.agent.evidence_brief:observations",
+    "capstone.agent.evidence_brief:section",
+    "capstone.agent.loop:record",
+    "capstone.agent.model_policy:compact",
+    "capstone.agent.model_policy:evidence_section",
+    "capstone.agent.model_policy:render",
+    "capstone.agent.state:Budgets.research_gets_some_time",
+    "capstone.agent.state:InvestigationState.confidence",
+    "capstone.agent.state:InvestigationState.remaining_critic_tool_calls",
+    "capstone.agent.state:InvestigationState.remaining_followup_tool_calls",
+    "capstone.agent.state:InvestigationState.remaining_iterations",
+    "capstone.agent.state:InvestigationState.remaining_tool_calls",
+    "capstone.agent.state:InvestigationState.research_tool_calls"
+   ]
+  },
+  "tests/test_refused_repeats.py::test_the_same_call_refused_twice_is_named_once": {
+   "count": 14,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.agent.evidence_brief:evidence_brief",
+    "capstone.agent.evidence_brief:observations",
+    "capstone.agent.evidence_brief:section",
+    "capstone.agent.loop:record",
+    "capstone.agent.model_policy:compact",
+    "capstone.agent.model_policy:evidence_section",
+    "capstone.agent.model_policy:render",
+    "capstone.agent.state:Budgets.research_gets_some_time",
+    "capstone.agent.state:InvestigationState.confidence",
+    "capstone.agent.state:InvestigationState.remaining_critic_tool_calls",
+    "capstone.agent.state:InvestigationState.remaining_followup_tool_calls",
+    "capstone.agent.state:InvestigationState.remaining_iterations",
+    "capstone.agent.state:InvestigationState.remaining_tool_calls",
+    "capstone.agent.state:InvestigationState.research_tool_calls"
+   ]
+  },
+  "tests/test_refused_repeats.py::test_only_the_latest_three_refused_calls_are_shown": {
+   "count": 14,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.agent.evidence_brief:evidence_brief",
+    "capstone.agent.evidence_brief:observations",
+    "capstone.agent.evidence_brief:section",
+    "capstone.agent.loop:record",
+    "capstone.agent.model_policy:compact",
+    "capstone.agent.model_policy:evidence_section",
+    "capstone.agent.model_policy:render",
+    "capstone.agent.state:Budgets.research_gets_some_time",
+    "capstone.agent.state:InvestigationState.confidence",
+    "capstone.agent.state:InvestigationState.remaining_critic_tool_calls",
+    "capstone.agent.state:InvestigationState.remaining_followup_tool_calls",
+    "capstone.agent.state:InvestigationState.remaining_iterations",
+    "capstone.agent.state:InvestigationState.remaining_tool_calls",
+    "capstone.agent.state:InvestigationState.research_tool_calls"
+   ]
+  },
+  "tests/test_refused_repeats.py::test_gather_records_a_repeat_that_the_view_then_shows": {
+   "count": 16,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.agent.evidence_brief:evidence_brief",
+    "capstone.agent.evidence_brief:observations",
+    "capstone.agent.evidence_brief:section",
+    "capstone.agent.loop:call_signature",
+    "capstone.agent.loop:gather",
+    "capstone.agent.loop:record",
+    "capstone.agent.model_policy:compact",
+    "capstone.agent.model_policy:evidence_section",
+    "capstone.agent.model_policy:render",
+    "capstone.agent.state:Budgets.research_gets_some_time",
+    "capstone.agent.state:InvestigationState.confidence",
+    "capstone.agent.state:InvestigationState.remaining_critic_tool_calls",
+    "capstone.agent.state:InvestigationState.remaining_followup_tool_calls",
+    "capstone.agent.state:InvestigationState.remaining_iterations",
+    "capstone.agent.state:InvestigationState.remaining_tool_calls",
+    "capstone.agent.state:InvestigationState.research_tool_calls"
    ]
   },
   "tests/test_replay_investigation.py::test_policy_tool_list_only_contains_capabilities_supported_by_the_capture": {
