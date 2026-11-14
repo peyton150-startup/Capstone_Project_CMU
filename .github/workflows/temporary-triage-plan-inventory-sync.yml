@@ -1,0 +1,45 @@
+name: Temporary triage plan evaluation inventory sync
+on:
+  push:
+    branches:
+      - integration/triage-fixed-plan-20261113
+
+permissions:
+  contents: write
+  actions: read
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    timeout-minutes: 50
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: true
+      - name: Install combined-source generated inventories from full CI
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          for attempt in $(seq 1 160); do
+            artifact_id=$(gh api "repos/${GITHUB_REPOSITORY}/actions/runs/43532257427/artifacts" --jq '.artifacts[] | select(.name=="evaluator-inventory") | .id')
+            if [[ -n "$artifact_id" ]]; then
+              echo "Found generated inventory: $artifact_id"
+              break
+            fi
+            if [[ "$attempt" == 160 ]]; then
+              echo "No evaluator-inventory artifact found"
+              exit 1
+            fi
+            sleep 15
+          done
+          mkdir -p "$RUNNER_TEMP/inventory-sync"
+          gh run download 43532257427 --name evaluator-inventory --dir "$RUNNER_TEMP/inventory-sync"
+          cp -f "$RUNNER_TEMP/inventory-sync/"*.json evaluation/inventory/
+      - name: Commit updated inventories and remove temporary workflow
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git rm .github/workflows/temporary-triage-plan-inventory-sync.yml
+          git add evaluation/inventory/FUNCTION_INVENTORY.json evaluation/inventory/TEST_INVENTORY.json evaluation/inventory/TOOL_INVENTORY.json evaluation/inventory/VERIFICATION_MATRIX.json
+          git commit -m "Regenerate evaluator inventory for merged deterministic triage Plan"
+          git push origin HEAD:integration/triage-fixed-plan-20261113
