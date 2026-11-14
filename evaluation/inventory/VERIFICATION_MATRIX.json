@@ -14,17 +14,17 @@
   "capstone-code/capstone/agent/evidence_packet.py": "36cddab1d9e399156684e3ec1b93549d0b5390a9f6a0488b8e7334dae17c57f6",
   "capstone-code/capstone/agent/evidence_tests.py": "d2bf25cd136bd4664a3f4f475489e51c2e25ef7509b007e25d5e5e862bcd549a",
   "capstone-code/capstone/agent/incident_context.py": "ddc8caecd198a3c97f11e31d21bfedc3e7b5abe5e25bedac627d47bc784106a2",
-  "capstone-code/capstone/agent/investigate_compiler.py": "bf3145bcddbebbce84cfdd17c9e62d45e1d58b0e4abcb6177a142ee259406dd3",
-  "capstone-code/capstone/agent/investigation.py": "27167a9511adc50a775b007a003e68c2922e5db7e54df8dba6fd652b75fb22c8",
+  "capstone-code/capstone/agent/investigate_compiler.py": "6f86743f20c3efd4857270c45866fb8a3253278e9dd3ee0720f31df158fa8a1c",
+  "capstone-code/capstone/agent/investigation.py": "dcbee8bee7f829af712d92274a58e22f3d44571b71a6205e4f07a41dac56bab7",
   "capstone-code/capstone/agent/loop.py": "660791055caf27e4c69365ab0c97735a35363b366dce9611aaeeb6aad7e7454e",
   "capstone-code/capstone/agent/model_policy.py": "5c88d5341d17aab170fa1ca886db7ac82c58f294390165c0b4658979762a7f57",
   "capstone-code/capstone/agent/monitor.py": "c59916f5de91342ebf7bd2ade22133901618c9ed4b3f5ea5937e62a0360a7a52",
   "capstone-code/capstone/agent/policy.py": "4e63fa1b8670bc5a57987c27d2c28846050c394f3c96bda3264a63a197d80228",
   "capstone-code/capstone/agent/recorded_state.py": "823abc0db5b777b687b063c2e3530c909320e1839348e450ac7f177ad504f53d",
-  "capstone-code/capstone/agent/state.py": "1b16fc553e9128469b433c215c16776b9934adf14f39d93338bfda952c594e5b",
+  "capstone-code/capstone/agent/state.py": "9555a570e7aafb7345fb614d37734bac31e0c0149aac07df70f0dca8e5815cca",
   "capstone-code/capstone/agent/tree_of_thought.py": "c6c64fc2d6288a5bf44e638b9c2bc959213b2aa313552b3a0adce883cafcc705",
   "capstone-code/capstone/agent/triage_packet.py": "9a9bfe340cf06800854817bf4e44b43d40563791f73aabe7c42fa224c05604b7",
-  "capstone-code/capstone/agent/triage_plan.py": "578c96438fe63cb0168cbc8f2404c1401b97aecb96b40e1f3b00b4a4722c51b5",
+  "capstone-code/capstone/agent/triage_plan.py": "450a4189793d482c3fb7e3ddc759cc54561e4dbe4cd4e4484acdc6b1ca637d3e",
   "capstone-code/capstone/agent/triage_report.py": "5a158286dd6641d45002d4d434601ae415a7ae66649ba04f0ca2163ad487523b",
   "capstone-code/capstone/agent/untrusted.py": "52df6f8d3c1df4b56d114ca2301dc914d1162ea4e803805afaa4aaa1c5775eaa",
   "capstone-code/capstone/baseline.py": "2f92230ce9cc26b04465f55bf04ef564f7e5f65dd392f644ee7183f5f1509bb4",
@@ -89,7 +89,7 @@
   "capstone-code/capstone/monitoring/monitor.py": "ec3960f528b6653bfe90ef7adb7c05b31e7a7bfd68a2d956c3ba80ebf3eb1ddb",
   "capstone-code/capstone/monitoring/runner.py": "245aa7c1658c87ed7cfdf090192470b93e74d77307a4d0707f1e9ec9efc35e2f",
   "capstone-code/capstone/observability.py": "e0f3904404be0bb3fb4993493efb274876c552163721d6ed83a71fcdc49e5cf6",
-  "capstone-code/capstone/progress.py": "55238f12d0da406a72da9970adc5116d654c5ca28d02b57ff449c4f7eb93fdbc",
+  "capstone-code/capstone/progress.py": "5a2eebb43f7314ec61a8b177d346499afca780e7ebee851077528624f08c8037",
   "capstone-code/capstone/providers/__init__.py": "718f331830c4a46d2addd3f99b7ce7444d07d88db058a4972f56df4cc3e0f168",
   "capstone-code/capstone/providers/chat.py": "1574ca817e222d3e210a4d982ce9a8ec630d6a78093235a48ee4fc0164e5b335",
   "capstone-code/capstone/providers/embeddings.py": "85409f5b146755d751dcaf2223a53c72aa78a2f698458f1df2c430bb5eb8c4c9",
@@ -267,12 +267,12 @@
   "tests/test_triage_evidence_tests.py": "d279b45b413a98d8694e33f338c66ea84594498daf3aa2beadb3424e745e4769",
   "tests/test_triage_hypothesis_reserve.py": "4b13e6e7b4879d6437076370548368e35430457574f4af3eb909c5f52997886f",
   "tests/test_triage_investigate.py": "84318318257384bc9a46906cecb96191b3ed07bb3a2478a0b7df06402bf7cf79",
-  "tests/test_triage_logging.py": "7db1119f89902d0af8f2248956f25b2b3a955d9e942ed5145c786896630b1a50",
+  "tests/test_triage_investigate_plan.py": "9431758d25f54bf77409eb428a8672973dc4fe06355c7081010928db538d367a",
+  "tests/test_triage_logging.py": "e3a230724edd2d8181e5b6344b6b01219b34df0e2c889800de69369b6a2ff430",
   "tests/test_triage_metrics.py": "8748d2c52034f4917278a94e94a18bcf10d6510d236a27d5de936515370207e7",
-  "tests/test_triage_plan.py": "3fe9e1044fd446fff9987a116cccf6f543bc5a1eab50e26f6ddaab061e8da3b9",
+  "tests/test_triage_plan.py": "f053b78a15daf62edeb07cc87b0d7a9dde6799a5036b13a6a2df8250119adbf9",
   "tests/test_triage_report.py": "a26644fd4e0f4639e50818063bb1f091fc229b154dc54723296a839d16d3be1c",
   "tests/test_triage_safety_baseline.py": "9a8bf0a404114fc81f08d29c869e3db7756d1778bd1d69f505296a0ad01e39cb",
-  "tests/test_triage_screening_questions.py": "a06a81f32b3d1e35240f62ac07b86faadcb883f3084ba2ba0a0a15b512dd6c62",
   "tests/test_two_lines.py": "03a86f7c3fc7a6ce9dcdd0dd6e436cced106818f67650cca4cfed4fc83bb7b48",
   "tests/test_typesafe_client.py": "a20685eae1995d6a29e8a99a3717b148c1ad062844ec346299116c74ff8b4751",
   "tests/test_untrusted_text.py": "cb17a2e154f3adca010fecd881298ed0801103fb48914a2a0aba6bca5117d9e7",
@@ -280,29 +280,29 @@
   "tests/test_wait_tool.py": "b99a5fbf756a60176262417e54d8d1a0496f01126929a330492e7d24287b2d1e",
   "tests/test_wrong_setting.py": "aed1c646bffaf88ae25ed2156794dc57427e8a61bbe6b23a0c33f3c3e89c0da3"
  },
- "coverage_sha256": "65d5923f1c3c7797cbf354934c36148f4ba83156dfb6e7439868cb647c6261b6",
- "junit_sha256": "574ff144ba77969a385b6c82be141d7717cb238adc1df2f125d9eaed5543a296",
+ "coverage_sha256": "f91703ee8e90019f4479966fe292885f840749fa75993ff33301d37fd10c3372",
+ "junit_sha256": "29a24fb0ca22d87f738972a986b1d2662354525816e13a28a2b02168a6e02a95",
  "counts": {
-  "functions": 1129,
+  "functions": 1127,
   "classes_note": "classes are listed through their methods",
-  "tests": 2269,
+  "tests": 2262,
   "tools": 18,
   "functions_by_status": {
    "INSUFFICIENT EVIDENCE": 466,
    "NOT APPLICABLE": 25,
    "NOT TESTED": 17,
-   "PARTIALLY VERIFIED": 576,
+   "PARTIALLY VERIFIED": 574,
    "VERIFIED": 45
   },
   "functions_by_coverage_class": {
-   "direct": 605,
+   "direct": 603,
    "import-only": 4,
    "indirect": 478,
    "no-statements": 25,
    "none": 17
   },
-  "functions_executed_in_tests": 1083,
-  "functions_with_direct_tests": 605,
+  "functions_executed_in_tests": 1081,
+  "functions_with_direct_tests": 603,
   "functions_never_executed": [
    "capstone.episode:ask_on_console",
    "capstone.evals:main.<locals>.show_progress",
@@ -371,13 +371,14 @@
    "evaluation.evaltools.snap_request:DecisionQuestion.criteria_fit_type (5/9)",
    "evaluation.evaltools.snap_request:load_questions (7/9)",
    "evaluation.evaltools.snap_request:fitted_trace_skips (8/13)",
+   "evaluation.evaltools.snap_request:test_source (5/7)",
    "evaluation.evaltools.snap_request:describe_failure (2/5)",
    "evaluation.evaltools.snap_request:already_answered (6/8)"
   ],
   "stubs_or_protocols": 25,
   "tests_by_outcome": {
    "failed": 1,
-   "passed": 2268
+   "passed": 2261
   },
   "tests_with_no_assertion": [
    "tests/test_console.py::test_without_it_the_same_print_raised"
@@ -461,12 +462,6 @@
    "tests/test_triage_logging.py::test_older_records_without_a_report_count_as_none",
    "tests/test_triage_metrics.py::test_a_call_from_an_old_record_still_loads_without_stage_or_mode",
    "tests/test_triage_report.py::test_the_experiment_record_keeps_the_report",
-   "tests/test_triage_screening_questions.py::test_no_packet_answers_nothing",
-   "tests/test_triage_screening_questions.py::test_a_machine_absent_from_the_screening_stays_unknown",
-   "tests/test_triage_screening_questions.py::test_a_machine_with_one_unscored_sensor_stays_unknown",
-   "tests/test_triage_screening_questions.py::test_a_machine_down_for_the_whole_window_stays_unknown",
-   "tests/test_triage_screening_questions.py::test_without_a_roster_the_coverage_cannot_be_known",
-   "tests/test_triage_screening_questions.py::test_without_a_screening_there_is_nothing_to_answer_with",
    "tests/test_two_lines.py::test_a_breakdown_on_one_line_leaves_the_other_running"
   ],
   "tests_exercising_no_project_function": [
@@ -614,13 +609,13 @@
    "direct": 0
   },
   "capstone.agent.investigate_compiler": {
-   "functions": 13,
-   "executed": 13,
+   "functions": 14,
+   "executed": 14,
    "direct": 1
   },
   "capstone.agent.investigation": {
-   "functions": 57,
-   "executed": 55,
+   "functions": 56,
+   "executed": 54,
    "direct": 39
   },
   "capstone.agent.loop": {
@@ -664,9 +659,9 @@
    "direct": 0
   },
   "capstone.agent.triage_plan": {
-   "functions": 4,
-   "executed": 4,
-   "direct": 4
+   "functions": 2,
+   "executed": 2,
+   "direct": 2
   },
   "capstone.agent.triage_report": {
    "functions": 3,
@@ -1759,7 +1754,7 @@
    ]
   },
   "capstone.agent.evidence_brief:observations": {
-   "count": 571,
+   "count": 567,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_agent_investigation.py::test_incident_context_uses_bounded_observations_before_planning"
@@ -1818,7 +1813,7 @@
    ]
   },
   "capstone.agent.evidence_brief:verify_numeric_claims": {
-   "count": 423,
+   "count": 419,
    "status": "VERIFIED",
    "direct": [],
    "indirect": [
@@ -1898,7 +1893,7 @@
    ]
   },
   "capstone.agent.evidence_tests:root_of": {
-   "count": 81,
+   "count": 79,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
@@ -1917,7 +1912,7 @@
    ]
   },
   "capstone.agent.evidence_tests:physical_root": {
-   "count": 80,
+   "count": 78,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
@@ -1936,7 +1931,7 @@
    ]
   },
   "capstone.agent.evidence_tests:source_roots": {
-   "count": 61,
+   "count": 57,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
@@ -1955,7 +1950,7 @@
    ]
   },
   "capstone.agent.evidence_tests:open_rival_questions": {
-   "count": 92,
+   "count": 88,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
@@ -1974,7 +1969,7 @@
    ]
   },
   "capstone.agent.evidence_tests:note": {
-   "count": 63,
+   "count": 61,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
@@ -1993,7 +1988,7 @@
    ]
   },
   "capstone.agent.evidence_tests:reading_rows": {
-   "count": 16,
+   "count": 18,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
@@ -2026,7 +2021,7 @@
    ]
   },
   "capstone.agent.evidence_tests:judge": {
-   "count": 16,
+   "count": 18,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
@@ -2045,7 +2040,7 @@
    ]
   },
   "capstone.agent.evidence_tests:evaluate": {
-   "count": 19,
+   "count": 21,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
@@ -2106,7 +2101,7 @@
    ]
   },
   "capstone.agent.investigate_compiler:Candidate.root": {
-   "count": 25,
+   "count": 26,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
@@ -2125,7 +2120,7 @@
    ]
   },
   "capstone.agent.investigate_compiler:Candidate.key": {
-   "count": 25,
+   "count": 26,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
@@ -2144,130 +2139,37 @@
    ]
   },
   "capstone.agent.investigate_compiler:Candidate.signals": {
-   "count": 12,
+   "count": 11,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
     "tests/test_triage_investigate.py::test_a_failed_model_answer_is_recorded",
     "tests/test_triage_investigate.py::test_advisory_asks_the_model_and_records_the_comparison",
     "tests/test_triage_investigate.py::test_on_makes_the_compiled_read_without_a_decide_question",
+    "tests/test_triage_investigate_plan.py::test_a_settled_predicate_is_not_read_again",
+    "tests/test_triage_investigate_plan.py::test_on_reads_q1_without_a_model_and_its_predicate_settles_it",
+    "tests/test_triage_investigate_plan.py::test_the_compiled_read_is_the_predicates_window",
     "tests/test_triage_logging.py::test_a_fixed_plan_is_printed_once_with_its_predicate",
     "tests/test_triage_logging.py::test_the_report_counts_plans_and_report_outcomes",
     "tests/test_triage_plan.py::test_a_fixed_plan_triage_asks_no_plan_question",
     "tests/test_triage_plan.py::test_the_same_seed_gives_the_same_fixed_plan_triage",
-    "tests/test_triage_plan.py::test_the_triage_record_says_the_plan_was_fixed",
-    "tests/test_triage_screening_questions.py::test_a_packet_triage_does_not_ask_for_the_screening_again",
-    "tests/test_triage_screening_questions.py::test_a_packet_triage_still_reaches_hypothesize",
-    "tests/test_triage_screening_questions.py::test_the_closing_is_recorded_with_the_screening_evidence",
-    "tests/test_triage_screening_questions.py::test_the_deep_run_plans_and_answers_as_before"
+    "tests/test_triage_plan.py::test_the_triage_record_says_the_plan_was_fixed"
    ]
   },
   "capstone.agent.investigate_compiler:Candidate.step": {
-   "count": 3,
+   "count": 6,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
     "tests/test_triage_investigate.py::test_a_question_compiles_to_one_bounded_summary_read",
     "tests/test_triage_investigate.py::test_agreement_names_how_the_model_choice_compares",
-    "tests/test_triage_investigate.py::test_on_makes_the_compiled_read_without_a_decide_question"
+    "tests/test_triage_investigate.py::test_on_makes_the_compiled_read_without_a_decide_question",
+    "tests/test_triage_investigate_plan.py::test_a_settled_predicate_is_not_read_again",
+    "tests/test_triage_investigate_plan.py::test_on_reads_q1_without_a_model_and_its_predicate_settles_it",
+    "tests/test_triage_investigate_plan.py::test_the_compiled_read_is_the_predicates_window"
    ]
   },
   "capstone.agent.investigate_compiler:known_machines": {
-   "count": 78,
-   "status": "INSUFFICIENT EVIDENCE",
-   "direct": [],
-   "indirect": [
-    "tests/test_detector_side_effects.py::test_triage_counts_the_screening_on_its_own_allowance_too",
-    "tests/test_recorded_investigation.py::test_recorded_data_runs_through_the_existing_graph_without_actions",
-    "tests/test_triage.py::test_a_deep_run_follows_with_its_own_id_and_keeps_approval_and_verification",
-    "tests/test_triage.py::test_a_rejected_deep_proposal_is_still_a_human_decision",
-    "tests/test_triage.py::test_a_triage_conclusion_no_model_answered_is_model_unavailable",
-    "tests/test_triage.py::test_a_triage_never_verifies_even_when_nothing_needs_doing",
-    "tests/test_triage.py::test_a_triage_that_wants_a_fix_proposes_nothing",
-    "tests/test_triage.py::test_a_triage_with_no_time_to_ask_any_model_is_still_a_timeout",
-    "tests/test_triage.py::test_an_experiment_records_and_reports_the_triage",
-    "tests/test_triage.py::test_no_deep_run_when_the_triage_supports_that_nothing_is_needed",
-    "tests/test_triage.py::test_the_deep_run_is_not_shown_the_triage_conclusion",
-    "tests/test_triage.py::test_the_triage_line_counts_triages_no_model_answered"
-   ]
-  },
-  "capstone.agent.investigate_compiler:sensors_named": {
-   "count": 28,
-   "status": "INSUFFICIENT EVIDENCE",
-   "direct": [],
-   "indirect": [
-    "tests/test_triage_investigate.py::test_a_check_that_could_tell_against_the_favourite_ranks_next",
-    "tests/test_triage_investigate.py::test_a_failed_model_answer_is_recorded",
-    "tests/test_triage_investigate.py::test_a_narrower_earlier_read_does_not_block_a_new_window",
-    "tests/test_triage_investigate.py::test_a_partial_id_is_not_a_machine",
-    "tests/test_triage_investigate.py::test_a_question_compiles_to_one_bounded_summary_read",
-    "tests/test_triage_investigate.py::test_a_read_already_observed_over_the_window_is_not_repeated",
-    "tests/test_triage_investigate.py::test_a_rival_separating_question_ranks_first",
-    "tests/test_triage_investigate.py::test_advisory_asks_the_model_and_records_the_comparison",
-    "tests/test_triage_investigate.py::test_agreement_names_how_the_model_choice_compares",
-    "tests/test_triage_investigate.py::test_ambiguous_or_unsure_questions_compile_nothing",
-    "tests/test_triage_investigate.py::test_on_falls_back_to_the_model_when_nothing_compiles",
-    "tests/test_triage_investigate.py::test_on_makes_the_compiled_read_without_a_decide_question"
-   ]
-  },
-  "capstone.agent.investigate_compiler:machines_named": {
-   "count": 18,
-   "status": "INSUFFICIENT EVIDENCE",
-   "direct": [],
-   "indirect": [
-    "tests/test_triage_investigate.py::test_a_check_that_could_tell_against_the_favourite_ranks_next",
-    "tests/test_triage_investigate.py::test_a_failed_model_answer_is_recorded",
-    "tests/test_triage_investigate.py::test_a_narrower_earlier_read_does_not_block_a_new_window",
-    "tests/test_triage_investigate.py::test_a_partial_id_is_not_a_machine",
-    "tests/test_triage_investigate.py::test_a_question_compiles_to_one_bounded_summary_read",
-    "tests/test_triage_investigate.py::test_a_read_already_observed_over_the_window_is_not_repeated",
-    "tests/test_triage_investigate.py::test_a_rival_separating_question_ranks_first",
-    "tests/test_triage_investigate.py::test_advisory_asks_the_model_and_records_the_comparison",
-    "tests/test_triage_investigate.py::test_agreement_names_how_the_model_choice_compares",
-    "tests/test_triage_investigate.py::test_ambiguous_or_unsure_questions_compile_nothing",
-    "tests/test_triage_investigate.py::test_on_makes_the_compiled_read_without_a_decide_question",
-    "tests/test_triage_investigate.py::test_only_machines_on_the_roster_are_named"
-   ]
-  },
-  "capstone.agent.investigate_compiler:observed_windows": {
-   "count": 78,
-   "status": "INSUFFICIENT EVIDENCE",
-   "direct": [],
-   "indirect": [
-    "tests/test_detector_side_effects.py::test_triage_counts_the_screening_on_its_own_allowance_too",
-    "tests/test_recorded_investigation.py::test_recorded_data_runs_through_the_existing_graph_without_actions",
-    "tests/test_triage.py::test_a_deep_run_follows_with_its_own_id_and_keeps_approval_and_verification",
-    "tests/test_triage.py::test_a_rejected_deep_proposal_is_still_a_human_decision",
-    "tests/test_triage.py::test_a_triage_conclusion_no_model_answered_is_model_unavailable",
-    "tests/test_triage.py::test_a_triage_never_verifies_even_when_nothing_needs_doing",
-    "tests/test_triage.py::test_a_triage_that_wants_a_fix_proposes_nothing",
-    "tests/test_triage.py::test_a_triage_with_no_time_to_ask_any_model_is_still_a_timeout",
-    "tests/test_triage.py::test_an_experiment_records_and_reports_the_triage",
-    "tests/test_triage.py::test_no_deep_run_when_the_triage_supports_that_nothing_is_needed",
-    "tests/test_triage.py::test_the_deep_run_is_not_shown_the_triage_conclusion",
-    "tests/test_triage.py::test_the_triage_line_counts_triages_no_model_answered"
-   ]
-  },
-  "capstone.agent.investigate_compiler:targets": {
-   "count": 30,
-   "status": "INSUFFICIENT EVIDENCE",
-   "direct": [],
-   "indirect": [
-    "tests/test_triage_investigate.py::test_a_check_that_could_tell_against_the_favourite_ranks_next",
-    "tests/test_triage_investigate.py::test_a_failed_model_answer_is_recorded",
-    "tests/test_triage_investigate.py::test_a_measured_predicate_names_its_own_target_and_window",
-    "tests/test_triage_investigate.py::test_a_narrower_earlier_read_does_not_block_a_new_window",
-    "tests/test_triage_investigate.py::test_a_partial_id_is_not_a_machine",
-    "tests/test_triage_investigate.py::test_a_predicate_on_an_unknown_machine_compiles_nothing",
-    "tests/test_triage_investigate.py::test_a_question_compiles_to_one_bounded_summary_read",
-    "tests/test_triage_investigate.py::test_a_read_already_observed_over_the_window_is_not_repeated",
-    "tests/test_triage_investigate.py::test_a_rival_separating_question_ranks_first",
-    "tests/test_triage_investigate.py::test_advisory_asks_the_model_and_records_the_comparison",
-    "tests/test_triage_investigate.py::test_agreement_names_how_the_model_choice_compares",
-    "tests/test_triage_investigate.py::test_ambiguous_or_unsure_questions_compile_nothing"
-   ]
-  },
-  "capstone.agent.investigate_compiler:compile_requests": {
    "count": 79,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
@@ -2286,8 +2188,122 @@
     "tests/test_triage.py::test_the_triage_line_counts_triages_no_model_answered"
    ]
   },
+  "capstone.agent.investigate_compiler:sensors_named": {
+   "count": 20,
+   "status": "INSUFFICIENT EVIDENCE",
+   "direct": [],
+   "indirect": [
+    "tests/test_triage_investigate.py::test_a_check_that_could_tell_against_the_favourite_ranks_next",
+    "tests/test_triage_investigate.py::test_a_failed_model_answer_is_recorded",
+    "tests/test_triage_investigate.py::test_a_narrower_earlier_read_does_not_block_a_new_window",
+    "tests/test_triage_investigate.py::test_a_partial_id_is_not_a_machine",
+    "tests/test_triage_investigate.py::test_a_question_compiles_to_one_bounded_summary_read",
+    "tests/test_triage_investigate.py::test_a_read_already_observed_over_the_window_is_not_repeated",
+    "tests/test_triage_investigate.py::test_a_rival_separating_question_ranks_first",
+    "tests/test_triage_investigate.py::test_advisory_asks_the_model_and_records_the_comparison",
+    "tests/test_triage_investigate.py::test_agreement_names_how_the_model_choice_compares",
+    "tests/test_triage_investigate.py::test_ambiguous_or_unsure_questions_compile_nothing",
+    "tests/test_triage_investigate.py::test_on_falls_back_to_the_model_when_nothing_compiles",
+    "tests/test_triage_investigate.py::test_on_makes_the_compiled_read_without_a_decide_question"
+   ]
+  },
+  "capstone.agent.investigate_compiler:machines_named": {
+   "count": 19,
+   "status": "INSUFFICIENT EVIDENCE",
+   "direct": [],
+   "indirect": [
+    "tests/test_triage_investigate.py::test_a_check_that_could_tell_against_the_favourite_ranks_next",
+    "tests/test_triage_investigate.py::test_a_failed_model_answer_is_recorded",
+    "tests/test_triage_investigate.py::test_a_narrower_earlier_read_does_not_block_a_new_window",
+    "tests/test_triage_investigate.py::test_a_partial_id_is_not_a_machine",
+    "tests/test_triage_investigate.py::test_a_question_compiles_to_one_bounded_summary_read",
+    "tests/test_triage_investigate.py::test_a_read_already_observed_over_the_window_is_not_repeated",
+    "tests/test_triage_investigate.py::test_a_rival_separating_question_ranks_first",
+    "tests/test_triage_investigate.py::test_advisory_asks_the_model_and_records_the_comparison",
+    "tests/test_triage_investigate.py::test_agreement_names_how_the_model_choice_compares",
+    "tests/test_triage_investigate.py::test_ambiguous_or_unsure_questions_compile_nothing",
+    "tests/test_triage_investigate.py::test_on_makes_the_compiled_read_without_a_decide_question",
+    "tests/test_triage_investigate.py::test_only_machines_on_the_roster_are_named"
+   ]
+  },
+  "capstone.agent.investigate_compiler:observed_windows": {
+   "count": 79,
+   "status": "INSUFFICIENT EVIDENCE",
+   "direct": [],
+   "indirect": [
+    "tests/test_detector_side_effects.py::test_triage_counts_the_screening_on_its_own_allowance_too",
+    "tests/test_recorded_investigation.py::test_recorded_data_runs_through_the_existing_graph_without_actions",
+    "tests/test_triage.py::test_a_deep_run_follows_with_its_own_id_and_keeps_approval_and_verification",
+    "tests/test_triage.py::test_a_rejected_deep_proposal_is_still_a_human_decision",
+    "tests/test_triage.py::test_a_triage_conclusion_no_model_answered_is_model_unavailable",
+    "tests/test_triage.py::test_a_triage_never_verifies_even_when_nothing_needs_doing",
+    "tests/test_triage.py::test_a_triage_that_wants_a_fix_proposes_nothing",
+    "tests/test_triage.py::test_a_triage_with_no_time_to_ask_any_model_is_still_a_timeout",
+    "tests/test_triage.py::test_an_experiment_records_and_reports_the_triage",
+    "tests/test_triage.py::test_no_deep_run_when_the_triage_supports_that_nothing_is_needed",
+    "tests/test_triage.py::test_the_deep_run_is_not_shown_the_triage_conclusion",
+    "tests/test_triage.py::test_the_triage_line_counts_triages_no_model_answered"
+   ]
+  },
+  "capstone.agent.investigate_compiler:from_fixed_plan": {
+   "count": 29,
+   "status": "INSUFFICIENT EVIDENCE",
+   "direct": [],
+   "indirect": [
+    "tests/test_triage_investigate.py::test_a_check_that_could_tell_against_the_favourite_ranks_next",
+    "tests/test_triage_investigate.py::test_a_failed_model_answer_is_recorded",
+    "tests/test_triage_investigate.py::test_a_narrower_earlier_read_does_not_block_a_new_window",
+    "tests/test_triage_investigate.py::test_a_partial_id_is_not_a_machine",
+    "tests/test_triage_investigate.py::test_a_question_compiles_to_one_bounded_summary_read",
+    "tests/test_triage_investigate.py::test_a_read_already_observed_over_the_window_is_not_repeated",
+    "tests/test_triage_investigate.py::test_a_rival_separating_question_ranks_first",
+    "tests/test_triage_investigate.py::test_advisory_asks_the_model_and_records_the_comparison",
+    "tests/test_triage_investigate.py::test_agreement_names_how_the_model_choice_compares",
+    "tests/test_triage_investigate.py::test_ambiguous_or_unsure_questions_compile_nothing",
+    "tests/test_triage_investigate.py::test_on_falls_back_to_the_model_when_nothing_compiles",
+    "tests/test_triage_investigate.py::test_on_makes_the_compiled_read_without_a_decide_question"
+   ]
+  },
+  "capstone.agent.investigate_compiler:targets": {
+   "count": 31,
+   "status": "INSUFFICIENT EVIDENCE",
+   "direct": [],
+   "indirect": [
+    "tests/test_triage_investigate.py::test_a_check_that_could_tell_against_the_favourite_ranks_next",
+    "tests/test_triage_investigate.py::test_a_failed_model_answer_is_recorded",
+    "tests/test_triage_investigate.py::test_a_measured_predicate_names_its_own_target_and_window",
+    "tests/test_triage_investigate.py::test_a_narrower_earlier_read_does_not_block_a_new_window",
+    "tests/test_triage_investigate.py::test_a_partial_id_is_not_a_machine",
+    "tests/test_triage_investigate.py::test_a_predicate_on_an_unknown_machine_compiles_nothing",
+    "tests/test_triage_investigate.py::test_a_question_compiles_to_one_bounded_summary_read",
+    "tests/test_triage_investigate.py::test_a_read_already_observed_over_the_window_is_not_repeated",
+    "tests/test_triage_investigate.py::test_a_rival_separating_question_ranks_first",
+    "tests/test_triage_investigate.py::test_advisory_asks_the_model_and_records_the_comparison",
+    "tests/test_triage_investigate.py::test_agreement_names_how_the_model_choice_compares",
+    "tests/test_triage_investigate.py::test_ambiguous_or_unsure_questions_compile_nothing"
+   ]
+  },
+  "capstone.agent.investigate_compiler:compile_requests": {
+   "count": 80,
+   "status": "INSUFFICIENT EVIDENCE",
+   "direct": [],
+   "indirect": [
+    "tests/test_detector_side_effects.py::test_triage_counts_the_screening_on_its_own_allowance_too",
+    "tests/test_recorded_investigation.py::test_recorded_data_runs_through_the_existing_graph_without_actions",
+    "tests/test_triage.py::test_a_deep_run_follows_with_its_own_id_and_keeps_approval_and_verification",
+    "tests/test_triage.py::test_a_rejected_deep_proposal_is_still_a_human_decision",
+    "tests/test_triage.py::test_a_triage_conclusion_no_model_answered_is_model_unavailable",
+    "tests/test_triage.py::test_a_triage_never_verifies_even_when_nothing_needs_doing",
+    "tests/test_triage.py::test_a_triage_that_wants_a_fix_proposes_nothing",
+    "tests/test_triage.py::test_a_triage_with_no_time_to_ask_any_model_is_still_a_timeout",
+    "tests/test_triage.py::test_an_experiment_records_and_reports_the_triage",
+    "tests/test_triage.py::test_no_deep_run_when_the_triage_supports_that_nothing_is_needed",
+    "tests/test_triage.py::test_the_deep_run_is_not_shown_the_triage_conclusion",
+    "tests/test_triage.py::test_the_triage_line_counts_triages_no_model_answered"
+   ]
+  },
   "capstone.agent.investigate_compiler:escape_reason": {
-   "count": 63,
+   "count": 61,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
@@ -2306,7 +2322,7 @@
    ]
   },
   "capstone.agent.investigate_compiler:model_target": {
-   "count": 63,
+   "count": 60,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
@@ -2325,7 +2341,7 @@
    ]
   },
   "capstone.agent.investigate_compiler:agreement": {
-   "count": 12,
+   "count": 8,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_triage_investigate.py::test_agreement_names_how_the_model_choice_compares"
@@ -2337,15 +2353,11 @@
     "tests/test_triage_logging.py::test_the_report_counts_plans_and_report_outcomes",
     "tests/test_triage_plan.py::test_a_fixed_plan_triage_asks_no_plan_question",
     "tests/test_triage_plan.py::test_the_same_seed_gives_the_same_fixed_plan_triage",
-    "tests/test_triage_plan.py::test_the_triage_record_says_the_plan_was_fixed",
-    "tests/test_triage_screening_questions.py::test_a_packet_triage_does_not_ask_for_the_screening_again",
-    "tests/test_triage_screening_questions.py::test_a_packet_triage_still_reaches_hypothesize",
-    "tests/test_triage_screening_questions.py::test_the_closing_is_recorded_with_the_screening_evidence",
-    "tests/test_triage_screening_questions.py::test_the_deep_run_plans_and_answers_as_before"
+    "tests/test_triage_plan.py::test_the_triage_record_says_the_plan_was_fixed"
    ]
   },
   "capstone.agent.investigation:gathered_in": {
-   "count": 354,
+   "count": 349,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_agent_investigation.py::test_a_bad_decision_is_recorded_and_the_run_goes_on",
@@ -2377,7 +2389,7 @@
    ]
   },
   "capstone.agent.investigation:observe": {
-   "count": 387,
+   "count": 382,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_agent_investigation.py::test_a_bad_decision_is_recorded_and_the_run_goes_on",
@@ -2425,7 +2437,7 @@
    ]
   },
   "capstone.agent.investigation:consult_manual": {
-   "count": 360,
+   "count": 355,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_agent_investigation.py::test_a_bad_decision_is_recorded_and_the_run_goes_on",
@@ -2456,25 +2468,8 @@
     "tests/test_agent_action.py::test_the_loop_makes_the_calls_not_the_policy"
    ]
   },
-  "capstone.agent.investigation:close_screening_questions": {
-   "count": 10,
-   "status": "INSUFFICIENT EVIDENCE",
-   "direct": [],
-   "indirect": [
-    "tests/test_triage_logging.py::test_a_fixed_plan_is_printed_once_with_its_predicate",
-    "tests/test_triage_logging.py::test_the_report_counts_plans_and_report_outcomes",
-    "tests/test_triage_plan.py::test_a_fixed_plan_triage_asks_no_plan_question",
-    "tests/test_triage_plan.py::test_the_same_seed_gives_the_same_fixed_plan_triage",
-    "tests/test_triage_plan.py::test_the_triage_record_says_the_plan_was_fixed",
-    "tests/test_triage_screening_questions.py::test_a_packet_triage_does_not_ask_for_the_screening_again",
-    "tests/test_triage_screening_questions.py::test_a_packet_triage_still_reaches_hypothesize",
-    "tests/test_triage_screening_questions.py::test_the_closing_is_recorded_with_the_screening_evidence",
-    "tests/test_triage_screening_questions.py::test_the_deep_run_plans_and_answers_as_before",
-    "tests/test_triage_screening_questions.py::test_without_the_packet_the_question_stays_open_and_is_asked_again"
-   ]
-  },
   "capstone.agent.investigation:plan": {
-   "count": 360,
+   "count": 355,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_agent_investigation.py::test_a_bad_decision_is_recorded_and_the_run_goes_on",
@@ -2506,7 +2501,7 @@
    ]
   },
   "capstone.agent.investigation:investigate": {
-   "count": 356,
+   "count": 351,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_agent_investigation.py::test_a_bad_decision_is_recorded_and_the_run_goes_on",
@@ -2538,7 +2533,7 @@
    ]
   },
   "capstone.agent.investigation:hypothesize": {
-   "count": 339,
+   "count": 335,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_agent_investigation.py::test_a_bad_decision_is_recorded_and_the_run_goes_on",
@@ -2579,7 +2574,7 @@
    ]
   },
   "capstone.agent.investigation:reconsider": {
-   "count": 337,
+   "count": 333,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_agent_investigation.py::test_a_bad_decision_is_recorded_and_the_run_goes_on",
@@ -2611,7 +2606,7 @@
    ]
   },
   "capstone.agent.investigation:test": {
-   "count": 301,
+   "count": 297,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_agent_action.py::test_a_human_hook_that_decides_nothing_does_not_count_as_approval",
@@ -2630,7 +2625,7 @@
    "indirect": []
   },
   "capstone.agent.investigation:revalue": {
-   "count": 300,
+   "count": 296,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_agent_investigation.py::test_a_bad_decision_is_recorded_and_the_run_goes_on",
@@ -2662,7 +2657,7 @@
    ]
   },
   "capstone.agent.investigation:critique": {
-   "count": 358,
+   "count": 353,
    "status": "VERIFIED",
    "direct": [
     "tests/test_agent_investigation.py::test_a_bad_decision_is_recorded_and_the_run_goes_on",
@@ -2719,7 +2714,7 @@
    ]
   },
   "capstone.agent.investigation:recheck": {
-   "count": 361,
+   "count": 356,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_agent_investigation.py::test_a_bad_decision_is_recorded_and_the_run_goes_on",
@@ -2775,7 +2770,7 @@
    ]
   },
   "capstone.agent.investigation:why_not_acted": {
-   "count": 270,
+   "count": 266,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_agent_investigation.py::test_a_bad_decision_is_recorded_and_the_run_goes_on",
@@ -2996,7 +2991,7 @@
    ]
   },
   "capstone.agent.investigation:check_conclusion": {
-   "count": 389,
+   "count": 384,
    "status": "VERIFIED",
    "direct": [
     "tests/test_agent_investigation.py::test_a_bad_decision_is_recorded_and_the_run_goes_on",
@@ -3028,7 +3023,7 @@
    ]
   },
   "capstone.agent.investigation:conclude": {
-   "count": 356,
+   "count": 351,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_agent_investigation.py::test_a_bad_decision_is_recorded_and_the_run_goes_on",
@@ -3060,7 +3055,7 @@
    ]
   },
   "capstone.agent.investigation:rejection_reason": {
-   "count": 31,
+   "count": 30,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_agent_investigation.py::test_a_conclusion_citing_evidence_that_was_never_gathered_is_refused",
@@ -3092,7 +3087,7 @@
    ]
   },
   "capstone.agent.investigation:needs_deep_run": {
-   "count": 72,
+   "count": 67,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
@@ -3111,7 +3106,7 @@
    ]
   },
   "capstone.agent.investigation:followup_call": {
-   "count": 237,
+   "count": 236,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_agent_investigation.py::test_a_bad_plan_is_recorded_and_the_investigation_carries_on",
@@ -3143,7 +3138,7 @@
    ]
   },
   "capstone.agent.investigation:factory_changed": {
-   "count": 237,
+   "count": 236,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_agent_investigation.py::test_a_bad_plan_is_recorded_and_the_investigation_carries_on",
@@ -3175,7 +3170,7 @@
    ]
   },
   "capstone.agent.investigation:critic_view": {
-   "count": 187,
+   "count": 186,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
@@ -3194,7 +3189,7 @@
    ]
   },
   "capstone.agent.investigation:review_packet": {
-   "count": 187,
+   "count": 186,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_review_packet.py::test_evidence_is_cut_short_for_the_reviewer",
@@ -3218,7 +3213,7 @@
    ]
   },
   "capstone.agent.investigation:propose": {
-   "count": 352,
+   "count": 347,
    "status": "VERIFIED",
    "direct": [
     "tests/test_agent_investigation.py::test_a_bad_decision_is_recorded_and_the_run_goes_on",
@@ -3250,7 +3245,7 @@
    ]
   },
   "capstone.agent.investigation:execute": {
-   "count": 175,
+   "count": 174,
    "status": "VERIFIED",
    "direct": [],
    "indirect": [
@@ -3269,7 +3264,7 @@
    ]
   },
   "capstone.agent.investigation:verify": {
-   "count": 178,
+   "count": 177,
    "status": "VERIFIED",
    "direct": [
     "tests/test_agent_investigation.py::test_an_action_is_dropped_when_the_conclusion_does_not_recommend_one"
@@ -3290,7 +3285,7 @@
    ]
   },
   "capstone.agent.investigation:verify.<locals>.later": {
-   "count": 178,
+   "count": 177,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_agent_investigation.py::test_an_action_is_dropped_when_the_conclusion_does_not_recommend_one"
@@ -3311,7 +3306,7 @@
    ]
   },
   "capstone.agent.investigation:build_graph": {
-   "count": 360,
+   "count": 355,
    "status": "VERIFIED",
    "direct": [
     "tests/test_agent_investigation.py::test_a_bad_decision_is_recorded_and_the_run_goes_on",
@@ -3343,7 +3338,7 @@
    ]
   },
   "capstone.agent.investigation:build_graph.<locals>.staged": {
-   "count": 360,
+   "count": 355,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_agent_investigation.py::test_a_bad_decision_is_recorded_and_the_run_goes_on",
@@ -3375,7 +3370,7 @@
    ]
   },
   "capstone.agent.investigation:build_graph.<locals>.observe_step": {
-   "count": 360,
+   "count": 355,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_agent_investigation.py::test_a_bad_decision_is_recorded_and_the_run_goes_on",
@@ -3407,7 +3402,7 @@
    ]
   },
   "capstone.agent.investigation:build_graph.<locals>.manual_step": {
-   "count": 360,
+   "count": 355,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_agent_investigation.py::test_a_bad_decision_is_recorded_and_the_run_goes_on",
@@ -3439,7 +3434,7 @@
    ]
   },
   "capstone.agent.investigation:build_graph.<locals>.plan_step": {
-   "count": 360,
+   "count": 355,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_agent_investigation.py::test_a_bad_decision_is_recorded_and_the_run_goes_on",
@@ -3471,7 +3466,7 @@
    ]
   },
   "capstone.agent.investigation:build_graph.<locals>.investigate_step": {
-   "count": 356,
+   "count": 351,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_agent_investigation.py::test_a_bad_decision_is_recorded_and_the_run_goes_on",
@@ -3503,7 +3498,7 @@
    ]
   },
   "capstone.agent.investigation:build_graph.<locals>.hypothesize_step": {
-   "count": 339,
+   "count": 335,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_agent_investigation.py::test_a_bad_decision_is_recorded_and_the_run_goes_on",
@@ -3535,7 +3530,7 @@
    ]
   },
   "capstone.agent.investigation:build_graph.<locals>.test_step": {
-   "count": 301,
+   "count": 297,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_agent_investigation.py::test_a_bad_decision_is_recorded_and_the_run_goes_on",
@@ -3567,7 +3562,7 @@
    ]
   },
   "capstone.agent.investigation:build_graph.<locals>.critique_step": {
-   "count": 352,
+   "count": 347,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_agent_investigation.py::test_a_bad_decision_is_recorded_and_the_run_goes_on",
@@ -3599,7 +3594,7 @@
    ]
   },
   "capstone.agent.investigation:build_graph.<locals>.recheck_step": {
-   "count": 352,
+   "count": 347,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_agent_investigation.py::test_a_bad_decision_is_recorded_and_the_run_goes_on",
@@ -3631,7 +3626,7 @@
    ]
   },
   "capstone.agent.investigation:build_graph.<locals>.conclude_step": {
-   "count": 352,
+   "count": 347,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_agent_investigation.py::test_a_bad_decision_is_recorded_and_the_run_goes_on",
@@ -3663,7 +3658,7 @@
    ]
   },
   "capstone.agent.investigation:build_graph.<locals>.propose_step": {
-   "count": 352,
+   "count": 347,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_agent_investigation.py::test_a_bad_decision_is_recorded_and_the_run_goes_on",
@@ -3695,7 +3690,7 @@
    ]
   },
   "capstone.agent.investigation:build_graph.<locals>.execute_step": {
-   "count": 175,
+   "count": 174,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
@@ -3714,7 +3709,7 @@
    ]
   },
   "capstone.agent.investigation:build_graph.<locals>.verify_step": {
-   "count": 178,
+   "count": 177,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_agent_investigation.py::test_an_action_is_dropped_when_the_conclusion_does_not_recommend_one"
@@ -3747,7 +3742,7 @@
    "indirect": []
   },
   "capstone.agent.investigation:run_investigation": {
-   "count": 360,
+   "count": 355,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_agent_investigation.py::test_a_bad_decision_is_recorded_and_the_run_goes_on",
@@ -3816,7 +3811,7 @@
    ]
   },
   "capstone.agent.loop:InvestigationDeps.__post_init__": {
-   "count": 542,
+   "count": 539,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_agent_loop.py::test_a_cached_decision_cannot_run_after_the_combined_question_spends_the_time",
@@ -3848,7 +3843,7 @@
    ]
   },
   "capstone.agent.loop:notify": {
-   "count": 424,
+   "count": 421,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_agent_loop.py::test_a_cached_decision_cannot_run_after_the_combined_question_spends_the_time",
@@ -3880,7 +3875,7 @@
    ]
   },
   "capstone.agent.loop:diagnosis_supported": {
-   "count": 322,
+   "count": 318,
    "status": "VERIFIED",
    "direct": [
     "tests/test_agent_loop.py::test_a_combined_next_step_cannot_exceed_its_phases_call_budget",
@@ -3910,7 +3905,7 @@
    ]
   },
   "capstone.agent.loop:confidence_stalled": {
-   "count": 304,
+   "count": 300,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_agent_loop.py::test_a_combined_next_step_cannot_exceed_its_phases_call_budget",
@@ -3936,7 +3931,7 @@
    ]
   },
   "capstone.agent.loop:check_termination": {
-   "count": 420,
+   "count": 417,
    "status": "VERIFIED",
    "direct": [
     "tests/test_agent_loop.py::test_a_cached_decision_cannot_run_after_the_combined_question_spends_the_time",
@@ -3968,7 +3963,7 @@
    ]
   },
   "capstone.agent.loop:held_for_hypotheses": {
-   "count": 430,
+   "count": 427,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_agent_loop.py::test_a_cached_decision_cannot_run_after_the_combined_question_spends_the_time",
@@ -4000,7 +3995,7 @@
    ]
   },
   "capstone.agent.loop:seconds_left": {
-   "count": 432,
+   "count": 429,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_agent_loop.py::test_a_cached_decision_cannot_run_after_the_combined_question_spends_the_time",
@@ -4032,7 +4027,7 @@
    ]
   },
   "capstone.agent.loop:ask_policy": {
-   "count": 434,
+   "count": 431,
    "status": "VERIFIED",
    "direct": [
     "tests/test_agent_loop.py::test_a_cached_decision_cannot_run_after_the_combined_question_spends_the_time",
@@ -4064,7 +4059,7 @@
    ]
   },
   "capstone.agent.loop:call_tool": {
-   "count": 456,
+   "count": 453,
    "status": "VERIFIED",
    "direct": [
     "tests/test_agent_loop.py::test_a_cached_decision_cannot_run_after_the_combined_question_spends_the_time",
@@ -4096,7 +4091,7 @@
    ]
   },
   "capstone.agent.loop:apply_interpretation": {
-   "count": 413,
+   "count": 410,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_agent_loop.py::test_a_cached_decision_cannot_run_after_the_combined_question_spends_the_time",
@@ -4128,7 +4123,7 @@
    ]
   },
   "capstone.agent.loop:record": {
-   "count": 471,
+   "count": 468,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_agent_completion.py::test_a_failed_investigation_still_leaves_an_honest_record",
@@ -4160,7 +4155,7 @@
    ]
   },
   "capstone.agent.loop:call_signature": {
-   "count": 457,
+   "count": 454,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_agent_loop.py::test_a_cached_decision_cannot_run_after_the_combined_question_spends_the_time",
@@ -4192,7 +4187,7 @@
    ]
   },
   "capstone.agent.loop:question_held_open": {
-   "count": 101,
+   "count": 103,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_agent_loop.py::test_a_good_answer_is_kept_when_the_policy_fails_to_interpret_it",
@@ -4215,7 +4210,7 @@
    ]
   },
   "capstone.agent.loop:gather": {
-   "count": 457,
+   "count": 454,
    "status": "VERIFIED",
    "direct": [
     "tests/test_agent_loop.py::test_a_cached_decision_cannot_run_after_the_combined_question_spends_the_time",
@@ -4247,7 +4242,7 @@
    ]
   },
   "capstone.agent.loop:batch_steps": {
-   "count": 415,
+   "count": 412,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_agent_loop.py::test_a_cached_decision_cannot_run_after_the_combined_question_spends_the_time",
@@ -4279,7 +4274,7 @@
    ]
   },
   "capstone.agent.loop:run_batch": {
-   "count": 410,
+   "count": 407,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_agent_loop.py::test_a_cached_decision_cannot_run_after_the_combined_question_spends_the_time",
@@ -4334,7 +4329,7 @@
    ]
   },
   "capstone.agent.loop:compiler_turn": {
-   "count": 419,
+   "count": 416,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_agent_loop.py::test_a_cached_decision_cannot_run_after_the_combined_question_spends_the_time",
@@ -4366,7 +4361,7 @@
    ]
   },
   "capstone.agent.loop:note_advice": {
-   "count": 62,
+   "count": 59,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
@@ -4385,7 +4380,7 @@
    ]
   },
   "capstone.agent.loop:run_inner_loop": {
-   "count": 420,
+   "count": 417,
    "status": "VERIFIED",
    "direct": [
     "tests/test_agent_loop.py::test_a_cached_decision_cannot_run_after_the_combined_question_spends_the_time",
@@ -5332,7 +5327,7 @@
    "indirect": []
   },
   "capstone.agent.monitor:detect_anomaly": {
-   "count": 202,
+   "count": 197,
    "status": "PARTIALLY VERIFIED",
    "direct": [],
    "indirect": [
@@ -5414,7 +5409,7 @@
    ]
   },
   "capstone.agent.state:Budgets.research_gets_some_time": {
-   "count": 784,
+   "count": 785,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
@@ -5433,7 +5428,7 @@
    ]
   },
   "capstone.agent.state:triage_budgets": {
-   "count": 64,
+   "count": 59,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_triage.py::test_triage_budgets_keep_nothing_for_a_fix_and_time_for_the_conclusion"
@@ -5454,7 +5449,7 @@
    ]
   },
   "capstone.agent.state:triage_hypothesis_reserve": {
-   "count": 59,
+   "count": 54,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_triage_hypothesis_reserve.py::test_research_questions_stop_short_of_the_reserve",
@@ -5483,7 +5478,7 @@
    ]
   },
   "capstone.agent.state:InvestigationState.confidence": {
-   "count": 472,
+   "count": 469,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_agent_investigation.py::test_the_confidence_needed_to_act_is_a_setting",
@@ -5509,7 +5504,7 @@
    ]
   },
   "capstone.agent.state:InvestigationState.leading_hypothesis": {
-   "count": 357,
+   "count": 358,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
@@ -5528,7 +5523,7 @@
    ]
   },
   "capstone.agent.state:InvestigationState.action_carried_out": {
-   "count": 198,
+   "count": 197,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
@@ -5547,7 +5542,7 @@
    ]
   },
   "capstone.agent.state:InvestigationState.research_tool_calls": {
-   "count": 561,
+   "count": 562,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
@@ -5585,7 +5580,7 @@
    ]
   },
   "capstone.agent.state:InvestigationState.remaining_iterations": {
-   "count": 518,
+   "count": 515,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
@@ -5604,7 +5599,7 @@
    ]
   },
   "capstone.agent.state:InvestigationState.remaining_tool_calls": {
-   "count": 535,
+   "count": 536,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
@@ -5623,7 +5618,7 @@
    ]
   },
   "capstone.agent.state:InvestigationState.remaining_followup_tool_calls": {
-   "count": 352,
+   "count": 351,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
@@ -5642,7 +5637,7 @@
    ]
   },
   "capstone.agent.state:InvestigationState.remaining_seconds": {
-   "count": 458,
+   "count": 455,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
@@ -5661,7 +5656,7 @@
    ]
   },
   "capstone.agent.state:InvestigationState.research_seconds": {
-   "count": 454,
+   "count": 451,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
@@ -6099,7 +6094,7 @@
    ]
   },
   "capstone.agent.triage_packet:trigger_sensor": {
-   "count": 78,
+   "count": 74,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
@@ -6130,7 +6125,7 @@
    ]
   },
   "capstone.agent.triage_packet:cutoff_relation": {
-   "count": 74,
+   "count": 70,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
@@ -6170,44 +6165,6 @@
    ]
   },
   "capstone.agent.triage_packet:ledger_entry": {
-   "count": 78,
-   "status": "INSUFFICIENT EVIDENCE",
-   "direct": [],
-   "indirect": [
-    "tests/test_detector_side_effects.py::test_triage_counts_the_screening_on_its_own_allowance_too",
-    "tests/test_recorded_investigation.py::test_recorded_data_runs_through_the_existing_graph_without_actions",
-    "tests/test_triage.py::test_a_deep_run_follows_with_its_own_id_and_keeps_approval_and_verification",
-    "tests/test_triage.py::test_a_rejected_deep_proposal_is_still_a_human_decision",
-    "tests/test_triage.py::test_a_slow_triage_stops_at_its_deadline_and_asks_for_a_deep_run",
-    "tests/test_triage.py::test_a_triage_conclusion_no_model_answered_is_model_unavailable",
-    "tests/test_triage.py::test_a_triage_never_verifies_even_when_nothing_needs_doing",
-    "tests/test_triage.py::test_a_triage_that_wants_a_fix_proposes_nothing",
-    "tests/test_triage.py::test_a_triage_with_no_time_to_ask_any_model_is_still_a_timeout",
-    "tests/test_triage.py::test_an_experiment_records_and_reports_the_triage",
-    "tests/test_triage.py::test_no_deep_run_when_the_triage_supports_that_nothing_is_needed",
-    "tests/test_triage.py::test_the_deep_run_is_not_shown_the_triage_conclusion"
-   ]
-  },
-  "capstone.agent.triage_packet:screening_items": {
-   "count": 76,
-   "status": "INSUFFICIENT EVIDENCE",
-   "direct": [],
-   "indirect": [
-    "tests/test_detector_side_effects.py::test_triage_counts_the_screening_on_its_own_allowance_too",
-    "tests/test_triage.py::test_a_deep_run_follows_with_its_own_id_and_keeps_approval_and_verification",
-    "tests/test_triage.py::test_a_rejected_deep_proposal_is_still_a_human_decision",
-    "tests/test_triage.py::test_a_slow_triage_stops_at_its_deadline_and_asks_for_a_deep_run",
-    "tests/test_triage.py::test_a_triage_conclusion_no_model_answered_is_model_unavailable",
-    "tests/test_triage.py::test_a_triage_never_verifies_even_when_nothing_needs_doing",
-    "tests/test_triage.py::test_a_triage_that_wants_a_fix_proposes_nothing",
-    "tests/test_triage.py::test_a_triage_with_no_time_to_ask_any_model_is_still_a_timeout",
-    "tests/test_triage.py::test_an_experiment_records_and_reports_the_triage",
-    "tests/test_triage.py::test_no_deep_run_when_the_triage_supports_that_nothing_is_needed",
-    "tests/test_triage.py::test_the_deep_run_is_not_shown_the_triage_conclusion",
-    "tests/test_triage.py::test_the_triage_line_counts_triages_no_model_answered"
-   ]
-  },
-  "capstone.agent.triage_packet:summary_item": {
    "count": 74,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
@@ -6226,8 +6183,46 @@
     "tests/test_triage.py::test_the_deep_run_is_not_shown_the_triage_conclusion"
    ]
   },
+  "capstone.agent.triage_packet:screening_items": {
+   "count": 72,
+   "status": "INSUFFICIENT EVIDENCE",
+   "direct": [],
+   "indirect": [
+    "tests/test_detector_side_effects.py::test_triage_counts_the_screening_on_its_own_allowance_too",
+    "tests/test_triage.py::test_a_deep_run_follows_with_its_own_id_and_keeps_approval_and_verification",
+    "tests/test_triage.py::test_a_rejected_deep_proposal_is_still_a_human_decision",
+    "tests/test_triage.py::test_a_slow_triage_stops_at_its_deadline_and_asks_for_a_deep_run",
+    "tests/test_triage.py::test_a_triage_conclusion_no_model_answered_is_model_unavailable",
+    "tests/test_triage.py::test_a_triage_never_verifies_even_when_nothing_needs_doing",
+    "tests/test_triage.py::test_a_triage_that_wants_a_fix_proposes_nothing",
+    "tests/test_triage.py::test_a_triage_with_no_time_to_ask_any_model_is_still_a_timeout",
+    "tests/test_triage.py::test_an_experiment_records_and_reports_the_triage",
+    "tests/test_triage.py::test_no_deep_run_when_the_triage_supports_that_nothing_is_needed",
+    "tests/test_triage.py::test_the_deep_run_is_not_shown_the_triage_conclusion",
+    "tests/test_triage.py::test_the_triage_line_counts_triages_no_model_answered"
+   ]
+  },
+  "capstone.agent.triage_packet:summary_item": {
+   "count": 70,
+   "status": "INSUFFICIENT EVIDENCE",
+   "direct": [],
+   "indirect": [
+    "tests/test_detector_side_effects.py::test_triage_counts_the_screening_on_its_own_allowance_too",
+    "tests/test_recorded_investigation.py::test_recorded_data_runs_through_the_existing_graph_without_actions",
+    "tests/test_triage.py::test_a_deep_run_follows_with_its_own_id_and_keeps_approval_and_verification",
+    "tests/test_triage.py::test_a_rejected_deep_proposal_is_still_a_human_decision",
+    "tests/test_triage.py::test_a_slow_triage_stops_at_its_deadline_and_asks_for_a_deep_run",
+    "tests/test_triage.py::test_a_triage_conclusion_no_model_answered_is_model_unavailable",
+    "tests/test_triage.py::test_a_triage_never_verifies_even_when_nothing_needs_doing",
+    "tests/test_triage.py::test_a_triage_that_wants_a_fix_proposes_nothing",
+    "tests/test_triage.py::test_a_triage_with_no_time_to_ask_any_model_is_still_a_timeout",
+    "tests/test_triage.py::test_an_experiment_records_and_reports_the_triage",
+    "tests/test_triage.py::test_no_deep_run_when_the_triage_supports_that_nothing_is_needed",
+    "tests/test_triage.py::test_the_deep_run_is_not_shown_the_triage_conclusion"
+   ]
+  },
   "capstone.agent.triage_packet:optional_call": {
-   "count": 78,
+   "count": 74,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
@@ -6246,7 +6241,7 @@
    ]
   },
   "capstone.agent.triage_packet:build_triage_packet": {
-   "count": 78,
+   "count": 74,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
@@ -6265,7 +6260,7 @@
    ]
   },
   "capstone.agent.triage_packet:ledger_entry_for_mandatory": {
-   "count": 78,
+   "count": 74,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
@@ -6284,7 +6279,7 @@
    ]
   },
   "capstone.agent.triage_packet:log_packet": {
-   "count": 78,
+   "count": 74,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
@@ -6317,17 +6312,17 @@
     "tests/test_triage_plan.py::test_the_triage_record_says_the_plan_was_fixed"
    ],
    "indirect": [
-    "tests/test_triage_logging.py::test_the_report_counts_plans_and_report_outcomes",
-    "tests/test_triage_screening_questions.py::test_a_packet_triage_does_not_ask_for_the_screening_again",
-    "tests/test_triage_screening_questions.py::test_a_packet_triage_still_reaches_hypothesize",
-    "tests/test_triage_screening_questions.py::test_each_fixed_list_has_one_screening_question",
-    "tests/test_triage_screening_questions.py::test_the_closing_is_recorded_with_the_screening_evidence",
-    "tests/test_triage_screening_questions.py::test_the_deep_run_plans_and_answers_as_before",
-    "tests/test_triage_screening_questions.py::test_without_the_packet_the_question_stays_open_and_is_asked_again"
+    "tests/test_triage_investigate_plan.py::test_a_fixed_question_reworded_by_a_model_is_parsed_again",
+    "tests/test_triage_investigate_plan.py::test_a_models_question_is_still_compiled_from_its_words",
+    "tests/test_triage_investigate_plan.py::test_a_settled_predicate_is_not_read_again",
+    "tests/test_triage_investigate_plan.py::test_on_reads_q1_without_a_model_and_its_predicate_settles_it",
+    "tests/test_triage_investigate_plan.py::test_only_an_alarms_measured_question_compiles",
+    "tests/test_triage_investigate_plan.py::test_the_compiled_read_is_the_predicates_window",
+    "tests/test_triage_logging.py::test_the_report_counts_plans_and_report_outcomes"
    ]
   },
   "capstone.agent.triage_plan:fixed_predicates": {
-   "count": 13,
+   "count": 14,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_triage_plan.py::test_a_fixed_plan_triage_asks_no_plan_question",
@@ -6338,59 +6333,18 @@
     "tests/test_triage_plan.py::test_the_triage_record_says_the_plan_was_fixed"
    ],
    "indirect": [
+    "tests/test_triage_investigate_plan.py::test_a_fixed_question_reworded_by_a_model_is_parsed_again",
+    "tests/test_triage_investigate_plan.py::test_a_models_question_is_still_compiled_from_its_words",
+    "tests/test_triage_investigate_plan.py::test_a_settled_predicate_is_not_read_again",
+    "tests/test_triage_investigate_plan.py::test_on_reads_q1_without_a_model_and_its_predicate_settles_it",
+    "tests/test_triage_investigate_plan.py::test_only_an_alarms_measured_question_compiles",
+    "tests/test_triage_investigate_plan.py::test_the_compiled_read_is_the_predicates_window",
     "tests/test_triage_logging.py::test_a_fixed_plan_is_printed_once_with_its_predicate",
-    "tests/test_triage_logging.py::test_the_report_counts_plans_and_report_outcomes",
-    "tests/test_triage_screening_questions.py::test_a_packet_triage_does_not_ask_for_the_screening_again",
-    "tests/test_triage_screening_questions.py::test_a_packet_triage_still_reaches_hypothesize",
-    "tests/test_triage_screening_questions.py::test_the_closing_is_recorded_with_the_screening_evidence",
-    "tests/test_triage_screening_questions.py::test_the_deep_run_plans_and_answers_as_before",
-    "tests/test_triage_screening_questions.py::test_without_the_packet_the_question_stays_open_and_is_asked_again"
-   ]
-  },
-  "capstone.agent.triage_plan:is_screening_question": {
-   "count": 11,
-   "status": "PARTIALLY VERIFIED",
-   "direct": [
-    "tests/test_triage_plan.py::test_a_fixed_plan_triage_asks_no_plan_question",
-    "tests/test_triage_plan.py::test_the_same_seed_gives_the_same_fixed_plan_triage",
-    "tests/test_triage_plan.py::test_the_triage_record_says_the_plan_was_fixed"
-   ],
-   "indirect": [
-    "tests/test_triage_logging.py::test_a_fixed_plan_is_printed_once_with_its_predicate",
-    "tests/test_triage_logging.py::test_the_report_counts_plans_and_report_outcomes",
-    "tests/test_triage_screening_questions.py::test_a_packet_triage_does_not_ask_for_the_screening_again",
-    "tests/test_triage_screening_questions.py::test_a_packet_triage_still_reaches_hypothesize",
-    "tests/test_triage_screening_questions.py::test_each_fixed_list_has_one_screening_question",
-    "tests/test_triage_screening_questions.py::test_the_closing_is_recorded_with_the_screening_evidence",
-    "tests/test_triage_screening_questions.py::test_the_deep_run_plans_and_answers_as_before",
-    "tests/test_triage_screening_questions.py::test_without_the_packet_the_question_stays_open_and_is_asked_again"
-   ]
-  },
-  "capstone.agent.triage_plan:screening_answer": {
-   "count": 16,
-   "status": "PARTIALLY VERIFIED",
-   "direct": [
-    "tests/test_triage_plan.py::test_a_fixed_plan_triage_asks_no_plan_question",
-    "tests/test_triage_plan.py::test_the_same_seed_gives_the_same_fixed_plan_triage",
-    "tests/test_triage_plan.py::test_the_triage_record_says_the_plan_was_fixed"
-   ],
-   "indirect": [
-    "tests/test_triage_logging.py::test_a_fixed_plan_is_printed_once_with_its_predicate",
-    "tests/test_triage_logging.py::test_the_report_counts_plans_and_report_outcomes",
-    "tests/test_triage_screening_questions.py::test_a_machine_absent_from_the_screening_stays_unknown",
-    "tests/test_triage_screening_questions.py::test_a_machine_down_for_the_whole_window_stays_unknown",
-    "tests/test_triage_screening_questions.py::test_a_machine_with_one_unscored_sensor_stays_unknown",
-    "tests/test_triage_screening_questions.py::test_a_packet_triage_does_not_ask_for_the_screening_again",
-    "tests/test_triage_screening_questions.py::test_a_packet_triage_still_reaches_hypothesize",
-    "tests/test_triage_screening_questions.py::test_a_screening_of_every_roster_machine_answers_with_its_evidence",
-    "tests/test_triage_screening_questions.py::test_no_packet_answers_nothing",
-    "tests/test_triage_screening_questions.py::test_the_closing_is_recorded_with_the_screening_evidence",
-    "tests/test_triage_screening_questions.py::test_the_deep_run_plans_and_answers_as_before",
-    "tests/test_triage_screening_questions.py::test_without_a_roster_the_coverage_cannot_be_known"
+    "tests/test_triage_logging.py::test_the_report_counts_plans_and_report_outcomes"
    ]
   },
   "capstone.agent.triage_report:report_outcome": {
-   "count": 69,
+   "count": 64,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_triage_report.py::test_a_manual_passage_is_never_listed_as_a_reading_without_a_conclusion",
@@ -6422,7 +6376,7 @@
    ]
   },
   "capstone.agent.triage_report:finding": {
-   "count": 64,
+   "count": 59,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_triage_report.py::test_a_manual_passage_is_never_listed_as_a_reading_without_a_conclusion",
@@ -6454,7 +6408,7 @@
    ]
   },
   "capstone.agent.triage_report:build_triage_report": {
-   "count": 69,
+   "count": 64,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_triage_report.py::test_a_manual_passage_is_never_listed_as_a_reading_without_a_conclusion",
@@ -6807,7 +6761,7 @@
    ]
   },
   "capstone.contracts.investigations:run_id_for": {
-   "count": 215,
+   "count": 210,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
@@ -6826,7 +6780,7 @@
    ]
   },
   "capstone.contracts.investigations:investigation_id_for": {
-   "count": 198,
+   "count": 193,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
@@ -6845,7 +6799,7 @@
    ]
   },
   "capstone.contracts.tools:TraceContext.consistent_context": {
-   "count": 522,
+   "count": 519,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
@@ -6864,7 +6818,7 @@
    ]
   },
   "capstone.contracts.tools:ToolResult.consistent_outcome": {
-   "count": 521,
+   "count": 518,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
@@ -6892,7 +6846,7 @@
    "indirect": []
   },
   "capstone.episode:approve_all": {
-   "count": 100,
+   "count": 99,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_episode.py::test_a_bearing_fault_is_found_fixed_checked_and_scored_in_full",
@@ -6963,7 +6917,7 @@
    ]
   },
   "capstone.episode:score_episode": {
-   "count": 189,
+   "count": 184,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_episode.py::test_a_bearing_fault_is_found_fixed_checked_and_scored_in_full",
@@ -6995,7 +6949,7 @@
    ]
   },
   "capstone.episode:answered_calls": {
-   "count": 189,
+   "count": 184,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_episode.py::test_a_bearing_fault_is_found_fixed_checked_and_scored_in_full",
@@ -7035,7 +6989,7 @@
    "indirect": []
   },
   "capstone.episode:build_world": {
-   "count": 207,
+   "count": 202,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_episode.py::test_a_bearing_fault_is_found_fixed_checked_and_scored_in_full",
@@ -7067,7 +7021,7 @@
    ]
   },
   "capstone.episode:run_episode": {
-   "count": 192,
+   "count": 187,
    "status": "VERIFIED",
    "direct": [
     "tests/test_episode.py::test_a_bearing_fault_is_found_fixed_checked_and_scored_in_full",
@@ -7099,7 +7053,7 @@
    ]
   },
   "capstone.episode:run_episode.<locals>.human_review": {
-   "count": 103,
+   "count": 102,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_episode.py::test_a_bearing_fault_is_found_fixed_checked_and_scored_in_full",
@@ -7131,7 +7085,7 @@
    ]
   },
   "capstone.episode:run_triage_then_deep": {
-   "count": 58,
+   "count": 53,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
@@ -7926,7 +7880,7 @@
    ]
   },
   "capstone.evaluation.scoring:Cause.of": {
-   "count": 228,
+   "count": 223,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
@@ -8073,7 +8027,7 @@
    ]
   },
   "capstone.evaluation.scoring:evaluate": {
-   "count": 228,
+   "count": 223,
    "status": "VERIFIED",
    "direct": [],
    "indirect": [
@@ -8156,7 +8110,7 @@
    ]
   },
   "capstone.evaluation.scoring:_resolved": {
-   "count": 229,
+   "count": 224,
    "status": "VERIFIED",
    "direct": [
     "tests/test_evaluation.py::test_a_bad_batch_is_not_resolved_while_it_is_still_in_use",
@@ -9315,7 +9269,7 @@
    "indirect": []
   },
   "capstone.faults:Relevant.describe": {
-   "count": 228,
+   "count": 223,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
@@ -9334,7 +9288,7 @@
    ]
   },
   "capstone.faults:Relevant.met_by": {
-   "count": 197,
+   "count": 192,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
@@ -9363,7 +9317,7 @@
    ]
   },
   "capstone.faults:_bearing": {
-   "count": 236,
+   "count": 231,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_episode.py::test_a_bearing_fault_is_found_fixed_checked_and_scored_in_full",
@@ -14288,7 +14242,7 @@
    ]
   },
   "capstone.providers.factory:run_tool": {
-   "count": 348,
+   "count": 343,
    "status": "VERIFIED",
    "direct": [],
    "indirect": [
@@ -14313,7 +14267,7 @@
    "indirect": []
   },
   "capstone.providers.factory:TickRange.ordered_range": {
-   "count": 305,
+   "count": 301,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
@@ -14332,7 +14286,7 @@
    ]
   },
   "capstone.providers.factory:SensorSummaryArguments.sensor_belongs_to_target": {
-   "count": 258,
+   "count": 254,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
@@ -14391,7 +14345,7 @@
    ]
   },
   "capstone.providers.factory:SimulatorFactoryProvider.__init__": {
-   "count": 360,
+   "count": 355,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
@@ -14410,7 +14364,7 @@
    ]
   },
   "capstone.providers.factory:SimulatorFactoryProvider.call": {
-   "count": 352,
+   "count": 347,
    "status": "VERIFIED",
    "direct": [
     "tests/test_experiment.py::test_a_model_policy_run_keeps_its_call_summary_and_its_time",
@@ -15269,7 +15223,7 @@
    "indirect": []
   },
   "capstone.settings:Settings.blank_is_missing": {
-   "count": 308,
+   "count": 303,
    "status": "VERIFIED",
    "direct": [
     "tests/test_settings.py::test_blank_critic_fallback_is_unset",
@@ -15338,7 +15292,7 @@
    ]
   },
   "capstone.settings:get_settings": {
-   "count": 217,
+   "count": 212,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_settings.py::test_get_settings_reads_current_environment_without_stale_cache"
@@ -15383,7 +15337,7 @@
    ]
   },
   "capstone.simulator.clock:SimulationClock.__init__": {
-   "count": 708,
+   "count": 703,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_clock.py::test_advance_many_ticks",
@@ -15413,7 +15367,7 @@
    ]
   },
   "capstone.simulator.clock:SimulationClock.tick": {
-   "count": 452,
+   "count": 447,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_agent_action.py::test_the_decision_is_read_even_if_the_same_question_was_asked_this_tick",
@@ -15451,7 +15405,7 @@
    "indirect": []
   },
   "capstone.simulator.clock:SimulationClock.now": {
-   "count": 387,
+   "count": 382,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_clock.py::test_advance_many_ticks",
@@ -15477,7 +15431,7 @@
    ]
   },
   "capstone.simulator.clock:SimulationClock.time_at": {
-   "count": 390,
+   "count": 385,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_clock.py::test_advance_many_ticks",
@@ -15505,7 +15459,7 @@
    ]
   },
   "capstone.simulator.clock:SimulationClock.advance": {
-   "count": 631,
+   "count": 626,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_clock.py::test_advance_many_ticks",
@@ -15725,7 +15679,7 @@
    ]
   },
   "capstone.simulator.events:EventLog.__init__": {
-   "count": 700,
+   "count": 695,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_events.py::test_alarm_follows_the_evidence_not_the_hidden_truth",
@@ -15751,7 +15705,7 @@
    ]
   },
   "capstone.simulator.events:EventLog.events": {
-   "count": 398,
+   "count": 393,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_events.py::test_alarm_follows_the_evidence_not_the_hidden_truth",
@@ -15781,7 +15735,7 @@
    ]
   },
   "capstone.simulator.events:EventLog.record": {
-   "count": 582,
+   "count": 577,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_agent_completion.py::test_a_rejection_and_its_reason_are_in_the_record",
@@ -15813,7 +15767,7 @@
    ]
   },
   "capstone.simulator.events:ThresholdAlarm.__init__": {
-   "count": 554,
+   "count": 549,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_events.py::test_alarm_fires_only_above_the_threshold",
@@ -15839,7 +15793,7 @@
    ]
   },
   "capstone.simulator.events:ThresholdAlarm.check": {
-   "count": 504,
+   "count": 499,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_agent_completion.py::test_a_check_that_was_never_made_is_left_out",
@@ -15871,7 +15825,7 @@
    ]
   },
   "capstone.simulator.generator:build_scenario": {
-   "count": 266,
+   "count": 261,
    "status": "VERIFIED",
    "direct": [
     "tests/test_generator.py::test_a_fault_can_be_forced_and_the_rest_still_comes_from_the_seed",
@@ -15902,7 +15856,7 @@
    ]
   },
   "capstone.simulator.line:machine_names": {
-   "count": 492,
+   "count": 487,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
@@ -15921,7 +15875,7 @@
    ]
   },
   "capstone.simulator.line:build_line": {
-   "count": 492,
+   "count": 487,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_build_line.py::test_a_fault_added_afterwards_sees_the_lines_work_and_stops_the_line",
@@ -15953,7 +15907,7 @@
    ]
   },
   "capstone.simulator.maintenance:past_maintenance": {
-   "count": 491,
+   "count": 486,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
@@ -15972,7 +15926,7 @@
    ]
   },
   "capstone.simulator.rng:RandomSource.__init__": {
-   "count": 768,
+   "count": 763,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_rng.py::test_derivation_is_pinned_so_recorded_histories_survive_refactors",
@@ -16007,7 +15961,7 @@
    "indirect": []
   },
   "capstone.simulator.rng:RandomSource.stream": {
-   "count": 757,
+   "count": 752,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_generator.py::test_choosing_the_fault_shifts_no_other_stream",
@@ -16039,7 +15993,7 @@
    ]
   },
   "capstone.simulator.rng:RandomSource._derive_seed": {
-   "count": 757,
+   "count": 752,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_rng.py::test_derivation_is_pinned_so_recorded_histories_survive_refactors",
@@ -16067,7 +16021,7 @@
    ]
   },
   "capstone.simulator.scenarios:Scenario.__init__": {
-   "count": 675,
+   "count": 670,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_scenarios.py::test_duplicate_scenario_name_is_rejected",
@@ -16105,7 +16059,7 @@
    "indirect": []
   },
   "capstone.simulator.scenarios:BearingDegradation.__init__": {
-   "count": 444,
+   "count": 439,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
@@ -16124,7 +16078,7 @@
    ]
   },
   "capstone.simulator.scenarios:BearingDegradation.apply": {
-   "count": 425,
+   "count": 420,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
@@ -16143,7 +16097,7 @@
    ]
   },
   "capstone.simulator.scenarios:BearingDegradation.ground_truth": {
-   "count": 240,
+   "count": 235,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_ground_truth.py::test_bearing_degradation_declares_its_own_story",
@@ -16458,7 +16412,7 @@
    ]
   },
   "capstone.simulator.scenarios:working_speed": {
-   "count": 546,
+   "count": 541,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
@@ -16477,7 +16431,7 @@
    ]
   },
   "capstone.simulator.scenarios:defect_mark": {
-   "count": 513,
+   "count": 508,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
@@ -16496,7 +16450,7 @@
    ]
   },
   "capstone.simulator.scenarios:ProductionLine.__init__": {
-   "count": 599,
+   "count": 594,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
@@ -16515,7 +16469,7 @@
    ]
   },
   "capstone.simulator.scenarios:ProductionLine.apply": {
-   "count": 543,
+   "count": 538,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
@@ -16534,7 +16488,7 @@
    ]
   },
   "capstone.simulator.scenarios:ProductionLine._move_jobs": {
-   "count": 543,
+   "count": 538,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
@@ -16553,7 +16507,7 @@
    ]
   },
   "capstone.simulator.scenarios:ProductionLine._cut_from_batch": {
-   "count": 467,
+   "count": 462,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
@@ -16572,7 +16526,7 @@
    ]
   },
   "capstone.simulator.scenarios:ProductionLine._place": {
-   "count": 542,
+   "count": 537,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_episode.py::test_a_human_who_refuses_leaves_the_fault_in_place",
@@ -16594,7 +16548,7 @@
    ]
   },
   "capstone.simulator.scenarios:ProductionLine.ground_truth": {
-   "count": 267,
+   "count": 262,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_false_alarm.py::test_the_ground_truth_names_a_false_alarm_and_the_tool_view_does_not",
@@ -16618,7 +16572,7 @@
    ]
   },
   "capstone.simulator.scenarios:AmbientTemperature.__init__": {
-   "count": 516,
+   "count": 511,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
@@ -16637,7 +16591,7 @@
    ]
   },
   "capstone.simulator.scenarios:AmbientTemperature.apply": {
-   "count": 467,
+   "count": 462,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
@@ -16656,7 +16610,7 @@
    ]
   },
   "capstone.simulator.scenarios:AmbientTemperature.ground_truth": {
-   "count": 262,
+   "count": 257,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_ambient.py::test_ambient_is_not_a_fault_and_declares_no_ground_truth",
@@ -16679,7 +16633,7 @@
    ]
   },
   "capstone.simulator.scenarios:LoadingDoor.__init__": {
-   "count": 510,
+   "count": 505,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
@@ -16698,7 +16652,7 @@
    ]
   },
   "capstone.simulator.scenarios:LoadingDoor.apply": {
-   "count": 460,
+   "count": 455,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
@@ -16717,7 +16671,7 @@
    ]
   },
   "capstone.simulator.scenarios:LoadingDoor.ground_truth": {
-   "count": 261,
+   "count": 256,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_false_alarm.py::test_the_ground_truth_names_a_false_alarm_and_the_tool_view_does_not",
@@ -16739,7 +16693,7 @@
    ]
   },
   "capstone.simulator.sensors:Sensor.__init__": {
-   "count": 688,
+   "count": 683,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_sensors.py::test_more_wear_means_more_vibration",
@@ -16770,7 +16724,7 @@
    ]
   },
   "capstone.simulator.sensors:Sensor.read": {
-   "count": 622,
+   "count": 617,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_agent_action.py::test_a_rejection_stops_after_the_read_back_and_keeps_the_reason",
@@ -16802,7 +16756,7 @@
    ]
   },
   "capstone.simulator.sensors:Sensor.available": {
-   "count": 582,
+   "count": 577,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
@@ -16827,7 +16781,7 @@
    "indirect": []
   },
   "capstone.simulator.sensors:VibrationSensor.__init__": {
-   "count": 640,
+   "count": 635,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_sensors.py::test_more_wear_means_more_vibration",
@@ -16858,7 +16812,7 @@
    ]
   },
   "capstone.simulator.sensors:VibrationSensor._measure": {
-   "count": 576,
+   "count": 571,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_sensors.py::test_more_wear_means_more_vibration",
@@ -16887,7 +16841,7 @@
    ]
   },
   "capstone.simulator.sensors:TemperatureSensor.__init__": {
-   "count": 556,
+   "count": 551,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
@@ -16906,7 +16860,7 @@
    ]
   },
   "capstone.simulator.sensors:TemperatureSensor._measure": {
-   "count": 503,
+   "count": 498,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
@@ -16925,7 +16879,7 @@
    ]
   },
   "capstone.simulator.sensors:LoadSensor.__init__": {
-   "count": 532,
+   "count": 527,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
@@ -16944,7 +16898,7 @@
    ]
   },
   "capstone.simulator.sensors:LoadSensor._measure": {
-   "count": 482,
+   "count": 477,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
@@ -16963,7 +16917,7 @@
    ]
   },
   "capstone.simulator.sensors:PowerSensor.__init__": {
-   "count": 501,
+   "count": 496,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
@@ -16982,7 +16936,7 @@
    ]
   },
   "capstone.simulator.sensors:PowerSensor._measure": {
-   "count": 453,
+   "count": 448,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
@@ -17001,7 +16955,7 @@
    ]
   },
   "capstone.simulator.sensors:FollowingErrorSensor.__init__": {
-   "count": 495,
+   "count": 490,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
@@ -17020,7 +16974,7 @@
    ]
   },
   "capstone.simulator.sensors:FollowingErrorSensor._measure": {
-   "count": 447,
+   "count": 442,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
@@ -17039,7 +16993,7 @@
    ]
   },
   "capstone.simulator.sensors:HydraulicPressureSensor.__init__": {
-   "count": 493,
+   "count": 488,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
@@ -17058,7 +17012,7 @@
    ]
   },
   "capstone.simulator.sensors:HydraulicPressureSensor._measure": {
-   "count": 444,
+   "count": 439,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
@@ -17077,7 +17031,7 @@
    ]
   },
   "capstone.simulator.sensors:HydraulicPressureSensor.available": {
-   "count": 444,
+   "count": 439,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
@@ -17096,7 +17050,7 @@
    ]
   },
   "capstone.simulator.sensors:FactoryThermometer.__init__": {
-   "count": 501,
+   "count": 496,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
@@ -17115,7 +17069,7 @@
    ]
   },
   "capstone.simulator.sensors:FactoryThermometer.read": {
-   "count": 452,
+   "count": 447,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_agent_action.py::test_a_rejection_stops_after_the_read_back_and_keeps_the_reason",
@@ -17142,7 +17096,7 @@
    ]
   },
   "capstone.simulator.simulator:Simulator.__init__": {
-   "count": 699,
+   "count": 694,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_simulator.py::test_duplicate_sensor_is_rejected",
@@ -17169,7 +17123,7 @@
    ]
   },
   "capstone.simulator.simulator:Simulator.add_machine": {
-   "count": 689,
+   "count": 684,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_simulator.py::test_duplicate_sensor_is_rejected",
@@ -17195,7 +17149,7 @@
    ]
   },
   "capstone.simulator.simulator:Simulator.add_sensor": {
-   "count": 646,
+   "count": 641,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_simulator.py::test_duplicate_sensor_is_rejected",
@@ -17222,7 +17176,7 @@
    ]
   },
   "capstone.simulator.simulator:Simulator.add_factory_sensor": {
-   "count": 498,
+   "count": 493,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
@@ -17241,7 +17195,7 @@
    ]
   },
   "capstone.simulator.simulator:Simulator.add_alarm": {
-   "count": 551,
+   "count": 546,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
@@ -17260,7 +17214,7 @@
    ]
   },
   "capstone.simulator.simulator:Simulator.add_scenario": {
-   "count": 662,
+   "count": 657,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
@@ -17279,7 +17233,7 @@
    ]
   },
   "capstone.simulator.simulator:Simulator.ground_truth": {
-   "count": 274,
+   "count": 269,
    "status": "VERIFIED",
    "direct": [
     "tests/test_ambient.py::test_ambient_is_not_a_fault_and_declares_no_ground_truth",
@@ -17310,7 +17264,7 @@
    ]
   },
   "capstone.simulator.simulator:Simulator.start_bearing_replacement": {
-   "count": 205,
+   "count": 204,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
@@ -17374,7 +17328,7 @@
    ]
   },
   "capstone.simulator.simulator:Simulator._machine_for_maintenance": {
-   "count": 216,
+   "count": 215,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
@@ -17393,7 +17347,7 @@
    ]
   },
   "capstone.simulator.simulator:Simulator._start_maintenance": {
-   "count": 214,
+   "count": 213,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
@@ -17412,7 +17366,7 @@
    ]
   },
   "capstone.simulator.simulator:Simulator.readings": {
-   "count": 388,
+   "count": 383,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_factory_provider.py::test_a_trend_is_far_smaller_than_the_readings_it_summarises",
@@ -17443,7 +17397,7 @@
    ]
   },
   "capstone.simulator.simulator:Simulator.step": {
-   "count": 625,
+   "count": 620,
    "status": "VERIFIED",
    "direct": [
     "tests/test_build_line.py::test_the_second_machine_is_the_slowest_step_so_the_first_is_held_up",
@@ -17475,7 +17429,7 @@
    ]
   },
   "capstone.simulator.simulator:Simulator._update_reality": {
-   "count": 625,
+   "count": 620,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_simulator.py::test_log_accumulates_every_reading_oldest_first",
@@ -17500,7 +17454,7 @@
    ]
   },
   "capstone.simulator.simulator:Simulator._record_job_events": {
-   "count": 623,
+   "count": 618,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_simulator.py::test_log_accumulates_every_reading_oldest_first",
@@ -17525,7 +17479,7 @@
    ]
   },
   "capstone.simulator.simulator:Simulator._record_job": {
-   "count": 540,
+   "count": 535,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
@@ -17544,7 +17498,7 @@
    ]
   },
   "capstone.simulator.simulator:Simulator._record_inspections": {
-   "count": 623,
+   "count": 618,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_simulator.py::test_log_accumulates_every_reading_oldest_first",
@@ -17569,7 +17523,7 @@
    ]
   },
   "capstone.simulator.simulator:Simulator._record_batch": {
-   "count": 623,
+   "count": 618,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_simulator.py::test_log_accumulates_every_reading_oldest_first",
@@ -17594,7 +17548,7 @@
    ]
   },
   "capstone.simulator.simulator:Simulator._record_door": {
-   "count": 623,
+   "count": 618,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_simulator.py::test_log_accumulates_every_reading_oldest_first",
@@ -17619,7 +17573,7 @@
    ]
   },
   "capstone.simulator.simulator:Simulator._warm_or_cool_machines": {
-   "count": 623,
+   "count": 618,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_simulator.py::test_log_accumulates_every_reading_oldest_first",
@@ -17644,7 +17598,7 @@
    ]
   },
   "capstone.simulator.simulator:Simulator._finish_maintenance": {
-   "count": 623,
+   "count": 618,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_simulator.py::test_log_accumulates_every_reading_oldest_first",
@@ -17712,7 +17666,7 @@
    ]
   },
   "capstone.simulator.simulator:Simulator._describe_old_bearing": {
-   "count": 198,
+   "count": 197,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
@@ -17731,7 +17685,7 @@
    ]
   },
   "capstone.simulator.simulator:Simulator._apply_consequences": {
-   "count": 623,
+   "count": 618,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_simulator.py::test_log_accumulates_every_reading_oldest_first",
@@ -17756,7 +17710,7 @@
    ]
   },
   "capstone.simulator.state:MachineState.speed": {
-   "count": 731,
+   "count": 726,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_power_sensor.py::test_the_same_work_at_a_higher_speed_draws_more_power",
@@ -17782,7 +17736,7 @@
    ]
   },
   "capstone.simulator.state:MachineState.speed_ratio": {
-   "count": 731,
+   "count": 726,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
@@ -17801,7 +17755,7 @@
    ]
   },
   "capstone.simulator.state:MachineState.job_done": {
-   "count": 625,
+   "count": 620,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
@@ -17820,7 +17774,7 @@
    ]
   },
   "capstone.simulator.state:FactoryState.next_on_line": {
-   "count": 479,
+   "count": 474,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
@@ -17839,7 +17793,7 @@
    ]
   },
   "capstone.simulator.state:FactoryState.air_temperature": {
-   "count": 693,
+   "count": 688,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
@@ -17858,7 +17812,7 @@
    ]
   },
   "capstone.simulator.state:FactoryState.add": {
-   "count": 699,
+   "count": 694,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
@@ -17877,7 +17831,7 @@
    ]
   },
   "capstone.simulator.thermal:settling_temperature": {
-   "count": 706,
+   "count": 701,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
@@ -17896,7 +17850,7 @@
    ]
   },
   "capstone.simulator.thermal:settle": {
-   "count": 703,
+   "count": 698,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
@@ -17915,7 +17869,7 @@
    ]
   },
   "capstone.simulator.thermal:warm_or_cool": {
-   "count": 624,
+   "count": 619,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
@@ -17934,7 +17888,7 @@
    ]
   },
   "capstone.tools.actions:ApprovalDesk.__init__": {
-   "count": 427,
+   "count": 422,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
@@ -17953,7 +17907,7 @@
    ]
   },
   "capstone.tools.actions:ApprovalDesk.submit": {
-   "count": 240,
+   "count": 239,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
@@ -17972,7 +17926,7 @@
    ]
   },
   "capstone.tools.actions:ApprovalDesk.proposals": {
-   "count": 317,
+   "count": 312,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_approval.py::test_bad_proposals_are_refused_and_not_recorded",
@@ -18006,7 +17960,7 @@
    ]
   },
   "capstone.tools.actions:ApprovalDesk.approve": {
-   "count": 207,
+   "count": 206,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_approval.py::test_the_whole_loop_propose_approve_execute_wait_verify"
@@ -18027,7 +17981,7 @@
    ]
   },
   "capstone.tools.actions:ApprovalDesk.carry_out": {
-   "count": 204,
+   "count": 203,
    "status": "VERIFIED",
    "direct": [],
    "indirect": [
@@ -18065,7 +18019,7 @@
    ]
   },
   "capstone.tools.actions:ApprovalDesk._pending": {
-   "count": 222,
+   "count": 221,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
@@ -18084,7 +18038,7 @@
    ]
   },
   "capstone.tools.actions:ApprovalDesk._decide": {
-   "count": 222,
+   "count": 221,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
@@ -18103,7 +18057,7 @@
    ]
   },
   "capstone.tools.actions:ActionTools.__init__": {
-   "count": 427,
+   "count": 422,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
@@ -18122,7 +18076,7 @@
    ]
   },
   "capstone.tools.actions:ActionTools.wait": {
-   "count": 313,
+   "count": 308,
    "status": "VERIFIED",
    "direct": [
     "tests/test_agent_verification.py::test_the_wait_for_the_work_to_finish_is_not_evidence_of_the_result",
@@ -18154,7 +18108,7 @@
    ]
   },
   "capstone.tools.actions:ActionTools.propose_action": {
-   "count": 244,
+   "count": 243,
    "status": "VERIFIED",
    "direct": [],
    "indirect": [
@@ -18173,7 +18127,7 @@
    ]
   },
   "capstone.tools.actions:ActionTools.get_proposals": {
-   "count": 197,
+   "count": 196,
    "status": "PARTIALLY VERIFIED",
    "direct": [],
    "indirect": [
@@ -18192,7 +18146,7 @@
    ]
   },
   "capstone.tools.actions:ActionTools.execute_action": {
-   "count": 204,
+   "count": 203,
    "status": "VERIFIED",
    "direct": [
     "tests/test_factory_provider.py::test_execute_action_is_refused_until_a_human_approves_then_reports_the_work"
@@ -18213,7 +18167,7 @@
    ]
   },
   "capstone.tools.observation:ObservationTools.__init__": {
-   "count": 462,
+   "count": 457,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
@@ -18232,7 +18186,7 @@
    ]
   },
   "capstone.tools.observation:ObservationTools.get_time": {
-   "count": 356,
+   "count": 351,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_observation_tools.py::test_get_time_reports_tick_and_clock_time"
@@ -18253,7 +18207,7 @@
    ]
   },
   "capstone.tools.observation:ObservationTools.list_machines": {
-   "count": 90,
+   "count": 86,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_job_history.py::test_list_machines_shows_who_is_holding_what",
@@ -18294,7 +18248,7 @@
    ]
   },
   "capstone.tools.observation:ObservationTools.get_readings": {
-   "count": 324,
+   "count": 320,
    "status": "VERIFIED",
    "direct": [
     "tests/test_observation_tools.py::test_get_readings_returns_one_machine_one_sensor_in_the_tick_range"
@@ -18315,7 +18269,7 @@
    ]
   },
   "capstone.tools.observation:ObservationTools.get_sensor_trend": {
-   "count": 173,
+   "count": 169,
    "status": "PARTIALLY VERIFIED",
    "direct": [],
    "indirect": [
@@ -18353,7 +18307,7 @@
    ]
   },
   "capstone.tools.observation:ObservationTools.get_sensor_summary": {
-   "count": 267,
+   "count": 263,
    "status": "VERIFIED",
    "direct": [
     "tests/test_sensor_summary.py::test_empty_summary_has_no_invented_values_or_units",
@@ -18384,7 +18338,7 @@
    ]
   },
   "capstone.tools.observation:ObservationTools.get_line_screening": {
-   "count": 296,
+   "count": 291,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_line_screening.py::test_a_blackout_takes_away_only_the_dead_machines_entry",
@@ -18410,7 +18364,7 @@
    ]
   },
   "capstone.tools.observation:ObservationTools.get_events": {
-   "count": 328,
+   "count": 323,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_observation_tools.py::test_get_events_can_be_narrowed_to_one_machine"
@@ -18473,7 +18427,7 @@
    ]
   },
   "capstone.tools.observation:ObservationTools.get_inspections": {
-   "count": 212,
+   "count": 207,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_quality.py::test_get_inspections_returns_results_in_a_tick_range_as_plain_data"
@@ -18494,7 +18448,7 @@
    ]
   },
   "capstone.tools.observation:ObservationTools._event_row": {
-   "count": 342,
+   "count": 337,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
@@ -18513,7 +18467,7 @@
    ]
   },
   "capstone.tools.observation:ObservationTools._check": {
-   "count": 370,
+   "count": 365,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_agent_completion.py::test_a_check_that_was_never_made_is_left_out",
@@ -18542,7 +18496,7 @@
    ]
   },
   "capstone.tools.screening:stage_of": {
-   "count": 300,
+   "count": 295,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
@@ -18561,7 +18515,7 @@
    ]
   },
   "capstone.tools.screening:running_series": {
-   "count": 303,
+   "count": 298,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
@@ -18596,7 +18550,7 @@
    ]
   },
   "capstone.tools.screening:machine_readings": {
-   "count": 297,
+   "count": 292,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
@@ -18635,7 +18589,7 @@
    "indirect": []
   },
   "capstone.tools.screening:score": {
-   "count": 298,
+   "count": 293,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_evals.py::test_confident_no_fault_and_honest_abstention_score_apart"
@@ -18656,7 +18610,7 @@
    ]
   },
   "capstone.tools.screening:screen_machine": {
-   "count": 302,
+   "count": 297,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
@@ -18675,7 +18629,7 @@
    ]
   },
   "capstone.tools.screening:screen_line": {
-   "count": 297,
+   "count": 292,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_line_screening.py::test_screen_line_keeps_line_order"
@@ -18696,7 +18650,7 @@
    ]
   },
   "capstone.tools.screening:compact": {
-   "count": 297,
+   "count": 292,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_line_screening.py::test_the_compact_form_keeps_scores_stages_and_reasons"
@@ -59256,13 +59210,14 @@
    ]
   },
   "tests/test_triage_investigate.py::test_a_question_compiles_to_one_bounded_summary_read": {
-   "count": 13,
+   "count": 14,
    "judgment": "NOT ASSESSED",
    "functions": [
     "capstone.agent.investigate_compiler:Candidate.key",
     "capstone.agent.investigate_compiler:Candidate.root",
     "capstone.agent.investigate_compiler:Candidate.step",
     "capstone.agent.investigate_compiler:compile_requests",
+    "capstone.agent.investigate_compiler:from_fixed_plan",
     "capstone.agent.investigate_compiler:known_machines",
     "capstone.agent.investigate_compiler:machines_named",
     "capstone.agent.investigate_compiler:observed_windows",
@@ -59275,12 +59230,13 @@
    ]
   },
   "tests/test_triage_investigate.py::test_only_machines_on_the_roster_are_named": {
-   "count": 12,
+   "count": 13,
    "judgment": "NOT ASSESSED",
    "functions": [
     "capstone.agent.investigate_compiler:Candidate.key",
     "capstone.agent.investigate_compiler:Candidate.root",
     "capstone.agent.investigate_compiler:compile_requests",
+    "capstone.agent.investigate_compiler:from_fixed_plan",
     "capstone.agent.investigate_compiler:known_machines",
     "capstone.agent.investigate_compiler:machines_named",
     "capstone.agent.investigate_compiler:observed_windows",
@@ -59293,12 +59249,13 @@
    ]
   },
   "tests/test_triage_investigate.py::test_without_a_roster_only_the_alarmed_machine_is_known": {
-   "count": 12,
+   "count": 13,
    "judgment": "NOT ASSESSED",
    "functions": [
     "capstone.agent.investigate_compiler:Candidate.key",
     "capstone.agent.investigate_compiler:Candidate.root",
     "capstone.agent.investigate_compiler:compile_requests",
+    "capstone.agent.investigate_compiler:from_fixed_plan",
     "capstone.agent.investigate_compiler:known_machines",
     "capstone.agent.investigate_compiler:machines_named",
     "capstone.agent.investigate_compiler:observed_windows",
@@ -59311,10 +59268,11 @@
    ]
   },
   "tests/test_triage_investigate.py::test_a_partial_id_is_not_a_machine": {
-   "count": 10,
+   "count": 11,
    "judgment": "NOT ASSESSED",
    "functions": [
     "capstone.agent.investigate_compiler:compile_requests",
+    "capstone.agent.investigate_compiler:from_fixed_plan",
     "capstone.agent.investigate_compiler:known_machines",
     "capstone.agent.investigate_compiler:machines_named",
     "capstone.agent.investigate_compiler:observed_windows",
@@ -59327,10 +59285,11 @@
    ]
   },
   "tests/test_triage_investigate.py::test_ambiguous_or_unsure_questions_compile_nothing": {
-   "count": 10,
+   "count": 11,
    "judgment": "NOT ASSESSED",
    "functions": [
     "capstone.agent.investigate_compiler:compile_requests",
+    "capstone.agent.investigate_compiler:from_fixed_plan",
     "capstone.agent.investigate_compiler:known_machines",
     "capstone.agent.investigate_compiler:machines_named",
     "capstone.agent.investigate_compiler:observed_windows",
@@ -59383,10 +59342,11 @@
    ]
   },
   "tests/test_triage_investigate.py::test_a_read_already_observed_over_the_window_is_not_repeated": {
-   "count": 10,
+   "count": 11,
    "judgment": "NOT ASSESSED",
    "functions": [
     "capstone.agent.investigate_compiler:compile_requests",
+    "capstone.agent.investigate_compiler:from_fixed_plan",
     "capstone.agent.investigate_compiler:known_machines",
     "capstone.agent.investigate_compiler:machines_named",
     "capstone.agent.investigate_compiler:observed_windows",
@@ -59399,12 +59359,13 @@
    ]
   },
   "tests/test_triage_investigate.py::test_a_narrower_earlier_read_does_not_block_a_new_window": {
-   "count": 12,
+   "count": 13,
    "judgment": "NOT ASSESSED",
    "functions": [
     "capstone.agent.investigate_compiler:Candidate.key",
     "capstone.agent.investigate_compiler:Candidate.root",
     "capstone.agent.investigate_compiler:compile_requests",
+    "capstone.agent.investigate_compiler:from_fixed_plan",
     "capstone.agent.investigate_compiler:known_machines",
     "capstone.agent.investigate_compiler:machines_named",
     "capstone.agent.investigate_compiler:observed_windows",
@@ -59417,12 +59378,13 @@
    ]
   },
   "tests/test_triage_investigate.py::test_two_questions_about_one_read_offer_it_once": {
-   "count": 12,
+   "count": 13,
    "judgment": "NOT ASSESSED",
    "functions": [
     "capstone.agent.investigate_compiler:Candidate.key",
     "capstone.agent.investigate_compiler:Candidate.root",
     "capstone.agent.investigate_compiler:compile_requests",
+    "capstone.agent.investigate_compiler:from_fixed_plan",
     "capstone.agent.investigate_compiler:known_machines",
     "capstone.agent.investigate_compiler:machines_named",
     "capstone.agent.investigate_compiler:observed_windows",
@@ -59435,12 +59397,13 @@
    ]
   },
   "tests/test_triage_investigate.py::test_a_rival_separating_question_ranks_first": {
-   "count": 12,
+   "count": 13,
    "judgment": "NOT ASSESSED",
    "functions": [
     "capstone.agent.investigate_compiler:Candidate.key",
     "capstone.agent.investigate_compiler:Candidate.root",
     "capstone.agent.investigate_compiler:compile_requests",
+    "capstone.agent.investigate_compiler:from_fixed_plan",
     "capstone.agent.investigate_compiler:known_machines",
     "capstone.agent.investigate_compiler:machines_named",
     "capstone.agent.investigate_compiler:observed_windows",
@@ -59453,12 +59416,13 @@
    ]
   },
   "tests/test_triage_investigate.py::test_a_check_that_could_tell_against_the_favourite_ranks_next": {
-   "count": 12,
+   "count": 13,
    "judgment": "NOT ASSESSED",
    "functions": [
     "capstone.agent.investigate_compiler:Candidate.key",
     "capstone.agent.investigate_compiler:Candidate.root",
     "capstone.agent.investigate_compiler:compile_requests",
+    "capstone.agent.investigate_compiler:from_fixed_plan",
     "capstone.agent.investigate_compiler:known_machines",
     "capstone.agent.investigate_compiler:machines_named",
     "capstone.agent.investigate_compiler:observed_windows",
@@ -59471,12 +59435,13 @@
    ]
   },
   "tests/test_triage_investigate.py::test_trust_then_prior_reads_then_cost_break_the_rest": {
-   "count": 12,
+   "count": 13,
    "judgment": "NOT ASSESSED",
    "functions": [
     "capstone.agent.investigate_compiler:Candidate.key",
     "capstone.agent.investigate_compiler:Candidate.root",
     "capstone.agent.investigate_compiler:compile_requests",
+    "capstone.agent.investigate_compiler:from_fixed_plan",
     "capstone.agent.investigate_compiler:known_machines",
     "capstone.agent.investigate_compiler:machines_named",
     "capstone.agent.investigate_compiler:observed_windows",
@@ -59489,12 +59454,13 @@
    ]
   },
   "tests/test_triage_investigate.py::test_ties_break_by_question_order_then_machine_and_never_vary": {
-   "count": 12,
+   "count": 13,
    "judgment": "NOT ASSESSED",
    "functions": [
     "capstone.agent.investigate_compiler:Candidate.key",
     "capstone.agent.investigate_compiler:Candidate.root",
     "capstone.agent.investigate_compiler:compile_requests",
+    "capstone.agent.investigate_compiler:from_fixed_plan",
     "capstone.agent.investigate_compiler:known_machines",
     "capstone.agent.investigate_compiler:machines_named",
     "capstone.agent.investigate_compiler:observed_windows",
@@ -59507,13 +59473,14 @@
    ]
   },
   "tests/test_triage_investigate.py::test_the_model_decides_when_causality_is_unclear": {
-   "count": 13,
+   "count": 14,
    "judgment": "NOT ASSESSED",
    "functions": [
     "capstone.agent.investigate_compiler:Candidate.key",
     "capstone.agent.investigate_compiler:Candidate.root",
     "capstone.agent.investigate_compiler:compile_requests",
     "capstone.agent.investigate_compiler:escape_reason",
+    "capstone.agent.investigate_compiler:from_fixed_plan",
     "capstone.agent.investigate_compiler:known_machines",
     "capstone.agent.investigate_compiler:machines_named",
     "capstone.agent.investigate_compiler:observed_windows",
@@ -59526,7 +59493,7 @@
    ]
   },
   "tests/test_triage_investigate.py::test_agreement_names_how_the_model_choice_compares": {
-   "count": 15,
+   "count": 16,
    "judgment": "NOT ASSESSED",
    "functions": [
     "capstone.agent.investigate_compiler:Candidate.key",
@@ -59534,6 +59501,7 @@
     "capstone.agent.investigate_compiler:Candidate.step",
     "capstone.agent.investigate_compiler:agreement",
     "capstone.agent.investigate_compiler:compile_requests",
+    "capstone.agent.investigate_compiler:from_fixed_plan",
     "capstone.agent.investigate_compiler:known_machines",
     "capstone.agent.investigate_compiler:machines_named",
     "capstone.agent.investigate_compiler:model_target",
@@ -59547,7 +59515,7 @@
    ]
   },
   "tests/test_triage_investigate.py::test_advisory_asks_the_model_and_records_the_comparison": {
-   "count": 38,
+   "count": 39,
    "judgment": "NOT ASSESSED",
    "functions": [
     "capstone.agent.investigate_compiler:Candidate.key",
@@ -59556,6 +59524,7 @@
     "capstone.agent.investigate_compiler:agreement",
     "capstone.agent.investigate_compiler:compile_requests",
     "capstone.agent.investigate_compiler:escape_reason",
+    "capstone.agent.investigate_compiler:from_fixed_plan",
     "capstone.agent.investigate_compiler:known_machines",
     "capstone.agent.investigate_compiler:machines_named",
     "capstone.agent.investigate_compiler:model_target",
@@ -59568,12 +59537,11 @@
     "capstone.agent.loop:batch_steps",
     "capstone.agent.loop:call_signature",
     "capstone.agent.loop:call_tool",
-    "capstone.agent.loop:check_termination",
-    "capstone.agent.loop:compiler_turn"
+    "capstone.agent.loop:check_termination"
    ]
   },
   "tests/test_triage_investigate.py::test_on_makes_the_compiled_read_without_a_decide_question": {
-   "count": 39,
+   "count": 40,
    "judgment": "NOT ASSESSED",
    "functions": [
     "capstone.agent.investigate_compiler:Candidate.key",
@@ -59582,6 +59550,7 @@
     "capstone.agent.investigate_compiler:Candidate.step",
     "capstone.agent.investigate_compiler:compile_requests",
     "capstone.agent.investigate_compiler:escape_reason",
+    "capstone.agent.investigate_compiler:from_fixed_plan",
     "capstone.agent.investigate_compiler:known_machines",
     "capstone.agent.investigate_compiler:machines_named",
     "capstone.agent.investigate_compiler:model_target",
@@ -59594,16 +59563,16 @@
     "capstone.agent.loop:batch_steps",
     "capstone.agent.loop:call_signature",
     "capstone.agent.loop:call_tool",
-    "capstone.agent.loop:check_termination",
-    "capstone.agent.loop:compiler_turn"
+    "capstone.agent.loop:check_termination"
    ]
   },
   "tests/test_triage_investigate.py::test_on_falls_back_to_the_model_when_nothing_compiles": {
-   "count": 33,
+   "count": 34,
    "judgment": "NOT ASSESSED",
    "functions": [
     "capstone.agent.investigate_compiler:compile_requests",
     "capstone.agent.investigate_compiler:escape_reason",
+    "capstone.agent.investigate_compiler:from_fixed_plan",
     "capstone.agent.investigate_compiler:known_machines",
     "capstone.agent.investigate_compiler:model_target",
     "capstone.agent.investigate_compiler:observed_windows",
@@ -59620,12 +59589,11 @@
     "capstone.agent.loop:gather",
     "capstone.agent.loop:held_for_hypotheses",
     "capstone.agent.loop:note_advice",
-    "capstone.agent.loop:notify",
-    "capstone.agent.loop:record"
+    "capstone.agent.loop:notify"
    ]
   },
   "tests/test_triage_investigate.py::test_a_failed_model_answer_is_recorded": {
-   "count": 30,
+   "count": 31,
    "judgment": "NOT ASSESSED",
    "functions": [
     "capstone.agent.investigate_compiler:Candidate.key",
@@ -59634,6 +59602,7 @@
     "capstone.agent.investigate_compiler:agreement",
     "capstone.agent.investigate_compiler:compile_requests",
     "capstone.agent.investigate_compiler:escape_reason",
+    "capstone.agent.investigate_compiler:from_fixed_plan",
     "capstone.agent.investigate_compiler:known_machines",
     "capstone.agent.investigate_compiler:machines_named",
     "capstone.agent.investigate_compiler:model_target",
@@ -59646,8 +59615,7 @@
     "capstone.agent.loop:compiler_turn",
     "capstone.agent.loop:held_for_hypotheses",
     "capstone.agent.loop:note_advice",
-    "capstone.agent.loop:notify",
-    "capstone.agent.loop:record"
+    "capstone.agent.loop:notify"
    ]
   },
   "tests/test_triage_investigate.py::test_off_and_deep_never_use_the_compiler": {
@@ -59760,8 +59728,143 @@
     "capstone.agent.investigation:critic_view"
    ]
   },
+  "tests/test_triage_investigate_plan.py::test_only_an_alarms_measured_question_compiles": {
+   "count": 14,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.agent.investigate_compiler:Candidate.key",
+    "capstone.agent.investigate_compiler:Candidate.root",
+    "capstone.agent.investigate_compiler:compile_requests",
+    "capstone.agent.investigate_compiler:escape_reason",
+    "capstone.agent.investigate_compiler:from_fixed_plan",
+    "capstone.agent.investigate_compiler:known_machines",
+    "capstone.agent.investigate_compiler:observed_windows",
+    "capstone.agent.investigate_compiler:targets",
+    "capstone.agent.state:Budgets.research_gets_some_time",
+    "capstone.agent.state:InvestigationState.leading_hypothesis",
+    "capstone.agent.state:InvestigationState.remaining_tool_calls",
+    "capstone.agent.state:InvestigationState.research_tool_calls",
+    "capstone.agent.triage_plan:fixed_plan",
+    "capstone.agent.triage_plan:fixed_predicates"
+   ]
+  },
+  "tests/test_triage_investigate_plan.py::test_the_compiled_read_is_the_predicates_window": {
+   "count": 15,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.agent.investigate_compiler:Candidate.key",
+    "capstone.agent.investigate_compiler:Candidate.root",
+    "capstone.agent.investigate_compiler:Candidate.signals",
+    "capstone.agent.investigate_compiler:Candidate.step",
+    "capstone.agent.investigate_compiler:compile_requests",
+    "capstone.agent.investigate_compiler:from_fixed_plan",
+    "capstone.agent.investigate_compiler:known_machines",
+    "capstone.agent.investigate_compiler:observed_windows",
+    "capstone.agent.investigate_compiler:targets",
+    "capstone.agent.state:Budgets.research_gets_some_time",
+    "capstone.agent.state:InvestigationState.leading_hypothesis",
+    "capstone.agent.state:InvestigationState.remaining_tool_calls",
+    "capstone.agent.state:InvestigationState.research_tool_calls",
+    "capstone.agent.triage_plan:fixed_plan",
+    "capstone.agent.triage_plan:fixed_predicates"
+   ]
+  },
+  "tests/test_triage_investigate_plan.py::test_a_settled_predicate_is_not_read_again": {
+   "count": 46,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.agent.evidence_tests:evaluate",
+    "capstone.agent.evidence_tests:judge",
+    "capstone.agent.evidence_tests:note",
+    "capstone.agent.evidence_tests:physical_root",
+    "capstone.agent.evidence_tests:reading_rows",
+    "capstone.agent.evidence_tests:root_of",
+    "capstone.agent.investigate_compiler:Candidate.key",
+    "capstone.agent.investigate_compiler:Candidate.root",
+    "capstone.agent.investigate_compiler:Candidate.signals",
+    "capstone.agent.investigate_compiler:Candidate.step",
+    "capstone.agent.investigate_compiler:compile_requests",
+    "capstone.agent.investigate_compiler:escape_reason",
+    "capstone.agent.investigate_compiler:from_fixed_plan",
+    "capstone.agent.investigate_compiler:known_machines",
+    "capstone.agent.investigate_compiler:model_target",
+    "capstone.agent.investigate_compiler:observed_windows",
+    "capstone.agent.investigate_compiler:targets",
+    "capstone.agent.loop:InvestigationDeps.__post_init__",
+    "capstone.agent.loop:apply_interpretation",
+    "capstone.agent.loop:ask_policy"
+   ]
+  },
+  "tests/test_triage_investigate_plan.py::test_a_models_question_is_still_compiled_from_its_words": {
+   "count": 15,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.agent.investigate_compiler:Candidate.key",
+    "capstone.agent.investigate_compiler:Candidate.root",
+    "capstone.agent.investigate_compiler:compile_requests",
+    "capstone.agent.investigate_compiler:from_fixed_plan",
+    "capstone.agent.investigate_compiler:known_machines",
+    "capstone.agent.investigate_compiler:machines_named",
+    "capstone.agent.investigate_compiler:observed_windows",
+    "capstone.agent.investigate_compiler:sensors_named",
+    "capstone.agent.investigate_compiler:targets",
+    "capstone.agent.state:Budgets.research_gets_some_time",
+    "capstone.agent.state:InvestigationState.leading_hypothesis",
+    "capstone.agent.state:InvestigationState.remaining_tool_calls",
+    "capstone.agent.state:InvestigationState.research_tool_calls",
+    "capstone.agent.triage_plan:fixed_plan",
+    "capstone.agent.triage_plan:fixed_predicates"
+   ]
+  },
+  "tests/test_triage_investigate_plan.py::test_a_fixed_question_reworded_by_a_model_is_parsed_again": {
+   "count": 15,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.agent.investigate_compiler:Candidate.key",
+    "capstone.agent.investigate_compiler:Candidate.root",
+    "capstone.agent.investigate_compiler:compile_requests",
+    "capstone.agent.investigate_compiler:from_fixed_plan",
+    "capstone.agent.investigate_compiler:known_machines",
+    "capstone.agent.investigate_compiler:machines_named",
+    "capstone.agent.investigate_compiler:observed_windows",
+    "capstone.agent.investigate_compiler:sensors_named",
+    "capstone.agent.investigate_compiler:targets",
+    "capstone.agent.state:Budgets.research_gets_some_time",
+    "capstone.agent.state:InvestigationState.leading_hypothesis",
+    "capstone.agent.state:InvestigationState.remaining_tool_calls",
+    "capstone.agent.state:InvestigationState.research_tool_calls",
+    "capstone.agent.triage_plan:fixed_plan",
+    "capstone.agent.triage_plan:fixed_predicates"
+   ]
+  },
+  "tests/test_triage_investigate_plan.py::test_on_reads_q1_without_a_model_and_its_predicate_settles_it": {
+   "count": 46,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.agent.evidence_tests:evaluate",
+    "capstone.agent.evidence_tests:judge",
+    "capstone.agent.evidence_tests:note",
+    "capstone.agent.evidence_tests:physical_root",
+    "capstone.agent.evidence_tests:reading_rows",
+    "capstone.agent.evidence_tests:root_of",
+    "capstone.agent.investigate_compiler:Candidate.key",
+    "capstone.agent.investigate_compiler:Candidate.root",
+    "capstone.agent.investigate_compiler:Candidate.signals",
+    "capstone.agent.investigate_compiler:Candidate.step",
+    "capstone.agent.investigate_compiler:compile_requests",
+    "capstone.agent.investigate_compiler:escape_reason",
+    "capstone.agent.investigate_compiler:from_fixed_plan",
+    "capstone.agent.investigate_compiler:known_machines",
+    "capstone.agent.investigate_compiler:model_target",
+    "capstone.agent.investigate_compiler:observed_windows",
+    "capstone.agent.investigate_compiler:targets",
+    "capstone.agent.loop:InvestigationDeps.__post_init__",
+    "capstone.agent.loop:apply_interpretation",
+    "capstone.agent.loop:ask_policy"
+   ]
+  },
   "tests/test_triage_logging.py::test_a_fixed_plan_is_printed_once_with_its_predicate": {
-   "count": 236,
+   "count": 233,
    "judgment": "NOT ASSESSED",
    "functions": [
     "capstone.agent.evidence_brief:observations",
@@ -59778,10 +59881,10 @@
     "capstone.agent.investigate_compiler:agreement",
     "capstone.agent.investigate_compiler:compile_requests",
     "capstone.agent.investigate_compiler:escape_reason",
+    "capstone.agent.investigate_compiler:from_fixed_plan",
     "capstone.agent.investigate_compiler:known_machines",
     "capstone.agent.investigate_compiler:model_target",
     "capstone.agent.investigate_compiler:observed_windows",
-    "capstone.agent.investigate_compiler:sensors_named",
     "capstone.agent.investigate_compiler:targets",
     "capstone.agent.investigation:build_graph"
    ]
@@ -59910,7 +60013,7 @@
    ]
   },
   "tests/test_triage_logging.py::test_the_report_counts_plans_and_report_outcomes": {
-   "count": 226,
+   "count": 223,
    "judgment": "NOT ASSESSED",
    "functions": [
     "capstone.agent.evidence_brief:observations",
@@ -59926,10 +60029,10 @@
     "capstone.agent.investigate_compiler:agreement",
     "capstone.agent.investigate_compiler:compile_requests",
     "capstone.agent.investigate_compiler:escape_reason",
+    "capstone.agent.investigate_compiler:from_fixed_plan",
     "capstone.agent.investigate_compiler:known_machines",
     "capstone.agent.investigate_compiler:model_target",
     "capstone.agent.investigate_compiler:observed_windows",
-    "capstone.agent.investigate_compiler:sensors_named",
     "capstone.agent.investigate_compiler:targets",
     "capstone.agent.investigation:build_graph",
     "capstone.agent.investigation:build_graph.<locals>.conclude_step"
@@ -60184,7 +60287,7 @@
    ]
   },
   "tests/test_triage_plan.py::test_a_fixed_plan_triage_asks_no_plan_question": {
-   "count": 242,
+   "count": 239,
    "judgment": "NOT ASSESSED",
    "functions": [
     "capstone.agent.evidence_brief:observations",
@@ -60200,10 +60303,10 @@
     "capstone.agent.investigate_compiler:agreement",
     "capstone.agent.investigate_compiler:compile_requests",
     "capstone.agent.investigate_compiler:escape_reason",
+    "capstone.agent.investigate_compiler:from_fixed_plan",
     "capstone.agent.investigate_compiler:known_machines",
     "capstone.agent.investigate_compiler:model_target",
     "capstone.agent.investigate_compiler:observed_windows",
-    "capstone.agent.investigate_compiler:sensors_named",
     "capstone.agent.investigate_compiler:targets",
     "capstone.agent.investigation:build_graph",
     "capstone.agent.investigation:build_graph.<locals>.conclude_step"
@@ -60262,7 +60365,7 @@
    ]
   },
   "tests/test_triage_plan.py::test_the_same_seed_gives_the_same_fixed_plan_triage": {
-   "count": 217,
+   "count": 214,
    "judgment": "NOT ASSESSED",
    "functions": [
     "capstone.agent.evidence_brief:observations",
@@ -60278,17 +60381,17 @@
     "capstone.agent.investigate_compiler:agreement",
     "capstone.agent.investigate_compiler:compile_requests",
     "capstone.agent.investigate_compiler:escape_reason",
+    "capstone.agent.investigate_compiler:from_fixed_plan",
     "capstone.agent.investigate_compiler:known_machines",
     "capstone.agent.investigate_compiler:model_target",
     "capstone.agent.investigate_compiler:observed_windows",
-    "capstone.agent.investigate_compiler:sensors_named",
     "capstone.agent.investigate_compiler:targets",
     "capstone.agent.investigation:build_graph",
     "capstone.agent.investigation:build_graph.<locals>.conclude_step"
    ]
   },
   "tests/test_triage_plan.py::test_the_triage_record_says_the_plan_was_fixed": {
-   "count": 223,
+   "count": 220,
    "judgment": "NOT ASSESSED",
    "functions": [
     "capstone.agent.evidence_brief:observations",
@@ -60304,10 +60407,10 @@
     "capstone.agent.investigate_compiler:agreement",
     "capstone.agent.investigate_compiler:compile_requests",
     "capstone.agent.investigate_compiler:escape_reason",
+    "capstone.agent.investigate_compiler:from_fixed_plan",
     "capstone.agent.investigate_compiler:known_machines",
     "capstone.agent.investigate_compiler:model_target",
     "capstone.agent.investigate_compiler:observed_windows",
-    "capstone.agent.investigate_compiler:sensors_named",
     "capstone.agent.investigate_compiler:targets",
     "capstone.agent.investigation:build_graph",
     "capstone.agent.investigation:build_graph.<locals>.conclude_step"
@@ -60846,193 +60949,6 @@
     "capstone.agent.investigation:conclude",
     "capstone.agent.investigation:consult_manual",
     "capstone.agent.investigation:critic_view"
-   ]
-  },
-  "tests/test_triage_screening_questions.py::test_each_fixed_list_has_one_screening_question": {
-   "count": 2,
-   "judgment": "NOT ASSESSED",
-   "functions": [
-    "capstone.agent.triage_plan:fixed_plan",
-    "capstone.agent.triage_plan:is_screening_question"
-   ]
-  },
-  "tests/test_triage_screening_questions.py::test_a_screening_of_every_roster_machine_answers_with_its_evidence": {
-   "count": 1,
-   "judgment": "NOT ASSESSED",
-   "functions": [
-    "capstone.agent.triage_plan:screening_answer"
-   ]
-  },
-  "tests/test_triage_screening_questions.py::test_no_packet_answers_nothing": {
-   "count": 1,
-   "judgment": "NOT ASSESSED",
-   "functions": [
-    "capstone.agent.triage_plan:screening_answer"
-   ]
-  },
-  "tests/test_triage_screening_questions.py::test_a_machine_absent_from_the_screening_stays_unknown": {
-   "count": 1,
-   "judgment": "NOT ASSESSED",
-   "functions": [
-    "capstone.agent.triage_plan:screening_answer"
-   ]
-  },
-  "tests/test_triage_screening_questions.py::test_a_machine_with_one_unscored_sensor_stays_unknown": {
-   "count": 1,
-   "judgment": "NOT ASSESSED",
-   "functions": [
-    "capstone.agent.triage_plan:screening_answer"
-   ]
-  },
-  "tests/test_triage_screening_questions.py::test_a_machine_down_for_the_whole_window_stays_unknown": {
-   "count": 1,
-   "judgment": "NOT ASSESSED",
-   "functions": [
-    "capstone.agent.triage_plan:screening_answer"
-   ]
-  },
-  "tests/test_triage_screening_questions.py::test_without_a_roster_the_coverage_cannot_be_known": {
-   "count": 1,
-   "judgment": "NOT ASSESSED",
-   "functions": [
-    "capstone.agent.triage_plan:screening_answer"
-   ]
-  },
-  "tests/test_triage_screening_questions.py::test_without_a_screening_there_is_nothing_to_answer_with": {
-   "count": 1,
-   "judgment": "NOT ASSESSED",
-   "functions": [
-    "capstone.agent.triage_plan:screening_answer"
-   ]
-  },
-  "tests/test_triage_screening_questions.py::test_a_packet_triage_does_not_ask_for_the_screening_again": {
-   "count": 217,
-   "judgment": "NOT ASSESSED",
-   "functions": [
-    "capstone.agent.evidence_brief:observations",
-    "capstone.agent.evidence_brief:verify_numeric_claims",
-    "capstone.agent.evidence_tests:note",
-    "capstone.agent.evidence_tests:open_rival_questions",
-    "capstone.agent.evidence_tests:physical_root",
-    "capstone.agent.evidence_tests:root_of",
-    "capstone.agent.evidence_tests:source_roots",
-    "capstone.agent.investigate_compiler:Candidate.key",
-    "capstone.agent.investigate_compiler:Candidate.root",
-    "capstone.agent.investigate_compiler:Candidate.signals",
-    "capstone.agent.investigate_compiler:agreement",
-    "capstone.agent.investigate_compiler:compile_requests",
-    "capstone.agent.investigate_compiler:escape_reason",
-    "capstone.agent.investigate_compiler:known_machines",
-    "capstone.agent.investigate_compiler:model_target",
-    "capstone.agent.investigate_compiler:observed_windows",
-    "capstone.agent.investigate_compiler:sensors_named",
-    "capstone.agent.investigate_compiler:targets",
-    "capstone.agent.investigation:build_graph",
-    "capstone.agent.investigation:build_graph.<locals>.conclude_step"
-   ]
-  },
-  "tests/test_triage_screening_questions.py::test_a_packet_triage_still_reaches_hypothesize": {
-   "count": 217,
-   "judgment": "NOT ASSESSED",
-   "functions": [
-    "capstone.agent.evidence_brief:observations",
-    "capstone.agent.evidence_brief:verify_numeric_claims",
-    "capstone.agent.evidence_tests:note",
-    "capstone.agent.evidence_tests:open_rival_questions",
-    "capstone.agent.evidence_tests:physical_root",
-    "capstone.agent.evidence_tests:root_of",
-    "capstone.agent.evidence_tests:source_roots",
-    "capstone.agent.investigate_compiler:Candidate.key",
-    "capstone.agent.investigate_compiler:Candidate.root",
-    "capstone.agent.investigate_compiler:Candidate.signals",
-    "capstone.agent.investigate_compiler:agreement",
-    "capstone.agent.investigate_compiler:compile_requests",
-    "capstone.agent.investigate_compiler:escape_reason",
-    "capstone.agent.investigate_compiler:known_machines",
-    "capstone.agent.investigate_compiler:model_target",
-    "capstone.agent.investigate_compiler:observed_windows",
-    "capstone.agent.investigate_compiler:sensors_named",
-    "capstone.agent.investigate_compiler:targets",
-    "capstone.agent.investigation:build_graph",
-    "capstone.agent.investigation:build_graph.<locals>.conclude_step"
-   ]
-  },
-  "tests/test_triage_screening_questions.py::test_the_closing_is_recorded_with_the_screening_evidence": {
-   "count": 217,
-   "judgment": "NOT ASSESSED",
-   "functions": [
-    "capstone.agent.evidence_brief:observations",
-    "capstone.agent.evidence_brief:verify_numeric_claims",
-    "capstone.agent.evidence_tests:note",
-    "capstone.agent.evidence_tests:open_rival_questions",
-    "capstone.agent.evidence_tests:physical_root",
-    "capstone.agent.evidence_tests:root_of",
-    "capstone.agent.evidence_tests:source_roots",
-    "capstone.agent.investigate_compiler:Candidate.key",
-    "capstone.agent.investigate_compiler:Candidate.root",
-    "capstone.agent.investigate_compiler:Candidate.signals",
-    "capstone.agent.investigate_compiler:agreement",
-    "capstone.agent.investigate_compiler:compile_requests",
-    "capstone.agent.investigate_compiler:escape_reason",
-    "capstone.agent.investigate_compiler:known_machines",
-    "capstone.agent.investigate_compiler:model_target",
-    "capstone.agent.investigate_compiler:observed_windows",
-    "capstone.agent.investigate_compiler:sensors_named",
-    "capstone.agent.investigate_compiler:targets",
-    "capstone.agent.investigation:build_graph",
-    "capstone.agent.investigation:build_graph.<locals>.conclude_step"
-   ]
-  },
-  "tests/test_triage_screening_questions.py::test_without_the_packet_the_question_stays_open_and_is_asked_again": {
-   "count": 185,
-   "judgment": "NOT ASSESSED",
-   "functions": [
-    "capstone.agent.investigate_compiler:Candidate.key",
-    "capstone.agent.investigate_compiler:Candidate.root",
-    "capstone.agent.investigate_compiler:compile_requests",
-    "capstone.agent.investigate_compiler:escape_reason",
-    "capstone.agent.investigate_compiler:known_machines",
-    "capstone.agent.investigate_compiler:machines_named",
-    "capstone.agent.investigate_compiler:model_target",
-    "capstone.agent.investigate_compiler:observed_windows",
-    "capstone.agent.investigate_compiler:sensors_named",
-    "capstone.agent.investigate_compiler:targets",
-    "capstone.agent.investigation:build_graph",
-    "capstone.agent.investigation:build_graph.<locals>.conclude_step",
-    "capstone.agent.investigation:build_graph.<locals>.critique_step",
-    "capstone.agent.investigation:build_graph.<locals>.investigate_step",
-    "capstone.agent.investigation:build_graph.<locals>.manual_step",
-    "capstone.agent.investigation:build_graph.<locals>.observe_step",
-    "capstone.agent.investigation:build_graph.<locals>.plan_step",
-    "capstone.agent.investigation:build_graph.<locals>.propose_step",
-    "capstone.agent.investigation:build_graph.<locals>.recheck_step",
-    "capstone.agent.investigation:build_graph.<locals>.staged"
-   ]
-  },
-  "tests/test_triage_screening_questions.py::test_the_deep_run_plans_and_answers_as_before": {
-   "count": 242,
-   "judgment": "NOT ASSESSED",
-   "functions": [
-    "capstone.agent.evidence_brief:observations",
-    "capstone.agent.evidence_brief:verify_numeric_claims",
-    "capstone.agent.evidence_tests:note",
-    "capstone.agent.evidence_tests:open_rival_questions",
-    "capstone.agent.evidence_tests:physical_root",
-    "capstone.agent.evidence_tests:root_of",
-    "capstone.agent.evidence_tests:source_roots",
-    "capstone.agent.investigate_compiler:Candidate.key",
-    "capstone.agent.investigate_compiler:Candidate.root",
-    "capstone.agent.investigate_compiler:Candidate.signals",
-    "capstone.agent.investigate_compiler:agreement",
-    "capstone.agent.investigate_compiler:compile_requests",
-    "capstone.agent.investigate_compiler:escape_reason",
-    "capstone.agent.investigate_compiler:known_machines",
-    "capstone.agent.investigate_compiler:model_target",
-    "capstone.agent.investigate_compiler:observed_windows",
-    "capstone.agent.investigate_compiler:sensors_named",
-    "capstone.agent.investigate_compiler:targets",
-    "capstone.agent.investigation:build_graph",
-    "capstone.agent.investigation:build_graph.<locals>.conclude_step"
    ]
   },
   "tests/test_two_lines.py::test_both_lines_are_recorded_by_name": {
