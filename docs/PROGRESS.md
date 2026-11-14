@@ -1,3 +1,7 @@
+> **2026-11-14 — the conclusion is told when no hypothesis was formed (fix; built ungated, developer to review; understood: no):**
+> In the afternoon triage runs ([results](benchmarks/2026-11-14-triage-brief-and-reserve.md)), KA-12 r1's conclusion named a hypothesis id although hypothesize never ran, and `check_conclusion` refused the whole answer. When `state.hypotheses` is empty, `ModelPolicy.conclude` (agent/model_policy.py) now adds `NO_HYPOTHESES_NOTE`: leave hypothesis_id empty. With hypotheses, the prompt is unchanged; the check is unchanged. New `tests/test_conclude_no_hypotheses.py` (3 tests, Model policy CI group). No live run.
+>
+
 > **2026-11-14 — a conclusion may cite `start_value` and `end_value` (fix; built ungated, developer to review; understood: no):**
 > In the 2026-11-14 live triage runs, KA-01 r2 and KA-08 r2 were refused because the model wrote `end_value` as a numeric-claim metric. That is a name the sensor summary and evidence brief show it, but `NumericClaim.metric` did not accept it. `NumericClaim.metric` (contracts/hypotheses.py) now also accepts `start_value` and `end_value`, and `statistics()` (agent/evidence_brief.py) computes them from raw readings, so `verify_numeric_claims` checks them like the other metrics. An unknown metric is still refused. New `tests/test_numeric_claim_metrics.py` (5 tests, Model policy CI group). No live run.
 >
