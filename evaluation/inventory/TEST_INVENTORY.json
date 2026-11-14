@@ -83886,6 +83886,182 @@
    ]
   },
   {
+   "id": "tests/test_numeric_claim_metrics.py::test_a_hypothesis_citing_end_value_is_accepted",
+   "file": "tests/test_numeric_claim_metrics.py",
+   "name": "test_a_hypothesis_citing_end_value_is_accepted",
+   "line": 49,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 1,
+   "assert_forms": {
+    "equality": 1
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "a hypothesis citing end value is accepted",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.contracts.hypotheses:NumericClaim.ordered_window"
+   ],
+   "exercise_count": 1,
+   "modules_exercised": [
+    "capstone.contracts.hypotheses"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_numeric_claim_metrics.py::test_an_unknown_metric_is_still_refused",
+   "file": "tests/test_numeric_claim_metrics.py",
+   "name": "test_an_unknown_metric_is_still_refused",
+   "line": 68,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 0,
+   "assert_forms": {},
+   "raises_checks": 1,
+   "uses": [],
+   "quality_flags": [
+    "exercises_no_project_function"
+   ],
+   "claims": "an unknown metric is still refused",
+   "execution_outcome": "passed",
+   "exercises": [],
+   "exercise_count": 0,
+   "modules_exercised": [],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_numeric_claim_metrics.py::test_start_and_end_values_are_checked_against_raw_readings",
+   "file": "tests/test_numeric_claim_metrics.py",
+   "name": "test_start_and_end_values_are_checked_against_raw_readings",
+   "line": 73,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 2,
+   "assert_forms": {
+    "equality": 2
+   },
+   "raises_checks": 1,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "start and end values are checked against raw readings",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.agent.evidence_brief:measurement_groups",
+    "capstone.agent.evidence_brief:observations",
+    "capstone.agent.evidence_brief:statistics",
+    "capstone.agent.evidence_brief:verify_numeric_claims",
+    "capstone.agent.state:Budgets.research_gets_some_time",
+    "capstone.contracts.hypotheses:NumericClaim.ordered_window"
+   ],
+   "exercise_count": 6,
+   "modules_exercised": [
+    "capstone.agent.evidence_brief",
+    "capstone.agent.state",
+    "capstone.contracts.hypotheses"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_numeric_claim_metrics.py::test_end_value_follows_the_claimed_window",
+   "file": "tests/test_numeric_claim_metrics.py",
+   "name": "test_end_value_follows_the_claimed_window",
+   "line": 82,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 1,
+   "assert_forms": {
+    "equality": 1
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "end value follows the claimed window",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.agent.evidence_brief:measurement_groups",
+    "capstone.agent.evidence_brief:observations",
+    "capstone.agent.evidence_brief:statistics",
+    "capstone.agent.evidence_brief:verify_numeric_claims",
+    "capstone.agent.state:Budgets.research_gets_some_time",
+    "capstone.contracts.hypotheses:NumericClaim.ordered_window"
+   ],
+   "exercise_count": 6,
+   "modules_exercised": [
+    "capstone.agent.evidence_brief",
+    "capstone.agent.state",
+    "capstone.contracts.hypotheses"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_numeric_claim_metrics.py::test_end_value_is_checked_against_a_sensor_summary",
+   "file": "tests/test_numeric_claim_metrics.py",
+   "name": "test_end_value_is_checked_against_a_sensor_summary",
+   "line": 89,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 1,
+   "assert_forms": {
+    "equality": 1
+   },
+   "raises_checks": 1,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "end value is checked against a sensor summary",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.agent.evidence_brief:measurement_groups",
+    "capstone.agent.evidence_brief:observations",
+    "capstone.agent.evidence_brief:verify_numeric_claims",
+    "capstone.agent.state:Budgets.research_gets_some_time",
+    "capstone.contracts.hypotheses:NumericClaim.ordered_window"
+   ],
+   "exercise_count": 5,
+   "modules_exercised": [
+    "capstone.agent.evidence_brief",
+    "capstone.agent.state",
+    "capstone.contracts.hypotheses"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
    "id": "tests/test_observability.py::test_event_context_is_json_with_explicit_simulator_tick",
    "file": "tests/test_observability.py",
    "name": "test_event_context_is_json_with_explicit_simulator_tick",

@@ -79,7 +79,8 @@ def statistics(samples: dict) -> dict:
     """Compute arithmetic in data-tick order, not retrieval order."""
     # Variables:
     #   ordered: Sample identities sorted by data tick; no simulator state is read.
-    #   values: Values in that order, used for extrema, average and endpoint delta.
+    #   values: Values in that order, used for extrema, average, the first and
+    #     last reading (start_value, end_value) and the endpoint delta.
     ordered = sorted(samples)
     values = [samples[key] for key in ordered]
     return {
@@ -88,6 +89,8 @@ def statistics(samples: dict) -> dict:
         "maximum": max(values),
         "mean": sum(values) / len(values),
         "delta": values[-1] - values[0],
+        "start_value": values[0],
+        "end_value": values[-1],
         "from_tick": ordered[0][0],
         "to_tick": ordered[-1][0],
     }
