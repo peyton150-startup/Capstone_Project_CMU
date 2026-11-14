@@ -233,6 +233,17 @@ class Settings(BaseSettings):
     hypothesis_reserve_seconds: float = Field(
         default=0.0, ge=0, validation_alias="HYPOTHESIS_RESERVE_SECONDS"
     )
+    # TRIAGE_HYPOTHESIS_SECONDS (2026-11-14): the triage's own hypothesis
+    # reserve. Research before the hypothesize question stops this many
+    # seconds before the conclusion's time begins (at most half the research
+    # time), so a triage that researches until time is up still forms
+    # explanations. In the 52 PR 251 runs of 2026-11-13, 27 of 40 time-outs
+    # never reached hypothesize; an answered hypothesize question took about
+    # 25 s. On (25) until the developer's tests decide; 0 turns it off. The
+    # deep run keeps HYPOTHESIS_RESERVE_SECONDS.
+    triage_hypothesis_seconds: float = Field(
+        default=25.0, ge=0, validation_alias="TRIAGE_HYPOTHESIS_SECONDS"
+    )
     # P1, with --tree-of-thought only: top_k keeps the best three candidates;
     # evidence also keeps up to two more that cite factory evidence no kept one
     # cites, or that name a check for somewhere nobody has looked yet.
