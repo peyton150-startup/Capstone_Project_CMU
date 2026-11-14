@@ -1006,6 +1006,44 @@ def format_triage(records: Sequence[ExperimentRecord]) -> str | None:
     )
 
 
+def format_triage_outcomes(records: Sequence[ExperimentRecord]) -> str | None:
+    """One line on where triage plans came from and how the reports ended.
+
+    None when no run had a triage. Runs recorded before the report was kept
+    are counted as having no report, not left out.
+    """
+    # Variables:
+    #   kept: The triage of each run that had one.
+    #   reports: The read-only reports those triages kept (none in older records).
+    #   fixed: Triages that planned from the TRIAGE_PLAN=fixed table.
+    #   outcomes: How many reports ended each way, in a fixed order.
+    #   held: Reports the Python checks held open with at least one reason.
+    #   unsafe: Reports that cleared ("no_action") without a model conclusion;
+    #     this must stay 0, since Python never clears on its own.
+    kept = [r.triage for r in records if r.triage is not None]
+    if not kept:
+        return None
+    reports = [t.report for t in kept if t.report is not None]
+    outcomes = {
+        name: sum(r.outcome == name for r in reports)
+        for name in ("model_conclusion", "model_answer_refused", "no_model_answer")
+    }
+    held = sum(bool(r.held_open_because) for r in reports)
+    unsafe = sum(
+        r.recommendation == "no_action" and r.outcome != "model_conclusion"
+        for r in reports
+    )
+    fixed = sum(t.fixed_plan for t in kept)
+    return (
+        f"triage plan: {fixed} fixed table, {len(kept) - fixed} model; "
+        f"reports: {outcomes['model_conclusion']} model conclusion, "
+        f"{outcomes['model_answer_refused']} refused, "
+        f"{outcomes['no_model_answer']} no model answer, "
+        f"{len(kept) - len(reports)} none; {held} held open by checks; "
+        f"{unsafe} cleared without a model conclusion"
+    )
+
+
 def format_triage_stages(records: Sequence[ExperimentRecord]) -> str | None:
     """One line on where the triages spent their model time; None without metrics.
 
@@ -1276,6 +1314,8 @@ def report(records: Sequence[ExperimentRecord], labels: dict[str, Label]) -> str
     lines += [] if manual is None else [manual]
     triaged = format_triage(records)
     lines += [] if triaged is None else [triaged]
+    outcomes = format_triage_outcomes(records)
+    lines += [] if outcomes is None else [outcomes]
     stages = format_triage_stages(records)
     lines += [] if stages is None else [stages]
     advised = format_investigate(records)
@@ -1533,8 +1573,9 @@ def main(argv: Sequence[str] | None = None) -> int:
     # Variables:
     #   argv: The command-line words; None reads the real command line, and
     #     tests pass their own.
-    #   args.command: Which subcommand was chosen, "run", "label" or "report";
-    #     it decides which branch below runs.
+    #   args.command: Which subcommand was chosen, "run", "label", "report" or
+    #     "compare"; it decides which branch below runs.
+    #   book: For "compare", the hand labels from --label-book, by run key.
     #   cases: The cases to run, from exactly one of --known, --held-out,
     #     --challenge or --seeds (with --faults).
     #   budgets: Time limits for each investigation; None keeps the defaults
@@ -1650,7 +1691,36 @@ def main(argv: Sequence[str] | None = None) -> int:
     rep.add_argument("--results", type=Path, required=True)
     rep.add_argument("--labels", type=Path)
 
+    cmp = commands.add_parser(
+        "compare",
+        help="triage runs side by side, one column per arm (Block 6, not A1-A4)",
+    )
+    cmp.add_argument(
+        "--results",
+        type=Path,
+        nargs="+",
+        required=True,
+        help="one records file, or run folder of *.records.jsonl, per arm",
+    )
+    cmp.add_argument(
+        "--labels",
+        nargs="+",
+        help="a column name per --results path (default: each path's name)",
+    )
+    cmp.add_argument(
+        "--label-book",
+        type=Path,
+        help="hand root-cause labels; runs without one are counted not judged",
+    )
+
     args = parser.parse_args(argv)
+
+    if args.command == "compare":
+        from capstone.triage_compare import compare, load_arms
+
+        book = LabelBook(args.label_book).read() if args.label_book else {}
+        print(compare(load_arms(args.results, args.labels, book)))
+        return 0
 
     if args.command == "run":
         if args.known:
