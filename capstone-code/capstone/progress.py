@@ -30,8 +30,10 @@ from capstone.agent.state import (
     DecisionRecord,
     InvestigateAdvice,
     InvestigationState,
+    Predicate,
     TriageTestRecord,
 )
+from capstone.agent.triage_report import TriageReport
 from capstone.console import safe_console
 from capstone.episode import (
     SCENARIO_KINDS,
@@ -57,6 +59,63 @@ TOP_BELIEFS = 3
 
 # The most missing items the packet line names; the rest are counted.
 MAX_PACKET_MISSING = 8
+
+
+# The most reasons the triage report line lists; the rest are counted.
+MAX_REPORT_REASONS = 4
+
+
+def predicate_text(predicate: Predicate) -> str:
+    """A question predicate in one phrase, as the progress view prints it."""
+    # Variables:
+    #   p: The measured condition that settles one question.
+    p = predicate
+    return (
+        f"{p.statistic} {p.sensor} on {p.machine_id} over t={p.from_tick}-"
+        f"{p.to_tick} {p.comparison} {p.threshold:g} (at least {p.min_samples} "
+        "readings)"
+    )
+
+
+def fixed_plan_lines(state: InvestigationState) -> list[str]:
+    """TRIAGE_PLAN=fixed: the table's questions and their predicates, no model."""
+    # Variables:
+    #   ids: The open questions the table gave, in order.
+    #   predicates: The measured conditions that settle some of them, by id.
+    ids = [q.id for q in state.unanswered_questions]
+    predicates = state.question_predicates
+    lines = [
+        f"PLAN fixed table (no model call): {len(ids)} question(s) "
+        f"{', '.join(ids) or 'none'}; {len(predicates)} with a predicate"
+    ]
+    for qid, predicate in predicates.items():
+        lines.append(f"  predicate {qid}: {predicate_text(predicate)}")
+    return lines
+
+
+def report_lines(report: TriageReport) -> list[str]:
+    """The read-only triage report: outcome, decision, why held open, summary."""
+    # Variables:
+    #   held: Why the Python checks held the answer open, at most
+    #     MAX_REPORT_REASONS of them.
+    #   more: How many reasons were left out of the line.
+    lines = [
+        f"TRIAGE REPORT {report.outcome}: {report.assessment}, "
+        f"{report.recommendation} (model said {report.model_recommendation or '-'})"
+        f", confidence {report.confidence:.2f}, deep run "
+        f"{'recommended' if report.deep_recommended else 'not needed'}; "
+        f"{len(report.findings)} finding(s)"
+    ]
+    if report.refused_because:
+        lines.append(f"  refused: {shorten(report.refused_because, 120)}")
+    held = report.held_open_because[:MAX_REPORT_REASONS]
+    more = len(report.held_open_because) - len(held)
+    for reason in held:
+        lines.append(f"  held open: {shorten(reason, 120)}")
+    if more:
+        lines.append(f"  held open: ... and {more} more")
+    lines.append(f"  summary: {shorten(report.summary, 200)}")
+    return lines
 
 
 def evidence_test_line(record: TriageTestRecord) -> str:
@@ -224,6 +283,8 @@ class ProgressView:
         #     each is shown once.
         #   tests_shown: How many TRIAGE_EVIDENCE_TESTS records were printed,
         #     so each is shown once.
+        #   plan_shown: Whether the TRIAGE_PLAN=fixed plan has been printed.
+        #   report: The triage report last printed.
         self.write = write
         self.started = False
         self.decisions_shown = 0
@@ -237,6 +298,8 @@ class ProgressView:
         self.packet_shown = False
         self.advice_shown = 0
         self.tests_shown = 0
+        self.plan_shown = False
+        self.report = None
 
     def __call__(self, state: InvestigationState) -> None:
         # Variables:
@@ -255,6 +318,10 @@ class ProgressView:
             for line in step_line(decision, state):
                 self.write(line)
         self.decisions_shown = len(state.decisions)
+        if state.fixed_plan_used and not self.plan_shown:
+            self.plan_shown = True
+            for line in fixed_plan_lines(state):
+                self.write(line)
         if state.triage_packet is not None and not self.packet_shown:
             self.packet_shown = True
             for line in packet_lines(state.triage_packet):
@@ -279,6 +346,10 @@ class ProgressView:
             for line in assessment_lines(c):
                 self.write(line)
             self.write(calls_line(state))
+        if state.triage_report is not None and state.triage_report != self.report:
+            self.report = state.triage_report
+            for line in report_lines(state.triage_report):
+                self.write(line)
         proposal = state.proposed_action
         if proposal is not None and proposal != self.proposal:
             self.proposal = proposal
