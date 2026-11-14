@@ -1,3 +1,7 @@
+> **2026-11-14 — the model is shown the calls refused as repeats (fix; built ungated, developer to review; understood: no):**
+> In the afternoon triage runs ([results](benchmarks/2026-11-14-triage-brief-and-reserve.md)), research asked again for `get_line_screening`, already read by the evidence packet, until three refused repeats ended it before hypothesize (22 of 26 triages with every block on). `render()` (agent/model_policy.py) now ends with a REFUSED AS REPEATS section, after the first refused repeat only: each refused call once, with its tick, latest three, saying its answer is already in the evidence. The repeat guard and the stop rule are unchanged. New `tests/test_refused_repeats.py` (5 tests, Model policy CI group). No live run.
+>
+
 > **2026-11-14 — a conclusion may cite `start_value` and `end_value` (fix; built ungated, developer to review; understood: no):**
 > In the 2026-11-14 live triage runs, KA-01 r2 and KA-08 r2 were refused because the model wrote `end_value` as a numeric-claim metric. That is a name the sensor summary and evidence brief show it, but `NumericClaim.metric` did not accept it. `NumericClaim.metric` (contracts/hypotheses.py) now also accepts `start_value` and `end_value`, and `statistics()` (agent/evidence_brief.py) computes them from raw readings, so `verify_numeric_claims` checks them like the other metrics. An unknown metric is still refused. New `tests/test_numeric_claim_metrics.py` (5 tests, Model policy CI group). No live run.
 >
