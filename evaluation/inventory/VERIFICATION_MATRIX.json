@@ -10,7 +10,7 @@
   "capstone-code/capstone/agent/completion.py": "7f30120b7302ad89b0e7344ef096c82375117e5d13e8bf9974733c6817ee63c2",
   "capstone-code/capstone/agent/conclude_brief.py": "979061f84578eea30a5885b395eb41d84db33c74307fc075de914b48b177746a",
   "capstone-code/capstone/agent/critic.py": "e3a2948240b933e97a0d46e3ecf1160932a5e7a92859b085e0d6f40940d9b81c",
-  "capstone-code/capstone/agent/evidence_brief.py": "e3bfb8b1910cf0e21c1c55d3b7d66efe9d9d3fb6971776bf32ae01bba1f0cd04",
+  "capstone-code/capstone/agent/evidence_brief.py": "1fa6537037cfb9c2b1a2080661cd7423b85136028b4b9bc69de15e928b84b87d",
   "capstone-code/capstone/agent/evidence_packet.py": "36cddab1d9e399156684e3ec1b93549d0b5390a9f6a0488b8e7334dae17c57f6",
   "capstone-code/capstone/agent/evidence_tests.py": "d2bf25cd136bd4664a3f4f475489e51c2e25ef7509b007e25d5e5e862bcd549a",
   "capstone-code/capstone/agent/incident_context.py": "ddc8caecd198a3c97f11e31d21bfedc3e7b5abe5e25bedac627d47bc784106a2",
@@ -33,7 +33,7 @@
   "capstone-code/capstone/contracts/__init__.py": "da45a173448530ad05accb7df1e3ce7cafbbe08799944ea67eaa1954b0c60fbf",
   "capstone-code/capstone/contracts/completed_investigations.py": "b27946b7d1031db2441517c7f80b9a3623e69df5283dae8b4e58b640caeb5f76",
   "capstone-code/capstone/contracts/evidence.py": "617e1e15452fae83c6744f403eb7b903287722b808d07c727db7f35045b5f66d",
-  "capstone-code/capstone/contracts/hypotheses.py": "f90e9143d4508602d4c5834553e7a8b319585d1159377168f62127c4e447ac87",
+  "capstone-code/capstone/contracts/hypotheses.py": "6fa90b62ce785361cf13df7595ac7acfeb844e4e096293cf4b3ab90a6d875da0",
   "capstone-code/capstone/contracts/investigations.py": "a3be1d70277274d68e9a0a4781c1a0c8abcffcd2bda2b9f452a832b8e7d6c2b7",
   "capstone-code/capstone/contracts/observations.py": "749ccea92262f842df183eda594e9e287f1e7b5dfb81ecb8db5d7b3fdb0e553d",
   "capstone-code/capstone/contracts/provenance.py": "d253fe81e93ee908b9de8904a1021db1a5535d8617773251c2b58db8b91d729c",
@@ -218,6 +218,7 @@
   "tests/test_migrations.py": "3ef94c61fcc36d62e762143b97869914420de025bf17b3dee69154c3b3ce4ee6",
   "tests/test_model_policy.py": "9d394f59d3fd0b7813c37e7fd1c58f26ec8d1c67fedfbc874a53b67e61558be3",
   "tests/test_mtconnect_ingestion.py": "40eb588374a74e1f37eb240694529fdffba0bb0651b9a73e1cc862617ce831ed",
+  "tests/test_numeric_claim_metrics.py": "c85a107ba1e0095c2d0466b5e58b3423be4cef75a2307d235f37bafca4e8c164",
   "tests/test_observability.py": "e33c4b7c81fa2dde4d146ba555a0cefe8035d74de9ab908752d0b53079adeea0",
   "tests/test_observation_tools.py": "b6520bbafecef51d1e40c481c5a81da1c3552ebe95987b9755e6a86de29a1825",
   "tests/test_pilot_acceptance.py": "00b6b26dd532d8b0df4e99492052feafb14f467e1de09ef1b11c5dc268961901",
@@ -276,12 +277,12 @@
   "tests/test_wait_tool.py": "b99a5fbf756a60176262417e54d8d1a0496f01126929a330492e7d24287b2d1e",
   "tests/test_wrong_setting.py": "aed1c646bffaf88ae25ed2156794dc57427e8a61bbe6b23a0c33f3c3e89c0da3"
  },
- "coverage_sha256": "ae7bbe29a3f70633be7a30088a5060a21d09bc835560c3a7a14be18c26393c8b",
- "junit_sha256": "bf2588fc0f2d7eac135ab8ab5b30a81006958f56bb0e57f49273ff11b91920a3",
+ "coverage_sha256": "ba30419d171ddeed4b17fd106ffb8266ed00918b3c67947fb45ff0e102d33ba9",
+ "junit_sha256": "5ce25be3ab0d16f8816cc5bd45cb2ec983a63bcf059e1d0b484fa96b8e548e34",
  "counts": {
   "functions": 1126,
   "classes_note": "classes are listed through their methods",
-  "tests": 2243,
+  "tests": 2248,
   "tools": 18,
   "functions_by_status": {
    "INSUFFICIENT EVIDENCE": 465,
@@ -374,7 +375,7 @@
   "stubs_or_protocols": 25,
   "tests_by_outcome": {
    "failed": 1,
-   "passed": 2242
+   "passed": 2247
   },
   "tests_with_no_assertion": [
    "tests/test_console.py::test_without_it_the_same_print_raised"
@@ -539,6 +540,7 @@
    "tests/test_model_policy.py::test_decide_prompt_says_a_stop_leaves_the_call_fields_empty",
    "tests/test_model_policy.py::test_call_fields_are_described_as_call_only_in_the_schema",
    "tests/test_model_policy.py::test_every_job_is_told_to_scan_every_machine",
+   "tests/test_numeric_claim_metrics.py::test_an_unknown_metric_is_still_refused",
    "tests/test_observation_tools.py::test_only_allowlisted_observation_tools_are_public",
    "tests/test_production_line.py::test_a_machine_takes_60_ticks_per_job_unless_told_otherwise",
    "tests/test_recall_tool.py::test_the_tool_description_states_the_limits",
@@ -1749,7 +1751,7 @@
    ]
   },
   "capstone.agent.evidence_brief:observations": {
-   "count": 556,
+   "count": 559,
    "status": "PARTIALLY VERIFIED",
    "direct": [
     "tests/test_agent_investigation.py::test_incident_context_uses_bounded_observations_before_planning"
@@ -1770,7 +1772,7 @@
    ]
   },
   "capstone.agent.evidence_brief:measurement_groups": {
-   "count": 97,
+   "count": 100,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
@@ -1789,7 +1791,7 @@
    ]
   },
   "capstone.agent.evidence_brief:statistics": {
-   "count": 12,
+   "count": 14,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
@@ -1798,17 +1800,17 @@
     "tests/test_model_policy.py::test_the_verification_view_sets_out_the_work_both_sides_and_the_gaps",
     "tests/test_model_policy.py::test_the_verification_view_stays_within_the_evidence_limit",
     "tests/test_model_policy.py::test_with_no_work_done_the_conclusion_tick_is_the_boundary",
+    "tests/test_numeric_claim_metrics.py::test_end_value_follows_the_claimed_window",
+    "tests/test_numeric_claim_metrics.py::test_start_and_end_values_are_checked_against_raw_readings",
     "tests/test_reasoning_evidence.py::test_brief_uses_complete_results_beyond_the_raw_prompt_cutoff",
     "tests/test_reasoning_evidence.py::test_duplicate_measurements_are_not_presented_as_independent_support",
     "tests/test_reasoning_evidence.py::test_long_measurements_cannot_hide_routes_or_inspections_in_the_brief",
     "tests/test_reasoning_evidence.py::test_machine_coverage_distinguishes_unchecked_from_normal",
-    "tests/test_reasoning_evidence.py::test_numeric_mismatch_cannot_be_applied_as_a_new_belief",
-    "tests/test_reasoning_evidence.py::test_numeric_verifier_checks_values_units_and_windows_without_judging_causes",
-    "tests/test_reasoning_evidence.py::test_unknown_units_cannot_be_declared_wrong_by_the_numeric_verifier"
+    "tests/test_reasoning_evidence.py::test_numeric_mismatch_cannot_be_applied_as_a_new_belief"
    ]
   },
   "capstone.agent.evidence_brief:verify_numeric_claims": {
-   "count": 416,
+   "count": 419,
    "status": "VERIFIED",
    "direct": [],
    "indirect": [
@@ -5379,7 +5381,7 @@
    ]
   },
   "capstone.agent.state:Budgets.research_gets_some_time": {
-   "count": 768,
+   "count": 771,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
@@ -6700,7 +6702,7 @@
    ]
   },
   "capstone.contracts.hypotheses:NumericClaim.ordered_window": {
-   "count": 9,
+   "count": 13,
    "status": "INSUFFICIENT EVIDENCE",
    "direct": [],
    "indirect": [
@@ -6709,10 +6711,13 @@
     "tests/test_evaluation_tools.py::test_preflight_refuses_corrupt_order_and_missing_provenance",
     "tests/test_evaluation_tools.py::test_preflight_validates_recheck_and_verification_evidence",
     "tests/test_full_evaluation.py::test_per_item_findings_join_truth_judge_and_blinded_reference",
+    "tests/test_numeric_claim_metrics.py::test_a_hypothesis_citing_end_value_is_accepted",
+    "tests/test_numeric_claim_metrics.py::test_end_value_follows_the_claimed_window",
+    "tests/test_numeric_claim_metrics.py::test_end_value_is_checked_against_a_sensor_summary",
+    "tests/test_numeric_claim_metrics.py::test_start_and_end_values_are_checked_against_raw_readings",
     "tests/test_reasoning_evidence.py::test_manual_or_memory_cannot_create_machine_coverage_or_numeric_facts",
     "tests/test_reasoning_evidence.py::test_numeric_mismatch_cannot_be_applied_as_a_new_belief",
-    "tests/test_reasoning_evidence.py::test_numeric_verifier_checks_values_units_and_windows_without_judging_causes",
-    "tests/test_reasoning_evidence.py::test_unknown_units_cannot_be_declared_wrong_by_the_numeric_verifier"
+    "tests/test_reasoning_evidence.py::test_numeric_verifier_checks_values_units_and_windows_without_judging_causes"
    ]
   },
   "capstone.contracts.investigations:run_id_for": {
@@ -46683,6 +46688,53 @@
     "capstone.ingestion.mtconnect:raise_if_error",
     "capstone.ingestion.record:CollectorMarker.gap_detail_only_on_a_gap",
     "capstone.ingestion.record:gap_free_runs"
+   ]
+  },
+  "tests/test_numeric_claim_metrics.py::test_a_hypothesis_citing_end_value_is_accepted": {
+   "count": 1,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.contracts.hypotheses:NumericClaim.ordered_window"
+   ]
+  },
+  "tests/test_numeric_claim_metrics.py::test_an_unknown_metric_is_still_refused": {
+   "count": 0,
+   "judgment": "NOT ASSESSED",
+   "functions": []
+  },
+  "tests/test_numeric_claim_metrics.py::test_start_and_end_values_are_checked_against_raw_readings": {
+   "count": 6,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.agent.evidence_brief:measurement_groups",
+    "capstone.agent.evidence_brief:observations",
+    "capstone.agent.evidence_brief:statistics",
+    "capstone.agent.evidence_brief:verify_numeric_claims",
+    "capstone.agent.state:Budgets.research_gets_some_time",
+    "capstone.contracts.hypotheses:NumericClaim.ordered_window"
+   ]
+  },
+  "tests/test_numeric_claim_metrics.py::test_end_value_follows_the_claimed_window": {
+   "count": 6,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.agent.evidence_brief:measurement_groups",
+    "capstone.agent.evidence_brief:observations",
+    "capstone.agent.evidence_brief:statistics",
+    "capstone.agent.evidence_brief:verify_numeric_claims",
+    "capstone.agent.state:Budgets.research_gets_some_time",
+    "capstone.contracts.hypotheses:NumericClaim.ordered_window"
+   ]
+  },
+  "tests/test_numeric_claim_metrics.py::test_end_value_is_checked_against_a_sensor_summary": {
+   "count": 5,
+   "judgment": "NOT ASSESSED",
+   "functions": [
+    "capstone.agent.evidence_brief:measurement_groups",
+    "capstone.agent.evidence_brief:observations",
+    "capstone.agent.evidence_brief:verify_numeric_claims",
+    "capstone.agent.state:Budgets.research_gets_some_time",
+    "capstone.contracts.hypotheses:NumericClaim.ordered_window"
    ]
   },
   "tests/test_observability.py::test_event_context_is_json_with_explicit_simulator_tick": {
