@@ -13,7 +13,17 @@ class NumericClaim(Contract):
     evidence_id: str
     machine_id: str | None = None
     sensor: str
-    metric: Literal["minimum", "maximum", "mean", "delta", "sample_count"]
+    # start_value and end_value are the first and last reading in the window,
+    # the names a sensor summary and the evidence brief show the model.
+    metric: Literal[
+        "minimum",
+        "maximum",
+        "mean",
+        "delta",
+        "sample_count",
+        "start_value",
+        "end_value",
+    ]
     value: float = Field(allow_inf_nan=False)
     unit: str | None = None
     from_tick: int | None = Field(default=None, ge=0)
