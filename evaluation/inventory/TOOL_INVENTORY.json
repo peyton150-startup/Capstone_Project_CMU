@@ -101,7 +101,7 @@
     "tests/test_detector_side_effects.py::test_no_hidden_truth_in_any_known_case",
     "tests/test_detector_side_effects.py::test_the_screening_pushes_no_other_evidence_out_of_the_prompt"
    ],
-   "test_count": 365,
+   "test_count": 366,
    "verification_status": "PARTIALLY VERIFIED",
    "snap_questions": [
     "TL-01",
@@ -197,6 +197,7 @@
     "tests/test_triage_hypothesis_reserve.py::test_with_the_reserve_off_research_keeps_all_its_time",
     "tests/test_triage_hypothesis_reserve.py::test_without_the_reserve_the_same_run_records_no_reserve",
     "tests/test_triage_investigate.py::test_a_triage_record_keeps_the_advice_and_the_research_count",
+    "tests/test_triage_investigate_plan.py::test_a_triage_episode_reads_the_plans_records_when_research_has_the_calls",
     "tests/test_triage_logging.py::test_a_fixed_plan_is_printed_once_with_its_predicate",
     "tests/test_triage_logging.py::test_a_model_plan_prints_no_fixed_plan_line",
     "tests/test_triage_logging.py::test_older_records_without_a_report_count_as_none",
@@ -207,10 +208,9 @@
     "tests/test_triage_observe_calls.py::test_by_default_observe_still_spends_research_calls",
     "tests/test_triage_observe_calls.py::test_separate_leaves_research_every_call_after_the_same_reads",
     "tests/test_triage_observe_calls.py::test_the_deep_run_after_a_separate_triage_pays_as_before",
-    "tests/test_triage_observe_calls.py::test_the_triage_record_counts_the_reads_kept_off_research",
-    "tests/test_triage_plan.py::test_a_fixed_plan_triage_asks_no_plan_question"
+    "tests/test_triage_observe_calls.py::test_the_triage_record_counts_the_reads_kept_off_research"
    ],
-   "test_count": 99,
+   "test_count": 100,
    "verification_status": "PARTIALLY VERIFIED",
    "snap_questions": [
     "TL-01",
@@ -250,9 +250,10 @@
     "tests/test_simulator_challenge.py::test_challenge_is_replayable_through_unchanged_tools_and_keeps_truth_hidden",
     "tests/test_simulator_challenge.py::test_different_seeds_change_observations_but_keep_the_same_challenge_logic",
     "tests/test_triage.py::test_with_line_context_the_deep_run_gathers_its_own_packet",
+    "tests/test_triage_investigate_plan.py::test_a_triage_episode_reads_the_plans_records_when_research_has_the_calls",
     "tests/test_wrong_setting.py::test_the_agent_can_read_each_machines_speed_but_not_what_it_should_be"
    ],
-   "test_count": 15,
+   "test_count": 16,
    "verification_status": "INSUFFICIENT EVIDENCE",
    "snap_questions": [
     "TL-01",
@@ -393,7 +394,7 @@
     "tests/test_episode.py::test_a_critic_does_not_change_the_episode",
     "tests/test_episode.py::test_a_human_who_refuses_leaves_the_fault_in_place"
    ],
-   "test_count": 333,
+   "test_count": 334,
    "verification_status": "VERIFIED",
    "snap_questions": [
     "TL-01",
@@ -539,7 +540,7 @@
     "tests/test_memory_comparison.py::test_the_report_warns_when_the_modes_ran_different_cases",
     "tests/test_memory_comparison.py::test_the_runs_are_interleaved_case_by_case"
    ],
-   "test_count": 182,
+   "test_count": 183,
    "verification_status": "PARTIALLY VERIFIED",
    "snap_questions": [
     "TL-01",
@@ -757,7 +758,7 @@
     "tests/test_episode.py::test_passed_critic_is_used",
     "tests/test_episode.py::test_the_agent_never_holds_the_answer_key"
    ],
-   "test_count": 276,
+   "test_count": 277,
    "verification_status": "VERIFIED",
    "snap_questions": [
     "TL-01",
@@ -870,7 +871,7 @@
     "tests/test_episode.py::test_a_human_who_refuses_leaves_the_fault_in_place",
     "tests/test_episode.py::test_a_label_added_afterwards_scores_the_same_run"
    ],
-   "test_count": 305,
+   "test_count": 306,
    "verification_status": "PARTIALLY VERIFIED",
    "snap_questions": [
     "TL-01",
@@ -1005,7 +1006,7 @@
     "tests/test_detector_side_effects.py::test_the_standard_hazards_land_on_the_same_calls",
     "tests/test_detector_side_effects.py::test_triage_counts_the_screening_on_its_own_allowance_too"
    ],
-   "test_count": 337,
+   "test_count": 338,
    "verification_status": "PARTIALLY VERIFIED",
    "snap_questions": [
     "TL-01",
@@ -1234,7 +1235,7 @@
     "tests/test_hazards.py::test_without_hazards_nothing_is_reported",
     "tests/test_known_answers.py::test_each_case_builds_its_pinned_fault_and_symptom"
    ],
-   "test_count": 221,
+   "test_count": 222,
    "verification_status": "PARTIALLY VERIFIED",
    "snap_questions": [
     "TL-01",
@@ -1363,7 +1364,7 @@
     "tests/test_episode.py::test_the_same_seed_gives_the_same_episode",
     "tests/test_episode.py::test_without_a_judge_the_diagnosis_is_unjudged_but_the_action_is_scored"
    ],
-   "test_count": 322,
+   "test_count": 323,
    "verification_status": "VERIFIED",
    "snap_questions": [
     "TL-01",
