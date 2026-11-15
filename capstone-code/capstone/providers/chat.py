@@ -1176,6 +1176,41 @@ def late_thinking_fields(settings: Settings) -> dict:
     return fields
 
 
+def triage_key(job: str) -> str:
+    """The clients-mapping key of `job`'s triage client, e.g. "decide@triage"."""
+    return f"{job}@triage"
+
+
+def triage_clients(
+    settings: Settings | None = None, *, transport: Transport = urllib_transport
+) -> dict[str, FallbackClient]:
+    """One triage client per job, asking TRIAGE_MODEL first; {} when it is unset.
+
+    Each asks TRIAGE_MODEL, then the shared FALLBACK_MODEL chain, as a job's
+    own client does. TRIAGE_MODEL_THINKING sets the thinking switch, sent to
+    NVIDIA models only; DECIDE_REASONING_EFFORT is never sent.
+    """
+    # Variables:
+    #   settings.triage_model: The model every triage question asks first;
+    #     None leaves every question on its own model.
+    #   fields: The thinking switch sent with every triage request to NVIDIA.
+    settings = settings or get_settings()
+    if settings.triage_model is None:
+        return {}
+    fields = {
+        "chat_template_kwargs": {"enable_thinking": settings.triage_model_thinking}
+    }
+    return {
+        triage_key(job): chain_for(
+            settings.triage_model,
+            settings,
+            transport=transport,
+            thinking_fields=fields,
+        )
+        for job in JOBS
+    }
+
+
 def critic_client(
     settings: Settings | None = None, *, transport: Transport = urllib_transport
 ) -> FallbackClient:

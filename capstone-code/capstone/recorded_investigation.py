@@ -38,7 +38,7 @@ from capstone.contracts.tools import ToolSpec
 from capstone.ingestion.channel_map import ChannelMap, check_capture, read_capture
 from capstone.ingestion.privacy import refusal
 from capstone.ingestion.record import Line, TelemetryRecord
-from capstone.providers.chat import clients_for_jobs, late_clients
+from capstone.providers.chat import clients_for_jobs, late_clients, triage_clients
 from capstone.providers.factory import research_tools
 from capstone.providers.replay import replay_provider
 from capstone.settings import get_settings
@@ -283,7 +283,7 @@ def main(argv: Sequence[str] | None = None) -> int:
 
         settings = get_settings()
         policy = ModelPolicy(
-            {**clients_for_jobs(), **late_clients()},
+            {**clients_for_jobs(), **late_clients(), **triage_clients()},
             tool_specs,
             late_seconds=settings.late_model_seconds,
         )

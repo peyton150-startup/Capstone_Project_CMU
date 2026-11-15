@@ -260,11 +260,11 @@ def main(argv: Sequence[str] | None = None) -> int:
     # Models see only supported observation tools. These calls can transfer
     # private telemetry to an external provider: operator authorization is required.
     from capstone.agent.model_policy import ModelPolicy
-    from capstone.providers.chat import clients_for_jobs, late_clients
+    from capstone.providers.chat import clients_for_jobs, late_clients, triage_clients
     from capstone.settings import get_settings
 
     policy = ModelPolicy(
-        {**clients_for_jobs(), **late_clients()},
+        {**clients_for_jobs(), **late_clients(), **triage_clients()},
         tools,
         late_seconds=get_settings().late_model_seconds,
     )

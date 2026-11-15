@@ -61,6 +61,7 @@ GROUPS: dict[str, list[str]] = {
         "chat_client",
         "decide_reasoning_effort",
         "late_model",
+        "triage_model",
         "request_deadline",
         "console",
         "difficulty_tool_compatibility",

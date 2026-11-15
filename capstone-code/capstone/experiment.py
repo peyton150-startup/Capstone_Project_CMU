@@ -1418,11 +1418,13 @@ def model_policy_factory(
     #   tools: The tools the policy may choose from.
     #   late_seconds: LATE_MODEL_SECONDS: a decide question with less time than
     #     this goes to LATE_MODEL, when one is set (`ModelPolicy.client_for`).
+    #   triage_clients(): The job@triage clients for TRIAGE_MODEL, empty when it
+    #     is unset; a triage question asks them first (`ModelPolicy.client_for`).
     #   options: The tree's switches from the TOT_* settings, read once so every
     #     case of the experiment uses the same ones.
     from capstone.agent.model_policy import ModelPolicy
     from capstone.agent.tree_of_thought import TreeOfThoughtPolicy
-    from capstone.providers.chat import clients_for_jobs, late_clients
+    from capstone.providers.chat import clients_for_jobs, late_clients, triage_clients
     from capstone.providers.factory import research_tools
     from capstone.settings import get_settings
 
@@ -1442,10 +1444,11 @@ def model_policy_factory(
 
         def tree() -> TreeOfThoughtPolicy:
             # Variables:
-            #   clients: The seven jobs' clients, plus `value` for P5 when
+            #   clients: The seven jobs' clients, their late and triage routes
+            #     when LATE_MODEL or TRIAGE_MODEL is set, plus `value` for P5 when
             #     VALUE_MODEL names a model for the second rating.
             #   second: That client, or None (the hypothesize client answers).
-            clients = {**clients_for_jobs(), **late_clients()}
+            clients = {**clients_for_jobs(), **late_clients(), **triage_clients()}
             second = value_client() if options.revalue else None
             if second is not None:
                 clients["value"] = second  # VALUE_MODEL: the faster rating model
@@ -1455,7 +1458,9 @@ def model_policy_factory(
 
         return tree
     return lambda: ModelPolicy(
-        {**clients_for_jobs(), **late_clients()}, tools, late_seconds=late_seconds
+        {**clients_for_jobs(), **late_clients(), **triage_clients()},
+        tools,
+        late_seconds=late_seconds,
     )
 
 
@@ -1467,10 +1472,18 @@ def preflight_models(print_line: Callable[[str], None] = print) -> bool:
     """
     # Variables:
     #   print_line: Where each model's result is shown.
-    #   results: Each distinct model and what came of its check.
-    from capstone.providers.chat import check_models, clients_for_jobs, late_clients
+    #   results: Each distinct model and what came of its check, the triage
+    #     model's included when TRIAGE_MODEL is set.
+    from capstone.providers.chat import (
+        check_models,
+        clients_for_jobs,
+        late_clients,
+        triage_clients,
+    )
 
-    results = check_models(list({**clients_for_jobs(), **late_clients()}.values()))
+    results = check_models(
+        list({**clients_for_jobs(), **late_clients(), **triage_clients()}.values())
+    )
     for model, outcome in results:
         print_line(f"model check: {model}: {outcome}")
     return any(outcome == "answered" for _, outcome in results)
