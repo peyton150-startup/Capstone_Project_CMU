@@ -503,6 +503,8 @@ def run_triage_then_deep(
     #     only, so its conclusion question shows what was tested and missing.
     #   first.triage_conclude_cap: TRIAGE_CONCLUDE_CAP, set on the triage only,
     #     so its conclusion question keeps to the conclusion window.
+    #   first.triage_observe_separate: TRIAGE_OBSERVE_CALLS=separate, set on the
+    #     triage only, so Observe's own reads leave its research calls whole.
     #   first.triage_hypothesis_seconds: The triage's hypothesis reserve
     #     (TRIAGE_HYPOTHESIS_SECONDS, capped to its window), passed to its
     #     research as deps.hypothesis_seconds; the deep run keeps its own.
@@ -512,6 +514,7 @@ def run_triage_then_deep(
     first.triage_conclude_brief = settings.triage_conclude_brief
     first.triage_conclude_cap = settings.triage_conclude_cap
     first.triage_fixed_plan = settings.triage_plan == "fixed"
+    first.triage_observe_separate = settings.triage_observe_calls == "separate"
     first.budgets = triage_budgets(settings.triage_seconds, settings.triage_tool_calls)
     first.triage_hypothesis_seconds = triage_hypothesis_reserve(
         settings.triage_hypothesis_seconds, first.budgets
