@@ -8,6 +8,8 @@ The developer ran both arms in the kept Docker container, one at a time: 2 sets 
 
 Claude Code recorded them from the run logs and records. No model was called to write this note.
 
+> **Corrected on 2026-11-15.** The first version of this note said Lightning 30B answered no triage question and Ministral wrote every answer. That was wrong. The log count missed Lightning's answers and counted each cut-off twice: 94 and 52 against 47 and 26 in the records. The model table and the findings below now come from each record's `model_calls` (every triage question, without the start-of-run checks). The other figures are unchanged.
+
 ## A first pair that did not count
 
 An earlier pair the same morning (`triage-main-*-lightning-20261115-093757` and `-103337`) ran on the same code, but `TRIAGE_MODEL` was not in its settings:
@@ -46,23 +48,30 @@ Both run headers show `RUN: triage model nvidia/nvidia/nemotron-3.5-lightning-30
 | Timed out (set 1 + set 2) | 1 + 4 | 5 + 6 |
 | How research ended | 20 timeout, 3 no useful action, 3 tool budget | 12 no useful action, 9 timeout, 3 tool budget, 2 max iterations |
 
-Model outcomes, over every attempt in the logs (the start-of-run checks included):
+Model outcomes, over every attempt at a triage question (from the records' `model_calls`):
 
 | | all | control |
 |---|---|---|
-| Lightning 30B: answered / cut off / HTTP 502 | 2 / 94 / 0 | 2 / 52 / 2 |
-| Lightning's cut-offs: mean / longest wait | 16.9 s / 29.9 s | 25.2 s / 44.8 s |
-| Ministral 14B: answered / cut off / wrong shape | 40 / 16 / 6 | 26 / 18 / 2 |
+| Lightning 30B: answered / cut off / wrong shape / HTTP 502 | **92** / 47 / 1 / 0 | **159** / 26 / 3 / 1 |
+| Lightning: mean seconds when it answered / when cut off | 2.6 s / 16.9 s | 2.0 s / 25.2 s |
+| Ministral 14B: answered / cut off / wrong shape | 19 / 8 / 3 | 12 / 9 / 1 |
+| Questions answered by Lightning / Ministral | 92 / 19 | 159 / 12 |
+| Lightning's answers by job | decide 41, hypothesize 25, conclude 26 | plan 26, decide 100, hypothesize 7, conclude 26 |
+
+The triage's own `termination_reason` in the records reads differently from the "How research ended" row above:
+- all: 20 `max_tool_calls`, 5 timeout, 1 no useful action;
+- control: 11 timeout, 9 no useful action, 4 max iterations, 2 `max_tool_calls`.
 
 ## What it shows
 
-- **Lightning 30B with thinking off answered no triage question.** Its only answers were the two start-of-run model checks, which are tiny prompts. Every triage question it was asked ran out of time first. This runs against the expectation that thinking off would make it fast. These runs cannot tell whether NVIDIA's hosted Lightning is slow or queued, or whether it is slow on triage-sized prompts.
-- **Ministral 14B wrote every answer.** The comparison below is of the triage blocks with Ministral answering, not of Lightning.
+- **Lightning 30B with thinking off answered most triage questions, quickly, but stalled on about a third.** It wrote 92 of 111 answers in `all` and 159 of 171 in control, every conclusion included. When it answered it took 2–2.6 s. When it did not, it waited until the question's time limit cut it off, 17–25 s on average. That left Ministral too little time on some decide questions. In `all`, 24 of 88 decide questions got no answer.
+- **Ministral 14B answered only after a Lightning cut-off:** 19 answers in `all` and 12 in control, about 10 s each.
 - **The `all` arm gathers about twice the relevant evidence.** It collected 46–51% against 23–28%, and it repeats far fewer calls: 10 against 53, so PR 268's fix holds. It also finished about 15 s sooner at p50.
 - **Final recommendations are the same in both arms:** 8/26 right, 6/26 resolved and no unnecessary intervention. The extra evidence did not change what the triage recommended.
 - **Ministral's one recurring wrong shape:** `interpretation.hypotheses[].contradicting_evidence_ids` not given as a list (8 times across both arms).
 
 ## Next
 
-- Before `TRIAGE_MODEL` can be judged, find out why Lightning, with thinking off, gets cut off on triage questions. For example, time one triage-sized prompt against it directly.
+- Lightning either answers in a few seconds or stalls. A short time limit on its attempt (about 6–8 s) before falling back would leave the fallback room to answer.
+- In `all`, 25 of 26 triages ended unresolved with the fixed plan's record questions (events, settings, follow-up sensor) still open. PRs 274 (`TRIAGE_OBSERVE_CALLS`) and the investigate compiler's planned reads address that.
 - Rerun on Command-A, or another fallback that answers in time, once the Cohere key allows calls again.
