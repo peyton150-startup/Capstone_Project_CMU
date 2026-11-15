@@ -38,10 +38,11 @@ prompt can hold. Nothing here reads hidden truth or calls a model.
 """
 
 import re
+from typing import NamedTuple
 
 from capstone.agent.policy import CallTool, CallTools, Decision, Stop
 from capstone.agent.state import InvestigationState, Question
-from capstone.agent.triage_plan import fixed_plan
+from capstone.agent.triage_plan import PlannedRead, fixed_plan, planned_reads
 from capstone.contracts import Contract
 from capstone.contracts.tools import ToolRequest
 
@@ -62,10 +63,16 @@ class Candidate(Contract):
 
     question_id: str
     hypothesis_id: str | None = None
-    machine_id: str
-    sensor: str
-    from_tick: int
-    to_tick: int
+    # The read: a sensor summary unless the fixed plan's table named another
+    # tool (events, settings, inspections, service records) for the question.
+    tool: str = SUMMARY_TOOL
+    # None only for a planned read about the whole line.
+    machine_id: str | None
+    # A sensor summary's sensor; None for the other tools.
+    sensor: str | None = None
+    # The window; None for a tool that takes none (settings, service records).
+    from_tick: int | None = None
+    to_tick: int | None = None
     # Larger is better for the first three; smaller is better for the rest.
     rivals_separated: int
     could_contradict_leader: int
@@ -75,20 +82,44 @@ class Candidate(Contract):
     question_order: int
     # True when a measured predicate gave the target and window, not the words.
     measured: bool = False
+    # True when the fixed plan's table named the read (`planned_reads`).
+    planned: bool = False
 
     @property
     def root(self) -> str:
-        return f"{self.machine_id}:{self.sensor}"
+        """What the read is about: machine and sensor, or machine (or line) and tool."""
+        if self.tool == SUMMARY_TOOL:
+            return f"{self.machine_id}:{self.sensor}"
+        return f"{self.machine_id or 'line'}:{self.tool}"
+
+    @property
+    def chosen_without_explanation(self) -> bool:
+        """Whether the plan, not the words, chose this read, so it needs no live
+        explanation to be worth making."""
+        return self.measured or self.planned
+
+    def arguments(self) -> dict:
+        """The tool's arguments: only those it takes and the candidate has."""
+        # Variables:
+        #   fields: Every argument the candidate could carry, None for unused.
+        fields = {
+            "machine_id": self.machine_id,
+            "sensor": self.sensor,
+            "from_tick": self.from_tick,
+            "to_tick": self.to_tick,
+        }
+        return {k: v for k, v in fields.items() if v is not None}
 
     def key(self) -> tuple:
         """The ranking key: most to settle first, then cheapest, then stable."""
         # Variables:
         #   rivals_separated, could_contradict_leader, signal_trust: Negated, so
         #     the read that could settle most sorts first.
-        #   prior_reads, cost: Fewer earlier reads of this sensor, then fewer
-        #     calls, win the next ties.
-        #   question_order, machine_id: The plan's own order, then the id, so
-        #     equal reads always come out in the same order.
+        #   prior_reads, cost: Fewer earlier reads of this sensor (or tool),
+        #     then fewer calls, win the next ties.
+        #   question_order, machine_id, tool: The plan's own order, then the
+        #     id (a line-wide read sorts as ""), then the tool, so equal reads
+        #     always come out in the same order.
         return (
             -self.rivals_separated,
             -self.could_contradict_leader,
@@ -96,7 +127,8 @@ class Candidate(Contract):
             self.prior_reads,
             self.cost,
             self.question_order,
-            self.machine_id,
+            self.machine_id or "",
+            self.tool,
         )
 
     def signals(self) -> dict[str, int]:
@@ -107,6 +139,7 @@ class Candidate(Contract):
             "prior_reads": self.prior_reads,
             "cost": self.cost,
             "measured": int(self.measured),
+            "planned": int(self.planned),
         }
 
     def step(self) -> CallTool:
@@ -114,20 +147,13 @@ class Candidate(Contract):
         # Variables:
         #   question_id: Ties the read to its question, so the loop marks it
         #     answered (and, with a predicate, judges it) like a model's read.
+        #   about: The read in words: sensor or tool, machine or line, window.
+        about = f"{self.sensor or self.tool} on {self.machine_id or 'the line'}"
+        if self.from_tick is not None:
+            about += f", ticks {self.from_tick}-{self.to_tick}"
         return CallTool(
-            information_needed=(
-                f"compiled for {self.question_id}: {self.sensor} on "
-                f"{self.machine_id}, ticks {self.from_tick}-{self.to_tick}"
-            ),
-            request=ToolRequest(
-                name=SUMMARY_TOOL,
-                arguments={
-                    "machine_id": self.machine_id,
-                    "sensor": self.sensor,
-                    "from_tick": self.from_tick,
-                    "to_tick": self.to_tick,
-                },
-            ),
+            information_needed=f"compiled for {self.question_id}: {about}",
+            request=ToolRequest(name=self.tool, arguments=self.arguments()),
             question_id=self.question_id,
             hypothesis_id=self.hypothesis_id,
         )
@@ -198,36 +224,77 @@ def from_fixed_plan(state: InvestigationState, question: Question) -> bool:
     )
 
 
+class Target(NamedTuple):
+    """One read that answers a question, before it is ranked."""
+
+    tool: str
+    machine_id: str | None
+    sensor: str | None
+    from_tick: int | None
+    to_tick: int | None
+    measured: bool = False
+    planned: bool = False
+
+
+def planned_target(
+    state: InvestigationState, read: PlannedRead, machines: tuple[str, ...]
+) -> list[Target]:
+    """The fixed plan's own read for a question, with its window filled in.
+
+    Empty when the read names a machine the request may not name, or when no
+    tick is known yet to end a window at.
+    """
+    # Variables:
+    #   read: The table's tool, machine and sensor for the question.
+    #   start, end: Before the anomaly up to the latest observed tick, for a
+    #     windowed read; None for a tool that takes no window.
+    if read.machine_id is not None and read.machine_id not in machines:
+        return []
+    start = end = None
+    if read.windowed:
+        if state.last_tick is None:
+            return []
+        start = max(0, state.anomaly.tick - WINDOW_TICKS)
+        end = max(state.last_tick, start)
+    return [Target(read.tool, read.machine_id, read.sensor, start, end, planned=True)]
+
+
 def targets(
     state: InvestigationState, question: Question, machines: tuple[str, ...]
-) -> list[tuple[str, str, int, int, bool]]:
-    """The (machine, sensor, from, to, measured) reads that answer one question.
+) -> list[Target]:
+    """The reads that answer one question.
 
     A measured predicate names its own target and window, exactly, and its
-    reads are marked measured. A fixed-plan question without one compiles
-    nothing: its words ask for a screening, events, settings or inspections,
-    and a sensor they mention is not the read that answers them. Otherwise the
-    words must name exactly one sensor and at least one known machine. Empty
-    when none of these gives a read.
+    reads are marked measured. A fixed-plan question without one compiles the
+    read the plan's table names for it (`planned_reads`: events, settings,
+    inspections, service records or a follow-up sensor), marked planned, or
+    nothing when the table names none: a sensor its words mention is not the
+    read that answers it. Otherwise the words must name exactly one sensor and
+    at least one known machine. Empty when none of these gives a read.
     """
     # Variables:
     #   predicate: The measured condition a planner attached, when there is one;
     #     its window is used unchanged, so the read is one its verdict accepts.
+    #   read: The fixed plan's own read for the question, if the table has one.
     #   start, end: The default window: before the alarm up to the latest tick.
     predicate = state.question_predicates.get(question.id)
     if predicate is not None:
         if predicate.machine_id not in machines:
             return []
         return [
-            (
+            Target(
+                SUMMARY_TOOL,
                 predicate.machine_id,
                 predicate.sensor,
                 predicate.from_tick,
                 predicate.to_tick,
-                True,
+                measured=True,
             )
         ]
-    if state.last_tick is None or from_fixed_plan(state, question):
+    if from_fixed_plan(state, question):
+        read = planned_reads(state.anomaly).get(question.id)
+        return [] if read is None else planned_target(state, read, machines)
+    if state.last_tick is None:
         return []
     sensors = sensors_named(question.text)
     if len(sensors) != 1:
@@ -236,23 +303,52 @@ def targets(
     start = max(0, state.anomaly.tick - WINDOW_TICKS)
     end = max(state.last_tick, start)
     return [
-        (m, sensor, start, end, False) for m in machines_named(question.text, machines)
+        Target(SUMMARY_TOOL, m, sensor, start, end)
+        for m in machines_named(question.text, machines)
     ]
+
+
+def earlier_reads(state: InvestigationState, target: Target) -> tuple[int, bool]:
+    """For a read that is not a sensor read: how often its tool was already
+    answered about the same machine (or line), and whether this exact read
+    already was (the duplicate guard)."""
+    # Variables:
+    #   wanted: The target's arguments, as the tool would be asked.
+    #   same: Answered calls of the same tool about the same machine (or line).
+    wanted = {
+        k: v
+        for k, v in {
+            "machine_id": target.machine_id,
+            "from_tick": target.from_tick,
+            "to_tick": target.to_tick,
+        }.items()
+        if v is not None
+    }
+    same = [
+        d
+        for d in state.decisions
+        if d.tool == target.tool
+        and d.outcome == "observed"
+        and d.arguments.get("machine_id") == target.machine_id
+    ]
+    return len(same), any(d.arguments == wanted for d in same)
 
 
 def compile_requests(state: InvestigationState) -> list[Candidate]:
     """Every allowed read for the open questions, ranked best first."""
     # Variables:
-    #   live: Ids of the explanations still in play; with none, only predicate
-    #     reads are kept, since a reading parsed from words needs an
-    #     explanation to be worth choosing.
+    #   live: Ids of the explanations still in play; with none, only reads the
+    #     plan chose (a predicate's or the table's) are kept, since a reading
+    #     parsed from words needs an explanation to be worth choosing.
     #   leader: The current favourite, which a counter-check could tell against.
     #   machines: Machines a request may name.
-    #   seen: Windows already observed per machine sensor (the duplicate guard).
-    #   offered: Roots already offered, so two questions do not ask for one read.
-    #   measured: Whether a predicate gave this read. Only those are offered
-    #     before any explanation is live, and only those may name a sensor in
-    #     UNSURE_SENSORS (the predicate's alarm came from that very sensor).
+    #   seen: Windows already observed per machine sensor (the duplicate guard
+    #     for sensor reads); other tools are guarded by `earlier_reads`.
+    #   offered: Reads already offered, so two questions do not ask for one.
+    #   target.measured: Whether a predicate gave this read. Only those may
+    #     name a sensor in UNSURE_SENSORS (the predicate's alarm came from
+    #     that very sensor).
+    #   target.planned: Whether the fixed plan's table named this read.
     if state.remaining_tool_calls <= 0:
         return []
     live = {h.id for h in state.hypotheses}
@@ -263,33 +359,45 @@ def compile_requests(state: InvestigationState) -> list[Candidate]:
     for order, question in enumerate(state.unanswered_questions):
         named = set(question.distinguishes_hypothesis_ids) & live
         about = named | ({question.hypothesis_id} & live)
-        for machine, sensor, start, end, measured in targets(state, question, machines):
-            if not measured and (sensor in UNSURE_SENSORS or not live):
+        for target in targets(state, question, machines):
+            if not (target.measured or target.planned) and not live:
                 continue
-            windows = seen.get((machine, sensor), [])
-            if any(a <= start and end <= b for a, b in windows):
+            if not target.measured and target.sensor in UNSURE_SENSORS:
                 continue
+            if target.tool in WINDOW_TOOLS:
+                windows = seen.get((target.machine_id, target.sensor), [])
+                if any(
+                    a <= target.from_tick and target.to_tick <= b for a, b in windows
+                ):
+                    continue
+                prior = len(windows)
+            else:
+                prior, repeat = earlier_reads(state, target)
+                if repeat:
+                    continue
             found.append(
                 Candidate(
                     question_id=question.id,
                     hypothesis_id=question.hypothesis_id,
-                    machine_id=machine,
-                    sensor=sensor,
-                    from_tick=start,
-                    to_tick=end,
+                    tool=target.tool,
+                    machine_id=target.machine_id,
+                    sensor=target.sensor,
+                    from_tick=target.from_tick,
+                    to_tick=target.to_tick,
                     rivals_separated=len(named) if len(named) >= 2 else 0,
                     could_contradict_leader=int(
                         leader is not None and leader.id in about
                     ),
                     signal_trust=TRUST[question.signal_reliability],
-                    prior_reads=len(windows),
+                    prior_reads=prior,
                     cost=question.estimated_calls,
                     question_order=order,
-                    measured=measured,
+                    measured=target.measured,
+                    planned=target.planned,
                 )
             )
     found.sort(key=Candidate.key)
-    offered: set[tuple[str, int, int]] = set()
+    offered: set[tuple] = set()
     ranked = []
     for candidate in found:
         mark = (candidate.root, candidate.from_tick, candidate.to_tick)
@@ -303,10 +411,11 @@ def escape_reason(state: InvestigationState, ranked: list[Candidate]) -> str | N
     """Why the model must decide this turn, or None when a compiled read stands."""
     # Variables:
     #   state.hypotheses: With no live explanation, what to test is the model's
-    #     call, not a ranking's, unless a predicate already fixed the read.
+    #     call, not a ranking's, unless the plan (a predicate or the fixed
+    #     table) already fixed the read.
     #   ranked: The compiled reads; none means no question named one sensor on
-    #     a known machine (or, with no explanation, carried a predicate).
-    if not state.hypotheses and not any(c.measured for c in ranked):
+    #     a known machine (or, with no explanation, had a read the plan chose).
+    if not state.hypotheses and not any(c.chosen_without_explanation for c in ranked):
         return "no_live_explanation"
     if not state.unanswered_questions:
         return "no_open_question"
@@ -333,15 +442,32 @@ def model_target(decision: Decision | None) -> tuple[str | None, str | None, tup
     )
 
 
+def model_arguments(decision: Decision | None) -> dict:
+    """The arguments of the model's single call, or of the first of its list."""
+    if isinstance(decision, CallTools):
+        decision = decision.steps[0]
+    return decision.request.arguments if isinstance(decision, CallTool) else {}
+
+
 def agreement(choice: Candidate, decision: Decision | None) -> str:
     """How the model's decision compares with the compiled read."""
     # Variables:
     #   tool, root, window: What the model asked for.
+    #   choice.tool: A sensor read is compared by machine sensor and window; a
+    #     planned record read by tool, machine (or line) and arguments.
+    #   args: The arguments of the model's call, for a planned record read.
     if isinstance(decision, Stop):
         return "model_stopped"
     if decision is None:
         return "model_failed"
     tool, root, window = model_target(decision)
+    if choice.tool not in WINDOW_TOOLS:
+        # A planned record read: the same tool about the same machine (or the
+        # whole line) is the same target; with the same window, the same request.
+        args = model_arguments(decision)
+        if tool != choice.tool or args.get("machine_id") != choice.machine_id:
+            return "different"
+        return "same_request" if args == choice.arguments() else "same_target"
     if tool not in WINDOW_TOOLS or root != choice.root:
         return "different"
     if tool == SUMMARY_TOOL and window == (choice.from_tick, choice.to_tick):
