@@ -37,7 +37,6 @@ from capstone.agent.evidence_tests import (
     source_roots,
 )
 from capstone.agent.investigate_compiler import (
-    SUMMARY_TOOL,
     Candidate,
     agreement,
     compile_requests,
@@ -958,7 +957,7 @@ def note_advice(
             source=source,
             candidates=len(ranked),
             question_id=choice.question_id if choice else None,
-            tool=SUMMARY_TOOL if choice else None,
+            tool=choice.tool if choice else None,
             root=choice.root if choice else None,
             from_tick=choice.from_tick if choice else None,
             to_tick=choice.to_tick if choice else None,
