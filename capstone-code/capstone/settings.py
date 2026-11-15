@@ -283,6 +283,18 @@ class Settings(BaseSettings):
         default=6, ge=1, validation_alias="TRIAGE_TOOL_CALLS"
     )
     triage_then_deep: bool = Field(default=True, validation_alias="TRIAGE_THEN_DEEP")
+    # TRIAGE_MODEL (developer, 2026-11-15): the model asked first for every
+    # question in a triage, ahead of FALLBACK_MODEL. On 2026-11-14 Super 120B
+    # was cut off in nearly every triage question, so the developer chose
+    # Lightning 30B with its thinking off. Unset (the default), each question
+    # keeps its own model. A deep run never uses it, LATE_MODEL is not used in
+    # a triage once it is set, and TRIAGE_MODEL_THINKING (off by default)
+    # sends NVIDIA chat_template_kwargs.enable_thinking, as LATE_MODEL_THINKING
+    # does; other providers are sent nothing.
+    triage_model: str | None = _optional("TRIAGE_MODEL")
+    triage_model_thinking: bool = Field(
+        default=False, validation_alias="TRIAGE_MODEL_THINKING"
+    )
     # TRIAGE_PACKET (Block 2, Observe): in a triage only, build the qualified,
     # source-linked evidence packet (`agent.triage_packet`) in place of the
     # line context. On by default (developer, 2026-11-13; the schedule's
@@ -400,6 +412,7 @@ class Settings(BaseSettings):
         "lesson_model",
         "value_model",
         "late_model",
+        "triage_model",
         "fallback_model",
         "critic_model",
         "critic_fallback_model",

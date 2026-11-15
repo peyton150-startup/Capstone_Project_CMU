@@ -20278,7 +20278,7 @@
     "capstone.agent.investigation:run_investigation",
     "capstone.agent.investigation:test"
    ],
-   "exercise_count": 238,
+   "exercise_count": 239,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -20380,7 +20380,7 @@
     "capstone.agent.state:InvestigationState.remaining_iterations",
     "capstone.agent.state:InvestigationState.remaining_seconds"
    ],
-   "exercise_count": 178,
+   "exercise_count": 179,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -20489,7 +20489,7 @@
     "capstone.agent.state:InvestigationState.remaining_iterations",
     "capstone.agent.state:InvestigationState.remaining_seconds"
    ],
-   "exercise_count": 185,
+   "exercise_count": 186,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -20673,7 +20673,7 @@
     "capstone.agent.investigation:run_investigation",
     "capstone.agent.investigation:test"
    ],
-   "exercise_count": 238,
+   "exercise_count": 239,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -26893,10 +26893,11 @@
     "capstone.agent.state:InvestigationState.research_tool_calls",
     "capstone.agent.untrusted:looks_like_instruction",
     "capstone.providers.chat:late_key",
+    "capstone.providers.chat:triage_key",
     "capstone.providers.factory:research_tools",
     "capstone.providers.factory:tool_spec"
    ],
-   "exercise_count": 26,
+   "exercise_count": 27,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.model_policy",
@@ -26956,10 +26957,11 @@
     "capstone.agent.state:InvestigationState.research_tool_calls",
     "capstone.agent.untrusted:looks_like_instruction",
     "capstone.providers.chat:late_key",
+    "capstone.providers.chat:triage_key",
     "capstone.providers.factory:research_tools",
     "capstone.providers.factory:tool_spec"
    ],
-   "exercise_count": 26,
+   "exercise_count": 27,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.model_policy",
@@ -27017,10 +27019,11 @@
     "capstone.agent.state:InvestigationState.research_tool_calls",
     "capstone.agent.untrusted:looks_like_instruction",
     "capstone.providers.chat:late_key",
+    "capstone.providers.chat:triage_key",
     "capstone.providers.factory:research_tools",
     "capstone.providers.factory:tool_spec"
    ],
-   "exercise_count": 27,
+   "exercise_count": 28,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -34734,10 +34737,11 @@
     "capstone.agent.state:InvestigationState.remaining_tool_calls",
     "capstone.agent.state:InvestigationState.research_tool_calls",
     "capstone.providers.chat:late_key",
+    "capstone.providers.chat:triage_key",
     "capstone.providers.factory:research_tools",
     "capstone.providers.factory:tool_spec"
    ],
-   "exercise_count": 25,
+   "exercise_count": 26,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.model_policy",
@@ -34798,10 +34802,11 @@
     "capstone.agent.state:InvestigationState.remaining_tool_calls",
     "capstone.agent.state:InvestigationState.research_tool_calls",
     "capstone.providers.chat:late_key",
+    "capstone.providers.chat:triage_key",
     "capstone.providers.factory:research_tools",
     "capstone.providers.factory:tool_spec"
    ],
-   "exercise_count": 26,
+   "exercise_count": 27,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.model_policy",
@@ -34859,10 +34864,11 @@
     "capstone.agent.state:InvestigationState.remaining_tool_calls",
     "capstone.agent.state:InvestigationState.research_tool_calls",
     "capstone.providers.chat:late_key",
+    "capstone.providers.chat:triage_key",
     "capstone.providers.factory:research_tools",
     "capstone.providers.factory:tool_spec"
    ],
-   "exercise_count": 26,
+   "exercise_count": 27,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.model_policy",
@@ -34919,10 +34925,11 @@
     "capstone.agent.state:InvestigationState.remaining_tool_calls",
     "capstone.agent.state:InvestigationState.research_tool_calls",
     "capstone.providers.chat:late_key",
+    "capstone.providers.chat:triage_key",
     "capstone.providers.factory:research_tools",
     "capstone.providers.factory:tool_spec"
    ],
-   "exercise_count": 27,
+   "exercise_count": 28,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.model_policy",
@@ -35018,10 +35025,11 @@
     "capstone.agent.state:InvestigationState.research_tool_calls",
     "capstone.agent.untrusted:looks_like_instruction",
     "capstone.providers.chat:late_key",
+    "capstone.providers.chat:triage_key",
     "capstone.providers.factory:research_tools",
     "capstone.providers.factory:tool_spec"
    ],
-   "exercise_count": 32,
+   "exercise_count": 33,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.model_policy",
@@ -35086,10 +35094,11 @@
     "capstone.agent.state:InvestigationState.research_tool_calls",
     "capstone.agent.untrusted:looks_like_instruction",
     "capstone.providers.chat:late_key",
+    "capstone.providers.chat:triage_key",
     "capstone.providers.factory:research_tools",
     "capstone.providers.factory:tool_spec"
    ],
-   "exercise_count": 31,
+   "exercise_count": 32,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.model_policy",
@@ -49779,7 +49788,7 @@
     "capstone.agent.model_policy:ModelPolicy.__init__",
     "capstone.agent.model_policy:ModelPolicy._ask"
    ],
-   "exercise_count": 273,
+   "exercise_count": 274,
    "modules_exercised": [
     "capstone.agent.completion",
     "capstone.agent.evidence_brief",
@@ -50072,7 +50081,7 @@
     "capstone.agent.investigation:run_investigation",
     "capstone.agent.investigation:test"
    ],
-   "exercise_count": 242,
+   "exercise_count": 243,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -50238,7 +50247,7 @@
     "capstone.agent.investigation:run_investigation",
     "capstone.agent.investigation:test"
    ],
-   "exercise_count": 267,
+   "exercise_count": 268,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -52003,12 +52012,13 @@
     "capstone.agent.model_policy:ModelPolicy.__init__",
     "capstone.experiment:model_policy_factory",
     "capstone.providers.chat:late_clients",
+    "capstone.providers.chat:triage_clients",
     "capstone.providers.factory:research_tools",
     "capstone.providers.factory:tool_spec",
     "capstone.settings:Settings.blank_is_missing",
     "capstone.settings:get_settings"
    ],
-   "exercise_count": 7,
+   "exercise_count": 8,
    "modules_exercised": [
     "capstone.agent.model_policy",
     "capstone.experiment",
@@ -52389,7 +52399,7 @@
     "capstone.agent.investigation:revalue",
     "capstone.agent.investigation:review_packet"
    ],
-   "exercise_count": 244,
+   "exercise_count": 245,
    "modules_exercised": [
     "capstone.agent.critic",
     "capstone.agent.evidence_brief",
@@ -57633,7 +57643,7 @@
    "uses": [],
    "quality_flags": [],
    "claims": "Every tracked Python file is inventoried, a test, excluded with a reason,",
-   "execution_outcome": "passed",
+   "execution_outcome": "failed",
    "exercises": [
     "evaluation.evaltools.build_inventory:call_name",
     "evaluation.evaltools.build_inventory:collect_functions",
@@ -64101,10 +64111,11 @@
     "capstone.agent.model_policy:ModelPolicy.client_for",
     "capstone.agent.state:Budgets.research_gets_some_time",
     "capstone.providers.chat:late_key",
+    "capstone.providers.chat:triage_key",
     "capstone.providers.factory:research_tools",
     "capstone.providers.factory:tool_spec"
    ],
-   "exercise_count": 6,
+   "exercise_count": 7,
    "modules_exercised": [
     "capstone.agent.model_policy",
     "capstone.agent.state",
@@ -64141,10 +64152,11 @@
     "capstone.agent.model_policy:ModelPolicy.client_for",
     "capstone.agent.state:Budgets.research_gets_some_time",
     "capstone.providers.chat:late_key",
+    "capstone.providers.chat:triage_key",
     "capstone.providers.factory:research_tools",
     "capstone.providers.factory:tool_spec"
    ],
-   "exercise_count": 6,
+   "exercise_count": 7,
    "modules_exercised": [
     "capstone.agent.model_policy",
     "capstone.agent.state",
@@ -64181,10 +64193,11 @@
     "capstone.agent.model_policy:ModelPolicy.client_for",
     "capstone.agent.state:Budgets.research_gets_some_time",
     "capstone.providers.chat:late_key",
+    "capstone.providers.chat:triage_key",
     "capstone.providers.factory:research_tools",
     "capstone.providers.factory:tool_spec"
    ],
-   "exercise_count": 6,
+   "exercise_count": 7,
    "modules_exercised": [
     "capstone.agent.model_policy",
     "capstone.agent.state",
@@ -64224,10 +64237,11 @@
     "capstone.agent.model_policy:ModelPolicy.client_for",
     "capstone.agent.state:Budgets.research_gets_some_time",
     "capstone.providers.chat:late_key",
+    "capstone.providers.chat:triage_key",
     "capstone.providers.factory:research_tools",
     "capstone.providers.factory:tool_spec"
    ],
-   "exercise_count": 6,
+   "exercise_count": 7,
    "modules_exercised": [
     "capstone.agent.model_policy",
     "capstone.agent.state",
@@ -64266,10 +64280,11 @@
     "capstone.agent.model_policy:ModelPolicy.client_for",
     "capstone.agent.state:Budgets.research_gets_some_time",
     "capstone.providers.chat:late_key",
+    "capstone.providers.chat:triage_key",
     "capstone.providers.factory:research_tools",
     "capstone.providers.factory:tool_spec"
    ],
-   "exercise_count": 6,
+   "exercise_count": 7,
    "modules_exercised": [
     "capstone.agent.model_policy",
     "capstone.agent.state",
@@ -64306,10 +64321,11 @@
     "capstone.agent.model_policy:ModelPolicy.client_for",
     "capstone.agent.state:Budgets.research_gets_some_time",
     "capstone.providers.chat:late_key",
+    "capstone.providers.chat:triage_key",
     "capstone.providers.factory:research_tools",
     "capstone.providers.factory:tool_spec"
    ],
-   "exercise_count": 6,
+   "exercise_count": 7,
    "modules_exercised": [
     "capstone.agent.model_policy",
     "capstone.agent.state",
@@ -64365,10 +64381,11 @@
     "capstone.agent.state:InvestigationState.remaining_tool_calls",
     "capstone.agent.state:InvestigationState.research_tool_calls",
     "capstone.providers.chat:late_key",
+    "capstone.providers.chat:triage_key",
     "capstone.providers.factory:research_tools",
     "capstone.providers.factory:tool_spec"
    ],
-   "exercise_count": 25,
+   "exercise_count": 26,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.model_policy",
@@ -64425,10 +64442,11 @@
     "capstone.agent.state:InvestigationState.remaining_tool_calls",
     "capstone.agent.state:InvestigationState.research_tool_calls",
     "capstone.providers.chat:late_key",
+    "capstone.providers.chat:triage_key",
     "capstone.providers.factory:research_tools",
     "capstone.providers.factory:tool_spec"
    ],
-   "exercise_count": 25,
+   "exercise_count": 26,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.model_policy",
@@ -64480,10 +64498,11 @@
     "capstone.agent.state:InvestigationState.remaining_tool_calls",
     "capstone.agent.state:InvestigationState.research_tool_calls",
     "capstone.providers.chat:late_key",
+    "capstone.providers.chat:triage_key",
     "capstone.providers.factory:research_tools",
     "capstone.providers.factory:tool_spec"
    ],
-   "exercise_count": 19,
+   "exercise_count": 20,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.model_policy",
@@ -78496,10 +78515,11 @@
     "capstone.agent.state:InvestigationState.research_tool_calls",
     "capstone.agent.untrusted:looks_like_instruction",
     "capstone.providers.chat:late_key",
+    "capstone.providers.chat:triage_key",
     "capstone.providers.factory:research_tools",
     "capstone.providers.factory:tool_spec"
    ],
-   "exercise_count": 33,
+   "exercise_count": 34,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.model_policy",
@@ -78567,10 +78587,11 @@
     "capstone.agent.state:InvestigationState.research_tool_calls",
     "capstone.agent.untrusted:looks_like_instruction",
     "capstone.providers.chat:late_key",
+    "capstone.providers.chat:triage_key",
     "capstone.providers.factory:research_tools",
     "capstone.providers.factory:tool_spec"
    ],
-   "exercise_count": 33,
+   "exercise_count": 34,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.model_policy",
@@ -79309,10 +79330,11 @@
     "capstone.providers.chat:post_json",
     "capstone.providers.chat:reply_text",
     "capstone.providers.chat:reported_usage",
+    "capstone.providers.chat:triage_key",
     "capstone.providers.factory:research_tools",
     "capstone.providers.factory:tool_spec"
    ],
-   "exercise_count": 24,
+   "exercise_count": 25,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.model_policy",
@@ -79362,10 +79384,11 @@
     "capstone.agent.state:InvestigationState.remaining_tool_calls",
     "capstone.agent.state:InvestigationState.research_tool_calls",
     "capstone.providers.chat:late_key",
+    "capstone.providers.chat:triage_key",
     "capstone.providers.factory:research_tools",
     "capstone.providers.factory:tool_spec"
    ],
-   "exercise_count": 18,
+   "exercise_count": 19,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.model_policy",
@@ -79423,10 +79446,11 @@
     "capstone.agent.state:InvestigationState.remaining_tool_calls",
     "capstone.agent.state:InvestigationState.research_tool_calls",
     "capstone.providers.chat:late_key",
+    "capstone.providers.chat:triage_key",
     "capstone.providers.factory:research_tools",
     "capstone.providers.factory:tool_spec"
    ],
-   "exercise_count": 25,
+   "exercise_count": 26,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.model_policy",
@@ -79484,10 +79508,11 @@
     "capstone.agent.state:InvestigationState.remaining_tool_calls",
     "capstone.agent.state:InvestigationState.research_tool_calls",
     "capstone.providers.chat:late_key",
+    "capstone.providers.chat:triage_key",
     "capstone.providers.factory:research_tools",
     "capstone.providers.factory:tool_spec"
    ],
-   "exercise_count": 25,
+   "exercise_count": 26,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.model_policy",
@@ -79545,10 +79570,11 @@
     "capstone.agent.state:InvestigationState.remaining_tool_calls",
     "capstone.agent.state:InvestigationState.research_tool_calls",
     "capstone.providers.chat:late_key",
+    "capstone.providers.chat:triage_key",
     "capstone.providers.factory:research_tools",
     "capstone.providers.factory:tool_spec"
    ],
-   "exercise_count": 25,
+   "exercise_count": 26,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.model_policy",
@@ -79608,10 +79634,11 @@
     "capstone.agent.state:InvestigationState.remaining_tool_calls",
     "capstone.agent.state:InvestigationState.research_tool_calls",
     "capstone.providers.chat:late_key",
+    "capstone.providers.chat:triage_key",
     "capstone.providers.factory:research_tools",
     "capstone.providers.factory:tool_spec"
    ],
-   "exercise_count": 26,
+   "exercise_count": 27,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.model_policy",
@@ -79665,10 +79692,11 @@
     "capstone.agent.state:InvestigationState.remaining_tool_calls",
     "capstone.agent.state:InvestigationState.research_tool_calls",
     "capstone.providers.chat:late_key",
+    "capstone.providers.chat:triage_key",
     "capstone.providers.factory:research_tools",
     "capstone.providers.factory:tool_spec"
    ],
-   "exercise_count": 22,
+   "exercise_count": 23,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.model_policy",
@@ -79727,10 +79755,11 @@
     "capstone.agent.state:InvestigationState.research_tool_calls",
     "capstone.agent.untrusted:looks_like_instruction",
     "capstone.providers.chat:late_key",
+    "capstone.providers.chat:triage_key",
     "capstone.providers.factory:research_tools",
     "capstone.providers.factory:tool_spec"
    ],
-   "exercise_count": 25,
+   "exercise_count": 26,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.model_policy",
@@ -79790,10 +79819,11 @@
     "capstone.agent.state:InvestigationState.research_tool_calls",
     "capstone.agent.untrusted:looks_like_instruction",
     "capstone.providers.chat:late_key",
+    "capstone.providers.chat:triage_key",
     "capstone.providers.factory:research_tools",
     "capstone.providers.factory:tool_spec"
    ],
-   "exercise_count": 26,
+   "exercise_count": 27,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.model_policy",
@@ -79853,10 +79883,11 @@
     "capstone.agent.state:InvestigationState.research_tool_calls",
     "capstone.agent.untrusted:looks_like_instruction",
     "capstone.providers.chat:late_key",
+    "capstone.providers.chat:triage_key",
     "capstone.providers.factory:research_tools",
     "capstone.providers.factory:tool_spec"
    ],
-   "exercise_count": 26,
+   "exercise_count": 27,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.model_policy",
@@ -79914,10 +79945,11 @@
     "capstone.agent.state:InvestigationState.research_tool_calls",
     "capstone.agent.untrusted:looks_like_instruction",
     "capstone.providers.chat:late_key",
+    "capstone.providers.chat:triage_key",
     "capstone.providers.factory:research_tools",
     "capstone.providers.factory:tool_spec"
    ],
-   "exercise_count": 25,
+   "exercise_count": 26,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.model_policy",
@@ -79970,10 +80002,11 @@
     "capstone.agent.state:InvestigationState.remaining_tool_calls",
     "capstone.agent.state:InvestigationState.research_tool_calls",
     "capstone.providers.chat:late_key",
+    "capstone.providers.chat:triage_key",
     "capstone.providers.factory:research_tools",
     "capstone.providers.factory:tool_spec"
    ],
-   "exercise_count": 18,
+   "exercise_count": 19,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.model_policy",
@@ -80032,10 +80065,11 @@
     "capstone.agent.state:InvestigationState.research_tool_calls",
     "capstone.agent.untrusted:looks_like_instruction",
     "capstone.providers.chat:late_key",
+    "capstone.providers.chat:triage_key",
     "capstone.providers.factory:research_tools",
     "capstone.providers.factory:tool_spec"
    ],
-   "exercise_count": 27,
+   "exercise_count": 28,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.model_policy",
@@ -80125,9 +80159,10 @@
     "capstone.providers.chat:late_key",
     "capstone.providers.chat:post_json",
     "capstone.providers.chat:reply_text",
-    "capstone.providers.chat:reported_usage"
+    "capstone.providers.chat:reported_usage",
+    "capstone.providers.chat:triage_key"
    ],
-   "exercise_count": 26,
+   "exercise_count": 27,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.model_policy",
@@ -80204,7 +80239,7 @@
     "capstone.agent.investigation:run_investigation",
     "capstone.agent.investigation:test"
    ],
-   "exercise_count": 236,
+   "exercise_count": 237,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -80317,7 +80352,7 @@
     "capstone.agent.investigation:run_investigation",
     "capstone.agent.investigation:test"
    ],
-   "exercise_count": 244,
+   "exercise_count": 245,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -80424,7 +80459,7 @@
     "capstone.agent.state:InvestigationState.remaining_iterations",
     "capstone.agent.state:InvestigationState.remaining_seconds"
    ],
-   "exercise_count": 165,
+   "exercise_count": 166,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -80525,7 +80560,7 @@
     "capstone.agent.investigation:run_investigation",
     "capstone.agent.investigation:test"
    ],
-   "exercise_count": 236,
+   "exercise_count": 237,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -80625,7 +80660,7 @@
     "capstone.agent.loop:call_tool",
     "capstone.agent.loop:check_termination"
    ],
-   "exercise_count": 208,
+   "exercise_count": 209,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -80725,7 +80760,7 @@
     "capstone.agent.loop:call_signature",
     "capstone.agent.loop:call_tool"
    ],
-   "exercise_count": 211,
+   "exercise_count": 212,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -80825,7 +80860,7 @@
     "capstone.agent.investigation:run_investigation",
     "capstone.agent.investigation:test"
    ],
-   "exercise_count": 238,
+   "exercise_count": 239,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -80925,7 +80960,7 @@
     "capstone.agent.loop:call_signature",
     "capstone.agent.loop:call_tool"
    ],
-   "exercise_count": 211,
+   "exercise_count": 212,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -81024,7 +81059,7 @@
     "capstone.agent.loop:run_batch",
     "capstone.agent.loop:run_inner_loop"
    ],
-   "exercise_count": 198,
+   "exercise_count": 199,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -81098,10 +81133,11 @@
     "capstone.agent.state:InvestigationState.remaining_tool_calls",
     "capstone.agent.state:InvestigationState.research_tool_calls",
     "capstone.providers.chat:late_key",
+    "capstone.providers.chat:triage_key",
     "capstone.providers.factory:research_tools",
     "capstone.providers.factory:tool_spec"
    ],
-   "exercise_count": 18,
+   "exercise_count": 19,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.model_policy",
@@ -81155,10 +81191,11 @@
     "capstone.agent.state:InvestigationState.remaining_tool_calls",
     "capstone.agent.state:InvestigationState.research_tool_calls",
     "capstone.providers.chat:late_key",
+    "capstone.providers.chat:triage_key",
     "capstone.providers.factory:research_tools",
     "capstone.providers.factory:tool_spec"
    ],
-   "exercise_count": 22,
+   "exercise_count": 23,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.model_policy",
@@ -81215,10 +81252,11 @@
     "capstone.agent.state:InvestigationState.remaining_tool_calls",
     "capstone.agent.state:InvestigationState.research_tool_calls",
     "capstone.providers.chat:late_key",
+    "capstone.providers.chat:triage_key",
     "capstone.providers.factory:research_tools",
     "capstone.providers.factory:tool_spec"
    ],
-   "exercise_count": 25,
+   "exercise_count": 26,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.model_policy",
@@ -81276,10 +81314,11 @@
     "capstone.agent.state:InvestigationState.remaining_tool_calls",
     "capstone.agent.state:InvestigationState.research_tool_calls",
     "capstone.providers.chat:late_key",
+    "capstone.providers.chat:triage_key",
     "capstone.providers.factory:research_tools",
     "capstone.providers.factory:tool_spec"
    ],
-   "exercise_count": 23,
+   "exercise_count": 24,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.model_policy",
@@ -81489,10 +81528,11 @@
     "capstone.agent.state:InvestigationState.research_tool_calls",
     "capstone.providers.chat:invalid_outcome",
     "capstone.providers.chat:late_key",
+    "capstone.providers.chat:triage_key",
     "capstone.providers.factory:research_tools",
     "capstone.providers.factory:tool_spec"
    ],
-   "exercise_count": 27,
+   "exercise_count": 28,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.model_policy",
@@ -81598,10 +81638,11 @@
     "capstone.agent.state:InvestigationState.research_tool_calls",
     "capstone.agent.untrusted:looks_like_instruction",
     "capstone.providers.chat:late_key",
+    "capstone.providers.chat:triage_key",
     "capstone.providers.factory:research_tools",
     "capstone.providers.factory:tool_spec"
    ],
-   "exercise_count": 33,
+   "exercise_count": 34,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.model_policy",
@@ -81670,10 +81711,11 @@
     "capstone.agent.state:InvestigationState.research_tool_calls",
     "capstone.agent.untrusted:looks_like_instruction",
     "capstone.providers.chat:late_key",
+    "capstone.providers.chat:triage_key",
     "capstone.providers.factory:research_tools",
     "capstone.providers.factory:tool_spec"
    ],
-   "exercise_count": 33,
+   "exercise_count": 34,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.model_policy",
@@ -81732,10 +81774,11 @@
     "capstone.agent.state:InvestigationState.research_tool_calls",
     "capstone.agent.untrusted:looks_like_instruction",
     "capstone.providers.chat:late_key",
+    "capstone.providers.chat:triage_key",
     "capstone.providers.factory:research_tools",
     "capstone.providers.factory:tool_spec"
    ],
-   "exercise_count": 26,
+   "exercise_count": 27,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.model_policy",
@@ -81818,7 +81861,7 @@
     "capstone.agent.state:InvestigationState.remaining_iterations",
     "capstone.agent.state:InvestigationState.remaining_seconds"
    ],
-   "exercise_count": 169,
+   "exercise_count": 170,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -81937,10 +81980,11 @@
     "capstone.agent.state:InvestigationState.research_tool_calls",
     "capstone.agent.untrusted:looks_like_instruction",
     "capstone.providers.chat:late_key",
+    "capstone.providers.chat:triage_key",
     "capstone.providers.factory:research_tools",
     "capstone.providers.factory:tool_spec"
    ],
-   "exercise_count": 32,
+   "exercise_count": 33,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.model_policy",
@@ -82163,10 +82207,11 @@
     "capstone.agent.state:InvestigationState.research_tool_calls",
     "capstone.agent.untrusted:looks_like_instruction",
     "capstone.providers.chat:late_key",
+    "capstone.providers.chat:triage_key",
     "capstone.providers.factory:research_tools",
     "capstone.providers.factory:tool_spec"
    ],
-   "exercise_count": 27,
+   "exercise_count": 28,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.model_policy",
@@ -82374,10 +82419,11 @@
     "capstone.agent.state:InvestigationState.action_carried_out",
     "capstone.agent.untrusted:looks_like_instruction",
     "capstone.providers.chat:late_key",
+    "capstone.providers.chat:triage_key",
     "capstone.providers.factory:research_tools",
     "capstone.providers.factory:tool_spec"
    ],
-   "exercise_count": 22,
+   "exercise_count": 23,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.model_policy",
@@ -82586,10 +82632,11 @@
     "capstone.agent.state:InvestigationState.research_tool_calls",
     "capstone.agent.untrusted:looks_like_instruction",
     "capstone.providers.chat:late_key",
+    "capstone.providers.chat:triage_key",
     "capstone.providers.factory:research_tools",
     "capstone.providers.factory:tool_spec"
    ],
-   "exercise_count": 27,
+   "exercise_count": 28,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.model_policy",
@@ -82674,7 +82721,7 @@
     "capstone.agent.investigation:run_investigation",
     "capstone.agent.investigation:test"
    ],
-   "exercise_count": 241,
+   "exercise_count": 242,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -82767,9 +82814,10 @@
     "capstone.providers.chat:late_key",
     "capstone.providers.chat:post_json",
     "capstone.providers.chat:reply_text",
-    "capstone.providers.chat:reported_usage"
+    "capstone.providers.chat:reported_usage",
+    "capstone.providers.chat:triage_key"
    ],
-   "exercise_count": 31,
+   "exercise_count": 32,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.model_policy",
@@ -108692,10 +108740,11 @@
     "capstone.agent.tree_of_thought:rank_candidates",
     "capstone.agent.untrusted:looks_like_instruction",
     "capstone.providers.chat:late_key",
+    "capstone.providers.chat:triage_key",
     "capstone.providers.factory:research_tools",
     "capstone.providers.factory:tool_spec"
    ],
-   "exercise_count": 31,
+   "exercise_count": 32,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.model_policy",
@@ -108762,10 +108811,11 @@
     "capstone.agent.tree_of_thought:rank_candidates",
     "capstone.agent.untrusted:looks_like_instruction",
     "capstone.providers.chat:late_key",
+    "capstone.providers.chat:triage_key",
     "capstone.providers.factory:research_tools",
     "capstone.providers.factory:tool_spec"
    ],
-   "exercise_count": 31,
+   "exercise_count": 32,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.model_policy",
@@ -108826,10 +108876,11 @@
     "capstone.agent.tree_of_thought:TreeOptions.breadth_fits",
     "capstone.agent.untrusted:looks_like_instruction",
     "capstone.providers.chat:late_key",
+    "capstone.providers.chat:triage_key",
     "capstone.providers.factory:research_tools",
     "capstone.providers.factory:tool_spec"
    ],
-   "exercise_count": 26,
+   "exercise_count": 27,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.model_policy",
@@ -108895,10 +108946,11 @@
     "capstone.agent.tree_of_thought:rank_candidates",
     "capstone.agent.untrusted:looks_like_instruction",
     "capstone.providers.chat:late_key",
+    "capstone.providers.chat:triage_key",
     "capstone.providers.factory:research_tools",
     "capstone.providers.factory:tool_spec"
    ],
-   "exercise_count": 31,
+   "exercise_count": 32,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.model_policy",
@@ -108959,10 +109011,11 @@
     "capstone.agent.tree_of_thought:candidate_lines",
     "capstone.agent.untrusted:looks_like_instruction",
     "capstone.providers.chat:late_key",
+    "capstone.providers.chat:triage_key",
     "capstone.providers.factory:research_tools",
     "capstone.providers.factory:tool_spec"
    ],
-   "exercise_count": 27,
+   "exercise_count": 28,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.model_policy",
@@ -109053,10 +109106,11 @@
     "capstone.agent.state:InvestigationState.research_tool_calls",
     "capstone.agent.untrusted:looks_like_instruction",
     "capstone.providers.chat:late_key",
+    "capstone.providers.chat:triage_key",
     "capstone.providers.factory:research_tools",
     "capstone.providers.factory:tool_spec"
    ],
-   "exercise_count": 24,
+   "exercise_count": 25,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.model_policy",
@@ -109134,7 +109188,7 @@
     "capstone.agent.investigation:run_investigation",
     "capstone.agent.investigation:test"
    ],
-   "exercise_count": 250,
+   "exercise_count": 251,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -109237,7 +109291,7 @@
     "capstone.agent.investigation:run_investigation",
     "capstone.agent.investigation:test"
    ],
-   "exercise_count": 251,
+   "exercise_count": 252,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -109311,12 +109365,13 @@
     "capstone.experiment:model_policy_factory.<locals>.tree",
     "capstone.experiment:tree_options_from",
     "capstone.providers.chat:late_clients",
+    "capstone.providers.chat:triage_clients",
     "capstone.providers.factory:research_tools",
     "capstone.providers.factory:tool_spec",
     "capstone.settings:Settings.blank_is_missing",
     "capstone.settings:get_settings"
    ],
-   "exercise_count": 11,
+   "exercise_count": 12,
    "modules_exercised": [
     "capstone.agent.model_policy",
     "capstone.agent.tree_of_thought",
@@ -109416,10 +109471,11 @@
     "capstone.agent.tree_of_thought:rank_candidates",
     "capstone.agent.untrusted:looks_like_instruction",
     "capstone.providers.chat:late_key",
+    "capstone.providers.chat:triage_key",
     "capstone.providers.factory:research_tools",
     "capstone.providers.factory:tool_spec"
    ],
-   "exercise_count": 31,
+   "exercise_count": 32,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.model_policy",
@@ -109516,10 +109572,11 @@
     "capstone.agent.tree_of_thought:rank_candidates",
     "capstone.agent.untrusted:looks_like_instruction",
     "capstone.providers.chat:late_key",
+    "capstone.providers.chat:triage_key",
     "capstone.providers.factory:research_tools",
     "capstone.providers.factory:tool_spec"
    ],
-   "exercise_count": 33,
+   "exercise_count": 34,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.loop",
@@ -109600,7 +109657,7 @@
     "capstone.agent.investigation:observe",
     "capstone.agent.investigation:plan"
    ],
-   "exercise_count": 252,
+   "exercise_count": 253,
    "modules_exercised": [
     "capstone.agent.completion",
     "capstone.agent.evidence_brief",
@@ -109764,10 +109821,11 @@
     "capstone.agent.tree_of_thought:unproven_rating",
     "capstone.agent.untrusted:looks_like_instruction",
     "capstone.providers.chat:late_key",
+    "capstone.providers.chat:triage_key",
     "capstone.providers.factory:research_tools",
     "capstone.providers.factory:tool_spec"
    ],
-   "exercise_count": 33,
+   "exercise_count": 34,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.model_policy",
@@ -109832,10 +109890,11 @@
     "capstone.agent.tree_of_thought:rank_candidates",
     "capstone.agent.untrusted:looks_like_instruction",
     "capstone.providers.chat:late_key",
+    "capstone.providers.chat:triage_key",
     "capstone.providers.factory:research_tools",
     "capstone.providers.factory:tool_spec"
    ],
-   "exercise_count": 31,
+   "exercise_count": 32,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.model_policy",
@@ -110369,7 +110428,7 @@
     "capstone.agent.investigation:run_investigation",
     "capstone.agent.investigation:test"
    ],
-   "exercise_count": 252,
+   "exercise_count": 253,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -110471,7 +110530,7 @@
     "capstone.agent.investigation:run_investigation",
     "capstone.agent.investigation:test"
    ],
-   "exercise_count": 243,
+   "exercise_count": 244,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -110849,10 +110908,11 @@
     "capstone.agent.tree_of_thought:retention_reason",
     "capstone.agent.untrusted:looks_like_instruction",
     "capstone.providers.chat:late_key",
+    "capstone.providers.chat:triage_key",
     "capstone.providers.factory:research_tools",
     "capstone.providers.factory:tool_spec"
    ],
-   "exercise_count": 33,
+   "exercise_count": 34,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.model_policy",
@@ -110918,10 +110978,11 @@
     "capstone.agent.tree_of_thought:ranked_out",
     "capstone.agent.untrusted:looks_like_instruction",
     "capstone.providers.chat:late_key",
+    "capstone.providers.chat:triage_key",
     "capstone.providers.factory:research_tools",
     "capstone.providers.factory:tool_spec"
    ],
-   "exercise_count": 32,
+   "exercise_count": 33,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.model_policy",
@@ -111000,12 +111061,13 @@
     "capstone.experiment:model_policy_factory.<locals>.tree",
     "capstone.experiment:tree_options_from",
     "capstone.providers.chat:late_clients",
+    "capstone.providers.chat:triage_clients",
     "capstone.providers.factory:research_tools",
     "capstone.providers.factory:tool_spec",
     "capstone.settings:Settings.blank_is_missing",
     "capstone.settings:get_settings"
    ],
-   "exercise_count": 11,
+   "exercise_count": 12,
    "modules_exercised": [
     "capstone.agent.model_policy",
     "capstone.agent.tree_of_thought",
@@ -111082,7 +111144,7 @@
     "capstone.agent.investigation:run_investigation",
     "capstone.agent.investigation:test"
    ],
-   "exercise_count": 250,
+   "exercise_count": 251,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -111205,10 +111267,11 @@
     "capstone.agent.tree_of_thought:rotated",
     "capstone.agent.untrusted:looks_like_instruction",
     "capstone.providers.chat:late_key",
+    "capstone.providers.chat:triage_key",
     "capstone.providers.factory:research_tools",
     "capstone.providers.factory:tool_spec"
    ],
-   "exercise_count": 33,
+   "exercise_count": 34,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.model_policy",
@@ -111274,10 +111337,11 @@
     "capstone.agent.tree_of_thought:ranked_out",
     "capstone.agent.untrusted:looks_like_instruction",
     "capstone.providers.chat:late_key",
+    "capstone.providers.chat:triage_key",
     "capstone.providers.factory:research_tools",
     "capstone.providers.factory:tool_spec"
    ],
-   "exercise_count": 32,
+   "exercise_count": 33,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.model_policy",
@@ -111384,7 +111448,7 @@
     "capstone.agent.investigation:run_investigation",
     "capstone.agent.investigation:test"
    ],
-   "exercise_count": 252,
+   "exercise_count": 253,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -111476,10 +111540,11 @@
     "capstone.agent.tree_of_thought:ranked_out",
     "capstone.agent.untrusted:looks_like_instruction",
     "capstone.providers.chat:late_key",
+    "capstone.providers.chat:triage_key",
     "capstone.providers.factory:research_tools",
     "capstone.providers.factory:tool_spec"
    ],
-   "exercise_count": 33,
+   "exercise_count": 34,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.model_policy",
@@ -111560,12 +111625,13 @@
     "capstone.experiment:model_policy_factory.<locals>.tree",
     "capstone.experiment:tree_options_from",
     "capstone.providers.chat:late_clients",
+    "capstone.providers.chat:triage_clients",
     "capstone.providers.factory:research_tools",
     "capstone.providers.factory:tool_spec",
     "capstone.settings:Settings.blank_is_missing",
     "capstone.settings:get_settings"
    ],
-   "exercise_count": 11,
+   "exercise_count": 12,
    "modules_exercised": [
     "capstone.agent.model_policy",
     "capstone.agent.tree_of_thought",
@@ -112087,7 +112153,7 @@
     "capstone.agent.investigation:revalue",
     "capstone.agent.investigation:review_packet"
    ],
-   "exercise_count": 245,
+   "exercise_count": 246,
    "modules_exercised": [
     "capstone.agent.critic",
     "capstone.agent.evidence_brief",
@@ -112249,10 +112315,11 @@
     "capstone.agent.tree_of_thought:branching",
     "capstone.agent.untrusted:looks_like_instruction",
     "capstone.providers.chat:late_key",
+    "capstone.providers.chat:triage_key",
     "capstone.providers.factory:research_tools",
     "capstone.providers.factory:tool_spec"
    ],
-   "exercise_count": 28,
+   "exercise_count": 29,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.model_policy",
@@ -112319,10 +112386,11 @@
     "capstone.agent.tree_of_thought:rank_candidates",
     "capstone.agent.untrusted:looks_like_instruction",
     "capstone.providers.chat:late_key",
+    "capstone.providers.chat:triage_key",
     "capstone.providers.factory:research_tools",
     "capstone.providers.factory:tool_spec"
    ],
-   "exercise_count": 32,
+   "exercise_count": 33,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.model_policy",
@@ -112389,10 +112457,11 @@
     "capstone.agent.tree_of_thought:ranked_out",
     "capstone.agent.untrusted:looks_like_instruction",
     "capstone.providers.chat:late_key",
+    "capstone.providers.chat:triage_key",
     "capstone.providers.factory:research_tools",
     "capstone.providers.factory:tool_spec"
    ],
-   "exercise_count": 33,
+   "exercise_count": 34,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.model_policy",
@@ -112458,10 +112527,11 @@
     "capstone.agent.tree_of_thought:ranked_out",
     "capstone.agent.untrusted:looks_like_instruction",
     "capstone.providers.chat:late_key",
+    "capstone.providers.chat:triage_key",
     "capstone.providers.factory:research_tools",
     "capstone.providers.factory:tool_spec"
    ],
-   "exercise_count": 32,
+   "exercise_count": 33,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.model_policy",
@@ -112511,12 +112581,13 @@
     "capstone.experiment:model_policy_factory.<locals>.tree",
     "capstone.experiment:tree_options_from",
     "capstone.providers.chat:late_clients",
+    "capstone.providers.chat:triage_clients",
     "capstone.providers.factory:research_tools",
     "capstone.providers.factory:tool_spec",
     "capstone.settings:Settings.blank_is_missing",
     "capstone.settings:get_settings"
    ],
-   "exercise_count": 11,
+   "exercise_count": 12,
    "modules_exercised": [
     "capstone.agent.model_policy",
     "capstone.agent.tree_of_thought",
@@ -112594,7 +112665,7 @@
     "capstone.agent.investigation:run_investigation",
     "capstone.agent.investigation:test"
    ],
-   "exercise_count": 250,
+   "exercise_count": 251,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -112681,10 +112752,11 @@
     "capstone.agent.tree_of_thought:candidate_lines",
     "capstone.agent.untrusted:looks_like_instruction",
     "capstone.providers.chat:late_key",
+    "capstone.providers.chat:triage_key",
     "capstone.providers.factory:research_tools",
     "capstone.providers.factory:tool_spec"
    ],
-   "exercise_count": 27,
+   "exercise_count": 28,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.model_policy",
@@ -112744,10 +112816,11 @@
     "capstone.agent.tree_of_thought:candidate_lines",
     "capstone.agent.untrusted:looks_like_instruction",
     "capstone.providers.chat:late_key",
+    "capstone.providers.chat:triage_key",
     "capstone.providers.factory:research_tools",
     "capstone.providers.factory:tool_spec"
    ],
-   "exercise_count": 26,
+   "exercise_count": 27,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.model_policy",
@@ -112808,10 +112881,11 @@
     "capstone.agent.tree_of_thought:candidate_lines",
     "capstone.agent.untrusted:looks_like_instruction",
     "capstone.providers.chat:late_key",
+    "capstone.providers.chat:triage_key",
     "capstone.providers.factory:research_tools",
     "capstone.providers.factory:tool_spec"
    ],
-   "exercise_count": 27,
+   "exercise_count": 28,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.model_policy",
@@ -113259,6 +113333,7 @@
     "capstone.providers.chat:chain_for",
     "capstone.providers.chat:client_for",
     "capstone.providers.chat:late_clients",
+    "capstone.providers.chat:triage_clients",
     "capstone.providers.chat:value_client",
     "capstone.providers.factory:research_tools",
     "capstone.providers.factory:tool_spec",
@@ -113266,7 +113341,7 @@
     "capstone.settings:fallback_models",
     "capstone.settings:get_settings"
    ],
-   "exercise_count": 19,
+   "exercise_count": 20,
    "modules_exercised": [
     "capstone.agent.model_policy",
     "capstone.agent.tree_of_thought",
@@ -117445,10 +117520,11 @@
     "capstone.agent.state:InvestigationState.research_tool_calls",
     "capstone.agent.untrusted:looks_like_instruction",
     "capstone.providers.chat:late_key",
+    "capstone.providers.chat:triage_key",
     "capstone.providers.factory:research_tools",
     "capstone.providers.factory:tool_spec"
    ],
-   "exercise_count": 35,
+   "exercise_count": 36,
    "modules_exercised": [
     "capstone.agent.conclude_brief",
     "capstone.agent.evidence_brief",
@@ -117520,10 +117596,11 @@
     "capstone.agent.state:InvestigationState.research_tool_calls",
     "capstone.agent.untrusted:looks_like_instruction",
     "capstone.providers.chat:late_key",
+    "capstone.providers.chat:triage_key",
     "capstone.providers.factory:research_tools",
     "capstone.providers.factory:tool_spec"
    ],
-   "exercise_count": 35,
+   "exercise_count": 36,
    "modules_exercised": [
     "capstone.agent.conclude_brief",
     "capstone.agent.evidence_brief",
@@ -117584,10 +117661,11 @@
     "capstone.agent.state:InvestigationState.research_tool_calls",
     "capstone.agent.untrusted:looks_like_instruction",
     "capstone.providers.chat:late_key",
+    "capstone.providers.chat:triage_key",
     "capstone.providers.factory:research_tools",
     "capstone.providers.factory:tool_spec"
    ],
-   "exercise_count": 25,
+   "exercise_count": 26,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.model_policy",
@@ -126225,10 +126303,11 @@
     "capstone.agent.state:InvestigationState.remaining_tool_calls",
     "capstone.agent.state:InvestigationState.research_tool_calls",
     "capstone.providers.chat:late_key",
+    "capstone.providers.chat:triage_key",
     "capstone.providers.factory:research_tools",
     "capstone.providers.factory:tool_spec"
    ],
-   "exercise_count": 18,
+   "exercise_count": 19,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.model_policy",
@@ -126726,6 +126805,532 @@
    "exercise_count": 1,
    "modules_exercised": [
     "capstone.experiment"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_triage_model.py::test_the_setting_is_off_by_default",
+   "file": "tests/test_triage_model.py",
+   "name": "test_the_setting_is_off_by_default",
+   "line": 81,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 3,
+   "assert_forms": {
+    "equality": 1,
+    "identity_constant": 1,
+    "is_none": 1
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "the setting is off by default",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.providers.chat:triage_clients",
+    "capstone.settings:Settings.blank_is_missing"
+   ],
+   "exercise_count": 2,
+   "modules_exercised": [
+    "capstone.providers.chat",
+    "capstone.settings"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_triage_model.py::test_a_blank_setting_counts_as_unset",
+   "file": "tests/test_triage_model.py",
+   "name": "test_a_blank_setting_counts_as_unset",
+   "line": 88,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 1,
+   "assert_forms": {
+    "is_none": 1
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "a blank setting counts as unset",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.settings:Settings.blank_is_missing"
+   ],
+   "exercise_count": 1,
+   "modules_exercised": [
+    "capstone.settings"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_triage_model.py::test_every_job_gets_a_triage_client_asking_the_triage_model_first",
+   "file": "tests/test_triage_model.py",
+   "name": "test_every_job_gets_a_triage_client_asking_the_triage_model_first",
+   "line": 92,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 2,
+   "assert_forms": {
+    "equality": 2
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "every job gets a triage client asking the triage model first",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.providers.chat:ChatClient.__init__",
+    "capstone.providers.chat:FallbackClient.__init__",
+    "capstone.providers.chat:_capped",
+    "capstone.providers.chat:chain_for",
+    "capstone.providers.chat:client_for",
+    "capstone.providers.chat:triage_clients",
+    "capstone.providers.chat:triage_key",
+    "capstone.settings:Settings.blank_is_missing",
+    "capstone.settings:fallback_models"
+   ],
+   "exercise_count": 9,
+   "modules_exercised": [
+    "capstone.providers.chat",
+    "capstone.settings"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_triage_model.py::test_thinking_is_off_by_default_and_sent_to_nvidia_only",
+   "file": "tests/test_triage_model.py",
+   "name": "test_thinking_is_off_by_default_and_sent_to_nvidia_only",
+   "line": 102,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 3,
+   "assert_forms": {
+    "equality": 1,
+    "is_none": 2
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "thinking is off by default and sent to nvidia only",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.providers.chat:ChatClient.__init__",
+    "capstone.providers.chat:FallbackClient.__init__",
+    "capstone.providers.chat:_capped",
+    "capstone.providers.chat:chain_for",
+    "capstone.providers.chat:client_for",
+    "capstone.providers.chat:triage_clients",
+    "capstone.providers.chat:triage_key",
+    "capstone.settings:Settings.blank_is_missing",
+    "capstone.settings:fallback_models"
+   ],
+   "exercise_count": 9,
+   "modules_exercised": [
+    "capstone.providers.chat",
+    "capstone.settings"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_triage_model.py::test_thinking_can_be_switched_on",
+   "file": "tests/test_triage_model.py",
+   "name": "test_thinking_can_be_switched_on",
+   "line": 112,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 1,
+   "assert_forms": {
+    "equality": 1
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "thinking can be switched on",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.providers.chat:ChatClient.__init__",
+    "capstone.providers.chat:FallbackClient.__init__",
+    "capstone.providers.chat:_capped",
+    "capstone.providers.chat:chain_for",
+    "capstone.providers.chat:client_for",
+    "capstone.providers.chat:triage_clients",
+    "capstone.providers.chat:triage_key",
+    "capstone.settings:Settings.blank_is_missing",
+    "capstone.settings:fallback_models"
+   ],
+   "exercise_count": 9,
+   "modules_exercised": [
+    "capstone.providers.chat",
+    "capstone.settings"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_triage_model.py::test_a_non_nvidia_triage_model_is_sent_no_thinking_switch",
+   "file": "tests/test_triage_model.py",
+   "name": "test_a_non_nvidia_triage_model_is_sent_no_thinking_switch",
+   "line": 121,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 1,
+   "assert_forms": {
+    "is_none": 1
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "a non nvidia triage model is sent no thinking switch",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.providers.chat:ChatClient.__init__",
+    "capstone.providers.chat:FallbackClient.__init__",
+    "capstone.providers.chat:_capped",
+    "capstone.providers.chat:chain_for",
+    "capstone.providers.chat:client_for",
+    "capstone.providers.chat:triage_clients",
+    "capstone.providers.chat:triage_key",
+    "capstone.settings:Settings.blank_is_missing",
+    "capstone.settings:fallback_models"
+   ],
+   "exercise_count": 9,
+   "modules_exercised": [
+    "capstone.providers.chat",
+    "capstone.settings"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_triage_model.py::test_the_request_body_turns_thinking_off",
+   "file": "tests/test_triage_model.py",
+   "name": "test_the_request_body_turns_thinking_off",
+   "line": 126,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 3,
+   "assert_forms": {
+    "equality": 2,
+    "membership": 1
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "the request body turns thinking off",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.providers.chat:ChatClient.__init__",
+    "capstone.providers.chat:ChatClient.ask",
+    "capstone.providers.chat:FallbackClient.__init__",
+    "capstone.providers.chat:FallbackClient.ask",
+    "capstone.providers.chat:FallbackClient.ask.<locals>.tried",
+    "capstone.providers.chat:_capped",
+    "capstone.providers.chat:answer_json",
+    "capstone.providers.chat:chain_for",
+    "capstone.providers.chat:client_for",
+    "capstone.providers.chat:post_json",
+    "capstone.providers.chat:reply_text",
+    "capstone.providers.chat:reported_usage",
+    "capstone.providers.chat:triage_clients",
+    "capstone.providers.chat:triage_key",
+    "capstone.settings:Settings.blank_is_missing",
+    "capstone.settings:fallback_models"
+   ],
+   "exercise_count": 16,
+   "modules_exercised": [
+    "capstone.providers.chat",
+    "capstone.settings"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_triage_model.py::test_in_a_triage_every_job_asks_the_triage_client",
+   "file": "tests/test_triage_model.py",
+   "name": "test_in_a_triage_every_job_asks_the_triage_client",
+   "line": 150,
+   "docstring": "",
+   "parametrized": true,
+   "fixtures": [
+    "job"
+   ],
+   "assertions": 1,
+   "assert_forms": {
+    "equality": 1
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "in a triage every job asks the triage client",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.agent.model_policy:ModelPolicy.__init__",
+    "capstone.agent.model_policy:ModelPolicy.client_for",
+    "capstone.agent.state:Budgets.research_gets_some_time",
+    "capstone.providers.chat:triage_key",
+    "capstone.providers.factory:research_tools",
+    "capstone.providers.factory:tool_spec"
+   ],
+   "exercise_count": 6,
+   "modules_exercised": [
+    "capstone.agent.model_policy",
+    "capstone.agent.state",
+    "capstone.providers.chat",
+    "capstone.providers.factory"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_triage_model.py::test_a_deep_run_keeps_each_jobs_own_client",
+   "file": "tests/test_triage_model.py",
+   "name": "test_a_deep_run_keeps_each_jobs_own_client",
+   "line": 157,
+   "docstring": "",
+   "parametrized": true,
+   "fixtures": [
+    "job"
+   ],
+   "assertions": 1,
+   "assert_forms": {
+    "equality": 1
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "a deep run keeps each jobs own client",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.agent.model_policy:ModelPolicy.__init__",
+    "capstone.agent.model_policy:ModelPolicy.client_for",
+    "capstone.agent.state:Budgets.research_gets_some_time",
+    "capstone.providers.chat:late_key",
+    "capstone.providers.chat:triage_key",
+    "capstone.providers.factory:research_tools",
+    "capstone.providers.factory:tool_spec"
+   ],
+   "exercise_count": 7,
+   "modules_exercised": [
+    "capstone.agent.model_policy",
+    "capstone.agent.state",
+    "capstone.providers.chat",
+    "capstone.providers.factory"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_triage_model.py::test_the_triage_model_wins_over_the_late_model_in_a_triage",
+   "file": "tests/test_triage_model.py",
+   "name": "test_the_triage_model_wins_over_the_late_model_in_a_triage",
+   "line": 163,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 1,
+   "assert_forms": {
+    "equality": 1
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "the triage model wins over the late model in a triage",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.agent.model_policy:ModelPolicy.__init__",
+    "capstone.agent.model_policy:ModelPolicy.client_for",
+    "capstone.agent.state:Budgets.research_gets_some_time",
+    "capstone.providers.chat:late_key",
+    "capstone.providers.chat:triage_key",
+    "capstone.providers.factory:research_tools",
+    "capstone.providers.factory:tool_spec"
+   ],
+   "exercise_count": 7,
+   "modules_exercised": [
+    "capstone.agent.model_policy",
+    "capstone.agent.state",
+    "capstone.providers.chat",
+    "capstone.providers.factory"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_triage_model.py::test_without_triage_clients_a_triage_keeps_its_old_routes",
+   "file": "tests/test_triage_model.py",
+   "name": "test_without_triage_clients_a_triage_keeps_its_old_routes",
+   "line": 170,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 2,
+   "assert_forms": {
+    "equality": 2
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "without triage clients a triage keeps its old routes",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.agent.model_policy:ModelPolicy.__init__",
+    "capstone.agent.model_policy:ModelPolicy.client_for",
+    "capstone.agent.state:Budgets.research_gets_some_time",
+    "capstone.providers.chat:late_key",
+    "capstone.providers.chat:triage_key",
+    "capstone.providers.factory:research_tools",
+    "capstone.providers.factory:tool_spec"
+   ],
+   "exercise_count": 7,
+   "modules_exercised": [
+    "capstone.agent.model_policy",
+    "capstone.agent.state",
+    "capstone.providers.chat",
+    "capstone.providers.factory"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_triage_model.py::test_late_clients_are_unchanged_by_the_triage_model",
+   "file": "tests/test_triage_model.py",
+   "name": "test_late_clients_are_unchanged_by_the_triage_model",
+   "line": 181,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 1,
+   "assert_forms": {
+    "equality": 1
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "late clients are unchanged by the triage model",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.providers.chat:ChatClient.__init__",
+    "capstone.providers.chat:FallbackClient.__init__",
+    "capstone.providers.chat:_capped",
+    "capstone.providers.chat:chain_for",
+    "capstone.providers.chat:client_for",
+    "capstone.providers.chat:late_clients",
+    "capstone.providers.chat:late_key",
+    "capstone.providers.chat:late_thinking_fields",
+    "capstone.settings:Settings.blank_is_missing",
+    "capstone.settings:fallback_models"
+   ],
+   "exercise_count": 10,
+   "modules_exercised": [
+    "capstone.providers.chat",
+    "capstone.settings"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_triage_model.py::test_the_run_header_names_the_triage_model_only_when_set",
+   "file": "tests/test_triage_model.py",
+   "name": "test_the_run_header_names_the_triage_model_only_when_set",
+   "line": 186,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 2,
+   "assert_forms": {
+    "membership": 1,
+    "negation": 1
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "the run header names the triage model only when set",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.progress:run_header",
+    "capstone.settings:Settings.blank_is_missing"
+   ],
+   "exercise_count": 2,
+   "modules_exercised": [
+    "capstone.progress",
+    "capstone.settings"
    ],
    "judgment": "NOT ASSESSED",
    "curated": {},

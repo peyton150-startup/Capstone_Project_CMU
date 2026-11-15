@@ -78,6 +78,7 @@ from capstone.providers.chat import (
     FallbackClient,
     invalid_outcome,
     late_key,
+    triage_key,
 )
 from capstone.providers.factory import TOOL_DESCRIPTIONS
 from capstone.providers.manual import MANUAL_TOOL
@@ -1184,15 +1185,22 @@ class ModelPolicy:
         self.calls: list[ModelCall] = []
 
     def client_for(self, job: str, state: InvestigationState) -> Client:
-        """The client to ask: a configured late route, else the job's own.
+        """The client to ask: the triage route, a late route, else the job's own.
 
-        Late means less than `late_seconds` left for the question. Decide
-        always has a late route with LATE_MODEL; conclude has one only when
-        LATE_CONCLUDE is enabled. Other jobs have no late route.
+        In a triage with TRIAGE_MODEL set, every job asks the triage client,
+        and the late route is not used. Otherwise, late means less than
+        `late_seconds` left for the question. Decide always has a late route
+        with LATE_MODEL; conclude has one only when LATE_CONCLUDE is enabled.
+        Other jobs have no late route.
         """
         # Variables:
+        #   triage: The job's triage client, or None when TRIAGE_MODEL is
+        #     unset; used only while state.mode is "triage".
         #   late: The job's late-run client, or None when LATE_MODEL is unset.
         #   left: The seconds this question may take; None means no limit.
+        triage = self.clients.get(triage_key(job))
+        if triage is not None and state.mode == "triage":
+            return triage
         late = self.clients.get(late_key(job))
         if late is None:
             return self.clients[job]

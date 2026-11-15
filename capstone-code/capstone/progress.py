@@ -650,6 +650,8 @@ def run_header(
     #     header is unchanged.
     #   effort: DECIDE_REASONING_EFFORT, or None when it is not set; a third
     #     line names it only when set, so the usual header is unchanged.
+    #   triage: TRIAGE_MODEL, or None when it is not set; a line names it and
+    #     its thinking only when set, so the usual header is unchanged.
     #   late: LATE_MODEL, or None when it is not set; a line names it, its
     #     threshold and its thinking only when set, so the usual header is
     #     unchanged.
@@ -683,6 +685,12 @@ def run_header(
     effort = getattr(settings, "decide_reasoning_effort", None)
     if effort is not None:
         lines.append(f"RUN: decide reasoning effort {effort} (NVIDIA models only)")
+    triage = getattr(settings, "triage_model", None)
+    if triage is not None:
+        lines.append(
+            f"RUN: triage model {triage} (every triage question; thinking "
+            f"{'on' if settings.triage_model_thinking else 'off'})"
+        )
     late = getattr(settings, "late_model", None)
     if late is not None:
         lines.append(
