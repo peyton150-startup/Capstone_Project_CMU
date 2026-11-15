@@ -256,3 +256,43 @@ def test_on_reads_q1_without_a_model_and_its_predicate_settles_it(mean, verdict)
     assert state.investigate_advice[4].outcome == "no_candidate"
     assert state.investigate_advice[4].reason == "no_live_explanation"
     assert len(policy.seen_states) == 1
+
+
+# --- with Observe's reads kept off research (PR 274) ----------------------------
+
+
+@pytest.mark.parametrize("observe", ["shared", "separate"])
+def test_a_triage_episode_reads_the_plans_records_when_research_has_the_calls(
+    monkeypatch, observe
+):
+    """Both fixes together, in a real episode: with TRIAGE_OBSERVE_CALLS=separate
+    research has room for the plan's record reads, which the compiler makes."""
+    from tests.test_episode import wear_policy
+    from tests.test_triage import ByMode
+    from tests.test_triage import run as run_episode_triage
+
+    monkeypatch.setenv("TRIAGE_PLAN", "fixed")
+    monkeypatch.setenv("TRIAGE_INVESTIGATE", "on")
+    monkeypatch.setenv("TRIAGE_OBSERVE_CALLS", observe)
+    result = run_episode_triage(
+        ByMode(wear_policy("intervene"), wear_policy()),
+        monkeypatch,
+        then_deep=False,
+        triage=True,
+    )
+    triage = result.triage
+    compiled = [a.tool for a in triage.investigate_advice if a.outcome == "compiled"]
+    research = [
+        d.tool for d in triage.decisions if d.phase != "observe" and d.tool is not None
+    ]
+    open_ids = [q.id for q in triage.unanswered_questions]
+    assert {"get_events", "get_settings"} <= set(compiled)
+    assert "get_settings" in research
+    if observe == "separate":
+        # Every plan question was answered within research's six calls.
+        assert open_ids == []
+    else:
+        # Observe's reads used research calls, so the follow-up was never read.
+        assert open_ids == ["Q5"]
+    assert triage.research_tool_calls <= triage.budgets.max_tool_calls
+    assert len(compiled) <= triage.budgets.max_tool_calls
