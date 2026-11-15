@@ -292,6 +292,9 @@ class TriageRecord(BaseModel):
     # screening (its own allowance), so 7 tool calls can be 6 research.
     # None in records from before it was kept.
     research_tool_calls: int | None = None
+    # TRIAGE_OBSERVE_CALLS=separate: Observe's own reads, kept off research.
+    # 0 when they were charged to research, and in older records.
+    observe_tool_calls: int = 0
     # TRIAGE_INVESTIGATE: each turn the request compiler ran, with the
     # model's choice beside it. None in records from before it was kept.
     investigate_advice: list[InvestigateAdvice] | None = None
@@ -529,6 +532,8 @@ def triage_record(
     #   calls: Every model question of the episode, triage and deep run;
     #     `triage_metrics` keeps the triage's own by their recorded mode.
     #   first.triage_packet: The Observe packet, kept whole for tracing.
+    #   first.observe_tool_calls_used: Observe's reads kept off research
+    #     (TRIAGE_OBSERVE_CALLS=separate); 0 otherwise.
     #   first.research_tool_calls: Calls charged to research, without the
     #     screening's own call, beside tool_calls.
     #   first.investigate_advice: Each turn the request compiler ran.
@@ -562,6 +567,7 @@ def triage_record(
         packet=first.triage_packet,
         report=first.triage_report,
         research_tool_calls=first.research_tool_calls,
+        observe_tool_calls=first.observe_tool_calls_used,
         investigate_advice=list(first.investigate_advice),
         evidence_tests=evidence_tests,
         test_records=list(first.triage_test_records),

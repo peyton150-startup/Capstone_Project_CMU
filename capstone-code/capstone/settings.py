@@ -352,6 +352,17 @@ class Settings(BaseSettings):
     triage_plan: Literal["model", "fixed"] = Field(
         default="model", validation_alias="TRIAGE_PLAN"
     )
+    # TRIAGE_OBSERVE_CALLS (2026-11-15): who pays for the reads the loop makes
+    # itself before research starts in a triage (get_time, the packet's sensor
+    # window and roster, the manual search). "shared" (the default, as before)
+    # charges them to TRIAGE_TOOL_CALLS; "separate" gives them their own
+    # allowance, so research keeps all its calls. In the 26 Lightning "all"
+    # runs of 2026-11-15, Observe used 3-4 of the 6 research calls and 20
+    # triages stopped on max_tool_calls with plan questions unread. The line
+    # screening already had its own allowance. A deep run never uses it.
+    triage_observe_calls: Literal["shared", "separate"] = Field(
+        default="shared", validation_alias="TRIAGE_OBSERVE_CALLS"
+    )
 
     # Limits on every model question (MVP_SCOPE.md section 3). The loop's own
     # limits (iterations, tool calls, time per investigation) are in Budgets.

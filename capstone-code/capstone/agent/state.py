@@ -473,6 +473,10 @@ class InvestigationState(BaseModel):
     # run always asks. `fixed_plan_used` records that it happened.
     triage_fixed_plan: bool = False
     fixed_plan_used: bool = False
+    # TRIAGE_OBSERVE_CALLS=separate, triage only: the reads the loop makes
+    # itself in Observe (and the manual step) are moved off the research
+    # budget once Observe ends, into `observe_tool_calls_used`.
+    triage_observe_separate: bool = False
     # Every time the triage evidence tests withheld support, held a conclusion
     # open, or judged a question, for tracing whether the setting helps.
     triage_test_records: list[TriageTestRecord] = Field(default_factory=list)
@@ -500,6 +504,9 @@ class InvestigationState(BaseModel):
     critic_tool_calls_used: int = Field(default=0, ge=0)
     # The loop's own line screening at the start; never charged to research.
     screening_tool_calls_used: int = Field(default=0, ge=0)
+    # Observe's own reads in a triage with TRIAGE_OBSERVE_CALLS=separate;
+    # always 0 otherwise, so research pays for them as before.
+    observe_tool_calls_used: int = Field(default=0, ge=0)
     repeated_calls: int = Field(default=0, ge=0)
     failed_tool_calls: int = Field(default=0, ge=0)
     malformed_results: int = Field(default=0, ge=0)
@@ -611,15 +618,19 @@ class InvestigationState(BaseModel):
 
     @property
     def research_tool_calls(self) -> int:
-        """Calls charged to research: all but the checking allowances and the line screening."""
+        """Calls charged to research: all but the checking allowances, the line
+        screening and, with TRIAGE_OBSERVE_CALLS=separate, Observe's own reads."""
         # Variables:
         #   tool_call_count: Every real call, including verification, critic reads
         #     and the loop's own line screening, none of which research pays for.
+        #   observe_tool_calls_used: Observe's reads moved off research once
+        #     Observe ended; 0 unless a triage keeps them separate.
         return (
             self.tool_call_count
             - self.followup_tool_calls_used
             - self.critic_tool_calls_used
             - self.screening_tool_calls_used
+            - self.observe_tool_calls_used
         )
 
     @property
