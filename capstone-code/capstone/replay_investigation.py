@@ -289,6 +289,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         "tool_calls": state.tool_call_count,
         "failed_tool_calls": state.failed_tool_calls,
         "screening_tool_calls": state.screening_tool_calls_used,
+        "observe_tool_calls": state.observe_tool_calls_used,
     }
     output = json.dumps(report, indent=2, default=str)
     if args.out:

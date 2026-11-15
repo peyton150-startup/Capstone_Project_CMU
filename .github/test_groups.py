@@ -160,6 +160,7 @@ GROUPS: dict[str, list[str]] = {
         "triage_report",
         "triage_evidence_tests",
         "triage_plan",
+        "triage_observe_calls",
         "triage_screening_questions",
         "triage_conclude_brief",
         "triage_conclude_cap",

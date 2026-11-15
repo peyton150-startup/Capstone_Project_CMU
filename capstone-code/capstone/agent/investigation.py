@@ -147,8 +147,12 @@ def observe(state: InvestigationState, deps: InvestigationDeps) -> None:
     #     LINE_CONTEXT as before.
     #   time_evidence, screening_evidence: The two mandatory answers, kept so
     #     the packet can qualify them without asking again.
+    #   observe_start: The call counts before Observe's first read, so a
+    #     triage with TRIAGE_OBSERVE_CALLS=separate can move its reads off
+    #     research afterwards (`release_observe_calls`).
     if state.started_at is None:
         state.started_at = deps.clock()
+    observe_start = (state.tool_call_count, state.screening_tool_calls_used)
     step = CallTool(
         information_needed="the current factory time",
         request=ToolRequest(name="get_time"),
@@ -176,6 +180,29 @@ def observe(state: InvestigationState, deps: InvestigationDeps) -> None:
         log_packet(state, deps, state.triage_packet)
     elif state.line_context_enabled:
         assemble_incident_context(state, deps)
+    release_observe_calls(state, observe_start)
+
+
+def release_observe_calls(state: InvestigationState, start: tuple[int, int]) -> None:
+    """Move the reads the loop just made itself off a triage's research budget.
+
+    Only with TRIAGE_OBSERVE_CALLS=separate, in a triage. The move happens
+    after the reads, so the packet's own share check (half the research
+    calls) sees them as before and Observe makes exactly the same reads;
+    only what research has left afterwards changes.
+    """
+    # Variables:
+    #   start: The call count and screening allowance used before the reads,
+    #     so only the reads in between, less the screening (which has its own
+    #     allowance already), are moved.
+    #   moved: Observe's reads charged to research since `start`.
+    if not (state.mode == "triage" and state.triage_observe_separate):
+        return
+    calls_before, screening_before = start
+    moved = (state.tool_call_count - calls_before) - (
+        state.screening_tool_calls_used - screening_before
+    )
+    state.observe_tool_calls_used += max(0, moved)
 
 
 # How many manual sections the manual step asks for.
@@ -208,6 +235,8 @@ def consult_manual(state: InvestigationState, deps: InvestigationDeps) -> None:
     """
     # Variables:
     #   step: The manual search the loop makes itself, not one the policy chose.
+    #   manual_start: The call counts before the search, so a triage with
+    #     TRIAGE_OBSERVE_CALLS=separate moves it off research afterwards.
     if not deps.manual_step:
         return
     state.stage = "observe"
@@ -218,7 +247,9 @@ def consult_manual(state: InvestigationState, deps: InvestigationDeps) -> None:
             arguments={"text": manual_query(state), "limit": MANUAL_STEP_LIMIT},
         ),
     )
+    manual_start = (state.tool_call_count, state.screening_tool_calls_used)
     gather(state, deps, "observe", step, interpret=False)
+    release_observe_calls(state, manual_start)
 
 
 def close_screening_questions(state: InvestigationState) -> None:
