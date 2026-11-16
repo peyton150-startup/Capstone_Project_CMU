@@ -803,7 +803,15 @@ def run_deterministic_triage_loop(
         def precommit(result) -> str | None:
             """Return a safe reason code; no invalid evidence is ever appended."""
             nonlocal qualification
-            qualification = validate_triage_result(result, request, cutoff)
+            try:
+                qualification = validate_triage_result(result, request, cutoff)
+            except Exception:
+                # An internal validator error is itself a rejected observation.
+                qualification = EvidenceQualification(
+                    accepted=False,
+                    reason_code="validator_error",
+                    observed_tick=result.tick,
+                )
             return None if qualification.accepted else qualification.reason_code
 
         evidence = gather(
