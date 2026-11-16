@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import shutil
 from collections import Counter
 from datetime import datetime, timezone
 from pathlib import Path
@@ -111,6 +112,7 @@ def recorder_snapshot(
     latest_good_numeric: str | None = None
     last_event: dict[str, Any] | None = None
     session_epoch: int | None = None
+    subscribed_epoch: int | None = None
     for record in records:
         if isinstance(record, OpcUaSessionMarker):
             marker = {
@@ -121,6 +123,10 @@ def recorder_snapshot(
             events.append(marker)
             last_event = marker
             session_epoch = record.session_epoch
+            if record.event == "subscribed":
+                subscribed_epoch = record.session_epoch
+            if record.event in ("disconnected", "stopped", "gap"):
+                subscribed_epoch = None
             if record.event == "gap":
                 counts["gaps"] += 1
             if record.event == "connected":
@@ -170,7 +176,7 @@ def recorder_snapshot(
     age = iso_age(last_event["at"], now) if last_event else None
     connected = bool(
         last_event
-        and last_event["event"] in ("connected", "heartbeat")
+        and last_event["event"] in ("connected", "subscribed", "heartbeat")
         and (
             (age is not None and age <= 90)
             or (receive_age := iso_age(latest_receive, now)) is not None
@@ -190,6 +196,12 @@ def recorder_snapshot(
         else ("stale_or_none" if latest_receive else "none")
     )
     size = path.stat().st_size if path.is_file() else 0
+    # Disk availability is observed independently; it does not prove a durable flush.
+    try:
+        disk_free = shutil.disk_usage(path.parent).free if path.is_file() else None
+    except OSError:
+        disk_free = None
+    subscribed = bool(connected and subscribed_epoch is not None and subscribed_epoch == session_epoch)
     return {
         "availability": "available" if path.is_file() else "file_missing",
         "message": None if path.is_file() else "Configured capture file is not present",
@@ -198,7 +210,7 @@ def recorder_snapshot(
             "source": "Siemens OPC UA v2",
             "process_state": "unknown",  # No process supervisor is integrated.
             "connection_state": connection,
-            "subscription_state": "unconfirmed",  # 'connected' is written before subscribe.
+            "subscription_state": "confirmed" if subscribed else "unconfirmed",
             "measurement_state": measured,
             "last_receive_at": latest_receive,
             "last_good_numeric_at": latest_good_numeric,
@@ -216,7 +228,7 @@ def recorder_snapshot(
             "analysis_eligible": None,  # Cannot establish mapping and quality gate.
             "output_bytes": size,
             "sink_state": "unknown",  # A growing file is not proof of durable storage.
-            "disk_free_bytes": None,
+            "disk_free_bytes": disk_free,
         },
         "signals": sorted(signals.values(), key=lambda x: x["label"]),
         "events": list(reversed(events[-120:])),
