@@ -1,0 +1,5 @@
+# Optional local web service dependencies. Kept separate from the locked
+# simulator/environment for compatibility with the established uv.lock.
+fastapi>=0.115,<1
+uvicorn>=0.30,<1
+httpx>=0.27,<1

@@ -600,8 +600,10 @@ def test_a_failed_attempt_is_recorded_with_its_reason_and_retried():
     assert audit[0].stage == "check_server"
     assert audit[0].reason == "ConnectionRefusedError: connection refused"
     assert audit[1].stage == "connect" and audit[1].reason == "BadTooManySessions"
-    # A failed attempt never connected, so it leaves no gap in the capture.
-    assert events(lines) == ["connected", "stopped"]
+    # Failed attempts never connected or subscribed, so they leave no gap.
+    # After the successful third connection the adapter must confirm that
+    # monitored items were accepted before collection stops.
+    assert events(lines) == ["connected", "subscribed", "stopped"]
     assert values(lines)[0].session_epoch == 3
 
 

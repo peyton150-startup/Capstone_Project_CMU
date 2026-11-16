@@ -335,6 +335,7 @@ stay even though the sections are now grouped by topic, with items sorted from h
 | **P0 — END-TO-END (S-0/E2E)** | [**Real-machine data utilization: ingestion → features → anomaly → investigation → validated learning**](#fw-real-data-e2e) · [**RMI-01–07 acceptance contract**](REAL_MACHINE_INTELLIGENCE_ACCEPTANCE.md) | Make *all approved, physically exposed* machine/cell data useful and traceable, without loading it indiscriminately into the LLM; build real-world ground truth and evaluation | MTConnect + monitor + replay + simulator agent/memory/evaluation partly built, but no complete approved real-machine intelligence workflow |
 | **P0 — next visit** | [Pilot readiness, permissions, field notebook and acceptance](#future-work-pilot-readiness) | Confirm the machine/controller, IT/OT read-only authorization, normal-cycle capture, operator-aligned event timestamps, and data-handling terms | [SM-4 checklist and event log](#fw-sm-visit-log) built; no shop data received |
 | **P0 — first capture** | [Real-machine integration, channel mapping and data quality](#fw-single-machine) | Field-validate replay-to-investigation wiring on an authorized capture; implement SM-6 state segmentation and SM-7 own-machine baseline | SM-1, SM-2, SM-3 and SM-5 implemented and fixture-tested; no Prestige validation |
+| **P0 — capture observability** | [Siemens recorder monitor: local health + future React UI](#fw-siemens-recorder-monitor) | Distinguish OPC UA connection, confirmed subscription, fresh qualified values, gaps and durable writes | v2 JSONL/audit exist; health aggregation and frontend not built |
 | **P0 — after data** | [Real-world anomaly assessment and monitor integration](#fw-cpu-anomaly-detector) | Transfer the Python statistical detector to recorded **real** data, without simulator reference files or unverified cause claims; test monitor → incident lifecycle | Simulator detector built; **real-world implementation unfinished and blocked on data from Naseem** |
 | **HIGH — refined #1–2 (2026-11-11)** | [**Siemens read-only authority and qualified as-known evidence**](#fw-siemens-agent-evidence-ranking-20261111) | Server-enforced authorization before connection; quality/dual-cutoff evidence validation before diagnosis | Relative decision ranking; SDC/RMI acceptance duties still P0; [full tests](SIEMENS_AGENT_EVIDENCE_AND_TOOL_PRIORITY_20261111.md) |
 | **HIGH — imported #1** | [**Qualify Siemens/DMG MORI installed capabilities**](#fw-signal-ranked-20261111) | Confirm actual controller generation, NCU, software, licensed options and field availability | First of exactly **two HIGH** recommendations in the [signal-ranked roadmap](SIGNAL_PRIORITY_IMPLEMENTATION_ROADMAP_20261111.md); detailed SDC gate already P0 |
@@ -4096,6 +4097,108 @@ reaches the page through the watcher queue described under "Frontend note"
 below (for example over a WebSocket or server-sent events), never by blocking
 the run. Neither FastAPI nor React is a dependency yet; each is added in the
 PR that first uses it.
+
+<a id="fw-siemens-recorder-monitor"></a>
+
+### Siemens recorder monitor — Prestige live-capture observability (P0 health, P1 UI)
+
+**Relationship to other frontend plans:** This is a separate **read-only recording-health screen** for a real Siemens controller, not the simulator's operator investigation screen, controls, or difficulty modes below. The P0 health/CLI work must precede the physical capture; the P1 React UI can follow after trustworthy telemetry is proven. No component described here is yet implemented or machine-verified.
+
+**Status:** proposal only (docs-only, 2026-11-16). **Pilot:** one authorized Prestige CNC / Siemens OPC UA source. **No UI, status service, or physical-controller validation exists yet.** This is a recorder health interface, **not** an anomaly detector or CNC operator panel.
+
+#### Goal and scope
+
+On the factory floor, answer within five seconds: (1) Is the *local recorder process* running? (2) Is it connected **and subscribed** to the approved server/nodes? (3) Are fresh, quality-eligible measurements arriving? (4) Are any approved channels stale or missing? (5) Is recording durably going to an approved private location without gaps or storage pressure?
+
+**First version:** local-only, read-only status page (React + FastAPI per this section's agreed frontend stack) backed by the laptop collector; starting/stopping the process stays in PowerShell (Ctrl+C to stop). No direct browser-to-CNC connection, write/Call/browse method, automatic LLM upload, remote dashboard, production-control button, or promise that the machine itself is safe. A simple CLI `--progress` summary is an acceptable first implementation before the browser UI.
+
+#### Verified existing foundation and missing pieces
+
+| Exists on `main` | Still to implement / validate |
+|---|---|
+| `capstone/ingestion/siemens_opcua_adapter.py`: `--config`, `--out`, optional `--audit`; approved-node data-change subscriptions, reconnection attempts, flushed JSONL and connection audit | Local process/sink health telemetry, subscription *confirmed* marker/status, actual negotiated rate/monitored-item results, persistence/error reporting and UI service |
+| `siemens_opcua_record.py`: `data_change` values/status/source/server/receipt times and `opcua_session` connected/heartbeat/disconnected/gap/stopped | Siemens v2 incremental monitor and quality/coverage aggregation; no invented uniform sampling |
+| `capstone/monitoring`: MTConnect v1 file-following/alert rules | **Not** a Siemens v2 monitor; do not feed OPC UA JSONL into v1 `parse_line` |
+| `ingestion/pilot_preflight.py` and MTConnect `visit_log.py` | Siemens-specific signal map, capture acceptance, operator-event alignment and machine verification |
+
+Code references: [adapter](../capstone-code/capstone/ingestion/siemens_opcua_adapter.py), [v2 records](../capstone-code/capstone/ingestion/siemens_opcua_record.py), [legacy monitor](../capstone-code/capstone/monitoring/runner.py), [data acceptance](SIEMENS_DATA_ACCEPTANCE.md).
+
+#### Proposed screen (desktop, laptop at the machine)
+
+```text
+SIEMENS RECORDER MONITOR                          [LOCAL ONLY] [Session ID]
+Authorized site / machine: [approved label]        Recording since [time]
+Process: RUNNING        OPC UA: CONNECTED        Subscription: CONFIRMED
+Measurements: RECEIVING / DEGRADED / NONE          Last qualified: [age]
+
+[Received values] [Good among received] [Fresh eligible signals] [Gap count]
+[Receive rate]    [Bad/Uncertain]       [Disk free / write health] [Clock warning]
+
+APPROVED SIGNALS
+Signal / axis       Last value + unit     Quality    Last change    Freshness
+Spindle 1 speed     8,500 rpm             Good       1.2 s ago      Within policy
+Spindle 1 load      42.1 %                Good       0.4 s ago      Within policy
+Machine execution   Running               Good       34 s ago       Change-only
+Temperature         —                     Unknown    Never          No samples
+
+SESSION & DATA-QUALITY TIMELINE    [gaps | reconnects | bad values | warnings]
+Recent collector/audit events and timestamps; inspect only approved metadata
+File: local approved destination | size | last flushed | storage/retention
+```
+
+*All values above are fictitious layout examples.* No program names, customer IDs, raw alarm text, credentials or controller topology shown by default.
+
+##### UX behavior
+
+- **Top banner** has *separate* process, connection, subscription and measurements states. A `connected` record occurs before `subscribe()` completes in today's code; **never** label it subscription confirmed until a successful monitored-item result is instrumented.
+- **Data tiles** show counts and time windows, not an invented sampling percentage. Label `Good / received` with its denominator and window; display `N/A` when no data arrived. `Fresh eligible signals: N/M` is possible only with an explicitly approved expected-signal inventory and per-signal update/freshness policy; otherwise show `unknown`.
+- **Signal rows** are keyed by `(server_uri, namespace_uri, identifier_type, identifier)`, with independently approved labels for machine, NC channel, spindle/axis, meaning and unit. Never infer spindle load or units from node names. Distinguish numeric, enum/boolean, and unsupported values.
+- **Status semantics**: `Process stopped` / `Connecting` / `Connected, unconfirmed subscription` / `Subscribed, awaiting values` / `Receiving, quality eligible` / `Degraded` / `Unknown`. Good OPC UA status is necessary but not sufficient for analyzer eligibility; units, source mapping, time quality, operating state and gaps still gate downstream use.
+- **Freshness** uses source-specific expectations: change-only machine state may remain silent normally; time-series load cannot be considered fresh indefinitely. A heartbeat establishes collector liveness only, **not** fresh telemetry, machine health or a successful subscription.
+- **Timeline** separates session losses, missed subscription messages, queue overflows, Bad/Uncertain data, unsupported types and sink/storage errors. A gap never silently becomes zero loss. Display source/server/receipt times with the clock offset/uncertainty when known.
+- **Visual design**: single-machine, large legible status, high-contrast typography, neutral for unknown, warning/error with text **and** icon (never color alone), keyboard accessible, adaptable to laptop width; no animation required.
+
+#### Local architecture and read model (proposed, not an existing API)
+
+```text
+Approved SINUMERIK OPC UA source
+    -> existing read-only Siemens collector
+        -> v2 raw JSONL + audit JSONL (private, append-only per session)
+            -> bounded incremental v2 parser + process/disk/sink health adapter
+                -> local, read-only FastAPI snapshot endpoint on 127.0.0.1
+                    -> React single-page operator-visible health screen
+```
+
+The status service must **not** instantiate its own OPC UA client or contact the machine. Consume a bounded stream/offset, complete JSONL lines, and handle restart, truncation/rotation and file write errors. Never tail/reparse the full multi-day file on each refresh.
+
+Suggested *derived* `RecorderHealthSnapshot` fields (names are design targets; not present today): `run_id`, `machine_label`, `config_map_revision`, `process_state`, `session_epoch`, `connection_state`, `subscription_state`, `measurement_state`, `last_receive_at`, `last_good_numeric_at`, `received_total`, `good_total`, `uncertain_total`, `bad_total`, `unsupported_total`, `gap_count`, `reconnect_count`, `sink_last_flush_at`, `output_bytes`, `disk_free_bytes`, `clock_warning`, and `signals[]` (approved identity, value if permitted, unit, type, quality, last source/receive timestamps, freshness policy/result, eligible/unknown reason).
+
+**Derived vs missing:** v2 data records expose StatusCode, timestamps, value and node identity; session markers expose several connection/gap events; audit exposes connection attempts. Process liveness, confirmed subscription success, sink failure, disk metrics, expected-source inventory, qualified units and freshness policies require additional instrumentation/configuration. Missing inputs remain `unknown`, not healthy. Device or process restart must not reuse stale counters as a current run.
+
+#### Implementation order (smallest safe vertical slice)
+
+1. **P0, before first physical capture:** Add CLI progress/live-health summary from v2 stream plus recorder process/sink heartbeat and confirmed subscription instrumentation. Alert locally if connected but no valid expected data, if disk writes fail or if monitoring stops. Preserve privacy and never block the underlying collector on slow UI rendering.
+2. **P0, before multi-hour capture:** Add approved per-node mapping/freshness policy, Siemens v2 validator, explicit Good/Uncertain/Bad/unsupported counts, source/receipt clock checks, gaps and reasoned unknown states. Do not convert silence to a sample or count unapproved channels as coverage.
+3. **P1, local front end:** Implement the React screen with a read-only FastAPI localhost endpoint; limited metadata and authorized sample values, local authentication/access restrictions appropriate to the host, no remote binding or cloud egress. Support simulated v2 fixtures first, then independently approved physical tests.
+4. **P1, before seven-day unattended capture:** File rotation, free-space thresholds, a session manifest (code/config/schema versions and integrity hashes), durable restart and gap accounting, revocation/deletion procedure, offline export of capture-health scorecard.
+5. **Later only if operator feedback supports it:** Lightweight trend sparkline for approved signals and downloadable **metadata-only** session summary; keep diagnosis, intervention controls and external model use out of this UI.
+
+#### Acceptance criteria / test cases for a future implementation
+
+- Fixture with `connected` then subscription refusal is **not** labeled ready; real `data_change` increments counts only after receipt.
+- Empty capture, heartbeat-only capture, silent change-only variable and known stale sampled variable have distinct, honest states.
+- Bad/Uncertain, unsupported Variant type, missing source timestamp and non-finite numeric value never inflate quality-eligible count; no default zeros.
+- Two axes with identical display labels remain separate by native identity; disallowed or unmapped nodes are not displayed as authorized.
+- Reconnect, missed-message and overflow markers surface as explicit data-quality incidents; sequence wrap/reconnect does not invent lost measurements.
+- Disk-full, log write failure, process crash, file rotation/truncation and malformed/partial JSONL become visible warnings; a frozen UI cannot stay green.
+- Local-only endpoint cannot command CNC changes, open unexpected controller sessions or send factory data off-host. No hardcoded secrets or unapproved program/alarm text.
+- Offline tests use synthetic v2 samples; physical-machine success is **unverified** until shop IT/OT approval and observed evidence. Record actual rates, load, false freshness alerts and technician usefulness before calling the UI pilot-ready.
+
+#### Explicit non-goals and decisions
+
+This design does not change the collector, its OPC UA permissions or controller configuration; does not build a front end; does not assert that Siemens alarm-event subscriptions, real operating-state classification, diagnosis accuracy or usable baseline already exist; and does not turn a UI status into an industrial safety assurance. Existing [SDC-01–20](SIEMENS_DATA_ACCEPTANCE.md) and [RMI-01–07](REAL_MACHINE_INTELLIGENCE_ACCEPTANCE.md) release gates still apply.
+
+---
 
 ### Easy / intermediate / hard modes, with a frontend button
 
