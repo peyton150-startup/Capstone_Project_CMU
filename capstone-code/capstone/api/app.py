@@ -21,6 +21,7 @@ from capstone.api.config import UiConfig
 from capstone.api.readers import (
     recent_lines,
     recorder_snapshot,
+    mtconnect_snapshot,
     safe_evaluations,
     safe_scorecards,
     safe_investigation_detail,
@@ -120,6 +121,7 @@ def create_app(config: UiConfig | None = None) -> FastAPI:
             "workspaces": ["simulator", "pilot"],
             "sources": {
                 "siemens_capture": cfg.capture is not None and cfg.capture.is_file(),
+                "mtconnect_capture": cfg.mtconnect is not None and cfg.mtconnect.is_file(),
                 "investigation_audit": cfg.investigations is not None
                 and cfg.investigations.is_file(),
                 "evaluations": cfg.evaluator
@@ -127,7 +129,7 @@ def create_app(config: UiConfig | None = None) -> FastAPI:
                 and cfg.experiment.is_file(),
             },
             "features": {
-                "recording_view": cfg.capture is not None,
+                "recording_view": cfg.capture is not None or cfg.mtconnect is not None,
                 "investigation_history": cfg.investigations is not None,
                 "evaluation_history": cfg.evaluator and cfg.experiment is not None,
                 "simulation_run_launch": runner is not None,
@@ -205,11 +207,14 @@ def create_app(config: UiConfig | None = None) -> FastAPI:
 
     @app.get("/api/v1/recordings", dependencies=[Access])
     def recordings() -> dict:
-        snap = recorder_snapshot(cfg.capture)
-        return {
-            "availability": snap["availability"],
-            "items": [snap["recorder"]] if snap["recorder"] else [],
-        }
+        siemens = recorder_snapshot(cfg.capture)
+        legacy = mtconnect_snapshot(cfg.mtconnect)
+        items = [x for x in (siemens["recorder"], legacy["recorder"]) if x is not None]
+        return {"availability": "available" if items else "not_configured", "items": items}
+
+    @app.get("/api/v1/recordings/mtconnect-local/health", dependencies=[Access])
+    def mtconnect_health() -> dict:
+        return mtconnect_snapshot(cfg.mtconnect, show_values=cfg.show_values)
 
     @app.get("/api/v1/recordings/siemens-local/health", dependencies=[Access])
     def recording_health() -> dict:
