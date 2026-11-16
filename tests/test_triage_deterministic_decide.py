@@ -158,8 +158,8 @@ def test_failed_jobs_require_job_paths_and_reuse_inspections():
     def records(request):
         if request.name == "get_inspections":
             return [
-                {"tick": 41, "job_id": 10, "batch_id": "B1", "result": "failed"},
-                {"tick": 42, "job_id": 11, "batch_id": "B1", "result": "failed"},
+                {"tick": 41, "job_id": 10, "batch_id": 1, "result": "failed"},
+                {"tick": 42, "job_id": 11, "batch_id": 1, "result": "failed"},
             ]
         if request.name == "get_job_history":
             return [
@@ -168,6 +168,7 @@ def test_failed_jobs_require_job_paths_and_reuse_inspections():
                     "job_id": request.arguments["job_id"],
                     "machine_id": "CNC-02",
                     "kind": "job_started",
+                    "message": "job began",
                 }
             ]
         if request.name == "get_settings":
@@ -384,8 +385,8 @@ def test_different_batches_are_reported_as_different_not_shared():
     def records(request):
         if request.name == "get_inspections":
             return [
-                {"tick": 40, "job_id": 10, "batch_id": "B1", "result": "failed"},
-                {"tick": 41, "job_id": 11, "batch_id": "B2", "result": "failed"},
+                {"tick": 40, "job_id": 10, "batch_id": 1, "result": "failed"},
+                {"tick": 41, "job_id": 11, "batch_id": 2, "result": "failed"},
             ]
         if request.name == "get_job_history":
             return [
@@ -396,6 +397,7 @@ def test_different_batches_are_reported_as_different_not_shared():
                     if request.arguments["job_id"] == 10
                     else "CNC-04",
                     "kind": "job_started",
+                    "message": "job began",
                 }
             ]
         return []
@@ -427,7 +429,7 @@ def test_missing_batch_id_keeps_comparison_unresolved():
     def records(request):
         if request.name == "get_inspections":
             return [
-                {"tick": 40, "job_id": 10, "batch_id": "B1", "result": "failed"},
+                {"tick": 40, "job_id": 10, "batch_id": 1, "result": "failed"},
                 {"tick": 41, "job_id": 11, "batch_id": None, "result": "failed"},
             ]
         if request.name == "get_job_history":
