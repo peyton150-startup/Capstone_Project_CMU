@@ -99,8 +99,6 @@ def validate_triage_result(
             observed_tick=result.tick if type(result.tick) is int else None,
         )
 
-    if not result.success or result.tool != request.name:
-        return checked("wrong_source")
     # Only the six fixed-plan read capabilities can cross this boundary.
     # A provider-reported tool name does not authorize a different operation.
     supported = {
@@ -120,17 +118,17 @@ def validate_triage_result(
     data = result.data
     if data is None:
         return checked("missing_data")
-    # A result that cannot become deterministic JSON evidence is not a
-    # successful observation. Reject it here instead of raising in gather().
+    # Give nonfinite numbers their specific reason before checking whether
+    # the whole provider payload can be represented as JSON evidence.
+    reason = _bad_number_or_tick(data, cutoff)
+    if reason is not None:
+        return checked(reason)
     try:
         import json
 
         json.dumps(data, allow_nan=False, sort_keys=True)
     except (TypeError, ValueError, OverflowError):
         return checked("invalid_shape")
-    reason = _bad_number_or_tick(data, cutoff)
-    if reason is not None:
-        return checked(reason)
     args = request.arguments
     name = request.name
     if name == "get_sensor_summary":
@@ -227,6 +225,12 @@ def validate_triage_result(
                 machine = args.get("machine_id")
                 if machine is not None and row.get("machine_id") != machine:
                     return checked("wrong_source")
+            if name == "get_inspections" and (
+                type(row.get("job_id")) is not int
+                or row["job_id"] < 1
+                or row.get("result") not in {"passed", "failed"}
+            ):
+                return checked("invalid_shape")
             if name == "get_settings" and (
                 not isinstance(row.get("machine_id"), str)
                 or not row["machine_id"]
