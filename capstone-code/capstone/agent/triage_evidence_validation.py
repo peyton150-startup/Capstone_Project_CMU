@@ -14,8 +14,11 @@ from typing import Literal
 from pydantic import Field, ValidationError, model_validator
 
 from capstone.contracts.observations import (
+    ClockObservation,
     EventObservation,
     InspectionObservation,
+    LineScreeningObservation,
+    MachineObservation,
     MaintenanceObservation,
     SettingObservation,
 )
@@ -316,19 +319,21 @@ def validate_triage_observe_result(
         json.dumps(data, allow_nan=False, sort_keys=True)
     except (TypeError, ValueError, OverflowError):
         return verdict("invalid_shape")
-    if request.name == "get_time":
-        if not isinstance(data, dict) or type(data.get("tick")) is not int:
-            return verdict("invalid_shape")
-        if data["tick"] != result.tick:
-            return verdict("invalid_tick")
-    elif request.name == "get_line_screening":
-        if not isinstance(data, dict) or not isinstance(data.get("machines"), dict):
-            return verdict("invalid_shape")
-    elif not isinstance(data, list) or not all(
-        isinstance(row, dict)
-        and isinstance(row.get("machine_id"), str)
-        and bool(row["machine_id"])
-        for row in data
-    ):
+    try:
+        if request.name == "get_time":
+            if not isinstance(data, dict) or type(data.get("tick")) is not int:
+                return verdict("invalid_shape")
+            if data["tick"] != result.tick:
+                return verdict("invalid_tick")
+            ClockObservation.model_validate(data)
+        elif request.name == "get_line_screening":
+            LineScreeningObservation.model_validate(data)
+        else:
+            if not isinstance(data, list):
+                return verdict("invalid_shape")
+            machines = [MachineObservation.model_validate(row) for row in data]
+            if len({machine.machine_id for machine in machines}) != len(machines):
+                return verdict("invalid_shape")
+    except (ValidationError, TypeError, ValueError):
         return verdict("invalid_shape")
     return verdict("accepted")
