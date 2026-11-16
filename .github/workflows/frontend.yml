@@ -6,6 +6,7 @@ on:
       - "frontend/**"
       - "capstone-code/capstone/api/**"
       - "tests/test_web_api.py"
+      - "tests/test_web_runs.py"
       - ".github/workflows/frontend.yml"
 
 permissions:
@@ -49,4 +50,4 @@ jobs:
       - name: Install optional local API dependencies
         run: uv pip install --python .venv/bin/python -r frontend/requirements-api.txt
       - name: Run API tests against real FastAPI
-        run: uv run --no-sync pytest tests/test_web_api.py
+        run: uv run --no-sync pytest tests/test_web_api.py tests/test_web_runs.py
