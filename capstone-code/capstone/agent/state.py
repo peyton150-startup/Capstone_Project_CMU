@@ -495,6 +495,8 @@ class InvestigationState(BaseModel):
     triage_candidates: list[TriageCandidate] = Field(default_factory=list)
     triage_test_requirement_ids: tuple[str, ...] = ()
     triage_hypothesis_trace: list[TriageHypothesisTrace] = Field(default_factory=list)
+    # Audit-only counter: optional logging faults do not change read selection.
+    triage_hypothesis_logging_failures: int = Field(default=0, ge=0)
     # Block 3 (TRIAGE_EVIDENCE_TESTS), triage only. A predicate a planner
     # attached to a question, by question id: with one, a successful call
     # closes the question only on a "true" or "false" verdict. Empty: every
