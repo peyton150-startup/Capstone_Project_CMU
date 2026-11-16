@@ -10,6 +10,7 @@ import asyncio
 import hmac
 import os
 import re
+import threading
 from typing import Annotated, Literal
 
 from fastapi import Depends, FastAPI, Header, HTTPException, Query
@@ -60,6 +61,8 @@ def create_app(config: UiConfig | None = None) -> FastAPI:
     #   authorize: Bearer-token boundary for configured private data.
     cfg = config if config is not None else UiConfig.from_env()
     runner = SimulatorRuns(cfg.run_db) if cfg.runs_enabled and cfg.run_db is not None else None
+    memory_instance = None  # Lazy server-owned service, never built on every poll.
+    memory_lock = threading.Lock()
     app = FastAPI(
         title="Manufacturing Research Assistant | Industrial Console",
         version="0.1.0",
@@ -400,10 +403,14 @@ def create_app(config: UiConfig | None = None) -> FastAPI:
         from capstone.experiment import open_memory
         from capstone.memory.contracts import MemoryQuery
 
+        nonlocal memory_instance
         try:
-            service = open_memory()
-            memories = (service.search(q, limit=limit) if q and q.strip()
-                        else service.retrieve(MemoryQuery(limit=limit)))
+            if memory_instance is None:
+                with memory_lock:
+                    if memory_instance is None:
+                        memory_instance = open_memory()
+            memories = (memory_instance.search(q, limit=limit) if q and q.strip()
+                        else memory_instance.retrieve(MemoryQuery(limit=limit)))
         except (Exception, SystemExit):
             raise HTTPException(status_code=503, detail="Approved memory store unavailable") from None
         safe = []
