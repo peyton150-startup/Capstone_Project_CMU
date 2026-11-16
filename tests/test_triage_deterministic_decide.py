@@ -160,20 +160,30 @@ def test_failed_jobs_require_job_paths_and_reuse_inspections():
                 {"tick": 42, "job_id": 11, "batch_id": "B1", "result": "failed"},
             ]
         if request.name == "get_job_history":
-            return [{"tick": 30, "job_id": request.arguments["job_id"],
-                     "machine_id": "CNC-02", "kind": "job_started"}]
+            return [
+                {
+                    "tick": 30,
+                    "job_id": request.arguments["job_id"],
+                    "machine_id": "CNC-02",
+                    "kind": "job_started",
+                }
+            ]
         if request.name == "get_settings":
             return [{"machine_id": "CNC-02", "speed_rpm": 1000}]
         return []
 
     provider = FakeProvider(records, tick=45)
-    tools = tuple(tool_spec(name) for name in (
-        "get_inspections", "get_job_history", "get_settings", "get_events"
-    ))
+    tools = tuple(
+        tool_spec(name)
+        for name in ("get_inspections", "get_job_history", "get_settings", "get_events")
+    )
     run_inner_loop(state, deps_for(provider, tools=tools), "investigate")
     assert sum(call.name == "get_inspections" for call in provider.calls) == 1
-    assert sorted(call.arguments["job_id"] for call in provider.calls
-                  if call.name == "get_job_history") == [10, 11]
+    assert sorted(
+        call.arguments["job_id"]
+        for call in provider.calls
+        if call.name == "get_job_history"
+    ) == [10, 11]
     assert {"Q1", "Q2"} <= set(state.answers)
     assert state.answers["Q1"] == state.triage_question_evidence["Q1"]
 
@@ -358,3 +368,98 @@ def test_invalid_plan_setting_is_rejected():
         _env_file=None, TRIAGE_INVESTIGATE="deterministic", TRIAGE_PLAN="fixed"
     )
     assert settings.triage_investigate == "deterministic"
+
+
+def test_different_batches_are_reported_as_different_not_shared():
+    anomaly = DetectedAnomaly(
+        tick=40, kind="inspection_failures", description="two failed jobs"
+    )
+    state = state_for(max_tool_calls=8)
+    state.anomaly = anomaly
+    state.unanswered_questions = list(fixed_plan(anomaly))
+    state.question_predicates = {}
+
+    def records(request):
+        if request.name == "get_inspections":
+            return [
+                {"tick": 40, "job_id": 10, "batch_id": "B1", "result": "failed"},
+                {"tick": 41, "job_id": 11, "batch_id": "B2", "result": "failed"},
+            ]
+        if request.name == "get_job_history":
+            return [
+                {
+                    "tick": 30,
+                    "job_id": request.arguments["job_id"],
+                    "machine_id": "CNC-02" if request.arguments["job_id"] == 10 else "CNC-04",
+                    "kind": "job_started",
+                }
+            ]
+        return []
+
+    tools = tuple(
+        tool_spec(name)
+        for name in ("get_inspections", "get_job_history", "get_settings", "get_events")
+    )
+    run_inner_loop(state, deps_for(FakeProvider(records, tick=45), tools=tools), "investigate")
+    assert "Q2" in state.answers
+    assert "different batch" in state.triage_requirement_results["Q2:inspections"].reason
+    assert "Q1" in state.answers
+    assert "no machine" in state.triage_requirement_results["Q1:failed_jobs"].reason
+
+
+def test_missing_batch_id_keeps_comparison_unresolved():
+    anomaly = DetectedAnomaly(
+        tick=40, kind="inspection_failures", description="two failed jobs"
+    )
+    state = state_for(max_tool_calls=8)
+    state.anomaly = anomaly
+    state.unanswered_questions = list(fixed_plan(anomaly))
+    state.question_predicates = {}
+
+    def records(request):
+        if request.name == "get_inspections":
+            return [
+                {"tick": 40, "job_id": 10, "batch_id": "B1", "result": "failed"},
+                {"tick": 41, "job_id": 11, "batch_id": None, "result": "failed"},
+            ]
+        if request.name == "get_job_history":
+            return [
+                {"tick": 30, "job_id": request.arguments["job_id"], "machine_id": "CNC-02"}
+            ]
+        return []
+
+    tools = tuple(
+        tool_spec(name)
+        for name in ("get_inspections", "get_job_history", "get_settings", "get_events")
+    )
+    run_inner_loop(state, deps_for(FakeProvider(records, tick=45), tools=tools), "investigate")
+    assert "Q2" in {q.id for q in state.unanswered_questions}
+    assert state.triage_requirement_results["Q2:inspections"].status == "insufficient"
+
+
+def test_unequal_summary_windows_cannot_settle_vibration_q5():
+    state = state_for()
+
+    def different_windows(request):
+        data = answer(request)
+        if request.name == "get_sensor_summary" and request.arguments["sensor"] == "load":
+            data["first_tick"] = 30
+        return data
+
+    run_inner_loop(state, deps_for(FakeProvider(different_windows, tick=45)), "investigate")
+    assert "Q5" in {q.id for q in state.unanswered_questions}
+    assert state.triage_requirement_results["Q5:load"].status == "partial"
+
+
+def test_different_endpoint_directions_are_explicitly_not_co_movement():
+    state = state_for()
+
+    def divergent(request):
+        data = answer(request)
+        if request.name == "get_sensor_summary" and request.arguments["sensor"] == "load":
+            data["delta"] = -0.2
+        return data
+
+    run_inner_loop(state, deps_for(FakeProvider(divergent, tick=45)), "investigate")
+    assert "Q5" in state.answers
+    assert "directions differ" in state.triage_requirement_results["Q5:load"].reason

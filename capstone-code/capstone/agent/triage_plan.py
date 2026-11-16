@@ -328,15 +328,26 @@ def fixed_requirements(
         add("Q1", "events", "get_events", machine_id=machine, windowed=True)
         for sensor in ("vibration", "temperature", "load"):
             add(
-                "Q2", sensor, "get_sensor_summary", machine_id=machine,
-                sensor=sensor, windowed=True, min_samples=2,
-                min_span_ticks=1, qualification="movement",
+                "Q2",
+                sensor,
+                "get_sensor_summary",
+                machine_id=machine,
+                sensor=sensor,
+                windowed=True,
+                min_samples=2,
+                min_span_ticks=1,
+                qualification="movement",
             )
         add("Q4", "service", "get_maintenance_history", machine_id=machine)
         add("Q4", "setting_change", "get_settings", qualification="setting_change")
     elif anomaly.kind == "inspection_failures":
-        add("Q1", "failed_jobs", "get_inspections", windowed=True,
-            qualification="inspection_jobs")
+        add(
+            "Q1",
+            "failed_jobs",
+            "get_inspections",
+            windowed=True,
+            qualification="inspection_jobs",
+        )
         add(
             "Q2",
             "inspections",

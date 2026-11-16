@@ -273,48 +273,78 @@ def qualify(
             evidence_ids=ids,
             reason="record answer has no usable structure",
         )
-    if requirement.qualification == "inspection_batch":
+    if requirement.qualification in {"inspection_batch", "inspection_jobs"}:
+        # A valid observation must account for every observed failed row;
+        # missing job/batch identifiers cannot silently disappear from a
+        # comparison just because two other rows happen to be complete.
         failures = [
             row
             for _, data in matches
             if isinstance(data, list)
             for row in data
-            if isinstance(row, dict)
-            and row.get("result") == "failed"
-            and row.get("batch_id") is not None
+            if isinstance(row, dict) and row.get("result") == "failed"
         ]
-        return RequirementResult(
-            status="satisfied" if len(failures) >= 2 else "insufficient",
-            evidence_ids=ids,
-            reason="failed jobs have linked batch ids"
-            if len(failures) >= 2
-            else "too few failed jobs with batch ids",
-        )
-    if requirement.qualification == "inspection_jobs":
-        failures = [
-            row for _, data in matches if isinstance(data, list)
-            for row in data if isinstance(row, dict)
-            and row.get("result") == "failed"
-            and type(row.get("job_id")) is int
+        identified = [
+            row
+            for row in failures
+            if type(row.get("job_id")) is int
+            and row["job_id"] > 0
             and type(row.get("tick")) is int
+            and row["tick"] >= 0
         ]
+        jobs = {row["job_id"] for row in identified}
+        comparable = (
+            len(jobs) >= 2
+            and len(identified) == len(failures)
+            and len(failures) >= 2
+        )
+        if requirement.qualification == "inspection_jobs":
+            return RequirementResult(
+                status="satisfied" if comparable else "insufficient",
+                evidence_ids=ids,
+                reason="all failed jobs have dated identifiers for path checks"
+                if comparable
+                else "failed jobs are missing dated identifiers or a second job",
+            )
+        batches = [
+            row.get("batch_id")
+            for row in identified
+            if type(row.get("batch_id")) in (int, str)
+            and row["batch_id"] != ""
+        ]
+        complete = comparable and len(batches) == len(identified)
+        distinct = set(batches)
         return RequirementResult(
-            status="satisfied" if len(failures) >= 2 else "insufficient",
+            status="satisfied" if complete else "insufficient",
             evidence_ids=ids,
-            reason="failed jobs identified for path checks" if len(failures) >= 2
-            else "too few dated failed jobs to compare paths",
+            reason=(
+                "all observed failed jobs share batch "
+                + str(next(iter(distinct)))
+                if len(distinct) == 1
+                else "observed failed jobs have different batch identifiers"
+            )
+            if complete
+            else "failed jobs lack comparable batch identifiers",
         )
     if requirement.qualification == "job_path":
         rows = [
-            row for _, data in matches if isinstance(data, list)
-            for row in data if isinstance(row, dict)
-            and row.get("machine_id") is not None
+            row
+            for _, data in matches
+            if isinstance(data, list)
+            for row in data
+            if isinstance(row, dict)
+            and row.get("job_id") == requirement.job_id
+            and isinstance(row.get("machine_id"), str)
+            and bool(row["machine_id"])
             and type(row.get("tick")) is int
+            and row["tick"] >= 0
         ]
         return RequirementResult(
-            status="satisfied" if rows else "insufficient", evidence_ids=ids,
-            reason="job path identifies machines and times" if rows
-            else "job history does not identify a machine path",
+            status="satisfied" if rows else "insufficient",
+            evidence_ids=ids,
+            reason="dated machine history matches the requested job"
+            if rows
+            else "job history does not identify the requested job's machine path",
         )
     if requirement.qualification == "inspection_machine":
         rows = [
@@ -411,25 +441,132 @@ def expand_job_requirements(state: InvestigationState) -> None:
     # Variables:
     #   parent: The inspection requirement whose question needs job paths.
     #   job_ids: Every dated failed job in the observed inspection window.
-    parents = [r for r in state.triage_requirements.values()
-               if r.qualification == "inspection_jobs"]
+    parents = [
+        requirement
+        for requirement in state.triage_requirements.values()
+        if requirement.qualification == "inspection_jobs"
+    ]
     for parent in parents:
         job_ids = {
             row["job_id"]
             for _, data in matching_evidence(state, parent)
             if isinstance(data, list)
             for row in data
-            if isinstance(row, dict) and row.get("result") == "failed"
-            and type(row.get("job_id")) is int and row["job_id"] > 0
+            if isinstance(row, dict)
+            and row.get("result") == "failed"
+            and type(row.get("job_id")) is int
+            and row["job_id"] > 0
+            and type(row.get("tick")) is int
         }
         for job_id in sorted(job_ids):
             rid = f"{parent.question_id}:job:{job_id}"
             if rid not in state.triage_requirements:
                 state.triage_requirements[rid] = ReadRequirement(
-                    requirement_id=rid, question_id=parent.question_id,
-                    tool="get_job_history", job_id=job_id,
+                    requirement_id=rid,
+                    question_id=parent.question_id,
+                    tool="get_job_history",
+                    job_id=job_id,
                     qualification="job_path",
                 )
+
+
+
+def reconcile_question_comparison(
+    state: InvestigationState, question_id: str, ids: list[str]
+) -> None:
+    """Check cross-source comparisons before closing a multi-part question."""
+    # Variables:
+    #   paths: Independently qualified histories for the failed jobs.
+    #   common: Machine ids present in the history of every failed job.
+    #   spans: Actual first/last observation ticks of three sensor summaries.
+    #   directions: Signed endpoint movement; not a correlation estimate.
+    if question_id == "Q1" and "Q1:failed_jobs" in ids:
+        paths = [
+            requirement
+            for requirement in state.triage_requirements.values()
+            if requirement.question_id == question_id
+            and requirement.qualification == "job_path"
+        ]
+        if len(paths) >= 2 and all(
+            state.triage_requirement_results[path.requirement_id].status
+            == "satisfied"
+            for path in paths
+        ):
+            machine_sets = []
+            for path in paths:
+                machines = {
+                    row["machine_id"]
+                    for _, data in matching_evidence(state, path)
+                    if isinstance(data, list)
+                    for row in data
+                    if isinstance(row, dict)
+                    and row.get("job_id") == path.job_id
+                    and isinstance(row.get("machine_id"), str)
+                    and bool(row["machine_id"])
+                    and type(row.get("tick")) is int
+                }
+                machine_sets.append(machines)
+            common = set.intersection(*machine_sets)
+            original = state.triage_requirement_results["Q1:failed_jobs"]
+            state.triage_requirement_results["Q1:failed_jobs"] = original.model_copy(
+                update={
+                    "reason": (
+                        "all failed jobs visited common machine(s): "
+                        + ", ".join(sorted(common))
+                        if common
+                        else "no machine appears in every failed job history"
+                    )
+                }
+            )
+
+    movement = ("Q5:vibration", "Q5:temperature", "Q5:load")
+    if question_id != "Q5" or not set(movement).issubset(ids):
+        return
+    if not all(
+        state.triage_requirement_results[rid].status == "satisfied"
+        for rid in movement
+    ):
+        return
+    by_id = {e.id: e for e in state.evidence}
+    summaries = [
+        json.loads(
+            by_id[state.triage_requirement_results[rid].evidence_ids[0]].content
+        )
+        for rid in movement
+    ]
+    spans = {(data["first_tick"], data["last_tick"]) for data in summaries}
+    counts = {data["sample_count"] for data in summaries}
+    directions = [data["delta"] for data in summaries]
+    comparable = (
+        len(spans) == 1
+        and len(counts) == 1
+        and all(type(delta) in (int, float) and delta != 0 for delta in directions)
+    )
+    same_direction = comparable and (
+        all(delta > 0 for delta in directions)
+        or all(delta < 0 for delta in directions)
+    )
+    if comparable:
+        reason = (
+            "three aligned summaries have matching endpoint directions; "
+            "this is not a time-series correlation or causal finding"
+            if same_direction
+            else "aligned summary endpoint directions differ; "
+            "this does not establish causal independence"
+        )
+    else:
+        reason = (
+            "summaries lack matching observation endpoints, equal sample counts, "
+            "or nonzero changes; movement cannot be compared"
+        )
+    for rid in movement:
+        result = state.triage_requirement_results[rid]
+        state.triage_requirement_results[rid] = result.model_copy(
+            update={
+                "status": "satisfied" if comparable else "partial",
+                "reason": reason,
+            }
+        )
 
 
 def evaluate_triage_requirements(state: InvestigationState) -> None:
@@ -443,29 +580,7 @@ def evaluate_triage_requirements(state: InvestigationState) -> None:
         state.triage_requirement_results[rid] = result
         by_question.setdefault(requirement.question_id, []).append(rid)
     for question_id, ids in by_question.items():
-        if question_id == "Q5" and {"Q5:vibration", "Q5:temperature", "Q5:load"} <= set(
-            ids
-        ):
-            movement = ("Q5:vibration", "Q5:temperature", "Q5:load")
-            if all(
-                state.triage_requirement_results[rid].status == "satisfied"
-                for rid in movement
-            ):
-                by_id = {e.id: e for e in state.evidence}
-                spans = []
-                for rid in movement:
-                    eid = state.triage_requirement_results[rid].evidence_ids[0]
-                    data = json.loads(by_id[eid].content)
-                    spans.append((data["first_tick"], data["last_tick"]))
-                if min(end for _, end in spans) - max(start for start, _ in spans) < 1:
-                    for rid in movement:
-                        result = state.triage_requirement_results[rid]
-                        state.triage_requirement_results[rid] = result.model_copy(
-                            update={
-                                "status": "partial",
-                                "reason": "sensor intervals do not overlap enough to compare movement",
-                            }
-                        )
+        reconcile_question_comparison(state, question_id, ids)
         evidence_ids = list(
             dict.fromkeys(
                 eid
