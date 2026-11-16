@@ -62,7 +62,7 @@
     "capstone.agent.investigation:verify.<locals>.later",
     "capstone.agent.investigation:why_not_acted"
    ],
-   "exercise_count": 179,
+   "exercise_count": 180,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -151,7 +151,7 @@
     "capstone.agent.investigation:verify.<locals>.later",
     "capstone.agent.investigation:why_not_acted"
    ],
-   "exercise_count": 179,
+   "exercise_count": 180,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -241,7 +241,7 @@
     "capstone.agent.investigation:verify.<locals>.later",
     "capstone.agent.investigation:why_not_acted"
    ],
-   "exercise_count": 179,
+   "exercise_count": 180,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -331,7 +331,7 @@
     "capstone.agent.investigation:verify.<locals>.later",
     "capstone.agent.investigation:why_not_acted"
    ],
-   "exercise_count": 179,
+   "exercise_count": 180,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -422,7 +422,7 @@
     "capstone.agent.investigation:verify.<locals>.later",
     "capstone.agent.investigation:why_not_acted"
    ],
-   "exercise_count": 179,
+   "exercise_count": 180,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -512,7 +512,7 @@
     "capstone.agent.loop:batch_steps",
     "capstone.agent.loop:call_signature"
    ],
-   "exercise_count": 167,
+   "exercise_count": 168,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -600,9 +600,9 @@
     "capstone.agent.loop:batch_steps",
     "capstone.agent.loop:call_signature",
     "capstone.agent.loop:call_tool",
-    "capstone.agent.loop:check_termination"
+    "capstone.agent.loop:chains_to_next_read"
    ],
-   "exercise_count": 162,
+   "exercise_count": 163,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -693,9 +693,9 @@
     "capstone.agent.loop:batch_steps",
     "capstone.agent.loop:call_signature",
     "capstone.agent.loop:call_tool",
-    "capstone.agent.loop:check_termination"
+    "capstone.agent.loop:chains_to_next_read"
    ],
-   "exercise_count": 159,
+   "exercise_count": 160,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -784,9 +784,9 @@
     "capstone.agent.loop:batch_steps",
     "capstone.agent.loop:call_signature",
     "capstone.agent.loop:call_tool",
-    "capstone.agent.loop:check_termination"
+    "capstone.agent.loop:chains_to_next_read"
    ],
-   "exercise_count": 160,
+   "exercise_count": 161,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -877,7 +877,7 @@
     "capstone.agent.loop:apply_interpretation",
     "capstone.agent.loop:ask_policy"
    ],
-   "exercise_count": 169,
+   "exercise_count": 170,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -965,9 +965,9 @@
     "capstone.agent.loop:batch_steps",
     "capstone.agent.loop:call_signature",
     "capstone.agent.loop:call_tool",
-    "capstone.agent.loop:check_termination"
+    "capstone.agent.loop:chains_to_next_read"
    ],
-   "exercise_count": 159,
+   "exercise_count": 160,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -1058,7 +1058,7 @@
     "capstone.agent.loop:apply_interpretation",
     "capstone.agent.loop:ask_policy"
    ],
-   "exercise_count": 174,
+   "exercise_count": 175,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -1148,7 +1148,7 @@
     "capstone.agent.investigation:verify.<locals>.later",
     "capstone.agent.investigation:why_not_acted"
    ],
-   "exercise_count": 179,
+   "exercise_count": 180,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -1238,7 +1238,7 @@
     "capstone.agent.loop:batch_steps",
     "capstone.agent.loop:call_signature"
    ],
-   "exercise_count": 164,
+   "exercise_count": 165,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -1328,7 +1328,7 @@
     "capstone.agent.loop:batch_steps",
     "capstone.agent.loop:call_signature"
    ],
-   "exercise_count": 164,
+   "exercise_count": 165,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -1418,7 +1418,7 @@
     "capstone.agent.investigation:verify.<locals>.later",
     "capstone.agent.investigation:why_not_acted"
    ],
-   "exercise_count": 184,
+   "exercise_count": 185,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -1811,7 +1811,7 @@
     "capstone.agent.investigation:run_investigation",
     "capstone.agent.investigation:test"
    ],
-   "exercise_count": 183,
+   "exercise_count": 184,
    "modules_exercised": [
     "capstone.agent.completion",
     "capstone.agent.evidence_brief",
@@ -1902,7 +1902,7 @@
     "capstone.agent.investigation:run_investigation",
     "capstone.agent.investigation:test"
    ],
-   "exercise_count": 183,
+   "exercise_count": 184,
    "modules_exercised": [
     "capstone.agent.completion",
     "capstone.agent.evidence_brief",
@@ -1994,7 +1994,7 @@
     "capstone.agent.investigation:run_investigation",
     "capstone.agent.investigation:test"
    ],
-   "exercise_count": 183,
+   "exercise_count": 184,
    "modules_exercised": [
     "capstone.agent.completion",
     "capstone.agent.evidence_brief",
@@ -2085,7 +2085,7 @@
     "capstone.agent.investigation:run_investigation",
     "capstone.agent.investigation:test"
    ],
-   "exercise_count": 183,
+   "exercise_count": 184,
    "modules_exercised": [
     "capstone.agent.completion",
     "capstone.agent.evidence_brief",
@@ -2176,7 +2176,7 @@
     "capstone.agent.investigation:run_investigation",
     "capstone.agent.investigation:test"
    ],
-   "exercise_count": 183,
+   "exercise_count": 184,
    "modules_exercised": [
     "capstone.agent.completion",
     "capstone.agent.evidence_brief",
@@ -2269,7 +2269,7 @@
     "capstone.agent.investigation:review_packet",
     "capstone.agent.investigation:run_investigation"
    ],
-   "exercise_count": 185,
+   "exercise_count": 186,
    "modules_exercised": [
     "capstone.agent.completion",
     "capstone.agent.evidence_brief",
@@ -2393,7 +2393,7 @@
     "capstone.agent.loop:InvestigationDeps.__post_init__",
     "capstone.agent.loop:apply_interpretation"
    ],
-   "exercise_count": 170,
+   "exercise_count": 171,
    "modules_exercised": [
     "capstone.agent.completion",
     "capstone.agent.evidence_brief",
@@ -2486,7 +2486,7 @@
     "capstone.agent.investigation:test",
     "capstone.agent.investigation:why_not_acted"
    ],
-   "exercise_count": 172,
+   "exercise_count": 173,
    "modules_exercised": [
     "capstone.agent.completion",
     "capstone.agent.evidence_brief",
@@ -2577,7 +2577,7 @@
     "capstone.agent.loop:ask_policy",
     "capstone.agent.loop:batch_steps"
    ],
-   "exercise_count": 165,
+   "exercise_count": 166,
    "modules_exercised": [
     "capstone.agent.completion",
     "capstone.agent.evidence_brief",
@@ -2670,7 +2670,7 @@
     "capstone.agent.loop:batch_steps",
     "capstone.agent.loop:call_signature"
    ],
-   "exercise_count": 162,
+   "exercise_count": 163,
    "modules_exercised": [
     "capstone.agent.completion",
     "capstone.agent.evidence_brief",
@@ -2762,7 +2762,7 @@
     "capstone.agent.loop:batch_steps",
     "capstone.agent.loop:call_signature"
    ],
-   "exercise_count": 162,
+   "exercise_count": 163,
    "modules_exercised": [
     "capstone.agent.completion",
     "capstone.agent.evidence_brief",
@@ -2935,7 +2935,7 @@
     "capstone.agent.investigation:review_packet",
     "capstone.agent.investigation:run_investigation"
    ],
-   "exercise_count": 185,
+   "exercise_count": 186,
    "modules_exercised": [
     "capstone.agent.completion",
     "capstone.agent.evidence_brief",
@@ -3026,7 +3026,7 @@
     "capstone.agent.investigation:run_investigation",
     "capstone.agent.investigation:test"
    ],
-   "exercise_count": 183,
+   "exercise_count": 184,
    "modules_exercised": [
     "capstone.agent.completion",
     "capstone.agent.evidence_brief",
@@ -3151,7 +3151,7 @@
     "capstone.agent.investigation:why_not_acted",
     "capstone.agent.loop:InvestigationDeps.__post_init__"
    ],
-   "exercise_count": 172,
+   "exercise_count": 173,
    "modules_exercised": [
     "capstone.agent.completion",
     "capstone.agent.evidence_brief",
@@ -3245,7 +3245,7 @@
     "capstone.agent.investigation:reconsider",
     "capstone.agent.investigation:release_observe_calls"
    ],
-   "exercise_count": 189,
+   "exercise_count": 190,
    "modules_exercised": [
     "capstone.agent.completion",
     "capstone.agent.evidence_brief",
@@ -3339,7 +3339,7 @@
     "capstone.agent.investigation:reconsider",
     "capstone.agent.investigation:release_observe_calls"
    ],
-   "exercise_count": 189,
+   "exercise_count": 190,
    "modules_exercised": [
     "capstone.agent.completion",
     "capstone.agent.evidence_brief",
@@ -3432,7 +3432,7 @@
     "capstone.agent.investigation:run_investigation",
     "capstone.agent.investigation:test"
    ],
-   "exercise_count": 174,
+   "exercise_count": 175,
    "modules_exercised": [
     "capstone.agent.completion",
     "capstone.agent.evidence_brief",
@@ -3525,7 +3525,7 @@
     "capstone.agent.investigation:release_observe_calls",
     "capstone.agent.investigation:revalue"
    ],
-   "exercise_count": 187,
+   "exercise_count": 188,
    "modules_exercised": [
     "capstone.agent.completion",
     "capstone.agent.evidence_brief",
@@ -3703,7 +3703,7 @@
     "capstone.agent.investigation:why_not_acted",
     "capstone.agent.loop:InvestigationDeps.__post_init__"
    ],
-   "exercise_count": 172,
+   "exercise_count": 173,
    "modules_exercised": [
     "capstone.agent.completion",
     "capstone.agent.evidence_brief",
@@ -3796,7 +3796,7 @@
     "capstone.agent.investigation:reconsider",
     "capstone.agent.investigation:release_observe_calls"
    ],
-   "exercise_count": 213,
+   "exercise_count": 214,
    "modules_exercised": [
     "capstone.agent.completion",
     "capstone.agent.evidence_brief",
@@ -3896,7 +3896,7 @@
     "capstone.agent.investigation:why_not_acted",
     "capstone.agent.loop:InvestigationDeps.__post_init__"
    ],
-   "exercise_count": 172,
+   "exercise_count": 173,
    "modules_exercised": [
     "capstone.agent.completion",
     "capstone.agent.evidence_brief",
@@ -3986,9 +3986,9 @@
     "capstone.agent.loop:batch_steps",
     "capstone.agent.loop:call_signature",
     "capstone.agent.loop:call_tool",
-    "capstone.agent.loop:check_termination"
+    "capstone.agent.loop:chains_to_next_read"
    ],
-   "exercise_count": 62,
+   "exercise_count": 63,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -4062,9 +4062,9 @@
     "capstone.agent.loop:batch_steps",
     "capstone.agent.loop:call_signature",
     "capstone.agent.loop:call_tool",
-    "capstone.agent.loop:check_termination"
+    "capstone.agent.loop:chains_to_next_read"
    ],
-   "exercise_count": 62,
+   "exercise_count": 63,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -4137,9 +4137,9 @@
     "capstone.agent.loop:batch_steps",
     "capstone.agent.loop:call_signature",
     "capstone.agent.loop:call_tool",
-    "capstone.agent.loop:check_termination"
+    "capstone.agent.loop:chains_to_next_read"
    ],
-   "exercise_count": 62,
+   "exercise_count": 63,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -4205,16 +4205,16 @@
     "capstone.agent.loop:batch_steps",
     "capstone.agent.loop:call_signature",
     "capstone.agent.loop:call_tool",
+    "capstone.agent.loop:chains_to_next_read",
     "capstone.agent.loop:check_termination",
     "capstone.agent.loop:compiler_turn",
     "capstone.agent.loop:gather",
     "capstone.agent.loop:held_for_hypotheses",
     "capstone.agent.loop:notify",
     "capstone.agent.loop:record",
-    "capstone.agent.loop:run_batch",
-    "capstone.agent.loop:run_inner_loop"
+    "capstone.agent.loop:run_batch"
    ],
-   "exercise_count": 50,
+   "exercise_count": 51,
    "modules_exercised": [
     "capstone.agent.investigation",
     "capstone.agent.loop",
@@ -4286,11 +4286,11 @@
     "capstone.agent.loop:batch_steps",
     "capstone.agent.loop:call_signature",
     "capstone.agent.loop:call_tool",
+    "capstone.agent.loop:chains_to_next_read",
     "capstone.agent.loop:check_termination",
-    "capstone.agent.loop:compiler_turn",
-    "capstone.agent.loop:confidence_stalled"
+    "capstone.agent.loop:compiler_turn"
    ],
-   "exercise_count": 59,
+   "exercise_count": 60,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -4629,9 +4629,9 @@
     "capstone.agent.loop:batch_steps",
     "capstone.agent.loop:call_signature",
     "capstone.agent.loop:call_tool",
-    "capstone.agent.loop:check_termination"
+    "capstone.agent.loop:chains_to_next_read"
    ],
-   "exercise_count": 62,
+   "exercise_count": 63,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -4770,6 +4770,7 @@
     "capstone.agent.loop:batch_steps",
     "capstone.agent.loop:call_signature",
     "capstone.agent.loop:call_tool",
+    "capstone.agent.loop:chains_to_next_read",
     "capstone.agent.loop:check_termination",
     "capstone.agent.loop:compiler_turn",
     "capstone.agent.loop:gather",
@@ -4779,10 +4780,9 @@
     "capstone.agent.loop:record",
     "capstone.agent.loop:run_batch",
     "capstone.agent.loop:run_inner_loop",
-    "capstone.agent.loop:seconds_left",
-    "capstone.agent.state:Budgets.research_gets_some_time"
+    "capstone.agent.loop:seconds_left"
    ],
-   "exercise_count": 48,
+   "exercise_count": 49,
    "modules_exercised": [
     "capstone.agent.investigation",
     "capstone.agent.loop",
@@ -4848,16 +4848,16 @@
     "capstone.agent.loop:batch_steps",
     "capstone.agent.loop:call_signature",
     "capstone.agent.loop:call_tool",
+    "capstone.agent.loop:chains_to_next_read",
     "capstone.agent.loop:check_termination",
     "capstone.agent.loop:compiler_turn",
     "capstone.agent.loop:gather",
     "capstone.agent.loop:held_for_hypotheses",
     "capstone.agent.loop:notify",
     "capstone.agent.loop:question_held_open",
-    "capstone.agent.loop:record",
-    "capstone.agent.loop:run_batch"
+    "capstone.agent.loop:record"
    ],
-   "exercise_count": 51,
+   "exercise_count": 52,
    "modules_exercised": [
     "capstone.agent.investigation",
     "capstone.agent.loop",
@@ -4922,6 +4922,7 @@
     "capstone.agent.loop:batch_steps",
     "capstone.agent.loop:call_signature",
     "capstone.agent.loop:call_tool",
+    "capstone.agent.loop:chains_to_next_read",
     "capstone.agent.loop:check_termination",
     "capstone.agent.loop:compiler_turn",
     "capstone.agent.loop:gather",
@@ -4929,10 +4930,9 @@
     "capstone.agent.loop:notify",
     "capstone.agent.loop:question_held_open",
     "capstone.agent.loop:record",
-    "capstone.agent.loop:run_batch",
-    "capstone.agent.loop:run_inner_loop"
+    "capstone.agent.loop:run_batch"
    ],
-   "exercise_count": 50,
+   "exercise_count": 51,
    "modules_exercised": [
     "capstone.agent.investigation",
     "capstone.agent.loop",
@@ -5002,11 +5002,11 @@
     "capstone.agent.loop:batch_steps",
     "capstone.agent.loop:call_signature",
     "capstone.agent.loop:call_tool",
+    "capstone.agent.loop:chains_to_next_read",
     "capstone.agent.loop:check_termination",
-    "capstone.agent.loop:compiler_turn",
-    "capstone.agent.loop:confidence_stalled"
+    "capstone.agent.loop:compiler_turn"
    ],
-   "exercise_count": 59,
+   "exercise_count": 60,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -5079,9 +5079,9 @@
     "capstone.agent.loop:batch_steps",
     "capstone.agent.loop:call_signature",
     "capstone.agent.loop:call_tool",
-    "capstone.agent.loop:check_termination"
+    "capstone.agent.loop:chains_to_next_read"
    ],
-   "exercise_count": 62,
+   "exercise_count": 63,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -5154,11 +5154,11 @@
     "capstone.agent.loop:batch_steps",
     "capstone.agent.loop:call_signature",
     "capstone.agent.loop:call_tool",
+    "capstone.agent.loop:chains_to_next_read",
     "capstone.agent.loop:check_termination",
-    "capstone.agent.loop:compiler_turn",
-    "capstone.agent.loop:confidence_stalled"
+    "capstone.agent.loop:compiler_turn"
    ],
-   "exercise_count": 59,
+   "exercise_count": 60,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -5232,11 +5232,11 @@
     "capstone.agent.loop:batch_steps",
     "capstone.agent.loop:call_signature",
     "capstone.agent.loop:call_tool",
+    "capstone.agent.loop:chains_to_next_read",
     "capstone.agent.loop:check_termination",
-    "capstone.agent.loop:compiler_turn",
-    "capstone.agent.loop:confidence_stalled"
+    "capstone.agent.loop:compiler_turn"
    ],
-   "exercise_count": 59,
+   "exercise_count": 60,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -5386,9 +5386,9 @@
     "capstone.agent.loop:batch_steps",
     "capstone.agent.loop:call_signature",
     "capstone.agent.loop:call_tool",
-    "capstone.agent.loop:check_termination"
+    "capstone.agent.loop:chains_to_next_read"
    ],
-   "exercise_count": 62,
+   "exercise_count": 63,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -5463,11 +5463,11 @@
     "capstone.agent.loop:batch_steps",
     "capstone.agent.loop:call_signature",
     "capstone.agent.loop:call_tool",
+    "capstone.agent.loop:chains_to_next_read",
     "capstone.agent.loop:check_termination",
-    "capstone.agent.loop:compiler_turn",
-    "capstone.agent.loop:confidence_stalled"
+    "capstone.agent.loop:compiler_turn"
    ],
-   "exercise_count": 59,
+   "exercise_count": 60,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -5541,11 +5541,11 @@
     "capstone.agent.loop:batch_steps",
     "capstone.agent.loop:call_signature",
     "capstone.agent.loop:call_tool",
+    "capstone.agent.loop:chains_to_next_read",
     "capstone.agent.loop:check_termination",
-    "capstone.agent.loop:compiler_turn",
-    "capstone.agent.loop:confidence_stalled"
+    "capstone.agent.loop:compiler_turn"
    ],
-   "exercise_count": 59,
+   "exercise_count": 60,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -5617,11 +5617,11 @@
     "capstone.agent.loop:batch_steps",
     "capstone.agent.loop:call_signature",
     "capstone.agent.loop:call_tool",
+    "capstone.agent.loop:chains_to_next_read",
     "capstone.agent.loop:check_termination",
-    "capstone.agent.loop:compiler_turn",
-    "capstone.agent.loop:confidence_stalled"
+    "capstone.agent.loop:compiler_turn"
    ],
-   "exercise_count": 59,
+   "exercise_count": 60,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -5691,12 +5691,12 @@
     "capstone.agent.loop:batch_steps",
     "capstone.agent.loop:call_signature",
     "capstone.agent.loop:call_tool",
+    "capstone.agent.loop:chains_to_next_read",
     "capstone.agent.loop:check_termination",
     "capstone.agent.loop:compiler_turn",
-    "capstone.agent.loop:confidence_stalled",
-    "capstone.agent.loop:diagnosis_supported"
+    "capstone.agent.loop:confidence_stalled"
    ],
-   "exercise_count": 58,
+   "exercise_count": 59,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -5769,9 +5769,9 @@
     "capstone.agent.loop:batch_steps",
     "capstone.agent.loop:call_signature",
     "capstone.agent.loop:call_tool",
-    "capstone.agent.loop:check_termination"
+    "capstone.agent.loop:chains_to_next_read"
    ],
-   "exercise_count": 62,
+   "exercise_count": 63,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -5877,9 +5877,9 @@
     "capstone.agent.loop:batch_steps",
     "capstone.agent.loop:call_signature",
     "capstone.agent.loop:call_tool",
-    "capstone.agent.loop:check_termination"
+    "capstone.agent.loop:chains_to_next_read"
    ],
-   "exercise_count": 62,
+   "exercise_count": 63,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -5952,9 +5952,9 @@
     "capstone.agent.loop:batch_steps",
     "capstone.agent.loop:call_signature",
     "capstone.agent.loop:call_tool",
-    "capstone.agent.loop:check_termination"
+    "capstone.agent.loop:chains_to_next_read"
    ],
-   "exercise_count": 62,
+   "exercise_count": 63,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -6031,9 +6031,9 @@
     "capstone.agent.loop:batch_steps",
     "capstone.agent.loop:call_signature",
     "capstone.agent.loop:call_tool",
-    "capstone.agent.loop:check_termination"
+    "capstone.agent.loop:chains_to_next_read"
    ],
-   "exercise_count": 62,
+   "exercise_count": 63,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -6107,9 +6107,9 @@
     "capstone.agent.loop:batch_steps",
     "capstone.agent.loop:call_signature",
     "capstone.agent.loop:call_tool",
-    "capstone.agent.loop:check_termination"
+    "capstone.agent.loop:chains_to_next_read"
    ],
-   "exercise_count": 62,
+   "exercise_count": 63,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -6185,9 +6185,9 @@
     "capstone.agent.loop:batch_steps",
     "capstone.agent.loop:call_signature",
     "capstone.agent.loop:call_tool",
-    "capstone.agent.loop:check_termination"
+    "capstone.agent.loop:chains_to_next_read"
    ],
-   "exercise_count": 63,
+   "exercise_count": 64,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -6259,11 +6259,11 @@
     "capstone.agent.loop:batch_steps",
     "capstone.agent.loop:call_signature",
     "capstone.agent.loop:call_tool",
+    "capstone.agent.loop:chains_to_next_read",
     "capstone.agent.loop:check_termination",
-    "capstone.agent.loop:compiler_turn",
-    "capstone.agent.loop:confidence_stalled"
+    "capstone.agent.loop:compiler_turn"
    ],
-   "exercise_count": 58,
+   "exercise_count": 59,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -6334,12 +6334,12 @@
     "capstone.agent.loop:batch_steps",
     "capstone.agent.loop:call_signature",
     "capstone.agent.loop:call_tool",
+    "capstone.agent.loop:chains_to_next_read",
     "capstone.agent.loop:check_termination",
     "capstone.agent.loop:compiler_turn",
-    "capstone.agent.loop:confidence_stalled",
-    "capstone.agent.loop:diagnosis_supported"
+    "capstone.agent.loop:confidence_stalled"
    ],
-   "exercise_count": 57,
+   "exercise_count": 58,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -6473,9 +6473,9 @@
     "capstone.agent.loop:batch_steps",
     "capstone.agent.loop:call_signature",
     "capstone.agent.loop:call_tool",
-    "capstone.agent.loop:check_termination"
+    "capstone.agent.loop:chains_to_next_read"
    ],
-   "exercise_count": 164,
+   "exercise_count": 165,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -6547,6 +6547,7 @@
     "capstone.agent.loop:batch_steps",
     "capstone.agent.loop:call_signature",
     "capstone.agent.loop:call_tool",
+    "capstone.agent.loop:chains_to_next_read",
     "capstone.agent.loop:check_termination",
     "capstone.agent.loop:compiler_turn",
     "capstone.agent.loop:gather",
@@ -6563,10 +6564,9 @@
     "capstone.agent.state:InvestigationState.remaining_seconds",
     "capstone.agent.state:InvestigationState.remaining_tool_calls",
     "capstone.agent.state:InvestigationState.research_seconds",
-    "capstone.agent.state:InvestigationState.research_tool_calls",
-    "capstone.contracts.tools:ToolResult.consistent_outcome"
+    "capstone.agent.state:InvestigationState.research_tool_calls"
    ],
-   "exercise_count": 42,
+   "exercise_count": 43,
    "modules_exercised": [
     "capstone.agent.investigation",
     "capstone.agent.loop",
@@ -6712,9 +6712,9 @@
     "capstone.agent.loop:batch_steps",
     "capstone.agent.loop:call_signature",
     "capstone.agent.loop:call_tool",
-    "capstone.agent.loop:check_termination"
+    "capstone.agent.loop:chains_to_next_read"
    ],
-   "exercise_count": 62,
+   "exercise_count": 63,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -6789,7 +6789,7 @@
     "capstone.agent.loop:batch_steps",
     "capstone.agent.loop:call_signature"
    ],
-   "exercise_count": 64,
+   "exercise_count": 65,
    "modules_exercised": [
     "capstone.agent.critic",
     "capstone.agent.evidence_brief",
@@ -6866,7 +6866,7 @@
     "capstone.agent.loop:batch_steps",
     "capstone.agent.loop:call_signature"
    ],
-   "exercise_count": 64,
+   "exercise_count": 65,
    "modules_exercised": [
     "capstone.agent.critic",
     "capstone.agent.evidence_brief",
@@ -6944,7 +6944,7 @@
     "capstone.agent.loop:call_signature",
     "capstone.agent.loop:call_tool"
    ],
-   "exercise_count": 64,
+   "exercise_count": 65,
    "modules_exercised": [
     "capstone.agent.critic",
     "capstone.agent.evidence_brief",
@@ -7022,7 +7022,7 @@
     "capstone.agent.loop:call_signature",
     "capstone.agent.loop:call_tool"
    ],
-   "exercise_count": 63,
+   "exercise_count": 64,
    "modules_exercised": [
     "capstone.agent.critic",
     "capstone.agent.evidence_brief",
@@ -7098,7 +7098,7 @@
     "capstone.agent.loop:batch_steps",
     "capstone.agent.loop:call_signature"
    ],
-   "exercise_count": 64,
+   "exercise_count": 65,
    "modules_exercised": [
     "capstone.agent.critic",
     "capstone.agent.evidence_brief",
@@ -7174,7 +7174,7 @@
     "capstone.agent.loop:batch_steps",
     "capstone.agent.loop:call_signature"
    ],
-   "exercise_count": 64,
+   "exercise_count": 65,
    "modules_exercised": [
     "capstone.agent.critic",
     "capstone.agent.evidence_brief",
@@ -7250,7 +7250,7 @@
     "capstone.agent.loop:batch_steps",
     "capstone.agent.loop:call_signature"
    ],
-   "exercise_count": 64,
+   "exercise_count": 65,
    "modules_exercised": [
     "capstone.agent.critic",
     "capstone.agent.evidence_brief",
@@ -7362,16 +7362,16 @@
     "capstone.agent.loop:batch_steps",
     "capstone.agent.loop:call_signature",
     "capstone.agent.loop:call_tool",
+    "capstone.agent.loop:chains_to_next_read",
     "capstone.agent.loop:check_termination",
     "capstone.agent.loop:compiler_turn",
     "capstone.agent.loop:gather",
     "capstone.agent.loop:held_for_hypotheses",
     "capstone.agent.loop:notify",
     "capstone.agent.loop:question_held_open",
-    "capstone.agent.loop:record",
-    "capstone.agent.loop:run_batch"
+    "capstone.agent.loop:record"
    ],
-   "exercise_count": 51,
+   "exercise_count": 52,
    "modules_exercised": [
     "capstone.agent.investigation",
     "capstone.agent.loop",
@@ -7483,7 +7483,7 @@
     "capstone.agent.loop:batch_steps",
     "capstone.agent.loop:call_signature"
    ],
-   "exercise_count": 64,
+   "exercise_count": 65,
    "modules_exercised": [
     "capstone.agent.critic",
     "capstone.agent.evidence_brief",
@@ -7560,7 +7560,7 @@
     "capstone.agent.loop:call_signature",
     "capstone.agent.loop:call_tool"
    ],
-   "exercise_count": 64,
+   "exercise_count": 65,
    "modules_exercised": [
     "capstone.agent.critic",
     "capstone.agent.evidence_brief",
@@ -7638,7 +7638,7 @@
     "capstone.agent.loop:batch_steps",
     "capstone.agent.loop:call_signature"
    ],
-   "exercise_count": 64,
+   "exercise_count": 65,
    "modules_exercised": [
     "capstone.agent.critic",
     "capstone.agent.evidence_brief",
@@ -7714,7 +7714,7 @@
     "capstone.agent.loop:batch_steps",
     "capstone.agent.loop:call_signature"
    ],
-   "exercise_count": 64,
+   "exercise_count": 65,
    "modules_exercised": [
     "capstone.agent.critic",
     "capstone.agent.evidence_brief",
@@ -7790,7 +7790,7 @@
     "capstone.agent.loop:batch_steps",
     "capstone.agent.loop:call_signature"
    ],
-   "exercise_count": 64,
+   "exercise_count": 65,
    "modules_exercised": [
     "capstone.agent.critic",
     "capstone.agent.evidence_brief",
@@ -7866,7 +7866,7 @@
     "capstone.agent.loop:call_signature",
     "capstone.agent.loop:call_tool"
    ],
-   "exercise_count": 64,
+   "exercise_count": 65,
    "modules_exercised": [
     "capstone.agent.critic",
     "capstone.agent.evidence_brief",
@@ -7985,7 +7985,7 @@
     "capstone.agent.loop:batch_steps",
     "capstone.agent.loop:call_signature"
    ],
-   "exercise_count": 64,
+   "exercise_count": 65,
    "modules_exercised": [
     "capstone.agent.critic",
     "capstone.agent.evidence_brief",
@@ -8061,9 +8061,9 @@
     "capstone.agent.loop:batch_steps",
     "capstone.agent.loop:call_signature",
     "capstone.agent.loop:call_tool",
-    "capstone.agent.loop:check_termination"
+    "capstone.agent.loop:chains_to_next_read"
    ],
-   "exercise_count": 62,
+   "exercise_count": 63,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -8141,7 +8141,7 @@
     "capstone.agent.loop:apply_interpretation",
     "capstone.agent.loop:ask_policy"
    ],
-   "exercise_count": 69,
+   "exercise_count": 70,
    "modules_exercised": [
     "capstone.agent.critic",
     "capstone.agent.evidence_brief",
@@ -8218,7 +8218,7 @@
     "capstone.agent.loop:apply_interpretation",
     "capstone.agent.loop:ask_policy"
    ],
-   "exercise_count": 69,
+   "exercise_count": 70,
    "modules_exercised": [
     "capstone.agent.critic",
     "capstone.agent.evidence_brief",
@@ -8296,7 +8296,7 @@
     "capstone.agent.loop:apply_interpretation",
     "capstone.agent.loop:ask_policy"
    ],
-   "exercise_count": 69,
+   "exercise_count": 70,
    "modules_exercised": [
     "capstone.agent.critic",
     "capstone.agent.evidence_brief",
@@ -8374,7 +8374,7 @@
     "capstone.agent.loop:batch_steps",
     "capstone.agent.loop:call_signature"
    ],
-   "exercise_count": 66,
+   "exercise_count": 67,
    "modules_exercised": [
     "capstone.agent.critic",
     "capstone.agent.evidence_brief",
@@ -8451,9 +8451,9 @@
     "capstone.agent.loop:batch_steps",
     "capstone.agent.loop:call_signature",
     "capstone.agent.loop:call_tool",
-    "capstone.agent.loop:check_termination"
+    "capstone.agent.loop:chains_to_next_read"
    ],
-   "exercise_count": 61,
+   "exercise_count": 62,
    "modules_exercised": [
     "capstone.agent.critic",
     "capstone.agent.evidence_brief",
@@ -8530,7 +8530,7 @@
     "capstone.agent.loop:batch_steps",
     "capstone.agent.loop:call_signature"
    ],
-   "exercise_count": 64,
+   "exercise_count": 65,
    "modules_exercised": [
     "capstone.agent.critic",
     "capstone.agent.evidence_brief",
@@ -8607,7 +8607,7 @@
     "capstone.agent.loop:batch_steps",
     "capstone.agent.loop:call_signature"
    ],
-   "exercise_count": 64,
+   "exercise_count": 65,
    "modules_exercised": [
     "capstone.agent.critic",
     "capstone.agent.evidence_brief",
@@ -8798,15 +8798,15 @@
     "capstone.agent.loop:batch_steps",
     "capstone.agent.loop:call_signature",
     "capstone.agent.loop:call_tool",
+    "capstone.agent.loop:chains_to_next_read",
     "capstone.agent.loop:check_termination",
     "capstone.agent.loop:compiler_turn",
     "capstone.agent.loop:gather",
     "capstone.agent.loop:held_for_hypotheses",
     "capstone.agent.loop:notify",
-    "capstone.agent.loop:question_held_open",
-    "capstone.agent.loop:record"
+    "capstone.agent.loop:question_held_open"
    ],
-   "exercise_count": 52,
+   "exercise_count": 53,
    "modules_exercised": [
     "capstone.agent.critic",
     "capstone.agent.evidence_brief",
@@ -8882,7 +8882,7 @@
     "capstone.agent.loop:batch_steps",
     "capstone.agent.loop:call_signature"
    ],
-   "exercise_count": 64,
+   "exercise_count": 65,
    "modules_exercised": [
     "capstone.agent.critic",
     "capstone.agent.evidence_brief",
@@ -9128,7 +9128,7 @@
     "capstone.agent.loop:batch_steps",
     "capstone.agent.loop:call_signature"
    ],
-   "exercise_count": 64,
+   "exercise_count": 65,
    "modules_exercised": [
     "capstone.agent.critic",
     "capstone.agent.evidence_brief",
@@ -9204,7 +9204,7 @@
     "capstone.agent.loop:batch_steps",
     "capstone.agent.loop:call_signature"
    ],
-   "exercise_count": 64,
+   "exercise_count": 65,
    "modules_exercised": [
     "capstone.agent.critic",
     "capstone.agent.evidence_brief",
@@ -9435,7 +9435,7 @@
     "capstone.agent.loop:batch_steps",
     "capstone.agent.loop:call_signature"
    ],
-   "exercise_count": 64,
+   "exercise_count": 65,
    "modules_exercised": [
     "capstone.agent.critic",
     "capstone.agent.evidence_brief",
@@ -9482,6 +9482,7 @@
     "capstone.agent.loop:batch_steps",
     "capstone.agent.loop:call_signature",
     "capstone.agent.loop:call_tool",
+    "capstone.agent.loop:chains_to_next_read",
     "capstone.agent.loop:check_termination",
     "capstone.agent.loop:compiler_turn",
     "capstone.agent.loop:gather",
@@ -9502,7 +9503,7 @@
     "capstone.contracts.tools:ToolResult.consistent_outcome",
     "capstone.contracts.tools:TraceContext.consistent_context"
    ],
-   "exercise_count": 27,
+   "exercise_count": 28,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.loop",
@@ -9545,6 +9546,7 @@
     "capstone.agent.loop:batch_steps",
     "capstone.agent.loop:call_signature",
     "capstone.agent.loop:call_tool",
+    "capstone.agent.loop:chains_to_next_read",
     "capstone.agent.loop:check_termination",
     "capstone.agent.loop:compiler_turn",
     "capstone.agent.loop:gather",
@@ -9565,7 +9567,7 @@
     "capstone.contracts.tools:ToolResult.consistent_outcome",
     "capstone.contracts.tools:TraceContext.consistent_context"
    ],
-   "exercise_count": 25,
+   "exercise_count": 26,
    "modules_exercised": [
     "capstone.agent.loop",
     "capstone.agent.state",
@@ -9611,6 +9613,7 @@
     "capstone.agent.loop:batch_steps",
     "capstone.agent.loop:call_signature",
     "capstone.agent.loop:call_tool",
+    "capstone.agent.loop:chains_to_next_read",
     "capstone.agent.loop:check_termination",
     "capstone.agent.loop:compiler_turn",
     "capstone.agent.loop:confidence_stalled",
@@ -9635,7 +9638,7 @@
     "capstone.contracts.tools:ToolResult.consistent_outcome",
     "capstone.contracts.tools:TraceContext.consistent_context"
    ],
-   "exercise_count": 31,
+   "exercise_count": 32,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.loop",
@@ -9678,6 +9681,7 @@
     "capstone.agent.loop:batch_steps",
     "capstone.agent.loop:call_signature",
     "capstone.agent.loop:call_tool",
+    "capstone.agent.loop:chains_to_next_read",
     "capstone.agent.loop:check_termination",
     "capstone.agent.loop:compiler_turn",
     "capstone.agent.loop:gather",
@@ -9698,7 +9702,7 @@
     "capstone.contracts.tools:ToolResult.consistent_outcome",
     "capstone.contracts.tools:TraceContext.consistent_context"
    ],
-   "exercise_count": 25,
+   "exercise_count": 26,
    "modules_exercised": [
     "capstone.agent.loop",
     "capstone.agent.state",
@@ -9740,6 +9744,7 @@
     "capstone.agent.loop:batch_steps",
     "capstone.agent.loop:call_signature",
     "capstone.agent.loop:call_tool",
+    "capstone.agent.loop:chains_to_next_read",
     "capstone.agent.loop:check_termination",
     "capstone.agent.loop:compiler_turn",
     "capstone.agent.loop:gather",
@@ -9760,7 +9765,7 @@
     "capstone.contracts.tools:ToolResult.consistent_outcome",
     "capstone.contracts.tools:TraceContext.consistent_context"
    ],
-   "exercise_count": 24,
+   "exercise_count": 25,
    "modules_exercised": [
     "capstone.agent.loop",
     "capstone.agent.state",
@@ -9802,6 +9807,7 @@
     "capstone.agent.loop:batch_steps",
     "capstone.agent.loop:call_signature",
     "capstone.agent.loop:call_tool",
+    "capstone.agent.loop:chains_to_next_read",
     "capstone.agent.loop:check_termination",
     "capstone.agent.loop:compiler_turn",
     "capstone.agent.loop:gather",
@@ -9823,7 +9829,7 @@
     "capstone.contracts.tools:TraceContext.consistent_context",
     "capstone.providers.chat:ModelError.__init__"
    ],
-   "exercise_count": 26,
+   "exercise_count": 27,
    "modules_exercised": [
     "capstone.agent.loop",
     "capstone.agent.state",
@@ -9863,6 +9869,7 @@
     "capstone.agent.loop:batch_steps",
     "capstone.agent.loop:call_signature",
     "capstone.agent.loop:call_tool",
+    "capstone.agent.loop:chains_to_next_read",
     "capstone.agent.loop:check_termination",
     "capstone.agent.loop:compiler_turn",
     "capstone.agent.loop:gather",
@@ -9882,7 +9889,7 @@
     "capstone.contracts.tools:ToolResult.consistent_outcome",
     "capstone.contracts.tools:TraceContext.consistent_context"
    ],
-   "exercise_count": 24,
+   "exercise_count": 25,
    "modules_exercised": [
     "capstone.agent.loop",
     "capstone.agent.state",
@@ -9921,6 +9928,7 @@
     "capstone.agent.loop:batch_steps",
     "capstone.agent.loop:call_signature",
     "capstone.agent.loop:call_tool",
+    "capstone.agent.loop:chains_to_next_read",
     "capstone.agent.loop:check_termination",
     "capstone.agent.loop:compiler_turn",
     "capstone.agent.loop:gather",
@@ -9940,7 +9948,7 @@
     "capstone.contracts.tools:ToolResult.consistent_outcome",
     "capstone.contracts.tools:TraceContext.consistent_context"
    ],
-   "exercise_count": 24,
+   "exercise_count": 25,
    "modules_exercised": [
     "capstone.agent.loop",
     "capstone.agent.state",
@@ -9978,6 +9986,7 @@
     "capstone.agent.loop:batch_steps",
     "capstone.agent.loop:call_signature",
     "capstone.agent.loop:call_tool",
+    "capstone.agent.loop:chains_to_next_read",
     "capstone.agent.loop:check_termination",
     "capstone.agent.loop:compiler_turn",
     "capstone.agent.loop:gather",
@@ -10000,7 +10009,7 @@
     "capstone.contracts.tools:ToolResult.consistent_outcome",
     "capstone.contracts.tools:TraceContext.consistent_context"
    ],
-   "exercise_count": 27,
+   "exercise_count": 28,
    "modules_exercised": [
     "capstone.agent.loop",
     "capstone.agent.state",
@@ -10038,6 +10047,7 @@
     "capstone.agent.loop:batch_steps",
     "capstone.agent.loop:call_signature",
     "capstone.agent.loop:call_tool",
+    "capstone.agent.loop:chains_to_next_read",
     "capstone.agent.loop:check_termination",
     "capstone.agent.loop:compiler_turn",
     "capstone.agent.loop:gather",
@@ -10060,7 +10070,7 @@
     "capstone.contracts.tools:ToolResult.consistent_outcome",
     "capstone.contracts.tools:TraceContext.consistent_context"
    ],
-   "exercise_count": 27,
+   "exercise_count": 28,
    "modules_exercised": [
     "capstone.agent.loop",
     "capstone.agent.state",
@@ -10100,6 +10110,7 @@
     "capstone.agent.loop:batch_steps",
     "capstone.agent.loop:call_signature",
     "capstone.agent.loop:call_tool",
+    "capstone.agent.loop:chains_to_next_read",
     "capstone.agent.loop:check_termination",
     "capstone.agent.loop:compiler_turn",
     "capstone.agent.loop:gather",
@@ -10119,7 +10130,7 @@
     "capstone.contracts.tools:ToolResult.consistent_outcome",
     "capstone.contracts.tools:TraceContext.consistent_context"
    ],
-   "exercise_count": 26,
+   "exercise_count": 27,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.loop",
@@ -10158,6 +10169,7 @@
     "capstone.agent.loop:batch_steps",
     "capstone.agent.loop:call_signature",
     "capstone.agent.loop:call_tool",
+    "capstone.agent.loop:chains_to_next_read",
     "capstone.agent.loop:check_termination",
     "capstone.agent.loop:compiler_turn",
     "capstone.agent.loop:gather",
@@ -10177,7 +10189,7 @@
     "capstone.contracts.tools:ToolResult.consistent_outcome",
     "capstone.contracts.tools:TraceContext.consistent_context"
    ],
-   "exercise_count": 24,
+   "exercise_count": 25,
    "modules_exercised": [
     "capstone.agent.loop",
     "capstone.agent.state",
@@ -10214,6 +10226,7 @@
     "capstone.agent.loop:batch_steps",
     "capstone.agent.loop:call_signature",
     "capstone.agent.loop:call_tool",
+    "capstone.agent.loop:chains_to_next_read",
     "capstone.agent.loop:check_termination",
     "capstone.agent.loop:compiler_turn",
     "capstone.agent.loop:gather",
@@ -10233,7 +10246,7 @@
     "capstone.contracts.tools:ToolResult.consistent_outcome",
     "capstone.contracts.tools:TraceContext.consistent_context"
    ],
-   "exercise_count": 23,
+   "exercise_count": 24,
    "modules_exercised": [
     "capstone.agent.loop",
     "capstone.agent.state",
@@ -10270,6 +10283,7 @@
     "capstone.agent.loop:batch_steps",
     "capstone.agent.loop:call_signature",
     "capstone.agent.loop:call_tool",
+    "capstone.agent.loop:chains_to_next_read",
     "capstone.agent.loop:check_termination",
     "capstone.agent.loop:compiler_turn",
     "capstone.agent.loop:gather",
@@ -10289,7 +10303,7 @@
     "capstone.contracts.tools:ToolResult.consistent_outcome",
     "capstone.contracts.tools:TraceContext.consistent_context"
    ],
-   "exercise_count": 23,
+   "exercise_count": 24,
    "modules_exercised": [
     "capstone.agent.loop",
     "capstone.agent.state",
@@ -10327,6 +10341,7 @@
     "capstone.agent.loop:batch_steps",
     "capstone.agent.loop:call_signature",
     "capstone.agent.loop:call_tool",
+    "capstone.agent.loop:chains_to_next_read",
     "capstone.agent.loop:check_termination",
     "capstone.agent.loop:compiler_turn",
     "capstone.agent.loop:gather",
@@ -10346,7 +10361,7 @@
     "capstone.contracts.tools:ToolResult.consistent_outcome",
     "capstone.contracts.tools:TraceContext.consistent_context"
    ],
-   "exercise_count": 23,
+   "exercise_count": 24,
    "modules_exercised": [
     "capstone.agent.loop",
     "capstone.agent.state",
@@ -10384,6 +10399,7 @@
     "capstone.agent.loop:batch_steps",
     "capstone.agent.loop:call_signature",
     "capstone.agent.loop:call_tool",
+    "capstone.agent.loop:chains_to_next_read",
     "capstone.agent.loop:check_termination",
     "capstone.agent.loop:compiler_turn",
     "capstone.agent.loop:gather",
@@ -10403,7 +10419,7 @@
     "capstone.contracts.tools:ToolResult.consistent_outcome",
     "capstone.contracts.tools:TraceContext.consistent_context"
    ],
-   "exercise_count": 24,
+   "exercise_count": 25,
    "modules_exercised": [
     "capstone.agent.loop",
     "capstone.agent.state",
@@ -10443,6 +10459,7 @@
     "capstone.agent.loop:batch_steps",
     "capstone.agent.loop:call_signature",
     "capstone.agent.loop:call_tool",
+    "capstone.agent.loop:chains_to_next_read",
     "capstone.agent.loop:check_termination",
     "capstone.agent.loop:compiler_turn",
     "capstone.agent.loop:gather",
@@ -10462,7 +10479,7 @@
     "capstone.contracts.tools:ToolResult.consistent_outcome",
     "capstone.contracts.tools:TraceContext.consistent_context"
    ],
-   "exercise_count": 23,
+   "exercise_count": 24,
    "modules_exercised": [
     "capstone.agent.loop",
     "capstone.agent.state",
@@ -10499,6 +10516,7 @@
     "capstone.agent.loop:batch_steps",
     "capstone.agent.loop:call_signature",
     "capstone.agent.loop:call_tool",
+    "capstone.agent.loop:chains_to_next_read",
     "capstone.agent.loop:check_termination",
     "capstone.agent.loop:compiler_turn",
     "capstone.agent.loop:gather",
@@ -10518,7 +10536,7 @@
     "capstone.contracts.tools:ToolResult.consistent_outcome",
     "capstone.contracts.tools:TraceContext.consistent_context"
    ],
-   "exercise_count": 23,
+   "exercise_count": 24,
    "modules_exercised": [
     "capstone.agent.loop",
     "capstone.agent.state",
@@ -10555,6 +10573,7 @@
     "capstone.agent.loop:batch_steps",
     "capstone.agent.loop:call_signature",
     "capstone.agent.loop:call_tool",
+    "capstone.agent.loop:chains_to_next_read",
     "capstone.agent.loop:check_termination",
     "capstone.agent.loop:compiler_turn",
     "capstone.agent.loop:gather",
@@ -10574,7 +10593,7 @@
     "capstone.contracts.tools:ToolResult.consistent_outcome",
     "capstone.contracts.tools:TraceContext.consistent_context"
    ],
-   "exercise_count": 23,
+   "exercise_count": 24,
    "modules_exercised": [
     "capstone.agent.loop",
     "capstone.agent.state",
@@ -10612,6 +10631,7 @@
     "capstone.agent.loop:batch_steps",
     "capstone.agent.loop:call_signature",
     "capstone.agent.loop:call_tool",
+    "capstone.agent.loop:chains_to_next_read",
     "capstone.agent.loop:check_termination",
     "capstone.agent.loop:compiler_turn",
     "capstone.agent.loop:gather",
@@ -10631,7 +10651,7 @@
     "capstone.contracts.tools:ToolResult.consistent_outcome",
     "capstone.contracts.tools:TraceContext.consistent_context"
    ],
-   "exercise_count": 24,
+   "exercise_count": 25,
    "modules_exercised": [
     "capstone.agent.loop",
     "capstone.agent.state",
@@ -10668,6 +10688,7 @@
     "capstone.agent.loop:batch_steps",
     "capstone.agent.loop:call_signature",
     "capstone.agent.loop:call_tool",
+    "capstone.agent.loop:chains_to_next_read",
     "capstone.agent.loop:check_termination",
     "capstone.agent.loop:compiler_turn",
     "capstone.agent.loop:gather",
@@ -10688,7 +10709,7 @@
     "capstone.contracts.tools:ToolResult.consistent_outcome",
     "capstone.contracts.tools:TraceContext.consistent_context"
    ],
-   "exercise_count": 24,
+   "exercise_count": 25,
    "modules_exercised": [
     "capstone.agent.loop",
     "capstone.agent.state",
@@ -10726,6 +10747,7 @@
     "capstone.agent.loop:batch_steps",
     "capstone.agent.loop:call_signature",
     "capstone.agent.loop:call_tool",
+    "capstone.agent.loop:chains_to_next_read",
     "capstone.agent.loop:check_termination",
     "capstone.agent.loop:compiler_turn",
     "capstone.agent.loop:gather",
@@ -10745,7 +10767,7 @@
     "capstone.contracts.tools:ToolResult.consistent_outcome",
     "capstone.contracts.tools:TraceContext.consistent_context"
    ],
-   "exercise_count": 23,
+   "exercise_count": 24,
    "modules_exercised": [
     "capstone.agent.loop",
     "capstone.agent.state",
@@ -10785,6 +10807,7 @@
     "capstone.agent.loop:batch_steps",
     "capstone.agent.loop:call_signature",
     "capstone.agent.loop:call_tool",
+    "capstone.agent.loop:chains_to_next_read",
     "capstone.agent.loop:check_termination",
     "capstone.agent.loop:compiler_turn",
     "capstone.agent.loop:gather",
@@ -10804,7 +10827,7 @@
     "capstone.contracts.tools:ToolResult.consistent_outcome",
     "capstone.contracts.tools:TraceContext.consistent_context"
    ],
-   "exercise_count": 24,
+   "exercise_count": 25,
    "modules_exercised": [
     "capstone.agent.loop",
     "capstone.agent.state",
@@ -10842,6 +10865,7 @@
     "capstone.agent.loop:batch_steps",
     "capstone.agent.loop:call_signature",
     "capstone.agent.loop:call_tool",
+    "capstone.agent.loop:chains_to_next_read",
     "capstone.agent.loop:check_termination",
     "capstone.agent.loop:compiler_turn",
     "capstone.agent.loop:gather",
@@ -10861,7 +10885,7 @@
     "capstone.contracts.tools:ToolResult.consistent_outcome",
     "capstone.contracts.tools:TraceContext.consistent_context"
    ],
-   "exercise_count": 24,
+   "exercise_count": 25,
    "modules_exercised": [
     "capstone.agent.loop",
     "capstone.agent.state",
@@ -10899,6 +10923,7 @@
     "capstone.agent.loop:batch_steps",
     "capstone.agent.loop:call_signature",
     "capstone.agent.loop:call_tool",
+    "capstone.agent.loop:chains_to_next_read",
     "capstone.agent.loop:check_termination",
     "capstone.agent.loop:compiler_turn",
     "capstone.agent.loop:gather",
@@ -10918,7 +10943,7 @@
     "capstone.contracts.tools:ToolResult.consistent_outcome",
     "capstone.contracts.tools:TraceContext.consistent_context"
    ],
-   "exercise_count": 24,
+   "exercise_count": 25,
    "modules_exercised": [
     "capstone.agent.loop",
     "capstone.agent.state",
@@ -11081,6 +11106,7 @@
     "capstone.agent.loop:batch_steps",
     "capstone.agent.loop:call_signature",
     "capstone.agent.loop:call_tool",
+    "capstone.agent.loop:chains_to_next_read",
     "capstone.agent.loop:check_termination",
     "capstone.agent.loop:compiler_turn",
     "capstone.agent.loop:gather",
@@ -11100,7 +11126,7 @@
     "capstone.contracts.tools:ToolResult.consistent_outcome",
     "capstone.contracts.tools:TraceContext.consistent_context"
    ],
-   "exercise_count": 24,
+   "exercise_count": 25,
    "modules_exercised": [
     "capstone.agent.loop",
     "capstone.agent.state",
@@ -11139,6 +11165,7 @@
     "capstone.agent.loop:batch_steps",
     "capstone.agent.loop:call_signature",
     "capstone.agent.loop:call_tool",
+    "capstone.agent.loop:chains_to_next_read",
     "capstone.agent.loop:check_termination",
     "capstone.agent.loop:compiler_turn",
     "capstone.agent.loop:gather",
@@ -11158,7 +11185,7 @@
     "capstone.contracts.tools:ToolResult.consistent_outcome",
     "capstone.contracts.tools:TraceContext.consistent_context"
    ],
-   "exercise_count": 24,
+   "exercise_count": 25,
    "modules_exercised": [
     "capstone.agent.loop",
     "capstone.agent.state",
@@ -11197,6 +11224,7 @@
     "capstone.agent.loop:batch_steps",
     "capstone.agent.loop:call_signature",
     "capstone.agent.loop:call_tool",
+    "capstone.agent.loop:chains_to_next_read",
     "capstone.agent.loop:check_termination",
     "capstone.agent.loop:compiler_turn",
     "capstone.agent.loop:gather",
@@ -11216,7 +11244,7 @@
     "capstone.contracts.tools:ToolResult.consistent_outcome",
     "capstone.contracts.tools:TraceContext.consistent_context"
    ],
-   "exercise_count": 24,
+   "exercise_count": 25,
    "modules_exercised": [
     "capstone.agent.loop",
     "capstone.agent.state",
@@ -11258,6 +11286,7 @@
     "capstone.agent.loop:batch_steps",
     "capstone.agent.loop:call_signature",
     "capstone.agent.loop:call_tool",
+    "capstone.agent.loop:chains_to_next_read",
     "capstone.agent.loop:check_termination",
     "capstone.agent.loop:compiler_turn",
     "capstone.agent.loop:gather",
@@ -11277,7 +11306,7 @@
     "capstone.contracts.tools:ToolResult.consistent_outcome",
     "capstone.contracts.tools:TraceContext.consistent_context"
    ],
-   "exercise_count": 24,
+   "exercise_count": 25,
    "modules_exercised": [
     "capstone.agent.loop",
     "capstone.agent.state",
@@ -11319,6 +11348,7 @@
     "capstone.agent.loop:batch_steps",
     "capstone.agent.loop:call_signature",
     "capstone.agent.loop:call_tool",
+    "capstone.agent.loop:chains_to_next_read",
     "capstone.agent.loop:check_termination",
     "capstone.agent.loop:compiler_turn",
     "capstone.agent.loop:gather",
@@ -11338,7 +11368,7 @@
     "capstone.contracts.tools:ToolResult.consistent_outcome",
     "capstone.contracts.tools:TraceContext.consistent_context"
    ],
-   "exercise_count": 24,
+   "exercise_count": 25,
    "modules_exercised": [
     "capstone.agent.loop",
     "capstone.agent.state",
@@ -11432,6 +11462,7 @@
     "capstone.agent.loop:batch_steps",
     "capstone.agent.loop:call_signature",
     "capstone.agent.loop:call_tool",
+    "capstone.agent.loop:chains_to_next_read",
     "capstone.agent.loop:check_termination",
     "capstone.agent.loop:compiler_turn",
     "capstone.agent.loop:gather",
@@ -11451,7 +11482,7 @@
     "capstone.contracts.tools:ToolResult.consistent_outcome",
     "capstone.contracts.tools:TraceContext.consistent_context"
    ],
-   "exercise_count": 24,
+   "exercise_count": 25,
    "modules_exercised": [
     "capstone.agent.loop",
     "capstone.agent.state",
@@ -11493,6 +11524,7 @@
     "capstone.agent.loop:batch_steps",
     "capstone.agent.loop:call_signature",
     "capstone.agent.loop:call_tool",
+    "capstone.agent.loop:chains_to_next_read",
     "capstone.agent.loop:check_termination",
     "capstone.agent.loop:compiler_turn",
     "capstone.agent.loop:diagnosis_supported",
@@ -11512,7 +11544,7 @@
     "capstone.contracts.tools:ToolResult.consistent_outcome",
     "capstone.contracts.tools:TraceContext.consistent_context"
    ],
-   "exercise_count": 24,
+   "exercise_count": 25,
    "modules_exercised": [
     "capstone.agent.loop",
     "capstone.agent.state",
@@ -11585,6 +11617,7 @@
     "capstone.agent.loop:batch_steps",
     "capstone.agent.loop:call_signature",
     "capstone.agent.loop:call_tool",
+    "capstone.agent.loop:chains_to_next_read",
     "capstone.agent.loop:check_termination",
     "capstone.agent.loop:compiler_turn",
     "capstone.agent.loop:confidence_stalled",
@@ -11607,7 +11640,7 @@
     "capstone.contracts.tools:ToolResult.consistent_outcome",
     "capstone.contracts.tools:TraceContext.consistent_context"
    ],
-   "exercise_count": 29,
+   "exercise_count": 30,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.loop",
@@ -11648,6 +11681,7 @@
     "capstone.agent.loop:batch_steps",
     "capstone.agent.loop:call_signature",
     "capstone.agent.loop:call_tool",
+    "capstone.agent.loop:chains_to_next_read",
     "capstone.agent.loop:check_termination",
     "capstone.agent.loop:compiler_turn",
     "capstone.agent.loop:confidence_stalled",
@@ -11670,7 +11704,7 @@
     "capstone.contracts.tools:ToolResult.consistent_outcome",
     "capstone.contracts.tools:TraceContext.consistent_context"
    ],
-   "exercise_count": 29,
+   "exercise_count": 30,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.loop",
@@ -11713,6 +11747,7 @@
     "capstone.agent.loop:batch_steps",
     "capstone.agent.loop:call_signature",
     "capstone.agent.loop:call_tool",
+    "capstone.agent.loop:chains_to_next_read",
     "capstone.agent.loop:check_termination",
     "capstone.agent.loop:compiler_turn",
     "capstone.agent.loop:confidence_stalled",
@@ -11735,7 +11770,7 @@
     "capstone.contracts.tools:ToolResult.consistent_outcome",
     "capstone.contracts.tools:TraceContext.consistent_context"
    ],
-   "exercise_count": 29,
+   "exercise_count": 30,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.loop",
@@ -11777,6 +11812,7 @@
     "capstone.agent.loop:batch_steps",
     "capstone.agent.loop:call_signature",
     "capstone.agent.loop:call_tool",
+    "capstone.agent.loop:chains_to_next_read",
     "capstone.agent.loop:check_termination",
     "capstone.agent.loop:compiler_turn",
     "capstone.agent.loop:gather",
@@ -11796,7 +11832,7 @@
     "capstone.contracts.tools:ToolResult.consistent_outcome",
     "capstone.contracts.tools:TraceContext.consistent_context"
    ],
-   "exercise_count": 26,
+   "exercise_count": 27,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.loop",
@@ -11967,6 +12003,7 @@
     "capstone.agent.loop:batch_steps",
     "capstone.agent.loop:call_signature",
     "capstone.agent.loop:call_tool",
+    "capstone.agent.loop:chains_to_next_read",
     "capstone.agent.loop:check_termination",
     "capstone.agent.loop:compiler_turn",
     "capstone.agent.loop:confidence_stalled",
@@ -11989,7 +12026,7 @@
     "capstone.contracts.tools:ToolResult.consistent_outcome",
     "capstone.contracts.tools:TraceContext.consistent_context"
    ],
-   "exercise_count": 29,
+   "exercise_count": 30,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.loop",
@@ -12030,6 +12067,7 @@
     "capstone.agent.loop:batch_steps",
     "capstone.agent.loop:call_signature",
     "capstone.agent.loop:call_tool",
+    "capstone.agent.loop:chains_to_next_read",
     "capstone.agent.loop:check_termination",
     "capstone.agent.loop:compiler_turn",
     "capstone.agent.loop:confidence_stalled",
@@ -12052,7 +12090,7 @@
     "capstone.contracts.tools:ToolResult.consistent_outcome",
     "capstone.contracts.tools:TraceContext.consistent_context"
    ],
-   "exercise_count": 29,
+   "exercise_count": 30,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.loop",
@@ -12093,6 +12131,7 @@
     "capstone.agent.loop:batch_steps",
     "capstone.agent.loop:call_signature",
     "capstone.agent.loop:call_tool",
+    "capstone.agent.loop:chains_to_next_read",
     "capstone.agent.loop:check_termination",
     "capstone.agent.loop:compiler_turn",
     "capstone.agent.loop:gather",
@@ -12112,7 +12151,7 @@
     "capstone.contracts.tools:ToolResult.consistent_outcome",
     "capstone.contracts.tools:TraceContext.consistent_context"
    ],
-   "exercise_count": 26,
+   "exercise_count": 27,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.loop",
@@ -12152,6 +12191,7 @@
     "capstone.agent.loop:batch_steps",
     "capstone.agent.loop:call_signature",
     "capstone.agent.loop:call_tool",
+    "capstone.agent.loop:chains_to_next_read",
     "capstone.agent.loop:check_termination",
     "capstone.agent.loop:compiler_turn",
     "capstone.agent.loop:gather",
@@ -12172,7 +12212,7 @@
     "capstone.contracts.tools:ToolResult.consistent_outcome",
     "capstone.contracts.tools:TraceContext.consistent_context"
    ],
-   "exercise_count": 25,
+   "exercise_count": 26,
    "modules_exercised": [
     "capstone.agent.loop",
     "capstone.agent.state",
@@ -12212,6 +12252,7 @@
     "capstone.agent.loop:batch_steps",
     "capstone.agent.loop:call_signature",
     "capstone.agent.loop:call_tool",
+    "capstone.agent.loop:chains_to_next_read",
     "capstone.agent.loop:check_termination",
     "capstone.agent.loop:compiler_turn",
     "capstone.agent.loop:gather",
@@ -12232,7 +12273,7 @@
     "capstone.contracts.tools:ToolResult.consistent_outcome",
     "capstone.contracts.tools:TraceContext.consistent_context"
    ],
-   "exercise_count": 25,
+   "exercise_count": 26,
    "modules_exercised": [
     "capstone.agent.loop",
     "capstone.agent.state",
@@ -12274,6 +12315,7 @@
     "capstone.agent.loop:batch_steps",
     "capstone.agent.loop:call_signature",
     "capstone.agent.loop:call_tool",
+    "capstone.agent.loop:chains_to_next_read",
     "capstone.agent.loop:check_termination",
     "capstone.agent.loop:compiler_turn",
     "capstone.agent.loop:gather",
@@ -12306,10 +12348,9 @@
     "capstone.simulator.events:EventLog.record",
     "capstone.simulator.events:ThresholdAlarm.__init__",
     "capstone.simulator.events:ThresholdAlarm.check",
-    "capstone.simulator.line:build_line",
-    "capstone.simulator.line:machine_names"
+    "capstone.simulator.line:build_line"
    ],
-   "exercise_count": 116,
+   "exercise_count": 117,
    "modules_exercised": [
     "capstone.agent.loop",
     "capstone.agent.state",
@@ -12420,6 +12461,7 @@
     "capstone.agent.loop:batch_steps",
     "capstone.agent.loop:call_signature",
     "capstone.agent.loop:call_tool",
+    "capstone.agent.loop:chains_to_next_read",
     "capstone.agent.loop:check_termination",
     "capstone.agent.loop:compiler_turn",
     "capstone.agent.loop:gather",
@@ -12439,7 +12481,7 @@
     "capstone.contracts.tools:ToolResult.consistent_outcome",
     "capstone.contracts.tools:TraceContext.consistent_context"
    ],
-   "exercise_count": 24,
+   "exercise_count": 25,
    "modules_exercised": [
     "capstone.agent.loop",
     "capstone.agent.state",
@@ -12477,6 +12519,7 @@
     "capstone.agent.loop:batch_steps",
     "capstone.agent.loop:call_signature",
     "capstone.agent.loop:call_tool",
+    "capstone.agent.loop:chains_to_next_read",
     "capstone.agent.loop:check_termination",
     "capstone.agent.loop:compiler_turn",
     "capstone.agent.loop:gather",
@@ -12496,7 +12539,7 @@
     "capstone.contracts.tools:ToolResult.consistent_outcome",
     "capstone.contracts.tools:TraceContext.consistent_context"
    ],
-   "exercise_count": 24,
+   "exercise_count": 25,
    "modules_exercised": [
     "capstone.agent.loop",
     "capstone.agent.state",
@@ -12537,6 +12580,7 @@
     "capstone.agent.loop:batch_steps",
     "capstone.agent.loop:call_signature",
     "capstone.agent.loop:call_tool",
+    "capstone.agent.loop:chains_to_next_read",
     "capstone.agent.loop:check_termination",
     "capstone.agent.loop:compiler_turn",
     "capstone.agent.loop:gather",
@@ -12556,7 +12600,7 @@
     "capstone.contracts.tools:ToolResult.consistent_outcome",
     "capstone.contracts.tools:TraceContext.consistent_context"
    ],
-   "exercise_count": 23,
+   "exercise_count": 24,
    "modules_exercised": [
     "capstone.agent.loop",
     "capstone.agent.state",
@@ -12593,6 +12637,7 @@
     "capstone.agent.loop:batch_steps",
     "capstone.agent.loop:call_signature",
     "capstone.agent.loop:call_tool",
+    "capstone.agent.loop:chains_to_next_read",
     "capstone.agent.loop:check_termination",
     "capstone.agent.loop:compiler_turn",
     "capstone.agent.loop:gather",
@@ -12612,7 +12657,7 @@
     "capstone.contracts.tools:ToolResult.consistent_outcome",
     "capstone.contracts.tools:TraceContext.consistent_context"
    ],
-   "exercise_count": 23,
+   "exercise_count": 24,
    "modules_exercised": [
     "capstone.agent.loop",
     "capstone.agent.state",
@@ -12650,6 +12695,7 @@
     "capstone.agent.loop:batch_steps",
     "capstone.agent.loop:call_signature",
     "capstone.agent.loop:call_tool",
+    "capstone.agent.loop:chains_to_next_read",
     "capstone.agent.loop:check_termination",
     "capstone.agent.loop:compiler_turn",
     "capstone.agent.loop:gather",
@@ -12669,7 +12715,7 @@
     "capstone.contracts.tools:ToolResult.consistent_outcome",
     "capstone.contracts.tools:TraceContext.consistent_context"
    ],
-   "exercise_count": 24,
+   "exercise_count": 25,
    "modules_exercised": [
     "capstone.agent.loop",
     "capstone.agent.state",
@@ -12735,6 +12781,7 @@
     "capstone.agent.loop:batch_steps",
     "capstone.agent.loop:call_signature",
     "capstone.agent.loop:call_tool",
+    "capstone.agent.loop:chains_to_next_read",
     "capstone.agent.loop:check_termination",
     "capstone.agent.loop:compiler_turn",
     "capstone.agent.loop:gather",
@@ -12754,7 +12801,7 @@
     "capstone.contracts.tools:ToolResult.consistent_outcome",
     "capstone.contracts.tools:TraceContext.consistent_context"
    ],
-   "exercise_count": 24,
+   "exercise_count": 25,
    "modules_exercised": [
     "capstone.agent.loop",
     "capstone.agent.state",
@@ -12827,7 +12874,7 @@
     "capstone.agent.investigation:verify.<locals>.later",
     "capstone.agent.investigation:why_not_acted"
    ],
-   "exercise_count": 176,
+   "exercise_count": 177,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -12918,7 +12965,7 @@
     "capstone.agent.investigation:verify.<locals>.later",
     "capstone.agent.investigation:why_not_acted"
    ],
-   "exercise_count": 176,
+   "exercise_count": 177,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -13008,7 +13055,7 @@
     "capstone.agent.investigation:verify.<locals>.later",
     "capstone.agent.investigation:why_not_acted"
    ],
-   "exercise_count": 179,
+   "exercise_count": 180,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -13099,7 +13146,7 @@
     "capstone.agent.investigation:verify.<locals>.later",
     "capstone.agent.investigation:why_not_acted"
    ],
-   "exercise_count": 179,
+   "exercise_count": 180,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -13189,7 +13236,7 @@
     "capstone.agent.investigation:verify.<locals>.later",
     "capstone.agent.investigation:why_not_acted"
    ],
-   "exercise_count": 184,
+   "exercise_count": 185,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -13280,7 +13327,7 @@
     "capstone.agent.investigation:verify.<locals>.later",
     "capstone.agent.investigation:why_not_acted"
    ],
-   "exercise_count": 179,
+   "exercise_count": 180,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -13369,7 +13416,7 @@
     "capstone.agent.investigation:verify.<locals>.later",
     "capstone.agent.investigation:why_not_acted"
    ],
-   "exercise_count": 179,
+   "exercise_count": 180,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -13460,7 +13507,7 @@
     "capstone.agent.investigation:verify.<locals>.later",
     "capstone.agent.investigation:why_not_acted"
    ],
-   "exercise_count": 179,
+   "exercise_count": 180,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -13549,7 +13596,7 @@
     "capstone.agent.investigation:verify.<locals>.later",
     "capstone.agent.investigation:why_not_acted"
    ],
-   "exercise_count": 179,
+   "exercise_count": 180,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -13638,7 +13685,7 @@
     "capstone.agent.investigation:verify.<locals>.later",
     "capstone.agent.investigation:why_not_acted"
    ],
-   "exercise_count": 179,
+   "exercise_count": 180,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -13730,7 +13777,7 @@
     "capstone.agent.investigation:verify.<locals>.later",
     "capstone.agent.investigation:why_not_acted"
    ],
-   "exercise_count": 179,
+   "exercise_count": 180,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -13823,7 +13870,7 @@
     "capstone.agent.investigation:verify.<locals>.later",
     "capstone.agent.investigation:why_not_acted"
    ],
-   "exercise_count": 179,
+   "exercise_count": 180,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -13914,7 +13961,7 @@
     "capstone.agent.investigation:verify.<locals>.later",
     "capstone.agent.investigation:why_not_acted"
    ],
-   "exercise_count": 179,
+   "exercise_count": 180,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -14003,7 +14050,7 @@
     "capstone.agent.investigation:verify.<locals>.later",
     "capstone.agent.investigation:why_not_acted"
    ],
-   "exercise_count": 179,
+   "exercise_count": 180,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -14092,7 +14139,7 @@
     "capstone.agent.investigation:verify.<locals>.later",
     "capstone.agent.investigation:why_not_acted"
    ],
-   "exercise_count": 179,
+   "exercise_count": 180,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -14180,9 +14227,9 @@
     "capstone.agent.loop:batch_steps",
     "capstone.agent.loop:call_signature",
     "capstone.agent.loop:call_tool",
-    "capstone.agent.loop:check_termination"
+    "capstone.agent.loop:chains_to_next_read"
    ],
-   "exercise_count": 160,
+   "exercise_count": 161,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -14269,9 +14316,9 @@
     "capstone.agent.loop:batch_steps",
     "capstone.agent.loop:call_signature",
     "capstone.agent.loop:call_tool",
-    "capstone.agent.loop:check_termination"
+    "capstone.agent.loop:chains_to_next_read"
    ],
-   "exercise_count": 158,
+   "exercise_count": 159,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -14366,7 +14413,7 @@
     "capstone.agent.loop:batch_steps",
     "capstone.agent.loop:call_signature"
    ],
-   "exercise_count": 166,
+   "exercise_count": 167,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -14458,7 +14505,7 @@
     "capstone.agent.loop:apply_interpretation",
     "capstone.agent.loop:ask_policy"
    ],
-   "exercise_count": 169,
+   "exercise_count": 170,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -14549,7 +14596,7 @@
     "capstone.agent.loop:apply_interpretation",
     "capstone.agent.loop:ask_policy"
    ],
-   "exercise_count": 174,
+   "exercise_count": 175,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -14639,7 +14686,7 @@
     "capstone.agent.investigation:verify.<locals>.later",
     "capstone.agent.investigation:why_not_acted"
    ],
-   "exercise_count": 179,
+   "exercise_count": 180,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -14729,7 +14776,7 @@
     "capstone.agent.investigation:verify.<locals>.later",
     "capstone.agent.investigation:why_not_acted"
    ],
-   "exercise_count": 179,
+   "exercise_count": 180,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -14819,7 +14866,7 @@
     "capstone.agent.investigation:verify.<locals>.later",
     "capstone.agent.investigation:why_not_acted"
    ],
-   "exercise_count": 179,
+   "exercise_count": 180,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -20282,7 +20329,7 @@
     "capstone.agent.investigation:review_packet",
     "capstone.agent.investigation:run_investigation"
    ],
-   "exercise_count": 240,
+   "exercise_count": 241,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -20677,7 +20724,7 @@
     "capstone.agent.investigation:review_packet",
     "capstone.agent.investigation:run_investigation"
    ],
-   "exercise_count": 240,
+   "exercise_count": 241,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -34307,6 +34354,7 @@
     "capstone.agent.loop:batch_steps",
     "capstone.agent.loop:call_signature",
     "capstone.agent.loop:call_tool",
+    "capstone.agent.loop:chains_to_next_read",
     "capstone.agent.loop:check_termination",
     "capstone.agent.loop:compiler_turn",
     "capstone.agent.loop:gather",
@@ -34327,7 +34375,7 @@
     "capstone.contracts.tools:ToolResult.consistent_outcome",
     "capstone.contracts.tools:TraceContext.consistent_context"
    ],
-   "exercise_count": 25,
+   "exercise_count": 26,
    "modules_exercised": [
     "capstone.agent.loop",
     "capstone.agent.state",
@@ -34365,6 +34413,7 @@
     "capstone.agent.loop:batch_steps",
     "capstone.agent.loop:call_signature",
     "capstone.agent.loop:call_tool",
+    "capstone.agent.loop:chains_to_next_read",
     "capstone.agent.loop:check_termination",
     "capstone.agent.loop:compiler_turn",
     "capstone.agent.loop:gather",
@@ -34385,7 +34434,7 @@
     "capstone.contracts.tools:ToolResult.consistent_outcome",
     "capstone.contracts.tools:TraceContext.consistent_context"
    ],
-   "exercise_count": 25,
+   "exercise_count": 26,
    "modules_exercised": [
     "capstone.agent.loop",
     "capstone.agent.state",
@@ -34423,6 +34472,7 @@
     "capstone.agent.loop:batch_steps",
     "capstone.agent.loop:call_signature",
     "capstone.agent.loop:call_tool",
+    "capstone.agent.loop:chains_to_next_read",
     "capstone.agent.loop:check_termination",
     "capstone.agent.loop:compiler_turn",
     "capstone.agent.loop:gather",
@@ -34443,7 +34493,7 @@
     "capstone.contracts.tools:ToolResult.consistent_outcome",
     "capstone.contracts.tools:TraceContext.consistent_context"
    ],
-   "exercise_count": 25,
+   "exercise_count": 26,
    "modules_exercised": [
     "capstone.agent.loop",
     "capstone.agent.state",
@@ -34482,6 +34532,7 @@
     "capstone.agent.loop:batch_steps",
     "capstone.agent.loop:call_signature",
     "capstone.agent.loop:call_tool",
+    "capstone.agent.loop:chains_to_next_read",
     "capstone.agent.loop:check_termination",
     "capstone.agent.loop:compiler_turn",
     "capstone.agent.loop:gather",
@@ -34502,7 +34553,7 @@
     "capstone.contracts.tools:ToolResult.consistent_outcome",
     "capstone.contracts.tools:TraceContext.consistent_context"
    ],
-   "exercise_count": 25,
+   "exercise_count": 26,
    "modules_exercised": [
     "capstone.agent.loop",
     "capstone.agent.state",
@@ -34540,6 +34591,7 @@
     "capstone.agent.loop:batch_steps",
     "capstone.agent.loop:call_signature",
     "capstone.agent.loop:call_tool",
+    "capstone.agent.loop:chains_to_next_read",
     "capstone.agent.loop:check_termination",
     "capstone.agent.loop:compiler_turn",
     "capstone.agent.loop:gather",
@@ -34560,7 +34612,7 @@
     "capstone.contracts.tools:ToolResult.consistent_outcome",
     "capstone.contracts.tools:TraceContext.consistent_context"
    ],
-   "exercise_count": 25,
+   "exercise_count": 26,
    "modules_exercised": [
     "capstone.agent.loop",
     "capstone.agent.state",
@@ -34600,6 +34652,7 @@
     "capstone.agent.loop:batch_steps",
     "capstone.agent.loop:call_signature",
     "capstone.agent.loop:call_tool",
+    "capstone.agent.loop:chains_to_next_read",
     "capstone.agent.loop:check_termination",
     "capstone.agent.loop:compiler_turn",
     "capstone.agent.loop:gather",
@@ -34620,7 +34673,7 @@
     "capstone.contracts.tools:ToolResult.consistent_outcome",
     "capstone.contracts.tools:TraceContext.consistent_context"
    ],
-   "exercise_count": 25,
+   "exercise_count": 26,
    "modules_exercised": [
     "capstone.agent.loop",
     "capstone.agent.state",
@@ -35143,6 +35196,7 @@
     "capstone.agent.loop:batch_steps",
     "capstone.agent.loop:call_signature",
     "capstone.agent.loop:call_tool",
+    "capstone.agent.loop:chains_to_next_read",
     "capstone.agent.loop:check_termination",
     "capstone.agent.loop:compiler_turn",
     "capstone.agent.loop:gather",
@@ -35166,7 +35220,7 @@
     "capstone.progress:call_text",
     "capstone.progress:shorten"
    ],
-   "exercise_count": 28,
+   "exercise_count": 29,
    "modules_exercised": [
     "capstone.agent.loop",
     "capstone.agent.state",
@@ -35207,6 +35261,7 @@
     "capstone.agent.loop:batch_steps",
     "capstone.agent.loop:call_signature",
     "capstone.agent.loop:call_tool",
+    "capstone.agent.loop:chains_to_next_read",
     "capstone.agent.loop:check_termination",
     "capstone.agent.loop:compiler_turn",
     "capstone.agent.loop:gather",
@@ -35228,7 +35283,7 @@
     "capstone.contracts.tools:TraceContext.consistent_context",
     "capstone.experiment:format_batches"
    ],
-   "exercise_count": 26,
+   "exercise_count": 27,
    "modules_exercised": [
     "capstone.agent.loop",
     "capstone.agent.state",
@@ -35673,15 +35728,15 @@
     "capstone.agent.loop:batch_steps",
     "capstone.agent.loop:call_signature",
     "capstone.agent.loop:call_tool",
+    "capstone.agent.loop:chains_to_next_read",
     "capstone.agent.loop:check_termination",
     "capstone.agent.loop:compiler_turn",
     "capstone.agent.loop:gather",
     "capstone.agent.loop:held_for_hypotheses",
     "capstone.agent.loop:notify",
-    "capstone.agent.loop:record",
-    "capstone.agent.loop:run_batch"
+    "capstone.agent.loop:record"
    ],
-   "exercise_count": 198,
+   "exercise_count": 199,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -35771,15 +35826,15 @@
     "capstone.agent.loop:batch_steps",
     "capstone.agent.loop:call_signature",
     "capstone.agent.loop:call_tool",
+    "capstone.agent.loop:chains_to_next_read",
     "capstone.agent.loop:check_termination",
     "capstone.agent.loop:compiler_turn",
     "capstone.agent.loop:gather",
     "capstone.agent.loop:held_for_hypotheses",
     "capstone.agent.loop:notify",
-    "capstone.agent.loop:record",
-    "capstone.agent.loop:run_batch"
+    "capstone.agent.loop:record"
    ],
-   "exercise_count": 170,
+   "exercise_count": 171,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -35911,9 +35966,9 @@
     "capstone.agent.loop:batch_steps",
     "capstone.agent.loop:call_signature",
     "capstone.agent.loop:call_tool",
-    "capstone.agent.loop:check_termination"
+    "capstone.agent.loop:chains_to_next_read"
    ],
-   "exercise_count": 195,
+   "exercise_count": 196,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigate_compiler",
@@ -36006,15 +36061,15 @@
     "capstone.agent.loop:batch_steps",
     "capstone.agent.loop:call_signature",
     "capstone.agent.loop:call_tool",
+    "capstone.agent.loop:chains_to_next_read",
     "capstone.agent.loop:check_termination",
     "capstone.agent.loop:compiler_turn",
     "capstone.agent.loop:gather",
     "capstone.agent.loop:held_for_hypotheses",
     "capstone.agent.loop:notify",
-    "capstone.agent.loop:record",
-    "capstone.agent.loop:run_batch"
+    "capstone.agent.loop:record"
    ],
-   "exercise_count": 167,
+   "exercise_count": 168,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -36109,15 +36164,15 @@
     "capstone.agent.loop:batch_steps",
     "capstone.agent.loop:call_signature",
     "capstone.agent.loop:call_tool",
+    "capstone.agent.loop:chains_to_next_read",
     "capstone.agent.loop:check_termination",
     "capstone.agent.loop:compiler_turn",
     "capstone.agent.loop:gather",
     "capstone.agent.loop:held_for_hypotheses",
     "capstone.agent.loop:notify",
-    "capstone.agent.loop:record",
-    "capstone.agent.loop:run_batch"
+    "capstone.agent.loop:record"
    ],
-   "exercise_count": 162,
+   "exercise_count": 163,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -36204,6 +36259,7 @@
     "capstone.agent.loop:batch_steps",
     "capstone.agent.loop:call_signature",
     "capstone.agent.loop:call_tool",
+    "capstone.agent.loop:chains_to_next_read",
     "capstone.agent.loop:check_termination",
     "capstone.agent.loop:compiler_turn",
     "capstone.agent.loop:gather",
@@ -36212,10 +36268,9 @@
     "capstone.agent.loop:record",
     "capstone.agent.loop:run_batch",
     "capstone.agent.loop:run_inner_loop",
-    "capstone.agent.loop:seconds_left",
-    "capstone.agent.monitor:detect_anomaly"
+    "capstone.agent.loop:seconds_left"
    ],
-   "exercise_count": 196,
+   "exercise_count": 197,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -36305,6 +36360,7 @@
     "capstone.agent.loop:batch_steps",
     "capstone.agent.loop:call_signature",
     "capstone.agent.loop:call_tool",
+    "capstone.agent.loop:chains_to_next_read",
     "capstone.agent.loop:check_termination",
     "capstone.agent.loop:compiler_turn",
     "capstone.agent.loop:gather",
@@ -36313,10 +36369,9 @@
     "capstone.agent.loop:record",
     "capstone.agent.loop:run_batch",
     "capstone.agent.loop:run_inner_loop",
-    "capstone.agent.loop:seconds_left",
-    "capstone.agent.monitor:detect_anomaly"
+    "capstone.agent.loop:seconds_left"
    ],
-   "exercise_count": 194,
+   "exercise_count": 195,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -36448,15 +36503,15 @@
     "capstone.agent.loop:batch_steps",
     "capstone.agent.loop:call_signature",
     "capstone.agent.loop:call_tool",
+    "capstone.agent.loop:chains_to_next_read",
     "capstone.agent.loop:check_termination",
     "capstone.agent.loop:compiler_turn",
     "capstone.agent.loop:gather",
     "capstone.agent.loop:held_for_hypotheses",
     "capstone.agent.loop:notify",
-    "capstone.agent.loop:record",
-    "capstone.agent.loop:run_batch"
+    "capstone.agent.loop:record"
    ],
-   "exercise_count": 179,
+   "exercise_count": 180,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -36547,15 +36602,15 @@
     "capstone.agent.loop:batch_steps",
     "capstone.agent.loop:call_signature",
     "capstone.agent.loop:call_tool",
+    "capstone.agent.loop:chains_to_next_read",
     "capstone.agent.loop:check_termination",
     "capstone.agent.loop:compiler_turn",
     "capstone.agent.loop:gather",
     "capstone.agent.loop:held_for_hypotheses",
     "capstone.agent.loop:notify",
-    "capstone.agent.loop:record",
-    "capstone.agent.loop:run_batch"
+    "capstone.agent.loop:record"
    ],
-   "exercise_count": 179,
+   "exercise_count": 180,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -38203,7 +38258,7 @@
     "capstone.agent.investigation:verify.<locals>.later",
     "capstone.agent.investigation:why_not_acted"
    ],
-   "exercise_count": 210,
+   "exercise_count": 211,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -38301,7 +38356,7 @@
     "capstone.agent.investigation:verify.<locals>.later",
     "capstone.agent.investigation:why_not_acted"
    ],
-   "exercise_count": 211,
+   "exercise_count": 212,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -38399,7 +38454,7 @@
     "capstone.agent.investigation:verify.<locals>.later",
     "capstone.agent.investigation:why_not_acted"
    ],
-   "exercise_count": 211,
+   "exercise_count": 212,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -38497,7 +38552,7 @@
     "capstone.agent.loop:batch_steps",
     "capstone.agent.loop:call_signature"
    ],
-   "exercise_count": 198,
+   "exercise_count": 199,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -38593,7 +38648,7 @@
     "capstone.agent.investigation:verify.<locals>.later",
     "capstone.agent.investigation:why_not_acted"
    ],
-   "exercise_count": 209,
+   "exercise_count": 210,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -38689,7 +38744,7 @@
     "capstone.agent.investigation:verify.<locals>.later",
     "capstone.agent.investigation:why_not_acted"
    ],
-   "exercise_count": 209,
+   "exercise_count": 210,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -38792,7 +38847,7 @@
     "capstone.agent.investigation:reconsider",
     "capstone.agent.investigation:release_observe_calls"
    ],
-   "exercise_count": 233,
+   "exercise_count": 234,
    "modules_exercised": [
     "capstone.agent.completion",
     "capstone.agent.evidence_brief",
@@ -38900,7 +38955,7 @@
     "capstone.agent.investigation:verify.<locals>.later",
     "capstone.agent.investigation:why_not_acted"
    ],
-   "exercise_count": 209,
+   "exercise_count": 210,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -39090,7 +39145,7 @@
     "capstone.agent.investigation:verify.<locals>.later",
     "capstone.agent.investigation:why_not_acted"
    ],
-   "exercise_count": 210,
+   "exercise_count": 211,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -39370,6 +39425,7 @@
     "capstone.agent.loop:batch_steps",
     "capstone.agent.loop:call_signature",
     "capstone.agent.loop:call_tool",
+    "capstone.agent.loop:chains_to_next_read",
     "capstone.agent.loop:check_termination",
     "capstone.agent.loop:compiler_turn",
     "capstone.agent.loop:gather",
@@ -39379,10 +39435,9 @@
     "capstone.agent.loop:run_batch",
     "capstone.agent.loop:run_inner_loop",
     "capstone.agent.loop:seconds_left",
-    "capstone.agent.monitor:detect_anomaly",
-    "capstone.agent.state:Budgets.research_gets_some_time"
+    "capstone.agent.monitor:detect_anomaly"
    ],
-   "exercise_count": 172,
+   "exercise_count": 173,
    "modules_exercised": [
     "capstone.agent.investigation",
     "capstone.agent.loop",
@@ -39485,7 +39540,7 @@
     "capstone.agent.investigation:verify.<locals>.later",
     "capstone.agent.investigation:why_not_acted"
    ],
-   "exercise_count": 204,
+   "exercise_count": 205,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -39633,7 +39688,7 @@
     "capstone.agent.investigation:review_packet",
     "capstone.agent.investigation:run_investigation"
    ],
-   "exercise_count": 209,
+   "exercise_count": 210,
    "modules_exercised": [
     "capstone.agent.critic",
     "capstone.agent.evidence_brief",
@@ -39736,7 +39791,7 @@
     "capstone.agent.investigation:test",
     "capstone.agent.investigation:verify"
    ],
-   "exercise_count": 206,
+   "exercise_count": 207,
    "modules_exercised": [
     "capstone.agent.critic",
     "capstone.agent.evidence_brief",
@@ -39839,7 +39894,7 @@
     "capstone.agent.investigation:test",
     "capstone.agent.investigation:verify"
    ],
-   "exercise_count": 206,
+   "exercise_count": 207,
    "modules_exercised": [
     "capstone.agent.critic",
     "capstone.agent.evidence_brief",
@@ -39942,7 +39997,7 @@
     "capstone.agent.investigation:test",
     "capstone.agent.investigation:verify"
    ],
-   "exercise_count": 206,
+   "exercise_count": 207,
    "modules_exercised": [
     "capstone.agent.critic",
     "capstone.agent.evidence_brief",
@@ -40046,7 +40101,7 @@
     "capstone.agent.investigation:investigate",
     "capstone.agent.investigation:manual_query"
    ],
-   "exercise_count": 238,
+   "exercise_count": 239,
    "modules_exercised": [
     "capstone.agent.critic",
     "capstone.agent.evidence_brief",
@@ -40157,7 +40212,7 @@
     "capstone.agent.investigation:execute",
     "capstone.agent.investigation:factory_changed"
    ],
-   "exercise_count": 232,
+   "exercise_count": 233,
    "modules_exercised": [
     "capstone.agent.critic",
     "capstone.agent.evidence_brief",
@@ -40398,7 +40453,7 @@
     "capstone.agent.investigation:verify.<locals>.later",
     "capstone.agent.investigation:why_not_acted"
    ],
-   "exercise_count": 204,
+   "exercise_count": 205,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -40557,15 +40612,15 @@
     "capstone.agent.loop:batch_steps",
     "capstone.agent.loop:call_signature",
     "capstone.agent.loop:call_tool",
+    "capstone.agent.loop:chains_to_next_read",
     "capstone.agent.loop:check_termination",
     "capstone.agent.loop:compiler_turn",
     "capstone.agent.loop:gather",
     "capstone.agent.loop:held_for_hypotheses",
     "capstone.agent.loop:notify",
-    "capstone.agent.loop:record",
-    "capstone.agent.loop:run_batch"
+    "capstone.agent.loop:record"
    ],
-   "exercise_count": 184,
+   "exercise_count": 185,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -40692,15 +40747,15 @@
     "capstone.agent.loop:batch_steps",
     "capstone.agent.loop:call_signature",
     "capstone.agent.loop:call_tool",
+    "capstone.agent.loop:chains_to_next_read",
     "capstone.agent.loop:check_termination",
     "capstone.agent.loop:compiler_turn",
     "capstone.agent.loop:gather",
     "capstone.agent.loop:held_for_hypotheses",
     "capstone.agent.loop:notify",
-    "capstone.agent.loop:record",
-    "capstone.agent.loop:run_batch"
+    "capstone.agent.loop:record"
    ],
-   "exercise_count": 189,
+   "exercise_count": 190,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -40794,15 +40849,15 @@
     "capstone.agent.loop:batch_steps",
     "capstone.agent.loop:call_signature",
     "capstone.agent.loop:call_tool",
+    "capstone.agent.loop:chains_to_next_read",
     "capstone.agent.loop:check_termination",
     "capstone.agent.loop:compiler_turn",
     "capstone.agent.loop:gather",
     "capstone.agent.loop:held_for_hypotheses",
     "capstone.agent.loop:notify",
-    "capstone.agent.loop:record",
-    "capstone.agent.loop:run_batch"
+    "capstone.agent.loop:record"
    ],
-   "exercise_count": 191,
+   "exercise_count": 192,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -40895,15 +40950,15 @@
     "capstone.agent.loop:batch_steps",
     "capstone.agent.loop:call_signature",
     "capstone.agent.loop:call_tool",
+    "capstone.agent.loop:chains_to_next_read",
     "capstone.agent.loop:check_termination",
     "capstone.agent.loop:compiler_turn",
     "capstone.agent.loop:gather",
     "capstone.agent.loop:held_for_hypotheses",
     "capstone.agent.loop:notify",
-    "capstone.agent.loop:record",
-    "capstone.agent.loop:run_batch"
+    "capstone.agent.loop:record"
    ],
-   "exercise_count": 181,
+   "exercise_count": 182,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -40994,15 +41049,15 @@
     "capstone.agent.loop:batch_steps",
     "capstone.agent.loop:call_signature",
     "capstone.agent.loop:call_tool",
+    "capstone.agent.loop:chains_to_next_read",
     "capstone.agent.loop:check_termination",
     "capstone.agent.loop:compiler_turn",
     "capstone.agent.loop:gather",
     "capstone.agent.loop:held_for_hypotheses",
     "capstone.agent.loop:notify",
-    "capstone.agent.loop:record",
-    "capstone.agent.loop:run_batch"
+    "capstone.agent.loop:record"
    ],
-   "exercise_count": 190,
+   "exercise_count": 191,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -41105,7 +41160,7 @@
     "capstone.agent.investigation:test",
     "capstone.agent.investigation:verify"
    ],
-   "exercise_count": 216,
+   "exercise_count": 217,
    "modules_exercised": [
     "capstone.agent.critic",
     "capstone.agent.evidence_brief",
@@ -41329,15 +41384,15 @@
     "capstone.agent.loop:batch_steps",
     "capstone.agent.loop:call_signature",
     "capstone.agent.loop:call_tool",
+    "capstone.agent.loop:chains_to_next_read",
     "capstone.agent.loop:check_termination",
     "capstone.agent.loop:compiler_turn",
     "capstone.agent.loop:gather",
     "capstone.agent.loop:held_for_hypotheses",
     "capstone.agent.loop:notify",
-    "capstone.agent.loop:record",
-    "capstone.agent.loop:run_batch"
+    "capstone.agent.loop:record"
    ],
-   "exercise_count": 189,
+   "exercise_count": 190,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -41565,15 +41620,15 @@
     "capstone.agent.loop:batch_steps",
     "capstone.agent.loop:call_signature",
     "capstone.agent.loop:call_tool",
+    "capstone.agent.loop:chains_to_next_read",
     "capstone.agent.loop:check_termination",
     "capstone.agent.loop:compiler_turn",
     "capstone.agent.loop:gather",
     "capstone.agent.loop:held_for_hypotheses",
     "capstone.agent.loop:notify",
-    "capstone.agent.loop:record",
-    "capstone.agent.loop:run_batch"
+    "capstone.agent.loop:record"
    ],
-   "exercise_count": 187,
+   "exercise_count": 188,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -41665,6 +41720,7 @@
     "capstone.agent.loop:batch_steps",
     "capstone.agent.loop:call_signature",
     "capstone.agent.loop:call_tool",
+    "capstone.agent.loop:chains_to_next_read",
     "capstone.agent.loop:check_termination",
     "capstone.agent.loop:compiler_turn",
     "capstone.agent.loop:gather",
@@ -41673,10 +41729,9 @@
     "capstone.agent.loop:record",
     "capstone.agent.loop:run_batch",
     "capstone.agent.loop:run_inner_loop",
-    "capstone.agent.loop:seconds_left",
-    "capstone.agent.monitor:detect_anomaly"
+    "capstone.agent.loop:seconds_left"
    ],
-   "exercise_count": 190,
+   "exercise_count": 191,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -42006,14 +42061,14 @@
     "capstone.agent.loop:batch_steps",
     "capstone.agent.loop:call_signature",
     "capstone.agent.loop:call_tool",
+    "capstone.agent.loop:chains_to_next_read",
     "capstone.agent.loop:check_termination",
     "capstone.agent.loop:compiler_turn",
     "capstone.agent.loop:gather",
     "capstone.agent.loop:held_for_hypotheses",
-    "capstone.agent.loop:notify",
-    "capstone.agent.loop:record"
+    "capstone.agent.loop:notify"
    ],
-   "exercise_count": 192,
+   "exercise_count": 193,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -42115,15 +42170,15 @@
     "capstone.agent.loop:batch_steps",
     "capstone.agent.loop:call_signature",
     "capstone.agent.loop:call_tool",
+    "capstone.agent.loop:chains_to_next_read",
     "capstone.agent.loop:check_termination",
     "capstone.agent.loop:compiler_turn",
     "capstone.agent.loop:gather",
     "capstone.agent.loop:held_for_hypotheses",
     "capstone.agent.loop:notify",
-    "capstone.agent.loop:record",
-    "capstone.agent.loop:run_batch"
+    "capstone.agent.loop:record"
    ],
-   "exercise_count": 186,
+   "exercise_count": 187,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -45460,9 +45515,9 @@
     "capstone.agent.loop:batch_steps",
     "capstone.agent.loop:call_signature",
     "capstone.agent.loop:call_tool",
-    "capstone.agent.loop:check_termination"
+    "capstone.agent.loop:chains_to_next_read"
    ],
-   "exercise_count": 202,
+   "exercise_count": 203,
    "modules_exercised": [
     "capstone.agent.completion",
     "capstone.agent.evidence_brief",
@@ -45562,9 +45617,9 @@
     "capstone.agent.loop:batch_steps",
     "capstone.agent.loop:call_signature",
     "capstone.agent.loop:call_tool",
-    "capstone.agent.loop:check_termination"
+    "capstone.agent.loop:chains_to_next_read"
    ],
-   "exercise_count": 202,
+   "exercise_count": 203,
    "modules_exercised": [
     "capstone.agent.completion",
     "capstone.agent.evidence_brief",
@@ -48649,15 +48704,15 @@
     "capstone.agent.loop:batch_steps",
     "capstone.agent.loop:call_signature",
     "capstone.agent.loop:call_tool",
+    "capstone.agent.loop:chains_to_next_read",
     "capstone.agent.loop:check_termination",
     "capstone.agent.loop:compiler_turn",
     "capstone.agent.loop:gather",
     "capstone.agent.loop:held_for_hypotheses",
     "capstone.agent.loop:notify",
-    "capstone.agent.loop:record",
-    "capstone.agent.loop:run_batch"
+    "capstone.agent.loop:record"
    ],
-   "exercise_count": 187,
+   "exercise_count": 188,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -48899,15 +48954,15 @@
     "capstone.agent.loop:batch_steps",
     "capstone.agent.loop:call_signature",
     "capstone.agent.loop:call_tool",
+    "capstone.agent.loop:chains_to_next_read",
     "capstone.agent.loop:check_termination",
     "capstone.agent.loop:compiler_turn",
     "capstone.agent.loop:gather",
     "capstone.agent.loop:held_for_hypotheses",
     "capstone.agent.loop:notify",
-    "capstone.agent.loop:record",
-    "capstone.agent.loop:run_batch"
+    "capstone.agent.loop:record"
    ],
-   "exercise_count": 179,
+   "exercise_count": 180,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -49267,15 +49322,15 @@
     "capstone.agent.loop:batch_steps",
     "capstone.agent.loop:call_signature",
     "capstone.agent.loop:call_tool",
+    "capstone.agent.loop:chains_to_next_read",
     "capstone.agent.loop:check_termination",
     "capstone.agent.loop:compiler_turn",
     "capstone.agent.loop:gather",
     "capstone.agent.loop:held_for_hypotheses",
     "capstone.agent.loop:notify",
-    "capstone.agent.loop:record",
-    "capstone.agent.loop:run_batch"
+    "capstone.agent.loop:record"
    ],
-   "exercise_count": 175,
+   "exercise_count": 176,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -49638,9 +49693,9 @@
     "capstone.agent.loop:batch_steps",
     "capstone.agent.loop:call_signature",
     "capstone.agent.loop:call_tool",
-    "capstone.agent.loop:check_termination"
+    "capstone.agent.loop:chains_to_next_read"
    ],
-   "exercise_count": 256,
+   "exercise_count": 257,
    "modules_exercised": [
     "capstone.agent.completion",
     "capstone.agent.evidence_brief",
@@ -49780,6 +49835,7 @@
     "capstone.agent.loop:batch_steps",
     "capstone.agent.loop:call_signature",
     "capstone.agent.loop:call_tool",
+    "capstone.agent.loop:chains_to_next_read",
     "capstone.agent.loop:check_termination",
     "capstone.agent.loop:compiler_turn",
     "capstone.agent.loop:gather",
@@ -49789,10 +49845,9 @@
     "capstone.agent.loop:record",
     "capstone.agent.loop:run_batch",
     "capstone.agent.loop:run_inner_loop",
-    "capstone.agent.loop:seconds_left",
-    "capstone.agent.model_policy:ModelPolicy.__init__"
+    "capstone.agent.loop:seconds_left"
    ],
-   "exercise_count": 275,
+   "exercise_count": 276,
    "modules_exercised": [
     "capstone.agent.completion",
     "capstone.agent.evidence_brief",
@@ -50085,7 +50140,7 @@
     "capstone.agent.investigation:review_packet",
     "capstone.agent.investigation:run_investigation"
    ],
-   "exercise_count": 244,
+   "exercise_count": 245,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -50251,7 +50306,7 @@
     "capstone.agent.investigation:review_packet",
     "capstone.agent.investigation:run_investigation"
    ],
-   "exercise_count": 269,
+   "exercise_count": 270,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -50416,7 +50471,7 @@
     "capstone.agent.investigation:release_observe_calls",
     "capstone.agent.investigation:revalue"
    ],
-   "exercise_count": 245,
+   "exercise_count": 246,
    "modules_exercised": [
     "capstone.agent.completion",
     "capstone.agent.evidence_brief",
@@ -50528,7 +50583,7 @@
     "capstone.agent.investigation:release_observe_calls",
     "capstone.agent.investigation:revalue"
    ],
-   "exercise_count": 245,
+   "exercise_count": 246,
    "modules_exercised": [
     "capstone.agent.completion",
     "capstone.agent.evidence_brief",
@@ -50639,7 +50694,7 @@
     "capstone.agent.investigation:release_observe_calls",
     "capstone.agent.investigation:revalue"
    ],
-   "exercise_count": 245,
+   "exercise_count": 246,
    "modules_exercised": [
     "capstone.agent.completion",
     "capstone.agent.evidence_brief",
@@ -50782,7 +50837,7 @@
     "capstone.agent.investigation:release_observe_calls",
     "capstone.agent.investigation:revalue"
    ],
-   "exercise_count": 245,
+   "exercise_count": 246,
    "modules_exercised": [
     "capstone.agent.completion",
     "capstone.agent.evidence_brief",
@@ -50895,7 +50950,7 @@
     "capstone.agent.investigation:release_observe_calls",
     "capstone.agent.investigation:revalue"
    ],
-   "exercise_count": 279,
+   "exercise_count": 280,
    "modules_exercised": [
     "capstone.agent.completion",
     "capstone.agent.evidence_brief",
@@ -51453,15 +51508,15 @@
     "capstone.agent.loop:batch_steps",
     "capstone.agent.loop:call_signature",
     "capstone.agent.loop:call_tool",
+    "capstone.agent.loop:chains_to_next_read",
     "capstone.agent.loop:check_termination",
     "capstone.agent.loop:compiler_turn",
     "capstone.agent.loop:gather",
     "capstone.agent.loop:held_for_hypotheses",
     "capstone.agent.loop:notify",
-    "capstone.agent.loop:record",
-    "capstone.agent.loop:run_batch"
+    "capstone.agent.loop:record"
    ],
-   "exercise_count": 184,
+   "exercise_count": 185,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -51673,15 +51728,15 @@
     "capstone.agent.loop:batch_steps",
     "capstone.agent.loop:call_signature",
     "capstone.agent.loop:call_tool",
+    "capstone.agent.loop:chains_to_next_read",
     "capstone.agent.loop:check_termination",
     "capstone.agent.loop:compiler_turn",
     "capstone.agent.loop:gather",
     "capstone.agent.loop:held_for_hypotheses",
     "capstone.agent.loop:notify",
-    "capstone.agent.loop:record",
-    "capstone.agent.loop:run_batch"
+    "capstone.agent.loop:record"
    ],
-   "exercise_count": 178,
+   "exercise_count": 179,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -51772,15 +51827,15 @@
     "capstone.agent.loop:batch_steps",
     "capstone.agent.loop:call_signature",
     "capstone.agent.loop:call_tool",
+    "capstone.agent.loop:chains_to_next_read",
     "capstone.agent.loop:check_termination",
     "capstone.agent.loop:compiler_turn",
     "capstone.agent.loop:gather",
     "capstone.agent.loop:held_for_hypotheses",
     "capstone.agent.loop:notify",
-    "capstone.agent.loop:record",
-    "capstone.agent.loop:run_batch"
+    "capstone.agent.loop:record"
    ],
-   "exercise_count": 178,
+   "exercise_count": 179,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -51878,15 +51933,15 @@
     "capstone.agent.loop:batch_steps",
     "capstone.agent.loop:call_signature",
     "capstone.agent.loop:call_tool",
+    "capstone.agent.loop:chains_to_next_read",
     "capstone.agent.loop:check_termination",
     "capstone.agent.loop:compiler_turn",
     "capstone.agent.loop:gather",
     "capstone.agent.loop:held_for_hypotheses",
     "capstone.agent.loop:notify",
-    "capstone.agent.loop:record",
-    "capstone.agent.loop:run_batch"
+    "capstone.agent.loop:record"
    ],
-   "exercise_count": 212,
+   "exercise_count": 213,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -52299,7 +52354,7 @@
     "capstone.agent.investigation:test",
     "capstone.agent.investigation:verify"
    ],
-   "exercise_count": 212,
+   "exercise_count": 213,
    "modules_exercised": [
     "capstone.agent.critic",
     "capstone.agent.evidence_brief",
@@ -52403,7 +52458,7 @@
     "capstone.agent.investigation:release_observe_calls",
     "capstone.agent.investigation:revalue"
    ],
-   "exercise_count": 246,
+   "exercise_count": 247,
    "modules_exercised": [
     "capstone.agent.critic",
     "capstone.agent.evidence_brief",
@@ -52511,7 +52566,7 @@
     "capstone.agent.investigation:review_packet",
     "capstone.agent.investigation:run_investigation"
    ],
-   "exercise_count": 215,
+   "exercise_count": 216,
    "modules_exercised": [
     "capstone.agent.critic",
     "capstone.agent.evidence_brief",
@@ -52802,12 +52857,12 @@
     "capstone.agent.loop:batch_steps",
     "capstone.agent.loop:call_signature",
     "capstone.agent.loop:call_tool",
+    "capstone.agent.loop:chains_to_next_read",
     "capstone.agent.loop:check_termination",
     "capstone.agent.loop:compiler_turn",
-    "capstone.agent.loop:gather",
-    "capstone.agent.loop:held_for_hypotheses"
+    "capstone.agent.loop:gather"
    ],
-   "exercise_count": 182,
+   "exercise_count": 183,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.incident_context",
@@ -53043,15 +53098,15 @@
     "capstone.agent.loop:batch_steps",
     "capstone.agent.loop:call_signature",
     "capstone.agent.loop:call_tool",
+    "capstone.agent.loop:chains_to_next_read",
     "capstone.agent.loop:check_termination",
     "capstone.agent.loop:compiler_turn",
     "capstone.agent.loop:gather",
     "capstone.agent.loop:held_for_hypotheses",
     "capstone.agent.loop:notify",
-    "capstone.agent.loop:record",
-    "capstone.agent.loop:run_batch"
+    "capstone.agent.loop:record"
    ],
-   "exercise_count": 175,
+   "exercise_count": 176,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -53244,14 +53299,14 @@
     "capstone.agent.loop:batch_steps",
     "capstone.agent.loop:call_signature",
     "capstone.agent.loop:call_tool",
+    "capstone.agent.loop:chains_to_next_read",
     "capstone.agent.loop:check_termination",
     "capstone.agent.loop:compiler_turn",
     "capstone.agent.loop:gather",
     "capstone.agent.loop:held_for_hypotheses",
-    "capstone.agent.loop:notify",
-    "capstone.agent.loop:record"
+    "capstone.agent.loop:notify"
    ],
-   "exercise_count": 211,
+   "exercise_count": 212,
    "modules_exercised": [
     "capstone.agent.completion",
     "capstone.agent.evidence_brief",
@@ -57647,7 +57702,7 @@
    "uses": [],
    "quality_flags": [],
    "claims": "Every tracked Python file is inventoried, a test, excluded with a reason,",
-   "execution_outcome": "passed",
+   "execution_outcome": "failed",
    "exercises": [
     "evaluation.evaltools.build_inventory:call_name",
     "evaluation.evaltools.build_inventory:collect_functions",
@@ -60667,6 +60722,7 @@
     "capstone.agent.loop:batch_steps",
     "capstone.agent.loop:call_signature",
     "capstone.agent.loop:call_tool",
+    "capstone.agent.loop:chains_to_next_read",
     "capstone.agent.loop:check_termination",
     "capstone.agent.loop:compiler_turn",
     "capstone.agent.loop:gather",
@@ -60676,10 +60732,9 @@
     "capstone.agent.loop:run_batch",
     "capstone.agent.loop:run_inner_loop",
     "capstone.agent.loop:seconds_left",
-    "capstone.agent.monitor:detect_anomaly",
-    "capstone.agent.state:Budgets.research_gets_some_time"
+    "capstone.agent.monitor:detect_anomaly"
    ],
-   "exercise_count": 176,
+   "exercise_count": 177,
    "modules_exercised": [
     "capstone.agent.investigation",
     "capstone.agent.loop",
@@ -60779,7 +60834,7 @@
     "capstone.agent.investigation:verify.<locals>.later",
     "capstone.agent.investigation:why_not_acted"
    ],
-   "exercise_count": 208,
+   "exercise_count": 209,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -61396,7 +61451,7 @@
     "capstone.agent.investigation:verify",
     "capstone.agent.investigation:verify.<locals>.later"
    ],
-   "exercise_count": 216,
+   "exercise_count": 217,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -63576,15 +63631,15 @@
     "capstone.agent.loop:batch_steps",
     "capstone.agent.loop:call_signature",
     "capstone.agent.loop:call_tool",
+    "capstone.agent.loop:chains_to_next_read",
     "capstone.agent.loop:check_termination",
     "capstone.agent.loop:compiler_turn",
     "capstone.agent.loop:gather",
     "capstone.agent.loop:held_for_hypotheses",
     "capstone.agent.loop:notify",
-    "capstone.agent.loop:record",
-    "capstone.agent.loop:run_batch"
+    "capstone.agent.loop:record"
    ],
-   "exercise_count": 204,
+   "exercise_count": 205,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -63712,15 +63767,15 @@
     "capstone.agent.loop:batch_steps",
     "capstone.agent.loop:call_signature",
     "capstone.agent.loop:call_tool",
+    "capstone.agent.loop:chains_to_next_read",
     "capstone.agent.loop:check_termination",
     "capstone.agent.loop:compiler_turn",
     "capstone.agent.loop:gather",
     "capstone.agent.loop:held_for_hypotheses",
     "capstone.agent.loop:notify",
-    "capstone.agent.loop:record",
-    "capstone.agent.loop:run_batch"
+    "capstone.agent.loop:record"
    ],
-   "exercise_count": 204,
+   "exercise_count": 205,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -63817,15 +63872,15 @@
     "capstone.agent.loop:batch_steps",
     "capstone.agent.loop:call_signature",
     "capstone.agent.loop:call_tool",
+    "capstone.agent.loop:chains_to_next_read",
     "capstone.agent.loop:check_termination",
     "capstone.agent.loop:compiler_turn",
     "capstone.agent.loop:gather",
     "capstone.agent.loop:held_for_hypotheses",
     "capstone.agent.loop:notify",
-    "capstone.agent.loop:record",
-    "capstone.agent.loop:run_batch"
+    "capstone.agent.loop:record"
    ],
-   "exercise_count": 176,
+   "exercise_count": 177,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -64819,7 +64874,7 @@
     "capstone.agent.investigation:reconsider",
     "capstone.agent.investigation:release_observe_calls"
    ],
-   "exercise_count": 202,
+   "exercise_count": 203,
    "modules_exercised": [
     "capstone.agent.completion",
     "capstone.agent.evidence_brief",
@@ -64920,7 +64975,7 @@
     "capstone.agent.investigation:reconsider",
     "capstone.agent.investigation:release_observe_calls"
    ],
-   "exercise_count": 203,
+   "exercise_count": 204,
    "modules_exercised": [
     "capstone.agent.completion",
     "capstone.agent.evidence_brief",
@@ -65020,7 +65075,7 @@
     "capstone.agent.investigation:reconsider",
     "capstone.agent.investigation:release_observe_calls"
    ],
-   "exercise_count": 203,
+   "exercise_count": 204,
    "modules_exercised": [
     "capstone.agent.completion",
     "capstone.agent.evidence_brief",
@@ -65120,7 +65175,7 @@
     "capstone.agent.investigation:review_packet",
     "capstone.agent.investigation:run_investigation"
    ],
-   "exercise_count": 183,
+   "exercise_count": 184,
    "modules_exercised": [
     "capstone.agent.completion",
     "capstone.agent.evidence_brief",
@@ -65221,7 +65276,7 @@
     "capstone.agent.investigation:verify.<locals>.later",
     "capstone.agent.loop:InvestigationDeps.__post_init__"
    ],
-   "exercise_count": 174,
+   "exercise_count": 175,
    "modules_exercised": [
     "capstone.agent.completion",
     "capstone.agent.evidence_brief",
@@ -65321,7 +65376,7 @@
     "capstone.agent.investigation:reconsider",
     "capstone.agent.investigation:release_observe_calls"
    ],
-   "exercise_count": 202,
+   "exercise_count": 203,
    "modules_exercised": [
     "capstone.agent.completion",
     "capstone.agent.evidence_brief",
@@ -65422,7 +65477,7 @@
     "capstone.agent.investigation:reconsider",
     "capstone.agent.investigation:release_observe_calls"
    ],
-   "exercise_count": 193,
+   "exercise_count": 194,
    "modules_exercised": [
     "capstone.agent.completion",
     "capstone.agent.evidence_brief",
@@ -65524,7 +65579,7 @@
     "capstone.agent.investigation:reconsider",
     "capstone.agent.investigation:release_observe_calls"
    ],
-   "exercise_count": 193,
+   "exercise_count": 194,
    "modules_exercised": [
     "capstone.agent.completion",
     "capstone.agent.evidence_brief",
@@ -65622,7 +65677,7 @@
     "capstone.agent.investigation:reconsider",
     "capstone.agent.investigation:release_observe_calls"
    ],
-   "exercise_count": 190,
+   "exercise_count": 191,
    "modules_exercised": [
     "capstone.agent.completion",
     "capstone.agent.evidence_brief",
@@ -65765,7 +65820,7 @@
     "capstone.agent.investigation:release_observe_calls",
     "capstone.agent.investigation:revalue"
    ],
-   "exercise_count": 199,
+   "exercise_count": 200,
    "modules_exercised": [
     "capstone.agent.completion",
     "capstone.agent.evidence_brief",
@@ -69807,7 +69862,7 @@
     "capstone.agent.investigation:run_investigation",
     "capstone.agent.investigation:test"
    ],
-   "exercise_count": 200,
+   "exercise_count": 201,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -69902,7 +69957,7 @@
     "capstone.agent.investigation:verify.<locals>.later",
     "capstone.agent.investigation:why_not_acted"
    ],
-   "exercise_count": 186,
+   "exercise_count": 187,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -69994,7 +70049,7 @@
     "capstone.agent.investigation:verify.<locals>.later",
     "capstone.agent.investigation:why_not_acted"
    ],
-   "exercise_count": 186,
+   "exercise_count": 187,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -70165,7 +70220,7 @@
     "capstone.agent.investigation:verify.<locals>.later",
     "capstone.agent.investigation:why_not_acted"
    ],
-   "exercise_count": 182,
+   "exercise_count": 183,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -70258,7 +70313,7 @@
     "capstone.agent.investigation:verify",
     "capstone.agent.investigation:verify.<locals>.later"
    ],
-   "exercise_count": 189,
+   "exercise_count": 190,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -70352,7 +70407,7 @@
     "capstone.agent.investigation:verify",
     "capstone.agent.investigation:verify.<locals>.later"
    ],
-   "exercise_count": 189,
+   "exercise_count": 190,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -70445,7 +70500,7 @@
     "capstone.agent.investigation:verify",
     "capstone.agent.investigation:verify.<locals>.later"
    ],
-   "exercise_count": 189,
+   "exercise_count": 190,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -70610,7 +70665,7 @@
     "capstone.agent.investigation:verify",
     "capstone.agent.investigation:verify.<locals>.later"
    ],
-   "exercise_count": 214,
+   "exercise_count": 215,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -72212,7 +72267,7 @@
     "capstone.agent.investigation:release_observe_calls",
     "capstone.agent.investigation:revalue"
    ],
-   "exercise_count": 252,
+   "exercise_count": 253,
    "modules_exercised": [
     "capstone.agent.completion",
     "capstone.agent.evidence_brief",
@@ -72324,7 +72379,7 @@
     "capstone.agent.investigation:release_observe_calls",
     "capstone.agent.investigation:revalue"
    ],
-   "exercise_count": 240,
+   "exercise_count": 241,
    "modules_exercised": [
     "capstone.agent.completion",
     "capstone.agent.evidence_brief",
@@ -72434,7 +72489,7 @@
     "capstone.agent.investigation:release_observe_calls",
     "capstone.agent.investigation:revalue"
    ],
-   "exercise_count": 251,
+   "exercise_count": 252,
    "modules_exercised": [
     "capstone.agent.completion",
     "capstone.agent.evidence_brief",
@@ -72546,7 +72601,7 @@
     "capstone.agent.investigation:release_observe_calls",
     "capstone.agent.investigation:revalue"
    ],
-   "exercise_count": 247,
+   "exercise_count": 248,
    "modules_exercised": [
     "capstone.agent.completion",
     "capstone.agent.evidence_brief",
@@ -72658,7 +72713,7 @@
     "capstone.agent.investigation:release_observe_calls",
     "capstone.agent.investigation:revalue"
    ],
-   "exercise_count": 251,
+   "exercise_count": 252,
    "modules_exercised": [
     "capstone.agent.completion",
     "capstone.agent.evidence_brief",
@@ -72767,7 +72822,7 @@
     "capstone.agent.investigation:release_observe_calls",
     "capstone.agent.investigation:revalue"
    ],
-   "exercise_count": 240,
+   "exercise_count": 241,
    "modules_exercised": [
     "capstone.agent.completion",
     "capstone.agent.evidence_brief",
@@ -72878,7 +72933,7 @@
     "capstone.agent.investigation:release_observe_calls",
     "capstone.agent.investigation:revalue"
    ],
-   "exercise_count": 268,
+   "exercise_count": 269,
    "modules_exercised": [
     "capstone.agent.completion",
     "capstone.agent.evidence_brief",
@@ -72990,7 +73045,7 @@
     "capstone.agent.investigation:release_observe_calls",
     "capstone.agent.investigation:revalue"
    ],
-   "exercise_count": 260,
+   "exercise_count": 261,
    "modules_exercised": [
     "capstone.agent.completion",
     "capstone.agent.evidence_brief",
@@ -73104,7 +73159,7 @@
     "capstone.agent.investigation:release_observe_calls",
     "capstone.agent.investigation:revalue"
    ],
-   "exercise_count": 264,
+   "exercise_count": 265,
    "modules_exercised": [
     "capstone.agent.completion",
     "capstone.agent.evidence_brief",
@@ -73252,7 +73307,7 @@
     "capstone.agent.investigation:release_observe_calls",
     "capstone.agent.investigation:revalue"
    ],
-   "exercise_count": 254,
+   "exercise_count": 255,
    "modules_exercised": [
     "capstone.agent.completion",
     "capstone.agent.evidence_brief",
@@ -73364,7 +73419,7 @@
     "capstone.agent.investigation:release_observe_calls",
     "capstone.agent.investigation:revalue"
    ],
-   "exercise_count": 257,
+   "exercise_count": 258,
    "modules_exercised": [
     "capstone.agent.completion",
     "capstone.agent.evidence_brief",
@@ -73476,7 +73531,7 @@
     "capstone.agent.investigation:release_observe_calls",
     "capstone.agent.investigation:revalue"
    ],
-   "exercise_count": 262,
+   "exercise_count": 263,
    "modules_exercised": [
     "capstone.agent.completion",
     "capstone.agent.evidence_brief",
@@ -73589,7 +73644,7 @@
     "capstone.agent.investigation:release_observe_calls",
     "capstone.agent.investigation:revalue"
    ],
-   "exercise_count": 238,
+   "exercise_count": 239,
    "modules_exercised": [
     "capstone.agent.completion",
     "capstone.agent.evidence_brief",
@@ -73698,7 +73753,7 @@
     "capstone.agent.investigation:release_observe_calls",
     "capstone.agent.investigation:revalue"
    ],
-   "exercise_count": 251,
+   "exercise_count": 252,
    "modules_exercised": [
     "capstone.agent.completion",
     "capstone.agent.evidence_brief",
@@ -73808,7 +73863,7 @@
     "capstone.agent.investigation:release_observe_calls",
     "capstone.agent.investigation:revalue"
    ],
-   "exercise_count": 241,
+   "exercise_count": 242,
    "modules_exercised": [
     "capstone.agent.completion",
     "capstone.agent.evidence_brief",
@@ -75533,7 +75588,7 @@
     "capstone.agent.investigation:run_investigation",
     "capstone.agent.investigation:test"
    ],
-   "exercise_count": 184,
+   "exercise_count": 185,
    "modules_exercised": [
     "capstone.agent.completion",
     "capstone.agent.evidence_brief",
@@ -75626,7 +75681,7 @@
     "capstone.agent.investigation:run_investigation",
     "capstone.agent.investigation:test"
    ],
-   "exercise_count": 184,
+   "exercise_count": 185,
    "modules_exercised": [
     "capstone.agent.completion",
     "capstone.agent.evidence_brief",
@@ -75719,7 +75774,7 @@
     "capstone.agent.investigation:run_investigation",
     "capstone.agent.investigation:test"
    ],
-   "exercise_count": 189,
+   "exercise_count": 190,
    "modules_exercised": [
     "capstone.agent.completion",
     "capstone.agent.evidence_brief",
@@ -75817,7 +75872,7 @@
     "capstone.agent.investigation:run_investigation",
     "capstone.agent.investigation:test"
    ],
-   "exercise_count": 185,
+   "exercise_count": 186,
    "modules_exercised": [
     "capstone.agent.completion",
     "capstone.agent.evidence_brief",
@@ -75911,7 +75966,7 @@
     "capstone.agent.investigation:run_investigation",
     "capstone.agent.investigation:test"
    ],
-   "exercise_count": 190,
+   "exercise_count": 191,
    "modules_exercised": [
     "capstone.agent.completion",
     "capstone.agent.evidence_brief",
@@ -76007,7 +76062,7 @@
     "capstone.agent.loop:batch_steps",
     "capstone.agent.loop:call_signature"
    ],
-   "exercise_count": 167,
+   "exercise_count": 168,
    "modules_exercised": [
     "capstone.agent.completion",
     "capstone.agent.evidence_brief",
@@ -76104,7 +76159,7 @@
     "capstone.agent.investigation:review_packet",
     "capstone.agent.investigation:run_investigation"
    ],
-   "exercise_count": 192,
+   "exercise_count": 193,
    "modules_exercised": [
     "capstone.agent.completion",
     "capstone.agent.evidence_brief",
@@ -76200,7 +76255,7 @@
     "capstone.agent.investigation:run_investigation",
     "capstone.agent.investigation:test"
    ],
-   "exercise_count": 184,
+   "exercise_count": 185,
    "modules_exercised": [
     "capstone.agent.completion",
     "capstone.agent.evidence_brief",
@@ -76325,7 +76380,7 @@
     "capstone.agent.investigation:verify.<locals>.later",
     "capstone.agent.investigation:why_not_acted"
    ],
-   "exercise_count": 179,
+   "exercise_count": 180,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -80243,7 +80298,7 @@
     "capstone.agent.investigation:review_packet",
     "capstone.agent.investigation:run_investigation"
    ],
-   "exercise_count": 238,
+   "exercise_count": 239,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -80356,7 +80411,7 @@
     "capstone.agent.investigation:review_packet",
     "capstone.agent.investigation:run_investigation"
    ],
-   "exercise_count": 246,
+   "exercise_count": 247,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -80564,7 +80619,7 @@
     "capstone.agent.investigation:review_packet",
     "capstone.agent.investigation:run_investigation"
    ],
-   "exercise_count": 238,
+   "exercise_count": 239,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -80664,7 +80719,7 @@
     "capstone.agent.loop:call_signature",
     "capstone.agent.loop:call_tool"
    ],
-   "exercise_count": 210,
+   "exercise_count": 211,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -80764,7 +80819,7 @@
     "capstone.agent.loop:batch_steps",
     "capstone.agent.loop:call_signature"
    ],
-   "exercise_count": 213,
+   "exercise_count": 214,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -80864,7 +80919,7 @@
     "capstone.agent.investigation:review_packet",
     "capstone.agent.investigation:run_investigation"
    ],
-   "exercise_count": 240,
+   "exercise_count": 241,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -80964,7 +81019,7 @@
     "capstone.agent.loop:batch_steps",
     "capstone.agent.loop:call_signature"
    ],
-   "exercise_count": 213,
+   "exercise_count": 214,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -81052,6 +81107,7 @@
     "capstone.agent.loop:batch_steps",
     "capstone.agent.loop:call_signature",
     "capstone.agent.loop:call_tool",
+    "capstone.agent.loop:chains_to_next_read",
     "capstone.agent.loop:check_termination",
     "capstone.agent.loop:compiler_turn",
     "capstone.agent.loop:confidence_stalled",
@@ -81060,10 +81116,9 @@
     "capstone.agent.loop:held_for_hypotheses",
     "capstone.agent.loop:notify",
     "capstone.agent.loop:question_held_open",
-    "capstone.agent.loop:record",
-    "capstone.agent.loop:run_batch"
+    "capstone.agent.loop:record"
    ],
-   "exercise_count": 200,
+   "exercise_count": 201,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -82725,7 +82780,7 @@
     "capstone.agent.investigation:review_packet",
     "capstone.agent.investigation:run_investigation"
    ],
-   "exercise_count": 243,
+   "exercise_count": 244,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -88191,7 +88246,7 @@
     "capstone.agent.investigation:verify.<locals>.later",
     "capstone.agent.investigation:why_not_acted"
    ],
-   "exercise_count": 204,
+   "exercise_count": 205,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -88287,7 +88342,7 @@
     "capstone.agent.investigation:verify.<locals>.later",
     "capstone.agent.investigation:why_not_acted"
    ],
-   "exercise_count": 204,
+   "exercise_count": 205,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -88386,7 +88441,7 @@
     "capstone.agent.investigation:verify.<locals>.later",
     "capstone.agent.investigation:why_not_acted"
    ],
-   "exercise_count": 204,
+   "exercise_count": 205,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -88484,7 +88539,7 @@
     "capstone.agent.investigation:verify.<locals>.later",
     "capstone.agent.investigation:why_not_acted"
    ],
-   "exercise_count": 216,
+   "exercise_count": 217,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -88581,7 +88636,7 @@
     "capstone.agent.investigation:verify.<locals>.later",
     "capstone.agent.investigation:why_not_acted"
    ],
-   "exercise_count": 215,
+   "exercise_count": 216,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -88678,7 +88733,7 @@
     "capstone.agent.investigation:verify.<locals>.later",
     "capstone.agent.investigation:why_not_acted"
    ],
-   "exercise_count": 216,
+   "exercise_count": 217,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -88776,7 +88831,7 @@
     "capstone.agent.investigation:verify.<locals>.later",
     "capstone.agent.investigation:why_not_acted"
    ],
-   "exercise_count": 219,
+   "exercise_count": 220,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -88875,7 +88930,7 @@
     "capstone.agent.investigation:verify.<locals>.later",
     "capstone.agent.investigation:why_not_acted"
    ],
-   "exercise_count": 208,
+   "exercise_count": 209,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -89036,7 +89091,7 @@
     "capstone.agent.investigation:verify.<locals>.later",
     "capstone.agent.investigation:why_not_acted"
    ],
-   "exercise_count": 216,
+   "exercise_count": 217,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -89133,7 +89188,7 @@
     "capstone.agent.investigation:verify.<locals>.later",
     "capstone.agent.investigation:why_not_acted"
    ],
-   "exercise_count": 216,
+   "exercise_count": 217,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -89230,7 +89285,7 @@
     "capstone.agent.investigation:verify.<locals>.later",
     "capstone.agent.investigation:why_not_acted"
    ],
-   "exercise_count": 216,
+   "exercise_count": 217,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -89327,7 +89382,7 @@
     "capstone.agent.investigation:verify.<locals>.later",
     "capstone.agent.investigation:why_not_acted"
    ],
-   "exercise_count": 216,
+   "exercise_count": 217,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -89424,7 +89479,7 @@
     "capstone.agent.investigation:verify.<locals>.later",
     "capstone.agent.investigation:why_not_acted"
    ],
-   "exercise_count": 216,
+   "exercise_count": 217,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -90130,7 +90185,7 @@
     "capstone.agent.investigation:verify.<locals>.later",
     "capstone.agent.investigation:why_not_acted"
    ],
-   "exercise_count": 208,
+   "exercise_count": 209,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -92551,7 +92606,7 @@
     "capstone.agent.investigation:verify.<locals>.later",
     "capstone.agent.investigation:why_not_acted"
    ],
-   "exercise_count": 189,
+   "exercise_count": 190,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -92645,7 +92700,7 @@
     "capstone.agent.investigation:verify.<locals>.later",
     "capstone.agent.investigation:why_not_acted"
    ],
-   "exercise_count": 189,
+   "exercise_count": 190,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -92738,7 +92793,7 @@
     "capstone.agent.investigation:verify.<locals>.later",
     "capstone.agent.investigation:why_not_acted"
    ],
-   "exercise_count": 189,
+   "exercise_count": 190,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -92916,7 +92971,7 @@
     "capstone.agent.investigation:release_observe_calls",
     "capstone.agent.investigation:revalue"
    ],
-   "exercise_count": 203,
+   "exercise_count": 204,
    "modules_exercised": [
     "capstone.agent.completion",
     "capstone.agent.evidence_brief",
@@ -93401,7 +93456,7 @@
     "capstone.agent.investigation:test",
     "capstone.agent.investigation:verify"
    ],
-   "exercise_count": 196,
+   "exercise_count": 197,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -93496,7 +93551,7 @@
     "capstone.agent.investigation:verify.<locals>.later",
     "capstone.agent.investigation:why_not_acted"
    ],
-   "exercise_count": 190,
+   "exercise_count": 191,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -93698,7 +93753,7 @@
     "capstone.agent.loop:batch_steps",
     "capstone.agent.loop:call_signature"
    ],
-   "exercise_count": 114,
+   "exercise_count": 115,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.evidence_tests",
@@ -94510,9 +94565,9 @@
     "capstone.agent.loop:batch_steps",
     "capstone.agent.loop:call_signature",
     "capstone.agent.loop:call_tool",
-    "capstone.agent.loop:check_termination"
+    "capstone.agent.loop:chains_to_next_read"
    ],
-   "exercise_count": 88,
+   "exercise_count": 89,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.evidence_tests",
@@ -95527,7 +95582,7 @@
     "capstone.agent.investigation:verify.<locals>.later",
     "capstone.agent.investigation:why_not_acted"
    ],
-   "exercise_count": 179,
+   "exercise_count": 180,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -95617,7 +95672,7 @@
     "capstone.agent.investigation:verify.<locals>.later",
     "capstone.agent.investigation:why_not_acted"
    ],
-   "exercise_count": 179,
+   "exercise_count": 180,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -95707,7 +95762,7 @@
     "capstone.agent.investigation:verify.<locals>.later",
     "capstone.agent.investigation:why_not_acted"
    ],
-   "exercise_count": 179,
+   "exercise_count": 180,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -95796,7 +95851,7 @@
     "capstone.agent.investigation:verify.<locals>.later",
     "capstone.agent.investigation:why_not_acted"
    ],
-   "exercise_count": 179,
+   "exercise_count": 180,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -109192,7 +109247,7 @@
     "capstone.agent.investigation:review_packet",
     "capstone.agent.investigation:run_investigation"
    ],
-   "exercise_count": 252,
+   "exercise_count": 253,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -109295,7 +109350,7 @@
     "capstone.agent.investigation:review_packet",
     "capstone.agent.investigation:run_investigation"
    ],
-   "exercise_count": 253,
+   "exercise_count": 254,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -109661,7 +109716,7 @@
     "capstone.agent.investigation:observe",
     "capstone.agent.investigation:plan"
    ],
-   "exercise_count": 254,
+   "exercise_count": 255,
    "modules_exercised": [
     "capstone.agent.completion",
     "capstone.agent.evidence_brief",
@@ -110031,6 +110086,7 @@
     "capstone.agent.loop:batch_steps",
     "capstone.agent.loop:call_signature",
     "capstone.agent.loop:call_tool",
+    "capstone.agent.loop:chains_to_next_read",
     "capstone.agent.loop:check_termination",
     "capstone.agent.loop:compiler_turn",
     "capstone.agent.loop:gather",
@@ -110040,10 +110096,9 @@
     "capstone.agent.loop:record",
     "capstone.agent.loop:run_batch",
     "capstone.agent.loop:run_inner_loop",
-    "capstone.agent.loop:seconds_left",
-    "capstone.agent.state:Budgets.research_gets_some_time"
+    "capstone.agent.loop:seconds_left"
    ],
-   "exercise_count": 48,
+   "exercise_count": 49,
    "modules_exercised": [
     "capstone.agent.investigation",
     "capstone.agent.loop",
@@ -110117,9 +110172,9 @@
     "capstone.agent.loop:batch_steps",
     "capstone.agent.loop:call_signature",
     "capstone.agent.loop:call_tool",
-    "capstone.agent.loop:check_termination"
+    "capstone.agent.loop:chains_to_next_read"
    ],
-   "exercise_count": 62,
+   "exercise_count": 63,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -110193,9 +110248,9 @@
     "capstone.agent.loop:batch_steps",
     "capstone.agent.loop:call_signature",
     "capstone.agent.loop:call_tool",
-    "capstone.agent.loop:check_termination"
+    "capstone.agent.loop:chains_to_next_read"
    ],
-   "exercise_count": 62,
+   "exercise_count": 63,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -110432,7 +110487,7 @@
     "capstone.agent.investigation:review_packet",
     "capstone.agent.investigation:run_investigation"
    ],
-   "exercise_count": 254,
+   "exercise_count": 255,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -110534,7 +110589,7 @@
     "capstone.agent.investigation:review_packet",
     "capstone.agent.investigation:run_investigation"
    ],
-   "exercise_count": 245,
+   "exercise_count": 246,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -110672,9 +110727,9 @@
     "capstone.agent.loop:batch_steps",
     "capstone.agent.loop:call_signature",
     "capstone.agent.loop:call_tool",
-    "capstone.agent.loop:check_termination"
+    "capstone.agent.loop:chains_to_next_read"
    ],
-   "exercise_count": 62,
+   "exercise_count": 63,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -111148,7 +111203,7 @@
     "capstone.agent.investigation:review_packet",
     "capstone.agent.investigation:run_investigation"
    ],
-   "exercise_count": 252,
+   "exercise_count": 253,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -111452,7 +111507,7 @@
     "capstone.agent.investigation:review_packet",
     "capstone.agent.investigation:run_investigation"
    ],
-   "exercise_count": 254,
+   "exercise_count": 255,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -111919,7 +111974,7 @@
     "capstone.agent.loop:ask_policy",
     "capstone.agent.loop:batch_steps"
    ],
-   "exercise_count": 65,
+   "exercise_count": 66,
    "modules_exercised": [
     "capstone.agent.critic",
     "capstone.agent.evidence_brief",
@@ -111996,7 +112051,7 @@
     "capstone.agent.loop:batch_steps",
     "capstone.agent.loop:call_signature"
    ],
-   "exercise_count": 65,
+   "exercise_count": 66,
    "modules_exercised": [
     "capstone.agent.critic",
     "capstone.agent.evidence_brief",
@@ -112074,7 +112129,7 @@
     "capstone.agent.loop:batch_steps",
     "capstone.agent.loop:call_signature"
    ],
-   "exercise_count": 64,
+   "exercise_count": 65,
    "modules_exercised": [
     "capstone.agent.critic",
     "capstone.agent.evidence_brief",
@@ -112157,7 +112212,7 @@
     "capstone.agent.investigation:release_observe_calls",
     "capstone.agent.investigation:revalue"
    ],
-   "exercise_count": 247,
+   "exercise_count": 248,
    "modules_exercised": [
     "capstone.agent.critic",
     "capstone.agent.evidence_brief",
@@ -112669,7 +112724,7 @@
     "capstone.agent.investigation:review_packet",
     "capstone.agent.investigation:run_investigation"
    ],
-   "exercise_count": 252,
+   "exercise_count": 253,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -112966,9 +113021,9 @@
     "capstone.agent.loop:batch_steps",
     "capstone.agent.loop:call_signature",
     "capstone.agent.loop:call_tool",
-    "capstone.agent.loop:check_termination"
+    "capstone.agent.loop:chains_to_next_read"
    ],
-   "exercise_count": 63,
+   "exercise_count": 64,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -113043,9 +113098,9 @@
     "capstone.agent.loop:batch_steps",
     "capstone.agent.loop:call_signature",
     "capstone.agent.loop:call_tool",
-    "capstone.agent.loop:check_termination"
+    "capstone.agent.loop:chains_to_next_read"
    ],
-   "exercise_count": 63,
+   "exercise_count": 64,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -113123,9 +113178,9 @@
     "capstone.agent.loop:batch_steps",
     "capstone.agent.loop:call_signature",
     "capstone.agent.loop:call_tool",
-    "capstone.agent.loop:check_termination"
+    "capstone.agent.loop:chains_to_next_read"
    ],
-   "exercise_count": 63,
+   "exercise_count": 64,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -113202,7 +113257,7 @@
     "capstone.agent.loop:call_signature",
     "capstone.agent.loop:call_tool"
    ],
-   "exercise_count": 65,
+   "exercise_count": 66,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -113279,9 +113334,9 @@
     "capstone.agent.loop:batch_steps",
     "capstone.agent.loop:call_signature",
     "capstone.agent.loop:call_tool",
-    "capstone.agent.loop:check_termination"
+    "capstone.agent.loop:chains_to_next_read"
    ],
-   "exercise_count": 63,
+   "exercise_count": 64,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -113428,7 +113483,7 @@
     "capstone.agent.investigation:verify.<locals>.later",
     "capstone.agent.investigation:why_not_acted"
    ],
-   "exercise_count": 204,
+   "exercise_count": 205,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -113531,7 +113586,7 @@
     "capstone.agent.investigation:observe",
     "capstone.agent.investigation:plan"
    ],
-   "exercise_count": 232,
+   "exercise_count": 233,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.evidence_tests",
@@ -113642,7 +113697,7 @@
     "capstone.agent.investigation:revalue",
     "capstone.agent.investigation:run_investigation"
    ],
-   "exercise_count": 207,
+   "exercise_count": 208,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.evidence_tests",
@@ -113749,7 +113804,7 @@
     "capstone.agent.investigation:revalue",
     "capstone.agent.investigation:run_investigation"
    ],
-   "exercise_count": 206,
+   "exercise_count": 207,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.evidence_tests",
@@ -113857,7 +113912,7 @@
     "capstone.agent.investigation:observe",
     "capstone.agent.investigation:plan"
    ],
-   "exercise_count": 232,
+   "exercise_count": 233,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.evidence_tests",
@@ -113964,7 +114019,7 @@
     "capstone.agent.investigation:observe",
     "capstone.agent.investigation:plan"
    ],
-   "exercise_count": 232,
+   "exercise_count": 233,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.evidence_tests",
@@ -114070,7 +114125,7 @@
     "capstone.agent.investigation:recheck",
     "capstone.agent.investigation:reconsider"
    ],
-   "exercise_count": 220,
+   "exercise_count": 221,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.evidence_tests",
@@ -114177,7 +114232,7 @@
     "capstone.agent.investigation:propose",
     "capstone.agent.investigation:recheck"
    ],
-   "exercise_count": 214,
+   "exercise_count": 215,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.evidence_tests",
@@ -114284,7 +114339,7 @@
     "capstone.agent.investigation:revalue",
     "capstone.agent.investigation:run_investigation"
    ],
-   "exercise_count": 207,
+   "exercise_count": 208,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.evidence_tests",
@@ -114392,7 +114447,7 @@
     "capstone.agent.investigation:investigate",
     "capstone.agent.investigation:needs_deep_run"
    ],
-   "exercise_count": 234,
+   "exercise_count": 235,
    "modules_exercised": [
     "capstone.agent.critic",
     "capstone.agent.evidence_brief",
@@ -114678,7 +114733,7 @@
     "capstone.agent.investigation:observe",
     "capstone.agent.investigation:plan"
    ],
-   "exercise_count": 264,
+   "exercise_count": 265,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.evidence_tests",
@@ -114787,7 +114842,7 @@
     "capstone.agent.investigation:verify.<locals>.later",
     "capstone.agent.investigation:why_not_acted"
    ],
-   "exercise_count": 210,
+   "exercise_count": 211,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -114924,7 +114979,7 @@
     "capstone.agent.investigation:hypothesize",
     "capstone.agent.investigation:investigate"
    ],
-   "exercise_count": 236,
+   "exercise_count": 237,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.evidence_tests",
@@ -115032,7 +115087,7 @@
     "capstone.agent.investigation:run_investigation",
     "capstone.agent.investigation:test"
    ],
-   "exercise_count": 207,
+   "exercise_count": 208,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.evidence_tests",
@@ -115139,7 +115194,7 @@
     "capstone.agent.investigation:run_investigation",
     "capstone.agent.investigation:test"
    ],
-   "exercise_count": 207,
+   "exercise_count": 208,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.evidence_tests",
@@ -115241,12 +115296,12 @@
     "capstone.agent.loop:batch_steps",
     "capstone.agent.loop:call_signature",
     "capstone.agent.loop:call_tool",
+    "capstone.agent.loop:chains_to_next_read",
     "capstone.agent.loop:check_termination",
     "capstone.agent.loop:compiler_turn",
-    "capstone.agent.loop:confidence_stalled",
-    "capstone.agent.loop:diagnosis_supported"
+    "capstone.agent.loop:confidence_stalled"
    ],
-   "exercise_count": 179,
+   "exercise_count": 180,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -115351,7 +115406,7 @@
     "capstone.agent.investigation:run_investigation",
     "capstone.agent.investigation:test"
    ],
-   "exercise_count": 216,
+   "exercise_count": 217,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.evidence_tests",
@@ -116601,7 +116656,7 @@
     "capstone.agent.investigation:observe",
     "capstone.agent.investigation:plan"
    ],
-   "exercise_count": 255,
+   "exercise_count": 256,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.evidence_tests",
@@ -117201,6 +117256,455 @@
    ]
   },
   {
+   "id": "tests/test_triage_compiled_chain.py::test_the_models_next_step_no_longer_runs_ahead_of_the_compiler",
+   "file": "tests/test_triage_compiled_chain.py",
+   "name": "test_the_models_next_step_no_longer_runs_ahead_of_the_compiler",
+   "line": 96,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 5,
+   "assert_forms": {
+    "equality": 4,
+    "ordering": 1
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "the models next step no longer runs ahead of the compiler",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.agent.evidence_tests:evaluate",
+    "capstone.agent.evidence_tests:judge",
+    "capstone.agent.evidence_tests:note",
+    "capstone.agent.evidence_tests:physical_root",
+    "capstone.agent.evidence_tests:reading_rows",
+    "capstone.agent.evidence_tests:root_of",
+    "capstone.agent.investigate_compiler:Candidate.arguments",
+    "capstone.agent.investigate_compiler:Candidate.chosen_without_explanation",
+    "capstone.agent.investigate_compiler:Candidate.key",
+    "capstone.agent.investigate_compiler:Candidate.root",
+    "capstone.agent.investigate_compiler:Candidate.signals",
+    "capstone.agent.investigate_compiler:Candidate.step",
+    "capstone.agent.investigate_compiler:compile_requests",
+    "capstone.agent.investigate_compiler:earlier_reads",
+    "capstone.agent.investigate_compiler:escape_reason",
+    "capstone.agent.investigate_compiler:from_fixed_plan",
+    "capstone.agent.investigate_compiler:known_machines",
+    "capstone.agent.investigate_compiler:model_target",
+    "capstone.agent.investigate_compiler:observed_windows",
+    "capstone.agent.investigate_compiler:planned_target",
+    "capstone.agent.investigate_compiler:targets",
+    "capstone.agent.loop:InvestigationDeps.__post_init__",
+    "capstone.agent.loop:apply_interpretation",
+    "capstone.agent.loop:ask_policy",
+    "capstone.agent.loop:batch_steps",
+    "capstone.agent.loop:call_signature",
+    "capstone.agent.loop:call_tool",
+    "capstone.agent.loop:chains_to_next_read",
+    "capstone.agent.loop:check_termination",
+    "capstone.agent.loop:compiler_turn",
+    "capstone.agent.loop:gather",
+    "capstone.agent.loop:held_for_hypotheses",
+    "capstone.agent.loop:mark_read",
+    "capstone.agent.loop:note_advice",
+    "capstone.agent.loop:notify",
+    "capstone.agent.loop:question_held_open",
+    "capstone.agent.loop:record",
+    "capstone.agent.loop:run_batch",
+    "capstone.agent.loop:run_inner_loop",
+    "capstone.agent.loop:seconds_left"
+   ],
+   "exercise_count": 53,
+   "modules_exercised": [
+    "capstone.agent.evidence_tests",
+    "capstone.agent.investigate_compiler",
+    "capstone.agent.loop",
+    "capstone.agent.state",
+    "capstone.agent.triage_plan",
+    "capstone.contracts.tools"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_triage_compiled_chain.py::test_with_two_questions_per_step_only_the_last_compiled_read_is_interpreted",
+   "file": "tests/test_triage_compiled_chain.py",
+   "name": "test_with_two_questions_per_step_only_the_last_compiled_read_is_interpreted",
+   "line": 108,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 3,
+   "assert_forms": {
+    "equality": 3
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "with two questions per step only the last compiled read is interpreted",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.agent.evidence_tests:evaluate",
+    "capstone.agent.evidence_tests:judge",
+    "capstone.agent.evidence_tests:note",
+    "capstone.agent.evidence_tests:physical_root",
+    "capstone.agent.evidence_tests:reading_rows",
+    "capstone.agent.evidence_tests:root_of",
+    "capstone.agent.investigate_compiler:Candidate.arguments",
+    "capstone.agent.investigate_compiler:Candidate.chosen_without_explanation",
+    "capstone.agent.investigate_compiler:Candidate.key",
+    "capstone.agent.investigate_compiler:Candidate.root",
+    "capstone.agent.investigate_compiler:Candidate.signals",
+    "capstone.agent.investigate_compiler:Candidate.step",
+    "capstone.agent.investigate_compiler:compile_requests",
+    "capstone.agent.investigate_compiler:earlier_reads",
+    "capstone.agent.investigate_compiler:escape_reason",
+    "capstone.agent.investigate_compiler:from_fixed_plan",
+    "capstone.agent.investigate_compiler:known_machines",
+    "capstone.agent.investigate_compiler:model_target",
+    "capstone.agent.investigate_compiler:observed_windows",
+    "capstone.agent.investigate_compiler:planned_target",
+    "capstone.agent.investigate_compiler:targets",
+    "capstone.agent.loop:InvestigationDeps.__post_init__",
+    "capstone.agent.loop:apply_interpretation",
+    "capstone.agent.loop:ask_policy",
+    "capstone.agent.loop:batch_steps",
+    "capstone.agent.loop:call_signature",
+    "capstone.agent.loop:call_tool",
+    "capstone.agent.loop:chains_to_next_read",
+    "capstone.agent.loop:check_termination",
+    "capstone.agent.loop:compiler_turn",
+    "capstone.agent.loop:gather",
+    "capstone.agent.loop:held_for_hypotheses",
+    "capstone.agent.loop:note_advice",
+    "capstone.agent.loop:notify",
+    "capstone.agent.loop:question_held_open",
+    "capstone.agent.loop:record",
+    "capstone.agent.loop:run_batch",
+    "capstone.agent.loop:run_inner_loop",
+    "capstone.agent.loop:seconds_left",
+    "capstone.agent.state:Budgets.research_gets_some_time"
+   ],
+   "exercise_count": 52,
+   "modules_exercised": [
+    "capstone.agent.evidence_tests",
+    "capstone.agent.investigate_compiler",
+    "capstone.agent.loop",
+    "capstone.agent.state",
+    "capstone.agent.triage_plan",
+    "capstone.contracts.tools"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_triage_compiled_chain.py::test_every_compiled_read_still_answers_its_question",
+   "file": "tests/test_triage_compiled_chain.py",
+   "name": "test_every_compiled_read_still_answers_its_question",
+   "line": 116,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 3,
+   "assert_forms": {
+    "equality": 1,
+    "ordering": 2
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "every compiled read still answers its question",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.agent.evidence_tests:evaluate",
+    "capstone.agent.evidence_tests:judge",
+    "capstone.agent.evidence_tests:note",
+    "capstone.agent.evidence_tests:physical_root",
+    "capstone.agent.evidence_tests:reading_rows",
+    "capstone.agent.evidence_tests:root_of",
+    "capstone.agent.investigate_compiler:Candidate.arguments",
+    "capstone.agent.investigate_compiler:Candidate.chosen_without_explanation",
+    "capstone.agent.investigate_compiler:Candidate.key",
+    "capstone.agent.investigate_compiler:Candidate.root",
+    "capstone.agent.investigate_compiler:Candidate.signals",
+    "capstone.agent.investigate_compiler:Candidate.step",
+    "capstone.agent.investigate_compiler:compile_requests",
+    "capstone.agent.investigate_compiler:earlier_reads",
+    "capstone.agent.investigate_compiler:escape_reason",
+    "capstone.agent.investigate_compiler:from_fixed_plan",
+    "capstone.agent.investigate_compiler:known_machines",
+    "capstone.agent.investigate_compiler:model_target",
+    "capstone.agent.investigate_compiler:observed_windows",
+    "capstone.agent.investigate_compiler:planned_target",
+    "capstone.agent.investigate_compiler:targets",
+    "capstone.agent.loop:InvestigationDeps.__post_init__",
+    "capstone.agent.loop:apply_interpretation",
+    "capstone.agent.loop:ask_policy",
+    "capstone.agent.loop:batch_steps",
+    "capstone.agent.loop:call_signature",
+    "capstone.agent.loop:call_tool",
+    "capstone.agent.loop:chains_to_next_read",
+    "capstone.agent.loop:check_termination",
+    "capstone.agent.loop:compiler_turn",
+    "capstone.agent.loop:gather",
+    "capstone.agent.loop:held_for_hypotheses",
+    "capstone.agent.loop:mark_read",
+    "capstone.agent.loop:note_advice",
+    "capstone.agent.loop:notify",
+    "capstone.agent.loop:question_held_open",
+    "capstone.agent.loop:record",
+    "capstone.agent.loop:run_batch",
+    "capstone.agent.loop:run_inner_loop",
+    "capstone.agent.loop:seconds_left"
+   ],
+   "exercise_count": 53,
+   "modules_exercised": [
+    "capstone.agent.evidence_tests",
+    "capstone.agent.investigate_compiler",
+    "capstone.agent.loop",
+    "capstone.agent.state",
+    "capstone.agent.triage_plan",
+    "capstone.contracts.tools"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_triage_compiled_chain.py::test_the_last_read_the_budget_allows_is_interpreted",
+   "file": "tests/test_triage_compiled_chain.py",
+   "name": "test_the_last_read_the_budget_allows_is_interpreted",
+   "line": 124,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 3,
+   "assert_forms": {
+    "equality": 3
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "the last read the budget allows is interpreted",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.agent.evidence_tests:evaluate",
+    "capstone.agent.evidence_tests:judge",
+    "capstone.agent.evidence_tests:note",
+    "capstone.agent.evidence_tests:physical_root",
+    "capstone.agent.evidence_tests:reading_rows",
+    "capstone.agent.evidence_tests:root_of",
+    "capstone.agent.investigate_compiler:Candidate.arguments",
+    "capstone.agent.investigate_compiler:Candidate.chosen_without_explanation",
+    "capstone.agent.investigate_compiler:Candidate.key",
+    "capstone.agent.investigate_compiler:Candidate.root",
+    "capstone.agent.investigate_compiler:Candidate.signals",
+    "capstone.agent.investigate_compiler:Candidate.step",
+    "capstone.agent.investigate_compiler:compile_requests",
+    "capstone.agent.investigate_compiler:earlier_reads",
+    "capstone.agent.investigate_compiler:escape_reason",
+    "capstone.agent.investigate_compiler:from_fixed_plan",
+    "capstone.agent.investigate_compiler:known_machines",
+    "capstone.agent.investigate_compiler:model_target",
+    "capstone.agent.investigate_compiler:observed_windows",
+    "capstone.agent.investigate_compiler:planned_target",
+    "capstone.agent.investigate_compiler:targets",
+    "capstone.agent.loop:InvestigationDeps.__post_init__",
+    "capstone.agent.loop:apply_interpretation",
+    "capstone.agent.loop:ask_policy",
+    "capstone.agent.loop:batch_steps",
+    "capstone.agent.loop:call_signature",
+    "capstone.agent.loop:call_tool",
+    "capstone.agent.loop:chains_to_next_read",
+    "capstone.agent.loop:check_termination",
+    "capstone.agent.loop:compiler_turn",
+    "capstone.agent.loop:gather",
+    "capstone.agent.loop:held_for_hypotheses",
+    "capstone.agent.loop:mark_read",
+    "capstone.agent.loop:note_advice",
+    "capstone.agent.loop:notify",
+    "capstone.agent.loop:question_held_open",
+    "capstone.agent.loop:record",
+    "capstone.agent.loop:run_batch",
+    "capstone.agent.loop:run_inner_loop",
+    "capstone.agent.loop:seconds_left"
+   ],
+   "exercise_count": 53,
+   "modules_exercised": [
+    "capstone.agent.evidence_tests",
+    "capstone.agent.investigate_compiler",
+    "capstone.agent.loop",
+    "capstone.agent.state",
+    "capstone.agent.triage_plan",
+    "capstone.contracts.tools"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_triage_compiled_chain.py::test_without_the_compiler_in_charge_every_read_is_interpreted",
+   "file": "tests/test_triage_compiled_chain.py",
+   "name": "test_without_the_compiler_in_charge_every_read_is_interpreted",
+   "line": 135,
+   "docstring": "",
+   "parametrized": true,
+   "fixtures": [
+    "investigate"
+   ],
+   "assertions": 2,
+   "assert_forms": {
+    "equality": 2
+   },
+   "raises_checks": 0,
+   "uses": [
+    "FakeProvider"
+   ],
+   "quality_flags": [],
+   "claims": "without the compiler in charge every read is interpreted",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.agent.investigate_compiler:Candidate.chosen_without_explanation",
+    "capstone.agent.investigate_compiler:Candidate.key",
+    "capstone.agent.investigate_compiler:Candidate.root",
+    "capstone.agent.investigate_compiler:Candidate.signals",
+    "capstone.agent.investigate_compiler:agreement",
+    "capstone.agent.investigate_compiler:compile_requests",
+    "capstone.agent.investigate_compiler:earlier_reads",
+    "capstone.agent.investigate_compiler:escape_reason",
+    "capstone.agent.investigate_compiler:from_fixed_plan",
+    "capstone.agent.investigate_compiler:known_machines",
+    "capstone.agent.investigate_compiler:model_target",
+    "capstone.agent.investigate_compiler:observed_windows",
+    "capstone.agent.investigate_compiler:planned_target",
+    "capstone.agent.investigate_compiler:targets",
+    "capstone.agent.loop:InvestigationDeps.__post_init__",
+    "capstone.agent.loop:apply_interpretation",
+    "capstone.agent.loop:ask_policy",
+    "capstone.agent.loop:batch_steps",
+    "capstone.agent.loop:call_signature",
+    "capstone.agent.loop:call_tool",
+    "capstone.agent.loop:chains_to_next_read",
+    "capstone.agent.loop:check_termination",
+    "capstone.agent.loop:compiler_turn",
+    "capstone.agent.loop:gather",
+    "capstone.agent.loop:held_for_hypotheses",
+    "capstone.agent.loop:mark_read",
+    "capstone.agent.loop:note_advice",
+    "capstone.agent.loop:notify",
+    "capstone.agent.loop:record",
+    "capstone.agent.loop:run_batch",
+    "capstone.agent.loop:run_inner_loop",
+    "capstone.agent.loop:seconds_left",
+    "capstone.agent.state:Budgets.research_gets_some_time",
+    "capstone.agent.state:InvestigationState.confidence",
+    "capstone.agent.state:InvestigationState.leading_hypothesis",
+    "capstone.agent.state:InvestigationState.remaining_iterations",
+    "capstone.agent.state:InvestigationState.remaining_seconds",
+    "capstone.agent.state:InvestigationState.remaining_tool_calls",
+    "capstone.agent.state:InvestigationState.research_seconds",
+    "capstone.agent.state:InvestigationState.research_tool_calls"
+   ],
+   "exercise_count": 45,
+   "modules_exercised": [
+    "capstone.agent.investigate_compiler",
+    "capstone.agent.loop",
+    "capstone.agent.state",
+    "capstone.agent.triage_plan",
+    "capstone.contracts.tools"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_triage_compiled_chain.py::test_a_deep_run_is_unchanged",
+   "file": "tests/test_triage_compiled_chain.py",
+   "name": "test_a_deep_run_is_unchanged",
+   "line": 147,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 3,
+   "assert_forms": {
+    "equality": 3
+   },
+   "raises_checks": 0,
+   "uses": [
+    "FakeProvider"
+   ],
+   "quality_flags": [],
+   "claims": "a deep run is unchanged",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.agent.loop:InvestigationDeps.__post_init__",
+    "capstone.agent.loop:apply_interpretation",
+    "capstone.agent.loop:ask_policy",
+    "capstone.agent.loop:batch_steps",
+    "capstone.agent.loop:call_signature",
+    "capstone.agent.loop:call_tool",
+    "capstone.agent.loop:chains_to_next_read",
+    "capstone.agent.loop:check_termination",
+    "capstone.agent.loop:compiler_turn",
+    "capstone.agent.loop:gather",
+    "capstone.agent.loop:held_for_hypotheses",
+    "capstone.agent.loop:mark_read",
+    "capstone.agent.loop:notify",
+    "capstone.agent.loop:record",
+    "capstone.agent.loop:run_batch",
+    "capstone.agent.loop:run_inner_loop",
+    "capstone.agent.loop:seconds_left",
+    "capstone.agent.state:Budgets.research_gets_some_time",
+    "capstone.agent.state:InvestigationState.confidence",
+    "capstone.agent.state:InvestigationState.remaining_iterations",
+    "capstone.agent.state:InvestigationState.remaining_seconds",
+    "capstone.agent.state:InvestigationState.remaining_tool_calls",
+    "capstone.agent.state:InvestigationState.research_seconds",
+    "capstone.agent.state:InvestigationState.research_tool_calls",
+    "capstone.agent.triage_plan:fixed_plan",
+    "capstone.agent.triage_plan:fixed_predicates",
+    "capstone.contracts.tools:ToolResult.consistent_outcome",
+    "capstone.contracts.tools:TraceContext.consistent_context"
+   ],
+   "exercise_count": 28,
+   "modules_exercised": [
+    "capstone.agent.loop",
+    "capstone.agent.state",
+    "capstone.agent.triage_plan",
+    "capstone.contracts.tools"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
    "id": "tests/test_triage_conclude_brief.py::test_tested_and_untested_explanations_are_named_apart",
    "file": "tests/test_triage_conclude_brief.py",
    "name": "test_tested_and_untested_explanations_are_named_apart",
@@ -117790,7 +118294,7 @@
     "capstone.agent.investigation:observe",
     "capstone.agent.investigation:plan"
    ],
-   "exercise_count": 234,
+   "exercise_count": 235,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.evidence_tests",
@@ -118068,7 +118572,7 @@
     "capstone.agent.investigation:revalue",
     "capstone.agent.investigation:run_investigation"
    ],
-   "exercise_count": 208,
+   "exercise_count": 209,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.evidence_tests",
@@ -118215,7 +118719,7 @@
     "capstone.agent.investigation:revalue",
     "capstone.agent.investigation:run_investigation"
    ],
-   "exercise_count": 207,
+   "exercise_count": 208,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.evidence_tests",
@@ -118322,7 +118826,7 @@
     "capstone.agent.investigation:revalue",
     "capstone.agent.investigation:run_investigation"
    ],
-   "exercise_count": 207,
+   "exercise_count": 208,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.evidence_tests",
@@ -118431,7 +118935,7 @@
     "capstone.agent.investigation:observe",
     "capstone.agent.investigation:plan"
    ],
-   "exercise_count": 232,
+   "exercise_count": 233,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.evidence_tests",
@@ -118538,7 +119042,7 @@
     "capstone.agent.investigation:revalue",
     "capstone.agent.investigation:run_investigation"
    ],
-   "exercise_count": 207,
+   "exercise_count": 208,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.evidence_tests",
@@ -118644,7 +119148,7 @@
     "capstone.agent.investigation:revalue",
     "capstone.agent.investigation:run_investigation"
    ],
-   "exercise_count": 213,
+   "exercise_count": 214,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.evidence_tests",
@@ -118892,7 +119396,7 @@
     "capstone.agent.investigation:verify.<locals>.later",
     "capstone.agent.investigation:why_not_acted"
    ],
-   "exercise_count": 204,
+   "exercise_count": 205,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -120326,7 +120830,7 @@
     "capstone.agent.investigation:revalue",
     "capstone.agent.investigation:run_investigation"
    ],
-   "exercise_count": 206,
+   "exercise_count": 207,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.evidence_tests",
@@ -120434,7 +120938,7 @@
     "capstone.agent.investigation:reconsider",
     "capstone.agent.investigation:release_observe_calls"
    ],
-   "exercise_count": 217,
+   "exercise_count": 218,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.evidence_packet",
@@ -120899,7 +121403,7 @@
     "capstone.agent.investigation:gathered_in",
     "capstone.agent.investigation:hypothesize"
    ],
-   "exercise_count": 245,
+   "exercise_count": 246,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.evidence_packet",
@@ -122404,7 +122908,7 @@
     "capstone.agent.investigation:observe",
     "capstone.agent.investigation:plan"
    ],
-   "exercise_count": 264,
+   "exercise_count": 265,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.evidence_tests",
@@ -122512,7 +123016,7 @@
     "capstone.agent.investigation:observe",
     "capstone.agent.investigation:plan"
    ],
-   "exercise_count": 239,
+   "exercise_count": 240,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.evidence_tests",
@@ -122620,7 +123124,7 @@
     "capstone.agent.investigation:observe",
     "capstone.agent.investigation:plan"
    ],
-   "exercise_count": 239,
+   "exercise_count": 240,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.evidence_tests",
@@ -122837,7 +123341,7 @@
     "capstone.agent.investigation:revalue",
     "capstone.agent.investigation:run_investigation"
    ],
-   "exercise_count": 207,
+   "exercise_count": 208,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.evidence_tests",
@@ -122944,7 +123448,7 @@
     "capstone.agent.investigation:revalue",
     "capstone.agent.investigation:run_investigation"
    ],
-   "exercise_count": 207,
+   "exercise_count": 208,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.evidence_tests",
@@ -123052,7 +123556,7 @@
     "capstone.agent.investigation:revalue",
     "capstone.agent.investigation:run_investigation"
    ],
-   "exercise_count": 207,
+   "exercise_count": 208,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.evidence_tests",
@@ -123158,7 +123662,7 @@
     "capstone.agent.investigation:revalue",
     "capstone.agent.investigation:run_investigation"
    ],
-   "exercise_count": 207,
+   "exercise_count": 208,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.evidence_tests",
@@ -123266,7 +123770,7 @@
     "capstone.agent.loop:apply_interpretation",
     "capstone.agent.loop:ask_policy"
    ],
-   "exercise_count": 200,
+   "exercise_count": 201,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigate_compiler",
@@ -123371,7 +123875,7 @@
     "capstone.agent.loop:apply_interpretation",
     "capstone.agent.loop:ask_policy"
    ],
-   "exercise_count": 200,
+   "exercise_count": 201,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigate_compiler",
@@ -123478,7 +123982,7 @@
     "capstone.agent.investigation:observe",
     "capstone.agent.investigation:plan"
    ],
-   "exercise_count": 232,
+   "exercise_count": 233,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.evidence_tests",
@@ -123585,7 +124089,7 @@
     "capstone.agent.investigation:revalue",
     "capstone.agent.investigation:run_investigation"
    ],
-   "exercise_count": 213,
+   "exercise_count": 214,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.evidence_tests",
@@ -124419,6 +124923,7 @@
     "capstone.agent.loop:batch_steps",
     "capstone.agent.loop:call_signature",
     "capstone.agent.loop:call_tool",
+    "capstone.agent.loop:chains_to_next_read",
     "capstone.agent.loop:check_termination",
     "capstone.agent.loop:compiler_turn",
     "capstone.agent.loop:gather",
@@ -124440,7 +124945,7 @@
     "capstone.contracts.tools:ToolResult.consistent_outcome",
     "capstone.contracts.tools:TraceContext.consistent_context"
    ],
-   "exercise_count": 39,
+   "exercise_count": 40,
    "modules_exercised": [
     "capstone.agent.investigate_compiler",
     "capstone.agent.loop",
@@ -124494,6 +124999,7 @@
     "capstone.agent.loop:batch_steps",
     "capstone.agent.loop:call_signature",
     "capstone.agent.loop:call_tool",
+    "capstone.agent.loop:chains_to_next_read",
     "capstone.agent.loop:check_termination",
     "capstone.agent.loop:compiler_turn",
     "capstone.agent.loop:gather",
@@ -124512,10 +125018,9 @@
     "capstone.agent.state:InvestigationState.remaining_seconds",
     "capstone.agent.state:InvestigationState.remaining_tool_calls",
     "capstone.agent.state:InvestigationState.research_seconds",
-    "capstone.agent.state:InvestigationState.research_tool_calls",
-    "capstone.contracts.tools:ToolResult.consistent_outcome"
+    "capstone.agent.state:InvestigationState.research_tool_calls"
    ],
-   "exercise_count": 41,
+   "exercise_count": 42,
    "modules_exercised": [
     "capstone.agent.investigate_compiler",
     "capstone.agent.loop",
@@ -124562,6 +125067,7 @@
     "capstone.agent.loop:batch_steps",
     "capstone.agent.loop:call_signature",
     "capstone.agent.loop:call_tool",
+    "capstone.agent.loop:chains_to_next_read",
     "capstone.agent.loop:check_termination",
     "capstone.agent.loop:compiler_turn",
     "capstone.agent.loop:gather",
@@ -124583,7 +125089,7 @@
     "capstone.contracts.tools:ToolResult.consistent_outcome",
     "capstone.contracts.tools:TraceContext.consistent_context"
    ],
-   "exercise_count": 34,
+   "exercise_count": 35,
    "modules_exercised": [
     "capstone.agent.investigate_compiler",
     "capstone.agent.loop",
@@ -124689,6 +125195,7 @@
     "capstone.agent.loop:batch_steps",
     "capstone.agent.loop:call_signature",
     "capstone.agent.loop:call_tool",
+    "capstone.agent.loop:chains_to_next_read",
     "capstone.agent.loop:check_termination",
     "capstone.agent.loop:compiler_turn",
     "capstone.agent.loop:gather",
@@ -124708,7 +125215,7 @@
     "capstone.contracts.tools:ToolResult.consistent_outcome",
     "capstone.contracts.tools:TraceContext.consistent_context"
    ],
-   "exercise_count": 24,
+   "exercise_count": 25,
    "modules_exercised": [
     "capstone.agent.loop",
     "capstone.agent.state",
@@ -124876,7 +125383,7 @@
     "capstone.agent.investigation:revalue",
     "capstone.agent.investigation:run_investigation"
    ],
-   "exercise_count": 239,
+   "exercise_count": 240,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.evidence_tests",
@@ -125018,7 +125525,7 @@
     "capstone.agent.investigation:verify.<locals>.later",
     "capstone.agent.investigation:why_not_acted"
    ],
-   "exercise_count": 204,
+   "exercise_count": 205,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -125257,6 +125764,7 @@
     "capstone.agent.loop:batch_steps",
     "capstone.agent.loop:call_signature",
     "capstone.agent.loop:call_tool",
+    "capstone.agent.loop:chains_to_next_read",
     "capstone.agent.loop:check_termination",
     "capstone.agent.loop:compiler_turn",
     "capstone.agent.loop:gather",
@@ -125268,10 +125776,9 @@
     "capstone.agent.loop:run_batch",
     "capstone.agent.loop:run_inner_loop",
     "capstone.agent.loop:seconds_left",
-    "capstone.agent.state:Budgets.research_gets_some_time",
-    "capstone.agent.state:InvestigationState.confidence"
+    "capstone.agent.state:Budgets.research_gets_some_time"
    ],
-   "exercise_count": 51,
+   "exercise_count": 52,
    "modules_exercised": [
     "capstone.agent.evidence_tests",
     "capstone.agent.investigate_compiler",
@@ -125387,6 +125894,7 @@
     "capstone.agent.loop:batch_steps",
     "capstone.agent.loop:call_signature",
     "capstone.agent.loop:call_tool",
+    "capstone.agent.loop:chains_to_next_read",
     "capstone.agent.loop:check_termination",
     "capstone.agent.loop:compiler_turn",
     "capstone.agent.loop:gather",
@@ -125398,10 +125906,9 @@
     "capstone.agent.loop:run_batch",
     "capstone.agent.loop:run_inner_loop",
     "capstone.agent.loop:seconds_left",
-    "capstone.agent.state:Budgets.research_gets_some_time",
-    "capstone.agent.state:InvestigationState.confidence"
+    "capstone.agent.state:Budgets.research_gets_some_time"
    ],
-   "exercise_count": 51,
+   "exercise_count": 52,
    "modules_exercised": [
     "capstone.agent.evidence_tests",
     "capstone.agent.investigate_compiler",
@@ -125571,6 +126078,7 @@
     "capstone.agent.loop:batch_steps",
     "capstone.agent.loop:call_signature",
     "capstone.agent.loop:call_tool",
+    "capstone.agent.loop:chains_to_next_read",
     "capstone.agent.loop:check_termination",
     "capstone.agent.loop:compiler_turn",
     "capstone.agent.loop:gather",
@@ -125582,10 +126090,9 @@
     "capstone.agent.loop:run_batch",
     "capstone.agent.loop:run_inner_loop",
     "capstone.agent.loop:seconds_left",
-    "capstone.agent.state:Budgets.research_gets_some_time",
-    "capstone.agent.state:InvestigationState.confidence"
+    "capstone.agent.state:Budgets.research_gets_some_time"
    ],
-   "exercise_count": 51,
+   "exercise_count": 52,
    "modules_exercised": [
     "capstone.agent.evidence_tests",
     "capstone.agent.investigate_compiler",
@@ -125670,7 +126177,7 @@
     "capstone.agent.investigation:close_screening_questions",
     "capstone.agent.investigation:conclude"
    ],
-   "exercise_count": 228,
+   "exercise_count": 229,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.evidence_tests",
@@ -125778,7 +126285,7 @@
     "capstone.agent.investigation:critique",
     "capstone.agent.investigation:gathered_in"
    ],
-   "exercise_count": 241,
+   "exercise_count": 242,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.evidence_packet",
@@ -125887,7 +126394,7 @@
     "capstone.agent.investigation:release_observe_calls",
     "capstone.agent.investigation:revalue"
    ],
-   "exercise_count": 224,
+   "exercise_count": 225,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.evidence_packet",
@@ -125996,7 +126503,7 @@
     "capstone.agent.investigation:release_observe_calls",
     "capstone.agent.investigation:revalue"
    ],
-   "exercise_count": 224,
+   "exercise_count": 225,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.evidence_packet",
@@ -126105,7 +126612,7 @@
     "capstone.agent.investigation:revalue",
     "capstone.agent.investigation:run_investigation"
    ],
-   "exercise_count": 224,
+   "exercise_count": 225,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.evidence_packet",
@@ -126344,7 +126851,7 @@
     "capstone.agent.investigation:gathered_in",
     "capstone.agent.investigation:hypothesize"
    ],
-   "exercise_count": 231,
+   "exercise_count": 232,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.evidence_tests",
@@ -126455,7 +126962,7 @@
     "capstone.agent.investigation:revalue",
     "capstone.agent.investigation:run_investigation"
    ],
-   "exercise_count": 214,
+   "exercise_count": 215,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.evidence_tests",
@@ -126563,7 +127070,7 @@
     "capstone.agent.investigation:verify.<locals>.later",
     "capstone.agent.investigation:why_not_acted"
    ],
-   "exercise_count": 210,
+   "exercise_count": 211,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -127073,7 +127580,7 @@
     "capstone.agent.investigation:observe",
     "capstone.agent.investigation:plan"
    ],
-   "exercise_count": 264,
+   "exercise_count": 265,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.evidence_tests",
@@ -127814,7 +128321,7 @@
     "capstone.agent.investigation:observe",
     "capstone.agent.investigation:plan"
    ],
-   "exercise_count": 232,
+   "exercise_count": 233,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.evidence_tests",
@@ -127921,7 +128428,7 @@
     "capstone.agent.investigation:observe",
     "capstone.agent.investigation:plan"
    ],
-   "exercise_count": 232,
+   "exercise_count": 233,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.evidence_tests",
@@ -128029,7 +128536,7 @@
     "capstone.agent.investigation:observe",
     "capstone.agent.investigation:plan"
    ],
-   "exercise_count": 232,
+   "exercise_count": 233,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.evidence_tests",
@@ -128135,7 +128642,7 @@
     "capstone.agent.investigation:revalue",
     "capstone.agent.investigation:run_investigation"
    ],
-   "exercise_count": 213,
+   "exercise_count": 214,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.evidence_tests",
@@ -128548,7 +129055,7 @@
     "capstone.agent.investigation:consult_manual",
     "capstone.agent.investigation:critic_view"
    ],
-   "exercise_count": 247,
+   "exercise_count": 248,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.evidence_tests",
@@ -128656,7 +129163,7 @@
     "capstone.agent.investigation:revalue",
     "capstone.agent.investigation:run_investigation"
    ],
-   "exercise_count": 207,
+   "exercise_count": 208,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.evidence_tests",
@@ -128763,7 +129270,7 @@
     "capstone.agent.investigation:verify.<locals>.later",
     "capstone.agent.investigation:why_not_acted"
    ],
-   "exercise_count": 204,
+   "exercise_count": 205,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -128865,7 +129372,7 @@
     "capstone.agent.investigation:gathered_in",
     "capstone.agent.investigation:hypothesize"
    ],
-   "exercise_count": 222,
+   "exercise_count": 223,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.evidence_tests",
@@ -128972,7 +129479,7 @@
     "capstone.agent.investigation:gathered_in",
     "capstone.agent.investigation:hypothesize"
    ],
-   "exercise_count": 228,
+   "exercise_count": 229,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.evidence_tests",
@@ -129118,7 +129625,7 @@
     "capstone.agent.investigation:revalue",
     "capstone.agent.investigation:run_investigation"
    ],
-   "exercise_count": 207,
+   "exercise_count": 208,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.evidence_tests",
@@ -129224,7 +129731,7 @@
     "capstone.agent.investigation:revalue",
     "capstone.agent.investigation:run_investigation"
    ],
-   "exercise_count": 207,
+   "exercise_count": 208,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.evidence_tests",
@@ -129333,7 +129840,7 @@
     "capstone.agent.investigation:run_investigation",
     "capstone.agent.investigation:test"
    ],
-   "exercise_count": 207,
+   "exercise_count": 208,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.evidence_tests",
@@ -129441,7 +129948,7 @@
     "capstone.agent.investigation:run_investigation",
     "capstone.agent.investigation:test"
    ],
-   "exercise_count": 207,
+   "exercise_count": 208,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.evidence_tests",
@@ -129549,7 +130056,7 @@
     "capstone.agent.investigation:run_investigation",
     "capstone.agent.investigation:test"
    ],
-   "exercise_count": 207,
+   "exercise_count": 208,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.evidence_tests",
@@ -129657,7 +130164,7 @@
     "capstone.agent.investigation:verify.<locals>.later",
     "capstone.agent.investigation:why_not_acted"
    ],
-   "exercise_count": 204,
+   "exercise_count": 205,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -129761,7 +130268,7 @@
     "capstone.agent.investigation:observe",
     "capstone.agent.investigation:plan"
    ],
-   "exercise_count": 232,
+   "exercise_count": 233,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.evidence_tests",
@@ -129867,7 +130374,7 @@
     "capstone.agent.investigation:revalue",
     "capstone.agent.investigation:run_investigation"
    ],
-   "exercise_count": 207,
+   "exercise_count": 208,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.evidence_tests",
@@ -130195,7 +130702,7 @@
     "capstone.agent.investigation:run_investigation",
     "capstone.agent.investigation:test"
    ],
-   "exercise_count": 213,
+   "exercise_count": 214,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.evidence_tests",
@@ -130802,7 +131309,7 @@
     "capstone.agent.investigation:verify.<locals>.later",
     "capstone.agent.investigation:why_not_acted"
    ],
-   "exercise_count": 204,
+   "exercise_count": 205,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.investigation",
@@ -131178,7 +131685,7 @@
     "capstone.agent.investigation:gathered_in",
     "capstone.agent.investigation:hypothesize"
    ],
-   "exercise_count": 222,
+   "exercise_count": 223,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.evidence_tests",
@@ -131286,7 +131793,7 @@
     "capstone.agent.investigation:gathered_in",
     "capstone.agent.investigation:hypothesize"
    ],
-   "exercise_count": 222,
+   "exercise_count": 223,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.evidence_tests",
@@ -131393,7 +131900,7 @@
     "capstone.agent.investigation:gathered_in",
     "capstone.agent.investigation:hypothesize"
    ],
-   "exercise_count": 222,
+   "exercise_count": 223,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.evidence_tests",
@@ -131501,7 +132008,7 @@
     "capstone.agent.investigation:run_investigation",
     "capstone.agent.loop:InvestigationDeps.__post_init__"
    ],
-   "exercise_count": 191,
+   "exercise_count": 192,
    "modules_exercised": [
     "capstone.agent.investigate_compiler",
     "capstone.agent.investigation",
@@ -131606,7 +132113,7 @@
     "capstone.agent.investigation:consult_manual",
     "capstone.agent.investigation:critic_view"
    ],
-   "exercise_count": 247,
+   "exercise_count": 248,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.evidence_tests",
