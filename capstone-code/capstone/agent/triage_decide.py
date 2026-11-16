@@ -775,7 +775,9 @@ def run_deterministic_triage_loop(
         reason_code="compiled",
         status="active",
         requirement_ids=tuple(sorted(state.triage_requirements)),
-        question_ids=tuple(sorted({r.question_id for r in state.triage_requirements.values()})),
+        question_ids=tuple(
+            sorted({r.question_id for r in state.triage_requirements.values()})
+        ),
         iteration=state.iteration_count,
         remaining_tool_calls=state.remaining_tool_calls,
     )
