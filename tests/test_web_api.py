@@ -162,3 +162,37 @@ def test_restricted_pilot_investigation_and_no_command_routes(tmp_path):
         or client.post("/api/v1/recordings/start", headers=auth).status_code == 404
     )
     assert client.post("/api/v1/lab/runs", headers=auth).status_code in (404, 405)
+
+
+def test_scorecards_require_evaluator_role_and_never_expose_simulator_truth(tmp_path):
+    from capstone.api.readers import safe_scorecards
+    records = tmp_path / "results.jsonl"
+    write_lines(records, [{
+        "run_key": "run-a", "scenario_id": "case-a", "seed": 7,
+        "score": {
+            "true_fault": "SECRET_ROOT_CAUSE",
+            "true_machine_id": "SECRET_MACHINE",
+            "fault_correct": None, "target_correct": None,
+            "resolved": False, "action_correct": True, "tool_calls": 4,
+            "causes_found": None, "wrong_causes": None,
+        },
+    }])
+    rows = safe_scorecards(records)
+    assert rows[0]["judged"] is False
+    assert rows[0]["fault_correct"] is None
+    assert "SECRET" not in json.dumps(rows)
+    config = UiConfig(
+        experiment=records, token="viewer-strong-token-0000000001",
+        evaluator=True, evaluator_token="evaluator-strong-token-000000001",
+        runs_enabled=True, run_db=tmp_path / "runs.db",
+        run_token="runner-strong-token-00000000001",
+        review_token="reviewer-strong-token-00000001",
+    )
+    client = TestClient(create_app(config))
+    endpoint = "/api/v1/evaluations/scorecards"
+    assert client.get(endpoint, headers={"Authorization": "Bearer " + config.token}).status_code == 403
+    assert client.get(endpoint, headers={"Authorization": "Bearer " + config.run_token}).status_code == 403
+    result = client.get(endpoint, headers={"Authorization": "Bearer " + config.evaluator_token})
+    assert result.status_code == 200
+    assert result.json()["items"][0]["judged"] is False
+    assert "SECRET" not in result.text
