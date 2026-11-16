@@ -165,6 +165,9 @@ def test_observability_logs_safe_metadata_and_persists_reason_trace():
     } <= names
     assert all(row["run_id"] == str(state.run_id) for row in rows)
     assert all("counts" in row for row in rows)
+    assert next(row for row in rows if row["event"] == "triage.test.completed")[
+        "success"
+    ] is False
     assert "4.50" not in stream.getvalue()
     assert '"content"' not in stream.getvalue()
     assert state.triage_hypothesis_trace[0].candidate_ids == ("TC1", "TC2", "TC3")

@@ -215,11 +215,19 @@ def update_candidate_packet(
         else "no_candidates",
         candidate_ids=tuple(candidate.id for candidate in candidates),
         requirement_ids=test_ids,
-        qualified_sources=sum(
-            len(candidate.observation_evidence_ids) for candidate in candidates
+        qualified_sources=len(
+            {
+                eid
+                for candidate in candidates
+                for eid in candidate.observation_evidence_ids
+            }
         ),
-        missing_sources=sum(
-            len(candidate.missing_requirement_ids) for candidate in candidates
+        missing_sources=len(
+            {
+                rid
+                for candidate in candidates
+                for rid in candidate.missing_requirement_ids
+            }
         ),
     )
     state.triage_hypothesis_trace.append(trace)
