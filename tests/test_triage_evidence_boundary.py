@@ -954,3 +954,76 @@ def test_empty_source_allowlist_rejects_observe_time():
     assert state.triage_clock_verified is False
     assert state.triage_evidence_checks[-1].reason_code == "wrong_provider"
 
+
+def test_failed_optional_sensor_read_always_has_a_typed_rejection():
+    state = state_for()
+    state.started_at = 0.0
+    deps = deps_for(FakeProvider(lambda _: "error", tick=45))
+    call, evidence = optional_call(
+        state,
+        deps,
+        "get_sensor_summary",
+        {
+            "machine_id": "CNC-02",
+            "sensor": "vibration",
+            "from_tick": 20,
+            "to_tick": 45,
+        },
+        "optional alarm window",
+        6,
+    )
+    assert evidence is None
+    assert call.outcome == "failed"
+    assert state.triage_evidence_checks[-1].reason_code == "provider_error"
+    assert state.triage_evidence_checks[-1].evidence_id is None
+    assert state.triage_trace_events[-1].event == "observe.read_validated"
+    assert state.triage_trace_events[-1].status == "rejected"
+    assert not state.evidence and not state.provenance
+
+
+def test_repeated_optional_sensor_read_has_typed_rejection_without_recalling():
+    state = state_for()
+    state.started_at = 0.0
+    provider = FakeProvider(answer, tick=45)
+    deps = deps_for(provider)
+    args = {
+        "machine_id": "CNC-02",
+        "sensor": "vibration",
+        "from_tick": 20,
+        "to_tick": 45,
+    }
+    _, initial = optional_call(
+        state, deps, "get_sensor_summary", args, "initial window", 6
+    )
+    assert initial is not None
+    before = len(provider.calls)
+    _, second = optional_call(
+        state, deps, "get_sensor_summary", args, "repeat window", 6
+    )
+    assert second is None
+    assert len(provider.calls) == before
+    assert state.triage_evidence_checks[-1].reason_code == "repeated_call"
+    assert state.triage_trace_events[-1].reason_code == "repeated_call"
+
+
+def test_config_fingerprint_changes_when_authorized_sources_change():
+    a, b = state_for(), state_for()
+    allowed = deps_for(FakeProvider(answer, tick=45))
+    expanded = deps_for(FakeProvider(answer, tick=45))
+    expanded.triage_allowed_sources = ("fake", "simulator")
+    run_inner_loop(a, allowed, "investigate")
+    run_inner_loop(b, expanded, "investigate")
+    fingerprint_a = next(
+        event.config_fingerprint
+        for event in a.triage_trace_events
+        if event.event == "triage.started"
+    )
+    fingerprint_b = next(
+        event.config_fingerprint
+        for event in b.triage_trace_events
+        if event.event == "triage.started"
+    )
+    assert fingerprint_a is not None
+    assert fingerprint_b is not None
+    assert fingerprint_a != fingerprint_b
+
