@@ -1,5 +1,5 @@
 # One-time source-and-test inventory rebuild after end-to-end PR #284 hardening.
-# Finalized end-to-end test Ruff formatting; reject stale or failing evidence before writing inventory.
+# Empty-history test now binds configured provider sources; reject stale or failing evidence before writing inventory.
 # This branch-restricted workflow deletes itself in its successful commit.
 name: One-time triage inventory sync
 
