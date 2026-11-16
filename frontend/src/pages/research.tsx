@@ -3,6 +3,8 @@ import { BookOpen, BrainCircuit, FileText, FlaskConical,
   GitCompareArrows, History, Play, Search, ShieldCheck } from 'lucide-react';
 import { useUi } from '../context';
 import { useEvaluations } from '../pageData';
+import { ManagedRunLauncher, ManagedRunList } from './managed';
+export { RunDetailPage } from './managed';
 import type { Evaluation } from '../types';
 import { DataRow, formatNumber, InfoState, Metric, PageHeading, Panel, Pill,
   SummaryLink, TileLink, toneFor, Unavailable } from '../ui';
@@ -20,35 +22,23 @@ function RunTable({ items }: { items: Evaluation[] }) {
 }
 export function LabPage() {
   const { workspace, preview } = useUi();
-  const [seed,setSeed] = useState('3'), [mode,setMode] = useState('triage');
   return <>
     <PageHeading eyebrow="RESEARCH / SIMULATOR" title="Experiment lab"
       description="Reproducible scenarios, deterministic triage, deep investigations and evidence-based evaluation."
-      right={<Pill text={workspace==='pilot'?'SIMULATOR ONLY':preview?'SYNTHETIC PREVIEW':'WORKER NOT CONNECTED'} tone="warning"/>}/>
-    <div className="two-column uneven">
-      <Panel title="Experiment setup" subtitle="Requires a managed Python runner and per-run validated settings">
-        {workspace==='pilot'? <InfoState kind="warning" title="Not available for real equipment"
-          detail="The Prestige pilot is read-only; no simulator actions are exposed in this environment."/>:
-        <><div className="form-grid"><div><label className="field-label" htmlFor="seed">Scenario seed</label>
-          <input id="seed" value={seed} onChange={e=>setSeed(e.target.value)} inputMode="numeric"/></div>
-          <div><label className="field-label" htmlFor="mode">Investigation mode</label>
-            <select id="mode" value={mode} onChange={e=>setMode(e.target.value)}>
-              <option value="triage">Rapid triage</option><option value="deep">Full investigation</option></select></div></div>
-          <DataRow label="Seed" value={seed||'Unset'}/><DataRow label="Selected mode" value={mode}/>
-          <div className="blocked-action"><button className="button-primary" disabled><Play size={17}/> Start experiment</button>
-            <p>Not executable yet. The FastAPI service deliberately has no unmanaged simulator worker or approval bypass.</p></div></>}
-      </Panel>
-      <Panel title="Research workflow" subtitle="Existing Python remains the source of truth">
-        {[
-          ['Seeded environment','Hidden simulator causes stay outside investigator evidence'],
-          ['Evidence collection','Deterministic triage or Pydantic Graph'],
-          ['Human review','Approve/reject simulated actions under existing rules'],
-          ['Verification','Compare observed results, not model confidence'],
-          ['Independent evaluation','Only evaluator-authorized views may use labels'],
-        ].map(([a,b],i)=><div className="process-step" key={a}><span>{'0'+(i+1)}</span>
-          <div><strong>{a}</strong><p>{b}</p></div></div>)}
-      </Panel>
-    </div>
+      right={<Pill text={workspace==='pilot'?'SIMULATOR ONLY':preview?'SYNTHETIC PREVIEW':'MANAGED PYTHON RUNNER'}
+        tone="warning"/>}/>
+    <ManagedRunLauncher />
+    <Panel title="Research workflow" subtitle="Python remains the source of truth">
+      {[
+        ['Seeded environment','Hidden simulator causes stay outside investigator evidence'],
+        ['Evidence collection','Deterministic triage or Pydantic Graph'],
+        ['Human review','Approve/reject simulated actions under existing rules'],
+        ['Verification','Compare observed results, not model confidence'],
+        ['Independent evaluation','Only evaluator-authorized views may use labels'],
+      ].map(([a,b],i)=><div className="process-step" key={a}>
+        <span>{'0'+(i+1)}</span><div><strong>{a}</strong><p>{b}</p></div>
+      </div>)}
+    </Panel>
     <div className="tile-grid compact-tiles">
       <TileLink to="/lab/runs" icon={<History size={24}/>} title="Run history" description="Browse existing offline experiment records."/>
       <TileLink to="/lab/evaluations" icon={<FlaskConical size={24}/>} title="Evaluation" description="Inspect recorded metrics and outstanding correctness gates."/>
@@ -65,7 +55,7 @@ export function RunsPage() {
       <Metric label="Wall time recorded" value={items.length?items.filter(i=>i.wall_seconds!=null).length:null} note="No invented runtimes"/>
       <Metric label="Model counts recorded" value={items.length?items.filter(i=>i.model_questions!=null).length:null} note="May be unavailable"/>
       <Metric label="Live worker" value={null} note="Not integrated"/>
-    </div><Panel title="Run journal" subtitle="Available evaluation artifacts only">
+    </div><ManagedRunList/><Panel title="Offline experiment records" subtitle="Available evaluation artifacts only">
       {error&&<InfoState kind="warning" title="Evaluator access unavailable" detail={error}/>}
       {items.length?<RunTable items={items}/>:<Unavailable item="Run history" detail="Configure the approved experiment file, evaluator access and token; or enter clearly marked synthetic preview."/>}
     </Panel></>;
