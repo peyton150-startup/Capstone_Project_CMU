@@ -285,8 +285,8 @@ def create_app(config: UiConfig | None = None) -> FastAPI:
         snap = recorder_snapshot(cfg.capture)
         return {
             "api": "available",
-            "simulation_worker": "not_integrated",
-            "progress_stream": "not_integrated",
+            "simulation_worker": "enabled" if runner is not None else "not_integrated",
+            "progress_stream": "enabled" if runner is not None else "not_integrated",
             "recorder_connection": snap["recorder"]["connection_state"]
             if snap["recorder"]
             else "not_configured",
