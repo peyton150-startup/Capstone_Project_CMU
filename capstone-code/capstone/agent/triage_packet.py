@@ -289,6 +289,22 @@ def optional_call(
     #   limit: The research call count the packet may reach, get_time included;
     #     the rest of the six-call default stays for investigation.
     #   evidence: The answer as evidence, or None when skipped, repeated or failed.
+    if (
+        state.mode == "triage"
+        and deps.triage_investigate == "deterministic"
+        and state.triage_clock_verified is False
+    ):
+        # Neither a cached monitoring tick nor a stale packet can authorize
+        # new reads after the mandatory factory clock was rejected.
+        return (
+            PacketCall(
+                tool=name,
+                role="optional",
+                outcome="skipped_unavailable",
+                reason="observation_cutoff_untrusted",
+            ),
+            None,
+        )
     if state.research_tool_calls >= limit or state.research_seconds(deps.clock()) <= 0:
         return PacketCall(
             tool=name, role="optional", outcome="skipped_budget", reason="budgeted_out"
