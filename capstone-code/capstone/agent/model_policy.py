@@ -582,6 +582,16 @@ def render(state: InvestigationState) -> str:
         )
     if not state.unanswered_questions:
         lines.append("(none)")
+    if state.mode == "triage" and state.triage_requirement_results:
+        lines += ["", "DETERMINISTIC COLLECTION STATUS (not a diagnosis):"]
+        for requirement_id, result in sorted(state.triage_requirement_results.items()):
+            lines.append(
+                f"- {requirement_id}: {result.status}; "
+                f"evidence {', '.join(result.evidence_ids) or 'none'}; {result.reason}"
+            )
+        lines.append("An incomplete requirement is unknown, not a negative finding.")
+        for question_id, gap in sorted(state.triage_question_gaps.items()):
+            lines.append(f"- unresolved {question_id}: {gap}")
 
     lines += ["", evidence_brief(state), "", *evidence_section(state)]
 

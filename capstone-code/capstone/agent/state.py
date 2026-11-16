@@ -28,6 +28,11 @@ from capstone.agent.artifacts import (
 )
 from capstone.agent.evidence_packet import EvidencePacket
 from capstone.agent.triage_report import TriageReport
+from capstone.agent.triage_requirements import (
+    ReadRequirement,
+    RequirementResult,
+    TriageDecisionRecord,
+)
 from capstone.contracts import Contract
 from capstone.contracts.evidence import Evidence
 from capstone.contracts.hypotheses import Hypothesis
@@ -186,7 +191,7 @@ class Question(Contract):
 
 # TRIAGE_INVESTIGATE (Block 4): how the request compiler's choice compared
 # with the model's, or why the model was asked anyway.
-InvestigateMode = Literal["off", "advisory", "on"]
+InvestigateMode = Literal["off", "advisory", "on", "deterministic"]
 AdviceOutcome = Literal[
     "same_request",  # the model asked for exactly the compiled read
     "same_target",  # same tool, machine and sensor; another window
@@ -472,6 +477,19 @@ class InvestigationState(BaseModel):
     # TRIAGE_INVESTIGATE=on: compiled reads made without asking a model what
     # they mean, because another compiled read followed (`loop.chains_to_next_read`).
     compiled_reads_uninterpreted: int = Field(default=0, ge=0)
+    # The opt-in controller keeps definitions, results, and attempts separate.
+    triage_requirements: dict[str, ReadRequirement] = Field(default_factory=dict)
+    triage_requirement_results: dict[str, RequirementResult] = Field(
+        default_factory=dict
+    )
+    triage_question_evidence: dict[str, list[str]] = Field(default_factory=dict)
+    # Source qualification and proof of a cross-source relationship are distinct.
+    triage_question_gaps: dict[str, str] = Field(default_factory=dict)
+    triage_decide_trace: list[TriageDecisionRecord] = Field(default_factory=list)
+    triage_read_attempts: dict[str, int] = Field(default_factory=dict)
+    triage_observation_cutoff_tick: int | None = Field(default=None, ge=0)
+    triage_deterministic_reads: int = Field(default=0, ge=0)
+    triage_deterministic_stops: int = Field(default=0, ge=0)
     # Block 3 (TRIAGE_EVIDENCE_TESTS), triage only. A predicate a planner
     # attached to a question, by question id: with one, a successful call
     # closes the question only on a "true" or "false" verdict. Empty: every
