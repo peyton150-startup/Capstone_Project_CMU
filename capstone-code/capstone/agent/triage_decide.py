@@ -889,13 +889,16 @@ def run_deterministic_triage_loop(
             iteration=state.iteration_count,
         )
         started = deps.clock()
+        trusted_before_read = state.last_tick
         qualification: EvidenceQualification | None = None
 
         def precommit(result) -> str | None:
             """Return a safe reason code; no invalid evidence is ever appended."""
             nonlocal qualification
             try:
-                qualification = validate_triage_result(result, request, cutoff)
+                qualification = validate_triage_result(
+                    result, request, cutoff, min_result_tick=trusted_before_read
+                )
             except Exception:
                 # An internal validator error is itself a rejected observation.
                 qualification = EvidenceQualification(
