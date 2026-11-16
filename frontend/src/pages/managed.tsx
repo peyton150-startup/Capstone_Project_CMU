@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { postJson, useResource } from '../api';
 import { useUi } from '../context';
-import type { Capabilities, ListResponse, ManagedRun, ReviewRequest, RunEvent, TriageReport } from '../types';
+import type { Capabilities, InvestigationDetail, ListResponse, ManagedRun, ReviewRequest, RunEvent, TriageReport } from '../types';
 import { DataRow, formatStamp, InfoState, PageHeading, Panel, Pill, toneFor, Unavailable } from '../ui';
 
 function useManagedRuns(pollMs = 5000) {
@@ -168,6 +168,13 @@ export function RunDetailPage() {
     token, !enabled, 3000,
   );
   const journal = useJournal(runId, token, enabled);
+  const audit = useResource<{availability:string; detail:InvestigationDetail|null}>(
+    enabled ? '/api/v1/lab/runs/' + encodeURIComponent(runId!) +
+      '/investigation?workspace=simulator' : null,
+    token, !enabled, 5000,
+  );
+  const [section, setSection] = useState<'evidence'|'hypotheses'|'trace'>('evidence');
+  const detail = audit.data?.detail;
   const run = resource.data;
   if (!enabled) return <Unavailable item="Managed simulator run" detail="Select Simulator Lab and exit synthetic preview."/>;
   return <>
@@ -194,6 +201,39 @@ export function RunDetailPage() {
         'Unknown' : run.snapshot.deep_ran ? 'Yes' : 'No'}/>
     </Panel>
     {run?.snapshot?.triage_report && <TriageReportView report={run.snapshot.triage_report}/>}
+    <Panel title="Audited technical investigation" subtitle="Safe projection of the real completed Python audit">
+      <div className="content-tabs" role="tablist" aria-label="Managed investigation details">
+        {(['evidence','hypotheses','trace'] as const).map(tab=>
+          <button key={tab} role="tab" aria-selected={section===tab}
+            className={section===tab?'current':''} onClick={()=>setSection(tab)}>{tab}</button>)}
+      </div>
+      {!detail && <Unavailable item="Completed investigation audit"
+        detail="The authorized audit is not present yet, or the run has not completed."/>}
+      {detail && section==='evidence' && (detail.evidence.length ?
+        detail.evidence.map(e=><div className="hypothesis-card" key={e.id}>
+          <strong>{e.id} · {e.source_id || 'Unknown source'}</strong>
+          <p>{e.content || 'No content recorded'}</p><small>{e.observed_at || 'Tick ' + (e.observed_tick ?? 'unknown')}</small>
+        </div>) : <Unavailable item="Source evidence"/>)}
+      {detail && section==='hypotheses' && (detail.hypotheses.length ?
+        detail.hypotheses.map(h=><div className="hypothesis-card" key={h.id}>
+          <h3>{h.id} · {h.description || h.claim || 'Hypothesis'}</h3>
+          <Pill text={h.status || 'unverified'} tone={toneFor(h.status)}/>
+          <DataRow label="Supporting evidence" value={(h.supporting_evidence_ids || []).join(', ') || 'None'}/>
+          <DataRow label="Contradicting evidence" value={(h.contradicting_evidence_ids || []).join(', ') || 'None'}/>
+          <DataRow label="Discriminating check" value={h.discriminating_check || 'Not recorded'}/>
+        </div>) : <Unavailable item="Recorded hypotheses"/>)}
+      {detail && section==='trace' && <>
+        <DataRow label="Rejected/repeated calls" value={detail.reasoning_metrics?.repeated_calls ?? 'Unknown'}/>
+        <DataRow label="Failed calls" value={detail.reasoning_metrics?.failed_tool_calls ?? 'Unknown'}/>
+        <DataRow label="Uninterpreted evidence" value={detail.reasoning_metrics?.interpretation_failures ?? 'Unknown'}/>
+        {detail.decision_trace?.length ? detail.decision_trace.map(d=>
+          <DataRow key={d.sequence} label={String(d.sequence)+' · '+d.phase}
+            extra={'Evidence: '+(d.evidence_ids || []).join(', ')}
+            value={(d.tool || 'No tool')+' · '+d.outcome}/>) :
+          <Unavailable item="Decision trace"/>}
+        <p className="body-copy">Decision outcomes are not private chain-of-thought; tool arguments and raw provider responses are intentionally excluded.</p>
+      </>}
+    </Panel>
     <Panel title="Stage event journal" subtitle={'Nonblocking and reconnectable · ' + journal.status}>
       {journal.events.length ? journal.events.map(row=>
         <div className="settings-row" key={row.seq}><span>{String(row.seq).padStart(4, '0')} · {row.event}</span>
