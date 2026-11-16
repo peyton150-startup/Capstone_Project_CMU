@@ -1479,6 +1479,28 @@ def conclude(state: InvestigationState, deps: InvestigationDeps) -> None:
         state.triage_report = build_triage_report(state)
         checking += max(0.0, deps.clock() - started)
     state.conclude_check_seconds = checking
+    if state.mode == "triage" and deps.triage_investigate == "deterministic":
+        # Only the opt-in deterministic triage records this additional boundary.
+        # Emit checked outcome and open questions, never the model's free text.
+        from capstone.agent.triage_trace import emit_triage_event
+
+        emit_triage_event(
+            state,
+            deps,
+            event="conclusion.checked",
+            phase="conclude",
+            reason_code=outcome,
+            status=conclusion.assessment or "unresolved",
+            question_ids=tuple(q.id for q in state.unanswered_questions),
+            requirement_ids=tuple(
+                sorted(
+                    rid
+                    for rid, result in state.triage_requirement_results.items()
+                    if result.status != "satisfied"
+                )
+            ),
+            duration_ms=checking * 1000.0,
+        )
     if conclusion.recommendation == "no_action":
         state.predicted_effect = NO_ACTION_PREDICTION
     if request is not None:
