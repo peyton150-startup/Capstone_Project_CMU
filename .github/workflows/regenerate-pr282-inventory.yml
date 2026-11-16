@@ -1,0 +1,72 @@
+# One-time inventory refresh for stacked PR #282. Delete after committing
+# fresh test-generated inventories; this is not a permanent CI workflow.
+name: PR 282 inventory regeneration (one time)
+
+on:
+  push:
+    branches:
+      - fix/triage-evidence-proof-20261116
+    paths:
+      - .github/workflows/regenerate-pr282-inventory.yml
+
+permissions:
+  actions: read
+  contents: write
+
+jobs:
+  refresh:
+    name: Rebuild verified evaluation inventory
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: fix/triage-evidence-proof-20261116
+          persist-credentials: true
+      - name: Install uv
+        uses: astral-sh/setup-uv@c771a70e6277c0a99b617c7a806ffedaca235ff9 # v9.0.0
+        with:
+          version: "0.13.0"
+          enable-cache: true
+      - name: Install pinned Python
+        run: uv python install
+      - name: Install locked dependencies
+        run: uv sync --locked --all-extras
+      - name: Seed inventories from CI's actual per-test coverage
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          for attempt in $(seq 1 30); do
+            if gh run download 43943585945 --repo "$GITHUB_REPOSITORY" --name evaluator-inventory --dir evaluation/inventory; then
+              exit 0
+            fi
+            echo "Coverage artifact unavailable yet (attempt $attempt); retrying"
+            sleep 30
+          done
+          echo "::error::Expected CI evaluator-inventory artifact was not available"
+          exit 1
+      - name: Run complete offline tests against refreshed inventory
+        run: >-
+          uv run --locked --all-extras pytest
+          --cov=capstone --cov=evaltools --cov-context=test
+          --junitxml=junit.xml
+          --cov-report=term-missing
+      - name: Regenerate complete function, test, tool and coverage inventories
+        run: >-
+          cd evaluation &&
+          uv run --locked --all-extras python -m evaltools.build_inventory
+          --coverage ../.coverage --junit ../junit.xml
+      - name: Commit reproducible inventory artifacts to PR head
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add evaluation/inventory/FUNCTION_INVENTORY.json
+          git add evaluation/inventory/TEST_INVENTORY.json
+          git add evaluation/inventory/TOOL_INVENTORY.json
+          git add evaluation/inventory/VERIFICATION_MATRIX.json
+          if git diff --cached --quiet; then
+            echo "Inventories already match the verified run"
+            exit 0
+          fi
+          git commit -m "test(evaluation): regenerate inventories from passing full suite"
+          git push origin HEAD:refs/heads/fix/triage-evidence-proof-20261116
