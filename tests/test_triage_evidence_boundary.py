@@ -741,6 +741,10 @@ def test_empty_history_is_not_equivalent_to_verified_coverage():
         arguments={"machine_id": "CNC-02", "from_tick": 20, "to_tick": 45},
     )
     deps = deps_for(FakeProvider(lambda _: [], tick=45))
+    # A direct gather() call bypasses the controller's normal initialization.
+    # Give the replay qualifier the same authorized provider origins used
+    # when the deterministic controller runs end-to-end.
+    state.triage_allowed_sources = deps.triage_allowed_sources
     evidence = gather(
         state,
         deps,
