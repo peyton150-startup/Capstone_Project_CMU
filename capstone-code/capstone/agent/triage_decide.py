@@ -294,9 +294,7 @@ def qualify(
         ]
         jobs = {row["job_id"] for row in identified}
         comparable = (
-            len(jobs) >= 2
-            and len(identified) == len(failures)
-            and len(failures) >= 2
+            len(jobs) >= 2 and len(identified) == len(failures) and len(failures) >= 2
         )
         if requirement.qualification == "inspection_jobs":
             return RequirementResult(
@@ -309,8 +307,7 @@ def qualify(
         batches = [
             row.get("batch_id")
             for row in identified
-            if type(row.get("batch_id")) in (int, str)
-            and row["batch_id"] != ""
+            if type(row.get("batch_id")) in (int, str) and row["batch_id"] != ""
         ]
         complete = comparable and len(batches) == len(identified)
         distinct = set(batches)
@@ -318,8 +315,7 @@ def qualify(
             status="satisfied" if complete else "insufficient",
             evidence_ids=ids,
             reason=(
-                "all observed failed jobs share batch "
-                + str(next(iter(distinct)))
+                "all observed failed jobs share batch " + str(next(iter(distinct)))
                 if len(distinct) == 1
                 else "observed failed jobs have different batch identifiers"
             )
@@ -470,7 +466,6 @@ def expand_job_requirements(state: InvestigationState) -> None:
                 )
 
 
-
 def reconcile_question_comparison(
     state: InvestigationState, question_id: str, ids: list[str]
 ) -> None:
@@ -488,8 +483,7 @@ def reconcile_question_comparison(
             and requirement.qualification == "job_path"
         ]
         if len(paths) >= 2 and all(
-            state.triage_requirement_results[path.requirement_id].status
-            == "satisfied"
+            state.triage_requirement_results[path.requirement_id].status == "satisfied"
             for path in paths
         ):
             machine_sets = []
@@ -523,15 +517,12 @@ def reconcile_question_comparison(
     if question_id != "Q5" or not set(movement).issubset(ids):
         return
     if not all(
-        state.triage_requirement_results[rid].status == "satisfied"
-        for rid in movement
+        state.triage_requirement_results[rid].status == "satisfied" for rid in movement
     ):
         return
     by_id = {e.id: e for e in state.evidence}
     summaries = [
-        json.loads(
-            by_id[state.triage_requirement_results[rid].evidence_ids[0]].content
-        )
+        json.loads(by_id[state.triage_requirement_results[rid].evidence_ids[0]].content)
         for rid in movement
     ]
     spans = {(data["first_tick"], data["last_tick"]) for data in summaries}
@@ -543,8 +534,7 @@ def reconcile_question_comparison(
         and all(type(delta) in (int, float) and delta != 0 for delta in directions)
     )
     same_direction = comparable and (
-        all(delta > 0 for delta in directions)
-        or all(delta < 0 for delta in directions)
+        all(delta > 0 for delta in directions) or all(delta < 0 for delta in directions)
     )
     if comparable:
         reason = (

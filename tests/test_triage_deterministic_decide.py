@@ -390,7 +390,9 @@ def test_different_batches_are_reported_as_different_not_shared():
                 {
                     "tick": 30,
                     "job_id": request.arguments["job_id"],
-                    "machine_id": "CNC-02" if request.arguments["job_id"] == 10 else "CNC-04",
+                    "machine_id": "CNC-02"
+                    if request.arguments["job_id"] == 10
+                    else "CNC-04",
                     "kind": "job_started",
                 }
             ]
@@ -400,9 +402,13 @@ def test_different_batches_are_reported_as_different_not_shared():
         tool_spec(name)
         for name in ("get_inspections", "get_job_history", "get_settings", "get_events")
     )
-    run_inner_loop(state, deps_for(FakeProvider(records, tick=45), tools=tools), "investigate")
+    run_inner_loop(
+        state, deps_for(FakeProvider(records, tick=45), tools=tools), "investigate"
+    )
     assert "Q2" in state.answers
-    assert "different batch" in state.triage_requirement_results["Q2:inspections"].reason
+    assert (
+        "different batch" in state.triage_requirement_results["Q2:inspections"].reason
+    )
     assert "Q1" in state.answers
     assert "no machine" in state.triage_requirement_results["Q1:failed_jobs"].reason
 
@@ -424,7 +430,11 @@ def test_missing_batch_id_keeps_comparison_unresolved():
             ]
         if request.name == "get_job_history":
             return [
-                {"tick": 30, "job_id": request.arguments["job_id"], "machine_id": "CNC-02"}
+                {
+                    "tick": 30,
+                    "job_id": request.arguments["job_id"],
+                    "machine_id": "CNC-02",
+                }
             ]
         return []
 
@@ -432,7 +442,9 @@ def test_missing_batch_id_keeps_comparison_unresolved():
         tool_spec(name)
         for name in ("get_inspections", "get_job_history", "get_settings", "get_events")
     )
-    run_inner_loop(state, deps_for(FakeProvider(records, tick=45), tools=tools), "investigate")
+    run_inner_loop(
+        state, deps_for(FakeProvider(records, tick=45), tools=tools), "investigate"
+    )
     assert "Q2" in {q.id for q in state.unanswered_questions}
     assert state.triage_requirement_results["Q2:inspections"].status == "insufficient"
 
@@ -442,11 +454,16 @@ def test_unequal_summary_windows_cannot_settle_vibration_q5():
 
     def different_windows(request):
         data = answer(request)
-        if request.name == "get_sensor_summary" and request.arguments["sensor"] == "load":
+        if (
+            request.name == "get_sensor_summary"
+            and request.arguments["sensor"] == "load"
+        ):
             data["first_tick"] = 30
         return data
 
-    run_inner_loop(state, deps_for(FakeProvider(different_windows, tick=45)), "investigate")
+    run_inner_loop(
+        state, deps_for(FakeProvider(different_windows, tick=45)), "investigate"
+    )
     assert "Q5" in {q.id for q in state.unanswered_questions}
     assert state.triage_requirement_results["Q5:load"].status == "partial"
 
@@ -456,7 +473,10 @@ def test_different_endpoint_directions_are_explicitly_not_co_movement():
 
     def divergent(request):
         data = answer(request)
-        if request.name == "get_sensor_summary" and request.arguments["sensor"] == "load":
+        if (
+            request.name == "get_sensor_summary"
+            and request.arguments["sensor"] == "load"
+        ):
             data["delta"] = -0.2
         return data
 
