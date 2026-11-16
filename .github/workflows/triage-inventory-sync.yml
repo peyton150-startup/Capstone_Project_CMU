@@ -1,5 +1,5 @@
 # One-time source-and-test inventory rebuild after end-to-end PR #284 hardening.
-# Rebuild from source and test coverage; refuse to commit stale or failing evidence.
+# Final end-to-end episode and rejected-clock regression source/test pass; reject stale or failing evidence.
 # This branch-restricted workflow deletes itself in its successful commit.
 name: One-time triage inventory sync
 
