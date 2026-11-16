@@ -12,11 +12,6 @@ from typing import TYPE_CHECKING
 from capstone.agent.artifacts import TerminationReason
 from capstone.agent.evidence_tests import RANK, judge
 from capstone.agent.investigate_compiler import known_machines, targets
-from capstone.agent.triage_evidence_validation import (
-    EvidenceQualification,
-    validate_triage_result,
-)
-from capstone.agent.triage_trace import emit_triage_event
 from capstone.agent.policy import CallTool
 from capstone.agent.state import InvestigationState
 from capstone.agent.triage_decide_contracts import (
@@ -24,12 +19,17 @@ from capstone.agent.triage_decide_contracts import (
     TriageStopDecision,
     TriageStopReason,
 )
+from capstone.agent.triage_evidence_validation import (
+    EvidenceQualification,
+    validate_triage_result,
+)
 from capstone.agent.triage_plan import fixed_requirements
 from capstone.agent.triage_requirements import (
     ReadRequirement,
     RequirementResult,
     TriageDecisionRecord,
 )
+from capstone.agent.triage_trace import emit_triage_event
 from capstone.contracts.tools import ToolRequest
 from capstone.providers.factory import TOOL_ARGUMENTS
 
