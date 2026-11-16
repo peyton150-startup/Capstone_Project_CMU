@@ -10,7 +10,7 @@ from __future__ import annotations
 from math import isfinite
 from typing import Literal
 
-from pydantic import Field
+from pydantic import Field, model_validator
 
 from capstone.contracts import Contract
 from capstone.contracts.tools import ToolRequest, ToolResult
@@ -37,6 +37,16 @@ class EvidenceQualification(Contract):
     observed_tick: int | None = Field(default=None, ge=0)
     evidence_id: str | None = None
     request_hash: str | None = None
+
+    @model_validator(mode="after")
+    def consistent_verdict(self):
+        """A rejected observation cannot carry the accepted reason, or vice versa."""
+        # Variables:
+        #   accepted: Whether a result may cross the evidence/provenance boundary.
+        #   reason_code: Stable explanation of that same admission decision.
+        if self.accepted != (self.reason_code == "accepted"):
+            raise ValueError("qualification reason and accepted flag disagree")
+        return self
 
 
 def _bad_number_or_tick(value: object, cutoff: int) -> EvidenceReason | None:
@@ -81,6 +91,8 @@ def validate_triage_result(
             observed_tick=result.tick if type(result.tick) is int else None,
         )
 
+    if not result.success or result.tool != request.name:
+        return checked("wrong_source")
     if result.tick > cutoff:
         return checked("future_tick")
     data = result.data
@@ -150,4 +162,27 @@ def validate_triage_result(
     }:
         if not isinstance(data, list) or not all(isinstance(row, dict) for row in data):
             return checked("invalid_shape")
+        # Record lists need source and window checks too. A valid JSON list
+        # from the wrong machine/job/time must not become trusted evidence.
+        for row in data:
+            if name in {"get_events", "get_inspections"}:
+                tick = row.get("tick")
+                if type(tick) is not int:
+                    return checked("invalid_tick")
+                if not args["from_tick"] <= tick <= args["to_tick"]:
+                    return checked("outside_window")
+            if (
+                name in {"get_events", "get_maintenance_history"}
+                and args.get("machine_id") is not None
+                and row.get("machine_id") != args["machine_id"]
+            ):
+                return checked("wrong_source")
+            if name == "get_job_history" and row.get("job_id") != args["job_id"]:
+                return checked("wrong_source")
+            if name == "get_inspections" and (
+                type(row.get("job_id")) is not int
+                or row["job_id"] < 1
+                or row.get("result") not in {"passed", "failed"}
+            ):
+                return checked("invalid_shape")
     return checked("accepted")
