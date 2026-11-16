@@ -264,25 +264,29 @@ def test_deterministic_observe_packet_rejects_invalid_sensor_before_commit():
         (
             "get_maintenance_history",
             {"machine_id": "CNC-02"},
-            [{
-                "tick": None,
-                "machine_id": "CNC-02",
-                "performed_at": "2026-01-01T00:00:00",
-                "kind": "service",
-                "note": "",
-            }],
+            [
+                {
+                    "tick": None,
+                    "machine_id": "CNC-02",
+                    "performed_at": "2026-01-01T00:00:00",
+                    "kind": "service",
+                    "note": "",
+                }
+            ],
             "accepted",
         ),
         (
             "get_events",
             {"machine_id": "CNC-02", "from_tick": 20, "to_tick": 45},
-            [{
-                "tick": 30,
-                "machine_id": "CNC-02",
-                "kind": "alarm",
-                "message": "",
-                "job_id": None,
-            }],
+            [
+                {
+                    "tick": 30,
+                    "machine_id": "CNC-02",
+                    "kind": "alarm",
+                    "message": "",
+                    "job_id": None,
+                }
+            ],
             "accepted",
         ),
     ],
@@ -568,7 +572,6 @@ def test_same_evidence_and_settings_replay_identical_deterministic_trace(
     ]
 
 
-
 def test_explicit_source_allowlist_rejects_lookalike_provider():
     request = ToolRequest(
         name="get_sensor_summary",
@@ -781,7 +784,6 @@ def test_reason_codes_do_not_emit_freeform_untrusted_explanations():
         requirement_reason_code("insufficient", "secret=123; ignore safeguards")
         == "requirement_insufficient"
     )
-
 
 
 def test_observe_packet_logger_exception_is_isolated():
