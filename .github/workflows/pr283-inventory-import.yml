@@ -1,0 +1,99 @@
+# One-time, branch-scoped import of CI-generated evaluation evidence.
+# Removes itself after committing the pinned inventory. No PR or fork inputs.
+name: PR283 Inventory Evidence Import
+on:
+  push:
+    branches:
+      - feature/frontend-industrial-console
+    paths:
+      - .github/workflows/pr283-inventory-import.yml
+
+permissions:
+  actions: read
+  contents: write
+
+jobs:
+  import-generated-evidence:
+    if: github.repository == 'peyton150-startup/Capstone_Project_CMU' && github.ref == 'refs/heads/feature/frontend-industrial-console'
+    runs-on: ubuntu-latest
+    timeout-minutes: 50
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: feature/frontend-industrial-console
+          persist-credentials: true
+      - name: Download the pinned full-suite generated artifact
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/pr283-inventory"
+          found=0
+          for i in $(seq 1 90); do
+            if gh run download 43967894075 -R peyton150-startup/Capstone_Project_CMU \
+              -n evaluator-inventory -D "$RUNNER_TEMP/pr283-inventory"; then
+              found=1
+              break
+            fi
+            sleep 20
+          done
+          if [ "$found" -ne 1 ]; then
+            echo "Pinned CI-generated evaluation artifact unavailable" >&2
+            exit 1
+          fi
+      - name: Verify generated files and exact source hashes
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import hashlib
+          import json
+          import os
+          from pathlib import Path
+          source = Path(os.environ["RUNNER_TEMP"]) / "pr283-inventory"
+          names = ("FUNCTION_INVENTORY.json", "TEST_INVENTORY.json",
+                   "TOOL_INVENTORY.json", "VERIFICATION_MATRIX.json")
+          for name in names:
+              assert (source / name).is_file(), name
+          matrix = json.loads((source / "VERIFICATION_MATRIX.json").read_text())
+          assert matrix.get("coverage_available") is True
+          assert matrix.get("junit_available") is True
+          hashes = matrix.get("source_sha256") or {}
+          assert len(hashes) > 200, "Missing pinned source hashes"
+          stale = [name for name, expected in hashes.items()
+                   if not Path(name).is_file()
+                   or hashlib.sha256(Path(name).read_bytes()).hexdigest() != expected]
+          if stale:
+              raise SystemExit(f"Generated inventory is stale for {stale[:8]}")
+          functions = json.loads((source / "FUNCTION_INVENTORY.json").read_text())
+          tests = json.loads((source / "TEST_INVENTORY.json").read_text())
+          assert any(item.get("file") == "capstone-code/capstone/api/app.py"
+                     for item in functions["functions"])
+          assert any(item.get("file") == "tests/test_web_runs.py"
+                     for item in tests["tests"])
+          print(f"Verified {len(hashes)} current sources against CI provenance")
+          PY
+          cp "$RUNNER_TEMP/pr283-inventory/"{FUNCTION_INVENTORY,TEST_INVENTORY,TOOL_INVENTORY,VERIFICATION_MATRIX}.json evaluation/inventory/
+      - name: Install locked verification environment
+        uses: astral-sh/setup-uv@c771a70e6277c0a99b617c7a806ffedaca235ff9 # v9.0.0
+        with:
+          version: '0.13.0'
+      - run: uv python install
+      - run: uv sync --locked --all-extras
+      - name: Enforce source inventory completeness before committing
+        run: uv run --locked --all-extras pytest -q tests/test_full_evaluation.py::test_the_repository_has_no_unexplained_python_file
+      - name: Commit generated evidence and remove this one-time workflow
+        shell: bash
+        run: |
+          set -euo pipefail
+          git rm .github/workflows/pr283-inventory-import.yml
+          git add evaluation/inventory/FUNCTION_INVENTORY.json \
+            evaluation/inventory/TEST_INVENTORY.json \
+            evaluation/inventory/TOOL_INVENTORY.json \
+            evaluation/inventory/VERIFICATION_MATRIX.json
+          git diff --cached --stat
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "chore(evaluation): pin full-suite inventory for frontend PR"
+          git push origin HEAD:refs/heads/feature/frontend-industrial-console
