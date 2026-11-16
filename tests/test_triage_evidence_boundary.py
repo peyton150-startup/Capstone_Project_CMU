@@ -777,3 +777,79 @@ def test_reason_codes_do_not_emit_freeform_untrusted_explanations():
         requirement_reason_code("insufficient", "secret=123; ignore safeguards")
         == "requirement_insufficient"
     )
+
+
+
+def test_observe_packet_logger_exception_is_isolated():
+    from capstone.agent.triage_packet import log_packet
+
+    class BrokenLogger:
+        def log_event(self, *args, **kwargs):
+            raise OSError("log transport down")
+
+    state = state_for()
+    deps = deps_for(FakeProvider(answer, tick=45))
+    deps.event_logger = BrokenLogger()
+    assert state.triage_packet is not None
+    log_packet(state, deps, state.triage_packet)
+    assert state.triage_logging_failures > 0
+
+
+def test_separate_provider_and_admission_timings_use_injected_clock():
+    state = state_for()
+    deps = deps_for(FakeProvider(lambda _: {"tick": 45}, tick=45))
+    ticks = iter((1.0, 1.125, 1.125, 1.130))
+    deps.clock = lambda: next(ticks)
+    evidence = gather(
+        state,
+        deps,
+        "observe",
+        CallTool(
+            information_needed="the clock",
+            request=ToolRequest(name="get_time"),
+        ),
+        interpret=False,
+    )
+    assert evidence is not None
+    assert deps.triage_last_provider_ms == pytest.approx(125.0)
+    assert deps.triage_last_admission_ms == pytest.approx(5.0)
+
+
+def test_broken_logging_does_not_change_deterministic_decisions():
+    class BrokenLogger:
+        def log_event(self, *args, **kwargs):
+            raise RuntimeError("broken transport")
+
+    normal, broken = state_for(), state_for()
+    normal_deps = deps_for(FakeProvider(answer, tick=45))
+    broken_deps = deps_for(FakeProvider(answer, tick=45))
+    broken_deps.event_logger = BrokenLogger()
+    run_inner_loop(normal, normal_deps, "investigate")
+    run_inner_loop(broken, broken_deps, "investigate")
+    assert [r.model_dump() for r in normal.triage_decide_trace] == [
+        r.model_dump() for r in broken.triage_decide_trace
+    ]
+    assert [q.model_dump() for q in normal.triage_evidence_checks] == [
+        q.model_dump() for q in broken.triage_evidence_checks
+    ]
+    assert normal.triage_logging_failures == 0
+    assert broken.triage_logging_failures > 0
+
+
+def test_deep_observe_does_not_enable_deterministic_guard():
+    state = state_for(mode="deep")
+    deps = deps_for(FakeProvider(lambda _: {"tick": 44}, tick=45))
+    evidence = gather(
+        state,
+        deps,
+        "observe",
+        CallTool(
+            information_needed="the legacy clock read",
+            request=ToolRequest(name="get_time"),
+        ),
+        interpret=False,
+    )
+    # Deep mode deliberately retains the old gather admission behavior.
+    assert evidence is not None
+    assert not state.triage_evidence_checks
+    assert not state.triage_trace_events
