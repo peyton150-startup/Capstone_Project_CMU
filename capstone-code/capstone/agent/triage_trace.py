@@ -111,6 +111,7 @@ def emit_triage_event(
             duration_ms=duration_ms,
             counts={"requirements": len(requirement_ids)},
         )
-    except (ValueError, TypeError, OSError):
-        # Logging is never a prerequisite for a safety decision.
+    except Exception:
+        # Third-party logger failures must never change a safety decision.
+        # The diagnostic state survives even if transport/serialization fails.
         state.triage_logging_failures += 1
