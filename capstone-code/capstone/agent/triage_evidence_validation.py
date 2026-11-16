@@ -26,6 +26,7 @@ EvidenceReason = Literal[
     "out_of_order",
     "outside_window",
     "wrong_source",
+    "wrong_provider",
     "unsupported_tool",
     "invalid_summary",
     "provider_error",
@@ -90,6 +91,7 @@ def validate_triage_result(
     cutoff: int,
     *,
     min_result_tick: int | None = None,
+    allowed_sources: tuple[str, ...] | None = None,
 ) -> EvidenceQualification:
     """Reject malformed or future data before the gather evidence append."""
 
@@ -119,6 +121,8 @@ def validate_triage_result(
         return checked("wrong_source")
     if request.name not in supported or not result.success:
         return checked("unsupported_tool")
+    if allowed_sources is not None and result.source not in allowed_sources:
+        return checked("wrong_provider")
     if result.tick > cutoff:
         return checked("future_tick")
     if min_result_tick is not None and result.tick < min_result_tick:
@@ -244,3 +248,67 @@ def validate_triage_result(
             ):
                 return checked("invalid_shape")
     return checked("accepted")
+
+
+def validate_triage_observe_result(
+    result: ToolResult,
+    request: ToolRequest,
+    cutoff: int,
+    *,
+    min_result_tick: int | None = None,
+    allowed_sources: tuple[str, ...] | None = None,
+) -> EvidenceQualification:
+    """Admit only valid pre-plan clock, screening and roster observations.
+
+    The first clock read establishes the horizon; subsequent Observe reads
+    cannot advance or rewind it without explicit replay handling.
+    """
+    # Variables:
+    #   cutoff: Trusted observation horizon, or the first clock's own tick.
+    #   min_result_tick: Previously accepted timestamp for monotonic checks.
+    #   data: Provider payload; never included in a diagnostic verdict.
+    def verdict(reason: EvidenceReason) -> EvidenceQualification:
+        return EvidenceQualification(
+            accepted=reason == "accepted",
+            reason_code=reason,
+            observed_tick=result.tick,
+        )
+
+    if result.tool != request.name:
+        return verdict("wrong_source")
+    if allowed_sources is not None and result.source not in allowed_sources:
+        return verdict("wrong_provider")
+    if not result.success or request.name not in {
+        "get_time", "get_line_screening", "list_machines"
+    }:
+        return verdict("unsupported_tool")
+    if result.tick > cutoff:
+        return verdict("future_tick")
+    if min_result_tick is not None and result.tick < min_result_tick:
+        return verdict("out_of_order")
+    data = result.data
+    if data is None:
+        return verdict("missing_data")
+    reason = _bad_number_or_tick(data, cutoff)
+    if reason is not None:
+        return verdict(reason)
+    try:
+        json.dumps(data, allow_nan=False, sort_keys=True)
+    except (TypeError, ValueError, OverflowError):
+        return verdict("invalid_shape")
+    if request.name == "get_time":
+        if not isinstance(data, dict) or type(data.get("tick")) is not int:
+            return verdict("invalid_shape")
+        if data["tick"] != result.tick:
+            return verdict("invalid_tick")
+    elif request.name == "get_line_screening":
+        if not isinstance(data, dict) or not isinstance(data.get("machines"), dict):
+            return verdict("invalid_shape")
+    elif not isinstance(data, list) or not all(
+        isinstance(row, dict)
+        and isinstance(row.get("machine_id"), str)
+        and bool(row["machine_id"])
+        for row in data
+    ):
+        return verdict("invalid_shape")
+    return verdict("accepted")
