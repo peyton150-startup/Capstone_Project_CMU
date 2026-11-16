@@ -403,3 +403,74 @@ def test_candidate_archive_contract_is_backward_compatible():
     )
     assert previous.deterministic_candidates is None
     assert previous.deterministic_hypothesis_trace is None
+
+
+
+@pytest.mark.parametrize("broken_summary", [False, True])
+def test_full_graph_deterministic_triage_reaches_checked_conclude(broken_summary):
+    """The actual Graph uses one model stage and preserves unresolved telemetry."""
+    from capstone.agent.investigation import run_investigation
+    from capstone.agent.triage_plan import fixed_plan
+    from tests.helpers import START, new_state
+    from tests.test_triage_deterministic_decide import ALARM
+
+    class ConclusionOnly(NoDecideModel):
+        def plan(self, state):
+            raise AssertionError("the fixed plan must not ask a model")
+
+        def hypothesize(self, state):
+            raise AssertionError("deterministic Hypothesize must not ask a model")
+
+        def conclude(self, state):
+            self.asked.append("conclude")
+            assert state.triage_candidates
+            assert state.triage_hypothesis_trace
+            assert "Q5" in state.triage_question_gaps
+            return (
+                AgentConclusion(
+                    diagnosis="unresolved sensor anomaly",
+                    confidence=0.4,
+                    recommendation="escalate",
+                    assessment="unresolved",
+                    hypothesis_id="TC1",
+                    evidence_ids=tuple(e.id for e in state.evidence[:1]),
+                ),
+                None,
+            )
+
+    def respond(request):
+        if request.name == "get_time":
+            return {"tick": 45, "time": START.isoformat()}
+        if request.name == "get_sensor_summary" and broken_summary:
+            return {"machine_id": request.arguments["machine_id"]}
+        return answer(request)
+
+    policy = ConclusionOnly()
+    provider = FakeProvider(respond, tick=45)
+    state = new_state(max_tool_calls=12, max_iterations=24)
+    state.mode = "triage"
+    state.anomaly = ALARM
+    state.triage_fixed_plan = True
+    state.triage_packet_enabled = False
+    deps = replace(
+        deps_for(provider),
+        policy=policy,
+        triage_hypothesize="deterministic",
+        screening_available=False,
+    )
+    run_investigation(state, deps)
+
+    assert state.fixed_plan_used
+    assert policy.asked == ["conclude"]
+    assert state.triage_hypothesis_trace[0].stage == "hypothesize"
+    assert state.triage_hypothesis_trace[-1].stage == "test"
+    assert state.triage_decide_trace
+    assert "Q5" in state.triage_question_gaps
+    assert state.conclusion is not None
+    assert state.conclusion.recommendation == "escalate"
+    assert state.conclusion.assessment == "unresolved"
+    assert state.deep_recommended
+    assert state.triage_report is not None
+    assert state.proposed_action is None
+    if broken_summary:
+        assert state.triage_requirement_results["Q1:trigger"].status != "satisfied"
