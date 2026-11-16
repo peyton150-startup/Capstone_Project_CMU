@@ -360,16 +360,15 @@ def test_typed_audit_covers_every_selected_attempt():
     assert state.triage_trace_events[0].event == "triage.started"
     assert any(e.event == "requirements.compiled" for e in state.triage_trace_events)
     assert all(
-        e.request_hash and len(e.request_hash) == 20
-        and e.attempt >= 1 and e.candidate_count >= 1
+        e.request_hash
+        and len(e.request_hash) == 20
+        and e.attempt >= 1
+        and e.candidate_count >= 1
         for e in selected
     )
-    assert [e.request_hash for e in selected] == [
-        e.request_hash for e in completed
-    ]
+    assert [e.request_hash for e in selected] == [e.request_hash for e in completed]
     assert all(
-        e.accepted == (e.evidence_id is not None)
-        for e in state.triage_evidence_checks
+        e.accepted == (e.evidence_id is not None) for e in state.triage_evidence_checks
     )
 
 
@@ -537,8 +536,7 @@ def test_record_read_rejection_never_reaches_provenance():
         state, deps_for(FakeProvider(wrong_machine_event, tick=45)), "investigate"
     )
     assert any(
-        check.reason_code == "wrong_source"
-        for check in state.triage_evidence_checks
+        check.reason_code == "wrong_source" for check in state.triage_evidence_checks
     )
     assert not any(
         evidence.source_id.endswith(":get_events") for evidence in state.evidence
@@ -590,9 +588,7 @@ def test_explicit_source_allowlist_rejects_lookalike_provider():
         timestamp=START,
         data=answer(request),
     )
-    checked = validate_triage_result(
-        result, request, 45, allowed_sources=("fake",)
-    )
+    checked = validate_triage_result(result, request, 45, allowed_sources=("fake",))
     assert not checked.accepted
     assert checked.reason_code == "wrong_provider"
 
@@ -729,8 +725,7 @@ def test_incomplete_historical_rows_fail_full_contract():
             data=[row],
         )
         assert (
-            validate_triage_result(result, request, 45).reason_code
-            == "invalid_shape"
+            validate_triage_result(result, request, 45).reason_code == "invalid_shape"
         )
 
 
@@ -861,3 +856,101 @@ def test_deep_observe_does_not_enable_deterministic_guard():
     assert evidence is not None
     assert not state.triage_evidence_checks
     assert not state.triage_trace_events
+
+
+def test_rejected_factory_clock_blocks_entire_deterministic_read_path():
+    from capstone.agent.artifacts import TerminationReason
+
+    state = state_for()
+    provider = FakeProvider(
+        lambda request: (
+            {"tick": 44, "time": START.isoformat()}
+            if request.name == "get_time"
+            else answer(request)
+        ),
+        tick=45,
+    )
+    deps = deps_for(provider)
+    evidence = gather(
+        state,
+        deps,
+        "observe",
+        CallTool(
+            information_needed="the trusted factory clock",
+            request=ToolRequest(name="get_time"),
+        ),
+        interpret=False,
+    )
+    assert evidence is None
+    assert state.triage_clock_verified is False
+    assert state.triage_evidence_checks[-1].reason_code == "invalid_tick"
+    read_count = len(provider.calls)
+
+    reason = run_inner_loop(state, deps, "investigate")
+    assert reason is TerminationReason.NO_USEFUL_ACTION
+    assert len(provider.calls) == read_count
+    assert not state.evidence and not state.provenance
+    assert state.triage_decide_trace[-1].reason == "data_insufficient"
+    assert state.triage_trace_events[-1].event == "triage.stopped"
+    assert state.triage_trace_events[-1].requirement_ids
+
+
+def test_accepted_factory_clock_allows_authorized_deterministic_reads():
+    state = state_for()
+    provider = FakeProvider(
+        lambda request: (
+            {"tick": 45, "time": START.isoformat()}
+            if request.name == "get_time"
+            else answer(request)
+        ),
+        tick=45,
+    )
+    deps = deps_for(provider)
+    evidence = gather(
+        state,
+        deps,
+        "observe",
+        CallTool(
+            information_needed="trusted time",
+            request=ToolRequest(name="get_time"),
+        ),
+        interpret=False,
+    )
+    assert evidence is not None
+    assert state.triage_clock_verified is True
+
+    run_inner_loop(state, deps, "investigate")
+    assert len(provider.calls) > 1
+    assert state.triage_deterministic_reads > 0
+
+
+def test_empty_source_allowlist_denies_deterministic_reads():
+    state = state_for()
+    provider = FakeProvider(answer, tick=45)
+    deps = deps_for(provider)
+    deps.triage_allowed_sources = ()
+    with pytest.raises(ValueError, match="authorized provider sources"):
+        run_inner_loop(state, deps, "investigate")
+    assert not provider.calls
+
+
+def test_empty_source_allowlist_rejects_observe_time():
+    state = state_for()
+    deps = deps_for(
+        FakeProvider(lambda _: {"tick": 45, "time": START.isoformat()}, tick=45)
+    )
+    deps.triage_allowed_sources = ()
+    evidence = gather(
+        state,
+        deps,
+        "observe",
+        CallTool(
+            information_needed="factory time",
+            request=ToolRequest(name="get_time"),
+        ),
+        interpret=False,
+    )
+    assert evidence is None
+    assert state.triage_clock_verified is False
+    assert state.triage_evidence_checks[-1].reason_code == "wrong_provider"
+
