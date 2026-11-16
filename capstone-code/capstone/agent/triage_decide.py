@@ -630,6 +630,8 @@ def choose_next_triage_read(
     #   pending: Requirements still missing qualified evidence.
     #   grouped: One request may answer several requirements with one call.
     #   attempts: Count for the exact request at this stable cutoff.
+    #   order: Typed candidate-driven Test priority, rebuilt as observed
+    #     inspections reveal job-path requirements.
     cutoff = state.triage_observation_cutoff_tick
     assert cutoff is not None
     pending = [
