@@ -1,0 +1,43 @@
+# One-time formatting correction for PR #285; removed after execution.
+name: PR 285 one-time Ruff formatting
+
+on:
+  push:
+    branches:
+      - feature/triage-deterministic-hypothesize
+    paths:
+      - .github/workflows/pr285-ruff-format.yml
+
+permissions:
+  contents: write
+
+jobs:
+  format:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: feature/triage-deterministic-hypothesize
+          fetch-depth: 0
+      - uses: astral-sh/setup-uv@v6
+      - name: Format with the project's locked Ruff
+        shell: bash
+        run: |
+          set -euo pipefail
+          uv sync --locked --all-extras
+          uv run --locked --all-extras ruff check --fix .
+          uv run --locked --all-extras ruff format .
+          uv run --locked --all-extras ruff check .
+          uv run --locked --all-extras ruff format --check .
+      - name: Commit only source formatting fixes
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add capstone-code/capstone/agent/triage_decide.py capstone-code/capstone/agent/triage_hypothesize.py capstone-code/capstone/agent/loop.py capstone-code/capstone/agent/investigation.py capstone-code/capstone/agent/model_policy.py tests/test_triage_deterministic_hypothesize.py
+          if ! git diff --cached --quiet; then
+            git commit -m "style(triage): apply locked Ruff formatting"
+            git push origin HEAD:refs/heads/feature/triage-deterministic-hypothesize
+          fi
