@@ -1027,3 +1027,78 @@ def test_config_fingerprint_changes_when_authorized_sources_change():
     assert fingerprint_b is not None
     assert fingerprint_a != fingerprint_b
 
+
+@pytest.mark.parametrize("then_deep", [False, True])
+def test_deterministic_boundary_survives_a_full_episode(monkeypatch, then_deep):
+    """Use the real simulator and Pydantic Graph, not just controller stubs."""
+    from capstone.agent.artifacts import AgentConclusion
+    from capstone.episode import run_episode
+    from tests.helpers import ScriptedPolicy
+    from tests.test_episode import SEED, wear_policy
+    from tests.test_triage import ByMode
+
+    class GuardedTriage(ScriptedPolicy):
+        def plan(self, state):
+            raise AssertionError("fixed triage plan must not invoke the model")
+
+        def decide(self, state, phase):
+            raise AssertionError("deterministic Decide must not invoke the model")
+
+        def interpret(self, state, step, evidence):
+            raise AssertionError("deterministic Interpret must not invoke the model")
+
+    monkeypatch.setenv("TRIAGE", "on")
+    monkeypatch.setenv("TRIAGE_PLAN", "fixed")
+    monkeypatch.setenv("TRIAGE_INVESTIGATE", "deterministic")
+    monkeypatch.setenv("TRIAGE_PACKET", "on")
+    monkeypatch.setenv("CRITIC", "off")
+    monkeypatch.setenv("TRIAGE_THEN_DEEP", "on" if then_deep else "off")
+    triage_policy = GuardedTriage(
+        conclude=lambda _state: (
+            AgentConclusion(
+                diagnosis="further inspection required",
+                confidence=0.2,
+                recommendation="escalate",
+                assessment="unresolved",
+            ),
+            None,
+        )
+    )
+    policy = ByMode(triage_policy, wear_policy())
+    result = run_episode(
+        SEED,
+        policy,
+        fault="bearing_degradation",
+        clock=lambda: 0.0,
+        triage=True,
+    )
+    triage = result.triage
+    assert triage is not None
+    assert triage.mode == "triage"
+    assert triage.triage_clock_verified is True
+    assert triage.triage_packet is not None
+    assert triage.fixed_plan_used
+    assert triage.triage_deterministic_reads > 0
+    assert any(check.accepted for check in triage.triage_evidence_checks)
+    events = [event.event for event in triage.triage_trace_events]
+    assert "observe.read_validated" in events
+    assert "requirements.compiled" in events
+    assert "triage.stopped" in events
+    assert "conclusion.checked" in events
+    assert [event.sequence for event in triage.triage_trace_events] == list(
+        range(1, len(events) + 1)
+    )
+    assert triage.policy_recommendation == "escalate"
+    assert triage.deep_recommended is True
+    assert triage.proposed_action is None
+    assert triage.verification is None
+    assert set(triage_policy.asked) <= {"hypothesize", "conclude"}
+
+    if then_deep:
+        assert result.state is not triage
+        assert result.state.mode == "deep"
+        assert result.state.follows_triage == triage.investigation_id
+        assert not result.state.triage_trace_events
+        assert result.state.conclusion is not None
+    else:
+        assert result.state is triage
