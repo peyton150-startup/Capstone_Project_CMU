@@ -80,7 +80,7 @@ jobs:
               print("Only stale evaluator inventory checks failed; proceeding")
           PY
       - name: Rebuild evaluator inventories
-        run: cd evaluation && uv run --locked --all-extras python -m evaltools.build_inventory --coverage ../.coverage --junit ../junit.xml
+        run: cd evaluation && uv run --no-sync python -m evaltools.build_inventory --coverage ../.coverage --junit ../junit.xml
       # The first suite necessarily sees stale inventories; that one failure
       # must never be recorded as a permanent failed evaluation test. Verify
       # again after rebuilding, then derive final inventories from green JUnit.
@@ -89,7 +89,7 @@ jobs:
           uv run --no-sync pytest --cov=capstone --cov=evaltools
           --cov-context=test --junitxml=junit.xml --cov-report=term-missing
       - name: Rebuild final inventories from passing test evidence
-        run: cd evaluation && uv run --locked --all-extras python -m evaltools.build_inventory --coverage ../.coverage --junit ../junit.xml
+        run: cd evaluation && uv run --no-sync python -m evaltools.build_inventory --coverage ../.coverage --junit ../junit.xml
       - name: Commit refreshed inventories and remove this workflow
         shell: bash
         run: |
