@@ -575,3 +575,29 @@ def mtconnect_snapshot(path: Path | None, *, show_values: bool = False) -> dict[
         "signals": sorted(signals.values(), key=lambda row: (row["machine"], row["label"])),
         "events": list(reversed(events[-120:])),
     }
+
+
+
+def safe_memory_promotions(path: Path | None) -> list[dict[str, Any]]:
+    """Read-only evaluator projection; promotion correctness never proves eligibility."""
+    out: list[dict[str, Any]] = []
+    for line in recent_lines(path, limit=300):
+        try:
+            raw = json.loads(line)
+        except (ValueError, TypeError):
+            continue
+        if not isinstance(raw, dict) or not isinstance(raw.get("run_key"), str):
+            continue
+        promotion = raw.get("memory_promotion")
+        if not isinstance(promotion, dict):
+            continue
+        out.append({
+            "run_key": raw["run_key"][:100],
+            "investigation_id": str(promotion.get("investigation_id") or "")[:100],
+            "accepted": promotion.get("accepted") if isinstance(promotion.get("accepted"), bool) else None,
+            "stored": promotion.get("stored") if isinstance(promotion.get("stored"), bool) else None,
+            "policy_version": str(promotion.get("policy_version") or "")[:80],
+            "reasons_count": len(promotion["reasons"])
+                if isinstance(promotion.get("reasons"), list) else None,
+        })
+    return list(reversed(out))
