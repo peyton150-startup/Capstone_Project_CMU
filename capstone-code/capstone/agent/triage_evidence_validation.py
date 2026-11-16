@@ -68,6 +68,7 @@ def validate_triage_result(
     result: ToolResult, request: ToolRequest, cutoff: int
 ) -> EvidenceQualification:
     """Reject malformed or future data before the gather evidence append."""
+
     # Variables:
     #   data: The provider's untrusted payload.
     #   args: Already-authorized request arguments, not model output.
@@ -93,10 +94,9 @@ def validate_triage_result(
     if name == "get_sensor_summary":
         if not isinstance(data, dict):
             return checked("invalid_shape")
-        if (
-            data.get("machine_id") != args.get("machine_id")
-            or data.get("sensor") != args.get("sensor")
-        ):
+        if data.get("machine_id") != args.get("machine_id") or data.get(
+            "sensor"
+        ) != args.get("sensor"):
             return checked("wrong_source")
         count = data.get("sample_count")
         if type(count) is not int or count < 0:
