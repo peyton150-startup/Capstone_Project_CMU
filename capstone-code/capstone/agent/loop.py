@@ -25,7 +25,7 @@ import logging
 from collections.abc import Callable
 from dataclasses import dataclass, field
 from time import monotonic
-from typing import TypeVar
+from typing import Literal, TypeVar
 
 from capstone.agent.artifacts import ProposalRecord, TerminationReason
 from capstone.agent.critic import Critic

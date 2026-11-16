@@ -11,10 +11,15 @@ from capstone.agent.investigation import (
     check_conclusion,
     hypothesize,
     investigate,
+)
+from capstone.agent.investigation import (
     test as run_test,
 )
 from capstone.agent.model_policy import render
-from capstone.agent.triage_hypothesize import compile_candidates, update_candidate_packet
+from capstone.agent.triage_hypothesize import (
+    compile_candidates,
+    update_candidate_packet,
+)
 from capstone.observability import create_event_logger
 from capstone.settings import Settings
 from tests.helpers import FakeProvider, ScriptedPolicy
