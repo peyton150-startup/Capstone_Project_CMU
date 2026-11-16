@@ -215,6 +215,7 @@ def run_recorded_investigation(
         clock=clock,
         screening_available=False,
         triage_investigate=settings.triage_investigate,
+        triage_hypothesize=settings.triage_hypothesize,
         triage_tool_specs=tuple(spec for spec in available if spec.name != "wait"),
         triage_channels={
             machine_id: tuple(

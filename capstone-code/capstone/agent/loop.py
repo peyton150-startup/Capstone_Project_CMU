@@ -171,6 +171,8 @@ class InvestigationDeps:
     # a standalone decide question, and asks the model only when nothing
     # compiles (`agent.investigate_compiler`). Never read on a deep run.
     triage_investigate: InvestigateMode = "off"
+    # New opt-in: fixed, unscored candidates and test targets, no hypothesis LLM.
+    triage_hypothesize: Literal["model", "deterministic"] = "model"
     # Exact read-only catalog offered by this run's provider. An empty catalog
     # denies deterministic triage reads; the provider still validates calls.
     triage_tool_specs: tuple[ToolSpec, ...] = ()

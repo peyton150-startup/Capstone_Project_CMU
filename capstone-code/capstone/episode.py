@@ -419,6 +419,7 @@ def run_episode(
         event_logger=event_logger,
         # Triage only; a deep run never reads it.
         triage_investigate=settings.triage_investigate,
+        triage_hypothesize=settings.triage_hypothesize,
         triage_tool_specs=tuple(
             spec
             for spec in research_tools()
