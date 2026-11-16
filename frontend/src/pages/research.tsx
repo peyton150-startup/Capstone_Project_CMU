@@ -2,10 +2,11 @@ import { useState } from 'react';
 import { BookOpen, BrainCircuit, FileText, FlaskConical,
   GitCompareArrows, History, Search, ShieldCheck } from 'lucide-react';
 import { useUi } from '../context';
+import { useResource } from '../api';
 import { useEvaluations } from '../pageData';
 import { ManagedRunLauncher, ManagedRunList } from './managed';
 export { RunDetailPage } from './managed';
-import type { Evaluation } from '../types';
+import type { Evaluation, ListResponse, Scorecard } from '../types';
 import { DataRow, formatNumber, InfoState, Metric, PageHeading, Panel, Pill,
   SummaryLink, TileLink, toneFor, Unavailable } from '../ui';
 
@@ -62,48 +63,87 @@ export function RunsPage() {
 }
 export function EvaluationPage() {
   const {items}=useEvaluations();
-  return <><PageHeading eyebrow="RESEARCH / SCORING" title="Evaluation" description="Evidence, cause correctness and outcomes have different measurement requirements."/>
+  const {token, preview, workspace}=useUi();
+  const score = useResource<ListResponse<Scorecard>>(
+    workspace === 'simulator' && !preview ? '/api/v1/evaluations/scorecards?workspace=simulator' : null,
+    token, workspace !== 'simulator' || preview,
+  );
+  const judged = score.data?.items.filter(x=>x.judged) || [];
+  const unjudged = score.data?.items.filter(x=>!x.judged) || [];
+  return <><PageHeading eyebrow="RESEARCH / SCORING" title="Evaluation"
+    description="Correctness, abstention and verification are separate from model confidence."/>
+    <div className="metric-grid">
+      <Metric label="Judged outcomes" value={score.data ? judged.length : null} note="Evaluator-only labels"/>
+      <Metric label="Unjudged outcomes" value={score.data ? unjudged.length : null} note="Not counted as incorrect"/>
+      <Metric label="Correct diagnoses" value={score.data ? judged.filter(i=>i.fault_correct===true).length : null}
+        note="Within judged records"/>
+      <Metric label="Failed verification" value={score.data ?
+        judged.filter(i=>i.resolved===false).length : null} note="Recorded simulator outcomes"/>
+    </div>
     <div className="two-column uneven">
-      <Panel title="Evaluation results" subtitle="Safe run summaries, not full evaluator truth">
-        {items.length?<RunTable items={items}/>:<Unavailable item="Evaluation results"/>}
+      <Panel title="Evaluation results" subtitle="Safe experiment run summaries">
+        {items.length ? <RunTable items={items}/> : <Unavailable item="Evaluation results"/>}
       </Panel>
-      <Panel title="Scoring dimensions" subtitle="Python owns scoring and ground-truth comparison">
+      <Panel title="Scorecard acceptance criteria" subtitle="Python scoring owns correctness and hidden truth">
         {[
-          ['Diagnosis and target correctness','Judged labels only; unjudged is not incorrect'],
-          ['Recommendation and intervention','Human approval is not execution'],
-          ['Evidence quality','Supported, contradicted and unresolved claims'],
-          ['Verification','Observed outcome after authorized intervention'],
-          ['Latency and tool cost','Compare on matched scenarios'],
-          ['Calibration','Track false reassurance and abstention'],
-        ].map(([a,b])=><div className="quality-check" key={a}><span className="check-ring"/>
-          <div><strong>{a}</strong><small>{b}</small></div></div>)}
-        <div className="soft-note">The API excludes raw ExperimentRecord.score because it may contain simulator hidden truth. A full scorecard requires a separately authorized read model.</div>
+          ['Cause and target correctness', 'Missing human judgement stays unjudged'],
+          ['Recommendation and intervention', 'Approval is not execution'],
+          ['Evidence coverage', 'Only measured evidence counts'],
+          ['Verified outcome', 'Simulator observation after action'],
+          ['Latency and tool cost', 'Matched scenarios and timing policies'],
+          ['Calibration', 'Distinguish abstention from confident errors'],
+        ].map(([label,detail])=><div className="quality-check" key={label}>
+          <span className="check-ring"/><div><strong>{label}</strong><small>{detail}</small></div>
+        </div>)}
+        <div className="soft-note">No raw simulator ground truth is serialized by this view.</div>
       </Panel>
-    </div></>;
+    </div>
+    <Panel title="Evaluator-only scorecards" subtitle="Correctness flags are protected separately from ordinary investigation evidence">
+      {score.error && <InfoState kind="warning" title="Evaluator authorization required" detail={score.error}/>}
+      {score.data?.items.length ? score.data.items.map(item=><div className="settings-row" key={item.id}>
+        <div><strong>{item.id}</strong><small>{item.judged ? 'Judged' : 'Unjudged'}</small></div>
+        <div><Pill text={item.fault_correct == null ? 'Unjudged' : item.fault_correct ? 'Correct' : 'Incorrect'}
+          tone={item.fault_correct == null ? 'neutral' : item.fault_correct ? 'good' : 'warning'}/></div>
+        <div>Action: {item.action_correct == null ? 'unknown' : item.action_correct ? 'correct' : 'incorrect'}</div>
+        <div>Resolved: {item.resolved == null ? 'unknown' : item.resolved ? 'yes' : 'no'}</div>
+      </div>) : <Unavailable item="Evaluator scorecards" detail="Enable the evaluator role and configure an approved experiment record file."/>}
+    </Panel>
+  </>;
 }
 export function ComparePage() {
   const {items}=useEvaluations();
   const [left,setLeft]=useState(''),[right,setRight]=useState('');
   const a=items.find(i=>i.id===(left||items[0]?.id)), b=items.find(i=>i.id===(right||items[1]?.id));
+  const matched = Boolean(a && b && a.scenario === b.scenario && a.seed === b.seed);
   return <><PageHeading eyebrow="RESEARCH / COMPARISON" title="Compare runs"
-    description="Compare observed metrics; different seeds or scenarios are not interchangeable."/>
+    description="Compare matched scenarios and seeds; timing alone is never proof of diagnostic quality."/>
     {items.length>1?<div className="two-column">
       {[{title:'Run A',run:a,value:left,set:setLeft},{title:'Run B',run:b,value:right,set:setRight}].map(x=>
-        <Panel key={x.title} title={x.title} subtitle="Recorded result">
+        <Panel key={x.title} title={x.title} subtitle="Recorded experiment result">
           <label className="field-label" htmlFor={x.title}>{x.title}</label>
           <select id={x.title} value={x.value||x.run?.id} onChange={e=>x.set(e.target.value)}>
             {items.map(i=><option value={i.id} key={i.id}>{i.id}</option>)}</select>
           {x.run&&<><DataRow label="Scenario" value={x.run.scenario||'Unknown'}/>
             <DataRow label="Seed" value={x.run.seed??'Unknown'}/>
+            <DataRow label="Path" value={x.run.mode||'Unknown'}/>
+            <DataRow label="Triage assessment" value={x.run.triage_assessment||'Not recorded'}/>
+            <DataRow label="Deep escalation" value={x.run.triage_deep_ran == null ?
+              'Not recorded' : x.run.triage_deep_ran ? 'Yes' : 'No'}/>
             <DataRow label="Assessment" value={<Pill text={x.run.assessment||'Unjudged'} tone={toneFor(x.run.assessment)}/>}/>
             <DataRow label="Wall seconds" value={x.run.wall_seconds==null?'N/A':formatNumber(x.run.wall_seconds,2)}/>
+            <DataRow label="Triage seconds" value={x.run.triage_seconds==null?'N/A':formatNumber(x.run.triage_seconds,2)}/>
             <DataRow label="Tool calls" value={x.run.tool_count??'N/A'}/>
-            <DataRow label="Model questions" value={x.run.model_questions??'N/A'}/></>}
+            <DataRow label="Model questions" value={x.run.model_questions??'N/A'}/>
+            <DataRow label="Model outage attempts" value={x.run.model_failures??'N/A'}/></>}
         </Panel>)}</div>:
-      <Unavailable item="Comparison" detail="At least two accessible run records are required for a comparison."/>}
-    {a&&b&&<Panel title="Comparison caveat" subtitle="Matched evaluation conditions are required">
-      <p className="body-copy">{a.scenario===b.scenario?'Scenario identifiers match, but seeds, model routes and evaluation policy may still differ.':'The scenarios differ; timing alone cannot establish a better research policy.'}</p>
-      <DataRow label="Wall-time difference (A - B)" value={a.wall_seconds!=null&&b.wall_seconds!=null?(a.wall_seconds-b.wall_seconds).toFixed(2)+' s':'Unknown'}/>
+      <Unavailable item="Comparison" detail="At least two evaluator-authorized records are required."/>}
+    {a&&b&&<Panel title="Comparison validity" subtitle="Only valid matched comparisons support a performance claim">
+      <Pill text={matched ? 'Scenario and seed match' : 'Not matched'} tone={matched ? 'info' : 'warning'}/>
+      <p className="body-copy">{matched ?
+        'Scenario and seed match, but model routes, settings and evaluator version still require confirmation.' :
+        'These records differ in scenario or seed; their latency and accuracy should not be ranked against each other.'}</p>
+      <DataRow label="Wall-time delta (A − B)" value={matched && a.wall_seconds!=null && b.wall_seconds!=null ?
+        (a.wall_seconds-b.wall_seconds).toFixed(2)+' s' : 'Not comparable'}/>
     </Panel>}</>;
 }
 export function KnowledgePage() {
