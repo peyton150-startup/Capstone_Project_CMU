@@ -243,7 +243,14 @@ export function RunDetailPage() {
             extra={'Evidence: '+(d.evidence_ids || []).join(', ')}
             value={(d.tool || 'No tool')+' · '+d.outcome}/>) :
           <Unavailable item="Decision trace"/>}
-        <p className="body-copy">Decision outcomes are not private chain-of-thought; tool arguments and raw provider responses are intentionally excluded.</p>
+        {detail.pruned_candidates?.length ? <div className="soft-note">
+          <strong>Pruned Tree-of-Thought candidates:</strong>
+          {detail.pruned_candidates.map(candidate =>
+            <DataRow key={candidate.id} label={candidate.id}
+              value={(candidate.status || 'unjudged') + ' · model rating ' +
+                (candidate.confidence == null ? 'unknown' : String(candidate.confidence))}/>)}
+        </div> : null}
+        <p className="body-copy">Decision outcomes and pruned alternatives are documented verdicts, not hidden chain-of-thought. Tool arguments and raw provider responses are intentionally excluded.</p>
       </>}
     </Panel>
     <Panel title="Operational diagnostics" subtitle="Validated counters and event identifiers; no prompts, secrets or private evidence">
