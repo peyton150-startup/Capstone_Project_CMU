@@ -463,6 +463,9 @@ class InvestigationState(BaseModel):
     # TRIAGE_INVESTIGATE: each turn the request compiler ran in a triage,
     # with the model's choice beside it (`agent.investigate_compiler`).
     investigate_advice: list[InvestigateAdvice] = Field(default_factory=list)
+    # TRIAGE_INVESTIGATE=on: compiled reads made without asking a model what
+    # they mean, because another compiled read followed (`loop.chains_to_next_read`).
+    compiled_reads_uninterpreted: int = Field(default=0, ge=0)
     # Block 3 (TRIAGE_EVIDENCE_TESTS), triage only. A predicate a planner
     # attached to a question, by question id: with one, a successful call
     # closes the question only on a "true" or "false" verdict. Empty: every

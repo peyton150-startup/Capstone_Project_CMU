@@ -832,6 +832,8 @@ def run_batch(
     deps: InvestigationDeps,
     phase: LoopPhase,
     decision: CallTool | CallTools,
+    *,
+    interpret: bool = True,
 ) -> list[tuple[CallTool, Evidence, int]]:
     """Run the calls of one decide answer in order; return those that gave evidence.
 
@@ -846,6 +848,8 @@ def run_batch(
     #   batch: This answer's number, written on each of its calls' records.
     #   read: Each call that produced evidence, with that evidence and the
     #     index of its record, so the reading can update those records.
+    #   interpret: False skips the standalone interpret question per read
+    #     (STEP_QUESTIONS=2) for a compiled read the next compiled read follows.
     budget = (
         state.remaining_followup_tool_calls
         if phase == "verify"
@@ -875,7 +879,7 @@ def run_batch(
             phase,
             step,
             followup=phase == "verify",
-            interpret=deps.step_questions == 2,
+            interpret=interpret and deps.step_questions == 2,
         )
         if batch is not None:
             state.decisions[-1] = state.decisions[-1].model_copy(
@@ -922,6 +926,32 @@ def compiler_turn(
         return None
     ranked = compile_requests(state)
     return ranked, escape_reason(state, ranked)
+
+
+def chains_to_next_read(
+    state: InvestigationState,
+    deps: InvestigationDeps,
+    plan: tuple[list[Candidate], str | None] | None,
+    compiled: bool,
+) -> bool:
+    """Triage only: whether this compiled read skips the model's interpretation.
+
+    True when the turn's read was compiled (TRIAGE_INVESTIGATE=on) and the
+    compiler has another read lined up after it, with a research call left to
+    make it: the next turn makes that read too, so asking the model what this
+    one means, and what to do next, would only be overridden. The last read of
+    a compiled run is interpreted as before (the model then takes over), and
+    every read stays in the evidence that hypothesize and conclude see.
+    """
+    # Variables:
+    #   plan: The compiler's ranked reads this turn, or None when it did not run.
+    #   compiled: Whether this turn's decision was the compiler's best read.
+    #   ranked: The reads it offered; the first is the one just made, so a
+    #     second means another compiled read follows.
+    if not compiled or plan is None or plan[1] is not None:
+        return False
+    ranked = plan[0]
+    return len(ranked) >= 2 and state.remaining_tool_calls >= 2
 
 
 def note_advice(
@@ -997,6 +1027,10 @@ def run_inner_loop(
     #     why it stood aside, or None when it does not run. In "on" its best
     #     read replaces a standalone decide question; either way each turn's
     #     comparison is kept in state.investigate_advice.
+    #   compiled: Whether this turn's decision was the compiler's read.
+    #   chained: True when another compiled read follows this one
+    #     (`chains_to_next_read`), so no model is asked to interpret it or to
+    #     choose the next step; the last compiled read is interpreted as before.
     if state.started_at is None:
         # The deadline covers the whole investigation, so only the first loop
         # starts the timer. Without this the timeout could never fire.
@@ -1009,6 +1043,7 @@ def run_inner_loop(
     pending_decision = None
     phase_iterations = 0
     while True:
+        compiled = False
         # Before the policy is asked (the slow part), show the last turn.
         notify(state, deps)
         reason = check_termination(state, deps, phase, phase_iterations)
@@ -1044,6 +1079,7 @@ def run_inner_loop(
             ):
                 # The "on" arm: the best compiled read replaces the decide question.
                 decision = plan[0][0].step()
+                compiled = True
                 note_advice(state, deps, phase, plan, decision, compiled=True)
             else:
                 decision = ask_policy(
@@ -1090,8 +1126,12 @@ def run_inner_loop(
             )
             return reason
         before_unproductive = state.unproductive_steps
-        read = run_batch(state, deps, phase, decision)
-        if deps.step_questions == 1 and read:
+        chained = chains_to_next_read(state, deps, plan, compiled)
+        read = run_batch(state, deps, phase, decision, interpret=not chained)
+        if chained and read:
+            # The next compiled read follows: no model question for this one.
+            state.compiled_reads_uninterpreted += len(read)
+        if deps.step_questions == 1 and read and not chained:
             # Interpret even the last permitted tool result. The next step is
             # cached, never executed until the next turn's budget checks pass.
             # Several results from one answer are read in one question.
