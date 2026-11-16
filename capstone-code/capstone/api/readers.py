@@ -1,0 +1,298 @@
+"""Bounded, honest adapters for existing v2 capture and offline run artifacts."""
+from __future__ import annotations
+
+import hashlib
+import json
+from collections import Counter
+from datetime import datetime, timezone
+from pathlib import Path
+from typing import Any
+
+from capstone.ingestion.siemens_opcua_record import OpcUaDataChange, OpcUaSessionMarker, parse_opcua_line
+
+MAX_TAIL_BYTES = 2_000_000
+MAX_LINES = 3500
+
+
+def recent_lines(path: Path | None, *, limit: int = MAX_LINES) -> list[str]:
+    """Read only complete lines from the end of an approved private artifact."""
+    # Variables:
+    #   start: Byte offset for a bounded tail; the first partial line is discarded.
+    #   raw: File tail ending at its final newline, excluding incomplete writes.
+    if path is None or not path.is_file():
+        return []
+    with path.open("rb") as handle:
+        size = handle.seek(0, 2)
+        start = max(0, size - MAX_TAIL_BYTES)
+        handle.seek(start)
+        raw = handle.read(MAX_TAIL_BYTES)
+    if start:
+        pos = raw.find(b"\n")
+        raw = raw[pos + 1 :] if pos >= 0 else b""
+    end = raw.rfind(b"\n")
+    if end < 0:
+        return []
+    return [line.decode("utf-8", errors="replace") for line in raw[: end + 1].splitlines()[-limit:] if line]
+
+
+def capture_records(path: Path | None) -> tuple[list[OpcUaDataChange | OpcUaSessionMarker], int]:
+    """Validate actual Siemens v2 records; never treat MTConnect as OPC UA."""
+    # Variables:
+    #   records: Pydantic validated data changes and session markers.
+    #   invalid: Bad or truncated records in the bounded tail.
+    records: list[OpcUaDataChange | OpcUaSessionMarker] = []
+    invalid = 0
+    for line in recent_lines(path):
+        try:
+            records.append(parse_opcua_line(line))
+        except (ValueError, TypeError):
+            invalid += 1
+    return records, invalid
+
+
+def signal_id(server_uri: str, namespace_uri: str, kind: str, identifier: str) -> str:
+    """Stable opaque id; browser never needs raw OPC UA topology."""
+    return hashlib.sha256(
+        json.dumps([server_uri, namespace_uri, kind, identifier]).encode("utf-8")
+    ).hexdigest()[:20]
+
+
+def iso_age(at: str | None, now: datetime) -> float | None:
+    """UTC age in seconds; unknown timestamps remain unknown."""
+    if not at:
+        return None
+    try:
+        stamp = datetime.fromisoformat(at.replace("Z", "+00:00"))
+        if stamp.tzinfo is None:
+            return None
+        return max(0.0, (now - stamp).total_seconds())
+    except ValueError:
+        return None
+
+
+def recorder_snapshot(path: Path | None, *, show_values: bool = False) -> dict[str, Any]:
+    """Summarize a bounded window, not falsely claim whole-session coverage.
+
+    Signals are identified by server and OPC UA node, never display label.
+    Native Good is not equivalent to eligible for a specific analysis.
+    """
+    # Variables:
+    #   counts: Severity totals over the bounded tail, not the whole recording.
+    #   last_event: Most recent explicit collector state event.
+    #   signals: Most recent validated value per physical source identity.
+    #   now: Current UTC clock for conservative 'unknown' session freshness.
+    if path is None:
+        return {"availability": "not_configured", "message": "No approved Siemens capture configured",
+                "recorder": None, "signals": [], "events": []}
+    records, invalid = capture_records(path)
+    counts: Counter[str] = Counter()
+    signals: dict[str, dict[str, Any]] = {}
+    events: list[dict[str, Any]] = []
+    now = datetime.now(timezone.utc)
+    latest_receive: str | None = None
+    latest_good_numeric: str | None = None
+    last_event: dict[str, Any] | None = None
+    session_epoch: int | None = None
+    for record in records:
+        if isinstance(record, OpcUaSessionMarker):
+            marker = {"event": record.event, "at": record.at.isoformat(), "epoch": record.session_epoch}
+            events.append(marker)
+            last_event = marker
+            session_epoch = record.session_epoch
+            if record.event == "gap":
+                counts["gaps"] += 1
+            if record.event == "connected":
+                counts["connections"] += 1
+            continue
+        counts["received"] += 1
+        counts[record.status.severity] += 1
+        if record.status.overflow:
+            counts["overflow"] += 1
+        if record.non_finite or record.value_type is None:
+            counts["unsupported"] += 1
+        sid = signal_id(record.server_uri, record.node.namespace_uri,
+                        record.node.identifier_type, record.node.identifier)
+        latest_receive = max(latest_receive or "", record.received_at.isoformat())
+        if record.number() is not None:
+            latest_good_numeric = max(latest_good_numeric or "", record.received_at.isoformat())
+        signals[sid] = {
+            "id": sid,
+            "label": "Signal " + sid[:7],
+            "unit": None, "mapped": False, "analysis_eligible": False,
+            "value": record.value if show_values else None,
+            "value_available": show_values and record.value is not None,
+            "quality": record.status.severity,
+            "status_code": record.status.code,
+            "received_at": record.received_at.isoformat(),
+            "source_timestamp": record.source_timestamp.isoformat() if record.source_timestamp else None,
+            "server_timestamp": record.server_timestamp.isoformat() if record.server_timestamp else None,
+            "session_epoch": record.session_epoch,
+            "freshness": "unknown",
+            "reason": "Physical mapping, unit and update policy not yet field-verified",
+        }
+        session_epoch = record.session_epoch
+    for item in signals.values():
+        item["last_received_age_s"] = iso_age(item["received_at"], now)
+    age = iso_age(last_event["at"], now) if last_event else None
+    connected = bool(last_event and last_event["event"] in ("connected", "heartbeat")
+                     and age is not None and age <= 90)
+    if last_event and last_event["event"] in ("stopped", "disconnected"):
+        connection = "disconnected"
+    elif connected:
+        connection = "connected"
+    else:
+        connection = "unknown"
+    receive_age = iso_age(latest_receive, now)
+    measured = "received_recently" if receive_age is not None and receive_age <= 120 else (
+        "stale_or_none" if latest_receive else "none")
+    size = path.stat().st_size if path.is_file() else 0
+    return {
+        "availability": "available" if path.is_file() else "file_missing",
+        "message": None if path.is_file() else "Configured capture file is not present",
+        "recorder": {
+            "id": "siemens-local",
+            "source": "Siemens OPC UA v2",
+            "process_state": "unknown",  # No process supervisor is integrated.
+            "connection_state": connection,
+            "subscription_state": "unconfirmed",  # 'connected' is written before subscribe.
+            "measurement_state": measured,
+            "last_receive_at": latest_receive,
+            "last_good_numeric_at": latest_good_numeric,
+            "session_epoch": session_epoch,
+            "window_scope": "bounded_recent_tail",
+            "received": counts["received"],
+            "good": counts["good"], "uncertain": counts["uncertain"], "bad": counts["bad"],
+            "overflow": counts["overflow"], "gaps": counts["gaps"],
+            "reconnections": max(0, counts["connections"] - 1),
+            "unsupported": counts["unsupported"], "invalid_lines": invalid,
+            "analysis_eligible": None,  # Cannot establish mapping and quality gate.
+            "output_bytes": size,
+            "sink_state": "unknown",  # A growing file is not proof of durable storage.
+            "disk_free_bytes": None,
+        },
+        "signals": sorted(signals.values(), key=lambda x: x["label"]),
+        "events": list(reversed(events[-120:])),
+    }
+
+
+def signal_samples(path: Path | None, requested: str, *, show_values: bool) -> list[dict[str, Any]]:
+    """Return bounded real samples; never interpolate missing data."""
+    records, _ = capture_records(path)
+    samples: list[dict[str, Any]] = []
+    for record in records:
+        if not isinstance(record, OpcUaDataChange):
+            continue
+        sid = signal_id(record.server_uri, record.node.namespace_uri,
+                        record.node.identifier_type, record.node.identifier)
+        if sid != requested:
+            continue
+        value = record.number()
+        samples.append({
+            "at": record.source_timestamp.isoformat() if record.source_timestamp else record.received_at.isoformat(),
+            "received_at": record.received_at.isoformat(),
+            "value": value if show_values else None,
+            "quality": record.status.severity,
+            "epoch": record.session_epoch,
+        })
+    return samples[-600:]
+
+
+def safe_investigations(path: Path | None) -> list[dict[str, Any]]:
+    """Whitelist completed-investigation fields; never return arbitrary audit JSON."""
+    out: list[dict[str, Any]] = []
+    for line in recent_lines(path, limit=300):
+        try:
+            raw = json.loads(line)
+        except (ValueError, TypeError):
+            continue
+        completed = raw.get("completed", raw) if isinstance(raw, dict) else {}
+        if not isinstance(completed, dict):
+            continue
+        id_ = completed.get("investigation_id")
+        if not isinstance(id_, str):
+            continue
+        anomaly = completed.get("anomaly") or {}
+        conclusion = completed.get("conclusion") or {}
+        if not isinstance(anomaly, dict) or not isinstance(conclusion, dict):
+            continue
+        evidence = completed.get("evidence") or []
+        hypotheses = completed.get("hypotheses") or []
+        out.append({
+            "id": id_, "run_id": completed.get("run_id"),
+            "summary": str(anomaly.get("summary") or "No summary")[:600],
+            "symptoms": [str(x)[:250] for x in (anomaly.get("symptoms") or [])[:20]],
+            "diagnosis": str(conclusion.get("diagnosis") or "")[:1200],
+            "model_confidence": conclusion.get("confidence"),
+            "termination_reason": completed.get("termination_reason"),
+            "evidence_count": len(evidence),
+            "hypothesis_count": len(hypotheses),
+            "tool_calls": completed.get("tool_calls_used"),
+            "iterations": completed.get("iterations_used"),
+            "verification": (completed.get("verification") or {}).get("status") if isinstance(completed.get("verification"), dict) else None,
+        })
+    return list(reversed(out))
+
+
+def safe_investigation_detail(path: Path | None, ident: str) -> dict[str, Any] | None:
+    """Project only explicitly permitted evidence and hypothesis attributes."""
+    if not ident or len(ident) > 100:
+        return None
+    for line in reversed(recent_lines(path, limit=300)):
+        try:
+            raw = json.loads(line)
+        except (ValueError, TypeError):
+            continue
+        completed = raw.get("completed", raw) if isinstance(raw, dict) else {}
+        if not isinstance(completed, dict) or completed.get("investigation_id") != ident:
+            continue
+        summary = next((x for x in safe_investigations(path) if x["id"] == ident), None)
+        if summary is None:
+            return None
+        evidence = []
+        for e in (completed.get("evidence") or [])[:100]:
+            if not isinstance(e, dict):
+                continue
+            evidence.append({k: e.get(k) for k in (
+                "id", "source_id", "source_type", "content", "observed_at", "observed_tick")})
+        hypotheses = []
+        for h in (completed.get("hypotheses") or [])[:20]:
+            if not isinstance(h, dict):
+                continue
+            hypotheses.append({k: h.get(k) for k in (
+                "id", "description", "claim", "status", "confidence",
+                "supporting_evidence_ids", "contradicting_evidence_ids",
+                "unexplained_evidence_ids", "discriminating_check")})
+        proposal = completed.get("proposed_action")
+        verification = completed.get("verification")
+        return {**summary, "evidence": evidence, "hypotheses": hypotheses,
+                "proposed_action": {k: proposal.get(k) for k in ("action", "machine_id", "reason", "evidence_ids")}
+                if isinstance(proposal, dict) else None,
+                "verification_detail": {k: verification.get(k) for k in (
+                    "status", "outcome", "summary", "evidence_ids", "observed_tick")}
+                if isinstance(verification, dict) else None}
+    return None
+
+
+def safe_evaluations(path: Path | None) -> list[dict[str, Any]]:
+    """Deliberately omit whole Score and all simulator hidden-truth fields."""
+    out: list[dict[str, Any]] = []
+    for line in recent_lines(path, limit=300):
+        try:
+            raw = json.loads(line)
+        except (ValueError, TypeError):
+            continue
+        if not isinstance(raw, dict) or not isinstance(raw.get("run_key"), str):
+            continue
+        out.append({
+            "id": raw["run_key"][:100],
+            "scenario": raw.get("scenario_id"),
+            "seed": raw.get("seed"),
+            "conclusion": raw.get("conclusion"),
+            "assessment": raw.get("assessment"),
+            "recommendation": raw.get("recommendation"),
+            "verification": raw.get("verification"),
+            "wall_seconds": raw.get("wall_seconds"),
+            "model_questions": (raw.get("model_calls") or {}).get("questions") if isinstance(raw.get("model_calls"), dict) else None,
+            "tool_count": len(raw.get("tools_used") or []),
+        })
+    return list(reversed(out))

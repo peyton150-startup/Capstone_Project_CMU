@@ -1,0 +1,1 @@
+"""Local, read-only industrial frontend API. No CNC or simulator control here."""
