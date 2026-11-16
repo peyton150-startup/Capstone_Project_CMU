@@ -496,8 +496,9 @@ def mtconnect_snapshot(path: Path | None, *, show_values: bool = False) -> dict[
     MTConnect provides availability and conditions, NOT OPC UA StatusCode Good.
     A receipt or recent heartbeat does not certify physical controller health.
     """
-    from capstone.ingestion.record import CollectorMarker, TelemetryRecord, parse_line
     import math
+
+    from capstone.ingestion.record import CollectorMarker, TelemetryRecord, parse_line
 
     if path is None:
         return {"availability": "not_configured", "recorder": None,
