@@ -60,7 +60,11 @@ def create_app(config: UiConfig | None = None) -> FastAPI:
     #   cfg: Immutable, validated server-side path and authentication authority.
     #   authorize: Bearer-token boundary for configured private data.
     cfg = config if config is not None else UiConfig.from_env()
-    runner = SimulatorRuns(cfg.run_db) if cfg.runs_enabled and cfg.run_db is not None else None
+    runner = (
+        SimulatorRuns(cfg.run_db)
+        if cfg.runs_enabled and cfg.run_db is not None
+        else None
+    )
     memory_instance = None  # Lazy server-owned service, never built on every poll.
     memory_lock = threading.Lock()
     app = FastAPI(
@@ -88,15 +92,22 @@ def create_app(config: UiConfig | None = None) -> FastAPI:
         if cfg.token is None:
             return
         supplied = (authorization or "").removeprefix("Bearer ")
-        if not any(hmac.compare_digest(supplied, key) for key in
-                   (cfg.token, cfg.run_token, cfg.review_token, cfg.evaluator_token) if key):
+        if not any(
+            hmac.compare_digest(supplied, key)
+            for key in (cfg.token, cfg.run_token, cfg.review_token, cfg.evaluator_token)
+            if key
+        ):
             raise HTTPException(status_code=401, detail="Local session token required")
 
     Access = Depends(authorize)
 
-    def require_role(authorization: str | None, role: Literal["operator", "reviewer"]) -> None:
+    def require_role(
+        authorization: str | None, role: Literal["operator", "reviewer"]
+    ) -> None:
         if runner is None:
-            raise HTTPException(status_code=403, detail="Managed simulator execution is not configured")
+            raise HTTPException(
+                status_code=403, detail="Managed simulator execution is not configured"
+            )
         provided = (authorization or "").removeprefix("Bearer ")
         expected = cfg.run_token if role == "operator" else cfg.review_token
         if not expected or not hmac.compare_digest(provided, expected):
@@ -125,7 +136,8 @@ def create_app(config: UiConfig | None = None) -> FastAPI:
             "workspaces": ["simulator", "pilot"],
             "sources": {
                 "siemens_capture": cfg.capture is not None and cfg.capture.is_file(),
-                "mtconnect_capture": cfg.mtconnect is not None and cfg.mtconnect.is_file(),
+                "mtconnect_capture": cfg.mtconnect is not None
+                and cfg.mtconnect.is_file(),
                 "investigation_audit": cfg.investigations is not None
                 and cfg.investigations.is_file(),
                 "evaluations": cfg.evaluator
@@ -214,7 +226,10 @@ def create_app(config: UiConfig | None = None) -> FastAPI:
         siemens = recorder_snapshot(cfg.capture)
         legacy = mtconnect_snapshot(cfg.mtconnect)
         items = [x for x in (siemens["recorder"], legacy["recorder"]) if x is not None]
-        return {"availability": "available" if items else "not_configured", "items": items}
+        return {
+            "availability": "available" if items else "not_configured",
+            "items": items,
+        }
 
     @app.get("/api/v1/recordings/mtconnect-local/health", dependencies=[Access])
     def mtconnect_health() -> dict:
@@ -282,12 +297,16 @@ def create_app(config: UiConfig | None = None) -> FastAPI:
         # With managed run roles, evaluator must have a distinct credential.
         if cfg.runs_enabled:
             provided = (authorization or "").removeprefix("Bearer ")
-            if not cfg.evaluator_token or not hmac.compare_digest(provided, cfg.evaluator_token):
+            if not cfg.evaluator_token or not hmac.compare_digest(
+                provided, cfg.evaluator_token
+            ):
                 raise HTTPException(status_code=403, detail="Evaluator role required")
 
     @app.get("/api/v1/evaluations", dependencies=[Access])
-    def evaluations(workspace: Workspace = "simulator",
-                    authorization: Annotated[str | None, Header()] = None) -> dict:
+    def evaluations(
+        workspace: Workspace = "simulator",
+        authorization: Annotated[str | None, Header()] = None,
+    ) -> dict:
         if workspace != "simulator" or not cfg.evaluator:
             raise HTTPException(
                 status_code=403, detail="Evaluator-only simulator records"
@@ -301,13 +320,21 @@ def create_app(config: UiConfig | None = None) -> FastAPI:
         }
 
     @app.get("/api/v1/evaluations/scorecards", dependencies=[Access])
-    def evaluation_scorecards(workspace: Workspace = "simulator",
-                              authorization: Annotated[str | None, Header()] = None) -> dict:
+    def evaluation_scorecards(
+        workspace: Workspace = "simulator",
+        authorization: Annotated[str | None, Header()] = None,
+    ) -> dict:
         if workspace != "simulator" or not cfg.evaluator:
-            raise HTTPException(status_code=403, detail="Evaluator-only simulator scorecards")
+            raise HTTPException(
+                status_code=403, detail="Evaluator-only simulator scorecards"
+            )
         require_evaluator(authorization)
-        return {"availability": "available" if cfg.experiment and cfg.experiment.is_file()
-                else "not_configured", "items": safe_scorecards(cfg.experiment)}
+        return {
+            "availability": "available"
+            if cfg.experiment and cfg.experiment.is_file()
+            else "not_configured",
+            "items": safe_scorecards(cfg.experiment),
+        }
 
     @app.get("/api/v1/system", dependencies=[Access])
     def system() -> dict:
@@ -376,20 +403,33 @@ def create_app(config: UiConfig | None = None) -> FastAPI:
     ) -> dict:
         """Only simulator manual, checked for leaks; no OEM/pilot claims."""
         if workspace != "simulator":
-            raise HTTPException(status_code=403, detail="Pilot manuals require OEM authorization")
+            raise HTTPException(
+                status_code=403, detail="Pilot manuals require OEM authorization"
+            )
         from capstone.manual.index import KeywordManualSearch
         from capstone.manual.sections import load_manual
 
         sections = load_manual()
-        matches = (KeywordManualSearch(sections).search(q, limit=12)
-                   if q and q.strip() else sections[:35])
-        return {"availability": "available", "document_id": "SIM-CNC-001",
-                "source_scope": "simulator_manual_only",
-                "items": [{"citation": section.citation,
-                           "section_id": section.section_id,
-                           "title": section.title[:160],
-                           "revision": section.revision,
-                           "text": section.text[:1800]} for section in matches]}
+        matches = (
+            KeywordManualSearch(sections).search(q, limit=12)
+            if q and q.strip()
+            else sections[:35]
+        )
+        return {
+            "availability": "available",
+            "document_id": "SIM-CNC-001",
+            "source_scope": "simulator_manual_only",
+            "items": [
+                {
+                    "citation": section.citation,
+                    "section_id": section.section_id,
+                    "title": section.title[:160],
+                    "revision": section.revision,
+                    "text": section.text[:1800],
+                }
+                for section in matches
+            ],
+        }
 
     @app.get("/api/v1/knowledge/memories", dependencies=[Access])
     def simulator_memories(
@@ -410,29 +450,41 @@ def create_app(config: UiConfig | None = None) -> FastAPI:
                 with memory_lock:
                     if memory_instance is None:
                         memory_instance = open_memory()
-            memories = (memory_instance.search(q, limit=limit) if q and q.strip()
-                        else memory_instance.retrieve(MemoryQuery(limit=limit)))
+            memories = (
+                memory_instance.search(q, limit=limit)
+                if q and q.strip()
+                else memory_instance.retrieve(MemoryQuery(limit=limit))
+            )
         except (Exception, SystemExit):
-            raise HTTPException(status_code=503, detail="Approved memory store unavailable") from None
+            raise HTTPException(
+                status_code=503, detail="Approved memory store unavailable"
+            ) from None
         safe = []
         for memory in memories:
             intervention = getattr(memory, "intervention", None)
             action = getattr(memory, "action", None)
             verification = getattr(memory, "verification", None)
-            safe.append({
-                "memory_id": str(memory.memory_id),
-                "investigation_id": str(getattr(memory, "investigation_id", "") or ""),
-                "category": memory.category[:128],
-                "symptoms": [str(v)[:200] for v in memory.symptoms[:15]],
-                "diagnosis": memory.diagnosis[:600],
-                "action": action if isinstance(action, str) else
-                    (intervention.action[:120] if intervention is not None else None),
-                "outcome": memory.outcome,
-                "lesson": memory.lesson[:600],
-                "source_tick": memory.source_tick,
-                "verification": getattr(verification, "status", None),
-                "source": "simulator_episodic_memory",
-            })
+            safe.append(
+                {
+                    "memory_id": str(memory.memory_id),
+                    "investigation_id": str(
+                        getattr(memory, "investigation_id", "") or ""
+                    ),
+                    "category": memory.category[:128],
+                    "symptoms": [str(v)[:200] for v in memory.symptoms[:15]],
+                    "diagnosis": memory.diagnosis[:600],
+                    "action": action
+                    if isinstance(action, str)
+                    else (
+                        intervention.action[:120] if intervention is not None else None
+                    ),
+                    "outcome": memory.outcome,
+                    "lesson": memory.lesson[:600],
+                    "source_tick": memory.source_tick,
+                    "verification": getattr(verification, "status", None),
+                    "source": "simulator_episodic_memory",
+                }
+            )
         return {"availability": "available", "items": safe}
 
     @app.get("/api/v1/knowledge/promotions", dependencies=[Access])
@@ -441,10 +493,16 @@ def create_app(config: UiConfig | None = None) -> FastAPI:
         authorization: Annotated[str | None, Header()] = None,
     ) -> dict:
         if workspace != "simulator" or not cfg.evaluator:
-            raise HTTPException(status_code=403, detail="Evaluator-only promotion decisions")
+            raise HTTPException(
+                status_code=403, detail="Evaluator-only promotion decisions"
+            )
         require_evaluator(authorization)
-        return {"availability": "available" if cfg.experiment and cfg.experiment.is_file()
-                else "not_configured", "items": safe_memory_promotions(cfg.experiment)}
+        return {
+            "availability": "available"
+            if cfg.experiment and cfg.experiment.is_file()
+            else "not_configured",
+            "items": safe_memory_promotions(cfg.experiment),
+        }
 
     @app.get("/api/v1/knowledge", dependencies=[Access])
     def knowledge() -> dict:
@@ -455,13 +513,16 @@ def create_app(config: UiConfig | None = None) -> FastAPI:
             "message": "Existing manual and memory providers have no authorized UI read adapter yet",
         }
 
-
     @app.get("/api/v1/lab/runs", dependencies=[Access])
     def list_managed_runs(workspace: Workspace = "simulator") -> dict:
         if workspace != "simulator":
-            raise HTTPException(status_code=403, detail="Pilot cannot execute simulator runs")
-        return {"availability": "available" if runner is not None else "not_integrated",
-                "items": runner.list_runs() if runner is not None else []}
+            raise HTTPException(
+                status_code=403, detail="Pilot cannot execute simulator runs"
+            )
+        return {
+            "availability": "available" if runner is not None else "not_integrated",
+            "items": runner.list_runs() if runner is not None else [],
+        }
 
     @app.post("/api/v1/lab/runs", status_code=202)
     def start_simulator_run(
@@ -471,39 +532,62 @@ def create_app(config: UiConfig | None = None) -> FastAPI:
         idempotency_key: Annotated[str | None, Header(alias="Idempotency-Key")] = None,
     ) -> dict:
         if workspace != "simulator":
-            raise HTTPException(status_code=403, detail="Pilot machine control is prohibited")
+            raise HTTPException(
+                status_code=403, detail="Pilot machine control is prohibited"
+            )
         require_role(authorization, "operator")
-        if idempotency_key is None or not re.fullmatch(r"[A-Za-z0-9_-]{16,96}", idempotency_key):
-            raise HTTPException(status_code=422, detail="A unique 16-96 character Idempotency-Key is required")
+        if idempotency_key is None or not re.fullmatch(
+            r"[A-Za-z0-9_-]{16,96}", idempotency_key
+        ):
+            raise HTTPException(
+                status_code=422,
+                detail="A unique 16-96 character Idempotency-Key is required",
+            )
         assert runner is not None
         try:
             return runner.submit(request, idempotency_key)
         except ValueError:
-            raise HTTPException(status_code=409, detail="Idempotency key belongs to another request") from None
+            raise HTTPException(
+                status_code=409, detail="Idempotency key belongs to another request"
+            ) from None
         except RuntimeError:
-            raise HTTPException(status_code=409, detail="A simulator run is already active") from None
+            raise HTTPException(
+                status_code=409, detail="A simulator run is already active"
+            ) from None
 
     @app.get("/api/v1/lab/runs/{run_id}", dependencies=[Access])
     def managed_run(run_id: str, workspace: Workspace = "simulator") -> dict:
         if workspace != "simulator":
-            raise HTTPException(status_code=403, detail="Pilot run access is prohibited")
+            raise HTTPException(
+                status_code=403, detail="Pilot run access is prohibited"
+            )
         return ensure_run(run_id)
 
     @app.get("/api/v1/lab/runs/{run_id}/investigation", dependencies=[Access])
-    def managed_run_investigation(run_id: str, workspace: Workspace = "simulator") -> dict:
+    def managed_run_investigation(
+        run_id: str, workspace: Workspace = "simulator"
+    ) -> dict:
         if workspace != "simulator":
-            raise HTTPException(status_code=403, detail="Pilot investigation access prohibited")
+            raise HTTPException(
+                status_code=403, detail="Pilot investigation access prohibited"
+            )
         run = ensure_run(run_id)
         assert runner is not None
         path = runner.investigation_audit_path(run_id)
         target = (run["snapshot"].get("investigation") or {}).get("investigation_id")
         if not isinstance(target, str):
             return {"availability": "not_recorded", "detail": None}
-        return {"availability": "available" if (detail := safe_investigation_detail(path, target))
-                else "not_recorded", "detail": detail}
+        return {
+            "availability": "available"
+            if (detail := safe_investigation_detail(path, target))
+            else "not_recorded",
+            "detail": detail,
+        }
 
     @app.get("/api/v1/lab/runs/{run_id}/observability", dependencies=[Access])
-    def managed_run_observability(run_id: str, workspace: Workspace = "simulator") -> dict:
+    def managed_run_observability(
+        run_id: str, workspace: Workspace = "simulator"
+    ) -> dict:
         """Expose a bounded allowlist of metadata, never raw audit or provider text."""
         if workspace != "simulator":
             raise HTTPException(status_code=403, detail="Pilot diagnostics unavailable")
@@ -542,32 +626,45 @@ def create_app(config: UiConfig | None = None) -> FastAPI:
             counts = raw.get("counts")
             if isinstance(counts, dict):
                 entry["counts"] = {
-                    name: count for name, count in counts.items()
-                    if isinstance(name, str) and re.fullmatch(
-                        r"[A-Za-z0-9][A-Za-z0-9_.:-]{0,127}", name
-                    ) and type(count) is int and 0 <= count <= 1_000_000
+                    name: count
+                    for name, count in counts.items()
+                    if isinstance(name, str)
+                    and re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9_.:-]{0,127}", name)
+                    and type(count) is int
+                    and 0 <= count <= 1_000_000
                 }
             items.append(entry)
-        return {"availability": "available", "window_scope": "bounded_recent_tail",
-                "items": items}
+        return {
+            "availability": "available",
+            "window_scope": "bounded_recent_tail",
+            "items": items,
+        }
 
     @app.get("/api/v1/lab/runs/{run_id}/triage", dependencies=[Access])
     def triage_result(run_id: str, workspace: Workspace = "simulator") -> dict:
         if workspace != "simulator":
-            raise HTTPException(status_code=403, detail="Pilot run access is prohibited")
+            raise HTTPException(
+                status_code=403, detail="Pilot run access is prohibited"
+            )
         row = ensure_run(run_id)
         report = row["snapshot"].get("triage_report")
-        return {"availability": "available" if report is not None else "not_recorded",
-                "run_id": run_id, "report": report}
+        return {
+            "availability": "available" if report is not None else "not_recorded",
+            "run_id": run_id,
+            "report": report,
+        }
 
     @app.get("/api/v1/lab/runs/{run_id}/events", dependencies=[Access])
     async def run_events(
-        run_id: str, workspace: Workspace = "simulator",
+        run_id: str,
+        workspace: Workspace = "simulator",
         since: int = Query(default=0, ge=0),
         last_event_id: Annotated[str | None, Header(alias="Last-Event-ID")] = None,
     ) -> StreamingResponse:
         if workspace != "simulator":
-            raise HTTPException(status_code=403, detail="Pilot stream access is prohibited")
+            raise HTTPException(
+                status_code=403, detail="Pilot stream access is prohibited"
+            )
         ensure_run(run_id)
         cursor = since
         if last_event_id and re.fullmatch(r"[0-9]{1,12}", last_event_id):
@@ -582,28 +679,39 @@ def create_app(config: UiConfig | None = None) -> FastAPI:
                 for event in events:
                     cursor = event["seq"]
                     import json
+
                     payload = json.dumps(event["data"], separators=(",", ":"))
                     yield f"id: {cursor}\nevent: {event['event']}\ndata: {payload}\n\n"
                 if not events:
                     yield ": keepalive\n\n"
                 current = await asyncio.to_thread(runner.get, run_id)
-                if current and current["state"] in {"completed", "failed", "interrupted"} and not events:
+                if (
+                    current
+                    and current["state"] in {"completed", "failed", "interrupted"}
+                    and not events
+                ):
                     break
                 await asyncio.sleep(1)
 
-        return StreamingResponse(stream(), media_type="text/event-stream",
-                                 headers={"Cache-Control": "no-store", "X-Accel-Buffering": "no"})
+        return StreamingResponse(
+            stream(),
+            media_type="text/event-stream",
+            headers={"Cache-Control": "no-store", "X-Accel-Buffering": "no"},
+        )
 
     @app.get("/api/v1/simulator/reviews", dependencies=[Access])
     def pending_simulator_reviews(workspace: Workspace = "simulator") -> dict:
         if workspace != "simulator":
             raise HTTPException(status_code=403, detail="Pilot approval is prohibited")
-        return {"availability": "available" if runner is not None else "not_integrated",
-                "items": runner.pending_reviews() if runner is not None else []}
+        return {
+            "availability": "available" if runner is not None else "not_integrated",
+            "items": runner.pending_reviews() if runner is not None else [],
+        }
 
     @app.post("/api/v1/simulator/reviews/{run_id}")
     def decide_simulator_review(
-        run_id: str, decision: ReviewDecision,
+        run_id: str,
+        decision: ReviewDecision,
         workspace: Workspace = "simulator",
         authorization: Annotated[str | None, Header()] = None,
     ) -> dict:
@@ -615,9 +723,13 @@ def create_app(config: UiConfig | None = None) -> FastAPI:
         try:
             return runner.decide(run_id, decision)
         except LookupError:
-            raise HTTPException(status_code=404, detail="Review request not found") from None
+            raise HTTPException(
+                status_code=404, detail="Review request not found"
+            ) from None
         except ValueError:
-            raise HTTPException(status_code=409, detail="Review is no longer pending") from None
+            raise HTTPException(
+                status_code=409, detail="Review is no longer pending"
+            ) from None
 
     return app
 
