@@ -62,10 +62,14 @@ jobs:
         run: uv python install
       - name: Install locked dependencies
         run: uv sync --locked --all-extras
+      - name: Install optional FastAPI test dependencies
+        if: matrix.group == 'Industrial frontend API'
+        run: uv pip install --python .venv/bin/python -r frontend/requirements-api.txt
       - name: Offline tests
         env:
           GROUP: ${{ matrix.group }}
-        run: uv run --locked --all-extras pytest $(uv run --locked --all-extras python .github/test_groups.py files "$GROUP")
+        # --no-sync preserves the optional FastAPI dependencies for the API group.
+        run: uv run --no-sync pytest $(uv run --no-sync python .github/test_groups.py files "$GROUP")
 
   # The whole suite in one run: the source of truth, with coverage.
   full:
@@ -84,11 +88,13 @@ jobs:
         run: uv python install
       - name: Install locked dependencies
         run: uv sync --locked --all-extras
+      - name: Install optional FastAPI test dependencies
+        run: uv pip install --python .venv/bin/python -r frontend/requirements-api.txt
       - name: Offline tests and informational coverage
         id: coverage_tests
         continue-on-error: true
         run: >-
-          uv run --locked --all-extras pytest --cov=capstone --cov=evaltools --cov-context=test
+          uv run --no-sync pytest --cov=capstone --cov=evaltools --cov-context=test
           --junitxml=junit.xml --cov-report=term-missing
           --cov-report=markdown-append:"$GITHUB_STEP_SUMMARY"
           --cov-report=xml:coverage.xml --cov-report=html:htmlcov
