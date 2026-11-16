@@ -490,6 +490,9 @@ class InvestigationState(BaseModel):
     triage_decide_trace: list[TriageDecisionRecord] = Field(default_factory=list)
     # Pre-commit evidence checks, including rejected provider responses.
     triage_evidence_checks: list[EvidenceQualification] = Field(default_factory=list)
+    # Expected provider sources are fixed from dependency configuration, not
+    # chosen by whichever tool happens to answer first.
+    triage_allowed_sources: tuple[str, ...] = ()
     # Ordered, payload-free decision diagnostics; retained with or without JSON logs.
     triage_trace_events: list[TriageTraceEvent] = Field(default_factory=list)
     triage_logging_failures: int = Field(default=0, ge=0)
