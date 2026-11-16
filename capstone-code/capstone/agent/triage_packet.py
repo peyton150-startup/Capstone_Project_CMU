@@ -331,7 +331,7 @@ def optional_call(
                 step.request,
                 cutoff,
                 min_result_tick=cutoff,
-                allowed_sources=deps.triage_allowed_sources or None,
+                allowed_sources=deps.triage_allowed_sources,
             )
             return None if qualification.accepted else qualification.reason_code
 
