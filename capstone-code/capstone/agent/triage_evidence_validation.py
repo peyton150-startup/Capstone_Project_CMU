@@ -178,8 +178,13 @@ def validate_triage_result(
         if count > 0 and last > result.tick:
             return checked("invalid_tick")
         for key in (
-            "mean", "delta", "start_value", "end_value", "minimum",
-            "maximum", "rate_of_change",
+            "mean",
+            "delta",
+            "start_value",
+            "end_value",
+            "minimum",
+            "maximum",
+            "rate_of_change",
         ):
             number = data.get(key)
             if number is not None and type(number) not in (int, float):
@@ -285,6 +290,7 @@ def validate_triage_observe_result(
     The first clock read establishes the horizon; subsequent Observe reads
     cannot advance or rewind it without explicit replay handling.
     """
+
     # Variables:
     #   cutoff: Trusted observation horizon, or the first clock's own tick.
     #   min_result_tick: Previously accepted timestamp for monotonic checks.
@@ -301,7 +307,9 @@ def validate_triage_observe_result(
     if allowed_sources is not None and result.source not in allowed_sources:
         return verdict("wrong_provider")
     if not result.success or request.name not in {
-        "get_time", "get_line_screening", "list_machines"
+        "get_time",
+        "get_line_screening",
+        "list_machines",
     }:
         return verdict("unsupported_tool")
     if result.tick > cutoff:
