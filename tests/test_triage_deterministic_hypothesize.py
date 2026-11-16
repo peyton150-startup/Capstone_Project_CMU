@@ -473,3 +473,37 @@ def test_full_graph_deterministic_triage_reaches_checked_conclude(broken_summary
     assert state.proposed_action is None
     if broken_summary:
         assert state.triage_requirement_results["Q1:trigger"].status != "satisfied"
+
+
+
+def test_three_test_reads_survive_unchanged_model_confidence():
+    """No model confidence-stall heuristic can stop deterministic evidence tests."""
+    state, deps, provider = case()
+    deps.stalled_test_results = 1  # Would stop a model confidence-driven Test.
+    investigate(state, deps)
+    assert hypothesize(state, deps) == "continue"
+    initial_calls = len(provider.calls)
+    run_test(state, deps)
+    test_reads = [
+        decision
+        for decision in state.triage_decide_trace
+        if decision.phase == "test" and decision.kind == "read"
+    ]
+    assert len(test_reads) >= 3
+    assert len(provider.calls) >= initial_calls + 3
+    assert not state.hypotheses
+    assert not deps.policy.asked
+    assert "Q5" in state.triage_question_gaps
+
+
+def test_zero_candidate_plan_falls_through_to_conclude_without_model():
+    """An empty authorized requirement packet never invokes fallback reasoning."""
+    state, deps, provider = case()
+    state.triage_requirements.clear()
+    state.triage_requirement_results.clear()
+    assert hypothesize(state, deps) == "conclude"
+    assert state.triage_candidates == []
+    assert state.triage_test_requirement_ids == ()
+    assert state.triage_hypothesis_trace[-1].action == "no_candidates"
+    assert provider.calls == []
+    assert deps.policy.asked == []
