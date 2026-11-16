@@ -8,6 +8,7 @@ from pydantic import ValidationError
 
 from capstone.agent.loop import gather, run_inner_loop
 from capstone.agent.policy import CallTool
+from capstone.agent.triage_packet import optional_call
 from capstone.agent.triage_decide import initialize_requirements, matching_evidence
 from capstone.agent.triage_evidence_validation import validate_triage_result
 from capstone.agent.triage_trace import TriageTraceEvent
@@ -183,3 +184,30 @@ def test_reused_observe_summary_must_pass_same_source_validation():
     initialize_requirements(state)
     requirement = state.triage_requirements["Q1:trigger"]
     assert matching_evidence(state, requirement) == []
+
+
+def test_deterministic_observe_packet_rejects_invalid_sensor_before_commit():
+    state = state_for()
+    state.started_at = 0.0
+
+    def wrong(request):
+        return {**answer(request), "sensor": "load"}
+
+    deps = deps_for(FakeProvider(wrong, tick=45))
+    call, evidence = optional_call(
+        state,
+        deps,
+        "get_sensor_summary",
+        {
+            "machine_id": "CNC-02",
+            "sensor": "vibration",
+            "from_tick": 20,
+            "to_tick": 45,
+        },
+        "source check",
+        6,
+    )
+    assert evidence is None
+    assert call.outcome == "failed"
+    assert not state.evidence and not state.provenance
+    assert state.triage_evidence_checks[-1].reason_code == "wrong_source"
