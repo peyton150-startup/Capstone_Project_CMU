@@ -42,6 +42,7 @@ from capstone.agent.evidence_packet import (
 from capstone.agent.incident_context import SENSOR_WORDS
 from capstone.agent.loop import InvestigationDeps, gather
 from capstone.agent.policy import CallTool
+from capstone.agent.triage_evidence_validation import validate_triage_result
 from capstone.agent.state import InvestigationState
 from capstone.agent.untrusted import looks_like_instruction
 from capstone.contracts.evidence import Evidence
@@ -292,7 +293,37 @@ def optional_call(
     step = CallTool(
         information_needed=purpose, request=ToolRequest(name=name, arguments=arguments)
     )
-    evidence = gather(state, deps, "observe", step, interpret=False)
+    # The optional alarm window is prior Observe evidence that deterministic
+    # Investigate may reuse, so enforce the same admission rule here.
+    qualification = None
+    validator = None
+    if deps.triage_investigate == "deterministic" and name == "get_sensor_summary":
+        cutoff = state.last_tick
+        if cutoff is None:
+            return (
+                PacketCall(
+                    tool=name,
+                    role="optional",
+                    outcome="skipped_unavailable",
+                    reason="observation_cutoff_unknown",
+                ),
+                None,
+            )
+
+        def validator(result):
+            nonlocal qualification
+            qualification = validate_triage_result(result, step.request, cutoff)
+            return None if qualification.accepted else qualification.reason_code
+
+    evidence = gather(
+        state, deps, "observe", step, interpret=False, validate_result=validator
+    )
+    if qualification is not None:
+        state.triage_evidence_checks.append(
+            qualification.model_copy(
+                update={"evidence_id": evidence.id if evidence is not None else None}
+            )
+        )
     return ledger_entry(state, name, "optional", evidence), evidence
 
 
