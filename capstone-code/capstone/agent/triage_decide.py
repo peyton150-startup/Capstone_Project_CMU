@@ -865,7 +865,8 @@ def run_deterministic_triage_loop(
                 phase=phase,
                 reason_code=(
                     outcome
-                    if outcome in {
+                    if outcome
+                    in {
                         "invalid_result",
                         "invalid_arguments",
                         "unknown_tool",
