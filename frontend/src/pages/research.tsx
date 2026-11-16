@@ -191,26 +191,65 @@ export function ManualsPage() {
       <DataRow label="Citation" value="Exact section and document revision"/>
     </Panel></>;
 }
+type MemoryItem = {
+  memory_id:string; investigation_id:string; category:string; symptoms:string[];
+  diagnosis:string; action:string|null; outcome:string; lesson:string;
+  source_tick:number; verification:string|null; source:string;
+};
+type MemoryPromotion = {
+  run_key:string; investigation_id:string; accepted:boolean|null;
+  stored:boolean|null; policy_version:string; reasons_count:number|null;
+};
 export function MemoryPage() {
-  const {preview}=useUi();
+  const {token,preview,workspace}=useUi();
+  const active=workspace==='simulator'&&!preview;
+  const [search,setSearch]=useState(''),[query,setQuery]=useState('');
+  const path='/api/v1/knowledge/memories?workspace=simulator'+
+    (query?'&q='+encodeURIComponent(query):'');
+  const memory=useResource<ListResponse<MemoryItem>>(active?path:null,token,!active);
+  const promotions=useResource<ListResponse<MemoryPromotion>>(
+    active?'/api/v1/knowledge/promotions?workspace=simulator':null,token,!active);
   return <><PageHeading eyebrow="KNOWLEDGE / LONG TERM" title="Episodic memory"
-    description="Experience is useful only with evidence, outcome and correction history."/>
-    <div className="metric-grid">
-      <Metric label="Connected cases" value={null} note="No memory read adapter"/>
-      <Metric label="Verified lessons" value={null} note="Technician signoff for real machines"/>
-      <Metric label="Rejected promotions" value={null} note="Review records unavailable"/>
-      <Metric label="Source lineage" value={null} note="Must be preserved"/>
-    </div><div className="two-column">
-      <Panel title="Case library" subtitle="No anonymous or invented memory cases">
-        {preview?<div className="manual-preview"><Pill text="SYNTHETIC LAYOUT" tone="warning"/>
-          <h3>Case card placeholder</h3><p>Symptoms, alternatives, action, result and verifier would appear here. No memory case is loaded.</p></div>:
-          <Unavailable item="Episodic memory listing" detail="The Python memory service does not yet expose an authorized local list/search API."/>}
-      </Panel>
-      <Panel title="Promotion criteria" subtitle="Learning is not confidence accumulation">
-        {['Source investigation','Evidence and rejected hypotheses','Outcome of intervention',
-          'Independent verification','Permission and retention'].map((item,i)=>
-          <div className="process-step" key={item}><span>{'0'+(i+1)}</span><div><strong>{item}</strong></div></div>)}
-        <div className="soft-note"><ShieldCheck size={18}/> A model conclusion is not independently confirmed field truth.</div>
-      </Panel>
-    </div></>;
+    description="Past diagnoses remain past claims until verified; promotion decisions do not change the simulator."/>
+    <Panel title="Authorized simulator memory" subtitle="Existing Python memory service, never hidden simulator truth">
+      {workspace==='pilot' && <InfoState kind="warning" title="Pilot learning disabled"
+        detail="Real-machine memory promotion requires separate technician verification, retention and source acceptance."/>}
+      {active && <div className="search-field-wide"><Search size={19}/>
+        <input value={search} onChange={e=>setSearch(e.target.value)}
+          maxLength={120} placeholder="Search symptoms or lessons" aria-label="Search memories"
+          onKeyDown={e=>{if(e.key==='Enter')setQuery(search.trim());}}/>
+        <button className="button-secondary" onClick={()=>setQuery(search.trim())}>Search memories</button></div>}
+      {memory.error && <InfoState kind="warning" title="Memory read unavailable" detail={memory.error}/>}
+      {memory.data?.items.length ? memory.data.items.map(item=>
+        <div className="hypothesis-card" key={item.memory_id}>
+          <span className="eyebrow">MEMORY {item.memory_id.slice(0,12)} / {item.category}</span>
+          <h3>{item.diagnosis}</h3>
+          <DataRow label="Recorded outcome" value={<Pill text={item.outcome} tone={toneFor(item.outcome)}/>}/>
+          <DataRow label="Verification" value={item.verification || 'Not exposed in retrieval view'}/>
+          <DataRow label="Source investigation" value={item.investigation_id || 'Not exposed in retrieval view'}/>
+          <DataRow label="Source tick" value={item.source_tick}/>
+          <DataRow label="Intervention" value={item.action || 'None recorded'}/>
+          <p>{item.lesson}</p>
+          <p className="body-copy">Symptoms: {item.symptoms.join(', ') || 'Not recorded'}</p>
+        </div>) :
+        <Unavailable item="Authorized episodic memories" detail="No matching records or the memory read adapter has not been configured. Empty history is not proof of no past incidents."/>}
+    </Panel>
+    <Panel title="Memory review decisions" subtitle="Evaluator-only history, never an approval to change real equipment">
+      {promotions.error && <InfoState kind="warning" title="Promotion history restricted" detail={promotions.error}/>}
+      {promotions.data?.items.length ? promotions.data.items.map(item=>
+        <div className="settings-row" key={item.run_key}>
+          <div><strong>{item.run_key}</strong><small>Policy: {item.policy_version}</small></div>
+          <Pill text={item.accepted == null ? 'Unknown' : item.accepted ? 'Accepted' : 'Rejected'}
+            tone={item.accepted ? 'good' : item.accepted === false ? 'warning' : 'neutral'}/>
+          <span>Stored: {item.stored == null ? 'unknown' : item.stored ? 'yes' : 'no'}</span>
+        </div>) :
+        <Unavailable item="Promotion review history" detail="An evaluator token and an approved experiment file are required."/>}
+    </Panel>
+    <Panel title="Promotion criteria" subtitle="Learning is not confidence accumulation">
+      {['Source investigation','Evidence and rejected hypotheses','Outcome of intervention',
+        'Independent verification','Permission and retention'].map((item,i)=>
+        <div className="process-step" key={item}><span>{'0'+(i+1)}</span><div><strong>{item}</strong></div></div>)}
+      <div className="soft-note"><ShieldCheck size={18}/> Model confidence alone never proves a stored lesson correct.</div>
+    </Panel>
+  </>;
 }
