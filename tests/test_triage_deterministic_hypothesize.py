@@ -242,3 +242,159 @@ def test_compiling_requires_no_model_or_extra_provider_reads():
         for candidate in state.triage_candidates
         for eid in candidate.observation_evidence_ids
     )
+
+
+
+def test_job_paths_discovered_during_test_are_scheduled():
+    """An inspection discovered during Test must schedule every failed job path."""
+    from capstone.agent.artifacts import DetectedAnomaly
+    from capstone.agent.triage_decide import initialize_requirements
+    from capstone.agent.triage_plan import fixed_plan
+    from capstone.providers.factory import tool_spec
+
+    state = state_for(max_tool_calls=12)
+    state.anomaly = DetectedAnomaly(
+        tick=40, kind="inspection_failures", description="two failed jobs"
+    )
+    state.unanswered_questions = list(fixed_plan(state.anomaly))
+    state.question_predicates = {}
+    state.triage_packet = None
+    state.triage_requirements.clear()
+    state.triage_requirement_results.clear()
+
+    def records(request):
+        if request.name == "get_inspections":
+            return [
+                {"tick": 40, "job_id": 10, "batch_id": 1, "result": "failed"},
+                {"tick": 41, "job_id": 11, "batch_id": 1, "result": "failed"},
+            ]
+        if request.name == "get_job_history":
+            return [
+                {
+                    "tick": 30,
+                    "job_id": request.arguments["job_id"],
+                    "machine_id": "CNC-02",
+                    "kind": "job_started",
+                    "message": "job began",
+                }
+            ]
+        return []
+
+    provider = FakeProvider(records, tick=45)
+    tools = tuple(
+        tool_spec(name)
+        for name in ("get_inspections", "get_job_history", "get_events")
+    )
+    deps = replace(
+        deps_for(provider, tools=tools),
+        triage_hypothesize="deterministic",
+    )
+    initialize_requirements(state)
+    update_candidate_packet(state, stage="hypothesize", deps=deps)
+    assert not any(rid.startswith("Q1:job:") for rid in state.triage_test_requirement_ids)
+
+    run_test(state, deps)
+    assert {"Q1:job:10", "Q1:job:11"} <= set(state.triage_test_requirement_ids)
+    assert sorted(
+        request.arguments["job_id"]
+        for request in provider.calls
+        if request.name == "get_job_history"
+    ) == [10, 11]
+    assert all(candidate.status == "unconfirmed" for candidate in state.triage_candidates)
+
+
+def test_unsupported_channels_remain_missing_but_are_not_scheduled():
+    """Missing recorded channels must not become executable Test requests."""
+    from capstone.agent.triage_decide import initialize_requirements
+    from capstone.providers.factory import tool_spec
+
+    state, deps, provider = case()
+    deps = replace(
+        deps,
+        triage_tool_specs=(tool_spec("get_sensor_summary"),),
+        triage_channels={"CNC-02": ("vibration",)},
+    )
+    initialize_requirements(state)
+    update_candidate_packet(state, stage="hypothesize", deps=deps)
+    load = next(c for c in state.triage_candidates if c.family == "operating_load")
+    assert {"Q5:temperature", "Q5:load"} <= set(load.missing_requirement_ids)
+    assert {"Q5:temperature", "Q5:load"} <= set(
+        load.unavailable_requirement_ids
+    )
+    assert "Q5:temperature" not in state.triage_test_requirement_ids
+    assert "Q5:load" not in state.triage_test_requirement_ids
+    run_test(state, deps)
+    assert all(
+        call.arguments.get("sensor") not in {"temperature", "load"}
+        for call in provider.calls
+    )
+
+
+def test_qualified_summaries_do_not_close_composite_q5():
+    """Source sufficiency is not time-aligned covariation or a confirmed cause."""
+    state, deps, _ = case()
+    investigate(state, deps)
+    hypothesize(state, deps)
+    run_test(state, deps)
+    assert "Q5" in state.triage_question_gaps
+    load = next(c for c in state.triage_candidates if c.family == "operating_load")
+    assert "Q5" in load.open_question_ids
+    assert load.status == "unconfirmed"
+    assert state.triage_hypothesis_trace[-1].unresolved_questions > 0
+
+
+def test_logging_transport_failure_does_not_change_decision_or_test_plan():
+    """Optional JSON logging can fail without changing deterministic behavior."""
+    class BrokenLogger:
+        def log_event(self, *args, **kwargs):
+            raise OSError("private driver error")
+
+    normal_state, normal_deps, _ = case()
+    broken_state, broken_deps, _ = case(event_logger=BrokenLogger())
+    for state, deps in ((normal_state, normal_deps), (broken_state, broken_deps)):
+        investigate(state, deps)
+        hypothesize(state, deps)
+        run_test(state, deps)
+
+    assert normal_state.triage_candidates == broken_state.triage_candidates
+    assert normal_state.triage_test_requirement_ids == (
+        broken_state.triage_test_requirement_ids
+    )
+    assert normal_state.triage_hypothesis_trace == (
+        broken_state.triage_hypothesis_trace
+    )
+    assert normal_state.triage_hypothesis_logging_failures == 0
+    assert broken_state.triage_hypothesis_logging_failures > 0
+
+
+def test_candidate_archive_contract_is_backward_compatible():
+    """The experiment stores candidate traces without breaking old runs."""
+    from capstone.experiment import TriageRecord
+
+    state, deps, _ = case()
+    investigate(state, deps)
+    hypothesize(state, deps)
+    record = TriageRecord(
+        seconds=1.0,
+        conclusion=None,
+        confidence=None,
+        recommendation=None,
+        deep_recommended=True,
+        deep_ran=False,
+        deterministic_candidates=list(state.triage_candidates),
+        deterministic_test_requirement_ids=state.triage_test_requirement_ids,
+        deterministic_hypothesis_trace=list(state.triage_hypothesis_trace),
+    )
+    assert record.deterministic_candidates[0].id == "TC1"
+    previous = TriageRecord.model_validate(
+        {
+            "seconds": 1.0,
+            "conclusion": None,
+            "confidence": None,
+            "recommendation": None,
+            "deep_recommended": True,
+            "deep_ran": False,
+        }
+    )
+    assert previous.deterministic_candidates is None
+    assert previous.deterministic_hypothesis_trace is None
