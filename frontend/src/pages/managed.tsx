@@ -5,6 +5,9 @@ import { useUi } from '../context';
 import type { Capabilities, InvestigationDetail, ListResponse, ManagedRun, ReviewRequest, RunEvent, TriageReport } from '../types';
 import { DataRow, formatStamp, InfoState, PageHeading, Panel, Pill, toneFor, Unavailable } from '../ui';
 
+type OperationalEvent = { event: string; run_id?: string; investigation_id?: string;
+  tick?: number; tool?: string; success?: boolean; counts?: Record<string,number> };
+
 function useManagedRuns(pollMs = 5000) {
   const { workspace, preview, token } = useUi();
   return useResource<ListResponse<ManagedRun>>(
@@ -144,6 +147,10 @@ function useJournal(runId: string | undefined, token: string, enabled: boolean) 
               cursor.current = seq;
               if (parsed !== null && typeof parsed === 'object' && !Array.isArray(parsed))
                 setEvents(previous=>[...previous, { seq, event: name, data: parsed as Record<string,unknown> }].slice(-250));
+              if (name === 'run.completed' || name === 'run.failed' || name === 'run.interrupted') {
+                setStatus('finished');
+                closed = true;
+              }
             }
             end = buffer.indexOf('\n\n');
           }
@@ -171,6 +178,11 @@ export function RunDetailPage() {
   const audit = useResource<{availability:string; detail:InvestigationDetail|null}>(
     enabled ? '/api/v1/lab/runs/' + encodeURIComponent(runId!) +
       '/investigation?workspace=simulator' : null,
+    token, !enabled, 5000,
+  );
+  const operational = useResource<{availability:string;window_scope?:string;items:OperationalEvent[]}>(
+    enabled ? '/api/v1/lab/runs/' + encodeURIComponent(runId!) +
+      '/observability?workspace=simulator' : null,
     token, !enabled, 5000,
   );
   const [section, setSection] = useState<'evidence'|'hypotheses'|'trace'>('evidence');
@@ -233,6 +245,18 @@ export function RunDetailPage() {
           <Unavailable item="Decision trace"/>}
         <p className="body-copy">Decision outcomes are not private chain-of-thought; tool arguments and raw provider responses are intentionally excluded.</p>
       </>}
+    </Panel>
+    <Panel title="Operational diagnostics" subtitle="Validated counters and event identifiers; no prompts, secrets or private evidence">
+      {operational.error && <InfoState kind="warning" title="Diagnostics unavailable" detail={operational.error}/>}
+      {operational.data?.items.length ? operational.data.items.slice(-60).reverse().map((event,index)=>
+        <DataRow key={index} label={event.event}
+          extra={'Investigation: ' + (event.investigation_id || 'not recorded') +
+            ' · Tick: ' + (event.tick ?? 'unknown')}
+          value={(event.tool || 'no tool') + ' · ' +
+            (event.success == null ? 'unjudged' : event.success ? 'success' : 'failed') +
+            (event.counts ? ' · ' + Object.entries(event.counts).map(([k,v])=>k+': '+v).join(', ') : '')}/>
+      ) : <Unavailable item="Run diagnostics" detail="No operational trace has been recorded for this run."/>}
+      <p className="body-copy">Recent event window only. These are source-linked counters, not verified fault labels.</p>
     </Panel>
     <Panel title="Stage event journal" subtitle={'Nonblocking and reconnectable · ' + journal.status}>
       {journal.events.length ? journal.events.map(row=>
