@@ -1034,7 +1034,7 @@ def run_deterministic_triage_loop(
             evidence_ids=(evidence.id,) if evidence is not None else (),
             request_hash=request_hash,
             attempt=attempts + 1,
-            duration_ms=duration_ms,
+            duration_ms=deps.triage_last_admission_ms,
         )
         emit_triage_event(
             state,
@@ -1049,7 +1049,7 @@ def run_deterministic_triage_loop(
             request_hash=request_hash,
             attempt=attempts + 1,
             iteration=state.iteration_count,
-            duration_ms=duration_ms,
+            duration_ms=deps.triage_last_provider_ms,
             remaining_tool_calls=state.remaining_tool_calls,
         )
         state.triage_deterministic_reads += 1
