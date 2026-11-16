@@ -9,7 +9,6 @@ from typing import TYPE_CHECKING, Literal
 
 from pydantic import Field
 
-from capstone.agent.triage_plan import ALARM
 from capstone.contracts import Contract
 
 if TYPE_CHECKING:
@@ -85,7 +84,15 @@ def rule_specs(state: "InvestigationState") -> tuple[
     """Select explicit case families from the observable anomaly category."""
     # Variables:
     #   alarm: Parsed alarm text; it is not a root-cause label.
-    alarm = ALARM.match(state.anomaly.description) if state.anomaly.kind == "alarm" else None
+    # Keep the fixed-plan import inside the function: triage_plan imports
+    # InvestigationState, while state imports the candidate contract above.
+    from capstone.agent.triage_plan import ALARM
+
+    alarm = (
+        ALARM.match(state.anomaly.description)
+        if state.anomaly.kind == "alarm"
+        else None
+    )
     if alarm is not None and state.anomaly.machine_id is not None:
         if alarm["sensor"] == "vibration":
             return ALARM_RULES
