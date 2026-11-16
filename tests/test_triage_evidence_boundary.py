@@ -483,3 +483,25 @@ def test_failed_provider_attempt_still_has_a_rejected_admission_record():
         e.event == "tool.completed" and e.status == "failed"
         for e in state.triage_trace_events
     )
+
+
+def test_late_envelope_cannot_rewind_trusted_tick():
+    state = state_for()
+
+    def late_summary(request):
+        return {**answer(request), "last_tick": 44}
+
+    deps = deps_for(
+        FakeProvider(late_summary, tick=44),
+        tools=(tool_spec("get_sensor_summary"),),
+        channels={"CNC-02": ("vibration",)},
+    )
+    run_inner_loop(state, deps, "investigate")
+    assert state.last_tick == 45
+    assert state.evidence == []
+    assert state.provenance == []
+    assert state.triage_evidence_checks
+    assert all(
+        not check.accepted and check.reason_code == "out_of_order"
+        for check in state.triage_evidence_checks
+    )
