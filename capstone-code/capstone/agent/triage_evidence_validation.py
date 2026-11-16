@@ -11,7 +11,14 @@ import json
 from math import isfinite
 from typing import Literal
 
-from pydantic import Field, model_validator
+from pydantic import Field, ValidationError, model_validator
+
+from capstone.contracts.observations import (
+    EventObservation,
+    InspectionObservation,
+    MaintenanceObservation,
+    SettingObservation,
+)
 
 from capstone.contracts import Contract
 from capstone.contracts.tools import ToolRequest, ToolResult
@@ -246,6 +253,19 @@ def validate_triage_result(
                 or not row["machine_id"]
                 or type(row.get("speed_rpm")) not in (int, float)
             ):
+                return checked("invalid_shape")
+            # Identity/time checks above take precedence; then require the
+            # complete observable contract, not merely plausible row keys.
+            model = {
+                "get_events": EventObservation,
+                "get_job_history": EventObservation,
+                "get_inspections": InspectionObservation,
+                "get_maintenance_history": MaintenanceObservation,
+                "get_settings": SettingObservation,
+            }[name]
+            try:
+                model.model_validate(row)
+            except ValidationError:
                 return checked("invalid_shape")
     return checked("accepted")
 
