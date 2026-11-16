@@ -429,6 +429,19 @@ def create_app(config: UiConfig | None = None) -> FastAPI:
             raise HTTPException(status_code=403, detail="Pilot run access is prohibited")
         return ensure_run(run_id)
 
+    @app.get("/api/v1/lab/runs/{run_id}/investigation", dependencies=[Access])
+    def managed_run_investigation(run_id: str, workspace: Workspace = "simulator") -> dict:
+        if workspace != "simulator":
+            raise HTTPException(status_code=403, detail="Pilot investigation access prohibited")
+        run = ensure_run(run_id)
+        assert runner is not None
+        path = runner.investigation_audit_path(run_id)
+        target = (run["snapshot"].get("investigation") or {}).get("investigation_id")
+        if not isinstance(target, str):
+            return {"availability": "not_recorded", "detail": None}
+        return {"availability": "available" if (detail := safe_investigation_detail(path, target))
+                else "not_recorded", "detail": detail}
+
     @app.get("/api/v1/lab/runs/{run_id}/triage", dependencies=[Access])
     def triage_result(run_id: str, workspace: Workspace = "simulator") -> dict:
         if workspace != "simulator":
