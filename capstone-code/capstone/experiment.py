@@ -298,6 +298,9 @@ class TriageRecord(BaseModel):
     # TRIAGE_INVESTIGATE: each turn the request compiler ran, with the
     # model's choice beside it. None in records from before it was kept.
     investigate_advice: list[InvestigateAdvice] | None = None
+    # TRIAGE_INVESTIGATE=on: compiled reads no model was asked to interpret,
+    # because the next compiled read followed. 0 in older records.
+    compiled_reads_uninterpreted: int = 0
     # The triage evidence packet (TRIAGE_PACKET): every item, missing reason
     # and call outcome Observe recorded. None: no packet was built (and in
     # records from before it was kept).
@@ -534,6 +537,8 @@ def triage_record(
     #   first.triage_packet: The Observe packet, kept whole for tracing.
     #   first.observe_tool_calls_used: Observe's reads kept off research
     #     (TRIAGE_OBSERVE_CALLS=separate); 0 otherwise.
+    #   first.compiled_reads_uninterpreted: Compiled reads made back to back
+    #     without a model question in between.
     #   first.research_tool_calls: Calls charged to research, without the
     #     screening's own call, beside tool_calls.
     #   first.investigate_advice: Each turn the request compiler ran.
@@ -569,6 +574,7 @@ def triage_record(
         research_tool_calls=first.research_tool_calls,
         observe_tool_calls=first.observe_tool_calls_used,
         investigate_advice=list(first.investigate_advice),
+        compiled_reads_uninterpreted=first.compiled_reads_uninterpreted,
         evidence_tests=evidence_tests,
         test_records=list(first.triage_test_records),
         fixed_plan=first.fixed_plan_used,
