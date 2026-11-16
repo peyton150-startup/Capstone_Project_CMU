@@ -1,63 +1,56 @@
 # Manufacturing Research Assistant — Industrial Console
 
-React 19 + TypeScript + Vite, paired with a **local read-only FastAPI adapter** over existing capstone artifacts.
+React 19 + TypeScript + Vite with a loopback-only FastAPI service and the existing Python simulator. The design uses industrial HMI conventions (neutral backgrounds, explicit alarms and evidence-first diagnostics); it is not a controller HMI or a Siemens product.
 
-The product uses restrained industrial HMI design: Ignition-like layouts, Siemens-style status colors, and large Grafana-like charts. It is an original UI, not a copy of any HMI vendor.
+## What works on this branch
 
-## Pages and capabilities
-
-| Pages | Actual source or behavior | Not yet integrated |
+| Workspace | Supported source and behavior | Remaining limitations |
 | --- | --- | --- |
-| Home and Overview | Navigable landing, source-gated summary | Real-time multi-machine incidents |
-| Investigations, triage, deep, review | Whitelisted completed-audit evidence, hypotheses, conclusion, verification | Full typed TriageReport, live graph progress, human approval bridge |
-| Machines and Signals | One configured Siemens capture, opaque signal IDs, Good numeric history | Simulator live inventory, verified Siemens units/mapping |
-| Recordings, quality, sessions | Siemens v2 JSONL records, gaps, recent-window quality and epochs | Recorder process, confirmed subscription, durable sink/storage health |
-| Lab, runs, evaluations, compare | Evaluator-only, truth-redacted experiment summaries | Managed run launch, labelled accuracy scores |
-| Knowledge, manuals, memory | Navigation and explicit unavailable states | Authorized search/list APIs |
-| System, observability, audit, settings | Service status, safe collector metadata, readonly environment allowlist | Live agent traces and validated settings updates |
+| Home / Overview | Spacious routes, industrial themes, source-aware unavailable states | No measured multi-machine live incident stream |
+| Investigations / triage / deep / review | Approved completed-audit projections; managed run diagnosis, evidence, hypotheses, decision trace, persisted triage report and simulator review desk | No unapproved real-machine diagnosis; missing model answers may not yield a complete audit |
+| Machines / signals | Siemens OPC UA v2 capture and separately identified MTConnect v1 observations, bounded charts and status quality | Units, physical mapping and eligibility require field verification |
+| Recordings / quality / sessions | Versioned local capture parser, session epochs, subscription marker, quality and gap reporting | Recorder process supervision, durable sink confirmation and complete session indexing not verified |
+| Experiment lab / runs | Role-gated simulator launch, SQLite status journal, progress SSE, resumable cursor, approval bridge, operational diagnostics | No proof of physical machine action; live provider workflow needs end-to-end tests |
+| Evaluation / comparison | Evaluator-only projected scorecards, cautious comparison on matched inputs | Full scored traces, calibration and performance parity not established |
+| Manuals / memory | Simulator manual search and opt-in authorized episodic memory search | No OEM manual, pilot memory promotion or verified field learning |
+| Engineering / audit / settings | Source-bound service status, curated collector audit, read-only setting allowlist | Validated per-run configuration editing, full worker and sink health remain future work |
 
-**Synthetic preview:** opt-in, clearly labeled and isolated in src/preview.ts. It is never mixed with real data. Production mode does not invent values, machine states, diagnoses or rates.
+**Source boundaries:** Synthetic preview is opt-in and labeled. Simulator hidden truth is not sent to investigator endpoints. Confidence is a model assessment, not verified fault probability. A Siemens OPC UA connection does not prove a valid subscription or qualified sensor measurement. Missing data must not be interpreted as a healthy machine.
 
-**Read-only pilot:** The UI cannot start/stop Siemens recording, write to the CNC, call OPC UA methods or approve physical interventions. Collection remains a separate authorized PowerShell operation. API is loopback-only; private artifacts never belong in Git.
+**Pilot safety:** The Prestige pilot is read-only. React/FastAPI cannot start or stop physical Siemens recordings, call OPC UA methods, write to a CNC, reset faults, acknowledge alarms, or approve physical machine interventions. Data collection is a separate approved local operation.
 
-## Local Windows PowerShell setup (from repository root)
+## Local PowerShell setup
 
-Prerequisites: uv, the repository-pinned Python, Node.js 22.
+Prerequisites: `uv`, the repository's pinned Python version, and Node.js 22. Run from the repository root:
 
-1. Install original locked Python environment: `uv sync --locked --all-extras`
-2. Install optional API dependencies without changing uv.lock:
-   `uv pip install --python .venv/Scripts/python.exe -r frontend/requirements-api.txt`
-3. Install frontend: `cd frontend`, `npm install`, `cd ..`
-4. In PowerShell A, optional approved absolute paths:
-   `$env:CAPSTONE_UI_CAPTURE = "C:\PrestigePilot\capture-001.jsonl"`;
-   `$env:CAPSTONE_UI_CAPTURE_AUDIT = "C:\PrestigePilot\audit-001.jsonl"`;
-   `$env:CAPSTONE_UI_INVESTIGATIONS = "C:\ApprovedPrivate\audit.jsonl"`;
-   `$env:CAPSTONE_UI_EXPERIMENTS = "C:\ApprovedPrivate\experiment.jsonl"`.
-5. Required with configured private files:
-   `$env:CAPSTONE_UI_TOKEN = "REPLACE_WITH_RANDOM_SECRET_AT_LEAST_24_CHARACTERS"`.
-   Optional only with permission: `CAPSTONE_UI_SHOW_VALUES=1` allows recording value display;
-   `CAPSTONE_UI_EVALUATOR=1` allows redacted evaluation summaries.
-6. Start API: `uv run --no-sync python -m capstone.api` (127.0.0.1:8000).
-7. In PowerShell B: `cd frontend`, `npm run dev`; visit http://127.0.0.1:5173.
-   Enter local token through Access toolbar; it remains in browser memory only.
+1. `uv sync --locked --all-extras`
+2. `uv pip install --python .venv/Scripts/python.exe -r frontend/requirements-api.txt`
+3. `cd frontend; npm install; cd ..`
+4. Set only authorized server-owned source paths, for example:
+   `$env:CAPSTONE_UI_CAPTURE = "C:\\PrestigePilot\\capture-001.jsonl"` and
+   `$env:CAPSTONE_UI_INVESTIGATIONS = "C:\\ApprovedPrivate\\audit.jsonl"`.
+   Optional: `CAPSTONE_UI_MTCONNECT`, `CAPSTONE_UI_CAPTURE_AUDIT`, `CAPSTONE_UI_EXPERIMENTS`.
+5. For private source access, set `CAPSTONE_UI_TOKEN` to a random secret of at least 24 characters. `CAPSTONE_UI_SHOW_VALUES=1` is a separate permission to show permitted numeric values.
 
-Never bind API or dev server to an external factory-network interface. Approval to read source telemetry is independent of local UI access.
+Managed **simulator-only** execution is opt-in. Set `CAPSTONE_UI_SIM_RUNS=1`, an absolute `CAPSTONE_UI_RUN_DB` path, and three distinct secrets of at least 24 characters: `CAPSTONE_UI_TOKEN` (read), `CAPSTONE_UI_RUN_TOKEN` (submit), and `CAPSTONE_UI_REVIEW_TOKEN` (approve/reject). Submit and review credentials are not interchangeable. When `CAPSTONE_UI_EVALUATOR=1` is enabled alongside managed runs, configure a fourth distinct `CAPSTONE_UI_EVALUATOR_TOKEN` for scorecards and evaluation records. Local users enter the role-specific token in the browser Access dialog; it is held in memory only.
+
+Start API: `uv run --no-sync python -m capstone.api` (127.0.0.1:8000). Start frontend separately: `cd frontend; npm run dev` (127.0.0.1:5173).
+
+Never expose the API or Vite server on an external factory-network interface. Never commit private capture files, secrets or model-provider request logs. The local runner uses the server's model settings; UI selection is not permission to override an in-flight episode.
+
+## Technical detail and operational diagnostics
+
+- Run status and run progress are persisted in a SQLite journal; event IDs support SSE reconnect. The client stops reconnecting on a terminal event.
+- The Python episode's completed audit is kept in a private, per-run JSONL file and **only strict selected fields** are projected to the frontend. It does not return the simulator or full `EpisodeResult`.
+- Safe operational event metadata is recorded separately from the audit and shown through `GET /api/v1/lab/runs/{run_id}/observability`. The endpoint allowlists event names, identifiers, counters and non-sensitive tick/boolean fields. It does not return provider prompts, error messages, evidence text, arguments or credentials.
+- Approving a proposal records permission only. The simulator's existing `ApprovalDesk` independently controls execution and subsequent verification.
+- Collector process liveness, confirmed sink durability and physical Siemens field acceptance cannot be inferred from existing JSONL. They remain unknown/unverified without instrumentation.
 
 ## Checks
 
-- React: `cd frontend; npm run build; npm test`
-- API: `uv run --no-sync pytest tests/test_web_api.py` (after optional deps installed)
-- Root: `uv run --locked --all-extras ruff check .`; `ruff format --check .`; CI test groups.
+- `cd frontend; npm run build; npm test`
+- `uv run --no-sync pytest tests/test_web_api.py tests/test_web_runs.py` (after installing optional FastAPI dependencies)
+- `uv run --locked --all-extras ruff check .` and `uv run --locked --all-extras ruff format --check .`
+- Review the dedicated **Industrial frontend** and original **CI** GitHub Actions workflows on the latest head commit.
 
-Optional API dependencies are deliberately not in the project's frozen uv.lock.
-Existing core CI skips the optional API tests if FastAPI is absent; the
-Industrial frontend workflow installs FastAPI and runs them.
-
-## Remaining work
-
-The navigable UI, source-safe read adapters, and tests are implemented here.
-**Not** implemented: simulator run worker, human approval API, SSE streaming,
-full triage/critic/ToT persistence, full accuracy scorecards, memory/manual
-search APIs, field-proven Siemens subscriptions, disk/sink monitoring, or
-physically validated Prestige telemetry. These screens explain their status
-rather than claiming unsupported capabilities.
+These tests do not substitute for a real browser end-to-end run, live model-provider investigation, field Siemens acceptance, disk-failure testing or production security review. Do not merge solely because the React bundle compiles.
