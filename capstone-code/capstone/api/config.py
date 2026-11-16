@@ -25,6 +25,10 @@ class UiConfig:
     evaluator: bool = False
     show_values: bool = False
     machine_label: str = "Authorized CNC"
+    run_db: Path | None = None
+    run_token: str | None = None
+    review_token: str | None = None
+    runs_enabled: bool = False
 
     def __post_init__(self) -> None:
         """Reject insecure or ambiguous real-data deployments before serving."""
@@ -37,7 +41,13 @@ class UiConfig:
             raise ValueError(
                 "CAPSTONE_UI_TOKEN must be at least 24 characters for configured files"
             )
-        for path in (self.capture, self.audit, self.experiment, self.investigations):
+        if self.runs_enabled:
+            if self.run_db is None or self.run_token is None or self.review_token is None:
+                raise ValueError("Simulator runs need a database and distinct operator/reviewer tokens")
+            tokens = (self.token, self.run_token, self.review_token)
+            if any(len(token or "") < 24 for token in tokens) or len(set(tokens)) != 3:
+                raise ValueError("Simulator tokens must be distinct, each at least 24 characters")
+        for path in (self.capture, self.audit, self.experiment, self.investigations, self.run_db):
             if path is not None and not path.is_absolute():
                 raise ValueError(
                     "UI source paths must be absolute and configured server-side"
@@ -62,4 +72,8 @@ class UiConfig:
             evaluator=os.getenv("CAPSTONE_UI_EVALUATOR") == "1",
             show_values=os.getenv("CAPSTONE_UI_SHOW_VALUES") == "1",
             machine_label=os.getenv("CAPSTONE_UI_MACHINE_LABEL", "Authorized CNC")[:80],
+            run_db=path("CAPSTONE_UI_RUN_DB"),
+            run_token=os.getenv("CAPSTONE_UI_RUN_TOKEN") or None,
+            review_token=os.getenv("CAPSTONE_UI_REVIEW_TOKEN") or None,
+            runs_enabled=os.getenv("CAPSTONE_UI_SIM_RUNS") == "1",
         )
