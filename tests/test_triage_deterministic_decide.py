@@ -407,7 +407,9 @@ def test_different_batches_are_reported_as_different_not_shared():
         state, deps_for(FakeProvider(records, tick=45), tools=tools), "investigate"
     )
     assert "Q2" in state.answers
-    assert "different batch" in state.triage_requirement_results["Q2:inspections"].reason
+    assert (
+        "different batch" in state.triage_requirement_results["Q2:inspections"].reason
+    )
     assert "Q1" in state.answers
     assert "no machine" in state.triage_requirement_results["Q1:failed_jobs"].reason
 
@@ -460,7 +462,9 @@ def test_unequal_summary_windows_cannot_settle_vibration_q5():
             data["first_tick"] = 30
         return data
 
-    run_inner_loop(state, deps_for(FakeProvider(different_windows, tick=45)), "investigate")
+    run_inner_loop(
+        state, deps_for(FakeProvider(different_windows, tick=45)), "investigate"
+    )
     assert "Q5" in {q.id for q in state.unanswered_questions}
     assert state.triage_requirement_results["Q5:load"].status == "partial"
     assert "noncomparable" in state.triage_question_gaps["Q5"]
