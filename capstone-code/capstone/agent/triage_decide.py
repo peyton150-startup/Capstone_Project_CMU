@@ -668,6 +668,21 @@ def choose_next_triage_read(
             # Preserve stable candidate priority, not arbitrary lexicographic
             # requirement IDs or an LLM-supplied test order.
             pending.sort(key=lambda r: (order[r.requirement_id], r.requirement_id))
+            if not pending:
+                unsupported = tuple(
+                    sorted(
+                        {
+                            rid
+                            for candidate in state.triage_candidates
+                            for rid in candidate.unavailable_requirement_ids
+                        }
+                    )
+                )
+                if unsupported:
+                    return TriageStopDecision(
+                        reason="capability_unavailable",
+                        unresolved_requirement_ids=unsupported,
+                    )
     if not pending and not state.unanswered_questions:
         return TriageStopDecision(reason="requirements_complete")
     grouped: dict[str, tuple[ToolRequest, list[str]]] = {}
