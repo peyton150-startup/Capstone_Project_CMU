@@ -161,7 +161,16 @@ def test_restricted_pilot_investigation_and_no_command_routes(tmp_path):
         client.post("/api/v1/recordings/start", headers=auth).status_code == 405
         or client.post("/api/v1/recordings/start", headers=auth).status_code == 404
     )
-    assert client.post("/api/v1/lab/runs", headers=auth).status_code in (404, 405)
+    # The simulator endpoint now exists. Verify pilot and unauthorized use are
+    # explicitly forbidden rather than assuming the route must be absent.
+    assert (
+        client.post("/api/v1/lab/runs?workspace=pilot", headers=auth, json={"seed": 3})
+        .status_code == 403
+    )
+    assert (
+        client.post("/api/v1/lab/runs?workspace=simulator", headers=auth, json={"seed": 3})
+        .status_code == 403
+    )
 
 
 def test_scorecards_require_evaluator_role_and_never_expose_simulator_truth(tmp_path):
