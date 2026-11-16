@@ -164,50 +164,101 @@ def test_restricted_pilot_investigation_and_no_command_routes(tmp_path):
     # The simulator endpoint now exists. Verify pilot and unauthorized use are
     # explicitly forbidden rather than assuming the route must be absent.
     assert (
-        client.post("/api/v1/lab/runs?workspace=pilot", headers=auth, json={"seed": 3})
-        .status_code == 403
+        client.post(
+            "/api/v1/lab/runs?workspace=pilot", headers=auth, json={"seed": 3}
+        ).status_code
+        == 403
     )
     assert (
-        client.post("/api/v1/lab/runs?workspace=simulator", headers=auth, json={"seed": 3})
-        .status_code == 403
+        client.post(
+            "/api/v1/lab/runs?workspace=simulator", headers=auth, json={"seed": 3}
+        ).status_code
+        == 403
     )
 
 
 def test_scorecards_require_evaluator_role_and_never_expose_simulator_truth(tmp_path):
     from capstone.api.readers import safe_scorecards
+
     records = tmp_path / "results.jsonl"
-    write_lines(records, [{
-        "run_key": "run-a", "scenario_id": "case-a", "seed": 7,
-        "score": {
-            "true_fault": "SECRET_ROOT_CAUSE",
-            "true_machine_id": "SECRET_MACHINE",
-            "fault_correct": None, "target_correct": None,
-            "resolved": False, "action_correct": True, "tool_calls": 4,
-            "causes_found": None, "wrong_causes": None,
-        },
-    }])
+    write_lines(
+        records,
+        [
+            {
+                "run_key": "run-a",
+                "scenario_id": "case-a",
+                "seed": 7,
+                "score": {
+                    "true_fault": "SECRET_ROOT_CAUSE",
+                    "true_machine_id": "SECRET_MACHINE",
+                    "fault_correct": None,
+                    "target_correct": None,
+                    "resolved": False,
+                    "action_correct": True,
+                    "tool_calls": 4,
+                    "causes_found": None,
+                    "wrong_causes": None,
+                },
+            }
+        ],
+    )
     rows = safe_scorecards(records)
     assert rows[0]["judged"] is False
     assert rows[0]["fault_correct"] is None
     assert "SECRET" not in json.dumps(rows)
     config = UiConfig(
-        experiment=records, token="viewer-strong-token-0000000001",
-        evaluator=True, evaluator_token="evaluator-strong-token-000000001",
-        runs_enabled=True, run_db=tmp_path / "runs.db",
+        experiment=records,
+        token="viewer-strong-token-0000000001",
+        evaluator=True,
+        evaluator_token="evaluator-strong-token-000000001",
+        runs_enabled=True,
+        run_db=tmp_path / "runs.db",
         run_token="runner-strong-token-00000000001",
         review_token="reviewer-strong-token-00000001",
     )
     client = TestClient(create_app(config))
     # Both evaluator endpoints must require the evaluator token when roles exist.
     list_endpoint = "/api/v1/evaluations"
-    assert client.get(list_endpoint, headers={"Authorization": "Bearer " + config.token}).status_code == 403
-    assert client.get(list_endpoint, headers={"Authorization": "Bearer " + config.run_token}).status_code == 403
-    assert client.get(list_endpoint, headers={"Authorization": "Bearer " + config.review_token}).status_code == 403
-    assert client.get(list_endpoint, headers={"Authorization": "Bearer " + config.evaluator_token}).status_code == 200
+    assert (
+        client.get(
+            list_endpoint, headers={"Authorization": "Bearer " + config.token}
+        ).status_code
+        == 403
+    )
+    assert (
+        client.get(
+            list_endpoint, headers={"Authorization": "Bearer " + config.run_token}
+        ).status_code
+        == 403
+    )
+    assert (
+        client.get(
+            list_endpoint, headers={"Authorization": "Bearer " + config.review_token}
+        ).status_code
+        == 403
+    )
+    assert (
+        client.get(
+            list_endpoint, headers={"Authorization": "Bearer " + config.evaluator_token}
+        ).status_code
+        == 200
+    )
     endpoint = "/api/v1/evaluations/scorecards"
-    assert client.get(endpoint, headers={"Authorization": "Bearer " + config.token}).status_code == 403
-    assert client.get(endpoint, headers={"Authorization": "Bearer " + config.run_token}).status_code == 403
-    result = client.get(endpoint, headers={"Authorization": "Bearer " + config.evaluator_token})
+    assert (
+        client.get(
+            endpoint, headers={"Authorization": "Bearer " + config.token}
+        ).status_code
+        == 403
+    )
+    assert (
+        client.get(
+            endpoint, headers={"Authorization": "Bearer " + config.run_token}
+        ).status_code
+        == 403
+    )
+    result = client.get(
+        endpoint, headers={"Authorization": "Bearer " + config.evaluator_token}
+    )
     assert result.status_code == 200
     assert result.json()["items"][0]["judged"] is False
     assert "SECRET" not in result.text
@@ -215,48 +266,102 @@ def test_scorecards_require_evaluator_role_and_never_expose_simulator_truth(tmp_
 
 def test_legacy_mtconnect_is_version_isolated_and_never_fabricates_good(tmp_path):
     from capstone.api.readers import mtconnect_snapshot
+
     v1 = tmp_path / "mtconnect.jsonl"
     stamp = datetime.now(timezone.utc).isoformat()
-    write_lines(v1, [
-        {"record_type": "collector", "schema_version": 2, "source": "http://private-agent",
-         "event": "started", "at": stamp},
-        {"record_type": "observation", "schema_version": 1, "source": "http://private-agent",
-         "instance_id": "1", "device": "CNC-A", "component": "Spindle",
-         "data_item_id": "load", "category": "SAMPLE", "type": "Load",
-         "value": "25", "available": True, "sequence": 1,
-         "source_timestamp": stamp, "received_at": stamp},
-        {"record_type": "observation", "schema_version": 1, "source": "http://private-agent",
-         "instance_id": "1", "device": "CNC-A", "component": "Spindle",
-         "data_item_id": "temp", "category": "SAMPLE", "type": "Temperature",
-         "value": None, "available": False, "sequence": 2,
-         "source_timestamp": stamp, "received_at": stamp},
-    ])
+    write_lines(
+        v1,
+        [
+            {
+                "record_type": "collector",
+                "schema_version": 2,
+                "source": "http://private-agent",
+                "event": "started",
+                "at": stamp,
+            },
+            {
+                "record_type": "observation",
+                "schema_version": 1,
+                "source": "http://private-agent",
+                "instance_id": "1",
+                "device": "CNC-A",
+                "component": "Spindle",
+                "data_item_id": "load",
+                "category": "SAMPLE",
+                "type": "Load",
+                "value": "25",
+                "available": True,
+                "sequence": 1,
+                "source_timestamp": stamp,
+                "received_at": stamp,
+            },
+            {
+                "record_type": "observation",
+                "schema_version": 1,
+                "source": "http://private-agent",
+                "instance_id": "1",
+                "device": "CNC-A",
+                "component": "Spindle",
+                "data_item_id": "temp",
+                "category": "SAMPLE",
+                "type": "Temperature",
+                "value": None,
+                "available": False,
+                "sequence": 2,
+                "source_timestamp": stamp,
+                "received_at": stamp,
+            },
+        ],
+    )
     legacy = mtconnect_snapshot(v1)
     assert legacy["recorder"]["available"] == 1
     assert legacy["recorder"]["unavailable"] == 1
     assert "good" not in legacy["recorder"]
-    assert all(item["value"] is None and item["analysis_eligible"] is False
-               for item in legacy["signals"])
+    assert all(
+        item["value"] is None and item["analysis_eligible"] is False
+        for item in legacy["signals"]
+    )
     assert "private-agent" not in json.dumps(legacy)
     token = "mtconnect-local-safe-viewer-token"
     client = TestClient(create_app(UiConfig(mtconnect=v1, token=token)))
     assert client.get("/api/v1/recordings/mtconnect-local/health").status_code == 401
-    result = client.get("/api/v1/recordings/mtconnect-local/health",
-                        headers={"Authorization": "Bearer " + token})
+    result = client.get(
+        "/api/v1/recordings/mtconnect-local/health",
+        headers={"Authorization": "Bearer " + token},
+    )
     assert result.status_code == 200
     assert result.json()["recorder"]["source"] == "MTConnect v1"
-    assert result.json()["recorder"]["subscription_state"] == "not_applicable" if (
-        "subscription_state" in result.json()["recorder"]) else True
-    assert client.get("/api/v1/recordings", headers={"Authorization": "Bearer " + token}
-                      ).json()["items"][0]["source"] == "MTConnect v1"
+    assert (
+        result.json()["recorder"]["subscription_state"] == "not_applicable"
+        if ("subscription_state" in result.json()["recorder"])
+        else True
+    )
+    assert (
+        client.get(
+            "/api/v1/recordings", headers={"Authorization": "Bearer " + token}
+        ).json()["items"][0]["source"]
+        == "MTConnect v1"
+    )
 
 
-def test_subscribed_marker_requires_real_acceptance_and_does_not_imply_measurement(tmp_path):
+def test_subscribed_marker_requires_real_acceptance_and_does_not_imply_measurement(
+    tmp_path,
+):
     from capstone.api.readers import recorder_snapshot
+
     stamp = datetime.now(timezone.utc).isoformat()
+
     def marker(event):
-        return {"record_type": "opcua_session", "schema_version": 2, "source": "opcua",
-                "server_uri": "urn:test", "event": event, "at": stamp, "session_epoch": 1}
+        return {
+            "record_type": "opcua_session",
+            "schema_version": 2,
+            "source": "opcua",
+            "server_uri": "urn:test",
+            "event": event,
+            "at": stamp,
+            "session_epoch": 1,
+        }
+
     path = tmp_path / "capture.jsonl"
     write_lines(path, [marker("connected")])
     connected = recorder_snapshot(path)["recorder"]
@@ -267,7 +372,9 @@ def test_subscribed_marker_requires_real_acceptance_and_does_not_imply_measureme
     assert subscribed["subscription_state"] == "confirmed"
     assert subscribed["measurement_state"] == "none"
     assert subscribed["analysis_eligible"] is None
-    write_lines(path, [marker("connected"), marker("subscribed"), marker("disconnected")])
+    write_lines(
+        path, [marker("connected"), marker("subscribed"), marker("disconnected")]
+    )
     disconnected = recorder_snapshot(path)["recorder"]
     assert disconnected["connection_state"] == "disconnected"
     assert disconnected["subscription_state"] == "unconfirmed"
@@ -281,9 +388,15 @@ def test_future_collector_clock_cannot_claim_live_connection(tmp_path):
     data["received_at"] = future
     data["source_timestamp"] = future
     markers = [
-        {"record_type": "opcua_session", "schema_version": 2,
-         "source": "opcua", "server_uri": "urn:test",
-         "event": event, "at": future, "session_epoch": 1}
+        {
+            "record_type": "opcua_session",
+            "schema_version": 2,
+            "source": "opcua",
+            "server_uri": "urn:test",
+            "event": event,
+            "at": future,
+            "session_epoch": 1,
+        }
         for event in ("connected", "subscribed")
     ]
     write_lines(capture, [*markers, data])
