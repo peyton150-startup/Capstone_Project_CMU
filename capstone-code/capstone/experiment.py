@@ -551,6 +551,8 @@ def triage_record(
     #   calls: Every model question of the episode, triage and deep run;
     #     `triage_metrics` keeps the triage's own by their recorded mode.
     #   first.triage_packet: The Observe packet, kept whole for tracing.
+    #   first.triage_hypothesis_trace: Unscored candidate/Test snapshots saved
+    #     beside deterministic read outcomes for offline comparisons.
     #   first.observe_tool_calls_used: Observe's reads kept off research
     #     (TRIAGE_OBSERVE_CALLS=separate); 0 otherwise.
     #   first.compiled_reads_uninterpreted: Compiled reads made back to back
