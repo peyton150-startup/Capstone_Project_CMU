@@ -656,12 +656,16 @@ def log_packet(
                 tool=tool,
                 success=success,
             )
-        except ValueError:
-            continue
-    logger.log_event(
-        "triage_packet_built",
-        run_id=run_id,
-        investigation_id=investigation_id,
-        tick=packet.observation_tick,
-        counts=packet.counts(),
-    )
+        except Exception:
+            # Operational logging is never allowed to affect the investigation.
+            state.triage_logging_failures += 1
+    try:
+        logger.log_event(
+            "triage_packet_built",
+            run_id=run_id,
+            investigation_id=investigation_id,
+            tick=packet.observation_tick,
+            counts=packet.counts(),
+        )
+    except Exception:
+        state.triage_logging_failures += 1
