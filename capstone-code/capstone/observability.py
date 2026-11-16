@@ -10,6 +10,7 @@ from the API. Event names and IDs must be identifiers, never free-form text.
 import json
 import logging
 import re
+from math import isfinite
 from collections.abc import Mapping
 from typing import TextIO
 
@@ -50,6 +51,13 @@ class EventLogger:
         tool: str | None = None,
         success: bool | None = None,
         counts: Mapping[str, int] | None = None,
+        sequence: int | None = None,
+        phase: str | None = None,
+        status: str | None = None,
+        reason_code: str | None = None,
+        evidence_id: str | None = None,
+        cutoff_tick: int | None = None,
+        duration_ms: float | None = None,
     ) -> None:
         """Emit one event; omitted context stays absent and no clock is inferred.
 
@@ -70,6 +78,10 @@ class EventLogger:
             ("run_id", run_id),
             ("investigation_id", investigation_id),
             ("tool", tool),
+            ("phase", phase),
+            ("status", status),
+            ("reason_code", reason_code),
+            ("evidence_id", evidence_id),
         ):
             if value is not None:
                 metadata[field] = _safe_identifier(value, field)
@@ -77,6 +89,18 @@ class EventLogger:
             if type(tick) is not int or tick < 0:
                 raise ValueError("tick must be a nonnegative integer")
             metadata["tick"] = tick
+        for field, value in (
+            ("sequence", sequence),
+            ("cutoff_tick", cutoff_tick),
+        ):
+            if value is not None:
+                if type(value) is not int or value < (1 if field == "sequence" else 0):
+                    raise ValueError(f"{field} must be a nonnegative integer")
+                metadata[field] = value
+        if duration_ms is not None:
+            if type(duration_ms) not in (float, int) or not isfinite(duration_ms) or duration_ms < 0:
+                raise ValueError("duration_ms must be a finite nonnegative number")
+            metadata["duration_ms"] = round(duration_ms, 3)
         if success is not None:
             if type(success) is not bool:
                 raise ValueError("success must be a boolean")
