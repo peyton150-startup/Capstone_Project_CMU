@@ -20,6 +20,13 @@ if TYPE_CHECKING:
     from capstone.agent.state import InvestigationState
 
 TriageEventName = Literal[
+    "triage.started",
+    "requirements.compiled",
+    "decide.selected",
+    "tool.completed",
+    "evidence.validated",
+    "question.evaluated",
+    "conclusion.checked",
     "triage.read_selected",
     "triage.evidence_accepted",
     "triage.evidence_rejected",
@@ -28,19 +35,27 @@ TriageEventName = Literal[
     "triage.stopped",
 ]
 _CODE = re.compile(r"[a-z][a-z0-9_]{0,63}\Z")
+_HASH = re.compile(r"[a-f0-9]{20}\Z")
 
 
 class TriageTraceEvent(Contract):
     """An ordered, structured result of a deterministic operation."""
 
-    schema_version: Literal["1.0"] = "1.0"
+    schema_version: Literal["1.0", "1.1"] = "1.1"
     sequence: int = Field(ge=1)
     event: TriageEventName
-    phase: Literal["investigate", "test"]
+    phase: Literal["investigate", "test", "conclude"]
     reason_code: str
     status: str | None = None
     tool: str | None = None
     requirement_ids: tuple[str, ...] = ()
+    question_ids: tuple[str, ...] = ()
+    request_hash: str | None = None
+    config_fingerprint: str | None = None
+    attempt: int | None = Field(default=None, ge=1)
+    iteration: int | None = Field(default=None, ge=0)
+    candidate_count: int | None = Field(default=None, ge=0)
+    remaining_tool_calls: int | None = Field(default=None, ge=0)
     evidence_ids: tuple[str, ...] = ()
     source_cutoff_tick: int | None = Field(default=None, ge=0)
     duration_ms: float | None = Field(default=None, ge=0)
@@ -52,6 +67,13 @@ class TriageTraceEvent(Contract):
             raise ValueError(
                 "trace status and reason must be fixed machine-readable codes"
             )
+        return value
+
+    @field_validator("request_hash", "config_fingerprint")
+    @classmethod
+    def validated_hash(cls, value: str | None) -> str | None:
+        if value is not None and not _HASH.fullmatch(value):
+            raise ValueError("only truncated SHA-256 hex fingerprints are allowed")
         return value
 
     @field_validator("duration_ms")
@@ -67,11 +89,18 @@ def emit_triage_event(
     deps: InvestigationDeps,
     *,
     event: TriageEventName,
-    phase: Literal["investigate", "test"],
+    phase: Literal["investigate", "test", "conclude"],
     reason_code: str,
     status: str | None = None,
     tool: str | None = None,
     requirement_ids: tuple[str, ...] = (),
+    question_ids: tuple[str, ...] = (),
+    request_hash: str | None = None,
+    config_fingerprint: str | None = None,
+    attempt: int | None = None,
+    iteration: int | None = None,
+    candidate_count: int | None = None,
+    remaining_tool_calls: int | None = None,
     evidence_ids: tuple[str, ...] = (),
     duration_ms: float | None = None,
 ) -> None:
@@ -88,6 +117,13 @@ def emit_triage_event(
         status=status,
         tool=tool,
         requirement_ids=requirement_ids,
+        question_ids=question_ids,
+        request_hash=request_hash,
+        config_fingerprint=config_fingerprint,
+        attempt=attempt,
+        iteration=iteration,
+        candidate_count=candidate_count,
+        remaining_tool_calls=remaining_tool_calls,
         evidence_ids=evidence_ids,
         source_cutoff_tick=state.triage_observation_cutoff_tick,
         duration_ms=duration_ms,
@@ -102,6 +138,12 @@ def emit_triage_event(
             run_id=str(state.run_id),
             investigation_id=str(state.investigation_id),
             sequence=trace.sequence,
+            request_hash=trace.request_hash,
+            config_fingerprint=trace.config_fingerprint,
+            attempt=trace.attempt,
+            iteration=trace.iteration,
+            candidate_count=trace.candidate_count,
+            remaining_tool_calls=trace.remaining_tool_calls,
             phase=phase,
             tool=tool,
             reason_code=reason_code,
@@ -109,7 +151,10 @@ def emit_triage_event(
             evidence_id=evidence_ids[0] if evidence_ids else None,
             cutoff_tick=trace.source_cutoff_tick,
             duration_ms=duration_ms,
-            counts={"requirements": len(requirement_ids)},
+            counts={
+                "requirements": len(requirement_ids),
+                "questions": len(question_ids),
+            },
         )
     except Exception:
         # Third-party logger failures must never change a safety decision.
