@@ -1,0 +1,79 @@
+name: One-time PR 280 inventory sync
+
+on:
+  push:
+    branches:
+      - codex/triage-deterministic-controller
+    paths:
+      - .github/workflows/pr280-inventory-sync.yml
+
+permissions:
+  actions: read
+  contents: write
+
+jobs:
+  sync-generated-inventory:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: codex/triage-deterministic-controller
+          fetch-depth: 0
+
+      - name: Download the full-suite generated inventory
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/pr280-inventory
+          for attempt in $(seq 1 25); do
+            if gh run download 43942919392 -n evaluator-inventory -D /tmp/pr280-inventory; then
+              break
+            fi
+            if [ "$attempt" -eq 25 ]; then
+              echo "CI inventory artifact was not available after bounded retries"
+              exit 1
+            fi
+            sleep 20
+          done
+          for name in FUNCTION_INVENTORY.json TEST_INVENTORY.json TOOL_INVENTORY.json VERIFICATION_MATRIX.json; do
+            test -s "/tmp/pr280-inventory/$name"
+          done
+
+      - name: Merge current main without rewriting the clearance gate
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git fetch origin main
+          git merge --no-edit origin/main
+
+      - name: Verify source hashes and install CI-generated inventories
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import hashlib
+          import json
+          from pathlib import Path
+
+          matrix = json.loads(Path('/tmp/pr280-inventory/VERIFICATION_MATRIX.json').read_text('utf-8'))
+          hashes = matrix.get('source_sha256') or {}
+          assert hashes and matrix.get('coverage_available') and matrix.get('junit_available')
+          mismatches = [
+              path for path, expected in hashes.items()
+              if not Path(path).is_file()
+              or hashlib.sha256(Path(path).read_bytes()).hexdigest() != expected
+          ]
+          if mismatches:
+              raise SystemExit(f'Inventory is not for these source bytes: {mismatches[:5]}')
+          print(f'Verified {len(hashes)} source hashes against the merged PR files.')
+          PY
+          for name in FUNCTION_INVENTORY.json TEST_INVENTORY.json TOOL_INVENTORY.json VERIFICATION_MATRIX.json; do
+            cp "/tmp/pr280-inventory/$name" "evaluation/inventory/$name"
+          done
+          git add evaluation/inventory/
+          git diff --cached --quiet || git commit -m "chore(evaluation): regenerate PR 280 verification inventories"
+          git push origin HEAD:refs/heads/codex/triage-deterministic-controller
