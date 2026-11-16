@@ -637,6 +637,26 @@ def choose_next_triage_read(
         for r in state.triage_requirements.values()
         if state.triage_requirement_results[r.requirement_id].status != "satisfied"
     ]
+    if deps.triage_hypothesize == "deterministic":
+        if phase == "investigate":
+            # Collect one source for the event before compiling possibilities.
+            # Keep other sources for actual hypothesis-driven Test.
+            anchors = [
+                r for r in pending
+                if r.question_id == "Q1" and r.qualification != "job_path"
+            ]
+            if not anchors:
+                anchors = [
+                    r for r in pending
+                    if r.requirement_id == "Q2:events"
+                ]
+            pending = anchors
+        elif phase == "test":
+            # Explicit typed requirements, not natural-language parsing or
+            # confidence-based selection. Existing authorization still applies.
+            permitted = set(state.triage_test_requirement_ids)
+            pending = [r for r in pending if r.requirement_id in permitted]
+            pending.sort(key=lambda r: r.requirement_id)
     if not pending and not state.unanswered_questions:
         return TriageStopDecision(reason="requirements_complete")
     grouped: dict[str, tuple[ToolRequest, list[str]]] = {}
@@ -764,6 +784,21 @@ def run_deterministic_triage_loop(
         decision = choose_next_triage_read(state, deps, phase)
         if isinstance(decision, TriageStopDecision):
             return stop(state, phase, decision)
+        if (
+            deps.event_logger is not None
+            and deps.triage_hypothesize == "deterministic"
+        ):
+            deps.event_logger.log_event(
+                "triage.read.selected",
+                run_id=str(state.run_id),
+                investigation_id=str(state.investigation_id),
+                tick=state.last_tick,
+                tool=decision.step.request.name,
+                counts={
+                    "requirements": len(decision.requirement_ids),
+                    "remaining_calls": state.remaining_tool_calls,
+                },
+            )
         state.iteration_count += 1
         cutoff = state.triage_observation_cutoff_tick
         assert cutoff is not None
