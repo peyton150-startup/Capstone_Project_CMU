@@ -1,0 +1,85 @@
+# One-time PR #285 evaluation-inventory sync. Delete after it succeeds.
+name: PR 285 one-time evaluation inventory
+
+on:
+  push:
+    branches:
+      - feature/triage-deterministic-hypothesize
+    paths:
+      - .github/workflows/pr285-evaluation-inventory.yml
+
+permissions:
+  actions: read
+  contents: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: feature/triage-deterministic-hypothesize
+          fetch-depth: 0
+
+      - name: Retrieve source-linked inventory from full-suite run
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/pr285-inventory
+          for attempt in $(seq 1 40); do
+            if gh run download 43955219545 -n evaluator-inventory -D /tmp/pr285-inventory; then
+              break
+            fi
+            if [ "$attempt" -eq 40 ]; then
+              echo "Inventory from the full-suite run did not become available"
+              exit 1
+            fi
+            sleep 20
+          done
+          for name in FUNCTION_INVENTORY.json TEST_INVENTORY.json TOOL_INVENTORY.json VERIFICATION_MATRIX.json; do
+            test -s "/tmp/pr285-inventory/$name"
+          done
+
+      - name: Confirm generated hashes match this exact branch
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import hashlib
+          import json
+          from pathlib import Path
+
+          matrix = json.loads(Path("/tmp/pr285-inventory/VERIFICATION_MATRIX.json").read_text("utf-8"))
+          hashes = matrix.get("source_sha256") or {}
+          if not hashes or not matrix.get("coverage_available") or not matrix.get("junit_available"):
+              raise SystemExit("Inventory lacks full source-coverage or JUnit evidence")
+          mismatches = [
+              path
+              for path, expected in hashes.items()
+              if not Path(path).is_file()
+              or hashlib.sha256(Path(path).read_bytes()).hexdigest() != expected
+          ]
+          if mismatches:
+              raise SystemExit(f"Generated inventory does not match this branch: {mismatches[:5]}")
+          print(f"Matched {len(hashes)} generated source hashes")
+          PY
+
+      - name: Commit only authoritative evaluation inventories
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git fetch origin main
+          git merge-base --is-ancestor origin/main HEAD
+          for name in FUNCTION_INVENTORY.json TEST_INVENTORY.json TOOL_INVENTORY.json VERIFICATION_MATRIX.json; do
+            cp "/tmp/pr285-inventory/$name" "evaluation/inventory/$name"
+          done
+          git add evaluation/inventory/
+          if ! git diff --cached --quiet; then
+            git commit -m "chore(evaluation): regenerate deterministic hypothesis inventories"
+            git push origin HEAD:refs/heads/feature/triage-deterministic-hypothesize
+          fi
