@@ -29,12 +29,12 @@ from capstone.agent.artifacts import (
 from capstone.agent.evidence_packet import EvidencePacket
 from capstone.agent.triage_evidence_validation import EvidenceQualification
 from capstone.agent.triage_report import TriageReport
-from capstone.agent.triage_trace import TriageTraceEvent
 from capstone.agent.triage_requirements import (
     ReadRequirement,
     RequirementResult,
     TriageDecisionRecord,
 )
+from capstone.agent.triage_trace import TriageTraceEvent
 from capstone.contracts import Contract
 from capstone.contracts.evidence import Evidence
 from capstone.contracts.hypotheses import Hypothesis
