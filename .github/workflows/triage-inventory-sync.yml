@@ -1,4 +1,5 @@
 # One-time source-and-test inventory rebuild after PR #284 audit hardening.
+# Retrigger after the final source/test hardening commit; a stale checkout cannot push.
 # This branch-restricted workflow deletes itself in its successful commit.
 name: One-time triage inventory sync
 
