@@ -269,6 +269,9 @@ TriageTestKind = Literal[
     # question, or could not (a roster machine unscored).
     "question_kept_open",
     "question_closed",
+    # check_conclusion: a supported no-action was held open because a question
+    # with a predicate was still open or its verdict was not true/false.
+    "clearance_question_open",
 ]
 
 
@@ -305,6 +308,9 @@ GapKind = Literal[
     "triage_screening_gap",
     "triage_screening_stale",
     "triage_no_measurement",
+    # ...or a question with a measured predicate (the fixed plan's Q1: is the
+    # alarm sustained or a spike?) is still open or not settled true/false.
+    "triage_required_question_open",
 ]
 # How an open question bears on the chosen explanation: it tells the chosen
 # one from a rival, it only checks the chosen one, it names no explanation,
