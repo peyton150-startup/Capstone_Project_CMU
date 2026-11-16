@@ -234,3 +234,25 @@ def test_legacy_mtconnect_is_version_isolated_and_never_fabricates_good(tmp_path
         "subscription_state" in result.json()["recorder"]) else True
     assert client.get("/api/v1/recordings", headers={"Authorization": "Bearer " + token}
                       ).json()["items"][0]["source"] == "MTConnect v1"
+
+
+def test_subscribed_marker_requires_real_acceptance_and_does_not_imply_measurement(tmp_path):
+    from capstone.api.readers import recorder_snapshot
+    stamp = datetime.now(timezone.utc).isoformat()
+    def marker(event):
+        return {"record_type": "opcua_session", "schema_version": 2, "source": "opcua",
+                "server_uri": "urn:test", "event": event, "at": stamp, "session_epoch": 1}
+    path = tmp_path / "capture.jsonl"
+    write_lines(path, [marker("connected")])
+    connected = recorder_snapshot(path)["recorder"]
+    assert connected["connection_state"] == "connected"
+    assert connected["subscription_state"] == "unconfirmed"
+    write_lines(path, [marker("connected"), marker("subscribed")])
+    subscribed = recorder_snapshot(path)["recorder"]
+    assert subscribed["subscription_state"] == "confirmed"
+    assert subscribed["measurement_state"] == "none"
+    assert subscribed["analysis_eligible"] is None
+    write_lines(path, [marker("connected"), marker("subscribed"), marker("disconnected")])
+    disconnected = recorder_snapshot(path)["recorder"]
+    assert disconnected["connection_state"] == "disconnected"
+    assert disconnected["subscription_state"] == "unconfirmed"
