@@ -22,6 +22,7 @@ def make_recorded_state(
     triage_packet_prompt: bool = False,
     triage_conclude_brief: bool = False,
     triage_conclude_cap: bool = False,
+    triage_fixed_plan: bool = False,
 ) -> InvestigationState:
     """Make a triage-only state for evidence review, never a repair workflow."""
     # Variables:
@@ -53,6 +54,7 @@ def make_recorded_state(
         triage_packet_prompt=triage_packet_prompt,
         triage_conclude_brief=triage_conclude_brief,
         triage_conclude_cap=triage_conclude_cap,
+        triage_fixed_plan=triage_fixed_plan,
         stage_context=stage_context,
         state_action_bar=state_action_bar,
     )

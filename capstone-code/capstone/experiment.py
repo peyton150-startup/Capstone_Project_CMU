@@ -73,6 +73,7 @@ from capstone.agent.state import (
 )
 from capstone.agent.tree_of_thought import RevaluationRecord, Thought, TreeOptions
 from capstone.agent.triage_report import TriageReport
+from capstone.agent.triage_requirements import RequirementResult, TriageDecisionRecord
 from capstone.console import safe_console
 from capstone.episode import (
     CHALLENGE,
@@ -301,6 +302,14 @@ class TriageRecord(BaseModel):
     # TRIAGE_INVESTIGATE=on: compiled reads no model was asked to interpret,
     # because the next compiled read followed. 0 in older records.
     compiled_reads_uninterpreted: int = 0
+    # Opt-in deterministic Decide; defaults preserve saved pre-feature records.
+    deterministic_reads: int = 0
+    deterministic_stops: int = 0
+    deterministic_decide_model_calls: int | None = None
+    deterministic_trace: list[TriageDecisionRecord] | None = None
+    requirement_results: dict[str, RequirementResult] | None = None
+    qualified_requirements: int = 0
+    unresolved_requirements: int = 0
     # The triage evidence packet (TRIAGE_PACKET): every item, missing reason
     # and call outcome Observe recorded. None: no packet was built (and in
     # records from before it was kept).
@@ -575,6 +584,28 @@ def triage_record(
         observe_tool_calls=first.observe_tool_calls_used,
         investigate_advice=list(first.investigate_advice),
         compiled_reads_uninterpreted=first.compiled_reads_uninterpreted,
+        deterministic_reads=first.triage_deterministic_reads,
+        deterministic_stops=first.triage_deterministic_stops,
+        deterministic_decide_model_calls=(
+            sum(
+                call.mode == "triage"
+                and call.stage in {"investigate", "test"}
+                and call.job in {"decide", "interpret"}
+                for call in calls
+            )
+            if first.triage_decide_trace
+            else None
+        ),
+        deterministic_trace=list(first.triage_decide_trace),
+        requirement_results=dict(first.triage_requirement_results),
+        qualified_requirements=sum(
+            result.status == "satisfied"
+            for result in first.triage_requirement_results.values()
+        ),
+        unresolved_requirements=sum(
+            result.status != "satisfied"
+            for result in first.triage_requirement_results.values()
+        ),
         evidence_tests=evidence_tests,
         test_records=list(first.triage_test_records),
         fixed_plan=first.fixed_plan_used,

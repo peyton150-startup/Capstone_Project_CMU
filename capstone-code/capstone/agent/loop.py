@@ -70,7 +70,7 @@ from capstone.contracts.provenance import (
     MEMORY_SOURCE,
     ProvenanceReference,
 )
-from capstone.contracts.tools import ToolError, ToolRequest, ToolResult
+from capstone.contracts.tools import ToolError, ToolRequest, ToolResult, ToolSpec
 from capstone.observability import EventLogger
 from capstone.providers.chat import ModelError
 from capstone.providers.factory import FactoryProvider
@@ -171,6 +171,15 @@ class InvestigationDeps:
     # a standalone decide question, and asks the model only when nothing
     # compiles (`agent.investigate_compiler`). Never read on a deep run.
     triage_investigate: InvestigateMode = "off"
+    # Exact read-only catalog offered by this run's provider. An empty catalog
+    # denies deterministic triage reads; the provider still validates calls.
+    triage_tool_specs: tuple[ToolSpec, ...] = ()
+    # Public channel availability, by machine id. Empty means no sensor reads.
+    triage_channels: dict[str, tuple[str, ...]] = field(default_factory=dict)
+    # Ephemeral classification of the most recent provider call, reset before
+    # each call. The deterministic controller retries a transport exception
+    # once, but does not retry an invalid result with identical arguments.
+    last_provider_exception: bool = False
     # Opt-in structured logging (`capstone.observability`): identifiers and
     # counts only, never evidence text. Used by the triage evidence packet.
     # None: nothing is logged.
@@ -482,6 +491,7 @@ def call_tool(
     #   followup: True if the call spends the follow-up allowance, not the research one.
     #   critic_check: Charges the separate diagnostic allowance, never verification.
     #   result: The provider's answer, or None if it cannot be trusted.
+    deps.last_provider_exception = False
     state.tool_call_count += 1
     if followup:
         state.followup_tool_calls_used += 1
@@ -493,6 +503,7 @@ def call_tool(
         )
     except Exception:
         # Provider errors may carry secrets or driver detail; never keep them.
+        deps.last_provider_exception = True
         return None
     if not isinstance(result, ToolResult) or result.tool != request.name:
         return None
@@ -657,6 +668,8 @@ def gather(
     followup: bool = False,
     critic_check: bool = False,
     interpret: bool = True,
+    defer_question_bookkeeping: bool = False,
+    retry_failed: bool = False,
 ) -> Evidence | None:
     """Call one tool and keep its answer as evidence. Always leaves a record.
 
@@ -675,7 +688,7 @@ def gather(
     #   question_held_open: Triage only; True keeps an answered question open
     #     because its predicate's verdict is not a measured true or false.
     signature = call_signature(step.request, state.last_tick)
-    if signature in state.seen_calls:
+    if signature in state.seen_calls and not retry_failed:
         # Looking is free in the simulator, so the same question at the same
         # tick can only return what is already known. Do not spend a call.
         state.repeated_calls += 1
@@ -688,7 +701,8 @@ def gather(
             step=step,
         )
         return None
-    state.seen_calls.append(signature)
+    if signature not in state.seen_calls:
+        state.seen_calls.append(signature)
 
     result = call_tool(
         state, deps, step.request, followup=followup, critic_check=critic_check
@@ -736,7 +750,7 @@ def gather(
             observed_tick=evidence.observed_tick,
         )
     )
-    if step.question_id is not None:
+    if step.question_id is not None and not defer_question_bookkeeping:
         state.answers.setdefault(step.question_id, []).append(evidence.id)
         if not question_held_open(state, deps, step.question_id):
             state.unanswered_questions = [
@@ -1009,6 +1023,14 @@ def run_inner_loop(
     iterations are limited. The reason is returned and also written as
     the last DecisionRecord of the loop.
     """
+    if (
+        state.mode == "triage"
+        and deps.triage_investigate == "deterministic"
+        and phase in COMPILED_PHASES
+    ):
+        from capstone.agent.triage_decide import run_deterministic_triage_loop
+
+        return run_deterministic_triage_loop(state, deps, phase)
     # Variables:
     #   pending_decision: In one-question mode, the next step proposed with the last
     #     reading, held until the next turn's checks pass.
