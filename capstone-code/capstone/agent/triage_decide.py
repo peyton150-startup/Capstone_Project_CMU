@@ -29,7 +29,7 @@ from capstone.agent.triage_requirements import (
     RequirementResult,
     TriageDecisionRecord,
 )
-from capstone.agent.triage_trace import emit_triage_event
+from capstone.agent.triage_trace import emit_triage_event, requirement_reason_code
 from capstone.contracts.tools import ToolRequest, ToolResult
 from capstone.providers.factory import TOOL_ARGUMENTS
 
@@ -255,6 +255,13 @@ def qualify(
             reason="current settings snapshot does not establish a historical change",
         )
     if requirement.qualification == "record":
+        # Empty history is a valid read, not proof of historical coverage.
+        if any(isinstance(data, list) and not data for _, data in matches):
+            return RequirementResult(
+                status="insufficient",
+                evidence_ids=ids,
+                reason="empty record response cannot establish complete history",
+            )
         if any(isinstance(data, (list, dict)) for _, data in matches):
             return RequirementResult(
                 status="satisfied", evidence_ids=ids, reason="record source checked"
@@ -815,7 +822,7 @@ def run_deterministic_triage_loop(
                     deps,
                     event="triage.requirement_evaluated",
                     phase=phase,
-                    reason_code=result.status,
+                    reason_code=requirement_reason_code(result.status, result.reason),
                     status=result.status,
                     requirement_ids=(rid,),
                     evidence_ids=result.evidence_ids,
