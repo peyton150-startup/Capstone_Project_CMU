@@ -16,20 +16,20 @@ from typing import Annotated, Literal
 from fastapi import Depends, FastAPI, Header, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import StreamingResponse
-from capstone.api.runs import RunRequest, ReviewDecision, SimulatorRuns
 
 from capstone.api.config import UiConfig
 from capstone.api.readers import (
+    mtconnect_snapshot,
     recent_lines,
     recorder_snapshot,
-    mtconnect_snapshot,
     safe_evaluations,
-    safe_scorecards,
-    safe_memory_promotions,
     safe_investigation_detail,
     safe_investigations,
+    safe_memory_promotions,
+    safe_scorecards,
     signal_samples,
 )
+from capstone.api.runs import ReviewDecision, RunRequest, SimulatorRuns
 
 Workspace = Literal["simulator", "pilot"]
 
@@ -377,8 +377,8 @@ def create_app(config: UiConfig | None = None) -> FastAPI:
         """Only simulator manual, checked for leaks; no OEM/pilot claims."""
         if workspace != "simulator":
             raise HTTPException(status_code=403, detail="Pilot manuals require OEM authorization")
-        from capstone.manual.sections import load_manual
         from capstone.manual.index import KeywordManualSearch
+        from capstone.manual.sections import load_manual
 
         sections = load_manual()
         matches = (KeywordManualSearch(sections).search(q, limit=12)
