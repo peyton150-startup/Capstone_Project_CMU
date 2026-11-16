@@ -403,6 +403,7 @@ def hypothesize(state: InvestigationState, deps: InvestigationDeps) -> Route:
     #   outcome: How the question ended: decided, stopped (out of time) or
     #     invalid_decision.
     #   reason: Set only when time ran out, so the record can say why it stopped.
+    #   last: Typed candidate compilation counters; not a diagnosis or score.
     state.stage = "hypothesize"
     if state.mode == "triage" and deps.triage_hypothesize == "deterministic":
         from capstone.agent.triage_decide import evaluate_triage_requirements
