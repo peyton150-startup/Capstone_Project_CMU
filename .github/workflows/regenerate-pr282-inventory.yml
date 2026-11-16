@@ -36,15 +36,14 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          for attempt in $(seq 1 30); do
-            if gh run download 43943585945 --repo "$GITHUB_REPOSITORY" --name evaluator-inventory --dir evaluation/inventory; then
-              exit 0
-            fi
-            echo "Coverage artifact unavailable yet (attempt $attempt); retrying"
-            sleep 30
-          done
-          echo "::error::Expected CI evaluator-inventory artifact was not available"
-          exit 1
+          mkdir -p "$RUNNER_TEMP/inventory-seed"
+          gh run download 43943585945 --repo "$GITHUB_REPOSITORY" \
+            --name evaluator-inventory --dir "$RUNNER_TEMP/inventory-seed"
+          cp "$RUNNER_TEMP/inventory-seed/"*.json evaluation/inventory/
+          test -s evaluation/inventory/FUNCTION_INVENTORY.json
+          test -s evaluation/inventory/TEST_INVENTORY.json
+          test -s evaluation/inventory/TOOL_INVENTORY.json
+          test -s evaluation/inventory/VERIFICATION_MATRIX.json
       - name: Run complete offline tests against refreshed inventory
         run: >-
           uv run --locked --all-extras pytest
