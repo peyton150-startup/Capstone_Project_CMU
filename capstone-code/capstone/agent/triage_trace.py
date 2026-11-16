@@ -74,7 +74,6 @@ def requirement_reason_code(status: str, reason: str) -> str:
     return "requirement_" + status
 
 
-
 class TriageTraceEvent(Contract):
     """An ordered, structured result of a deterministic operation."""
 
