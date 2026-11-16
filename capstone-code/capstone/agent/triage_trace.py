@@ -21,6 +21,7 @@ if TYPE_CHECKING:
 
 TriageEventName = Literal[
     "triage.started",
+    "observe.read_validated",
     "requirements.compiled",
     "decide.selected",
     "tool.completed",
@@ -44,7 +45,7 @@ class TriageTraceEvent(Contract):
     schema_version: Literal["1.0", "1.1"] = "1.1"
     sequence: int = Field(ge=1)
     event: TriageEventName
-    phase: Literal["investigate", "test", "conclude"]
+    phase: Literal["observe", "investigate", "test", "conclude"]
     reason_code: str
     status: str | None = None
     tool: str | None = None
@@ -89,7 +90,7 @@ def emit_triage_event(
     deps: InvestigationDeps,
     *,
     event: TriageEventName,
-    phase: Literal["investigate", "test", "conclude"],
+    phase: Literal["observe", "investigate", "test", "conclude"],
     reason_code: str,
     status: str | None = None,
     tool: str | None = None,
