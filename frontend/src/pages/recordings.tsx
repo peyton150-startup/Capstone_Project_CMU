@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import { Activity, ArrowRight, Database, RadioTower, ShieldCheck, Signal, Wifi } from 'lucide-react';
 import { useRecording } from '../pageData';
+import { useResource } from '../api';
 import { useUi } from '../context';
 import { DataRow, formatBytes, formatNumber, formatStamp, InfoState, Metric, PageHeading, Panel, Pill, QualityExplanation, SummaryLink, TimelineEvent, toneFor, Unavailable } from '../ui';
 
@@ -49,6 +50,7 @@ export function RecordingsPage() {
               event.event === 'connected' ? 'good' : 'neutral'}/>) : <Unavailable item="Collector event history"/>}
       </Panel>
     </div>
+    <MTConnectPanel />
     <Panel title="Collection architecture" subtitle="No browser-to-controller connection">
       <div className="boundary-grid"><div><strong>01 / Approved source</strong><p>Siemens OPC UA with exact read-only scope</p></div>
         <ArrowRight size={20}/><div><strong>02 / Local collector</strong><p>PowerShell process → v2 JSONL + audit</p></div>
@@ -135,4 +137,53 @@ export function SessionsPage() {
     <div className="page-bottom-nav"><Link to="/recordings" className="text-link"><Wifi size={16}/> Recorder overview</Link>
       <Link to="/recordings/quality" className="text-link">Quality details <ArrowRight size={17}/></Link></div>
   </>;
+}
+
+
+type LegacyHealth = {
+  availability: string;
+  recorder: null | { id:string; source:string; process_state:string; connection_state:string;
+    measurement_state:string; received:number; available:number; unavailable:number;
+    gaps:number; invalid_lines:number; last_receive_at:string|null; output_bytes:number;
+    quality_scheme:string; window_scope:string };
+  signals: Array<{id:string;label:string;machine:string;component:string;category:string;
+    value:number|string|null;quality:string;freshness:string;unit:null;analysis_eligible:false;
+    received_at:string}>;
+  events: Array<{event:string;at:string;reason_code:string}>;
+};
+export function MTConnectPanel() {
+  const {preview,token}=useUi();
+  const source=useResource<LegacyHealth>('/api/v1/recordings/mtconnect-local/health',token,preview);
+  const data=source.data;
+  const r=data?.recorder;
+  return <Panel title="Legacy MTConnect recorder" subtitle="Separate v1 capture adapter; never parsed as Siemens OPC UA">
+    {source.error && <InfoState kind="warning" title="MTConnect API unavailable" detail={source.error}/>}
+    {r ? <>
+      <div className="metric-grid">
+        <Metric label="v1 observations" value={r.received} note="Bounded recent window"/>
+        <Metric label="Available" value={r.available} note="MTConnect channel availability, not OPC UA Good"/>
+        <Metric label="Unavailable" value={r.unavailable} note="Never replaced with zero" tone="warning"/>
+        <Metric label="Capture gaps" value={r.gaps} note="Separate from machine alarms" tone="warning"/>
+      </div>
+      <div className="two-column">
+        <Panel title="Collector evidence" subtitle="No unverified process-liveness claims">
+          <DataRow label="Last observation" value={formatStamp(r.last_receive_at)}/>
+          <DataRow label="Measurement state" value={<Pill text={r.measurement_state} tone={toneFor(r.measurement_state)}/>}/>
+          <DataRow label="Collector process" value={r.process_state}/>
+          <DataRow label="File size" value={formatBytes(r.output_bytes)}/>
+          <DataRow label="Invalid lines" value={r.invalid_lines}/>
+        </Panel>
+        <Panel title="Approved legacy signals" subtitle="Source identity is hashed before reaching the browser">
+          {data?.signals.length ? data.signals.slice(0,25).map(signal=>
+            <DataRow key={signal.id} label={signal.machine + ' / ' + signal.label}
+              extra={signal.component + ' · ' + signal.category}
+              value={<Pill text={signal.quality} tone={toneFor(signal.quality)}/>}/>):
+            <Unavailable item="MTConnect signal inventory"/>}
+        </Panel>
+      </div>
+      <div className="soft-note">MTConnect availability does not establish Siemens StatusCode, valid engineering units, freshness policy or diagnostic eligibility.</div>
+    </> : <Unavailable item="MTConnect v1 capture" detail={preview ?
+      'Real capture is hidden during synthetic UI preview.' :
+      'Configure an approved CAPSTONE_UI_MTCONNECT JSONL artifact. No browser-to-MTConnect-agent access is permitted.'}/>}
+  </Panel>;
 }
