@@ -58,6 +58,12 @@ class EventLogger:
         evidence_id: str | None = None,
         cutoff_tick: int | None = None,
         duration_ms: float | None = None,
+        request_hash: str | None = None,
+        config_fingerprint: str | None = None,
+        attempt: int | None = None,
+        iteration: int | None = None,
+        candidate_count: int | None = None,
+        remaining_tool_calls: int | None = None,
     ) -> None:
         """Emit one event; omitted context stays absent and no clock is inferred.
 
@@ -85,6 +91,16 @@ class EventLogger:
         ):
             if value is not None:
                 metadata[field] = _safe_identifier(value, field)
+        for field, value in (
+            ("request_hash", request_hash),
+            ("config_fingerprint", config_fingerprint),
+        ):
+            if value is not None:
+                if not isinstance(value, str) or not re.fullmatch(
+                    r"[a-f0-9]{20}", value
+                ):
+                    raise ValueError(f"{field} must be a truncated SHA-256 hex digest")
+                metadata[field] = value
         if tick is not None:
             if type(tick) is not int or tick < 0:
                 raise ValueError("tick must be a nonnegative integer")
@@ -92,9 +108,13 @@ class EventLogger:
         for field, value in (
             ("sequence", sequence),
             ("cutoff_tick", cutoff_tick),
+            ("attempt", attempt),
+            ("iteration", iteration),
+            ("candidate_count", candidate_count),
+            ("remaining_tool_calls", remaining_tool_calls),
         ):
             if value is not None:
-                if type(value) is not int or value < (1 if field == "sequence" else 0):
+                if type(value) is not int or value < (1 if field in {"sequence", "attempt"} else 0):
                     raise ValueError(f"{field} must be a nonnegative integer")
                 metadata[field] = value
         if duration_ms is not None:
