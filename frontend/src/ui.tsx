@@ -105,7 +105,14 @@ export function TrendChart({ items, label = 'Observation history' }: { items: Sa
     if (item.value === null || item.quality !== 'good') {
       if (points.length >= 2) segments.push(points.join(' '));
       points = [];
-    } else points.push(x(i).toFixed(1) + ',' + y(item.value).toFixed(1));
+    } else {
+      // A reconnect starts a new epoch; never draw continuity across a missing interval.
+      if (i > 0 && items[i - 1].epoch !== item.epoch) {
+        if (points.length >= 2) segments.push(points.join(' '));
+        points = [];
+      }
+      points.push(x(i).toFixed(1) + ',' + y(item.value).toFixed(1));
+    }
   });
   if (points.length >= 2) segments.push(points.join(' '));
   return <div className="trend" role="img" aria-label={label + '. ' + values.length + ' good numerical values; invalid values shown as gaps.'}>
