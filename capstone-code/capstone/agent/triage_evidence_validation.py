@@ -13,6 +13,7 @@ from typing import Literal
 
 from pydantic import Field, ValidationError, model_validator
 
+from capstone.contracts import Contract
 from capstone.contracts.observations import (
     ClockObservation,
     EventObservation,
@@ -22,8 +23,6 @@ from capstone.contracts.observations import (
     MaintenanceObservation,
     SettingObservation,
 )
-
-from capstone.contracts import Contract
 from capstone.contracts.tools import ToolRequest, ToolResult
 
 EvidenceReason = Literal[
