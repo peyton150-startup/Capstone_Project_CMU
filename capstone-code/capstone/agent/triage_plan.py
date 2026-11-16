@@ -298,6 +298,10 @@ def fixed_requirements(
                 from_tick=predicate.from_tick,
                 to_tick=min(predicate.to_tick, cutoff_tick),
                 min_samples=predicate.min_samples,
+                # Count alone cannot establish sustained temporal coverage.
+                min_span_ticks=min(
+                    SUSTAIN_TICKS, max(0, cutoff_tick - predicate.from_tick)
+                ),
                 qualification="measurement",
             )
         add("Q3", "events", "get_events", machine_id=machine, windowed=True)
