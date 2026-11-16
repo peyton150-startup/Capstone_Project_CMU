@@ -24,7 +24,12 @@ EvidenceReason = Literal[
     "future_tick",
     "outside_window",
     "wrong_source",
+    "unsupported_tool",
     "invalid_summary",
+    "provider_error",
+    "untrusted_response",
+    "malformed_result",
+    "repeated_call",
     "validator_error",
 ]
 
@@ -93,6 +98,20 @@ def validate_triage_result(
 
     if not result.success or result.tool != request.name:
         return checked("wrong_source")
+    # Only the six fixed-plan read capabilities can cross this boundary.
+    # A provider-reported tool name does not authorize a different operation.
+    supported = {
+        "get_sensor_summary",
+        "get_events",
+        "get_inspections",
+        "get_job_history",
+        "get_maintenance_history",
+        "get_settings",
+    }
+    if result.tool != request.name:
+        return checked("wrong_source")
+    if request.name not in supported or not result.success:
+        return checked("unsupported_tool")
     if result.tick > cutoff:
         return checked("future_tick")
     data = result.data
@@ -128,10 +147,20 @@ def validate_triage_result(
                 return checked("invalid_summary")
         elif first is not None or last is not None:
             return checked("invalid_summary")
-        for key in ("mean", "delta", "start_value", "end_value"):
+        if count > 0 and last > result.tick:
+            return checked("invalid_tick")
+        for key in (
+            "mean", "delta", "start_value", "end_value", "minimum",
+            "maximum", "rate_of_change",
+        ):
             number = data.get(key)
             if number is not None and type(number) not in (int, float):
                 return checked("invalid_numeric")
+        if count == 0 and any(
+            data.get(key) is not None
+            for key in ("mean", "start_value", "end_value", "minimum", "maximum")
+        ):
+            return checked("invalid_summary")
     elif name in {"get_readings", "get_sensor_trend", "get_factory_readings"}:
         if not isinstance(data, list):
             return checked("invalid_shape")
@@ -162,27 +191,35 @@ def validate_triage_result(
     }:
         if not isinstance(data, list) or not all(isinstance(row, dict) for row in data):
             return checked("invalid_shape")
-        # Record lists need source and window checks too. A valid JSON list
-        # from the wrong machine/job/time must not become trusted evidence.
         for row in data:
-            if name in {"get_events", "get_inspections"}:
-                tick = row.get("tick")
-                if type(tick) is not int:
+            # Timestamped records must not claim observations beyond the
+            # provider envelope, the authorized horizon, or requested window.
+            tick = row.get("tick")
+            if name != "get_settings":
+                if tick is None and name != "get_maintenance_history":
                     return checked("invalid_tick")
+                if tick is not None and type(tick) is not int:
+                    return checked("invalid_tick")
+                if type(tick) is int and tick > result.tick:
+                    return checked("invalid_tick")
+            if name in {"get_events", "get_inspections"}:
                 if not args["from_tick"] <= tick <= args["to_tick"]:
                     return checked("outside_window")
-            if (
-                name in {"get_events", "get_maintenance_history"}
-                and args.get("machine_id") is not None
-                and row.get("machine_id") != args["machine_id"]
-            ):
-                return checked("wrong_source")
-            if name == "get_job_history" and row.get("job_id") != args["job_id"]:
-                return checked("wrong_source")
-            if name == "get_inspections" and (
-                type(row.get("job_id")) is not int
-                or row["job_id"] < 1
-                or row.get("result") not in {"passed", "failed"}
+            if name == "get_events":
+                machine = args.get("machine_id")
+                if machine is not None and row.get("machine_id") != machine:
+                    return checked("wrong_source")
+            if name == "get_job_history":
+                if row.get("job_id") != args.get("job_id"):
+                    return checked("wrong_source")
+            if name == "get_maintenance_history":
+                machine = args.get("machine_id")
+                if machine is not None and row.get("machine_id") != machine:
+                    return checked("wrong_source")
+            if name == "get_settings" and (
+                not isinstance(row.get("machine_id"), str)
+                or not row["machine_id"]
+                or type(row.get("speed_rpm")) not in (int, float)
             ):
                 return checked("invalid_shape")
     return checked("accepted")
