@@ -725,7 +725,10 @@ def test_incomplete_historical_rows_fail_full_contract():
             timestamp=START,
             data=[row],
         )
-        assert validate_triage_result(result, request, 45).reason_code == "invalid_shape"
+        assert (
+            validate_triage_result(result, request, 45).reason_code
+            == "invalid_shape"
+        )
 
 
 def test_empty_history_is_not_equivalent_to_verified_coverage():
