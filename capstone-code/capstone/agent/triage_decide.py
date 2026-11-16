@@ -841,3 +841,19 @@ def run_deterministic_triage_loop(
                 outcome=outcome,
             )
         )
+        if deps.event_logger is not None and deps.triage_hypothesize == "deterministic":
+            # The per-call trace carries safe IDs and outcome. The external
+            # event only records counters, never raw data or exception text.
+            deps.event_logger.log_event(
+                "triage.read.result",
+                run_id=str(state.run_id),
+                investigation_id=str(state.investigation_id),
+                tick=state.last_tick,
+                tool=decision.step.request.name,
+                success=evidence is not None,
+                counts={
+                    "attempt": attempts + 1,
+                    "qualified_response": int(evidence is not None),
+                    "failed_response": int(evidence is None),
+                },
+            )

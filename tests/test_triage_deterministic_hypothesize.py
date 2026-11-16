@@ -174,6 +174,26 @@ def test_observability_logs_safe_metadata_and_persists_reason_trace():
     assert state.triage_hypothesis_trace[-1].stage == "test"
 
 
+def test_failed_read_has_diagnostic_result_event_without_exception_text():
+    stream = StringIO()
+    state = state_for()
+    provider = FakeProvider(lambda request: "error", tick=45)
+    deps = replace(
+        deps_for(provider),
+        triage_hypothesize="deterministic",
+        event_logger=create_event_logger(stream),
+    )
+    investigate(state, deps)
+    hypothesize(state, deps)
+    run_test(state, deps)
+    rows = [json.loads(line) for line in stream.getvalue().splitlines()]
+    failed = [row for row in rows if row["event"] == "triage.read.result"]
+    assert failed and all(row["success"] is False for row in failed)
+    assert all(row["counts"]["failed_response"] == 1 for row in failed)
+    assert "Tool execution failed" not in stream.getvalue()
+    assert state.triage_decide_trace
+
+
 def test_old_serialized_records_have_empty_candidate_defaults():
     state = state_for()
     payload = state.model_dump()
