@@ -1017,7 +1017,9 @@ def format_evidence_tests(records: Sequence[ExperimentRecord]) -> str | None:
         f"outcome in {changed}; support withheld "
         f"{kinds['support_withheld_rival_question']} (open rival question), "
         f"{kinds['support_withheld_shared_root']} (one sensor counted twice); "
-        f"conclusions held open by a rival question {kinds['rival_question_gap']}; "
+        f"conclusions held open by a rival question {kinds['rival_question_gap']}, "
+        f"clearances held open by an unsettled question "
+        f"{kinds['clearance_question_open']}; "
         f"questions kept open {kinds['question_kept_open']}, closed by a measured "
         f"verdict {kinds['question_closed']}"
     )
