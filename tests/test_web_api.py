@@ -189,6 +189,12 @@ def test_scorecards_require_evaluator_role_and_never_expose_simulator_truth(tmp_
         review_token="reviewer-strong-token-00000001",
     )
     client = TestClient(create_app(config))
+    # Both evaluator endpoints must require the evaluator token when roles exist.
+    list_endpoint = "/api/v1/evaluations"
+    assert client.get(list_endpoint, headers={"Authorization": "Bearer " + config.token}).status_code == 403
+    assert client.get(list_endpoint, headers={"Authorization": "Bearer " + config.run_token}).status_code == 403
+    assert client.get(list_endpoint, headers={"Authorization": "Bearer " + config.review_token}).status_code == 403
+    assert client.get(list_endpoint, headers={"Authorization": "Bearer " + config.evaluator_token}).status_code == 200
     endpoint = "/api/v1/evaluations/scorecards"
     assert client.get(endpoint, headers={"Authorization": "Bearer " + config.token}).status_code == 403
     assert client.get(endpoint, headers={"Authorization": "Bearer " + config.run_token}).status_code == 403
