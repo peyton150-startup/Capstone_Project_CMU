@@ -420,3 +420,36 @@ def safe_evaluations(path: Path | None) -> list[dict[str, Any]]:
             }
         )
     return list(reversed(out))
+
+
+
+def safe_scorecards(path: Path | None) -> list[dict[str, Any]]:
+    """Evaluator-only aggregate-safe score projection; never expose true_fault.
+
+    Score contains hidden simulator labels. We select correctness flags and
+    counts explicitly instead of serializing Score or ExperimentRecord.
+    Missing labels stay None; never coerce an unjudged case to a failure.
+    """
+    rows: list[dict[str, Any]] = []
+    keys = ("fault_correct", "target_correct", "action_correct",
+            "recommendation_correct", "resolved", "tool_calls", "ticks_elapsed",
+            "iterations", "causes_found", "wrong_causes", "causes_resolved")
+    for line in recent_lines(path, limit=300):
+        try:
+            record = json.loads(line)
+        except (ValueError, TypeError):
+            continue
+        if not isinstance(record, dict) or not isinstance(record.get("run_key"), str):
+            continue
+        score = record.get("score")
+        if not isinstance(score, dict):
+            continue
+        row = {"id": record["run_key"][:100]}
+        row.update({key: score.get(key) for key in keys})
+        relevant = score.get("relevant_evidence")
+        collected = score.get("relevant_evidence_collected")
+        row["relevant_evidence_count"] = len(relevant) if isinstance(relevant, list) else None
+        row["evidence_collected_count"] = len(collected) if isinstance(collected, list) else None
+        row["judged"] = score.get("fault_correct") is not None
+        rows.append(row)
+    return list(reversed(rows))
