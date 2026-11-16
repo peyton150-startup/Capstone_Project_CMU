@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import {
-  Activity, ArrowRight, BarChart3, Boxes, BrainCircuit, CircleHelp,
+  Activity, ArrowRight, BarChart3, Box, Boxes, BrainCircuit, CircleHelp,
   FlaskConical, RadioTower, ShieldCheck, Signal, Waypoints,
 } from 'lucide-react';
 import { useResource } from '../api';

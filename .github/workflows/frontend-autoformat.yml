@@ -1,0 +1,34 @@
+name: Temporary frontend Python autoformat
+
+on:
+  push:
+    branches: [feature/frontend-industrial-console]
+    paths:
+      - ".github/workflows/frontend-autoformat.yml"
+
+permissions:
+  contents: write
+
+jobs:
+  format:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: true
+      - uses: astral-sh/setup-uv@c771a70e6277c0a99b617c7a806ffedaca235ff9
+        with:
+          version: "0.13.0"
+      - run: uv python install
+      - run: uv sync --locked --all-extras
+      - name: Format frontend Python
+        run: |
+          uv run --locked --all-extras ruff check --fix capstone-code/capstone/api tests/test_web_api.py
+          uv run --locked --all-extras ruff format capstone-code/capstone/api tests/test_web_api.py
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add capstone-code/capstone/api tests/test_web_api.py
+          if ! git diff --cached --quiet; then
+            git commit -m "frontend: apply repository Python formatting"
+            git push origin HEAD:feature/frontend-industrial-console
+          fi
