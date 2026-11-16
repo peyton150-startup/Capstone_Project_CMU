@@ -12,6 +12,7 @@ from pydantic import Field
 from capstone.contracts import Contract
 
 if TYPE_CHECKING:
+    from capstone.agent.loop import InvestigationDeps
     from capstone.agent.state import InvestigationState
 
 
@@ -27,6 +28,10 @@ class TriageCandidate(Contract):
     observation_evidence_ids: tuple[str, ...] = ()
     discriminating_requirement_ids: tuple[str, ...] = ()
     missing_requirement_ids: tuple[str, ...] = ()
+    # A missing check may also be unsupported by the current data provider.
+    unavailable_requirement_ids: tuple[str, ...] = ()
+    # Qualified summaries alone do not resolve a composite temporal question.
+    open_question_ids: tuple[str, ...] = ()
 
 
 class TriageHypothesisTrace(Contract):
@@ -38,6 +43,8 @@ class TriageHypothesisTrace(Contract):
     requirement_ids: tuple[str, ...] = ()
     qualified_sources: int = Field(default=0, ge=0)
     missing_sources: int = Field(default=0, ge=0)
+    unavailable_sources: int = Field(default=0, ge=0)
+    unresolved_questions: int = Field(default=0, ge=0)
 
 
 # Families are potential explanations, not labels extracted from ground truth.
@@ -147,6 +154,8 @@ def rule_specs(
 
 def compile_candidates(
     state: "InvestigationState",
+    *,
+    eligible_requirement_ids: frozenset[str] | None = None,
 ) -> tuple[tuple[TriageCandidate, ...], tuple[str, ...]]:
     """Compile possibilities and test requirements without a model or side effects."""
     # Variables:
@@ -154,13 +163,20 @@ def compile_candidates(
     #   observed: Factory-observable evidence ids; a recollection cannot qualify.
     #   target_ids: Existing requirements associated with a possible explanation.
     #   needed: Requirements whose source is not yet qualified.
-    #   tests: Ordered union of checks to run in Test, stable for replay.
+    #   tests: Ordered union of authorized checks to run in Test, stable for replay.
+    #   eligible_requirement_ids: The provider's currently supported read IDs;
+    #     None keeps the original all-capabilities compiler contract.
+    #   open_questions: Known composite gaps or still-open fixed questions.
     available = state.triage_requirements
+    evidence_ids = {evidence.id for evidence in state.evidence}
     observed = {
         provenance.evidence_id
         for provenance in state.provenance
         if provenance.origin == "observable"
+        and provenance.evidence_id in evidence_ids
     }
+    open_questions = {q.id for q in state.unanswered_questions}
+    open_questions.update(state.triage_question_gaps)
     candidates: list[TriageCandidate] = []
     tests: list[str] = []
     for family, explanation, parts in rule_specs(state):
@@ -173,15 +189,28 @@ def compile_candidates(
             continue
         seen_ids: list[str] = []
         needed: list[str] = []
+        unavailable: list[str] = []
         for rid in target_ids:
             result = state.triage_requirement_results.get(rid)
             if result is not None and result.status == "satisfied":
                 seen_ids.extend(eid for eid in result.evidence_ids if eid in observed)
             else:
                 needed.append(rid)
-            # A setting snapshot cannot prove a change; never schedule an
-            # inherently non-verifiable historical claim as a discriminating test.
-            if available[rid].qualification != "setting_change" and rid not in tests:
+                if (
+                    eligible_requirement_ids is not None
+                    and rid not in eligible_requirement_ids
+                ):
+                    unavailable.append(rid)
+            # Never execute unsupported reads or use a current settings
+            # snapshot to claim a historical configuration change.
+            if (
+                available[rid].qualification != "setting_change"
+                and (
+                    eligible_requirement_ids is None
+                    or rid in eligible_requirement_ids
+                )
+                and rid not in tests
+            ):
                 tests.append(rid)
         candidates.append(
             TriageCandidate(
@@ -192,22 +221,49 @@ def compile_candidates(
                 observation_evidence_ids=tuple(dict.fromkeys(seen_ids)),
                 discriminating_requirement_ids=tuple(target_ids),
                 missing_requirement_ids=tuple(needed),
+                unavailable_requirement_ids=tuple(unavailable),
+                open_question_ids=tuple(
+                    sorted(
+                        {available[rid].question_id for rid in target_ids}
+                        & open_questions
+                    )
+                ),
             )
         )
     return tuple(candidates), tuple(tests)
 
 
 def update_candidate_packet(
-    state: "InvestigationState", *, stage: Literal["hypothesize", "test"]
+    state: "InvestigationState",
+    *,
+    stage: Literal["hypothesize", "test"],
+    deps: "InvestigationDeps | None" = None,
+    record_trace: bool = True,
 ) -> None:
     """Store a reproducible packet and its reference-only trace."""
     # Variables:
     #   candidates: Refreshed sources and gaps, not model beliefs.
     #   test_ids: Canonical, qualified-source read targets for the Test scheduler.
+    #   eligible: Requirements authorized by the recorded provider catalogue.
+    #   record_trace: False for silent Test replanning when new jobs appear;
+    #     the stage exit writes the durable summary once.
     #   trace: Stable ids and counters suitable for private run records.
-    candidates, test_ids = compile_candidates(state)
+    eligible = None
+    if deps is not None:
+        from capstone.agent.triage_decide import permitted_triage_read
+
+        eligible = frozenset(
+            rid
+            for rid, requirement in state.triage_requirements.items()
+            if permitted_triage_read(requirement, deps, state)
+        )
+    candidates, test_ids = compile_candidates(
+        state, eligible_requirement_ids=eligible
+    )
     state.triage_candidates = list(candidates)
     state.triage_test_requirement_ids = test_ids
+    if not record_trace:
+        return
     trace = TriageHypothesisTrace(
         stage=stage,
         action=("compiled" if stage == "hypothesize" else "refreshed")
@@ -229,5 +285,55 @@ def update_candidate_packet(
                 for rid in candidate.missing_requirement_ids
             }
         ),
+        unavailable_sources=len(
+            {
+                rid
+                for candidate in candidates
+                for rid in candidate.unavailable_requirement_ids
+            }
+        ),
+        unresolved_questions=len(
+            {
+                qid
+                for candidate in candidates
+                for qid in candidate.open_question_ids
+            }
+        ),
     )
     state.triage_hypothesis_trace.append(trace)
+
+
+def log_hypothesis_event(
+    state: "InvestigationState",
+    deps: "InvestigationDeps",
+    event: Literal[
+        "triage.hypothesize.compiled",
+        "triage.read.selected",
+        "triage.read.result",
+        "triage.test.completed",
+    ],
+    *,
+    tool: str | None = None,
+    success: bool | None = None,
+    counts: dict[str, int] | None = None,
+) -> None:
+    """Best-effort metadata logging; failure cannot alter a triage decision."""
+    # Variables:
+    #   logger: Opt-in transport; the typed in-memory record remains primary.
+    #   counts: Nonnegative derived counters, never untrusted tool payloads.
+    logger = deps.event_logger
+    if logger is None:
+        return
+    try:
+        logger.log_event(
+            event,
+            run_id=str(state.run_id),
+            investigation_id=str(state.investigation_id),
+            tick=state.last_tick,
+            tool=tool,
+            success=success,
+            counts=counts,
+        )
+    except Exception:
+        # Errors may contain private machine data: do not retain exception text.
+        state.triage_hypothesis_logging_failures += 1
