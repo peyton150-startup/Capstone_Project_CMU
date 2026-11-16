@@ -9,6 +9,7 @@ import { useResource } from '../api';
 import { useUi } from '../context';
 import { demoInvestigations } from '../preview';
 import { useInvestigations } from '../pageData';
+import { ManagedReviewDesk, ManagedTriageOverview } from './managed';
 import type { Evidence, Investigation, InvestigationDetail } from '../types';
 import {
   DataRow, formatNumber, InfoState, PageHeading, Panel, Pill,
@@ -96,6 +97,7 @@ export function TriagePage() {
           <span>{'0'+(i+1)}</span><div><strong>{title}</strong><p>{text}</p></div></div>)}
       </Panel>
     </div>
+    <ManagedTriageOverview />
     <Panel title="Available investigations" subtitle="General completion records; not a replacement for TriageReport">
       {items.length ? <InvestigationRows items={items}/> : <Unavailable item="Recorded triage cases"/>}
     </Panel>
@@ -139,8 +141,7 @@ export function ReviewPage() {
             <div className="approval-actions"><button className="button-primary" onClick={()=>setDecision('approved')}>Preview approval</button>
               <button className="button-secondary" onClick={()=>setDecision('rejected')}>Preview rejection</button></div>
             <div className="soft-note">UI preview decision: {decision}. Nothing is sent to the backend, persisted or executed.</div>
-          </div> : <Unavailable item="Simulator approval bridge"
-            detail="The backend has an ApprovalDesk, but this API does not yet host a managed run worker and secure, persistent human-review bridge. Approve/reject remains unavailable."/>}
+          </div> : <ManagedReviewDesk />}
       </Panel>
       <Panel title="Verification lifecycle" subtitle="An approved action is not a successful repair">
         {[
