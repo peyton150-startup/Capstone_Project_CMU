@@ -164,7 +164,13 @@ def observe(state: InvestigationState, deps: InvestigationDeps) -> None:
     # A real capture has no verified healthy-line reference. Skip screening
     # entirely; offering a simulator score here would invent real evidence.
     screening_evidence = None
-    if deps.screening_available:
+    # If a deterministic-triage clock read was rejected, screening cannot
+    # acquire a trustworthy source horizon; keep it explicitly unavailable.
+    if deps.screening_available and (
+        deps.triage_investigate != "deterministic"
+        or state.mode != "triage"
+        or time_evidence is not None
+    ):
         screen = CallTool(
             information_needed="every machine's recent running readings against a healthy line",
             request=ToolRequest(name="get_line_screening"),
