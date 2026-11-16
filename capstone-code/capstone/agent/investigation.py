@@ -406,25 +406,28 @@ def hypothesize(state: InvestigationState, deps: InvestigationDeps) -> Route:
     state.stage = "hypothesize"
     if state.mode == "triage" and deps.triage_hypothesize == "deterministic":
         from capstone.agent.triage_decide import evaluate_triage_requirements
-        from capstone.agent.triage_hypothesize import update_candidate_packet
+        from capstone.agent.triage_hypothesize import (
+            log_hypothesis_event,
+            update_candidate_packet,
+        )
 
         evaluate_triage_requirements(state)
-        update_candidate_packet(state, stage="hypothesize")
-        if deps.event_logger is not None:
-            last = state.triage_hypothesis_trace[-1]
-            deps.event_logger.log_event(
-                "triage.hypothesize.compiled",
-                run_id=str(state.run_id),
-                investigation_id=str(state.investigation_id),
-                tick=state.last_tick,
-                success=bool(state.triage_candidates),
-                counts={
-                    "candidates": len(state.triage_candidates),
-                    "tests": len(state.triage_test_requirement_ids),
-                    "qualified": last.qualified_sources,
-                    "missing": last.missing_sources,
-                },
-            )
+        update_candidate_packet(state, stage="hypothesize", deps=deps)
+        last = state.triage_hypothesis_trace[-1]
+        log_hypothesis_event(
+            state,
+            deps,
+            "triage.hypothesize.compiled",
+            success=bool(state.triage_candidates),
+            counts={
+                "candidates": len(state.triage_candidates),
+                "tests": len(state.triage_test_requirement_ids),
+                "qualified": last.qualified_sources,
+                "missing": last.missing_sources,
+                "unavailable": last.unavailable_sources,
+                "unresolved_questions": last.unresolved_questions,
+            },
+        )
         record(
             state,
             "hypothesize",
@@ -564,27 +567,29 @@ def test(state: InvestigationState, deps: InvestigationDeps) -> None:
     state.termination_reason = run_inner_loop(state, deps, "test")
     if state.mode == "triage" and deps.triage_hypothesize == "deterministic":
         from capstone.agent.triage_decide import evaluate_triage_requirements
-        from capstone.agent.triage_hypothesize import update_candidate_packet
+        from capstone.agent.triage_hypothesize import (
+            log_hypothesis_event,
+            update_candidate_packet,
+        )
 
         evaluate_triage_requirements(state)
-        update_candidate_packet(state, stage="test")
-        if deps.event_logger is not None:
-            last = state.triage_hypothesis_trace[-1]
-            deps.event_logger.log_event(
-                "triage.test.completed",
-                run_id=str(state.run_id),
-                investigation_id=str(state.investigation_id),
-                tick=state.last_tick,
-                # A bounded stop with missing evidence is not successful proof.
-                success=state.termination_reason
-                is TerminationReason.EVIDENCE_SUFFICIENT,
-                counts={
-                    "candidates": len(state.triage_candidates),
-                    "tests": len(state.triage_test_requirement_ids),
-                    "qualified": last.qualified_sources,
-                    "missing": last.missing_sources,
-                },
-            )
+        update_candidate_packet(state, stage="test", deps=deps)
+        last = state.triage_hypothesis_trace[-1]
+        log_hypothesis_event(
+            state,
+            deps,
+            "triage.test.completed",
+            # A bounded stop with missing evidence is not successful proof.
+            success=state.termination_reason is TerminationReason.EVIDENCE_SUFFICIENT,
+            counts={
+                "candidates": len(state.triage_candidates),
+                "tests": len(state.triage_test_requirement_ids),
+                "qualified": last.qualified_sources,
+                "missing": last.missing_sources,
+                "unavailable": last.unavailable_sources,
+                "unresolved_questions": last.unresolved_questions,
+            },
+        )
         # TOT_REVALUE would otherwise make another model call after Test.
         return
     revalue(state, deps)
