@@ -31,6 +31,7 @@ class UiConfig:
     review_token: str | None = None
     runs_enabled: bool = False
     evaluator_token: str | None = None
+    memory_enabled: bool = False
 
     def __post_init__(self) -> None:
         """Reject insecure or ambiguous real-data deployments before serving."""
@@ -84,4 +85,5 @@ class UiConfig:
             review_token=os.getenv("CAPSTONE_UI_REVIEW_TOKEN") or None,
             runs_enabled=os.getenv("CAPSTONE_UI_SIM_RUNS") == "1",
             evaluator_token=os.getenv("CAPSTONE_UI_EVALUATOR_TOKEN") or None,
+            memory_enabled=os.getenv("CAPSTONE_UI_MEMORY_READ") == "1",
         )
