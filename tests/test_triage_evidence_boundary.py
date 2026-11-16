@@ -1127,4 +1127,3 @@ def test_rejected_clock_skips_optional_packet_reads_even_with_cached_tick():
     assert evidence is None
     assert provider.calls == []
     assert state.triage_evidence_checks == []
-
