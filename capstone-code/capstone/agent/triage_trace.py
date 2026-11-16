@@ -76,7 +76,7 @@ def emit_triage_event(
     # Variables:
     #   trace: A validated, ordered event containing metadata only.
     #   logger: Opt-in operational stream; never receives source payloads.
-    #   safe_tool: Skip non-identifier tool names rather than log arbitrary text.
+    #   trace.sequence: Monotonic investigation-local event sequence.
     trace = TriageTraceEvent(
         sequence=len(state.triage_trace_events) + 1,
         event=event,
