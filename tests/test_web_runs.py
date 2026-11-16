@@ -229,8 +229,8 @@ def test_operational_events_are_allowlisted_and_pilot_is_blocked(tmp_path, monke
     path.write_text(
         json.dumps({"event": "triage.packet", "run_id": run_id, "tick": 12,
                     "success": True, "counts": {"observations": 2},
-                    "provider_prompt": "SECRET-PROMPT", "user_info": "SECRET"}) + "\\n"
-        + json.dumps({"event": "unsafe injected event", "secret": "SECRET"}) + "\\n",
+                    "provider_prompt": "SECRET-PROMPT", "user_info": "SECRET"}) + "\n"
+        + json.dumps({"event": "unsafe injected event", "secret": "SECRET"}) + "\n",
         encoding="utf-8",
     )
     url = f"/api/v1/lab/runs/{run_id}/observability"
