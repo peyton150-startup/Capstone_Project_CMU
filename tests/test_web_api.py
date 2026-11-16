@@ -3,9 +3,12 @@ import json
 from datetime import datetime, timezone
 
 import pytest
-from fastapi.testclient import TestClient
+try:
+    from fastapi.testclient import TestClient
+except ImportError:
+    pytest.skip("Optional web API dependencies are installed in frontend CI", allow_module_level=True)
 
-from capstone.api.app import create_app
+from capstone.api.app import create_app  # noqa: E402
 from capstone.api.config import UiConfig
 from capstone.api.readers import recorder_snapshot, safe_evaluations
 

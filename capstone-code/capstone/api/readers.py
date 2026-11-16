@@ -135,7 +135,8 @@ def recorder_snapshot(path: Path | None, *, show_values: bool = False) -> dict[s
         item["last_received_age_s"] = iso_age(item["received_at"], now)
     age = iso_age(last_event["at"], now) if last_event else None
     connected = bool(last_event and last_event["event"] in ("connected", "heartbeat")
-                     and age is not None and age <= 90)
+                     and ((age is not None and age <= 90) or
+                          (receive_age := iso_age(latest_receive, now)) is not None and receive_age <= 90))
     if last_event and last_event["event"] in ("stopped", "disconnected"):
         connection = "disconnected"
     elif connected:
