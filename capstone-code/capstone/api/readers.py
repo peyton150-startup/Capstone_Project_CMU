@@ -459,3 +459,96 @@ def safe_scorecards(path: Path | None) -> list[dict[str, Any]]:
         row["judged"] = row["fault_correct"] is not None
         rows.append(row)
     return list(reversed(rows))
+
+
+
+def mtconnect_snapshot(path: Path | None, *, show_values: bool = False) -> dict[str, Any]:
+    """Separate MTConnect v1 projection; never parse legacy rows as Siemens v2.
+
+    MTConnect provides availability and conditions, NOT OPC UA StatusCode Good.
+    A receipt or recent heartbeat does not certify physical controller health.
+    """
+    from capstone.ingestion.record import CollectorMarker, TelemetryRecord, parse_line
+    import math
+
+    if path is None:
+        return {"availability": "not_configured", "recorder": None,
+                "signals": [], "events": []}
+    if not path.is_file():
+        return {"availability": "file_missing", "recorder": None,
+                "signals": [], "events": []}
+    signals: dict[str, dict[str, Any]] = {}
+    events: list[dict[str, Any]] = []
+    received = available = unavailable = invalid = gaps = 0
+    last: str | None = None
+    last_marker: str | None = None
+    last_marker_at: str | None = None
+    last_instance: str | None = None
+    for line in recent_lines(path):
+        try:
+            record = parse_line(line)
+        except (ValueError, TypeError):
+            invalid += 1
+            continue
+        if isinstance(record, CollectorMarker):
+            if record.event == "gap":
+                gaps += 1
+            last_marker = record.event
+            last_marker_at = record.at.isoformat()
+            events.append({"event": record.event, "at": last_marker_at,
+                           "reason_code": "collector" if record.event != "gap" else "data_gap"})
+            continue
+        assert isinstance(record, TelemetryRecord)
+        received += 1
+        if record.available:
+            available += 1
+        else:
+            unavailable += 1
+        at = record.received_at.isoformat()
+        last = max(last or at, at)
+        last_instance = record.instance_id
+        sid = hashlib.sha256(json.dumps(
+            [record.source, record.device, record.component, record.data_item_id],
+            ensure_ascii=True,
+        ).encode("utf-8")).hexdigest()[:20]
+        numeric = record.number() if record.category == "SAMPLE" else None
+        if numeric is not None and not math.isfinite(numeric):
+            numeric = None
+        signals[sid] = {
+            "id": sid,
+            "label": (record.name or record.type)[:100],
+            "machine": record.device[:100],
+            "component": record.component[:100],
+            "category": record.category,
+            "value": (numeric if record.category == "SAMPLE" else
+                      (record.value[:200] if record.value is not None else None))
+                     if show_values and record.available else None,
+            "value_available": bool(show_values and record.available),
+            "quality": "available" if record.available else "unavailable",
+            "unit": None, "analysis_eligible": False,
+            "received_at": at, "source_timestamp": record.source_timestamp.isoformat(),
+            "freshness": "unknown",
+            "reason": "MTConnect availability is not a machine-approved analysis gate",
+        }
+    age = iso_age(last, datetime.now(timezone.utc))
+    connection = "disconnected" if last_marker == "stopped" else "unknown"
+    measurement = "received_recently" if age is not None and age <= 120 else (
+        "stale_or_none" if last is not None else "none")
+    return {
+        "availability": "available",
+        "recorder": {
+            "id": "mtconnect-local", "source": "MTConnect v1",
+            "process_state": "unknown", "connection_state": connection,
+            "subscription_state": "not_applicable",
+            "measurement_state": measurement,
+            "last_receive_at": last, "last_collector_marker_at": last_marker_at,
+            "last_instance_known": last_instance is not None,
+            "received": received, "available": available,
+            "unavailable": unavailable, "gaps": gaps, "invalid_lines": invalid,
+            "quality_scheme": "mtconnect_availability_not_opcua_statuscode",
+            "window_scope": "bounded_recent_tail", "output_bytes": path.stat().st_size,
+            "analysis_eligible": None, "sink_state": "unknown",
+        },
+        "signals": sorted(signals.values(), key=lambda row: (row["machine"], row["label"])),
+        "events": list(reversed(events[-120:])),
+    }
