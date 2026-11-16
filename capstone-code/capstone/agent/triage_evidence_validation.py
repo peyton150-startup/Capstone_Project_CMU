@@ -7,6 +7,7 @@ Pydantic contracts validate the result, not an LLM's interpretation of it.
 
 from __future__ import annotations
 
+import json
 from math import isfinite
 from typing import Literal
 
@@ -131,8 +132,6 @@ def validate_triage_result(
     if reason is not None:
         return checked(reason)
     try:
-        import json
-
         json.dumps(data, allow_nan=False, sort_keys=True)
     except (TypeError, ValueError, OverflowError):
         return checked("invalid_shape")
