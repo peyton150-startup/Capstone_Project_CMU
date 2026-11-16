@@ -505,3 +505,50 @@ def test_late_envelope_cannot_rewind_trusted_tick():
         not check.accepted and check.reason_code == "out_of_order"
         for check in state.triage_evidence_checks
     )
+
+
+def test_record_read_rejection_never_reaches_provenance():
+    state = state_for()
+
+    def wrong_machine_event(request):
+        if request.name == "get_events":
+            return [{"tick": 40, "machine_id": "CNC-UNKNOWN", "kind": "alarm"}]
+        return answer(request)
+
+    run_inner_loop(
+        state, deps_for(FakeProvider(wrong_machine_event, tick=45)), "investigate"
+    )
+    assert any(
+        check.reason_code == "wrong_source"
+        for check in state.triage_evidence_checks
+    )
+    assert not any(
+        evidence.source_id.endswith(":get_events") for evidence in state.evidence
+    )
+    assert all(
+        provenance.evidence_id in {e.id for e in state.evidence}
+        for provenance in state.provenance
+    )
+
+
+@pytest.mark.parametrize("step_questions", [1, 2])
+def test_same_evidence_and_settings_replay_identical_deterministic_trace(
+    step_questions,
+):
+    state_a, state_b = state_for(), state_for()
+    run_inner_loop(
+        state_a,
+        deps_for(FakeProvider(answer, tick=45), step_questions=step_questions),
+        "investigate",
+    )
+    run_inner_loop(
+        state_b,
+        deps_for(FakeProvider(answer, tick=45), step_questions=step_questions),
+        "investigate",
+    )
+    assert [x.model_dump() for x in state_a.triage_trace_events] == [
+        x.model_dump() for x in state_b.triage_trace_events
+    ]
+    assert [x.model_dump() for x in state_a.triage_evidence_checks] == [
+        x.model_dump() for x in state_b.triage_evidence_checks
+    ]
