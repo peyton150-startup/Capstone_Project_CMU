@@ -91,6 +91,7 @@ def deps_for(provider, *, step_questions=1, tools=TOOLS, channels=CHANNELS):
         policy=NoDecideModel(),
         clock=lambda: 0.0,
         triage_investigate="deterministic",
+        triage_allowed_sources=("fake",),
         triage_tool_specs=tools,
         triage_channels=channels,
         step_questions=step_questions,
