@@ -59,3 +59,32 @@ export type Capabilities = {
 export type ListResponse<T> = { availability: Availability; items: T[]; message?: string };
 export type ApiResource<T> = { data: T | null; loading: boolean; error: string | null };
 export type Sample = { at: string; value: number | null; quality: string; epoch: number };
+
+export type ManagedRun = {
+  run_id: string; requested: { seed: number; kind: string; mode: string; hazards: boolean;
+    tree_of_thought: boolean; manual: string };
+  state: 'queued' | 'running' | 'awaiting_review' | 'completed' | 'failed' | 'interrupted';
+  snapshot: { stage?: string | null; status?: string; mode?: string;
+    triage_report?: TriageReport | null; investigation?: { stage: string | null;
+      tool_calls: number; evidence_count: number; hypothesis_count: number;
+      termination_reason: string | null; unresolved_question_ids: string[] };
+    diagnosis?: string | null; recommendation?: string | null;
+    action_executed?: boolean; verification_outcome?: string | null;
+    deep_ran?: boolean; error_class?: string };
+  created_at: string; updated_at: string;
+};
+export type TriageReport = {
+  machine_id: string | null; alarm: string; outcome: string;
+  termination_reason: string | null; diagnosis: string | null;
+  assessment: string; recommendation: string; model_recommendation: string | null;
+  confidence: number; deep_recommended: boolean; held_open_because: string[];
+  unresolved_questions: string[]; next_check: string | null;
+  findings: Array<{evidence_id:string;source_id:string;origin:string|null;
+    observed_tick:number|null;excerpt:string}>;
+  refused_because: string | null; summary: string;
+};
+export type ReviewRequest = {
+  run_id: string; proposal_id: number; machine_id: string; action: string;
+  reason: string; predicted_effect: string; note: string;
+};
+export type RunEvent = { seq: number; event: string; data: Record<string, unknown> };
