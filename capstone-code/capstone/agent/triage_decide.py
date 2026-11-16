@@ -30,7 +30,7 @@ from capstone.agent.triage_requirements import (
     TriageDecisionRecord,
 )
 from capstone.agent.triage_trace import emit_triage_event
-from capstone.contracts.tools import ToolRequest
+from capstone.contracts.tools import ToolRequest, ToolResult
 from capstone.providers.factory import TOOL_ARGUMENTS
 
 if TYPE_CHECKING:
@@ -209,8 +209,23 @@ def matching_evidence(
         if requirement.job_id is not None and args.get("job_id") != requirement.job_id:
             continue
         try:
-            found.append((evidence.id, json.loads(evidence.content)))
-        except ValueError:
+            data = json.loads(evidence.content)
+            # Observe evidence predates the deterministic admission hook.
+            # Requalify it before allowing it to satisfy a requirement.
+            source = evidence.source_id.rsplit(":", 1)[0]
+            replayed = ToolResult(
+                success=True,
+                tool=decision.tool,
+                source=source,
+                tick=evidence.observed_tick,
+                timestamp=evidence.observed_at,
+                data=data,
+            )
+            request = ToolRequest(name=decision.tool, arguments=dict(args))
+            if not validate_triage_result(replayed, request, cutoff).accepted:
+                continue
+            found.append((evidence.id, data))
+        except (ValueError, TypeError, KeyError):
             continue
     return found
 
