@@ -493,6 +493,9 @@ class InvestigationState(BaseModel):
     # Expected provider sources are fixed from dependency configuration, not
     # chosen by whichever tool happens to answer first.
     triage_allowed_sources: tuple[str, ...] = ()
+    # None: no clock attempted (unit-test setup); False: rejected trusted clock.
+    # A rejected Observe time response must block subsequent deterministic reads.
+    triage_clock_verified: bool | None = None
     # Ordered, payload-free decision diagnostics; retained with or without JSON logs.
     triage_trace_events: list[TriageTraceEvent] = Field(default_factory=list)
     triage_logging_failures: int = Field(default=0, ge=0)
