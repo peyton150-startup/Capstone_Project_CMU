@@ -158,18 +158,37 @@ export function KnowledgePage() {
       <DataRow label="Historical diagnosis" value="Claim, not automatically verified machine fact"/>
     </Panel></>;
 }
+type ManualSection = {citation:string;section_id:string;title:string;revision:string;text:string};
 export function ManualsPage() {
-  const [q,setQ]=useState('');
+  const {token,preview,workspace}=useUi();
+  const [query,setQuery]=useState(''),[submitted,setSubmitted]=useState('');
+  const active=workspace==='simulator'&&!preview;
+  const path='/api/v1/knowledge/manuals?workspace=simulator'+
+    (submitted?'&q='+encodeURIComponent(submitted):'');
+  const resource=useResource<ListResponse<ManualSection>>(active?path:null,token,!active);
   return <><PageHeading eyebrow="KNOWLEDGE / REFERENCES" title="Manual library"
-    description="No source is treated as applicable until model, revision and permissions are verified."/>
-    <Panel title="Technical reference search" subtitle="The retrieval API is not integrated yet">
-      <div className="search-field-wide"><Search size={19}/><input value={q} onChange={e=>setQ(e.target.value)}
-        placeholder="Search a topic or alarm description..." aria-label="Manual search term"/>
-        <button className="button-secondary" disabled>Search approved manuals</button></div>
-      <Unavailable item="Manual search" detail="Python manual retrieval exists, but this API has no permissioned, version-matched retrieval endpoint. No results are fabricated."/>
-    </Panel><Panel title="Reference gate" subtitle="Before displaying an OEM procedure">
-      <DataRow label="Source identity" value="Required"/><DataRow label="Controller match" value="Required"/>
-      <DataRow label="Revision compatibility" value="Required"/><DataRow label="Citation to exact passage" value="Required"/>
+    description="Source-matched, cited manual sections; simulator documentation never authorizes a pilot intervention."/>
+    <Panel title="Simulator manual search" subtitle="Validated keyword search over SIM-CNC-001">
+      {workspace==='pilot'? <InfoState kind="warning" title="OEM manual not authorized"
+        detail="A Siemens manual must be controller- and revision-matched before it may be used for pilot diagnosis."/>:
+      <div className="search-field-wide"><Search size={19}/><input value={query}
+        onChange={e=>setQuery(e.target.value)} maxLength={120}
+        onKeyDown={e=>{if(e.key==='Enter')setSubmitted(query.trim());}}
+        placeholder="Search by sensor, alarm, or maintenance topic" aria-label="Manual search term"/>
+        <button className="button-secondary" type="button" disabled={!active}
+          onClick={()=>setSubmitted(query.trim())}>Search local manual</button></div>}
+      {resource.error && <InfoState kind="warning" title="Manual API unavailable" detail={resource.error}/>}
+      {active && resource.data?.items.length ? resource.data.items.map(item=>
+        <div className="hypothesis-card" key={item.citation}>
+          <span className="eyebrow">{item.citation} · Rev {item.revision}</span>
+          <h3>{item.title}</h3><p>{item.text}</p>
+        </div>): <Unavailable item="Manual sections" detail="No approved matching sections or the API has not loaded the local manual."/>}
+    </Panel>
+    <Panel title="Reference gate" subtitle="Never transfer a simulator manual to the Prestige machine without field verification">
+      <DataRow label="Document identity" value="SIM-CNC-001, simulator only"/>
+      <DataRow label="Controller match" value="Pilot: not verified"/>
+      <DataRow label="Revision compatibility" value="Pilot: not verified"/>
+      <DataRow label="Citation" value="Exact section and document revision"/>
     </Panel></>;
 }
 export function MemoryPage() {
