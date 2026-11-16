@@ -115,6 +115,10 @@ class SimulatorRuns:
             raise ValueError("Invalid run identifier")
         return self.database.parent / "simulator-investigations" / (run_id + ".jsonl")
 
+    def investigation_event_path(self, run_id: str) -> Path:
+        """Server-owned safe operational event log, separate from private audits."""
+        return self.investigation_audit_path(run_id).with_suffix(".events.jsonl")
+
     def get(self, run_id: str) -> dict[str, Any] | None:
         with self.lock, self._db() as db:
             row = db.execute(
@@ -218,11 +222,14 @@ class SimulatorRuns:
                     "WHERE run_id=? AND proposal_id=? AND status='pending'",
                     (decision.decision, json.dumps(details), *key),
                 )
+            # Record the decision before waking the episode. Otherwise the
+            # worker may finish and a late review event can regress the run
+            # from completed back to running.
+            self._emit(run_id, "review.decided", {
+                "proposal_id": decision.proposal_id, "decision": decision.decision,
+                "status": "decided_not_executed", "mode": "deep",
+            }, state="running")
             self.waiters[key].set()
-        self._emit(run_id, "review.decided", {
-            "proposal_id": decision.proposal_id, "decision": decision.decision,
-            "status": "decided_not_executed", "mode": "deep",
-        }, state="running")
         return {"run_id": run_id, "proposal_id": decision.proposal_id, "decision": decision.decision}
 
     def _await_review(self, run_id: str, proposal: Any) -> tuple[bool, str]:
@@ -295,6 +302,8 @@ class SimulatorRuns:
             from capstone.episode import run_episode
             from capstone.experiment import model_policy_factory, open_manual
             from capstone.agent.completion import AuditLog
+            from capstone.observability import EventLogger
+
             audit_path = self.investigation_audit_path(run_id)
             audit_path.parent.mkdir(mode=0o700, parents=True, exist_ok=True)
             manual = open_manual("keyword") if request.manual == "keyword" else None
@@ -302,13 +311,20 @@ class SimulatorRuns:
                 with_recall=False, with_manual=manual is not None,
                 tree_of_thought=request.tree_of_thought,
             )()
-            result = run_episode(
-                request.seed, policy, kind=request.kind,
-                triage=request.mode == "triage", hazards=request.hazards,
-                manual=manual, watch=watch, log=AuditLog(audit_path),
-                approver=lambda proposal: self._await_review(run_id, proposal),
-                run_key="ui/" + run_id,
-            )
+            # Keep structured operational metadata in a separate private file.
+            # EventLogger rejects free text, evidence, provider secrets and
+            # unvalidated metadata; it is not the investigator's audit.
+            with self.investigation_event_path(run_id).open(
+                "a", encoding="utf-8"
+            ) as event_stream:
+                result = run_episode(
+                    request.seed, policy, kind=request.kind,
+                    triage=request.mode == "triage", hazards=request.hazards,
+                    manual=manual, watch=watch, log=AuditLog(audit_path),
+                    event_logger=EventLogger(event_stream, name="ui-" + run_id),
+                    approver=lambda proposal: self._await_review(run_id, proposal),
+                    run_key="ui/" + run_id,
+                )
             progress.join()
             if missed[0]:
                 self._emit(run_id, "resync.required", {
