@@ -35,8 +35,16 @@ def case(*, policy=None, event_logger=None):
     """One fully isolated triage using the existing typed read-only tools."""
     state = state_for()
     provider = FakeProvider(answer, tick=45)
+    # ScriptedPolicy has no one-question combined Decide method; use the
+    # supported two-question contract when testing deep-mode isolation.
+    questions = (
+        2
+        if policy is not None
+        and not callable(getattr(policy, "interpret_and_decide", None))
+        else 1
+    )
     deps = replace(
-        deps_for(provider),
+        deps_for(provider, step_questions=questions),
         policy=policy or NoDecideModel(),
         triage_hypothesize="deterministic",
         event_logger=event_logger,
