@@ -264,13 +264,25 @@ def test_deterministic_observe_packet_rejects_invalid_sensor_before_commit():
         (
             "get_maintenance_history",
             {"machine_id": "CNC-02"},
-            [{"tick": None, "machine_id": "CNC-02"}],
+            [{
+                "tick": None,
+                "machine_id": "CNC-02",
+                "performed_at": "2026-01-01T00:00:00",
+                "kind": "service",
+                "note": "",
+            }],
             "accepted",
         ),
         (
             "get_events",
             {"machine_id": "CNC-02", "from_tick": 20, "to_tick": 45},
-            [{"tick": 30, "machine_id": "CNC-02"}],
+            [{
+                "tick": 30,
+                "machine_id": "CNC-02",
+                "kind": "alarm",
+                "message": "",
+                "job_id": None,
+            }],
             "accepted",
         ),
     ],
