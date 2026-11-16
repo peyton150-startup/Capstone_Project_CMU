@@ -6,7 +6,9 @@ from io import StringIO
 import pytest
 from pydantic import ValidationError
 
-from capstone.agent.loop import run_inner_loop
+from capstone.agent.loop import gather, run_inner_loop
+from capstone.agent.policy import CallTool
+from capstone.agent.triage_decide import initialize_requirements, matching_evidence
 from capstone.agent.triage_evidence_validation import validate_triage_result
 from capstone.agent.triage_trace import TriageTraceEvent
 from capstone.contracts.tools import ToolRequest, ToolResult
@@ -151,3 +153,33 @@ def test_pydantic_trace_rejects_free_form_reason_and_nonfinite_duration():
             reason_code="timeout",
             duration_ms=float("inf"),
         )
+
+
+def test_reused_observe_summary_must_pass_same_source_validation():
+    state = state_for()
+    request = ToolRequest(
+        name="get_sensor_summary",
+        arguments={
+            "machine_id": "CNC-02",
+            "sensor": "vibration",
+            "from_tick": 20,
+            "to_tick": 45,
+        },
+    )
+
+    def incorrect(request):
+        return {**answer(request), "sensor": "load"}
+
+    deps = deps_for(FakeProvider(incorrect, tick=45))
+    # Simulate a preexisting Observe result gathered without the new hook.
+    evidence = gather(
+        state,
+        deps,
+        "observe",
+        CallTool(information_needed="existing Observe summary", request=request),
+        interpret=False,
+    )
+    assert evidence is not None
+    initialize_requirements(state)
+    requirement = state.triage_requirements["Q1:trigger"]
+    assert matching_evidence(state, requirement) == []
