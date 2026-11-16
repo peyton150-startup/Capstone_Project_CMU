@@ -54,7 +54,7 @@ from capstone.agent.artifacts import (
 )
 from capstone.agent.critic import shown_hypotheses, verdict_mismatch
 from capstone.agent.evidence_brief import verify_numeric_claims
-from capstone.agent.evidence_tests import note, open_rival_questions
+from capstone.agent.evidence_tests import evaluate, note, open_rival_questions
 from capstone.agent.incident_context import assemble_incident_context
 from capstone.agent.loop import (
     POLICY_ERRORS,
@@ -1045,7 +1045,9 @@ def triage_clearance_gaps(
     It must also cite at least one measurement: a clock read or the machine
     list says nothing about a machine's health. The screening must be read
     after the alarm, not before it, and when the machine list was gathered,
-    every machine on it must have a screening entry.
+    every machine on it must have a screening entry. And every question with
+    a measured predicate (the fixed plan's Q1) must be closed and settled
+    true or false (`required_question_gaps`).
     Any other answer is left alone: escalating or wanting a fix already sends
     the case on. Deep runs never call this.
     """
@@ -1062,6 +1064,8 @@ def triage_clearance_gaps(
     #     of health, only of coverage missing.
     #   read_at: The tick the newest screening was read; before the alarm's
     #     tick, it cannot show the line after the alarm.
+    #   deps.triage_evidence_tests: On (the default) adds the required-question
+    #     rule (`required_question_gaps`); off gives the old triage rules.
     clearing = (
         conclusion.recommendation == "no_action"
         and conclusion.assessment == "supported"
@@ -1119,6 +1123,62 @@ def triage_clearance_gaps(
                     "the line since.",
                 )
             )
+    if deps.triage_evidence_tests:
+        found += required_question_gaps(state, conclusion)
+    return found
+
+
+def required_question_gaps(
+    state: InvestigationState, conclusion: AgentConclusion
+) -> list[GapRecord]:
+    """Questions a triage must settle before it may clear: those with a predicate.
+
+    A planner attaches a measured predicate only to a question that decides
+    whether the alarm is real (the fixed plan's Q1: sustained or a spike), so
+    that marker, not the wording, says the question is required. It blocks
+    the clearance while still open, or while its predicate's verdict on the
+    evidence so far is not a measured true or false. Each one is recorded.
+    """
+    # Variables:
+    #   still_open: Ids of the questions the triage has not closed.
+    #   result: The predicate's verdict on everything observed so far.
+    #   settled: The verdict is a measured true or false; only a settled
+    #     predicate on a closed question lets the clearance through.
+    #   question: The open question's own record, for its wording; None once
+    #     it was closed.
+    still_open = {q.id: q for q in state.unanswered_questions}
+    found = []
+    for question_id, predicate in sorted(state.question_predicates.items()):
+        result = evaluate(predicate, state)
+        settled = result.verdict in ("true", "false")
+        if settled and question_id not in still_open:
+            continue
+        question = still_open.get(question_id)
+        note(
+            state,
+            TriageTestRecord(
+                kind="clearance_question_open",
+                stage=state.stage,
+                tick=state.last_tick,
+                hypothesis_id=conclusion.hypothesis_id,
+                question_ids=(question_id,),
+                roots=(f"{predicate.machine_id}:{predicate.sensor}",),
+                verdict=result.verdict,
+                reason=result.reason,
+                evidence_ids=result.evidence_ids,
+            ),
+        )
+        state_words = "is still open" if question else "was never settled"
+        found.append(
+            GapRecord(
+                kind="triage_required_question_open",
+                text=f"{question_id} "
+                + (f"({question.text}) " if question else "")
+                + f"{state_words}: its measured check is {result.verdict} "
+                f"({result.reason}), so the alarm cannot be cleared.",
+                question_id=question_id,
+            )
+        )
     return found
 
 

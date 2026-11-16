@@ -37,6 +37,7 @@ GROUNDING = {
     "unverified_number",
     "triage_no_hypothesis",
     "triage_screening_gap",
+    "triage_required_question_open",
 }
 QUESTIONS = {"model_question", "unanswered_question", "question"}
 

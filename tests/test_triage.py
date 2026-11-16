@@ -457,7 +457,7 @@ def add_evidence(state, evidence_id, source_id, content):
     )
 
 
-def clear(state, *, screening_available=True, **changes):
+def clear(state, *, screening_available=True, triage_evidence_tests=True, **changes):
     """Run the final check on a supported "nothing needs doing" answer."""
     values = {
         "diagnosis": "a transient spike that has passed",
@@ -472,6 +472,7 @@ def clear(state, *, screening_available=True, **changes):
         provider=FakeProvider(),
         policy=ScriptedPolicy(),
         screening_available=screening_available,
+        triage_evidence_tests=triage_evidence_tests,
     )
     checked, _ = check_conclusion(state, deps, AgentConclusion(**values), None)
     return checked
