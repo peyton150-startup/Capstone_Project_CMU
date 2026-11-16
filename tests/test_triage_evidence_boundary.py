@@ -327,3 +327,159 @@ def test_unexpected_logger_exception_does_not_affect_trace_or_stop():
     assert state.triage_logging_failures > 0
     assert state.triage_trace_events[-1].event == "triage.stopped"
     assert state.triage_decide_trace[-1].kind == "stop"
+
+
+def test_typed_audit_covers_every_selected_attempt():
+    state = state_for()
+    deps = deps_for(FakeProvider(answer, tick=45))
+    run_inner_loop(state, deps, "investigate")
+
+    selected = [e for e in state.triage_trace_events if e.event == "decide.selected"]
+    completed = [e for e in state.triage_trace_events if e.event == "tool.completed"]
+    validated = [e for e in state.triage_trace_events if e.event == "evidence.validated"]
+    assert selected and len(selected) == len(completed) == len(validated)
+    assert len(selected) == len(state.triage_evidence_checks)
+    assert state.triage_trace_events[0].event == "triage.started"
+    assert any(e.event == "requirements.compiled" for e in state.triage_trace_events)
+    assert all(
+        e.request_hash and len(e.request_hash) == 20
+        and e.attempt >= 1 and e.candidate_count >= 1
+        for e in selected
+    )
+    assert [e.request_hash for e in selected] == [
+        e.request_hash for e in completed
+    ]
+    assert all(
+        e.accepted == (e.evidence_id is not None)
+        for e in state.triage_evidence_checks
+    )
+
+
+@pytest.mark.parametrize(
+    ("tool", "arguments", "row", "expected"),
+    [
+        (
+            "get_events",
+            {"machine_id": "CNC-02", "from_tick": 20, "to_tick": 45},
+            {"tick": 40, "machine_id": "CNC-03", "kind": "alarm"},
+            "wrong_source",
+        ),
+        (
+            "get_events",
+            {"machine_id": "CNC-02", "from_tick": 20, "to_tick": 45},
+            {"tick": 19, "machine_id": "CNC-02", "kind": "alarm"},
+            "outside_window",
+        ),
+        (
+            "get_job_history",
+            {"job_id": 10},
+            {"tick": 35, "job_id": 11, "machine_id": "CNC-02"},
+            "wrong_source",
+        ),
+        (
+            "get_job_history",
+            {"job_id": 10},
+            {"tick": 46, "job_id": 10, "machine_id": "CNC-02"},
+            "future_tick",
+        ),
+        (
+            "get_maintenance_history",
+            {"machine_id": "CNC-02"},
+            {"tick": 20, "machine_id": "CNC-03", "kind": "service"},
+            "wrong_source",
+        ),
+        (
+            "get_inspections",
+            {"from_tick": 20, "to_tick": 45},
+            {"tick": 43, "job_id": 10, "result": "unknown"},
+            "invalid_shape",
+        ),
+        (
+            "get_settings",
+            {},
+            {"machine_id": "CNC-02"},
+            "invalid_shape",
+        ),
+    ],
+)
+def test_record_read_cannot_cross_authorized_source_or_time(
+    tool, arguments, row, expected
+):
+    request = ToolRequest(name=tool, arguments=arguments)
+    result = ToolResult(
+        success=True,
+        tool=tool,
+        source="fake",
+        tick=45,
+        timestamp=START,
+        data=[row],
+    )
+    assert validate_triage_result(result, request, 45).reason_code == expected
+
+
+def test_read_outside_allowed_tool_catalog_cannot_be_qualified():
+    request = ToolRequest(
+        name="get_readings",
+        arguments={
+            "machine_id": "CNC-02",
+            "sensor": "load",
+            "from_tick": 20,
+            "to_tick": 45,
+        },
+    )
+    result = ToolResult(
+        success=True,
+        tool="get_readings",
+        source="fake",
+        tick=45,
+        timestamp=START,
+        data=[{"tick": 44, "machine_id": "CNC-02", "sensor": "load", "value": 10}],
+    )
+    assert validate_triage_result(result, request, 45).reason_code == "unsupported_tool"
+
+
+def test_result_newer_than_provider_envelope_is_quarantined():
+    request = ToolRequest(
+        name="get_sensor_summary",
+        arguments={
+            "machine_id": "CNC-02",
+            "sensor": "vibration",
+            "from_tick": 20,
+            "to_tick": 45,
+        },
+    )
+    data = {**answer(request), "last_tick": 45}
+    result = ToolResult(
+        success=True,
+        tool=request.name,
+        source="fake",
+        tick=44,
+        timestamp=START,
+        data=data,
+    )
+    assert validate_triage_result(result, request, 45).reason_code == "invalid_tick"
+
+
+def test_failed_provider_attempt_still_has_a_rejected_admission_record():
+    state = state_for(max_tool_calls=2)
+
+    def fail(request):
+        return "error"
+
+    run_inner_loop(
+        state,
+        deps_for(
+            FakeProvider(fail, tick=45),
+            tools=(tool_spec("get_sensor_summary"),),
+            channels={"CNC-02": ("vibration",)},
+        ),
+        "investigate",
+    )
+    assert len(state.triage_evidence_checks) == state.triage_deterministic_reads
+    assert all(not check.accepted for check in state.triage_evidence_checks)
+    assert state.evidence == []
+    assert state.provenance == []
+    assert any(
+        e.event == "tool.completed" and e.status == "failed"
+        for e in state.triage_trace_events
+    )
