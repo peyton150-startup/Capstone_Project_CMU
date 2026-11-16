@@ -4,6 +4,7 @@ The worker calls the existing Pydantic Graph episode and ApprovalDesk. It never
 receives, stores or serves simulator hidden truth. Pilot execution is impossible.
 Web observers cannot block a watcher: stage snapshots use a bounded queue.
 """
+
 from __future__ import annotations
 
 import json
@@ -18,7 +19,9 @@ from typing import Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field
 
-RunState = Literal["queued", "running", "awaiting_review", "completed", "failed", "interrupted"]
+RunState = Literal[
+    "queued", "running", "awaiting_review", "completed", "failed", "interrupted"
+]
 
 
 def utc_now() -> str:
@@ -123,37 +126,59 @@ class SimulatorRuns:
         with self.lock, self._db() as db:
             row = db.execute(
                 "SELECT run_id, requested, state, snapshot, created_at, updated_at "
-                "FROM runs WHERE run_id=?", (run_id,),
+                "FROM runs WHERE run_id=?",
+                (run_id,),
             ).fetchone()
         if row is None:
             return None
         return {
-            "run_id": row[0], "requested": json.loads(row[1]), "state": row[2],
-            "snapshot": json.loads(row[3]), "created_at": row[4], "updated_at": row[5],
+            "run_id": row[0],
+            "requested": json.loads(row[1]),
+            "state": row[2],
+            "snapshot": json.loads(row[3]),
+            "created_at": row[4],
+            "updated_at": row[5],
         }
 
     def list_runs(self, limit: int = 50) -> list[dict[str, Any]]:
         with self.lock, self._db() as db:
-            ids = [r[0] for r in db.execute(
-                "SELECT run_id FROM runs ORDER BY created_at DESC LIMIT ?", (min(limit, 100),),
-            ).fetchall()]
+            ids = [
+                r[0]
+                for r in db.execute(
+                    "SELECT run_id FROM runs ORDER BY created_at DESC LIMIT ?",
+                    (min(limit, 100),),
+                ).fetchall()
+            ]
         return [r for id_ in ids if (r := self.get(id_)) is not None]
 
-    def events_since(self, run_id: str, seq: int, *, limit: int = 100) -> list[dict[str, Any]]:
+    def events_since(
+        self, run_id: str, seq: int, *, limit: int = 100
+    ) -> list[dict[str, Any]]:
         if self.get(run_id) is None:
             return []
         with self.lock, self._db() as db:
             rows = db.execute(
                 "SELECT seq, event, payload FROM run_events WHERE run_id=? AND seq>? "
-                "ORDER BY seq LIMIT ?", (run_id, seq, min(limit, 100)),
+                "ORDER BY seq LIMIT ?",
+                (run_id, seq, min(limit, 100)),
             ).fetchall()
-        return [{"seq": n, "event": name, "data": json.loads(payload)} for n, name, payload in rows]
+        return [
+            {"seq": n, "event": name, "data": json.loads(payload)}
+            for n, name, payload in rows
+        ]
 
-    def _emit(self, run_id: str, event: str, payload: dict[str, Any],
-              *, state: RunState | None = None) -> None:
+    def _emit(
+        self,
+        run_id: str,
+        event: str,
+        payload: dict[str, Any],
+        *,
+        state: RunState | None = None,
+    ) -> None:
         with self.lock, self._db() as db:
             next_seq = db.execute(
-                "SELECT COALESCE(MAX(seq),0)+1 FROM run_events WHERE run_id=?", (run_id,),
+                "SELECT COALESCE(MAX(seq),0)+1 FROM run_events WHERE run_id=?",
+                (run_id,),
             ).fetchone()[0]
             db.execute(
                 "INSERT INTO run_events VALUES(?,?,?,?,?)",
@@ -165,8 +190,10 @@ class SimulatorRuns:
                     (state, json.dumps(payload), utc_now(), run_id),
                 )
             else:
-                db.execute("UPDATE runs SET snapshot=?, updated_at=? WHERE run_id=?",
-                           (json.dumps(payload), utc_now(), run_id))
+                db.execute(
+                    "UPDATE runs SET snapshot=?, updated_at=? WHERE run_id=?",
+                    (json.dumps(payload), utc_now(), run_id),
+                )
 
     def submit(self, request: RunRequest, request_key: str) -> dict[str, Any]:
         """At most one active episode. Idempotency keys cannot change parameters."""
@@ -174,11 +201,14 @@ class SimulatorRuns:
         with self.lock:
             with self._db() as db:
                 existing = db.execute(
-                    "SELECT run_id, requested FROM runs WHERE request_key=?", (request_key,),
+                    "SELECT run_id, requested FROM runs WHERE request_key=?",
+                    (request_key,),
                 ).fetchone()
                 if existing:
                     if existing[1] != serialized:
-                        raise ValueError("idempotency key reused for different settings")
+                        raise ValueError(
+                            "idempotency key reused for different settings"
+                        )
                     return self.get(existing[0])
                 if self.active:
                     raise RuntimeError("one simulator run is already active")
@@ -186,11 +216,23 @@ class SimulatorRuns:
                 initial = {"stage": None, "mode": request.mode, "status": "queued"}
                 db.execute(
                     "INSERT INTO runs VALUES(?,?,?,?,?,?,?)",
-                    (id_, request_key, serialized, "queued", json.dumps(initial), utc_now(), utc_now()),
+                    (
+                        id_,
+                        request_key,
+                        serialized,
+                        "queued",
+                        json.dumps(initial),
+                        utc_now(),
+                        utc_now(),
+                    ),
                 )
             self.active.add(id_)
-        threading.Thread(target=self._execute, args=(id_, request), daemon=True,
-                         name="simulator-run-" + id_[:8]).start()
+        threading.Thread(
+            target=self._execute,
+            args=(id_, request),
+            daemon=True,
+            name="simulator-run-" + id_[:8],
+        ).start()
         return self.get(id_)
 
     def pending_reviews(self) -> list[dict[str, Any]]:
@@ -213,9 +255,12 @@ class SimulatorRuns:
                     raise LookupError("review request not found")
                 if row[0] != "pending" or key not in self.waiters:
                     raise ValueError("review is not pending")
-                details = json.loads(db.execute(
-                    "SELECT details FROM run_reviews WHERE run_id=? AND proposal_id=?", key,
-                ).fetchone()[0])
+                details = json.loads(
+                    db.execute(
+                        "SELECT details FROM run_reviews WHERE run_id=? AND proposal_id=?",
+                        key,
+                    ).fetchone()[0]
+                )
                 details["note"] = decision.note
                 db.execute(
                     "UPDATE run_reviews SET status=?, details=? "
@@ -225,28 +270,45 @@ class SimulatorRuns:
             # Record the decision before waking the episode. Otherwise the
             # worker may finish and a late review event can regress the run
             # from completed back to running.
-            self._emit(run_id, "review.decided", {
-                "proposal_id": decision.proposal_id, "decision": decision.decision,
-                "status": "decided_not_executed", "mode": "deep",
-            }, state="running")
+            self._emit(
+                run_id,
+                "review.decided",
+                {
+                    "proposal_id": decision.proposal_id,
+                    "decision": decision.decision,
+                    "status": "decided_not_executed",
+                    "mode": "deep",
+                },
+                state="running",
+            )
             self.waiters[key].set()
-        return {"run_id": run_id, "proposal_id": decision.proposal_id, "decision": decision.decision}
+        return {
+            "run_id": run_id,
+            "proposal_id": decision.proposal_id,
+            "decision": decision.decision,
+        }
 
     def _await_review(self, run_id: str, proposal: Any) -> tuple[bool, str]:
         """Called only from episode worker, never the HTTP request thread."""
         id_ = int(proposal.proposal_id)
         key = (run_id, id_)
         fields = {
-            "proposal_id": id_, "machine_id": str(proposal.machine_id)[:80],
-            "action": str(proposal.action)[:160], "reason": str(proposal.reason)[:600],
-            "predicted_effect": str(getattr(proposal, "predicted_effect", "") or "")[:600],
+            "proposal_id": id_,
+            "machine_id": str(proposal.machine_id)[:80],
+            "action": str(proposal.action)[:160],
+            "reason": str(proposal.reason)[:600],
+            "predicted_effect": str(getattr(proposal, "predicted_effect", "") or "")[
+                :600
+            ],
             "note": "",
         }
         waiter = threading.Event()
         with self.lock:
             with self._db() as db:
-                db.execute("INSERT INTO run_reviews VALUES(?,?,?,?)",
-                           (run_id, id_, "pending", json.dumps(fields)))
+                db.execute(
+                    "INSERT INTO run_reviews VALUES(?,?,?,?)",
+                    (run_id, id_, "pending", json.dumps(fields)),
+                )
             self.waiters[key] = waiter
         self._emit(run_id, "review.requested", fields, state="awaiting_review")
         accepted = waiter.wait(self.approval_timeout_seconds)
@@ -259,14 +321,17 @@ class SimulatorRuns:
                 if not accepted and row and row[0] == "pending":
                     db.execute(
                         "UPDATE run_reviews SET status='expired' "
-                        "WHERE run_id=? AND proposal_id=? AND status='pending'", key,
+                        "WHERE run_id=? AND proposal_id=? AND status='pending'",
+                        key,
                     )
             self.waiters.pop(key, None)
         status = row[0] if row else "expired"
         if status == "pending":
             status = "expired"
         if status == "approve":
-            return True, json.loads(row[1]).get("note", "") or "approved by simulator reviewer"
+            return True, json.loads(row[1]).get(
+                "note", ""
+            ) or "approved by simulator reviewer"
         return False, "review timed out" if status == "expired" else (
             json.loads(row[1]).get("note", "") or "rejected by simulator reviewer"
         )
@@ -274,6 +339,7 @@ class SimulatorRuns:
     def _execute(self, run_id: str, request: RunRequest) -> None:
         progress: queue.Queue[dict[str, Any] | None] = queue.Queue(maxsize=128)
         missed = [0]
+
         def watch(state: Any) -> None:
             try:
                 progress.put_nowait(safe_stage(state))
@@ -294,10 +360,16 @@ class SimulatorRuns:
                 finally:
                     progress.task_done()
 
-        writer = threading.Thread(target=publish, name="run-events-" + run_id[:8], daemon=True)
+        writer = threading.Thread(
+            target=publish, name="run-events-" + run_id[:8], daemon=True
+        )
         writer.start()
-        self._emit(run_id, "run.started", {"status": "running", "mode": request.mode},
-                   state="running")
+        self._emit(
+            run_id,
+            "run.started",
+            {"status": "running", "mode": request.mode},
+            state="running",
+        )
         try:
             from capstone.agent.completion import AuditLog
             from capstone.episode import run_episode
@@ -308,7 +380,8 @@ class SimulatorRuns:
             audit_path.parent.mkdir(mode=0o700, parents=True, exist_ok=True)
             manual = open_manual("keyword") if request.manual == "keyword" else None
             policy = model_policy_factory(
-                with_recall=False, with_manual=manual is not None,
+                with_recall=False,
+                with_manual=manual is not None,
                 tree_of_thought=request.tree_of_thought,
             )()
             # Keep structured operational metadata in a separate private file.
@@ -318,45 +391,70 @@ class SimulatorRuns:
                 "a", encoding="utf-8"
             ) as event_stream:
                 result = run_episode(
-                    request.seed, policy, kind=request.kind,
-                    triage=request.mode == "triage", hazards=request.hazards,
-                    manual=manual, watch=watch, log=AuditLog(audit_path),
+                    request.seed,
+                    policy,
+                    kind=request.kind,
+                    triage=request.mode == "triage",
+                    hazards=request.hazards,
+                    manual=manual,
+                    watch=watch,
+                    log=AuditLog(audit_path),
                     event_logger=EventLogger(event_stream, name="ui-" + run_id),
                     approver=lambda proposal: self._await_review(run_id, proposal),
                     run_key="ui/" + run_id,
                 )
             progress.join()
             if missed[0]:
-                self._emit(run_id, "resync.required", {
-                    "dropped_ui_updates": missed[0], "mode": request.mode,
-                })
-            triage = result.triage if result.triage is not None else (
-                result.state if result.state.mode == "triage" else None
+                self._emit(
+                    run_id,
+                    "resync.required",
+                    {
+                        "dropped_ui_updates": missed[0],
+                        "mode": request.mode,
+                    },
+                )
+            triage = (
+                result.triage
+                if result.triage is not None
+                else (result.state if result.state.mode == "triage" else None)
             )
-            report = None if triage is None or triage.triage_report is None else (
-                triage.triage_report.model_dump(mode="json")
+            report = (
+                None
+                if triage is None or triage.triage_report is None
+                else (triage.triage_report.model_dump(mode="json"))
             )
             final = {
-                "status": "completed", "mode": request.mode,
+                "status": "completed",
+                "mode": request.mode,
                 "investigation": safe_stage(result.state),
                 "triage_report": report,
-                "diagnosis": None if result.state.conclusion is None else
-                    result.state.conclusion.diagnosis[:1000],
-                "recommendation": None if result.state.conclusion is None else
-                    result.state.conclusion.recommendation,
+                "diagnosis": None
+                if result.state.conclusion is None
+                else result.state.conclusion.diagnosis[:1000],
+                "recommendation": None
+                if result.state.conclusion is None
+                else result.state.conclusion.recommendation,
                 "action_executed": result.state.action_started_tick is not None,
-                "verification_outcome": None if result.state.verification is None else
-                    result.state.verification.outcome,
-                "deep_ran": result.triage is not None and result.state is not result.triage,
+                "verification_outcome": None
+                if result.state.verification is None
+                else result.state.verification.outcome,
+                "deep_ran": result.triage is not None
+                and result.state is not result.triage,
                 "review_count": len(result.desk.proposals()),
             }
             self._emit(run_id, "run.completed", final, state="completed")
         except Exception as error:
             # Never persist exception messages: providers may include private details.
-            self._emit(run_id, "run.failed", {
-                "status": "failed", "error_class": type(error).__name__,
-                "mode": request.mode,
-            }, state="failed")
+            self._emit(
+                run_id,
+                "run.failed",
+                {
+                    "status": "failed",
+                    "error_class": type(error).__name__,
+                    "mode": request.mode,
+                },
+                state="failed",
+            )
         finally:
             try:
                 progress.put(None, timeout=2)
