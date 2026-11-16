@@ -98,7 +98,11 @@ class EventLogger:
                     raise ValueError(f"{field} must be a nonnegative integer")
                 metadata[field] = value
         if duration_ms is not None:
-            if type(duration_ms) not in (float, int) or not isfinite(duration_ms) or duration_ms < 0:
+            if (
+                type(duration_ms) not in (float, int)
+                or not isfinite(duration_ms)
+                or duration_ms < 0
+            ):
                 raise ValueError("duration_ms must be a finite nonnegative number")
             metadata["duration_ms"] = round(duration_ms, 3)
         if success is not None:
