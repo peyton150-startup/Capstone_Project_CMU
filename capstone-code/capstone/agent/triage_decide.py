@@ -773,10 +773,22 @@ def run_deterministic_triage_loop(
     state.triage_allowed_sources = deps.triage_allowed_sources
     initialize_requirements(state)
     if not any(e.event == "triage.started" for e in state.triage_trace_events):
-        config_input = (
-            f"{deps.triage_investigate}|{deps.step_questions}|"
-            f"{deps.decide_calls}|{state.fixed_plan_used}|"
-            f"{state.triage_observation_cutoff_tick}"
+        config_input = json.dumps(
+            {
+                "controller": deps.triage_investigate,
+                "step_questions": deps.step_questions,
+                "decide_calls": deps.decide_calls,
+                "fixed_plan": state.fixed_plan_used,
+                "cutoff": state.triage_observation_cutoff_tick,
+                "authorized_sources": sorted(deps.triage_allowed_sources),
+                "catalog": sorted(spec.name for spec in deps.triage_tool_specs),
+                "channels": {
+                    machine: sorted(channels)
+                    for machine, channels in sorted(deps.triage_channels.items())
+                },
+            },
+            sort_keys=True,
+            separators=(",", ":"),
         )
         emit_triage_event(
             state,
