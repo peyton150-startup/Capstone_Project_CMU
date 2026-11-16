@@ -22,6 +22,7 @@ EvidenceReason = Literal[
     "invalid_numeric",
     "invalid_tick",
     "future_tick",
+    "out_of_order",
     "outside_window",
     "wrong_source",
     "unsupported_tool",
@@ -83,7 +84,7 @@ def _bad_number_or_tick(value: object, cutoff: int) -> EvidenceReason | None:
 
 
 def validate_triage_result(
-    result: ToolResult, request: ToolRequest, cutoff: int
+    result: ToolResult, request: ToolRequest, cutoff: int, *, min_result_tick: int | None = None
 ) -> EvidenceQualification:
     """Reject malformed or future data before the gather evidence append."""
 
@@ -115,6 +116,8 @@ def validate_triage_result(
         return checked("unsupported_tool")
     if result.tick > cutoff:
         return checked("future_tick")
+    if min_result_tick is not None and result.tick < min_result_tick:
+        return checked("out_of_order")
     data = result.data
     if data is None:
         return checked("missing_data")
