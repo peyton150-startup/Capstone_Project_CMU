@@ -183,6 +183,10 @@ class InvestigationDeps:
     # each call. The deterministic controller retries a transport exception
     # once, but does not retry an invalid result with identical arguments.
     last_provider_exception: bool = False
+    # Ephemeral timing of the latest validated tool attempt; these do not
+    # influence decisions or rely on a wall clock in deterministic replays.
+    triage_last_provider_ms: float | None = None
+    triage_last_admission_ms: float | None = None
     # Opt-in structured logging (`capstone.observability`): identifiers and
     # counts only, never evidence text. Used by the triage evidence packet.
     # None: nothing is logged.
@@ -788,9 +792,16 @@ def gather(
             request_hash=request_hash,
         )
 
+    deps.triage_last_provider_ms = None
+    deps.triage_last_admission_ms = None
+    provider_started = deps.clock() if validate_result is not None else None
     result = call_tool(
         state, deps, step.request, followup=followup, critic_check=critic_check
     )
+    if provider_started is not None:
+        deps.triage_last_provider_ms = max(
+            0.0, (deps.clock() - provider_started) * 1000.0
+        )
     outcome: StepOutcome = "observed"
     if result is None or (result.success and result.data is None):
         state.malformed_results += 1
@@ -819,11 +830,15 @@ def gather(
     # Validate BEFORE committing evidence or provenance; the legacy/deep
     # paths have no validator and retain their previous behavior.
     if validate_result is not None:
+        admission_started = deps.clock()
         try:
             rejected = validate_result(result)
         except Exception:
             # A broken validator cannot make an observation trustworthy.
             rejected = "validator_error"
+        deps.triage_last_admission_ms = max(
+            0.0, (deps.clock() - admission_started) * 1000.0
+        )
         if rejected is not None:
             state.last_tick = tick_before_call
             state.malformed_results += 1
