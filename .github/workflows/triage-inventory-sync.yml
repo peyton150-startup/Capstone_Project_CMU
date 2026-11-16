@@ -56,13 +56,22 @@ jobs:
               message = (
                   failure.attrib.get("message", "") + " " + (failure.text or "")
               ).lower()
-              if not (
+              # A stale FUNCTION_INVENTORY.json leaves newly added Python
+              # files "unexplained" until regeneration. Admit that exact
+              # evaluator integrity test, never arbitrary test failures.
+              missing_inventory_files = (
+                  "tests.test_full_evaluation" in identity
+                  and "test_the_repository_has_no_unexplained_python_file" in identity
+                  and "unexplained" in message
+              )
+              known_inventory_mismatch = (
                   ("inventory" in identity or "scope" in identity)
                   and any(
                       phrase in message
                       for phrase in ("inventory", "scope", "sha", "hash")
                   )
-              ):
+              )
+              if not (missing_inventory_files or known_inventory_mismatch):
                   raise SystemExit(
                       "Refusing inventory regeneration after non-inventory failure: "
                       + identity
