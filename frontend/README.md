@@ -52,5 +52,6 @@ Never expose the API or Vite server on an external factory-network interface. Ne
 - `uv run --no-sync pytest tests/test_web_api.py tests/test_web_runs.py` (after installing optional FastAPI dependencies)
 - `uv run --locked --all-extras ruff check .` and `uv run --locked --all-extras ruff format --check .`
 - Review the dedicated **Industrial frontend** and original **CI** GitHub Actions workflows on the latest head commit.
+- After a CI-generated evaluation inventory commit, verify that **both workflows actually execute on the new PR head**. A workflow marked `action_required` without any jobs is not a passing check.
 
 These tests do not substitute for a real browser end-to-end run, live model-provider investigation, field Siemens acceptance, disk-failure testing or production security review. Do not merge solely because the React bundle compiles.
