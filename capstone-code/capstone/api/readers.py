@@ -77,7 +77,12 @@ def iso_age(at: str | None, now: datetime) -> float | None:
         stamp = datetime.fromisoformat(at.replace("Z", "+00:00"))
         if stamp.tzinfo is None:
             return None
-        return max(0.0, (now - stamp).total_seconds())
+        elapsed = (now - stamp).total_seconds()
+        # A future collector clock must not make a stale or invalid recording
+        # look live. Allow only a small clock/rounding tolerance.
+        if elapsed < -5.0:
+            return None
+        return max(0.0, elapsed)
     except ValueError:
         return None
 
