@@ -74,8 +74,8 @@ from capstone.agent.state import (
 from capstone.agent.tree_of_thought import RevaluationRecord, Thought, TreeOptions
 from capstone.agent.triage_evidence_validation import EvidenceQualification
 from capstone.agent.triage_report import TriageReport
-from capstone.agent.triage_trace import TriageTraceEvent
 from capstone.agent.triage_requirements import RequirementResult, TriageDecisionRecord
+from capstone.agent.triage_trace import TriageTraceEvent
 from capstone.console import safe_console
 from capstone.episode import (
     CHALLENGE,
