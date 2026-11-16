@@ -10,8 +10,8 @@ from the API. Event names and IDs must be identifiers, never free-form text.
 import json
 import logging
 import re
-from math import isfinite
 from collections.abc import Mapping
+from math import isfinite
 from typing import TextIO
 
 _IDENTIFIER = re.compile(r"[A-Za-z0-9][A-Za-z0-9_.:-]{0,127}\Z")
