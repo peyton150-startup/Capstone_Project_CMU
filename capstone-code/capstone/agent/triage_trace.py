@@ -49,7 +49,9 @@ class TriageTraceEvent(Contract):
     @classmethod
     def validated_code(cls, value: str | None) -> str | None:
         if value is not None and not _CODE.fullmatch(value):
-            raise ValueError("trace status and reason must be fixed machine-readable codes")
+            raise ValueError(
+                "trace status and reason must be fixed machine-readable codes"
+            )
         return value
 
     @field_validator("duration_ms")
