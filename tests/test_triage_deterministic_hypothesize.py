@@ -329,6 +329,8 @@ def test_unsupported_channels_remain_missing_but_are_not_scheduled():
     assert "Q5:load" not in state.triage_test_requirement_ids
     run_test(state, deps)
     assert state.triage_decide_trace[-1].reason == "capability_unavailable"
+    assert "Q5" in state.triage_question_gaps
+    assert "Q5" in {question.id for question in state.unanswered_questions}
     assert all(
         call.arguments.get("sensor") not in {"temperature", "load"}
         for call in provider.calls
