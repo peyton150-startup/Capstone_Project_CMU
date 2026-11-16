@@ -33,6 +33,7 @@ _CODE = re.compile(r"[a-z][a-z0-9_]{0,63}\Z")
 class TriageTraceEvent(Contract):
     """An ordered, structured result of a deterministic operation."""
 
+    schema_version: Literal["1.0"] = "1.0"
     sequence: int = Field(ge=1)
     event: TriageEventName
     phase: Literal["investigate", "test"]
