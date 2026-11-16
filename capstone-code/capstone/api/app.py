@@ -6,12 +6,16 @@ configured local files. Pilot mode has no action, approval or evaluation routes.
 
 from __future__ import annotations
 
+import asyncio
 import hmac
 import os
+import re
 from typing import Annotated, Literal
 
-from fastapi import Depends, FastAPI, Header, HTTPException
+from fastapi import Depends, FastAPI, Header, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import StreamingResponse
+from capstone.api.runs import RunRequest, ReviewDecision, SimulatorRuns
 
 from capstone.api.config import UiConfig
 from capstone.api.readers import (
@@ -52,6 +56,7 @@ def create_app(config: UiConfig | None = None) -> FastAPI:
     #   cfg: Immutable, validated server-side path and authentication authority.
     #   authorize: Bearer-token boundary for configured private data.
     cfg = config if config is not None else UiConfig.from_env()
+    runner = SimulatorRuns(cfg.run_db) if cfg.runs_enabled and cfg.run_db is not None else None
     app = FastAPI(
         title="Manufacturing Research Assistant | Industrial Console",
         version="0.1.0",
@@ -77,10 +82,27 @@ def create_app(config: UiConfig | None = None) -> FastAPI:
         if cfg.token is None:
             return
         supplied = (authorization or "").removeprefix("Bearer ")
-        if not hmac.compare_digest(supplied, cfg.token):
+        if not any(hmac.compare_digest(supplied, key) for key in
+                   (cfg.token, cfg.run_token, cfg.review_token) if key):
             raise HTTPException(status_code=401, detail="Local session token required")
 
     Access = Depends(authorize)
+
+    def require_role(authorization: str | None, role: Literal["operator", "reviewer"]) -> None:
+        if runner is None:
+            raise HTTPException(status_code=403, detail="Managed simulator execution is not configured")
+        provided = (authorization or "").removeprefix("Bearer ")
+        expected = cfg.run_token if role == "operator" else cfg.review_token
+        if not expected or not hmac.compare_digest(provided, expected):
+            raise HTTPException(status_code=403, detail="Simulator role not authorized")
+
+    def ensure_run(run_id: str) -> dict:
+        if runner is None or not re.fullmatch(r"[a-f0-9-]{36}", run_id):
+            raise HTTPException(status_code=404, detail="Run not found")
+        run = runner.get(run_id)
+        if run is None:
+            raise HTTPException(status_code=404, detail="Run not found")
+        return run
 
     @app.get("/api/v1/health")
     def health() -> dict:
@@ -107,8 +129,8 @@ def create_app(config: UiConfig | None = None) -> FastAPI:
                 "recording_view": cfg.capture is not None,
                 "investigation_history": cfg.investigations is not None,
                 "evaluation_history": cfg.evaluator and cfg.experiment is not None,
-                "simulation_run_launch": False,
-                "simulation_approval": False,
+                "simulation_run_launch": runner is not None,
+                "simulation_approval": runner is not None,
                 "manual_search": False,
                 "episodic_memory": False,
                 "setting_changes": False,
