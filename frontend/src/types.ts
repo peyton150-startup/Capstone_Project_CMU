@@ -41,6 +41,12 @@ export type InvestigationDetail = Investigation & {
   evidence: Evidence[]; hypotheses: Hypothesis[];
   proposed_action?: { action?: string; reason?: string; machine_id?: string } | null;
   verification_detail?: { status?: string; outcome?: string; summary?: string } | null;
+  decision_trace?: Array<{ sequence:number; phase:string; tool:string|null; outcome:string;
+    evidence_ids:string[]; question_id:string|null; hypothesis_id:string|null;
+    tick:number|null; termination_reason:string|null }>;
+  reasoning_metrics?: {repeated_calls:number|null; failed_tool_calls:number|null;
+    malformed_results:number|null; interpretation_failures:number|null};
+  pruned_candidates?: Array<{id:string; status:string;confidence:number|null}>;
 };
 export type Evaluation = { id: string; scenario: string; seed: number;
   conclusion: string | null; assessment: string | null;
