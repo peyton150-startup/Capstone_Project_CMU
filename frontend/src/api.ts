@@ -34,25 +34,37 @@ export async function postJson<T>(path: string, token: string, body: unknown, ke
 }
 
 export function useResource<T>(path: string | null, token: string, pause = false, pollMs = 15000): ApiResource<T> {
-  const [state, setState] = useState<ApiResource<T>>({ data: null, loading: true, error: null });
+  // Keep the request identity with its result. During a token or workspace
+  // transition, never render a previous authorized source even for one frame.
+  const requestKey = JSON.stringify([path, token, pause, pollMs]);
+  const [state, setState] = useState<ApiResource<T> & { key: string }>({
+    key: requestKey, data: null, loading: Boolean(path) && !pause, error: null,
+  });
   useEffect(() => {
-    if (pause || !path) {
-      setState({ data: null, loading: false, error: null });
-      return;
-    }
-    const controller = new AbortController();
+    setState({ key: requestKey, data: null, loading: Boolean(path) && !pause, error: null });
+    if (pause || !path) return;
+
     let active = true;
+    let sequence = 0;
+    let controller: AbortController | null = null;
     const reload = () => {
+      // Abort superseded polls and reject any late response independently.
+      controller?.abort();
+      controller = new AbortController();
+      const current = ++sequence;
       getJson<T>(path, token, controller.signal).then(data => {
-        if (active) setState({ data, error: null, loading: false });
+        if (active && current === sequence)
+          setState({ key: requestKey, data, error: null, loading: false });
       }).catch(error => {
-        if (active && error.name !== 'AbortError')
-          setState({ data: null, error: String(error.message), loading: false });
+        if (active && current === sequence && error.name !== 'AbortError')
+          setState({ key: requestKey, data: null, error: String(error.message), loading: false });
       });
     };
     reload();
     const timer = window.setInterval(reload, pollMs);
-    return () => { active = false; controller.abort(); window.clearInterval(timer); };
-  }, [path, token, pause, pollMs]);
-  return state;
+    return () => { active = false; controller?.abort(); window.clearInterval(timer); };
+  }, [path, token, pause, pollMs, requestKey]);
+  if (state.key !== requestKey)
+    return { data: null, loading: Boolean(path) && !pause, error: null };
+  return { data: state.data, loading: state.loading, error: state.error };
 }
