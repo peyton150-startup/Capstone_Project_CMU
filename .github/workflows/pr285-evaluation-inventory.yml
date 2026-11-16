@@ -1,85 +1,84 @@
-# One-time PR #285 evaluation-inventory sync. Delete after it succeeds.
-name: PR 285 one-time evaluation inventory
+# One-time PR #285 evaluation-inventory refresh from CURRENT source and tests.
+# Self-deletes after a verified inventory commit; unrelated failures block sync.
+name: One-time PR 285 evaluation inventory refresh
 
 on:
   push:
-    branches:
-      - feature/triage-deterministic-hypothesize
-    paths:
-      - .github/workflows/pr285-evaluation-inventory.yml
+    branches: [feature/triage-deterministic-hypothesize]
+    paths: [.github/workflows/pr285-evaluation-inventory.yml]
+
+concurrency:
+  group: triage-pr285-inventory-sync
+  cancel-in-progress: false
 
 permissions:
-  actions: read
   contents: write
 
 jobs:
-  sync:
+  refresh:
+    if: github.repository == 'peyton150-startup/Capstone_Project_CMU'
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 45
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           ref: feature/triage-deterministic-hypothesize
-          fetch-depth: 0
-
-      - name: Retrieve source-linked inventory from full-suite run
-        shell: bash
-        env:
-          GH_TOKEN: ${{ github.token }}
+          persist-credentials: true
+      - uses: astral-sh/setup-uv@c771a70e6277c0a99b617c7a806ffedaca235ff9 # v9.0.0
+        with:
+          version: '0.13.0'
+          enable-cache: true
+      - name: Install locked test environment
         run: |
-          set -euo pipefail
-          mkdir -p /tmp/pr285-inventory
-          for attempt in $(seq 1 40); do
-            if gh run download 43955219545 -n evaluator-inventory -D /tmp/pr285-inventory; then
-              break
-            fi
-            if [ "$attempt" -eq 40 ]; then
-              echo "Inventory from the full-suite run did not become available"
-              exit 1
-            fi
-            sleep 20
-          done
-          for name in FUNCTION_INVENTORY.json TEST_INVENTORY.json TOOL_INVENTORY.json VERIFICATION_MATRIX.json; do
-            test -s "/tmp/pr285-inventory/$name"
-          done
-
-      - name: Confirm generated hashes match this exact branch
+          uv python install
+          uv sync --locked --all-extras
+      - name: Record coverage and reject substantive test failures
         shell: bash
         run: |
-          set -euo pipefail
-          python - <<'PY'
-          import hashlib
-          import json
-          from pathlib import Path
+          set +e
+          uv run --locked --all-extras pytest --cov=capstone --cov=evaltools \
+            --cov-context=test --junitxml=junit.xml --cov-report=term-missing \
+            > pr285-inventory-pytest.log 2>&1
+          test_result=$?
+          set -e
+          tail -n 100 pr285-inventory-pytest.log
+          if [ "$test_result" -ne 0 ]; then
+            python - <<'PY'
+          import xml.etree.ElementTree as ET
 
-          matrix = json.loads(Path("/tmp/pr285-inventory/VERIFICATION_MATRIX.json").read_text("utf-8"))
-          hashes = matrix.get("source_sha256") or {}
-          if not hashes or not matrix.get("coverage_available") or not matrix.get("junit_available"):
-              raise SystemExit("Inventory lacks full source-coverage or JUnit evidence")
-          mismatches = [
-              path
-              for path, expected in hashes.items()
-              if not Path(path).is_file()
-              or hashlib.sha256(Path(path).read_bytes()).hexdigest() != expected
+          root = ET.parse("junit.xml").getroot()
+          failures = [
+              case.attrib.get("name", "")
+              for case in root.iter("testcase")
+              if any(child.tag in {"failure", "error"} for child in case)
           ]
-          if mismatches:
-              raise SystemExit(f"Generated inventory does not match this branch: {mismatches[:5]}")
-          print(f"Matched {len(hashes)} generated source hashes")
+          allowed = {"test_the_repository_has_no_unexplained_python_file"}
+          if not failures or any(name not in allowed for name in failures):
+              raise SystemExit(
+                  "Refusing to regenerate inventory after unrelated test failures: "
+                  + str(failures)
+              )
+          print("Only stale inventory scope was reported; rebuilding from coverage")
           PY
-
-      - name: Commit only authoritative evaluation inventories
+          fi
+      - name: Build canonical evaluator inventory from this run
+        run: |
+          cd evaluation
+          uv run --locked --all-extras python -m evaltools.build_inventory \
+            --coverage ../.coverage --junit ../junit.xml
+      - name: Commit rebuilt inventory and remove temporary workflow
         shell: bash
         run: |
           set -euo pipefail
-          git config user.name 'github-actions[bot]'
-          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git fetch origin main
-          git merge-base --is-ancestor origin/main HEAD
-          for name in FUNCTION_INVENTORY.json TEST_INVENTORY.json TOOL_INVENTORY.json VERIFICATION_MATRIX.json; do
-            cp "/tmp/pr285-inventory/$name" "evaluation/inventory/$name"
-          done
-          git add evaluation/inventory/
-          if ! git diff --cached --quiet; then
-            git commit -m "chore(evaluation): regenerate deterministic hypothesis inventories"
-            git push origin HEAD:refs/heads/feature/triage-deterministic-hypothesize
-          fi
+          branch=feature/triage-deterministic-hypothesize
+          git fetch origin "$branch"
+          test "$(git rev-parse HEAD)" = "$(git rev-parse FETCH_HEAD)" || {
+            echo "The PR branch moved during inventory generation; refusing stale push"
+            exit 1
+          }
+          rm .github/workflows/pr285-evaluation-inventory.yml
+          git add -A -- evaluation/inventory .github/workflows/pr285-evaluation-inventory.yml
+          git -c user.name='github-actions[bot]' \
+            -c user.email='41898282+github-actions[bot]@users.noreply.github.com' \
+            commit -m 'chore(eval): refresh PR 285 inventory from current coverage'
+          git push origin HEAD:refs/heads/"$branch"
