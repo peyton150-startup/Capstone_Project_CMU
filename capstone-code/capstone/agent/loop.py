@@ -717,6 +717,9 @@ def gather(
         state.failed_tool_calls += 1
         outcome = "tool_error"
     if outcome != "observed":
+        if validate_result is not None:
+            # A failed triage call cannot change the trusted observation time.
+            state.last_tick = tick_before_call
         state.unproductive_steps += 1
         record(
             state,
