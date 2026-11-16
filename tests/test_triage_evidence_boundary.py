@@ -10,7 +10,10 @@ from capstone.agent.loop import gather, run_inner_loop
 from capstone.agent.policy import CallTool
 from capstone.agent.triage_packet import optional_call
 from capstone.agent.triage_decide import initialize_requirements, matching_evidence
-from capstone.agent.triage_evidence_validation import validate_triage_result
+from capstone.agent.triage_evidence_validation import (
+    EvidenceQualification,
+    validate_triage_result,
+)
 from capstone.agent.triage_trace import TriageTraceEvent
 from capstone.contracts.tools import ToolRequest, ToolResult
 from capstone.observability import create_event_logger
@@ -211,3 +214,116 @@ def test_deterministic_observe_packet_rejects_invalid_sensor_before_commit():
     assert call.outcome == "failed"
     assert not state.evidence and not state.provenance
     assert state.triage_evidence_checks[-1].reason_code == "wrong_source"
+
+
+@pytest.mark.parametrize(
+    ("name", "arguments", "rows", "expected"),
+    [
+        (
+            "get_events",
+            {"machine_id": "CNC-02", "from_tick": 20, "to_tick": 45},
+            [{"tick": 19, "machine_id": "CNC-02"}],
+            "outside_window",
+        ),
+        (
+            "get_events",
+            {"machine_id": "CNC-02", "from_tick": 20, "to_tick": 45},
+            [{"tick": 30, "machine_id": "CNC-04"}],
+            "wrong_source",
+        ),
+        (
+            "get_job_history",
+            {"job_id": 10},
+            [{"tick": 30, "job_id": 11, "machine_id": "CNC-02"}],
+            "wrong_source",
+        ),
+        (
+            "get_maintenance_history",
+            {"machine_id": "CNC-02"},
+            [{"tick": None, "machine_id": "CNC-04"}],
+            "wrong_source",
+        ),
+        (
+            "get_inspections",
+            {"from_tick": 20, "to_tick": 45},
+            [{"tick": 46, "job_id": 10, "result": "failed"}],
+            "future_tick",
+        ),
+        (
+            "get_inspections",
+            {"from_tick": 20, "to_tick": 45},
+            [{"tick": 19, "job_id": 10, "result": "failed"}],
+            "outside_window",
+        ),
+        (
+            "get_inspections",
+            {"from_tick": 20, "to_tick": 45},
+            [{"tick": 30, "job_id": 0, "result": "failed"}],
+            "invalid_shape",
+        ),
+        (
+            "get_maintenance_history",
+            {"machine_id": "CNC-02"},
+            [{"tick": None, "machine_id": "CNC-02"}],
+            "accepted",
+        ),
+        (
+            "get_events",
+            {"machine_id": "CNC-02", "from_tick": 20, "to_tick": 45},
+            [{"tick": 30, "machine_id": "CNC-02"}],
+            "accepted",
+        ),
+    ],
+)
+def test_record_admission_checks_requested_source_and_time(
+    name, arguments, rows, expected
+):
+    request = ToolRequest(name=name, arguments=arguments)
+    response = ToolResult(
+        success=True,
+        tool=name,
+        source="fake",
+        tick=45,
+        timestamp=START,
+        data=rows,
+    )
+    checked = validate_triage_result(response, request, 45)
+    assert checked.reason_code == expected
+    assert checked.accepted == (expected == "accepted")
+
+
+def test_qualification_contract_rejects_conflicting_decision():
+    with pytest.raises(ValidationError):
+        EvidenceQualification(accepted=True, reason_code="wrong_source")
+    with pytest.raises(ValidationError):
+        EvidenceQualification(accepted=False, reason_code="accepted")
+
+
+def test_provider_tool_name_is_verified_during_evidence_admission():
+    request = ToolRequest(
+        name="get_events",
+        arguments={"machine_id": "CNC-02", "from_tick": 20, "to_tick": 45},
+    )
+    response = ToolResult(
+        success=True,
+        tool="get_job_history",
+        source="fake",
+        tick=45,
+        timestamp=START,
+        data=[],
+    )
+    assert validate_triage_result(response, request, 45).reason_code == "wrong_source"
+
+
+def test_unexpected_logger_exception_does_not_affect_trace_or_stop():
+    class BrokenLogger:
+        def log_event(self, *args, **kwargs):
+            raise RuntimeError("broken logging backend")
+
+    state = state_for()
+    deps = deps_for(FakeProvider(answer, tick=45))
+    deps.event_logger = BrokenLogger()
+    run_inner_loop(state, deps, "investigate")
+    assert state.triage_logging_failures > 0
+    assert state.triage_trace_events[-1].event == "triage.stopped"
+    assert state.triage_decide_trace[-1].kind == "stop"
