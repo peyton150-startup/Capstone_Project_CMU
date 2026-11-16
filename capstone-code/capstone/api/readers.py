@@ -206,7 +206,9 @@ def recorder_snapshot(
         disk_free = shutil.disk_usage(path.parent).free if path.is_file() else None
     except OSError:
         disk_free = None
-    subscribed = bool(connected and subscribed_epoch is not None and subscribed_epoch == session_epoch)
+    subscribed = bool(
+        connected and subscribed_epoch is not None and subscribed_epoch == session_epoch
+    )
     return {
         "availability": "available" if path.is_file() else "file_missing",
         "message": None if path.is_file() else "Configured capture file is not present",
@@ -376,20 +378,53 @@ def safe_investigation_detail(path: Path | None, ident: str) -> dict[str, Any] |
         for decision in (raw.get("decisions") or [])[:250]:
             if not isinstance(decision, dict):
                 continue
-            decisions.append({key: decision.get(key) for key in (
-                "sequence", "agent", "phase", "tick", "tool", "outcome",
-                "question_id", "hypothesis_id", "evidence_ids", "batch",
-                "batch_position", "termination_reason")})
+            decisions.append(
+                {
+                    key: decision.get(key)
+                    for key in (
+                        "sequence",
+                        "agent",
+                        "phase",
+                        "tick",
+                        "tool",
+                        "outcome",
+                        "question_id",
+                        "hypothesis_id",
+                        "evidence_ids",
+                        "batch",
+                        "batch_position",
+                        "termination_reason",
+                    )
+                }
+            )
         metrics = raw.get("metrics") if isinstance(raw.get("metrics"), dict) else {}
-        public_metrics = {key: metrics.get(key) for key in (
-            "iterations", "tool_calls", "repeated_calls", "failed_tool_calls",
-            "malformed_results", "interpretation_failures", "hypothesis_revisions")}
+        public_metrics = {
+            key: metrics.get(key)
+            for key in (
+                "iterations",
+                "tool_calls",
+                "repeated_calls",
+                "failed_tool_calls",
+                "malformed_results",
+                "interpretation_failures",
+                "hypothesis_revisions",
+            )
+        }
         pruned = []
         for candidate in (raw.get("pruned_candidates") or [])[:50]:
             if isinstance(candidate, dict):
-                pruned.append({key: candidate.get(key) for key in (
-                    "id", "status", "confidence", "supporting_evidence_ids",
-                    "contradicting_evidence_ids")})
+                pruned.append(
+                    {
+                        key: candidate.get(key)
+                        for key in (
+                            "id",
+                            "status",
+                            "confidence",
+                            "supporting_evidence_ids",
+                            "contradicting_evidence_ids",
+                        )
+                    }
+                )
         proposal = completed.get("proposed_action")
         verification = completed.get("verification")
         return {
@@ -450,7 +485,6 @@ def safe_evaluations(path: Path | None) -> list[dict[str, Any]]:
     return list(reversed(out))
 
 
-
 def safe_scorecards(path: Path | None) -> list[dict[str, Any]]:
     """Evaluator-only aggregate-safe score projection; never expose true_fault.
 
@@ -459,10 +493,21 @@ def safe_scorecards(path: Path | None) -> list[dict[str, Any]]:
     Missing labels stay None; never coerce an unjudged case to a failure.
     """
     rows: list[dict[str, Any]] = []
-    booleans = ("fault_correct", "target_correct", "action_correct",
-                "recommendation_correct", "resolved")
-    nonnegative = ("tool_calls", "ticks_elapsed", "iterations", "causes_found",
-                   "wrong_causes", "causes_resolved")
+    booleans = (
+        "fault_correct",
+        "target_correct",
+        "action_correct",
+        "recommendation_correct",
+        "resolved",
+    )
+    nonnegative = (
+        "tool_calls",
+        "ticks_elapsed",
+        "iterations",
+        "causes_found",
+        "wrong_causes",
+        "causes_resolved",
+    )
     for line in recent_lines(path, limit=300):
         try:
             record = json.loads(line)
@@ -475,22 +520,36 @@ def safe_scorecards(path: Path | None) -> list[dict[str, Any]]:
             continue
         row = {"id": record["run_key"][:100]}
         # Validate primitive types before projecting. Never echo arbitrary text.
-        row.update({key: score.get(key) if isinstance(score.get(key), bool) else None
-                    for key in booleans})
-        row.update({key: score.get(key)
-                    if type(score.get(key)) is int and score[key] >= 0 else None
-                    for key in nonnegative})
+        row.update(
+            {
+                key: score.get(key) if isinstance(score.get(key), bool) else None
+                for key in booleans
+            }
+        )
+        row.update(
+            {
+                key: score.get(key)
+                if type(score.get(key)) is int and score[key] >= 0
+                else None
+                for key in nonnegative
+            }
+        )
         relevant = score.get("relevant_evidence")
         collected = score.get("relevant_evidence_collected")
-        row["relevant_evidence_count"] = len(relevant) if isinstance(relevant, list) else None
-        row["evidence_collected_count"] = len(collected) if isinstance(collected, list) else None
+        row["relevant_evidence_count"] = (
+            len(relevant) if isinstance(relevant, list) else None
+        )
+        row["evidence_collected_count"] = (
+            len(collected) if isinstance(collected, list) else None
+        )
         row["judged"] = row["fault_correct"] is not None
         rows.append(row)
     return list(reversed(rows))
 
 
-
-def mtconnect_snapshot(path: Path | None, *, show_values: bool = False) -> dict[str, Any]:
+def mtconnect_snapshot(
+    path: Path | None, *, show_values: bool = False
+) -> dict[str, Any]:
     """Separate MTConnect v1 projection; never parse legacy rows as Siemens v2.
 
     MTConnect provides availability and conditions, NOT OPC UA StatusCode Good.
@@ -501,11 +560,19 @@ def mtconnect_snapshot(path: Path | None, *, show_values: bool = False) -> dict[
     from capstone.ingestion.record import CollectorMarker, TelemetryRecord, parse_line
 
     if path is None:
-        return {"availability": "not_configured", "recorder": None,
-                "signals": [], "events": []}
+        return {
+            "availability": "not_configured",
+            "recorder": None,
+            "signals": [],
+            "events": [],
+        }
     if not path.is_file():
-        return {"availability": "file_missing", "recorder": None,
-                "signals": [], "events": []}
+        return {
+            "availability": "file_missing",
+            "recorder": None,
+            "signals": [],
+            "events": [],
+        }
     signals: dict[str, dict[str, Any]] = {}
     events: list[dict[str, Any]] = []
     received = available = unavailable = invalid = gaps = 0
@@ -524,8 +591,13 @@ def mtconnect_snapshot(path: Path | None, *, show_values: bool = False) -> dict[
                 gaps += 1
             last_marker = record.event
             last_marker_at = record.at.isoformat()
-            events.append({"event": record.event, "at": last_marker_at,
-                           "reason_code": "collector" if record.event != "gap" else "data_gap"})
+            events.append(
+                {
+                    "event": record.event,
+                    "at": last_marker_at,
+                    "reason_code": "collector" if record.event != "gap" else "data_gap",
+                }
+            )
             continue
         assert isinstance(record, TelemetryRecord)
         received += 1
@@ -536,10 +608,12 @@ def mtconnect_snapshot(path: Path | None, *, show_values: bool = False) -> dict[
         at = record.received_at.isoformat()
         last = max(last or at, at)
         last_instance = record.instance_id
-        sid = hashlib.sha256(json.dumps(
-            [record.source, record.device, record.component, record.data_item_id],
-            ensure_ascii=True,
-        ).encode("utf-8")).hexdigest()[:20]
+        sid = hashlib.sha256(
+            json.dumps(
+                [record.source, record.device, record.component, record.data_item_id],
+                ensure_ascii=True,
+            ).encode("utf-8")
+        ).hexdigest()[:20]
         numeric = record.number() if record.category == "SAMPLE" else None
         if numeric is not None and not math.isfinite(numeric):
             numeric = None
@@ -549,39 +623,57 @@ def mtconnect_snapshot(path: Path | None, *, show_values: bool = False) -> dict[
             "machine": record.device[:100],
             "component": record.component[:100],
             "category": record.category,
-            "value": (numeric if record.category == "SAMPLE" else
-                      (record.value[:200] if record.value is not None else None))
-                     if show_values and record.available else None,
+            "value": (
+                numeric
+                if record.category == "SAMPLE"
+                else (record.value[:200] if record.value is not None else None)
+            )
+            if show_values and record.available
+            else None,
             "value_available": bool(show_values and record.available),
             "quality": "available" if record.available else "unavailable",
-            "unit": None, "analysis_eligible": False,
-            "received_at": at, "source_timestamp": record.source_timestamp.isoformat(),
+            "unit": None,
+            "analysis_eligible": False,
+            "received_at": at,
+            "source_timestamp": record.source_timestamp.isoformat(),
             "freshness": "unknown",
             "reason": "MTConnect availability is not a machine-approved analysis gate",
         }
     age = iso_age(last, datetime.now(timezone.utc))
     connection = "disconnected" if last_marker == "stopped" else "unknown"
-    measurement = "received_recently" if age is not None and age <= 120 else (
-        "stale_or_none" if last is not None else "none")
+    measurement = (
+        "received_recently"
+        if age is not None and age <= 120
+        else ("stale_or_none" if last is not None else "none")
+    )
     return {
         "availability": "available",
         "recorder": {
-            "id": "mtconnect-local", "source": "MTConnect v1",
-            "process_state": "unknown", "connection_state": connection,
+            "id": "mtconnect-local",
+            "source": "MTConnect v1",
+            "process_state": "unknown",
+            "connection_state": connection,
             "subscription_state": "not_applicable",
             "measurement_state": measurement,
-            "last_receive_at": last, "last_collector_marker_at": last_marker_at,
+            "last_receive_at": last,
+            "last_collector_marker_at": last_marker_at,
             "last_instance_known": last_instance is not None,
-            "received": received, "available": available,
-            "unavailable": unavailable, "gaps": gaps, "invalid_lines": invalid,
+            "received": received,
+            "available": available,
+            "unavailable": unavailable,
+            "gaps": gaps,
+            "invalid_lines": invalid,
             "quality_scheme": "mtconnect_availability_not_opcua_statuscode",
-            "window_scope": "bounded_recent_tail", "output_bytes": path.stat().st_size,
-            "analysis_eligible": None, "sink_state": "unknown",
+            "window_scope": "bounded_recent_tail",
+            "output_bytes": path.stat().st_size,
+            "analysis_eligible": None,
+            "sink_state": "unknown",
         },
-        "signals": sorted(signals.values(), key=lambda row: (row["machine"], row["label"])),
+        "signals": sorted(
+            signals.values(), key=lambda row: (row["machine"], row["label"])
+        ),
         "events": list(reversed(events[-120:])),
     }
-
 
 
 def safe_memory_promotions(path: Path | None) -> list[dict[str, Any]]:
@@ -597,13 +689,20 @@ def safe_memory_promotions(path: Path | None) -> list[dict[str, Any]]:
         promotion = raw.get("memory_promotion")
         if not isinstance(promotion, dict):
             continue
-        out.append({
-            "run_key": raw["run_key"][:100],
-            "investigation_id": str(promotion.get("investigation_id") or "")[:100],
-            "accepted": promotion.get("accepted") if isinstance(promotion.get("accepted"), bool) else None,
-            "stored": promotion.get("stored") if isinstance(promotion.get("stored"), bool) else None,
-            "policy_version": str(promotion.get("policy_version") or "")[:80],
-            "reasons_count": len(promotion["reasons"])
-                if isinstance(promotion.get("reasons"), list) else None,
-        })
+        out.append(
+            {
+                "run_key": raw["run_key"][:100],
+                "investigation_id": str(promotion.get("investigation_id") or "")[:100],
+                "accepted": promotion.get("accepted")
+                if isinstance(promotion.get("accepted"), bool)
+                else None,
+                "stored": promotion.get("stored")
+                if isinstance(promotion.get("stored"), bool)
+                else None,
+                "policy_version": str(promotion.get("policy_version") or "")[:80],
+                "reasons_count": len(promotion["reasons"])
+                if isinstance(promotion.get("reasons"), list)
+                else None,
+            }
+        )
     return list(reversed(out))
