@@ -242,3 +242,39 @@ def test_operational_events_are_allowlisted_and_pilot_is_blocked(tmp_path, monke
     assert "SECRET" not in json.dumps(response)
     assert client.get(url + "?workspace=pilot", headers=auth(TOKEN)).status_code == 403
     assert client.get(url).status_code == 401
+
+
+def test_sse_reconnect_resumes_from_last_event_id(tmp_path, monkeypatch):
+    """A reconnect replays only later durable events, never an extra action."""
+    finished = threading.Event()
+
+    def worker(self, run_id, request):
+        try:
+            self._emit(run_id, "run.started", {"status": "running"}, state="running")
+            self._emit(run_id, "stage.updated", {"stage": "observe"})
+            self._emit(run_id, "run.completed", {"status": "completed"},
+                       state="completed")
+        finally:
+            with self.lock:
+                self.active.discard(run_id)
+            finished.set()
+
+    monkeypatch.setattr(SimulatorRuns, "_execute", worker)
+    client = TestClient(create_app(config(tmp_path)))
+    created = client.post("/api/v1/lab/runs", json={"seed": 31},
+                          headers={**auth(OPERATOR), "Idempotency-Key": KEY})
+    assert created.status_code == 202
+    run_id = created.json()["run_id"]
+    assert finished.wait(timeout=2)
+    path = f"/api/v1/lab/runs/{run_id}/events"
+    first = client.get(path + "?since=1", headers=auth(TOKEN))
+    assert first.status_code == 200
+    assert "id: 1\\n" not in first.text
+    assert "id: 2\\n" in first.text
+    assert "id: 3\\n" in first.text
+    resumed = client.get(path, headers={**auth(TOKEN), "Last-Event-ID": "2"})
+    assert resumed.status_code == 200
+    assert "id: 2\\n" not in resumed.text
+    assert "event: run.completed" in resumed.text
+    assert client.get(path + "?workspace=pilot", headers=auth(TOKEN)).status_code == 403
+    assert client.get(path + "?since=-1", headers=auth(TOKEN)).status_code == 422
