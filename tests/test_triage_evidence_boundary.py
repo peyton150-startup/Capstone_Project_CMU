@@ -1102,3 +1102,29 @@ def test_deterministic_boundary_survives_a_full_episode(monkeypatch, then_deep):
         assert result.state.conclusion is not None
     else:
         assert result.state is triage
+
+
+def test_rejected_clock_skips_optional_packet_reads_even_with_cached_tick():
+    state = state_for()
+    state.triage_clock_verified = False
+    provider = FakeProvider(answer, tick=45)
+    deps = deps_for(provider)
+    call, evidence = optional_call(
+        state,
+        deps,
+        "get_sensor_summary",
+        {
+            "machine_id": "CNC-02",
+            "sensor": "vibration",
+            "from_tick": 20,
+            "to_tick": 45,
+        },
+        "optional sensor window",
+        6,
+    )
+    assert call.outcome == "skipped_unavailable"
+    assert call.reason == "observation_cutoff_untrusted"
+    assert evidence is None
+    assert provider.calls == []
+    assert state.triage_evidence_checks == []
+
