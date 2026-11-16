@@ -483,6 +483,8 @@ class InvestigationState(BaseModel):
         default_factory=dict
     )
     triage_question_evidence: dict[str, list[str]] = Field(default_factory=dict)
+    # Source qualification and proof of a cross-source relationship are distinct.
+    triage_question_gaps: dict[str, str] = Field(default_factory=dict)
     triage_decide_trace: list[TriageDecisionRecord] = Field(default_factory=list)
     triage_read_attempts: dict[str, int] = Field(default_factory=dict)
     triage_observation_cutoff_tick: int | None = Field(default=None, ge=0)
