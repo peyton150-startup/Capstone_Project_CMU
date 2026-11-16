@@ -10,8 +10,8 @@ import json
 import queue
 import sqlite3
 import threading
-from contextlib import contextmanager
 import uuid
+from contextlib import contextmanager
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Literal
@@ -299,9 +299,9 @@ class SimulatorRuns:
         self._emit(run_id, "run.started", {"status": "running", "mode": request.mode},
                    state="running")
         try:
+            from capstone.agent.completion import AuditLog
             from capstone.episode import run_episode
             from capstone.experiment import model_policy_factory, open_manual
-            from capstone.agent.completion import AuditLog
             from capstone.observability import EventLogger
 
             audit_path = self.investigation_audit_path(run_id)
