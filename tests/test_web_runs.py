@@ -21,7 +21,6 @@ from capstone.api.app import create_app
 from capstone.api.config import UiConfig
 from capstone.api.runs import RunRequest, SimulatorRuns
 
-
 TOKEN = "viewer-abcdefghijklmnopqrstuvwxyz"
 OPERATOR = "operator-abcdefghijklmnopqrstuvwxyz"
 REVIEWER = "reviewer-abcdefghijklmnopqrstuvwxyz"
