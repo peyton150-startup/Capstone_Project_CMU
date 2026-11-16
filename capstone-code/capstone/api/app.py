@@ -22,6 +22,7 @@ from capstone.api.readers import (
     recent_lines,
     recorder_snapshot,
     safe_evaluations,
+    safe_scorecards,
     safe_investigation_detail,
     safe_investigations,
     signal_samples,
@@ -83,7 +84,7 @@ def create_app(config: UiConfig | None = None) -> FastAPI:
             return
         supplied = (authorization or "").removeprefix("Bearer ")
         if not any(hmac.compare_digest(supplied, key) for key in
-                   (cfg.token, cfg.run_token, cfg.review_token) if key):
+                   (cfg.token, cfg.run_token, cfg.review_token, cfg.evaluator_token) if key):
             raise HTTPException(status_code=401, detail="Local session token required")
 
     Access = Depends(authorize)
@@ -267,8 +268,17 @@ def create_app(config: UiConfig | None = None) -> FastAPI:
             )
         return result
 
+    def require_evaluator(authorization: str | None) -> None:
+        # Legacy file-only evaluation requires CAPSTONE_UI_EVALUATOR plus local token.
+        # With managed run roles, evaluator must have a distinct credential.
+        if cfg.runs_enabled:
+            provided = (authorization or "").removeprefix("Bearer ")
+            if not cfg.evaluator_token or not hmac.compare_digest(provided, cfg.evaluator_token):
+                raise HTTPException(status_code=403, detail="Evaluator role required")
+
     @app.get("/api/v1/evaluations", dependencies=[Access])
-    def evaluations(workspace: Workspace = "simulator") -> dict:
+    def evaluations(workspace: Workspace = "simulator",
+                    authorization: Annotated[str | None, Header()] = None) -> dict:
         if workspace != "simulator" or not cfg.evaluator:
             raise HTTPException(
                 status_code=403, detail="Evaluator-only simulator records"
@@ -279,6 +289,15 @@ def create_app(config: UiConfig | None = None) -> FastAPI:
             else "not_configured",
             "items": safe_evaluations(cfg.experiment),
         }
+
+    @app.get("/api/v1/evaluations/scorecards", dependencies=[Access])
+    def evaluation_scorecards(workspace: Workspace = "simulator",
+                              authorization: Annotated[str | None, Header()] = None) -> dict:
+        if workspace != "simulator" or not cfg.evaluator:
+            raise HTTPException(status_code=403, detail="Evaluator-only simulator scorecards")
+        require_evaluator(authorization)
+        return {"availability": "available" if cfg.experiment and cfg.experiment.is_file()
+                else "not_configured", "items": safe_scorecards(cfg.experiment)}
 
     @app.get("/api/v1/system", dependencies=[Access])
     def system() -> dict:
