@@ -27,7 +27,9 @@ from capstone.agent.artifacts import (
     VerificationCheck,
 )
 from capstone.agent.evidence_packet import EvidencePacket
+from capstone.agent.triage_evidence_validation import EvidenceQualification
 from capstone.agent.triage_report import TriageReport
+from capstone.agent.triage_trace import TriageTraceEvent
 from capstone.agent.triage_requirements import (
     ReadRequirement,
     RequirementResult,
@@ -486,6 +488,11 @@ class InvestigationState(BaseModel):
     # Source qualification and proof of a cross-source relationship are distinct.
     triage_question_gaps: dict[str, str] = Field(default_factory=dict)
     triage_decide_trace: list[TriageDecisionRecord] = Field(default_factory=list)
+    # Pre-commit evidence checks, including rejected provider responses.
+    triage_evidence_checks: list[EvidenceQualification] = Field(default_factory=list)
+    # Ordered, payload-free decision diagnostics; retained with or without JSON logs.
+    triage_trace_events: list[TriageTraceEvent] = Field(default_factory=list)
+    triage_logging_failures: int = Field(default=0, ge=0)
     triage_read_attempts: dict[str, int] = Field(default_factory=dict)
     triage_observation_cutoff_tick: int | None = Field(default=None, ge=0)
     triage_deterministic_reads: int = Field(default=0, ge=0)
