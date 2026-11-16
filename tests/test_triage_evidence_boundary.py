@@ -732,11 +732,12 @@ def test_incomplete_historical_rows_fail_full_contract():
 
 
 def test_empty_history_is_not_equivalent_to_verified_coverage():
-    from capstone.agent.triage_decide import qualify
+    from capstone.agent.triage_decide import initialize_requirements, qualify
     from capstone.agent.triage_requirements import ReadRequirement
     from capstone.agent.triage_trace import requirement_reason_code
 
     state = state_for()
+    initialize_requirements(state)
     request = ToolRequest(
         name="get_events",
         arguments={"machine_id": "CNC-02", "from_tick": 20, "to_tick": 45},
