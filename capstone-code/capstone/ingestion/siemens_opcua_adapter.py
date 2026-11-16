@@ -745,6 +745,9 @@ class SiemensOpcUaCollector:
             self.trail("connected")
             self.stage = "subscribe"
             await self.subscribe(client, nodes)
+            # This marker is emitted only after every requested monitored item succeeds.
+            # Connected alone never proves a subscription was established.
+            self.mark("subscribed")
             self.stage = "watch"
             await self.watch(client, stop)
         except CONNECTION_ERRORS as error:
