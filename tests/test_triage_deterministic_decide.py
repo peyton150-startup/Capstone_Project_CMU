@@ -285,7 +285,9 @@ def test_no_candidate_stops_without_a_model_fallback():
     before = len(provider.calls)
     reason = run_inner_loop(state, deps, "investigate")
     assert reason is TerminationReason.NO_USEFUL_ACTION
-    assert state.triage_decide_trace[-1].reason == "no_eligible_read"
+    # Reads were attempted, but some evidence remains insufficient. This is
+    # distinct from an incident with no eligible read in the first place.
+    assert state.triage_decide_trace[-1].reason == "data_insufficient"
     assert len(provider.calls) == before
 
 
