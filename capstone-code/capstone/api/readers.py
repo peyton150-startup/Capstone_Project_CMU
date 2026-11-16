@@ -8,7 +8,11 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
-from capstone.ingestion.siemens_opcua_record import OpcUaDataChange, OpcUaSessionMarker, parse_opcua_line
+from capstone.ingestion.siemens_opcua_record import (
+    OpcUaDataChange,
+    OpcUaSessionMarker,
+    parse_opcua_line,
+)
 
 MAX_TAIL_BYTES = 2_000_000
 MAX_LINES = 3500

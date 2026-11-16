@@ -1,6 +1,5 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
-import { ArrowRight, BookOpen, BrainCircuit, Database, FileText, FlaskConical,
+import { BookOpen, BrainCircuit, FileText, FlaskConical,
   GitCompareArrows, History, Play, Search, ShieldCheck } from 'lucide-react';
 import { useUi } from '../context';
 import { useEvaluations } from '../pageData';

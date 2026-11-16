@@ -1,12 +1,12 @@
 import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import {
-  Activity, ArrowRight, BarChart3, Box, BrainCircuit, CircleHelp, Clock3,
-  Database, FlaskConical, HardDrive, RadioTower, ShieldCheck, Signal, Waypoints,
+  Activity, ArrowRight, BarChart3, Boxes, BrainCircuit, CircleHelp,
+  FlaskConical, RadioTower, ShieldCheck, Signal, Waypoints,
 } from 'lucide-react';
 import { useResource } from '../api';
 import { useUi } from '../context';
-import { demoChart, demoInvestigations } from '../preview';
+import { demoChart } from '../preview';
 import { useInvestigations, useMachines, useRecording } from '../pageData';
 import type { ListResponse, Sample } from '../types';
 import {

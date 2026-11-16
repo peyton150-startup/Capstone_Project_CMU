@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { Activity, ArrowRight, Database, HardDrive, RadioTower, ShieldCheck, Signal, Wifi } from 'lucide-react';
+import { Activity, ArrowRight, Database, RadioTower, ShieldCheck, Signal, Wifi } from 'lucide-react';
 import { useRecording } from '../pageData';
 import { useUi } from '../context';
 import { DataRow, formatBytes, formatNumber, formatStamp, InfoState, Metric, PageHeading, Panel, Pill, QualityExplanation, SummaryLink, TimelineEvent, toneFor, Unavailable } from '../ui';

@@ -3,6 +3,7 @@ import json
 from datetime import datetime, timezone
 
 import pytest
+
 try:
     from fastapi.testclient import TestClient
 except ImportError:

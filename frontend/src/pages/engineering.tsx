@@ -1,11 +1,11 @@
 import { useMemo, useState } from 'react';
-import { Activity, ArrowRight, Bell, Database, Gauge, LockKeyhole,
-  RadioTower, ShieldCheck, SlidersHorizontal, TerminalSquare } from 'lucide-react';
+import { Activity, ArrowRight, Database, Gauge, LockKeyhole,
+  RadioTower, SlidersHorizontal, TerminalSquare } from 'lucide-react';
 import { useResource } from '../api';
 import { useUi } from '../context';
 import { useRecording } from '../pageData';
-import { DataRow, formatStamp, InfoState, Metric, PageHeading,
-  Panel, Pill, SummaryLink, TimelineEvent, toneFor, Unavailable } from '../ui';
+import { DataRow, formatStamp, Metric, PageHeading,
+  Panel, Pill, TimelineEvent, toneFor, Unavailable } from '../ui';
 
 type SystemStatus = {
   api: string; simulation_worker: string; progress_stream: string;

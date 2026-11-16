@@ -2,8 +2,8 @@ import { useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import {
   Activity, ArrowRight, BrainCircuit, CheckCheck, ChevronRight,
-  ClipboardCheck, Clock3, FileSearch, GitBranch, Microscope, ShieldAlert,
-  ShieldCheck, Sparkles, Workflow,
+  ClipboardCheck, FileSearch, ShieldAlert,
+  ShieldCheck, Workflow,
 } from 'lucide-react';
 import { useResource } from '../api';
 import { useUi } from '../context';
@@ -12,7 +12,7 @@ import { useInvestigations } from '../pageData';
 import type { Evidence, Investigation, InvestigationDetail } from '../types';
 import {
   DataRow, formatNumber, InfoState, PageHeading, Panel, Pill,
-  SummaryLink, TimelineEvent, toneFor, Unavailable,
+  SummaryLink, toneFor, Unavailable,
 } from '../ui';
 
 function InvestigationRows({ items }: { items: Investigation[] }) {

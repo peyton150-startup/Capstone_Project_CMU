@@ -9,13 +9,17 @@ import hmac
 import os
 from typing import Annotated, Literal
 
-from fastapi import Depends, FastAPI, Header, HTTPException, Query
+from fastapi import Depends, FastAPI, Header, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 
 from capstone.api.config import UiConfig
 from capstone.api.readers import (
-    capture_records, recorder_snapshot, recent_lines, safe_evaluations,
-    safe_investigation_detail, safe_investigations, signal_samples,
+    recent_lines,
+    recorder_snapshot,
+    safe_evaluations,
+    safe_investigation_detail,
+    safe_investigations,
+    signal_samples,
 )
 
 Workspace = Literal["simulator", "pilot"]
