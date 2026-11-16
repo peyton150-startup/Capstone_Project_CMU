@@ -668,6 +668,7 @@ def choose_next_triage_read(
             ),
             requirement_ids=tuple(ids),
             reason="unmet qualified requirement",
+            candidate_count=len(grouped),
         )
     reason: TriageStopReason = (
         "retries_exhausted"
@@ -719,6 +720,9 @@ def stop(
         reason_code=decision.reason,
         status="stopped",
         requirement_ids=unresolved,
+        question_ids=tuple(q.id for q in state.unanswered_questions),
+        iteration=state.iteration_count,
+        remaining_tool_calls=state.remaining_tool_calls,
     )
     mapped = STOP_MAP[decision.reason]
     record(
@@ -746,6 +750,35 @@ def run_deterministic_triage_loop(
     state.step_questions = deps.step_questions
     state.decide_calls = deps.decide_calls
     initialize_requirements(state)
+    if not state.triage_trace_events:
+        config_input = (
+            f"{deps.triage_investigate}|{deps.step_questions}|"
+            f"{deps.decide_calls}|{state.fixed_plan_used}|"
+            f"{state.triage_observation_cutoff_tick}"
+        )
+        emit_triage_event(
+            state,
+            deps,
+            event="triage.started",
+            phase=phase,
+            reason_code="started",
+            status="active",
+            config_fingerprint=sha256(config_input.encode("utf-8")).hexdigest()[:20],
+            iteration=state.iteration_count,
+            remaining_tool_calls=state.remaining_tool_calls,
+        )
+    emit_triage_event(
+        state,
+        deps,
+        event="requirements.compiled",
+        phase=phase,
+        reason_code="compiled",
+        status="active",
+        requirement_ids=tuple(sorted(state.triage_requirements)),
+        question_ids=tuple(sorted({r.question_id for r in state.triage_requirements.values()})),
+        iteration=state.iteration_count,
+        remaining_tool_calls=state.remaining_tool_calls,
+    )
 
     def finish(decision: TriageStopDecision) -> TerminationReason:
         return stop(state, phase, decision, deps)
@@ -758,6 +791,11 @@ def run_deterministic_triage_loop(
         previous = {
             rid: (r.status, r.evidence_ids, r.reason)
             for rid, r in state.triage_requirement_results.items()
+        }
+        before_open = {q.id for q in state.unanswered_questions}
+        before_gaps = dict(state.triage_question_gaps)
+        before_evidence = {
+            qid: tuple(ids) for qid, ids in state.triage_question_evidence.items()
         }
         evaluate_triage_requirements(state)
         for rid, result in sorted(state.triage_requirement_results.items()):
@@ -773,6 +811,25 @@ def run_deterministic_triage_loop(
                     status=result.status,
                     requirement_ids=(rid,),
                     evidence_ids=result.evidence_ids,
+                )
+        after_open = {q.id for q in state.unanswered_questions}
+        for qid in sorted({r.question_id for r in state.triage_requirements.values()}):
+            evidence_ids = tuple(state.triage_question_evidence.get(qid, ()))
+            if (
+                (qid in before_open) != (qid in after_open)
+                or before_gaps.get(qid) != state.triage_question_gaps.get(qid)
+                or before_evidence.get(qid, ()) != evidence_ids
+            ):
+                unresolved = qid in after_open
+                emit_triage_event(
+                    state,
+                    deps,
+                    event="question.evaluated",
+                    phase=phase,
+                    reason_code="unresolved" if unresolved else "closed",
+                    status="unresolved" if unresolved else "satisfied",
+                    question_ids=(qid,),
+                    evidence_ids=evidence_ids,
                 )
 
     while True:
@@ -802,6 +859,22 @@ def run_deterministic_triage_loop(
         key = fingerprint(request, cutoff)
         attempts = state.triage_read_attempts.get(key, 0)
         state.triage_read_attempts[key] = attempts + 1
+        request_hash = sha256(key.encode("utf-8")).hexdigest()[:20]
+        emit_triage_event(
+            state,
+            deps,
+            event="decide.selected",
+            phase=phase,
+            reason_code="selected",
+            status="pending",
+            tool=request.name,
+            requirement_ids=decision.requirement_ids,
+            request_hash=request_hash,
+            attempt=attempts + 1,
+            iteration=state.iteration_count,
+            candidate_count=decision.candidate_count,
+            remaining_tool_calls=state.remaining_tool_calls,
+        )
         emit_triage_event(
             state,
             deps,
@@ -811,6 +884,9 @@ def run_deterministic_triage_loop(
             status="pending",
             tool=request.name,
             requirement_ids=decision.requirement_ids,
+            request_hash=request_hash,
+            attempt=attempts + 1,
+            iteration=state.iteration_count,
         )
         started = deps.clock()
         qualification: EvidenceQualification | None = None
@@ -845,7 +921,7 @@ def run_deterministic_triage_loop(
             checked = qualification.model_copy(
                 update={
                     "evidence_id": evidence.id if evidence is not None else None,
-                    "request_hash": sha256(key.encode("utf-8")).hexdigest()[:20],
+                    "request_hash": request_hash,
                 }
             )
             state.triage_evidence_checks.append(checked)
@@ -864,6 +940,9 @@ def run_deterministic_triage_loop(
                 requirement_ids=decision.requirement_ids,
                 evidence_ids=(evidence.id,) if evidence is not None else (),
                 duration_ms=duration_ms,
+                request_hash=request_hash,
+                attempt=attempts + 1,
+                iteration=state.iteration_count,
             )
             if not qualification.accepted:
                 outcome = "invalid_result"
@@ -873,6 +952,26 @@ def run_deterministic_triage_loop(
                 outcome = error.code if error is not None else "untrusted_response"
             elif outcome == "malformed_result" and deps.last_provider_exception:
                 outcome = "untrusted_response"
+            failure_code = (
+                outcome
+                if outcome in {
+                    "invalid_result",
+                    "invalid_arguments",
+                    "unknown_tool",
+                    "provider_error",
+                    "untrusted_response",
+                    "malformed_result",
+                    "repeated_call",
+                }
+                else "malformed_result"
+            )
+            state.triage_evidence_checks.append(
+                EvidenceQualification(
+                    accepted=False,
+                    reason_code=failure_code,
+                    request_hash=request_hash,
+                )
+            )
             emit_triage_event(
                 state,
                 deps,
@@ -896,7 +995,41 @@ def run_deterministic_triage_loop(
                 tool=request.name,
                 requirement_ids=decision.requirement_ids,
                 duration_ms=duration_ms,
+                request_hash=request_hash,
+                attempt=attempts + 1,
+                iteration=state.iteration_count,
             )
+        checked = state.triage_evidence_checks[-1]
+        emit_triage_event(
+            state,
+            deps,
+            event="evidence.validated",
+            phase=phase,
+            reason_code=checked.reason_code,
+            status="accepted" if checked.accepted else "rejected",
+            tool=request.name,
+            requirement_ids=decision.requirement_ids,
+            evidence_ids=(evidence.id,) if evidence is not None else (),
+            request_hash=request_hash,
+            attempt=attempts + 1,
+            duration_ms=duration_ms,
+        )
+        emit_triage_event(
+            state,
+            deps,
+            event="tool.completed",
+            phase=phase,
+            reason_code="observed" if evidence is not None else checked.reason_code,
+            status="accepted" if evidence is not None else "failed",
+            tool=request.name,
+            requirement_ids=decision.requirement_ids,
+            evidence_ids=(evidence.id,) if evidence is not None else (),
+            request_hash=request_hash,
+            attempt=attempts + 1,
+            iteration=state.iteration_count,
+            duration_ms=duration_ms,
+            remaining_tool_calls=state.remaining_tool_calls,
+        )
         state.triage_deterministic_reads += 1
         state.triage_decide_trace.append(
             TriageDecisionRecord(
