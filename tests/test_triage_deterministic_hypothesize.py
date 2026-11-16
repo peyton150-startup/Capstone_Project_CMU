@@ -291,7 +291,9 @@ def test_job_paths_discovered_during_test_are_scheduled():
     )
     initialize_requirements(state)
     update_candidate_packet(state, stage="hypothesize", deps=deps)
-    assert not any(rid.startswith("Q1:job:") for rid in state.triage_test_requirement_ids)
+    assert not any(
+        rid.startswith("Q1:job:") for rid in state.triage_test_requirement_ids
+    )
 
     run_test(state, deps)
     assert {"Q1:job:10", "Q1:job:11"} <= set(state.triage_test_requirement_ids)
@@ -300,7 +302,9 @@ def test_job_paths_discovered_during_test_are_scheduled():
         for request in provider.calls
         if request.name == "get_job_history"
     ) == [10, 11]
-    assert all(candidate.status == "unconfirmed" for candidate in state.triage_candidates)
+    assert all(
+        candidate.status == "unconfirmed" for candidate in state.triage_candidates
+    )
 
 
 def test_unsupported_channels_remain_missing_but_are_not_scheduled():
