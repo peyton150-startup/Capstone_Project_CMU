@@ -10,6 +10,7 @@ import json
 import queue
 import sqlite3
 import threading
+from contextlib import contextmanager
 import uuid
 from datetime import datetime, timezone
 from pathlib import Path
@@ -98,10 +99,15 @@ class SimulatorRuns:
             )
             db.execute("UPDATE run_reviews SET status='expired' WHERE status='pending'")
 
-    def _db(self) -> sqlite3.Connection:
+    @contextmanager
+    def _db(self):
         con = sqlite3.connect(str(self.database), timeout=5)
         con.execute("PRAGMA busy_timeout=5000")
-        return con
+        try:
+            with con:
+                yield con
+        finally:
+            con.close()
 
     def get(self, run_id: str) -> dict[str, Any] | None:
         with self.lock, self._db() as db:
@@ -197,13 +203,14 @@ class SimulatorRuns:
                     raise LookupError("review request not found")
                 if row[0] != "pending" or key not in self.waiters:
                     raise ValueError("review is not pending")
+                details = json.loads(db.execute(
+                    "SELECT details FROM run_reviews WHERE run_id=? AND proposal_id=?", key,
+                ).fetchone()[0])
+                details["note"] = decision.note
                 db.execute(
-                    "UPDATE run_reviews SET status=? WHERE run_id=? AND proposal_id=? AND status='pending'",
-                    (decision.decision, *key),
-                )
-                db.execute(
-                    "UPDATE run_reviews SET details=json_set(details, '$.note', ?) "
-                    "WHERE run_id=? AND proposal_id=?", (decision.note, *key),
+                    "UPDATE run_reviews SET status=?, details=? "
+                    "WHERE run_id=? AND proposal_id=? AND status='pending'",
+                    (decision.decision, json.dumps(details), *key),
                 )
             self.waiters[key].set()
         self._emit(run_id, "review.decided", {
@@ -243,6 +250,8 @@ class SimulatorRuns:
                     )
             self.waiters.pop(key, None)
         status = row[0] if row else "expired"
+        if status == "pending":
+            status = "expired"
         if status == "approve":
             return True, json.loads(row[1]).get("note", "") or "approved by simulator reviewer"
         return False, "review timed out" if status == "expired" else (
