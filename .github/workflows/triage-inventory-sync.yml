@@ -29,10 +29,12 @@ jobs:
         run: |
           uv python install
           uv sync --locked --all-extras
+      - name: Install frontend API test dependencies
+        run: uv pip install --python .venv/bin/python -r frontend/requirements-api.txt
       - name: Generate complete offline per-test coverage
         continue-on-error: true
         run: >-
-          uv run --locked --all-extras pytest --cov=capstone --cov=evaltools
+          uv run --no-sync pytest --cov=capstone --cov=evaltools
           --cov-context=test --junitxml=junit.xml --cov-report=term-missing
       - name: Reject any non-inventory pytest failures
         shell: bash
