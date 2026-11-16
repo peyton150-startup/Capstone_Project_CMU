@@ -269,12 +269,12 @@ def test_sse_reconnect_resumes_from_last_event_id(tmp_path, monkeypatch):
     path = f"/api/v1/lab/runs/{run_id}/events"
     first = client.get(path + "?since=1", headers=auth(TOKEN))
     assert first.status_code == 200
-    assert "id: 1\\n" not in first.text
-    assert "id: 2\\n" in first.text
-    assert "id: 3\\n" in first.text
+    assert "id: 1\n" not in first.text
+    assert "id: 2\n" in first.text
+    assert "id: 3\n" in first.text
     resumed = client.get(path, headers={**auth(TOKEN), "Last-Event-ID": "2"})
     assert resumed.status_code == 200
-    assert "id: 2\\n" not in resumed.text
+    assert "id: 2\n" not in resumed.text
     assert "event: run.completed" in resumed.text
     assert client.get(path + "?workspace=pilot", headers=auth(TOKEN)).status_code == 403
     assert client.get(path + "?since=-1", headers=auth(TOKEN)).status_code == 422
