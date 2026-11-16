@@ -1,7 +1,7 @@
 """Read-only frontend API contract and privacy regression tests."""
 
 import json
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 
 import pytest
 
@@ -262,3 +262,24 @@ def test_subscribed_marker_requires_real_acceptance_and_does_not_imply_measureme
     disconnected = recorder_snapshot(path)["recorder"]
     assert disconnected["connection_state"] == "disconnected"
     assert disconnected["subscription_state"] == "unconfirmed"
+
+
+def test_future_collector_clock_cannot_claim_live_connection(tmp_path):
+    """Clock skew never upgrades an expired or unconfirmed source to healthy."""
+    future = (datetime.now(timezone.utc) + timedelta(hours=1)).isoformat()
+    capture = tmp_path / "future.jsonl"
+    data = change()
+    data["received_at"] = future
+    data["source_timestamp"] = future
+    markers = [
+        {"record_type": "opcua_session", "schema_version": 2,
+         "source": "opcua", "server_uri": "urn:test",
+         "event": event, "at": future, "session_epoch": 1}
+        for event in ("connected", "subscribed")
+    ]
+    write_lines(capture, [*markers, data])
+    recorder = recorder_snapshot(capture)["recorder"]
+    assert recorder["connection_state"] == "unknown"
+    assert recorder["subscription_state"] == "unconfirmed"
+    assert recorder["measurement_state"] == "stale_or_none"
+    assert recorder["analysis_eligible"] is None
