@@ -410,7 +410,6 @@ def test_candidate_archive_contract_is_backward_compatible():
 def test_full_graph_deterministic_triage_reaches_checked_conclude(broken_summary):
     """The actual Graph uses one model stage and preserves unresolved telemetry."""
     from capstone.agent.investigation import run_investigation
-    from capstone.agent.triage_plan import fixed_plan
     from tests.helpers import START, new_state
     from tests.test_triage_deterministic_decide import ALARM
 
