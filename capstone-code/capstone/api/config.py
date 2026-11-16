@@ -2,6 +2,7 @@
 
 All paths come from the trusted server process environment, never from HTTP.
 """
+
 from __future__ import annotations
 
 import os
@@ -29,16 +30,23 @@ class UiConfig:
         """Reject insecure or ambiguous real-data deployments before serving."""
         # Variables:
         #   configured: Set when any private evidence source was supplied.
-        configured = any((self.capture, self.audit, self.experiment, self.investigations))
+        configured = any(
+            (self.capture, self.audit, self.experiment, self.investigations)
+        )
         if configured and (not self.token or len(self.token) < 24):
-            raise ValueError("CAPSTONE_UI_TOKEN must be at least 24 characters for configured files")
+            raise ValueError(
+                "CAPSTONE_UI_TOKEN must be at least 24 characters for configured files"
+            )
         for path in (self.capture, self.audit, self.experiment, self.investigations):
             if path is not None and not path.is_absolute():
-                raise ValueError("UI source paths must be absolute and configured server-side")
+                raise ValueError(
+                    "UI source paths must be absolute and configured server-side"
+                )
 
     @classmethod
     def from_env(cls) -> "UiConfig":
         """Read only the explicit UI configuration names, never arbitrary settings."""
+
         # Variables:
         #   path: Convert a configured absolute path; unset remains unavailable.
         def path(key: str) -> Path | None:

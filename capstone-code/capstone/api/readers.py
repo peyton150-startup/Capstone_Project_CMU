@@ -1,4 +1,5 @@
 """Bounded, honest adapters for existing v2 capture and offline run artifacts."""
+
 from __future__ import annotations
 
 import hashlib
@@ -36,10 +37,16 @@ def recent_lines(path: Path | None, *, limit: int = MAX_LINES) -> list[str]:
     end = raw.rfind(b"\n")
     if end < 0:
         return []
-    return [line.decode("utf-8", errors="replace") for line in raw[: end + 1].splitlines()[-limit:] if line]
+    return [
+        line.decode("utf-8", errors="replace")
+        for line in raw[: end + 1].splitlines()[-limit:]
+        if line
+    ]
 
 
-def capture_records(path: Path | None) -> tuple[list[OpcUaDataChange | OpcUaSessionMarker], int]:
+def capture_records(
+    path: Path | None,
+) -> tuple[list[OpcUaDataChange | OpcUaSessionMarker], int]:
     """Validate actual Siemens v2 records; never treat MTConnect as OPC UA."""
     # Variables:
     #   records: Pydantic validated data changes and session markers.
@@ -74,7 +81,9 @@ def iso_age(at: str | None, now: datetime) -> float | None:
         return None
 
 
-def recorder_snapshot(path: Path | None, *, show_values: bool = False) -> dict[str, Any]:
+def recorder_snapshot(
+    path: Path | None, *, show_values: bool = False
+) -> dict[str, Any]:
     """Summarize a bounded window, not falsely claim whole-session coverage.
 
     Signals are identified by server and OPC UA node, never display label.
@@ -86,8 +95,13 @@ def recorder_snapshot(path: Path | None, *, show_values: bool = False) -> dict[s
     #   signals: Most recent validated value per physical source identity.
     #   now: Current UTC clock for conservative 'unknown' session freshness.
     if path is None:
-        return {"availability": "not_configured", "message": "No approved Siemens capture configured",
-                "recorder": None, "signals": [], "events": []}
+        return {
+            "availability": "not_configured",
+            "message": "No approved Siemens capture configured",
+            "recorder": None,
+            "signals": [],
+            "events": [],
+        }
     records, invalid = capture_records(path)
     counts: Counter[str] = Counter()
     signals: dict[str, dict[str, Any]] = {}
@@ -99,7 +113,11 @@ def recorder_snapshot(path: Path | None, *, show_values: bool = False) -> dict[s
     session_epoch: int | None = None
     for record in records:
         if isinstance(record, OpcUaSessionMarker):
-            marker = {"event": record.event, "at": record.at.isoformat(), "epoch": record.session_epoch}
+            marker = {
+                "event": record.event,
+                "at": record.at.isoformat(),
+                "epoch": record.session_epoch,
+            }
             events.append(marker)
             last_event = marker
             session_epoch = record.session_epoch
@@ -114,22 +132,34 @@ def recorder_snapshot(path: Path | None, *, show_values: bool = False) -> dict[s
             counts["overflow"] += 1
         if record.non_finite or record.value_type is None:
             counts["unsupported"] += 1
-        sid = signal_id(record.server_uri, record.node.namespace_uri,
-                        record.node.identifier_type, record.node.identifier)
+        sid = signal_id(
+            record.server_uri,
+            record.node.namespace_uri,
+            record.node.identifier_type,
+            record.node.identifier,
+        )
         latest_receive = max(latest_receive or "", record.received_at.isoformat())
         if record.number() is not None:
-            latest_good_numeric = max(latest_good_numeric or "", record.received_at.isoformat())
+            latest_good_numeric = max(
+                latest_good_numeric or "", record.received_at.isoformat()
+            )
         signals[sid] = {
             "id": sid,
             "label": "Signal " + sid[:7],
-            "unit": None, "mapped": False, "analysis_eligible": False,
+            "unit": None,
+            "mapped": False,
+            "analysis_eligible": False,
             "value": record.value if show_values else None,
             "value_available": show_values and record.value is not None,
             "quality": record.status.severity,
             "status_code": record.status.code,
             "received_at": record.received_at.isoformat(),
-            "source_timestamp": record.source_timestamp.isoformat() if record.source_timestamp else None,
-            "server_timestamp": record.server_timestamp.isoformat() if record.server_timestamp else None,
+            "source_timestamp": record.source_timestamp.isoformat()
+            if record.source_timestamp
+            else None,
+            "server_timestamp": record.server_timestamp.isoformat()
+            if record.server_timestamp
+            else None,
             "session_epoch": record.session_epoch,
             "freshness": "unknown",
             "reason": "Physical mapping, unit and update policy not yet field-verified",
@@ -138,9 +168,15 @@ def recorder_snapshot(path: Path | None, *, show_values: bool = False) -> dict[s
     for item in signals.values():
         item["last_received_age_s"] = iso_age(item["received_at"], now)
     age = iso_age(last_event["at"], now) if last_event else None
-    connected = bool(last_event and last_event["event"] in ("connected", "heartbeat")
-                     and ((age is not None and age <= 90) or
-                          (receive_age := iso_age(latest_receive, now)) is not None and receive_age <= 90))
+    connected = bool(
+        last_event
+        and last_event["event"] in ("connected", "heartbeat")
+        and (
+            (age is not None and age <= 90)
+            or (receive_age := iso_age(latest_receive, now)) is not None
+            and receive_age <= 90
+        )
+    )
     if last_event and last_event["event"] in ("stopped", "disconnected"):
         connection = "disconnected"
     elif connected:
@@ -148,8 +184,11 @@ def recorder_snapshot(path: Path | None, *, show_values: bool = False) -> dict[s
     else:
         connection = "unknown"
     receive_age = iso_age(latest_receive, now)
-    measured = "received_recently" if receive_age is not None and receive_age <= 120 else (
-        "stale_or_none" if latest_receive else "none")
+    measured = (
+        "received_recently"
+        if receive_age is not None and receive_age <= 120
+        else ("stale_or_none" if latest_receive else "none")
+    )
     size = path.stat().st_size if path.is_file() else 0
     return {
         "availability": "available" if path.is_file() else "file_missing",
@@ -166,10 +205,14 @@ def recorder_snapshot(path: Path | None, *, show_values: bool = False) -> dict[s
             "session_epoch": session_epoch,
             "window_scope": "bounded_recent_tail",
             "received": counts["received"],
-            "good": counts["good"], "uncertain": counts["uncertain"], "bad": counts["bad"],
-            "overflow": counts["overflow"], "gaps": counts["gaps"],
+            "good": counts["good"],
+            "uncertain": counts["uncertain"],
+            "bad": counts["bad"],
+            "overflow": counts["overflow"],
+            "gaps": counts["gaps"],
             "reconnections": max(0, counts["connections"] - 1),
-            "unsupported": counts["unsupported"], "invalid_lines": invalid,
+            "unsupported": counts["unsupported"],
+            "invalid_lines": invalid,
             "analysis_eligible": None,  # Cannot establish mapping and quality gate.
             "output_bytes": size,
             "sink_state": "unknown",  # A growing file is not proof of durable storage.
@@ -180,25 +223,35 @@ def recorder_snapshot(path: Path | None, *, show_values: bool = False) -> dict[s
     }
 
 
-def signal_samples(path: Path | None, requested: str, *, show_values: bool) -> list[dict[str, Any]]:
+def signal_samples(
+    path: Path | None, requested: str, *, show_values: bool
+) -> list[dict[str, Any]]:
     """Return bounded real samples; never interpolate missing data."""
     records, _ = capture_records(path)
     samples: list[dict[str, Any]] = []
     for record in records:
         if not isinstance(record, OpcUaDataChange):
             continue
-        sid = signal_id(record.server_uri, record.node.namespace_uri,
-                        record.node.identifier_type, record.node.identifier)
+        sid = signal_id(
+            record.server_uri,
+            record.node.namespace_uri,
+            record.node.identifier_type,
+            record.node.identifier,
+        )
         if sid != requested:
             continue
         value = record.number()
-        samples.append({
-            "at": record.source_timestamp.isoformat() if record.source_timestamp else record.received_at.isoformat(),
-            "received_at": record.received_at.isoformat(),
-            "value": value if show_values else None,
-            "quality": record.status.severity,
-            "epoch": record.session_epoch,
-        })
+        samples.append(
+            {
+                "at": record.source_timestamp.isoformat()
+                if record.source_timestamp
+                else record.received_at.isoformat(),
+                "received_at": record.received_at.isoformat(),
+                "value": value if show_values else None,
+                "quality": record.status.severity,
+                "epoch": record.session_epoch,
+            }
+        )
     return samples[-600:]
 
 
@@ -222,19 +275,26 @@ def safe_investigations(path: Path | None) -> list[dict[str, Any]]:
             continue
         evidence = completed.get("evidence") or []
         hypotheses = completed.get("hypotheses") or []
-        out.append({
-            "id": id_, "run_id": completed.get("run_id"),
-            "summary": str(anomaly.get("summary") or "No summary")[:600],
-            "symptoms": [str(x)[:250] for x in (anomaly.get("symptoms") or [])[:20]],
-            "diagnosis": str(conclusion.get("diagnosis") or "")[:1200],
-            "model_confidence": conclusion.get("confidence"),
-            "termination_reason": completed.get("termination_reason"),
-            "evidence_count": len(evidence),
-            "hypothesis_count": len(hypotheses),
-            "tool_calls": completed.get("tool_calls_used"),
-            "iterations": completed.get("iterations_used"),
-            "verification": (completed.get("verification") or {}).get("status") if isinstance(completed.get("verification"), dict) else None,
-        })
+        out.append(
+            {
+                "id": id_,
+                "run_id": completed.get("run_id"),
+                "summary": str(anomaly.get("summary") or "No summary")[:600],
+                "symptoms": [
+                    str(x)[:250] for x in (anomaly.get("symptoms") or [])[:20]
+                ],
+                "diagnosis": str(conclusion.get("diagnosis") or "")[:1200],
+                "model_confidence": conclusion.get("confidence"),
+                "termination_reason": completed.get("termination_reason"),
+                "evidence_count": len(evidence),
+                "hypothesis_count": len(hypotheses),
+                "tool_calls": completed.get("tool_calls_used"),
+                "iterations": completed.get("iterations_used"),
+                "verification": (completed.get("verification") or {}).get("status")
+                if isinstance(completed.get("verification"), dict)
+                else None,
+            }
+        )
     return list(reversed(out))
 
 
@@ -248,7 +308,10 @@ def safe_investigation_detail(path: Path | None, ident: str) -> dict[str, Any] |
         except (ValueError, TypeError):
             continue
         completed = raw.get("completed", raw) if isinstance(raw, dict) else {}
-        if not isinstance(completed, dict) or completed.get("investigation_id") != ident:
+        if (
+            not isinstance(completed, dict)
+            or completed.get("investigation_id") != ident
+        ):
             continue
         summary = next((x for x in safe_investigations(path) if x["id"] == ident), None)
         if summary is None:
@@ -257,24 +320,64 @@ def safe_investigation_detail(path: Path | None, ident: str) -> dict[str, Any] |
         for e in (completed.get("evidence") or [])[:100]:
             if not isinstance(e, dict):
                 continue
-            evidence.append({k: e.get(k) for k in (
-                "id", "source_id", "source_type", "content", "observed_at", "observed_tick")})
+            evidence.append(
+                {
+                    k: e.get(k)
+                    for k in (
+                        "id",
+                        "source_id",
+                        "source_type",
+                        "content",
+                        "observed_at",
+                        "observed_tick",
+                    )
+                }
+            )
         hypotheses = []
         for h in (completed.get("hypotheses") or [])[:20]:
             if not isinstance(h, dict):
                 continue
-            hypotheses.append({k: h.get(k) for k in (
-                "id", "description", "claim", "status", "confidence",
-                "supporting_evidence_ids", "contradicting_evidence_ids",
-                "unexplained_evidence_ids", "discriminating_check")})
+            hypotheses.append(
+                {
+                    k: h.get(k)
+                    for k in (
+                        "id",
+                        "description",
+                        "claim",
+                        "status",
+                        "confidence",
+                        "supporting_evidence_ids",
+                        "contradicting_evidence_ids",
+                        "unexplained_evidence_ids",
+                        "discriminating_check",
+                    )
+                }
+            )
         proposal = completed.get("proposed_action")
         verification = completed.get("verification")
-        return {**summary, "evidence": evidence, "hypotheses": hypotheses,
-                "proposed_action": {k: proposal.get(k) for k in ("action", "machine_id", "reason", "evidence_ids")}
-                if isinstance(proposal, dict) else None,
-                "verification_detail": {k: verification.get(k) for k in (
-                    "status", "outcome", "summary", "evidence_ids", "observed_tick")}
-                if isinstance(verification, dict) else None}
+        return {
+            **summary,
+            "evidence": evidence,
+            "hypotheses": hypotheses,
+            "proposed_action": {
+                k: proposal.get(k)
+                for k in ("action", "machine_id", "reason", "evidence_ids")
+            }
+            if isinstance(proposal, dict)
+            else None,
+            "verification_detail": {
+                k: verification.get(k)
+                for k in (
+                    "status",
+                    "outcome",
+                    "summary",
+                    "evidence_ids",
+                    "observed_tick",
+                )
+            }
+            if isinstance(verification, dict)
+            else None,
+        }
     return None
 
 
@@ -288,16 +391,20 @@ def safe_evaluations(path: Path | None) -> list[dict[str, Any]]:
             continue
         if not isinstance(raw, dict) or not isinstance(raw.get("run_key"), str):
             continue
-        out.append({
-            "id": raw["run_key"][:100],
-            "scenario": raw.get("scenario_id"),
-            "seed": raw.get("seed"),
-            "conclusion": raw.get("conclusion"),
-            "assessment": raw.get("assessment"),
-            "recommendation": raw.get("recommendation"),
-            "verification": raw.get("verification"),
-            "wall_seconds": raw.get("wall_seconds"),
-            "model_questions": (raw.get("model_calls") or {}).get("questions") if isinstance(raw.get("model_calls"), dict) else None,
-            "tool_count": len(raw.get("tools_used") or []),
-        })
+        out.append(
+            {
+                "id": raw["run_key"][:100],
+                "scenario": raw.get("scenario_id"),
+                "seed": raw.get("seed"),
+                "conclusion": raw.get("conclusion"),
+                "assessment": raw.get("assessment"),
+                "recommendation": raw.get("recommendation"),
+                "verification": raw.get("verification"),
+                "wall_seconds": raw.get("wall_seconds"),
+                "model_questions": (raw.get("model_calls") or {}).get("questions")
+                if isinstance(raw.get("model_calls"), dict)
+                else None,
+                "tool_count": len(raw.get("tools_used") or []),
+            }
+        )
     return list(reversed(out))

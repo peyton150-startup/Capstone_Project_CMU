@@ -1,4 +1,5 @@
 """Read-only frontend API contract and privacy regression tests."""
+
 import json
 from datetime import datetime, timezone
 
@@ -7,7 +8,10 @@ import pytest
 try:
     from fastapi.testclient import TestClient
 except ImportError:
-    pytest.skip("Optional web API dependencies are installed in frontend CI", allow_module_level=True)
+    pytest.skip(
+        "Optional web API dependencies are installed in frontend CI",
+        allow_module_level=True,
+    )
 
 from capstone.api.app import create_app  # noqa: E402
 from capstone.api.config import UiConfig
@@ -16,16 +20,29 @@ from capstone.api.readers import recorder_snapshot, safe_evaluations
 
 def change(*, status=0, identifier="spindle", value=42.0):
     """A valid source-stamped Siemens OPC UA v2 line, not a fake HTTP API field."""
-    severity = "bad" if status >> 30 == 2 else "uncertain" if status >> 30 == 1 else "good"
+    severity = (
+        "bad" if status >> 30 == 2 else "uncertain" if status >> 30 == 1 else "good"
+    )
     return {
-        "record_type": "data_change", "schema_version": 2, "source": "opcua",
-        "server_uri": "urn:test", "node": {"namespace_uri": "urn:nc", "identifier": identifier,
-                                          "identifier_type": "string"},
-        "value": value, "value_type": "Double",
-        "non_finite": None, "status": {"code": status, "severity": severity, "name": None},
+        "record_type": "data_change",
+        "schema_version": 2,
+        "source": "opcua",
+        "server_uri": "urn:test",
+        "node": {
+            "namespace_uri": "urn:nc",
+            "identifier": identifier,
+            "identifier_type": "string",
+        },
+        "value": value,
+        "value_type": "Double",
+        "non_finite": None,
+        "status": {"code": status, "severity": severity, "name": None},
         "source_timestamp": datetime.now(timezone.utc).isoformat(),
-        "server_timestamp": None, "received_at": datetime.now(timezone.utc).isoformat(),
-        "session_epoch": 1, "subscription_id": 1, "notification_seq": 2,
+        "server_timestamp": None,
+        "received_at": datetime.now(timezone.utc).isoformat(),
+        "session_epoch": 1,
+        "subscription_id": 1,
+        "notification_seq": 2,
     }
 
 
@@ -47,8 +64,10 @@ def test_capabilities_and_auth_do_not_leak_secret(tmp_path):
     client = TestClient(create_app(UiConfig(capture=path, token=token)))
     assert client.get("/api/v1/capabilities").status_code == 401
     assert client.get("/api/v1/recordings").status_code == 401
-    result = client.get("/api/v1/recordings/siemens-local/health",
-                        headers={"Authorization": "Bearer " + token})
+    result = client.get(
+        "/api/v1/recordings/siemens-local/health",
+        headers={"Authorization": "Bearer " + token},
+    )
     assert result.status_code == 200
     payload = result.json()
     assert token not in json.dumps(payload)
@@ -93,11 +112,19 @@ def test_partial_jsonl_does_not_fabricate_observations(tmp_path):
 
 def test_audit_and_evaluator_truth_separated(tmp_path):
     exp = tmp_path / "eval.jsonl"
-    write_lines(exp, [{
-        "run_key": "run-1", "scenario_id": "sim-1", "seed": 5,
-        "conclusion": "check load", "score": {"hidden_root_cause": "secret"},
-        "internal_secret": "super-secret",
-    }])
+    write_lines(
+        exp,
+        [
+            {
+                "run_key": "run-1",
+                "scenario_id": "sim-1",
+                "seed": 5,
+                "conclusion": "check load",
+                "score": {"hidden_root_cause": "secret"},
+                "internal_secret": "super-secret",
+            }
+        ],
+    )
     assert "secret" not in json.dumps(safe_evaluations(exp))
     token = "very-long-evaluator-session-token"
     common = {"experiment": exp, "token": token}
@@ -106,17 +133,32 @@ def test_audit_and_evaluator_truth_separated(tmp_path):
     header = {"Authorization": "Bearer " + token}
     assert viewer.get("/api/v1/evaluations", headers=header).status_code == 403
     assert evaluator.get("/api/v1/evaluations", headers=header).status_code == 200
-    assert evaluator.get("/api/v1/evaluations?workspace=pilot", headers=header).status_code == 403
+    assert (
+        evaluator.get("/api/v1/evaluations?workspace=pilot", headers=header).status_code
+        == 403
+    )
 
 
 def test_restricted_pilot_investigation_and_no_command_routes(tmp_path):
     audit = tmp_path / "audit.jsonl"
     audit.write_text("", encoding="utf-8")
-    client = TestClient(create_app(UiConfig(
-        investigations=audit, token="secret-long-enough-to-be-valid",
-    )))
+    client = TestClient(
+        create_app(
+            UiConfig(
+                investigations=audit,
+                token="secret-long-enough-to-be-valid",
+            )
+        )
+    )
     auth = {"Authorization": "Bearer secret-long-enough-to-be-valid"}
-    assert client.get("/api/v1/investigations?workspace=pilot", headers=auth).json()["items"] == []
-    assert client.post("/api/v1/recordings/start", headers=auth).status_code == 405 or \
-           client.post("/api/v1/recordings/start", headers=auth).status_code == 404
+    assert (
+        client.get("/api/v1/investigations?workspace=pilot", headers=auth).json()[
+            "items"
+        ]
+        == []
+    )
+    assert (
+        client.post("/api/v1/recordings/start", headers=auth).status_code == 405
+        or client.post("/api/v1/recordings/start", headers=auth).status_code == 404
+    )
     assert client.post("/api/v1/lab/runs", headers=auth).status_code in (404, 405)
