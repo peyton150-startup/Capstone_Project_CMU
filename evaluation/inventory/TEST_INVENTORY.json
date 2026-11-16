@@ -114232,7 +114232,7 @@
     "capstone.agent.investigation:propose",
     "capstone.agent.investigation:recheck"
    ],
-   "exercise_count": 215,
+   "exercise_count": 216,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.evidence_tests",
@@ -115562,7 +115562,7 @@
    "id": "tests/test_triage.py::test_a_triage_with_no_explanation_cannot_clear_the_alarm",
    "file": "tests/test_triage.py",
    "name": "test_a_triage_with_no_explanation_cannot_clear_the_alarm",
-   "line": 484,
+   "line": 485,
    "docstring": "",
    "parametrized": false,
    "fixtures": [],
@@ -115586,6 +115586,7 @@
     "capstone.agent.investigation:latest_roster",
     "capstone.agent.investigation:latest_screening",
     "capstone.agent.investigation:needs_deep_run",
+    "capstone.agent.investigation:required_question_gaps",
     "capstone.agent.investigation:screening_tick",
     "capstone.agent.investigation:triage_clearance_gaps",
     "capstone.agent.investigation:triage_rival_gaps",
@@ -115594,7 +115595,7 @@
     "capstone.agent.loop:InvestigationDeps.__post_init__",
     "capstone.agent.state:Budgets.research_gets_some_time"
    ],
-   "exercise_count": 16,
+   "exercise_count": 17,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.evidence_tests",
@@ -115614,7 +115615,7 @@
    "id": "tests/test_triage.py::test_a_triage_cannot_clear_an_alarmed_machine_the_screening_did_not_score",
    "file": "tests/test_triage.py",
    "name": "test_a_triage_cannot_clear_an_alarmed_machine_the_screening_did_not_score",
-   "line": 493,
+   "line": 494,
    "docstring": "",
    "parametrized": false,
    "fixtures": [],
@@ -115639,6 +115640,59 @@
     "capstone.agent.investigation:latest_roster",
     "capstone.agent.investigation:latest_screening",
     "capstone.agent.investigation:needs_deep_run",
+    "capstone.agent.investigation:required_question_gaps",
+    "capstone.agent.investigation:screening_tick",
+    "capstone.agent.investigation:triage_clearance_gaps",
+    "capstone.agent.investigation:triage_rival_gaps",
+    "capstone.agent.investigation:unresolved_confidence",
+    "capstone.agent.investigation:unscored_machines",
+    "capstone.agent.loop:InvestigationDeps.__post_init__",
+    "capstone.agent.state:Budgets.research_gets_some_time"
+   ],
+   "exercise_count": 17,
+   "modules_exercised": [
+    "capstone.agent.evidence_brief",
+    "capstone.agent.evidence_tests",
+    "capstone.agent.investigation",
+    "capstone.agent.loop",
+    "capstone.agent.state"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_triage.py::test_a_triage_cannot_clear_while_another_machine_is_unscored",
+   "file": "tests/test_triage.py",
+   "name": "test_a_triage_cannot_clear_while_another_machine_is_unscored",
+   "line": 502,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 2,
+   "assert_forms": {
+    "equality": 1,
+    "membership": 1
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "a triage cannot clear while another machine is unscored",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.agent.evidence_brief:observations",
+    "capstone.agent.evidence_brief:verify_numeric_claims",
+    "capstone.agent.evidence_tests:open_rival_questions",
+    "capstone.agent.investigation:check_conclusion",
+    "capstone.agent.investigation:cites_measurement",
+    "capstone.agent.investigation:conclusion_gaps",
+    "capstone.agent.investigation:latest_roster",
+    "capstone.agent.investigation:latest_screening",
+    "capstone.agent.investigation:required_question_gaps",
     "capstone.agent.investigation:screening_tick",
     "capstone.agent.investigation:triage_clearance_gaps",
     "capstone.agent.investigation:triage_rival_gaps",
@@ -115664,61 +115718,10 @@
    ]
   },
   {
-   "id": "tests/test_triage.py::test_a_triage_cannot_clear_while_another_machine_is_unscored",
-   "file": "tests/test_triage.py",
-   "name": "test_a_triage_cannot_clear_while_another_machine_is_unscored",
-   "line": 501,
-   "docstring": "",
-   "parametrized": false,
-   "fixtures": [],
-   "assertions": 2,
-   "assert_forms": {
-    "equality": 1,
-    "membership": 1
-   },
-   "raises_checks": 0,
-   "uses": [],
-   "quality_flags": [],
-   "claims": "a triage cannot clear while another machine is unscored",
-   "execution_outcome": "passed",
-   "exercises": [
-    "capstone.agent.evidence_brief:observations",
-    "capstone.agent.evidence_brief:verify_numeric_claims",
-    "capstone.agent.evidence_tests:open_rival_questions",
-    "capstone.agent.investigation:check_conclusion",
-    "capstone.agent.investigation:cites_measurement",
-    "capstone.agent.investigation:conclusion_gaps",
-    "capstone.agent.investigation:latest_roster",
-    "capstone.agent.investigation:latest_screening",
-    "capstone.agent.investigation:screening_tick",
-    "capstone.agent.investigation:triage_clearance_gaps",
-    "capstone.agent.investigation:triage_rival_gaps",
-    "capstone.agent.investigation:unresolved_confidence",
-    "capstone.agent.investigation:unscored_machines",
-    "capstone.agent.loop:InvestigationDeps.__post_init__",
-    "capstone.agent.state:Budgets.research_gets_some_time"
-   ],
-   "exercise_count": 15,
-   "modules_exercised": [
-    "capstone.agent.evidence_brief",
-    "capstone.agent.evidence_tests",
-    "capstone.agent.investigation",
-    "capstone.agent.loop",
-    "capstone.agent.state"
-   ],
-   "judgment": "NOT ASSESSED",
-   "curated": {},
-   "snap_questions": [
-    "TS-01",
-    "TS-02",
-    "TS-03"
-   ]
-  },
-  {
    "id": "tests/test_triage.py::test_a_triage_whose_screening_never_arrived_cannot_clear",
    "file": "tests/test_triage.py",
    "name": "test_a_triage_whose_screening_never_arrived_cannot_clear",
-   "line": 508,
+   "line": 509,
    "docstring": "",
    "parametrized": false,
    "fixtures": [],
@@ -115741,6 +115744,56 @@
     "capstone.agent.investigation:conclusion_gaps",
     "capstone.agent.investigation:latest_screening",
     "capstone.agent.investigation:needs_deep_run",
+    "capstone.agent.investigation:required_question_gaps",
+    "capstone.agent.investigation:screening_tick",
+    "capstone.agent.investigation:triage_clearance_gaps",
+    "capstone.agent.investigation:triage_rival_gaps",
+    "capstone.agent.investigation:unresolved_confidence",
+    "capstone.agent.loop:InvestigationDeps.__post_init__",
+    "capstone.agent.state:Budgets.research_gets_some_time"
+   ],
+   "exercise_count": 15,
+   "modules_exercised": [
+    "capstone.agent.evidence_brief",
+    "capstone.agent.evidence_tests",
+    "capstone.agent.investigation",
+    "capstone.agent.loop",
+    "capstone.agent.state"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_triage.py::test_both_reasons_are_kept_when_both_hold",
+   "file": "tests/test_triage.py",
+   "name": "test_both_reasons_are_kept_when_both_hold",
+   "line": 516,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 1,
+   "assert_forms": {
+    "equality": 1
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "both reasons are kept when both hold",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.agent.evidence_brief:observations",
+    "capstone.agent.evidence_brief:verify_numeric_claims",
+    "capstone.agent.evidence_tests:open_rival_questions",
+    "capstone.agent.investigation:check_conclusion",
+    "capstone.agent.investigation:cites_measurement",
+    "capstone.agent.investigation:conclusion_gaps",
+    "capstone.agent.investigation:latest_screening",
+    "capstone.agent.investigation:required_question_gaps",
     "capstone.agent.investigation:screening_tick",
     "capstone.agent.investigation:triage_clearance_gaps",
     "capstone.agent.investigation:triage_rival_gaps",
@@ -115765,58 +115818,10 @@
    ]
   },
   {
-   "id": "tests/test_triage.py::test_both_reasons_are_kept_when_both_hold",
-   "file": "tests/test_triage.py",
-   "name": "test_both_reasons_are_kept_when_both_hold",
-   "line": 515,
-   "docstring": "",
-   "parametrized": false,
-   "fixtures": [],
-   "assertions": 1,
-   "assert_forms": {
-    "equality": 1
-   },
-   "raises_checks": 0,
-   "uses": [],
-   "quality_flags": [],
-   "claims": "both reasons are kept when both hold",
-   "execution_outcome": "passed",
-   "exercises": [
-    "capstone.agent.evidence_brief:observations",
-    "capstone.agent.evidence_brief:verify_numeric_claims",
-    "capstone.agent.evidence_tests:open_rival_questions",
-    "capstone.agent.investigation:check_conclusion",
-    "capstone.agent.investigation:cites_measurement",
-    "capstone.agent.investigation:conclusion_gaps",
-    "capstone.agent.investigation:latest_screening",
-    "capstone.agent.investigation:screening_tick",
-    "capstone.agent.investigation:triage_clearance_gaps",
-    "capstone.agent.investigation:triage_rival_gaps",
-    "capstone.agent.investigation:unresolved_confidence",
-    "capstone.agent.loop:InvestigationDeps.__post_init__",
-    "capstone.agent.state:Budgets.research_gets_some_time"
-   ],
-   "exercise_count": 13,
-   "modules_exercised": [
-    "capstone.agent.evidence_brief",
-    "capstone.agent.evidence_tests",
-    "capstone.agent.investigation",
-    "capstone.agent.loop",
-    "capstone.agent.state"
-   ],
-   "judgment": "NOT ASSESSED",
-   "curated": {},
-   "snap_questions": [
-    "TS-01",
-    "TS-02",
-    "TS-03"
-   ]
-  },
-  {
    "id": "tests/test_triage.py::test_a_triage_with_an_explanation_and_a_full_screening_may_still_clear",
    "file": "tests/test_triage.py",
    "name": "test_a_triage_with_an_explanation_and_a_full_screening_may_still_clear",
-   "line": 521,
+   "line": 522,
    "docstring": "",
    "parametrized": false,
    "fixtures": [],
@@ -115840,6 +115845,7 @@
     "capstone.agent.investigation:latest_roster",
     "capstone.agent.investigation:latest_screening",
     "capstone.agent.investigation:needs_deep_run",
+    "capstone.agent.investigation:required_question_gaps",
     "capstone.agent.investigation:screening_tick",
     "capstone.agent.investigation:triage_clearance_gaps",
     "capstone.agent.investigation:triage_rival_gaps",
@@ -115847,7 +115853,7 @@
     "capstone.agent.loop:InvestigationDeps.__post_init__",
     "capstone.agent.state:Budgets.research_gets_some_time"
    ],
-   "exercise_count": 15,
+   "exercise_count": 16,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.evidence_tests",
@@ -115867,7 +115873,7 @@
    "id": "tests/test_triage.py::test_a_recorded_machine_without_screening_needs_only_an_explanation",
    "file": "tests/test_triage.py",
    "name": "test_a_recorded_machine_without_screening_needs_only_an_explanation",
-   "line": 529,
+   "line": 530,
    "docstring": "",
    "parametrized": false,
    "fixtures": [],
@@ -115890,12 +115896,13 @@
     "capstone.agent.investigation:cites_measurement",
     "capstone.agent.investigation:conclusion_gaps",
     "capstone.agent.investigation:needs_deep_run",
+    "capstone.agent.investigation:required_question_gaps",
     "capstone.agent.investigation:triage_clearance_gaps",
     "capstone.agent.investigation:triage_rival_gaps",
     "capstone.agent.loop:InvestigationDeps.__post_init__",
     "capstone.agent.state:Budgets.research_gets_some_time"
    ],
-   "exercise_count": 11,
+   "exercise_count": 12,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.evidence_tests",
@@ -115915,7 +115922,7 @@
    "id": "tests/test_triage.py::test_answers_that_clear_nothing_get_no_clearance_gaps",
    "file": "tests/test_triage.py",
    "name": "test_answers_that_clear_nothing_get_no_clearance_gaps",
-   "line": 536,
+   "line": 537,
    "docstring": "",
    "parametrized": true,
    "fixtures": [
@@ -115962,7 +115969,7 @@
    "id": "tests/test_triage.py::test_a_deep_run_is_not_held_to_the_triage_clearance_rule",
    "file": "tests/test_triage.py",
    "name": "test_a_deep_run_is_not_held_to_the_triage_clearance_rule",
-   "line": 542,
+   "line": 543,
    "docstring": "",
    "parametrized": false,
    "fixtures": [],
@@ -116025,6 +116032,7 @@
     "capstone.agent.investigation:conclusion_gaps",
     "capstone.agent.investigation:latest_roster",
     "capstone.agent.investigation:latest_screening",
+    "capstone.agent.investigation:required_question_gaps",
     "capstone.agent.investigation:screening_tick",
     "capstone.agent.investigation:triage_clearance_gaps",
     "capstone.agent.investigation:triage_rival_gaps",
@@ -116032,7 +116040,7 @@
     "capstone.agent.loop:InvestigationDeps.__post_init__",
     "capstone.agent.state:Budgets.research_gets_some_time"
    ],
-   "exercise_count": 14,
+   "exercise_count": 15,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.evidence_tests",
@@ -116074,6 +116082,7 @@
     "capstone.agent.investigation:conclusion_gaps",
     "capstone.agent.investigation:latest_roster",
     "capstone.agent.investigation:latest_screening",
+    "capstone.agent.investigation:required_question_gaps",
     "capstone.agent.investigation:screening_tick",
     "capstone.agent.investigation:triage_clearance_gaps",
     "capstone.agent.investigation:triage_rival_gaps",
@@ -116082,7 +116091,7 @@
     "capstone.agent.loop:InvestigationDeps.__post_init__",
     "capstone.agent.state:Budgets.research_gets_some_time"
    ],
-   "exercise_count": 15,
+   "exercise_count": 16,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.evidence_tests",
@@ -116124,6 +116133,7 @@
     "capstone.agent.investigation:conclusion_gaps",
     "capstone.agent.investigation:latest_roster",
     "capstone.agent.investigation:latest_screening",
+    "capstone.agent.investigation:required_question_gaps",
     "capstone.agent.investigation:screening_tick",
     "capstone.agent.investigation:triage_clearance_gaps",
     "capstone.agent.investigation:triage_rival_gaps",
@@ -116132,7 +116142,7 @@
     "capstone.agent.loop:InvestigationDeps.__post_init__",
     "capstone.agent.state:Budgets.research_gets_some_time"
    ],
-   "exercise_count": 15,
+   "exercise_count": 16,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.evidence_tests",
@@ -116174,6 +116184,7 @@
     "capstone.agent.investigation:conclusion_gaps",
     "capstone.agent.investigation:latest_roster",
     "capstone.agent.investigation:latest_screening",
+    "capstone.agent.investigation:required_question_gaps",
     "capstone.agent.investigation:screening_tick",
     "capstone.agent.investigation:triage_clearance_gaps",
     "capstone.agent.investigation:triage_rival_gaps",
@@ -116181,7 +116192,7 @@
     "capstone.agent.loop:InvestigationDeps.__post_init__",
     "capstone.agent.state:Budgets.research_gets_some_time"
    ],
-   "exercise_count": 14,
+   "exercise_count": 15,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.evidence_tests",
@@ -116224,6 +116235,7 @@
     "capstone.agent.investigation:conclusion_gaps",
     "capstone.agent.investigation:latest_roster",
     "capstone.agent.investigation:latest_screening",
+    "capstone.agent.investigation:required_question_gaps",
     "capstone.agent.investigation:screening_tick",
     "capstone.agent.investigation:triage_clearance_gaps",
     "capstone.agent.investigation:triage_rival_gaps",
@@ -116231,7 +116243,7 @@
     "capstone.agent.loop:InvestigationDeps.__post_init__",
     "capstone.agent.state:Budgets.research_gets_some_time"
    ],
-   "exercise_count": 14,
+   "exercise_count": 15,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.evidence_tests",
@@ -116342,6 +116354,7 @@
     "capstone.agent.investigation:conclusion_gaps",
     "capstone.agent.investigation:latest_roster",
     "capstone.agent.investigation:latest_screening",
+    "capstone.agent.investigation:required_question_gaps",
     "capstone.agent.investigation:screening_tick",
     "capstone.agent.investigation:triage_clearance_gaps",
     "capstone.agent.investigation:triage_rival_gaps",
@@ -116350,7 +116363,7 @@
     "capstone.agent.loop:InvestigationDeps.__post_init__",
     "capstone.agent.state:Budgets.research_gets_some_time"
    ],
-   "exercise_count": 15,
+   "exercise_count": 16,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.evidence_tests",
@@ -116392,6 +116405,7 @@
     "capstone.agent.investigation:conclusion_gaps",
     "capstone.agent.investigation:latest_roster",
     "capstone.agent.investigation:latest_screening",
+    "capstone.agent.investigation:required_question_gaps",
     "capstone.agent.investigation:screening_tick",
     "capstone.agent.investigation:triage_clearance_gaps",
     "capstone.agent.investigation:triage_rival_gaps",
@@ -116399,7 +116413,7 @@
     "capstone.agent.loop:InvestigationDeps.__post_init__",
     "capstone.agent.state:Budgets.research_gets_some_time"
    ],
-   "exercise_count": 14,
+   "exercise_count": 15,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.evidence_tests",
@@ -116442,6 +116456,7 @@
     "capstone.agent.investigation:conclusion_gaps",
     "capstone.agent.investigation:latest_roster",
     "capstone.agent.investigation:latest_screening",
+    "capstone.agent.investigation:required_question_gaps",
     "capstone.agent.investigation:screening_tick",
     "capstone.agent.investigation:triage_clearance_gaps",
     "capstone.agent.investigation:triage_rival_gaps",
@@ -116450,7 +116465,7 @@
     "capstone.agent.loop:InvestigationDeps.__post_init__",
     "capstone.agent.state:Budgets.research_gets_some_time"
    ],
-   "exercise_count": 15,
+   "exercise_count": 16,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.evidence_tests",
@@ -116490,12 +116505,13 @@
     "capstone.agent.investigation:check_conclusion",
     "capstone.agent.investigation:cites_measurement",
     "capstone.agent.investigation:conclusion_gaps",
+    "capstone.agent.investigation:required_question_gaps",
     "capstone.agent.investigation:triage_clearance_gaps",
     "capstone.agent.investigation:triage_rival_gaps",
     "capstone.agent.loop:InvestigationDeps.__post_init__",
     "capstone.agent.state:Budgets.research_gets_some_time"
    ],
-   "exercise_count": 10,
+   "exercise_count": 11,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.evidence_tests",
@@ -116586,6 +116602,532 @@
     "capstone.agent.investigation",
     "capstone.agent.loop",
     "capstone.agent.state"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_triage_clearance_questions.py::test_an_open_trigger_question_blocks_the_clearance",
+   "file": "tests/test_triage_clearance_questions.py",
+   "name": "test_an_open_trigger_question_blocks_the_clearance",
+   "line": 76,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 7,
+   "assert_forms": {
+    "call_truthiness": 1,
+    "equality": 6
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "an open trigger question blocks the clearance",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.agent.evidence_brief:observations",
+    "capstone.agent.evidence_brief:verify_numeric_claims",
+    "capstone.agent.evidence_tests:evaluate",
+    "capstone.agent.evidence_tests:judge",
+    "capstone.agent.evidence_tests:note",
+    "capstone.agent.evidence_tests:open_rival_questions",
+    "capstone.agent.evidence_tests:physical_root",
+    "capstone.agent.evidence_tests:reading_rows",
+    "capstone.agent.evidence_tests:root_of",
+    "capstone.agent.investigation:check_conclusion",
+    "capstone.agent.investigation:cites_measurement",
+    "capstone.agent.investigation:conclusion_gaps",
+    "capstone.agent.investigation:latest_roster",
+    "capstone.agent.investigation:latest_screening",
+    "capstone.agent.investigation:needs_deep_run",
+    "capstone.agent.investigation:required_question_gaps",
+    "capstone.agent.investigation:screening_tick",
+    "capstone.agent.investigation:triage_clearance_gaps",
+    "capstone.agent.investigation:triage_rival_gaps",
+    "capstone.agent.investigation:unresolved_confidence",
+    "capstone.agent.investigation:unscored_machines",
+    "capstone.agent.loop:InvestigationDeps.__post_init__",
+    "capstone.agent.state:Budgets.research_gets_some_time"
+   ],
+   "exercise_count": 23,
+   "modules_exercised": [
+    "capstone.agent.evidence_brief",
+    "capstone.agent.evidence_tests",
+    "capstone.agent.investigation",
+    "capstone.agent.loop",
+    "capstone.agent.state"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_triage_clearance_questions.py::test_a_closed_question_whose_predicate_is_unsettled_still_blocks",
+   "file": "tests/test_triage_clearance_questions.py",
+   "name": "test_a_closed_question_whose_predicate_is_unsettled_still_blocks",
+   "line": 90,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 2,
+   "assert_forms": {
+    "equality": 2
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "a closed question whose predicate is unsettled still blocks",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.agent.evidence_brief:observations",
+    "capstone.agent.evidence_brief:verify_numeric_claims",
+    "capstone.agent.evidence_tests:evaluate",
+    "capstone.agent.evidence_tests:judge",
+    "capstone.agent.evidence_tests:note",
+    "capstone.agent.evidence_tests:open_rival_questions",
+    "capstone.agent.evidence_tests:physical_root",
+    "capstone.agent.evidence_tests:reading_rows",
+    "capstone.agent.evidence_tests:root_of",
+    "capstone.agent.evidence_tests:statistic_of",
+    "capstone.agent.investigation:check_conclusion",
+    "capstone.agent.investigation:cites_measurement",
+    "capstone.agent.investigation:conclusion_gaps",
+    "capstone.agent.investigation:latest_roster",
+    "capstone.agent.investigation:latest_screening",
+    "capstone.agent.investigation:required_question_gaps",
+    "capstone.agent.investigation:screening_tick",
+    "capstone.agent.investigation:triage_clearance_gaps",
+    "capstone.agent.investigation:triage_rival_gaps",
+    "capstone.agent.investigation:unresolved_confidence",
+    "capstone.agent.investigation:unscored_machines",
+    "capstone.agent.loop:InvestigationDeps.__post_init__",
+    "capstone.agent.state:Budgets.research_gets_some_time"
+   ],
+   "exercise_count": 23,
+   "modules_exercised": [
+    "capstone.agent.evidence_brief",
+    "capstone.agent.evidence_tests",
+    "capstone.agent.investigation",
+    "capstone.agent.loop",
+    "capstone.agent.state"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_triage_clearance_questions.py::test_a_trigger_settled_as_a_spike_still_clears",
+   "file": "tests/test_triage_clearance_questions.py",
+   "name": "test_a_trigger_settled_as_a_spike_still_clears",
+   "line": 98,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 5,
+   "assert_forms": {
+    "equality": 4,
+    "negation": 1
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "a trigger settled as a spike still clears",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.agent.evidence_brief:observations",
+    "capstone.agent.evidence_brief:verify_numeric_claims",
+    "capstone.agent.evidence_tests:evaluate",
+    "capstone.agent.evidence_tests:judge",
+    "capstone.agent.evidence_tests:open_rival_questions",
+    "capstone.agent.evidence_tests:physical_root",
+    "capstone.agent.evidence_tests:reading_rows",
+    "capstone.agent.evidence_tests:root_of",
+    "capstone.agent.evidence_tests:statistic_of",
+    "capstone.agent.investigation:check_conclusion",
+    "capstone.agent.investigation:cites_measurement",
+    "capstone.agent.investigation:conclusion_gaps",
+    "capstone.agent.investigation:latest_roster",
+    "capstone.agent.investigation:latest_screening",
+    "capstone.agent.investigation:needs_deep_run",
+    "capstone.agent.investigation:required_question_gaps",
+    "capstone.agent.investigation:screening_tick",
+    "capstone.agent.investigation:triage_clearance_gaps",
+    "capstone.agent.investigation:triage_rival_gaps",
+    "capstone.agent.investigation:unscored_machines",
+    "capstone.agent.loop:InvestigationDeps.__post_init__",
+    "capstone.agent.state:Budgets.research_gets_some_time"
+   ],
+   "exercise_count": 22,
+   "modules_exercised": [
+    "capstone.agent.evidence_brief",
+    "capstone.agent.evidence_tests",
+    "capstone.agent.investigation",
+    "capstone.agent.loop",
+    "capstone.agent.state"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_triage_clearance_questions.py::test_a_question_still_open_blocks_even_with_a_settled_verdict",
+   "file": "tests/test_triage_clearance_questions.py",
+   "name": "test_a_question_still_open_blocks_even_with_a_settled_verdict",
+   "line": 108,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 2,
+   "assert_forms": {
+    "equality": 2
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "a question still open blocks even with a settled verdict",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.agent.evidence_brief:observations",
+    "capstone.agent.evidence_brief:verify_numeric_claims",
+    "capstone.agent.evidence_tests:evaluate",
+    "capstone.agent.evidence_tests:judge",
+    "capstone.agent.evidence_tests:note",
+    "capstone.agent.evidence_tests:open_rival_questions",
+    "capstone.agent.evidence_tests:physical_root",
+    "capstone.agent.evidence_tests:reading_rows",
+    "capstone.agent.evidence_tests:root_of",
+    "capstone.agent.evidence_tests:statistic_of",
+    "capstone.agent.investigation:check_conclusion",
+    "capstone.agent.investigation:cites_measurement",
+    "capstone.agent.investigation:conclusion_gaps",
+    "capstone.agent.investigation:latest_roster",
+    "capstone.agent.investigation:latest_screening",
+    "capstone.agent.investigation:required_question_gaps",
+    "capstone.agent.investigation:screening_tick",
+    "capstone.agent.investigation:triage_clearance_gaps",
+    "capstone.agent.investigation:triage_rival_gaps",
+    "capstone.agent.investigation:unresolved_confidence",
+    "capstone.agent.investigation:unscored_machines",
+    "capstone.agent.loop:InvestigationDeps.__post_init__",
+    "capstone.agent.state:Budgets.research_gets_some_time"
+   ],
+   "exercise_count": 23,
+   "modules_exercised": [
+    "capstone.agent.evidence_brief",
+    "capstone.agent.evidence_tests",
+    "capstone.agent.investigation",
+    "capstone.agent.loop",
+    "capstone.agent.state"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_triage_clearance_questions.py::test_a_question_without_a_predicate_is_not_required",
+   "file": "tests/test_triage_clearance_questions.py",
+   "name": "test_a_question_without_a_predicate_is_not_required",
+   "line": 117,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 2,
+   "assert_forms": {
+    "equality": 2
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "a question without a predicate is not required",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.agent.evidence_brief:observations",
+    "capstone.agent.evidence_brief:verify_numeric_claims",
+    "capstone.agent.evidence_tests:open_rival_questions",
+    "capstone.agent.investigation:check_conclusion",
+    "capstone.agent.investigation:cites_measurement",
+    "capstone.agent.investigation:conclusion_gaps",
+    "capstone.agent.investigation:latest_roster",
+    "capstone.agent.investigation:latest_screening",
+    "capstone.agent.investigation:required_question_gaps",
+    "capstone.agent.investigation:screening_tick",
+    "capstone.agent.investigation:triage_clearance_gaps",
+    "capstone.agent.investigation:triage_rival_gaps",
+    "capstone.agent.investigation:unscored_machines",
+    "capstone.agent.loop:InvestigationDeps.__post_init__",
+    "capstone.agent.state:Budgets.research_gets_some_time"
+   ],
+   "exercise_count": 15,
+   "modules_exercised": [
+    "capstone.agent.evidence_brief",
+    "capstone.agent.evidence_tests",
+    "capstone.agent.investigation",
+    "capstone.agent.loop",
+    "capstone.agent.state"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_triage_clearance_questions.py::test_answers_that_clear_nothing_are_untouched",
+   "file": "tests/test_triage_clearance_questions.py",
+   "name": "test_answers_that_clear_nothing_are_untouched",
+   "line": 126,
+   "docstring": "",
+   "parametrized": true,
+   "fixtures": [
+    "recommendation"
+   ],
+   "assertions": 2,
+   "assert_forms": {
+    "equality": 1,
+    "membership": 1
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "answers that clear nothing are untouched",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.agent.evidence_brief:observations",
+    "capstone.agent.evidence_brief:verify_numeric_claims",
+    "capstone.agent.evidence_tests:open_rival_questions",
+    "capstone.agent.investigation:check_conclusion",
+    "capstone.agent.investigation:conclusion_gaps",
+    "capstone.agent.investigation:triage_clearance_gaps",
+    "capstone.agent.investigation:triage_rival_gaps",
+    "capstone.agent.investigation:why_not_acted",
+    "capstone.agent.loop:InvestigationDeps.__post_init__",
+    "capstone.agent.state:Budgets.research_gets_some_time"
+   ],
+   "exercise_count": 10,
+   "modules_exercised": [
+    "capstone.agent.evidence_brief",
+    "capstone.agent.evidence_tests",
+    "capstone.agent.investigation",
+    "capstone.agent.loop",
+    "capstone.agent.state"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_triage_clearance_questions.py::test_a_deep_run_is_unchanged",
+   "file": "tests/test_triage_clearance_questions.py",
+   "name": "test_a_deep_run_is_unchanged",
+   "line": 133,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 2,
+   "assert_forms": {
+    "equality": 2
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "a deep run is unchanged",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.agent.evidence_brief:observations",
+    "capstone.agent.evidence_brief:verify_numeric_claims",
+    "capstone.agent.investigation:check_conclusion",
+    "capstone.agent.investigation:conclusion_gaps",
+    "capstone.agent.loop:InvestigationDeps.__post_init__",
+    "capstone.agent.state:Budgets.research_gets_some_time"
+   ],
+   "exercise_count": 6,
+   "modules_exercised": [
+    "capstone.agent.evidence_brief",
+    "capstone.agent.investigation",
+    "capstone.agent.loop",
+    "capstone.agent.state"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_triage_clearance_questions.py::test_the_old_triage_rules_do_not_apply_it",
+   "file": "tests/test_triage_clearance_questions.py",
+   "name": "test_the_old_triage_rules_do_not_apply_it",
+   "line": 141,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 2,
+   "assert_forms": {
+    "equality": 2
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "the old triage rules do not apply it",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.agent.evidence_brief:observations",
+    "capstone.agent.evidence_brief:verify_numeric_claims",
+    "capstone.agent.investigation:check_conclusion",
+    "capstone.agent.investigation:cites_measurement",
+    "capstone.agent.investigation:conclusion_gaps",
+    "capstone.agent.investigation:latest_roster",
+    "capstone.agent.investigation:latest_screening",
+    "capstone.agent.investigation:screening_tick",
+    "capstone.agent.investigation:triage_clearance_gaps",
+    "capstone.agent.investigation:triage_rival_gaps",
+    "capstone.agent.investigation:unscored_machines",
+    "capstone.agent.loop:InvestigationDeps.__post_init__",
+    "capstone.agent.state:Budgets.research_gets_some_time"
+   ],
+   "exercise_count": 13,
+   "modules_exercised": [
+    "capstone.agent.evidence_brief",
+    "capstone.agent.investigation",
+    "capstone.agent.loop",
+    "capstone.agent.state"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_triage_clearance_questions.py::test_the_report_counts_withheld_clearances",
+   "file": "tests/test_triage_clearance_questions.py",
+   "name": "test_the_report_counts_withheld_clearances",
+   "line": 148,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [
+    "monkeypatch"
+   ],
+   "assertions": 2,
+   "assert_forms": {
+    "membership": 2
+   },
+   "raises_checks": 0,
+   "uses": [
+    "monkeypatch"
+   ],
+   "quality_flags": [
+    "patches_dependencies"
+   ],
+   "claims": "the report counts withheld clearances",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.agent.evidence_brief:observations",
+    "capstone.agent.evidence_brief:verify_numeric_claims",
+    "capstone.agent.evidence_tests:note",
+    "capstone.agent.evidence_tests:open_rival_questions",
+    "capstone.agent.evidence_tests:physical_root",
+    "capstone.agent.evidence_tests:root_of",
+    "capstone.agent.evidence_tests:source_roots",
+    "capstone.agent.investigate_compiler:compile_requests",
+    "capstone.agent.investigate_compiler:escape_reason",
+    "capstone.agent.investigate_compiler:known_machines",
+    "capstone.agent.investigate_compiler:model_target",
+    "capstone.agent.investigate_compiler:observed_windows",
+    "capstone.agent.investigation:build_graph",
+    "capstone.agent.investigation:build_graph.<locals>.conclude_step",
+    "capstone.agent.investigation:build_graph.<locals>.critique_step",
+    "capstone.agent.investigation:build_graph.<locals>.execute_step",
+    "capstone.agent.investigation:build_graph.<locals>.hypothesize_step",
+    "capstone.agent.investigation:build_graph.<locals>.investigate_step",
+    "capstone.agent.investigation:build_graph.<locals>.manual_step",
+    "capstone.agent.investigation:build_graph.<locals>.observe_step",
+    "capstone.agent.investigation:build_graph.<locals>.plan_step",
+    "capstone.agent.investigation:build_graph.<locals>.propose_step",
+    "capstone.agent.investigation:build_graph.<locals>.recheck_step",
+    "capstone.agent.investigation:build_graph.<locals>.staged",
+    "capstone.agent.investigation:build_graph.<locals>.test_step",
+    "capstone.agent.investigation:build_graph.<locals>.verify_step",
+    "capstone.agent.investigation:check_conclusion",
+    "capstone.agent.investigation:conclude",
+    "capstone.agent.investigation:consult_manual",
+    "capstone.agent.investigation:critic_view",
+    "capstone.agent.investigation:critique",
+    "capstone.agent.investigation:execute",
+    "capstone.agent.investigation:factory_changed",
+    "capstone.agent.investigation:followup_call",
+    "capstone.agent.investigation:gathered_in",
+    "capstone.agent.investigation:hypothesize",
+    "capstone.agent.investigation:investigate",
+    "capstone.agent.investigation:needs_deep_run",
+    "capstone.agent.investigation:observe",
+    "capstone.agent.investigation:plan"
+   ],
+   "exercise_count": 240,
+   "modules_exercised": [
+    "capstone.agent.evidence_brief",
+    "capstone.agent.evidence_tests",
+    "capstone.agent.investigate_compiler",
+    "capstone.agent.investigation",
+    "capstone.agent.loop",
+    "capstone.agent.monitor",
+    "capstone.agent.state",
+    "capstone.agent.triage_packet",
+    "capstone.agent.triage_report",
+    "capstone.contracts.investigations",
+    "capstone.contracts.tools",
+    "capstone.episode",
+    "capstone.evaluation.scoring",
+    "capstone.evaluation.triage_metrics",
+    "capstone.experiment",
+    "capstone.faults",
+    "capstone.providers.factory",
+    "capstone.settings",
+    "capstone.simulator.clock",
+    "capstone.simulator.events",
+    "capstone.simulator.generator",
+    "capstone.simulator.line",
+    "capstone.simulator.maintenance",
+    "capstone.simulator.rng",
+    "capstone.simulator.scenarios",
+    "capstone.simulator.sensors",
+    "capstone.simulator.simulator",
+    "capstone.simulator.state",
+    "capstone.simulator.thermal",
+    "capstone.tools.actions",
+    "capstone.tools.observation",
+    "capstone.tools.screening"
    ],
    "judgment": "NOT ASSESSED",
    "curated": {},
@@ -122308,6 +122850,7 @@
     "capstone.agent.investigation:latest_roster",
     "capstone.agent.investigation:latest_screening",
     "capstone.agent.investigation:question_role",
+    "capstone.agent.investigation:required_question_gaps",
     "capstone.agent.investigation:screening_tick",
     "capstone.agent.investigation:triage_clearance_gaps",
     "capstone.agent.investigation:triage_rival_gaps",
@@ -122316,7 +122859,7 @@
     "capstone.agent.loop:InvestigationDeps.__post_init__",
     "capstone.agent.state:Budgets.research_gets_some_time"
    ],
-   "exercise_count": 17,
+   "exercise_count": 18,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.evidence_tests",
@@ -122360,6 +122903,7 @@
     "capstone.agent.investigation:latest_roster",
     "capstone.agent.investigation:latest_screening",
     "capstone.agent.investigation:needs_deep_run",
+    "capstone.agent.investigation:required_question_gaps",
     "capstone.agent.investigation:screening_tick",
     "capstone.agent.investigation:triage_clearance_gaps",
     "capstone.agent.investigation:triage_rival_gaps",
@@ -122367,7 +122911,7 @@
     "capstone.agent.loop:InvestigationDeps.__post_init__",
     "capstone.agent.state:Budgets.research_gets_some_time"
    ],
-   "exercise_count": 15,
+   "exercise_count": 16,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.evidence_tests",
@@ -126683,6 +127227,7 @@
     "capstone.agent.investigation:conclusion_gaps",
     "capstone.agent.investigation:latest_roster",
     "capstone.agent.investigation:latest_screening",
+    "capstone.agent.investigation:required_question_gaps",
     "capstone.agent.investigation:screening_tick",
     "capstone.agent.investigation:triage_clearance_gaps",
     "capstone.agent.investigation:triage_rival_gaps",
@@ -126696,7 +127241,7 @@
     "capstone.progress:report_lines",
     "capstone.progress:shorten"
    ],
-   "exercise_count": 20,
+   "exercise_count": 21,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.evidence_tests",
@@ -130442,6 +130987,7 @@
     "capstone.agent.investigation:conclusion_gaps",
     "capstone.agent.investigation:latest_roster",
     "capstone.agent.investigation:latest_screening",
+    "capstone.agent.investigation:required_question_gaps",
     "capstone.agent.investigation:screening_tick",
     "capstone.agent.investigation:triage_clearance_gaps",
     "capstone.agent.investigation:triage_rival_gaps",
@@ -130453,7 +130999,7 @@
     "capstone.agent.triage_report:finding",
     "capstone.agent.triage_report:report_outcome"
    ],
-   "exercise_count": 18,
+   "exercise_count": 19,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.evidence_tests",
@@ -130497,6 +131043,7 @@
     "capstone.agent.investigation:conclusion_gaps",
     "capstone.agent.investigation:latest_roster",
     "capstone.agent.investigation:latest_screening",
+    "capstone.agent.investigation:required_question_gaps",
     "capstone.agent.investigation:screening_tick",
     "capstone.agent.investigation:triage_clearance_gaps",
     "capstone.agent.investigation:triage_rival_gaps",
@@ -130507,7 +131054,7 @@
     "capstone.agent.triage_report:finding",
     "capstone.agent.triage_report:report_outcome"
    ],
-   "exercise_count": 17,
+   "exercise_count": 18,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.evidence_tests",
@@ -130772,6 +131319,7 @@
     "capstone.agent.investigation:conclusion_gaps",
     "capstone.agent.investigation:latest_roster",
     "capstone.agent.investigation:latest_screening",
+    "capstone.agent.investigation:required_question_gaps",
     "capstone.agent.investigation:screening_tick",
     "capstone.agent.investigation:triage_clearance_gaps",
     "capstone.agent.investigation:triage_rival_gaps",
@@ -130780,7 +131328,7 @@
     "capstone.agent.loop:InvestigationDeps.__post_init__",
     "capstone.agent.state:Budgets.research_gets_some_time"
    ],
-   "exercise_count": 15,
+   "exercise_count": 16,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.evidence_tests",
@@ -130823,6 +131371,7 @@
     "capstone.agent.investigation:latest_roster",
     "capstone.agent.investigation:latest_screening",
     "capstone.agent.investigation:needs_deep_run",
+    "capstone.agent.investigation:required_question_gaps",
     "capstone.agent.investigation:screening_tick",
     "capstone.agent.investigation:triage_clearance_gaps",
     "capstone.agent.investigation:triage_rival_gaps",
@@ -130830,7 +131379,7 @@
     "capstone.agent.loop:InvestigationDeps.__post_init__",
     "capstone.agent.state:Budgets.research_gets_some_time"
    ],
-   "exercise_count": 15,
+   "exercise_count": 16,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.evidence_tests",
@@ -130872,6 +131421,7 @@
     "capstone.agent.investigation:conclusion_gaps",
     "capstone.agent.investigation:latest_roster",
     "capstone.agent.investigation:latest_screening",
+    "capstone.agent.investigation:required_question_gaps",
     "capstone.agent.investigation:screening_tick",
     "capstone.agent.investigation:triage_clearance_gaps",
     "capstone.agent.investigation:triage_rival_gaps",
@@ -130880,7 +131430,7 @@
     "capstone.agent.loop:InvestigationDeps.__post_init__",
     "capstone.agent.state:Budgets.research_gets_some_time"
    ],
-   "exercise_count": 15,
+   "exercise_count": 16,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.evidence_tests",
@@ -130922,6 +131472,7 @@
     "capstone.agent.investigation:conclusion_gaps",
     "capstone.agent.investigation:latest_roster",
     "capstone.agent.investigation:latest_screening",
+    "capstone.agent.investigation:required_question_gaps",
     "capstone.agent.investigation:screening_tick",
     "capstone.agent.investigation:triage_clearance_gaps",
     "capstone.agent.investigation:triage_rival_gaps",
@@ -130930,7 +131481,7 @@
     "capstone.agent.loop:InvestigationDeps.__post_init__",
     "capstone.agent.state:Budgets.research_gets_some_time"
    ],
-   "exercise_count": 15,
+   "exercise_count": 16,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.evidence_tests",
@@ -130974,6 +131525,7 @@
     "capstone.agent.investigation:latest_roster",
     "capstone.agent.investigation:latest_screening",
     "capstone.agent.investigation:question_role",
+    "capstone.agent.investigation:required_question_gaps",
     "capstone.agent.investigation:screening_tick",
     "capstone.agent.investigation:triage_clearance_gaps",
     "capstone.agent.investigation:triage_rival_gaps",
@@ -130982,7 +131534,7 @@
     "capstone.agent.loop:InvestigationDeps.__post_init__",
     "capstone.agent.state:Budgets.research_gets_some_time"
    ],
-   "exercise_count": 17,
+   "exercise_count": 18,
    "modules_exercised": [
     "capstone.agent.evidence_brief",
     "capstone.agent.evidence_tests",
