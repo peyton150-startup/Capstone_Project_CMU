@@ -391,9 +391,9 @@ def test_different_batches_are_reported_as_different_not_shared():
                 {
                     "tick": 30,
                     "job_id": request.arguments["job_id"],
-                    "machine_id": (
-                        "CNC-02" if request.arguments["job_id"] == 10 else "CNC-04"
-                    ),
+                    "machine_id": "CNC-02"
+                    if request.arguments["job_id"] == 10
+                    else "CNC-04",
                     "kind": "job_started",
                 }
             ]
