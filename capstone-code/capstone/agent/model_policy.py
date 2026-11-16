@@ -590,6 +590,8 @@ def render(state: InvestigationState) -> str:
                 f"evidence {', '.join(result.evidence_ids) or 'none'}; {result.reason}"
             )
         lines.append("An incomplete requirement is unknown, not a negative finding.")
+        for question_id, gap in sorted(state.triage_question_gaps.items()):
+            lines.append(f"- unresolved {question_id}: {gap}")
 
     lines += ["", evidence_brief(state), "", *evidence_section(state)]
 

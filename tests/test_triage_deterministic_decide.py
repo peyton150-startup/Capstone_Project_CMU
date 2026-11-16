@@ -107,7 +107,8 @@ def test_no_decide_or_interpret_model_call_even_on_final_read(step_questions):
     assert reason is TerminationReason.NO_USEFUL_ACTION
     assert state.triage_decide_trace[-1].reason == "data_insufficient"
     assert state.triage_deterministic_reads == len(provider.calls)
-    assert "Q5" not in {q.id for q in state.unanswered_questions}
+    assert "Q5" in {q.id for q in state.unanswered_questions}
+    assert "co-movement" in state.triage_question_gaps["Q5"]
     assert "Q4" in {q.id for q in state.unanswered_questions}
 
 
@@ -390,7 +391,9 @@ def test_different_batches_are_reported_as_different_not_shared():
                 {
                     "tick": 30,
                     "job_id": request.arguments["job_id"],
-                    "machine_id": "CNC-02" if request.arguments["job_id"] == 10 else "CNC-04",
+                    "machine_id": (
+                        "CNC-02" if request.arguments["job_id"] == 10 else "CNC-04"
+                    ),
                     "kind": "job_started",
                 }
             ]
@@ -400,7 +403,9 @@ def test_different_batches_are_reported_as_different_not_shared():
         tool_spec(name)
         for name in ("get_inspections", "get_job_history", "get_settings", "get_events")
     )
-    run_inner_loop(state, deps_for(FakeProvider(records, tick=45), tools=tools), "investigate")
+    run_inner_loop(
+        state, deps_for(FakeProvider(records, tick=45), tools=tools), "investigate"
+    )
     assert "Q2" in state.answers
     assert "different batch" in state.triage_requirement_results["Q2:inspections"].reason
     assert "Q1" in state.answers
@@ -424,7 +429,11 @@ def test_missing_batch_id_keeps_comparison_unresolved():
             ]
         if request.name == "get_job_history":
             return [
-                {"tick": 30, "job_id": request.arguments["job_id"], "machine_id": "CNC-02"}
+                {
+                    "tick": 30,
+                    "job_id": request.arguments["job_id"],
+                    "machine_id": "CNC-02",
+                }
             ]
         return []
 
@@ -432,7 +441,9 @@ def test_missing_batch_id_keeps_comparison_unresolved():
         tool_spec(name)
         for name in ("get_inspections", "get_job_history", "get_settings", "get_events")
     )
-    run_inner_loop(state, deps_for(FakeProvider(records, tick=45), tools=tools), "investigate")
+    run_inner_loop(
+        state, deps_for(FakeProvider(records, tick=45), tools=tools), "investigate"
+    )
     assert "Q2" in {q.id for q in state.unanswered_questions}
     assert state.triage_requirement_results["Q2:inspections"].status == "insufficient"
 
@@ -442,13 +453,17 @@ def test_unequal_summary_windows_cannot_settle_vibration_q5():
 
     def different_windows(request):
         data = answer(request)
-        if request.name == "get_sensor_summary" and request.arguments["sensor"] == "load":
+        if (
+            request.name == "get_sensor_summary"
+            and request.arguments["sensor"] == "load"
+        ):
             data["first_tick"] = 30
         return data
 
     run_inner_loop(state, deps_for(FakeProvider(different_windows, tick=45)), "investigate")
     assert "Q5" in {q.id for q in state.unanswered_questions}
     assert state.triage_requirement_results["Q5:load"].status == "partial"
+    assert "noncomparable" in state.triage_question_gaps["Q5"]
 
 
 def test_different_endpoint_directions_are_explicitly_not_co_movement():
@@ -456,10 +471,41 @@ def test_different_endpoint_directions_are_explicitly_not_co_movement():
 
     def divergent(request):
         data = answer(request)
-        if request.name == "get_sensor_summary" and request.arguments["sensor"] == "load":
+        if (
+            request.name == "get_sensor_summary"
+            and request.arguments["sensor"] == "load"
+        ):
             data["delta"] = -0.2
         return data
 
     run_inner_loop(state, deps_for(FakeProvider(divergent, tick=45)), "investigate")
-    assert "Q5" in state.answers
+    assert "Q5" in {q.id for q in state.unanswered_questions}
     assert "directions differ" in state.triage_requirement_results["Q5:load"].reason
+    assert "co-movement" in state.triage_question_gaps["Q5"]
+
+
+def test_q1_requires_real_time_span_not_only_sample_count():
+    """Too many readings packed into a short interval cannot settle the trigger."""
+    state = state_for()
+
+    def short_span(request):
+        data = answer(request)
+        if request.name == "get_sensor_summary":
+            data.update(first_tick=39, last_tick=42)
+        return data
+
+    run_inner_loop(state, deps_for(FakeProvider(short_span, tick=45)), "investigate")
+    assert state.triage_requirement_results["Q1:trigger"].status == "insufficient"
+    assert "Q1" in {q.id for q in state.unanswered_questions}
+
+
+def test_qualified_aggregate_deltas_do_not_prove_q5_comovement():
+    """Three independently valid summaries cannot establish synchronous movement."""
+    state = state_for()
+    run_inner_loop(state, deps_for(FakeProvider(answer, tick=45)), "investigate")
+    assert all(
+        state.triage_requirement_results[f"Q5:{sensor}"].status == "satisfied"
+        for sensor in ("vibration", "temperature", "load")
+    )
+    assert "Q5" in {q.id for q in state.unanswered_questions}
+    assert "co-movement" in state.triage_question_gaps["Q5"]

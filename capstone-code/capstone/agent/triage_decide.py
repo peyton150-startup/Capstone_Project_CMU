@@ -253,6 +253,8 @@ def qualify(
     # Variables:
     #   matches: Observable evidence from the requested source at the cutoff.
     #   data: Parsed tool answer; shape and finite values must be checked.
+    #   first, last: Actual first and last observed sample ticks around the alarm.
+    #   best: Strongest predicate verdict based on sufficiently spread samples.
     matches = matching_evidence(state, requirement)
     if not matches:
         return RequirementResult()
@@ -384,6 +386,21 @@ def qualify(
     if predicate is not None and requirement.requirement_id.endswith(":trigger"):
         best = None
         for eid, data in matches:
+            # Requested windows and sample counts do not prove the measured
+            # samples actually span the triggering alarm.
+            if not isinstance(data, dict):
+                continue
+            first, last = data.get("first_tick"), data.get("last_tick")
+            if (
+                type(first) is not int
+                or type(last) is not int
+                or first > state.anomaly.tick
+                or last < state.anomaly.tick
+                or last - first < requirement.min_span_ticks
+                or first < predicate.from_tick
+                or last > predicate.to_tick
+            ):
+                continue
             evidence = next(e for e in state.evidence if e.id == eid)
             result = judge(predicate, evidence, data)
             if result.verdict in ("true", "false"):
@@ -396,10 +413,12 @@ def qualify(
             if best is None or RANK[result.verdict] >= RANK[best.verdict]:
                 best = result
         return RequirementResult(
-            status=best.verdict if best is not None else "unavailable",
+            status=best.verdict if best is not None else "insufficient",
             evidence_ids=ids,
-            valid_samples=best.sample_count or 0 if best is not None else 0,
-            reason=best.reason if best is not None else "no valid trigger reading",
+            valid_samples=(best.sample_count or 0) if best is not None else 0,
+            reason=best.reason
+            if best is not None
+            else "observed samples do not span the alarm and minimum sustain interval",
         )
     for eid, data in matches:
         if not isinstance(data, dict):
@@ -573,6 +592,8 @@ def evaluate_triage_requirements(state: InvestigationState) -> None:
     """Reconcile all requirements, attach shared evidence, and close only complete questions."""
     # Variables:
     #   by_question: Required parts of each question, evaluated independently.
+    #   movement: Q5's three source requirements, not proof of correlation.
+    #   all_qualified: Whether each source passes independently.
     expand_job_requirements(state)
     by_question: dict[str, list[str]] = {}
     for rid, requirement in state.triage_requirements.items():
@@ -589,9 +610,22 @@ def evaluate_triage_requirements(state: InvestigationState) -> None:
             )
         )
         state.triage_question_evidence[question_id] = evidence_ids
-        if all(
+        movement = {"Q5:vibration", "Q5:temperature", "Q5:load"}
+        all_qualified = all(
             state.triage_requirement_results[rid].status == "satisfied" for rid in ids
-        ):
+        )
+        if question_id == "Q5" and movement.issubset(ids):
+            # Even matching summary endpoints and signed deltas cannot
+            # demonstrate that sensors covaried at the same observation times.
+            state.triage_question_gaps[question_id] = (
+                "aggregate summaries cannot prove time-aligned vibration, "
+                "temperature and load co-movement"
+                if all_qualified
+                else "vibration, temperature and load evidence is incomplete or noncomparable"
+            )
+            continue
+        if all_qualified:
+            state.triage_question_gaps.pop(question_id, None)
             state.answers[question_id] = evidence_ids
             state.unanswered_questions = [
                 q for q in state.unanswered_questions if q.id != question_id
