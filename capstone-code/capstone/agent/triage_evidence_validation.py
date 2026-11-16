@@ -84,7 +84,11 @@ def _bad_number_or_tick(value: object, cutoff: int) -> EvidenceReason | None:
 
 
 def validate_triage_result(
-    result: ToolResult, request: ToolRequest, cutoff: int, *, min_result_tick: int | None = None
+    result: ToolResult,
+    request: ToolRequest,
+    cutoff: int,
+    *,
+    min_result_tick: int | None = None,
 ) -> EvidenceQualification:
     """Reject malformed or future data before the gather evidence append."""
 
