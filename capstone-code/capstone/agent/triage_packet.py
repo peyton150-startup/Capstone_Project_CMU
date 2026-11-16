@@ -43,7 +43,10 @@ from capstone.agent.incident_context import SENSOR_WORDS
 from capstone.agent.loop import InvestigationDeps, gather
 from capstone.agent.policy import CallTool
 from capstone.agent.state import InvestigationState
-from capstone.agent.triage_evidence_validation import validate_triage_result
+from capstone.agent.triage_evidence_validation import (
+    EvidenceQualification,
+    validate_triage_result,
+)
 from capstone.agent.untrusted import looks_like_instruction
 from capstone.contracts.evidence import Evidence
 from capstone.contracts.tools import ToolRequest
@@ -338,7 +341,19 @@ def optional_call(
     evidence = gather(
         state, deps, "observe", step, interpret=False, validate_result=validator
     )
-    if qualification is not None:
+    if validator is not None:
+        # A transport failure or duplicate never invokes the admission hook.
+        # It still needs a rejected, typed Observe audit record.
+        if qualification is None:
+            outcome = state.decisions[-1].outcome if state.decisions else None
+            reason = (
+                "repeated_call"
+                if outcome == "repeated_call"
+                else "provider_error"
+                if outcome == "tool_error" or deps.last_provider_exception
+                else "malformed_result"
+            )
+            qualification = EvidenceQualification(accepted=False, reason_code=reason)
         from hashlib import sha256
 
         from capstone.agent.triage_trace import emit_triage_event
