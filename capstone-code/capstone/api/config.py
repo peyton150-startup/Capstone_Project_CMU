@@ -45,16 +45,40 @@ class UiConfig:
                 "CAPSTONE_UI_TOKEN must be at least 24 characters for configured files"
             )
         if self.runs_enabled:
-            if self.run_db is None or self.run_token is None or self.review_token is None:
-                raise ValueError("Simulator runs need a database and distinct operator/reviewer tokens")
+            if (
+                self.run_db is None
+                or self.run_token is None
+                or self.review_token is None
+            ):
+                raise ValueError(
+                    "Simulator runs need a database and distinct operator/reviewer tokens"
+                )
             tokens = (self.token, self.run_token, self.review_token)
             if any(len(token or "") < 24 for token in tokens) or len(set(tokens)) != 3:
-                raise ValueError("Simulator tokens must be distinct, each at least 24 characters")
-        if self.evaluator and self.runs_enabled and (not self.evaluator_token or
-                len(self.evaluator_token) < 24 or self.evaluator_token in
-                (self.token, self.run_token, self.review_token)):
-            raise ValueError("Evaluator requires a distinct 24-character token when runs are enabled")
-        for path in (self.capture, self.mtconnect, self.audit, self.experiment, self.investigations, self.run_db):
+                raise ValueError(
+                    "Simulator tokens must be distinct, each at least 24 characters"
+                )
+        if (
+            self.evaluator
+            and self.runs_enabled
+            and (
+                not self.evaluator_token
+                or len(self.evaluator_token) < 24
+                or self.evaluator_token
+                in (self.token, self.run_token, self.review_token)
+            )
+        ):
+            raise ValueError(
+                "Evaluator requires a distinct 24-character token when runs are enabled"
+            )
+        for path in (
+            self.capture,
+            self.mtconnect,
+            self.audit,
+            self.experiment,
+            self.investigations,
+            self.run_db,
+        ):
             if path is not None and not path.is_absolute():
                 raise ValueError(
                     "UI source paths must be absolute and configured server-side"
