@@ -431,9 +431,10 @@ def safe_scorecards(path: Path | None) -> list[dict[str, Any]]:
     Missing labels stay None; never coerce an unjudged case to a failure.
     """
     rows: list[dict[str, Any]] = []
-    keys = ("fault_correct", "target_correct", "action_correct",
-            "recommendation_correct", "resolved", "tool_calls", "ticks_elapsed",
-            "iterations", "causes_found", "wrong_causes", "causes_resolved")
+    booleans = ("fault_correct", "target_correct", "action_correct",
+                "recommendation_correct", "resolved")
+    nonnegative = ("tool_calls", "ticks_elapsed", "iterations", "causes_found",
+                   "wrong_causes", "causes_resolved")
     for line in recent_lines(path, limit=300):
         try:
             record = json.loads(line)
@@ -445,11 +446,16 @@ def safe_scorecards(path: Path | None) -> list[dict[str, Any]]:
         if not isinstance(score, dict):
             continue
         row = {"id": record["run_key"][:100]}
-        row.update({key: score.get(key) for key in keys})
+        # Validate primitive types before projecting. Never echo arbitrary text.
+        row.update({key: score.get(key) if isinstance(score.get(key), bool) else None
+                    for key in booleans})
+        row.update({key: score.get(key)
+                    if type(score.get(key)) is int and score[key] >= 0 else None
+                    for key in nonnegative})
         relevant = score.get("relevant_evidence")
         collected = score.get("relevant_evidence_collected")
         row["relevant_evidence_count"] = len(relevant) if isinstance(relevant, list) else None
         row["evidence_collected_count"] = len(collected) if isinstance(collected, list) else None
-        row["judged"] = score.get("fault_correct") is not None
+        row["judged"] = row["fault_correct"] is not None
         rows.append(row)
     return list(reversed(rows))
