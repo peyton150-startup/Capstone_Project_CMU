@@ -30,6 +30,12 @@
   "capstone-code/capstone/agent/triage_report.py": "5a158286dd6641d45002d4d434601ae415a7ae66649ba04f0ca2163ad487523b",
   "capstone-code/capstone/agent/triage_requirements.py": "486a0dbdbd899a3c92d911e2826479d63adec37de2205beeb7b2da89ba914a69",
   "capstone-code/capstone/agent/untrusted.py": "52df6f8d3c1df4b56d114ca2301dc914d1162ea4e803805afaa4aaa1c5775eaa",
+  "capstone-code/capstone/api/__init__.py": "80048330132f513c0d31f990cf23d55d0d66b0363708fda5274cecd6b41e3e8a",
+  "capstone-code/capstone/api/__main__.py": "d239de65298216c0e8a9545d5ce24ff080703639c1bb9cb10c6b9c38933ac372",
+  "capstone-code/capstone/api/app.py": "c585141689549dcf171092df2a5c8e6a5b52b02e54b2b89765be55d348a389f2",
+  "capstone-code/capstone/api/config.py": "2d864973b536ae5b82684c4ee325ef3bba2c7bd9624cd362a86e52cdcf6f0f36",
+  "capstone-code/capstone/api/readers.py": "35b16d73d7e438c0888753f0dfc623209ad1e5d0fa3d3d53286bc4da6e12e37b",
+  "capstone-code/capstone/api/runs.py": "3c59985d24a2073c7ed7b033ab8d8bb33c108fd914e4932c3a93f203356037fb",
   "capstone-code/capstone/baseline.py": "2f92230ce9cc26b04465f55bf04ef564f7e5f65dd392f644ee7183f5f1509bb4",
   "capstone-code/capstone/benchmark.py": "f23f735b933ac4be159b498e08b265f17205d4e3905729551460b0857127de6e",
   "capstone-code/capstone/console.py": "bded87a29a1781414d4486bf414a292dbbadcf1cae07125ea772cd511ccc7561",
@@ -67,8 +73,8 @@
   "capstone-code/capstone/ingestion/privacy.py": "6316dbd843a40da4360f1876dad35a01970efd66d4d595a9aad53ab40eec4904",
   "capstone-code/capstone/ingestion/quality.py": "609b2571b21e20ab3ff3114be40cb63b7770f5754cf7af677173efe36ef95ff0",
   "capstone-code/capstone/ingestion/record.py": "f9e363c8fa11878b892b5ce2d1e00c6d7fee81e0905d61bc33c59e30e2bea2f3",
-  "capstone-code/capstone/ingestion/siemens_opcua_adapter.py": "d7b7f7b12ef201b97cc9138808928464e33ed2304850011d03a4127b21b25542",
-  "capstone-code/capstone/ingestion/siemens_opcua_record.py": "df5bf8aa2e05e45054746d616cb647270eacb11e8667307f6562077f9c3546aa",
+  "capstone-code/capstone/ingestion/siemens_opcua_adapter.py": "2c1c3693859e5e63170119f7dfa45a0d080dd3640f27568f86839f09bc97c4dc",
+  "capstone-code/capstone/ingestion/siemens_opcua_record.py": "351e1639b4037f828731e44d5a7bdec989797bdb0f8be409847006eca67158f0",
   "capstone-code/capstone/ingestion/time_stats.py": "2530ca938fa5bea4f2611d7c91277652d8d7fc0b7ff2c35ca3e27648864833ef",
   "capstone-code/capstone/ingestion/visit_log.py": "4b1d8c9c257a770312fdf783c3a2f0705bec9f2331da6d14d99442bfac4eed1c",
   "capstone-code/capstone/learning.py": "4741af4b7f52b774554efce90730dc0e9e7f6f6f6ed632f62c77add33feec33c",
@@ -248,7 +254,7 @@
   "tests/test_servo_drive.py": "329e2ce6d593c8eae384d8532c7f00110923b3ba368f4a1c92a8cf3d2530dcaa",
   "tests/test_setting_reset.py": "4fc7e4b1ff6c6cd6e9b5af57f7f3c9227622ece758341bb01232d34d48b63266",
   "tests/test_settings.py": "d2edc5fe0dbe8f44e4f31dce36b2adf2457226cce8717a10de0c3e3d8320598e",
-  "tests/test_siemens_opcua_adapter.py": "6862cd7c2289ca1a615937fb70159bbb24ee9de7953a91b0676ad9a9354f5837",
+  "tests/test_siemens_opcua_adapter.py": "59b4bef63ee92cd5304db0143e4bcda52121a30fb038f99e9eaa189b09d2047c",
   "tests/test_siemens_opcua_record.py": "1e8dd97546cce259682d207a7f25546591a31f7da7e88aa8ea80e3b8aaa9512a",
   "tests/test_simulator.py": "787a86abe348bd0b65c47e56ac987687d026403629e9fade0b4f0ea8b3eab2f2",
   "tests/test_simulator_challenge.py": "e1ce3bcfdc0d16f92acacc6a6328a30e7572b912a103d29b703554649cab671a",
@@ -288,19 +294,21 @@
   "tests/test_untrusted_text.py": "cb17a2e154f3adca010fecd881298ed0801103fb48914a2a0aba6bca5117d9e7",
   "tests/test_visit_log.py": "f540e22bb87d89338abfed58c9148ea86df9dcb6bdbd2464147a4b2a69d83f5c",
   "tests/test_wait_tool.py": "b99a5fbf756a60176262417e54d8d1a0496f01126929a330492e7d24287b2d1e",
+  "tests/test_web_api.py": "7a38105d66419ba9012b3df89197616c6c516e8317a7773edafa6d028320a491",
+  "tests/test_web_runs.py": "e04d66a175b2cf55664f01f96c2061577f1ce359a14dfe9518c4badc44dd98cc",
   "tests/test_wrong_setting.py": "aed1c646bffaf88ae25ed2156794dc57427e8a61bbe6b23a0c33f3c3e89c0da3"
  },
- "coverage_sha256": "dfbbdfea334025fffbc4d32513cfeb27319f5d3d8c436bac44bbb4407df24f87",
- "junit_sha256": "8307306fbf6c25f267d67a3a41c7e92f3ea76b7098310aa3d9af8053294d09ae",
+ "coverage_sha256": "7089f9a50a0c6aad48e2b965f639f944fadd981e073cd4b868f8cc7a505e3bb2",
+ "junit_sha256": "77de44b475756ac85b8c1c857e28e24ad9298b09f8bb3faf221b709fc0c0b745",
  "counts": {
-  "functions": 1160,
+  "functions": 1229,
   "classes_note": "classes are listed through their methods",
-  "tests": 2343,
+  "tests": 2361,
   "tools": 18,
   "functions_by_status": {
    "INSUFFICIENT EVIDENCE": 490,
    "NOT APPLICABLE": 25,
-   "NOT TESTED": 18,
+   "NOT TESTED": 87,
    "PARTIALLY VERIFIED": 582,
    "VERIFIED": 45
   },
@@ -309,12 +317,81 @@
    "import-only": 4,
    "indirect": 502,
    "no-statements": 25,
-   "none": 18
+   "none": 87
   },
   "functions_executed_in_tests": 1113,
   "functions_with_direct_tests": 611,
   "functions_never_executed": [
    "capstone.agent.investigate_compiler:model_arguments",
+   "capstone.api.__main__:main",
+   "capstone.api.app:create_app",
+   "capstone.api.app:create_app.<locals>.authorize",
+   "capstone.api.app:create_app.<locals>.require_role",
+   "capstone.api.app:create_app.<locals>.ensure_run",
+   "capstone.api.app:create_app.<locals>.health",
+   "capstone.api.app:create_app.<locals>.capabilities",
+   "capstone.api.app:create_app.<locals>.overview",
+   "capstone.api.app:create_app.<locals>.machines",
+   "capstone.api.app:create_app.<locals>.recordings",
+   "capstone.api.app:create_app.<locals>.mtconnect_health",
+   "capstone.api.app:create_app.<locals>.recording_health",
+   "capstone.api.app:create_app.<locals>.recording_events",
+   "capstone.api.app:create_app.<locals>.recording_signals",
+   "capstone.api.app:create_app.<locals>.samples",
+   "capstone.api.app:create_app.<locals>.investigations",
+   "capstone.api.app:create_app.<locals>.investigation",
+   "capstone.api.app:create_app.<locals>.require_evaluator",
+   "capstone.api.app:create_app.<locals>.evaluations",
+   "capstone.api.app:create_app.<locals>.evaluation_scorecards",
+   "capstone.api.app:create_app.<locals>.system",
+   "capstone.api.app:create_app.<locals>.system_audit",
+   "capstone.api.app:create_app.<locals>.settings_effective",
+   "capstone.api.app:create_app.<locals>.search_simulator_manual",
+   "capstone.api.app:create_app.<locals>.simulator_memories",
+   "capstone.api.app:create_app.<locals>.simulator_memory_promotions",
+   "capstone.api.app:create_app.<locals>.knowledge",
+   "capstone.api.app:create_app.<locals>.list_managed_runs",
+   "capstone.api.app:create_app.<locals>.start_simulator_run",
+   "capstone.api.app:create_app.<locals>.managed_run",
+   "capstone.api.app:create_app.<locals>.managed_run_investigation",
+   "capstone.api.app:create_app.<locals>.managed_run_observability",
+   "capstone.api.app:create_app.<locals>.triage_result",
+   "capstone.api.app:create_app.<locals>.run_events",
+   "capstone.api.app:create_app.<locals>.run_events.<locals>.stream",
+   "capstone.api.app:create_app.<locals>.pending_simulator_reviews",
+   "capstone.api.app:create_app.<locals>.decide_simulator_review",
+   "capstone.api.config:UiConfig.__post_init__",
+   "capstone.api.config:UiConfig.from_env",
+   "capstone.api.config:UiConfig.from_env.<locals>.path",
+   "capstone.api.readers:recent_lines",
+   "capstone.api.readers:capture_records",
+   "capstone.api.readers:signal_id",
+   "capstone.api.readers:iso_age",
+   "capstone.api.readers:recorder_snapshot",
+   "capstone.api.readers:signal_samples",
+   "capstone.api.readers:safe_investigations",
+   "capstone.api.readers:safe_investigation_detail",
+   "capstone.api.readers:safe_evaluations",
+   "capstone.api.readers:safe_scorecards",
+   "capstone.api.readers:mtconnect_snapshot",
+   "capstone.api.readers:safe_memory_promotions",
+   "capstone.api.runs:utc_now",
+   "capstone.api.runs:safe_stage",
+   "capstone.api.runs:SimulatorRuns.__init__",
+   "capstone.api.runs:SimulatorRuns._db",
+   "capstone.api.runs:SimulatorRuns.investigation_audit_path",
+   "capstone.api.runs:SimulatorRuns.investigation_event_path",
+   "capstone.api.runs:SimulatorRuns.get",
+   "capstone.api.runs:SimulatorRuns.list_runs",
+   "capstone.api.runs:SimulatorRuns.events_since",
+   "capstone.api.runs:SimulatorRuns._emit",
+   "capstone.api.runs:SimulatorRuns.submit",
+   "capstone.api.runs:SimulatorRuns.pending_reviews",
+   "capstone.api.runs:SimulatorRuns.decide",
+   "capstone.api.runs:SimulatorRuns._await_review",
+   "capstone.api.runs:SimulatorRuns._execute",
+   "capstone.api.runs:SimulatorRuns._execute.<locals>.watch",
+   "capstone.api.runs:SimulatorRuns._execute.<locals>.publish",
    "capstone.episode:ask_on_console",
    "capstone.evals:main.<locals>.show_progress",
    "capstone.experiment:preflight_models",
@@ -392,7 +469,9 @@
   ],
   "stubs_or_protocols": 25,
   "tests_by_outcome": {
-   "passed": 2343
+   "failed": 1,
+   "not_run": 18,
+   "passed": 2342
   },
   "tests_with_no_assertion": [
    "tests/test_console.py::test_without_it_the_same_print_raised"
@@ -589,7 +668,25 @@
    "tests/test_tree_search.py::test_older_trees_read_without_retained",
    "tests/test_tree_search.py::test_older_trees_read_without_a_shown_order",
    "tests/test_triage_metrics.py::test_a_call_from_an_old_record_still_loads_without_stage_or_mode",
-   "tests/test_wait_tool.py::test_wait_is_one_of_the_agents_action_tools"
+   "tests/test_wait_tool.py::test_wait_is_one_of_the_agents_action_tools",
+   "tests/test_web_api.py::test_private_file_requires_strong_token",
+   "tests/test_web_api.py::test_capabilities_and_auth_do_not_leak_secret",
+   "tests/test_web_api.py::test_bad_data_never_counts_as_valid_numeric",
+   "tests/test_web_api.py::test_distinct_physical_nodes_cannot_collide",
+   "tests/test_web_api.py::test_empty_and_unconfigured_are_not_healthy",
+   "tests/test_web_api.py::test_partial_jsonl_does_not_fabricate_observations",
+   "tests/test_web_api.py::test_audit_and_evaluator_truth_separated",
+   "tests/test_web_api.py::test_restricted_pilot_investigation_and_no_command_routes",
+   "tests/test_web_api.py::test_scorecards_require_evaluator_role_and_never_expose_simulator_truth",
+   "tests/test_web_api.py::test_legacy_mtconnect_is_version_isolated_and_never_fabricates_good",
+   "tests/test_web_api.py::test_subscribed_marker_requires_real_acceptance_and_does_not_imply_measurement",
+   "tests/test_web_api.py::test_future_collector_clock_cannot_claim_live_connection",
+   "tests/test_web_runs.py::test_run_roles_and_idempotency",
+   "tests/test_web_runs.py::test_durable_pending_approval_and_double_decision",
+   "tests/test_web_runs.py::test_restart_interruption_and_private_token_validation",
+   "tests/test_web_runs.py::test_review_decision_is_durable_before_episode_resumes",
+   "tests/test_web_runs.py::test_operational_events_are_allowlisted_and_pilot_is_blocked",
+   "tests/test_web_runs.py::test_sse_reconnect_resumes_from_last_event_id"
   ]
  },
  "by_module": {
@@ -701,6 +798,31 @@
   "capstone.agent.untrusted": {
    "functions": 1,
    "executed": 1,
+   "direct": 0
+  },
+  "capstone.api.__main__": {
+   "functions": 1,
+   "executed": 0,
+   "direct": 0
+  },
+  "capstone.api.app": {
+   "functions": 36,
+   "executed": 0,
+   "direct": 0
+  },
+  "capstone.api.config": {
+   "functions": 3,
+   "executed": 0,
+   "direct": 0
+  },
+  "capstone.api.readers": {
+   "functions": 12,
+   "executed": 0,
+   "direct": 0
+  },
+  "capstone.api.runs": {
+   "functions": 17,
+   "executed": 0,
    "direct": 0
   },
   "capstone.baseline": {
@@ -7101,6 +7223,420 @@
     "tests/test_critic.py::test_a_judgement_error_is_never_asked_again",
     "tests/test_critic.py::test_a_manual_section_cannot_be_cited_as_evidence"
    ]
+  },
+  "capstone.api.__main__:main": {
+   "count": 0,
+   "status": "NOT TESTED",
+   "direct": [],
+   "indirect": []
+  },
+  "capstone.api.app:create_app": {
+   "count": 0,
+   "status": "NOT TESTED",
+   "direct": [],
+   "indirect": []
+  },
+  "capstone.api.app:create_app.<locals>.authorize": {
+   "count": 0,
+   "status": "NOT TESTED",
+   "direct": [],
+   "indirect": []
+  },
+  "capstone.api.app:create_app.<locals>.require_role": {
+   "count": 0,
+   "status": "NOT TESTED",
+   "direct": [],
+   "indirect": []
+  },
+  "capstone.api.app:create_app.<locals>.ensure_run": {
+   "count": 0,
+   "status": "NOT TESTED",
+   "direct": [],
+   "indirect": []
+  },
+  "capstone.api.app:create_app.<locals>.health": {
+   "count": 0,
+   "status": "NOT TESTED",
+   "direct": [],
+   "indirect": []
+  },
+  "capstone.api.app:create_app.<locals>.capabilities": {
+   "count": 0,
+   "status": "NOT TESTED",
+   "direct": [],
+   "indirect": []
+  },
+  "capstone.api.app:create_app.<locals>.overview": {
+   "count": 0,
+   "status": "NOT TESTED",
+   "direct": [],
+   "indirect": []
+  },
+  "capstone.api.app:create_app.<locals>.machines": {
+   "count": 0,
+   "status": "NOT TESTED",
+   "direct": [],
+   "indirect": []
+  },
+  "capstone.api.app:create_app.<locals>.recordings": {
+   "count": 0,
+   "status": "NOT TESTED",
+   "direct": [],
+   "indirect": []
+  },
+  "capstone.api.app:create_app.<locals>.mtconnect_health": {
+   "count": 0,
+   "status": "NOT TESTED",
+   "direct": [],
+   "indirect": []
+  },
+  "capstone.api.app:create_app.<locals>.recording_health": {
+   "count": 0,
+   "status": "NOT TESTED",
+   "direct": [],
+   "indirect": []
+  },
+  "capstone.api.app:create_app.<locals>.recording_events": {
+   "count": 0,
+   "status": "NOT TESTED",
+   "direct": [],
+   "indirect": []
+  },
+  "capstone.api.app:create_app.<locals>.recording_signals": {
+   "count": 0,
+   "status": "NOT TESTED",
+   "direct": [],
+   "indirect": []
+  },
+  "capstone.api.app:create_app.<locals>.samples": {
+   "count": 0,
+   "status": "NOT TESTED",
+   "direct": [],
+   "indirect": []
+  },
+  "capstone.api.app:create_app.<locals>.investigations": {
+   "count": 0,
+   "status": "NOT TESTED",
+   "direct": [],
+   "indirect": []
+  },
+  "capstone.api.app:create_app.<locals>.investigation": {
+   "count": 0,
+   "status": "NOT TESTED",
+   "direct": [],
+   "indirect": []
+  },
+  "capstone.api.app:create_app.<locals>.require_evaluator": {
+   "count": 0,
+   "status": "NOT TESTED",
+   "direct": [],
+   "indirect": []
+  },
+  "capstone.api.app:create_app.<locals>.evaluations": {
+   "count": 0,
+   "status": "NOT TESTED",
+   "direct": [],
+   "indirect": []
+  },
+  "capstone.api.app:create_app.<locals>.evaluation_scorecards": {
+   "count": 0,
+   "status": "NOT TESTED",
+   "direct": [],
+   "indirect": []
+  },
+  "capstone.api.app:create_app.<locals>.system": {
+   "count": 0,
+   "status": "NOT TESTED",
+   "direct": [],
+   "indirect": []
+  },
+  "capstone.api.app:create_app.<locals>.system_audit": {
+   "count": 0,
+   "status": "NOT TESTED",
+   "direct": [],
+   "indirect": []
+  },
+  "capstone.api.app:create_app.<locals>.settings_effective": {
+   "count": 0,
+   "status": "NOT TESTED",
+   "direct": [],
+   "indirect": []
+  },
+  "capstone.api.app:create_app.<locals>.search_simulator_manual": {
+   "count": 0,
+   "status": "NOT TESTED",
+   "direct": [],
+   "indirect": []
+  },
+  "capstone.api.app:create_app.<locals>.simulator_memories": {
+   "count": 0,
+   "status": "NOT TESTED",
+   "direct": [],
+   "indirect": []
+  },
+  "capstone.api.app:create_app.<locals>.simulator_memory_promotions": {
+   "count": 0,
+   "status": "NOT TESTED",
+   "direct": [],
+   "indirect": []
+  },
+  "capstone.api.app:create_app.<locals>.knowledge": {
+   "count": 0,
+   "status": "NOT TESTED",
+   "direct": [],
+   "indirect": []
+  },
+  "capstone.api.app:create_app.<locals>.list_managed_runs": {
+   "count": 0,
+   "status": "NOT TESTED",
+   "direct": [],
+   "indirect": []
+  },
+  "capstone.api.app:create_app.<locals>.start_simulator_run": {
+   "count": 0,
+   "status": "NOT TESTED",
+   "direct": [],
+   "indirect": []
+  },
+  "capstone.api.app:create_app.<locals>.managed_run": {
+   "count": 0,
+   "status": "NOT TESTED",
+   "direct": [],
+   "indirect": []
+  },
+  "capstone.api.app:create_app.<locals>.managed_run_investigation": {
+   "count": 0,
+   "status": "NOT TESTED",
+   "direct": [],
+   "indirect": []
+  },
+  "capstone.api.app:create_app.<locals>.managed_run_observability": {
+   "count": 0,
+   "status": "NOT TESTED",
+   "direct": [],
+   "indirect": []
+  },
+  "capstone.api.app:create_app.<locals>.triage_result": {
+   "count": 0,
+   "status": "NOT TESTED",
+   "direct": [],
+   "indirect": []
+  },
+  "capstone.api.app:create_app.<locals>.run_events": {
+   "count": 0,
+   "status": "NOT TESTED",
+   "direct": [],
+   "indirect": []
+  },
+  "capstone.api.app:create_app.<locals>.run_events.<locals>.stream": {
+   "count": 0,
+   "status": "NOT TESTED",
+   "direct": [],
+   "indirect": []
+  },
+  "capstone.api.app:create_app.<locals>.pending_simulator_reviews": {
+   "count": 0,
+   "status": "NOT TESTED",
+   "direct": [],
+   "indirect": []
+  },
+  "capstone.api.app:create_app.<locals>.decide_simulator_review": {
+   "count": 0,
+   "status": "NOT TESTED",
+   "direct": [],
+   "indirect": []
+  },
+  "capstone.api.config:UiConfig.__post_init__": {
+   "count": 0,
+   "status": "NOT TESTED",
+   "direct": [],
+   "indirect": []
+  },
+  "capstone.api.config:UiConfig.from_env": {
+   "count": 0,
+   "status": "NOT TESTED",
+   "direct": [],
+   "indirect": []
+  },
+  "capstone.api.config:UiConfig.from_env.<locals>.path": {
+   "count": 0,
+   "status": "NOT TESTED",
+   "direct": [],
+   "indirect": []
+  },
+  "capstone.api.readers:recent_lines": {
+   "count": 0,
+   "status": "NOT TESTED",
+   "direct": [],
+   "indirect": []
+  },
+  "capstone.api.readers:capture_records": {
+   "count": 0,
+   "status": "NOT TESTED",
+   "direct": [],
+   "indirect": []
+  },
+  "capstone.api.readers:signal_id": {
+   "count": 0,
+   "status": "NOT TESTED",
+   "direct": [],
+   "indirect": []
+  },
+  "capstone.api.readers:iso_age": {
+   "count": 0,
+   "status": "NOT TESTED",
+   "direct": [],
+   "indirect": []
+  },
+  "capstone.api.readers:recorder_snapshot": {
+   "count": 0,
+   "status": "NOT TESTED",
+   "direct": [],
+   "indirect": []
+  },
+  "capstone.api.readers:signal_samples": {
+   "count": 0,
+   "status": "NOT TESTED",
+   "direct": [],
+   "indirect": []
+  },
+  "capstone.api.readers:safe_investigations": {
+   "count": 0,
+   "status": "NOT TESTED",
+   "direct": [],
+   "indirect": []
+  },
+  "capstone.api.readers:safe_investigation_detail": {
+   "count": 0,
+   "status": "NOT TESTED",
+   "direct": [],
+   "indirect": []
+  },
+  "capstone.api.readers:safe_evaluations": {
+   "count": 0,
+   "status": "NOT TESTED",
+   "direct": [],
+   "indirect": []
+  },
+  "capstone.api.readers:safe_scorecards": {
+   "count": 0,
+   "status": "NOT TESTED",
+   "direct": [],
+   "indirect": []
+  },
+  "capstone.api.readers:mtconnect_snapshot": {
+   "count": 0,
+   "status": "NOT TESTED",
+   "direct": [],
+   "indirect": []
+  },
+  "capstone.api.readers:safe_memory_promotions": {
+   "count": 0,
+   "status": "NOT TESTED",
+   "direct": [],
+   "indirect": []
+  },
+  "capstone.api.runs:utc_now": {
+   "count": 0,
+   "status": "NOT TESTED",
+   "direct": [],
+   "indirect": []
+  },
+  "capstone.api.runs:safe_stage": {
+   "count": 0,
+   "status": "NOT TESTED",
+   "direct": [],
+   "indirect": []
+  },
+  "capstone.api.runs:SimulatorRuns.__init__": {
+   "count": 0,
+   "status": "NOT TESTED",
+   "direct": [],
+   "indirect": []
+  },
+  "capstone.api.runs:SimulatorRuns._db": {
+   "count": 0,
+   "status": "NOT TESTED",
+   "direct": [],
+   "indirect": []
+  },
+  "capstone.api.runs:SimulatorRuns.investigation_audit_path": {
+   "count": 0,
+   "status": "NOT TESTED",
+   "direct": [],
+   "indirect": []
+  },
+  "capstone.api.runs:SimulatorRuns.investigation_event_path": {
+   "count": 0,
+   "status": "NOT TESTED",
+   "direct": [],
+   "indirect": []
+  },
+  "capstone.api.runs:SimulatorRuns.get": {
+   "count": 0,
+   "status": "NOT TESTED",
+   "direct": [],
+   "indirect": []
+  },
+  "capstone.api.runs:SimulatorRuns.list_runs": {
+   "count": 0,
+   "status": "NOT TESTED",
+   "direct": [],
+   "indirect": []
+  },
+  "capstone.api.runs:SimulatorRuns.events_since": {
+   "count": 0,
+   "status": "NOT TESTED",
+   "direct": [],
+   "indirect": []
+  },
+  "capstone.api.runs:SimulatorRuns._emit": {
+   "count": 0,
+   "status": "NOT TESTED",
+   "direct": [],
+   "indirect": []
+  },
+  "capstone.api.runs:SimulatorRuns.submit": {
+   "count": 0,
+   "status": "NOT TESTED",
+   "direct": [],
+   "indirect": []
+  },
+  "capstone.api.runs:SimulatorRuns.pending_reviews": {
+   "count": 0,
+   "status": "NOT TESTED",
+   "direct": [],
+   "indirect": []
+  },
+  "capstone.api.runs:SimulatorRuns.decide": {
+   "count": 0,
+   "status": "NOT TESTED",
+   "direct": [],
+   "indirect": []
+  },
+  "capstone.api.runs:SimulatorRuns._await_review": {
+   "count": 0,
+   "status": "NOT TESTED",
+   "direct": [],
+   "indirect": []
+  },
+  "capstone.api.runs:SimulatorRuns._execute": {
+   "count": 0,
+   "status": "NOT TESTED",
+   "direct": [],
+   "indirect": []
+  },
+  "capstone.api.runs:SimulatorRuns._execute.<locals>.watch": {
+   "count": 0,
+   "status": "NOT TESTED",
+   "direct": [],
+   "indirect": []
+  },
+  "capstone.api.runs:SimulatorRuns._execute.<locals>.publish": {
+   "count": 0,
+   "status": "NOT TESTED",
+   "direct": [],
+   "indirect": []
   },
   "capstone.baseline:_Looker.__init__": {
    "count": 6,
@@ -64179,6 +64715,96 @@
     "capstone.simulator.scenarios:LoadingDoor.__init__",
     "capstone.simulator.scenarios:LoadingDoor.apply"
    ]
+  },
+  "tests/test_web_api.py::test_private_file_requires_strong_token": {
+   "count": 0,
+   "judgment": "NOT ASSESSED",
+   "functions": []
+  },
+  "tests/test_web_api.py::test_capabilities_and_auth_do_not_leak_secret": {
+   "count": 0,
+   "judgment": "NOT ASSESSED",
+   "functions": []
+  },
+  "tests/test_web_api.py::test_bad_data_never_counts_as_valid_numeric": {
+   "count": 0,
+   "judgment": "NOT ASSESSED",
+   "functions": []
+  },
+  "tests/test_web_api.py::test_distinct_physical_nodes_cannot_collide": {
+   "count": 0,
+   "judgment": "NOT ASSESSED",
+   "functions": []
+  },
+  "tests/test_web_api.py::test_empty_and_unconfigured_are_not_healthy": {
+   "count": 0,
+   "judgment": "NOT ASSESSED",
+   "functions": []
+  },
+  "tests/test_web_api.py::test_partial_jsonl_does_not_fabricate_observations": {
+   "count": 0,
+   "judgment": "NOT ASSESSED",
+   "functions": []
+  },
+  "tests/test_web_api.py::test_audit_and_evaluator_truth_separated": {
+   "count": 0,
+   "judgment": "NOT ASSESSED",
+   "functions": []
+  },
+  "tests/test_web_api.py::test_restricted_pilot_investigation_and_no_command_routes": {
+   "count": 0,
+   "judgment": "NOT ASSESSED",
+   "functions": []
+  },
+  "tests/test_web_api.py::test_scorecards_require_evaluator_role_and_never_expose_simulator_truth": {
+   "count": 0,
+   "judgment": "NOT ASSESSED",
+   "functions": []
+  },
+  "tests/test_web_api.py::test_legacy_mtconnect_is_version_isolated_and_never_fabricates_good": {
+   "count": 0,
+   "judgment": "NOT ASSESSED",
+   "functions": []
+  },
+  "tests/test_web_api.py::test_subscribed_marker_requires_real_acceptance_and_does_not_imply_measurement": {
+   "count": 0,
+   "judgment": "NOT ASSESSED",
+   "functions": []
+  },
+  "tests/test_web_api.py::test_future_collector_clock_cannot_claim_live_connection": {
+   "count": 0,
+   "judgment": "NOT ASSESSED",
+   "functions": []
+  },
+  "tests/test_web_runs.py::test_run_roles_and_idempotency": {
+   "count": 0,
+   "judgment": "NOT ASSESSED",
+   "functions": []
+  },
+  "tests/test_web_runs.py::test_durable_pending_approval_and_double_decision": {
+   "count": 0,
+   "judgment": "NOT ASSESSED",
+   "functions": []
+  },
+  "tests/test_web_runs.py::test_restart_interruption_and_private_token_validation": {
+   "count": 0,
+   "judgment": "NOT ASSESSED",
+   "functions": []
+  },
+  "tests/test_web_runs.py::test_review_decision_is_durable_before_episode_resumes": {
+   "count": 0,
+   "judgment": "NOT ASSESSED",
+   "functions": []
+  },
+  "tests/test_web_runs.py::test_operational_events_are_allowlisted_and_pilot_is_blocked": {
+   "count": 0,
+   "judgment": "NOT ASSESSED",
+   "functions": []
+  },
+  "tests/test_web_runs.py::test_sse_reconnect_resumes_from_last_event_id": {
+   "count": 0,
+   "judgment": "NOT ASSESSED",
+   "functions": []
   },
   "tests/test_wrong_setting.py::test_a_machine_runs_at_its_standard_speed_unless_set_otherwise": {
    "count": 4,

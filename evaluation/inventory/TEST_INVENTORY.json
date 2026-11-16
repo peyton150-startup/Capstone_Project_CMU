@@ -57758,7 +57758,7 @@
    "uses": [],
    "quality_flags": [],
    "claims": "Every tracked Python file is inventoried, a test, excluded with a reason,",
-   "execution_outcome": "passed",
+   "execution_outcome": "failed",
    "exercises": [
     "evaluation.evaltools.build_inventory:call_name",
     "evaluation.evaltools.build_inventory:collect_functions",
@@ -101908,7 +101908,7 @@
    "id": "tests/test_siemens_opcua_adapter.py::test_a_lost_connection_writes_a_gap_and_reconnects_under_a_new_epoch",
    "file": "tests/test_siemens_opcua_adapter.py",
    "name": "test_a_lost_connection_writes_a_gap_and_reconnects_under_a_new_epoch",
-   "line": 608,
+   "line": 610,
    "docstring": "",
    "parametrized": false,
    "fixtures": [],
@@ -101975,7 +101975,7 @@
    "id": "tests/test_siemens_opcua_adapter.py::test_a_bug_in_the_collector_stops_it_and_is_recorded",
    "file": "tests/test_siemens_opcua_adapter.py",
    "name": "test_a_bug_in_the_collector_stops_it_and_is_recorded",
-   "line": 635,
+   "line": 637,
    "docstring": "",
    "parametrized": false,
    "fixtures": [],
@@ -102022,7 +102022,7 @@
    "id": "tests/test_siemens_opcua_adapter.py::test_failure_reasons_name_the_cause_without_the_text_of_unknown_errors",
    "file": "tests/test_siemens_opcua_adapter.py",
    "name": "test_failure_reasons_name_the_cause_without_the_text_of_unknown_errors",
-   "line": 647,
+   "line": 649,
    "docstring": "",
    "parametrized": false,
    "fixtures": [],
@@ -102057,7 +102057,7 @@
    "id": "tests/test_siemens_opcua_adapter.py::test_main_with_no_server_records_the_failure_and_stops_at_the_limit",
    "file": "tests/test_siemens_opcua_adapter.py",
    "name": "test_main_with_no_server_records_the_failure_and_stops_at_the_limit",
-   "line": 659,
+   "line": 661,
    "docstring": "",
    "parametrized": false,
    "fixtures": [
@@ -102118,7 +102118,7 @@
    "id": "tests/test_siemens_opcua_adapter.py::test_main_exits_2_on_a_missing_certificate_and_writes_the_trail",
    "file": "tests/test_siemens_opcua_adapter.py",
    "name": "test_main_exits_2_on_a_missing_certificate_and_writes_the_trail",
-   "line": 674,
+   "line": 676,
    "docstring": "",
    "parametrized": false,
    "fixtures": [
@@ -102175,7 +102175,7 @@
    "id": "tests/test_siemens_opcua_adapter.py::test_main_exits_2_on_a_config_it_cannot_read",
    "file": "tests/test_siemens_opcua_adapter.py",
    "name": "test_main_exits_2_on_a_config_it_cannot_read",
-   "line": 692,
+   "line": 694,
    "docstring": "",
    "parametrized": false,
    "fixtures": [
@@ -102213,7 +102213,7 @@
    "id": "tests/test_siemens_opcua_adapter.py::test_missed_counters_names_what_was_skipped_and_wraps",
    "file": "tests/test_siemens_opcua_adapter.py",
    "name": "test_missed_counters_names_what_was_skipped_and_wraps",
-   "line": 702,
+   "line": 704,
    "docstring": "",
    "parametrized": false,
    "fixtures": [],
@@ -102248,7 +102248,7 @@
    "id": "tests/test_siemens_opcua_adapter.py::test_a_skipped_counter_writes_a_gap_and_a_keep_alive_does_not",
    "file": "tests/test_siemens_opcua_adapter.py",
    "name": "test_a_skipped_counter_writes_a_gap_and_a_keep_alive_does_not",
-   "line": 723,
+   "line": 725,
    "docstring": "",
    "parametrized": false,
    "fixtures": [],
@@ -102291,7 +102291,7 @@
    "id": "tests/test_siemens_opcua_adapter.py::test_the_real_subscription_counts_only_messages_that_carry_values",
    "file": "tests/test_siemens_opcua_adapter.py",
    "name": "test_the_real_subscription_counts_only_messages_that_carry_values",
-   "line": 735,
+   "line": 737,
    "docstring": "asyncua's own Subscription class, fed messages directly: no server.",
    "parametrized": false,
    "fixtures": [],
@@ -102334,7 +102334,7 @@
    "id": "tests/test_siemens_opcua_adapter.py::test_an_overflow_status_writes_a_gap_for_that_node_before_the_value",
    "file": "tests/test_siemens_opcua_adapter.py",
    "name": "test_an_overflow_status_writes_a_gap_for_that_node_before_the_value",
-   "line": 767,
+   "line": 769,
    "docstring": "",
    "parametrized": false,
    "fixtures": [],
@@ -102386,7 +102386,7 @@
    "id": "tests/test_siemens_opcua_adapter.py::test_a_notification_for_an_unknown_node_is_dropped_and_counted",
    "file": "tests/test_siemens_opcua_adapter.py",
    "name": "test_a_notification_for_an_unknown_node_is_dropped_and_counted",
-   "line": 779,
+   "line": 781,
    "docstring": "",
    "parametrized": false,
    "fixtures": [],
@@ -102425,7 +102425,7 @@
    "id": "tests/test_siemens_opcua_adapter.py::test_the_file_sink_appends_one_parseable_line_each",
    "file": "tests/test_siemens_opcua_adapter.py",
    "name": "test_the_file_sink_appends_one_parseable_line_each",
-   "line": 788,
+   "line": 790,
    "docstring": "",
    "parametrized": false,
    "fixtures": [
@@ -136761,6 +136761,627 @@
     "capstone.tools.actions",
     "capstone.tools.observation"
    ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_web_api.py::test_private_file_requires_strong_token",
+   "file": "tests/test_web_api.py",
+   "name": "test_private_file_requires_strong_token",
+   "line": 53,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [
+    "tmp_path"
+   ],
+   "assertions": 0,
+   "assert_forms": {},
+   "raises_checks": 2,
+   "uses": [],
+   "quality_flags": [
+    "exercises_no_project_function"
+   ],
+   "claims": "private file requires strong token",
+   "execution_outcome": "not_run",
+   "exercises": [],
+   "exercise_count": 0,
+   "modules_exercised": [],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_web_api.py::test_capabilities_and_auth_do_not_leak_secret",
+   "file": "tests/test_web_api.py",
+   "name": "test_capabilities_and_auth_do_not_leak_secret",
+   "line": 60,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [
+    "tmp_path"
+   ],
+   "assertions": 8,
+   "assert_forms": {
+    "equality": 5,
+    "is_none": 1,
+    "membership": 2
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [
+    "exercises_no_project_function"
+   ],
+   "claims": "capabilities and auth do not leak secret",
+   "execution_outcome": "not_run",
+   "exercises": [],
+   "exercise_count": 0,
+   "modules_exercised": [],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_web_api.py::test_bad_data_never_counts_as_valid_numeric",
+   "file": "tests/test_web_api.py",
+   "name": "test_bad_data_never_counts_as_valid_numeric",
+   "line": 80,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [
+    "tmp_path"
+   ],
+   "assertions": 4,
+   "assert_forms": {
+    "equality": 2,
+    "identity_constant": 1,
+    "is_none": 1
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [
+    "exercises_no_project_function"
+   ],
+   "claims": "bad data never counts as valid numeric",
+   "execution_outcome": "not_run",
+   "exercises": [],
+   "exercise_count": 0,
+   "modules_exercised": [],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_web_api.py::test_distinct_physical_nodes_cannot_collide",
+   "file": "tests/test_web_api.py",
+   "name": "test_distinct_physical_nodes_cannot_collide",
+   "line": 90,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [
+    "tmp_path"
+   ],
+   "assertions": 2,
+   "assert_forms": {
+    "equality": 1,
+    "inequality": 1
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [
+    "exercises_no_project_function"
+   ],
+   "claims": "distinct physical nodes cannot collide",
+   "execution_outcome": "not_run",
+   "exercises": [],
+   "exercise_count": 0,
+   "modules_exercised": [],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_web_api.py::test_empty_and_unconfigured_are_not_healthy",
+   "file": "tests/test_web_api.py",
+   "name": "test_empty_and_unconfigured_are_not_healthy",
+   "line": 98,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [
+    "tmp_path"
+   ],
+   "assertions": 3,
+   "assert_forms": {
+    "equality": 3
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [
+    "exercises_no_project_function"
+   ],
+   "claims": "empty and unconfigured are not healthy",
+   "execution_outcome": "not_run",
+   "exercises": [],
+   "exercise_count": 0,
+   "modules_exercised": [],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_web_api.py::test_partial_jsonl_does_not_fabricate_observations",
+   "file": "tests/test_web_api.py",
+   "name": "test_partial_jsonl_does_not_fabricate_observations",
+   "line": 107,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [
+    "tmp_path"
+   ],
+   "assertions": 1,
+   "assert_forms": {
+    "equality": 1
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [
+    "exercises_no_project_function"
+   ],
+   "claims": "partial jsonl does not fabricate observations",
+   "execution_outcome": "not_run",
+   "exercises": [],
+   "exercise_count": 0,
+   "modules_exercised": [],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_web_api.py::test_audit_and_evaluator_truth_separated",
+   "file": "tests/test_web_api.py",
+   "name": "test_audit_and_evaluator_truth_separated",
+   "line": 113,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [
+    "tmp_path"
+   ],
+   "assertions": 4,
+   "assert_forms": {
+    "equality": 3,
+    "membership": 1
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [
+    "exercises_no_project_function"
+   ],
+   "claims": "audit and evaluator truth separated",
+   "execution_outcome": "not_run",
+   "exercises": [],
+   "exercise_count": 0,
+   "modules_exercised": [],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_web_api.py::test_restricted_pilot_investigation_and_no_command_routes",
+   "file": "tests/test_web_api.py",
+   "name": "test_restricted_pilot_investigation_and_no_command_routes",
+   "line": 142,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [
+    "tmp_path"
+   ],
+   "assertions": 4,
+   "assert_forms": {
+    "equality": 3,
+    "truthiness": 1
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [
+    "exercises_no_project_function"
+   ],
+   "claims": "restricted pilot investigation and no command routes",
+   "execution_outcome": "not_run",
+   "exercises": [],
+   "exercise_count": 0,
+   "modules_exercised": [],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_web_api.py::test_scorecards_require_evaluator_role_and_never_expose_simulator_truth",
+   "file": "tests/test_web_api.py",
+   "name": "test_scorecards_require_evaluator_role_and_never_expose_simulator_truth",
+   "line": 180,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [
+    "tmp_path"
+   ],
+   "assertions": 12,
+   "assert_forms": {
+    "equality": 7,
+    "identity_constant": 2,
+    "is_none": 1,
+    "membership": 2
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [
+    "exercises_no_project_function"
+   ],
+   "claims": "scorecards require evaluator role and never expose simulator truth",
+   "execution_outcome": "not_run",
+   "exercises": [],
+   "exercise_count": 0,
+   "modules_exercised": [],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_web_api.py::test_legacy_mtconnect_is_version_isolated_and_never_fabricates_good",
+   "file": "tests/test_web_api.py",
+   "name": "test_legacy_mtconnect_is_version_isolated_and_never_fabricates_good",
+   "line": 267,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [
+    "tmp_path"
+   ],
+   "assertions": 10,
+   "assert_forms": {
+    "call_truthiness": 1,
+    "equality": 6,
+    "membership": 2,
+    "truthiness": 1
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [
+    "exercises_no_project_function"
+   ],
+   "claims": "legacy mtconnect is version isolated and never fabricates good",
+   "execution_outcome": "not_run",
+   "exercises": [],
+   "exercise_count": 0,
+   "modules_exercised": [],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_web_api.py::test_subscribed_marker_requires_real_acceptance_and_does_not_imply_measurement",
+   "file": "tests/test_web_api.py",
+   "name": "test_subscribed_marker_requires_real_acceptance_and_does_not_imply_measurement",
+   "line": 347,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [
+    "tmp_path"
+   ],
+   "assertions": 7,
+   "assert_forms": {
+    "equality": 6,
+    "is_none": 1
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [
+    "exercises_no_project_function"
+   ],
+   "claims": "subscribed marker requires real acceptance and does not imply measurement",
+   "execution_outcome": "not_run",
+   "exercises": [],
+   "exercise_count": 0,
+   "modules_exercised": [],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_web_api.py::test_future_collector_clock_cannot_claim_live_connection",
+   "file": "tests/test_web_api.py",
+   "name": "test_future_collector_clock_cannot_claim_live_connection",
+   "line": 383,
+   "docstring": "Clock skew never upgrades an expired or unconfirmed source to healthy.",
+   "parametrized": false,
+   "fixtures": [
+    "tmp_path"
+   ],
+   "assertions": 4,
+   "assert_forms": {
+    "equality": 3,
+    "is_none": 1
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [
+    "exercises_no_project_function"
+   ],
+   "claims": "Clock skew never upgrades an expired or unconfirmed source to healthy.",
+   "execution_outcome": "not_run",
+   "exercises": [],
+   "exercise_count": 0,
+   "modules_exercised": [],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_web_runs.py::test_run_roles_and_idempotency",
+   "file": "tests/test_web_runs.py",
+   "name": "test_run_roles_and_idempotency",
+   "line": 47,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [
+    "tmp_path",
+    "monkeypatch"
+   ],
+   "assertions": 12,
+   "assert_forms": {
+    "equality": 8,
+    "membership": 3,
+    "truthiness": 1
+   },
+   "raises_checks": 0,
+   "uses": [
+    "monkeypatch"
+   ],
+   "quality_flags": [
+    "patches_dependencies",
+    "exercises_no_project_function"
+   ],
+   "claims": "run roles and idempotency",
+   "execution_outcome": "not_run",
+   "exercises": [],
+   "exercise_count": 0,
+   "modules_exercised": [],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_web_runs.py::test_durable_pending_approval_and_double_decision",
+   "file": "tests/test_web_runs.py",
+   "name": "test_durable_pending_approval_and_double_decision",
+   "line": 116,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [
+    "tmp_path",
+    "monkeypatch"
+   ],
+   "assertions": 11,
+   "assert_forms": {
+    "call_truthiness": 1,
+    "equality": 7,
+    "identity_constant": 2,
+    "truthiness": 1
+   },
+   "raises_checks": 0,
+   "uses": [
+    "monkeypatch"
+   ],
+   "quality_flags": [
+    "patches_dependencies",
+    "exercises_no_project_function"
+   ],
+   "claims": "durable pending approval and double decision",
+   "execution_outcome": "not_run",
+   "exercises": [],
+   "exercise_count": 0,
+   "modules_exercised": [],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_web_runs.py::test_restart_interruption_and_private_token_validation",
+   "file": "tests/test_web_runs.py",
+   "name": "test_restart_interruption_and_private_token_validation",
+   "line": 189,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [
+    "tmp_path"
+   ],
+   "assertions": 2,
+   "assert_forms": {
+    "equality": 1,
+    "negation": 1
+   },
+   "raises_checks": 1,
+   "uses": [],
+   "quality_flags": [
+    "exercises_no_project_function"
+   ],
+   "claims": "restart interruption and private token validation",
+   "execution_outcome": "not_run",
+   "exercises": [],
+   "exercise_count": 0,
+   "modules_exercised": [],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_web_runs.py::test_review_decision_is_durable_before_episode_resumes",
+   "file": "tests/test_web_runs.py",
+   "name": "test_review_decision_is_durable_before_episode_resumes",
+   "line": 220,
+   "docstring": "The reviewer must not regress a finished episode to 'running'.",
+   "parametrized": false,
+   "fixtures": [
+    "tmp_path",
+    "monkeypatch"
+   ],
+   "assertions": 7,
+   "assert_forms": {
+    "call_truthiness": 3,
+    "equality": 1,
+    "negation": 1,
+    "truthiness": 2
+   },
+   "raises_checks": 0,
+   "uses": [
+    "monkeypatch"
+   ],
+   "quality_flags": [
+    "patches_dependencies",
+    "exercises_no_project_function"
+   ],
+   "claims": "The reviewer must not regress a finished episode to 'running'.",
+   "execution_outcome": "not_run",
+   "exercises": [],
+   "exercise_count": 0,
+   "modules_exercised": [],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_web_runs.py::test_operational_events_are_allowlisted_and_pilot_is_blocked",
+   "file": "tests/test_web_runs.py",
+   "name": "test_operational_events_are_allowlisted_and_pilot_is_blocked",
+   "line": 299,
+   "docstring": "Operational diagnostics may not expose arbitrary private audit fields.",
+   "parametrized": false,
+   "fixtures": [
+    "tmp_path",
+    "monkeypatch"
+   ],
+   "assertions": 8,
+   "assert_forms": {
+    "equality": 7,
+    "membership": 1
+   },
+   "raises_checks": 0,
+   "uses": [
+    "monkeypatch"
+   ],
+   "quality_flags": [
+    "patches_dependencies",
+    "exercises_no_project_function"
+   ],
+   "claims": "Operational diagnostics may not expose arbitrary private audit fields.",
+   "execution_outcome": "not_run",
+   "exercises": [],
+   "exercise_count": 0,
+   "modules_exercised": [],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_web_runs.py::test_sse_reconnect_resumes_from_last_event_id",
+   "file": "tests/test_web_runs.py",
+   "name": "test_sse_reconnect_resumes_from_last_event_id",
+   "line": 351,
+   "docstring": "A reconnect replays only later durable events, never an extra action.",
+   "parametrized": false,
+   "fixtures": [
+    "tmp_path",
+    "monkeypatch"
+   ],
+   "assertions": 11,
+   "assert_forms": {
+    "call_truthiness": 1,
+    "equality": 5,
+    "membership": 5
+   },
+   "raises_checks": 0,
+   "uses": [
+    "monkeypatch"
+   ],
+   "quality_flags": [
+    "patches_dependencies",
+    "exercises_no_project_function"
+   ],
+   "claims": "A reconnect replays only later durable events, never an extra action.",
+   "execution_outcome": "not_run",
+   "exercises": [],
+   "exercise_count": 0,
+   "modules_exercised": [],
    "judgment": "NOT ASSESSED",
    "curated": {},
    "snap_questions": [
