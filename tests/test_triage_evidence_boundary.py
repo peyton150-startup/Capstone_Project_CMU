@@ -336,7 +336,9 @@ def test_typed_audit_covers_every_selected_attempt():
 
     selected = [e for e in state.triage_trace_events if e.event == "decide.selected"]
     completed = [e for e in state.triage_trace_events if e.event == "tool.completed"]
-    validated = [e for e in state.triage_trace_events if e.event == "evidence.validated"]
+    validated = [
+        e for e in state.triage_trace_events if e.event == "evidence.validated"
+    ]
     assert selected and len(selected) == len(completed) == len(validated)
     assert len(selected) == len(state.triage_evidence_checks)
     assert state.triage_trace_events[0].event == "triage.started"
