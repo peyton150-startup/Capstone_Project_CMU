@@ -365,12 +365,35 @@ def safe_investigation_detail(path: Path | None, ident: str) -> dict[str, Any] |
                     )
                 }
             )
+        # The audit includes private arguments and free-text thoughts. The
+        # UI receives only decision outcomes and source-linked IDs.
+        decisions = []
+        for decision in (raw.get("decisions") or [])[:250]:
+            if not isinstance(decision, dict):
+                continue
+            decisions.append({key: decision.get(key) for key in (
+                "sequence", "agent", "phase", "tick", "tool", "outcome",
+                "question_id", "hypothesis_id", "evidence_ids", "batch",
+                "batch_position", "termination_reason")})
+        metrics = raw.get("metrics") if isinstance(raw.get("metrics"), dict) else {}
+        public_metrics = {key: metrics.get(key) for key in (
+            "iterations", "tool_calls", "repeated_calls", "failed_tool_calls",
+            "malformed_results", "interpretation_failures", "hypothesis_revisions")}
+        pruned = []
+        for candidate in (raw.get("pruned_candidates") or [])[:50]:
+            if isinstance(candidate, dict):
+                pruned.append({key: candidate.get(key) for key in (
+                    "id", "status", "confidence", "supporting_evidence_ids",
+                    "contradicting_evidence_ids")})
         proposal = completed.get("proposed_action")
         verification = completed.get("verification")
         return {
             **summary,
             "evidence": evidence,
             "hypotheses": hypotheses,
+            "decision_trace": decisions,
+            "reasoning_metrics": public_metrics,
+            "pruned_candidates": pruned,
             "proposed_action": {
                 k: proposal.get(k)
                 for k in ("action", "machine_id", "reason", "evidence_ids")
