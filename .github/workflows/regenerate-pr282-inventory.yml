@@ -32,18 +32,6 @@ jobs:
         run: uv python install
       - name: Install locked dependencies
         run: uv sync --locked --all-extras
-      - name: Seed inventories from CI's actual per-test coverage
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          mkdir -p "$RUNNER_TEMP/inventory-seed"
-          gh run download 43943585945 --repo "$GITHUB_REPOSITORY" \
-            --name evaluator-inventory --dir "$RUNNER_TEMP/inventory-seed"
-          cp "$RUNNER_TEMP/inventory-seed/"*.json evaluation/inventory/
-          test -s evaluation/inventory/FUNCTION_INVENTORY.json
-          test -s evaluation/inventory/TEST_INVENTORY.json
-          test -s evaluation/inventory/TOOL_INVENTORY.json
-          test -s evaluation/inventory/VERIFICATION_MATRIX.json
       - name: Run complete offline tests against refreshed inventory
         run: >-
           uv run --locked --all-extras pytest
