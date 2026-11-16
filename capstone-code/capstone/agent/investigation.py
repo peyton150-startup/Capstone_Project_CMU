@@ -370,6 +370,13 @@ def investigate(state: InvestigationState, deps: InvestigationDeps) -> Route:
     reason = run_inner_loop(state, deps, "investigate")
     state.termination_reason = reason
     gathered = bool(gathered_in(state, "investigate"))
+    if state.mode == "triage" and deps.triage_investigate == "deterministic":
+        # Observe may already have supplied the qualified reading. The
+        # controller's results point to the original evidence/provenance.
+        gathered = gathered or any(
+            result.status == "satisfied" and result.evidence_ids
+            for result in state.triage_requirement_results.values()
+        )
     if deps.hypothesis_seconds > 0:
         reserved = state.research_seconds(deps.clock()) > 0
         state.hypothesis_reserve_used = (

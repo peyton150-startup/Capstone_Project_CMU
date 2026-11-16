@@ -196,6 +196,7 @@ def run_recorded_investigation(
         triage_packet_prompt=settings.triage_packet_prompt,
         triage_conclude_brief=settings.triage_conclude_brief,
         triage_conclude_cap=settings.triage_conclude_cap,
+        triage_fixed_plan=settings.triage_plan == "fixed",
     )
     step_questions = (
         settings.step_questions
@@ -214,6 +215,29 @@ def run_recorded_investigation(
         clock=clock,
         screening_available=False,
         triage_investigate=settings.triage_investigate,
+        triage_tool_specs=tuple(spec for spec in available if spec.name != "wait"),
+        triage_channels={
+            machine_id: tuple(
+                sorted(
+                    {
+                        entry.tool_sensor
+                        for entry in channel_map.entries
+                        if entry.device == machine_id
+                        and entry.tool_sensor not in (None, "air_temperature")
+                        and any(
+                            isinstance(row, TelemetryRecord)
+                            and row.source_timestamp <= look.now
+                            and row.data_item_id == entry.data_item_id
+                            and row.device in (entry.device, entry.device_uuid)
+                            and row.available
+                            and row.number() is not None
+                            and math.isfinite(row.number())
+                            for row in lines
+                        )
+                    }
+                )
+            )
+        },
         triage_evidence_tests=settings.triage_evidence_tests,
         step_questions=step_questions,
         decide_calls=decide_calls,

@@ -32,6 +32,7 @@ import re
 from capstone.agent.artifacts import DetectedAnomaly
 from capstone.agent.evidence_packet import EvidencePacket
 from capstone.agent.state import Predicate, Question
+from capstone.agent.triage_requirements import ReadRequirement
 from capstone.contracts import Contract
 
 # "alarm on CNC-02: vibration 4.58 mm/s above 4.50", from
@@ -234,6 +235,127 @@ def planned_reads(anomaly: DetectedAnomaly) -> dict[str, PlannedRead]:
         reads["Q2"] = PlannedRead(tool="get_events")
         reads["Q3"] = PlannedRead(tool="get_inspections")
     return reads
+
+
+def fixed_requirements(
+    anomaly: DetectedAnomaly, cutoff_tick: int
+) -> dict[str, ReadRequirement]:
+    """The measurable parts of the fixed questions at one authorized cutoff.
+
+    The existing single-read mapping remains for the hybrid compiler. The
+    deterministic controller uses this fuller table, including complementary
+    reads and requirements that a current snapshot cannot settle.
+    """
+    # Variables:
+    #   cutoff_tick: The authorized source horizon, held constant across reads.
+    #   window: One common interval for comparing sensor movement.
+    #   add: Adds a requirement whose stable id names its question and part.
+    #   alarm: The observed alarm shape, never a hidden simulator cause.
+    window = (max(0, anomaly.tick - 60), cutoff_tick)
+    requirements: dict[str, ReadRequirement] = {}
+
+    def add(
+        question_id: str,
+        part: str,
+        tool: str,
+        *,
+        machine_id: str | None = None,
+        sensor: str | None = None,
+        windowed: bool = False,
+        min_samples: int = 0,
+        min_span_ticks: int = 0,
+        qualification: str = "record",
+    ) -> None:
+        """Add one independently qualified source for a question."""
+        # Variables:
+        #   part: Stable label for the source within the question.
+        #   windowed: Whether this tool accepts and needs the shared interval.
+        requirement = ReadRequirement(
+            requirement_id=f"{question_id}:{part}",
+            question_id=question_id,
+            tool=tool,
+            machine_id=machine_id,
+            sensor=sensor,
+            from_tick=window[0] if windowed else None,
+            to_tick=window[1] if windowed else None,
+            min_samples=min_samples,
+            min_span_ticks=min_span_ticks,
+            qualification=qualification,
+        )
+        requirements[requirement.requirement_id] = requirement
+
+    alarm = ALARM.match(anomaly.description) if anomaly.kind == "alarm" else None
+    machine = anomaly.machine_id
+    if alarm is not None and machine is not None:
+        predicate = fixed_predicates(anomaly).get("Q1")
+        if predicate is not None:
+            requirements["Q1:trigger"] = ReadRequirement(
+                requirement_id="Q1:trigger",
+                question_id="Q1",
+                tool="get_sensor_summary",
+                machine_id=machine,
+                sensor=predicate.sensor,
+                from_tick=predicate.from_tick,
+                to_tick=min(predicate.to_tick, cutoff_tick),
+                min_samples=predicate.min_samples,
+                qualification="measurement",
+            )
+        add("Q3", "events", "get_events", machine_id=machine, windowed=True)
+        add("Q3", "service", "get_maintenance_history", machine_id=machine)
+        add("Q4", "setting_change", "get_settings", qualification="setting_change")
+        if alarm["sensor"] == "vibration":
+            for sensor in ("vibration", "temperature", "load"):
+                add(
+                    "Q5",
+                    sensor,
+                    "get_sensor_summary",
+                    machine_id=machine,
+                    sensor=sensor,
+                    windowed=True,
+                    min_samples=2,
+                    min_span_ticks=1,
+                    qualification="movement",
+                )
+        elif alarm["sensor"] in ("following_error", "hydraulic_pressure"):
+            add(
+                "Q5",
+                "inspections",
+                "get_inspections",
+                windowed=True,
+                qualification="inspection_jobs",
+            )
+    elif anomaly.kind == "status" and machine is not None:
+        add("Q1", "events", "get_events", machine_id=machine, windowed=True)
+        for sensor in ("vibration", "temperature", "load"):
+            add(
+                "Q2", sensor, "get_sensor_summary", machine_id=machine,
+                sensor=sensor, windowed=True, min_samples=2,
+                min_span_ticks=1, qualification="movement",
+            )
+        add("Q4", "service", "get_maintenance_history", machine_id=machine)
+        add("Q4", "setting_change", "get_settings", qualification="setting_change")
+    elif anomaly.kind == "inspection_failures":
+        add("Q1", "failed_jobs", "get_inspections", windowed=True,
+            qualification="inspection_jobs")
+        add(
+            "Q2",
+            "inspections",
+            "get_inspections",
+            windowed=True,
+            qualification="inspection_batch",
+        )
+        add("Q3", "setting_change", "get_settings", qualification="setting_change")
+        add("Q5", "events", "get_events", windowed=True)
+    else:
+        add("Q2", "events", "get_events", windowed=True)
+        add(
+            "Q3",
+            "inspections",
+            "get_inspections",
+            windowed=True,
+            qualification="inspection_recent",
+        )
+    return requirements
 
 
 def is_screening_question(question: Question) -> bool:
