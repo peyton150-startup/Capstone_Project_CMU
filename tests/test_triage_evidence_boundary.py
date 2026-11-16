@@ -614,7 +614,7 @@ def test_observe_clock_rejects_wrong_provider_before_commit():
             return result.model_copy(update={"source": "untrusted-adapter"})
 
     state = state_for()
-    deps = deps_for(UnexpectedSource({"tick": 45}, tick=45))
+    deps = deps_for(UnexpectedSource(lambda _: {"tick": 45}, tick=45))
     evidence = gather(
         state,
         deps,
