@@ -1,4 +1,5 @@
 # One-time PR #285 evaluation-inventory refresh from CURRENT source and tests.
+# Final current-source retrigger for PR #285 audit.
 # Self-deletes after a verified inventory commit; unrelated failures block sync.
 name: One-time PR 285 evaluation inventory refresh
 
