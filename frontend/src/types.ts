@@ -46,7 +46,9 @@ export type Evaluation = { id: string; scenario: string; seed: number;
   conclusion: string | null; assessment: string | null;
   recommendation: string | null; verification: string | null;
   wall_seconds: number | null; tool_count: number | null;
-  model_questions: number | null };
+  model_questions: number | null; model_failures?: number | null;
+  mode?: string; triage_seconds?: number | null; triage_deep_ran?: boolean | null;
+  triage_assessment?: string | null; triage_outcome?: string | null };
 export type Machine = { id: string; name: string; operating_state?: string;
   condition?: string; signal_count?: number;
   last_observed_at?: string | null };
@@ -88,3 +90,12 @@ export type ReviewRequest = {
   reason: string; predicted_effect: string; note: string;
 };
 export type RunEvent = { seq: number; event: string; data: Record<string, unknown> };
+
+export type Scorecard = {
+  id: string; fault_correct: boolean | null; target_correct: boolean | null;
+  action_correct: boolean | null; recommendation_correct: boolean | null;
+  resolved: boolean | null; tool_calls: number | null; ticks_elapsed: number | null;
+  iterations: number | null; causes_found: number | null; wrong_causes: number | null;
+  causes_resolved: number | null; relevant_evidence_count: number | null;
+  evidence_collected_count: number | null; judged: boolean;
+};
