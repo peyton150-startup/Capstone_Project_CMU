@@ -8,12 +8,12 @@ from pydantic import ValidationError
 
 from capstone.agent.loop import gather, run_inner_loop
 from capstone.agent.policy import CallTool
-from capstone.agent.triage_packet import optional_call
 from capstone.agent.triage_decide import initialize_requirements, matching_evidence
 from capstone.agent.triage_evidence_validation import (
     EvidenceQualification,
     validate_triage_result,
 )
+from capstone.agent.triage_packet import optional_call
 from capstone.agent.triage_trace import TriageTraceEvent
 from capstone.contracts.tools import ToolRequest, ToolResult
 from capstone.observability import create_event_logger
