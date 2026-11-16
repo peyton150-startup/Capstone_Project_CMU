@@ -642,14 +642,12 @@ def choose_next_triage_read(
             # Collect one source for the event before compiling possibilities.
             # Keep other sources for actual hypothesis-driven Test.
             anchors = [
-                r for r in pending
+                r
+                for r in pending
                 if r.question_id == "Q1" and r.qualification != "job_path"
             ]
             if not anchors:
-                anchors = [
-                    r for r in pending
-                    if r.requirement_id == "Q2:events"
-                ]
+                anchors = [r for r in pending if r.requirement_id == "Q2:events"]
             pending = anchors
         elif phase == "test":
             # Explicit typed requirements, not natural-language parsing or
@@ -784,10 +782,7 @@ def run_deterministic_triage_loop(
         decision = choose_next_triage_read(state, deps, phase)
         if isinstance(decision, TriageStopDecision):
             return stop(state, phase, decision)
-        if (
-            deps.event_logger is not None
-            and deps.triage_hypothesize == "deterministic"
-        ):
+        if deps.event_logger is not None and deps.triage_hypothesize == "deterministic":
             deps.event_logger.log_event(
                 "triage.read.selected",
                 run_id=str(state.run_id),

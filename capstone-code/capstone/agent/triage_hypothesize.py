@@ -44,43 +44,76 @@ class TriageHypothesisTrace(Contract):
 # A listed requirement tells the controller what could discriminate between
 # possibilities, not what cause was proved by a successful tool response.
 ALARM_RULES = (
-    ("machine_condition", "Machine or process condition may explain the alarm",
-     ("Q1:trigger", "Q3:events", "Q3:service")),
-    ("operating_load", "Related load or temperature behavior may be relevant",
-     ("Q1:trigger", "Q5:vibration", "Q5:temperature", "Q5:load")),
-    ("sensor_or_transient", "A transient or measurement issue remains possible",
-     ("Q1:trigger",)),
+    (
+        "machine_condition",
+        "Machine or process condition may explain the alarm",
+        ("Q1:trigger", "Q3:events", "Q3:service"),
+    ),
+    (
+        "operating_load",
+        "Related load or temperature behavior may be relevant",
+        ("Q1:trigger", "Q5:vibration", "Q5:temperature", "Q5:load"),
+    ),
+    (
+        "sensor_or_transient",
+        "A transient or measurement issue remains possible",
+        ("Q1:trigger",),
+    ),
 )
 
 STATUS_RULES = (
-    ("stoppage_event", "Recorded events may help explain the machine stop",
-     ("Q1:events",)),
-    ("process_condition", "Sensor behavior may be associated with the stop",
-     ("Q2:vibration", "Q2:temperature", "Q2:load")),
-    ("service_context", "Service or settings may be relevant but not proven",
-     ("Q4:service",)),
+    (
+        "stoppage_event",
+        "Recorded events may help explain the machine stop",
+        ("Q1:events",),
+    ),
+    (
+        "process_condition",
+        "Sensor behavior may be associated with the stop",
+        ("Q2:vibration", "Q2:temperature", "Q2:load"),
+    ),
+    (
+        "service_context",
+        "Service or settings may be relevant but not proven",
+        ("Q4:service",),
+    ),
 )
 
 INSPECTION_RULES = (
-    ("common_machine_path", "Failed jobs may share a visited machine",
-     ("Q1:failed_jobs",)),
-    ("common_material_batch", "Failed jobs may share a material batch",
-     ("Q2:inspections",)),
-    ("preceding_events", "Recorded events may precede the failed parts",
-     ("Q5:events",)),
+    (
+        "common_machine_path",
+        "Failed jobs may share a visited machine",
+        ("Q1:failed_jobs",),
+    ),
+    (
+        "common_material_batch",
+        "Failed jobs may share a material batch",
+        ("Q2:inspections",),
+    ),
+    (
+        "preceding_events",
+        "Recorded events may precede the failed parts",
+        ("Q5:events",),
+    ),
 )
 
 GENERIC_RULES = (
-    ("observed_event", "The anomaly may be connected to recorded events",
-     ("Q2:events",)),
-    ("quality_signal", "Inspection evidence may narrow the possibilities",
-     ("Q3:inspections",)),
+    (
+        "observed_event",
+        "The anomaly may be connected to recorded events",
+        ("Q2:events",),
+    ),
+    (
+        "quality_signal",
+        "Inspection evidence may narrow the possibilities",
+        ("Q3:inspections",),
+    ),
 )
 
 
-def rule_specs(state: "InvestigationState") -> tuple[
-    tuple[str, str, tuple[str, ...]], ...
-]:
+def rule_specs(
+    state: "InvestigationState",
+) -> tuple[tuple[str, str, tuple[str, ...]], ...]:
     """Select explicit case families from the observable anomaly category."""
     # Variables:
     #   alarm: Parsed alarm text; it is not a root-cause label.
@@ -98,8 +131,11 @@ def rule_specs(state: "InvestigationState") -> tuple[
             return ALARM_RULES
         return (
             ALARM_RULES[0],
-            ("related_quality", "Inspection evidence may show a related effect",
-             ("Q5:inspections",)),
+            (
+                "related_quality",
+                "Inspection evidence may show a related effect",
+                ("Q5:inspections",),
+            ),
             ALARM_RULES[2],
         )
     if state.anomaly.kind == "status":
@@ -130,9 +166,9 @@ def compile_candidates(
     for family, explanation, parts in rule_specs(state):
         target_ids = [rid for rid in parts if rid in available]
         if family == "common_machine_path":
-            target_ids.extend(sorted(
-                rid for rid in available if rid.startswith("Q1:job:")
-            ))
+            target_ids.extend(
+                sorted(rid for rid in available if rid.startswith("Q1:job:"))
+            )
         if not target_ids:
             continue
         seen_ids: list[str] = []
@@ -161,9 +197,9 @@ def compile_candidates(
     return tuple(candidates), tuple(tests)
 
 
-def update_candidate_packet(state: "InvestigationState", *, stage: Literal[
-    "hypothesize", "test"
-]) -> None:
+def update_candidate_packet(
+    state: "InvestigationState", *, stage: Literal["hypothesize", "test"]
+) -> None:
     """Store a reproducible packet and its reference-only trace."""
     # Variables:
     #   candidates: Refreshed sources and gaps, not model beliefs.
@@ -175,7 +211,8 @@ def update_candidate_packet(state: "InvestigationState", *, stage: Literal[
     trace = TriageHypothesisTrace(
         stage=stage,
         action=("compiled" if stage == "hypothesize" else "refreshed")
-        if candidates else "no_candidates",
+        if candidates
+        else "no_candidates",
         candidate_ids=tuple(candidate.id for candidate in candidates),
         requirement_ids=test_ids,
         qualified_sources=sum(

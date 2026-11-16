@@ -158,7 +158,11 @@ def test_observability_logs_safe_metadata_and_persists_reason_trace():
     run_test(state, deps)
     rows = [json.loads(line) for line in stream.getvalue().splitlines()]
     names = {row["event"] for row in rows}
-    assert {"triage.hypothesize.compiled", "triage.read.selected", "triage.test.completed"} <= names
+    assert {
+        "triage.hypothesize.compiled",
+        "triage.read.selected",
+        "triage.test.completed",
+    } <= names
     assert all(row["run_id"] == str(state.run_id) for row in rows)
     assert all("counts" in row for row in rows)
     assert "4.50" not in stream.getvalue()
