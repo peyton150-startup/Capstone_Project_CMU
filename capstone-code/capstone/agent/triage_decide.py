@@ -226,7 +226,7 @@ def matching_evidence(
                 replayed,
                 request,
                 cutoff,
-                allowed_sources=state.triage_allowed_sources or None,
+                allowed_sources=state.triage_allowed_sources,
             ).accepted:
                 continue
             found.append((evidence.id, data))
@@ -719,9 +719,13 @@ def stop(
     # Keep the reason and all outstanding dependencies even for budget stops.
     unresolved = tuple(
         sorted(
-            rid
-            for rid, result in state.triage_requirement_results.items()
-            if result.status != "satisfied"
+            set(decision.unresolved_requirement_ids)
+            | {
+                rid
+                for rid in state.triage_requirements
+                if rid not in state.triage_requirement_results
+                or state.triage_requirement_results[rid].status != "satisfied"
+            }
         )
     )
     emit_triage_event(
@@ -755,6 +759,11 @@ def run_deterministic_triage_loop(
 
     if not deps.triage_tool_specs:
         raise ValueError("deterministic triage requires an authorized tool catalog")
+    if not deps.triage_allowed_sources or any(
+        not isinstance(source, str) or not source.strip()
+        for source in deps.triage_allowed_sources
+    ):
+        raise ValueError("deterministic triage requires authorized provider sources")
     if not state.fixed_plan_used:
         raise ValueError("deterministic triage requires a fixed plan")
     if state.started_at is None:
@@ -797,6 +806,17 @@ def run_deterministic_triage_loop(
 
     def finish(decision: TriageStopDecision) -> TerminationReason:
         return stop(state, phase, decision, deps)
+
+    # The monitor's previous tick is not a verified Observe clock. If the
+    # mandatory read was attempted and rejected, do not issue further tools,
+    # and do not treat the earlier timestamp as an authorization horizon.
+    if state.triage_clock_verified is False:
+        return finish(
+            TriageStopDecision(
+                reason="data_insufficient",
+                unresolved_requirement_ids=tuple(sorted(state.triage_requirements)),
+            )
+        )
 
     def reconcile() -> None:
         """Emit only changed requirement results; no noisy repeated state dumps."""
@@ -916,7 +936,7 @@ def run_deterministic_triage_loop(
                     request,
                     cutoff,
                     min_result_tick=trusted_before_read,
-                    allowed_sources=deps.triage_allowed_sources or None,
+                    allowed_sources=deps.triage_allowed_sources,
                 )
             except Exception:
                 # An internal validator error is itself a rejected observation.
@@ -976,7 +996,8 @@ def run_deterministic_triage_loop(
                 outcome = "untrusted_response"
             failure_code = (
                 outcome
-                if outcome in {
+                if outcome
+                in {
                     "invalid_result",
                     "invalid_arguments",
                     "unknown_tool",
