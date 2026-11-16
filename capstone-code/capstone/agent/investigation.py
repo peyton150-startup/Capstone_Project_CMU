@@ -576,7 +576,8 @@ def test(state: InvestigationState, deps: InvestigationDeps) -> None:
                 investigation_id=str(state.investigation_id),
                 tick=state.last_tick,
                 # A bounded stop with missing evidence is not successful proof.
-                success=state.termination_reason is TerminationReason.EVIDENCE_SUFFICIENT,
+                success=state.termination_reason
+                is TerminationReason.EVIDENCE_SUFFICIENT,
                 counts={
                     "candidates": len(state.triage_candidates),
                     "tests": len(state.triage_test_requirement_ids),
