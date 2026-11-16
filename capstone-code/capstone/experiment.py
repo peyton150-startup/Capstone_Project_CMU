@@ -73,6 +73,7 @@ from capstone.agent.state import (
 )
 from capstone.agent.tree_of_thought import RevaluationRecord, Thought, TreeOptions
 from capstone.agent.triage_report import TriageReport
+from capstone.agent.triage_hypothesize import TriageCandidate, TriageHypothesisTrace
 from capstone.agent.triage_requirements import RequirementResult, TriageDecisionRecord
 from capstone.console import safe_console
 from capstone.episode import (
@@ -307,6 +308,12 @@ class TriageRecord(BaseModel):
     deterministic_stops: int = 0
     deterministic_decide_model_calls: int | None = None
     deterministic_trace: list[TriageDecisionRecord] | None = None
+    # Opt-in unscored candidate/Test plan, including source and capability gaps.
+    # Optional defaults preserve pre-feature archives.
+    deterministic_candidates: list[TriageCandidate] | None = None
+    deterministic_test_requirement_ids: tuple[str, ...] | None = None
+    deterministic_hypothesis_trace: list[TriageHypothesisTrace] | None = None
+    deterministic_hypothesis_logging_failures: int = 0
     requirement_results: dict[str, RequirementResult] | None = None
     qualified_requirements: int = 0
     unresolved_requirements: int = 0
@@ -597,6 +604,12 @@ def triage_record(
             else None
         ),
         deterministic_trace=list(first.triage_decide_trace),
+        deterministic_candidates=list(first.triage_candidates),
+        deterministic_test_requirement_ids=first.triage_test_requirement_ids,
+        deterministic_hypothesis_trace=list(first.triage_hypothesis_trace),
+        deterministic_hypothesis_logging_failures=(
+            first.triage_hypothesis_logging_failures
+        ),
         requirement_results=dict(first.triage_requirement_results),
         qualified_requirements=sum(
             result.status == "satisfied"
