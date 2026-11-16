@@ -1,11 +1,16 @@
 # One-time, branch-restricted source-and-test inventory refresh for PR #284.
-# Runs on creation and deletes itself in the committed result.
+# Re-triggered from the final hardening head; refuses a stale-head push. The
+# workflow removes itself when the regenerated inventories are committed.
 name: One-time triage inventory sync
 
 on:
   push:
     branches: [feature/triage-evidence-boundary-observability]
     paths: [.github/workflows/triage-inventory-sync.yml]
+
+concurrency:
+  group: triage-inventory-sync-pr284
+  cancel-in-progress: false
 
 permissions:
   contents: write
