@@ -42,8 +42,8 @@ from capstone.agent.evidence_packet import (
 from capstone.agent.incident_context import SENSOR_WORDS
 from capstone.agent.loop import InvestigationDeps, gather
 from capstone.agent.policy import CallTool
-from capstone.agent.triage_evidence_validation import validate_triage_result
 from capstone.agent.state import InvestigationState
+from capstone.agent.triage_evidence_validation import validate_triage_result
 from capstone.agent.untrusted import looks_like_instruction
 from capstone.contracts.evidence import Evidence
 from capstone.contracts.tools import ToolRequest
