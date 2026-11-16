@@ -30,6 +30,9 @@ EvidenceReason = Literal[
     "untrusted_response",
     "malformed_result",
     "repeated_call",
+    "unknown_tool",
+    "invalid_arguments",
+    "invalid_result",
     "validator_error",
 ]
 
@@ -117,6 +120,14 @@ def validate_triage_result(
     data = result.data
     if data is None:
         return checked("missing_data")
+    # A result that cannot become deterministic JSON evidence is not a
+    # successful observation. Reject it here instead of raising in gather().
+    try:
+        import json
+
+        json.dumps(data, allow_nan=False, sort_keys=True)
+    except (TypeError, ValueError, OverflowError):
+        return checked("invalid_shape")
     reason = _bad_number_or_tick(data, cutoff)
     if reason is not None:
         return checked(reason)
