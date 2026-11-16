@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
-import { getJson, postJson, useResource } from '../api';
+import { postJson, useResource } from '../api';
 import { useUi } from '../context';
 import type { Capabilities, ListResponse, ManagedRun, ReviewRequest, RunEvent, TriageReport } from '../types';
 import { DataRow, formatStamp, InfoState, PageHeading, Panel, Pill, toneFor, Unavailable } from '../ui';
