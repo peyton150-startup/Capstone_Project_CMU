@@ -14,7 +14,26 @@ export async function getJson<T>(path: string, token: string, signal?: AbortSign
   return response.json() as Promise<T>;
 }
 
-export function useResource<T>(path: string | null, token: string, pause = false): ApiResource<T> {
+export async function postJson<T>(path: string, token: string, body: unknown, key?: string): Promise<T> {
+  const response = await fetch(path, {
+    method: 'POST', cache: 'no-store',
+    headers: {
+      'Content-Type': 'application/json',
+      ...(token ? { Authorization: 'Bearer ' + token } : {}),
+      ...(key ? { 'Idempotency-Key': key } : {}),
+    },
+    body: JSON.stringify(body),
+  });
+  if (!response.ok) {
+    if (response.status === 403) throw new Error('This role or workspace is not authorized.');
+    if (response.status === 409) throw new Error('This request has already been decided, or another run is active.');
+    if (response.status === 422) throw new Error('Invalid settings or missing idempotency key.');
+    throw new Error('Request failed (' + response.status + ').');
+  }
+  return response.json() as Promise<T>;
+}
+
+export function useResource<T>(path: string | null, token: string, pause = false, pollMs = 15000): ApiResource<T> {
   const [state, setState] = useState<ApiResource<T>>({ data: null, loading: true, error: null });
   useEffect(() => {
     if (pause || !path) {
@@ -32,8 +51,8 @@ export function useResource<T>(path: string | null, token: string, pause = false
       });
     };
     reload();
-    const timer = window.setInterval(reload, 15000);
+    const timer = window.setInterval(reload, pollMs);
     return () => { active = false; controller.abort(); window.clearInterval(timer); };
-  }, [path, token, pause]);
+  }, [path, token, pause, pollMs]);
   return state;
 }
