@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { BookOpen, BrainCircuit, FileText, FlaskConical,
-  GitCompareArrows, History, Play, Search, ShieldCheck } from 'lucide-react';
+  GitCompareArrows, History, Search, ShieldCheck } from 'lucide-react';
 import { useUi } from '../context';
 import { useEvaluations } from '../pageData';
 import { ManagedRunLauncher, ManagedRunList } from './managed';
