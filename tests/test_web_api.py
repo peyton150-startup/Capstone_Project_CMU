@@ -196,3 +196,41 @@ def test_scorecards_require_evaluator_role_and_never_expose_simulator_truth(tmp_
     assert result.status_code == 200
     assert result.json()["items"][0]["judged"] is False
     assert "SECRET" not in result.text
+
+
+def test_legacy_mtconnect_is_version_isolated_and_never_fabricates_good(tmp_path):
+    from capstone.api.readers import mtconnect_snapshot
+    v1 = tmp_path / "mtconnect.jsonl"
+    stamp = datetime.now(timezone.utc).isoformat()
+    write_lines(v1, [
+        {"record_type": "collector", "schema_version": 2, "source": "http://private-agent",
+         "event": "started", "at": stamp},
+        {"record_type": "observation", "schema_version": 1, "source": "http://private-agent",
+         "instance_id": "1", "device": "CNC-A", "component": "Spindle",
+         "data_item_id": "load", "category": "SAMPLE", "type": "Load",
+         "value": "25", "available": True, "sequence": 1,
+         "source_timestamp": stamp, "received_at": stamp},
+        {"record_type": "observation", "schema_version": 1, "source": "http://private-agent",
+         "instance_id": "1", "device": "CNC-A", "component": "Spindle",
+         "data_item_id": "temp", "category": "SAMPLE", "type": "Temperature",
+         "value": None, "available": False, "sequence": 2,
+         "source_timestamp": stamp, "received_at": stamp},
+    ])
+    legacy = mtconnect_snapshot(v1)
+    assert legacy["recorder"]["available"] == 1
+    assert legacy["recorder"]["unavailable"] == 1
+    assert "good" not in legacy["recorder"]
+    assert all(item["value"] is None and item["analysis_eligible"] is False
+               for item in legacy["signals"])
+    assert "private-agent" not in json.dumps(legacy)
+    token = "mtconnect-local-safe-viewer-token"
+    client = TestClient(create_app(UiConfig(mtconnect=v1, token=token)))
+    assert client.get("/api/v1/recordings/mtconnect-local/health").status_code == 401
+    result = client.get("/api/v1/recordings/mtconnect-local/health",
+                        headers={"Authorization": "Bearer " + token})
+    assert result.status_code == 200
+    assert result.json()["recorder"]["source"] == "MTConnect v1"
+    assert result.json()["recorder"]["subscription_state"] == "not_applicable" if (
+        "subscription_state" in result.json()["recorder"]) else True
+    assert client.get("/api/v1/recordings", headers={"Authorization": "Bearer " + token}
+                      ).json()["items"][0]["source"] == "MTConnect v1"
