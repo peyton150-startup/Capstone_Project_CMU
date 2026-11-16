@@ -801,7 +801,7 @@ def test_observe_packet_logger_exception_is_isolated():
 
 def test_separate_provider_and_admission_timings_use_injected_clock():
     state = state_for()
-    deps = deps_for(FakeProvider(lambda _: {"tick": 45}, tick=45))
+    deps = deps_for(FakeProvider(lambda _: {"tick": 45, "time": START.isoformat()}, tick=45))
     ticks = iter((1.0, 1.125, 1.125, 1.130))
     deps.clock = lambda: next(ticks)
     evidence = gather(
