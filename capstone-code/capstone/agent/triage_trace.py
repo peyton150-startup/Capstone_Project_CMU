@@ -38,6 +38,32 @@ TriageEventName = Literal[
 _CODE = re.compile(r"[a-z][a-z0-9_]{0,63}\Z")
 _HASH = re.compile(r"[a-f0-9]{20}\Z")
 
+# Fixed classifications: never export free-form provider or model explanations.
+_REQUIREMENT_REASONS = {
+    "current settings snapshot does not establish a historical change": "historical_setting_unproven",
+    "empty record response cannot establish complete history": "record_coverage_unproven",
+    "record answer has no usable structure": "record_structure_missing",
+    "failed jobs are missing dated identifiers or a second job": "inspection_job_ids_missing",
+    "failed jobs lack comparable batch identifiers": "inspection_batches_missing",
+    "job history does not identify the requested job's machine path": "job_path_missing",
+    "inspections do not link affected machine and time": "inspection_machine_unlinked",
+    "no dated inspection results": "inspection_dates_missing",
+    "observed samples do not span the alarm and minimum sustain interval": "alarm_coverage_missing",
+    "measurement lacks qualified samples or span": "measurement_coverage_missing",
+}
+
+
+def requirement_reason_code(status: str, reason: str) -> str:
+    """Machine-readable requirement diagnostics with no untrusted text."""
+    if status == "pending":
+        return "not_checked"
+    if reason in _REQUIREMENT_REASONS:
+        return _REQUIREMENT_REASONS[reason]
+    if status == "satisfied":
+        return "requirement_satisfied"
+    return "requirement_" + status
+
+
 
 class TriageTraceEvent(Contract):
     """An ordered, structured result of a deterministic operation."""
