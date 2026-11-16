@@ -564,6 +564,11 @@ def reconsider(state: InvestigationState, deps: InvestigationDeps) -> None:
 
 def test(state: InvestigationState, deps: InvestigationDeps) -> None:
     """Gather evidence that tells the explanations apart, then re-rate them (P5)."""
+    # Variables:
+    #   state.termination_reason: A bounded deterministic Test stop, not proof
+    #     of any particular cause or permission to clear a machine.
+    #   last: Stable candidate, capability and unresolved-question counts
+    #     kept in the optional diagnostic event after Test.
     state.stage = "test"
     state.termination_reason = run_inner_loop(state, deps, "test")
     if state.mode == "triage" and deps.triage_hypothesize == "deterministic":
