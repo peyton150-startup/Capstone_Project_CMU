@@ -109,6 +109,12 @@ class SimulatorRuns:
         finally:
             con.close()
 
+    def investigation_audit_path(self, run_id: str) -> Path:
+        """Private, server-owned path derived from an existing UUID run id."""
+        if str(uuid.UUID(run_id)) != run_id:
+            raise ValueError("Invalid run identifier")
+        return self.database.parent / "simulator-investigations" / (run_id + ".jsonl")
+
     def get(self, run_id: str) -> dict[str, Any] | None:
         with self.lock, self._db() as db:
             row = db.execute(
@@ -273,7 +279,11 @@ class SimulatorRuns:
                 try:
                     if row is None:
                         return
-                    self._emit(run_id, "stage.updated", row)
+                    try:
+                        self._emit(run_id, "stage.updated", row)
+                    except (OSError, sqlite3.Error):
+                        # Observer storage must never crash or block the agent.
+                        missed[0] += 1
                 finally:
                     progress.task_done()
 
@@ -284,6 +294,9 @@ class SimulatorRuns:
         try:
             from capstone.episode import run_episode
             from capstone.experiment import model_policy_factory, open_manual
+            from capstone.agent.completion import AuditLog
+            audit_path = self.investigation_audit_path(run_id)
+            audit_path.parent.mkdir(mode=0o700, parents=True, exist_ok=True)
             manual = open_manual("keyword") if request.manual == "keyword" else None
             policy = model_policy_factory(
                 with_recall=False, with_manual=manual is not None,
@@ -292,7 +305,7 @@ class SimulatorRuns:
             result = run_episode(
                 request.seed, policy, kind=request.kind,
                 triage=request.mode == "triage", hazards=request.hazards,
-                manual=manual, watch=watch,
+                manual=manual, watch=watch, log=AuditLog(audit_path),
                 approver=lambda proposal: self._await_review(run_id, proposal),
                 run_key="ui/" + run_id,
             )
