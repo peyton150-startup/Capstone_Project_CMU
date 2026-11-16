@@ -24,6 +24,7 @@ from capstone.api.readers import (
     mtconnect_snapshot,
     safe_evaluations,
     safe_scorecards,
+    safe_memory_promotions,
     safe_investigation_detail,
     safe_investigations,
     signal_samples,
@@ -135,7 +136,7 @@ def create_app(config: UiConfig | None = None) -> FastAPI:
                 "simulation_run_launch": runner is not None,
                 "simulation_approval": runner is not None,
                 "manual_search": True,
-                "episodic_memory": False,
+                "episodic_memory": cfg.memory_enabled,
                 "setting_changes": False,
                 "siemens_live_subscription_confirmed": False,
             },
@@ -385,6 +386,57 @@ def create_app(config: UiConfig | None = None) -> FastAPI:
                            "title": section.title[:160],
                            "revision": section.revision,
                            "text": section.text[:1800]} for section in matches]}
+
+    @app.get("/api/v1/knowledge/memories", dependencies=[Access])
+    def simulator_memories(
+        workspace: Workspace = "simulator",
+        q: str | None = Query(default=None, max_length=120),
+        limit: int = Query(default=20, ge=1, le=50),
+    ) -> dict:
+        if workspace != "simulator":
+            raise HTTPException(status_code=403, detail="Pilot memory not authorized")
+        if not cfg.memory_enabled:
+            return {"availability": "not_integrated", "items": []}
+        from capstone.experiment import open_memory
+        from capstone.memory.contracts import MemoryQuery
+
+        try:
+            service = open_memory()
+            memories = (service.search(q, limit=limit) if q and q.strip()
+                        else service.retrieve(MemoryQuery(limit=limit)))
+        except (Exception, SystemExit):
+            raise HTTPException(status_code=503, detail="Approved memory store unavailable") from None
+        safe = []
+        for memory in memories:
+            intervention = getattr(memory, "intervention", None)
+            action = getattr(memory, "action", None)
+            verification = getattr(memory, "verification", None)
+            safe.append({
+                "memory_id": str(memory.memory_id),
+                "investigation_id": str(getattr(memory, "investigation_id", "") or ""),
+                "category": memory.category[:128],
+                "symptoms": [str(v)[:200] for v in memory.symptoms[:15]],
+                "diagnosis": memory.diagnosis[:600],
+                "action": action if isinstance(action, str) else
+                    (intervention.action[:120] if intervention is not None else None),
+                "outcome": memory.outcome,
+                "lesson": memory.lesson[:600],
+                "source_tick": memory.source_tick,
+                "verification": getattr(verification, "status", None),
+                "source": "simulator_episodic_memory",
+            })
+        return {"availability": "available", "items": safe}
+
+    @app.get("/api/v1/knowledge/promotions", dependencies=[Access])
+    def simulator_memory_promotions(
+        workspace: Workspace = "simulator",
+        authorization: Annotated[str | None, Header()] = None,
+    ) -> dict:
+        if workspace != "simulator" or not cfg.evaluator:
+            raise HTTPException(status_code=403, detail="Evaluator-only promotion decisions")
+        require_evaluator(authorization)
+        return {"availability": "available" if cfg.experiment and cfg.experiment.is_file()
+                else "not_configured", "items": safe_memory_promotions(cfg.experiment)}
 
     @app.get("/api/v1/knowledge", dependencies=[Access])
     def knowledge() -> dict:
