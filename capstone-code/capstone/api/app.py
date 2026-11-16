@@ -349,6 +349,108 @@ def create_app(config: UiConfig | None = None) -> FastAPI:
             "message": "Existing manual and memory providers have no authorized UI read adapter yet",
         }
 
+
+    @app.get("/api/v1/lab/runs", dependencies=[Access])
+    def list_managed_runs(workspace: Workspace = "simulator") -> dict:
+        if workspace != "simulator":
+            raise HTTPException(status_code=403, detail="Pilot cannot execute simulator runs")
+        return {"availability": "available" if runner is not None else "not_integrated",
+                "items": runner.list_runs() if runner is not None else []}
+
+    @app.post("/api/v1/lab/runs", status_code=202)
+    def start_simulator_run(
+        request: RunRequest,
+        workspace: Workspace = "simulator",
+        authorization: Annotated[str | None, Header()] = None,
+        idempotency_key: Annotated[str | None, Header(alias="Idempotency-Key")] = None,
+    ) -> dict:
+        if workspace != "simulator":
+            raise HTTPException(status_code=403, detail="Pilot machine control is prohibited")
+        require_role(authorization, "operator")
+        if idempotency_key is None or not re.fullmatch(r"[A-Za-z0-9_-]{16,96}", idempotency_key):
+            raise HTTPException(status_code=422, detail="A unique 16-96 character Idempotency-Key is required")
+        assert runner is not None
+        try:
+            return runner.submit(request, idempotency_key)
+        except ValueError:
+            raise HTTPException(status_code=409, detail="Idempotency key belongs to another request") from None
+        except RuntimeError:
+            raise HTTPException(status_code=409, detail="A simulator run is already active") from None
+
+    @app.get("/api/v1/lab/runs/{run_id}", dependencies=[Access])
+    def managed_run(run_id: str, workspace: Workspace = "simulator") -> dict:
+        if workspace != "simulator":
+            raise HTTPException(status_code=403, detail="Pilot run access is prohibited")
+        return ensure_run(run_id)
+
+    @app.get("/api/v1/lab/runs/{run_id}/triage", dependencies=[Access])
+    def triage_result(run_id: str, workspace: Workspace = "simulator") -> dict:
+        if workspace != "simulator":
+            raise HTTPException(status_code=403, detail="Pilot run access is prohibited")
+        row = ensure_run(run_id)
+        report = row["snapshot"].get("triage_report")
+        return {"availability": "available" if report is not None else "not_recorded",
+                "run_id": run_id, "report": report}
+
+    @app.get("/api/v1/lab/runs/{run_id}/events", dependencies=[Access])
+    async def run_events(
+        run_id: str, workspace: Workspace = "simulator",
+        since: int = Query(default=0, ge=0),
+        last_event_id: Annotated[str | None, Header(alias="Last-Event-ID")] = None,
+    ) -> StreamingResponse:
+        if workspace != "simulator":
+            raise HTTPException(status_code=403, detail="Pilot stream access is prohibited")
+        ensure_run(run_id)
+        cursor = since
+        if last_event_id and re.fullmatch(r"[0-9]{1,12}", last_event_id):
+            cursor = max(cursor, int(last_event_id))
+
+        async def stream():
+            nonlocal cursor
+            yield "retry: 2000\n\n"
+            while True:
+                assert runner is not None
+                events = await asyncio.to_thread(runner.events_since, run_id, cursor)
+                for event in events:
+                    cursor = event["seq"]
+                    import json
+                    payload = json.dumps(event["data"], separators=(",", ":"))
+                    yield f"id: {cursor}\nevent: {event['event']}\ndata: {payload}\n\n"
+                if not events:
+                    yield ": keepalive\n\n"
+                current = await asyncio.to_thread(runner.get, run_id)
+                if current and current["state"] in {"completed", "failed", "interrupted"} and not events:
+                    break
+                await asyncio.sleep(1)
+
+        return StreamingResponse(stream(), media_type="text/event-stream",
+                                 headers={"Cache-Control": "no-store", "X-Accel-Buffering": "no"})
+
+    @app.get("/api/v1/simulator/reviews", dependencies=[Access])
+    def pending_simulator_reviews(workspace: Workspace = "simulator") -> dict:
+        if workspace != "simulator":
+            raise HTTPException(status_code=403, detail="Pilot approval is prohibited")
+        return {"availability": "available" if runner is not None else "not_integrated",
+                "items": runner.pending_reviews() if runner is not None else []}
+
+    @app.post("/api/v1/simulator/reviews/{run_id}")
+    def decide_simulator_review(
+        run_id: str, decision: ReviewDecision,
+        workspace: Workspace = "simulator",
+        authorization: Annotated[str | None, Header()] = None,
+    ) -> dict:
+        if workspace != "simulator":
+            raise HTTPException(status_code=403, detail="Pilot approval is prohibited")
+        require_role(authorization, "reviewer")
+        ensure_run(run_id)
+        assert runner is not None
+        try:
+            return runner.decide(run_id, decision)
+        except LookupError:
+            raise HTTPException(status_code=404, detail="Review request not found") from None
+        except ValueError:
+            raise HTTPException(status_code=409, detail="Review is no longer pending") from None
+
     return app
 
 
