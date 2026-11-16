@@ -222,7 +222,12 @@ def matching_evidence(
                 data=data,
             )
             request = ToolRequest(name=decision.tool, arguments=dict(args))
-            if not validate_triage_result(replayed, request, cutoff).accepted:
+            if not validate_triage_result(
+                replayed,
+                request,
+                cutoff,
+                allowed_sources=state.triage_allowed_sources or None,
+            ).accepted:
                 continue
             found.append((evidence.id, data))
         except (ValueError, TypeError, KeyError):
@@ -749,8 +754,9 @@ def run_deterministic_triage_loop(
         state.started_at = deps.clock()
     state.step_questions = deps.step_questions
     state.decide_calls = deps.decide_calls
+    state.triage_allowed_sources = deps.triage_allowed_sources
     initialize_requirements(state)
-    if not state.triage_trace_events:
+    if not any(e.event == "triage.started" for e in state.triage_trace_events):
         config_input = (
             f"{deps.triage_investigate}|{deps.step_questions}|"
             f"{deps.decide_calls}|{state.fixed_plan_used}|"
@@ -899,7 +905,11 @@ def run_deterministic_triage_loop(
             nonlocal qualification
             try:
                 qualification = validate_triage_result(
-                    result, request, cutoff, min_result_tick=trusted_before_read
+                    result,
+                    request,
+                    cutoff,
+                    min_result_tick=trusted_before_read,
+                    allowed_sources=deps.triage_allowed_sources or None,
                 )
             except Exception:
                 # An internal validator error is itself a rejected observation.
