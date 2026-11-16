@@ -11,6 +11,8 @@ permission to continue collecting; **or** a dated technical/authorization
 blocker and named next owner. This is an engineering acceptance gate, not a
 promise of predictive maintenance or root-cause accuracy.
 
+**Proposed Siemens recording observability:** [local recorder monitor UI and health specification](SIEMENS_RECORDER_MONITOR_UI_DESIGN.md) (docs-only; not yet implemented). This separate plan covers the newer Siemens OPC UA v2 capture path; do not use MTConnect v1 monitoring/acceptance on Siemens JSONL.
+
 ## A. Before scheduling and site access
 
 1. **Wait for Naseem to confirm a visit date.** Only then ask which machine
