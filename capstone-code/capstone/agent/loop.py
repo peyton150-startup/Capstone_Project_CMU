@@ -670,6 +670,7 @@ def gather(
     interpret: bool = True,
     defer_question_bookkeeping: bool = False,
     retry_failed: bool = False,
+    validate_result: Callable[[ToolResult], str | None] | None = None,
 ) -> Evidence | None:
     """Call one tool and keep its answer as evidence. Always leaves a record.
 
@@ -704,6 +705,7 @@ def gather(
     if signature not in state.seen_calls:
         state.seen_calls.append(signature)
 
+    tick_before_call = state.last_tick
     result = call_tool(
         state, deps, step.request, followup=followup, critic_check=critic_check
     )
@@ -726,6 +728,32 @@ def gather(
             error=result.error if result is not None else None,
         )
         return None
+
+    # Deterministic triage may apply an additional source/cutoff contract.
+    # Validate BEFORE committing evidence or provenance; the legacy/deep
+    # paths have no validator and retain their previous behavior.
+    if validate_result is not None:
+        try:
+            rejected = validate_result(result)
+        except Exception:
+            # A broken validator cannot make an observation trustworthy.
+            rejected = "validator_error"
+        if rejected is not None:
+            state.last_tick = tick_before_call
+            state.malformed_results += 1
+            state.unproductive_steps += 1
+            record(
+                state,
+                phase,
+                "malformed_result",
+                information_needed=step.information_needed,
+                step=step,
+                error=ToolError(
+                    code="invalid_result",
+                    message=f"evidence qualification failed: {rejected}",
+                ),
+            )
+            return None
 
     evidence = Evidence(
         id=f"E{len(state.evidence) + 1}",
