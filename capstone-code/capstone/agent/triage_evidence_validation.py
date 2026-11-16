@@ -72,6 +72,7 @@ def validate_triage_result(
     #   data: The provider's untrusted payload.
     #   args: Already-authorized request arguments, not model output.
     #   reason: First stable, safe-to-log validation error code.
+    #   checked: Constructs the typed verdict without any source values.
     def checked(reason: EvidenceReason) -> EvidenceQualification:
         return EvidenceQualification(
             accepted=reason == "accepted",
