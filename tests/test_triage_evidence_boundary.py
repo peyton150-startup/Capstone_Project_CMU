@@ -554,3 +554,132 @@ def test_same_evidence_and_settings_replay_identical_deterministic_trace(
     assert [x.model_dump() for x in state_a.triage_evidence_checks] == [
         x.model_dump() for x in state_b.triage_evidence_checks
     ]
+
+
+
+def test_explicit_source_allowlist_rejects_lookalike_provider():
+    request = ToolRequest(
+        name="get_sensor_summary",
+        arguments={
+            "machine_id": "CNC-02",
+            "sensor": "vibration",
+            "from_tick": 20,
+            "to_tick": 45,
+        },
+    )
+    result = ToolResult(
+        success=True,
+        tool=request.name,
+        source="untrusted-adapter",
+        tick=45,
+        timestamp=START,
+        data=answer(request),
+    )
+    checked = validate_triage_result(
+        result, request, 45, allowed_sources=("fake",)
+    )
+    assert not checked.accepted
+    assert checked.reason_code == "wrong_provider"
+
+
+def test_deterministic_investigate_rejects_wrong_provider_before_commit():
+    class UnexpectedSource(FakeProvider):
+        def call(self, request, *, run_id=None, investigation_id=None):
+            result = super().call(
+                request, run_id=run_id, investigation_id=investigation_id
+            )
+            return result.model_copy(update={"source": "untrusted-adapter"})
+
+    state = state_for()
+    deps = deps_for(
+        UnexpectedSource(answer, tick=45),
+        tools=(tool_spec("get_sensor_summary"),),
+        channels={"CNC-02": ("vibration",)},
+    )
+    run_inner_loop(state, deps, "investigate")
+    assert not state.evidence and not state.provenance
+    assert state.triage_evidence_checks
+    assert all(
+        not checked.accepted and checked.reason_code == "wrong_provider"
+        for checked in state.triage_evidence_checks
+    )
+
+
+def test_observe_clock_rejects_wrong_provider_before_commit():
+    class UnexpectedSource(FakeProvider):
+        def call(self, request, *, run_id=None, investigation_id=None):
+            result = super().call(
+                request, run_id=run_id, investigation_id=investigation_id
+            )
+            return result.model_copy(update={"source": "untrusted-adapter"})
+
+    state = state_for()
+    deps = deps_for(UnexpectedSource({"tick": 45}, tick=45))
+    evidence = gather(
+        state,
+        deps,
+        "observe",
+        CallTool(
+            information_needed="current factory clock",
+            request=ToolRequest(name="get_time"),
+        ),
+        interpret=False,
+    )
+    assert evidence is None
+    assert not state.evidence and not state.provenance
+    assert state.last_tick == 45
+    assert state.triage_evidence_checks[-1].reason_code == "wrong_provider"
+    assert state.triage_trace_events[-1].event == "observe.read_validated"
+    assert state.triage_trace_events[-1].phase == "observe"
+
+
+@pytest.mark.parametrize(
+    ("tool", "payload"),
+    [
+        ("get_time", {"tick": 44}),
+        ("get_line_screening", {"machines": "invalid"}),
+        ("list_machines", [{"machine_id": None, "status": "running"}]),
+    ],
+)
+def test_observe_admission_quarantines_invalid_structures(tool, payload):
+    state = state_for()
+    deps = deps_for(FakeProvider(lambda _: payload, tick=45))
+    evidence = gather(
+        state,
+        deps,
+        "observe",
+        CallTool(
+            information_needed="validate source observation",
+            request=ToolRequest(name=tool),
+        ),
+        interpret=False,
+    )
+    assert evidence is None
+    assert not state.evidence and not state.provenance
+    assert state.last_tick == 45
+    assert state.triage_evidence_checks[-1].accepted is False
+    assert state.triage_trace_events[-1].status == "rejected"
+
+
+def test_deterministic_test_phase_uses_same_source_boundary():
+    class UnexpectedSource(FakeProvider):
+        def call(self, request, *, run_id=None, investigation_id=None):
+            result = super().call(
+                request, run_id=run_id, investigation_id=investigation_id
+            )
+            return result.model_copy(update={"source": "untrusted-adapter"})
+
+    state = state_for()
+    deps = deps_for(
+        UnexpectedSource(answer, tick=45),
+        tools=(tool_spec("get_sensor_summary"),),
+        channels={"CNC-02": ("vibration",)},
+    )
+    run_inner_loop(state, deps, "test")
+    assert not state.evidence and not state.provenance
+    assert state.triage_evidence_checks
+    assert all(x.reason_code == "wrong_provider" for x in state.triage_evidence_checks)
+    assert any(
+        x.event == "triage.evidence_rejected" and x.phase == "test"
+        for x in state.triage_trace_events
+    )
