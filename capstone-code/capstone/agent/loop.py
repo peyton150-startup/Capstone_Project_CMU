@@ -740,7 +740,7 @@ def gather(
                 step.request,
                 cutoff,
                 min_result_tick=tick_before_call,
-                allowed_sources=deps.triage_allowed_sources or None,
+                allowed_sources=deps.triage_allowed_sources,
             )
             return (
                 None
@@ -779,6 +779,10 @@ def gather(
                 "request_hash": request_hash,
             }
         )
+        if step.request.name == "get_time":
+            # A rejected factory clock cannot authorize subsequent reads even
+            # if an earlier monitoring tick remains present in state.last_tick.
+            state.triage_clock_verified = checked.accepted and evidence is not None
         state.triage_evidence_checks.append(checked)
         emit_triage_event(
             state,
