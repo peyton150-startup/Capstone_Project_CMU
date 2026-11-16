@@ -292,6 +292,7 @@ def create_app(config: UiConfig | None = None) -> FastAPI:
             raise HTTPException(
                 status_code=403, detail="Evaluator-only simulator records"
             )
+        require_evaluator(authorization)
         return {
             "availability": "available"
             if cfg.experiment and cfg.experiment.is_file()
@@ -500,6 +501,55 @@ def create_app(config: UiConfig | None = None) -> FastAPI:
             return {"availability": "not_recorded", "detail": None}
         return {"availability": "available" if (detail := safe_investigation_detail(path, target))
                 else "not_recorded", "detail": detail}
+
+    @app.get("/api/v1/lab/runs/{run_id}/observability", dependencies=[Access])
+    def managed_run_observability(run_id: str, workspace: Workspace = "simulator") -> dict:
+        """Expose a bounded allowlist of metadata, never raw audit or provider text."""
+        if workspace != "simulator":
+            raise HTTPException(status_code=403, detail="Pilot diagnostics unavailable")
+        ensure_run(run_id)
+        assert runner is not None
+        path = runner.investigation_event_path(run_id)
+        if not path.is_file():
+            return {"availability": "not_recorded", "items": []}
+        import json
+
+        items = []
+        for line in recent_lines(path, limit=500):
+            try:
+                raw = json.loads(line)
+            except (ValueError, TypeError):
+                continue
+            if not isinstance(raw, dict):
+                continue
+            event = raw.get("event")
+            if not isinstance(event, str) or not re.fullmatch(
+                r"[A-Za-z0-9][A-Za-z0-9_.:-]{0,127}", event
+            ):
+                continue
+            entry = {"event": event}
+            for field in ("run_id", "investigation_id", "tool"):
+                value = raw.get(field)
+                if isinstance(value, str) and re.fullmatch(
+                    r"[A-Za-z0-9][A-Za-z0-9_.:-]{0,127}", value
+                ):
+                    entry[field] = value
+            tick = raw.get("tick")
+            if type(tick) is int and tick >= 0:
+                entry["tick"] = tick
+            if type(raw.get("success")) is bool:
+                entry["success"] = raw["success"]
+            counts = raw.get("counts")
+            if isinstance(counts, dict):
+                entry["counts"] = {
+                    name: count for name, count in counts.items()
+                    if isinstance(name, str) and re.fullmatch(
+                        r"[A-Za-z0-9][A-Za-z0-9_.:-]{0,127}", name
+                    ) and type(count) is int and 0 <= count <= 1_000_000
+                }
+            items.append(entry)
+        return {"availability": "available", "window_scope": "bounded_recent_tail",
+                "items": items}
 
     @app.get("/api/v1/lab/runs/{run_id}/triage", dependencies=[Access])
     def triage_result(run_id: str, workspace: Workspace = "simulator") -> dict:
