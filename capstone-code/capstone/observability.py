@@ -114,7 +114,8 @@ class EventLogger:
             ("remaining_tool_calls", remaining_tool_calls),
         ):
             if value is not None:
-                if type(value) is not int or value < (1 if field in {"sequence", "attempt"} else 0):
+                lower_bound = 1 if field in {"sequence", "attempt"} else 0
+                if type(value) is not int or value < lower_bound:
                     raise ValueError(f"{field} must be a nonnegative integer")
                 metadata[field] = value
         if duration_ms is not None:
