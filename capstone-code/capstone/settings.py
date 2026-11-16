@@ -11,7 +11,14 @@ so any model can do any job.
 from pathlib import Path
 from typing import Literal
 
-from pydantic import BaseModel, ConfigDict, Field, SecretStr, field_validator
+from pydantic import (
+    BaseModel,
+    ConfigDict,
+    Field,
+    SecretStr,
+    field_validator,
+    model_validator,
+)
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 # The developer's choice for the agent (2026-10-20); listed by NVIDIA's hosted
@@ -333,7 +340,7 @@ class Settings(BaseSettings):
     # "on" makes the best compiled read instead of asking a standalone decide
     # question, asking the model only when nothing compiles; "off" skips the
     # compiler. A deep run never uses it.
-    triage_investigate: Literal["off", "advisory", "on"] = Field(
+    triage_investigate: Literal["off", "advisory", "on", "deterministic"] = Field(
         default="advisory", validation_alias="TRIAGE_INVESTIGATE"
     )
     # TRIAGE_EVIDENCE_TESTS (Block 3, Test): in a triage only, count support by
@@ -352,6 +359,16 @@ class Settings(BaseSettings):
     triage_plan: Literal["model", "fixed"] = Field(
         default="model", validation_alias="TRIAGE_PLAN"
     )
+
+    @model_validator(mode="after")
+    def deterministic_triage_needs_fixed_plan(self):
+        """A deterministic Decide cannot quietly use a model-backed Plan."""
+        if self.triage_investigate == "deterministic" and self.triage_plan != "fixed":
+            raise ValueError(
+                "TRIAGE_INVESTIGATE=deterministic requires TRIAGE_PLAN=fixed"
+            )
+        return self
+
     # TRIAGE_OBSERVE_CALLS (2026-11-15): who pays for the reads the loop makes
     # itself before research starts in a triage (get_time, the packet's sensor
     # window and roster, the manual search). "shared" (the default, as before)

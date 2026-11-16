@@ -419,6 +419,23 @@ def run_episode(
         event_logger=event_logger,
         # Triage only; a deep run never reads it.
         triage_investigate=settings.triage_investigate,
+        triage_tool_specs=tuple(
+            spec
+            for spec in research_tools()
+            if spec.name
+            not in {"wait", "get_time", "list_machines", "get_line_screening"}
+        ),
+        triage_channels={
+            row["machine_id"]: (
+                "vibration",
+                "temperature",
+                "load",
+                "power",
+                "following_error",
+                *(("hydraulic_pressure",) if row["hydraulics"] else ()),
+            )
+            for row in look.list_machines()
+        },
         # Triage only; a deep run never reads it.
         triage_evidence_tests=settings.triage_evidence_tests,
     )
