@@ -174,6 +174,9 @@ class InvestigationDeps:
     # Exact read-only catalog offered by this run's provider. An empty catalog
     # denies deterministic triage reads; the provider still validates calls.
     triage_tool_specs: tuple[ToolSpec, ...] = ()
+    # Authorized data-plane origins, assigned by the caller from its provider
+    # configuration, never inferred from untrusted tool response metadata.
+    triage_allowed_sources: tuple[str, ...] = ()
     # Public channel availability, by machine id. Empty means no sensor reads.
     triage_channels: dict[str, tuple[str, ...]] = field(default_factory=dict)
     # Ephemeral classification of the most recent provider call, reset before
