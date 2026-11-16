@@ -18,6 +18,7 @@ class UiConfig:
     #   evaluator: Explicit opt-in for evaluator-only score views.
     #   show_values: Explicit opt-in for permitted raw sensor values.
     capture: Path | None = None
+    mtconnect: Path | None = None
     audit: Path | None = None
     experiment: Path | None = None
     investigations: Path | None = None
@@ -52,7 +53,7 @@ class UiConfig:
                 len(self.evaluator_token) < 24 or self.evaluator_token in
                 (self.token, self.run_token, self.review_token)):
             raise ValueError("Evaluator requires a distinct 24-character token when runs are enabled")
-        for path in (self.capture, self.audit, self.experiment, self.investigations, self.run_db):
+        for path in (self.capture, self.mtconnect, self.audit, self.experiment, self.investigations, self.run_db):
             if path is not None and not path.is_absolute():
                 raise ValueError(
                     "UI source paths must be absolute and configured server-side"
@@ -70,6 +71,7 @@ class UiConfig:
 
         return cls(
             capture=path("CAPSTONE_UI_CAPTURE"),
+            mtconnect=path("CAPSTONE_UI_MTCONNECT"),
             audit=path("CAPSTONE_UI_CAPTURE_AUDIT"),
             experiment=path("CAPSTONE_UI_EXPERIMENTS"),
             investigations=path("CAPSTONE_UI_INVESTIGATIONS"),
