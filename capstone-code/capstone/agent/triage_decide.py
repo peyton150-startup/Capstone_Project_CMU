@@ -650,11 +650,22 @@ def choose_next_triage_read(
                 anchors = [r for r in pending if r.requirement_id == "Q2:events"]
             pending = anchors
         elif phase == "test":
-            # Explicit typed requirements, not natural-language parsing or
-            # confidence-based selection. Existing authorization still applies.
-            permitted = set(state.triage_test_requirement_ids)
-            pending = [r for r in pending if r.requirement_id in permitted]
-            pending.sort(key=lambda r: r.requirement_id)
+            # New failed jobs can be discovered during Test, after Hypothesize
+            # compiled its initial packet. Refresh from typed requirements,
+            # but do not add another stage-level trace for each read.
+            from capstone.agent.triage_hypothesize import update_candidate_packet
+
+            update_candidate_packet(
+                state, stage="test", deps=deps, record_trace=False
+            )
+            order = {
+                rid: position
+                for position, rid in enumerate(state.triage_test_requirement_ids)
+            }
+            pending = [r for r in pending if r.requirement_id in order]
+            # Preserve stable candidate priority, not arbitrary lexicographic
+            # requirement IDs or an LLM-supplied test order.
+            pending.sort(key=lambda r: (order[r.requirement_id], r.requirement_id))
     if not pending and not state.unanswered_questions:
         return TriageStopDecision(reason="requirements_complete")
     grouped: dict[str, tuple[ToolRequest, list[str]]] = {}
@@ -769,7 +780,10 @@ def run_deterministic_triage_loop(
             return stop(state, phase, TriageStopDecision(reason="timeout"))
         evaluate_triage_requirements(state)
         if phase == "test":
-            add_test_requirements(state)
+            # The unscored arm executes only typed, evidence-derived checks;
+            # do not compile arbitrary free-text/model-written Test questions.
+            if deps.triage_hypothesize != "deterministic":
+                add_test_requirements(state)
             evaluate_triage_requirements(state)
         if not state.unanswered_questions:
             return stop(
@@ -782,12 +796,13 @@ def run_deterministic_triage_loop(
         decision = choose_next_triage_read(state, deps, phase)
         if isinstance(decision, TriageStopDecision):
             return stop(state, phase, decision)
-        if deps.event_logger is not None and deps.triage_hypothesize == "deterministic":
-            deps.event_logger.log_event(
+        if deps.triage_hypothesize == "deterministic":
+            from capstone.agent.triage_hypothesize import log_hypothesis_event
+
+            log_hypothesis_event(
+                state,
+                deps,
                 "triage.read.selected",
-                run_id=str(state.run_id),
-                investigation_id=str(state.investigation_id),
-                tick=state.last_tick,
                 tool=decision.step.request.name,
                 counts={
                     "requirements": len(decision.requirement_ids),
@@ -841,14 +856,15 @@ def run_deterministic_triage_loop(
                 outcome=outcome,
             )
         )
-        if deps.event_logger is not None and deps.triage_hypothesize == "deterministic":
-            # The per-call trace carries safe IDs and outcome. The external
-            # event only records counters, never raw data or exception text.
-            deps.event_logger.log_event(
+        if deps.triage_hypothesize == "deterministic":
+            # No raw result, provider exception, or free-text reason leaves
+            # the typed state through the operational logging channel.
+            from capstone.agent.triage_hypothesize import log_hypothesis_event
+
+            log_hypothesis_event(
+                state,
+                deps,
                 "triage.read.result",
-                run_id=str(state.run_id),
-                investigation_id=str(state.investigation_id),
-                tick=state.last_tick,
                 tool=decision.step.request.name,
                 success=evidence is not None,
                 counts={
