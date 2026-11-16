@@ -297,6 +297,20 @@ def optional_call(
     # Investigate may reuse, so enforce the same admission rule here.
     qualification = None
     validator = None
+    if (
+        deps.triage_investigate == "deterministic"
+        and name in {"get_sensor_summary", "list_machines"}
+        and state.last_tick is None
+    ):
+        return (
+            PacketCall(
+                tool=name,
+                role="optional",
+                outcome="skipped_unavailable",
+                reason="observation_cutoff_unknown",
+            ),
+            None,
+        )
     if deps.triage_investigate == "deterministic" and name == "get_sensor_summary":
         cutoff = state.last_tick
         if cutoff is None:
@@ -312,17 +326,43 @@ def optional_call(
 
         def validator(result):
             nonlocal qualification
-            qualification = validate_triage_result(result, step.request, cutoff)
+            qualification = validate_triage_result(
+                result,
+                step.request,
+                cutoff,
+                min_result_tick=cutoff,
+                allowed_sources=deps.triage_allowed_sources or None,
+            )
             return None if qualification.accepted else qualification.reason_code
 
     evidence = gather(
         state, deps, "observe", step, interpret=False, validate_result=validator
     )
     if qualification is not None:
-        state.triage_evidence_checks.append(
-            qualification.model_copy(
-                update={"evidence_id": evidence.id if evidence is not None else None}
-            )
+        from hashlib import sha256
+
+        from capstone.agent.triage_trace import emit_triage_event
+
+        request_hash = sha256(
+            json.dumps([name, arguments, cutoff], sort_keys=True).encode("utf-8")
+        ).hexdigest()[:20]
+        checked = qualification.model_copy(
+            update={
+                "evidence_id": evidence.id if evidence is not None else None,
+                "request_hash": request_hash,
+            }
+        )
+        state.triage_evidence_checks.append(checked)
+        emit_triage_event(
+            state,
+            deps,
+            event="observe.read_validated",
+            phase="observe",
+            reason_code=checked.reason_code,
+            status="accepted" if checked.accepted else "rejected",
+            tool=name,
+            request_hash=request_hash,
+            evidence_ids=(evidence.id,) if evidence is not None else (),
         )
     return ledger_entry(state, name, "optional", evidence), evidence
 
