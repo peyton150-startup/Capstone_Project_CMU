@@ -29,6 +29,7 @@ class UiConfig:
     run_token: str | None = None
     review_token: str | None = None
     runs_enabled: bool = False
+    evaluator_token: str | None = None
 
     def __post_init__(self) -> None:
         """Reject insecure or ambiguous real-data deployments before serving."""
@@ -47,6 +48,10 @@ class UiConfig:
             tokens = (self.token, self.run_token, self.review_token)
             if any(len(token or "") < 24 for token in tokens) or len(set(tokens)) != 3:
                 raise ValueError("Simulator tokens must be distinct, each at least 24 characters")
+        if self.evaluator and self.runs_enabled and (not self.evaluator_token or
+                len(self.evaluator_token) < 24 or self.evaluator_token in
+                (self.token, self.run_token, self.review_token)):
+            raise ValueError("Evaluator requires a distinct 24-character token when runs are enabled")
         for path in (self.capture, self.audit, self.experiment, self.investigations, self.run_db):
             if path is not None and not path.is_absolute():
                 raise ValueError(
@@ -76,4 +81,5 @@ class UiConfig:
             run_token=os.getenv("CAPSTONE_UI_RUN_TOKEN") or None,
             review_token=os.getenv("CAPSTONE_UI_REVIEW_TOKEN") or None,
             runs_enabled=os.getenv("CAPSTONE_UI_SIM_RUNS") == "1",
+            evaluator_token=os.getenv("CAPSTONE_UI_EVALUATOR_TOKEN") or None,
         )
