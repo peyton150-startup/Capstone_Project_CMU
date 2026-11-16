@@ -16,7 +16,7 @@ import {
   HomePage, OverviewPage, InvestigationListPage, InvestigationDetailPage,
   TriagePage, DeepPage, ReviewPage, MachinesPage, SignalsPage,
   RecordingsPage, QualityPage, SessionsPage,
-  LabPage, RunsPage, EvaluationPage, ComparePage,
+  LabPage, RunsPage, RunDetailPage, EvaluationPage, ComparePage,
   KnowledgePage, ManualsPage, MemoryPage,
   SystemPage, ObservabilityPage, AuditPage, SettingsPage,
 } from './pages';
@@ -212,6 +212,7 @@ export function App() {
           <Route path="/recordings/sessions" element={<SessionsPage/>}/>
           <Route path="/lab" element={<LabPage/>}/>
           <Route path="/lab/runs" element={<RunsPage/>}/>
+          <Route path="/lab/runs/:runId" element={<RunDetailPage/>}/>
           <Route path="/lab/evaluations" element={<EvaluationPage/>}/>
           <Route path="/lab/compare" element={<ComparePage/>}/>
           <Route path="/knowledge" element={<KnowledgePage/>}/>
