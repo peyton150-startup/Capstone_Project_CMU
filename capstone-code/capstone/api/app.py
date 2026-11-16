@@ -134,7 +134,7 @@ def create_app(config: UiConfig | None = None) -> FastAPI:
                 "evaluation_history": cfg.evaluator and cfg.experiment is not None,
                 "simulation_run_launch": runner is not None,
                 "simulation_approval": runner is not None,
-                "manual_search": False,
+                "manual_search": True,
                 "episodic_memory": False,
                 "setting_changes": False,
                 "siemens_live_subscription_confirmed": False,
@@ -363,6 +363,28 @@ def create_app(config: UiConfig | None = None) -> FastAPI:
                 for name in PUBLIC_SETTING_NAMES
             ],
         }
+
+    @app.get("/api/v1/knowledge/manuals", dependencies=[Access])
+    def search_simulator_manual(
+        workspace: Workspace = "simulator",
+        q: str | None = Query(default=None, max_length=120),
+    ) -> dict:
+        """Only simulator manual, checked for leaks; no OEM/pilot claims."""
+        if workspace != "simulator":
+            raise HTTPException(status_code=403, detail="Pilot manuals require OEM authorization")
+        from capstone.manual.sections import load_manual
+        from capstone.manual.index import KeywordManualSearch
+
+        sections = load_manual()
+        matches = (KeywordManualSearch(sections).search(q, limit=12)
+                   if q and q.strip() else sections[:35])
+        return {"availability": "available", "document_id": "SIM-CNC-001",
+                "source_scope": "simulator_manual_only",
+                "items": [{"citation": section.citation,
+                           "section_id": section.section_id,
+                           "title": section.title[:160],
+                           "revision": section.revision,
+                           "text": section.text[:1800]} for section in matches]}
 
     @app.get("/api/v1/knowledge", dependencies=[Access])
     def knowledge() -> dict:
