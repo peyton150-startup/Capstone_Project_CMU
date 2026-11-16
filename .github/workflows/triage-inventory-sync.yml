@@ -33,6 +33,40 @@ jobs:
         run: >-
           uv run --locked --all-extras pytest --cov=capstone --cov=evaltools
           --cov-context=test --junitxml=junit.xml --cov-report=term-missing
+      - name: Reject any non-inventory pytest failures
+        shell: bash
+        run: |
+          python - <<'PY'
+          import xml.etree.ElementTree as ET
+
+          cases = ET.parse("junit.xml").getroot().iter("testcase")
+          errors = [
+              (case, node)
+              for case in cases
+              for node in case
+              if node.tag in {"failure", "error"}
+          ]
+          for case, failure in errors:
+              identity = (
+                  case.attrib.get("classname", "") + " " + case.attrib.get("name", "")
+              ).lower()
+              message = (
+                  failure.attrib.get("message", "") + " " + (failure.text or "")
+              ).lower()
+              if not (
+                  ("inventory" in identity or "scope" in identity)
+                  and any(
+                      phrase in message
+                      for phrase in ("inventory", "scope", "sha", "hash")
+                  )
+              ):
+                  raise SystemExit(
+                      "Refusing inventory regeneration after non-inventory failure: "
+                      + identity
+                  )
+          if errors:
+              print("Only stale evaluator inventory checks failed; proceeding")
+          PY
       - name: Rebuild evaluator inventories
         run: cd evaluation && uv run --locked --all-extras python -m evaltools.build_inventory --coverage ../.coverage --junit ../junit.xml
       - name: Commit refreshed inventories and remove this workflow
