@@ -354,12 +354,13 @@ class SimulatorRuns:
     def events_since(
         self, run_id: str, seq: int, *, limit: int = 100
     ) -> list[dict[str, Any]]:
+        """Generic SSE excludes model rows; only the typed endpoint serves them."""
         if self.get(run_id) is None:
             return []
         with self.lock, self._db() as db:
             rows = db.execute(
                 "SELECT seq, event, payload FROM run_events WHERE run_id=? AND seq>? "
-                "ORDER BY seq LIMIT ?",
+                "AND event NOT LIKE 'model.%' ORDER BY seq LIMIT ?",
                 (run_id, seq, min(limit, 100)),
             ).fetchall()
         return [
