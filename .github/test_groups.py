@@ -180,6 +180,7 @@ GROUPS: dict[str, list[str]] = {
         "web_api",
         "web_runs",
         "postgres_journal",
+        "run_repository",
         "cloud_ingest_api",
     ],
     "Live telemetry": [

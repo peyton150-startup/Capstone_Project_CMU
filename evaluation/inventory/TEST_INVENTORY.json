@@ -79487,10 +79487,10 @@
     "monkeypatch",
     "scheme"
    ],
-   "assertions": 12,
+   "assertions": 16,
    "assert_forms": {
     "equality": 4,
-    "membership": 8
+    "membership": 12
    },
    "raises_checks": 0,
    "uses": [
@@ -79522,7 +79522,7 @@
    "id": "tests/test_migrations.py::test_unconfigured_or_invalid_url_has_safe_error",
    "file": "tests/test_migrations.py",
    "name": "test_unconfigured_or_invalid_url_has_safe_error",
-   "line": 123,
+   "line": 127,
    "docstring": "",
    "parametrized": true,
    "fixtures": [
@@ -79564,7 +79564,7 @@
    "id": "tests/test_migrations.py::test_online_connection_error_is_safe_and_engine_is_disposed",
    "file": "tests/test_migrations.py",
    "name": "test_online_connection_error_is_safe_and_engine_is_disposed",
-   "line": 132,
+   "line": 136,
    "docstring": "",
    "parametrized": false,
    "fixtures": [
@@ -79606,7 +79606,7 @@
    "id": "tests/test_migrations.py::test_autogeneration_without_schema_is_refused_before_engine_creation",
    "file": "tests/test_migrations.py",
    "name": "test_autogeneration_without_schema_is_refused_before_engine_creation",
-   "line": 157,
+   "line": 161,
    "docstring": "",
    "parametrized": true,
    "fixtures": [
@@ -79647,7 +79647,7 @@
    "id": "tests/test_migrations.py::test_upgrade_matches_schema_and_downgrade_preserves_unrelated_table",
    "file": "tests/test_migrations.py",
    "name": "test_upgrade_matches_schema_and_downgrade_preserves_unrelated_table",
-   "line": 176,
+   "line": 180,
    "docstring": "",
    "parametrized": false,
    "fixtures": [
@@ -98380,6 +98380,233 @@
    "modules_exercised": [
     "capstone.simulator.rng"
    ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_run_repository.py::test_repository_rejects_non_postgres_url_without_connecting",
+   "file": "tests/test_run_repository.py",
+   "name": "test_repository_rejects_non_postgres_url_without_connecting",
+   "line": 15,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 0,
+   "assert_forms": {},
+   "raises_checks": 2,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "repository rejects non postgres url without connecting",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.api.run_repository:RunRepository.__init__"
+   ],
+   "exercise_count": 1,
+   "modules_exercised": [
+    "capstone.api.run_repository"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_run_repository.py::test_execution_config_excludes_secrets_and_invalid_strategy",
+   "file": "tests/test_run_repository.py",
+   "name": "test_execution_config_excludes_secrets_and_invalid_strategy",
+   "line": 24,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 0,
+   "assert_forms": {},
+   "raises_checks": 2,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "execution config excludes secrets and invalid strategy",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.api.run_repository:RunExecutionConfig.validate_strategy"
+   ],
+   "exercise_count": 1,
+   "modules_exercised": [
+    "capstone.api.run_repository"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_run_repository.py::test_event_contract_refuses_unapproved_fields",
+   "file": "tests/test_run_repository.py",
+   "name": "test_event_contract_refuses_unapproved_fields",
+   "line": 31,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [],
+   "assertions": 0,
+   "assert_forms": {},
+   "raises_checks": 1,
+   "uses": [],
+   "quality_flags": [],
+   "claims": "event contract refuses unapproved fields",
+   "execution_outcome": "passed",
+   "exercises": [
+    "capstone.api.run_repository:RunRepository._append"
+   ],
+   "exercise_count": 1,
+   "modules_exercised": [
+    "capstone.api.run_repository"
+   ],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_run_repository.py::test_empty_hosted_migration_round_trip",
+   "file": "tests/test_run_repository.py",
+   "name": "test_empty_hosted_migration_round_trip",
+   "line": 47,
+   "docstring": "A new empty hosted schema can roll back without touching legacy rows.",
+   "parametrized": false,
+   "fixtures": [
+    "repository"
+   ],
+   "assertions": 3,
+   "assert_forms": {
+    "call_truthiness": 1,
+    "is_none": 1,
+    "is_not_none": 1
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [
+    "exercises_no_project_function"
+   ],
+   "claims": "A new empty hosted schema can roll back without touching legacy rows.",
+   "execution_outcome": "skipped",
+   "exercises": [],
+   "exercise_count": 0,
+   "modules_exercised": [],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_run_repository.py::test_concurrent_idempotency_creates_one_run_and_one_job",
+   "file": "tests/test_run_repository.py",
+   "name": "test_concurrent_idempotency_creates_one_run_and_one_job",
+   "line": 110,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [
+    "repository"
+   ],
+   "assertions": 3,
+   "assert_forms": {
+    "equality": 2,
+    "inequality": 1
+   },
+   "raises_checks": 1,
+   "uses": [],
+   "quality_flags": [
+    "exercises_no_project_function"
+   ],
+   "claims": "concurrent idempotency creates one run and one job",
+   "execution_outcome": "skipped",
+   "exercises": [],
+   "exercise_count": 0,
+   "modules_exercised": [],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_run_repository.py::test_parallel_claims_fence_state_and_preserve_event_order",
+   "file": "tests/test_run_repository.py",
+   "name": "test_parallel_claims_fence_state_and_preserve_event_order",
+   "line": 151,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [
+    "repository"
+   ],
+   "assertions": 10,
+   "assert_forms": {
+    "call_truthiness": 1,
+    "equality": 7,
+    "is_none": 1,
+    "negation": 1
+   },
+   "raises_checks": 3,
+   "uses": [],
+   "quality_flags": [
+    "exercises_no_project_function"
+   ],
+   "claims": "parallel claims fence state and preserve event order",
+   "execution_outcome": "skipped",
+   "exercises": [],
+   "exercise_count": 0,
+   "modules_exercised": [],
+   "judgment": "NOT ASSESSED",
+   "curated": {},
+   "snap_questions": [
+    "TS-01",
+    "TS-02",
+    "TS-03"
+   ]
+  },
+  {
+   "id": "tests/test_run_repository.py::test_expired_started_claim_interrupts_without_retry",
+   "file": "tests/test_run_repository.py",
+   "name": "test_expired_started_claim_interrupts_without_retry",
+   "line": 199,
+   "docstring": "",
+   "parametrized": false,
+   "fixtures": [
+    "repository"
+   ],
+   "assertions": 5,
+   "assert_forms": {
+    "equality": 2,
+    "is_none": 1,
+    "is_not_none": 1,
+    "negation": 1
+   },
+   "raises_checks": 0,
+   "uses": [],
+   "quality_flags": [
+    "exercises_no_project_function"
+   ],
+   "claims": "expired started claim interrupts without retry",
+   "execution_outcome": "skipped",
+   "exercises": [],
+   "exercise_count": 0,
+   "modules_exercised": [],
    "judgment": "NOT ASSESSED",
    "curated": {},
    "snap_questions": [
