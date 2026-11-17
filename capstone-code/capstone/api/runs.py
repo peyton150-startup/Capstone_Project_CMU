@@ -95,7 +95,9 @@ def public_run_configuration(
             settings.triage_model or settings.conclude_model or settings.default_model
             if applied else settings.conclude_model or settings.default_model
         ),
-        "model_attempts": "Configured only; inspect run model-call audit for actual attempts",
+        "model_attempts": (
+            "Configured only; inspect run model-call audit for actual attempts"
+        ),
         "scope": "simulator only; per-run; no controller operations",
     }
     # Digest is a stable, short correlation aid, never a credential.
