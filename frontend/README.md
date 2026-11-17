@@ -47,6 +47,39 @@ triage report, final recommendation and verification remain separately
 qualified artifacts: **live counters do not mean diagnosis, OEM measurement,
 or machine acceptance**. Early runs may have no new phase snapshots.
 
+### Final investigation report contract
+
+The managed-run page now distinguishes **execution progress** from **finished
+results**. When the worker completes successfully, the final snapshot and the
+restricted completed-audit projection populate the following sections:
+
+- **Final diagnosis:** incident and observed symptoms; agent's diagnosis,
+  assessment, source-cited evidence IDs, hypothesis ID, *uncalibrated* model
+  confidence, recommendation, rationale, unresolved questions, next check,
+  termination reason, research counts and deep escalation.
+- **Proposed action and human review:** proposal, target machine, stated
+  reason and evidence; recorded proposal status, count in the approval desk,
+  distinct simulated action started/finished ticks. A recorded approval is
+  never equivalent to an executed or verified intervention.
+- **Verification:** status (verified/failed/unverified), actual outcome
+  (resolved/unresolved/unknown), summary, tick and evidence IDs. Absent
+  verification is not replaced with a success or a zero-valued measurement.
+- **Completed technical audit:** evidence and competing hypotheses, including
+  supporting, contradicting and unexplained evidence; decision outcomes and
+  allowed reasoning metrics, pruned alternatives and citations. No private
+  tool arguments, model prompts, evaluator labels or simulator ground truth.
+- **Rapid triage report:** machine, alarm/tick, accepted/refused/no-answer
+  outcome, assessment, model and checked recommendations, next discriminating
+  check, escalation, held-open/unresolved reasons and linked observations.
+
+The read-only `/api/v1/lab/runs/{run_id}/investigation` route still defaults
+to the **final** completed audit. An explicit `phase=triage` or `phase=deep`
+retrieves that phase's completed audit using its server-owned investigation
+ID; the UI offers selectable audit tabs when those phases are applicable.
+An unavailable phase is `not_recorded`, never assumed healthy. Older runs
+may lack the new phase map, so separate phase results may not be recoverable.
+Normal access controls and the read-only pilot boundary remain unchanged.
+
 **Future work (not included here):**
 [Role-aware API Access](../docs/FRONTEND_ACCESS_FUTURE_WORK.md) proposes a
 viewer/operator/reviewer selector and role-specific memory-only credentials.
