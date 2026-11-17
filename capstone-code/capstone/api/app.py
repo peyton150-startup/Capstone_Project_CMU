@@ -617,23 +617,43 @@ def create_app(config: UiConfig | None = None) -> FastAPI:
 
     @app.get("/api/v1/lab/runs/{run_id}/investigation", dependencies=[Access])
     def managed_run_investigation(
-        run_id: str, workspace: Workspace = "simulator"
+        run_id: str,
+        workspace: Workspace = "simulator",
+        phase: Literal["final", "triage", "deep"] = "final",
     ) -> dict:
+        """Retrieve one completed phase by server-owned investigation id only.
+
+        The legacy no-phase route remains the final investigation. Never accept
+        client-supplied audit paths, run internals, or arbitrary investigation IDs.
+        """
         if workspace != "simulator":
             raise HTTPException(
                 status_code=403, detail="Pilot investigation access prohibited"
             )
         run = ensure_run(run_id)
+        snapshot = run["snapshot"]
+        final = snapshot.get("investigation") or {}
+        target = None
+        if phase == "final":
+            target = final.get("investigation_id")
+        else:
+            progress = snapshot.get("progress") or {}
+            stage = progress.get(phase) if isinstance(progress, dict) else None
+            if isinstance(stage, dict) and stage.get("mode") == phase:
+                target = stage.get("investigation_id")
+            # Legacy or triage-only records can have a final stage but no
+            # phase-specific progress map. Never infer an absent earlier phase.
+            if not isinstance(target, str) and final.get("mode") == phase:
+                target = final.get("investigation_id")
+        if not isinstance(target, str):
+            return {"availability": "not_recorded", "detail": None, "phase": phase}
         assert runner is not None
         path = runner.investigation_audit_path(run_id)
-        target = (run["snapshot"].get("investigation") or {}).get("investigation_id")
-        if not isinstance(target, str):
-            return {"availability": "not_recorded", "detail": None}
+        detail = safe_investigation_detail(path, target)
         return {
-            "availability": "available"
-            if (detail := safe_investigation_detail(path, target))
-            else "not_recorded",
+            "availability": "available" if detail is not None else "not_recorded",
             "detail": detail,
+            "phase": phase,
         }
 
     @app.get("/api/v1/lab/runs/{run_id}/observability", dependencies=[Access])
