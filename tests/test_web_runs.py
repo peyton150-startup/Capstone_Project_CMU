@@ -1026,6 +1026,7 @@ def test_deep_stage_transition_journal_survives_review_final_and_restart(tmp_pat
     from capstone.api.runs import SafeStageSnapshot
 
     cfg = config(tmp_path)
+    client = TestClient(create_app(cfg))
     manager = SimulatorRuns(cfg.run_db)
     run_id, investigation_id = str(uuid4()), str(uuid4())
     with manager._db() as db:
@@ -1076,7 +1077,6 @@ def test_deep_stage_transition_journal_survives_review_final_and_restart(tmp_pat
         state="awaiting_review",
     )
     path = f"/api/v1/lab/runs/{run_id}"
-    client = TestClient(create_app(cfg))
     progress = client.get(path, headers=auth(OPERATOR)).json()["snapshot"]["progress"]
     assert progress["latest"] == "deep"
     assert progress["deep_transition_total"] == 4
