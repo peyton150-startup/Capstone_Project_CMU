@@ -284,7 +284,11 @@ export function RunDetailPage() {
     <Panel title="Run status" subtitle={runId}>
       <DataRow label="State" value={<Pill text={run?.state || 'Unknown'} tone={toneFor(run?.state)}/>}/>
       <DataRow label="Scenario" value={run ? run.requested.kind + ', seed ' + run.requested.seed : 'Unconfirmed'}/>
-      <DataRow label="Mode" value={run?.requested.mode === 'triage' ? 'Triage then deep if needed' : 'Deep only'}/>
+      <DataRow label="Mode" value={run?.requested.mode === 'triage'
+        ? configuration?.effective_triage?.then_deep === false
+          ? 'Triage only — no deep escalation'
+          : 'Triage → deep if recommended'
+        : 'Deep only'}/>
       {run?.requested.mode === 'triage' && <DataRow label="Effective triage profile"
         value={(lastTriage?.data.triage_run_mode as string | undefined) ||
           run?.snapshot?.investigation?.triage_run_mode || 'Not recorded'}/>
