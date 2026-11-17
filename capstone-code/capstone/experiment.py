@@ -334,6 +334,7 @@ class TriageRecord(BaseModel):
     # TRIAGE_PLAN=fixed (Block 1): whether the triage took its first questions
     # from the fixed table instead of a model. False in older records.
     fixed_plan: bool = False
+    triage_run_mode: Literal["custom", "deterministic"] = "custom"
     # Set by code from the conclusion: whether a deep run should follow, and
     # whether one did (TRIAGE_THEN_DEEP=off stops after the triage).
     deep_recommended: bool

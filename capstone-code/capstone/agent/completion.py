@@ -21,6 +21,7 @@ filled in to make a record look complete.
 """
 
 from pathlib import Path
+from typing import Literal
 
 from capstone.agent.artifacts import (
     AgentConclusion,
@@ -142,6 +143,9 @@ class AuditRecord(Contract):
     pruned_candidates: tuple[PrunedCandidate, ...] = ()
     # The opt-in observed line packet; absent in older audit lines.
     incident_context: IncidentContext | None = None
+    # Effective execution mode, independent of raw environment overrides.
+    # A pre-profile audit defaults to its historical custom mode.
+    triage_run_mode: Literal["custom", "deterministic"] = "custom"
 
 
 def audit_record(state: InvestigationState) -> AuditRecord:
@@ -162,6 +166,7 @@ def audit_record(state: InvestigationState) -> AuditRecord:
         metrics=state.metrics(),
         pruned_candidates=tuple(state.pruned_candidates),
         incident_context=state.incident_context,
+        triage_run_mode=state.triage_run_mode,
     )
 
 

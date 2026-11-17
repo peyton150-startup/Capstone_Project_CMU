@@ -85,7 +85,8 @@ export type ManagedRun = {
     triage_report?: TriageReport | null; investigation?: { stage: string | null;
       tool_calls: number; evidence_count: number; hypothesis_count: number;
       termination_reason: string | null; unresolved_question_ids: string[];
-      hypothesis_progress?: SafeHypothesisProgress | null };
+      hypothesis_progress?: SafeHypothesisProgress | null;
+      triage_run_mode?: 'custom' | 'deterministic' | null };
     diagnosis?: string | null; recommendation?: string | null;
     action_executed?: boolean; verification_outcome?: string | null;
     deep_ran?: boolean; error_class?: string };

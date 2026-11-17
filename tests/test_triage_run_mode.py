@@ -98,7 +98,7 @@ def test_profile_contract_rejects_inconsistent_direct_instances():
 
 
 def test_direct_graph_entry_forces_stages_and_calls_only_conclude_model():
-    from tests.helpers import START
+    from tests.helpers import START, new_state
 
     def source(request):
         if request.name == "get_time":
@@ -117,9 +117,9 @@ def test_direct_graph_entry_forces_stages_and_calls_only_conclude_model():
         )
     )
     provider = FakeProvider(source, tick=45)
-    state = state_for()
-    state.triage_fixed_plan = False
-    state.fixed_plan_used = False
+    state = new_state(max_tool_calls=12, max_iterations=24)
+    state.mode = "triage"
+    state.anomaly = state_for().anomaly
     state.triage_packet_enabled = False
     state.triage_observe_separate = False
     deps = replace(
