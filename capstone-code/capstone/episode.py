@@ -337,7 +337,10 @@ def run_episode(
     #   diagnosis: The cause the judge read from the conclusion, if a judge was given.
     #   judged: Whether a judge was given.
     settings = get_settings()
-    if critic is None and settings.critic:
+    selecting_triage = triage_requested(settings, triage)
+    # Never instantiate a deep-only critic before a triage that may end
+    # without deep escalation. That configuration cannot block triage.
+    if critic is None and settings.critic and not selecting_triage:
         critic = Critic(
             critic_client(settings),
             getattr(policy, "tools", research_tools()),
@@ -459,9 +462,9 @@ def run_episode(
             f"(research has {research:g} s)"
         )
     triage_state, triage_seconds = None, None
-    if triage_requested(settings, triage):
-        triage_state, state, triage_seconds = run_triage_then_deep(
-            state, deps, budgets, settings, log
+    if selecting_triage:
+        triage_state, state, triage_seconds, critic = run_triage_then_deep(
+            state, deps, budgets, settings, log, manual=manual
         )
     else:
         run_investigation(state, deps)
@@ -503,11 +506,14 @@ def run_triage_then_deep(
     budgets: Budgets | None,
     settings,
     log: AuditLog | None,
-) -> tuple[InvestigationState, InvestigationState, float]:
+    *,
+    manual: ManualSearch | None = None,
+) -> tuple[InvestigationState, InvestigationState, float, Critic | None]:
     """Run a rapid triage on `first`, then a deep run if it leaves work.
 
     Returns the triage, the investigation to score (the deep run, or the
-    triage when none followed) and the triage's seconds on `deps.clock`.
+    triage when none followed), the triage's seconds on `deps.clock`, and
+    the critic actually used by deep (or None).
     The triage runs without the critic: its own time window would overrun a
     short deadline. The deep run is the next investigation of the same run
     (`investigation_id_for(run_id, 2)`), with normal budgets and approval;
@@ -574,7 +580,19 @@ def run_triage_then_deep(
     if log is not None and first.conclusion is not None and first.termination_reason:
         log.append(audit_record(first))
     if not (settings.triage_then_deep and first.deep_recommended):
-        return first, first, seconds
+        return first, first, seconds, deps.critic
+    # Create a deep-only optional critic only after a deep investigation is
+    # actually required, retaining the configured model/manual/approval path.
+    if deps.critic is None and settings.critic:
+        deps = replace(
+            deps,
+            critic=Critic(
+                critic_client(settings),
+                getattr(deps.policy, "tools", research_tools()),
+                manual=manual,
+                blind=settings.critic_blind,
+            ),
+        )
     deep = InvestigationState(
         run_id=first.run_id,
         investigation_id=investigation_id_for(first.run_id, 2),
@@ -589,4 +607,4 @@ def run_triage_then_deep(
         stage_context=first.stage_context,
     )
     run_investigation(deep, deps)
-    return first, deep, seconds
+    return first, deep, seconds, deps.critic
