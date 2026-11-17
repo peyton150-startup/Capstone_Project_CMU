@@ -8,9 +8,11 @@ on:
       - ".github/workflows/pr292-inventory-refresh.yml"
 permissions:
   contents: write
+# Keep only the newest source-matched inventory build; stale runs can block
+# the required inventory-before-CI gate and consume runner capacity.
 concurrency:
   group: pr292-inventory-refresh
-  cancel-in-progress: false
+  cancel-in-progress: true
 jobs:
   refresh:
     runs-on: ubuntu-latest
