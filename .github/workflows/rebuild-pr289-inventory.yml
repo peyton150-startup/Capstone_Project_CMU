@@ -12,8 +12,9 @@ permissions:
 
 jobs:
   rebuild:
+    name: Generate complete inventories without write credentials
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 45
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -24,7 +25,7 @@ jobs:
       - run: uv python install
       - run: uv sync --locked --all-extras
       - run: uv pip install --python .venv/bin/python -r frontend/requirements-api.txt
-      - name: Collect complete coverage even when stale inventory test fails
+      - name: Collect complete coverage even when pre-rebuild inventory test fails
         run: |
           uv run --no-sync pytest --cov=capstone --cov=evaltools --cov-context=test \
             --junitxml=junit.xml --cov-report=term-missing || true
@@ -33,23 +34,58 @@ jobs:
           cd evaluation
           uv run --no-sync python -m evaltools.build_inventory \
             --coverage ../.coverage --junit ../junit.xml
-      - name: Print bounded inventory chunks for reviewed PR branch update
+      - name: Upload just the reviewed inventory files
+        uses: actions/upload-artifact@v4
+        with:
+          name: pr289-inventory-rebuilt
+          if-no-files-found: error
+          retention-days: 1
+          path: |
+            evaluation/inventory/FUNCTION_INVENTORY.json
+            evaluation/inventory/TEST_INVENTORY.json
+            evaluation/inventory/TOOL_INVENTORY.json
+            evaluation/inventory/VERIFICATION_MATRIX.json
+
+  commit:
+    name: Update only PR289 inventory files
+    needs: rebuild
+    if: github.ref == 'refs/heads/feature/supabase-postgres-simulator-journal'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: feature/supabase-postgres-simulator-journal
+          persist-credentials: true
+      - uses: actions/download-artifact@v4
+        with:
+          name: pr289-inventory-rebuilt
+          path: "$RUNNER_TEMP/inventory"
+      - name: Copy generated inventories only
         run: |
-          python - <<'PY'
-          import json
-          from pathlib import Path
-          root = Path("evaluation/inventory")
-          for name in (
-              "FUNCTION_INVENTORY.json",
-              "TEST_INVENTORY.json",
-              "TOOL_INVENTORY.json",
-              "VERIFICATION_MATRIX.json",
-          ):
-              content = (root / name).read_text(encoding="utf-8")
-              chunks = [content[n:n+9000] for n in range(0, len(content), 9000)]
-              for i, chunk in enumerate(chunks):
-                  print("@@CAPSTONE_INVENTORY@@ " + json.dumps(
-                      {"file": name, "part": i, "count": len(chunks), "data": chunk},
-                      separators=(",", ":"),
-                  ))
-          PY
+          set -euo pipefail
+          for name in FUNCTION_INVENTORY.json TEST_INVENTORY.json TOOL_INVENTORY.json VERIFICATION_MATRIX.json; do
+            source="$RUNNER_TEMP/inventory/evaluation/inventory/$name"
+            if [ ! -f "$source" ]; then
+              source="$RUNNER_TEMP/inventory/$name"
+            fi
+            test -f "$source"
+            python -m json.tool "$source" >/dev/null
+            cp "$source" "evaluation/inventory/$name"
+          done
+      - name: Commit inventory snapshot to the same PR branch
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -- evaluation/inventory/FUNCTION_INVENTORY.json \
+            evaluation/inventory/TEST_INVENTORY.json \
+            evaluation/inventory/TOOL_INVENTORY.json \
+            evaluation/inventory/VERIFICATION_MATRIX.json
+          if git diff --cached --quiet; then
+            echo "No inventory changes were needed"
+            exit 0
+          fi
+          git commit -m "evaluation: rebuild inventory for Supabase journal changes"
+          git push origin HEAD:refs/heads/feature/supabase-postgres-simulator-journal
