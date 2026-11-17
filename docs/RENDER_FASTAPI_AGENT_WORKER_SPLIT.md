@@ -48,7 +48,7 @@ Render BACKGROUND WORKER: capstone-agent-worker
 | `app.py:/events` | SSE via `StreamingResponse`, `since`, `Last-Event-ID`, keepalives, terminal close. | Keep public wire contract, query shared events; reconnect across API instances. |
 | `capstone-code/capstone/episode.py:run_episode` | Creates synthetic CNC world and `ApprovalDesk`; injects human `approver` callback, `watch` and event log; Pydantic Graph performs triage/deep steps and verification. | Keep inside worker; inject durable callback/sinks. Simulator truth stays worker-side. |
 | `capstone-code/capstone/experiment.py:model_policy_factory` | Creates provider/model-backed policy from settings. | Worker-only; no model keys in public API. |
-| `capstone-code/capstone/settings.py` | Has `TRIAGE_PLAN`, `TRIAGE_INVESTIGATE`, `TRIAGE_MODEL` and model routing. Deterministic investigation **requires** a fixed plan. | Preserve settings validator; snapshot mode/config to explain observed behavior. |
+| `capstone-code/capstone/settings.py` | Has `TRIAGE_PLAN`, `TRIAGE_INVESTIGATE`, `TRIAGE_MODEL` and model routing. Deterministic investigation **requires** a fixed plan. PR #285 adds the opt-in `TRIAGE_HYPOTHESIZE=deterministic` setting. | Preserve settings validator; snapshot mode/config, including the hypothesis strategy, to explain observed behavior. |
 | `capstone-code/capstone/database/connection.py`, `migrations/` | Existing Postgres connectivity + Alembic for episodic memory. | Add independent run tables and migration. `DATABASE_URL` does NOT currently replace `CAPSTONE_UI_RUN_DB`. |
 | `frontend/src/pages/managed.tsx` | React posts runs/reviews, GETs runs, streams with authenticated `fetch`. | Preserve URLs, run IDs, response names; use a production same-origin `/api` reverse proxy. |
 | `capstone-code/capstone/api/__main__.py` | Starts Uvicorn bound to localhost (`127.0.0.1:8000`). | Render web starts ASGI on `0.0.0.0:$PORT`, not the current localhost launcher. |
@@ -73,7 +73,7 @@ Reviewed actual bodies of `runs.py:submit`, `_await_review`, `decide`, `_execute
 6. **Browser CORS is loopback-only and GET-only.** Current `allow_origins` are localhost and `allow_methods=["GET"]`. Browser POST and `Idempotency-Key` need approved CORS/preflight or, preferably, a same-origin reverse proxy.
 7. **Test coverage is mainly in-process.** `test_run_roles_and_idempotency`, `test_durable_pending_approval_and_double_decision`, `test_review_decision_is_durable_before_episode_resumes`, `test_restart_interruption_and_private_token_validation` and `test_sse_reconnect_resumes_from_last_event_id` patch `SimulatorRuns._execute`. They do **not** establish process-separated web-to-worker behavior.
 8. **Event ordering and secrecy matter.** `_emit` keeps a snapshot/event transaction; preserve this atomically and fence stale workers. `EventLogger` and `safe_stage` limit operational fields; exclude prompts, provider error messages, keys, hidden simulator truth, private audit content and real pilot telemetry from API and logs.
-9. **Deterministic triage is not a wholly deterministic LLM-free episode.** `TRIAGE_PLAN=fixed` and `TRIAGE_INVESTIGATE=deterministic` gate the deterministic plan/decide path; hypothesis/conclusion still use model calls. The worker must preserve this separation and evaluation settings.
+9. **Deterministic triage is not a wholly deterministic LLM-free episode.** `TRIAGE_PLAN=fixed` and `TRIAGE_INVESTIGATE=deterministic` gate the deterministic plan/decide path. PR #285 adds optional `TRIAGE_HYPOTHESIZE=deterministic`, which compiles unscored, evidence-linked candidates without a model call; the default/model Hypothesize and Conclude remain model-backed. The worker must preserve these distinct modes, their conservative no-action behavior, and evaluation settings.
 10. **Every restart/timeout is a safety event.** Render `SIGTERM` and an expired lease must not silently rerun a possibly approved simulator action or mark an interrupted run as verified. No automatic retry of a started episode without separate idempotent checkpoint design.
 
 ### Existing tests that must remain valid
@@ -162,7 +162,7 @@ Create Render Postgres in **Virginia**, use the **internal** `DATABASE_URL` for 
 | `PYTHON_VERSION=3.14.7`, `UV_VERSION=0.13.0` | yes | yes | Current repo / CI pins; Render supports both |
 | `DATABASE_URL` | yes | yes | Existing for memory, **new run tables required** |
 | `NVIDIA_API_KEY` / approved provider keys | **no** | yes | Worker only; secrets never to browser |
-| `DEFAULT_MODEL`, `TRIAGE_MODEL`, `TRIAGE_PLAN`, `TRIAGE_INVESTIGATE` | only safe resolved mode metadata | yes | Existing settings. Fixed plan required with deterministic investigate |
+| `DEFAULT_MODEL`, `TRIAGE_MODEL`, `TRIAGE_PLAN`, `TRIAGE_INVESTIGATE`, and (after PR #285) `TRIAGE_HYPOTHESIZE` | only safe resolved mode metadata | yes | Fixed plan required for deterministic investigate; preserve optional deterministic hypothesis mode |
 | `CAPSTONE_UI_TOKEN` | yes; replace with stronger hosted identity | no | Existing read token, mandatory when hosted |
 | `CAPSTONE_UI_RUN_TOKEN` / `CAPSTONE_UI_REVIEW_TOKEN` | distinct role secrets | no | Existing role settings, adapt to actor scoping |
 | `CAPSTONE_UI_EVALUATOR_TOKEN` | only if evaluator enabled | no | Distinct evaluator role |
