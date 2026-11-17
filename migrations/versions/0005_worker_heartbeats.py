@@ -5,8 +5,6 @@ Revises: 0004_worker_artifacts
 """
 
 from alembic import op
-from sqlalchemy import text
-
 revision = "0005_worker_heartbeats"
 down_revision = "0004_worker_artifacts"
 branch_labels = None

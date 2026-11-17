@@ -101,7 +101,8 @@ def repository(monkeypatch):
         connection.exec_driver_sql(
             "TRUNCATE capstone_private.sim_run_artifacts, "
             "capstone_private.sim_run_reviews, capstone_private.sim_run_events, "
-            "capstone_private.sim_jobs, capstone_private.sim_runs"
+            "capstone_private.sim_jobs, capstone_private.sim_runs, "
+            "capstone_private.sim_worker_heartbeats"
         )
     yield instance
     instance.close()
@@ -451,3 +452,103 @@ def test_hosted_uses_prior_safe_stage_contract_after_pr294_merge():
         assert StagePayload is runs.SafeStageSnapshot
         if "decide_events_recent" in runs.SafeStageSnapshot.model_fields:
             assert "decide_events_recent" in StagePayload.model_fields
+
+
+def test_queued_run_stays_queued_until_matching_build_can_claim(repository):
+    """Never execute on a worker with different immutable strategy/build."""
+    configured = RunExecutionConfig(source_revision="a" * 40)
+    submitted = repository.submit(
+        RunRequest(seed=101), "compatible-queue-revision-101",
+        actor_id="hosted-simulator", effective_config=configured,
+    )
+    assert repository.claim(
+        "worker-wrong-build",
+        expected_config=RunExecutionConfig(source_revision="b" * 40),
+    ) is None
+    assert repository.get(submitted["run_id"])["state"] == "queued"
+    claimed = repository.claim("worker-right-build", expected_config=configured)
+    assert claimed is not None
+    assert claimed.attempt == 1
+    assert claimed.effective_config == configured
+
+
+def test_worker_idle_pulse_is_durable_and_never_exposes_revision(repository):
+    repository.worker_heartbeat(
+        "worker:healthy", source_revision="a" * 40, status="idle"
+    )
+    metrics = repository.queue_metrics()
+    assert metrics["worker_liveness"] == "healthy"
+    assert metrics["healthy_workers"] >= 1
+    assert metrics["last_worker_pulse_age_seconds"] is not None
+    assert "worker:healthy" not in str(metrics)
+    assert "a" * 40 not in str(metrics)
+    with pytest.raises(ValueError):
+        repository.worker_heartbeat(
+            "worker:bad", source_revision="private-password", status="idle"
+        )
+
+
+def test_expiry_preserves_last_good_triage_and_never_replays(repository):
+    from uuid import uuid4
+    from capstone.api.run_repository import StagePayload
+
+    submitted = repository.submit(
+        RunRequest(seed=102), "progress-expiry-102-unique",
+        actor_id="hosted-simulator", effective_config=RunExecutionConfig(),
+    )
+    claim = repository.claim("worker-one")
+    assert claim is not None
+    safe = StagePayload(
+        investigation_id=str(uuid4()), mode="triage", stage="investigate",
+        iteration_count=1, tool_calls=1, evidence_count=1,
+        hypothesis_count=0, unresolved_question_ids=[],
+        conclusion_available=False,
+    ).model_dump(mode="json")
+    repository.publish_progress(claim, "worker-one", safe)
+    with repository.engine.begin() as connection:
+        connection.exec_driver_sql(
+            "UPDATE capstone_private.sim_jobs SET lease_until = "
+            "CURRENT_TIMESTAMP - interval '1 second' WHERE run_id = %s",
+            (claim.run_id,),
+        )
+    assert repository.recover_expired() == [submitted["run_id"]]
+    view = repository.get(submitted["run_id"])
+    assert view["state"] == "interrupted"
+    assert view["snapshot"]["progress"]["latest"]["tool_calls"] == 1
+    assert repository.claim("worker-two") is None
+
+
+def test_terminal_progress_is_authoritative_over_late_queue_writer(repository):
+    from uuid import uuid4
+    from capstone.api.run_repository import StagePayload
+
+    submitted = repository.submit(
+        RunRequest(seed=103), "terminal-authoritative-103",
+        actor_id="hosted-simulator", effective_config=RunExecutionConfig(),
+    )
+    claim = repository.claim("worker-one")
+    assert claim is not None
+    base = {
+        "investigation_id": str(uuid4()), "mode": "triage",
+        "iteration_count": 1, "tool_calls": 1, "evidence_count": 1,
+        "hypothesis_count": 0, "unresolved_question_ids": [],
+        "conclusion_available": False,
+    }
+    early = StagePayload(**base, stage="investigate").model_dump(mode="json")
+    final = StagePayload(**{
+        **base, "stage": "conclude", "iteration_count": 2,
+        "conclusion_available": True,
+    }).model_dump(mode="json")
+    repository.publish_progress(claim, "worker-one", early)
+    repository.transition(
+        claim, "worker-one", "completed", "run.completed",
+        {"status": "completed", "mode": "triage"},
+        final_progress=final,
+    )
+    with pytest.raises(LostLease):
+        repository.publish_progress(claim, "worker-one", early)
+    row = repository.get(submitted["run_id"])
+    assert row["snapshot"]["progress"]["latest"]["stage"] == "conclude"
+    assert [event["event"] for event in repository.events_since(
+        submitted["run_id"], 0
+    )][-2:] == ["stage.updated", "run.completed"]

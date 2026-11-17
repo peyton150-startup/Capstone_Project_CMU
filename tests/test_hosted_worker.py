@@ -118,10 +118,15 @@ def test_idle_worker_does_not_start_an_agent(monkeypatch):
         def ready(self):
             return True
 
+        def worker_heartbeat(self, owner, *, source_revision, status):
+            assert status in {"idle", "running"}
+            assert owner.startswith("worker:")
+
         def recover_expired(self):
             return []
 
-        def claim(self, owner, *, lease_seconds=60):
+        def claim(self, owner, *, lease_seconds=60, expected_config=None):
+            assert expected_config is not None
             assert owner.startswith("worker:")
             stop.set()
             return None
@@ -313,3 +318,17 @@ def test_hosted_fastapi_routes_do_not_start_worker_or_expose_private_audit(monke
         headers=reviewer, json={"proposal_id": 1, "decision": "reject"},
     ).status_code == 200
     assert observed["decisions"] == 1
+
+
+def test_worker_logs_only_allowlisted_failure_codes_and_build_sha(caplog, monkeypatch):
+    from capstone.worker.runner import record
+
+    monkeypatch.setenv("RENDER_GIT_COMMIT", "a" * 40)
+    with caplog.at_level(logging.INFO, logger="capstone.worker"):
+        record("failed", failure_code="configuration_mismatch", api_key="SECRET")
+    event = json.loads(caplog.records[-1].message)
+    assert event["failure_code"] == "configuration_mismatch"
+    assert event["revision"] == "a" * 12
+    assert "SECRET" not in caplog.records[-1].message
+    with pytest.raises(ValueError):
+        record("failed", failure_code="private provider exception")
