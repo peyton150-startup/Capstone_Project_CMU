@@ -111,6 +111,53 @@ def test_hypothesis_packet_rejects_duplicate_candidates_and_unsafe_reads():
         )
 
 
+def test_multi_machine_and_missing_telemetry_remain_unscored_candidates():
+    """Coverage uncertainty adds test possibilities, never a causal conclusion."""
+    from capstone.agent.evidence_packet import EvidencePacket
+
+    state, deps, _ = case()
+    investigate(state, deps)
+    first = compile_candidates(state)
+    state.triage_packet = EvidencePacket(
+        machine_id=state.anomaly.machine_id,
+        trigger_tick=state.anomaly.tick,
+        roster=("CNC-01", "CNC-02", "CNC-03"),
+        roster_verified=True,
+        screened_machines=("CNC-01", "CNC-02"),
+        absent_from_screening=("CNC-03",),
+    )
+    expanded = compile_candidates(state)
+    families = {candidate.family for candidate in expanded[0]}
+    assert "cross_machine_review" in families
+    assert "telemetry_coverage_gap" in families
+    assert expanded == compile_candidates(state)
+    assert len(expanded[0]) > len(first[0])
+    assert all(candidate.status == "unconfirmed" for candidate in expanded[0])
+    assert all(not hasattr(candidate, "confidence") for candidate in expanded[0])
+    state.triage_packet = state.triage_packet.model_copy(
+        update={"roster_verified": False, "screened_machines": ()}
+    )
+    reduced = compile_candidates(state)
+    assert "cross_machine_review" not in {
+        candidate.family for candidate in reduced[0]
+    }
+
+
+def test_unchecked_mutation_cannot_leak_fake_candidate_family():
+    from capstone.api.runs import safe_hypothesis_progress
+
+    state, deps, _ = case()
+    investigate(state, deps)
+    hypothesize(state, deps)
+    original = state.triage_candidates[0]
+    state.triage_candidates = [
+        original.model_copy(update={"family": "api_token_injected"})
+    ]
+    projected = safe_hypothesis_progress(state)
+    assert projected["candidate_count"] == 0
+    assert "api_token_injected" not in json.dumps(projected)
+
+
 def test_candidate_compiler_is_unscored_and_repeatable():
     state, deps, _ = case()
     assert investigate(state, deps) == "continue"
