@@ -34,7 +34,7 @@ def record(event: str, *, claim: JobClaim | None = None, **counts: int) -> None:
     if claim is not None:
         body["run_id"] = str(claim.run_id)
         body["job_id"] = str(claim.job_id)
-    for key in ("duration_ms", "count"):
+    for key in ("duration_ms", "count", "queue_wait_ms", "attempt"):
         value = counts.get(key)
         if type(value) is int and 0 <= value <= 1_000_000_000:
             body[key] = value
@@ -203,6 +203,16 @@ def execute_claim(
             finished.set()
             writer.join(timeout=5)
             alive()
+            if missed[0]:
+                # Optional observer failures must not fail the investigation.
+                try:
+                    repository.publish_resync(
+                        claim, owner, min(missed[0], 1_000_000)
+                    )
+                except LostLease:
+                    raise
+                except Exception:
+                    record("progress_dropped", claim=claim, count=missed[0])
             repository.publish_progress(claim, owner, final)
             repository.transition(
                 claim, owner, "completed", "run.completed", {
@@ -282,7 +292,10 @@ def serve_worker(
         if claim is None:
             stop.wait(poll_seconds)
             continue
-        record("claimed", claim=claim)
+        record(
+            "claimed", claim=claim,
+            queue_wait_ms=claim.queue_wait_ms, attempt=claim.attempt,
+        )
         execute_claim(repository, claim, owner, stop=stop)
         completed += 1
         if max_jobs is not None and completed >= max_jobs:
