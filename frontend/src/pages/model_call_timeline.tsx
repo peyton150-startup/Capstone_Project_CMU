@@ -38,6 +38,14 @@ type ModelCallResponse = {
   availability: 'available' | 'not_recorded';
   window_scope: 'latest_200';
   truncated: boolean;
+  configuration: 'configured' | 'missing_credentials' | 'invalid_configuration' | null;
+  summary: {
+    schema_version: 1;
+    questions_seen: number;
+    questions_persisted: number;
+    write_failures: number;
+    complete: boolean;
+  } | null;
   items: ModelCall[];
 };
 
@@ -86,10 +94,23 @@ export function ModelCallTimeline({ runId }: { runId: string | undefined }) {
       title="Model telemetry was not collected for this run"
       detail="Older investigations predate model-call recording. Run a new investigation with an updated backend."/>}
     {resource.loading && !resource.data && <p className="body-copy">Reading model request history…</p>}
+    {resource.data?.configuration === 'missing_credentials' && <InfoState
+      kind="warning" title="Model provider credentials were not configured"
+      detail="The backend could not initialize the selected model. For Local, check the API process environment and .env; for Render, check that service's secret environment variables."/>}
+    {resource.data?.configuration === 'invalid_configuration' && <InfoState
+      kind="warning" title="Model provider configuration failed"
+      detail="The backend could not construct its model client. Check the selected backend's model routing and provider settings; private exception details are never sent to the browser."/>}
+    {resource.data?.summary && !resource.data.summary.complete && <InfoState
+      kind="warning" title="Model call history is incomplete"
+      detail={'The worker observed ' + resource.data.summary.questions_seen +
+        ' questions but persisted ' + resource.data.summary.questions_persisted +
+        '. A storage error prevented complete telemetry capture.'}/>}
     {resource.data?.availability === 'available' && <>
       <div className="form-grid">
         <DataRow label="Model questions" value={calls.length}/>
         <DataRow label="Recorded attempts" value={attempts}/>
+        <DataRow label="Journal completeness" value={resource.data.summary ?
+          resource.data.summary.complete ? 'Complete' : 'Incomplete' : 'In progress / unknown'}/>
         <DataRow label="Reported input tokens" value={inTokens || 'None reported'}/>
         <DataRow label="Reported output tokens" value={outTokens || 'None reported'}/>
       </div>
