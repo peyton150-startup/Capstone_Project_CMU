@@ -411,7 +411,11 @@ def update_candidate_packet(
             }
         ),
         unresolved_questions=len(
-            {qid for candidate in packet.candidates for qid in candidate.open_question_ids}
+            {
+                qid
+                for candidate in packet.candidates
+                for qid in candidate.open_question_ids
+            }
         ),
     )
     state.triage_hypothesis_trace.append(trace)
