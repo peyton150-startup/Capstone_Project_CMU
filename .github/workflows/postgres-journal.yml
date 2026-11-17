@@ -8,6 +8,8 @@ on:
       - "migrations/**"
       - "tests/test_postgres_journal.py"
       - "tests/test_run_repository.py"
+      - "tests/test_hosted_worker.py"
+      - "capstone-code/capstone/worker/**"
       - "tests/test_migrations.py"
       - ".github/workflows/postgres-journal.yml"
   push:
@@ -17,6 +19,8 @@ on:
       - "migrations/**"
       - "tests/test_postgres_journal.py"
       - "tests/test_run_repository.py"
+      - "tests/test_hosted_worker.py"
+      - "capstone-code/capstone/worker/**"
       - "tests/test_migrations.py"
       - ".github/workflows/postgres-journal.yml"
 
@@ -70,7 +74,7 @@ jobs:
           docker logs capstone-test-postgres
           exit 1
       - name: Migration, concurrency, idempotency and artifact recovery
-        run: uv run --no-sync pytest tests/test_migrations.py tests/test_postgres_journal.py tests/test_run_repository.py -q
+        run: uv run --no-sync pytest tests/test_migrations.py tests/test_postgres_journal.py tests/test_run_repository.py tests/test_hosted_worker.py -q
       - name: Stop disposable PostgreSQL
         if: always()
         run: docker stop capstone-test-postgres || true
