@@ -467,7 +467,9 @@ def test_typed_stage_projection_excludes_agent_internals():
     assert "DO-NOT-EXPOSE" not in json.dumps(projected)
     assert "simulator_ground_truth" not in projected
     with pytest.raises(ValidationError):
-        SafeStageSnapshot.model_validate({**projected, "private_provider_prompt": "oops"})
+        SafeStageSnapshot.model_validate(
+            {**projected, "private_provider_prompt": "oops"}
+        )
     with pytest.raises(ValidationError):
         SafeStageSnapshot.model_validate({**projected, "tool_calls": -1})
 
@@ -533,7 +535,10 @@ def test_progress_keeps_both_investigation_phases_through_restart_and_terminal_e
         state="awaiting_review",
     )
     during_review = client.get(status_url, headers=auth(OPERATOR)).json()["snapshot"]
-    assert during_review["progress"]["triage"]["investigation_id"] == triage["investigation_id"]
+    assert (
+        during_review["progress"]["triage"]["investigation_id"]
+        == triage["investigation_id"]
+    )
     assert during_review["progress"]["deep"]["tool_calls"] == 5
     assert during_review["progress"]["latest"] == "deep"
 
@@ -547,7 +552,10 @@ def test_progress_keeps_both_investigation_phases_through_restart_and_terminal_e
     assert final["snapshot"]["diagnosis"] == "unverified"
     assert final["snapshot"]["progress"]["triage"]["evidence_count"] == 38
     assert final["snapshot"]["progress"]["deep"]["hypothesis_count"] == 2
-    assert client.get(f"{status_url}/events?since=2", headers=auth(TOKEN)).status_code == 200
+    assert (
+        client.get(f"{status_url}/events?since=2", headers=auth(TOKEN)).status_code
+        == 200
+    )
 
     recovered = SimulatorRuns(cfg.run_db)
     persisted = recovered.get(run_id)
