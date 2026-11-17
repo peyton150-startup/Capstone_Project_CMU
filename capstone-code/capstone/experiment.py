@@ -580,7 +580,8 @@ def triage_record(
         return None
     from capstone.settings import get_settings
 
-    evidence_tests = get_settings().triage_evidence_tests
+    # Store the effective, not the contradictory raw, safety gate.
+    evidence_tests = get_settings().effective_triage.evidence_tests
     concluded = first.conclusion
     return TriageRecord(
         seconds=result.triage_seconds,
@@ -633,6 +634,7 @@ def triage_record(
         evidence_tests=evidence_tests,
         test_records=list(first.triage_test_records),
         fixed_plan=first.fixed_plan_used,
+        triage_run_mode=first.triage_run_mode,
         deep_recommended=bool(first.deep_recommended),
         deep_ran=result.state is not first,
         metrics=triage_metrics(first, calls),
