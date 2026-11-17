@@ -36,6 +36,21 @@ PostgreSQL is a server-side dependency. The React browser calls FastAPI, not
 PostgreSQL. Do not set `VITE_DATABASE_URL`, `NEXT_PUBLIC_DATABASE_URL`,
 `SUPABASE_SERVICE_ROLE_KEY` or a database password in Vercel.
 
+## Existing Supabase project security warning (read-only audit)
+
+The Supabase security advisor currently flags `public.rls_auto_enable()`, a
+`SECURITY DEFINER` event-trigger function, as executable by `anon` and
+`authenticated`. Read-only inspection confirms both roles have `EXECUTE`
+grants. The function body enables RLS on newly created tables in `public`;
+an event-trigger function's direct RPC behavior still needs independent
+verification, so the lint is a **configuration finding**, not proof of
+exploitation. Review its provenance and revoke unneeded `EXECUTE` from
+client roles before ingesting plant data. Its owner/definition were **not
+modified in this PR**.
+
+Security advisor reference:
+https://supabase.com/docs/guides/database/database-linter?lint=0028_anon_security_definer_function_executable
+
 ## Remote journal semantics
 
 - SQLite is still the default. Only `CAPSTONE_UI_SIM_RUNS=1` **and**
