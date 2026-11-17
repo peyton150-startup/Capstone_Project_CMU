@@ -34,6 +34,15 @@ jobs:
           cd evaluation
           uv run --no-sync python -m evaltools.build_inventory \
             --coverage ../.coverage --junit ../junit.xml
+      - name: Rerun full suite against refreshed inventory (must pass)
+        run: |
+          uv run --no-sync pytest --cov=capstone --cov=evaltools --cov-context=test \
+            --junitxml=junit.xml --cov-report=term-missing
+      - name: Rebuild final inventory with passing test outcomes
+        run: |
+          cd evaluation
+          uv run --no-sync python -m evaltools.build_inventory \
+            --coverage ../.coverage --junit ../junit.xml
       - name: Upload just the reviewed inventory files
         uses: actions/upload-artifact@v4
         with:
