@@ -121,6 +121,8 @@ def test_sqlite_model_journal_preserves_snapshot_across_restart(tmp_path):
     )
 
     assert runner.get(run_id)["snapshot"] == original
+    # Generic SSE never replays model rows, even if a database row is corrupt.
+    assert runner.events_since(run_id, 0) == []
     calls = runner.model_calls(run_id)
     assert calls["availability"] == "available"
     assert calls["configuration"] == "configured"
@@ -143,6 +145,8 @@ def test_sqlite_model_journal_preserves_snapshot_across_restart(tmp_path):
             ),
         )
     assert len(restarted.model_calls(run_id)["items"]) == 2
+    assert restarted.model_calls(run_id)["invalid_rows"] == 1
+    assert restarted.events_since(run_id, 0) == []
     assert "nvapi-test-secret" not in json.dumps(restarted.model_calls(run_id))
 
 
