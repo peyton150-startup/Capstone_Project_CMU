@@ -7,6 +7,7 @@ import { useUi } from '../context';
 import type { Capabilities, InvestigationDetail, ListResponse, ManagedRun, ReviewRequest, RunEvent, StageProgress, TriageReport } from '../types';
 import { DataRow, formatStamp, InfoState, PageHeading, Panel, Pill, toneFor, Unavailable } from '../ui';
 import { AuditPhaseOutcome, FinalRunOutcome } from './run_outcome';
+import { DeepInvestigationProgress } from './deep_progress';
 
 type OperationalEvent = { event: string; run_id?: string; investigation_id?: string;
   tick?: number; tool?: string; success?: boolean; counts?: Record<string,number> };
@@ -382,6 +383,7 @@ export function RunDetailPage() {
       {run?.snapshot?.error_class && <DataRow label="Failure classification" value={run.snapshot.error_class}/>}
     </Panel>
     <LiveProgress run={run}/>
+    <DeepInvestigationProgress run={run}/>
     {run?.requested.mode === 'triage' && <Panel title="Triage evidence packet"
       subtitle="Source-linked coverage, not a root-cause finding">
       {packet?.counts ? <>
