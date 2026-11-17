@@ -377,6 +377,11 @@ def create_app(config: UiConfig | None = None) -> FastAPI:
                 if cfg.run_backend == "hosted" and runner is not None
                 else ("enabled" if runner is not None else "not_integrated")
             ),
+            "run_queue": (
+                runner.queue_metrics()
+                if cfg.run_backend == "hosted" and runner is not None
+                else None
+            ),
             "progress_stream": "enabled" if runner is not None else "not_integrated",
             "recorder_connection": snap["recorder"]["connection_state"]
             if snap["recorder"]
