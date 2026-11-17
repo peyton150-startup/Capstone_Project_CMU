@@ -363,9 +363,10 @@ class Settings(BaseSettings):
         default="fixed", validation_alias="TRIAGE_PLAN"
     )
 
-    # Opt-in model-free Hypothesize; the existing controller stays the default.
+    # Model-free, unscored Hypothesize is the triage default. Explicit
+    # "model" remains a supported comparison arm; deep is unchanged.
     triage_hypothesize: Literal["model", "deterministic"] = Field(
-        default="model", validation_alias="TRIAGE_HYPOTHESIZE"
+        default="deterministic", validation_alias="TRIAGE_HYPOTHESIZE"
     )
 
     @model_validator(mode="after")

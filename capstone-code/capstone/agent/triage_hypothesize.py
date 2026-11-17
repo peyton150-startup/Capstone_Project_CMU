@@ -7,7 +7,7 @@ it never reads simulator fault labels or assigns probabilities.
 
 from typing import TYPE_CHECKING, Literal
 
-from pydantic import Field
+from pydantic import Field, model_validator
 
 from capstone.contracts import Contract
 
@@ -16,11 +16,22 @@ if TYPE_CHECKING:
     from capstone.agent.state import InvestigationState
 
 
+# Reproducible rules: advance the version deliberately when family logic changes.
+TRIAGE_HYPOTHESIS_RULE_VERSION = "1.1"
+CandidateFamily = Literal[
+    "machine_condition", "operating_load", "sensor_or_transient",
+    "related_quality", "stoppage_event", "process_condition",
+    "service_context", "common_machine_path", "common_material_batch",
+    "preceding_events", "observed_event", "quality_signal",
+    "cross_machine_review", "telemetry_coverage_gap",
+]
+
+
 class TriageCandidate(Contract):
     """A source-linked possibility, without fabricated model confidence."""
 
     id: str = Field(pattern=r"^TC[1-9][0-9]*$")
-    family: str = Field(min_length=1)
+    family: CandidateFamily
     explanation: str = Field(min_length=1)
     machine_id: str | None = None
     status: Literal["unconfirmed"] = "unconfirmed"
@@ -34,10 +45,50 @@ class TriageCandidate(Contract):
     open_question_ids: tuple[str, ...] = ()
 
 
+class TriageHypothesisPacket(Contract):
+    """Unscored, validated decision input for deterministic Test planning."""
+
+    rule_version: Literal["1.1"] = "1.1"
+    source_cutoff_tick: int | None = Field(default=None, ge=0)
+    candidates: tuple[TriageCandidate, ...] = ()
+    test_requirement_ids: tuple[str, ...] = ()
+
+    @model_validator(mode="after")
+    def consistent_test_plan(self):
+        ids = [candidate.id for candidate in self.candidates]
+        if ids != [f"TC{n}" for n in range(1, len(ids) + 1)]:
+            raise ValueError("candidate IDs must be unique and stable")
+        if len(set(self.test_requirement_ids)) != len(self.test_requirement_ids):
+            raise ValueError("test requirement IDs must not repeat")
+        relevant = {
+            rid for candidate in self.candidates
+            for rid in candidate.discriminating_requirement_ids
+        }
+        if not set(self.test_requirement_ids) <= relevant:
+            raise ValueError("test requirements must derive from known candidates")
+        for candidate in self.candidates:
+            targets = set(candidate.discriminating_requirement_ids)
+            if not set(candidate.missing_requirement_ids) <= targets:
+                raise ValueError("candidate missing requirements are not targeted")
+            if not set(candidate.unavailable_requirement_ids) <= set(
+                candidate.missing_requirement_ids
+            ):
+                raise ValueError("unavailable requirements must be unresolved")
+            if len(targets) != len(candidate.discriminating_requirement_ids):
+                raise ValueError("duplicate candidate requirements")
+            if len(set(candidate.observation_evidence_ids)) != len(
+                candidate.observation_evidence_ids
+            ):
+                raise ValueError("duplicate evidence references")
+        return self
+
+
 class TriageHypothesisTrace(Contract):
     """A bounded, replayable record of the fixed candidate compiler."""
 
     stage: Literal["hypothesize", "test"]
+    rule_version: Literal["1.1"] = "1.1"
+    source_cutoff_tick: int | None = Field(default=None, ge=0)
     action: Literal["compiled", "refreshed", "no_candidates"]
     candidate_ids: tuple[str, ...] = ()
     requirement_ids: tuple[str, ...] = ()
@@ -152,6 +203,31 @@ def rule_specs(
     return GENERIC_RULES
 
 
+def _supplemental_rules(state: "InvestigationState"):
+    """Coverage checks based on observed packet metadata, never hidden faults."""
+    packet = state.triage_packet
+    if packet is None:
+        return ()
+    specs = []
+    if packet.roster_verified and len(packet.screened_machines) >= 2:
+        # Multiple observed machines are not evidence of multiple faults.
+        specs.append((
+            "cross_machine_review",
+            "Compare observed machines without inferring a shared cause",
+            ("Q3:events", "Q5:load", "Q1:events", "Q2:load"),
+        ))
+    if packet.absent_from_screening or any(
+        item.status == "missing" and item.source_type == "live_sensor"
+        for item in packet.items
+    ):
+        specs.append((
+            "telemetry_coverage_gap",
+            "Missing observations leave some explanations untested",
+            ("Q1:trigger", "Q2:load", "Q5:load", "Q1:events"),
+        ))
+    return tuple(specs)
+
+
 def compile_candidates(
     state: "InvestigationState",
     *,
@@ -178,7 +254,9 @@ def compile_candidates(
     open_questions.update(state.triage_question_gaps)
     candidates: list[TriageCandidate] = []
     tests: list[str] = []
-    for family, explanation, parts in rule_specs(state):
+    for family, explanation, parts in (
+        *rule_specs(state), *_supplemental_rules(state)
+    ):
         target_ids = [rid for rid in parts if rid in available]
         if family == "common_machine_path":
             target_ids.extend(
@@ -256,11 +334,40 @@ def update_candidate_packet(
             if permitted_triage_read(requirement, deps, state)
         )
     candidates, test_ids = compile_candidates(state, eligible_requirement_ids=eligible)
-    state.triage_candidates = list(candidates)
-    state.triage_test_requirement_ids = test_ids
+    try:
+        packet = TriageHypothesisPacket(
+            source_cutoff_tick=state.triage_observation_cutoff_tick,
+            candidates=candidates,
+            test_requirement_ids=test_ids,
+        )
+        # Provider source boundaries and question/evidence provenance are
+        # checked BEFORE candidate state is committed; failed checks cannot
+        # turn an unsupported read into an authorized Test action.
+        available = set(state.triage_requirements)
+        observed = {
+            p.evidence_id for p in state.provenance if p.origin == "observable"
+        } & {e.id for e in state.evidence}
+        for candidate in packet.candidates:
+            if not set(candidate.discriminating_requirement_ids) <= available:
+                raise ValueError("candidate uses an unknown requirement")
+            if not set(candidate.observation_evidence_ids) <= observed:
+                raise ValueError("candidate cites unqualified source evidence")
+        if eligible is not None and not set(packet.test_requirement_ids) <= eligible:
+            raise ValueError("test plan attempts unauthorized reads")
+        if packet.source_cutoff_tick is None and packet.candidates:
+            raise ValueError("candidate packet requires a fixed source horizon")
+    except ValueError:
+        # Fail closed: no provisional Test reads; Conclude may still report
+        # unresolved evidence. Never include provider text in this record.
+        packet = TriageHypothesisPacket(
+            source_cutoff_tick=state.triage_observation_cutoff_tick
+        )
+    state.triage_candidates = list(packet.candidates)
+    state.triage_test_requirement_ids = packet.test_requirement_ids
     if not record_trace:
         return
     trace = TriageHypothesisTrace(
+        source_cutoff_tick=packet.source_cutoff_tick,
         stage=stage,
         action=("compiled" if stage == "hypothesize" else "refreshed")
         if candidates

@@ -17,6 +17,7 @@ from capstone.agent.investigation import (
 )
 from capstone.agent.model_policy import render
 from capstone.agent.triage_hypothesize import (
+    TriageHypothesisPacket,
     compile_candidates,
     update_candidate_packet,
 )
@@ -50,6 +51,36 @@ def case(*, policy=None, event_logger=None):
         event_logger=event_logger,
     )
     return state, deps, provider
+
+
+def test_deterministic_hypothesize_is_default_for_guarded_triage():
+    cfg = Settings(_env_file=None)
+    assert cfg.triage_hypothesize == "deterministic"
+    assert cfg.triage_plan == "fixed"
+    assert cfg.triage_investigate == "deterministic"
+    legacy = Settings(_env_file=None, triage_hypothesize="model")
+    assert legacy.triage_hypothesize == "model"
+
+
+def test_hypothesis_packet_rejects_duplicate_candidates_and_unsafe_reads():
+    from pydantic import ValidationError
+
+    state, deps, _ = case()
+    investigate(state, deps)
+    hypothesize(state, deps)
+    candidates = tuple(state.triage_candidates)
+    assert candidates
+    with pytest.raises(ValidationError):
+        TriageHypothesisPacket(candidates=(candidates[0], candidates[0]))
+    with pytest.raises(ValidationError):
+        TriageHypothesisPacket(
+            candidates=candidates,
+            test_requirement_ids=("Q99:unobserved",),
+        )
+    with pytest.raises(ValidationError):
+        type(candidates[0]).model_validate(
+            {**candidates[0].model_dump(), "family": "untrusted_fault_label"}
+        )
 
 
 def test_candidate_compiler_is_unscored_and_repeatable():
