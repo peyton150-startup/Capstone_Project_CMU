@@ -788,6 +788,7 @@ def test_legacy_final_audit_phase_fallback_is_explicit(tmp_path):
         "phase": "deep",
     }
 
+
 def test_render_progress_contract_rejects_secret_fields_and_free_text():
     """Even a model-produced question ID may not enter the public stream."""
     from types import SimpleNamespace
@@ -876,6 +877,7 @@ def test_render_progress_terminal_reconcile_and_late_event_fencing(tmp_path):
                 "2026-11-17T12:00:00Z",
             ),
         )
+
     def stage(mode, step, calls):
         return SafeStageSnapshot(
             investigation_id=str(uuid4()),
