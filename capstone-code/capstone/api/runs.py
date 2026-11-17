@@ -93,6 +93,7 @@ class SafeStageSnapshot(BaseModel):
     evidence_count: int = Field(ge=0)
     hypothesis_count: int = Field(ge=0)
     unresolved_question_ids: list[str] = Field(max_length=25)
+    unresolved_question_count: int = Field(default=0, ge=0)
     termination_reason: str | None = Field(default=None, pattern=r"^[a-z][a-z_]{0,63}$")
     conclusion_available: bool
 
@@ -160,6 +161,9 @@ def safe_stage(state: Any) -> dict[str, Any]:
     packet = getattr(state, "triage_packet", None)
     packet_calls = () if packet is None else packet.calls
     packet_items = () if packet is None else packet.items
+    satisfied_requirements = sum(
+        results[rid].status == "satisfied" for rid in requirements if rid in results
+    )
     safe_requirements = [
         SafeRequirementProgress(
             requirement_id=rid,
@@ -167,7 +171,7 @@ def safe_stage(state: Any) -> dict[str, Any]:
             evidence_count=len(getattr(result, "evidence_ids", ())),
         )
         for rid, result in sorted(results.items())
-        if _SAFE_REQUIREMENT_ID.fullmatch(rid)
+        if rid in requirements and _SAFE_REQUIREMENT_ID.fullmatch(rid)
     ]
     ids = [
         q.id for q in getattr(state, "unanswered_questions", ())[:25]
@@ -182,6 +186,7 @@ def safe_stage(state: Any) -> dict[str, Any]:
         evidence_count=len(state.evidence),
         hypothesis_count=len(state.hypotheses),
         unresolved_question_ids=ids,
+        unresolved_question_count=len(getattr(state, "unanswered_questions", ())),
         termination_reason=reason,
         conclusion_available=state.conclusion is not None,
         answered_question_count=len(getattr(state, "answers", {})),
@@ -200,12 +205,8 @@ def safe_stage(state: Any) -> dict[str, Any]:
         observation_cutoff_tick=getattr(state, "triage_observation_cutoff_tick", None),
         clock_verified=getattr(state, "triage_clock_verified", None),
         triage_requirement_total=len(requirements),
-        triage_requirement_satisfied=sum(
-            result.status == "satisfied" for result in results.values()
-        ),
-        triage_requirement_open=sum(
-            result.status != "satisfied" for result in results.values()
-        ),
+        triage_requirement_satisfied=satisfied_requirements,
+        triage_requirement_open=len(requirements) - satisfied_requirements,
         triage_question_gaps=len(getattr(state, "triage_question_gaps", {})),
         triage_evidence_accepted=sum(c.accepted for c in checks),
         triage_evidence_rejected=sum(not c.accepted for c in checks),
