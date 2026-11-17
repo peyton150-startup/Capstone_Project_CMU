@@ -133,6 +133,7 @@ def test_the_report_counts_plans_and_report_outcomes(monkeypatch):
     case = Case("bearing-6", SEED, "bearing_degradation")
     (fixed,) = run_experiment([case], triage_then_deep, name="fixed", triage=True)
     monkeypatch.setenv("TRIAGE_PLAN", "model")
+    monkeypatch.setenv("TRIAGE_INVESTIGATE", "advisory")
     (unanswered,) = run_experiment(
         [case],
         lambda: ByMode(NoConclusion(wear_policy("intervene"), 1), wear_policy()),
