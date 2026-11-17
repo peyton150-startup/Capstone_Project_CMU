@@ -78,6 +78,7 @@ def create_app(config: UiConfig | None = None) -> FastAPI:
         redoc_url=None,
         openapi_url=None,
     )
+
     @app.on_event("shutdown")
     def shutdown_runner() -> None:
         if runner is not None:
