@@ -8,6 +8,8 @@ from __future__ import annotations
 
 import asyncio
 import hmac
+import json
+import logging
 import os
 import re
 import threading
@@ -61,13 +63,19 @@ def create_app(config: UiConfig | None = None) -> FastAPI:
     #   authorize: Bearer-token boundary for configured private data.
     cfg = config if config is not None else UiConfig.from_env()
     runner = None
-    if cfg.runs_enabled and cfg.run_db is not None:
-        if cfg.run_backend == "postgres":
-            from capstone.api.postgres_runs import PostgresSimulatorRuns
+    if cfg.runs_enabled:
+        if cfg.run_backend == "hosted":
+            from capstone.api.hosted_runs import HostedSimulatorRuns
 
             assert cfg.run_database_url is not None
+            runner = HostedSimulatorRuns(cfg.run_database_url)
+        elif cfg.run_backend == "postgres":
+            from capstone.api.postgres_runs import PostgresSimulatorRuns
+
+            assert cfg.run_database_url is not None and cfg.run_db is not None
             runner = PostgresSimulatorRuns(cfg.run_database_url, cfg.run_db.parent)
         else:
+            assert cfg.run_db is not None
             runner = SimulatorRuns(cfg.run_db)
     memory_instance = None  # Lazy server-owned service, never built on every poll.
     memory_lock = threading.Lock()
@@ -91,9 +99,9 @@ def create_app(config: UiConfig | None = None) -> FastAPI:
             "http://localhost:5173",
             "http://127.0.0.1:4173",
             "http://localhost:4173",
-        ],
-        allow_methods=["GET"],
-        allow_headers=["Authorization", "Content-Type"],
+        ] + ([cfg.browser_origin] if cfg.browser_origin else []),
+        allow_methods=["GET", "POST", "OPTIONS"],
+        allow_headers=["Authorization", "Content-Type", "Idempotency-Key", "Last-Event-ID"],
         allow_credentials=False,
     )
 
@@ -138,6 +146,19 @@ def create_app(config: UiConfig | None = None) -> FastAPI:
             "service": "industrial-console",
             "controller_connected": None,
         }
+
+    @app.get("/api/v1/ready")
+    def readiness() -> dict:
+        """Schema-aware HTTP readiness, not proof of worker availability."""
+        if cfg.runs_enabled and cfg.run_backend == "hosted":
+            try:
+                if runner is None or not runner.ready():
+                    raise RuntimeError("Hosted schema unavailable")
+            except Exception:
+                raise HTTPException(
+                    status_code=503, detail="Hosted database unavailable"
+                ) from None
+        return {"status": "ready", "service": "fastapi"}
 
     @app.get("/api/v1/capabilities", dependencies=[Access])
     def capabilities() -> dict:
@@ -351,7 +372,11 @@ def create_app(config: UiConfig | None = None) -> FastAPI:
         snap = recorder_snapshot(cfg.capture)
         return {
             "api": "available",
-            "simulation_worker": "enabled" if runner is not None else "not_integrated",
+            "simulation_worker": (
+                "separate_worker_unverified"
+                if cfg.run_backend == "hosted" and runner is not None
+                else ("enabled" if runner is not None else "not_integrated")
+            ),
             "progress_stream": "enabled" if runner is not None else "not_integrated",
             "recorder_connection": snap["recorder"]["connection_state"]
             if snap["recorder"]
@@ -555,7 +580,16 @@ def create_app(config: UiConfig | None = None) -> FastAPI:
             )
         assert runner is not None
         try:
-            return runner.submit(request, idempotency_key)
+            created = runner.submit(request, idempotency_key)
+            if cfg.run_backend == "hosted":
+                logging.getLogger("capstone.api").info(
+                    "%s", json.dumps(
+                        {"service": "fastapi", "event": "run_submitted",
+                         "run_id": created["run_id"]},
+                        separators=(",", ":"),
+                    )
+                )
+            return created
         except ValueError:
             raise HTTPException(
                 status_code=409, detail="Idempotency key belongs to another request"
@@ -583,14 +617,17 @@ def create_app(config: UiConfig | None = None) -> FastAPI:
             )
         run = ensure_run(run_id)
         assert runner is not None
-        path = runner.investigation_audit_path(run_id)
         target = (run["snapshot"].get("investigation") or {}).get("investigation_id")
         if not isinstance(target, str):
             return {"availability": "not_recorded", "detail": None}
+        if cfg.run_backend == "hosted":
+            detail = runner.investigation_detail(run_id, target)
+        else:
+            detail = safe_investigation_detail(
+                runner.investigation_audit_path(run_id), target
+            )
         return {
-            "availability": "available"
-            if (detail := safe_investigation_detail(path, target))
-            else "not_recorded",
+            "availability": "available" if detail is not None else "not_recorded",
             "detail": detail,
         }
 
@@ -603,6 +640,13 @@ def create_app(config: UiConfig | None = None) -> FastAPI:
             raise HTTPException(status_code=403, detail="Pilot diagnostics unavailable")
         ensure_run(run_id)
         assert runner is not None
+        if cfg.run_backend == "hosted":
+            items = runner.observability_items(run_id)
+            return {
+                "availability": "available" if items is not None else "not_recorded",
+                "window_scope": "bounded_recent_tail",
+                "items": items or [],
+            }
         path = runner.investigation_event_path(run_id)
         if not path.is_file():
             return {"availability": "not_recorded", "items": []}
@@ -697,9 +741,10 @@ def create_app(config: UiConfig | None = None) -> FastAPI:
                 current = await asyncio.to_thread(runner.get, run_id)
                 if (
                     current
-                    and current["state"] in {"completed", "failed", "interrupted"}
+                    and current["state"] in {"completed", "failed", "interrupted", "expired"}
                     and not events
                 ):
+                    yield 'event: stream.closed\ndata: {"reason":"terminal_replay_complete"}\n\n'
                     break
                 await asyncio.sleep(1)
 
