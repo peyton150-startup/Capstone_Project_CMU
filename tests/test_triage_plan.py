@@ -173,6 +173,8 @@ class CountsPlans:
 
 def test_a_fixed_plan_triage_asks_no_plan_question(monkeypatch):
     monkeypatch.setenv("TRIAGE_PLAN", "fixed")
+    # This older test inspects the model's first Decide view, not the new default.
+    monkeypatch.setenv("TRIAGE_INVESTIGATE", "advisory")
     triage, deep = CountsPlans(wear_policy("intervene")), CountsPlans(wear_policy())
     result = run(ByMode(triage, deep), monkeypatch, triage=True)
     assert triage.planned == 0  # the table answered for the triage
