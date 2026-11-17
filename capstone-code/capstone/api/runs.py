@@ -178,6 +178,13 @@ class SimulatorRuns:
     def _lock_submission(self, db: Any) -> None:
         """Remote stores may enforce cross-process admission before insertion."""
 
+    def _store_has_active_run(self, db: Any) -> bool:
+        """Local admission is guarded by the process lock and restart recovery."""
+        return False
+
+    def _persist_artifacts(self, run_id: str) -> None:
+        """SQLite keeps the original private JSONL files locally."""
+
     def close(self) -> None:
         """Local SQLite connections are closed after each transaction."""
 
@@ -215,6 +222,7 @@ class SimulatorRuns:
         serialized = request.model_dump_json()
         with self.lock:
             with self._db() as db:
+                self._lock_submission(db)
                 existing = db.execute(
                     "SELECT run_id, requested FROM runs WHERE request_key=?",
                     (request_key,),
@@ -225,8 +233,7 @@ class SimulatorRuns:
                             "idempotency key reused for different settings"
                         )
                     return self.get(existing[0])
-                self._lock_submission(db)
-                if self.active:
+                if self.active or self._store_has_active_run(db):
                     raise RuntimeError("one simulator run is already active")
                 id_ = str(uuid.uuid4())
                 initial = {"stage": None, "mode": request.mode, "status": "queued"}
@@ -380,13 +387,13 @@ class SimulatorRuns:
             target=publish, name="run-events-" + run_id[:8], daemon=True
         )
         writer.start()
-        self._emit(
-            run_id,
-            "run.started",
-            {"status": "running", "mode": request.mode},
-            state="running",
-        )
         try:
+            self._emit(
+                run_id,
+                "run.started",
+                {"status": "running", "mode": request.mode},
+                state="running",
+            )
             from capstone.agent.completion import AuditLog
             from capstone.episode import run_episode
             from capstone.experiment import model_policy_factory, open_manual
@@ -439,6 +446,9 @@ class SimulatorRuns:
                 if triage is None or triage.triage_report is None
                 else (triage.triage_report.model_dump(mode="json"))
             )
+            # A completed run must have a durable audit before it can report
+            # success on a hosted backend; SQLite's artifact hook is a no-op.
+            self._persist_artifacts(run_id)
             final = {
                 "status": "completed",
                 "mode": request.mode,
@@ -461,16 +471,20 @@ class SimulatorRuns:
             self._emit(run_id, "run.completed", final, state="completed")
         except Exception as error:
             # Never persist exception messages: providers may include private details.
-            self._emit(
-                run_id,
-                "run.failed",
-                {
-                    "status": "failed",
-                    "error_class": type(error).__name__,
-                    "mode": request.mode,
-                },
-                state="failed",
-            )
+            try:
+                self._emit(
+                    run_id,
+                    "run.failed",
+                    {
+                        "status": "failed",
+                        "error_class": type(error).__name__,
+                        "mode": request.mode,
+                    },
+                    state="failed",
+                )
+            except Exception:
+                # An interrupted run is marked by the next exclusive owner.
+                pass
         finally:
             try:
                 progress.put(None, timeout=2)
