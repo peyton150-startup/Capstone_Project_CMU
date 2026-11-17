@@ -75,9 +75,11 @@ class PostgresSimulatorRuns(SimulatorRuns):
                 pool_recycle=300,
                 connect_args={"connect_timeout": 10, "sslmode": "require"},
             )
-        except (ImportError, ValueError, Exception) as error:
-            if isinstance(error, ValueError) and "requires" in str(error):
+        except ValueError as error:
+            if str(error).startswith(("Simulator PostgreSQL requires",)):
                 raise
+            raise RuntimeError("PostgreSQL journal URL is invalid") from None
+        except Exception:
             raise RuntimeError(
                 "PostgreSQL journal configuration invalid or database extra missing"
             ) from None
@@ -194,6 +196,8 @@ class PostgresSimulatorRuns(SimulatorRuns):
             ("observability", super().investigation_event_path(run_id)),
         ):
             try:
+                if path.is_symlink():
+                    raise RuntimeError("Symlinked simulator artifacts are prohibited")
                 with path.open("rb") as stream:
                     data = stream.read(_MAX_ARTIFACT_BYTES + 1)
             except OSError:
@@ -214,6 +218,8 @@ class PostgresSimulatorRuns(SimulatorRuns):
                 )
 
     def _restore_artifact(self, run_id: str, kind: str, path: Path) -> None:
+        if path.is_symlink():
+            raise RuntimeError("Symlinked simulator artifacts are prohibited")
         if path.is_file():
             return
         with self._db() as db:
@@ -231,6 +237,7 @@ class PostgresSimulatorRuns(SimulatorRuns):
         ):
             raise RuntimeError("Saved simulator artifact failed integrity check")
         path.parent.mkdir(mode=0o700, parents=True, exist_ok=True)
+        os.chmod(path.parent, 0o700)
         name = None
         try:
             with tempfile.NamedTemporaryFile(dir=path.parent, delete=False) as tmp:
