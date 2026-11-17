@@ -562,3 +562,61 @@ def test_worker_liveness_refuses_stale_render_revision(repository, monkeypatch):
     assert repository.queue_metrics()["worker_liveness"] == "revision_mismatch"
     monkeypatch.setenv("RENDER_GIT_COMMIT", "a" * 40)
     assert repository.queue_metrics()["worker_liveness"] == "healthy"
+
+
+def test_model_metadata_is_never_emitted_in_general_sse_journal(repository):
+    """#304: model attempts remain in the authorized, revalidated endpoint."""
+    from capstone.api.model_calls import SafeModelCall
+
+    submitted = repository.submit(
+        RunRequest(seed=304, mode="triage"),
+        "pr304-private-model-journal-01",
+        actor_id="hosted-simulator",
+        effective_config=RunExecutionConfig(),
+    )
+    claim = repository.claim("worker-pr304")
+    assert claim is not None
+    repository.publish_model_event(
+        claim, "worker-pr304", "model.monitor", {"schema_version": 1}
+    )
+    safe = SafeModelCall(
+        question_index=1,
+        job="conclude",
+        outcome="no_answer",
+        attempts=(),
+    ).model_dump(mode="json")
+    repository.publish_model_event(
+        claim, "worker-pr304", "model.call", safe
+    )
+    # Never allow raw provider bodies or secret-bearing arbitrary attributes.
+    with pytest.raises(ValueError):
+        repository.publish_model_event(
+            claim, "worker-pr304", "model.call",
+            {**safe, "provider_response": "NEVER_LEAK"},
+        )
+    visible = repository.events_since(
+        submitted["run_id"], 0, actor_id="hosted-simulator"
+    )
+    assert [(item["seq"], item["event"]) for item in visible] == [
+        (1, "run.queued"), (2, "run.started"),
+    ]
+    private = repository.model_events(
+        submitted["run_id"], "model.call", actor_id="hosted-simulator"
+    )
+    assert len(private) == 1
+    assert private[0]["data"]["job"] == "conclude"
+    assert repository.model_events(
+        submitted["run_id"], "model.call", actor_id="other-actor"
+    ) == []
+    assert repository.events_since(
+        submitted["run_id"], 0, actor_id="other-actor"
+    ) == []
+    repository.transition(
+        claim, "worker-pr304", "completed", "run.completed",
+        {"status": "completed", "mode": "triage"},
+    )
+    tail = repository.events_since(
+        submitted["run_id"], 2, actor_id="hosted-simulator"
+    )
+    assert [item["event"] for item in tail] == ["run.completed"]
+    assert all(not item["event"].startswith("model.") for item in tail)
