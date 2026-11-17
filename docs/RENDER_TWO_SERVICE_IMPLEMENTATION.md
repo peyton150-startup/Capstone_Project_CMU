@@ -4,7 +4,7 @@
 
 ## Decision and explicit boundaries
 
-- Deploy two independent **compute** processes: Render **Web Service** `capstone-fastapi` and portless Render **Background Worker** `capstone-agent-worker`. Shared PostgreSQL is a managed storage dependency, not another web/worker process.
+- Deploy two independent **compute** processes: existing Render **Web Service** `Capstone_Project_CMU` and portless Render **Background Worker** `capstone-agent-worker`. Shared PostgreSQL is a managed storage dependency, not another web/worker process.
 - The API validates authorization, idempotency, simulator-vs-pilot scope, reads authorized safe results and SSE events, and persists submissions. It **never** calls an LLM, builds a simulator, owns a run thread or waits in process for a human approval.
 - The worker polls the R1 `RunRepository`, claims exactly one queued job with `FOR UPDATE SKIP LOCKED`, renews a fenced lease while model calls block, invokes the **existing Pydantic Graph** through `run_episode`, waits for durable human review, stores private completed audit/operational JSONL in PostgreSQL and transitions to terminal exactly once. A claim that loses its lease is **not retried**.
 - Local SQLite/in-process modes remain operational for local development; opt-in `CAPSTONE_UI_RUN_BACKEND=hosted` selects this split. Only synthetic simulator episodes are accepted. No Siemens CNC connection, write/acknowledge, or production telemetry collection is provided.
@@ -48,6 +48,7 @@
 | `run_submitted` | FastAPI | Render stdout JSON; run UUID, no request payload |
 | `claimed`, `ready`, `finished`, `failed` | Worker | Render stdout JSON; run/job UUID, queue wait / attempt / duration when known |
 | `lease_lost`, `poll_failed`, `recovered` | Worker | Render stdout JSON; loss/recovery counts without exception messages |
+| Queue depth, active/stale claims, backlog age and last heartbeat age | API repository/system | Authenticated aggregate counts, no lease owner/token; idle worker explicitly **unverified** |
 | `review_requested`, `review_decided` | Worker + repository | Operational stdout and durable ordered journal; actual verdict is distinct from simulator execution |
 | `stage.updated`, `resync.required` | Graph watcher + repository | Durable source-filtered event sequence, strict field-level typed snapshot |
 | Private audit + operational JSONL | Worker | Hash-verified restricted `BYTEA`; bounded and never raw-returned |
@@ -66,7 +67,7 @@ Logs/metrics must not carry `DATABASE_URL`, API tokens, prompts, model completio
 
 ## Safe configuration and staged Render rollout
 
-The submitted `deploy/render-two-services.yaml` is intentionally **not** at the special `render.yaml` path. Both services set `autoDeployTrigger: 'off'`. It does not create/modify any Render service. Reviewed Render [Blueprint reference](https://render.com/docs/blueprint-spec) and [background worker instructions](https://render.com/docs/background-workers).
+The submitted `deploy/render-two-services.yaml` is intentionally **not** at the special `render.yaml` path. Both services set `autoDeployTrigger: 'off'`. It does not create/modify any Render service. A read-only Render workspace check confirmed existing `Capstone_Project_CMU` (web, `main`, Virginia) and **no capstone background worker**; the Blueprint adopts the existing web service name rather than provisioning a redundant web service. Reviewed Render [Blueprint reference](https://render.com/docs/blueprint-spec) and [background worker instructions](https://render.com/docs/background-workers).
 
 **Release order:** merge #292 once green; reconcile #293/#294/#295/#296/#297 into a tested staging integration branch; rebase #298 and resolve both sets of same-file edits; perform one controlled `uv run --no-sync alembic upgrade head` on authorized staging PostgreSQL; provision matching private `CAPSTONE_UI_RUN_DATABASE_URL` values; set distinct 24+ character viewer/operator/reviewer credentials only on web; provider keys only on worker; deploy worker and web from the **same immutable SHA** to the same region; verify `/api/v1/ready` and the complete end-to-end acceptance. Keep pilot/physical machine integrations disabled.
 
