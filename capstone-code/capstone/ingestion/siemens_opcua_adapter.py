@@ -879,7 +879,8 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--out", type=Path, required=True)
     parser.add_argument("--audit", type=Path, default=None)
     parser.add_argument(
-        "--durable", action="store_true",
+        "--durable",
+        action="store_true",
         help="fsync each captured change/marker before returning from the sink",
     )
     args = parser.parse_args(argv)
